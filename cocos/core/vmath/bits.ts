@@ -40,7 +40,7 @@ export function sign(v) {
  * @return
  */
 export function abs(v) {
-    let mask = v >> (INT_BITS - 1);
+    const mask = v >> (INT_BITS - 1);
     return (v ^ mask) - mask;
 }
 
@@ -124,12 +124,12 @@ export function popCount(v) {
 export function countTrailingZeros(v) {
     let c = 32;
     v &= -v;
-    if (v) c--;
-    if (v & 0x0000FFFF) c -= 16;
-    if (v & 0x00FF00FF) c -= 8;
-    if (v & 0x0F0F0F0F) c -= 4;
-    if (v & 0x33333333) c -= 2;
-    if (v & 0x55555555) c -= 1;
+    if (v) { c--; }
+    if (v & 0x0000FFFF) { c -= 16; }
+    if (v & 0x00FF00FF) { c -= 8; }
+    if (v & 0x0F0F0F0F) { c -= 4; }
+    if (v & 0x33333333) { c -= 2; }
+    if (v & 0x55555555) { c -= 1; }
     return c;
 }
 
@@ -184,7 +184,7 @@ export function parity(v) {
  */
 const REVERSE_TABLE = new Array(256);
 
-(function (tab) {
+(function(tab) {
     for (let i = 0; i < 256; ++i) {
         let v = i, r = i, s = 7;
         for (v >>>= 1; v; v >>>= 1) {
@@ -302,6 +302,6 @@ export function deinterleave3(v, n) {
  * @return
  */
 export function nextCombination(v) {
-    let t = v | (v - 1);
+    const t = v | (v - 1);
     return (t + 1) | (((~t & -~t) - 1) >>> (countTrailingZeros(v) + 1));
 }

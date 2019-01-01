@@ -268,14 +268,13 @@ class mat4 {
         return out;
     }
 
-
     /**
      * Sets a matrix as identity matrix.
      *
      * @param out - Matrix to modified.
      * @return out.
      */
-    static identity(out) {
+    public static identity(out) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -302,7 +301,7 @@ class mat4 {
      * @param a - Matrix to transpose.
      * @return out.
      */
-    static transpose(out, a) {
+    public static transpose(out, a) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
             let a01 = a.m01, a02 = a.m02, a03 = a.m03,
@@ -350,24 +349,24 @@ class mat4 {
      * @param a - Matrix to invert.
      * @return out.
      */
-    static invert(out, a) {
-        let a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
+    public static invert(out, a) {
+        const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
             a30 = a.m12, a31 = a.m13, a32 = a.m14, a33 = a.m15;
 
-        let b00 = a00 * a11 - a01 * a10;
-        let b01 = a00 * a12 - a02 * a10;
-        let b02 = a00 * a13 - a03 * a10;
-        let b03 = a01 * a12 - a02 * a11;
-        let b04 = a01 * a13 - a03 * a11;
-        let b05 = a02 * a13 - a03 * a12;
-        let b06 = a20 * a31 - a21 * a30;
-        let b07 = a20 * a32 - a22 * a30;
-        let b08 = a20 * a33 - a23 * a30;
-        let b09 = a21 * a32 - a22 * a31;
-        let b10 = a21 * a33 - a23 * a31;
-        let b11 = a22 * a33 - a23 * a32;
+        const b00 = a00 * a11 - a01 * a10;
+        const b01 = a00 * a12 - a02 * a10;
+        const b02 = a00 * a13 - a03 * a10;
+        const b03 = a01 * a12 - a02 * a11;
+        const b04 = a01 * a13 - a03 * a11;
+        const b05 = a02 * a13 - a03 * a12;
+        const b06 = a20 * a31 - a21 * a30;
+        const b07 = a20 * a32 - a22 * a30;
+        const b08 = a20 * a33 - a23 * a30;
+        const b09 = a21 * a32 - a22 * a31;
+        const b10 = a21 * a33 - a23 * a31;
+        const b11 = a22 * a33 - a23 * a32;
 
         // Calculate the determinant
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
@@ -404,8 +403,8 @@ class mat4 {
      * @param a - Matrix to calculate.
      * @return out.
      */
-    static adjoint(out, a) {
-        let a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
+    public static adjoint(out, a) {
+        const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
             a30 = a.m12, a31 = a.m13, a32 = a.m14, a33 = a.m15;
@@ -435,24 +434,24 @@ class mat4 {
      * @param a - Matrix to calculate.
      * @return Determinant of a.
      */
-    static determinant(a) {
-        let a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
+    public static determinant(a) {
+        const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
             a30 = a.m12, a31 = a.m13, a32 = a.m14, a33 = a.m15;
 
-        let b00 = a00 * a11 - a01 * a10;
-        let b01 = a00 * a12 - a02 * a10;
-        let b02 = a00 * a13 - a03 * a10;
-        let b03 = a01 * a12 - a02 * a11;
-        let b04 = a01 * a13 - a03 * a11;
-        let b05 = a02 * a13 - a03 * a12;
-        let b06 = a20 * a31 - a21 * a30;
-        let b07 = a20 * a32 - a22 * a30;
-        let b08 = a20 * a33 - a23 * a30;
-        let b09 = a21 * a32 - a22 * a31;
-        let b10 = a21 * a33 - a23 * a31;
-        let b11 = a22 * a33 - a23 * a32;
+        const b00 = a00 * a11 - a01 * a10;
+        const b01 = a00 * a12 - a02 * a10;
+        const b02 = a00 * a13 - a03 * a10;
+        const b03 = a01 * a12 - a02 * a11;
+        const b04 = a01 * a13 - a03 * a11;
+        const b05 = a02 * a13 - a03 * a12;
+        const b06 = a20 * a31 - a21 * a30;
+        const b07 = a20 * a32 - a22 * a30;
+        const b08 = a20 * a33 - a23 * a30;
+        const b09 = a21 * a32 - a22 * a31;
+        const b10 = a21 * a33 - a23 * a31;
+        const b11 = a22 * a33 - a23 * a32;
 
         // Calculate the determinant
         return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
@@ -466,8 +465,8 @@ class mat4 {
      * @param b - The second operand.
      * @return out.
      */
-    static multiply(out, a, b) {
-        let a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
+    public static multiply(out, a, b) {
+        const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
             a30 = a.m12, a31 = a.m13, a32 = a.m14, a33 = a.m15;
@@ -502,7 +501,7 @@ class mat4 {
     /**
      * Alias of {@link mat4.multiply}.
      */
-    static mul(out, a, b) {
+    public static mul(out, a, b) {
         return mat4.multiply(out, a, b);
     }
 
@@ -514,7 +513,7 @@ class mat4 {
      * @param v - The translation offset.
      * @return out.
      */
-    static translate(out, a, v) {
+    public static translate(out, a, v) {
         let x = v.x, y = v.y, z = v.z,
             a00, a01, a02, a03,
             a10, a11, a12, a13,
@@ -551,8 +550,8 @@ class mat4 {
      * @param v - The scale vector.
      * @return out
      **/
-    static scale(out, a, v) {
-        let x = v.x, y = v.y, z = v.z;
+    public static scale(out, a, v) {
+        const x = v.x, y = v.y, z = v.z;
 
         out.m00 = a.m00 * x;
         out.m01 = a.m01 * x;
@@ -582,7 +581,7 @@ class mat4 {
      * @param axis - The rotation axis.
      * @return out.
      */
-    static rotate(out, a, rad, axis) {
+    public static rotate(out, a, rad, axis) {
         let x = axis.x, y = axis.y, z = axis.z;
         let s, c, t,
             a00, a01, a02, a03,
@@ -649,8 +648,8 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    static rotateX(out, a, rad) {
-        let s = Math.sin(rad),
+    public static rotateX(out, a, rad) {
+        const s = Math.sin(rad),
             c = Math.cos(rad),
             a10 = a.m04,
             a11 = a.m05,
@@ -693,8 +692,8 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    static rotateY(out, a, rad) {
-        let s = Math.sin(rad),
+    public static rotateY(out, a, rad) {
+        const s = Math.sin(rad),
             c = Math.cos(rad),
             a00 = a.m00,
             a01 = a.m01,
@@ -737,8 +736,8 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    static rotateZ(out, a, rad) {
-        let s = Math.sin(rad),
+    public static rotateZ(out, a, rad) {
+        const s = Math.sin(rad),
             c = Math.cos(rad),
             a00 = a.m00,
             a01 = a.m01,
@@ -785,7 +784,7 @@ class mat4 {
      * @param v - The translation offset.
      * @return out.
      */
-    static fromTranslation(out, v) {
+    public static fromTranslation(out, v) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -816,7 +815,7 @@ class mat4 {
      * @param v - The scale vector.
      * @return out.
      */
-    static fromScaling(out, v) {
+    public static fromScaling(out, v) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -848,7 +847,7 @@ class mat4 {
      * @param axis - The rotation axis.
      * @return out.
      */
-    static fromRotation(out, rad, axis) {
+    public static fromRotation(out, rad, axis) {
         let x = axis.x, y = axis.y, z = axis.z;
         let len = Math.sqrt(x * x + y * y + z * z);
         let s, c, t;
@@ -897,8 +896,8 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    static fromXRotation(out, rad) {
-        let s = Math.sin(rad),
+    public static fromXRotation(out, rad) {
+        const s = Math.sin(rad),
             c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
@@ -932,8 +931,8 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    static fromYRotation(out, rad) {
-        let s = Math.sin(rad),
+    public static fromYRotation(out, rad) {
+        const s = Math.sin(rad),
             c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
@@ -967,8 +966,8 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    static fromZRotation(out, rad) {
-        let s = Math.sin(rad),
+    public static fromZRotation(out, rad) {
+        const s = Math.sin(rad),
             c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
@@ -1006,22 +1005,22 @@ class mat4 {
      * @param v - Translation vector.
      * @return out.
      */
-    static fromRT(out, q, v) {
+    public static fromRT(out, q, v) {
         // Quaternion math
-        let x = q.x, y = q.y, z = q.z, w = q.w;
-        let x2 = x + x;
-        let y2 = y + y;
-        let z2 = z + z;
+        const x = q.x, y = q.y, z = q.z, w = q.w;
+        const x2 = x + x;
+        const y2 = y + y;
+        const z2 = z + z;
 
-        let xx = x * x2;
-        let xy = x * y2;
-        let xz = x * z2;
-        let yy = y * y2;
-        let yz = y * z2;
-        let zz = z * z2;
-        let wx = w * x2;
-        let wy = w * y2;
-        let wz = w * z2;
+        const xx = x * x2;
+        const xy = x * y2;
+        const xz = x * z2;
+        const yy = y * y2;
+        const yz = y * z2;
+        const zz = z * z2;
+        const wx = w * x2;
+        const wy = w * y2;
+        const wz = w * z2;
 
         out.m00 = 1 - (yy + zz);
         out.m01 = xy + wz;
@@ -1052,7 +1051,7 @@ class mat4 {
      * @param  {mat4} mat - Matrix to be decomposed.
      * @return out.
      */
-    static getTranslation(out, mat) {
+    public static getTranslation(out, mat) {
         out.x = mat.m12;
         out.y = mat.m13;
         out.z = mat.m14;
@@ -1070,8 +1069,8 @@ class mat4 {
      * @param  {mat4} mat - Matrix to be decomposed.
      * @return out.
      */
-    static getScaling(out, mat) {
-        let m11 = mat.m00,
+    public static getScaling(out, mat) {
+        const m11 = mat.m00,
             m12 = mat.m01,
             m13 = mat.m02,
             m21 = mat.m04,
@@ -1097,9 +1096,9 @@ class mat4 {
      * @param mat - Matrix to be decomposed.
      * @return out.
      */
-    static getRotation(out, mat) {
+    public static getRotation(out, mat) {
         // Algorithm taken from http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-        let trace = mat.m00 + mat.m05 + mat.m10;
+        const trace = mat.m00 + mat.m05 + mat.m10;
         let S = 0;
 
         if (trace > 0) {
@@ -1148,25 +1147,25 @@ class mat4 {
      * @param s - Scale vector.
      * @return out.
      */
-    static fromRTS(out, q, v, s) {
+    public static fromRTS(out, q, v, s) {
         // Quaternion math
-        let x = q.x, y = q.y, z = q.z, w = q.w;
-        let x2 = x + x;
-        let y2 = y + y;
-        let z2 = z + z;
+        const x = q.x, y = q.y, z = q.z, w = q.w;
+        const x2 = x + x;
+        const y2 = y + y;
+        const z2 = z + z;
 
-        let xx = x * x2;
-        let xy = x * y2;
-        let xz = x * z2;
-        let yy = y * y2;
-        let yz = y * z2;
-        let zz = z * z2;
-        let wx = w * x2;
-        let wy = w * y2;
-        let wz = w * z2;
-        let sx = s.x;
-        let sy = s.y;
-        let sz = s.z;
+        const xx = x * x2;
+        const xy = x * y2;
+        const xz = x * z2;
+        const yy = y * y2;
+        const yz = y * z2;
+        const zz = z * z2;
+        const wx = w * x2;
+        const wy = w * y2;
+        const wz = w * z2;
+        const sx = s.x;
+        const sy = s.y;
+        const sz = s.z;
 
         out.m00 = (1 - (yy + zz)) * sx;
         out.m01 = (xy + wz) * sx;
@@ -1208,30 +1207,30 @@ class mat4 {
      * @param o The origin vector around which to scale and rotate.
      * @return out.
      */
-    static fromRTSOrigin(out, q, v, s, o) {
+    public static fromRTSOrigin(out, q, v, s, o) {
         // Quaternion math
-        let x = q.x, y = q.y, z = q.z, w = q.w;
-        let x2 = x + x;
-        let y2 = y + y;
-        let z2 = z + z;
+        const x = q.x, y = q.y, z = q.z, w = q.w;
+        const x2 = x + x;
+        const y2 = y + y;
+        const z2 = z + z;
 
-        let xx = x * x2;
-        let xy = x * y2;
-        let xz = x * z2;
-        let yy = y * y2;
-        let yz = y * z2;
-        let zz = z * z2;
-        let wx = w * x2;
-        let wy = w * y2;
-        let wz = w * z2;
+        const xx = x * x2;
+        const xy = x * y2;
+        const xz = x * z2;
+        const yy = y * y2;
+        const yz = y * z2;
+        const zz = z * z2;
+        const wx = w * x2;
+        const wy = w * y2;
+        const wz = w * z2;
 
-        let sx = s.x;
-        let sy = s.y;
-        let sz = s.z;
+        const sx = s.x;
+        const sy = s.y;
+        const sz = s.z;
 
-        let ox = o.x;
-        let oy = o.y;
-        let oz = o.z;
+        const ox = o.x;
+        const oy = o.y;
+        const oz = o.z;
 
         out.m00 = (1 - (yy + zz)) * sx;
         out.m01 = (xy + wz) * sx;
@@ -1261,21 +1260,21 @@ class mat4 {
      *
      * @return out.
      */
-    static fromQuat(out, q) {
-        let x = q.x, y = q.y, z = q.z, w = q.w;
-        let x2 = x + x;
-        let y2 = y + y;
-        let z2 = z + z;
+    public static fromQuat(out, q) {
+        const x = q.x, y = q.y, z = q.z, w = q.w;
+        const x2 = x + x;
+        const y2 = y + y;
+        const z2 = z + z;
 
-        let xx = x * x2;
-        let yx = y * x2;
-        let yy = y * y2;
-        let zx = z * x2;
-        let zy = z * y2;
-        let zz = z * z2;
-        let wx = w * x2;
-        let wy = w * y2;
-        let wz = w * z2;
+        const xx = x * x2;
+        const yx = y * x2;
+        const yy = y * y2;
+        const zx = z * x2;
+        const zy = z * y2;
+        const zz = z * z2;
+        const wx = w * x2;
+        const wy = w * y2;
+        const wz = w * z2;
 
         out.m00 = 1 - yy - zz;
         out.m01 = yx + wz;
@@ -1312,10 +1311,10 @@ class mat4 {
      * @param far - Far bound of the frustum.
      * @return out.
      */
-    static frustum(out, left, right, bottom, top, near, far) {
-        let rl = 1 / (right - left);
-        let tb = 1 / (top - bottom);
-        let nf = 1 / (near - far);
+    public static frustum(out, left, right, bottom, top, near, far) {
+        const rl = 1 / (right - left);
+        const tb = 1 / (top - bottom);
+        const nf = 1 / (near - far);
 
         out.m00 = (near * 2) * rl;
         out.m01 = 0;
@@ -1346,9 +1345,9 @@ class mat4 {
      * @param far - Far bound of the frustum.
      * @return out.
      */
-    static perspective(out, fovy, aspect, near, far) {
-        let f = 1.0 / Math.tan(fovy / 2);
-        let nf = 1 / (near - far);
+    public static perspective(out, fovy, aspect, near, far) {
+        const f = 1.0 / Math.tan(fovy / 2);
+        const nf = 1 / (near - far);
 
         out.m00 = f / aspect;
         out.m01 = 0;
@@ -1380,13 +1379,13 @@ class mat4 {
      * @param far - Far bound of the frustum.
      * @return out.
      */
-    static perspectiveFromFieldOfView(out, fov, near, far) {
-        let upTan = Math.tan(fov.upDegrees * Math.PI / 180.0);
-        let downTan = Math.tan(fov.downDegrees * Math.PI / 180.0);
-        let leftTan = Math.tan(fov.leftDegrees * Math.PI / 180.0);
-        let rightTan = Math.tan(fov.rightDegrees * Math.PI / 180.0);
-        let xScale = 2.0 / (leftTan + rightTan);
-        let yScale = 2.0 / (upTan + downTan);
+    public static perspectiveFromFieldOfView(out, fov, near, far) {
+        const upTan = Math.tan(fov.upDegrees * Math.PI / 180.0);
+        const downTan = Math.tan(fov.downDegrees * Math.PI / 180.0);
+        const leftTan = Math.tan(fov.leftDegrees * Math.PI / 180.0);
+        const rightTan = Math.tan(fov.rightDegrees * Math.PI / 180.0);
+        const xScale = 2.0 / (leftTan + rightTan);
+        const yScale = 2.0 / (upTan + downTan);
 
         out.m00 = xScale;
         out.m01 = 0.0;
@@ -1419,10 +1418,10 @@ class mat4 {
      * @param far - Far bound of the frustum.
      * @return out.
      */
-    static ortho(out, left, right, bottom, top, near, far) {
-        let lr = 1 / (left - right);
-        let bt = 1 / (bottom - top);
-        let nf = 1 / (near - far);
+    public static ortho(out, left, right, bottom, top, near, far) {
+        const lr = 1 / (left - right);
+        const bt = 1 / (bottom - top);
+        const nf = 1 / (near - far);
         out.m00 = -2 * lr;
         out.m01 = 0;
         out.m02 = 0;
@@ -1452,17 +1451,17 @@ class mat4 {
      * @param up - Vector pointing up.
      * @return out
      */
-    static lookAt(out, eye, center, up) {
+    public static lookAt(out, eye, center, up) {
         let x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
-        let eyex = eye.x;
-        let eyey = eye.y;
-        let eyez = eye.z;
-        let upx = up.x;
-        let upy = up.y;
-        let upz = up.z;
-        let centerx = center.x;
-        let centery = center.y;
-        let centerz = center.z;
+        const eyex = eye.x;
+        const eyey = eye.y;
+        const eyez = eye.z;
+        const upx = up.x;
+        const upy = up.y;
+        const upz = up.z;
+        const centerx = center.x;
+        const centery = center.y;
+        const centerz = center.z;
 
         z0 = eyex - centerx;
         z1 = eyey - centery;
@@ -1511,7 +1510,7 @@ class mat4 {
      * @param a - The matrix.
      * @return String representation of this matrix.
      */
-    static str(a) {
+    public static str(a) {
         return `mat4(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ${a.m08}, ${a.m09}, ${a.m10}, ${a.m11}, ${a.m12}, ${a.m13}, ${a.m14}, ${a.m15})`;
     }
 
@@ -1522,7 +1521,7 @@ class mat4 {
      * @param m - The matrix.
      * @return out.
      */
-    static array(out, m) {
+    public static array(out, m) {
         out[0] = m.m00;
         out[1] = m.m01;
         out[2] = m.m02;
@@ -1549,8 +1548,8 @@ class mat4 {
      * @param a - Matrix to calculate Frobenius norm of.
      * @return - The frobenius norm.
      */
-    static frob(a) {
-        return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + Math.pow(a.m06, 2) + Math.pow(a.m07, 2) + Math.pow(a.m08, 2) + Math.pow(a.m09, 2) + Math.pow(a.m10, 2) + Math.pow(a.m11, 2) + Math.pow(a.m12, 2) + Math.pow(a.m13, 2) + Math.pow(a.m14, 2) + Math.pow(a.m15, 2)))
+    public static frob(a) {
+        return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + Math.pow(a.m06, 2) + Math.pow(a.m07, 2) + Math.pow(a.m08, 2) + Math.pow(a.m09, 2) + Math.pow(a.m10, 2) + Math.pow(a.m11, 2) + Math.pow(a.m12, 2) + Math.pow(a.m13, 2) + Math.pow(a.m14, 2) + Math.pow(a.m15, 2)));
     }
 
     /**
@@ -1561,7 +1560,7 @@ class mat4 {
      * @param b - The second operand.
      * @return out.
      */
-    static add(out, a, b) {
+    public static add(out, a, b) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -1589,7 +1588,7 @@ class mat4 {
      * @param b - The second operand.
      * @return out.
      */
-    static subtract(out, a, b) {
+    public static subtract(out, a, b) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -1612,7 +1611,7 @@ class mat4 {
     /**
      * Alias of {@link mat4.subtract}.
      */
-    static sub(out, a, b) {
+    public static sub(out, a, b) {
         return mat4.subtract(out, a, b);
     }
 
@@ -1624,7 +1623,7 @@ class mat4 {
      * @param b - The scale number.
      * @return out.
      */
-    static multiplyScalar(out, a, b) {
+    public static multiplyScalar(out, a, b) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -1653,7 +1652,7 @@ class mat4 {
      * @param scale - The scale number.
      * @return out.
      */
-    static multiplyScalarAndAdd(out, a, b, scale) {
+    public static multiplyScalarAndAdd(out, a, b, scale) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);
@@ -1680,7 +1679,7 @@ class mat4 {
      * @param b - The second matrix.
      * @return True if the matrices are equal, false otherwise.
      */
-    static exactEquals(a, b) {
+    public static exactEquals(a, b) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03 &&
             a.m04 === b.m04 && a.m05 === b.m05 && a.m06 === b.m06 && a.m07 === b.m07 &&
             a.m08 === b.m08 && a.m09 === b.m09 && a.m10 === b.m10 && a.m11 === b.m11 &&
@@ -1694,13 +1693,13 @@ class mat4 {
      * @param b - The second matrix.
      * @return True if the matrices are equal, false otherwise.
      */
-    static equals(a, b) {
-        let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03,
+    public static equals(a, b) {
+        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03,
             a4 = a.m04, a5 = a.m05, a6 = a.m06, a7 = a.m07,
             a8 = a.m08, a9 = a.m09, a10 = a.m10, a11 = a.m11,
             a12 = a.m12, a13 = a.m13, a14 = a.m14, a15 = a.m15;
 
-        let b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03,
+        const b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03,
             b4 = b.m04, b5 = b.m05, b6 = b.m06, b7 = b.m07,
             b8 = b.m08, b9 = b.m09, b10 = b.m10, b11 = b.m11,
             b12 = b.m12, b13 = b.m13, b14 = b.m14, b15 = b.m15;

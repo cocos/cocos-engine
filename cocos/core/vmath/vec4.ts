@@ -6,39 +6,6 @@ import { EPSILON, random } from './utils';
  * x, y, z, w is alias of the first, second, third, fourth component of vector, respectively.
  */
 class vec4 {
-    /**
-     * Creates a vector, with components specified separately.
-     *
-     * @param x - Value assigned to x component.
-     * @param y - Value assigned to y component.
-     * @param z - Value assigned to z component.
-     * @param w - Value assigned to w component.
-     */
-    constructor(x = 0, y = 0, z = 0, w = 1) {
-        /**
-         * The x component.
-         * @type {number}
-         * */
-        this.x = x;
-
-        /**
-         * The y component.
-         * @type {number}
-         * */
-        this.y = y;
-
-        /**
-         * The z component.
-         * @type {number}
-         * */
-        this.z = z;
-
-        /**
-         * The w component.
-         * @type {number}
-         * */
-        this.w = w;
-    }
 
     /**
      * Create a vector, with components specified separately.
@@ -49,7 +16,7 @@ class vec4 {
      * @param w - Value assigned to w component.
      * @return The newly created vector.
      */
-    static create(x = 0, y = 0, z = 0, w = 1) {
+    public static create(x = 0, y = 0, z = 0, w = 1) {
         return new vec4(x, y, z, w);
     }
 
@@ -58,7 +25,7 @@ class vec4 {
      *
      * @return The newly created vector.
      */
-    static zero(out) {
+    public static zero(out) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -72,7 +39,7 @@ class vec4 {
      * @param a - Vector to clone.
      * @return The newly created vector.
      */
-    static clone(a) {
+    public static clone(a) {
         return new vec4(a.x, a.y, a.z, a.w);
     }
 
@@ -83,7 +50,7 @@ class vec4 {
      * @param a - The specified vector.
      * @return out.
      */
-    static copy(out, a) {
+    public static copy(out, a) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -101,7 +68,7 @@ class vec4 {
      * @param w - Value set to w component.
      * @return out.
      */
-    static set(out, x, y, z, w) {
+    public static set(out, x, y, z, w) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -119,7 +86,7 @@ class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    static add(out, a, b) {
+    public static add(out, a, b) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
@@ -137,7 +104,7 @@ class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    static subtract(out, a, b) {
+    public static subtract(out, a, b) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
@@ -148,7 +115,7 @@ class vec4 {
     /**
      * Alias of {@link vec4.subtract}.
      */
-    static sub(out, a, b) {
+    public static sub(out, a, b) {
         return vec4.subtract(out, a, b);
     }
 
@@ -162,7 +129,7 @@ class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    static multiply(out, a, b) {
+    public static multiply(out, a, b) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
@@ -173,7 +140,7 @@ class vec4 {
     /**
      * Alias of {@link vec4.multiply}.
      */
-    static mul(out, a, b) {
+    public static mul(out, a, b) {
         return vec4.multiply(out, a, b);
     }
 
@@ -187,7 +154,7 @@ class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    static divide(out, a, b) {
+    public static divide(out, a, b) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -198,7 +165,7 @@ class vec4 {
     /**
      * Alias of {@link vec4.divide}.
      */
-    static div(out, a, b) {
+    public static div(out, a, b) {
         return vec4.divide(out, a, b);
     }
 
@@ -211,7 +178,7 @@ class vec4 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    static ceil(out, a) {
+    public static ceil(out, a) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         out.z = Math.ceil(a.z);
@@ -228,7 +195,7 @@ class vec4 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    static floor(out, a) {
+    public static floor(out, a) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         out.z = Math.floor(a.z);
@@ -246,7 +213,7 @@ class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    static min(out, a, b) {
+    public static min(out, a, b) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         out.z = Math.min(a.z, b.z);
@@ -264,7 +231,7 @@ class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    static max(out, a, b) {
+    public static max(out, a, b) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         out.z = Math.max(a.z, b.z);
@@ -281,7 +248,7 @@ class vec4 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    static round(out, a) {
+    public static round(out, a) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         out.z = Math.round(a.z);
@@ -297,7 +264,7 @@ class vec4 {
      * @param b - The scale number.
      * @return out.
      * */
-    static scale(out, a, b) {
+    public static scale(out, a, b) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -314,7 +281,7 @@ class vec4 {
      * @param scale - The scale number before adding.
      * @return out.
      */
-    static scaleAndAdd(out, a, b, scale) {
+    public static scaleAndAdd(out, a, b, scale) {
         out.x = a.x + (b.x * scale);
         out.y = a.y + (b.y * scale);
         out.z = a.z + (b.z * scale);
@@ -329,8 +296,8 @@ class vec4 {
      * @param b - The second operand.
      * @return Distance between a and b.
      */
-    static distance(a, b) {
-        let x = b.x - a.x,
+    public static distance(a, b) {
+        const x = b.x - a.x,
             y = b.y - a.y,
             z = b.z - a.z,
             w = b.w - a.w;
@@ -340,7 +307,7 @@ class vec4 {
     /**
      * Alias of {@link vec4.distance}.
      */
-    static dist(a, b) {
+    public static dist(a, b) {
         return vec4.distance(a, b);
     }
 
@@ -351,8 +318,8 @@ class vec4 {
      * @param b - The second operand.
      * @return Squared distance between a and b.
      */
-    static squaredDistance(a, b) {
-        let x = b.x - a.x,
+    public static squaredDistance(a, b) {
+        const x = b.x - a.x,
             y = b.y - a.y,
             z = b.z - a.z,
             w = b.w - a.w;
@@ -362,7 +329,7 @@ class vec4 {
     /**
      * Alias of {@link vec4.squaredDistance}.
      */
-    static sqrDist(a, b) {
+    public static sqrDist(a, b) {
         return vec4.squaredDistance(a, b);
     }
 
@@ -372,8 +339,8 @@ class vec4 {
      * @param a - The vector.
      * @return Length of the vector.
      */
-    static magnitude(a) {
-        let x = a.x,
+    public static magnitude(a) {
+        const x = a.x,
             y = a.y,
             z = a.z,
             w = a.w;
@@ -383,7 +350,7 @@ class vec4 {
     /**
      *Alias of {@link vec4.magnitude}.
      */
-    static mag(a) {
+    public static mag(a) {
         return vec4.magnitude(a);
     }
 
@@ -393,8 +360,8 @@ class vec4 {
      * @param a - The vector.
      * @return Squared length of the vector.
      */
-    static squaredMagnitude(a) {
-        let x = a.x,
+    public static squaredMagnitude(a) {
+        const x = a.x,
             y = a.y,
             z = a.z,
             w = a.w;
@@ -404,7 +371,7 @@ class vec4 {
     /**
      *Alias of {@link vec4.squaredMagnitude}
      */
-    static sqrMag(a) {
+    public static sqrMag(a) {
         return vec4.squaredMagnitude(a);
     }
 
@@ -415,7 +382,7 @@ class vec4 {
      * @param a - Vector to negate.
      * @return out.
      */
-    static negate(out, a) {
+    public static negate(out, a) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -430,7 +397,7 @@ class vec4 {
      * @param a - Vector to invert.
      * @return out.
      */
-    static inverse(out, a) {
+    public static inverse(out, a) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -445,8 +412,8 @@ class vec4 {
      * @param a - Vector to invert.
      * @return out.
      */
-    static inverseSafe(out, a) {
-        let x = a.x,
+    public static inverseSafe(out, a) {
+        const x = a.x,
             y = a.y,
             z = a.z,
             w = a.w;
@@ -485,8 +452,8 @@ class vec4 {
      * @param a - Vector to normalize.
      * @return out.
      */
-    static normalize(out, a) {
-        let x = a.x,
+    public static normalize(out, a) {
+        const x = a.x,
             y = a.y,
             z = a.z,
             w = a.w;
@@ -508,7 +475,7 @@ class vec4 {
      * @param b - The second operand.
      * @return Dot product of a and b.
      */
-    static dot(a, b) {
+    public static dot(a, b) {
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
@@ -521,8 +488,8 @@ class vec4 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    static lerp(out, a, b, t) {
-        let ax = a.x,
+    public static lerp(out, a, b, t) {
+        const ax = a.x,
             ay = a.y,
             az = a.z,
             aw = a.w;
@@ -540,11 +507,11 @@ class vec4 {
      * @param [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
      * @return out.
      */
-    static random(out, scale) {
+    public static random(out, scale) {
         scale = scale || 1.0;
 
-        let phi = random() * 2.0 * Math.PI;
-        let theta = Math.acos(random() * 2 - 1);
+        const phi = random() * 2.0 * Math.PI;
+        const theta = Math.acos(random() * 2 - 1);
 
         out.x = Math.sin(theta) * Math.cos(phi) * scale;
         out.y = Math.sin(theta) * Math.sin(phi) * scale;
@@ -561,8 +528,8 @@ class vec4 {
      * @param m - The matrix.
      * @return out.
      */
-    static transformMat4(out, a, m) {
-        let x = a.x, y = a.y, z = a.z, w = a.w;
+    public static transformMat4(out, a, m) {
+        const x = a.x, y = a.y, z = a.z, w = a.w;
         out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12 * w;
         out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13 * w;
         out.z = m.m02 * x + m.m06 * y + m.m10 * z + m.m14 * w;
@@ -578,15 +545,15 @@ class vec4 {
      * @param q - The quaternion.
      * @return out.
      */
-    static transformQuat(out, a, q) {
-        let x = a.x, y = a.y, z = a.z;
-        let qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+    public static transformQuat(out, a, q) {
+        const x = a.x, y = a.y, z = a.z;
+        const qx = q.x, qy = q.y, qz = q.z, qw = q.w;
 
         // calculate quat * vec
-        let ix = qw * x + qy * z - qz * y;
-        let iy = qw * y + qz * x - qx * z;
-        let iz = qw * z + qx * y - qy * x;
-        let iw = -qx * x - qy * y - qz * z;
+        const ix = qw * x + qy * z - qz * y;
+        const iy = qw * y + qz * x - qx * z;
+        const iz = qw * z + qx * y - qy * x;
+        const iw = -qx * x - qy * y - qz * z;
 
         // calculate result * inverse quat
         out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
@@ -602,7 +569,7 @@ class vec4 {
      * @param a - The vector.
      * @return - String representation of this vector.
      */
-    static str(a) {
+    public static str(a) {
         return `vec4(${a.x}, ${a.y}, ${a.z}, ${a.w})`;
     }
 
@@ -613,7 +580,7 @@ class vec4 {
      * @param v - The vector.
      * @return out.
      */
-    static array(out, v) {
+    public static array(out, v) {
         out[0] = v.x;
         out[1] = v.y;
         out[2] = v.z;
@@ -629,7 +596,7 @@ class vec4 {
      * @param b - The second vector.
      * @return True if the vectors are equal, false otherwise.
      */
-    static exactEquals(a, b) {
+    public static exactEquals(a, b) {
         return a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w;
     }
 
@@ -640,9 +607,9 @@ class vec4 {
      * @param b The second vector.
      * @return True if the vectors are approximately equal, false otherwise.
      */
-    static equals(a, b) {
-        let a0 = a.x, a1 = a.y, a2 = a.z, a3 = a.w;
-        let b0 = b.x, b1 = b.y, b2 = b.z, b3 = b.w;
+    public static equals(a, b) {
+        const a0 = a.x, a1 = a.y, a2 = a.z, a3 = a.w;
+        const b0 = b.x, b1 = b.y, b2 = b.z, b3 = b.w;
         return (Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
             Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
             Math.abs(a2 - b2) <= EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) &&
@@ -660,8 +627,41 @@ class vec4 {
      * @param [arg] additional argument to pass to fn.
      * @return a.
      */
-    static forEach(a, stride, offset, count, fn, arg) {
+    public static forEach(a, stride, offset, count, fn, arg) {
         return vec4._forEach(a, stride, offset, count, fn, arg);
+    }
+    /**
+     * Creates a vector, with components specified separately.
+     *
+     * @param x - Value assigned to x component.
+     * @param y - Value assigned to y component.
+     * @param z - Value assigned to z component.
+     * @param w - Value assigned to w component.
+     */
+    constructor(x = 0, y = 0, z = 0, w = 1) {
+        /**
+         * The x component.
+         * @type {number}
+         * */
+        this.x = x;
+
+        /**
+         * The y component.
+         * @type {number}
+         * */
+        this.y = y;
+
+        /**
+         * The z component.
+         * @type {number}
+         * */
+        this.z = z;
+
+        /**
+         * The w component.
+         * @type {number}
+         * */
+        this.w = w;
     }
 }
 
@@ -677,10 +677,10 @@ class vec4 {
  * @return a.
  * @ignore
  */
-vec4._forEach = (function () {
-    let vec = vec4.create(0, 0, 0, 0);
+vec4._forEach = (function() {
+    const vec = vec4.create(0, 0, 0, 0);
 
-    return function (a, stride, offset, count, fn, arg) {
+    return function(a, stride, offset, count, fn, arg) {
         let i, l;
         if (!stride) {
             stride = 4;
