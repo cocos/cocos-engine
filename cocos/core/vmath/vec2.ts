@@ -5,7 +5,7 @@ import { EPSILON, random } from './utils';
  *
  * x, y is alias of the first, second component of vector, respectively.
  */
-class vec2 {
+export default class vec2 {
 
     /**
      * Creates a vector, with components specified separately.
@@ -23,7 +23,7 @@ class vec2 {
      *
      * @return The newly created vector.
      */
-    public static zero(out) {
+    public static zero<Out extends IVec2Like>(out: Out) {
         out.x = 0;
         out.y = 0;
         return out;
@@ -35,7 +35,7 @@ class vec2 {
      * @param a - Vector to clone.
      * @return The newly created vector.
      */
-    public static clone(a) {
+    public static clone(a: vec2) {
         return new vec2(a.x, a.y);
     }
 
@@ -46,7 +46,7 @@ class vec2 {
      * @param a - The specified vector.
      * @return out.
      */
-    public static copy(out, a) {
+    public static copy<Out extends IVec2Like>(out: Out, a: vec2) {
         out.x = a.x;
         out.y = a.y;
         return out;
@@ -60,7 +60,7 @@ class vec2 {
      * @param y - Value set to y component.
      * @return out.
      */
-    public static set(out, x, y) {
+    public static set<Out extends IVec2Like>(out: Out, x: number, y: number) {
         out.x = x;
         out.y = y;
         return out;
@@ -76,7 +76,7 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static add(out, a, b) {
+    public static add<Out extends IVec2Like>(out: Out, a: vec2, b: vec2) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         return out;
@@ -92,16 +92,16 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static subtract(out, a, b) {
+    public static subtract<Out extends IVec2Like>(out: Out, a: vec2, b: vec2) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         return out;
     }
 
     /**
-     *Alias of {@link vec2.subtract}.
+     * Alias of {@link vec2.subtract}.
      */
-    public static sub(out, a, b) {
+    public static sub<Out extends IVec2Like>(out: Out, a: vec2, b: vec2) {
         return vec2.subtract(out, a, b);
     }
 
@@ -115,16 +115,16 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static multiply(out, a, b) {
+    public static multiply<Out extends IVec2Like>(out: Out, a: vec2, b: vec2) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         return out;
     }
 
     /**
-     *Alias of {@link vec2.multiply}.
+     * Alias of {@link vec2.multiply}.
      */
-    public static mul(out, a, b) {
+    public static mul<Out extends IVec2Like>(out: Out, a: vec2, b: vec2) {
         return vec2.multiply(out, a, b);
     }
 
@@ -138,16 +138,16 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static divide(out, a, b) {
+    public static divide<Out extends IVec2Like>(out: Out, a: vec2, b: vec2) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         return out;
     }
 
     /**
-     *Alias of {@link vec2.divide}.
+     * Alias of {@link vec2.divide}.
      */
-    public static div(out, a, b) {
+    public static div<Out extends IVec2Like>(out: Out, a: vec2, b: vec2) {
         return vec2.divide(out, a, b);
     }
 
@@ -160,7 +160,7 @@ class vec2 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static ceil(out, a) {
+    public static ceil<Out extends IVec2Like>(out: Out, a: vec2) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         return out;
@@ -175,7 +175,7 @@ class vec2 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static floor(out, a) {
+    public static floor<Out extends IVec2Like>(out: Out, a: vec2) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         return out;
@@ -191,7 +191,7 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static min(out, a, b) {
+    public static min<Out extends IVec2Like>(out: Out, a: vec2, b: vec2) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         return out;
@@ -207,7 +207,7 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static max(out, a, b) {
+    public static max<Out extends IVec2Like>(out: Out, a: vec2, b: vec2) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         return out;
@@ -222,7 +222,7 @@ class vec2 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static round(out, a) {
+    public static round<Out extends IVec2Like>(out: Out, a: vec2) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         return out;
@@ -235,8 +235,8 @@ class vec2 {
      * @param a - Vector to scale.
      * @param b - The scale number.
      * @return out.
-     * */
-    public static scale(out, a, b) {
+     */
+    public static scale<Out extends IVec2Like>(out: Out, a: vec2, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         return out;
@@ -251,7 +251,7 @@ class vec2 {
      * @param scale - The scale number before adding.
      * @return out.
      */
-    public static scaleAndAdd(out, a, b, scale) {
+    public static scaleAndAdd<Out extends IVec2Like>(out: Out, a: vec2, b: vec2, scale: number) {
         out.x = a.x + (b.x * scale);
         out.y = a.y + (b.y * scale);
         return out;
@@ -264,16 +264,16 @@ class vec2 {
      * @param b - The second operand.
      * @return Distance between a and b.
      */
-    public static distance(a, b) {
-        const x = b.x - a.x,
-            y = b.y - a.y;
+    public static distance(a: vec2, b: vec2) {
+        const x = b.x - a.x;
+        const y = b.y - a.y;
         return Math.sqrt(x * x + y * y);
     }
 
     /**
-     *Alias of {@link vec2.distance}.
+     * Alias of {@link vec2.distance}.
      */
-    public static dist(a, b) {
+    public static dist(a: vec2, b: vec2) {
         return vec2.distance(a, b);
     }
 
@@ -284,16 +284,16 @@ class vec2 {
      * @param b - The second operand.
      * @return Squared distance between a and b.
      */
-    public static squaredDistance(a, b) {
-        const x = b.x - a.x,
-            y = b.y - a.y;
+    public static squaredDistance(a: vec2, b: vec2) {
+        const x = b.x - a.x;
+        const y = b.y - a.y;
         return x * x + y * y;
     }
 
     /**
-     *Alias of {@link vec2.squaredDistance}.
+     * Alias of {@link vec2.squaredDistance}.
      */
-    public static sqrDist(a, b) {
+    public static sqrDist(a: vec2, b: vec2) {
         return vec2.squaredDistance(a, b);
     }
 
@@ -303,16 +303,15 @@ class vec2 {
      * @param a - The vector.
      * @return Length of the vector.
      */
-    public static magnitude(a) {
-        const x = a.x,
-            y = a.y;
+    public static magnitude(a: vec2) {
+        const { x, y } = a;
         return Math.sqrt(x * x + y * y);
     }
 
     /**
-     *Alias of {@link vec2.magnitude}.
+     * Alias of {@link vec2.magnitude}.
      */
-    public static mag(a) {
+    public static mag(a: vec2) {
         return vec2.magnitude(a);
     }
 
@@ -322,16 +321,15 @@ class vec2 {
      * @param a - The vector.
      * @return Squared length of the vector.
      */
-    public static squaredMagnitude(a) {
-        const x = a.x,
-            y = a.y;
+    public static squaredMagnitude(a: vec2) {
+        const { x, y } = a;
         return x * x + y * y;
     }
 
     /**
-     *Alias of {@link vec2.squaredMagnitude}
+     * Alias of {@link vec2.squaredMagnitude}
      */
-    public static sqrMag(a) {
+    public static sqrMag(a: vec2) {
         return vec2.squaredMagnitude(a);
     }
 
@@ -342,7 +340,7 @@ class vec2 {
      * @param a - Vector to negate.
      * @return out.
      */
-    public static negate(out, a) {
+    public static negate<Out extends IVec2Like>(out: Out, a: vec2) {
         out.x = -a.x;
         out.y = -a.y;
         return out;
@@ -355,7 +353,7 @@ class vec2 {
      * @param a - Vector to invert.
      * @return out.
      */
-    public static inverse(out, a) {
+    public static inverse<Out extends IVec2Like>(out: Out, a: vec2) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         return out;
@@ -368,9 +366,8 @@ class vec2 {
      * @param a - Vector to invert.
      * @return out.
      */
-    public static inverseSafe(out, a) {
-        const x = a.x,
-            y = a.y;
+    public static inverseSafe<Out extends IVec2Like>(out: Out, a: vec2) {
+        const { x, y } = a;
 
         if (Math.abs(x) < EPSILON) {
             out.x = 0;
@@ -394,9 +391,8 @@ class vec2 {
      * @param a - Vector to normalize.
      * @return out.
      */
-    public static normalize(out, a) {
-        const x = a.x,
-            y = a.y;
+    public static normalize<Out extends IVec2Like>(out: Out, a: vec2) {
+        const { x, y } = a;
         let len = x * x + y * y;
         if (len > 0) {
             // TODO: evaluate use of glm_invsqrt here?
@@ -414,7 +410,7 @@ class vec2 {
      * @param b - The second operand.
      * @return Dot product of a and b.
      */
-    public static dot(a, b) {
+    public static dot(a: vec2, b: vec2) {
         return a.x * b.x + a.y * b.y;
     }
 
@@ -427,7 +423,7 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static cross(out, a, b) {
+    public static cross<Out extends IVec3Like>(out: Out, a: vec2, b: vec2) {
         const z = a.x * b.y - a.y * b.x;
         out.x = out.y = 0;
         out.z = z;
@@ -443,9 +439,8 @@ class vec2 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    public static lerp(out, a, b, t) {
-        const ax = a.x,
-            ay = a.y;
+    public static lerp<Out extends IVec2Like>(out: Out, a: vec2, b: vec2, t: number) {
+        const { x: ax, y: ay } = a;
         out.x = ax + t * (b.x - ax);
         out.y = ay + t * (b.y - ay);
         return out;
@@ -458,7 +453,7 @@ class vec2 {
      * @param [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
      * @return out.
      */
-    public static random(out, scale) {
+    public static random<Out extends IVec2Like>(out: Out, scale: number) {
         scale = scale || 1.0;
         const r = random() * 2.0 * Math.PI;
         out.x = Math.cos(r) * scale;
@@ -474,9 +469,8 @@ class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    public static transformMat2(out, a, m) {
-        const x = a.x,
-            y = a.y;
+    public static transformMat2<Out extends IVec2Like>(out: Out, a: vec2, m: IMat2Like) {
+        const { x, y } = a;
         out.x = m.m00 * x + m.m02 * y;
         out.y = m.m01 * x + m.m03 * y;
         return out;
@@ -490,9 +484,8 @@ class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    public static transformMat23(out, a, m) {
-        const x = a.x,
-            y = a.y;
+    public static transformMat23<Out extends IVec2Like>(out: Out, a: vec2, m: IMat23Like) {
+        const { x, y } = a;
         out.x = m.m00 * x + m.m02 * y + m.m04;
         out.y = m.m01 * x + m.m03 * y + m.m05;
         return out;
@@ -506,9 +499,8 @@ class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    public static transformMat3(out, a, m) {
-        const x = a.x,
-            y = a.y;
+    public static transformMat3<Out extends IVec2Like>(out: Out, a: vec2, m: IMat3Like) {
+        const { x, y } = a;
         out.x = m.m00 * x + m.m03 * y + m.m06;
         out.y = m.m01 * x + m.m04 * y + m.m07;
         return out;
@@ -524,27 +516,11 @@ class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    public static transformMat4(out, a, m) {
-        const x = a.x,
-            y = a.y;
+    public static transformMat4<Out extends IVec2Like>(out: Out, a: vec2, m: IMat4Like) {
+        const { x, y } = a;
         out.x = m.m00 * x + m.m04 * y + m.m12;
         out.y = m.m01 * x + m.m05 * y + m.m13;
         return out;
-    }
-
-    /**
-     * Perform some operation over an array of vec2s.
-     *
-     * @param a the array of vectors to iterate over.
-     * @param stride Number of elements between the start of each vec2. If 0 assumes tightly packed.
-     * @param offset Number of elements to skip at the beginning of the array.
-     * @param count Number of vec2s to iterate over. If 0 iterates over entire array.
-     * @param fn Function to call for each vector in the array.
-     * @param [arg] additional argument to pass to fn.
-     * @return a.
-     */
-    public static forEach(a, stride, offset, count, fn, arg) {
-        return vec2._forEach(a, stride, offset, count, fn, arg);
     }
 
     /**
@@ -553,7 +529,7 @@ class vec2 {
      * @param a - The vector.
      * @return - String representation of this vector.
      */
-    public static str(a) {
+    public static str(a: vec2) {
         return `vec2(${a.x}, ${a.y})`;
     }
 
@@ -564,7 +540,7 @@ class vec2 {
      * @param v - The vector.
      * @return out.
      */
-    public static array(out, v) {
+    public static array<Out extends IWritableArrayLike<number>>(out: Out, v: vec2) {
         out[0] = v.x;
         out[1] = v.y;
 
@@ -578,7 +554,7 @@ class vec2 {
      * @param b - The second vector.
      * @return True if the vectors are equal, false otherwise.
      */
-    public static exactEquals(a, b) {
+    public static exactEquals(a: vec2, b: vec2) {
         return a.x === b.x && a.y === b.y;
     }
 
@@ -589,9 +565,9 @@ class vec2 {
      * @param b The second vector.
      * @return True if the vectors are approximately equal, false otherwise.
      */
-    public static equals(a, b) {
-        const a0 = a.x, a1 = a.y;
-        const b0 = b.x, b1 = b.y;
+    public static equals(a: vec2, b: vec2) {
+        const { x: a0, y: a1 } = a;
+        const { x: b0, y: b1 } = b;
         return (Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
             Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)));
     }
@@ -603,9 +579,29 @@ class vec2 {
      * @param b The second vector.
      * @return The angle in radians.
      */
-    public static angle(a, b) {
-        return vec2._angle(a, b);
+    public static angle(a: vec2, b: vec2) {
+        vec2.normalize(tmpVec2A, a);
+        vec2.normalize(tmpVec2B, b);
+        const cosine = vec2.dot(tmpVec2A, tmpVec2B);
+        if (cosine > 1.0) {
+            return 0;
+        }
+        if (cosine < -1.0) {
+            return Math.PI;
+        }
+        return Math.acos(cosine);
     }
+
+    /**
+     * The x component.
+     */
+    public x: number;
+
+    /**
+     * The y component.
+     */
+    public y: number;
+
     /**
      * Creates a vector, with components specified separately.
      *
@@ -615,77 +611,15 @@ class vec2 {
     constructor(x = 0, y = 0) {
         /**
          * The x component.
-         * @type {number}
-         * */
+         */
         this.x = x;
 
         /**
          * The y component.
-         * @type {number}
-         * */
+         */
         this.y = y;
     }
 }
 
-/**
- * Perform some operation over an array of vec2s.
- *
- * @param a the array of vectors to iterate over.
- * @param stride Number of elements between the start of each vec2. If 0 assumes tightly packed.
- * @param offset Number of elements to skip at the beginning of the array.
- * @param count Number of vec2s to iterate over. If 0 iterates over entire array.
- * @param fn Function to call for each vector in the array.
- * @param [arg] additional argument to pass to fn.
- * @return a.
- * @ignore
- */
-vec2._forEach = (function() {
-    const vec = vec2.create(0, 0);
-
-    return function(a, stride, offset, count, fn, arg) {
-        let i, l;
-        if (!stride) {
-            stride = 2;
-        }
-
-        if (!offset) {
-            offset = 0;
-        }
-
-        if (count) {
-            l = Math.min((count * stride) + offset, a.length);
-        } else {
-            l = a.length;
-        }
-
-        for (i = offset; i < l; i += stride) {
-            vec.x = a[i];
-            vec.y = a[i + 1];
-            fn(vec, vec, arg);
-            a[i] = vec.x;
-            a[i + 1] = vec.y;
-        }
-
-        return a;
-    };
-})();
-
-vec2._angle = (function() {
-    const tempA = vec2.create(0, 0);
-    const tempB = vec2.create(0, 0);
-
-    return function(a, b) {
-        vec2.normalize(tempA, a);
-        vec2.normalize(tempB, b);
-        const cosine = vec2.dot(tempA, tempB);
-        if (cosine > 1.0) {
-            return 0;
-        }
-        if (cosine < -1.0) {
-            return Math.PI;
-        }
-        return Math.acos(cosine);
-    };
-})();
-
-export default vec2;
+const tmpVec2A = vec2.create();
+const tmpVec2B = vec2.create();
