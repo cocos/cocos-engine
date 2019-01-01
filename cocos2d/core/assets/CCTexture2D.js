@@ -229,9 +229,6 @@ var Texture2D = cc.Class({
         _magFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
         _wrapT: WrapMode.CLAMP_TO_EDGE,
-
-        _hashDirty: false,
-        _hash: 0
     },
 
     statics: {
@@ -288,6 +285,8 @@ var Texture2D = cc.Class({
          */
         this.height = 0;
 
+        this._hashDirty = true;
+        this._hash = 0;
         this._texture = null;
     },
 
@@ -721,26 +720,20 @@ var Texture2D = cc.Class({
     },
 
     _getHash () {
-        if (!this._hashDirty && this._hash) return this._hash;
+        if (!this._hashDirty) {
+            return this._hash;
+        }
         let hasMipmap = this._hasMipmap ? 1 : 0;
         let premultiplyAlpha = this._premultiplyAlpha ? 1 : 0;
         let flipY = this._flipY ? 1 : 0;
         let minFilter = this._minFilter === Filter.LINEAR ? 1 : 2;
         let magFilter = this._magFilter === Filter.LINEAR ? 1 : 2;
-        let wrapS = this._wrapS === WrapMode.REPEAT ? 1 : this._wrapS === WrapMode.CLAMP_TO_EDGE ? 2 : 3;
-        let wrapT = this._wrapT === WrapMode.REPEAT ? 1 : this._wrapT === WrapMode.CLAMP_TO_EDGE ? 2 : 3;
-        let pixelFormat = 0;
-        for (let format in PixelFormat) {
-            if (this._format === format) {
-                break;
-            }
-            pixelFormat++;
-        }
-
+        let wrapS = this._wrapS === WrapMode.REPEAT ? 1 : (this._wrapS === WrapMode.CLAMP_TO_EDGE ? 2 : 3);
+        let wrapT = this._wrapT === WrapMode.REPEAT ? 1 : (this._wrapT === WrapMode.CLAMP_TO_EDGE ? 2 : 3);
+        let pixelFormat = this._format;
 
         this._hash = parseInt(`${minFilter}${magFilter}${pixelFormat}${wrapS}${wrapT}${hasMipmap}${premultiplyAlpha}${flipY}`);
         this._hashDirty = false;
-
         return this._hash;
     }
 });

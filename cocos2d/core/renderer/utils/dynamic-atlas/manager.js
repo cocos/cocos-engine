@@ -111,9 +111,8 @@ let dynamicAtlasManager = {
         if (texture instanceof cc.RenderTexture) return null;
 
         let w = texture.width, h = texture.height;
-        let min = texture._minFilter, mag = texture._magFilter;
-        let LINEAR = cc.Texture2D.Filter.LINEAR;
-        if (w > _maxFrameSize || h > _maxFrameSize || w <= _minFrameSize || h <= _minFrameSize || (min & mag) !== LINEAR) {
+        if (w > _maxFrameSize || h > _maxFrameSize || w <= _minFrameSize || h <= _minFrameSize
+         || texture._getHash() !== Atlas.DEFAULT_HASH) {
             return null;
         }
 
@@ -121,8 +120,6 @@ let dynamicAtlasManager = {
         if (!atlas) {
             atlas = newAtlas();
         }
-
-        if (atlas._texture._getHash() !== texture._getHash()) return null;
 
         let frame = atlas.insertSpriteFrame(spriteFrame);
         if (!frame && _atlasIndex !== _maxAtlasCount) {
