@@ -228,7 +228,10 @@ var Texture2D = cc.Class({
         _minFilter: Filter.LINEAR,
         _magFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
-        _wrapT: WrapMode.CLAMP_TO_EDGE
+        _wrapT: WrapMode.CLAMP_TO_EDGE,
+
+        _hashDirty: false,
+        _hash: 0
     },
 
     statics: {
@@ -378,6 +381,8 @@ var Texture2D = cc.Class({
             if (options.images && options.images.length > 0) {
                 this._texture.update(options);
             }
+
+            this._hashDirty = true;
         }
     },
 
@@ -713,6 +718,30 @@ var Texture2D = cc.Class({
             // decode premultiply alpha
             this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
         }
+    },
+
+    _getHash () {
+        if (!this._hashDirty && this._hash) return this._hash;
+        let hasMipmap = this._hasMipmap ? 1 : 0;
+        let premultiplyAlpha = this._premultiplyAlpha ? 1 : 0;
+        let flipY = this._flipY ? 1 : 0;
+        let minFilter = this._minFilter === Filter.LINEAR ? 1 : 2;
+        let magFilter = this._magFilter === Filter.LINEAR ? 1 : 2;
+        let wrapS = this._wrapS === WrapMode.REPEAT ? 1 : this._wrapS === WrapMode.CLAMP_TO_EDGE ? 2 : 3;
+        let wrapT = this._wrapT === WrapMode.REPEAT ? 1 : this._wrapT === WrapMode.CLAMP_TO_EDGE ? 2 : 3;
+        let pixelFormat = 0;
+        for (let format in PixelFormat) {
+            if (this._format === format) {
+                break;
+            }
+            pixelFormat++;
+        }
+
+
+        this._hash = parseInt(`${minFilter}${magFilter}${pixelFormat}${wrapS}${wrapT}${hasMipmap}${premultiplyAlpha}${flipY}`);
+        this._hashDirty = false;
+
+        return this._hash;
     }
 });
 
