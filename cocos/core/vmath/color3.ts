@@ -7,9 +7,9 @@ class color3 {
   /**
    * Creates a color, with components specified separately.
    *
-   * @param {number} r - Value assigned to r component.
-   * @param {number} g - Value assigned to g component.
-   * @param {number} b - Value assigned to b component.
+   * @param r - Value assigned to r component.
+   * @param g - Value assigned to g component.
+   * @param b - Value assigned to b component.
    */
   constructor(r = 1, g = 1, b = 1) {
     /**
@@ -34,10 +34,10 @@ class color3 {
   /**
    * Creates a color, with components specified separately, or a black color if not specified
    *
-   * @param {number} r - Value assigned to r component.
-   * @param {number} g - Value assigned to g component.
-   * @param {number} b - Value assigned to b component.
-   * @return {color3} The newly created color.
+   * @param r - Value assigned to r component.
+   * @param g - Value assigned to g component.
+   * @param b - Value assigned to b component.
+   * @return The newly created color.
    */
   static create(r = 1, g = 1, b = 1) {
     return new color3(r, g, b);
@@ -46,8 +46,8 @@ class color3 {
   /**
    * Clone a color.
    *
-   * @param {color3} a - Color to clone.
-   * @returns {color3} The newly created color.
+   * @param a - Color to clone.
+   * @return The newly created color.
    */
   static clone(a) {
     return new color3(a.r, a.g, a.b);
@@ -56,9 +56,9 @@ class color3 {
   /**
    * Copy content of a color into another.
    *
-   * @param {color3} out - The color to modified.
-   * @param {color3} a - The specified color.
-   * @returns {color3} out.
+   * @param out - The color to modified.
+   * @param a - The specified color.
+   * @return out.
    */
   static copy(out, a) {
     out.r = a.r;
@@ -70,11 +70,11 @@ class color3 {
   /**
    * Set the components of a color to the given values.
    *
-   * @param {color3} out - The color to modified.
-   * @param {number} r - Value assigned to r component.
-   * @param {number} g - Value assigned to g component.
-   * @param {number} b - Value assigned to b component.
-   * @returns {color3} out.
+   * @param out - The color to modified.
+   * @param r - Value assigned to r component.
+   * @param g - Value assigned to g component.
+   * @param b - Value assigned to b component.
+   * @return out.
    */
   static set(out, r, g, b) {
     out.r = r;
@@ -86,9 +86,9 @@ class color3 {
   /**
    * Converts the hexadecimal formal color into rgb formal.
    *
-   * @param {color3} out - Color to store result.
-   * @param {Number} hex - The color's hexadecimal formal.
-   * @returns {color3} out.
+   * @param out - Color to store result.
+   * @param hex - The color's hexadecimal formal.
+   * @return out.
    * @function
    */
   static fromHex(out, hex) {
@@ -105,10 +105,10 @@ class color3 {
   /**
    * Add components of two colors, respectively.
    *
-   * @param {color3} out - Color to store result.
-   * @param {color3} a - The first operand.
-   * @param {color3} b - The second operand.
-   * @returns {color3} out.
+   * @param out - Color to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static add(out, a, b) {
     out.r = a.r + b.r;
@@ -120,10 +120,10 @@ class color3 {
   /**
    * Subtract components of color b from components of color a, respectively.
    *
-   * @param {color3} out - Color to store result.
-   * @param {color3} a - The a.
-   * @param {color3} b - The b.
-   * @returns {color3} out.
+   * @param out - Color to store result.
+   * @param a - The a.
+   * @param b - The b.
+   * @return out.
    */
   static subtract(out, a, b) {
     out.r = a.r - b.r;
@@ -142,10 +142,10 @@ class color3 {
   /**
    * Multiply components of two colors, respectively.
    *
-   * @param {color3} out - Color to store result.
-   * @param {color3} a - The first operand.
-   * @param {color3} b - The second operand.
-   * @returns {color3} out.
+   * @param out - Color to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static multiply(out, a, b) {
     out.r = a.r * b.r;
@@ -164,10 +164,10 @@ class color3 {
   /**
    * Divide components of color a by components of color b, respectively.
    *
-   * @param {color3} out - Color to store result.
-   * @param {color3} a - The first operand.
-   * @param {color3} b - The second operand.
-   * @returns {color3} out.
+   * @param out - Color to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static divide(out, a, b) {
     out.r = a.r / b.r;
@@ -186,10 +186,10 @@ class color3 {
   /**
    * Scales a color by a number.
    *
-   * @param {color3} out - Color to store result.
-   * @param {color3} a - Color to scale.
-   * @param {number} b - The scale number.
-   * @returns {color3} out.
+   * @param out - Color to store result.
+   * @param a - Color to scale.
+   * @param b - The scale number.
+   * @return out.
    */
   static scale(out, a, b) {
     out.r = a.r * b;
@@ -201,11 +201,11 @@ class color3 {
   /**
    * Performs a linear interpolation between two colors.
    *
-   * @param {color3} out - Color to store result.
-   * @param {color3} a - The first operand.
-   * @param {color3} b - The second operand.
-   * @param {Number} t - The interpolation coefficient.
-   * @returns {color3} out.
+   * @param out - Color to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @param t - The interpolation coefficient.
+   * @return out.
    */
   static lerp(out, a, b, t) {
     let ar = a.r,
@@ -220,8 +220,8 @@ class color3 {
   /**
    * Returns string representation of a color.
    *
-   * @param {color3} a - The color.
-   * @returns {String} - String representation of this color.
+   * @param a - The color.
+   * @return - String representation of this color.
    */
   static str(a) {
     return `color3(${a.r}, ${a.g}, ${a.b})`;
@@ -230,9 +230,9 @@ class color3 {
   /**
    * Store components of a color into array.
    *
-   * @param {Array} out - Array to store result.
-   * @param {color3} a - The color.
-   * @returns {Array} out.
+   * @param out - Array to store result.
+   * @param a - The color.
+   * @return out.
    */
   static array(out, a) {
     let scale = a instanceof cc.Color ? 1 / 255 : 1;
@@ -246,9 +246,9 @@ class color3 {
   /**
    * Returns whether the specified colors are equal. (Compared using ===)
    *
-   * @param {color3} a - The first color.
-   * @param {color3} b - The second color.
-   * @returns {Boolean} True if the colors are equal, false otherwise.
+   * @param a - The first color.
+   * @param b - The second color.
+   * @return True if the colors are equal, false otherwise.
    */
   static exactEquals(a, b) {
     return a.r === b.r && a.g === b.g && a.b === b.b;
@@ -257,9 +257,9 @@ class color3 {
   /**
    * Returns whether the specified colors are approximately equal.
    *
-   * @param {color3} a - The first color.
-   * @param {color3} b - The second color.
-   * @returns {Boolean} True if the colors are approximately equal, false otherwise.
+   * @param a - The first color.
+   * @param b - The second color.
+   * @return True if the colors are approximately equal, false otherwise.
    */
   static equals(a, b) {
     let a0 = a.r, a1 = a.g, a2 = a.b;
@@ -272,8 +272,8 @@ class color3 {
   /**
    * Converts a color's rgb formal into the hexadecimal one.
    *
-   * @param {color3} a - The color.
-   * @returns {Number} - The color's hexadecimal formal.
+   * @param a - The color.
+   * @return - The color's hexadecimal formal.
    */
   static hex(a) {
     return (a.r * 255) << 16 | (a.g * 255) << 8 | (a.b * 255);

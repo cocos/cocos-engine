@@ -9,8 +9,8 @@ class vec2 {
   /**
    * Creates a vector, with components specified separately.
    *
-   * @param {number} x - Value assigned to x component.
-   * @param {number} y - Value assigned to y component.
+   * @param x - Value assigned to x component.
+   * @param y - Value assigned to y component.
    */
   constructor(x = 0, y = 0) {
     /**
@@ -29,9 +29,9 @@ class vec2 {
   /**
    * Creates a vector, with components specified separately.
    *
-   * @param {number} x - Value assigned to x component.
-   * @param {number} y - Value assigned to y component.
-   * @return {vec2} The newly created vector.
+   * @param x - Value assigned to x component.
+   * @param y - Value assigned to y component.
+   * @return The newly created vector.
    */
   static create(x = 0, y = 0) {
     return new vec2(x, y);
@@ -40,7 +40,7 @@ class vec2 {
   /**
    * Creates a zero vector.
    *
-   * @return {vec2} The newly created vector.
+   * @return The newly created vector.
    */
   static zero(out) {
     out.x = 0;
@@ -51,8 +51,8 @@ class vec2 {
   /**
    * Clone a vector.
    *
-   * @param {vec2} a - Vector to clone.
-   * @returns {vec2} The newly created vector.
+   * @param a - Vector to clone.
+   * @return The newly created vector.
    */
   static clone(a) {
     return new vec2(a.x, a.y);
@@ -61,9 +61,9 @@ class vec2 {
   /**
    * Copy content of a vector into another.
    *
-   * @param {vec2} out - The vector to modified.
-   * @param {vec2} a - The specified vector.
-   * @returns {vec2} out.
+   * @param out - The vector to modified.
+   * @param a - The specified vector.
+   * @return out.
    */
   static copy(out, a) {
     out.x = a.x;
@@ -74,10 +74,10 @@ class vec2 {
   /**
    * Sets the components of a vector to the given values.
    *
-   * @param {vec2} out - The vector to modified.
-   * @param {Number} x - Value set to x component.
-   * @param {Number} y - Value set to y component.
-   * @returns {vec2} out.
+   * @param out - The vector to modified.
+   * @param x - Value set to x component.
+   * @param y - Value set to y component.
+   * @return out.
    */
   static set(out, x, y) {
     out.x = x;
@@ -90,10 +90,10 @@ class vec2 {
    *
    * It doesn't matter that any amount of these parameters refer to same vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static add(out, a, b) {
     out.x = a.x + b.x;
@@ -106,10 +106,10 @@ class vec2 {
    *
    * It doesn't matter that any amount of these parameters refer to same vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static subtract(out, a, b) {
     out.x = a.x - b.x;
@@ -129,10 +129,10 @@ class vec2 {
    *
    * It doesn't matter that any amount of these parameters refer to same vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static multiply(out, a, b) {
     out.x = a.x * b.x;
@@ -152,10 +152,10 @@ class vec2 {
    *
    * It doesn't matter that any amount of these parameters refer to same vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static divide(out, a, b) {
     out.x = a.x / b.x;
@@ -175,9 +175,9 @@ class vec2 {
    *
    * It doesn't matter that any amount of these parameters refer to same vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to perform operation.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to perform operation.
+   * @return out.
    */
   static ceil(out, a) {
     out.x = Math.ceil(a.x);
@@ -190,9 +190,9 @@ class vec2 {
    *
    * It doesn't matter that any amount of these parameters refer to same vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to perform operation.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to perform operation.
+   * @return out.
    */
   static floor(out, a) {
     out.x = Math.floor(a.x);
@@ -205,10 +205,10 @@ class vec2 {
    *
    * It doesn't matter that any amount of these parameters refer to same vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static min(out, a, b) {
     out.x = Math.min(a.x, b.x);
@@ -221,10 +221,10 @@ class vec2 {
    *
    * It doesn't matter that any amount of these parameters refer to same vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static max(out, a, b) {
     out.x = Math.max(a.x, b.x);
@@ -237,9 +237,9 @@ class vec2 {
    *
    * It doesn't matter that any amount of these parameters refer to same vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to perform operation.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to perform operation.
+   * @return out.
    */
   static round(out, a) {
     out.x = Math.round(a.x);
@@ -250,10 +250,10 @@ class vec2 {
   /**
    * Scales a vector with a number.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to scale.
-   * @param {number} b - The scale number.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to scale.
+   * @param b - The scale number.
+   * @return out.
    * */
   static scale(out, a, b) {
     out.x = a.x * b;
@@ -264,11 +264,11 @@ class vec2 {
   /**
    * Add two vectors after scaling the second operand by a number.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @param {number} scale - The scale number before adding.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @param scale - The scale number before adding.
+   * @return out.
    */
   static scaleAndAdd(out, a, b, scale) {
     out.x = a.x + (b.x * scale);
@@ -279,9 +279,9 @@ class vec2 {
   /**
    * Calculates the euclidian distance between two vectors.
    *
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @returns {number} Distance between a and b.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return Distance between a and b.
    */
   static distance(a, b) {
     let x = b.x - a.x,
@@ -299,9 +299,9 @@ class vec2 {
   /**
    * Calculates the squared euclidian distance between two vectors.
    *
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @returns {number} Squared distance between a and b.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return Squared distance between a and b.
    */
   static squaredDistance(a, b) {
     let x = b.x - a.x,
@@ -319,8 +319,8 @@ class vec2 {
   /**
    * Calculates the length of a vector.
    *
-   * @param {vec2} a - The vector.
-   * @returns {Number} Length of the vector.
+   * @param a - The vector.
+   * @return Length of the vector.
    */
   static magnitude(a) {
     let x = a.x,
@@ -338,8 +338,8 @@ class vec2 {
   /**
    * Calculates the squared length of a vector.
    *
-   * @param {vec2} a - The vector.
-   * @returns {Number} Squared length of the vector.
+   * @param a - The vector.
+   * @return Squared length of the vector.
    */
   static squaredMagnitude(a) {
     let x = a.x,
@@ -357,9 +357,9 @@ class vec2 {
   /**
    * Negates each component of a vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to negate.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to negate.
+   * @return out.
    */
   static negate(out, a) {
     out.x = -a.x;
@@ -370,9 +370,9 @@ class vec2 {
   /**
    * Invert the components of a vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to invert.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to invert.
+   * @return out.
    */
   static inverse(out, a) {
     out.x = 1.0 / a.x;
@@ -383,9 +383,9 @@ class vec2 {
   /**
    * Safely invert the components of a vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to invert.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to invert.
+   * @return out.
    */
   static inverseSafe(out, a) {
     let x = a.x,
@@ -409,9 +409,9 @@ class vec2 {
   /**
    * Normalizes a vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to normalize.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to normalize.
+   * @return out.
    */
   static normalize(out, a) {
     let x = a.x,
@@ -429,9 +429,9 @@ class vec2 {
   /**
    * Calculates the dot product of two vectors.
    *
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @returns {Number} Dot product of a and b.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return Dot product of a and b.
    */
   static dot(a, b) {
     return a.x * b.x + a.y * b.y;
@@ -441,10 +441,10 @@ class vec2 {
    * Calculate the cross product of two vectors.
    * Note that the cross product must by definition produce a 3D vector.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @returns {vec3} out.
+   * @param out - Vector to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static cross(out, a, b) {
     let z = a.x * b.y - a.y * b.x;
@@ -456,11 +456,11 @@ class vec2 {
   /**
    * Performs a linear interpolation between two vectors.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - The first operand.
-   * @param {vec2} b - The second operand.
-   * @param {Number} t - The interpolation coefficient.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @param t - The interpolation coefficient.
+   * @return out.
    */
   static lerp(out, a, b, t) {
     let ax = a.x,
@@ -473,9 +473,9 @@ class vec2 {
   /**
    * Generates a random vector uniformly distributed on a circle centered at the origin.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
+   * @return out.
    */
   static random(out, scale) {
     scale = scale || 1.0;
@@ -488,10 +488,10 @@ class vec2 {
   /**
    * Transforms a vector with a 2x2 matrix.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to transform.
-   * @param {mat2} m - The matrix.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to transform.
+   * @param m - The matrix.
+   * @return out.
    */
   static transformMat2(out, a, m) {
     let x = a.x,
@@ -504,10 +504,10 @@ class vec2 {
   /**
    * Transforms a vector with a 2x3 matrix.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to transform.
-   * @param {mat23} m - The matrix.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to transform.
+   * @param m - The matrix.
+   * @return out.
    */
   static transformMat23(out, a, m) {
     let x = a.x,
@@ -520,10 +520,10 @@ class vec2 {
   /**
    * Transforms a vector with a 3x3 matrix.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to transform.
-   * @param {mat3} m - The matrix.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to transform.
+   * @param m - The matrix.
+   * @return out.
    */
   static transformMat3(out, a, m) {
     let x = a.x,
@@ -538,10 +538,10 @@ class vec2 {
    * 3rd vector component is implicitly '0'.
    * 4th vector component is implicitly '1'.
    *
-   * @param {vec2} out - Vector to store result.
-   * @param {vec2} a - Vector to transform.
-   * @param {mat4} m - The matrix.
-   * @returns {vec2} out.
+   * @param out - Vector to store result.
+   * @param a - Vector to transform.
+   * @param m - The matrix.
+   * @return out.
    */
   static transformMat4(out, a, m) {
     let x = a.x,
@@ -554,13 +554,13 @@ class vec2 {
   /**
    * Perform some operation over an array of vec2s.
    *
-   * @param {Array} a the array of vectors to iterate over.
-   * @param {Number} stride Number of elements between the start of each vec2. If 0 assumes tightly packed.
-   * @param {Number} offset Number of elements to skip at the beginning of the array.
-   * @param {Number} count Number of vec2s to iterate over. If 0 iterates over entire array.
-   * @param {Function} fn Function to call for each vector in the array.
-   * @param {Object} [arg] additional argument to pass to fn.
-   * @returns {Array} a.
+   * @param a the array of vectors to iterate over.
+   * @param stride Number of elements between the start of each vec2. If 0 assumes tightly packed.
+   * @param offset Number of elements to skip at the beginning of the array.
+   * @param count Number of vec2s to iterate over. If 0 iterates over entire array.
+   * @param fn Function to call for each vector in the array.
+   * @param [arg] additional argument to pass to fn.
+   * @return a.
    */
   static forEach(a, stride, offset, count, fn, arg) {
     return vec2._forEach(a, stride, offset, count, fn, arg);
@@ -569,8 +569,8 @@ class vec2 {
   /**
    * Returns string representation of a vector.
    *
-   * @param {vec2} a - The vector.
-   * @returns {String} - String representation of this vector.
+   * @param a - The vector.
+   * @return - String representation of this vector.
    */
   static str(a) {
     return `vec2(${a.x}, ${a.y})`;
@@ -579,9 +579,9 @@ class vec2 {
   /**
    * Store components of a vector into array.
    *
-   * @param {Array} out - Array to store result.
-   * @param {vec2} v - The vector.
-   * @returns {Array} out.
+   * @param out - Array to store result.
+   * @param v - The vector.
+   * @return out.
    */
   static array(out, v) {
     out[0] = v.x;
@@ -593,9 +593,9 @@ class vec2 {
   /**
    * Returns whether the specified vectors are equal. (Compared using ===)
    *
-   * @param {vec2} a - The first vector.
-   * @param {vec2} b - The second vector.
-   * @returns {Boolean} True if the vectors are equal, false otherwise.
+   * @param a - The first vector.
+   * @param b - The second vector.
+   * @return True if the vectors are equal, false otherwise.
    */
   static exactEquals(a, b) {
     return a.x === b.x && a.y === b.y;
@@ -604,9 +604,9 @@ class vec2 {
   /**
    * Returns whether the specified vectors are approximately equal.
    *
-   * @param {vec2} a The first vector.
-   * @param {vec2} b The second vector.
-   * @returns {Boolean} True if the vectors are approximately equal, false otherwise.
+   * @param a The first vector.
+   * @param b The second vector.
+   * @return True if the vectors are approximately equal, false otherwise.
    */
   static equals(a, b) {
     let a0 = a.x, a1 = a.y;
@@ -618,9 +618,9 @@ class vec2 {
   /**
    * Returns the angle between the two vectors.
    *
-   * @param {vec2} a The first vector.
-   * @param {vec2} b The second vector.
-   * @returns {Number} The angle in radians.
+   * @param a The first vector.
+   * @param b The second vector.
+   * @return The angle in radians.
    */
   static angle(a, b) {
     return vec2._angle(a, b);
@@ -630,13 +630,13 @@ class vec2 {
 /**
  * Perform some operation over an array of vec2s.
  *
- * @param {Array} a the array of vectors to iterate over.
- * @param {Number} stride Number of elements between the start of each vec2. If 0 assumes tightly packed.
- * @param {Number} offset Number of elements to skip at the beginning of the array.
- * @param {Number} count Number of vec2s to iterate over. If 0 iterates over entire array.
- * @param {Function} fn Function to call for each vector in the array.
- * @param {Object} [arg] additional argument to pass to fn.
- * @returns {Array} a.
+ * @param a the array of vectors to iterate over.
+ * @param stride Number of elements between the start of each vec2. If 0 assumes tightly packed.
+ * @param offset Number of elements to skip at the beginning of the array.
+ * @param count Number of vec2s to iterate over. If 0 iterates over entire array.
+ * @param fn Function to call for each vector in the array.
+ * @param [arg] additional argument to pass to fn.
+ * @return a.
  * @ignore
  */
 vec2._forEach = (function () {

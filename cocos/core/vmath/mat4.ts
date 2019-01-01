@@ -30,22 +30,22 @@ class mat4 {
   /**
    * Creates a matrix, with elements specified separately.
    *
-   * @param {Number} m00 - Value assigned to element at column 0 row 0.
-   * @param {Number} m01 - Value assigned to element at column 0 row 1.
-   * @param {Number} m02 - Value assigned to element at column 0 row 2.
-   * @param {Number} m03 - Value assigned to element at column 0 row 3.
-   * @param {Number} m04 - Value assigned to element at column 1 row 0.
-   * @param {Number} m05 - Value assigned to element at column 1 row 1.
-   * @param {Number} m06 - Value assigned to element at column 1 row 2.
-   * @param {Number} m07 - Value assigned to element at column 1 row 3.
-   * @param {Number} m08 - Value assigned to element at column 2 row 0.
-   * @param {Number} m09 - Value assigned to element at column 2 row 1.
-   * @param {Number} m10 - Value assigned to element at column 2 row 2.
-   * @param {Number} m11 - Value assigned to element at column 2 row 3.
-   * @param {Number} m12 - Value assigned to element at column 3 row 0.
-   * @param {Number} m13 - Value assigned to element at column 3 row 1.
-   * @param {Number} m14 - Value assigned to element at column 3 row 2.
-   * @param {Number} m15 - Value assigned to element at column 3 row 3.
+   * @param m00 - Value assigned to element at column 0 row 0.
+   * @param m01 - Value assigned to element at column 0 row 1.
+   * @param m02 - Value assigned to element at column 0 row 2.
+   * @param m03 - Value assigned to element at column 0 row 3.
+   * @param m04 - Value assigned to element at column 1 row 0.
+   * @param m05 - Value assigned to element at column 1 row 1.
+   * @param m06 - Value assigned to element at column 1 row 2.
+   * @param m07 - Value assigned to element at column 1 row 3.
+   * @param m08 - Value assigned to element at column 2 row 0.
+   * @param m09 - Value assigned to element at column 2 row 1.
+   * @param m10 - Value assigned to element at column 2 row 2.
+   * @param m11 - Value assigned to element at column 2 row 3.
+   * @param m12 - Value assigned to element at column 3 row 0.
+   * @param m13 - Value assigned to element at column 3 row 1.
+   * @param m14 - Value assigned to element at column 3 row 2.
+   * @param m15 - Value assigned to element at column 3 row 3.
    */
   constructor(
     m00 = 1, m01 = 0, m02 = 0, m03 = 0,
@@ -153,23 +153,23 @@ class mat4 {
   /**
    * Creates a matrix, with elements specified separately.
    *
-   * @param {Number} m00 - Value assigned to element at column 0 row 0.
-   * @param {Number} m01 - Value assigned to element at column 0 row 1.
-   * @param {Number} m02 - Value assigned to element at column 0 row 2.
-   * @param {Number} m03 - Value assigned to element at column 0 row 3.
-   * @param {Number} m04 - Value assigned to element at column 1 row 0.
-   * @param {Number} m05 - Value assigned to element at column 1 row 1.
-   * @param {Number} m06 - Value assigned to element at column 1 row 2.
-   * @param {Number} m07 - Value assigned to element at column 1 row 3.
-   * @param {Number} m08 - Value assigned to element at column 2 row 0.
-   * @param {Number} m09 - Value assigned to element at column 2 row 1.
-   * @param {Number} m10 - Value assigned to element at column 2 row 2.
-   * @param {Number} m11 - Value assigned to element at column 2 row 3.
-   * @param {Number} m12 - Value assigned to element at column 3 row 0.
-   * @param {Number} m13 - Value assigned to element at column 3 row 1.
-   * @param {Number} m14 - Value assigned to element at column 3 row 2.
-   * @param {Number} m15 - Value assigned to element at column 3 row 3.
-   * @returns {mat4} The newly created matrix.
+   * @param m00 - Value assigned to element at column 0 row 0.
+   * @param m01 - Value assigned to element at column 0 row 1.
+   * @param m02 - Value assigned to element at column 0 row 2.
+   * @param m03 - Value assigned to element at column 0 row 3.
+   * @param m04 - Value assigned to element at column 1 row 0.
+   * @param m05 - Value assigned to element at column 1 row 1.
+   * @param m06 - Value assigned to element at column 1 row 2.
+   * @param m07 - Value assigned to element at column 1 row 3.
+   * @param m08 - Value assigned to element at column 2 row 0.
+   * @param m09 - Value assigned to element at column 2 row 1.
+   * @param m10 - Value assigned to element at column 2 row 2.
+   * @param m11 - Value assigned to element at column 2 row 3.
+   * @param m12 - Value assigned to element at column 3 row 0.
+   * @param m13 - Value assigned to element at column 3 row 1.
+   * @param m14 - Value assigned to element at column 3 row 2.
+   * @param m15 - Value assigned to element at column 3 row 3.
+   * @return The newly created matrix.
    */
   static create(
     m00 = 1, m01 = 0, m02 = 0, m03 = 0,
@@ -187,8 +187,8 @@ class mat4 {
   /**
    * Clone a matrix.
    *
-   * @param {mat4} a - Matrix to clone.
-   * @returns {mat4} The newly created matrix.
+   * @param a - Matrix to clone.
+   * @return The newly created matrix.
    */
   static clone(a) {
     return new mat4(
@@ -202,9 +202,9 @@ class mat4 {
   /**
    * Copy content of a matrix into another.
    *
-   * @param {mat4} out - Matrix to modified.
-   * @param {mat4} a - The specified matrix.
-   * @returns {mat4} out.
+   * @param out - Matrix to modified.
+   * @param a - The specified matrix.
+   * @return out.
    */
   static copy(out, a) {
     out.m00 = a.m00;
@@ -229,24 +229,24 @@ class mat4 {
   /**
    * Sets the elements of a matrix to the given values.
    *
-   * @param {mat4} out - The matrix to modified.
-   * @param {Number} m00 - Value assigned to element at column 0 row 0.
-   * @param {Number} m01 - Value assigned to element at column 0 row 1.
-   * @param {Number} m02 - Value assigned to element at column 0 row 2.
-   * @param {Number} m03 - Value assigned to element at column 0 row 3.
-   * @param {Number} m10 - Value assigned to element at column 1 row 0.
-   * @param {Number} m11 - Value assigned to element at column 1 row 1.
-   * @param {Number} m12 - Value assigned to element at column 1 row 2.
-   * @param {Number} m13 - Value assigned to element at column 1 row 3.
-   * @param {Number} m20 - Value assigned to element at column 2 row 0.
-   * @param {Number} m21 - Value assigned to element at column 2 row 1.
-   * @param {Number} m22 - Value assigned to element at column 2 row 2.
-   * @param {Number} m23 - Value assigned to element at column 2 row 3.
-   * @param {Number} m30 - Value assigned to element at column 3 row 0.
-   * @param {Number} m31 - Value assigned to element at column 3 row 1.
-   * @param {Number} m32 - Value assigned to element at column 3 row 2.
-   * @param {Number} m33 - Value assigned to element at column 3 row 3.
-   * @returns {mat4} out.
+   * @param out - The matrix to modified.
+   * @param m00 - Value assigned to element at column 0 row 0.
+   * @param m01 - Value assigned to element at column 0 row 1.
+   * @param m02 - Value assigned to element at column 0 row 2.
+   * @param m03 - Value assigned to element at column 0 row 3.
+   * @param m10 - Value assigned to element at column 1 row 0.
+   * @param m11 - Value assigned to element at column 1 row 1.
+   * @param m12 - Value assigned to element at column 1 row 2.
+   * @param m13 - Value assigned to element at column 1 row 3.
+   * @param m20 - Value assigned to element at column 2 row 0.
+   * @param m21 - Value assigned to element at column 2 row 1.
+   * @param m22 - Value assigned to element at column 2 row 2.
+   * @param m23 - Value assigned to element at column 2 row 3.
+   * @param m30 - Value assigned to element at column 3 row 0.
+   * @param m31 - Value assigned to element at column 3 row 1.
+   * @param m32 - Value assigned to element at column 3 row 2.
+   * @param m33 - Value assigned to element at column 3 row 3.
+   * @return out.
    */
   static set(out, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
     out.m00 = m00;
@@ -272,8 +272,8 @@ class mat4 {
   /**
    * Sets a matrix as identity matrix.
    *
-   * @param {mat4} out - Matrix to modified.
-   * @returns {mat4} out.
+   * @param out - Matrix to modified.
+   * @return out.
    */
   static identity(out) {
     out.m00 = 1;
@@ -298,9 +298,9 @@ class mat4 {
   /**
    * Transposes a matrix.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - Matrix to transpose.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to transpose.
+   * @return out.
    */
   static transpose(out, a) {
     // If we are transposing ourselves we can skip a few steps but have to cache some values
@@ -346,9 +346,9 @@ class mat4 {
   /**
    * Inverts a matrix.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - Matrix to invert.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to invert.
+   * @return out.
    */
   static invert(out, a) {
     let a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
@@ -400,9 +400,9 @@ class mat4 {
   /**
    * Calculates the adjugate of a matrix.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - Matrix to calculate.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to calculate.
+   * @return out.
    */
   static adjoint(out, a) {
     let a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
@@ -432,8 +432,8 @@ class mat4 {
   /**
    * Calculates the determinant of a matrix.
    *
-   * @param {mat4} a - Matrix to calculate.
-   * @returns {Number} Determinant of a.
+   * @param a - Matrix to calculate.
+   * @return Determinant of a.
    */
   static determinant(a) {
     let a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
@@ -461,10 +461,10 @@ class mat4 {
   /**
    * Multiply two matrices explicitly.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - The first operand.
-   * @param {mat4} b - The second operand.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static multiply(out, a, b) {
     let a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
@@ -509,10 +509,10 @@ class mat4 {
   /**
    * Multiply a matrix with a translation matrix given by a translation offset.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - Matrix to multiply.
-   * @param {vec3} v - The translation offset.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to multiply.
+   * @param v - The translation offset.
+   * @return out.
    */
   static translate(out, a, v) {
     let x = v.x, y = v.y, z = v.z,
@@ -546,10 +546,10 @@ class mat4 {
   /**
    * Multiply a matrix with a scale matrix given by a scale vector.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - Matrix to multiply.
-   * @param {vec3} v - The scale vector.
-   * @returns {mat4} out
+   * @param out - Matrix to store result.
+   * @param a - Matrix to multiply.
+   * @param v - The scale vector.
+   * @return out
    **/
   static scale(out, a, v) {
     let x = v.x, y = v.y, z = v.z;
@@ -576,11 +576,11 @@ class mat4 {
   /**
    * Multiply a matrix with a rotation matrix denotes by the rotation around arbitrary axis.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - Matrix to multiply.
-   * @param {Number} rad - The rotation angle.
-   * @param {vec3} axis - The rotation axis.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to multiply.
+   * @param rad - The rotation angle.
+   * @param axis - The rotation axis.
+   * @return out.
    */
   static rotate(out, a, rad, axis) {
     let x = axis.x, y = axis.y, z = axis.z;
@@ -644,10 +644,10 @@ class mat4 {
   /**
    * Multiply a matrix with a rotation matrix denotes by the rotation around x-axis.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - Matrix to multiply.
-   * @param {Number} rad - The rotation angle.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to multiply.
+   * @param rad - The rotation angle.
+   * @return out.
    */
   static rotateX(out, a, rad) {
     let s = Math.sin(rad),
@@ -688,10 +688,10 @@ class mat4 {
   /**
    * Multiply a matrix with a rotation matrix denotes by the rotation around y-axis.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - Matrix to multiply.
-   * @param {Number} rad - The rotation angle.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to multiply.
+   * @param rad - The rotation angle.
+   * @return out.
    */
   static rotateY(out, a, rad) {
     let s = Math.sin(rad),
@@ -732,10 +732,10 @@ class mat4 {
   /**
    * Multiply a matrix with a rotation matrix denotes by the rotation around z-axis.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - Matrix to multiply.
-   * @param {Number} rad - The rotation angle.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to multiply.
+   * @param rad - The rotation angle.
+   * @return out.
    */
   static rotateZ(out, a, rad) {
     let s = Math.sin(rad),
@@ -781,9 +781,9 @@ class mat4 {
    *     mat4.identity(dest);
    *     mat4.translate(dest, dest, vec);
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {vec3} v - The translation offset.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param v - The translation offset.
+   * @return out.
    */
   static fromTranslation(out, v) {
     out.m00 = 1;
@@ -812,9 +812,9 @@ class mat4 {
    *     mat4.identity(dest);
    *     mat4.scale(dest, dest, vec);
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {vec3} v - The scale vector.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param v - The scale vector.
+   * @return out.
    */
   static fromScaling(out, v) {
     out.m00 = v.x;
@@ -843,10 +843,10 @@ class mat4 {
    *     mat4.identity(dest);
    *     mat4.rotate(dest, dest, rad, axis);
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {Number} rad - The rotation angle.
-   * @param {vec3} axis - The rotation axis.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param rad - The rotation angle.
+   * @param axis - The rotation axis.
+   * @return out.
    */
   static fromRotation(out, rad, axis) {
     let x = axis.x, y = axis.y, z = axis.z;
@@ -893,9 +893,9 @@ class mat4 {
    *     mat4.identity(dest);
    *     mat4.rotateX(dest, dest, rad);
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {Number} rad - The rotation angle.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param rad - The rotation angle.
+   * @return out.
    */
   static fromXRotation(out, rad) {
     let s = Math.sin(rad),
@@ -928,9 +928,9 @@ class mat4 {
    *     mat4.identity(dest);
    *     mat4.rotateY(dest, dest, rad);
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {Number} rad - The rotation angle.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param rad - The rotation angle.
+   * @return out.
    */
   static fromYRotation(out, rad) {
     let s = Math.sin(rad),
@@ -963,9 +963,9 @@ class mat4 {
    *     mat4.identity(dest);
    *     mat4.rotateZ(dest, dest, rad);
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {Number} rad - The rotation angle.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param rad - The rotation angle.
+   * @return out.
    */
   static fromZRotation(out, rad) {
     let s = Math.sin(rad),
@@ -1001,10 +1001,10 @@ class mat4 {
    *     quat.toMat4(quat, quatMat);
    *     mat4.multiply(dest, quatMat);
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {quat} q - Rotation quaternion.
-   * @param {vec3} v - Translation vector.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param q - Rotation quaternion.
+   * @param v - Translation vector.
+   * @return out.
    */
   static fromRT(out, q, v) {
     // Quaternion math
@@ -1050,7 +1050,7 @@ class mat4 {
    *  originally supplied.
    * @param  {vec3} out - Vector to store result.
    * @param  {mat4} mat - Matrix to be decomposed.
-   * @return {vec3} out.
+   * @return out.
    */
   static getTranslation(out, mat) {
     out.x = mat.m12;
@@ -1068,7 +1068,7 @@ class mat4 {
    *  originally supplied.
    * @param  {vec3} out - Vector to store result.
    * @param  {mat4} mat - Matrix to be decomposed.
-   * @return {vec3} out.
+   * @return out.
    */
   static getScaling(out, mat) {
     let m11 = mat.m00,
@@ -1093,9 +1093,9 @@ class mat4 {
    *  of a transformation matrix. If a matrix is built with
    *  fromRT, the returned quaternion will be the
    *  same as the quaternion originally supplied.
-   * @param {quat} out - Quaternion to store result.
-   * @param {mat4} mat - Matrix to be decomposed.
-   * @return {quat} out.
+   * @param out - Quaternion to store result.
+   * @param mat - Matrix to be decomposed.
+   * @return out.
    */
   static getRotation(out, mat) {
     // Algorithm taken from http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
@@ -1142,11 +1142,11 @@ class mat4 {
    *     mat4.multiply(dest, quatMat);
    *     mat4.scale(dest, scale)
    *
-   * @param {mat4} out mat4 - Matrix to store result.
-   * @param {quat} q - Rotation quaternion.
-   * @param {vec3} v - Translation offset.
-   * @param {vec3} s - Scale vector.
-   * @returns {mat4} out.
+   * @param out mat4 - Matrix to store result.
+   * @param q - Rotation quaternion.
+   * @param v - Translation offset.
+   * @param s - Scale vector.
+   * @return out.
    */
   static fromRTS(out, q, v, s) {
     // Quaternion math
@@ -1201,12 +1201,12 @@ class mat4 {
    *     mat4.scale(dest, scale)
    *     mat4.translate(dest, negativeOrigin);
    *
-   * @param {mat4} out mat4 - Matrix to store result.
-   * @param {quat} q - Rotation quaternion.
-   * @param {vec3} v - Translation offset.
-   * @param {vec3} s - Scale vector.
-   * @param {vec3} o The origin vector around which to scale and rotate.
-   * @returns {mat4} out.
+   * @param out mat4 - Matrix to store result.
+   * @param q - Rotation quaternion.
+   * @param v - Translation offset.
+   * @param s - Scale vector.
+   * @param o The origin vector around which to scale and rotate.
+   * @return out.
    */
   static fromRTSOrigin(out, q, v, s, o) {
     // Quaternion math
@@ -1256,10 +1256,10 @@ class mat4 {
   /**
    * Calculates a 4x4 matrix from the given quaternion.
    *
-   * @param {mat4} out mat4 - Matrix to store result.
-   * @param {quat} q - Quaternion to create matrix from.
+   * @param out mat4 - Matrix to store result.
+   * @param q - Quaternion to create matrix from.
    *
-   * @returns {mat4} out.
+   * @return out.
    */
   static fromQuat(out, q) {
     let x = q.x, y = q.y, z = q.z, w = q.w;
@@ -1303,14 +1303,14 @@ class mat4 {
   /**
    * Generates a frustum matrix with the given bounds.
    *
-   * @param {mat4} out mat4 - Matrix to store result.
-   * @param {Number} left - Left bound of the frustum.
-   * @param {Number} right - Right bound of the frustum.
-   * @param {Number} bottom - Bottom bound of the frustum.
-   * @param {Number} top - Top bound of the frustum.
-   * @param {Number} near - Near bound of the frustum.
-   * @param {Number} far - Far bound of the frustum.
-   * @returns {mat4} out.
+   * @param out mat4 - Matrix to store result.
+   * @param left - Left bound of the frustum.
+   * @param right - Right bound of the frustum.
+   * @param bottom - Bottom bound of the frustum.
+   * @param top - Top bound of the frustum.
+   * @param near - Near bound of the frustum.
+   * @param far - Far bound of the frustum.
+   * @return out.
    */
   static frustum(out, left, right, bottom, top, near, far) {
     let rl = 1 / (right - left);
@@ -1339,12 +1339,12 @@ class mat4 {
   /**
    * Generates a perspective projection matrix with the given bounds.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {number} fovy - Vertical field of view in radians.
-   * @param {number} aspect - Aspect ratio. typically viewport width/height.
-   * @param {number} near - Near bound of the frustum.
-   * @param {number} far - Far bound of the frustum.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param fovy - Vertical field of view in radians.
+   * @param aspect - Aspect ratio. typically viewport width/height.
+   * @param near - Near bound of the frustum.
+   * @param far - Far bound of the frustum.
+   * @return out.
    */
   static perspective(out, fovy, aspect, near, far) {
     let f = 1.0 / Math.tan(fovy / 2);
@@ -1374,11 +1374,11 @@ class mat4 {
    * This is primarily useful for generating projection matrices to be used
    * with the still experiemental WebVR API.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {Object} fov - Object containing the following values: upDegrees, downDegrees, leftDegrees, rightDegrees.
-   * @param {number} near - Near bound of the frustum.
-   * @param {number} far - Far bound of the frustum.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param fov - Object containing the following values: upDegrees, downDegrees, leftDegrees, rightDegrees.
+   * @param near - Near bound of the frustum.
+   * @param far - Far bound of the frustum.
+   * @return out.
    */
   static perspectiveFromFieldOfView(out, fov, near, far) {
     let upTan = Math.tan(fov.upDegrees * Math.PI / 180.0);
@@ -1410,14 +1410,14 @@ class mat4 {
   /**
    * Generates a orthogonal projection matrix with the given bounds.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {number} left - Left bound of the frustum.
-   * @param {number} right - Right bound of the frustum.
-   * @param {number} bottom - Bottom bound of the frustum.
-   * @param {number} top - Top bound of the frustum.
-   * @param {number} near - Near bound of the frustum.
-   * @param {number} far - Far bound of the frustum.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param left - Left bound of the frustum.
+   * @param right - Right bound of the frustum.
+   * @param bottom - Bottom bound of the frustum.
+   * @param top - Top bound of the frustum.
+   * @param near - Near bound of the frustum.
+   * @param far - Far bound of the frustum.
+   * @return out.
    */
   static ortho(out, left, right, bottom, top, near, far) {
     let lr = 1 / (left - right);
@@ -1446,11 +1446,11 @@ class mat4 {
    * Generates a look-at matrix with the given eye position, focal point, and up axis.
    * `eye - center` mustn't be zero vector or parallel to `up`
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {vec3} eye - Position of the viewer.
-   * @param {vec3} center - Point the viewer is looking at.
-   * @param {vec3} up - Vector pointing up.
-   * @returns {mat4} out
+   * @param out - Matrix to store result.
+   * @param eye - Position of the viewer.
+   * @param center - Point the viewer is looking at.
+   * @param up - Vector pointing up.
+   * @return out
    */
   static lookAt(out, eye, center, up) {
     let x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
@@ -1508,8 +1508,8 @@ class mat4 {
   /**
    * Returns a string representation of a matrix.
    *
-   * @param {mat4} a - The matrix.
-   * @returns {String} String representation of this matrix.
+   * @param a - The matrix.
+   * @return String representation of this matrix.
    */
   static str(a) {
     return `mat4(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ${a.m08}, ${a.m09}, ${a.m10}, ${a.m11}, ${a.m12}, ${a.m13}, ${a.m14}, ${a.m15})`;
@@ -1518,9 +1518,9 @@ class mat4 {
   /**
    * Store elements of a matrix into array.
    *
-   * @param {array} out - Array to store result.
-   * @param {mat4} m - The matrix.
-   * @returns {Array} out.
+   * @param out - Array to store result.
+   * @param m - The matrix.
+   * @return out.
    */
   static array(out, m) {
     out[0] = m.m00;
@@ -1546,8 +1546,8 @@ class mat4 {
   /**
    * Returns Frobenius norm of a matrix.
    *
-   * @param {mat4} a - Matrix to calculate Frobenius norm of.
-   * @returns {Number} - The frobenius norm.
+   * @param a - Matrix to calculate Frobenius norm of.
+   * @return - The frobenius norm.
    */
   static frob(a) {
     return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + Math.pow(a.m06, 2) + Math.pow(a.m07, 2) + Math.pow(a.m08, 2) + Math.pow(a.m09, 2) + Math.pow(a.m10, 2) + Math.pow(a.m11, 2) + Math.pow(a.m12, 2) + Math.pow(a.m13, 2) + Math.pow(a.m14, 2) + Math.pow(a.m15, 2)))
@@ -1556,10 +1556,10 @@ class mat4 {
   /**
    * Adds two matrices.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - The first operand.
-   * @param {mat4} b - The second operand.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static add(out, a, b) {
     out.m00 = a.m00 + b.m00;
@@ -1584,10 +1584,10 @@ class mat4 {
   /**
    * Subtracts matrix b from matrix a.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - The first operand.
-   * @param {mat4} b - The second operand.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static subtract(out, a, b) {
     out.m00 = a.m00 - b.m00;
@@ -1619,10 +1619,10 @@ class mat4 {
   /**
    * Multiply each element of a matrix by a scalar number.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - Matrix to scale
-   * @param {Number} b - The scale number.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to scale
+   * @param b - The scale number.
+   * @return out.
    */
   static multiplyScalar(out, a, b) {
     out.m00 = a.m00 * b;
@@ -1647,11 +1647,11 @@ class mat4 {
   /**
    * Adds two matrices after multiplying each element of the second operand by a scalar number.
    *
-   * @param {mat4} out - Matrix to store result.
-   * @param {mat4} a - The first operand.
-   * @param {mat4} b - The second operand.
-   * @param {Number} scale - The scale number.
-   * @returns {mat4} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @param scale - The scale number.
+   * @return out.
    */
   static multiplyScalarAndAdd(out, a, b, scale) {
     out.m00 = a.m00 + (b.m00 * scale);
@@ -1676,9 +1676,9 @@ class mat4 {
   /**
    * Returns whether the specified matrices are equal. (Compared using ===)
    *
-   * @param {mat4} a - The first matrix.
-   * @param {mat4} b - The second matrix.
-   * @returns {Boolean} True if the matrices are equal, false otherwise.
+   * @param a - The first matrix.
+   * @param b - The second matrix.
+   * @return True if the matrices are equal, false otherwise.
    */
   static exactEquals(a, b) {
     return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03 &&
@@ -1690,9 +1690,9 @@ class mat4 {
   /**
    * Returns whether the specified matrices are approximately equal.
    *
-   * @param {mat4} a - The first matrix.
-   * @param {mat4} b - The second matrix.
-   * @returns {Boolean} True if the matrices are equal, false otherwise.
+   * @param a - The first matrix.
+   * @param b - The second matrix.
+   * @return True if the matrices are equal, false otherwise.
    */
   static equals(a, b) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03,

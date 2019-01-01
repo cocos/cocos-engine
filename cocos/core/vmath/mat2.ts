@@ -7,10 +7,10 @@ class mat2 {
   /**
    * Creates a matrix, with elements specified separately.
    *
-   * @param {Number} m00 - Value assigned to element at column 0 row 0.
-   * @param {Number} m01 - Value assigned to element at column 0 row 1.
-   * @param {Number} m02 - Value assigned to element at column 1 row 0.
-   * @param {Number} m03 - Value assigned to element at column 1 row 1.
+   * @param m00 - Value assigned to element at column 0 row 0.
+   * @param m01 - Value assigned to element at column 0 row 1.
+   * @param m02 - Value assigned to element at column 1 row 0.
+   * @param m03 - Value assigned to element at column 1 row 1.
    */
   constructor(m00 = 1, m01 = 0, m02 = 0, m03 = 1) {
     /**
@@ -41,11 +41,11 @@ class mat2 {
   /**
    * Creates a matrix, with elements specified separately.
    *
-   * @param {Number} m00 - Value assigned to element at column 0 row 0.
-   * @param {Number} m01 - Value assigned to element at column 0 row 1.
-   * @param {Number} m02 - Value assigned to element at column 1 row 0.
-   * @param {Number} m03 - Value assigned to element at column 1 row 1.
-   * @returns {mat2} The newly created matrix.
+   * @param m00 - Value assigned to element at column 0 row 0.
+   * @param m01 - Value assigned to element at column 0 row 1.
+   * @param m02 - Value assigned to element at column 1 row 0.
+   * @param m03 - Value assigned to element at column 1 row 1.
+   * @return The newly created matrix.
    */
   static create(m00 = 1, m01 = 0, m02 = 0, m03 = 1) {
     return new mat2(m00, m01, m02, m03);
@@ -54,8 +54,8 @@ class mat2 {
   /**
    * Clone a matrix.
    *
-   * @param {mat2} a - Matrix to clone.
-   * @returns {mat2} The newly created matrix.
+   * @param a - Matrix to clone.
+   * @return The newly created matrix.
    */
   static clone(a) {
     return new mat2(a.m00, a.m01, a.m02, a.m03);
@@ -64,9 +64,9 @@ class mat2 {
   /**
    * Copy content of a matrix into another.
    *
-   * @param {mat2} out - Matrix to modified.
-   * @param {mat2} a - The specified matrix.
-   * @returns {mat2} out.
+   * @param out - Matrix to modified.
+   * @param a - The specified matrix.
+   * @return out.
    */
   static copy(out, a) {
     out.m00 = a.m00;
@@ -79,8 +79,8 @@ class mat2 {
   /**
    * Sets a matrix as identity matrix.
    *
-   * @param {mat2} out - Matrix to modified.
-   * @returns {mat2} out.
+   * @param out - Matrix to modified.
+   * @return out.
    */
   static identity(out) {
     out.m00 = 1;
@@ -93,12 +93,12 @@ class mat2 {
   /**
    * Sets the elements of a matrix to the given values.
    *
-   * @param {mat2} out - The matrix to modified.
-   * @param {Number} m00 - Value assigned to element at column 0 row 0.
-   * @param {Number} m01 - Value assigned to element at column 0 row 1.
-   * @param {Number} m10 - Value assigned to element at column 1 row 0.
-   * @param {Number} m11 - Value assigned to element at column 1 row 1.
-   * @returns {mat2} out.
+   * @param out - The matrix to modified.
+   * @param m00 - Value assigned to element at column 0 row 0.
+   * @param m01 - Value assigned to element at column 0 row 1.
+   * @param m10 - Value assigned to element at column 1 row 0.
+   * @param m11 - Value assigned to element at column 1 row 1.
+   * @return out.
    */
   static set(out, m00, m01, m10, m11) {
     out.m00 = m00;
@@ -112,9 +112,9 @@ class mat2 {
   /**
    * Transposes a matrix.
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {mat2} a - Matrix to transpose.
-   * @returns {mat2} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to transpose.
+   * @return out.
    */
   static transpose(out, a) {
     // If we are transposing ourselves we can skip a few steps but have to cache some values
@@ -135,9 +135,9 @@ class mat2 {
   /**
    * Inverts a matrix.
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {mat2} a - Matrix to invert.
-   * @returns {mat2} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to invert.
+   * @return out.
    */
   static invert(out, a) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03;
@@ -161,9 +161,9 @@ class mat2 {
   /**
    * Calculates the adjugate of a matrix.
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {mat2} a - Matrix to calculate.
-   * @returns {mat2} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to calculate.
+   * @return out.
    */
   static adjoint(out, a) {
     // Caching this value is nessecary if out == a
@@ -179,8 +179,8 @@ class mat2 {
   /**
    * Calculates the determinant of a matrix.
    *
-   * @param {mat2} a - Matrix to calculate.
-   * @returns {Number} Determinant of a.
+   * @param a - Matrix to calculate.
+   * @return Determinant of a.
    */
   static determinant(a) {
     return a.m00 * a.m03 - a.m02 * a.m01;
@@ -189,10 +189,10 @@ class mat2 {
   /**
    * Multiply two matrices explicitly.
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {mat2} a - The first operand.
-   * @param {mat2} b - The second operand.
-   * @returns {mat2} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static multiply(out, a, b) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03;
@@ -214,10 +214,10 @@ class mat2 {
   /**
    * Rotates a matrix by the given angle.
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {mat2} a - Matrix to rotate.
-   * @param {Number} rad - The rotation angle.
-   * @returns {mat2} out
+   * @param out - Matrix to store result.
+   * @param a - Matrix to rotate.
+   * @param rad - The rotation angle.
+   * @return out
    */
   static rotate(out, a, rad) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03,
@@ -233,10 +233,10 @@ class mat2 {
   /**
    * Scales the matrix given by a scale vector.
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {mat2} a - Matrix to scale.
-   * @param {vec2} v - The scale vector.
-   * @returns {mat2} out
+   * @param out - Matrix to store result.
+   * @param a - Matrix to scale.
+   * @param v - The scale vector.
+   * @return out
    **/
   static scale(out, a, v) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03,
@@ -255,9 +255,9 @@ class mat2 {
    *     mat2.set(dest, 1, 0, 0, 1);
    *     mat2.rotate(dest, dest, rad);
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {Number} rad - The rotation angle.
-   * @returns {mat2} out.
+   * @param out - Matrix to store result.
+   * @param rad - The rotation angle.
+   * @return out.
    */
   static fromRotation(out, rad) {
     let s = Math.sin(rad),
@@ -276,9 +276,9 @@ class mat2 {
    *     mat2.set(dest, 1, 0, 0, 1);
    *     mat2.scale(dest, dest, vec);
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {vec2} v - Scale vector.
-   * @returns {mat2} out.
+   * @param out - Matrix to store result.
+   * @param v - Scale vector.
+   * @return out.
    */
   static fromScaling(out, v) {
     out.m00 = v.x;
@@ -291,8 +291,8 @@ class mat2 {
   /**
    * Returns a string representation of a matrix.
    *
-   * @param {mat2} a - The matrix.
-   * @returns {String} String representation of this matrix.
+   * @param a - The matrix.
+   * @return String representation of this matrix.
    */
   static str(a) {
     return `mat2(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03})`;
@@ -301,9 +301,9 @@ class mat2 {
   /**
    * Store elements of a matrix into array.
    *
-   * @param {array} out - Array to store result.
-   * @param {mat2} m - The matrix.
-   * @returns {Array} out.
+   * @param out - Array to store result.
+   * @param m - The matrix.
+   * @return out.
    */
   static array(out, m) {
     out[0] = m.m00;
@@ -317,8 +317,8 @@ class mat2 {
   /**
    * Returns Frobenius norm of a matrix.
    *
-   * @param {mat2} a - Matrix to calculate Frobenius norm of.
-   * @returns {Number} - The frobenius norm.
+   * @param a - Matrix to calculate Frobenius norm of.
+   * @return - The frobenius norm.
    */
   static frob(a) {
     return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2)));
@@ -326,10 +326,10 @@ class mat2 {
 
   /**
    * Returns L, D and U matrices (Lower triangular, Diagonal and Upper triangular) by factorizing the input matrix.
-   * @param {mat2} L - The lower triangular matrix.
-   * @param {mat2} D - The diagonal matrix.
-   * @param {mat2} U - The upper triangular matrix.
-   * @param {mat2} a - The input matrix to factorize.
+   * @param L - The lower triangular matrix.
+   * @param D - The diagonal matrix.
+   * @param U - The upper triangular matrix.
+   * @param a - The input matrix to factorize.
    */
   static LDU(L, D, U, a) {
     L.m02 = a.m02 / a.m00;
@@ -341,10 +341,10 @@ class mat2 {
   /**
    * Adds two matrices.
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {mat2} a - The first operand.
-   * @param {mat2} b - The second operand.
-   * @returns {mat2} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static add(out, a, b) {
     out.m00 = a.m00 + b.m00;
@@ -357,10 +357,10 @@ class mat2 {
   /**
    * Subtracts matrix b from matrix a.
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {mat2} a - The first operand.
-   * @param {mat2} b - The second operand.
-   * @returns {mat2} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static subtract(out, a, b) {
     out.m00 = a.m00 - b.m00;
@@ -380,9 +380,9 @@ class mat2 {
   /**
    * Returns whether the specified matrices are equal. (Compared using ===)
    *
-   * @param {mat2} a - The first matrix.
-   * @param {mat2} b - The second matrix.
-   * @returns {Boolean} True if the matrices are equal, false otherwise.
+   * @param a - The first matrix.
+   * @param b - The second matrix.
+   * @return True if the matrices are equal, false otherwise.
    */
   static exactEquals(a, b) {
     return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03;
@@ -391,9 +391,9 @@ class mat2 {
   /**
    * Returns whether the specified matrices are approximately equal.
    *
-   * @param {mat2} a - The first matrix.
-   * @param {mat2} b - The second matrix.
-   * @returns {Boolean} True if the matrices are equal, false otherwise.
+   * @param a - The first matrix.
+   * @param b - The second matrix.
+   * @return True if the matrices are equal, false otherwise.
    */
   static equals(a, b) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03;
@@ -409,10 +409,10 @@ class mat2 {
   /**
    * Multiply each element of a matrix by a scalar number.
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {mat2} a - Matrix to scale
-   * @param {Number} b - The scale number.
-   * @returns {mat2} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to scale
+   * @param b - The scale number.
+   * @return out.
    */
   static multiplyScalar(out, a, b) {
     out.m00 = a.m00 * b;
@@ -425,11 +425,11 @@ class mat2 {
   /**
    * Adds two matrices after multiplying each element of the second operand by a scalar number.
    *
-   * @param {mat2} out - Matrix to store result.
-   * @param {mat2} a - The first operand.
-   * @param {mat2} b - The second operand.
-   * @param {Number} scale - The scale number.
-   * @returns {mat2} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @param scale - The scale number.
+   * @return out.
    */
   static multiplyScalarAndAdd(out, a, b, scale) {
     out.m00 = a.m00 + (b.m00 * scale);

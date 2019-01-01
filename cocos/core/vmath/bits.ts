@@ -26,8 +26,8 @@ export const INT_MIN = -1<<(INT_BITS-1);
 /**
  * Returns -1, 0, +1 depending on sign of x
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function sign(v) {
   return (v > 0) - (v < 0);
@@ -36,8 +36,8 @@ export function sign(v) {
 /**
  * Computes absolute value of integer
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function abs(v) {
   let mask = v >> (INT_BITS-1);
@@ -47,9 +47,9 @@ export function abs(v) {
 /**
  * Computes minimum of integers x and y
  *
- * @param {number} x
- * @param {number} y
- * @returns {number}
+ * @param x
+ * @param y
+ * @return
  */
 export function min(x, y) {
   return y ^ ((x ^ y) & -(x < y));
@@ -58,9 +58,9 @@ export function min(x, y) {
 /**
  * Computes maximum of integers x and y
  *
- * @param {number} x
- * @param {number} y
- * @returns {number}
+ * @param x
+ * @param y
+ * @return
  */
 export function max(x, y) {
   return x ^ ((x ^ y) & -(x < y));
@@ -69,8 +69,8 @@ export function max(x, y) {
 /**
  * Checks if a number is a power of two
  *
- * @param {number} v
- * @returns {boolean}
+ * @param v
+ * @return
  */
 export function isPow2(v) {
   return !(v & (v-1)) && (!!v);
@@ -79,8 +79,8 @@ export function isPow2(v) {
 /**
  * Computes log base 2 of v
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function log2(v) {
   let r, shift;
@@ -94,8 +94,8 @@ export function log2(v) {
 /**
  * Computes log base 10 of v
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function log10(v) {
   return  (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7 :
@@ -106,8 +106,8 @@ export function log10(v) {
 /**
  * Counts number of bits
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function popCount(v) {
   v = v - ((v >>> 1) & 0x55555555);
@@ -118,8 +118,8 @@ export function popCount(v) {
 /**
  * Counts number of trailing zeros
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function countTrailingZeros(v) {
   let c = 32;
@@ -136,8 +136,8 @@ export function countTrailingZeros(v) {
 /**
  * Rounds to next power of 2
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function nextPow2(v) {
   v += v === 0;
@@ -153,8 +153,8 @@ export function nextPow2(v) {
 /**
  * Rounds down to previous power of 2
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function prevPow2(v) {
   v |= v >>> 1;
@@ -168,8 +168,8 @@ export function prevPow2(v) {
 /**
  * Computes parity of word
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function parity(v) {
   v ^= v >>> 16;
@@ -199,8 +199,8 @@ const REVERSE_TABLE = new Array(256);
 /**
  * Reverse bits in a 32 bit word
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function reverse(v) {
   return (REVERSE_TABLE[v & 0xff] << 24) |
@@ -212,9 +212,9 @@ export function reverse(v) {
 /**
  * Interleave bits of 2 coordinates with 16 bits. Useful for fast quadtree codes
  *
- * @param {number} x
- * @param {number} y
- * @returns {number}
+ * @param x
+ * @param y
+ * @return
  */
 export function interleave2(x, y) {
   x &= 0xFFFF;
@@ -235,9 +235,9 @@ export function interleave2(x, y) {
 /**
  * Extracts the nth interleaved component
  *
- * @param {number} v
- * @param {number} n
- * @returns {number}
+ * @param v
+ * @param n
+ * @return
  */
 export function deinterleave2(v, n) {
   v = (v >>> n) & 0x55555555;
@@ -251,10 +251,10 @@ export function deinterleave2(v, n) {
 /**
  * Interleave bits of 3 coordinates, each with 10 bits.  Useful for fast octree codes
  *
- * @param {number} x
- * @param {number} y
- * @param {number} z
- * @returns {number}
+ * @param x
+ * @param y
+ * @param z
+ * @return
  */
 export function interleave3(x, y, z) {
   x &= 0x3FF;
@@ -282,9 +282,9 @@ export function interleave3(x, y, z) {
 /**
  * Extracts nth interleaved component of a 3-tuple
  *
- * @param {number} v
- * @param {number} n
- * @returns {number}
+ * @param v
+ * @param n
+ * @return
  */
 export function deinterleave3(v, n) {
   v = (v >>> n)       & 1227133513;
@@ -298,8 +298,8 @@ export function deinterleave3(v, n) {
 /**
  * Computes next combination in colexicographic order (this is mistakenly called nextPermutation on the bit twiddling hacks page)
  *
- * @param {number} v
- * @returns {number}
+ * @param v
+ * @return
  */
 export function nextCombination(v) {
   let t = v | (v - 1);

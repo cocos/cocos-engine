@@ -20,12 +20,12 @@ class mat23 {
   /**
    * Creates a matrix, with elements specified separately.
    *
-   * @param {Number} m00 -  Value assigned to element a.
-   * @param {Number} m01 -  Value assigned to element b.
-   * @param {Number} m02 -  Value assigned to element c.
-   * @param {Number} m03 -  Value assigned to element d.
-   * @param {Number} m04 -  Value assigned to element tx.
-   * @param {Number} m05 -  Value assigned to element ty.
+   * @param m00 -  Value assigned to element a.
+   * @param m01 -  Value assigned to element b.
+   * @param m02 -  Value assigned to element c.
+   * @param m03 -  Value assigned to element d.
+   * @param m04 -  Value assigned to element tx.
+   * @param m05 -  Value assigned to element ty.
    */
   constructor(m00 = 1, m01 = 0, m02 = 0, m03 = 1, m04 = 0, m05 = 0) {
     /**
@@ -68,13 +68,13 @@ class mat23 {
   /**
    * Creates a matrix, with elements specified separately.
    *
-   * @param {Number} m00 -  Value assigned to element a.
-   * @param {Number} m01 -  Value assigned to element b.
-   * @param {Number} m02 -  Value assigned to element c.
-   * @param {Number} m03 -  Value assigned to element d.
-   * @param {Number} m04 -  Value assigned to element tx.
-   * @param {Number} m05 -  Value assigned to element ty.
-   * @returns {mat23} The newly created matrix.
+   * @param m00 -  Value assigned to element a.
+   * @param m01 -  Value assigned to element b.
+   * @param m02 -  Value assigned to element c.
+   * @param m03 -  Value assigned to element d.
+   * @param m04 -  Value assigned to element tx.
+   * @param m05 -  Value assigned to element ty.
+   * @return The newly created matrix.
    */
   static create(m00 = 1, m01 = 0, m02 = 0, m03 = 1, m04 = 0, m05 = 0) {
     return new mat23(m00, m01, m02, m03, m04, m05);
@@ -83,8 +83,8 @@ class mat23 {
   /**
    * Clone a matrix.
    *
-   * @param {mat23} a - Matrix to clone.
-   * @returns {mat23} The newly created matrix.
+   * @param a - Matrix to clone.
+   * @return The newly created matrix.
    */
   static clone(a) {
     return new mat23(
@@ -97,9 +97,9 @@ class mat23 {
   /**
    * Copy content of a matrix into another.
    *
-   * @param {mat23} out - Matrix to modified.
-   * @param {mat23} a - The specified matrix.
-   * @returns {mat23} out.
+   * @param out - Matrix to modified.
+   * @param a - The specified matrix.
+   * @return out.
    */
   static copy(out, a) {
     out.m00 = a.m00;
@@ -114,8 +114,8 @@ class mat23 {
   /**
    * Sets a matrix as identity matrix.
    *
-   * @param {mat23} out - Matrix to modified.
-   * @returns {mat23} out.
+   * @param out - Matrix to modified.
+   * @return out.
    */
   static identity(out) {
     out.m00 = 1;
@@ -130,14 +130,14 @@ class mat23 {
   /**
    * Sets the elements of a matrix to the given values.
    *
-   * @param {mat23} out - The matrix to modified.
-   * @param {Number} a - Value assigned to element a.
-   * @param {Number} b - Value assigned to element b.
-   * @param {Number} c - Value assigned to element c.
-   * @param {Number} d - Value assigned to element d.
-   * @param {Number} tx - Value assigned to element tx.
-   * @param {Number} ty - Value assigned to element ty.
-   * @returns {mat23} out.
+   * @param out - The matrix to modified.
+   * @param a - Value assigned to element a.
+   * @param b - Value assigned to element b.
+   * @param c - Value assigned to element c.
+   * @param d - Value assigned to element d.
+   * @param tx - Value assigned to element tx.
+   * @param ty - Value assigned to element ty.
+   * @return out.
    */
   static set(out, a, b, c, d, tx, ty) {
     out.m00 = a;
@@ -152,9 +152,9 @@ class mat23 {
   /**
    * Inverts a matrix.
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {mat23} a - Matrix to invert.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to invert.
+   * @return out.
    */
   static invert(out, a) {
     let aa = a.m00, ab = a.m01, ac = a.m02, ad = a.m03,
@@ -178,8 +178,8 @@ class mat23 {
   /**
    * Calculates the determinant of a matrix.
    *
-   * @param {mat23} a - Matrix to calculate.
-   * @returns {Number} Determinant of a.
+   * @param a - Matrix to calculate.
+   * @return Determinant of a.
    */
   static determinant(a) {
     return a.m00 * a.m03 - a.m01 * a.m02;
@@ -188,10 +188,10 @@ class mat23 {
   /**
    * Multiply two matrices explicitly.
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {mat23} a - The first operand.
-   * @param {mat23} b - The second operand.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static multiply(out, a, b) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
@@ -215,10 +215,10 @@ class mat23 {
   /**
    * Rotates a matrix by the given angle.
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {mat23} a - Matrix to rotate.
-   * @param {Number} rad - The rotation angle.
-   * @returns {mat23} out
+   * @param out - Matrix to store result.
+   * @param a - Matrix to rotate.
+   * @param rad - The rotation angle.
+   * @return out
    */
   static rotate(out, a, rad) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
@@ -236,10 +236,10 @@ class mat23 {
   /**
    * Multiply a matrix with a scale matrix given by a scale vector.
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {mat23} a - Matrix to multiply.
-   * @param {vec2} v - The scale vector.
-   * @returns {mat23} out
+   * @param out - Matrix to store result.
+   * @param a - Matrix to multiply.
+   * @param v - The scale vector.
+   * @return out
    **/
   static scale(out, a, v) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
@@ -256,10 +256,10 @@ class mat23 {
   /**
    * Multiply a matrix with a translation matrix given by a translation offset.
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {mat23} a - Matrix to multiply.
-   * @param {vec2} v - The translation offset.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to multiply.
+   * @param v - The translation offset.
+   * @return out.
    */
   static translate(out, a, v) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
@@ -280,9 +280,9 @@ class mat23 {
    *     mat23.identity(dest);
    *     mat23.rotate(dest, dest, rad);
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {Number} rad - The rotation angle.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param rad - The rotation angle.
+   * @return out.
    */
   static fromRotation(out, rad) {
     let s = Math.sin(rad), c = Math.cos(rad);
@@ -302,9 +302,9 @@ class mat23 {
    *     mat23.identity(dest);
    *     mat23.scale(dest, dest, vec);
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {vec2} v - Scale vector.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param v - Scale vector.
+   * @return out.
    */
   static fromScaling(out, v) {
     out.m00 = v.m00;
@@ -323,9 +323,9 @@ class mat23 {
    *     mat23.identity(dest);
    *     mat23.translate(dest, dest, vec);
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {vec2} v - The translation offset.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param v - The translation offset.
+   * @return out.
    */
   static fromTranslation(out, v) {
     out.m00 = 1;
@@ -349,11 +349,11 @@ class mat23 {
    *     mat23.fromScaling(tmp, scale);
    *     mat23.multiply(dest, dest, tmp);
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {number} r - Rotation radian.
-   * @param {vec2} t - Translation offset.
-   * @param {vec2} s - Scale vector.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param r - Rotation radian.
+   * @param t - Translation offset.
+   * @param s - Scale vector.
+   * @return out.
    */
   static fromRTS(out, r, t, s) {
     let sr = Math.sin(r), cr = Math.cos(r);
@@ -369,8 +369,8 @@ class mat23 {
   /**
    * Returns a string representation of a matrix.
    *
-   * @param {mat23} a - The matrix.
-   * @returns {String} String representation of this matrix.
+   * @param a - The matrix.
+   * @return String representation of this matrix.
    */
   static str(a) {
     return `mat23(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05})`;
@@ -379,9 +379,9 @@ class mat23 {
   /**
    * Store elements of a matrix into array.
    *
-   * @param {array} out - Array to store result.
-   * @param {mat23} m - The matrix.
-   * @returns {Array} out.
+   * @param out - Array to store result.
+   * @param m - The matrix.
+   * @return out.
    */
   static array(out, m) {
     out[0] = m.m00;
@@ -397,9 +397,9 @@ class mat23 {
   /**
    * Store elements of a matrix into 16 floats array.
    *
-   * @param {array} out
-   * @param {mat23} m
-   * @returns {array}
+   * @param out
+   * @param m
+   * @return
    */
   static array4x4(out, m) {
     out[0] = m.m00;
@@ -425,8 +425,8 @@ class mat23 {
   /**
    * Returns Frobenius norm of a matrix.
    *
-   * @param {mat23} a - Matrix to calculate Frobenius norm of.
-   * @returns {Number} - The frobenius norm.
+   * @param a - Matrix to calculate Frobenius norm of.
+   * @return - The frobenius norm.
    */
   static frob(a) {
     return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + 1));
@@ -435,10 +435,10 @@ class mat23 {
   /**
    * Adds two matrices.
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {mat23} a - The first operand.
-   * @param {mat23} b - The second operand.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static add(out, a, b) {
     out.m00 = a.m00 + b.m00;
@@ -453,10 +453,10 @@ class mat23 {
   /**
    * Subtracts matrix b from matrix a.
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {mat23} a - The first operand.
-   * @param {mat23} b - The second operand.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static subtract(out, a, b) {
     out.m00 = a.m00 - b.m00;
@@ -478,10 +478,10 @@ class mat23 {
   /**
    * Multiply each element of a matrix by a scalar number.
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {mat23} a - Matrix to scale
-   * @param {Number} b - The scale number.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param a - Matrix to scale
+   * @param b - The scale number.
+   * @return out.
    */
   static multiplyScalar(out, a, b) {
     out.m00 = a.m00 * b;
@@ -496,11 +496,11 @@ class mat23 {
   /**
    * Adds two matrices after multiplying each element of the second operand by a scalar number.
    *
-   * @param {mat23} out - Matrix to store result.
-   * @param {mat23} a - The first operand.
-   * @param {mat23} b - The second operand.
-   * @param {Number} scale - The scale number.
-   * @returns {mat23} out.
+   * @param out - Matrix to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @param scale - The scale number.
+   * @return out.
    */
   static multiplyScalarAndAdd(out, a, b, scale) {
     out.m00 = a.m00 + (b.m00 * scale);
@@ -515,9 +515,9 @@ class mat23 {
   /**
    * Returns whether the specified matrices are equal. (Compared using ===)
    *
-   * @param {mat23} a - The first matrix.
-   * @param {mat23} b - The second matrix.
-   * @returns {Boolean} True if the matrices are equal, false otherwise.
+   * @param a - The first matrix.
+   * @param b - The second matrix.
+   * @return True if the matrices are equal, false otherwise.
    */
   static exactEquals(a, b) {
     return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05;
@@ -526,9 +526,9 @@ class mat23 {
   /**
    * Returns whether the specified matrices are approximately equal.
    *
-   * @param {mat23} a - The first matrix.
-   * @param {mat23} b - The second matrix.
-   * @returns {Boolean} True if the matrices are equal, false otherwise.
+   * @param a - The first matrix.
+   * @param b - The second matrix.
+   * @return True if the matrices are equal, false otherwise.
    */
   static equals(a, b) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05;

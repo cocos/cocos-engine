@@ -15,10 +15,10 @@ class quat {
   /**
    * Creates a quaternion, with components specified separately.
    *
-   * @param {number} x - Value assigned to x component.
-   * @param {number} y - Value assigned to y component.
-   * @param {number} z - Value assigned to z component.
-   * @param {number} w - Value assigned to w component.
+   * @param x - Value assigned to x component.
+   * @param y - Value assigned to y component.
+   * @param z - Value assigned to z component.
+   * @param w - Value assigned to w component.
    */
   constructor(x = 0, y = 0, z = 0, w = 1) {
     /**
@@ -49,11 +49,11 @@ class quat {
   /**
    * Creates a quaternion, with components specified separately.
    *
-   * @param {number} x - Value assigned to x component.
-   * @param {number} y - Value assigned to y component.
-   * @param {number} z - Value assigned to z component.
-   * @param {number} w - Value assigned to w component.
-   * @return {quat} The newly created quaternion.
+   * @param x - Value assigned to x component.
+   * @param y - Value assigned to y component.
+   * @param z - Value assigned to z component.
+   * @param w - Value assigned to w component.
+   * @return The newly created quaternion.
    */
   static create(x = 0, y = 0, z = 0, w = 1) {
     return new quat(x, y, z, w);
@@ -62,8 +62,8 @@ class quat {
   /**
    * Clone a quaternion.
    *
-   * @param {quat} a - Quaternion to clone.
-   * @returns {quat} The newly created quaternion.
+   * @param a - Quaternion to clone.
+   * @return The newly created quaternion.
    */
   static clone(a) {
     return new quat(a.x, a.y, a.z, a.w);
@@ -72,9 +72,9 @@ class quat {
   /**
    * Copy content of a quaternion into another.
    *
-   * @param {quat} out - Quaternion to modified.
-   * @param {quat} a - The specified quaternion.
-   * @returns {quat} out.
+   * @param out - Quaternion to modified.
+   * @param a - The specified quaternion.
+   * @return out.
    */
   static copy(out, a) {
     return vec4.copy(out, a);
@@ -83,12 +83,12 @@ class quat {
   /**
    * Sets the components of a quaternion to the given values.
    *
-   * @param {quat} out - The quaternion to modified.
-   * @param {Number} x - Value set to x component.
-   * @param {Number} y - Value set to y component.
-   * @param {Number} z - Value set to z component.
-   * @param {Number} w - Value set to w component.
-   * @returns {quat} out.
+   * @param out - The quaternion to modified.
+   * @param x - Value set to x component.
+   * @param y - Value set to y component.
+   * @param z - Value set to z component.
+   * @param w - Value set to w component.
+   * @return out.
    */
   static set(out, x, y, z, w) {
     out.x = x;
@@ -101,8 +101,8 @@ class quat {
   /**
    * Sets a quaternion as identity quaternion.
    *
-   * @param {quat} out - Quaternion to set.
-   * @returns {quat} out.
+   * @param out - Quaternion to set.
+   * @return out.
    */
   static identity(out) {
     out.x = 0;
@@ -118,10 +118,10 @@ class quat {
    *
    * Both vectors are assumed to be unit length.
    *
-   * @param {quat} out - Quaternion to set.
-   * @param {vec3} a - The initial vector.
-   * @param {vec3} b - The destination vector.
-   * @returns {quat} out.
+   * @param out - Quaternion to set.
+   * @param a - The initial vector.
+   * @param b - The destination vector.
+   * @return out.
    */
   static rotationTo(out, a, b) {
     let rotationToIIFE = (function () {
@@ -170,7 +170,7 @@ class quat {
    *  [0, 0, 1] and 270. This method favors the latter.
    * @param  {vec3} out_axis - Vector to store the rotation axis.
    * @param  {quat} q - Quaternion to be decomposed.
-   * @return {Number} - Angle, in radians, of the rotation.
+   * @return - Angle, in radians, of the rotation.
    */
   static getAxisAngle(out_axis, q) {
     let rad = Math.acos(q.w) * 2.0;
@@ -191,10 +191,10 @@ class quat {
   /**
    * Multiply two quaternions.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - The first operand.
-   * @param {quat} b - The second operand.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return out.
    */
   static multiply(out, a, b) {
     let ax = a.x, ay = a.y, az = a.z, aw = a.w,
@@ -217,10 +217,10 @@ class quat {
   /**
    * Scales a quaternion with a number.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - Quaternion to scale.
-   * @param {quat} b - The scale number.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - Quaternion to scale.
+   * @param b - The scale number.
+   * @return out.
    * */
   static scale(out, a, b) {
     out.x = a.x * b;
@@ -233,10 +233,10 @@ class quat {
   /**
    * Rotates a quaternion by the given angle about the X axis.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - Quaternion to rotate.
-   * @param {number} rad - Angle (in radians) to rotate.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - Quaternion to rotate.
+   * @param rad - Angle (in radians) to rotate.
+   * @return out.
    */
   static rotateX(out, a, rad) {
     rad *= 0.5;
@@ -254,10 +254,10 @@ class quat {
   /**
    * Rotates a quaternion by the given angle about the Y axis.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - Quaternion to rotate.
-   * @param {number} rad - Angle (in radians) to rotate.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - Quaternion to rotate.
+   * @param rad - Angle (in radians) to rotate.
+   * @return out.
    */
   static rotateY(out, a, rad) {
     rad *= 0.5;
@@ -275,10 +275,10 @@ class quat {
   /**
    * Rotates a quaternion by the given angle about the Z axis.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - Quaternion to rotate.
-   * @param {number} rad - Angle (in radians) to rotate.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - Quaternion to rotate.
+   * @param rad - Angle (in radians) to rotate.
+   * @return out.
    */
   static rotateZ(out, a, rad) {
     rad *= 0.5;
@@ -296,11 +296,11 @@ class quat {
   /**
    * Rotates a quaternion by the given angle about a world space axis.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} rot - Quaternion to rotate.
-   * @param {vec3} axis - The axis around which to rotate in world space.
-   * @param {number} rad - Angle (in radians) to rotate.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param rot - Quaternion to rotate.
+   * @param axis - The axis around which to rotate in world space.
+   * @param rad - Angle (in radians) to rotate.
+   * @return out.
    */
   static rotateAround(out, rot, axis, rad) {
     let rotateAroundIIFE = (function () {
@@ -324,11 +324,11 @@ class quat {
   /**
    * Rotates a quaternion by the given angle about a local space axis.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} rot - Quaternion to rotate.
-   * @param {vec3} axis - The axis around which to rotate in local space.
-   * @param {number} rad - Angle (in radians) to rotate.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param rot - Quaternion to rotate.
+   * @param axis - The axis around which to rotate in local space.
+   * @param rad - Angle (in radians) to rotate.
+   * @return out.
    */
   static rotateAroundLocal(out, rot, axis, rad) {
     let rotateAroundLocalIIFE = (function () {
@@ -350,9 +350,9 @@ class quat {
    * Assumes that quaternion is 1 unit in length.
    * Any existing W component will be ignored.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - Quaternion to calculate W.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - Quaternion to calculate W.
+   * @return out.
    */
   static calculateW(out, a) {
     let x = a.x, y = a.y, z = a.z;
@@ -367,9 +367,9 @@ class quat {
   /**
    * Calculates the dot product of two quaternions.
    *
-   * @param {quat} a - The first operand.
-   * @param {quat} b - The second operand.
-   * @returns {Number} - The dot product of a and b.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @return - The dot product of a and b.
    */
   static dot(a, b) {
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
@@ -378,11 +378,11 @@ class quat {
   /**
    * Performs a linear interpolation between two quaternions.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - The first operand.
-   * @param {quat} b - The second operand.
-   * @param {Number} t - The interpolation coefficient.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @param t - The interpolation coefficient.
+   * @return out.
    */
   static lerp(out, a, b, t) {
     let ax = a.x,
@@ -399,11 +399,11 @@ class quat {
   /**
    * Performs a spherical linear interpolation between two quaternions.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - The first operand.
-   * @param {quat} b - The second operand.
-   * @param {Number} t - The interpolation coefficient.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @param t - The interpolation coefficient.
+   * @return out.
    */
   static slerp(out, a, b, t) {
     // benchmarks:
@@ -449,13 +449,13 @@ class quat {
   /**
    * Performs a spherical linear interpolation with two control points.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - The first operand.
-   * @param {quat} b - The second operand.
-   * @param {quat} c - The third operand.
-   * @param {quat} d - The fourth operand.
-   * @param {Number} t - The interpolation coefficient.
-   * @returns {quat} out
+   * @param out - Quaternion to store result.
+   * @param a - The first operand.
+   * @param b - The second operand.
+   * @param c - The third operand.
+   * @param d - The fourth operand.
+   * @param t - The interpolation coefficient.
+   * @return out
    */
   static sqlerp(out, a, b, c, d, t) {
     let sqlerpIIFE = (function () {
@@ -476,9 +476,9 @@ class quat {
   /**
    * Calculates the inverse of a quaternion.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - Quaternion to calculate inverse of.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - Quaternion to calculate inverse of.
+   * @return out.
    */
   static invert(out, a) {
     let a0 = a.x, a1 = a.y, a2 = a.z, a3 = a.w;
@@ -498,9 +498,9 @@ class quat {
    * Calculates the conjugate of a quaternion.
    * If the quaternion is normalized, this function is faster than quat.inverse and produces the same result.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - Quaternion to calculate conjugate of.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - Quaternion to calculate conjugate of.
+   * @return out.
    */
   static conjugate(out, a) {
     out.x = -a.x;
@@ -513,8 +513,8 @@ class quat {
   /**
    * Calculates the length of a quaternion.
    *
-   * @param {quat} a - The quaternion.
-   * @returns {Number} Length of the quaternion.
+   * @param a - The quaternion.
+   * @return Length of the quaternion.
    */
   static magnitude(a) {
     let x = a.x,
@@ -534,8 +534,8 @@ class quat {
   /**
    * Calculates the squared length of a quaternion.
    *
-   * @param {quat} a - The quaternion.
-   * @returns {Number} Squared length of the quaternion.
+   * @param a - The quaternion.
+   * @return Squared length of the quaternion.
    */
   static squaredMagnitude(a) {
     let x = a.x,
@@ -555,9 +555,9 @@ class quat {
   /**
    * Normalizes a quaternion.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {quat} a - Quaternion to normalize.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param a - Quaternion to normalize.
+   * @return out.
    * @function
    */
   static normalize(out, a) {
@@ -581,11 +581,11 @@ class quat {
    * axes. Each axis is a vec3 and is expected to be unit length and
    * perpendicular to all other specified axes.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {vec3} xAxis - Vector representing the local "right" direction.
-   * @param {vec3} yAxis - Vector representing the local "up" direction.
-   * @param {vec3} zAxis - Vector representing the viewing direction.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param xAxis - Vector representing the local "right" direction.
+   * @param yAxis - Vector representing the local "up" direction.
+   * @param zAxis - Vector representing the viewing direction.
+   * @return out.
    */
   static fromAxes(out, xAxis, yAxis, zAxis) {
     let fromAxesIIFE = (function () {
@@ -606,11 +606,11 @@ class quat {
   /**
    * Calculates a quaternion from view direction and up direction
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {vec3} view - View direction (must be normalized).
-   * @param {vec3} [up] - Up direction, default is (0,1,0) (must be normalized).
+   * @param out - Quaternion to store result.
+   * @param view - View direction (must be normalized).
+   * @param [up] - Up direction, default is (0,1,0) (must be normalized).
    *
-   * @returns {quat} out.
+   * @return out.
    */
   static fromViewUp(out, view, up) {
     let fromViewUpIIFE = (function () {
@@ -632,10 +632,10 @@ class quat {
    * Sets a quaternion from the given angle and rotation axis,
    * then returns it.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {vec3} axis - The axis around which to rotate.
-   * @param {Number} rad - The angle in radians.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param axis - The axis around which to rotate.
+   * @param rad - The angle in radians.
+   * @return out.
    **/
   static fromAxisAngle(out, axis, rad) {
     rad = rad * 0.5;
@@ -653,9 +653,9 @@ class quat {
    * NOTE: The resultant quaternion is not normalized, so you should be sure
    * to re-normalize the quaternion yourself where necessary.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {mat3} m - The rotation matrix.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param m - The rotation matrix.
+   * @return out.
    * @function
    */
   static fromMat3(out, m) {
@@ -706,11 +706,11 @@ class quat {
   /**
    * Creates a quaternion from the given euler angle x, y, z.
    *
-   * @param {quat} out - Quaternion to store result.
-   * @param {number} x - Angle to rotate around X axis in degrees.
-   * @param {number} y - Angle to rotate around Y axis in degrees.
-   * @param {number} z - Angle to rotate around Z axis in degrees.
-   * @returns {quat} out.
+   * @param out - Quaternion to store result.
+   * @param x - Angle to rotate around X axis in degrees.
+   * @param y - Angle to rotate around Y axis in degrees.
+   * @param z - Angle to rotate around Z axis in degrees.
+   * @return out.
    * @function
    */
   static fromEuler(out, x, y, z) {
@@ -736,9 +736,9 @@ class quat {
   /**
    * Convert a quaternion back to euler angle (in degrees).
    *
-   * @param {vec3} out - Euler angle stored as a vec3
-   * @param {number} q - the quaternion to be converted
-   * @returns {vec3} out.
+   * @param out - Euler angle stored as a vec3
+   * @param q - the quaternion to be converted
+   * @return out.
    */
   static toEuler(out, q) {
     let x = q.x, y = q.y, z = q.z, w = q.w;
@@ -774,8 +774,8 @@ class quat {
   /**
    * Returns string representation of a quaternion.
    *
-   * @param {quat} a - The quaternion.
-   * @returns {String} - String representation of this quaternion.
+   * @param a - The quaternion.
+   * @return - String representation of this quaternion.
    */
   static str(a) {
     return `quat(${a.x}, ${a.y}, ${a.z}, ${a.w})`;
@@ -784,9 +784,9 @@ class quat {
   /**
    * Store components of a quaternion into array.
    *
-   * @param {Array} out - Array to store result.
-   * @param {quat} q - The quaternion.
-   * @returns {Array} out.
+   * @param out - Array to store result.
+   * @param q - The quaternion.
+   * @return out.
    */
   static array(out, q) {
     out[0] = q.x;
@@ -800,9 +800,9 @@ class quat {
   /**
    * Returns whether the specified quaternions are equal. (Compared using ===)
    *
-   * @param {quat} a - The first quaternion.
-   * @param {quat} b - The second quaternion.
-   * @returns {Boolean} True if the quaternions are equal, false otherwise.
+   * @param a - The first quaternion.
+   * @param b - The second quaternion.
+   * @return True if the quaternions are equal, false otherwise.
    */
   static exactEquals(a, b) {
     return vec4.exactEquals(a, b);
@@ -811,9 +811,9 @@ class quat {
   /**
    * Returns whether the specified quaternions are approximately equal.
    *
-   * @param {quat} a The first quaternion.
-   * @param {quat} b The second quaternion.
-   * @returns {Boolean} True if the quaternions are approximately equal, false otherwise.
+   * @param a The first quaternion.
+   * @param b The second quaternion.
+   * @return True if the quaternions are approximately equal, false otherwise.
    */
   static equals(a, b) {
     return vec4.equals(a, b);
