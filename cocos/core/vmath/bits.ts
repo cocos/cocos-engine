@@ -7,7 +7,7 @@
  *    http://graphics.stanford.edu/~seander/bithacks.html
  */
 
-'use strict';
+ /* tslint:disable:no-bitwise */
 
 // Number of bits in an integer
 /**
@@ -24,104 +24,105 @@ export const INT_MAX = 0x7fffffff;
 export const INT_MIN = -1 << (INT_BITS - 1);
 
 /**
- * Returns -1, 0, +1 depending on sign of x
+ * Returns -1, 0, +1 depending on sign of x.
  *
  * @param v
  * @return
  */
-export function sign(v) {
-    return (v > 0) - (v < 0);
+export function sign(v: number) {
+    return ((v > 0) as unknown as number) - ((v < 0) as unknown as number);
 }
 
 /**
- * Computes absolute value of integer
+ * Computes absolute value of integer.
  *
  * @param v
  * @return
  */
-export function abs(v) {
+export function abs(v: number) {
     const mask = v >> (INT_BITS - 1);
     return (v ^ mask) - mask;
 }
 
 /**
- * Computes minimum of integers x and y
+ * Computes minimum of integers x and y.
  *
  * @param x
  * @param y
  * @return
  */
-export function min(x, y) {
+export function min(x: number, y: number) {
     return y ^ ((x ^ y) & -(x < y));
 }
 
 /**
- * Computes maximum of integers x and y
+ * Computes maximum of integers x and y.
  *
  * @param x
  * @param y
  * @return
  */
-export function max(x, y) {
+export function max(x: number, y: number) {
     return x ^ ((x ^ y) & -(x < y));
 }
 
 /**
- * Checks if a number is a power of two
+ * Checks if a number is a power of two.
  *
  * @param v
  * @return
  */
-export function isPow2(v) {
+export function isPow2(v: number) {
     return !(v & (v - 1)) && (!!v);
 }
 
 /**
- * Computes log base 2 of v
+ * Computes log base 2 of v.
  *
  * @param v
  * @return
  */
-export function log2(v) {
-    let r, shift;
-    r = (v > 0xFFFF) << 4; v >>>= r;
-    shift = (v > 0xFF) << 3; v >>>= shift; r |= shift;
-    shift = (v > 0xF) << 2; v >>>= shift; r |= shift;
-    shift = (v > 0x3) << 1; v >>>= shift; r |= shift;
+export function log2(v: number) {
+    let r: number;
+    let shift: number;
+    r = ((v > 0xFFFF) as unknown as number) << 4; v >>>= r;
+    shift = ((v > 0xFF) as unknown as number) << 3; v >>>= shift; r |= shift;
+    shift = ((v > 0xF) as unknown as number) << 2; v >>>= shift; r |= shift;
+    shift = ((v > 0x3) as unknown as number) << 1; v >>>= shift; r |= shift;
     return r | (v >> 1);
 }
 
 /**
- * Computes log base 10 of v
+ * Computes log base 10 of v.
  *
  * @param v
  * @return
  */
-export function log10(v) {
+export function log10(v: number) {
     return (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7 :
         (v >= 1000000) ? 6 : (v >= 100000) ? 5 : (v >= 10000) ? 4 :
             (v >= 1000) ? 3 : (v >= 100) ? 2 : (v >= 10) ? 1 : 0;
 }
 
 /**
- * Counts number of bits
+ * Counts number of bits.
  *
  * @param v
  * @return
  */
-export function popCount(v) {
+export function popCount(v: number) {
     v = v - ((v >>> 1) & 0x55555555);
     v = (v & 0x33333333) + ((v >>> 2) & 0x33333333);
     return ((v + (v >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
 }
 
 /**
- * Counts number of trailing zeros
+ * Counts number of trailing zeros.
  *
  * @param v
  * @return
  */
-export function countTrailingZeros(v) {
+export function countTrailingZeros(v: number) {
     let c = 32;
     v &= -v;
     if (v) { c--; }
@@ -134,13 +135,13 @@ export function countTrailingZeros(v) {
 }
 
 /**
- * Rounds to next power of 2
+ * Rounds to next power of 2.
  *
  * @param v
  * @return
  */
-export function nextPow2(v) {
-    v += v === 0;
+export function nextPow2(v: number) {
+    v += ((v === 0) as unknown as number);
     --v;
     v |= v >>> 1;
     v |= v >>> 2;
@@ -151,12 +152,12 @@ export function nextPow2(v) {
 }
 
 /**
- * Rounds down to previous power of 2
+ * Rounds down to previous power of 2.
  *
  * @param v
  * @return
  */
-export function prevPow2(v) {
+export function prevPow2(v: number) {
     v |= v >>> 1;
     v |= v >>> 2;
     v |= v >>> 4;
@@ -166,12 +167,12 @@ export function prevPow2(v) {
 }
 
 /**
- * Computes parity of word
+ * Computes parity of word.
  *
  * @param v
  * @return
  */
-export function parity(v) {
+export function parity(v: number) {
     v ^= v >>> 16;
     v ^= v >>> 8;
     v ^= v >>> 4;
@@ -179,14 +180,13 @@ export function parity(v) {
     return (0x6996 >>> v) & 1;
 }
 
-/**
- * @ignore
- */
-const REVERSE_TABLE = new Array(256);
+const REVERSE_TABLE: number[] = new Array(256);
 
-(function(tab) {
+((tab: number[]) => {
     for (let i = 0; i < 256; ++i) {
-        let v = i, r = i, s = 7;
+        let v = i;
+        let r = i;
+        let s = 7;
         for (v >>>= 1; v; v >>>= 1) {
             r <<= 1;
             r |= v & 1;
@@ -197,12 +197,12 @@ const REVERSE_TABLE = new Array(256);
 })(REVERSE_TABLE);
 
 /**
- * Reverse bits in a 32 bit word
+ * Reverse bits in a 32 bit word.
  *
  * @param v
  * @return
  */
-export function reverse(v) {
+export function reverse(v: number) {
     return (REVERSE_TABLE[v & 0xff] << 24) |
         (REVERSE_TABLE[(v >>> 8) & 0xff] << 16) |
         (REVERSE_TABLE[(v >>> 16) & 0xff] << 8) |
@@ -210,13 +210,13 @@ export function reverse(v) {
 }
 
 /**
- * Interleave bits of 2 coordinates with 16 bits. Useful for fast quadtree codes
+ * Interleave bits of 2 coordinates with 16 bits. Useful for fast quadtree codes.
  *
  * @param x
  * @param y
  * @return
  */
-export function interleave2(x, y) {
+export function interleave2(x: number, y: number) {
     x &= 0xFFFF;
     x = (x | (x << 8)) & 0x00FF00FF;
     x = (x | (x << 4)) & 0x0F0F0F0F;
@@ -233,13 +233,13 @@ export function interleave2(x, y) {
 }
 
 /**
- * Extracts the nth interleaved component
+ * Extracts the nth interleaved component.
  *
  * @param v
  * @param n
  * @return
  */
-export function deinterleave2(v, n) {
+export function deinterleave2(v: number, n: number) {
     v = (v >>> n) & 0x55555555;
     v = (v | (v >>> 1)) & 0x33333333;
     v = (v | (v >>> 2)) & 0x0F0F0F0F;
@@ -249,14 +249,14 @@ export function deinterleave2(v, n) {
 }
 
 /**
- * Interleave bits of 3 coordinates, each with 10 bits.  Useful for fast octree codes
+ * Interleave bits of 3 coordinates, each with 10 bits.  Useful for fast octree codes.
  *
  * @param x
  * @param y
  * @param z
  * @return
  */
-export function interleave3(x, y, z) {
+export function interleave3(x: number, y: number, z: number) {
     x &= 0x3FF;
     x = (x | (x << 16)) & 4278190335;
     x = (x | (x << 8)) & 251719695;
@@ -280,13 +280,13 @@ export function interleave3(x, y, z) {
 }
 
 /**
- * Extracts nth interleaved component of a 3-tuple
+ * Extracts nth interleaved component of a 3-tuple.
  *
  * @param v
  * @param n
  * @return
  */
-export function deinterleave3(v, n) {
+export function deinterleave3(v: number, n: number) {
     v = (v >>> n) & 1227133513;
     v = (v | (v >>> 2)) & 3272356035;
     v = (v | (v >>> 4)) & 251719695;
@@ -296,12 +296,13 @@ export function deinterleave3(v, n) {
 }
 
 /**
- * Computes next combination in colexicographic order (this is mistakenly called nextPermutation on the bit twiddling hacks page)
+ * Computes next combination in colexicographic order (this is
+ * mistakenly called nextPermutation on the bit twiddling hacks page).
  *
  * @param v
  * @return
  */
-export function nextCombination(v) {
+export function nextCombination(v: number) {
     const t = v | (v - 1);
     return (t + 1) | (((~t & -~t) - 1) >>> (countTrailingZeros(v) + 1));
 }
