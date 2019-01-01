@@ -6,25 +6,6 @@ import { EPSILON, random } from './utils';
  * x, y is alias of the first, second component of vector, respectively.
  */
 class vec2 {
-    /**
-     * Creates a vector, with components specified separately.
-     *
-     * @param x - Value assigned to x component.
-     * @param y - Value assigned to y component.
-     */
-    constructor(x = 0, y = 0) {
-        /**
-         * The x component.
-         * @type {number}
-         * */
-        this.x = x;
-
-        /**
-         * The y component.
-         * @type {number}
-         * */
-        this.y = y;
-    }
 
     /**
      * Creates a vector, with components specified separately.
@@ -33,7 +14,7 @@ class vec2 {
      * @param y - Value assigned to y component.
      * @return The newly created vector.
      */
-    static create(x = 0, y = 0) {
+    public static create(x = 0, y = 0) {
         return new vec2(x, y);
     }
 
@@ -42,7 +23,7 @@ class vec2 {
      *
      * @return The newly created vector.
      */
-    static zero(out) {
+    public static zero(out) {
         out.x = 0;
         out.y = 0;
         return out;
@@ -54,7 +35,7 @@ class vec2 {
      * @param a - Vector to clone.
      * @return The newly created vector.
      */
-    static clone(a) {
+    public static clone(a) {
         return new vec2(a.x, a.y);
     }
 
@@ -65,7 +46,7 @@ class vec2 {
      * @param a - The specified vector.
      * @return out.
      */
-    static copy(out, a) {
+    public static copy(out, a) {
         out.x = a.x;
         out.y = a.y;
         return out;
@@ -79,7 +60,7 @@ class vec2 {
      * @param y - Value set to y component.
      * @return out.
      */
-    static set(out, x, y) {
+    public static set(out, x, y) {
         out.x = x;
         out.y = y;
         return out;
@@ -95,7 +76,7 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    static add(out, a, b) {
+    public static add(out, a, b) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         return out;
@@ -111,7 +92,7 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    static subtract(out, a, b) {
+    public static subtract(out, a, b) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         return out;
@@ -120,7 +101,7 @@ class vec2 {
     /**
      *Alias of {@link vec2.subtract}.
      */
-    static sub(out, a, b) {
+    public static sub(out, a, b) {
         return vec2.subtract(out, a, b);
     }
 
@@ -134,7 +115,7 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    static multiply(out, a, b) {
+    public static multiply(out, a, b) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         return out;
@@ -143,7 +124,7 @@ class vec2 {
     /**
      *Alias of {@link vec2.multiply}.
      */
-    static mul(out, a, b) {
+    public static mul(out, a, b) {
         return vec2.multiply(out, a, b);
     }
 
@@ -157,7 +138,7 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    static divide(out, a, b) {
+    public static divide(out, a, b) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         return out;
@@ -166,7 +147,7 @@ class vec2 {
     /**
      *Alias of {@link vec2.divide}.
      */
-    static div(out, a, b) {
+    public static div(out, a, b) {
         return vec2.divide(out, a, b);
     }
 
@@ -179,7 +160,7 @@ class vec2 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    static ceil(out, a) {
+    public static ceil(out, a) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         return out;
@@ -194,7 +175,7 @@ class vec2 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    static floor(out, a) {
+    public static floor(out, a) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         return out;
@@ -210,7 +191,7 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    static min(out, a, b) {
+    public static min(out, a, b) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         return out;
@@ -226,7 +207,7 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    static max(out, a, b) {
+    public static max(out, a, b) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         return out;
@@ -241,7 +222,7 @@ class vec2 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    static round(out, a) {
+    public static round(out, a) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         return out;
@@ -255,7 +236,7 @@ class vec2 {
      * @param b - The scale number.
      * @return out.
      * */
-    static scale(out, a, b) {
+    public static scale(out, a, b) {
         out.x = a.x * b;
         out.y = a.y * b;
         return out;
@@ -270,7 +251,7 @@ class vec2 {
      * @param scale - The scale number before adding.
      * @return out.
      */
-    static scaleAndAdd(out, a, b, scale) {
+    public static scaleAndAdd(out, a, b, scale) {
         out.x = a.x + (b.x * scale);
         out.y = a.y + (b.y * scale);
         return out;
@@ -283,8 +264,8 @@ class vec2 {
      * @param b - The second operand.
      * @return Distance between a and b.
      */
-    static distance(a, b) {
-        let x = b.x - a.x,
+    public static distance(a, b) {
+        const x = b.x - a.x,
             y = b.y - a.y;
         return Math.sqrt(x * x + y * y);
     }
@@ -292,7 +273,7 @@ class vec2 {
     /**
      *Alias of {@link vec2.distance}.
      */
-    static dist(a, b) {
+    public static dist(a, b) {
         return vec2.distance(a, b);
     }
 
@@ -303,8 +284,8 @@ class vec2 {
      * @param b - The second operand.
      * @return Squared distance between a and b.
      */
-    static squaredDistance(a, b) {
-        let x = b.x - a.x,
+    public static squaredDistance(a, b) {
+        const x = b.x - a.x,
             y = b.y - a.y;
         return x * x + y * y;
     }
@@ -312,7 +293,7 @@ class vec2 {
     /**
      *Alias of {@link vec2.squaredDistance}.
      */
-    static sqrDist(a, b) {
+    public static sqrDist(a, b) {
         return vec2.squaredDistance(a, b);
     }
 
@@ -322,8 +303,8 @@ class vec2 {
      * @param a - The vector.
      * @return Length of the vector.
      */
-    static magnitude(a) {
-        let x = a.x,
+    public static magnitude(a) {
+        const x = a.x,
             y = a.y;
         return Math.sqrt(x * x + y * y);
     }
@@ -331,7 +312,7 @@ class vec2 {
     /**
      *Alias of {@link vec2.magnitude}.
      */
-    static mag(a) {
+    public static mag(a) {
         return vec2.magnitude(a);
     }
 
@@ -341,8 +322,8 @@ class vec2 {
      * @param a - The vector.
      * @return Squared length of the vector.
      */
-    static squaredMagnitude(a) {
-        let x = a.x,
+    public static squaredMagnitude(a) {
+        const x = a.x,
             y = a.y;
         return x * x + y * y;
     }
@@ -350,7 +331,7 @@ class vec2 {
     /**
      *Alias of {@link vec2.squaredMagnitude}
      */
-    static sqrMag(a) {
+    public static sqrMag(a) {
         return vec2.squaredMagnitude(a);
     }
 
@@ -361,7 +342,7 @@ class vec2 {
      * @param a - Vector to negate.
      * @return out.
      */
-    static negate(out, a) {
+    public static negate(out, a) {
         out.x = -a.x;
         out.y = -a.y;
         return out;
@@ -374,7 +355,7 @@ class vec2 {
      * @param a - Vector to invert.
      * @return out.
      */
-    static inverse(out, a) {
+    public static inverse(out, a) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         return out;
@@ -387,8 +368,8 @@ class vec2 {
      * @param a - Vector to invert.
      * @return out.
      */
-    static inverseSafe(out, a) {
-        let x = a.x,
+    public static inverseSafe(out, a) {
+        const x = a.x,
             y = a.y;
 
         if (Math.abs(x) < EPSILON) {
@@ -413,12 +394,12 @@ class vec2 {
      * @param a - Vector to normalize.
      * @return out.
      */
-    static normalize(out, a) {
-        let x = a.x,
+    public static normalize(out, a) {
+        const x = a.x,
             y = a.y;
         let len = x * x + y * y;
         if (len > 0) {
-            //TODO: evaluate use of glm_invsqrt here?
+            // TODO: evaluate use of glm_invsqrt here?
             len = 1 / Math.sqrt(len);
             out.x = a.x * len;
             out.y = a.y * len;
@@ -433,7 +414,7 @@ class vec2 {
      * @param b - The second operand.
      * @return Dot product of a and b.
      */
-    static dot(a, b) {
+    public static dot(a, b) {
         return a.x * b.x + a.y * b.y;
     }
 
@@ -446,8 +427,8 @@ class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    static cross(out, a, b) {
-        let z = a.x * b.y - a.y * b.x;
+    public static cross(out, a, b) {
+        const z = a.x * b.y - a.y * b.x;
         out.x = out.y = 0;
         out.z = z;
         return out;
@@ -462,8 +443,8 @@ class vec2 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    static lerp(out, a, b, t) {
-        let ax = a.x,
+    public static lerp(out, a, b, t) {
+        const ax = a.x,
             ay = a.y;
         out.x = ax + t * (b.x - ax);
         out.y = ay + t * (b.y - ay);
@@ -477,9 +458,9 @@ class vec2 {
      * @param [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
      * @return out.
      */
-    static random(out, scale) {
+    public static random(out, scale) {
         scale = scale || 1.0;
-        let r = random() * 2.0 * Math.PI;
+        const r = random() * 2.0 * Math.PI;
         out.x = Math.cos(r) * scale;
         out.y = Math.sin(r) * scale;
         return out;
@@ -493,8 +474,8 @@ class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    static transformMat2(out, a, m) {
-        let x = a.x,
+    public static transformMat2(out, a, m) {
+        const x = a.x,
             y = a.y;
         out.x = m.m00 * x + m.m02 * y;
         out.y = m.m01 * x + m.m03 * y;
@@ -509,8 +490,8 @@ class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    static transformMat23(out, a, m) {
-        let x = a.x,
+    public static transformMat23(out, a, m) {
+        const x = a.x,
             y = a.y;
         out.x = m.m00 * x + m.m02 * y + m.m04;
         out.y = m.m01 * x + m.m03 * y + m.m05;
@@ -525,8 +506,8 @@ class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    static transformMat3(out, a, m) {
-        let x = a.x,
+    public static transformMat3(out, a, m) {
+        const x = a.x,
             y = a.y;
         out.x = m.m00 * x + m.m03 * y + m.m06;
         out.y = m.m01 * x + m.m04 * y + m.m07;
@@ -543,8 +524,8 @@ class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    static transformMat4(out, a, m) {
-        let x = a.x,
+    public static transformMat4(out, a, m) {
+        const x = a.x,
             y = a.y;
         out.x = m.m00 * x + m.m04 * y + m.m12;
         out.y = m.m01 * x + m.m05 * y + m.m13;
@@ -562,7 +543,7 @@ class vec2 {
      * @param [arg] additional argument to pass to fn.
      * @return a.
      */
-    static forEach(a, stride, offset, count, fn, arg) {
+    public static forEach(a, stride, offset, count, fn, arg) {
         return vec2._forEach(a, stride, offset, count, fn, arg);
     }
 
@@ -572,7 +553,7 @@ class vec2 {
      * @param a - The vector.
      * @return - String representation of this vector.
      */
-    static str(a) {
+    public static str(a) {
         return `vec2(${a.x}, ${a.y})`;
     }
 
@@ -583,7 +564,7 @@ class vec2 {
      * @param v - The vector.
      * @return out.
      */
-    static array(out, v) {
+    public static array(out, v) {
         out[0] = v.x;
         out[1] = v.y;
 
@@ -597,7 +578,7 @@ class vec2 {
      * @param b - The second vector.
      * @return True if the vectors are equal, false otherwise.
      */
-    static exactEquals(a, b) {
+    public static exactEquals(a, b) {
         return a.x === b.x && a.y === b.y;
     }
 
@@ -608,9 +589,9 @@ class vec2 {
      * @param b The second vector.
      * @return True if the vectors are approximately equal, false otherwise.
      */
-    static equals(a, b) {
-        let a0 = a.x, a1 = a.y;
-        let b0 = b.x, b1 = b.y;
+    public static equals(a, b) {
+        const a0 = a.x, a1 = a.y;
+        const b0 = b.x, b1 = b.y;
         return (Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
             Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)));
     }
@@ -622,8 +603,27 @@ class vec2 {
      * @param b The second vector.
      * @return The angle in radians.
      */
-    static angle(a, b) {
+    public static angle(a, b) {
         return vec2._angle(a, b);
+    }
+    /**
+     * Creates a vector, with components specified separately.
+     *
+     * @param x - Value assigned to x component.
+     * @param y - Value assigned to y component.
+     */
+    constructor(x = 0, y = 0) {
+        /**
+         * The x component.
+         * @type {number}
+         * */
+        this.x = x;
+
+        /**
+         * The y component.
+         * @type {number}
+         * */
+        this.y = y;
     }
 }
 
@@ -639,10 +639,10 @@ class vec2 {
  * @return a.
  * @ignore
  */
-vec2._forEach = (function () {
-    let vec = vec2.create(0, 0);
+vec2._forEach = (function() {
+    const vec = vec2.create(0, 0);
 
-    return function (a, stride, offset, count, fn, arg) {
+    return function(a, stride, offset, count, fn, arg) {
         let i, l;
         if (!stride) {
             stride = 2;
@@ -670,14 +670,14 @@ vec2._forEach = (function () {
     };
 })();
 
-vec2._angle = (function () {
-    let tempA = vec2.create(0, 0);
-    let tempB = vec2.create(0, 0);
+vec2._angle = (function() {
+    const tempA = vec2.create(0, 0);
+    const tempB = vec2.create(0, 0);
 
-    return function (a, b) {
+    return function(a, b) {
         vec2.normalize(tempA, a);
         vec2.normalize(tempB, b);
-        let cosine = vec2.dot(tempA, tempB);
+        const cosine = vec2.dot(tempA, tempB);
         if (cosine > 1.0) {
             return 0;
         }

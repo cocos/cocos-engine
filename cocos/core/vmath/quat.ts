@@ -1,9 +1,9 @@
-import vec3 from './vec3';
-import vec4 from './vec4';
 import mat3 from './mat3';
 import { toDegree } from './utils';
+import vec3 from './vec3';
+import vec4 from './vec4';
 
-let halfToRad = 0.5 * Math.PI / 180.0;
+const halfToRad = 0.5 * Math.PI / 180.0;
 
 /**
  * Mathematical quaternion.
@@ -12,39 +12,6 @@ let halfToRad = 0.5 * Math.PI / 180.0;
  * x, y, z and w are real numbers(called here its components), and i, j, and k are the fundamental quaternion units.
  */
 class quat {
-    /**
-     * Creates a quaternion, with components specified separately.
-     *
-     * @param x - Value assigned to x component.
-     * @param y - Value assigned to y component.
-     * @param z - Value assigned to z component.
-     * @param w - Value assigned to w component.
-     */
-    constructor(x = 0, y = 0, z = 0, w = 1) {
-        /**
-         * The x component.
-         * @type {number}
-         * */
-        this.x = x;
-
-        /**
-         * The y component.
-         * @type {number}
-         * */
-        this.y = y;
-
-        /**
-         * The z component.
-         * @type {number}
-         * */
-        this.z = z;
-
-        /**
-         * The w component.
-         * @type {number}
-         * */
-        this.w = w;
-    }
 
     /**
      * Creates a quaternion, with components specified separately.
@@ -55,7 +22,7 @@ class quat {
      * @param w - Value assigned to w component.
      * @return The newly created quaternion.
      */
-    static create(x = 0, y = 0, z = 0, w = 1) {
+    public static create(x = 0, y = 0, z = 0, w = 1) {
         return new quat(x, y, z, w);
     }
 
@@ -65,7 +32,7 @@ class quat {
      * @param a - Quaternion to clone.
      * @return The newly created quaternion.
      */
-    static clone(a) {
+    public static clone(a) {
         return new quat(a.x, a.y, a.z, a.w);
     }
 
@@ -76,7 +43,7 @@ class quat {
      * @param a - The specified quaternion.
      * @return out.
      */
-    static copy(out, a) {
+    public static copy(out, a) {
         return vec4.copy(out, a);
     }
 
@@ -90,7 +57,7 @@ class quat {
      * @param w - Value set to w component.
      * @return out.
      */
-    static set(out, x, y, z, w) {
+    public static set(out, x, y, z, w) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -104,7 +71,7 @@ class quat {
      * @param out - Quaternion to set.
      * @return out.
      */
-    static identity(out) {
+    public static identity(out) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -123,14 +90,14 @@ class quat {
      * @param b - The destination vector.
      * @return out.
      */
-    static rotationTo(out, a, b) {
-        let rotationToIIFE = (function () {
-            let tmpvec3 = vec3.create(0, 0, 0);
-            let xUnitVec3 = vec3.create(1, 0, 0);
-            let yUnitVec3 = vec3.create(0, 1, 0);
+    public static rotationTo(out, a, b) {
+        const rotationToIIFE = (function() {
+            const tmpvec3 = vec3.create(0, 0, 0);
+            const xUnitVec3 = vec3.create(1, 0, 0);
+            const yUnitVec3 = vec3.create(0, 1, 0);
 
-            return function (out, a, b) {
-                let dot = vec3.dot(a, b);
+            return function(out, a, b) {
+                const dot = vec3.dot(a, b);
                 if (dot < -0.999999) {
                     vec3.cross(tmpvec3, xUnitVec3, a);
                     if (vec3.magnitude(tmpvec3) < 0.000001) {
@@ -172,10 +139,10 @@ class quat {
      * @param  {quat} q - Quaternion to be decomposed.
      * @return - Angle, in radians, of the rotation.
      */
-    static getAxisAngle(out_axis, q) {
-        let rad = Math.acos(q.w) * 2.0;
-        let s = Math.sin(rad / 2.0);
-        if (s != 0.0) {
+    public static getAxisAngle(out_axis, q) {
+        const rad = Math.acos(q.w) * 2.0;
+        const s = Math.sin(rad / 2.0);
+        if (s !== 0.0) {
             out_axis.x = q.x / s;
             out_axis.y = q.y / s;
             out_axis.z = q.z / s;
@@ -196,8 +163,8 @@ class quat {
      * @param b - The second operand.
      * @return out.
      */
-    static multiply(out, a, b) {
-        let ax = a.x, ay = a.y, az = a.z, aw = a.w,
+    public static multiply(out, a, b) {
+        const ax = a.x, ay = a.y, az = a.z, aw = a.w,
             bx = b.x, by = b.y, bz = b.z, bw = b.w;
 
         out.x = ax * bw + aw * bx + ay * bz - az * by;
@@ -210,7 +177,7 @@ class quat {
     /**
      * Alias of {@link quat.multiply}.
      */
-    static mul(out, a, b) {
+    public static mul(out, a, b) {
         return quat.multiply(out, a, b);
     }
 
@@ -222,7 +189,7 @@ class quat {
      * @param b - The scale number.
      * @return out.
      * */
-    static scale(out, a, b) {
+    public static scale(out, a, b) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -238,10 +205,10 @@ class quat {
      * @param rad - Angle (in radians) to rotate.
      * @return out.
      */
-    static rotateX(out, a, rad) {
+    public static rotateX(out, a, rad) {
         rad *= 0.5;
 
-        let ax = a.x, ay = a.y, az = a.z, aw = a.w,
+        const ax = a.x, ay = a.y, az = a.z, aw = a.w,
             bx = Math.sin(rad), bw = Math.cos(rad);
 
         out.x = ax * bw + aw * bx;
@@ -259,10 +226,10 @@ class quat {
      * @param rad - Angle (in radians) to rotate.
      * @return out.
      */
-    static rotateY(out, a, rad) {
+    public static rotateY(out, a, rad) {
         rad *= 0.5;
 
-        let ax = a.x, ay = a.y, az = a.z, aw = a.w,
+        const ax = a.x, ay = a.y, az = a.z, aw = a.w,
             by = Math.sin(rad), bw = Math.cos(rad);
 
         out.x = ax * bw - az * by;
@@ -280,10 +247,10 @@ class quat {
      * @param rad - Angle (in radians) to rotate.
      * @return out.
      */
-    static rotateZ(out, a, rad) {
+    public static rotateZ(out, a, rad) {
         rad *= 0.5;
 
-        let ax = a.x, ay = a.y, az = a.z, aw = a.w,
+        const ax = a.x, ay = a.y, az = a.z, aw = a.w,
             bz = Math.sin(rad), bw = Math.cos(rad);
 
         out.x = ax * bw + ay * bz;
@@ -302,12 +269,12 @@ class quat {
      * @param rad - Angle (in radians) to rotate.
      * @return out.
      */
-    static rotateAround(out, rot, axis, rad) {
-        let rotateAroundIIFE = (function () {
-            let v3_tmp = vec3.create(0, 0, 0);
-            let q_tmp = quat.create();
+    public static rotateAround(out, rot, axis, rad) {
+        const rotateAroundIIFE = (function() {
+            const v3_tmp = vec3.create(0, 0, 0);
+            const q_tmp = quat.create();
 
-            return function (out, rot, axis, rad) {
+            return function(out, rot, axis, rad) {
                 // get inv-axis (local to rot)
                 quat.invert(q_tmp, rot);
                 vec3.transformQuat(v3_tmp, axis, q_tmp);
@@ -330,11 +297,11 @@ class quat {
      * @param rad - Angle (in radians) to rotate.
      * @return out.
      */
-    static rotateAroundLocal(out, rot, axis, rad) {
-        let rotateAroundLocalIIFE = (function () {
-            let q_tmp = quat.create();
+    public static rotateAroundLocal(out, rot, axis, rad) {
+        const rotateAroundLocalIIFE = (function() {
+            const q_tmp = quat.create();
 
-            return function (out, rot, axis, rad) {
+            return function(out, rot, axis, rad) {
                 quat.fromAxisAngle(q_tmp, axis, rad);
                 quat.mul(out, rot, q_tmp);
 
@@ -354,8 +321,8 @@ class quat {
      * @param a - Quaternion to calculate W.
      * @return out.
      */
-    static calculateW(out, a) {
-        let x = a.x, y = a.y, z = a.z;
+    public static calculateW(out, a) {
+        const x = a.x, y = a.y, z = a.z;
 
         out.x = x;
         out.y = y;
@@ -371,7 +338,7 @@ class quat {
      * @param b - The second operand.
      * @return - The dot product of a and b.
      */
-    static dot(a, b) {
+    public static dot(a, b) {
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
@@ -384,8 +351,8 @@ class quat {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    static lerp(out, a, b, t) {
-        let ax = a.x,
+    public static lerp(out, a, b, t) {
+        const ax = a.x,
             ay = a.y,
             az = a.z,
             aw = a.w;
@@ -405,7 +372,7 @@ class quat {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    static slerp(out, a, b, t) {
+    public static slerp(out, a, b, t) {
         // benchmarks:
         //    http://jsperf.com/quaternion-slerp-implementations
 
@@ -457,12 +424,12 @@ class quat {
      * @param t - The interpolation coefficient.
      * @return out
      */
-    static sqlerp(out, a, b, c, d, t) {
-        let sqlerpIIFE = (function () {
-            let temp1 = quat.create();
-            let temp2 = quat.create();
+    public static sqlerp(out, a, b, c, d, t) {
+        const sqlerpIIFE = (function() {
+            const temp1 = quat.create();
+            const temp2 = quat.create();
 
-            return function (out, a, b, c, d, t) {
+            return function(out, a, b, c, d, t) {
                 quat.slerp(temp1, a, d, t);
                 quat.slerp(temp2, b, c, t);
                 quat.slerp(out, temp1, temp2, 2 * t * (1 - t));
@@ -480,10 +447,10 @@ class quat {
      * @param a - Quaternion to calculate inverse of.
      * @return out.
      */
-    static invert(out, a) {
-        let a0 = a.x, a1 = a.y, a2 = a.z, a3 = a.w;
-        let dot = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
-        let invDot = dot ? 1.0 / dot : 0;
+    public static invert(out, a) {
+        const a0 = a.x, a1 = a.y, a2 = a.z, a3 = a.w;
+        const dot = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
+        const invDot = dot ? 1.0 / dot : 0;
 
         // TODO: Would be faster to return [0,0,0,0] immediately if dot == 0
 
@@ -502,7 +469,7 @@ class quat {
      * @param a - Quaternion to calculate conjugate of.
      * @return out.
      */
-    static conjugate(out, a) {
+    public static conjugate(out, a) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -516,8 +483,8 @@ class quat {
      * @param a - The quaternion.
      * @return Length of the quaternion.
      */
-    static magnitude(a) {
-        let x = a.x,
+    public static magnitude(a) {
+        const x = a.x,
             y = a.y,
             z = a.z,
             w = a.w;
@@ -527,7 +494,7 @@ class quat {
     /**
      *Alias of {@link quat.magnitude}.
      */
-    static mag(a) {
+    public static mag(a) {
         return quat.magnitude(a);
     }
 
@@ -537,8 +504,8 @@ class quat {
      * @param a - The quaternion.
      * @return Squared length of the quaternion.
      */
-    static squaredMagnitude(a) {
-        let x = a.x,
+    public static squaredMagnitude(a) {
+        const x = a.x,
             y = a.y,
             z = a.z,
             w = a.w;
@@ -548,7 +515,7 @@ class quat {
     /**
      *Alias of {@link quat.squaredMagnitude}
      */
-    static sqrMag(a) {
+    public static sqrMag(a) {
         return quat.squaredMagnitude(a);
     }
 
@@ -560,8 +527,8 @@ class quat {
      * @return out.
      * @function
      */
-    static normalize(out, a) {
-        let x = a.x,
+    public static normalize(out, a) {
+        const x = a.x,
             y = a.y,
             z = a.z,
             w = a.w;
@@ -587,15 +554,15 @@ class quat {
      * @param zAxis - Vector representing the viewing direction.
      * @return out.
      */
-    static fromAxes(out, xAxis, yAxis, zAxis) {
-        let fromAxesIIFE = (function () {
-            let matr = mat3.create();
+    public static fromAxes(out, xAxis, yAxis, zAxis) {
+        const fromAxesIIFE = (function() {
+            const matr = mat3.create();
 
-            return function (out, xAxis, yAxis, zAxis) {
+            return function(out, xAxis, yAxis, zAxis) {
                 mat3.set(matr,
                     xAxis.x, xAxis.y, xAxis.z,
                     yAxis.x, yAxis.y, yAxis.z,
-                    zAxis.x, zAxis.y, zAxis.z
+                    zAxis.x, zAxis.y, zAxis.z,
                 );
                 return quat.normalize(out, quat.fromMat3(out, matr));
             };
@@ -612,11 +579,11 @@ class quat {
      *
      * @return out.
      */
-    static fromViewUp(out, view, up) {
-        let fromViewUpIIFE = (function () {
-            let matr = mat3.create();
+    public static fromViewUp(out, view, up) {
+        const fromViewUpIIFE = (function() {
+            const matr = mat3.create();
 
-            return function (out, view, up) {
+            return function(out, view, up) {
                 mat3.fromViewUp(matr, view, up);
                 if (!matr) {
                     return null;
@@ -637,9 +604,9 @@ class quat {
      * @param rad - The angle in radians.
      * @return out.
      **/
-    static fromAxisAngle(out, axis, rad) {
+    public static fromAxisAngle(out, axis, rad) {
         rad = rad * 0.5;
-        let s = Math.sin(rad);
+        const s = Math.sin(rad);
         out.x = s * axis.x;
         out.y = s * axis.y;
         out.z = s * axis.z;
@@ -658,17 +625,17 @@ class quat {
      * @return out.
      * @function
      */
-    static fromMat3(out, m) {
+    public static fromMat3(out, m) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
-        let m00 = m.m00, m01 = m.m03, m02 = m.m06,
+        const m00 = m.m00, m01 = m.m03, m02 = m.m06,
             m10 = m.m01, m11 = m.m04, m12 = m.m07,
             m20 = m.m02, m21 = m.m05, m22 = m.m08;
 
-        let trace = m00 + m11 + m22;
+        const trace = m00 + m11 + m22;
 
         if (trace > 0) {
-            let s = 0.5 / Math.sqrt(trace + 1.0);
+            const s = 0.5 / Math.sqrt(trace + 1.0);
 
             out.w = 0.25 / s;
             out.x = (m21 - m12) * s;
@@ -676,7 +643,7 @@ class quat {
             out.z = (m10 - m01) * s;
 
         } else if ((m00 > m11) && (m00 > m22)) {
-            let s = 2.0 * Math.sqrt(1.0 + m00 - m11 - m22);
+            const s = 2.0 * Math.sqrt(1.0 + m00 - m11 - m22);
 
             out.w = (m21 - m12) / s;
             out.x = 0.25 * s;
@@ -684,7 +651,7 @@ class quat {
             out.z = (m02 + m20) / s;
 
         } else if (m11 > m22) {
-            let s = 2.0 * Math.sqrt(1.0 + m11 - m00 - m22);
+            const s = 2.0 * Math.sqrt(1.0 + m11 - m00 - m22);
 
             out.w = (m02 - m20) / s;
             out.x = (m01 + m10) / s;
@@ -692,7 +659,7 @@ class quat {
             out.z = (m12 + m21) / s;
 
         } else {
-            let s = 2.0 * Math.sqrt(1.0 + m22 - m00 - m11);
+            const s = 2.0 * Math.sqrt(1.0 + m22 - m00 - m11);
 
             out.w = (m10 - m01) / s;
             out.x = (m02 + m20) / s;
@@ -713,17 +680,17 @@ class quat {
      * @return out.
      * @function
      */
-    static fromEuler(out, x, y, z) {
+    public static fromEuler(out, x, y, z) {
         x *= halfToRad;
         y *= halfToRad;
         z *= halfToRad;
 
-        let sx = Math.sin(x);
-        let cx = Math.cos(x);
-        let sy = Math.sin(y);
-        let cy = Math.cos(y);
-        let sz = Math.sin(z);
-        let cz = Math.cos(z);
+        const sx = Math.sin(x);
+        const cx = Math.cos(x);
+        const sy = Math.sin(y);
+        const cy = Math.cos(y);
+        const sz = Math.sin(z);
+        const cz = Math.cos(z);
 
         out.x = sx * cy * cz + cx * sy * sz;
         out.y = cx * sy * cz + sx * cy * sz;
@@ -740,10 +707,10 @@ class quat {
      * @param q - the quaternion to be converted
      * @return out.
      */
-    static toEuler(out, q) {
-        let x = q.x, y = q.y, z = q.z, w = q.w;
+    public static toEuler(out, q) {
+        const x = q.x, y = q.y, z = q.z, w = q.w;
         let heading, attitude, bank;
-        let test = x * y + z * w;
+        const test = x * y + z * w;
         if (test > 0.499999) { // singularity at north pole
             heading = 2 * Math.atan2(x, w);
             attitude = Math.PI / 2;
@@ -755,9 +722,9 @@ class quat {
             bank = 0;
         }
         if (isNaN(heading)) {
-            let sqx = x * x;
-            let sqy = y * y;
-            let sqz = z * z;
+            const sqx = x * x;
+            const sqy = y * y;
+            const sqz = z * z;
             heading = Math.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz); // heading
             attitude = Math.asin(2 * test); // attitude
             bank = Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz); // bank
@@ -777,7 +744,7 @@ class quat {
      * @param a - The quaternion.
      * @return - String representation of this quaternion.
      */
-    static str(a) {
+    public static str(a) {
         return `quat(${a.x}, ${a.y}, ${a.z}, ${a.w})`;
     }
 
@@ -788,7 +755,7 @@ class quat {
      * @param q - The quaternion.
      * @return out.
      */
-    static array(out, q) {
+    public static array(out, q) {
         out[0] = q.x;
         out[1] = q.y;
         out[2] = q.z;
@@ -804,7 +771,7 @@ class quat {
      * @param b - The second quaternion.
      * @return True if the quaternions are equal, false otherwise.
      */
-    static exactEquals(a, b) {
+    public static exactEquals(a, b) {
         return vec4.exactEquals(a, b);
     }
 
@@ -815,8 +782,41 @@ class quat {
      * @param b The second quaternion.
      * @return True if the quaternions are approximately equal, false otherwise.
      */
-    static equals(a, b) {
+    public static equals(a, b) {
         return vec4.equals(a, b);
+    }
+    /**
+     * Creates a quaternion, with components specified separately.
+     *
+     * @param x - Value assigned to x component.
+     * @param y - Value assigned to y component.
+     * @param z - Value assigned to z component.
+     * @param w - Value assigned to w component.
+     */
+    constructor(x = 0, y = 0, z = 0, w = 1) {
+        /**
+         * The x component.
+         * @type {number}
+         * */
+        this.x = x;
+
+        /**
+         * The y component.
+         * @type {number}
+         * */
+        this.y = y;
+
+        /**
+         * The z component.
+         * @type {number}
+         * */
+        this.z = z;
+
+        /**
+         * The w component.
+         * @type {number}
+         * */
+        this.w = w;
     }
 }
 

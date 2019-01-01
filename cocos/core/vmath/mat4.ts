@@ -27,128 +27,6 @@ import { EPSILON } from './utils';
  * apparent lack of consistency between the memory layout and the documentation.
  */
 class mat4 {
-    /**
-     * Creates a matrix, with elements specified separately.
-     *
-     * @param m00 - Value assigned to element at column 0 row 0.
-     * @param m01 - Value assigned to element at column 0 row 1.
-     * @param m02 - Value assigned to element at column 0 row 2.
-     * @param m03 - Value assigned to element at column 0 row 3.
-     * @param m04 - Value assigned to element at column 1 row 0.
-     * @param m05 - Value assigned to element at column 1 row 1.
-     * @param m06 - Value assigned to element at column 1 row 2.
-     * @param m07 - Value assigned to element at column 1 row 3.
-     * @param m08 - Value assigned to element at column 2 row 0.
-     * @param m09 - Value assigned to element at column 2 row 1.
-     * @param m10 - Value assigned to element at column 2 row 2.
-     * @param m11 - Value assigned to element at column 2 row 3.
-     * @param m12 - Value assigned to element at column 3 row 0.
-     * @param m13 - Value assigned to element at column 3 row 1.
-     * @param m14 - Value assigned to element at column 3 row 2.
-     * @param m15 - Value assigned to element at column 3 row 3.
-     */
-    constructor(
-        m00 = 1, m01 = 0, m02 = 0, m03 = 0,
-        m04 = 0, m05 = 1, m06 = 0, m07 = 0,
-        m08 = 0, m09 = 0, m10 = 1, m11 = 0,
-        m12 = 0, m13 = 0, m14 = 0, m15 = 1
-    ) {
-        /**
-         * The element at column 0 row 0.
-         * @type {number}
-         * */
-        this.m00 = m00;
-
-        /**
-         * The element at column 0 row 1.
-         * @type {number}
-         * */
-        this.m01 = m01;
-
-        /**
-         * The element at column 0 row 2.
-         * @type {number}
-         * */
-        this.m02 = m02;
-
-        /**
-         * The element at column 0 row 3.
-         * @type {number}
-         * */
-        this.m03 = m03;
-
-        /**
-         * The element at column 1 row 0.
-         * @type {number}
-         * */
-        this.m04 = m04;
-
-        /**
-         * The element at column 1 row 1.
-         * @type {number}
-         * */
-        this.m05 = m05;
-
-        /**
-         * The element at column 1 row 2.
-         * @type {number}
-         * */
-        this.m06 = m06;
-
-        /**
-         * The element at column 1 row 3.
-         * @type {number}
-         * */
-        this.m07 = m07;
-
-        /**
-         * The element at column 2 row 0.
-         * @type {number}
-         * */
-        this.m08 = m08;
-
-        /**
-         * The element at column 2 row 1.
-         * @type {number}
-         * */
-        this.m09 = m09;
-
-        /**
-         * The element at column 2 row 2.
-         * @type {number}
-         * */
-        this.m10 = m10;
-
-        /**
-         * The element at column 2 row 3.
-         * @type {number}
-         * */
-        this.m11 = m11;
-
-        /**
-         * The element at column 3 row 0.
-         * @type {number}
-         * */
-        this.m12 = m12;
-
-        /**
-         * The element at column 3 row 1.
-         * @type {number}
-         * */
-        this.m13 = m13;
-
-        /**
-         * The element at column 3 row 2.
-         * @type {number}
-         * */
-        this.m14 = m14;
-
-        /**
-         * The element at column 3 row 3.
-         * @type {number}
-         * */
-        this.m15 = m15;
-    }
 
     /**
      * Creates a matrix, with elements specified separately.
@@ -171,11 +49,11 @@ class mat4 {
      * @param m15 - Value assigned to element at column 3 row 3.
      * @return The newly created matrix.
      */
-    static create(
+    public static create(
         m00 = 1, m01 = 0, m02 = 0, m03 = 0,
         m04 = 0, m05 = 1, m06 = 0, m07 = 0,
         m08 = 0, m09 = 0, m10 = 1, m11 = 0,
-        m12 = 0, m13 = 0, m14 = 0, m15 = 1
+        m12 = 0, m13 = 0, m14 = 0, m15 = 1,
     ) {
         return new mat4(
             m00, m01, m02, m03,
@@ -190,12 +68,12 @@ class mat4 {
      * @param a - Matrix to clone.
      * @return The newly created matrix.
      */
-    static clone(a) {
+    public static clone(a) {
         return new mat4(
             a.m00, a.m01, a.m02, a.m03,
             a.m04, a.m05, a.m06, a.m07,
             a.m08, a.m09, a.m10, a.m11,
-            a.m12, a.m13, a.m14, a.m15
+            a.m12, a.m13, a.m14, a.m15,
         );
     }
 
@@ -206,7 +84,7 @@ class mat4 {
      * @param a - The specified matrix.
      * @return out.
      */
-    static copy(out, a) {
+    public static copy(out, a) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -248,7 +126,7 @@ class mat4 {
      * @param m33 - Value assigned to element at column 3 row 3.
      * @return out.
      */
-    static set(out, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+    public static set(out, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
         out.m00 = m00;
         out.m01 = m01;
         out.m02 = m02;
@@ -304,7 +182,7 @@ class mat4 {
     public static transpose(out, a) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
-            let a01 = a.m01, a02 = a.m02, a03 = a.m03,
+            const a01 = a.m01, a02 = a.m02, a03 = a.m03,
                 a12 = a.m06, a13 = a.m07,
                 a23 = a.m11;
 
@@ -1722,6 +1600,128 @@ class mat4 {
             Math.abs(a14 - b14) <= EPSILON * Math.max(1.0, Math.abs(a14), Math.abs(b14)) &&
             Math.abs(a15 - b15) <= EPSILON * Math.max(1.0, Math.abs(a15), Math.abs(b15))
         );
+    }
+    /**
+     * Creates a matrix, with elements specified separately.
+     *
+     * @param m00 - Value assigned to element at column 0 row 0.
+     * @param m01 - Value assigned to element at column 0 row 1.
+     * @param m02 - Value assigned to element at column 0 row 2.
+     * @param m03 - Value assigned to element at column 0 row 3.
+     * @param m04 - Value assigned to element at column 1 row 0.
+     * @param m05 - Value assigned to element at column 1 row 1.
+     * @param m06 - Value assigned to element at column 1 row 2.
+     * @param m07 - Value assigned to element at column 1 row 3.
+     * @param m08 - Value assigned to element at column 2 row 0.
+     * @param m09 - Value assigned to element at column 2 row 1.
+     * @param m10 - Value assigned to element at column 2 row 2.
+     * @param m11 - Value assigned to element at column 2 row 3.
+     * @param m12 - Value assigned to element at column 3 row 0.
+     * @param m13 - Value assigned to element at column 3 row 1.
+     * @param m14 - Value assigned to element at column 3 row 2.
+     * @param m15 - Value assigned to element at column 3 row 3.
+     */
+    constructor(
+        m00 = 1, m01 = 0, m02 = 0, m03 = 0,
+        m04 = 0, m05 = 1, m06 = 0, m07 = 0,
+        m08 = 0, m09 = 0, m10 = 1, m11 = 0,
+        m12 = 0, m13 = 0, m14 = 0, m15 = 1,
+    ) {
+        /**
+         * The element at column 0 row 0.
+         * @type {number}
+         * */
+        this.m00 = m00;
+
+        /**
+         * The element at column 0 row 1.
+         * @type {number}
+         * */
+        this.m01 = m01;
+
+        /**
+         * The element at column 0 row 2.
+         * @type {number}
+         * */
+        this.m02 = m02;
+
+        /**
+         * The element at column 0 row 3.
+         * @type {number}
+         * */
+        this.m03 = m03;
+
+        /**
+         * The element at column 1 row 0.
+         * @type {number}
+         * */
+        this.m04 = m04;
+
+        /**
+         * The element at column 1 row 1.
+         * @type {number}
+         * */
+        this.m05 = m05;
+
+        /**
+         * The element at column 1 row 2.
+         * @type {number}
+         * */
+        this.m06 = m06;
+
+        /**
+         * The element at column 1 row 3.
+         * @type {number}
+         * */
+        this.m07 = m07;
+
+        /**
+         * The element at column 2 row 0.
+         * @type {number}
+         * */
+        this.m08 = m08;
+
+        /**
+         * The element at column 2 row 1.
+         * @type {number}
+         * */
+        this.m09 = m09;
+
+        /**
+         * The element at column 2 row 2.
+         * @type {number}
+         * */
+        this.m10 = m10;
+
+        /**
+         * The element at column 2 row 3.
+         * @type {number}
+         * */
+        this.m11 = m11;
+
+        /**
+         * The element at column 3 row 0.
+         * @type {number}
+         * */
+        this.m12 = m12;
+
+        /**
+         * The element at column 3 row 1.
+         * @type {number}
+         * */
+        this.m13 = m13;
+
+        /**
+         * The element at column 3 row 2.
+         * @type {number}
+         * */
+        this.m14 = m14;
+
+        /**
+         * The element at column 3 row 3.
+         * @type {number}
+         * */
+        this.m15 = m15;
     }
 }
 

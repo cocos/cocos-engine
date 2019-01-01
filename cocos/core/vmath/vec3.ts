@@ -6,32 +6,6 @@ import { EPSILON, random } from './utils';
  * x, y, z is alias of the first, second, third component of vector, respectively.
  */
 class vec3 {
-	/**
-   * Creates a vector, with components specified separately.
-   *
-   * @param x - Value assigned to x component.
-   * @param y - Value assigned to y component.
-   * @param z - Value assigned to z component.
-   */
-    constructor(x = 0, y = 0, z = 0) {
-        /**
-         * The x component.
-         * @type {number}
-         * */
-        this.x = x;
-
-        /**
-         * The y component.
-         * @type {number}
-         * */
-        this.y = y;
-
-        /**
-         * The z component.
-         * @type {number}
-         * */
-        this.z = z;
-    }
 
     /**
      * Creates a vector, with components specified separately.
@@ -41,7 +15,7 @@ class vec3 {
      * @param z - Value assigned to z component.
      * @return The newly created vector.
      */
-    static create(x = 0, y = 0, z = 0) {
+    public static create(x = 0, y = 0, z = 0) {
         return new vec3(x, y, z);
     }
 
@@ -50,7 +24,7 @@ class vec3 {
      *
      * @return The newly created vector.
      */
-    static zero(out) {
+    public static zero(out) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -63,7 +37,7 @@ class vec3 {
      * @param a - Vector to clone.
      * @return The newly created vector.
      */
-    static clone(a) {
+    public static clone(a) {
         return new vec3(a.x, a.y, a.z);
     }
 
@@ -74,7 +48,7 @@ class vec3 {
      * @param a - The specified vector.
      * @return out.
      */
-    static copy(out, a) {
+    public static copy(out, a) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -90,7 +64,7 @@ class vec3 {
      * @param z - Value set to z component.
      * @return out.
      */
-    static set(out, x, y, z) {
+    public static set(out, x, y, z) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -107,7 +81,7 @@ class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    static add(out, a, b) {
+    public static add(out, a, b) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
@@ -124,7 +98,7 @@ class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    static subtract(out, a, b) {
+    public static subtract(out, a, b) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
@@ -134,7 +108,7 @@ class vec3 {
     /**
      * Alias of {@link vec3.subtract}.
      */
-    static sub(out, a, b) {
+    public static sub(out, a, b) {
         return vec3.subtract(out, a, b);
     }
 
@@ -148,7 +122,7 @@ class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    static multiply(out, a, b) {
+    public static multiply(out, a, b) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
@@ -158,7 +132,7 @@ class vec3 {
     /**
      * Alias of {@link vec3.multiply}.
      */
-    static mul(out, a, b) {
+    public static mul(out, a, b) {
         return vec3.multiply(out, a, b);
     }
 
@@ -172,7 +146,7 @@ class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    static divide(out, a, b) {
+    public static divide(out, a, b) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -182,7 +156,7 @@ class vec3 {
     /**
      * Alias of {@link vec3.divide}.
      */
-    static div(out, a, b) {
+    public static div(out, a, b) {
         return vec3.divide(out, a, b);
     }
 
@@ -195,7 +169,7 @@ class vec3 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    static ceil(out, a) {
+    public static ceil(out, a) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         out.z = Math.ceil(a.z);
@@ -211,7 +185,7 @@ class vec3 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    static floor(out, a) {
+    public static floor(out, a) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         out.z = Math.floor(a.z);
@@ -228,7 +202,7 @@ class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    static min(out, a, b) {
+    public static min(out, a, b) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         out.z = Math.min(a.z, b.z);
@@ -245,7 +219,7 @@ class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    static max(out, a, b) {
+    public static max(out, a, b) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         out.z = Math.max(a.z, b.z);
@@ -261,7 +235,7 @@ class vec3 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    static round(out, a) {
+    public static round(out, a) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         out.z = Math.round(a.z);
@@ -276,7 +250,7 @@ class vec3 {
      * @param b - The scale number.
      * @return out.
      * */
-    static scale(out, a, b) {
+    public static scale(out, a, b) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -292,7 +266,7 @@ class vec3 {
      * @param scale - The scale number before adding.
      * @return out.
      */
-    static scaleAndAdd(out, a, b, scale) {
+    public static scaleAndAdd(out, a, b, scale) {
         out.x = a.x + (b.x * scale);
         out.y = a.y + (b.y * scale);
         out.z = a.z + (b.z * scale);
@@ -306,8 +280,8 @@ class vec3 {
      * @param b - The second operand.
      * @return Distance between a and b.
      */
-    static distance(a, b) {
-        let x = b.x - a.x,
+    public static distance(a, b) {
+        const x = b.x - a.x,
             y = b.y - a.y,
             z = b.z - a.z;
         return Math.sqrt(x * x + y * y + z * z);
@@ -316,7 +290,7 @@ class vec3 {
     /**
      * Alias of {@link vec3.distance}.
      */
-    static dist(a, b) {
+    public static dist(a, b) {
         return vec3.distance(a, b);
     }
 
@@ -327,8 +301,8 @@ class vec3 {
      * @param b - The second operand.
      * @return Squared distance between a and b.
      */
-    static squaredDistance(a, b) {
-        let x = b.x - a.x,
+    public static squaredDistance(a, b) {
+        const x = b.x - a.x,
             y = b.y - a.y,
             z = b.z - a.z;
         return x * x + y * y + z * z;
@@ -337,7 +311,7 @@ class vec3 {
     /**
      * Alias of {@link vec3.squaredDistance}.
      */
-    static sqrDist(a, b) {
+    public static sqrDist(a, b) {
         return vec3.squaredDistance(a, b);
     }
 
@@ -347,8 +321,8 @@ class vec3 {
      * @param a - The vector.
      * @return Length of the vector.
      */
-    static magnitude(a) {
-        let x = a.x,
+    public static magnitude(a) {
+        const x = a.x,
             y = a.y,
             z = a.z;
         return Math.sqrt(x * x + y * y + z * z);
@@ -357,7 +331,7 @@ class vec3 {
     /**
      *Alias of {@link vec3.magnitude}.
      */
-    static mag(a) {
+    public static mag(a) {
         return vec3.magnitude(a);
     }
 
@@ -367,8 +341,8 @@ class vec3 {
      * @param a - The vector.
      * @return Squared length of the vector.
      */
-    static squaredMagnitude(a) {
-        let x = a.x,
+    public static squaredMagnitude(a) {
+        const x = a.x,
             y = a.y,
             z = a.z;
         return x * x + y * y + z * z;
@@ -377,7 +351,7 @@ class vec3 {
     /**
      *Alias of {@link vec3.squaredMagnitude}
      */
-    static sqrMag(a) {
+    public static sqrMag(a) {
         return vec3.squaredMagnitude(a);
     }
 
@@ -388,7 +362,7 @@ class vec3 {
      * @param a - Vector to negate.
      * @return out.
      */
-    static negate(out, a) {
+    public static negate(out, a) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -402,7 +376,7 @@ class vec3 {
      * @param a - Vector to invert.
      * @return out.
      */
-    static inverse(out, a) {
+    public static inverse(out, a) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -416,8 +390,8 @@ class vec3 {
      * @param a - Vector to invert.
      * @return out.
      */
-    static inverseSafe(out, a) {
-        let x = a.x,
+    public static inverseSafe(out, a) {
+        const x = a.x,
             y = a.y,
             z = a.z;
 
@@ -449,14 +423,14 @@ class vec3 {
      * @param a - Vector to normalize.
      * @return out.
      */
-    static normalize(out, a) {
-        let x = a.x,
+    public static normalize(out, a) {
+        const x = a.x,
             y = a.y,
             z = a.z;
 
         let len = x * x + y * y + z * z;
         if (len > 0) {
-            //TODO: evaluate use of glm_invsqrt here?
+            // TODO: evaluate use of glm_invsqrt here?
             len = 1 / Math.sqrt(len);
             out.x = x * len;
             out.y = y * len;
@@ -472,7 +446,7 @@ class vec3 {
      * @param b - The second operand.
      * @return Dot product of a and b.
      */
-    static dot(a, b) {
+    public static dot(a, b) {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
@@ -484,8 +458,8 @@ class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    static cross(out, a, b) {
-        let ax = a.x, ay = a.y, az = a.z,
+    public static cross(out, a, b) {
+        const ax = a.x, ay = a.y, az = a.z,
             bx = b.x, by = b.y, bz = b.z;
 
         out.x = ay * bz - az * by;
@@ -503,8 +477,8 @@ class vec3 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    static lerp(out, a, b, t) {
-        let ax = a.x,
+    public static lerp(out, a, b, t) {
+        const ax = a.x,
             ay = a.y,
             az = a.z;
         out.x = ax + t * (b.x - ax);
@@ -524,8 +498,8 @@ class vec3 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    static hermite(out, a, b, c, d, t) {
-        let factorTimes2 = t * t,
+    public static hermite(out, a, b, c, d, t) {
+        const factorTimes2 = t * t,
             factor1 = factorTimes2 * (2 * t - 3) + 1,
             factor2 = factorTimes2 * (t - 2) + t,
             factor3 = factorTimes2 * (t - 1),
@@ -549,8 +523,8 @@ class vec3 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    static bezier(out, a, b, c, d, t) {
-        let inverseFactor = 1 - t,
+    public static bezier(out, a, b, c, d, t) {
+        const inverseFactor = 1 - t,
             inverseFactorTimesTwo = inverseFactor * inverseFactor,
             factorTimes2 = t * t,
             factor1 = inverseFactorTimesTwo * inverseFactor,
@@ -572,11 +546,11 @@ class vec3 {
      * @param [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
      * @return out.
      */
-    static random(out, scale) {
+    public static random(out, scale) {
         scale = scale || 1.0;
 
-        let phi = random() * 2.0 * Math.PI;
-        let theta = Math.acos(random() * 2 - 1);
+        const phi = random() * 2.0 * Math.PI;
+        const theta = Math.acos(random() * 2 - 1);
 
         out.x = Math.sin(theta) * Math.cos(phi) * scale;
         out.y = Math.sin(theta) * Math.sin(phi) * scale;
@@ -593,7 +567,7 @@ class vec3 {
      * @param m - The matrix.
      * @return out.
      */
-    static transformMat4(out, a, m) {
+    public static transformMat4(out, a, m) {
         let x = a.x, y = a.y, z = a.z,
             rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
         rhw = rhw ? 1 / rhw : 1;
@@ -612,7 +586,7 @@ class vec3 {
      * @param m - The matrix.
      * @return out.
      */
-    static transformMat4Normal(out, a, m) {
+    public static transformMat4Normal(out, a, m) {
         let x = a.x, y = a.y, z = a.z,
             rhw = m.m03 * x + m.m07 * y + m.m11 * z;
         rhw = rhw ? 1 / rhw : 1;
@@ -630,8 +604,8 @@ class vec3 {
      * @param m - The matrix.
      * @return out.
      */
-    static transformMat3(out, a, m) {
-        let x = a.x, y = a.y, z = a.z;
+    public static transformMat3(out, a, m) {
+        const x = a.x, y = a.y, z = a.z;
         out.x = x * m.m00 + y * m.m03 + z * m.m06;
         out.y = x * m.m01 + y * m.m04 + z * m.m07;
         out.z = x * m.m02 + y * m.m05 + z * m.m08;
@@ -646,17 +620,17 @@ class vec3 {
      * @param q - The quaternion.
      * @return out.
      */
-    static transformQuat(out, a, q) {
+    public static transformQuat(out, a, q) {
         // benchmarks: http://jsperf.com/quaternion-transform-vec3-implementations
 
-        let x = a.x, y = a.y, z = a.z;
-        let qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+        const x = a.x, y = a.y, z = a.z;
+        const qx = q.x, qy = q.y, qz = q.z, qw = q.w;
 
         // calculate quat * vec
-        let ix = qw * x + qy * z - qz * y;
-        let iy = qw * y + qz * x - qx * z;
-        let iz = qw * z + qx * y - qy * x;
-        let iw = -qx * x - qy * y - qz * z;
+        const ix = qw * x + qy * z - qz * y;
+        const iy = qw * y + qz * x - qx * z;
+        const iz = qw * z + qx * y - qy * x;
+        const iw = -qx * x - qy * y - qz * z;
 
         // calculate result * inverse quat
         out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
@@ -673,18 +647,18 @@ class vec3 {
      * @param c - The angle of rotation.
      * @return out.
      */
-    static rotateX(out, a, b, c) {
+    public static rotateX(out, a, b, c) {
         // Translate point to the origin
-        let px = a.x - b.x;
-        let py = a.y - b.y;
-        let pz = a.z - b.z;
+        const px = a.x - b.x;
+        const py = a.y - b.y;
+        const pz = a.z - b.z;
 
-        //perform rotation
-        let rx = px;
-        let ry = py * Math.cos(c) - pz * Math.sin(c);
-        let rz = py * Math.sin(c) + pz * Math.cos(c);
+        // perform rotation
+        const rx = px;
+        const ry = py * Math.cos(c) - pz * Math.sin(c);
+        const rz = py * Math.sin(c) + pz * Math.cos(c);
 
-        //translate to correct position
+        // translate to correct position
         out.x = rx + b.x;
         out.y = ry + b.y;
         out.z = rz + b.z;
@@ -700,18 +674,18 @@ class vec3 {
      * @param c - The angle of rotation.
      * @return out.
      */
-    static rotateY(out, a, b, c) {
-        //Translate point to the origin
-        let px = a.x - b.x;
-        let py = a.y - b.y;
-        let pz = a.z - b.z;
+    public static rotateY(out, a, b, c) {
+        // Translate point to the origin
+        const px = a.x - b.x;
+        const py = a.y - b.y;
+        const pz = a.z - b.z;
 
-        //perform rotation
-        let rx = pz * Math.sin(c) + px * Math.cos(c);
-        let ry = py;
-        let rz = pz * Math.cos(c) - px * Math.sin(c);
+        // perform rotation
+        const rx = pz * Math.sin(c) + px * Math.cos(c);
+        const ry = py;
+        const rz = pz * Math.cos(c) - px * Math.sin(c);
 
-        //translate to correct position
+        // translate to correct position
         out.x = rx + b.x;
         out.y = ry + b.y;
         out.z = rz + b.z;
@@ -727,18 +701,18 @@ class vec3 {
      * @param c - The angle of rotation.
      * @return out.
      */
-    static rotateZ(out, a, b, c) {
-        //Translate point to the origin
-        let px = a.x - b.x;
-        let py = a.y - b.y;
-        let pz = a.z - b.z;
+    public static rotateZ(out, a, b, c) {
+        // Translate point to the origin
+        const px = a.x - b.x;
+        const py = a.y - b.y;
+        const pz = a.z - b.z;
 
-        //perform rotation
-        let rx = px * Math.cos(c) - py * Math.sin(c);
-        let ry = px * Math.sin(c) + py * Math.cos(c);
-        let rz = pz;
+        // perform rotation
+        const rx = px * Math.cos(c) - py * Math.sin(c);
+        const ry = px * Math.sin(c) + py * Math.cos(c);
+        const rz = pz;
 
-        //translate to correct position
+        // translate to correct position
         out.x = rx + b.x;
         out.y = ry + b.y;
         out.z = rz + b.z;
@@ -752,7 +726,7 @@ class vec3 {
      * @param a - The vector.
      * @return - String representation of this vector.
      */
-    static str(a) {
+    public static str(a) {
         return `vec3(${a.x}, ${a.y}, ${a.z})`;
     }
 
@@ -763,7 +737,7 @@ class vec3 {
      * @param v - The vector.
      * @return out.
      */
-    static array(out, v) {
+    public static array(out, v) {
         out[0] = v.x;
         out[1] = v.y;
         out[2] = v.z;
@@ -778,7 +752,7 @@ class vec3 {
      * @param b - The second vector.
      * @return True if the vectors are equal, false otherwise.
      */
-    static exactEquals(a, b) {
+    public static exactEquals(a, b) {
         return a.x === b.x && a.y === b.y && a.z === b.z;
     }
 
@@ -789,9 +763,9 @@ class vec3 {
      * @param b The second vector.
      * @return True if the vectors are approximately equal, false otherwise.
      */
-    static equals(a, b) {
-        let a0 = a.x, a1 = a.y, a2 = a.z;
-        let b0 = b.x, b1 = b.y, b2 = b.z;
+    public static equals(a, b) {
+        const a0 = a.x, a1 = a.y, a2 = a.z;
+        const b0 = b.x, b1 = b.y, b2 = b.z;
         return (Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
             Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
             Math.abs(a2 - b2) <= EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)));
@@ -808,7 +782,7 @@ class vec3 {
      * @param [arg] additional argument to pass to fn.
      * @return a.
      */
-    static forEach(a, stride, offset, count, fn, arg) {
+    public static forEach(a, stride, offset, count, fn, arg) {
         return vec3._forEach(a, stride, offset, count, fn, arg);
     }
 
@@ -818,7 +792,7 @@ class vec3 {
      * @param b - The second operand.
      * @return - The angle in radians.
      */
-    static angle(a, b) {
+    public static angle(a, b) {
         return vec3._angle(a, b);
     }
 
@@ -828,7 +802,7 @@ class vec3 {
      * @param a The vector.
      * @param n The plane's normal.
      */
-    static projectOnPlane(out, a, n) {
+    public static projectOnPlane(out, a, n) {
         return vec3.sub(out, a, vec3.project(out, a, n));
     }
 
@@ -838,12 +812,39 @@ class vec3 {
      * @param a The vector to project.
      * @param b The vector onto which the projection performs.
      */
-    static project(out, a, b) {
-        let sqrLen = vec3.squaredMagnitude(b);
-        if (sqrLen < 0.000001)
+    public static project(out, a, b) {
+        const sqrLen = vec3.squaredMagnitude(b);
+        if (sqrLen < 0.000001) {
             return vec3.set(out, 0, 0, 0);
-        else
+        } else {
             return vec3.scale(out, b, vec3.dot(a, b) / sqrLen);
+        }
+    }
+	/**
+   * Creates a vector, with components specified separately.
+   *
+   * @param x - Value assigned to x component.
+   * @param y - Value assigned to y component.
+   * @param z - Value assigned to z component.
+   */
+    constructor(x = 0, y = 0, z = 0) {
+        /**
+         * The x component.
+         * @type {number}
+         * */
+        this.x = x;
+
+        /**
+         * The y component.
+         * @type {number}
+         * */
+        this.y = y;
+
+        /**
+         * The z component.
+         * @type {number}
+         * */
+        this.z = z;
     }
 }
 
@@ -859,10 +860,10 @@ class vec3 {
 * @return a.
 * @ignore.
 */
-vec3._forEach = (function () {
-    let vec = vec3.create(0, 0, 0);
+vec3._forEach = (function() {
+    const vec = vec3.create(0, 0, 0);
 
-    return function (a, stride, offset, count, fn, arg) {
+    return function(a, stride, offset, count, fn, arg) {
         let i, l;
         if (!stride) {
             stride = 3;
@@ -899,18 +900,18 @@ vec3._forEach = (function () {
  * @return The angle in radians.
  * @ignore
  */
-vec3._angle = (function () {
-    let tempA = vec3.create(0, 0, 0);
-    let tempB = vec3.create(0, 0, 0);
+vec3._angle = (function() {
+    const tempA = vec3.create(0, 0, 0);
+    const tempB = vec3.create(0, 0, 0);
 
-    return function (a, b) {
+    return function(a, b) {
         vec3.copy(tempA, a);
         vec3.copy(tempB, b);
 
         vec3.normalize(tempA, tempA);
         vec3.normalize(tempB, tempB);
 
-        let cosine = vec3.dot(tempA, tempB);
+        const cosine = vec3.dot(tempA, tempB);
 
         if (cosine > 1.0) {
             return 0;
