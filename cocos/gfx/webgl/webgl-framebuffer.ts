@@ -11,6 +11,8 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
 
     public initialize(info : GFXFramebufferInfo) : boolean {
 
+        this._renderPass = info.renderPass;
+
         if(info.colorViews) {
             this._colorViews = info.colorViews;
         }

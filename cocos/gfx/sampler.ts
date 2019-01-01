@@ -1,21 +1,23 @@
 import { GFXDevice } from './device';
-import { GFXComparisonFunc } from './pipeline-state';
+import { GFXFilter, GFXAddress, GFXComparisonFunc } from './gfx-define';
 
-export enum GFXFilter {
-    NONE,
-    POINT,
-    LINEAR,
-    ANISOTROPIC,
+export interface GFXSamplerInfo {
+    name? : string;
+    minFilter? : GFXFilter;
+    magFilter? : GFXFilter;
+    mipFilter? : GFXFilter;
+    addressU? : GFXAddress;
+    addressV? : GFXAddress;
+    addressW? : GFXAddress;
+    maxAnisotropy? : number;
+    cmpFunc? : GFXComparisonFunc;
+    borderColor? : number[];
+    minLOD? : number;
+    maxLOD? : number;
+    mipLODBias? : number;
 };
 
-export enum GFXAddress {
-    WRAP,
-    MIRROR,
-    CLAMP,
-    BORDER,
-};
-
-export class GFXSamplerInfo {
+export class GFXSamplerState {
     name : string = "";
     minFilter : GFXFilter = GFXFilter.LINEAR;
     magFilter : GFXFilter = GFXFilter.LINEAR;
@@ -30,7 +32,7 @@ export class GFXSamplerInfo {
     maxLOD : number = 1000;
     mipLODBias : number = 0.0;
 
-    public compare(state : GFXSamplerInfo) : boolean {
+    public compare(state : GFXSamplerState) : boolean {
         return (this.minFilter === state.minFilter) &&
         (this.magFilter === state.magFilter) &&
         (this.mipFilter === state.mipFilter) &&
@@ -50,11 +52,16 @@ export abstract class GFXSampler {
 
     constructor(device : GFXDevice) {
         this._device = device;
+        this._state = new GFXSamplerState;
     }
 
     public abstract initialize(info : GFXSamplerInfo) : boolean;
     public abstract destroy() : void;
 
+    public get state(): GFXSamplerState {
+        return this._state;
+    }
+
     protected _device : GFXDevice;
-    protected _state : GFXSamplerInfo | null = null;
+    protected _state : GFXSamplerState;
 };

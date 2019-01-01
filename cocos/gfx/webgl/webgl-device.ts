@@ -1,37 +1,37 @@
 import { GFXDeviceInfo, GFXDevice } from '../device';
-import { GFXBuffer, GFXBufferInfo, GFXBufferUsageBit } from '../buffer';
+import { GFXBuffer, GFXBufferInfo } from '../buffer';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXQueue } from './webgl-queue';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLGPUBuffer, WebGLGPUObjectType, WebGLGPUTexture, WebGLGPURenderPass, WebGLGPUFramebuffer, WebGLGPUTextureView, WebGLGPUShader, WebGLGPUShaderStage, WebGLGPUSampler, WebGLGPUInputAssembler, WebGLGPUPipelineState, WebGLGPUPipelineLayout, WebGLGPUBindingLayout as WebGLGPUBindingLayout, WebGLGPUBinding } from './webgl-gpu-objects';
 import { WebGLCmdFuncUpdateBuffer, WebGLCmdFuncDestroyBuffer, WebGLCmdFuncCreateBuffer, WebGLCmdFuncDestroyTexture, WebGLCmdFuncCreateTexture, WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer, WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader, WebGLCmdFuncCreateInputAssember } from './webgl-commands';
-import { GFXTextureInfo, GFXTextureType, GFXTextureFlagBit, GFXTexture } from '../texture';
-import { GFXTextureViewType, GFXTextureViewInfo, GFXTextureView } from '../texture-view';
+import { GFXTexture, GFXTextureInfo } from '../texture';
+import { GFXTextureViewInfo, GFXTextureView } from '../texture-view';
 import { GFXRenderPassInfo, GFXRenderPass } from '../render-pass';
 import { GFXFramebufferInfo, GFXFramebuffer } from '../framebuffer';
 import { WebGLGFXRenderPass } from './webgl-render-pass';
 import { WebGLGFXTextureView } from './webgl-texture-view';
 import { WebGLGFXTexture } from './webgl-texture';
-import { GFXShaderInfo, GFXShader } from '../shader';
-import { GFXSamplerInfo, GFXFilter, GFXSampler, GFXAddress } from '../sampler';
+import { GFXShader, GFXShaderInfo } from '../shader';
+import { GFXSamplerInfo, GFXSampler } from '../sampler';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { GFXInputAssemblerInfo, GFXInputAssembler } from '../input-assembler';
 import { WebGLGFXShader } from './webgl-shader';
 import { GFXCommandAllocator, GFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXPipelineStateInfo, GFXPipelineState } from '../pipeline-state';
 import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
-import { GFXBindingLayoutInfo, GFXBindingUnit, GFXBindingType, GFXBindingLayout } from '../binding-layout';
+import { GFXBindingUnit, GFXBindingLayout, GFXBindingLayoutInfo } from '../binding-layout';
 import { WebGLGFXSampler } from './webgl-sampler';
 import { GFXCommandBufferInfo, GFXCommandBuffer } from '../command-buffer';
 import { GFXQueueInfo, GFXQueue } from '../queue';
 import { WebGLGFXCommandBuffer } from './webgl-command-buffer';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
-import { GFXPipelineLayoutInfo, GFXPipelineLayout } from '../pipeline-layout';
+import { GFXPipelineLayout, GFXPipelineLayoutInfo } from '../pipeline-layout';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
-import { GFXWindowInfo, GFXWindow } from '../window';
+import { GFXWindow, GFXWindowInfo } from '../window';
 import { WebGLGFXWindow } from './webgl-window';
-import { BufferView } from '../define';
+import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit } from '../gfx-define';
 import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 
 const WebGLPrimitives: GLenum[] = [
@@ -61,12 +61,9 @@ const WebGLWraps: GLenum[] = [
 export class WebGLGFXDevice extends GFXDevice {
 
     stateCache: WebGLStateCache = new WebGLStateCache;
-    //webGLCmdAllocator: WebGLGFXCommandAllocator;
 
     constructor() {
         super();
-
-        //this.webGLCmdAllocator = new WebGLGFXCommandAllocator(this);
     }
 
     public initialize(info: GFXDeviceInfo): boolean {
@@ -157,6 +154,8 @@ export class WebGLGFXDevice extends GFXDevice {
             height: this._webGLRC.drawingBufferHeight,
         });
 
+        this._cmdAllocator = this.createCommandAllocator({});
+
         return true;
     }
 
@@ -165,6 +164,11 @@ export class WebGLGFXDevice extends GFXDevice {
         if (this._mainWindow) {
             this._mainWindow.destroy();
             this._mainWindow = null;
+        }
+
+        if (this._cmdAllocator) {
+            this._cmdAllocator.destroy();
+            this._cmdAllocator = null;
         }
 
         this._webGLRC = null;
@@ -331,7 +335,7 @@ export class WebGLGFXDevice extends GFXDevice {
         return <WebGLGFXQueue>this._queue;
     }
 
-    public emitCmdCreateGPUBuffer(info: GFXBufferInfo, buffer: BufferView | null): WebGLGPUBuffer | null {
+    public emitCmdCreateGPUBuffer(info: GFXBufferInfo, buffer: ArrayBuffer | null): WebGLGPUBuffer | null {
 
         let gpuBuffer: WebGLGPUBuffer = {
             objType: WebGLGPUObjectType.BUFFER,
@@ -346,8 +350,8 @@ export class WebGLGFXDevice extends GFXDevice {
         };
 
         if (buffer) {
-            gpuBuffer.buffer = buffer.buffer;
-            gpuBuffer.bufferView = buffer;
+            gpuBuffer.buffer = buffer;
+            gpuBuffer.bufferView = new Uint8Array(gpuBuffer.buffer);
         }
 
         //let isUBOSimulate = (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) !== GFXBufferUsageBit.NONE;
@@ -365,7 +369,7 @@ export class WebGLGFXDevice extends GFXDevice {
         WebGLCmdFuncDestroyBuffer(<WebGLGFXDevice>this, gpuBuffer);
     }
 
-    public emitCmdUpdateGPUBuffer(gpuBuffer: WebGLGPUBuffer, offset: number, buffer: BufferView) {
+    public emitCmdUpdateGPUBuffer(gpuBuffer: WebGLGPUBuffer, offset: number, buffer: ArrayBuffer) {
         // TODO: Async
         let isUBOSimulate = (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) !== GFXBufferUsageBit.NONE;
         let isStagingBuffer = (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_SRC) !== GFXBufferUsageBit.NONE;
@@ -472,8 +476,8 @@ export class WebGLGFXDevice extends GFXDevice {
     public emitCmdCreateGPURenderPass(info: GFXRenderPassInfo): WebGLGPURenderPass {
         let gpuRenderPass: WebGLGPURenderPass = {
             objType: WebGLGPUObjectType.RENDER_PASS,
-            colorAttachments: info.colorAttachment,
-            depthStencilAttachment: info.depthStencilAttachment,
+            colorAttachments: info.colorAttachment? info.colorAttachment : [],
+            depthStencilAttachment: info.depthStencilAttachment? info.depthStencilAttachment : null,
         }
 
         return gpuRenderPass;
@@ -578,13 +582,12 @@ export class WebGLGFXDevice extends GFXDevice {
 
         for (let i = 0; i < info.stages.length; ++i) {
             let stage = info.stages[i];
-            let gpuStage = gpuStages[i];
-            gpuStage.type = stage.type;
-            gpuStage.source = stage.source;
-
-            if (stage.macros) {
-                gpuStage.macros = stage.macros;
-            }
+            gpuStages[i] = {
+                type: stage.type,
+                source: stage.source,
+                macros: stage.macros? stage.macros : [],
+                glShader: 0,
+            };
         }
 
         let gpuShader: WebGLGPUShader = {
@@ -704,12 +707,6 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public emitCmdCreateGPUInputAssembler(info: GFXInputAssemblerInfo): WebGLGPUInputAssembler {
 
-        let gpuShader: WebGLGPUShader | null = null;
-
-        if (info.shader) {
-            gpuShader = (<WebGLGFXShader>info.shader).gpuShader;
-        }
-
         let gpuVertexBuffers: WebGLGPUBuffer[] = new Array<WebGLGPUBuffer>(info.vertexBuffers.length);
 
         for (let i = 0; i < info.vertexBuffers.length; ++i) {
@@ -739,7 +736,6 @@ export class WebGLGFXDevice extends GFXDevice {
         let gpuInputAssembler: WebGLGPUInputAssembler = {
             objType: WebGLGPUObjectType.INPUT_ASSEMBLER,
             attributes: info.attributes,
-            gpuShader: gpuShader,
             gpuVertexBuffers: gpuVertexBuffers,
             gpuIndexBuffer: gpuIndexBuffer,
 

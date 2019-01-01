@@ -1,4 +1,4 @@
-import { GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUTES } from "../define";
+import { GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUTES, GFXViewport, GFXRect } from "../gfx-define";
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../pipeline-state";
 
 export interface WebGLTexUnit
@@ -20,8 +20,8 @@ export class WebGLStateCache {
     glTex2DUnits : WebGLTexUnit[];
     glTexCubeUnits : WebGLTexUnit[];
     glFramebuffer : WebGLFramebuffer = 0;
-    viewport : number[] = [0.0, 0.0, 0.0, 0.0];
-    scissorRect : number[] = [0.0, 0.0, 0.0, 0.0];
+    viewport : GFXViewport;
+    scissorRect : GFXRect;
     rs : GFXRasterizerState;
     dss : GFXDepthStencilState;
     bs : GFXBlendState;
@@ -32,6 +32,8 @@ export class WebGLStateCache {
     constructor() {
         this.glTex2DUnits = new Array<WebGLTexUnit>(GFX_MAX_TEXTURE_UNITS);
         this.glTexCubeUnits = new Array<WebGLTexUnit>(GFX_MAX_TEXTURE_UNITS);
+        this.viewport = { left: 0.0, top: 0.0, width: 0.0, height: 0.0, minDepth: 0.0, maxDepth: 0.0};
+        this.scissorRect = { left: 0.0, top: 0.0, width: 0.0, height: 0.0};
         this.rs = new GFXRasterizerState;
         this.dss = new GFXDepthStencilState;
         this.bs = new GFXBlendState;

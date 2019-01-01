@@ -1,8 +1,6 @@
 import { GFXDevice } from '../device';
-import { WebGLGPUTexture, WebGLGPURenderPass } from './webgl-gpu-objects';
+import { WebGLGPURenderPass } from './webgl-gpu-objects';
 import { WebGLGFXDevice } from './webgl-device';
-import { GFXTexture, GFXTextureInfo, GFXTextureFlagBit } from '../texture';
-import { GFXFormatSurfaceSize } from '../define';
 import { GFXRenderPass, GFXRenderPassInfo } from '../render-pass';
 
 export class WebGLGFXRenderPass extends GFXRenderPass {
@@ -13,8 +11,13 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
 
     public initialize(info: GFXRenderPassInfo): boolean {
 
-        this._colorInfos = info.colorAttachment;
-        this._depthStencilInfo = info.depthStencilAttachment;
+        if (info.colorAttachment) {
+            this._colorInfos = info.colorAttachment;
+        }
+
+        if (info.depthStencilAttachment) {
+            this._depthStencilInfo = info.depthStencilAttachment;
+        }
 
         this._gpuRenderPass = this.webGLDevice.emitCmdCreateGPURenderPass(info);
 

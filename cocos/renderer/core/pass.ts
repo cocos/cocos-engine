@@ -5,8 +5,9 @@ import { GFXBuffer } from '../../gfx/buffer';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXDevice } from '../../gfx/device';
 import { GFXDepthStencilAttachment, GFXColorAttachment } from '../../gfx/render-pass';
-import { GFXPipelineState, GFXPrimitiveMode, GFXRasterizerState, GFXDepthStencilState, GFXBlendState, GFXInputState } from '../../gfx/pipeline-state';
+import { GFXPipelineState, GFXRasterizerState, GFXDepthStencilState, GFXBlendState, GFXInputState } from '../../gfx/pipeline-state';
 import { GFXBindingLayoutInfo } from '../../gfx/binding-layout';
+import { GFXPrimitiveMode } from '../../gfx/gfx-define';
 
 interface PassInfo {
   programName?: string;

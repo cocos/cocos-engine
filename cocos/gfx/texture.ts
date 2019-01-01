@@ -1,34 +1,5 @@
-import { GFXFormat, GFXFormatInfo } from './define';
+import { GFXFormat, GFXTextureType, GFXTextureUsage, GFXTextureFlags, GFXTextureUsageBit, GFXTextureFlagBit } from './gfx-define';
 import { GFXDevice } from './device';
-
-export enum GFXTextureType {
-    TEX1D,
-    TEX2D,
-    TEX3D,
-};
-
-export enum GFXTextureUsageBit {
-    NONE = 0,
-    TRANSFER_SRC = 0x1,
-    TRANSFER_DST = 0x2,
-    SAMPLED = 0x4,
-    STORAGE = 0x8,
-    COLOR_ATTACHMENT = 0x10,
-    DEPTH_STENCIL_ATTACHMENT = 0x20,
-    TRANSIENT_ATTACHMENT = 0x40,
-    INPUT_ATTACHMENT = 0x80,
-};
-
-export type GFXTextureUsage = GFXTextureUsageBit;
-
-export enum GFXTextureFlagBit {
-    NONE = 0,
-    GEN_MIPMAP = 0x1,
-    CUBEMAP = 0x2,
-    BAKUP_BUFFER = 0x4,
-};
-
-export type GFXTextureFlags = GFXTextureFlagBit;
 
 export interface GFXTextureInfo {
     type: GFXTextureType;

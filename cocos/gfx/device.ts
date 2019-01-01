@@ -43,13 +43,17 @@ export abstract class GFXDevice {
     public abstract createQueue(info: GFXQueueInfo) : GFXQueue | null;
     public abstract createWindow(info: GFXWindowInfo) : GFXWindow | null;
     public abstract present();
-
+ 
     public get queue(): GFXQueue {
         return <GFXQueue>this._queue;
     }
 
     public get mainWindow(): GFXWindow | null {
         return this._mainWindow;
+    }
+
+    public get commandAllocator(): GFXCommandAllocator {
+        return <GFXCommandAllocator>this._cmdAllocator;
     }
 
     public get maxVertexAttributes(): number {
@@ -59,6 +63,6 @@ export abstract class GFXDevice {
     protected _deviceName : string = "";
     protected _queue : GFXQueue | null = null;
     protected _mainWindow : GFXWindow | null = null;
-
+    protected _cmdAllocator: GFXCommandAllocator | null = null;
     protected _maxVertexAttributes : number = 0;
 };

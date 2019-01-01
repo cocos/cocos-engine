@@ -1,18 +1,10 @@
 import { WebGLGPUBuffer, WebGLGPUTexture, WebGLGPUInputAssembler, WebGLGPUFramebuffer, WebGLGPUShader, WebGLGPUInput, WebGLAttrib, WebGLGPUPipelineState, WebGLGPUUniformBlock, WebGLGPUBindingLayout, WebGLGPUUniform, WebGLGPUUniformSampler } from "./webgl-gpu-objects";
 import { WebGLGFXDevice } from "./webgl-device";
-import { GFXBufferUsageBit, GFXMemoryUsageBit } from "../buffer";
-import { GFXTextureViewType } from "../texture-view";
-import { GFXFormatInfos, GFXFormat, WebGLEXT, GFXType, GFX_MAX_VERTEX_ATTRIBUTES, GFXFormatSize, BufferView } from "../define";
-import { GFXShaderType } from "../shader";
-import { GFXLoadOp, GFXTextureLayout } from "../render-pass";
-import { GFXColorMask, GFXCullMode } from "../pipeline-state";
+import { GFXFormatInfos, GFXFormat, WebGLEXT, GFXType, GFX_MAX_VERTEX_ATTRIBUTES, GFXFormatSize, GFXColor, GFXViewport, GFXRect, GFXBindingType, GFXBufferTextureCopy, GFXColorMask, GFXCullMode, GFXShaderType, GFXTextureViewType, GFXTextureLayout, GFXLoadOp, GFXTextureFlagBit, GFXMemoryUsageBit, GFXBufferUsageBit } from "../gfx-define";
 import { WebGLGFXCommandAllocator } from "./webgl-command-allocator";
-import { GFXBindingType } from "../binding-layout";
 import { WebGLTexUnit } from "./webgl-state-cache";
-import { GFXBufferTextureCopy } from "../command-buffer";
-import { GFXTextureFlagBit } from "../texture";
 
-function GFXFormatToWebGLType(format: GFXFormat, device : WebGLGFXDevice): GLenum {
+function GFXFormatToWebGLType(format: GFXFormat, device: WebGLGFXDevice): GLenum {
     switch (format) {
         case GFXFormat.R8: return WebGLRenderingContext.UNSIGNED_BYTE;
         case GFXFormat.R8SN: return WebGLRenderingContext.BYTE;
@@ -71,7 +63,7 @@ function GFXFormatToWebGLType(format: GFXFormat, device : WebGLGFXDevice): GLenu
         case GFXFormat.D16: return WebGLRenderingContext.UNSIGNED_SHORT;
         case GFXFormat.D16S8: return WebGLRenderingContext.UNSIGNED_SHORT;
         case GFXFormat.D24: return WebGLRenderingContext.UNSIGNED_INT;
-        case GFXFormat.D24S8: return device.WEBGL_depth_texture? device.WEBGL_depth_texture.UNSIGNED_INT_24_8_WEBGL : WebGLRenderingContext.UNSIGNED_INT;
+        case GFXFormat.D24S8: return device.WEBGL_depth_texture ? device.WEBGL_depth_texture.UNSIGNED_INT_24_8_WEBGL : WebGLRenderingContext.UNSIGNED_INT;
         case GFXFormat.D32F: return WebGLRenderingContext.FLOAT;
         case GFXFormat.D32F_S8: return WebGLRenderingContext.FLOAT;
 
@@ -282,8 +274,7 @@ function WebGLGetComponentCount(glType: GLenum): GFXType {
         case WebGLRenderingContext.FLOAT_MAT3: return 3;
         case WebGLRenderingContext.FLOAT_MAT4: return 4;
         default: {
-            console.error("Unsupported GLType, get component count failed.");
-            return 0;
+            return 1;
         }
     }
 }
@@ -357,9 +348,8 @@ export class WebGLCmdObject {
 export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
 
     gpuFramebuffer: WebGLGPUFramebuffer | null = null;
-    viewport: number[] = [];
-    numClearColors: number = 0;
-    clearColors: number[] = [];
+    renderArea: GFXRect = { left: 0.0, top: 0.0, width: 0.0, height: 0.0 };
+    clearColors: GFXColor[] = [];
     clearDepth: number = 1.0;
     clearStencil: number = 0;
 
@@ -415,7 +405,7 @@ export class WebGLCmdDraw extends WebGLCmdObject {
 export class WebGLCmdUpdateBuffer extends WebGLCmdObject {
 
     gpuBuffer: WebGLGPUBuffer | null = null;
-    buffer: Buffer | null = null;
+    buffer: ArrayBuffer | null = null;
     offset: number = 0;
 
     constructor() {
@@ -560,7 +550,7 @@ export function WebGLCmdFuncDestroyBuffer(device: WebGLGFXDevice, gpuBuffer: Web
     }
 }
 
-export function WebGLCmdFuncUpdateBuffer(device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer, offset: number, buffer: BufferView) {
+export function WebGLCmdFuncUpdateBuffer(device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer, offset: number, buffer: ArrayBuffer) {
 
     let gl = device.gl;
 
@@ -570,7 +560,7 @@ export function WebGLCmdFuncUpdateBuffer(device: WebGLGFXDevice, gpuBuffer: WebG
                 gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
                 device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
             }
-            gl.bufferSubData(gpuBuffer.glTarget, offset, buffer.buffer);
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buffer);
             break;
         }
         case WebGLRenderingContext.ELEMENT_ARRAY_BUFFER: {
@@ -578,7 +568,7 @@ export function WebGLCmdFuncUpdateBuffer(device: WebGLGFXDevice, gpuBuffer: WebG
                 gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                 device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
             }
-            gl.bufferSubData(gpuBuffer.glTarget, offset, buffer.buffer);
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buffer);
             break;
         }
         default: {
@@ -775,8 +765,9 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
             var isSuccess = gl.getShaderParameter(gpuStage.glShader, gl.COMPILE_STATUS);
             if (!isSuccess) {
                 console.error(shaderTypeStr + " in '" + gpuShader.name + "' compilation failed.");
+                console.error(gpuStage.source);
                 console.error(gl.getShaderInfoLog(gpuStage.glShader));
-            } else {
+
                 gl.deleteShader(gpuStage.glShader);
                 gpuStage.glShader = 0;
             }
@@ -797,7 +788,9 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
 
     gl.linkProgram(gpuShader.glProgram);
     var isSuccess = gl.getProgramParameter(gpuShader.glProgram, gl.LINK_STATUS);
-    if (!isSuccess) {
+    if (isSuccess) {
+        console.info("Shader '" + gpuShader.name + "' compilation successed.");
+    } else {
         console.error("Failed to link shader '" + gpuShader.name + "'.");
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
 
@@ -820,7 +813,7 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
             let glLoc = gl.getAttribLocation(gpuShader.glProgram, info.name);
 
             let varName: string;
-            let nameOffset = info.name.search('[');
+            let nameOffset = info.name.indexOf('[');
             if (nameOffset !== -1) {
                 varName = info.name.substr(0, nameOffset);
             } else {
@@ -921,7 +914,7 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
             let glLoc = gl.getUniformLocation(gpuShader.glProgram, info.name);
             if (glLoc) {
                 let varName: string;
-                let nameOffset = info.name.search('[');
+                let nameOffset = info.name.indexOf('[');
                 if (nameOffset !== -1) {
                     varName = info.name.substr(0, nameOffset);
                 } else {
@@ -996,6 +989,37 @@ export function WebGLCmdFuncDestroyShader(device: WebGLGFXDevice, gpuShader: Web
 
 export function WebGLCmdFuncCreateInputAssember(device: WebGLGFXDevice, gpuInputAssembler: WebGLGPUInputAssembler) {
 
+    gpuInputAssembler.glAttribs = new Array<WebGLAttrib>(gpuInputAssembler.attributes.length);
+
+    let offsets = [0, 0, 0, 0, 0, 0, 0, 0];
+
+    for(let i = 0; i < gpuInputAssembler.attributes.length; ++i) {
+        let attrib = gpuInputAssembler.attributes[i];
+
+        let stream = attrib.stream ? attrib.stream : 0;
+        //if (stream < gpuInputAssembler.gpuVertexBuffers.length) {
+
+        let gpuBuffer = gpuInputAssembler.gpuVertexBuffers[stream];
+        
+        let glType = GFXFormatToWebGLType(attrib.format, device);
+        let size = WebGLGetTypeSize(glType);
+
+        gpuInputAssembler.glAttribs[i] = {
+            glBuffer: gpuBuffer.glBuffer,
+            glLoc: attrib.semantic,
+            glType: glType,
+            size: size,
+            count: GFXFormatInfos[attrib.format].count,
+            stride: gpuBuffer.stride,
+            componentCount: WebGLGetComponentCount(glType),
+            isInstanced: attrib.isInstanced? attrib.isInstanced : false,
+            offset: offsets[stream],
+        };
+
+        offsets[stream] += size;
+    }
+
+    /*
     if (gpuInputAssembler.gpuShader) {
         let attribCount = gpuInputAssembler.gpuShader.glInputs.length;
         gpuInputAssembler.glAttribs = new Array<WebGLAttrib>(attribCount);
@@ -1033,6 +1057,7 @@ export function WebGLCmdFuncCreateInputAssember(device: WebGLGFXDevice, gpuInput
             }
         }
     }
+    */
 }
 
 export function WebGLCmdFuncDestroyInputAssembler(device: WebGLGFXDevice, gpuInputAssembler: WebGLGPUInputAssembler) {
@@ -1067,30 +1092,30 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                         device.stateCache.glFramebuffer = cmd.gpuFramebuffer.glFramebuffer;
                     }
 
-                    if (device.stateCache.viewport[0] !== cmd.viewport[0] ||
-                        device.stateCache.viewport[1] !== cmd.viewport[1] ||
-                        device.stateCache.viewport[2] !== cmd.viewport[2] ||
-                        device.stateCache.viewport[3] !== cmd.viewport[3]) {
+                    if (device.stateCache.viewport.left !== cmd.renderArea.left ||
+                        device.stateCache.viewport.top !== cmd.renderArea.top ||
+                        device.stateCache.viewport.width !== cmd.renderArea.width ||
+                        device.stateCache.viewport.height !== cmd.renderArea.height) {
 
-                        gl.viewport(cmd.viewport[0], cmd.viewport[1], cmd.viewport[2], cmd.viewport[3]);
+                        gl.viewport(cmd.renderArea.left, cmd.renderArea.top, cmd.renderArea.width, cmd.renderArea.height);
 
-                        device.stateCache.viewport[0] = cmd.viewport[0];
-                        device.stateCache.viewport[1] = cmd.viewport[1];
-                        device.stateCache.viewport[2] = cmd.viewport[2];
-                        device.stateCache.viewport[3] = cmd.viewport[3];
+                        device.stateCache.viewport.left = cmd.renderArea.left;
+                        device.stateCache.viewport.top = cmd.renderArea.top;
+                        device.stateCache.viewport.width = cmd.renderArea.width;
+                        device.stateCache.viewport.height = cmd.renderArea.height;
                     }
 
-                    if (device.stateCache.scissorRect[0] !== cmd.viewport[0] ||
-                        device.stateCache.scissorRect[1] !== cmd.viewport[1] ||
-                        device.stateCache.scissorRect[2] !== cmd.viewport[2] ||
-                        device.stateCache.scissorRect[3] !== cmd.viewport[3]) {
+                    if (device.stateCache.scissorRect.left !== cmd.renderArea.left ||
+                        device.stateCache.scissorRect.top !== cmd.renderArea.top ||
+                        device.stateCache.scissorRect.width !== cmd.renderArea.width ||
+                        device.stateCache.scissorRect.height !== cmd.renderArea.height) {
 
-                        gl.scissor(cmd.viewport[0], cmd.viewport[1], cmd.viewport[2], cmd.viewport[3]);
+                        gl.scissor(cmd.renderArea.left, cmd.renderArea.top, cmd.renderArea.width, cmd.renderArea.height);
 
-                        device.stateCache.scissorRect[0] = cmd.viewport[0];
-                        device.stateCache.scissorRect[1] = cmd.viewport[1];
-                        device.stateCache.scissorRect[2] = cmd.viewport[2];
-                        device.stateCache.scissorRect[3] = cmd.viewport[3];
+                        device.stateCache.scissorRect.left = cmd.renderArea.left;
+                        device.stateCache.scissorRect.top = cmd.renderArea.top;
+                        device.stateCache.scissorRect.width = cmd.renderArea.width;
+                        device.stateCache.scissorRect.height = cmd.renderArea.height;
                     }
 
                     let curGPURenderPass = cmd.gpuFramebuffer.gpuRenderPass;
@@ -1110,7 +1135,8 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                         gl.colorMask(true, true, true, true);
                                     }
 
-                                    gl.clearColor(cmd.clearColors[0], cmd.clearColors[1], cmd.clearColors[2], cmd.clearColors[3]);
+                                    let clearColor = cmd.clearColors[0];
+                                    gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
                                     clears |= WebGLRenderingContext.COLOR_BUFFER_BIT;
 
                                     break;
@@ -1520,9 +1546,9 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
 
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
-                                                            let idx = 2*m;
+                                                            let idx = 2 * m;
                                                             if (glBlock.bufferView.getInt32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getInt32(offset+4) !== glUniform.bufferView[idx+1]) {
+                                                                glBlock.bufferView.getInt32(offset + 4) !== glUniform.bufferView[idx + 1]) {
                                                                 gl.uniform2iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
                                                                 break;
                                                             }
@@ -1534,10 +1560,10 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     case WebGLRenderingContext.INT_VEC3: {
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
-                                                            let idx = 3*m;
+                                                            let idx = 3 * m;
                                                             if (glBlock.bufferView.getInt32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getInt32(offset+4) !== glUniform.bufferView[idx+1] ||
-                                                                glBlock.bufferView.getInt32(offset+8) !== glUniform.bufferView[idx+2]) {
+                                                                glBlock.bufferView.getInt32(offset + 4) !== glUniform.bufferView[idx + 1] ||
+                                                                glBlock.bufferView.getInt32(offset + 8) !== glUniform.bufferView[idx + 2]) {
                                                                 gl.uniform3iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
                                                                 break;
                                                             }
@@ -1550,11 +1576,11 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
 
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
-                                                            let idx = 4*m;
+                                                            let idx = 4 * m;
                                                             if (glBlock.bufferView.getInt32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getInt32(offset+4) !== glUniform.bufferView[idx+1] ||
-                                                                glBlock.bufferView.getInt32(offset+8) !== glUniform.bufferView[idx+2] ||
-                                                                glBlock.bufferView.getInt32(offset+12) !== glUniform.bufferView[idx+3]) {
+                                                                glBlock.bufferView.getInt32(offset + 4) !== glUniform.bufferView[idx + 1] ||
+                                                                glBlock.bufferView.getInt32(offset + 8) !== glUniform.bufferView[idx + 2] ||
+                                                                glBlock.bufferView.getInt32(offset + 12) !== glUniform.bufferView[idx + 3]) {
                                                                 gl.uniform4iv(glUniform.glLoc, <Int32Array>glUniform.bufferView);
                                                                 break;
                                                             }
@@ -1578,9 +1604,9 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
 
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
-                                                            let idx = 2*m;
+                                                            let idx = 2 * m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1]) {
+                                                                glBlock.bufferView.getFloat32(offset + 4) !== glUniform.bufferView[idx + 1]) {
                                                                 gl.uniform2fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
                                                                 break;
                                                             }
@@ -1591,10 +1617,10 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     case WebGLRenderingContext.FLOAT_VEC3: {
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
-                                                            let idx = 3*m;
+                                                            let idx = 3 * m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] ||
-                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2]) {
+                                                                glBlock.bufferView.getFloat32(offset + 4) !== glUniform.bufferView[idx + 1] ||
+                                                                glBlock.bufferView.getFloat32(offset + 8) !== glUniform.bufferView[idx + 2]) {
                                                                 gl.uniform3fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
                                                                 break;
                                                             }
@@ -1605,11 +1631,11 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     case WebGLRenderingContext.FLOAT_VEC4: {
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
-                                                            let idx = 4*m;
+                                                            let idx = 4 * m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] ||
-                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] ||
-                                                                glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3]) {
+                                                                glBlock.bufferView.getFloat32(offset + 4) !== glUniform.bufferView[idx + 1] ||
+                                                                glBlock.bufferView.getFloat32(offset + 8) !== glUniform.bufferView[idx + 2] ||
+                                                                glBlock.bufferView.getFloat32(offset + 12) !== glUniform.bufferView[idx + 3]) {
                                                                 gl.uniform4fv(glUniform.glLoc, <Float32Array>glUniform.bufferView);
                                                                 break;
                                                             }
@@ -1620,11 +1646,11 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     case WebGLRenderingContext.FLOAT_MAT2: {
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
-                                                            let idx = 4*m;
+                                                            let idx = 4 * m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] ||
-                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] ||
-                                                                glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3]) {
+                                                                glBlock.bufferView.getFloat32(offset + 4) !== glUniform.bufferView[idx + 1] ||
+                                                                glBlock.bufferView.getFloat32(offset + 8) !== glUniform.bufferView[idx + 2] ||
+                                                                glBlock.bufferView.getFloat32(offset + 12) !== glUniform.bufferView[idx + 3]) {
                                                                 gl.uniformMatrix2fv(glUniform.glLoc, false, <Float32Array>glUniform.bufferView);
                                                                 break;
                                                             }
@@ -1635,16 +1661,16 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     case WebGLRenderingContext.FLOAT_MAT3: {
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
-                                                            let idx = 9*m;
+                                                            let idx = 9 * m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] ||
-                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] ||
-                                                                glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3] ||
-                                                                glBlock.bufferView.getFloat32(offset+16) !== glUniform.bufferView[idx+4] ||
-                                                                glBlock.bufferView.getFloat32(offset+20) !== glUniform.bufferView[idx+5] ||
-                                                                glBlock.bufferView.getFloat32(offset+24) !== glUniform.bufferView[idx+6] ||
-                                                                glBlock.bufferView.getFloat32(offset+28) !== glUniform.bufferView[idx+7] ||
-                                                                glBlock.bufferView.getFloat32(offset+32) !== glUniform.bufferView[idx+8]) {
+                                                                glBlock.bufferView.getFloat32(offset + 4) !== glUniform.bufferView[idx + 1] ||
+                                                                glBlock.bufferView.getFloat32(offset + 8) !== glUniform.bufferView[idx + 2] ||
+                                                                glBlock.bufferView.getFloat32(offset + 12) !== glUniform.bufferView[idx + 3] ||
+                                                                glBlock.bufferView.getFloat32(offset + 16) !== glUniform.bufferView[idx + 4] ||
+                                                                glBlock.bufferView.getFloat32(offset + 20) !== glUniform.bufferView[idx + 5] ||
+                                                                glBlock.bufferView.getFloat32(offset + 24) !== glUniform.bufferView[idx + 6] ||
+                                                                glBlock.bufferView.getFloat32(offset + 28) !== glUniform.bufferView[idx + 7] ||
+                                                                glBlock.bufferView.getFloat32(offset + 32) !== glUniform.bufferView[idx + 8]) {
                                                                 gl.uniformMatrix3fv(glUniform.glLoc, false, <Float32Array>glUniform.bufferView);
                                                                 break;
                                                             }
@@ -1655,23 +1681,23 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     case WebGLRenderingContext.FLOAT_MAT4: {
                                                         let offset = glUniform.offset;
                                                         for (let m = 0; m < glUniform.count; ++m) {
-                                                            let idx = 16*m;
+                                                            let idx = 16 * m;
                                                             if (glBlock.bufferView.getFloat32(offset) !== glUniform.bufferView[idx] ||
-                                                                glBlock.bufferView.getFloat32(offset+4) !== glUniform.bufferView[idx+1] ||
-                                                                glBlock.bufferView.getFloat32(offset+8) !== glUniform.bufferView[idx+2] ||
-                                                                glBlock.bufferView.getFloat32(offset+12) !== glUniform.bufferView[idx+3] ||
-                                                                glBlock.bufferView.getFloat32(offset+16) !== glUniform.bufferView[idx+4] ||
-                                                                glBlock.bufferView.getFloat32(offset+20) !== glUniform.bufferView[idx+5] ||
-                                                                glBlock.bufferView.getFloat32(offset+24) !== glUniform.bufferView[idx+6] ||
-                                                                glBlock.bufferView.getFloat32(offset+28) !== glUniform.bufferView[idx+7] ||
-                                                                glBlock.bufferView.getFloat32(offset+32) !== glUniform.bufferView[idx+8] ||
-                                                                glBlock.bufferView.getFloat32(offset+36) !== glUniform.bufferView[idx+9] ||
-                                                                glBlock.bufferView.getFloat32(offset+40) !== glUniform.bufferView[idx+10] ||
-                                                                glBlock.bufferView.getFloat32(offset+44) !== glUniform.bufferView[idx+11] ||
-                                                                glBlock.bufferView.getFloat32(offset+48) !== glUniform.bufferView[idx+12] ||
-                                                                glBlock.bufferView.getFloat32(offset+52) !== glUniform.bufferView[idx+13] ||
-                                                                glBlock.bufferView.getFloat32(offset+56) !== glUniform.bufferView[idx+14] ||
-                                                                glBlock.bufferView.getFloat32(offset+60) !== glUniform.bufferView[idx+15]) {
+                                                                glBlock.bufferView.getFloat32(offset + 4) !== glUniform.bufferView[idx + 1] ||
+                                                                glBlock.bufferView.getFloat32(offset + 8) !== glUniform.bufferView[idx + 2] ||
+                                                                glBlock.bufferView.getFloat32(offset + 12) !== glUniform.bufferView[idx + 3] ||
+                                                                glBlock.bufferView.getFloat32(offset + 16) !== glUniform.bufferView[idx + 4] ||
+                                                                glBlock.bufferView.getFloat32(offset + 20) !== glUniform.bufferView[idx + 5] ||
+                                                                glBlock.bufferView.getFloat32(offset + 24) !== glUniform.bufferView[idx + 6] ||
+                                                                glBlock.bufferView.getFloat32(offset + 28) !== glUniform.bufferView[idx + 7] ||
+                                                                glBlock.bufferView.getFloat32(offset + 32) !== glUniform.bufferView[idx + 8] ||
+                                                                glBlock.bufferView.getFloat32(offset + 36) !== glUniform.bufferView[idx + 9] ||
+                                                                glBlock.bufferView.getFloat32(offset + 40) !== glUniform.bufferView[idx + 10] ||
+                                                                glBlock.bufferView.getFloat32(offset + 44) !== glUniform.bufferView[idx + 11] ||
+                                                                glBlock.bufferView.getFloat32(offset + 48) !== glUniform.bufferView[idx + 12] ||
+                                                                glBlock.bufferView.getFloat32(offset + 52) !== glUniform.bufferView[idx + 13] ||
+                                                                glBlock.bufferView.getFloat32(offset + 56) !== glUniform.bufferView[idx + 14] ||
+                                                                glBlock.bufferView.getFloat32(offset + 60) !== glUniform.bufferView[idx + 15]) {
                                                                 gl.uniformMatrix4fv(glUniform.glLoc, false, <Float32Array>glUniform.bufferView);
                                                                 break;
                                                             }

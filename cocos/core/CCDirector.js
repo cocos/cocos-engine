@@ -38,6 +38,7 @@ import NodeActivator from '../scene-graph/node-activator';
 import RenderSystem from '../3d/framework/render-system';
 import { PhysicsSystem } from '../3d/framework/physics/physics-system';
 import { getClassByName } from './utils/js';
+import { Root } from './root';
 
 // const ComponentScheduler = require('./component-scheduler');
 // const NodeActivator = require('./node-activator');
@@ -122,6 +123,9 @@ class Director extends EventTarget {
         // purge?
         this._purgeDirectorInNextLoop = false;
 
+        // root
+        this._root = null;
+
         // scenes
         this._loadingScene = '';
         this._scene = null;
@@ -156,6 +160,13 @@ class Director extends EventTarget {
     }
 
     init () {
+
+        this._root = new Root(game._gfxDevice);
+        let rootInfo = {};
+        if(!this._root.initialize(rootInfo)) {
+            return false;
+        }
+
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
         this._paused = false;
@@ -348,6 +359,9 @@ class Director extends EventTarget {
         }
 
         this.stopAnimation();
+
+        this._root.destroy();
+        this._root = null;
 
         // Clear all caches
         cc.loader.releaseAll();
@@ -902,7 +916,11 @@ class Director extends EventTarget {
             // Render
             this._physicsSystem.update(this._deltaTime);
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
-            this._renderSystem.update(this._deltaTime);
+            //this._renderSystem.update(this._deltaTime);
+
+
+            this._root.frameMove(this._deltaTime);
+
             // After draw
             this.emit(cc.Director.EVENT_AFTER_DRAW);
 

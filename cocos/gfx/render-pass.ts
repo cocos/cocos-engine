@@ -1,34 +1,5 @@
-import { GFXFormat, GFXFormatInfo } from './define';
+import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXPipelineBindPoint } from './gfx-define';
 import { GFXDevice } from './device';
-
-// Enumeration all possible values of operations to be performed on initially Loading a Framebuffer Object.
-export enum GFXLoadOp
-{
-	LOAD,		// Load the contents from the fbo from previous
-	CLEAR,		// Clear the fbo
-	DISCARD,	// Ignore writing to the fbo and keep old data
-};
-
-// Enumerates all possible values of operations to be performed when Storing to a Framebuffer Object.
-export enum GFXStoreOp
-{
-	STORE,		// Write the source to the destination
-	DISCARD,	// Don't write the source to the destination
-};
-
-export enum GFXTextureLayout
-{
-    UNDEFINED,
-    GENERAL,
-	COLOR_ATTACHMENT_OPTIMAL,
-	DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-	DEPTH_STENCIL_READONLY_OPTIMAL,
-    SHADER_READONLY_OPTIMAL,
-    TRANSFER_SRC_OPTIMAL,
-    TRANSFER_DST_OPTIMAL,
-    PREINITIALIZED,
-    PRESENT_SRC,
-};
 
 export class GFXColorAttachment
 {
@@ -52,28 +23,21 @@ export class GFXDepthStencilAttachment
 	endLayout : GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 };
 
-export enum GFXPipelineBindPoint
+export interface GFXSubPassInfo
 {
-    GRAPHICS,
-    COMPUTE,
-    RAY_TRACING,
+    bindPoint : GFXPipelineBindPoint;
+    inputs : number[];
+    colors : number[];
+    resolves : number[];
+    depthStencil : number;
+    preserves : number[];
 };
 
-export class GFXSubPassInfo
+export interface GFXRenderPassInfo
 {
-    bindPoint : GFXPipelineBindPoint = GFXPipelineBindPoint.GRAPHICS;
-    inputs : number[] = [];
-    colors : number[] = [];
-    resolves : number[] = [];
-    depthStencil : number = -1;
-    preserves : number[] = [];
-};
-
-export class GFXRenderPassInfo
-{
-	colorAttachment : GFXColorAttachment[] = [];
-	depthStencilAttachment : GFXDepthStencilAttachment | null = null;
-	//subPasses : GFXSubPassInfo[] = [];
+	colorAttachment? : GFXColorAttachment[];
+	depthStencilAttachment? : GFXDepthStencilAttachment;
+	//subPasses? : GFXSubPassInfo[];
 };
 
 export abstract class GFXRenderPass {

@@ -1,11 +1,11 @@
 import { GFXDevice } from './device';
 import { GFXBindingLayout } from './binding-layout';
-import { GFXShaderType } from './shader';
+import { GFXShaderType } from './gfx-define';
 
-export class GFXPushConstantRange {
-    shaderType : GFXShaderType = GFXShaderType.VERTEX;
-    offset : number = 0;
-    count : number = 0;
+export interface GFXPushConstantRange {
+    shaderType : GFXShaderType;
+    offset : number;
+    count : number;
 };
 
 export interface GFXPipelineLayoutInfo {

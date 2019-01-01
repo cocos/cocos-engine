@@ -1,33 +1,5 @@
 import { GFXDevice } from './device';
-import { BufferView } from './define';
-
-export enum GFXBufferUsageBit {
-    NONE = 0,
-    TRANSFER_SRC = 0x1,
-    TRANSFER_DST = 0x2,
-    INDEX = 0x4,
-    VERTEX = 0x8,
-    UNIFORM = 0x10,
-    STORAGE = 0x20,
-};
-
-export type GFXBufferUsage = GFXBufferUsageBit;
-
-export enum GFXMemoryUsageBit {
-    NONE = 0,
-    DEVICE = 0x1,
-    HOST = 0x2,
-};
-
-export type GFXMemoryUsage = GFXMemoryUsageBit;
-
-export enum GFXBufferAccessBit {
-    NONE = 0,
-    READ = 0x1,
-    WRITE = 0x2,
-};
-
-export type GFXBufferAccess = GFXBufferAccessBit;
+import { GFXBufferUsage, GFXMemoryUsage, GFXBufferUsageBit, GFXMemoryUsageBit } from './gfx-define';
 
 export interface GFXBufferInfo {
     usage: GFXBufferUsage;
@@ -44,7 +16,7 @@ export abstract class GFXBuffer {
 
     public abstract initialize(info: GFXBufferInfo): boolean;
     public abstract destroy(): void;
-    public abstract update(buffer: Buffer, offset: number);
+    public abstract update(buffer: ArrayBuffer, offset?: number);
 
     public get usage(): GFXBufferUsage {
         return this._usage;
@@ -72,5 +44,5 @@ export abstract class GFXBuffer {
     protected _size: number = 0;
     protected _stride: number = 1;
     protected _buffer: ArrayBuffer | null = null;
-    protected _bufferView: BufferView | null = null;
+    protected _bufferView: Uint8Array | null = null;
 };

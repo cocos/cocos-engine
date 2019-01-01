@@ -4,39 +4,9 @@ import { GFXBuffer } from './buffer';
 import { GFXInputAssembler } from './input-assembler';
 import { GFXPipelineState } from './pipeline-state';
 import { GFXBindingLayout } from './binding-layout';
-import { GFXTextureLayout } from './render-pass';
 import { GFXTexture } from './texture';
 import { GFXFramebuffer } from './framebuffer';
-
-export class GFXTextureSubres
-{
-	baseMipLevel: number = 0;
-	levelCount: number = 1;
-	baseArrayLayer: number = 0;
-	layerCount: number = 1;
-};
-
-export class GFXTextureCopy {
-    srcSubres: GFXTextureSubres = new GFXTextureSubres;
-    srcOffset: number[] = [0, 0, 0];
-    dstSubres: GFXTextureSubres = new GFXTextureSubres;
-    dstOffset: number[] = [0, 0, 0];
-    extent: number[] = [0, 0, 0];
-};
-
-export class GFXBufferTextureCopy {
-	buffOffset: number = 0;
-	buffStride: number = 0;
-	buffTexHeight: number = 0;
-	texOffset: number[] = [0, 0, 0];
-    texExtent: number[] = [0, 0, 0];
-    texSubres: GFXTextureSubres = new GFXTextureSubres;
-};
-
-export enum GFXCommandBufferType {
-    PRIMARY,
-    SECONDARY,
-};
+import { GFXColor, GFXRect, GFXCommandBufferType, GFXBufferTextureCopy, GFXTextureLayout } from './gfx-define';
 
 export interface GFXCommandBufferInfo {
     allocator : GFXCommandAllocator;
@@ -54,7 +24,7 @@ export abstract class GFXCommandBuffer {
 
     public abstract begin();
     public abstract end();
-    public abstract beginRenderPass(framebuffer : GFXFramebuffer, viewport : number[], numClearColors : number, clearColors : number[], clearStencil : number);
+    public abstract beginRenderPass(framebuffer : GFXFramebuffer, renderArea : GFXRect, clearColors : GFXColor[], clearDepth: number, clearStencil : number);
     public abstract endRenderPass();
     public abstract bindPipelineState(pipelineState : GFXPipelineState);
     public abstract bindBindingLayout(bindingLayout : GFXBindingLayout);

@@ -11,10 +11,7 @@ export class WebGLGFXShader extends GFXShader {
 
     public initialize(info: GFXShaderInfo): boolean {
 
-        if (info.name) {
-            this._name = info.name;
-        }
-
+        this._name = info.name;
         this._stages = info.stages;
         this._blocks = info.blocks;
         this._samplers = info.samplers;

@@ -2,22 +2,16 @@ import { GFXDevice } from './device';
 import { GFXBuffer } from './buffer';
 import { GFXTextureView } from './texture-view';
 import { GFXSampler } from './sampler';
+import { GFXBindingType } from './gfx-define';
 
-export enum GFXBindingType {
-    UNKNOWN,
-    UNIFORM_BUFFER,
-    SAMPLER,
-    STORAGE_BUFFER,
+export interface GFXBinding {
+    binding : number;
+    type : GFXBindingType;
+    name : string;
 };
 
-export class GFXBinding {
-    binding : number = 0;
-    type : GFXBindingType = GFXBindingType.UNKNOWN;
-    name : string = "";
-};
-
-export class GFXBindingLayoutInfo {
-    bindings : GFXBinding[] = [];
+export interface GFXBindingLayoutInfo {
+    bindings : GFXBinding[];
 };
 
 export class GFXBindingUnit {

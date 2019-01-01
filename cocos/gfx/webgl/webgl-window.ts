@@ -1,11 +1,7 @@
 import { GFXDevice } from '../device';
 import { WebGLGFXDevice } from './webgl-device';
 import { GFXWindow, GFXWindowInfo } from '../window';
-import { GFXFramebufferInfo } from '../framebuffer';
-import { GFXRenderPassInfo, GFXColorAttachment, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXPipelineBindPoint, GFXDepthStencilAttachment } from '../render-pass';
-import { GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit } from '../texture';
-import { GFXTextureViewType } from '../texture-view';
-import { GFXFormat } from '../define';
+import { GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit, GFXTextureViewType, GFXTextureLayout, GFXLoadOp, GFXStoreOp } from '../gfx-define';
 
 export class WebGLGFXWindow extends GFXWindow {
 

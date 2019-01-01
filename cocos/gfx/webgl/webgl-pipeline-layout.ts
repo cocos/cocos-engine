@@ -1,7 +1,8 @@
 import { GFXDevice } from '../device';
-import { GFXPipelineLayout, GFXPipelineLayoutInfo } from '../pipeline-layout';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUPipelineLayout } from './webgl-gpu-objects';
+import { GFXPipelineLayout } from '../pipeline-layout';
+import { GFXPipelineLayoutInfo } from '../binding-layout';
 
 export class WebGLGFXPipelineLayout extends GFXPipelineLayout {
 

@@ -1,10 +1,10 @@
 import { GFXDevice } from './device';
-import { GFXFormat } from './define';
+import { GFXFormat, GFXVertexSemantic } from './gfx-define';
 import { GFXBuffer } from './buffer';
-import { GFXShader } from './shader';
 
 export interface GFXInputAttribute {
     name: string;
+    semantic: GFXVertexSemantic;
     format: GFXFormat;
     stream?: number;
     isInstanced?: boolean;
@@ -12,7 +12,6 @@ export interface GFXInputAttribute {
 
 export interface GFXInputAssemblerInfo {
     attributes: GFXInputAttribute[];
-    shader: GFXShader;
     vertexBuffers: GFXBuffer[];
     indexBuffer?: GFXBuffer;
     isIndirect?: boolean;
@@ -41,6 +40,10 @@ export abstract class GFXInputAssembler {
         } else {
             return null;
         }
+    }
+
+    public get attributes(): GFXInputAttribute[] {
+        return this._attributes;
     }
 
     public get vertexCount(): number {

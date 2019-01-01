@@ -30,7 +30,7 @@ import debug from './platform/CCDebug';
 import { addon } from './utils/js';
 
 import renderer from '../renderer';
-import gfx from '../renderer/gfx';
+import '../gfx';
 import builtinResMgr from '../3d/builtin/init';
 
 /**
@@ -343,6 +343,12 @@ var game = {
      * @method end
      */
     end: function () {
+
+        if(this._gfxDevice) {
+            this._gfxDevice.destroy();
+            this._gfxDevice = null;
+        }
+
         close();
     },
 
@@ -366,7 +372,7 @@ var game = {
         // Init engine
         this._initEngine();
 
-        this._initBuiltins();
+        //this._initBuiltins();
 
         // Log engine version
         console.log('Cocos3D v' + cc.ENGINE_VERSION);
@@ -768,26 +774,29 @@ var game = {
             {
                 // todo, adjust opts here
 
-                let device = this._renderContext = new gfx.Device(localCanvas, {});
-                
-                /*
-                this._gfxDevice = new WebGLGFXDevice;
+                this._gfxDevice = new cc.WebGLGFXDevice;
                 this._gfxDevice.initialize({
                     canvasElm : localCanvas,
                 });
-                */
 
+                //let device = this._renderContext = new gfx.Device(localCanvas, {});
+
+                /*
                 renderer.addStage('opaque');
                 renderer.addStage('transparent');
                 renderer.addStage('ui');
                 renderer.addStage('shadowcast');
+                */
 
-                this._renderer = new renderer.ForwardRenderer(device);
+                //this._renderer = new renderer.ForwardRenderer(device);
             }
             // renderer.initWebGL(localCanvas, opts);
             // this._renderContext = renderer.device._gl;
         }
-        if (!this._renderContext) {
+        
+        if (!this._gfxDevice) {
+        //if (!this._renderContext) {
+
             // todo fix here for wechat game
             console.error('can not support canvas rendering in 3D');
             this._renderer = null;

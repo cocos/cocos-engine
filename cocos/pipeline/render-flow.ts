@@ -1,6 +1,8 @@
 import { RenderStage, RenderStageInfo } from "./render-stage";
 import { RenderView } from "./render-view";
 import { RenderPipeline } from "./render-pipeline";
+import { GFXRenderPass } from "../gfx/render-pass";
+import { GFXDevice } from "../gfx/device";
 
 export interface RenderFlowInfo {
     name?: string;
@@ -10,6 +12,7 @@ export interface RenderFlowInfo {
 export abstract class RenderFlow {
 
     constructor(pipeline: RenderPipeline) {
+        this._device = pipeline.device;
         this._pipeline = pipeline;
     }
 
@@ -47,10 +50,19 @@ export abstract class RenderFlow {
         this._stages = [];
     }
 
+    public get device(): GFXDevice {
+        return this._device;
+    }
+
+    public get pipeline(): RenderPipeline {
+        return this._pipeline;
+    }
+
     public get priority(): number {
         return this._priority;
     }
 
+    protected _device: GFXDevice;
     protected _pipeline: RenderPipeline;
     protected _name: string = "";
     protected _priority: number = 0;

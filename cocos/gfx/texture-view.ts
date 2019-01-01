@@ -1,15 +1,6 @@
-import { GFXFormat, GFXFormatInfo } from './define';
+import { GFXFormat, GFXTextureViewType } from './gfx-define';
 import { GFXDevice } from './device';
 import { GFXTexture } from './texture';
-
-export enum GFXTextureViewType {
-    TV1D,
-    TV2D,
-    TV3D,
-    CUBE,
-    TV1D_ARRAY,
-    TV2D_ARRAY,
-};
 
 export interface GFXTextureViewInfo {
     texture: GFXTexture;

@@ -22,7 +22,7 @@ export class WebGLGFXQueue extends GFXQueue {
 
     }
 
-    public submit(cmdBuffs: GFXCommandBuffer[], fence: null = null) {
+    public submit(cmdBuffs: GFXCommandBuffer[], fence?) {
 
         // TODO: Async
         if (!this._isAsync) {

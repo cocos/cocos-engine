@@ -1,6 +1,10 @@
 import { RenderFlow, RenderFlowInfo } from "../render-flow";
-import { GFXRenderPass } from "../../gfx/gfx-render-pass";
 import { RenderPipeline } from "../render-pipeline";
+import { TestStage } from "./test-stage";
+
+export enum ForwardStagePriority {
+    FORWARD = 0,
+};
 
 export class ForwardFlow extends RenderFlow {
 
@@ -9,27 +13,36 @@ export class ForwardFlow extends RenderFlow {
     }
 
     public initialize(info: RenderFlowInfo): boolean {
-        
-        if(info.name) {
+
+        if (info.name) {
             this._name = info.name;
         }
 
         this._priority = info.priority;
 
-        let device = this._pipeline.root.device;
-        if(!device) {
+        let mainWindow = this._pipeline.root.mainWindow;
+        if(!mainWindow || !mainWindow.framebuffer) {
             return false;
         }
 
-        //this._pipeline.root.mainWindow;
-        //this._renderPass = 
-        
+        /*
+        this.createStage<ForwardStage>(ForwardStage, {
+            name: "ForwardStage",
+            priority: ForwardStagePriority.FORWARD,
+            framebuffer:  mainWindow.framebuffer,
+        });
+        */
+
+        this.createStage<TestStage>(TestStage, {
+            name: "TestStage",
+            priority: ForwardStagePriority.FORWARD,
+            framebuffer:  mainWindow.framebuffer,
+        });
+
         return true;
     }
 
     public destroy(): void {
         this.destroyStages();
     }
-
-    private _renderPass: GFXRenderPass | null = null;
 };

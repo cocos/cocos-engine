@@ -1,12 +1,8 @@
-import { GFXBufferUsage, GFXBufferUsageBit, GFXMemoryUsage, GFXMemoryUsageBit } from "../buffer";
-import { GFXTextureType, GFXTextureUsage, GFXTextureUsageBit, GFXTextureFlags, GFXTextureFlagBit } from "../texture";
-import { GFXTextureViewType } from "../texture-view";
-import { GFXFormat, GFXType, BufferView } from "../define";
+import { GFXFormat, GFXType, GFXTextureType, GFXTextureUsage, GFXTextureUsageBit, GFXTextureFlags, GFXTextureFlagBit, GFXShaderType, GFXBindingType, GFXTextureViewType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXMemoryUsage, GFXBufferUsage } from "../gfx-define";
 import { GFXColorAttachment, GFXDepthStencilAttachment } from "../render-pass";
-import { GFXShaderType, GFXShaderMacro, GFXUniformBlock, GFXUniformSampler } from "../shader";
-import { GFXBindingType } from "../binding-layout";
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../pipeline-state";
 import { GFXInputAttribute } from "../input-assembler";
+import { GFXUniformBlock, GFXUniformSampler, GFXShaderMacro } from "../shader";
 
 export enum WebGLGPUObjectType {
     UNKNOWN,
@@ -40,7 +36,7 @@ export class WebGLGPUBuffer extends WebGLGPUObject {
     glTarget: GLenum = 0;
     glBuffer: WebGLBuffer = 0;
     buffer: ArrayBuffer | null = null;
-    bufferView: BufferView | null = null;
+    bufferView: Uint8Array | null = null;
 
     constructor() {
         super(WebGLGPUObjectType.BUFFER);
@@ -245,7 +241,6 @@ export class WebGLAttrib {
 
 export class WebGLGPUInputAssembler extends WebGLGPUObject {
     attributes: GFXInputAttribute[] = [];
-    gpuShader: WebGLGPUShader | null = null;
     gpuVertexBuffers: WebGLGPUBuffer[] = [];
     gpuIndexBuffer: WebGLGPUBuffer | null = null;
 

@@ -1,20 +1,15 @@
 import { GFXDevice } from './device';
-import { GFXBinding } from './binding-layout';
-import { GFXType } from './define';
-
-export enum GFXShaderType {
-    VERTEX,
-    HULL,
-    DOMAIN,
-    GEOMETRY,
-    FRAGMENT,
-    COMPUTE,
-    COUNT,
-};
+import { GFXType, GFXShaderType } from './gfx-define';
 
 export interface GFXShaderMacro {
     macro: string;
     value: string;
+};
+
+export interface GFXShaderStage {
+    type: GFXShaderType;
+    source: string;
+    macros?: GFXShaderMacro[];
 };
 
 export interface GFXUniform {
@@ -37,14 +32,8 @@ export interface GFXUniformSampler {
     count: number;
 };
 
-export interface GFXShaderStage {
-    type: GFXShaderType;
-    source: string;
-    macros?: GFXShaderMacro[];
-};
-
 export interface GFXShaderInfo {
-    name?: string;
+    name: string;
     stages: GFXShaderStage[];
     //bindings: GFXBinding[];
 

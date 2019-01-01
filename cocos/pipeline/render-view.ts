@@ -1,6 +1,6 @@
-import { Scene } from "../scene/scene";
-import { Camera } from "../scene/camera";
-import { GFXWindow } from "../gfx/gfx-window";
+import { Scene } from "../renderer/scene/scene";
+import { Camera } from "../renderer/scene/camera";
+import { GFXWindow } from "../gfx/window";
 
 export interface RenderViewInfo {
     window: GFXWindow;

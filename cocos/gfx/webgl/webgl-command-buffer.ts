@@ -1,5 +1,5 @@
 import { GFXDevice } from '../device';
-import { GFXCommandBuffer, GFXCommandBufferInfo, GFXBufferTextureCopy } from '../command-buffer';
+import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
 import { GFXBuffer } from '../buffer';
 import { WebGLCmdUpdateBuffer, WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdPackage, WebGLCmdBindInputAssembler, WebGLCmdBindPipelineState, WebGLCmdDraw, WebGLCmdBindBindingLayout, WebGLCmdCopyBufferToTexture } from './webgl-commands';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
@@ -14,8 +14,8 @@ import { WebGLGFXPipelineState } from './webgl-pipeline-state';
 import { GFXBindingLayout } from '../binding-layout';
 import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 import { GFXTexture } from '../texture';
-import { GFXTextureLayout } from '../render-pass';
 import { WebGLGFXTexture } from './webgl-texture';
+import { GFXColor, GFXViewport, GFXRect, GFXBufferTextureCopy, GFXTextureLayout } from '../gfx-define';
 
 export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
@@ -52,12 +52,11 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     public end() {
     }
 
-    public beginRenderPass(framebuffer : GFXFramebuffer, viewport : number[], numClearColors : number, clearColors : number[], clearStencil : number) {
+    public beginRenderPass(framebuffer : GFXFramebuffer, renderArea : GFXRect, clearColors : GFXColor[], clearDepth: number, clearStencil : number) {
         let cmd = (<WebGLGFXCommandAllocator>this._allocator).beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
         if (cmd) {
             cmd.gpuFramebuffer = (<WebGLGFXFramebuffer>framebuffer).gpuFramebuffer;
-            cmd.viewport = viewport.slice();
-            cmd.numClearColors = numClearColors;
+            cmd.renderArea = renderArea;
             cmd.clearColors = clearColors.slice();
             cmd.clearStencil = clearStencil;
             this.cmdPackage.beginRenderPassCmds.push(cmd);
@@ -117,13 +116,13 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public updateBuffer(buffer : GFXBuffer, data : Buffer, offset : number) {
+    public updateBuffer(buffer : GFXBuffer, data : ArrayBuffer, offset : number) {
         let gpuBuffer = (<WebGLGFXBuffer>buffer).gpuBuffer;
         if(gpuBuffer) {
             let cmd = (<WebGLGFXCommandAllocator>this._allocator).updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
             if (cmd) {
                 cmd.gpuBuffer = gpuBuffer;
-                cmd.buffer = data.slice(0);
+                cmd.buffer = data;
                 cmd.offset = offset;
                 this.cmdPackage.updateBufferCmds.push(cmd);
 

@@ -1,10 +1,6 @@
 import { GFXDevice } from './device';
-
-export enum GFXQueueType {
-    GRAPHICS,
-    COMPUTE,
-    TRANSFER,
-};
+import { GFXCommandBuffer } from './command-buffer';
+import { GFXQueueType } from './gfx-define';
 
 export interface GFXQueueInfo {
     type : GFXQueueType;
@@ -18,6 +14,7 @@ export abstract class GFXQueue {
 
     public abstract initialize(info : GFXQueueInfo) : boolean;
     public abstract destroy();
+    public abstract submit(cmdBuffs: GFXCommandBuffer[], fence?);
 
     public get type(): number {
         return this._type;
