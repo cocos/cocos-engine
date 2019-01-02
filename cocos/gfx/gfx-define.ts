@@ -697,25 +697,25 @@ export function GFXGetTypeSize(type: GFXType): number {
 
 export function GFXGetAttributeBinding(name: string) : number {
     if (name === GFX_ATTRIBUTE_POSITION) {
-        return 20;
+        return 6;
     } else if (name === GFX_ATTRIBUTE_COLOR) {
-        return 21;
+        return 7;
     } else if (name === GFX_ATTRIBUTE_COLOR1) {
-        return 22;
+        return 8;
     } else if (name === GFX_ATTRIBUTE_NORMAL) {
-        return 23;
+        return 9;
     } else if (name === GFX_ATTRIBUTE_TANGENT) {
-        return 24;
+        return 10;
     } else if (name === GFX_ATTRIBUTE_BINORMAL) {
-        return 25;
+        return 11;
     } else if (name === GFX_ATTRIBUTE_TEXCOORD) {
-        return 26;
+        return 12;
     } else if (name === GFX_ATTRIBUTE_TEXCOORD1) {
-        return 27;
+        return 13;
     } else if (name === GFX_ATTRIBUTE_JOINTS) {
-        return 28;
+        return 14;
     } else if (name === GFX_ATTRIBUTE_WEIGHTS) {
-        return 29;
+        return 15;
     } else {
         return -1;
     }

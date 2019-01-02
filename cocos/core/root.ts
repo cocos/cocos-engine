@@ -1,6 +1,6 @@
 import { GFXWindow, GFXWindowInfo } from "../gfx/window";
 import { GFXDevice } from "../gfx/device";
-import { RenderView, RenderViewInfo, RenderViewPriority } from "../pipeline/render-view";
+import { RenderView, RenderViewInfo } from "../pipeline/render-view";
 import { RenderPipeline } from "../pipeline/render-pipeline";
 import { ForwardPipeline } from "../pipeline/forward/forward-pipeline";
 import { RenderScene, RenderSceneInfo } from "../renderer/scene/render-scene";
@@ -50,7 +50,7 @@ export class Root {
 
         for (let i = 0; i < this._views.length; ++i) {
             let view = this._views[i];
-            if(view.isEnable() && view.isAttached) {
+            if (view.isEnable() && view.isAttached) {
                 (<RenderPipeline>this._pipeline).render(view);
             }
         }
@@ -89,7 +89,7 @@ export class Root {
 
     public createScene(info: RenderSceneInfo): RenderScene | null {
         let scene = new RenderScene;
-        if(scene.initialize(info)) {
+        if (scene.initialize(info)) {
             this._scenes.push(scene);
             return scene;
         } else {

@@ -31,7 +31,7 @@ import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { GFXWindow, GFXWindowInfo } from '../window';
 import { WebGLGFXWindow } from './webgl-window';
-import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit } from '../gfx-define';
+import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXQueueType } from '../gfx-define';
 import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 
 const WebGLPrimitives: GLenum[] = [
@@ -145,6 +145,8 @@ export class WebGLGFXDevice extends GFXDevice {
         this._OES_element_index_uint = this._webGLRC.getExtension("OES_element_index_uint");
         this._ANGLE_instanced_arrays = this._webGLRC.getExtension("ANGLE_instanced_arrays");
 
+        this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
+
         // create primary window
         this._mainWindow = this.createWindow({
             title: this._webGLRC.canvas.title,
@@ -169,6 +171,11 @@ export class WebGLGFXDevice extends GFXDevice {
         if (this._cmdAllocator) {
             this._cmdAllocator.destroy();
             this._cmdAllocator = null;
+        }
+
+        if (this._queue) {
+            this._queue.destroy();
+            this._queue = null;
         }
 
         this._webGLRC = null;
@@ -476,8 +483,8 @@ export class WebGLGFXDevice extends GFXDevice {
     public emitCmdCreateGPURenderPass(info: GFXRenderPassInfo): WebGLGPURenderPass {
         let gpuRenderPass: WebGLGPURenderPass = {
             objType: WebGLGPUObjectType.RENDER_PASS,
-            colorAttachments: info.colorAttachment? info.colorAttachment : [],
-            depthStencilAttachment: info.depthStencilAttachment? info.depthStencilAttachment : null,
+            colorAttachments: info.colorAttachment ? info.colorAttachment : [],
+            depthStencilAttachment: info.depthStencilAttachment ? info.depthStencilAttachment : null,
         }
 
         return gpuRenderPass;
@@ -585,7 +592,7 @@ export class WebGLGFXDevice extends GFXDevice {
             gpuStages[i] = {
                 type: stage.type,
                 source: stage.source,
-                macros: stage.macros? stage.macros : [],
+                macros: stage.macros ? stage.macros : [],
                 glShader: 0,
             };
         }

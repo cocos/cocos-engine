@@ -151,6 +151,10 @@ export class RenderScene {
         return this._cameras;
     }
 
+    public get mainCamera(): Camera | null {
+        return this._mainCamera;
+    }
+
     public get lights(): Light[] {
         return this._lights;
     }
