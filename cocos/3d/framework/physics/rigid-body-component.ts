@@ -99,6 +99,12 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
             this._body.angularDamping = value;
         }
     }
+
+    public pullTransform() {
+        if (this._body) {
+            this._body.pullTransform();
+        }
+    }
 }
 
 const NonRigidBodyProperties = {
