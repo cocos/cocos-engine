@@ -20,14 +20,20 @@ function exec(cmdArgs, path, cb, options) {
 
     var offbranch = false;
     var aborted = false;
+    var timerId = -1;
+
+    function retry () {
+        console.log(Chalk.yellow(`restart "${cmdArgs[0]}": ${Path.basename(path)}`));
+        exec(cmdArgs, path, cb, options); // Object.assign({}, options, { autoRetry: false })
+    }
 
     function onConnectionError () {
         aborted = true;
+        clearTimeout(timerId);
         console.log(Chalk.yellow(`connection timeout/error: ${Path.basename(path)}`));
         treekill(child.pid);
         if (autoRetry && !offbranch) {
-            console.log(Chalk.yellow(`restart "${cmdArgs[0]}": ${Path.basename(path)}`));
-            exec(cmdArgs, path, cb, options); // Object.assign({}, options, { autoRetry: false })
+            retry();
         }
         else {
             // console.log('+++send callback from connection timeout: ' + Path.basename(path));
@@ -35,56 +41,59 @@ function exec(cmdArgs, path, cb, options) {
         }
     }
 
-    var timerId = setTimeout(onConnectionError, timeout);
+    timerId = setTimeout(onConnectionError, timeout);
 
     child.stdout.on('data', function (data) {
         if (aborted) return;
-        process.stdout.write(path + ' ');
 
-        var text = data.toString();
+        var text = path + ' ' + data.toString().trim();
 
         // git stash pop
         if (text.indexOf('CONFLICT (content): Merge conflict in') !== -1) {
-            process.stderr.write(Chalk.red(text));
+            console.error(Chalk.red(text));
             process.exit(1);
             return;
         }
     });
     child.stderr.on('data', function(data) {
         if (aborted) return;
-        process.stderr.write(path + ' ');
 
-        var text = data.toString();
+        var text = path + ' ' + data.toString().trim();
 
         // git checkout ("overwritten by checkout")
         // git pull ("overwritten by merge")
-        if (text.indexOf('Your local changes to the following files would be overwritten by') !== -1) {
+        if (text.includes('Your local changes to the following files would be overwritten by')) {
             if (!autoKill) {
-                process.stderr.write(Chalk.yellow(text));
+                console.log(Chalk.yellow(text));
                 clearTimeout(timerId);
                 aborted = true;
                 return cb(new Error(text));
             }
         }
 
-        if (
-            text.indexOf('Aborting') !== -1  ||
-            text.indexOf('fatal') !== -1
-        ) {
+        // git pull ("error: cannot lock ref '...': ... (unable to update local ref)")
+        if (text.includes('error: cannot lock ref')) {
+            console.log(Chalk.yellow(text));
+            aborted = true;
+            setTimeout(retry, 500);
+            return;
+        }
+
+        if (text.includes('Aborting') || text.includes('fatal')) {
             if (
                 text.indexOf('Invalid refspec') === -1 &&
                 text.indexOf('Couldn\'t find remote ref') === -1 &&
                 text.indexOf('remote fireball already exists') === -1
             ) {
-                process.stderr.write(Chalk.red(text));
-                if (!text.includes('Could not read from remote repository') &&
-                    !text.includes('The remote end hung up unexpectedly')
+                if (text.includes('Could not read from remote repository') ||
+                    text.includes('The remote end hung up unexpectedly')
                 ) {
-                    process.exit(1);
+                    console.log(Chalk.yellow(text));
+                    onConnectionError();
                 }
                 else {
-                    clearTimeout(timerId);
-                    onConnectionError();
+                    console.error(Chalk.red(text));
+                    process.exit(1);
                 }
                 return;
             }
@@ -92,7 +101,8 @@ function exec(cmdArgs, path, cb, options) {
             offbranch = true;
         }
 
-        process.stderr.write(Chalk.green(text));
+        // normal message, not error
+        console.log(text);
     });
     if (cb) {
         child.on('close', function (code, signal) {
