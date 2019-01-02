@@ -24,9 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import './js';
-import './path';
-import './prefab-helper';
+import * as js from './js';
+import * as path from './path';
 
-export const js = cc.js;
-export const path = cc.path;
+export * from './prefab-helper';
+export {
+    js,
+    path,
+};
+
+// export const js = cc.js;
+// export const path = cc.path;
