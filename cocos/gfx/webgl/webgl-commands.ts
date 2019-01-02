@@ -1,6 +1,6 @@
 import { WebGLGPUBuffer, WebGLGPUTexture, WebGLGPUInputAssembler, WebGLGPUFramebuffer, WebGLGPUShader, WebGLGPUInput, WebGLAttrib, WebGLGPUPipelineState, WebGLGPUUniformBlock, WebGLGPUBindingLayout, WebGLGPUUniform, WebGLGPUUniformSampler } from "./webgl-gpu-objects";
 import { WebGLGFXDevice } from "./webgl-device";
-import { GFXFormatInfos, GFXFormat, WebGLEXT, GFXType, GFX_MAX_VERTEX_ATTRIBUTES, GFXFormatSize, GFXColor, GFXViewport, GFXRect, GFXBindingType, GFXBufferTextureCopy, GFXColorMask, GFXCullMode, GFXShaderType, GFXTextureViewType, GFXTextureLayout, GFXLoadOp, GFXTextureFlagBit, GFXMemoryUsageBit, GFXBufferUsageBit } from "../gfx-define";
+import { GFXFormatInfos, GFXFormat, WebGLEXT, GFXType, GFX_MAX_VERTEX_ATTRIBUTES, GFXFormatSize, GFXColor, GFXViewport, GFXRect, GFXBindingType, GFXBufferTextureCopy, GFXColorMask, GFXCullMode, GFXShaderType, GFXTextureViewType, GFXTextureLayout, GFXLoadOp, GFXTextureFlagBit, GFXMemoryUsageBit, GFXBufferUsageBit, GFX_ATTRIBUTE_POSITION, GFXVertexSemantic, GFX_ATTRIBUTE_POSITION1, GFX_ATTRIBUTE_POSITION2, GFX_ATTRIBUTE_POSITION3, GFX_ATTRIBUTE_COLOR, GFX_ATTRIBUTE_COLOR1, GFX_ATTRIBUTE_COLOR2, GFX_ATTRIBUTE_COLOR3, GFX_ATTRIBUTE_NORMAL, GFX_ATTRIBUTE_NORMAL1, GFX_ATTRIBUTE_NORMAL2, GFX_ATTRIBUTE_NORMAL3, GFX_ATTRIBUTE_TEXCOORD, GFX_ATTRIBUTE_TEXCOORD1, GFX_ATTRIBUTE_TEXCOORD2, GFX_ATTRIBUTE_TEXCOORD3, GFX_ATTRIBUTE_JOINTS, GFX_ATTRIBUTE_WEIGHTS, GFX_ATTRIBUTE_SV_INSTANCE_ID, GFX_ATTRIBUTE_TANGENT, GFX_ATTRIBUTE_BINORMAL } from "../gfx-define";
 import { WebGLGFXCommandAllocator } from "./webgl-command-allocator";
 import { WebGLTexUnit } from "./webgl-state-cache";
 
@@ -810,14 +810,70 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
     for (let i = 0; i < activeAttribCount; ++i) {
         let info = gl.getActiveAttrib(gpuShader.glProgram, i);
         if (info) {
-            let glLoc = gl.getAttribLocation(gpuShader.glProgram, info.name);
-
             let varName: string;
             let nameOffset = info.name.indexOf('[');
             if (nameOffset !== -1) {
                 varName = info.name.substr(0, nameOffset);
             } else {
                 varName = info.name;
+            }
+
+            let semantic = GFXVertexSemantic.UNKNOWN;
+            let glLoc = -1;
+
+            if (varName === GFX_ATTRIBUTE_POSITION) {
+                semantic = GFXVertexSemantic.POSITION;
+            } else if (varName === GFX_ATTRIBUTE_POSITION1) {
+                semantic = GFXVertexSemantic.POSITION1;
+            } else if (varName === GFX_ATTRIBUTE_POSITION2) {
+                semantic = GFXVertexSemantic.POSITION2;
+            } else if (varName === GFX_ATTRIBUTE_POSITION3) {
+                semantic = GFXVertexSemantic.POSITION3;
+            } else if (varName === GFX_ATTRIBUTE_COLOR) {
+                semantic = GFXVertexSemantic.COLOR;
+            } else if (varName === GFX_ATTRIBUTE_COLOR1) {
+                semantic = GFXVertexSemantic.COLOR1;
+            } else if (varName === GFX_ATTRIBUTE_COLOR2) {
+                semantic = GFXVertexSemantic.COLOR2;
+            } else if (varName === GFX_ATTRIBUTE_COLOR3) {
+                semantic = GFXVertexSemantic.COLOR3;
+            } else if (varName === GFX_ATTRIBUTE_NORMAL) {
+                semantic = GFXVertexSemantic.NORMAL;
+            } else if (varName === GFX_ATTRIBUTE_NORMAL1) {
+                semantic = GFXVertexSemantic.NORMAL1;
+            } else if (varName === GFX_ATTRIBUTE_NORMAL2) {
+                semantic = GFXVertexSemantic.NORMAL2;
+            } else if (varName === GFX_ATTRIBUTE_NORMAL3) {
+                semantic = GFXVertexSemantic.NORMAL3;
+            } else if (varName === GFX_ATTRIBUTE_TANGENT) {
+                semantic = GFXVertexSemantic.TANGENT;
+            } else if (varName === GFX_ATTRIBUTE_BINORMAL) {
+                semantic = GFXVertexSemantic.BINORMAL;
+            } else if (varName === GFX_ATTRIBUTE_TEXCOORD) {
+                semantic = GFXVertexSemantic.TEXCOORD;
+            } else if (varName === GFX_ATTRIBUTE_TEXCOORD1) {
+                semantic = GFXVertexSemantic.TEXCOORD1;
+            } else if (varName === GFX_ATTRIBUTE_TEXCOORD2) {
+                semantic = GFXVertexSemantic.TEXCOORD2;
+            } else if (varName === GFX_ATTRIBUTE_TEXCOORD3) {
+                semantic = GFXVertexSemantic.TEXCOORD3;
+            } else if (varName === GFX_ATTRIBUTE_JOINTS) {
+                semantic = GFXVertexSemantic.JOINTS;
+            } else if (varName === GFX_ATTRIBUTE_WEIGHTS) {
+                semantic = GFXVertexSemantic.WEIGHTS;
+            } else if (varName === GFX_ATTRIBUTE_SV_INSTANCE_ID) {
+                semantic = GFXVertexSemantic.SV_INSTANCE_ID;
+            } else {
+                console.error("Unsupported vertex attribute semantic.");
+            }
+
+            if(semantic !== GFXVertexSemantic.UNKNOWN) {
+                glLoc = semantic;
+                gl.bindAttribLocation(gpuShader.glProgram, glLoc, varName);
+
+            } else {
+                glLoc = -1;
+                //glLoc = gl.getAttribLocation(gpuShader.glProgram, info.name);
             }
 
             let type = WebGLTypeToGFXType(info.type);
@@ -830,6 +886,7 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
                 stride: stride,
                 count: info.size,
                 size: stride * info.size,
+                semantic: semantic,
 
                 glType: info.type,
                 glLoc: glLoc,
@@ -993,14 +1050,14 @@ export function WebGLCmdFuncCreateInputAssember(device: WebGLGFXDevice, gpuInput
 
     let offsets = [0, 0, 0, 0, 0, 0, 0, 0];
 
-    for(let i = 0; i < gpuInputAssembler.attributes.length; ++i) {
+    for (let i = 0; i < gpuInputAssembler.attributes.length; ++i) {
         let attrib = gpuInputAssembler.attributes[i];
 
         let stream = attrib.stream ? attrib.stream : 0;
         //if (stream < gpuInputAssembler.gpuVertexBuffers.length) {
 
         let gpuBuffer = gpuInputAssembler.gpuVertexBuffers[stream];
-        
+
         let glType = GFXFormatToWebGLType(attrib.format, device);
         let size = WebGLGetTypeSize(glType);
 
@@ -1012,7 +1069,7 @@ export function WebGLCmdFuncCreateInputAssember(device: WebGLGFXDevice, gpuInput
             count: GFXFormatInfos[attrib.format].count,
             stride: gpuBuffer.stride,
             componentCount: WebGLGetComponentCount(glType),
-            isInstanced: attrib.isInstanced? attrib.isInstanced : false,
+            isInstanced: attrib.isInstanced ? attrib.isInstanced : false,
             offset: offsets[stream],
         };
 

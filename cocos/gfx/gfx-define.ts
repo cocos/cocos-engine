@@ -22,6 +22,28 @@ export const GFX_MAX_VERTEX_ATTRIBUTES: number = 8;
 export const GFX_MAX_TEXTURE_UNITS: number = 16;
 export const GFX_MAX_ATTACHMENTS: number = 4;
 
+export const GFX_ATTRIBUTE_POSITION = "a_position";
+export const GFX_ATTRIBUTE_POSITION1 = "a_position1";
+export const GFX_ATTRIBUTE_POSITION2 = "a_position2";
+export const GFX_ATTRIBUTE_POSITION3 = "a_position3";
+export const GFX_ATTRIBUTE_COLOR = "a_color";
+export const GFX_ATTRIBUTE_COLOR1 = "a_color1";
+export const GFX_ATTRIBUTE_COLOR2 = "a_color2";
+export const GFX_ATTRIBUTE_COLOR3 = "a_color3";
+export const GFX_ATTRIBUTE_NORMAL = "a_normal";
+export const GFX_ATTRIBUTE_NORMAL1 = "a_normal1";
+export const GFX_ATTRIBUTE_NORMAL2 = "a_normal2";
+export const GFX_ATTRIBUTE_NORMAL3 = "a_normal3";
+export const GFX_ATTRIBUTE_TANGENT = "a_tangent";
+export const GFX_ATTRIBUTE_BINORMAL = "a_binormal";
+export const GFX_ATTRIBUTE_TEXCOORD = "a_texCoord";
+export const GFX_ATTRIBUTE_TEXCOORD1 = "a_texCoord1";
+export const GFX_ATTRIBUTE_TEXCOORD2 = "a_texCoord2";
+export const GFX_ATTRIBUTE_TEXCOORD3 = "a_texCoord3";
+export const GFX_ATTRIBUTE_JOINTS = "a_joints";
+export const GFX_ATTRIBUTE_WEIGHTS = "a_weights";
+export const GFX_ATTRIBUTE_SV_INSTANCE_ID = "sv_instanceID";
+
 export enum GFXType {
     UNKNOWN,
     BOOL,

@@ -195,6 +195,7 @@ class Director extends EventTarget {
         // this.registerSystem('animation', AnimationSystem, ['AnimationComponent'], 200);
         // this.registerSystem('skinning-model', SkinningModelSystem, ['SkinningModelComponent'], 100);
         // init renderSystem
+        /*
         {
             this._renderSystem = new RenderSystem();
             let renderComps = ['cc.CameraComponent'];
@@ -202,6 +203,7 @@ class Director extends EventTarget {
                 getClassByName(compName).system = this._renderSystem;
             });
         }
+        */
 
         {
             this._physicsSystem = new PhysicsSystem();
