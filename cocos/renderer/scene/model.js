@@ -11,6 +11,7 @@ export default class Model {
   constructor() {
     this._scene = null;
     this._id = 0;
+    this._enable = false;
 
     this._type = 'default';
     this._poolID = -1;

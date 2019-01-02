@@ -178,13 +178,19 @@ export default class ModelComponent extends RenderableComponent {
 
     onEnable() {
         for (let i = 0; i < this._models.length; ++i) {
-            this.scene.addModel(this._models[i]);
+            this._models[i]._enable = this.enabled;
         }
     }
 
     onDisable() {
         for (let i = 0; i < this._models.length; ++i) {
-            this.scene.removeModel(this._models[i]);
+            this._models[i]._enable = this.enabled;
+        }
+    }
+
+    onDestroy() {
+        for (let i = 0; i < this._models.length; ++i) {
+            this._renderScene.destroyModel(this._models[i]);
         }
     }
 
@@ -212,7 +218,7 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     _createModel() {
-        return new Model();
+        return this._renderScene.createModel(Model);
     }
 
     _updateModelParams() {

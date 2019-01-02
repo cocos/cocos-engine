@@ -392,6 +392,27 @@ export default class BaseNode extends CCObject {
         this.setParent(value);
     }
 
+    /**
+     * !#en which scene this node belongs to.
+     * !#zh 此节点属于哪个场景。
+     * @property _scene
+     * @type {cc.Scene}}
+     * @private
+     */
+    _scene = null;
+
+    static _setScene(node) {
+        if (node instanceof cc.Scene) {
+            node._scene = node;
+        } else {
+            if (node._parent == null) {
+                cc.error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
+            } else {
+                node._scene = node._parent._scene;
+            }
+        }
+    }
+
     // ABSTRACT INTERFACES
 
     /**
@@ -1052,7 +1073,11 @@ export default class BaseNode extends CCObject {
     }
 
     cleanup () {}
-    _onSetParent (/*oldParent*/) {}
+    _onSetParent(oldParent) {
+        if ((oldParent == null || oldParent._scene != this._parent._scene) && this._parent._scene != null) {
+            this.walk(this.constructor._setScene);
+        }
+    }
     _onPostActivated () {}
     _onBatchRestored () {}
     _onBatchCreated () {}
