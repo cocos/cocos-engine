@@ -1,10 +1,10 @@
 import { GFXDevice } from './device';
-import { GFXFormat, GFXVertexSemantic } from './gfx-define';
+import { GFXFormat } from './gfx-define';
 import { GFXBuffer } from './buffer';
 
 export interface GFXInputAttribute {
+    binding?: number;
     name: string;
-    semantic: GFXVertexSemantic;
     format: GFXFormat;
     stream?: number;
     isInstanced?: boolean;

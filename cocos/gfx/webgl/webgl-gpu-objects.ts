@@ -1,4 +1,4 @@
-import { GFXFormat, GFXType, GFXTextureType, GFXTextureUsage, GFXTextureUsageBit, GFXTextureFlags, GFXTextureFlagBit, GFXShaderType, GFXBindingType, GFXTextureViewType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXMemoryUsage, GFXBufferUsage, GFXVertexSemantic } from "../gfx-define";
+import { GFXFormat, GFXType, GFXTextureType, GFXTextureUsage, GFXTextureUsageBit, GFXTextureFlags, GFXTextureFlagBit, GFXShaderType, GFXBindingType, GFXTextureViewType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXMemoryUsage, GFXBufferUsage } from "../gfx-define";
 import { GFXColorAttachment, GFXDepthStencilAttachment } from "../render-pass";
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../pipeline-state";
 import { GFXInputAttribute } from "../input-assembler";
@@ -126,7 +126,6 @@ export class WebGLGPUInput {
     stride: number = 0;
     count: number = 0;
     size: number = 0;
-    semantic: GFXVertexSemantic = GFXVertexSemantic.UNKNOWN;
 
     glType: GLenum = 0;
     glLoc: GLint = 0;

@@ -1,11 +1,11 @@
 import { RenderView } from "./render-view";
 import { RenderFlow, RenderFlowInfo } from "./render-flow";
 import { Root } from "../core/root";
-import { GFXRenderPass, GFXRenderPassInfo } from "../gfx/render-pass";
+import { GFXRenderPass } from "../gfx/render-pass";
 import { GFXDevice } from "../gfx/device";
 import { GFXBuffer } from "../gfx/buffer";
 import { GFXInputAssembler, GFXInputAttribute } from "../gfx/input-assembler";
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXVertexSemantic, GFXFormat } from "../gfx/gfx-define";
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat } from "../gfx/gfx-define";
 
 export enum RenderPassStage {
     FORWARD = 0,
@@ -147,8 +147,8 @@ export abstract class RenderPipeline {
         // create input assembler
         
         let attributes: GFXInputAttribute[] = [
-            {name: "a_position", semantic: GFXVertexSemantic.POSITION, format: GFXFormat.RG32F},
-            {name: "a_texCoord", semantic: GFXVertexSemantic.TEXCOORD, format: GFXFormat.RG32F},
+            {name: "a_position", format: GFXFormat.RG32F},
+            {name: "a_texCoord", format: GFXFormat.RG32F},
         ];
 
         this._quadIA = this._device.createInputAssembler({
