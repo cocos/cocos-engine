@@ -15,7 +15,7 @@ import { GFXBindingLayout } from '../binding-layout';
 import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 import { GFXTexture } from '../texture';
 import { WebGLGFXTexture } from './webgl-texture';
-import { GFXColor, GFXViewport, GFXRect, GFXBufferTextureCopy, GFXTextureLayout } from '../gfx-define';
+import { GFXColor, GFXViewport, GFXRect, GFXBufferTextureCopy, GFXTextureLayout } from '../define';
 
 export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 

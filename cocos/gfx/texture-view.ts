@@ -1,4 +1,4 @@
-import { GFXFormat, GFXTextureViewType } from './gfx-define';
+import { GFXFormat, GFXTextureViewType } from './define';
 import { GFXDevice } from './device';
 import { GFXTexture } from './texture';
 

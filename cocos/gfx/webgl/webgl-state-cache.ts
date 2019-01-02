@@ -1,4 +1,4 @@
-import { GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUTES, GFXViewport, GFXRect } from "../gfx-define";
+import { GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUTES, GFXViewport, GFXRect } from "../define";
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../pipeline-state";
 
 export interface WebGLTexUnit

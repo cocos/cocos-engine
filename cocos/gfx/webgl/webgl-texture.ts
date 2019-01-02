@@ -2,7 +2,7 @@ import { GFXDevice } from '../device';
 import { WebGLGPUTexture } from './webgl-gpu-objects';
 import { WebGLGFXDevice } from './webgl-device';
 import { GFXTexture, GFXTextureInfo } from '../texture';
-import { GFXFormatSurfaceSize, GFXTextureFlagBit } from '../gfx-define';
+import { GFXFormatSurfaceSize, GFXTextureFlagBit } from '../define';
 
 export class WebGLGFXTexture extends GFXTexture {
 

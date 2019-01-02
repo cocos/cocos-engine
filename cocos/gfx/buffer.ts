@@ -1,5 +1,5 @@
 import { GFXDevice } from './device';
-import { GFXBufferUsage, GFXMemoryUsage, GFXBufferUsageBit, GFXMemoryUsageBit } from './gfx-define';
+import { GFXBufferUsage, GFXMemoryUsage, GFXBufferUsageBit, GFXMemoryUsageBit } from './define';
 
 export interface GFXBufferInfo {
     usage: GFXBufferUsage;

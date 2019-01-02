@@ -1,4 +1,4 @@
-import { GFXFormat, GFXTextureType, GFXTextureUsage, GFXTextureFlags, GFXTextureUsageBit, GFXTextureFlagBit } from './gfx-define';
+import { GFXFormat, GFXTextureType, GFXTextureUsage, GFXTextureFlags, GFXTextureUsageBit, GFXTextureFlagBit } from './define';
 import { GFXDevice } from './device';
 
 export interface GFXTextureInfo {

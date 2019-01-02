@@ -2,7 +2,7 @@ import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXTexture } from './texture';
 import { GFXTextureView } from './texture-view';
-import { GFXFormat } from './gfx-define';
+import { GFXFormat } from './define';
 import { GFXRenderPass } from './render-pass';
 
 export interface GFXWindowInfo {

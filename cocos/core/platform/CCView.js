@@ -28,7 +28,7 @@
 import EventTarget from '../event/event-target';
 import '../data/class';
 import macro from '../platform/CCMacro';
-import game from '../CCGame';
+import game from '../game';
 import Size from '../value-types/size';
 import Rect from '../value-types/rect';
 
@@ -166,7 +166,7 @@ class View extends EventTarget {
 
    init () {
         __BrowserGetter.init(this);
-        
+
         this._initFrameSize();
         this.enableAntiAlias(true);
 
@@ -303,9 +303,9 @@ class View extends EventTarget {
     /**
      * !#en
      * Sets the orientation of the game, it can be landscape, portrait or auto.
-     * When set it to landscape or portrait, and screen w/h ratio doesn't fit, 
+     * When set it to landscape or portrait, and screen w/h ratio doesn't fit,
      * cc.view will automatically rotate the game canvas using CSS.
-     * Note that this function doesn't have any effect in native, 
+     * Note that this function doesn't have any effect in native,
      * in native, you need to set the application orientation in native project settings
      * !#zh 设置游戏屏幕朝向，它能够是横版，竖版或自动。
      * 当设置为横版或竖版，并且屏幕的宽高比例不匹配时，
@@ -331,7 +331,7 @@ class View extends EventTarget {
         var isLandscape = w >= h;
 
         if (CC_EDITOR || !cc.sys.isMobile ||
-            (isLandscape && this._orientation & macro.ORIENTATION_LANDSCAPE) || 
+            (isLandscape && this._orientation & macro.ORIENTATION_LANDSCAPE) ||
             (!isLandscape && this._orientation & macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
             locFrameSize.height = h;
@@ -514,9 +514,9 @@ class View extends EventTarget {
      * @param {Boolean} enabled - Enable or disable auto full screen on mobile devices
      */
     enableAutoFullScreen(enabled) {
-        if (enabled && 
-            enabled !== this._autoFullScreen && 
-            cc.sys.isMobile && 
+        if (enabled &&
+            enabled !== this._autoFullScreen &&
+            cc.sys.isMobile &&
             cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT) {
             // Automatically full screen when user touches on mobile version
             this._autoFullScreen = true;

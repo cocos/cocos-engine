@@ -2,7 +2,7 @@ import { GFXBufferInfo, GFXBuffer } from '../buffer';
 import { GFXDevice } from '../device';
 import { WebGLGPUBuffer } from './webgl-gpu-objects';
 import { WebGLGFXDevice } from './webgl-device';
-import { GFXMemoryUsageBit } from '../gfx-define';
+import { GFXMemoryUsageBit } from '../define';
 
 export class WebGLGFXBuffer extends GFXBuffer {
 

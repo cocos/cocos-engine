@@ -1,7 +1,7 @@
 ChangeLog:
 
 Cocos2d-x v3.8  @ September.6 2015
-    
+
     [NEW]           spine: Supported Spine runtime 2.3 (Both native and web engine)
     [NEW]           Animate: Added Animate's getCurrentFrameIndex function
     [NEW]           network: Upgrade SocketIO support to v1.x
@@ -58,9 +58,9 @@ Cocos2d-x v3.7.1 @ August.12 2015
 
 Cocos2d-x v3.7 Final @ July 20 2015
     [REFINE]        web: Add compatible Uint16Array defintion
-    
+
     [FIX]           web: Fixed url check regular expression not supporting localhost issue
-    [FIX]           web: Fixed issue that sprite doesn't update texture rect correctly 
+    [FIX]           web: Fixed issue that sprite doesn't update texture rect correctly
 
 Cocos2d-x v3.7 RC1 @ July 14 2015
     [REFINE]        Improved localStorage warning when disabled
@@ -181,9 +181,9 @@ Cocos2d-JS v3.5 @ April 1 2015
 * Replaced '==' with '===' for better performance.
 * Added `path` parameter in `ccs.load` to support modifying cocostudio project resource path.
 * Added animationList to Cocostudio ActionTimeline to support playing animation by name.
-* Made ParticleSystem support creation from an map object. 
+* Made ParticleSystem support creation from an map object.
 * Added missing functions to `cc.Grid3D` and `cc.PageTurn3D`.
-* Added tip message functions to `cc.TextFieldTTF` for mobile browser. 
+* Added tip message functions to `cc.TextFieldTTF` for mobile browser.
 * Added a function `cc.sys.openURL`.
 * Disabled retina display by default for better performance.
 * Added Bower support.
@@ -192,15 +192,15 @@ Cocos2d-JS v3.5 @ April 1 2015
 * Bug fixes:
     1. Fixed a bug of chipmunk.js that it doesn't work under closure compiler advanced mode.
     2. Fixed a bug of Cocos Studio parser that widget didn't set its layout component.
-    3. Fixed grammatical mistakes in cocostudio parser logs. 
+    3. Fixed grammatical mistakes in cocostudio parser logs.
     4. Fixed memory leak issue in `cc.LabelBMFont`.
     5. Fixed a bug of `cc.Scale9Sprite` that its `updateDisplayColor` doesn't take effect.
     6. Fixed a bug of Cocos Studio parser that `cc.Scale9Sprite` doesn't display correctly if its texture isn't preloaded.
-    7. Fixed a bug of `cc.MenuItemSprite` that the construction will fail when parameter `selectedSprite` is a Scale9Sprite instance. 
+    7. Fixed a bug of `cc.MenuItemSprite` that the construction will fail when parameter `selectedSprite` is a Scale9Sprite instance.
     8. Fixed a bug of Cocos Studio parser that the background color of `ccui.Layout` can't be parsed correctly.
     9. Fixed a bug of `cc.ClippingNode` that it doesn't work when set `inverted` to true in Canvas Mode.
     10. Fixed a bug of `ccs.Armature` that its name was modified to animation name when loading from json files.
-    11. Fixed a bug of `ccui.PageView` that it cancel child touch during movment of page view. 
+    11. Fixed a bug of `ccui.PageView` that it cancel child touch during movment of page view.
     12. Fixed a bug of `cc.Scheduler` that its parameter `repeat` is invalid in schedule function.
     13. Fixed a bug of `cc.Scheduler` that `unschedule` function may fail.
 
@@ -225,19 +225,19 @@ Cocos2d-JS v3.4 Beta0 @ March 19 2015
     1. Added `getSpriteFrame` to `cc.Sprite` to fix API inconsistency.
     2. Added `getObject` to `cc.TMXObjectGroup` to fix API inconsistency.
     3. Added `addImageAsync` to `cc.textureCache` to fix API inconsistency.
-    4. Fixed a bug of `cc.text` that its default font name is incorrect. 
+    4. Fixed a bug of `cc.text` that its default font name is incorrect.
     5. Fixed a bug of `ccui.PageView` that its `getPage` doesn't work.
     6. Fixed a bug of `ccui.ImageView` that its `loadTexture` doesn't work while it's invoked multiple times at the same frame.
     7. Fixed a bug of `ccui` that its load event callbacks have some mistakes.
     8. Fixed a bug of `cc.Layer` that its bake function doesn't work when the layer has a parent node.
     9. Fixed typos in `cc.ClippingNode.WebGLRenderCmd` and `cc.ParticleSystem.WebGLRenderCmd` creation.
-    10. Fixed a bug of `cc.Sprite` in `setTextureRect`. 
+    10. Fixed a bug of `cc.Sprite` in `setTextureRect`.
     11. Fixed a bug of `cc.Screen`.
     12. Fixed a bug of `cc.view` that it doesn't work on iOS 8.1.2.
-    13. Fixed a bug of cc.DrawNode that its lineWidth is always to default value when set linewidth to zero. 
-    14. Fixed a bug in hack for particles performance on canvas. 
+    13. Fixed a bug of cc.DrawNode that its lineWidth is always to default value when set linewidth to zero.
+    14. Fixed a bug in hack for particles performance on canvas.
     15. Fixed a bug of `cc.audioEngine` that it doesn't work after minified/compiled.
-    16. Fixed a bug in `CCBoot.js` that WebGL is not activated in web view of iOS 8. 
+    16. Fixed a bug in `CCBoot.js` that WebGL is not activated in web view of iOS 8.
     17. Fixed a bug of `cc.CheckBox` that its position is incorrect when its texture isn't preloaded.
     18. Fixed a bug of `cc.TMXLayer` that it stops to work after `setTileGID` called.
     19. Fixed a bug of Cocos parser 2.x that it doesn't set widget's LayoutComponent.
@@ -247,16 +247,16 @@ Cocos2d-JS v3.3 @ Feb.9, 2015
 
 * Upgraded spine runtime to support the latest version and updated its test case.
 * Added an option "noCache" for debugging on browsers.
-* Set the default value of `cc.ParticleSystem`'s draw mode to texture mode.  
+* Set the default value of `cc.ParticleSystem`'s draw mode to texture mode.
 * Added message to `ccs.load` when loading armature json file.
 * Improved particle system test case.
 
 * Bug fixes:
-    1. Fixed a bug of `cc.Sprite` that its `setSpriteFrame` doesn't work when sprite frame's `rotated` property is true. 
+    1. Fixed a bug of `cc.Sprite` that its `setSpriteFrame` doesn't work when sprite frame's `rotated` property is true.
     2. Fixed a bug of `cc.ClippingNode` when its stencil is `cc.Node` object in canvas mode.
     3. Fixed a ccui bug that the position of widgets is incorrect after loaded v2.x json file with `ccs.load`.
-    4. Fixed a bug of `cc.PhysicsSprite` that `setIgnoreBodyRotation` function doesn't work.  
-    5. Fixed a bug of `ccui.Button` that setting pressed texture doesn't work when scale9 enabled. 
+    4. Fixed a bug of `cc.PhysicsSprite` that `setIgnoreBodyRotation` function doesn't work.
+    5. Fixed a bug of `ccui.Button` that setting pressed texture doesn't work when scale9 enabled.
     6. Fixed a bug of `ccui.ScrollView` that its `dir` property is null when passing `DIR_NONE` as `direction` in `_endRecordSlidAction` function.
 
 Cocos2d-JS v3.3 RC0 @ Feb.1, 2015
@@ -309,7 +309,7 @@ Cocos2d-JS v3.3 Beta @ Jan.24, 2015
     9. Fixed a bug of `cc.audioEngine` that its loading path is incorrect.
     10. Fixed a bug of `ccui.Widget` that it can't touch when it's reused.
     11. Fixed a bug of UI system that the `setNormalizedPosition` doesn't work.
-    12. Fixed a bug of `cc.ActionInterval` that its `_times` conflict with `cc.Blink`.  
+    12. Fixed a bug of `cc.ActionInterval` that its `_times` conflict with `cc.Blink`.
     13. Fixed release texture issue in canvas mode.
     14. Fixed a bug of `ccs.actionManager` that its `getActionByName` doesn't work.
     15. Fixed a bug of `cc.Sprite` that it can't draw without texture on WebGL mode.
@@ -656,7 +656,7 @@ Cocos2d-html5-v3.0 alpha @ March.15, 2014
 * Replace `replaceWithScene` and `runWithScene` with `runScene`.
 * move sys.xxx to cc.sys.xxx.
 * Refactor CCEGLView.js for better maintainability.
-* Refactor CCScheduler.js for better maintainability.
+* Refactor scheduler.js for better maintainability.
 * Remove arguments.callee which is forbidden in ECMAScript strict mode.
 * Refactor Array clean function for better performance.
 * Refactor some functions about array operation.

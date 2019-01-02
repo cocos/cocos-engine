@@ -3,7 +3,7 @@ import { GFXShader } from './shader';
 import { GFXRenderPass } from './render-pass';
 import { GFXPipelineLayout } from './pipeline-layout';
 import { GFXInputAttribute } from './input-assembler';
-import { GFXPolygonMode, GFXShadeModel, GFXCullMode, GFXComparisonFunc, GFXStencilOp, GFXBlendFactor, GFXBlendOp, GFXColorMask, GFXPrimitiveMode } from './gfx-define';
+import { GFXPolygonMode, GFXShadeModel, GFXCullMode, GFXComparisonFunc, GFXStencilOp, GFXBlendFactor, GFXBlendOp, GFXColorMask, GFXPrimitiveMode } from './define';
 
 export class GFXRasterizerState {
     isDiscard: boolean = false;
