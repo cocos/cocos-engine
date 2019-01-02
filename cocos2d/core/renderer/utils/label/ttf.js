@@ -124,7 +124,7 @@ module.exports = {
         this._calculateSplitedStrings();
         this._updateLabelDimensions();
         this._calculateTextBaseline();
-        this._updateTexture();
+        this._updateTexture(comp);
         this._calDynamicAtlas(comp);
 
         comp._actualFontSize = _fontSize;
@@ -242,7 +242,7 @@ module.exports = {
         return cc.v2(labelX, firstLinelabelY);
     },
 
-    _updateTexture () {
+    _updateTexture (comp) {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
