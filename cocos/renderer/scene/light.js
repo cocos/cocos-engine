@@ -51,9 +51,9 @@ export default class Light {
   /**
    * Setup a default directional light with no shadows
    */
-  constructor(sceneMgr, name) {
+  constructor(scene, name) {
 
-    this._sceneMgr = sceneMgr;
+    this._scene = scene;
     this._name = name;
 
     this._poolID = -1;
@@ -94,8 +94,8 @@ export default class Light {
     this._shadowFrustumSize = 50; // used for directional light.
   }
 
-  get sceneMgr() {
-    return this._sceneMgr;
+  get scene() {
+    return this._scene;
   }
 
   get name() {

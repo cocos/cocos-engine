@@ -1,24 +1,28 @@
-import Node from "../scene-graph/node";
-import Camera from "../renderer/scene/camera";
-import Light from "../renderer/scene/light";
+import Node from "../../scene-graph/node";
+import Camera from "./camera";
+import Light from "./light";
 
-export interface SceneManagerInfo {
+export interface RenderSceneInfo {
     name: string;
 };
 
 export interface SceneNodeInfo {
     name: string;
-    isStatic: boolean;
+    isStatic?: boolean;
     //parent: Node;
 }
 
-export class SceneManager {
+export class RenderScene {
 
     constructor() {
     }
 
-    public initialize(info: SceneManagerInfo): boolean {
+    public initialize(info: RenderSceneInfo): boolean {
         this._name = info.name;
+
+        let cameraNode = this.createNode({ name: "mainCamNode", isStatic: false });
+        this._mainCamera = this.createCamera("mainCamera");
+        this._mainCamera.setNode(cameraNode);
 
         return true;
     }
@@ -69,6 +73,7 @@ export class SceneManager {
 
     public destroyCameras() {
         this._cameras = [];
+        this._mainCamera = null;
     }
 
     public getCamera(name: string): Camera | null {
@@ -124,8 +129,9 @@ export class SceneManager {
         return this._lights;
     }
 
-    protected _name: string = "";
-    protected _nodes: Map<number, Node> = new Map;
-    protected _cameras: Camera[] = [];
-    protected _lights: Light[] = [];
+    private _name: string = "";
+    private _nodes: Map<number, Node> = new Map;
+    private _cameras: Camera[] = [];
+    private _mainCamera: Camera | null = null;
+    private _lights: Light[] = [];
 };

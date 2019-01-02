@@ -18,9 +18,9 @@ export default class Camera {
   /**
    * Setup a default perspective camera
    */
-  constructor(sceneMgr, name) {
+  constructor(scene, name) {
 
-    this._sceneMgr = sceneMgr;
+    this._scene = scene;
     this._name = name;
 
     this._poolID = -1;
@@ -55,8 +55,8 @@ export default class Camera {
     this._orthoHeight = 10;
   }
 
-  get sceneMgr() {
-    return this._sceneMgr;
+  get scene() {
+    return this._scene;
   }
 
   get name() {

@@ -3,7 +3,7 @@ import { GFXDevice } from "../gfx/device";
 import { RenderView, RenderViewInfo, RenderViewPriority } from "../pipeline/render-view";
 import { RenderPipeline } from "../pipeline/render-pipeline";
 import { ForwardPipeline } from "../pipeline/forward/forward-pipeline";
-import { SceneManager, SceneManagerInfo } from "../scene/scene-manager";
+import { RenderScene, RenderSceneInfo } from "../renderer/scene/render-scene";
 
 export interface RootInfo {
 };
@@ -38,7 +38,7 @@ export class Root {
 
     public destroy() {
         this.destroyViews();
-        this.destroySceneManagers();
+        this.destroyScenes();
 
         if (this._pipeline) {
             this._pipeline.destroy();
@@ -87,31 +87,31 @@ export class Root {
         this._windows = [];
     }
 
-    public createSceneManager(info: SceneManagerInfo): SceneManager | null {
-        let scene = new SceneManager;
+    public createScene(info: RenderSceneInfo): RenderScene | null {
+        let scene = new RenderScene;
         if(scene.initialize(info)) {
-            this._sceneMgrs.push(scene);
+            this._scenes.push(scene);
             return scene;
         } else {
             return null;
         }
     }
 
-    public destroySceneManager(sceneMgr: SceneManager) {
-        for (let i = 0; i < this._sceneMgrs.length; ++i) {
-            if (this._sceneMgrs[i] === sceneMgr) {
-                sceneMgr.destroy();
-                this._sceneMgrs.splice(i);
+    public destroyScene(scene: RenderScene) {
+        for (let i = 0; i < this._scenes.length; ++i) {
+            if (this._scenes[i] === scene) {
+                scene.destroy();
+                this._scenes.splice(i);
                 return;
             }
         }
     }
 
-    public destroySceneManagers() {
-        for (let i = 0; i < this._sceneMgrs.length; ++i) {
-            this._sceneMgrs[i].destroy();
+    public destroyScenes() {
+        for (let i = 0; i < this._scenes.length; ++i) {
+            this._scenes[i].destroy();
         }
-        this._sceneMgrs = [];
+        this._scenes = [];
     }
 
     public createView(info: RenderViewInfo): RenderView | null {
@@ -155,8 +155,8 @@ export class Root {
         return this._pipeline;
     }
 
-    public get sceneManagers(): SceneManager[] {
-        return this._sceneMgrs;
+    public get sceneManagers(): RenderScene[] {
+        return this._scenes;
     }
 
     public get views(): RenderView[] {
@@ -167,6 +167,6 @@ export class Root {
     private _windows: GFXWindow[] = [];
     private _mainWindow: GFXWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
-    private _sceneMgrs: SceneManager[] = [];
+    private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
 };
