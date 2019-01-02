@@ -3,8 +3,8 @@
 const sha1 = require('js-sha1');
 
 const shdcLib = require('./shdc-lib');
-const mappings = require('../mappings');
-const chunksCache = require('../chunks');
+const mappings = require('./mappings');
+const chunksCache = require('./chunks');
 
 let queueRE = /(\w+)(?:([+-])(\d+))?/;
 let parseQueue = function (queue) {

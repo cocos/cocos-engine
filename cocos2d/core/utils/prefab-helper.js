@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var math = require("../renderer").renderEngine.math;
+import { quat } from '../vmath';
 
 cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',
@@ -124,7 +124,7 @@ module.exports = {
         node._active = _active;
         node._position.x = x;
         node._position.y = y;
-        math.quat.copy(node._quat, _quat);
+        quat.copy(node._quat, _quat);
         node._localZOrder = _localZOrder;
         node._globalZOrder = _globalZOrder;
     }

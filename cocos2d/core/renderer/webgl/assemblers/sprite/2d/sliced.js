@@ -24,11 +24,8 @@
  ****************************************************************************/
 
 const utils = require('../utils');
-const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 
 module.exports = {
-    useModel: false,
-
     createData (sprite) {
         let renderData = sprite.requestRenderData();
         // 0-4 for local verts

@@ -33,7 +33,7 @@ const tiffReader = require('./CCTIFFReader');
 const textureUtil = require('../core/utils/texture-util');
 const RenderFlow = require('../core/renderer/render-flow');
 const ParticleSimulator = require('./particle-simulator');
-const Material = require('../core/assets/CCMaterial');
+const Material = require('../core/assets/material/CCMaterial');
 
 function getImageFormatByData (imgData) {
     // if it is a png file buffer.
@@ -1132,8 +1132,8 @@ var ParticleSystem = cc.Class({
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-            material.define('useTexture', true);
-            material.define('useModel', true);
+            material.define('USE_TEXTURE', true);
+            material.define('_USE_MODEL', true);
         }
 
         if (!this._texture || !this._texture.loaded) {

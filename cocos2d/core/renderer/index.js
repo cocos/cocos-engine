@@ -23,17 +23,25 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('./render-engine');
+import ForwardRenderer from '../../renderer/renderers/forward-renderer';
+import config from '../../renderer/config';
+import gfx from '../../renderer/gfx';
+import Scene from '../../renderer/scene/scene';
+
+import InputAssembler from '../../renderer/core/input-assembler';
+import IARenderData from '../../renderer/render-data/ia-render-data';
+import Pass from '../../renderer/core/pass';
+
 const RenderFlow = require('./render-flow');
 
 function _initBuiltins(device) {
-    let defaultTexture = new renderEngine.Texture2D(device, {
+    let defaultTexture = new gfx.Texture2D(device, {
         images: [],
         width: 128,
         height: 128,
-        wrapS: renderEngine.gfx.WRAP_REPEAT,
-        wrapT: renderEngine.gfx.WRAP_REPEAT,
-        format: renderEngine.gfx.TEXTURE_FMT_RGB8,
+        wrapS: gfx.WRAP_REPEAT,
+        wrapT: gfx.WRAP_REPEAT,
+        format: gfx.TEXTURE_FMT_RGB8,
         mipmap: false,
     });
   
@@ -56,6 +64,12 @@ function _initBuiltins(device) {
  * @static
  */
 cc.renderer = module.exports = {
+    Texture2D: null,
+
+    InputAssembler: InputAssembler,
+    IARenderData: IARenderData,
+    Pass: Pass,
+
     /**
      * !#en The render engine is available only after cc.game.EVENT_ENGINE_INITED event.<br/>
      * Normally it will be inited as the webgl render engine, but in wechat open context domain,
@@ -63,10 +77,10 @@ cc.renderer = module.exports = {
      * !#zh 基础渲染引擎对象只在 cc.game.EVENT_ENGINE_INITED 事件触发后才可获取。<br/>
      * 大多数情况下，它都会是 WebGL 渲染引擎实例，但是在微信开放数据域当中，它会是 Canvas 渲染引擎实例。请注意，从 2.0 开始，我们在其他平台和环境下都废弃了 Canvas 渲染器。
      * @property renderEngine
+     * @deprecated
      * @type {Object}
      */
-    renderEngine: renderEngine,
-    Texture2D: null,
+    renderEngine: null,
 
     /*
      * !#en The canvas object which provides the rendering context
@@ -79,7 +93,7 @@ cc.renderer = module.exports = {
      * !#en The device object which provides device related rendering functionality, it divers for different render engine type.
      * !#zh 提供设备渲染能力的对象，它对于不同的渲染环境功能也不相同。
      * @property device
-     * @type {renderer.renderEngine.Device}
+     * @type {renderer.Device}
      */
     device: null,
     scene: null,
@@ -100,7 +114,7 @@ cc.renderer = module.exports = {
         require('./webgl/assemblers');
         const ModelBatcher = require('./webgl/model-batcher');
 
-        this.Texture2D = renderEngine.Texture2D;
+        this.Texture2D = gfx.Texture2D;
 
         this.canvas = canvas;
         if (CC_JSB && CC_NATIVERENDERER) {
@@ -108,30 +122,34 @@ cc.renderer = module.exports = {
             this.device = window.device;
         }
         else {
-            this.device = new renderEngine.Device(canvas, opts);
+            this.device = new gfx.Device(canvas, opts);
         }
         
-        this.scene = new renderEngine.Scene();
+        this.scene = new Scene();
 
         this._handle = new ModelBatcher(this.device, this.scene);
         RenderFlow.init(this._handle);
         let builtins = _initBuiltins(this.device);
-        this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
+        this._forward = new ForwardRenderer(this.device, builtins);
+        config.addStage('shadowcast');
+        config.addStage('opaque');
+        config.addStage('transparent');
     },
 
     initCanvas (canvas) {
         let canvasRenderer = require('./canvas');
+        const Texture2D = require('./canvas/Texture2D');
+        const Device = require('./canvas/Device');
 
         if (CC_TEST) {
             // It's actually running with original render engine
-            renderEngine.Texture2D = renderEngine.canvas.Texture2D;
-            renderEngine.Device = renderEngine.canvas.Device;
+            this.Device = Device;
         }
         
-        this.Texture2D = renderEngine.Texture2D;
+        this.Texture2D = Texture2D;
 
         this.canvas = canvas;
-        this.device = new renderEngine.Device(canvas);
+        this.device = new Device(canvas);
         this._camera = {
             a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0
         };

@@ -27,11 +27,9 @@ const Sprite = require('../../../../../components/CCSprite');
 const FillType = Sprite.FillType;
 const utils = require('../utils');
 
-const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
 module.exports = {
-    useModel: false,
     updateRenderData (sprite) {
         utils.packToDynamicAtlas(sprite);
 

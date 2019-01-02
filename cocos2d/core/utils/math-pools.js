@@ -24,20 +24,20 @@
  ****************************************************************************/
 
 const js = require('../platform/js');
-const renderEngine = require('../renderer/render-engine');
 // const Vec2 = require('../value-types/vec2');
 // const Vec3 = require('../value-types/vec3');
 // const Quat = require('../value-types/quat');
-const math = renderEngine.math;
+
+import { mat4, quat } from '../vmath';
 
 var mat4Pool = new js.Pool(128);
 mat4Pool.get = function () {
     var matrix = this._get();
     if (matrix) {
-        math.mat4.identity(matrix);
+        mat4.identity(matrix);
     }
     else {
-        matrix = math.mat4.create();
+        matrix = mat4.create();
     }
     return matrix;
 };
@@ -68,15 +68,15 @@ mat4Pool.get = function () {
 
 var quatPool = new js.Pool(64);
 quatPool.get = function () {
-    var quat = this._get();
-    if (quat) {
-        quat.x = quat.y = quat.z = 0;
-        quat.w = 1;
+    var q = this._get();
+    if (q) {
+        q.x = q.y = q.z = 0;
+        q.w = 1;
     }
     else {
-        quat = math.quat.create();
+        q = quat.create();
     }
-    return quat;
+    return q;
 };
 
 module.exports = {

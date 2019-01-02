@@ -26,8 +26,8 @@
 const ValueType = require('./value-type');
 const js = require('../platform/js');
 const CCClass = require('../platform/CCClass');
-const math = require('../renderer/render-engine').math;
-const mat4 = math.mat4;
+
+import { mat4 } from '../vmath';
 
 /**
  * !#en Representation of 4*4 matrix.

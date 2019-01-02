@@ -5,8 +5,9 @@ let EffectAsset = cc.Class({
     extends: Asset,
 
     properties: {
-        shaders: Object,
-        effect: Object
+        properties: Object,
+        techniques: [],
+        shaders: []
     },
 
     onLoad () {

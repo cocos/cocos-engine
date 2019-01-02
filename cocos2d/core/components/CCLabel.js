@@ -26,8 +26,7 @@
 
 const macro = require('../platform/CCMacro');
 const RenderComponent = require('./CCRenderComponent');
-const RenderFlow = require('../renderer/render-flow');
-const Material = require('../assets/CCMaterial');
+const Material = require('../assets/material/CCMaterial');
 
 /**
  * !#en Enum for text alignment.
@@ -464,6 +463,7 @@ let Label = cc.Class({
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this._checkStringEmpty();
         this._updateRenderData(true);
@@ -483,6 +483,12 @@ let Label = cc.Class({
             this._ttfTexture = null;
         }
         this._super();
+    },
+
+    _updateColor () {
+        if (!(this.font instanceof cc.BitmapFont)) {
+            this._updateRenderData();
+        }
     },
 
     _canRender () {
@@ -531,7 +537,7 @@ let Label = cc.Class({
                 self._activateMaterial(force);
 
                 if (CC_EDITOR || force) {
-                    this._assembler && this._assembler.updateRenderData(this);
+                    self._assembler && self._assembler.updateRenderData(self);
                 }
             };
             // cannot be activated if texture not loaded yet
@@ -580,7 +586,7 @@ let Label = cc.Class({
         else {
             if (!material) {
                 material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-                material.define('useTexture', true);
+                material.define('USE_TEXTURE', true);
             }
             // Setup blend function for premultiplied ttf label texture
             if (this._texture === this._ttfTexture) {
@@ -595,17 +601,6 @@ let Label = cc.Class({
 
         this.markForUpdateRenderData(true);
         this.markForRender(true);
-    },
-
-    _updateColor () {
-        let font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            this._super();
-        }
-        else {
-            this._updateRenderData();
-            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
-        }
     },
 
     _updateRenderData (force) {

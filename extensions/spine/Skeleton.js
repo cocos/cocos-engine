@@ -27,7 +27,7 @@
 const TrackEntryListeners = require('./track-entry-listeners');
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const spine = require('./lib/spine');
-const Material = require('../../cocos2d/core/assets/CCMaterial');
+const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
 
 /**

@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 const RenderComponent = require('../core/components/CCRenderComponent');
-const Material = require('../core/assets/CCMaterial');
+const Material = require('../core/assets/material/CCMaterial');
 
 /**
  * !#en Render the TMX layer.
@@ -633,7 +633,7 @@ let TiledLayer = cc.Class({
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-            material.define('useTexture', true);
+            material.define('USE_TEXTURE', true);
         }
 
         if (this._texture) {
@@ -646,8 +646,6 @@ let TiledLayer = cc.Class({
         else {
             this.disableRender();   
         }
-        
-        this.setMaterial(0, material);
     },
 });
 

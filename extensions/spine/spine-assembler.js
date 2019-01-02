@@ -26,11 +26,9 @@
 const StencilManager = require('../../cocos2d/core/renderer/webgl/stencil-manager').sharedManager;
 const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
-const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const Material = require('../../cocos2d/core/assets/CCMaterial');
-const renderEngine = renderer.renderEngine;
-const gfx = renderEngine.gfx;
+const Material = require('../../cocos2d/core/assets/material/CCMaterial');
+import gfx from '../../cocos2d/renderer/gfx';
 
 const STENCIL_SEP = '@';
 
@@ -70,7 +68,7 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
     let materials = comp._materials;
     let material = materials[key];
     if (!material) {
-        var baseKey = baseMaterial._hash;
+        var baseKey = baseMaterial.getHash();
         if (!materials[baseKey]) {
             material = baseMaterial;
         } else {
@@ -78,14 +76,15 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
             material.copy(baseMaterial);
         }
 
-        material.define('useModel', true);
-        material.define('useTexture', true);
+        material.define('_USE_MODEL', true);
+        material.define('USE_TEXTURE', true);
         // update texture
         material.setProperty('texture', tex);
 
         // update blend function
-        let pass = material._effect.getTechnique('transparent').passes[0];
+        let pass = material.effect.getDefaultTechnique().passes[0];
         pass.setBlend(
+            true,
             gfx.BLEND_FUNC_ADD,
             src, dst,
             gfx.BLEND_FUNC_ADD,
@@ -102,9 +101,6 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
 }
 
 var spineAssembler = {
-    // Use model to avoid per vertex transform
-    useModel: true,
-
     _readAttachmentData (comp, attachment, slot, premultipliedAlpha, renderData, dataOffset) {
         // the vertices in format:
         // X1, Y1, C1R, C1G, C1B, C1A, U1, V1
@@ -310,7 +306,7 @@ var spineAssembler = {
 
             // For generate new material for skeleton render data nested in mask,
             // otherwise skeleton inside/outside mask with same material will interfere each other
-            let key = data.material._hash;
+            let key = data.material.getHash();
             let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
             if (key !== newKey) {
                 data.material = materials[newKey] || data.material.clone();

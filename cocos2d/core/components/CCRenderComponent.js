@@ -23,13 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import gfx from '../../renderer/gfx';
+import RenderData from '../../renderer/render-data/render-data';
+
 const Component = require('./CCComponent');
-const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
-const RenderData = renderEngine.RenderData;
-const gfx = renderEngine.gfx;
-const Material = require('../assets/CCMaterial');
+const Material = require('../assets/material/CCMaterial');
 
 /**
  * !#en
@@ -68,7 +68,7 @@ let RenderComponent = cc.Class({
             set: function(value) {
                 if (this._srcBlendFactor === value) return;
                 this._srcBlendFactor = value;
-                this._updateBlendFunc(true);
+                this._updateBlendFunc();
             },
             animatable: false,
             type:BlendFactor,
@@ -90,7 +90,7 @@ let RenderComponent = cc.Class({
             set: function(value) {
                 if (this._dstBlendFactor === value) return;
                 this._dstBlendFactor = value;
-                this._updateBlendFunc(true);
+                this._updateBlendFunc();
             },
             animatable: false,
             type: BlendFactor,
@@ -129,7 +129,7 @@ let RenderComponent = cc.Class({
             this.node._renderComponent.enabled = false;
         }
         this.node._renderComponent = this;
-        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
+        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
     },
 
     onDisable () {
@@ -144,6 +144,13 @@ let RenderComponent = cc.Class({
         this.__allocedDatas.length = 0;
         this._materials.length = 0;
         this._renderData = null;
+
+        let uniforms = this._uniforms;
+        for (let name in uniforms) {
+            _uniformPool.remove(_uniformPool._data.indexOf(uniforms[name]));
+        }
+        this._uniforms = null;
+        this._defines = null;
     },
     
     _canRender () {
@@ -179,7 +186,7 @@ let RenderComponent = cc.Class({
     },
 
     disableRender () {
-        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
     },
 
     requestRenderData () {
@@ -196,23 +203,6 @@ let RenderComponent = cc.Class({
         }
     },
 
-    _updateColor () {
-        let materials = this._materials;
-        for (let i = 0; i < materials.length; i++) {
-            let material = materials[i];
-            // For batch rendering, update the color only when useColor is set to true.
-            if (material.getDefine('useColor')) {
-                material.setProperty('color', this.node.color);
-                material.updateHash();
-            }
-        }
-        // reset flag when set color to material successfully
-        this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
-    },
-
-    getMaterials () {
-        return this._materials;
-    },
     getMaterial (index) {
         if (index < 0 || index >= this._materials.length) {
             return null;
@@ -231,21 +221,21 @@ let RenderComponent = cc.Class({
     setMaterial (index, material) {
         this._materials[index] = material;
         if (material) {
-            this._updateMaterialBlendFunc(true, material);
+            this._updateMaterialBlendFunc(material);
+            this.markForUpdateRenderData(true);
         }
-        this.markForUpdateRenderData(true);
     },
 
-    _updateBlendFunc: function (updateHash) {
+    _updateBlendFunc: function () {
         let materials = this._materials;
         for (let i = 0; i < materials.length; i++) {
             let material = materials[i];
-            this._updateMaterialBlendFunc(updateHash, material);
+            this._updateMaterialBlendFunc(material);
         }
     },
 
-    _updateMaterialBlendFunc (updateHash, material) {
-        let passes = material._effect.getTechnique('transparent').passes;
+    _updateMaterialBlendFunc (material) {
+        let passes = material._effect.getDefaultTechnique().passes;
         for (let j = 0; j < passes.length; j++) {
             let pass = passes[j];
             pass.setBlend(
@@ -256,14 +246,10 @@ let RenderComponent = cc.Class({
                 this._srcBlendFactor, this._dstBlendFactor
             );
         }
-
-        if (updateHash) {
-            material.updateHash();
-        }
     },
 
     _activateMaterial (force) {
-    }
+    },
 });
 RenderComponent._assembler = null;
 RenderComponent._postAssembler = null;

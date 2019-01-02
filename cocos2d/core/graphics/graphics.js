@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const RenderComponent = require('../components/CCRenderComponent');
-const Material = require('../assets/CCMaterial');
+const Material = require('../assets/material/CCMaterial');
 
 const Types = require('./types');
 const LineCap = Types.LineCap;
@@ -200,7 +200,7 @@ let Graphics = cc.Class({
         }
         
         let material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-        material.define('useModel', true);
+        material.define('_USE_MODEL', true);
         this.setMaterial(0, material);
     },
 

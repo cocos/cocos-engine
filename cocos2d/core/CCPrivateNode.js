@@ -27,13 +27,10 @@
 
 const Node = require('./CCNode');
 const RenderFlow = require('./renderer/render-flow');
-const math = require('./renderer/render-engine').math;
 
 const HideInHierarchy = cc.Object.Flags.HideInHierarchy;
 const LocalDirtyFlag = Node._LocalDirtyFlag;
 const POSITION_ON = 1 << 0;
-
-let _vec3_temp = math.vec3.create();
 
 /**
  * !#en

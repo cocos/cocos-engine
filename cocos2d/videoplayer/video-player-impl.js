@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { mat4 } from '../core/vmath';
+
 const utils = require('../core/platform/utils');
 const sys = require('../core/platform/CCSys');
-const renderEngine = require('../core/renderer/render-engine');
-const math = renderEngine.math;
 
 const READY_STATE = {
     HAVE_NOTHING: 0,
@@ -36,7 +36,7 @@ const READY_STATE = {
     HAVE_ENOUGH_DATA: 4
 }
 
-let _mat4_temp = math.mat4.create();
+let _mat4_temp = mat4.create();
 
 let VideoPlayerImpl = cc.Class({
     name: 'VideoPlayerImpl',

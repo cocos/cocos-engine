@@ -1,13 +1,12 @@
-const Armature = require('./ArmatureDisplay');
-const renderEngine = require('../../cocos2d/core/renderer/render-engine');
-const math = renderEngine.math;
+import { mat4 } from '../../cocos2d/core/vmath';
 
+const Armature = require('./ArmatureDisplay');
 const utils = require('../../cocos2d/core/renderer/canvas/renderers/utils');
 
 let _color = cc.color();
 
-let _matrix = math.mat4.create();
-let _matrix2 = math.mat4.create();
+let _matrix = mat4.create();
+let _matrix2 = mat4.create();
 
 let armatureAssembler = {
     draw (ctx, comp) {

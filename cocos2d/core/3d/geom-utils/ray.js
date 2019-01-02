@@ -10,8 +10,8 @@ const vec3 = cc.vmath.vec3;
  * @param {Number} dz 
  */
 function ray(ox, oy, oz, dx, dy, dz) {
-    this.o = vec3.new(ox, oy, oz);
-    this.d = vec3.new(dx, dy, dz);
+    this.o = vec3.create(ox, oy, oz);
+    this.d = vec3.create(dx, dy, dz);
 }
 
 /**

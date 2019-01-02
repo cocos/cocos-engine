@@ -26,6 +26,7 @@
 const ValueType = require('./value-type');
 const js = require('../platform/js');
 const CCClass = require('../platform/CCClass');
+const quat = require('../vmath/quat');
 
 /**
  * !#en Representation of 2D vectors and points.
@@ -123,7 +124,7 @@ proto.equals = function (other) {
  * @return {Vec3}
  */
 proto.toEuler = function (out) {
-    cc.vmath.quat.toEuler(out, this);
+    quat.toEuler(out, this);
     return out;
 };
 
@@ -135,7 +136,7 @@ proto.toEuler = function (out) {
  * @return {Quat}
  */
 proto.fromEuler = function (euler) {
-    cc.vmath.quat.fromEuler(this, euler.x, euler.y, euler.z);
+    quat.fromEuler(this, euler.x, euler.y, euler.z);
     return this;
 };
 
@@ -149,7 +150,21 @@ proto.fromEuler = function (euler) {
  */
 proto.lerp = function (to, ratio, out) {
     out = out || new cc.Quat();
-    cc.vmath.quat.slerp(out, this, to, ratio);
+    quat.slerp(out, this, to, ratio);
+    return out;
+};
+
+/**
+ * !#en Calculate the multiply result between this quaternion and another one
+ * !#zh 计算四元数乘积的结果
+ * @member lerp
+ * @param {Quat} to
+ * @param {Number} ratio
+ * @param {Quat} out
+ */
+proto.mul = function (other, out) {
+    out = out || new cc.Quat();
+    quat.mul(out, this, other);
     return out;
 };
 

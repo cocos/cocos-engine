@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
-const Material = require('../../cocos2d/core/assets/CCMaterial');
+const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 
 let EventTarget = require('../../cocos2d/core/event/event-target');
 
@@ -359,8 +359,7 @@ let ArmatureDisplay = cc.Class({
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-            material.define('useTexture', true);
-            material.define('useColor', true);
+            material.define('USE_TEXTURE', true);
         }
 
         if (texture) {

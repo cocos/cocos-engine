@@ -25,10 +25,10 @@
  ****************************************************************************/
 
 const EventTarget = require('../event/event-target');
-const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer');
 require('../platform/CCClass');
-const gfx = renderEngine.gfx;
+
+import gfx from '../../renderer/gfx';
 
 const GL_NEAREST = 9728;                // gl.NEAREST
 const GL_LINEAR = 9729;                 // gl.LINEAR
@@ -268,6 +268,7 @@ var Texture2D = cc.Class({
         _flipY: false,
         _minFilter: Filter.LINEAR,
         _magFilter: Filter.LINEAR,
+        _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
         _wrapT: WrapMode.CLAMP_TO_EDGE
     },
@@ -340,7 +341,7 @@ var Texture2D = cc.Class({
     /**
      * !#en
      * Get renderer texture implementation object
-     * extended from renderEngine.TextureAsset
+     * extended from render.Texture2D
      * !#zh  返回渲染器内部贴图对象
      * @method getImpl
      */
@@ -386,6 +387,10 @@ var Texture2D = cc.Class({
             if (options.magFilter !== undefined) {
                 this._magFilter = options.magFilter;
                 options.magFilter = FilterIndex[options.magFilter];
+            }
+            if (options.mipFilter !== undefined) {
+                this._mipFilter = options.mipFilter;
+                options.mipFilter = FilterIndex[options.mipFilter];
             }
             if (options.wrapS !== undefined) {
                 this._wrapS = options.wrapS;
@@ -710,6 +715,33 @@ var Texture2D = cc.Class({
             var opts = _getSharedOptions();
             opts.hasMipmap = mipmap;
             this.update(opts);
+        }
+    },
+
+    _getOpts() {
+        let opts = _getSharedOptions();
+        opts.width = this.width;
+        opts.height = this.height;
+        opts.mipmap = this._genMipmap;
+        opts.format = this._format;
+        opts.premultiplyAlpha = this._premultiplyAlpha;
+        opts.anisotropy = this._anisotropy;
+        opts.flipY = this._flipY;
+        opts.minFilter = FilterIndex[this._minFilter];
+        opts.magFilter = FilterIndex[this._magFilter];
+        opts.mipFilter = FilterIndex[this._mipFilter];
+        opts.wrapS = this._wrapS;
+        opts.wrapT = this._wrapT;
+        return opts;
+    },
+
+    _resetUnderlyingMipmaps(mipmapSources) {
+        const opts = this._getOpts();
+        opts.images = mipmapSources || [null];
+        if (!this._texture) {
+            this._texture = new renderer.Texture2D(renderer.device, opts);
+        } else {
+            this._texture.update(opts);
         }
     },
 

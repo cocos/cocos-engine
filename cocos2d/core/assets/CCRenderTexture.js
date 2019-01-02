@@ -1,7 +1,7 @@
 const renderer = require('../renderer');
-const renderEngine = require('../renderer/render-engine');
-const gfx = renderEngine.gfx;
 const Texture2D = require('./CCTexture2D');
+
+import gfx from '../../renderer/gfx';
 
 /**
  * Render textures are textures that can be rendered to.
@@ -29,48 +29,43 @@ let RenderTexture = cc.Class({
     initWithSize (width, height, depthStencilFormat) {
         this.width = Math.floor(width || cc.visibleRect.width);
         this.height = Math.floor(height || cc.visibleRect.height);
-
-        let opts = {};
-        opts.format = this._format;
-        opts.width = width;
-        opts.height = height;
-        opts.images = undefined;
-        opts.wrapS = this._wrapS;
-        opts.wrapT = this._wrapT;
-        opts.premultiplyAlpha = this._premultiplyAlpha;
-        opts.minFilter = Texture2D._FilterIndex[this._minFilter];
-        opts.magFilter = Texture2D._FilterIndex[this._magFilter];
-
-        if (!this._texture) {
-            this._texture = new renderer.Texture2D(renderer.device, opts);
-        }
-        else {
-            this._texture.update(opts);
-        }
-
-        opts = {
+        this._resetUnderlyingMipmaps();
+        
+        let opts = {
             colors: [ this._texture ],
         };
+
+        if (this._depthStencilBuffer) this._depthStencilBuffer.destroy();
+        let depthStencilBuffer;
         if (depthStencilFormat) {
-            let depthStencilBuffer = new gfx.RenderBuffer(renderer.device, depthStencilFormat, width, height);
+            depthStencilBuffer = new gfx.RenderBuffer(renderer.device, depthStencilFormat, width, height);
             if (depthStencilFormat === gfx.RB_FMT_D24S8) {
-                opts.depth = opts.stencil = depthStencilBuffer;
+                opts.depthStencil = depthStencilBuffer;
             }
             else if (depthStencilFormat === gfx.RB_FMT_S8) {
                 opts.stencil = depthStencilBuffer;
             }
-            else if (depthStencilFormat === gl.RB_FMT_D16) {
+            else if (depthStencilFormat === gfx.RB_FMT_D16) {
                 opts.depth = depthStencilBuffer;
             }
         }
-
-        if (this._framebuffer) {
-            this._framebuffer.destroy();
-        }
-        this._framebuffer = new renderEngine.gfx.FrameBuffer(renderer.device, width, height, opts);
+        this._depthStencilBuffer = depthStencilBuffer;
+        if (this._framebuffer) this._framebuffer.destroy();
+        this._framebuffer = new gfx.FrameBuffer(renderer.device, width, height, opts);
 
         this.loaded = true;
         this.emit("load");
+    },
+
+    updateSize(width, height) {
+        this.width = Math.floor(width || cc.visibleRect.width);
+        this.height = Math.floor(height || cc.visibleRect.height);
+        this._resetUnderlyingMipmaps();
+
+        let rbo = this._depthStencilBuffer;
+        if (rbo) rbo.update(this.width, this.height);
+        this._framebuffer._width = width;
+        this._framebuffer._height = height;
     },
 
     /**
@@ -124,7 +119,6 @@ let RenderTexture = cc.Class({
         let gl = renderer._forward._device._gl;
         let oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer._glID);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._texture._glID, 0);
         gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
         gl.bindFramebuffer(gl.FRAMEBUFFER, oldFBO);
 
