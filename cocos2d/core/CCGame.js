@@ -385,6 +385,11 @@ var game = {
     },
 
     _prepareFinished (cb) {
+
+        if (CC_PREVIEW && window.__modular) {
+            window.__modular.run();
+        }
+
         this._prepared = true;
 
         // Init engine
@@ -425,8 +430,9 @@ var game = {
      * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
      */
     on (type, callback, target) {
-        // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._prepared && type === this.EVENT_ENGINE_INITED) {
+        // Make sure EVENT_ENGINE_INITED and EVENT_GAME_INITED callbacks to be invoked
+        if ((this._prepared && type === this.EVENT_ENGINE_INITED) ||
+            (!this._pause && type === this.EVENT_GAME_INITED)) {
             callback.call(target);
         }
         else {
@@ -452,8 +458,9 @@ var game = {
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     once (type, callback, target) {
-        // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._prepared && type === this.EVENT_ENGINE_INITED) {
+        // Make sure EVENT_ENGINE_INITED and EVENT_GAME_INITED callbacks to be invoked
+        if ((this._prepared && type === this.EVENT_ENGINE_INITED) ||
+            (!this._pause && type === this.EVENT_GAME_INITED)) {
             callback.call(target);
         }
         else {
