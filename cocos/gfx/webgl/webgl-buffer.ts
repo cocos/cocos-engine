@@ -15,7 +15,11 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._usage = info.usage;
         this._memUsage = info.memUsage;
         this._size = info.size;
-        this._stride = info.stride? info.stride : 1;
+
+        if(info.stride) {
+            this._stride = info.stride;
+        }
+        this._stride = Math.max(this._stride, 1);
 
         if (this._memUsage & GFXMemoryUsageBit.HOST) {
             this._buffer = new ArrayBuffer(this._size);

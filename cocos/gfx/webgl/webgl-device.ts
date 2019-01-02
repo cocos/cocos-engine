@@ -480,6 +480,9 @@ export class WebGLGFXDevice extends GFXDevice {
         return gpuTextureView;
     }
 
+    public emitCmdDestroyGPUTextureView(gpuTextureView: WebGLGPUTextureView) {
+    }
+
     public emitCmdCreateGPURenderPass(info: GFXRenderPassInfo): WebGLGPURenderPass {
         let gpuRenderPass: WebGLGPURenderPass = {
             objType: WebGLGPUObjectType.RENDER_PASS,
@@ -490,19 +493,21 @@ export class WebGLGFXDevice extends GFXDevice {
         return gpuRenderPass;
     }
 
-    public emitCmdDestroyGPURenderPass(renderPass: WebGLGPURenderPass) {
+    public emitCmdDestroyGPURenderPass(gpuRenderPass: WebGLGPURenderPass) {
     }
 
     public emitCmdCreateGPUFramebuffer(info: GFXFramebufferInfo): WebGLGPUFramebuffer {
 
         let renderPass = <WebGLGFXRenderPass>info.renderPass;
 
-        let gpuColorViews: (WebGLGPUTextureView | null)[] = new Array<WebGLGPUTextureView | null>();
+        let gpuColorViews: WebGLGPUTextureView[] = [];
 
         if (info.colorViews) {
             for (let i = 0; i < info.colorViews.length; ++i) {
                 let webGLColorView = <WebGLGFXTextureView>info.colorViews[i];
-                gpuColorViews[i] = webGLColorView.gpuTextureView;
+                if(webGLColorView.gpuTextureView) {
+                    gpuColorViews.push(webGLColorView.gpuTextureView);
+                }
             }
         }
 

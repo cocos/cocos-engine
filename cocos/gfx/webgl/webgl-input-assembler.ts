@@ -10,12 +10,21 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
     }
 
     public initialize(info: GFXInputAssemblerInfo): boolean {
+        
+        if(info.vertexBuffers.length === 0) {
+            console.error("GFXInputAssemblerInfo.vertexBuffers is null.");
+            return false;
+        }
 
         this._attributes = info.attributes;
         this._vertexBuffers = info.vertexBuffers;
-
+        
         if (info.indexBuffer) {
             this._indexBuffer = info.indexBuffer;
+            this._indexCount = this._indexBuffer.size / this._indexBuffer.stride;
+        } else {
+            let vertBuff = this._vertexBuffers[0];
+            this._vertexCount = vertBuff.size / vertBuff.stride;
         }
 
         if (info.isIndirect) {

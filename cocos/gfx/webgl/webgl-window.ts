@@ -54,6 +54,11 @@ export class WebGLGFXWindow extends GFXWindow {
             },
         });
 
+        if(!this._renderPass) {
+            this.destroy();
+            return false;
+        }
+
         this._colorTex = this._device.createTexture({
             type : GFXTextureType.TEX2D,
             usage : GFXTextureUsageBit.COLOR_ATTACHMENT,
@@ -66,16 +71,24 @@ export class WebGLGFXWindow extends GFXWindow {
             flags : GFXTextureFlagBit.NONE,
         });
 
-        if(this._colorTex) {
-            this._colorTexView = this._device.createTextureView({
-                texture : this._colorTex,
-                type : GFXTextureViewType.TV2D,
-                format : this._colorFmt,
-                baseLevel : 0,
-                levelCount : 1,
-                baseLayer : 0,
-                layerCount : 1,
-            });
+        if(!this._colorTex) {
+            this.destroy();
+            return false;
+        }
+
+        this._colorTexView = this._device.createTextureView({
+            texture : this._colorTex,
+            type : GFXTextureViewType.TV2D,
+            format : this._colorFmt,
+            baseLevel : 0,
+            levelCount : 1,
+            baseLayer : 0,
+            layerCount : 1,
+        });
+
+        if(!this._colorTexView) {
+            this.destroy();
+            return false;
         }
 
         this._depthStencilTex = this._device.createTexture({
@@ -90,25 +103,36 @@ export class WebGLGFXWindow extends GFXWindow {
             flags : GFXTextureFlagBit.NONE,
         });
 
-        if(this._depthStencilTex) {
-            this._depthStencilTexView = this._device.createTextureView({
-                texture : this._depthStencilTex,
-                type : GFXTextureViewType.TV2D,
-                format : this._depthStencilFmt,
-                baseLevel : 0,
-                levelCount : 1,
-                baseLayer : 0,
-                layerCount : 1,
-            });
+        if(!this._depthStencilTex) {
+            this.destroy();
+            return false;
         }
 
-        if(this._colorTexView && this._renderPass && this._depthStencilTexView) {
-            this._framebuffer = this._device.createFramebuffer({
-                renderPass: this._renderPass,
-                colorViews: [this._colorTexView],
-                depthStencilView: this._depthStencilTexView,
-                isOffscreen: false,
-            });
+        this._depthStencilTexView = this._device.createTextureView({
+            texture : this._depthStencilTex,
+            type : GFXTextureViewType.TV2D,
+            format : this._depthStencilFmt,
+            baseLevel : 0,
+            levelCount : 1,
+            baseLayer : 0,
+            layerCount : 1,
+        });
+
+        if(!this._depthStencilTexView) {
+            this.destroy();
+            return false;
+        }
+
+        this._framebuffer = this._device.createFramebuffer({
+            renderPass: this._renderPass,
+            colorViews: [this._colorTexView],
+            depthStencilView: this._depthStencilTexView,
+            isOffscreen: false,
+        });
+
+        if(!this._framebuffer) {
+            this.destroy();
+            return false;
         }
 
         return true;

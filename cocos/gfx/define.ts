@@ -18,7 +18,7 @@ export enum WebGLEXT {
     COMPRESSED_RGB_ETC1_WEBGL = 0x8D64,
 }
 
-export const GFX_MAX_VERTEX_ATTRIBUTES: number = 8;
+export const GFX_MAX_VERTEX_ATTRIBUTES: number = 16;
 export const GFX_MAX_TEXTURE_UNITS: number = 16;
 export const GFX_MAX_ATTACHMENTS: number = 4;
 
@@ -695,7 +695,6 @@ export function GFXGetTypeSize(type: GFXType): number {
     }
 }
 
-<<<<<<< HEAD:cocos/gfx/gfx-define.ts
 export function GFXGetAttributeBinding(name: string) : number {
     if (name === GFX_ATTRIBUTE_POSITION) {
         return 6;
@@ -721,18 +720,3 @@ export function GFXGetAttributeBinding(name: string) : number {
         return -1;
     }
 }
-=======
-const GFXBuiltinAttributeBindings = {
-    [GFX_ATTRIBUTE_POSITION]: 20,
-    [GFX_ATTRIBUTE_COLOR]: 21,
-    [GFX_ATTRIBUTE_COLOR1]: 22,
-    [GFX_ATTRIBUTE_NORMAL]: 23,
-    [GFX_ATTRIBUTE_TANGENT]: 24,
-    [GFX_ATTRIBUTE_BINORMAL]: 25,
-    [GFX_ATTRIBUTE_TEXCOORD]: 26,
-    [GFX_ATTRIBUTE_TEXCOORD1]: 27,
-    [GFX_ATTRIBUTE_JOINTS]: 28,
-    [GFX_ATTRIBUTE_WEIGHTS]: 29,
-};
-export { GFXBuiltinAttributeBindings };
->>>>>>> f39457540e35b3cb5fe6bbf7586a0df2d602a94c:cocos/gfx/define.ts

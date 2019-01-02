@@ -94,7 +94,7 @@ export class WebGLGPURenderPass extends WebGLGPUObject {
 export class WebGLGPUFramebuffer extends WebGLGPUObject {
 
     gpuRenderPass: WebGLGPURenderPass;
-    gpuColorViews: (WebGLGPUTextureView | null)[] = [];
+    gpuColorViews: WebGLGPUTextureView[] = [];
     gpuDepthStencilView: WebGLGPUTextureView | null = null;
     isOffscreen?: boolean = false;
 
@@ -228,6 +228,7 @@ export class WebGLGPUBindingLayout extends WebGLGPUObject {
 };
 
 export class WebGLAttrib {
+    name: string = "";
     glBuffer: WebGLBuffer = 0;
     glLoc: number = 0;
     glType: GLenum = 0;

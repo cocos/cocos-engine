@@ -5,50 +5,53 @@ import { WebGLGFXDevice } from './webgl-device';
 
 export class WebGLGFXTextureView extends GFXTextureView {
 
-    constructor(device : GFXDevice) {
+    constructor(device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info : GFXTextureViewInfo) : boolean {
+    public initialize(info: GFXTextureViewInfo): boolean {
 
         this._texture = info.texture;
         this._type = info.type;
         this._format = info.format;
         this._format = info.format;
 
-        if(info.baseLevel) {
+        if (info.baseLevel) {
             this._baseLevel = info.baseLevel;
         }
 
-        if(info.levelCount) {
+        if (info.levelCount) {
             this._levelCount = info.levelCount;
         }
 
-        if(info.baseLayer) {
+        if (info.baseLayer) {
             this._baseLayer = info.baseLayer;
         }
 
-        if(info.layerCount) {
+        if (info.layerCount) {
             this._layerCount = info.layerCount;
         }
 
-        this.webGLDevice.emitCmdCreateGPUTextureView(info);
+        this._gpuTextureView = this.webGLDevice.emitCmdCreateGPUTextureView(info);
 
         return true;
     }
 
     public destroy() {
-        this._gpuTextureView = null;
+        if (this._gpuTextureView) {
+            this.webGLDevice.emitCmdDestroyGPUTextureView(this._gpuTextureView);
+            this._gpuTextureView = null;
+        }
         this._texture = null;
     }
 
-    public get webGLDevice() : WebGLGFXDevice {
+    public get webGLDevice(): WebGLGFXDevice {
         return <WebGLGFXDevice>this._device;
     }
 
-    public get gpuTextureView() : WebGLGPUTextureView | null  {
+    public get gpuTextureView(): WebGLGPUTextureView | null {
         return this._gpuTextureView;
     }
 
-    private _gpuTextureView : WebGLGPUTextureView | null = null;
+    private _gpuTextureView: WebGLGPUTextureView | null = null;
 };
