@@ -2,7 +2,7 @@ import { GFXDevice } from './device';
 import { GFXBuffer } from './buffer';
 import { GFXTextureView } from './texture-view';
 import { GFXSampler } from './sampler';
-import { GFXBindingType } from './gfx-define';
+import { GFXBindingType } from './define';
 
 export interface GFXBinding {
     binding : number;

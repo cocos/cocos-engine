@@ -17,12 +17,12 @@
     "./cocos2d/audio/**/*",
 
     "./cocos2d/core/CCDebug.js",
-    "./cocos2d/core/CCDirector.js",
+    "./cocos2d/core/director.js",
     "./cocos2d/core/CCNode.js",
     "./cocos2d/core/CCPrivateNode.js",
     "./cocos2d/core/CCScene.js",
-    "./cocos2d/core/CCGame.js",
-    "./cocos2d/core/CCScheduler.js",
+    "./cocos2d/core/game.js",
+    "./cocos2d/core/scheduler.js",
 
     "./cocos2d/core/assets/**/*",
 
@@ -42,7 +42,7 @@
     "!./cocos2d/core/load-pipeline/asset-table.js",
 
     "./cocos2d/core/physics/**/*",
-    
+
     "./cocos2d/core/platform/**/*",
     "!./cocos2d/core/platform/BKInputManager.js",
     "!./cocos2d/core/platform/CCAssetLibrary.js",

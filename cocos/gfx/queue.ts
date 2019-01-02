@@ -1,6 +1,6 @@
 import { GFXDevice } from './device';
 import { GFXCommandBuffer } from './command-buffer';
-import { GFXQueueType } from './gfx-define';
+import { GFXQueueType } from './define';
 
 export interface GFXQueueInfo {
     type : GFXQueueType;

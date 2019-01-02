@@ -1,5 +1,5 @@
 import { GFXDevice } from './device';
-import { GFXFormat } from './gfx-define';
+import { GFXFormat } from './define';
 import { GFXBuffer } from './buffer';
 
 export interface GFXInputAttribute {

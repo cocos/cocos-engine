@@ -1,5 +1,5 @@
 import { GFXDevice } from './device';
-import { GFXType, GFXShaderType } from './gfx-define';
+import { GFXType, GFXShaderType } from './define';
 
 export interface GFXShaderMacro {
     macro: string;

@@ -31,7 +31,7 @@ import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { GFXWindow, GFXWindowInfo } from '../window';
 import { WebGLGFXWindow } from './webgl-window';
-import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXQueueType } from '../gfx-define';
+import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXQueueType } from '../define';
 import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 
 const WebGLPrimitives: GLenum[] = [
@@ -483,8 +483,8 @@ export class WebGLGFXDevice extends GFXDevice {
     public emitCmdCreateGPURenderPass(info: GFXRenderPassInfo): WebGLGPURenderPass {
         let gpuRenderPass: WebGLGPURenderPass = {
             objType: WebGLGPUObjectType.RENDER_PASS,
-            colorAttachments: info.colorAttachment ? info.colorAttachment : [],
-            depthStencilAttachment: info.depthStencilAttachment ? info.depthStencilAttachment : null,
+            colorAttachments: info.colorAttachments? info.colorAttachments : [],
+            depthStencilAttachment: info.depthStencilAttachment? info.depthStencilAttachment : null,
         }
 
         return gpuRenderPass;

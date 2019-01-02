@@ -1,5 +1,5 @@
 import { GFXDevice } from './device';
-import { GFXFilter, GFXAddress, GFXComparisonFunc } from './gfx-define';
+import { GFXFilter, GFXAddress, GFXComparisonFunc } from './define';
 
 export interface GFXSamplerInfo {
     name? : string;

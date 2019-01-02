@@ -30,7 +30,6 @@ import debug from './platform/CCDebug';
 import { addon } from './utils/js';
 
 import renderer from '../renderer';
-import '../gfx';
 import builtinResMgr from '../3d/builtin/init';
 
 /**
@@ -793,7 +792,7 @@ var game = {
             // renderer.initWebGL(localCanvas, opts);
             // this._renderContext = renderer.device._gl;
         }
-        
+
         if (!this._gfxDevice) {
         //if (!this._renderContext) {
 

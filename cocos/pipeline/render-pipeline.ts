@@ -5,7 +5,7 @@ import { GFXRenderPass } from "../gfx/render-pass";
 import { GFXDevice } from "../gfx/device";
 import { GFXBuffer } from "../gfx/buffer";
 import { GFXInputAssembler, GFXInputAttribute } from "../gfx/input-assembler";
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat } from "../gfx/gfx-define";
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat } from "../gfx/define";
 
 export enum RenderPassStage {
     FORWARD = 0,
@@ -145,7 +145,7 @@ export abstract class RenderPipeline {
         this._quadIB.update(indices);
 
         // create input assembler
-        
+
         let attributes: GFXInputAttribute[] = [
             {name: "a_position", format: GFXFormat.RG32F},
             {name: "a_texCoord", format: GFXFormat.RG32F},

@@ -3,7 +3,7 @@ import { RenderFlow } from "../render-flow";
 import { GFXCommandBuffer } from "../../gfx/command-buffer";
 import { RenderView } from "../render-view";
 import { GFXFramebuffer } from "../../gfx/framebuffer";
-import { GFXCommandBufferType } from "../../gfx/gfx-define";
+import { GFXCommandBufferType } from "../../gfx/define";
 import { GFXInputAssembler } from "../../gfx/input-assembler";
 
 export class ForwardStage extends RenderStage {

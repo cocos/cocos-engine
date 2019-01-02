@@ -1,4 +1,4 @@
-import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXPipelineBindPoint } from './gfx-define';
+import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXPipelineBindPoint } from './define';
 import { GFXDevice } from './device';
 
 export class GFXColorAttachment
@@ -35,7 +35,7 @@ export interface GFXSubPassInfo
 
 export interface GFXRenderPassInfo
 {
-	colorAttachment? : GFXColorAttachment[];
+	colorAttachments? : GFXColorAttachment[];
 	depthStencilAttachment? : GFXDepthStencilAttachment;
 	//subPasses? : GFXSubPassInfo[];
 };
