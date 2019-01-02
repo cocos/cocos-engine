@@ -711,6 +711,10 @@ class Director extends EventTarget {
         cc.Camera.main.backgroundColor = clearColor;
     }
 
+    get root() {
+        return this._root;
+    }
+
     /**
      * !#en Returns current logic Scene.
      * !#zh 获取当前逻辑场景。

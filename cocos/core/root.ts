@@ -1,11 +1,15 @@
-import Scene from "../renderer/scene/scene";
 import { GFXWindow, GFXWindowInfo } from "../gfx/window";
 import { GFXDevice } from "../gfx/device";
-import { RenderView, RenderViewInfo } from "../pipeline/render-view";
+import { RenderView, RenderViewInfo, RenderViewPriority } from "../pipeline/render-view";
 import { RenderPipeline } from "../pipeline/render-pipeline";
 import { ForwardPipeline } from "../pipeline/forward/forward-pipeline";
+import { SceneManager, SceneManagerInfo } from "../scene/scene-manager";
 
 export interface RootInfo {
+};
+
+export interface SceneInfo {
+    name: string;
 };
 
 export class Root {
@@ -15,6 +19,11 @@ export class Root {
     }
 
     public initialize(info: RootInfo): boolean {
+
+        if (!this._device.mainWindow) {
+            return false;
+        }
+
         this._mainWindow = this._device.mainWindow;
 
         let pipeline = new ForwardPipeline(this);
@@ -29,7 +38,7 @@ export class Root {
 
     public destroy() {
         this.destroyViews();
-        this.destroyScenes();
+        this.destroySceneManagers();
 
         if (this._pipeline) {
             this._pipeline.destroy();
@@ -39,15 +48,14 @@ export class Root {
 
     public frameMove(deltaTime: number) {
 
-        if (this._pipeline) {
-            for (let i = 0; i < this._views.length; ++i) {
-                this._pipeline.render(this._views[i]);
+        for (let i = 0; i < this._views.length; ++i) {
+            let view = this._views[i];
+            if(view.isEnable() && view.isAttached) {
+                (<RenderPipeline>this._pipeline).render(view);
             }
         }
 
-        if (this._device) {
-            this._device.present();
-        }
+        (<GFXDevice>this._device).present();
     }
 
     public createWindow(info: GFXWindowInfo): GFXWindow | null {
@@ -79,23 +87,31 @@ export class Root {
         this._windows = [];
     }
 
-    public createScene(): Scene | null {
-        let scene = new Scene;
-        this._scenes.push(scene);
-        return scene;
+    public createSceneManager(info: SceneManagerInfo): SceneManager | null {
+        let scene = new SceneManager;
+        if(scene.initialize(info)) {
+            this._sceneMgrs.push(scene);
+            return scene;
+        } else {
+            return null;
+        }
     }
 
-    public destroyScene(scene: Scene) {
-        for (let i = 0; i < this._scenes.length; ++i) {
-            if (this._scenes[i] === scene) {
-                this._scenes.splice(i);
+    public destroySceneManager(sceneMgr: SceneManager) {
+        for (let i = 0; i < this._sceneMgrs.length; ++i) {
+            if (this._sceneMgrs[i] === sceneMgr) {
+                sceneMgr.destroy();
+                this._sceneMgrs.splice(i);
                 return;
             }
         }
     }
 
-    public destroyScenes() {
-        this._scenes = [];
+    public destroySceneManagers() {
+        for (let i = 0; i < this._sceneMgrs.length; ++i) {
+            this._sceneMgrs[i].destroy();
+        }
+        this._sceneMgrs = [];
     }
 
     public createView(info: RenderViewInfo): RenderView | null {
@@ -139,8 +155,8 @@ export class Root {
         return this._pipeline;
     }
 
-    public get scenes(): Scene[] {
-        return this._scenes;
+    public get sceneManagers(): SceneManager[] {
+        return this._sceneMgrs;
     }
 
     public get views(): RenderView[] {
@@ -148,9 +164,9 @@ export class Root {
     }
 
     private _device: GFXDevice;
-    private _mainWindow: GFXWindow | null = null;
     private _windows: GFXWindow[] = [];
+    private _mainWindow: GFXWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
-    private _scenes: Scene[] = [];
+    private _sceneMgrs: SceneManager[] = [];
     private _views: RenderView[] = [];
 };

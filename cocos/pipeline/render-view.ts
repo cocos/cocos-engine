@@ -1,8 +1,13 @@
-import { Scene } from "../renderer/scene/scene";
 import { Camera } from "../renderer/scene/camera";
 import { GFXWindow } from "../gfx/window";
+import { SceneManager } from "../scene/scene-manager";
+
+export enum RenderViewPriority {
+    GENERAL = 100,
+};
 
 export interface RenderViewInfo {
+    name: string;
     window: GFXWindow;
     priority: number;
     width: number;
@@ -23,6 +28,7 @@ export class RenderView {
             return false;
         }
 
+        this._name = info.name;
         this._window = info.window;
         this._priority = info.priority;
         this._width = info.width;
@@ -42,14 +48,32 @@ export class RenderView {
 
     }
 
-    public attach(scene: Scene, camera: Camera) {
-        this._scene = scene;
+    public attach(camera: Camera) {
+        this._sceneMgr = camera.sceneMgr;
         this._camera = camera;
+        this._isAttached = true;
     }
 
     public detach() {
-        this._scene = null;
+        this._sceneMgr = null;
         this._camera = null;
+        this._isAttached = false;
+    }
+
+    public enable(isEnable: boolean) {
+        this._isEnable = isEnable;
+    }
+
+    public isEnable() : boolean {
+        return this._isEnable;
+    }
+    
+    public isAttached() : boolean {
+        return this._isAttached;
+    }
+
+    public get name(): string {
+        return this._name;
     }
 
     public get window(): GFXWindow | null {
@@ -68,10 +92,13 @@ export class RenderView {
         return this._height;
     }
 
-    protected _window: GFXWindow | null = null;
-    protected _priority: number = 0;
-    protected _width: number = 0;
-    protected _height: number = 0;
-    protected _scene: Scene | null = null;
-    protected _camera: Camera | null = null;
+    private _name: string = "";
+    private _window: GFXWindow | null = null;
+    private _priority: number = 0;
+    private _width: number = 0;
+    private _height: number = 0;
+    private _sceneMgr: SceneManager | null = null;
+    private _camera: Camera | null = null;
+    private _isAttached: boolean = false;
+    private _isEnable: boolean = true;
 };
