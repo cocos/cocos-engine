@@ -98,8 +98,8 @@ export default class RenderableComponent extends Component {
     }
 
     setMaterial(material, index) {
-        this._onMaterialModified(index, material);
         this._materials[index] = material;
+        this._onMaterialModified(index, material);
     }
 
     _onMaterialModified(index, material) {
