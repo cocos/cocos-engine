@@ -220,8 +220,10 @@ module.exports = {
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
+        let buffer = renderer._meshBuffer,
+            vertexOffset = buffer.byteOffset >> 2,
+            indiceOffset = buffer.indiceOffset,
+            vertexId = buffer.vertexOffset;
 
         buffer.request(4, 6);
 
@@ -238,5 +240,13 @@ module.exports = {
             vbuf[vertexOffset++] = vert.v;
             uintbuf[vertexOffset++] = color;
         }
+
+        let ibuf = buffer._iData;
+        ibuf[indiceOffset++] = vertexId;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 2;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 3;
+        ibuf[indiceOffset++] = vertexId + 2;
     }
 };
