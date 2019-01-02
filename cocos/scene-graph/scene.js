@@ -25,6 +25,8 @@
 
 import Node from './node';
 import { ccclass, property } from '../core/data/class-decorator';
+import BaseNode from './base-node';
+import { RenderScene } from '../renderer/scene/render-scene';
 
 /**
  * !#en
@@ -38,6 +40,9 @@ import { ccclass, property } from '../core/data/class-decorator';
  */
 @ccclass("cc.Scene")
 export default class Scene extends Node {
+
+    _renderScene = new RenderScene();
+
     constructor(name) {
         super(name);
 
@@ -84,6 +89,7 @@ export default class Scene extends Node {
             }
             this._inited = true;
         }
+        this.walk(BaseNode._setScene);
     }
 
     _activate (active) {

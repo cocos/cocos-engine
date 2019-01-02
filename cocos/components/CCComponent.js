@@ -195,6 +195,10 @@ class Component extends CCObject {
 
     static system = null;
 
+    get _renderScene() {
+        return this.node._scene._renderScene;
+    }
+
     constructor () {
         super();
         if (CC_EDITOR) {

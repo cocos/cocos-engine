@@ -23,11 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { Color, Enum } from '../../core/value-types';
 import { toRadian } from '../../core/vmath';
 import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
+import Component from '../../components/CCComponent';
 
 /**
  * !#en The light source type
@@ -108,12 +108,12 @@ const LightShadowType = Enum({
  *
  * !#ch 光源组件
  * @class LightComponent
- * @extends RenderSystemActor
+ * @extends Component
  */
 @ccclass('cc.LightComponent')
 @menu('Components/LightComponent')
 @executeInEditMode
-export default class LightComponent extends RenderSystemActor {
+export default class LightComponent extends Component {
     @property
     _type = LightType.Directional;
 
@@ -412,11 +412,10 @@ export default class LightComponent extends RenderSystemActor {
 
     constructor() {
         super();
-
-        this._light = new renderer.Light();
     }
 
     onLoad() {
+        this._light = this._renderScene.createLight(this.name);
         this._light.setNode(this.node);
         this.type = this._type;
         this.color = this._color;
@@ -434,10 +433,14 @@ export default class LightComponent extends RenderSystemActor {
     }
 
     onEnable() {
-        this.scene.addLight(this._light);
+        this._light._enable = this.enabled;
     }
 
     onDisable() {
-        this.scene.removeLight(this._light);
+        this._light._enable = this.enabled;
+    }
+
+    onDestroy() {
+        this._renderScene.destroyLight(this._light);
     }
 }

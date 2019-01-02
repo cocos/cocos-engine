@@ -55,6 +55,7 @@ export default class Light {
 
     this._scene = scene;
     this._name = name;
+    this._enable = false;
 
     this._poolID = -1;
     this._node = null;

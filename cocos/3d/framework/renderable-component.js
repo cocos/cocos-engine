@@ -1,11 +1,11 @@
 //@ts-check
-import RenderSystemActor from "./renderSystemActor";
 import { _decorator } from '../../core/data/index';
 import Material from "../assets/material";
+import Component from "../../components/CCComponent";
 const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')
-export default class RenderableComponent extends RenderSystemActor {
+export default class RenderableComponent extends Component {
     /**
      * @type {Material[]}
      */

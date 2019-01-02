@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import RenderSystemActor from './renderSystemActor';
 import renderer from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
 import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
 import { Color, Enum, Rect } from '../../core/value-types';
 import enums from '../../renderer/enums';
+import Component from '../../components/CCComponent';
 
 /**
  * @typedef {import('../../core/value-types/index').Color} Color
@@ -74,12 +74,12 @@ let CameraClearFlag = Enum({
  *
  * !#ch 相机组件
  * @class CameraComponent
- * @extends RenderSystemActor
+ * @extends Component
  */
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')
 @executeInEditMode
-export default class CameraComponent extends RenderSystemActor{
+export default class CameraComponent extends Component {
     @property
     _projection = CameraProjection.PERSPECTIVE;
 
@@ -302,10 +302,10 @@ export default class CameraComponent extends RenderSystemActor{
 
     constructor() {
         super();
-        this._camera = new renderer.Camera();
     }
 
     onLoad() {
+        this._camera = this._renderScene.createCamera(this.name);
         this.projection = this._projection;
         this.priority = this._priority;
         this.fov = this._fov;
@@ -322,11 +322,15 @@ export default class CameraComponent extends RenderSystemActor{
     }
 
     onEnable() {
-        this.scene.addCamera(this._camera);
+        this._camera._enable = this.enabled;
     }
 
     onDisable() {
-        this.scene.removeCamera(this._camera);
+        this._camera._enable = this.enabled;
+    }
+
+    onDestroy() {
+        this._renderScene.destroyCamera(this._camera);
     }
 
     /**

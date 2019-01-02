@@ -91,7 +91,8 @@ class Node extends BaseNode {
         this.invalidateChildren();
     }
 
-    _onSetParent(/*oldParent*/) {
+    _onSetParent(oldParent) {
+        super._onSetParent(oldParent);
         this.invalidateChildren();
     }
 
