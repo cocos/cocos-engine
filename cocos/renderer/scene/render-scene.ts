@@ -1,6 +1,7 @@
 import Node from "../../scene-graph/node";
 import Camera from "./camera";
 import Light from "./light";
+import Model from "./model";
 
 export interface RenderSceneInfo {
     name: string;
@@ -31,6 +32,7 @@ export class RenderScene {
         this.destroyCameras();
         this.destroyLights();
         this.destroyNodes();
+        this.destroyModels();
     }
 
     public createNode(info: SceneNodeInfo): Node {
@@ -117,6 +119,30 @@ export class RenderScene {
         return null;
     }
 
+    public createModel<T extends Model>(clazz: new () => T): Model {
+        let model = new clazz;
+        model.setScene(this);
+        this._models.push(model);
+        return model;
+    }
+
+    public destroyModel(model: Model) {
+        for (let i = 0; i < this._models.length; ++i) {
+            if (this._models[i] === model) {
+                this._models.slice(i);
+                return;
+            }
+        }
+    }
+
+    public destroyModels() {
+        this._models = [];
+    }
+
+    public generateModelId(): number {
+        return this._modelId++;
+    }
+
     public get name(): string {
         return this._name;
     }
@@ -129,9 +155,15 @@ export class RenderScene {
         return this._lights;
     }
 
+    public get models(): Model[] {
+        return this._models;
+    }
+
     private _name: string = "";
     private _nodes: Map<number, Node> = new Map;
     private _cameras: Camera[] = [];
     private _mainCamera: Camera | null = null;
     private _lights: Light[] = [];
+    private _models: Model[] = [];
+    private _modelId: number = 0;
 };

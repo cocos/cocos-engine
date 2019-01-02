@@ -9,8 +9,12 @@ export default class Model {
    * Setup a default empty model
    */
   constructor() {
+    this._scene = null;
+    this._id = 0;
+
     this._type = 'default';
     this._poolID = -1;
+    this._isEnable = true;
     this._node = null;
     this._inputAssembler = null;
     this._effect = null;
@@ -21,6 +25,22 @@ export default class Model {
     this._userKey = -1;
     this._castShadow = false;
     this._boundingShape = null;
+  }
+
+  setScene(scene) {
+    this._scene = scene;
+
+    if(this._scene) {
+      this._id = this._scene.generateModelId();
+    }
+  }
+
+  get scene() {
+    return this._scene;
+  }
+
+  get id() {
+    return this._id;
   }
 
   _updateTransform() {
@@ -39,6 +59,14 @@ export default class Model {
     if (!minPos || !maxPos) return;
     this._bsModelSpace = aabb.fromPoints(aabb.create(), minPos, maxPos);
     this._boundingShape = aabb.clone(this._bsModelSpace);
+  }
+
+  enable(isEnable) {
+    this._isEnable = isEnable;
+  }
+
+  isEnable() {
+    return this._isEnable;
   }
 
   /**

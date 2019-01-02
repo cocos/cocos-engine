@@ -1,6 +1,6 @@
 import { Camera } from "../renderer/scene/camera";
 import { GFXWindow } from "../gfx/window";
-import { SceneManager } from "../scene/scene-manager";
+import { RenderScene } from "../renderer/scene/render-scene";
 
 export enum RenderViewPriority {
     GENERAL = 100,
@@ -97,7 +97,7 @@ export class RenderView {
     private _priority: number = 0;
     private _width: number = 0;
     private _height: number = 0;
-    private _sceneMgr: SceneManager | null = null;
+    private _sceneMgr: RenderScene | null = null;
     private _camera: Camera | null = null;
     private _isAttached: boolean = false;
     private _isEnable: boolean = true;
