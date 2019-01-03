@@ -1,4 +1,4 @@
-import renderer from '../../../../renderer';
+import { renderer} from '../../../../renderer';
 import { vec3, vec4, vec2, mat4 } from '../../../../core/vmath';
 import gfx from '../../../../renderer/gfx';
 import Material from '../../../assets/material';
