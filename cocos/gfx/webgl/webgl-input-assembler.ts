@@ -19,7 +19,7 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
         this._attributes = info.attributes;
         this._vertexBuffers = info.vertexBuffers;
         
-        if (info.indexBuffer) {
+        if (info.indexBuffer !== undefined) {
             this._indexBuffer = info.indexBuffer;
             this._indexCount = this._indexBuffer.size / this._indexBuffer.stride;
         } else {
@@ -27,7 +27,7 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
             this._vertexCount = vertBuff.size / vertBuff.stride;
         }
 
-        if (info.isIndirect) {
+        if (info.isIndirect !== undefined) {
             this._isIndirect = info.isIndirect;
         }
 

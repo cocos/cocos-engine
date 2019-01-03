@@ -1,5 +1,6 @@
 import { GFXDevice } from './device';
 import { GFXType, GFXShaderType } from './define';
+import { GFXInputAttribute } from './input-assembler';
 
 export interface GFXShaderMacro {
     macro: string;
@@ -37,7 +38,6 @@ export interface GFXShaderInfo {
     stages: GFXShaderStage[];
     //bindings: GFXBinding[];
 
-    // blocks are used for being compatible with single uniforms
     blocks?: GFXUniformBlock[];
     samplers?: GFXUniformSampler[];
 };
@@ -55,6 +55,6 @@ export abstract class GFXShader {
     protected _name: string = "";
     protected _stages: GFXShaderStage[] = [];
     //protected _bindings: GFXBinding[] = [];
-    protected _blocks?: GFXUniformBlock[];
-    protected _samplers?: GFXUniformSampler[];
+    protected _blocks: GFXUniformBlock[] = [];  // blocks are used for being compatible with single uniforms
+    protected _samplers: GFXUniformSampler[] = [];
 };

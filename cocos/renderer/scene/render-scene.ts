@@ -36,7 +36,7 @@ export class RenderScene {
     }
 
     public createNode(info: SceneNodeInfo): Node {
-        let node = new Node(name);
+        let node = new Node(info.name);
         this._nodes.set(node.uuid, node);
         return node;
     }

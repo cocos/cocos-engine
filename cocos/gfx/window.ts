@@ -11,6 +11,8 @@ export interface GFXWindowInfo {
     top?: number;
     width: number;
     height: number;
+    colorFmt: GFXFormat;
+    depthStencilFmt: GFXFormat;
 };
 
 export abstract class GFXWindow {
@@ -55,9 +57,9 @@ export abstract class GFXWindow {
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _renderPass: GFXRenderPass | null = null;
-    protected _colorTex: GFXTexture | null = null;
-    protected _colorTexView: GFXTextureView | null = null;
-    protected _depthStencilTex: GFXTexture | null = null;
-    protected _depthStencilTexView: GFXTextureView | null = null;
+    //protected _colorTex: GFXTexture | null = null;
+    //protected _colorTexView: GFXTextureView | null = null;
+    //protected _depthStencilTex: GFXTexture | null = null;
+    //protected _depthStencilTexView: GFXTextureView | null = null;
     protected _framebuffer: GFXFramebuffer | null = null;
 };

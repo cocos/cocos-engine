@@ -13,55 +13,55 @@ export class WebGLGFXSampler extends GFXSampler {
 
     public initialize(info : GFXSamplerInfo) : boolean {
 
-        if(info.name) {
+        if(info.name !== undefined) {
             this._state.name = info.name;
         }
 
-        if(info.minFilter) {
+        if(info.minFilter !== undefined) {
             this._state.minFilter = info.minFilter;
         }
 
-        if(info.magFilter) {
+        if(info.magFilter !== undefined) {
             this._state.magFilter = info.magFilter;
         }
 
-        if(info.mipFilter) {
+        if(info.mipFilter !== undefined) {
             this._state.mipFilter = info.mipFilter;
         }
 
-        if(info.addressU) {
+        if(info.addressU !== undefined) {
             this._state.addressU = info.addressU;
         }
 
-        if(info.addressV) {
+        if(info.addressV !== undefined) {
             this._state.addressV = info.addressV;
         }
 
-        if(info.addressW) {
+        if(info.addressW !== undefined) {
             this._state.addressW = info.addressW;
         }
 
-        if(info.maxAnisotropy) {
+        if(info.maxAnisotropy !== undefined) {
             this._state.maxAnisotropy = info.maxAnisotropy;
         }
 
-        if(info.cmpFunc) {
+        if(info.cmpFunc !== undefined) {
             this._state.cmpFunc = info.cmpFunc;
         }
 
-        if(info.borderColor) {
+        if(info.borderColor !== undefined) {
             this._state.borderColor = info.borderColor;
         }
 
-        if(info.minLOD) {
+        if(info.minLOD !== undefined) {
             this._state.minLOD = info.minLOD;
         }
 
-        if(info.maxLOD) {
+        if(info.maxLOD !== undefined) {
             this._state.maxLOD = info.maxLOD;
         }
 
-        if(info.mipLODBias) {
+        if(info.mipLODBias !== undefined) {
             this._state.mipLODBias = info.mipLODBias;
         }
 

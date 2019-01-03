@@ -31,7 +31,7 @@ import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { GFXWindow, GFXWindowInfo } from '../window';
 import { WebGLGFXWindow } from './webgl-window';
-import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXQueueType } from '../define';
+import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXQueueType, GFXFormat } from '../define';
 import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 
 const WebGLPrimitives: GLenum[] = [
@@ -109,12 +109,32 @@ export class WebGLGFXDevice extends GFXDevice {
 
         this._WEBGL_debug_renderer_info = this._webGLRC.getExtension("WEBGL_debug_renderer_info");
         if (this._WEBGL_debug_renderer_info) {
-            let renderer = this._webGLRC.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
-            console.info("RENDERER: " + renderer);
-
-            let vendor = this._webGLRC.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
-            console.info("VENDOR: " + vendor);
+            this._renderer = this._webGLRC.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
+            this._vendor = this._webGLRC.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
+        } else {
+            this._renderer = this._webGLRC.getParameter(WebGLRenderingContext.RENDERER);
+            this._vendor = this._webGLRC.getParameter(WebGLRenderingContext.VENDOR);
         }
+       
+        this._version = this._webGLRC.getParameter(WebGLRenderingContext.VERSION);
+        this._maxVertexAttributes = this._webGLRC.getParameter(WebGLRenderingContext.MAX_VERTEX_ATTRIBS);
+        this._maxVertexUniformVectors = this._webGLRC.getParameter(WebGLRenderingContext.MAX_VERTEX_UNIFORM_VECTORS);
+        this._maxFragmentUniformVectors = this._webGLRC.getParameter(WebGLRenderingContext.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._maxTextureUnits = this._webGLRC.getParameter(WebGLRenderingContext.MAX_TEXTURE_IMAGE_UNITS);
+        this._maxVertexTextureUnits = this._webGLRC.getParameter(WebGLRenderingContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._depthBits = this._webGLRC.getParameter(WebGLRenderingContext.DEPTH_BITS);
+        this._stencilBits = this._webGLRC.getParameter(WebGLRenderingContext.STENCIL_BITS);
+
+        console.info("RENDERER: " + this._renderer);
+        console.info("VENDOR: " + this._vendor);
+        console.info("VERSION: " + this._version);
+        console.info("MAX_VERTEX_ATTRIBS: " + this._maxVertexAttributes);
+        console.info("MAX_VERTEX_UNIFORM_VECTORS: " + this._maxVertexUniformVectors);
+        console.info("MAX_FRAGMENT_UNIFORM_VECTORS: " + this._maxFragmentUniformVectors);
+        console.info("MAX_TEXTURE_IMAGE_UNITS: " + this._maxTextureUnits);
+        console.info("MAX_VERTEX_TEXTURE_IMAGE_UNITS: " + this._maxVertexTextureUnits);
+        console.info("DEPTH_BITS: " + this._depthBits);
+        console.info("STENCIL_BITS: " + this._stencilBits);
 
         this._extensions = this._webGLRC.getSupportedExtensions();
         /*
@@ -146,6 +166,22 @@ export class WebGLGFXDevice extends GFXDevice {
         this._ANGLE_instanced_arrays = this._webGLRC.getExtension("ANGLE_instanced_arrays");
 
         this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
+        
+        let depthStencilFmt;
+
+        if(this._depthBits === 24) {
+            if(this._stencilBits === 8) {
+                depthStencilFmt = GFXFormat.D24S8;
+            } else {
+                depthStencilFmt = GFXFormat.D24;
+            }
+        } else {
+            if(this._stencilBits === 8) {
+                depthStencilFmt = GFXFormat.D16S8;
+            } else {
+                depthStencilFmt = GFXFormat.D16;
+            }
+        }
 
         // create primary window
         this._mainWindow = this.createWindow({
@@ -154,6 +190,8 @@ export class WebGLGFXDevice extends GFXDevice {
             top: this._webGLRC.canvas.offsetTop,
             width: this._webGLRC.drawingBufferWidth,
             height: this._webGLRC.drawingBufferHeight,
+            colorFmt: GFXFormat.RGBA8,
+            depthStencilFmt: depthStencilFmt,
         });
 
         this._cmdAllocator = this.createCommandAllocator({});
@@ -486,8 +524,8 @@ export class WebGLGFXDevice extends GFXDevice {
     public emitCmdCreateGPURenderPass(info: GFXRenderPassInfo): WebGLGPURenderPass {
         let gpuRenderPass: WebGLGPURenderPass = {
             objType: WebGLGPUObjectType.RENDER_PASS,
-            colorAttachments: info.colorAttachments? info.colorAttachments : [],
-            depthStencilAttachment: info.depthStencilAttachment? info.depthStencilAttachment : null,
+            colorAttachments: info.colorAttachments ? info.colorAttachments : [],
+            depthStencilAttachment: info.depthStencilAttachment ? info.depthStencilAttachment : null,
         }
 
         return gpuRenderPass;
@@ -500,42 +538,59 @@ export class WebGLGFXDevice extends GFXDevice {
 
         let renderPass = <WebGLGFXRenderPass>info.renderPass;
 
-        let gpuColorViews: WebGLGPUTextureView[] = [];
+        let isOffscreen = info.isOffscreen !== undefined ? info.isOffscreen : true;
+        if (isOffscreen) {
 
-        if (info.colorViews) {
-            for (let i = 0; i < info.colorViews.length; ++i) {
-                let webGLColorView = <WebGLGFXTextureView>info.colorViews[i];
-                if(webGLColorView.gpuTextureView) {
-                    gpuColorViews.push(webGLColorView.gpuTextureView);
+            let gpuColorViews: WebGLGPUTextureView[] = [];
+
+            if (info.colorViews) {
+                for (let i = 0; i < info.colorViews.length; ++i) {
+                    let webGLColorView = <WebGLGFXTextureView>info.colorViews[i];
+                    if (webGLColorView.gpuTextureView) {
+                        gpuColorViews.push(webGLColorView.gpuTextureView);
+                    }
                 }
             }
+
+            let gpuDepthStencilView: WebGLGPUTextureView | null = null;
+
+            if (info.depthStencilView) {
+                gpuDepthStencilView = (<WebGLGFXTextureView>info.depthStencilView).gpuTextureView;
+            }
+
+            let gpuFramebuffer: WebGLGPUFramebuffer = {
+                objType: WebGLGPUObjectType.FRAMEBUFFER,
+                gpuRenderPass: renderPass.gpuRenderPass,
+                gpuColorViews: gpuColorViews,
+                gpuDepthStencilView: gpuDepthStencilView,
+                isOffscreen: info.isOffscreen,
+                glFramebuffer: 0,
+            };
+
+            // TODO: Async
+            WebGLCmdFuncCreateFramebuffer(<WebGLGFXDevice>this, gpuFramebuffer);
+
+            return gpuFramebuffer;
+
+        } else {
+            let gpuFramebuffer: WebGLGPUFramebuffer = {
+                objType: WebGLGPUObjectType.FRAMEBUFFER,
+                gpuRenderPass: renderPass.gpuRenderPass,
+                gpuColorViews: [],
+                gpuDepthStencilView: null,
+                isOffscreen: info.isOffscreen,
+                glFramebuffer: 0,
+            };
+
+            return gpuFramebuffer;
         }
-
-        let gpuDepthStencilView: WebGLGPUTextureView | null = null;
-
-        if (info.depthStencilView) {
-            gpuDepthStencilView = (<WebGLGFXTextureView>info.depthStencilView).gpuTextureView;
-        }
-
-        let gpuFramebuffer: WebGLGPUFramebuffer = {
-            objType: WebGLGPUObjectType.FRAMEBUFFER,
-            gpuRenderPass: renderPass.gpuRenderPass,
-            gpuColorViews: gpuColorViews,
-            gpuDepthStencilView: gpuDepthStencilView,
-            isOffscreen: info.isOffscreen,
-            glFramebuffer: 0,
-        };
-
-        // TODO: Async
-        WebGLCmdFuncCreateFramebuffer(<WebGLGFXDevice>this, gpuFramebuffer);
-
-        return gpuFramebuffer;
     }
 
     public emitCmdDestroyGPUFramebuffer(gpuFramebuffer: WebGLGPUFramebuffer) {
-
-        // TODO: Async
-        WebGLCmdFuncDestroyFramebuffer(<WebGLGFXDevice>this, gpuFramebuffer);
+        if (gpuFramebuffer.isOffscreen) {
+            // TODO: Async
+            WebGLCmdFuncDestroyFramebuffer(<WebGLGFXDevice>this, gpuFramebuffer);
+        }
     }
 
     public emitCmdCreateGPUSampler(info: GFXSamplerInfo): WebGLGPUSampler {

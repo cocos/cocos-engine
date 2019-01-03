@@ -14,7 +14,7 @@ export class ForwardFlow extends RenderFlow {
 
     public initialize(info: RenderFlowInfo): boolean {
 
-        if (info.name) {
+        if (info.name !== undefined) {
             this._name = info.name;
         }
 

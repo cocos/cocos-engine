@@ -28,7 +28,27 @@
   <!-- <script src="./loadScene.js"></script> -->
   <script>
     function onStart() {
+
+      let root = cc.director.root;
+      let scene = root.createScene({
+            name: "testScene",
+      });
+
+      let mainWindow = root.mainWindow;
+
+      let view = root.createView({
+            name: "defaultView",
+            window: mainWindow,
+            //priority: cc.RenderViewPriority.GENERAL,
+            priority: 100,
+            width: mainWindow.width,
+            height: mainWindow.height,
+      });
+
+      view.attach(scene.mainCamera);
+
         //todo initialization
+        /*
         let scene = new cc.Scene();
         let node = new cc.Node();
         scene.addChild(node);
@@ -37,8 +57,10 @@
         modelNode.setPosition(0, 0, -10);
         scene.addChild(modelNode);
         let model = modelNode.addComponent('cc.ModelComponent');
+        */
+
         // init mesh
-        model.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
+        //model.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
         /**
         // init effect
         let mtl = new cc.Material();
@@ -55,7 +77,7 @@
         mtl.setProperty('emissive', color);
         /**/
         // model.material = mtl;
-        cc.director.runSceneImmediate(scene);
+        //cc.director.runSceneImmediate(scene);
     }
     cc.game.run({id:'canvas'}, onStart);
   </script>

@@ -1,8 +1,7 @@
 import { GFXDevice } from '../device';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUPipelineLayout } from './webgl-gpu-objects';
-import { GFXPipelineLayout } from '../pipeline-layout';
-import { GFXPipelineLayoutInfo } from '../binding-layout';
+import { GFXPipelineLayout, GFXPipelineLayoutInfo } from '../pipeline-layout';
 
 export class WebGLGFXPipelineLayout extends GFXPipelineLayout {
 
@@ -14,7 +13,7 @@ export class WebGLGFXPipelineLayout extends GFXPipelineLayout {
 
         this._layouts = info.layouts;
 
-        if(info.pushConstantsRanges) {
+        if(info.pushConstantsRanges !== undefined) {
             this._pushConstantsRanges = info.pushConstantsRanges;
         }
 

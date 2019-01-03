@@ -19,7 +19,7 @@ export class WebGLStateCache {
     texUnit : number = 0;
     glTex2DUnits : WebGLTexUnit[];
     glTexCubeUnits : WebGLTexUnit[];
-    glFramebuffer : WebGLFramebuffer = 0;
+    glFramebuffer : WebGLFramebuffer = -1;
     viewport : GFXViewport;
     scissorRect : GFXRect;
     rs : GFXRasterizerState;

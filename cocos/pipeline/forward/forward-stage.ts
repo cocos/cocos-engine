@@ -14,7 +14,7 @@ export class ForwardStage extends RenderStage {
 
     public initialize(info: RenderStageInfo): boolean {
 
-        if(info.name) {
+        if(info.name !== undefined) {
             this._name = info.name;
         }
 

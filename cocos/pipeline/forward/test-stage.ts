@@ -3,7 +3,7 @@ import { RenderFlow } from "../render-flow";
 import { GFXCommandBuffer } from "../../gfx/command-buffer";
 import { RenderView } from "../render-view";
 import { GFXFramebuffer } from "../../gfx/framebuffer";
-import { GFXCommandBufferType, GFXShaderType, GFXPrimitiveMode } from "../../gfx/define";
+import { GFXCommandBufferType, GFXShaderType, GFXPrimitiveMode, GFXFormat } from "../../gfx/define";
 import { GFXInputAssembler } from "../../gfx/input-assembler";
 import { GFXPipelineState, GFXInputState, GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../../gfx/pipeline-state";
 import { GFXShader } from "../../gfx/shader";
@@ -11,19 +11,19 @@ import { GFXRenderPass } from "../../gfx/render-pass";
 import { GFXPipelineLayout } from "../../gfx/pipeline-layout";
 import { GFXBindingLayout } from "../../gfx/binding-layout";
 
-let _shader_vs =`
+let _shader_vs =
+`#version 100
 attribute vec2 a_position;
 attribute vec2 a_texCoord;
 void main() {
     gl_Position = vec4(a_position, 0.0, 1.0);
-}
-`;
+}`;
 
-let _shader_fs =`
+let _shader_fs =
+`#version 100
 void main() {
-    gl_FragColor = vec4(0.3, 0.3, 0.8, 1.0);
-}\n
-`;
+    gl_FragColor = vec4(0.6, 0.3, 0.3, 1.0);
+}`;
 
 export class TestStage extends RenderStage {
 
@@ -33,7 +33,7 @@ export class TestStage extends RenderStage {
 
     public initialize(info: RenderStageInfo): boolean {
 
-        if (info.name) {
+        if (info.name !== undefined) {
             this._name = info.name;
         }
 
@@ -61,7 +61,7 @@ export class TestStage extends RenderStage {
 
         this._shader = this._device.createShader({
             name: "test",
-            stages: [vsStage, fsStage],
+            stages: [vsStage, fsStage]
         });
         if (!this._shader) {
             return false;

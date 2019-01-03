@@ -25,13 +25,8 @@ export abstract class RenderStage {
         }
 
         this._device = this._flow.pipeline.root.device;
-
-        this._clearColors = new Array<GFXColor>(GFX_MAX_ATTACHMENTS);
-        for (let i = 0; i < GFX_MAX_ATTACHMENTS; ++i) {
-            this._clearColors[i] = { r: 0.0, g: 0.0, b: 0.0, a: 1.0 };
-        }
-
-        this._renderArea = {left: 0, top: 0, width: 0, height: 0};
+        this._clearColors = [{ r: 0.3, g: 0.6, b: 0.9, a: 1.0 }];
+        this._renderArea = { left: 0, top: 0, width: 0, height: 0 };
     }
 
     public abstract initialize(info: RenderStageInfo): boolean;
@@ -42,9 +37,16 @@ export abstract class RenderStage {
 
     }
 
-    public setClearColor(idx: number, color: GFXColor) {
-        console.assert(idx < GFX_MAX_ATTACHMENTS);
-        this._clearColors[idx] = color;
+    public setClearColor(color: GFXColor) {
+        if (this._clearColors.length > 0) {
+            this._clearColors[0] = color;
+        } else {
+            this._clearColors.push(color);
+        }
+    }
+
+    public setClearColors(colors: GFXColor[]) {
+        this._clearColors = colors;
     }
 
     public setClearDepth(depth: number) {

@@ -16,7 +16,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._memUsage = info.memUsage;
         this._size = info.size;
 
-        if(info.stride) {
+        if(info.stride !== undefined) {
             this._stride = info.stride;
         }
         this._stride = Math.max(this._stride, 1);

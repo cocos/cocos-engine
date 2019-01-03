@@ -56,13 +56,54 @@ export abstract class GFXDevice {
         return <GFXCommandAllocator>this._cmdAllocator;
     }
 
+    public get renderer(): string {
+        return this._renderer;
+    }
+
+    public get vendor(): string {
+        return this._vendor;
+    }
+
     public get maxVertexAttributes(): number {
         return this._maxVertexAttributes;
     }
 
+    public get maxVertexUniformVectors(): number {
+        return this._maxVertexUniformVectors;
+    }
+
+    public get maxFragmentUniformVectors(): number {
+        return this._maxFragmentUniformVectors;
+    }
+
+    public get maxTextureUnits(): number {
+        return this._maxTextureUnits;
+    }
+
+    public get maxVertexTextureUnits(): number {
+        return this._maxVertexTextureUnits;
+    }
+
+    public get depthBits(): number {
+        return this._depthBits;
+    }
+
+    public get stencilBits(): number {
+        return this._stencilBits;
+    }
+
     protected _deviceName : string = "";
+    protected _renderer : string = "";
+    protected _vendor : string = "";
+    protected _version : string = "";
     protected _queue : GFXQueue | null = null;
     protected _mainWindow : GFXWindow | null = null;
     protected _cmdAllocator: GFXCommandAllocator | null = null;
     protected _maxVertexAttributes : number = 0;
+    protected _maxVertexUniformVectors : number = 0;
+    protected _maxFragmentUniformVectors : number = 0;
+    protected _maxTextureUnits : number = 0;
+    protected _maxVertexTextureUnits : number = 0;
+    protected _depthBits : number = 0;
+    protected _stencilBits : number = 0;
 };

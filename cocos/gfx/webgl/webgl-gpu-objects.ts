@@ -230,7 +230,6 @@ export class WebGLGPUBindingLayout extends WebGLGPUObject {
 export class WebGLAttrib {
     name: string = "";
     glBuffer: WebGLBuffer = 0;
-    glLoc: number = 0;
     glType: GLenum = 0;
     size: number = 0;
     count: number = 0;

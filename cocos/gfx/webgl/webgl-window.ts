@@ -25,13 +25,8 @@ export class WebGLGFXWindow extends GFXWindow {
 
         this._width = info.width;
         this._height = info.height;
-        this._colorFmt = GFXFormat.RGBA8;
-
-        if(this.webGLDevice.WEBGL_depth_texture) {
-            this._depthStencilFmt = GFXFormat.D24S8;
-        } else {
-            this._depthStencilFmt = GFXFormat.D16S8;
-        }
+        this._colorFmt = info.colorFmt;
+        this._depthStencilFmt = info.depthStencilFmt;
 
         this._renderPass = this._device.createRenderPass({
             colorAttachments: [{
@@ -59,6 +54,7 @@ export class WebGLGFXWindow extends GFXWindow {
             return false;
         }
 
+        /*
         this._colorTex = this._device.createTexture({
             type : GFXTextureType.TEX2D,
             usage : GFXTextureUsageBit.COLOR_ATTACHMENT,
@@ -122,11 +118,12 @@ export class WebGLGFXWindow extends GFXWindow {
             this.destroy();
             return false;
         }
-
+        */
+       
         this._framebuffer = this._device.createFramebuffer({
             renderPass: this._renderPass,
-            colorViews: [this._colorTexView],
-            depthStencilView: this._depthStencilTexView,
+            //colorViews: [this._colorTexView],
+            //depthStencilView: this._depthStencilTexView,
             isOffscreen: false,
         });
 
@@ -139,6 +136,7 @@ export class WebGLGFXWindow extends GFXWindow {
     }
 
     public destroy() {
+        /*
         if(this._depthStencilTexView) {
             this._depthStencilTexView.destroy();
             this._depthStencilTexView = null;
@@ -158,7 +156,8 @@ export class WebGLGFXWindow extends GFXWindow {
             this._colorTex.destroy();
             this._colorTex = null;
         }
-
+        */
+       
         if(this._framebuffer) {
             this._framebuffer.destroy();
             this._framebuffer = null;
