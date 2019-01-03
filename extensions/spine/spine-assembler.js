@@ -269,13 +269,15 @@ var spineAssembler = {
         } else {
             newLen = dataId;
         }
-        if(newLen < datas.length) {
-            for(let i = datas.length - 1; i >= newLen; i--) {
+
+        if (newLen < datas.length) {
+            for (let i = datas.length - 1; i >= newLen; i--) {
                 datas[i].dataLength = 0;
                 comp.destroyRenderData(datas[i]);
             }  
             datas.length = newLen;
         }
+
         if (comp.debugBones) {
             let bone;
             graphics.lineWidth = 5;
