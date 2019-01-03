@@ -13,7 +13,7 @@ class color3 {
      * @param b - Value assigned to b component.
      * @return The newly created color.
      */
-    public static create(r = 1, g = 1, b = 1) {
+    public static create (r = 1, g = 1, b = 1) {
         return new color3(r, g, b);
     }
 
@@ -23,7 +23,7 @@ class color3 {
      * @param a - Color to clone.
      * @return The newly created color.
      */
-    public static clone(a) {
+    public static clone (a) {
         return new color3(a.r, a.g, a.b);
     }
 
@@ -34,7 +34,7 @@ class color3 {
      * @param a - The specified color.
      * @return out.
      */
-    public static copy(out, a) {
+    public static copy (out, a) {
         out.r = a.r;
         out.g = a.g;
         out.b = a.b;
@@ -50,7 +50,7 @@ class color3 {
      * @param b - Value assigned to b component.
      * @return out.
      */
-    public static set(out, r, g, b) {
+    public static set (out, r, g, b) {
         out.r = r;
         out.g = g;
         out.b = b;
@@ -65,7 +65,7 @@ class color3 {
      * @return out.
      * @function
      */
-    public static fromHex(out, hex) {
+    public static fromHex (out, hex) {
         const r = ((hex >> 16)) / 255.0;
         const g = ((hex >> 8) & 0xff) / 255.0;
         const b = ((hex) & 0xff) / 255.0;
@@ -84,7 +84,7 @@ class color3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static add(out, a, b) {
+    public static add (out, a, b) {
         out.r = a.r + b.r;
         out.g = a.g + b.g;
         out.b = a.b + b.b;
@@ -99,7 +99,7 @@ class color3 {
      * @param b - The b.
      * @return out.
      */
-    public static subtract(out, a, b) {
+    public static subtract (out, a, b) {
         out.r = a.r - b.r;
         out.g = a.g - b.g;
         out.b = a.b - b.b;
@@ -109,7 +109,7 @@ class color3 {
     /**
      * Alias of {@link color3.subtract}.
      */
-    public static sub(out, a, b) {
+    public static sub (out, a, b) {
         return color3.subtract(out, a, b);
     }
 
@@ -121,7 +121,7 @@ class color3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static multiply(out, a, b) {
+    public static multiply (out, a, b) {
         out.r = a.r * b.r;
         out.g = a.g * b.g;
         out.b = a.b * b.b;
@@ -131,7 +131,7 @@ class color3 {
     /**
      * Alias of {@link color3.multiply}.
      */
-    public static mul(out, a, b) {
+    public static mul (out, a, b) {
         return color3.multiply(out, a, b);
     }
 
@@ -143,7 +143,7 @@ class color3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static divide(out, a, b) {
+    public static divide (out, a, b) {
         out.r = a.r / b.r;
         out.g = a.g / b.g;
         out.b = a.b / b.b;
@@ -153,7 +153,7 @@ class color3 {
     /**
      * Alias of {@link color3.divide}.
      */
-    public static div(out, a, b) {
+    public static div (out, a, b) {
         return color3.divide(out, a, b);
     }
 
@@ -165,7 +165,7 @@ class color3 {
      * @param b - The scale number.
      * @return out.
      */
-    public static scale(out, a, b) {
+    public static scale (out, a, b) {
         out.r = a.r * b;
         out.g = a.g * b;
         out.b = a.b * b;
@@ -181,7 +181,7 @@ class color3 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    public static lerp(out, a, b, t) {
+    public static lerp (out, a, b, t) {
         const ar = a.r,
             ag = a.g,
             ab = a.b;
@@ -197,7 +197,7 @@ class color3 {
      * @param a - The color.
      * @return - String representation of this color.
      */
-    public static str(a) {
+    public static str (a) {
         return `color3(${a.r}, ${a.g}, ${a.b})`;
     }
 
@@ -208,7 +208,7 @@ class color3 {
      * @param a - The color.
      * @return out.
      */
-    public static array(out, a) {
+    public static array (out, a) {
         const scale = a instanceof cc.Color ? 1 / 255 : 1;
         out[0] = a.r * scale;
         out[1] = a.g * scale;
@@ -224,7 +224,7 @@ class color3 {
      * @param b - The second color.
      * @return True if the colors are equal, false otherwise.
      */
-    public static exactEquals(a, b) {
+    public static exactEquals (a, b) {
         return a.r === b.r && a.g === b.g && a.b === b.b;
     }
 
@@ -235,7 +235,7 @@ class color3 {
      * @param b - The second color.
      * @return True if the colors are approximately equal, false otherwise.
      */
-    public static equals(a, b) {
+    public static equals (a, b) {
         const a0 = a.r, a1 = a.g, a2 = a.b;
         const b0 = b.r, b1 = b.g, b2 = b.b;
         return (Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
@@ -249,7 +249,7 @@ class color3 {
      * @param a - The color.
      * @return - The color's hexadecimal formal.
      */
-    public static hex(a) {
+    public static hex (a) {
         return (a.r * 255) << 16 | (a.g * 255) << 8 | (a.b * 255);
     }
     /**
@@ -259,7 +259,7 @@ class color3 {
      * @param g - Value assigned to g component.
      * @param b - Value assigned to b component.
      */
-    constructor(r = 1, g = 1, b = 1) {
+    constructor (r = 1, g = 1, b = 1) {
         /**
          * The r component.
          * @type {number}

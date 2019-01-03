@@ -14,7 +14,7 @@ export default class vec3 {
      * @param z - Value assigned to z component.
      * @return The newly created vector.
      */
-    public static create(x = 0, y = 0, z = 0) {
+    public static create (x = 0, y = 0, z = 0) {
         return new vec3(x, y, z);
     }
 
@@ -23,7 +23,7 @@ export default class vec3 {
      *
      * @return The newly created vector.
      */
-    public static zero<Out extends IVec3Like>(out: Out) {
+    public static zero<Out extends IVec3Like> (out: Out) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -36,7 +36,7 @@ export default class vec3 {
      * @param a - Vector to clone.
      * @return The newly created vector.
      */
-    public static clone(a: vec3) {
+    public static clone (a: vec3) {
         return new vec3(a.x, a.y, a.z);
     }
 
@@ -47,7 +47,7 @@ export default class vec3 {
      * @param a - The specified vector.
      * @return out.
      */
-    public static copy<Out extends IVec3Like>(out: Out, a: vec3) {
+    public static copy<Out extends IVec3Like> (out: Out, a: vec3) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -63,7 +63,7 @@ export default class vec3 {
      * @param z - Value set to z component.
      * @return out.
      */
-    public static set<Out extends IVec3Like>(out: Out, x: number, y: number, z: number) {
+    public static set<Out extends IVec3Like> (out: Out, x: number, y: number, z: number) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -80,7 +80,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static add<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static add<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
@@ -97,7 +97,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static subtract<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static subtract<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
@@ -107,7 +107,7 @@ export default class vec3 {
     /**
      * Alias of {@link vec3.subtract}.
      */
-    public static sub<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static sub<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         return vec3.subtract(out, a, b);
     }
 
@@ -121,7 +121,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static multiply<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static multiply<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
@@ -131,7 +131,7 @@ export default class vec3 {
     /**
      * Alias of {@link vec3.multiply}.
      */
-    public static mul<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static mul<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         return vec3.multiply(out, a, b);
     }
 
@@ -145,7 +145,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static divide<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static divide<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -155,7 +155,7 @@ export default class vec3 {
     /**
      * Alias of {@link vec3.divide}.
      */
-    public static div<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static div<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         return vec3.divide(out, a, b);
     }
 
@@ -168,7 +168,7 @@ export default class vec3 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static ceil<Out extends IVec3Like>(out: Out, a: vec3) {
+    public static ceil<Out extends IVec3Like> (out: Out, a: vec3) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         out.z = Math.ceil(a.z);
@@ -184,7 +184,7 @@ export default class vec3 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static floor<Out extends IVec3Like>(out: Out, a: vec3) {
+    public static floor<Out extends IVec3Like> (out: Out, a: vec3) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         out.z = Math.floor(a.z);
@@ -201,7 +201,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static min<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static min<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         out.z = Math.min(a.z, b.z);
@@ -218,7 +218,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static max<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static max<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         out.z = Math.max(a.z, b.z);
@@ -234,7 +234,7 @@ export default class vec3 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static round<Out extends IVec3Like>(out: Out, a: vec3) {
+    public static round<Out extends IVec3Like> (out: Out, a: vec3) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         out.z = Math.round(a.z);
@@ -249,7 +249,7 @@ export default class vec3 {
      * @param b - The scale number.
      * @return out.
      */
-    public static scale<Out extends IVec3Like>(out: Out, a: vec3, b: number) {
+    public static scale<Out extends IVec3Like> (out: Out, a: vec3, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -265,7 +265,7 @@ export default class vec3 {
      * @param scale - The scale number before adding.
      * @return out.
      */
-    public static scaleAndAdd<Out extends IVec3Like>(out: Out, a: vec3, b: vec3, scale: number) {
+    public static scaleAndAdd<Out extends IVec3Like> (out: Out, a: vec3, b: vec3, scale: number) {
         out.x = a.x + b.x * scale;
         out.y = a.y + b.y * scale;
         out.z = a.z + b.z * scale;
@@ -279,7 +279,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return Distance between a and b.
      */
-    public static distance(a: vec3, b: vec3) {
+    public static distance (a: vec3, b: vec3) {
         const x = b.x - a.x;
         const y = b.y - a.y;
         const z = b.z - a.z;
@@ -289,7 +289,7 @@ export default class vec3 {
     /**
      * Alias of {@link vec3.distance}.
      */
-    public static dist(a: vec3, b: vec3) {
+    public static dist (a: vec3, b: vec3) {
         return vec3.distance(a, b);
     }
 
@@ -300,7 +300,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return Squared distance between a and b.
      */
-    public static squaredDistance(a: vec3, b: vec3) {
+    public static squaredDistance (a: vec3, b: vec3) {
         const x = b.x - a.x;
         const y = b.y - a.y;
         const z = b.z - a.z;
@@ -310,7 +310,7 @@ export default class vec3 {
     /**
      * Alias of {@link vec3.squaredDistance}.
      */
-    public static sqrDist(a: vec3, b: vec3) {
+    public static sqrDist (a: vec3, b: vec3) {
         return vec3.squaredDistance(a, b);
     }
 
@@ -320,7 +320,7 @@ export default class vec3 {
      * @param a - The vector.
      * @return Length of the vector.
      */
-    public static magnitude(a: vec3) {
+    public static magnitude (a: vec3) {
         const { x, y, z } = a;
         return Math.sqrt(x * x + y * y + z * z);
     }
@@ -328,7 +328,7 @@ export default class vec3 {
     /**
      * Alias of {@link vec3.magnitude}.
      */
-    public static mag(a: vec3) {
+    public static mag (a: vec3) {
         return vec3.magnitude(a);
     }
 
@@ -338,7 +338,7 @@ export default class vec3 {
      * @param a - The vector.
      * @return Squared length of the vector.
      */
-    public static squaredMagnitude(a: vec3) {
+    public static squaredMagnitude (a: vec3) {
         const { x, y, z } = a;
         return x * x + y * y + z * z;
     }
@@ -346,7 +346,7 @@ export default class vec3 {
     /**
      * Alias of {@link vec3.squaredMagnitude}
      */
-    public static sqrMag(a: vec3) {
+    public static sqrMag (a: vec3) {
         return vec3.squaredMagnitude(a);
     }
 
@@ -357,7 +357,7 @@ export default class vec3 {
      * @param a - Vector to negate.
      * @return out.
      */
-    public static negate<Out extends IVec3Like>(out: Out, a: vec3) {
+    public static negate<Out extends IVec3Like> (out: Out, a: vec3) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -371,7 +371,7 @@ export default class vec3 {
      * @param a - Vector to invert.
      * @return out.
      */
-    public static inverse<Out extends IVec3Like>(out: Out, a: vec3) {
+    public static inverse<Out extends IVec3Like> (out: Out, a: vec3) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -385,7 +385,7 @@ export default class vec3 {
      * @param a - Vector to invert.
      * @return out.
      */
-    public static inverseSafe<Out extends IVec3Like>(out: Out, a: vec3) {
+    public static inverseSafe<Out extends IVec3Like> (out: Out, a: vec3) {
         const { x, y, z } = a;
 
         if (Math.abs(x) < EPSILON) {
@@ -416,7 +416,7 @@ export default class vec3 {
      * @param a - Vector to normalize.
      * @return out.
      */
-    public static normalize<Out extends IVec3Like>(out: Out, a: vec3) {
+    public static normalize<Out extends IVec3Like> (out: Out, a: vec3) {
         const { x, y, z } = a;
 
         let len = x * x + y * y + z * z;
@@ -437,7 +437,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return Dot product of a and b.
      */
-    public static dot(a: vec3, b: vec3) {
+    public static dot (a: vec3, b: vec3) {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
@@ -449,7 +449,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static cross<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static cross<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         const { x: ax, y: ay, z: az } = a;
         const { x: bx, y: by, z: bz } = b;
 
@@ -468,7 +468,7 @@ export default class vec3 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    public static lerp<Out extends IVec3Like>(out: Out, a: vec3, b: vec3, t: number) {
+    public static lerp<Out extends IVec3Like> (out: Out, a: vec3, b: vec3, t: number) {
         const { x: ax, y: ay, z: az } = a;
         out.x = ax + t * (b.x - ax);
         out.y = ay + t * (b.y - ay);
@@ -487,7 +487,7 @@ export default class vec3 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    public static hermite<Out extends IVec3Like>(
+    public static hermite<Out extends IVec3Like> (
         out: Out, a: vec3, b: vec3, c: vec3, d: vec3, t: number) {
         const factorTimes2 = t * t;
         const factor1 = factorTimes2 * (2 * t - 3) + 1;
@@ -513,7 +513,7 @@ export default class vec3 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    public static bezier<Out extends IVec3Like>(
+    public static bezier<Out extends IVec3Like> (
         out: Out, a: vec3, b: vec3, c: vec3, d: vec3, t: number) {
         const inverseFactor = 1 - t;
         const inverseFactorTimesTwo = inverseFactor * inverseFactor;
@@ -537,7 +537,7 @@ export default class vec3 {
      * @param [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
      * @return out.
      */
-    public static random<Out extends IVec3Like>(out: Out, scale: number) {
+    public static random<Out extends IVec3Like> (out: Out, scale: number) {
         scale = scale || 1.0;
 
         const phi = random() * 2.0 * Math.PI;
@@ -558,7 +558,7 @@ export default class vec3 {
      * @param {mat4} m - The matrix.
      * @return out.
      */
-    public static transformMat4<Out extends IVec3Like>(out: Out, a: vec3, m: IMat4Like) {
+    public static transformMat4<Out extends IVec3Like> (out: Out, a: vec3, m: IMat4Like) {
         const { x, y, z } = a;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
         rhw = rhw ? 1 / rhw : 1;
@@ -577,7 +577,7 @@ export default class vec3 {
      * @param {mat4} m - The matrix.
      * @return out.
      */
-    public static transformMat4Normal<Out extends IVec3Like>(out: Out, a: vec3, m: IMat4Like) {
+    public static transformMat4Normal<Out extends IVec3Like> (out: Out, a: vec3, m: IMat4Like) {
         const { x, y, z } = a;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
         rhw = rhw ? 1 / rhw : 1;
@@ -595,7 +595,7 @@ export default class vec3 {
      * @param {mat3} m - The matrix.
      * @return out.
      */
-    public static transformMat3<Out extends IVec3Like>(out: Out, a: vec3, m: IMat3Like) {
+    public static transformMat3<Out extends IVec3Like> (out: Out, a: vec3, m: IMat3Like) {
         const { x, y, z } = a;
         out.x = x * m.m00 + y * m.m03 + z * m.m06;
         out.y = x * m.m01 + y * m.m04 + z * m.m07;
@@ -611,7 +611,7 @@ export default class vec3 {
      * @param {quat} q - The quaternion.
      * @return out.
      */
-    public static transformQuat<Out extends IVec3Like>(out: Out, a: vec3, q: IQuatLike) {
+    public static transformQuat<Out extends IVec3Like> (out: Out, a: vec3, q: IQuatLike) {
         // benchmarks: http://jsperf.com/quaternion-transform-vec3-implementations
 
         const { x, y, z } = a;
@@ -638,7 +638,7 @@ export default class vec3 {
      * @param c - The angle of rotation.
      * @return out.
      */
-    public static rotateX<Out extends IVec3Like>(out: Out, a: vec3, b: vec3, c: number) {
+    public static rotateX<Out extends IVec3Like> (out: Out, a: vec3, b: vec3, c: number) {
         // Translate point to the origin
         const px = a.x - b.x;
         const py = a.y - b.y;
@@ -665,7 +665,7 @@ export default class vec3 {
      * @param c - The angle of rotation.
      * @return out.
      */
-    public static rotateY<Out extends IVec3Like>(out: Out, a: vec3, b: vec3, c: number) {
+    public static rotateY<Out extends IVec3Like> (out: Out, a: vec3, b: vec3, c: number) {
         // Translate point to the origin
         const px = a.x - b.x;
         const py = a.y - b.y;
@@ -692,7 +692,7 @@ export default class vec3 {
      * @param c - The angle of rotation.
      * @return out.
      */
-    public static rotateZ<Out extends IVec3Like>(out: Out, a: vec3, b: vec3, c: number) {
+    public static rotateZ<Out extends IVec3Like> (out: Out, a: vec3, b: vec3, c: number) {
         // Translate point to the origin
         const px = a.x - b.x;
         const py = a.y - b.y;
@@ -717,7 +717,7 @@ export default class vec3 {
      * @param a - The vector.
      * @return - String representation of this vector.
      */
-    public static str(a: vec3) {
+    public static str (a: vec3) {
         return `vec3(${a.x}, ${a.y}, ${a.z})`;
     }
 
@@ -728,7 +728,7 @@ export default class vec3 {
      * @param v - The vector.
      * @return out.
      */
-    public static array<Out extends IWritableArrayLike<number>>(out: Out, v: vec3) {
+    public static array<Out extends IWritableArrayLike<number>> (out: Out, v: vec3) {
         out[0] = v.x;
         out[1] = v.y;
         out[2] = v.z;
@@ -743,7 +743,7 @@ export default class vec3 {
      * @param b - The second vector.
      * @return True if the vectors are equal, false otherwise.
      */
-    public static exactEquals(a: vec3, b: vec3) {
+    public static exactEquals (a: vec3, b: vec3) {
         return a.x === b.x && a.y === b.y && a.z === b.z;
     }
 
@@ -754,7 +754,7 @@ export default class vec3 {
      * @param b The second vector.
      * @return True if the vectors are approximately equal, false otherwise.
      */
-    public static equals(a: vec3, b: vec3) {
+    public static equals (a: vec3, b: vec3) {
         const { x: a0, y: a1, z: a2 } = a;
         const { x: b0, y: b1, z: b2 } = b;
         return (
@@ -773,7 +773,7 @@ export default class vec3 {
      * @param b - The second operand.
      * @return - The angle in radians.
      */
-    public static angle(a: vec3, b: vec3) {
+    public static angle (a: vec3, b: vec3) {
         vec3.normalize(tmpVec3A, a);
         vec3.normalize(tmpVec3B, b);
         const cosine = vec3.dot(tmpVec3A, tmpVec3B);
@@ -792,7 +792,7 @@ export default class vec3 {
      * @param a The vector.
      * @param n The plane's normal.
      */
-    public static projectOnPlane<Out extends IVec3Like>(out: Out, a: vec3, n: vec3) {
+    public static projectOnPlane<Out extends IVec3Like> (out: Out, a: vec3, n: vec3) {
         return vec3.sub(out, a, vec3.project(out, a, n));
     }
 
@@ -802,7 +802,7 @@ export default class vec3 {
      * @param a The vector to project.
      * @param b The vector onto which the projection performs.
      */
-    public static project<Out extends IVec3Like>(out: Out, a: vec3, b: vec3) {
+    public static project<Out extends IVec3Like> (out: Out, a: vec3, b: vec3) {
         const sqrLen = vec3.squaredMagnitude(b);
         if (sqrLen < 0.000001) {
             return vec3.set(out, 0, 0, 0);
@@ -833,7 +833,7 @@ export default class vec3 {
      * @param y - Value assigned to y component.
      * @param z - Value assigned to z component.
      */
-    constructor(x = 0, y = 0, z = 0) {
+    constructor (x = 0, y = 0, z = 0) {
         this.x = x;
         this.y = y;
         this.z = z;
