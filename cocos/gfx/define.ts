@@ -51,6 +51,7 @@ export enum GFXType {
     FLOAT2,
     FLOAT3,
     FLOAT4,
+    COLOR4,
     MAT2,
     MAT2X3,
     MAT2X4,
