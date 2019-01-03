@@ -13,7 +13,7 @@ export const EPSILON = 0.000001;
  * @param b The second number to test.
  * @return True if the numbers are approximately equal, false otherwise.
  */
-export function equals(a: number, b: number) {
+export function equals (a: number, b: number) {
     return Math.abs(a - b) <= EPSILON * Math.max(1.0, Math.abs(a), Math.abs(b));
 }
 
@@ -25,7 +25,7 @@ export function equals(a: number, b: number) {
  * @param maxDiff Maximum difference.
  * @return True if the numbers are approximately equal, false otherwise.
  */
-export function approx(a: number, b: number, maxDiff: number) {
+export function approx (a: number, b: number, maxDiff: number) {
     maxDiff = maxDiff || EPSILON;
     return Math.abs(a - b) <= maxDiff;
 }
@@ -37,7 +37,7 @@ export function approx(a: number, b: number, maxDiff: number) {
  * @param min
  * @param max
  */
-export function clamp(val: number, min: number, max: number) {
+export function clamp (val: number, min: number, max: number) {
     return val < min ? min : val > max ? max : val;
 }
 
@@ -46,7 +46,7 @@ export function clamp(val: number, min: number, max: number) {
  *
  * @param val
  */
-export function clamp01(val: number) {
+export function clamp01 (val: number) {
     return val < 0 ? 0 : val > 1 ? 1 : val;
 }
 
@@ -55,7 +55,7 @@ export function clamp01(val: number) {
  * @param to
  * @param ratio - The interpolation coefficient.
  */
-export function lerp(from: number, to: number, ratio: number) {
+export function lerp (from: number, to: number, ratio: number) {
     return from + (to - from) * ratio;
 }
 
@@ -64,7 +64,7 @@ export function lerp(from: number, to: number, ratio: number) {
  *
  * @param {Number} a Angle in Degrees
  */
-export function toRadian(a: number) {
+export function toRadian (a: number) {
     return a * _d2r;
 }
 
@@ -73,7 +73,7 @@ export function toRadian(a: number) {
  *
  * @param {Number} a Angle in Radian
  */
-export function toDegree(a: number) {
+export function toDegree (a: number) {
     return a * _r2d;
 }
 
@@ -90,7 +90,7 @@ export const random = Math.random;
  * @param max
  * @return The random number.
  */
-export function randomRange(min: number, max: number) {
+export function randomRange (min: number, max: number) {
     return Math.random() * (max - min) + min;
 }
 
@@ -101,7 +101,7 @@ export function randomRange(min: number, max: number) {
  * @param max
  * @return The random integer.
  */
-export function randomRangeInt(min: number, max: number) {
+export function randomRangeInt (min: number, max: number) {
     return Math.floor(randomRange(min, max));
 }
 
@@ -111,7 +111,7 @@ export function randomRangeInt(min: number, max: number) {
  * @param seed The random seed.
  * @return The pseudo random.
  */
-export function pseudoRandom(seed: number) {
+export function pseudoRandom (seed: number) {
     seed = (seed * 9301 + 49297) % 233280;
     return seed / 233280.0;
 }
@@ -124,7 +124,7 @@ export function pseudoRandom(seed: number) {
  * @param max
  * @return The random number.
  */
-export function pseudoRandomRange(seed: number, min: number, max: number) {
+export function pseudoRandomRange (seed: number, min: number, max: number) {
     return pseudoRandom(seed) * (max - min) + min;
 }
 
@@ -136,7 +136,7 @@ export function pseudoRandomRange(seed: number, min: number, max: number) {
  * @param max
  * @return The random integer.
  */
-export function pseudoRandomRangeInt(seed: number, min: number, max: number) {
+export function pseudoRandomRangeInt (seed: number, min: number, max: number) {
     return Math.floor(pseudoRandomRange(seed, min, max));
 }
 
@@ -146,7 +146,7 @@ export function pseudoRandomRangeInt(seed: number, min: number, max: number) {
  * @param val
  * @return The the next power of two.
  */
-export function nextPow2(val: number) {
+export function nextPow2 (val: number) {
     --val;
     val = (val >> 1) | val;
     val = (val >> 2) | val;
@@ -164,7 +164,7 @@ export function nextPow2(val: number) {
  * @param length Time of one cycle.
  * @return The Time wrapped in the first cycle.
  */
-export function repeat(t: number, length: number) {
+export function repeat (t: number, length: number) {
     return t - Math.floor(t / length) * length;
 }
 
@@ -175,7 +175,7 @@ export function repeat(t: number, length: number) {
  * @param length Time of one cycle.
  * @return The time wrapped in the first cycle.
  */
-export function pingPong(t: number, length: number) {
+export function pingPong (t: number, length: number) {
     t = repeat(t, length * 2);
     t = length - Math.abs(t - length);
     return t;
@@ -189,6 +189,6 @@ export function pingPong(t: number, length: number) {
  * @param value Given value.
  * @return The ratio between [from, to].
  */
-export function inverseLerp(from: number, to: number, value: number) {
+export function inverseLerp (from: number, to: number, value: number) {
     return (value - from) / (to - from);
 }

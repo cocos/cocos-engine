@@ -29,7 +29,7 @@ export const INT_MIN = -1 << (INT_BITS - 1);
  * @param v
  * @return
  */
-export function sign(v: number) {
+export function sign (v: number) {
     return ((v > 0) as unknown as number) - ((v < 0) as unknown as number);
 }
 
@@ -39,7 +39,7 @@ export function sign(v: number) {
  * @param v
  * @return
  */
-export function abs(v: number) {
+export function abs (v: number) {
     const mask = v >> (INT_BITS - 1);
     return (v ^ mask) - mask;
 }
@@ -51,7 +51,7 @@ export function abs(v: number) {
  * @param y
  * @return
  */
-export function min(x: number, y: number) {
+export function min (x: number, y: number) {
     return y ^ ((x ^ y) & -(x < y));
 }
 
@@ -62,7 +62,7 @@ export function min(x: number, y: number) {
  * @param y
  * @return
  */
-export function max(x: number, y: number) {
+export function max (x: number, y: number) {
     return x ^ ((x ^ y) & -(x < y));
 }
 
@@ -72,7 +72,7 @@ export function max(x: number, y: number) {
  * @param v
  * @return
  */
-export function isPow2(v: number) {
+export function isPow2 (v: number) {
     return !(v & (v - 1)) && (!!v);
 }
 
@@ -82,7 +82,7 @@ export function isPow2(v: number) {
  * @param v
  * @return
  */
-export function log2(v: number) {
+export function log2 (v: number) {
     let r: number;
     let shift: number;
     r = ((v > 0xFFFF) as unknown as number) << 4; v >>>= r;
@@ -98,7 +98,7 @@ export function log2(v: number) {
  * @param v
  * @return
  */
-export function log10(v: number) {
+export function log10 (v: number) {
     return (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7 :
         (v >= 1000000) ? 6 : (v >= 100000) ? 5 : (v >= 10000) ? 4 :
             (v >= 1000) ? 3 : (v >= 100) ? 2 : (v >= 10) ? 1 : 0;
@@ -110,7 +110,7 @@ export function log10(v: number) {
  * @param v
  * @return
  */
-export function popCount(v: number) {
+export function popCount (v: number) {
     v = v - ((v >>> 1) & 0x55555555);
     v = (v & 0x33333333) + ((v >>> 2) & 0x33333333);
     return ((v + (v >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
@@ -122,7 +122,7 @@ export function popCount(v: number) {
  * @param v
  * @return
  */
-export function countTrailingZeros(v: number) {
+export function countTrailingZeros (v: number) {
     let c = 32;
     v &= -v;
     if (v) { c--; }
@@ -140,7 +140,7 @@ export function countTrailingZeros(v: number) {
  * @param v
  * @return
  */
-export function nextPow2(v: number) {
+export function nextPow2 (v: number) {
     v += ((v === 0) as unknown as number);
     --v;
     v |= v >>> 1;
@@ -157,7 +157,7 @@ export function nextPow2(v: number) {
  * @param v
  * @return
  */
-export function prevPow2(v: number) {
+export function prevPow2 (v: number) {
     v |= v >>> 1;
     v |= v >>> 2;
     v |= v >>> 4;
@@ -172,7 +172,7 @@ export function prevPow2(v: number) {
  * @param v
  * @return
  */
-export function parity(v: number) {
+export function parity (v: number) {
     v ^= v >>> 16;
     v ^= v >>> 8;
     v ^= v >>> 4;
@@ -202,7 +202,7 @@ const REVERSE_TABLE: number[] = new Array(256);
  * @param v
  * @return
  */
-export function reverse(v: number) {
+export function reverse (v: number) {
     return (REVERSE_TABLE[v & 0xff] << 24) |
         (REVERSE_TABLE[(v >>> 8) & 0xff] << 16) |
         (REVERSE_TABLE[(v >>> 16) & 0xff] << 8) |
@@ -216,7 +216,7 @@ export function reverse(v: number) {
  * @param y
  * @return
  */
-export function interleave2(x: number, y: number) {
+export function interleave2 (x: number, y: number) {
     x &= 0xFFFF;
     x = (x | (x << 8)) & 0x00FF00FF;
     x = (x | (x << 4)) & 0x0F0F0F0F;
@@ -239,7 +239,7 @@ export function interleave2(x: number, y: number) {
  * @param n
  * @return
  */
-export function deinterleave2(v: number, n: number) {
+export function deinterleave2 (v: number, n: number) {
     v = (v >>> n) & 0x55555555;
     v = (v | (v >>> 1)) & 0x33333333;
     v = (v | (v >>> 2)) & 0x0F0F0F0F;
@@ -256,7 +256,7 @@ export function deinterleave2(v: number, n: number) {
  * @param z
  * @return
  */
-export function interleave3(x: number, y: number, z: number) {
+export function interleave3 (x: number, y: number, z: number) {
     x &= 0x3FF;
     x = (x | (x << 16)) & 4278190335;
     x = (x | (x << 8)) & 251719695;
@@ -286,7 +286,7 @@ export function interleave3(x: number, y: number, z: number) {
  * @param n
  * @return
  */
-export function deinterleave3(v: number, n: number) {
+export function deinterleave3 (v: number, n: number) {
     v = (v >>> n) & 1227133513;
     v = (v | (v >>> 2)) & 3272356035;
     v = (v | (v >>> 4)) & 251719695;
@@ -302,7 +302,7 @@ export function deinterleave3(v: number, n: number) {
  * @param v
  * @return
  */
-export function nextCombination(v: number) {
+export function nextCombination (v: number) {
     const t = v | (v - 1);
     return (t + 1) | (((~t & -~t) - 1) >>> (countTrailingZeros(v) + 1));
 }
