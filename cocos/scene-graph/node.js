@@ -193,8 +193,8 @@ class Node extends BaseNode {
             vec3.set(this._lpos, val, y, z);
         }
 
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
         this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
     }
 
     /**
@@ -225,8 +225,8 @@ class Node extends BaseNode {
         }
         this._eulerDirty = true;
 
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
     }
 
     /**
@@ -240,8 +240,8 @@ class Node extends BaseNode {
         this._eulerDirty = false;
         quat.fromEuler(this._lrot, x, y, z);
 
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
     }
 
     /**
@@ -270,8 +270,8 @@ class Node extends BaseNode {
             vec3.set(this._lscale, val, y, z);
         }
 
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
         this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
     }
 
     /**
@@ -309,8 +309,8 @@ class Node extends BaseNode {
             vec3.copy(this._lpos, this._pos);
         }
 
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
         this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
     }
 
     /**
@@ -348,8 +348,8 @@ class Node extends BaseNode {
         }
         this._eulerDirty = true;
 
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
     }
 
     /**
@@ -369,8 +369,8 @@ class Node extends BaseNode {
             quat.copy(this._lrot, this._rot);
         }
 
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
         this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
     }
 
     /**
@@ -406,8 +406,8 @@ class Node extends BaseNode {
             vec3.copy(this._lscale, this._scale);
         }
 
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
         this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
     }
 
     /**
