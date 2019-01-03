@@ -198,7 +198,7 @@ cc.js.mixin(View.prototype, {
     },
 
     // Resize helper functions
-    _resizeEvent: function () {
+    _resizeEvent: function (forceOrEvent) {
         var view;
         if (this.setDesignResolutionSize) {
             view = this;
@@ -220,7 +220,7 @@ cc.js.mixin(View.prototype, {
         else {
             view._initFrameSize();
         }
-        if (view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
+        if (forceOrEvent !== true && view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
             return;
 
         // Frame size changed, do resize works
@@ -612,7 +612,7 @@ cc.js.mixin(View.prototype, {
         this._frameSize.height = height;
         cc.game.frame.style.width = width + "px";
         cc.game.frame.style.height = height + "px";
-        this._resizeEvent();
+        this._resizeEvent(true);
     },
 
     /**
