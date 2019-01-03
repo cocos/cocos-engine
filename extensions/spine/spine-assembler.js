@@ -271,7 +271,6 @@ var spineAssembler = {
             }  
             datas.length = newLen;
         }
-        
         if (comp.debugBones) {
             let bone;
             graphics.lineWidth = 5;
