@@ -35,6 +35,19 @@ import { RigidBodyComponent } from './physics/rigid-body-component';
 export * from './physics';
 import ParticleSystemComponent from './particle/particle-system-component';
 
+export {
+    CameraComponent,
+    AnimationComponent,
+    LightComponent,
+    ModelComponent,
+    SkinningModelComponent,
+    SkyboxComponent,
+    BoxColliderComponent,
+    SphereColliderComponent,
+    RigidBodyComponent,
+    ParticleSystemComponent,
+};
+
 cc.CameraComponent = CameraComponent;
 cc.AnimationComponent = AnimationComponent;
 cc.LightComponent = LightComponent;
