@@ -90,11 +90,11 @@ export class TestStage extends RenderStage {
             name: "test",
             stages: [vsStage, fsStage],
             blocks: [{
-                binding: 0, name: "Global", uniforms: [
+                binding: 0, name: "Global", members: [
                     { name: "u_matWorldViewProj", type: GFXType.MAT4, count: 1 },
                 ]
             }, {
-                binding: 5, name: "UBO", uniforms: [
+                binding: 5, name: "UBO", members: [
                     { name: "u_color", type: GFXType.FLOAT4, count: 1 },
                 ]
             }],

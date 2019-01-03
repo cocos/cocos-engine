@@ -1,12 +1,13 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { EffectAsset, PropertyInfo, ShaderInfo, UniformInfo } from '../../3d/assets/effect-asset';
+import { EffectAsset, PropertyInfo, ShaderInfo } from '../../3d/assets/effect-asset';
 import { CCObject } from '../../core/data';
 import { Color, Mat4, Vec2, Vec3, Vec4 } from '../../core/value-types';
 import { GFXType } from '../../gfx/define';
 import Texture2D from '../gfx/texture-2d';
 import TextureCube from '../gfx/texture-cube';
-import { Pass } from './pass';
+import { PassStage } from './constants';
+import { Pass, PassInfo } from './pass';
 import Technique from './technique';
 
 const _typeMap = {
@@ -37,6 +38,10 @@ const typeCheck = (value: any, type: number) => {
     }
 };
 
+const createPass = () => {
+
+};
+
 let _globalTechLod = 600;
 
 type PropValue = number | boolean | Vec2 | Vec3 | Vec4 | Color | Mat4 | Texture2D | TextureCube | null;
@@ -47,7 +52,7 @@ interface DependencyMap { [name: string]: string; }
 interface ProgramMap { [name: string]: ShaderInfo; }
 
 class Effect {
-    public static parseEffect(effect: EffectAsset, programs: ProgramMap) { return new Effect(); }
+    public static parseEffect(effect: EffectAsset, defines: DefineMap) { return new Effect(); }
     public static parseForInspector(effect: EffectAsset) { return { props: {}, defines: {} }; }
     public static setGlobalLod(lod: number) { _globalTechLod = lod; }
 
@@ -161,8 +166,8 @@ class Effect {
             this._defines[def.name] = def.type === 'number' ? 0 : false));
         // extensions
         this._dependencies = {};
-        this._techniques[this._activeTechIdx].passes.forEach((pass) => this._programs[pass.programName].extensions
-            .filter((ext) => ext.define).forEach((ext) => this._dependencies[ext.define] = ext.name));
+        this._techniques[this._activeTechIdx].passes.forEach((pass) =>
+            Object.assign(this._dependencies, this._programs[pass.programName].dependencies));
     }
 }
 
@@ -206,6 +211,7 @@ interface ExtractedPropInfo {
     displayName?: string;
 }
 const parseProperties = (() => {
+    interface UniformInfo { type: number; defines: string[]; }
     function genPropInfo(propInfo: PropertyInfo, uniformInfo: UniformInfo): ExtractedPropInfo {
         const type = propInfo.type || uniformInfo.type;
         return {
@@ -216,6 +222,13 @@ const parseProperties = (() => {
             defines: uniformInfo.defines,
         };
     }
+    function findUniformInfo(program: ShaderInfo, name: string) {
+        for (const b of program.blocks) {
+            const i = b.members.find((u) => u.name === name);
+            if (i) { return Object.assign({ defines: b.defines }, i); }
+        }
+        return program.samplers.find((u) => u.name === name);
+    }
     return (effect: EffectAsset, programs: ProgramMap) => {
         const props: { [name: string]: ExtractedPropInfo } = {};
         for (const prop of Object.keys(effect.properties)) {
@@ -223,11 +236,11 @@ const parseProperties = (() => {
             let uniformInfo: UniformInfo | undefined;
             // always try getting the type from shaders first
             if (propInfo.tech !== undefined && propInfo.pass !== undefined) {
-                const pname = effect.techniques[propInfo.tech].passes[propInfo.pass].program;
-                uniformInfo = programs[pname].uniforms.find((u) => u.name === prop);
+                const p = effect.techniques[propInfo.tech].passes[propInfo.pass].program;
+                uniformInfo = findUniformInfo(programs[p], prop);
             } else {
                 for (const p of Object.keys(programs)) {
-                    uniformInfo = programs[p].uniforms.find((u) => u.name === prop);
+                    uniformInfo = findUniformInfo(programs[p], prop);
                     if (uniformInfo) { break; }
                 }
             }
@@ -243,7 +256,7 @@ const parseProperties = (() => {
     };
 })();
 
-Effect.parseEffect = (effect: EffectAsset) => {
+Effect.parseEffect = (effect: EffectAsset, defines: DefineMap) => {
     // techniques
     const techNum = effect.techniques.length;
     const techniques = new Array<Technique>(techNum);
@@ -253,12 +266,14 @@ Effect.parseEffect = (effect: EffectAsset) => {
         const passNum = tech.passes.length;
         const passes: Pass[] = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
-            const passInfo = tech.passes[k];
-            passInfo.device = cc.game._gfxDevice;
-            passInfo.bindingLayoutInfo = programs[passInfo.program].uniforms.map((u) => {
-                return { name: u.name, type: u.bindingType, binding: u.binding };
-            });
-            passes[k] = Pass.create(passInfo);
+            const passInfo = <PassInfo>tech.passes[k];
+            passInfo.shader = cc.game._programLib.getGFXShader(passInfo.program, defines);
+            passInfo.renderPass = cc.director.root.pipeline.getRenderPass(passInfo.stage || PassStage.DEFAULT);
+            passInfo.blocks = programs[passInfo.program].blocks;
+            passInfo.samplers = programs[passInfo.program].samplers;
+            const pass = new Pass(cc.game._gfxDevice);
+            pass.initialize(passInfo);
+            passes[k] = pass;
         }
         techniques[j] = new Technique(tech.queue, tech.priority, tech.lod, passes);
     }
@@ -266,13 +281,13 @@ Effect.parseEffect = (effect: EffectAsset) => {
     const props = parseProperties(effect, programs);
     const uniforms = {};
     for (const pn of Object.keys(programs)) {
-        programs[pn].uniforms.forEach((u) => {
+        programs[pn].blocks.forEach((b) => b.members.forEach((u) => {
             const prop = props[u.name];
             uniforms[u.name] = {
                 type: prop ? prop.type : u.type,
                 value: prop ? prop.value : getInstanceCtor(u.type)(),
             };
-        });
+        }));
     }
 
     return new Effect(effect.name, techniques, programs, uniforms);

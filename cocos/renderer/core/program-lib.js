@@ -1,54 +1,22 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import gfx from '../gfx';
+import { GFXShaderType } from '../../gfx/define';
 
 let _shdID = 0;
 
-function _generateDefines(device, defs, deps) {
+function _generateDefines(device, defs, tDefs, deps) {
   let defines = [];
-  for (let def in defs) {
-    let d = defs[def];
-    let result = typeof d === 'number' ? d : d ? 1 : 0;
+  for (const { name, type } of tDefs) {
+    let d = defs[name];
+    let result = (type === 'number') ? (d || 0) : (d ? 1 : 0);
     // fallback if extension dependency not supported
-    if (result && deps[def] && !device[deps[def]]) {
-      console.warn(`${deps[def]} not supported on this platform, disabled ${def}`);
+    if (result && deps[name] && !device[deps[name]]) {
+      console.warn(`${deps[name]} not supported on this platform, disabled ${name}`);
       result = 0;
     }
-    defines.push(`#define ${def} ${result}`);
+    defines.push(`#define ${name} ${result}`);
   }
   return defines.join('\n');
-}
-
-function _replaceMacroNums(string, defs) {
-  let cache = {};
-  let tmp = string;
-  for (let def in defs) {
-    if (Number.isInteger(defs[def])) {
-      cache[def] = defs[def];
-    }
-  }
-  for (let def in cache) {
-    let reg = new RegExp(def, 'g');
-    tmp = tmp.replace(reg, cache[def]);
-  }
-  return tmp;
-}
-
-function _unrollLoops(string) {
-  let pattern = /#pragma for (\w+) in range\(\s*(\d+)\s*,\s*(\d+)\s*\)([\s\S]+?)#pragma endFor/g;
-  function replace(match, index, begin, end, snippet) {
-    let unroll = '';
-    let parsedBegin = parseInt(begin);
-    let parsedEnd = parseInt(end);
-    if (parsedBegin.isNaN || parsedEnd.isNaN) {
-      console.error('Unroll For Loops Error: begin and end of range must be an int num.');
-    }
-    for (let i = parsedBegin; i < parsedEnd; ++i) {
-      unroll += snippet.replace(new RegExp(`{${index}}`, 'g'), i);
-    }
-    return unroll;
-  }
-  return string.replace(pattern, replace);
 }
 
 export default class ProgramLib {
@@ -79,9 +47,8 @@ export default class ProgramLib {
    *       { name: 'shadow', type: 'boolean' },
    *       { name: 'lightCount', type: 'number', min: 1, max: 4 }
    *     ],
-   *     attributes: [{ name: 'a_position', type: 'vec3' }],
-   *     uniforms: [{ name: 'color', type: 'vec4' }],
-   *     extensions: [{ name: 'GL_OES_standard_derivatives', defines: ['USE_NORMAL_TEXTURE'] }],
+   *     blocks: [{ name: 'Constants', binding: 0, size: 16, members: [{ name: 'color', type: 'vec4' }], defines: [] }],
+   *     dependencies: { 'USE_NORMAL_TEXTURE': 'OES_standard_derivatives' },
    *   };
    *   programLib.define(program);
    */
@@ -158,12 +125,7 @@ export default class ProgramLib {
     return key << 8 | (tmpl.id & 0xff);
   }
 
-  /**
-   * @param {string} name
-   * @param {Object} defines
-   * @param {Object} extensions
-   */
-  getProgram(name, defines, extensions, effectName) {
+  getGFXShader(name, defines = {}) {
     let key = this.getKey(name, defines);
     let program = this._cache[key];
     if (program) {
@@ -172,22 +134,20 @@ export default class ProgramLib {
 
     // get template
     let tmpl = this._templates[name];
-    let customDef = _generateDefines(this._device, defines, extensions) + '\n';
-    let vert = _replaceMacroNums(tmpl.vert, defines);
-    vert = customDef + _unrollLoops(vert);
-    let frag = _replaceMacroNums(tmpl.frag, defines);
-    frag = customDef + _unrollLoops(frag);
+    let customDef = _generateDefines(this._device, defines, tmpl.defines, tmpl.dependencies) + '\n';
+    let vert = customDef + tmpl.vert;
+    let frag = customDef + tmpl.frag;
 
-    program = new gfx.Program(this._device, {
-      vert,
-      frag
+    program = this._device.createShader({
+      name,
+      blocks: tmpl.blocks,
+      samplers: tmpl.samplers,
+      stages: [
+        { type: GFXShaderType.VERTEX, source: vert },
+        { type: GFXShaderType.FRAGMENT, source: frag },
+      ],
     });
-    program.link();
-    if (!program._linked) {
-      console.warn(`Failed to link program from effect ${effectName}.`);
-    }
     this._cache[key] = program;
-
     return program;
   }
 }

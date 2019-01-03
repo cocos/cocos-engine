@@ -1,9 +1,9 @@
 import Asset from '../../assets/CCAsset';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { PassInfo } from '../../renderer/core/pass';
+import { PassInfoBase } from '../../renderer/core/pass';
 
 export interface TechniqueInfo {
-    passes: PassInfo[];
+    passes: PassInfoBase[];
     queue?: number;
     priority?: number;
     lod?: number;
@@ -16,30 +16,38 @@ export interface PropertyInfo {
     pass?: number;
 }
 
-export interface UniformInfo {
+export interface BlockMember {
     name: string;
     type: number;
-    bindingType: number;
+    count: number;
+}
+export interface BlockInfo {
+    name: string;
     binding: number;
     defines: string[];
-    members?: Array< { name: string, type: number } >;
+    size: number;
+    members: BlockMember[];
+}
+export interface SamplerInfo {
+    name: string;
+    binding: number;
+    defines: string[];
+    type: number;
+    count: number;
 }
 export interface DefineInfo {
     name: string;
     type: string;
     defines: string[];
 }
-export interface ExtensionInfo {
-    name: string;
-    define: string;
-}
 export interface ShaderInfo {
     name: string;
     vert: string;
     frag: string;
     defines: DefineInfo[];
-    uniforms: UniformInfo[];
-    extensions: ExtensionInfo[];
+    blocks: BlockInfo[];
+    samplers: SamplerInfo[];
+    dependencies: { [name: string]: string };
 }
 
 const effects: { [name: string]: EffectAsset } = {};

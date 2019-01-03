@@ -124,9 +124,7 @@ class Material extends Asset {
         }
         this._effectAsset = effectAsset;
         if (!effectAsset) return;
-        this._effect = Effect.parseEffect(effectAsset);
-        for (let def in this._defines)
-            this._effect.define(def, this._defines[def]);
+        this._effect = Effect.parseEffect(effectAsset, this._defines);
         for (let prop in this._props)
             this.setProperty(prop, this._props[prop]);
     }
