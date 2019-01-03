@@ -49,9 +49,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
 
     set center(value: Vec3) {
         this._center = new Vec3(value.x, value.y, value.z);
-        if (this._body) {
-            this._body.setCenter(this._shape, this._center);
-        }
+        this._shape.center = value;
     }
 }
 

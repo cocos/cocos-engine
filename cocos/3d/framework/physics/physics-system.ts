@@ -8,6 +8,9 @@ export class PhysicsSystem {
     }
 
     public update(deltaTime: number) {
+        if (CC_EDITOR) {
+            return;
+        }
         this._world.step(deltaTime);
     }
 

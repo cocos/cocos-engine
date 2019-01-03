@@ -304,7 +304,7 @@ class Node extends BaseNode {
             parent.updateWorldTransform();
             vec3.sub(local, this._pos, parent._pos);
             vec3.transformQuat(local, local, quat.conjugate(q_a, parent._rot));
-            vec3.div(cc.v3(), local, parent._scale);
+            vec3.div(local, local, parent._scale);
         } else {
             vec3.copy(this._lpos, this._pos);
         }

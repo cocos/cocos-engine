@@ -33,6 +33,7 @@ import SkyboxComponent from './skybox-component';
 import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';
 import { RigidBodyComponent } from './physics/rigid-body-component';
 import './physics/index';
+import ParticleSystemComponent from './particle/particle-system-component';
 
 cc.CameraComponent = CameraComponent;
 cc.AnimationComponent = AnimationComponent;
@@ -44,3 +45,4 @@ cc.SkyboxComponent = SkyboxComponent;
 cc.RigidBodyComponent = RigidBodyComponent;
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.SphereColliderComponent = SphereColliderComponent;
+cc.ParticleSystemComponent = ParticleSystemComponent;
