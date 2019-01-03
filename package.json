@@ -14,7 +14,8 @@
     "build:dev": "rollup -c ./rollup/config.js",
     "build:min": "uglifyjs ./bin/cocos-3d.dev.js --mangle --source-map -o ./bin/cocos-3d.min.js",
     "build-rollup": "cd rollup && tsc",
-    "dev": "rollup -w -c ./rollup/config.js"
+    "dev": "rollup -w -c ./rollup/config.js",
+    "postinstall": "npm run build-rollup"
   },
   "repository": {
     "type": "git",
