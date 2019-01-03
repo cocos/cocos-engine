@@ -19,7 +19,7 @@ import Burst from './burst';
 import { particleEmitZAxis, Space } from './particle-general-function';
 import { INT_MAX } from '../../../core/vmath/bits';
 import ParticleSystemGpuRenderer from './renderer/particle-system-gpu-renderer';
-import { ccclass, executionOrder, executeInEditMode, property, requireComponent } from '../../../core/data/class-decorator';
+import { ccclass, executionOrder, executeInEditMode, property, requireComponent, menu } from '../../../core/data/class-decorator';
 
 registry.registerClass('Burst', Burst);
 registry.registerClass('ColorKey', ColorKey);
@@ -41,6 +41,7 @@ registry.registerClass('ShapeModule', ShapeModule);
 let _world_mat = mat4.create();
 
 @ccclass('cc.ParticleSystemComponent')
+@menu("Components/ParticleSystemComponent")
 @requireComponent(ParticleSystemRenderer)
 @executionOrder(99)
 @executeInEditMode
@@ -216,6 +217,7 @@ export default class ParticleSystemComponent extends Component {
 
     onLoad() {
         // HACK, TODO
+        this.renderer = this.getComponent(ParticleSystemRenderer);
         this.renderer.onInit();
         this.shapeModule.onInit(this);
         this.textureAnimationModule.onInit(this);

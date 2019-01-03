@@ -109,10 +109,13 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         }
         this._updateMaterialParams();
         this._updateModel();
+        this.onEnable();
     }
 
     onEnable() {
-        this._scene.addModel(this._model);
+        if (this._model != null) {
+            this._scene.addModel(this._model);
+        }
     }
 
     onDisable() {
