@@ -258,25 +258,20 @@ var spineAssembler = {
         data.vertexCount = vertexOffset;
         data.indiceCount = indiceOffset;
         // Check for last data valid or not
+        let newLen = datas.length;
         if (vertexOffset > 0 && indiceOffset > 0) {
-            if(dataId + 1 < datas.length) {
-              for(let i = dataId + 1; i < datas.length; i++) {
+            newLen = dataId + 1;
+        } else {
+            newLen = dataId;
+        }
+        if(newLen < datas.length) {
+            for(let i = datas.length - 1; i >= newLen; i--) {
                 datas[i].dataLength = 0;
                 comp.destroyRenderData(datas[i]);
-              }              
-            }
-            datas.length = dataId + 1;
+            }  
+            datas.length = newLen;
         }
-        else {
-          if(dataId < datas.length) {
-            for(let i = dataId ; i < datas.length; i++) {
-              datas[i].dataLength = 0;
-              comp.destroyRenderData(datas[i]);
-            }              
-          }
-          datas.length = dataId;
-        }
-    
+        
         if (comp.debugBones) {
             let bone;
             graphics.lineWidth = 5;
