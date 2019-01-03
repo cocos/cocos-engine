@@ -220,8 +220,7 @@ cc.js.mixin(View.prototype, {
         else {
             view._initFrameSize();
         }
-        let isForcedUpdate = (typeof forceOrEvent === 'boolean' ? forceOrEvent : false);
-        if (!isForcedUpdate && view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
+        if (forceOrEvent !== true && view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
             return;
 
         // Frame size changed, do resize works
