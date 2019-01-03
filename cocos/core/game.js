@@ -31,6 +31,7 @@ import { addon } from './utils/js';
 
 import renderer from '../renderer';
 import builtinResMgr from '../3d/builtin/init';
+import ProgramLib from '../renderer/core/program-lib';
 
 /**
  * @module cc
@@ -371,7 +372,7 @@ var game = {
         // Init engine
         this._initEngine();
 
-        //this._initBuiltins();
+        this._initBuiltins();
 
         // Log engine version
         console.log('Cocos3D v' + cc.ENGINE_VERSION);
@@ -816,11 +817,12 @@ var game = {
     },
 
     _initBuiltins: function() {
-        let builtins = builtinResMgr.initBuiltinRes(this._renderContext);
-        this._renderer.setBuiltins({
-            defaultTexture: builtins['default-texture']._texture,
-            defaultTextureCube: builtins['default-texture-cube']._texture,
-        });
+        this._programLib = new ProgramLib(this._gfxDevice);
+        builtinResMgr.initBuiltinRes(this._gfxDevice);
+        // this._renderer.setBuiltins({
+        //     defaultTexture: builtins['default-texture']._texture,
+        //     defaultTextureCube: builtins['default-texture-cube']._texture,
+        // });
     },
 
     _initEvents: function () {

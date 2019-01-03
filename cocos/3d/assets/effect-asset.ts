@@ -2,56 +2,51 @@ import Asset from '../../assets/CCAsset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { PassInfo } from '../../renderer/core/pass';
 
-const effects: { [name: string]: EffectAsset } = {};
-
-interface TechniqueInfo {
+export interface TechniqueInfo {
     passes: PassInfo[];
     queue?: number;
     priority?: number;
     lod?: number;
 }
-
-interface PropertyMap {
-    [name: string]: {
-        type: number,
-        value: number | number[] | null,
-    };
+export interface PropertyInfo {
+    type?: number;
+    value?: number | number[] | null;
+    displayName?: string;
+    tech?: number;
+    pass?: number;
 }
 
-interface ShaderInfo {
+export interface UniformInfo {
     name: string;
-    vert: string; frag: string;
-    vert1: string; frag1: string;
-    defines: Array<{
-        name: string;
-        type: string;
-        defines: string[];
-    }>;
-    uniforms: Array<{
-        name: string;
-        type: string;
-        binding: number;
-        defines: string[];
-    } | {
-        blockName: string;
-        binding: number;
-        defines: string[];
-        members: Array< { name: string, type: number } >
-    }>;
-    attributes: Array<{
-        name: string;
-        type: string;
-        defines: string[];
-    }>;
-    extensions: Array<{
-        name: string;
-        define: string;
-    }>;
+    type: number;
+    bindingType: number;
+    binding: number;
+    defines: string[];
+    members?: Array< { name: string, type: number } >;
 }
+export interface DefineInfo {
+    name: string;
+    type: string;
+    defines: string[];
+}
+export interface ExtensionInfo {
+    name: string;
+    define: string;
+}
+export interface ShaderInfo {
+    name: string;
+    vert: string;
+    frag: string;
+    defines: DefineInfo[];
+    uniforms: UniformInfo[];
+    extensions: ExtensionInfo[];
+}
+
+const effects: { [name: string]: EffectAsset } = {};
 
 @ccclass('cc.EffectAsset')
-class EffectAsset extends Asset {
-    public static register(asset: EffectAsset) {effects[asset.name] = asset; }
+export class EffectAsset extends Asset {
+    public static register(asset: EffectAsset) { effects[asset.name] = asset; }
     public static remove(name: string) {
         if (effects[name]) { delete effects[name]; return; }
         for (const n in effects) {
@@ -76,17 +71,16 @@ class EffectAsset extends Asset {
     public techniques: TechniqueInfo[] = [];
 
     @property
-    public properties: PropertyMap = {};
+    public properties: { [name: string]: PropertyInfo } = {};
 
     @property
     public shaders: ShaderInfo[] = [];
 
     public onLoaded() {
-        const lib = cc.game._renderer._programLib;
+        const lib = cc.game._programLib;
         this.shaders.forEach((s) => lib.define(s));
         EffectAsset.register(this);
     }
 }
 
-export default EffectAsset;
 cc.EffectAsset = EffectAsset;
