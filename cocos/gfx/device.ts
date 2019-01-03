@@ -44,6 +44,10 @@ export abstract class GFXDevice {
     public abstract createWindow(info: GFXWindowInfo) : GFXWindow | null;
     public abstract present();
  
+    public get canvas(): HTMLCanvasElement {
+        return <HTMLCanvasElement>this._canvas;
+    }
+
     public get queue(): GFXQueue {
         return <GFXQueue>this._queue;
     }
@@ -92,6 +96,7 @@ export abstract class GFXDevice {
         return this._stencilBits;
     }
 
+    protected _canvas: HTMLCanvasElement | null = null;
     protected _deviceName : string = "";
     protected _renderer : string = "";
     protected _vendor : string = "";

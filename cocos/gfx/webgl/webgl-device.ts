@@ -18,7 +18,7 @@ import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { GFXInputAssemblerInfo, GFXInputAssembler } from '../input-assembler';
 import { WebGLGFXShader } from './webgl-shader';
 import { GFXCommandAllocator, GFXCommandAllocatorInfo } from '../command-allocator';
-import { GFXPipelineStateInfo, GFXPipelineState } from '../pipeline-state';
+import { GFXPipelineStateInfo, GFXPipelineState, GFXRasterizerState } from '../pipeline-state';
 import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
 import { GFXBindingUnit, GFXBindingLayout, GFXBindingLayoutInfo } from '../binding-layout';
 import { WebGLGFXSampler } from './webgl-sampler';
@@ -68,7 +68,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public initialize(info: GFXDeviceInfo): boolean {
 
-        let canvasElm = <HTMLCanvasElement>info.canvasElm;
+        this._canvas = <HTMLCanvasElement>info.canvasElm;
 
         if (info.isAntialias) {
             this._isAntialias = info.isAntialias;
@@ -90,7 +90,7 @@ export class WebGLGFXDevice extends GFXDevice {
                 failIfMajorPerformanceCaveat: false,
             };
 
-            this._webGLRC = canvasElm.getContext('webgl', webGLCtxAttribs);
+            this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs);
         } catch (err) {
             console.error(err);
             return false;
@@ -106,24 +106,25 @@ export class WebGLGFXDevice extends GFXDevice {
         console.info('WebGL device initialization successed.');
 
         this._deviceName = "WebGL";
+        let gl = this._webGLRC;
 
-        this._WEBGL_debug_renderer_info = this._webGLRC.getExtension("WEBGL_debug_renderer_info");
+        this._WEBGL_debug_renderer_info = gl.getExtension("WEBGL_debug_renderer_info");
         if (this._WEBGL_debug_renderer_info) {
-            this._renderer = this._webGLRC.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
-            this._vendor = this._webGLRC.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
+            this._renderer = gl.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
+            this._vendor = gl.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
         } else {
-            this._renderer = this._webGLRC.getParameter(WebGLRenderingContext.RENDERER);
-            this._vendor = this._webGLRC.getParameter(WebGLRenderingContext.VENDOR);
+            this._renderer = gl.getParameter(WebGLRenderingContext.RENDERER);
+            this._vendor = gl.getParameter(WebGLRenderingContext.VENDOR);
         }
-       
-        this._version = this._webGLRC.getParameter(WebGLRenderingContext.VERSION);
-        this._maxVertexAttributes = this._webGLRC.getParameter(WebGLRenderingContext.MAX_VERTEX_ATTRIBS);
-        this._maxVertexUniformVectors = this._webGLRC.getParameter(WebGLRenderingContext.MAX_VERTEX_UNIFORM_VECTORS);
-        this._maxFragmentUniformVectors = this._webGLRC.getParameter(WebGLRenderingContext.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._maxTextureUnits = this._webGLRC.getParameter(WebGLRenderingContext.MAX_TEXTURE_IMAGE_UNITS);
-        this._maxVertexTextureUnits = this._webGLRC.getParameter(WebGLRenderingContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._depthBits = this._webGLRC.getParameter(WebGLRenderingContext.DEPTH_BITS);
-        this._stencilBits = this._webGLRC.getParameter(WebGLRenderingContext.STENCIL_BITS);
+
+        this._version = gl.getParameter(WebGLRenderingContext.VERSION);
+        this._maxVertexAttributes = gl.getParameter(WebGLRenderingContext.MAX_VERTEX_ATTRIBS);
+        this._maxVertexUniformVectors = gl.getParameter(WebGLRenderingContext.MAX_VERTEX_UNIFORM_VECTORS);
+        this._maxFragmentUniformVectors = gl.getParameter(WebGLRenderingContext.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._maxTextureUnits = gl.getParameter(WebGLRenderingContext.MAX_TEXTURE_IMAGE_UNITS);
+        this._maxVertexTextureUnits = gl.getParameter(WebGLRenderingContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._depthBits = gl.getParameter(WebGLRenderingContext.DEPTH_BITS);
+        this._stencilBits = gl.getParameter(WebGLRenderingContext.STENCIL_BITS);
 
         console.info("RENDERER: " + this._renderer);
         console.info("VENDOR: " + this._vendor);
@@ -136,7 +137,7 @@ export class WebGLGFXDevice extends GFXDevice {
         console.info("DEPTH_BITS: " + this._depthBits);
         console.info("STENCIL_BITS: " + this._stencilBits);
 
-        this._extensions = this._webGLRC.getSupportedExtensions();
+        this._extensions = gl.getSupportedExtensions();
         /*
         if (this._extensions) {
             for (let i = 0; i < this._extensions.length; ++i) {
@@ -145,43 +146,47 @@ export class WebGLGFXDevice extends GFXDevice {
         }
         */
 
-        this._EXT_texture_filter_anisotropic = this._webGLRC.getExtension("EXT_texture_filter_anisotropic");
-        this._EXT_frag_depth = this._webGLRC.getExtension("EXT_frag_depth");
-        this._EXT_shader_texture_lod = this._webGLRC.getExtension("EXT_shader_texture_lod");
-        this._EXT_sRGB = this._webGLRC.getExtension("EXT_sRGB");
-        this._OES_vertex_array_object = this._webGLRC.getExtension("OES_vertex_array_object");
-        this._WEBGL_color_buffer_float = this._webGLRC.getExtension("WEBGL_color_buffer_float");
-        this._WEBGL_compressed_texture_astc = this._webGLRC.getExtension("WEBGL_compressed_texture_astc");
-        this._WEBGL_compressed_texture_s3tc = this._webGLRC.getExtension("WEBGL_compressed_texture_s3tc");
-        this._WEBGL_compressed_texture_s3tc_srgb = this._webGLRC.getExtension("WEBGL_compressed_texture_s3tc_srgb");
-        this._WEBGL_debug_shaders = this._webGLRC.getExtension("WEBGL_debug_shaders");
-        this._WEBGL_draw_buffers = this._webGLRC.getExtension("WEBGL_draw_buffers");
-        this._WEBGL_lose_context = this._webGLRC.getExtension("WEBGL_lose_context");
-        this._WEBGL_depth_texture = this._webGLRC.getExtension("WEBGL_depth_texture");
-        this._OES_texture_half_float = this._webGLRC.getExtension("OES_texture_half_float");
-        this._OES_texture_half_float_linear = this._webGLRC.getExtension("OES_texture_half_float_linear");
-        this._OES_texture_float = this._webGLRC.getExtension("OES_texture_float");
-        this._OES_standard_derivatives = this._webGLRC.getExtension("OES_standard_derivatives");
-        this._OES_element_index_uint = this._webGLRC.getExtension("OES_element_index_uint");
-        this._ANGLE_instanced_arrays = this._webGLRC.getExtension("ANGLE_instanced_arrays");
+        this._EXT_texture_filter_anisotropic = gl.getExtension("EXT_texture_filter_anisotropic");
+        this._EXT_frag_depth = gl.getExtension("EXT_frag_depth");
+        this._EXT_shader_texture_lod = gl.getExtension("EXT_shader_texture_lod");
+        this._EXT_sRGB = gl.getExtension("EXT_sRGB");
+        this._OES_vertex_array_object = gl.getExtension("OES_vertex_array_object");
+        this._WEBGL_color_buffer_float = gl.getExtension("WEBGL_color_buffer_float");
+        this._WEBGL_compressed_texture_astc = gl.getExtension("WEBGL_compressed_texture_astc");
+        this._WEBGL_compressed_texture_s3tc = gl.getExtension("WEBGL_compressed_texture_s3tc");
+        this._WEBGL_compressed_texture_s3tc_srgb = gl.getExtension("WEBGL_compressed_texture_s3tc_srgb");
+        this._WEBGL_debug_shaders = gl.getExtension("WEBGL_debug_shaders");
+        this._WEBGL_draw_buffers = gl.getExtension("WEBGL_draw_buffers");
+        this._WEBGL_lose_context = gl.getExtension("WEBGL_lose_context");
+        this._WEBGL_depth_texture = gl.getExtension("WEBGL_depth_texture");
+        this._OES_texture_half_float = gl.getExtension("OES_texture_half_float");
+        this._OES_texture_half_float_linear = gl.getExtension("OES_texture_half_float_linear");
+        this._OES_texture_float = gl.getExtension("OES_texture_float");
+        this._OES_standard_derivatives = gl.getExtension("OES_standard_derivatives");
+        this._OES_element_index_uint = gl.getExtension("OES_element_index_uint");
+        this._ANGLE_instanced_arrays = gl.getExtension("ANGLE_instanced_arrays");
 
-        this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
-        
+        // init states
+        this.initStates(gl);
+
         let depthStencilFmt;
 
-        if(this._depthBits === 24) {
-            if(this._stencilBits === 8) {
+        if (this._depthBits === 24) {
+            if (this._stencilBits === 8) {
                 depthStencilFmt = GFXFormat.D24S8;
             } else {
                 depthStencilFmt = GFXFormat.D24;
             }
         } else {
-            if(this._stencilBits === 8) {
+            if (this._stencilBits === 8) {
                 depthStencilFmt = GFXFormat.D16S8;
             } else {
                 depthStencilFmt = GFXFormat.D16;
             }
         }
+
+        // create queue
+        this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
 
         // create primary window
         this._mainWindow = this.createWindow({
@@ -598,33 +603,37 @@ export class WebGLGFXDevice extends GFXDevice {
         let glMinFilter = WebGLRenderingContext.NONE;
         let glMagFilter = WebGLRenderingContext.NONE;
 
-        if (info.minFilter === GFXFilter.LINEAR || info.minFilter === GFXFilter.ANISOTROPIC) {
-            if (info.mipFilter === GFXFilter.LINEAR || info.mipFilter === GFXFilter.ANISOTROPIC) {
+        let minFilter = (info.minFilter !== undefined? info.minFilter : GFXFilter.LINEAR);
+        let magFilter = (info.magFilter !== undefined? info.magFilter : GFXFilter.LINEAR);
+        let mipFilter = (info.mipFilter !== undefined? info.mipFilter : GFXFilter.NONE);
+
+        if (minFilter === GFXFilter.LINEAR || minFilter === GFXFilter.ANISOTROPIC) {
+            if (mipFilter === GFXFilter.LINEAR || mipFilter === GFXFilter.ANISOTROPIC) {
                 glMinFilter = WebGLRenderingContext.LINEAR_MIPMAP_LINEAR;
-            } else if (info.mipFilter === GFXFilter.POINT) {
+            } else if (mipFilter === GFXFilter.POINT) {
                 glMinFilter = WebGLRenderingContext.LINEAR_MIPMAP_NEAREST;
             } else {
                 glMinFilter = WebGLRenderingContext.LINEAR;
             }
         } else {
-            if (info.mipFilter === GFXFilter.LINEAR || info.mipFilter === GFXFilter.ANISOTROPIC) {
+            if (mipFilter === GFXFilter.LINEAR || mipFilter === GFXFilter.ANISOTROPIC) {
                 glMinFilter = WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
-            } else if (info.mipFilter === GFXFilter.POINT) {
+            } else if (mipFilter === GFXFilter.POINT) {
                 glMinFilter = WebGLRenderingContext.NEAREST_MIPMAP_NEAREST;
             } else {
                 glMinFilter = WebGLRenderingContext.NEAREST;
             }
         }
 
-        if (info.magFilter === GFXFilter.LINEAR || info.magFilter === GFXFilter.ANISOTROPIC) {
+        if (magFilter === GFXFilter.LINEAR || magFilter === GFXFilter.ANISOTROPIC) {
             glMagFilter = WebGLRenderingContext.LINEAR;
         } else {
             glMagFilter = WebGLRenderingContext.NEAREST;
         }
 
-        let glWrapS = info.addressU ? WebGLWraps[info.addressU] : GFXAddress.WRAP;
-        let glWrapT = info.addressV ? WebGLWraps[info.addressV] : GFXAddress.WRAP;
-        let glWrapR = info.addressW ? WebGLWraps[info.addressW] : GFXAddress.WRAP;
+        let glWrapS = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.REPEAT);
+        let glWrapT = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.REPEAT);
+        let glWrapR = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.REPEAT);
 
         let gpuSampler: WebGLGPUSampler = {
             objType: WebGLGPUObjectType.SAMPLER,
@@ -722,10 +731,14 @@ export class WebGLGFXDevice extends GFXDevice {
         let gpuBindings: WebGLGPUBinding[] = new Array<WebGLGPUBinding>(info.bindings.length);
         for (let i = 0; i < info.bindings.length; ++i) {
             let binding = info.bindings[i];
-            let gpuBinding = gpuBindings[i];
-            gpuBinding.binding = binding.binding;
-            gpuBinding.type = binding.type;
-            gpuBinding.name = binding.name;
+            gpuBindings[i] = {
+                binding: binding.binding,
+                type: binding.type,
+                name: binding.name,
+                gpuBuffer: null,
+                gpuTexView: null,
+                gpuSampler: null,
+            };
         }
 
         let gpuBindingLayout: WebGLGPUBindingLayout = {
@@ -908,6 +921,43 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public get ANGLE_instanced_arrays(): ANGLE_instanced_arrays | null {
         return this._ANGLE_instanced_arrays;
+    }
+
+    private initStates(gl: WebGLRenderingContext) {
+
+        gl.activeTexture(WebGLRenderingContext.TEXTURE0);
+        gl.pixelStorei(WebGLRenderingContext.PACK_ALIGNMENT, 1);
+        gl.pixelStorei(WebGLRenderingContext.UNPACK_ALIGNMENT, 1);
+
+        gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, null);
+
+        // rasteriazer state
+        gl.enable(WebGLRenderingContext.CULL_FACE);
+        gl.cullFace(WebGLRenderingContext.BACK);
+        gl.frontFace(WebGLRenderingContext.CCW);
+        gl.polygonOffset(0.0, 0.0);
+
+        // depth stencil state
+        gl.enable(WebGLRenderingContext.DEPTH_TEST);
+        gl.depthMask(true);
+        gl.depthFunc(WebGLRenderingContext.LESS);
+
+        gl.stencilFuncSeparate(WebGLRenderingContext.FRONT, WebGLRenderingContext.ALWAYS, 1, 0xffffffff);
+        gl.stencilOpSeparate(WebGLRenderingContext.FRONT, WebGLRenderingContext.KEEP, WebGLRenderingContext.KEEP, WebGLRenderingContext.KEEP);
+        gl.stencilMaskSeparate(WebGLRenderingContext.FRONT, 0xffffffff);
+        gl.stencilFuncSeparate(WebGLRenderingContext.BACK, WebGLRenderingContext.ALWAYS, 1, 0xffffffff);
+        gl.stencilOpSeparate(WebGLRenderingContext.BACK, WebGLRenderingContext.KEEP, WebGLRenderingContext.KEEP, WebGLRenderingContext.KEEP);
+        gl.stencilMaskSeparate(WebGLRenderingContext.BACK, 0xffffffff);
+
+        gl.disable(WebGLRenderingContext.STENCIL_TEST);
+
+        // blend state
+        gl.disable(WebGLRenderingContext.SAMPLE_ALPHA_TO_COVERAGE);
+        gl.disable(WebGLRenderingContext.BLEND);
+        gl.blendEquationSeparate(WebGLRenderingContext.FUNC_ADD, WebGLRenderingContext.FUNC_ADD);
+        gl.blendFuncSeparate(WebGLRenderingContext.ONE, WebGLRenderingContext.ZERO, WebGLRenderingContext.ONE, WebGLRenderingContext.ZERO);
+        gl.colorMask(true, true, true, true);
+        gl.blendColor(0.0, 0.0, 0.0, 0.0);
     }
 
     private _webGLRC: WebGLRenderingContext | null = null;

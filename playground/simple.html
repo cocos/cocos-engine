@@ -23,7 +23,10 @@
 </head>
 
 <body class="fit">
-  <canvas id="canvas" tabindex="-1" class="fit"></canvas>
+  <canvas id="canvas" tabindex="-1" class="fit" width="256" height="256">
+    <img name="testImg" src="cubetexture.png" />
+  </canvas>
+
   <script src="../bin/cocos-3d.dev.js"></script>
   <!-- <script src="./loadScene.js"></script> -->
   <script>
@@ -31,55 +34,55 @@
 
       let root = cc.director.root;
       let scene = root.createScene({
-            name: "testScene",
+        name: "testScene",
       });
 
       let mainWindow = root.mainWindow;
 
       let view = root.createView({
-            name: "defaultView",
-            window: mainWindow,
-            //priority: cc.RenderViewPriority.GENERAL,
-            priority: 100,
-            width: mainWindow.width,
-            height: mainWindow.height,
+        name: "defaultView",
+        window: mainWindow,
+        //priority: cc.RenderViewPriority.GENERAL,
+        priority: 100,
+        width: mainWindow.width,
+        height: mainWindow.height,
       });
 
       view.attach(scene.mainCamera);
 
-        //todo initialization
-        /*
-        let scene = new cc.Scene();
-        let node = new cc.Node();
-        scene.addChild(node);
-        node.addComponent('cc.CameraComponent');
-        let modelNode = new cc.Node();
-        modelNode.setPosition(0, 0, -10);
-        scene.addChild(modelNode);
-        let model = modelNode.addComponent('cc.ModelComponent');
-        */
+      //todo initialization
+      /*
+      let scene = new cc.Scene();
+      let node = new cc.Node();
+      scene.addChild(node);
+      node.addComponent('cc.CameraComponent');
+      let modelNode = new cc.Node();
+      modelNode.setPosition(0, 0, -10);
+      scene.addChild(modelNode);
+      let model = modelNode.addComponent('cc.ModelComponent');
+      */
 
-        // init mesh
-        //model.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
-        /**
-        // init effect
-        let mtl = new cc.Material();
-        let color = cc.color('#B58C42');
-        mtl.effectName = cc.game._builtins['builtin-effect-unlit'];
-        mtl.define('USE_COLOR', true);
-        mtl.setProperty('color', color);
-        /**
-        mtl.effect = cc.game._builtins['builtin-effect-phong'];
-        mtl.setProperty('diffuseColor', color);
-        /**
-        mtl.effect = cc.game._builtins['builtin-effect-pbr'];
-        mtl.define('USE_EMISSIVE', true);
-        mtl.setProperty('emissive', color);
-        /**/
-        // model.material = mtl;
-        //cc.director.runSceneImmediate(scene);
+      // init mesh
+      //model.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
+      /**
+      // init effect
+      let mtl = new cc.Material();
+      let color = cc.color('#B58C42');
+      mtl.effectName = cc.game._builtins['builtin-effect-unlit'];
+      mtl.define('USE_COLOR', true);
+      mtl.setProperty('color', color);
+      /**
+      mtl.effect = cc.game._builtins['builtin-effect-phong'];
+      mtl.setProperty('diffuseColor', color);
+      /**
+      mtl.effect = cc.game._builtins['builtin-effect-pbr'];
+      mtl.define('USE_EMISSIVE', true);
+      mtl.setProperty('emissive', color);
+      /**/
+      // model.material = mtl;
+      //cc.director.runSceneImmediate(scene);
     }
-    cc.game.run({id:'canvas'}, onStart);
+    cc.game.run({ id: 'canvas' }, onStart);
   </script>
 </body>
 

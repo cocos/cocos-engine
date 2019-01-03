@@ -19,13 +19,13 @@ export class WebGLStateCache {
     texUnit : number = 0;
     glTex2DUnits : WebGLTexUnit[];
     glTexCubeUnits : WebGLTexUnit[];
-    glFramebuffer : WebGLFramebuffer = -1;
+    glFramebuffer : WebGLFramebuffer = 0;
     viewport : GFXViewport;
     scissorRect : GFXRect;
     rs : GFXRasterizerState;
     dss : GFXDepthStencilState;
     bs : GFXBlendState;
-    glProgram : WebGLProgram = -1;
+    glProgram : WebGLProgram = 0;
     glEnabledAttribLocs : boolean[];
     glCurrentAttribLocs : boolean[];
 

@@ -1,6 +1,5 @@
 import { GFXDevice } from './device';
 import { GFXType, GFXShaderType } from './define';
-import { GFXInputAttribute } from './input-assembler';
 
 export interface GFXShaderMacro {
     macro: string;
@@ -13,24 +12,24 @@ export interface GFXShaderStage {
     macros?: GFXShaderMacro[];
 };
 
-export interface GFXUniform {
-    name: string;
-    type: GFXType;
-    count: number;
+export class GFXUniform {
+    name: string = "";
+    type: GFXType = GFXType.UNKNOWN;
+    count: number = 1;
 };
 
-export interface GFXUniformBlock {
-    binding: number;
-    name: string;
+export class GFXUniformBlock {
+    binding: number = -1;
+    name: string = "";
     //instance : string;
-    uniforms: GFXUniform[];
+    uniforms: GFXUniform[] = [];
 };
 
-export interface GFXUniformSampler {
-    binding: number;
-    name: string;
-    type: GFXType;
-    count: number;
+export class GFXUniformSampler {
+    binding: number = -1;
+    name: string = "";
+    type: GFXType = GFXType.UNKNOWN;
+    count: number = 1;
 };
 
 export interface GFXShaderInfo {

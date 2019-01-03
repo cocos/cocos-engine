@@ -447,28 +447,40 @@ export interface GFXColor {
     a: number;
 }
 
-export interface GFXTextureSubres {
-    baseMipLevel: number;
-    levelCount: number;
-    baseArrayLayer: number;
-    layerCount: number;
+export interface GFXOffset {
+    x: number;
+    y: number;
+    z: number;
 }
 
-export interface GFXTextureCopy {
-    srcSubres: GFXTextureSubres;
-    srcOffset: number[];
-    dstSubres: GFXTextureSubres;
-    dstOffset: number[];
-    extent: number[];
+export interface GFXExtent {
+    width: number;
+    height: number;
+    depth: number;
 }
 
-export interface GFXBufferTextureCopy {
-    buffOffset: number;
-    buffStride: number;
-    buffTexHeight: number;
-    texOffset: number[];
-    texExtent: number[];
-    texSubres: GFXTextureSubres;
+export class GFXTextureSubres {
+    baseMipLevel: number = 0;
+    levelCount: number = 1;
+    baseArrayLayer: number = 0;
+    layerCount: number = 1;
+}
+
+export class GFXTextureCopy {
+    srcSubres: GFXTextureSubres = new GFXTextureSubres;
+    srcOffset: GFXOffset = { x: 0, y: 0, z: 0 };
+    dstSubres: GFXTextureSubres = new GFXTextureSubres;
+    dstOffset: GFXOffset = { x: 0, y: 0, z: 0 };
+    extent: GFXExtent = { width: 0, height: 0, depth: 0 };
+}
+
+export class GFXBufferTextureCopy {
+    buffOffset: number = 0;
+    buffStride: number = 0;
+    buffTexHeight: number = 0;
+    texOffset: GFXOffset = { x: 0, y: 0, z: 0 };
+    texExtent: GFXExtent = { width: 0, height: 0, depth: 0 };
+    texSubres: GFXTextureSubres = new GFXTextureSubres;
 }
 
 export interface GFXFormatInfo {
@@ -695,7 +707,7 @@ export function GFXGetTypeSize(type: GFXType): number {
     }
 }
 
-export function GFXGetAttributeBinding(name: string) : number {
+export function GFXGetAttributeBinding(name: string): number {
     if (name === GFX_ATTRIBUTE_POSITION) {
         return 6;
     } else if (name === GFX_ATTRIBUTE_COLOR) {

@@ -21,7 +21,7 @@ export class GFXSamplerState {
     name : string = "";
     minFilter : GFXFilter = GFXFilter.LINEAR;
     magFilter : GFXFilter = GFXFilter.LINEAR;
-    mipFilter : GFXFilter = GFXFilter.LINEAR;
+    mipFilter : GFXFilter = GFXFilter.NONE;
     addressU : GFXAddress = GFXAddress.WRAP;
     addressV : GFXAddress = GFXAddress.WRAP;
     addressW : GFXAddress = GFXAddress.WRAP;

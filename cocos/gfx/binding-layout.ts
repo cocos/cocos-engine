@@ -30,7 +30,8 @@ export abstract class GFXBindingLayout {
     }
 
     public abstract initialize(info : GFXBindingLayoutInfo) : boolean;
-    public abstract destroy() : void;
+    public abstract destroy();
+    public abstract update();
 
     public bindBuffer(binding: number, buffer: GFXBuffer) {
         for (let i = 0; i < this._bindingUnits.length; ++i) {

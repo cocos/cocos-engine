@@ -14,10 +14,14 @@ export class WebGLGFXBindingLayout extends GFXBindingLayout {
         this._bindingUnits = new Array<GFXBindingUnit>(info.bindings.length);
         for (let i = 0; i < info.bindings.length; ++i) {
             let binding = info.bindings[i];
-            let bindingUnit = this._bindingUnits[i];
-            bindingUnit.binding = binding.binding;
-            bindingUnit.type = binding.type;
-            bindingUnit.name = binding.name;
+            this._bindingUnits[i] = {
+                binding: binding.binding,
+                type: binding.type,
+                name: binding.name,
+                buffer: null,
+                texView: null,
+                sampler: null,
+            };
         }
 
         this._gpuBindingLayout = this.webGLDevice.emitCmdCreateGPUBindingLayout(info);
@@ -35,7 +39,6 @@ export class WebGLGFXBindingLayout extends GFXBindingLayout {
     public update() {
         if (this._gpuBindingLayout) {
             this.webGLDevice.emitCmdUpdateGPUBindingLayout(this._gpuBindingLayout, this._bindingUnits);
-            this._gpuBindingLayout = null;
         }
     }
 

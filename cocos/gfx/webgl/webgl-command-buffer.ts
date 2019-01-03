@@ -1,7 +1,7 @@
 import { GFXDevice } from '../device';
 import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
 import { GFXBuffer } from '../buffer';
-import { WebGLCmdUpdateBuffer, WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdPackage, WebGLCmdBindInputAssembler, WebGLCmdBindPipelineState, WebGLCmdDraw, WebGLCmdBindBindingLayout, WebGLCmdCopyBufferToTexture } from './webgl-commands';
+import { WebGLCmdUpdateBuffer, WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdPackage, WebGLCmdBindInputAssembler, WebGLCmdBindPipelineState, WebGLCmdDraw, WebGLCmdBindBindingLayout, WebGLCmdCopyBufferToTexture, WebGLGFXBufferTextureCopy } from './webgl-commands';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGFXBuffer } from './webgl-buffer';
@@ -116,14 +116,14 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public updateBuffer(buffer : GFXBuffer, data : ArrayBuffer, offset : number) {
+    public updateBuffer(buffer : GFXBuffer, data : ArrayBuffer, offset?: number) {
         let gpuBuffer = (<WebGLGFXBuffer>buffer).gpuBuffer;
         if(gpuBuffer) {
             let cmd = (<WebGLGFXCommandAllocator>this._allocator).updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
             if (cmd) {
                 cmd.gpuBuffer = gpuBuffer;
                 cmd.buffer = data;
-                cmd.offset = offset;
+                cmd.offset = (offset !== undefined? offset : 0);
                 this.cmdPackage.updateBufferCmds.push(cmd);
 
                 this.cmdPackage.cmds.push(WebGLCmd.UPDATE_BUFFER);
