@@ -1,4 +1,4 @@
-import renderer from '../renderer';
+import { renderer } from '../renderer';
 import { vec3, color3 } from '../vmath';
 import { Node } from '../scene-graph';
 

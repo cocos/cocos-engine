@@ -28,11 +28,16 @@ import * as vmath from './vmath';
 
 cc.vmath = vmath;
 
-import './utils';
-import './data';
-import './event';
-import './platform';
-import './value-types';
+export * from './utils';
+export * from './data';
+export * from './event';
+export * from './platform';
+export * from './value-types';
+// Cause error:
+// export * from './CCGame';
 import './CCGame';
-import './CCScheduler';
+export * from './CCScheduler';
+// Cause error:
+// export * from './CCDirector';
 import './CCDirector';
+export { vmath };

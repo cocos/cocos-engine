@@ -23,14 +23,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import './assets';
-import './builtin';
-// import './debugger';
-import './framework';
-import './memop';
+export * from './assets';
+export * from './builtin';
+export * from './framework';
+export * from './memop';
 import utils from './misc/utils';
 import * as primitives from './primitive';
 import * as geometry from './geom-utils';
+
+export {
+    utils,
+    primitives,
+    geometry,
+};
 
 cc.geometry = geometry;
 cc.primitives = primitives;

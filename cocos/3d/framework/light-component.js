@@ -24,7 +24,7 @@
  ****************************************************************************/
 // @ts-check
 import RenderSystemActor from './renderSystemActor';
-import renderer from '../../renderer/index';
+import { renderer } from '../../renderer/index';
 import { Color, Enum } from '../../core/value-types';
 import { toRadian } from '../../core/vmath';
 import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
