@@ -1938,7 +1938,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                     }
 
                     for (let a = 0; a < device.maxVertexAttributes; ++a) {
-                        if (device.stateCache.glEnabledAttribLocs[a] != device.stateCache.glCurrentAttribLocs[a]) {
+                        if (device.stateCache.glEnabledAttribLocs[a] !== device.stateCache.glCurrentAttribLocs[a]) {
                             gl.disableVertexAttribArray(a);
                             device.stateCache.glEnabledAttribLocs[a] = false;
                         }

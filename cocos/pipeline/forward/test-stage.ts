@@ -101,7 +101,7 @@ export class TestStage extends RenderStage {
 
         this._bindingLayout = this._device.createBindingLayout({
             bindings: [
-                { binding: 5, type: GFXBindingType.UNIFORM_BUFFER, name: "u_color" },
+                { binding: 5, type: GFXBindingType.UNIFORM_BUFFER, name: "UBO" },
                 { binding: 10, type: GFXBindingType.SAMPLER, name: "u_sampler" },
             ],
         });
