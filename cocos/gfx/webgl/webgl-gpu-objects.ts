@@ -36,7 +36,8 @@ export class WebGLGPUBuffer extends WebGLGPUObject {
     glTarget: GLenum = 0;
     glBuffer: WebGLBuffer = 0;
     buffer: ArrayBuffer | null = null;
-    bufferView: Uint8Array | null = null;
+    viewUI8: Uint8Array | null = null;
+    viewF32: Float32Array | null = null;
 
     constructor() {
         super(WebGLGPUObjectType.BUFFER);
@@ -142,7 +143,7 @@ export class WebGLGPUUniform {
 
     glType: GLenum = 0;
     glLoc: WebGLUniformLocation = -1;
-    bufferView: Int32Array | Float32Array | null = null;
+    view: Float32Array | Int32Array | null = null;
 };
 
 export class WebGLGPUUniformBlock {
@@ -153,7 +154,6 @@ export class WebGLGPUUniformBlock {
 
     isUniformPackage: boolean = false;  // Is a single uniform package?
     buffer: ArrayBuffer | null = null;  // for cache
-    bufferView: DataView | null = null;
 }
 
 export class WebGLGPUUniformSampler {

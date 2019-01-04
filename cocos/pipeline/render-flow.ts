@@ -25,10 +25,6 @@ export abstract class RenderFlow {
         }
     }
 
-    public resize(width, height) {
-        
-    }
-
     public createStage<T extends RenderStage>(clazz: new(flow: RenderFlow) => T, info : RenderStageInfo): RenderStage | null {
         let stage: RenderStage = new clazz(this);
         if(stage.initialize(info)) {

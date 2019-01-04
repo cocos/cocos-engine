@@ -3,7 +3,7 @@ import { RenderFlow } from "../render-flow";
 import { GFXCommandBuffer } from "../../gfx/command-buffer";
 import { RenderView } from "../render-view";
 import { GFXFramebuffer } from "../../gfx/framebuffer";
-import { GFXCommandBufferType, GFXShaderType, GFXPrimitiveMode, GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXTextureLayout, GFXBufferTextureCopy, GFXAddress, GFXFilter, GFXBindingType, GFXType } from "../../gfx/define";
+import { GFXCommandBufferType, GFXShaderType, GFXPrimitiveMode, GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXTextureLayout, GFXBufferTextureCopy, GFXAddress, GFXFilter, GFXBindingType, GFXType, GFXCullMode } from "../../gfx/define";
 import { GFXInputAssembler } from "../../gfx/input-assembler";
 import { GFXPipelineState, GFXInputState, GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../../gfx/pipeline-state";
 import { GFXShader } from "../../gfx/shader";
@@ -13,6 +13,7 @@ import { GFXBindingLayout } from "../../gfx/binding-layout";
 import { GFXTexture } from "../../gfx/texture";
 import { GFXTextureView } from "../../gfx/texture-view";
 import { GFXSampler } from "../../gfx/sampler";
+import { GFXBuffer } from "../../gfx/buffer";
 
 /*
 declare module '*.png' {
@@ -38,11 +39,14 @@ let _shader_fs = `#version 100
 precision highp float;
 varying vec2 v_texCoord;
 
+uniform vec4 u_color;
+
 uniform sampler2D u_sampler;
 
 void main() {
     //gl_FragColor = vec4(0.6, 0.3, 0.3, 1.0);
     gl_FragColor = texture2D(u_sampler, v_texCoord);
+    gl_FragColor.r = u_color.r;
 }`;
 
 export class TestStage extends RenderStage {
@@ -82,8 +86,13 @@ export class TestStage extends RenderStage {
         this._shader = this._device.createShader({
             name: "test",
             stages: [vsStage, fsStage],
+            blocks: [{
+                binding: 5, name: "UBO", uniforms: [
+                    { name: "u_color", type: GFXType.FLOAT4, count: 1 },
+                ]
+            }],
             samplers: [
-                {binding: 10, name: "u_sampler", type: GFXType.SAMPLER2D, count: 1 }
+                { binding: 10, name: "u_sampler", type: GFXType.SAMPLER2D, count: 1 }
             ]
         });
         if (!this._shader) {
@@ -92,6 +101,7 @@ export class TestStage extends RenderStage {
 
         this._bindingLayout = this._device.createBindingLayout({
             bindings: [
+                { binding: 5, type: GFXBindingType.UNIFORM_BUFFER, name: "u_color" },
                 { binding: 10, type: GFXBindingType.SAMPLER, name: "u_sampler" },
             ],
         });
@@ -112,6 +122,8 @@ export class TestStage extends RenderStage {
 
         let is: GFXInputState = { attributes: this._pipeline.quadIA.attributes };
 
+        this._rs.cullMode = GFXCullMode.BACK;
+
         this._pipelineState = this._device.createPipelineState({
             primitive: GFXPrimitiveMode.TRIANGLE_LIST,
             shader: this._shader,
@@ -123,6 +135,28 @@ export class TestStage extends RenderStage {
             renderPass: <GFXRenderPass>this._framebuffer.renderPass,
         });
 
+        // create ubo
+        let color = [1.0, 0.3, 0.3, 1.0];
+        let uboStride = color.length * 4;
+        this._ubo = this._device.createBuffer({
+            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST,
+            size: uboStride,
+            stride: uboStride,
+        });
+
+        if (!this._ubo) {
+            return false;
+        }
+
+        let uboView = new Float32Array(4);
+        uboView[0] = 1.0;
+        uboView[1] = 0.3;
+        uboView[2] = 0.3;
+        uboView[3] = 1.0;
+        this._ubo.update(uboView);
+
+        // load texture
         let imgElms = this._device.canvas.getElementsByTagName("img");
         if (imgElms.length) {
             if (!this.loadTexture(<HTMLImageElement>imgElms[0])) {
@@ -143,6 +177,21 @@ export class TestStage extends RenderStage {
         if (this._shader) {
             this._shader.destroy();
             this._shader = null;
+        }
+
+        if (this._ubo) {
+            this._ubo.destroy();
+            this._ubo = null;
+        }
+
+        if (this._texView) {
+            this._texView.destroy();
+            this._texView = null;
+        }
+
+        if (this._texture) {
+            this._texture.destroy();
+            this._texture = null;
         }
 
         if (this._bindingLayout) {
@@ -241,6 +290,7 @@ export class TestStage extends RenderStage {
             return false;
         }
 
+        this._bindingLayout.bindBuffer(5, <GFXBuffer>this._ubo);
         this._bindingLayout.bindTextureView(10, <GFXTextureView>this._texView);
         this._bindingLayout.bindSampler(10, <GFXSampler>this._sampler);
         this._bindingLayout.update();
@@ -256,8 +306,9 @@ export class TestStage extends RenderStage {
     private _dss: GFXDepthStencilState = new GFXDepthStencilState;
     private _bs: GFXBlendState = new GFXBlendState;
 
+    private _ubo: GFXBuffer | null = null;
+
     private _texture: GFXTexture | null = null;
     private _texView: GFXTextureView | null = null;
     private _sampler: GFXSampler | null = null;
-
 };

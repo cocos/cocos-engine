@@ -33,9 +33,6 @@ export abstract class RenderPipeline {
         }
     }
 
-    public resize(width, height) {
-    }
-
     public addRenderPass(stage: number, renderPass: GFXRenderPass) {
         if (renderPass) {
             this._renderPasses.set(stage, renderPass);
@@ -104,7 +101,7 @@ export abstract class RenderPipeline {
         let vbSize = vbStride * 4;
 
         this._quadVB = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX,
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: vbSize,
             stride: vbStride,
@@ -128,7 +125,7 @@ export abstract class RenderPipeline {
         let ibSize = ibStride * 6;
 
         this._quadIB = this._device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX,
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: ibSize,
             stride: ibStride,

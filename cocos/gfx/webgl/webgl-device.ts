@@ -424,14 +424,15 @@ export class WebGLGFXDevice extends GFXDevice {
             size: info.size,
             stride: info.stride ? info.stride : 1,
             buffer: null,
-            bufferView: null,
+            viewUI8: null,
+            viewF32: null,
             glTarget: 0,
             glBuffer: 0,
         };
 
         if (buffer) {
             gpuBuffer.buffer = buffer;
-            gpuBuffer.bufferView = new Uint8Array(gpuBuffer.buffer);
+            gpuBuffer.viewUI8 = new Uint8Array(gpuBuffer.buffer);
         }
 
         //let isUBOSimulate = (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) !== GFXBufferUsageBit.NONE;
@@ -451,9 +452,8 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public emitCmdUpdateGPUBuffer(gpuBuffer: WebGLGPUBuffer, offset: number, buffer: ArrayBuffer) {
         // TODO: Async
-        let isUBOSimulate = (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) !== GFXBufferUsageBit.NONE;
         let isStagingBuffer = (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_SRC) !== GFXBufferUsageBit.NONE;
-        if (!isUBOSimulate && !isStagingBuffer) {
+        if (!isStagingBuffer) {
             WebGLCmdFuncUpdateBuffer(<WebGLGFXDevice>this, gpuBuffer, offset, buffer);
         }
     }

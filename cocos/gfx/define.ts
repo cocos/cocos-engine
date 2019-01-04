@@ -22,17 +22,6 @@ export const GFX_MAX_VERTEX_ATTRIBUTES: number = 16;
 export const GFX_MAX_TEXTURE_UNITS: number = 16;
 export const GFX_MAX_ATTACHMENTS: number = 4;
 
-export const GFX_ATTRIBUTE_POSITION = 'a_position';     // 0
-export const GFX_ATTRIBUTE_COLOR = 'a_color';           // 1
-export const GFX_ATTRIBUTE_COLOR1 = 'a_color1';         // 2
-export const GFX_ATTRIBUTE_NORMAL = 'a_normal';         // 3
-export const GFX_ATTRIBUTE_TANGENT = 'a_tangent';       // 4
-export const GFX_ATTRIBUTE_BINORMAL = 'a_binormal';     // 5
-export const GFX_ATTRIBUTE_TEXCOORD = 'a_texCoord';     // 6
-export const GFX_ATTRIBUTE_TEXCOORD1 = 'a_texCoord1';   // 7
-export const GFX_ATTRIBUTE_JOINTS = 'a_joints';         // 8
-export const GFX_ATTRIBUTE_WEIGHTS = 'a_weights';       // 9
-
 export enum GFXType {
     UNKNOWN,
     BOOL,
@@ -705,31 +694,5 @@ export function GFXGetTypeSize(type: GFXType): number {
         default: {
             return 0;
         }
-    }
-}
-
-export function GFXGetAttributeBinding(name: string): number {
-    if (name === GFX_ATTRIBUTE_POSITION) {
-        return 6;
-    } else if (name === GFX_ATTRIBUTE_COLOR) {
-        return 7;
-    } else if (name === GFX_ATTRIBUTE_COLOR1) {
-        return 8;
-    } else if (name === GFX_ATTRIBUTE_NORMAL) {
-        return 9;
-    } else if (name === GFX_ATTRIBUTE_TANGENT) {
-        return 10;
-    } else if (name === GFX_ATTRIBUTE_BINORMAL) {
-        return 11;
-    } else if (name === GFX_ATTRIBUTE_TEXCOORD) {
-        return 12;
-    } else if (name === GFX_ATTRIBUTE_TEXCOORD1) {
-        return 13;
-    } else if (name === GFX_ATTRIBUTE_JOINTS) {
-        return 14;
-    } else if (name === GFX_ATTRIBUTE_WEIGHTS) {
-        return 15;
-    } else {
-        return -1;
     }
 }

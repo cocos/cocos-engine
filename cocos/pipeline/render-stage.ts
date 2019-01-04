@@ -5,7 +5,7 @@ import { GFXCommandBuffer } from "../gfx/command-buffer";
 import { RenderFlow } from "./render-flow";
 import { GFXDevice } from "../gfx/device";
 import { RenderPipeline } from "./render-pipeline";
-import { GFXColor, GFX_MAX_ATTACHMENTS, GFXRect } from "../gfx/define";
+import { GFXColor, GFXRect } from "../gfx/define";
 
 export interface RenderStageInfo {
     name?: string;
@@ -26,16 +26,12 @@ export abstract class RenderStage {
 
         this._device = this._flow.pipeline.root.device;
         this._clearColors = [{ r: 0.3, g: 0.6, b: 0.9, a: 1.0 }];
-        this._renderArea = { left: 0, top: 0, width: 0, height: 0 };
+        this._renderArea = { x: 0, y: 0, width: 0, height: 0 };
     }
 
     public abstract initialize(info: RenderStageInfo): boolean;
     public abstract destroy();
     public abstract render(view: RenderView);
-
-    public resize(width, height) {
-
-    }
 
     public setClearColor(color: GFXColor) {
         if (this._clearColors.length > 0) {
