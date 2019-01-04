@@ -199,16 +199,6 @@ export class TestStage extends RenderStage {
         let imgBuffer: ArrayBuffer = imgData.data;
         //var buffer = image.currentSrc;//arraybuffer object
 
-        let stagingBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.TRANSFER_SRC,
-            memUsage: GFXMemoryUsageBit.HOST,
-            size: imgBuffer.byteLength,
-        });
-
-        if (!stagingBuffer) {
-            return false;
-        }
-
         this._texture = this._device.createTexture({
             type: GFXTextureType.TEX2D,
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
@@ -232,17 +222,7 @@ export class TestStage extends RenderStage {
             return false;
         }
 
-        let region: GFXBufferTextureCopy = new GFXBufferTextureCopy;
-        region.texExtent.width = this._texture.width;
-        region.texExtent.height = this._texture.height;
-
-        let cmdBuff = <GFXCommandBuffer>this._cmdBuff;
-        cmdBuff.begin();
-        cmdBuff.updateBuffer(stagingBuffer, imgBuffer);
-        cmdBuff.copyBufferToTexture(stagingBuffer, this._texture, GFXTextureLayout.TRANSFER_DST_OPTIMAL, [region]);
-        cmdBuff.end();
-
-        this._device.queue.submit([cmdBuff]);
+        this._device.copyBufferToTexture2D(imgBuffer, this._texture);
 
         this._sampler = this._device.createSampler({
             minFilter: GFXFilter.LINEAR,

@@ -4,7 +4,7 @@ import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXQueue } from './webgl-queue';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLGPUBuffer, WebGLGPUObjectType, WebGLGPUTexture, WebGLGPURenderPass, WebGLGPUFramebuffer, WebGLGPUTextureView, WebGLGPUShader, WebGLGPUShaderStage, WebGLGPUSampler, WebGLGPUInputAssembler, WebGLGPUPipelineState, WebGLGPUPipelineLayout, WebGLGPUBindingLayout as WebGLGPUBindingLayout, WebGLGPUBinding } from './webgl-gpu-objects';
-import { WebGLCmdFuncUpdateBuffer, WebGLCmdFuncDestroyBuffer, WebGLCmdFuncCreateBuffer, WebGLCmdFuncDestroyTexture, WebGLCmdFuncCreateTexture, WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer, WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader, WebGLCmdFuncCreateInputAssember } from './webgl-commands';
+import { WebGLCmdFuncUpdateBuffer, WebGLCmdFuncDestroyBuffer, WebGLCmdFuncCreateBuffer, WebGLCmdFuncDestroyTexture, WebGLCmdFuncCreateTexture, WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer, WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader, WebGLCmdFuncCreateInputAssember, WebGLCmdFuncCopyBufferToTexture2D } from './webgl-commands';
 import { GFXTexture, GFXTextureInfo } from '../texture';
 import { GFXTextureViewInfo, GFXTextureView } from '../texture-view';
 import { GFXRenderPassInfo, GFXRenderPass } from '../render-pass';
@@ -31,7 +31,7 @@ import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { GFXWindow, GFXWindowInfo } from '../window';
 import { WebGLGFXWindow } from './webgl-window';
-import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXQueueType, GFXFormat } from '../define';
+import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXQueueType, GFXFormat, GFXBufferTextureCopy, GFXMemoryUsageBit, GFXTextureLayout, GFXTextureSubres, GFXRect } from '../define';
 import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 
 const WebGLPrimitives: GLenum[] = [
@@ -375,6 +375,36 @@ export class WebGLGFXDevice extends GFXDevice {
     }
 
     public present() {
+    }
+
+    public copyBufferToTexture2D(buffer: ArrayBuffer, texture: GFXTexture, rect?: GFXRect) {
+        
+        let bufferView = new Uint8Array(buffer);
+
+        let x, y, w, h;
+
+        if(rect !== undefined) {
+            x = rect.x;
+            y = rect.y;
+            w = rect.width;
+            h = rect.height;
+        } else {
+            x = 0;
+            y = 0;
+            w = texture.width;
+            h = texture.height;
+        }
+        
+        let region: GFXBufferTextureCopy = {
+            buffOffset: 0,
+            buffStride: 0,
+            buffTexHeight: 0,
+            texOffset: { x: x, y: y, z: 0 },
+            texExtent: { width: w, height: h, depth: 1 },
+            texSubres: new GFXTextureSubres,
+        };
+
+        WebGLCmdFuncCopyBufferToTexture2D(<WebGLGFXDevice>this, bufferView, (<WebGLGFXTexture>texture).gpuTexture, [region]);
     }
 
     public get gl(): WebGLRenderingContext {

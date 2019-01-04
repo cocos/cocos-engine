@@ -425,8 +425,8 @@ export enum GFXQueueType {
 // Interfaces
 
 export interface GFXRect {
-    left: number;
-    top: number;
+    x: number;
+    y: number;
     width: number;
     height: number;
 }
