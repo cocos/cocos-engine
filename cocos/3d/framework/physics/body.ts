@@ -5,7 +5,6 @@ import Node from '../../../scene-graph/node';
 import { PhysicsMaterial as PhysicsMaterial } from '../../assets/physics/material';
 import { setWrap, getWrap } from './util';
 import { Quat } from '../../../core/value-types';
-import Vec3 from '../../../core/value-types';
 
 export enum DataFlow {
     PUSHING,
