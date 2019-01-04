@@ -77,7 +77,7 @@ async function _doBundle (options: IBuildOptions) {
 
     const generated = await rollupBuild.generate({
         format: 'iife',
-        name: 'cc',
+        name: 'cc_modular',
         sourcemap: true,
     });
 
