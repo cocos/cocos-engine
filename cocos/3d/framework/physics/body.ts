@@ -5,6 +5,7 @@ import Node from '../../../scene-graph/node';
 import { PhysicsMaterial as PhysicsMaterial } from '../../assets/physics/material';
 import { setWrap, getWrap } from './util';
 import { Quat } from '../../../core/value-types';
+import Vec3 from '../../../core/value-types';
 
 export enum DataFlow {
     PUSHING,
@@ -117,7 +118,7 @@ export class PhysicsBody {
         return this._cannonBody.force;
     }
 
-    public applyForce(force: cc.Vec3, position?: cc.Vec3) {
+    public applyForce(force: Vec3, position?: Vec3) {
         if (!position) {
             position = this._cannonBody.position;
         }
@@ -295,7 +296,7 @@ export class PhysicsBody {
         this.pullTransform();
     }
 
-    private _pullScale(scale: cc.Vec3) {
+    private _pullScale(scale: Vec3) {
         let shapeUpdated = false;
         this._shapes.forEach((shape) => {
             let calcShapeOffset = false;
@@ -359,9 +360,9 @@ export class PhysicsBody {
 export class PhysicsShape {
     // public __debugNodeName: string = '';
 
-    private _scale: cc.Vec3 = new cc.Vec3(1.0, 1.0, 1.0);
+    private _scale: Vec3 = new Vec3(1.0, 1.0, 1.0);
 
-    private _center: cc.Vec3 = new cc.Vec3(0, 0, 0);
+    private _center: Vec3 = new Vec3(0, 0, 0);
 
     public _centerChanged = true;
 
@@ -395,12 +396,12 @@ export class PhysicsShape {
 }
 
 export class PhysicsBoxShape extends PhysicsShape {
-    private _size: cc.Vec3;
+    private _size: Vec3;
 
     constructor(size: Vec3) {
         super(new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2)));
 
-        this._size = new cc.Vec3(size.x, size.y, size.z);
+        this._size = new Vec3(size.x, size.y, size.z);
     }
 
     public get size() {
