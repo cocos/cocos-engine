@@ -32,75 +32,75 @@ export class GFXRasterizerState {
 };
 
 export class GFXDepthStencilState {
-    isDepthTest: boolean = true;
-    isWriteDepth: boolean = true;
+    depthTest: boolean = true;
+    depthWrite: boolean = true;
     depthFunc: GFXComparisonFunc = GFXComparisonFunc.LESS;
-    isFrontStencilTest: boolean = false;
-    frontStencilFunc: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
-    frontStencilReadMask: number = 0xffffffff;
-    frontStencilWriteMask: number = 0xffffffff;
-    frontStencilFailOp: GFXStencilOp = GFXStencilOp.KEEP;
-    frontStencilDepthFailOp: GFXStencilOp = GFXStencilOp.KEEP;
-    frontStencilPassOp: GFXStencilOp = GFXStencilOp.KEEP;
-    frontStencilRef: number = 1;
-    isBackStencilTest: boolean = false;
-    backStencilFunc: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
-    backStencilReadMask: number = 0xffffffff;
-    backStencilWriteMask: number = 0xffffffff;
-    backStencilFailOp: GFXStencilOp = GFXStencilOp.KEEP;
-    backStencilDepthFailOp: GFXStencilOp = GFXStencilOp.KEEP;
-    backStencilPassOp: GFXStencilOp = GFXStencilOp.KEEP;
-    backStencilRef: number = 1;
+    stencilTestFront: boolean = false;
+    stencilFuncFront: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
+    stencilReadMaskFront: number = 0xffffffff;
+    stencilWriteMaskFront: number = 0xffffffff;
+    stencilFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
+    stencilZFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
+    stencilPassOpFront: GFXStencilOp = GFXStencilOp.KEEP;
+    stencilRefFront: number = 1;
+    stencilTestBack: boolean = false;
+    stencilFuncBack: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
+    stencilReadMaskBack: number = 0xffffffff;
+    stencilWriteMaskBack: number = 0xffffffff;
+    stencilFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
+    stencilZFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
+    stencilPassOpBack: GFXStencilOp = GFXStencilOp.KEEP;
+    stencilRefBack: number = 1;
 
     public compare(state: GFXDepthStencilState): boolean {
-        return (this.isDepthTest === state.isDepthTest) &&
-            (this.isWriteDepth === state.isWriteDepth) &&
+        return (this.depthTest === state.depthTest) &&
+            (this.depthWrite === state.depthWrite) &&
             (this.depthFunc === state.depthFunc) &&
-            (this.isFrontStencilTest === state.isFrontStencilTest) &&
-            (this.frontStencilFunc === state.frontStencilFunc) &&
-            (this.frontStencilReadMask === state.frontStencilReadMask) &&
-            (this.frontStencilWriteMask === state.frontStencilWriteMask) &&
-            (this.frontStencilFailOp === state.frontStencilFailOp) &&
-            (this.frontStencilDepthFailOp === state.frontStencilDepthFailOp) &&
-            (this.frontStencilPassOp === state.frontStencilPassOp) &&
-            (this.frontStencilRef === state.frontStencilRef) &&
-            (this.isBackStencilTest === state.isBackStencilTest) &&
-            (this.backStencilFunc === state.backStencilFunc) &&
-            (this.backStencilReadMask === state.backStencilReadMask) &&
-            (this.backStencilWriteMask === state.backStencilWriteMask) &&
-            (this.backStencilFailOp === state.backStencilFailOp) &&
-            (this.backStencilDepthFailOp === state.backStencilDepthFailOp) &&
-            (this.backStencilPassOp === state.backStencilPassOp) &&
-            (this.backStencilRef === state.backStencilRef);
+            (this.stencilTestFront === state.stencilTestFront) &&
+            (this.stencilFuncFront === state.stencilFuncFront) &&
+            (this.stencilReadMaskFront === state.stencilReadMaskFront) &&
+            (this.stencilWriteMaskFront === state.stencilWriteMaskFront) &&
+            (this.stencilFailOpFront === state.stencilFailOpFront) &&
+            (this.stencilZFailOpFront === state.stencilZFailOpFront) &&
+            (this.stencilPassOpFront === state.stencilPassOpFront) &&
+            (this.stencilRefFront === state.stencilRefFront) &&
+            (this.stencilTestBack === state.stencilTestBack) &&
+            (this.stencilFuncBack === state.stencilFuncBack) &&
+            (this.stencilReadMaskBack === state.stencilReadMaskBack) &&
+            (this.stencilWriteMaskBack === state.stencilWriteMaskBack) &&
+            (this.stencilFailOpBack === state.stencilFailOpBack) &&
+            (this.stencilZFailOpBack === state.stencilZFailOpBack) &&
+            (this.stencilPassOpBack === state.stencilPassOpBack) &&
+            (this.stencilRefBack === state.stencilRefBack);
     }
 };
 
 export class GFXBlendTarget {
-    isBlend: boolean = false;
-    srcBlend: GFXBlendFactor = GFXBlendFactor.ONE;
-    dstBlend: GFXBlendFactor = GFXBlendFactor.ZERO;
-    blendOp: GFXBlendOp = GFXBlendOp.ADD;
-    srcAlphaBlend: GFXBlendFactor = GFXBlendFactor.ONE;
-    dstAlphaBlend: GFXBlendFactor = GFXBlendFactor.ZERO;
-    alphBlendOp: GFXBlendOp = GFXBlendOp.ADD;
-    colorWriteMask: GFXColorMask = GFXColorMask.ALL;
+    blend: boolean = false;
+    blendSrc: GFXBlendFactor = GFXBlendFactor.ONE;
+    blendDst: GFXBlendFactor = GFXBlendFactor.ZERO;
+    blendEq: GFXBlendOp = GFXBlendOp.ADD;
+    blendSrcAlpha: GFXBlendFactor = GFXBlendFactor.ONE;
+    blendDstAlpha: GFXBlendFactor = GFXBlendFactor.ZERO;
+    blendAlphaEq: GFXBlendOp = GFXBlendOp.ADD;
+    blendColorMask: GFXColorMask = GFXColorMask.ALL;
 
     public compare(state: GFXBlendTarget): boolean {
-        return (this.isBlend === state.isBlend) &&
-            (this.srcBlend === state.srcBlend) &&
-            (this.dstBlend === state.dstBlend) &&
-            (this.blendOp === state.blendOp) &&
-            (this.srcAlphaBlend === state.srcAlphaBlend) &&
-            (this.dstAlphaBlend === state.dstAlphaBlend) &&
-            (this.alphBlendOp === state.alphBlendOp) &&
-            (this.colorWriteMask === state.colorWriteMask);
+        return (this.blend === state.blend) &&
+            (this.blendSrc === state.blendSrc) &&
+            (this.blendDst === state.blendDst) &&
+            (this.blendEq === state.blendEq) &&
+            (this.blendSrcAlpha === state.blendSrcAlpha) &&
+            (this.blendDstAlpha === state.blendDstAlpha) &&
+            (this.blendAlphaEq === state.blendAlphaEq) &&
+            (this.blendColorMask === state.blendColorMask);
     }
 };
 
 export class GFXBlendState {
     isA2C: boolean = false;
     isIndepend: boolean = false;
-    factor: number[] = [0, 0, 0, 0];
+    blendColor: number[] = [0, 0, 0, 0];
     targets: GFXBlendTarget[] = [new GFXBlendTarget];
 }
 
