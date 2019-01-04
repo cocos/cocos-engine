@@ -16,9 +16,11 @@ export interface IBuildOptions {
     outputPath: string;
     globalDefines: object;
     excludes?: string[];
+    compress?: boolean;
+    sourcemap?: boolean;
 }
 
-export async function build(options: IBuildOptions) {
+export async function build (options: IBuildOptions) {
     console.log(`Options: ${JSON.stringify(options)}`);
     const result = await _doBundle(options);
     if (!result) {
@@ -27,7 +29,7 @@ export async function build(options: IBuildOptions) {
     fs.writeFileSync(options.outputPath, result.code);
 }
 
-async function _doBundle(options: IBuildOptions) {
+async function _doBundle (options: IBuildOptions) {
     let code = '';
 
     const rollupPlugins = [
