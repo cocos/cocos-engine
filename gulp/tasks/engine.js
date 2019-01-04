@@ -28,7 +28,7 @@
 const Utils = require('../util/utils');
 const createBundler = require('../util/create-bundler');
 const Path = require('path');
-const Fs = require('fire-fs');
+const Fs = require('fs-extra');
 
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');
