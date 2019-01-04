@@ -3,7 +3,7 @@ import { PhysicsMaterial } from '../../assets/physics/material';
 import { DataFlow, PhysicsBody, PhysicsShape } from './body';
 import { ContactMaterial } from './contact-material';
 import { getWrap, setWrap, toCannonOptions } from './util';
-import Vec3 from '../../../core/value-types';
+import { Vec3 } from '../../../core/value-types';
 
 export interface RaycastOptions {
     collisionFilterMask?: number;
