@@ -2,6 +2,7 @@ import { repeat, lerp, pseudoRandom } from "../../../../core/vmath";
 import { Enum } from "../../../../core/value-types";
 import CurveRange from "./curve-range";
 import { CCClass } from "../../../../core/data";
+import { ccclass, property } from '../../../../core/data/class-decorator';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
 
@@ -15,8 +16,10 @@ const Animation = Enum({
     SingleRow: 1
 });
 
+@ccclass('cc.TextureAnimationModule')
 export default class TextureAnimationModule {
 
+    @property
     _enable = false;
 
     get enable() {
@@ -28,6 +31,7 @@ export default class TextureAnimationModule {
         this.ps.renderer._updateMaterialParams();
     }
 
+    @property({ type: Mode })
     _mode = Mode.Grid
 
     get mode() {
@@ -41,18 +45,25 @@ export default class TextureAnimationModule {
         }
     }
 
+    @property
     numTilesX = 0;
 
+    @property
     numTilesY = 0;
 
+    @property({ type: Animation })
     animation = Animation.WholeSheet;
 
+    @property({ type: CurveRange })
     frameOverTime = null;
 
+    @property({ type: CurveRange })
     startFrame = null;
 
+    @property
     cycleCount = 0;
 
+    @property
     _flipU = 0;
 
     get flipU() {
@@ -63,6 +74,7 @@ export default class TextureAnimationModule {
         console.error("particle texture animation's flipU is not supported!");
     }
 
+    @property
     _flipV = 0;
 
     get flipV() {
@@ -73,6 +85,7 @@ export default class TextureAnimationModule {
         console.error("particle texture animation's flipV is not supported!");
     }
 
+    @property
     _uvChannelMask = -1
 
     get uvChannelMask() {
@@ -83,8 +96,10 @@ export default class TextureAnimationModule {
         console.error("particle texture animation's uvChannelMask is not supported!");
     }
 
+    @property
     randomRow = false;
 
+    @property
     rowIndex = 0;
 
     onInit(ps) {
@@ -115,18 +130,18 @@ export default class TextureAnimationModule {
     }
 }
 
-CCClass.fastDefine('cc.TextureAnimationModule', TextureAnimationModule, {
-    _enable: false,
-    _mode: Mode.Grid,
-    numTilesX: 0,
-    numTilesY: 0,
-    animation: Animation.WholeSheet,
-    frameOverTime: new CurveRange(),
-    startFrame: new CurveRange(),
-    cycleCount: 0,
-    _flipU: 0,
-    _flipV: 0,
-    _uvChannelMask: -1,
-    randomRow: false,
-    rowIndex: 0
-});
+// CCClass.fastDefine('cc.TextureAnimationModule', TextureAnimationModule, {
+//     _enable: false,
+//     _mode: Mode.Grid,
+//     numTilesX: 0,
+//     numTilesY: 0,
+//     animation: Animation.WholeSheet,
+//     frameOverTime: new CurveRange(),
+//     startFrame: new CurveRange(),
+//     cycleCount: 0,
+//     _flipU: 0,
+//     _flipV: 0,
+//     _uvChannelMask: -1,
+//     randomRow: false,
+//     rowIndex: 0
+// });

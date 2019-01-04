@@ -1,6 +1,7 @@
 import { repeat } from '../../../../core/vmath';
 import { Enum, ValueType } from '../../../../core/value-types';
 import { CCClass } from '../../../../core/data';
+import { ccclass, property } from '../../../../core/data/class-decorator';
 
 const Mode = Enum({
     Blend: 0,
@@ -31,12 +32,16 @@ CCClass.fastDefine('cc.AlphaKey', AlphaKey, {
     time: 0
 });
 
+@ccclass('cc.Gradient')
 export default class Gradient extends ValueType {
 
+    // todo type
     colorKeys = [];
 
+    // todo type
     alphaKeys = []
 
+    @property({ type: Mode })
     mode = Mode.Blend;
 
     constructor() {
@@ -125,8 +130,8 @@ export default class Gradient extends ValueType {
     }
 }
 
-CCClass.fastDefine('cc.Gradient', Gradient, {
-    mode: Mode.Blend,
-    colorKeys: [],
-    alphaKeys: []
-});
+// CCClass.fastDefine('cc.Gradient', Gradient, {
+//     mode: Mode.Blend,
+//     colorKeys: [],
+//     alphaKeys: []
+// });

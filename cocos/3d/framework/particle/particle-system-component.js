@@ -50,33 +50,35 @@ export default class ParticleSystemComponent extends Component {
     @property
     capacity = 2000;
 
-    @property
+    @property({
+        type: cc.Color
+    })
     startColor = null;
 
     @property({
         type: CurveRange
     })
-    startSize = null;
+    startSize = new CurveRange;
 
     @property({
         type: CurveRange
     })
-    startSpeed = null;
+    startSpeed = new CurveRange;
 
     @property({
         type: CurveRange
     })
-    startRotation = null;
+    startRotation = new CurveRange;
 
     @property({
         type: CurveRange
     })
-    startDelay = null;
+    startDelay = new CurveRange;
 
     @property({
         type: CurveRange
     })
-    startLifetime = null;
+    startLifetime = new CurveRange;
 
     @property
     duration = 5.0;
@@ -127,35 +129,35 @@ export default class ParticleSystemComponent extends Component {
     @property({
         type: CurveRange
     })
-    gravityModifier = null;
+    gravityModifier = new CurveRange;
 
     // emission module
     @property({
         type: CurveRange
     })
-    rateOverTime = null;
+    rateOverTime = new CurveRange;
 
     @property({
         type: CurveRange
     })
-    rateOverDistance = null;
+    rateOverDistance = new CurveRange;
 
     @property({
         type: [Burst]
     })
-    bursts = null;
+    bursts = [];
 
     // color over lifetime module
     @property({
         type: ColorOverLifetimeModule
     })
-    colorOverLifetimeModule = null;
+    colorOverLifetimeModule = new ColorOverLifetimeModule;
 
     // shpae module
     @property({
         type: ShapeModule
     })
-    shapeModule = null;
+    shapeModule = new ShapeModule;
 
     // particle system renderer
     @property({
@@ -167,32 +169,32 @@ export default class ParticleSystemComponent extends Component {
     @property({
         type: SizeOvertimeModule
     })
-    sizeOvertimeModule = null;
+    sizeOvertimeModule = new SizeOvertimeModule;
 
     @property({
         type: VelocityOvertimeModule
     })
-    velocityOvertimeModule = null;
+    velocityOvertimeModule = new VelocityOvertimeModule;
 
     @property({
         type: ForceOvertimeModule
     })
-    forceOvertimeModule = null;
+    forceOvertimeModule = new ForceOvertimeModule;
 
     @property({
         type: LimitVelocityOvertimeModule
     })
-    limitVelocityOvertimeModule = null;
+    limitVelocityOvertimeModule = new LimitVelocityOvertimeModule;
 
     @property({
         type: RotationOvertimeModule
     })
-    rotationOvertimeModule = null;
+    rotationOvertimeModule = new RotationOvertimeModule;
 
     @property({
         type: TextureAnimationModule
     })
-    textureAnimationModule = null;
+    textureAnimationModule = new TextureAnimationModule;
 
     constructor() {
         super();

@@ -2,21 +2,29 @@ import { vec3, quat, pseudoRandom } from '../../../../core/vmath';
 import { calculateTransform, Space } from '../particle-general-function';
 import CurveRange from './curve-range';
 import { CCClass } from '../../../../core/data';
+import { ccclass, property } from '../../../../core/data/class-decorator';
 
 const VELOCITY_OVERTIME_RAND_OFFSET = 197866;
 
+@ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule {
 
+    @property
     enable = false;
 
+    @property({ type: CurveRange })
     x = null;
 
+    @property({ type: CurveRange })
     y = null;
 
+    @property({ type: CurveRange })
     z = null;
 
+    @property({ type: CurveRange })
     speedModifier = null;
 
+    @property({ type: Space })
     space = Space.Local;
 
     constructor() {
@@ -40,11 +48,11 @@ export default class VelocityOvertimeModule {
 
 }
 
-CCClass.fastDefine('cc.VelocityOvertimeModule', VelocityOvertimeModule, {
-    enable: false,
-    x: new CurveRange(),
-    y: new CurveRange(),
-    z: new CurveRange(),
-    speedModifier: new CurveRange(),
-    space: Space.Local
-});
+// CCClass.fastDefine('cc.VelocityOvertimeModule', VelocityOvertimeModule, {
+//     enable: false,
+//     x: new CurveRange(),
+//     y: new CurveRange(),
+//     z: new CurveRange(),
+//     speedModifier: new CurveRange(),
+//     space: Space.Local
+// });

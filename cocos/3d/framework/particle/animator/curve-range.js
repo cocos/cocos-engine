@@ -2,6 +2,7 @@ import { lerp } from '../../../../core/vmath';
 import { Enum } from '../../../../core/value-types';
 import { AnimationCurve } from '../../../geom-utils';
 import { CCClass } from '../../../../core/data';
+import { ccclass, property } from '../../../../core/data/class-decorator';
 
 const Mode = Enum({
     Constant: 0,
@@ -10,22 +11,31 @@ const Mode = Enum({
     TwoConstants: 3
 });
 
+@ccclass('cc.CurveRange')
 export default class CurveRange {
 
+    @property({ type: Mode })
     mode = Mode.Constant;
 
+    @property({ type: AnimationCurve })
     curve = null;
 
+    @property({ type: AnimationCurve })
     curveMin = null;
 
+    @property({ type: AnimationCurve })
     curveMax = null;
 
+    @property
     constant = 0;
 
+    @property
     constantMin = 0;
 
+    @property
     constantMax = 0;
 
+    @property
     multiplier = 1;
 
     constructor() {
@@ -46,13 +56,13 @@ export default class CurveRange {
     }
 }
 
-CCClass.fastDefine('cc.CurveRange', CurveRange, {
-    mode: Mode.Constant,
-    constant: 0,
-    constantMin: 0,
-    constantMax: 0,
-    curve: new AnimationCurve(),
-    curveMin: new AnimationCurve(),
-    curveMax: new AnimationCurve(),
-    multiplier: 1
-});
+// CCClass.fastDefine('cc.CurveRange', CurveRange, {
+//     mode: Mode.Constant,
+//     constant: 0,
+//     constantMin: 0,
+//     constantMax: 0,
+//     curve: new AnimationCurve(),
+//     curveMin: new AnimationCurve(),
+//     curveMax: new AnimationCurve(),
+//     multiplier: 1
+// });

@@ -1,32 +1,45 @@
 import { vec3, lerp, pseudoRandom } from '../../../../core/vmath';
 import { CCClass } from '../../../../core/data';
 import { Space } from '../particle-general-function';
+import { ccclass, property } from '../../../../core/data/class-decorator';
 
 const LIMIT_VELOCITY_RAND_OFFSET = 23541;
 
+@ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule {
 
+    @property
     enable = false;
 
+    // todo type
     limitX = null;
 
+    // todo type
     limitY = null;
 
+    // todo type
     limitZ = null;
 
+    // todo type
     limit = null;
 
+    // todo type
     dampen = null;
 
+    @property
     separateAxes = false;
 
+    @property({ type: Space })
     space = Space.Local;
 
     // TODO:functions related to drag are temporarily not supported
+    // todo: type
     drag = null;
 
+    @property
     multiplyDragByParticleSize = false;
 
+    @property
     multiplyDragByParticleVelocity = false;
 
     constructor() {
@@ -59,17 +72,17 @@ function dampenBeyondLimit(vel, limit, dampen) {
     return abs * sgn;
 }
 
-CCClass.fastDefine('cc.LimitVelocityOvertimeModule',LimitVelocityOvertimeModule,{
-    enable : false,
-    limitX : null,
-    limitY : null,
-    limitZ : null,
-    limit : null,
-    dampen : null,
-    separateAxes : false,
-    space : Space.Local,
-    // TODO:functions related to drag are temporarily not supported
-    drag : null,
-    multiplyDragByParticleSize : false,
-    multiplyDragByParticleVelocity : false
-});
+// CCClass.fastDefine('cc.LimitVelocityOvertimeModule',LimitVelocityOvertimeModule,{
+//     enable : false,
+//     limitX : null,
+//     limitY : null,
+//     limitZ : null,
+//     limit : null,
+//     dampen : null,
+//     separateAxes : false,
+//     space : Space.Local,
+//     // TODO:functions related to drag are temporarily not supported
+//     drag : null,
+//     multiplyDragByParticleSize : false,
+//     multiplyDragByParticleVelocity : false
+// });

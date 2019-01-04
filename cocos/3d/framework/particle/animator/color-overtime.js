@@ -1,12 +1,16 @@
 import { color4, pseudoRandom } from '../../../../core/vmath';
 import { CCClass } from '../../../../core/data';
+import { ccclass, property } from '../../../../core/data/class-decorator';
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
 
+@ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule {
 
+    @property
     enable = false;
 
+    @property({ type: cc.Color })
     color = null;
 
     animate(particle) {
@@ -16,7 +20,7 @@ export default class ColorOvertimeModule {
     }
 }
 
-CCClass.fastDefine('cc.ColorOvertimeModule', ColorOvertimeModule, {
-    enable: false,
-    color: null
-});
+// CCClass.fastDefine('cc.ColorOvertimeModule', ColorOvertimeModule, {
+//     enable: false,
+//     color: null
+// });

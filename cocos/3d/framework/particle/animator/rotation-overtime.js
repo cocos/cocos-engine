@@ -1,13 +1,17 @@
 import { pseudoRandom } from "../../../../core/vmath";
 import { CCClass } from "../../../../core/data";
 import CurveRange from "./curve-range";
+import { ccclass, property } from '../../../../core/data/class-decorator';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
+@ccclass('cc.RotationOvertimeModule')
 export default class RotationOvertimeModule {
 
+    @property
     enable = false;
 
+    @property
     _separateAxes = false;
 
     get separateAxes() {
@@ -23,10 +27,13 @@ export default class RotationOvertimeModule {
         }
     }
 
+    @property({ type: CurveRange })
     x = null;
 
+    @property({ type: CurveRange })
     y = null;
 
+    @property({ type: CurveRange })
     z = null;
 
     constructor() {
@@ -44,10 +51,10 @@ export default class RotationOvertimeModule {
     }
 }
 
-CCClass.fastDefine('cc.RotationOvertimeModule',RotationOvertimeModule,{
-    enable : false,
-    _separateAxes : false,
-    x : new CurveRange(),
-    y : new CurveRange(),
-    z : new CurveRange()
-});
+// CCClass.fastDefine('cc.RotationOvertimeModule',RotationOvertimeModule,{
+//     enable : false,
+//     _separateAxes : false,
+//     x : new CurveRange(),
+//     y : new CurveRange(),
+//     z : new CurveRange()
+// });

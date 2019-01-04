@@ -3,6 +3,7 @@ import { vec3, vec2, random, randomRange, mat4, quat, clamp, repeat, pingPong } 
 import { Enum, Vec3 } from '../../../../core/value-types';
 import CurveRange from '../animator/curve-range';
 import { CCClass } from '../../../../core/data';
+import { ccclass, property } from '../../../../core/data/class-decorator';
 
 let _intermediVec = vec3.create(0, 0, 0);
 let _intermediArr = new Array();
@@ -29,14 +30,19 @@ const ArcMode = Enum({
     PingPong: 2
 });
 
+@ccclass('cc.ShapeModule')
 export default class ShapeModule {
 
+    @property
     enable = false;
 
+    @property({ type: ShapeType })
     shapeType = ShapeType.Box;
 
+    @property({ type: EmitLocation })
     emitFrom = EmitLocation.Base;
 
+    @property({ type: Vec3 })
     _position = new Vec3(0, 0, 0);
 
     get position() {
@@ -47,7 +53,7 @@ export default class ShapeModule {
         this.constructMat();
     }
 
-
+    @property({ type: Vec3 })
     _rotation = new Vec3(0, 0, 0);
 
     get rotation() {
@@ -58,7 +64,7 @@ export default class ShapeModule {
         this.constructMat();
     }
 
-
+    @property({ type: Vec3 })
     _scale = new Vec3(0, 0, 0);
 
     get scale() {
@@ -69,30 +75,43 @@ export default class ShapeModule {
         this.constructMat();
     }
 
+    @property
     alignToDirection = false;
 
+    @property
     randomDirectionAmount = 0;
 
+    @property
     sphericalDirectionAmount = 0;
 
+    @property
     randomPositionAmount = 0;
 
+    @property
     radius = 0;
 
+    @property
     radiusThickness = 1;
 
+    @property
     arc = 0;
 
+    @property
     arcMode = ArcMode.Random;
 
+    @property
     arcSpread = 0;
 
+    @property({ type: CurveRange })
     arcSpeed = new CurveRange();
 
+    @property
     angle = 0;
 
+    @property
     length = 0;
 
+    @property({ type: Vec3 })
     boxThickness = new Vec3(0, 0, 0);
 
     constructor() {
@@ -284,24 +303,24 @@ function applyBoxThickness(pos, thickness) {
     }
 }
 
-CCClass.fastDefine('cc.ShapeModule', ShapeModule, {
-    enable: false,
-    shapeType: ShapeType.Box,
-    emitFrom: EmitLocation.Base,
-    _position: new Vec3(0, 0, 0),
-    _rotation: new Vec3(0, 0, 0),
-    _scale: new Vec3(0, 0, 0),
-    alignToDirection: false,
-    randomDirectionAmount: 0,
-    sphericalDirectionAmount: 0,
-    randomPositionAmount: 0,
-    radius: 0,
-    radiusThickness: 1,
-    arc: 0,
-    arcMode: ArcMode.Random,
-    arcSpread: 0,
-    arcSpeed: null,
-    angle: 0,
-    length: 0,
-    boxThickness: new Vec3(0, 0, 0)
-});
+// CCClass.fastDefine('cc.ShapeModule', ShapeModule, {
+//     enable: false,
+//     shapeType: ShapeType.Box,
+//     emitFrom: EmitLocation.Base,
+//     _position: new Vec3(0, 0, 0),
+//     _rotation: new Vec3(0, 0, 0),
+//     _scale: new Vec3(0, 0, 0),
+//     alignToDirection: false,
+//     randomDirectionAmount: 0,
+//     sphericalDirectionAmount: 0,
+//     randomPositionAmount: 0,
+//     radius: 0,
+//     radiusThickness: 1,
+//     arc: 0,
+//     arcMode: ArcMode.Random,
+//     arcSpread: 0,
+//     arcSpeed: null,
+//     angle: 0,
+//     length: 0,
+//     boxThickness: new Vec3(0, 0, 0)
+// });
