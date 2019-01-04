@@ -30,18 +30,13 @@ const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
-const SpriteMaterial = renderEngine.SpriteMaterial;
+const SpineMaterial = renderEngine.SpineMaterial;
 
 const STENCIL_SEP = '@';
 
 let _slotColor = cc.color(0, 0, 255, 255);
 let _boneColor = cc.color(255, 0, 0, 255);
 let _originColor = cc.color(0, 255, 0, 255);
-let _debugMaterial = new SpriteMaterial();
-_debugMaterial.useModel = true;
-_debugMaterial.useColor = false;
-_debugMaterial.useTexture = false;
-_debugMaterial.updateHash();
 
 function _updateKeyWithStencilRef (key, stencilRef) {
     return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
@@ -70,7 +65,7 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
     }
 
     let key = tex.url + src + dst + STENCIL_SEP + '0';
-    comp._material = comp._material || new SpriteMaterial();
+    comp._material = comp._material || new SpineMaterial();
     let baseMaterial = comp._material;
     let materialCache = comp._materialCache;
     let material = materialCache[key];
@@ -86,7 +81,8 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
         material.useModel = true;
         // update texture
         material.texture = tex;
-        material.useColor = false;
+        // update tint
+        material.useTint = comp.useTint;
 
         // update blend function
         let pass = material._mainTech.passes[0];
@@ -176,7 +172,6 @@ var spineAssembler = {
         let material = null, currMaterial = null;
         let vertexCount = 0, vertexOffset = 0;
         let indiceCount = 0, indiceOffset = 0;
-        let materialCache = comp._materialCache;
         for (let i = 0, n = locSkeleton.drawOrder.length; i < n; i++) {
             slot = locSkeleton.drawOrder[i];
             if (!slot.attachment)

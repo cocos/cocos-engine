@@ -27,7 +27,7 @@
 const TrackEntryListeners = require('./track-entry-listeners');
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const spine = require('./lib/spine');
-const SpriteMaterial = require('../../cocos2d/core/renderer/render-engine').SpriteMaterial;
+const SpineMaterial = require('../../cocos2d/core/renderer/render-engine').SpineMaterial;
 const Graphics = require('../../cocos2d/core/graphics/graphics');
 const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
 
@@ -354,6 +354,26 @@ sp.Skeleton = cc.Class({
                 this._initDebugDraw();
             }
         },
+
+        /**
+         * !#en Enabled two color tint.
+         * !#zh 是否启用染色效果。
+         * @property {Boolean} useTint
+         * @default false
+         */
+        useTint: {
+            default: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.use_tint',
+            notify () {
+                var cache = this._materialCache
+                for (var mKey in cache) {
+                    var material = cache[mKey];
+                    if (material) {
+                        material.useTint = this.useTint;
+                    }
+                }
+            }
+        }
     },
 
     // CONSTRUCTOR
@@ -362,7 +382,7 @@ sp.Skeleton = cc.Class({
         this._rootBone = null;
         this._listener = null;
         this._boundingBox = cc.rect();
-        this._material = new SpriteMaterial();
+        this._material = new SpineMaterial();
         this._materialCache = {};
         this._renderDatas = [];
         this._debugRenderer = null;
@@ -390,6 +410,7 @@ sp.Skeleton = cc.Class({
         }
 
         this._skeleton = new spine.Skeleton(skeletonData);
+        this._clipper = new spine.
         // this._skeleton.updateWorldTransform();
         this._rootBone = this._skeleton.getRootBone();
     },
@@ -444,7 +465,7 @@ sp.Skeleton = cc.Class({
         // Destroyed and restored in Editor
         if (!this._material) {
             this._boundingBox = cc.rect();
-	        this._material = new SpriteMaterial();
+	        this._material = new SpineMaterial();
             this._materialCache = {};
             this._renderDatas = [];
         }
