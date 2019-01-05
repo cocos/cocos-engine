@@ -38,6 +38,7 @@ export interface SamplerInfo {
 export interface DefineInfo {
     name: string;
     type: string;
+    range?: number[];
     defines: string[];
 }
 export interface ShaderInfo {
@@ -47,10 +48,10 @@ export interface ShaderInfo {
     defines: DefineInfo[];
     blocks: BlockInfo[];
     samplers: SamplerInfo[];
-    dependencies: { [name: string]: string };
+    dependencies: Record<string, string>;
 }
 
-const effects: { [name: string]: EffectAsset } = {};
+const effects: Record<string, EffectAsset> = {};
 
 @ccclass('cc.EffectAsset')
 export class EffectAsset extends Asset {
@@ -73,13 +74,13 @@ export class EffectAsset extends Asset {
         }
     }
     public static getAll() { return effects; }
-    protected static _effects: { [name: string]: EffectAsset } = {};
+    protected static _effects: Record<string, EffectAsset> = {};
 
     @property
     public techniques: TechniqueInfo[] = [];
 
     @property
-    public properties: { [name: string]: PropertyInfo } = {};
+    public properties: Record<string, PropertyInfo> = {};
 
     @property
     public shaders: ShaderInfo[] = [];

@@ -47,9 +47,6 @@ let _globalTechLod = 600;
 type PropValue = number | boolean | Vec2 | Vec3 | Vec4 | Color | Mat4 | Texture2D | TextureCube | null;
 interface PropertyMap { [name: string]: { type: number, value: PropValue }; }
 interface DefineMap { [name: string]: number | boolean; }
-interface DependencyMap { [name: string]: string; }
-
-interface ProgramMap { [name: string]: ShaderInfo; }
 
 class Effect {
     public static parseEffect(effect: EffectAsset, defines: DefineMap) { return new Effect(); }
@@ -60,16 +57,16 @@ class Effect {
     protected _techniques: Technique[] = [];
     protected _properties: PropertyMap = {};
     protected _defines: DefineMap = {};
-    protected _dependencies: DependencyMap = {};
+    protected _dependencies: Record<string, string> = {};
 
     protected _maxLOD: number = 0;
     protected _activeTechIdx: number = 0;
-    protected _programs: ProgramMap = {};
+    protected _programs: Record<string, ShaderInfo> = {};
 
     constructor(
         name: string = '',
         techniques: Technique[] = [new Technique()],
-        programs: ProgramMap = {},
+        programs: Record<string, ShaderInfo> = {},
         properties: PropertyMap = {},
         lod = -1
     ) {
@@ -193,7 +190,7 @@ const _ctorMap = {
 const getInstanceCtor = (t: number | string) => _ctorMap[getInstanceType(t)];
 
 const getInvolvedPrograms = (effect: EffectAsset) => {
-    const programs: ProgramMap = {};
+    const programs: Record<string, ShaderInfo> = {};
     const lib = cc.game._programLib;
     effect.techniques.forEach((tech) => {
         tech.passes.forEach((pass) => {
@@ -229,8 +226,8 @@ const parseProperties = (() => {
         }
         return program.samplers.find((u) => u.name === name);
     }
-    return (effect: EffectAsset, programs: ProgramMap) => {
-        const props: { [name: string]: ExtractedPropInfo } = {};
+    return (effect: EffectAsset, programs: Record<string, ShaderInfo>) => {
+        const props: Record<string, ExtractedPropInfo> = {};
         for (const prop of Object.keys(effect.properties)) {
             const propInfo = effect.properties[prop];
             let uniformInfo: UniformInfo | undefined;
@@ -297,7 +294,7 @@ if (CC_EDITOR) {
     Effect.parseForInspector = (effect: EffectAsset) => {
         const programs = getInvolvedPrograms(effect);
         const props = parseProperties(effect, programs);
-        const defines: { [name: string]: ExtractedPropInfo } = {};
+        const defines: Record<string, ExtractedPropInfo> = {};
         for (const pn of Object.keys(programs)) {
             programs[pn].defines.forEach((define) => {
                 defines[define.name] = {
