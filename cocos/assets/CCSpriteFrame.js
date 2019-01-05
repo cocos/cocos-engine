@@ -28,7 +28,7 @@
 import EventTarget from '../core/event/event-target';
 import textureUtil from './texture-util';
 import {addon} from '../core/utils/js';
-import Asset from './CCAsset';
+import { Asset } from './asset';
 import {ccclass, property} from '../core/data/class-decorator';
 
 

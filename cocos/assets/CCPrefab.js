@@ -27,7 +27,7 @@
 import {compile} from '../core/data/instantiate-jit';
 import Enum from '../core/value-types/enum';
 import {obsolete} from '../core/utils/js';
-import Asset from './CCAsset';
+import { Asset } from './asset';
 import {ccclass, property} from '../core/data/class-decorator';
 
 /**

@@ -38,8 +38,8 @@ const DontDestroy = 1 << 6;
 const Destroying = 1 << 7;
 const Deactivating = 1 << 8;
 const LockedInEditor = 1 << 9;
-//var HideInGame = 1 << 9;
-var HideInHierarchy = 1 << 10;
+// const HideInGame = 1 << 9;
+const HideInHierarchy = 1 << 10;
 
 const IsOnEnableCalled = 1 << 11;
 const IsEditorOnEnableCalled = 1 << 12;
@@ -54,7 +54,7 @@ const IsAnchorLocked = 1 << 19;
 const IsSizeLocked = 1 << 20;
 const IsPositionLocked = 1 << 21;
 
-//var Hide = HideInGame | HideInEditor;
+// const Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating |
                        IsPreloadStarted | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
@@ -62,37 +62,34 @@ const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactiva
                        IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
                        /*RegisteredInEditor*/);
 
-var objectsToDestroy = [];
-var deferredDestroyTimer = null;
+const objectsToDestroy: CCObject[] = [];
+let deferredDestroyTimer = null;
 
-function compileDestruct (obj, ctor) {
-    var shouldSkipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
-    var idToSkip = shouldSkipId ? '_id' : null;
+function compileDestruct(obj: object, ctor) {
+    const shouldSkipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
+    const idToSkip = shouldSkipId ? '_id' : null;
 
-    var key, propsToReset = {};
-    for (key in obj) {
-        if (obj.hasOwnProperty(key)) {
-            if (key === idToSkip) {
-                continue;
-            }
-            switch (typeof obj[key]) {
-                case 'string':
-                    propsToReset[key] = '';
-                    break;
-                case 'object':
-                case 'function':
-                    propsToReset[key] = null;
-                    break;
-            }
+    const propsToReset = {};
+    for (const key of Object.keys(obj)) {
+        if (key === idToSkip) {
+            continue;
+        }
+        switch (typeof obj[key]) {
+            case 'string':
+                propsToReset[key] = '';
+                break;
+            case 'object':
+            case 'function':
+                propsToReset[key] = null;
+                break;
         }
     }
     // Overwrite propsToReset according to Class
     if (CCClass._isCCClass(ctor)) {
-        var attrs = cc.Class.Attr.getClassAttrs(ctor);
-        var propList = ctor.__props__;
-        for (var i = 0; i < propList.length; i++) {
-            key = propList[i];
-            var attrKey = key + cc.Class.Attr.DELIMETER + 'default';
+        const attrs = cc.Class.Attr.getClassAttrs(ctor);
+        const propList = ctor.__props__;
+        for (const key of propList) {
+            const attrKey = key + cc.Class.Attr.DELIMETER + 'default';
             if (attrKey in attrs) {
                 if (shouldSkipId && key === '_id') {
                     continue;
@@ -115,26 +112,24 @@ function compileDestruct (obj, ctor) {
 
     if (CC_SUPPORT_JIT) {
         // compile code
-        var func = '';
-        for (key in propsToReset) {
-            var statement;
+        let func = '';
+        for (const key of Object.keys(propsToReset)) {
+            let statement: string;
             if (CCClass.IDENTIFIER_RE.test(key)) {
                 statement = 'o.' + key + '=';
-            }
-            else {
+            } else {
                 statement = 'o[' + CCClass.escapeForJS(key) + ']=';
             }
-            var val = propsToReset[key];
+            let val = propsToReset[key];
             if (val === '') {
                 val = '""';
             }
             func += (statement + val + ';\n');
         }
         return Function('o', func);
-    }
-    else {
-        return function (o) {
-            for (var key in propsToReset) {
+    } else {
+        return (o: object) => {
+            for (const key of Object.keys(propsToReset)) {
                 o[key] = propsToReset[key];
             }
         };
@@ -149,26 +144,10 @@ function compileDestruct (obj, ctor) {
  * @private
  */
 class CCObject {
-    constructor (name = '') {
-        /**
-         * @property {String} _name
-         * @default ""
-         * @private
-         */
-        this._name = name;
-
-        /**
-         * @property {Number} _objFlags
-         * @default 0
-         * @private
-         */
-        this._objFlags = 0;
-    }
-
-    static _deferredDestroy () {
-        var deleteCount = objectsToDestroy.length;
-        for (var i = 0; i < deleteCount; ++i) {
-            var obj = objectsToDestroy[i];
+    protected static _deferredDestroy() {
+        const deleteCount = objectsToDestroy.length;
+        for (let i = 0; i < deleteCount; ++i) {
+            const obj = objectsToDestroy[i];
             if (!(obj._objFlags & Destroyed)) {
                 obj._destroyImmediate();
             }
@@ -177,8 +156,7 @@ class CCObject {
         // but we only destroy the objects which called destory in this frame.
         if (deleteCount === objectsToDestroy.length) {
             objectsToDestroy.length = 0;
-        }
-        else {
+        } else {
             objectsToDestroy.splice(0, deleteCount);
         }
 
@@ -187,20 +165,23 @@ class CCObject {
         }
     }
 
+    protected _name = '';
+    protected _objFlags = 0;
+
+    constructor(name = '') {
+        this._name = name;
+    }
+
     // MEMBER
 
     /**
      * !#en The name of the object.
      * !#zh 该对象的名称。
-     * @property {String} name
-     * @default ""
-     * @example
-     * obj.name = "New Obj";
      */
-    get name () {
+    get name() {
         return this._name;
     }
-    set name (value) {
+    set name(value) {
         this._name = value;
     }
 
@@ -214,20 +195,19 @@ class CCObject {
      *
      * !#zh
      * 表示该对象是否可用（被 destroy 后将不可用）。<br>
-     * 当一个对象的 `destroy` 调用以后，会在这一帧结束后才真正销毁。因此从下一帧开始 `isValid` 就会返回 false，而当前帧内 `isValid` 仍然会是 true。如果希望判断当前帧是否调用过 `destroy`，请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
+     * 当一个对象的 `destroy` 调用以后，会在这一帧结束后才真正销毁。因此从下一帧开始 `isValid` 就会返回 false
+     * 而当前帧内 `isValid` 仍然会是 true。如果希望判断当前帧是否调用过 `destroy`
+     * 请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
      *
-     * @property {Boolean} isValid
-     * @default true
-     * @readOnly
      * @example
-     * var node = new cc.Node();
+     * const node = new cc.Node();
      * cc.log(node.isValid);    // true
      * node.destroy();
      * cc.log(node.isValid);    // true, still valid in this frame
      * // after a frame...
      * cc.log(node.isValid);    // false, destroyed in the end of last frame
      */
-    get isValid () {
+    get isValid(): Readonly<boolean> {
         return !(this._objFlags & Destroyed);
     }
 
@@ -241,12 +221,8 @@ class CCObject {
      * 销毁该对象，并释放所有它对其它对象的引用。<br/>
      * 实际销毁操作会延迟到当前帧渲染前执行。从下一帧开始，该对象将不再可用。
      * 您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
-     * @method destroy
-     * @return {Boolean} whether it is the first time the destroy being called
-     * @example
-     * obj.destroy();
      */
-    destroy () {
+    public destroy() {
         if (this._objFlags & Destroyed) {
             cc.warnID(5000);
             return false;
@@ -270,7 +246,7 @@ class CCObject {
      * NOTE: this method will not clear the getter or setter functions which defined in the instance of CCObject.
      *       You can override the _destruct method if you need, for example:
      *       _destruct: function () {
-     *           for (var key in this) {
+     *           for (const key in this) {
      *               if (this.hasOwnProperty(key)) {
      *                   switch (typeof this[key]) {
      *                       case 'string':
@@ -284,12 +260,10 @@ class CCObject {
      *           }
      *       }
      *
-     * @method _destruct
-     * @private
      */
-    _destruct () {
-        var ctor = this.constructor;
-        var destruct = ctor.__destruct__;
+    protected _destruct() {
+        const ctor = this.constructor;
+        let destruct = ctor.__destruct__;
         if (!destruct) {
             destruct = compileDestruct(this, ctor);
             js.value(ctor, '__destruct__', destruct, true);
@@ -297,7 +271,7 @@ class CCObject {
         destruct(this);
     }
 
-    _destroyImmediate () {
+    protected _destroyImmediate() {
         if (this._objFlags & Destroyed) {
             cc.errorID(5000);
             return;
@@ -315,7 +289,7 @@ class CCObject {
     }
 }
 
-let prototype = CCObject.prototype;
+const prototype = CCObject.prototype;
 if (CC_EDITOR || CC_TEST) {
     js.get(prototype, 'isRealValid', function () {
         return !(this._objFlags & RealDestroyed);
@@ -509,31 +483,30 @@ js.value(CCObject, 'Flags', {
  * @param {Boolean} [strictMode=false] - If true, Object called destroy() in this frame will also treated as invalid.
  * @return {Boolean} whether is valid
  * @example
- * var node = new cc.Node();
+ * const node = new cc.Node();
  * cc.log(cc.isValid(node));    // true
  * node.destroy();
  * cc.log(cc.isValid(node));    // true, still valid in this frame
  * // after a frame...
  * cc.log(cc.isValid(node));    // false, destroyed in the end of last frame
  */
-cc.isValid = function (value, strictMode) {
+cc.isValid = (value, strictMode) => {
     if (typeof value === 'object') {
         return !!value && !(value._objFlags & (strictMode ? (Destroyed | ToDestroy) : Destroyed));
-    }
-    else {
+    } else {
         return typeof value !== 'undefined';
     }
 };
 
 if (CC_EDITOR || CC_TEST) {
-    js.value(CCObject, '_willDestroy', function (obj) {
+    js.value(CCObject, '_willDestroy', (obj) => {
         return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;
     });
-    js.value(CCObject, '_cancelDestroy', function (obj) {
+    js.value(CCObject, '_cancelDestroy', (obj) => {
         obj._objFlags &= ~ToDestroy;
         js.array.fastRemove(objectsToDestroy, obj);
     });
 }
 
 cc.Object = CCObject;
-export default CCObject;
+export { CCObject };

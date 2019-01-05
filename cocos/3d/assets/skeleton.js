@@ -26,7 +26,7 @@
 // @ts-check
 import { _decorator } from "../../core/data";
 const { ccclass, property } = _decorator;
-import Asset from "../../assets/CCAsset";
+import { Asset } from "../../assets/asset";
 import { Mat4 } from "../../core/value-types";
 
 /**

@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Asset from './CCAsset';
+import { Asset } from './asset';
 import {ccclass, property} from '../core/data/class-decorator';
 
 /**
@@ -64,7 +64,7 @@ export default class SpriteAtlas extends Asset {
         let sf = this._spriteFrames[key];
         if (!sf) {
             return null;
-        } 
+        }
         if (!sf.name) {
             sf.name = key;
         }

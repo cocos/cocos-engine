@@ -29,7 +29,7 @@ import IDGenerator from '../core/utils/id-generator';
 import Enum from '../core/value-types/enum';
 import {addon} from '../core/utils/js';
 import {enums} from '../renderer/gfx/enums';
-import Asset from './CCAsset';
+import { Asset } from './asset';
 import {ccclass, property} from '../core/data/class-decorator';
 
 /**

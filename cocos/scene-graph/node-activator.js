@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import ComponentScheduler from './component-scheduler';
-import CCObject from '../core/data/object';
+import { CCObject } from '../core/data/object';
 import { Pool, array } from '../core/utils/js';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 

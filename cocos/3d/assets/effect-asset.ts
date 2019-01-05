@@ -1,4 +1,4 @@
-import Asset from '../../assets/CCAsset';
+import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { PassInfoBase } from '../../renderer/core/pass';
 

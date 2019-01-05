@@ -26,12 +26,12 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
-import Asset from "../../assets/CCAsset";
+import { Asset } from "../../assets/asset";
 import vec3 from "../../core/vmath/vec3";
 import quat from "../../core/vmath/quat";
 import { clamp } from "../../core/vmath/utils";
 
-/** 
+/**
  * @typedef {import("../framework/skeleton-instance").SkeletonMask} SkeletonMask
  * @typedef {import("../../scene-graph/node").default} Node
  */
@@ -205,8 +205,8 @@ export class AnimationTarget {
  */
 export class AnimationSampler {
     /**
-     * 
-     * @param {AnimationTarget} animationTarget 
+     *
+     * @param {AnimationTarget} animationTarget
      */
     constructor(animationTarget) {
         /**
@@ -246,7 +246,7 @@ export class AnimationSampler {
 
     /** Sample data of this animation clip in a specific time and blend that data
      *  with a weight together with previous data(if exist, or blank if not exists) sampled before.
-     * 
+     *
      * @param {AnimationClip} clip
      * @param {Number} t The time.
      * @param {Number} weight The weight.
@@ -316,7 +316,7 @@ export class AnimationSampler {
 
 class NodeSamplingState {
     /**
-     * 
+     *
      * @param {Node} target
      * @param {cc.Vec3} defaultPosition
      * @param {cc.Vec3} defaultScale

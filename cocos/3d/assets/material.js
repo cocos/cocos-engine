@@ -24,7 +24,7 @@
  ****************************************************************************/
 // @ts-check
 import { ccclass, property } from "../../core/data/class-decorator";
-import Asset from "../../assets/CCAsset";
+import { Asset } from "../../assets/asset";
 import TextureBase from '../../assets/texture-base';
 import Effect from '../../renderer/core/effect';
 import { EffectAsset } from './effect-asset';
