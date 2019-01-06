@@ -258,7 +258,8 @@ module.exports = {
             "debug_slots": "Indicates whether show debug slots.",
             "debug_bones": "Indicates whether show debug bones.",
             "premultipliedAlpha": "Indicates whether to enable premultiplied alpha.",
-            "use_tint": "Indicates whether to use tint effect."
+            "use_tint": "Indicates whether to use tint effect.",
+            "use_batch": "Indicates whether to use batch."
         },
         "dragon_bones": {
             "dragon_bones_asset": "The json data contains the DragonBones information, drag the json file exported from DragonBones to get started.",

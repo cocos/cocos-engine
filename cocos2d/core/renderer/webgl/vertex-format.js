@@ -48,7 +48,7 @@ var vfmtPosUvTwoColor = new gfx.VertexFormat([
     { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
     { name: gfx.ATTR_COLOR0, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
 ]);
-vfmtPosUvColor.name = 'vfmtPosUvTwoColor';
+vfmtPosUvTwoColor.name = 'vfmtPosUvTwoColor';
 gfx.VertexFormat.XY_UV_Two_Color = vfmtPosUvTwoColor;
 
 var vfmtPosUv = new gfx.VertexFormat([
@@ -68,6 +68,7 @@ gfx.VertexFormat.XY_Color = vfmtPosColor;
 module.exports = {
     vfmt3D,
     vfmtPosUvColor,
+    vfmtPosUvTwoColor,
     vfmtPosUv,
     vfmtPosColor
 };
