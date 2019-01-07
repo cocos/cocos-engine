@@ -27,7 +27,7 @@
 
 import EventTarget from './event/event-target';
 import eventManager from './platform/event-manager/CCEventManager';
-import ccobject from './data/object';
+import { CCObject } from './data/object';
 import game from './game';
 import Scheduler from './scheduler';
 import { autoRelease } from '../load-pipeline/auto-release-utils';
@@ -440,7 +440,7 @@ class Director extends EventTarget {
         this._scene = null;
 
         // purge destroyed nodes belongs to old scene
-        ccobject._deferredDestroy();
+        CCObject._deferredDestroy();
         CC_BUILD && CC_DEBUG && console.timeEnd('Destroy');
 
         if (onBeforeLoadScene) {
@@ -916,7 +916,7 @@ class Director extends EventTarget {
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
                 // Destroy entities that have been removed recently
-                ccobject._deferredDestroy();
+                CCObject._deferredDestroy();
             }
 
             // Render

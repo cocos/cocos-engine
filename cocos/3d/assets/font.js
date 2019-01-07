@@ -25,7 +25,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const {ccclass} = _decorator;
-import Asset from "../../assets/CCAsset";
+import { Asset } from "../../assets/asset";
 
 @ccclass('cc.Font')
 export default class Font extends Asset {
@@ -46,7 +46,7 @@ export default class Font extends Asset {
     _lineHeight = 32;
 
     /**
-     * 
+     *
      * @type {boolean}
      */
     _useKerning = false;

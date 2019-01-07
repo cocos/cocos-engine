@@ -31,7 +31,7 @@ import { addon } from './utils/js';
 
 import renderer from '../renderer';
 import builtinResMgr from '../3d/builtin/init';
-import ProgramLib from '../renderer/core/program-lib';
+import { ProgramLib } from '../renderer/core/program-lib';
 
 /**
  * @module cc

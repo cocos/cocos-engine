@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import CCObject from '../core/data/object';
+import { CCObject } from '../core/data/object';
 import {getClassName, value} from '../core/utils/js';
 import IDGenerator from '../core/utils/id-generator';
 import {ccclass, property} from '../core/data/class-decorator';

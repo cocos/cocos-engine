@@ -31,6 +31,13 @@
   <!-- <script src="./loadScene.js"></script> -->
   <script>
     function onStart() {
+      const $body = document.body;
+      const bcr = $body.getBoundingClientRect();
+      // cc.view.setCanvasSize(bcr.width, bcr.height);
+      window.addEventListener('resize', () => {
+          const bcr = $body.getBoundingClientRect();
+          cc.view.setCanvasSize(bcr.width, bcr.height);
+      });
 
       let root = cc.director.root;
       let scene = root.createScene({

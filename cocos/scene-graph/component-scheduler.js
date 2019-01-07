@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import CCObject from '../core/data/object';
+import { CCObject } from '../core/data/object';
 import { MutableForwardIterator } from '../core/utils/array';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 
@@ -193,7 +193,7 @@ class ReusableInvoker extends LifeCycleInvoker {
             }
         }
     }
-    
+
     invoke (dt) {
         if (this._neg.array.length > 0) {
             this._invoke(this._neg, dt);
