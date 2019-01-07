@@ -388,7 +388,7 @@ exports.buildRuntimeMin = function (sourceFile, outputFile, excludes, opt_macroF
 };
 
 exports.excludeAllDepends = function (excludedModules) {
-    let modules = Fs.readJsonSync(Editor.url('unpack://engine/modules.json'));
+    let modules = Fs.readJsonSync(Path.join(__dirname, '../../modules.json'));
     if (modules && modules.length > 0) {
         function _excludeMudules (muduleName) {
             if (excMudules[muduleName]) {
@@ -411,16 +411,14 @@ exports.excludeAllDepends = function (excludedModules) {
         // exclude all mudules
         let excMudules = Object.create(null);
 
-        excludedModules.forEach((exName) => {
-            _excludeMudules(exName);
-        });
+        excludedModules.forEach(_excludeMudules);
 
         let excludes = [];
         for (let key in excMudules) {
             let module = excMudules[key];
             if (module.entries) {
                 module.entries.forEach(function (file) {
-                    let path = Path.join(Editor.url('unpack://engine'), file);
+                    let path = Path.join(__dirname, '../engine', file);
                     if (excludes.indexOf(path) === -1) {
                         excludes.push(path);
                     }
