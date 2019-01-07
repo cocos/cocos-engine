@@ -52,3 +52,4 @@ export class PhysicsMaterial extends Asset {
         return this._cannonMaterial;
     }
 }
+cc.PhysicsMaterial = PhysicsMaterial;
