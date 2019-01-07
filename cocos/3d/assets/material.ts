@@ -51,6 +51,8 @@ export class Material extends Asset {
     protected _defines: Record<string, number | boolean> = {};
     @property
     protected _props: Array<Record<string, any>> = [];
+    @property
+    protected _textures: Array<Record<string, any>> = [];
 
     protected _passes: Pass[] = [];
     protected _owner: any = null;
@@ -88,26 +90,33 @@ export class Material extends Asset {
         this.update();
     }
 
-    public setProperty(handle: number, val: any, passIdx = 0) {
-        if (this._props.length <= passIdx) {
-            console.warn('illegal pass index');
+    public setProperty(name: string, val: any, passIdx = 0) {
+        if (passIdx >= this._passes.length) {
+            console.warn('illegal pass index.');
             return;
         }
         this._props[passIdx][name] = val;
         const pass = this._passes[passIdx];
-        if (pass) {
-            if (val instanceof TextureBase) {
-                pass.setProperty(handle, val._texture);
-            } else {
-                pass.setProperty(handle, val);
-            }
+        const handle = pass.getHandleFromName(name);
+        pass.setBlockMember(handle, val);
+    }
+
+    public setTexture(name: string, val: TextureBase, passIdx = 0) {
+        if (passIdx >= this._passes.length) {
+            console.warn('illegal pass index.');
+            return;
         }
+        this._textures[passIdx][name] = val;
+        const pass = this._passes[passIdx];
+        const handle = pass.getHandleFromName(name);
+        pass.setTextureView(handle, val._texView);
     }
 
     public copy(mat: Material) {
-        this._props.length = mat._props.length;
+        this._props.length = this._textures.length = mat._props.length;
         for (let i = 0; i < mat._props.length; i++) {
             Object.assign(this._props[i], mat._props[i]);
+            Object.assign(this._textures[i], mat._textures[i]);
         }
         Object.assign(this._defines, mat._defines);
         this.update(mat.effectAsset);
@@ -136,14 +145,20 @@ export class Material extends Asset {
             defines: this._defines,
         });
         // handle property values
-        this._props.length = this._passes.length;
+        this._props.length = this._textures.length = this._passes.length;
         if (keepProps) {
             this._passes.forEach((pass, i) => {
                 let props = this._props[i];
                 if (!props) { props = this._props[i] = {}; }
                 for (const p of Object.keys(props)) {
-                    const handle = pass.getPropertyHandle(p);
-                    pass.setProperty(handle, props[p]);
+                    const handle = pass.getHandleFromName(p);
+                    pass.setBlockMember(handle, props[p]);
+                }
+                let textures = this._textures[i];
+                if (!textures) { textures = this._textures[i] = {}; }
+                for (const t of Object.keys(textures)) {
+                    const handle = pass.getHandleFromName(t);
+                    pass.setTextureView(handle, textures[t]._texView);
                 }
             });
         } else {

@@ -73,10 +73,11 @@ export class TestMaterialStage extends RenderStage {
         if (!this._material.inited) {
             // material
             this._material.effectName = 'test'; // parsed-effect file is embedded in cocos/3d/builtin/effects.js
-            const handle1 = this._material.passes[0].getPropertyHandle('u_sampler');
-            this._material.setProperty(handle1, this._texView);
-            const handle2 = this._material.passes[0].getPropertyHandle('u_color');
-            this._material.setProperty(handle2, cc.color('#ffffff'));
+            const pass = this._material.passes[0];
+            const handle1 = pass.getHandleFromName('u_sampler');
+            pass.setTextureView(handle1, this._texView);
+            const handle2 = pass.getHandleFromName('u_color');
+            pass.setBlockMember(handle2, cc.color('#ffffff'));
             this._material.inited = true;
         }
         const cmdBuff = <GFXCommandBuffer>this._cmdBuff;
