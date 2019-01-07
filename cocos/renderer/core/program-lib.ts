@@ -4,8 +4,8 @@ import { DefineInfo, ShaderInfo } from '../../3d/assets/effect-asset';
 import { GFXShaderType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXShader } from '../../gfx/shader';
+import { DefineMap } from './effect';
 
-interface DefineMap { [name: string]: number | boolean; }
 function _generateDefines(
   device: GFXDevice,
   defs: DefineMap,
@@ -66,7 +66,7 @@ export class ProgramLib {
    */
   public define(prog: ShaderInfo) {
     if (this._templates[prog.name]) { return; }
-    const tmpl: any = Object.assign({ id: ++_shdID }, prog);
+    const tmpl = <ProgramInfo>Object.assign({ id: ++_shdID }, prog);
     tmpl.vert = this._precision + prog.vert;
     tmpl.frag = this._precision + prog.frag;
 
@@ -77,7 +77,7 @@ export class ProgramLib {
       if (def.type === 'number') {
         const range = def.range || [0, 4];
         cnt = Math.ceil(Math.log2(range[1] - range[0]));
-        def._map = ((value: number) => (value - def.range[0]) << def._offset);
+        def._map = ((value: number) => (value - range[0]) << def._offset);
       } else { // boolean
         def._map = ((value: any) => (value ? (1 << def._offset) : 0));
       }
@@ -85,7 +85,7 @@ export class ProgramLib {
       def._offset = offset;
     }
     // store it
-    this._templates[name] = tmpl;
+    this._templates[prog.name] = tmpl;
   }
 
   public getTemplate(name: string) {

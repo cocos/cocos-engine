@@ -1,7 +1,7 @@
 import Texture2D from '../../assets/texture-2d';
 import TextureCube from '../assets/texture-cube';
 import ImageAsset from '../../assets/image-asset';
-import Material from '../assets/material';
+import { Material } from '../assets/material';
 import { EffectAsset } from '../assets/effect-asset';
 import effects from './effects';
 
@@ -80,8 +80,8 @@ let builtinResMgr = {
         // default material
         // let defaultMtl = new Material();
         // defaultMtl._uuid = 'default-material';
+        // defaultMtl._defines['USE_COLOR'] = true;
         // defaultMtl.effectAsset = efxs[0];
-        // defaultMtl.define('USE_COLOR', true);
         // defaultMtl.setProperty('color', cc.color('#FF00FF'));
 
         let builtins = {

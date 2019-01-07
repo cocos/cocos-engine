@@ -1,5 +1,5 @@
 import ParticleSystemRenderer from "./particle-system-renderer";
-import Material from "../../../assets/material";
+import { Material } from "../../../assets/material";
 import Particle from "../particle";
 import gfx from "../../../../renderer/gfx";
 import { CurveUniform } from "../animator/optimized-curve";

@@ -20,13 +20,14 @@ export interface BlockMember {
     name: string;
     type: number;
     count: number;
+    size: number;
 }
 export interface BlockInfo {
     name: string;
     binding: number;
     defines: string[];
-    size: number;
     members: BlockMember[];
+    size: number;
 }
 export interface SamplerInfo {
     name: string;
@@ -72,6 +73,7 @@ export class EffectAsset extends Asset {
                 return effects[n];
             }
         }
+        return null;
     }
     public static getAll() { return effects; }
     protected static _effects: Record<string, EffectAsset> = {};
