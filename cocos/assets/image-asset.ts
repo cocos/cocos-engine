@@ -22,8 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-//@ts-check
-import {ccclass, property} from "../core/data/class-decorator";
+// @ts-check
+import {ccclass, property} from '../core/data/class-decorator';
 import EventTarget from '../core/event/event-target';
 import {addon} from '../core/utils/js';
 
@@ -39,12 +39,12 @@ const CHAR_CODE_0 = 48;    // '0'
 @ccclass('cc.ImageAsset')
 export default class ImageAsset extends cc.Asset {
 
-    static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc'];
+    public static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc'];
 
     /**
      * @param {HTMLCanvasElement | HTMLImageElement | RawImageData} nativeAsset
      */
-    constructor(nativeAsset = undefined) {
+    constructor (nativeAsset = undefined) {
         super();
         EventTarget.call(this);
 
@@ -58,7 +58,7 @@ export default class ImageAsset extends cc.Asset {
          * @readonly
          */
         // TODO - use nativeUrl directly
-        this.url = "";
+        this.url = '';
 
         /**
          * @type {HTMLCanvasElement | HTMLImageElement | RawImageData}
@@ -68,7 +68,7 @@ export default class ImageAsset extends cc.Asset {
             width: 0,
             height: 0,
             format: 0,
-            _compressed: false
+            _compressed: false,
         };
 
         if (CC_EDITOR) {
@@ -79,12 +79,12 @@ export default class ImageAsset extends cc.Asset {
             this._nativeAsset = nativeAsset;
         }
     }
-    
+
     /**
      * @type {HTMLCanvasElement | HTMLImageElement | RawImageData}
      */
     @property({
-        override: true
+        override: true,
     })
     get _nativeAsset () {
         // maybe returned to pool in webgl
@@ -101,14 +101,14 @@ export default class ImageAsset extends cc.Asset {
     /**
      * @type {HTMLCanvasElement | HTMLImageElement | ArrayBufferView}
      */
-    get data() {
+    get data () {
         return this._nativeData instanceof HTMLElement ? this._nativeData : this._nativeData._data;
     }
 
     /**
      * @param {HTMLCanvasElement | HTMLImageElement | RawImageData} data
      */
-    reset(data) {
+    public reset (data) {
         if (!(data instanceof HTMLElement)) {
             this._nativeData = Object.create(data);
             this._onDataComplete();
@@ -128,15 +128,15 @@ export default class ImageAsset extends cc.Asset {
         }
     }
 
-    get width() {
+    get width () {
         return this._nativeData.width;
     }
 
-    get height() {
+    get height () {
         return this._nativeData.height;
     }
 
-    get format() {
+    get format () {
         if (this._nativeData instanceof HTMLElement) {
             return undefined;
         }
@@ -154,20 +154,20 @@ export default class ImageAsset extends cc.Asset {
 
     // SERIALIZATION
 
-    _serialize () {
-        let extId = "";
+    public _serialize () {
+        let extId = '';
         let exportedExts = this._exportedExts;
         if (!exportedExts && this._native) {
             exportedExts = [this._native];
         }
         if (exportedExts) {
-            let exts = [];
+            const exts = [];
             for (let i = 0; i < exportedExts.length; i++) {
-                let extId = "";
-                let ext = exportedExts[i];
+                let extId = '';
+                const ext = exportedExts[i];
                 if (ext) {
                     // ext@format
-                    let extFormat = ext.split('@');
+                    const extFormat = ext.split('@');
                     extId = ImageAsset.extnames.indexOf(extFormat[0]);
                     if (extId < 0) {
                         extId = ext;
@@ -180,27 +180,27 @@ export default class ImageAsset extends cc.Asset {
             }
             extId = exts.join('_');
         }
-        return "" + extId;
+        return '' + extId;
     }
 
-    _deserialize (data, handle) {
-        let fields = data.split(',');
+    public _deserialize (data, handle) {
+        const fields = data.split(',');
         // decode extname
-        var extIdStr = fields[0];
+        const extIdStr = fields[0];
         if (extIdStr) {
-            let extIds = extIdStr.split('_');
+            const extIds = extIdStr.split('_');
 
             let extId = 999;
             let ext = '';
             let format = this._format;
-            let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
+            const SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
             for (let i = 0; i < extIds.length; i++) {
-                let extFormat = extIds[i].split('@');
+                const extFormat = extIds[i].split('@');
                 let tmpExt = extFormat[0];
                 tmpExt = tmpExt.charCodeAt(0) - CHAR_CODE_0;
                 tmpExt = ImageAsset.extnames[tmpExt] || extFormat;
 
-                let index = SupportTextureFormats.indexOf(tmpExt);
+                const index = SupportTextureFormats.indexOf(tmpExt);
                 if (index !== -1 && index < extId) {
                     extId = index;
                     ext = tmpExt;
@@ -214,19 +214,19 @@ export default class ImageAsset extends cc.Asset {
             }
 
             // preset uuid to get correct nativeUrl
-            let loadingItem = handle.customEnv;
-            let uuid = loadingItem && loadingItem.uuid;
+            const loadingItem = handle.customEnv;
+            const uuid = loadingItem && loadingItem.uuid;
             if (uuid) {
                 this._uuid = uuid;
-                var url = this.nativeUrl;
+                const url = this.nativeUrl;
                 this.url = url;
             }
         }
     }
 
-    _onDataComplete() {
+    public _onDataComplete () {
         this.loaded = true;
-        this.emit("load");
+        this.emit('load');
     }
 }
 

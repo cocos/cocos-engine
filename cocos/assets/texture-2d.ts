@@ -24,10 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import GFXTexture2D from '../renderer/gfx/texture-2d';
 import {ccclass, property} from '../core/data/class-decorator';
-import TextureBase from './texture-base';
+import GFXTexture2D from '../renderer/gfx/texture-2d';
 import ImageAsset from './image-asset';
+import TextureBase from './texture-base';
 
 /**
  * @typedef {import("./texture-base").ImageSource} ImageSource
@@ -48,15 +48,15 @@ import ImageAsset from './image-asset';
 @ccclass('cc.Texture2D')
 export default class Texture2D extends TextureBase {
     @property({
-        override: true
+        override: true,
     })
-    _flipY = true;
-    
+    public _flipY = true;
+
     /**
      * @type {ImageAsset[]}
      */
     @property([ImageAsset])
-    _mipmaps = [];
+    public _mipmaps = [];
 
     constructor () {
         super();
@@ -72,7 +72,7 @@ export default class Texture2D extends TextureBase {
      * Note that the result do not contains the auto generated mipmaps.
      * @return {ImageAsset[]}
      */
-    get mipmaps() {
+    get mipmaps () {
         return this._mipmaps;
     }
 
@@ -80,7 +80,7 @@ export default class Texture2D extends TextureBase {
      * Sets the mipmaps images.
      * @param {ImageAsset[]} value
      */
-    set mipmaps(value) {
+    set mipmaps (value) {
         this._setMipmaps(value);
     }
 
@@ -88,7 +88,7 @@ export default class Texture2D extends TextureBase {
      * Gets the mipmap image at level 0.
      * @return {ImageAsset}
      */
-    get image() {
+    get image () {
         return this._mipmaps.length === 0 ? null : this._mipmaps[0];
     }
 
@@ -96,22 +96,22 @@ export default class Texture2D extends TextureBase {
      * Sets the mipmap images as a single mipmap image.
      * @param {ImageAsset} value
      */
-    set image(value) {
+    set image (value) {
         this.mipmaps = [value];
     }
 
     /**
      * Gets the underlying texture object.
      */
-    getImpl () {
+    public getImpl () {
         return this._texture;
     }
 
     /**
      * Returns the string representation of this texture.
      */
-    toString () {
-        return this._mipmaps.length !== 0 ? this._mipmaps[0].url : "";
+    public toString () {
+        return this._mipmaps.length !== 0 ? this._mipmaps[0].url : '';
     }
 
     /**
@@ -120,7 +120,7 @@ export default class Texture2D extends TextureBase {
      * @method update
      * @param {TextureUpdateOpts} options
      */
-    update (options) {
+    public update (options) {
         if (!options) {
             return;
         }
@@ -132,14 +132,14 @@ export default class Texture2D extends TextureBase {
         }
 
         if (options.images !== undefined && options.images.length !== 0) {
-            this._setMipmaps(options.images.map(image => {
+            this._setMipmaps(options.images.map((image) => {
                 const mipmap = new ImageAsset();
                 mipmap.reset(image instanceof HTMLElement ? image : {
                     _data: image,
                     width: this.width,
                     height: this.height,
                     format: this._format,
-                    _compressed: false
+                    _compressed: false,
                 });
                 return mipmap;
             }));
@@ -154,7 +154,7 @@ export default class Texture2D extends TextureBase {
      *
      * @param {ImageSource} source
      */
-    updateImage(source) {
+    public updateImage (source) {
         this.updateMipmaps([source]);
     }
 
@@ -166,7 +166,7 @@ export default class Texture2D extends TextureBase {
      * If the range specified by [firstLevel, firstLevel + sources.length) exceeds
      * the actually range of mipmaps this texture contains, only overlaped mipmaps are updated.
      */
-    updateMipmaps(sources, firstLevel = 0) {
+    public updateMipmaps (sources, firstLevel = 0) {
         if (firstLevel >= sources.length) {
             return;
         }
@@ -181,15 +181,15 @@ export default class Texture2D extends TextureBase {
                 width: mipmap.width,
                 height: mipmap.height,
                 format: mipmap._format,
-                _compressed: false
+                _compressed: false,
             });
             this._texture.updateImage({
                 width: this.width,
                 height: this.height,
-                level: level,
+                level,
                 image: sources[i],
                 flipY: false,
-                premultiplyAlpha: false
+                premultiplyAlpha: false,
             });
         }
     }
@@ -202,8 +202,8 @@ export default class Texture2D extends TextureBase {
      * @return {HTMLImageElement|HTMLCanvasElement}
      * @deprecated Use this.image.data instead.
      */
-    getHtmlElementObj () {
-        return (this._mipmaps[0] && (this._mipmaps[0].data instanceof HTMLElement)) ? this._mipmaps[0].data: null;
+    public getHtmlElementObj () {
+        return (this._mipmaps[0] && (this._mipmaps[0].data instanceof HTMLElement)) ? this._mipmaps[0].data : null;
     }
 
     /**
@@ -217,7 +217,7 @@ export default class Texture2D extends TextureBase {
      * @method destroy
      * @return {Boolean} inherit from the CCObject
      */
-    destroy () {
+    public destroy () {
         this.releaseTexture();
         // TODO cc.textureUtil ?
         // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
@@ -231,8 +231,8 @@ export default class Texture2D extends TextureBase {
      * @method description
      * @returns {String}
      */
-    description () {
-        return "<cc.Texture2D | Name = " + (this._mipmaps[0] ? this._mipmaps[0].url : "") + " | Dimensions = " + this.width + " x " + this.height + ">";
+    public description () {
+        return '<cc.Texture2D | Name = ' + (this._mipmaps[0] ? this._mipmaps[0].url : '') + ' | Dimensions = ' + this.width + ' x ' + this.height + '>';
     }
 
     /**
@@ -242,7 +242,7 @@ export default class Texture2D extends TextureBase {
      * @method releaseTexture
      * @deprecated since v2.0, use destroy instead.
      */
-    releaseTexture () {
+    public releaseTexture () {
         this._setMipmaps([]);
         this._texture && this._texture.destroy();
     }
@@ -252,19 +252,19 @@ export default class Texture2D extends TextureBase {
      * If available, synchronize the mipmap data to underlying texture.
      * @param {ImageAsset[]} mipmaps
      */
-    _setMipmaps(mipmaps) {
+    public _setMipmaps (mipmaps) {
         this._mipmaps = mipmaps;
         if (mipmaps.length === 0) {
             super.update({
                 width: 0,
-                height: 0
+                height: 0,
             });
         } else {
             const level0 = this._mipmaps[0];
             super.update({
                 width: level0.width,
                 height: level0.height,
-                format: level0._format
+                format: level0._format,
             });
         }
 
@@ -272,14 +272,14 @@ export default class Texture2D extends TextureBase {
         const inc = () => {
             ++counter;
             if (counter === mipmaps.length) {
-                this._resetUnderlyingMipmaps(mipmaps.map(mipmap => mipmap.data));
+                this._resetUnderlyingMipmaps(mipmaps.map((mipmap) => mipmap.data));
             }
         };
-        mipmaps.forEach(mipmap => {
+        mipmaps.forEach((mipmap) => {
             if (mipmap.loaded) {
                 inc();
             } else {
-                mipmap.addEventListener("load", () => {
+                mipmap.addEventListener('load', () => {
                     inc();
                 });
             }
@@ -290,7 +290,7 @@ export default class Texture2D extends TextureBase {
      * Resets sources and amount of the underlying texture's the mipmaps.
      * @param {ImageSource[]} mipmapSources
      */
-    _resetUnderlyingMipmaps(mipmapSources = [null]) {
+    public _resetUnderlyingMipmaps (mipmapSources = [null]) {
         const opts = this._getOpts();
         opts.images = mipmapSources;
         if (!this._texture) {
@@ -300,14 +300,14 @@ export default class Texture2D extends TextureBase {
         }
     }
 
-    _serialize() {
+    public _serialize () {
         return {
             base: super._serialize(),
-            mipmaps: this._mipmaps.map(mipmap => mipmap._uuid)
+            mipmaps: this._mipmaps.map((mipmap) => mipmap._uuid),
         };
     }
 
-    _deserialize (data, handle) {
+    public _deserialize (data, handle) {
         super._deserialize(data.base);
 
         this._mipmaps = new Array(data.mipmaps.length);
@@ -319,7 +319,7 @@ export default class Texture2D extends TextureBase {
         }
     }
 
-    onLoaded() {
+    public onLoaded () {
         this.mipmaps = this._mipmaps;
     }
 }

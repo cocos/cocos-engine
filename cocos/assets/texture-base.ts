@@ -24,13 +24,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
+import {ccclass, property} from '../core/data/class-decorator';
 import EventTarget from '../core/event/event-target';
 import IDGenerator from '../core/utils/id-generator';
-import Enum from '../core/value-types/enum';
 import {addon} from '../core/utils/js';
+import Enum from '../core/value-types/enum';
 import {enums} from '../renderer/gfx/enums';
-import { Asset } from './asset';
-import {ccclass, property} from '../core/data/class-decorator';
+import Asset from './CCAsset';
 
 /**
  * @typedef {import("../renderer/gfx/texture-2d").HTMLImageSource} HTMLImageSource
@@ -42,7 +42,7 @@ import {ccclass, property} from '../core/data/class-decorator';
  * @exports TextureUpdateOpts
  */
 
-let _images = [];
+const _images = [];
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -52,7 +52,7 @@ const GL_REPEAT = 10497;                // gl.REPEAT
 const GL_CLAMP_TO_EDGE = 33071;         // gl.CLAMP_TO_EDGE
 const GL_MIRRORED_REPEAT = 33648;       // gl.MIRRORED_REPEAT
 
-var idGenerator = new IDGenerator('Tex');
+const idGenerator = new IDGenerator('Tex');
 
 /**
  * The texture pixel format, default value is RGBA8888,
@@ -180,7 +180,7 @@ export const WrapMode = Enum({
      * @type {Number}
      * @readonly
      */
-    MIRRORED_REPEAT: GL_MIRRORED_REPEAT
+    MIRRORED_REPEAT: GL_MIRRORED_REPEAT,
 });
 
 /**
@@ -201,7 +201,7 @@ export const Filter = Enum({
      * @type {Number}
      * @readonly
      */
-    NEAREST: GL_NEAREST
+    NEAREST: GL_NEAREST,
 });
 
 const FilterIndex = {
@@ -212,7 +212,7 @@ const FilterIndex = {
 /**
  * @type TextureUpdateOpts
  */
-let _sharedOpts = {
+const _sharedOpts = {
     width: undefined,
     height: undefined,
     minFilter: undefined,
@@ -226,10 +226,10 @@ let _sharedOpts = {
     image: undefined,
     flipY: undefined,
     premultiplyAlpha: undefined,
-    anisotropy: undefined
+    anisotropy: undefined,
 };
 function _getSharedOptions () {
-    for (var key in _sharedOpts) {
+    for (const key in _sharedOpts) {
         _sharedOpts[key] = undefined;
     }
     _images.length = 0;
@@ -240,49 +240,49 @@ function _getSharedOptions () {
 
 @ccclass('cc.TextureBase')
 export default class TextureBase extends Asset {
-    @property
-    _genMipmap = false;
 
-    @property
-    _format = PixelFormat.RGBA8888;
+    public static PixelFormat = PixelFormat;
 
-    @property
-    _premultiplyAlpha = false;
+    public static WrapMode = WrapMode;
 
-    @property
-    _flipY = false;
-
-    @property
-    _minFilter = Filter.LINEAR;
-
-    @property
-    _magFilter = Filter.LINEAR;
-
-    @property
-    _mipFilter = Filter.LINEAR;
-
-    @property
-    _wrapS = WrapMode.CLAMP_TO_EDGE;
-
-    @property
-    _wrapT = WrapMode.CLAMP_TO_EDGE;
-
-    @property
-    _anisotropy = 1;
-
-    static PixelFormat = PixelFormat;
-
-    static WrapMode = WrapMode;
-
-    static Filter = Filter;
+    public static Filter = Filter;
 
     /**
      *
      * @param {TextureBase} texture
      */
-    static _isCompressed (texture) {
+    public static _isCompressed (texture) {
         return texture._format >= PixelFormat.RGB_PVRTC_2BPPV1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
     }
+    @property
+    public _genMipmap = false;
+
+    @property
+    public _format = PixelFormat.RGBA8888;
+
+    @property
+    public _premultiplyAlpha = false;
+
+    @property
+    public _flipY = false;
+
+    @property
+    public _minFilter = Filter.LINEAR;
+
+    @property
+    public _magFilter = Filter.LINEAR;
+
+    @property
+    public _mipFilter = Filter.LINEAR;
+
+    @property
+    public _wrapS = WrapMode.CLAMP_TO_EDGE;
+
+    @property
+    public _wrapT = WrapMode.CLAMP_TO_EDGE;
+
+    @property
+    public _anisotropy = 1;
 
     constructor () {
         super();
@@ -324,7 +324,7 @@ export default class TextureBase extends Asset {
         this.height = 0;
     }
 
-    getId () {
+    public getId () {
         return this._id;
     }
 
@@ -333,7 +333,7 @@ export default class TextureBase extends Asset {
      * @method update
      * @param {TextureUpdateOpts} options
      */
-    update (options) {
+    public update (options) {
         if (!options) {
             return;
         }
@@ -379,8 +379,8 @@ export default class TextureBase extends Asset {
         }
     }
 
-    _getOpts() {
-        let opts = _getSharedOptions();
+    public _getOpts () {
+        const opts = _getSharedOptions();
         opts.width = this.width;
         opts.height = this.height;
         opts.mipmap = this._genMipmap;
@@ -403,8 +403,8 @@ export default class TextureBase extends Asset {
      * @method getPixelFormat
      * @return {Number}
      */
-    getPixelFormat () {
-        //support only in WebGl rendering mode
+    public getPixelFormat () {
+        // support only in WebGl rendering mode
         return this._format;
     }
 
@@ -415,7 +415,7 @@ export default class TextureBase extends Asset {
      * @method hasPremultipliedAlpha
      * @return {Boolean}
      */
-    hasPremultipliedAlpha () {
+    public hasPremultipliedAlpha () {
         return this._premultiplyAlpha || false;
     }
 
@@ -425,7 +425,7 @@ export default class TextureBase extends Asset {
      * @method getAnisotropy
      * @return {Number}
      */
-    getAnisotropy() {
+    public getAnisotropy () {
         return this._anisotropy;
     }
 
@@ -436,7 +436,7 @@ export default class TextureBase extends Asset {
      * @method hasMipmap
      * @return {Boolean}
      */
-    genMipmap () {
+    public genMipmap () {
         return this._genMipmap || false;
     }
 
@@ -449,9 +449,9 @@ export default class TextureBase extends Asset {
      * @param {WrapMode} wrapS
      * @param {WrapMode} wrapT
      */
-    setWrapMode (wrapS, wrapT) {
+    public setWrapMode (wrapS, wrapT) {
         if (this._wrapS !== wrapS || this._wrapT !== wrapT) {
-            var opts = _getSharedOptions();
+            const opts = _getSharedOptions();
             opts.wrapS = wrapS;
             opts.wrapT = wrapT;
             this.update(opts);
@@ -465,9 +465,9 @@ export default class TextureBase extends Asset {
      * @param {Filter} minFilter
      * @param {Filter} magFilter
      */
-    setFilters (minFilter, magFilter) {
+    public setFilters (minFilter, magFilter) {
         if (this._minFilter !== minFilter || this._magFilter !== magFilter) {
-            var opts = _getSharedOptions();
+            const opts = _getSharedOptions();
             opts.minFilter = minFilter;
             opts.magFilter = magFilter;
             this.update(opts);
@@ -480,9 +480,9 @@ export default class TextureBase extends Asset {
      * @method setMipFilter
      * @param {Filter} mipFilter
      */
-    setMipFilter (mipFilter) {
+    public setMipFilter (mipFilter) {
         if (this._mipFilter !== mipFilter) {
-            var opts = _getSharedOptions();
+            const opts = _getSharedOptions();
             opts.mipFilter = mipFilter;
             this.update(opts);
         }
@@ -495,9 +495,9 @@ export default class TextureBase extends Asset {
      * @method setFlipY
      * @param {Boolean} flipY
      */
-    setFlipY (flipY) {
+    public setFlipY (flipY) {
         if (this._flipY !== flipY) {
-            var opts = _getSharedOptions();
+            const opts = _getSharedOptions();
             opts.flipY = flipY;
             this.update(opts);
         }
@@ -510,9 +510,9 @@ export default class TextureBase extends Asset {
      * @method setPremultiplyAlpha
      * @param {Boolean} premultiply
      */
-    setPremultiplyAlpha (premultiply) {
+    public setPremultiplyAlpha (premultiply) {
         if (this._premultiplyAlpha !== premultiply) {
-            var opts = _getSharedOptions();
+            const opts = _getSharedOptions();
             opts.premultiplyAlpha = premultiply;
             this.update(opts);
         }
@@ -524,9 +524,9 @@ export default class TextureBase extends Asset {
      * @method setAnisotropy
      * @param {number} anisotropy
      */
-    setAnisotropy(anisotropy) {
-        if (this._anisotropy != anisotropy) {
-            var opts = _getSharedOptions();
+    public setAnisotropy (anisotropy) {
+        if (this._anisotropy !== anisotropy) {
+            const opts = _getSharedOptions();
             opts.anisotropy = anisotropy;
             this.update(opts);
         }
@@ -539,9 +539,9 @@ export default class TextureBase extends Asset {
      * @method setGenerateMipmap
      * @param {Boolean} mipmap
      */
-    setGenMipmap (mipmap) {
+    public setGenMipmap (mipmap) {
         if (this._genMipmap !== mipmap) {
-            var opts = _getSharedOptions();
+            const opts = _getSharedOptions();
             opts.mipmap = mipmap;
             this.update(opts);
         }
@@ -552,12 +552,12 @@ export default class TextureBase extends Asset {
     /**
      * @return {any}
      */
-    _serialize () {
-        return this._minFilter + "," + this._magFilter + "," +
-            this._wrapS + "," + this._wrapT + "," +
-            (this._premultiplyAlpha ? 1 : 0) + "," +
-            this._mipFilter + "," + this._anisotropy + "," +
-            (this._flipY ? 1 : 0) + "," +
+    public _serialize () {
+        return this._minFilter + ',' + this._magFilter + ',' +
+            this._wrapS + ',' + this._wrapT + ',' +
+            (this._premultiplyAlpha ? 1 : 0) + ',' +
+            this._mipFilter + ',' + this._anisotropy + ',' +
+            (this._flipY ? 1 : 0) + ',' +
             (this._genMipmap ? 1 : 0);
     }
 
@@ -565,9 +565,9 @@ export default class TextureBase extends Asset {
      *
      * @param {string} data
      */
-    _deserialize (data) {
-        let fields = data.split(',');
-        fields.unshift("");
+    public _deserialize (data) {
+        const fields = data.split(',');
+        fields.unshift('');
         if (fields.length >= 6) {
             // decode filters
             this._minFilter = parseInt(fields[1]);

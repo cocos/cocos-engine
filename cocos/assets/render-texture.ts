@@ -1,6 +1,6 @@
+import { ccclass } from '../core/data/class-decorator';
 import gfx from '../renderer/gfx';
 import Texture2D from './texture-2d';
-import { ccclass } from '../core/data/class-decorator';
 
 /**
  * Render textures are textures that can be rendered to.
@@ -25,44 +25,42 @@ export default class RenderTexture extends Texture2D {
      * @param {Number} [depthStencilFormat]
      * @method initWithSize
      */
-    initWithSize (width, height, depthStencilFormat) {
+    public initWithSize (width, height, depthStencilFormat) {
         this.width = Math.floor(width || cc.visibleRect.width);
         this.height = Math.floor(height || cc.visibleRect.height);
         this._resetUnderlyingMipmaps();
 
-        let opts = {
+        const opts = {
             colors: [ this._texture ],
         };
         if (depthStencilFormat) {
-            if (this.depthStencilBuffer) this.depthStencilBuffer.destroy();
-            let depthStencilBuffer = new gfx.RenderBuffer(cc.game._renderContext, depthStencilFormat, this.width, this.height);
+            if (this.depthStencilBuffer) { this.depthStencilBuffer.destroy(); }
+            const depthStencilBuffer = new gfx.RenderBuffer(cc.game._renderContext, depthStencilFormat, this.width, this.height);
             if (depthStencilFormat === gfx.RB_FMT_D24S8) {
                 opts.depthStencil = depthStencilBuffer;
-            }
-            else if (depthStencilFormat === gfx.RB_FMT_S8) {
+            } else if (depthStencilFormat === gfx.RB_FMT_S8) {
                 opts.stencil = depthStencilBuffer;
-            }
-            else if (depthStencilFormat === gfx.RB_FMT_D16) {
+            } else if (depthStencilFormat === gfx.RB_FMT_D16) {
                 opts.depth = depthStencilBuffer;
             }
             this.depthStencilBuffer = depthStencilBuffer;
             this.depthStencilFormat = depthStencilFormat;
         }
 
-        if (this._framebuffer) this._framebuffer.destroy();
+        if (this._framebuffer) { this._framebuffer.destroy(); }
         this._framebuffer = new gfx.FrameBuffer(cc.game._renderContext, this.width, this.height, opts);
 
         this.loaded = true;
-        this.emit("load");
+        this.emit('load');
     }
 
-    updateSize(width, height) {
+    public updateSize (width, height) {
         this.width = Math.floor(width || cc.visibleRect.width);
         this.height = Math.floor(height || cc.visibleRect.height);
         this._resetUnderlyingMipmaps();
 
-        let rbo = this.depthStencilBuffer;
-        if (rbo) rbo.update(this.width, this.height);
+        const rbo = this.depthStencilBuffer;
+        if (rbo) { rbo.update(this.width, this.height); }
         this._framebuffer._width = width;
         this._framebuffer._height = height;
     }
@@ -74,8 +72,8 @@ export default class RenderTexture extends Texture2D {
      * @param {Number} x
      * @param {Number} y
      */
-    drawTextureAt (texture, x, y) {
-        if (!texture._image) return;
+    public drawTextureAt (texture, x, y) {
+        if (!texture._image) { return; }
 
         this._texture.updateSubImage({
             x, y,
@@ -84,8 +82,8 @@ export default class RenderTexture extends Texture2D {
             height: texture.height,
             level: 0,
             flipY: false,
-            premultiplyAlpha: texture._premultiplyAlpha
-        })
+            premultiplyAlpha: texture._premultiplyAlpha,
+        });
     }
 
     /**
@@ -106,17 +104,17 @@ export default class RenderTexture extends Texture2D {
      * @param {Number} [h]
      * @return {Uint8Array}
      */
-    readPixels (data, x, y, w, h) {
-        if (!this._framebuffer || !this._texture) return data;
+    public readPixels (data, x, y, w, h) {
+        if (!this._framebuffer || !this._texture) { return data; }
 
         x = x || 0;
         y = y || 0;
-        let width = w || this.width;
-        let height = h || this.height;
+        const width = w || this.width;
+        const height = h || this.height;
         data = data  || new Uint8Array(width * height * 4);
 
-        let gl = cc.game._renderContext._gl;
-        let oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+        const gl = cc.game._renderContext._gl;
+        const oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer._glID);
         gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
         gl.bindFramebuffer(gl.FRAMEBUFFER, oldFBO);
@@ -124,7 +122,7 @@ export default class RenderTexture extends Texture2D {
         return data;
     }
 
-    destroy () {
+    public destroy () {
         super.destroy();
         if (this._framebuffer) {
             this._framebuffer.destroy();
