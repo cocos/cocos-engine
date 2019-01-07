@@ -120,7 +120,7 @@ function _getSlotMaterial (comp, slot, tex, premultipliedAlpha) {
             material = baseMaterial.clone();
         }
 
-        material.useModel = !comp.useBatch;
+        material.useModel = true;
         // Update texture.
         material.texture = tex;
         // Update tint.
@@ -471,6 +471,9 @@ var spineAssembler = {
     },
 
     fillBuffers (comp, renderer) {
+        let node = comp.node;
+        node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+
         let renderDatas = comp._renderDatas;
         let curFrame = renderDatas.curFrame;
         if (!curFrame) return;
@@ -486,16 +489,12 @@ var spineAssembler = {
         let materialCache = comp._materialCache;
         let matLen = segment.length;
         let matHash, segmentICount = 0, segmentVCount = 0, material;
-        let useBatch = comp.useBatch;
-        let node = comp.node;
         let useTint = comp.useTint;
         let vertexFormat = useTint? VFTwoColor : VFOneColor;
         var vertexSize = vertexFormat._bytes >> 2;
         let buffer = renderer.getBuffer('mesh', vertexFormat);
 
-        if (!useBatch) {
-            renderer._flush();
-        }
+        renderer._flush();
 
         for (let index = 0; index < matLen; index +=3) {
             matHash = segment[index];
@@ -507,7 +506,7 @@ var spineAssembler = {
 
             if (material._hash !== renderer.material._hash) {
                 renderer._flush();
-                renderer.node = useBatch? renderer._dummyNode : node;
+                renderer.node = node;
                 renderer.material = material;
             }
 
@@ -528,8 +527,6 @@ var spineAssembler = {
                 ibuf[ibufOffset + i] = vertexId + indices[iframeOffset++];
             }
         }
-
-        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
 };
 

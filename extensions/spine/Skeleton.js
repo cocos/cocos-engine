@@ -373,17 +373,6 @@ sp.Skeleton = cc.Class({
                     }
                 }
             }
-        },
-
-        /**
-         * !#en Enabled batch.
-         * !#zh 是否启用合批。
-         * @property {Boolean} useTint
-         * @default false
-         */
-        useBatch: {
-            default: false,
-            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.use_batch',
         }
     },
 

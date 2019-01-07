@@ -262,8 +262,7 @@ module.exports = {
             "debug_slots": "是否显示 slot 的 debug 信息",
             "debug_bones": "是否显示 bone 的 debug 信息",
             "premultipliedAlpha": "是否启用贴图预乘",
-            "use_tint": "是否启用染色效果",
-            "use_batch": "是否启用合批",
+            "use_tint": "是否启用染色效果"
         },
         "dragon_bones": {
             "dragon_bones_asset": "骨骼信息数据，拖拽 DragonBones 导出的骨骼动画信息 json 资源到这里来开始使用",
