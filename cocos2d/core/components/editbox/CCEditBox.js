@@ -280,17 +280,15 @@ let EditBox = cc.Class({
 
         /**
          * !#en The input is always visible and be on top of the game view (only useful on Web).
-         * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
-         * Note: only available on Web at the moment.
+         * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义），这个属性将会在以后的版本中废弃。
+         * Note: only available on Web at the moment, this property will be abandoned in the future.
          * @property {Boolean} stayOnTop
          */
         stayOnTop: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.stay_on_top',
             default: false,
             notify () {
-                if (this._impl) {
-                    this._updateStayOnTop();
-                }
+                
             }
         },
 
@@ -381,19 +379,8 @@ let EditBox = cc.Class({
         impl.setFontSize(this.fontSize);
         impl.setPlaceholderText(this.placeholder);
 
-        this._updateStayOnTop();
         this._updateString(this.string);
         this._syncSize();
-    },
-
-    _updateStayOnTop () {
-        if (this.stayOnTop) {
-            this._hideLabels();
-        }
-        else {
-            this._showLabels();
-        }
-        this._impl.stayOnTop(this.stayOnTop);
     },
 
     _syncSize () {
@@ -539,7 +526,7 @@ let EditBox = cc.Class({
 
         textLabel.string = displayText;
         this._impl.setString(text);
-        if (!this._impl._editing && !this.stayOnTop) {
+        if (!this._impl._editing) {
             this._showLabels();
         }
     },
@@ -568,13 +555,17 @@ let EditBox = cc.Class({
     },
 
     editBoxEditingDidBegan () {
-        this._hideLabels();
+        // Only Web platform need to hide labels
+        if (cc.sys.isBrowser) {
+            this._hideLabels();
+        }
         cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit('editing-did-began', this);
     },
 
     editBoxEditingDidEnded () {
-        if (!this.stayOnTop) {
+        // Only Web platform need to control showing labels
+        if (cc.sys.isBrowser) {
             this._showLabels();
         }
         cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
@@ -618,22 +609,17 @@ let EditBox = cc.Class({
     },
 
     _onTouchBegan (event) {
-        if (this._impl) {
-            this._impl._onTouchBegan(event.touch);
-        }
         event.stopPropagation();
     },
 
     _onTouchCancel (event) {
-        if (this._impl) {
-            this._impl._onTouchCancel();
-        }
         event.stopPropagation();
     },
 
     _onTouchEnded (event) {
         if (this._impl) {
-            this._impl._onTouchEnded();
+            // On Web platform, not begine editing here, in WebInput.onFocus callback instead.
+            this._impl._beginEditing();
         }
         event.stopPropagation();
     },

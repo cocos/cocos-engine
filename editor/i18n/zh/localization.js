@@ -221,7 +221,6 @@ module.exports = {
             "font_size": "输入框文本的字体大小",
             "line_height": "输入框文本的行高",
             "font_color": "输入框文本的颜色",
-            "stay_on_top": "设置为 True 则输入框总是可见，并且永远在游戏视图的上面",
             "tab_index": "修改 DOM 输入元素的 tabIndex，这个属性只有在 Web 上面修改有意义。",
             "placeholder": "输入框占位符的文本内容",
             "placeholder_font_size": "输入框占位符的字体大小",

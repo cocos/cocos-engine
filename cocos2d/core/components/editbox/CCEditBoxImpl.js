@@ -84,7 +84,6 @@ let EditBoxImpl = cc.Class({
         this._maxLength = 50;
         this._text = '';
         this._placeholderText = '';
-        this._alwaysOnTop = false;
         this._size = cc.size();
         this._node = null;
         this._editing = false;
@@ -110,19 +109,14 @@ let EditBoxImpl = cc.Class({
         if (!this._edTxt) {
             return;
         }
-        if (this._alwaysOnTop) {
-            this._edTxt.style.display = '';
-        } 
-        else {
-            this._edTxt.style.display = 'none';
-        }
+        this._edTxt.style.opacity = 0;
     },
 
     onDisable () {
         if (!this._edTxt) {
             return;
         }
-        this._edTxt.style.display = 'none';
+        this._edTxt.style.opacity = 0;
     },
 
     setTabIndex (index) {
@@ -141,18 +135,6 @@ let EditBoxImpl = cc.Class({
         }
         cc.warnID(4700);
         return false;
-    },
-
-    stayOnTop (flag) {
-        if(this._alwaysOnTop === flag || !this._edTxt) return;
-
-        this._alwaysOnTop = flag;
-        
-        if (flag) {
-            this._edTxt.style.display = '';
-        } else {
-            this._edTxt.style.display = 'none';
-        }
     },
 
     setMaxLength (maxLength) {
@@ -258,14 +240,7 @@ let EditBoxImpl = cc.Class({
         this.removeOrientationchangeEvent();
     },
 
-    _onTouchBegan (touch) {
-        
-    },
-
-    _onTouchEnded () {
-        this._beginEditing();
-    },
-
+    // FIX ME: add _beginEditing before focus
     _beginEditing () {
         if (cc.sys.isMobile && !this._editing) {
             // Pre adaptation add orientationchange event
@@ -273,8 +248,6 @@ let EditBoxImpl = cc.Class({
         }
 
         if (this._edTxt) {
-            this._edTxt.style.display = '';
-
             let self = this;
             function startFocus () {
                 self._edTxt.focus();
@@ -290,15 +263,13 @@ let EditBoxImpl = cc.Class({
                 startFocus();
             }
         }
-    
-        this._editing = true;
     },
     
     _endEditing () {
         let self = this;
         let hideDomInputAndShowLabel = function () {
-            if (!self._alwaysOnTop && self._edTxt) {
-                self._edTxt.style.display = 'none';
+            if (self._edTxt) {
+                self._edTxt.style.opacity = 0;
             }
             if (self._delegate && self._delegate.editBoxEditingDidEnded) {
                 self._delegate.editBoxEditingDidEnded();
@@ -547,13 +518,12 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     tmpEdTxt.addEventListener('input', cbs.input);
 
     cbs.focus = function () {
+        this.style.opacity = 1;
         this.style.fontSize = editBoxImpl._edFontSize + 'px';
         this.style.color = editBoxImpl._textColor.toCSS('rgba');
-        // When stayOnTop, input will swallow touch event
-        if (editBoxImpl._alwaysOnTop) {
-            editBoxImpl._editing = true;
-        }
-
+        
+        editBoxImpl._editing = true;
+        
         if (cc.sys.isMobile) {
             editBoxImpl._beginEditingOnMobile();
         }
@@ -610,7 +580,7 @@ _p._createDomInput = function () {
     tmpEdTxt.style.outline = 'medium';
     tmpEdTxt.style.padding = '0';
     tmpEdTxt.style.textTransform = 'uppercase';
-    tmpEdTxt.style.display = 'none';
+    tmpEdTxt.style.opacity = 0;
     tmpEdTxt.style.position = "absolute";
     tmpEdTxt.style.bottom = "0px";
     tmpEdTxt.style.left = LEFT_PADDING + "px";
@@ -640,7 +610,7 @@ _p._createDomTextArea = function () {
     tmpEdTxt.style.resize = 'none';
     tmpEdTxt.style.textTransform = 'uppercase';
     tmpEdTxt.style.overflow_y = 'scroll';
-    tmpEdTxt.style.display = 'none';
+    tmpEdTxt.style.opacity = 0;
     tmpEdTxt.style.position = "absolute";
     tmpEdTxt.style.bottom = "0px";
     tmpEdTxt.style.left = LEFT_PADDING + "px";
