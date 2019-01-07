@@ -96,8 +96,8 @@ else {
         },
 
         /**
-         * !#en Reset data in sub context
-         * !#zh 重置开放数据域的数据
+         * !#en Resets the size and window of the sub context
+         * !#zh 重置开放数据域的尺寸和视窗
          * @method reset
          */
         reset () {
