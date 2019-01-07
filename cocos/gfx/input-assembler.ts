@@ -114,6 +114,5 @@ export abstract class GFXInputAssembler {
     protected _vertexOffset: number = 0;
     protected _instanceCount: number = 0;
     protected _firstInstance: number = 0;
-
     protected _isIndirect: boolean = false;
 };

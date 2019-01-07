@@ -1987,7 +1987,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
             case WebGLCmd.COPY_BUFFER_TO_TEXTURE: {
                 let cmd7 = cmdPackage.copyBufferToTextureCmds[cmdId];
                 if (cmd7.gpuBuffer && cmd7.gpuBuffer.viewUI8 && cmd7.gpuTexture) {
-                    WebGLCmdFuncCopyBufferToTexture2D(device, cmd7.gpuBuffer.viewUI8, cmd7.gpuTexture, cmd7.regions);
+                    WebGLCmdFuncCopyBufferToTexture(device, cmd7.gpuBuffer.viewUI8, cmd7.gpuTexture, cmd7.regions);
                 }
 
                 break;
@@ -1996,7 +1996,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
     } // for
 }
 
-export function WebGLCmdFuncCopyBufferToTexture2D(
+export function WebGLCmdFuncCopyBufferToTexture(
     device: WebGLGFXDevice,
     bufferView: Uint8Array,
     gpuTexture: WebGLGPUTexture,

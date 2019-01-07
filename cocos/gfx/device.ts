@@ -13,7 +13,7 @@ import { GFXCommandBufferInfo, GFXCommandBuffer } from './command-buffer';
 import { GFXCommandAllocatorInfo, GFXCommandAllocator } from './command-allocator';
 import { GFXWindowInfo, GFXWindow } from './window';
 import { GFXBindingLayoutInfo, GFXBindingLayout } from './binding-layout';
-import { GFXRect } from './define';
+import { GFXRect, GFXBufferTextureCopy } from './define';
 
 export enum GFXFeature {
 };
@@ -45,10 +45,15 @@ export abstract class GFXDevice {
     public abstract createWindow(info: GFXWindowInfo): GFXWindow | null;
     public abstract present();
 
-    public abstract copyBufferToTexture2D(buffer: ArrayBuffer, texture: GFXTexture, rect?: GFXRect);
+    public abstract copyBufferToTexture(buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]);
+    public abstract copyImageSourceToTexture(source: CanvasImageSource, texture: GFXTexture, regions: GFXBufferTextureCopy[]);
 
     public get canvas(): HTMLCanvasElement {
         return <HTMLCanvasElement>this._canvas;
+    }
+
+    public get canvas2D(): HTMLCanvasElement {
+        return <HTMLCanvasElement>this._canvas2D;
     }
 
     public get queue(): GFXQueue {
@@ -112,6 +117,7 @@ export abstract class GFXDevice {
     }
 
     protected _canvas: HTMLCanvasElement | null = null;
+    protected _canvas2D: HTMLCanvasElement | null = null;
     protected _deviceName: string = "";
     protected _renderer: string = "";
     protected _vendor: string = "";

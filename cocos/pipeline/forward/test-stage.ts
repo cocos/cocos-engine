@@ -28,10 +28,13 @@ let _shader_vs = `#version 100
 attribute vec2 a_position;
 attribute vec2 a_texCoord;
 
+//uniform mat4 u_matWorldViewProj;
+
 varying vec2 v_texCoord;
 
 void main() {
     gl_Position = vec4(a_position, 0.0, 1.0);
+    //gl_Position = u_matWorldViewProj * vec4(a_position, 0.0, 1.0);
     v_texCoord = a_texCoord;
 }`;
 
@@ -87,6 +90,10 @@ export class TestStage extends RenderStage {
             name: "test",
             stages: [vsStage, fsStage],
             blocks: [{
+                binding: 0, name: "Global", uniforms: [
+                    { name: "u_matWorldViewProj", type: GFXType.MAT4, count: 1 },
+                ]
+            }, {
                 binding: 5, name: "UBO", uniforms: [
                     { name: "u_color", type: GFXType.FLOAT4, count: 1 },
                 ]
@@ -224,8 +231,8 @@ export class TestStage extends RenderStage {
         cmdBuff.beginRenderPass(<GFXFramebuffer>this._framebuffer, this._renderArea, this._clearColors, this._clearDepth, this._clearStencil);
         cmdBuff.bindPipelineState(<GFXPipelineState>this._pipelineState);
         cmdBuff.bindBindingLayout(<GFXBindingLayout>this._bindingLayout);
-        cmdBuff.bindInputAssembler(<GFXInputAssembler>this._pipeline.quadIA);
-        cmdBuff.draw(<GFXInputAssembler>this._pipeline.quadIA);
+        cmdBuff.bindInputAssembler(this._pipeline.quadIA);
+        cmdBuff.draw(this._pipeline.quadIA);
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
@@ -234,6 +241,7 @@ export class TestStage extends RenderStage {
 
     private loadTexture(image: HTMLImageElement): boolean {
         //let canvas2d = this._device.canvas.getContext("2d");
+        /*
         let canvas = document.createElement('canvas');
         let context = canvas.getContext('2d');
         if (!context) {
@@ -246,7 +254,7 @@ export class TestStage extends RenderStage {
 
         let imgData = context.getImageData(0, 0, image.width, image.height);
         let imgBuffer: ArrayBuffer = imgData.data;
-        //var buffer = image.currentSrc;//arraybuffer object
+        */
 
         this._texture = this._device.createTexture({
             type: GFXTextureType.TEX2D,
@@ -271,7 +279,17 @@ export class TestStage extends RenderStage {
             return false;
         }
 
-        this._device.copyBufferToTexture2D(imgBuffer, this._texture);
+        let region: GFXBufferTextureCopy = {
+            buffOffset: 0,
+            buffStride: 0,
+            buffTexHeight: 0,
+            texOffset: { x: 0, y: 0, z: 0 },
+            texExtent: { width: image.width, height: image.height, depth: 1 },
+            texSubres: { baseMipLevel: 0, levelCount: 1, baseArrayLayer: 0, layerCount: 1 },
+        };
+
+        this._device.copyImageSourceToTexture(image, this._texture, [region]);
+        //this._device.copyBufferToTexture(imgBuffer, this._texture, [region]);
 
         this._sampler = this._device.createSampler({
             minFilter: GFXFilter.LINEAR,
@@ -290,6 +308,7 @@ export class TestStage extends RenderStage {
             return false;
         }
 
+        this._bindingLayout.bindBuffer(0, this.pipeline.globalUBO);
         this._bindingLayout.bindBuffer(5, <GFXBuffer>this._ubo);
         this._bindingLayout.bindTextureView(10, <GFXTextureView>this._texView);
         this._bindingLayout.bindSampler(10, <GFXSampler>this._sampler);
