@@ -49,13 +49,13 @@ export class RenderView {
     }
 
     public attach(camera: Camera) {
-        this._sceneMgr = camera.sceneMgr;
+        this._scene = camera.scene;
         this._camera = camera;
         this._isAttached = true;
     }
 
     public detach() {
-        this._sceneMgr = null;
+        this._scene = null;
         this._camera = null;
         this._isAttached = false;
     }
@@ -92,12 +92,20 @@ export class RenderView {
         return this._height;
     }
 
+    public get camera(): Camera | null {
+        return this._camera;
+    }
+
+    public get scene(): RenderScene | null {
+        return this._scene;
+    }
+
     private _name: string = "";
     private _window: GFXWindow | null = null;
     private _priority: number = 0;
     private _width: number = 0;
     private _height: number = 0;
-    private _sceneMgr: RenderScene | null = null;
+    private _scene: RenderScene | null = null;
     private _camera: Camera | null = null;
     private _isAttached: boolean = false;
     private _isEnable: boolean = true;

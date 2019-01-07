@@ -45,12 +45,18 @@ export abstract class GFXShader {
 
     constructor(device: GFXDevice) {
         this._device = device;
+        this._id = device.genShaderId();
     }
 
     public abstract initialize(info: GFXShaderInfo): boolean;
     public abstract destroy();
 
+    public get id(): number {
+        return this._id;
+    }
+
     protected _device: GFXDevice;
+    protected _id: number;
     protected _name: string = "";
     protected _stages: GFXShaderStage[] = [];
     //protected _bindings: GFXBinding[] = [];

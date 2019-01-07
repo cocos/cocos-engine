@@ -10,7 +10,7 @@ import InputAssembler from './core/input-assembler';
 import View from './core/view';
 
 import Light from './scene/light';
-import Camera from './scene/camera';
+import { Camera } from './scene/camera';
 import Model from './scene/model';
 import Scene from './scene/scene';
 

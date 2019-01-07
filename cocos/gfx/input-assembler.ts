@@ -6,6 +6,7 @@ export interface GFXInputAttribute {
     binding?: number;
     name: string;
     format: GFXFormat;
+    isNormalized?: boolean;
     stream?: number;
     isInstanced?: boolean;
 };

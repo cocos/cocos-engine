@@ -39,8 +39,8 @@ export class Pass {
         const renderPass = cc.director.root.pipeline.getRenderPass(pass._stage);
         if (!renderPass) { console.error('create render pass failed'); return pass; }
         const bs = new GFXBlendState();
-        if (info.BlendState) {
-            const bsInfo = Object.assign({}, info.BlendState);
+        if (info.blendState) {
+            const bsInfo = Object.assign({}, info.blendState);
             if (bsInfo.targets) {
                 bsInfo.targets.forEach((t, i) => Object.assign(
                 bs.targets[i] || (bs.targets[i] = new GFXBlendTarget()), t));
@@ -51,8 +51,8 @@ export class Pass {
 
         pass._pipelineState = device.createPipelineState({
           primitive: info.primitive || GFXPrimitiveMode.TRIANGLE_LIST,
-          rs: Object.assign(new GFXRasterizerState(), info.RasterizerState),
-          dss: Object.assign(new GFXDepthStencilState(), info.DepthStencilState),
+          rs: Object.assign(new GFXRasterizerState(), info.rasterizerState),
+          dss: Object.assign(new GFXDepthStencilState(), info.rasterizerState),
           is: new GFXInputState(), bs,
           shader, layout, renderPass,
         });
@@ -60,6 +60,7 @@ export class Pass {
     }
 
     get programName() { return this._programName; }
+    get pipelineState(): GFXPipelineState { return <GFXPipelineState>this._pipelineState; }
 
     protected _device: GFXDevice | null = null;
     protected _programName: string = '';

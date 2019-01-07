@@ -103,7 +103,7 @@ export class WebGLGFXDevice extends GFXDevice {
             return false;
         }
 
-        console.info('WebGL device initialization successed.');
+        console.info('WebGL device initialized.');
 
         this._deviceName = "WebGL";
         let gl = this._webGLRC;
@@ -126,9 +126,14 @@ export class WebGLGFXDevice extends GFXDevice {
         this._depthBits = gl.getParameter(WebGLRenderingContext.DEPTH_BITS);
         this._stencilBits = gl.getParameter(WebGLRenderingContext.STENCIL_BITS);
 
+        this._width = this._canvas.width;
+        this._height = this._canvas.height;
+
         console.info("RENDERER: " + this._renderer);
         console.info("VENDOR: " + this._vendor);
         console.info("VERSION: " + this._version);
+        console.info("SCREEN_SIZE: " + this._width + "x" + this._height);
+
         console.info("MAX_VERTEX_ATTRIBS: " + this._maxVertexAttributes);
         console.info("MAX_VERTEX_UNIFORM_VECTORS: " + this._maxVertexUniformVectors);
         console.info("MAX_FRAGMENT_UNIFORM_VECTORS: " + this._maxFragmentUniformVectors);

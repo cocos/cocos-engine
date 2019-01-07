@@ -235,6 +235,7 @@ export class WebGLAttrib {
     count: number = 0;
     stride: number = 0;
     componentCount: number = 1;
+    isNormalized: boolean = false;
     isInstanced: boolean = false;
     offset: number = 0;
 };

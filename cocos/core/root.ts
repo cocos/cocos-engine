@@ -48,6 +48,8 @@ export class Root {
 
     public frameMove(deltaTime: number) {
 
+        this._frameTime = deltaTime;
+
         for (let i = 0; i < this._views.length; ++i) {
             let view = this._views[i];
             if (view.isEnable() && view.isAttached) {
@@ -88,7 +90,7 @@ export class Root {
     }
 
     public createScene(info: RenderSceneInfo): RenderScene | null {
-        let scene = new RenderScene;
+        let scene = new RenderScene(this);
         if (scene.initialize(info)) {
             this._scenes.push(scene);
             return scene;
@@ -155,12 +157,16 @@ export class Root {
         return this._pipeline;
     }
 
-    public get sceneManagers(): RenderScene[] {
+    public get scenes(): RenderScene[] {
         return this._scenes;
     }
 
     public get views(): RenderView[] {
         return this._views;
+    }
+
+    public get frameTime(): number {
+        return this._frameTime;
     }
 
     private _device: GFXDevice;
@@ -169,4 +175,5 @@ export class Root {
     private _pipeline: RenderPipeline | null = null;
     private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
+    private _frameTime: number = 0;
 };

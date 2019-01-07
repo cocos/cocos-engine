@@ -128,6 +128,34 @@ export abstract class GFXPipelineState {
     public abstract initialize(info: GFXPipelineStateInfo): boolean;
     public abstract destroy(): void;
 
+    public get shader() : GFXShader {
+        return <GFXShader>this._shader;
+    }
+
+    public get primitive() : GFXPrimitiveMode {
+        return this._primitive;
+    }
+
+    public get rasterizerState() : GFXRasterizerState {
+        return <GFXRasterizerState>this._rs;
+    }
+
+    public get depthStencilState() : GFXDepthStencilState {
+        return <GFXDepthStencilState>this._dss;
+    }
+
+    public get blendState() : GFXBlendState {
+        return <GFXBlendState>this._bs;
+    }
+
+    public get pipelineLayout() : GFXPipelineLayout {
+        return <GFXPipelineLayout>this._layout;
+    }
+
+    public get renderPass() : GFXRenderPass {
+        return <GFXRenderPass>this._renderPass;
+    }
+
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;

@@ -68,7 +68,7 @@ export default class Model {
         }
     }
 
-    get scene(): RenderScene {
+    get scene(): RenderScene | null {
         return this._scene;
     }
 

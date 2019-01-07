@@ -1,7 +1,8 @@
 import Node from "../../scene-graph/node";
-import Camera from "./camera";
 import Light from "./light";
 import Model from "./model";
+import { Camera } from "./camera";
+import { Root } from "../../core/root";
 
 export interface RenderSceneInfo {
     name: string;
@@ -15,15 +16,13 @@ export interface SceneNodeInfo {
 
 export class RenderScene {
 
-    constructor() {
+    constructor(root: Root) {
+        this._root = root;
     }
 
     public initialize(info: RenderSceneInfo): boolean {
         this._name = info.name;
-
-        let cameraNode = this.createNode({ name: "mainCamNode", isStatic: false });
         this._mainCamera = this.createCamera("mainCamera");
-        this._mainCamera.setNode(cameraNode);
 
         return true;
     }
@@ -80,9 +79,8 @@ export class RenderScene {
 
     public getCamera(name: string): Camera | null {
         for (let i = 0; i < this._cameras.length; ++i) {
-            let camera = this._cameras[i];
-            if (camera.getName() === name) {
-                return camera;
+            if (this._cameras[i].name === name) {
+                return this._cameras[i];
             }
         }
 
@@ -143,6 +141,10 @@ export class RenderScene {
         return this._modelId++;
     }
 
+    public get root(): Root {
+        return this._root;
+    }
+
     public get name(): string {
         return this._name;
     }
@@ -163,6 +165,7 @@ export class RenderScene {
         return this._models;
     }
 
+    private _root: Root;
     private _name: string = "";
     private _nodes: Map<number, Node> = new Map;
     private _cameras: Camera[] = [];

@@ -1075,7 +1075,8 @@ export function WebGLCmdFuncCreateInputAssember(device: WebGLGFXDevice, gpuInput
             count: GFXFormatInfos[attrib.format].count,
             stride: gpuBuffer.stride,
             componentCount: WebGLGetComponentCount(glType),
-            isInstanced: attrib.isInstanced !== undefined ? attrib.isInstanced : false,
+            isNormalized: (attrib.isNormalized !== undefined? attrib.isNormalized : false),
+            isInstanced: (attrib.isInstanced !== undefined ? attrib.isInstanced : false),
             offset: offsets[stream],
         };
 
@@ -1918,7 +1919,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                 }
                                 device.stateCache.glCurrentAttribLocs[glLoc] = true;
 
-                                gl.vertexAttribPointer(glLoc, glAttrib.count, glAttrib.glType, false, glAttrib.stride, attribOffset);
+                                gl.vertexAttribPointer(glLoc, glAttrib.count, glAttrib.glType, glAttrib.isNormalized, glAttrib.stride, attribOffset);
                             }
                         }
                     } // if

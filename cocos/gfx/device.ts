@@ -55,6 +55,14 @@ export abstract class GFXDevice {
         return <GFXQueue>this._queue;
     }
 
+    public get width(): number {
+        return this._width;
+    }
+
+    public get height(): number {
+        return this._height;
+    }
+
     public get mainWindow(): GFXWindow | null {
         return this._mainWindow;
     }
@@ -99,12 +107,18 @@ export abstract class GFXDevice {
         return this._stencilBits;
     }
 
+    public genShaderId(): number {
+        return this._shaderIdGen++;
+    }
+
     protected _canvas: HTMLCanvasElement | null = null;
     protected _deviceName: string = "";
     protected _renderer: string = "";
     protected _vendor: string = "";
     protected _version: string = "";
     protected _queue: GFXQueue | null = null;
+    protected _width: number = 0;
+    protected _height: number = 0;
     protected _mainWindow: GFXWindow | null = null;
     protected _cmdAllocator: GFXCommandAllocator | null = null;
     protected _maxVertexAttributes: number = 0;
@@ -114,4 +128,5 @@ export abstract class GFXDevice {
     protected _maxVertexTextureUnits: number = 0;
     protected _depthBits: number = 0;
     protected _stencilBits: number = 0;
+    protected _shaderIdGen: number = 0;
 };
