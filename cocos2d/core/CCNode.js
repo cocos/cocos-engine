@@ -51,7 +51,6 @@ var _vec2b = cc.v2();
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
-var _globalOrderOfArrival = 1;
 var _cachedArray = new Array(16);
 _cachedArray.length = 0;
 
@@ -567,11 +566,15 @@ var Node = cc.Class({
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
+        _zIndex: {
+            default: undefined,
+            type: cc.Integer
+        },
         _localZOrder: {
             default: 0,
             serializable: false
         },
-        _zIndex: 0,
+        _childArrivalOrder: 1,
 
         // internal properties
 
@@ -1104,7 +1107,7 @@ var Node = cc.Class({
          */
         zIndex: {
             get () {
-                return this._zIndex;
+                return this._localZOrder >> 16;
             },
             set (value) {
                 if (value > macro.MAX_ZINDEX) {
@@ -1116,8 +1119,7 @@ var Node = cc.Class({
                     value = macro.MIN_ZINDEX;
                 }
 
-                if (this._zIndex !== value) {
-                    this._zIndex = value;
+                if (this.zIndex !== value) {
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
 
                     if (this._parent) {
@@ -1284,9 +1286,9 @@ var Node = cc.Class({
             this._scale.y = this._scaleY;
             this._scaleY = undefined;
         }
-
-        if (this._localZOrder !== 0) {
-            this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
+        if (this._zIndex !== undefined) {
+            this._localZOrder = this._zIndex << 16;
+            this._zIndex = undefined;
         }
 
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
@@ -2933,8 +2935,18 @@ var Node = cc.Class({
     },
 
     _updateOrderOfArrival () {
-        var arrivalOrder = ++_globalOrderOfArrival;
+        var arrivalOrder = this._parent ? ++this._parent._childArrivalOrder : 0;
         this._localZOrder = (this._localZOrder & 0xffff0000) | arrivalOrder;
+        // redistribute
+        if (arrivalOrder === 0x0000ffff) {
+            var siblings = this._parent._children;
+
+            siblings.forEach(function (node, index) {
+                node._localZOrder = (node._localZOrder & 0xffff0000) | (index + 1);
+            });
+
+            this._parent._childArrivalOrder = siblings.length;
+        }
     },
 
     /**
