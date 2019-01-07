@@ -2,8 +2,6 @@
 
 import Component from '../../../components/CCComponent';
 import { vec3, vec2, mat4, quat, randomRangeInt, pseudoRandom } from '../../../core/vmath';
-import registry from '../../misc/registry';
-import Gradient, { ColorKey, AlphaKey } from './animator/gradient';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 import ParticleSystemRenderer from './renderer/particle-system-renderer';
@@ -18,25 +16,7 @@ import ShapeModule from './emitter/shape-module';
 import Burst from './burst';
 import { particleEmitZAxis, Space } from './particle-general-function';
 import { INT_MAX } from '../../../core/vmath/bits';
-import ParticleSystemGpuRenderer from './renderer/particle-system-gpu-renderer';
 import { ccclass, executionOrder, executeInEditMode, property, requireComponent } from '../../../core/data/class-decorator';
-
-registry.registerClass('Burst', Burst);
-registry.registerClass('ColorKey', ColorKey);
-registry.registerClass('AlphaKey', AlphaKey);
-registry.registerClass('Gradient', Gradient);
-registry.registerClass('GradientRange', GradientRange);
-registry.registerClass('CurveRange', CurveRange);
-registry.registerClass('SizeOvertimeModule', SizeOvertimeModule);
-registry.registerClass('ColorOverLifetimeModule', ColorOverLifetimeModule);
-registry.registerClass('ParticleSystemRenderer', ParticleSystemRenderer);
-registry.registerClass('ParticleSystemGpuRenderer', ParticleSystemGpuRenderer);
-registry.registerClass('VelocityOvertimeModule', VelocityOvertimeModule);
-registry.registerClass('ForceOvertimeModule', ForceOvertimeModule);
-registry.registerClass('LimitVelocityOvertimeModule', LimitVelocityOvertimeModule);
-registry.registerClass('RotationOvertimeModule', RotationOvertimeModule);
-registry.registerClass('TextureAnimationModule', TextureAnimationModule);
-registry.registerClass('ShapeModule', ShapeModule);
 
 let _world_mat = mat4.create();
 
@@ -49,33 +29,35 @@ export default class ParticleSystemComponent extends Component {
     @property
     capacity = 2000;
 
-    @property
-    startColor = null;
+    @property({
+        type:GradientRange
+    })
+    startColor = new GradientRange();
 
     @property({
         type: CurveRange
     })
-    startSize = null;
+    startSize = new CurveRange();
 
     @property({
         type: CurveRange
     })
-    startSpeed = null;
+    startSpeed = new CurveRange();
 
     @property({
         type: CurveRange
     })
-    startRotation = null;
+    startRotation = new CurveRange();
 
     @property({
         type: CurveRange
     })
-    startDelay = null;
+    startDelay = new CurveRange();
 
     @property({
         type: CurveRange
     })
-    startLifetime = null;
+    startLifetime = new CurveRange();
 
     @property
     duration = 5.0;
@@ -126,35 +108,35 @@ export default class ParticleSystemComponent extends Component {
     @property({
         type: CurveRange
     })
-    gravityModifier = null;
+    gravityModifier = new CurveRange();
 
     // emission module
     @property({
         type: CurveRange
     })
-    rateOverTime = null;
+    rateOverTime = new CurveRange();
 
     @property({
         type: CurveRange
     })
-    rateOverDistance = null;
+    rateOverDistance = new CurveRange();
 
     @property({
         type: [Burst]
     })
-    bursts = null;
+    bursts = new Array();
 
     // color over lifetime module
     @property({
         type: ColorOverLifetimeModule
     })
-    colorOverLifetimeModule = null;
+    colorOverLifetimeModule = new ColorOverLifetimeModule();
 
     // shpae module
     @property({
         type: ShapeModule
     })
-    shapeModule = null;
+    shapeModule = new ShapeModule();
 
     // particle system renderer
     @property({
@@ -166,32 +148,32 @@ export default class ParticleSystemComponent extends Component {
     @property({
         type: SizeOvertimeModule
     })
-    sizeOvertimeModule = null;
+    sizeOvertimeModule = new SizeOvertimeModule();
 
     @property({
         type: VelocityOvertimeModule
     })
-    velocityOvertimeModule = null;
+    velocityOvertimeModule = new VelocityOvertimeModule();
 
     @property({
         type: ForceOvertimeModule
     })
-    forceOvertimeModule = null;
+    forceOvertimeModule = new ForceOvertimeModule();
 
     @property({
         type: LimitVelocityOvertimeModule
     })
-    limitVelocityOvertimeModule = null;
+    limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
 
     @property({
         type: RotationOvertimeModule
     })
-    rotationOvertimeModule = null;
+    rotationOvertimeModule = new RotationOvertimeModule();
 
     @property({
         type: TextureAnimationModule
     })
-    textureAnimationModule = null;
+    textureAnimationModule = new TextureAnimationModule();
 
     constructor() {
         super();

@@ -1,22 +1,38 @@
 import { vec3, pseudoRandom } from '../../../../core/vmath';
 import CurveRange from './curve-range';
 import { CCClass } from '../../../../core/data';
+import { property, ccclass } from '../../../../core/data/class-decorator';
 
 const SIZE_OVERTIME_RAND_OFFSET = 39825;
 
+@ccclass('cc.SizeOvertimeModule')
 export default class SizeOvertimeModule {
 
+    @property
     enable = false;
 
+    @property
     separateAxes = false;
 
-    size = null;
+    @property({
+        type: CurveRange
+    })
+    size = new CurveRange();
 
-    x = null;
+    @property({
+        type: CurveRange
+    })
+    x = new CurveRange();
 
-    y = null;
+    @property({
+        type: CurveRange
+    })
+    y = new CurveRange();
 
-    z = null;
+    @property({
+        type: CurveRange
+    })
+    z = new CurveRange();
 
     animate(particle) {
         if (!this.separateAxes) {
@@ -25,11 +41,11 @@ export default class SizeOvertimeModule {
     }
 }
 
-CCClass.fastDefine('cc.SizeOvertimeModule', SizeOvertimeModule, {
-    enable: false,
-    separateAxes: false,
-    size: new CurveRange(),
-    x: new CurveRange(),
-    y: new CurveRange(),
-    z: new CurveRange()
-});
+// CCClass.fastDefine('cc.SizeOvertimeModule', SizeOvertimeModule, {
+//     enable: false,
+//     separateAxes: false,
+//     size: new CurveRange(),
+//     x: new CurveRange(),
+//     y: new CurveRange(),
+//     z: new CurveRange()
+// });
