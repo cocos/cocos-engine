@@ -43,19 +43,19 @@ mat4 skinMatrix() {
 }
 
 void skinVertex(inout vec4 a1) {
-   mat4 m = skinMatrix();
-   a1 = m * a1;
- }
+  mat4 m = skinMatrix();
+  a1 = m * a1;
+}
  
-  void skinVertex(inout vec4 a1, inout vec4 a2) {
-   mat4 m = skinMatrix();
-   a1 = m * a1;
-   a2 = m * a2;
- }
- 
-  void skinVertex(inout vec4 a1, inout vec4 a2, inout vec4 a3) {
-   mat4 m = skinMatrix();
-   a1 = m * a1;
-   a2 = m * a2;
-   a3 = m * a3;
- }
+void skinVertex(inout vec4 a1, inout vec4 a2) {
+  mat4 m = skinMatrix();
+  a1 = m * a1;
+  a2 = m * a2;
+}
+
+void skinVertex(inout vec4 a1, inout vec4 a2, inout vec4 a3) {
+  mat4 m = skinMatrix();
+  a1 = m * a1;
+  a2 = m * a2;
+  a3 = m * a3;
+}
