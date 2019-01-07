@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Asset from './CCAsset';
+import { Asset } from './asset';
 import {ccclass, property} from '../core/data/class-decorator';
 
 /**

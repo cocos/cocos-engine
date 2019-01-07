@@ -2,7 +2,7 @@
 // @ts-check
 
 import CANNON from 'cannon';
-import Asset from '../../../assets/CCAsset';
+import { Asset } from '../../../assets/asset';
 import { ccclass, property } from '../../../core/data/class-decorator';
 
 @ccclass('cc.PhysicalMaterial')

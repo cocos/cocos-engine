@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import {createMap, isChildClassOf, _getClassById} from '../core/utils/js';
-import Asset from './CCAsset';
+import { Asset } from './asset';
 import {callInNextTick} from '../core/utils/misc';
 import decodeUuid from '../core/utils/decode-uuid';
 import Loader from '../load-pipeline/CCLoader';
@@ -348,11 +348,11 @@ let AssetLibrary = {
                     _uuidToRawAsset[uuid] = new RawAssetEntry(mountPoint + '/' + url, type);
                     // init resources
                     var isSubAsset = info[2] === 1;
-                    
+
                     if (!assetTables[mountPoint]) {
                         assetTables[mountPoint] = new AssetTable();
-                    } 
-                    
+                    }
+
                     assetTables[mountPoint].add(url, uuid, type, !isSubAsset);
                 }
             }

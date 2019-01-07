@@ -4,8 +4,7 @@ import config from './config';
 
 import { RenderQueue, PassStage } from './core/constants';
 import { Pass } from './core/pass';
-import Technique from './core/technique';
-import Effect from './core/effect';
+import { Effect } from './core/effect';
 import InputAssembler from './core/input-assembler';
 import View from './core/view';
 
@@ -32,7 +31,6 @@ let renderer = {
   RenderQueue,
   PassStage,
   Pass,
-  Technique,
   Effect,
   InputAssembler,
   View,

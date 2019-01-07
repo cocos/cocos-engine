@@ -6,7 +6,7 @@ import { intersect } from '../../3d/geom-utils';
 
 import enums from '../enums';
 import View from './view';
-import ProgramLib from './program-lib';
+import { ProgramLib } from './program-lib';
 import { RenderQueue } from './constants';
 
 let _m3_tmp = mat3.create();

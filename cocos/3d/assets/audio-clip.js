@@ -24,7 +24,7 @@
  ****************************************************************************/
 // @ts-check
 import { _decorator } from "../../core/data/index";
-import Asset from "../../assets/CCAsset";
+import { Asset } from "../../assets/asset";
 import { EventTarget } from "../../core/event/index";
 const { ccclass, mixins } = _decorator;
 

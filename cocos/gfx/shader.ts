@@ -22,7 +22,7 @@ export class GFXUniformBlock {
     binding: number = -1;
     name: string = "";
     //instance : string;
-    uniforms: GFXUniform[] = [];
+    members: GFXUniform[] = [];
 };
 
 export class GFXUniformSampler {

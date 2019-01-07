@@ -25,7 +25,7 @@
 // @ts-check
 import renderer from '../../renderer/index';
 import { box } from '../primitive/index';
-import Material from '../assets/material';
+import { Material } from '../assets/material';
 import { ccclass, property, menu, executeInEditMode } from '../../core/data/class-decorator';
 import TextureCube from '../assets/texture-cube';
 import Component from '../../components/CCComponent';

@@ -1,6 +1,7 @@
 import { RenderFlow, RenderFlowInfo } from "../render-flow";
 import { RenderPipeline } from "../render-pipeline";
-import { TestStage } from "./test-stage";
+// import { TestStage } from "./test-stage";
+import { TestMaterialStage } from "./test-material-stage";
 
 export enum ForwardStagePriority {
     FORWARD = 0,
@@ -33,8 +34,8 @@ export class ForwardFlow extends RenderFlow {
         });
         */
 
-        this.createStage<TestStage>(TestStage, {
-            name: "TestStage",
+        this.createStage<TestMaterialStage>(TestMaterialStage, {
+            name: "TestMaterialStage",
             priority: ForwardStagePriority.FORWARD,
             framebuffer:  mainWindow.framebuffer,
         });

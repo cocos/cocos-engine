@@ -897,15 +897,15 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
                 binding: block.binding,
                 name: block.name,
                 size: 0,
-                glUniforms: new Array<WebGLGPUUniform>(block.uniforms.length),
+                glUniforms: new Array<WebGLGPUUniform>(block.members.length),
                 isUniformPackage: true,
                 buffer: null,
             };
 
             gpuShader.glBlocks[i] = glBlock;
 
-            for (let u = 0; u < block.uniforms.length; ++u) {
-                let uniform = block.uniforms[u];
+            for (let u = 0; u < block.members.length; ++u) {
+                let uniform = block.members[u];
                 let glType = GFXTypeToWebGLType(uniform.type);
                 let stride = WebGLGetTypeSize(glType);
                 let size = stride * uniform.count;

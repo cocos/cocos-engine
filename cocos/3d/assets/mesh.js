@@ -26,7 +26,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
-import Asset from "../../assets/CCAsset";
+import { Asset } from "../../assets/asset";
 import gfx from "../../renderer/gfx";
 import { enums as gfxEnums } from "../../renderer/gfx/enums";
 import InputAssembler from "../../renderer/core/input-assembler";

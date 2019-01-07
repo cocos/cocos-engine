@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export {default as RawAsset} from './CCRawAsset';
-export {default as Asset} from './CCAsset';
+export { RawAsset } from './raw-asset';
+export { Asset } from './asset';
 export {default as Prefab} from './CCPrefab';
 export * from './CCScripts';
 export {default as SceneAsset} from './CCSceneAsset';

@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import CCObject from './object';
+import { CCObject } from './object';
 import ValueType from '../value-types/value-type';
 import {isDomNode} from '../utils/misc';
 

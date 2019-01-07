@@ -1,6 +1,6 @@
 //@ts-check
 import { _decorator } from '../../core/data/index';
-import Material from "../assets/material";
+import { Material } from "../assets/material";
 import Component from "../../components/CCComponent";
 const { ccclass, property } = _decorator;
 

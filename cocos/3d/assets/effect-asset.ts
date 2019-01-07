@@ -1,9 +1,9 @@
-import Asset from '../../assets/CCAsset';
+import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { PassInfo } from '../../renderer/core/pass';
+import { PassInfoBase } from '../../renderer/core/pass';
 
 export interface TechniqueInfo {
-    passes: PassInfo[];
+    passes: PassInfoBase[];
     queue?: number;
     priority?: number;
     lod?: number;
@@ -16,33 +16,43 @@ export interface PropertyInfo {
     pass?: number;
 }
 
-export interface UniformInfo {
+export interface BlockMember {
     name: string;
     type: number;
-    bindingType: number;
+    count: number;
+    size: number;
+}
+export interface BlockInfo {
+    name: string;
     binding: number;
     defines: string[];
-    members?: Array< { name: string, type: number } >;
+    members: BlockMember[];
+    size: number;
+}
+export interface SamplerInfo {
+    name: string;
+    binding: number;
+    defines: string[];
+    type: number;
+    count: number;
 }
 export interface DefineInfo {
     name: string;
     type: string;
+    range?: number[];
     defines: string[];
-}
-export interface ExtensionInfo {
-    name: string;
-    define: string;
 }
 export interface ShaderInfo {
     name: string;
     vert: string;
     frag: string;
     defines: DefineInfo[];
-    uniforms: UniformInfo[];
-    extensions: ExtensionInfo[];
+    blocks: BlockInfo[];
+    samplers: SamplerInfo[];
+    dependencies: Record<string, string>;
 }
 
-const effects: { [name: string]: EffectAsset } = {};
+const effects: Record<string, EffectAsset> = {};
 
 @ccclass('cc.EffectAsset')
 export class EffectAsset extends Asset {
@@ -63,15 +73,16 @@ export class EffectAsset extends Asset {
                 return effects[n];
             }
         }
+        return null;
     }
     public static getAll() { return effects; }
-    protected static _effects: { [name: string]: EffectAsset } = {};
+    protected static _effects: Record<string, EffectAsset> = {};
 
     @property
     public techniques: TechniqueInfo[] = [];
 
     @property
-    public properties: { [name: string]: PropertyInfo } = {};
+    public properties: Record<string, PropertyInfo> = {};
 
     @property
     public shaders: ShaderInfo[] = [];
