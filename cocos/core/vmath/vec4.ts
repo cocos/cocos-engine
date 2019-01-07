@@ -1,3 +1,5 @@
+/// <reference path="./fwd-decls" />
+
 import { EPSILON, random } from './utils';
 
 /**

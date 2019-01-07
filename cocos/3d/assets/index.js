@@ -23,17 +23,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import "./animation-clip";
-import "./audio-clip";
-import "./dom-audio-clip";
-import "./bitmap-font";
-import "./material";
-import "./mesh";
-import "./opentype-font";
-import "./skeleton";
-import "./sprite";
-import "./web-audio-clip";
-import "./wx-game-audio-clip";
+export { default as AnimationClip } from "./animation-clip";
+export { default as AudioClip } from "./audio-clip";
+export { default as DomAudioClip } from "./dom-audio-clip";
+export { default as BitmapFont } from "./bitmap-font";
+export { default as EffectAsset } from "./effect-asset";
+export { default as Material } from "./material";
+export { default as Mesh } from "./mesh";
+export { default as OpentypeFont } from "./opentype-font";
+export { default as Skeleton } from "./skeleton";
+export { default as Sprite } from "./sprite";
+export { default as WebAudioClip } from "./web-audio-clip";
+export { default as WxGameAudioClip } from "./wx-game-audio-clip";
 
-import { PhysicsMaterial } from './physics/material';
+export { PhysicsMaterial } from './physics/material';
 cc.PhysicsMaterial = PhysicsMaterial;
