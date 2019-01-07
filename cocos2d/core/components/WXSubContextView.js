@@ -96,7 +96,7 @@ else {
         },
 
         /**
-         * !#en Resets the size and window of the sub context
+         * !#en Reset open data context size and viewport
          * !#zh 重置开放数据域的尺寸和视窗
          * @method reset
          */
