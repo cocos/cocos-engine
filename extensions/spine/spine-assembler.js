@@ -46,33 +46,35 @@ if (!CC_JSB) {
     _darkColor = new spine.Color(1, 1, 1, 1);
 }
 
-// vertex size
-let _perVertexSize1 = 5;// x y u v c1
-let _perVertexSize2 = 6;// x y u v c1 c2
+let _tempFrame = undefined;
+let _tempVertices = undefined;
+let _tempIndices = undefined;
+let _tempColors = undefined;
 
-function _insureVerticesCapacity (data, capacity) {
-    let oldVertices = data.vertices;
-    if (oldVertices.length < capacity) {
-        let newVertices = new Float32Array(_perVertexSize2 * capacity + 128);
-        newVertices.set(oldVertices);
-        data.vertices = newVertices;
-        data.colors = new Uint32Array(data.vertices.buffer);
+function _insureVerticesCapacity (capacity) {
+    if (_tempVertices.length < capacity) {
+        let newVertices = new Float32Array(capacity + 128);
+        newVertices.set(_tempVertices);
+        _tempVertices = newVertices;
+        _tempFrame.vertices = _tempVertices;
+        _tempColors = new Uint32Array(_tempVertices.buffer);
+        _tempFrame.colors = _tempColors;
     }
-
 }
 
-function _insureIndicesCapacity (data, capacity) {
-    let oldIndices = data.indices;
-    if (oldIndices.length < capacity) {
+function _insureIndicesCapacity (capacity) {
+    if (_tempIndices.length < capacity) {
         let newIndices = new Uint16Array(capacity + 128);
-        newIndices.set(oldIndices);
-        data.indices = newIndices;
+        newIndices.set(_tempIndices);
+        _tempIndices = newIndices;
+        _tempFrame.indices = _tempIndices;
     }
 }
 
 function _buildFrameData () {
     let frameData = {
-        vertices : new Float32Array(_perVertexSize2 * 1024),
+        // Each vertex occupy 6 float,layout such as x y u v color1 color2.
+        vertices : new Float32Array(6 * 1024),
         indices : new Uint16Array(1024),
         segment : [],
         vertexCount : 0,
@@ -119,12 +121,12 @@ function _getSlotMaterial (comp, slot, tex, premultipliedAlpha) {
         }
 
         material.useModel = !comp.useBatch;
-        // update texture
+        // Update texture.
         material.texture = tex;
-        // update tint
+        // Update tint.
         material.useTint = comp.useTint;
 
-        // update blend function
+        // Update blend function.
         let pass = material._mainTech.passes[0];
         pass.setBlend(
             gfx.BLEND_FUNC_ADD,
@@ -150,11 +152,10 @@ function _getSlotMaterial (comp, slot, tex, premultipliedAlpha) {
 }
 
 var spineAssembler = {
-    // Use model to avoid per vertex transform
+    // Use model to avoid per vertex transform.
     useModel: true,
 
     genRenderDatas (comp, batchData) {
-        if (CC_EDITOR) return;
         let locSkeleton = comp._skeleton;
         let premultipliedAlpha = comp.premultipliedAlpha;
         let graphics = comp._debugRenderer;
@@ -176,12 +177,12 @@ var spineAssembler = {
             renderDatas.curFrame = _buildFrameData();
         }
 
-        let curFrame = renderDatas.curFrame;
-        let vertices = curFrame.vertices;
-        let indices = curFrame.indices;
-        let colors = curFrame.colors;
-        let segment = curFrame.segment;
-        
+        _tempFrame = renderDatas.curFrame;
+        _tempVertices = _tempFrame.vertices;
+        _tempIndices = _tempFrame.indices;
+        _tempColors = _tempFrame.colors;
+
+        let segment = _tempFrame.segment;
         segment.length = 0;
 
         if (comp.debugBones || comp.debugSlots) {
@@ -191,7 +192,10 @@ var spineAssembler = {
         }
 
         let attachment, attachmentColor, slotColor, uvs, triangles, clippedVertices, clippedTriangles;
-        let perVertexSize = useTint ? _perVertexSize2 : _perVertexSize1;
+        // x y u v color1 color2 or x y u v color
+        let perVertexSize = useTint ? 6 : 5;
+        // x y u v r1 g1 b1 a1 r2 g2 b2 a2 or x y u v r g b a 
+        let perClipVertexSize = useTint ? 12 : 8;
 
         let material = null, currMaterial = null;
         let vertexCount = 0, vertexOffset = 0,
@@ -199,8 +203,8 @@ var spineAssembler = {
         let inRange = false;
         if (slotRangeStart == -1) inRange = true;
 
-        for (let i = 0, n = locSkeleton.drawOrder.length; i < n; i++) {
-            slot = locSkeleton.drawOrder[i];
+        for (let slotIdx = 0, slotCount = locSkeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
+            slot = locSkeleton.drawOrder[slotIdx];
             attachment = slot.getAttachment();
             if (!attachment) continue;
 
@@ -227,23 +231,27 @@ var spineAssembler = {
                 // insure capacity
                 vertexCount = 4 * perVertexSize;
                 indexCount = 6;
-                _insureIndicesCapacity(curFrame, indexCount + indexOffset);
-                _insureVerticesCapacity(curFrame, vertexCount + vertexOffset);
-                vertices = curFrame.vertices;
-                indices = curFrame.indices;
-                colors = curFrame.colors;
+                _insureIndicesCapacity(indexCount + indexOffset);
+                _insureVerticesCapacity(vertexCount + vertexOffset);
 
                 // fill indices
-                indices.set(triangles, indexOffset);
+                _tempIndices.set(triangles, indexOffset);
 
                 // compute vertex and fill x y
-                attachment.computeWorldVertices(slot.bone, vertices, vertexOffset, perVertexSize);
+                attachment.computeWorldVertices(slot.bone, _tempVertices, vertexOffset, perVertexSize);
+
+                // fill u v
+                uvs = attachment.uvs;
+                for (let v = vertexOffset, n = vertexOffset + vertexCount, u = 0; v < n; v += perVertexSize, u += 2) {
+                    _tempVertices[v + 2] = uvs[u];           // u
+                    _tempVertices[v + 3] = uvs[u + 1];       // v
+                }
 
                 // draw debug slots if enabled graphics
                 if (debugSlots) {
-                    graphics.moveTo(vertices[vertexOffset], vertices[vertexOffset + 1]);
+                    graphics.moveTo(_tempVertices[vertexOffset], _tempVertices[vertexOffset + 1]);
                     for (let ii = vertexOffset + perVertexSize, nn = vertexOffset + vertexCount; ii < nn; ii += perVertexSize) {
-                        graphics.lineTo(vertices[ii], vertices[ii + 1]);
+                        graphics.lineTo(_tempVertices[ii], _tempVertices[ii + 1]);
                     }
                     graphics.close();
                     graphics.stroke();
@@ -256,17 +264,21 @@ var spineAssembler = {
                 // insure capacity
                 vertexCount = (attachment.worldVerticesLength >> 1) * perVertexSize;
                 indexCount = triangles.length;
-                _insureIndicesCapacity(curFrame, indexCount + indexOffset);
-                _insureVerticesCapacity(curFrame, vertexCount + vertexOffset);
-                vertices = curFrame.vertices;
-                indices = curFrame.indices;
-                colors = curFrame.colors;
+                _insureIndicesCapacity(indexCount + indexOffset);
+                _insureVerticesCapacity(vertexCount + vertexOffset);
 
                 // fill indices
-                indices.set(triangles, indexOffset);
+                _tempIndices.set(triangles, indexOffset);
+
+                // fill u v
+                uvs = attachment.uvs;
+                for (let v = vertexOffset, n = vertexOffset + vertexCount, u = 0; v < n; v += perVertexSize, u += 2) {
+                    _tempVertices[v + 2] = uvs[u];           // u
+                    _tempVertices[v + 3] = uvs[u + 1];       // v
+                }
 
                 // compute vertex and fill x y
-                attachment.computeWorldVertices(slot, 0, attachment.worldVerticesLength, vertices, vertexOffset, perVertexSize);
+                attachment.computeWorldVertices(slot, 0, attachment.worldVerticesLength, _tempVertices, vertexOffset, perVertexSize);
             }
             else if (attachment instanceof spine.ClippingAttachment) {
                 clipper.clipStart(slot, attachment);
@@ -289,8 +301,12 @@ var spineAssembler = {
             if (!currMaterial || currMaterial != material) {
                 // Push pre segment index and vertex count.
                 if (currMaterial) {
-                    segment.push(segmentVCount);
-                    segment.push(segmentICount);
+                    if (segmentVCount > 0 && segmentICount > 0) {
+                        segment.push(segmentVCount);
+                        segment.push(segmentICount);
+                    } else {
+                        segment.pop();
+                    }
                 }
                 currMaterial = material;
                 segment.push(currMaterial._hash);
@@ -299,7 +315,6 @@ var spineAssembler = {
                 segmentVCount = 0;
             }
 
-            uvs = attachment.uvs;
             attachmentColor = attachment.color;
             slotColor = slot.color;
 
@@ -314,7 +329,7 @@ var spineAssembler = {
             }
 
             if (slot.darkColor == null) {
-                _darkColor.set(0, 0, 0, 1.0);
+                _darkColor.set(0.0, 0, 0, 1.0);
             } else {
                 if (premultipliedAlpha) {
                     _darkColor.r = slot.darkColor.r * _finalColor.a;
@@ -337,46 +352,43 @@ var spineAssembler = {
             _darkColor.a *= 255;
 
             if (clipper.isClipping()) {
-
-                clipper.clipTriangles(vertices.subarray(vertexOffset, vertexOffset + vertexCount), vertexCount, indices.subarray(indexOffset, indexOffset + indexCount), indexCount, uvs, _finalColor, _darkColor, useTint, perVertexSize);
+                uvs = _tempVertices.subarray(vertexOffset + 2);
+                clipper.clipTriangles(_tempVertices.subarray(vertexOffset), vertexCount, _tempIndices.subarray(indexOffset), indexCount, uvs, _finalColor, _darkColor, useTint, perVertexSize);
                 clippedVertices = new Float32Array(clipper.clippedVertices);
                 clippedTriangles = clipper.clippedTriangles;
                 
                 // insure capacity
-                vertexCount = clippedVertices.length;
                 indexCount = clippedTriangles.length;
-                _insureIndicesCapacity(curFrame, indexCount + indexOffset);
-                _insureVerticesCapacity(curFrame, vertexCount + vertexOffset);
-                vertices = curFrame.vertices;
-                indices = curFrame.indices;
-                colors = curFrame.colors;
+                vertexCount = clippedVertices.length / perClipVertexSize * perVertexSize;
+                _insureIndicesCapacity(indexCount + indexOffset);
+                _insureVerticesCapacity(vertexCount + vertexOffset);
 
                 // fill indices
-                indices.set(clippedTriangles, indexOffset);
+                _tempIndices.set(clippedTriangles, indexOffset);
 
                 // fill vertices contain x y u v light color dark color
                 if (!useTint) {
                     for (let v = 0, n = clippedVertices.length, offset = vertexOffset; v < n; v += 8, offset += perVertexSize) {
-                        vertices[offset]     = clippedVertices[v];        // x
-                        vertices[offset + 1] = clippedVertices[v + 1];    // y
-                        vertices[offset + 2] = clippedVertices[v + 6];    // u
-                        vertices[offset + 3] = clippedVertices[v + 7];    // v
+                        _tempVertices[offset]     = clippedVertices[v];        // x
+                        _tempVertices[offset + 1] = clippedVertices[v + 1];    // y
+                        _tempVertices[offset + 2] = clippedVertices[v + 6];    // u
+                        _tempVertices[offset + 3] = clippedVertices[v + 7];    // v
 
                         finalColor32 = ((clippedVertices[v + 5]<<24) >>> 0) + (clippedVertices[v + 4]<<16) + (clippedVertices[v + 3]<<8) + clippedVertices[v + 2];
-                        colors[offset + 4] = finalColor32;
+                        _tempColors[offset + 4] = finalColor32;
                     }
                 } else {
                     for (let v = 0, n = clippedVertices.length, offset = vertexOffset; v < n; v += 12, offset += perVertexSize) {
-                        vertices[v] = clippedVertices[v];                 // x
-                        vertices[v + 1] = clippedVertices[v + 1];         // y
-                        vertices[v + 2] = clippedVertices[v + 6];         // u
-                        vertices[v + 3] = clippedVertices[v + 7];         // v
+                        _tempVertices[offset] = clippedVertices[v];                 // x
+                        _tempVertices[offset + 1] = clippedVertices[v + 1];         // y
+                        _tempVertices[offset + 2] = clippedVertices[v + 6];         // u
+                        _tempVertices[offset + 3] = clippedVertices[v + 7];         // v
 
                         finalColor32 = ((clippedVertices[v + 5]<<24) >>> 0) + (clippedVertices[v + 4]<<16) + (clippedVertices[v + 3]<<8) + clippedVertices[v + 2];
-                        colors[v + 4] = finalColor32;
+                        _tempColors[offset + 4] = finalColor32;
 
                         darkColor32 = ((clippedVertices[v + 11]<<24) >>> 0) + (clippedVertices[v + 10]<<16) + (clippedVertices[v + 9]<<8) + clippedVertices[v + 8];
-                        colors[v + 5] = darkColor32;
+                        _tempColors[offset + 5] = darkColor32;
                     }
                 }
             } else {
@@ -385,16 +397,12 @@ var spineAssembler = {
 
                 if (!useTint) {
                     for (let v = vertexOffset, n = vertexOffset + vertexCount, u = 0; v < n; v += perVertexSize, u += 2) {
-                        vertices[v + 2] = uvs[u];           // u
-                        vertices[v + 3] = uvs[u + 1];       // v
-                        colors[v + 4] = finalColor32;
+                        _tempColors[v + 4] = finalColor32;
                     }
                 } else {
                     for (let v = vertexOffset, n = vertexOffset + vertexCount, u = 0; v < n; v += perVertexSize, u += 2) {
-                        vertices[v + 2]  = uvs[u];           // u
-                        vertices[v + 3]  = uvs[u + 1];       // v
-                        colors[v + 4]  = finalColor32;     // lr
-                        colors[v + 5]  = darkColor32;      // lg
+                        _tempColors[v + 4]  = finalColor32;     // light color
+                        _tempColors[v + 5]  = darkColor32;      // dark color
                     }
                 }
             }
@@ -402,7 +410,7 @@ var spineAssembler = {
             if (indexCount > 0 && vertexCount > 0) {
                 let vertexNum = segmentVCount / perVertexSize;
                 for (let ii = indexOffset, nn = indexOffset + indexCount; ii < nn; ii++) {
-                    indices[ii] += vertexNum;
+                    _tempIndices[ii] += vertexNum;
                 }
                 indexOffset += indexCount;
                 vertexOffset += vertexCount;
@@ -419,10 +427,12 @@ var spineAssembler = {
         if (segmentVCount > 0 && segmentICount > 0) {
             segment.push(segmentVCount);
             segment.push(segmentICount);
+        } else {
+            segment.pop();
         }
         
-        curFrame.vertexCount = vertexOffset;
-        curFrame.indexCount = indexOffset;
+        _tempFrame.vertexCount = vertexOffset;
+        _tempFrame.indexCount = indexOffset;
 
         if (debugBones) {
             let bone;
@@ -461,7 +471,6 @@ var spineAssembler = {
     },
 
     fillBuffers (comp, renderer) {
-        if (CC_EDITOR) return;
         let renderDatas = comp._renderDatas;
         let curFrame = renderDatas.curFrame;
         if (!curFrame) return;
