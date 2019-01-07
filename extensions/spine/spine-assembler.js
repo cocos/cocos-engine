@@ -494,8 +494,6 @@ var spineAssembler = {
         var vertexSize = vertexFormat._bytes >> 2;
         let buffer = renderer.getBuffer('mesh', vertexFormat);
 
-        renderer._flush();
-
         for (let index = 0; index < matLen; index +=3) {
             matHash = segment[index];
             segmentVCount = segment[index + 1];
@@ -504,7 +502,7 @@ var spineAssembler = {
 
             if (!material) continue;
 
-            if (material._hash !== renderer.material._hash) {
+            if (index == 0 || material._hash !== renderer.material._hash) {
                 renderer._flush();
                 renderer.node = node;
                 renderer.material = material;
