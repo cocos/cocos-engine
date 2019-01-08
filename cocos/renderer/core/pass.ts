@@ -145,20 +145,24 @@ export class Pass {
                 console.error('create sampler failed.');
             }
         }
+        this._bindingLayout.update();
     }
 
-    public getPropertyHandle(name: string) {
+    public getHandleFromName(name: string) {
         return this._handleMap[name];
     }
 
-    public setProperty(handle: number, value: any) {
+    public setBlockMember(handle: number, value: any) {
         const [ binding, idx ] = parseHandle(handle);
         const block = this._blocks[binding];
-        if (block) {
-            const type = this._typeMap[handle];
-            _type2fn[type](block.views[idx], value);
-            this._buffers[binding].update(block.buffer);
-        } else if (this._bindingLayout) {
+        const type = this._typeMap[handle];
+        _type2fn[type](block.views[idx], value);
+        this._buffers[binding].update(block.buffer);
+    }
+
+    public setTextureView(handle: number, value: any) {
+        const [ binding ] = parseHandle(handle);
+        if (this._bindingLayout) {
             this._bindingLayout.bindTextureView(binding, value);
             this._bindingLayout.update();
         }
