@@ -33,6 +33,13 @@ class vec3 {
     this.z = z;
   }
 
+  static UNIT_X = { x: 1, y: 0, z: 0 };
+  static UNIT_Y = { x: 0, y: 1, z: 0 };
+  static UNIT_Z = { x: 0, y: 0, z: 1 };
+  static ZERO = { x: 0, y: 0, z: 0 };
+  static ONE = { x: 1, y: 1, z: 1 };
+  static NEG_ONE = { x: -1, y: -1, z: -1 };
+ 
   /**
    * Creates a vector, with components specified separately.
    *
