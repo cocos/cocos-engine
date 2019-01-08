@@ -38,5 +38,6 @@ export * from './cocos/load-pipeline';
 export * from './cocos/components';
 export * from './cocos/animation';
 export * from './cocos/3d';
+export * from './cocos/gfx';
 
 // export default cc;

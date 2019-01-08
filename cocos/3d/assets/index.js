@@ -24,11 +24,11 @@
  ****************************************************************************/
 
 export { default as AnimationClip } from "./animation-clip";
-export { default as AudioClip } from "./audio-clip";
-export { default as DomAudioClip } from "./dom-audio-clip";
-export { default as BitmapFont } from "./bitmap-font";
-export { default as EffectAsset } from "./effect-asset";
-export { default as Material } from "./material";
+export { AudioClip } from "./audio-clip";
+export { DOMAudioClip } from "./dom-audio-clip";
+export { BitmapFont } from "./bitmap-font";
+export { EffectAsset } from "./effect-asset";
+export { Material } from "./material";
 export { default as Mesh } from "./mesh";
 export { default as OpentypeFont } from "./opentype-font";
 export { default as Skeleton } from "./skeleton";
@@ -37,4 +37,3 @@ export { default as WebAudioClip } from "./web-audio-clip";
 export { default as WxGameAudioClip } from "./wx-game-audio-clip";
 
 export { PhysicsMaterial } from './physics/material';
-cc.PhysicsMaterial = PhysicsMaterial;
