@@ -91,9 +91,9 @@ pool.get = function (string, richtext) {
     if (typeof string !== 'string') {
         string = '' + string;
     }
-    let isAsset = richtext.fontAsset instanceof cc.Font;
+    let isAsset = richtext.font instanceof cc.Font;
     if (isAsset) {
-        labelComponent.font = richtext.fontAsset;
+        labelComponent.font = richtext.font;
     } else {
         labelComponent.fontFamily = richtext.fontFamily;
     }
