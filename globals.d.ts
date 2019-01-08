@@ -24,7 +24,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export {Component} from './component';
-export {default as EventHandler} from './CCComponentEventHandler';
-export {default as MissingScript} from './missing-script';
-export {default as Canvas} from './CCCanvas';
+declare const CC_BUILD: boolean;
+declare const CC_TEST: boolean;
+declare const CC_EDITOR: boolean;
+declare const CC_PREVIEW: boolean;
+declare const CC_DEV: boolean;
+declare const CC_DEBUG: boolean;
+declare const CC_JSB: boolean;
+declare const CC_WECHATGAME_SUB: boolean;
+declare const CC_WECHATGAME: boolean;
+declare const CC_QQPLAY: boolean;
+declare const CC_RUNTIME: boolean;
+declare const CC_SUPPORT_JIT: boolean;
+
+declare const cc: any;

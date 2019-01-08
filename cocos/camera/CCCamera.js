@@ -29,7 +29,7 @@ import AffineTrans from '../core/value-types/affine-transform';
 import mat4 from '../core/vmath/mat4';
 import vec2 from '../core/vmath/vec2';
 import vec3 from '../core/vmath/vec3';
-import Component from '../components/CCComponent';
+import { Component } from '../components/component';
 // TODO fix import from renderer
 import { Camera as Renderer_Camera} from '../renderer/scene/camera';
 import {default as Renderer_View} from '../renderer/core/view';

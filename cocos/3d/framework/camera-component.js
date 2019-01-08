@@ -28,7 +28,7 @@ import { toRadian } from '../../core/vmath';
 import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
 import { Color, Enum, Rect } from '../../core/value-types';
 import enums from '../../renderer/enums';
-import Component from '../../components/CCComponent';
+import { Component } from '../../components/component';
 
 /**
  * @typedef {import('../../core/value-types/index').Color} Color

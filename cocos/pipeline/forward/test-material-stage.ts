@@ -70,6 +70,7 @@ export class TestMaterialStage extends RenderStage {
     }
 
     public render(view: RenderView) {
+        // @ts-ignore
         if (!this._material.inited) {
             // material
             this._material.effectName = 'test'; // parsed-effect file is embedded in cocos/3d/builtin/effects.js
@@ -79,6 +80,7 @@ export class TestMaterialStage extends RenderStage {
             const colorHandle = pass.getHandleFromName('u_color');
             pass.setUniform(colorHandle, cc.color('#ffffff'));
             pass.update();
+            // @ts-ignore
             this._material.inited = true;
         }
 

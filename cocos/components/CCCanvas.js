@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import Camera from '../camera/CCCamera';
-import Component from './CCComponent';
+import { Component } from './component';
 import {ccclass, property, executeInEditMode, menu, help, disallowMultiple} from '../core/data/class-decorator';
 
 /**

@@ -27,7 +27,7 @@ import renderer from '../../renderer/index';
 import { Color, Enum } from '../../core/value-types';
 import { toRadian } from '../../core/vmath';
 import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
-import Component from '../../components/CCComponent';
+import { Component } from '../../components/component';
 
 /**
  * !#en The light source type

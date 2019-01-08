@@ -28,7 +28,7 @@ import { box } from '../primitive/index';
 import { Material } from '../assets/material';
 import { ccclass, property, menu, executeInEditMode } from '../../core/data/class-decorator';
 import TextureCube from '../assets/texture-cube';
-import Component from '../../components/CCComponent';
+import { Component } from '../../components/component';
 
 /**
  * !#en The Skybox Component

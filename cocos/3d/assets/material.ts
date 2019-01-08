@@ -90,20 +90,44 @@ export class Material extends Asset {
         this.update();
     }
 
-    public setProperty(name: string, val: any, passIdx = 0) {
-        console.assert(passIdx < this._passes.length, 'illegal pass index.');
-        this._props[passIdx][name] = val;
-        const pass = this._passes[passIdx];
-        const handle = pass.getHandleFromName(name);
-        pass.setUniform(handle, val);
+    public setProperty(name: string, val: any, passIdx?: number) {
+        if (passIdx === undefined) { // set property for all applicable passes
+            const passes = this._passes;
+            const len = passes.length;
+            for (let i = 0; i < len; i++) {
+                const handle = passes[i].getHandleFromName(name);
+                if (handle === undefined) { continue; }
+                passes[i].setUniform(handle, val);
+                this._props[i][name] = val;
+            }
+        } else {
+            if (CC_DEBUG && passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
+            const pass = this._passes[passIdx];
+            const handle = pass.getHandleFromName(name);
+            if (CC_DEBUG && handle === undefined) { console.warn(`illegal property name: ${name}.`); return; }
+            pass.setUniform(handle, val);
+            this._props[passIdx][name] = val;
+        }
     }
 
-    public setTexture(name: string, val: TextureBase, passIdx = 0) {
-        console.assert(passIdx < this._passes.length, 'illegal pass index.');
-        this._textures[passIdx][name] = val;
-        const pass = this._passes[passIdx];
-        const binding = pass.getBindingFromName(name);
-        pass.bindTextureView(binding, val._texView);
+    public setTexture(name: string, val: TextureBase, passIdx?: number) {
+        if (passIdx === undefined) { // set property for all applicable passes
+            const passes = this._passes;
+            const len = passes.length;
+            for (let i = 0; i < len; i++) {
+                const binding = passes[i].getBindingFromName(name);
+                if (binding < 0) { continue; }
+                passes[i].bindTextureView(binding, val._texView);
+                this._textures[i][name] = val;
+            }
+        } else {
+            if (CC_DEBUG && passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
+            const pass = this._passes[passIdx];
+            const binding = pass.getBindingFromName(name);
+            if (CC_DEBUG && binding < 0) { console.warn(`illegal texture name: ${name}.`); return; }
+            pass.bindTextureView(binding, val._texView);
+            this._textures[passIdx][name] = val;
+        }
     }
 
     public copy(mat: Material) {
@@ -146,12 +170,14 @@ export class Material extends Asset {
                 if (!props) { props = this._props[i] = {}; }
                 for (const p of Object.keys(props)) {
                     const handle = pass.getHandleFromName(p);
+                    if (handle === undefined) { continue; }
                     pass.setUniform(handle, props[p]);
                 }
                 let textures = this._textures[i];
                 if (!textures) { textures = this._textures[i] = {}; }
                 for (const t of Object.keys(textures)) {
                     const binding = pass.getBindingFromName(t);
+                    if (binding === undefined) { continue; }
                     pass.bindTextureView(binding, textures[t]._texView);
                 }
             });

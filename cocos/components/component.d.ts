@@ -24,7 +24,25 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export {Component} from './component';
-export {default as EventHandler} from './CCComponentEventHandler';
-export {default as MissingScript} from './missing-script';
-export {default as Canvas} from './CCCanvas';
+import { CCObject } from '../core/data/object';
+import { getClassName, value } from '../core/utils/js';
+import IDGenerator from '../core/utils/id-generator';
+import { ccclass, property } from '../core/data/class-decorator';
+import Node from '../scene-graph/node';
+
+export class Component extends CCObject {
+    node: Node;
+    uuid: string;
+    enabled: boolean;
+    enabledInHierarchy: boolean;
+
+    addComponent(typeOrClassName: Function | string): Component;
+    getComponent(typeOrClassName: Function | string): Component;
+    getComponents(typeOrClassName: Function | string): Component[];
+    getComponentInChildren(typeOrClassName: Function | string): Component;
+    getComponentsInChildren(typeOrClassName: Function | string): Component[];
+    schedule(callback: Function, interval: number, repeat: number, delay: number): void;
+    scheduleOnce(callback: Function, delay: number): void;
+    unschedule(callback: Function): void;
+    unscheduleAllCallbacks(): void;
+}

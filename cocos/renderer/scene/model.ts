@@ -7,7 +7,7 @@ import { vec3 } from '../../core/vmath';
 import { Vec3 } from '../../core/value-types';
 import { Node } from '../../scene-graph';
 import InputAssembler from '../core/input-assembler';
-import Effect from '../core/effect';
+import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 
@@ -133,8 +133,8 @@ export default class Model {
     setEffect(effect: Effect) {
         if (effect) {
             this._effect = effect;
-            this._defines = effect.extractDefines(Object.create(null));
-            this._dependencies = effect.extractDependencies(Object.create(null));
+            // this._defines = effect.extractDefines(Object.create(null));
+            // this._dependencies = effect.extractDependencies(Object.create(null));
         } else {
             this._effect = null;
             this._defines = Object.create(null);
@@ -167,7 +167,7 @@ export default class Model {
         out.node = this._node;
         out.ia = this._inputAssembler;
         out.effect = this._effect;
-        out.defines = this._effect ? this._effect.extractDefines(this._defines) : this._defines;
-        out.dependencies = this._effect ? this._effect.extractDependencies(this._dependencies) : this._dependencies;
+        // out.defines = this._effect ? this._effect.extractDefines(this._defines) : this._defines;
+        // out.dependencies = this._effect ? this._effect.extractDependencies(this._dependencies) : this._dependencies;
     }
 }
