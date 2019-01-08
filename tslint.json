@@ -8,7 +8,10 @@
         "quotemark": [ true, "single" ],
         "no-console": false,
         "space-before-function-paren": true,
-        "max-classes-per-file": false
+        "max-classes-per-file": false,
+        "variable-name": false,
+        "object-literal-sort-keys": false,
+        "ban-types": false
     },
     "rulesDirectory": []
 }
