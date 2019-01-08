@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { aabb } from '../../3d/geom-utils';
-import { GFXInputAttribute } from '../../gfx/input-assembler';
-import { GFXFormat, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXInputAttribute, GFXInputAssembler } from '../../gfx/input-assembler';
+import { GFXFormat, GFXBufferUsageBit, GFXMemoryUsageBit, GFXCommandBufferType } from '../../gfx/define';
 import { RenderScene } from './render-scene';
 import { vec3 } from '../../core/vmath';
 import { Vec3 } from '../../core/value-types';
@@ -10,6 +10,7 @@ import InputAssembler from '../core/input-assembler';
 import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { Material } from '../../3d/assets/material';
 
 /**
  * A representation of a model
@@ -23,7 +24,7 @@ export default class Model {
     _poolID: number;
     _isEnable: boolean;
     _node: Node;
-    _inputAssembler: InputAssembler;
+    _inputAssembler: GFXInputAssembler | null;
     _effect: Effect | null;
     _defines: Object;
     _dependencies: Object;
@@ -33,7 +34,7 @@ export default class Model {
     _castShadow: boolean;
     _boundingShape: aabb;
     _bsModelSpace: aabb;
-    _passes: Pass[];
+    _material: Material | null;
     _cmdBuffers: GFXCommandBuffer[];
     /**
      * Setup a default empty model
@@ -56,7 +57,7 @@ export default class Model {
         this._userKey = -1;
         this._castShadow = false;
         this._boundingShape = null;
-        this._passes = new Array<Pass>();
+        this._material = null;
         this._cmdBuffers = new Array<GFXCommandBuffer>();
     }
 
@@ -122,7 +123,7 @@ export default class Model {
      * Set the input assembler
      * @param {InputAssembler} ia
      */
-    setInputAssembler(ia: InputAssembler) {
+    setInputAssembler(ia: GFXInputAssembler) {
         this._inputAssembler = ia;
     }
 
@@ -142,6 +143,33 @@ export default class Model {
         }
     }
 
+    setMaterial(material: Material) {
+        this._material = material;
+        for (let i = 0; i < this._material.passes.length; i++) {
+            this.recordCommandBuffer(i);
+        }
+    }
+
+    recordCommandBuffer(index: number) {
+        let pass = this._material.passes[index];
+        let cmdBufferInfo = {
+            allocator: cc.director.root.device.commandAllocator,
+            type: GFXCommandBufferType.SECONDARY,
+        };
+        if (this._cmdBuffers[index] == null)
+            this._cmdBuffers[index] = cc.director.root.device.createCommandBuffer(cmdBufferInfo);
+        else {
+            this._cmdBuffers[index].destroy();
+            this._cmdBuffers[index].initialize(cmdBufferInfo);
+        }
+        this._cmdBuffers[index].begin();
+        this._cmdBuffers[index].bindPipelineState(pass.pipelineState);
+        this._cmdBuffers[index].bindBindingLayout(pass.bindingLayout);
+        this._cmdBuffers[index].bindInputAssembler(<GFXInputAssembler>this._inputAssembler);
+        this._cmdBuffers[index].draw(<GFXInputAssembler>this._inputAssembler);
+        this._cmdBuffers[index].end();
+    }
+
     /**
      * Set the user key
      * @param {number} key
@@ -151,7 +179,7 @@ export default class Model {
     }
 
     getPassList(): Pass[] {
-        return this._passes;
+        return (<Material>this._material).passes;
     }
 
     getCmdBufferList(): GFXCommandBuffer[] {

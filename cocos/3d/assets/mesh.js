@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 // @ts-check
-import { _decorator } from "../../core/data/index";
+import { _decorator } from "../../core/data";
 const { ccclass, property } = _decorator;
 import { Asset } from "../../assets/asset";
 import gfx from "../../renderer/gfx";
@@ -32,6 +32,7 @@ import { enums as gfxEnums } from "../../renderer/gfx/enums";
 import InputAssembler from "../../renderer/core/input-assembler";
 import BufferRange from "./utils/buffer-range";
 import { Vec3 } from "../../core/value-types";
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat } from "../../gfx/define";
 
 /**
  * A vertex bundle describes a serials of vertex attributes.
@@ -132,7 +133,7 @@ export default class Mesh extends Asset {
         super();
 
         /**
-         * @type {InputAssembler[]}
+         * @type {GFXInputAssembler[]}
          */
         this._subMeshes = null;
 
@@ -165,12 +166,19 @@ export default class Mesh extends Asset {
         }
         const buffer = this._getBuffer();
         const vertexBuffers = this._vertexBundles.map((vertexBundle) => {
-            return new gfx.VertexBuffer(
-                cc.game._renderContext,
-                new gfx.VertexFormat(vertexBundle._formats),
-                gfx.USAGE_STATIC,
-                new Uint8Array(buffer, vertexBundle._data._offset, vertexBundle._data._length),
-                vertexBundle._verticesCount);
+            let vb = cc.director.root.device.createBuffer({
+                usage: GFXBufferUsageBit.VERTEX,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: vertexBundle._data._length,
+                stride: vertexBundle._data._length / vertexBundle._verticesCount,
+            });
+
+            if (!vb) {
+                return null;
+            }
+
+            vb.update(new Uint8Array(buffer, vertexBundle._data._offset, vertexBundle._data._length));
+            return vb;
         });
         this._subMeshes = this._primitives.map((primitive) => {
             if (primitive._vertexBundelIndices.length === 0) {
@@ -180,15 +188,74 @@ export default class Mesh extends Asset {
             // Currently, an IA only has one vertex buffer.
             const vertexBuffer = vertexBuffers[primitive._vertexBundelIndices[0]];
 
-            const indexBuffer = new gfx.IndexBuffer(
-                cc.game._renderContext,
-                primitive._indexUnit,
-                gfx.USAGE_STATIC,
-                new DataView(buffer, primitive._indices._offset, primitive._indices._length),
-                primitive._indices._length / this._getIndexUnitSize(primitive._indexUnit)
-            );
 
-            return new InputAssembler(vertexBuffer, indexBuffer);
+            let ib = cc.director.root.device.createBuffer({
+                usage: GFXBufferUsageBit.INDEX,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: primitive._indices._length,
+                stride: this._getIndexUnitSize(primitive._indexUnit),
+            });
+
+            if (!ib) {
+                return null;
+            }
+
+            ib.update(new DataView(buffer, primitive._indices._offset, primitive._indices._length));
+
+            let attributes = [];
+
+            let vertexBundle = this._vertexBundles[primitive._vertexBundelIndices[0]];
+            for (let i = 0; i < vertexBundle._formats.length; i++) {
+                let gfxAttr = {};
+                gfxAttr.name = vertexBundle._formats[i].name;
+                let gfxFormat;
+                switch (vertexBundle._formats[i].num) {
+                    case 1:
+                        gfxFormat = 'R';
+                        break;
+                    case 2:
+                        gfxFormat = 'RG';
+                        break;
+                    case 3:
+                        gfxFormat = 'RGB';
+                        break;
+                    case 4:
+                        gfxFormat = 'RGBA';
+                        break;
+                }
+                switch (vertexBundle._formats[i].type) {
+                    case gfx.ATTR_TYPE_INT8:
+                        gfxFormat += '8I';
+                        break;
+                    case gfx.ATTR_TYPE_UINT8:
+                        gfxFormat += '8UI';
+                        break;
+                    case gfx.ATTR_TYPE_INT16:
+                        gfxFormat += '16I';
+                        break;
+                    case gfx.ATTR_TYPE_UINT16:
+                        gfxFormat += '16UI';
+                        break;
+                    case gfx.ATTR_TYPE_INT32:
+                        gfxFormat += '32I';
+                        break;
+                    case gfx.ATTR_TYPE_UINT32:
+                        gfxFormat += '32UI';
+                        break;
+                    case gfx.ATTR_TYPE_FLOAT32:
+                        gfxFormat += '32F';
+                        break;
+                }
+                gfxAttr.format = GFXFormat[gfxFormat];
+                gfxAttr.normalize = vertexBundle._formats[i].normalize;
+                attributes.push(gfxAttr);
+            }
+
+            return cc.director.root.device.createInputAssembler({
+                attributes,
+                vertexBuffers: [vertexBuffer],
+                indexBuffer: ib,
+            });
         });
     }
 
@@ -259,12 +326,12 @@ export default class Mesh extends Asset {
 
     _getIndexUnitSize(indexUnit) {
         switch (indexUnit) {
-        case gfxEnums.INDEX_FMT_UINT8:
-            return 1;
-        case gfxEnums.INDEX_FMT_UINT16:
-            return 2;
-        case gfxEnums.INDEX_FMT_UINT32:
-            return 3;
+            case gfxEnums.INDEX_FMT_UINT8:
+                return 1;
+            case gfxEnums.INDEX_FMT_UINT16:
+                return 2;
+            case gfxEnums.INDEX_FMT_UINT32:
+                return 3;
         }
         return 1;
     }

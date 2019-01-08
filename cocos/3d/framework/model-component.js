@@ -207,13 +207,8 @@ export default class ModelComponent extends RenderableComponent {
 
         this._updateModelParams();
 
-        if (this.enabled) {
-            for (let i = 0; i < oldModels.length; ++i) {
-                this.scene.removeModel(oldModels[i]);
-            }
-            for (let i = 0; i < this._models.length; ++i) {
-                this.scene.addModel(this._models[i]);
-            }
+        for (let i = 0; i < oldModels.length; ++i) {
+            this._renderScene.destroyModel(oldModels[i]);
         }
     }
 
@@ -252,7 +247,7 @@ export default class ModelComponent extends RenderableComponent {
      * @param {Material} material
      */
     _updateModelMaterial(model, material) {
-        model.setEffect((material ? material.effect : null) || this._getBuiltinMaterial().effect);
+        model.setMaterial(material ? material : this._getBuiltinMaterial());
     }
 
     _updateCastShadow() {
