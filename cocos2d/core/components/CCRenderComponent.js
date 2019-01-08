@@ -72,7 +72,8 @@ let RenderComponent = cc.Class({
             },
             animatable: false,
             type:BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor',
+            visible: false
         },
 
         /**
@@ -94,7 +95,8 @@ let RenderComponent = cc.Class({
             },
             animatable: false,
             type: BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor',
+            visible: false
         },
 
         _materials: {
