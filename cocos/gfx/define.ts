@@ -450,27 +450,27 @@ export interface GFXExtent {
 }
 
 export class GFXTextureSubres {
-    baseMipLevel: number = 0;
-    levelCount: number = 1;
-    baseArrayLayer: number = 0;
-    layerCount: number = 1;
+    public baseMipLevel: number = 0;
+    public levelCount: number = 1;
+    public baseArrayLayer: number = 0;
+    public layerCount: number = 1;
 }
 
 export class GFXTextureCopy {
-    srcSubres: GFXTextureSubres = new GFXTextureSubres;
-    srcOffset: GFXOffset = { x: 0, y: 0, z: 0 };
-    dstSubres: GFXTextureSubres = new GFXTextureSubres;
-    dstOffset: GFXOffset = { x: 0, y: 0, z: 0 };
-    extent: GFXExtent = { width: 0, height: 0, depth: 0 };
+    public srcSubres: GFXTextureSubres = new GFXTextureSubres;
+    public srcOffset: GFXOffset = { x: 0, y: 0, z: 0 };
+    public dstSubres: GFXTextureSubres = new GFXTextureSubres;
+    public dstOffset: GFXOffset = { x: 0, y: 0, z: 0 };
+    public extent: GFXExtent = { width: 0, height: 0, depth: 0 };
 }
 
 export class GFXBufferTextureCopy {
-    buffOffset: number = 0;
-    buffStride: number = 0;
-    buffTexHeight: number = 0;
-    texOffset: GFXOffset = { x: 0, y: 0, z: 0 };
-    texExtent: GFXExtent = { width: 0, height: 0, depth: 0 };
-    texSubres: GFXTextureSubres = new GFXTextureSubres;
+    public buffOffset: number = 0;
+    public buffStride: number = 0;
+    public buffTexHeight: number = 0;
+    public texOffset: GFXOffset = { x: 0, y: 0, z: 0 };
+    public texExtent: GFXExtent = { width: 0, height: 0, depth: 0 };
+    public texSubres: GFXTextureSubres = new GFXTextureSubres;
 }
 
 export interface GFXFormatInfo {

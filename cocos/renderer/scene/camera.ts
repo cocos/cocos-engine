@@ -126,13 +126,31 @@ export class Camera {
         return this._position;
     }
 
-    public rotate(axis: vec3, rad: number, ns?: NodeSpace) {
+    public rotate(rot: quat, ns?: NodeSpace) {
+        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
+        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+            this._node.rotate(rot);
+        } else if (space === NodeSpace.WORLD) {
+            this._node.rotateWorld(rot);
+        }
+    }
+
+    public rotateFromAxisAngle(axis: vec3, rad: number, ns?: NodeSpace) {
         quat.fromAxisAngle(this._rotation, axis, rad);
         let space = (ns !== undefined? ns : NodeSpace.LOCAL);
         if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
-            this._node.setRotation(this._rotation);
+            this._node.rotate(this._rotation);
         } else if (space === NodeSpace.WORLD) {
-            this._node.setWorldRotation(this._rotation);
+            this._node.rotateWorld(this._rotation);
+        }
+    }
+
+    public setRotation(rot: quat, ns?: NodeSpace) {
+        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
+        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+            this._node.setRotation(rot);
+        } else if (space === NodeSpace.WORLD) {
+            this._node.setWorldRotation(rot);
         }
     }
 
@@ -140,10 +158,12 @@ export class Camera {
         let space = (ns !== undefined? ns : NodeSpace.LOCAL);
         if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
             this._node.getRotation(this._rotation);
-            this.rotate(this._rotation, rad, ns);
+            quat.toAxisX(this._direction, this._rotation);
+            this.rotateFromAxisAngle(this._direction, rad, ns);
         } else if (space === NodeSpace.WORLD) {
             this._node.getWorldRotation(this._rotation);
-            this.rotate(this._rotation, rad, ns);
+            quat.toAxisX(this._direction, this._rotation);
+            this.rotateFromAxisAngle(this._direction, rad, ns);
         }
     }
 
@@ -151,10 +171,12 @@ export class Camera {
         let space = (ns !== undefined? ns : NodeSpace.LOCAL);
         if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
             this._node.getRotation(this._rotation);
-            this.rotate(this._rotation, rad, ns);
+            quat.toAxisY(this._direction, this._rotation);
+            this.rotateFromAxisAngle(this._direction, rad, ns);
         } else if (space === NodeSpace.WORLD) {
             this._node.getWorldRotation(this._rotation);
-            this.rotate(this._rotation, rad, ns);
+            quat.toAxisY(this._direction, this._rotation);
+            this.rotateFromAxisAngle(this._direction, rad, ns);
         }  
     }
 
@@ -162,10 +184,12 @@ export class Camera {
         let space = (ns !== undefined? ns : NodeSpace.LOCAL);
         if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
             this._node.getRotation(this._rotation);
-            this.rotate(this._rotation, rad, ns);
+            quat.toAxisZ(this._direction, this._rotation);
+            this.rotateFromAxisAngle(this._direction, rad, ns);
         } else if (space === NodeSpace.WORLD) {
             this._node.getWorldRotation(this._rotation);
-            this.rotate(this._rotation, rad, ns);
+            quat.toAxisZ(this._direction, this._rotation);
+            this.rotateFromAxisAngle(this._direction, rad, ns);
         }  
     }
 

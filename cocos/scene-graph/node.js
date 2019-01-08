@@ -7,6 +7,7 @@ import { ccclass, property, mixins } from '../core/data/class-decorator';
 
 let v3_a = cc.v3();
 let q_a = cc.quat();
+let q_b = cc.quat();
 let array_a = new Array(10);
 
 let EventType = cc.Enum({
@@ -67,13 +68,13 @@ class Node extends BaseNode {
     _eulerDirty = false;
 
     // is node but not scene
-    static isNode (obj) {
+    static isNode(obj) {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
 
     static EventType = EventType;
 
-    constructor (name) {
+    constructor(name) {
         super(name);
         EventTarget.call(this);
     }
@@ -158,11 +159,11 @@ class Node extends BaseNode {
         while (i) {
             child = array_a[--i];
             if (cur) {
-              vec3.mul(child._pos, child._lpos, cur._scale);
-              vec3.transformQuat(child._pos, child._pos, cur._rot);
-              vec3.add(child._pos, child._pos, cur._pos);
-              quat.mul(child._rot, cur._rot, child._lrot);
-              vec3.mul(child._scale, cur._scale, child._lscale);
+                vec3.mul(child._pos, child._lpos, cur._scale);
+                vec3.transformQuat(child._pos, child._pos, cur._rot);
+                vec3.add(child._pos, child._pos, cur._pos);
+                quat.mul(child._rot, cur._rot, child._lrot);
+                vec3.mul(child._scale, cur._scale, child._lscale);
             }
             child._matDirty = true; // further deferred eval
             child._dirty = false;
@@ -209,6 +210,59 @@ class Node extends BaseNode {
         } else {
             return vec3.copy(cc.v3(), this._lpos);
         }
+    }
+
+    /**
+     * rotate in local space
+     * 
+     * @param {quat|number} val the new local rotation, or the x component of it
+     * @param {number} [y] the y component of the new local rotation
+     * @param {number} [z] the z component of the new local rotation
+     * @param {number} [w] the w component of the new local rotation
+     */
+    rotate(val, y, z, w) {
+
+        if (arguments.length === 1) {
+            quat.normalize(q_a, val);
+        } else if (arguments.length === 4) {
+            quat.set(q_a, val, y, z, w);
+            quat.normalize(q_a, q_a);
+        }
+
+        quat.multiply(this._lrot, this._lrot, q_a);
+
+        this._eulerDirty = true;
+
+        this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+    }
+
+    /**
+     * rotate in world space
+     * 
+     * @param {quat|number} val the new local rotation, or the x component of it
+     * @param {number} [y] the y component of the new local rotation
+     * @param {number} [z] the z component of the new local rotation
+     * @param {number} [w] the w component of the new local rotation
+     */
+    rotateWorld(val, y, z, w) {
+
+        if (arguments.length === 1) {
+            quat.normalize(q_a, val);
+        } else if (arguments.length === 4) {
+            quat.set(q_a, val, y, z, w);
+            quat.normalize(q_a, q_a);
+        }
+
+        getWorldRotation(q_b);
+        quat.invert(q_b);
+        quat.multiply(q_a, q_a, q_b);
+        quat.multiply(this._lrot, this._lrot, q_a);
+
+        this._eulerDirty = true;
+
+        this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
     }
 
     /**

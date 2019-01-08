@@ -151,7 +151,7 @@ export default class Model {
     }
 
     recordCommandBuffer(index: number) {
-        let pass = this._material.passes[index];
+        let pass = (<Material>this._material).passes[index];
         let cmdBufferInfo = {
             allocator: cc.director.root.device.commandAllocator,
             type: GFXCommandBufferType.SECONDARY,
