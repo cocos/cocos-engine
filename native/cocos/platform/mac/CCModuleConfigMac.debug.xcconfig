@@ -1,0 +1,6 @@
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+// Module setting for engine
+
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) USE_NET_WORK=1 USE_DRAGONBONES=0 USE_SPINE=0 USE_AUDIO=0 USE_EDIT_BOX=0 USE_WEB_VIEW=0 USE_VIDEO=0
+
