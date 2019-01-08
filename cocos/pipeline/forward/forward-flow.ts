@@ -35,19 +35,19 @@ export class ForwardFlow extends RenderFlow {
         });
         */
 
+        /*
         this.createStage<TestMaterialStage>(TestMaterialStage, {
             name: "TestMaterialStage",
             priority: ForwardStagePriority.FORWARD,
             framebuffer:  mainWindow.framebuffer,
         });
+        */
 
-        /*
         this.createStage<TestStage>(TestStage, {
             name: "TestStage",
             priority: ForwardStagePriority.FORWARD,
             framebuffer: mainWindow.framebuffer,
         });
-        */
 
         return true;
     }

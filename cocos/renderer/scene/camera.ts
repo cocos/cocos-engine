@@ -1,6 +1,6 @@
 import { RenderScene } from "./render-scene";
 import Node from "../../scene-graph/node";
-import { mat4, vec3, quat } from '../../core/vmath';
+import { vec3, mat4, quat } from "../../core/vmath";
 
 export enum NodeSpace
 {
@@ -174,8 +174,8 @@ export class Camera {
     }
 
     public get direction(): vec3 {
-        quat.getRotation(this._rotation);
-        quat.transformQuat(this._direction, vec3.UNIT_Z, this._rotation);
+        this._node.getRotation(this._rotation);
+        vec3.transformQuat(this._direction, vec3.UNIT_Z, this._rotation);
         return this._direction;
     }
 

@@ -92,7 +92,7 @@ export default class quat {
      * @param b - The destination vector.
      * @return out.
      */
-    public static rotationTo<Out extends IQuatLike> (out: Out, a: quat, b: quat) {
+    public static rotationTo<Out extends IQuatLike> (out: Out, a: vec3, b: vec3) {
         const dot = vec3.dot(a, b);
         if (dot < -0.999999) {
             vec3.cross(tmpVec3, tmpXUnitVec3, a);
