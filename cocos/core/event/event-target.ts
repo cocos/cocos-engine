@@ -25,7 +25,8 @@
  ****************************************************************************/
 
 import * as js from '../utils/js';
-import {CallbacksInvoker} from './callbacks-invoker';
+import { CallbacksInvoker } from './callbacks-invoker';
+import Event from './event';
 
 const fastRemove = js.array.fastRemove;
 
@@ -53,21 +54,17 @@ const fastRemove = js.array.fastRemove;
  * 事件目标是事件触发时，分派的事件对象，Node 是最常见的事件目标，
  * 但是其他对象也可以是事件目标。<br/>
  *
- * @class EventTarget
- * @extends CallbacksInvoker
  */
-function EventTarget () {
-    CallbacksInvoker.call(this);
-}
-js.extend(EventTarget, CallbacksInvoker);
-js.mixin(EventTarget.prototype, {
+export default class EventTarget extends CallbacksInvoker {
     /**
      * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
      * !#zh 检查事件目标对象是否有为特定类型的事件注册的回调。
-     * @method hasEventListener
-     * @param {String} type - The type of event.
-     * @return {Boolean} True if a callback of the specified type is registered; false otherwise.
+     * @param type - The type of event.
+     * @return True if a callback of the specified type is registered; false otherwise.
      */
+    public hasEventListener (key: string) {
+        return super.hasEventListener(key);
+    }
 
     /**
      * !#en
@@ -76,39 +73,28 @@ js.mixin(EventTarget.prototype, {
      * !#zh
      * 注册事件目标的特定事件类型回调。这种类型的事件应该被 `emit` 触发。
      *
-     * @method on
-     * @param {String} type - A string representing the event type to listen for.
-     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
-     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {any} [callback.arg1] arg1
-     * @param {any} [callback.arg2] arg2
-     * @param {any} [callback.arg3] arg3
-     * @param {any} [callback.arg4] arg4
-     * @param {any} [callback.arg5] arg5
-     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
-     * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
-     * @typescript
-     * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
+     * @param type - A string representing the event type to listen for.
+     * @param callback - The callback that will be invoked when the event is dispatched.
+     * The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param target - The target (this object) to invoke the callback, can be null
+     * @return Just returns the incoming callback so you can save the anonymous function easier.
      * @example
      * eventTarget.on('fire', function () {
      *     cc.log("fire in the hole");
      * }, node);
      */
-    on (type, callback, target) {
-        if (!callback) {
-            cc.errorID(6800);
-            return;
-        }
-
-        if ( !this.hasEventListener(type, callback, target) ) {
+    public on<T extends Function> (type: string, callback: T, target: Object | null = null) {
+        if (!super.hasEventListener(type, callback, target)) {
             this.add(type, callback, target);
 
+            // @ts-ignore
             if (target && target.__eventTargets) {
+                // @ts-ignore
                 target.__eventTargets.push(this);
             }
         }
         return callback;
-    },
+    }
 
     /**
      * !#en
@@ -118,9 +104,10 @@ js.mixin(EventTarget.prototype, {
      * 删除之前用同类型，回调，目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
      *
      * @method off
-     * @param {String} type - A string representing the event type being removed.
-     * @param {Function} [callback] - The callback to remove.
-     * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
+     * @param type - A string representing the event type being removed.
+     * @param [callback] - The callback to remove.
+     * @param [target] - The target (this object) to invoke the callback,
+     * if it's not given, only callback without target will be removed
      * @example
      * // register fire eventListener
      * var callback = eventTarget.on('fire', function () {
@@ -131,32 +118,35 @@ js.mixin(EventTarget.prototype, {
      * // remove all fire event listeners
      * eventTarget.off('fire');
      */
-    off (type, callback, target) {
+    public off (type: string, callback?: Function, target: Object | null = null) {
         if (!callback) {
             this.removeAll(type);
         } else {
             this.remove(type, callback, target);
 
+            // @ts-ignore
             if (target && target.__eventTargets) {
+                // @ts-ignore
                 fastRemove(target.__eventTargets, this);
             }
         }
-    },
+    }
 
     /**
      * !#en Removes all callbacks previously registered with the same target (passed as parameter).
      * This is not for removing all listeners in the current event target,
      * and this is not for removing all listeners the target parameter have registered.
-     * It's only for removing all listeners (callback and target couple) registered on the current event target by the target parameter.
+     * It's only for removing all listeners (callback and target couple) registered
+     * on the current event target by the target parameter.
      * !#zh 在当前 EventTarget 上删除指定目标（target 参数）注册的所有事件监听器。
      * 这个函数无法删除当前 EventTarget 的所有事件监听器，也无法删除 target 参数所注册的所有事件监听器。
      * 这个函数只能删除 target 参数在当前 EventTarget 上注册的所有事件监听器。
      * @method targetOff
      * @param {Object} target - The target to be searched for all related listeners
      */
-    targetOff () {
+    public targetOff () {
         this.removeAll();
-    },
+    }
 
     /**
      * !#en
@@ -180,20 +170,21 @@ js.mixin(EventTarget.prototype, {
      *     cc.log("this is the callback and will be invoked only once");
      * }, node);
      */
-    once (type, callback, target) {
+    public once (type, callback, target) {
         const eventType_hasOnceListener = '__ONCE_FLAG:' + type;
-        const hasOnceListener = this.hasEventListener(eventType_hasOnceListener, callback, target);
+        const hasOnceListener = super.hasEventListener(eventType_hasOnceListener, callback, target);
         if (!hasOnceListener) {
             const self = this;
             const onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
                 self.off(type, onceWrapper, target);
                 self.remove(eventType_hasOnceListener, callback, target);
+                // @ts-ignore
                 callback.call(this, arg1, arg2, arg3, arg4, arg5);
             };
             this.on(type, onceWrapper, target);
             this.add(eventType_hasOnceListener, callback, target);
         }
-    },
+    }
 
     /**
      * !#en
@@ -201,18 +192,20 @@ js.mixin(EventTarget.prototype, {
      * !#zh
      * 通过事件名发送自定义事件
      *
-     * @method emit
-     * @param {String} type - event type
-     * @param {*} [arg1] - First argument
-     * @param {*} [arg2] - Second argument
-     * @param {*} [arg3] - Third argument
-     * @param {*} [arg4] - Fourth argument
-     * @param {*} [arg5] - Fifth argument
+     * @param type - event type
+     * @param arg1 - First argument
+     * @param arg2 - Second argument
+     * @param arg3 - Third argument
+     * @param arg4 - Fourth argument
+     * @param arg5 - Fifth argument
      * @example
      *
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      */
+    public emit (key: string, p1?: any, p2?: any, p3?: any, p4?: any, p5?: any) {
+        return super.emit(key, p1, p2, p3, p4, p5);
+    }
 
     /**
      * !#en
@@ -220,13 +213,13 @@ js.mixin(EventTarget.prototype, {
      * !#zh
      * 通过事件对象派发事件
      *
-     * @method dispatchEvent
-     * @param {Event} event
+     * @param event
      */
-    dispatchEvent (event) {
+    public dispatchEvent (event: Event) {
+        // @ts-ignore
         this.invoke(event.type, event);
-    },
-});
+    }
+}
 
-cc.EventTarget = EventTarget;
-export default EventTarget;
+/* tslint:disable:no-string-literal */
+cc['EventTarget'] = EventTarget;

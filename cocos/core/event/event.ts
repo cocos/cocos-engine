@@ -29,89 +29,134 @@
  * !#zh 包含事件相关信息的对象。
  * @class Event
  */
-class Event {
+export default class Event {
+    // Event types
+
     /**
-     * @method constructor
-     * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
-     * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
+     * !#en Code for event without type.
+     * !#zh 没有类型的事件
      */
-    constructor (type, bubbles) {
-        /**
-         * !#en The name of the event (case-sensitive), e.g. "click", "fire", or "submit".
-         * !#zh 事件类型。
-         * @property type
-         * @type {String}
-         */
+    public static NO_TYPE = 'no_type';
+
+    /**
+     * !#en The type code of Touch event.
+     * !#zh 触摸事件类型
+     */
+    public static TOUCH = 'touch';
+    /**
+     * !#en The type code of Mouse event.
+     * !#zh 鼠标事件类型
+     */
+    public static MOUSE = 'mouse';
+    /**
+     * !#en The type code of Keyboard event.
+     * !#zh 键盘事件类型
+     */
+    public static KEYBOARD = 'keyboard';
+    /**
+     * !#en The type code of Acceleration event.
+     * !#zh 加速器事件类型
+     */
+    public static ACCELERATION = 'acceleration';
+
+    // Event phases
+
+    /**
+     * !#en Events not currently dispatched are in this phase
+     * !#zh 尚未派发事件阶段
+     */
+    public static NONE = 0;
+
+    /**
+     * !#en
+     * The capturing phase comprises the journey from the root to the last node before the event target's node
+     * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
+     * !#zh 捕获阶段，包括事件目标节点之前从根节点到最后一个节点的过程。
+     */
+    public static CAPTURING_PHASE = 1;
+
+    /**
+     * !#en
+     * The target phase comprises only the event target node
+     * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
+     * !#zh 目标阶段仅包括事件目标节点。
+     */
+    public static AT_TARGET = 2;
+
+    /**
+     * !#en
+     * The bubbling phase comprises any subsequent nodes encountered on the return trip to the root of the hierarchy
+     * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
+     * !#zh 冒泡阶段， 包括回程遇到到层次根节点的任何后续节点。
+     */
+    public static BUBBLING_PHASE = 3;
+
+    /**
+     * !#en The name of the event (case-sensitive), e.g. "click", "fire", or "submit".
+     * !#zh 事件类型。
+     */
+    public type: string;
+
+    /**
+     * !#en Indicate whether the event bubbles up through the tree or not.
+     * !#zh 表示该事件是否进行冒泡。
+     */
+    public bubbles: boolean;
+
+    /**
+     * !#en A reference to the target to which the event was originally dispatched.
+     * !#zh 最初事件触发的目标
+     */
+    public target: Object | null = null;
+
+    /**
+     * !#en A reference to the currently registered target for the event.
+     * !#zh 当前目标
+     */
+    public currentTarget: Object | null = null;
+
+    /**
+     * !#en
+     * Indicates which phase of the event flow is currently being evaluated.
+     * Returns an integer value represented by 4 constants:
+     *  - Event.NONE = 0
+     *  - Event.CAPTURING_PHASE = 1
+     *  - Event.AT_TARGET = 2
+     *  - Event.BUBBLING_PHASE = 3
+     * The phases are explained in the [section 3.1, Event dispatch and DOM event flow]
+     * (http://www.w3.org/TR/DOM-Level-3-Events/#event-flow), of the DOM Level 3 Events specification.
+     * !#zh 事件阶段
+     */
+    public eventPhase = 0;
+
+    /*
+    * Indicates whether or not event.stopPropagation() has been called on the event.
+    */
+    private _propagationStopped = false;
+
+    /*
+    * Indicates whether or not event.stopPropagationImmediate() has been called on the event.
+    */
+    private _propagationImmediateStopped = false;
+
+    /**
+     * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
+     * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
+     */
+    constructor (type: string, bubbles?: boolean) {
         this.type = type;
-
-        /**
-         * !#en Indicate whether the event bubbles up through the tree or not.
-         * !#zh 表示该事件是否进行冒泡。
-         * @property bubbles
-         * @type {Boolean}
-         */
         this.bubbles = !!bubbles;
-
-        /**
-         * !#en A reference to the target to which the event was originally dispatched.
-         * !#zh 最初事件触发的目标
-         * @property target
-         * @type {Object}
-         */
-        this.target = null;
-
-        /**
-         * !#en A reference to the currently registered target for the event.
-         * !#zh 当前目标
-         * @property currentTarget
-         * @type {Object}
-         */
-        this.currentTarget = null;
-
-        /**
-         * !#en
-         * Indicates which phase of the event flow is currently being evaluated.
-         * Returns an integer value represented by 4 constants:
-         *  - Event.NONE = 0
-         *  - Event.CAPTURING_PHASE = 1
-         *  - Event.AT_TARGET = 2
-         *  - Event.BUBBLING_PHASE = 3
-         * The phases are explained in the [section 3.1, Event dispatch and DOM event flow]
-         * (http://www.w3.org/TR/DOM-Level-3-Events/#event-flow), of the DOM Level 3 Events specification.
-         * !#zh 事件阶段
-         * @property eventPhase
-         * @type {Number}
-         */
-        this.eventPhase = 0;
-
-        /*
-        * Indicates whether or not event.stopPropagation() has been called on the event.
-        * @property _propagationStopped
-        * @type {Boolean}
-        * @private
-        */
-        this._propagationStopped = false;
-
-        /*
-        * Indicates whether or not event.stopPropagationImmediate() has been called on the event.
-        * @property _propagationImmediateStopped
-        * @type {Boolean}
-        * @private
-        */
-        this._propagationImmediateStopped = false;
     }
 
     /**
      * !#en Reset the event for being stored in the object pool.
      * !#zh 重置对象池中存储的事件。
-     * @method unuse
-     * @returns {String}
      */
     public unuse () {
-        this.type = cc.Event.NO_TYPE;
+        this.type = Event.NO_TYPE;
         this.target = null;
         this.currentTarget = null;
-        this.eventPhase = cc.Event.NONE;
+        this.eventPhase = Event.NONE;
         this._propagationStopped = false;
         this._propagationImmediateStopped = false;
     }
@@ -119,10 +164,8 @@ class Event {
     /**
      * !#en Reuse the event for being used again by the object pool.
      * !#zh 用于对象池再次使用的事件。
-     * @method reuse
-     * @returns {String}
      */
-    public reuse (type, bubbles) {
+    public reuse (type: string, bubbles?: boolean) {
         this.type = type;
         this.bubbles = bubbles || false;
     }
@@ -130,7 +173,6 @@ class Event {
     /**
      * !#en Stops propagation for current event.
      * !#zh 停止传递当前事件。
-     * @method stopPropagation
      */
     public stopPropagation () {
         this._propagationStopped = true;
@@ -140,7 +182,6 @@ class Event {
      * !#en Stops propagation for current event immediately,
      * the event won't even be dispatched to the listeners attached in the current target.
      * !#zh 立即停止当前事件的传递，事件甚至不会被分派到所连接的当前目标。
-     * @method stopPropagationImmediate
      */
     public stopPropagationImmediate () {
         this._propagationImmediateStopped = true;
@@ -149,8 +190,6 @@ class Event {
     /**
      * !#en Checks whether the event has been stopped.
      * !#zh 检查该事件是否已经停止传递.
-     * @method isStopped
-     * @returns {Boolean}
      */
     public isStopped () {
         return this._propagationStopped || this._propagationImmediateStopped;
@@ -164,8 +203,7 @@ class Event {
      *          It returns 0 when the listener is associated with fixed priority.
      * </p>
      * !#zh 获取当前目标节点
-     * @method getCurrentTarget
-     * @returns {Node}  The target with which the event associates.
+     * @returns The target with which the event associates.
      */
     public getCurrentTarget () {
         return this.currentTarget;
@@ -174,96 +212,11 @@ class Event {
     /**
      * !#en Gets the event type.
      * !#zh 获取事件类型
-     * @method getType
-     * @returns {String}
      */
     public getType () {
         return this.type;
     }
 }
 
-// event type
-/**
- * !#en Code for event without type.
- * !#zh 没有类型的事件
- * @property NO_TYPE
- * @static
- * @type {string}
- */
-Event.NO_TYPE = 'no_type';
-
-/**
- * !#en The type code of Touch event.
- * !#zh 触摸事件类型
- * @property TOUCH
- * @static
- * @type {String}
- */
-Event.TOUCH = 'touch';
-/**
- * !#en The type code of Mouse event.
- * !#zh 鼠标事件类型
- * @property MOUSE
- * @static
- * @type {String}
- */
-Event.MOUSE = 'mouse';
-/**
- * !#en The type code of Keyboard event.
- * !#zh 键盘事件类型
- * @property KEYBOARD
- * @static
- * @type {String}
- */
-Event.KEYBOARD = 'keyboard';
-/**
- * !#en The type code of Acceleration event.
- * !#zh 加速器事件类型
- * @property ACCELERATION
- * @static
- * @type {String}
- */
-Event.ACCELERATION = 'acceleration';
-
-// event phase
-/**
- * !#en Events not currently dispatched are in this phase
- * !#zh 尚未派发事件阶段
- * @property NONE
- * @type {Number}
- * @static
- */
-Event.NONE = 0;
-/**
- * !#en
- * The capturing phase comprises the journey from the root to the last node before the event target's node
- * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
- * !#zh 捕获阶段，包括事件目标节点之前从根节点到最后一个节点的过程。
- * @property CAPTURING_PHASE
- * @type {Number}
- * @static
- */
-Event.CAPTURING_PHASE = 1;
-/**
- * !#en
- * The target phase comprises only the event target node
- * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
- * !#zh 目标阶段仅包括事件目标节点。
- * @property AT_TARGET
- * @type {Number}
- * @static
- */
-Event.AT_TARGET = 2;
-/**
- * !#en
- * The bubbling phase comprises any subsequent nodes encountered on the return trip to the root of the hierarchy
- * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
- * !#zh 冒泡阶段， 包括回程遇到到层次根节点的任何后续节点。
- * @property BUBBLING_PHASE
- * @type {Number}
- * @static
- */
-Event.BUBBLING_PHASE = 3;
-
-cc.Event = Event;
-export default Event;
+/* tslint:disable:no-string-literal */
+cc['Event'] = Event;
