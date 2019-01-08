@@ -1707,11 +1707,6 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                         for (let m = 0; m < glUniform.count; ++m, offset += 4) {
                                                             let idx = 4 * m;
 
-                                                            var a = 12.345;
-                                                            var b = ~~a; //boom!
-
-                                                            console.info("b: "+b);
-
                                                             if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 2], glUniform.view[idx + 2]) ||
