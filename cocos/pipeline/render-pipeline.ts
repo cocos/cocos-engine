@@ -11,7 +11,7 @@ import vec4 from "../core/vmath/vec4";
 import mat4 from "../core/vmath/mat4";
 
 export enum RenderPassStage {
-    FORWARD = 100,
+    DEFAULT = 100,
 };
 
 export class UBOGlobal {
