@@ -40,8 +40,8 @@ export class CCObject {
     protected _destruct(): void;
     protected _destroyImmediate(): void;
 
-    protected _serialize: (exporting: boolean) => object | null;
-    protected _deserialize: (data: object, ctx: object) => object | null;
+    protected _serialize?(): any;
+    protected _deserialize?(data: any, ctx: any): any;
     protected _onPreDestroy: () => void | null;
     protected Flags: object;
 }

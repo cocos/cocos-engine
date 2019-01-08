@@ -118,4 +118,15 @@ if (CC_DEV) {
     }
 }
 
+/**
+ * 
+ * @param {Object} enumx 
+ */
+export function ccenum(enumx) {
+    if ('__enums__' in enumx) {
+        return;
+    }
+    js.value(enumx, '__enums__', null, true);
+}
+
 cc.Enum = Enum;
