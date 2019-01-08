@@ -1,46 +1,56 @@
 import { repeat } from '../../../../core/vmath';
 import { Enum, ValueType } from '../../../../core/value-types';
 import { CCClass } from '../../../../core/data';
+import { property, ccclass } from '../../../../core/data/class-decorator';
 
 const Mode = Enum({
     Blend: 0,
     Fixed: 1
 });
 
+@ccclass('cc.ColorKey')
 export class ColorKey {
 
+    @property
     color = cc.Color.WHITE;
 
+    @property
     time = 0;
 }
 
-CCClass.fastDefine('cc.ColorKey', ColorKey, {
-    color: cc.Color.WHITE,
-    time: 0
-});
+// CCClass.fastDefine('cc.ColorKey', ColorKey, {
+//     color: cc.Color.WHITE,
+//     time: 0
+// });
 
+@ccclass('cc.AlphaKey')
 export class AlphaKey {
 
+    @property
     alpha = 1;
 
+    @property
     time = 0;
 }
 
-CCClass.fastDefine('cc.AlphaKey', AlphaKey, {
-    alpha: 1,
-    time: 0
-});
+// CCClass.fastDefine('cc.AlphaKey', AlphaKey, {
+//     alpha: 1,
+//     time: 0
+// });
 
-export default class Gradient extends ValueType {
+@ccclass('cc.Gradient')
+export default class Gradient {
 
+    @property
     colorKeys = [];
 
+    @property
     alphaKeys = []
 
+    @property
     mode = Mode.Blend;
 
     constructor() {
-        super();
         this._color = cc.Color.WHITE;
     }
 
@@ -125,8 +135,8 @@ export default class Gradient extends ValueType {
     }
 }
 
-CCClass.fastDefine('cc.Gradient', Gradient, {
-    mode: Mode.Blend,
-    colorKeys: [],
-    alphaKeys: []
-});
+// CCClass.fastDefine('cc.Gradient', Gradient, {
+//     mode: Mode.Blend,
+//     colorKeys: [],
+//     alphaKeys: []
+// });
