@@ -1,13 +1,20 @@
 import { color4, pseudoRandom } from '../../../../core/vmath';
 import { CCClass } from '../../../../core/data';
+import GradientRange from './gradient-range';
+import { property, ccclass } from '../../../../core/data/class-decorator';
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
 
+@ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule {
 
+    @property
     enable = false;
 
-    color = null;
+    @property({
+        type: GradientRange
+    })
+    color = new GradientRange();
 
     animate(particle) {
         if (this.enable) {
@@ -16,7 +23,7 @@ export default class ColorOvertimeModule {
     }
 }
 
-CCClass.fastDefine('cc.ColorOvertimeModule', ColorOvertimeModule, {
-    enable: false,
-    color: null
-});
+// CCClass.fastDefine('cc.ColorOvertimeModule', ColorOvertimeModule, {
+//     enable: false,
+//     color: null
+// });

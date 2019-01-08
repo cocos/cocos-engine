@@ -1,7 +1,7 @@
-import render from '../../renderer';
+import { renderer } from '../../renderer';
 export default class RenderSystem {
     constructor () {
-        this._scene = new render.Scene();
+        this._scene = new renderer.Scene();
     }
 
     init () {

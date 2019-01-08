@@ -1,4 +1,4 @@
-import renderer from '../../renderer';
+import { renderer } from '../../renderer';
 import find from '../../scene-graph/find';
 import Mesh from '../assets/mesh';
 import gfx from '../../renderer/gfx/index';

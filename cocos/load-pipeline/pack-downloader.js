@@ -79,7 +79,7 @@ export function _loadNewPack (uuid, packUuid, callback) {
             cc.errorID(4916, uuid);
             return callback(err);
         }
-        var res = self._doLoadNewPack(uuid, packUuid, packJson);
+        var res = _doLoadNewPack(uuid, packUuid, packJson);
         if (res) {
             callback(null, res);
         }
@@ -158,7 +158,7 @@ export function load (item, callback) {
     }
 
     if (Array.isArray(packUuid)) {
-        packUuid = this._selectLoadedPack(packUuid);
+        packUuid = _selectLoadedPack(packUuid);
     }
 
     var unpackerData = globalUnpackers[packUuid];
@@ -180,7 +180,7 @@ export function load (item, callback) {
             unpackerData = globalUnpackers[packUuid] = new UnpackerData();
             unpackerData.state = PackState.Downloading;
         }
-        this._loadNewPack(uuid, packUuid, callback);
+        _loadNewPack(uuid, packUuid, callback);
     }
     // Return null to let caller know it's loading asynchronously
     return null;

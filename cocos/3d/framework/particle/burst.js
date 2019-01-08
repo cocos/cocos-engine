@@ -1,10 +1,12 @@
 import { repeat } from "../../../core/vmath";
 import CurveRange from "./animator/curve-range";
 import { CCClass } from "../../../core/data";
+import { property, ccclass } from "../../../core/data/class-decorator";
 
-
+@ccclass('cc.Burst')
 export default class Burst {
 
+    @property
     _time = 0;
 
     get time() {
@@ -16,10 +18,13 @@ export default class Burst {
         this._curTime = val;
     }
 
+    @property
     minCount = 30;
 
+    @property
     maxCount = 30;
 
+    @property
     _repeatCount = 1;
 
     get repeatCount() {
@@ -31,8 +36,12 @@ export default class Burst {
         this._remainingCount = val;
     }
 
+    @property
     repeatInterval = 1;
 
+    @property({
+        type: CurveRange
+    })
     count = null;
 
     constructor() {
@@ -58,11 +67,11 @@ export default class Burst {
     }
 }
 
-CCClass.fastDefine('cc.Burst', Burst, {
-    _time: 0,
-    minCount: 30,
-    maxCount: 30,
-    _repeatCount: 1,
-    repeatInterval: 1,
-    count: new CurveRange
-});
+// CCClass.fastDefine('cc.Burst', Burst, {
+//     _time: 0,
+//     minCount: 30,
+//     maxCount: 30,
+//     _repeatCount: 1,
+//     repeatInterval: 1,
+//     count: new CurveRange
+// });
