@@ -52,6 +52,7 @@ export class PhysicsBody {
 
     public bind(node: Node) {
         this._node = node;
+        this.pullTransform();
     }
 
     public destroy() {
@@ -59,6 +60,8 @@ export class PhysicsBody {
     }
 
     public _onAdded() {
+        this.pullTransform();
+
         this._onWorldBeforeStepListener = this._onWorldBeforeStep.bind(this);
         this._cannonBody.world.addEventListener('beforeStep', this._onWorldBeforeStepListener);
 

@@ -1,25 +1,43 @@
 import { vec3, lerp, pseudoRandom } from '../../../../core/vmath';
 import { CCClass } from '../../../../core/data';
 import { Space } from '../particle-general-function';
+import { property, ccclass } from '../../../../core/data/class-decorator';
+import CurveRange from './curve-range';
 
 const LIMIT_VELOCITY_RAND_OFFSET = 23541;
 
+@ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule {
 
     enable = false;
 
-    limitX = null;
+    @property({
+        type: CurveRange
+    })
+    limitX = new CurveRange();
 
-    limitY = null;
+    @property({
+        type: CurveRange
+    })
+    limitY = new CurveRange();
 
-    limitZ = null;
+    @property({
+        type: CurveRange
+    })
+    limitZ = new CurveRange();
 
-    limit = null;
+    @property({
+        type: CurveRange
+    })
+    limit = new CurveRange();
 
-    dampen = null;
+    @property
+    dampen = 0;
 
+    @property
     separateAxes = false;
 
+    @property
     space = Space.Local;
 
     // TODO:functions related to drag are temporarily not supported
@@ -59,17 +77,17 @@ function dampenBeyondLimit(vel, limit, dampen) {
     return abs * sgn;
 }
 
-CCClass.fastDefine('cc.LimitVelocityOvertimeModule',LimitVelocityOvertimeModule,{
-    enable : false,
-    limitX : null,
-    limitY : null,
-    limitZ : null,
-    limit : null,
-    dampen : null,
-    separateAxes : false,
-    space : Space.Local,
-    // TODO:functions related to drag are temporarily not supported
-    drag : null,
-    multiplyDragByParticleSize : false,
-    multiplyDragByParticleVelocity : false
-});
+// CCClass.fastDefine('cc.LimitVelocityOvertimeModule', LimitVelocityOvertimeModule, {
+//     enable: false,
+//     limitX: null,
+//     limitY: null,
+//     limitZ: null,
+//     limit: null,
+//     dampen: null,
+//     separateAxes: false,
+//     space: Space.Local,
+//     // TODO:functions related to drag are temporarily not supported
+//     drag: null,
+//     multiplyDragByParticleSize: false,
+//     multiplyDragByParticleVelocity: false
+// });

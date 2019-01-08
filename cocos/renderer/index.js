@@ -52,5 +52,5 @@ let renderer = {
 };
 Object.assign(renderer, enums);
 
-export default renderer;
+export { renderer };
 cc.renderer = renderer;

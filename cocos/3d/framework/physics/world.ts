@@ -1,9 +1,9 @@
 import CANNON from 'cannon';
-import { Vec3 } from '../../../core/value-types';
 import { PhysicsMaterial } from '../../assets/physics/material';
 import { DataFlow, PhysicsBody, PhysicsShape } from './body';
 import { ContactMaterial } from './contact-material';
 import { getWrap, setWrap, toCannonOptions } from './util';
+import { Vec3 } from '../../../core/value-types';
 
 export interface RaycastOptions {
     collisionFilterMask?: number;
@@ -46,8 +46,10 @@ export class PhysicsWorld {
 
     constructor() {
         this._defaultMaterial = new PhysicsMaterial();
-        // @ts-ignore
-        this._defaultContactMaterial = new ContactMaterial(this._defaultMaterial, { friction: 0.3, restitution: 0.0 });
+        const mtl = new PhysicsMaterial();
+        mtl.friction = 0.3;
+        mtl.restitution = 0;
+        this._defaultContactMaterial = new ContactMaterial(this._defaultMaterial, mtl);
 
         this._cannonWorld = new CANNON.World();
         setWrap<PhysicsWorld>(this._cannonWorld, this);

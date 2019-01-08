@@ -102,15 +102,15 @@ export class Camera {
         return this._farClip;
     }
 
-    public get matView(): number {
+    public get matView(): mat4 {
         return this._matView;
     }
 
-    public get matProj(): number {
+    public get matProj(): mat4 {
         return this._matProj;
     }
 
-    public get matViewProj(): number {
+    public get matViewProj(): mat4 {
         return this._matViewProj;
     }
 

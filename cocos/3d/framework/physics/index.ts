@@ -1,7 +1,13 @@
 import { PhysicsBoxShape, PhysicsSphereShape, PhysicsBody } from './body';
 import { ContactMaterial } from './contact-material';
-import './physics-system';
-import './world';
+export {
+    PhysicsBoxShape,
+    PhysicsSphereShape,
+    PhysicsBody,
+    ContactMaterial,
+};
+export * from './physics-system';
+export * from './world';
 
 // @ts-ignore
 cc.PhysicsBody = PhysicsBody;
