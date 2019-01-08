@@ -103,8 +103,9 @@ js.mixin(EventTarget.prototype, {
         if ( !this.hasEventListener(type, callback, target) ) {
             this.add(type, callback, target);
 
-            if (target && target.__eventTargets)
+            if (target && target.__eventTargets) {
                 target.__eventTargets.push(this);
+            }
         }
         return callback;
     },
@@ -133,8 +134,7 @@ js.mixin(EventTarget.prototype, {
     off (type, callback, target) {
         if (!callback) {
             this.removeAll(type);
-        }
-        else {
+        } else {
             this.remove(type, callback, target);
 
             if (target && target.__eventTargets) {
@@ -181,11 +181,11 @@ js.mixin(EventTarget.prototype, {
      * }, node);
      */
     once (type, callback, target) {
-        var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
-        var hasOnceListener = this.hasEventListener(eventType_hasOnceListener, callback, target);
+        const eventType_hasOnceListener = '__ONCE_FLAG:' + type;
+        const hasOnceListener = this.hasEventListener(eventType_hasOnceListener, callback, target);
         if (!hasOnceListener) {
-            var self = this;
-            var onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
+            const self = this;
+            const onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
                 self.off(type, onceWrapper, target);
                 self.remove(eventType_hasOnceListener, callback, target);
                 callback.call(this, arg1, arg2, arg3, arg4, arg5);
@@ -225,7 +225,7 @@ js.mixin(EventTarget.prototype, {
      */
     dispatchEvent (event) {
         this.invoke(event.type, event);
-    }
+    },
 });
 
 cc.EventTarget = EventTarget;

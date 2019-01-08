@@ -35,10 +35,10 @@ class CallbackList {
         this.containCanceled = false;
     }
 
-    removeBy (array, value) {
+    public removeBy (array, value) {
         var callbacks = this.callbacks;
         var targets = this.targets;
-        for (var i = 0; i < array.length; ++i) {
+        for (let i = 0; i < array.length; ++i) {
             if (array[i] === value) {
                 fastRemoveAt(callbacks, i);
                 fastRemoveAt(targets, i);
@@ -47,14 +47,14 @@ class CallbackList {
         }
     }
 
-    cancel (index) {
+    public cancel (index) {
         this.callbacks[index] = this.targets[index] = null;
         this.containCanceled = true;
     }
 
-    cancelAll () {
-        let callbacks = this.callbacks;
-        let targets = this.targets;
+    public cancelAll () {
+        const callbacks = this.callbacks;
+        const targets = this.targets;
         for (let i = 0; i < callbacks.length; i++) {
             callbacks[i] = targets[i] = null;
         }
@@ -62,14 +62,14 @@ class CallbackList {
     }
 
     // filter all removed callbacks and compact array
-    purgeCanceled () {
+    public purgeCanceled () {
         this.removeBy(this.callbacks, null);
         this.containCanceled = false;
     }
 }
 
 const MAX_SIZE = 16;
-let callbackListPool = new js.Pool(function (list) {
+const callbackListPool = new js.Pool(function (list) {
     list.callbacks.length = 0;
     list.targets.length = 0;
     list.isInvoking = false;
@@ -98,7 +98,7 @@ CallbacksHandler.prototype = {
      * @param {Object} [target] - can be null
      */
     add (key, callback, target) {
-        var list = this._callbackTable[key];
+        let list = this._callbackTable[key];
         if (!list) {
             list = this._callbackTable[key] = callbackListPool.get();
         }
@@ -116,13 +116,13 @@ CallbacksHandler.prototype = {
      * @return {Boolean}
      */
     hasEventListener (key, callback, target) {
-        var list = this._callbackTable[key];
+        const list = this._callbackTable[key];
         if (!list) {
             return false;
         }
 
         // check any valid callback
-        var callbacks = list.callbacks;
+        const callbacks = list.callbacks;
         if (!callback) {
             // Make sure no cancelled callbacks
             if (list.isInvoking) {
@@ -132,14 +132,13 @@ CallbacksHandler.prototype = {
                     }
                 }
                 return false;
-            }
-            else {
+            } else {
                 return callbacks.length > 0;
             }
         }
 
         target = target || null;
-        var targets = list.targets;
+        const targets = list.targets;
         for (let i = 0; i < callbacks.length; ++i) {
             if (callbacks[i] === callback && targets[i] === target) {
                 return true;
@@ -156,30 +155,27 @@ CallbacksHandler.prototype = {
     removeAll (keyOrTarget) {
         if (typeof keyOrTarget === 'string') {
             // remove by key
-            let list = this._callbackTable[keyOrTarget];
+            const list = this._callbackTable[keyOrTarget];
             if (list) {
                 if (list.isInvoking) {
                     list.cancelAll();
-                }
-                else {
+                } else {
                     callbackListPool.put(list);
                     delete this._callbackTable[keyOrTarget];
                 }
             }
-        }
-        else if (keyOrTarget) {
+        } else if (keyOrTarget) {
             // remove by target
-            for (let key in this._callbackTable) {
-                let list = this._callbackTable[key];
+            for (const key in this._callbackTable) {
+                const list = this._callbackTable[key];
                 if (list.isInvoking) {
-                    let targets = list.targets;
+                    const targets = list.targets;
                     for (let i = 0; i < targets.length; ++i) {
                         if (targets[i] === keyOrTarget) {
                             list.cancel(i);
                         }
                     }
-                }
-                else {
+                } else {
                     list.removeBy(list.targets, keyOrTarget);
                 }
             }
@@ -193,17 +189,16 @@ CallbacksHandler.prototype = {
      * @param {Object} [target]
      */
     remove (key, callback, target) {
-        var list = this._callbackTable[key];
+        const list = this._callbackTable[key];
         if (list) {
             target = target || null;
-            var callbacks = list.callbacks;
-            var targets = list.targets;
-            for (var i = 0; i < callbacks.length; ++i) {
+            const callbacks = list.callbacks;
+            const targets = list.targets;
+            for (let i = 0; i < callbacks.length; ++i) {
                 if (callbacks[i] === callback && targets[i] === target) {
                     if (list.isInvoking) {
                         list.cancel(i);
-                    }
-                    else {
+                    } else {
                         fastRemoveAt(callbacks, i);
                         fastRemoveAt(targets, i);
                     }
@@ -211,7 +206,7 @@ CallbacksHandler.prototype = {
                 }
             }
         }
-    }
+    },
 };
 
 /**
@@ -236,21 +231,20 @@ js.mixin(CallbacksInvoker.prototype, {
      * @param {any} [p5]
      */
     emit (key, p1, p2, p3, p4, p5) {
-        var list = this._callbackTable[key];
+        const list = this._callbackTable[key];
         if (list) {
-            var rootInvoker = !list.isInvoking;
+            const rootInvoker = !list.isInvoking;
             list.isInvoking = true;
 
-            var callbacks = list.callbacks;
-            var targets = list.targets;
-            for (var i = 0, len = callbacks.length; i < len; ++i) {
-                var callback = callbacks[i];
+            const callbacks = list.callbacks;
+            const targets = list.targets;
+            for (let i = 0, len = callbacks.length; i < len; ++i) {
+                const callback = callbacks[i];
                 if (callback) {
-                    var target = targets[i];
+                    const target = targets[i];
                     if (target) {
                         callback.call(target, p1, p2, p3, p4, p5);
-                    }
-                    else {
+                    } else {
                         callback(p1, p2, p3, p4, p5);
                     }
                 }
@@ -263,7 +257,7 @@ js.mixin(CallbacksInvoker.prototype, {
                 }
             }
         }
-    }
+    },
 });
 
 if (CC_TEST) {
@@ -272,5 +266,5 @@ if (CC_TEST) {
 
 export {
     CallbacksHandler,
-    CallbacksInvoker
+    CallbacksInvoker,
 };

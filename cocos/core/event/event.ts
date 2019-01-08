@@ -107,7 +107,7 @@ class Event {
      * @method unuse
      * @returns {String}
      */
-    unuse () {
+    public unuse () {
         this.type = cc.Event.NO_TYPE;
         this.target = null;
         this.currentTarget = null;
@@ -122,7 +122,7 @@ class Event {
      * @method reuse
      * @returns {String}
      */
-    reuse (type, bubbles) {
+    public reuse (type, bubbles) {
         this.type = type;
         this.bubbles = bubbles || false;
     }
@@ -132,7 +132,7 @@ class Event {
      * !#zh 停止传递当前事件。
      * @method stopPropagation
      */
-    stopPropagation () {
+    public stopPropagation () {
         this._propagationStopped = true;
     }
 
@@ -142,7 +142,7 @@ class Event {
      * !#zh 立即停止当前事件的传递，事件甚至不会被分派到所连接的当前目标。
      * @method stopPropagationImmediate
      */
-    stopPropagationImmediate () {
+    public stopPropagationImmediate () {
         this._propagationImmediateStopped = true;
     }
 
@@ -152,7 +152,7 @@ class Event {
      * @method isStopped
      * @returns {Boolean}
      */
-    isStopped () {
+    public isStopped () {
         return this._propagationStopped || this._propagationImmediateStopped;
     }
 
@@ -167,7 +167,7 @@ class Event {
      * @method getCurrentTarget
      * @returns {Node}  The target with which the event associates.
      */
-    getCurrentTarget () {
+    public getCurrentTarget () {
         return this.currentTarget;
     }
 
@@ -177,12 +177,12 @@ class Event {
      * @method getType
      * @returns {String}
      */
-    getType () {
+    public getType () {
         return this.type;
     }
 }
 
-//event type
+// event type
 /**
  * !#en Code for event without type.
  * !#zh 没有类型的事件
@@ -225,7 +225,7 @@ Event.KEYBOARD = 'keyboard';
  */
 Event.ACCELERATION = 'acceleration';
 
-//event phase
+// event phase
 /**
  * !#en Events not currently dispatched are in this phase
  * !#zh 尚未派发事件阶段
