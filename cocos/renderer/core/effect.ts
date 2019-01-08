@@ -166,7 +166,7 @@ export class Effect {
                 };
             });
             passInfo.shader = cc.game._programLib.getGFXShader(passInfo.program, defines || {});
-            passInfo.renderPass = cc.director.root.pipeline.getRenderPass(passInfo.stage || RenderPassStage.FORWARD);
+            passInfo.renderPass = cc.director.root.pipeline.getRenderPass(passInfo.stage || RenderPassStage.WINDOW);
             passInfo.blocks = programs[passInfo.program].blocks;
             passInfo.samplers = programs[passInfo.program].samplers;
             const pass = new Pass(cc.game._gfxDevice);
