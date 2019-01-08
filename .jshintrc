@@ -19,7 +19,7 @@
     "document",
     "Image",
     "unused",
-    "Editor",
+    "EditorExtends",
     "EditorUI",
     "Helper",
     "_Scene",

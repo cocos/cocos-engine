@@ -52,8 +52,8 @@ export default class MissingScript extends Component {
     //_scriptUuid: {
     //    get: function () {
     //        var id = this._$erialized.__type__;
-    //        if (Editor.Utils.UuidUtils.isUuid(id)) {
-    //            return Editor.Utils.UuidUtils.decompressUuid(id);
+    //        if (EditorExtends.UuidUtils.isUuid(id)) {
+    //            return EditorExtends.UuidUtils.decompressUuid(id);
     //        }
     //        return '';
     //    },
@@ -62,8 +62,8 @@ export default class MissingScript extends Component {
     //            cc.error('Scripts not yet compiled, please fix script errors and compile first.');
     //            return;
     //        }
-    //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
-    //            var classId = Editor.Utils.UuidUtils.compressUuid(value);
+    //        if (value && EditorExtends.UuidUtils.isUuid(value._uuid)) {
+    //            var classId = EditorExtends.UuidUtils.compressUuid(value);
     //            if (_getClassById(classId)) {
     //                this._$erialized.__type__ = classId;
     //                Editor.Ipc.sendToWins('reload:window-scripts', sandbox.compiled);

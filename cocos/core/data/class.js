@@ -365,7 +365,7 @@ function define (className, baseClass, mixins, options) {
                 js._setClassId(uuid, cls);
                 if (CC_EDITOR) {
                     Component._addMenuItem(cls, "i18n:menu.custom_script/" + className, -1);
-                    cls.prototype.__scriptUuid = Editor.Utils.UuidUtils.decompressUuid(uuid);
+                    cls.prototype.__scriptUuid = EditorExtends.UuidUtils.decompressUuid(uuid);
                 }
             }
             frame.cls = cls;

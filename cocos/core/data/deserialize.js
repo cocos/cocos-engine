@@ -121,30 +121,18 @@ Details.pool.get = function () {
 
 // IMPLEMENT OF DESERIALIZATION
 
-function _dereference (self) {
+const _dereference = CC_EDITOR ? EditorExtends.deserialize.dereference : function (self) {
     // 这里不采用遍历反序列化结果的方式，因为反序列化的结果如果引用到复杂的外部库，很容易堆栈溢出。
     var deserializedList = self.deserializedList;
     var idPropList = self._idPropList;
     var idList = self._idList;
     var idObjList = self._idObjList;
-    var onDereferenced = self._classFinder && self._classFinder.onDereferenced;
-    var i, propName, id;
-    if (CC_EDITOR && onDereferenced) {
-        for (i = 0; i < idList.length; i++) {
-            propName = idPropList[i];
-            id = idList[i];
-            idObjList[i][propName] = deserializedList[id];
-            onDereferenced(deserializedList, id, idObjList[i], propName);
-        }
+    for (let i = 0; i < idList.length; i++) {
+        const propName = idPropList[i];
+        const id = idList[i];
+        idObjList[i][propName] = deserializedList[id];
     }
-    else {
-        for (i = 0; i < idList.length; i++) {
-            propName = idPropList[i];
-            id = idList[i];
-            idObjList[i][propName] = deserializedList[id];
-        }
-    }
-}
+};
 
 function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue, stillUseUrl) {
     if (defaultValue instanceof cc.ValueType) {
@@ -812,8 +800,8 @@ export default function deserialize (data, details, options) {
 
 deserialize.Details = Details;
 deserialize.reportMissingClass = function (id) {
-    if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
-        id = Editor.Utils.UuidUtils.decompressUuid(id);
+    if (CC_EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
+        id = EditorExtends.UuidUtils.decompressUuid(id);
         cc.warnID(5301, id);
     }
     else {

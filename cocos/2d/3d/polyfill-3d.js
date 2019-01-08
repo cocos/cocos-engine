@@ -124,10 +124,6 @@ function setPosition (newPosOrX, y, z) {
         return;
     }
 
-    if (CC_EDITOR) {
-        let oldPosition = new cc.Vec3(pos);
-    }
-
     pos.x = x;
     pos.y = y;
     pos.z = z;

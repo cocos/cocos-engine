@@ -72,7 +72,7 @@ var SkeletonAnimationClip = cc.Class({
             modelUuid: this._modelUuid,
             animationID: this._animationID,
             name: this._name,
-        }
+        };
     },
 
     _deserialize (data, handle) {

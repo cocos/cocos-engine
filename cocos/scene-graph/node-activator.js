@@ -120,7 +120,7 @@ function _onLoadInEditor (comp) {
         }
     }
     if ( !CC_TEST ) {
-        _Scene.AssetsWatcher.start(comp);
+        EditorExtends.AssetsWatcher.start(comp);
     }
 }
 

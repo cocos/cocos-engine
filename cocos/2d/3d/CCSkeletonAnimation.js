@@ -88,28 +88,14 @@ var SkeletonAnimation = cc.Class({
         return state;
     },
 
-    searchClips: CC_EDITOR && function () {
+    _setClips: CC_EDITOR && function (assetResults) {
         this._clips.length = 0;
-        let self = this;
-        Editor.assetdb.queryPathByUuid(this._model._uuid, function (err, modelPath) {
-            if (err) return console.error(err);
-            
-            const Path = require('fire-path');
-            let queryPath = Path.relative(Editor.remote.Project.path, modelPath);
-            queryPath = Path.join(Path.dirname(queryPath), Path.basenameNoExt(queryPath));
-            queryPath = `db://${queryPath}*/*.sac`;
-
-            Editor.assetdb.queryAssets(queryPath, null, function (err, results) {
-                if (results) {
-                    for (let i = 0; i < results.length; i++) {
-                        let clip = new SkeletonAnimationClip();
-                        clip._uuid = results[i].uuid;
-                        self._clips.push(clip);
-                    }
-                    self._defaultClip = self._clips[0];
-                }
-            });
-        });
+        for (let i = 0; i < assetResults.length; i++) {
+            let clip = new SkeletonAnimationClip();
+            clip._uuid = assetResults[i].uuid;
+            this._clips.push(clip);
+        }
+        this._defaultClip = this._clips[0];
     }
 });
 

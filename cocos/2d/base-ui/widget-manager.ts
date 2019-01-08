@@ -23,6 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 // import { WidgetComponent } from '../../3d/ui/components/widget-component';
 import { array } from '../../core/utils/js';
 import { Enum, Size, Vec3 } from '../../core/value-types';
@@ -46,17 +47,19 @@ enum AlignMode {
 
 Enum(AlignMode);
 
-// returns a readonly size of the node
-export function getReadonlyNodeSize (parent) {
-    // TODO: check with Editor
-    // if (parent instanceof cc.Scene) {
-    //     return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.visibleRect;
-    // } else {
-    //     return parent._contentSize;
-    // }
+const platformImpl = CC_EDITOR ? EditorExtends.WidgetManger.platformImpl : {
+    // returns a readonly size of the node
+    getReadonlyNodeSize: function _getReadonlyNodeSize (parent) {
+        if (parent instanceof cc.Scene) {
+            return cc.visibleRect;
+        }
+        else {
+            return parent._contentSize;
+        }
+    },
+};
 
-    return cc.visibleRect;
-}
+export const getReadonlyNodeSize = platformImpl.getReadonlyNodeSize;
 
 export function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate, out_inverseScale) {
     let scaleX = widgetNode._parent._scale.x;
@@ -111,7 +114,7 @@ function align (node, widget) {
     const targetSize = getReadonlyNodeSize(target);
     const targetAnchor = target._anchorPoint;
 
-    const isRoot = !CC_EDITOR && target instanceof cc.Scene;
+    const isRoot = !CC_EDITOR && target instanceof cc.Scene;  // TODO - 这块的判断应该与 getReadonlyNodeSize 整合起来
     let x = node._position.x;
     let y = node._position.y;
     const anchor = node._anchorPoint;
@@ -123,11 +126,10 @@ function align (node, widget) {
         const targetWidth = targetSize.width;
         if (isRoot) {
             localLeft = cc.visibleRect.left.x;
-            localRight = cc.visibleRect.right.x;
         } else {
             localLeft = -targetAnchor.x * targetWidth;
-            localRight = localLeft + targetWidth;
         }
+        localRight = localLeft + targetWidth;
 
         // adjust borders according to offsets
         localLeft += widget._isAbsLeft ? widget._left : widget._left * targetWidth;
@@ -180,11 +182,10 @@ function align (node, widget) {
         const targetHeight = targetSize.height;
         if (isRoot) {
             localBottom = cc.visibleRect.bottom.y;
-            localTop = cc.visibleRect.top.y;
         } else {
             localBottom = -targetAnchor.y * targetHeight;
-            localTop = localBottom + targetHeight;
         }
+        localTop = localBottom + targetHeight;
 
         // adjust borders according to offsets
         localBottom += widget._isAbsBottom ? widget._bottom : widget._bottom * targetHeight;
@@ -241,7 +242,7 @@ function visitNode (node: Node) {
             // widget._validateTargetInDEV();
         }
         align(node, widget);
-        if ((!CC_EDITOR /*|| animationState.animatedSinceLastFrame*/) && widget.alignMode !== AlignMode.ALWAYS) {
+        if ((!CC_EDITOR || EditorExtends.WidgetManger.animationState.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
             widget.enabled = false;
         } else {
             activeWidgets.push(widget);
@@ -255,45 +256,40 @@ function visitNode (node: Node) {
     }
 }
 
-if (CC_EDITOR) {
-    const animationState = {
-        previewing: false,
-        time: 0,
-        animatedSinceLastFrame: false,
-    };
-}
-
 function refreshScene () {
     // check animation editor
-    // if (CC_EDITOR && !Editor.isBuilder) {
-    //     const AnimUtils = Editor.require('scene://utils/animation');
-    //     const EditMode = Editor.require('scene://edit-mode');
-    //     if (AnimUtils && EditMode) {
-    //         const nowPreviewing = (EditMode.curMode().name === 'animation' && !!AnimUtils.Cache.animation);
-    //         if (nowPreviewing !== animationState.previewing) {
-    //             animationState.previewing = nowPreviewing;
-    //             if (nowPreviewing) {
-    //                 animationState.animatedSinceLastFrame = true;
-    //                 const component = cc.engine.getInstanceById(AnimUtils.Cache.component);
-    //                 if (component) {
-    //                     const animation = component.getAnimationState(AnimUtils.Cache.animation);
-    //                     animationState.time = animation.time;
-    //                 }
-    //             } else {
-    //                 animationState.animatedSinceLastFrame = false;
-    //             }
-    //         } else if (nowPreviewing) {
-    //             const component = cc.engine.getInstanceById(AnimUtils.Cache.component);
-    //             if (component) {
-    //                 const animation = component.getAnimationState(AnimUtils.Cache.animation);
-    //                 if (animationState.time !== animation.time) {
-    //                     animationState.animatedSinceLastFrame = true;
-    //                     animationState.time = AnimUtils.Cache.animation.time;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    if (CC_EDITOR && !EditorExtends.env.isBuilder) {
+        let animationState = EditorExtends.WidgetManger;
+        var AnimUtils = Editor.require('scene://utils/animation');
+        var EditMode = Editor.require('scene://edit-mode');
+        if (AnimUtils && EditMode) {
+            var nowPreviewing = (EditMode.curMode().name === 'animation' && !!AnimUtils.Cache.animation);
+            if (nowPreviewing !== animationState.previewing) {
+                animationState.previewing = nowPreviewing;
+                if (nowPreviewing) {
+                    animationState.animatedSinceLastFrame = true;
+                    let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
+                    if (component) {
+                        let animation = component.getAnimationState(AnimUtils.Cache.animation);
+                        animationState.time = animation.time;
+                    }
+                }
+                else {
+                    animationState.animatedSinceLastFrame = false;
+                }
+            }
+            else if (nowPreviewing) {
+                let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
+                if (component) {
+                    let animation = component.getAnimationState(AnimUtils.Cache.animation);
+                    if (animationState.time !== animation.time) {
+                        animationState.animatedSinceLastFrame = true;
+                        animationState.time = AnimUtils.Cache.animation.time;
+                    }
+                }
+            }
+        }
+    }
 
     const scene = cc.director.getScene();
     if (scene) {
@@ -302,46 +298,46 @@ function refreshScene () {
             activeWidgets.length = 0;
             visitNode(scene);
             widgetManager._nodesOrderDirty = false;
-        } else {
-            // // let i;
-            // let widget;
-            // const iterator = widgetManager._activeWidgetsIterator;
-            // // TODO: animation
-            // let AnimUtils;
-            // if (CC_EDITOR &&
-            //     (AnimUtils = Editor.require('scene://utils/animation')) &&
-            //     AnimUtils.Cache.animation) {
-            //     const editingNode = cc.engine.getInstanceById(AnimUtils.Cache.rNode);
-            //     if (editingNode) {
-            //         for (i = activeWidgets.length - 1; i >= 0; i--) {
-            //             widget = activeWidgets[i];
-            //             const node = widget.node;
-            //             if (widget.alignMode !== AlignMode.ALWAYS &&
-            //                 animationState.animatedSinceLastFrame &&
-            //                 node.isChildOf(editingNode)
-            //             ) {
-            //                 // widget contains in activeWidgets should aligned at least once
-            //                 widget.enabled = false;
-            //             } else {
-            //                 align(node, widget);
-            //             }
-            //         }
-            //     }
-            // } else {
-            //     // loop reversely will not help to prevent out of sync
-            //     // because user may remove more than one item during a step.
-            //     for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
-            //         widget = activeWidgets[iterator.i];
-            //         align(widget.node, widget);
-            //     }
-            // }
+        }
+        else {
+            var i, widget, iterator = widgetManager._activeWidgetsIterator;
+            var AnimUtils;
+            if (CC_EDITOR &&
+                (AnimUtils = Editor.require('scene://utils/animation')) &&
+                AnimUtils.Cache.animation) {
+                var editingNode = cc.engine.getInstanceById(AnimUtils.Cache.rNode);
+                if (editingNode) {
+                    for (i = activeWidgets.length - 1; i >= 0; i--) {
+                        widget = activeWidgets[i];
+                        var node = widget.node;
+                        if (widget.alignMode !== AlignMode.ALWAYS &&
+                            EditorExtends.WidgetManger.animationState.animatedSinceLastFrame &&
+                            node.isChildOf(editingNode)
+                        ) {
+                            // widget contains in activeWidgets should aligned at least once
+                            widget.enabled = false;
+                        }
+                        else {
+                            align(node, widget);
+                        }
+                    }
+                }
+            }
+            else {
+                // loop reversely will not help to prevent out of sync
+                // because user may remove more than one item during a step.
+                for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
+                    widget = activeWidgets[iterator.i];
+                    align(widget.node, widget);
+                }
+            }
         }
         widgetManager.isAligning = false;
     }
 
     // check animation editor
     if (CC_EDITOR) {
-        // animationState.animatedSinceLastFrame = false;
+        EditorExtends.WidgetManger.animationState.animatedSinceLastFrame = false;
     }
 }
 
@@ -514,3 +510,7 @@ export const widgetManager = cc._widgetManager = {
     updateAlignment,
     AlignMode,
 };
+
+if (CC_EDITOR) {
+    module.exports._computeInverseTransForTarget = computeInverseTransForTarget;
+}

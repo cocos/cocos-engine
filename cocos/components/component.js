@@ -109,8 +109,8 @@ class Component extends CCObject {
     get __scriptAsset () { return null; }
     //set __scriptAsset (value) {
     //    if (this.__scriptUuid !== value) {
-    //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
-    //            var classId = Editor.Utils.UuidUtils.compressUuid(value._uuid);
+    //        if (value && EditorExtends.UuidUtils.isUuid(value._uuid)) {
+    //            var classId = EditorExtends.UuidUtils.compressUuid(value._uuid);
     //            var NewComp = cc.js._getClassById(classId);
     //            if (cc.js.isChildClassOf(NewComp, cc.Component)) {
     //                cc.warn('Sorry, replacing component script is not yet implemented.');
@@ -203,10 +203,10 @@ class Component extends CCObject {
     constructor () {
         super();
         if (CC_EDITOR) {
-            if (window._Scene && _Scene.AssetsWatcher) {
-                _Scene.AssetsWatcher.initComponent(this);
+            if (!EditorExtends.env.build && EditorExtends.AssetsWatcher) {
+                EditorExtends.AssetsWatcher.initComponent(this);
             }
-            this._id = Editor.Utils.UuidUtils.uuid();
+            this._id = EditorExtends.UuidUtils.uuid();
         }
         else {
             this._id = idGenerator.getNewId();
@@ -350,7 +350,7 @@ class Component extends CCObject {
 
         //
         if (CC_EDITOR && !CC_TEST) {
-            _Scene.AssetsWatcher.stop(this);
+            EditorExtends.AssetsWatcher.stop(this);
         }
 
         // onDestroy
@@ -628,34 +628,6 @@ proto.onRestore = null;
 Component._requireComponent = null;
 Component._executionOrder = 0;
 
-if (CC_EDITOR || CC_TEST) {
-
-    // INHERITABLE STATIC MEMBERS
-
-    Component._executeInEditMode = false;
-    Component._playOnFocus = false;
-    Component._disallowMultiple = null;
-    Component._help = '';
-
-    // NON-INHERITED STATIC MEMBERS
-    // (TypeScript 2.3 will still inherit them, so always check hasOwnProperty before using)
-
-    value(Component, '_inspector', '', true);
-    value(Component, '_icon', '', true);
-
-    // COMPONENT HELPERS
-
-    cc._componentMenuItems = [];
-
-    Component._addMenuItem = function (cls, path, priority) {
-        cc._componentMenuItems.push({
-            component: cls,
-            menuPath: path,
-            priority: priority
-        });
-    };
-}
-
 // we make this non-enumerable, to prevent inherited by sub classes.
 value(Component, '_registerEditorProps', function (cls, props) {
     var reqComp = props.requireComponent;
@@ -666,59 +638,7 @@ value(Component, '_registerEditorProps', function (cls, props) {
     if (order && typeof order === 'number') {
         cls._executionOrder = order;
     }
-    if (CC_EDITOR || CC_TEST) {
-        var name = getClassName(cls);
-        for (var key in props) {
-            var val = props[key];
-            switch (key) {
-                case 'executeInEditMode':
-                    cls._executeInEditMode = !!val;
-                    break;
-
-                case 'playOnFocus':
-                    if (val) {
-                        var willExecuteInEditMode = ('executeInEditMode' in props) ? props.executeInEditMode : cls._executeInEditMode;
-                        if (willExecuteInEditMode) {
-                            cls._playOnFocus = true;
-                        }
-                        else {
-                            cc.warnID(3601, name);
-                        }
-                    }
-                    break;
-
-                case 'inspector':
-                    value(cls, '_inspector', val, true);
-                    break;
-
-                case 'icon':
-                    value(cls, '_icon', val, true);
-                    break;
-
-                case 'menu':
-                    Component._addMenuItem(cls, val, props.menuPriority);
-                    break;
-
-                case 'disallowMultiple':
-                    cls._disallowMultiple = cls;
-                    break;
-
-                case 'requireComponent':
-                case 'executionOrder':
-                    // skip here
-                    break;
-
-                case 'help':
-                    cls._help = val;
-                    break;
-
-                default:
-                    cc.warnID(3602, key, name);
-                    break;
-            }
-        }
-    }
-});
+}, true);
 
 Component.prototype.__scriptUuid = '';
 
