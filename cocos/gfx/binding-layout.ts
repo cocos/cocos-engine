@@ -75,6 +75,10 @@ export abstract class GFXBindingLayout {
         }
     }
 
+    public getBindingUnit(binding: number): GFXBindingUnit {
+        return this._bindingUnits[binding];
+    }
+
     protected _device: GFXDevice;
     protected _bindingUnits: GFXBindingUnit[] = [];
 };
