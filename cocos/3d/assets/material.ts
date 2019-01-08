@@ -91,21 +91,15 @@ export class Material extends Asset {
     }
 
     public setProperty(name: string, val: any, passIdx = 0) {
-        if (passIdx >= this._passes.length) {
-            console.warn('illegal pass index.');
-            return;
-        }
+        console.assert(passIdx < this._passes.length, 'illegal pass index.');
         this._props[passIdx][name] = val;
         const pass = this._passes[passIdx];
         const handle = pass.getHandleFromName(name);
-        pass.setBlockMember(handle, val);
+        pass.setUniformMember(handle, val);
     }
 
     public setTexture(name: string, val: TextureBase, passIdx = 0) {
-        if (passIdx >= this._passes.length) {
-            console.warn('illegal pass index.');
-            return;
-        }
+        console.assert(passIdx < this._passes.length, 'illegal pass index.');
         this._textures[passIdx][name] = val;
         const pass = this._passes[passIdx];
         const handle = pass.getHandleFromName(name);
@@ -152,7 +146,7 @@ export class Material extends Asset {
                 if (!props) { props = this._props[i] = {}; }
                 for (const p of Object.keys(props)) {
                     const handle = pass.getHandleFromName(p);
-                    pass.setBlockMember(handle, props[p]);
+                    pass.setUniformMember(handle, props[p]);
                 }
                 let textures = this._textures[i];
                 if (!textures) { textures = this._textures[i] = {}; }

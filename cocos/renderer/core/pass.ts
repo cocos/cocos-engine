@@ -12,6 +12,7 @@ import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
+import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage } from '../../pipeline/render-pipeline';
 import { PropertyMap } from './effect';
 
@@ -56,6 +57,7 @@ const parseHandle = (handle: number) => [(handle & bindingMask) >> 16, handle & 
 interface Block {
     buffer: ArrayBuffer;
     views: Float32Array[];
+    dirty: boolean;
 }
 
 export class Pass {
@@ -72,6 +74,7 @@ export class Pass {
     protected _handleMap: Record<string, number> = {};
     protected _typeMap: Record<number, GFXType> = {};
     protected _blocks: Block[] = [];
+    protected _layoutDirty: boolean = false;
     // external references
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
@@ -117,6 +120,7 @@ export class Pass {
             const block: Block = this._blocks[u.binding] = {
                 buffer: new ArrayBuffer(u.size),
                 views: [],
+                dirty: false,
             };
             u.members.reduce((acc, cur, idx) => {
                 // create property-specific buffer views
@@ -152,19 +156,20 @@ export class Pass {
         return this._handleMap[name];
     }
 
-    public setBlockMember(handle: number, value: any) {
+    public setUniformMember(handle: number, value: any) {
         const [ binding, idx ] = parseHandle(handle);
         const block = this._blocks[binding];
         const type = this._typeMap[handle];
         _type2fn[type](block.views[idx], value);
-        this._buffers[binding].update(block.buffer);
+        block.dirty = true;
     }
 
-    public setTextureView(handle: number, value: any) {
+    public setTextureView(handle: number, value: GFXTextureView) {
         const [ binding ] = parseHandle(handle);
-        if (this._bindingLayout) {
-            this._bindingLayout.bindTextureView(binding, value);
-            this._bindingLayout.update();
+        const bl = this._bindingLayout;
+        if (bl && bl.getBindingUnit(binding).texView !== value) {
+            bl.bindTextureView(binding, value);
+            this._layoutDirty = true;
         }
     }
 
@@ -179,6 +184,19 @@ export class Pass {
         if (this._bindingLayout) { this._bindingLayout.destroy(); this._bindingLayout = null; }
         if (this._pipelineLayout) { this._pipelineLayout.destroy(); this._pipelineLayout = null; }
         if (this._pipelineState) { this._pipelineState.destroy(); this._pipelineState = null; }
+    }
+
+    public update() {
+        const len = this._blocks.length;
+        for (let i = 0; i < len; i++) {
+            const block = this._blocks[i];
+            if (block.dirty) {
+                this._buffers[i].update(block.buffer);
+            }
+        }
+        if (this._bindingLayout && this._layoutDirty) {
+            this._bindingLayout.update();
+        }
     }
 
     protected createPipelineState(info: PassInfoBase) {
