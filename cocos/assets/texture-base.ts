@@ -473,7 +473,12 @@ export default class TextureBase extends Asset {
         }
     }
 
-    protected _getGlobalDevice (): GFXDevice {
+    public onLoaded () {
+        this._updateSampler();
+        this._recreateTexture();
+    }
+
+    protected _getGlobalDevice (): GFXDevice | null {
         return cc.director.root.device;
     }
 
@@ -508,6 +513,11 @@ export default class TextureBase extends Asset {
             return;
         }
 
+        const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) {
+            return;
+        }
+
         const region: GFXBufferTextureCopy = {
             buffOffset: 0,
             buffStride: 0,
@@ -531,9 +541,9 @@ export default class TextureBase extends Asset {
         };
 
         if (data instanceof HTMLElement) {
-            this._getGlobalDevice().copyImageSourceToTexture(data, this._texture, [region]);
+            gfxDevice.copyImageSourceToTexture(data, this._texture, [region]);
         } else {
-            this._getGlobalDevice().copyBufferToTexture(data.buffer, this._texture, [region]);
+            gfxDevice.copyBufferToTexture(data.buffer, this._texture, [region]);
         }
     }
 
@@ -568,7 +578,16 @@ export default class TextureBase extends Asset {
     }
 
     private _updateSampler () {
-        this._sampler = this._getGlobalDevice().createSampler({
+        if (this._sampler) {
+            this._sampler.destroy();
+        }
+
+        const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) {
+            return;
+        }
+
+        this._sampler = gfxDevice.createSampler({
             name: `Sampler of ${this.name}`,
             minFilter: toGfxFilterMode(this._minFilter),
             magFilter: toGfxFilterMode(this._magFilter),

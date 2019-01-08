@@ -175,16 +175,17 @@ export default class Texture2D extends TextureBase {
         }
     }
 
-    public onLoaded () {
-        this.mipmaps = this._mipmaps;
-    }
-
     protected _createTexture () {
         if (this._mipmaps.length === 0) {
             return;
         }
 
-        this._texture = this._getGlobalDevice().createTexture({
+        const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) {
+            return;
+        }
+
+        this._texture = gfxDevice.createTexture({
             type: GFXTextureType.TEX2D,
             /* tslint:disable:no-bitwise */
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
@@ -205,7 +206,12 @@ export default class Texture2D extends TextureBase {
             return;
         }
 
-        this._textureView = this._getGlobalDevice().createTextureView({
+        const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) {
+            return;
+        }
+
+        this._textureView = gfxDevice.createTextureView({
             texture: this._texture,
             type: GFXTextureViewType.TV2D,
             format: this._getGfxFormat(),

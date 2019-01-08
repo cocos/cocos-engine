@@ -51,6 +51,9 @@ export default class RenderTexture extends Texture2D {
         this.destroy();
 
         const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) {
+            return;
+        }
 
         const w = Math.floor(width || cc.visibleRect.width);
         const h = Math.floor(height || cc.visibleRect.height);
@@ -179,11 +182,16 @@ export default class RenderTexture extends Texture2D {
             return undefined;
         }
 
+        const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) {
+            return;
+        }
+
         const normalizedRect = normalizeRect2D(rect, this.width, this.height);
 
         data = data || new Uint8Array(normalizedRect.width * normalizedRect.height * 4);
 
-        this._getGlobalDevice().copyFramebufferToBuffer(this._framebuffer, data.buffer, [{
+        gfxDevice.copyFramebufferToBuffer(this._framebuffer, data.buffer, [{
             buffOffset: 0,
             buffStride: 0,
             buffTexHeight: 0,
