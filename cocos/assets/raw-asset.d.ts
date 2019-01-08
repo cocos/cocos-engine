@@ -28,4 +28,5 @@ import { CCObject } from '../core/data/object';
 
 export class RawAsset extends CCObject {
     _uuid: string;
+    static isRawAssetType(ctor: Function): boolean;
 }

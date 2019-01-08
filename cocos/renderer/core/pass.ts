@@ -156,7 +156,11 @@ export class Pass {
         return this._handleMap[name];
     }
 
-    public setUniformMember(handle: number, value: any) {
+    public getBindingFromName(name: string) {
+        return parseHandle(this.getHandleFromName(name))[0];
+    }
+
+    public setUniform(handle: number, value: any) {
         const [ binding, idx ] = parseHandle(handle);
         const block = this._blocks[binding];
         const type = this._typeMap[handle];
@@ -164,11 +168,18 @@ export class Pass {
         block.dirty = true;
     }
 
-    public setTextureView(handle: number, value: GFXTextureView) {
-        const [ binding ] = parseHandle(handle);
+    public bindTextureView(binding: number, value: GFXTextureView) {
         const bl = this._bindingLayout;
         if (bl && bl.getBindingUnit(binding).texView !== value) {
             bl.bindTextureView(binding, value);
+            this._layoutDirty = true;
+        }
+    }
+
+    public bindSampler(binding: number, value: GFXSampler) {
+        const bl = this._bindingLayout;
+        if (bl && bl.getBindingUnit(binding).sampler !== value) {
+            bl.bindSampler(binding, value);
             this._layoutDirty = true;
         }
     }
@@ -192,10 +203,12 @@ export class Pass {
             const block = this._blocks[i];
             if (block.dirty) {
                 this._buffers[i].update(block.buffer);
+                block.dirty = false;
             }
         }
         if (this._bindingLayout && this._layoutDirty) {
             this._bindingLayout.update();
+            this._layoutDirty = false;
         }
     }
 

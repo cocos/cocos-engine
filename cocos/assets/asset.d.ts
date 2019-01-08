@@ -26,5 +26,18 @@
 import { RawAsset } from "./raw-asset";
 
 export class Asset extends RawAsset {
+    protected _native: string;
+    protected loaded: boolean;
 
+    public _nativeAsset: any;
+    public nativeUrl: string;
+
+    static preventDeferredLoadDependents: boolean;
+    static preventPreloadNativeObject: boolean;
+    static deserialize(data: string): object;
+
+    public createNode: (err: string, node: object) => void | null;
+    public toString(): string;
+    public serialize(): string;
+    protected _setRawAsset(filename: string, inLibrary: boolean): void;
 }

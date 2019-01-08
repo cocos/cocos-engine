@@ -24,6 +24,24 @@
  ****************************************************************************/
 
 export class CCObject {
-    _name: string;
-    name: string;
+    protected _name: string;
+    protected _objFlags: number;
+
+    static _deferredDestroy(): void;
+
+    public name: string;
+    public isValid: boolean;
+    public isRealValid: boolean;
+
+    public destroy(): boolean;
+    public realDestroyInEditor(): void;
+    public _clearDeferredDestroyTimer(): void;
+
+    protected _destruct(): void;
+    protected _destroyImmediate(): void;
+
+    protected _serialize: (exporting: boolean) => object | null;
+    protected _deserialize: (data: object, ctx: object) => object | null;
+    protected _onPreDestroy: () => void | null;
+    protected Flags: object;
 }

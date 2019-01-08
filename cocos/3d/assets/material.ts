@@ -95,15 +95,15 @@ export class Material extends Asset {
         this._props[passIdx][name] = val;
         const pass = this._passes[passIdx];
         const handle = pass.getHandleFromName(name);
-        pass.setUniformMember(handle, val);
+        pass.setUniform(handle, val);
     }
 
     public setTexture(name: string, val: TextureBase, passIdx = 0) {
         console.assert(passIdx < this._passes.length, 'illegal pass index.');
         this._textures[passIdx][name] = val;
         const pass = this._passes[passIdx];
-        const handle = pass.getHandleFromName(name);
-        pass.setTextureView(handle, val._texView);
+        const binding = pass.getBindingFromName(name);
+        pass.bindTextureView(binding, val._texView);
     }
 
     public copy(mat: Material) {
@@ -146,13 +146,13 @@ export class Material extends Asset {
                 if (!props) { props = this._props[i] = {}; }
                 for (const p of Object.keys(props)) {
                     const handle = pass.getHandleFromName(p);
-                    pass.setUniformMember(handle, props[p]);
+                    pass.setUniform(handle, props[p]);
                 }
                 let textures = this._textures[i];
                 if (!textures) { textures = this._textures[i] = {}; }
                 for (const t of Object.keys(textures)) {
-                    const handle = pass.getHandleFromName(t);
-                    pass.setTextureView(handle, textures[t]._texView);
+                    const binding = pass.getBindingFromName(t);
+                    pass.bindTextureView(binding, textures[t]._texView);
                 }
             });
         } else {
