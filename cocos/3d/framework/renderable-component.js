@@ -1,7 +1,7 @@
 //@ts-check
 import { _decorator } from '../../core/data/index';
 import { Material } from "../assets/material";
-import Component from "../../components/CCComponent";
+import { Component } from "../../components/component";
 const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import Component from '../../components/CCComponent';
+import { Component } from '../../components/component';
 import { ccclass, property, executionOrder, menu, executeInEditMode } from '../../core/data/class-decorator';
 import Enum from '../../core/value-types/enum';
 import AnimationClip, { AnimationTarget, AnimationSampler } from '../assets/animation-clip';

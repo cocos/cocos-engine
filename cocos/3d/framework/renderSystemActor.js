@@ -1,4 +1,4 @@
-import Component from '../../components/CCComponent';
+import { Component } from '../../components/component';
 
 class RenderSystemActorListener {
     constructor() {

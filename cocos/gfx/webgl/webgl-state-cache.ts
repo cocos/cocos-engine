@@ -33,7 +33,7 @@ export class WebGLStateCache {
         this.glTex2DUnits = new Array<WebGLTexUnit>(GFX_MAX_TEXTURE_UNITS);
         this.glTexCubeUnits = new Array<WebGLTexUnit>(GFX_MAX_TEXTURE_UNITS);
         this.viewport = { left: 0.0, top: 0.0, width: 0.0, height: 0.0, minDepth: 0.0, maxDepth: 0.0};
-        this.scissorRect = { left: 0.0, top: 0.0, width: 0.0, height: 0.0};
+        this.scissorRect = { x: 0.0, y: 0.0, width: 0.0, height: 0.0};
         this.rs = new GFXRasterizerState;
         this.dss = new GFXDepthStencilState;
         this.bs = new GFXBlendState;
