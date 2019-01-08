@@ -37,7 +37,7 @@ function _computePointLightViewProjMatrix(light, outView, outProj) {
   light._node.getWorldRT(outView);
   mat4.invert(outView, outView);
 
-  // The transformation from Cartesian to polar coordinates is not a linear function, 
+  // The transformation from Cartesian to polar coordinates is not a linear function,
   // so it cannot be achieved by means of a fixed matrix multiplication.
   // Here we just use a nearly 180 degree perspective matrix instead.
   mat4.perspective(outProj, toRadian(179), 1, light._shadowMinDepth, light._shadowMaxDepth);
@@ -90,7 +90,15 @@ export default class Light {
   }
 
   /**
-   * set the hosting node of this light
+   * Get the hosting node of this camera
+   * @returns {Node} the hosting node
+   */
+  getNode() {
+    return this._node;
+  }
+
+  /**
+   * Set the hosting node of this camera
    * @param {Node} node the hosting node
    */
   setNode(node) {
