@@ -11,7 +11,7 @@ import vec4 from "../core/vmath/vec4";
 import mat4 from "../core/vmath/mat4";
 
 export enum RenderPassStage {
-    FORWARD = 100,
+    DEFAULT = 100,
 };
 
 export class UBOGlobal {
@@ -22,7 +22,7 @@ export class UBOGlobal {
     static MAT_VIEW_INV_OFFSET: number = UBOGlobal.MAT_VIEW_OFFSET + 16;
     static MAT_PROJ_OFFSET: number = UBOGlobal.MAT_VIEW_INV_OFFSET + 16;
     static MAT_PROJ_INV_OFFSET: number = UBOGlobal.MAT_PROJ_OFFSET + 16;
-    static MAT_VIEW_PROJ_OFFSET: number = UBOGlobal.MAT_VIEW_INV_OFFSET + 16;
+    static MAT_VIEW_PROJ_OFFSET: number = UBOGlobal.MAT_PROJ_INV_OFFSET + 16;
     static MAT_VIEW_PROJ_INV_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_OFFSET + 16;
     static CAMERA_POS_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET + 16;
     static COUNT: number = UBOGlobal.CAMERA_POS_OFFSET + 4;

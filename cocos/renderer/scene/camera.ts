@@ -1,7 +1,6 @@
 import { RenderScene } from "./render-scene";
 import Node from "../../scene-graph/node";
-import vec3 from "../../core/vmath/vec3";
-import mat4 from "../../core/vmath/mat4";
+import { mat4, vec3, quat } from '../../core/vmath';
 
 export enum CameraProjection {
     PERSPECTIVE,
@@ -115,13 +114,28 @@ export class Camera {
         return this._matViewProj;
     }
 
+    public get position(): vec3 {
+        this._node.getWorldPosition(this._position);
+        return this._position;
+    }
+
+    public set target(target: vec3) {
+        this._node.lookAt(target);
+    }
+
+    public get direction(): vec3 {
+        quat.getRotation(this._rotation);
+        quat.transformQuat(this._direction, vec3.UNIT_Z, this._rotation);
+        return this._direction;
+    }
+
     public set position(pos: vec3) {
         this._node.setWorldPosition(pos.x, pos.y, pos.z);
     }
 
-    public get position(): vec3 {
-        this._node.getWorldPosition(this._position);
-        return this._position;
+    public set direction(dir: vec3) {
+        quat.rotationTo(this._rotation, vec3.UNIT_Z, dir);
+        this._node.setRotation(this._rotation);
     }
 
     private _scene: RenderScene;
@@ -138,4 +152,6 @@ export class Camera {
     private _matProj: mat4 = new mat4;
     private _matViewProj: mat4 = new mat4;
     private _position: vec3 = new vec3;
+    private _rotation: quat = new quat;
+    private _direction: vec3 = new vec3;
 };

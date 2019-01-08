@@ -35,8 +35,8 @@
       const bcr = $body.getBoundingClientRect();
       // cc.view.setCanvasSize(bcr.width, bcr.height);
       window.addEventListener('resize', () => {
-          const bcr = $body.getBoundingClientRect();
-          cc.view.setCanvasSize(bcr.width, bcr.height);
+        const bcr = $body.getBoundingClientRect();
+        cc.view.setCanvasSize(bcr.width, bcr.height);
       });
 
       let root = cc.director.root;
@@ -57,7 +57,9 @@
       view.attach(scene.mainCamera);
 
       let camera = scene.mainCamera;
-      //camera.position = vec3(0.0, 0.0, 5.0);
+      camera.position = { x: 0.0, y: 0.0, z: 3.0 };
+      camera.direction = { x: 0.0, y: 0.0, z: -1.0 };
+      camera.update();
 
 
       //todo initialization

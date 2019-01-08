@@ -70,7 +70,7 @@ export class Pass {
     // internal data
     protected _programName: string = '';
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
-    protected _stage: RenderPassStage = RenderPassStage.FORWARD;
+    protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _handleMap: Record<string, number> = {};
     protected _typeMap: Record<number, GFXType> = {};
     protected _blocks: Block[] = [];

@@ -36,7 +36,7 @@ export class ForwardPipeline extends RenderPipeline {
             return false;
         }
 
-        this.addRenderPass(RenderPassStage.FORWARD, windowPass);
+        this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
 
         // create UBOs
         this._globalUBO = this._root.device.createBuffer({

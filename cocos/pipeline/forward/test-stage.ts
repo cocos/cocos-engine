@@ -4,7 +4,6 @@ import { GFXCommandBuffer } from "../../gfx/command-buffer";
 import { RenderView } from "../render-view";
 import { GFXFramebuffer } from "../../gfx/framebuffer";
 import { GFXCommandBufferType, GFXShaderType, GFXPrimitiveMode, GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXTextureLayout, GFXBufferTextureCopy, GFXAddress, GFXFilter, GFXBindingType, GFXType, GFXCullMode } from "../../gfx/define";
-import { GFXInputAssembler } from "../../gfx/input-assembler";
 import { GFXPipelineState, GFXInputState, GFXRasterizerState, GFXDepthStencilState, GFXBlendState } from "../../gfx/pipeline-state";
 import { GFXShader } from "../../gfx/shader";
 import { GFXRenderPass } from "../../gfx/render-pass";
@@ -28,13 +27,13 @@ let _shader_vs = `#version 100
 attribute vec2 a_position;
 attribute vec2 a_texCoord;
 
-//uniform mat4 u_matWorldViewProj;
+uniform mat4 u_matViewProj;
 
 varying vec2 v_texCoord;
 
 void main() {
-    gl_Position = vec4(a_position, 0.0, 1.0);
-    //gl_Position = u_matWorldViewProj * vec4(a_position, 0.0, 1.0);
+    //gl_Position = vec4(a_position, 0.0, 1.0);
+    gl_Position = u_matViewProj * vec4(a_position, 0.0, 1.0);
     v_texCoord = a_texCoord;
 }`;
 
@@ -91,7 +90,16 @@ export class TestStage extends RenderStage {
             stages: [vsStage, fsStage],
             blocks: [{
                 binding: 0, name: "Global", members: [
-                    { name: "u_matWorldViewProj", type: GFXType.MAT4, count: 1 },
+                    { name: "u_time", type: GFXType.FLOAT4, count: 1 },
+                    { name: "u_screenSize", type: GFXType.FLOAT4, count: 1 },
+                    { name: "u_screenScale", type: GFXType.FLOAT4, count: 1 },
+                    { name: "u_matView", type: GFXType.MAT4, count: 1 },
+                    { name: "u_matViewInv", type: GFXType.MAT4, count: 1 },
+                    { name: "u_matProj", type: GFXType.MAT4, count: 1 },
+                    { name: "u_matProjInv", type: GFXType.MAT4, count: 1 },
+                    { name: "u_matViewProj", type: GFXType.MAT4, count: 1 },
+                    { name: "u_matViewProjInv", type: GFXType.MAT4, count: 1 },
+                    { name: "u_cameraPos", type: GFXType.FLOAT4, count: 1 },
                 ]
             }, {
                 binding: 5, name: "UBO", members: [
@@ -108,6 +116,7 @@ export class TestStage extends RenderStage {
 
         this._bindingLayout = this._device.createBindingLayout({
             bindings: [
+                { binding: 0, type: GFXBindingType.UNIFORM_BUFFER, name: "Global" },
                 { binding: 5, type: GFXBindingType.UNIFORM_BUFFER, name: "UBO" },
                 { binding: 10, type: GFXBindingType.SAMPLER, name: "u_sampler" },
             ],

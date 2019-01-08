@@ -31,7 +31,7 @@ import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { GFXWindow, GFXWindowInfo } from '../window';
 import { WebGLGFXWindow } from './webgl-window';
-import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXQueueType, GFXFormat, GFXBufferTextureCopy, GFXMemoryUsageBit, GFXTextureLayout, GFXTextureSubres, GFXRect, GFXFormatInfos } from '../define';
+import { GFXBindingType, GFXFilter, GFXAddress, GFXTextureType, GFXTextureFlagBit, GFXTextureViewType, GFXBufferUsageBit, GFXQueueType, GFXFormat, GFXBufferTextureCopy, GFXMemoryUsageBit, GFXTextureLayout, GFXTextureSubres, GFXRect, GFXFormatInfos, GFXFormatSize } from '../define';
 import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 
 const WebGLPrimitives: GLenum[] = [
@@ -405,6 +405,38 @@ export class WebGLGFXDevice extends GFXDevice {
 
                 WebGLCmdFuncCopyBufferToTexture(<WebGLGFXDevice>this, bufferView, (<WebGLGFXTexture>texture).gpuTexture, regions);
             }
+        }
+    }
+
+    public copyFramebufferToBuffer(srcFramebuffer: GFXFramebuffer, dstBuffer: ArrayBuffer, regions: GFXBufferTextureCopy[]) {
+        let gl = <WebGLRenderingContext>this._webGLRC;
+        let gpuFramebuffer = (<WebGLGFXFramebuffer>srcFramebuffer).gpuFramebuffer;
+
+        let curFBO = this.stateCache.glFramebuffer;
+
+        if (this.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
+            gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
+            this.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
+        }
+
+        let view = new Uint8Array(dstBuffer);
+
+        for (let r = 0; r < regions.length; ++r) {
+            let region = regions[r];
+            let buffOffset = region.buffOffset; + region.buffTexHeight * region.buffStride;
+
+            let w = region.texExtent.width;
+            let h = region.texExtent.height;
+
+            let memSize = GFXFormatSize(GFXFormat.RGBA8, w, h, 1);
+            let data = view.subarray(buffOffset, buffOffset + memSize);
+            
+            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, data);
+        }
+
+        if (this.stateCache.glFramebuffer !== curFBO) {
+            gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, curFBO);
+            this.stateCache.glFramebuffer = curFBO;
         }
     }
 
