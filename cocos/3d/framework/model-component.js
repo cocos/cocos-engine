@@ -223,8 +223,8 @@ export default class ModelComponent extends RenderableComponent {
             let material = this.getSharedMaterial(i);
             let inputAssembler = this._mesh.getSubMesh(i);
 
-            model.setInputAssembler(inputAssembler);
-            model.setNode(this.node);
+            model.inputAssembler = inputAssembler;
+            model.node = this.node;
             this._updateModelMaterial(model, material);
         }
     }
@@ -247,7 +247,7 @@ export default class ModelComponent extends RenderableComponent {
      * @param {Material} material
      */
     _updateModelMaterial(model, material) {
-        model.setMaterial(material ? material : this._getBuiltinMaterial());
+        model.material = material ? material : this._getBuiltinMaterial();
     }
 
     _updateCastShadow() {

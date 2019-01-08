@@ -61,7 +61,7 @@ export default class Model {
         this._cmdBuffers = new Array<GFXCommandBuffer>();
     }
 
-    setScene(scene: RenderScene) {
+    set scene(scene: RenderScene | null) {
         this._scene = scene;
 
         if (this._scene) {
@@ -107,7 +107,7 @@ export default class Model {
      * Get the hosting node of this camera
      * @returns {Node} the hosting node
      */
-    getNode(): Node {
+    get node(): Node {
         return this._node;
     }
 
@@ -115,7 +115,7 @@ export default class Model {
      * Set the hosting node of this model
      * @param {Node} node the hosting node
      */
-    setNode(node: Node) {
+    set node(node: Node) {
         this._node = node;
     }
 
@@ -123,7 +123,7 @@ export default class Model {
      * Set the input assembler
      * @param {InputAssembler} ia
      */
-    setInputAssembler(ia: GFXInputAssembler) {
+    set inputAssembler(ia: GFXInputAssembler) {
         this._inputAssembler = ia;
     }
 
@@ -143,10 +143,13 @@ export default class Model {
         }
     }
 
-    setMaterial(material: Material) {
+    set material(material: Material) {
         this._material = material;
         for (let i = 0; i < this._material.passes.length; i++) {
             this.recordCommandBuffer(i);
+        }
+        for (let i = this._cmdBuffers.length - 1; i >= this._material.passes.length; i--) {
+            this._cmdBuffers.pop().destroy();
         }
     }
 
@@ -158,10 +161,6 @@ export default class Model {
         };
         if (this._cmdBuffers[index] == null)
             this._cmdBuffers[index] = cc.director.root.device.createCommandBuffer(cmdBufferInfo);
-        else {
-            this._cmdBuffers[index].destroy();
-            this._cmdBuffers[index].initialize(cmdBufferInfo);
-        }
         this._cmdBuffers[index].begin();
         this._cmdBuffers[index].bindPipelineState(pass.pipelineState);
         this._cmdBuffers[index].bindBindingLayout(pass.bindingLayout);
@@ -174,15 +173,15 @@ export default class Model {
      * Set the user key
      * @param {number} key
      */
-    setUserKey(key: number) {
+    set userKey(key: number) {
         this._userKey = key;
     }
 
-    getPassList(): Pass[] {
+    get passList(): Pass[] {
         return (<Material>this._material).passes;
     }
 
-    getCmdBufferList(): GFXCommandBuffer[] {
+    get cmdBufferList(): GFXCommandBuffer[] {
         return this._cmdBuffers;
     }
 
