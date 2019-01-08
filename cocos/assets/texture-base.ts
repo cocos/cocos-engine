@@ -28,29 +28,16 @@ import {ccclass, property} from '../core/data/class-decorator';
 import EventTarget from '../core/event/event-target';
 import IDGenerator from '../core/utils/id-generator';
 import {addon} from '../core/utils/js';
-import Enum from '../core/value-types/enum';
-import {enums} from '../renderer/gfx/enums';
-import Asset from './CCAsset';
-
-/**
- * @typedef {import("../renderer/gfx/texture-2d").HTMLImageSource} HTMLImageSource
- * @typedef {import("../renderer/gfx/texture-2d").ImageSource} ImageSource
- * @typedef {import("../renderer/gfx/texture-2d").TextureUpdateOpts} TextureUpdateOpts
- *
- * @exports HTMLImageSource
- * @exports ImageSource
- * @exports TextureUpdateOpts
- */
-
-const _images = [];
+import { ccenum } from '../core/value-types/enum';
+import { GFXAddress, GFXBufferTextureCopy, GFXFilter, GFXFormat } from '../gfx/define';
+import { GFXDevice } from '../gfx/device';
+import { GFXSampler } from '../gfx/sampler';
+import { GFXTexture } from '../gfx/texture';
+import { GFXTextureView } from '../gfx/texture-view';
+import { Asset } from './asset';
+import ImageAsset from './image-asset';
 
 const CHAR_CODE_1 = 49;    // '1'
-
-const GL_NEAREST = 9728;                // gl.NEAREST
-const GL_LINEAR = 9729;                 // gl.LINEAR
-const GL_REPEAT = 10497;                // gl.REPEAT
-const GL_CLAMP_TO_EDGE = 33071;         // gl.CLAMP_TO_EDGE
-const GL_MIRRORED_REPEAT = 33648;       // gl.MIRRORED_REPEAT
 
 const idGenerator = new IDGenerator('Tex');
 
@@ -60,186 +47,144 @@ const idGenerator = new IDGenerator('Tex');
  * other formats are supported by compressed file types or raw data.
  * @enum {number}
  */
-const PixelFormat = Enum({
+export enum PixelFormat {
     /**
      * 16-bit texture without Alpha channel
-     * @property RGB565
-     * @readonly
-     * @type {Number}
      */
-    RGB565: enums.TEXTURE_FMT_R5_G6_B5,
+    RGB565 = GFXFormat.R5G6B5,
     /**
      * 16-bit textures: RGB5A1
-     * @property RGB5A1
-     * @readonly
-     * @type {Number}
      */
-    RGB5A1: enums.TEXTURE_FMT_R5_G5_B5_A1,
+    RGB5A1 = GFXFormat.RGB5A1,
     /**
      * 16-bit textures: RGBA4444
-     * @property RGBA4444
-     * @readonly
-     * @type {Number}
      */
-    RGBA4444: enums.TEXTURE_FMT_R4_G4_B4_A4,
+    RGBA4444 = GFXFormat.RGBA4,
     /**
      * 24-bit texture: RGB888
-     * @property RGB888
-     * @readonly
-     * @type {Number}
      */
-    RGB888: enums.TEXTURE_FMT_RGB8,
+    RGB888 = GFXFormat.RGB8UI,
     /**
      * 32-bit texture: RGBA8888
-     * @property RGBA8888
-     * @readonly
-     * @type {Number}
      */
-    RGBA8888: enums.TEXTURE_FMT_RGBA8,
+    RGBA8888 = GFXFormat.RGBA8UI,
     /**
      * 32-bit float texture: RGBA32F
-     * @property RGBA32F
-     * @readonly
-     * @type {Number}
      */
-    RGBA32F: enums.TEXTURE_FMT_RGBA32F,
+    RGBA32F = GFXFormat.RGBA32F,
     /**
      * 8-bit textures used as masks
-     * @property A8
-     * @readonly
-     * @type {Number}
      */
-    A8: enums.TEXTURE_FMT_A8,
+    A8 = GFXFormat.R8UI,
     /**
      * 8-bit intensity texture
-     * @property I8
-     * @readonly
-     * @type {Number}
      */
-    I8: enums.TEXTURE_FMT_L8,
+    I8 = GFXFormat.R8UI,
     /**
      * 16-bit textures used as masks
-     * @property AI88
-     * @readonly
-     * @type {Number}
      */
-    AI8: enums.TEXTURE_FMT_L8_A8,
-
+    AI8 = GFXFormat.RG8UI,
     /**
      * rgb 2 bpp pvrtc
-     * @property RGB_PVRTC_2BPPV1
-     * @readonly
-     * @type {Number}
      */
-    RGB_PVRTC_2BPPV1: enums.TEXTURE_FMT_RGB_PVRTC_2BPPV1,
+    RGB_PVRTC_2BPPV1 = GFXFormat.PVRTC_RGB2,
     /**
      * rgba 2 bpp pvrtc
-     * @property RGBA_PVRTC_2BPPV1
-     * @readonly
-     * @type {Number}
      */
-    RGBA_PVRTC_2BPPV1: enums.TEXTURE_FMT_RGBA_PVRTC_2BPPV1,
+    RGBA_PVRTC_2BPPV1 = GFXFormat.PVRTC_RGBA2,
     /**
      * rgb 4 bpp pvrtc
-     * @property RGB_PVRTC_4BPPV1
-     * @readonly
-     * @type {Number}
      */
-    RGB_PVRTC_4BPPV1: enums.TEXTURE_FMT_RGB_PVRTC_4BPPV1,
+    RGB_PVRTC_4BPPV1 = GFXFormat.PVRTC_RGB4,
     /**
      * rgba 4 bpp pvrtc
-     * @property RGBA_PVRTC_4BPPV1
-     * @readonly
-     * @type {Number}
      */
-    RGBA_PVRTC_4BPPV1: enums.TEXTURE_FMT_RGBA_PVRTC_4BPPV1,
-});
+    RGBA_PVRTC_4BPPV1 = GFXFormat.PVRTC_RGBA4,
+}
+ccenum(PixelFormat);
+
+function toGfxFormat (pixelFormat: PixelFormat) {
+    return pixelFormat as unknown as GFXFormat;
+}
 
 /**
- * The texture wrap mode
+ * The texture wrap mode.
  * @enum {number}
  */
-export const WrapMode = Enum({
+export enum WrapMode {
     /**
-     * The constant variable equals gl.REPEAT for texture
-     * @property REPEAT
-     * @type {Number}
-     * @readonly
+     * Specifies that the repeat warp mode will be used.
      */
-    REPEAT: GL_REPEAT,
+    REPEAT = GFXAddress.WRAP,
     /**
-     * The constant variable equals gl.CLAMP_TO_EDGE for texture
-     * @property CLAMP_TO_EDGE
-     * @type {Number}
-     * @readonly
+     * Specifies that the clamp to edge warp mode will be used.
      */
-    CLAMP_TO_EDGE: GL_CLAMP_TO_EDGE,
+    CLAMP_TO_EDGE = GFXAddress.CLAMP,
     /**
-     * The constant variable equals gl.MIRRORED_REPEAT for texture
-     * @property MIRRORED_REPEAT
-     * @type {Number}
-     * @readonly
+     * Specifies that the mirrored repeat warp mode will be used.
      */
-    MIRRORED_REPEAT: GL_MIRRORED_REPEAT,
-});
+    MIRRORED_REPEAT = GFXAddress.MIRROR,
+    /**
+     * Specifies that the  clamp to border wrap mode will be used.
+     */
+    CLAMP_TO_BORDER = GFXAddress.BORDER,
+}
+ccenum(WrapMode);
+
+function toGfxAddressMode (wrapMode: WrapMode) {
+    return wrapMode as unknown as GFXAddress;
+}
 
 /**
  * The texture filter mode
  * @enum {number}
  */
-export const Filter = Enum({
+export enum Filter {
     /**
-     * The constant variable equals gl.LINEAR for texture
-     * @property LINEAR
-     * @type {Number}
-     * @readonly
+     * Specifies linear filtering.
      */
-    LINEAR: GL_LINEAR,
+    LINEAR = GFXFilter.LINEAR,
     /**
-     * The constant variable equals gl.NEAREST for texture
-     * @property NEAREST
-     * @type {Number}
-     * @readonly
+     * Specifies nearest filtering.
      */
-    NEAREST: GL_NEAREST,
-});
+    NEAREST = GFXFilter.POINT,
+}
+ccenum(Filter);
 
-const FilterIndex = {
-    9728: 0, // GL_NEAREST
-    9729: 1, // GL_LINEAR
-};
-
-/**
- * @type TextureUpdateOpts
- */
-const _sharedOpts = {
-    width: undefined,
-    height: undefined,
-    minFilter: undefined,
-    magFilter: undefined,
-    mipFilter: undefined,
-    wrapS: undefined,
-    wrapT: undefined,
-    format: undefined,
-    mipmap: undefined,
-    images: undefined,
-    image: undefined,
-    flipY: undefined,
-    premultiplyAlpha: undefined,
-    anisotropy: undefined,
-};
-function _getSharedOptions () {
-    for (const key in _sharedOpts) {
-        _sharedOpts[key] = undefined;
-    }
-    _images.length = 0;
-    _sharedOpts.images = _images;
-    _sharedOpts.flipY = false;
-    return _sharedOpts;
+function toGfxFilterMode (filter: Filter) {
+    return filter as unknown as GFXFilter;
 }
 
 @ccclass('cc.TextureBase')
 export default class TextureBase extends Asset {
+
+    /**
+     * !#en
+     * Texture width, in pixels.
+     * For 2D texture, the width of texture is equal to its very first mipmap's width;
+     * For Cubemap texture, the width of texture is equal to its every sides's very first mipmaps's width.
+     * !#zh
+     * 贴图像素宽度
+     * @property width
+     * @type {Number}
+     */
+    public get width (): number {
+        return this._width;
+    }
+
+    /**
+     * !#en
+     * Texture height, in pixels.
+     * For 2D texture, the height of texture is equal to its very first mipmap's height;
+     * For Cubemap texture, the height of texture is equal to its every sides's very first mipmaps's height.
+     * !#zh
+     * 贴图像素高度
+     * @property height
+     * @type {Number}
+     */
+    public get height (): number {
+        return this._height;
+    }
 
     public static PixelFormat = PixelFormat;
 
@@ -249,44 +194,60 @@ export default class TextureBase extends Asset {
 
     /**
      *
-     * @param {TextureBase} texture
+     * @param texture
      */
-    public static _isCompressed (texture) {
+    public static _isCompressed (texture: TextureBase) {
         return texture._format >= PixelFormat.RGB_PVRTC_2BPPV1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
     }
-    @property
-    public _genMipmap = false;
+
+    protected _texture: GFXTexture | null = null;
+
+    protected _textureView: GFXTextureView | null = null;
 
     @property
-    public _format = PixelFormat.RGBA8888;
+    private _genMipmap = false;
 
     @property
-    public _premultiplyAlpha = false;
+    private _format: PixelFormat = PixelFormat.RGBA8888;
 
     @property
-    public _flipY = false;
+    private _premultiplyAlpha = false;
 
     @property
-    public _minFilter = Filter.LINEAR;
+    private _flipY = false;
 
     @property
-    public _magFilter = Filter.LINEAR;
+    private _minFilter = Filter.LINEAR;
 
     @property
-    public _mipFilter = Filter.LINEAR;
+    private _magFilter = Filter.LINEAR;
 
     @property
-    public _wrapS = WrapMode.CLAMP_TO_EDGE;
+    private _mipFilter = Filter.LINEAR;
 
     @property
-    public _wrapT = WrapMode.CLAMP_TO_EDGE;
+    private _wrapS: WrapMode = WrapMode.CLAMP_TO_EDGE;
 
     @property
-    public _anisotropy = 1;
+    private _wrapT: WrapMode = WrapMode.CLAMP_TO_EDGE;
 
-    constructor () {
+    @property
+    private _anisotropy = 1;
+
+    private _width: number = 0;
+
+    private _height: number = 0;
+
+    private _sampler: GFXSampler | null = null;
+
+    private _id: string;
+
+    protected constructor (flipY: boolean = false) {
         super();
+        // @ts-ignore
         EventTarget.call(this);
+
+        this._flipY = flipY;
 
         // Id for generate hash in material
         this._id = idGenerator.getNewId();
@@ -299,29 +260,16 @@ export default class TextureBase extends Asset {
          * @property loaded
          * @type {Boolean}
          */
+        // @ts-ignore
         this.loaded = false;
-        /**
-         * !#en
-         * Texture width, in pixels.
-         * For 2D texture, the width of texture is equal to its very first mipmap's width;
-         * For Cubemap texture, the width of texture is equal to its every sides's very first mipmaps's width.
-         * !#zh
-         * 贴图像素宽度
-         * @property width
-         * @type {Number}
-         */
-        this.width = 0;
-        /**
-         * !#en
-         * Texture height, in pixels.
-         * For 2D texture, the height of texture is equal to its very first mipmap's height;
-         * For Cubemap texture, the height of texture is equal to its every sides's very first mipmaps's height.
-         * !#zh
-         * 贴图像素高度
-         * @property height
-         * @type {Number}
-         */
-        this.height = 0;
+    }
+
+    /**
+     * Gets the underlying texture object.
+     * @deprecated Use getGfxTexture() instead.
+     */
+    public getImpl () {
+        return this._texture;
     }
 
     public getId () {
@@ -329,79 +277,10 @@ export default class TextureBase extends Asset {
     }
 
     /**
-     * Update texture sampler options.
-     * @method update
-     * @param {TextureUpdateOpts} options
-     */
-    public update (options) {
-        if (!options) {
-            return;
-        }
-
-        if (options.width !== undefined) {
-            this.width = options.width;
-        }
-        if (options.height !== undefined) {
-            this.height = options.height;
-        }
-        if (options.minFilter !== undefined) {
-            this._minFilter = options.minFilter;
-            options.minFilter = FilterIndex[options.minFilter];
-        }
-        if (options.magFilter !== undefined) {
-            this._magFilter = options.magFilter;
-            options.magFilter = FilterIndex[options.magFilter];
-        }
-        if (options.mipFilter !== undefined) {
-            this._mipFilter = options.mipFilter;
-            options.mipFilter = FilterIndex[options.mipFilter];
-        }
-        if (options.wrapS !== undefined) {
-            this._wrapS = options.wrapS;
-        }
-        if (options.wrapT !== undefined) {
-            this._wrapT = options.wrapT;
-        }
-        if (options.format !== undefined) {
-            this._format = options.format;
-        }
-        if (options.flipY !== undefined) {
-            this._flipY = options.flipY;
-        }
-        if (options.premultiplyAlpha !== undefined) {
-            this._premultiplyAlpha = options.premultiplyAlpha;
-        }
-        if (options.anisotropy !== undefined) {
-            this._anisotropy = options.anisotropy;
-        }
-        if (options.mipmap !== undefined) {
-            this._genMipmap = options.mipmap;
-        }
-    }
-
-    public _getOpts () {
-        const opts = _getSharedOptions();
-        opts.width = this.width;
-        opts.height = this.height;
-        opts.mipmap = this._genMipmap;
-        opts.format = this._format;
-        opts.premultiplyAlpha = this._premultiplyAlpha;
-        opts.anisotropy = this._anisotropy;
-        opts.flipY = this._flipY;
-        opts.minFilter = FilterIndex[this._minFilter];
-        opts.magFilter = FilterIndex[this._magFilter];
-        opts.mipFilter = FilterIndex[this._mipFilter];
-        opts.wrapS = this._wrapS;
-        opts.wrapT = this._wrapT;
-        return opts;
-    }
-
-    /**
      * !#en
      * Pixel format of the texture.
      * !#zh 获取纹理的像素格式。
-     * @method getPixelFormat
-     * @return {Number}
+     * @return
      */
     public getPixelFormat () {
         // support only in WebGl rendering mode
@@ -412,8 +291,7 @@ export default class TextureBase extends Asset {
      * !#en
      * Whether or not the texture has their Alpha premultiplied.
      * !#zh 检查纹理在上传 GPU 时预乘选项是否开启。
-     * @method hasPremultipliedAlpha
-     * @return {Boolean}
+     * @return
      */
     public hasPremultipliedAlpha () {
         return this._premultiplyAlpha || false;
@@ -422,8 +300,7 @@ export default class TextureBase extends Asset {
     /**
      * !#en Anisotropy of the texture.
      * !#zh 获取纹理的各向异性。
-     * @method getAnisotropy
-     * @return {Number}
+     * @return
      */
     public getAnisotropy () {
         return this._anisotropy;
@@ -433,8 +310,7 @@ export default class TextureBase extends Asset {
      * !#en
      * Whether or not to generate mipmap.
      * !#zh 检查纹理在上传 GPU 时是否生成 mipmap。
-     * @method hasMipmap
-     * @return {Boolean}
+     * @return
      */
     public genMipmap () {
         return this._genMipmap || false;
@@ -445,46 +321,40 @@ export default class TextureBase extends Asset {
      * If the texture size is NPOT (non power of 2), then in can only use gl.CLAMP_TO_EDGE in gl.TEXTURE_WRAP_{S,T}.
      * !#zh 设置纹理包装模式。
      * 若纹理贴图尺寸是 NPOT（non power of 2），则只能使用 Texture2D.WrapMode.CLAMP_TO_EDGE。
-     * @method setTexParameters
-     * @param {WrapMode} wrapS
-     * @param {WrapMode} wrapT
+     * @param wrapS
+     * @param wrapT
      */
-    public setWrapMode (wrapS, wrapT) {
+    public setWrapMode (wrapS: WrapMode, wrapT: WrapMode) {
         if (this._wrapS !== wrapS || this._wrapT !== wrapT) {
-            const opts = _getSharedOptions();
-            opts.wrapS = wrapS;
-            opts.wrapT = wrapT;
-            this.update(opts);
+            this._wrapS = wrapS;
+            this._wrapT = wrapT;
+            this._updateSampler();
         }
     }
 
     /**
      * !#en Sets the minFilter and magFilter options
      * !#zh 设置纹理贴图缩小和放大过滤器算法选项。
-     * @method setFilters
-     * @param {Filter} minFilter
-     * @param {Filter} magFilter
+     * @param minFilter
+     * @param magFilter
      */
-    public setFilters (minFilter, magFilter) {
+    public setFilters (minFilter: Filter, magFilter: Filter) {
         if (this._minFilter !== minFilter || this._magFilter !== magFilter) {
-            const opts = _getSharedOptions();
-            opts.minFilter = minFilter;
-            opts.magFilter = magFilter;
-            this.update(opts);
+            this._minFilter = minFilter;
+            this._magFilter = magFilter;
+            this._updateSampler();
         }
     }
 
     /**
      * !#en Sets the mipFilter options
      * !#zh 设置纹理Mipmap过滤算法选项。
-     * @method setMipFilter
-     * @param {Filter} mipFilter
+     * @param mipFilter
      */
-    public setMipFilter (mipFilter) {
+    public setMipFilter (mipFilter: Filter) {
         if (this._mipFilter !== mipFilter) {
-            const opts = _getSharedOptions();
-            opts.mipFilter = mipFilter;
-            this.update(opts);
+            this._mipFilter = mipFilter;
+            this._updateSampler();
         }
     }
 
@@ -492,14 +362,12 @@ export default class TextureBase extends Asset {
      * !#en
      * Sets the flipY options
      * !#zh 设置贴图的纵向翻转选项。
-     * @method setFlipY
-     * @param {Boolean} flipY
+     * @param flipY
      */
-    public setFlipY (flipY) {
+    public setFlipY (flipY: boolean) {
         if (this._flipY !== flipY) {
-            const opts = _getSharedOptions();
-            opts.flipY = flipY;
-            this.update(opts);
+            this._flipY = flipY;
+            this._updateSampler();
         }
     }
 
@@ -507,28 +375,24 @@ export default class TextureBase extends Asset {
      * !#en
      * Sets the premultiply alpha options
      * !#zh 设置贴图的预乘选项。
-     * @method setPremultiplyAlpha
-     * @param {Boolean} premultiply
+     * @param premultiply
      */
-    public setPremultiplyAlpha (premultiply) {
+    public setPremultiplyAlpha (premultiply: boolean) {
         if (this._premultiplyAlpha !== premultiply) {
-            const opts = _getSharedOptions();
-            opts.premultiplyAlpha = premultiply;
-            this.update(opts);
+            this._premultiplyAlpha = premultiply;
+            this._updateSampler();
         }
     }
 
     /**
      * !#en Sets the anisotropy of the texture
      * !#zh 设置贴图的各向异性。
-     * @method setAnisotropy
-     * @param {number} anisotropy
+     * @param anisotropy
      */
-    public setAnisotropy (anisotropy) {
+    public setAnisotropy (anisotropy: number) {
         if (this._anisotropy !== anisotropy) {
-            const opts = _getSharedOptions();
-            opts.anisotropy = anisotropy;
-            this.update(opts);
+            this._anisotropy = anisotropy;
+            this._updateSampler();
         }
     }
 
@@ -536,23 +400,43 @@ export default class TextureBase extends Asset {
      * !#en
      * Sets whether generate mipmaps for the texture
      * !#zh 是否为纹理设置生成 mipmaps。
-     * @method setGenerateMipmap
-     * @param {Boolean} mipmap
+     * @param mipmap
      */
-    public setGenMipmap (mipmap) {
+    public setGenMipmap (mipmap: boolean) {
         if (this._genMipmap !== mipmap) {
-            const opts = _getSharedOptions();
-            opts.mipmap = mipmap;
-            this.update(opts);
+            this._genMipmap = mipmap;
+            this._updateSampler();
         }
+    }
+
+    public destroy () {
+        this._destroyTexture();
+
+        if (this._sampler) {
+            this._sampler.destroy();
+        }
+
+        return true;
+    }
+
+    public getGFXTexture () {
+        return this._texture;
+    }
+
+    public getGFXTextureView () {
+        return this._textureView;
+    }
+
+    public getGFXSampler () {
+        return this._sampler;
     }
 
     // SERIALIZATION
 
     /**
-     * @return {any}
+     * @return
      */
-    public _serialize () {
+    public _serialize (): any {
         return this._minFilter + ',' + this._magFilter + ',' +
             this._wrapS + ',' + this._wrapT + ',' +
             (this._premultiplyAlpha ? 1 : 0) + ',' +
@@ -563,31 +447,140 @@ export default class TextureBase extends Asset {
 
     /**
      *
-     * @param {string} data
+     * @param data
      */
-    public _deserialize (data) {
+    public _deserialize (serializedData: any, handle: any) {
+        const data = serializedData as string;
         const fields = data.split(',');
         fields.unshift('');
         if (fields.length >= 6) {
             // decode filters
-            this._minFilter = parseInt(fields[1]);
-            this._magFilter = parseInt(fields[2]);
+            this._minFilter = parseInt(fields[1], undefined);
+            this._magFilter = parseInt(fields[2], undefined);
             // decode wraps
-            this._wrapS = parseInt(fields[3]);
-            this._wrapT = parseInt(fields[4]);
+            this._wrapS = parseInt(fields[3], undefined);
+            this._wrapT = parseInt(fields[4], undefined);
             // decode premultiply alpha
             this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
         }
         if (fields.length >= 8) {
-            this._mipFilter = parseInt(fields[6]);
-            this._anisotropy = parseInt(fields[7]);
+            this._mipFilter = parseInt(fields[6], undefined);
+            this._anisotropy = parseInt(fields[7], undefined);
         }
         if (fields.length >= 10) {
             this._flipY = fields[8].charCodeAt(0) === CHAR_CODE_1;
             this._genMipmap = fields[9].charCodeAt(0) === CHAR_CODE_1;
         }
     }
+
+    protected _getGlobalDevice (): GFXDevice {
+        return cc.director.root.device;
+    }
+
+    protected _getGfxFormat () {
+        return toGfxFormat(this._format);
+    }
+
+    protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number) {
+        const upload = () => { this._uploadImage(image, level, arrayIndex); };
+        // @ts-ignore
+        if (image.loaded) {
+            upload();
+        } else {
+            // @ts-ignore
+            image.addEventListener('load', () => {
+                upload();
+            });
+        }
+    }
+
+    protected _uploadImage (image: ImageAsset, level: number, arrayIndex?: number) {
+        if (!this._texture) {
+            return;
+        }
+
+        if (level >= this._texture.mipLevel) {
+            return;
+        }
+
+        const data = image.data;
+        if (!data) {
+            return;
+        }
+
+        const region: GFXBufferTextureCopy = {
+            buffOffset: 0,
+            buffStride: 0,
+            buffTexHeight: 0,
+            texOffset: {
+                x: 0,
+                y: 0,
+                z: 0,
+            },
+            texExtent: {
+                width: this._texture.width,
+                height: this._texture.height,
+                depth: 1,
+            },
+            texSubres: {
+                baseMipLevel: level,
+                levelCount: 1,
+                baseArrayLayer: arrayIndex || 0,
+                layerCount: 1,
+            },
+        };
+
+        if (data instanceof HTMLElement) {
+            this._getGlobalDevice().copyImageSourceToTexture(data, this._texture, [region]);
+        } else {
+            this._getGlobalDevice().copyBufferToTexture(data.buffer, this._texture, [region]);
+        }
+    }
+
+    protected _recreateTexture () {
+        this._destroyTexture();
+        this._createTexture();
+        if (this._texture) {
+            this._width = this._texture.width;
+            this._height = this._texture.height;
+        }
+        this._createTextureView();
+    }
+
+    protected _createTexture () {
+        return;
+    }
+
+    protected _createTextureView () {
+        return;
+    }
+
+    private _destroyTexture () {
+        if (this._textureView) {
+            this._textureView.destroy();
+            this._textureView = null;
+        }
+
+        if (this._texture) {
+            this._texture.destroy();
+            this._texture = null;
+        }
+    }
+
+    private _updateSampler () {
+        this._sampler = this._getGlobalDevice().createSampler({
+            name: `Sampler of ${this.name}`,
+            minFilter: toGfxFilterMode(this._minFilter),
+            magFilter: toGfxFilterMode(this._magFilter),
+            addressU: toGfxAddressMode(this._wrapS),
+            addressV: toGfxAddressMode(this._wrapT),
+            maxAnisotropy: this._anisotropy,
+        });
+    }
 }
+
+/* tslint:disable:no-string-literal */
+cc['TextureBase'] = TextureBase;
 
 /**
  * !#zh
@@ -599,4 +592,3 @@ export default class TextureBase extends Asset {
  */
 
 addon(TextureBase.prototype, EventTarget.prototype);
-cc.TextureBase = TextureBase;

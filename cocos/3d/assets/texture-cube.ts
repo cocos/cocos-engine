@@ -23,39 +23,26 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
+import { Texture2D } from '../../assets';
 import ImageAsset from '../../assets/image-asset';
 import TextureBase from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
-import GFXTextureCube from '../../renderer/gfx/texture-cube';
+import { GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
 
-/**
- * @typedef {import("../../assets/texture-2d")} Texture2D
- * @typedef {import("../../assets/texture-base").ImageSource} ImageSource
- * @typedef {import("../../assets/texture-base").TextureUpdateOpts} TextureUpdateOpts
- * @typedef {import("../../assets/texture-base").HTMLImageSource} HTMLImageSource
- * @typedef {{front: HTMLImageSource, back: HTMLImageSource, left: HTMLImageSource, right: HTMLImageSource, top: HTMLImageSource, bottom: HTMLImageSource}} MipmapHTMLImageSource
- * @typedef {{front: ImageAsset, back: ImageAsset, left: ImageAsset, right: ImageAsset, top: ImageAsset, bottom: ImageAsset}} Mipmap
- */
-
-/**
- * @enum {number}
- */
-const FaceIndex = cc.Enum({
-    right: 0,
-    left: 1,
-    top: 2,
-    bottom: 3,
-    front: 4,
-    back: 5,
-});
+interface ITextureCubeMipmap {
+    front: ImageAsset;
+    back: ImageAsset;
+    left: ImageAsset;
+    right: ImageAsset;
+    top: ImageAsset;
+    bottom: ImageAsset;
+}
 
 @ccclass('cc.TextureCube')
 export default class TextureCube extends TextureBase {
-
     /**
      * Gets the mipmap images.
      * Note that the result do not contains the auto generated mipmaps.
-     * @type {Mipmap[]}
      */
     get mipmaps () {
         return this._mipmaps;
@@ -63,15 +50,14 @@ export default class TextureCube extends TextureBase {
 
     /**
      * Sets the mipmaps images.
-     * @type {Mipmap[]}
      */
     set mipmaps (value) {
-        this._setMipmaps(value);
+        this._mipmaps = value;
+        this._recreateTexture();
     }
 
     /**
      * Gets the mipmap image at level 0.
-     * @type {Mipmap}
      */
     get image () {
         return this._mipmaps.length === 0 ? null : this._mipmaps[0];
@@ -79,73 +65,39 @@ export default class TextureCube extends TextureBase {
 
     /**
      * Sets the mipmap images as a single mipmap image.
-     * @type {Mipmap}
      */
     set image (value) {
-        this.mipmaps = [value];
+        this.mipmaps = value ? [value] : [];
     }
 
     /**
-     * @param {Mipmap} mipmap
-     * @return {ImageSource[]}
+     * @param textures
+     * @deprecated Manually assign to mipmaps property instead.
      */
-    public static _toMipmapArray (mipmap) {
-        /** @type {ImageSource[]} */
-        const result = new Array();
-        result[FaceIndex.front] = mipmap.front.data;
-        result[FaceIndex.back] = mipmap.back.data;
-        result[FaceIndex.left] = mipmap.left.data;
-        result[FaceIndex.right] = mipmap.right.data;
-        result[FaceIndex.top] = mipmap.top.data;
-        result[FaceIndex.bottom] = mipmap.bottom.data;
-        return result;
-    }
-
-    /**
-     * @param {Mipmap} mipmap
-     * @param {(face: ImageAsset) => void} callback
-     */
-    public static _forEachFace (mipmap, callback) {
-        for (const face in mipmap) {
-            callback(mipmap[face]);
-        }
-    }
-
-    /**
-     * @param {Texture2D[]} textures
-     */
-    public static fromTexture2DArray (textures, out) {
-        const res = [], mips = textures.length / 6;
-        for (let i = 0; i < mips; i++) {
-            res.push(textures.splice(0, 6).reduce((acc, img, i) => {
-                acc[FaceIndex[i]] = img.image;
-                return acc;
-            }, {}));
+    public static fromTexture2DArray (textures: Texture2D[], out?: TextureCube) {
+        const mipmaps: ITextureCubeMipmap[] = [];
+        const nMipmaps = textures.length / 6;
+        for (let i = 0; i < nMipmaps; i++) {
+            const x = i * 6;
+            mipmaps.push({
+                front: textures[x + FaceIndex.front].image!,
+                back: textures[x + FaceIndex.back].image!,
+                left: textures[x + FaceIndex.left].image!,
+                right: textures[x + FaceIndex.right].image!,
+                top: textures[x + FaceIndex.top].image!,
+                bottom: textures[x + FaceIndex.bottom].image!,
+            });
         }
         if (!out) { out = new TextureCube(); }
-        out.mipmaps = res;
+        out.mipmaps = mipmaps;
         return out;
     }
-    /**
-     * @type {Mipmap[]}
-     */
+
     @property
-    public _mipmaps = [];
+    public _mipmaps: ITextureCubeMipmap[] = [];
 
     constructor () {
         super();
-
-        /**
-         * @type {GFXTextureCube}
-         */
-        this._texture = null;
-    }
-
-    /**
-     * Gets the underlying texture object.
-     */
-    public getImpl () {
-        return this._texture;
     }
 
     /**
@@ -156,13 +108,9 @@ export default class TextureCube extends TextureBase {
      * !#zh
      * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
      * 销毁后，该对象不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
-     * @method destroy
-     * @return {Boolean} inherit from the CCObject
      */
     public destroy () {
-        this.releaseTexture();
-        // TODO cc.textureUtil ?
-        // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
+        this._mipmaps = [];
         return super.destroy();
     }
 
@@ -170,81 +118,10 @@ export default class TextureCube extends TextureBase {
      * !#en
      * Release texture, please use destroy instead.
      * !#zh 释放纹理，请使用 destroy 替代。
-     * @method releaseTexture
-     * @deprecated since v2.0
+     * @deprecated Since v2.0.
      */
     public releaseTexture () {
-        this._setMipmaps([]);
-        this._texture && this._texture.destroy();
-    }
-
-    /**
-     * Sets the _mipmaps to specified value, and updates the width and height accordingly.
-     * If available, synchronize the mipmap data to underlying texture.
-     * @param {Mipmap[]} mipmaps
-     */
-    public _setMipmaps (mipmaps) {
-        this._mipmaps = mipmaps;
-        if (mipmaps.length === 0) {
-            super.update({
-                width: 0,
-                height: 0,
-            });
-        } else {
-            super.update({
-                width: this._mipmaps[0].front.width,
-                height: this._mipmaps[0].front.height,
-                format: this._mipmaps[0].front._format,
-            });
-        }
-
-        let counter = 0;
-        const inc = () => {
-            ++counter;
-            if (counter === this._mipmaps.length * 6) {
-                this._updateMipmaps(this._mipmaps.map((mipmap) => TextureCube._toMipmapArray(mipmap)));
-            }
-        };
-        mipmaps.forEach((mipmap) => {
-            TextureCube._forEachFace(mipmap, (face) => {
-                if (face.loaded) {
-                    inc();
-                } else {
-                    face.addEventListener('load', () => inc());
-                }
-            });
-        });
-    }
-
-    /**
-     * Updates mipmaps of the underlying texture.
-     * @param {ImageSource[][]} mipmapSources
-     */
-    public _updateMipmaps (mipmapSources) {
-        const opts = this._getOpts();
-        opts.images = mipmapSources;
-        if (!this._texture) {
-            this._texture = new GFXTextureCube(cc.game._renderContext, opts);
-        } else {
-            this._texture.update(opts);
-        }
-    }
-
-    /**
-     * Update texture options, not available in Canvas render mode.
-     * image, format, premultiplyAlpha can not be updated in native.
-     * @method update
-     */
-    public update (options) {
-        if (!options) { return; }
-
-        super.update(options);
-
-        // TODO: options.image
-
-        if (this._texture) {
-            this._texture.update(options);
-        }
+        this.mipmaps = [];
     }
 
     public _serialize () {
@@ -261,12 +138,21 @@ export default class TextureCube extends TextureBase {
         };
     }
 
-    public _deserialize (data, handle) {
-        super._deserialize(data.base);
+    public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
+        const data = serializedData as ITextureCubeSerializeData;
+        super._deserialize(data.base, handle);
 
         this._mipmaps = new Array(data.mipmaps.length);
-        this._mipmaps.fill({});
         for (let i = 0; i < data.mipmaps.length; ++i) {
+            // Prevent resource load failed
+            this._mipmaps[i] = {
+                front: new ImageAsset(),
+                back: new ImageAsset(),
+                left: new ImageAsset(),
+                right: new ImageAsset(),
+                top: new ImageAsset(),
+                bottom: new ImageAsset(),
+            };
             const mipmap = data.mipmaps[i];
             handle.result.push(this._mipmaps[i], `front`, mipmap.front);
             handle.result.push(this._mipmaps[i], `back`, mipmap.back);
@@ -280,6 +166,77 @@ export default class TextureCube extends TextureBase {
     public onLoaded () {
         this.mipmaps = this._mipmaps;
     }
+
+    protected _createTexture () {
+        if (this._mipmaps.length === 0) {
+            return;
+        }
+
+        this._texture = this._getGlobalDevice().createTexture({
+            type: GFXTextureType.TEX2D,
+            /* tslint:disable:no-bitwise */
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+            /* tslint:enable:no-bitwise */
+            format: this._getGfxFormat(),
+            width: this.width,
+            height: this.height,
+            mipLevel: this._mipmaps.length,
+            arrayLayer: 6,
+        });
+
+        this._mipmaps.forEach((mipmap, level) => {
+            _forEachFace(mipmap, (face, faceIndex) => {
+                this._assignImage(face, level, faceIndex);
+            });
+        });
+    }
+
+    protected _createTextureView () {
+        if (!this._texture) {
+            return;
+        }
+
+        this._textureView = this._getGlobalDevice().createTextureView({
+            texture: this._texture,
+            type: GFXTextureViewType.TV2D_ARRAY,
+            format: this._getGfxFormat(),
+        });
+    }
 }
 
-cc.TextureCube = TextureCube;
+/* tslint:disable:no-string-literal */
+cc['TextureCube'] = TextureCube;
+
+interface ITextureCubeSerializeData {
+    base: string;
+    mipmaps: Array<{
+        front: string;
+        back: string;
+        left: string;
+        right: string;
+        top: string;
+        bottom: string;
+    }>;
+}
+
+enum FaceIndex {
+    right = 0,
+    left = 1,
+    top = 2,
+    bottom = 3,
+    front = 4,
+    back = 5,
+}
+
+/**
+ * @param {Mipmap} mipmap
+ * @param {(face: ImageAsset) => void} callback
+ */
+function _forEachFace (mipmap: ITextureCubeMipmap, callback: (face: ImageAsset, faceIndex: number) => void) {
+    callback(mipmap.front, FaceIndex.front);
+    callback(mipmap.back, FaceIndex.back);
+    callback(mipmap.left, FaceIndex.left);
+    callback(mipmap.right, FaceIndex.right);
+    callback(mipmap.top, FaceIndex.top);
+    callback(mipmap.bottom, FaceIndex.bottom);
+}

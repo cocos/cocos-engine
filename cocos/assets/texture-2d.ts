@@ -24,53 +24,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import {ccclass, property} from '../core/data/class-decorator';
-import GFXTexture2D from '../renderer/gfx/texture-2d';
+import { ccclass, property } from '../core/data/class-decorator';
+import { GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
 import ImageAsset from './image-asset';
 import TextureBase from './texture-base';
 
 /**
- * @typedef {import("./texture-base").ImageSource} ImageSource
- * @typedef {import("./texture-base").TextureUpdateOpts} TextureUpdateOpts
- */
-
-/**
- * <p>
- * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.                                    <br/>
- * The created cc.Texture2D object will always have power-of-two dimensions.                                                <br/>
- * Depending on how you create the cc.Texture2D object, the actual image area of the texture might be smaller than the texture dimensions <br/>
- *  i.e. "contentSize" != (pixelsWide, pixelsHigh) and (maxS, maxT) != (1.0, 1.0).                                           <br/>
- * Be aware that the content of the generated textures will be upside-down! </p>
-
- * @class Texture2D
- * @extends TextureBase
+ * Represents a 2-dimension texture.
  */
 @ccclass('cc.Texture2D')
 export default class Texture2D extends TextureBase {
-    @property({
-        override: true,
-    })
-    public _flipY = true;
-
-    /**
-     * @type {ImageAsset[]}
-     */
-    @property([ImageAsset])
-    public _mipmaps = [];
-
-    constructor () {
-        super();
-
-        /**
-         * @type {GFXTexture2D}
-         */
-        this._texture = null;
-    }
-
     /**
      * Gets the mipmap images.
      * Note that the result do not contains the auto generated mipmaps.
-     * @return {ImageAsset[]}
      */
     get mipmaps () {
         return this._mipmaps;
@@ -78,15 +44,14 @@ export default class Texture2D extends TextureBase {
 
     /**
      * Sets the mipmaps images.
-     * @param {ImageAsset[]} value
      */
     set mipmaps (value) {
-        this._setMipmaps(value);
+        this._mipmaps = value;
+        this._recreateTexture();
     }
 
     /**
      * Gets the mipmap image at level 0.
-     * @return {ImageAsset}
      */
     get image () {
         return this._mipmaps.length === 0 ? null : this._mipmaps[0];
@@ -94,17 +59,16 @@ export default class Texture2D extends TextureBase {
 
     /**
      * Sets the mipmap images as a single mipmap image.
-     * @param {ImageAsset} value
      */
     set image (value) {
-        this.mipmaps = [value];
+        this.mipmaps = value ? [value] : [];
     }
 
-    /**
-     * Gets the underlying texture object.
-     */
-    public getImpl () {
-        return this._texture;
+    @property([ImageAsset])
+    public _mipmaps: ImageAsset[] = [];
+
+    constructor () {
+        super(true);
     }
 
     /**
@@ -115,82 +79,33 @@ export default class Texture2D extends TextureBase {
     }
 
     /**
-     * Update texture options, not available in Canvas render mode.
-     * image, format, premultiplyAlpha can not be updated in native.
-     * @method update
-     * @param {TextureUpdateOpts} options
+     * Updates mipmaps at level 0.
      */
-    public update (options) {
-        if (!options) {
-            return;
-        }
-
-        super.update(options);
-
-        if (options.image) {
-            options.images = [options.image];
-        }
-
-        if (options.images !== undefined && options.images.length !== 0) {
-            this._setMipmaps(options.images.map((image) => {
-                const mipmap = new ImageAsset();
-                mipmap.reset(image instanceof HTMLElement ? image : {
-                    _data: image,
-                    width: this.width,
-                    height: this.height,
-                    format: this._format,
-                    _compressed: false,
-                });
-                return mipmap;
-            }));
-        }
-
-        if (this._texture) {
-            this._texture.update(options);
-        }
-    }
-
-    /**
-     *
-     * @param {ImageSource} source
-     */
-    public updateImage (source) {
-        this.updateMipmaps([source]);
+    public updateImage () {
+        this.updateMipmaps(0);
     }
 
     /**
      * Updates mipmaps at specified range of levels.
-     * @param {ImageSource[]} sources The image sources.
-     * @param {number} firstLevel The first level from which the sources update.
+     * @param sources The image sources.
+     * @param firstLevel The first level from which the sources update.
      * @description
      * If the range specified by [firstLevel, firstLevel + sources.length) exceeds
      * the actually range of mipmaps this texture contains, only overlaped mipmaps are updated.
+     * Use this method if your mipmap data are modified.
      */
-    public updateMipmaps (sources, firstLevel = 0) {
-        if (firstLevel >= sources.length) {
+    public updateMipmaps (firstLevel: number, count?: number) {
+        if (firstLevel >= this._mipmaps.length) {
             return;
         }
 
-        const nUpdate = Math.min(sources.length, this._mipmaps.length - firstLevel);
+        const nUpdate = Math.min(
+            count === undefined ? this._mipmaps.length : count,
+            this._mipmaps.length - firstLevel);
+
         for (let i = 0; i < nUpdate; ++i) {
             const level = firstLevel + i;
-            const mipmap = this._mipmaps[level];
-            const source = sources[i];
-            mipmap.reset(source instanceof HTMLElement ? source : {
-                _data: source,
-                width: mipmap.width,
-                height: mipmap.height,
-                format: mipmap._format,
-                _compressed: false,
-            });
-            this._texture.updateImage({
-                width: this.width,
-                height: this.height,
-                level,
-                image: sources[i],
-                flipY: false,
-                premultiplyAlpha: false,
-            });
+            this._uploadImage(this._mipmaps[level], level);
         }
     }
 
@@ -214,13 +129,9 @@ export default class Texture2D extends TextureBase {
      * !#zh
      * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
      * 销毁后，该对象不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
-     * @method destroy
-     * @return {Boolean} inherit from the CCObject
      */
     public destroy () {
-        this.releaseTexture();
-        // TODO cc.textureUtil ?
-        // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
+        this._mipmaps = [];
         return super.destroy();
     }
 
@@ -228,76 +139,20 @@ export default class Texture2D extends TextureBase {
      * !#en
      * Description of cc.Texture2D.
      * !#zh cc.Texture2D 描述。
-     * @method description
-     * @returns {String}
      */
     public description () {
-        return '<cc.Texture2D | Name = ' + (this._mipmaps[0] ? this._mipmaps[0].url : '') + ' | Dimensions = ' + this.width + ' x ' + this.height + '>';
+        const url = this._mipmaps[0] ? this._mipmaps[0].url : '';
+        return `<cc.Texture2D | Name = ${url} | Dimension = ${this.width} x ${this.height}>`;
     }
 
     /**
      * !#en
      * Release texture, please use destroy instead.
      * !#zh 释放纹理，请使用 destroy 替代。
-     * @method releaseTexture
-     * @deprecated since v2.0, use destroy instead.
+     * @deprecated Since v2.0, use destroy instead.
      */
     public releaseTexture () {
-        this._setMipmaps([]);
-        this._texture && this._texture.destroy();
-    }
-
-    /**
-     * Sets the _mipmaps to specified value, and updates the width and height accordingly.
-     * If available, synchronize the mipmap data to underlying texture.
-     * @param {ImageAsset[]} mipmaps
-     */
-    public _setMipmaps (mipmaps) {
-        this._mipmaps = mipmaps;
-        if (mipmaps.length === 0) {
-            super.update({
-                width: 0,
-                height: 0,
-            });
-        } else {
-            const level0 = this._mipmaps[0];
-            super.update({
-                width: level0.width,
-                height: level0.height,
-                format: level0._format,
-            });
-        }
-
-        let counter = 0;
-        const inc = () => {
-            ++counter;
-            if (counter === mipmaps.length) {
-                this._resetUnderlyingMipmaps(mipmaps.map((mipmap) => mipmap.data));
-            }
-        };
-        mipmaps.forEach((mipmap) => {
-            if (mipmap.loaded) {
-                inc();
-            } else {
-                mipmap.addEventListener('load', () => {
-                    inc();
-                });
-            }
-        });
-    }
-
-    /**
-     * Resets sources and amount of the underlying texture's the mipmaps.
-     * @param {ImageSource[]} mipmapSources
-     */
-    public _resetUnderlyingMipmaps (mipmapSources = [null]) {
-        const opts = this._getOpts();
-        opts.images = mipmapSources;
-        if (!this._texture) {
-            this._texture = new GFXTexture2D(cc.game._renderContext, opts);
-        } else {
-            this._texture.update(opts);
-        }
+        this.mipmaps = [];
     }
 
     public _serialize () {
@@ -307,8 +162,9 @@ export default class Texture2D extends TextureBase {
         };
     }
 
-    public _deserialize (data, handle) {
-        super._deserialize(data.base);
+    public _deserialize (serializedData: any, handle: any) {
+        const data = serializedData as ITexture2DSerializeData;
+        super._deserialize(data.base, handle);
 
         this._mipmaps = new Array(data.mipmaps.length);
         for (let i = 0; i < data.mipmaps.length; ++i) {
@@ -322,6 +178,45 @@ export default class Texture2D extends TextureBase {
     public onLoaded () {
         this.mipmaps = this._mipmaps;
     }
+
+    protected _createTexture () {
+        if (this._mipmaps.length === 0) {
+            return;
+        }
+
+        this._texture = this._getGlobalDevice().createTexture({
+            type: GFXTextureType.TEX2D,
+            /* tslint:disable:no-bitwise */
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+            /* tslint:enable:no-bitwise */
+            format: this._getGfxFormat(),
+            width: this.width,
+            height: this.height,
+            mipLevel: this._mipmaps.length,
+        });
+
+        this._mipmaps.forEach((mipmap, level) => {
+            this._assignImage(mipmap, level);
+        });
+    }
+
+    protected _createTextureView () {
+        if (!this._texture) {
+            return;
+        }
+
+        this._textureView = this._getGlobalDevice().createTextureView({
+            texture: this._texture,
+            type: GFXTextureViewType.TV2D,
+            format: this._getGfxFormat(),
+        });
+    }
 }
 
-cc.Texture2D = Texture2D;
+/* tslint:disable:no-string-literal */
+cc['Texture2D'] = Texture2D;
+
+interface ITexture2DSerializeData {
+    base: string;
+    mipmaps: string[];
+}
