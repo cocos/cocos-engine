@@ -8,6 +8,13 @@ import { EPSILON, random } from './utils';
  * x, y, z is alias of the first, second, third component of vector, respectively.
  */
 export default class vec3 {
+    public static UNIT_X = { x: 1, y: 0, z: 0 };
+    public static UNIT_Y = { x: 0, y: 1, z: 0 };
+    public static UNIT_Z = { x: 0, y: 0, z: 1 };
+    public static ZERO = { x: 0, y: 0, z: 0 };
+    public static ONE = { x: 1, y: 1, z: 1 };
+    public static NEG_ONE = { x: -1, y: -1, z: -1 };
+
     /**
      * Creates a vector, with components specified separately.
      *
