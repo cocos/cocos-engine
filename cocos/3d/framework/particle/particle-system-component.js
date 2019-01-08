@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import Component from '../../../components/CCComponent';
+import { Component } from '../../../components/component';
 import { vec3, vec2, mat4, quat, randomRangeInt, pseudoRandom } from '../../../core/vmath';
 import registry from '../../misc/registry';
 import Gradient, { ColorKey, AlphaKey } from './animator/gradient';

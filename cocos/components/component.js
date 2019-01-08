@@ -722,4 +722,4 @@ value(Component, '_registerEditorProps', function (cls, props) {
 Component.prototype.__scriptUuid = '';
 
 cc.Component = Component;
-export default Component;
+export { Component };

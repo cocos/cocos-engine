@@ -1,5 +1,5 @@
 
-import Component from '../../../../components/CCComponent';
+import { Component } from '../../../../components/component';
 import { ccclass } from '../../../../core/data/class-decorator';
 import { PhysicsBody } from '../body';
 

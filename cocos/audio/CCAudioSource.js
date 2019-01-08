@@ -24,9 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const misc = require('../utils/misc');
-const Component = require('./CCComponent');
-const AudioClip = require('../assets/CCAudioClip');
+import * as misc from '../core/utils/misc';
+import { Component } from './component';
+import AudioClip from '../assets/CCAudioClip';
 
 /**
  * !#en Audio Source.

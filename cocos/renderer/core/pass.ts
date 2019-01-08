@@ -157,7 +157,9 @@ export class Pass {
     }
 
     public getBindingFromName(name: string) {
-        return parseHandle(this.getHandleFromName(name))[0];
+        const handle = this.getHandleFromName(name);
+        if (handle === undefined) { return -1; }
+        return parseHandle(handle)[0];
     }
 
     public setUniform(handle: number, value: any) {
