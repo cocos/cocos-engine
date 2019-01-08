@@ -6,8 +6,24 @@ export default [
     "shaders": [
       {
         "name": "f4c45e6cc7794309d86202e6ec9036a3871fd1ec167a9e02eb1e1574",
-        "vert": "\n  attribute vec2 a_position;\n  attribute vec2 a_texCoord;\n  varying vec2 v_texCoord;\n  void main() {\n    gl_Position = vec4(a_position, 0.0, 1.0);\n    v_texCoord = a_texCoord;\n  }\n",
-        "frag": "\n  varying vec2 v_texCoord;\n    uniform vec4 u_color;\n  uniform sampler2D u_sampler;\n  void main() {\n    \n    gl_FragColor = texture2D(u_sampler, v_texCoord);\n    gl_FragColor.r = u_color.r;\n  }\n",
+        "vert": `
+attribute vec2 a_position;
+attribute vec2 a_texCoord;
+varying vec2 v_texCoord;
+void main() {
+  gl_Position = vec4(a_position, 0.0, 1.0);
+  v_texCoord = a_texCoord;
+}
+        `,
+        "frag": `
+varying vec2 v_texCoord;
+uniform vec4 u_color;
+uniform sampler2D u_sampler;
+void main() {
+  gl_FragColor = texture2D(u_sampler, v_texCoord);
+  gl_FragColor.r = u_color.r;
+}
+        `,
         "defines": [],
         "blocks": [
           {"name": "Constants", "size": 16, "defines": [], "binding": 0, "members": [

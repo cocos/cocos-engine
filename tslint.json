@@ -11,7 +11,8 @@
         "max-classes-per-file": false,
         "variable-name": false,
         "object-literal-sort-keys": false,
-        "ban-types": false
+        "ban-types": false,
+        "no-bitwise": false
     },
     "rulesDirectory": []
 }
