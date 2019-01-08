@@ -3,6 +3,11 @@
 attribute vec3 a_position;
 attribute vec3 a_normal;
 
+#if _USE_ATTRIBUTE_COLOR
+  attribute lowp vec4 a_color;
+  varying lowp vec4 v_color;
+#endif
+
 uniform mat4 _model;
 uniform mat4 _viewProj;
 uniform mat3 _normalMatrix;
@@ -14,7 +19,7 @@ varying vec3 pos_w;
   attribute vec2 a_uv0;
   uniform vec2 mainTiling;
   uniform vec2 mainOffset;
-  varying vec2 uv0;
+  varying vec2 v_uv0;
 #endif
 
 #if _USE_SKINNING
@@ -43,7 +48,11 @@ vec4 vert () {
   #endif
 
   #if USE_DIFFUSE_TEXTURE || USE_NORMAL_TEXTURE || USE_EMISSIVE_TEXTURE
-    uv0 = a_uv0 * mainTiling + mainOffset;
+    v_uv0 = a_uv0 * mainTiling + mainOffset;
+  #endif
+
+  #if _USE_ATTRIBUTE_COLOR
+    v_color = a_color;
   #endif
   
   return pos;
