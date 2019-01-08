@@ -46,8 +46,8 @@ export class WebGLGFXBindingLayout extends GFXBindingLayout {
         return <WebGLGFXDevice>this._device;
     }
 
-    public get gpuBindingLayout(): WebGLGPUBindingLayout | null {
-        return this._gpuBindingLayout;
+    public get gpuBindingLayout(): WebGLGPUBindingLayout {
+        return <WebGLGPUBindingLayout>this._gpuBindingLayout;
     }
 
     private _gpuBindingLayout: WebGLGPUBindingLayout | null = null;

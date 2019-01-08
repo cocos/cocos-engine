@@ -2,6 +2,13 @@ import { RenderScene } from "./render-scene";
 import Node from "../../scene-graph/node";
 import { mat4, vec3, quat } from '../../core/vmath';
 
+export enum NodeSpace
+{
+	LOCAL,
+	PARENT,
+	WORLD,
+};
+
 export enum CameraProjection {
     PERSPECTIVE,
     ORTHO,
@@ -117,6 +124,49 @@ export class Camera {
     public get position(): vec3 {
         this._node.getWorldPosition(this._position);
         return this._position;
+    }
+
+    public rotate(axis: vec3, rad: number, ns?: NodeSpace) {
+        quat.fromAxisAngle(this._rotation, axis, rad);
+        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
+        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+            this._node.setRotation(this._rotation);
+        } else if (space === NodeSpace.WORLD) {
+            this._node.setWorldRotation(this._rotation);
+        }
+    }
+
+    public pitch(rad: number, ns?: NodeSpace) {
+        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
+        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+            this._node.getRotation(this._rotation);
+            this.rotate(this._rotation, rad, ns);
+        } else if (space === NodeSpace.WORLD) {
+            this._node.getWorldRotation(this._rotation);
+            this.rotate(this._rotation, rad, ns);
+        }
+    }
+
+    public yaw(rad: number, ns?: NodeSpace) {
+        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
+        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+            this._node.getRotation(this._rotation);
+            this.rotate(this._rotation, rad, ns);
+        } else if (space === NodeSpace.WORLD) {
+            this._node.getWorldRotation(this._rotation);
+            this.rotate(this._rotation, rad, ns);
+        }  
+    }
+
+    public roll(rad: number, ns?: NodeSpace) {
+        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
+        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+            this._node.getRotation(this._rotation);
+            this.rotate(this._rotation, rad, ns);
+        } else if (space === NodeSpace.WORLD) {
+            this._node.getWorldRotation(this._rotation);
+            this.rotate(this._rotation, rad, ns);
+        }  
     }
 
     public set target(target: vec3) {

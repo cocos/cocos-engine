@@ -49,8 +49,8 @@ export class WebGLGFXTextureView extends GFXTextureView {
         return <WebGLGFXDevice>this._device;
     }
 
-    public get gpuTextureView(): WebGLGPUTextureView | null {
-        return this._gpuTextureView;
+    public get gpuTextureView(): WebGLGPUTextureView {
+        return <WebGLGPUTextureView>this._gpuTextureView;
     }
 
     private _gpuTextureView: WebGLGPUTextureView | null = null;

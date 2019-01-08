@@ -11,15 +11,15 @@ export class WebGLGFXWindow extends GFXWindow {
 
     public initialize(info: GFXWindowInfo): boolean {
 
-        if(info.title) {
+        if(info.title !== undefined) {
             this._title = info.title;
         }
 
-        if(info.left) {
+        if(info.left !== undefined) {
             this._left = info.left;
         }
 
-        if(info.top) {
+        if(info.top !== undefined) {
             this._top = info.top;
         }
 

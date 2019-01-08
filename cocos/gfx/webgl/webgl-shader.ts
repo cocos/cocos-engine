@@ -38,8 +38,8 @@ export class WebGLGFXShader extends GFXShader {
         return <WebGLGFXDevice>this._device;
     }
 
-    public get gpuShader(): WebGLGPUShader | null {
-        return this._gpuShader;
+    public get gpuShader(): WebGLGPUShader {
+        return <WebGLGPUShader>this._gpuShader;
     }
 
     private _gpuShader: WebGLGPUShader | null = null;

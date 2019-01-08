@@ -36,8 +36,8 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
         return <WebGLGFXDevice>this._device;
     }
 
-    public get gpuPipelineState(): WebGLGPUPipelineState | null {
-        return this._gpuPipelineState;
+    public get gpuPipelineState(): WebGLGPUPipelineState {
+        return <WebGLGPUPipelineState>this._gpuPipelineState;
     }
 
     private _gpuPipelineState: WebGLGPUPipelineState | null = null;

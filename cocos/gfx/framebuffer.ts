@@ -1,6 +1,7 @@
 import { GFXDevice } from './device';
 import { GFXTextureView } from './texture-view';
 import { GFXRenderPass } from './render-pass';
+import { GFXFormat } from './define';
 
 export interface GFXFramebufferInfo {
     renderPass: GFXRenderPass;

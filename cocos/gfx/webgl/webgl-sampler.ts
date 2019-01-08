@@ -81,8 +81,8 @@ export class WebGLGFXSampler extends GFXSampler {
         return <WebGLGFXDevice>this._device;
     }
 
-    public get gpuSampler() : WebGLGPUSampler | null {
-        return this._gpuSampler;
+    public get gpuSampler() : WebGLGPUSampler {
+        return <WebGLGPUSampler>this._gpuSampler;
     }
 
     private _gpuSampler : WebGLGPUSampler | null = null;

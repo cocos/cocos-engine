@@ -13,7 +13,7 @@ import { GFXCommandBufferInfo, GFXCommandBuffer } from './command-buffer';
 import { GFXCommandAllocatorInfo, GFXCommandAllocator } from './command-allocator';
 import { GFXWindowInfo, GFXWindow } from './window';
 import { GFXBindingLayoutInfo, GFXBindingLayout } from './binding-layout';
-import { GFXRect, GFXBufferTextureCopy } from './define';
+import { GFXRect, GFXBufferTextureCopy, GFXFormat } from './define';
 
 export enum GFXFeature {
 };
@@ -69,8 +69,8 @@ export abstract class GFXDevice {
         return this._height;
     }
 
-    public get mainWindow(): GFXWindow | null {
-        return this._mainWindow;
+    public get mainWindow(): GFXWindow {
+        return <GFXWindow>this._mainWindow;
     }
 
     public get commandAllocator(): GFXCommandAllocator {
@@ -113,6 +113,14 @@ export abstract class GFXDevice {
         return this._stencilBits;
     }
 
+    public get colorFormat(): GFXFormat {
+        return this._colorFmt;
+    }
+
+    public get depthStencilFormat(): GFXFormat {
+        return this._depthStencilFmt;
+    }
+
     public genShaderId(): number {
         return this._shaderIdGen++;
     }
@@ -135,5 +143,7 @@ export abstract class GFXDevice {
     protected _maxVertexTextureUnits: number = 0;
     protected _depthBits: number = 0;
     protected _stencilBits: number = 0;
+    protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
+    protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _shaderIdGen: number = 0;
 };

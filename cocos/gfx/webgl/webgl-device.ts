@@ -130,11 +130,28 @@ export class WebGLGFXDevice extends GFXDevice {
 
         this._width = this._canvas.width;
         this._height = this._canvas.height;
+        this._colorFmt = GFXFormat.RGBA8;
+
+        if (this._depthBits === 24) {
+            if (this._stencilBits === 8) {
+                this._depthStencilFmt = GFXFormat.D24S8;
+            } else {
+                this._depthStencilFmt = GFXFormat.D24;
+            }
+        } else {
+            if (this._stencilBits === 8) {
+                this._depthStencilFmt = GFXFormat.D16S8;
+            } else {
+                this._depthStencilFmt = GFXFormat.D16;
+            }
+        }
 
         console.info("RENDERER: " + this._renderer);
         console.info("VENDOR: " + this._vendor);
         console.info("VERSION: " + this._version);
-        console.info("SCREEN_SIZE: " + this._width + "x" + this._height);
+        console.info("SCREEN_SIZE: " + this._width + " x " + this._height);
+        console.info("COLOR_FORMAT: " + GFXFormatInfos[this._colorFmt].name);
+        console.info("DEPTH_STENCIL_FORMAT: " + GFXFormatInfos[this._depthStencilFmt].name);
 
         console.info("MAX_VERTEX_ATTRIBS: " + this._maxVertexAttributes);
         console.info("MAX_VERTEX_UNIFORM_VECTORS: " + this._maxVertexUniformVectors);
@@ -176,21 +193,7 @@ export class WebGLGFXDevice extends GFXDevice {
         // init states
         this.initStates(gl);
 
-        let depthStencilFmt;
 
-        if (this._depthBits === 24) {
-            if (this._stencilBits === 8) {
-                depthStencilFmt = GFXFormat.D24S8;
-            } else {
-                depthStencilFmt = GFXFormat.D24;
-            }
-        } else {
-            if (this._stencilBits === 8) {
-                depthStencilFmt = GFXFormat.D16S8;
-            } else {
-                depthStencilFmt = GFXFormat.D16;
-            }
-        }
 
         // create queue
         this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
@@ -202,8 +205,8 @@ export class WebGLGFXDevice extends GFXDevice {
             top: this._webGLRC.canvas.offsetTop,
             width: this._webGLRC.drawingBufferWidth,
             height: this._webGLRC.drawingBufferHeight,
-            colorFmt: GFXFormat.RGBA8,
-            depthStencilFmt: depthStencilFmt,
+            colorFmt: this._colorFmt,
+            depthStencilFmt: this._depthStencilFmt,
         });
 
         this._cmdAllocator = this.createCommandAllocator({});
@@ -430,7 +433,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
             let memSize = GFXFormatSize(GFXFormat.RGBA8, w, h, 1);
             let data = view.subarray(buffOffset, buffOffset + memSize);
-            
+
             gl.readPixels(region.texOffset.x, region.texOffset.y, w, h, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, data);
         }
 
@@ -732,8 +735,8 @@ export class WebGLGFXDevice extends GFXDevice {
         let gpuShader: WebGLGPUShader = {
             objType: WebGLGPUObjectType.SHADER,
             name: info.name ? info.name : "",
-            blocks: info.blocks,
-            samplers: info.samplers,
+            blocks: (info.blocks !== undefined ? info.blocks : []),
+            samplers: (info.samplers !== undefined ? info.samplers : []),
 
             gpuStages: gpuStages,
             glProgram: 0,

@@ -893,7 +893,7 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
     }
 
     // create uniform blocks
-    if (gpuShader.blocks && gpuShader.blocks.length > 0) {
+    if (gpuShader.blocks.length > 0) {
         gpuShader.glBlocks = new Array<WebGLGPUUniformBlock>(gpuShader.blocks.length);
         for (let i = 0; i < gpuShader.blocks.length; ++i) {
             let block = gpuShader.blocks[i];
@@ -937,7 +937,7 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
     }
 
     // create uniform samplers
-    if (gpuShader.samplers && gpuShader.samplers.length > 0) {
+    if (gpuShader.samplers.length > 0) {
         gpuShader.glSamplers = new Array<WebGLGPUUniformSampler>(gpuShader.samplers.length);
 
         for (let i = 0; i < gpuShader.samplers.length; ++i) {
@@ -1087,46 +1087,6 @@ export function WebGLCmdFuncCreateInputAssember(device: WebGLGFXDevice, gpuInput
 
         offsets[stream] += size;
     }
-
-    /*
-    if (gpuInputAssembler.gpuShader) {
-        let attribCount = gpuInputAssembler.gpuShader.glInputs.length;
-        gpuInputAssembler.glAttribs = new Array<WebGLAttrib>(attribCount);
-
-        let offsets = [0, 0, 0, 0, 0, 0, 0, 0];
-
-        for (let i = 0; i < attribCount; ++i) {
-            let glInput = gpuInputAssembler.gpuShader.glInputs[i];
-            let glAttrib = gpuInputAssembler.glAttribs[i];
-            glAttrib.glLoc = glInput.glLoc;
-            glAttrib.glType = glInput.glType;
-            glAttrib.size = glInput.size;
-            glAttrib.componentCount = WebGLGetComponentCount(glAttrib.glType);
-
-            for (let j = 0; j < gpuInputAssembler.attributes.length; ++j) {
-                let attrib = gpuInputAssembler.attributes[j];
-
-                let stream = attrib.stream !== undefined ? attrib.stream : 0;
-
-                if (glInput.name === attrib.name && stream < gpuInputAssembler.gpuVertexBuffers.length) {
-
-                    let gpuBuffer = gpuInputAssembler.gpuVertexBuffers[stream];
-                    glAttrib.count = GFXFormatInfos[attrib.format].count;
-                    glAttrib.stride = gpuBuffer.stride;
-                    glAttrib.glBuffer = gpuBuffer.glBuffer;
-
-                    if (attrib.isInstanced) {
-                        glAttrib.isInstanced = attrib.isInstanced;
-                    }
-
-                    glAttrib.offset = offsets[stream];
-                    offsets[stream] += glInput.size;
-                    break;
-                }
-            }
-        }
-    }
-    */
 }
 
 export function WebGLCmdFuncDestroyInputAssembler(device: WebGLGFXDevice, gpuInputAssembler: WebGLGPUInputAssembler) {

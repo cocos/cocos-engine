@@ -175,8 +175,8 @@ export class WebGLGPUShaderStage {
 
 export class WebGLGPUShader extends WebGLGPUObject {
     name: string = "";
-    blocks?: GFXUniformBlock[];
-    samplers?: GFXUniformSampler[];
+    blocks: GFXUniformBlock[] = [];
+    samplers: GFXUniformSampler[] = [];
 
     gpuStages: WebGLGPUShaderStage[] = [];
     glProgram: WebGLProgram = 0;

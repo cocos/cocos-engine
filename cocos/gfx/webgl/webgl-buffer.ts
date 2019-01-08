@@ -55,8 +55,8 @@ export class WebGLGFXBuffer extends GFXBuffer {
         return <WebGLGFXDevice>this._device;
     }
 
-    public get gpuBuffer(): WebGLGPUBuffer | null {
-        return this._gpuBuffer;
+    public get gpuBuffer(): WebGLGPUBuffer {
+        return <WebGLGPUBuffer>this._gpuBuffer;
     }
 
     private _gpuBuffer: WebGLGPUBuffer | null = null;
