@@ -37,4 +37,3 @@ export { default as WebAudioClip } from "./web-audio-clip";
 export { default as WxGameAudioClip } from "./wx-game-audio-clip";
 
 export { PhysicsMaterial } from './physics/material';
-cc.PhysicsMaterial = PhysicsMaterial;
