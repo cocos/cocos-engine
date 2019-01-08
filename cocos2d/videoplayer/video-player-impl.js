@@ -170,13 +170,6 @@ let VideoPlayerImpl = cc.Class({
         video.setAttribute('webkit-playsinline', '');
         video.setAttribute('playsinline', '');
 
-        // Stupid tencent x5 adaptation
-        video.setAttribute("x5-playsinline", "");
-        video.setAttribute("x5-video-player-type", "h5");
-        video.setAttribute("x5-video-player-fullscreen", this._fullScreenEnabled ? "true" : "false");
-        let orientation = cc.winSize.width > cc.winSize.height ? "landscape" : "portrait";
-        video.setAttribute("x5-video-orientation", orientation);
-
         this._video = video;
         cc.game.container.appendChild(video);
     },
