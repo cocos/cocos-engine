@@ -23,35 +23,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import { RawAsset } from "./raw-asset";
 
-import { ccclass } from '../core/data/class-decorator';
-import { CCObject } from '../core/data/object';
-import { isChildClassOf } from '../core/utils/js';
+export class Asset extends RawAsset {
 
-function enumerable(value: boolean) {
-    return (target: any, propertyKey: string) => {
-        const descriptor = Object.getOwnPropertyDescriptor(target, propertyKey) || {};
-        if (descriptor.enumerable !== value) {
-            descriptor.enumerable = value;
-            Object.defineProperty(target, propertyKey, descriptor);
-        }
-    };
 }
-
-/**
- * !#en
- * The base class for registering asset types.
- * !#zh
- * 注册用的资源基类。
- */
-@ccclass('cc.RawAsset')
-export class RawAsset extends CCObject {
-    protected static isRawAssetType(ctor: Function): boolean {
-        return isChildClassOf(ctor, RawAsset) && !isChildClassOf(ctor, cc.Asset);
-    }
-
-    @enumerable(false)
-    protected _uuid = '';
-}
-
-cc.RawAsset = RawAsset;

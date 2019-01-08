@@ -44,91 +44,72 @@ import { RawAsset } from './raw-asset';
  * - _nativeAsset 的 getset 方法<br/>
  * - cc.Object._serialize<br/>
  * - cc.Object._deserialize<br/>
+ *
+ * @class Asset
+ * @extends RawAsset
  */
 @ccclass('cc.Asset')
 export class Asset extends RawAsset {
-    /**
-     * !#en Indicates whether its dependent raw assets can support deferred load
-     * if the owner scene (or prefab) is marked as `asyncLoadAssets`.
-     * !#zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
-     *
-     * @property {Boolean} preventDeferredLoadDependents
-     * @default false
-     * @static
-     */
-    public static preventDeferredLoadDependents = false;
-
-    /**
-     * !#en Indicates whether its native object should be preloaded from native url.
-     * !#zh 禁止预加载原生对象。
-     *
-     * @property {Boolean} preventPreloadNativeObject
-     * @default false
-     * @static
-     */
-    public static preventPreloadNativeObject = false;
-
-    /**
-     * 应 AssetDB 要求提供这个方法
-     */
-    protected static deserialize(data: string): Asset {
-        return cc.deserialize(data);
+    constructor () {
+        super();
+        /**
+         * !#en
+         * Whether the asset is loaded or not
+         * !#zh
+         * 该资源是否已经成功加载
+         *
+         * @property loaded
+         * @type {Boolean}
+         */
+        this.loaded = true;
     }
-
-    /**
-     * !#en
-     * Create a new node using this asset in the scene.<br/>
-     * If this type of asset dont have its corresponding node type, this method should be null.
-     * !#zh
-     * 使用该资源在场景中创建一个新节点。<br/>
-     * 如果这类资源没有相应的节点类型，该方法应该是空的。
-     *
-     * @param {Function} callback
-     * @param {String} callback.error - null or the error info
-     * @param {Object} callback.node - the created node or null
-     */
-    public createNode: null | ((callback: (err: string, node: object) => void) => void) = null;
-
-    protected loaded = true;
-
-    /**
-     * Serializable url for native asset.
-     */
-    @property
-    protected _native = '';
 
     /**
      * !#en
      * Returns the url of this asset's native object, if none it will returns an empty string.
      * !#zh
      * 返回该资源对应的目标平台资源的 URL，如果没有将返回一个空字符串。
+     * @property nativeUrl
+     * @type {String}
+     * @readOnly
      */
     @property({
-        visible: false,
+        visible: false
     })
-    get nativeUrl(): Readonly<string> {
+    get nativeUrl () {
         if (this._native) {
-            const name = this._native;
+            var name = this._native;
             if (name.charCodeAt(0) === 47) {    // '/'
                 // remove library tag
                 // not imported in library, just created on-the-fly
                 return name.slice(1);
             }
             if (cc.AssetLibrary) {
-                const base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
+                var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
                 if (name.charCodeAt(0) === 46) {  // '.'
                     // imported in dir where json exist
                     return base + name;
-                } else {
+                }
+                else {
                     // imported in an independent dir
                     return base + '/' + name;
                 }
-            } else {
+            }
+            else {
                 cc.errorID(6400);
             }
         }
         return '';
     }
+
+    /**
+     * Serializable url for native asset.
+     * @property {String} _native
+     * @default ""
+     * @private
+     */
+    @property
+    _native = ""
 
     /**
      * The underlying native asset of this asset if one is available.
@@ -140,42 +121,104 @@ export class Asset extends RawAsset {
      * @type {any}
      */
     @property
-    get _nativeAsset() { return null; }
-    set _nativeAsset(obj) {}
+    get _nativeAsset () {
+    }
+    set _nativeAsset (obj) {
+    }
+
+    /**
+     * 应 AssetDB 要求提供这个方法
+     *
+     * @method deserialize
+     * @param {String} data
+     * @return {Asset}
+     * @static
+     * @private
+     */
+    static deserialize (data) {
+        return cc.deserialize(data);
+    }
+
+    /**
+     * !#en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
+     * !#zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
+     *
+     * @property {Boolean} preventDeferredLoadDependents
+     * @default false
+     * @static
+     */
+    static preventDeferredLoadDependents = false;
+
+    /**
+     * !#en Indicates whether its native object should be preloaded from native url.
+     * !#zh 禁止预加载原生对象。
+     *
+     * @property {Boolean} preventPreloadNativeObject
+     * @default false
+     * @static
+     */
+    static preventPreloadNativeObject = false;
 
     /**
      * Returns the string representation of the object.
      *
      * The `Asset` object overrides the `toString()` method of the `Object` object.
-     * JavaScript calls the toString() method automatically when an asset is to be represented
-     * as a text value or when a texture is referred to in a string concatenation.
+     * JavaScript calls the toString() method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
      *
      * For assets of the native type, it will return `this.nativeUrl`.
      * Otherwise, an empty string is returned.
      * This method may be overwritten by subclasses.
+     *
+     * @method toString
+     * @return {String}
      */
-    public toString(): string {
+    toString () {
         return this.nativeUrl;
+    }
+
+    /**
+     * 应 AssetDB 要求提供这个方法
+     *
+     * @method serialize
+     * @return {String}
+     * @private
+     */
+    serialize () {
+        return Editor.serialize(this);
     }
 
     /**
      * Set native file name for this asset.
      * @seealso nativeUrl
+     *
+     * @method _setRawAsset
+     * @param {String} filename
+     * @param {Boolean} [inLibrary=true]
+     * @private
      */
-    protected _setRawAsset(filename: string, inLibrary: boolean = true) {
+    _setRawAsset (filename, inLibrary) {
         if (inLibrary !== false) {
-            this._native = filename;
-        } else {
+            this._native = filename || undefined;
+        }
+        else {
             this._native = '/' + filename;  // simply use '/' to tag location where is not in the library
         }
     }
-
-    /**
-     * 应 AssetDB 要求提供这个方法
-     */
-    protected serialize(): string {
-        return Editor.serialize(this);
-    }
 }
+
+/**
+ * !#en
+ * Create a new node using this asset in the scene.<br/>
+ * If this type of asset dont have its corresponding node type, this method should be null.
+ * !#zh
+ * 使用该资源在场景中创建一个新节点。<br/>
+ * 如果这类资源没有相应的节点类型，该方法应该是空的。
+ *
+ * @method createNode
+ * @param {Function} callback
+ * @param {String} callback.error - null or the error info
+ * @param {Object} callback.node - the created node or null
+ */
+Asset.prototype.createNode = null;
 
 cc.Asset = Asset;
