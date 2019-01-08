@@ -47,6 +47,7 @@ export abstract class GFXDevice {
 
     public abstract copyBufferToTexture(buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]);
     public abstract copyImageSourceToTexture(source: CanvasImageSource, texture: GFXTexture, regions: GFXBufferTextureCopy[]);
+    public abstract copyFramebufferToBuffer(srcFramebuffer: GFXFramebuffer, dstBuffer: ArrayBuffer, regions: GFXBufferTextureCopy[]);
 
     public get canvas(): HTMLCanvasElement {
         return <HTMLCanvasElement>this._canvas;

@@ -30,6 +30,10 @@ export abstract class GFXFramebuffer {
         return this._depthStencilView;
     }
 
+    public get isOffscreen(): boolean {
+        return this._isOffscreen;
+    }
+
     protected _device: GFXDevice;
     protected _renderPass: GFXRenderPass | null = null;
     protected _colorViews: GFXTextureView[] = [];

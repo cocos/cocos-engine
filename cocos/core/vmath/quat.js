@@ -740,6 +740,17 @@ class quat {
    * @param {number} q - the quaternion to be converted
    * @returns {vec3} out.
    */
+  static toAxisX(out) {
+    
+  }
+
+  /**
+   * Convert a quaternion back to euler angle (in degrees).
+   *
+   * @param {vec3} out - Euler angle stored as a vec3
+   * @param {number} q - the quaternion to be converted
+   * @returns {vec3} out.
+   */
   static toEuler(out, q) {
     let x = q.x, y = q.y, z = q.z, w = q.w;
     let heading, attitude, bank;
