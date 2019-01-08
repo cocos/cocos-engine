@@ -29,15 +29,14 @@
 import cc from './predefine';
 
 // LOAD ENGINE CORE
-import './cocos/core';
-import './cocos/scene-graph';
-import './cocos/renderer';
-import './cocos/gfx';
+export * from './cocos/core';
+export * from './cocos/scene-graph';
+export * from './cocos/renderer';
 
-import './cocos/assets';
-import './cocos/load-pipeline';
-import './cocos/components';
-import './cocos/animation';
-import './cocos/3d';
+export * from './cocos/assets';
+export * from './cocos/load-pipeline';
+export * from './cocos/components';
+export * from './cocos/animation';
+export * from './cocos/3d';
 
-export default cc;
+// export default cc;

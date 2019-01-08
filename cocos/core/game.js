@@ -29,7 +29,8 @@ import inputManager from './platform/event-manager/CCInputManager';
 import debug from './platform/CCDebug';
 import { addon } from './utils/js';
 
-import renderer from '../renderer';
+import { renderer } from '../renderer';
+import gfx from '../renderer/gfx';
 import builtinResMgr from '../3d/builtin/init';
 import { ProgramLib } from '../renderer/core/program-lib';
 

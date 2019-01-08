@@ -2,6 +2,7 @@ import { color4 } from '../../../../core/vmath';
 import { Enum } from '../../../../core/value-types';
 import Gradient from './gradient';
 import { CCClass } from '../../../../core/data';
+import { property, ccclass } from '../../../../core/data/class-decorator';
 
 const GRADIENT_MODE_FIX = 0;
 const GRADIENT_MODE_BLEND = 1;
@@ -20,21 +21,35 @@ const Mode = Enum({
     RandomColor: 4
 });
 
+@ccclass('cc.GradientRange')
 export default class GradientRange {
 
+    @property
     mode = Mode.Color;
 
+    @property
     color = cc.Color.WHITE;
 
+    @property
     colorMin = cc.Color.WHITE;
 
+    @property
     colorMax = cc.Color.WHITE;
 
+    @property({
+        type: Gradient
+    })
     gradient = new Gradient();
 
-    gradientMin = null;
+    @property({
+        type: Gradient
+    })
+    gradientMin = new Gradient();
 
-    gradientMax = null;
+    @property({
+        type: Gradient
+    })
+    gradientMax = new Gradient();
 
     evaluate(time, rndRatio) {
         switch (this.mode) {
@@ -56,15 +71,15 @@ export default class GradientRange {
     }
 }
 
-CCClass.fastDefine('cc.GradientRange', GradientRange, {
-    mode: Mode.Color,
-    color: cc.Color.WHITE,
-    colorMin: cc.Color.WHITE,
-    colorMax: cc.Color.WHITE,
-    gradient: new Gradient(),
-    gradientMin: null,
-    gradientMax: null
-});
+// CCClass.fastDefine('cc.GradientRange', GradientRange, {
+//     mode: Mode.Color,
+//     color: cc.Color.WHITE,
+//     colorMin: cc.Color.WHITE,
+//     colorMax: cc.Color.WHITE,
+//     gradient: new Gradient(),
+//     gradientMin: null,
+//     gradientMax: null
+// });
 
 export class GradientUniform {
     constructor(gr) {

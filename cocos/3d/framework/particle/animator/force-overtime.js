@@ -2,19 +2,32 @@ import { vec3, quat, pseudoRandom } from '../../../../core/vmath';
 import { calculateTransform, Space } from '../particle-general-function';
 import CurveRange from './curve-range';
 import { CCClass } from '../../../../core/data';
+import { property, ccclass } from '../../../../core/data/class-decorator';
 
 const FORCE_OVERTIME_RAND_OFFSET = 212165;
 
+@ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule {
 
+    @property
     enable = false;
 
-    x = null;
+    @property({
+        type: CurveRange
+    })
+    x = new CurveRange();
 
-    y = null;
+    @property({
+        type: CurveRange
+    })
+    y = new CurveRange();
 
-    z = null;
+    @property({
+        type: CurveRange
+    })
+    z = new CurveRange();
 
+    @property
     space = Space.Local;
 
     // TODO:currently not supported
@@ -38,11 +51,11 @@ export default class ForceOvertimeModule {
     }
 }
 
-CCClass.fastDefine('cc.ForceOvertimeModule',ForceOvertimeModule,{
-    enable : false,
-    x : new CurveRange(),
-    y : new CurveRange(),
-    z : new CurveRange(),
-    space : Space.Local,
-    randomized : false
-});
+// CCClass.fastDefine('cc.ForceOvertimeModule',ForceOvertimeModule,{
+//     enable : false,
+//     x : new CurveRange(),
+//     y : new CurveRange(),
+//     z : new CurveRange(),
+//     space : Space.Local,
+//     randomized : false
+// });

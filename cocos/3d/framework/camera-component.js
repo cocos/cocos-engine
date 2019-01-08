@@ -23,7 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import renderer from '../../renderer/index';
+import RenderSystemActor from './renderSystemActor';
+import { renderer } from '../../renderer/index';
 import { toRadian } from '../../core/vmath';
 import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
 import { Color, Enum, Rect } from '../../core/value-types';
