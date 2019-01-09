@@ -897,6 +897,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
                 name: block.name,
                 size: 0,
                 glUniforms: new Array<WebGLGPUUniform>(block.members.length),
+                glActiveUniforms: [],
                 isUniformPackage: true,
                 buffer: null,
             };
@@ -1000,6 +1001,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
                                         glUniform.view = new Float32Array(glBlock.buffer as ArrayBuffer, glUniform.offset, count);
                                     }
                                 }
+
+                                glBlock.glActiveUniforms.push(glUniform);
 
                                 break;
                             }
@@ -1538,202 +1541,208 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                     if (glBlock && gpuBinding.gpuBuffer.viewF32) {
                                         const vf32 = gpuBinding.gpuBuffer.viewF32;
 
-                                        for (const glUniform of glBlock.glUniforms) {
-                                            if (glUniform.glLoc && glUniform.view) {
+                                        for (const glUniform of glBlock.glActiveUniforms) {
+                                            let offset = glUniform.offset / 4;
 
-                                                let offset = glUniform.offset / 4;
-
-                                                switch (glUniform.glType) {
-                                                    case WebGLRenderingContext.BOOL:
-                                                    case WebGLRenderingContext.INT: {
-                                                        for (let m = 0; m < glUniform.count; ++m, ++offset) {
-                                                            if (vf32[offset] !== glUniform.view[m]) {
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + glUniform.count));
-                                                                gl.uniform1iv(glUniform.glLoc, glUniform.view as Int32Array);
-                                                                glUniform.view[m] = vf32[offset];
-                                                                break;
-                                                            }
+                                            switch (glUniform.glType) {
+                                                case WebGLRenderingContext.BOOL:
+                                                case WebGLRenderingContext.INT: {
+                                                    const view = glUniform.view as Int32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, ++offset) {
+                                                        if (vf32[offset] !== view[m]) {
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + glUniform.count));
+                                                            gl.uniform1iv(glUniform.glLoc, view);
+                                                            break;
                                                         }
-                                                        break;
                                                     }
-                                                    case WebGLRenderingContext.BOOL_VEC2:
-                                                    case WebGLRenderingContext.INT_VEC2: {
-                                                        for (let m = 0; m < glUniform.count; ++m, offset += 2) {
-                                                            const idx = 2 * m;
-                                                            if (vf32[offset] !== glUniform.view[idx] ||
-                                                                vf32[offset + 1] !== glUniform.view[idx + 1]) {
-
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + 2 * glUniform.count));
-                                                                gl.uniform2iv(glUniform.glLoc, glUniform.view as Int32Array);
-                                                                break;
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                    case WebGLRenderingContext.BOOL_VEC3:
-                                                    case WebGLRenderingContext.INT_VEC3: {
-                                                        for (let m = 0; m < glUniform.count; ++m, offset += 3) {
-                                                            const idx = 3 * m;
-                                                            if (vf32[offset] !== glUniform.view[idx] ||
-                                                                vf32[offset + 1] !== glUniform.view[idx + 1] ||
-                                                                vf32[offset + 2] !== glUniform.view[idx + 2]) {
-
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + 3 * glUniform.count));
-                                                                gl.uniform3iv(glUniform.glLoc, glUniform.view as Int32Array);
-                                                                break;
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                    case WebGLRenderingContext.BOOL_VEC4:
-                                                    case WebGLRenderingContext.INT_VEC4: {
-                                                        for (let m = 0; m < glUniform.count; ++m, offset += 4) {
-                                                            const idx = 4 * m;
-                                                            if (vf32[offset] !== glUniform.view[idx] ||
-                                                                vf32[offset + 1] !== glUniform.view[idx + 1] ||
-                                                                vf32[offset + 2] !== glUniform.view[idx + 2] ||
-                                                                vf32[offset + 3] !== glUniform.view[idx + 3]) {
-
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + 4 * glUniform.count));
-                                                                gl.uniform4iv(glUniform.glLoc, glUniform.view as Int32Array);
-                                                                break;
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                    case WebGLRenderingContext.FLOAT: {
-                                                        for (let m = 0; m < glUniform.count; ++m, ++offset) {
-                                                            const c: number = 0;
-
-                                                            if (CmpF32NotEuqal(vf32[offset], glUniform.view[m])) {
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + glUniform.count));
-                                                                gl.uniform1fv(glUniform.glLoc, glUniform.view as Float32Array);
-                                                                break;
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                    case WebGLRenderingContext.FLOAT_VEC2: {
-                                                        for (let m = 0; m < glUniform.count; ++m, offset += 2) {
-                                                            const idx = 2 * m;
-                                                            if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1])) {
-
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + 2 * glUniform.count));
-                                                                gl.uniform2fv(glUniform.glLoc, glUniform.view as Float32Array);
-                                                                break;
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                    case WebGLRenderingContext.FLOAT_VEC3: {
-                                                        for (let m = 0; m < glUniform.count; ++m, offset += 3) {
-                                                            const idx = 3 * m;
-                                                            if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 2], glUniform.view[idx + 2])) {
-
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + 3 * glUniform.count));
-                                                                gl.uniform3fv(glUniform.glLoc, glUniform.view as Float32Array);
-                                                                break;
-                                                            }
-
-                                                        }
-                                                        break;
-                                                    }
-                                                    case WebGLRenderingContext.FLOAT_VEC4: {
-                                                        for (let m = 0; m < glUniform.count; ++m, offset += 4) {
-                                                            const idx = 4 * m;
-
-                                                            if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 2], glUniform.view[idx + 2]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 3], glUniform.view[idx + 3])) {
-
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + 4 * glUniform.count));
-                                                                gl.uniform4fv(glUniform.glLoc, glUniform.view as Float32Array);
-                                                                break;
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                    case WebGLRenderingContext.FLOAT_MAT2: {
-                                                        for (let m = 0; m < glUniform.count; ++m, offset += 4) {
-                                                            const idx = 4 * m;
-                                                            if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 2], glUniform.view[idx + 2]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 3], glUniform.view[idx + 3])) {
-
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + 4 * glUniform.count));
-                                                                gl.uniformMatrix2fv(glUniform.glLoc, false, glUniform.view as Float32Array);
-                                                                break;
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                    case WebGLRenderingContext.FLOAT_MAT3: {
-                                                        for (let m = 0; m < glUniform.count; ++m, offset += 9) {
-                                                            const idx = 9 * m;
-                                                            if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 2], glUniform.view[idx + 2]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 3], glUniform.view[idx + 3]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 4], glUniform.view[idx + 4]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 5], glUniform.view[idx + 5]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 6], glUniform.view[idx + 6]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 7], glUniform.view[idx + 7]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 8], glUniform.view[idx + 8])) {
-
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + 9 * glUniform.count));
-                                                                gl.uniformMatrix3fv(glUniform.glLoc, false, glUniform.view as Float32Array);
-                                                                break;
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                    case WebGLRenderingContext.FLOAT_MAT4: {
-                                                        for (let m = 0; m < glUniform.count; ++m, offset += 16) {
-                                                            const idx = 16 * m;
-
-                                                            if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 2], glUniform.view[idx + 2]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 3], glUniform.view[idx + 3]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 4], glUniform.view[idx + 4]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 5], glUniform.view[idx + 5]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 6], glUniform.view[idx + 6]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 7], glUniform.view[idx + 7]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 8], glUniform.view[idx + 8]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 9], glUniform.view[idx + 9]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 10], glUniform.view[idx + 10]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 11], glUniform.view[idx + 11]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 12], glUniform.view[idx + 12]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 13], glUniform.view[idx + 13]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 14], glUniform.view[idx + 14]) ||
-                                                                CmpF32NotEuqal(vf32[offset + 15], glUniform.view[idx + 15])) {
-
-                                                                const begin = glUniform.offset / 4;
-                                                                glUniform.view.set(vf32.subarray(begin, begin + 16 * glUniform.count));
-                                                                gl.uniformMatrix4fv(glUniform.glLoc, false, glUniform.view as Float32Array);
-                                                                break;
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                    default:
+                                                    break;
                                                 }
-                                            } // if
+                                                case WebGLRenderingContext.BOOL_VEC2:
+                                                case WebGLRenderingContext.INT_VEC2: {
+                                                    const view = glUniform.view as Int32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, offset += 2) {
+                                                        const idx = 2 * m;
+                                                        if (vf32[offset] !== view[idx] ||
+                                                            vf32[offset + 1] !== view[idx + 1]) {
+
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + 2 * glUniform.count));
+                                                            gl.uniform2iv(glUniform.glLoc, view);
+                                                            break;
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                                case WebGLRenderingContext.BOOL_VEC3:
+                                                case WebGLRenderingContext.INT_VEC3: {
+                                                    const view = glUniform.view as Int32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, offset += 3) {
+                                                        const idx = 3 * m;
+                                                        if (vf32[offset] !== view[idx] ||
+                                                            vf32[offset + 1] !== view[idx + 1] ||
+                                                            vf32[offset + 2] !== view[idx + 2]) {
+
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + 3 * glUniform.count));
+                                                            gl.uniform3iv(glUniform.glLoc, view);
+                                                            break;
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                                case WebGLRenderingContext.BOOL_VEC4:
+                                                case WebGLRenderingContext.INT_VEC4: {
+                                                    const view = glUniform.view as Int32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, offset += 4) {
+                                                        const idx = 4 * m;
+                                                        if (vf32[offset] !== view[idx] ||
+                                                            vf32[offset + 1] !== view[idx + 1] ||
+                                                            vf32[offset + 2] !== view[idx + 2] ||
+                                                            vf32[offset + 3] !== view[idx + 3]) {
+
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + 4 * glUniform.count));
+                                                            gl.uniform4iv(glUniform.glLoc, view);
+                                                            break;
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                                case WebGLRenderingContext.FLOAT: {
+                                                    const view = glUniform.view as Float32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, ++offset) {
+
+                                                        if (CmpF32NotEuqal(vf32[offset], view[m])) {
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + glUniform.count));
+                                                            gl.uniform1fv(glUniform.glLoc, view);
+                                                            break;
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                                case WebGLRenderingContext.FLOAT_VEC2: {
+                                                    const view = glUniform.view as Float32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, offset += 2) {
+                                                        const idx = 2 * m;
+                                                        if (CmpF32NotEuqal(vf32[offset], view[idx]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 1], view[idx + 1])) {
+
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + 2 * glUniform.count));
+                                                            gl.uniform2fv(glUniform.glLoc, view);
+                                                            break;
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                                case WebGLRenderingContext.FLOAT_VEC3: {
+                                                    const view = glUniform.view as Float32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, offset += 3) {
+                                                        const idx = 3 * m;
+                                                        if (CmpF32NotEuqal(vf32[offset], view[idx]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 1], view[idx + 1]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 2], view[idx + 2])) {
+
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + 3 * glUniform.count));
+                                                            gl.uniform3fv(glUniform.glLoc, view);
+                                                            break;
+                                                        }
+
+                                                    }
+                                                    break;
+                                                }
+                                                case WebGLRenderingContext.FLOAT_VEC4: {
+                                                    const view = glUniform.view as Float32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, offset += 4) {
+                                                        const idx = 4 * m;
+
+                                                        if (CmpF32NotEuqal(vf32[offset], view[idx]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 1], view[idx + 1]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 2], view[idx + 2]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 3], view[idx + 3])) {
+
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + 4 * glUniform.count));
+                                                            gl.uniform4fv(glUniform.glLoc, view);
+                                                            break;
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                                case WebGLRenderingContext.FLOAT_MAT2: {
+                                                    const view = glUniform.view as Float32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, offset += 4) {
+                                                        const idx = 4 * m;
+                                                        if (CmpF32NotEuqal(vf32[offset], view[idx]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 1], view[idx + 1]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 2], view[idx + 2]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 3], view[idx + 3])) {
+
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + 4 * glUniform.count));
+                                                            gl.uniformMatrix2fv(glUniform.glLoc, false, view);
+                                                            break;
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                                case WebGLRenderingContext.FLOAT_MAT3: {
+                                                    const view = glUniform.view as Float32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, offset += 9) {
+                                                        const idx = 9 * m;
+                                                        if (CmpF32NotEuqal(vf32[offset], view[idx]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 1], view[idx + 1]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 2], view[idx + 2]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 3], view[idx + 3]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 4], view[idx + 4]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 5], view[idx + 5]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 6], view[idx + 6]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 7], view[idx + 7]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 8], view[idx + 8])) {
+
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + 9 * glUniform.count));
+                                                            gl.uniformMatrix3fv(glUniform.glLoc, false, view);
+                                                            break;
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                                case WebGLRenderingContext.FLOAT_MAT4: {
+                                                    const view = glUniform.view as Float32Array;
+                                                    for (let m = 0; m < glUniform.count; ++m, offset += 16) {
+                                                        const idx = 16 * m;
+
+                                                        if (CmpF32NotEuqal(vf32[offset], view[idx]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 1], view[idx + 1]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 2], view[idx + 2]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 3], view[idx + 3]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 4], view[idx + 4]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 5], view[idx + 5]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 6], view[idx + 6]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 7], view[idx + 7]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 8], view[idx + 8]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 9], view[idx + 9]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 10], view[idx + 10]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 11], view[idx + 11]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 12], view[idx + 12]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 13], view[idx + 13]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 14], view[idx + 14]) ||
+                                                            CmpF32NotEuqal(vf32[offset + 15], view[idx + 15])) {
+
+                                                            const begin = glUniform.offset / 4;
+                                                            view.set(vf32.subarray(begin, begin + 16 * glUniform.count));
+                                                            gl.uniformMatrix4fv(glUniform.glLoc, false, view);
+                                                            break;
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                                default:
+                                            }
                                         }
                                     }
                                 } // if

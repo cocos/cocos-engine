@@ -151,6 +151,7 @@ export class WebGLGPUUniformBlock {
     public name: string = '';
     public size: number = 0;
     public glUniforms: WebGLGPUUniform[] = [];
+    public glActiveUniforms: WebGLGPUUniform[] = [];
 
     public isUniformPackage: boolean = false;  // Is a single uniform package?
     public buffer: ArrayBuffer | null = null;  // for cache
