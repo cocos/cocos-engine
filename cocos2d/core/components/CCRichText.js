@@ -237,7 +237,7 @@ let RichText = cc.Class({
         /**
          * !#en Whether use system font name or not.
          * !#zh 是否使用系统字体。
-         * @property {Boolean} isSystemFontUsed
+         * @property {Boolean} useSystemFont
          */
         _isSystemFontUsed: true,
         useSystemFont: {
