@@ -78,18 +78,18 @@ let builtinResMgr = {
         });
 
         // default material
-        // let defaultMtl = new Material();
-        // defaultMtl._uuid = 'default-material';
-        // defaultMtl._defines['USE_COLOR'] = true;
-        // defaultMtl.effectAsset = efxs[0];
-        // defaultMtl.setProperty('color', cc.color('#FF00FF'));
+        let defaultMtl = new Material();
+        defaultMtl._uuid = 'default-material';
+        defaultMtl.setDefines({ USE_COLOR: true });
+        defaultMtl.effectAsset = efxs[0];
+        defaultMtl.setProperty('color', cc.color('#FF00FF'));
 
         let builtins = {
             // [defaultTexture._uuid]: defaultTexture,
             // [defaultTextureCube._uuid]: defaultTextureCube,
             // [blackTexture._uuid]: blackTexture,
             // [whiteTexture._uuid]: whiteTexture,
-            // [defaultMtl._uuid]: defaultMtl
+            [defaultMtl._uuid]: defaultMtl
         };
         return Object.assign(builtinResMgr, builtins);
     },
