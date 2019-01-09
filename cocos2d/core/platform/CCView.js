@@ -307,6 +307,7 @@ cc.js.mixin(View.prototype, {
      * @param {Function|Null} callback - The callback function
      */
     setResizeCallback: function (callback) {
+        if (CC_EDITOR) return;
         if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
