@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { IBlockInfo, ISamplerInfo } from '../../3d/assets/effect-asset';
+import { IBlockInfo, IPassInfo, ISamplerInfo } from '../../3d/assets/effect-asset';
 import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -14,24 +14,13 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage } from '../../pipeline/render-pipeline';
-import { IPropertyMap } from './effect';
 
-export interface IPassInfoBase {
-    program: string;
-    // effect-writer part
-    primitive?: GFXPrimitiveMode;
-    stage?: RenderPassStage;
-    rasterizerState?: GFXRasterizerState;
-    depthStencilState?: GFXDepthStencilState;
-    blendState?: GFXBlendState;
-}
-export interface IPassInfo extends IPassInfoBase {
+export interface IPassInfoFull extends IPassInfo {
     // generated part
     blocks: IBlockInfo[];
     samplers: ISamplerInfo[];
     shader: GFXShader;
     renderPass: GFXRenderPass;
-    uniforms: IPropertyMap;
 }
 
 const _type2fn = {
@@ -47,6 +36,21 @@ const _type2fn = {
   [GFXType.MAT2]: (a: Float32Array, v: any) => mat2.array(a, v),
   [GFXType.MAT3]: (a: Float32Array, v: any) => mat3.array(a, v),
   [GFXType.MAT4]: (a: Float32Array, v: any) => mat4.array(a, v),
+};
+
+const _type2default = {
+  [GFXType.INT]: 0,
+  [GFXType.INT2]: [0, 0],
+  [GFXType.INT3]: [0, 0, 0],
+  [GFXType.INT4]: [0, 0, 0, 0],
+  [GFXType.FLOAT]: 0,
+  [GFXType.FLOAT2]: [0, 0],
+  [GFXType.FLOAT3]: [0, 0, 0],
+  [GFXType.FLOAT4]: [0, 0, 0, 0],
+  [GFXType.COLOR4]: [0, 0, 0, 1],
+  [GFXType.MAT2]: [1, 0, 0, 1],
+  [GFXType.MAT3]: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+  [GFXType.MAT4]: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 };
 
 const btMask      = 0xf0000000; // 4 bits, 16 slots
@@ -93,7 +97,7 @@ export class Pass {
         this._device = device;
     }
 
-    public initialize (info: IPassInfo) {
+    public initialize (info: IPassInfoFull) {
         this._programName = info.program;
         // pipeline state
         const device = this._device;
@@ -136,9 +140,11 @@ export class Pass {
                 const view = new Float32Array(block.buffer, acc, cur.size / Float32Array.BYTES_PER_ELEMENT);
                 block.views.push(view);
                 // store handle map, type and initial value
-                const inf = info.uniforms[cur.name];
-                this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, inf.type, u.binding, idx);
-                _type2fn[inf.type](view, inf.value);
+                const inf = info.properties && info.properties[cur.name];
+                const type = inf && inf.type || cur.type; // property overloads
+                const value = inf && inf.value;
+                view.set(value ? value as number[] : _type2default[type]);
+                this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, type, u.binding, idx);
                 // proceed the counter
                 return acc + cur.size;
             }, 0); // === u.size
@@ -193,7 +199,7 @@ export class Pass {
         }
     }
 
-    public setStates (info: IPassInfoBase) {
+    public setStates (info: IPassInfo) {
         if (this._pipelineState) { this._pipelineState.destroy(); }
         this.createPipelineState(info);
     }
@@ -221,7 +227,7 @@ export class Pass {
         }
     }
 
-    protected createPipelineState (info: IPassInfoBase) {
+    protected createPipelineState (info: IPassInfo) {
         if (info.primitive) { this._primitive = info.primitive; }
         if (info.stage) { this._stage = info.stage; }
 
