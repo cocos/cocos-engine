@@ -33,8 +33,6 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        let frame = sprite.spriteFrame;
-        
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
         sprite._calDynamicAtlas();
