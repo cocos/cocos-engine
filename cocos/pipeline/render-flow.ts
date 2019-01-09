@@ -1,6 +1,6 @@
 import { GFXDevice } from '../gfx/device';
 import { RenderPipeline } from './render-pipeline';
-import { RenderStage, RenderStageInfo } from './render-stage';
+import { RenderStage, IRenderStageInfo } from './render-stage';
 import { RenderView } from './render-view';
 
 export interface IRenderFlowInfo {
@@ -43,7 +43,7 @@ export abstract class RenderFlow {
         }
     }
 
-    public createStage<T extends RenderStage> (clazz: new(flow: RenderFlow) => T, info: RenderStageInfo): RenderStage | null {
+    public createStage<T extends RenderStage> (clazz: new(flow: RenderFlow) => T, info: IRenderStageInfo): RenderStage | null {
         const stage: RenderStage = new clazz(this);
         if (stage.initialize(info)) {
             this._stages.push(stage);

@@ -1,39 +1,47 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { Material } from '../../3d/assets/material';
 import { aabb } from '../../3d/geom-utils';
+import { IGFXInputAttribute, GFXInputAssembler } from '../../gfx/input-assembler';
+import { GFXFormat, GFXBufferUsageBit, GFXMemoryUsageBit, GFXCommandBufferType } from '../../gfx/define';
+import { RenderScene } from './render-scene';
+import { vec3, mat4 } from '../../core/vmath';
 import { Vec3 } from '../../core/value-types';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType } from '../../gfx/define';
-import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph';
 import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
-import { RenderScene } from './render-scene';
+import { UBOLocal } from '../../pipeline/render-pipeline';
+import { GFXBuffer } from '../../gfx/buffer';
+
+let _temp_floatx16 = new Float32Array(16);
+let _temp_mat4 = mat4.create();
 
 /**
  * A representation of a model
  */
 export default class Model {
 
-    public _scene: RenderScene | null;
-    public _id: number;
-    public _enable: boolean;
-    public _type: string;
-    public _poolID: number;
-    public _isEnable: boolean;
-    public _node: Node;
-    public _inputAssembler: GFXInputAssembler | null;
-    public _effect: Effect | null;
-    public _defines: Object;
-    public _dependencies: Object;
-    public _viewID: number;
-    public _cameraID: number;
-    public _userKey: number;
-    public _castShadow: boolean;
-    public _boundingShape: aabb;
-    public _bsModelSpace: aabb;
-    public _material: Material | null;
-    public _cmdBuffers: GFXCommandBuffer[];
+    private _scene: RenderScene | null;
+    private _id: number;
+    private _enable: boolean;
+    private _type: string;
+    private _poolID: number;
+    private _isEnable: boolean;
+    private _node: Node;
+    private _inputAssembler: GFXInputAssembler | null;
+    private _effect: Effect | null;
+    private _defines: Object;
+    private _dependencies: Object;
+    private _viewID: number;
+    private _cameraID: number;
+    private _userKey: number;
+    private _castShadow: boolean;
+    private _boundingShape: aabb;
+    private _bsModelSpace: aabb;
+    private _material: Material | null;
+    private _cmdBuffers: GFXCommandBuffer[];
+    private _localUniforms: UBOLocal | null;
+    private _localUBO: GFXBuffer;
     /**
      * Setup a default empty model
      */
@@ -57,6 +65,18 @@ export default class Model {
         this._boundingShape = null;
         this._material = null;
         this._cmdBuffers = new Array<GFXCommandBuffer>();
+        this._localUniforms = null;
+    }
+
+    initialize() {
+        this._localUniforms = new UBOLocal();
+        this._localUBO = cc.director.root.device.createBuffer({
+            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST,
+            size: UBOLocal.SIZE,
+            stride: UBOLocal.SIZE,
+        });
+        this._localUBO.update(this._localUniforms.view);
     }
 
     set scene (scene: RenderScene | null) {
@@ -80,6 +100,15 @@ export default class Model {
         this._node.updateWorldTransformFull();
         this._bsModelSpace.transform(this._node._mat, this._node._pos,
             this._node._rot, this._node._scale, this._boundingShape);
+    }
+
+    updateRenderData() {
+        mat4.array(_temp_floatx16, this._node._mat);
+        this._node._mat.invert(_temp_mat4);
+        this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
+        mat4.array(_temp_floatx16, _temp_mat4);
+        this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
+        this._localUBO.update(this._localUniforms.view);
     }
 
     /**
@@ -125,6 +154,14 @@ export default class Model {
         this._inputAssembler = ia;
     }
 
+    get boundingShape (): aabb {
+        return this._boundingShape;
+    }
+
+    get viewID (): number {
+        return this._viewID;
+    }
+
     /**
      * Set the model effect
      * @param {?Effect} effect the effect to use
@@ -163,6 +200,8 @@ export default class Model {
         if (this._cmdBuffers[index] == null) {
             this._cmdBuffers[index] = cc.director.root.device.createCommandBuffer(cmdBufferInfo);
         }
+        pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localUBO);
+        pass.bindingLayout.update();
         this._cmdBuffers[index].begin();
         this._cmdBuffers[index].bindPipelineState(pass.pipelineState);
         this._cmdBuffers[index].bindBindingLayout(pass.bindingLayout);

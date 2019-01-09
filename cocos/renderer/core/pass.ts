@@ -87,7 +87,6 @@ export class Pass {
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _handleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
-    protected _layoutDirty: boolean = false;
     // external references
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
@@ -184,19 +183,11 @@ export class Pass {
     }
 
     public bindTextureView (binding: number, value: GFXTextureView) {
-        const bl = this._bindingLayout;
-        if (bl && bl.getBindingUnit(binding).texView !== value) {
-            bl.bindTextureView(binding, value);
-            this._layoutDirty = true;
-        }
+        (this._bindingLayout as GFXBindingLayout).bindTextureView(binding, value);
     }
 
     public bindSampler (binding: number, value: GFXSampler) {
-        const bl = this._bindingLayout;
-        if (bl && bl.getBindingUnit(binding).sampler !== value) {
-            bl.bindSampler(binding, value);
-            this._layoutDirty = true;
-        }
+        (this._bindingLayout as GFXBindingLayout).bindSampler(binding, value);
     }
 
     public setStates (info: IPassInfo) {
@@ -221,10 +212,7 @@ export class Pass {
                 block.dirty = false;
             }
         }
-        if (this._bindingLayout && this._layoutDirty) {
-            this._bindingLayout.update();
-            this._layoutDirty = false;
-        }
+        (this._bindingLayout as GFXBindingLayout).update();
     }
 
     protected createPipelineState (info: IPassInfo) {

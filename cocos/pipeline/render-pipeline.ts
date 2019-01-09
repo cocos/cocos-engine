@@ -34,7 +34,7 @@ export class UBOGlobal {
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 0, name: 'Global', members: [
+        binding: 30, name: 'Global', members: [
             { name: 'u_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'u_screenSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'u_screenScale', type: GFXType.FLOAT4, count: 1 },
@@ -53,18 +53,14 @@ export class UBOGlobal {
 
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;
-    public static MAT_WORLD_VIEW_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
-    public static MAT_WORLD_VIEW_PROJ_OFFSET: number = UBOLocal.MAT_WORLD_VIEW_OFFSET + 16;
-    public static WORLD_POS_OFFSET: number = UBOLocal.MAT_WORLD_VIEW_PROJ_OFFSET + 16;
-    public static COUNT: number = UBOLocal.WORLD_POS_OFFSET + 4;
+    public static MAT_WORLD_IT_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
+    public static COUNT: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 1, name: 'Local', members: [
-            { name: 'u_matWorld', type: GFXType.MAT4, count: 1 },
-            { name: 'u_matWorldView', type: GFXType.MAT4, count: 1 },
-            { name: 'u_matWorldViewProj', type: GFXType.MAT4, count: 1 },
-            { name: 'u_worldPos', type: GFXType.FLOAT4, count: 1 },
+        binding: 31, name: 'CCLocal', members: [
+            { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
         ],
     };
 
@@ -348,18 +344,16 @@ export abstract class RenderPipeline {
         for (const model of scene.models) {
 
             // filter model by view visibility
-            if (view.visibility > 0 && model._viewID !== view.visibility) {
+            if (view.visibility > 0 && model.viewID !== view.visibility) {
                 continue;
             }
 
             model._updateTransform();
 
             // frustum culling
-            if (model._boundingShape) { // if model does not have boundingBox, skip culling.
-                if (!intersect.aabb_frustum(model._boundingShape, camera.frustum)) {
-                    // console.log('model is not in view frustum.');
-                    continue;
-                }
+            if (!intersect.aabb_frustum(model.boundingShape, camera.frustum)) {
+                // console.log('model is not in view frustum.');
+                continue;
             }
 
             // add model pass to render queue

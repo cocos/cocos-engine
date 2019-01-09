@@ -12,7 +12,7 @@ import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderFlow } from '../render-flow';
 import { UBOGlobal } from '../render-pipeline';
-import { RenderStage, RenderStageInfo } from '../render-stage';
+import { RenderStage, IRenderStageInfo } from '../render-stage';
 import { RenderView } from '../render-view';
 
 /*
@@ -72,7 +72,7 @@ export class TestStage extends RenderStage {
         super(flow);
     }
 
-    public initialize (info: RenderStageInfo): boolean {
+    public initialize (info: IRenderStageInfo): boolean {
 
         if (info.name !== undefined) {
             this._name = info.name;

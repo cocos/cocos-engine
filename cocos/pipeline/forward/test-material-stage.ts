@@ -6,7 +6,7 @@ import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { RenderFlow } from '../render-flow';
-import { RenderStage, RenderStageInfo } from '../render-stage';
+import { RenderStage, IRenderStageInfo } from '../render-stage';
 import { RenderView } from '../render-view';
 
 export class TestMaterialStage extends RenderStage {
@@ -18,7 +18,7 @@ export class TestMaterialStage extends RenderStage {
         super(flow);
     }
 
-    public initialize (info: RenderStageInfo): boolean {
+    public initialize (info: IRenderStageInfo): boolean {
 
         if (info.name !== undefined) {
             this._name = info.name;

@@ -27,6 +27,7 @@ export abstract class GFXBindingLayout {
 
     protected _device: GFXDevice;
     protected _bindingUnits: GFXBindingUnit[] = [];
+    protected _isDirty = false;
 
     constructor (device: GFXDevice) {
         this._device = device;
@@ -40,7 +41,10 @@ export abstract class GFXBindingLayout {
         for (const bindingUnit of this._bindingUnits) {
             if (bindingUnit.binding === binding) {
                 if (bindingUnit.type === GFXBindingType.UNIFORM_BUFFER) {
-                    bindingUnit.buffer = buffer;
+                    if (bindingUnit.buffer !== buffer) {
+                        bindingUnit.buffer = buffer;
+                        this._isDirty = true;
+                    }
                 } else {
                     console.error('Setting binding is not GFXBindingType.UNIFORM_BUFFER.');
                 }
@@ -53,7 +57,10 @@ export abstract class GFXBindingLayout {
         for (const bindingUnit of this._bindingUnits) {
             if (bindingUnit.binding === binding) {
                 if (bindingUnit.type === GFXBindingType.SAMPLER) {
-                    bindingUnit.sampler = sampler;
+                    if (bindingUnit.sampler !== sampler) {
+                        bindingUnit.sampler = sampler;
+                        this._isDirty = true;
+                    }
                 } else {
                     console.error('Setting binding is not GFXBindingType.SAMPLER.');
                 }
@@ -66,7 +73,10 @@ export abstract class GFXBindingLayout {
         for (const bindingUnit of this._bindingUnits) {
             if (bindingUnit.binding === binding) {
                 if (bindingUnit.type === GFXBindingType.SAMPLER) {
-                    bindingUnit.texView = texView;
+                    if (bindingUnit.texView !== texView) {
+                        bindingUnit.texView = texView;
+                        this._isDirty = true;
+                    }
                 } else {
                     console.error('Setting binding is not GFXBindingType.SAMPLER.');
                 }
@@ -75,7 +85,12 @@ export abstract class GFXBindingLayout {
         }
     }
 
-    public getBindingUnit (binding: number): GFXBindingUnit {
-        return this._bindingUnits[binding];
+    public getBindingUnit (binding: number): GFXBindingUnit | null {
+        for (const unit of this._bindingUnits) {
+            if (unit.binding === binding) {
+                return unit;
+            }
+        }
+        return null;
     }
 }

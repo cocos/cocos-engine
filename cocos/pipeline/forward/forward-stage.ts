@@ -1,4 +1,4 @@
-import { RenderStage, RenderStageInfo } from "../render-stage";
+import { RenderStage, IRenderStageInfo } from "../render-stage";
 import { RenderFlow } from "../render-flow";
 import { GFXCommandBuffer } from "../../gfx/command-buffer";
 import { RenderView } from "../render-view";
@@ -12,7 +12,7 @@ export class ForwardStage extends RenderStage {
         super(flow);
     }
 
-    public initialize(info: RenderStageInfo): boolean {
+    public initialize(info: IRenderStageInfo): boolean {
 
         if (info.name !== undefined) {
             this._name = info.name;
