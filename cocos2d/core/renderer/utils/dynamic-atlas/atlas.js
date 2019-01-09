@@ -1,7 +1,9 @@
+const RenderTexture = require('../../../assets/CCRenderTexture');
+
 const space = 2;
 
 function Atlas (width, height) {
-    let texture = new cc.RenderTexture();
+    let texture = new RenderTexture();
     texture.initWithSize(width, height);
     texture.update();
     
@@ -17,6 +19,8 @@ function Atlas (width, height) {
     this._innerTextureInfos = {};
     this._innerSpriteFrames = [];
 }
+
+Atlas.DEFAULT_HASH = (new RenderTexture())._getHash();
 
 cc.js.mixin(Atlas.prototype, {
     insertSpriteFrame (spriteFrame) {

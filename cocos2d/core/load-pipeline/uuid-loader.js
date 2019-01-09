@@ -270,7 +270,7 @@ function loadUuid (item, callback) {
     }
     catch (e) {
         cc.deserialize.Details.pool.put(tdInfo);
-        var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
+        var err = CC_JSB || CC_RUNTIME ? (e + '\n' + e.stack) : e.stack;
         return new Error(debug.getError(4925, item.id, err));
     }
 

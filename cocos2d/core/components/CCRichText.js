@@ -91,9 +91,9 @@ pool.get = function (string, richtext) {
     if (typeof string !== 'string') {
         string = '' + string;
     }
-    let isAsset = richtext.fontAsset instanceof cc.Font;
+    let isAsset = richtext.font instanceof cc.Font;
     if (isAsset) {
-        labelComponent.font = richtext.fontAsset;
+        labelComponent.font = richtext.font;
     } else {
         labelComponent.fontFamily = richtext.fontFamily;
     }
@@ -871,7 +871,7 @@ let RichText = cc.Class({
         if (textStyle && textStyle.color) {
             labelNode.color = this._convertLiteralColorValue(textStyle.color);
         }else {
-            labelNode.color = this._convertLiteralColorValue("white");
+            labelNode.color = this.node.color;
         }
 
         labelComponent._enableBold(textStyle && textStyle.bold);

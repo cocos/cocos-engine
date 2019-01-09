@@ -385,6 +385,11 @@ var game = {
     },
 
     _prepareFinished (cb) {
+
+        if (CC_PREVIEW && window.__modular) {
+            window.__modular.run();
+        }
+
         this._prepared = true;
 
         // Init engine
@@ -427,8 +432,9 @@ var game = {
      * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
      */
     on (type, callback, target) {
-        // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._prepared && type === this.EVENT_ENGINE_INITED) {
+        // Make sure EVENT_ENGINE_INITED and EVENT_GAME_INITED callbacks to be invoked
+        if ((this._prepared && type === this.EVENT_ENGINE_INITED) ||
+            (!this._pause && type === this.EVENT_GAME_INITED)) {
             callback.call(target);
         }
         else {
@@ -454,8 +460,9 @@ var game = {
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     once (type, callback, target) {
-        // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._prepared && type === this.EVENT_ENGINE_INITED) {
+        // Make sure EVENT_ENGINE_INITED and EVENT_GAME_INITED callbacks to be invoked
+        if ((this._prepared && type === this.EVENT_ENGINE_INITED) ||
+            (!this._pause && type === this.EVENT_GAME_INITED)) {
             callback.call(target);
         }
         else {
@@ -573,7 +580,7 @@ var game = {
         var frameRate = game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
-        if (CC_JSB) {
+        if (CC_JSB || CC_RUNTIME) {
             jsb.setPreferredFramesPerSecond(frameRate);
             window.requestAnimFrame = window.requestAnimationFrame;
             window.cancelAnimFrame = window.cancelAnimationFrame;
@@ -626,7 +633,7 @@ var game = {
         callback = function () {
             if (!self._paused) {
                 self._intervalId = window.requestAnimFrame(callback);
-                if (!CC_JSB && frameRate === 30) {
+                if (!CC_JSB && !CC_RUNTIME && frameRate === 30) {
                     if (skip = !skip) {
                         return;
                     }
@@ -711,13 +718,13 @@ var game = {
             width, height,
             localCanvas, localContainer;
 
-        if (CC_WECHATGAME || CC_JSB) {
+        if (CC_WECHATGAME || CC_JSB || CC_RUNTIME) {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 localCanvas = window.sharedCanvas || wx.getSharedCanvas();
             }
-            else if (CC_JSB) {
+            else if (CC_JSB || CC_RUNTIME) {
                 localCanvas = window.__canvas;
             }
             else {

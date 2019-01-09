@@ -51,7 +51,7 @@
     "entries": [
       "./cocos2d/core/renderer/utils/dynamic-atlas/manager.js"
     ],
-    "dependencies": ["Renderer Texture"]
+    "dependencies": ["WebGL Renderer", "Renderer Texture"]
   },
   {
     "name": "LabelOutline",
@@ -261,7 +261,7 @@
     ]
   },
   {
-    "name": "Native NetWork"
+    "name": "Native Socket"
   },
   {
     "name": "3D",

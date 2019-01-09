@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var eventRegx = /^(click)(\s)*=/;
+var eventRegx = /^(click)(\s)*=|(param)(\s)*=/;
 var imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=|(\s)*param(\s)*=/;
 /**
  * A utils class for parsing HTML texts. The parsed results will be an object array.

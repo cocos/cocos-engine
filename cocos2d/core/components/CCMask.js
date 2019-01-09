@@ -30,6 +30,7 @@ const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Graphics = require('../graphics/graphics');
 const Node = require('../CCNode');
+const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
 
 import { mat4, vec2 } from '../vmath';
 
@@ -264,6 +265,9 @@ let Mask = cc.Class({
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._updateGraphics();
         }
+        else {
+            this._applySpriteFrame();
+        }
     },
 
     onEnable () {
@@ -273,6 +277,7 @@ let Mask = cc.Class({
                 // Do not render when sprite frame is not ready
                 this.markForRender(false);
                 if (this._spriteFrame) {
+                    this.markForUpdateRenderData(false);
                     this._spriteFrame.once('load', this._onTextureLoaded, this);
                     this._spriteFrame.ensureLoadTexture();
                 }
@@ -342,6 +347,9 @@ let Mask = cc.Class({
                 spriteFrame.once('load', this._onTextureLoaded, this);
                 spriteFrame.ensureLoadTexture();
             }
+        }
+        else {
+            this.disableRender();
         }
     },
 
@@ -493,6 +501,21 @@ let Mask = cc.Class({
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
                                    RenderFlow.FLAG_POST_RENDER);
     },
+
+    _calDynamicAtlas ()
+    {
+        if (!this._spriteFrame) return;
+        
+        if (!this._spriteFrame._original && dynamicAtlasManager) {
+            let frame = dynamicAtlasManager.insertSpriteFrame(this._spriteFrame);
+            if (frame) {
+                this._spriteFrame._setDynamicAtlasFrame(frame);
+            }
+        }
+        if (this._material._texture !== this._spriteFrame._texture) {
+            this._activateMaterial();
+        }
+    }
 });
 
 cc.Mask = module.exports = Mask;

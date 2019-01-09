@@ -198,7 +198,7 @@ cc.js.mixin(View.prototype, {
     },
 
     // Resize helper functions
-    _resizeEvent: function () {
+    _resizeEvent: function (forceOrEvent) {
         var view;
         if (this.setDesignResolutionSize) {
             view = this;
@@ -220,7 +220,7 @@ cc.js.mixin(View.prototype, {
         else {
             view._initFrameSize();
         }
-        if (view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
+        if (forceOrEvent !== true && view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
             return;
 
         // Frame size changed, do resize works
@@ -307,6 +307,7 @@ cc.js.mixin(View.prototype, {
      * @param {Function|Null} callback - The callback function
      */
     setResizeCallback: function (callback) {
+        if (CC_EDITOR) return;
         if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
@@ -412,7 +413,7 @@ cc.js.mixin(View.prototype, {
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewport && !CC_JSB && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
+        if (this._isAdjustViewport && !CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
@@ -612,7 +613,7 @@ cc.js.mixin(View.prototype, {
         this._frameSize.height = height;
         cc.game.frame.style.width = width + "px";
         cc.game.frame.style.height = height + "px";
-        this._resizeEvent();
+        this._resizeEvent(true);
     },
 
     /**
@@ -813,7 +814,7 @@ cc.js.mixin(View.prototype, {
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (!CC_JSB && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
+        if (!CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
             // Set viewport's width
             this._setViewportMeta({"width": width}, true);
 

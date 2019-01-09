@@ -514,6 +514,23 @@ function _doDispatchEvent (owner, event) {
     _cachedArray.length = 0;
 }
 
+// traversal the node tree, child cullingMask must keep the same with the parent.
+function _getActualGroupIndex (node) {
+    let groupIndex = node.groupIndex;
+    if (groupIndex === 0 && node.parent) {
+        groupIndex = _getActualGroupIndex(node.parent);
+    }
+    return groupIndex;
+}
+
+function _updateCullingMask (node) {
+    let index = _getActualGroupIndex(node);
+    node._cullingMask = 1 << index;
+    for (let i = 0; i < node._children.length; i++) {
+        _updateCullingMask(node._children[i]);
+    }
+}
+
 /**
  * !#en
  * Class of all entities in Cocos Creator scenes.<br/>
@@ -539,11 +556,15 @@ let NodeDefines = {
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
+        _zIndex: {
+            default: undefined,
+            type: cc.Integer
+        },
         _localZOrder: {
             default: 0,
             serializable: false
         },
-        _zIndex: 0,
+        _childArrivalOrder: 1,
 
         _is3DNode: false,
 
@@ -583,8 +604,7 @@ let NodeDefines = {
             set (value) {
                 // update the groupIndex
                 this.groupIndex = cc.game.groupList.indexOf(value);
-                let index = this._getActualGroupIndex(this);
-                this._cullingMask = 1 << index;
+                _updateCullingMask(this);
                 this.emit(EventType.GROUP_CHANGED, this);
             }
         },
@@ -1098,7 +1118,7 @@ let NodeDefines = {
          */
         zIndex: {
             get () {
-                return this._zIndex;
+                return this._localZOrder >> 16;
             },
             set (value) {
                 if (value > macro.MAX_ZINDEX) {
@@ -1110,8 +1130,7 @@ let NodeDefines = {
                     value = macro.MIN_ZINDEX;
                 }
 
-                if (this._zIndex !== value) {
-                    this._zIndex = value;
+                if (this.zIndex !== value) {
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
 
                     if (this._parent) {
@@ -1256,6 +1275,7 @@ let NodeDefines = {
 
     _onHierarchyChanged (oldParent) {
         this._updateOrderOfArrival();
+        _updateCullingMask(this);
         if (this._parent) {
             this._parent._delaySort();
         }
@@ -1297,9 +1317,9 @@ let NodeDefines = {
             this._scale.y = this._scaleY;
             this._scaleY = undefined;
         }
-
-        if (this._localZOrder !== 0) {
-            this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
+        if (this._zIndex !== undefined) {
+            this._localZOrder = this._zIndex << 16;
+            this._zIndex = undefined;
         }
 
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
@@ -1336,7 +1356,7 @@ let NodeDefines = {
         this._updateOrderOfArrival();
 
         // synchronize _cullingMask
-        this._cullingMask = 1 << this._getActualGroupIndex(this);
+        this._cullingMask = 1 << _getActualGroupIndex(this);
 
         let prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
@@ -1369,7 +1389,7 @@ let NodeDefines = {
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
 
-        this._cullingMask = 1 << this._getActualGroupIndex(this);
+        this._cullingMask = 1 << _getActualGroupIndex(this);
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -3040,8 +3060,18 @@ let NodeDefines = {
     },
 
     _updateOrderOfArrival () {
-        var arrivalOrder = ++_globalOrderOfArrival;
+        var arrivalOrder = this._parent ? ++this._parent._childArrivalOrder : 0;
         this._localZOrder = (this._localZOrder & 0xffff0000) | arrivalOrder;
+        // redistribute
+        if (arrivalOrder === 0x0000ffff) {
+            var siblings = this._parent._children;
+
+            siblings.forEach(function (node, index) {
+                node._localZOrder = (node._localZOrder & 0xffff0000) | (index + 1);
+            });
+
+            this._parent._childArrivalOrder = siblings.length;
+        }
     },
 
     /**

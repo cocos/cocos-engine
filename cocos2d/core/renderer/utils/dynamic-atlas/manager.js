@@ -108,12 +108,11 @@ let dynamicAtlasManager = {
             !spriteFrame || spriteFrame._original) return null;
         
         let texture = spriteFrame._texture;
-        if (texture instanceof cc.RenderTexture || cc.Texture2D._isCompressed(texture)) return null;
+        if (texture instanceof cc.RenderTexture) return null;
 
         let w = texture.width, h = texture.height;
-        let min = texture._minFilter, mag = texture._magFilter;
-        let LINEAR = cc.Texture2D.Filter.LINEAR;
-        if (w > _maxFrameSize || h > _maxFrameSize || w <= _minFrameSize || h <= _minFrameSize || (min & mag) !== LINEAR) {
+        if (w > _maxFrameSize || h > _maxFrameSize || w <= _minFrameSize || h <= _minFrameSize
+         || texture._getHash() !== Atlas.DEFAULT_HASH) {
             return null;
         }
 
@@ -160,7 +159,7 @@ let dynamicAtlasManager = {
                 _debugNode.height = height;
                 _debugNode.x = width/2;
                 _debugNode.y = height/2;
-                _debugNode._zIndex = cc.macro.MAX_ZINDEX;
+                _debugNode.zIndex = cc.macro.MAX_ZINDEX;
                 _debugNode.parent = cc.director.getScene();
 
                 _debugNode.groupIndex = cc.Node.BuiltinGroupIndex.DEBUG;

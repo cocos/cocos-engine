@@ -41,8 +41,8 @@ let FOCUS_DELAY_UC = 400;
 let FOCUS_DELAY_FIREFOX = 0;
 
 let math = cc.vmath;
-let _matrix = math.mat4.create();
-let _matrix_temp = math.mat4.create();
+let _worldMat = math.mat4.create();
+let _cameraMat = math.mat4.create();
 let _vec3 = cc.v3();
 
 let _currentEditBoxImpl = null;
@@ -94,6 +94,16 @@ let EditBoxImpl = cc.Class({
         this.__autoResize = false;
         this.__rotateScreen = false;
         this.__orientationChanged = null;
+
+        // matrix cache
+        this._m00 = 0;
+        this._m01 = 0;
+        this._m04 = 0;
+        this._m05 = 0;
+        this._m12 = 0;
+        this._m13 = 0;
+        this._w = 0;
+        this._h = 0;
     },
 
     onEnable () {
@@ -350,43 +360,59 @@ let EditBoxImpl = cc.Class({
 
     _updateMatrix () {
         if (!this._edTxt) return;
-
-        let camera;
-        // can't find camera in editor
-        if (CC_EDITOR) {
-            camera = cc.Camera.main;
-        }
-        else {
-            camera = cc.Camera.findCamera(this._node);
-        }
-        if (!camera) return;
     
-        let node = this._node, 
-            scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
+        let node = this._node;    
+        node.getWorldMatrix(_worldMat);
+
+        // check whether need to update
+        if (this._m00 === _worldMat.m00 && this._m01 === _worldMat.m01 &&
+            this._m04 === _worldMat.m04 && this._m05 === _worldMat.m05 &&
+            this._m12 === _worldMat.m12 && this._m13 === _worldMat.m13 &&
+            this._w === node._contentSize.width && this._h === node._contentSize.height) {
+            return;
+        }
+
+        // update matrix cache
+        this._m00 = _worldMat.m00;
+        this._m01 = _worldMat.m01;
+        this._m04 = _worldMat.m04;
+        this._m05 = _worldMat.m05;
+        this._m12 = _worldMat.m12;
+        this._m13 = _worldMat.m13;
+        this._w = node._contentSize.width;
+        this._h = node._contentSize.height;
+
+        let scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
             viewport = cc.view._viewportRect,
             dpr = cc.view._devicePixelRatio;
+
+        _vec3.x = -node._anchorPoint.x * this._w;
+        _vec3.y = -node._anchorPoint.y * this._h;
     
-        node.getWorldMatrix(_matrix);
-        let contentSize = node._contentSize;
-        _vec3.x = -node._anchorPoint.x * contentSize.width;
-        _vec3.y = -node._anchorPoint.y * contentSize.height;
-    
-        math.mat4.translate(_matrix, _matrix, _vec3);
+        math.mat4.translate(_worldMat, _worldMat, _vec3);
+
+        // can't find camera in editor
+        if (CC_EDITOR) {
+            _cameraMat = _worldMat;
+        }
+        else {
+            let camera = cc.Camera.findCamera(node);
+            camera.getWorldToCameraMatrix(_cameraMat);
+            math.mat4.mul(_cameraMat, _cameraMat, _worldMat);
+        }
         
-        camera.getWorldToCameraMatrix(_matrix_temp);
-        math.mat4.mul(_matrix_temp, _matrix_temp, _matrix);
     
         scaleX /= dpr;
         scaleY /= dpr;
     
         let container = cc.game.container;
-        let a = _matrix_temp.m00 * scaleX, b = _matrix.m01, c = _matrix.m04, d = _matrix_temp.m05 * scaleY;
+        let a = _cameraMat.m00 * scaleX, b = _cameraMat.m01, c = _cameraMat.m04, d = _cameraMat.m05 * scaleY;
     
         let offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
         offsetX += viewport.x / dpr;
         let offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
         offsetY += viewport.y / dpr;
-        let tx = _matrix_temp.m12 * scaleX + offsetX, ty = _matrix_temp.m13 * scaleY + offsetY;
+        let tx = _cameraMat.m12 * scaleX + offsetX, ty = _cameraMat.m13 * scaleY + offsetY;
     
         if (polyfill.zoomInvalid) {
             this._updateSize(this._size.width * a, this._size.height * d);
@@ -402,8 +428,8 @@ let EditBoxImpl = cc.Class({
     },
 
     _adjustEditBoxPosition () {
-        this._node.getWorldMatrix(_matrix);
-        let y = _matrix.m13;
+        this._node.getWorldMatrix(_worldMat);
+        let y = _worldMat.m13;
         let windowHeight = cc.visibleRect.height;
         let windowWidth = cc.visibleRect.width;
         let factor = 0.5;
