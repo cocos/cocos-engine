@@ -1,15 +1,25 @@
 import { GFXDevice } from '../device';
-import { WebGLGPURenderPass } from './webgl-gpu-objects';
+import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { WebGLGFXDevice } from './webgl-device';
-import { GFXRenderPass, GFXRenderPassInfo } from '../render-pass';
+import { WebGLGPURenderPass } from './webgl-gpu-objects';
 
 export class WebGLGFXRenderPass extends GFXRenderPass {
 
-    constructor(device: GFXDevice) {
+    public get webGLDevice (): WebGLGFXDevice {
+        return  this._device as WebGLGFXDevice;
+    }
+
+    public get gpuRenderPass (): WebGLGPURenderPass {
+        return  this._gpuRenderPass as WebGLGPURenderPass;
+    }
+
+    private _gpuRenderPass: WebGLGPURenderPass | null = null;
+
+    constructor (device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info: GFXRenderPassInfo): boolean {
+    public initialize (info: IGFXRenderPassInfo): boolean {
 
         if (info.colorAttachments !== undefined) {
             this._colorInfos = info.colorAttachments;
@@ -24,21 +34,11 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
         return true;
     }
 
-    public destroy() {
+    public destroy () {
 
         if (this._gpuRenderPass) {
             this.webGLDevice.emitCmdDestroyGPURenderPass(this._gpuRenderPass);
             this._gpuRenderPass = null;
         }
     }
-
-    public get webGLDevice(): WebGLGFXDevice {
-        return <WebGLGFXDevice>this._device;
-    }
-
-    public get gpuRenderPass(): WebGLGPURenderPass {
-        return <WebGLGPURenderPass>this._gpuRenderPass;
-    }
-
-    private _gpuRenderPass: WebGLGPURenderPass | null = null;
-};
+}

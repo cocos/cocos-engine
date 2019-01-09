@@ -1,56 +1,52 @@
-import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXPipelineBindPoint } from './define';
+import { GFXFormat, GFXLoadOp, GFXPipelineBindPoint, GFXStoreOp, GFXTextureLayout } from './define';
 import { GFXDevice } from './device';
 
-export class GFXColorAttachment
-{
-	format : GFXFormat = GFXFormat.UNKNOWN;
-	loadOp : GFXLoadOp = GFXLoadOp.CLEAR;
-	storeOp : GFXStoreOp = GFXStoreOp.STORE;
-	sampleCount : number = 1;
-	beginLayout : GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
-	endLayout : GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
-};
+export class GFXColorAttachment {
+    public format: GFXFormat = GFXFormat.UNKNOWN;
+    public loadOp: GFXLoadOp = GFXLoadOp.CLEAR;
+    public storeOp: GFXStoreOp = GFXStoreOp.STORE;
+    public sampleCount: number = 1;
+    public beginLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+    public endLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+}
 
-export class GFXDepthStencilAttachment
-{
-	format : GFXFormat = GFXFormat.UNKNOWN;
-	depthLoadOp : GFXLoadOp = GFXLoadOp.CLEAR;
-	depthStoreOp : GFXStoreOp = GFXStoreOp.STORE;
-	stencilLoadOp : GFXLoadOp = GFXLoadOp.CLEAR;
-	stencilStoreOp : GFXStoreOp = GFXStoreOp.STORE;
-    sampleCount : number = 1;
-    beginLayout : GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-	endLayout : GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-};
+export class GFXDepthStencilAttachment {
+    public format: GFXFormat = GFXFormat.UNKNOWN;
+    public depthLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
+    public depthStoreOp: GFXStoreOp = GFXStoreOp.STORE;
+    public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
+    public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE;
+    public sampleCount: number = 1;
+    public beginLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+}
 
-export interface GFXSubPassInfo
-{
-    bindPoint : GFXPipelineBindPoint;
-    inputs : number[];
-    colors : number[];
-    resolves : number[];
-    depthStencil : number;
-    preserves : number[];
-};
+export interface IGFXSubPassInfo {
+    bindPoint: GFXPipelineBindPoint;
+    inputs: number[];
+    colors: number[];
+    resolves: number[];
+    depthStencil: number;
+    preserves: number[];
+}
 
-export interface GFXRenderPassInfo
-{
-	colorAttachments? : GFXColorAttachment[];
-	depthStencilAttachment? : GFXDepthStencilAttachment;
-	//subPasses? : GFXSubPassInfo[];
-};
+export interface IGFXRenderPassInfo {
+    colorAttachments?: GFXColorAttachment[];
+    depthStencilAttachment?: GFXDepthStencilAttachment;
+    // subPasses? : GFXSubPassInfo[];
+}
 
 export abstract class GFXRenderPass {
 
-    constructor(device : GFXDevice) {
+    protected _device: GFXDevice;
+    protected _colorInfos: GFXColorAttachment[] = [];
+    protected _depthStencilInfo: GFXDepthStencilAttachment | null = null;
+
+    constructor (device: GFXDevice) {
         this._device = device;
     }
 
-    public abstract initialize(info : GFXRenderPassInfo) : boolean;
-    public abstract destroy() : void;
-
-    protected _device : GFXDevice;
-    protected _colorInfos : GFXColorAttachment[] = [];
-    protected _depthStencilInfo : GFXDepthStencilAttachment | null = null;
-    //protected _subPasses : GFXSubPassInfo[] = [];
-};
+    public abstract initialize (info: IGFXRenderPassInfo): boolean;
+    public abstract destroy (): void;
+    // protected _subPasses : GFXSubPassInfo[] = [];
+}

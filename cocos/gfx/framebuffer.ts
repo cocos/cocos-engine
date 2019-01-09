@@ -1,37 +1,29 @@
 import { GFXDevice } from './device';
-import { GFXTextureView } from './texture-view';
 import { GFXRenderPass } from './render-pass';
-import { GFXFormat } from './define';
+import { GFXTextureView } from './texture-view';
 
-export interface GFXFramebufferInfo {
+export interface IGFXFramebufferInfo {
     renderPass: GFXRenderPass;
     colorViews?: GFXTextureView[];
     depthStencilView?: GFXTextureView;
     isOffscreen?: boolean;
-};
+}
 
 export abstract class GFXFramebuffer {
 
-    constructor(device: GFXDevice) {
-        this._device = device;
-    }
-
-    public abstract initialize(info: GFXFramebufferInfo): boolean;
-    public abstract destroy(): void;
-
-    public get renderPass(): GFXRenderPass | null {
+    public get renderPass (): GFXRenderPass | null {
         return this._renderPass;
     }
 
-    public get colorViews(): GFXTextureView[] {
+    public get colorViews (): GFXTextureView[] {
         return this._colorViews;
     }
 
-    public get depthStencilView(): GFXTextureView | null {
+    public get depthStencilView (): GFXTextureView | null {
         return this._depthStencilView;
     }
 
-    public get isOffscreen(): boolean {
+    public get isOffscreen (): boolean {
         return this._isOffscreen;
     }
 
@@ -40,4 +32,11 @@ export abstract class GFXFramebuffer {
     protected _colorViews: GFXTextureView[] = [];
     protected _depthStencilView: GFXTextureView | null = null;
     protected _isOffscreen: boolean = true;
-};
+
+    constructor (device: GFXDevice) {
+        this._device = device;
+    }
+
+    public abstract initialize (info: IGFXFramebufferInfo): boolean;
+    public abstract destroy (): void;
+}

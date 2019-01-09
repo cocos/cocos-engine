@@ -1,23 +1,23 @@
+import { GFXBlendFactor, GFXBlendOp, GFXColorMask, GFXComparisonFunc, GFXCullMode, GFXPolygonMode, GFXPrimitiveMode, GFXShadeModel, GFXStencilOp } from './define';
 import { GFXDevice } from './device';
-import { GFXShader } from './shader';
-import { GFXRenderPass } from './render-pass';
+import { IGFXInputAttribute } from './input-assembler';
 import { GFXPipelineLayout } from './pipeline-layout';
-import { GFXInputAttribute } from './input-assembler';
-import { GFXPolygonMode, GFXShadeModel, GFXCullMode, GFXComparisonFunc, GFXStencilOp, GFXBlendFactor, GFXBlendOp, GFXColorMask, GFXPrimitiveMode } from './define';
+import { GFXRenderPass } from './render-pass';
+import { GFXShader } from './shader';
 
 export class GFXRasterizerState {
-    isDiscard: boolean = false;
-    polygonMode: GFXPolygonMode = GFXPolygonMode.FILL;
-    shadeModel: GFXShadeModel = GFXShadeModel.GOURAND;
-    cullMode: GFXCullMode = GFXCullMode.BACK;
-    isFrontFaceCCW: boolean = true;
-    depthBias: number = 0.0;
-    depthBiasFactor: number = 0.0;
-    isDepthClip: boolean = true;
-    isMultisample: boolean = false;
+    public isDiscard: boolean = false;
+    public polygonMode: GFXPolygonMode = GFXPolygonMode.FILL;
+    public shadeModel: GFXShadeModel = GFXShadeModel.GOURAND;
+    public cullMode: GFXCullMode = GFXCullMode.BACK;
+    public isFrontFaceCCW: boolean = true;
+    public depthBias: number = 0.0;
+    public depthBiasFactor: number = 0.0;
+    public isDepthClip: boolean = true;
+    public isMultisample: boolean = false;
     // lineWidth: number = 1.0;
 
-    public compare(state: GFXRasterizerState): boolean {
+    public compare (state: GFXRasterizerState): boolean {
         return (this.isDiscard === state.isDiscard) &&
             (this.polygonMode === state.polygonMode) &&
             (this.shadeModel === state.shadeModel) &&
@@ -29,30 +29,30 @@ export class GFXRasterizerState {
             // (this.lineWidth === state.lineWidth) &&
             (this.isMultisample === state.isMultisample);
     }
-};
+}
 
 export class GFXDepthStencilState {
-    depthTest: boolean = true;
-    depthWrite: boolean = true;
-    depthFunc: GFXComparisonFunc = GFXComparisonFunc.LESS;
-    stencilTestFront: boolean = false;
-    stencilFuncFront: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
-    stencilReadMaskFront: number = 0xffffffff;
-    stencilWriteMaskFront: number = 0xffffffff;
-    stencilFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
-    stencilZFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
-    stencilPassOpFront: GFXStencilOp = GFXStencilOp.KEEP;
-    stencilRefFront: number = 1;
-    stencilTestBack: boolean = false;
-    stencilFuncBack: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
-    stencilReadMaskBack: number = 0xffffffff;
-    stencilWriteMaskBack: number = 0xffffffff;
-    stencilFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
-    stencilZFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
-    stencilPassOpBack: GFXStencilOp = GFXStencilOp.KEEP;
-    stencilRefBack: number = 1;
+    public depthTest: boolean = true;
+    public depthWrite: boolean = true;
+    public depthFunc: GFXComparisonFunc = GFXComparisonFunc.LESS;
+    public stencilTestFront: boolean = false;
+    public stencilFuncFront: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
+    public stencilReadMaskFront: number = 0xffffffff;
+    public stencilWriteMaskFront: number = 0xffffffff;
+    public stencilFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilZFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilPassOpFront: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilRefFront: number = 1;
+    public stencilTestBack: boolean = false;
+    public stencilFuncBack: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
+    public stencilReadMaskBack: number = 0xffffffff;
+    public stencilWriteMaskBack: number = 0xffffffff;
+    public stencilFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilZFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilPassOpBack: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilRefBack: number = 1;
 
-    public compare(state: GFXDepthStencilState): boolean {
+    public compare (state: GFXDepthStencilState): boolean {
         return (this.depthTest === state.depthTest) &&
             (this.depthWrite === state.depthWrite) &&
             (this.depthFunc === state.depthFunc) &&
@@ -73,19 +73,19 @@ export class GFXDepthStencilState {
             (this.stencilPassOpBack === state.stencilPassOpBack) &&
             (this.stencilRefBack === state.stencilRefBack);
     }
-};
+}
 
 export class GFXBlendTarget {
-    blend: boolean = false;
-    blendSrc: GFXBlendFactor = GFXBlendFactor.ONE;
-    blendDst: GFXBlendFactor = GFXBlendFactor.ZERO;
-    blendEq: GFXBlendOp = GFXBlendOp.ADD;
-    blendSrcAlpha: GFXBlendFactor = GFXBlendFactor.ONE;
-    blendDstAlpha: GFXBlendFactor = GFXBlendFactor.ZERO;
-    blendAlphaEq: GFXBlendOp = GFXBlendOp.ADD;
-    blendColorMask: GFXColorMask = GFXColorMask.ALL;
+    public blend: boolean = false;
+    public blendSrc: GFXBlendFactor = GFXBlendFactor.ONE;
+    public blendDst: GFXBlendFactor = GFXBlendFactor.ZERO;
+    public blendEq: GFXBlendOp = GFXBlendOp.ADD;
+    public blendSrcAlpha: GFXBlendFactor = GFXBlendFactor.ONE;
+    public blendDstAlpha: GFXBlendFactor = GFXBlendFactor.ZERO;
+    public blendAlphaEq: GFXBlendOp = GFXBlendOp.ADD;
+    public blendColorMask: GFXColorMask = GFXColorMask.ALL;
 
-    public compare(state: GFXBlendTarget): boolean {
+    public compare (state: GFXBlendTarget): boolean {
         return (this.blend === state.blend) &&
             (this.blendSrc === state.blendSrc) &&
             (this.blendDst === state.blendDst) &&
@@ -95,20 +95,20 @@ export class GFXBlendTarget {
             (this.blendAlphaEq === state.blendAlphaEq) &&
             (this.blendColorMask === state.blendColorMask);
     }
-};
+}
 
 export class GFXBlendState {
-    isA2C: boolean = false;
-    isIndepend: boolean = false;
-    blendColor: number[] = [0, 0, 0, 0];
-    targets: GFXBlendTarget[] = [new GFXBlendTarget];
+    public isA2C: boolean = false;
+    public isIndepend: boolean = false;
+    public blendColor: number[] = [0, 0, 0, 0];
+    public targets: GFXBlendTarget[] = [new GFXBlendTarget()];
 }
 
 export class GFXInputState {
-    attributes: GFXInputAttribute[] = [];
-};
+    public attributes: IGFXInputAttribute[] = [];
+}
 
-export interface GFXPipelineStateInfo {
+export interface IGFXPipelineStateInfo {
     primitive: GFXPrimitiveMode;
     shader: GFXShader;
     is: GFXInputState;
@@ -117,43 +117,36 @@ export interface GFXPipelineStateInfo {
     bs: GFXBlendState;
     layout: GFXPipelineLayout;
     renderPass: GFXRenderPass;
-};
+}
 
 export abstract class GFXPipelineState {
 
-    constructor(device: GFXDevice) {
-        this._device = device;
+    public get shader (): GFXShader {
+        return  this._shader as GFXShader;
     }
 
-    public abstract initialize(info: GFXPipelineStateInfo): boolean;
-    public abstract destroy(): void;
-
-    public get shader() : GFXShader {
-        return <GFXShader>this._shader;
-    }
-
-    public get primitive() : GFXPrimitiveMode {
+    public get primitive (): GFXPrimitiveMode {
         return this._primitive;
     }
 
-    public get rasterizerState() : GFXRasterizerState {
-        return <GFXRasterizerState>this._rs;
+    public get rasterizerState (): GFXRasterizerState {
+        return  this._rs as GFXRasterizerState;
     }
 
-    public get depthStencilState() : GFXDepthStencilState {
-        return <GFXDepthStencilState>this._dss;
+    public get depthStencilState (): GFXDepthStencilState {
+        return  this._dss as GFXDepthStencilState;
     }
 
-    public get blendState() : GFXBlendState {
-        return <GFXBlendState>this._bs;
+    public get blendState (): GFXBlendState {
+        return  this._bs as GFXBlendState;
     }
 
-    public get pipelineLayout() : GFXPipelineLayout {
-        return <GFXPipelineLayout>this._layout;
+    public get pipelineLayout (): GFXPipelineLayout {
+        return  this._layout as GFXPipelineLayout;
     }
 
-    public get renderPass() : GFXRenderPass {
-        return <GFXRenderPass>this._renderPass;
+    public get renderPass (): GFXRenderPass {
+        return  this._renderPass as GFXRenderPass;
     }
 
     protected _device: GFXDevice;
@@ -165,4 +158,11 @@ export abstract class GFXPipelineState {
     protected _bs: GFXBlendState | null = null;
     protected _layout: GFXPipelineLayout | null = null;
     protected _renderPass: GFXRenderPass | null = null;
-};
+
+    constructor (device: GFXDevice) {
+        this._device = device;
+    }
+
+    public abstract initialize (info: IGFXPipelineStateInfo): boolean;
+    public abstract destroy (): void;
+}

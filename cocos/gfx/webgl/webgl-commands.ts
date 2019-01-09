@@ -1,15 +1,15 @@
-import { WebGLGPUBuffer, WebGLGPUTexture, WebGLGPUInputAssembler, WebGLGPUFramebuffer, WebGLGPUShader, WebGLGPUInput, WebGLAttrib, WebGLGPUPipelineState, WebGLGPUUniformBlock, WebGLGPUBindingLayout, WebGLGPUUniform, WebGLGPUUniformSampler } from "./webgl-gpu-objects";
-import { WebGLGFXDevice } from "./webgl-device";
-import { GFXFormatInfos, GFXFormat, WebGLEXT, GFXType, GFX_MAX_VERTEX_ATTRIBUTES, GFXFormatSize, GFXColor, GFXRect, GFXBindingType, GFXBufferTextureCopy, GFXColorMask, GFXCullMode, GFXShaderType, GFXTextureViewType, GFXTextureLayout, GFXLoadOp, GFXTextureFlagBit, GFXMemoryUsageBit, GFXBufferUsageBit } from "../define";
-import { WebGLGFXCommandAllocator } from "./webgl-command-allocator";
-import { WebGLTexUnit } from "./webgl-state-cache";
+import { GFXBindingType, GFXBufferTextureCopy, GFXBufferUsageBit, GFXColorMask, GFXCullMode, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit, GFXShaderType, GFXTextureFlagBit, GFXTextureLayout, GFXTextureViewType, GFXType, IGFXColor, IGFXRect, WebGLEXT} from '../define';
+import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
+import { WebGLGFXDevice } from './webgl-device';
+import { WebGLAttrib, WebGLGPUBindingLayout, WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInput, WebGLGPUInputAssembler, WebGLGPUPipelineState, WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniform, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
+import { IWebGLTexUnit } from './webgl-state-cache';
 
-function CmpF32NotEuqal(a: number, b: number): boolean {
-    let c = a - b;
+function CmpF32NotEuqal (a: number, b: number): boolean {
+    const c = a - b;
     return (c > 0.000001 || c < -0.000001);
 }
 
-function GFXFormatToWebGLType(format: GFXFormat, device: WebGLGFXDevice): GLenum {
+function GFXFormatToWebGLType (format: GFXFormat, device: WebGLGFXDevice): GLenum {
     switch (format) {
         case GFXFormat.R8: return WebGLRenderingContext.UNSIGNED_BYTE;
         case GFXFormat.R8SN: return WebGLRenderingContext.BYTE;
@@ -112,7 +112,7 @@ function GFXFormatToWebGLType(format: GFXFormat, device: WebGLGFXDevice): GLenum
     }
 }
 
-function GFXFormatToWebGLInternalFormat(format: GFXFormat): GLenum {
+function GFXFormatToWebGLInternalFormat (format: GFXFormat): GLenum {
     switch (format) {
         case GFXFormat.A8: return WebGLRenderingContext.ALPHA;
         case GFXFormat.L8: return WebGLRenderingContext.LUMINANCE;
@@ -146,13 +146,13 @@ function GFXFormatToWebGLInternalFormat(format: GFXFormat): GLenum {
         case GFXFormat.PVRTC_RGBA4: return WebGLEXT.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 
         default: {
-            console.error("Unsupported GFXFormat, convert to WebGL internal format failed.");
+            console.error('Unsupported GFXFormat, convert to WebGL internal format failed.');
             return WebGLRenderingContext.RGBA;
         }
     }
 }
 
-function GFXFormatToWebGLFormat(format: GFXFormat): GLenum {
+function GFXFormatToWebGLFormat (format: GFXFormat): GLenum {
     switch (format) {
         case GFXFormat.A8: return WebGLRenderingContext.ALPHA;
         case GFXFormat.L8: return WebGLRenderingContext.LUMINANCE;
@@ -186,13 +186,13 @@ function GFXFormatToWebGLFormat(format: GFXFormat): GLenum {
         case GFXFormat.PVRTC_RGBA4: return WebGLEXT.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 
         default: {
-            console.error("Unsupported GFXFormat, convert to WebGL format failed.");
+            console.error('Unsupported GFXFormat, convert to WebGL format failed.');
             return WebGLRenderingContext.RGBA;
         }
     }
 }
 
-function GFXTypeToWebGLType(type: GFXType): GLenum {
+function GFXTypeToWebGLType (type: GFXType): GLenum {
     switch (type) {
         case GFXType.BOOL: return WebGLRenderingContext.BOOL;
         case GFXType.BOOL2: return WebGLRenderingContext.BOOL_VEC2;
@@ -214,13 +214,13 @@ function GFXTypeToWebGLType(type: GFXType): GLenum {
         case GFXType.SAMPLER2D: return WebGLRenderingContext.SAMPLER_2D;
         case GFXType.SAMPLER_CUBE: return WebGLRenderingContext.SAMPLER_CUBE;
         default: {
-            console.error("Unsupported GLType, convert to GL type failed.");
+            console.error('Unsupported GLType, convert to GL type failed.');
             return GFXType.UNKNOWN;
         }
     }
 }
 
-function WebGLTypeToGFXType(glType: GLenum): GFXType {
+function WebGLTypeToGFXType (glType: GLenum): GFXType {
     switch (glType) {
         case WebGLRenderingContext.BOOL: return GFXType.BOOL;
         case WebGLRenderingContext.BOOL_VEC2: return GFXType.BOOL2;
@@ -241,13 +241,13 @@ function WebGLTypeToGFXType(glType: GLenum): GFXType {
         case WebGLRenderingContext.SAMPLER_2D: return GFXType.SAMPLER2D;
         case WebGLRenderingContext.SAMPLER_CUBE: return GFXType.SAMPLER_CUBE;
         default: {
-            console.error("Unsupported GLType, convert to GFXType failed.");
+            console.error('Unsupported GLType, convert to GFXType failed.');
             return GFXType.UNKNOWN;
         }
     }
 }
 
-function WebGLGetTypeSize(glType: GLenum): GFXType {
+function WebGLGetTypeSize (glType: GLenum): GFXType {
     switch (glType) {
         case WebGLRenderingContext.BOOL: return 4;
         case WebGLRenderingContext.BOOL_VEC2: return 8;
@@ -268,13 +268,13 @@ function WebGLGetTypeSize(glType: GLenum): GFXType {
         case WebGLRenderingContext.SAMPLER_2D: return 4;
         case WebGLRenderingContext.SAMPLER_CUBE: return 4;
         default: {
-            console.error("Unsupported GLType, get type failed.");
+            console.error('Unsupported GLType, get type failed.');
             return 0;
         }
     }
 }
 
-function WebGLGetComponentCount(glType: GLenum): GFXType {
+function WebGLGetComponentCount (glType: GLenum): GFXType {
     switch (glType) {
         case WebGLRenderingContext.FLOAT_MAT2: return 2;
         case WebGLRenderingContext.FLOAT_MAT3: return 3;
@@ -341,169 +341,169 @@ export enum WebGLCmd {
     UPDATE_BUFFER,
     COPY_BUFFER_TO_TEXTURE,
     COUNT,
-};
+}
 
 export class WebGLCmdObject {
-    cmdType: WebGLCmd;
+    public cmdType: WebGLCmd;
 
-    constructor(type: WebGLCmd) {
+    constructor (type: WebGLCmd) {
         this.cmdType = type;
     }
-};
+}
 
 export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
 
-    gpuFramebuffer: WebGLGPUFramebuffer | null = null;
-    renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
-    clearColors: GFXColor[] = [];
-    clearDepth: number = 1.0;
-    clearStencil: number = 0;
+    public gpuFramebuffer: WebGLGPUFramebuffer | null = null;
+    public renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    public clearColors: IGFXColor[] = [];
+    public clearDepth: number = 1.0;
+    public clearStencil: number = 0;
 
-    constructor() {
+    constructor () {
         super(WebGLCmd.BEGIN_RENDER_PASS);
     }
 }
 
 export class WebGLCmdBindPipelineState extends WebGLCmdObject {
 
-    gpuPipelineState: WebGLGPUPipelineState | null = null;
+    public gpuPipelineState: WebGLGPUPipelineState | null = null;
 
-    constructor() {
+    constructor () {
         super(WebGLCmd.BIND_PIPELINE_STATE);
     }
-};
+}
 
 export class WebGLCmdBindInputAssembler extends WebGLCmdObject {
 
-    gpuInputAssembler: WebGLGPUInputAssembler | null = null;
+    public gpuInputAssembler: WebGLGPUInputAssembler | null = null;
 
-    constructor() {
+    constructor () {
         super(WebGLCmd.BIND_INPUT_ASSEMBLER);
     }
-};
+}
 
 export class WebGLCmdBindBindingLayout extends WebGLCmdObject {
 
-    gpuBindingLayout: WebGLGPUBindingLayout | null = null;
+    public gpuBindingLayout: WebGLGPUBindingLayout | null = null;
 
-    constructor() {
+    constructor () {
         super(WebGLCmd.BIND_BINDING_LAYOUT);
     }
-};
+}
 
 export class WebGLCmdDraw extends WebGLCmdObject {
 
-    vertexCount: number = 0;
-    firstVertex: number = 0;
+    public vertexCount: number = 0;
+    public firstVertex: number = 0;
 
-    indexCount: number = 0;
-    firstIndex: number = 0;
-    vertexOffset: number = 0;
+    public indexCount: number = 0;
+    public firstIndex: number = 0;
+    public vertexOffset: number = 0;
 
-    instanceCount: number = 0;
-    firstInstance: number = 0;
+    public instanceCount: number = 0;
+    public firstInstance: number = 0;
 
-    constructor() {
+    constructor () {
         super(WebGLCmd.DRAW);
     }
-};
+}
 
 export class WebGLCmdUpdateBuffer extends WebGLCmdObject {
 
-    gpuBuffer: WebGLGPUBuffer | null = null;
-    buffer: ArrayBuffer | null = null;
-    offset: number = 0;
+    public gpuBuffer: WebGLGPUBuffer | null = null;
+    public buffer: ArrayBuffer | null = null;
+    public offset: number = 0;
 
-    constructor() {
+    constructor () {
         super(WebGLCmd.UPDATE_BUFFER);
     }
-};
+}
 
 export class WebGLGFXTextureSubres {
-    baseMipLevel: number = 0;
-    levelCount: number = 1;
-    baseArrayLayer: number = 0;
-    layerCount: number = 1;
+    public baseMipLevel: number = 0;
+    public levelCount: number = 1;
+    public baseArrayLayer: number = 0;
+    public layerCount: number = 1;
 }
 
 export class WebGLGFXBufferTextureCopy {
-    buffOffset: number = 0;
-    buffStride: number = 0;
-    buffTexHeight: number = 0;
-    texOffset: number[] = [0, 0, 0];
-    texExtent: number[] = [0, 0, 0];
-    texSubres: WebGLGFXTextureSubres = new WebGLGFXTextureSubres;
+    public buffOffset: number = 0;
+    public buffStride: number = 0;
+    public buffTexHeight: number = 0;
+    public texOffset: number[] = [0, 0, 0];
+    public texExtent: number[] = [0, 0, 0];
+    public texSubres: WebGLGFXTextureSubres = new WebGLGFXTextureSubres();
 }
 
 export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
 
-    gpuBuffer: WebGLGPUBuffer | null = null;
-    gpuTexture: WebGLGPUTexture | null = null;
-    dstLayout: GFXTextureLayout | null = null;
-    regions: GFXBufferTextureCopy[] = [];
+    public gpuBuffer: WebGLGPUBuffer | null = null;
+    public gpuTexture: WebGLGPUTexture | null = null;
+    public dstLayout: GFXTextureLayout | null = null;
+    public regions: GFXBufferTextureCopy[] = [];
 
-    constructor() {
+    constructor () {
         super(WebGLCmd.COPY_BUFFER_TO_TEXTURE);
     }
-};
+}
 
 export class WebGLCmdPackage {
-    cmds: WebGLCmd[] = [];
-    beginRenderPassCmds: WebGLCmdBeginRenderPass[] = [];
-    bindPipelineStateCmds: WebGLCmdBindPipelineState[] = [];
-    bindBindingLayoutCmds: WebGLCmdBindBindingLayout[] = [];
-    bindInputAssemblerCmds: WebGLCmdBindInputAssembler[] = [];
-    drawCmds: WebGLCmdDraw[] = [];
-    updateBufferCmds: WebGLCmdUpdateBuffer[] = [];
-    copyBufferToTextureCmds: WebGLCmdCopyBufferToTexture[] = [];
+    public cmds: WebGLCmd[] = [];
+    public beginRenderPassCmds: WebGLCmdBeginRenderPass[] = [];
+    public bindPipelineStateCmds: WebGLCmdBindPipelineState[] = [];
+    public bindBindingLayoutCmds: WebGLCmdBindBindingLayout[] = [];
+    public bindInputAssemblerCmds: WebGLCmdBindInputAssembler[] = [];
+    public drawCmds: WebGLCmdDraw[] = [];
+    public updateBufferCmds: WebGLCmdUpdateBuffer[] = [];
+    public copyBufferToTextureCmds: WebGLCmdCopyBufferToTexture[] = [];
 
-    clearCmds(allocator: WebGLGFXCommandAllocator) {
+    public clearCmds (allocator: WebGLGFXCommandAllocator) {
 
         if (this.beginRenderPassCmds.length) {
-            for (let i = 0; i < this.beginRenderPassCmds.length; ++i) {
-                allocator.beginRenderPassCmdPool.free(this.beginRenderPassCmds[i]);
+            for (const beginRenderPassCmd of this.beginRenderPassCmds) {
+                allocator.beginRenderPassCmdPool.free(beginRenderPassCmd);
             }
             this.beginRenderPassCmds = [];
         }
 
         if (this.bindPipelineStateCmds.length) {
-            for (let i = 0; i < this.bindPipelineStateCmds.length; ++i) {
-                allocator.bindPipelineStateCmdPool.free(this.bindPipelineStateCmds[i]);
+            for (const bindPipelineStateCmd of this.bindPipelineStateCmds) {
+                allocator.bindPipelineStateCmdPool.free(bindPipelineStateCmd);
             }
             this.bindPipelineStateCmds = [];
         }
 
         if (this.bindBindingLayoutCmds.length) {
-            for (let i = 0; i < this.bindBindingLayoutCmds.length; ++i) {
-                allocator.bindBindingLayoutCmdPool.free(this.bindBindingLayoutCmds[i]);
+            for (const bindBindingLayoutCmd of this.bindBindingLayoutCmds) {
+                allocator.bindBindingLayoutCmdPool.free(bindBindingLayoutCmd);
             }
             this.bindBindingLayoutCmds = [];
         }
 
         if (this.bindInputAssemblerCmds.length) {
-            for (let i = 0; i < this.bindInputAssemblerCmds.length; ++i) {
-                allocator.bindInputAssemblerCmdPool.free(this.bindInputAssemblerCmds[i]);
+            for (const bindInputAssemblerCmd of this.bindInputAssemblerCmds) {
+                allocator.bindInputAssemblerCmdPool.free(bindInputAssemblerCmd);
             }
             this.bindInputAssemblerCmds = [];
         }
 
         if (this.drawCmds.length) {
-            for (let i = 0; i < this.drawCmds.length; ++i) {
-                allocator.drawCmdPool.free(this.drawCmds[i]);
+            for (const drawCmd of this.drawCmds) {
+                allocator.drawCmdPool.free(drawCmd);
             }
             this.drawCmds = [];
         }
 
         if (this.updateBufferCmds.length) {
-            for (let i = 0; i < this.updateBufferCmds.length; ++i) {
-                allocator.updateBufferCmdPool.free(this.updateBufferCmds[i]);
+            for (const updateBufferCmd of this.updateBufferCmds) {
+                allocator.updateBufferCmdPool.free(updateBufferCmd);
             }
             this.updateBufferCmds = [];
         }
 
         if (this.copyBufferToTextureCmds.length) {
-            for (let i = 0; i < this.copyBufferToTextureCmds.length; ++i) {
-                allocator.copyBufferToTextureCmdPool.free(this.copyBufferToTextureCmds[i]);
+            for (const copyBufferToTextureCmd of this.copyBufferToTextureCmds) {
+                allocator.copyBufferToTextureCmdPool.free(copyBufferToTextureCmd);
             }
             this.copyBufferToTextureCmds = [];
         }
@@ -512,14 +512,14 @@ export class WebGLCmdPackage {
     }
 }
 
-export function WebGLCmdFuncCreateBuffer(device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer) {
+export function WebGLCmdFuncCreateBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer) {
 
-    let gl = device.gl;
+    const gl = device.gl;
 
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
 
         gpuBuffer.glTarget = WebGLRenderingContext.ARRAY_BUFFER;
-        let glBuffer = gl.createBuffer();
+        const glBuffer = gl.createBuffer();
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
 
@@ -528,7 +528,7 @@ export function WebGLCmdFuncCreateBuffer(device: WebGLGFXDevice, gpuBuffer: WebG
                 device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
             }
 
-            let glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
+            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
             gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
 
             gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, null);
@@ -537,7 +537,7 @@ export function WebGLCmdFuncCreateBuffer(device: WebGLGFXDevice, gpuBuffer: WebG
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDEX) {
 
         gpuBuffer.glTarget = WebGLRenderingContext.ELEMENT_ARRAY_BUFFER;
-        let glBuffer = gl.createBuffer();
+        const glBuffer = gl.createBuffer();
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
 
@@ -546,14 +546,14 @@ export function WebGLCmdFuncCreateBuffer(device: WebGLGFXDevice, gpuBuffer: WebG
                 device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
             }
 
-            let glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
+            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
             gl.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
 
             gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, null);
             device.stateCache.glElementArrayBuffer = 0;
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
-        //console.error("WebGL 1.0 doesn't support uniform buffer.");
+        // console.error("WebGL 1.0 doesn't support uniform buffer.");
         gpuBuffer.glTarget = WebGLRenderingContext.NONE;
 
         if (gpuBuffer.buffer) {
@@ -565,26 +565,26 @@ export function WebGLCmdFuncCreateBuffer(device: WebGLGFXDevice, gpuBuffer: WebG
     } else if (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_SRC) {
         gpuBuffer.glTarget = WebGLRenderingContext.NONE;
     } else {
-        console.error("Unsupported GFXBufferType, create buffer failed.");
+        console.error('Unsupported GFXBufferType, create buffer failed.');
         gpuBuffer.glTarget = WebGLRenderingContext.NONE;
     }
 }
 
-export function WebGLCmdFuncDestroyBuffer(device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer) {
+export function WebGLCmdFuncDestroyBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer) {
     if (gpuBuffer.glBuffer > 0) {
         device.gl.deleteBuffer(gpuBuffer.glBuffer);
         gpuBuffer.glBuffer = 0;
     }
 }
 
-export function WebGLCmdFuncUpdateBuffer(device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer, offset: number, buffer: ArrayBuffer) {
+export function WebGLCmdFuncUpdateBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer, offset: number, buffer: ArrayBuffer) {
 
     if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
         if (gpuBuffer.viewF32 && buffer) {
             gpuBuffer.viewF32.set(new Float32Array(buffer), offset);
         }
     } else {
-        let gl = device.gl;
+        const gl = device.gl;
 
         switch (gpuBuffer.glTarget) {
             case WebGLRenderingContext.ARRAY_BUFFER: {
@@ -604,15 +604,15 @@ export function WebGLCmdFuncUpdateBuffer(device: WebGLGFXDevice, gpuBuffer: WebG
                 break;
             }
             default: {
-                console.error("Unsupported GFXBufferType, update buffer failed.");
+                console.error('Unsupported GFXBufferType, update buffer failed.');
             }
         }
     }
 }
 
-export function WebGLCmdFuncCreateTexture(device: WebGLGFXDevice, gpuTexture: WebGLGPUTexture) {
+export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: WebGLGPUTexture) {
 
-    let gl = device.gl;
+    const gl = device.gl;
 
     gpuTexture.glInternelFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format);
     gpuTexture.glFormat = GFXFormatToWebGLFormat(gpuTexture.format);
@@ -624,10 +624,10 @@ export function WebGLCmdFuncCreateTexture(device: WebGLGFXDevice, gpuTexture: We
             gpuTexture.viewType = GFXTextureViewType.TV2D;
             gpuTexture.glTarget = WebGLRenderingContext.TEXTURE_2D;
 
-            let glTexture = gl.createTexture();
+            const glTexture = gl.createTexture();
             if (glTexture) {
                 gpuTexture.glTexture = glTexture;
-                let glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
+                const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
 
                 if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                     gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, gpuTexture.glTexture);
@@ -644,7 +644,7 @@ export function WebGLCmdFuncCreateTexture(device: WebGLGFXDevice, gpuTexture: We
                         h = Math.max(1, h >> 1);
                     }
                 } else {
-                    let view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
+                    const view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                         gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
                         w = Math.max(1, w >> 1);
@@ -660,10 +660,10 @@ export function WebGLCmdFuncCreateTexture(device: WebGLGFXDevice, gpuTexture: We
             gpuTexture.viewType = GFXTextureViewType.CUBE;
             gpuTexture.glTarget = WebGLRenderingContext.TEXTURE_CUBE_MAP;
 
-            let glTexture = gl.createTexture();
+            const glTexture = gl.createTexture();
             if (glTexture) {
                 gpuTexture.glTexture = glTexture;
-                let glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
+                const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
 
                 if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                     gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
@@ -681,7 +681,7 @@ export function WebGLCmdFuncCreateTexture(device: WebGLGFXDevice, gpuTexture: We
                         }
                     }
                 } else {
-                    let view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
+                    const view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
 
                     for (let f = 0; f < 6; ++f) {
                         let w = gpuTexture.width;
@@ -698,27 +698,27 @@ export function WebGLCmdFuncCreateTexture(device: WebGLGFXDevice, gpuTexture: We
             break;
         }
         default: {
-            console.error("Unsupported GFXTextureType, create texture failed.");
+            console.error('Unsupported GFXTextureType, create texture failed.');
             gpuTexture.viewType = GFXTextureViewType.TV2D;
             gpuTexture.glTarget = WebGLRenderingContext.TEXTURE_2D;
         }
     }
 }
 
-export function WebGLCmdFuncDestroyTexture(device: WebGLGFXDevice, gpuTexture: WebGLGPUTexture) {
+export function WebGLCmdFuncDestroyTexture (device: WebGLGFXDevice, gpuTexture: WebGLGPUTexture) {
     if (gpuTexture.glTexture > 0) {
         device.gl.deleteTexture(gpuTexture.glTexture);
         gpuTexture.glTexture = 0;
     }
 }
 
-export function WebGLCmdFuncCreateFramebuffer(device: WebGLGFXDevice, gpuFramebuffer: WebGLGPUFramebuffer) {
+export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFramebuffer: WebGLGPUFramebuffer) {
 
     if (!gpuFramebuffer.isOffscreen) {
 
-        let gl = device.gl;
+        const gl = device.gl;
 
-        let glFramebuffer = gl.createFramebuffer();
+        const glFramebuffer = gl.createFramebuffer();
         if (glFramebuffer) {
             gpuFramebuffer.glFramebuffer = glFramebuffer;
 
@@ -729,7 +729,7 @@ export function WebGLCmdFuncCreateFramebuffer(device: WebGLGFXDevice, gpuFramebu
 
             for (let i = 0; i < gpuFramebuffer.gpuColorViews.length; ++i) {
 
-                let gpuColorView = gpuFramebuffer.gpuColorViews[i];
+                const gpuColorView = gpuFramebuffer.gpuColorViews[i];
                 if (gpuColorView) {
                     gl.framebufferTexture2D(
                         WebGLRenderingContext.FRAMEBUFFER,
@@ -742,7 +742,7 @@ export function WebGLCmdFuncCreateFramebuffer(device: WebGLGFXDevice, gpuFramebu
 
             if (gpuFramebuffer.gpuDepthStencilView) {
 
-                let glAttachment = GFXFormatInfos[gpuFramebuffer.gpuDepthStencilView.format].hasStencil ?
+                const glAttachment = GFXFormatInfos[gpuFramebuffer.gpuDepthStencilView.format].hasStencil ?
                     WebGLRenderingContext.DEPTH_STENCIL_ATTACHMENT : WebGLRenderingContext.DEPTH_ATTACHMENT;
 
                 gl.framebufferTexture2D(
@@ -753,74 +753,72 @@ export function WebGLCmdFuncCreateFramebuffer(device: WebGLGFXDevice, gpuFramebu
                     gpuFramebuffer.gpuDepthStencilView.baseLevel);
             }
 
-            let status = gl.checkFramebufferStatus(WebGLRenderingContext.FRAMEBUFFER);
+            const status = gl.checkFramebufferStatus(WebGLRenderingContext.FRAMEBUFFER);
             if (status !== WebGLRenderingContext.FRAMEBUFFER_COMPLETE) {
                 switch (status) {
                     case WebGLRenderingContext.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
-                        console.error("glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+                        console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
                         break;
                     }
                     case WebGLRenderingContext.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
-                        console.error("glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+                        console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
                         break;
                     }
                     case WebGLRenderingContext.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: {
-                        console.error("glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS");
+                        console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
                         break;
                     }
                     case WebGLRenderingContext.FRAMEBUFFER_UNSUPPORTED: {
-                        console.error("glCheckFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED");
+                        console.error('glCheckFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED');
                         break;
                     }
-                    default: ;
+                    default:
                 }
             }
         }
     }
 }
 
-export function WebGLCmdFuncDestroyFramebuffer(device: WebGLGFXDevice, gpuFramebuffer: WebGLGPUFramebuffer) {
+export function WebGLCmdFuncDestroyFramebuffer (device: WebGLGFXDevice, gpuFramebuffer: WebGLGPUFramebuffer) {
     if (gpuFramebuffer.glFramebuffer > 0) {
         device.gl.deleteFramebuffer(gpuFramebuffer.glFramebuffer);
         gpuFramebuffer.glFramebuffer = 0;
     }
 }
 
-export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebGLGPUShader) {
-    let gl = device.gl;
+export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: WebGLGPUShader) {
+    const gl = device.gl;
 
-    for (let i = 0; i < gpuShader.gpuStages.length; ++i) {
-        let gpuStage = gpuShader.gpuStages[i];
+    for (const gpuStage of gpuShader.gpuStages) {
 
         let glShaderType: GLenum = 0;
-        let shaderTypeStr = "";
+        let shaderTypeStr = '';
 
         switch (gpuStage.type) {
             case GFXShaderType.VERTEX: {
-                shaderTypeStr = "VertexShader";
+                shaderTypeStr = 'VertexShader';
                 glShaderType = WebGLRenderingContext.VERTEX_SHADER;
                 break;
             }
             case GFXShaderType.FRAGMENT: {
-                shaderTypeStr = "FragmentShader";
+                shaderTypeStr = 'FragmentShader';
                 glShaderType = WebGLRenderingContext.FRAGMENT_SHADER;
                 break;
             }
             default: {
-                console.error("Unsupported GFXShaderType.");
+                console.error('Unsupported GFXShaderType.');
                 return;
             }
         }
 
-        let glShader = gl.createShader(glShaderType);
+        const glShader = gl.createShader(glShaderType);
         if (glShader) {
             gpuStage.glShader = glShader;
             gl.shaderSource(gpuStage.glShader, gpuStage.source);
             gl.compileShader(gpuStage.glShader);
 
-            var isSuccess = gl.getShaderParameter(gpuStage.glShader, gl.COMPILE_STATUS);
-            if (!isSuccess) {
-                console.error(shaderTypeStr + " in '" + gpuShader.name + "' compilation failed.");
+            if (!gl.getShaderParameter(gpuStage.glShader, gl.COMPILE_STATUS)) {
+                console.error(shaderTypeStr + ' in \'' + gpuShader.name + '\' compilation failed.');
                 console.error(gpuStage.source);
                 console.error(gl.getShaderInfoLog(gpuStage.glShader));
 
@@ -830,28 +828,24 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
         }
     }
 
-    let glProgram = gl.createProgram();
+    const glProgram = gl.createProgram();
     if (glProgram) {
         gpuShader.glProgram = glProgram;
 
         // link program
-        for (let i = 0; i < gpuShader.gpuStages.length; ++i) {
-            let gpuStage = gpuShader.gpuStages[i];
-
+        for (const gpuStage of gpuShader.gpuStages) {
             gl.attachShader(gpuShader.glProgram, gpuStage.glShader);
         }
     }
 
     gl.linkProgram(gpuShader.glProgram);
-    var isSuccess = gl.getProgramParameter(gpuShader.glProgram, gl.LINK_STATUS);
-    if (isSuccess) {
-        console.info("Shader '" + gpuShader.name + "' compilation successed.");
+    if (gl.getProgramParameter(gpuShader.glProgram, gl.LINK_STATUS)) {
+        console.info('Shader \'' + gpuShader.name + '\' compilation successed.');
     } else {
-        console.error("Failed to link shader '" + gpuShader.name + "'.");
+        console.error('Failed to link shader \'' + gpuShader.name + '\'.');
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
 
-        for (let i = 0; i < gpuShader.gpuStages.length; ++i) {
-            let gpuStage = gpuShader.gpuStages[i];
+        for (const gpuStage of gpuShader.gpuStages) {
             if (gpuStage.glShader > 0) {
                 gl.deleteShader(gpuStage.glShader);
                 gpuStage.glShader = 0;
@@ -860,34 +854,34 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
     }
 
     // parse inputs
-    let activeAttribCount = gl.getProgramParameter(gpuShader.glProgram, gl.ACTIVE_ATTRIBUTES);
+    const activeAttribCount = gl.getProgramParameter(gpuShader.glProgram, gl.ACTIVE_ATTRIBUTES);
     gpuShader.glInputs = new Array<WebGLGPUInput>(activeAttribCount);
 
     for (let i = 0; i < activeAttribCount; ++i) {
-        let attribInfo = gl.getActiveAttrib(gpuShader.glProgram, i);
+        const attribInfo = gl.getActiveAttrib(gpuShader.glProgram, i);
         if (attribInfo) {
             let varName: string;
-            let nameOffset = attribInfo.name.indexOf('[');
+            const nameOffset = attribInfo.name.indexOf('[');
             if (nameOffset !== -1) {
                 varName = attribInfo.name.substr(0, nameOffset);
             } else {
                 varName = attribInfo.name;
             }
 
-            let glLoc = gl.getAttribLocation(gpuShader.glProgram, varName);
-            let type = WebGLTypeToGFXType(attribInfo.type);
-            let stride = WebGLGetTypeSize(attribInfo.type);
+            const glLoc = gl.getAttribLocation(gpuShader.glProgram, varName);
+            const type = WebGLTypeToGFXType(attribInfo.type);
+            const stride = WebGLGetTypeSize(attribInfo.type);
 
             gpuShader.glInputs[i] = {
                 binding: glLoc,
                 name: varName,
-                type: type,
-                stride: stride,
+                type,
+                stride,
                 count: attribInfo.size,
                 size: stride * attribInfo.size,
 
                 glType: attribInfo.type,
-                glLoc: glLoc,
+                glLoc,
             };
         }
     }
@@ -896,9 +890,9 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
     if (gpuShader.blocks.length > 0) {
         gpuShader.glBlocks = new Array<WebGLGPUUniformBlock>(gpuShader.blocks.length);
         for (let i = 0; i < gpuShader.blocks.length; ++i) {
-            let block = gpuShader.blocks[i];
+            const block = gpuShader.blocks[i];
 
-            let glBlock: WebGLGPUUniformBlock = {
+            const glBlock: WebGLGPUUniformBlock = {
                 binding: block.binding,
                 name: block.name,
                 size: 0,
@@ -910,24 +904,24 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
             gpuShader.glBlocks[i] = glBlock;
 
             for (let u = 0; u < block.members.length; ++u) {
-                let uniform = block.members[u];
-                let glType = GFXTypeToWebGLType(uniform.type);
-                let stride = WebGLGetTypeSize(glType);
-                let size = stride * uniform.count;
+                const uniform = block.members[u];
+                const glType = GFXTypeToWebGLType(uniform.type);
+                const stride = WebGLGetTypeSize(glType);
+                const size = stride * uniform.count;
 
                 glBlock.glUniforms[u] = {
                     binding: -1,
                     name: uniform.name,
                     type: uniform.type,
-                    stride: stride,
+                    stride,
                     count: uniform.count,
-                    size: size,
+                    size,
                     offset: glBlock.size,
 
-                    glType: glType,
+                    glType,
                     glLoc: -1,
                     view: null,
-                }
+                };
 
                 glBlock.size += size;
             }
@@ -941,7 +935,7 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
         gpuShader.glSamplers = new Array<WebGLGPUUniformSampler>(gpuShader.samplers.length);
 
         for (let i = 0; i < gpuShader.samplers.length; ++i) {
-            let sampler = gpuShader.samplers[i];
+            const sampler = gpuShader.samplers[i];
             gpuShader.glSamplers[i] = {
                 binding: sampler.binding,
                 name: sampler.name,
@@ -949,47 +943,44 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
                 units: [],
                 glType: GFXTypeToWebGLType(sampler.type),
                 glLoc: -1,
-            }
+            };
         }
     }
 
     // parse uniforms
-    let activeUniformCount = gl.getProgramParameter(gpuShader.glProgram, gl.ACTIVE_UNIFORMS);
+    const activeUniformCount = gl.getProgramParameter(gpuShader.glProgram, gl.ACTIVE_UNIFORMS);
     let unitIdx = 0;
 
     for (let i = 0; i < activeUniformCount; ++i) {
-        let uniformInfo = gl.getActiveUniform(gpuShader.glProgram, i);
+        const uniformInfo = gl.getActiveUniform(gpuShader.glProgram, i);
         if (uniformInfo) {
-            let glLoc = gl.getUniformLocation(gpuShader.glProgram, uniformInfo.name);
+            const glLoc = gl.getUniformLocation(gpuShader.glProgram, uniformInfo.name);
             if (glLoc) {
                 let varName: string;
-                let nameOffset = uniformInfo.name.indexOf('[');
+                const nameOffset = uniformInfo.name.indexOf('[');
                 if (nameOffset !== -1) {
                     varName = uniformInfo.name.substr(0, nameOffset);
                 } else {
                     varName = uniformInfo.name;
                 }
 
-                let isSampler = (uniformInfo.type === WebGLRenderingContext.SAMPLER_2D) ||
+                const isSampler = (uniformInfo.type === WebGLRenderingContext.SAMPLER_2D) ||
                     (uniformInfo.type === WebGLRenderingContext.SAMPLER_CUBE);
 
                 if (!isSampler) {
-                    //let stride = WebGLGetTypeSize(info.type);
+                    // let stride = WebGLGetTypeSize(info.type);
 
                     // build uniform block mapping
-                    for (let b = 0; b < gpuShader.glBlocks.length; ++b) {
+                    for (const glBlock of gpuShader.glBlocks) {
 
-                        let glBlock = gpuShader.glBlocks[b];
-
-                        for (let u = 0; u < glBlock.glUniforms.length; ++u) {
-                            let glUniform = glBlock.glUniforms[u];
+                        for (const glUniform of glBlock.glUniforms) {
                             if (glUniform.name === varName) {
-                                //let varSize = stride * info.size;
+                                // let varSize = stride * info.size;
 
                                 glUniform.glLoc = glLoc;
 
-                                //let count = glUniform.size / 4;
-                                //glUniform.view = new Float32Array(<ArrayBuffer>glBlock.buffer, glUniform.offset, count);
+                                // let count = glUniform.size / 4;
+                                // glUniform.view = new Float32Array(<ArrayBuffer>glBlock.buffer, glUniform.offset, count);
 
                                 switch (glUniform.glType) {
                                     case WebGLRenderingContext.BOOL:
@@ -1000,13 +991,13 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
                                     case WebGLRenderingContext.INT_VEC3:
                                     case WebGLRenderingContext.INT_VEC2:
                                     case WebGLRenderingContext.INT_VEC4: {
-                                        let count = glUniform.size / 4;
-                                        glUniform.view = new Int32Array(<ArrayBuffer>glBlock.buffer, glUniform.offset, count);
+                                        const count = glUniform.size / 4;
+                                        glUniform.view = new Int32Array(glBlock.buffer as ArrayBuffer, glUniform.offset, count);
                                         break;
                                     }
                                     default: {
-                                        let count = glUniform.size / 4;
-                                        glUniform.view = new Float32Array(<ArrayBuffer>glBlock.buffer, glUniform.offset, count);
+                                        const count = glUniform.size / 4;
+                                        glUniform.view = new Float32Array(glBlock.buffer as ArrayBuffer, glUniform.offset, count);
                                     }
                                 }
 
@@ -1016,10 +1007,9 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
                     } // for
                 } else {
 
-                    for (let s = 0; s < gpuShader.glSamplers.length; ++s) {
-                        let glSampler = gpuShader.glSamplers[s];
+                    for (const glSampler of gpuShader.glSamplers) {
                         if (glSampler.name === varName) {
-                            //let varSize = stride * uniformInfo.size;
+                            // let varSize = stride * uniformInfo.size;
 
                             for (let t = 0; t < uniformInfo.size; ++t) {
                                 glSampler.units.push(unitIdx + t);
@@ -1038,11 +1028,9 @@ export function WebGLCmdFuncCreateShader(device: WebGLGFXDevice, gpuShader: WebG
     } // for
 }
 
-export function WebGLCmdFuncDestroyShader(device: WebGLGFXDevice, gpuShader: WebGLGPUShader) {
+export function WebGLCmdFuncDestroyShader (device: WebGLGFXDevice, gpuShader: WebGLGPUShader) {
 
-    for (let i = 0; i < gpuShader.gpuStages.length; ++i) {
-        let gpuStage = gpuShader.gpuStages[i];
-
+    for (const gpuStage of gpuShader.gpuStages) {
         if (gpuStage.glShader > 0) {
             device.gl.deleteShader(gpuStage.glShader);
             gpuStage.glShader = 0;
@@ -1055,28 +1043,28 @@ export function WebGLCmdFuncDestroyShader(device: WebGLGFXDevice, gpuShader: Web
     }
 }
 
-export function WebGLCmdFuncCreateInputAssember(device: WebGLGFXDevice, gpuInputAssembler: WebGLGPUInputAssembler) {
+export function WebGLCmdFuncCreateInputAssember (device: WebGLGFXDevice, gpuInputAssembler: WebGLGPUInputAssembler) {
 
     gpuInputAssembler.glAttribs = new Array<WebGLAttrib>(gpuInputAssembler.attributes.length);
 
-    let offsets = [0, 0, 0, 0, 0, 0, 0, 0];
+    const offsets = [0, 0, 0, 0, 0, 0, 0, 0];
 
     for (let i = 0; i < gpuInputAssembler.attributes.length; ++i) {
-        let attrib = gpuInputAssembler.attributes[i];
+        const attrib = gpuInputAssembler.attributes[i];
 
-        let stream = attrib.stream !== undefined ? attrib.stream : 0;
-        //if (stream < gpuInputAssembler.gpuVertexBuffers.length) {
+        const stream = attrib.stream !== undefined ? attrib.stream : 0;
+        // if (stream < gpuInputAssembler.gpuVertexBuffers.length) {
 
-        let gpuBuffer = gpuInputAssembler.gpuVertexBuffers[stream];
+        const gpuBuffer = gpuInputAssembler.gpuVertexBuffers[stream];
 
-        let glType = GFXFormatToWebGLType(attrib.format, device);
-        let size = GFXFormatInfos[attrib.format].size;
+        const glType = GFXFormatToWebGLType(attrib.format, device);
+        const size = GFXFormatInfos[attrib.format].size;
 
         gpuInputAssembler.glAttribs[i] = {
             name: attrib.name,
             glBuffer: gpuBuffer.glBuffer,
-            glType: glType,
-            size: size,
+            glType,
+            size,
             count: GFXFormatInfos[attrib.format].count,
             stride: gpuBuffer.stride,
             componentCount: WebGLGetComponentCount(glType),
@@ -1089,31 +1077,30 @@ export function WebGLCmdFuncCreateInputAssember(device: WebGLGFXDevice, gpuInput
     }
 }
 
-export function WebGLCmdFuncDestroyInputAssembler(device: WebGLGFXDevice, gpuInputAssembler: WebGLGPUInputAssembler) {
+export function WebGLCmdFuncDestroyInputAssembler (device: WebGLGFXDevice, gpuInputAssembler: WebGLGPUInputAssembler) {
 }
 
-export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebGLCmdPackage) {
+export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: WebGLCmdPackage) {
 
-    let gl = device.gl;
-    let cmdIds = [0, 0, 0, 0, 0, 0, 0, 0];   // 8
+    const gl = device.gl;
+    const cmdIds = [0, 0, 0, 0, 0, 0, 0, 0];   // 8
 
     let gpuShader: WebGLGPUShader | null = null;
     let gpuInputAssembler: WebGLGPUInputAssembler | null = null;
     let glPrimitive = WebGLRenderingContext.TRIANGLES;
 
-    for (let i = 0; i < cmdPackage.cmds.length; ++i) {
-        let cmd = cmdPackage.cmds[i];
-        let cmdId = cmdIds[cmd]++;
+    for (const cmd of cmdPackage.cmds) {
+        const cmdId = cmdIds[cmd]++;
 
-        switch (cmdPackage.cmds[i]) {
+        switch (cmd) {
             case WebGLCmd.BEGIN_RENDER_PASS: {
-                let cmd0 = cmdPackage.beginRenderPassCmds[cmdId];
+                const cmd0 = cmdPackage.beginRenderPassCmds[cmdId];
 
                 let clears: GLbitfield = 0;
 
                 if (cmd0.gpuFramebuffer) {
                     if (device.stateCache.glFramebuffer !== cmd0.gpuFramebuffer.glFramebuffer) {
-                        let glFBO = (cmd0.gpuFramebuffer.glFramebuffer !== 0 ? cmd0.gpuFramebuffer.glFramebuffer : null);
+                        const glFBO = (cmd0.gpuFramebuffer.glFramebuffer !== 0 ? cmd0.gpuFramebuffer.glFramebuffer : null);
                         gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, glFBO);
                         device.stateCache.glFramebuffer = cmd0.gpuFramebuffer.glFramebuffer;
                     }
@@ -1144,13 +1131,13 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                         device.stateCache.scissorRect.height = cmd0.renderArea.height;
                     }
 
-                    let curGPURenderPass = cmd0.gpuFramebuffer.gpuRenderPass;
+                    const curGPURenderPass = cmd0.gpuFramebuffer.gpuRenderPass;
 
-                    let invalidateAttachments: GLenum[] = [0, 0, 0, 0];
+                    const invalidateAttachments: GLenum[] = [0, 0, 0, 0];
                     let numInvalidAttach = 0;
 
                     if (curGPURenderPass.colorAttachments.length > 0) {
-                        let colorAttachment = curGPURenderPass.colorAttachments[0];
+                        const colorAttachment = curGPURenderPass.colorAttachments[0];
 
                         if (colorAttachment.format !== GFXFormat.UNKNOWN) {
                             switch (colorAttachment.loadOp) {
@@ -1161,7 +1148,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                         gl.colorMask(true, true, true, true);
                                     }
 
-                                    let clearColor = cmd0.clearColors[0];
+                                    const clearColor = cmd0.clearColors[0];
                                     gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
                                     clears |= WebGLRenderingContext.COLOR_BUFFER_BIT;
 
@@ -1172,7 +1159,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                     invalidateAttachments[numInvalidAttach++] = WebGLRenderingContext.COLOR_ATTACHMENT0;
                                     break;
                                 }
-                                default: ;
+                                default:
                             }
                         }
                     } // if (curGPURenderPass)
@@ -1199,7 +1186,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                     invalidateAttachments[numInvalidAttach++] = WebGLRenderingContext.DEPTH_ATTACHMENT;
                                     break;
                                 }
-                                default: ;
+                                default:
                             }
 
                             if (GFXFormatInfos[curGPURenderPass.depthStencilAttachment.format].hasStencil) {
@@ -1225,7 +1212,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                         invalidateAttachments[numInvalidAttach++] = WebGLRenderingContext.STENCIL_ATTACHMENT;
                                         break;
                                     }
-                                    default: ;
+                                    default:
                                 }
                             }
                         }
@@ -1244,12 +1231,12 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                     // restore states
                     if (clears & WebGLRenderingContext.COLOR_BUFFER_BIT) {
 
-                        let colorMask = device.stateCache.bs.targets[0].blendColorMask;
+                        const colorMask = device.stateCache.bs.targets[0].blendColorMask;
                         if (colorMask !== GFXColorMask.ALL) {
-                            let r = (colorMask & GFXColorMask.R) != GFXColorMask.NONE;
-                            let g = (colorMask & GFXColorMask.G) != GFXColorMask.NONE;
-                            let b = (colorMask & GFXColorMask.B) != GFXColorMask.NONE;
-                            let a = (colorMask & GFXColorMask.A) != GFXColorMask.NONE;
+                            const r = (colorMask & GFXColorMask.R) !== GFXColorMask.NONE;
+                            const g = (colorMask & GFXColorMask.G) !== GFXColorMask.NONE;
+                            const b = (colorMask & GFXColorMask.B) !== GFXColorMask.NONE;
+                            const a = (colorMask & GFXColorMask.A) !== GFXColorMask.NONE;
                             gl.colorMask(r, g, b, a);
                         }
                     }
@@ -1279,14 +1266,14 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
             }
             case WebGLCmd.BIND_PIPELINE_STATE: {
 
-                let cmd2 = cmdPackage.bindPipelineStateCmds[cmdId];
+                const cmd2 = cmdPackage.bindPipelineStateCmds[cmdId];
                 if (cmd2.gpuPipelineState) {
 
                     glPrimitive = cmd2.gpuPipelineState.glPrimitive;
 
                     if (cmd2.gpuPipelineState.gpuShader) {
 
-                        let glProgram = cmd2.gpuPipelineState.gpuShader.glProgram;
+                        const glProgram = cmd2.gpuPipelineState.gpuShader.glProgram;
                         if (device.stateCache.glProgram !== glProgram) {
                             gl.useProgram(glProgram);
                             device.stateCache.glProgram = glProgram;
@@ -1296,7 +1283,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                     }
 
                     // rasterizer state
-                    let rs = cmd2.gpuPipelineState.rs;
+                    const rs = cmd2.gpuPipelineState.rs;
                     if (rs) {
 
                         if (device.stateCache.rs.cullMode !== rs.cullMode) {
@@ -1315,7 +1302,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                     gl.cullFace(WebGLRenderingContext.BACK);
                                     break;
                                 }
-                                default: ;
+                                default:
                             }
 
                             device.stateCache.rs.cullMode = rs.cullMode;
@@ -1343,7 +1330,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                     } // rasterizater state
 
                     // depth-stencil state
-                    let dss = cmd2.gpuPipelineState.dss;
+                    const dss = cmd2.gpuPipelineState.dss;
                     if (dss) {
 
                         if (device.stateCache.dss.depthTest !== dss.depthTest) {
@@ -1450,7 +1437,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                     } // depth-stencil state
 
                     // blend state
-                    let bs = cmd2.gpuPipelineState.bs;
+                    const bs = cmd2.gpuPipelineState.bs;
                     if (bs) {
 
                         if (device.stateCache.bs.isA2C !== bs.isA2C) {
@@ -1475,8 +1462,8 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                             device.stateCache.bs.blendColor[3] = bs.blendColor[3];
                         }
 
-                        let target0 = bs.targets[0];
-                        let catchTarget0 = device.stateCache.bs.targets[0];
+                        const target0 = bs.targets[0];
+                        const catchTarget0 = device.stateCache.bs.targets[0];
 
                         if (catchTarget0.blend !== target0.blend) {
                             if (target0.blend) {
@@ -1530,10 +1517,9 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
             }
             case WebGLCmd.BIND_BINDING_LAYOUT: {
 
-                let cmd3 = cmdPackage.bindBindingLayoutCmds[cmdId];
+                const cmd3 = cmdPackage.bindBindingLayoutCmds[cmdId];
                 if (cmd3.gpuBindingLayout && gpuShader) {
-                    for (let n = 0; n < cmd3.gpuBindingLayout.gpuBindings.length; ++n) {
-                        let gpuBinding = cmd3.gpuBindingLayout.gpuBindings[n];
+                    for (const gpuBinding of cmd3.gpuBindingLayout.gpuBindings) {
 
                         switch (gpuBinding.type) {
                             case GFXBindingType.UNIFORM_BUFFER: {
@@ -1542,18 +1528,17 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
 
                                     let glBlock: WebGLGPUUniformBlock | null = null;
 
-                                    for (let b = 0; b < gpuShader.glBlocks.length; ++b) {
-                                        if (gpuShader.glBlocks[b].binding === gpuBinding.binding) {
-                                            glBlock = gpuShader.glBlocks[b];
+                                    for (const block of gpuShader.glBlocks) {
+                                        if (block.binding === gpuBinding.binding) {
+                                            glBlock = block;
                                             break;
                                         }
                                     }
 
                                     if (glBlock && gpuBinding.gpuBuffer.viewF32) {
-                                        let vf32 = gpuBinding.gpuBuffer.viewF32;
+                                        const vf32 = gpuBinding.gpuBuffer.viewF32;
 
-                                        for (let u = 0; u < glBlock.glUniforms.length; ++u) {
-                                            let glUniform = glBlock.glUniforms[u];
+                                        for (const glUniform of glBlock.glUniforms) {
                                             if (glUniform.glLoc && glUniform.view) {
 
                                                 let offset = glUniform.offset / 4;
@@ -1563,9 +1548,9 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     case WebGLRenderingContext.INT: {
                                                         for (let m = 0; m < glUniform.count; ++m, ++offset) {
                                                             if (vf32[offset] !== glUniform.view[m]) {
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + glUniform.count));
-                                                                gl.uniform1iv(glUniform.glLoc, <Int32Array>glUniform.view);
+                                                                gl.uniform1iv(glUniform.glLoc, glUniform.view as Int32Array);
                                                                 glUniform.view[m] = vf32[offset];
                                                                 break;
                                                             }
@@ -1575,13 +1560,13 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     case WebGLRenderingContext.BOOL_VEC2:
                                                     case WebGLRenderingContext.INT_VEC2: {
                                                         for (let m = 0; m < glUniform.count; ++m, offset += 2) {
-                                                            let idx = 2 * m;
+                                                            const idx = 2 * m;
                                                             if (vf32[offset] !== glUniform.view[idx] ||
                                                                 vf32[offset + 1] !== glUniform.view[idx + 1]) {
 
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + 2 * glUniform.count));
-                                                                gl.uniform2iv(glUniform.glLoc, <Int32Array>glUniform.view);
+                                                                gl.uniform2iv(glUniform.glLoc, glUniform.view as Int32Array);
                                                                 break;
                                                             }
                                                         }
@@ -1590,14 +1575,14 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     case WebGLRenderingContext.BOOL_VEC3:
                                                     case WebGLRenderingContext.INT_VEC3: {
                                                         for (let m = 0; m < glUniform.count; ++m, offset += 3) {
-                                                            let idx = 3 * m;
+                                                            const idx = 3 * m;
                                                             if (vf32[offset] !== glUniform.view[idx] ||
                                                                 vf32[offset + 1] !== glUniform.view[idx + 1] ||
                                                                 vf32[offset + 2] !== glUniform.view[idx + 2]) {
 
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + 3 * glUniform.count));
-                                                                gl.uniform3iv(glUniform.glLoc, <Int32Array>glUniform.view);
+                                                                gl.uniform3iv(glUniform.glLoc, glUniform.view as Int32Array);
                                                                 break;
                                                             }
                                                         }
@@ -1606,15 +1591,15 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     case WebGLRenderingContext.BOOL_VEC4:
                                                     case WebGLRenderingContext.INT_VEC4: {
                                                         for (let m = 0; m < glUniform.count; ++m, offset += 4) {
-                                                            let idx = 4 * m;
+                                                            const idx = 4 * m;
                                                             if (vf32[offset] !== glUniform.view[idx] ||
                                                                 vf32[offset + 1] !== glUniform.view[idx + 1] ||
                                                                 vf32[offset + 2] !== glUniform.view[idx + 2] ||
                                                                 vf32[offset + 3] !== glUniform.view[idx + 3]) {
 
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + 4 * glUniform.count));
-                                                                gl.uniform4iv(glUniform.glLoc, <Int32Array>glUniform.view);
+                                                                gl.uniform4iv(glUniform.glLoc, glUniform.view as Int32Array);
                                                                 break;
                                                             }
                                                         }
@@ -1622,12 +1607,12 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     }
                                                     case WebGLRenderingContext.FLOAT: {
                                                         for (let m = 0; m < glUniform.count; ++m, ++offset) {
-                                                            let c: number = 0;
-                                                            
+                                                            const c: number = 0;
+
                                                             if (CmpF32NotEuqal(vf32[offset], glUniform.view[m])) {
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + glUniform.count));
-                                                                gl.uniform1fv(glUniform.glLoc, <Float32Array>glUniform.view);
+                                                                gl.uniform1fv(glUniform.glLoc, glUniform.view as Float32Array);
                                                                 break;
                                                             }
                                                         }
@@ -1635,13 +1620,13 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     }
                                                     case WebGLRenderingContext.FLOAT_VEC2: {
                                                         for (let m = 0; m < glUniform.count; ++m, offset += 2) {
-                                                            let idx = 2 * m;
+                                                            const idx = 2 * m;
                                                             if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1])) {
 
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + 2 * glUniform.count));
-                                                                gl.uniform2fv(glUniform.glLoc, <Float32Array>glUniform.view);
+                                                                gl.uniform2fv(glUniform.glLoc, glUniform.view as Float32Array);
                                                                 break;
                                                             }
                                                         }
@@ -1649,32 +1634,32 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     }
                                                     case WebGLRenderingContext.FLOAT_VEC3: {
                                                         for (let m = 0; m < glUniform.count; ++m, offset += 3) {
-                                                            let idx = 3 * m;
+                                                            const idx = 3 * m;
                                                             if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 2], glUniform.view[idx + 2])) {
 
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + 3 * glUniform.count));
-                                                                gl.uniform3fv(glUniform.glLoc, <Float32Array>glUniform.view);
+                                                                gl.uniform3fv(glUniform.glLoc, glUniform.view as Float32Array);
                                                                 break;
                                                             }
-                                                            ;
+
                                                         }
                                                         break;
                                                     }
                                                     case WebGLRenderingContext.FLOAT_VEC4: {
                                                         for (let m = 0; m < glUniform.count; ++m, offset += 4) {
-                                                            let idx = 4 * m;
+                                                            const idx = 4 * m;
 
                                                             if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 2], glUniform.view[idx + 2]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 3], glUniform.view[idx + 3])) {
 
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + 4 * glUniform.count));
-                                                                gl.uniform4fv(glUniform.glLoc, <Float32Array>glUniform.view);
+                                                                gl.uniform4fv(glUniform.glLoc, glUniform.view as Float32Array);
                                                                 break;
                                                             }
                                                         }
@@ -1682,15 +1667,15 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     }
                                                     case WebGLRenderingContext.FLOAT_MAT2: {
                                                         for (let m = 0; m < glUniform.count; ++m, offset += 4) {
-                                                            let idx = 4 * m;
+                                                            const idx = 4 * m;
                                                             if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 2], glUniform.view[idx + 2]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 3], glUniform.view[idx + 3])) {
 
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + 4 * glUniform.count));
-                                                                gl.uniformMatrix2fv(glUniform.glLoc, false, <Float32Array>glUniform.view);
+                                                                gl.uniformMatrix2fv(glUniform.glLoc, false, glUniform.view as Float32Array);
                                                                 break;
                                                             }
                                                         }
@@ -1698,7 +1683,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     }
                                                     case WebGLRenderingContext.FLOAT_MAT3: {
                                                         for (let m = 0; m < glUniform.count; ++m, offset += 9) {
-                                                            let idx = 9 * m;
+                                                            const idx = 9 * m;
                                                             if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 2], glUniform.view[idx + 2]) ||
@@ -1709,9 +1694,9 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                                 CmpF32NotEuqal(vf32[offset + 7], glUniform.view[idx + 7]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 8], glUniform.view[idx + 8])) {
 
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + 9 * glUniform.count));
-                                                                gl.uniformMatrix3fv(glUniform.glLoc, false, <Float32Array>glUniform.view);
+                                                                gl.uniformMatrix3fv(glUniform.glLoc, false, glUniform.view as Float32Array);
                                                                 break;
                                                             }
                                                         }
@@ -1719,7 +1704,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     }
                                                     case WebGLRenderingContext.FLOAT_MAT4: {
                                                         for (let m = 0; m < glUniform.count; ++m, offset += 16) {
-                                                            let idx = 16 * m;
+                                                            const idx = 16 * m;
 
                                                             if (CmpF32NotEuqal(vf32[offset], glUniform.view[idx]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 1], glUniform.view[idx + 1]) ||
@@ -1738,15 +1723,15 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                                 CmpF32NotEuqal(vf32[offset + 14], glUniform.view[idx + 14]) ||
                                                                 CmpF32NotEuqal(vf32[offset + 15], glUniform.view[idx + 15])) {
 
-                                                                let begin = glUniform.offset / 4;
+                                                                const begin = glUniform.offset / 4;
                                                                 glUniform.view.set(vf32.subarray(begin, begin + 16 * glUniform.count));
-                                                                gl.uniformMatrix4fv(glUniform.glLoc, false, <Float32Array>glUniform.view);
+                                                                gl.uniformMatrix4fv(glUniform.glLoc, false, glUniform.view as Float32Array);
                                                                 break;
                                                             }
                                                         }
                                                         break;
                                                     }
-                                                    default: ;
+                                                    default:
                                                 }
                                             } // if
                                         }
@@ -1761,25 +1746,24 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
 
                                     let glSampler: WebGLGPUUniformSampler | null = null;
 
-                                    for (let s = 0; s < gpuShader.glSamplers.length; ++s) {
-                                        if (gpuShader.glSamplers[s].binding === gpuBinding.binding) {
-                                            glSampler = gpuShader.glSamplers[s];
+                                    for (const sampler of gpuShader.glSamplers) {
+                                        if (sampler.binding === gpuBinding.binding) {
+                                            glSampler = sampler;
                                             break;
                                         }
                                     }
 
                                     if (glSampler) {
-                                        let gpuTexture = gpuBinding.gpuTexView.gpuTexture;
+                                        const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
 
-                                        for (let u = 0; u < glSampler.units.length; ++u) {
+                                        for (const texUnit of glSampler.units) {
 
-                                            let texUnit = glSampler.units[u];
                                             if (device.stateCache.texUnit !== texUnit) {
                                                 gl.activeTexture(WebGLRenderingContext.TEXTURE0 + texUnit);
-                                                device.stateCache.texUnit == texUnit;
+                                                device.stateCache.texUnit = texUnit;
                                             }
 
-                                            let glTexUnit: WebGLTexUnit | null = null;
+                                            let glTexUnit: IWebGLTexUnit | null = null;
 
                                             switch (glSampler.glType) {
                                                 case WebGLRenderingContext.SAMPLER_2D: {
@@ -1800,12 +1784,12 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                                                     break;
                                                 }
                                                 default: {
-                                                    console.error("Unsupported GL Texture type.");
+                                                    console.error('Unsupported GL Texture type.');
                                                 }
                                             }
 
                                             if (glTexUnit) {
-                                                let gpuSampler = gpuBinding.gpuSampler;
+                                                const gpuSampler = gpuBinding.gpuSampler;
 
                                                 if (glTexUnit.minFilter !== gpuSampler.glMinFilter) {
                                                     gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
@@ -1847,25 +1831,24 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                 break;
             }
             case WebGLCmd.BIND_INPUT_ASSEMBLER: {
-                let cmd4 = cmdPackage.bindInputAssemblerCmds[cmdId];
+                const cmd4 = cmdPackage.bindInputAssemblerCmds[cmdId];
                 gpuInputAssembler = cmd4.gpuInputAssembler;
                 break;
             }
             case WebGLCmd.DRAW: {
-                let cmd5: WebGLCmdDraw = cmdPackage.drawCmds[cmdId];
+                const cmd5: WebGLCmdDraw = cmdPackage.drawCmds[cmdId];
 
                 if (gpuInputAssembler && gpuShader) {
                     for (let a = 0; a < device.maxVertexAttributes; ++a) {
                         device.stateCache.glCurrentAttribLocs[a] = false;
                     }
 
-                    for (let n = 0; n < gpuShader.glInputs.length; ++n) {
-                        let glInput = gpuShader.glInputs[n];
+                    for (const glInput of gpuShader.glInputs) {
                         let glAttrib: WebGLAttrib | null = null;
 
-                        for (let a = 0; a < gpuInputAssembler.glAttribs.length; ++a) {
-                            if (gpuInputAssembler.glAttribs[a].name === glInput.name) {
-                                glAttrib = gpuInputAssembler.glAttribs[a];
+                        for (const attrib of gpuInputAssembler.glAttribs) {
+                            if (attrib.name === glInput.name) {
+                                glAttrib = attrib;
                                 break;
                             }
                         }
@@ -1877,8 +1860,8 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                             }
 
                             for (let c = 0; c < glAttrib.componentCount; ++c) {
-                                let glLoc = glInput.glLoc + c;
-                                let attribOffset = glAttrib.offset + glAttrib.size * c;
+                                const glLoc = glInput.glLoc + c;
+                                const attribOffset = glAttrib.offset + glAttrib.size * c;
 
                                 if (!device.stateCache.glEnabledAttribLocs[glLoc] && glLoc >= 0) {
                                     gl.enableVertexAttribArray(glLoc);
@@ -1892,14 +1875,14 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                     } // if
 
                     if (gpuInputAssembler.gpuIndexBuffer && cmd5.indexCount > 0) {
-                        let gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
+                        const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
 
                         if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
                             gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                             device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
                         }
 
-                        let offset = cmd5.firstIndex * gpuBuffer.stride;
+                        const offset = cmd5.firstIndex * gpuBuffer.stride;
                         gl.drawElements(glPrimitive, cmd5.indexCount, gpuInputAssembler.glIndexType, offset);
                     } else {
                         gl.drawArrays(glPrimitive, cmd5.firstVertex, cmd5.vertexCount);
@@ -1915,7 +1898,7 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                 break;
             }
             case WebGLCmd.UPDATE_BUFFER: {
-                let cmd6 = cmdPackage.updateBufferCmds[cmdId];
+                const cmd6 = cmdPackage.updateBufferCmds[cmdId];
                 if (cmd6.gpuBuffer) {
 
                     if (cmd6.buffer && cmd6.gpuBuffer.viewUI8) {
@@ -1945,14 +1928,14 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
                             }
                             break;
                         }
-                        default: ;
+                        default:
                     }
                 }
 
                 break;
             }
             case WebGLCmd.COPY_BUFFER_TO_TEXTURE: {
-                let cmd7 = cmdPackage.copyBufferToTextureCmds[cmdId];
+                const cmd7 = cmdPackage.copyBufferToTextureCmds[cmdId];
                 if (cmd7.gpuBuffer && cmd7.gpuBuffer.viewUI8 && cmd7.gpuTexture) {
                     WebGLCmdFuncCopyBufferToTexture(device, cmd7.gpuBuffer.viewUI8, cmd7.gpuTexture, cmd7.regions);
                 }
@@ -1963,34 +1946,33 @@ export function WebGLCmdFuncExecuteCmds(device: WebGLGFXDevice, cmdPackage: WebG
     } // for
 }
 
-export function WebGLCmdFuncCopyBufferToTexture(
+export function WebGLCmdFuncCopyBufferToTexture (
     device: WebGLGFXDevice,
     bufferView: Uint8Array,
     gpuTexture: WebGLGPUTexture,
     regions: GFXBufferTextureCopy[]) {
 
-    let gl = device.gl;
+    const gl = device.gl;
 
     switch (gpuTexture.glTarget) {
         case WebGLRenderingContext.TEXTURE_2D: {
-            let glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
+            const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                 gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
-            let isCompressed = GFXFormatInfos[gpuTexture.format].isCompressed;
+            const isCompressed = GFXFormatInfos[gpuTexture.format].isCompressed;
             if (!isCompressed) {
-                for (let r = 0; r < regions.length; ++r) {
-                    let region = regions[r];
-                    let buffOffset = region.buffOffset; + region.buffTexHeight * region.buffStride;
+                for (const region of regions) {
+                    let buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
 
                     let w = region.texExtent.width;
                     let h = region.texExtent.height;
 
                     for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                        let memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                        let data = bufferView.subarray(buffOffset, buffOffset + memSize);
+                        const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                        const data = bufferView.subarray(buffOffset, buffOffset + memSize);
 
                         gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
                             region.texOffset.x, region.texOffset.y, w, h,
@@ -2002,16 +1984,15 @@ export function WebGLCmdFuncCopyBufferToTexture(
                     }
                 }
             } else {
-                for (let r = 0; r < regions.length; ++r) {
-                    let region = regions[r];
+                for (const region of regions) {
                     let buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
 
                     let w = region.texExtent.width;
                     let h = region.texExtent.height;
 
                     for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                        let memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                        let data = bufferView.subarray(buffOffset, buffOffset + memSize);
+                        const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                        const data = bufferView.subarray(buffOffset, buffOffset + memSize);
 
                         gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
                             region.texOffset.x, region.texOffset.y, w, h,
@@ -2026,28 +2007,24 @@ export function WebGLCmdFuncCopyBufferToTexture(
             break;
         }
         case WebGLRenderingContext.TEXTURE_CUBE_MAP: {
-            let glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
+            const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                 gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
-            let isCompressed = GFXFormatInfos[gpuTexture.format].isCompressed;
+            const isCompressed = GFXFormatInfos[gpuTexture.format].isCompressed;
             if (!isCompressed) {
-                for (let r = 0; r < regions.length; ++r) {
-                    let region = regions[r];
+                for (const region of regions) {
                     let buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
-
-                    let w = region.texExtent.width;
-                    let h = region.texExtent.height;
 
                     for (let f = 0; f < 6; ++f) {
                         let w = region.texExtent.width;
                         let h = region.texExtent.height;
 
                         for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                            let memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                            let data = bufferView.subarray(buffOffset, buffOffset + memSize);
+                            const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                            const data = bufferView.subarray(buffOffset, buffOffset + memSize);
 
                             gl.texSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
@@ -2060,8 +2037,7 @@ export function WebGLCmdFuncCopyBufferToTexture(
                     }
                 }
             } else {
-                for (let r = 0; r < regions.length; ++r) {
-                    let region = regions[r];
+                for (const region of regions) {
                     let buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
 
                     for (let f = 0; f < 6; ++f) {
@@ -2069,8 +2045,8 @@ export function WebGLCmdFuncCopyBufferToTexture(
                         let h = region.texExtent.height;
 
                         for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                            let memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                            let data = bufferView.subarray(buffOffset, buffOffset + memSize);
+                            const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                            const data = bufferView.subarray(buffOffset, buffOffset + memSize);
 
                             gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
@@ -2086,7 +2062,7 @@ export function WebGLCmdFuncCopyBufferToTexture(
             break;
         }
         default: {
-            console.error("Unsupported GL texture type, copy buffer to texture failed.");
+            console.error('Unsupported GL texture type, copy buffer to texture failed.');
         }
     }
 

@@ -1,16 +1,16 @@
 import { GFXDevice } from './device';
 
-export interface GFXCommandAllocatorInfo {
-};
+export interface IGFXCommandAllocatorInfo {
+}
 
 export abstract class GFXCommandAllocator {
 
-    constructor(device : GFXDevice) {
+    protected _device: GFXDevice;
+
+    constructor (device: GFXDevice) {
         this._device = device;
     }
 
-    public abstract initialize(info: GFXCommandAllocatorInfo) : boolean;
-    public abstract destroy();
-
-    protected _device : GFXDevice;
+    public abstract initialize (info: IGFXCommandAllocatorInfo): boolean;
+    public abstract destroy ();
 }

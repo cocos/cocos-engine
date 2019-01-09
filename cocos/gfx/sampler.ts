@@ -1,38 +1,38 @@
+import { GFXAddress, GFXComparisonFunc, GFXFilter } from './define';
 import { GFXDevice } from './device';
-import { GFXFilter, GFXAddress, GFXComparisonFunc } from './define';
 
-export interface GFXSamplerInfo {
-    name? : string;
-    minFilter? : GFXFilter;
-    magFilter? : GFXFilter;
-    mipFilter? : GFXFilter;
-    addressU? : GFXAddress;
-    addressV? : GFXAddress;
-    addressW? : GFXAddress;
-    maxAnisotropy? : number;
-    cmpFunc? : GFXComparisonFunc;
-    borderColor? : number[];
-    minLOD? : number;
-    maxLOD? : number;
-    mipLODBias? : number;
-};
+export interface IGFXSamplerInfo {
+    name?: string;
+    minFilter?: GFXFilter;
+    magFilter?: GFXFilter;
+    mipFilter?: GFXFilter;
+    addressU?: GFXAddress;
+    addressV?: GFXAddress;
+    addressW?: GFXAddress;
+    maxAnisotropy?: number;
+    cmpFunc?: GFXComparisonFunc;
+    borderColor?: number[];
+    minLOD?: number;
+    maxLOD?: number;
+    mipLODBias?: number;
+}
 
 export class GFXSamplerState {
-    name : string = "";
-    minFilter : GFXFilter = GFXFilter.LINEAR;
-    magFilter : GFXFilter = GFXFilter.LINEAR;
-    mipFilter : GFXFilter = GFXFilter.NONE;
-    addressU : GFXAddress = GFXAddress.WRAP;
-    addressV : GFXAddress = GFXAddress.WRAP;
-    addressW : GFXAddress = GFXAddress.WRAP;
-    maxAnisotropy : number = 16;
-    cmpFunc : GFXComparisonFunc = GFXComparisonFunc.NEVER;
-    borderColor : number[] = [0.0, 0.0, 0.0, 0.0];
-    minLOD : number = 0;
-    maxLOD : number = 1000;
-    mipLODBias : number = 0.0;
+    public name: string = '';
+    public minFilter: GFXFilter = GFXFilter.LINEAR;
+    public magFilter: GFXFilter = GFXFilter.LINEAR;
+    public mipFilter: GFXFilter = GFXFilter.NONE;
+    public addressU: GFXAddress = GFXAddress.WRAP;
+    public addressV: GFXAddress = GFXAddress.WRAP;
+    public addressW: GFXAddress = GFXAddress.WRAP;
+    public maxAnisotropy: number = 16;
+    public cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER;
+    public borderColor: number[] = [0.0, 0.0, 0.0, 0.0];
+    public minLOD: number = 0;
+    public maxLOD: number = 1000;
+    public mipLODBias: number = 0.0;
 
-    public compare(state : GFXSamplerState) : boolean {
+    public compare (state: GFXSamplerState): boolean {
         return (this.minFilter === state.minFilter) &&
         (this.magFilter === state.magFilter) &&
         (this.mipFilter === state.mipFilter) &&
@@ -46,22 +46,21 @@ export class GFXSamplerState {
         (this.maxLOD === state.maxLOD) &&
         (this.mipLODBias === state.mipLODBias);
     }
-};
+}
 
 export abstract class GFXSampler {
 
-    constructor(device : GFXDevice) {
-        this._device = device;
-        this._state = new GFXSamplerState;
-    }
-
-    public abstract initialize(info : GFXSamplerInfo) : boolean;
-    public abstract destroy() : void;
-
-    public get state(): GFXSamplerState {
+    public get state (): GFXSamplerState {
         return this._state;
     }
 
-    protected _device : GFXDevice;
-    protected _state : GFXSamplerState;
-};
+    protected _device: GFXDevice;
+    protected _state: GFXSamplerState = new GFXSamplerState();
+
+    constructor (device: GFXDevice) {
+        this._device = device;
+    }
+
+    public abstract initialize (info: IGFXSamplerInfo): boolean;
+    public abstract destroy (): void;
+}

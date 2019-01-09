@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { aabb } from '../../3d/geom-utils';
-import { GFXInputAttribute, GFXInputAssembler } from '../../gfx/input-assembler';
+import { IGFXInputAttribute, GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXFormat, GFXBufferUsageBit, GFXMemoryUsageBit, GFXCommandBufferType } from '../../gfx/define';
 import { RenderScene } from './render-scene';
 import { vec3 } from '../../core/vmath';

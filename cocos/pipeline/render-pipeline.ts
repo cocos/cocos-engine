@@ -1,19 +1,19 @@
+import { intersect } from '../3d/geom-utils';
 import { Root } from '../core/root';
+import { vec3 } from '../core/vmath';
 import mat4 from '../core/vmath/mat4';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXType } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
-import { GFXInputAssembler, GFXInputAttribute } from '../gfx/input-assembler';
+import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
+import { GFXUniformBlock } from '../gfx/shader';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Camera } from '../renderer/scene/camera';
 import { RenderFlow, RenderFlowInfo } from './render-flow';
-import { RenderView } from './render-view';
-import { vec3 } from '../core/vmath';
 import { RenderQueue } from './render-queue';
-import { intersect } from '../3d/geom-utils';
-import { GFXUniformBlock } from '../gfx/shader';
+import { RenderView } from './render-view';
 
 export enum RenderPassStage {
     DEFAULT = 100,
@@ -34,18 +34,18 @@ export class UBOGlobal {
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 0, name: "Global", members: [
-            { name: "u_time", type: GFXType.FLOAT4, count: 1 },
-            { name: "u_screenSize", type: GFXType.FLOAT4, count: 1 },
-            { name: "u_screenScale", type: GFXType.FLOAT4, count: 1 },
-            { name: "u_matView", type: GFXType.MAT4, count: 1 },
-            { name: "u_matViewInv", type: GFXType.MAT4, count: 1 },
-            { name: "u_matProj", type: GFXType.MAT4, count: 1 },
-            { name: "u_matProjInv", type: GFXType.MAT4, count: 1 },
-            { name: "u_matViewProj", type: GFXType.MAT4, count: 1 },
-            { name: "u_matViewProjInv", type: GFXType.MAT4, count: 1 },
-            { name: "u_cameraPos", type: GFXType.FLOAT4, count: 1 },
-        ]
+        binding: 0, name: 'Global', members: [
+            { name: 'u_time', type: GFXType.FLOAT4, count: 1 },
+            { name: 'u_screenSize', type: GFXType.FLOAT4, count: 1 },
+            { name: 'u_screenScale', type: GFXType.FLOAT4, count: 1 },
+            { name: 'u_matView', type: GFXType.MAT4, count: 1 },
+            { name: 'u_matViewInv', type: GFXType.MAT4, count: 1 },
+            { name: 'u_matProj', type: GFXType.MAT4, count: 1 },
+            { name: 'u_matProjInv', type: GFXType.MAT4, count: 1 },
+            { name: 'u_matViewProj', type: GFXType.MAT4, count: 1 },
+            { name: 'u_matViewProjInv', type: GFXType.MAT4, count: 1 },
+            { name: 'u_cameraPos', type: GFXType.FLOAT4, count: 1 },
+        ],
     };
 
     public view: Float32Array = new Float32Array(UBOGlobal.COUNT);
@@ -60,12 +60,12 @@ export class UBOLocal {
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 1, name: "Local", members: [
-            { name: "u_matWorld", type: GFXType.MAT4, count: 1 },
-            { name: "u_matWorldView", type: GFXType.MAT4, count: 1 },
-            { name: "u_matWorldViewProj", type: GFXType.MAT4, count: 1 },
-            { name: "u_worldPos", type: GFXType.FLOAT4, count: 1 },
-        ]
+        binding: 1, name: 'Local', members: [
+            { name: 'u_matWorld', type: GFXType.MAT4, count: 1 },
+            { name: 'u_matWorldView', type: GFXType.MAT4, count: 1 },
+            { name: 'u_matWorldViewProj', type: GFXType.MAT4, count: 1 },
+            { name: 'u_worldPos', type: GFXType.FLOAT4, count: 1 },
+        ],
     };
 
     public view: Float32Array = new Float32Array(UBOLocal.COUNT);
@@ -73,39 +73,39 @@ export class UBOLocal {
 
 const _vec4Array = new Float32Array(4);
 const _mat4Array = new Float32Array(16);
-const _outMat = new mat4;
+const _outMat = new mat4();
 
 export abstract class RenderPipeline {
 
-    public get root(): Root {
+    public get root (): Root {
         return this._root;
     }
 
-    public get device(): GFXDevice {
+    public get device (): GFXDevice {
         return this._device;
     }
 
-    public get queue(): RenderQueue {
+    public get queue (): RenderQueue {
         return this._queue;
     }
 
-    public get flows(): RenderFlow[] {
+    public get flows (): RenderFlow[] {
         return this._flows;
     }
 
-    public get quadIA(): GFXInputAssembler {
+    public get quadIA (): GFXInputAssembler {
         return this._quadIA as GFXInputAssembler;
     }
 
-    public get uboGlobal(): UBOGlobal {
+    public get uboGlobal (): UBOGlobal {
         return this._uboGlobal;
     }
 
-    public get globalUBO(): GFXBuffer {
+    public get globalUBO (): GFXBuffer {
         return this._globalUBO as GFXBuffer;
     }
 
-    public get defaultTexture(): GFXTexture {
+    public get defaultTexture (): GFXTexture {
         return this._defaultTex as GFXTexture;
     }
 
@@ -122,15 +122,15 @@ export abstract class RenderPipeline {
     protected _defaultTex: GFXTexture | null = null;
     protected _defaultTexView: GFXTextureView | null = null;
 
-    constructor(root: Root) {
+    constructor (root: Root) {
         this._root = root;
         this._device = root.device;
     }
 
-    public abstract initialize(): boolean;
-    public abstract destroy();
+    public abstract initialize (): boolean;
+    public abstract destroy ();
 
-    public render(view: RenderView) {
+    public render (view: RenderView) {
 
         view.camera.update();
 
@@ -138,18 +138,18 @@ export abstract class RenderPipeline {
 
         this.updateUBOs(view);
 
-        for (let i = 0; i < this._flows.length; ++i) {
-            this._flows[i].render(view);
+        for (const flow of this._flows) {
+            flow.render(view);
         }
     }
 
-    public addRenderPass(stage: number, renderPass: GFXRenderPass) {
+    public addRenderPass (stage: number, renderPass: GFXRenderPass) {
         if (renderPass) {
             this._renderPasses.set(stage, renderPass);
         }
     }
 
-    public getRenderPass(stage: number): GFXRenderPass | null {
+    public getRenderPass (stage: number): GFXRenderPass | null {
         const renderPass = this._renderPasses.get(stage);
         if (renderPass) {
             return renderPass;
@@ -158,15 +158,15 @@ export abstract class RenderPipeline {
         }
     }
 
-    public removeRenderPass(stage: number) {
+    public removeRenderPass (stage: number) {
         this._renderPasses.delete(stage);
     }
 
-    public clearRenderPasses() {
+    public clearRenderPasses () {
         this._renderPasses.clear();
     }
 
-    public createFlow<T extends RenderFlow>(clazz: new (pipeline: RenderPipeline) => T, info: RenderFlowInfo): RenderFlow | null {
+    public createFlow<T extends RenderFlow> (clazz: new (pipeline: RenderPipeline) => T, info: RenderFlowInfo): RenderFlow | null {
         const flow: RenderFlow = new clazz(this);
         if (flow.initialize(info)) {
             this._flows.push(flow);
@@ -180,14 +180,14 @@ export abstract class RenderPipeline {
         }
     }
 
-    public destroyFlows() {
+    public destroyFlows () {
         for (const flow of this._flows) {
             flow.destroy();
         }
         this._flows = [];
     }
 
-    protected createQuadInputAssembler(): boolean {
+    protected createQuadInputAssembler (): boolean {
 
         // create vertex buffer
 
@@ -237,7 +237,7 @@ export abstract class RenderPipeline {
 
         // create input assembler
 
-        const attributes: GFXInputAttribute[] = [
+        const attributes: IGFXInputAttribute[] = [
             { name: 'a_position', format: GFXFormat.RG32F },
             { name: 'a_texCoord', format: GFXFormat.RG32F },
         ];
@@ -251,7 +251,7 @@ export abstract class RenderPipeline {
         return true;
     }
 
-    protected destroyQuadInputAssembler() {
+    protected destroyQuadInputAssembler () {
         if (this._quadVB) {
             this._quadVB.destroy();
             this._quadVB = null;
@@ -268,7 +268,7 @@ export abstract class RenderPipeline {
         }
     }
 
-    protected createUBOs(): boolean {
+    protected createUBOs (): boolean {
         this._globalUBO = this._root.device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST,
@@ -282,14 +282,14 @@ export abstract class RenderPipeline {
         return true;
     }
 
-    protected destroyUBOs() {
+    protected destroyUBOs () {
         if (this._globalUBO) {
             this._globalUBO.destroy();
             this._globalUBO = null;
         }
     }
 
-    protected updateUBOs(view: RenderView) {
+    protected updateUBOs (view: RenderView) {
         const camera = view.camera as Camera;
         camera.update();
 
@@ -340,12 +340,12 @@ export abstract class RenderPipeline {
         (this._globalUBO as GFXBuffer).update(this._uboGlobal.view);
     }
 
-    protected sceneCulling(view: RenderView) {
+    protected sceneCulling (view: RenderView) {
 
-        let scene = view.scene;
-        let camera = view.camera;
+        const scene = view.scene;
+        const camera = view.camera;
 
-        for (let model of scene.models) {
+        for (const model of scene.models) {
 
             // filter model by view visibility
             if (view.visibility > 0 && model._viewID !== view.visibility) {

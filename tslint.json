@@ -5,14 +5,19 @@
     ],
     "jsRules": {},
     "rules": {
-        "quotemark": [ true, "single" ],
+        "quotemark": [
+            true,
+            "single"
+        ],
         "no-console": false,
         "space-before-function-paren": true,
         "max-classes-per-file": false,
         "variable-name": false,
         "object-literal-sort-keys": false,
         "ban-types": false,
-        "no-bitwise": false
+        "no-bitwise": false,
+        "max-line-length": false,
+        "no-empty": false
     },
     "rulesDirectory": []
 }

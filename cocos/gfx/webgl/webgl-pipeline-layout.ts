@@ -1,35 +1,35 @@
 import { GFXDevice } from '../device';
+import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUPipelineLayout } from './webgl-gpu-objects';
-import { GFXPipelineLayout, GFXPipelineLayoutInfo } from '../pipeline-layout';
 
 export class WebGLGFXPipelineLayout extends GFXPipelineLayout {
 
-    constructor(device: GFXDevice) {
+    public get webGLDevice (): WebGLGFXDevice {
+        return  this._device as WebGLGFXDevice;
+    }
+
+    public get gpuPipelineLayout (): WebGLGPUPipelineLayout {
+        return  this._gpuPipelineLayout as WebGLGPUPipelineLayout;
+    }
+
+    private _gpuPipelineLayout: WebGLGPUPipelineLayout | null = null;
+
+    constructor (device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info: GFXPipelineLayoutInfo): boolean {
+    public initialize (info: IGFXPipelineLayoutInfo): boolean {
 
         this._layouts = info.layouts;
 
-        if(info.pushConstantsRanges !== undefined) {
+        if (info.pushConstantsRanges !== undefined) {
             this._pushConstantsRanges = info.pushConstantsRanges;
         }
 
         return true;
     }
 
-    public destroy() {
+    public destroy () {
     }
-
-    public get webGLDevice(): WebGLGFXDevice {
-        return <WebGLGFXDevice>this._device;
-    }
-
-    public get gpuPipelineLayout(): WebGLGPUPipelineLayout {
-        return <WebGLGPUPipelineLayout>this._gpuPipelineLayout;
-    }
-
-    private _gpuPipelineLayout: WebGLGPUPipelineLayout | null = null;
-};
+}

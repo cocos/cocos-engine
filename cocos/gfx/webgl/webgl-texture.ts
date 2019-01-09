@@ -1,16 +1,26 @@
-import { GFXDevice } from '../device';
-import { WebGLGPUTexture } from './webgl-gpu-objects';
-import { WebGLGFXDevice } from './webgl-device';
-import { GFXTexture, GFXTextureInfo } from '../texture';
 import { GFXFormatSurfaceSize, GFXTextureFlagBit } from '../define';
+import { GFXDevice } from '../device';
+import { GFXTexture, IGFXTextureInfo } from '../texture';
+import { WebGLGFXDevice } from './webgl-device';
+import { WebGLGPUTexture } from './webgl-gpu-objects';
 
 export class WebGLGFXTexture extends GFXTexture {
 
-    constructor(device: GFXDevice) {
+    public get webGLDevice (): WebGLGFXDevice {
+        return  this._device as WebGLGFXDevice;
+    }
+
+    public get gpuTexture (): WebGLGPUTexture {
+        return  this._gpuTexture as WebGLGPUTexture;
+    }
+
+    private _gpuTexture: WebGLGPUTexture | null = null;
+
+    constructor (device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info: GFXTextureInfo): boolean {
+    public initialize (info: IGFXTextureInfo): boolean {
 
         this._type = info.type;
         this._usage = info.usage;
@@ -45,21 +55,11 @@ export class WebGLGFXTexture extends GFXTexture {
         return true;
     }
 
-    public destroy() {
+    public destroy () {
 
         if (this._gpuTexture) {
             this.webGLDevice.emitCmdDestroyGPUTexture(this._gpuTexture);
             this._gpuTexture = null;
         }
     }
-
-    public get webGLDevice(): WebGLGFXDevice {
-        return <WebGLGFXDevice>this._device;
-    }
-
-    public get gpuTexture(): WebGLGPUTexture {
-        return <WebGLGPUTexture>this._gpuTexture;
-    }
-
-    private _gpuTexture: WebGLGPUTexture | null = null;
-};
+}

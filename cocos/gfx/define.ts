@@ -414,14 +414,14 @@ export enum GFXQueueType {
 
 // Interfaces
 
-export interface GFXRect {
+export interface IGFXRect {
     x: number;
     y: number;
     width: number;
     height: number;
 }
 
-export interface GFXViewport {
+export interface IGFXViewport {
     left: number;
     top: number;
     width: number;
@@ -430,20 +430,20 @@ export interface GFXViewport {
     maxDepth: number;
 }
 
-export interface GFXColor {
+export interface IGFXColor {
     r: number;
     g: number;
     b: number;
     a: number;
 }
 
-export interface GFXOffset {
+export interface IGFXOffset {
     x: number;
     y: number;
     z: number;
 }
 
-export interface GFXExtent {
+export interface IGFXExtent {
     width: number;
     height: number;
     depth: number;
@@ -457,23 +457,23 @@ export class GFXTextureSubres {
 }
 
 export class GFXTextureCopy {
-    public srcSubres: GFXTextureSubres = new GFXTextureSubres;
-    public srcOffset: GFXOffset = { x: 0, y: 0, z: 0 };
-    public dstSubres: GFXTextureSubres = new GFXTextureSubres;
-    public dstOffset: GFXOffset = { x: 0, y: 0, z: 0 };
-    public extent: GFXExtent = { width: 0, height: 0, depth: 0 };
+    public srcSubres: GFXTextureSubres = new GFXTextureSubres();
+    public srcOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
+    public dstSubres: GFXTextureSubres = new GFXTextureSubres();
+    public dstOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
+    public extent: IGFXExtent = { width: 0, height: 0, depth: 0 };
 }
 
 export class GFXBufferTextureCopy {
     public buffOffset: number = 0;
     public buffStride: number = 0;
     public buffTexHeight: number = 0;
-    public texOffset: GFXOffset = { x: 0, y: 0, z: 0 };
-    public texExtent: GFXExtent = { width: 0, height: 0, depth: 0 };
-    public texSubres: GFXTextureSubres = new GFXTextureSubres;
+    public texOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
+    public texExtent: IGFXExtent = { width: 0, height: 0, depth: 0 };
+    public texSubres: GFXTextureSubres = new GFXTextureSubres();
 }
 
-export interface GFXFormatInfo {
+export interface IGFXFormatInfo {
     readonly name: string;
     readonly size: number;
     readonly count: number;
@@ -484,7 +484,7 @@ export interface GFXFormatInfo {
     readonly isCompressed: boolean;
 }
 
-export const GFXFormatInfos: GFXFormatInfo[] = [
+export const GFXFormatInfos: IGFXFormatInfo[] = [
 
     { name: 'UNKNOWN', size: 0, count: 0, isFloating: false, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
 
@@ -590,7 +590,7 @@ export const GFXFormatInfos: GFXFormatInfo[] = [
     { name: 'PVRTC2_4BPP', size: 2, count: 4, isFloating: false, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
 ];
 
-export function GFXFormatSize(format: GFXFormat, width: number, height: number, depth: number): number {
+export function GFXFormatSize (format: GFXFormat, width: number, height: number, depth: number): number {
 
     if (!GFXFormatInfos[format].isCompressed) {
         return (width * height * depth * GFXFormatInfos[format].size);
@@ -644,7 +644,7 @@ export function GFXFormatSize(format: GFXFormat, width: number, height: number, 
     }
 }
 
-export function GFXFormatSurfaceSize(format: GFXFormat, width: number, height: number, depth: number, mips: number): number {
+export function GFXFormatSurfaceSize (format: GFXFormat, width: number, height: number, depth: number, mips: number): number {
 
     let size = 0;
 
@@ -658,7 +658,7 @@ export function GFXFormatSurfaceSize(format: GFXFormat, width: number, height: n
     return size;
 }
 
-export function GFXGetTypeSize(type: GFXType): number {
+export function GFXGetTypeSize (type: GFXType): number {
     switch (type) {
         case GFXType.BOOL:
         case GFXType.INT:

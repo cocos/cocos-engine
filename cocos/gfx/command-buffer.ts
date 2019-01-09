@@ -1,44 +1,44 @@
-import { GFXDevice } from './device';
-import { GFXCommandAllocator } from './command-allocator';
+import { GFXBindingLayout } from './binding-layout';
 import { GFXBuffer } from './buffer';
+import { GFXCommandAllocator } from './command-allocator';
+import { GFXBufferTextureCopy, GFXCommandBufferType, GFXTextureLayout, IGFXColor, IGFXRect } from './define';
+import { GFXDevice } from './device';
+import { GFXFramebuffer } from './framebuffer';
 import { GFXInputAssembler } from './input-assembler';
 import { GFXPipelineState } from './pipeline-state';
-import { GFXBindingLayout } from './binding-layout';
 import { GFXTexture } from './texture';
-import { GFXFramebuffer } from './framebuffer';
-import { GFXColor, GFXRect, GFXCommandBufferType, GFXBufferTextureCopy, GFXTextureLayout } from './define';
 
-export interface GFXCommandBufferInfo {
+export interface IGFXCommandBufferInfo {
     allocator: GFXCommandAllocator;
     type: GFXCommandBufferType;
-};
+}
 
 export abstract class GFXCommandBuffer {
 
-    constructor(device: GFXDevice) {
-        this._device = device;
-    }
-
-    public abstract initialize(info: GFXCommandBufferInfo): boolean;
-    public abstract destroy();
-
-    public abstract begin();
-    public abstract end();
-    public abstract beginRenderPass(framebuffer: GFXFramebuffer, renderArea: GFXRect, clearColors: GFXColor[], clearDepth: number, clearStencil: number);
-    public abstract endRenderPass();
-    public abstract bindPipelineState(pipelineState: GFXPipelineState);
-    public abstract bindBindingLayout(bindingLayout: GFXBindingLayout);
-    public abstract bindInputAssembler(inputAssembler: GFXInputAssembler);
-    public abstract draw(inputAssembler: GFXInputAssembler);
-    public abstract updateBuffer(buffer: GFXBuffer, data: ArrayBuffer, offset?: number);
-    public abstract copyBufferToTexture(srcBuff: GFXBuffer, dstTex: GFXTexture, dstLayout: GFXTextureLayout, regions: GFXBufferTextureCopy[]);
-    public abstract execute(cmdBuffs: GFXCommandBuffer[]);
-
-    public get type(): number {
+    public get type (): number {
         return this._type;
     }
 
     protected _device: GFXDevice;
     protected _allocator: GFXCommandAllocator | null = null;
     protected _type: GFXCommandBufferType = GFXCommandBufferType.PRIMARY;
-};
+
+    constructor (device: GFXDevice) {
+        this._device = device;
+    }
+
+    public abstract initialize (info: IGFXCommandBufferInfo): boolean;
+    public abstract destroy ();
+
+    public abstract begin ();
+    public abstract end ();
+    public abstract beginRenderPass (framebuffer: GFXFramebuffer, renderArea: IGFXRect, clearColors: IGFXColor[], clearDepth: number, clearStencil: number);
+    public abstract endRenderPass ();
+    public abstract bindPipelineState (pipelineState: GFXPipelineState);
+    public abstract bindBindingLayout (bindingLayout: GFXBindingLayout);
+    public abstract bindInputAssembler (inputAssembler: GFXInputAssembler);
+    public abstract draw (inputAssembler: GFXInputAssembler);
+    public abstract updateBuffer (buffer: GFXBuffer, data: ArrayBuffer, offset?: number);
+    public abstract copyBufferToTexture (srcBuff: GFXBuffer, dstTex: GFXTexture, dstLayout: GFXTextureLayout, regions: GFXBufferTextureCopy[]);
+    public abstract execute (cmdBuffs: GFXCommandBuffer[]);
+}

@@ -1,4 +1,4 @@
-import { GFXWindow, GFXWindowInfo } from "../gfx/window";
+import { GFXWindow, IGFXWindowInfo } from "../gfx/window";
 import { GFXDevice } from "../gfx/device";
 import { RenderView, RenderViewInfo } from "../pipeline/render-view";
 import { RenderPipeline } from "../pipeline/render-pipeline";
@@ -60,7 +60,7 @@ export class Root {
         (<GFXDevice>this._device).present();
     }
 
-    public createWindow(info: GFXWindowInfo): GFXWindow | null {
+    public createWindow(info: IGFXWindowInfo): GFXWindow | null {
         if (this._device) {
             let window = this._device.createWindow(info);
             if (window) {

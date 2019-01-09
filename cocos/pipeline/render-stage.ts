@@ -5,7 +5,7 @@ import { GFXCommandBuffer } from "../gfx/command-buffer";
 import { RenderFlow } from "./render-flow";
 import { GFXDevice } from "../gfx/device";
 import { RenderPipeline } from "./render-pipeline";
-import { GFXColor, GFXRect } from "../gfx/define";
+import { IGFXColor, IGFXRect } from "../gfx/define";
 
 export interface RenderStageInfo {
     name?: string;
@@ -33,7 +33,7 @@ export abstract class RenderStage {
     public abstract destroy();
     public abstract render(view: RenderView);
 
-    public setClearColor(color: GFXColor) {
+    public setClearColor(color: IGFXColor) {
         if (this._clearColors.length > 0) {
             this._clearColors[0] = color;
         } else {
@@ -41,7 +41,7 @@ export abstract class RenderStage {
         }
     }
 
-    public setClearColors(colors: GFXColor[]) {
+    public setClearColors(colors: IGFXColor[]) {
         this._clearColors = colors;
     }
 
@@ -81,8 +81,8 @@ export abstract class RenderStage {
     protected _priority: number = 0;
     protected _framebuffer: GFXFramebuffer | null = null;
     protected _cmdBuff: GFXCommandBuffer | null = null;
-    protected _clearColors: GFXColor[];
+    protected _clearColors: IGFXColor[];
     protected _clearDepth: number = 1.0;
     protected _clearStencil: number = 0;
-    protected _renderArea: GFXRect;
+    protected _renderArea: IGFXRect;
 };

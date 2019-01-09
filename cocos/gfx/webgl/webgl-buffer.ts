@@ -1,22 +1,32 @@
-import { GFXBufferInfo, GFXBuffer } from '../buffer';
-import { GFXDevice } from '../device';
-import { WebGLGPUBuffer } from './webgl-gpu-objects';
-import { WebGLGFXDevice } from './webgl-device';
+import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXMemoryUsageBit } from '../define';
+import { GFXDevice } from '../device';
+import { WebGLGFXDevice } from './webgl-device';
+import { WebGLGPUBuffer } from './webgl-gpu-objects';
 
 export class WebGLGFXBuffer extends GFXBuffer {
 
-    constructor(device: GFXDevice) {
+    public get webGLDevice (): WebGLGFXDevice {
+        return  this._device as WebGLGFXDevice;
+    }
+
+    public get gpuBuffer (): WebGLGPUBuffer {
+        return  this._gpuBuffer as WebGLGPUBuffer;
+    }
+
+    private _gpuBuffer: WebGLGPUBuffer | null = null;
+
+    constructor (device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info: GFXBufferInfo): boolean {
+    public initialize (info: IGFXBufferInfo): boolean {
 
         this._usage = info.usage;
         this._memUsage = info.memUsage;
         this._size = info.size;
 
-        if(info.stride !== undefined) {
+        if (info.stride !== undefined) {
             this._stride = info.stride;
         }
         this._stride = Math.max(this._stride, 1);
@@ -26,13 +36,13 @@ export class WebGLGFXBuffer extends GFXBuffer {
             this._bufferView = new Uint8Array(this._buffer);
         }
 
-        //this._isSimulate = (this._usage & GFXBufferUsageBit.TRANSFER_SRC) != GFXBufferUsageBit.NONE;
+        // this._isSimulate = (this._usage & GFXBufferUsageBit.TRANSFER_SRC) != GFXBufferUsageBit.NONE;
         this._gpuBuffer = this.webGLDevice.emitCmdCreateGPUBuffer(info, this._buffer);
 
         return true;
     }
 
-    public destroy() {
+    public destroy () {
         if (this._gpuBuffer) {
             this.webGLDevice.emitCmdDestroyGPUBuffer(this._gpuBuffer);
             this._gpuBuffer = null;
@@ -42,22 +52,12 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._bufferView = null;
     }
 
-    public update(buffer: ArrayBuffer, offset?: number) {
+    public update (buffer: ArrayBuffer, offset?: number) {
 
         if (this._bufferView) {
             this._bufferView.set(new Uint8Array(buffer), offset);
         }
 
-        this.webGLDevice.emitCmdUpdateGPUBuffer(<WebGLGPUBuffer>this._gpuBuffer, offset? offset : 0, buffer);
+        this.webGLDevice.emitCmdUpdateGPUBuffer( this._gpuBuffer as WebGLGPUBuffer, offset ? offset : 0, buffer);
     }
-
-    public get webGLDevice(): WebGLGFXDevice {
-        return <WebGLGFXDevice>this._device;
-    }
-
-    public get gpuBuffer(): WebGLGPUBuffer {
-        return <WebGLGPUBuffer>this._gpuBuffer;
-    }
-
-    private _gpuBuffer: WebGLGPUBuffer | null = null;
-};
+}

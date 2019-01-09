@@ -1,24 +1,24 @@
-import { GFXBindingLayout, GFXBindingLayoutInfo } from './binding-layout';
-import { GFXBuffer, GFXBufferInfo } from './buffer';
-import { GFXCommandAllocator, GFXCommandAllocatorInfo } from './command-allocator';
-import { GFXCommandBuffer, GFXCommandBufferInfo } from './command-buffer';
+import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
+import { GFXBuffer, IGFXBufferInfo } from './buffer';
+import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
+import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
 import { GFXBufferTextureCopy, GFXFormat } from './define';
-import { GFXFramebuffer, GFXFramebufferInfo } from './framebuffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo } from './input-assembler';
-import { GFXPipelineLayout, GFXPipelineLayoutInfo } from './pipeline-layout';
-import { GFXPipelineState, GFXPipelineStateInfo } from './pipeline-state';
-import { GFXQueue, GFXQueueInfo } from './queue';
-import { GFXRenderPass, GFXRenderPassInfo } from './render-pass';
-import { GFXSampler, GFXSamplerInfo } from './sampler';
-import { GFXShader, GFXShaderInfo } from './shader';
-import { GFXTexture, GFXTextureInfo } from './texture';
-import { GFXTextureView, GFXTextureViewInfo } from './texture-view';
-import { GFXWindow, GFXWindowInfo } from './window';
+import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
+import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
+import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from './pipeline-layout';
+import { GFXPipelineState, IGFXPipelineStateInfo } from './pipeline-state';
+import { GFXQueue, IGFXQueueInfo } from './queue';
+import { GFXRenderPass, IGFXRenderPassInfo } from './render-pass';
+import { GFXSampler, IGFXSamplerInfo } from './sampler';
+import { GFXShader, IGFXShaderInfo } from './shader';
+import { GFXTexture, IGFXTextureInfo } from './texture';
+import { GFXTextureView, IGFXTextureViewInfo } from './texture-view';
+import { GFXWindow, IGFXWindowInfo } from './window';
 
 export enum GFXFeature {
 }
 
-export interface GFXDeviceInfo {
+export interface IGFXDeviceInfo {
     canvasElm: HTMLElement;
     isAntialias?: boolean;
     isPremultipliedAlpha?: boolean;
@@ -120,23 +120,23 @@ export abstract class GFXDevice {
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _shaderIdGen: number = 0;
 
-    public abstract initialize (info: GFXDeviceInfo): boolean;
+    public abstract initialize (info: IGFXDeviceInfo): boolean;
     public abstract destroy (): void;
-    public abstract createBuffer (info: GFXBufferInfo): GFXBuffer | null;
-    public abstract createTexture (info: GFXTextureInfo): GFXTexture | null;
-    public abstract createTextureView (info: GFXTextureViewInfo): GFXTextureView | null;
-    public abstract createSampler (info: GFXSamplerInfo): GFXSampler | null;
-    public abstract createBindingLayout (info: GFXBindingLayoutInfo): GFXBindingLayout | null;
-    public abstract createShader (info: GFXShaderInfo): GFXShader | null;
-    public abstract createInputAssembler (info: GFXInputAssemblerInfo): GFXInputAssembler | null;
-    public abstract createRenderPass (info: GFXRenderPassInfo): GFXRenderPass | null;
-    public abstract createFramebuffer (info: GFXFramebufferInfo): GFXFramebuffer | null;
-    public abstract createPipelineLayout (info: GFXPipelineLayoutInfo): GFXPipelineLayout | null;
-    public abstract createPipelineState (info: GFXPipelineStateInfo): GFXPipelineState | null;
-    public abstract createCommandAllocator (info: GFXCommandAllocatorInfo): GFXCommandAllocator | null;
-    public abstract createCommandBuffer (info: GFXCommandBufferInfo): GFXCommandBuffer | null;
-    public abstract createQueue (info: GFXQueueInfo): GFXQueue | null;
-    public abstract createWindow (info: GFXWindowInfo): GFXWindow | null;
+    public abstract createBuffer (info: IGFXBufferInfo): GFXBuffer | null;
+    public abstract createTexture (info: IGFXTextureInfo): GFXTexture | null;
+    public abstract createTextureView (info: IGFXTextureViewInfo): GFXTextureView | null;
+    public abstract createSampler (info: IGFXSamplerInfo): GFXSampler | null;
+    public abstract createBindingLayout (info: IGFXBindingLayoutInfo): GFXBindingLayout | null;
+    public abstract createShader (info: IGFXShaderInfo): GFXShader | null;
+    public abstract createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler | null;
+    public abstract createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass | null;
+    public abstract createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer | null;
+    public abstract createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout | null;
+    public abstract createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState | null;
+    public abstract createCommandAllocator (info: IGFXCommandAllocatorInfo): GFXCommandAllocator | null;
+    public abstract createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer | null;
+    public abstract createQueue (info: IGFXQueueInfo): GFXQueue | null;
+    public abstract createWindow (info: IGFXWindowInfo): GFXWindow | null;
     public abstract present ();
 
     public abstract copyBufferToTexture (buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]);

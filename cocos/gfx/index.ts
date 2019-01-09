@@ -1,16 +1,16 @@
-import { GFXDevice } from './device';
 import { GFXBuffer } from './buffer';
-import { GFXTexture } from './texture';
-import { GFXTextureView } from './texture-view';
-import { GFXSampler } from './sampler';
-import { GFXShader } from './shader';
-import { GFXInputAssembler } from './input-assembler';
-import { GFXRenderPass } from './render-pass';
+import { GFXCommandBuffer } from './command-buffer';
+import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
+import { GFXInputAssembler } from './input-assembler';
 import { GFXPipelineLayout } from './pipeline-layout';
 import { GFXPipelineState } from './pipeline-state';
-import { GFXCommandBuffer } from './command-buffer';
 import { GFXQueue } from './queue';
+import { GFXRenderPass } from './render-pass';
+import { GFXSampler } from './sampler';
+import { GFXShader } from './shader';
+import { GFXTexture } from './texture';
+import { GFXTextureView } from './texture-view';
 import { WebGLGFXDevice } from './webgl/webgl-device';
 
 cc.GFXDevice = GFXDevice;

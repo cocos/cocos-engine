@@ -1,15 +1,25 @@
 import { GFXDevice } from '../device';
-import { GFXPipelineState, GFXPipelineStateInfo } from '../pipeline-state';
+import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUPipelineState } from './webgl-gpu-objects';
 
 export class WebGLGFXPipelineState extends GFXPipelineState {
 
-    constructor(device: GFXDevice) {
+    public get webGLDevice (): WebGLGFXDevice {
+        return  this._device as WebGLGFXDevice;
+    }
+
+    public get gpuPipelineState (): WebGLGPUPipelineState {
+        return  this._gpuPipelineState as WebGLGPUPipelineState;
+    }
+
+    private _gpuPipelineState: WebGLGPUPipelineState | null = null;
+
+    constructor (device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info: GFXPipelineStateInfo): boolean {
+    public initialize (info: IGFXPipelineStateInfo): boolean {
 
         this._primitive = info.primitive;
         this._shader = info.shader;
@@ -25,20 +35,10 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
         return true;
     }
 
-    public destroy() {
+    public destroy () {
         if (this._gpuPipelineState) {
             this.webGLDevice.emitCmdDestroyGPUPipelineState(this._gpuPipelineState);
             this._gpuPipelineState = null;
         }
     }
-
-    public get webGLDevice(): WebGLGFXDevice {
-        return <WebGLGFXDevice>this._device;
-    }
-
-    public get gpuPipelineState(): WebGLGPUPipelineState {
-        return <WebGLGPUPipelineState>this._gpuPipelineState;
-    }
-
-    private _gpuPipelineState: WebGLGPUPipelineState | null = null;
-};
+}

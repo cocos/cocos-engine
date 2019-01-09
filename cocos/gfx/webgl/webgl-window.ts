@@ -1,25 +1,25 @@
+import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureFlagBit, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../define';
 import { GFXDevice } from '../device';
+import { GFXWindow, IGFXWindowInfo } from '../window';
 import { WebGLGFXDevice } from './webgl-device';
-import { GFXWindow, GFXWindowInfo } from '../window';
-import { GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit, GFXTextureViewType, GFXTextureLayout, GFXLoadOp, GFXStoreOp } from '../define';
 
 export class WebGLGFXWindow extends GFXWindow {
 
-    constructor(device: GFXDevice) {
+    constructor (device: GFXDevice) {
         super(device);
     }
 
-    public initialize(info: GFXWindowInfo): boolean {
+    public initialize (info: IGFXWindowInfo): boolean {
 
-        if(info.title !== undefined) {
+        if (info.title !== undefined) {
             this._title = info.title;
         }
 
-        if(info.left !== undefined) {
+        if (info.left !== undefined) {
             this._left = info.left;
         }
 
-        if(info.top !== undefined) {
+        if (info.top !== undefined) {
             this._top = info.top;
         }
 
@@ -49,7 +49,7 @@ export class WebGLGFXWindow extends GFXWindow {
             },
         });
 
-        if(!this._renderPass) {
+        if (!this._renderPass) {
             this.destroy();
             return false;
         }
@@ -119,15 +119,15 @@ export class WebGLGFXWindow extends GFXWindow {
             return false;
         }
         */
-       
+
         this._framebuffer = this._device.createFramebuffer({
             renderPass: this._renderPass,
-            //colorViews: [this._colorTexView],
-            //depthStencilView: this._depthStencilTexView,
+            // colorViews: [this._colorTexView],
+            // depthStencilView: this._depthStencilTexView,
             isOffscreen: false,
         });
 
-        if(!this._framebuffer) {
+        if (!this._framebuffer) {
             this.destroy();
             return false;
         }
@@ -135,7 +135,7 @@ export class WebGLGFXWindow extends GFXWindow {
         return true;
     }
 
-    public destroy() {
+    public destroy () {
         /*
         if(this._depthStencilTexView) {
             this._depthStencilTexView.destroy();
@@ -157,20 +157,20 @@ export class WebGLGFXWindow extends GFXWindow {
             this._colorTex = null;
         }
         */
-       
-        if(this._framebuffer) {
+
+        if (this._framebuffer) {
             this._framebuffer.destroy();
             this._framebuffer = null;
         }
 
-        if(this._renderPass) {
+        if (this._renderPass) {
             this._renderPass.destroy();
             this._renderPass = null;
         }
     }
 
-    public get webGLDevice(): WebGLGFXDevice {
-        return <WebGLGFXDevice>this._device;
+    public get webGLDevice (): WebGLGFXDevice {
+        return  this._device as WebGLGFXDevice;
     }
 
-};
+}
