@@ -8,6 +8,6 @@ export { default as triangle } from './triangle';
 export { default as sphere } from './sphere';
 export { default as aabb } from './aabb';
 export { default as obb } from './obb';
-export { default as frustum } from './frustum';
+export { frustum } from './frustum';
 export { default as Octree } from './octree';
 export { Keyframe, AnimationCurve } from './curve';

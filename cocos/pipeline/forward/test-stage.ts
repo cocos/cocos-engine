@@ -13,6 +13,7 @@ import { GFXTexture } from "../../gfx/texture";
 import { GFXTextureView } from "../../gfx/texture-view";
 import { GFXSampler } from "../../gfx/sampler";
 import { GFXBuffer } from "../../gfx/buffer";
+import { UBOGlobal } from "../render-pipeline";
 
 /*
 declare module '*.png' {
@@ -88,20 +89,7 @@ export class TestStage extends RenderStage {
         this._shader = this._device.createShader({
             name: "test",
             stages: [vsStage, fsStage],
-            blocks: [{
-                binding: 0, name: "Global", members: [
-                    { name: "u_time", type: GFXType.FLOAT4, count: 1 },
-                    { name: "u_screenSize", type: GFXType.FLOAT4, count: 1 },
-                    { name: "u_screenScale", type: GFXType.FLOAT4, count: 1 },
-                    { name: "u_matView", type: GFXType.MAT4, count: 1 },
-                    { name: "u_matViewInv", type: GFXType.MAT4, count: 1 },
-                    { name: "u_matProj", type: GFXType.MAT4, count: 1 },
-                    { name: "u_matProjInv", type: GFXType.MAT4, count: 1 },
-                    { name: "u_matViewProj", type: GFXType.MAT4, count: 1 },
-                    { name: "u_matViewProjInv", type: GFXType.MAT4, count: 1 },
-                    { name: "u_cameraPos", type: GFXType.FLOAT4, count: 1 },
-                ]
-            }, {
+            blocks: [UBOGlobal.BLOCK, {
                 binding: 5, name: "UBO", members: [
                     { name: "u_color", type: GFXType.FLOAT4, count: 1 },
                 ]

@@ -11,6 +11,7 @@ import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { Material } from '../../3d/assets/material';
+import { RenderItem } from '../../pipeline/render-queue';
 
 /**
  * A representation of a model
@@ -149,7 +150,10 @@ export default class Model {
             this.recordCommandBuffer(i);
         }
         for (let i = this._cmdBuffers.length - 1; i >= this._material.passes.length; i--) {
-            this._cmdBuffers.pop().destroy();
+            let cmdBuff = this._cmdBuffers.pop();
+            if(cmdBuff) {
+                cmdBuff.destroy();
+            }
         }
     }
 
@@ -177,11 +181,11 @@ export default class Model {
         this._userKey = key;
     }
 
-    get passList(): Pass[] {
+    get passes(): Pass[] {
         return (<Material>this._material).passes;
     }
 
-    get cmdBufferList(): GFXCommandBuffer[] {
+    get commandBuffers(): GFXCommandBuffer[] {
         return this._cmdBuffers;
     }
 

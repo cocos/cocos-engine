@@ -84,6 +84,10 @@ export class RenderView {
         return this._priority;
     }
 
+    public get visibility(): number {
+        return this._visiblity;
+    }
+
     public get width(): number {
         return this._width;
     }
@@ -92,17 +96,22 @@ export class RenderView {
         return this._height;
     }
 
-    public get camera(): Camera | null {
-        return this._camera;
+    public get camera(): Camera {
+        return this._camera as Camera;
     }
 
-    public get scene(): RenderScene | null {
-        return this._scene;
+    public get scene(): RenderScene {
+        return this._scene as RenderScene;
+    }
+
+    public set visibility(vis: number) {
+        this._visiblity = vis;
     }
 
     private _name: string = "";
     private _window: GFXWindow | null = null;
     private _priority: number = 0;
+    private _visiblity: number = 0;
     private _width: number = 0;
     private _height: number = 0;
     private _scene: RenderScene | null = null;

@@ -3,6 +3,7 @@ import { Root } from "../../core/root";
 import { ForwardFlow } from "./forward-flow";
 import { GFXRenderPass } from "../../gfx/render-pass";
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from "../../gfx/define";
+import { RenderQueue } from "../render-queue";
 
 export enum ForwardFlowPriority {
     FORWARD = 0,

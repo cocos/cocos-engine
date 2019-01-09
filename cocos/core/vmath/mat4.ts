@@ -28,6 +28,23 @@ import { EPSILON } from './utils';
  */
 class mat4 {
 
+    public m00: number = 1;
+    public m01: number = 0;
+    public m02: number = 0;
+    public m03: number = 0;
+    public m04: number = 0;
+    public m05: number = 1;
+    public m06: number = 0;
+    public m07: number = 0;
+    public m08: number = 0;
+    public m09: number = 0;
+    public m10: number = 1;
+    public m11: number = 0;
+    public m12: number = 0;
+    public m13: number = 0;
+    public m14: number = 0;
+    public m15: number = 1;
+
     /**
      * Creates a matrix, with elements specified separately.
      *
@@ -985,7 +1002,7 @@ class mat4 {
             out.x = (mat.m06 - mat.m09) / S;
             out.y = (mat.m08 - mat.m02) / S;
             out.z = (mat.m01 - mat.m04) / S;
-        } else if ((mat.m00 > mat.m05) & (mat.m00 > mat.m10)) {
+        } else if ((mat.m00 > mat.m05) && (mat.m00 > mat.m10)) {
             S = Math.sqrt(1.0 + mat.m00 - mat.m05 - mat.m10) * 2;
             out.w = (mat.m06 - mat.m09) / S;
             out.x = 0.25 * S;

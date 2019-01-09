@@ -14,7 +14,7 @@ export class ForwardStage extends RenderStage {
 
     public initialize(info: RenderStageInfo): boolean {
 
-        if(info.name !== undefined) {
+        if (info.name !== undefined) {
             this._name = info.name;
         }
 
@@ -38,13 +38,21 @@ export class ForwardStage extends RenderStage {
     }
 
     public render(view: RenderView) {
-        let cmdBuff = <GFXCommandBuffer>this._cmdBuff;
+
+        let cmdBuff = this._cmdBuff as GFXCommandBuffer;
+        let queue = this._pipeline.queue;
+
         this._renderArea.width = view.width;
         this._renderArea.height = view.height;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(<GFXFramebuffer>this._framebuffer, this._renderArea, this._clearColors, this._clearDepth, this._clearStencil);
-        cmdBuff.draw(<GFXInputAssembler>this._pipeline.quadIA);
+
+        for (let item of queue.opaques) {
+            item.model.commandBuffers
+        }
+
+
         cmdBuff.endRenderPass();
         cmdBuff.end();
 

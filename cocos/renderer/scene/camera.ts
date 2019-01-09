@@ -1,6 +1,7 @@
 import { RenderScene } from "./render-scene";
 import Node from "../../scene-graph/node";
 import { vec3, mat4, quat } from "../../core/vmath";
+import { frustum } from "../../3d/geom-utils/frustum";
 
 export enum NodeSpace
 {
@@ -15,6 +16,25 @@ export enum CameraProjection {
 };
 
 export class Camera {
+
+    private _scene: RenderScene;
+    private _name: string;
+    private _node: Node;
+    private _proj: CameraProjection;
+    private _width: number;
+    private _height: number;
+    private _aspect: number;
+    private _fov: number;
+    private _nearClip: number;
+    private _farClip: number;
+    private _matView: mat4 = new mat4;
+    private _matProj: mat4 = new mat4;
+    private _matViewProj: mat4 = new mat4;
+    private _matViewProjInv: mat4 = new mat4;
+    private _position: vec3 = new vec3;
+    private _rotation: quat = new quat;
+    private _direction: vec3 = new vec3;
+    private _frustum: frustum = new frustum;
 
     constructor(scene: RenderScene, name: string) {
         this._scene = scene;
@@ -59,6 +79,9 @@ export class Camera {
 
         // view-projection
         mat4.mul(this._matViewProj, this._matProj, this._matView);
+        mat4.invert(this._matViewProjInv, this._matViewProj);
+
+        this._frustum.update(this._matViewProj, this._matViewProjInv);
     }
 
     public set fov(fov: number) {
@@ -119,6 +142,14 @@ export class Camera {
 
     public get matViewProj(): mat4 {
         return this._matViewProj;
+    }
+
+    public get matViewProjInv(): mat4 {
+        return this._matViewProjInv;
+    }
+
+    public get frustum(): frustum {
+        return this._frustum;
     }
 
     public get position(): vec3 {
@@ -211,21 +242,4 @@ export class Camera {
         quat.rotationTo(this._rotation, vec3.UNIT_Z, dir);
         this._node.setRotation(this._rotation);
     }
-
-    private _scene: RenderScene;
-    private _name: string;
-    private _node: Node;
-    private _proj: CameraProjection;
-    private _width: number;
-    private _height: number;
-    private _aspect: number;
-    private _fov: number;
-    private _nearClip: number;
-    private _farClip: number;
-    private _matView: mat4 = new mat4;
-    private _matProj: mat4 = new mat4;
-    private _matViewProj: mat4 = new mat4;
-    private _position: vec3 = new vec3;
-    private _rotation: quat = new quat;
-    private _direction: vec3 = new vec3;
 };

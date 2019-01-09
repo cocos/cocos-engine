@@ -18,23 +18,28 @@ export class RenderQueue {
     constructor() {
     }
 
-    public add(model: Model, pass: Pass) {
-        let pso = pass.pipelineState;
+    public add(model: Model) {
 
-        let isTransparent = pso.blendState.targets[0].blend;
+        for(let i = 0; i < model.passes.length; ++i) {
+            let pass = model.passes[i];
 
-        let hash: number = 0;
+            let pso = pass.pipelineState;
 
-        if(!isTransparent) {
-            // Opaque objects are sorted by depth front to back, then by shader id.
-            hash = (0 << 63) | (pso.shader.id << 13);
-
-            this._opaques.push({hash, model, pass});
-        } else {
-            // Transparent objects are sorted by depth back to front, then by by shader id.
-            hash = (1 << 63) | (pso.shader.id << 13);
-            
-            this._transparents.push({hash, model, pass});
+            let isTransparent = pso.blendState.targets[0].blend;
+    
+            let hash: number = 0;
+    
+            if(!isTransparent) {
+                // Opaque objects are sorted by depth front to back, then by shader id.
+                hash = (0 << 63) | (pso.shader.id << 13);
+    
+                this._opaques.push({hash, model, pass});
+            } else {
+                // Transparent objects are sorted by depth back to front, then by by shader id.
+                hash = (1 << 63) | (pso.shader.id << 13);
+                
+                this._transparents.push({hash, model, pass});
+            }
         }
     }
 
