@@ -87,12 +87,24 @@ export class Camera {
         this._fov = fov;
     }
 
+    public get fov (): number {
+        return this._fov;
+    }
+
     public set nearClip (nearClip: number) {
         this._nearClip = nearClip;
     }
 
+    public get nearClip (): number {
+        return this._nearClip;
+    }
+
     public set farClip (farClip: number) {
         this._farClip = farClip;
+    }
+
+    public get farClip (): number {
+        return this._farClip;
     }
 
     public get scene (): RenderScene {
@@ -119,18 +131,6 @@ export class Camera {
         return this._aspect;
     }
 
-    public get fov (): number {
-        return this._fov;
-    }
-
-    public get nearClip (): number {
-        return this._nearClip;
-    }
-
-    public get farClip (): number {
-        return this._farClip;
-    }
-
     public get matView (): mat4 {
         return this._matView;
     }
@@ -149,11 +149,6 @@ export class Camera {
 
     public get frustum (): frustum {
         return this._frustum;
-    }
-
-    public get position (): vec3 {
-        this._node.getPosition(this._position);
-        return this._position;
     }
 
     public rotate (rot: quat, ns?: NodeSpace) {
@@ -227,18 +222,24 @@ export class Camera {
         this._node.lookAt(target);
     }
 
-    public get direction (): vec3 {
-        this._node.getRotation(this._rotation);
-        vec3.transformQuat(this._direction, vec3.UNIT_Z, this._rotation);
-        return this._direction;
+    public get position (): vec3 {
+        this._node.getPosition(this._position);
+        return this._position;
     }
 
     public set position (pos: vec3) {
         this._node.setWorldPosition(pos.x, pos.y, pos.z);
     }
 
+    public get direction (): vec3 {
+        this._node.getRotation(this._rotation);
+        vec3.transformQuat(this._direction, vec3.UNIT_Z, this._rotation);
+        return this._direction;
+    }
+
     public set direction (dir: vec3) {
         quat.rotationTo(this._rotation, vec3.UNIT_Z, dir);
         this._node.setRotation(this._rotation);
     }
+
 }
