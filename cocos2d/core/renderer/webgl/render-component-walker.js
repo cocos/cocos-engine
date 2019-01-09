@@ -31,6 +31,7 @@ const dynamicAtlasManager = require('../utils/dynamic-atlas/manager');
 const RenderFlow = require('../render-flow');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');
+const SpineBuffer = require('./spine-buffer');
 
 let idGenerater = new (require('../../platform/id-generater'))('VertextFormat');
 
@@ -238,6 +239,9 @@ RenderComponentWalker.prototype = {
             }
             else if (type === 'quad') {
                 buffer = new QuadBuffer(this, vertextFormat);
+            }
+            else if (type === 'spine') {
+                buffer = new SpineBuffer(this, vertextFormat);
             }
             else {
                 cc.error(`Not support buffer type [${type}]`);

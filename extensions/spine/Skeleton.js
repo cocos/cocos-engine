@@ -384,7 +384,6 @@ sp.Skeleton = cc.Class({
         this._boundingBox = cc.rect();
         this._material = new SpineMaterial();
         this._materialCache = {};
-        this._renderDatas = {};
         this._debugRenderer = null;
         this._startSlotIndex = -1;
         this._endSlotIndex = -1;
@@ -417,8 +416,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * !#en Sets slots visible range
-     * !#zh 设置底层
+     * !#en Sets slots visible range.
+     * !#zh 设置骨骼插槽可视范围。
      * @method setSkeletonData
      * @param {sp.spine.SkeletonData} skeletonData
      */
@@ -479,7 +478,6 @@ sp.Skeleton = cc.Class({
             this._boundingBox = cc.rect();
 	        this._material = new SpineMaterial();
             this._materialCache = {};
-            this._renderDatas = {};
         }
     },
 
