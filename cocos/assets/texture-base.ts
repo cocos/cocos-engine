@@ -63,11 +63,11 @@ export enum PixelFormat {
     /**
      * 24-bit texture: RGB888
      */
-    RGB888 = GFXFormat.RGB8UI,
+    RGB888 = GFXFormat.RGB8,
     /**
      * 32-bit texture: RGBA8888
      */
-    RGBA8888 = GFXFormat.RGBA8UI,
+    RGBA8888 = GFXFormat.RGBA8,
     /**
      * 32-bit float texture: RGBA32F
      */
@@ -75,15 +75,15 @@ export enum PixelFormat {
     /**
      * 8-bit textures used as masks
      */
-    A8 = GFXFormat.R8UI,
+    A8 = GFXFormat.A8,
     /**
      * 8-bit intensity texture
      */
-    I8 = GFXFormat.R8UI,
+    I8 = GFXFormat.L8,
     /**
      * 16-bit textures used as masks
      */
-    AI8 = GFXFormat.RG8UI,
+    AI8 = GFXFormat.LA8,
     /**
      * rgb 2 bpp pvrtc
      */
@@ -165,11 +165,9 @@ export default class TextureBase extends Asset {
      * For Cubemap texture, the width of texture is equal to its every sides's very first mipmaps's width.
      * !#zh
      * 贴图像素宽度
-     * @property width
-     * @type {Number}
      */
     public get width (): number {
-        return this._width;
+        return this._texture ? this._texture.width : 0;
     }
 
     /**
@@ -179,11 +177,9 @@ export default class TextureBase extends Asset {
      * For Cubemap texture, the height of texture is equal to its every sides's very first mipmaps's height.
      * !#zh
      * 贴图像素高度
-     * @property height
-     * @type {Number}
      */
     public get height (): number {
-        return this._height;
+        return this._texture ? this._texture.height : 0;
     }
 
     public static PixelFormat = PixelFormat;
@@ -203,6 +199,10 @@ export default class TextureBase extends Asset {
     protected _texture: GFXTexture | null = null;
 
     protected _textureView: GFXTextureView | null = null;
+
+    protected _potientialWidth: number = 0;
+
+    protected _potientialHeight: number = 0;
 
     @property
     private _genMipmap = false;
@@ -233,10 +233,6 @@ export default class TextureBase extends Asset {
 
     @property
     private _anisotropy = 1;
-
-    private _width: number = 0;
-
-    private _height: number = 0;
 
     private _sampler: GFXSampler | null = null;
 
@@ -549,19 +545,22 @@ export default class TextureBase extends Asset {
 
     protected _recreateTexture () {
         this._destroyTexture();
-        this._createTexture();
-        if (this._texture) {
-            this._width = this._texture.width;
-            this._height = this._texture.height;
+
+        const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) {
+            return;
         }
-        this._createTextureView();
+
+        this._createTextureImpl(gfxDevice);
+
+        this._createTextureViewImpl(gfxDevice);
     }
 
-    protected _createTexture () {
+    protected _createTextureImpl (gfxDevice: GFXDevice) {
         return;
     }
 
-    protected _createTextureView () {
+    protected _createTextureViewImpl (gfxDevice: GFXDevice) {
         return;
     }
 
