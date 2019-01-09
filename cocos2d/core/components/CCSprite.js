@@ -28,6 +28,7 @@ const misc = require('../utils/misc');
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
+const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
 
 const Material = require('../assets/material/CCMaterial');
 
@@ -654,6 +655,21 @@ var Sprite = cc.Class({
             }
         }
     },
+
+    _calDynamicAtlas ()
+    {
+        if (!this._spriteFrame) return;
+        
+        if (!this._spriteFrame._original && dynamicAtlasManager) {
+            let frame = dynamicAtlasManager.insertSpriteFrame(this._spriteFrame);
+            if (frame) {
+                this._spriteFrame._setDynamicAtlasFrame(frame);
+            }
+        }
+        if (this._material._texture !== this._spriteFrame._texture) {
+            this._activateMaterial();
+        }
+    }
 });
 
 if (CC_EDITOR) {

@@ -34,6 +34,9 @@ const Overflow = Label.Overflow;
 const WHITE = cc.Color.WHITE;
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
 
+const BASELINE_RATIO = 0.25;
+const MIDDLE_RATIO = (BASELINE_RATIO + 1) / 2 - BASELINE_RATIO;
+
 let _context = null;
 let _canvas = null;
 let _texture = null;
@@ -41,7 +44,7 @@ let _texture = null;
 let _fontDesc = '';
 let _string = '';
 let _fontSize = 0;
-let _drawFontsize = 0;
+let _drawFontSize = 0;
 let _splitedStrings = [];
 let _canvasSize = cc.size();
 let _lineHeight = 0;
@@ -61,6 +64,10 @@ let _margin = 0;
 let _isBold = false;
 let _isItalic = false;
 let _isUnderline = false;
+let _underlineThickness = 0;
+
+let _drawTextPos = cc.v2();
+let _drawUnderlinePos = cc.v2();
 
 let _sharedLabelData;
 
@@ -124,7 +131,8 @@ module.exports = {
         this._calculateSplitedStrings();
         this._updateLabelDimensions();
         this._calculateTextBaseline();
-        this._updateTexture(comp);
+        this._updateTexture();
+        this._calDynamicAtlas(comp);
 
         comp._actualFontSize = _fontSize;
         comp.node.setContentSize(_canvasSize);
@@ -148,11 +156,14 @@ module.exports = {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
-                        _fontFamily = fontFamily || 'Arial';
-                        comp.font._nativeAsset = fontFamily;
-                        comp._updateRenderData(true);
-                    });
+                    _fontFamily = cc.loader.getRes(comp.font.nativeUrl);
+                    if (!_fontFamily) {
+                        cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
+                            _fontFamily = fontFamily || 'Arial';
+                            comp.font._nativeAsset = fontFamily;
+                            comp._updateRenderData(true);
+                        });
+                    }
                 }
             }
             else {
@@ -168,11 +179,12 @@ module.exports = {
         let assemblerData = comp._assemblerData;
         _context = assemblerData.context;
         _canvas = assemblerData.canvas;
-        _texture = comp._texture;
-        
+        _texture = comp._frame._original ? comp._frame._original._texture : comp._frame._texture;
+
         _string = comp.string.toString();
         _fontSize = comp._fontSize;
-        _drawFontsize = _fontSize;
+        _drawFontSize = _fontSize;
+        _underlineThickness = _drawFontSize / 8;
         _overflow = comp.overflow;
         _canvasSize.width = comp.node.width;
         _canvasSize.height = comp.node.height;
@@ -210,11 +222,7 @@ module.exports = {
     },
 
     _calculateFillTextStartPosition () {
-        let lineHeight = this._getLineHeight();
-        let lineCount = _splitedStrings.length;
-        let labelX;
-        let firstLinelabelY;
-
+        let labelX = 0;
         if (_hAlign === macro.TextAlignment.RIGHT) {
             labelX = _canvasSize.width - _margin;
         }
@@ -225,14 +233,17 @@ module.exports = {
             labelX = 0 + _margin;
         }
 
+        let firstLinelabelY = 0;
+        let lineHeight = this._getLineHeight();
+        let drawStartY = lineHeight * (_splitedStrings.length - 1);
         if (_vAlign === macro.VerticalTextAlignment.TOP) {
-            firstLinelabelY = 0;
+            firstLinelabelY = lineHeight + _margin;
         }
         else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
-            firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
+            firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _drawFontSize * MIDDLE_RATIO;
         }
         else {
-            firstLinelabelY = _canvasSize.height - lineHeight * (lineCount - 1);
+            firstLinelabelY = _canvasSize.height - drawStartY - _drawFontSize * BASELINE_RATIO - _margin;
         }
 
         return cc.v2(labelX, firstLinelabelY);
@@ -247,60 +258,52 @@ module.exports = {
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
         _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
-        let underlineStartPosition;
 
         //do real rendering
         for (let i = 0; i < _splitedStrings.length; ++i) {
+            _drawTextPos.x = startPosition.x;
+            _drawTextPos.y = startPosition.y + i * lineHeight;
+
+            if (_isUnderline) {
+                _drawUnderlinePos.x = 0 + _margin;
+                _drawUnderlinePos.y = _drawTextPos.y + _underlineThickness;
+                _context.save();
+                _context.beginPath();
+                _context.lineWidth = _underlineThickness;
+                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
+                _context.moveTo(_drawUnderlinePos.x, _drawUnderlinePos.y);
+                _context.lineTo(_drawUnderlinePos.x + _canvas.width, _drawUnderlinePos.y);
+                _context.stroke();
+                _context.restore();
+            }
+
             if (_isOutlined) {
                 let strokeColor = _outlineColor || WHITE;
                 _context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
                 _context.lineWidth = _outlineWidth * 2;
-                _context.strokeText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
+                _context.strokeText(_splitedStrings[i], _drawTextPos.x, _drawTextPos.y);
             }
-            _context.fillText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
-
-            if (_isUnderline) {
-                underlineStartPosition = this._calculateUnderlineStartPosition();
-                _context.save();
-                _context.beginPath();
-                _context.lineWidth = _fontSize / 8;
-                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
-                _context.moveTo(underlineStartPosition.x, underlineStartPosition.y + i * lineHeight - 1);
-                _context.lineTo(underlineStartPosition.x + _canvas.width, underlineStartPosition.y + i * lineHeight - 1);
-                _context.stroke();
-                _context.restore();
-            }
+            _context.fillText(_splitedStrings[i], _drawTextPos.x, _drawTextPos.y);
         }
 
         _texture.handleLoadedTexture();
     },
 
-    _calculateUnderlineStartPosition () {
-        let lineHeight = this._getLineHeight();
-        let lineCount = _splitedStrings.length;
-        let labelX;
-        let firstLinelabelY;
+    _calDynamicAtlas (comp) {
+        if(!comp.cacheAsBitmap) return;
 
-        labelX = 0 + _margin;
-
-        if (_vAlign === macro.VerticalTextAlignment.TOP) {
-            firstLinelabelY = _fontSize;
+        if (!comp._frame._original) {
+            comp._frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
         }
-        else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
-            firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + _fontSize / 2;
-        }
-        else {
-            firstLinelabelY = _canvasSize.height - lineHeight * (lineCount - 1);
-        }
-
-        return cc.v2(labelX, firstLinelabelY);
+        // Add font images to the dynamic atlas for batch rendering.
+        comp._calDynamicAtlas();
     },
 
     _updateLabelDimensions () {
         let paragraphedStrings = _string.split('\n');
 
         if (_overflow === Overflow.RESIZE_HEIGHT) {
-            _canvasSize.height = _splitedStrings.length * this._getLineHeight();
+            _canvasSize.height = (_splitedStrings.length + BASELINE_RATIO) * this._getLineHeight() + 2 * _margin;
         }
         else if (_overflow === Overflow.NONE) {
             _splitedStrings = paragraphedStrings;
@@ -310,13 +313,13 @@ module.exports = {
                 let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
-            canvasSizeY = _splitedStrings.length * this._getLineHeight();
+            canvasSizeY = (_splitedStrings.length + BASELINE_RATIO) * this._getLineHeight();
 
             _canvasSize.width = parseFloat(canvasSizeX.toFixed(2)) + 2 * _margin;
-            _canvasSize.height = parseFloat(canvasSizeY.toFixed(2));
+            _canvasSize.height = parseFloat(canvasSizeY.toFixed(2)) + 2 * _margin;
             if (_isItalic) {
                 //0.0174532925 = 3.141592653 / 180
-                _canvasSize.width += _drawFontsize * Math.tan(12 * 0.0174532925);
+                _canvasSize.width += _drawFontSize * Math.tan(12 * 0.0174532925);
             }
         }
 
@@ -339,17 +342,7 @@ module.exports = {
             hAlign = 'left';
         }
         _context.textAlign = hAlign;
-
-        if (_vAlign === macro.VerticalTextAlignment.TOP) {
-            vAlign = 'top';
-        }
-        else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
-            vAlign = 'middle';
-        }
-        else {
-            vAlign = 'bottom';
-        }
-        _context.textBaseline = vAlign;
+        _context.textBaseline = 'alphabetic';
     },
 
     _calculateSplitedStrings () {
@@ -388,7 +381,7 @@ module.exports = {
         if (nodeSpacingY === 0) {
             nodeSpacingY = _fontSize;
         } else {
-            nodeSpacingY = nodeSpacingY * _fontSize / _drawFontsize;
+            nodeSpacingY = nodeSpacingY * _fontSize / _drawFontSize;
         }
 
         return nodeSpacingY | 0;
@@ -418,7 +411,7 @@ module.exports = {
         if (_overflow === Overflow.SHRINK) {
             let paragraphedStrings = _string.split('\n');
             let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
-        
+
             let i = 0;
             let totalHeight = 0;
             let maxLength = 0;
@@ -490,10 +483,10 @@ module.exports = {
                 let scaleX = (_canvasSize.width - 2 * _margin) / maxLength;
                 let scaleY = _canvasSize.height / totalHeight;
 
-                _fontSize = (_drawFontsize * Math.min(1, scaleX, scaleY)) | 0;
+                _fontSize = (_drawFontSize * Math.min(1, scaleX, scaleY)) | 0;
                 _fontDesc = this._getFontDesc();
                 _context.font = _fontDesc;
             }
         }
-    }
+    },
 };

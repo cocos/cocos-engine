@@ -117,6 +117,10 @@
 
 // window may be undefined when first load engine from editor
 var _global = typeof window === 'undefined' ? global : window;
+
+/*
+ * @param defaultValue - The default value is only used in the editor or preview.
+ */
 function defineMacro (name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
     // this may happened in release version's preview page.
@@ -142,20 +146,22 @@ if (CC_BUILD) {
     _global.CC_DEV = CC_DEV;
     _global.CC_DEBUG = CC_DEBUG;
     _global.CC_JSB = CC_JSB;
-    _global.CC_WECHATGAME_SUB = CC_WECHATGAMESUB;
+    _global.CC_WECHATGAMESUB = CC_WECHATGAMESUB;
     _global.CC_WECHATGAME = CC_WECHATGAME;
     _global.CC_QQPLAY = CC_QQPLAY;
     _global.CC_RUNTIME = CC_RUNTIME;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
 }
 else {
+    // These default values only used in the editor or preview.
+    // If you need to modify in the runtime, please modify the `global_defs` in the option returned by `gulp/util/utils.js: getUglifyOptions`.
     defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
     defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
     defineMacro('CC_PREVIEW', !CC_EDITOR);
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
     defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
     defineMacro('CC_JSB', defined('jsb'));
-    defineMacro('CC_WECHATGAME_SUB', !!(defined('wx') && wx.getSharedCanvas));
+    defineMacro('CC_WECHATGAMESUB', !!(defined('wx') && wx.getSharedCanvas));
     defineMacro('CC_WECHATGAME', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
     defineMacro('CC_QQPLAY', defined('bk'));
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);

@@ -33,6 +33,10 @@ module.exports = {
     updateRenderData (sprite) {
         utils.packToDynamicAtlas(sprite);
 
+        // TODO: Material API design and export from editor could affect the material activation process
+        // need to update the logic here
+        sprite._calDynamicAtlas();
+
         let renderData = sprite._renderData;
         if (!renderData || !sprite.spriteFrame) return;
         let uvDirty = renderData.uvDirty,
@@ -110,22 +114,22 @@ module.exports = {
         switch (sprite._fillType) {
             case FillType.HORIZONTAL:
                 data[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
-                data[0].v = quadUV1;
+                data[0].v = quadUV1 + (quadUV3 - quadUV1) * fillStart;
                 data[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
-                data[1].v = quadUV3;
+                data[1].v = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
                 data[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
-                data[2].v = quadUV5;
+                data[2].v = quadUV5 + (quadUV7 - quadUV5) * fillStart;
                 data[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
-                data[3].v = quadUV7;
+                data[3].v = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
                 break;
             case FillType.VERTICAL:
-                data[0].u = quadUV0;
+                data[0].u = quadUV0 + (quadUV4 - quadUV0) * fillStart;
                 data[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
-                data[1].u = quadUV2;
+                data[1].u = quadUV2 + (quadUV6 - quadUV2) * fillStart;
                 data[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
-                data[2].u = quadUV4;
+                data[2].u = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
                 data[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
-                data[3].u = quadUV6;
+                data[3].u = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
                 data[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
                 break;
             default:

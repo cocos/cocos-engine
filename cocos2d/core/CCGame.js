@@ -60,7 +60,7 @@ var game = {
     EVENT_HIDE: "game_on_hide",
 
     /**
-     * Event triggered when game back to foreground
+     * !#en Event triggered when game back to foreground
      * Please note that this event is not 100% guaranteed to be fired on Web platform,
      * on native platforms, it corresponds to enter foreground event.
      * !#zh 游戏进入前台运行时触发的事件。
@@ -71,6 +71,15 @@ var game = {
      * @type {String}
      */
     EVENT_SHOW: "game_on_show",
+
+    /**
+     * !#en Event triggered when game restart
+     * !#zh 调用restart后，触发事件。
+     * @property EVENT_RESTART
+     * @constant
+     * @type {String}
+     */
+    EVENT_RESTART: "game_on_restart",
 
     /**
      * Event triggered after game inited, at this point all engine objects and game scripts are loaded
@@ -285,6 +294,8 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._break();
         }
+        // Pause animation
+        cc.director.stopAnimation();
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
@@ -304,6 +315,8 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._restore();
         }
+        // Resume animation
+        cc.director.startAnimation();
         // Resume main loop
         this._runMainLoop();
     },
@@ -342,6 +355,7 @@ var game = {
 
             cc.director.reset();
             game.onStart();
+            game.emit(game.EVENT_RESTART);
         });
     },
 
@@ -695,11 +709,9 @@ var game = {
 
         let el = this.config.id,
             width, height,
-            localCanvas, localContainer,
-            isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
-            isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
+            localCanvas, localContainer;
 
-        if (isWeChatGame || CC_JSB) {
+        if (CC_WECHATGAME || CC_JSB) {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
@@ -713,7 +725,7 @@ var game = {
             }
             this.canvas = localCanvas;
         }
-        else if (isQQPlay) {
+        else if (CC_QQPLAY) {
             this.container = cc.container = document.createElement("DIV");
             this.frame = document.documentElement;
             this.canvas = localCanvas = canvas;
@@ -769,7 +781,7 @@ var game = {
                 'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             };
-            if (isWeChatGame || isQQPlay) {
+            if (CC_WECHATGAME || CC_QQPLAY) {
                 opts['preserveDrawingBuffer'] = true;
             }
             renderer.initWebGL(localCanvas, opts);

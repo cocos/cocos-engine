@@ -27,8 +27,8 @@ cc.js.mixin(Atlas.prototype, {
         let sx = rect.x, sy = rect.y;
 
         if (info) {
-            rect.x += info.x;
-            rect.y += info.y;
+            sx += info.x;
+            sy += info.y;
         }
         else {
             let width = texture.width, height = texture.height;        
@@ -43,7 +43,7 @@ cc.js.mixin(Atlas.prototype, {
             }
 
             if (this._nexty > this._height) {
-                return false;
+                return null;
             }
 
             // texture bleeding
@@ -59,26 +59,23 @@ cc.js.mixin(Atlas.prototype, {
                 texture: texture
             };
 
-            rect.x += this._x;
-            rect.y += this._y;
+            sx += this._x;
+            sy += this._y;
 
             this._x += width + space;
 
             this._dirty = true;
         }
 
-        spriteFrame._original = {
+        let frame = {
             x: sx,
             y: sy,
-            texture: spriteFrame._texture
+            texture: this._texture
         }
-
-        spriteFrame._texture = this._texture;
-        spriteFrame._calculateUV();
-
+        
         this._innerSpriteFrames.push(spriteFrame);
 
-        return true;
+        return frame;
     },
 
     update () {
@@ -98,12 +95,7 @@ cc.js.mixin(Atlas.prototype, {
             if (!frame.isValid) {
                 continue;
             }
-            let oriInfo = frame._original;
-            frame._rect.x = oriInfo.x;
-            frame._rect.y = oriInfo.y;
-            frame._texture = oriInfo.texture;
-            frame._calculateUV();
-            frame._original = null;
+            frame._resetDynamicAtlasFrame();
         }
         this._innerSpriteFrames.length = 0;
         this._innerTextureInfos = {};

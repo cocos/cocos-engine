@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const utils = require('../utils');
 const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
 module.exports = {
@@ -32,7 +31,9 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        utils.packToDynamicAtlas(sprite);
+        // TODO: Material API design and export from editor could affect the material activation process
+        // need to update the logic here
+        sprite._calDynamicAtlas();
 
         let renderData = sprite._renderData;
         let frame = sprite.spriteFrame;

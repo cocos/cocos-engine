@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 // TODO - merge with misc.js
+const js = require('./js');
 
 module.exports = {
     contains: function (refNode, otherNode) {
@@ -91,12 +92,8 @@ if (CC_DEV) {
         if (!obj || obj.constructor !== Object) {
             return false;
         }
-        // jshint ignore: start
-        for (var k in obj) {
-            return false;
-        }
-        // jshint ignore: end
-        return true;
+       
+        return js.isEmptyObject(obj);
     };
     module.exports.cloneable_DEV = function (obj) {
         return obj &&

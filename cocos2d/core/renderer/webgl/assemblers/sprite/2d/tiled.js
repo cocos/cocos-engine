@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const utils = require('../utils');
-
 module.exports = {
     vertexOffset: 5,
     uvOffset: 2,
@@ -35,7 +33,11 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        utils.packToDynamicAtlas(sprite);
+        let frame = sprite.spriteFrame;
+        
+        // TODO: Material API design and export from editor could affect the material activation process
+        // need to update the logic here
+        sprite._calDynamicAtlas();
 
         let renderData = sprite._renderData;
         let frame = sprite.spriteFrame;

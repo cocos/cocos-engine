@@ -25,7 +25,7 @@
 
 const js = require('../../../../../platform/js');
 const bmfontUtls = require('../../../../utils/label/bmfont');
-const fillVertices = require('../../utils').fillVertices;
+const fillMeshVertices = require('../../utils').fillMeshVertices;
 
 module.exports = js.addon({
     createData (comp) {
@@ -34,7 +34,7 @@ module.exports = js.addon({
 
     fillBuffers (comp, renderer) {
         let node = comp.node;
-        fillVertices(node, renderer._quadBuffer, comp._renderData, node._color._val);
+        fillMeshVertices(node, renderer._meshBuffer, comp._renderData, node._color._val);
     },
 
     appendQuad (renderData, texture, rect, rotated, x, y, scale) {
