@@ -416,7 +416,7 @@ export default class LightComponent extends Component {
     }
 
     onLoad() {
-        this._light = this._renderScene.createLight(this.name);
+        this._light = this.getRenderScene().createLight(this.name);
         this._light.setNode(this.node);
         this.type = this._type;
         this.color = this._color;
@@ -442,6 +442,6 @@ export default class LightComponent extends Component {
     }
 
     onDestroy() {
-        this._renderScene.destroyLight(this._light);
+        this.getRenderScene().destroyLight(this._light);
     }
 }

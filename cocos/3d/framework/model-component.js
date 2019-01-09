@@ -190,7 +190,7 @@ export default class ModelComponent extends RenderableComponent {
 
     onDestroy() {
         for (let i = 0; i < this._models.length; ++i) {
-            this._renderScene.destroyModel(this._models[i]);
+            this.getRenderScene().destroyModel(this._models[i]);
         }
     }
 
@@ -208,12 +208,12 @@ export default class ModelComponent extends RenderableComponent {
         this._updateModelParams();
 
         for (let i = 0; i < oldModels.length; ++i) {
-            this._renderScene.destroyModel(oldModels[i]);
+            this.getRenderScene().destroyModel(oldModels[i]);
         }
     }
 
     _createModel() {
-        return this._renderScene.createModel(Model);
+        return this.getRenderScene().createModel(Model);
     }
 
     _updateModelParams() {

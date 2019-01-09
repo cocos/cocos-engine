@@ -195,8 +195,8 @@ class Component extends CCObject {
 
     static system = null;
 
-    get _renderScene() {
-        return this.node._scene._renderScene;
+    getRenderScene(index = 0) {
+        return this.node._scene._renderScenes[index];
     }
 
     constructor () {
