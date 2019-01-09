@@ -306,7 +306,7 @@ export default class CameraComponent extends Component {
     }
 
     onLoad() {
-        this._camera = this._renderScene.createCamera(this.name);
+        this._camera = this.getRenderScene().createCamera(this.name);
         this.projection = this._projection;
         this.priority = this._priority;
         this.fov = this._fov;
@@ -331,7 +331,7 @@ export default class CameraComponent extends Component {
     }
 
     onDestroy() {
-        this._renderScene.destroyCamera(this._camera);
+        this.getRenderScene().destroyCamera(this._camera);
     }
 
     /**

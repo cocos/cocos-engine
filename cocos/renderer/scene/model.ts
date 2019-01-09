@@ -41,11 +41,11 @@ export default class Model {
     private _material: Material | null;
     private _cmdBuffers: GFXCommandBuffer[];
     private _localUniforms: UBOLocal | null;
-    private _localUBO: GFXBuffer;
+    private _localUBO: GFXBuffer | null;
     /**
      * Setup a default empty model
      */
-    constructor () {
+    constructor() {
         this._scene = null;
         this._id = 0;
         this._enable = false;
@@ -62,10 +62,11 @@ export default class Model {
         this._cameraID = -1;
         this._userKey = -1;
         this._castShadow = false;
-        this._boundingShape = null;
+        this._boundingShape = aabb.create(0, 0, 0, 50, 50, 50);
         this._material = null;
         this._cmdBuffers = new Array<GFXCommandBuffer>();
         this._localUniforms = null;
+        this._localUBO = null;
     }
 
     initialize() {
@@ -76,10 +77,11 @@ export default class Model {
             size: UBOLocal.SIZE,
             stride: UBOLocal.SIZE,
         });
-        this._localUBO.update(this._localUniforms.view);
+        if (this._localUBO)
+            this._localUBO.update(this._localUniforms.view);
     }
 
-    set scene (scene: RenderScene | null) {
+    set scene(scene: RenderScene | null) {
         this._scene = scene;
 
         if (this._scene) {
@@ -87,15 +89,15 @@ export default class Model {
         }
     }
 
-    get scene (): RenderScene | null {
+    get scene(): RenderScene | null {
         return this._scene;
     }
 
-    get id (): number {
+    get id(): number {
         return this._id;
     }
 
-    public _updateTransform () {
+    public _updateTransform() {
         if (!this._node._hasChanged || !this._boundingShape) { return; }
         this._node.updateWorldTransformFull();
         this._bsModelSpace.transform(this._node._mat, this._node._pos,
@@ -105,10 +107,13 @@ export default class Model {
     updateRenderData() {
         mat4.array(_temp_floatx16, this._node._mat);
         this._node._mat.invert(_temp_mat4);
-        this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
+        if (this._localUniforms)
+            this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
         mat4.array(_temp_floatx16, _temp_mat4);
-        this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
-        this._localUBO.update(this._localUniforms.view);
+        if (this._localUniforms)
+            this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
+        if (this._localUBO)
+            this._localUBO.update(this._localUniforms.view);
     }
 
     /**
@@ -116,17 +121,17 @@ export default class Model {
      * @param {vec3} minPos the min position of the model
      * @param {vec3} maxPos the max position of the model
      */
-    public createBoundingShape (minPos: Vec3, maxPos: Vec3) {
+    public createBoundingShape(minPos: Vec3, maxPos: Vec3) {
         if (!minPos || !maxPos) { return; }
         this._bsModelSpace = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._boundingShape = aabb.clone(this._bsModelSpace);
     }
 
-    public enable (isEnable: boolean) {
+    public enable(isEnable: boolean) {
         this._isEnable = isEnable;
     }
 
-    public isEnable (): boolean {
+    public isEnable(): boolean {
         return this._isEnable;
     }
 
@@ -134,7 +139,7 @@ export default class Model {
      * Get the hosting node of this camera
      * @returns {Node} the hosting node
      */
-    get node (): Node {
+    get node(): Node {
         return this._node;
     }
 
@@ -142,7 +147,7 @@ export default class Model {
      * Set the hosting node of this model
      * @param {Node} node the hosting node
      */
-    set node (node: Node) {
+    set node(node: Node) {
         this._node = node;
     }
 
@@ -150,7 +155,7 @@ export default class Model {
      * Set the input assembler
      * @param {InputAssembler} ia
      */
-    set inputAssembler (ia: GFXInputAssembler) {
+    set inputAssembler(ia: GFXInputAssembler) {
         this._inputAssembler = ia;
     }
 
@@ -158,7 +163,7 @@ export default class Model {
      * Set the model effect
      * @param {?Effect} effect the effect to use
      */
-    public setEffect (effect: Effect) {
+    public setEffect(effect: Effect) {
         if (effect) {
             this._effect = effect;
             // this._defines = effect.extractDefines(Object.create(null));
@@ -170,7 +175,7 @@ export default class Model {
         }
     }
 
-    set material (material: Material) {
+    set material(material: Material) {
         this._material = material;
         for (let i = 0; i < this._material.passes.length; i++) {
             this.recordCommandBuffer(i);
@@ -183,8 +188,8 @@ export default class Model {
         }
     }
 
-    public recordCommandBuffer (index: number) {
-        const pass = ( this._material as Material).passes[index];
+    public recordCommandBuffer(index: number) {
+        const pass = (this._material as Material).passes[index];
         const cmdBufferInfo = {
             allocator: cc.director.root.device.commandAllocator,
             type: GFXCommandBufferType.SECONDARY,
@@ -192,13 +197,14 @@ export default class Model {
         if (this._cmdBuffers[index] == null) {
             this._cmdBuffers[index] = cc.director.root.device.createCommandBuffer(cmdBufferInfo);
         }
-        pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localUBO);
+        if (this._localUBO)
+            pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localUBO);
         pass.bindingLayout.update();
         this._cmdBuffers[index].begin();
         this._cmdBuffers[index].bindPipelineState(pass.pipelineState);
         this._cmdBuffers[index].bindBindingLayout(pass.bindingLayout);
-        this._cmdBuffers[index].bindInputAssembler( this._inputAssembler as GFXInputAssembler);
-        this._cmdBuffers[index].draw( this._inputAssembler as GFXInputAssembler);
+        this._cmdBuffers[index].bindInputAssembler(this._inputAssembler as GFXInputAssembler);
+        this._cmdBuffers[index].draw(this._inputAssembler as GFXInputAssembler);
         this._cmdBuffers[index].end();
     }
 
@@ -206,15 +212,15 @@ export default class Model {
      * Set the user key
      * @param {number} key
      */
-    set userKey (key: number) {
+    set userKey(key: number) {
         this._userKey = key;
     }
 
-    get passes (): Pass[] {
-        return ( this._material as Material).passes;
+    get passes(): Pass[] {
+        return (this._material as Material).passes;
     }
 
-    get commandBuffers (): GFXCommandBuffer[] {
+    get commandBuffers(): GFXCommandBuffer[] {
         return this._cmdBuffers;
     }
 
@@ -222,7 +228,7 @@ export default class Model {
      * Extract a drawing item
      * @param {Object} out the receiving item
      */
-    public extractDrawItem (out) {
+    public extractDrawItem(out) {
         out.model = this;
         out.node = this._node;
         out.ia = this._inputAssembler;
