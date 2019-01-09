@@ -27,7 +27,7 @@ import { Texture2D } from '../../assets';
 import ImageAsset from '../../assets/image-asset';
 import TextureBase from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
+import { GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, GFXTextureFlagBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 
 interface ITextureCubeMipmap {
@@ -182,6 +182,7 @@ export default class TextureCube extends TextureBase {
             height: this._potientialHeight,
             mipLevel: this._mipmaps.length,
             arrayLayer: 6,
+            flags: GFXTextureFlagBit.CUBEMAP,
         });
     }
 
@@ -192,8 +193,9 @@ export default class TextureCube extends TextureBase {
 
         this._textureView = gfxDevice.createTextureView({
             texture: this._texture,
-            type: GFXTextureViewType.TV2D_ARRAY,
+            type: GFXTextureViewType.CUBE,
             format: this._getGfxFormat(),
+            layerCount: 6,
         });
     }
 }
