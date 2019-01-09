@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const macro = require('../../platform/CCMacro');
-const EditBoxImpl = require('../editbox/CCEditBoxImpl');
+const EditBoxImpl = require('./EditBoxImplBase');
 const Label = require('../CCLabel');
 const Types = require('./types');
 const InputMode = Types.InputMode;
@@ -79,9 +79,7 @@ let EditBox = cc.Class({
                 }
 
                 this._string = value;
-                if (this._impl) {
-                    this._updateString(value);
-                }
+                this._updateString(value);
             }
         },
 
@@ -115,9 +113,7 @@ let EditBox = cc.Class({
             displayName: 'KeyboardReturnType',
             type: KeyboardReturnType,
             notify () {
-                if (this._impl) {
-                    this._impl.returnType = this.returnType;
-                }
+                
             }
         },
 
@@ -132,10 +128,7 @@ let EditBox = cc.Class({
             default: InputFlag.DEFAULT,
             type: InputFlag,
             notify () {
-                if (this._impl) {
-                    this._impl.setInputFlag(this.inputFlag);
-                    this._updateString(this._string);
-                }
+                this._updateString(this._string);
             }
         },
         /**
@@ -152,9 +145,7 @@ let EditBox = cc.Class({
             default: InputMode.ANY,
             type: InputMode,
             notify () {
-                if (this._impl) {
-                    this._impl.setInputMode(this.inputMode);
-                }
+                
             }
         },
 
@@ -169,9 +160,6 @@ let EditBox = cc.Class({
             notify () {
                 if (this._textLabel) {
                     this._textLabel.fontSize = this.fontSize;
-                }
-                if (this._impl) {
-                    this._impl.setFontSize(this.fontSize);
                 }
             }
         },
@@ -204,9 +192,6 @@ let EditBox = cc.Class({
                     this._textLabel.node.opacity = this.fontColor.a;
                     this._textLabel.node.color = this.fontColor;
                 }
-                if (this._impl) {
-                    this._impl.setFontColor(this.fontColor);
-                }
             }
         },
 
@@ -221,9 +206,6 @@ let EditBox = cc.Class({
             notify () {
                 if (this._placeholderLabel) {
                     this._placeholderLabel.string = this.placeholder;
-                }
-                if (this._impl) {
-                    this._impl.setPlaceholderText(this.placeholder);
                 }
             }
         },
@@ -272,9 +254,7 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.max_length',
             default: 20,
             notify () {
-                if (this._impl) {
-                    this._impl.setMaxLength(this.maxLength);
-                }
+                
             }
         },
 
@@ -306,9 +286,7 @@ let EditBox = cc.Class({
             },
             set (value) {
                 this._tabIndex = value;
-                if (this._impl) {
-                    this._impl.setTabIndex(value);
-                }
+                this._impl.setTabIndex(value);
             }
         },
 
@@ -355,7 +333,7 @@ let EditBox = cc.Class({
     },
 
     statics: {
-        _EditBoxImpl: EditBoxImpl,
+        _EditBoxImpl: EditBoxImpl,  // covered on different platform
         KeyboardReturnType: KeyboardReturnType,
         InputFlag: InputFlag,
         InputMode: InputMode
@@ -364,20 +342,10 @@ let EditBox = cc.Class({
     _init () {
         this._createBackgroundSprite();
         this._createLabels();
-        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._resizeChildNodes, this);
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._syncSize, this);
 
-        let impl = this._impl = new EditBoxImpl();
-
-        impl.setDelegate(this);
-        impl.setNode(this.node);
-        impl.setInputMode(this.inputMode);
-        impl.setMaxLength(this.maxLength);
-        impl.setInputFlag(this.inputFlag);
-        impl.setReturnType(this.returnType);
-        impl.setTabIndex(this.tabIndex);
-        impl.setFontColor(this.fontColor);
-        impl.setFontSize(this.fontSize);
-        impl.setPlaceholderText(this.placeholder);
+        let impl = this._impl = new EditBox._EditBoxImpl();
+        impl.init(this);
 
         this._updateString(this.string);
         this._syncSize();
@@ -482,25 +450,6 @@ let EditBox = cc.Class({
         }
     },
 
-    _resizeChildNodes () {
-        let textLabelNode = this._textLabel.node,
-            placeholderLabelNode = this._placeholderLabel.node,
-            backgroundNode = this._background.node;
-
-        textLabelNode.x = -this.node.width/2;
-        textLabelNode.y = this.node.height/2;
-        textLabelNode.width = this.node.width;
-        textLabelNode.height = this.node.height;
-
-        placeholderLabelNode.x = -this.node.width/2;
-        placeholderLabelNode.y = this.node.height/2;
-        placeholderLabelNode.width = this.node.width;
-        placeholderLabelNode.height = this.node.height;
-
-        backgroundNode.width = this.node.width;
-        backgroundNode.height = this.node.height;
-    },
-
     _showLabels () {
         let displayText = this._textLabel.string;
         this._textLabel.node.active = displayText !== '';
@@ -525,8 +474,8 @@ let EditBox = cc.Class({
         }
 
         textLabel.string = displayText;
-        this._impl.setString(text);
-        if (!this._impl._editing) {
+
+        if (!this._impl.isFocused()) {
             this._showLabels();
         }
     },
@@ -555,19 +504,11 @@ let EditBox = cc.Class({
     },
 
     editBoxEditingDidBegan () {
-        // Only Web platform need to hide labels
-        if (cc.sys.isBrowser) {
-            this._hideLabels();
-        }
         cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit('editing-did-began', this);
     },
 
     editBoxEditingDidEnded () {
-        // Only Web platform need to control showing labels
-        if (cc.sys.isBrowser) {
-            this._showLabels();
-        }
         cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit('editing-did-ended', this);
     },
@@ -585,15 +526,15 @@ let EditBox = cc.Class({
     },
 
     onDestroy () {
-        this._impl.clear();
+        this._impl.onDestroy();
     },
 
     onEnable () {
-        this._impl && this._impl.onEnable();
+        this._impl.onEnable();
     },
 
     onDisable () {
-        this._impl && this._impl.onDisable();
+        this._impl.onDisable();
     },
 
     __preload () {
@@ -617,22 +558,37 @@ let EditBox = cc.Class({
     },
 
     _onTouchEnded (event) {
-        if (this._impl) {
-            // On Web platform, not begine editing here, in WebInput.onFocus callback instead.
-            this._impl._beginEditing();
-        }
+        // On Web platform, not begine editing here, in WebInput.onFocus callback instead.
+        this._impl.beginEditing();
         event.stopPropagation();
+    },
+
+    /**
+     * !#en Let the EditBox get focus, setFocus() will be abandoned, please use focus() instead.
+     * !#zh 让当前 EditBox 获得焦点, setFocus() 将废弃，请使用 focus()
+     * @method setFocus
+     */
+    setFocus () {
+        cc.warn('setFocus() will be abandoned in the future, please use focus() instead.');
+        this._impl.setFocus();
     },
 
     /**
      * !#en Let the EditBox get focus
      * !#zh 让当前 EditBox 获得焦点
-     * @method setFocus
+     * @method focus
      */
-    setFocus () {
-        if(this._impl) {
-            this._impl.setFocus();
-        }
+    focus () {
+        this._impl.setFocus(true);
+    },
+
+    /**
+     * !#en Let the EditBox lose focus
+     * !#zh 让当前 EditBox 失去焦点
+     * @method blur
+     */
+    blur () {
+        this._impl.setFocus(false);
     },
 
     /**
@@ -642,22 +598,20 @@ let EditBox = cc.Class({
      * @method isFocused
      */
     isFocused () {
-        let isFocused = false;
-        if (this._impl) {
-            isFocused = this._impl.isFocused();
-        }
-        return isFocused;
+        return this._impl.isFocused();
     },
 
     update () {
-        if (this._impl) {
-            this._impl.update();
-        }
+        this._impl.update();
     }
 
 });
 
 cc.EditBox = module.exports = EditBox;
+
+if (cc.sys.isBrowser) {
+    require('./WebEditBoxImpl');
+}
 
 /**
  * !#en
