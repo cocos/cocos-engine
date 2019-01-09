@@ -9,6 +9,8 @@ import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderFlow } from '../render-flow';
 import { RenderStage, RenderStageInfo } from '../render-stage';
 import { RenderView } from '../render-view';
+import Texture2D from '../../assets/texture-2d';
+import ImageAsset from '../../assets/image-asset';
 
 export class TestMaterialStage extends RenderStage {
 
@@ -113,39 +115,50 @@ export class TestMaterialStage extends RenderStage {
     }
 
     private loadTexture (image: HTMLImageElement): boolean {
-        this._texture = this._device.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            format: GFXFormat.RGBA8,
-            width: image.width,
-            height: image.height,
-            flags: GFXTextureFlagBit.NONE,
-        });
+        // this._texture = this._device.createTexture({
+        //     type: GFXTextureType.TEX2D,
+        //     usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+        //     format: GFXFormat.RGBA8,
+        //     width: image.width,
+        //     height: image.height,
+        //     flags: GFXTextureFlagBit.NONE,
+        // });
 
+        // if (!this._texture) {
+        //     return false;
+        // }
+
+        // this._texView = this._device.createTextureView({
+        //     texture: this._texture,
+        //     type: GFXTextureViewType.TV2D,
+        //     format: GFXFormat.RGBA8,
+        // });
+
+        // if (!this._texView) {
+        //     return false;
+        // }
+
+        // const region: GFXBufferTextureCopy = {
+        //     buffOffset: 0,
+        //     buffStride: 0,
+        //     buffTexHeight: 0,
+        //     texOffset: { x: 0, y: 0, z: 0 },
+        //     texExtent: { width: image.width, height: image.height, depth: 1 },
+        //     texSubres: { baseMipLevel: 0, levelCount: 1, baseArrayLayer: 0, layerCount: 1 },
+        // };
+
+        // this._device.copyImageSourceToTexture(image, this._texture, [region]);
+
+        const textureAsset = new Texture2D();
+        textureAsset.image = new ImageAsset(image);
+        this._texture = textureAsset.getGFXTexture();
         if (!this._texture) {
             return false;
         }
-
-        this._texView = this._device.createTextureView({
-            texture: this._texture,
-            type: GFXTextureViewType.TV2D,
-            format: GFXFormat.RGBA8,
-        });
-
+        this._texView = textureAsset.getGFXTextureView();
         if (!this._texView) {
             return false;
         }
-
-        const region: GFXBufferTextureCopy = {
-            buffOffset: 0,
-            buffStride: 0,
-            buffTexHeight: 0,
-            texOffset: { x: 0, y: 0, z: 0 },
-            texExtent: { width: image.width, height: image.height, depth: 1 },
-            texSubres: { baseMipLevel: 0, levelCount: 1, baseArrayLayer: 0, layerCount: 1 },
-        };
-
-        this._device.copyImageSourceToTexture(image, this._texture, [region]);
 
         return true;
     }
