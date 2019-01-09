@@ -1,19 +1,18 @@
-import { RenderScene } from "./render-scene";
-import Node from "../../scene-graph/node";
-import { vec3, mat4, quat } from "../../core/vmath";
-import { frustum } from "../../3d/geom-utils/frustum";
+import { frustum } from '../../3d/geom-utils/frustum';
+import { mat4, quat, vec3 } from '../../core/vmath';
+import Node from '../../scene-graph/node';
+import { RenderScene } from './render-scene';
 
-export enum NodeSpace
-{
-	LOCAL,
-	PARENT,
-	WORLD,
-};
+export enum NodeSpace {
+    LOCAL,
+    PARENT,
+    WORLD,
+}
 
 export enum CameraProjection {
     PERSPECTIVE,
     ORTHO,
-};
+}
 
 export class Camera {
 
@@ -27,22 +26,22 @@ export class Camera {
     private _fov: number;
     private _nearClip: number;
     private _farClip: number;
-    private _matView: mat4 = new mat4;
-    private _matProj: mat4 = new mat4;
-    private _matViewProj: mat4 = new mat4;
-    private _matViewProjInv: mat4 = new mat4;
-    private _position: vec3 = new vec3;
-    private _rotation: quat = new quat;
-    private _direction: vec3 = new vec3;
-    private _frustum: frustum = new frustum;
+    private _matView: mat4 = new mat4();
+    private _matProj: mat4 = new mat4();
+    private _matViewProj: mat4 = new mat4();
+    private _matViewProjInv: mat4 = new mat4();
+    private _position: vec3 = new vec3();
+    private _rotation: quat = new quat();
+    private _direction: vec3 = new vec3();
+    private _frustum: frustum = new frustum();
 
-    constructor(scene: RenderScene, name: string) {
+    constructor (scene: RenderScene, name: string) {
         this._scene = scene;
         this._name = name;
-        this._node = scene.createNode({ name: name + "Node", isStatic: false });
+        this._node = scene.createNode({ name: name + 'Node', isStatic: false });
         this._proj = CameraProjection.PERSPECTIVE;
 
-        let window = scene.root.mainWindow;
+        const window = scene.root.mainWindow;
         if (window) {
             this._width = window.width;
             this._height = window.height;
@@ -57,13 +56,13 @@ export class Camera {
         this._farClip = 10000.0;
     }
 
-    public resize(width: number, height: number) {
+    public resize (width: number, height: number) {
         this._width = width;
         this._height = height;
         this._aspect = this._width / this._height;
     }
 
-    public update() {
+    public update () {
         // view matrix
         this._node.getWorldRT(this._matView);
         mat4.invert(this._matView, this._matView);
@@ -72,8 +71,8 @@ export class Camera {
         if (this._proj === CameraProjection.PERSPECTIVE) {
             mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip);
         } else {
-            let x = this._width;
-            let y = this._height;
+            const x = this._width;
+            const y = this._height;
             mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip);
         }
 
@@ -84,110 +83,110 @@ export class Camera {
         this._frustum.update(this._matViewProj, this._matViewProjInv);
     }
 
-    public set fov(fov: number) {
+    public set fov (fov: number) {
         this._fov = fov;
     }
 
-    public set nearClip(nearClip: number) {
+    public set nearClip (nearClip: number) {
         this._nearClip = nearClip;
     }
 
-    public set farClip(farClip: number) {
+    public set farClip (farClip: number) {
         this._farClip = farClip;
     }
 
-    public get scene(): RenderScene {
+    public get scene (): RenderScene {
         return this._scene;
     }
 
-    public get name(): string {
+    public get name (): string {
         return this._name;
     }
 
-    public get node(): Node {
+    public get node (): Node {
         return this._node;
     }
 
-    public get width(): number {
+    public get width (): number {
         return this._width;
     }
 
-    public get height(): number {
+    public get height (): number {
         return this._height;
     }
 
-    public get aspect(): number {
+    public get aspect (): number {
         return this._aspect;
     }
 
-    public get fov(): number {
+    public get fov (): number {
         return this._fov;
     }
 
-    public get nearClip(): number {
+    public get nearClip (): number {
         return this._nearClip;
     }
 
-    public get farClip(): number {
+    public get farClip (): number {
         return this._farClip;
     }
 
-    public get matView(): mat4 {
+    public get matView (): mat4 {
         return this._matView;
     }
 
-    public get matProj(): mat4 {
+    public get matProj (): mat4 {
         return this._matProj;
     }
 
-    public get matViewProj(): mat4 {
+    public get matViewProj (): mat4 {
         return this._matViewProj;
     }
 
-    public get matViewProjInv(): mat4 {
+    public get matViewProjInv (): mat4 {
         return this._matViewProjInv;
     }
 
-    public get frustum(): frustum {
+    public get frustum (): frustum {
         return this._frustum;
     }
 
-    public get position(): vec3 {
-        this._node.getWorldPosition(this._position);
+    public get position (): vec3 {
+        this._node.getPosition(this._position);
         return this._position;
     }
 
-    public rotate(rot: quat, ns?: NodeSpace) {
-        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
-        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+    public rotate (rot: quat, ns?: NodeSpace) {
+        const space = (ns !== undefined ? ns : NodeSpace.LOCAL);
+        if (space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
             this._node.rotate(rot);
         } else if (space === NodeSpace.WORLD) {
             this._node.rotateWorld(rot);
         }
     }
 
-    public rotateFromAxisAngle(axis: vec3, rad: number, ns?: NodeSpace) {
+    public rotateFromAxisAngle (axis: vec3, rad: number, ns?: NodeSpace) {
         quat.fromAxisAngle(this._rotation, axis, rad);
-        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
-        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+        const space = (ns !== undefined ? ns : NodeSpace.LOCAL);
+        if (space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
             this._node.rotate(this._rotation);
         } else if (space === NodeSpace.WORLD) {
             this._node.rotateWorld(this._rotation);
         }
     }
 
-    public setRotation(rot: quat, ns?: NodeSpace) {
-        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
-        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+    public setRotation (rot: quat, ns?: NodeSpace) {
+        const space = (ns !== undefined ? ns : NodeSpace.LOCAL);
+        if (space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
             this._node.setRotation(rot);
         } else if (space === NodeSpace.WORLD) {
             this._node.setWorldRotation(rot);
         }
     }
 
-    public pitch(rad: number, ns?: NodeSpace) {
-        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
-        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+    public pitch (rad: number, ns?: NodeSpace) {
+        const space = (ns !== undefined ? ns : NodeSpace.LOCAL);
+        if (space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
             this._node.getRotation(this._rotation);
             quat.toAxisX(this._direction, this._rotation);
             this.rotateFromAxisAngle(this._direction, rad, ns);
@@ -198,9 +197,9 @@ export class Camera {
         }
     }
 
-    public yaw(rad: number, ns?: NodeSpace) {
-        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
-        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+    public yaw (rad: number, ns?: NodeSpace) {
+        const space = (ns !== undefined ? ns : NodeSpace.LOCAL);
+        if (space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
             this._node.getRotation(this._rotation);
             quat.toAxisY(this._direction, this._rotation);
             this.rotateFromAxisAngle(this._direction, rad, ns);
@@ -208,12 +207,12 @@ export class Camera {
             this._node.getWorldRotation(this._rotation);
             quat.toAxisY(this._direction, this._rotation);
             this.rotateFromAxisAngle(this._direction, rad, ns);
-        }  
+        }
     }
 
-    public roll(rad: number, ns?: NodeSpace) {
-        let space = (ns !== undefined? ns : NodeSpace.LOCAL);
-        if(space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
+    public roll (rad: number, ns?: NodeSpace) {
+        const space = (ns !== undefined ? ns : NodeSpace.LOCAL);
+        if (space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
             this._node.getRotation(this._rotation);
             quat.toAxisZ(this._direction, this._rotation);
             this.rotateFromAxisAngle(this._direction, rad, ns);
@@ -221,25 +220,25 @@ export class Camera {
             this._node.getWorldRotation(this._rotation);
             quat.toAxisZ(this._direction, this._rotation);
             this.rotateFromAxisAngle(this._direction, rad, ns);
-        }  
+        }
     }
 
-    public set target(target: vec3) {
+    public set target (target: vec3) {
         this._node.lookAt(target);
     }
 
-    public get direction(): vec3 {
+    public get direction (): vec3 {
         this._node.getRotation(this._rotation);
         vec3.transformQuat(this._direction, vec3.UNIT_Z, this._rotation);
         return this._direction;
     }
 
-    public set position(pos: vec3) {
+    public set position (pos: vec3) {
         this._node.setWorldPosition(pos.x, pos.y, pos.z);
     }
 
-    public set direction(dir: vec3) {
+    public set direction (dir: vec3) {
         quat.rotationTo(this._rotation, vec3.UNIT_Z, dir);
         this._node.setRotation(this._rotation);
     }
-};
+}

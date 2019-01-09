@@ -1,4 +1,4 @@
-import { RenderFlow, RenderFlowInfo } from '../render-flow';
+import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
 import { TestMaterialStage } from './test-material-stage';
 import { TestStage } from './test-stage';
@@ -13,7 +13,7 @@ export class ForwardFlow extends RenderFlow {
         super(pipeline);
     }
 
-    public initialize (info: RenderFlowInfo): boolean {
+    public initialize (info: IRenderFlowInfo): boolean {
 
         if (info.name !== undefined) {
             this._name = info.name;
@@ -32,19 +32,19 @@ export class ForwardFlow extends RenderFlow {
             priority: ForwardStagePriority.FORWARD,
             framebuffer:  mainWindow.framebuffer,
         });
-        /* *
+        */
         this.createStage<TestMaterialStage>(TestMaterialStage, {
             name: 'TestMaterialStage',
             priority: ForwardStagePriority.FORWARD,
             framebuffer:  mainWindow.framebuffer,
         });
-        /* */
+        /*
         this.createStage<TestStage>(TestStage, {
             name: 'TestStage',
             priority: ForwardStagePriority.FORWARD,
             framebuffer: mainWindow.framebuffer,
         });
-        /* */
+        */
 
         return true;
     }

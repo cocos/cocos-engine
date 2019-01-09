@@ -1,39 +1,39 @@
-import { RenderPipeline, RenderPassStage, UBOGlobal } from "../render-pipeline";
 import { Root } from "../../core/root";
-import { ForwardFlow } from "./forward-flow";
-import { GFXRenderPass } from "../../gfx/render-pass";
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from "../../gfx/define";
+import { GFXRenderPass } from "../../gfx/render-pass";
+import { RenderPassStage, RenderPipeline, UBOGlobal } from "../render-pipeline";
 import { RenderQueue } from "../render-queue";
+import { ForwardFlow } from "./forward-flow";
 
 export enum ForwardFlowPriority {
     FORWARD = 0,
-};
+}
 
 export class ForwardPipeline extends RenderPipeline {
 
-    constructor(root: Root) {
+    constructor (root: Root) {
         super(root);
     }
 
-    public initialize(): boolean {
-        
-        if(!this.createQuadInputAssembler()) {
+    public initialize (): boolean {
+
+        if (!this.createQuadInputAssembler()) {
             return false;
         }
 
-        if(!this.createUBOs()) {
+        if (!this.createUBOs()) {
             return false;
         }
 
-        let mainWindow = this._root.mainWindow;
+        const mainWindow = this._root.mainWindow;
         let windowPass: GFXRenderPass | null = null;
 
-        if(mainWindow) {
+        if (mainWindow) {
             windowPass = mainWindow.renderPass;
         }
 
-        if(!windowPass) {
-            console.error("RenderPass of main window is null.");
+        if (!windowPass) {
+            console.error('RenderPass of main window is null.');
             return false;
         }
 
@@ -48,18 +48,18 @@ export class ForwardPipeline extends RenderPipeline {
 
         // create flows
         this.createFlow<ForwardFlow>(ForwardFlow, {
-            name: "ForwardFlow",
+            name: 'ForwardFlow',
             priority: ForwardFlowPriority.FORWARD,
         });
 
         return true;
     }
 
-    public destroy() {
+    public destroy () {
         this.destroyFlows();
         this.clearRenderPasses();
         this.destroyUBOs();
         this.destroyQuadInputAssembler();
     }
 
-};
+}
