@@ -75,7 +75,12 @@ export abstract class GFXBindingLayout {
         }
     }
 
-    public getBindingUnit (binding: number): GFXBindingUnit {
-        return this._bindingUnits[binding];
+    public getBindingUnit(binding: number): GFXBindingUnit {
+        for (let i = 0; i < this._bindingUnits.length; i++) {
+            if (this._bindingUnits[i].binding === binding) {
+                return this._bindingUnits[i];
+            }
+        }
+        return null;
     }
 }

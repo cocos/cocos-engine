@@ -1,5 +1,45 @@
 export default [
   {
+    "name": "test",
+    "techniques": [{"queue": 0, "lod": 500, "passes": [{"stage": 100, "program": "f4c45e6cc7794309d86202e6ec9036a3871fd1ec167a9e02eb1e1574"}], "priority": 0}],
+    "properties": {"u_color": {"type": 17, "value": [1, 1, 1, 1]}, "u_sampler": {"type": 29, "value": null}},
+    "shaders": [
+      {
+        "name": "f4c45e6cc7794309d86202e6ec9036a3871fd1ec167a9e02eb1e1574",
+        "vert": `
+  attribute vec3 a_position;
+  attribute vec2 a_texCoord;
+  uniform mat4 cc_matWorld;
+  varying vec2 v_texCoord;
+  void main() {
+    gl_Position = cc_matWorld*vec4(a_position, 1.0);
+    v_texCoord = a_texCoord;
+  }
+`,
+        "frag": `
+  varying vec2 v_texCoord;
+    uniform vec4 u_color;
+  uniform sampler2D u_sampler;
+  void main() {
+
+    gl_FragColor = texture2D(u_sampler, v_texCoord);
+    gl_FragColor.r = u_color.r;
+  }
+`,
+        "defines": [],
+        "blocks": [
+          {"name": "Constants", "size": 16, "defines": [], "binding": 0, "members": [
+            {"name": "u_color", "type": 16, "count": 1, "size": 16}
+          ]}
+        ],
+        "samplers": [
+          {"name": "u_sampler", "type": 29, "count": 1, "defines": [], "binding": 1}
+        ],
+        "dependencies": {}
+      }
+    ]
+  },
+  {
     "name": "builtin-effect-unlit",
     "techniques": [{"queue": "opaque", "lod": 100, "passes": [{"properties": {"color": {"type": 17, "value": [1, 1, 1, 1]}, "mainTiling": {"type": 14, "value": [1, 1]}, "mainOffset": {"type": 14, "value": [0, 0]}, "mainTexture": {"type": 29, "value": "grey"}}, "program": "e238b675dacba30ad29961fac06cb18d8c771e16d4fb0f9662acbe3c"}]}],
     "shaders": [
