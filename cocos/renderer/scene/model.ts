@@ -1,46 +1,43 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+import { Material } from '../../3d/assets/material';
 import { aabb } from '../../3d/geom-utils';
-import { IGFXInputAttribute, GFXInputAssembler } from '../../gfx/input-assembler';
-import { GFXFormat, GFXBufferUsageBit, GFXMemoryUsageBit, GFXCommandBufferType } from '../../gfx/define';
-import { RenderScene } from './render-scene';
-import { vec3 } from '../../core/vmath';
 import { Vec3 } from '../../core/value-types';
+import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { GFXCommandBufferType } from '../../gfx/define';
+import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph';
-import InputAssembler from '../core/input-assembler';
 import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { Material } from '../../3d/assets/material';
-import { RenderItem } from '../../pipeline/render-queue';
+import { RenderScene } from './render-scene';
 
 /**
  * A representation of a model
  */
 export default class Model {
 
-    _scene: RenderScene | null;
-    _id: number;
-    _enable: boolean;
-    _type: string;
-    _poolID: number;
-    _isEnable: boolean;
-    _node: Node;
-    _inputAssembler: GFXInputAssembler | null;
-    _effect: Effect | null;
-    _defines: Object;
-    _dependencies: Object;
-    _viewID: number;
-    _cameraID: number;
-    _userKey: number;
-    _castShadow: boolean;
-    _boundingShape: aabb;
-    _bsModelSpace: aabb;
-    _material: Material | null;
-    _cmdBuffers: GFXCommandBuffer[];
+    public _scene: RenderScene | null;
+    public _id: number;
+    public _enable: boolean;
+    public _type: string;
+    public _poolID: number;
+    public _isEnable: boolean;
+    public _node: Node;
+    public _inputAssembler: GFXInputAssembler | null;
+    public _effect: Effect | null;
+    public _defines: Object;
+    public _dependencies: Object;
+    public _viewID: number;
+    public _cameraID: number;
+    public _userKey: number;
+    public _castShadow: boolean;
+    public _boundingShape: aabb;
+    public _bsModelSpace: aabb;
+    public _material: Material | null;
+    public _cmdBuffers: GFXCommandBuffer[];
     /**
      * Setup a default empty model
      */
-    constructor() {
+    constructor () {
         this._scene = null;
         this._id = 0;
         this._enable = false;
@@ -62,7 +59,7 @@ export default class Model {
         this._cmdBuffers = new Array<GFXCommandBuffer>();
     }
 
-    set scene(scene: RenderScene | null) {
+    set scene (scene: RenderScene | null) {
         this._scene = scene;
 
         if (this._scene) {
@@ -70,16 +67,16 @@ export default class Model {
         }
     }
 
-    get scene(): RenderScene | null {
+    get scene (): RenderScene | null {
         return this._scene;
     }
 
-    get id(): number {
+    get id (): number {
         return this._id;
     }
 
-    _updateTransform() {
-        if (!this._node._hasChanged || !this._boundingShape) return;
+    public _updateTransform () {
+        if (!this._node._hasChanged || !this._boundingShape) { return; }
         this._node.updateWorldTransformFull();
         this._bsModelSpace.transform(this._node._mat, this._node._pos,
             this._node._rot, this._node._scale, this._boundingShape);
@@ -90,17 +87,17 @@ export default class Model {
      * @param {vec3} minPos the min position of the model
      * @param {vec3} maxPos the max position of the model
      */
-    createBoundingShape(minPos: Vec3, maxPos: Vec3) {
-        if (!minPos || !maxPos) return;
+    public createBoundingShape (minPos: Vec3, maxPos: Vec3) {
+        if (!minPos || !maxPos) { return; }
         this._bsModelSpace = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._boundingShape = aabb.clone(this._bsModelSpace);
     }
 
-    enable(isEnable: boolean) {
+    public enable (isEnable: boolean) {
         this._isEnable = isEnable;
     }
 
-    isEnable(): boolean {
+    public isEnable (): boolean {
         return this._isEnable;
     }
 
@@ -108,7 +105,7 @@ export default class Model {
      * Get the hosting node of this camera
      * @returns {Node} the hosting node
      */
-    get node(): Node {
+    get node (): Node {
         return this._node;
     }
 
@@ -116,7 +113,7 @@ export default class Model {
      * Set the hosting node of this model
      * @param {Node} node the hosting node
      */
-    set node(node: Node) {
+    set node (node: Node) {
         this._node = node;
     }
 
@@ -124,7 +121,7 @@ export default class Model {
      * Set the input assembler
      * @param {InputAssembler} ia
      */
-    set inputAssembler(ia: GFXInputAssembler) {
+    set inputAssembler (ia: GFXInputAssembler) {
         this._inputAssembler = ia;
     }
 
@@ -132,7 +129,7 @@ export default class Model {
      * Set the model effect
      * @param {?Effect} effect the effect to use
      */
-    setEffect(effect: Effect) {
+    public setEffect (effect: Effect) {
         if (effect) {
             this._effect = effect;
             // this._defines = effect.extractDefines(Object.create(null));
@@ -144,32 +141,33 @@ export default class Model {
         }
     }
 
-    set material(material: Material) {
+    set material (material: Material) {
         this._material = material;
         for (let i = 0; i < this._material.passes.length; i++) {
             this.recordCommandBuffer(i);
         }
         for (let i = this._cmdBuffers.length - 1; i >= this._material.passes.length; i--) {
-            let cmdBuff = this._cmdBuffers.pop();
-            if(cmdBuff) {
+            const cmdBuff = this._cmdBuffers.pop();
+            if (cmdBuff) {
                 cmdBuff.destroy();
             }
         }
     }
 
-    recordCommandBuffer(index: number) {
-        let pass = (<Material>this._material).passes[index];
-        let cmdBufferInfo = {
+    public recordCommandBuffer (index: number) {
+        const pass = ( this._material as Material).passes[index];
+        const cmdBufferInfo = {
             allocator: cc.director.root.device.commandAllocator,
             type: GFXCommandBufferType.SECONDARY,
         };
-        if (this._cmdBuffers[index] == null)
+        if (this._cmdBuffers[index] == null) {
             this._cmdBuffers[index] = cc.director.root.device.createCommandBuffer(cmdBufferInfo);
+        }
         this._cmdBuffers[index].begin();
         this._cmdBuffers[index].bindPipelineState(pass.pipelineState);
         this._cmdBuffers[index].bindBindingLayout(pass.bindingLayout);
-        this._cmdBuffers[index].bindInputAssembler(<GFXInputAssembler>this._inputAssembler);
-        this._cmdBuffers[index].draw(<GFXInputAssembler>this._inputAssembler);
+        this._cmdBuffers[index].bindInputAssembler( this._inputAssembler as GFXInputAssembler);
+        this._cmdBuffers[index].draw( this._inputAssembler as GFXInputAssembler);
         this._cmdBuffers[index].end();
     }
 
@@ -177,15 +175,15 @@ export default class Model {
      * Set the user key
      * @param {number} key
      */
-    set userKey(key: number) {
+    set userKey (key: number) {
         this._userKey = key;
     }
 
-    get passes(): Pass[] {
-        return (<Material>this._material).passes;
+    get passes (): Pass[] {
+        return ( this._material as Material).passes;
     }
 
-    get commandBuffers(): GFXCommandBuffer[] {
+    get commandBuffers (): GFXCommandBuffer[] {
         return this._cmdBuffers;
     }
 
@@ -193,7 +191,7 @@ export default class Model {
      * Extract a drawing item
      * @param {Object} out the receiving item
      */
-    extractDrawItem(out) {
+    public extractDrawItem (out) {
         out.model = this;
         out.node = this._node;
         out.ia = this._inputAssembler;

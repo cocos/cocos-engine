@@ -11,7 +11,7 @@ import { GFXUniformBlock } from '../gfx/shader';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Camera } from '../renderer/scene/camera';
-import { RenderFlow, RenderFlowInfo } from './render-flow';
+import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
 
@@ -166,7 +166,7 @@ export abstract class RenderPipeline {
         this._renderPasses.clear();
     }
 
-    public createFlow<T extends RenderFlow> (clazz: new (pipeline: RenderPipeline) => T, info: RenderFlowInfo): RenderFlow | null {
+    public createFlow<T extends RenderFlow> (clazz: new (pipeline: RenderPipeline) => T, info: IRenderFlowInfo): RenderFlow | null {
         const flow: RenderFlow = new clazz(this);
         if (flow.initialize(info)) {
             this._flows.push(flow);
