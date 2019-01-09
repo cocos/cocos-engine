@@ -1,19 +1,31 @@
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { IPassInfoBase } from '../../renderer/core/pass';
+import { GFXPrimitiveMode } from '../../gfx/define';
+import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
+import { RenderPassStage } from '../../pipeline/render-pipeline';
 
-export interface ITechniqueInfo {
-    passes: IPassInfoBase[];
-    queue?: number;
-    priority?: number;
-    lod?: number;
-}
 export interface IPropertyInfo {
-    type?: number;
-    value?: number | number[] | null;
+    type: number; // auto-extracted if not specified
+    value?: number[] | string;
     displayName?: string;
     tech?: number;
     pass?: number;
+}
+export interface IPassInfo {
+    program: string;
+    // effect-writer part
+    primitive?: GFXPrimitiveMode;
+    stage?: RenderPassStage;
+    rasterizerState?: GFXRasterizerState;
+    depthStencilState?: GFXDepthStencilState;
+    blendState?: GFXBlendState;
+    properties?: Record<string, IPropertyInfo>;
+}
+export interface ITechniqueInfo {
+    passes: IPassInfo[];
+    queue?: number;
+    priority?: number;
+    lod?: number;
 }
 
 export interface IBlockMember {
@@ -80,9 +92,6 @@ export class EffectAsset extends Asset {
 
     @property
     public techniques: ITechniqueInfo[] = [];
-
-    @property
-    public properties: Record<string, IPropertyInfo> = {};
 
     @property
     public shaders: IShaderInfo[] = [];
