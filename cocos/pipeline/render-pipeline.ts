@@ -19,6 +19,8 @@ export enum RenderPassStage {
     DEFAULT = 100,
 }
 
+
+
 export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
     public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
@@ -34,7 +36,7 @@ export class UBOGlobal {
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 0, name: 'Global', members: [
+        binding: 30, name: 'Global', members: [
             { name: 'u_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'u_screenSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'u_screenScale', type: GFXType.FLOAT4, count: 1 },
@@ -53,19 +55,15 @@ export class UBOGlobal {
 
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;
-    public static MAT_WORLD_VIEW_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
-    public static MAT_WORLD_VIEW_PROJ_OFFSET: number = UBOLocal.MAT_WORLD_VIEW_OFFSET + 16;
-    public static WORLD_POS_OFFSET: number = UBOLocal.MAT_WORLD_VIEW_PROJ_OFFSET + 16;
-    public static COUNT: number = UBOLocal.WORLD_POS_OFFSET + 4;
+    public static MAT_WORLD_IT_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
+    public static COUNT: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 1, name: 'Local', members: [
-            { name: 'u_matWorld', type: GFXType.MAT4, count: 1 },
-            { name: 'u_matWorldView', type: GFXType.MAT4, count: 1 },
-            { name: 'u_matWorldViewProj', type: GFXType.MAT4, count: 1 },
-            { name: 'u_worldPos', type: GFXType.FLOAT4, count: 1 },
-        ],
+        binding: 31, name: "CCLocal", members: [
+            { name: "cc_matWorld", type: GFXType.MAT4, count: 1 },
+            { name: "cc_matWorldIT", type: GFXType.MAT4, count: 1 }
+        ]
     };
 
     public view: Float32Array = new Float32Array(UBOLocal.COUNT);

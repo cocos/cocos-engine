@@ -119,6 +119,7 @@ export class RenderScene {
 
     public createModel<T extends Model>(clazz: new () => T): Model {
         let model = new clazz;
+        model.initialize();
         model.scene = this;
         this._models.push(model);
         return model;

@@ -1,10 +1,11 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { IDefineInfo, IShaderInfo } from '../../3d/assets/effect-asset';
-import { GFXShaderType } from '../../gfx/define';
+import { IDefineInfo, IShaderInfo, IBlockInfo, IBlockMember } from '../../3d/assets/effect-asset';
+import { GFXShaderType, GFXGetTypeSize } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXShader } from '../../gfx/shader';
+import { GFXShader, GFXUniformBlock, GFXUniform } from '../../gfx/shader';
 import { IDefineMap } from './effect';
+import { UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
 
 function _generateDefines(
   device: GFXDevice,
@@ -125,6 +126,8 @@ export class ProgramLib {
     const vert = customDef + tmpl.vert;
     const frag = customDef + tmpl.frag;
 
+    tmpl.blocks = tmpl.blocks.concat(convertToBlockInfo(UBOGlobal.BLOCK), convertToBlockInfo(UBOLocal.BLOCK));
+
     program = this._device.createShader({
       name,
       blocks: tmpl.blocks,
@@ -137,4 +140,29 @@ export class ProgramLib {
     this._cache[key] = program;
     return program;
   }
+}
+
+function convertToUniformInfo(uniform: GFXUniform): IBlockMember {
+    return {
+        name: uniform.name,
+        type: uniform.type,
+        count: uniform.count,
+        size: GFXGetTypeSize(uniform.type) * uniform.count
+    }
+}
+
+function convertToBlockInfo(block: GFXUniformBlock): IBlockInfo {
+    let members: IBlockMember[] = [];
+    let size: number = 0;
+    for (let i = 0; i < block.members.length; i++) {
+        members.push(convertToUniformInfo(block.members[i]));
+        size += members[i].size;
+    }
+    return {
+        name: block.name,
+        binding: block.binding,
+        defines: [],
+        members: members,
+        size: size
+    };
 }
