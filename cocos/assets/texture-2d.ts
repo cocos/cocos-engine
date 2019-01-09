@@ -26,6 +26,7 @@
 // @ts-check
 import { ccclass, property } from '../core/data/class-decorator';
 import { GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
+import { GFXDevice } from '../gfx/device';
 import ImageAsset from './image-asset';
 import TextureBase from './texture-base';
 
@@ -47,7 +48,12 @@ export default class Texture2D extends TextureBase {
      */
     set mipmaps (value) {
         this._mipmaps = value;
+        this._potientialWidth = value.length === 0 ? 0 : value[0].width;
+        this._potientialHeight = value.length === 0 ? 0 : value[0].height;
         this._recreateTexture();
+        this._mipmaps.forEach((mipmap, level) => {
+            this._assignImage(mipmap, level);
+        });
     }
 
     /**
@@ -175,39 +181,21 @@ export default class Texture2D extends TextureBase {
         }
     }
 
-    protected _createTexture () {
-        if (this._mipmaps.length === 0) {
-            return;
-        }
-
-        const gfxDevice = this._getGlobalDevice();
-        if (!gfxDevice) {
-            return;
-        }
-
+    protected _createTextureImpl (gfxDevice: GFXDevice) {
         this._texture = gfxDevice.createTexture({
             type: GFXTextureType.TEX2D,
             /* tslint:disable:no-bitwise */
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             /* tslint:enable:no-bitwise */
             format: this._getGfxFormat(),
-            width: this.width,
-            height: this.height,
+            width: this._potientialWidth,
+            height: this._potientialHeight,
             mipLevel: this._mipmaps.length,
-        });
-
-        this._mipmaps.forEach((mipmap, level) => {
-            this._assignImage(mipmap, level);
         });
     }
 
-    protected _createTextureView () {
+    protected _createTextureViewImpl (gfxDevice: GFXDevice) {
         if (!this._texture) {
-            return;
-        }
-
-        const gfxDevice = this._getGlobalDevice();
-        if (!gfxDevice) {
             return;
         }
 
