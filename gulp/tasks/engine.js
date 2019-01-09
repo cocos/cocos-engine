@@ -40,12 +40,6 @@ const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
     // modules need to skip in jsb
-    '../../extensions/spine/lib/spine.js',
-    '../../extensions/dragonbones/lib/dragonBones.js',
-    '../../extensions/dragonbones/CCArmatureDisplay.js',
-    '../../extensions/dragonbones/CCFactory.js',
-    '../../extensions/dragonbones/CCSlot.js',
-    '../../extensions/dragonbones/CCTextureData.js'
 ];
 var jsbAliasify = {
     replacements: {
