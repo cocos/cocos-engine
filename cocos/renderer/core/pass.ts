@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { BlockInfo, SamplerInfo } from '../../3d/assets/effect-asset';
+import { IBlockInfo, ISamplerInfo } from '../../3d/assets/effect-asset';
 import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -14,9 +14,9 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage } from '../../pipeline/render-pipeline';
-import { PropertyMap } from './effect';
+import { IPropertyMap } from './effect';
 
-export interface PassInfoBase {
+export interface IPassInfoBase {
     program: string;
     // effect-writer part
     primitive?: GFXPrimitiveMode;
@@ -25,13 +25,13 @@ export interface PassInfoBase {
     depthStencilState?: GFXDepthStencilState;
     blendState?: GFXBlendState;
 }
-export interface PassInfo extends PassInfoBase {
+export interface IPassInfo extends IPassInfoBase {
     // generated part
-    blocks: BlockInfo[];
-    samplers: SamplerInfo[];
+    blocks: IBlockInfo[];
+    samplers: ISamplerInfo[];
     shader: GFXShader;
     renderPass: GFXRenderPass;
-    uniforms: PropertyMap;
+    uniforms: IPropertyMap;
 }
 
 const _type2fn = {
@@ -49,18 +49,28 @@ const _type2fn = {
   [GFXType.MAT4]: (a: Float32Array, v: any) => mat4.array(a, v),
 };
 
-const bindingMask = 0x0fff0000;
-const indexMask  = 0x0000ffff;
-const genHandle = (binding: number, index: number = 0) => (binding << 16) | index;
-const parseHandle = (handle: number) => [(handle & bindingMask) >> 16, handle & indexMask];
+const btMask      = 0xf0000000; // 4 bits, 16 slots
+const typeMask    = 0x0fc00000; // 6 bits, 64 slots
+const bindingMask = 0x003ff800; // 11 bits, 2048 slots
+const indexMask   = 0x000007ff; // 11 bits, 2048 slots
+const genHandle = (bt: GFXBindingType, type: GFXType, binding: number, index: number = 0) =>
+    ((bt << 28) & btMask) | ((type << 22) & typeMask) | ((binding << 11) & bindingMask) | (index & indexMask);
+const getBindingTypeFromHandle = (handle: number) => (handle & btMask) >>> 28;
+const getTypeFromHandle = (handle: number) => (handle & typeMask) >>> 22;
+const getBindingFromHandle = (handle: number) => (handle & bindingMask) >>> 11;
+const getIndexFromHandle = (handle: number) => (handle & indexMask);
 
-interface Block {
+interface IBlock {
     buffer: ArrayBuffer;
     views: Float32Array[];
     dirty: boolean;
 }
 
 export class Pass {
+    public static getBindingTypeFromHandle = getBindingTypeFromHandle;
+    public static getTypeFromHandle = getTypeFromHandle;
+    public static getBindingFromHandle = getBindingFromHandle;
+    public static getIndexFromHandle = getIndexFromHandle;
     // internal resources
     protected _pipelineState: GFXPipelineState | null = null;
     protected _pipelineLayout: GFXPipelineLayout | null = null;
@@ -72,26 +82,25 @@ export class Pass {
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _handleMap: Record<string, number> = {};
-    protected _typeMap: Record<number, GFXType> = {};
-    protected _blocks: Block[] = [];
+    protected _blocks: IBlock[] = [];
     protected _layoutDirty: boolean = false;
     // external references
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
     protected _renderPass: GFXRenderPass | null = null;
 
-    public constructor(device: GFXDevice) {
+    public constructor (device: GFXDevice) {
         this._device = device;
     }
 
-    public initialize(info: PassInfo) {
+    public initialize (info: IPassInfo) {
         this._programName = info.program;
         // pipeline state
         const device = this._device;
         const bindings = info.blocks.map((u) =>
-            ({ name: u.name, binding: u.binding, type: GFXBindingType.UNIFORM_BUFFER })
+            ({ name: u.name, binding: u.binding, type: GFXBindingType.UNIFORM_BUFFER }),
         ).concat(info.samplers.map((u) =>
-            ({ name: u.name, binding: u.binding, type: GFXBindingType.SAMPLER })
+            ({ name: u.name, binding: u.binding, type: GFXBindingType.SAMPLER }),
         ));
         this._bindingLayout = device.createBindingLayout({ bindings });
         if (!this._bindingLayout) { console.error('create binding layout failed'); return; }
@@ -104,10 +113,10 @@ export class Pass {
         for (const u of info.blocks) {
             // create gfx buffer resource
             const buffer = device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: u.size,
                 stride: 1, // N/A for blocks
+                usage: GFXBufferUsageBit.UNIFORM,
             });
             if (buffer) {
                 this._bindingLayout.bindBuffer(u.binding, buffer);
@@ -117,19 +126,18 @@ export class Pass {
                 return;
             }
             // buffer data processing system
-            const block: Block = this._blocks[u.binding] = {
+            const block: IBlock = this._blocks[u.binding] = {
                 buffer: new ArrayBuffer(u.size),
-                views: [],
                 dirty: false,
+                views: [],
             };
             u.members.reduce((acc, cur, idx) => {
                 // create property-specific buffer views
                 const view = new Float32Array(block.buffer, acc, cur.size / Float32Array.BYTES_PER_ELEMENT);
                 block.views.push(view);
                 // store handle map, type and initial value
-                const handle = this._handleMap[cur.name] = genHandle(u.binding, idx);
                 const inf = info.uniforms[cur.name];
-                this._typeMap[handle] = inf.type;
+                this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, inf.type, u.binding, idx);
                 _type2fn[inf.type](view, inf.value);
                 // proceed the counter
                 return acc + cur.size;
@@ -137,7 +145,7 @@ export class Pass {
             buffer.update(block.buffer);
         }
         for (const u of info.samplers) {
-            this._handleMap[u.name] = genHandle(u.binding);
+            this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
             const sampler = device.createSampler({
                 name: u.name,
                 // TODO: specify filter modes in effect
@@ -152,25 +160,24 @@ export class Pass {
         this._bindingLayout.update();
     }
 
-    public getHandleFromName(name: string) {
+    public getHandle (name: string) {
         return this._handleMap[name];
     }
 
-    public getBindingFromName(name: string) {
-        const handle = this.getHandleFromName(name);
-        if (handle === undefined) { return -1; }
-        return parseHandle(handle)[0];
+    public getBinding (name: string) {
+        return Pass.getBindingFromHandle(this.getHandle(name));
     }
 
-    public setUniform(handle: number, value: any) {
-        const [ binding, idx ] = parseHandle(handle);
+    public setUniform (handle: number, value: any) {
+        const binding = Pass.getBindingFromHandle(handle);
+        const type = Pass.getTypeFromHandle(handle);
+        const idx = Pass.getIndexFromHandle(handle);
         const block = this._blocks[binding];
-        const type = this._typeMap[handle];
         _type2fn[type](block.views[idx], value);
         block.dirty = true;
     }
 
-    public bindTextureView(binding: number, value: GFXTextureView) {
+    public bindTextureView (binding: number, value: GFXTextureView) {
         const bl = this._bindingLayout;
         if (bl && bl.getBindingUnit(binding).texView !== value) {
             bl.bindTextureView(binding, value);
@@ -178,7 +185,7 @@ export class Pass {
         }
     }
 
-    public bindSampler(binding: number, value: GFXSampler) {
+    public bindSampler (binding: number, value: GFXSampler) {
         const bl = this._bindingLayout;
         if (bl && bl.getBindingUnit(binding).sampler !== value) {
             bl.bindSampler(binding, value);
@@ -186,12 +193,12 @@ export class Pass {
         }
     }
 
-    public setStates(info: PassInfoBase) {
+    public setStates (info: IPassInfoBase) {
         if (this._pipelineState) { this._pipelineState.destroy(); }
         this.createPipelineState(info);
     }
 
-    public destroy() {
+    public destroy () {
         if (this._buffers) { this._buffers.forEach((b) => b.destroy()); this._buffers.length = 0; }
         if (this._samplers) { this._samplers.forEach((b) => b.destroy()); this._samplers.length = 0; }
         if (this._bindingLayout) { this._bindingLayout.destroy(); this._bindingLayout = null; }
@@ -199,7 +206,7 @@ export class Pass {
         if (this._pipelineState) { this._pipelineState.destroy(); this._pipelineState = null; }
     }
 
-    public update() {
+    public update () {
         const len = this._blocks.length;
         for (let i = 0; i < len; i++) {
             const block = this._blocks[i];
@@ -214,7 +221,7 @@ export class Pass {
         }
     }
 
-    protected createPipelineState(info: PassInfoBase) {
+    protected createPipelineState (info: IPassInfoBase) {
         if (info.primitive) { this._primitive = info.primitive; }
         if (info.stage) { this._stage = info.stage; }
 
@@ -233,13 +240,14 @@ export class Pass {
             Object.assign(bs, bsInfo);
         }
         const stateInfo = {
-            primitive: info.primitive || this._primitive,
-            rs: Object.assign(new GFXRasterizerState(), info.rasterizerState),
+            bs,
             dss: Object.assign(new GFXDepthStencilState(), info.depthStencilState),
-            is: new GFXInputState(), bs,
-            shader: this._shader,
+            is: new GFXInputState(),
             layout: this._pipelineLayout,
+            primitive: info.primitive || this._primitive,
             renderPass: this._renderPass,
+            rs: Object.assign(new GFXRasterizerState(), info.rasterizerState),
+            shader: this._shader,
         };
         if (this._pipelineState) {
             this._pipelineState.initialize(stateInfo);
@@ -248,7 +256,7 @@ export class Pass {
         }
     }
 
-    get programName() { return this._programName; }
-    get pipelineState() { return <GFXPipelineState>this._pipelineState; }
-    get bindingLayout() { return <GFXBindingLayout>this._bindingLayout; }
+    get programName () { return this._programName; }
+    get pipelineState () { return this._pipelineState as GFXPipelineState; }
+    get bindingLayout () { return this._bindingLayout as GFXBindingLayout; }
 }

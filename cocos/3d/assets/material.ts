@@ -23,15 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 import { Asset } from '../../assets/asset';
-import TextureBase from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
+import { GFXBindingType } from '../../gfx/define';
 import { Effect } from '../../renderer/core/effect';
 import { Pass } from '../../renderer/core/pass';
 import { EffectAsset } from './effect-asset';
 
 @ccclass('cc.Material')
 export class Material extends Asset {
-    public static getInstantiatedMaterial(mat: Material, rndCom: any) {
+    public static getInstantiatedMaterial (mat: Material, rndCom: any) {
         if (mat._owner === rndCom) {
             return mat;
         } else {
@@ -51,110 +51,94 @@ export class Material extends Asset {
     protected _defines: Record<string, number | boolean> = {};
     @property
     protected _props: Array<Record<string, any>> = [];
-    @property
-    protected _textures: Array<Record<string, any>> = [];
 
     protected _passes: Pass[] = [];
     protected _owner: any = null;
 
     @property
-    set effectAsset(val: EffectAsset | null) {
+    set effectAsset (val: EffectAsset | null) {
         if (!val || this.effectName !== val.name) { this.update(val, false); }
     }
-    get effectAsset() {
+    get effectAsset () {
         return this._effectAsset;
     }
     // helper setter
     @property
-    set effectName(val) {
+    set effectName (val) {
         if (this.effectName !== val) { this.update(val, false); }
     }
-    get effectName() {
+    get effectName () {
         return this._effectAsset ? this._effectAsset.name : '';
     }
 
     @property
-    set technique(val: number) {
+    set technique (val: number) {
         this._techIdx = val;
     }
-    get technique() {
+    get technique () {
         return this._techIdx;
     }
 
-    get passes() {
+    get passes () {
         return this._passes;
     }
 
-    public setDefines(defines: Record<string, number | boolean>) {
+    public setDefines (defines: Record<string, number | boolean>) {
         this._defines = defines;
         this.update();
     }
 
-    public setProperty(name: string, val: any, passIdx?: number) {
+    /**
+     * Convenient setter provided for quick material setup.
+     * pass.setUniform should be used instead
+     * if you need to do per-frame property update.
+     */
+    public setProperty (name: string, val: any, passIdx?: number) {
+        if (!val) { console.warn(`illegal property value: ${val}.`); return; }
         if (passIdx === undefined) { // set property for all applicable passes
             const passes = this._passes;
             const len = passes.length;
             for (let i = 0; i < len; i++) {
-                const handle = passes[i].getHandleFromName(name);
-                if (handle === undefined) { continue; }
-                passes[i].setUniform(handle, val);
-                this._props[i][name] = val;
+                const pass = passes[i];
+                if (this._uploadProperty(pass, name, val)) {
+                    this._props[i][name] = val;
+                }
             }
         } else {
-            if (CC_DEBUG && passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
+            if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
             const pass = this._passes[passIdx];
-            const handle = pass.getHandleFromName(name);
-            if (CC_DEBUG && handle === undefined) { console.warn(`illegal property name: ${name}.`); return; }
-            pass.setUniform(handle, val);
-            this._props[passIdx][name] = val;
+            if (this._uploadProperty(pass, name, val)) {
+                this._props[passIdx][name] = val;
+            } else {
+                console.warn(`illegal property name: ${name}.`); return;
+            }
         }
     }
 
-    public setTexture(name: string, val: TextureBase, passIdx?: number) {
-        if (passIdx === undefined) { // set property for all applicable passes
-            const passes = this._passes;
-            const len = passes.length;
-            for (let i = 0; i < len; i++) {
-                const binding = passes[i].getBindingFromName(name);
-                if (binding < 0) { continue; }
-                passes[i].bindTextureView(binding, val._texView);
-                this._textures[i][name] = val;
-            }
-        } else {
-            if (CC_DEBUG && passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
-            const pass = this._passes[passIdx];
-            const binding = pass.getBindingFromName(name);
-            if (CC_DEBUG && binding < 0) { console.warn(`illegal texture name: ${name}.`); return; }
-            pass.bindTextureView(binding, val._texView);
-            this._textures[passIdx][name] = val;
-        }
-    }
-
-    public copy(mat: Material) {
-        this._props.length = this._textures.length = mat._props.length;
+    public copy (mat: Material) {
+        this._props.length = mat._props.length;
         for (let i = 0; i < mat._props.length; i++) {
             Object.assign(this._props[i], mat._props[i]);
-            Object.assign(this._textures[i], mat._textures[i]);
         }
         Object.assign(this._defines, mat._defines);
         this.update(mat.effectAsset);
         this._uuid = mat._uuid;
     }
 
-    public onLoaded() {
+    public onLoaded () {
         this.update();
     }
 
-    public update(val: EffectAsset | string | null = this._effectAsset, keepProps: boolean = true) {
+    public update (asset: EffectAsset | string | null = this._effectAsset, keepProps: boolean = true) {
         // get effect asset
-        if (typeof val === 'string') {
-            this._effectAsset = EffectAsset.get(val);
+        if (typeof asset === 'string') {
+            this._effectAsset = EffectAsset.get(asset);
             if (!this._effectAsset) {
-                console.warn(`no effect named '${val}' found`);
+                console.warn(`no effect named '${asset}' found`);
                 return;
             }
         } else {
-            this._effectAsset = val;
+            this._effectAsset = asset;
         }
         if (!this._effectAsset) { return; }
         // create passes
@@ -163,27 +147,34 @@ export class Material extends Asset {
             defines: this._defines,
         });
         // handle property values
-        this._props.length = this._textures.length = this._passes.length;
+        this._props.length = this._passes.length;
         if (keepProps) {
             this._passes.forEach((pass, i) => {
                 let props = this._props[i];
                 if (!props) { props = this._props[i] = {}; }
                 for (const p of Object.keys(props)) {
-                    const handle = pass.getHandleFromName(p);
-                    if (handle === undefined) { continue; }
-                    pass.setUniform(handle, props[p]);
-                }
-                let textures = this._textures[i];
-                if (!textures) { textures = this._textures[i] = {}; }
-                for (const t of Object.keys(textures)) {
-                    const binding = pass.getBindingFromName(t);
-                    if (binding === undefined) { continue; }
-                    pass.bindTextureView(binding, textures[t]._texView);
+                    const val = props[p];
+                    if (!val) { continue; }
+                    this._uploadProperty(pass, p, props[p]);
                 }
             });
         } else {
             this._props.fill({});
         }
+    }
+
+    protected _uploadProperty (pass: Pass, name: string, val: any) {
+        const handle = pass.getHandle(name);
+        if (handle === undefined) { return false; }
+        const bindingType = Pass.getBindingTypeFromHandle(handle);
+        if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
+            pass.setUniform(handle, val);
+        } else if (bindingType === GFXBindingType.SAMPLER) {
+            const tv = val.getGFXTextureView();
+            if (!tv) { console.warn('texture asset incomplete!'); return; }
+            pass.bindTextureView(Pass.getBindingFromHandle(handle), tv);
+        }
+        return true;
     }
 }
 

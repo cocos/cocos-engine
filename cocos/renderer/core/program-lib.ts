@@ -1,15 +1,15 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { DefineInfo, ShaderInfo } from '../../3d/assets/effect-asset';
+import { IDefineInfo, IShaderInfo } from '../../3d/assets/effect-asset';
 import { GFXShaderType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXShader } from '../../gfx/shader';
-import { DefineMap } from './effect';
+import { IDefineMap } from './effect';
 
 function _generateDefines(
   device: GFXDevice,
-  defs: DefineMap,
-  tDefs: DefineInfo[],
+  defs: IDefineMap,
+  tDefs: IDefineInfo[],
   deps: Record<string, string>
 ) {
   const defines: string[] = [];
@@ -27,11 +27,11 @@ function _generateDefines(
 }
 
 let _shdID = 0;
-interface DefineRecord extends DefineInfo {
+interface DefineRecord extends IDefineInfo {
   _map: (value: any) => number;
   _offset: number;
 }
-interface ProgramInfo extends ShaderInfo {
+interface ProgramInfo extends IShaderInfo {
   id: number;
   defines: DefineRecord[];
 }
@@ -64,7 +64,7 @@ export class ProgramLib {
    *   };
    *   programLib.define(program);
    */
-  public define(prog: ShaderInfo) {
+  public define(prog: IShaderInfo) {
     if (this._templates[prog.name]) { return; }
     const tmpl = <ProgramInfo>Object.assign({ id: ++_shdID }, prog);
     tmpl.vert = this._precision + prog.vert;
@@ -99,7 +99,7 @@ export class ProgramLib {
     return this._templates[name] !== undefined;
   }
 
-  public getKey(name: string, defines: DefineMap) {
+  public getKey(name: string, defines: IDefineMap) {
     const tmpl = this._templates[name];
     let key = 0;
     for (const tmplDef of tmpl.defines) {
@@ -112,7 +112,7 @@ export class ProgramLib {
     return key << 8 | (tmpl.id & 0xff);
   }
 
-  public getGFXShader(name: string, defines: DefineMap = {}) {
+  public getGFXShader(name: string, defines: IDefineMap = {}) {
     const key = this.getKey(name, defines);
     let program = this._cache[key];
     if (program !== undefined) {

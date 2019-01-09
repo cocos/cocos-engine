@@ -1,14 +1,14 @@
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { PassInfoBase } from '../../renderer/core/pass';
+import { IPassInfoBase } from '../../renderer/core/pass';
 
-export interface TechniqueInfo {
-    passes: PassInfoBase[];
+export interface ITechniqueInfo {
+    passes: IPassInfoBase[];
     queue?: number;
     priority?: number;
     lod?: number;
 }
-export interface PropertyInfo {
+export interface IPropertyInfo {
     type?: number;
     value?: number | number[] | null;
     displayName?: string;
@@ -16,39 +16,39 @@ export interface PropertyInfo {
     pass?: number;
 }
 
-export interface BlockMember {
+export interface IBlockMember {
     name: string;
     type: number;
     count: number;
     size: number;
 }
-export interface BlockInfo {
+export interface IBlockInfo {
     name: string;
     binding: number;
     defines: string[];
-    members: BlockMember[];
+    members: IBlockMember[];
     size: number;
 }
-export interface SamplerInfo {
+export interface ISamplerInfo {
     name: string;
     binding: number;
     defines: string[];
     type: number;
     count: number;
 }
-export interface DefineInfo {
+export interface IDefineInfo {
     name: string;
     type: string;
     range?: number[];
     defines: string[];
 }
-export interface ShaderInfo {
+export interface IShaderInfo {
     name: string;
     vert: string;
     frag: string;
-    defines: DefineInfo[];
-    blocks: BlockInfo[];
-    samplers: SamplerInfo[];
+    defines: IDefineInfo[];
+    blocks: IBlockInfo[];
+    samplers: ISamplerInfo[];
     dependencies: Record<string, string>;
 }
 
@@ -56,8 +56,8 @@ const effects: Record<string, EffectAsset> = {};
 
 @ccclass('cc.EffectAsset')
 export class EffectAsset extends Asset {
-    public static register(asset: EffectAsset) { effects[asset.name] = asset; }
-    public static remove(name: string) {
+    public static register (asset: EffectAsset) { effects[asset.name] = asset; }
+    public static remove (name: string) {
         if (effects[name]) { delete effects[name]; return; }
         for (const n in effects) {
             if (effects[n]._uuid === name) {
@@ -66,7 +66,7 @@ export class EffectAsset extends Asset {
             }
         }
     }
-    public static get(name: string) {
+    public static get (name: string) {
         if (effects[name]) { return effects[name]; }
         for (const n in effects) {
             if (effects[n]._uuid === name) {
@@ -75,19 +75,19 @@ export class EffectAsset extends Asset {
         }
         return null;
     }
-    public static getAll() { return effects; }
+    public static getAll () { return effects; }
     protected static _effects: Record<string, EffectAsset> = {};
 
     @property
-    public techniques: TechniqueInfo[] = [];
+    public techniques: ITechniqueInfo[] = [];
 
     @property
-    public properties: Record<string, PropertyInfo> = {};
+    public properties: Record<string, IPropertyInfo> = {};
 
     @property
-    public shaders: ShaderInfo[] = [];
+    public shaders: IShaderInfo[] = [];
 
-    public onLoaded() {
+    public onLoaded () {
         const lib = cc.game._programLib;
         this.shaders.forEach((s) => lib.define(s));
         EffectAsset.register(this);
