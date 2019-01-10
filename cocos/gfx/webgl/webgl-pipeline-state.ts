@@ -1,3 +1,4 @@
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
 import { WebGLGFXDevice } from './webgl-device';
@@ -31,6 +32,7 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
         this._renderPass = info.renderPass;
 
         this._gpuPipelineState = this.webGLDevice.emitCmdCreateGPUPipelineState(info);
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -40,5 +42,6 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
             this.webGLDevice.emitCmdDestroyGPUPipelineState(this._gpuPipelineState);
             this._gpuPipelineState = null;
         }
+        this._status = GFXStatus.UNREADY;
     }
 }

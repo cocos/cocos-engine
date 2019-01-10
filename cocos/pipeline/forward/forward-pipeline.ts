@@ -1,9 +1,8 @@
-import { Root } from "../../core/root";
-import { GFXBufferUsageBit, GFXMemoryUsageBit } from "../../gfx/define";
-import { GFXRenderPass } from "../../gfx/render-pass";
-import { RenderPassStage, RenderPipeline, UBOGlobal } from "../render-pipeline";
-import { RenderQueue } from "../render-queue";
-import { ForwardFlow } from "./forward-flow";
+import { Root } from '../../core/root';
+import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXRenderPass } from '../../gfx/render-pass';
+import { RenderPassStage, RenderPipeline, UBOGlobal } from '../render-pipeline';
+import { ForwardFlow } from './forward-flow';
 
 export enum ForwardFlowPriority {
     FORWARD = 0,

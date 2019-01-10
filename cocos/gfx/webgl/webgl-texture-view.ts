@@ -1,3 +1,4 @@
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXTextureView, IGFXTextureViewInfo } from '../texture-view';
 import { WebGLGFXDevice } from './webgl-device';
@@ -43,6 +44,7 @@ export class WebGLGFXTextureView extends GFXTextureView {
         }
 
         this._gpuTextureView = this.webGLDevice.emitCmdCreateGPUTextureView(info);
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -53,5 +55,6 @@ export class WebGLGFXTextureView extends GFXTextureView {
             this._gpuTextureView = null;
         }
         this._texture = null;
+        this._status = GFXStatus.UNREADY;
     }
 }

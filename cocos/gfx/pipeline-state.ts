@@ -1,4 +1,4 @@
-import { GFXBlendFactor, GFXBlendOp, GFXColorMask, GFXComparisonFunc, GFXCullMode, GFXPolygonMode, GFXPrimitiveMode, GFXShadeModel, GFXStencilOp } from './define';
+import { GFXBlendFactor, GFXBlendOp, GFXColorMask, GFXComparisonFunc, GFXCullMode, GFXObject, GFXObjectType, GFXPolygonMode, GFXPrimitiveMode, GFXShadeModel, GFXStencilOp } from './define';
 import { GFXDevice } from './device';
 import { IGFXInputAttribute } from './input-assembler';
 import { GFXPipelineLayout } from './pipeline-layout';
@@ -119,7 +119,7 @@ export interface IGFXPipelineStateInfo {
     renderPass: GFXRenderPass;
 }
 
-export abstract class GFXPipelineState {
+export abstract class GFXPipelineState extends GFXObject {
 
     public get shader (): GFXShader {
         return  this._shader as GFXShader;
@@ -160,6 +160,7 @@ export abstract class GFXPipelineState {
     protected _renderPass: GFXRenderPass | null = null;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.PIPELINE_STATE);
         this._device = device;
     }
 

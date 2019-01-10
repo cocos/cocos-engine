@@ -1,4 +1,4 @@
-import { GFXBufferUsage, GFXBufferUsageBit, GFXMemoryUsage, GFXMemoryUsageBit } from './define';
+import { GFXBufferUsage, GFXBufferUsageBit, GFXMemoryUsage, GFXMemoryUsageBit, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXBufferInfo {
@@ -8,7 +8,7 @@ export interface IGFXBufferInfo {
     stride?: number;
 }
 
-export abstract class GFXBuffer {
+export abstract class GFXBuffer extends GFXObject {
 
     public get usage (): GFXBufferUsage {
         return this._usage;
@@ -39,6 +39,7 @@ export abstract class GFXBuffer {
     protected _bufferView: Uint8Array | null = null;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.BUFFER);
         this._device = device;
     }
 

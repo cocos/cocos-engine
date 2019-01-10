@@ -354,154 +354,94 @@ export class WebGLGFXDevice extends GFXDevice {
         this._webGLRC = null;
     }
 
-    public createBuffer (info: IGFXBufferInfo): GFXBuffer | null {
+    public createBuffer (info: IGFXBufferInfo): GFXBuffer {
         const buffer = new WebGLGFXBuffer(this);
-        if (buffer.initialize(info)) {
-            return buffer;
-        } else {
-            buffer.destroy();
-            return null;
-        }
+        buffer.initialize(info);
+        return buffer;
     }
 
-    public createTexture (info: IGFXTextureInfo): GFXTexture | null {
+    public createTexture (info: IGFXTextureInfo): GFXTexture {
         const texture = new WebGLGFXTexture(this);
-        if (texture.initialize(info)) {
-            return texture;
-        } else {
-            texture.destroy();
-            return null;
-        }
+        texture.initialize(info);
+        return texture;
     }
 
-    public createTextureView (info: IGFXTextureViewInfo): GFXTextureView | null {
+    public createTextureView (info: IGFXTextureViewInfo): GFXTextureView {
         const texView = new WebGLGFXTextureView(this);
-        if (texView.initialize(info)) {
-            return texView;
-        } else {
-            texView.destroy();
-            return null;
-        }
+        texView.initialize(info);
+        return texView;
     }
 
-    public createSampler (info: IGFXSamplerInfo): GFXSampler | null {
+    public createSampler (info: IGFXSamplerInfo): GFXSampler {
         const sampler = new WebGLGFXSampler(this);
-        if (sampler.initialize(info)) {
-            return sampler;
-        } else {
-            sampler.destroy();
-            return null;
-        }
+        sampler.initialize(info);
+        return sampler;
     }
 
-    public createBindingLayout (info: IGFXBindingLayoutInfo): GFXBindingLayout | null {
+    public createBindingLayout (info: IGFXBindingLayoutInfo): GFXBindingLayout {
         const bindingLayout = new WebGLGFXBindingLayout(this);
-        if (bindingLayout.initialize(info)) {
-            return bindingLayout;
-        } else {
-            bindingLayout.destroy();
-            return null;
-        }
+        bindingLayout.initialize(info);
+        return bindingLayout;
     }
 
-    public createShader (info: IGFXShaderInfo): GFXShader | null {
+    public createShader (info: IGFXShaderInfo): GFXShader {
         const shader = new WebGLGFXShader(this);
-        if (shader.initialize(info)) {
-            return shader;
-        } else {
-            shader.destroy();
-            return null;
-        }
+        shader.initialize(info);
+        return shader;
     }
 
-    public createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler | null {
+    public createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler {
         const inputAssembler = new WebGLGFXInputAssembler(this);
-        if (inputAssembler.initialize(info)) {
-            return inputAssembler;
-        } else {
-            inputAssembler.destroy();
-            return null;
-        }
+        inputAssembler.initialize(info);
+        return inputAssembler;
     }
 
-    public createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass | null {
+    public createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass {
         const renderPass = new WebGLGFXRenderPass(this);
-        if (renderPass.initialize(info)) {
-            return renderPass;
-        } else {
-            renderPass.destroy();
-            return null;
-        }
+        renderPass.initialize(info);
+        return renderPass;
     }
 
-    public createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer | null {
+    public createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer {
         const framebuffer = new WebGLGFXFramebuffer(this);
-        if (framebuffer.initialize(info)) {
-            return framebuffer;
-        } else {
-            framebuffer.destroy();
-            return null;
-        }
+        framebuffer.initialize(info);
+        return framebuffer;
     }
 
-    public createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout | null {
+    public createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout {
         const pipelineLayout = new WebGLGFXPipelineLayout(this);
-        if (pipelineLayout.initialize(info)) {
-            return pipelineLayout;
-        } else {
-            pipelineLayout.destroy();
-            return null;
-        }
+        pipelineLayout.initialize(info);
+        return pipelineLayout;
     }
 
-    public createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState | null {
+    public createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState {
         const pipelineState = new WebGLGFXPipelineState(this);
-        if (pipelineState.initialize(info)) {
-            return pipelineState;
-        } else {
-            pipelineState.destroy();
-            return null;
-        }
+        pipelineState.initialize(info);
+        return pipelineState;
     }
 
-    public createCommandAllocator (info: IGFXCommandAllocatorInfo): GFXCommandAllocator | null {
+    public createCommandAllocator (info: IGFXCommandAllocatorInfo): GFXCommandAllocator {
         const cmdAllocator = new WebGLGFXCommandAllocator(this);
-        if (cmdAllocator.initialize(info)) {
-            return cmdAllocator;
-        } else {
-            cmdAllocator.destroy();
-            return null;
-        }
+        cmdAllocator.initialize(info);
+        return cmdAllocator;
     }
 
-    public createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer | null {
+    public createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer {
         const cmdBuff = new WebGLGFXCommandBuffer(this);
-        if (cmdBuff.initialize(info)) {
-            return cmdBuff;
-        } else {
-            cmdBuff.destroy();
-            return null;
-        }
+        cmdBuff.initialize(info);
+        return cmdBuff;
     }
 
-    public createQueue (info: IGFXQueueInfo): GFXQueue | null {
+    public createQueue (info: IGFXQueueInfo): GFXQueue {
         const queue = new WebGLGFXQueue(this);
-        if (queue.initialize(info)) {
-            return queue;
-        } else {
-            queue.destroy();
-            return null;
-        }
+        queue.initialize(info);
+        return queue;
     }
 
-    public createWindow (info: IGFXWindowInfo): GFXWindow | null {
+    public createWindow (info: IGFXWindowInfo): GFXWindow {
         const window = new WebGLGFXWindow(this);
-        if (window.initialize(info)) {
-            return window;
-        } else {
-            window.destroy();
-            return null;
-        }
+        window.initialize(info);
+        return window;
     }
 
     public present () {

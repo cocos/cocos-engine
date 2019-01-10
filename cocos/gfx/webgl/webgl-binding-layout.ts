@@ -1,4 +1,5 @@
 import { GFXBindingLayout, GFXBindingUnit, IGFXBindingLayoutInfo } from '../binding-layout';
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUBindingLayout } from './webgl-gpu-objects';
@@ -35,6 +36,7 @@ export class WebGLGFXBindingLayout extends GFXBindingLayout {
         }
 
         this._gpuBindingLayout = this.webGLDevice.emitCmdCreateGPUBindingLayout(info);
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -44,6 +46,8 @@ export class WebGLGFXBindingLayout extends GFXBindingLayout {
             this.webGLDevice.emitCmdDestroyGPUBindingLayout(this._gpuBindingLayout);
             this._gpuBindingLayout = null;
         }
+
+        this._status = GFXStatus.UNREADY;
     }
 
     public update () {

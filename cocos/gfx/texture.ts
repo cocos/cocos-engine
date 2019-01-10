@@ -1,4 +1,4 @@
-import { GFXFormat, GFXTextureFlagBit, GFXTextureFlags, GFXTextureType, GFXTextureUsage, GFXTextureUsageBit } from './define';
+import { GFXFormat, GFXObject, GFXObjectType, GFXTextureFlagBit, GFXTextureFlags, GFXTextureType, GFXTextureUsage, GFXTextureUsageBit } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXTextureInfo {
@@ -13,7 +13,7 @@ export interface IGFXTextureInfo {
     flags?: GFXTextureFlags;
 }
 
-export abstract class GFXTexture {
+export abstract class GFXTexture extends GFXObject {
 
     public get type (): GFXTextureType {
         return this._type;
@@ -73,6 +73,7 @@ export abstract class GFXTexture {
     protected _buffer: ArrayBuffer | null = null;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.TEXTURE);
         this._device = device;
     }
 

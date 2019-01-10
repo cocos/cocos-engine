@@ -1,5 +1,6 @@
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
+import { ForwardStage } from './forward-stage';
 // import { TestStage } from "./test-stage";
 import { TestMaterialStage } from './test-material-stage';
 import { TestModelStage } from './test-model-stage';
@@ -28,26 +29,27 @@ export class ForwardFlow extends RenderFlow {
             return false;
         }
 
-        /* *
-        this.createStage<ForwardStage>(ForwardStage, {
-            name: "ForwardStage",
+        /*
+        this.createStage(ForwardStage, {
+            name: 'ForwardStage',
             priority: ForwardStagePriority.FORWARD,
             framebuffer:  mainWindow.framebuffer,
         });
-        /* */
+        */
 
         this.createStage<TestModelStage>(TestModelStage, {
             name: 'TestModelStage',
             priority: ForwardStagePriority.FORWARD,
             framebuffer:  mainWindow.framebuffer,
         });
-        /* */
-        // this.createStage<TestStage>(TestStage, {
-        //     name: 'TestStage',
-        //     priority: ForwardStagePriority.FORWARD,
-        //     framebuffer: mainWindow.framebuffer,
-        // });
-        /* */
+
+        /*
+        this.createStage<TestStage>(TestStage, {
+            name: 'TestStage',
+            priority: ForwardStagePriority.FORWARD,
+            framebuffer: mainWindow.framebuffer,
+        });
+        */
 
         return true;
     }

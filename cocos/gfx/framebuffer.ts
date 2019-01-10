@@ -1,3 +1,4 @@
+import { GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXRenderPass } from './render-pass';
 import { GFXTextureView } from './texture-view';
@@ -9,7 +10,7 @@ export interface IGFXFramebufferInfo {
     isOffscreen?: boolean;
 }
 
-export abstract class GFXFramebuffer {
+export abstract class GFXFramebuffer extends GFXObject {
 
     public get renderPass (): GFXRenderPass | null {
         return this._renderPass;
@@ -34,6 +35,7 @@ export abstract class GFXFramebuffer {
     protected _isOffscreen: boolean = true;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.FRAMEBUFFER);
         this._device = device;
     }
 

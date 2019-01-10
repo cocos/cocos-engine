@@ -1,4 +1,4 @@
-import { GFXFormatSurfaceSize, GFXTextureFlagBit } from '../define';
+import { GFXFormatSurfaceSize, GFXStatus, GFXTextureFlagBit } from '../define';
 import { GFXDevice } from '../device';
 import { GFXTexture, IGFXTextureInfo } from '../texture';
 import { WebGLGFXDevice } from './webgl-device';
@@ -51,15 +51,16 @@ export class WebGLGFXTexture extends GFXTexture {
         }
 
         this._gpuTexture = this.webGLDevice.emitCmdCreateGPUTexture(info);
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
     public destroy () {
-
         if (this._gpuTexture) {
             this.webGLDevice.emitCmdDestroyGPUTexture(this._gpuTexture);
             this._gpuTexture = null;
         }
+        this._status = GFXStatus.UNREADY;
     }
 }

@@ -1,7 +1,7 @@
 import { GFXBindingLayout } from './binding-layout';
 import { GFXBuffer } from './buffer';
 import { GFXCommandAllocator } from './command-allocator';
-import { GFXBufferTextureCopy, GFXCommandBufferType, GFXTextureLayout, IGFXColor, IGFXRect } from './define';
+import { GFXBufferTextureCopy, GFXCommandBufferType, GFXObject, GFXObjectType, GFXTextureLayout, IGFXColor, IGFXRect } from './define';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXInputAssembler } from './input-assembler';
@@ -13,7 +13,7 @@ export interface IGFXCommandBufferInfo {
     type: GFXCommandBufferType;
 }
 
-export abstract class GFXCommandBuffer {
+export abstract class GFXCommandBuffer extends GFXObject {
 
     public get type (): number {
         return this._type;
@@ -24,6 +24,7 @@ export abstract class GFXCommandBuffer {
     protected _type: GFXCommandBufferType = GFXCommandBufferType.PRIMARY;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.COMMAND_BUFFER);
         this._device = device;
     }
 

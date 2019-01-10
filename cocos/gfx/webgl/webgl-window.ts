@@ -1,4 +1,4 @@
-import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureFlagBit, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../define';
+import { GFXLoadOp, GFXStatus, GFXStoreOp, GFXTextureLayout } from '../define';
 import { GFXDevice } from '../device';
 import { GFXWindow, IGFXWindowInfo } from '../window';
 import { WebGLGFXDevice } from './webgl-device';
@@ -131,6 +131,7 @@ export class WebGLGFXWindow extends GFXWindow {
             this.destroy();
             return false;
         }
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -167,6 +168,8 @@ export class WebGLGFXWindow extends GFXWindow {
             this._renderPass.destroy();
             this._renderPass = null;
         }
+
+        this._status = GFXStatus.UNREADY;
     }
 
     public get webGLDevice (): WebGLGFXDevice {

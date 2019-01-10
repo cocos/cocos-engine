@@ -1,12 +1,12 @@
 import { GFXCommandBuffer } from './command-buffer';
-import { GFXQueueType } from './define';
+import { GFXObject, GFXObjectType, GFXQueueType } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXQueueInfo {
     type: GFXQueueType;
 }
 
-export abstract class GFXQueue {
+export abstract class GFXQueue extends GFXObject {
 
     public get type (): number {
         return this._type;
@@ -16,6 +16,7 @@ export abstract class GFXQueue {
     protected _type: GFXQueueType = GFXQueueType.GRAPHICS;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.QUEUE);
         this._device = device;
     }
 

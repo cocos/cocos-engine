@@ -1,7 +1,7 @@
 import { GFXBindingLayout } from '../binding-layout';
 import { GFXBuffer } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXTextureLayout, IGFXColor, IGFXRect, IGFXViewport } from '../define';
+import { GFXBufferTextureCopy, GFXStatus, GFXTextureLayout, IGFXColor, IGFXRect } from '../define';
 import { GFXDevice } from '../device';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
@@ -33,6 +33,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
         this._allocator = info.allocator;
         this._type = info.type;
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -41,6 +42,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         if (this._allocator) {
             this.cmdPackage.clearCmds( this._allocator as WebGLGFXCommandAllocator);
         }
+        this._status = GFXStatus.UNREADY;
     }
 
     public begin () {

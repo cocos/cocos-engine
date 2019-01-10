@@ -1,4 +1,4 @@
-import { GFXFormat } from './define';
+import { GFXFormat, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXRenderPass } from './render-pass';
@@ -13,7 +13,7 @@ export interface IGFXWindowInfo {
     depthStencilFmt: GFXFormat;
 }
 
-export abstract class GFXWindow {
+export abstract class GFXWindow extends GFXObject {
 
     public get width (): number {
         return this._width;
@@ -23,20 +23,20 @@ export abstract class GFXWindow {
         return this._height;
     }
 
-    public get colorFormat (): GFXFormat | null {
+    public get colorFormat (): GFXFormat {
         return this._colorFmt;
     }
 
-    public get detphStencilFormat (): GFXFormat | null {
+    public get detphStencilFormat (): GFXFormat {
         return this._depthStencilFmt;
     }
 
-    public get renderPass (): GFXRenderPass | null {
-        return this._renderPass;
+    public get renderPass (): GFXRenderPass {
+        return this._renderPass as GFXRenderPass;
     }
 
-    public get framebuffer (): GFXFramebuffer | null {
-        return this._framebuffer;
+    public get framebuffer (): GFXFramebuffer {
+        return this._framebuffer as GFXFramebuffer;
     }
 
     protected _device: GFXDevice;
@@ -55,6 +55,7 @@ export abstract class GFXWindow {
     protected _framebuffer: GFXFramebuffer | null = null;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.WINDOW);
         this._device = device;
     }
 

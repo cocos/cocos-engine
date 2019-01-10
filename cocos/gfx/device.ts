@@ -122,21 +122,21 @@ export abstract class GFXDevice {
 
     public abstract initialize (info: IGFXDeviceInfo): boolean;
     public abstract destroy (): void;
-    public abstract createBuffer (info: IGFXBufferInfo): GFXBuffer | null;
-    public abstract createTexture (info: IGFXTextureInfo): GFXTexture | null;
-    public abstract createTextureView (info: IGFXTextureViewInfo): GFXTextureView | null;
-    public abstract createSampler (info: IGFXSamplerInfo): GFXSampler | null;
-    public abstract createBindingLayout (info: IGFXBindingLayoutInfo): GFXBindingLayout | null;
-    public abstract createShader (info: IGFXShaderInfo): GFXShader | null;
-    public abstract createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler | null;
-    public abstract createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass | null;
-    public abstract createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer | null;
-    public abstract createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout | null;
-    public abstract createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState | null;
-    public abstract createCommandAllocator (info: IGFXCommandAllocatorInfo): GFXCommandAllocator | null;
-    public abstract createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer | null;
-    public abstract createQueue (info: IGFXQueueInfo): GFXQueue | null;
-    public abstract createWindow (info: IGFXWindowInfo): GFXWindow | null;
+    public abstract createBuffer (info: IGFXBufferInfo): GFXBuffer;
+    public abstract createTexture (info: IGFXTextureInfo): GFXTexture;
+    public abstract createTextureView (info: IGFXTextureViewInfo): GFXTextureView;
+    public abstract createSampler (info: IGFXSamplerInfo): GFXSampler;
+    public abstract createBindingLayout (info: IGFXBindingLayoutInfo): GFXBindingLayout;
+    public abstract createShader (info: IGFXShaderInfo): GFXShader;
+    public abstract createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler;
+    public abstract createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass;
+    public abstract createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer;
+    public abstract createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout;
+    public abstract createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState;
+    public abstract createCommandAllocator (info: IGFXCommandAllocatorInfo): GFXCommandAllocator;
+    public abstract createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer;
+    public abstract createQueue (info: IGFXQueueInfo): GFXQueue;
+    public abstract createWindow (info: IGFXWindowInfo): GFXWindow;
     public abstract present ();
 
     public abstract copyBufferToTexture (buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]);

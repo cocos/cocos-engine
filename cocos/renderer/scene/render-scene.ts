@@ -1,55 +1,92 @@
-import Node from "../../scene-graph/node";
-import Light from "./light";
-import Model from "./model";
-import { Camera } from "./camera";
-import { Root } from "../../core/root";
+import { Root, _createSceneFun } from '../../core/root';
+import Node from '../../scene-graph/node';
+import { Camera } from './camera';
+import Light from './light';
+import Model from './model';
 
-export interface RenderSceneInfo {
+export interface IRenderSceneInfo {
     name: string;
-};
+}
 
-export interface SceneNodeInfo {
+export interface ISceneNodeInfo {
     name: string;
     isStatic?: boolean;
-    //parent: Node;
+    // parent: Node;
 }
 
 export class RenderScene {
 
-    constructor(root: Root) {
+    public get root (): Root {
+        return this._root;
+    }
+
+    public get name (): string {
+        return this._name;
+    }
+
+    public get cameras (): Camera[] {
+        return this._cameras;
+    }
+
+    public get mainCamera (): Camera | null {
+        return this._mainCamera;
+    }
+
+    public get lights (): Light[] {
+        return this._lights;
+    }
+
+    public get models (): Model[] {
+        return this._models;
+    }
+
+    public static registerCreateFunc (root: Root) {
+        root._createSceneFun = (_root: Root): RenderScene => new RenderScene(_root);
+    }
+
+    private _root: Root;
+    private _name: string = '';
+    private _nodes: Map<number, Node> = new Map();
+    private _cameras: Camera[] = [];
+    private _mainCamera: Camera | null = null;
+    private _lights: Light[] = [];
+    private _models: Model[] = [];
+    private _modelId: number = 0;
+
+    private constructor (root: Root) {
         this._root = root;
     }
 
-    public initialize(info: RenderSceneInfo): boolean {
+    public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        this._mainCamera = this.createCamera("mainCamera");
+        this._mainCamera = this.createCamera('mainCamera');
 
         return true;
     }
 
-    public destroy() {
+    public destroy () {
         this.destroyCameras();
         this.destroyLights();
         this.destroyNodes();
         this.destroyModels();
     }
 
-    public createNode(info: SceneNodeInfo): Node {
-        let node = new Node(info.name);
+    public createNode (info: ISceneNodeInfo): Node {
+        const node = new Node(info.name);
         this._nodes.set(node.uuid, node);
         return node;
     }
 
-    public destroyNode(node: Node) {
+    public destroyNode (node: Node) {
         this._nodes.delete(node.uuid);
     }
 
-    public destroyNodes() {
+    public destroyNodes () {
         this._nodes.clear();
     }
 
-    public getNode(id: number): Node | null {
-        let node = this._nodes.get(id);
+    public getNode (id: number): Node | null {
+        const node = this._nodes.get(id);
         if (node) {
             return node;
         } else {
@@ -57,13 +94,13 @@ export class RenderScene {
         }
     }
 
-    public createCamera(name: string): Camera {
-        let camera = new Camera(this, name);
+    public createCamera (name: string): Camera {
+        const camera = new Camera(this, name);
         this._cameras.push(camera);
         return camera;
     }
 
-    public destroyCamera(camera: Camera) {
+    public destroyCamera (camera: Camera) {
         for (let i = 0; i < this._cameras.length; ++i) {
             if (this._cameras[i] === camera) {
                 this._cameras.slice(i);
@@ -72,28 +109,28 @@ export class RenderScene {
         }
     }
 
-    public destroyCameras() {
+    public destroyCameras () {
         this._cameras = [];
         this._mainCamera = null;
     }
 
-    public getCamera(name: string): Camera | null {
-        for (let i = 0; i < this._cameras.length; ++i) {
-            if (this._cameras[i].name === name) {
-                return this._cameras[i];
+    public getCamera (name: string): Camera | null {
+        for (const camera of this._cameras) {
+            if (camera.name === name) {
+                return camera;
             }
         }
 
         return null;
     }
 
-    public createLight(name: string): Light {
-        let light = new Light(this, name);
+    public createLight (name: string): Light {
+        const light = new Light(this, name);
         this._lights.push(light);
         return light;
     }
 
-    public destroyLight(light: Light) {
+    public destroyLight (light: Light) {
         for (let i = 0; i < this._lights.length; ++i) {
             if (this._lights[i] === light) {
                 this._lights.slice(i);
@@ -102,13 +139,12 @@ export class RenderScene {
         }
     }
 
-    public destroyLights() {
+    public destroyLights () {
         this._lights = [];
     }
 
-    public getLight(name: string): Light | null {
-        for (let i = 0; i < this._lights.length; ++i) {
-            let light = this._lights[i];
+    public getLight (name: string): Light | null {
+        for (const light of this._lights) {
             if (light.getName() === name) {
                 return light;
             }
@@ -117,15 +153,15 @@ export class RenderScene {
         return null;
     }
 
-    public createModel<T extends Model>(clazz: new () => T): Model {
-        let model = new clazz;
+    public createModel<T extends Model> (clazz: new () => T): Model {
+        const model = new clazz();
         model.initialize();
         model.scene = this;
         this._models.push(model);
         return model;
     }
 
-    public destroyModel(model: Model) {
+    public destroyModel (model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
                 this._models.slice(i);
@@ -134,44 +170,11 @@ export class RenderScene {
         }
     }
 
-    public destroyModels() {
+    public destroyModels () {
         this._models = [];
     }
 
-    public generateModelId(): number {
+    public generateModelId (): number {
         return this._modelId++;
     }
-
-    public get root(): Root {
-        return this._root;
-    }
-
-    public get name(): string {
-        return this._name;
-    }
-
-    public get cameras(): Camera[] {
-        return this._cameras;
-    }
-
-    public get mainCamera(): Camera | null {
-        return this._mainCamera;
-    }
-
-    public get lights(): Light[] {
-        return this._lights;
-    }
-
-    public get models(): Model[] {
-        return this._models;
-    }
-
-    private _root: Root;
-    private _name: string = "";
-    private _nodes: Map<number, Node> = new Map;
-    private _cameras: Camera[] = [];
-    private _mainCamera: Camera | null = null;
-    private _lights: Light[] = [];
-    private _models: Model[] = [];
-    private _modelId: number = 0;
-};
+}

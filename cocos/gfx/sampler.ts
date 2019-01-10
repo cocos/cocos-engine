@@ -1,4 +1,4 @@
-import { GFXAddress, GFXComparisonFunc, GFXFilter } from './define';
+import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXSamplerInfo {
@@ -48,7 +48,7 @@ export class GFXSamplerState {
     }
 }
 
-export abstract class GFXSampler {
+export abstract class GFXSampler extends GFXObject {
 
     public get state (): GFXSamplerState {
         return this._state;
@@ -58,6 +58,7 @@ export abstract class GFXSampler {
     protected _state: GFXSamplerState = new GFXSamplerState();
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.SAMPLER);
         this._device = device;
     }
 

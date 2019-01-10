@@ -1,4 +1,5 @@
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { WebGLCmdBeginRenderPass, WebGLCmdBindBindingLayout, WebGLCmdBindInputAssembler, WebGLCmdBindPipelineState, WebGLCmdCopyBufferToTexture, WebGLCmdDraw, WebGLCmdUpdateBuffer } from './webgl-commands';
 
@@ -70,10 +71,11 @@ export class WebGLGFXCommandAllocator extends GFXCommandAllocator {
 
     public initialize (info: IGFXCommandAllocatorInfo): boolean {
 
+        this._status = GFXStatus.SUCCESS;
         return true;
     }
 
     public destroy () {
-
+        this._status = GFXStatus.UNREADY;
     }
 }

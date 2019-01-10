@@ -1,4 +1,4 @@
-import { GFXShaderType, GFXType } from './define';
+import { GFXObject, GFXObjectType, GFXShaderType, GFXType } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXShaderMacro {
@@ -41,7 +41,7 @@ export interface IGFXShaderInfo {
     samplers?: GFXUniformSampler[];
 }
 
-export abstract class GFXShader {
+export abstract class GFXShader extends GFXObject {
 
     public get id (): number {
         return this._id;
@@ -56,6 +56,7 @@ export abstract class GFXShader {
     protected _samplers: GFXUniformSampler[] = [];
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.SHADER);
         this._device = device;
         this._id = device.genShaderId();
     }

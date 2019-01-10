@@ -1,3 +1,4 @@
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { WebGLGFXDevice } from './webgl-device';
@@ -31,6 +32,7 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
         this._isOffscreen = info.isOffscreen !== undefined ? info.isOffscreen : true;
 
         this._gpuFramebuffer = this.webGLDevice.emitCmdCreateGPUFramebuffer(info);
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -41,5 +43,6 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
             this.webGLDevice.emitCmdDestroyGPUFramebuffer(this._gpuFramebuffer);
             this._gpuFramebuffer = null;
         }
+        this._status = GFXStatus.UNREADY;
     }
 }

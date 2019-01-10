@@ -1,4 +1,4 @@
-import { GFXFormat, GFXTextureViewType } from './define';
+import { GFXFormat, GFXObject, GFXObjectType, GFXTextureViewType } from './define';
 import { GFXDevice } from './device';
 import { GFXTexture } from './texture';
 
@@ -12,7 +12,7 @@ export interface IGFXTextureViewInfo {
     layerCount?: number;
 }
 
-export abstract class GFXTextureView {
+export abstract class GFXTextureView extends GFXObject {
 
     public get texture (): GFXTexture {
         return  this._texture as GFXTexture;
@@ -52,6 +52,7 @@ export abstract class GFXTextureView {
     protected _layerCount: number = 1;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.TEXTURE_VIEW);
         this._device = device;
     }
 

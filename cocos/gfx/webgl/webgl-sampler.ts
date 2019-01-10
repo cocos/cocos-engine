@@ -1,3 +1,4 @@
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXSampler, GFXSamplerState, IGFXSamplerInfo } from '../sampler';
 import { WebGLGFXDevice } from './webgl-device';
@@ -76,6 +77,7 @@ export class WebGLGFXSampler extends GFXSampler {
         }
 
         this._gpuSampler = this.webGLDevice.emitCmdCreateGPUSampler(info);
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -85,5 +87,6 @@ export class WebGLGFXSampler extends GFXSampler {
             this.webGLDevice.emitCmdDestroyGPUSampler(this._gpuSampler);
             this._gpuSampler = null;
         }
+        this._status = GFXStatus.UNREADY;
     }
 }

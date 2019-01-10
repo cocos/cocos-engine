@@ -1,18 +1,17 @@
-import { RenderStage, IRenderStageInfo } from "../render-stage";
-import { RenderFlow } from "../render-flow";
-import { GFXCommandBuffer } from "../../gfx/command-buffer";
-import { RenderView } from "../render-view";
-import { GFXFramebuffer } from "../../gfx/framebuffer";
-import { GFXCommandBufferType } from "../../gfx/define";
-import { GFXInputAssembler } from "../../gfx/input-assembler";
+import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { GFXCommandBufferType } from '../../gfx/define';
+import { GFXFramebuffer } from '../../gfx/framebuffer';
+import { RenderFlow } from '../render-flow';
+import { IRenderStageInfo, RenderStage } from '../render-stage';
+import { RenderView } from '../render-view';
 
 export class ForwardStage extends RenderStage {
 
-    constructor(flow: RenderFlow) {
+    constructor (flow: RenderFlow) {
         super(flow);
     }
 
-    public initialize(info: IRenderStageInfo): boolean {
+    public initialize (info: IRenderStageInfo): boolean {
 
         if (info.name !== undefined) {
             this._name = info.name;
@@ -29,7 +28,7 @@ export class ForwardStage extends RenderStage {
         return true;
     }
 
-    public destroy() {
+    public destroy () {
 
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
@@ -37,25 +36,24 @@ export class ForwardStage extends RenderStage {
         }
     }
 
-    public render(view: RenderView) {
+    public render (view: RenderView) {
 
-        let cmdBuff = this._cmdBuff as GFXCommandBuffer;
-        let queue = this._pipeline.queue;
+        const cmdBuff = this._cmdBuff as GFXCommandBuffer;
+        const queue = this._pipeline.queue;
 
         this._renderArea.width = view.width;
         this._renderArea.height = view.height;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(<GFXFramebuffer>this._framebuffer, this._renderArea, this._clearColors, this._clearDepth, this._clearStencil);
+        cmdBuff.beginRenderPass( this._framebuffer as GFXFramebuffer, this._renderArea, this._clearColors, this._clearDepth, this._clearStencil);
 
-        for (let item of queue.opaques) {
-            item.model.commandBuffers
+        for (const item of queue.opaques) {
+            // item.model.commandBuffers;
         }
-
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
         this._device.queue.submit([cmdBuff]);
     }
-};
+}

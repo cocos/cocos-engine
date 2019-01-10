@@ -80,7 +80,7 @@ export class TestModelStage extends RenderStage {
         }
     }
 
-    public render(view: RenderView) {
+    public render (view: RenderView) {
 
         if (!this._init) {
 
@@ -88,7 +88,6 @@ export class TestModelStage extends RenderStage {
             this._material.effectName = 'test'; // parsed-effect file is embedded in cocos/3d/builtin/effects.js
             this._material.setProperty('u_sampler', this._textureAsset);
             this._material.setProperty('u_color', cc.color('#ff0000'));
-            this._material.inited = true;
 
             this._scene = new Scene();
             this._scene._scene = this._scene;

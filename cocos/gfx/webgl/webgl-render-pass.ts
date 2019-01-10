@@ -1,3 +1,4 @@
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { WebGLGFXDevice } from './webgl-device';
@@ -30,6 +31,7 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
         }
 
         this._gpuRenderPass = this.webGLDevice.emitCmdCreateGPURenderPass(info);
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -40,5 +42,6 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
             this.webGLDevice.emitCmdDestroyGPURenderPass(this._gpuRenderPass);
             this._gpuRenderPass = null;
         }
+        this._status = GFXStatus.UNREADY;
     }
 }

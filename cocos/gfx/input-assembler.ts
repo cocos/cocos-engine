@@ -1,5 +1,5 @@
 import { GFXBuffer } from './buffer';
-import { GFXFormat } from './define';
+import { GFXFormat, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXInputAttribute {
@@ -18,7 +18,7 @@ export interface IGFXInputAssemblerInfo {
     isIndirect?: boolean;
 }
 
-export abstract class GFXInputAssembler {
+export abstract class GFXInputAssembler extends GFXObject {
 
     public get vertexBuffers (): GFXBuffer[] {
         return this._vertexBuffers;
@@ -102,6 +102,7 @@ export abstract class GFXInputAssembler {
     protected _isIndirect: boolean = false;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.INPUT_ASSEMBLER);
         this._device = device;
     }
 

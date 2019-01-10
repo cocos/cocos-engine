@@ -1,20 +1,20 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { Material } from '../../3d/assets/material';
 import { aabb } from '../../3d/geom-utils';
-import { IGFXInputAttribute, GFXInputAssembler } from '../../gfx/input-assembler';
-import { GFXFormat, GFXBufferUsageBit, GFXMemoryUsageBit, GFXCommandBufferType } from '../../gfx/define';
-import { RenderScene } from './render-scene';
-import { vec3, mat4 } from '../../core/vmath';
 import { Vec3 } from '../../core/value-types';
+import { mat4, vec3 } from '../../core/vmath';
+import { GFXBuffer } from '../../gfx/buffer';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { GFXBufferUsageBit, GFXCommandBufferType, GFXFormat, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
+import { UBOLocal } from '../../pipeline/render-pipeline';
 import { Node } from '../../scene-graph';
 import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
-import { UBOLocal } from '../../pipeline/render-pipeline';
-import { GFXBuffer } from '../../gfx/buffer';
+import { RenderScene } from './render-scene';
 
-let _temp_floatx16 = new Float32Array(16);
-let _temp_mat4 = mat4.create();
+const _temp_floatx16 = new Float32Array(16);
+const _temp_mat4 = mat4.create();
 
 /**
  * A representation of a model
@@ -45,7 +45,7 @@ export default class Model {
     /**
      * Setup a default empty model
      */
-    constructor() {
+    constructor () {
         this._scene = null;
         this._id = 0;
         this._enable = false;
@@ -69,7 +69,7 @@ export default class Model {
         this._localUBO = null;
     }
 
-    initialize() {
+    public initialize () {
         this._localUniforms = new UBOLocal();
         this._localUBO = cc.director.root.device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -77,11 +77,12 @@ export default class Model {
             size: UBOLocal.SIZE,
             stride: UBOLocal.SIZE,
         });
-        if (this._localUBO)
+        if (this._localUBO) {
             this._localUBO.update(this._localUniforms.view);
+        }
     }
 
-    set scene(scene: RenderScene | null) {
+    set scene (scene: RenderScene | null) {
         this._scene = scene;
 
         if (this._scene) {
@@ -89,31 +90,34 @@ export default class Model {
         }
     }
 
-    get scene(): RenderScene | null {
+    get scene (): RenderScene | null {
         return this._scene;
     }
 
-    get id(): number {
+    get id (): number {
         return this._id;
     }
 
-    public _updateTransform() {
+    public _updateTransform () {
         if (!this._node._hasChanged || !this._boundingShape) { return; }
         this._node.updateWorldTransformFull();
         this._bsModelSpace.transform(this._node._mat, this._node._pos,
             this._node._rot, this._node._scale, this._boundingShape);
     }
 
-    updateRenderData() {
+    public updateRenderData () {
         mat4.array(_temp_floatx16, this._node._mat);
         this._node._mat.invert(_temp_mat4);
-        if (this._localUniforms)
+        if (this._localUniforms) {
             this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
+        }
         mat4.array(_temp_floatx16, _temp_mat4);
-        if (this._localUniforms)
+        if (this._localUniforms) {
             this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
-        if (this._localUBO)
+        }
+        if (this._localUBO) {
             this._localUBO.update(this._localUniforms.view);
+        }
     }
 
     /**
@@ -121,17 +125,17 @@ export default class Model {
      * @param {vec3} minPos the min position of the model
      * @param {vec3} maxPos the max position of the model
      */
-    public createBoundingShape(minPos: Vec3, maxPos: Vec3) {
+    public createBoundingShape (minPos: Vec3, maxPos: Vec3) {
         if (!minPos || !maxPos) { return; }
         this._bsModelSpace = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._boundingShape = aabb.clone(this._bsModelSpace);
     }
 
-    public enable(isEnable: boolean) {
+    public enable (isEnable: boolean) {
         this._isEnable = isEnable;
     }
 
-    public isEnable(): boolean {
+    public isEnable (): boolean {
         return this._isEnable;
     }
 
@@ -139,7 +143,7 @@ export default class Model {
      * Get the hosting node of this camera
      * @returns {Node} the hosting node
      */
-    get node(): Node {
+    get node (): Node {
         return this._node;
     }
 
@@ -147,7 +151,7 @@ export default class Model {
      * Set the hosting node of this model
      * @param {Node} node the hosting node
      */
-    set node(node: Node) {
+    set node (node: Node) {
         this._node = node;
     }
 
@@ -155,7 +159,7 @@ export default class Model {
      * Set the input assembler
      * @param {InputAssembler} ia
      */
-    set inputAssembler(ia: GFXInputAssembler) {
+    set inputAssembler (ia: GFXInputAssembler) {
         this._inputAssembler = ia;
     }
 
@@ -171,7 +175,7 @@ export default class Model {
      * Set the model effect
      * @param {?Effect} effect the effect to use
      */
-    public setEffect(effect: Effect) {
+    public setEffect (effect: Effect) {
         if (effect) {
             this._effect = effect;
             // this._defines = effect.extractDefines(Object.create(null));
@@ -183,7 +187,7 @@ export default class Model {
         }
     }
 
-    set material(material: Material) {
+    set material (material: Material) {
         this._material = material;
         for (let i = 0; i < this._material.passes.length; i++) {
             this.recordCommandBuffer(i);
@@ -196,7 +200,7 @@ export default class Model {
         }
     }
 
-    public recordCommandBuffer(index: number) {
+    public recordCommandBuffer (index: number) {
         const pass = (this._material as Material).passes[index];
         const cmdBufferInfo = {
             allocator: cc.director.root.device.commandAllocator,
@@ -205,8 +209,9 @@ export default class Model {
         if (this._cmdBuffers[index] == null) {
             this._cmdBuffers[index] = cc.director.root.device.createCommandBuffer(cmdBufferInfo);
         }
-        if (this._localUBO)
+        if (this._localUBO) {
             pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localUBO);
+        }
         pass.bindingLayout.update();
         this._cmdBuffers[index].begin();
         this._cmdBuffers[index].bindPipelineState(pass.pipelineState);
@@ -220,15 +225,15 @@ export default class Model {
      * Set the user key
      * @param {number} key
      */
-    set userKey(key: number) {
+    set userKey (key: number) {
         this._userKey = key;
     }
 
-    get passes(): Pass[] {
+    get passes (): Pass[] {
         return (this._material as Material).passes;
     }
 
-    get commandBuffers(): GFXCommandBuffer[] {
+    get commandBuffers (): GFXCommandBuffer[] {
         return this._cmdBuffers;
     }
 
@@ -236,7 +241,7 @@ export default class Model {
      * Extract a drawing item
      * @param {Object} out the receiving item
      */
-    public extractDrawItem(out) {
+    public extractDrawItem (out) {
         out.model = this;
         out.node = this._node;
         out.ia = this._inputAssembler;

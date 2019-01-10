@@ -1,3 +1,4 @@
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { WebGLGFXDevice } from './webgl-device';
@@ -42,6 +43,7 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
         }
 
         this._gpuInputAssembler = this.webGLDevice.emitCmdCreateGPUInputAssembler(info);
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -51,5 +53,6 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
             this.webGLDevice.emitCmdDestroyGPUInputAssembler(this._gpuInputAssembler);
             this._gpuInputAssembler = null;
         }
+        this._status = GFXStatus.UNREADY;
     }
 }

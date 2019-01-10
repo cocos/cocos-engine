@@ -22,6 +22,49 @@ export const GFX_MAX_VERTEX_ATTRIBUTES: number = 16;
 export const GFX_MAX_TEXTURE_UNITS: number = 16;
 export const GFX_MAX_ATTACHMENTS: number = 4;
 
+export enum GFXObjectType {
+    UNKNOWN,
+    BUFFER,
+    TEXTURE,
+    TEXTURE_VIEW,
+    RENDER_PASS,
+    FRAMEBUFFER,
+    SAMPLER,
+    SHADER,
+    PIPELINE_LAYOUT,
+    PIPELINE_STATE,
+    BINDING_LAYOUT,
+    INPUT_ASSEMBLER,
+    COMMAND_ALLOCATOR,
+    COMMAND_BUFFER,
+    QUEUE,
+    WINDOW,
+}
+
+export enum GFXStatus {
+    UNREADY,
+    FAILED,
+    SUCCESS,
+}
+
+export class GFXObject {
+
+    public get gfxType (): GFXObjectType {
+        return this._gfxType;
+    }
+
+    public get status (): GFXStatus {
+        return this._status;
+    }
+
+    protected _gfxType = GFXObjectType.UNKNOWN;
+    protected _status = GFXStatus.UNREADY;
+
+    constructor (gfxType: GFXObjectType) {
+        this._gfxType = gfxType;
+    }
+}
+
 export enum GFXType {
     UNKNOWN,
     BOOL,

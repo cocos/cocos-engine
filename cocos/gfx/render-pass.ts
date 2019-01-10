@@ -1,4 +1,4 @@
-import { GFXFormat, GFXLoadOp, GFXPipelineBindPoint, GFXStoreOp, GFXTextureLayout } from './define';
+import { GFXFormat, GFXLoadOp, GFXObject, GFXObjectType, GFXPipelineBindPoint, GFXStoreOp, GFXTextureLayout } from './define';
 import { GFXDevice } from './device';
 
 export class GFXColorAttachment {
@@ -36,13 +36,14 @@ export interface IGFXRenderPassInfo {
     // subPasses? : GFXSubPassInfo[];
 }
 
-export abstract class GFXRenderPass {
+export abstract class GFXRenderPass extends GFXObject {
 
     protected _device: GFXDevice;
     protected _colorInfos: GFXColorAttachment[] = [];
     protected _depthStencilInfo: GFXDepthStencilAttachment | null = null;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.RENDER_PASS);
         this._device = device;
     }
 

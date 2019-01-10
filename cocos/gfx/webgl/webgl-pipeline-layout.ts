@@ -1,3 +1,4 @@
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
 import { WebGLGFXDevice } from './webgl-device';
@@ -26,10 +27,12 @@ export class WebGLGFXPipelineLayout extends GFXPipelineLayout {
         if (info.pushConstantsRanges !== undefined) {
             this._pushConstantsRanges = info.pushConstantsRanges;
         }
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
     public destroy () {
+        this._status = GFXStatus.UNREADY;
     }
 }

@@ -1,3 +1,4 @@
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXShader, IGFXShaderInfo } from '../shader';
 import { WebGLGFXDevice } from './webgl-device';
@@ -33,6 +34,7 @@ export class WebGLGFXShader extends GFXShader {
         }
 
         this._gpuShader = this.webGLDevice.emitCmdCreateGPUShader(info);
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
@@ -42,5 +44,6 @@ export class WebGLGFXShader extends GFXShader {
             this.webGLDevice.emitCmdDestroyGPUShader(this._gpuShader);
             this._gpuShader = null;
         }
+        this._status = GFXStatus.UNREADY;
     }
 }

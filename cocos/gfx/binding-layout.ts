@@ -1,5 +1,5 @@
 import { GFXBuffer } from './buffer';
-import { GFXBindingType } from './define';
+import { GFXBindingType, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
 import { GFXTextureView } from './texture-view';
@@ -23,13 +23,14 @@ export class GFXBindingUnit {
     public sampler: GFXSampler | null = null;
 }
 
-export abstract class GFXBindingLayout {
+export abstract class GFXBindingLayout extends GFXObject {
 
     protected _device: GFXDevice;
     protected _bindingUnits: GFXBindingUnit[] = [];
     protected _isDirty = false;
 
     constructor (device: GFXDevice) {
+        super(GFXObjectType.BINDING_LAYOUT);
         this._device = device;
     }
 
