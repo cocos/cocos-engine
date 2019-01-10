@@ -13718,6 +13718,16 @@ var templates = [
       { name: 'alphaTest', },
       { name: 'use2DPos', },
       { name: 'useColor', } ],
+  },
+  {
+    name: 'spine',
+    vert: '\n \nuniform mat4 viewProj;\n\n#ifdef use2DPos\n  attribute vec2 a_position;\n#else\n  attribute vec3 a_position;\n#endif\n\nattribute lowp vec4 a_color;\n#ifdef useTint\n  attribute lowp vec4 a_color0;\n#endif\n\n#ifdef useModel\n  uniform mat4 model;\n#endif\n\nattribute mediump vec2 a_uv0;\nvarying mediump vec2 uv0;\n\nvarying lowp vec4 v_light;\n#ifdef useTint\n  varying lowp vec4 v_dark;\n#endif\n\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n\n  #ifdef use2DPos\n  vec4 pos = mvp * vec4(a_position, 0, 1);\n  #else\n  vec4 pos = mvp * vec4(a_position, 1);\n  #endif\n\n  v_light = a_color;\n  #ifdef useTint\n    v_dark = a_color0;\n  #endif\n\n  uv0 = a_uv0;\n\n  gl_Position = pos;\n}',
+    frag: '\n \nuniform sampler2D texture;\nvarying mediump vec2 uv0;\n\n#ifdef alphaTest\n  uniform lowp float alphaThreshold;\n#endif\n\nvarying lowp vec4 v_light;\n#ifdef useTint\n  varying lowp vec4 v_dark;\n#endif\n\nvoid main () {\n  vec4 texColor = texture2D(texture, uv0);\n  vec4 finalColor;\n\n  #ifdef useTint\n    finalColor.a = v_light.a * texColor.a;\n    finalColor.rgb = ((texColor.a - 1.0) * v_dark.a + 1.0 - texColor.rgb) * v_dark.rgb + texColor.rgb * v_light.rgb;\n  #else\n    finalColor = texColor * v_light;\n  #endif\n\n  #ifdef alphaTest\n    if (finalColor.a <= alphaThreshold)\n      discard;\n  #endif\n\n  gl_FragColor = finalColor;\n}',
+    defines: [
+      { name: 'useModel', },
+      { name: 'alphaTest', },
+      { name: 'use2DPos', },
+      { name: 'useTint', } ],
   } ];
 
 var shaders = {
@@ -14245,6 +14255,110 @@ var SpriteMaterial = (function (Material$$1) {
 
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
  
+var SpineMaterial = (function (Material$$1) {
+function SpineMaterial() {
+    Material$$1.call(this, false);
+
+    var pass = new renderer.Pass('spine');
+    pass.setDepth(false, false);
+    pass.setCullMode(gfx.CULL_NONE);
+    pass.setBlend(
+    gfx.BLEND_FUNC_ADD,
+    gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+    gfx.BLEND_FUNC_ADD,
+    gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+    );
+
+    var mainTech = new renderer.Technique(
+    ['transparent'],
+    [
+        { name: 'texture', type: renderer.PARAM_TEXTURE_2D } ],
+    [
+        pass
+    ]
+    );
+
+    this._effect = new renderer.Effect(
+    [
+        mainTech ],
+    {
+        
+    },
+    [
+        { name: 'useModel', value: true },
+        { name: 'alphaTest', value: false },
+        { name: 'use2DPos', value: true },
+        { name: 'useTint', value: false } ]
+    );
+    
+    this._mainTech = mainTech;
+    this._texture = null;
+}
+
+if ( Material$$1 ) SpineMaterial.__proto__ = Material$$1;
+SpineMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
+SpineMaterial.prototype.constructor = SpineMaterial;
+
+var prototypeAccessors = { effect: { configurable: true },useModel: { configurable: true },use2DPos: { configurable: true },useTint: { configurable: false },texture: { configurable: true } };
+
+prototypeAccessors.effect.get = function () {
+    return this._effect;
+};
+
+prototypeAccessors.useModel.get = function () {
+    return this._effect.getDefine('useModel');
+};
+
+prototypeAccessors.useModel.set = function (val) {
+    this._effect.define('useModel', val);
+};
+
+prototypeAccessors.use2DPos.get = function () {
+    return this._effect.getDefine('use2DPos');
+};
+
+prototypeAccessors.use2DPos.set = function (val) {
+    this._effect.define('use2DPos', val);
+};
+
+prototypeAccessors.useTint.get = function () {
+    return  this._effect.getDefine('useTint');
+};
+
+prototypeAccessors.useTint.set = function (val) {
+    this._effect.define('useTint', val);
+};
+
+prototypeAccessors.texture.get = function () {
+    return this._texture;
+};
+
+prototypeAccessors.texture.set = function (val) {
+    if (this._texture !== val) {
+    this._texture = val;
+    this._effect.setProperty('texture', val.getImpl());
+    this._texIds['texture'] = val.getId();
+    }
+};
+
+SpineMaterial.prototype.clone = function clone () {
+    var copy = new SpineMaterial();
+    copy._mainTech.copy(this._mainTech);
+    copy.texture = this.texture;
+    copy.useModel = this.useModel;
+    copy.use2DPos = this.use2DPos;
+    copy.useTint = this.useTint;
+    copy._hash = this._hash;
+    return copy;
+};
+
+Object.defineProperties( SpineMaterial.prototype, prototypeAccessors );
+
+return SpineMaterial;
+}(Material));
+
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ 
 var GraySpriteMaterial = (function (Material$$1) {
   function GraySpriteMaterial() {
     Material$$1.call(this, false);
@@ -14612,6 +14726,7 @@ var renderEngine = {
   Material: Material,
   
   // materials
+  SpineMaterial: SpineMaterial,
   SpriteMaterial: SpriteMaterial,
   GraySpriteMaterial: GraySpriteMaterial,
   StencilMaterial: StencilMaterial,

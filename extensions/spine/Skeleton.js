@@ -27,7 +27,7 @@
 const TrackEntryListeners = require('./track-entry-listeners');
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const spine = require('./lib/spine');
-const SpriteMaterial = require('../../cocos2d/core/renderer/render-engine').SpriteMaterial;
+const SpineMaterial = require('../../cocos2d/core/renderer/render-engine').SpineMaterial;
 const Graphics = require('../../cocos2d/core/graphics/graphics');
 const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
 
@@ -354,6 +354,26 @@ sp.Skeleton = cc.Class({
                 this._initDebugDraw();
             }
         },
+
+        /**
+         * !#en Enabled two color tint.
+         * !#zh 是否启用染色效果。
+         * @property {Boolean} useTint
+         * @default false
+         */
+        useTint: {
+            default: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.use_tint',
+            notify () {
+                var cache = this._materialCache
+                for (var mKey in cache) {
+                    var material = cache[mKey];
+                    if (material) {
+                        material.useTint = this.useTint;
+                    }
+                }
+            }
+        }
     },
 
     // CONSTRUCTOR
@@ -362,10 +382,11 @@ sp.Skeleton = cc.Class({
         this._rootBone = null;
         this._listener = null;
         this._boundingBox = cc.rect();
-        this._material = new SpriteMaterial();
+        this._material = new SpineMaterial();
         this._materialCache = {};
-        this._renderDatas = [];
         this._debugRenderer = null;
+        this._startSlotIndex = -1;
+        this._endSlotIndex = -1;
     },
 
     // override
@@ -390,8 +411,19 @@ sp.Skeleton = cc.Class({
         }
 
         this._skeleton = new spine.Skeleton(skeletonData);
-        // this._skeleton.updateWorldTransform();
+        this._clipper = new spine.SkeletonClipping();
         this._rootBone = this._skeleton.getRootBone();
+    },
+
+    /**
+     * !#en Sets slots visible range.
+     * !#zh 设置骨骼插槽可视范围。
+     * @method setSkeletonData
+     * @param {sp.spine.SkeletonData} skeletonData
+     */
+    setSlotsRange (startSlotIndex, endSlotIndex) {
+        this._startSlotIndex = startSlotIndex;
+        this._endSlotIndex = endSlotIndex;
     },
 
     /**
@@ -444,25 +476,10 @@ sp.Skeleton = cc.Class({
         // Destroyed and restored in Editor
         if (!this._material) {
             this._boundingBox = cc.rect();
-	        this._material = new SpriteMaterial();
+	        this._material = new SpineMaterial();
             this._materialCache = {};
-            this._renderDatas = [];
         }
     },
-
-    onDestroy () {
-        this._super();
-        // Render datas will be destroyed automatically by RenderComponent.onDestroy
-        this._renderDatas.length = 0;
-    },
-
-    // _getLocalBounds: CC_EDITOR && function (out_rect) {
-    //     var rect = this._boundingBox;
-    //     out_rect.x = rect.x;
-    //     out_rect.y = rect.y;
-    //     out_rect.width = rect.width;
-    //     out_rect.height = rect.height;
-    // },
 
     // RENDERER
 
