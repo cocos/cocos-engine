@@ -13,7 +13,7 @@ import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { RenderPassStage } from '../../pipeline/render-pipeline';
+import { RenderPassStage, UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -52,6 +52,8 @@ const _type2default = {
   [GFXType.MAT3]: [1, 0, 0, 0, 1, 0, 0, 0, 1],
   [GFXType.MAT4]: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 };
+
+const builtinRE = new RegExp(UBOGlobal.BLOCK.name + '|' + UBOLocal.BLOCK.name);
 
 const btMask      = 0xf0000000; // 4 bits, 16 slots
 const typeMask    = 0x0fc00000; // 6 bits, 64 slots
@@ -114,6 +116,9 @@ export class Pass {
         this.createPipelineState(info);
 
         for (const u of info.blocks) {
+            if (builtinRE.test(u.name)) {
+                continue;
+            }
             // create gfx buffer resource
             const buffer = device.createBuffer({
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
