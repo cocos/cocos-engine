@@ -95,7 +95,6 @@ function _getSlotMaterial (comp, slot, premultiAlpha) {
 
 let _vertexOffset, _indiceOffset,
     _nodeR, _nodeG, _nodeB, _nodeA,
-    _worldMatrix;
     _material, _currMaterial,
     _dataId, _datas, _data, _newData;
 
@@ -232,7 +231,6 @@ let armatureAssembler = {
         if (!armature) return;
 
         let renderDatas = comp._renderDatas;
-        let materialCache = comp._materialCache;
 
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let data = renderDatas[index];
