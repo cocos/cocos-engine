@@ -8,17 +8,12 @@ import { RenderPassStage } from '../pipeline/render-pipeline';
 import ImageAsset from './image-asset';
 import Texture2D from './texture-2d';
 
-enum DepthStencilFormat {
-    D24S8 = GFXFormat.D24S8,
-
-    S8 = GFXFormat.R8UI,
-
-    D16 = GFXFormat.D16,
-}
-
-function toGfxDepthStencilFormat (depthStencilFormat: DepthStencilFormat): GFXFormat {
-    return depthStencilFormat as unknown as GFXFormat;
-}
+type DSFormat = 'D24S8' | 'S8' | 'D16';
+const _formatMap = {
+    D24S8: GFXFormat.D24S8,
+    S8: GFXFormat.R8UI,
+    D16: GFXFormat.D16,
+};
 
 /**
  * Render textures are textures that can be rendered to.
@@ -44,10 +39,10 @@ export default class RenderTexture extends Texture2D {
      * 初始化 render texture
      * @param [width]
      * @param [height]
-     * @param [depthStencilFormat]
+     * @param [string]
      * @method initWithSize
      */
-    public initWithSize (width?: number, height?: number, depthStencilFormat?: DepthStencilFormat) {
+    public initWithSize (width?: number, height?: number, format?: DSFormat) {
         this.destroy();
 
         const gfxDevice = this._getGlobalDevice();
@@ -81,11 +76,11 @@ export default class RenderTexture extends Texture2D {
             return;
         }
 
-        if (depthStencilFormat !== undefined) {
+        if (format !== undefined) {
             this._depthStencilTexture = gfxDevice.createTexture({
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-                format: toGfxDepthStencilFormat(depthStencilFormat),
+                format: _formatMap[format],
                 width: w,
                 height: h,
             });
@@ -95,7 +90,7 @@ export default class RenderTexture extends Texture2D {
             this._depthStencilTextureView = gfxDevice.createTextureView({
                 texture: this._depthStencilTexture,
                 type: GFXTextureViewType.TV2D,
-                format: toGfxDepthStencilFormat(depthStencilFormat),
+                format: _formatMap[format],
             });
         }
 

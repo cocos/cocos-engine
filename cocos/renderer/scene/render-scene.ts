@@ -128,7 +128,7 @@ export class RenderScene {
     public destroyModel(model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
-                this._models.slice(i);
+                this._models.splice(i, 1);
                 return;
             }
         }
