@@ -17,7 +17,7 @@ export interface IGeometry {
     /**
      * Topology of the geometry vertices.
      */
-    primitiveType: GFXPrimitiveMode;
+    primitiveMode: GFXPrimitiveMode;
 
     /**
      * Vertex positions.
