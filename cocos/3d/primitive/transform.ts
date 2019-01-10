@@ -9,9 +9,9 @@ export function translate (geometry: IGeometry, offset: { x?: number; y?: number
         const iX = iVertex * 3;
         const iY = iVertex * 3 + 1;
         const iZ = iVertex * 3 + 2;
-        geometry[iX] = geometry[iX] + x;
-        geometry[iY] = geometry[iY] + y;
-        geometry[iZ] = geometry[iZ] + z;
+        geometry.positions[iX] = geometry.positions[iX] + x;
+        geometry.positions[iY] = geometry.positions[iY] + y;
+        geometry.positions[iZ] = geometry.positions[iZ] + z;
     }
     geometry.minPos.x += x;
     geometry.minPos.y += y;
