@@ -12,6 +12,7 @@ import { Node } from '../../scene-graph';
 import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
 import { RenderScene } from './render-scene';
+import { IRenderingSubmesh } from '../../3d/assets/mesh';
 
 const _temp_floatx16 = new Float32Array(16);
 const _temp_mat4 = mat4.create();
@@ -27,7 +28,7 @@ export default class Model {
     private _poolID: number;
     private _isEnable: boolean;
     private _node: Node;
-    private _inputAssembler: GFXInputAssembler | null;
+    private _subMeshObject: IRenderingSubmesh | null;
     private _effect: Effect | null;
     private _defines: Object;
     private _dependencies: Object;
@@ -52,7 +53,7 @@ export default class Model {
         this._poolID = -1;
         this._isEnable = true;
         this._node = null;
-        this._inputAssembler = null;
+        this._subMeshObject = null;
         this._effect = null;
         this._defines = {};
         this._dependencies = {};
@@ -157,8 +158,8 @@ export default class Model {
      * Set the input assembler
      * @param {InputAssembler} ia
      */
-    set inputAssembler (ia: GFXInputAssembler) {
-        this._inputAssembler = ia;
+    set subMeshData(sm: IRenderingSubmesh) {
+        this._subMeshObject = sm;
     }
 
     get boundingShape (): aabb {
@@ -185,9 +186,11 @@ export default class Model {
         }
     }
 
-    set material (material: Material) {
+    set material(material: Material) {
         this._material = material;
         for (let i = 0; i < this._material.passes.length; i++) {
+            if (this._material.passes[i].primitive !== (this._subMeshObject as IRenderingSubmesh).primitiveMode)
+                cc.error('the model(%d)\'s primitive type doesn\'t match its pass\'s');
             this.recordCommandBuffer(i);
         }
         for (let i = this._cmdBuffers.length - 1; i >= this._material.passes.length; i--) {
@@ -214,8 +217,8 @@ export default class Model {
         this._cmdBuffers[index].begin();
         this._cmdBuffers[index].bindPipelineState(pass.pipelineState);
         this._cmdBuffers[index].bindBindingLayout(pass.bindingLayout);
-        this._cmdBuffers[index].bindInputAssembler(this._inputAssembler as GFXInputAssembler);
-        this._cmdBuffers[index].draw(this._inputAssembler as GFXInputAssembler);
+        this._cmdBuffers[index].bindInputAssembler((this._subMeshObject as IRenderingSubmesh).inputAssembler);
+        this._cmdBuffers[index].draw((this._subMeshObject as IRenderingSubmesh).inputAssembler);
         this._cmdBuffers[index].end();
     }
 
