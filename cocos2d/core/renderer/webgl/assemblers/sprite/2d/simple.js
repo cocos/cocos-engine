@@ -23,11 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 module.exports = {
     updateRenderData (sprite) {
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        sprite._calDynamicAtlas();
+        packToDynamicAtlas(sprite, sprite._spriteFrame);
 
         let renderData = sprite._renderData;
         if (!renderData || !sprite.spriteFrame) return;

@@ -1,17 +1,18 @@
 const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 
 module.exports = {
-    packToDynamicAtlas (sprite) {
-        let frame = sprite._spriteFrame;
-        
+    packToDynamicAtlas (comp, frame) {
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
         if (frame) {
             if (!frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.insertSpriteFrame(frame);
+                let packedFrame = dynamicAtlasManager.insertSpriteFrame(frame);
+                if (packedFrame) {
+                    frame._setDynamicAtlasFrame(packedFrame);
+                }
             }
-            if (sprite.sharedMaterials[0].getProperty('texture') !== frame._texture) {
-                sprite._activateMaterial();
+            if (comp.sharedMaterials[0].getProperty('texture') !== frame._texture) {
+                comp._activateMaterial();
             }
         }
     }

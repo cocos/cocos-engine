@@ -655,21 +655,6 @@ var Sprite = cc.Class({
             }
         }
     },
-
-    _calDynamicAtlas ()
-    {
-        if (!this._spriteFrame) return;
-        
-        if (!this._spriteFrame._original && dynamicAtlasManager) {
-            let frame = dynamicAtlasManager.insertSpriteFrame(this._spriteFrame);
-            if (frame) {
-                this._spriteFrame._setDynamicAtlasFrame(frame);
-            }
-        }
-        if (this._material._texture !== this._spriteFrame._texture) {
-            this._activateMaterial();
-        }
-    }
 });
 
 if (CC_EDITOR) {

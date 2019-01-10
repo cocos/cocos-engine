@@ -30,6 +30,7 @@ const Component = require('../../../components/CCComponent');
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
 const Overflow = Label.Overflow;
+const packToDynamicAtlas = require('../utils').packToDynamicAtlas;
 
 const WHITE = cc.Color.WHITE;
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
@@ -290,13 +291,14 @@ module.exports = {
     },
 
     _calDynamicAtlas (comp) {
-        if(!comp.batchAsBitmap) return;
+        if (!comp.batchAsBitmap) return;
 
-        if (!comp._frame._original) {
-            comp._frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
+        let frame = comp._frame;
+        if (!frame._original) {
+            frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
         }
         // Add font images to the dynamic atlas for batch rendering.
-        comp._calDynamicAtlas();
+        packToDynamicAtlas(comp, frame);
     },
 
     _updateLabelDimensions () {

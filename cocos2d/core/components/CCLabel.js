@@ -653,20 +653,6 @@ let Label = cc.Class({
         }
     },
 
-    _calDynamicAtlas () {
-        if (!dynamicAtlasManager) return;
-
-        if (!this._frame._original) {
-            let frame = dynamicAtlasManager.insertSpriteFrame(this._frame);
-            if (frame) {
-                this._frame._setDynamicAtlasFrame(frame);
-            }
-        }
-        if (this._material._texture !== this._frame._texture) {
-            this._activateMaterial(true);
-        }
-    },
-
     _enableBold (enabled) {
         this._isBold = !!enabled;
     },

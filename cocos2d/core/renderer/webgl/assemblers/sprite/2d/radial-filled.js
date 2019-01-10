@@ -24,9 +24,9 @@
  ****************************************************************************/
 
 const fillVertices = require('../../utils').fillVertices;
+const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
 const PI_2 = Math.PI * 2;
-
 
 let _vertPos = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
 let _vertices = [0, 0, 0, 0];
@@ -221,9 +221,7 @@ module.exports = {
         if (!renderData.vertDirty && !renderData.uvDirty) return;
         let data = renderData._data;
 
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        sprite._calDynamicAtlas();
+        packToDynamicAtlas(sprite, frame);
 
         //do round fill start [0,1), include 0, exclude 1
         while (fillStart >= 1.0) fillStart -= 1.0;

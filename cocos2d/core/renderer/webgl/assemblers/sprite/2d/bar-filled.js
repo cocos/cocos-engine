@@ -25,17 +25,12 @@
 
 const Sprite = require('../../../../../components/CCSprite');
 const FillType = Sprite.FillType;
-const utils = require('../utils');
-
+const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
 module.exports = {
     updateRenderData (sprite) {
-        utils.packToDynamicAtlas(sprite);
-
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        sprite._calDynamicAtlas();
+        packToDynamicAtlas(sprite, sprite._spriteFrame);
 
         let renderData = sprite._renderData;
         if (!renderData || !sprite.spriteFrame) return;
