@@ -24,22 +24,22 @@
  ****************************************************************************/
 
 // @ts-check
-import { _decorator } from "../../core/data";
+import { _decorator } from '../../core/data';
 const { ccclass, property } = _decorator;
-import { Asset } from "../../assets/asset";
-import gfx from "../../renderer/gfx";
-import { enums as gfxEnums } from "../../renderer/gfx/enums";
-import InputAssembler from "../../renderer/core/input-assembler";
-import BufferRange from "./utils/buffer-range";
-import { Vec3 } from "../../core/value-types";
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat } from "../../gfx/define";
+import { Asset } from '../../assets/asset';
+import { Vec3 } from '../../core/value-types';
+import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../../gfx/define';
+import InputAssembler from '../../renderer/core/input-assembler';
+import gfx from '../../renderer/gfx';
+import { enums as gfxEnums } from '../../renderer/gfx/enums';
+import BufferRange from './utils/buffer-range';
 
 /**
  * A vertex bundle describes a serials of vertex attributes.
  * These vertex attributes occupy a range of the buffer and
  * are interleaved, no padding bytes, in the range.
  */
-@ccclass("cc.VertexBundle")
+@ccclass('cc.VertexBundle')
 export class VertexBundle {
     /**
      * The data range of this bundle.
@@ -47,21 +47,21 @@ export class VertexBundle {
      * @type {BufferRange}
      */
     @property(BufferRange)
-    _data = null;
+    public _data = null;
 
     /**
      * This bundle's vertices count.
      * @type {number}
      */
     @property(Number)
-    _verticesCount = 0;
+    public _verticesCount = 0;
 
     /**
      * The attributes's formats.
      * @type {{name: string, type: number, num: number, normalize: boolean}[]}
      */
     @property
-    _formats = [];
+    public _formats = [];
 }
 cc.VertexBundle = VertexBundle;
 
@@ -69,7 +69,7 @@ cc.VertexBundle = VertexBundle;
  * A primitive is a geometry constituted with a list of
  * same topology primitive graphic(such as points, lines or triangles).
  */
-@ccclass("cc.Primitive")
+@ccclass('cc.Primitive')
 export class Primitive {
 
     /**
@@ -77,28 +77,28 @@ export class Primitive {
      * @type {number[]}
      */
     @property([Number])
-    _vertexBundelIndices = [];
+    public _vertexBundelIndices = [];
 
     /**
      * The indices data range of this primitive.
      * @type {BufferRange}
      */
     @property(BufferRange)
-    _indices = null;
+    public _indices = null;
 
     /**
      * The type of this primitive's indices.
      * @type {number}
      */
     @property(Number)
-    _indexUnit = gfxEnums.INDEX_FMT_UINT16;
+    public _indexUnit = gfxEnums.INDEX_FMT_UINT16;
 
     /**
      * This primitive's topology.
      * @type {number}
      */
     @property(Number)
-    _topology = gfxEnums.PT_TRIANGLES;
+    public _topology = gfxEnums.PT_TRIANGLES;
 }
 cc.Primitive = Primitive;
 
@@ -109,27 +109,27 @@ export default class Mesh extends Asset {
      * @type {VertexBundle[]}
      */
     @property([VertexBundle])
-    _vertexBundles = [];
+    public _vertexBundles = [];
 
     /**
      * @type {Primitive[]}
      */
     @property([Primitive])
-    _primitives = [];
+    public _primitives = [];
 
     /**
      * The min position of this mesh's vertices.
      */
     @property(Vec3)
-    _minPosition = null;
+    public _minPosition = null;
 
     /**
      * The max position of this mesh's vertices.
      */
     @property(Vec3)
-    _maxPosition = null;
+    public _maxPosition = null;
 
-    constructor() {
+    constructor () {
         super();
 
         /**
@@ -143,18 +143,18 @@ export default class Mesh extends Asset {
         this._data = null;
     }
 
-    get _nativeAsset() {
+    get _nativeAsset () {
         return this._data;
     }
 
-    set _nativeAsset(value) {
+    set _nativeAsset (value) {
         this._data = value;
     }
 
     /**
      *
      */
-    _lazyInitRenderResources() {
+    public _lazyInitRenderResources () {
         if (this._subMeshes != null) {
             return;
         }
@@ -166,7 +166,7 @@ export default class Mesh extends Asset {
         }
         const buffer = this._getBuffer();
         const vertexBuffers = this._vertexBundles.map((vertexBundle) => {
-            let vb = cc.director.root.device.createBuffer({
+            const vb = cc.director.root.device.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: vertexBundle._data._length,
@@ -188,8 +188,7 @@ export default class Mesh extends Asset {
             // Currently, an IA only has one vertex buffer.
             const vertexBuffer = vertexBuffers[primitive._vertexBundelIndices[0]];
 
-
-            let ib = cc.director.root.device.createBuffer({
+            const ib = cc.director.root.device.createBuffer({
                 usage: GFXBufferUsageBit.INDEX,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: primitive._indices._length,
@@ -202,11 +201,11 @@ export default class Mesh extends Asset {
 
             ib.update(new DataView(buffer, primitive._indices._offset, primitive._indices._length));
 
-            let attributes = [];
+            const attributes = [];
 
-            let vertexBundle = this._vertexBundles[primitive._vertexBundelIndices[0]];
+            const vertexBundle = this._vertexBundles[primitive._vertexBundelIndices[0]];
             for (let i = 0; i < vertexBundle._formats.length; i++) {
-                let gfxAttr = {};
+                const gfxAttr = {};
                 gfxAttr.name = vertexBundle._formats[i].name;
                 let gfxFormat;
                 switch (vertexBundle._formats[i].num) {
@@ -263,7 +262,7 @@ export default class Mesh extends Asset {
      * !#en
      * Destory this mesh and immediately release its video memory.
      */
-    destroy() {
+    public destroy () {
         if (this._subMeshes !== null) {
             // Destroy vertex buffer
             this._subMeshes[0]._vertexBuffer.destroy();
@@ -282,7 +281,7 @@ export default class Mesh extends Asset {
      * Submeshes count of this mesh.
      * @type {number}
      */
-    get subMeshCount() {
+    get subMeshCount () {
         this._lazyInitRenderResources();
         return this._subMeshes.length;
     }
@@ -292,16 +291,16 @@ export default class Mesh extends Asset {
      * Gets the specified submesh.
      * @param {number} index Index of the specified submesh.
      */
-    getSubMesh(index) {
+    public getSubMesh (index) {
         this._lazyInitRenderResources();
         return this._subMeshes[index];
     }
 
-    get minPosition() {
+    get minPosition () {
         return this._minPosition;
     }
 
-    get maxPosition() {
+    get maxPosition () {
         return this._maxPosition;
     }
 
@@ -320,11 +319,11 @@ export default class Mesh extends Asset {
     /**
      * @return {ArrayBuffer}
      */
-    _getBuffer() {
+    public _getBuffer () {
         return this._data.buffer;
     }
 
-    _getIndexUnitSize(indexUnit) {
+    public _getIndexUnitSize (indexUnit) {
         switch (indexUnit) {
             case gfxEnums.INDEX_FMT_UINT8:
                 return 1;
