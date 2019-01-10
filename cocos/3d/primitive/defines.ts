@@ -39,7 +39,7 @@ export interface IGeometryOptions {
 }
 
 export function normalizeGeometryOptions (options: IGeometryOptions) {
-    options.wireframed = options.wireframed || false;
+    options.wireframed = options.wireframed !== undefined? options.wireframed : false;
     options.windingOrder = options.windingOrder === undefined ?
         WindingOrder.CounterClockwise : options.windingOrder;
     options.includeNormal = options.includeNormal === undefined ?
