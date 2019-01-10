@@ -41,8 +41,6 @@ import { RenderScene } from '../renderer/scene/render-scene';
 @ccclass("cc.Scene")
 export default class Scene extends Node {
 
-    _renderScenes = new Array();
-
     constructor(name) {
         super(name);
 
@@ -56,7 +54,7 @@ export default class Scene extends Node {
         // cache all depend assets for auto release
         this.dependAssets = null;
 
-        this._renderScenes.push(new RenderScene());
+        this._renderScene = cc.director.root.createScene({});
     }
 
     /**
@@ -72,6 +70,7 @@ export default class Scene extends Node {
 
     destroy () {
         super.destroy();
+        cc.director.root.destroyScene(this._renderScene);
         this._activeInHierarchy = false;
     }
 

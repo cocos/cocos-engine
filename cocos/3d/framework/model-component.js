@@ -171,49 +171,42 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     onLoad() {
+
+    }
+
+    onEnable() {
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
     }
 
-    onEnable() {
-        for (let i = 0; i < this._models.length; ++i) {
-            this._models[i]._enable = this.enabled;
-        }
-    }
-
     onDisable() {
         for (let i = 0; i < this._models.length; ++i) {
-            this._models[i]._enable = this.enabled;
+            this._getRenderScene().destroyModel(this._models[i]);
         }
+        this._models.splice(0);
     }
 
     onDestroy() {
-        for (let i = 0; i < this._models.length; ++i) {
-            this.getRenderScene().destroyModel(this._models[i]);
-        }
+
     }
 
     _updateModels() {
+        if (!this.enabled)
+            return;
         let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
-        let oldModels = this._models;
 
-        this._models = new Array(meshCount);
         for (let i = 0; i < meshCount; ++i) {
             let model = this._createModel();
             model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
-            this._models[i] = model;
+            this._models.push(model);
         }
 
         this._updateModelParams();
-
-        for (let i = 0; i < oldModels.length; ++i) {
-            this.getRenderScene().destroyModel(oldModels[i]);
-        }
     }
 
     _createModel() {
-        return this.getRenderScene().createModel(Model);
+        return this._getRenderScene().createModel(Model);
     }
 
     _updateModelParams() {
@@ -247,10 +240,14 @@ export default class ModelComponent extends RenderableComponent {
      * @param {Material} material
      */
     _updateModelMaterial(model, material) {
+        if (!this.enabled)
+            return;
         model.material = material ? material : this._getBuiltinMaterial();
     }
 
     _updateCastShadow() {
+        if (!this.enabled)
+            return;
         if (this._shadowCastingMode === ModelShadowCastingMode.Off) {
             for (let i = 0; i < this._models.length; ++i) {
                 let model = this._models[i];
@@ -267,6 +264,8 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     _updateReceiveShadow() {
+        if (!this.enabled)
+            return;
         for (let i = 0; i < this._models.length; ++i) {
             let model = this._models[i];
             if (model._defines['_USE_SHADOW_MAP'] != undefined) {
