@@ -25,123 +25,242 @@
 
 // @ts-check
 import { _decorator } from '../../core/data';
+import { ccenum } from '../../core/value-types/enum';
 const { ccclass, property } = _decorator;
 import { Asset } from '../../assets/asset';
 import { Vec3 } from '../../core/value-types';
+import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../../gfx/define';
-import InputAssembler from '../../renderer/core/input-assembler';
-import gfx from '../../renderer/gfx';
-import { enums as gfxEnums } from '../../renderer/gfx/enums';
-import BufferRange from './utils/buffer-range';
+import { GFXDevice } from '../../gfx/device';
+import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
+import { IBufferRange } from './utils/buffer-range';
 
-/**
- * A vertex bundle describes a serials of vertex attributes.
- * These vertex attributes occupy a range of the buffer and
- * are interleaved, no padding bytes, in the range.
- */
-@ccclass('cc.VertexBundle')
-export class VertexBundle {
+export enum AttributeBaseType {
+    /**
+     * 8 bits signed integer.
+     */
+    INT8,
+
+    /**
+     * 8 bits unsigned integer.
+     */
+    UINT8,
+
+    /**
+     * 16 bits signed integer.
+     */
+    INT16,
+
+    /**
+     * 16 bits unsigned integer.
+     */
+    UINT16,
+
+    /**
+     * 32 bits signed integer.
+     */
+    INT32,
+
+    /**
+     * 32 bits unsigned integer.
+     */
+    UINT32,
+
+    /**
+     * 32 bits floating number.
+     */
+    FLOAT32,
+}
+
+ccenum(AttributeBaseType);
+
+export enum AttributeType {
+    /**
+     * Scalar.
+     */
+    SCALAR,
+
+    /**
+     * 2 components vector.
+     */
+    VEC2,
+
+    /**
+     * 3 components vector.
+     */
+    VEC3,
+
+    /**
+     * 4 components vector.
+     */
+    VEC4,
+}
+
+ccenum(AttributeType);
+
+export enum Topology {
+    /**
+     * Point list.
+     */
+    POINT_LIST,
+
+    /**
+     * Line list.
+     */
+    LINE_LIST,
+
+    /**
+     * Triangle list.
+     */
+    TRIANGLE_LIST,
+}
+
+ccenum(Topology);
+
+export enum IndexUnit {
+    /**
+     * 8 bits unsigned integer.
+     */
+    UINT8,
+
+    /**
+     * 8 bits unsigned integer.
+     */
+    UINT16,
+
+    /**
+     * 8 bits unsigned integer.
+     */
+    UINT32,
+}
+
+ccenum(IndexUnit);
+
+function getIndexUnitStride (indexUnit: IndexUnit) {
+    switch (indexUnit) {
+        case IndexUnit.UINT8: return 1;
+        case IndexUnit.UINT16: return 2;
+        case IndexUnit.UINT32: return 3;
+    }
+    return 1;
+}
+
+export interface IVertexAttribute {
+    /**
+     * Attribute Name.
+     */
+    name: string;
+
+    /**
+     * Attribute base type.
+     */
+    baseType: AttributeBaseType;
+
+    /**
+     * Attribute type.
+     */
+    type: AttributeType;
+
+    /**
+     * Whether normalize.
+     */
+    normalize: boolean;
+}
+
+function toGfxAttributeType (vertexAttribute: IVertexAttribute) {
+    let formatName = '';
+    switch (vertexAttribute.type) {
+        case AttributeType.SCALAR:
+            formatName = 'R';
+            break;
+        case AttributeType.VEC2:
+            formatName = 'RG';
+            break;
+        case AttributeType.VEC3:
+            formatName = 'RGB';
+            break;
+        case AttributeType.VEC4:
+            formatName = 'RGBA';
+            break;
+    }
+    switch (vertexAttribute.baseType) {
+        case AttributeBaseType.INT8:
+            formatName += '8I';
+            break;
+        case AttributeBaseType.UINT8:
+            formatName += '8UI';
+            break;
+        case AttributeBaseType.INT16:
+            formatName += '16I';
+            break;
+        case AttributeBaseType.UINT16:
+            formatName += '16UI';
+            break;
+        case AttributeBaseType.INT32:
+            formatName += '32I';
+            break;
+        case AttributeBaseType.UINT32:
+            formatName += '32UI';
+            break;
+        case AttributeBaseType.FLOAT32:
+            formatName += '32F';
+            break;
+    }
+
+    const resultFormat = GFXFormat[formatName];
+    if (resultFormat !== undefined) {
+        return resultFormat;
+    }
+
+    return GFXFormat.R8UI;
+}
+
+export interface IVertexBundle {
     /**
      * The data range of this bundle.
      * This range of data is essentially mapped to a GPU vertex buffer.
-     * @type {BufferRange}
      */
-    @property(BufferRange)
-    public _data = null;
+    data: IBufferRange;
 
     /**
      * This bundle's vertices count.
-     * @type {number}
      */
-    @property(Number)
-    public _verticesCount = 0;
+    verticesCount: number;
 
     /**
-     * The attributes's formats.
-     * @type {{name: string, type: number, num: number, normalize: boolean}[]}
+     * Attributes.
      */
-    @property
-    public _formats = [];
+    attributes: IVertexAttribute[];
 }
-cc.VertexBundle = VertexBundle;
 
 /**
  * A primitive is a geometry constituted with a list of
  * same topology primitive graphic(such as points, lines or triangles).
  */
-@ccclass('cc.Primitive')
-export class Primitive {
-
+export interface IPrimitive {
     /**
      * The vertex bundles that this primitive use.
-     * @type {number[]}
      */
-    @property([Number])
-    public _vertexBundelIndices = [];
+    vertexBundelIndices: number[];
 
     /**
      * The indices data range of this primitive.
-     * @type {BufferRange}
      */
-    @property(BufferRange)
-    public _indices = null;
+    indices: IBufferRange;
 
     /**
      * The type of this primitive's indices.
-     * @type {number}
      */
-    @property(Number)
-    public _indexUnit = gfxEnums.INDEX_FMT_UINT16;
+    indexUnit: IndexUnit;
 
     /**
      * This primitive's topology.
-     * @type {number}
      */
-    @property(Number)
-    public _topology = gfxEnums.PT_TRIANGLES;
+    topology: Topology;
 }
-cc.Primitive = Primitive;
 
 @ccclass('cc.Mesh')
 export default class Mesh extends Asset {
-    /**
-     * The vertex bundles that this mesh owns.
-     * @type {VertexBundle[]}
-     */
-    @property([VertexBundle])
-    public _vertexBundles = [];
-
-    /**
-     * @type {Primitive[]}
-     */
-    @property([Primitive])
-    public _primitives = [];
-
-    /**
-     * The min position of this mesh's vertices.
-     */
-    @property(Vec3)
-    public _minPosition = null;
-
-    /**
-     * The max position of this mesh's vertices.
-     */
-    @property(Vec3)
-    public _maxPosition = null;
-
-    constructor () {
-        super();
-
-        /**
-         * @type {GFXInputAssembler[]}
-         */
-        this._subMeshes = null;
-
-        /**
-         * @type {Uint8Array}
-         */
-        this._data = null;
-    }
 
     get _nativeAsset () {
         return this._data;
@@ -152,148 +271,11 @@ export default class Mesh extends Asset {
     }
 
     /**
-     *
-     */
-    public _lazyInitRenderResources () {
-        if (this._subMeshes != null) {
-            return;
-        }
-
-        this._subMeshes = [];
-
-        if (this._data === null) {
-            return;
-        }
-        const buffer = this._getBuffer();
-        const vertexBuffers = this._vertexBundles.map((vertexBundle) => {
-            const vb = cc.director.root.device.createBuffer({
-                usage: GFXBufferUsageBit.VERTEX,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: vertexBundle._data._length,
-                stride: vertexBundle._data._length / vertexBundle._verticesCount,
-            });
-
-            if (!vb) {
-                return null;
-            }
-
-            vb.update(new Uint8Array(buffer, vertexBundle._data._offset, vertexBundle._data._length));
-            return vb;
-        });
-        this._subMeshes = this._primitives.map((primitive) => {
-            if (primitive._vertexBundelIndices.length === 0) {
-                return null;
-            }
-
-            // Currently, an IA only has one vertex buffer.
-            const vertexBuffer = vertexBuffers[primitive._vertexBundelIndices[0]];
-
-            const ib = cc.director.root.device.createBuffer({
-                usage: GFXBufferUsageBit.INDEX,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: primitive._indices._length,
-                stride: this._getIndexUnitSize(primitive._indexUnit),
-            });
-
-            if (!ib) {
-                return null;
-            }
-
-            ib.update(new DataView(buffer, primitive._indices._offset, primitive._indices._length));
-
-            const attributes = [];
-
-            const vertexBundle = this._vertexBundles[primitive._vertexBundelIndices[0]];
-            for (let i = 0; i < vertexBundle._formats.length; i++) {
-                const gfxAttr = {};
-                gfxAttr.name = vertexBundle._formats[i].name;
-                let gfxFormat;
-                switch (vertexBundle._formats[i].num) {
-                    case 1:
-                        gfxFormat = 'R';
-                        break;
-                    case 2:
-                        gfxFormat = 'RG';
-                        break;
-                    case 3:
-                        gfxFormat = 'RGB';
-                        break;
-                    case 4:
-                        gfxFormat = 'RGBA';
-                        break;
-                }
-                switch (vertexBundle._formats[i].type) {
-                    case gfx.ATTR_TYPE_INT8:
-                        gfxFormat += '8I';
-                        break;
-                    case gfx.ATTR_TYPE_UINT8:
-                        gfxFormat += '8UI';
-                        break;
-                    case gfx.ATTR_TYPE_INT16:
-                        gfxFormat += '16I';
-                        break;
-                    case gfx.ATTR_TYPE_UINT16:
-                        gfxFormat += '16UI';
-                        break;
-                    case gfx.ATTR_TYPE_INT32:
-                        gfxFormat += '32I';
-                        break;
-                    case gfx.ATTR_TYPE_UINT32:
-                        gfxFormat += '32UI';
-                        break;
-                    case gfx.ATTR_TYPE_FLOAT32:
-                        gfxFormat += '32F';
-                        break;
-                }
-                gfxAttr.format = GFXFormat[gfxFormat];
-                gfxAttr.normalize = vertexBundle._formats[i].normalize;
-                attributes.push(gfxAttr);
-            }
-
-            return cc.director.root.device.createInputAssembler({
-                attributes,
-                vertexBuffers: [vertexBuffer],
-                indexBuffer: ib,
-            });
-        });
-    }
-
-    /**
-     * !#en
-     * Destory this mesh and immediately release its video memory.
-     */
-    public destroy () {
-        if (this._subMeshes !== null) {
-            // Destroy vertex buffer
-            this._subMeshes[0]._vertexBuffer.destroy();
-            // Destroy index buffers
-            for (let i = 0; i < this._subMeshes.length; ++i) {
-                this._subMeshes[i]._indexBuffer.destroy();
-            }
-            this._subMeshes = null;
-        }
-
-        return super.destroy();
-    }
-
-    /**
-     * !#en
      * Submeshes count of this mesh.
-     * @type {number}
      */
     get subMeshCount () {
         this._lazyInitRenderResources();
-        return this._subMeshes.length;
-    }
-
-    /**
-     * !#en
-     * Gets the specified submesh.
-     * @param {number} index Index of the specified submesh.
-     */
-    public getSubMesh (index) {
-        this._lazyInitRenderResources();
-        return this._subMeshes[index];
+        return this._subMeshes!.length;
     }
 
     get minPosition () {
@@ -303,36 +285,177 @@ export default class Mesh extends Asset {
     get maxPosition () {
         return this._maxPosition;
     }
-
-    // TODO
-    // updateData () {
-    //   // store the data
-    //   if (this._persist) {
-    //     if (this._data) {
-    //       this._data.set(data, offset);
-    //     } else {
-    //       this._data = data;
-    //     }
-    //   }
-    // }
+    /**
+     * The vertex bundles that this mesh owns.
+     */
+    @property
+    public _vertexBundles: IVertexBundle[] = [];
 
     /**
-     * @return {ArrayBuffer}
+     * The primitives that this mesh owns.
      */
-    public _getBuffer () {
-        return this._data.buffer;
+    public _primitives: IPrimitive[] = [];
+
+    /**
+     * The min position of this mesh's vertices.
+     */
+    @property(Vec3)
+    public _minPosition: Vec3 = new Vec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+
+    /**
+     * The max position of this mesh's vertices.
+     */
+    @property(Vec3)
+    public _maxPosition: Vec3 = new Vec3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+
+    private _data: Uint8Array | null = null;
+
+    private _initialized = false;
+
+    private _subMeshes: Array<GFXInputAssembler | null> = [];
+
+    private _vertexBuffers: GFXBuffer[] = [];
+
+    private _indexBuffers: GFXBuffer[] = [];
+
+    constructor () {
+        super();
     }
 
-    public _getIndexUnitSize (indexUnit) {
-        switch (indexUnit) {
-            case gfxEnums.INDEX_FMT_UINT8:
-                return 1;
-            case gfxEnums.INDEX_FMT_UINT16:
-                return 2;
-            case gfxEnums.INDEX_FMT_UINT32:
-                return 3;
+    /**
+     * Destory this mesh and immediately release its video memory.
+     */
+    public destroy () {
+        this._vertexBuffers.forEach((vertexBuffer) => {
+            vertexBuffer.destroy();
+        });
+        this._vertexBuffers.length = 0;
+
+        this._indexBuffers.forEach((indexBuffer) => {
+            indexBuffer.destroy();
+        });
+        this._indexBuffers.length = 0;
+
+        this._subMeshes.forEach((subMesh) => {
+            if (subMesh) {
+                subMesh.destroy();
+            }
+        });
+        this._subMeshes.length = 0;
+
+        this._initialized = false;
+
+        return super.destroy();
+    }
+
+    /**
+     * !#en
+     * Gets the specified submesh.
+     * @param {number} index Index of the specified submesh.
+     */
+    public getSubMesh (index) {
+        this._lazyInitRenderResources();
+        return this._subMeshes![index];
+    }
+
+    /**
+     *
+     */
+    private _lazyInitRenderResources () {
+        if (this._initialized) {
+            return;
         }
-        return 1;
+
+        this._initialized = true;
+
+        if (this._data === null) {
+            return;
+        }
+
+        const buffer = this._data.buffer;
+
+        const gfxDevice = cc.director.root.device as GFXDevice;
+
+        this._createVertexBuffers(gfxDevice, buffer);
+
+        const submeshes = this._primitives.map((primitive) => {
+            if (primitive.vertexBundelIndices.length === 0) {
+                return null;
+            }
+
+            const indexBuffer = gfxDevice.createBuffer({
+                usage: GFXBufferUsageBit.INDEX,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: primitive.indices.length,
+                stride: getIndexUnitStride(primitive.indexUnit),
+            });
+
+            if (!indexBuffer) {
+                return null;
+            }
+
+            indexBuffer.update(buffer, primitive.indices.offset, primitive.indices.length);
+
+            const gfxAttributes: IGFXInputAttribute[] = [];
+            primitive.vertexBundelIndices.forEach((iVertexBundle) => {
+                const vertexBundle = this._vertexBundles[iVertexBundle];
+                vertexBundle.attributes.forEach((attribute) => {
+                    const gfxAttribute: IGFXInputAttribute = {
+                        name: attribute.name,
+                        format: toGfxAttributeType(attribute),
+                        stream: iVertexBundle,
+                    };
+                    if ('normalize' in attribute) {
+                        gfxAttribute.isNormalized = attribute.normalize;
+                    }
+                    gfxAttributes.push(gfxAttribute);
+                });
+            });
+
+            const referedVertexBuffers = primitive.vertexBundelIndices.map(
+                (i) => this._vertexBuffers[i]);
+
+            return gfxDevice.createInputAssembler({
+                attributes: gfxAttributes,
+                vertexBuffers: referedVertexBuffers,
+                indexBuffer,
+            });
+        });
+
+        this._subMeshes = submeshes;
+    }
+
+    private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer) {
+        let nullish = false;
+
+        const vertexBuffers = this._vertexBundles.map((vertexBundle) => {
+            const vertexBuffer = gfxDevice.createBuffer({
+                usage: GFXBufferUsageBit.VERTEX,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: vertexBundle.data.length,
+                stride: vertexBundle.data.length / vertexBundle.verticesCount,
+            });
+
+            if (!vertexBuffer) {
+                nullish = true;
+                return null;
+            }
+
+            vertexBuffer.update(new Uint8Array(data, vertexBundle.data.offset, vertexBundle.data.length));
+            return vertexBuffer;
+        });
+
+        if (!nullish) {
+            this._vertexBuffers = vertexBuffers as GFXBuffer[];
+        } else {
+            vertexBuffers.forEach((vertexBuffer) => {
+                if (vertexBuffer) {
+                    vertexBuffer.destroy();
+                }
+            });
+        }
+
+        return !nullish;
     }
 }
 cc.Mesh = Mesh;

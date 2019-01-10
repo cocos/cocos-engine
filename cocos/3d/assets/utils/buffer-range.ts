@@ -23,33 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// @ts-check
-import { _decorator } from '../../../core/data';
-const { ccclass, property } = _decorator;
-
-/**
- * The class BufferRange denotes a range of the buffer.
- */
-@ccclass('cc.BufferRange')
-export default class BufferRange {
-    /**
-     * The offset of the range.
-     * @type {Number}
-     */
-    @property(Number)
-    public _offset = 0;
-
-    /**
-     * The length of the range, in bytes.
-     * @type {Number}
-     */
-    @property(Number)
-    public _length = 0;
-
-    constructor (offset, length) {
-        this._offset = offset;
-        this._length = length;
-    }
+export interface IBufferRange {
+    offset: number;
+    length: number;
 }
-
-cc.BufferRange = BufferRange;
