@@ -225,7 +225,8 @@ std::pair<void*, DisplayType> BaseFactory::_getSlotDisplay(const BuildArmaturePa
             {
                 imageDisplayData->texture = _getTextureData(dataName, displayData->path);
             }
-            else if (dataPackage != nullptr && !dataPackage->textureAtlasName.empty())
+            
+            if (imageDisplayData->texture == nullptr || (dataPackage != nullptr && !dataPackage->textureAtlasName.empty()))
             {
                 imageDisplayData->texture = _getTextureData(dataPackage->textureAtlasName, displayData->path);
             }
