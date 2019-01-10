@@ -32,15 +32,15 @@ export function createIA(device, data) {
     }
 
     let vfmt = [];
-    vfmt.push({ name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 });
+    vfmt.push({ name: gfx.ATTR_POSITION, format: GFXFormat.RGB32F });
     if (data.normals) {
-        vfmt.push({ name: gfx.ATTR_NORMAL, type: gfx.ATTR_TYPE_FLOAT32, num: 3 });
+        vfmt.push({ name: gfx.ATTR_NORMAL, format: GFXFormat.RGB32F });
     }
     if (data.uvs) {
-        vfmt.push({ name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 });
+        vfmt.push({ name: gfx.ATTR_UV0, format: GFXFormat.RG32F });
     }
     if (data.colors) {
-        vfmt.push({ name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_FLOAT32, num: 3 });
+        vfmt.push({ name: gfx.ATTR_COLOR, format: GFXFormat.RGB32F });
     }
 
     let vb = cc.director.root.device.createBuffer({
@@ -61,56 +61,8 @@ export function createIA(device, data) {
 
     ib.update(new Uint16Array(data.indices));
 
-    let attributes = [];
-
-    for (let i = 0; i < vfmt.length; i++) {
-        let gfxAttr = {};
-        gfxAttr.name = vfmt[i].name;
-        let gfxFormat;
-        switch (vfmt[i].num) {
-            case 1:
-                gfxFormat = 'R';
-                break;
-            case 2:
-                gfxFormat = 'RG';
-                break;
-            case 3:
-                gfxFormat = 'RGB';
-                break;
-            case 4:
-                gfxFormat = 'RGBA';
-                break;
-        }
-        switch (vfmt[i].type) {
-            case gfx.ATTR_TYPE_INT8:
-                gfxFormat += '8I';
-                break;
-            case gfx.ATTR_TYPE_UINT8:
-                gfxFormat += '8UI';
-                break;
-            case gfx.ATTR_TYPE_INT16:
-                gfxFormat += '16I';
-                break;
-            case gfx.ATTR_TYPE_UINT16:
-                gfxFormat += '16UI';
-                break;
-            case gfx.ATTR_TYPE_INT32:
-                gfxFormat += '32I';
-                break;
-            case gfx.ATTR_TYPE_UINT32:
-                gfxFormat += '32UI';
-                break;
-            case gfx.ATTR_TYPE_FLOAT32:
-                gfxFormat += '32F';
-                break;
-        }
-        gfxAttr.format = GFXFormat[gfxFormat];
-        gfxAttr.normalize = vfmt[i].normalize;
-        attributes.push(gfxAttr);
-    }
-
     return cc.director.root.device.createInputAssembler({
-        attributes,
+        attributes: vfmt,
         vertexBuffers: [vb],
         indexBuffer: ib,
     });

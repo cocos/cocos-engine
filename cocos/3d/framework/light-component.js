@@ -180,7 +180,8 @@ export default class LightComponent extends Component {
         } else if (this._type === LightType.Spot) {
             type = renderer.LIGHT_SPOT;
         }
-        this._light.setType(type);
+        if (this.enabled)
+            this._light.setType(type);
     }
 
     /**
@@ -196,7 +197,8 @@ export default class LightComponent extends Component {
 
     set color(val) {
         this._color = val;
-        this._light.setColor(val.r / 255, val.g / 255, val.b / 255);
+        if (this.enabled)
+            this._light.setColor(val.r / 255, val.g / 255, val.b / 255);
     }
 
     /**
@@ -212,7 +214,8 @@ export default class LightComponent extends Component {
 
     set intensity(val) {
         this._intensity = val;
-        this._light.setIntensity(val);
+        if (this.enabled)
+            this._light.setIntensity(val);
     }
 
     /**
@@ -228,7 +231,8 @@ export default class LightComponent extends Component {
 
     set range(val) {
         this._range = val;
-        this._light.setRange(val);
+        if (this.enabled)
+            this._light.setRange(val);
     }
 
     /**
@@ -244,7 +248,8 @@ export default class LightComponent extends Component {
 
     set spotAngle(val) {
         this._spotAngle = val;
-        this._light.setSpotAngle(toRadian(val));
+        if (this.enabled)
+            this._light.setSpotAngle(toRadian(val));
     }
 
     /**
@@ -260,7 +265,8 @@ export default class LightComponent extends Component {
 
     set spotExp(val) {
         this._spotExp = val;
-        this._light.setSpotExp(val);
+        if (this.enabled)
+            this._light.setSpotExp(val);
     }
 
     /**
@@ -285,7 +291,8 @@ export default class LightComponent extends Component {
         } else if (val === LightShadowType.Soft) {
             type = renderer.SHADOW_SOFT;
         }
-        this._light.setShadowType(type);
+        if (this.enabled)
+            this._light.setShadowType(type);
     }
 
     /**
@@ -302,7 +309,8 @@ export default class LightComponent extends Component {
 
     set shadowResolution(val) {
         this._shadowResolution = val;
-        this._light.setShadowResolution(val);
+        if (this.enabled)
+            this._light.setShadowResolution(val);
     }
 
     /**
@@ -319,7 +327,8 @@ export default class LightComponent extends Component {
 
     set shadowDarkness(val) {
         this._shadowDarkness = val;
-        this._light.setShadowDarkness(val);
+        if (this.enabled)
+            this._light.setShadowDarkness(val);
     }
 
     /**
@@ -336,7 +345,8 @@ export default class LightComponent extends Component {
 
     set shadowMinDepth(val) {
         this._shadowMinDepth = val;
-        this._light.setShadowMinDepth(val);
+        if (this.enabled)
+            this._light.setShadowMinDepth(val);
     }
 
     /**
@@ -353,7 +363,8 @@ export default class LightComponent extends Component {
 
     set shadowMaxDepth(val) {
         this._shadowMaxDepth = val;
-        this._light.setShadowMaxDepth(val);
+        if (this.enabled)
+            this._light.setShadowMaxDepth(val);
     }
 
     /**
@@ -370,7 +381,8 @@ export default class LightComponent extends Component {
 
     set shadowDepthScale(val) {
         this._shadowDepthScale = val;
-        this._light.setShadowDepthScale(val);
+        if (this.enabled)
+            this._light.setShadowDepthScale(val);
     }
 
     /**
@@ -387,7 +399,8 @@ export default class LightComponent extends Component {
 
     set shadowFrustumSize(val) {
         this._shadowFrustumSize = val;
-        this._light.setShadowFrustumSize(val);
+        if (this.enabled)
+            this._light.setShadowFrustumSize(val);
     }
 
     /**
@@ -404,7 +417,8 @@ export default class LightComponent extends Component {
 
     set shadowBias(val) {
         this._shadowBias = val;
-        this._light.setShadowBias(val);
+        if (this.enabled)
+            this._light.setShadowBias(val);
     }
 
     static Type = LightType;
@@ -416,7 +430,11 @@ export default class LightComponent extends Component {
     }
 
     onLoad() {
-        this._light = this.getRenderScene().createLight(this.name);
+
+    }
+
+    onEnable() {
+        this._light = this._getRenderScene().createLight(this.name);
         this._light.setNode(this.node);
         this.type = this._type;
         this.color = this._color;
@@ -433,15 +451,11 @@ export default class LightComponent extends Component {
         this.shadowBias = this._shadowBias;
     }
 
-    onEnable() {
-        this._light._enable = this.enabled;
-    }
-
     onDisable() {
-        this._light._enable = this.enabled;
+        this._getRenderScene().destroyLight(this._light);
     }
 
     onDestroy() {
-        this.getRenderScene().destroyLight(this._light);
+
     }
 }
