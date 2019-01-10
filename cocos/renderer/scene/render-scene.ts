@@ -1,6 +1,7 @@
-import { Root, _createSceneFun } from '../../core/root';
+import { _createSceneFun, Root } from '../../core/root';
+import { IGFXColor } from '../../gfx/define';
 import { Node } from '../../scene-graph/node';
-import { Camera } from './camera';
+import { Camera, ICameraInfo } from './camera';
 import Light from './light';
 import Model from './model';
 
@@ -28,10 +29,6 @@ export class RenderScene {
         return this._cameras;
     }
 
-    public get mainCamera (): Camera | null {
-        return this._mainCamera;
-    }
-
     public get lights (): Light[] {
         return this._lights;
     }
@@ -48,7 +45,6 @@ export class RenderScene {
     private _name: string = '';
     private _nodes: Map<number, Node> = new Map();
     private _cameras: Camera[] = [];
-    private _mainCamera: Camera | null = null;
     private _lights: Light[] = [];
     private _models: Model[] = [];
     private _modelId: number = 0;
@@ -59,7 +55,6 @@ export class RenderScene {
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        this._mainCamera = this.createCamera('mainCamera');
 
         return true;
     }
@@ -94,8 +89,8 @@ export class RenderScene {
         }
     }
 
-    public createCamera (name: string): Camera {
-        const camera = new Camera(this, name);
+    public createCamera (info: ICameraInfo): Camera {
+        const camera = new Camera(this, info);
         this._cameras.push(camera);
         return camera;
     }
@@ -111,7 +106,6 @@ export class RenderScene {
 
     public destroyCameras () {
         this._cameras = [];
-        this._mainCamera = null;
     }
 
     public getCamera (name: string): Camera | null {
