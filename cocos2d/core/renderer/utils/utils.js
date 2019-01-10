@@ -1,4 +1,4 @@
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
+const dynamicAtlasManager = require('./dynamic-atlas/manager');
 
 module.exports = {
     packToDynamicAtlas (comp, frame) {
