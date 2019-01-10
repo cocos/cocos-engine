@@ -25,8 +25,9 @@
 
 const renderEngine = require('./render-engine');
 const RenderFlow = require('./render-flow');
+const vec3 = cc.vmath.vec3;
 
-let _pos = math.vec3.create();
+let _pos = vec3.create();
 
 function _initBuiltins(device) {
     let defaultTexture = new renderEngine.Texture2D(device, {
