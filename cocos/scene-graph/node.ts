@@ -33,28 +33,28 @@ class Node extends BaseNode {
     }
     // local transform
     @property
-    public _lpos = new Vec3();
+    protected _lpos = new Vec3();
     @property
-    public _lrot = new Quat();
+    protected _lrot = new Quat();
     @property
-    public _lscale = new Vec3(1, 1, 1);
+    protected _lscale = new Vec3(1, 1, 1);
     @property
-    public _layer = Layers.Default; // the layer this node belongs to
+    protected _layer = Layers.Default; // the layer this node belongs to
 
     @property
-    public _euler = new Vec3(); // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
+    protected _euler = new Vec3(); // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
 
     // world transform
-    public _pos = new Vec3();
-    public _rot = new Quat();
-    public _scale = new Vec3(1, 1, 1);
-    public _mat = new Mat4();
+    protected _pos = new Vec3();
+    protected _rot = new Quat();
+    protected _scale = new Vec3(1, 1, 1);
+    protected _mat = new Mat4();
 
-    public _dirty = false; // does the world transform need to update?
-    public _hasChanged = false; // has the transform changed in this frame?
+    protected _dirty = false; // does the world transform need to update?
+    protected _hasChanged = false; // has the transform changed in this frame?
 
-    public _matDirty = false;
-    public _eulerDirty = false;
+    protected _matDirty = false;
+    protected _eulerDirty = false;
 
     @property({
         type: Vec3,

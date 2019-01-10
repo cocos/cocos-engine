@@ -22,17 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
-import { toRadian, color4 } from '../../core/vmath';
-import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
-import { Enum, Rect } from '../../core/value-types';
 import { Component } from '../../components/component';
-import { CameraProjection } from '../../renderer/scene/camera';
+import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
+import { Enum, Rect } from '../../core/value-types';
+import { color4, toRadian } from '../../core/vmath';
 import { GFXClearFlag } from '../../gfx/define';
-
-/**
- * @typedef {import('../../core/value-types/index').Color} Color
- */
+import { Camera, CameraProjection } from '../../renderer/scene/camera';
 
 /**
  * !#en The light source type
@@ -41,7 +36,7 @@ import { GFXClearFlag } from '../../gfx/define';
  * @static
  * @enum CameraComponent.Projection
  */
-let ProjectionType = Enum({
+const ProjectionType = Enum({
     /**
      * !#en The orthogonal camera
      *
@@ -59,14 +54,14 @@ let ProjectionType = Enum({
      * @readonly
      * @type {Number}
      */
-    PERSPECTIVE: 1
+    PERSPECTIVE: 1,
 });
 
-let CameraClearFlag = Enum({
+const CameraClearFlag = Enum({
     SKYBOX: GFXClearFlag.SKYBOX | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
     SOLID_COLOR: GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
     DEPTH_ONLY: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
-    DONT_CLEAR: 0
+    DONT_CLEAR: 0,
 });
 
 /**
@@ -79,39 +74,37 @@ let CameraClearFlag = Enum({
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')
 @executeInEditMode
-export default class CameraComponent extends Component {
-    @property
-    _projection = ProjectionType.PERSPECTIVE;
+export class CameraComponent extends Component {
+    public static ProjectionType = ProjectionType;
 
     @property
-    _priority = 0;
-
+    protected _projection = ProjectionType.PERSPECTIVE;
     @property
-    _fov = 45;
-
+    protected _priority = 0;
     @property
-    _orthoHeight = 10;
-
+    protected _fov = 45;
     @property
-    _near = 0.01;
-
+    protected _orthoHeight = 10;
     @property
-    _far = 1000.0;
-
+    protected _near = 0.01;
     @property
-    _color = cc.color('#334C78');
-
+    protected _far = 1000.0;
     @property
-    _depth = 1;
-
+    protected _color = cc.color('#334C78');
     @property
-    _stencil = 0;
-
+    protected _depth = 1;
     @property
-    _clearFlags = CameraClearFlag.SOLID_COLOR;
-
+    protected _stencil = 0;
     @property
-    _rect = new Rect(0, 0, 1, 1);
+    protected _clearFlags = CameraClearFlag.SOLID_COLOR;
+    @property
+    protected _rect = new Rect(0, 0, 1, 1);
+
+    protected _camera: Camera | null = null;
+
+    constructor () {
+        super();
+    }
 
     /**
      * !#en The projection type of the camera
@@ -120,20 +113,20 @@ export default class CameraComponent extends Component {
      * @type {Number}
      */
     @property({
-        type: ProjectionType
+        type: ProjectionType,
     })
-    get projection() {
+    get projection () {
         return this._projection;
     }
 
-    set projection(val) {
+    set projection (val) {
         this._projection = val;
 
         let type = CameraProjection.PERSPECTIVE;
         if (this._projection === ProjectionType.ORTHO) {
             type = CameraProjection.ORTHO;
         }
-        if (this.enabled) this._camera.projectionType = type;
+        if (this._camera) { this._camera.projectionType = type; }
     }
 
     /**
@@ -143,13 +136,13 @@ export default class CameraComponent extends Component {
      * @type {Number}
      */
     @property
-    get fov() {
+    get fov () {
         return this._fov;
     }
 
-    set fov(val) {
+    set fov (val) {
         this._fov = val;
-        if (this.enabled) this._camera.fov = toRadian(val);
+        if (this._camera) { this._camera.fov = toRadian(val); }
     }
 
     /**
@@ -159,13 +152,13 @@ export default class CameraComponent extends Component {
      * @type {Number}
      */
     @property
-    get orthoHeight() {
+    get orthoHeight () {
         return this._orthoHeight;
     }
 
-    set orthoHeight(val) {
+    set orthoHeight (val) {
         this._orthoHeight = val;
-        if (this.enabled) this._camera.orthoHeight = val;
+        if (this._camera) { this._camera.orthoHeight = val; }
     }
 
     /**
@@ -175,13 +168,13 @@ export default class CameraComponent extends Component {
      * @type {Number}
      */
     @property
-    get near() {
+    get near () {
         return this._near;
     }
 
-    set near(val) {
+    set near (val) {
         this._near = val;
-        if (this.enabled) this._camera.nearClip =val;
+        if (this._camera) { this._camera.nearClip = val; }
     }
 
     /**
@@ -191,13 +184,13 @@ export default class CameraComponent extends Component {
      * @type {Number}
      */
     @property
-    get far() {
+    get far () {
         return this._far;
     }
 
-    set far(val) {
+    set far (val) {
         this._far = val;
-        if (this.enabled) this._camera.farClip = val;
+        if (this._camera) { this._camera.farClip = val; }
     }
 
     /**
@@ -207,14 +200,15 @@ export default class CameraComponent extends Component {
      * @type {Color}
      */
     @property
-    get color() {
+    get color () {
         return this._color;
     }
 
-    set color(val) {
+    set color (val) {
         this._color = val;
-        if (this.enabled) this._camera.clearColor =
+        if (this._camera) { this._camera.clearColor =
             color4.create(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
+        }
     }
 
     /**
@@ -224,14 +218,15 @@ export default class CameraComponent extends Component {
      * @type {Number}
      */
     @property
-    get depth() {
+    get depth () {
         return this._depth;
     }
 
-    set depth(val) {
+    set depth (val) {
         this._depth = val;
-        if (this.enabled)
+        if (this._camera) {
             this._camera.clearDepth = val;
+        }
     }
 
     /**
@@ -241,13 +236,13 @@ export default class CameraComponent extends Component {
      * @type {Number}
      */
     @property
-    get stencil() {
+    get stencil () {
         return this._stencil;
     }
 
-    set stencil(val) {
+    set stencil (val) {
         this._stencil = val;
-        if (this.enabled) this._camera.clearStencil = val;
+        if (this._camera) { this._camera.clearStencil = val; }
     }
 
     /**
@@ -257,15 +252,15 @@ export default class CameraComponent extends Component {
      * @type {Number}
      */
     @property({
-        type: CameraClearFlag
+        type: CameraClearFlag,
     })
-    get clearFlags() {
+    get clearFlags () {
         return this._clearFlags;
     }
 
-    set clearFlags(val) {
+    set clearFlags (val) {
         this._clearFlags = val;
-        if (this.enabled) this._camera.clearFlag = val;
+        if (this._camera) { this._camera.clearFlag = val; }
     }
 
     /**
@@ -275,29 +270,23 @@ export default class CameraComponent extends Component {
      * @type {Rect}
      */
     @property
-    get rect() {
+    get rect () {
         return this._rect;
     }
 
-    set rect(val) {
+    set rect (val) {
         this._rect = val;
-        if (this.enabled) this._camera.viewport = val;
+        if (this._camera) { this._camera.viewport = val; }
     }
 
-    static Projection = CameraProjection;
-
-    constructor() {
-        super();
-    }
-
-    onLoad() {
+    public onLoad () {
 
     }
 
-    onEnable() {
+    public onEnable () {
         this._camera = this._getRenderScene().createCamera(this.name);
+        this._camera.node = this.node;
         this.projection = this._projection;
-        this.priority = this._priority;
         this.fov = this._fov;
         this.orthoHeight = this._orthoHeight;
         this.near = this._near;
@@ -307,14 +296,13 @@ export default class CameraComponent extends Component {
         this.stencil = this._stencil;
         this.clearFlags = this._clearFlags;
         this.rect = this._rect;
-        this._camera.node = this.node;
     }
 
-    onDisable() {
-        this._getRenderScene().destroyCamera(this._camera);
+    public onDisable () {
+        if (this._camera) { this._getRenderScene().destroyCamera(this._camera); }
     }
 
-    onDestroy() {
+    public onDestroy () {
 
     }
 }

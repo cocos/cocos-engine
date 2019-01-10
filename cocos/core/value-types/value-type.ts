@@ -32,26 +32,23 @@ import * as js from '../utils/js';
  * @class ValueType
  *
  */
-export default class ValueType {
+export class ValueType {
     /**
      * !#en This method returns an exact copy of current value.
      * !#zh 克隆当前值，该方法返回一个新对象，新对象的值和原对象相等。
      * @method clone
-     * @return {ValueType}
      */
-    clone () {
+    public clone (): this {
         cc.errorID('0100', js.getClassName(this) + '.clone');
-        return null;
+        return this;
     }
 
     /**
      * !#en Compares this object with the other one.
      * !#zh 当前对象是否等于指定对象。
-     * @method equals
-     * @param {ValueType} other
-     * @return {Boolean}
+     * @param other
      */
-    equals (other) {
+    public equals (other: this) {
         cc.errorID('0100', js.getClassName(this) + '.equals');
         return false;
     }
@@ -63,12 +60,11 @@ export default class ValueType {
      * !#zh
      * 线性插值。<br/>
      * 当 ratio = 0 时返回自身，ratio = 1 时返回目标，ratio = 0.5 返回自身和目标的平均值。。
-     * @method lerp
-     * @param {ValueType} to - the to value
-     * @param {number} ratio - the interpolation coefficient
-     * @return {ValueType}
+     * @param to - the to value
+     * @param ratio - the interpolation coefficient
+     * @returns
      */
-    lerp (to, ratio) {
+    public lerp (to: this, ratio: this) {
         cc.errorID('0100', js.getClassName(this) + '.lerp');
         return this.clone();
     }
@@ -78,20 +74,17 @@ export default class ValueType {
      * Copys all the properties from another given object to this value.
      * !#zh
      * 从其它对象把所有属性复制到当前对象。
-     * @method set
-     * @param {ValueType} source - the source to copy
+     * @param source - the source to copy
      */
-    set (source) {
+    public set (source: this) {
         cc.errorID('0100', js.getClassName(this) + '.set');
     }
 
     /**
      * !#en TODO
      * !#zh 转换为方便阅读的字符串。
-     * @method toString
-     * @return {string}
      */
-    toString () {
+    public toString () {
         return '' + {};
     }
 }
