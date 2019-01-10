@@ -13,7 +13,7 @@ import { RenderView } from '../render-view';
 
 export class TestModelStage extends RenderStage {
 
-    private _material: Material = new Material();
+    private _material: Material = new Material("testMtrl");
     private _model: Model;
     private _scene: Scene;
     private _init: boolean = false;
