@@ -13677,7 +13677,9 @@ var dragonBones;
                     if (imageDisplayData.texture === null) {
                         imageDisplayData.texture = this._getTextureData(dataName, displayData.path);
                     }
-                    else if (dataPackage !== null && dataPackage.textureAtlasName.length > 0) {
+
+                    if (imageDisplayData.texture === null || 
+                        (dataPackage !== null && dataPackage.textureAtlasName.length > 0)) {
                         imageDisplayData.texture = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
                     }
                     if (rawDisplayData !== null && rawDisplayData.type === 2 /* Mesh */ && this._isSupportMesh()) {
