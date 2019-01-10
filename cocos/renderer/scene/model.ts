@@ -23,7 +23,6 @@ export default class Model {
 
     private _scene: RenderScene | null;
     private _id: number;
-    private _enable: boolean;
     private _type: string;
     private _poolID: number;
     private _isEnable: boolean;
@@ -48,7 +47,6 @@ export default class Model {
     constructor() {
         this._scene = null;
         this._id = 0;
-        this._enable = false;
 
         this._type = 'default';
         this._poolID = -1;
