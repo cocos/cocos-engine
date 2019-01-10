@@ -13,7 +13,7 @@
     "build": "npm run build:dev && npm run build:min",
     "build:dev": "rollup -c ./rollup/config.js",
     "build:min": "uglifyjs ./bin/cocos-3d.dev.js --mangle --source-map -o ./bin/cocos-3d.min.js",
-    "build-rollup": "cd rollup && tsc",
+    "build-rollup": "tsc --build rollup/tsconfig.json",
     "dev": "rollup -w -c ./rollup/config.js",
     "postinstall": "npm run build-rollup"
   },
