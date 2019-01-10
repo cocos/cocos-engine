@@ -27,7 +27,6 @@
 const macro = require('../platform/CCMacro');
 const RenderComponent = require('./CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
-const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
 const LabelFrame = require('../renderer/utils/label/label-frame');
 
 /**
@@ -631,7 +630,7 @@ let Label = cc.Class({
             else {
                 this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             }
-            material.setProperty('texture', this._texture);
+            material.setProperty('texture', this._frame._texture);
             this.setMaterial(0, material);
         }
 
