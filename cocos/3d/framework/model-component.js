@@ -214,9 +214,8 @@ export default class ModelComponent extends RenderableComponent {
         for (let i = 0; i < this._models.length; ++i) {
             let model = this._models[i];
             let material = this.getSharedMaterial(i);
-            let inputAssembler = this._mesh.getSubMesh(i);
 
-            model.inputAssembler = inputAssembler;
+            model.subMeshData = this._mesh.renderingMesh.getSubmesh(i);
             model.node = this.node;
             this._updateModelMaterial(model, material);
         }
