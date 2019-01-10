@@ -32,7 +32,7 @@ import eventManager from '../core/platform/event-manager/CCEventManager';
 import macro from '../core/platform/CCMacro';
 import * as js from '../core/utils/js';
 import EventTarget from '../core/event/event-target';
-import BaseNode from './base-node';
+import { BaseNode } from './base-node';
 import { ccclass, property } from '../core/data/class-decorator';
 
 const Flags = cc.Object.Flags;
@@ -644,7 +644,7 @@ export default class Node extends BaseNode {
 
                 localPosition.x = value;
                 this.setLocalDirty(LocalDirtyFlag.POSITION);
-                
+
                 // fast check event
                 if (this._eventMask & POSITION_ON) {
                     // send event
@@ -702,7 +702,7 @@ export default class Node extends BaseNode {
             }
         }
     }
-    
+
     @property
     get z() {
         return this._position.z;
@@ -1126,7 +1126,7 @@ export default class Node extends BaseNode {
     constructor (name) {
         super(name);
         this._reorderChildDirty = false;
-        
+
         // cache component
         this._widget = null;
         // fast render component access
@@ -1337,7 +1337,7 @@ export default class Node extends BaseNode {
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
-            
+
             // ActionManager may not be inited in the editor worker.
             let manager = cc.director.getActionManager();
             manager && manager.pauseTarget(this);
@@ -1628,12 +1628,12 @@ export default class Node extends BaseNode {
             var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
             if (listeners) {
                 listeners.remove(type, callback, target);
-    
+
                 if (target && target.__eventTargets) {
                     js.array.fastRemove(target.__eventTargets, this);
                 }
             }
-            
+
         }
     }
 
@@ -1713,7 +1713,7 @@ export default class Node extends BaseNode {
      * @param {*} [arg4] - Fourth argument in callback
      * @param {*} [arg5] - Fifth argument in callback
      * @example
-     * 
+     *
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      */
@@ -1774,7 +1774,7 @@ export default class Node extends BaseNode {
             h = this._contentSize.height,
             cameraPt = _vec2a,
             testPt = _vec2b;
-        
+
         let camera = cc.Camera.findCamera(this);
         if (camera) {
             camera.getCameraToWorldPoint(point, cameraPt);
@@ -1834,7 +1834,7 @@ export default class Node extends BaseNode {
             parent = parent.parent;
         }
     }
-    
+
     /**
      * Get all the targets listening to the supplied type of event in the target's bubbling phase.
      * The bubbling phase comprises any SUBSEQUENT nodes encountered on the return trip to the root of the tree.
@@ -1911,7 +1911,7 @@ export default class Node extends BaseNode {
         if (!CC_EDITOR || isFinite(y)) {
             locPosition.y = y;
         }
-        else {	
+        else {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
         this.setLocalDirty(LocalDirtyFlag.POSITION);
@@ -2136,7 +2136,7 @@ export default class Node extends BaseNode {
 
         return out;
     }
-    
+
     /*
      * Calculate and return world position.
      * This is not a public API yet, its usage could be updated
@@ -2256,7 +2256,7 @@ export default class Node extends BaseNode {
         math.vec3.sub(_vec3_temp, _vec3_temp, pos); // NOTE: we use -z for view-dir
         math.vec3.normalize(_vec3_temp, _vec3_temp);
         math.quat.fromViewUp(_quat_temp, _vec3_temp, up);
-    
+
         this.setWorldRot(_quat_temp);
     }
 
@@ -2321,7 +2321,7 @@ export default class Node extends BaseNode {
         // position
         t.m12 = this._position.x;
         t.m13 = this._position.y;
-        
+
         this._localMatDirty = 0;
         // Register dirty status of world matrix so that it can be recalculated
         this._worldMatDirty = true;
@@ -2332,7 +2332,7 @@ export default class Node extends BaseNode {
         if (this._localMatDirty) {
             this._updateLocalMatrix();
         }
-        
+
         // Assume parent world matrix is correct
         let parent = this._parent;
         if (parent) {
@@ -2403,7 +2403,7 @@ export default class Node extends BaseNode {
         this._updateLocalMatrix();
         return math.mat4.copy(out, this._matrix);
     }
-    
+
     /**
      * !#en
      * Get the world transform matrix (4x4)
@@ -2517,7 +2517,7 @@ export default class Node extends BaseNode {
             out = AffineTrans.identity();
         }
         this._updateLocalMatrix();
-               
+
         var contentSize = this._contentSize;
         _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
@@ -2568,7 +2568,7 @@ export default class Node extends BaseNode {
             out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
-        
+
         var contentSize = this._contentSize;
         _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
@@ -2673,7 +2673,7 @@ export default class Node extends BaseNode {
     convertTouchToNodeSpaceAR (touch) {
         return this.convertToNodeSpaceAR(touch.getLocation());
     }
-    
+
     /**
      * !#en
      * Returns a "local" axis aligned bounding box of the node. <br/>
@@ -2689,9 +2689,9 @@ export default class Node extends BaseNode {
         let width = this._contentSize.width;
         let height = this._contentSize.height;
         let rect = cc.rect(
-            -this._anchorPoint.x * width, 
-            -this._anchorPoint.y * height, 
-            width, 
+            -this._anchorPoint.x * width,
+            -this._anchorPoint.y * height,
+            width,
             height);
         return rect.transformMat4(rect, this._matrix);
     }
@@ -2723,9 +2723,9 @@ export default class Node extends BaseNode {
         let width = this._contentSize.width;
         let height = this._contentSize.height;
         let rect = cc.rect(
-            -this._anchorPoint.x * width, 
-            -this._anchorPoint.y * height, 
-            width, 
+            -this._anchorPoint.x * width,
+            -this._anchorPoint.y * height,
+            width,
             height);
 
         var pMat = math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
@@ -2894,9 +2894,9 @@ if (CC_EDITOR) {
 // 3D Node Property
 
 /**
- * !en 
+ * !en
  * Switch 2D/3D node. The 2D nodes will run faster.
- * !zh 
+ * !zh
  * 切换 2D/3D 节点，2D 节点会有更高的运行效率
  * @property {Boolean} is3DNode
  * @default false

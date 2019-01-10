@@ -23,13 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import RenderSystemActor from './renderSystemActor';
-import { renderer } from '../../renderer/index';
-import { toRadian } from '../../core/vmath';
+import { toRadian, color4 } from '../../core/vmath';
 import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";
-import { Color, Enum, Rect } from '../../core/value-types';
-import enums from '../../renderer/enums';
+import { Enum, Rect } from '../../core/value-types';
 import { Component } from '../../components/component';
+import { CameraProjection } from '../../renderer/scene/camera';
+import { GFXClearFlag } from '../../gfx/define';
 
 /**
  * @typedef {import('../../core/value-types/index').Color} Color
@@ -42,7 +41,7 @@ import { Component } from '../../components/component';
  * @static
  * @enum CameraComponent.Projection
  */
-let CameraProjection = Enum({
+let ProjectionType = Enum({
     /**
      * !#en The orthogonal camera
      *
@@ -64,9 +63,9 @@ let CameraProjection = Enum({
 });
 
 let CameraClearFlag = Enum({
-    SKYBOX: enums.CLEAR_SKYBOX | enums.CLEAR_DEPTH | enums.CLEAR_STENCIL,
-    SOLID_COLOR: enums.CLEAR_COLOR | enums.CLEAR_DEPTH | enums.CLEAR_STENCIL,
-    DEPTH_ONLY: enums.CLEAR_DEPTH | enums.CLEAR_STENCIL,
+    SKYBOX: GFXClearFlag.SKYBOX | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
+    SOLID_COLOR: GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
+    DEPTH_ONLY: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
     DONT_CLEAR: 0
 });
 
@@ -82,7 +81,7 @@ let CameraClearFlag = Enum({
 @executeInEditMode
 export default class CameraComponent extends Component {
     @property
-    _projection = CameraProjection.PERSPECTIVE;
+    _projection = ProjectionType.PERSPECTIVE;
 
     @property
     _priority = 0;
@@ -121,7 +120,7 @@ export default class CameraComponent extends Component {
      * @type {Number}
      */
     @property({
-        type: CameraProjection
+        type: ProjectionType
     })
     get projection() {
         return this._projection;
@@ -130,29 +129,11 @@ export default class CameraComponent extends Component {
     set projection(val) {
         this._projection = val;
 
-        let type = renderer.PROJ_PERSPECTIVE;
-        if (this._projection === CameraProjection.Ortho) {
-            type = renderer.PROJ_ORTHO;
+        let type = CameraProjection.PERSPECTIVE;
+        if (this._projection === ProjectionType.ORTHO) {
+            type = CameraProjection.ORTHO;
         }
-        if (this.enabled)
-            this._camera.setType(type);
-    }
-
-    /**
-     * !#en The camera priority
-     *
-     * !#ch 相机的优先级，优先级低的优先渲染
-     * @type {Number}
-     */
-    @property
-    get priority() {
-        return this._priority;
-    }
-
-    set priority(val) {
-        this._priority = val;
-        if (this.enabled)
-            this._camera.setPriority(val);
+        if (this.enabled) this._camera.projectionType = type;
     }
 
     /**
@@ -168,8 +149,7 @@ export default class CameraComponent extends Component {
 
     set fov(val) {
         this._fov = val;
-        if (this.enabled)
-            this._camera.setFov(toRadian(val));
+        if (this.enabled) this._camera.fov = toRadian(val);
     }
 
     /**
@@ -185,8 +165,7 @@ export default class CameraComponent extends Component {
 
     set orthoHeight(val) {
         this._orthoHeight = val;
-        if (this.enabled)
-            this._camera.setOrthoHeight(val);
+        if (this.enabled) this._camera.orthoHeight = val;
     }
 
     /**
@@ -202,8 +181,7 @@ export default class CameraComponent extends Component {
 
     set near(val) {
         this._near = val;
-        if (this.enabled)
-            this._camera.setNear(val);
+        if (this.enabled) this._camera.nearClip =val;
     }
 
     /**
@@ -219,8 +197,7 @@ export default class CameraComponent extends Component {
 
     set far(val) {
         this._far = val;
-        if (this.enabled)
-            this._camera.setFar(val);
+        if (this.enabled) this._camera.farClip = val;
     }
 
     /**
@@ -236,8 +213,8 @@ export default class CameraComponent extends Component {
 
     set color(val) {
         this._color = val;
-        if (this.enabled)
-            this._camera.setColor(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
+        if (this.enabled) this._camera.clearColor =
+            color4.create(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
     }
 
     /**
@@ -254,7 +231,7 @@ export default class CameraComponent extends Component {
     set depth(val) {
         this._depth = val;
         if (this.enabled)
-            this._camera.setDepth(val);
+            this._camera.clearDepth = val;
     }
 
     /**
@@ -270,8 +247,7 @@ export default class CameraComponent extends Component {
 
     set stencil(val) {
         this._stencil = val;
-        if (this.enabled)
-            this._camera.setStencil(val);
+        if (this.enabled) this._camera.clearStencil = val;
     }
 
     /**
@@ -289,8 +265,7 @@ export default class CameraComponent extends Component {
 
     set clearFlags(val) {
         this._clearFlags = val;
-        if (this.enabled)
-            this._camera.setClearFlags(val);
+        if (this.enabled) this._camera.clearFlag = val;
     }
 
     /**
@@ -306,8 +281,7 @@ export default class CameraComponent extends Component {
 
     set rect(val) {
         this._rect = val;
-        if (this.enabled)
-            this._camera.setRect(val.x, val.y, val.width, val.height);
+        if (this.enabled) this._camera.viewport = val;
     }
 
     static Projection = CameraProjection;
@@ -333,8 +307,7 @@ export default class CameraComponent extends Component {
         this.stencil = this._stencil;
         this.clearFlags = this._clearFlags;
         this.rect = this._rect;
-        this._camera.setStages(renderer.PassStage.DEFAULT | renderer.PassStage.FORWARD);
-        this._camera.setNode(this.node);
+        this._camera.node = this.node;
     }
 
     onDisable() {
@@ -343,17 +316,5 @@ export default class CameraComponent extends Component {
 
     onDestroy() {
 
-    }
-
-    /**
-     * transform a screen position to world space
-     * @param out the resulting vector
-     * @param screenPos the screen position to be transformed
-     * @param width framebuffer width
-     * @param height framebuffer height
-     * @returns the resulting vector
-     */
-    screenToWorld(out, screenPos, width, height) {
-        return this._camera.screenToWorld(out, screenPos, width, height);
     }
 }

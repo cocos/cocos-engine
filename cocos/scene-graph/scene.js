@@ -23,10 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Node from './node';
+import { Node } from './node';
 import { ccclass, property } from '../core/data/class-decorator';
-import BaseNode from './base-node';
-import { RenderScene } from '../renderer/scene/render-scene';
+import { BaseNode } from './base-node';
 
 /**
  * !#en

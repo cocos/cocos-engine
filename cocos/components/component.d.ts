@@ -28,7 +28,7 @@ import { CCObject } from '../core/data/object';
 import { getClassName, value } from '../core/utils/js';
 import IDGenerator from '../core/utils/id-generator';
 import { ccclass, property } from '../core/data/class-decorator';
-import Node from '../scene-graph/node';
+import { Node } from '../scene-graph/node';
 import { RenderScene } from '../renderer/scene/render-scene';
 
 export class Component extends CCObject {
@@ -37,7 +37,9 @@ export class Component extends CCObject {
     enabled: boolean;
     enabledInHierarchy: boolean;
 
-    getRenderScene(index?: number): RenderScene | undefined;
+    public constructor();
+
+    _getRenderScene(index?: number): RenderScene | undefined;
     addComponent(typeOrClassName: Function | string): Component;
     getComponent(typeOrClassName: Function | string): Component;
     getComponents(typeOrClassName: Function | string): Component[];

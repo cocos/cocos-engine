@@ -19,6 +19,8 @@ export enum RenderPassStage {
     DEFAULT = 100,
 }
 
+const v_camPos = cc.v3();
+
 export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
     public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
@@ -34,7 +36,7 @@ export class UBOGlobal {
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 30, name: 'Global', members: [
+        binding: 30, name: 'CCGlobal', members: [
             { name: 'u_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'u_screenSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'u_screenScale', type: GFXType.FLOAT4, count: 1 },
@@ -328,7 +330,8 @@ export abstract class RenderPipeline {
         mat4.array(_mat4Array, camera.matViewProjInv);
         this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
 
-        vec3.array(_vec4Array, camera.position);
+        camera.node.getWorldPosition(v_camPos);
+        vec3.array(_vec4Array, v_camPos);
         _vec4Array[3] = 1.0;
         this._uboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 

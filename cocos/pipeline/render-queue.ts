@@ -5,6 +5,7 @@ import { Camera } from '../renderer/scene/camera';
 import Model from '../renderer/scene/model';
 
 const _pos: vec3 = vec3.create();
+const _cameraPos: vec3 = vec3.create();
 
 export class RenderItem {
     public hash: number;
@@ -45,7 +46,8 @@ export class RenderQueue {
     public add (model: Model, camera: Camera) {
 
         model.node.getPosition(_pos);
-        this._f32View[0] = vec3.distance(camera.position, _pos);
+        camera.node.getPosition(_cameraPos);
+        this._f32View[0] = vec3.distance(_cameraPos, _pos);
         let x = this._ui32View[0];
 
         for (let i = 0; i < model.passes.length; ++i) {

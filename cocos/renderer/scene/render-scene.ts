@@ -1,5 +1,5 @@
-import { Root, _createSceneFun } from '../../core/root';
-import Node from '../../scene-graph/node';
+import { _createSceneFun, Root } from '../../core/root';
+import { Node } from '../../scene-graph/node';
 import { Camera } from './camera';
 import Light from './light';
 import Model from './model';
@@ -46,7 +46,6 @@ export class RenderScene {
 
     private _root: Root;
     private _name: string = '';
-    private _nodes: Map<number, Node> = new Map();
     private _cameras: Camera[] = [];
     private _mainCamera: Camera | null = null;
     private _lights: Light[] = [];
@@ -67,31 +66,7 @@ export class RenderScene {
     public destroy () {
         this.destroyCameras();
         this.destroyLights();
-        this.destroyNodes();
         this.destroyModels();
-    }
-
-    public createNode (info: ISceneNodeInfo): Node {
-        const node = new Node(info.name);
-        this._nodes.set(node.uuid, node);
-        return node;
-    }
-
-    public destroyNode (node: Node) {
-        this._nodes.delete(node.uuid);
-    }
-
-    public destroyNodes () {
-        this._nodes.clear();
-    }
-
-    public getNode (id: number): Node | null {
-        const node = this._nodes.get(id);
-        if (node) {
-            return node;
-        } else {
-            return null;
-        }
     }
 
     public createCamera (name: string): Camera {

@@ -2,7 +2,7 @@
 
 import { FixedArray, RecyclePool } from '../../3d/memop';
 import { ray, triangle, intersect } from '../../3d/geom-utils';
-import Layers from '../../scene-graph/layers';
+import { Layers } from '../../scene-graph/layers';
 import { vec3, mat4 } from '../../core/vmath';
 import gfx from '../../renderer/gfx';
 

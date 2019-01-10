@@ -25,7 +25,7 @@
 
 'use strict';
 
-import Node from './node';
+import { Node } from './node';
 import { ccclass, property } from '../core/data/class-decorator';
 
 const LocalDirtyFlag = Node._LocalDirtyFlag;
