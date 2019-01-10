@@ -7,11 +7,11 @@ import { GFXShader, GFXUniformBlock, GFXUniform } from '../../gfx/shader';
 import { IDefineMap } from './effect';
 import { UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
 
-function _generateDefines(
+function _generateDefines (
   device: GFXDevice,
   defs: IDefineMap,
   tDefs: IDefineInfo[],
-  deps: Record<string, string>
+  deps: Record<string, string>,
 ) {
   const defines: string[] = [];
   for (const { name } of tDefs) {
@@ -28,21 +28,21 @@ function _generateDefines(
 }
 
 let _shdID = 0;
-interface DefineRecord extends IDefineInfo {
+interface IDefineRecord extends IDefineInfo {
   _map: (value: any) => number;
   _offset: number;
 }
-interface ProgramInfo extends IShaderInfo {
+interface IProgramInfo extends IShaderInfo {
   id: number;
-  defines: DefineRecord[];
+  defines: IDefineRecord[];
 }
 export class ProgramLib {
   protected _device: GFXDevice;
   protected _precision: string;
-  protected _templates: Record<string, ProgramInfo>;
+  protected _templates: Record<string, IProgramInfo>;
   protected _cache: Record<string, GFXShader | null>;
 
-  constructor(device: GFXDevice) {
+  constructor (device: GFXDevice) {
     this._device = device;
     this._precision = `precision highp float;\n`;
     this._templates = {};
@@ -65,9 +65,9 @@ export class ProgramLib {
    *   };
    *   programLib.define(program);
    */
-  public define(prog: IShaderInfo) {
+  public define (prog: IShaderInfo) {
     if (this._templates[prog.name]) { return; }
-    const tmpl = <ProgramInfo>Object.assign({ id: ++_shdID }, prog);
+    const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
     tmpl.vert = this._precision + prog.vert;
     tmpl.frag = this._precision + prog.frag;
 
@@ -89,18 +89,18 @@ export class ProgramLib {
     this._templates[prog.name] = tmpl;
   }
 
-  public getTemplate(name: string) {
+  public getTemplate (name: string) {
     return this._templates[name];
   }
 
   /**
    * Does this library has the specified program?
    */
-  public hasProgram(name: string) {
+  public hasProgram (name: string) {
     return this._templates[name] !== undefined;
   }
 
-  public getKey(name: string, defines: IDefineMap) {
+  public getKey (name: string, defines: IDefineMap) {
     const tmpl = this._templates[name];
     let key = 0;
     for (const tmplDef of tmpl.defines) {
@@ -113,7 +113,7 @@ export class ProgramLib {
     return key << 8 | (tmpl.id & 0xff);
   }
 
-  public getGFXShader(name: string, defines: IDefineMap = {}) {
+  public getGFXShader (name: string, defines: IDefineMap = {}) {
     const key = this.getKey(name, defines);
     let program = this._cache[key];
     if (program !== undefined) {

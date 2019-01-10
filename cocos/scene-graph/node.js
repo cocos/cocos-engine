@@ -137,15 +137,15 @@ class Node extends BaseNode {
     invalidateChildren() {
         if (this._dirty && this._hasChanged) return;
         this._dirty = this._hasChanged = true;
-
-        let len = this._children.length;
-        for (let i = 0; i < len; ++i) {
-            this._children[i].invalidateChildren();
+        for (const child of this._children) {
+            child.invalidateChildren();
         }
     }
 
     /**
      * update the world transform information if outdated
+     * here we assume all nodes are children of a scene node,
+     * which is always not dirty, has an identity transform and no parent.
      */
     updateWorldTransform() {
         if (!this._dirty) return;
@@ -154,7 +154,10 @@ class Node extends BaseNode {
             // top level node
             array_a[i++] = cur;
             cur = cur._parent;
-            if (!cur) break;
+            if (!cur || !cur._parent) {
+                cur = null;
+                break;
+            }
         }
         while (i) {
             child = array_a[--i];
@@ -194,6 +197,7 @@ class Node extends BaseNode {
         } else if (arguments.length === 3) {
             vec3.set(this._lpos, val, y, z);
         }
+        vec3.copy(this._pos, this._lpos);
 
         this.invalidateChildren();
         this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
@@ -213,59 +217,6 @@ class Node extends BaseNode {
     }
 
     /**
-     * rotate in local space
-     * 
-     * @param {quat|number} val the new local rotation, or the x component of it
-     * @param {number} [y] the y component of the new local rotation
-     * @param {number} [z] the z component of the new local rotation
-     * @param {number} [w] the w component of the new local rotation
-     */
-    rotate(val, y, z, w) {
-
-        if (arguments.length === 1) {
-            quat.normalize(q_a, val);
-        } else if (arguments.length === 4) {
-            quat.set(q_a, val, y, z, w);
-            quat.normalize(q_a, q_a);
-        }
-
-        quat.multiply(this._lrot, this._lrot, q_a);
-
-        this._eulerDirty = true;
-
-        this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
-    }
-
-    /**
-     * rotate in world space
-     * 
-     * @param {quat|number} val the new local rotation, or the x component of it
-     * @param {number} [y] the y component of the new local rotation
-     * @param {number} [z] the z component of the new local rotation
-     * @param {number} [w] the w component of the new local rotation
-     */
-    rotateWorld(val, y, z, w) {
-
-        if (arguments.length === 1) {
-            quat.normalize(q_a, val);
-        } else if (arguments.length === 4) {
-            quat.set(q_a, val, y, z, w);
-            quat.normalize(q_a, q_a);
-        }
-
-        getWorldRotation(q_b);
-        quat.invert(q_b);
-        quat.multiply(q_a, q_a, q_b);
-        quat.multiply(this._lrot, this._lrot, q_a);
-
-        this._eulerDirty = true;
-
-        this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
-    }
-
-    /**
      * set local rotation
      * @param {quat|number} val the new local rotation, or the x component of it
      * @param {number} [y] the y component of the new local rotation
@@ -278,6 +229,7 @@ class Node extends BaseNode {
         } else if (arguments.length === 4) {
             quat.set(this._lrot, val, y, z, w);
         }
+        quat.copy(this._rot, this._lrot);
         this._eulerDirty = true;
 
         this.invalidateChildren();
@@ -294,6 +246,7 @@ class Node extends BaseNode {
         vec3.set(this._euler, x, y, z);
         this._eulerDirty = false;
         quat.fromEuler(this._lrot, x, y, z);
+        quat.copy(this._rot, this._lrot);
 
         this.invalidateChildren();
         this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
@@ -324,6 +277,7 @@ class Node extends BaseNode {
         } else if (arguments.length === 3) {
             vec3.set(this._lscale, val, y, z);
         }
+        vec3.copy(this._scale, this._lscale);
 
         this.invalidateChildren();
         this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);

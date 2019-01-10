@@ -1,22 +1,14 @@
 import { Material } from '../../3d/assets/material';
+import ImageAsset from '../../assets/image-asset';
+import Texture2D from '../../assets/texture-2d';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import {
-    GFXBufferTextureCopy, GFXCommandBufferType, GFXFormat,
-    GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, GFXType
-} from '../../gfx/define';
+import { GFXCommandBufferType} from '../../gfx/define';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
-import { GFXInputAssembler } from '../../gfx/input-assembler';
-import { GFXTexture } from '../../gfx/texture';
-import { GFXTextureView } from '../../gfx/texture-view';
-import { RenderFlow } from '../render-flow';
-import { RenderStage, IRenderStageInfo } from '../render-stage';
-import { RenderView } from '../render-view';
 import Model from '../../renderer/scene/model';
 import { Scene } from '../../scene-graph';
-import { EffectAsset } from '../../3d/assets/effect-asset';
-import { UBOLocal } from '../render-pipeline';
-import Texture2D from '../../assets/texture-2d';
-import ImageAsset from '../../assets/image-asset';
+import { RenderFlow } from '../render-flow';
+import { IRenderStageInfo, RenderStage } from '../render-stage';
+import { RenderView } from '../render-view';
 
 export class TestModelStage extends RenderStage {
 
@@ -26,11 +18,11 @@ export class TestModelStage extends RenderStage {
     private _init: boolean = false;
     private _textureAsset: Texture2D | null = null;
 
-    constructor(flow: RenderFlow) {
+    constructor (flow: RenderFlow) {
         super(flow);
     }
 
-    public initialize(info: IRenderStageInfo): boolean {
+    public initialize (info: IRenderStageInfo): boolean {
 
         if (info.name !== undefined) {
             this._name = info.name;
@@ -50,7 +42,7 @@ export class TestModelStage extends RenderStage {
         // load texture
         const imgElms = this._device.canvas.getElementsByTagName('img');
         if (imgElms.length) {
-            if (!this.loadTexture(<HTMLImageElement>imgElms[0])) {
+            if (!this.loadTexture( imgElms[0] as HTMLImageElement)) {
                 console.error('Load texture failed.');
                 return false;
             }
@@ -58,11 +50,10 @@ export class TestModelStage extends RenderStage {
             console.error('Not found image, load texture failed.');
         }
 
-
         return true;
     }
 
-    public destroy() {
+    public destroy () {
 
         if (this._texView) {
             this._texView.destroy();
@@ -84,14 +75,15 @@ export class TestModelStage extends RenderStage {
 
         if (!this._init) {
 
-
             this._material.effectName = 'test'; // parsed-effect file is embedded in cocos/3d/builtin/effects.js
             this._material.setProperty('u_sampler', this._textureAsset);
-            this._material.setProperty('u_color', cc.color('#ff0000'));
+            this._material.setProperty('u_color', cc.color('#ff1234'));
+            this._material.inited = true;
+            this._material.passes[0].update();
 
             this._scene = new Scene();
             this._scene._scene = this._scene;
-            let modelCom = this._scene.addComponent('cc.ModelComponent');
+            const modelCom = this._scene.addComponent('cc.ModelComponent');
             modelCom.material = this._material;
             modelCom.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
             this._model = modelCom._models[0];
@@ -100,13 +92,13 @@ export class TestModelStage extends RenderStage {
             this._init = true;
         }
 
-        const cmdBuff = <GFXCommandBuffer>this._cmdBuff;
+        const cmdBuff =  this._cmdBuff as GFXCommandBuffer;
         this._renderArea.width = view.width;
         this._renderArea.height = view.height;
         this._model._updateTransform();
         this._model.updateRenderData();
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(<GFXFramebuffer>this._framebuffer, this._renderArea, this._clearColors,
+        cmdBuff.beginRenderPass( this._framebuffer as GFXFramebuffer, this._renderArea, this._clearColors,
             this._clearDepth, this._clearStencil);
 
         cmdBuff.execute(this._model.commandBuffers);

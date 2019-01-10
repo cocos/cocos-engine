@@ -2,18 +2,18 @@ export default [
   {
     "name": "test",
     "techniques": [{"queue": 0, "lod": 500, "passes": [{"stage": 100, "program": "f4c45e6cc7794309d86202e6ec9036a3871fd1ec167a9e02eb1e1574"}], "priority": 0}],
-    "properties": {"u_color": {"type": 17, "value": [1, 1, 1, 1]}, "u_sampler": {"type": 29, "value": null}},
+    "properties": {"u_color": {"type": 16, "value": [1, 1, 1, 1]}, "u_sampler": {"type": 29, "value": null}},
     "shaders": [
       {
         "name": "f4c45e6cc7794309d86202e6ec9036a3871fd1ec167a9e02eb1e1574",
         "vert": `
   attribute vec3 a_position;
-  attribute vec2 a_texCoord;
+  attribute vec2 a_uv0;
   uniform mat4 cc_matWorld;
   varying vec2 v_texCoord;
   void main() {
     gl_Position = cc_matWorld*vec4(a_position, 1.0);
-    v_texCoord = a_texCoord;
+    v_texCoord = a_uv0;
   }
 `,
         "frag": `

@@ -1,5 +1,5 @@
-import { frustum } from '../../3d/geom-utils/frustum';
-import { mat4, quat, vec3 } from '../../core/vmath';
+import { frustum, ray } from '../../3d/geom-utils';
+import { lerp, mat4, quat, vec3 } from '../../core/vmath';
 import Node from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
 
@@ -14,12 +14,24 @@ export enum CameraProjection {
     ORTHO,
 }
 
+const q_a = cc.quat();
+const v_a = cc.v3();
+const v_b = cc.v3();
+
+export interface INormalizedViewPort {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}
+
 export class Camera {
 
     private _scene: RenderScene;
     private _name: string;
     private _node: Node;
     private _proj: CameraProjection;
+    private _viewport: INormalizedViewPort;
     private _width: number;
     private _height: number;
     private _aspect: number;
@@ -40,6 +52,7 @@ export class Camera {
         this._name = name;
         this._node = scene.createNode({ name: name + 'Node', isStatic: false });
         this._proj = CameraProjection.PERSPECTIVE;
+        this._viewport = { x: 0, y: 0, w: 1, h: 1 };
 
         const window = scene.root.mainWindow;
         if (window) {
@@ -83,16 +96,39 @@ export class Camera {
         this._frustum.update(this._matViewProj, this._matViewProjInv);
     }
 
+    public set viewport (v: Partial<INormalizedViewPort>) {
+        this._viewport.x = v.x || 0;
+        this._viewport.y = v.y || 0;
+        this._viewport.w = v.w || 1;
+        this._viewport.h = v.h || 1;
+    }
+
+    public get viewport () {
+        return this._viewport;
+    }
+
     public set fov (fov: number) {
         this._fov = fov;
+    }
+
+    public get fov (): number {
+        return this._fov;
     }
 
     public set nearClip (nearClip: number) {
         this._nearClip = nearClip;
     }
 
+    public get nearClip (): number {
+        return this._nearClip;
+    }
+
     public set farClip (farClip: number) {
         this._farClip = farClip;
+    }
+
+    public get farClip (): number {
+        return this._farClip;
     }
 
     public get scene (): RenderScene {
@@ -119,18 +155,6 @@ export class Camera {
         return this._aspect;
     }
 
-    public get fov (): number {
-        return this._fov;
-    }
-
-    public get nearClip (): number {
-        return this._nearClip;
-    }
-
-    public get farClip (): number {
-        return this._farClip;
-    }
-
     public get matView (): mat4 {
         return this._matView;
     }
@@ -151,17 +175,14 @@ export class Camera {
         return this._frustum;
     }
 
-    public get position (): vec3 {
-        this._node.getPosition(this._position);
-        return this._position;
-    }
-
     public rotate (rot: quat, ns?: NodeSpace) {
         const space = (ns !== undefined ? ns : NodeSpace.LOCAL);
         if (space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
-            this._node.rotate(rot);
+            this._node.getRotation(q_a);
+            this._node.setRotation(quat.multiply(q_a, q_a, rot));
         } else if (space === NodeSpace.WORLD) {
-            this._node.rotateWorld(rot);
+            this._node.getWorldRotation(q_a);
+            this._node.setWorldRotation(quat.multiply(q_a, rot, q_a));
         }
     }
 
@@ -169,9 +190,11 @@ export class Camera {
         quat.fromAxisAngle(this._rotation, axis, rad);
         const space = (ns !== undefined ? ns : NodeSpace.LOCAL);
         if (space === NodeSpace.LOCAL || space === NodeSpace.PARENT) {
-            this._node.rotate(this._rotation);
+            this._node.getRotation(q_a);
+            this._node.setRotation(quat.multiply(q_a, q_a, this._rotation));
         } else if (space === NodeSpace.WORLD) {
-            this._node.rotateWorld(this._rotation);
+            this._node.getWorldRotation(q_a);
+            this._node.setWorldRotation(quat.multiply(q_a, this._rotation, q_a));
         }
     }
 
@@ -227,18 +250,106 @@ export class Camera {
         this._node.lookAt(target);
     }
 
-    public get direction (): vec3 {
-        this._node.getRotation(this._rotation);
-        vec3.transformQuat(this._direction, vec3.UNIT_Z, this._rotation);
-        return this._direction;
+    public get position (): vec3 {
+        this._node.getPosition(this._position);
+        return this._position;
     }
 
     public set position (pos: vec3) {
         this._node.setWorldPosition(pos.x, pos.y, pos.z);
     }
 
+    public get direction (): vec3 {
+        this._node.getRotation(this._rotation);
+        vec3.transformQuat(this._direction, vec3.UNIT_Z, this._rotation);
+        return this._direction;
+    }
+
     public set direction (dir: vec3) {
         quat.rotationTo(this._rotation, vec3.UNIT_Z, dir);
         this._node.setRotation(this._rotation);
+    }
+
+    /**
+     * transform a screen position to a world space ray
+     */
+    public screenPointToRay (x: number, y: number, out: ray): ray {
+        out = out || ray.create();
+        this.update();
+
+        const cx = this._viewport.x * this._width;
+        const cy = this._viewport.y * this._height;
+        const cw = this._viewport.w * this._width;
+        const ch = this._viewport.h * this._height;
+
+        // far plane intersection
+        vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
+        vec3.transformMat4(v_a, v_a, this._matViewProjInv);
+
+        if (this._proj === CameraProjection.PERSPECTIVE) {
+            // camera origin
+            this._node.getWorldPosition(v_b);
+        } else {
+            // near plane intersection
+            vec3.set(v_b, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
+            vec3.transformMat4(v_b, v_b, this._matViewProjInv);
+        }
+
+        return ray.fromPoints(out, v_b, v_a);
+    }
+
+    /**
+     * transform a screen position to world space
+     */
+    public screenToWorld (out: vec3, screenPos: vec3): vec3 {
+        const cx = this._viewport.x * this._width;
+        const cy = this._viewport.y * this._height;
+        const cw = this._viewport.w * this._width;
+        const ch = this._viewport.h * this._height;
+
+        if (this._proj === CameraProjection.PERSPECTIVE) {
+            // calculate screen pos in far clip plane
+            vec3.set(out,
+                (screenPos.x - cx) / cw * 2 - 1,
+                (screenPos.y - cy) / ch * 2 - 1,
+                1.0,
+            );
+
+            // transform to world
+            vec3.transformMat4(out, out, this._matViewProjInv);
+
+            // lerp to depth z
+            this._node.getWorldPosition(v_a);
+
+            vec3.lerp(out, v_a, out, lerp(this._nearClip / this._farClip, 1, screenPos.z));
+        } else {
+            vec3.set(out,
+                (screenPos.x - cx) / cw * 2 - 1,
+                (screenPos.y - cy) / ch * 2 - 1,
+                screenPos.z * 2 - 1,
+            );
+
+            // transform to world
+            vec3.transformMat4(out, out, this.matViewProjInv);
+        }
+
+        return out;
+    }
+
+    /**
+     * transform a world space position to screen space
+     */
+    public worldToScreen (out: vec3, worldPos: vec3): vec3 {
+        const cx = this._viewport.x * this._width;
+        const cy = this._viewport.y * this._height;
+        const cw = this._viewport.w * this._width;
+        const ch = this._viewport.h * this._height;
+
+        vec3.transformMat4(out, worldPos, this.matViewProjInv);
+        out.x = cx + (out.x + 1) * 0.5 * cw;
+        out.y = cy + (out.y + 1) * 0.5 * ch;
+        out.z = out.z * 0.5 + 0.5;
+
+        return out;
     }
 }

@@ -33,7 +33,7 @@
     function onStart() {
       const $body = document.body;
       const bcr = $body.getBoundingClientRect();
-      // cc.view.setCanvasSize(bcr.width, bcr.height);
+      cc.view.setCanvasSize(bcr.width, bcr.height);
       window.addEventListener('resize', () => {
         const bcr = $body.getBoundingClientRect();
         cc.view.setCanvasSize(bcr.width, bcr.height);

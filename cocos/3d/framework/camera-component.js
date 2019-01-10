@@ -134,7 +134,8 @@ export default class CameraComponent extends Component {
         if (this._projection === CameraProjection.Ortho) {
             type = renderer.PROJ_ORTHO;
         }
-        this._camera.setType(type);
+        if (this.enabled)
+            this._camera.setType(type);
     }
 
     /**
@@ -150,7 +151,8 @@ export default class CameraComponent extends Component {
 
     set priority(val) {
         this._priority = val;
-        this._camera.setPriority(val);
+        if (this.enabled)
+            this._camera.setPriority(val);
     }
 
     /**
@@ -166,7 +168,8 @@ export default class CameraComponent extends Component {
 
     set fov(val) {
         this._fov = val;
-        this._camera.setFov(toRadian(val));
+        if (this.enabled)
+            this._camera.setFov(toRadian(val));
     }
 
     /**
@@ -182,7 +185,8 @@ export default class CameraComponent extends Component {
 
     set orthoHeight(val) {
         this._orthoHeight = val;
-        this._camera.setOrthoHeight(val);
+        if (this.enabled)
+            this._camera.setOrthoHeight(val);
     }
 
     /**
@@ -198,7 +202,8 @@ export default class CameraComponent extends Component {
 
     set near(val) {
         this._near = val;
-        this._camera.setNear(val);
+        if (this.enabled)
+            this._camera.setNear(val);
     }
 
     /**
@@ -214,7 +219,8 @@ export default class CameraComponent extends Component {
 
     set far(val) {
         this._far = val;
-        this._camera.setFar(val);
+        if (this.enabled)
+            this._camera.setFar(val);
     }
 
     /**
@@ -230,7 +236,8 @@ export default class CameraComponent extends Component {
 
     set color(val) {
         this._color = val;
-        this._camera.setColor(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
+        if (this.enabled)
+            this._camera.setColor(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
     }
 
     /**
@@ -246,7 +253,8 @@ export default class CameraComponent extends Component {
 
     set depth(val) {
         this._depth = val;
-        this._camera.setDepth(val);
+        if (this.enabled)
+            this._camera.setDepth(val);
     }
 
     /**
@@ -262,7 +270,8 @@ export default class CameraComponent extends Component {
 
     set stencil(val) {
         this._stencil = val;
-        this._camera.setStencil(val);
+        if (this.enabled)
+            this._camera.setStencil(val);
     }
 
     /**
@@ -280,7 +289,8 @@ export default class CameraComponent extends Component {
 
     set clearFlags(val) {
         this._clearFlags = val;
-        this._camera.setClearFlags(val);
+        if (this.enabled)
+            this._camera.setClearFlags(val);
     }
 
     /**
@@ -296,7 +306,8 @@ export default class CameraComponent extends Component {
 
     set rect(val) {
         this._rect = val;
-        this._camera.setRect(val.x, val.y, val.width, val.height);
+        if (this.enabled)
+            this._camera.setRect(val.x, val.y, val.width, val.height);
     }
 
     static Projection = CameraProjection;
@@ -306,7 +317,11 @@ export default class CameraComponent extends Component {
     }
 
     onLoad() {
-        this._camera = this.getRenderScene().createCamera(this.name);
+
+    }
+
+    onEnable() {
+        this._camera = this._getRenderScene().createCamera(this.name);
         this.projection = this._projection;
         this.priority = this._priority;
         this.fov = this._fov;
@@ -322,16 +337,12 @@ export default class CameraComponent extends Component {
         this._camera.setNode(this.node);
     }
 
-    onEnable() {
-        this._camera._enable = this.enabled;
-    }
-
     onDisable() {
-        this._camera._enable = this.enabled;
+        this._getRenderScene().destroyCamera(this._camera);
     }
 
     onDestroy() {
-        this.getRenderScene().destroyCamera(this._camera);
+
     }
 
     /**
