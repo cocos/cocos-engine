@@ -22,15 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
 import Model from '../../renderer/scene/model';
 import { ccclass, property, menu, executionOrder, executeInEditMode } from '../../core/data/class-decorator';
 import { Mesh } from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
 import RenderableComponent from './renderable-component';
-/**
- * @typedef {import('../assets/material').default} Material
- */
 
 /**
  * !#en Shadow projection mode
@@ -103,9 +99,6 @@ export default class ModelComponent extends RenderableComponent {
     @property
     _receiveShadows = false;
 
-    /**
-     * @type {Material}
-     */
     static _builtinMaterial = null;
 
     /**

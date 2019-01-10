@@ -39,14 +39,14 @@ export class Component extends CCObject {
 
     public constructor();
 
-    _getRenderScene(index?: number): RenderScene | undefined;
-    addComponent(typeOrClassName: Function | string): Component;
-    getComponent(typeOrClassName: Function | string): Component;
-    getComponents(typeOrClassName: Function | string): Component[];
-    getComponentInChildren(typeOrClassName: Function | string): Component;
-    getComponentsInChildren(typeOrClassName: Function | string): Component[];
-    schedule(callback: Function, interval: number, repeat: number, delay: number): void;
-    scheduleOnce(callback: Function, delay: number): void;
-    unschedule(callback: Function): void;
-    unscheduleAllCallbacks(): void;
+    protected _getRenderScene(index?: number): RenderScene;
+    public addComponent(typeOrClassName: Function | string): Component;
+    public getComponent(typeOrClassName: Function | string): Component;
+    public getComponents(typeOrClassName: Function | string): Component[];
+    public getComponentInChildren(typeOrClassName: Function | string): Component;
+    public getComponentsInChildren(typeOrClassName: Function | string): Component[];
+    public schedule(callback: Function, interval: number, repeat: number, delay: number): void;
+    public scheduleOnce(callback: Function, delay: number): void;
+    public unschedule(callback: Function): void;
+    public unscheduleAllCallbacks(): void;
 }

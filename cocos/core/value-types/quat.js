@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import ValueType from './value-type';
+import { ValueType } from './value-type';
 import CCClass from '../data/class';
 import quat from '../vmath/quat';
 
