@@ -577,11 +577,11 @@ export function WebGLCmdFuncDestroyBuffer (device: WebGLGFXDevice, gpuBuffer: We
     }
 }
 
-export function WebGLCmdFuncUpdateBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer, offset: number, buffer: ArrayBuffer) {
+export function WebGLCmdFuncUpdateBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer, buffer: ArrayBuffer, offset: number, size: number) {
 
     if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
         if (gpuBuffer.viewF32 && buffer) {
-            gpuBuffer.viewF32.set(new Float32Array(buffer), offset);
+            gpuBuffer.viewF32.set(new Float32Array(buffer, 0, size / 4), offset);
         }
     } else {
         const gl = device.gl;
@@ -592,7 +592,13 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
                     gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
                 }
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buffer);
+
+                if (size === buffer.byteLength) {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buffer);
+                } else {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, new Uint8Array(buffer, 0, size));
+                }
+
                 break;
             }
             case WebGLRenderingContext.ELEMENT_ARRAY_BUFFER: {
@@ -600,7 +606,13 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
                     gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
                 }
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buffer);
+
+                if (size === buffer.byteLength) {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buffer);
+                } else {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, new Uint8Array(buffer, 0, size));
+                }
+
                 break;
             }
             default: {

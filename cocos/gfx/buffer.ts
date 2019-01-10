@@ -45,5 +45,5 @@ export abstract class GFXBuffer extends GFXObject {
 
     public abstract initialize (info: IGFXBufferInfo): boolean;
     public abstract destroy (): void;
-    public abstract update (buffer: ArrayBuffer, offset?: number);
+    public abstract update (buffer: ArrayBuffer, offset?: number, size?: number);
 }

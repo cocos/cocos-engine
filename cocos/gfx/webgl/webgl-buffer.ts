@@ -1,5 +1,5 @@
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
-import { GFXMemoryUsageBit, GFXStatus } from '../define';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUBuffer } from './webgl-gpu-objects';
@@ -54,12 +54,17 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._status = GFXStatus.UNREADY;
     }
 
-    public update (buffer: ArrayBuffer, offset?: number) {
+    public update (buffer: ArrayBuffer, offset?: number, size?: number) {
 
-        if (this._bufferView) {
-            this._bufferView.set(new Uint8Array(buffer), offset);
+        const isUniformBuffer = (this._usage & GFXBufferUsageBit.UNIFORM) !== GFXBufferUsageBit.NONE;
+        if (this._bufferView && !isUniformBuffer) {
+            this._bufferView.set(new Uint8Array(buffer, 0, size), offset);
         }
 
-        this.webGLDevice.emitCmdUpdateGPUBuffer( this._gpuBuffer as WebGLGPUBuffer, offset ? offset : 0, buffer);
+        this.webGLDevice.emitCmdUpdateGPUBuffer(
+            this._gpuBuffer as WebGLGPUBuffer,
+            buffer,
+            offset !== undefined ? offset : 0,
+            size !== undefined ? size : buffer.byteLength);
     }
 }

@@ -537,11 +537,11 @@ export class WebGLGFXDevice extends GFXDevice {
         WebGLCmdFuncDestroyBuffer(this as WebGLGFXDevice, gpuBuffer);
     }
 
-    public emitCmdUpdateGPUBuffer (gpuBuffer: WebGLGPUBuffer, offset: number, buffer: ArrayBuffer) {
+    public emitCmdUpdateGPUBuffer (gpuBuffer: WebGLGPUBuffer, buffer: ArrayBuffer, offset: number, size: number) {
         // TODO: Async
         const isStagingBuffer = (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_SRC) !== GFXBufferUsageBit.NONE;
         if (!isStagingBuffer) {
-            WebGLCmdFuncUpdateBuffer(this as WebGLGFXDevice, gpuBuffer, offset, buffer);
+            WebGLCmdFuncUpdateBuffer(this as WebGLGFXDevice, gpuBuffer, buffer, offset, size);
         }
     }
 
