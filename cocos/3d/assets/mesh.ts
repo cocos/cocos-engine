@@ -263,6 +263,47 @@ export interface IPrimitive {
     topology: Topology;
 }
 
+export interface IRenderingSubmesh {
+    inputAssembler: GFXInputAssembler;
+    primitiveMode: GFXPrimitiveMode;
+}
+
+export class RenderingMesh {
+    public constructor (
+        private _subMeshes: Array<IRenderingSubmesh | null>,
+        private _vertexBuffers: GFXBuffer[],
+        private _indexBuffers: GFXBuffer[]) {
+
+    }
+
+    public get subMeshCount () {
+        return this._subMeshes.length;
+    }
+
+    public getSubmesh (index: number) {
+        return this._subMeshes[index];
+    }
+
+    public destroy () {
+        this._vertexBuffers.forEach((vertexBuffer) => {
+            vertexBuffer.destroy();
+        });
+        this._vertexBuffers.length = 0;
+
+        this._indexBuffers.forEach((indexBuffer) => {
+            indexBuffer.destroy();
+        });
+        this._indexBuffers.length = 0;
+
+        this._subMeshes.forEach((subMesh) => {
+            if (subMesh) {
+                subMesh.inputAssembler.destroy();
+            }
+        });
+        this._subMeshes.length = 0;
+    }
+}
+
 @ccclass('cc.Mesh')
 export default class Mesh extends Asset {
 
@@ -276,19 +317,27 @@ export default class Mesh extends Asset {
 
     /**
      * Submeshes count of this mesh.
+     * @deprecated Use this.renderingMesh.subMeshCount instead.
      */
     get subMeshCount () {
-        this._lazyInitRenderResources();
-        return this._subMeshes!.length;
+        const renderingMesh = this.renderingMesh;
+        return renderingMesh ? renderingMesh.subMeshCount : 0;
     }
 
+    /**
+     * Min position of this mesh.
+     */
     get minPosition () {
         return this._minPosition;
     }
 
+    /**
+     * Max position of this mesh.
+     */
     get maxPosition () {
         return this._maxPosition;
     }
+
     /**
      * The vertex bundles that this mesh owns.
      */
@@ -298,6 +347,7 @@ export default class Mesh extends Asset {
     /**
      * The primitives that this mesh owns.
      */
+    @property
     public _primitives: IPrimitive[] = [];
 
     /**
@@ -316,11 +366,7 @@ export default class Mesh extends Asset {
 
     private _initialized = false;
 
-    private _subMeshes: Array<GFXInputAssembler | null> = [];
-
-    private _vertexBuffers: GFXBuffer[] = [];
-
-    private _indexBuffers: GFXBuffer[] = [];
+    private _renderingMesh: RenderingMesh | null = null;
 
     constructor () {
         super();
@@ -330,45 +376,33 @@ export default class Mesh extends Asset {
      * Destory this mesh and immediately release its video memory.
      */
     public destroy () {
-        this._vertexBuffers.forEach((vertexBuffer) => {
-            vertexBuffer.destroy();
-        });
-        this._vertexBuffers.length = 0;
-
-        this._indexBuffers.forEach((indexBuffer) => {
-            indexBuffer.destroy();
-        });
-        this._indexBuffers.length = 0;
-
-        this._subMeshes.forEach((subMesh) => {
-            if (subMesh) {
-                subMesh.destroy();
-            }
-        });
-        this._subMeshes.length = 0;
-
-        this._initialized = false;
-
+        if (this._renderingMesh) {
+            this._renderingMesh.destroy();
+            this._renderingMesh = null;
+            this._initialized = false;
+        }
         return super.destroy();
+    }
+
+    /**
+     * Gets the rendering mesh.
+     */
+    public get renderingMesh () {
+        this._lazyInitRenderResources();
+        return this._renderingMesh;
     }
 
     /**
      * !#en
      * Gets the specified submesh.
-     * @param {number} index Index of the specified submesh.
+     * @param index Index of the specified submesh.
+     * @deprecated Using this.renderingMesh() instead.
      */
-    public getSubMesh (index) {
-        this._lazyInitRenderResources();
-        return this._subMeshes![index];
+    public getSubMesh (index: number) {
+        const renderingMesh = this.renderingMesh;
+        return renderingMesh ? renderingMesh.getSubmesh(index) : null;
     }
 
-    public getGFXPrimitiveMode (index: number) {
-        return toGFXTopology(this._primitives[index].topology);
-    }
-
-    /**
-     *
-     */
     private _lazyInitRenderResources () {
         if (this._initialized) {
             return;
@@ -384,9 +418,11 @@ export default class Mesh extends Asset {
 
         const gfxDevice = cc.director.root.device as GFXDevice;
 
-        this._createVertexBuffers(gfxDevice, buffer);
+        const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
 
-        const submeshes = this._primitives.map((primitive) => {
+        const indexBuffers: GFXBuffer[] = [];
+
+        const renderingSubmeshes = this._primitives.map((primitive) => {
             if (primitive.vertexBundelIndices.length === 0) {
                 return null;
             }
@@ -397,10 +433,7 @@ export default class Mesh extends Asset {
                 size: primitive.indices.length,
                 stride: getIndexUnitStride(primitive.indexUnit),
             });
-
-            if (!indexBuffer) {
-                return null;
-            }
+            indexBuffers.push(indexBuffer);
 
             indexBuffer.update(buffer, primitive.indices.offset, primitive.indices.length);
 
@@ -421,49 +454,32 @@ export default class Mesh extends Asset {
             });
 
             const referedVertexBuffers = primitive.vertexBundelIndices.map(
-                (i) => this._vertexBuffers[i]);
+                (i) => vertexBuffers[i]);
 
-            return gfxDevice.createInputAssembler({
-                attributes: gfxAttributes,
-                vertexBuffers: referedVertexBuffers,
-                indexBuffer,
-            });
+            return {
+                primitiveMode: toGFXTopology(primitive.topology),
+                inputAssembler: gfxDevice.createInputAssembler({
+                    attributes: gfxAttributes,
+                    vertexBuffers: referedVertexBuffers,
+                    indexBuffer,
+                }),
+            } as IRenderingSubmesh ;
         });
 
-        this._subMeshes = submeshes;
+        this._renderingMesh = new RenderingMesh(renderingSubmeshes, vertexBuffers, indexBuffers);
     }
 
-    private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer) {
-        let nullish = false;
-
-        const vertexBuffers = this._vertexBundles.map((vertexBundle) => {
+    private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
+        return this._vertexBundles.map((vertexBundle) => {
             const vertexBuffer = gfxDevice.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: vertexBundle.data.length,
                 stride: vertexBundle.data.length / vertexBundle.verticesCount,
             });
-
-            if (!vertexBuffer) {
-                nullish = true;
-                return null;
-            }
-
             vertexBuffer.update(new Uint8Array(data, vertexBundle.data.offset, vertexBundle.data.length));
             return vertexBuffer;
         });
-
-        if (!nullish) {
-            this._vertexBuffers = vertexBuffers as GFXBuffer[];
-        } else {
-            vertexBuffers.forEach((vertexBuffer) => {
-                if (vertexBuffer) {
-                    vertexBuffer.destroy();
-                }
-            });
-        }
-
-        return !nullish;
     }
 }
 cc.Mesh = Mesh;

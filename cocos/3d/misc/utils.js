@@ -1,7 +1,8 @@
 import { renderer } from '../../renderer';
 import find from '../../scene-graph/find';
-import Mesh from '../assets/mesh';
+import Mesh, { RenderingMesh } from '../assets/mesh';
 import gfx from '../../renderer/gfx/index';
+import { GFXPrimitiveMode } from '../../gfx/define';
 
 /**
  *
@@ -44,7 +45,8 @@ function createJointsTexture(skinning) {
 function createMesh(context, data) {
   let ia = renderer.createIA(context, data);
   let meshAsset = new Mesh();
-  meshAsset._subMeshes = [ia];
+  const primitiveMode = data.primitiveMode === undefined ? GFXPrimitiveMode.TRIANGLE_LIST : data.primitiveMode;
+  meshAsset._renderingMesh = new RenderingMesh([{inputAssembler: ia, primitiveMode}], [], []);
   meshAsset._minPosition = data.minPos;
   meshAsset._maxPosition = data.maxPos;
 

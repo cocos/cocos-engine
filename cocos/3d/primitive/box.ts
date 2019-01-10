@@ -131,7 +131,7 @@ export default function box (options: IBoxOptions): IGeometry {
     _buildPlane(2, ws, ls); // TOP
 
     return {
-        primitiveType: GFXPrimitiveMode.TRIANGLE_LIST,
+        primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
         positions,
         normals,
         uvs,
