@@ -24,29 +24,29 @@
  ****************************************************************************/
 
 // @ts-check
-import { _decorator } from "../../../core/data";
+import { _decorator } from '../../../core/data';
 const { ccclass, property } = _decorator;
 
 /**
  * The class BufferRange denotes a range of the buffer.
  */
-@ccclass("cc.BufferRange")
+@ccclass('cc.BufferRange')
 export default class BufferRange {
     /**
      * The offset of the range.
      * @type {Number}
      */
     @property(Number)
-    _offset = 0;
+    public _offset = 0;
 
     /**
      * The length of the range, in bytes.
      * @type {Number}
      */
     @property(Number)
-    _length = 0;
+    public _length = 0;
 
-    constructor(offset, length) {
+    constructor (offset, length) {
         this._offset = offset;
         this._length = length;
     }
