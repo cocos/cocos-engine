@@ -28,10 +28,10 @@ export class RenderView {
     }
 
     public set visibility (vis: number) {
-        this._visiblity = vis;
+        this._visibility = vis;
     }
     public get visibility (): number {
-        return this._visiblity;
+        return this._visibility;
     }
 
     public get camera (): Camera {
@@ -50,7 +50,7 @@ export class RenderView {
     private _name: string = '';
     private _window: GFXWindow | null = null;
     private _priority: number = 0;
-    private _visiblity: number = 0;
+    private _visibility: number = 0;
     private _scene: RenderScene | null = null;
     private _camera: Camera | null = null;
     private _isAttached: boolean = false;

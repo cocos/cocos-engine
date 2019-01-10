@@ -25,6 +25,10 @@ export class Root {
         return this._mainWindow;
     }
 
+    public get windows (): GFXWindow[] {
+        return this._windows;
+    }
+
     public get pipeline (): RenderPipeline | null {
         return this._pipeline;
     }

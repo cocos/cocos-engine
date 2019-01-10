@@ -1,13 +1,30 @@
 import { frustum, ray } from '../../3d/geom-utils';
-import { Mat4, Rect } from '../../core/value-types';
-import { color4, lerp, mat4, vec3 } from '../../core/vmath';
+import { Color, Mat4, Rect } from '../../core/value-types';
+import { color4, lerp, mat4, toRadian, vec3 } from '../../core/vmath';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
+import { RenderView, RenderViewPriority } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
 
 export enum CameraProjection {
-    PERSPECTIVE,
     ORTHO,
+    PERSPECTIVE,
+}
+
+export interface ICameraInfo {
+    name: string;
+    node: Node;
+    projection: number;
+    fov: number;
+    orthoHeight: number;
+    near: number;
+    far: number;
+    color: Color;
+    depth: number;
+    stencil: number;
+    clearFlags: GFXClearFlag;
+    rect: Rect;
+    targetDisplay: number;
 }
 
 const v_a = cc.v3();
@@ -36,32 +53,43 @@ export class Camera {
     private _matViewProjInv: mat4 = new Mat4();
     private _frustum: frustum = new frustum();
     private _node: Node | null = null;
+    private _view: RenderView | null = null;
     private _visibility: number;
 
-    constructor (scene: RenderScene, name: string) {
+    constructor (scene: RenderScene, info: ICameraInfo) {
         this._scene = scene;
         this._name = name;
-        this._proj = CameraProjection.PERSPECTIVE;
+        this._node = info.node;
+        this._proj = info.projection;
+        this._fov = toRadian(info.fov);
+        this._orthoHeight = info.orthoHeight;
+        this._nearClip = info.near;
+        this._farClip = info.far;
+        this._viewport = info.rect;
 
-        const win = scene.root.mainWindow;
+        const c = info.color;
+        color4.set(this._clearColor, c.r / 255, c.g / 255, c.b / 255, c.a / 255);
+        this._clearDepth = info.depth;
+        this._clearStencil = info.stencil;
+        this._clearFlag = info.clearFlags;
+
+        const win = scene.root.windows[info.targetDisplay - 1] || scene.root.mainWindow;
         if (win) {
             this._width = win.width;
             this._height = win.height;
+            const view = this._view = scene.root.createView({
+              name: `${name}View`,
+              window: win,
+              priority: RenderViewPriority.GENERAL,
+            });
+            if (view) { view.attach(this); }
         } else {
             this._width = 1;
             this._height = 1;
         }
-
         this._aspect = this._width / this._height;
-        this._orthoHeight = 10;
-        this._fov = Math.PI / 4;
-        this._nearClip = 1.0;
-        this._farClip = 10000.0;
-        this._visibility = 0;
 
-        this._clearDepth = 1;
-        this._clearStencil = 0;
-        this._clearFlag = GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
+        this._visibility = 0;
     }
 
     public resize (width: number, height: number) {

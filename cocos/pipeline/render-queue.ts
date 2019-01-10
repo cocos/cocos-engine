@@ -54,9 +54,9 @@ export class RenderQueue {
             const pso = pass.pipelineState;
 
             const isTransparent = pso.blendState.targets[0].blend;
-            
+
             // TODO: model priority
-            
+
             if (!isTransparent) {
                 // Opaque objects are sorted by depth front to back -> pass priority -> shader id.
                 const hash = (0 << 63) | (i << 47) | (ui32Depth << 15) | pso.shader.id;
@@ -73,5 +73,22 @@ export class RenderQueue {
 
     public sort () {
 
+        this.opaques.sort((a: RenderItem, b: RenderItem) => {
+            return a.hash - b.hash;
+        });
+
+        this.transparents.sort((a: RenderItem, b: RenderItem) => {
+            return a.hash - b.hash;
+        });
+
+        this.opaqueCmdBuffs = new Array<GFXCommandBuffer>(this.opaques.length);
+        for (let i = 0; i < this.opaques.length; ++i) {
+            this.opaqueCmdBuffs[i] = this.opaques[i].cmdBuff;
+        }
+
+        this.transparentCmdBuffs = new Array<GFXCommandBuffer>(this.transparents.length);
+        for (let i = 0; i < this.transparents.length; ++i) {
+            this.transparentCmdBuffs[i] = this.transparents[i].cmdBuff;
+        }
     }
 }

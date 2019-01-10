@@ -358,8 +358,12 @@ export abstract class RenderPipeline {
                 continue;
             }
 
+            model.updateRenderData();
+
             // add model pass to render queue
             this._queue.add(model, camera);
         }
+
+        this._queue.sort();
     }
 }
