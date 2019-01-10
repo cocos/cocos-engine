@@ -1,14 +1,10 @@
+import { vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
-import { IGeometry, IGeometryOptions, normalizeGeometryOptions, WindingOrder } from './defines';
+import { IGeometry, IGeometryOptions, normalizeGeometryOptions } from './defines';
 
 interface IBoxOptions extends IGeometryOptions {
     /**
      * Box extent on X-axis.
-     */
-    length: number;
-
-    /**
-     * Box extent on Z-axis.
      */
     width: number;
 
@@ -16,6 +12,26 @@ interface IBoxOptions extends IGeometryOptions {
      * Box extent on Y-axis.
      */
     height: number;
+
+    /**
+     * Box extent on Z-axis.
+     */
+    length: number;
+
+    /**
+     * Segment count on X-axis.
+     */
+    widthSegments?: number;
+
+    /**
+     * Segment count on Y-axis.
+     */
+    heightSegments?: number;
+
+    /**
+     * Segment count on Z-axis.
+     */
+    lengthSegments?: number;
 }
 
 /**
@@ -25,150 +41,116 @@ interface IBoxOptions extends IGeometryOptions {
  */
 export default function box (options: IBoxOptions): IGeometry {
     normalizeGeometryOptions(options);
+    const ws = options.widthSegments || 1;
+    const hs = options.heightSegments || 1;
+    const ls = options.lengthSegments || 1;
 
-    const right = options.length / 2;
-    const left = -right;
-    const top = options.height / 2;
-    const bottom = -top;
-    const near = options.width / 2;
-    const far = -near;
-    const center = options.center ? {
-        x: options.center.x || 0,
-        y: options.center.y || 0,
-        z: options.center.z || 0,
-    } : {
-        x: 0,
-        y: 0,
-        z: 0,
-    };
+    const hw = options.width / 2;
+    const hh = options.height / 2;
+    const hl = options.length / 2;
 
-    const vertices: number[] = [];
-    const addVertex = (x: number, y: number, z: number) => {
-        vertices.push(x + center.x, y + center.y, z + center.z);
-    };
-    addVertex(left, top, near);
-    addVertex(left, bottom, near);
-    addVertex(right, bottom, near);
-    addVertex(right, top, near);
-    addVertex(left, top, far);
-    addVertex(left, bottom, far);
-    addVertex(right, bottom, far);
-    addVertex(right, top, far);
+    const corners = [
+        vec3.set(c0, -hw, -hh, hl),
+        vec3.set(c1, hw, -hh, hl),
+        vec3.set(c2, hw, hh, hl),
+        vec3.set(c3, -hw, hh, hl),
+        vec3.set(c4, hw, -hh, -hl),
+        vec3.set(c5, -hw, -hh, -hl),
+        vec3.set(c6, -hw, hh, -hl),
+        vec3.set(c7, hw, hh, -hl),
+    ];
 
-    let indices: number[] = [];
-    let normals: number[] | undefined;
-    let primitiveType: GFXPrimitiveMode = GFXPrimitiveMode.POINT_LIST;
-    if (options.wireframed) {
-        primitiveType = GFXPrimitiveMode.LINE_LIST;
-        indices = indices.concat([
-            0, 1, 1, 2, 2, 3, 3, 0, // Front quad
-            4, 5, 5, 6, 6, 7, 7, 4, // Back quad
-            0, 4, 1, 5, 2, 6, 3, 7, // Side lines
-        ]);
-    } else {
-        primitiveType = GFXPrimitiveMode.TRIANGLE_LIST;
-        type FaceNormal = [ number, number, number ];
-        type FaceQuad = [
-            number, // Left top
-            number, // Left bottom
-            number, // Right bottom
-            number // Right top
-        ];
-        interface IFaceInfo {
-            quad: FaceQuad;
-            normal: FaceNormal;
-        }
-        interface IFaceInfos {
-            front: IFaceInfo;
-            right: IFaceInfo;
-            back: IFaceInfo;
-            left: IFaceInfo;
-            top: IFaceInfo;
-            bottom: IFaceInfo;
-        }
+    const faceAxes = [
+        [2, 3, 1], // FRONT
+        [4, 5, 7], // BACK
+        [7, 6, 2], // TOP
+        [1, 0, 4], // BOTTOM
+        [1, 4, 2], // RIGHT
+        [5, 0, 6],  // LEFT
+    ];
 
-        const addTri = (i: number, j: number, k: number) => {
-            if (options.windingOrder === WindingOrder.CounterClockwise) {
-                indices.push(i, j, k);
-            } else {
-                indices.push(i, k, j);
+    const faceNormals = [
+        [0, 0, 1], // FRONT
+        [0, 0, -1], // BACK
+        [0, 1, 0], // TOP
+        [0, -1, 0], // BOTTOM
+        [1, 0, 0], // RIGHT
+        [-1, 0, 0],  // LEFT
+    ];
+
+    const positions: number[] = [];
+    const normals: number[] = [];
+    const uvs: number[] = [];
+    const indices: number[] = [];
+    const minPos = vec3.create(-hw, -hh, -hl);
+    const maxPos = vec3.create(hw, hh, hl);
+    const boundingRadius = Math.sqrt(hw * hw + hh * hh + hl * hl);
+
+    function _buildPlane (side: number, uSegments: number, vSegments: number) {
+        let u: number;
+        let v: number;
+        let ix: number;
+        let iy: number;
+        const offset = positions.length / 3;
+        const faceAxe = faceAxes[side];
+        const faceNormal = faceNormals[side];
+
+        for (iy = 0; iy <= vSegments; iy++) {
+            for (ix = 0; ix <= uSegments; ix++) {
+                u = ix / uSegments;
+                v = iy / vSegments;
+
+                vec3.lerp(temp1, corners[faceAxe[0]], corners[faceAxe[1]], u);
+                vec3.lerp(temp2, corners[faceAxe[0]], corners[faceAxe[2]], v);
+                vec3.sub(temp3, temp2, corners[faceAxe[0]]);
+                vec3.add(r, temp1, temp3);
+
+                positions.push(r.x, r.y, r.z);
+                normals.push(faceNormal[0], faceNormal[1], faceNormal[2]);
+                uvs.push(u, v);
+
+                if ((ix < uSegments) && (iy < vSegments)) {
+                    const useg1 = uSegments + 1;
+                    const a = ix + iy * useg1;
+                    const b = ix + (iy + 1) * useg1;
+                    const c = (ix + 1) + (iy + 1) * useg1;
+                    const d = (ix + 1) + iy * useg1;
+
+                    indices.push(offset + a, offset + d, offset + b);
+                    indices.push(offset + b, offset + d, offset + c);
+                }
             }
-        };
-
-        const addQuad = (faceQuad: FaceQuad) => {
-            const lt = faceQuad[0];
-            const lb = faceQuad[1];
-            const rb = faceQuad[2];
-            const rt = faceQuad[3];
-            addTri(lt, lb, rb);
-            addTri(lt, rb, rt);
-        };
-
-        const addNormal = (faceNormal: FaceNormal) => {
-            const x = faceNormal[0];
-            const y = faceNormal[1];
-            const z = faceNormal[2];
-            if (options.windingOrder === WindingOrder.CounterClockwise) {
-                normals!.push(x, y, z);
-            } else {
-                normals!.push(-x, -y, -z);
-            }
-        };
-
-        const addFace = (face: IFaceInfo) => {
-            addQuad(face.quad);
-            if (normals) {
-                addNormal(face.normal);
-            }
-        };
-
-        const faceInfos: IFaceInfos = {
-            front: {
-                quad: [0, 1, 2, 3],
-                normal: [0, 0, 1],
-            },
-            right: {
-                quad: [3, 2, 6, 7],
-                normal: [1, 0, 0],
-            },
-            back: {
-                quad: [7, 6, 5, 4],
-                normal: [0, 0, -1],
-            },
-            left: {
-                quad: [4, 5, 1, 0],
-                normal: [-1, 0, 0],
-            },
-            top: {
-                quad: [4, 0, 3, 7],
-                normal: [0, 1, 0],
-            },
-            bottom: {
-                quad: [1, 5, 6, 2],
-                normal: [0, -1, 0],
-            },
-        };
-
-        if (options.includeNormal) {
-            normals = [];
         }
-        addFace(faceInfos.front);
-        addFace(faceInfos.right);
-        addFace(faceInfos.back);
-        addFace(faceInfos.left);
-        addFace(faceInfos.top);
-        addFace(faceInfos.bottom);
     }
 
-    const result: IGeometry = {
-        primitiveType,
-        vertices,
+    _buildPlane(0, ws, hs); // FRONT
+    _buildPlane(4, ls, hs); // RIGHT
+    _buildPlane(1, ws, hs); // BACK
+    _buildPlane(5, ls, hs); // LEFT
+    _buildPlane(3, ws, ls); // BOTTOM
+    _buildPlane(2, ws, ls); // TOP
+
+    return {
+        primitiveType: GFXPrimitiveMode.TRIANGLE_LIST,
+        positions,
+        normals,
+        uvs,
         indices,
+        minPos,
+        maxPos,
+        boundingRadius,
     };
-
-    if (normals) {
-        result.normals = normals;
-    }
-
-    return result;
 }
+
+const temp1 = vec3.create(0, 0, 0);
+const temp2 = vec3.create(0, 0, 0);
+const temp3 = vec3.create(0, 0, 0);
+const r = vec3.create(0, 0, 0);
+const c0 = vec3.create(0, 0, 0);
+const c1 = vec3.create(0, 0, 0);
+const c2 = vec3.create(0, 0, 0);
+const c3 = vec3.create(0, 0, 0);
+const c4 = vec3.create(0, 0, 0);
+const c5 = vec3.create(0, 0, 0);
+const c6 = vec3.create(0, 0, 0);
+const c7 = vec3.create(0, 0, 0);
