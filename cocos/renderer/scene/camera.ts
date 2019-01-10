@@ -223,7 +223,6 @@ export class Camera {
      */
     public screenPointToRay (x: number, y: number, out: ray): ray {
         out = out || ray.create();
-        this.update();
 
         const cx = this._viewport.x * this._width;
         const cy = this._viewport.y * this._height;
@@ -236,7 +235,7 @@ export class Camera {
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
             // camera origin
-            this._node.getWorldPosition(v_b);
+            if (this._node) { this._node.getWorldPosition(v_b); }
         } else {
             // near plane intersection
             vec3.set(v_b, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
@@ -267,7 +266,7 @@ export class Camera {
             vec3.transformMat4(out, out, this._matViewProjInv);
 
             // lerp to depth z
-            this._node.getWorldPosition(v_a);
+            if (this._node) { this._node.getWorldPosition(v_a); }
 
             vec3.lerp(out, v_a, out, lerp(this._nearClip / this._farClip, 1, screenPos.z));
         } else {
