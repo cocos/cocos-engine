@@ -99,6 +99,8 @@ export class CameraComponent extends Component {
     protected _clearFlags = CameraClearFlag.SOLID_COLOR;
     @property
     protected _rect = new Rect(0, 0, 1, 1);
+    @property
+    protected _targetDisplay = 0;
 
     protected _camera: Camera | null = null;
 
@@ -279,23 +281,20 @@ export class CameraComponent extends Component {
         if (this._camera) { this._camera.viewport = val; }
     }
 
+    @property
+    get targetDisplay () {
+        return this._targetDisplay;
+    }
+    set targetDisplay (val) {
+        this._targetDisplay = val;
+    }
+
     public onLoad () {
 
     }
 
     public onEnable () {
-        this._camera = this._getRenderScene().createCamera(this.name);
-        this._camera.node = this.node;
-        this.projection = this._projection;
-        this.fov = this._fov;
-        this.orthoHeight = this._orthoHeight;
-        this.near = this._near;
-        this.far = this._far;
-        this.color = this._color;
-        this.depth = this._depth;
-        this.stencil = this._stencil;
-        this.clearFlags = this._clearFlags;
-        this.rect = this._rect;
+        this._camera = this._getRenderScene().createCamera(this);
     }
 
     public onDisable () {

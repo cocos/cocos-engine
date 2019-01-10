@@ -63,18 +63,6 @@
       let mainWindow = root.mainWindow;
       cc.director.runSceneImmediate(scene);
 
-      let view = root.createView({
-        name: "defaultView",
-        window: mainWindow,
-        //priority: cc.RenderViewPriority.GENERAL,
-        priority: 100,
-        width: mainWindow.width,
-        height: mainWindow.height,
-      });
-      view.attach(camComp._camera);
-
-
-
       // let camera = scene.mainCamera;
       // camera.position = { x: 0.0, y: 0.0, z: 3.0 };
       // camera.direction = { x: 0.0, y: 0.0, z: -1.0 };
