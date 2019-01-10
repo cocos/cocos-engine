@@ -46,6 +46,7 @@ export class Camera {
     private _rotation: quat = new quat();
     private _direction: vec3 = new vec3();
     private _frustum: frustum = new frustum();
+    private _visibility: number;
 
     constructor (scene: RenderScene, name: string) {
         this._scene = scene;
@@ -67,6 +68,7 @@ export class Camera {
         this._fov = Math.PI / 4;
         this._nearClip = 1.0;
         this._farClip = 10000.0;
+        this._visibility = 0;
     }
 
     public resize (width: number, height: number) {
@@ -173,6 +175,13 @@ export class Camera {
 
     public get frustum (): frustum {
         return this._frustum;
+    }
+
+    public set visibility (vis: number) {
+        this._visibility = vis;
+    }
+    public get visibility (): number {
+        return this._visibility;
     }
 
     public rotate (rot: quat, ns?: NodeSpace) {

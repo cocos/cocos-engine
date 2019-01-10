@@ -10,9 +10,10 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
+import { Camera } from '../../renderer/scene/camera';
 import { RenderFlow } from '../render-flow';
 import { UBOGlobal } from '../render-pipeline';
-import { RenderStage, IRenderStageInfo } from '../render-stage';
+import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 
 /*
@@ -235,8 +236,11 @@ export class TestStage extends RenderStage {
 
     public render (view: RenderView) {
         const cmdBuff =  this._cmdBuff as GFXCommandBuffer;
-        this._renderArea.width = view.width;
-        this._renderArea.height = view.height;
+
+        const camera = view.camera as Camera;
+
+        this._renderArea.width = camera.width;
+        this._renderArea.height = camera.height;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass( this._framebuffer as GFXFramebuffer, this._renderArea, this._clearColors, this._clearDepth, this._clearStencil);

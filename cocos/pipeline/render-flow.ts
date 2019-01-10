@@ -1,6 +1,7 @@
 import { GFXDevice } from '../gfx/device';
+import { Camera } from '../renderer/scene/camera';
 import { RenderPipeline } from './render-pipeline';
-import { RenderStage, IRenderStageInfo } from './render-stage';
+import { IRenderStageInfo, RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 
 export interface IRenderFlowInfo {

@@ -5,8 +5,9 @@ import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
+import { Camera } from '../../renderer/scene/camera';
 import { RenderFlow } from '../render-flow';
-import { RenderStage, IRenderStageInfo } from '../render-stage';
+import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 
 export class TestMaterialStage extends RenderStage {
@@ -84,9 +85,11 @@ export class TestMaterialStage extends RenderStage {
             mtl.inited = true;
         }
 
+        const camera = view.camera as Camera;
+
         const cmdBuff =  this._cmdBuff as GFXCommandBuffer;
-        this._renderArea.width = view.width;
-        this._renderArea.height = view.height;
+        this._renderArea.width = camera.width;
+        this._renderArea.height = camera.height;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass( this._framebuffer as GFXFramebuffer, this._renderArea, this._clearColors,

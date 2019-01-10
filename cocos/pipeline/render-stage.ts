@@ -2,6 +2,7 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { IGFXColor, IGFXRect } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
+import { Camera } from '../renderer/scene/camera';
 import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
 import { RenderView } from './render-view';

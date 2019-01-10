@@ -1,6 +1,7 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
+import { Camera } from '../../renderer/scene/camera';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -41,8 +42,10 @@ export class ForwardStage extends RenderStage {
         const cmdBuff = this._cmdBuff as GFXCommandBuffer;
         const queue = this._pipeline.queue;
 
-        this._renderArea.width = view.width;
-        this._renderArea.height = view.height;
+        const camera = view.camera as Camera;
+
+        this._renderArea.width = camera.width;
+        this._renderArea.height = camera.height;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass( this._framebuffer as GFXFramebuffer, this._renderArea, this._clearColors, this._clearDepth, this._clearStencil);

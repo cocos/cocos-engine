@@ -4,6 +4,7 @@ import Texture2D from '../../assets/texture-2d';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType} from '../../gfx/define';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
+import { Camera } from '../../renderer/scene/camera';
 import Model from '../../renderer/scene/model';
 import { Scene } from '../../scene-graph';
 import { RenderFlow } from '../render-flow';
@@ -92,9 +93,11 @@ export class TestModelStage extends RenderStage {
             this._init = true;
         }
 
+        const camera = view.camera as Camera;
+
         const cmdBuff =  this._cmdBuff as GFXCommandBuffer;
-        this._renderArea.width = view.width;
-        this._renderArea.height = view.height;
+        this._renderArea.width = camera.width;
+        this._renderArea.height = camera.height;
         this._model._updateTransform();
         this._model.updateRenderData();
         cmdBuff.begin();
