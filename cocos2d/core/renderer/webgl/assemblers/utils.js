@@ -54,8 +54,7 @@ function fillMeshVertices (node, buffer, renderData, color) {
     }
 
     // fill indice data
-    for (let i = 0, count = vertexCount / 4; i < count; i++)
-    {
+    for (let i = 0, count = vertexCount / 4; i < count; i++) {
         let start = vertexId + i * 4;
         ibuf[indiceOffset++] = start;
         ibuf[indiceOffset++] = start + 1;
@@ -122,8 +121,7 @@ function fillMeshVertices3D (node, buffer, renderData, color) {
     }
 
     // fill indice data
-    for (let i = 0, count = vertexCount / 4; i < count; i++)
-    {
+    for (let i = 0, count = vertexCount / 4; i < count; i++) {
         let start = vertexId + i * 4;
         ibuf[indiceOffset++] = start;
         ibuf[indiceOffset++] = start + 1;

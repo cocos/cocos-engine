@@ -3216,15 +3216,6 @@ let NodeDefines = {
             eventManager.pauseTarget(this);
         }
     },
-
-    // traversal the node tree, child cullingMask must keep the same with the parent.
-    _getActualGroupIndex (node) {
-        let groupIndex = node.groupIndex;
-        if (groupIndex === 0 && node.parent) {
-            groupIndex = this._getActualGroupIndex(node.parent);
-        }
-        return groupIndex;
-    },
 };
 
 if (CC_EDITOR) {
