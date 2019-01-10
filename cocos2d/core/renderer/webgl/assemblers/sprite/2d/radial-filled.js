@@ -23,12 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const utils = require('../utils');
-
 const fillVertices = require('../../utils').fillVertices;
+const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
 const PI_2 = Math.PI * 2;
-
 
 let _vertPos = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
 let _vertices = [0, 0, 0, 0];
@@ -217,20 +215,13 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        utils.packToDynamicAtlas(sprite);
-
         let renderData = sprite._renderData;
         let frame = sprite.spriteFrame;
         if (!renderData || !frame) return;
         if (!renderData.vertDirty && !renderData.uvDirty) return;
         let data = renderData._data;
 
-        let fillStart = sprite._fillStart;
-        let fillRange = sprite._fillRange;
-        if (fillRange < 0) {
-            fillStart += fillRange;
-            fillRange = -fillRange;
-        }
+        packToDynamicAtlas(sprite, frame);
 
         //do round fill start [0,1), include 0, exclude 1
         while (fillStart >= 1.0) fillStart -= 1.0;

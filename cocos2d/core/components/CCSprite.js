@@ -28,6 +28,7 @@ const misc = require('../utils/misc');
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
+const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
 
 const Material = require('../assets/material/CCMaterial');
 

@@ -64,8 +64,7 @@ export default class RenderData extends BaseRenderData {
     if (width !== this._width || 
         height !== this._height ||
         pivotX !== this._pivotX ||
-        pivotY !== this._pivotY) 
-    {
+        pivotY !== this._pivotY) {
       this._width = width;
       this._height = height;
       this._pivotX = pivotX;

@@ -102,11 +102,13 @@ cc.screen = /** @lends cc.screen# */{
      * @returns {Boolean}
      */
     fullScreen: function () {
-        if(!this._supportsFullScreen) return false;
-        else if( document[this._fn.fullscreenElement] === undefined || document[this._fn.fullscreenElement] === null )
+        if (!this._supportsFullScreen) return false;
+        else if (!document[this._fn.fullscreenElement] && !document[this._fn.webkitFullscreenElement] && !document[this._fn.mozFullScreenElement]) {
             return false;
-        else
+        }
+        else {
             return true;
+        }
     },
     
     /**
@@ -116,7 +118,7 @@ cc.screen = /** @lends cc.screen# */{
      * @param {Function} onFullScreenChange
      */
     requestFullScreen: function (element, onFullScreenChange) {
-        if (element.tagName.toLowerCase() === "video") {
+        if (element && element.tagName.toLowerCase() === "video") {
             if (cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser && element.readyState > 0) {
                 element.webkitEnterFullscreen && element.webkitEnterFullscreen();
                 return;
@@ -150,7 +152,7 @@ cc.screen = /** @lends cc.screen# */{
      * @return {Boolean}
      */
     exitFullScreen: function (element) {
-        if (element.tagName.toLowerCase() === "video") {
+        if (element && element.tagName.toLowerCase() === "video") {
             if (cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser) {
                 element.webkitExitFullscreen && element.webkitExitFullscreen();
                 return;

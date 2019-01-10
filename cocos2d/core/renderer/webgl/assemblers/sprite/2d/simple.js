@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const utils = require('../utils');
+const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 module.exports = {
     updateRenderData (sprite) {
-        utils.packToDynamicAtlas(sprite);
+        packToDynamicAtlas(sprite, sprite._spriteFrame);
 
         let renderData = sprite._renderData;
         if (!renderData || !sprite.spriteFrame) return;

@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const utils = require('../utils');
 const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
+const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
 module.exports = {
     createData (sprite) {
@@ -32,7 +32,7 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        utils.packToDynamicAtlas(sprite);
+        packToDynamicAtlas(sprite, sprite._spriteFrame);
 
         let renderData = sprite._renderData;
         let frame = sprite.spriteFrame;

@@ -14,7 +14,6 @@ const FINAL = 1 << 9;
 let _batcher;
 let _cullingMask = 0;
 
-// 
 function RenderFlow () {
     this._func = init;
     this._next = null;
@@ -81,30 +80,29 @@ _proto._children = function (node) {
     let batcher = _batcher;
 
     let parentOpacity = batcher.parentOpacity;
-    batcher.parentOpacity *= (node._opacity / 255);
+    let opacity = (batcher.parentOpacity *= (node._opacity / 255));
 
     let worldTransformFlag = batcher.worldMatDirty ? WORLD_TRANSFORM : 0;
     let worldOpacityFlag = batcher.parentOpacityDirty ? OPACITY : 0;
+    let worldDirtyFlag = worldTransformFlag | worldOpacityFlag;
 
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
         // Advance the modification of the flag to avoid node attribute modification is invalid when opacity === 0.
-        c._renderFlag |= worldTransformFlag | worldOpacityFlag;
+        c._renderFlag |= worldDirtyFlag;
         if (!c._activeInHierarchy || c._opacity === 0) continue;
-        _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
 
         // TODO: Maybe has better way to implement cascade opacity
-        c._color.a = c._opacity * batcher.parentOpacity;
+        let colorVal = c._color._val;
+        c._color._fastSetA(c._opacity * opacity);
         flows[c._renderFlag]._func(c);
-        c._color.a = 255;
+        c._color._val = colorVal;
     }
 
     batcher.parentOpacity = parentOpacity;
 
     this._next._func(node);
-
-    _cullingMask = cullingMask;
 };
 
 _proto._postUpdateRenderData = function (node) {

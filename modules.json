@@ -28,8 +28,7 @@
   {
     "name": "Canvas Renderer",
     "entries": [
-      "./cocos2d/core/renderer/canvas/index.js",
-      "./extensions/dragonbones/canvas-assembler.js"
+      "./cocos2d/core/renderer/canvas/index.js"
     ]
   },
   {
@@ -52,7 +51,7 @@
     "entries": [
       "./cocos2d/core/renderer/utils/dynamic-atlas/manager.js"
     ],
-    "dependencies": ["Renderer Texture"]
+    "dependencies": ["WebGL Renderer", "Renderer Texture"]
   },
   {
     "name": "LabelOutline",
@@ -262,7 +261,7 @@
     ]
   },
   {
-    "name": "Native NetWork"
+    "name": "Native Socket"
   },
   {
     "name": "3D",

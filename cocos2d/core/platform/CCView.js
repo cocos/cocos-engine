@@ -30,9 +30,11 @@ const js = require('../platform/js');
 const renderer = require('../renderer');
 require('../platform/CCClass');
 
+const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
+
 var __BrowserGetter = {
     init: function(){
-        if (!CC_WECHATGAME && !CC_QQPLAY) {
+        if (!CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
             this.html = document.getElementsByTagName("html")[0];
         }
     },
@@ -56,6 +58,15 @@ var __BrowserGetter = {
 
 if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_SAFARI;
+
+if (isBaiduGame) {
+    if (cc.sys.browserType === cc.sys.BROWSER_TYPE_BAIDU_GAME_SUB) {
+        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_BAIDU_GAME_SUB;
+    }
+    else {
+        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_BAIDU_GAME;
+    }
+}
 
 if (CC_WECHATGAME) {
     if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
@@ -187,7 +198,7 @@ cc.js.mixin(View.prototype, {
     },
 
     // Resize helper functions
-    _resizeEvent: function () {
+    _resizeEvent: function (forceOrEvent) {
         var view;
         if (this.setDesignResolutionSize) {
             view = this;
@@ -209,7 +220,7 @@ cc.js.mixin(View.prototype, {
         else {
             view._initFrameSize();
         }
-        if (view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
+        if (forceOrEvent !== true && view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
             return;
 
         // Frame size changed, do resize works
@@ -296,6 +307,7 @@ cc.js.mixin(View.prototype, {
      * @param {Function|Null} callback - The callback function
      */
     setResizeCallback: function (callback) {
+        if (CC_EDITOR) return;
         if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
@@ -401,7 +413,7 @@ cc.js.mixin(View.prototype, {
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewport && !CC_JSB && !CC_WECHATGAME && !CC_QQPLAY) {
+        if (this._isAdjustViewport && !CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
@@ -601,7 +613,7 @@ cc.js.mixin(View.prototype, {
         this._frameSize.height = height;
         cc.game.frame.style.width = width + "px";
         cc.game.frame.style.height = height + "px";
-        this._resizeEvent();
+        this._resizeEvent(true);
     },
 
     /**
@@ -802,7 +814,7 @@ cc.js.mixin(View.prototype, {
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (!CC_JSB && !CC_WECHATGAME && !CC_QQPLAY) {
+        if (!CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
             // Set viewport's width
             this._setViewportMeta({"width": width}, true);
 
@@ -1060,7 +1072,7 @@ cc.ContainerStrategy = cc.Class({
     _setupContainer: function (view, w, h) {
         var locCanvas = cc.game.canvas, locContainer = cc.game.container;
 
-        if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
+        if (!CC_WECHATGAME && !isBaiduGame) {
             if (cc.sys.os === cc.sys.OS_ANDROID) {
                 document.body.style.width = (view._isRotated ? h : w) + 'px';
                 document.body.style.height = (view._isRotated ? w : h) + 'px';

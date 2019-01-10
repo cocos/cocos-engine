@@ -58,7 +58,18 @@ var DragonBonesAsset = cc.Class({
                 this._dragonBonesJson = value;
                 this.reset();
             }
-        }
+        },
+
+        _nativeAsset: {
+            get () {
+                return this._buffer;
+            },
+            set (bin) {
+                this._buffer = bin.buffer || bin;
+                this.reset();
+            },
+            override: true
+        },
     },
 
     statics: {
@@ -80,48 +91,56 @@ var DragonBonesAsset = cc.Class({
         }
     },
 
-    init: function (factory) {
+    init (factory) {
         if (CC_EDITOR) {
-            factory = factory || new dragonBones.CCFactory();
+            this._factory = factory || new dragonBones.CCFactory();
+        } else {
+            this._factory = factory;
         }
+
         if (this._dragonBonesData) {
-            let sameNamedDragonBonesData = factory.getDragonBonesData(this._dragonBonesData.name);
-            if (sameNamedDragonBonesData) {
-                // already added asset, see #2002
-                for (let i = 0; i < this._dragonBonesData.armatureNames.length; i++) {
-                    let armatureName = this._dragonBonesData.armatureNames[i];
-                    if (!sameNamedDragonBonesData.armatures[armatureName]) {
-                        // merge with new armature
-                        sameNamedDragonBonesData.addArmature(this._dragonBonesData.armatures[armatureName]);
-                    }
-                }
-                this._dragonBonesData = sameNamedDragonBonesData;
-            }
-            else {
-                factory.addDragonBonesData(this._dragonBonesData);
+            let hasSame = this.checkSameNameData(this._dragonBonesData);
+            if (!hasSame) {
+                this._factory.addDragonBonesData(this._dragonBonesData);
             }
         }
         else {
-            let _dragonBonesJson = JSON.parse(this.dragonBonesJson);
-            let sameNamedDragonBonesData = factory.getDragonBonesData(_dragonBonesJson.name);
-            if (sameNamedDragonBonesData) {
-                // already added asset, see #2002
-                let dragonBonesData;
-                for (let i = 0; i < _dragonBonesJson.armature.length; i++) {
-                    let armatureName = _dragonBonesJson.armature[i].name;
-                    if (!sameNamedDragonBonesData.armatures[armatureName]) {
-                        // add new armature
-                        if (!dragonBonesData) {
-                            dragonBonesData = factory._dataParser.parseDragonBonesData(_dragonBonesJson);
-                        }
-                        sameNamedDragonBonesData.addArmature(dragonBonesData.armatures[armatureName]);
-                    }
+            if (this.dragonBonesJson) {
+                this.initWithRawData(JSON.parse(this.dragonBonesJson), false);
+            } else {
+                this.initWithRawData(this._nativeAsset, true);
+            }
+        }
+    },
+
+    checkSameNameData (dragonBonesData) {
+        let sameNamedDragonBonesData = this._factory.getDragonBonesData(dragonBonesData.name);
+        if (sameNamedDragonBonesData) {
+            // already added asset, see #2002
+            let armatureNames = dragonBonesData.armatureNames;
+            for (let i = 0; i < armatureNames.length; i++) {
+                let armatureName = armatureNames[i];
+                if (!sameNamedDragonBonesData.armatures[armatureName]) {
+                    sameNamedDragonBonesData.addArmature(dragonBonesData.armatures[armatureName]);
                 }
-                this._dragonBonesData = sameNamedDragonBonesData;
             }
-            else {
-                this._dragonBonesData = factory.parseDragonBonesData(_dragonBonesJson);
-            }
+            this._dragonBonesData = sameNamedDragonBonesData;
+            return true;
+        }
+        return false;
+    },
+
+    initWithRawData (rawData, isBinary) {
+        if (!rawData) {
+            return;
+        }
+
+        let dragonBonesData = this._factory.parseDragonBonesDataOnly(rawData);
+        let hasSame = this.checkSameNameData(dragonBonesData);
+        if (!hasSame) {
+            this._dragonBonesData = dragonBonesData;
+            this._factory.handleTextureAtlasData(isBinary);
+            this._factory.addDragonBonesData(dragonBonesData);
         }
     },
 

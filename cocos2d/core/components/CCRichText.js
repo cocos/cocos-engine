@@ -73,7 +73,7 @@ let pool = new js.Pool(function (node) {
     return true;
 }, 20);
 
-pool.get = function (string, fontAsset, fontSize) {
+pool.get = function (string, richtext) {
     let labelNode = this._get();
     if (!labelNode) {
         labelNode = new cc.PrivateNode(RichTextChildName);
@@ -91,23 +91,22 @@ pool.get = function (string, fontAsset, fontSize) {
     if (typeof string !== 'string') {
         string = '' + string;
     }
-    let isAsset = fontAsset instanceof cc.Font;
+    let isAsset = richtext.font instanceof cc.Font;
     if (isAsset) {
-        labelComponent.font = fontAsset;
+        labelComponent.font = richtext.font;
     } else {
-        labelComponent.fontFamily = "Arial";
+        labelComponent.fontFamily = richtext.fontFamily;
     }
     labelComponent.string = string;
     labelComponent.horizontalAlign = HorizontalAlign.LEFT;
     labelComponent.verticalAlign = VerticalAlign.TOP;
-    labelComponent.fontSize = fontSize || 40;
+    labelComponent.fontSize = richtext.fontSize || 40;
     labelComponent.overflow = 0;
     labelComponent.enableWrapText = true;
     labelComponent.lineHeight = 40;
     labelComponent._enableBold(false);
     labelComponent._enableItalics(false);
     labelComponent._enableUnderline(false);
-
     return labelNode;
 };
 
@@ -138,6 +137,7 @@ let RichText = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/RichText',
         help: 'i18n:COMPONENT.help_url.richtext',
+        inspector: 'packages://inspector/inspectors/comps/richtext.js',
         executeInEditMode: true
     },
 
@@ -191,6 +191,26 @@ let RichText = cc.Class({
         },
 
         /**
+         * !#en Custom System font of RichText
+         * !#zh 富文本定制系统字体
+         * @property {String} fontFamily
+         */
+        _fontFamily: "Arial",
+        fontFamily: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.richtext.font_family',
+            get () {
+                return this._fontFamily;
+            },
+            set (value) {
+                if (this._fontFamily === value) return;
+                this._fontFamily = value;
+                this._layoutDirty = true;
+                this._updateRichTextStatus();
+            },
+            animatable: false
+        },
+
+        /**
          * !#en Custom TTF font of RichText
          * !#zh  富文本定制字体
          * @property {cc.TTFFont} font
@@ -204,10 +224,36 @@ let RichText = cc.Class({
 
                 this._layoutDirty = true;
                 if (this.font) {
+                    this.useSystemFont = false;
                     this._onTTFLoaded();
+                }
+                else {
+                    this.useSystemFont = true;
                 }
                 this._updateRichTextStatus();
             }
+        },
+
+        /**
+         * !#en Whether use system font name or not.
+         * !#zh 是否使用系统字体。
+         * @property {Boolean} isSystemFontUsed
+         */
+        _isSystemFontUsed: true,
+        useSystemFont: {
+            get () {
+                return this._isSystemFontUsed;
+            },
+            set (value) {
+                if (!value && !this.font || (this._isSystemFontUsed === value)) {
+                    return;
+                }
+                this._isSystemFontUsed = value;
+                this._layoutDirty = true;
+                this._updateRichTextStatus();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.richtext.system_font',
         },
 
         /**
@@ -304,12 +350,21 @@ let RichText = cc.Class({
         this._onTTFLoaded();
     },
 
+    _onColorChanged (parentColor) {
+        let children = this.node.children;
+        children.forEach(function (childNode) {
+            childNode.color = parentColor;
+        });
+    },
+
     _addEventListeners () {
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._onColorChanged, this);
     },
 
     _removeEventListeners () {
         this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._onColorChanged, this);
     },
 
     _updateLabelSegmentTextAttributes () {
@@ -319,7 +374,7 @@ let RichText = cc.Class({
     },
 
     _createFontLabel (string) {
-        return pool.get(string, this.font, this.fontSize);
+        return pool.get(string, this);
     },
 
     _onTTFLoaded () {
@@ -799,6 +854,11 @@ let RichText = cc.Class({
         }
 
         let index = labelNode._styleIndex;
+
+        if (this._isSystemFontUsed) {
+            labelComponent.fontFamily = this._fontFamily;
+        }
+        labelComponent.useSystemFont = this._isSystemFontUsed;
         labelComponent.lineHeight = this.lineHeight;
         labelComponent.horizontalAlign = HorizontalAlign.LEFT;
         labelComponent.verticalAlign = VerticalAlign.CENTER;
@@ -811,7 +871,7 @@ let RichText = cc.Class({
         if (textStyle && textStyle.color) {
             labelNode.color = this._convertLiteralColorValue(textStyle.color);
         }else {
-            labelNode.color = this._convertLiteralColorValue("white");
+            labelNode.color = this.node.color;
         }
 
         labelComponent._enableBold(textStyle && textStyle.bold);

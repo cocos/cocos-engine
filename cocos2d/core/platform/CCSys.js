@@ -24,6 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+let settingPlatform;
+ if (!CC_EDITOR) {
+    settingPlatform = window._CCSettings ? _CCSettings.platform: undefined;
+ }
+const isBaiduGame = (settingPlatform === 'baidugame' || settingPlatform === 'baidugame-subcontext');
+const isVivoGame = (settingPlatform === 'vivogame');
+const isOppoGame = (settingPlatform === 'oppogame');
+ 
 function initSys () {
     /**
      * System variables
@@ -354,6 +362,24 @@ function initSys () {
      */
     sys.FB_PLAYABLE_ADS = 106;
     /**
+     * @property {Number} BAIDU_GAME
+     * @readOnly
+     * @default 107
+     */
+    sys.BAIDU_GAME = 107;
+    /**
+     * @property {Number} VIVO_GAME
+     * @readOnly
+     * @default 108
+     */
+    sys.VIVO_GAME = 108;
+    /**
+     * @property {Number} OPPO_GAME
+     * @readOnly
+     * @default 109
+     */
+    sys.OPPO_GAME = 109;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
@@ -374,6 +400,20 @@ function initSys () {
      * @default "wechatgamesub"
      */
     sys.BROWSER_TYPE_WECHAT_GAME_SUB = "wechatgamesub";
+    /**
+     * BROWSER_TYPE_BAIDU_GAME
+     * @property {String} BROWSER_TYPE_BAIDU_GAME
+     * @readOnly
+     * @default "baidugame"
+     */
+    sys.BROWSER_TYPE_BAIDU_GAME = "baidugame";
+    /**
+     * BROWSER_TYPE_BAIDU_GAME_SUB
+     * @property {String} BROWSER_TYPE_BAIDU_GAME_SUB
+     * @readOnly
+     * @default "baidugamesub"
+     */
+    sys.BROWSER_TYPE_BAIDU_GAME_SUB = "baidugamesub";
     /**
      * BROWSER_TYPE_QQ_PLAY
      * @property {String} BROWSER_TYPE_QQ_PLAY
@@ -526,19 +566,20 @@ function initSys () {
      * Is native ? This is set to be true in jsb auto.
      * @property {Boolean} isNative
      */
-    sys.isNative = CC_JSB;
+    sys.isNative = CC_JSB || CC_RUNTIME;
 
 
     /**
      * Is web browser ?
      * @property {Boolean} isBrowser
      */
-    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
-
+    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !CC_RUNTIME && !isBaiduGame;
+    
     if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_CORE;
         sys.language = sys.LANGUAGE_UNKNOWN;
+        sys.languageCode = undefined;
         sys.os = ({
             darwin: sys.OS_OSX,
             win32: sys.OS_WINDOWS,
@@ -552,17 +593,34 @@ function initSys () {
         };
         sys.__audioSupport = {};
     }
-    else if (CC_JSB) {
-        var platform = sys.platform = __getPlatform();
+    else if (CC_JSB || CC_RUNTIME) {
+        let platform;
+        if (isVivoGame) {
+            platform = sys.VIVO_GAME;
+        }
+        else if (isOppoGame) {
+            platform = sys.OPPO_GAME;
+        }
+        else {
+            platform = __getPlatform();
+        }
+        sys.platform = platform;
         sys.isMobile = (platform === sys.ANDROID ||
                         platform === sys.IPAD ||
                         platform === sys.IPHONE ||
                         platform === sys.WP8 ||
                         platform === sys.TIZEN ||
-                        platform === sys.BLACKBERRY);
+                        platform === sys.BLACKBERRY ||
+                        platform === sys.VIVO_GAME ||
+                        platform === sys.OPPO_GAME);
 
         sys.os = __getOS();
         sys.language = __getCurrentLanguage();
+        var languageCode; 
+        if (CC_JSB) {
+            languageCode = __getCurrentLanguageCode();
+        }
+        sys.languageCode = languageCode ? languageCode.toLowerCase() : undefined;
         sys.osVersion = __getOSVersion();
         sys.osMainVersion = parseInt(sys.osVersion);
         sys.browserType = null;
@@ -607,6 +665,7 @@ function initSys () {
         sys.isMobile = true;
         sys.platform = sys.WECHAT_GAME;
         sys.language = env.language.substr(0, 2);
+        sys.languageCode = env.language.toLowerCase();
         var system = env.system.toLowerCase();
         if (env.platform === "android") {
             sys.os = sys.OS_ANDROID;
@@ -632,7 +691,7 @@ function initSys () {
         sys.osVersion = version ? version[0] : system;
         sys.osMainVersion = parseInt(sys.osVersion);
         // wechagame subdomain
-        if (!wx.getFileSystemManager) {
+        if (CC_WECHATGAMESUB) {
             sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
         }
         else {
@@ -667,6 +726,7 @@ function initSys () {
         sys.isMobile = true;
         sys.platform = sys.QQ_PLAY;
         sys.language = sys.LANGUAGE_UNKNOWN;
+        sys.languageCode = undefined;
         if (env.platform === "android") {
             sys.os = sys.OS_ANDROID;
         }
@@ -704,6 +764,22 @@ function initSys () {
             format: ['.mp3']
         };
     }
+    else if (isBaiduGame) {
+        let env = __device.getSystemInfo();
+        sys.platform = env.platform;
+        sys.browserType = env.browserType;
+        sys.isMobile = env.isMobile;
+        sys.language = env.language;
+        sys.languageCode = env.language.toLowerCase();
+        sys.os = env.os;
+        sys.osVersion = env.osVersion;
+        sys.osMainVersion = env.osMainVersion;
+        sys.browserVersion = env.browserVersion;
+        sys.windowPixelResolution = env.windowPixelResolution;
+        sys.localStorage = env.localStorage;
+        sys.capabilities = env.capabilities;
+        sys.__audioSupport = env.audioSupport;
+    }
     else {
         // browser or runtime
         var win = window, nav = win.navigator, doc = document, docEle = doc.documentElement;
@@ -734,6 +810,15 @@ function initSys () {
 
         var currLanguage = nav.language;
         currLanguage = currLanguage ? currLanguage : nav.browserLanguage;
+
+        /**
+         * Get current language iso 639-1 code.
+         * Examples of valid language codes include "zh-tw", "en", "en-us", "fr", "fr-fr", "es-es", etc.
+         * The actual value totally depends on results provided by destination platform.
+         * @property {String} languageCode
+         */
+        sys.languageCode = currLanguage.toLowerCase();
+
         currLanguage = currLanguage ? currLanguage.split("-")[0] : sys.LANGUAGE_ENGLISH;
 
         /**
@@ -744,7 +829,7 @@ function initSys () {
 
         // Get the os of system
         var isAndroid = false, iOS = false, osVersion = '', osMainVersion = 0;
-        var uaResult = /android (\d+(?:\.\d+)+)/i.exec(ua) || /android (\d+(?:\.\d+)+)/i.exec(nav.platform);
+        var uaResult = /android (\d+(?:\.\d+)*)/i.exec(ua) || /android (\d+(?:\.\d+)*)/i.exec(nav.platform);
         if (uaResult) {
             isAndroid = true;
             osVersion = uaResult[1] || '';
@@ -1157,7 +1242,7 @@ function initSys () {
      * @param {String} url
      */
     sys.openURL = function (url) {
-        if (CC_JSB) {
+        if (CC_JSB || CC_RUNTIME) {
             jsb.openURL(url);
         }
         else {

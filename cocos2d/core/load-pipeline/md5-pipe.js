@@ -55,7 +55,7 @@ MD5Pipe.prototype.handle = function(item) {
         hashPatchInFolder = true;
     }
     item.url = this.transformURL(item.url, hashPatchInFolder);
-    return item;
+    return null;
 };
 
 MD5Pipe.prototype.transformURL = function (url, hashPatchInFolder) {

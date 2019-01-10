@@ -79,7 +79,7 @@ let VideoPlayerImpl = cc.Class({
             if (self._fullScreenEnabled) {
                 cc.screen.requestFullScreen(video);
             }
-            else {
+            else if (cc.screen.fullScreen()) {
                 cc.screen.exitFullScreen(video);
             }
             self._dispatchEvent(VideoPlayerImpl.EventType.META_LOADED);
@@ -169,13 +169,6 @@ let VideoPlayerImpl = cc.Class({
         video.setAttribute('preload', 'auto');
         video.setAttribute('webkit-playsinline', '');
         video.setAttribute('playsinline', '');
-
-        // Stupid tencent x5 adaptation
-        video.setAttribute("x5-playsinline", "");
-        video.setAttribute("x5-video-player-type", "h5");
-        video.setAttribute("x5-video-player-fullscreen", this._fullScreenEnabled ? "true" : "false");
-        let orientation = cc.winSize.width > cc.winSize.height ? "landscape" : "portrait";
-        video.setAttribute("x5-video-orientation", orientation);
 
         this._video = video;
         cc.game.container.appendChild(video);
@@ -368,7 +361,7 @@ let VideoPlayerImpl = cc.Class({
         if (enable) {
             cc.screen.requestFullScreen(video);
         }
-        else {
+        else if (cc.screen.fullScreen()) {
             cc.screen.exitFullScreen(video);
         }
     },
@@ -539,8 +532,9 @@ VideoPlayerImpl._polyfill = {
  * But native does not support this encode,
  * so it is best to provide mp4 and webm or ogv file
  */
+const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
 let dom = document.createElement("video");
-if (sys.platform !== sys.WECHAT_GAME) {
+if (!CC_WECHATGAME && !isBaiduGame) {
     if (dom.canPlayType("video/ogg")) {
         VideoPlayerImpl._polyfill.canPlayType.push(".ogg");
         VideoPlayerImpl._polyfill.canPlayType.push(".ogv");

@@ -35,7 +35,8 @@ function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
     dom.src = item.url;
 
-    if (CC_WECHATGAME) {
+    const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
+    if (CC_WECHATGAME || isBaiduGame) {
         callback(null, dom);
         return;
     }

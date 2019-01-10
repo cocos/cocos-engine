@@ -182,6 +182,7 @@ let WebViewImpl = cc.Class({
 
     setOnJSCallback (callback) {},
     setJavascriptInterfaceScheme (scheme) {},
+    // private method
     loadData (data, MIMEType, encoding, baseURL) {},
     loadHTMLString (string, baseURL) {},
 

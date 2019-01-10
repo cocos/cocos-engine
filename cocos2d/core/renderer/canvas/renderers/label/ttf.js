@@ -53,7 +53,8 @@ module.exports = js.addon({
 
     _updateTexture (comp) {
         ttfUtils._updateTexture(comp);
-        utils.dropColorizedImage(comp._texture, comp.node.color);
+        let texture = comp._frame._texture;
+        utils.dropColorizedImage(texture, comp.node.color);
     },
 
     draw (ctx, comp) {
@@ -70,7 +71,7 @@ module.exports = js.addon({
         // opacity
         ctx.globalAlpha = node.opacity / 255;
 
-        let tex = comp._texture,
+        let tex = comp._frame._texture,
             data = comp._renderData._data;
 
         let image = tex.getHtmlElementObj();

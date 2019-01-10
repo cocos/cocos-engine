@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -23,8 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const utils = require('../utils');
-
+const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 module.exports = {
     createData (sprite) {
         let renderData = sprite.requestRenderData();
@@ -38,7 +37,7 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        utils.packToDynamicAtlas(sprite);
+        packToDynamicAtlas(sprite, sprite._spriteFrame);
 
         let renderData = sprite._renderData;
         if (!renderData || !sprite.spriteFrame) return;

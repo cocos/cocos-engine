@@ -91,7 +91,7 @@ let getAudioFromId = function (id) {
 };
 
 let handleVolume  = function (volume) {
-    if (!volume) {
+    if (volume === undefined) {
         // set default volume as 1
         volume = 1;
     }

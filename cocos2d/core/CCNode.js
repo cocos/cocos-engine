@@ -514,6 +514,23 @@ function _doDispatchEvent (owner, event) {
     _cachedArray.length = 0;
 }
 
+// traversal the node tree, child cullingMask must keep the same with the parent.
+function _getActualGroupIndex (node) {
+    let groupIndex = node.groupIndex;
+    if (groupIndex === 0 && node.parent) {
+        groupIndex = _getActualGroupIndex(node.parent);
+    }
+    return groupIndex;
+}
+
+function _updateCullingMask (node) {
+    let index = _getActualGroupIndex(node);
+    node._cullingMask = 1 << index;
+    for (let i = 0; i < node._children.length; i++) {
+        _updateCullingMask(node._children[i]);
+    }
+}
+
 /**
  * !#en
  * Class of all entities in Cocos Creator scenes.<br/>
@@ -539,11 +556,15 @@ let NodeDefines = {
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
+        _zIndex: {
+            default: undefined,
+            type: cc.Integer
+        },
         _localZOrder: {
             default: 0,
             serializable: false
         },
-        _zIndex: 0,
+        _childArrivalOrder: 1,
 
         _is3DNode: false,
 
@@ -581,7 +602,9 @@ let NodeDefines = {
             },
 
             set (value) {
+                // update the groupIndex
                 this.groupIndex = cc.game.groupList.indexOf(value);
+                _updateCullingMask(this);
                 this.emit(EventType.GROUP_CHANGED, this);
             }
         },
@@ -1095,7 +1118,7 @@ let NodeDefines = {
          */
         zIndex: {
             get () {
-                return this._zIndex;
+                return this._localZOrder >> 16;
             },
             set (value) {
                 if (value > macro.MAX_ZINDEX) {
@@ -1107,8 +1130,7 @@ let NodeDefines = {
                     value = macro.MIN_ZINDEX;
                 }
 
-                if (this._zIndex !== value) {
-                    this._zIndex = value;
+                if (this.zIndex !== value) {
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
 
                     if (this._parent) {
@@ -1125,7 +1147,7 @@ let NodeDefines = {
      */
     ctor () {
         this._reorderChildDirty = false;
-        
+
         // cache component
         this._widget = null;
         // fast render component access
@@ -1149,7 +1171,7 @@ let NodeDefines = {
         this._worldMatDirty = true;
 
         this._eventMask = 0;
-        this._cullingMask = 1 << this.groupIndex;
+        this._cullingMask = 1;
 
         this._eulerAngles = cc.v3();
     },
@@ -1253,6 +1275,7 @@ let NodeDefines = {
 
     _onHierarchyChanged (oldParent) {
         this._updateOrderOfArrival();
+        _updateCullingMask(this);
         if (this._parent) {
             this._parent._delaySort();
         }
@@ -1294,16 +1317,16 @@ let NodeDefines = {
             this._scale.y = this._scaleY;
             this._scaleY = undefined;
         }
-
-        if (this._localZOrder !== 0) {
-            this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
+        if (this._zIndex !== undefined) {
+            this._localZOrder = this._zIndex << 16;
+            this._zIndex = undefined;
         }
 
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
         // Update quaternion from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
         let quat = this._quat;
-        if ((this._rotationX || this._rotationY) && 
+        if ((this._rotationX || this._rotationY) &&
             (quat.x === 0 && quat.y === 0 && quat.z === 0 && quat.w === 1)) {
             if (this._rotationX === this._rotationY) {
                 quat.fromEuler(quat, 0, 0, -this._rotationX);
@@ -1313,7 +1336,7 @@ let NodeDefines = {
             }
             this._rotationX = this._rotationY = undefined;
         }
-        
+
         this._toEuler();
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
@@ -1331,6 +1354,9 @@ let NodeDefines = {
         this._upgrade_1x_to_2x();
 
         this._updateOrderOfArrival();
+
+        // synchronize _cullingMask
+        this._cullingMask = 1 << _getActualGroupIndex(this);
 
         let prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
@@ -1362,6 +1388,8 @@ let NodeDefines = {
     // the same as _onBatchCreated but untouch prefab
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
+
+        this._cullingMask = 1 << _getActualGroupIndex(this);
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1667,12 +1695,12 @@ let NodeDefines = {
             var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
             if (listeners) {
                 listeners.remove(type, callback, target);
-    
+
                 if (target && target.__eventTargets) {
                     js.array.fastRemove(target.__eventTargets, this);
                 }
             }
-            
+
         }
     },
 
@@ -1878,7 +1906,7 @@ let NodeDefines = {
             parent = parent.parent;
         }
     },
-    
+
     /**
      * Get all the targets listening to the supplied type of event in the target's bubbling phase.
      * The bubbling phase comprises any SUBSEQUENT nodes encountered on the return trip to the root of the tree.
@@ -2039,10 +2067,10 @@ let NodeDefines = {
 
 // TRANSFORM RELATED
     /**
-     * !#en 
+     * !#en
      * Returns a copy of the position (x, y, z) of the node in its parent's coordinates.
      * You can pass a cc.Vec2 or cc.Vec3 as the argument to receive the return values.
-     * !#zh 
+     * !#zh
      * 获取节点在父节点坐标系中的位置（x, y, z）。
      * 你可以传一个 cc.Vec2 或者 cc.Vec3 作为参数来接收返回值。
      * @method getPosition
@@ -2142,10 +2170,10 @@ let NodeDefines = {
     },
 
     /**
-     * !#en 
+     * !#en
      * Sets the scale of axis in local coordinates of the node.
      * You can operate 2 axis in 2D node, and 3 axis in 3D node.
-     * !#zh 
+     * !#zh
      * 设置节点在本地坐标系中坐标轴上的缩放比例。
      * 2D 节点可以操作两个坐标轴，而 3D 节点可以操作三个坐标轴。
      * @method setScale
@@ -2178,10 +2206,10 @@ let NodeDefines = {
     },
 
     /**
-     * !#en 
-     * Get rotation of node (in quaternion). 
+     * !#en
+     * Get rotation of node (in quaternion).
      * Need pass a cc.Quat as the argument to receive the return values.
-     * !#zh 
+     * !#zh
      * 获取该节点的 quaternion 旋转角度，需要传一个 cc.Quat 作为参数来接收返回值。
      * @method getRotation
      * @param {Quat} out
@@ -2201,9 +2229,9 @@ let NodeDefines = {
      * !#en Set rotation of node (in quaternion).
      * !#zh 设置该节点的 quaternion 旋转角度。
      * @method setRotation
-     * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion	
-     * @param {Number} y y value of quternion	
-     * @param {Number} z z value of quternion	
+     * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion
+     * @param {Number} y y value of quternion
+     * @param {Number} z z value of quternion
      * @param {Number} w w value of quternion
      */
     setRotation (quat, y, z, w) {
@@ -3032,8 +3060,18 @@ let NodeDefines = {
     },
 
     _updateOrderOfArrival () {
-        var arrivalOrder = ++_globalOrderOfArrival;
+        var arrivalOrder = this._parent ? ++this._parent._childArrivalOrder : 0;
         this._localZOrder = (this._localZOrder & 0xffff0000) | arrivalOrder;
+        // redistribute
+        if (arrivalOrder === 0x0000ffff) {
+            var siblings = this._parent._children;
+
+            siblings.forEach(function (node, index) {
+                node._localZOrder = (node._localZOrder & 0xffff0000) | (index + 1);
+            });
+
+            this._parent._childArrivalOrder = siblings.length;
+        }
     },
 
     /**
