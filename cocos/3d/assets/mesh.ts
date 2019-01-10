@@ -396,11 +396,11 @@ export default class Mesh extends Asset {
      * !#en
      * Gets the specified submesh.
      * @param index Index of the specified submesh.
-     * @deprecated Using this.renderingMesh() instead.
+     * @deprecated Using this.renderingMesh.getSubmesh(index)inputAssembler instead.
      */
     public getSubMesh (index: number) {
-        const renderingMesh = this.renderingMesh;
-        return renderingMesh ? renderingMesh.getSubmesh(index) : null;
+        const renderingSubmesh = this.renderingMesh ? this.renderingMesh.getSubmesh(index) : null;
+        return renderingSubmesh ? renderingSubmesh.inputAssembler : null;
     }
 
     private _lazyInitRenderResources () {
