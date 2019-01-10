@@ -29,7 +29,7 @@ export { DOMAudioClip } from "./dom-audio-clip";
 export { BitmapFont } from "./bitmap-font";
 export { EffectAsset } from "./effect-asset";
 export { Material } from "./material";
-export { default as Mesh } from "./mesh";
+export { Mesh } from "./mesh";
 export { default as OpentypeFont } from "./opentype-font";
 export { default as Skeleton } from "./skeleton";
 export { default as Sprite } from "./sprite";

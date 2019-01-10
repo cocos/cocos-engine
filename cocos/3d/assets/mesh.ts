@@ -305,7 +305,7 @@ export class RenderingMesh {
 }
 
 @ccclass('cc.Mesh')
-export default class Mesh extends Asset {
+export class Mesh extends Asset {
 
     get _nativeAsset () {
         return this._data;

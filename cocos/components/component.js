@@ -105,7 +105,7 @@ class Component extends CCObject {
         type: cc._Script,
         tooltip: CC_DEV && 'i18n:INSPECTOR.component.script'
     })
-    get __scriptAsset () {}
+    get __scriptAsset () { return null; }
     //set __scriptAsset (value) {
     //    if (this.__scriptUuid !== value) {
     //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {

@@ -2,15 +2,27 @@
 /**
  * Entity layer system
  */
-class Layers {
+export class Layers {
+
+  // built-in layers, reserved up to (1 << 7)
+  public static Default = (1 << 0);
+  public static IgnoreRaycast = (1 << 1);
+  public static Gizmos = (1 << 2);
+  public static Editor = (1 << 3);
+  // masks
+  public static All = Layers.makeExclusiveMask([Layers.Gizmos, Layers.Editor]);
+  public static RaycastMask = Layers.makeExclusiveMask([Layers.Gizmos, Layers.Editor, Layers.IgnoreRaycast]);
+
   /**
    * Add a new layer
    * @param {string} name name of the new layer
    * @return {number} new layer's index
    */
-  static addLayer(name) {
-    if (Layers._nextAvailable > 31)
-      return new Error('maximum layers reached.');
+  public static addLayer (name: string): number | undefined {
+    if (Layers._nextAvailable > 31) {
+      console.warn('maximum layers reached.');
+      return;
+    }
     Layers[name] = (1 << Layers._nextAvailable++);
     return Layers[name];
   }
@@ -20,10 +32,11 @@ class Layers {
    * @param {number[]} includes layers accepted by the mask
    * @return {number} the specified layer mask
    */
-  static makeInclusiveMask(includes) {
+  public static makeInclusiveMask (includes: number[]): number {
     let mask = 0;
-    for (let i = 0; i < includes.length; i++)
-      mask |= includes[i];
+    for (const inc of includes) {
+      mask |= inc;
+    }
     return mask;
   }
 
@@ -32,7 +45,7 @@ class Layers {
    * @param {number[]} excludes layers rejected by the mask
    * @return {number} the specified layer mask
    */
-  static makeExclusiveMask(excludes) {
+  public static makeExclusiveMask (excludes: number[]): number {
     return ~Layers.makeInclusiveMask(excludes);
   }
 
@@ -42,22 +55,11 @@ class Layers {
    * @param {number} mask the testing layer mask
    * @return {boolean} true if accepted
    */
-  static check(layer, mask) {
-    return (layer & mask) == layer;
+  public static check (layer: number, mask: number): boolean {
+    return (layer & mask) === layer;
   }
+
+  private static _nextAvailable = 8;
 }
 
-Layers._nextAvailable = 8;
-
-// built-in layers, reserved up to (1 << 7)
-Layers.Default = (1 << 0);
-Layers.IgnoreRaycast = (1 << 1);
-Layers.Gizmos = (1 << 2);
-Layers.Editor = (1 << 3);
-
-// masks
-Layers.All = Layers.makeExclusiveMask([Layers.Gizmos, Layers.Editor]);
-Layers.RaycastMask = Layers.makeExclusiveMask([Layers.Gizmos, Layers.Editor, Layers.IgnoreRaycast]);
-
-export default Layers;
 cc.Layers = Layers;

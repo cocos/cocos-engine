@@ -23,19 +23,20 @@
   "globals": {
     "cc": false,
     "wx": false,
-    "CC_EDITOR": false,
-    "CC_DEV": false,
-    "CC_JSB": false,
-    "CC_PREVIEW": false,
-    "CC_DEBUG": false,
     "CC_BUILD": false,
+    "CC_TEST": false,
+    "CC_EDITOR": false,
+    "CC_PREVIEW": false,
+    "CC_DEV": false,
+    "CC_DEBUG": false,
+    "CC_JSB": false,
+    "CC_WECHATGAME_SUB": false,
     "CC_WECHATGAME": false,
     "CC_QQPLAY": false,
     "CC_RUNTIME": false,
     "CC_SUPPORT_JIT": false,
-    "CC_PREVIEW": false,
-    "CC_PREVIEW": false,
-    "CC_PREVIEW": false,
+    "Editor": false,
+    "_Scene": false,
     "_ccsg": false
   }
 }

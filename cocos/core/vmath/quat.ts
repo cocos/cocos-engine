@@ -14,6 +14,7 @@ const halfToRad = 0.5 * Math.PI / 180.0;
  * x, y, z and w are real numbers(called here its components), and i, j, and k are the fundamental quaternion units.
  */
 export default class quat {
+    public static IDENTITY = new quat();
 
     /**
      * Creates a quaternion, with components specified separately.
@@ -64,20 +65,6 @@ export default class quat {
         out.y = y;
         out.z = z;
         out.w = w;
-        return out;
-    }
-
-    /**
-     * Sets a quaternion as identity quaternion.
-     *
-     * @param out - Quaternion to set.
-     * @return out.
-     */
-    public static identity<Out extends IQuatLike>(out: Out) {
-        out.x = 0;
-        out.y = 0;
-        out.z = 0;
-        out.w = 1;
         return out;
     }
 

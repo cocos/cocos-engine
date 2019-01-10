@@ -34,7 +34,7 @@ export class UBOGlobal {
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 30, name: 'Global', members: [
+        binding: 30, name: 'CCGlobal', members: [
             { name: 'u_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'u_screenSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'u_screenScale', type: GFXType.FLOAT4, count: 1 },

@@ -8,6 +8,9 @@ import { EPSILON, random } from './utils';
  * x, y is alias of the first, second component of vector, respectively.
  */
 export default class vec2 {
+    public static ZERO = new vec2(0, 0);
+    public static ONE = new vec2(1, 1);
+    public static NEG_ONE = new vec2(-1, -1);
 
     /**
      * Creates a vector, with components specified separately.

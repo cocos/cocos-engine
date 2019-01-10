@@ -570,10 +570,10 @@ CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
  * Alpha 通道是可选的。默认值是 255。
  *
  * @method color
- * @param {Number} [r=0]
- * @param {Number} [g=0]
- * @param {Number} [b=0]
- * @param {Number} [a=255]
+ * @param {number|string|object} [r=0]
+ * @param {number} [g=0]
+ * @param {number} [b=0]
+ * @param {number} [a=255]
  * @return {Color}
  * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/color.js}
  */

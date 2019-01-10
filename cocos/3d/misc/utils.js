@@ -1,6 +1,6 @@
 import { renderer } from '../../renderer';
 import find from '../../scene-graph/find';
-import Mesh, { RenderingMesh } from '../assets/mesh';
+import { Mesh, RenderingMesh } from '../assets/mesh';
 import gfx from '../../renderer/gfx/index';
 import { GFXPrimitiveMode } from '../../gfx/define';
 

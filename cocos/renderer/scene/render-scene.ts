@@ -1,5 +1,5 @@
 import { Root, _createSceneFun } from '../../core/root';
-import Node from '../../scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { Camera } from './camera';
 import Light from './light';
 import Model from './model';
