@@ -39,6 +39,21 @@
         cc.view.setCanvasSize(bcr.width, bcr.height);
       });
 
+      /*
+      let scene = new cc.Scene('testScene');
+      scene._scene = scene;
+
+      let material = new cc.Material();
+      material.effectName = 'test'; // parsed-effect file is embedded in cocos/3d/builtin/effects.js
+      material.setProperty('u_color', cc.color('#ff0000'));
+
+      let modelCom = scene.addComponent('cc.ModelComponent');
+      modelCom.material = material;
+      modelCom.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
+      scene.setRotationFromEuler(45, 45, 45);
+      scene._rot = scene._lrot;
+      */
+
       let root = cc.director.root;
       let scene = root.createScene({
         name: "testScene",
@@ -60,7 +75,6 @@
       camera.position = { x: 0.0, y: 0.0, z: 3.0 };
       camera.direction = { x: 0.0, y: 0.0, z: -1.0 };
       camera.update();
-
 
       //todo initialization
       /*
