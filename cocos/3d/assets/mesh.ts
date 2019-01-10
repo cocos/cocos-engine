@@ -30,7 +30,7 @@ const { ccclass, property } = _decorator;
 import { Asset } from '../../assets/asset';
 import { Vec3 } from '../../core/value-types';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
 import { IBufferRange } from './utils/buffer-range';
@@ -102,20 +102,24 @@ export enum Topology {
     /**
      * Point list.
      */
-    POINT_LIST,
+    POINT_LIST = GFXPrimitiveMode.POINT_LIST,
 
     /**
      * Line list.
      */
-    LINE_LIST,
+    LINE_LIST = GFXPrimitiveMode.LINE_LIST,
 
     /**
      * Triangle list.
      */
-    TRIANGLE_LIST,
+    TRIANGLE_LIST = GFXPrimitiveMode.TRIANGLE_LIST,
 }
 
 ccenum(Topology);
+
+function toGFXTopology (topology: Topology) {
+    return topology as unknown as GFXPrimitiveMode;
+}
 
 export enum IndexUnit {
     /**
@@ -167,7 +171,7 @@ export interface IVertexAttribute {
     normalize: boolean;
 }
 
-function toGfxAttributeType (vertexAttribute: IVertexAttribute) {
+function toGFXAttributeType (vertexAttribute: IVertexAttribute) {
     let formatName = '';
     switch (vertexAttribute.type) {
         case AttributeType.SCALAR:
@@ -358,6 +362,10 @@ export default class Mesh extends Asset {
         return this._subMeshes![index];
     }
 
+    public getGFXPrimitiveMode (index: number) {
+        return toGFXTopology(this._primitives[index].topology);
+    }
+
     /**
      *
      */
@@ -402,7 +410,7 @@ export default class Mesh extends Asset {
                 vertexBundle.attributes.forEach((attribute) => {
                     const gfxAttribute: IGFXInputAttribute = {
                         name: attribute.name,
-                        format: toGfxAttributeType(attribute),
+                        format: toGFXAttributeType(attribute),
                         stream: iVertexBundle,
                     };
                     if ('normalize' in attribute) {
