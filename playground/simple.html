@@ -56,24 +56,28 @@
       */
 
       let root = cc.director.root;
-      let mainWindow = root.mainWindow;
+      let scene = new cc.Scene();
 
-      let scene = root.createScene({
-        name: "testScene",
-      });
-      
+      let cameraNode = new cc.Node();
+      cameraNode.parent = scene;
+      let camComp = cameraNode.addComponent(cc.CameraComponent);
+      let mainWindow = root.mainWindow;
+      cc.director.runSceneImmediate(scene);
+
       let view = root.createView({
         name: "defaultView",
         window: mainWindow,
         //priority: cc.RenderViewPriority.GENERAL,
         priority: 100,
       });
-      view.attach(scene.mainCamera);
+      view.attach(camComp._camera);
 
-      let camera = scene.mainCamera;
-      camera.position = { x: 0.0, y: 0.0, z: 3.0 };
-      camera.direction = { x: 0.0, y: 0.0, z: -1.0 };
-      camera.update();
+
+
+      // let camera = scene.mainCamera;
+      // camera.position = { x: 0.0, y: 0.0, z: 3.0 };
+      // camera.direction = { x: 0.0, y: 0.0, z: -1.0 };
+      // camera.update();
 
       //todo initialization
       /*
@@ -105,7 +109,6 @@
       mtl.setProperty('emissive', color);
       /**/
       // model.material = mtl;
-      //cc.director.runSceneImmediate(scene);
     }
     cc.game.run({ id: 'canvas' }, onStart);
   </script>

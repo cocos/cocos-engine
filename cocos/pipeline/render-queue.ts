@@ -23,16 +23,10 @@ export class RenderItem {
 
 export class RenderQueue {
 
-    public get opaques (): RenderItem[] {
-        return this._opaques;
-    }
-
-    public get transparents (): RenderItem[] {
-        return this._transparents;
-    }
-
-    private _opaques: RenderItem[] = [];
-    private _transparents: RenderItem[] = [];
+    public opaques: RenderItem[] = [];
+    public opaqueCmdBuffs: GFXCommandBuffer[] = [];
+    public transparents: RenderItem[] = [];
+    public transparentCmdBuffs: GFXCommandBuffer[] = [];
     private _buffer: ArrayBuffer;
     private _f32View: Float32Array;
     private _ui32View: Uint32Array;
@@ -48,7 +42,8 @@ export class RenderQueue {
         model.node.getPosition(_pos);
         camera.node.getPosition(_cameraPos);
         this._f32View[0] = vec3.distance(_cameraPos, _pos);
-        let x = this._ui32View[0];
+        const ui32Depth: number = this._ui32View[0];
+        const ui32DepthInv = (ui32Depth ^ 0xffffffff);
 
         for (let i = 0; i < model.passes.length; ++i) {
             const pass = model.passes[i];
@@ -59,18 +54,24 @@ export class RenderQueue {
             const pso = pass.pipelineState;
 
             const isTransparent = pso.blendState.targets[0].blend;
-
+            
+            // TODO: model priority
+            
             if (!isTransparent) {
-                // Opaque objects are sorted by depth front to back, then by shader id.
-                const hash = (0 << 63) | (pso.shader.id << 13);
+                // Opaque objects are sorted by depth front to back -> pass priority -> shader id.
+                const hash = (0 << 63) | (i << 47) | (ui32Depth << 15) | pso.shader.id;
 
-                this._opaques.push({hash, model, pass, cmdBuff});
+                this.opaques.push({hash, model, pass, cmdBuff});
             } else {
-                // Transparent objects are sorted by depth back to front, then by by shader id.
-                const hash = (1 << 63) | (pso.shader.id << 13);
+                // Transparent objects are sorted by depth back to front -> pass priority -> shader id.
+                const hash = (1 << 63) | (i << 47) | (ui32DepthInv << 15) | pso.shader.id;
 
-                this._transparents.push({hash, model, pass, cmdBuff});
+                this.transparents.push({hash, model, pass, cmdBuff});
             }
         }
+    }
+
+    public sort () {
+
     }
 }

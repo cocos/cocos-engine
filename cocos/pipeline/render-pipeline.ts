@@ -330,8 +330,7 @@ export abstract class RenderPipeline {
         mat4.array(_mat4Array, camera.matViewProjInv);
         this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
 
-        camera.node.getWorldPosition(v_camPos);
-        vec3.array(_vec4Array, v_camPos);
+        vec3.array(_vec4Array, camera.node && camera.node.getPosition());
         _vec4Array[3] = 1.0;
         this._uboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 

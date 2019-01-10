@@ -79,7 +79,6 @@ export class TestModelStage extends RenderStage {
             this._material.effectName = 'test'; // parsed-effect file is embedded in cocos/3d/builtin/effects.js
             this._material.setProperty('u_sampler', this._textureAsset);
             this._material.setProperty('u_color', cc.color('#ff1234'));
-            this._material.inited = true;
             this._material.passes[0].update();
 
             this._scene = new Scene();

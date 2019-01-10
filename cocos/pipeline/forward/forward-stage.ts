@@ -53,7 +53,7 @@ export class ForwardStage extends RenderStage {
         for (const item of queue.opaques) {
             // item.model.commandBuffers;
 
-            cmdBuff.execute(item.cmdBuff);
+            // cmdBuff.execute(item.cmdBuff);
         }
 
         cmdBuff.endRenderPass();

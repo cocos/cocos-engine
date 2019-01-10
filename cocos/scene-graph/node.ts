@@ -297,7 +297,7 @@ class Node extends BaseNode {
      * @param out the receiving vector
      * @returns the resulting vector
      */
-    public getPosition (out: Vec3): Vec3 {
+    public getPosition (out?: Vec3): Vec3 {
         if (out) {
             return vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
         } else {
@@ -346,7 +346,7 @@ class Node extends BaseNode {
      * @param out - the receiving quaternion
      * @returns the resulting quaternion
      */
-    public getRotation (out: Quat): Quat {
+    public getRotation (out?: Quat): Quat {
         if (out) {
             return quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z, this._lrot.w);
         } else {
@@ -377,7 +377,7 @@ class Node extends BaseNode {
      * @param out - the receiving vector
      * @returns the resulting vector
      */
-    public getScale (out: Vec3): Vec3 {
+    public getScale (out?: Vec3): Vec3 {
         if (out) {
             return vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
         } else {
@@ -417,7 +417,7 @@ class Node extends BaseNode {
      * @param out - the receiving vector
      * @returns the resulting vector
      */
-    public getWorldPosition (out: Vec3): Vec3 {
+    public getWorldPosition (out?: Vec3): Vec3 {
         this.updateWorldTransform();
         if (out) {
             return vec3.copy(out, this._pos);
@@ -477,7 +477,7 @@ class Node extends BaseNode {
      * @param out - the receiving quaternion
      * @returns the resulting quaternion
      */
-    public getWorldRotation (out: Quat): Quat {
+    public getWorldRotation (out?: Quat): Quat {
         this.updateWorldTransform();
         if (out) {
             return quat.copy(out, this._rot);
@@ -514,7 +514,7 @@ class Node extends BaseNode {
      * @param out - the receiving vector
      * @returns the resulting vector
      */
-    public getWorldScale (out: Vec3): Vec3 {
+    public getWorldScale (out?: Vec3): Vec3 {
         this.updateWorldTransform();
         if (out) {
             return vec3.copy(out, this._scale);
@@ -528,7 +528,7 @@ class Node extends BaseNode {
      * @param out - the receiving matrix
      * @returns the - resulting matrix
      */
-    public getWorldMatrix (out: Mat4): Mat4 {
+    public getWorldMatrix (out?: Mat4): Mat4 {
         this.updateWorldTransformFull();
         if (out) {
             return mat4.copy(out, this._mat);
@@ -542,7 +542,7 @@ class Node extends BaseNode {
      * @param out - the receiving matrix
      * @returns the - resulting matrix
      */
-    public getWorldRS (out: Mat4): Mat4 {
+    public getWorldRS (out?: Mat4): Mat4 {
         this.updateWorldTransformFull();
         if (out) {
             mat4.copy(out, this._mat);
@@ -558,7 +558,7 @@ class Node extends BaseNode {
      * @param out - the receiving matrix
      * @returns the - resulting matrix
      */
-    public getWorldRT (out: Mat4): Mat4 {
+    public getWorldRT (out?: Mat4): Mat4 {
         this.updateWorldTransform();
         if (!out) {
             out = new Mat4();

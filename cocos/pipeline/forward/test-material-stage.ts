@@ -13,7 +13,7 @@ import { RenderView } from '../render-view';
 export class TestMaterialStage extends RenderStage {
 
     private _textureAsset: Texture2D | null = null;
-    private _material: Material = new Material();
+    private _material: Material = new Material('testMtrl');
 
     constructor (flow: RenderFlow) {
         super(flow);
