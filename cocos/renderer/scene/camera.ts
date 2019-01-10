@@ -17,7 +17,6 @@ export class Camera {
 
     private _scene: RenderScene;
     private _name: string;
-    private _node: Node;
     private _proj: CameraProjection;
     private _width: number;
     private _height: number;
@@ -36,11 +35,11 @@ export class Camera {
     private _matViewProj: mat4 = new Mat4();
     private _matViewProjInv: mat4 = new Mat4();
     private _frustum: frustum = new frustum();
+    private _node: Node | null = null;
 
     constructor (scene: RenderScene, name: string) {
         this._scene = scene;
         this._name = name;
-        this._node = scene.createNode({ name: name + 'Node', isStatic: false });
         this._proj = CameraProjection.PERSPECTIVE;
 
         const win = scene.root.mainWindow;
@@ -70,6 +69,7 @@ export class Camera {
     }
 
     public update () {
+        if (!this._node) { return; }
         // view matrix
         this._node.getWorldRT(this._matView);
         mat4.invert(this._matView, this._matView);
