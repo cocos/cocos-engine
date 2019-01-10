@@ -480,6 +480,13 @@ export interface IGFXColor {
     a: number;
 }
 
+export enum GFXClearFlag {
+    COLOR = 1,
+    DEPTH = 2,
+    STENCIL = 4,
+    SKYBOX = 8,
+}
+
 export interface IGFXOffset {
     x: number;
     y: number;

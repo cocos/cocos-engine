@@ -30,7 +30,7 @@ import { renderer } from '../../renderer/index';
 import { ccclass, property, executionOrder, menu,executeInEditMode } from '../../core/data/class-decorator';
 import utils from '../misc/utils';
 import Skeleton from '../assets/skeleton';
-import Node from '../../scene-graph/node';
+import { Node } from '../../scene-graph/node';
 
 /**
  * @typedef {import("../framework/skeleton-instance").default} SkeletonInstance

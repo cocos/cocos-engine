@@ -132,7 +132,7 @@ function findChildComponents(children, constructor, components) {
  * @private
  */
 @ccclass("cc._BaseNode")
-export default class BaseNode extends CCObject {
+export class BaseNode extends CCObject {
     @property
     _parent = null;
 

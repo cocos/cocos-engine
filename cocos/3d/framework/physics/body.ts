@@ -1,7 +1,7 @@
 import CANNON from 'cannon';
 import Vec3 from '../../../core/value-types/vec3';
 import { vec3 } from '../../../core/vmath';
-import Node from '../../../scene-graph/node';
+import { Node } from '../../../scene-graph/node';
 import { PhysicsMaterial as PhysicsMaterial } from '../../assets/physics/material';
 import { setWrap, getWrap } from './util';
 import { Quat } from '../../../core/value-types';

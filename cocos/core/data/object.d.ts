@@ -24,10 +24,11 @@
  ****************************************************************************/
 
 export class CCObject {
+    protected static _deferredDestroy(): void;
     protected _name: string;
     protected _objFlags: number;
 
-    static _deferredDestroy(): void;
+    public constructor(name: string);
 
     public name: string;
     public isValid: boolean;
