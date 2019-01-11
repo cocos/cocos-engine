@@ -26,7 +26,7 @@ export class ForwardFlow extends RenderFlow {
         if (!mainWindow || !mainWindow.framebuffer) {
             return false;
         }
-        
+
         this.createStage(ForwardStage, {
             name: 'ForwardStage',
             priority: ForwardStagePriority.FORWARD,

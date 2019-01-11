@@ -74,6 +74,10 @@ export class Material extends Asset {
     @property
     set technique (val: number) {
         this._techIdx = val;
+        if (val !== this._techIdx) {
+            this._techIdx = val;
+            this.update();
+        }
     }
     get technique () {
         return this._techIdx;

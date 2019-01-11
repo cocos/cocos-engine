@@ -1,7 +1,7 @@
 import { GFXBindingType, GFXBufferTextureCopy, GFXBufferUsageBit, GFXColorMask,
     GFXCullMode, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit,
     GFXShaderType, GFXTextureFlagBit, GFXTextureLayout, GFXTextureViewType,
-    GFXType, IGFXColor, IGFXRect, WebGLEXT} from '../define';
+    GFXType, IGFXColor, IGFXRect, WebGLEXT } from '../define';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLAttrib, WebGLGPUBindingLayout, WebGLGPUBuffer, WebGLGPUFramebuffer,

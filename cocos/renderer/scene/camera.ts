@@ -54,7 +54,7 @@ export class Camera {
     private _frustum: frustum = new frustum();
     private _node: Node | null = null;
     private _view: RenderView | null = null;
-    private _visibility: number;
+    private _visibility: number = 0;
 
     constructor (scene: RenderScene, info: ICameraInfo) {
         this._scene = scene;
@@ -233,43 +233,16 @@ export class Camera {
         return this._frustum;
     }
 
-    public set visibility (vis: number) {
+    set visibility (vis) {
         this._visibility = vis;
     }
-    public get visibility (): number {
+    get visibility () {
         return this._visibility;
-    }
-
-    /**
-     * transform a screen position to a world space ray
-     */
-    public screenPointToRay (x: number, y: number, out: ray): ray {
-        out = out || ray.create();
-
-        const cx = this._viewport.x * this._width;
-        const cy = this._viewport.y * this._height;
-        const cw = this._viewport.w * this._width;
-        const ch = this._viewport.h * this._height;
-
-        // far plane intersection
-        vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
-        vec3.transformMat4(v_a, v_a, this._matViewProjInv);
-
-        if (this._proj === CameraProjection.PERSPECTIVE) {
-            // camera origin
-            if (this._node) { this._node.getWorldPosition(v_b); }
-        } else {
-            // near plane intersection
-            vec3.set(v_b, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
-            vec3.transformMat4(v_b, v_b, this._matViewProjInv);
-        }
-
-        return ray.fromPoints(out, v_b, v_a);
     }
 
     public changeTargetDisplay (val: number) {
         const scene = this._scene;
-        const win = scene.root.windows[val - 1] || scene.root.mainWindow;
+        const win = scene.root.windows[val] || scene.root.mainWindow;
         if (win) {
             this._width = win.width;
             this._height = win.height;
@@ -288,13 +261,40 @@ export class Camera {
     }
 
     /**
+     * transform a screen position to a world space ray
+     */
+    public screenPointToRay (x: number, y: number, out: ray): ray {
+        out = out || ray.create();
+
+        const cx = this._viewport.x * this._width;
+        const cy = this._viewport.y * this._height;
+        const cw = this._viewport.width * this._width;
+        const ch = this._viewport.height * this._height;
+
+        // far plane intersection
+        vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
+        vec3.transformMat4(v_a, v_a, this._matViewProjInv);
+
+        if (this._proj === CameraProjection.PERSPECTIVE) {
+            // camera origin
+            if (this._node) { this._node.getWorldPosition(v_b); }
+        } else {
+            // near plane intersection
+            vec3.set(v_b, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
+            vec3.transformMat4(v_b, v_b, this._matViewProjInv);
+        }
+
+        return ray.fromPoints(out, v_b, v_a);
+    }
+
+    /**
      * transform a screen position to world space
      */
     public screenToWorld (out: vec3, screenPos: vec3): vec3 {
         const cx = this._viewport.x * this._width;
         const cy = this._viewport.y * this._height;
-        const cw = this._viewport.w * this._width;
-        const ch = this._viewport.h * this._height;
+        const cw = this._viewport.width * this._width;
+        const ch = this._viewport.height * this._height;
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
             // calculate screen pos in far clip plane
@@ -331,8 +331,8 @@ export class Camera {
     public worldToScreen (out: vec3, worldPos: vec3): vec3 {
         const cx = this._viewport.x * this._width;
         const cy = this._viewport.y * this._height;
-        const cw = this._viewport.w * this._width;
-        const ch = this._viewport.h * this._height;
+        const cw = this._viewport.width * this._width;
+        const ch = this._viewport.height * this._height;
 
         vec3.transformMat4(out, worldPos, this.matViewProjInv);
         out.x = cx + (out.x + 1) * 0.5 * cw;

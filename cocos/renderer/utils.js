@@ -1,13 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import gfx from './gfx';
-import InputAssembler from './core/input-assembler';
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat, GFXAttributeName } from '../gfx/define';
 
-/**
- * @param {gfx.Device} device
- * @param {Object} data
- */
 export function createIA(device, data) {
     if (!data.positions) {
         console.error('The data must have positions field');

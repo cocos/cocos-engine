@@ -266,6 +266,7 @@ export interface IPrimitive {
 export interface IRenderingSubmesh {
     inputAssembler: GFXInputAssembler;
     primitiveMode: GFXPrimitiveMode;
+    doubleSided?: boolean;
 }
 
 export class RenderingMesh {

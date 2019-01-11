@@ -53,8 +53,6 @@
       const camComp = cameraNode.addComponent(cc.CameraComponent);
       const mainWindow = root.mainWindow;
 
-      cc.director.runSceneImmediate(scene);
-
       const material = new cc.Material();
       material.effectName = 'test'; // parsed effect file is embedded in cocos/3d/builtin/effects.js
       material.setProperty('u_color', cc.color('#ff0000'));
@@ -67,6 +65,8 @@
       modelCom.material = material;
       modelCom.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
       modelNode.setRotationFromEuler(45, 45, 45);
+
+      cc.director.runSceneImmediate(scene);
     }
     cc.game.run({ id: 'canvas' }, onStart);
   </script>

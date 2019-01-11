@@ -2,7 +2,7 @@ import { vec3 } from '../core/vmath';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass } from '../renderer/core/pass';
 import { Camera } from '../renderer/scene/camera';
-import Model from '../renderer/scene/model';
+import { Model } from '../renderer/scene/model';
 
 const _pos: vec3 = vec3.create();
 const _cameraPos: vec3 = vec3.create();

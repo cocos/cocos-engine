@@ -1,18 +1,17 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { Material } from '../../3d/assets/material';
+import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { aabb } from '../../3d/geom-utils';
 import { Vec3 } from '../../core/value-types';
-import { mat4, vec3 } from '../../core/vmath';
+import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXBufferUsageBit, GFXCommandBufferType, GFXFormat, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
+import { GFXBufferUsageBit, GFXCommandBufferType, GFXMemoryUsageBit } from '../../gfx/define';
 import { UBOLocal } from '../../pipeline/render-pipeline';
 import { Node } from '../../scene-graph';
 import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
 import { RenderScene } from './render-scene';
-import { IRenderingSubmesh } from '../../3d/assets/mesh';
 
 const _temp_floatx16 = new Float32Array(16);
 const _temp_mat4 = mat4.create();
@@ -20,7 +19,7 @@ const _temp_mat4 = mat4.create();
 /**
  * A representation of a model
  */
-export default class Model {
+export class Model {
 
     private _scene: RenderScene | null;
     private _id: number;
@@ -36,8 +35,8 @@ export default class Model {
     private _cameraID: number;
     private _userKey: number;
     private _castShadow: boolean;
-    private _boundingShape: aabb;
-    private _bsModelSpace: aabb;
+    private _worldBounds: aabb;
+    private _modelBounds: aabb;
     private _material: Material | null;
     private _cmdBuffers: GFXCommandBuffer[];
     private _localUniforms: UBOLocal | null;
@@ -61,7 +60,6 @@ export default class Model {
         this._cameraID = -1;
         this._userKey = -1;
         this._castShadow = false;
-        this._boundingShape = aabb.create(0, 0, 0, 50, 50, 50);
         this._material = null;
         this._cmdBuffers = new Array<GFXCommandBuffer>();
         this._localUniforms = null;
@@ -98,10 +96,10 @@ export default class Model {
     }
 
     public _updateTransform () {
-        if (!this._node._hasChanged || !this._boundingShape) { return; }
+        if (!this._node._hasChanged || !this._worldBounds) { return; }
         this._node.updateWorldTransformFull();
-        this._bsModelSpace.transform(this._node._mat, this._node._pos,
-            this._node._rot, this._node._scale, this._boundingShape);
+        this._modelBounds.transform(this._node._mat, this._node._pos,
+            this._node._rot, this._node._scale, this._worldBounds);
     }
 
     public updateRenderData () {
@@ -126,8 +124,8 @@ export default class Model {
      */
     public createBoundingShape (minPos: Vec3, maxPos: Vec3) {
         if (!minPos || !maxPos) { return; }
-        this._bsModelSpace = aabb.fromPoints(aabb.create(), minPos, maxPos);
-        this._boundingShape = aabb.clone(this._bsModelSpace);
+        this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
+        this._worldBounds = aabb.clone(this._modelBounds);
     }
 
     public enable (isEnable: boolean) {
@@ -158,12 +156,18 @@ export default class Model {
      * Set the input assembler
      * @param {InputAssembler} ia
      */
-    set subMeshData(sm: IRenderingSubmesh) {
+    set subMeshData (sm: IRenderingSubmesh | null) {
         this._subMeshObject = sm;
     }
+    get subMeshData () {
+        return this._subMeshObject;
+    }
 
-    get boundingShape (): aabb {
-        return this._boundingShape;
+    get worldBounds (): aabb {
+        return this._worldBounds;
+    }
+    get modelBounds (): aabb {
+        return this._modelBounds;
     }
 
     get viewID (): number {
@@ -186,11 +190,12 @@ export default class Model {
         }
     }
 
-    set material(material: Material) {
+    set material (material: Material) {
         this._material = material;
         for (let i = 0; i < this._material.passes.length; i++) {
-            if (this._material.passes[i].primitive !== (this._subMeshObject as IRenderingSubmesh).primitiveMode)
+            if (this._material.passes[i].primitive !== (this._subMeshObject as IRenderingSubmesh).primitiveMode) {
                 cc.error('the model(%d)\'s primitive type doesn\'t match its pass\'s');
+            }
             this.recordCommandBuffer(i);
         }
         for (let i = this._cmdBuffers.length - 1; i >= this._material.passes.length; i--) {
@@ -213,7 +218,7 @@ export default class Model {
         if (this._localUBO) {
             pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localUBO);
         }
-        pass.bindingLayout.update();
+        pass.update();
         this._cmdBuffers[index].begin();
         this._cmdBuffers[index].bindPipelineState(pass.pipelineState);
         this._cmdBuffers[index].bindBindingLayout(pass.bindingLayout);

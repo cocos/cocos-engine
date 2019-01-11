@@ -2,7 +2,7 @@
 
 import { RecyclePool } from '../../3d/memop';
 
-import Model from '../scene/model';
+import { Model } from '../scene/model';
 
 export default class SpriteBatchModel extends Model {
   constructor() {
