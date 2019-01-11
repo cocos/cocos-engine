@@ -28,8 +28,14 @@
   </canvas>
 
   <script src="../bin/cocos-3d.dev.js"></script>
-  <!-- <script src="./loadScene.js"></script> -->
   <script>
+    function createTexture() {
+      const imgElms = cc.game.canvas.getElementsByTagName('img');
+      const textureAsset = new cc.Texture2D();
+      textureAsset.image = new cc.ImageAsset(imgElms[0]);
+      return textureAsset;
+    }
+
     function onStart() {
       const $body = document.body;
       const bcr = $body.getBoundingClientRect();
@@ -39,79 +45,28 @@
         cc.view.setCanvasSize(bcr.width, bcr.height);
       });
 
-      /*
-      let scene = new cc.Scene('testScene');
-      scene._scene = scene;
+      const root = cc.director.root;
+      const scene = new cc.Scene();
 
-      let material = new cc.Material();
-      material.effectName = 'test'; // parsed-effect file is embedded in cocos/3d/builtin/effects.js
-      material.setProperty('u_color', cc.color('#ff0000'));
-      material.passes[0].update();
-
-      let modelCom = scene.addComponent('cc.ModelComponent');
-      modelCom.material = material;
-      modelCom.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box({length: 1, width: 1, height: 1}));
-      scene.setRotationFromEuler(45, 45, 45);
-      scene._rot = scene._lrot;
-      */
-
-      let root = cc.director.root;
-      let scene = new cc.Scene();
-
-      let cameraNode = new cc.Node();
+      const cameraNode = new cc.Node();
       cameraNode.parent = scene;
-      let camComp = cameraNode.addComponent(cc.CameraComponent);
-      let mainWindow = root.mainWindow;
+      const camComp = cameraNode.addComponent(cc.CameraComponent);
+      const mainWindow = root.mainWindow;
 
       cc.director.runSceneImmediate(scene);
 
-      let material = new cc.Material();
-      material.effectName = 'test'; // parsed-effect file is embedded in cocos/3d/builtin/effects.js
+      const material = new cc.Material();
+      material.effectName = 'test'; // parsed effect file is embedded in cocos/3d/builtin/effects.js
       material.setProperty('u_color', cc.color('#ff0000'));
+      material.setProperty('u_sampler', createTexture());
       material.passes[0].update();
 
-      let modelCom = scene.addComponent('cc.ModelComponent');
+      const modelNode = new cc.Node();
+      modelNode.parent = scene;
+      const modelCom = modelNode.addComponent('cc.ModelComponent');
       modelCom.material = material;
-      modelCom.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box({length: 1, width: 1, height: 1}));
-      scene.setRotationFromEuler(45, 45, 45);
-      scene._rot = scene._lrot;
-
-
-      // let camera = scene.mainCamera;
-      // camera.position = { x: 0.0, y: 0.0, z: 3.0 };
-      // camera.direction = { x: 0.0, y: 0.0, z: -1.0 };
-      // camera.update();
-
-      //todo initialization
-      /*
-      let scene = new cc.Scene();
-      let node = new cc.Node();
-      scene.addChild(node);
-      node.addComponent('cc.CameraComponent');
-      let modelNode = new cc.Node();
-      modelNode.setPosition(0, 0, -10);
-      scene.addChild(modelNode);
-      let model = modelNode.addComponent('cc.ModelComponent');
-      */
-
-      // init mesh
-      //model.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
-      /**
-      // init effect
-      let mtl = new cc.Material();
-      let color = cc.color('#B58C42');
-      mtl.effectName = cc.game._builtins['builtin-effect-unlit'];
-      mtl.define('USE_COLOR', true);
-      mtl.setProperty('color', color);
-      /**
-      mtl.effect = cc.game._builtins['builtin-effect-phong'];
-      mtl.setProperty('diffuseColor', color);
-      /**
-      mtl.effect = cc.game._builtins['builtin-effect-pbr'];
-      mtl.define('USE_EMISSIVE', true);
-      mtl.setProperty('emissive', color);
-      /**/
-      // model.material = mtl;
+      modelCom.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
+      modelNode.setRotationFromEuler(45, 45, 45);
     }
     cc.game.run({ id: 'canvas' }, onStart);
   </script>

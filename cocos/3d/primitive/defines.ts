@@ -7,12 +7,6 @@ export interface IGeometryOptions {
     includeNormal?: boolean;
 }
 
-export function normalizeGeometryOptions (options: IGeometryOptions) {
-    options.includeNormal = options.includeNormal === undefined ?
-        true : options.includeNormal;
-    return options;
-}
-
 export interface IGeometry {
     /**
      * Topology of the geometry vertices.

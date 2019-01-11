@@ -73,23 +73,8 @@ export class Camera {
         this._clearStencil = info.stencil;
         this._clearFlag = info.clearFlags;
 
-        const win = scene.root.windows[info.targetDisplay - 1] || scene.root.mainWindow;
-        if (win) {
-            this._width = win.width;
-            this._height = win.height;
-            const view = this._view = scene.root.createView({
-              name: `${name}View`,
-              window: win,
-              priority: RenderViewPriority.GENERAL,
-            });
-            if (view) { view.attach(this); }
-        } else {
-            this._width = 1;
-            this._height = 1;
-        }
-        this._aspect = this._width / this._height;
-
-        this._visibility = 0;
+        this._aspect = this._width = this._height = 1;
+        this.changeTargetDisplay(info.targetDisplay);
     }
 
     public resize (width: number, height: number) {
@@ -280,6 +265,26 @@ export class Camera {
         }
 
         return ray.fromPoints(out, v_b, v_a);
+    }
+
+    public changeTargetDisplay (val: number) {
+        const scene = this._scene;
+        const win = scene.root.windows[val - 1] || scene.root.mainWindow;
+        if (win) {
+            this._width = win.width;
+            this._height = win.height;
+            if (!this._view) {
+                this._view = scene.root.createView({
+                    name: this._name,
+                    window: win,
+                    priority: RenderViewPriority.GENERAL,
+                });
+                if (this._view) { this._view.attach(this); }
+            } else {
+                this._view.window = win;
+            }
+        }
+        this._aspect = this._width / this._height;
     }
 
     /**
