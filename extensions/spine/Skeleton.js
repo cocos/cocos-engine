@@ -365,13 +365,7 @@ sp.Skeleton = cc.Class({
             default: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.use_tint',
             notify () {
-                var cache = this._materialCache
-                for (var mKey in cache) {
-                    var material = cache[mKey];
-                    if (material) {
-                        material.useTint = this.useTint;
-                    }
-                }
+                this._updateUseTint();
             }
         }
     },
@@ -393,6 +387,16 @@ sp.Skeleton = cc.Class({
     _updateMaterial (material) {
         this._super(material);
         this._materialCache = {};
+    },
+
+    _updateUseTint () {
+        var cache = this._materialCache
+        for (var mKey in cache) {
+            var material = cache[mKey];
+            if (material) {
+                material.useTint = this.useTint;
+            }
+        }
     },
 
     /**
@@ -455,6 +459,17 @@ sp.Skeleton = cc.Class({
         }
 
         this._updateSkeletonData();
+
+        var children = this.node.children;
+        for (var i = 0, n = children.length; i < n; i++) {
+            var child = children[i];
+            if (child && child._name === "DEBUG_DRAW_NODE" ) {
+                child.destroy();
+            }
+        }
+
+        this._initDebugDraw();
+        this._updateUseTint();
     },
 
     update (dt) {
