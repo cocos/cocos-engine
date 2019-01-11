@@ -116,9 +116,6 @@ function _getSlotMaterial (comp, slot, tex) {
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        if (materialCache[material._hash]) {
-            delete materialCache[material._hash];
-        }
         material.updateHash(key);
         materialCache[key] = material;
     }
@@ -256,6 +253,7 @@ var spineAssembler = {
         let material = null;
         let attachment, attachmentColor, slotColor, uvs, triangles;
         let hasFlush = false;
+        let isRegion, isMesh, isClip;
 
         _premultipliedAlpha = comp.premultipliedAlpha;
         _multiplier = 1.0;
@@ -310,7 +308,30 @@ var spineAssembler = {
             attachment = slot.getAttachment();
             if (!attachment) continue;
 
-            if (attachment instanceof spine.RegionAttachment) {
+            isRegion = attachment instanceof spine.RegionAttachment;
+            isMesh = attachment instanceof spine.MeshAttachment;
+            isClip = attachment instanceof spine.ClippingAttachment;
+
+            if (isClip) {
+                clipper.clipStart(slot, attachment);
+                continue;
+            }
+
+            if (!isRegion && !isMesh) continue;
+
+            material = _getSlotMaterial(comp, slot, attachment.region.texture._texture);
+            if (!material) {
+                continue;
+            }
+    
+            if (!hasFlush || material._hash !== renderer.material._hash) {
+                hasFlush = true;
+                renderer._flush();
+                renderer.node = node;
+                renderer.material = material;
+            }
+
+            if (isRegion) {
                 
                 triangles = _quadTriangles;
     
@@ -336,7 +357,7 @@ var spineAssembler = {
                     graphics.stroke();
                 }
             }
-            else if (attachment instanceof spine.MeshAttachment) {
+            else if (isMesh) {
                 
                 triangles = attachment.triangles;
     
@@ -352,13 +373,6 @@ var spineAssembler = {
                 // compute vertex and fill x y
                 attachment.computeWorldVertices(slot, 0, attachment.worldVerticesLength, vbuf, _vertexFloatOffset, _perVertexSize);
             }
-            else if (attachment instanceof spine.ClippingAttachment) {
-                clipper.clipStart(slot, attachment);
-                continue;
-            }
-            else {
-                continue;
-            }
     
             if (_vertexFloatCount == 0 || _indexCount == 0) {
                 continue;
@@ -372,18 +386,6 @@ var spineAssembler = {
             for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount, u = 0; v < n; v += _perVertexSize, u += 2) {
                 vbuf[v + 2] = uvs[u];           // u
                 vbuf[v + 3] = uvs[u + 1];       // v
-            }
-
-            material = _getSlotMaterial(comp, slot, attachment.region.texture._texture);
-            if (!material) {
-                continue;
-            }
-    
-            if (!hasFlush || material._hash !== renderer.material._hash) {
-                hasFlush = true;
-                renderer._flush();
-                renderer.node = node;
-                renderer.material = material;
             }
 
             attachmentColor = attachment.color,
