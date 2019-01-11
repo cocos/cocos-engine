@@ -336,7 +336,7 @@ sp.Skeleton = cc.Class({
             editorOnly: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_slots',
             notify () {
-                this._initDebugDraw();
+                this._updateDebugDraw();
             }
         },
 
@@ -351,7 +351,7 @@ sp.Skeleton = cc.Class({
             editorOnly: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_bones',
             notify () {
-                this._initDebugDraw();
+                this._updateDebugDraw();
             }
         },
 
@@ -365,13 +365,7 @@ sp.Skeleton = cc.Class({
             default: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.use_tint',
             notify () {
-                var cache = this._materialCache
-                for (var mKey in cache) {
-                    var material = cache[mKey];
-                    if (material) {
-                        material.useTint = this.useTint;
-                    }
-                }
+                this._updateUseTint();
             }
         }
     },
@@ -393,6 +387,16 @@ sp.Skeleton = cc.Class({
     _updateMaterial (material) {
         this._super(material);
         this._materialCache = {};
+    },
+
+    _updateUseTint () {
+        var cache = this._materialCache
+        for (var mKey in cache) {
+            var material = cache[mKey];
+            if (material) {
+                material.useTint = this.useTint;
+            }
+        }
     },
 
     /**
@@ -455,6 +459,17 @@ sp.Skeleton = cc.Class({
         }
 
         this._updateSkeletonData();
+
+        var children = this.node.children;
+        for (var i = 0, n = children.length; i < n; i++) {
+            var child = children[i];
+            if (child && child._name === "DEBUG_DRAW_NODE" ) {
+                child.destroy();
+            }
+        }
+
+        this._updateDebugDraw();
+        this._updateUseTint();
     },
 
     update (dt) {
@@ -979,7 +994,7 @@ sp.Skeleton = cc.Class({
         Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
     },
 
-    _initDebugDraw: function () {
+    _updateDebugDraw: function () {
         if (this.debugBones || this.debugSlots) {
             if (!this._debugRenderer) {
                 let debugDrawNode = new cc.PrivateNode();
