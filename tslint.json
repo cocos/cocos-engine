@@ -16,7 +16,6 @@
         "object-literal-sort-keys": false,
         "ban-types": false,
         "no-bitwise": false,
-        "max-line-length": false,
         "no-empty": false
     },
     "rulesDirectory": []

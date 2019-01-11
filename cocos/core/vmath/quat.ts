@@ -684,9 +684,9 @@ export default class quat {
      */
     public static toEuler<Out extends IQuatLike>(out: Out, q: quat) {
         const { x, y, z, w } = q;
-        let heading: number = 0;
-        let attitude: number = 0;
-        let bank: number = 0;
+        let heading: number = NaN;
+        let attitude: number = NaN;
+        let bank: number = NaN;
         const test = x * y + z * w;
         if (test > 0.499999) { // singularity at north pole
             heading = 2 * Math.atan2(x, w);

@@ -6,7 +6,7 @@ import commonjs from 'rollup-plugin-commonjs';
 
 const dest = './bin';
 const file = 'cocos-3d.dev';
-const moduleName = 'cocos3d';
+const moduleName = 'cc_modular';
 
 fsJetpack.dir(dest);
 
