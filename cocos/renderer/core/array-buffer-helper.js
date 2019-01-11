@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import enums from '../enums';
+import * as enums from '../enums';
 
 function _defineProperty(target, name, internalName, arrayFn) {
   target[internalName] = new arrayFn(target._data);

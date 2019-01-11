@@ -4,7 +4,7 @@ import { RecyclePool } from '../../3d/memop';
 import { vec2, vec3, vec4, mat2, mat3, mat4, color3, color4 } from '../../core/vmath';
 import { intersect } from '../../3d/geom-utils';
 
-import enums from '../enums';
+import * as enums from '../enums';
 import View from './view';
 import { ProgramLib } from './program-lib';
 import { RenderQueue } from './constants';

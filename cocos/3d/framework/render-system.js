@@ -1,4 +1,4 @@
-import { renderer } from '../../renderer';
+import * as renderer from '../../renderer';
 export default class RenderSystem {
     constructor () {
         this._scene = new renderer.Scene();
