@@ -65,6 +65,27 @@ export class GFXObject {
     }
 }
 
+export enum GFXAttributeName {
+    ATTR_POSITION = 'a_position',
+    ATTR_NORMAL = 'a_normal',
+    ATTR_TANGENT = 'a_tangent',
+    ATTR_BITANGENT = 'a_bitangent',
+    ATTR_WEIGHTS = 'a_weights',
+    ATTR_JOINTS = 'a_joints',
+    ATTR_COLOR = 'a_color',
+    ATTR_COLOR1 = 'a_color1',
+    ATTR_COLOR2 = 'a_color2',
+    ATTR_TEX_COORD = 'a_texCoord',
+    ATTR_TEX_COORD1 = 'a_texCoord1',
+    ATTR_TEX_COORD2 = 'a_texCoord2',
+    ATTR_TEX_COORD3 = 'a_texCoord3',
+    ATTR_TEX_COORD4 = 'a_texCoord4',
+    ATTR_TEX_COORD5 = 'a_texCoord5',
+    ATTR_TEX_COORD6 = 'a_texCoord6',
+    ATTR_TEX_COORD7 = 'a_texCoord7',
+    ATTR_TEX_COORD8 = 'a_texCoord8',
+}
+
 export enum GFXType {
     UNKNOWN,
     BOOL,
