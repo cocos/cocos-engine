@@ -448,9 +448,11 @@ export class WebGLGFXDevice extends GFXDevice {
     }
 
     public copyBufferToTexture (buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
-
-        const bufferView = new Uint8Array(buffer);
-        WebGLCmdFuncCopyBufferToTexture(this as WebGLGFXDevice, bufferView, (texture as WebGLGFXTexture).gpuTexture, regions);
+        WebGLCmdFuncCopyBufferToTexture(
+            this as WebGLGFXDevice,
+            buffer,
+            (texture as WebGLGFXTexture).gpuTexture,
+            regions);
     }
 
     public copyImageSourceToTexture (source: CanvasImageSource, texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
@@ -464,9 +466,11 @@ export class WebGLGFXDevice extends GFXDevice {
                 context.drawImage(source, 0, 0);
 
                 const imgData = context.getImageData(0, 0, this._canvas2D.width, this._canvas2D.height);
-                const bufferView = new Uint8Array(imgData.data);
-
-                WebGLCmdFuncCopyBufferToTexture(this as WebGLGFXDevice, bufferView, (texture as WebGLGFXTexture).gpuTexture, regions);
+                WebGLCmdFuncCopyBufferToTexture(
+                    this as WebGLGFXDevice,
+                    imgData.data,
+                    (texture as WebGLGFXTexture).gpuTexture,
+                    regions);
             }
         }
     }
@@ -511,7 +515,6 @@ export class WebGLGFXDevice extends GFXDevice {
             size: info.size,
             stride: info.stride ? info.stride : 1,
             buffer: null,
-            viewUI8: null,
             viewF32: null,
             glTarget: 0,
             glBuffer: 0,
@@ -519,7 +522,6 @@ export class WebGLGFXDevice extends GFXDevice {
 
         if (buffer) {
             gpuBuffer.buffer = buffer;
-            gpuBuffer.viewUI8 = new Uint8Array(gpuBuffer.buffer);
         }
 
         // let isUBOSimulate = (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) !== GFXBufferUsageBit.NONE;

@@ -1,5 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { Material } from '../../3d/assets/material';
+import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { aabb } from '../../3d/geom-utils';
 import { Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
@@ -12,7 +13,6 @@ import { Node } from '../../scene-graph';
 import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
 import { RenderScene } from './render-scene';
-import { IRenderingSubmesh } from '../../3d/assets/mesh';
 
 const _temp_floatx16 = new Float32Array(16);
 const _temp_mat4 = mat4.create();
@@ -114,9 +114,12 @@ export default class Model {
         if (this._localUniforms) {
             this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
         }
+
+        /*
         if (this._localUBO) {
             this._localUBO.update(this._localUniforms.view);
         }
+        */
     }
 
     /**
@@ -158,7 +161,7 @@ export default class Model {
      * Set the input assembler
      * @param {InputAssembler} ia
      */
-    set subMeshData(sm: IRenderingSubmesh) {
+    set subMeshData (sm: IRenderingSubmesh) {
         this._subMeshObject = sm;
     }
 
@@ -186,11 +189,12 @@ export default class Model {
         }
     }
 
-    set material(material: Material) {
+    set material (material: Material) {
         this._material = material;
         for (let i = 0; i < this._material.passes.length; i++) {
-            if (this._material.passes[i].primitive !== (this._subMeshObject as IRenderingSubmesh).primitiveMode)
+            if (this._material.passes[i].primitive !== (this._subMeshObject as IRenderingSubmesh).primitiveMode) {
                 cc.error('the model(%d)\'s primitive type doesn\'t match its pass\'s');
+            }
             this.recordCommandBuffer(i);
         }
         for (let i = this._cmdBuffers.length - 1; i >= this._material.passes.length; i--) {
@@ -238,16 +242,11 @@ export default class Model {
         return this._cmdBuffers;
     }
 
-    /**
-     * Extract a drawing item
-     * @param {Object} out the receiving item
-     */
-    public extractDrawItem (out) {
-        out.model = this;
-        out.node = this._node;
-        out.ia = this._inputAssembler;
-        out.effect = this._effect;
-        // out.defines = this._effect ? this._effect.extractDefines(this._defines) : this._defines;
-        // out.dependencies = this._effect ? this._effect.extractDependencies(this._dependencies) : this._dependencies;
+    get localUniforms (): UBOLocal {
+        return this._localUniforms as UBOLocal;
+    }
+
+    get localUBO (): GFXBuffer {
+        return this._localUBO as GFXBuffer;
     }
 }

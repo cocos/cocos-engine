@@ -139,6 +139,8 @@ export abstract class RenderPipeline {
         for (const flow of this._flows) {
             flow.render(view);
         }
+
+        // TODO : add ui render pipeline
     }
 
     public addRenderPass (stage: number, renderPass: GFXRenderPass) {
@@ -164,7 +166,10 @@ export abstract class RenderPipeline {
         this._renderPasses.clear();
     }
 
-    public createFlow<T extends RenderFlow> (clazz: new (pipeline: RenderPipeline) => T, info: IRenderFlowInfo): RenderFlow | null {
+    public createFlow<T extends RenderFlow> (
+        clazz: new (pipeline: RenderPipeline) => T,
+        info: IRenderFlowInfo): RenderFlow | null {
+
         const flow: RenderFlow = new clazz(this);
         if (flow.initialize(info)) {
             this._flows.push(flow);
@@ -342,6 +347,8 @@ export abstract class RenderPipeline {
 
         const scene = view.scene;
         const camera = view.camera;
+
+        this._queue.clear();
 
         for (const model of scene.models) {
 

@@ -36,7 +36,6 @@ export abstract class GFXBuffer extends GFXObject {
     protected _size: number = 0;
     protected _stride: number = 1;
     protected _buffer: ArrayBuffer | null = null;
-    protected _bufferView: Uint8Array | null = null;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.BUFFER);

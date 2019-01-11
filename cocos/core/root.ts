@@ -183,8 +183,8 @@ export class Root {
     }
 
     public destroyViews () {
-        for (let i = 0; i < this._views.length; ++i) {
-            this._views[i].destroy();
+        for (const view of this._views) {
+            view.destroy();
         }
         this._views = [];
     }

@@ -33,7 +33,6 @@ export class WebGLGFXBuffer extends GFXBuffer {
 
         if (this._memUsage & GFXMemoryUsageBit.HOST) {
             this._buffer = new ArrayBuffer(this._size);
-            this._bufferView = new Uint8Array(this._buffer);
         }
 
         // this._isSimulate = (this._usage & GFXBufferUsageBit.TRANSFER_SRC) != GFXBufferUsageBit.NONE;
@@ -50,16 +49,12 @@ export class WebGLGFXBuffer extends GFXBuffer {
         }
 
         this._buffer = null;
-        this._bufferView = null;
         this._status = GFXStatus.UNREADY;
     }
 
     public update (buffer: ArrayBuffer, offset?: number, size?: number) {
 
-        const isUniformBuffer = (this._usage & GFXBufferUsageBit.UNIFORM) !== GFXBufferUsageBit.NONE;
-        if (this._bufferView && !isUniformBuffer) {
-            this._bufferView.set(new Uint8Array(buffer, 0, size), offset);
-        }
+        // const isUniformBuffer = (this._usage & GFXBufferUsageBit.UNIFORM) !== GFXBufferUsageBit.NONE;
 
         this.webGLDevice.emitCmdUpdateGPUBuffer(
             this._gpuBuffer as WebGLGPUBuffer,

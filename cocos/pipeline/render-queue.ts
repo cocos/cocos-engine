@@ -24,9 +24,9 @@ export class RenderItem {
 export class RenderQueue {
 
     public opaques: RenderItem[] = [];
-    public opaqueCmdBuffs: GFXCommandBuffer[] = [];
+    // public opaqueCmdBuffs: GFXCommandBuffer[] = [];
     public transparents: RenderItem[] = [];
-    public transparentCmdBuffs: GFXCommandBuffer[] = [];
+    // public transparentCmdBuffs: GFXCommandBuffer[] = [];
     private _buffer: ArrayBuffer;
     private _f32View: Float32Array;
     private _ui32View: Uint32Array;
@@ -37,13 +37,20 @@ export class RenderQueue {
         this._ui32View = new Uint32Array(this._buffer);
     }
 
+    public clear () {
+        this.opaques = [];
+        this.transparents = [];
+    }
+
     public add (model: Model, camera: Camera) {
 
         model.node.getPosition(_pos);
         camera.node.getPosition(_cameraPos);
         this._f32View[0] = vec3.distance(_cameraPos, _pos);
-        const ui32Depth: number = this._ui32View[0];
-        const ui32DepthInv = (ui32Depth ^ 0xffffffff);
+        let ui32Depth: number = this._ui32View[0];
+        const mask = -(ui32Depth >> 31) | 0x8000000000000000;
+        ui32Depth = (ui32Depth ^ mask);
+        const ui32DepthInv = (ui32Depth ^ 0xffffffffffffffff);
 
         for (let i = 0; i < model.passes.length; ++i) {
             const pass = model.passes[i];
@@ -59,12 +66,12 @@ export class RenderQueue {
 
             if (!isTransparent) {
                 // Opaque objects are sorted by depth front to back -> pass priority -> shader id.
-                const hash = (0 << 63) | (i << 47) | (ui32Depth << 15) | pso.shader.id;
+                const hash = (0 << 61) | (i << 45) | (ui32Depth << 13) | pso.shader.id;
 
                 this.opaques.push({hash, model, pass, cmdBuff});
             } else {
                 // Transparent objects are sorted by depth back to front -> pass priority -> shader id.
-                const hash = (1 << 63) | (i << 47) | (ui32DepthInv << 15) | pso.shader.id;
+                const hash = (1 << 61) | (i << 45) | (ui32DepthInv << 13) | pso.shader.id;
 
                 this.transparents.push({hash, model, pass, cmdBuff});
             }
@@ -81,6 +88,7 @@ export class RenderQueue {
             return a.hash - b.hash;
         });
 
+        /*
         this.opaqueCmdBuffs = new Array<GFXCommandBuffer>(this.opaques.length);
         for (let i = 0; i < this.opaques.length; ++i) {
             this.opaqueCmdBuffs[i] = this.opaques[i].cmdBuff;
@@ -90,5 +98,6 @@ export class RenderQueue {
         for (let i = 0; i < this.transparents.length; ++i) {
             this.transparentCmdBuffs[i] = this.transparents[i].cmdBuff;
         }
+        */
     }
 }

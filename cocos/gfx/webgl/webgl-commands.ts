@@ -1929,8 +1929,10 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 const cmd6 = cmdPackage.updateBufferCmds[cmdId];
                 if (cmd6.gpuBuffer) {
 
-                    if (cmd6.buffer && cmd6.gpuBuffer.viewUI8) {
-                        cmd6.gpuBuffer.viewUI8.set(new Uint8Array(cmd6.buffer), cmd6.offset);
+                    if (cmd6.buffer) {
+                        if (cmd6.gpuBuffer.viewF32) {
+                            cmd6.gpuBuffer.viewF32.set(new Float32Array(cmd6.buffer), cmd6.offset);
+                        }
                     }
 
                     switch (cmd6.gpuBuffer.glTarget) {
@@ -1964,8 +1966,8 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
             }
             case WebGLCmd.COPY_BUFFER_TO_TEXTURE: {
                 const cmd7 = cmdPackage.copyBufferToTextureCmds[cmdId];
-                if (cmd7.gpuBuffer && cmd7.gpuBuffer.viewUI8 && cmd7.gpuTexture) {
-                    WebGLCmdFuncCopyBufferToTexture(device, cmd7.gpuBuffer.viewUI8, cmd7.gpuTexture, cmd7.regions);
+                if (cmd7.gpuBuffer && cmd7.gpuBuffer.buffer && cmd7.gpuTexture) {
+                    WebGLCmdFuncCopyBufferToTexture(device, cmd7.gpuBuffer.buffer, cmd7.gpuTexture, cmd7.regions);
                 }
 
                 break;
@@ -1976,11 +1978,13 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
 export function WebGLCmdFuncCopyBufferToTexture (
     device: WebGLGFXDevice,
-    bufferView: Uint8Array,
+    buffer: ArrayBuffer,
     gpuTexture: WebGLGPUTexture,
     regions: GFXBufferTextureCopy[]) {
 
     const gl = device.gl;
+
+    const bufferView = new Uint8Array(buffer);
 
     switch (gpuTexture.glTarget) {
         case WebGLRenderingContext.TEXTURE_2D: {

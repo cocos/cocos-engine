@@ -36,7 +36,6 @@ export class WebGLGPUBuffer extends WebGLGPUObject {
     public glTarget: GLenum = 0;
     public glBuffer: WebGLBuffer = 0;
     public buffer: ArrayBuffer | null = null;
-    public viewUI8: Uint8Array | null = null;
     public viewF32: Float32Array | null = null;
 
     constructor () {

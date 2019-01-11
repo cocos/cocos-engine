@@ -124,7 +124,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
             const cmd = ( this._allocator as WebGLGFXCommandAllocator).updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
             if (cmd) {
                 cmd.gpuBuffer = gpuBuffer;
-                cmd.buffer = data;
+                cmd.buffer = data.slice(0);
                 cmd.offset = (offset !== undefined ? offset : 0);
                 this.cmdPackage.updateBufferCmds.push(cmd);
 
