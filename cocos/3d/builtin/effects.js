@@ -8,12 +8,12 @@ export default [
         "name": "f4c45e6cc7794309d86202e6ec9036a3871fd1ec167a9e02eb1e1574",
         "vert": `
   attribute vec3 a_position;
-  attribute vec2 a_uv0;
+  attribute vec2 a_texCoord;
   uniform mat4 cc_matWorld;
   varying vec2 v_texCoord;
   void main() {
     gl_Position = cc_matWorld*vec4(a_position, 1.0);
-    v_texCoord = a_uv0;
+    v_texCoord = a_texCoord;
   }
 `,
         "frag": `

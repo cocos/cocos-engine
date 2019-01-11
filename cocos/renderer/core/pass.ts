@@ -21,6 +21,7 @@ export interface IPassInfoFull extends IPassInfo {
     samplers: ISamplerInfo[];
     shader: GFXShader;
     renderPass: GFXRenderPass;
+    globals: GFXBuffer;
 }
 
 const _type2fn = {
@@ -154,6 +155,9 @@ export class Pass {
             }, 0); // === u.size
             buffer.update(block.buffer);
         }
+        // also bind builtin globals
+        this._bindingLayout.bindBuffer(UBOGlobal.BLOCK.binding, info.globals);
+
         for (const u of info.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
             const sampler = device.createSampler({
@@ -258,5 +262,5 @@ export class Pass {
     get programName () { return this._programName; }
     get pipelineState () { return this._pipelineState as GFXPipelineState; }
     get bindingLayout () { return this._bindingLayout as GFXBindingLayout; }
-    get primitive(): GFXPrimitiveMode { return this._primitive; }
+    get primitive (): GFXPrimitiveMode { return this._primitive; }
 }

@@ -1,13 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import gfx from './gfx';
-import InputAssembler from './core/input-assembler';
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat } from '../gfx/define';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat, GFXAttributeName } from '../gfx/define';
 
-/**
- * @param {gfx.Device} device
- * @param {Object} data
- */
 export function createIA(device, data) {
     if (!data.positions) {
         console.error('The data must have positions field');
@@ -32,15 +26,15 @@ export function createIA(device, data) {
     }
 
     let vfmt = [];
-    vfmt.push({ name: gfx.ATTR_POSITION, format: GFXFormat.RGB32F });
+    vfmt.push({ name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F });
     if (data.normals) {
-        vfmt.push({ name: gfx.ATTR_NORMAL, format: GFXFormat.RGB32F });
+        vfmt.push({ name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F });
     }
     if (data.uvs) {
-        vfmt.push({ name: gfx.ATTR_UV0, format: GFXFormat.RG32F });
+        vfmt.push({ name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F });
     }
     if (data.colors) {
-        vfmt.push({ name: gfx.ATTR_COLOR, format: GFXFormat.RGB32F });
+        vfmt.push({ name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGB32F });
     }
 
     let vb = cc.director.root.device.createBuffer({

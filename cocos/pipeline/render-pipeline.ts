@@ -19,8 +19,6 @@ export enum RenderPassStage {
     DEFAULT = 100,
 }
 
-const v_camPos = cc.v3();
-
 export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
     public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
@@ -37,16 +35,16 @@ export class UBOGlobal {
 
     public static BLOCK: GFXUniformBlock = {
         binding: 30, name: 'CCGlobal', members: [
-            { name: 'u_time', type: GFXType.FLOAT4, count: 1 },
-            { name: 'u_screenSize', type: GFXType.FLOAT4, count: 1 },
-            { name: 'u_screenScale', type: GFXType.FLOAT4, count: 1 },
-            { name: 'u_matView', type: GFXType.MAT4, count: 1 },
-            { name: 'u_matViewInv', type: GFXType.MAT4, count: 1 },
-            { name: 'u_matProj', type: GFXType.MAT4, count: 1 },
-            { name: 'u_matProjInv', type: GFXType.MAT4, count: 1 },
-            { name: 'u_matViewProj', type: GFXType.MAT4, count: 1 },
-            { name: 'u_matViewProjInv', type: GFXType.MAT4, count: 1 },
-            { name: 'u_cameraPos', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_screenScale', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_matView', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matViewInv', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matProj', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matProjInv', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matViewProj', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matViewProjInv', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_cameraPos', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 
@@ -168,8 +166,8 @@ export abstract class RenderPipeline {
 
     public createFlow<T extends RenderFlow> (
         clazz: new (pipeline: RenderPipeline) => T,
-        info: IRenderFlowInfo): RenderFlow | null {
-
+        info: IRenderFlowInfo,
+    ): RenderFlow | null {
         const flow: RenderFlow = new clazz(this);
         if (flow.initialize(info)) {
             this._flows.push(flow);
@@ -360,7 +358,7 @@ export abstract class RenderPipeline {
             model._updateTransform();
 
             // frustum culling
-            if (!intersect.aabb_frustum(model.boundingShape, camera.frustum)) {
+            if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
                 // console.log('model is not in view frustum.');
                 continue;
             }

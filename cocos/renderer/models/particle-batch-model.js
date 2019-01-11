@@ -3,7 +3,7 @@
 import gfx from '../gfx';
 import InputAssembler from '../core/input-assembler';
 
-import Model from '../scene/model';
+import { Model } from '../scene/model';
 
 function _createInputAssembler(out) {
     let vb = new gfx.VertexBuffer(

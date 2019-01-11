@@ -48,17 +48,8 @@ export class ForwardStage extends RenderStage {
         this._renderArea.height = camera.height;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(
-            this._framebuffer as GFXFramebuffer,
-            this._renderArea,
-            this._clearColors,
-            this._clearDepth,
-            this._clearStencil);
-
-        for (const item of queue.opaques) {
-            cmdBuff.updateBuffer(item.model.localUBO, item.model.localUniforms.view);
-            cmdBuff.execute([item.cmdBuff]);
-        }
+        cmdBuff.beginRenderPass(this._framebuffer as GFXFramebuffer, this._renderArea,
+            [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
         for (const item of queue.transparents) {
             cmdBuff.updateBuffer(item.model.localUBO, item.model.localUniforms.view);

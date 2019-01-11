@@ -41,8 +41,9 @@ class Node extends BaseNode {
     @property
     protected _layer = Layers.Default; // the layer this node belongs to
 
+    // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
     @property
-    protected _euler = new Vec3(); // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
+    protected _euler = new Vec3();
 
     // world transform
     protected _pos = new Vec3();
