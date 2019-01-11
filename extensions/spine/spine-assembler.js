@@ -255,6 +255,7 @@ var spineAssembler = {
         let clipper = comp._clipper;
         let material = null;
         let attachment, attachmentColor, slotColor, uvs, triangles;
+        let hasFlush = false;
 
         _premultipliedAlpha = comp.premultipliedAlpha;
         _multiplier = 1.0;
@@ -378,7 +379,8 @@ var spineAssembler = {
                 continue;
             }
     
-            if (slotIdx == 0 || material._hash !== renderer.material._hash) {
+            if (!hasFlush || material._hash !== renderer.material._hash) {
+                hasFlush = true;
                 renderer._flush();
                 renderer.node = node;
                 renderer.material = material;
