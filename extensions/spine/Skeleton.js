@@ -336,7 +336,7 @@ sp.Skeleton = cc.Class({
             editorOnly: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_slots',
             notify () {
-                this._initDebugDraw();
+                this._updateDebugDraw();
             }
         },
 
@@ -351,7 +351,7 @@ sp.Skeleton = cc.Class({
             editorOnly: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_bones',
             notify () {
-                this._initDebugDraw();
+                this._updateDebugDraw();
             }
         },
 
@@ -468,7 +468,7 @@ sp.Skeleton = cc.Class({
             }
         }
 
-        this._initDebugDraw();
+        this._updateDebugDraw();
         this._updateUseTint();
     },
 
@@ -994,7 +994,7 @@ sp.Skeleton = cc.Class({
         Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
     },
 
-    _initDebugDraw: function () {
+    _updateDebugDraw: function () {
         if (this.debugBones || this.debugSlots) {
             if (!this._debugRenderer) {
                 let debugDrawNode = new cc.PrivateNode();
