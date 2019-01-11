@@ -75,6 +75,7 @@ export class Effect {
             const prog = getProgram(passInfo.program);
             passInfo.shader = cc.game._programLib.getGFXShader(passInfo.program, defines || {});
             passInfo.renderPass = cc.director.root.pipeline.getRenderPass(passInfo.stage || RenderPassStage.DEFAULT);
+            passInfo.globals = cc.director.root.pipeline.globalUBO;
             passInfo.blocks = prog.blocks;
             passInfo.samplers = prog.samplers;
             const pass = new Pass(cc.game._gfxDevice);

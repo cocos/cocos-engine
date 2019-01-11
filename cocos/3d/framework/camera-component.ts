@@ -22,12 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import { ray } from '../../3d/geom-utils';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { Enum, Rect } from '../../core/value-types';
+import { Enum, Rect, Vec3 } from '../../core/value-types';
 import { color4, toRadian } from '../../core/vmath';
 import { GFXClearFlag } from '../../gfx/define';
-import { Camera, CameraProjection } from '../../renderer/scene/camera';
+import { Camera } from '../../renderer/scene/camera';
 
 /**
  * !#en The light source type
@@ -61,7 +62,7 @@ const CameraClearFlag = Enum({
     SKYBOX: GFXClearFlag.SKYBOX | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
     SOLID_COLOR: GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
     DEPTH_ONLY: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
-    DONT_CLEAR: 0,
+    DONT_CLEAR: GFXClearFlag.NONE,
 });
 
 /**
@@ -297,5 +298,23 @@ export class CameraComponent extends Component {
 
     public onDestroy () {
 
+    }
+
+    public screenPointToRay (x: number, y: number, out?: ray) {
+        if (!out) { out = ray.create(); }
+        if (this._camera) { this._camera.screenPointToRay(out, x, y); }
+        return out;
+    }
+
+    public worldToScreen (worldPos: Vec3, out?: Vec3) {
+        if (!out) { out = new Vec3(); }
+        if (this._camera) { this._camera.worldToScreen(out, worldPos); }
+        return out;
+    }
+
+    public screenToWorld (screenPos: Vec3, out?: Vec3) {
+        if (!out) { out = this.node.getWorldPosition(); }
+        if (this._camera) { this._camera.screenToWorld(out, screenPos); }
+        return out;
     }
 }

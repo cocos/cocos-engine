@@ -502,6 +502,7 @@ export interface IGFXColor {
 }
 
 export enum GFXClearFlag {
+    NONE = 0,
     COLOR = 1,
     DEPTH = 2,
     STENCIL = 4,

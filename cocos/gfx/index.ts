@@ -1,5 +1,6 @@
 import { GFXBuffer } from './buffer';
 import { GFXCommandBuffer } from './command-buffer';
+import * as GFXDefines from './define';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXInputAssembler } from './input-assembler';
@@ -27,3 +28,5 @@ cc.GFXPipelineState = GFXPipelineState;
 cc.GFXCommandBuffer = GFXCommandBuffer;
 cc.GFXQueue = GFXQueue;
 cc.WebGLGFXDevice = WebGLGFXDevice;
+
+Object.assign(cc, GFXDefines);

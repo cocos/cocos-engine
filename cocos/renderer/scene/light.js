@@ -47,7 +47,7 @@ function _computePointLightViewProjMatrix(light, outView, outProj) {
  * A representation of a light source.
  * Could be a point light, a spot light or a directional light.
  */
-export default class Light {
+export class Light {
   /**
    * Setup a default directional light with no shadows
    */

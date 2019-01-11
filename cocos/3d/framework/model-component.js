@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import Model from '../../renderer/scene/model';
+import { Model } from '../../renderer/scene/model';
 import { ccclass, property, menu, executionOrder, executeInEditMode } from '../../core/data/class-decorator';
 import { Mesh } from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
@@ -116,7 +116,6 @@ export default class ModelComponent extends RenderableComponent {
 
     set mesh(val) {
         this._mesh = val;
-        this._updateModels();
     }
 
     /**
@@ -185,8 +184,7 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     _updateModels() {
-        if (!this.enabled)
-            return;
+        if (!this.enabled) return;
         let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
 
         for (let i = 0; i < meshCount; ++i) {
