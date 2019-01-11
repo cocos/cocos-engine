@@ -3,7 +3,7 @@ const gfx = renderEngine.gfx;
 
 let MeshBuffer = cc.Class({
     name: 'cc.MeshBuffer',
-    ctor (renderer, vertexFormat) {
+    ctor (batcher, vertexFormat) {
         this.byteStart = 0;
         this.byteOffset = 0;
         this.indiceStart = 0;
@@ -15,7 +15,7 @@ let MeshBuffer = cc.Class({
         this._vertexBytes = this._vertexFormat._bytes;
 
         this._vb = new gfx.VertexBuffer(
-            renderer._device,
+            batcher._device,
             vertexFormat,
             gfx.USAGE_DYNAMIC,
             new ArrayBuffer(),
@@ -23,7 +23,7 @@ let MeshBuffer = cc.Class({
         );
 
         this._ib = new gfx.IndexBuffer(
-            renderer._device,
+            batcher._device,
             gfx.INDEX_FMT_UINT16,
             gfx.USAGE_STATIC,
             new ArrayBuffer(),
@@ -34,7 +34,7 @@ let MeshBuffer = cc.Class({
         this._iData = null;
         this._uintVData = null;
 
-        this._renderer = renderer;
+        this._batcher = batcher;
 
         this._initVDataCount = 256 * vertexFormat._bytes; // actually 256 * 4 * (vertexFormat._bytes / 4)
         this._initIDataCount = 256 * 6;
@@ -87,9 +87,9 @@ let MeshBuffer = cc.Class({
     },
 
     request (vertexCount, indiceCount) {
-        if (this._renderer._buffer !== this) {
-            this._renderer._flush();
-            this._renderer._buffer = this;
+        if (this._batcher._buffer !== this) {
+            this._batcher._flush();
+            this._batcher._buffer = this;
         }
 
         this.requestStatic(vertexCount, indiceCount);

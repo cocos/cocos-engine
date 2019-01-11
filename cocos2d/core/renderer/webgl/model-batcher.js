@@ -23,35 +23,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('../../platform/CCMacro');
 const renderEngine = require('../render-engine');
 const defaultVertexFormat = require('./vertex-format').vfmtPosUvColor;
 const StencilManager = require('./stencil-manager');
-const dynamicAtlasManager = require('../utils/dynamic-atlas/manager');
-const RenderFlow = require('../render-flow');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');
 const SpineBuffer = require('./spine-buffer');
 
 let idGenerater = new (require('../../platform/id-generater'))('VertextFormat');
 
-const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
-
-const FLOATS_PER_VERT = defaultVertexFormat._bytes / 4;
-const BYTE_PER_INDEX = 2;
-const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
-const MAX_VERTEX_BYTES = MAX_VERTEX * defaultVertexFormat._bytes;
-const MAX_INDICE = MAX_VERTEX * BYTE_PER_INDEX;
-const MAX_INDICE_BYTES = MAX_INDICE * 2;
 
 let _buffers = {};
 
 const empty_material = new renderEngine.Material();
 empty_material.updateHash();
 
-var RenderComponentWalker = function (device, renderScene) {
+var ModelBatcher = function (device, renderScene) {
     this._renderScene = renderScene;
     this._device = device;
     this._stencilMgr = StencilManager.sharedManager;
@@ -82,12 +71,10 @@ var RenderComponentWalker = function (device, renderScene) {
     this.parentOpacity = 1;
     this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
-
-    RenderFlow.init(this);
 };
 
-RenderComponentWalker.prototype = {
-    constructor: RenderComponentWalker,
+ModelBatcher.prototype = {
+    constructor: ModelBatcher,
     
     reset() {
         // Reset pools
@@ -208,21 +195,18 @@ RenderComponentWalker.prototype = {
         assembler.renderIA(comp, this);
     },
 
-    visit (scene) {
-        this.reset();
-        this.walking = true;
-
-        RenderFlow.render(scene);
-        
-        if (dynamicAtlasManager) {
-            dynamicAtlasManager.update();
+    terminate () {
+        if (cc.dynamicAtlasManager && cc.dynamicAtlasManager.enabled) {
+            cc.dynamicAtlasManager.update();
         }
-        
+
+        // flush current rest Model
         this._flush();
 
         for (let key in _buffers) {
             _buffers[key].uploadData();
         }
+    
         this.walking = false;
     },
 
@@ -255,4 +239,4 @@ RenderComponentWalker.prototype = {
     }
 }
 
-module.exports = RenderComponentWalker;
+module.exports = ModelBatcher;
