@@ -68,6 +68,8 @@ CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
 
 var proto = Vec2.prototype;
 
+// compatible with vec3
+js.value(proto, 'z', 0);
 
 /**
  * !#en clone a Vec2 object
