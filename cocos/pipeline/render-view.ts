@@ -15,30 +15,34 @@ export interface IRenderViewInfo {
 
 export class RenderView {
 
-    public get name (): string {
+    public get name () {
         return this._name;
     }
 
-    public get window (): GFXWindow | null {
+    public get window () {
         return this._window;
     }
 
-    public get priority (): number {
+    public set window (val) {
+        this._window = val;
+    }
+
+    public get priority () {
         return this._priority;
     }
 
-    public set visibility (vis: number) {
+    public set visibility (vis) {
         this._visibility = vis;
     }
-    public get visibility (): number {
+    public get visibility () {
         return this._visibility;
     }
 
-    public get camera (): Camera {
+    public get camera () {
         return this._camera as Camera;
     }
 
-    public get scene (): RenderScene {
+    public get scene () {
         return this._scene as RenderScene;
     }
 

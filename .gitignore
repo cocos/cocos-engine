@@ -13,3 +13,4 @@ node_modules
 /dist
 npm-debug.log
 DebugInfos.json
+/rollup/out

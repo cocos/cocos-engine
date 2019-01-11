@@ -534,6 +534,7 @@ export interface IGFXFormatInfo {
     readonly isCompressed: boolean;
 }
 
+// tslint:disable: max-line-length
 export const GFXFormatInfos: IGFXFormatInfo[] = [
 
     { name: 'UNKNOWN', size: 0, count: 0, isFloating: false, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
@@ -639,6 +640,7 @@ export const GFXFormatInfos: IGFXFormatInfo[] = [
     { name: 'PVRTC2_2BPP', size: 2, count: 4, isFloating: false, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
     { name: 'PVRTC2_4BPP', size: 2, count: 4, isFloating: false, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
 ];
+// tslint:enable: max-line-length
 
 export function GFXFormatSize (format: GFXFormat, width: number, height: number, depth: number): number {
 
@@ -694,7 +696,9 @@ export function GFXFormatSize (format: GFXFormat, width: number, height: number,
     }
 }
 
-export function GFXFormatSurfaceSize (format: GFXFormat, width: number, height: number, depth: number, mips: number): number {
+export function GFXFormatSurfaceSize (
+    format: GFXFormat, width: number, height: number,
+    depth: number, mips: number): number {
 
     let size = 0;
 

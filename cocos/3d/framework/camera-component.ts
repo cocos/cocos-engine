@@ -123,12 +123,7 @@ export class CameraComponent extends Component {
 
     set projection (val) {
         this._projection = val;
-
-        let type = CameraProjection.PERSPECTIVE;
-        if (this._projection === ProjectionType.ORTHO) {
-            type = CameraProjection.ORTHO;
-        }
-        if (this._camera) { this._camera.projectionType = type; }
+        if (this._camera) { this._camera.projectionType = val; }
     }
 
     /**
@@ -226,9 +221,7 @@ export class CameraComponent extends Component {
 
     set depth (val) {
         this._depth = val;
-        if (this._camera) {
-            this._camera.clearDepth = val;
-        }
+        if (this._camera) { this._camera.clearDepth = val; }
     }
 
     /**
@@ -287,6 +280,7 @@ export class CameraComponent extends Component {
     }
     set targetDisplay (val) {
         this._targetDisplay = val;
+        if (this._camera) { this._camera.changeTargetDisplay(val); }
     }
 
     public onLoad () {

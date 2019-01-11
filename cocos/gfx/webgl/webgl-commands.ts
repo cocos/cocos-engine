@@ -1,8 +1,15 @@
-import { GFXBindingType, GFXBufferTextureCopy, GFXBufferUsageBit, GFXColorMask, GFXCullMode, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit, GFXShaderType, GFXTextureFlagBit, GFXTextureLayout, GFXTextureViewType, GFXType, IGFXColor, IGFXRect, WebGLEXT} from '../define';
+import { GFXBindingType, GFXBufferTextureCopy, GFXBufferUsageBit, GFXColorMask,
+    GFXCullMode, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit,
+    GFXShaderType, GFXTextureFlagBit, GFXTextureLayout, GFXTextureViewType,
+    GFXType, IGFXColor, IGFXRect, WebGLEXT} from '../define';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { WebGLGFXDevice } from './webgl-device';
-import { WebGLAttrib, WebGLGPUBindingLayout, WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInput, WebGLGPUInputAssembler, WebGLGPUPipelineState, WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniform, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
+import { WebGLAttrib, WebGLGPUBindingLayout, WebGLGPUBuffer, WebGLGPUFramebuffer,
+    WebGLGPUInput, WebGLGPUInputAssembler, WebGLGPUPipelineState, WebGLGPUShader,
+    WebGLGPUTexture, WebGLGPUUniform, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
 import { IWebGLTexUnit } from './webgl-state-cache';
+
+// tslint:disable: max-line-length
 
 function CmpF32NotEuqal (a: number, b: number): boolean {
     const c = a - b;

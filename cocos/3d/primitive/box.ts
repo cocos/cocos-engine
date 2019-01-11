@@ -1,22 +1,23 @@
+import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
-import { IGeometry, IGeometryOptions, normalizeGeometryOptions } from './defines';
+import { IGeometry, IGeometryOptions } from './defines';
 
 interface IBoxOptions extends IGeometryOptions {
     /**
      * Box extent on X-axis.
      */
-    width: number;
+    width?: number;
 
     /**
      * Box extent on Y-axis.
      */
-    height: number;
+    height?: number;
 
     /**
      * Box extent on Z-axis.
      */
-    length: number;
+    length?: number;
 
     /**
      * Segment count on X-axis.
@@ -39,15 +40,15 @@ interface IBoxOptions extends IGeometryOptions {
  * but may emplaced through `center` option).
  * @param options Options.
  */
-export default function box (options: IBoxOptions): IGeometry {
-    normalizeGeometryOptions(options);
+export default function box (options?: IBoxOptions): IGeometry {
+    options = options || {};
     const ws = options.widthSegments || 1;
     const hs = options.heightSegments || 1;
     const ls = options.lengthSegments || 1;
 
-    const hw = options.width / 2;
-    const hh = options.height / 2;
-    const hl = options.length / 2;
+    const hw = (options.width || 1) / 2;
+    const hh = (options.height || 1) / 2;
+    const hl = (options.length || 1) / 2;
 
     const corners = [
         vec3.set(c0, -hw, -hh, hl),
@@ -82,8 +83,8 @@ export default function box (options: IBoxOptions): IGeometry {
     const normals: number[] = [];
     const uvs: number[] = [];
     const indices: number[] = [];
-    const minPos = vec3.create(-hw, -hh, -hl);
-    const maxPos = vec3.create(hw, hh, hl);
+    const minPos = new Vec3(-hw, -hh, -hl);
+    const maxPos = new Vec3(hw, hh, hl);
     const boundingRadius = Math.sqrt(hw * hw + hh * hh + hl * hl);
 
     function _buildPlane (side: number, uSegments: number, vSegments: number) {
@@ -142,15 +143,15 @@ export default function box (options: IBoxOptions): IGeometry {
     };
 }
 
-const temp1 = vec3.create(0, 0, 0);
-const temp2 = vec3.create(0, 0, 0);
-const temp3 = vec3.create(0, 0, 0);
-const r = vec3.create(0, 0, 0);
-const c0 = vec3.create(0, 0, 0);
-const c1 = vec3.create(0, 0, 0);
-const c2 = vec3.create(0, 0, 0);
-const c3 = vec3.create(0, 0, 0);
-const c4 = vec3.create(0, 0, 0);
-const c5 = vec3.create(0, 0, 0);
-const c6 = vec3.create(0, 0, 0);
-const c7 = vec3.create(0, 0, 0);
+const temp1 = new Vec3();
+const temp2 = new Vec3();
+const temp3 = new Vec3();
+const r = new Vec3();
+const c0 = new Vec3();
+const c1 = new Vec3();
+const c2 = new Vec3();
+const c3 = new Vec3();
+const c4 = new Vec3();
+const c5 = new Vec3();
+const c6 = new Vec3();
+const c7 = new Vec3();
