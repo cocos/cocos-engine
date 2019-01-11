@@ -179,21 +179,21 @@ void CCSlot::_updateFrame()
                     auto u = floatArray[uvOffset + i];
                     auto v = floatArray[uvOffset + i + 1];
                     middleware::V2F_T2F_C4B& vertexData = vertices[iH];
-                    vertexData.vertices.x = x;
-                    vertexData.vertices.y = -y;
+                    vertexData.vertex.x = x;
+                    vertexData.vertex.y = -y;
 
                     if (currentTextureData->rotated)
                     {
-                        vertexData.texCoords.u = (region.x + (1.0f - v) * region.width) / textureWidth;
-                        vertexData.texCoords.v = (region.y + u * region.height) / textureHeight;
+                        vertexData.texCoord.u = (region.x + (1.0f - v) * region.width) / textureWidth;
+                        vertexData.texCoord.v = (region.y + u * region.height) / textureHeight;
                     }
                     else
                     {
-                        vertexData.texCoords.u = (region.x + u * region.width) / textureWidth;
-                        vertexData.texCoords.v = (region.y + v * region.height) / textureHeight;
+                        vertexData.texCoord.u = (region.x + u * region.width) / textureWidth;
+                        vertexData.texCoord.v = (region.y + v * region.height) / textureHeight;
                     }
 
-                    vertexData.colors = cocos2d::Color4B::WHITE;
+                    vertexData.color = cocos2d::Color4B::WHITE;
 
                     if (boundsRect.origin.x > x)
                     {
@@ -242,15 +242,15 @@ void CCSlot::_updateFrame()
                 float r = (region.x + region.width) / textureWidth;
                 float t = region.y / textureHeight;
                 
-                vertices[0].texCoords.u = l; vertices[0].texCoords.v = b;
-                vertices[1].texCoords.u = r; vertices[1].texCoords.v = b;
-                vertices[2].texCoords.u = l; vertices[2].texCoords.v = t;
-                vertices[3].texCoords.u = r; vertices[3].texCoords.v = t;
+                vertices[0].texCoord.u = l; vertices[0].texCoord.v = b;
+                vertices[1].texCoord.u = r; vertices[1].texCoord.v = b;
+                vertices[2].texCoord.u = l; vertices[2].texCoord.v = t;
+                vertices[3].texCoord.u = r; vertices[3].texCoord.v = t;
                 
-                vertices[0].vertices.x = vertices[2].vertices.x = 0;
-                vertices[1].vertices.x = vertices[3].vertices.x = region.width;
-                vertices[0].vertices.y = vertices[1].vertices.y = 0;
-                vertices[2].vertices.y = vertices[3].vertices.y = region.height;
+                vertices[0].vertex.x = vertices[2].vertex.x = 0;
+                vertices[1].vertex.x = vertices[3].vertex.x = region.width;
+                vertices[0].vertex.y = vertices[1].vertex.y = 0;
+                vertices[2].vertex.y = vertices[3].vertex.y = region.height;
                 
                 vertexIndices[0] = 0;
                 vertexIndices[1] = 1;
@@ -341,7 +341,7 @@ void CCSlot::_updateMesh()
             }
 
             auto& vertex = vertices[i];
-            auto& vertexPosition = vertex.vertices;
+            auto& vertexPosition = vertex.vertex;
 
             vertexPosition.x = xG;
             vertexPosition.y = -yG;
@@ -391,7 +391,7 @@ void CCSlot::_updateMesh()
             const auto yG = floatArray[vertexOffset + i + 1] * scale + deformVertices[i + 1];
 
             auto& vertex = vertices[iH];
-            auto& vertexPosition = vertex.vertices;
+            auto& vertexPosition = vertex.vertex;
  
             vertexPosition.x = xG;
             vertexPosition.y = -yG;

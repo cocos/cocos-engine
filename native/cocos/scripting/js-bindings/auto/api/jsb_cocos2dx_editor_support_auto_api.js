@@ -106,22 +106,14 @@ middleware.MiddlewareManager = {
 
 /**
  * @method getGLVBID
+ * @param {int} arg0
  * @return {unsigned int}
  */
 getGLVBID : function (
+int 
 )
 {
     return 0;
-},
-
-/**
- * @method removeTimer
- * @param {cc.middleware::IMiddleware} arg0
- */
-removeTimer : function (
-imiddleware 
-)
-{
 },
 
 /**
@@ -130,16 +122,6 @@ imiddleware
  */
 update : function (
 float 
-)
-{
-},
-
-/**
- * @method addTimer
- * @param {cc.middleware::IMiddleware} arg0
- */
-addTimer : function (
-imiddleware 
 )
 {
 },

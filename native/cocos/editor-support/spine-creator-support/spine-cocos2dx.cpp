@@ -30,7 +30,8 @@
 
 namespace spine {
 	static CustomTextureLoader _customTextureLoader = nullptr;
-	void spAtlasPage_setCustomTextureLoader (CustomTextureLoader texLoader) {
+	void spAtlasPage_setCustomTextureLoader (CustomTextureLoader texLoader)
+    {
 		_customTextureLoader = texLoader;
 	}
 }
@@ -39,12 +40,15 @@ USING_NS_CC;
 USING_NS_MW;
 using namespace spine;
 
-GLuint wrap (spAtlasWrap wrap) {
+GLuint wrap (spAtlasWrap wrap)
+{
 	return wrap == SP_ATLAS_CLAMPTOEDGE ? GL_CLAMP_TO_EDGE : GL_REPEAT;
 }
 
-GLuint filter (spAtlasFilter filter) {
-	switch (filter) {
+GLuint filter (spAtlasFilter filter)
+{
+	switch (filter)
+    {
 	case SP_ATLAS_UNKNOWN_FILTER:
 		break;
 	case SP_ATLAS_NEAREST:
@@ -65,14 +69,12 @@ GLuint filter (spAtlasFilter filter) {
 	return GL_LINEAR;
 }
 
-void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
+void _spAtlasPage_createTexture (spAtlasPage* self, const char* path)
+{
 	Texture2D* texture = nullptr;
-	if (spine::_customTextureLoader) {
+	if (spine::_customTextureLoader)
+    {
 		texture = spine::_customTextureLoader(path);
-	}
-	if (!texture) {
-		//texture = Director::getInstance()->getTextureCache()->addImage(path);
-        assert(false);
 	}
 	CCASSERT(texture != nullptr, "Invalid image");
 	texture->retain();
@@ -85,11 +87,13 @@ void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
 	self->height = texture->getPixelsHigh();
 }
 
-void _spAtlasPage_disposeTexture (spAtlasPage* self) {
+void _spAtlasPage_disposeTexture (spAtlasPage* self)
+{
 	((Texture2D*)self->rendererObject)->release();
 }
 
-char* _spUtil_readFile (const char* path, int* length) {
+char* _spUtil_readFile (const char* path, int* length)
+{
 	Data data = FileUtils::getInstance()->getDataFromFile(FileUtils::getInstance()->fullPathForFilename(path));
 	if (data.isNull()) return 0;
 

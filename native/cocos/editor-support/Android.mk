@@ -21,6 +21,7 @@ LOCAL_SRC_FILES += \
 spine/Animation.c \
 spine/AnimationState.c \
 spine/AnimationStateData.c \
+spine/Array.c \
 spine/Atlas.c \
 spine/AtlasAttachmentLoader.c \
 spine/Attachment.c \
@@ -28,8 +29,11 @@ spine/AttachmentLoader.c \
 spine/Bone.c \
 spine/BoneData.c \
 spine/BoundingBoxAttachment.c \
+spine/ClippingAttachment.c \
+spine/Color.c \
 spine/Event.c \
 spine/EventData.c \
+spine/extension.c \
 spine/IkConstraint.c \
 spine/IkConstraintData.c \
 spine/Json.c \
@@ -37,10 +41,12 @@ spine/MeshAttachment.c \
 spine/PathAttachment.c \
 spine/PathConstraint.c \
 spine/PathConstraintData.c \
+spine/PointAttachment.c \
 spine/RegionAttachment.c \
 spine/Skeleton.c \
 spine/SkeletonBinary.c \
 spine/SkeletonBounds.c \
+spine/SkeletonClipping.c \
 spine/SkeletonData.c \
 spine/SkeletonJson.c \
 spine/Skin.c \
@@ -48,8 +54,9 @@ spine/Slot.c \
 spine/SlotData.c \
 spine/TransformConstraint.c \
 spine/TransformConstraintData.c \
+spine/Triangulator.c \
 spine/VertexAttachment.c \
-spine/extension.c \
+spine/VertexEffect.c \
 spine-creator-support/AttachmentVertices.cpp \
 spine-creator-support/CreatorAttachmentLoader.cpp \
 spine-creator-support/SpineAnimation.cpp \

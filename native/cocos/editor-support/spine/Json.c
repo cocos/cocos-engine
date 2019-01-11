@@ -92,29 +92,65 @@ void Json_dispose (Json *c) {
 
 /* Parse the input text to generate a number, and populate the result into item. */
 static const char* parse_number (Json *item, const char* num) {
-	char * endptr;
-	float n;
+	double result = 0.0;
+	int negative = 0;
+	char* ptr = (char*)num;
 
-	/* Using strtod and strtof is slightly more permissive than RFC4627,
-	 * accepting for example hex-encoded floating point, but either
-	 * is often leagues faster than any manual implementation.
-	 *
-	 * We also already know that this starts with [-0-9] from parse_value.
-	 */
-#if __STDC_VERSION__ >= 199901L
-	n = strtof(num, &endptr);
-#else
-	n = (float)strtod( num, &endptr );
-#endif
-	/* ignore errno's ERANGE, which returns +/-HUGE_VAL */
-	/* n is 0 on any other error */
+	if (*ptr == '-') {
+		negative = -1;
+		++ptr;
+	}
 
-	if (endptr != num) {
+	while (*ptr >= '0' && *ptr <= '9') {
+		result = result * 10.0 + (*ptr - '0');
+		++ptr;
+	}
+
+	if (*ptr == '.') {
+		double fraction = 0.0;
+		int n = 0;
+		++ptr;
+
+		while (*ptr >= '0' && *ptr <= '9') {
+			fraction = (fraction * 10.0) + (*ptr - '0');
+			++ptr;
+			++n;
+		}
+		result += fraction / POW(10.0, n);
+	}
+	if (negative) result = -result;
+
+	if (*ptr == 'e' || *ptr == 'E') {
+		double exponent = 0;
+		int expNegative = 0;
+		int n = 0;
+		++ptr;
+
+		if (*ptr == '-') {
+			expNegative = -1;
+			++ptr;
+		} else if (*ptr == '+') {
+			++ptr;
+		}
+
+		while (*ptr >= '0' && *ptr <= '9') {
+			exponent = (exponent * 10.0) + (*ptr - '0');
+			++ptr;
+			++n;
+		}
+
+		if (expNegative)
+			result = result / POW(10, exponent);
+		else
+			result = result * POW(10, exponent);
+	}
+
+	if (ptr != num) {
 		/* Parse success, number found. */
-		item->valueFloat = n;
-		item->valueInt = (int)n;
+		item->valueFloat = result;
+		item->valueInt = (int)result;
 		item->type = Json_Number;
-		return endptr;
+		return ptr;
 	} else {
 		/* Parse failure, ep is set. */
 		ep = num;

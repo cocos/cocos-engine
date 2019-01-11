@@ -46,3 +46,6 @@
 #ifndef USING_NS_MW
 #define USING_NS_MW using namespace cocos2d::middleware
 #endif
+
+#define VF_XYUVC 1
+#define VF_XYUVCC 2

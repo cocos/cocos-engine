@@ -45,6 +45,16 @@ void _Entry_dispose (_Entry* self) {
 	FREE(self);
 }
 
+static _SkinHashTableEntry* _SkinHashTableEntry_create (_Entry* entry) {
+	_SkinHashTableEntry* self = NEW(_SkinHashTableEntry);
+	self->entry = entry;
+	return self;
+}
+
+static void _SkinHashTableEntry_dispose (_SkinHashTableEntry* self) {
+	FREE(self);
+}
+
 /**/
 
 spSkin* spSkin_create (const char* name) {
@@ -55,10 +65,26 @@ spSkin* spSkin_create (const char* name) {
 
 void spSkin_dispose (spSkin* self) {
 	_Entry* entry = SUB_CAST(_spSkin, self)->entries;
+
 	while (entry) {
 		_Entry* nextEntry = entry->next;
 		_Entry_dispose(entry);
 		entry = nextEntry;
+	}
+
+	{
+		_SkinHashTableEntry** currentHashtableEntry = SUB_CAST(_spSkin, self)->entriesHashTable;
+		int i;
+
+		for (i = 0; i < SKIN_ENTRIES_HASH_TABLE_SIZE; ++i, ++currentHashtableEntry) {
+			_SkinHashTableEntry* hashtableEntry = *currentHashtableEntry;
+
+			while (hashtableEntry) {
+				_SkinHashTableEntry* nextEntry = hashtableEntry->next;
+				_SkinHashTableEntry_dispose(hashtableEntry);
+				hashtableEntry = nextEntry;
+			}
+		}
 	}
 
 	FREE(self->name);
@@ -69,13 +95,21 @@ void spSkin_addAttachment (spSkin* self, int slotIndex, const char* name, spAtta
 	_Entry* newEntry = _Entry_create(slotIndex, name, attachment);
 	newEntry->next = SUB_CAST(_spSkin, self)->entries;
 	SUB_CAST(_spSkin, self)->entries = newEntry;
+
+	{
+		unsigned int hashTableIndex = (unsigned int)slotIndex % SKIN_ENTRIES_HASH_TABLE_SIZE;
+
+		_SkinHashTableEntry* newHashEntry = _SkinHashTableEntry_create(newEntry);
+		newHashEntry->next = SUB_CAST(_spSkin, self)->entriesHashTable[hashTableIndex];
+		SUB_CAST(_spSkin, self)->entriesHashTable[hashTableIndex] = newHashEntry;
+	}
 }
 
 spAttachment* spSkin_getAttachment (const spSkin* self, int slotIndex, const char* name) {
-	const _Entry* entry = SUB_CAST(_spSkin, self)->entries;
-	while (entry) {
-		if (entry->slotIndex == slotIndex && strcmp(entry->name, name) == 0) return entry->attachment;
-		entry = entry->next;
+	const _SkinHashTableEntry* hashEntry = SUB_CAST(_spSkin, self)->entriesHashTable[(unsigned int)slotIndex % SKIN_ENTRIES_HASH_TABLE_SIZE];
+	while (hashEntry) {
+		if (hashEntry->entry->slotIndex == slotIndex && strcmp(hashEntry->entry->name, name) == 0) return hashEntry->entry->attachment;
+		hashEntry = hashEntry->next;
 	}
 	return 0;
 }

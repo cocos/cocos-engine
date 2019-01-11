@@ -28,7 +28,8 @@
 
 extern "C" {
 
-typedef struct CreatorAttachmentLoader {
+typedef struct CreatorAttachmentLoader
+{
 	spAttachmentLoader super;
 	spAtlasAttachmentLoader* atlasAttachmentLoader;
 } CreatorAttachmentLoader;

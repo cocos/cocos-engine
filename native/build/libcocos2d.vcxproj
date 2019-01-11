@@ -88,6 +88,7 @@
     <ClCompile Include="..\cocos\editor-support\spine\Animation.c" />
     <ClCompile Include="..\cocos\editor-support\spine\AnimationState.c" />
     <ClCompile Include="..\cocos\editor-support\spine\AnimationStateData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Array.c" />
     <ClCompile Include="..\cocos\editor-support\spine\Atlas.c" />
     <ClCompile Include="..\cocos\editor-support\spine\AtlasAttachmentLoader.c" />
     <ClCompile Include="..\cocos\editor-support\spine\Attachment.c" />
@@ -95,6 +96,8 @@
     <ClCompile Include="..\cocos\editor-support\spine\Bone.c" />
     <ClCompile Include="..\cocos\editor-support\spine\BoneData.c" />
     <ClCompile Include="..\cocos\editor-support\spine\BoundingBoxAttachment.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\ClippingAttachment.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Color.c" />
     <ClCompile Include="..\cocos\editor-support\spine\Event.c" />
     <ClCompile Include="..\cocos\editor-support\spine\EventData.c" />
     <ClCompile Include="..\cocos\editor-support\spine\extension.c" />
@@ -105,10 +108,12 @@
     <ClCompile Include="..\cocos\editor-support\spine\PathAttachment.c" />
     <ClCompile Include="..\cocos\editor-support\spine\PathConstraint.c" />
     <ClCompile Include="..\cocos\editor-support\spine\PathConstraintData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\PointAttachment.c" />
     <ClCompile Include="..\cocos\editor-support\spine\RegionAttachment.c" />
     <ClCompile Include="..\cocos\editor-support\spine\Skeleton.c" />
     <ClCompile Include="..\cocos\editor-support\spine\SkeletonBinary.c" />
     <ClCompile Include="..\cocos\editor-support\spine\SkeletonBounds.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonClipping.c" />
     <ClCompile Include="..\cocos\editor-support\spine\SkeletonData.c" />
     <ClCompile Include="..\cocos\editor-support\spine\SkeletonJson.c" />
     <ClCompile Include="..\cocos\editor-support\spine\Skin.c" />
@@ -116,7 +121,9 @@
     <ClCompile Include="..\cocos\editor-support\spine\SlotData.c" />
     <ClCompile Include="..\cocos\editor-support\spine\TransformConstraint.c" />
     <ClCompile Include="..\cocos\editor-support\spine\TransformConstraintData.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\Triangulator.c" />
     <ClCompile Include="..\cocos\editor-support\spine\VertexAttachment.c" />
+    <ClCompile Include="..\cocos\editor-support\spine\VertexEffect.c" />
     <ClCompile Include="..\cocos\editor-support\TypedArrayPool.cpp" />
     <ClCompile Include="..\cocos\math\CCGeometry.cpp" />
     <ClCompile Include="..\cocos\math\CCVertex.cpp" />
@@ -328,6 +335,7 @@
     <ClInclude Include="..\cocos\editor-support\spine\Animation.h" />
     <ClInclude Include="..\cocos\editor-support\spine\AnimationState.h" />
     <ClInclude Include="..\cocos\editor-support\spine\AnimationStateData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Array.h" />
     <ClInclude Include="..\cocos\editor-support\spine\Atlas.h" />
     <ClInclude Include="..\cocos\editor-support\spine\AtlasAttachmentLoader.h" />
     <ClInclude Include="..\cocos\editor-support\spine\Attachment.h" />
@@ -335,6 +343,9 @@
     <ClInclude Include="..\cocos\editor-support\spine\Bone.h" />
     <ClInclude Include="..\cocos\editor-support\spine\BoneData.h" />
     <ClInclude Include="..\cocos\editor-support\spine\BoundingBoxAttachment.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\ClippingAttachment.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Color.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\dll.h" />
     <ClInclude Include="..\cocos\editor-support\spine\Event.h" />
     <ClInclude Include="..\cocos\editor-support\spine\EventData.h" />
     <ClInclude Include="..\cocos\editor-support\spine\extension.h" />
@@ -346,10 +357,12 @@
     <ClInclude Include="..\cocos\editor-support\spine\PathAttachment.h" />
     <ClInclude Include="..\cocos\editor-support\spine\PathConstraint.h" />
     <ClInclude Include="..\cocos\editor-support\spine\PathConstraintData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\PointAttachment.h" />
     <ClInclude Include="..\cocos\editor-support\spine\RegionAttachment.h" />
     <ClInclude Include="..\cocos\editor-support\spine\Skeleton.h" />
     <ClInclude Include="..\cocos\editor-support\spine\SkeletonBinary.h" />
     <ClInclude Include="..\cocos\editor-support\spine\SkeletonBounds.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonClipping.h" />
     <ClInclude Include="..\cocos\editor-support\spine\SkeletonData.h" />
     <ClInclude Include="..\cocos\editor-support\spine\SkeletonJson.h" />
     <ClInclude Include="..\cocos\editor-support\spine\Skin.h" />
@@ -358,7 +371,9 @@
     <ClInclude Include="..\cocos\editor-support\spine\spine.h" />
     <ClInclude Include="..\cocos\editor-support\spine\TransformConstraint.h" />
     <ClInclude Include="..\cocos\editor-support\spine\TransformConstraintData.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\Triangulator.h" />
     <ClInclude Include="..\cocos\editor-support\spine\VertexAttachment.h" />
+    <ClInclude Include="..\cocos\editor-support\spine\VertexEffect.h" />
     <ClInclude Include="..\cocos\editor-support\TypedArrayPool.h" />
     <ClInclude Include="..\cocos\math\CCGeometry.h" />
     <ClInclude Include="..\cocos\math\CCMath.h" />

@@ -419,102 +419,6 @@
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_spine_manual.cpp">
       <Filter>js-bindings\manual</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Animation.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\AnimationState.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\AnimationStateData.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Atlas.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\AtlasAttachmentLoader.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Attachment.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\AttachmentLoader.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Bone.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\BoneData.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\BoundingBoxAttachment.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Event.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\EventData.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\extension.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\IkConstraint.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\IkConstraintData.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Json.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\MeshAttachment.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\PathAttachment.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\PathConstraint.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\PathConstraintData.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\RegionAttachment.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Skeleton.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\SkeletonBinary.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\SkeletonBounds.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\SkeletonData.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\SkeletonJson.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Skin.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Slot.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\SlotData.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\TransformConstraint.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\TransformConstraintData.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\VertexAttachment.c">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\IOBuffer.cpp">
       <Filter>editor-support</Filter>
     </ClCompile>
@@ -658,6 +562,123 @@
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\IOTypedArray.cpp">
       <Filter>editor-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\PointAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\RegionAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Skeleton.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonBinary.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonBounds.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonClipping.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SkeletonJson.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Skin.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Slot.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\SlotData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\TransformConstraint.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\TransformConstraintData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Triangulator.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\VertexAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\VertexEffect.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Animation.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\AnimationState.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\AnimationStateData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Array.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Atlas.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\AtlasAttachmentLoader.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Attachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\AttachmentLoader.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Bone.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\BoneData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\BoundingBoxAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\ClippingAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Color.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Event.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\EventData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\extension.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\IkConstraint.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\IkConstraintData.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\Json.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\MeshAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\PathAttachment.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\PathConstraint.c">
+      <Filter>editor-support\spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine\PathConstraintData.c">
+      <Filter>editor-support\spine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1190,108 +1211,6 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_spine_manual.hpp">
       <Filter>js-bindings\manual</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\VertexAttachment.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\Animation.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\AnimationState.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\AnimationStateData.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\Atlas.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\AtlasAttachmentLoader.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\Attachment.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\AttachmentLoader.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\Bone.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\BoneData.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\BoundingBoxAttachment.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\Event.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\EventData.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\extension.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\IkConstraint.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\IkConstraintData.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\Json.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\kvec.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\MeshAttachment.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\PathAttachment.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\PathConstraint.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\PathConstraintData.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\RegionAttachment.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\Skeleton.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\SkeletonBinary.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\SkeletonBounds.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\SkeletonData.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\SkeletonJson.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\Skin.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\Slot.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\SlotData.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\spine.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\TransformConstraint.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\spine\TransformConstraintData.h">
-      <Filter>editor-support\spine</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.h">
       <Filter>editor-support\spine-creator-support</Filter>
     </ClInclude>
@@ -1462,6 +1381,132 @@
     </ClInclude>
     <ClInclude Include="..\cocos\editor-support\MiddlewareMacro.h">
       <Filter>editor-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\PointAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\RegionAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Skeleton.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonBinary.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonBounds.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonClipping.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SkeletonJson.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Skin.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Slot.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\SlotData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\spine.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\TransformConstraint.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\TransformConstraintData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Triangulator.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\VertexAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\VertexEffect.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Animation.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\AnimationState.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\AnimationStateData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Array.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Atlas.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\AtlasAttachmentLoader.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Attachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\AttachmentLoader.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Bone.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\BoneData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\BoundingBoxAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\ClippingAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Color.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\dll.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Event.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\EventData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\extension.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\IkConstraint.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\IkConstraintData.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\Json.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\kvec.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\MeshAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\PathAttachment.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\PathConstraint.h">
+      <Filter>editor-support\spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine\PathConstraintData.h">
+      <Filter>editor-support\spine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
