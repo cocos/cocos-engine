@@ -23,12 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import gfx from '../../renderer/gfx';
+import RenderData from '../../renderer/render-data/render-data';
+
 const Component = require('./CCComponent');
-const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
-const RenderData = renderEngine.RenderData;
-const gfx = renderEngine.gfx;
+const Material = require('../assets/material/CCMaterial');
 
 /**
  * !#en
@@ -54,7 +55,7 @@ let RenderComponent = cc.Class({
 
           /**
          * !#en specify the source Blend Factor, this will generate a custom material object, please pay attention to the memory cost.
-         * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的
+         * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的开销
          * @property srcBlendFactor
          * @type {macro.BlendFactor}
          * @example
@@ -67,11 +68,12 @@ let RenderComponent = cc.Class({
             set: function(value) {
                 if (this._srcBlendFactor === value) return;
                 this._srcBlendFactor = value;
-                this._updateBlendFunc(true);
+                this._updateBlendFunc();
             },
             animatable: false,
             type:BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor',
+            visible: false
         },
 
         /**
@@ -89,15 +91,34 @@ let RenderComponent = cc.Class({
             set: function(value) {
                 if (this._dstBlendFactor === value) return;
                 this._dstBlendFactor = value;
-                this._updateBlendFunc(true);
+                this._updateBlendFunc();
             },
             animatable: false,
             type: BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor'
+            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor',
+            visible: false
         },
+
+        _materials: {
+            default: [],
+            type: Material,
+        },
+
+        sharedMaterials: {
+            get () {
+                return this._materials;
+            },
+            set (val) {
+                this._materials = val;
+                this._activateMaterial(true);
+            },
+            type: [Material],
+            displayName: 'Materials'
+        }
     },
     
     ctor () {
+        this._renderData = null;
         this.__allocedDatas = [];
         this._vertsDirty = true;
         this._material = null;
@@ -125,7 +146,7 @@ let RenderComponent = cc.Class({
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
 
-        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
+        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
         if (CC_JSB && CC_NATIVERENDERER) {
             this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
@@ -148,8 +169,15 @@ let RenderComponent = cc.Class({
             RenderData.free(this.__allocedDatas[i]);
         }
         this.__allocedDatas.length = 0;
+        this._materials.length = 0;
         this._renderData = null;
-        this._material = null;
+
+        let uniforms = this._uniforms;
+        for (let name in uniforms) {
+            _uniformPool.remove(_uniformPool._data.indexOf(uniforms[name]));
+        }
+        this._uniforms = null;
+        this._defines = null;
     },
 
     setVertsDirty () {
@@ -200,7 +228,7 @@ let RenderComponent = cc.Class({
     },
 
     disableRender () {
-        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
 
         if (CC_JSB && CC_NATIVERENDERER) {
             this._renderHandle.updateEnabled(false);
@@ -221,46 +249,52 @@ let RenderComponent = cc.Class({
         }
     },
 
-    _updateColor () {
-        let material = this._material;
-        if (material) {
-            // For batch rendering, update the color only when useColor is set to true.
-            if (material.useColor) {
-                material.color = this.node.color;
-                material.updateHash();
-            }
-
-            // reset flag when set color to material successfully
-            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
+    getMaterial (index) {
+        if (index < 0 || index >= this._materials.length) {
+            return null;
         }
-    },
 
-    getMaterial () {
-        return this._material;
-    },
-
-    _updateMaterial (material) {
-        this._material = material;
-        this._updateBlendFunc();
-        material.updateHash();
-    },
+        let material = this._materials[index];
+        if (!material) return null;
         
-    _updateBlendFunc: function (updateHash) {
-        if (!this._material) {
-            return;
+        let instantiated = Material.getInstantiatedMaterial(material, this);
+        if (instantiated !== material) {
+            this.setMaterial(index, instantiated);
         }
 
-        var pass = this._material._mainTech.passes[0];
-        pass.setBlend(
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor,
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor
-        );
-
-        if (updateHash) {
-            this._material.updateHash();
+        return this._materials[index];
+    },
+    setMaterial (index, material) {
+        this._materials[index] = material;
+        if (material) {
+            this._updateMaterialBlendFunc(material);
+            this.markForUpdateRenderData(true);
         }
+    },
+
+    _updateBlendFunc: function () {
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            let material = materials[i];
+            this._updateMaterialBlendFunc(material);
+        }
+    },
+
+    _updateMaterialBlendFunc (material) {
+        let passes = material._effect.getDefaultTechnique().passes;
+        for (let j = 0; j < passes.length; j++) {
+            let pass = passes[j];
+            pass.setBlend(
+                true,
+                gfx.BLEND_FUNC_ADD,
+                this._srcBlendFactor, this._dstBlendFactor,
+                gfx.BLEND_FUNC_ADD,
+                this._srcBlendFactor, this._dstBlendFactor
+            );
+        }
+    },
+
+    _activateMaterial (force) {
     },
 });
 RenderComponent._assembler = null;

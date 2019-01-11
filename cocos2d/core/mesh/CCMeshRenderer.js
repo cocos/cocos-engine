@@ -25,10 +25,58 @@
 
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
-const renderEngine = require('../renderer/render-engine');
-const gfx = renderEngine.gfx;
 const RenderFlow = require('../renderer/render-flow');
 const aabb = require('../3d/geom-utils/aabb');
+const Material = require('../assets/material/CCMaterial');
+
+import gfx from '../../renderer/gfx';
+import CustomProperties from '../assets/material/custom-properties';
+
+/**
+ * !#en Shadow projection mode
+ *
+ * !#ch 阴影投射方式
+ * @static
+ * @enum MeshRenderer.ShadowCastingMode
+ */
+let ShadowCastingMode = cc.Enum({
+    /**
+     * !#en
+     *
+     * !#ch 关闭阴影投射
+     * @property OFF
+     * @readonly
+     * @type {Number}
+     */
+    OFF: 0,
+    /**
+     * !#en
+     *
+     * !#ch 开启阴影投射，当阴影光产生的时候
+     * @property ON
+     * @readonly
+     * @type {Number}
+     */
+    ON: 1,
+    // /**
+    //  * !#en
+    //  *
+    //  * !#ch 可以从网格的任意一遍投射出阴影
+    //  * @property TWO_SIDED
+    //  * @readonly
+    //  * @type {Number}
+    //  */
+    // TWO_SIDED: 2,
+    // /**
+    //  * !#en
+    //  *
+    //  * !#ch 只显示阴影
+    //  * @property SHADOWS_ONLY
+    //  * @readonly
+    //  * @type {Number}
+    //  */
+    // SHADOWS_ONLY: 3,
+});
 
 let MeshRenderer = cc.Class({
     name: 'cc.MeshRenderer',
@@ -44,14 +92,17 @@ let MeshRenderer = cc.Class({
             type: Mesh
         },
 
+        _receiveShadows: false,
+        _shadowCastingMode: ShadowCastingMode.OFF,
+
         mesh: {
             get () {
                 return this._mesh;
             },
             set (v) {
                 if (this._mesh === v) return;
-                this._mesh = v;
-                this.activeMaterials(true);
+                this._setMesh(v);
+                this._activateMaterial(true);
                 this.markForUpdateRenderData(true);
                 this.node._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             },
@@ -60,51 +111,67 @@ let MeshRenderer = cc.Class({
 
         textures: {
             default: [],
-            type: cc.Texture2D
+            type: cc.Texture2D,
+            visible: false
+        },
+
+        receiveShadows: {
+            get () {
+                return this._receiveShadows;
+            },
+            set (val) {
+                this._receiveShadows = val;
+                this._updateReceiveShadow();
+            }
+        },
+
+        shadowCastingMode: {
+            get () {
+                return this._shadowCastingMode;
+            },
+            set (val) {
+                this._shadowCastingMode = val;
+                this._updateCastShadow();
+            },
+            type: ShadowCastingMode
         }
+    },
+
+    statics: {
+        ShadowCastingMode: ShadowCastingMode
     },
 
     ctor () {
         this._renderDatas = [];
-        this._materials = [];
         this._boundingBox = null;
+        this._customProperties = new CustomProperties();
     },
 
     onEnable () {
         this._super();
-        this.activeMaterials();
+        this._setMesh(this._mesh);
+        this._activateMaterial();
     },
 
-    _createMaterial (subMesh) {
-        let material = new renderEngine.MeshMaterial();   
-        material.color = this.node.color;
-        material._mainTech._passes[0].setDepth(true, true);
-        material.useModel = true;
+    onDestroy () {
+        this._setMesh(null);
+    },
 
-        if (subMesh._vertexBuffer._format._attr2el[gfx.ATTR_COLOR]) {
-            material.useAttributeColor = true;
+    _setMesh (mesh) {
+        if (this._mesh) {
+            this._mesh.off('init-format', this._updateMeshAttribute, this);
         }
-
-        return material;
-    },
-
-    _updateColor () {
-        let materials = this._materials;
-        for (let i = 0; i < materials.length; i++) {
-            let material = materials[i];
-            material.color = this.node.color;
-            material.updateHash();
+        if (mesh) {
+            mesh.on('init-format', this._updateMeshAttribute, this);
         }
-        
-        this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
+        this._mesh = mesh;
     },
 
-    _reset () {
-        this._materials.length = 0;
-        this._material = null;
+    _getDefaultMaterial () {
+        return Material.getBuiltinMaterial('unlit');
     },
 
-    activeMaterials (force) {
+    _activateMaterial (force) {
         let mesh = this._mesh;
         // TODO: should init mesh when mesh loaded, need asset load event support
         if (mesh) {
@@ -116,25 +183,51 @@ let MeshRenderer = cc.Class({
             return;
         }
 
-        if (this._material && !force) {
-            return;
-        }
-
         if (aabb) {
             this._boundingBox = aabb.fromPoints(aabb.create(), mesh._minPos, mesh._maxPos);
         }
-        
-        this._reset();
 
-        let subMeshes = mesh._subMeshes;
-        for (let i = 0; i < subMeshes.length; i++) {
-            let material = this._createMaterial(subMeshes[i]);
-            this._materials.push(material);
+        // TODO: used to upgrade from 2.1, should be removed
+        let textures = this.textures;
+        if (textures && textures.length > 0) {
+            for (let i = 0; i < textures.length; i++) {
+                let material = this.sharedMaterials[i];
+                if (material) continue;
+                material = cc.Material.getInstantiatedMaterial(this._getDefaultMaterial(), this);
+                material.setProperty('texture', textures[i]);
+                this.setMaterial(i, material);
+            }
         }
-        this._material = this._materials[0];
+
+        let materials = this.sharedMaterials;
+        if (!materials[0]) {
+            let material = this._getDefaultMaterial();
+            materials[0] = material;
+        }
+
+        this._updateMeshAttribute();
+        this._updateReceiveShadow();
+        this._updateCastShadow();
         
         this.markForUpdateRenderData(true);
         this.markForRender(true);
+    },
+
+    _updateReceiveShadow () {
+        this._customProperties.define('_USE_SHADOW_MAP', this._receiveShadows);
+    },
+
+    _updateCastShadow () {
+        this._customProperties.define('_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
+    },
+
+    _updateMeshAttribute () {
+        let subMeshes = this._mesh && this._mesh.subMeshes;
+        if (!subMeshes) return;
+
+        let attr2el = subMeshes[0]._vertexBuffer._format._attr2el;
+        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
+        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
     }
 });
 

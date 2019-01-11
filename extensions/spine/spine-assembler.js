@@ -26,22 +26,15 @@
 const StencilManager = require('../../cocos2d/core/renderer/webgl/stencil-manager').sharedManager;
 const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
-const renderer = require('../../cocos2d/core/renderer');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const renderEngine = renderer.renderEngine;
-const gfx = renderEngine.gfx;
-const SpriteMaterial = renderEngine.SpriteMaterial;
+const Material = require('../../cocos2d/core/assets/material/CCMaterial');
+import gfx from '../../cocos2d/renderer/gfx';
 
 const STENCIL_SEP = '@';
 
 let _slotColor = cc.color(0, 0, 255, 255);
 let _boneColor = cc.color(255, 0, 0, 255);
 let _originColor = cc.color(0, 255, 0, 255);
-let _debugMaterial = new SpriteMaterial();
-_debugMaterial.useModel = true;
-_debugMaterial.useColor = false;
-_debugMaterial.useTexture = false;
-_debugMaterial.updateHash();
 
 function _updateKeyWithStencilRef (key, stencilRef) {
     return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
@@ -70,26 +63,28 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
     }
 
     let key = tex.url + src + dst + STENCIL_SEP + '0';
-    comp._material = comp._material || new SpriteMaterial();
+    comp._material = comp._material || new Material();
     let baseMaterial = comp._material;
     let materialCache = comp._materialCache;
     let material = materialCache[key];
     if (!material) {
-        var baseKey = baseMaterial._hash;
+        var baseKey = baseMaterial.getHash();
         if (!materialCache[baseKey]) {
             material = baseMaterial;
         } else {
-            material = baseMaterial.clone();
+            material = new Material();
+            material.copy(baseMaterial);
         }
 
-        material.useModel = true;
+        material.define('_USE_MODEL', true);
+        material.define('USE_TEXTURE', true);
         // update texture
-        material.texture = tex;
-        material.useColor = false;
+        material.setProperty('texture', tex);
 
         // update blend function
-        let pass = material._mainTech.passes[0];
+        let pass = material.effect.getDefaultTechnique().passes[0];
         pass.setBlend(
+            true,
             gfx.BLEND_FUNC_ADD,
             src, dst,
             gfx.BLEND_FUNC_ADD,
@@ -98,17 +93,14 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
         materialCache[key] = material;
         material.updateHash(key);
     }
-    else if (material.texture !== tex) {
-        material.texture = tex;
+    else if (material.getProperty('texture') !== tex) {
+        material.setProperty('texture', tex);
         material.updateHash(key);
     }
     return material;
 }
 
 var spineAssembler = {
-    // Use model to avoid per vertex transform
-    useModel: true,
-
     _readAttachmentData (comp, attachment, slot, premultipliedAlpha, renderData, dataOffset) {
         // the vertices in format:
         // X1, Y1, C1R, C1G, C1B, C1A, U1, V1
@@ -175,7 +167,7 @@ var spineAssembler = {
         let material = null, currMaterial = null;
         let vertexCount = 0, vertexOffset = 0;
         let indiceCount = 0, indiceOffset = 0;
-        let materials = comp._materials;
+        let materialCache = comp._materialCache;
         for (let i = 0, n = locSkeleton.drawOrder.length; i < n; i++) {
             slot = locSkeleton.drawOrder[i];
             if (!slot.attachment)
@@ -314,7 +306,7 @@ var spineAssembler = {
 
             // For generate new material for skeleton render data nested in mask,
             // otherwise skeleton inside/outside mask with same material will interfere each other
-            let key = data.material._hash;
+            let key = data.material.getHash();
             let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
             if (key !== newKey) {
                 data.material = materialCache[newKey] || data.material.clone();

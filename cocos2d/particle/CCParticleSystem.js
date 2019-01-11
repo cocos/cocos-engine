@@ -31,9 +31,9 @@ const codec = require('../compression/ZipUtils');
 const PNGReader = require('./CCPNGReader');
 const tiffReader = require('./CCTIFFReader');
 const textureUtil = require('../core/utils/texture-util');
-const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
 const ParticleSimulator = require('./particle-simulator');
+const Material = require('../core/assets/material/CCMaterial');
 
 function getImageFormatByData (imgData) {
     // if it is a png file buffer.
@@ -156,12 +156,9 @@ var properties = {
             }
             if (this._custom !== value) {
                 this._custom = value;
-                if (!value) {
-                    this._applyFile();
-                }
+                this._applyFile();
                 if (CC_EDITOR) {
                     cc.engine.repaintInEditMode();
-                //    self.preview = self.preview;
                 }
             }
         },
@@ -190,7 +187,6 @@ var properties = {
                     this._applyFile();
                     if (CC_EDITOR) {
                         cc.engine.repaintInEditMode();
-                        //self.preview = self.preview;
                     }
                 }
                 else {
@@ -850,7 +846,7 @@ var ParticleSystem = cc.Class({
     },
     
     update (dt) {
-        if (!this._simulator.finished && this._material) {
+        if (!this._simulator.finished && this.sharedMaterials[0]) {
             this._simulator.step(dt);
         }
     },
@@ -939,13 +935,17 @@ var ParticleSystem = cc.Class({
                 if (!self._custom) {
                     self._initWithDictionary(content);
                 }
-                if (!self.spriteFrame || !self._renderSpriteFrame) {
+
+                if (!self._spriteFrame) {
                     if (file.spriteFrame) {
                         self.spriteFrame = file.spriteFrame;
                     }
                     else if (self._custom) {
                         self._initTextureWithDictionary(content);
                     }
+                }
+                else if (!self._renderSpriteFrame && self._spriteFrame) {
+                    self._applySpriteFrame(self.spriteFrame);
                 }
             });
         }
@@ -1139,11 +1139,11 @@ var ParticleSystem = cc.Class({
     },
 
     _activateMaterial: function () {
-        if (!this._material) {
-            this._material = new renderEngine.SpriteMaterial();
-            this._material.useTexture = true;
-            this._material.useModel = true;
-            this._material.useColor = false;
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            material.define('USE_TEXTURE', true);
+            material.define('_USE_MODEL', true);
         }
 
         if (!this._texture || !this._texture.loaded) {
@@ -1155,8 +1155,8 @@ var ParticleSystem = cc.Class({
         else {
             this.markForUpdateRenderData(true);
             this.markForCustomIARender(true);
-            this._material.texture = this._texture;
-            this._updateMaterial(this._material);
+            material.setProperty('texture', this._texture);
+            this.setMaterial(0, material);
         }
     },
     

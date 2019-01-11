@@ -27,12 +27,10 @@
 
 const Node = require('./CCNode');
 const RenderFlow = require('./renderer/render-flow');
-const math = require('./renderer/render-engine').math;
 
+const HideInHierarchy = cc.Object.Flags.HideInHierarchy;
 const LocalDirtyFlag = Node._LocalDirtyFlag;
 const POSITION_ON = 1 << 0;
-
-let _vec3_temp = math.vec3.create();
 
 /**
  * !#en
@@ -98,6 +96,11 @@ let PrivateNode = cc.Class({
             },
             override: true
         },
+        showInEditor: {
+            default: false,
+            editorOnly: true,
+            override: true
+        }
     },
 
     /**
@@ -107,6 +110,9 @@ let PrivateNode = cc.Class({
     ctor (name) {
         this._localZOrder = cc.macro.MIN_ZINDEX << 16;
         this._originPos = cc.v2();
+        if (CC_EDITOR) {
+            this._objFlags |= HideInHierarchy;
+        }
     },
 
     _posDirty (sendEvent) {

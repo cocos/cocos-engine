@@ -24,8 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 const RenderComponent = require('../core/components/CCRenderComponent');
-const renderEngine = require('../core/renderer/render-engine');
-const SpriteMaterial = renderEngine.SpriteMaterial;
+const Material = require('../core/assets/material/CCMaterial');
 
 /**
  * !#en Render the TMX layer.
@@ -39,6 +38,10 @@ let TiledLayer = cc.Class({
     // Inherits from the abstract class directly,
     // because TiledLayer not create or maintains the sgNode by itself.
     extends: RenderComponent,
+
+    editor: {
+        inspector: 'packages://inspector/inspectors/comps/tiled-layer.js',
+    },
 
     ctor () {
         this._tiles = [];
@@ -631,23 +634,22 @@ let TiledLayer = cc.Class({
     },
 
     _activateMaterial () {
-        let material = this._material;
+        let material = this.sharedMaterials[0];
         if (!material) {
-            material = this._material = new SpriteMaterial();
-            material.useColor = false;
+            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            material.define('USE_TEXTURE', true);
         }
 
         if (this._texture) {
             // TODO: old texture in material have been released by loader
-            material.texture = this._texture;
+            material.setProperty('texture', this._texture);
+            this.setMaterial(0, material);
             this.markForUpdateRenderData(true);
             this.markForRender(true);
         }
         else {
             this.disableRender();   
         }
-        
-        this._updateMaterial(material);
     },
 });
 

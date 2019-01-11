@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const RenderComponent = require('../components/CCRenderComponent');
-const SpriteMaterial = require('../renderer/render-engine').SpriteMaterial;
+const Material = require('../assets/material/CCMaterial');
 const textureUtil = require('../utils/texture-util');
 
 /**
@@ -241,15 +241,15 @@ var MotionStreak = cc.Class({
     },
 
     _activateMaterial () {
-        let material = this._material;
+        let material = this.sharedMaterials[0];
         if (!material) {
-            material = this._material = new SpriteMaterial();
-            material.useColor = false;
+            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            material.define('USE_TEXTURE', true);
         }
         
         if (this._texture && this._texture.loaded) {
-            material.texture = this._texture;
-            this._updateMaterial(material);
+            material.setProperty('texture', this._texture);
+            this.setMaterial(0, material);
             this.markForRender(true);
             this.markForUpdateRenderData(true);
         }

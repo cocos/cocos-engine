@@ -26,7 +26,6 @@
 const Animation = require('../components/CCAnimation');
 const Model = require('./CCModel');
 const SkeletonAnimationClip = require('./CCSkeletonAnimationClip');
-const AnimationClip = require('../../animation/animation-clip');
 
 /**
  * @module cc

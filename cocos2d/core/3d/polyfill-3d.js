@@ -27,8 +27,9 @@
 const Node = require('../CCNode');
 const EventType = Node.EventType;
 const DirtyFlag = Node._LocalDirtyFlag;
-const math = require('../renderer/render-engine').math;
 const RenderFlow = require('../renderer/render-flow');
+
+import { mat4 } from '../vmath';
 
 // ====== Node transform polyfills ======
 const ONE_DEGREE = Math.PI / 180;
@@ -73,10 +74,10 @@ function _calculWorldMatrix3d () {
 
     if (this._parent) {
         let parentMat = this._parent._worldMatrix;
-        math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
+        mat4.mul(this._worldMatrix, parentMat, this._matrix);
     }
     else {
-        math.mat4.copy(this._worldMatrix, this._matrix);
+        mat4.copy(this._worldMatrix, this._matrix);
     }
     this._worldMatDirty = false;
 }
@@ -151,7 +152,7 @@ function _update3DFunction () {
     if (this._is3DNode) {
         this._updateLocalMatrix = _updateLocalMatrix3d;
         this._calculWorldMatrix = _calculWorldMatrix3d;
-        this._mulMat = cc.vmath.mat4.mul;
+        this._mulMat = mat4.mul;
     }
     else {
         this._updateLocalMatrix = _updateLocalMatrix2d;

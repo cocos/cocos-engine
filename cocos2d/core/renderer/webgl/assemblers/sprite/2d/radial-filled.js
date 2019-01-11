@@ -23,11 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 const fillVertices = require('../../utils').fillVertices;
+const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
 const PI_2 = Math.PI * 2;
-
 
 let _vertPos = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
 let _vertices = [0, 0, 0, 0];
@@ -211,25 +210,13 @@ function _generateUV (progressX, progressY, verts, offset) {
 }
 
 module.exports = {
-    useModel: false,
-
     createData (sprite) {
         return sprite.requestRenderData();
     },
 
     updateRenderData (sprite) {
         let frame = sprite.spriteFrame;
-
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        if (frame) {
-            if (!frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.insertSpriteFrame(frame);
-            }
-            if (sprite._material._texture !== frame._texture) {
-                sprite._activateMaterial();
-            }
-        }
+        packToDynamicAtlas(sprite, frame);
 
         let renderData = sprite._renderData;
         if (renderData && frame && sprite._vertsDirty) {

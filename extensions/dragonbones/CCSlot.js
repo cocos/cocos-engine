@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const math = require('../../cocos2d/core/renderer/render-engine').math;
-const BlendFactor = require('../../cocos2d/core/platform/CCMacro');
+import { mat4 } from '../../cocos2d/core/vmath';
+
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;
 
@@ -35,8 +35,8 @@ dragonBones.CCSlot = cc.Class({
     ctor () {
         this._localVertices = [];
         this._indices = [];
-        this._matrix = math.mat4.create();
-        this._worldMatrix = math.mat4.create();
+        this._matrix = mat4.create();
+        this._worldMatrix = mat4.create();
         this._worldMatrixDirty = true;
         this._visible = false;
         this._color = cc.color();
@@ -46,8 +46,8 @@ dragonBones.CCSlot = cc.Class({
         this._super();
         this._localVertices.length = 0;
         this._indices.length = 0;
-        math.mat4.identity(this._matrix);
-        math.mat4.identity(this._worldMatrix);
+        mat4.identity(this._matrix);
+        mat4.identity(this._worldMatrix);
         this._worldMatrixDirty = true;
         this._color = cc.color();
         this._visible = false;
@@ -371,7 +371,7 @@ dragonBones.CCSlot = cc.Class({
         if (parent) {
             this._mulMat(this._worldMatrix ,parent._worldMatrix, this._matrix);
         } else {
-            math.mat4.copy(this._worldMatrix, this._matrix);
+            mat4.copy(this._worldMatrix, this._matrix);
         }
         this._worldMatrixDirty = false;
     }

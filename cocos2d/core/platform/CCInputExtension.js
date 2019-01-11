@@ -74,7 +74,7 @@ inputManager.setAccelerometerEnabled = function (isEnable) {
         scheduler.unscheduleUpdate(_t);
     }
 
-    if (CC_JSB) {
+    if (CC_JSB || CC_RUNTIME) {
         jsb.device.setMotionEnabled(isEnable);
     }
 };
@@ -88,7 +88,7 @@ inputManager.setAccelerometerInterval = function (interval) {
     if (this._accelInterval !== interval) {
         this._accelInterval = interval;
 
-        if (CC_JSB) {
+        if (CC_JSB || CC_RUNTIME) {
             jsb.device.setMotionInterval(interval);
         }
     }

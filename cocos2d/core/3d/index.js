@@ -13,4 +13,5 @@ require('./actions');
 if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./CCSkeletonAnimation');
     require('./CCSkinnedMeshRenderer');
+    require('./CCLightComponent');
 }

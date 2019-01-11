@@ -25,9 +25,7 @@
  ****************************************************************************/
 
 const RenderComponent = require('../components/CCRenderComponent');
-const renderEngine = require('../renderer/render-engine');
-const SpriteMaterial = renderEngine.SpriteMaterial;
-const gfx = renderEngine.gfx;
+const Material = require('../assets/material/CCMaterial');
 
 const Types = require('./types');
 const LineCap = Types.LineCap;
@@ -203,15 +201,13 @@ let Graphics = cc.Class({
         this.node._renderFlag &= ~cc.RenderFlow.FLAG_RENDER;
         this.node._renderFlag |= cc.RenderFlow.FLAG_CUSTOM_IA_RENDER;
 
-        if (this._material) {
+        if (this.sharedMaterials[0]) {
             return;
         }
         
-        let material = new SpriteMaterial();
-        material.useColor = false;
-        material.useTexture = false;
-        material.useModel = true;
-        this._updateMaterial(material);
+        let material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+        material.define('_USE_MODEL', true);
+        this.setMaterial(0, material);
     },
 
     /**

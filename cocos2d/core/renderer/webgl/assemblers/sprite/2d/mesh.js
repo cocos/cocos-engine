@@ -23,31 +23,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
+const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
 module.exports = {
-    useModel: false,
-
     createData (sprite) {
         return sprite.requestRenderData();
     },
 
     updateRenderData (sprite) {
-        let frame = sprite.spriteFrame;
-
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        if (frame) {
-            if (!frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.insertSpriteFrame(frame);
-            }
-            if (sprite._material._texture !== frame._texture) {
-                sprite._activateMaterial();
-            }
-        }
+        packToDynamicAtlas(sprite, sprite._spriteFrame);
 
         let renderData = sprite._renderData;
+        let frame = sprite.spriteFrame;
         if (renderData && frame) {
             let vertices = frame.vertices;
             if (vertices) {

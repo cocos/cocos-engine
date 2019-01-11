@@ -30,13 +30,16 @@ var textUtils = {
     label_lastWordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+|\S)$/,
     label_lastEnglish : /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+$/,
     label_firstEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/,
+    label_firstEmoji : /^[\uD83C\uDF00-\uDFFF\uDC00-\uDE4F]/,
+    label_lastEmoji : /([\uDF00-\uDFFF\uDC00-\uDE4F]+|\S)$/,
     label_wrapinspection : true,
 
+    __CHINESE_REG: /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/,
+    __JAPANESE_REG: /[\u3000-\u303F]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\uFF00-\uFFEF]|[\u4E00-\u9FAF]|[\u2605-\u2606]|[\u2190-\u2195]|\u203B/g,
+    __KOREAN_REG: /^[\u1100-\u11FF]|[\u3130-\u318F]|[\uA960-\uA97F]|[\uAC00-\uD7AF]|[\uD7B0-\uD7FF]+$/,
+
     isUnicodeCJK: function(ch) {
-        var __CHINESE_REG = /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/;
-        var __JAPANESE_REG = /[\u3000-\u303F]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\uFF00-\uFFEF]|[\u4E00-\u9FAF]|[\u2605-\u2606]|[\u2190-\u2195]|\u203B/g;
-        var __KOREAN_REG = /^[\u1100-\u11FF]|[\u3130-\u318F]|[\uA960-\uA97F]|[\uAC00-\uD7AF]|[\uD7B0-\uD7FF]+$/;
-        return __CHINESE_REG.test(ch) || __JAPANESE_REG.test(ch) || __KOREAN_REG.test(ch);
+        return this.__CHINESE_REG.test(ch) || this.__JAPANESE_REG.test(ch) || this.__KOREAN_REG.test(ch);
     },
 
     //Checking whether the character is a whitespace
@@ -109,6 +112,17 @@ var textUtils = {
                     fuzzyLen -= result ? result[0].length : 0;
                     if (fuzzyLen === 0) fuzzyLen = 1;
 
+                    sLine = text.substr(fuzzyLen);
+                    sText = text.substr(0, fuzzyLen);
+                }
+            }
+
+            // To judge whether a Emoji words are truncated
+            // todo Some Emoji are not well adapted, such as 🚗 and 🇨🇳
+            if (this.label_firstEmoji.test(sLine)) {
+                result = this.label_lastEmoji.exec(sText);
+                if (result && sText !== result[0]) {
+                    fuzzyLen -= result[0].length;
                     sLine = text.substr(fuzzyLen);
                     sText = text.substr(0, fuzzyLen);
                 }

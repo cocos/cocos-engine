@@ -101,6 +101,9 @@ var SystemEvent = cc.Class({
      * @param {Boolean} isEnable
      */
     setAccelerometerEnabled: function (isEnable) {
+        if (CC_EDITOR) {
+            return;
+        }
         inputManger.setAccelerometerEnabled(isEnable);
     },
 
@@ -111,10 +114,16 @@ var SystemEvent = cc.Class({
      * @param {Number} interval
      */
     setAccelerometerInterval: function(interval) {
+        if (CC_EDITOR) {
+            return;
+        }
         inputManger.setAccelerometerInterval(interval);
     },
 
     on: function (type, callback, target) {
+        if (CC_EDITOR) {
+            return;
+        }
         this._super(type, callback, target);
 
         // Keyboard
@@ -156,6 +165,9 @@ var SystemEvent = cc.Class({
 
 
     off: function (type, callback, target) {
+        if (CC_EDITOR) {
+            return;
+        }
         this._super(type, callback, target);
 
         // Keyboard
@@ -176,8 +188,7 @@ var SystemEvent = cc.Class({
 });
 
 cc.SystemEvent = module.exports = SystemEvent;
-if (!CC_EDITOR) {
-/** 
+/**
  * @module cc
  */
 
@@ -186,6 +197,5 @@ if (!CC_EDITOR) {
  * !#zh 系统事件单例，方便全局使用
  * @property systemEvent
  * @type {SystemEvent}
- */    
-    cc.systemEvent = new cc.SystemEvent();
-}
+ */
+cc.systemEvent = new cc.SystemEvent();

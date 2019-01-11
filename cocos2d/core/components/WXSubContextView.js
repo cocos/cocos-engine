@@ -77,11 +77,9 @@ else {
             // Setup subcontext canvas size
             if (wx.getOpenDataContext) {
                 this._context = wx.getOpenDataContext();
-                let sharedCanvas = this._context.canvas;
-                if (sharedCanvas) {
-                    sharedCanvas.width = this.node.width;
-                    sharedCanvas.height = this.node.height;
-                }
+                // reset sharedCanvas width and height
+                this.reset();
+
                 this._tex.setPremultiplyAlpha(true);
                 this._tex.initWithElement(sharedCanvas);
 
@@ -94,6 +92,22 @@ else {
             }
             else {
                 this.enabled = false;
+            }
+        },
+
+        /**
+         * !#en Reset open data context size and viewport
+         * !#zh 重置开放数据域的尺寸和视窗
+         * @method reset
+         */
+        reset () {
+            if (this._context) {
+                this.updateSubContextViewport();
+                let sharedCanvas = this._context.canvas;
+                if (sharedCanvas) {
+                    sharedCanvas.width = this.node.width;
+                    sharedCanvas.height = this.node.height;
+                }
             }
         },
 

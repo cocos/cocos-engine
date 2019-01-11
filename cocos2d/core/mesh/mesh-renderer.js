@@ -23,17 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const MeshRenderer = require('./CCMeshRenderer');
+import gfx from '../../renderer/gfx';
+import InputAssembler from '../../renderer/core/input-assembler';
+import IARenderData from '../../renderer/render-data/ia-render-data';
 
-const renderEngine = require('../renderer/render-engine');
-const IARenderData = renderEngine.IARenderData;
-const gfx = renderEngine.gfx;
-const InputAssembler = renderEngine.InputAssembler;
+const MeshRenderer = require('./CCMeshRenderer');
 
 const BLACK_COLOR = cc.Color.BLACK;
 
 let meshRendererAssembler = {
-    useModel: true,
     updateRenderData (comp) {
         let renderDatas = comp._renderDatas;
         renderDatas.length = 0;
@@ -41,7 +39,7 @@ let meshRendererAssembler = {
         let submeshes = comp.mesh._subMeshes;
         for (let i = 0; i < submeshes.length; i++) {
             let data = new IARenderData();
-            data.material = comp._materials[i];
+            data.material = comp.sharedMaterials[i] || comp.sharedMaterials[0];
             data.ia = submeshes[i];
             renderDatas.push(data);
         }
@@ -50,9 +48,8 @@ let meshRendererAssembler = {
     createWireFrameData (ia, oldIbData, material, renderer) {
         let data = new IARenderData();
         let m = material.clone();
-        m.color = BLACK_COLOR;
-        m.useTexture = false;
-        m._mainTech._passes[0].setDepth(true, true);
+        m.setProperty('color', BLACK_COLOR);
+        m.define('USE_TEXTURE', false);
         data.material = m;
 
         let indices = [];
@@ -72,7 +69,7 @@ let meshRendererAssembler = {
             ibData.length
         );
 
-        data.ia = new renderEngine.InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
+        data.ia = new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
         return data;
     },
 
@@ -99,26 +96,22 @@ let meshRendererAssembler = {
         let tmpMaterial = renderer.material;
 
         let tmpNode = renderer.node;
-        renderer.node = comp._material.useModel ? comp.node : renderer._dummyNode;
+        renderer.node = comp instanceof cc.SkinnedMeshRenderer ? renderer._dummyNode : comp.node;
+
+        renderer.customProperties = comp._customProperties;
+        let tmpCustomProperties = renderer.customProperties;
 
         comp.mesh._uploadData();
 
-        let textures = comp.textures;
-        let materials = comp._materials;
         for (let i = 0; i < renderDatas.length; i++) {
             let renderData = renderDatas[i];
             let material = renderData.material;
-            if (textures[i]) {
-                material.texture = textures[i];
-            }
-            else {
-                material.useTexture = false;
-            }
 
             renderer.material = material;
             renderer._flushIA(renderData);
         }
 
+        renderer.customProperties = tmpCustomProperties;
         renderer.node = tmpNode;
         renderer.material = tmpMaterial;
     }

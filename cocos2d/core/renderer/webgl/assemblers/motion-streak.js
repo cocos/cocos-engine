@@ -81,7 +81,7 @@ var motionStreakAssembler = {
         this.update(comp, dt);
 
         let renderData = comp._renderData;
-        renderData.material = comp.getMaterial();
+        renderData.material = comp.sharedMaterials[0];
     },
 
     update (comp, dt) {
@@ -183,7 +183,7 @@ var motionStreakAssembler = {
         }
 
         renderData.vertexCount = renderData.dataLength;
-        renderData.indiceCount = renderData.vertexCount < 2 ? 0 : (renderData.vertexCount - 2)*3;
+        renderData.indiceCount = renderData.vertexCount <= 2 ? 0 : (renderData.vertexCount - 2)*3;
     },
 
     fillBuffers (comp, renderer) {

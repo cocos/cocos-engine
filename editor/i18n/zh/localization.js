@@ -75,7 +75,7 @@ module.exports = {
             'hover_color': '悬停状态的按钮背景颜色',
             'disabled_color': '禁用状态的按钮背景颜色',
             'duration': '按钮颜色变化或者缩放变化的过渡时间',
-            'zoom_scale': '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale, zoomScale 可以为负数',
+            'zoom_scale': '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。不建议 zoomScale 的值小于 1, 否则缩放后如果触摸点在触摸区域外, 则会触发 touchCancel 事件',
             'auto_gray_effect': "如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰",
             'normal_sprite': '普通状态的按钮背景图资源',
             'pressed_sprite': '按下状态的按钮背景图资源',
@@ -100,6 +100,7 @@ module.exports = {
             'wrap': '是否允许自动换行',
             'font': 'Label 使用的字体资源',
             'system_font': '是否使用系统默认字体，选中此项会将 file 属性置空',
+            'batch_as_bitmap': '是否设置为静态文本进行批次合并，选中此项将会把文本加入动态图集进行批次合并，但是不能频繁动态修改文本内容'
         },
         'progress': {
             'bar_sprite': '进度条显示用的 Sprite 节点，可以动态改变尺寸',

@@ -25,12 +25,12 @@
 
 const js = require('../../../../../platform/js');
 const assembler = require('../2d/ttf');
-const fillVertices3D = require('../../utils').fillVertices3D;
+const fillMeshVertices3D = require('../../utils').fillMeshVertices3D;
 
 const WHITE = cc.color(255, 255, 255, 255);
 
 module.exports = js.addon({
     fillBuffers (comp, renderer) {
-        fillVertices3D(comp.node, renderer._quadBuffer3D, comp._renderData, WHITE._val);
+        fillMeshVertices3D(comp.node, renderer._meshBuffer3D, comp._renderData, WHITE._val);
     }
 }, assembler);

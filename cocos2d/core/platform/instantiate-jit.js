@@ -220,7 +220,7 @@ function Parser (obj, parent) {
                            '}else{',
                                 LOCAL_OBJ + '=R=new ' + this.getFuncModule(obj.constructor, true) + '();',
                            '}');
-        obj._iN$t = { globalVar: 'R' };
+        js.value(obj, '_iN$t', { globalVar: 'R' }, true);
         this.objsToClear_iN$t.push(obj);
         this.enumerateObject(this.codeArray, obj);
     //}
@@ -348,10 +348,10 @@ proto.instantiateArray = function (value) {
     var codeArray = [declaration];
 
     // assign a _iN$t flag to indicate that this object has been parsed.
-    value._iN$t = {
+    js.value(value, '_iN$t', {
         globalVar: '',      // the name of declared global variable used to access this object
         source: codeArray,  // the source code array for this object
-    };
+    }, true);
     this.objsToClear_iN$t.push(value);
 
     for (var i = 0; i < value.length; ++i) {
@@ -515,12 +515,12 @@ proto.instantiateObj = function (obj) {
     var codeArray = [createCode];
 
     // assign a _iN$t flag to indicate that this object has been parsed.
-    obj._iN$t = {
+    js.value(obj, '_iN$t', {
         globalVar: '',      // the name of declared global variable used to access this object
         source: codeArray,  // the source code array for this object
         //propName: '',     // the propName this object defined in its source code,
         //                  // if defined, use LOCAL_OBJ.propName to access the obj, else just use o
-    };
+    }, true);
     this.objsToClear_iN$t.push(obj);
 
     this.enumerateObject(codeArray, obj);

@@ -25,25 +25,15 @@
 
 const StencilManager = require('../../cocos2d/core/renderer/webgl/stencil-manager').sharedManager;
 const Armature = require('./ArmatureDisplay');
-const renderEngine = require('../../cocos2d/core/renderer/render-engine');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const gfx = renderEngine.gfx;
-const SpriteMaterial = renderEngine.SpriteMaterial;
-const vfmtPosUvColor = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosUvColor;
 
 let _boneColor = cc.color(255, 0, 0, 255);
 let _slotColor = cc.color(0, 0, 255, 255);
 
-const STENCIL_SEP = '@';
-
-function _updateKeyWithStencilRef (key, stencilRef) {
-    return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
-}
-
 function _getSlotMaterial (comp, slot, premultiAlpha) {
     premultiAlpha = premultiAlpha || false;
     let tex = slot.getTexture();
-    if(!tex)return null;
+    if(!tex) return null;
     let src, dst;
 
     switch (slot._blendMode) {
@@ -66,13 +56,14 @@ function _getSlotMaterial (comp, slot, premultiAlpha) {
             break;
     }
 
-    let key = tex.url + src + dst + STENCIL_SEP + '0';
-    comp._material = comp._material || new SpriteMaterial();
+    let key = tex.url + src + dst;
     let baseMaterial = comp._material;
+    if (!baseMaterial) {
+        return null;
+    }
     let materialCache = comp._materialCache;
     let material = materialCache[key];
     if (!material) {
-
         var baseKey = baseMaterial._hash;
         if (!materialCache[baseKey]) {
             material = baseMaterial;
@@ -112,7 +103,6 @@ let armatureAssembler = {
     useModel: true,
 
     updateRenderData (comp) {
-
         let armature = comp._armature;
         if (!armature) {
             return;
@@ -242,20 +232,9 @@ let armatureAssembler = {
         if (!armature) return;
 
         let renderDatas = comp._renderDatas;
-        let materialCache = comp._materialCache;
 
         for (let index = 0, length = renderDatas.length; index < length; index++) {
             let data = renderDatas[index];
-
-            let key = data.material._hash;
-            let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
-            if (key !== newKey) {
-                data.material = materialCache[newKey] || data.material.clone();
-                data.material.updateHash(newKey);
-                if (!materialCache[newKey]) {
-                    materialCache[newKey] = data.material;
-                }
-            }
 
             if (data.material !== renderer.material) {
                 renderer._flush();
@@ -263,10 +242,8 @@ let armatureAssembler = {
                 renderer.material = data.material;
             }
 
-            let vertexs = data.vertices;
-            let indices = data.indices;
 
-            let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
+            let buffer = renderer._meshBuffer,
                 vertexOffset = buffer.byteOffset >> 2,
                 vertexCount = data.vertexCount;
             
@@ -291,6 +268,8 @@ let armatureAssembler = {
                 uintbuf[vertexOffset++] = vert.color;
             }
 
+            let vertexs = data.vertices;
+            let indices = data.indices;
             // index buffer
             for (let i = 0, l = indices.length; i < l; i ++) {
                 ibuf[indiceOffset++] = vertexId + indices[i];

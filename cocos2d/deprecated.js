@@ -623,4 +623,20 @@ if (CC_DEBUG) {
     if (typeof dragonBones !== 'undefined') {
         js.obsolete(dragonBones.CCFactory, 'dragonBones.CCFactory.getFactory', 'getInstance');
     }
+
+    // renderEngine
+    cc.renderer.renderEngine = {
+        get gfx () {
+            cc.warnID(1400, 'cc.renderer.renderEngine.gfx', 'cc.gfx');
+            return cc.gfx;
+        },
+        get math () {
+            cc.warnID(1400, 'cc.renderer.renderEngine.math', 'cc.vmath');
+            return cc.vmath;
+        },
+        get InputAssembler () {
+            cc.warnID(1400, 'cc.renderer.renderEngine.InputAssembler', 'cc.renderer.InputAssembler');
+            return cc.renderer.InputAssembler;
+        }
+    };
 }

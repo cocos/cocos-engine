@@ -25,11 +25,13 @@
  ****************************************************************************/
 
 const AffineTrans = require('../utils/affine-transform');
-const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer/index');
 const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
 const ray = require('../3d/geom-utils/ray');
+
+import RendererCamera from '../../renderer/scene/camera';
+import View from '../../renderer/core/view';
 
 const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;
@@ -76,6 +78,11 @@ let ClearFlags = cc.Enum({
     STENCIL: 4,
 });
 
+let StageFlags = cc.Enum({
+    OPAQUE: 1,
+    TRANSPARENT: 2
+});
+
 /**
  * !#en
  * Camera is usefull when making reel game or other games which need scroll screen.
@@ -92,13 +99,13 @@ let Camera = cc.Class({
 
     ctor () {
         if (game.renderType !== game.RENDER_TYPE_CANVAS) {
-            let camera = new renderEngine.Camera();
+            let camera = new RendererCamera();
 
             camera.setStages([
-                'transparent'
+                'opaque',
             ]);
 
-            let view = new renderEngine.View();
+            let view = new View();
             camera.view = view;
             camera.dirty = true;
 
@@ -113,7 +120,7 @@ let Camera = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Camera',
         inspector: 'packages://inspector/inspectors/comps/camera.js',
-        executeInEditMode: false
+        executeInEditMode: true
     },
 
     properties: {
@@ -129,6 +136,7 @@ let Camera = cc.Class({
         _farClip: 4096,
         _ortho: true,
         _rect: cc.rect(0, 0, 1, 1),
+        _renderStages: 1,
 
         /**
          * !#en
@@ -319,7 +327,7 @@ let Camera = cc.Class({
             set (value) {
                 this._depth = value;
                 if (this._camera) {
-                    this._camera._sortDepth = value;
+                    this._camera._priority = value;
                 }
             }
         },
@@ -340,6 +348,16 @@ let Camera = cc.Class({
             set (value) {
                 this._targetTexture = value;
                 this._updateTargetTexture();
+            }
+        },
+
+        renderStages: {
+            get () {
+                return this._renderStages;
+            },
+            set (val) {
+                this._renderStages = val;
+                this._updateStages();
             }
         },
 
@@ -397,25 +415,21 @@ let Camera = cc.Class({
         _setupDebugCamera () {
             if (_debugCamera) return;
             if (game.renderType === game.RENDER_TYPE_CANVAS) return;
-            let camera = new renderEngine.Camera();
+            let camera = new RendererCamera();
             _debugCamera = camera;
-
-            camera.setStages([
-                'transparent'
-            ]);
 
             camera.setFov(Math.PI * 60 / 180);
             camera.setNear(0.1);
             camera.setFar(4096);
 
-            let view = new renderEngine.View();
+            let view = new View();
             camera.view = view;
             camera.dirty = true;
 
             let mask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
             camera.setCullingMask(mask);
             camera.view.cullingMask = mask;
-            camera._sortDepth = cc.macro.MAX_ZINDEX;
+            camera._priority = cc.macro.MAX_ZINDEX;
             camera.setClearFlags(0);
             camera.setColor(0, 0, 0, 0);
 
@@ -473,6 +487,18 @@ let Camera = cc.Class({
         this._camera.setRect(this._rect);
     },
 
+    _updateStages () {
+        let flags = this._renderStages;
+        let stages = this._camera._stages;
+        stages.length = 0;
+        if (flags & StageFlags.OPAQUE) {
+            stages.push('opaque');
+        }
+        if (flags & StageFlags.TRANSPARENT) {
+            stages.push('transparent');
+        }
+    },
+
     _init () {
         if (this._inited) return;
         this._inited = true;
@@ -481,12 +507,13 @@ let Camera = cc.Class({
         if (!camera) return;
         camera.setNode(this.node);
         camera.setClearFlags(this._clearFlags);
-        camera._sortDepth = this._depth;
+        camera._priority = this._depth;
         this._updateBackgroundColor();
         this._updateCameraMask();
         this._updateTargetTexture();
         this._updateClippingpPlanes();
         this._updateProjection();
+        this._updateStages();
     },
 
     onLoad () {
@@ -494,7 +521,7 @@ let Camera = cc.Class({
     },
 
     onEnable () {
-        if (game.renderType !== game.RENDER_TYPE_CANVAS) {
+        if (!CC_EDITOR && game.renderType !== game.RENDER_TYPE_CANVAS) {
             cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             renderer.scene.addCamera(this._camera);
         }
@@ -502,7 +529,7 @@ let Camera = cc.Class({
     },
 
     onDisable () {
-        if (game.renderType !== game.RENDER_TYPE_CANVAS) {
+        if (!CC_EDITOR && game.renderType !== game.RENDER_TYPE_CANVAS) {
             cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             renderer.scene.removeCamera(this._camera);
         }

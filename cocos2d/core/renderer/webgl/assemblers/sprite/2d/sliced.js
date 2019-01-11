@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -23,11 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-
+const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 module.exports = {
-    useModel: false,
-
     createData (sprite) {
         let renderData = sprite.requestRenderData();
         // 0-4 for local verts
@@ -39,19 +36,9 @@ module.exports = {
         return renderData;
     },
 
-    updateRenderData (sprite, batchData) {
-        let frame = sprite.spriteFrame;
-
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        if (frame) {
-            if (!frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.insertSpriteFrame(frame);
-            }
-            if (sprite._material._texture !== frame._texture) {
-                sprite._activateMaterial();
-            }
-        }
+    updateRenderData (sprite) {
+        let frame = sprite._spriteFrame;
+        packToDynamicAtlas(sprite, frame);
 
         let renderData = sprite._renderData;
         if (renderData && frame && sprite._vertsDirty) {

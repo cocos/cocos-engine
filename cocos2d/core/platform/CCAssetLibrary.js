@@ -27,6 +27,7 @@
 var Asset = require('../assets/CCAsset');
 var callInNextTick = require('./utils').callInNextTick;
 var Loader = require('../load-pipeline/CCLoader');
+var AssetTable = require('../load-pipeline/asset-table');
 var PackDownloader = require('../load-pipeline/pack-downloader');
 var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
 var decodeUuid = require('../utils/decode-uuid');
@@ -309,8 +310,11 @@ var AssetLibrary = {
 
         // init raw assets
 
-        var resources = Loader._resources;
-        resources.reset();
+        var assetTables = Loader._assetTables;
+        for (var mount in assetTables) {
+            assetTables[mount].reset();
+        }
+        
         var rawAssets = options.rawAssets;
         if (rawAssets) {
             for (var mountPoint in rawAssets) {
@@ -327,16 +331,18 @@ var AssetLibrary = {
                     // backward compatibility since 1.10
                     _uuidToRawAsset[uuid] = new RawAssetEntry(mountPoint + '/' + url, type);
                     // init resources
-                    if (mountPoint === 'assets') {
-                        var ext = cc.path.extname(url);
-                        if (ext) {
-                            // trim base dir and extname
-                            url = url.slice(0, - ext.length);
-                        }
-                        var isSubAsset = info[2] === 1;
-                        // register
-                        resources.add(url, uuid, type, !isSubAsset);
+                    var ext = cc.path.extname(url);
+                    if (ext) {
+                        // trim base dir and extname
+                        url = url.slice(0, - ext.length);
                     }
+
+                    var isSubAsset = info[2] === 1;
+                    if (!assetTables[mountPoint]) {
+                        assetTables[mountPoint] = new AssetTable();
+                    } 
+
+                    assetTables[mountPoint].add(url, uuid, type, !isSubAsset);
                 }
             }
         }
@@ -348,6 +354,7 @@ var AssetLibrary = {
         // init cc.url
         cc.url._init((options.mountPaths && options.mountPaths.assets) || _rawAssetsBase + 'assets');
     }
+
 };
 
 // unload asset if it is destoryed
@@ -377,5 +384,43 @@ AssetLibrary._uuidToAsset = {};
 //        AssetLibrary.unloadAsset(this);
 //    }
 //};
+
+
+let _builtins = {
+    effect: {},
+    material: {}
+};
+
+function loadBuiltins (name, type, cb) {
+    let dirname = name  + 's';
+    let builtin = _builtins[name] = {};
+    cc.loader.loadResDir(dirname, type, 'internal', () => { }, (err, assets) => {
+        if (err) {
+            cc.error(err);
+        }
+        else {
+            for (let i = 0; i < assets.length; i++) {
+                builtin[`${assets[i].name}`] = assets[i];
+            }
+        }
+
+        cb();
+    });
+}
+
+AssetLibrary._loadBuiltins = function (cb) {
+    loadBuiltins('effect', cc.EffectAsset, () => {
+        loadBuiltins('material', cc.Material, cb);
+    });
+};
+
+AssetLibrary.getBuiltin = function (type, name) {
+    return _builtins[type][name];
+};
+
+AssetLibrary.getBuiltins = function (type) {
+    if (!type) return _builtins;
+    return _builtins[type];
+};
 
 module.exports = cc.AssetLibrary = AssetLibrary;

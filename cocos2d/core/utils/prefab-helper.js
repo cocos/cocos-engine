@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var math = require("../renderer").renderEngine.math;
+import { quat } from '../vmath';
 
 cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',

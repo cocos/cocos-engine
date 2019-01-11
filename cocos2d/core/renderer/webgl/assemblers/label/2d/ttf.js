@@ -25,9 +25,9 @@
 
 const js = require('../../../../../platform/js');
 const ttfUtls = require('../../../../utils/label/ttf');
-const fillVertices = require('../../utils').fillVertices;
+const fillMeshVertices = require('../../utils').fillMeshVertices;
 
-const WHITE = cc.color(255, 255, 255, 255);
+const WHITE_VAL = cc.Color.WHITE._val;
 
 module.exports = js.addon({
     createData (comp) {
@@ -37,25 +37,16 @@ module.exports = js.addon({
         renderData.vertexCount = 4;
         renderData.indiceCount = 6;
 
-        let verts = renderData.vertices;
-        verts[0].u = 0;
-        verts[0].v = 1;
-        verts[1].u = 1;
-        verts[1].v = 1;
-        verts[2].u = 0;
-        verts[2].v = 0;
-        verts[3].u = 1;
-        verts[3].v = 0;
         return renderData;
     },
 
     fillBuffers (comp, renderer) {
-        fillVertices(comp.node, renderer._quadBuffer, comp._renderData, WHITE._val);
+        fillMeshVertices(comp.node, renderer._meshBuffer, comp._renderData, WHITE_VAL);
     },
 
     _updateVerts (comp) {
         let renderData = comp._renderData;
-
+        let uv = comp._frame.uv;
         let node = comp.node,
             width = node.width,
             height = node.height,
@@ -71,5 +62,14 @@ module.exports = js.addon({
         verts[2].y = height - appy;
         verts[3].x = width - appx;
         verts[3].y = height - appy;
+
+        verts[0].u = uv[0];
+        verts[0].v = uv[1];
+        verts[1].u = uv[2];
+        verts[1].v = uv[3];
+        verts[2].u = uv[4];
+        verts[2].v = uv[5];
+        verts[3].u = uv[6];
+        verts[3].v = uv[7];
     }
 }, ttfUtls);

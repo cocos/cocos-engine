@@ -294,6 +294,8 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._break();
         }
+        // Pause animation
+        cc.director.stopAnimation();
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
@@ -313,6 +315,8 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._restore();
         }
+        // Resume animation
+        cc.director.startAnimation();
         // Resume main loop
         this._runMainLoop();
     },
@@ -381,19 +385,26 @@ var game = {
     },
 
     _prepareFinished (cb) {
+
+        if (CC_PREVIEW && window.__modular) {
+            window.__modular.run();
+        }
+
         this._prepared = true;
 
         // Init engine
         this._initEngine();
-        // Log engine version
-        console.log('Cocos Creator v' + cc.ENGINE_VERSION);
+        cc.AssetLibrary._loadBuiltins(() => {
+            // Log engine version
+            console.log('Cocos Creator v' + cc.ENGINE_VERSION);
 
-        this._setAnimFrame();
-        this._runMainLoop();
+            this._setAnimFrame();
+            this._runMainLoop();
 
-        this.emit(this.EVENT_GAME_INITED);
+            this.emit(this.EVENT_GAME_INITED);
 
-        if (cb) cb();
+            if (cb) cb();
+        });
     },
 
     eventTargetOn: EventTarget.prototype.on,
@@ -421,8 +432,9 @@ var game = {
      * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
      */
     on (type, callback, target) {
-        // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._prepared && type === this.EVENT_ENGINE_INITED) {
+        // Make sure EVENT_ENGINE_INITED and EVENT_GAME_INITED callbacks to be invoked
+        if ((this._prepared && type === this.EVENT_ENGINE_INITED) ||
+            (!this._pause && type === this.EVENT_GAME_INITED)) {
             callback.call(target);
         }
         else {
@@ -448,8 +460,9 @@ var game = {
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     once (type, callback, target) {
-        // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._prepared && type === this.EVENT_ENGINE_INITED) {
+        // Make sure EVENT_ENGINE_INITED and EVENT_GAME_INITED callbacks to be invoked
+        if ((this._prepared && type === this.EVENT_ENGINE_INITED) ||
+            (!this._pause && type === this.EVENT_GAME_INITED)) {
             callback.call(target);
         }
         else {
@@ -567,7 +580,7 @@ var game = {
         var frameRate = game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
-        if (CC_JSB) {
+        if (CC_JSB || CC_RUNTIME) {
             jsb.setPreferredFramesPerSecond(frameRate);
             window.requestAnimFrame = window.requestAnimationFrame;
             window.cancelAnimFrame = window.cancelAnimationFrame;
@@ -620,7 +633,7 @@ var game = {
         callback = function () {
             if (!self._paused) {
                 self._intervalId = window.requestAnimFrame(callback);
-                if (!CC_JSB && frameRate === 30) {
+                if (!CC_JSB && !CC_RUNTIME && frameRate === 30) {
                     if (skip = !skip) {
                         return;
                     }
@@ -705,13 +718,13 @@ var game = {
             width, height,
             localCanvas, localContainer;
 
-        if (CC_WECHATGAME || CC_JSB) {
+        if (CC_WECHATGAME || CC_JSB || CC_RUNTIME) {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 localCanvas = window.sharedCanvas || wx.getSharedCanvas();
             }
-            else if (CC_JSB) {
+            else if (CC_JSB || CC_RUNTIME) {
                 localCanvas = window.__canvas;
             }
             else {

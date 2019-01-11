@@ -25,10 +25,10 @@
  ****************************************************************************/
 
 const EventTarget = require('../event/event-target');
-const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer');
 require('../platform/CCClass');
-const gfx = renderEngine.gfx;
+
+import gfx from '../../renderer/gfx';
 
 const GL_NEAREST = 9728;                // gl.NEAREST
 const GL_LINEAR = 9729;                 // gl.LINEAR
@@ -268,8 +268,9 @@ var Texture2D = cc.Class({
         _flipY: false,
         _minFilter: Filter.LINEAR,
         _magFilter: Filter.LINEAR,
+        _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
-        _wrapT: WrapMode.CLAMP_TO_EDGE
+        _wrapT: WrapMode.CLAMP_TO_EDGE,
     },
 
     statics: {
@@ -330,6 +331,8 @@ var Texture2D = cc.Class({
          */
         this.height = 0;
 
+        this._hashDirty = true;
+        this._hash = 0;
         this._texture = null;
         
         if (CC_EDITOR) {
@@ -340,7 +343,7 @@ var Texture2D = cc.Class({
     /**
      * !#en
      * Get renderer texture implementation object
-     * extended from renderEngine.TextureAsset
+     * extended from render.Texture2D
      * !#zh  返回渲染器内部贴图对象
      * @method getImpl
      */
@@ -387,6 +390,10 @@ var Texture2D = cc.Class({
                 this._magFilter = options.magFilter;
                 options.magFilter = FilterIndex[options.magFilter];
             }
+            if (options.mipFilter !== undefined) {
+                this._mipFilter = options.mipFilter;
+                options.mipFilter = FilterIndex[options.mipFilter];
+            }
             if (options.wrapS !== undefined) {
                 this._wrapS = options.wrapS;
             }
@@ -427,6 +434,8 @@ var Texture2D = cc.Class({
             if (options.images && options.images.length > 0) {
                 this._texture.update(options);
             }
+
+            this._hashDirty = true;
         }
     },
 
@@ -713,6 +722,33 @@ var Texture2D = cc.Class({
         }
     },
 
+    _getOpts() {
+        let opts = _getSharedOptions();
+        opts.width = this.width;
+        opts.height = this.height;
+        opts.mipmap = this._genMipmap;
+        opts.format = this._format;
+        opts.premultiplyAlpha = this._premultiplyAlpha;
+        opts.anisotropy = this._anisotropy;
+        opts.flipY = this._flipY;
+        opts.minFilter = FilterIndex[this._minFilter];
+        opts.magFilter = FilterIndex[this._magFilter];
+        opts.mipFilter = FilterIndex[this._mipFilter];
+        opts.wrapS = this._wrapS;
+        opts.wrapT = this._wrapT;
+        return opts;
+    },
+
+    _resetUnderlyingMipmaps(mipmapSources) {
+        const opts = this._getOpts();
+        opts.images = mipmapSources || [null];
+        if (!this._texture) {
+            this._texture = new renderer.Texture2D(renderer.device, opts);
+        } else {
+            this._texture.update(opts);
+        }
+    },
+
     // SERIALIZATION
 
     _serialize: (CC_EDITOR || CC_TEST) && function () {
@@ -797,6 +833,24 @@ var Texture2D = cc.Class({
             // decode premultiply alpha
             this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
         }
+    },
+
+    _getHash () {
+        if (!this._hashDirty) {
+            return this._hash;
+        }
+        let hasMipmap = this._hasMipmap ? 1 : 0;
+        let premultiplyAlpha = this._premultiplyAlpha ? 1 : 0;
+        let flipY = this._flipY ? 1 : 0;
+        let minFilter = this._minFilter === Filter.LINEAR ? 1 : 2;
+        let magFilter = this._magFilter === Filter.LINEAR ? 1 : 2;
+        let wrapS = this._wrapS === WrapMode.REPEAT ? 1 : (this._wrapS === WrapMode.CLAMP_TO_EDGE ? 2 : 3);
+        let wrapT = this._wrapT === WrapMode.REPEAT ? 1 : (this._wrapT === WrapMode.CLAMP_TO_EDGE ? 2 : 3);
+        let pixelFormat = this._format;
+
+        this._hash = parseInt(`${minFilter}${magFilter}${pixelFormat}${wrapS}${wrapT}${hasMipmap}${premultiplyAlpha}${flipY}`);
+        this._hashDirty = false;
+        return this._hash;
     }
 });
 

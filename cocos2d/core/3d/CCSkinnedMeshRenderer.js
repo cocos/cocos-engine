@@ -25,7 +25,6 @@
 
 const Skeleton = require('./CCSkeleton');
 const MeshRenderer = require('../mesh/CCMeshRenderer');
-const renderEngine = require('../renderer/render-engine');
 const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();
@@ -59,7 +58,7 @@ let SkinnedMeshRenderer = cc.Class({
                 this._skeleton = val;
                 this._initJoints();
                 this._initJointsTexture();
-                this.activeMaterials(true);
+                this._activateMaterial(true);
             },
             type: Skeleton
         },
@@ -76,27 +75,7 @@ let SkinnedMeshRenderer = cc.Class({
         }
     },
 
-    _createMaterial () {
-        let material = new renderEngine.MeshMaterial();
-        material.color = cc.Color.WHITE;
-        material._mainTech._passes[0].setDepth(true, true);
-        material.useModel = false;
-        material.useSkinning = true;
-
-        if (this._jointsTexture) {
-            material.useJointsTexture = true;
-            material.jointsTexture = this._jointsTexture;
-            material.jointsTextureSize = this._jointsTexture.width;
-        }
-        else {
-            material.useJointsTexture = false;
-            material.jointMatrices = this._jointsTextureData;
-        }
-
-        return material;
-    },
-
-    activeMaterials (force) {
+    _activateMaterial (force) {
         if (!this._jointsTextureData) {
             this.disableRender();
             return;
@@ -136,6 +115,7 @@ let SkinnedMeshRenderer = cc.Class({
         if (!this._skeleton) return;
 
         let jointCount = this._joints.length;
+        let customProperties = this._customProperties;
 
         let ALLOW_FLOAT_TEXTURE = !!cc.renderer.device.ext('OES_texture_float');
         if (ALLOW_FLOAT_TEXTURE) {
@@ -157,10 +137,17 @@ let SkinnedMeshRenderer = cc.Class({
             texture.initWithData(this._jointsTextureData, cc.Texture2D.PixelFormat.RGBA32F, size, size);
 
             this._jointsTexture = texture;
+            
+            customProperties.setProperty('_jointsTexture', texture.getImpl());
+            customProperties.setProperty('_jointsTextureSize', this._jointsTexture.width);
         }
         else {
             this._jointsTextureData = new Float32Array(jointCount * 16);
+            customProperties.setProperty('_jointMatrices', this._jointsTextureData);
         }
+
+        customProperties.define('_USE_SKINNING', true);
+        customProperties.define('_USE_JOINTS_TEXTRUE', ALLOW_FLOAT_TEXTURE);
     },
 
     _setJointsTextureData (iMatrix, matrix) {

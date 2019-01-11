@@ -1,10 +1,38 @@
-# Cocos Creator Engine Framework
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/1503156/50446380-ad88c980-094f-11e9-8eff-0094bde708d0.png">
+</p>
+<p align="center">
+    <a href="https://github.com/cocos-creator/engine/stargazers">
+        <img src="https://img.shields.io/github/stars/cocos-creator/engine.svg?style=flat-square&colorB=4183c4"
+             alt="stars">
+    </a>
+    <a href="https://github.com/cocos-creator/engine/network">
+        <img src="https://img.shields.io/github/forks/cocos-creator/engine.svg?style=flat-square&colorB=4183c4"
+             alt="forks">
+    </a>
+    <a href="https://github.com/cocos-creator/engine/releases">
+        <img src="https://img.shields.io/github/tag/cocos-creator/engine.svg?label=version&style=flat-square&colorB=4183c4"
+             alt="version">
+    </a>
+    <a href="./licenses/LICENSE">
+        <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&colorB=4183c4"
+             alt="license">
+    </a>
+    <a href="https://twitter.com/cocos2dx">
+        <img src="https://img.shields.io/twitter/follow/cocos2dx.svg?logo=twitter&label=follow&style=flat-square&colorB=4183c4"
+             alt="twitter">
+    </a>
+</p>
 
-This repo is the engine framework for Cocos Creator, Cocos Creator is a game development tool focused on content creation, which has realized features like thorough scriptability, componentization and data driven, etc. on the basis of Cocos2d-x.
+# Cocos Creator
 
-Cocos Creator's in-editor scene view and web runtime share the same framework, which is the content of this repo. It's originally forked from [Cocos2d-html5](https://github.com/cocos2d/cocos2d-html5/), we build up an Entity Component architecture on it to meet the needs of Cocos Creator. 
+![image](https://user-images.githubusercontent.com/1503156/50451713-97d7cc00-0970-11e9-89f8-ccdd8b2cc5cb.png)
 
-This framework is a cross-platform game engine written in Javascript and licensed under MIT. It supports major desktop and mobile browsers, it's also compatible with [Cocos2d Javascript Binding engine](https://github.com/cocos-creator/cocos2d-x-lite) to support native platforms like iOS, Android, Win32, Mac OS X.
+Cocos Creator is a complete package of game development tools and workflow, including a game engine, resource management, scene editing, game preview, debug and publish one project to multiple platforms. Cocos Creator focused on content creation, which has realized features like thorough scriptability, componentization and data driven, etc. on the basis of Cocos2d-x. With JavaScript, you can scripting your component in no time. The editor and engine extension is also made with JavaScript so you can make games and refine your tool in a single programming language. Cocos Creator is an provides an innovative, easy to use toolset such as the UI system and Animation editor. The toolset will be expanding continuously and quickly, thanks to the open editor extension system.
+
+This repo is the engine framework for Cocos Creator. Cocos Creator's in-editor scene view and web runtime share the same framework, which is the content of this repo. It's originally forked from [Cocos2d-html5](https://github.com/cocos2d/cocos2d-html5/), we build up an Entity Component architecture on it to meet the needs of Cocos Creator. 
+
+This framework is a cross-platform game engine written in JavaScript and licensed under MIT. It supports major desktop and mobile browsers, it's also compatible with [Cocos2d Javascript Binding engine](https://github.com/cocos-creator/cocos2d-x-lite) to support native platforms like iOS, Android, Win32, macOS.
 
 The framework is naturally integrated with Cocos Creator, so it's not designed to be used independently.
 
@@ -94,12 +122,10 @@ For details below:
     
     ```
 
-
-## Links
+## Useful links
 
 * [Official site](http://cocos2d-x.org/creator)
 * [Download](http://cocos2d-x.org/download)
-* [Documentation](http://www.cocos2d-x.org/docs/creator/manual/en/)
-* [API References](http://www.cocos2d-x.org/docs/creator/api/en/)
-* [Forum](http://discuss.cocos2d-x.org/c/editors-and-tools/cocos-creator)
-* [Road Map](https://trello.com/b/JWVRRxMG/cocos-creator-roadmap)
+* [Documentation](https://docs.cocos2d-x.org/creator/manual/en/)
+* [API References](https://docs.cocos2d-x.org/creator/api/en/)
+* [Forum](https://discuss.cocos2d-x.org/c/creator)

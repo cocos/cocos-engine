@@ -40,16 +40,22 @@ const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
     // modules need to skip in jsb
+    '../../extensions/spine/lib/spine.js',
+    '../../extensions/dragonbones/lib/dragonBones.js',
+    '../../extensions/dragonbones/CCArmatureDisplay.js',
+    '../../extensions/dragonbones/CCFactory.js',
+    '../../extensions/dragonbones/CCSlot.js',
+    '../../extensions/dragonbones/CCTextureData.js'
 ];
 var jsbAliasify = {
     replacements: {
-        '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.jsb')
+        // '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.jsb')
     },
     verbose: false
 };
 var canvasAliasify = {
     replacements: {
-        '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.canvas')
+        // '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.canvas')
     },
     verbose: false
 };
@@ -65,7 +71,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     var opts = {
         sourcemaps: createMap !== false
     };
-    if (opt_macroFlags && opt_macroFlags.wechatgameSub) {
+    if (opt_macroFlags && (opt_macroFlags.wechatgameSub || opt_macroFlags.baidugameSub)) {
         opts.aliasifyConfig = canvasAliasify;
     }
     var outDir = Path.dirname(outputFile);
@@ -110,7 +116,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     var opts = {
         sourcemaps: createMap !== false
     };
-    if (opt_macroFlags && opt_macroFlags.wechatgameSub) {
+    if (opt_macroFlags && (opt_macroFlags.wechatgameSub || opt_macroFlags.baidugameSub)) {
         opts.aliasifyConfig = canvasAliasify;
     }
     var outDir = Path.dirname(outputFile);
@@ -298,6 +304,81 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
         .pipe(Utils.uglify('build', Object.assign({ jsb: true }, opt_macroFlags)))
+        .pipe(Optimizejs({
+            sourceMap: false
+        }))
+        .pipe(Gulp.dest(outDir))
+        .on('end', callback);
+};
+
+exports.buildRuntime = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
+    if (typeof opt_macroFlags === 'function') {
+        callback = opt_macroFlags;
+        opt_macroFlags = null;
+    }
+
+    var opts = {
+        sourcemaps: createMap !== false
+    };
+    if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
+        opts.aliasifyConfig = jsbAliasify;
+    }
+
+    var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+
+    var outFile = Path.basename(outputFile);
+    var outDir = Path.dirname(outputFile);
+
+    var bundler = createBundler(sourceFile, opts);
+    excludes.forEach(function (module) {
+        bundler.exclude(require.resolve(module));
+    });
+    bundler.bundle()
+        .on('error', HandleErrors.handler)
+        .pipe(HandleErrors())
+        .pipe(Source(outFile))
+        .pipe(Buffer())
+        .pipe(FixJavaScriptCore())
+        .pipe(Utils.uglify('build', Object.assign({ jsb: false, runtime: true, debug: true }, opt_macroFlags)))
+        .pipe(Optimizejs({
+            sourceMap: false
+        }))
+        .pipe(Gulp.dest(outDir))
+        .on('end', callback);
+};
+
+exports.buildRuntimeMin = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
+    if (typeof opt_macroFlags === 'function') {
+        callback = opt_macroFlags;
+        opt_macroFlags = null;
+    }
+
+    var opts = {
+        sourcemaps: createMap !== false
+    };
+    if (opt_macroFlags && opt_macroFlags.nativeRenderer) {
+        opts.aliasifyConfig = jsbAliasify;
+    }
+    
+    var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+
+    var outFile = Path.basename(outputFile);
+    var outDir = Path.dirname(outputFile);
+
+    var bundler = createBundler(sourceFile, opts);
+    excludes.forEach(function (module) {
+        bundler.exclude(require.resolve(module));
+    });
+
+    bundler.exclude(Path.resolve(__dirname, '../../DebugInfos.json'));
+
+    bundler.bundle()
+        .on('error', HandleErrors.handler)
+        .pipe(HandleErrors())
+        .pipe(Source(outFile))
+        .pipe(Buffer())
+        .pipe(FixJavaScriptCore())
+        .pipe(Utils.uglify('build', Object.assign({ jsb: false, runtime: true }, opt_macroFlags)))
         .pipe(Optimizejs({
             sourceMap: false
         }))

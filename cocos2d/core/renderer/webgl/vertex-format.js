@@ -23,8 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('../render-engine');
-const gfx = renderEngine.gfx;
+import gfx from '../../../renderer/gfx';
 
 var vfmt3D = new gfx.VertexFormat([
     { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 },

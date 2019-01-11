@@ -70,20 +70,25 @@ module.exports = function createBundler(entryFiles, options) {
         preludePath: Path.relative(process.cwd(), preludePath),
     };
 
-    // var presets = [
-    //     [ 'es2015', { loose: true } ],
-    // ];
+    var presets = [
+        // [ 'es2015', { loose: true } ],
+        'env'
+    ];
 
     var plugins = [
-        // https://babeljs.io/docs/plugins/transform-es2015-shorthand-properties/
-        'babel-plugin-transform-es2015-shorthand-properties',
-        // https://babeljs.io/docs/plugins/transform-es2015-template-literals/
-        'babel-plugin-transform-es2015-template-literals',
-        // http://babeljs.io/docs/plugins/transform-es2015-block-scoping/
-        'babel-plugin-transform-es2015-block-scoping',
+    //     // https://babeljs.io/docs/plugins/transform-es2015-shorthand-properties/
+    //     'babel-plugin-transform-es2015-shorthand-properties',
+    //     // https://babeljs.io/docs/plugins/transform-es2015-template-literals/
+    //     'babel-plugin-transform-es2015-template-literals',
+    //     // http://babeljs.io/docs/plugins/transform-es2015-block-scoping/
+    //     'babel-plugin-transform-es2015-block-scoping',
 
-        // < 6.16.0
-        [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
+    //     // < 6.16.0
+    //     [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
+        'transform-decorators-legacy',
+        'transform-class-properties',
+
+        'add-module-exports',
     ];
 
     var Babelify;
@@ -119,7 +124,7 @@ module.exports = function createBundler(entryFiles, options) {
     return b
         .exclude(Path.join(__dirname, '../../package.json'))
         .transform(Babelify, (options && options.babelifyOpt) || {
-            // presets: presets,
+            presets: presets,
             plugins: plugins,
 
             // >= 6.16.0

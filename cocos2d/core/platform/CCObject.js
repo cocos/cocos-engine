@@ -39,7 +39,7 @@ var Destroying = 1 << 7;
 var Deactivating = 1 << 8;
 var LockedInEditor = 1 << 9;
 //var HideInGame = 1 << 9;
-//var HideInEditor = 1 << 10;
+var HideInHierarchy = 1 << 10;
 
 var IsOnEnableCalled = 1 << 11;
 var IsEditorOnEnableCalled = 1 << 12;
@@ -54,7 +54,7 @@ var IsAnchorLocked = 1 << 19;
 var IsSizeLocked = 1 << 20;
 var IsPositionLocked = 1 << 21;
 
-//var Hide = HideInGame | HideInEditor;
+//var Hide = HideInGame | HideInHierarchy;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating |
                        IsPreloadStarted | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
@@ -115,7 +115,7 @@ js.value(CCObject, 'Flags', {
 
     /**
      * !#en Dont destroy automatically when loading a new scene.
-     * !#zh 加载一个新场景时，不自动删除该对象
+     * !#zh 加载一个新场景时，不自动删除该对象。
      * @property DontDestroy
      * @private
      */
@@ -137,7 +137,7 @@ js.value(CCObject, 'Flags', {
 
     /**
      * !#en The lock node, when the node is locked, cannot be clicked in the scene.
-     * !#zh 锁定节点，锁定后场景内不能点击
+     * !#zh 锁定节点，锁定后场景内不能点击。
      * 
      * @property LockedInEditor
      * @private
@@ -157,12 +157,12 @@ js.value(CCObject, 'Flags', {
 
     // FLAGS FOR EDITOR
 
-    ///**
-    // * !#en This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
-    // * !#zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-    // * @property {Number} HideInEditor
-    // */
-    //HideInEditor: HideInEditor,
+    /**
+     * !#en Hide the object in editor.
+     * !#zh 在编辑器中隐藏该对象。
+     * @property {Number} HideInHierarchy
+     */
+    HideInHierarchy: HideInHierarchy,
 
     ///**
     // * !#en
@@ -174,9 +174,6 @@ js.value(CCObject, 'Flags', {
     // * @property {Number} Hide
     // */
     //Hide: Hide,
-
-    //// UUID Registered in editor
-    //RegisteredInEditor: RegisteredInEditor,
 
     // FLAGS FOR COMPONENT
 

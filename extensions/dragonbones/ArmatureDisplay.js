@@ -25,12 +25,13 @@
  ****************************************************************************/
 
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
-const SpriteMaterial = require('../../cocos2d/core/renderer/render-engine').SpriteMaterial;
+const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 
 let EventTarget = require('../../cocos2d/core/event/event-target');
 
 const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
+const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
 
 /**
  * @module dragonBones
@@ -70,7 +71,7 @@ let ArmatureDisplay = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
-        //help: 'app://docs/html/components/spine.html', // TODO help document of dragonBones
+        //help: 'app://docs/html/components/dragonbones.html', // TODO help document of dragonBones
     },
     
     properties: {
@@ -78,6 +79,44 @@ let ArmatureDisplay = cc.Class({
             default: null,
             type: dragonBones.CCFactory,
             serializable: false,
+        },
+
+        /**
+         * !#en don't try to get or set srcBlendFactor,it doesn't affect,if you want to change dragonbones blend mode,please set it in dragonbones editor directly.
+         * !#zh 不要试图去获取或者设置 srcBlendFactor，没有意义，如果你想设置 dragonbones 的 blendMode，直接在 dragonbones 编辑器中设置即可。
+         * @property srcBlendFactor
+         * @type {macro.BlendFactor}
+         */
+        srcBlendFactor: {
+            get: function() {
+                return this._srcBlendFactor;
+            },
+            set: function(value) {
+                // shield set _srcBlendFactor
+            },
+            animatable: false,
+            type:BlendFactor,
+            override: true,
+            visible: false
+        },
+
+        /**
+         * !#en don't try to get or set dstBlendFactor,it doesn't affect,if you want to change dragonbones blend mode,please set it in dragonbones editor directly.
+         * !#zh 不要试图去获取或者设置 dstBlendFactor，没有意义，如果想设置 dragonbones 的 blendMode，直接在 dragonbones 编辑器中设置即可。
+         * @property dstBlendFactor
+         * @type {macro.BlendFactor}
+         */
+        dstBlendFactor: {
+            get: function() {
+                return this._dstBlendFactor;
+            },
+            set: function(value) {
+                // shield set _dstBlendFactor
+            },
+            animatable: false,
+            type: BlendFactor,
+            override: true,
+            visible: false
         },
 
         /**
@@ -239,7 +278,6 @@ let ArmatureDisplay = cc.Class({
             type: DefaultAnimsEnum,
             visible: true,
             editorOnly: true,
-            animatable: false,
             displayName: 'Animation',
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.animation_name'
         },
@@ -308,7 +346,6 @@ let ArmatureDisplay = cc.Class({
 
     ctor () {
         this._renderDatas = [];
-        this._material = new SpriteMaterial;
         // Property _materialCache Use to cache material,since dragonBones may use multiple texture,
         // it will clone from the '_material' property,if the dragonbones only have one texture,
         // it will just use the _material,won't clone it.
@@ -394,10 +431,33 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
+    _activateMaterial () {
+        let texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
+
+        // Get material
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            material.define('USE_TEXTURE', true);
+        }
+
+        if (texture) {
+            material.setProperty('texture', texture);
+            this.markForUpdateRenderData(true);
+            this.markForRender(true);
+        }
+        else {
+            this.disableRender();
+        }
+
+        this.setMaterial(0, material);
+    },
+
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
-        var displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, this);
+        var atlasName = this.dragonAtlasAsset._textureAtlasData.name;
+        var displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, "", atlasName);
         if (!displayProxy) return;
 
         this._displayProxy = displayProxy;
