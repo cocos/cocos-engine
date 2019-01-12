@@ -341,9 +341,7 @@ const WebGLBlendFactors: GLenum[] = [
 export enum WebGLCmd {
     BEGIN_RENDER_PASS,
     END_RENDER_PASS,
-    BIND_PIPELINE_STATE,
-    BIND_BINDING_LAYOUT,
-    BIND_INPUT_ASSEMBLER,
+    BIND_STATES,
     DRAW,
     UPDATE_BUFFER,
     COPY_BUFFER_TO_TEXTURE,
@@ -371,30 +369,14 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
     }
 }
 
-export class WebGLCmdBindPipelineState extends WebGLCmdObject {
+export class WebGLCmdBindStates extends WebGLCmdObject {
 
     public gpuPipelineState: WebGLGPUPipelineState | null = null;
-
-    constructor () {
-        super(WebGLCmd.BIND_PIPELINE_STATE);
-    }
-}
-
-export class WebGLCmdBindInputAssembler extends WebGLCmdObject {
-
+    public gpuBindingLayout: WebGLGPUBindingLayout | null = null;
     public gpuInputAssembler: WebGLGPUInputAssembler | null = null;
 
     constructor () {
-        super(WebGLCmd.BIND_INPUT_ASSEMBLER);
-    }
-}
-
-export class WebGLCmdBindBindingLayout extends WebGLCmdObject {
-
-    public gpuBindingLayout: WebGLGPUBindingLayout | null = null;
-
-    constructor () {
-        super(WebGLCmd.BIND_BINDING_LAYOUT);
+        super(WebGLCmd.BIND_STATES);
     }
 }
 
@@ -457,9 +439,7 @@ export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
 export class WebGLCmdPackage {
     public cmds: WebGLCmd[] = [];
     public beginRenderPassCmds: WebGLCmdBeginRenderPass[] = [];
-    public bindPipelineStateCmds: WebGLCmdBindPipelineState[] = [];
-    public bindBindingLayoutCmds: WebGLCmdBindBindingLayout[] = [];
-    public bindInputAssemblerCmds: WebGLCmdBindInputAssembler[] = [];
+    public bindStatesCmds: WebGLCmdBindStates[] = [];
     public drawCmds: WebGLCmdDraw[] = [];
     public updateBufferCmds: WebGLCmdUpdateBuffer[] = [];
     public copyBufferToTextureCmds: WebGLCmdCopyBufferToTexture[] = [];
@@ -473,25 +453,11 @@ export class WebGLCmdPackage {
             this.beginRenderPassCmds = [];
         }
 
-        if (this.bindPipelineStateCmds.length) {
-            for (const bindPipelineStateCmd of this.bindPipelineStateCmds) {
-                allocator.bindPipelineStateCmdPool.free(bindPipelineStateCmd);
+        if (this.bindStatesCmds.length) {
+            for (const bindStatesCmd of this.bindStatesCmds) {
+                allocator.bindStatesCmdPool.free(bindStatesCmd);
             }
-            this.bindPipelineStateCmds = [];
-        }
-
-        if (this.bindBindingLayoutCmds.length) {
-            for (const bindBindingLayoutCmd of this.bindBindingLayoutCmds) {
-                allocator.bindBindingLayoutCmdPool.free(bindBindingLayoutCmd);
-            }
-            this.bindBindingLayoutCmds = [];
-        }
-
-        if (this.bindInputAssemblerCmds.length) {
-            for (const bindInputAssemblerCmd of this.bindInputAssemblerCmds) {
-                allocator.bindInputAssemblerCmdPool.free(bindInputAssemblerCmd);
-            }
-            this.bindInputAssemblerCmds = [];
+            this.bindStatesCmds = [];
         }
 
         if (this.drawCmds.length) {
@@ -1105,7 +1071,7 @@ export function WebGLCmdFuncDestroyInputAssembler (device: WebGLGFXDevice, gpuIn
 export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: WebGLCmdPackage) {
 
     const gl = device.gl;
-    const cmdIds = [0, 0, 0, 0, 0, 0, 0, 0];   // 8
+    const cmdIds = [0, 0, 0, 0, 0, 0];   // 6
 
     let gpuShader: WebGLGPUShader | null = null;
     let gpuInputAssembler: WebGLGPUInputAssembler | null = null;
@@ -1286,9 +1252,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 // GFXStoreOp.Store is the default GL behaviour.
                 break;
             }
-            case WebGLCmd.BIND_PIPELINE_STATE: {
+            case WebGLCmd.BIND_STATES: {
 
-                const cmd2 = cmdPackage.bindPipelineStateCmds[cmdId];
+                const cmd2 = cmdPackage.bindStatesCmds[cmdId];
                 if (cmd2.gpuPipelineState) {
 
                     glPrimitive = cmd2.gpuPipelineState.glPrimitive;
@@ -1535,13 +1501,8 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                     } // blend state
                 }
 
-                break;
-            }
-            case WebGLCmd.BIND_BINDING_LAYOUT: {
-
-                const cmd3 = cmdPackage.bindBindingLayoutCmds[cmdId];
-                if (cmd3.gpuBindingLayout && gpuShader) {
-                    for (const gpuBinding of cmd3.gpuBindingLayout.gpuBindings) {
+                if (cmd2.gpuBindingLayout && gpuShader) {
+                    for (const gpuBinding of cmd2.gpuBindingLayout.gpuBindings) {
 
                         switch (gpuBinding.type) {
                             case GFXBindingType.UNIFORM_BUFFER: {
@@ -1854,17 +1815,14 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             }
                         }
                     }
-                }
+                } // bind binding layout
+
+                gpuInputAssembler = cmd2.gpuInputAssembler;
 
                 break;
             }
-            case WebGLCmd.BIND_INPUT_ASSEMBLER: {
-                const cmd4 = cmdPackage.bindInputAssemblerCmds[cmdId];
-                gpuInputAssembler = cmd4.gpuInputAssembler;
-                break;
-            }
             case WebGLCmd.DRAW: {
-                const cmd5: WebGLCmdDraw = cmdPackage.drawCmds[cmdId];
+                const cmd3: WebGLCmdDraw = cmdPackage.drawCmds[cmdId];
 
                 if (gpuInputAssembler && gpuShader) {
                     for (let a = 0; a < device.maxVertexAttributes; ++a) {
@@ -1902,7 +1860,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                         }
                     } // if
 
-                    if (gpuInputAssembler.gpuIndexBuffer && cmd5.indexCount > 0) {
+                    if (gpuInputAssembler.gpuIndexBuffer && cmd3.indexCount > 0) {
                         const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
 
                         if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
@@ -1910,10 +1868,10 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
                         }
 
-                        const offset = cmd5.firstIndex * gpuBuffer.stride;
-                        gl.drawElements(glPrimitive, cmd5.indexCount, gpuInputAssembler.glIndexType, offset);
+                        const offset = cmd3.firstIndex * gpuBuffer.stride;
+                        gl.drawElements(glPrimitive, cmd3.indexCount, gpuInputAssembler.glIndexType, offset);
                     } else {
-                        gl.drawArrays(glPrimitive, cmd5.firstVertex, cmd5.vertexCount);
+                        gl.drawArrays(glPrimitive, cmd3.firstVertex, cmd3.vertexCount);
                     }
 
                     for (let a = 0; a < device.maxVertexAttributes; ++a) {
@@ -1926,35 +1884,35 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 break;
             }
             case WebGLCmd.UPDATE_BUFFER: {
-                const cmd6 = cmdPackage.updateBufferCmds[cmdId];
-                if (cmd6.gpuBuffer) {
+                const cmd4 = cmdPackage.updateBufferCmds[cmdId];
+                if (cmd4.gpuBuffer) {
 
-                    if (cmd6.buffer) {
-                        if (cmd6.gpuBuffer.viewF32) {
-                            cmd6.gpuBuffer.viewF32.set(new Float32Array(cmd6.buffer), cmd6.offset);
+                    if (cmd4.buffer) {
+                        if (cmd4.gpuBuffer.viewF32) {
+                            cmd4.gpuBuffer.viewF32.set(new Float32Array(cmd4.buffer), cmd4.offset);
                         }
                     }
 
-                    switch (cmd6.gpuBuffer.glTarget) {
+                    switch (cmd4.gpuBuffer.glTarget) {
                         case WebGLRenderingContext.ARRAY_BUFFER: {
-                            if (device.stateCache.glArrayBuffer !== cmd6.gpuBuffer.glBuffer) {
-                                gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, cmd6.gpuBuffer.glBuffer);
-                                device.stateCache.glArrayBuffer = cmd6.gpuBuffer.glBuffer;
+                            if (device.stateCache.glArrayBuffer !== cmd4.gpuBuffer.glBuffer) {
+                                gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, cmd4.gpuBuffer.glBuffer);
+                                device.stateCache.glArrayBuffer = cmd4.gpuBuffer.glBuffer;
                             }
 
-                            if (cmd6.buffer) {
-                                gl.bufferSubData(cmd6.gpuBuffer.glTarget, cmd6.offset, cmd6.buffer);
+                            if (cmd4.buffer) {
+                                gl.bufferSubData(cmd4.gpuBuffer.glTarget, cmd4.offset, cmd4.buffer);
                             }
                             break;
                         }
                         case WebGLRenderingContext.ELEMENT_ARRAY_BUFFER: {
-                            if (device.stateCache.glElementArrayBuffer !== cmd6.gpuBuffer.glBuffer) {
-                                gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, cmd6.gpuBuffer.glBuffer);
-                                device.stateCache.glElementArrayBuffer = cmd6.gpuBuffer.glBuffer;
+                            if (device.stateCache.glElementArrayBuffer !== cmd4.gpuBuffer.glBuffer) {
+                                gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, cmd4.gpuBuffer.glBuffer);
+                                device.stateCache.glElementArrayBuffer = cmd4.gpuBuffer.glBuffer;
                             }
 
-                            if (cmd6.buffer) {
-                                gl.bufferSubData(cmd6.gpuBuffer.glTarget, cmd6.offset, cmd6.buffer);
+                            if (cmd4.buffer) {
+                                gl.bufferSubData(cmd4.gpuBuffer.glTarget, cmd4.offset, cmd4.buffer);
                             }
                             break;
                         }
@@ -1965,9 +1923,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 break;
             }
             case WebGLCmd.COPY_BUFFER_TO_TEXTURE: {
-                const cmd7 = cmdPackage.copyBufferToTextureCmds[cmdId];
-                if (cmd7.gpuBuffer && cmd7.gpuBuffer.buffer && cmd7.gpuTexture) {
-                    WebGLCmdFuncCopyBufferToTexture(device, cmd7.gpuBuffer.buffer, cmd7.gpuTexture, cmd7.regions);
+                const cmd5 = cmdPackage.copyBufferToTextureCmds[cmdId];
+                if (cmd5.gpuBuffer && cmd5.gpuBuffer.buffer && cmd5.gpuTexture) {
+                    WebGLCmdFuncCopyBufferToTexture(device, cmd5.gpuBuffer.buffer, cmd5.gpuTexture, cmd5.regions);
                 }
 
                 break;
