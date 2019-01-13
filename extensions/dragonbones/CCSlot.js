@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const math = require('../../cocos2d/core/renderer/render-engine').math;
-const BlendFactor = require('../../cocos2d/core/platform/CCMacro');
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;
 
@@ -33,6 +32,8 @@ dragonBones.CCSlot = cc.Class({
     extends: dragonBones.Slot,
 
     ctor () {
+        this._curFrame = undefined;
+        this._cacheFrame = [];
         this._localVertices = [];
         this._indices = [];
         this._matrix = math.mat4.create();
@@ -44,6 +45,8 @@ dragonBones.CCSlot = cc.Class({
 
     _onClear () {
         this._super();
+        this._curFrame = undefined;
+        this._cacheFrame.length = 0;
         this._localVertices.length = 0;
         this._indices.length = 0;
         math.mat4.identity(this._matrix);
@@ -116,7 +119,6 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateFrame () {
-        this._indices.length = 0;
         let indices = this._indices,
             localVertices = this._localVertices;
 
@@ -309,6 +311,45 @@ dragonBones.CCSlot = cc.Class({
             }
         }
 
+        this._meshDirty = true;
+    },
+
+    update () {
+        let displayDirty = this._displayDirty;
+        let colorDirty = this._colorDirty;
+        let transformDirty = this._transformDirty;
+        this._super();
+        let meshDirty = this._meshDirty;
+        this._meshDirty = false;
+
+        if (displayDirty || meshDirty || transformDirty) {
+            let curFrame = this.curFrame = [];
+            let vertices = this._localVertices;
+            let matrix = this._matrix;
+            
+        }
+    },
+
+    _updateVertices (fromCache) {
+        let vertices = this._localVertices;
+        let matrix = this._matrix;
+        let curFrame = undefined;
+
+        if (this._cachedFrameIndex === -1) {
+            curFrame = this._curFrame = [];
+        } else {
+            curFrame = this._curFrame = this._cacheFrame[this._cachedFrameIndex];
+        }
+        
+        let offset = 0;
+        for (let i = 0; i < vertices.length; i++) {
+            let vertex = vertices[i];
+            curFrame[offset++] = vertex.x * matrix.m00 + vertex.y * matrix.m04 + matrix.m12;
+            curFrame[offset++] = vertex.x * matrix.m01 + vertex.y * matrix.m05 + matrix.m13;
+            curFrame[offset++] = vertex.u;
+            curFrame[offset++] = vertex.v;
+        }
+        this._cacheFrame[this._cachedFrameIndex] = curFrame;
     },
 
     _updateTransform () {
@@ -321,6 +362,8 @@ dragonBones.CCSlot = cc.Class({
         t.m13 = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
 
         this._worldMatrixDirty = true;
+
+        // to do something
     },
 
     updateWorldMatrix () {
@@ -332,7 +375,7 @@ dragonBones.CCSlot = cc.Class({
         }
 
         if (this._worldMatrixDirty) {
-            this.calculWorldMatrix();
+            this._calculWorldMatrix();
             var childArmature = this.childArmature;
             if (!childArmature) return;
             var slots = childArmature.getSlots();
@@ -366,7 +409,7 @@ dragonBones.CCSlot = cc.Class({
         }
     },
 
-    calculWorldMatrix () {
+    _calculWorldMatrix () {
         var parent = this._armature._parent;
         if (parent) {
             this._mulMat(this._worldMatrix ,parent._worldMatrix, this._matrix);
