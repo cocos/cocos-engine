@@ -179,6 +179,9 @@ let Material = cc.Class({
     updateHash (hash) {
         this._dirty = false;
         this._hash = hash;
+        if (CC_JSB && this._effect) {
+            this._effect.updateHash(this._hash);
+        }
     },
 
     getHash () {

@@ -24,24 +24,6 @@ export default class Model {
     this._uniforms = null;
   }
 
-  _updateTransform() {
-    if (!this._node._hasChanged || !this._boundingShape) return;
-    this._node.updateWorldTransformFull();
-    this._bsModelSpace.transform(this._node._mat, this._node._pos,
-      this._node._rot, this._node._scale, this._boundingShape);
-  }
-  
-  /**
-   * Create the bounding shape of this model
-   * @param {vec3} minPos the min position of the model
-   * @param {vec3} maxPos the max position of the model
-   */
-  createBoundingShape(minPos, maxPos) {
-    if (!minPos || !maxPos) return;
-    this._bsModelSpace = aabb.fromPoints(aabb.create(), minPos, maxPos);
-    this._boundingShape = aabb.clone(this._bsModelSpace);
-  }
-
   /**
    * Set the hosting node of this model
    * @param {Node} node the hosting node

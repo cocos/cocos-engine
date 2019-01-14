@@ -53,6 +53,19 @@ export default class Camera {
     this._cullingMask = 0xffffffff;
   }
 
+  // culling mask
+  get cullingMask() {
+    return this._cullingMask;
+  }
+
+  set cullingMask(mask) {
+    this._cullingMask = mask;
+  }
+
+  setCullingMask (mask) {
+    this._cullingMask = mask;
+  }
+
   /**
    * Get the hosting node of this camera
    * @returns {Node} the hosting node
