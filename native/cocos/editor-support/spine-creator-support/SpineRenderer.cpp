@@ -106,6 +106,17 @@ void SpineRenderer::onDisable()
 void SpineRenderer::stopSchedule()
 {
     MiddlewareManager::getInstance()->removeTimer(this);
+    if (_materialBuffer)
+    {
+        _materialBuffer->reset();
+        _materialBuffer->writeUint32(0, 0);
+    }
+    
+    if (_debugBuffer)
+    {
+        _debugBuffer->reset();
+        _debugBuffer->writeFloat32(0, 0);
+    }
 }
 
 void SpineRenderer::setSkeletonData (spSkeletonData *skeletonData, bool ownsSkeletonData)

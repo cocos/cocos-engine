@@ -134,6 +134,11 @@ void MiddlewareManager::update(float dt)
 
 void MiddlewareManager::addTimer(IMiddleware* editor)
 {
+    auto it = std::find(_removeList.begin(), _removeList.end(), editor);
+    if (it != _removeList.end())
+    {
+        _removeList.erase(it);
+    }
     _updateMap[editor] = true;
 }
 
