@@ -32,7 +32,7 @@ import { Vec3 } from '../../core/value-types';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
+import { GFXInputAssembler, IGFXInputAssemblerInfo, IGFXInputAttribute } from '../../gfx/input-assembler';
 import { IBufferRange } from './utils/buffer-range';
 
 export enum AttributeBaseType {
@@ -247,20 +247,47 @@ export interface IPrimitive {
      */
     vertexBundelIndices: number[];
 
-    /**
-     * The indices data range of this primitive.
-     */
-    indices: IBufferRange;
+    indices?: {
+        /**
+         * The indices data range of this primitive.
+         */
+        range: IBufferRange;
 
-    /**
-     * The type of this primitive's indices.
-     */
-    indexUnit: IndexUnit;
+        /**
+         * The type of this primitive's indices.
+         */
+        indexUnit: IndexUnit;
+    };
 
     /**
      * This primitive's topology.
      */
     topology: Topology;
+}
+
+/**
+ * Describes a mesh.
+ */
+export interface IMeshStruct {
+    /**
+     * The vertex bundles that this mesh owns.
+     */
+    vertexBundles: IVertexBundle[];
+
+    /**
+     * The primitives that this mesh owns.
+     */
+    primitives: IPrimitive[];
+
+    /**
+     * The min position of this mesh's vertices.
+     */
+    minPosition: Vec3;
+
+    /**
+     * The max position of this mesh's vertices.
+     */
+    maxPosition: Vec3;
 }
 
 export interface IRenderingSubmesh {
@@ -327,41 +354,29 @@ export class Mesh extends Asset {
 
     /**
      * Min position of this mesh.
+     * @deprecated Use this.struct.minPosition instead.
      */
     get minPosition () {
-        return this._minPosition;
+        return this.struct.minPosition;
     }
 
     /**
      * Max position of this mesh.
+     * @deprecated Use this.struct.maxPosition instead.
      */
     get maxPosition () {
-        return this._maxPosition;
+        return this.struct.maxPosition;
     }
 
-    /**
-     * The vertex bundles that this mesh owns.
-     */
-    @property
-    public _vertexBundles: IVertexBundle[] = [];
+    get struct () {
+        return this._struct;
+    }
 
-    /**
-     * The primitives that this mesh owns.
-     */
-    @property
-    public _primitives: IPrimitive[] = [];
+    get data () {
+        return this._data;
+    }
 
-    /**
-     * The min position of this mesh's vertices.
-     */
-    @property(Vec3)
-    public _minPosition: Vec3 = new Vec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-
-    /**
-     * The max position of this mesh's vertices.
-     */
-    @property(Vec3)
-    public _maxPosition: Vec3 = new Vec3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+    private _struct: IMeshStruct;
 
     private _data: Uint8Array | null = null;
 
@@ -371,18 +386,32 @@ export class Mesh extends Asset {
 
     constructor () {
         super();
+
+        this._struct = {
+            vertexBundles: [],
+            primitives: [],
+            minPosition: new Vec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE),
+            maxPosition: new Vec3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE),
+        };
     }
 
     /**
-     * Destory this mesh and immediately release its video memory.
+     * Destory this mesh and immediately release its GPU resources.
      */
     public destroy () {
-        if (this._renderingMesh) {
-            this._renderingMesh.destroy();
-            this._renderingMesh = null;
-            this._initialized = false;
-        }
+        this._tryDestroyRenderingMesh();
         return super.destroy();
+    }
+
+    /**
+     * Assigns new mesh struct to this.
+     * @param struct The new mesh's struct.
+     * @param data The new mesh's data.
+     */
+    public assign (struct: IMeshStruct, data: Uint8Array) {
+        this._struct = struct;
+        this._data = data;
+        this._tryDestroyRenderingMesh();
     }
 
     /**
@@ -423,24 +452,29 @@ export class Mesh extends Asset {
 
         const indexBuffers: GFXBuffer[] = [];
 
-        const renderingSubmeshes = this._primitives.map((primitive) => {
+        const renderingSubmeshes = this._struct.primitives.map((primitive) => {
             if (primitive.vertexBundelIndices.length === 0) {
                 return null;
             }
 
-            const indexBuffer = gfxDevice.createBuffer({
-                usage: GFXBufferUsageBit.INDEX,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: primitive.indices.length,
-                stride: getIndexUnitStride(primitive.indexUnit),
-            });
-            indexBuffers.push(indexBuffer);
+            let indexBuffer: GFXBuffer | null = null;
+            if (primitive.indices) {
+                const indices = primitive.indices;
 
-            indexBuffer.update(buffer, primitive.indices.offset, primitive.indices.length);
+                indexBuffer = gfxDevice.createBuffer({
+                    usage: GFXBufferUsageBit.INDEX,
+                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    size: indices.range.length,
+                    stride: getIndexUnitStride(indices.indexUnit),
+                });
+                indexBuffers.push(indexBuffer);
+
+                indexBuffer.update(new Uint8Array(buffer, indices.range.offset), 0, indices.range.length);
+            }
 
             const gfxAttributes: IGFXInputAttribute[] = [];
             primitive.vertexBundelIndices.forEach((iVertexBundle) => {
-                const vertexBundle = this._vertexBundles[iVertexBundle];
+                const vertexBundle = this._struct.vertexBundles[iVertexBundle];
                 vertexBundle.attributes.forEach((attribute) => {
                     const gfxAttribute: IGFXInputAttribute = {
                         name: attribute.name,
@@ -457,13 +491,17 @@ export class Mesh extends Asset {
             const referedVertexBuffers = primitive.vertexBundelIndices.map(
                 (i) => vertexBuffers[i]);
 
+            const inputAssemblerInfo: IGFXInputAssemblerInfo = {
+                attributes: gfxAttributes,
+                vertexBuffers: referedVertexBuffers,
+            };
+            if (indexBuffer) {
+                inputAssemblerInfo.indexBuffer = indexBuffer;
+            }
+
             return {
                 primitiveMode: toGFXTopology(primitive.topology),
-                inputAssembler: gfxDevice.createInputAssembler({
-                    attributes: gfxAttributes,
-                    vertexBuffers: referedVertexBuffers,
-                    indexBuffer,
-                }),
+                inputAssembler: gfxDevice.createInputAssembler(inputAssemblerInfo),
             } as IRenderingSubmesh ;
         });
 
@@ -471,7 +509,7 @@ export class Mesh extends Asset {
     }
 
     private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
-        return this._vertexBundles.map((vertexBundle) => {
+        return this._struct.vertexBundles.map((vertexBundle) => {
             const vertexBuffer = gfxDevice.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -481,6 +519,14 @@ export class Mesh extends Asset {
             vertexBuffer.update(new Uint8Array(data, vertexBundle.data.offset, vertexBundle.data.length));
             return vertexBuffer;
         });
+    }
+
+    private _tryDestroyRenderingMesh () {
+        if (this._renderingMesh) {
+            this._renderingMesh.destroy();
+            this._renderingMesh = null;
+            this._initialized = false;
+        }
     }
 }
 cc.Mesh = Mesh;

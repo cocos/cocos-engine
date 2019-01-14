@@ -55,4 +55,9 @@ export interface IGeometry {
      * Texture coordinates.
      */
     uvs?: number[];
+
+    /**
+     * Vertex colors.
+     */
+    colors?: number[];
 }

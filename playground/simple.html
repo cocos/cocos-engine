@@ -63,7 +63,7 @@
       modelNode.parent = scene;
       const modelCom = modelNode.addComponent('cc.ModelComponent');
       modelCom.material = material;
-      modelCom.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
+      modelCom.mesh = cc.utils.createMesh(cc.primitives.box());
       modelNode.setRotationFromEuler(45, 45, 45);
 
       cc.director.runSceneImmediate(scene);
