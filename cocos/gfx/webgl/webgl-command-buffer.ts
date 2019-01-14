@@ -1,7 +1,7 @@
 import { GFXBindingLayout } from '../binding-layout';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXStatus, GFXTextureLayout, IGFXColor, IGFXRect, GFXBufferUsageBit } from '../define';
+import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXStatus, GFXTextureLayout, IGFXColor, IGFXRect, GFXCommandBufferType } from '../define';
 import { GFXDevice } from '../device';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
@@ -29,6 +29,7 @@ import { WebGLGFXTexture } from './webgl-texture';
 export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
+    private _isInRenderPass: boolean = false;
     private _curGPUPipelineState: WebGLGPUPipelineState | null = null;
     private _curGPUBindingLayout: WebGLGPUBindingLayout | null = null;
     private _curGPUInputAssembler: WebGLGPUInputAssembler | null = null;
@@ -68,6 +69,8 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         if (this._isStateInvalied) {
             this.bindStates();
         }
+
+        this._isInRenderPass = false;
     }
 
     public beginRenderPass (
@@ -88,9 +91,12 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
             this.cmdPackage.cmds.push(WebGLCmd.BEGIN_RENDER_PASS);
         }
+
+        this._isInRenderPass = true;
     }
 
     public endRenderPass () {
+        this._isInRenderPass = false;
     }
 
     public bindPipelineState (pipelineState: GFXPipelineState) {
@@ -119,46 +125,55 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
     public draw (inputAssembler: GFXInputAssembler) {
 
-        if (this._isStateInvalied) {
-            this.bindStates();
-        }
+        if (this._type === GFXCommandBufferType.PRIMARY && this._isInRenderPass ||
+            this._type === GFXCommandBufferType.SECONDARY) {
+            if (this._isStateInvalied) {
+                this.bindStates();
+            }
 
-        const cmd = ( this._allocator as WebGLGFXCommandAllocator).
-                    drawCmdPool.alloc(WebGLCmdDraw);
-        if (cmd) {
-            (inputAssembler as WebGLGFXInputAssembler).extractCmdDraw(cmd);
-            this.cmdPackage.drawCmds.push(cmd);
+            const cmd = ( this._allocator as WebGLGFXCommandAllocator).
+                        drawCmdPool.alloc(WebGLCmdDraw);
+            if (cmd) {
+                (inputAssembler as WebGLGFXInputAssembler).extractCmdDraw(cmd);
+                this.cmdPackage.drawCmds.push(cmd);
 
-            this.cmdPackage.cmds.push(WebGLCmd.DRAW);
+                this.cmdPackage.cmds.push(WebGLCmd.DRAW);
+            }
+        } else {
+            console.error('Command \'draw\' must be recorded inside a render pass.');
         }
     }
 
     public updateBuffer (buffer: GFXBuffer, data: GFXBufferSource, offset?: number, size?: number) {
-        const gpuBuffer = (buffer as WebGLGFXBuffer).gpuBuffer;
-        if (gpuBuffer) {
-            const cmd = (this._allocator as WebGLGFXCommandAllocator).
-                        updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
-            if (cmd) {
+        if (!this._isInRenderPass) {
+            const gpuBuffer = (buffer as WebGLGFXBuffer).gpuBuffer;
+            if (gpuBuffer) {
+                const cmd = (this._allocator as WebGLGFXCommandAllocator).
+                            updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
+                if (cmd) {
 
-                let buffSize;
-                if (size !== undefined ) {
-                    buffSize = size;
-                } else if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
-                    buffSize = 0;
-                } else {
-                    buffSize = (data as ArrayBuffer).byteLength;
+                    let buffSize;
+                    if (size !== undefined ) {
+                        buffSize = size;
+                    } else if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
+                        buffSize = 0;
+                    } else {
+                        buffSize = (data as ArrayBuffer).byteLength;
+                    }
+
+                    const buff = data as ArrayBuffer;
+
+                    cmd.gpuBuffer = gpuBuffer;
+                    cmd.buffer = buff.slice(0);
+                    cmd.offset = (offset !== undefined ? offset : 0);
+                    cmd.size = buffSize;
+                    this.cmdPackage.updateBufferCmds.push(cmd);
+
+                    this.cmdPackage.cmds.push(WebGLCmd.UPDATE_BUFFER);
                 }
-
-                const buff = data as ArrayBuffer;
-
-                cmd.gpuBuffer = gpuBuffer;
-                cmd.buffer = buff.slice(0);
-                cmd.offset = (offset !== undefined ? offset : 0);
-                cmd.size = buffSize;
-                this.cmdPackage.updateBufferCmds.push(cmd);
-
-                this.cmdPackage.cmds.push(WebGLCmd.UPDATE_BUFFER);
             }
+        } else {
+            console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
         }
     }
 
@@ -167,20 +182,25 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         dstTex: GFXTexture,
         dstLayout: GFXTextureLayout,
         regions: GFXBufferTextureCopy[]) {
-        const gpuBuffer = ( srcBuff as WebGLGFXBuffer).gpuBuffer;
-        const gpuTexture = ( dstTex as WebGLGFXTexture).gpuTexture;
-        if (gpuBuffer && gpuTexture) {
-            const cmd = (this._allocator as WebGLGFXCommandAllocator).
-                        copyBufferToTextureCmdPool.alloc(WebGLCmdCopyBufferToTexture);
-            if (cmd) {
-                cmd.gpuBuffer = gpuBuffer;
-                cmd.gpuTexture = gpuTexture;
-                cmd.dstLayout = dstLayout;
-                cmd.regions = regions;
-                this.cmdPackage.copyBufferToTextureCmds.push(cmd);
 
-                this.cmdPackage.cmds.push(WebGLCmd.COPY_BUFFER_TO_TEXTURE);
+        if (!this._isInRenderPass) {
+            const gpuBuffer = ( srcBuff as WebGLGFXBuffer).gpuBuffer;
+            const gpuTexture = ( dstTex as WebGLGFXTexture).gpuTexture;
+            if (gpuBuffer && gpuTexture) {
+                const cmd = (this._allocator as WebGLGFXCommandAllocator).
+                            copyBufferToTextureCmdPool.alloc(WebGLCmdCopyBufferToTexture);
+                if (cmd) {
+                    cmd.gpuBuffer = gpuBuffer;
+                    cmd.gpuTexture = gpuTexture;
+                    cmd.dstLayout = dstLayout;
+                    cmd.regions = regions;
+                    this.cmdPackage.copyBufferToTextureCmds.push(cmd);
+
+                    this.cmdPackage.cmds.push(WebGLCmd.COPY_BUFFER_TO_TEXTURE);
+                }
             }
+        } else {
+            console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
         }
     }
 

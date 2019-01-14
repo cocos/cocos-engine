@@ -64,9 +64,13 @@ const getDefines = (name: string, prog: IShaderInfo) => {
 };
 
 export class Effect {
+    public static getPassInfos (effect: EffectAsset, techIdx: number) {
+        return effect.techniques[techIdx].passes;
+    }
+
     public static parseEffect (effect: EffectAsset, info?: IEffectInfo) {
         // techniques
-        const { techIdx, defines } = info ||  {} as IEffectInfo;
+        const { techIdx, defines } = info || {} as IEffectInfo;
         const tech = effect.techniques[techIdx || 0];
         const passNum = tech.passes.length;
         const passes: Pass[] = new Array(passNum);

@@ -37,7 +37,7 @@ export function createIA(device, data) {
         vfmt.push({ name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGB32F });
     }
 
-    let vb = cc.director.root.device.createBuffer({
+    let vb = device.createBuffer({
         usage: GFXBufferUsageBit.VERTEX,
         memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
         size: verts.length * 4,
@@ -46,7 +46,7 @@ export function createIA(device, data) {
 
     vb.update(new Float32Array(verts));
 
-    let ib = cc.director.root.device.createBuffer({
+    let ib = device.createBuffer({
         usage: GFXBufferUsageBit.INDEX,
         memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
         size: data.indices.length * 2,
@@ -55,7 +55,7 @@ export function createIA(device, data) {
 
     ib.update(new Uint16Array(data.indices));
 
-    return cc.director.root.device.createInputAssembler({
+    return device.createInputAssembler({
         attributes: vfmt,
         vertexBuffers: [vb],
         indexBuffer: ib,

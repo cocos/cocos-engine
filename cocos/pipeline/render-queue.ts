@@ -54,6 +54,10 @@ export class RenderQueue {
 
         for (let i = 0; i < model.passes.length; ++i) {
             const pass = model.passes[i];
+
+            // update pass
+            pass.update();
+
             const cmdBuff = model.commandBuffers[i];
 
             model.node.getWorldPosition();

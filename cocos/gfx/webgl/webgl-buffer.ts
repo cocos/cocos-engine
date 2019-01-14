@@ -1,5 +1,5 @@
-import { GFXBuffer, IGFXBufferInfo, GFXBufferSource } from '../buffer';
-import { GFXMemoryUsageBit, GFXStatus, GFXBufferUsageBit } from '../define';
+import { GFXBuffer, GFXBufferSource, IGFXBufferInfo } from '../buffer';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUBuffer } from './webgl-gpu-objects';

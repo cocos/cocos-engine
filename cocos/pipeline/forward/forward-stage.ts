@@ -52,12 +52,10 @@ export class ForwardStage extends RenderStage {
             [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
         for (const item of queue.opaques) {
-            cmdBuff.updateBuffer(item.model.localUBO, item.model.localUniforms.view);
             cmdBuff.execute([item.cmdBuff]);
         }
 
         for (const item of queue.transparents) {
-            cmdBuff.updateBuffer(item.model.localUBO, item.model.localUniforms.view);
             cmdBuff.execute([item.cmdBuff]);
         }
 

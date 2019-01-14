@@ -1,8 +1,20 @@
 import { GFXBindingLayout, GFXBindingUnit, IGFXBindingLayoutInfo } from '../binding-layout';
-import { GFXBuffer, IGFXBufferInfo, GFXBufferSource } from '../buffer';
+import { GFXBuffer, GFXBufferSource, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXBindingType, GFXBufferTextureCopy, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../define';
+import {
+    GFXBindingType,
+    GFXBufferTextureCopy,
+    GFXBufferUsageBit,
+    GFXFilter,
+    GFXFormat,
+    GFXFormatInfos,
+    GFXFormatSize,
+    GFXQueueType,
+    GFXTextureFlagBit,
+    GFXTextureType,
+    GFXTextureViewType,
+} from '../define';
 import { GFXDevice, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
@@ -19,9 +31,36 @@ import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { WebGLGFXCommandBuffer } from './webgl-command-buffer';
-import { WebGLCmdFuncCopyBufferToTexture, WebGLCmdFuncCreateBuffer, WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncCreateInputAssember, WebGLCmdFuncCreateShader, WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyBuffer, WebGLCmdFuncDestroyFramebuffer, WebGLCmdFuncDestroyShader, WebGLCmdFuncDestroyTexture, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
+import {
+    WebGLCmdFuncCopyBufferToTexture,
+    WebGLCmdFuncCreateBuffer,
+    WebGLCmdFuncCreateFramebuffer,
+    WebGLCmdFuncCreateInputAssember,
+    WebGLCmdFuncCreateShader,
+    WebGLCmdFuncCreateTexture,
+    WebGLCmdFuncDestroyBuffer,
+    WebGLCmdFuncDestroyFramebuffer,
+    WebGLCmdFuncDestroyShader,
+    WebGLCmdFuncDestroyTexture,
+    WebGLCmdFuncUpdateBuffer,
+} from './webgl-commands';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
-import { WebGLGPUBinding, WebGLGPUBindingLayout as WebGLGPUBindingLayout, WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInputAssembler, WebGLGPUObjectType, WebGLGPUPipelineLayout, WebGLGPUPipelineState, WebGLGPURenderPass, WebGLGPUSampler, WebGLGPUShader, WebGLGPUShaderStage, WebGLGPUTexture, WebGLGPUTextureView } from './webgl-gpu-objects';
+import {
+    WebGLGPUBinding,
+    WebGLGPUBindingLayout,
+    WebGLGPUBuffer,
+    WebGLGPUFramebuffer,
+    WebGLGPUInputAssembler,
+    WebGLGPUObjectType,
+    WebGLGPUPipelineLayout,
+    WebGLGPUPipelineState,
+    WebGLGPURenderPass,
+    WebGLGPUSampler,
+    WebGLGPUShader,
+    WebGLGPUShaderStage,
+    WebGLGPUTexture,
+    WebGLGPUTextureView,
+} from './webgl-gpu-objects';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
@@ -160,7 +199,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
     private _webGLRC: WebGLRenderingContext | null = null;
     private _isAntialias: boolean = true;
-    private _isPremultipliedAlpha: boolean = false;
+    private _isPremultipliedAlpha: boolean = true;
 
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
@@ -475,7 +514,11 @@ export class WebGLGFXDevice extends GFXDevice {
         }
     }
 
-    public copyFramebufferToBuffer (srcFramebuffer: GFXFramebuffer, dstBuffer: ArrayBuffer, regions: GFXBufferTextureCopy[]) {
+    public copyFramebufferToBuffer (
+        srcFramebuffer: GFXFramebuffer,
+        dstBuffer: ArrayBuffer,
+        regions: GFXBufferTextureCopy[]) {
+
         const gl = this._webGLRC as WebGLRenderingContext;
         const gpuFramebuffer = (srcFramebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
 
@@ -497,7 +540,8 @@ export class WebGLGFXDevice extends GFXDevice {
             const memSize = GFXFormatSize(GFXFormat.RGBA8, w, h, 1);
             const data = view.subarray(buffOffset, buffOffset + memSize);
 
-            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, data);
+            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h,
+                WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, data);
         }
 
         if (this.stateCache.glFramebuffer !== curFBO) {
@@ -955,37 +999,37 @@ export class WebGLGFXDevice extends GFXDevice {
 
     private initStates (gl: WebGLRenderingContext) {
 
-        gl.activeTexture(WebGLRenderingContext.TEXTURE0);
-        gl.pixelStorei(WebGLRenderingContext.PACK_ALIGNMENT, 1);
-        gl.pixelStorei(WebGLRenderingContext.UNPACK_ALIGNMENT, 1);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-        gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         // rasteriazer state
-        gl.enable(WebGLRenderingContext.CULL_FACE);
-        gl.cullFace(WebGLRenderingContext.BACK);
-        gl.frontFace(WebGLRenderingContext.CCW);
+        gl.enable(gl.CULL_FACE);
+        gl.cullFace(gl.BACK);
+        gl.frontFace(gl.CCW);
         gl.polygonOffset(0.0, 0.0);
 
         // depth stencil state
-        gl.enable(WebGLRenderingContext.DEPTH_TEST);
+        gl.enable(gl.DEPTH_TEST);
         gl.depthMask(true);
-        gl.depthFunc(WebGLRenderingContext.LESS);
+        gl.depthFunc(gl.LESS);
 
-        gl.stencilFuncSeparate(WebGLRenderingContext.FRONT, WebGLRenderingContext.ALWAYS, 1, 0xffffffff);
-        gl.stencilOpSeparate(WebGLRenderingContext.FRONT, WebGLRenderingContext.KEEP, WebGLRenderingContext.KEEP, WebGLRenderingContext.KEEP);
-        gl.stencilMaskSeparate(WebGLRenderingContext.FRONT, 0xffffffff);
-        gl.stencilFuncSeparate(WebGLRenderingContext.BACK, WebGLRenderingContext.ALWAYS, 1, 0xffffffff);
-        gl.stencilOpSeparate(WebGLRenderingContext.BACK, WebGLRenderingContext.KEEP, WebGLRenderingContext.KEEP, WebGLRenderingContext.KEEP);
-        gl.stencilMaskSeparate(WebGLRenderingContext.BACK, 0xffffffff);
+        gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 1, 0xffffffff);
+        gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.KEEP);
+        gl.stencilMaskSeparate(gl.FRONT, 0xffffffff);
+        gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 1, 0xffffffff);
+        gl.stencilOpSeparate(gl.BACK, gl.KEEP, gl.KEEP, gl.KEEP);
+        gl.stencilMaskSeparate(gl.BACK, 0xffffffff);
 
-        gl.disable(WebGLRenderingContext.STENCIL_TEST);
+        gl.disable(gl.STENCIL_TEST);
 
         // blend state
-        gl.disable(WebGLRenderingContext.SAMPLE_ALPHA_TO_COVERAGE);
-        gl.disable(WebGLRenderingContext.BLEND);
-        gl.blendEquationSeparate(WebGLRenderingContext.FUNC_ADD, WebGLRenderingContext.FUNC_ADD);
-        gl.blendFuncSeparate(WebGLRenderingContext.ONE, WebGLRenderingContext.ZERO, WebGLRenderingContext.ONE, WebGLRenderingContext.ZERO);
+        gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+        gl.disable(gl.BLEND);
+        gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
+        gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
         gl.colorMask(true, true, true, true);
         gl.blendColor(0.0, 0.0, 0.0, 0.0);
     }

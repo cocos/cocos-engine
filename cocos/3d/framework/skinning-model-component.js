@@ -187,7 +187,7 @@ export default class SkinningModelComponent extends ModelComponent {
             return;
         }
 
-        if (cc.game._renderContext.allowFloatTexture()) {
+        if (cc.game._gfxDevice.allowFloatTexture()) {
             this._jointsTexture = utils.createJointsTexture(this._skeleton);
             this._jointMatricesData = new Float32Array(this._jointsTexture._width * this._jointsTexture._height * 4);
         } else {
