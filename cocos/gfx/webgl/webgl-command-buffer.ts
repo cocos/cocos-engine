@@ -124,7 +124,6 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     }
 
     public draw (inputAssembler: GFXInputAssembler) {
-
         if (this._type === GFXCommandBufferType.PRIMARY && this._isInRenderPass ||
             this._type === GFXCommandBufferType.SECONDARY) {
             if (this._isStateInvalied) {
@@ -145,7 +144,8 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     }
 
     public updateBuffer (buffer: GFXBuffer, data: GFXBufferSource, offset?: number, size?: number) {
-        if (!this._isInRenderPass) {
+        if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
+            this._type === GFXCommandBufferType.SECONDARY) {
             const gpuBuffer = (buffer as WebGLGFXBuffer).gpuBuffer;
             if (gpuBuffer) {
                 const cmd = (this._allocator as WebGLGFXCommandAllocator).
@@ -183,7 +183,8 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         dstLayout: GFXTextureLayout,
         regions: GFXBufferTextureCopy[]) {
 
-        if (!this._isInRenderPass) {
+        if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
+            this._type === GFXCommandBufferType.SECONDARY) {
             const gpuBuffer = ( srcBuff as WebGLGFXBuffer).gpuBuffer;
             const gpuTexture = ( dstTex as WebGLGFXTexture).gpuTexture;
             if (gpuBuffer && gpuTexture) {
@@ -205,10 +206,10 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     }
 
     // tslint:disable: max-line-length
-    public execute (cmdBuffs: GFXCommandBuffer[]) {
+    public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
 
-        for (const cmdBuff of cmdBuffs) {
-            const webGLCmdBuff = cmdBuff as WebGLGFXCommandBuffer;
+        for (let i = 0; i < count; ++i) {
+            const webGLCmdBuff = cmdBuffs[i] as WebGLGFXCommandBuffer;
 
             this.cmdPackage.beginRenderPassCmds = this.cmdPackage.beginRenderPassCmds.concat(webGLCmdBuff.cmdPackage.beginRenderPassCmds);
             this.cmdPackage.bindStatesCmds = this.cmdPackage.bindStatesCmds.concat(webGLCmdBuff.cmdPackage.bindStatesCmds);
@@ -220,7 +221,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     }
 
     public get webGLDevice (): WebGLGFXDevice {
-        return  this._device as WebGLGFXDevice;
+        return this._device as WebGLGFXDevice;
     }
 
     private bindStates () {

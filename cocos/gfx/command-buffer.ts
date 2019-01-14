@@ -50,5 +50,5 @@ export abstract class GFXCommandBuffer extends GFXObject {
     public abstract draw (inputAssembler: GFXInputAssembler);
     public abstract updateBuffer (buffer: GFXBuffer, data: ArrayBuffer, offset?: number);
     public abstract copyBufferToTexture (srcBuff: GFXBuffer, dstTex: GFXTexture, dstLayout: GFXTextureLayout, regions: GFXBufferTextureCopy[]);
-    public abstract execute (cmdBuffs: GFXCommandBuffer[]);
+    public abstract execute (cmdBuffs: GFXCommandBuffer[], count: number);
 }
