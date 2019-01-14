@@ -37,7 +37,7 @@ interface IBoxOptions extends IGeometryOptions {
 
 /**
  * This function generates a box with specified extents and centered at origin,
- * but may emplaced through `center` option).
+ * but may be repositioned through `center` option).
  * @param options Options.
  */
 export default function box (options?: IBoxOptions): IGeometry {
