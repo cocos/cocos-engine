@@ -276,6 +276,21 @@ class Node extends BaseNode {
     // ===============================
 
     /**
+     * Sets local position.
+     * @param position - The new local position.
+     */
+    public setPosition (position: Vec3): void;
+
+    /**
+     * Sets local position.
+     * @param x - The x component of the new local position.
+     * @param y - The y component of the new local position.
+     * @param z - The z component of the new local position.
+     * @param w - The w component of the new local position.
+     */
+    public setPosition (x: number, y?: number, z?: number, w?: number): void;
+
+    /**
      * set local position
      * @param val - the new local position, or the x component of it
      * @param y - the y component of the new local position
@@ -307,12 +322,20 @@ class Node extends BaseNode {
     }
 
     /**
-     * set local rotation
-     * @param val - the new local rotation, or the x component of it
-     * @param y - the y component of the new local rotation
-     * @param z - the z component of the new local rotation
-     * @param w - the w component of the new local rotation
+     * Sets local rotation.
+     * @param rotation - The new local rotation.
      */
+    public setRotation (rotation: Quat): void;
+
+    /**
+     * Sets local rotation.
+     * @param x - The x component of the new local rotation.
+     * @param y - The y component of the new local rotation.
+     * @param z - The z component of the new local rotation.
+     * @param w - The w component of the new local rotation.
+     */
+    public setRotation (x: number, y?: number, z?: number, w?: number): void;
+
     public setRotation (val: Quat | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
             quat.copy(this._lrot, val);
@@ -356,6 +379,21 @@ class Node extends BaseNode {
     }
 
     /**
+     * Sets local scale.
+     * @param scale - The new local scale.
+     */
+    public setScale (scale: Vec3): void;
+
+    /**
+     * Sets local scale.
+     * @param x - The x component of the new local scale.
+     * @param y - The y component of the new local scale.
+     * @param z - The z component of the new local scale.
+     * @param w - The w component of the new local scale.
+     */
+    public setScale (x: number, y?: number, z?: number, w?: number): void;
+
+    /**
      * set local scale
      * @param val - the new local scale, or the x component of it
      * @param y - the y component of the new local scale
@@ -385,6 +423,21 @@ class Node extends BaseNode {
             return vec3.copy(new Vec3(), this._lscale);
         }
     }
+
+    /**
+     * Sets world position.
+     * @param position - The new world position.
+     */
+    public setWorldPosition (position: Vec3): void;
+
+    /**
+     * Sets world position.
+     * @param x - The x component of the new world position.
+     * @param y - The y component of the new world position.
+     * @param z - The z component of the new world position.
+     * @param w - The w component of the new world position.
+     */
+    public setWorldPosition (x: number, y?: number, z?: number, w?: number): void;
 
     /**
      * set world position
@@ -426,6 +479,21 @@ class Node extends BaseNode {
             return vec3.copy(new Vec3(), this._pos);
         }
     }
+
+    /**
+     * Sets world rotation.
+     * @param rotation - The new world rotation.
+     */
+    public setWorldRotation (rotation: Quat): void;
+
+    /**
+     * Sets world rotation.
+     * @param x - The x component of the new world rotation.
+     * @param y - The y component of the new world rotation.
+     * @param z - The z component of the new world rotation.
+     * @param w - The w component of the new world rotation.
+     */
+    public setWorldRotation (x: number, y?: number, z?: number, w?: number): void;
 
     /**
      * set world rotation
@@ -486,6 +554,21 @@ class Node extends BaseNode {
             return quat.copy(new Quat(), this._rot);
         }
     }
+
+    /**
+     * Sets world scale.
+     * @param scale - The new world scale.
+     */
+    public setWorldScale (scale: Vec3): void;
+
+    /**
+     * Sets world scale.
+     * @param x - The x component of the new world scale.
+     * @param y - The y component of the new world scale.
+     * @param z - The z component of the new world scale.
+     * @param w - The w component of the new world scale.
+     */
+    public setWorldScale (x: number, y?: number, z?: number, w?: number): void;
 
     /**
      * set world scale
