@@ -1,6 +1,8 @@
 import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
+import { WebGLGFXBuffer } from './webgl-buffer';
+import { WebGLCmdDraw } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUInputAssembler } from './webgl-gpu-objects';
 
@@ -54,5 +56,21 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
             this._gpuInputAssembler = null;
         }
         this._status = GFXStatus.UNREADY;
+    }
+
+    public extractCmdDraw (cmd: WebGLCmdDraw) {
+        cmd.isIndirect = this._isIndirect;
+        if (!this._isIndirect) {
+            cmd.drawInfo.vertexCount = this._vertexCount;
+            cmd.drawInfo.firstVertex = this._firstVertex;
+            cmd.drawInfo.indexCount = this._indexCount;
+            cmd.drawInfo.firstIndex = this._firstIndex;
+            cmd.drawInfo.vertexOffset = this._vertexOffset;
+            cmd.drawInfo.instanceCount = this._instanceCount;
+            cmd.drawInfo.firstInstance = this._firstInstance;
+            cmd.isIndirect = this._isIndirect;
+        } else {
+            cmd.gpuIndirectBuffer = (this._indirectBuffer as WebGLGFXBuffer).gpuBuffer;
+        }
     }
 }

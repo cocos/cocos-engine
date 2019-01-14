@@ -253,6 +253,7 @@ export enum GFXBufferUsageBit {
     VERTEX = 0x8,
     UNIFORM = 0x10,
     STORAGE = 0x20,
+    INDIRECT = 0x40,
 }
 
 export type GFXBufferUsage = GFXBufferUsageBit;

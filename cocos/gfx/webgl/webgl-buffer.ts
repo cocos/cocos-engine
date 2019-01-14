@@ -1,5 +1,5 @@
-import { GFXBuffer, IGFXBufferInfo } from '../buffer';
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXStatus } from '../define';
+import { GFXBuffer, IGFXBufferInfo, GFXBufferSource } from '../buffer';
+import { GFXMemoryUsageBit, GFXStatus, GFXBufferUsageBit } from '../define';
 import { GFXDevice } from '../device';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUBuffer } from './webgl-gpu-objects';
@@ -32,7 +32,12 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._stride = Math.max(this._stride, 1);
 
         if (this._memUsage & GFXMemoryUsageBit.HOST) {
-            this._buffer = new ArrayBuffer(this._size);
+
+            if (!(this._usage & GFXBufferUsageBit.INDIRECT)) {
+                this._buffer = new ArrayBuffer(this._size);
+            } else {
+                this._buffer = { drawInfos: [] };
+            }
         }
 
         // this._isSimulate = (this._usage & GFXBufferUsageBit.TRANSFER_SRC) != GFXBufferUsageBit.NONE;
@@ -52,14 +57,22 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._status = GFXStatus.UNREADY;
     }
 
-    public update (buffer: ArrayBuffer, offset?: number, size?: number) {
+    public update (buffer: GFXBufferSource, offset?: number, size?: number) {
 
         // const isUniformBuffer = (this._usage & GFXBufferUsageBit.UNIFORM) !== GFXBufferUsageBit.NONE;
+        let buffSize;
+        if (size !== undefined ) {
+            buffSize = size;
+        } else if (this._usage & GFXBufferUsageBit.INDIRECT) {
+            buffSize = 0;
+        } else {
+            buffSize = (buffer as ArrayBuffer).byteLength;
+        }
 
         this.webGLDevice.emitCmdUpdateGPUBuffer(
             this._gpuBuffer as WebGLGPUBuffer,
             buffer,
             offset !== undefined ? offset : 0,
-            size !== undefined ? size : buffer.byteLength);
+            buffSize);
     }
 }

@@ -1,5 +1,5 @@
 import { GFXBindingLayout, GFXBindingUnit, IGFXBindingLayoutInfo } from '../binding-layout';
-import { GFXBuffer, IGFXBufferInfo } from '../buffer';
+import { GFXBuffer, IGFXBufferInfo, GFXBufferSource } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import { GFXBindingType, GFXBufferTextureCopy, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../define';
@@ -506,7 +506,7 @@ export class WebGLGFXDevice extends GFXDevice {
         }
     }
 
-    public emitCmdCreateGPUBuffer (info: IGFXBufferInfo, buffer: ArrayBuffer | null): WebGLGPUBuffer | null {
+    public emitCmdCreateGPUBuffer (info: IGFXBufferInfo, buffer: GFXBufferSource | null): WebGLGPUBuffer | null {
 
         const gpuBuffer: WebGLGPUBuffer = {
             objType: WebGLGPUObjectType.BUFFER,
@@ -539,7 +539,7 @@ export class WebGLGFXDevice extends GFXDevice {
         WebGLCmdFuncDestroyBuffer(this as WebGLGFXDevice, gpuBuffer);
     }
 
-    public emitCmdUpdateGPUBuffer (gpuBuffer: WebGLGPUBuffer, buffer: ArrayBuffer, offset: number, size: number) {
+    public emitCmdUpdateGPUBuffer (gpuBuffer: WebGLGPUBuffer, buffer: GFXBufferSource, offset: number, size: number) {
         // TODO: Async
         const isStagingBuffer = (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_SRC) !== GFXBufferUsageBit.NONE;
         if (!isStagingBuffer) {
@@ -934,6 +934,8 @@ export class WebGLGFXDevice extends GFXDevice {
             attributes: info.attributes,
             gpuVertexBuffers,
             gpuIndexBuffer,
+            isIndirect: (info.isIndirect !== undefined ? info.isIndirect : false),
+            gpuIndirectBuffers: [],
 
             glAttribs: [],
             glIndexType,

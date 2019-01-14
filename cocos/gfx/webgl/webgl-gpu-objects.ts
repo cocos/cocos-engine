@@ -3,6 +3,7 @@ import { IGFXInputAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 import { GFXColorAttachment, GFXDepthStencilAttachment } from '../render-pass';
 import { GFXUniformBlock, GFXUniformSampler, IGFXShaderMacro } from '../shader';
+import { GFXBufferSource } from '../buffer';
 
 export enum WebGLGPUObjectType {
     UNKNOWN,
@@ -27,6 +28,16 @@ export class WebGLGPUObject {
     }
 }
 
+export interface IWebGLIndirectBuffer {
+    vertexCount: number;
+    firstVertex: number;
+    indexCount: number;
+    firstIndex: number;
+    vertexOffset: number;
+    instanceCount: number;
+    firstInstance: number;
+}
+
 export class WebGLGPUBuffer extends WebGLGPUObject {
     public usage: GFXBufferUsage = GFXBufferUsageBit.NONE;
     public memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;
@@ -35,7 +46,7 @@ export class WebGLGPUBuffer extends WebGLGPUObject {
 
     public glTarget: GLenum = 0;
     public glBuffer: WebGLBuffer = 0;
-    public buffer: ArrayBuffer | null = null;
+    public buffer: GFXBufferSource | null = null;
     public viewF32: Float32Array | null = null;
 
     constructor () {
@@ -244,6 +255,8 @@ export class WebGLGPUInputAssembler extends WebGLGPUObject {
     public attributes: IGFXInputAttribute[] = [];
     public gpuVertexBuffers: WebGLGPUBuffer[] = [];
     public gpuIndexBuffer: WebGLGPUBuffer | null = null;
+    public isIndirect: boolean = false;
+    public gpuIndirectBuffers: IWebGLIndirectBuffer[] = [];
 
     public glAttribs: WebGLAttrib[] = [];
     public glIndexType: GLenum = 0;

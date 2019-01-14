@@ -1,7 +1,7 @@
 import { GFXBindingLayout } from '../binding-layout';
-import { GFXBuffer } from '../buffer';
+import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXStatus, GFXTextureLayout, IGFXColor, IGFXRect } from '../define';
+import { GFXBufferTextureCopy, GFXStatus, GFXTextureLayout, IGFXColor, IGFXRect, GFXBufferUsageBit } from '../define';
 import { GFXDevice } from '../device';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
@@ -94,18 +94,27 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     }
 
     public bindPipelineState (pipelineState: GFXPipelineState) {
-        this._curGPUPipelineState = (pipelineState as WebGLGFXPipelineState).gpuPipelineState;
-        this._isStateInvalied = true;
+        const gpuPipelineState = (pipelineState as WebGLGFXPipelineState).gpuPipelineState;
+        if (this._curGPUPipelineState !== gpuPipelineState) {
+            this._curGPUPipelineState = gpuPipelineState;
+            this._isStateInvalied = true;
+        }
     }
 
     public bindBindingLayout (bindingLayout: GFXBindingLayout) {
-        this._curGPUBindingLayout = (bindingLayout as WebGLGFXBindingLayout).gpuBindingLayout;
-        this._isStateInvalied = true;
+        const gpuBindingLayout = (bindingLayout as WebGLGFXBindingLayout).gpuBindingLayout;
+        if (this._curGPUBindingLayout !== gpuBindingLayout) {
+            this._curGPUBindingLayout = gpuBindingLayout;
+            this._isStateInvalied = true;
+        }
     }
 
     public bindInputAssembler (inputAssembler: GFXInputAssembler) {
-        this._curGPUInputAssembler = (inputAssembler as WebGLGFXInputAssembler).gpuInputAssembler;
-        this._isStateInvalied = true;
+        const gpuInputAssembler = (inputAssembler as WebGLGFXInputAssembler).gpuInputAssembler;
+        if (this._curGPUInputAssembler !== gpuInputAssembler) {
+            this._curGPUInputAssembler = gpuInputAssembler;
+            this._isStateInvalied = true;
+        }
     }
 
     public draw (inputAssembler: GFXInputAssembler) {
@@ -117,29 +126,35 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         const cmd = ( this._allocator as WebGLGFXCommandAllocator).
                     drawCmdPool.alloc(WebGLCmdDraw);
         if (cmd) {
-            cmd.vertexCount = inputAssembler.vertexCount;
-            cmd.firstVertex = inputAssembler.firstVertex;
-            cmd.indexCount = inputAssembler.indexCount;
-            cmd.firstIndex = inputAssembler.firstIndex;
-            cmd.vertexOffset = inputAssembler.vertexOffset;
-            cmd.instanceCount = inputAssembler.instanceCount;
-            cmd.firstInstance = inputAssembler.firstInstance;
-
+            (inputAssembler as WebGLGFXInputAssembler).extractCmdDraw(cmd);
             this.cmdPackage.drawCmds.push(cmd);
 
             this.cmdPackage.cmds.push(WebGLCmd.DRAW);
         }
     }
 
-    public updateBuffer (buffer: GFXBuffer, data: ArrayBuffer, offset?: number) {
+    public updateBuffer (buffer: GFXBuffer, data: GFXBufferSource, offset?: number, size?: number) {
         const gpuBuffer = (buffer as WebGLGFXBuffer).gpuBuffer;
         if (gpuBuffer) {
             const cmd = (this._allocator as WebGLGFXCommandAllocator).
                         updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
             if (cmd) {
+
+                let buffSize;
+                if (size !== undefined ) {
+                    buffSize = size;
+                } else if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
+                    buffSize = 0;
+                } else {
+                    buffSize = (data as ArrayBuffer).byteLength;
+                }
+
+                const buff = data as ArrayBuffer;
+
                 cmd.gpuBuffer = gpuBuffer;
-                cmd.buffer = data.slice(0);
+                cmd.buffer = buff.slice(0);
                 cmd.offset = (offset !== undefined ? offset : 0);
+                cmd.size = buffSize;
                 this.cmdPackage.updateBufferCmds.push(cmd);
 
                 this.cmdPackage.cmds.push(WebGLCmd.UPDATE_BUFFER);
