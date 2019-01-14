@@ -197,7 +197,7 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
 
     private boolean mIsAssetRouse = false;
     private String mVideoFilePath = null;
-    private static final String AssetResourceRoot = "assets/";
+    private static final String AssetResourceRoot = "@assets/";
 
     public void setVideoFileName(String path) {
         if (path.startsWith(AssetResourceRoot)) {
