@@ -82,7 +82,7 @@ export default class SkyboxComponent extends Component {
   onLoad() {
     this._model.setNode(this.node);
 
-    let ia = renderer.createIA(cc.game._renderContext, box(2, 2, 2));
+    let ia = renderer.createIA(cc.game._gfxDevice, box(2, 2, 2));
     this._model.setInputAssembler(ia);
 
     if (!this._material) {

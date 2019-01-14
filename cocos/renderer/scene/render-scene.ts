@@ -2,11 +2,11 @@ import { intersect, ray, triangle } from '../../3d/geom-utils';
 import { RecyclePool } from '../../3d/memop';
 import { _createSceneFun, Root } from '../../core/root';
 import { mat4, vec3 } from '../../core/vmath';
+import { GFXPrimitiveMode } from '../../gfx/define';
 import { Layers } from '../../scene-graph/layers';
 import { Camera, ICameraInfo } from './camera';
 import { Light } from './light';
 import { Model } from './model';
-import { GFXPrimitiveMode } from '../../gfx/define';
 
 export interface IRenderSceneInfo {
     name: string;

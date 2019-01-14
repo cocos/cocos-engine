@@ -199,7 +199,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
     private _webGLRC: WebGLRenderingContext | null = null;
     private _isAntialias: boolean = true;
-    private _isPremultipliedAlpha: boolean = false;
+    private _isPremultipliedAlpha: boolean = true;
 
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;

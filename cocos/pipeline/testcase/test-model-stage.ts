@@ -85,7 +85,7 @@ export class TestModelStage extends RenderStage {
             this._scene._scene = this._scene;
             const modelCom = this._scene.addComponent('cc.ModelComponent');
             modelCom.material = this._material;
-            modelCom.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box({length: 1, width: 1, height: 1}));
+            modelCom.mesh = cc.utils.createMesh(cc.game._gfxDevice, cc.primitives.box({length: 1, width: 1, height: 1}));
             this._model = modelCom._models[0];
             this._scene.setRotationFromEuler(45, 45, 45);
             this._scene._rot = this._scene._lrot;
