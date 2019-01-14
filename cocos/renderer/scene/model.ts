@@ -39,7 +39,7 @@ export class Model {
     private _modelBounds: aabb;
     private _material: Material | null;
     private _cmdBuffers: GFXCommandBuffer[];
-    private _localUniforms: UBOLocal | null;
+    private _uboLocal: UBOLocal;
     private _localUBO: GFXBuffer | null;
     /**
      * Setup a default empty model
@@ -62,12 +62,11 @@ export class Model {
         this._castShadow = false;
         this._material = null;
         this._cmdBuffers = new Array<GFXCommandBuffer>();
-        this._localUniforms = null;
+        this._uboLocal = new UBOLocal();
         this._localUBO = null;
     }
 
     public initialize () {
-        this._localUniforms = new UBOLocal();
         this._localUBO = cc.director.root.device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST,
@@ -75,7 +74,7 @@ export class Model {
             stride: UBOLocal.SIZE,
         });
         if (this._localUBO) {
-            this._localUBO.update(this._localUniforms.view);
+            this._localUBO.update(this._uboLocal.view);
         }
     }
 
@@ -102,22 +101,20 @@ export class Model {
             this._node._rot, this._node._scale, this._worldBounds);
     }
 
-    public updateRenderData () {
+    public updateUBOs () {
         mat4.array(_temp_floatx16, this._node._mat);
         this._node._mat.invert(_temp_mat4);
-        if (this._localUniforms) {
-            this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
+        if (this._uboLocal) {
+            this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
         }
         mat4.array(_temp_floatx16, _temp_mat4);
-        if (this._localUniforms) {
-            this._localUniforms.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
+        if (this._uboLocal) {
+            this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
         }
 
-        /*
         if (this._localUBO) {
-            this._localUBO.update(this._localUniforms.view);
+            this._localUBO.update(this._uboLocal.view);
         }
-        */
     }
 
     /**
@@ -211,23 +208,27 @@ export class Model {
 
     public recordCommandBuffer (index: number) {
         const pass = (this._material as Material).passes[index];
-        const cmdBufferInfo = {
-            allocator: cc.director.root.device.commandAllocator,
-            type: GFXCommandBufferType.SECONDARY,
-        };
         if (this._cmdBuffers[index] == null) {
+            const cmdBufferInfo = {
+                allocator: cc.director.root.device.commandAllocator,
+                type: GFXCommandBufferType.SECONDARY,
+            };
             this._cmdBuffers[index] = cc.director.root.device.createCommandBuffer(cmdBufferInfo);
         }
-        if (this._localUBO) {
-            pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localUBO);
-        }
+
+        const localUBO = this._localUBO as GFXBuffer;
+        const subMesh = this._subMeshObject as IRenderingSubmesh;
+
+        pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, localUBO);
         pass.update();
-        this._cmdBuffers[index].begin();
-        this._cmdBuffers[index].bindPipelineState(pass.pipelineState);
-        this._cmdBuffers[index].bindBindingLayout(pass.bindingLayout);
-        this._cmdBuffers[index].bindInputAssembler((this._subMeshObject as IRenderingSubmesh).inputAssembler);
-        this._cmdBuffers[index].draw((this._subMeshObject as IRenderingSubmesh).inputAssembler);
-        this._cmdBuffers[index].end();
+
+        const cmdBuff = this._cmdBuffers[index];
+        cmdBuff.begin();
+        cmdBuff.bindPipelineState(pass.pipelineState);
+        cmdBuff.bindBindingLayout(pass.bindingLayout);
+        cmdBuff.bindInputAssembler(subMesh.inputAssembler);
+        cmdBuff.draw(subMesh.inputAssembler);
+        cmdBuff.end();
     }
 
     /**
@@ -246,8 +247,8 @@ export class Model {
         return this._cmdBuffers;
     }
 
-    get localUniforms (): UBOLocal {
-        return this._localUniforms as UBOLocal;
+    get uboLocal (): UBOLocal {
+        return this._uboLocal;
     }
 
     get localUBO (): GFXBuffer {

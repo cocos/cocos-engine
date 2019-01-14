@@ -1,9 +1,24 @@
-import { GFXBindingType, GFXBufferUsage, GFXBufferUsageBit, GFXFormat, GFXMemoryUsage, GFXMemoryUsageBit, GFXShaderType, GFXTextureFlagBit, GFXTextureFlags, GFXTextureType, GFXTextureUsage, GFXTextureUsageBit, GFXTextureViewType, GFXType } from '../define';
+import { GFXBufferSource } from '../buffer';
+import {
+    GFXBindingType,
+    GFXBufferUsage,
+    GFXBufferUsageBit,
+    GFXFormat,
+    GFXMemoryUsage,
+    GFXMemoryUsageBit,
+    GFXShaderType,
+    GFXTextureFlagBit,
+    GFXTextureFlags,
+    GFXTextureType,
+    GFXTextureUsage,
+    GFXTextureUsageBit,
+    GFXTextureViewType,
+    GFXType,
+} from '../define';
 import { IGFXInputAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 import { GFXColorAttachment, GFXDepthStencilAttachment } from '../render-pass';
 import { GFXUniformBlock, GFXUniformSampler, IGFXShaderMacro } from '../shader';
-import { GFXBufferSource } from '../buffer';
 
 export enum WebGLGPUObjectType {
     UNKNOWN,

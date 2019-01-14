@@ -363,7 +363,7 @@ export abstract class RenderPipeline {
                 continue;
             }
 
-            model.updateRenderData();
+            model.updateUBOs();
 
             // add model pass to render queue
             this._queue.add(model, camera);
