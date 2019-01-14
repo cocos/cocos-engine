@@ -4,7 +4,7 @@ import Texture2D from '../../assets/texture-2d';
 import { Filter, PixelFormat, WrapMode } from '../../assets/texture-base';
 import { Vec3 } from '../../core/value-types';
 import { AttributeBaseType, AttributeType,
-    IMeshStruct, IndexUnit, IPrimitive, IVertexAttribute, IVertexBundle, Mesh, Topology } from '../assets/mesh';
+    IMeshStruct, IndexUnit, IPrimitive, IVertexAttribute, IVertexBundle, Mesh } from '../assets/mesh';
 import { IGeometry } from '../primitive/defines';
 
 /**
@@ -101,7 +101,7 @@ export function createMesh (geometry: IGeometry) {
 
     // Create primitive.
     const primitive: IPrimitive = {
-        topology: _getTopology(geometry.primitiveMode),
+        primitiveMode: geometry.primitiveMode,
         vertexBundelIndices: [0],
     };
     if (indexBuffer) {
@@ -190,18 +190,6 @@ class BufferBlob {
         });
         return result.buffer;
     }
-}
-
-function _getTopology (primitiveMode: GFXPrimitiveMode) {
-    switch (primitiveMode) {
-        case GFXPrimitiveMode.POINT_LIST:
-            return Topology.POINT_LIST;
-        case GFXPrimitiveMode.LINE_LIST:
-            return Topology.LINE_LIST;
-        case GFXPrimitiveMode.TRIANGLE_LIST:
-            return Topology.TRIANGLE_LIST;
-    }
-    return Topology.POINT_LIST;
 }
 
 function _writeVertices (

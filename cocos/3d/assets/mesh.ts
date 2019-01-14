@@ -98,29 +98,6 @@ export enum AttributeType {
 
 ccenum(AttributeType);
 
-export enum Topology {
-    /**
-     * Point list.
-     */
-    POINT_LIST = GFXPrimitiveMode.POINT_LIST,
-
-    /**
-     * Line list.
-     */
-    LINE_LIST = GFXPrimitiveMode.LINE_LIST,
-
-    /**
-     * Triangle list.
-     */
-    TRIANGLE_LIST = GFXPrimitiveMode.TRIANGLE_LIST,
-}
-
-ccenum(Topology);
-
-function toGFXTopology (topology: Topology) {
-    return topology as unknown as GFXPrimitiveMode;
-}
-
 export enum IndexUnit {
     /**
      * 8 bits unsigned integer.
@@ -262,7 +239,7 @@ export interface IPrimitive {
     /**
      * This primitive's topology.
      */
-    topology: Topology;
+    primitiveMode: GFXPrimitiveMode;
 }
 
 /**
@@ -501,7 +478,7 @@ export class Mesh extends Asset {
             }
 
             return {
-                primitiveMode: toGFXTopology(primitive.topology),
+                primitiveMode: primitive.primitiveMode,
                 inputAssembler: gfxDevice.createInputAssembler(inputAssemblerInfo),
             } as IRenderingSubmesh ;
         });
