@@ -25,8 +25,6 @@
  ****************************************************************************/
 // @ts-check
 import { ccclass, property } from '../core/data/class-decorator';
-import { GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
-import { GFXDevice } from '../gfx/device';
 import ImageAsset from './image-asset';
 import TextureBase from './texture-base';
 
@@ -48,9 +46,11 @@ export default class Texture2D extends TextureBase {
      */
     set mipmaps (value) {
         this._mipmaps = value;
-        this._potientialWidth = value.length === 0 ? 0 : value[0].width;
-        this._potientialHeight = value.length === 0 ? 0 : value[0].height;
-        this._recreateTexture();
+        this.create(
+            value.length === 0 ? 0 : value[0].width,
+            value.length === 0 ? 0 : value[0].height,
+            undefined,
+            this._mipmaps.length);
         this._mipmaps.forEach((mipmap, level) => {
             this._assignImage(mipmap, level);
         });
@@ -179,31 +179,6 @@ export default class Texture2D extends TextureBase {
             const mipmapUUID = data.mipmaps[i];
             handle.result.push(this._mipmaps, `${i}`, mipmapUUID);
         }
-    }
-
-    protected _createTextureImpl (gfxDevice: GFXDevice) {
-        this._texture = gfxDevice.createTexture({
-            type: GFXTextureType.TEX2D,
-            /* tslint:disable:no-bitwise */
-            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            /* tslint:enable:no-bitwise */
-            format: this._getGfxFormat(),
-            width: this._potientialWidth,
-            height: this._potientialHeight,
-            mipLevel: this._mipmaps.length,
-        });
-    }
-
-    protected _createTextureViewImpl (gfxDevice: GFXDevice) {
-        if (!this._texture) {
-            return;
-        }
-
-        this._textureView = gfxDevice.createTextureView({
-            texture: this._texture,
-            type: GFXTextureViewType.TV2D,
-            format: this._getGfxFormat(),
-        });
     }
 }
 

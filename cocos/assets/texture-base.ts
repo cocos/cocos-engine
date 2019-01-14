@@ -29,11 +29,12 @@ import EventTarget from '../core/event/event-target';
 import IDGenerator from '../core/utils/id-generator';
 import {addon} from '../core/utils/js';
 import { ccenum } from '../core/value-types/enum';
-import { GFXAddress, GFXBufferTextureCopy, GFXFilter, GFXFormat } from '../gfx/define';
+import { GFXAddress, GFXBufferTextureCopy, GFXFilter, GFXFormat,
+    GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXSampler } from '../gfx/sampler';
-import { GFXTexture } from '../gfx/texture';
-import { GFXTextureView } from '../gfx/texture-view';
+import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
+import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
 import { Asset } from './asset';
 import ImageAsset from './image-asset';
 
@@ -200,9 +201,11 @@ export default class TextureBase extends Asset {
 
     protected _textureView: GFXTextureView | null = null;
 
-    protected _potientialWidth: number = 0;
+    private _potientialWidth: number = 0;
 
-    protected _potientialHeight: number = 0;
+    private _potientialHeight: number = 0;
+
+    private _mipmapLevel: number = 1;
 
     @property
     private _genMipmap = false;
@@ -258,6 +261,14 @@ export default class TextureBase extends Asset {
          */
         // @ts-ignore
         this.loaded = false;
+    }
+
+    public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1) {
+        this._potientialWidth = width;
+        this._potientialHeight = height;
+        this._format = format;
+        this._mipmapLevel = 1;
+        this._recreateTexture();
     }
 
     /**
@@ -475,6 +486,7 @@ export default class TextureBase extends Asset {
     }
 
     protected _getGlobalDevice (): GFXDevice | null {
+        // @ts-ignore
         return cc.director.root.device;
     }
 
@@ -543,6 +555,27 @@ export default class TextureBase extends Asset {
         }
     }
 
+    protected _getTextureCreateInfo (): IGFXTextureInfo {
+        return {
+            type: GFXTextureType.TEX2D,
+            /* tslint:disable:no-bitwise */
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+            /* tslint:enable:no-bitwise */
+            format: toGfxFormat(this._format),
+            width: this._potientialWidth,
+            height: this._potientialHeight,
+            mipLevel: this._mipmapLevel,
+        };
+    }
+
+    protected _getTextureViewCreateInfo (): IGFXTextureViewInfo {
+        return {
+            texture: this._texture,
+            type: GFXTextureViewType.TV2D,
+            format: this._getGfxFormat(),
+        };
+    }
+
     protected _recreateTexture () {
         this._destroyTexture();
 
@@ -551,17 +584,9 @@ export default class TextureBase extends Asset {
             return;
         }
 
-        this._createTextureImpl(gfxDevice);
+        this._texture = gfxDevice.createTexture(this._getTextureCreateInfo());
 
-        this._createTextureViewImpl(gfxDevice);
-    }
-
-    protected _createTextureImpl (gfxDevice: GFXDevice) {
-        return;
-    }
-
-    protected _createTextureViewImpl (gfxDevice: GFXDevice) {
-        return;
+        this._textureView = gfxDevice.createTextureView(this._getTextureViewCreateInfo());
     }
 
     private _destroyTexture () {

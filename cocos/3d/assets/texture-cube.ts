@@ -27,8 +27,7 @@ import { Texture2D } from '../../assets';
 import ImageAsset from '../../assets/image-asset';
 import TextureBase from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, GFXTextureFlagBit } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
+import { GFXTextureFlagBit, GFXTextureViewType } from '../../gfx/define';
 
 interface ITextureCubeMipmap {
     front: ImageAsset;
@@ -54,9 +53,11 @@ export default class TextureCube extends TextureBase {
      */
     set mipmaps (value) {
         this._mipmaps = value;
-        this._potientialWidth = value.length === 0 ? 0 : value[0].front.width;
-        this._potientialHeight = value.length === 0 ? 0 : value[0].front.height;
-        this._recreateTexture();
+        this.create(
+            value.length === 0 ? 0 : value[0].front.width,
+            value.length === 0 ? 0 : value[0].front.height,
+            undefined,
+            this._mipmaps.length);
         this._mipmaps.forEach((mipmap, level) => {
             _forEachFace(mipmap, (face, faceIndex) => {
                 this._assignImage(face, level, faceIndex);
@@ -171,32 +172,18 @@ export default class TextureCube extends TextureBase {
         }
     }
 
-    protected _createTextureImpl (gfxDevice: GFXDevice) {
-        this._texture = gfxDevice.createTexture({
-            type: GFXTextureType.TEX2D,
-            /* tslint:disable:no-bitwise */
-            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            /* tslint:enable:no-bitwise */
-            format: this._getGfxFormat(),
-            width: this._potientialWidth,
-            height: this._potientialHeight,
-            mipLevel: this._mipmaps.length,
-            arrayLayer: 6,
-            flags: GFXTextureFlagBit.CUBEMAP,
-        });
+    protected _getTextureCreateInfo () {
+        const result =  super._getTextureCreateInfo();
+        result.arrayLayer = 6;
+        result.flags = result.flags | GFXTextureFlagBit.CUBEMAP;
+        return result;
     }
 
-    protected _createTextureViewImpl (gfxDevice: GFXDevice) {
-        if (!this._texture) {
-            return;
-        }
-
-        this._textureView = gfxDevice.createTextureView({
-            texture: this._texture,
-            type: GFXTextureViewType.CUBE,
-            format: this._getGfxFormat(),
-            layerCount: 6,
-        });
+    protected _getTextureViewCreateInfo () {
+        const result = super._getTextureViewCreateInfo();
+        result.type = GFXTextureViewType.CUBE;
+        result.layerCount = 6;
+        return result;
     }
 }
 
