@@ -26,8 +26,8 @@ import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { GFXBindingType } from '../../gfx/define';
 import { Effect } from '../../renderer/core/effect';
-import { Pass, IPassOverrides } from '../../renderer/core/pass';
-import { EffectAsset, IPassInfo, ITechniqueInfo } from './effect-asset';
+import { IPassOverrides, Pass } from '../../renderer/core/pass';
+import { EffectAsset } from './effect-asset';
 
 @ccclass('cc.Material')
 export class Material extends Asset {
