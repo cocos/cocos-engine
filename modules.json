@@ -273,6 +273,13 @@
     "dependencies": ["Mesh", "WebGL Renderer"]
   },
   {
+    "name": "3D Primitive",
+    "entries": [
+      "./cocos2d/core/3d/primitive/index.js"
+    ],
+    "dependencies": ["3D"]
+  },
+  {
     "name": "Mesh",
     "entries": [
       "./cocos2d/core/mesh/index.js"
