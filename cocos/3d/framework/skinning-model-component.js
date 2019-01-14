@@ -28,7 +28,7 @@ import { mat4 } from '../../core/vmath';
 import ModelComponent from './model-component';
 import { renderer } from '../../renderer/index';
 import { ccclass, property, executionOrder, menu,executeInEditMode } from '../../core/data/class-decorator';
-import utils from '../misc/utils';
+import * as utils from '../misc/utils';
 import Skeleton from '../assets/skeleton';
 import { Node } from '../../scene-graph/node';
 
