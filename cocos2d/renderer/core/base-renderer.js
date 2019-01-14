@@ -523,7 +523,7 @@ export default class Base {
   _draw(item) {
     const device = this._device;
     const programLib = this._programLib;
-    const { node, ia, uniforms, technique, defines } = item;
+    const { node, ia, uniforms, technique, defines, effect } = item;
 
     // reset the pool
     // NOTE: we can use drawCounter optimize this
@@ -543,12 +543,12 @@ export default class Base {
     // TODO: try commit this depends on effect
     // {
     node.getWorldMatrix(_m4_tmp);
-    device.setUniform('_model', mat4.array(_float16_pool.add(), _m4_tmp));
+    device.setUniform('cc_matWorld', mat4.array(_float16_pool.add(), _m4_tmp));
 
     let inverse = mat3.invert(_m3_tmp, mat3.fromMat4(_m3_tmp, _m4_tmp));
     if (inverse) {
       mat3.transpose(_m3_tmp, inverse);
-      device.setUniform('_normalMatrix', mat3.array(_float9_pool.add(), _m3_tmp));
+      device.setUniform('cc_matWorldIT', mat3.array(_float9_pool.add(), _m3_tmp));
     }
     // }
 
