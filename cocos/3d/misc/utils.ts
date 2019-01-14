@@ -278,4 +278,9 @@ function _getIndicesWriter (dataView: DataView, indexUnit: IndexUnit) {
     return (offset: number, value: number) => dataView.setUint8(offset, value);
 }
 
-const isLittleEndian = true;
+const isLittleEndian = (() => {
+    const buffer = new ArrayBuffer(2);
+    new DataView(buffer).setInt16(0, 256, true);
+    // Int16Array uses the platform's endianness.
+    return new Int16Array(buffer)[0] === 256;
+})();
