@@ -376,6 +376,7 @@ export class Mesh extends Asset {
         return this._data;
     }
 
+    @property
     private _struct: IMeshStruct;
 
     private _data: Uint8Array | null = null;
