@@ -41,21 +41,18 @@ import { Mat4 } from '../../core/value-types';
 export default class Skeleton extends Asset {
     /**
      * The path of joints.
-     * @type {string[]}
      */
     @property([String])
-    public _joints = [];
+    private _joints: string[] = [];
 
     /**
      * The inverse bind matrices of joints.
-     * @type {Mat4[]}
      */
     @property([Mat4])
-    public _inverseBindMatrices = [];
+    private _inverseBindMatrices: Mat4[] = [];
 
     /**
      * Gets the bind pose matrices of joints.
-     * @type {Mat4[]}
      */
     get bindposes () {
         return this._inverseBindMatrices;
@@ -63,7 +60,6 @@ export default class Skeleton extends Asset {
 
     /**
      * Sets the bind pose matrices of joints.
-     * @type {Mat4[]}
      */
     set bindposes (value) {
         this._inverseBindMatrices = value;
@@ -71,10 +67,18 @@ export default class Skeleton extends Asset {
 
     /**
      * Gets the paths of joints.
-     * @type {string[]}
      */
     get joints () {
         return this._joints;
     }
+
+    /**
+     * Sets the paths of joints.
+     */
+    set joints (value) {
+        this._joints = value;
+    }
 }
-cc.Skeleton = Skeleton;
+
+// tslint:disable-next-line
+cc['Skeleton'] = Skeleton;
