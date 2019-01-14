@@ -51,7 +51,7 @@ export class ForwardStage extends RenderStage {
         cmdBuff.beginRenderPass(this._framebuffer as GFXFramebuffer, this._renderArea,
             [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.execute(queue.cmdBuffs, queue.cmdBuffCount);
+        cmdBuff.execute(queue.cmdBuffs.array, queue.cmdBuffCount);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();

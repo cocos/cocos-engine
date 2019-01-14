@@ -1,7 +1,15 @@
 import { GFXBindingLayout } from '../binding-layout';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXStatus, GFXTextureLayout, IGFXColor, IGFXRect, GFXCommandBufferType } from '../define';
+import {
+    GFXBufferTextureCopy,
+    GFXBufferUsageBit,
+    GFXCommandBufferType,
+    GFXStatus,
+    GFXTextureLayout,
+    IGFXColor,
+    IGFXRect,
+} from '../define';
 import { GFXDevice } from '../device';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
@@ -211,12 +219,12 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         for (let i = 0; i < count; ++i) {
             const webGLCmdBuff = cmdBuffs[i] as WebGLGFXCommandBuffer;
 
-            this.cmdPackage.beginRenderPassCmds = this.cmdPackage.beginRenderPassCmds.concat(webGLCmdBuff.cmdPackage.beginRenderPassCmds);
-            this.cmdPackage.bindStatesCmds = this.cmdPackage.bindStatesCmds.concat(webGLCmdBuff.cmdPackage.bindStatesCmds);
-            this.cmdPackage.drawCmds = this.cmdPackage.drawCmds.concat(webGLCmdBuff.cmdPackage.drawCmds);
-            this.cmdPackage.updateBufferCmds = this.cmdPackage.updateBufferCmds.concat(webGLCmdBuff.cmdPackage.updateBufferCmds);
-            this.cmdPackage.copyBufferToTextureCmds = this.cmdPackage.copyBufferToTextureCmds.concat(webGLCmdBuff.cmdPackage.copyBufferToTextureCmds);
-            this.cmdPackage.cmds = this.cmdPackage.cmds.concat(webGLCmdBuff.cmdPackage.cmds);
+            this.cmdPackage.beginRenderPassCmds.concat(webGLCmdBuff.cmdPackage.beginRenderPassCmds);
+            this.cmdPackage.bindStatesCmds.concat(webGLCmdBuff.cmdPackage.bindStatesCmds);
+            this.cmdPackage.drawCmds.concat(webGLCmdBuff.cmdPackage.drawCmds);
+            this.cmdPackage.updateBufferCmds.concat(webGLCmdBuff.cmdPackage.updateBufferCmds);
+            this.cmdPackage.copyBufferToTextureCmds.concat(webGLCmdBuff.cmdPackage.copyBufferToTextureCmds);
+            this.cmdPackage.cmds.concat(webGLCmdBuff.cmdPackage.cmds);
         }
     }
 

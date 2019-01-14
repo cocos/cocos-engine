@@ -1,11 +1,13 @@
 export class CachedArray<T> {
 
-    public data: Array<T|undefined>;
+    public array: T[];
     public length: number = 0;
     private _compareFn;
+    private _cache: Array<T|undefined>;
 
-    constructor (count: number, compareFn?: (a: T, b: T) => number) {
-        this.data = new Array(count);
+    constructor (length: number, compareFn?: (a: T, b: T) => number) {
+        this.array = new Array(length);
+        this._cache = this.array;
         this.length = 0;
 
         if (compareFn !== undefined) {
@@ -15,25 +17,34 @@ export class CachedArray<T> {
         }
     }
 
-    public push (item: T) {
-        if (this.length >= this.data.length) {
-            const size = this.length * 2;
-            const temp = this.data;
-            this.data = new Array(size);
-            for (let i = 0; i < temp.length; ++i) {
-                this.data[i] = temp[i];
+    public reserve (length: number) {
+        if (length > this.array.length) {
+            this.array = new Array(length);
+            for (let i = 0; i < this._cache.length; ++i) {
+                this.array[i] = this._cache[i] as T;
             }
+            this._cache = this.array;
+        }
+    }
+
+    public push (item: T) {
+        if (this.length > this.array.length) {
+            this.array = new Array(length);
+            for (let i = 0; i < this._cache.length; ++i) {
+                this.array[i] = this._cache[i] as T;
+            }
+            this._cache = this.array;
         }
 
-        this.data[this.length++] = item;
+        this.array[this.length++] = item;
     }
 
     public pop (): T | undefined {
-        return this.data[this.length--];
+        return this.array[this.length--];
     }
 
-    public get (idx: number): T | undefined {
-        return this.data[idx];
+    public get (idx: number): T {
+        return this.array[idx];
     }
 
     public clear () {
@@ -41,7 +52,35 @@ export class CachedArray<T> {
     }
 
     public sort () {
-        this.data.fill(undefined, this.length, this.data.length);
-        this.data.sort(this._compareFn);
+        this._cache.fill(undefined, this.length, this.array.length);
+        this._cache.sort(this._compareFn);
+    }
+
+    public concat (array: CachedArray<T>) {
+        if (array.length + this.length > this._cache.length) {
+            this.array = new Array(length);
+            for (let i = 0; i < this._cache.length; ++i) {
+                this.array[i] = this._cache[i] as T;
+            }
+            this._cache = this.array;
+        }
+
+        for (let i = 0; i < array.length; ++i) {
+            this._cache[this.length++] = array.array[i];
+        }
+    }
+
+    public append (array: T[]) {
+        if (array.length + this.length > this._cache.length) {
+            this.array = new Array(length);
+            for (let i = 0; i < this._cache.length; ++i) {
+                this.array[i] = this._cache[i] as T;
+            }
+            this._cache = this.array;
+        }
+
+        for (const item of array) {
+            this._cache[this.length++] = item;
+        }
     }
 }

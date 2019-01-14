@@ -9,6 +9,7 @@ import { WebGLAttrib, WebGLGPUBindingLayout, WebGLGPUBuffer, WebGLGPUFramebuffer
     WebGLGPUInput, WebGLGPUInputAssembler, WebGLGPUPipelineState, WebGLGPUShader,
     WebGLGPUTexture, WebGLGPUUniform, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
 import { IWebGLTexUnit } from './webgl-state-cache';
+import { CachedArray } from '../../core/memop/cached-array';
 
 // tslint:disable: max-line-length
 
@@ -442,51 +443,51 @@ export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
 }
 
 export class WebGLCmdPackage {
-    public cmds: WebGLCmd[] = [];
-    public beginRenderPassCmds: WebGLCmdBeginRenderPass[] = [];
-    public bindStatesCmds: WebGLCmdBindStates[] = [];
-    public drawCmds: WebGLCmdDraw[] = [];
-    public updateBufferCmds: WebGLCmdUpdateBuffer[] = [];
-    public copyBufferToTextureCmds: WebGLCmdCopyBufferToTexture[] = [];
+    public cmds: CachedArray<WebGLCmd> = new CachedArray(1);
+    public beginRenderPassCmds: CachedArray<WebGLCmdBeginRenderPass> = new CachedArray(1);
+    public bindStatesCmds: CachedArray<WebGLCmdBindStates> = new CachedArray(1);
+    public drawCmds: CachedArray<WebGLCmdDraw> = new CachedArray(1);
+    public updateBufferCmds: CachedArray<WebGLCmdUpdateBuffer> = new CachedArray(1);
+    public copyBufferToTextureCmds: CachedArray<WebGLCmdCopyBufferToTexture> = new CachedArray(1);
 
     public clearCmds (allocator: WebGLGFXCommandAllocator) {
 
         if (this.beginRenderPassCmds.length) {
-            for (const beginRenderPassCmd of this.beginRenderPassCmds) {
-                allocator.beginRenderPassCmdPool.free(beginRenderPassCmd);
+            for (let i = 0; i < this.beginRenderPassCmds.length; ++i) {
+                allocator.beginRenderPassCmdPool.free(this.beginRenderPassCmds.array[i]);
             }
-            this.beginRenderPassCmds = [];
+            this.beginRenderPassCmds.clear();
         }
 
         if (this.bindStatesCmds.length) {
-            for (const bindStatesCmd of this.bindStatesCmds) {
-                allocator.bindStatesCmdPool.free(bindStatesCmd);
+            for (let i = 0; i < this.bindStatesCmds.length; ++i) {
+                allocator.bindStatesCmdPool.free(this.bindStatesCmds.array[i]);
             }
-            this.bindStatesCmds = [];
+            this.bindStatesCmds.clear();
         }
 
         if (this.drawCmds.length) {
-            for (const drawCmd of this.drawCmds) {
-                allocator.drawCmdPool.free(drawCmd);
+            for (let i = 0; i < this.drawCmds.length; ++i) {
+                allocator.drawCmdPool.free(this.drawCmds.array[i]);
             }
-            this.drawCmds = [];
+            this.drawCmds.clear();
         }
 
         if (this.updateBufferCmds.length) {
-            for (const updateBufferCmd of this.updateBufferCmds) {
-                allocator.updateBufferCmdPool.free(updateBufferCmd);
+            for (let i = 0; i < this.updateBufferCmds.length; ++i) {
+                allocator.updateBufferCmdPool.free(this.updateBufferCmds.array[i]);
             }
-            this.updateBufferCmds = [];
+            this.updateBufferCmds.clear();
         }
 
         if (this.copyBufferToTextureCmds.length) {
-            for (const copyBufferToTextureCmd of this.copyBufferToTextureCmds) {
-                allocator.copyBufferToTextureCmdPool.free(copyBufferToTextureCmd);
+            for (let i = 0; i < this.copyBufferToTextureCmds.length; ++i) {
+                allocator.copyBufferToTextureCmdPool.free(this.copyBufferToTextureCmds.array[i]);
             }
-            this.copyBufferToTextureCmds = [];
+            this.copyBufferToTextureCmds.clear();
         }
 
-        this.cmds = [];
+        this.cmds.clear();
     }
 }
 
@@ -1086,12 +1087,13 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
     let gpuInputAssembler: WebGLGPUInputAssembler | null = null;
     let glPrimitive = WebGLRenderingContext.TRIANGLES;
 
-    for (const cmd of cmdPackage.cmds) {
+    for (let i = 0; i < cmdPackage.cmds.length; ++i) {
+        const cmd = cmdPackage.cmds.array[i];
         const cmdId = cmdIds[cmd]++;
 
         switch (cmd) {
             case WebGLCmd.BEGIN_RENDER_PASS: {
-                const cmd0 = cmdPackage.beginRenderPassCmds[cmdId];
+                const cmd0 = cmdPackage.beginRenderPassCmds.array[cmdId];
 
                 let clears: GLbitfield = 0;
 
@@ -1263,7 +1265,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
             }
             case WebGLCmd.BIND_STATES: {
 
-                const cmd2 = cmdPackage.bindStatesCmds[cmdId];
+                const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
                 if (cmd2.gpuPipelineState) {
 
                     glPrimitive = cmd2.gpuPipelineState.glPrimitive;
@@ -1883,7 +1885,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 break;
             }
             case WebGLCmd.DRAW: {
-                const cmd3: WebGLCmdDraw = cmdPackage.drawCmds[cmdId];
+                const cmd3: WebGLCmdDraw = cmdPackage.drawCmds.array[cmdId];
                 if (gpuInputAssembler && gpuShader) {
                     if (!cmd3.isIndirect) {
                         const drawInfo = cmd3.drawInfo as IGFXDrawInfo;
@@ -1913,7 +1915,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 break;
             }
             case WebGLCmd.UPDATE_BUFFER: {
-                const cmd4 = cmdPackage.updateBufferCmds[cmdId];
+                const cmd4 = cmdPackage.updateBufferCmds.array[cmdId];
                 WebGLCmdFuncUpdateBuffer(
                     device,
                     cmd4.gpuBuffer as WebGLGPUBuffer,
@@ -1924,7 +1926,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 break;
             }
             case WebGLCmd.COPY_BUFFER_TO_TEXTURE: {
-                const cmd5 = cmdPackage.copyBufferToTextureCmds[cmdId];
+                const cmd5 = cmdPackage.copyBufferToTextureCmds.array[cmdId];
                 WebGLCmdFuncCopyBufferToTexture(
                     device,
                     (cmd5.gpuBuffer as WebGLGPUBuffer).buffer as GFXBufferSource,

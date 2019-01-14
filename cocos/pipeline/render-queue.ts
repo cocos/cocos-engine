@@ -22,7 +22,7 @@ export class RenderItem {
 export class RenderQueue {
     public opaques: CachedArray<RenderItem>;
     public transparents: CachedArray<RenderItem>;
-    public cmdBuffs: GFXCommandBuffer[] = [];
+    public cmdBuffs: CachedArray<GFXCommandBuffer>;
     public cmdBuffCount: number = 0;
     private _buffer: ArrayBuffer;
     private _f32View: Float32Array;
@@ -35,6 +35,7 @@ export class RenderQueue {
 
         this.opaques = new CachedArray(64, compareFn);
         this.transparents = new CachedArray(64, compareFn);
+        this.cmdBuffs = new CachedArray(64);
 
         this._buffer = new ArrayBuffer(Float32Array.BYTES_PER_ELEMENT);
         this._f32View = new Float32Array(this._buffer);
@@ -89,18 +90,16 @@ export class RenderQueue {
         const opaqueCount = this.opaques.length;
         const cmdBuffCount = opaqueCount + this.transparents.length;
 
-        if (cmdBuffCount > this.cmdBuffs.length) {
-            this.cmdBuffs = new Array<GFXCommandBuffer>(cmdBuffCount);
-        }
+        this.cmdBuffs.reserve(cmdBuffCount);
 
         this.cmdBuffCount = cmdBuffCount;
 
         for (let i = 0; i < this.opaques.length; ++i) {
-            this.cmdBuffs[i] = (this.opaques.data[i] as RenderItem).cmdBuff;
+            this.cmdBuffs.array[i] = this.opaques.array[i].cmdBuff;
         }
 
         for (let i = 0; i < this.transparents.length; ++i) {
-            this.cmdBuffs[opaqueCount + i] = (this.transparents.data[i] as RenderItem).cmdBuff;
+            this.cmdBuffs.array[opaqueCount + i] = this.transparents.array[i].cmdBuff;
         }
     }
 }
