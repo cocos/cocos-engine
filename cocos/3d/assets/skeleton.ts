@@ -23,11 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// @ts-check
-import { _decorator } from "../../core/data";
+import { _decorator } from '../../core/data';
 const { ccclass, property } = _decorator;
-import { Asset } from "../../assets/asset";
-import { Mat4 } from "../../core/value-types";
+import { Asset } from '../../assets/asset';
+import { Mat4 } from '../../core/value-types';
 
 /**
  * CLASS Skeleton
@@ -40,42 +39,46 @@ import { Mat4 } from "../../core/value-types";
  */
 @ccclass('cc.Skeleton')
 export default class Skeleton extends Asset {
-  /**
-   * The path of joints.
-   * @type {string[]}
-   */
-  @property([String])
-  _joints = [];
+    /**
+     * The path of joints.
+     */
+    @property([String])
+    private _joints: string[] = [];
 
-  /**
-   * The inverse bind matrices of joints.
-   * @type {Mat4[]}
-   */
-  @property([Mat4])
-  _inverseBindMatrices = [];
+    /**
+     * The inverse bind matrices of joints.
+     */
+    @property([Mat4])
+    private _inverseBindMatrices: Mat4[] = [];
 
-  /**
-   * Gets the bind pose matrices of joints.
-   * @type {Mat4[]}
-   */
-  get bindposes() {
-    return this._inverseBindMatrices;
-  }
+    /**
+     * Gets the bind pose matrices of joints.
+     */
+    get bindposes () {
+        return this._inverseBindMatrices;
+    }
 
-  /**
-   * Sets the bind pose matrices of joints.
-   * @type {Mat4[]}
-   */
-  set bindposes(value) {
-    this._inverseBindMatrices = value;
-  }
+    /**
+     * Sets the bind pose matrices of joints.
+     */
+    set bindposes (value) {
+        this._inverseBindMatrices = value;
+    }
 
-  /**
-   * Gets the paths of joints.
-   * @type {string[]}
-   */
-  get joints() {
-    return this._joints;
-  }
+    /**
+     * Gets the paths of joints.
+     */
+    get joints () {
+        return this._joints;
+    }
+
+    /**
+     * Sets the paths of joints.
+     */
+    set joints (value) {
+        this._joints = value;
+    }
 }
-cc.Skeleton = Skeleton;
+
+// tslint:disable-next-line
+cc['Skeleton'] = Skeleton;
