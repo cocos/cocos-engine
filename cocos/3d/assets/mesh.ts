@@ -396,7 +396,7 @@ export class Mesh extends Asset {
      * Gets the rendering mesh.
      */
     public get renderingMesh () {
-        this._lazyInitRenderResources();
+        this._deferredInit();
         return this._renderingMesh;
     }
 
@@ -411,7 +411,7 @@ export class Mesh extends Asset {
         return renderingSubmesh ? renderingSubmesh.inputAssembler : null;
     }
 
-    private _lazyInitRenderResources () {
+    private _deferredInit () {
         if (this._initialized) {
             return;
         }
