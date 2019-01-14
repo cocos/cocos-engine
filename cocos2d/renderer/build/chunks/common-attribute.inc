@@ -72,12 +72,27 @@
 #endif
 
 
-void MULTIPLY_ACOLOR (inout vec4 color) {
+void MUL_ATTR_COLOR (inout vec4 color) {
   #if _USE_ATTRIBUTE_COLOR
     #ifdef _IS_VERT_SHADER
       color *= a_color;
     #else
       color *= v_color;
+    #endif
+  #endif
+}
+
+void MUL_ATTR_NORMAL (inout vec3 normal) {
+  #if _USE_ATTRIBUTE_NORMAL
+    #ifdef _IS_VERT_SHADER
+      normal *= a_normal;
+    #endif
+  #endif
+}
+void MUL_ATTR_NORMAL (inout vec4 normal) {
+  #if _USE_ATTRIBUTE_NORMAL
+    #ifdef _IS_VERT_SHADER
+      normal.xyz *= a_normal;
     #endif
   #endif
 }

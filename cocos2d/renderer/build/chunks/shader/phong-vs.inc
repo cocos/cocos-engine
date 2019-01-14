@@ -11,8 +11,9 @@ varying vec3 v_worldPos;
 
 void main () {
   vec4 position = vec4(a_position, 1);
-  vec4 normal = vec4(a_normal, 0);
+  vec4 normal = vec4(1, 1, 1, 0);
 
+  MUL_ATTR_NORMAL(normal);
   SKIN_VERTEX(position, normal);
 
   v_worldPos = (cc_matWorld * position).xyz;

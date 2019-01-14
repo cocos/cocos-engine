@@ -28,13 +28,13 @@ void MULTIPLY_DIFFUSE_TEXTRUE_COLOR (inout vec4 color) {
 void CALC_DIFFUSE (inout vec4 diffuse, in vec2 uv) {
   diffuse = diffuseColor;
 
-  MULTIPLY_ACOLOR(diffuse);
+  MUL_ATTR_COLOR(diffuse);
   MULTIPLY_DIFFUSE_TEXTRUE_COLOR(diffuse, uv);
 }
 
 void CALC_DIFFUSE (inout vec4 diffuse) {
   diffuse = diffuseColor;
 
-  MULTIPLY_ACOLOR(diffuse);
+  MUL_ATTR_COLOR(diffuse);
   MULTIPLY_DIFFUSE_TEXTRUE_COLOR(diffuse);
 }

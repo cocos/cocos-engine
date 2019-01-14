@@ -16,12 +16,10 @@
   }
 #endif
 
-vec3 CALC_NORMAL (in vec3 worldPos, in vec3 worldNormal) {
-  vec3 normal = normalize(worldNormal);
+void CALC_NORMAL (inout vec3 normal, in vec3 worldPos, in vec3 worldNormal) {
+  normal = normalize(worldNormal);
   
   #if USE_NORMAL_TEXTURE
     normal = getNormal(worldPos, normal);
   #endif
-
-  return normal;
 }

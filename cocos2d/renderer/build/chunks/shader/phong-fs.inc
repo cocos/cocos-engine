@@ -32,9 +32,10 @@ void main () {
   CALC_SPECULAR(material.specular);
 
   vec3 viewDirection = normalize(cc_cameraPos.xyz - v_worldPos);
-  vec3 normal = CALC_NORMAL(v_worldPos, v_worldNormal);
-
+  vec3 normal;
   vec4 phongColor;
+
+  CALC_NORMAL(normal, v_worldPos, v_worldNormal);
   CALC_PHONG_LIGHTING(phongColor, material, normal, v_worldPos, viewDirection);
 
   gl_FragColor = LINEAR_TO_OUTPUT_TEXEL( phongColor );
