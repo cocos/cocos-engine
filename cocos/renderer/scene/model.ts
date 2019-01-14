@@ -220,7 +220,6 @@ export class Model {
         const subMesh = this._subMeshObject as IRenderingSubmesh;
 
         pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, localUBO);
-        pass.update();
 
         const cmdBuff = this._cmdBuffers[index];
         cmdBuff.begin();
