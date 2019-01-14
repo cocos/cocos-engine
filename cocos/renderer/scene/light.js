@@ -3,7 +3,7 @@
 import { color3, color4, mat4, mat3, vec3, toRadian } from '../../core/vmath';
 import gfx from '../gfx';
 
-import enums from '../enums';
+import * as enums from '../enums';
 
 const _forward = vec3.create(0, 0, -1);
 

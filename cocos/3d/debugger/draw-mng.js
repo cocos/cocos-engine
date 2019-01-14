@@ -2,7 +2,7 @@ import { vec3, color3, mat4 } from '../vmath';
 import { LinkedArray } from '../memop';
 import { Node } from '../scene-graph';
 import gfx from '../gfx';
-import { renderer } from '../renderer';
+import * as renderer from '../renderer';
 import { sphere, wireframe } from '../primitives';
 
 let _right = vec3.create(1, 0, 0);

@@ -5,7 +5,7 @@ import { vec3, mat4 } from '../../core/vmath';
 
 import BaseRenderer from '../core/base-renderer';
 import DynamicIAPool from '../core/dynamic-ia-pool';
-import enums from '../enums';
+import * as enums from '../enums';
 import { PassStage } from '../core/constants';
 
 // import GaussianBlur from './gaussian-blur';

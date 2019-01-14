@@ -1,56 +1,25 @@
-import enums from './enums';
-import { createIA } from './utils';
+export * from './enums';
+
+export { createIA } from './utils';
 import config from './config';
 
-import { RenderQueue, PassStage } from './core/constants';
-import { Pass } from './core/pass';
-import { Effect } from './core/effect';
-import InputAssembler from './core/input-assembler';
-import View from './core/view';
+const addStage = config.addStage;
+export { addStage };
 
-import { Light } from './scene/light';
-import { Camera } from './scene/camera';
-import { Model } from './scene/model';
-import Scene from './scene/scene';
+export { RenderQueue, PassStage } from './core/constants';
+export { Pass } from './core/pass';
+export { Effect } from './core/effect';
+export { default as InputAssembler } from './core/input-assembler';
+export { default as View } from './core/view';
 
-import LineBatchModel from './models/line-batch-model';
-import SpriteBatchModel from './models/sprite-batch-model';
-import ParticleBatchModel from './models/particle-batch-model';
-import SkinningModel from './models/skinning-model';
+export { Light } from './scene/light';
+export { Camera } from './scene/camera';
+export { Model } from './scene/model';
+export { default as Scene } from './scene/scene';
 
-import ForwardRenderer from './renderers/forward-renderer';
+export { default as LineBatchModel } from './models/line-batch-model';
+export { default as SpriteBatchModel } from './models/sprite-batch-model';
+export { default as ParticleBatchModel } from './models/particle-batch-model';
+export { default as SkinningModel } from './models/skinning-model';
 
-let renderer = {
-  // config
-  addStage: config.addStage,
-
-  // utils
-  createIA,
-
-  // core
-  RenderQueue,
-  PassStage,
-  Pass,
-  Effect,
-  InputAssembler,
-  View,
-
-  // scene
-  Light,
-  Camera,
-  Model,
-  Scene,
-
-  // models
-  LineBatchModel,
-  SpriteBatchModel,
-  ParticleBatchModel,
-  SkinningModel,
-
-  // renderers
-  ForwardRenderer,
-};
-Object.assign(renderer, enums);
-
-export { renderer };
-cc.renderer = renderer;
+export { default as ForwardRenderer } from './renderers/forward-renderer';
