@@ -1,7 +1,9 @@
 
+#property #color4
 uniform vec4 diffuseColor;
 
 #if USE_DIFFUSE_TEXTURE
+  #property
   uniform sampler2D diffuseTexture;
 #endif
 

@@ -37,10 +37,19 @@ function unwindIncludes(str, chunks) {
   return str.replace(includeRE, replace);
 }
 
-function glslStripComment(code) {
-  let tokens = tokenizer(code);
-
+function glslStrip(code, cache) {
+  // strip tag lines
   let result = '';
+  let codes = code.split('\n');
+  for (let i = 1; i <= codes.length; i++) {
+    if (cache.tagLines.indexOf(i) === -1) {
+      result += codes[i-1] + '\n';
+    }
+  }
+
+  // strip comment
+  let tokens = tokenizer(result);
+  result = '';
   for (let i = 0; i < tokens.length; ++i) {
     let t = tokens[i];
     if (t.type != 'block-comment' && t.type != 'line-comment' && t.type != 'eof') {
@@ -49,7 +58,7 @@ function glslStripComment(code) {
   }
 
   // strip multiple line break
-  result = result.replace(/\n+/g, '\n');
+  result = result.replace(/\n\n+/g, '\n\n');
 
   return result;
 }
@@ -119,7 +128,7 @@ function extractDefines(tokens, defines, cache) {
         def.range = JSON.parse(`[${mc[1]}]`);
       }
       continue;
-    } else if (!ifprocessor.test(str[0])) { cache[t.line] = str; continue; }
+    } else if (!ifprocessor.test(str[0])) { cache[t.line] = str; cache.tagLines.push(t.line); continue; } // tags
     if (str[0] === '#elif') { curDefs.pop(); save(t.line); } // pop one level up
     let defs = [];
     str.splice(1).some(s => {
@@ -296,11 +305,10 @@ let buildShader = function(vertName, fragName, cache) {
   let [ vert, vEntry ] = getChunkByName(vertName, cache, true);
   let [ frag, fEntry ] = getChunkByName(fragName, cache);
 
-  let defines = [], defCache = { lines: [] }, tokens, ast;
+  let defines = [], defCache = { lines: [], tagLines: [] }, tokens, ast;
   let uniforms = [], attributes = [], extensions = [];
 
   vert = vertHeader + vert;
-  vert = glslStripComment(vert);
   vert = unwindIncludes(vert, cache);
   vert = expandStructMacro(vert);
   tokens = tokenizer(vert);
@@ -310,10 +318,10 @@ let buildShader = function(vertName, fragName, cache) {
     ast = parser(tokens);
     vert = wrapEntry(vert, vertName, vEntry, ast, true);
   } catch (e) { Editor.error(`parse ${vertName} failed: ${e}`); }
+  vert = glslStrip(vert, defCache);
 
-  defCache = { lines: [] };
+  defCache = { lines: [], tagLines: [] };
   frag = fragHeader + frag;
-  frag = glslStripComment(frag);
   frag = unwindIncludes(frag, cache);
   frag = expandStructMacro(frag);
   tokens = tokenizer(frag);
@@ -323,6 +331,7 @@ let buildShader = function(vertName, fragName, cache) {
     ast = parser(tokens);
     frag = wrapEntry(frag, fragName, fEntry, ast);
   } catch (e) { Editor.error(`parse ${fragName} failed: ${e}`); }
+  frag = glslStrip(frag, defCache);
 
   return { vert, frag, defines, uniforms, attributes, extensions };
 };
@@ -417,7 +426,7 @@ let addChunksCache = function(chunksDir) {
   for (let i = 0; i < files.length; ++i) {
     let name = path_.basename(files[i], '.inc');
     let content = fs.readFileSync(files[i], { encoding: 'utf8' });
-    chunksCache[name] = glslStripComment(content);
+    chunksCache[name] = content; //glslStrip(content);
   }
   return chunksCache;
 };

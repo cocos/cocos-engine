@@ -1,6 +1,7 @@
 
 #include <lights>
 
+#property
 uniform float glossiness;
 
 struct PhongMaterial {

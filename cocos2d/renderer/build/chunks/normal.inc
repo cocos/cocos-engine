@@ -1,6 +1,8 @@
 
 #if USE_NORMAL_TEXTURE
+  #property
   uniform sampler2D normalTexture;
+
   vec3 getNormal(vec3 pos, vec3 normal) {
     vec3 q0 = vec3( dFdx( pos.x ), dFdx( pos.y ), dFdx( pos.z ) );
     vec3 q1 = vec3( dFdy( pos.x ), dFdy( pos.y ), dFdy( pos.z ) );

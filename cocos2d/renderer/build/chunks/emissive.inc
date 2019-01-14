@@ -1,9 +1,10 @@
 
 #if USE_EMISSIVE
-
+  #property #color3
   uniform vec3 emissiveColor;
 
   #if USE_EMISSIVE_TEXTURE
+    #property
     uniform sampler2D emissiveTexture;
   #endif
 
