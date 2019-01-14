@@ -26,8 +26,8 @@ import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { GFXBindingType } from '../../gfx/define';
 import { Effect } from '../../renderer/core/effect';
-import { Pass } from '../../renderer/core/pass';
-import { EffectAsset } from './effect-asset';
+import { Pass, IPassOverrides } from '../../renderer/core/pass';
+import { EffectAsset, IPassInfo, ITechniqueInfo } from './effect-asset';
 
 @ccclass('cc.Material')
 export class Material extends Asset {
@@ -131,6 +131,18 @@ export class Material extends Asset {
 
     public onLoaded () {
         this.update();
+    }
+
+    public rebuildWithOverrides (overrides: IPassOverrides, idx?: number) {
+        if (!this._passes || !this._effectAsset) { return; }
+        const passInfos = Effect.getPassInfos(this._effectAsset, this._techIdx);
+        if (idx === undefined) {
+            for (let i = 0; i < this._passes.length; i++) {
+                this._passes[i].rebuildWithOverrides(passInfos[i], overrides);
+            }
+        } else {
+            this._passes[idx].rebuildWithOverrides(passInfos[idx], overrides);
+        }
     }
 
     public update (asset: EffectAsset | string | null = this._effectAsset, keepProps: boolean = true) {

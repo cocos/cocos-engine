@@ -8,7 +8,7 @@ import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXPrimitiveMode,
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
-    GFXInputState, GFXPipelineState, GFXRasterizerState } from '../../gfx/pipeline-state';
+    GFXInputState, GFXPipelineState, GFXRasterizerState, IGFXPipelineStateInfo } from '../../gfx/pipeline-state';
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
@@ -22,6 +22,13 @@ export interface IPassInfoFull extends IPassInfo {
     shader: GFXShader;
     renderPass: GFXRenderPass;
     globals: GFXBuffer;
+}
+
+export interface IPassOverrides {
+    bs: GFXBlendState;
+    dss: GFXDepthStencilState;
+    rs: GFXRasterizerState;
+    primitive: GFXPrimitiveMode;
 }
 
 const _type2fn = {
@@ -114,7 +121,7 @@ export class Pass {
         if (!this._pipelineLayout) { console.error('create pipeline layout failed'); return; }
         this._shader = info.shader;
         this._renderPass = info.renderPass;
-        this.createPipelineState(info);
+        this._createPipelineState(info);
 
         for (const u of info.blocks) {
             if (builtinRE.test(u.name)) {
@@ -199,9 +206,18 @@ export class Pass {
         (this._bindingLayout as GFXBindingLayout).bindSampler(binding, value);
     }
 
-    public setStates (info: IPassInfo) {
+    public rebuildWithOverrides (info: Partial<IPassInfo>, overrides: IPassOverrides) {
         if (this._pipelineState) { this._pipelineState.destroy(); }
-        this.createPipelineState(info);
+        const ors = Object.assign({}, overrides);
+        this._createPipelineState(info, (states) => {
+            Object.assign(states.rs, ors.rs);
+            Object.assign(states.dss, ors.dss);
+            for (let i = 0; i < ors.bs.targets.length; i++) {
+                Object.assign(states.bs.targets[i], ors.bs.targets[i]);
+            }
+            delete ors.bs.targets;
+            Object.assign(states.bs, ors.bs);
+        });
     }
 
     public destroy () {
@@ -224,7 +240,7 @@ export class Pass {
         (this._bindingLayout as GFXBindingLayout).update();
     }
 
-    protected createPipelineState (info: IPassInfo) {
+    protected _createPipelineState (info: Partial<IPassInfo>, override?: (states: IGFXPipelineStateInfo) => any) {
         if (info.primitive) { this._primitive = info.primitive; }
         if (info.stage) { this._stage = info.stage; }
 
@@ -252,6 +268,7 @@ export class Pass {
             rs: Object.assign(new GFXRasterizerState(), info.rasterizerState),
             shader: this._shader,
         };
+        if (override) { override(stateInfo); }
         if (this._pipelineState) {
             this._pipelineState.initialize(stateInfo);
         } else {

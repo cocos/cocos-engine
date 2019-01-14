@@ -89,7 +89,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this.frameTile = cc.v2(1, 1);
         this.attrs = new Array(5);
 
-        this.device = cc.game._renderContext;
+        this.device = cc.game._gfxDevice;
     }
 
     onInit() {

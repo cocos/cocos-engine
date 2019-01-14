@@ -116,6 +116,7 @@ export default class ModelComponent extends RenderableComponent {
 
     set mesh(val) {
         this._mesh = val;
+        this._updateModels();
     }
 
     /**
@@ -184,7 +185,7 @@ export default class ModelComponent extends RenderableComponent {
     }
 
     _updateModels() {
-        if (!this.enabled) return;
+        if (!this.node._scene) return;
         let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
 
         for (let i = 0; i < meshCount; ++i) {
