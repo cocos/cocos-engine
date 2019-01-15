@@ -118,7 +118,7 @@ export abstract class GFXInputAssembler extends GFXObject {
     public abstract initialize (info: IGFXInputAssemblerInfo): boolean;
     public abstract destroy (): void;
 
-    public getVertexBuffer (stream: number): GFXBuffer | null {
+    public getVertexBuffer (stream: number = 0): GFXBuffer | null {
         if (stream < this._vertexBuffers.length) {
             return this._vertexBuffers[stream];
         } else {

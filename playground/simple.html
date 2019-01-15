@@ -31,9 +31,9 @@
   <script>
     const $body = document.body;
     const bcr = $body.getBoundingClientRect();
-    const cv = document.getElementById('canvas');
-    cv.width = bcr.width;
-    cv.height = bcr.height;
+    const canv = document.getElementById('canvas');
+    canv.width = bcr.width;
+    canv.height = bcr.height;
     // window.addEventListener('resize', () => {
     //   const bcr = $body.getBoundingClientRect();
     //   cc.view.setCanvasSize(bcr.width, bcr.height);
@@ -68,6 +68,14 @@
       const modelCom = modelNode.addComponent('cc.ModelComponent');
       modelCom.material = material;
       modelCom.mesh = cc.utils.createMesh(cc.primitives.box());
+
+      canv.addEventListener('mousemove', (e) => {
+        if (!(e.buttons & 1)) return;
+        const { clientX: x, clientY: y } = e;
+        const ray = camComp.screenPointToRay(x, canv.height - y);
+        const res = cc.director._scene._renderScene.raycast(ray);
+        if (res.length) res.forEach((r) => console.log(r));
+      })
 
       cc.director.runSceneImmediate(scene);
     }
