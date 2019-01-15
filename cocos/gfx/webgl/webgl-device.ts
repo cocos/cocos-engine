@@ -3,6 +3,7 @@ import { GFXBuffer, GFXBufferSource, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
+    GFXAddress,
     GFXBindingType,
     GFXBufferTextureCopy,
     GFXBufferUsageBit,
@@ -10,6 +11,7 @@ import {
     GFXFormat,
     GFXFormatInfos,
     GFXFormatSize,
+    GFXPrimitiveMode,
     GFXQueueType,
     GFXTextureFlagBit,
     GFXTextureType,
@@ -73,29 +75,29 @@ import { WebGLGFXTexture } from './webgl-texture';
 import { WebGLGFXTextureView } from './webgl-texture-view';
 import { WebGLGFXWindow } from './webgl-window';
 
-const WebGLPrimitives: GLenum[] = [
-    WebGLRenderingContext.POINTS,
-    WebGLRenderingContext.LINES,
-    WebGLRenderingContext.LINE_STRIP,
-    WebGLRenderingContext.LINE_LOOP,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.TRIANGLES,
-    WebGLRenderingContext.TRIANGLE_STRIP,
-    WebGLRenderingContext.TRIANGLE_FAN,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.NONE,
-];
+const WebGLPrimitives = new Map([
+    [ GFXPrimitiveMode.POINT_LIST, WebGLRenderingContext.POINTS ],
+    [ GFXPrimitiveMode.LINE_LIST, WebGLRenderingContext.LINES ],
+    [ GFXPrimitiveMode.LINE_LOOP, WebGLRenderingContext.LINE_LOOP ],
+    [ GFXPrimitiveMode.LINE_STRIP, WebGLRenderingContext.LINE_STRIP ],
+    [ GFXPrimitiveMode.TRIANGLE_LIST, WebGLRenderingContext.TRIANGLES ],
+    [ GFXPrimitiveMode.TRIANGLE_STRIP, WebGLRenderingContext.TRIANGLE_STRIP ],
+    [ GFXPrimitiveMode.TRIANGLE_FAN, WebGLRenderingContext.TRIANGLE_FAN ],
+    [ GFXPrimitiveMode.LINE_LIST_ADJACENCY, WebGLRenderingContext.NONE ],
+    [ GFXPrimitiveMode.LINE_STRIP_ADJACENCY, WebGLRenderingContext.NONE ],
+    [ GFXPrimitiveMode.ISO_LINE_LIST, WebGLRenderingContext.NONE ],
+    [ GFXPrimitiveMode.TRIANGLE_LIST_ADJACENCY, WebGLRenderingContext.NONE ],
+    [ GFXPrimitiveMode.TRIANGLE_STRIP_ADJACENCY, WebGLRenderingContext.NONE ],
+    [ GFXPrimitiveMode.TRIANGLE_PATCH_ADJACENCY, WebGLRenderingContext.NONE ],
+    [ GFXPrimitiveMode.QUAD_PATCH_LIST, WebGLRenderingContext.NONE ],
+]);
 
-const WebGLWraps: GLenum[] = [
-    WebGLRenderingContext.REPEAT,
-    WebGLRenderingContext.MIRRORED_REPEAT,
-    WebGLRenderingContext.CLAMP_TO_EDGE,
-    WebGLRenderingContext.CLAMP_TO_EDGE,
-];
+const WebGLWraps = new Map([
+    [ GFXAddress.WRAP, WebGLRenderingContext.REPEAT ],
+    [ GFXAddress.MIRROR, WebGLRenderingContext.MIRRORED_REPEAT ],
+    [ GFXAddress.CLAMP, WebGLRenderingContext.CLAMP_TO_EDGE ],
+    [ GFXAddress.BORDER, WebGLRenderingContext.CLAMP_TO_EDGE ],
+]);
 
 export class WebGLGFXDevice extends GFXDevice {
 
@@ -791,9 +793,9 @@ export class WebGLGFXDevice extends GFXDevice {
             glMagFilter = WebGLRenderingContext.NEAREST;
         }
 
-        const glWrapS = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.REPEAT);
-        const glWrapT = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.REPEAT);
-        const glWrapR = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.REPEAT);
+        const glWrapS = (info.addressU !== undefined ? WebGLWraps.get(info.addressU) : WebGLRenderingContext.REPEAT);
+        const glWrapT = (info.addressU !== undefined ? WebGLWraps.get(info.addressU) : WebGLRenderingContext.REPEAT);
+        const glWrapR = (info.addressU !== undefined ? WebGLWraps.get(info.addressU) : WebGLRenderingContext.REPEAT);
 
         const gpuSampler: WebGLGPUSampler = {
             objType: WebGLGPUObjectType.SAMPLER,
@@ -870,7 +872,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
         const gpuPipelineState: WebGLGPUPipelineState = {
             objType: WebGLGPUObjectType.PIPELINE_STATE,
-            glPrimitive: WebGLPrimitives[info.primitive],
+            glPrimitive: WebGLPrimitives.get(info.primitive),
             gpuShader,
             rs: info.rs,
             dss: info.dss,
