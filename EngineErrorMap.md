@@ -242,7 +242,11 @@ The '%s' will be removed in v2.0, please use '%s' instead.
 
 ### 1407
 
-cc.pool is being removed from v2.0, you are getting cc.js.Pool instead
+cc.pool is being removed from v2.0, you are getting cc.js.Pool instead.
+
+### 1408
+
+'%s' is not support in the '%s', please use '%s' instead.
 
 ### 1500
 

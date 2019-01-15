@@ -30,7 +30,7 @@ const ValueType = require('./value-type');
 const js = require('../platform/js');
 const CCClass = require('../platform/CCClass');
 const misc = require('../utils/misc');
-const Vec2 = require('./vec2');
+const v2Proto = require('./vec2').prototype;
 
 /**
  * !#en Representation of 3D vectors and points.
@@ -464,7 +464,7 @@ proto.transformMat4 = function (m, out) {
  * @param {Vec3} vector
  * @return {number} from 0 to Math.PI
  */
-proto.angle = Vec2.angle;
+proto.angle = v2Proto.angle;
 
 /**
  * !#en Calculates the projection of the current vector over the given vector.
@@ -477,7 +477,12 @@ proto.angle = Vec2.angle;
  * var v2 = cc.v3(5, 5, 5);
  * v1.project(v2); // Vec3 {x: 20, y: 20, z: 20};
  */
-proto.project = Vec2.project;
+proto.project = v2Proto.project;
+
+// Compatible with the vec2 API
+js.value(proto, 'signAngle', function () {cc.warnID(1408, 'vec3.signAngle', 'v2.1', 'cc.v2(selfVector).signAngle(vector)');});
+js.value(proto, 'rotate', function () {cc.warnID(1408, 'vec3.rotate', 'v2.1', 'cc.v2(selfVector).rotate(radians, out)');});
+js.value(proto, 'rotateSelf', function () {cc.warnID(1408, 'vec3.rotateSelf', 'v2.1', 'cc.v2(selfVector).rotateSelf(radians)');});
 
 /**
  * !#en return a Vec3 object with x = 1, y = 1, z = 1.
