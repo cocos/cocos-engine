@@ -4,7 +4,7 @@ import { EffectAsset, IShaderInfo } from '../../3d/assets/effect-asset';
 import { CCObject } from '../../core/data';
 import { Color, Mat4, Vec2, Vec3, Vec4 } from '../../core/value-types';
 import { GFXType } from '../../gfx/define';
-import { RenderPassStage } from '../../pipeline/render-pipeline';
+import { RenderPassStage } from '../../pipeline/define';
 import Texture2D from '../gfx/texture-2d';
 import TextureCube from '../gfx/texture-cube';
 import { IPassInfoFull, Pass } from './pass';

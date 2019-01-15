@@ -13,7 +13,8 @@ import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { RenderPassStage, UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
+import { RenderPassStage } from '../../pipeline/define';
+import { UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part

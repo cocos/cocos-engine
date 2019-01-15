@@ -4,7 +4,7 @@ import { GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } fro
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
-import { RenderPassStage } from '../pipeline/render-pipeline';
+import { RenderPassStage } from '../pipeline/define';
 import ImageAsset from './image-asset';
 import Texture2D from './texture-2d';
 
