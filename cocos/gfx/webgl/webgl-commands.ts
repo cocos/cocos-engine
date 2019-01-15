@@ -394,8 +394,6 @@ export class WebGLCmdDraw extends WebGLCmdObject {
         firstInstance: 0,
     };
 
-    public gpuIndirectBuffer: WebGLGPUBuffer | null = null;
-
     constructor () {
         super(WebGLCmd.DRAW);
     }
@@ -1886,7 +1884,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
             case WebGLCmd.DRAW: {
                 const cmd3: WebGLCmdDraw = cmdPackage.drawCmds.array[cmdId];
                 if (gpuInputAssembler && gpuShader) {
-                    if (!cmd3.gpuIndirectBuffer) {
+                    if (!gpuInputAssembler.gpuIndirectBuffer) {
                         const drawInfo = cmd3.drawInfo as IGFXDrawInfo;
 
                         const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
@@ -1897,8 +1895,8 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             gl.drawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount);
                         }
                     } else {
-                        if (cmd3.gpuIndirectBuffer) {
-                            const drawInfos = (cmd3.gpuIndirectBuffer.buffer as IGFXIndirectBuffer).drawInfos;
+                        if (gpuInputAssembler.gpuIndirectBuffer) {
+                            const drawInfos = (gpuInputAssembler.gpuIndirectBuffer.buffer as IGFXIndirectBuffer).drawInfos;
                             for (const drawInfo of drawInfos) {
                                 const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                                 if (gpuBuffer && drawInfo.indexCount > 0) {

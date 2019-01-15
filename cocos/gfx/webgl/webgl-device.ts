@@ -973,12 +973,18 @@ export class WebGLGFXDevice extends GFXDevice {
             }
         }
 
+        let gpuIndirectBuffer: WebGLGPUBuffer | null = null;
+
+        if (info.indirectBuffer !== undefined) {
+            gpuIndirectBuffer = (info.indirectBuffer as WebGLGFXBuffer).gpuBuffer;
+        }
+
         const gpuInputAssembler: WebGLGPUInputAssembler = {
             objType: WebGLGPUObjectType.INPUT_ASSEMBLER,
             attributes: info.attributes,
             gpuVertexBuffers,
             gpuIndexBuffer,
-            gpuIndirectBuffers: [],
+            gpuIndirectBuffer,
 
             glAttribs: [],
             glIndexType,
