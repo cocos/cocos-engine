@@ -4,6 +4,7 @@ import { ForwardPipeline } from '../pipeline/forward/forward-pipeline';
 import { RenderPipeline } from '../pipeline/render-pipeline';
 import { IRenderViewInfo, RenderView } from '../pipeline/render-view';
 import { IRenderSceneInfo, RenderScene } from '../renderer/scene/render-scene';
+import { GUI } from '../renderer/gui/gui';
 
 export let _createSceneFun;
 export let _createViewFun;
@@ -29,8 +30,12 @@ export class Root {
         return this._windows;
     }
 
-    public get pipeline (): RenderPipeline | null {
-        return this._pipeline;
+    public get pipeline (): RenderPipeline {
+        return this._pipeline as RenderPipeline;
+    }
+
+    public get gui (): GUI {
+        return this._gui as GUI;
     }
 
     public get scenes (): RenderScene[] {
@@ -52,6 +57,7 @@ export class Root {
     private _windows: GFXWindow[] = [];
     private _mainWindow: GFXWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
+    private _gui: GUI | null = null;
     private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
     private _frameTime: number = 0;
@@ -77,6 +83,8 @@ export class Root {
         }
 
         this._pipeline = pipeline;
+
+        this._gui = new GUI(this);
 
         return true;
     }
