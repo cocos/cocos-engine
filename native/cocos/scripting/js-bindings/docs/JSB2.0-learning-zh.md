@@ -486,7 +486,7 @@ namespace ns {
         void foo() {
             printf("SomeClass::foo\n");
             
-            Director::getInstance()->getScheduler()->schedule([this](float dt){
+            Application::getInstance()->getScheduler()->schedule([this](float dt){
                 static int counter = 0;
                 ++counter;
                 if (_cb != nullptr)
@@ -929,22 +929,22 @@ bool ok = seval_to_int32(args[0], &v); // 第二个参数为输出参数，传�
 [cocos2d-x] 
 
 # 绑定回调函数的前缀，也是生成的自动绑定文件的前缀
-prefix = cocos2dx
+prefix = engine
 
 # 绑定的类挂载在 JS 中的哪个对象中，类似命名空间
-target_namespace = cc
+target_namespace = jsb
 
 # 自动绑定工具基于 Android 编译环境，此处配置 Android 头文件搜索路径
-android_headers = -I%(androidndkdir)s/platforms/android-14/arch-arm/usr/include -I%(androidndkdir)s/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include -I%(androidndkdir)s/sources/cxx-stl/gnu-libstdc++/4.8/include -I%(androidndkdir)s/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi-v7a/include -I%(androidndkdir)s/sources/cxx-stl/gnu-libstdc++/4.9/include
+android_headers =
 
 # 配置 Android 编译参数
-android_flags = -D_SIZE_T_DEFINED_
+android_flags = -target armv7-none-linux-androideabi -D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS -DANDROID -D__ANDROID_API__=14 -gcc-toolchain %(gcc_toolchain_dir)s --sysroot=%(androidndkdir)s/platforms/android-14/arch-arm  -idirafter %(androidndkdir)s/sources/android/support/include -idirafter %(androidndkdir)s/sysroot/usr/include -idirafter %(androidndkdir)s/sysroot/usr/include/arm-linux-androideabi -idirafter %(clangllvmdir)s/lib64/clang/5.0/include -I%(androidndkdir)s/sources/cxx-stl/llvm-libc++/include
 
 # 配置 clang 头文件搜索路径
-clang_headers = -I%(clangllvmdir)s/%(clang_include)s
+clang_headers =
 
 # 配置 clang 编译参数
-clang_flags = -nostdinc -x c++ -std=c++11 -U __SSE__
+clang_flags = -nostdinc -x c++ -std=c++11 -fsigned-char -U__SSE__
 
 # 配置引擎的头文件搜索路径
 cocos_headers = -I%(cocosdir)s/cocos -I%(cocosdir)s/cocos/platform/android -I%(cocosdir)s/external/sources
@@ -956,44 +956,44 @@ cocos_flags = -DANDROID
 extra_arguments = %(android_headers)s %(clang_headers)s %(cxxgenerator_headers)s %(cocos_headers)s %(android_flags)s %(clang_flags)s %(cocos_flags)s %(extra_flags)s
  
 # 需要自动绑定工具解析哪些头文件
-headers = %(cocosdir)s/cocos/cocos2d.h %(cocosdir)s/cocos/scripting/js-bindings/manual/BaseJSAction.h
+headers = %(cocosdir)s/cocos/cocos2d.h
 
 # 在生成的绑定代码中，重命名头文件
-replace_headers=CCProtectedNode.h::2d/CCProtectedNode.h,CCAsyncTaskPool.h::base/CCAsyncTaskPool.h
+replace_headers=
 
 # 需要绑定哪些类，可以使用正则表达式，以空格为间隔
-classes = 
+classes = FileUtils$ SAXParser CanvasRenderingContext2D CanvasGradient Device
 
 # 哪些类需要在 JS 层通过 cc.Class.extend，以空格为间隔
 classes_need_extend = 
 
 # 需要为哪些类绑定属性，以逗号为间隔
-field = Acceleration::[x y z timestamp]
+field =
 
 # 需要忽略绑定哪些类，以逗号为间隔
-skip = AtlasNode::[getTextureAtlas],
-       ParticleBatchNode::[getTextureAtlas],
+skip = FileUtils::[getFileData setFilenameLookupDictionary destroyInstance getFullPathCache getContents],
+        SAXParser::[(?!(init))],
+        Device::[getDeviceMotionValue],
+        CanvasRenderingContext2D::[setCanvasBufferUpdatedCallback set_.+]
 
 # 重命名函数，以逗号为间隔
-rename_functions = ComponentContainer::[get=getComponent],
-                   LayerColor::[initWithColor=init],
+rename_functions = FileUtils::[loadFilenameLookupDictionaryFromFile=loadFilenameLookup],
+                   CanvasRenderingContext2D::[getImageData=_getImageData]
 
 # 重命名类，以逗号为间隔
-rename_classes = SimpleAudioEngine::AudioEngine,
-                 SAXParser::PlistParser,
-
+rename_classes = SAXParser::PlistParser
 
 # 配置哪些类不需要搜索其父类
-classes_have_no_parents = Node Director SimpleAudioEngine FileUtils TMXMapInfo Application GLViewProtocol SAXParser Configuration
+classes_have_no_parents = SAXParser
 
 # 配置哪些父类需要被忽略
 base_classes_to_skip = Ref Clonable
 
 # 配置哪些类是抽象类，抽象类没有构造函数，即在 js 层无法通过 var a = new SomeClass();的方式构造 JS 对象
-abstract_classes = Director SpriteFrameCache Set SimpleAudioEngine
+abstract_classes = SAXParser Device
 
 # 配置哪些类是始终以一个实例的方式存在的，游戏运行过程中不会被销毁
-persistent_classes = TextureCache SpriteFrameCache FileUtils EventDispatcher ActionManager Scheduler
+persistent_classes = FileUtils
 
 # 配置哪些类是需要由 CPP 对象来控制 JS 对象生命周期的，未配置的类，默认采用 JS 控制 CPP 对象生命周期
 classes_owned_by_cpp = 
@@ -1030,7 +1030,7 @@ classes_owned_by_cpp =
 #### Windows
 
 * 编译、运行游戏（或在 Creator 中直接使用模拟器运行）
-* 用 Chrome 浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:5086/00010002-0003-4004-8005-000600070008)
+* 用 Chrome 浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:6086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:6086/00010002-0003-4004-8005-000600070008)
 
 断点调试：
 ![](v8-win32-debug.jpg)
@@ -1045,7 +1045,7 @@ Profile
 
 * 保证 Android 设备与 PC 或者 Mac 在同一个局域网中
 * 编译，运行游戏
-* 用 Chrome 浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008), 其中 `xxx.xxx.xxx.xxx` 为局域网中 Android 设备的 IP 地址
+* 用 Chrome 浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:6086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:6086/00010002-0003-4004-8005-000600070008), 其中 `xxx.xxx.xxx.xxx` 为局域网中 Android 设备的 IP 地址
 * 调试界面与 Windows 相同
 
 
@@ -1080,29 +1080,6 @@ Profile
 
 ## Q & A
 
-### se::ScriptEngine 与 ScriptingCore 的区别，为什么还要保留 ScriptingCore?
-
-在 1.7 中，抽象层被设计为一个与引擎没有关系的独立模块，对 JS 引擎的管理从 ScriptingCore 被移动到了 se::ScriptEngine 类中，ScriptingCore 被保留下来是希望通过它把引擎的一些事件传递给封装层，充当适配器的角色。
-
-ScriptingCore 只需要在 AppDelegate 中被使用一次即可，之后的所有操作都只需要用到 se::ScriptEngine。
-
-```c++
-bool AppDelegate::applicationDidFinishLaunching()
-{
-	...
-	...
-    director->setAnimationInterval(1.0 / 60);
-
-    // 这两行把 ScriptingCore 这个适配器设置给引擎，用于传递引擎的一些事件，
-    // 比如 Node 的 onEnter, onExit, Action 的 update，JS 对象的持有与解除持有
-    ScriptingCore* sc = ScriptingCore::getInstance();
-    ScriptEngineManager::getInstance()->setScriptEngine(sc);
-    
-    se::ScriptEngine* se = se::ScriptEngine::getInstance();
-    ...
-    ...
-}
-```
 ### se::Object::root/unroot 与 se::Object::incRef/decRef 的区别?
 
 root/unroot 用于控制 JS 对象是否受 GC 控制，root 表示不受 GC 控制，unroot 则相反，表示交由 GC 控制，对一个 se::Object 来说，root 和 unroot 可以被调用多次，se::Object 内部有_rootCount 变量用于表示 root 的次数。当 unroot 被调用，且_rootCount 为 0 时，se::Object 关联的 JS 对象将交由 GC 管理。还有一种情况，即如果 se::Object 的析构被触发了，如果_rootCount > 0，则强制把 JS 对象交由 GC 控制。

@@ -28,10 +28,7 @@ import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxGLSurfaceView;
 
 import android.os.Bundle;
-import org.cocos2dx.javascript.SDKWrapper;
-import com.cocos.analytics.CAAgent;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 
@@ -49,9 +46,8 @@ public class AppActivity extends Cocos2dxActivity {
             return;
         }
         // DO OTHER INITIALIZATION BELOW
-        
         SDKWrapper.getInstance().init(this);
-        CAAgent.enableDebug(false);
+
     }
     
     @Override
@@ -59,8 +55,7 @@ public class AppActivity extends Cocos2dxActivity {
         Cocos2dxGLSurfaceView glSurfaceView = new Cocos2dxGLSurfaceView(this);
         // TestCpp should create stencil buffer
         glSurfaceView.setEGLConfigChooser(5, 6, 5, 0, 16, 8);
-
-        SDKWrapper.getInstance().setGLSurfaceView(glSurfaceView);
+        SDKWrapper.getInstance().setGLSurfaceView(glSurfaceView, this);
 
         return glSurfaceView;
     }
@@ -69,24 +64,21 @@ public class AppActivity extends Cocos2dxActivity {
     protected void onResume() {
         super.onResume();
         SDKWrapper.getInstance().onResume();
-        if (CAAgent.isInited())
-            CAAgent.onResume(this);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         SDKWrapper.getInstance().onPause();
-        if (CAAgent.isInited())
-            CAAgent.onPause(this);
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         SDKWrapper.getInstance().onDestroy();
-        if (CAAgent.isInited())
-            CAAgent.onDestroy();
+
     }
 
     @Override

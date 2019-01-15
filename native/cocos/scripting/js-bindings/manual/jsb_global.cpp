@@ -198,7 +198,13 @@ void jsb_init_file_operation_delegate()
                 }
             }
 
-            return FileUtils::getInstance()->getStringFromFile(path);
+            if (FileUtils::getInstance()->isFileExist(path)) {
+                return FileUtils::getInstance()->getStringFromFile(path);
+            }
+            else {
+                SE_LOGE("ScriptEngine::onGetStringFromFile %s not found, possible missing file.\n", path.c_str());
+            }
+            return "";
         };
 
         delegate.onGetFullPath = [](const std::string& path) -> std::string{
@@ -607,6 +613,14 @@ static bool JSBCore_getCurrentLanguage(se::State& s)
 }
 SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 
+static bool JSBCore_getCurrentLanguageCode(se::State& s)
+{
+    std::string language = Application::getInstance()->getCurrentLanguageCode();
+    s.rval().setString(language);
+    return true;
+}
+SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
+
 static bool JSB_getOSVersion(se::State& s)
 {
     std::string systemVersion = Application::getInstance()->getSystemVersion();
@@ -846,11 +860,8 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
     size_t pos = std::string::npos;
     if (path.find("http://") == 0 || path.find("https://") == 0)
     {
-#if USE_NET_WORK
         localDownloaderCreateTask(path, initImageFunc);
-#else
-        SE_REPORT_ERROR("can't load remote image if you disable network module!");
-#endif // USE_NET_WORK
+
     }
     else if (path.find("data:") == 0 && (pos = path.find("base64,")) != std::string::npos)
     {
@@ -1143,6 +1154,7 @@ bool jsb_register_global_variables(se::Object* global)
     global->defineFunction("__getOS", _SE(JSBCore_os));
     global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
     global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
+    global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
     global->defineFunction("__getVersion", _SE(JSBCore_version));
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
     global->defineFunction("__cleanScript", _SE(JSB_cleanScript));

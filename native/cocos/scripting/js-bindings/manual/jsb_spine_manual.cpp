@@ -244,19 +244,35 @@ SE_BIND_PROP_GET(jsb_spine_TrackEntry_get_mixDuration)
 
 static bool jsb_spine_TrackEntry_get_mixAlpha(se::State& s)
 {
-    spTrackEntry* cobj = (spTrackEntry*) s.nativeThisObject();
-    s.rval().setFloat(cobj->mixAlpha);
+    s.rval().setFloat(0);
+    CCLOGWARN("spTrackEntry's mixAlpha property is discard!!!!!!");
     return true;
 }
 SE_BIND_PROP_GET(jsb_spine_TrackEntry_get_mixAlpha)
 
 static bool jsb_spine_TrackEntry_get_timelinesFirstCount(se::State& s)
 {
-    spTrackEntry* cobj = (spTrackEntry*) s.nativeThisObject();
-    s.rval().setInt32(cobj->timelinesFirstCount);
+    s.rval().setInt32(0);
+    CCLOGWARN("spTrackEntry's timelinesFirstCount property is discard!!!!!!");
     return true;
 }
 SE_BIND_PROP_GET(jsb_spine_TrackEntry_get_timelinesFirstCount)
+
+static bool jsb_spine_TrackEntry_get_interruptAlpha(se::State& s)
+{
+    spTrackEntry* cobj = (spTrackEntry*) s.nativeThisObject();
+    s.rval().setFloat(cobj->interruptAlpha);
+    return true;
+}
+SE_BIND_PROP_GET(jsb_spine_TrackEntry_get_interruptAlpha)
+
+static bool jsb_spine_TrackEntry_get_totalAlpha(se::State& s)
+{
+    spTrackEntry* cobj = (spTrackEntry*) s.nativeThisObject();
+    s.rval().setFloat(cobj->totalAlpha);
+    return true;
+}
+SE_BIND_PROP_GET(jsb_spine_TrackEntry_get_totalAlpha)
 
 static bool jsb_spine_TrackEntry_get_timelinesRotationCount(se::State& s)
 {
@@ -300,6 +316,8 @@ static bool js_register_spine_TrackEntry(se::Object* obj)
     cls->defineProperty("mixTime", _SE(jsb_spine_TrackEntry_get_mixTime), nullptr);
     cls->defineProperty("mixDuration", _SE(jsb_spine_TrackEntry_get_mixDuration), nullptr);
     cls->defineProperty("mixAlpha", _SE(jsb_spine_TrackEntry_get_mixAlpha), nullptr);
+    cls->defineProperty("interruptAlpha", _SE(jsb_spine_TrackEntry_get_interruptAlpha), nullptr);
+    cls->defineProperty("totalAlpha", _SE(jsb_spine_TrackEntry_get_totalAlpha), nullptr);
     cls->defineProperty("timelinesFirstCount", _SE(jsb_spine_TrackEntry_get_timelinesFirstCount), nullptr);
     cls->defineProperty("timelinesRotationCount", _SE(jsb_spine_TrackEntry_get_timelinesRotationCount), nullptr);
     cls->defineProperty("animation", _SE(jsb_spine_TrackEntry_get_animation), nullptr);

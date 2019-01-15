@@ -2981,10 +2981,17 @@ bool spslotdata_to_seval(const spSlotData* v, se::Value* ret)
 
     obj->setProperty("name", se::Value(v->name));
     obj->setProperty("attachmentName", se::Value(v->attachmentName));
-    obj->setProperty("r", se::Value(v->r));
-    obj->setProperty("g", se::Value(v->g));
-    obj->setProperty("b", se::Value(v->b));
-    obj->setProperty("a", se::Value(v->a));
+    obj->setProperty("r", se::Value(v->color.r));
+    obj->setProperty("g", se::Value(v->color.g));
+    obj->setProperty("b", se::Value(v->color.b));
+    obj->setProperty("a", se::Value(v->color.a));
+    if (v->darkColor)
+    {
+        obj->setProperty("dr", se::Value(v->darkColor->r));
+        obj->setProperty("dg", se::Value(v->darkColor->g));
+        obj->setProperty("db", se::Value(v->darkColor->b));
+        obj->setProperty("da", se::Value(v->darkColor->a));
+    }
     obj->setProperty("blendMode", se::Value((int32_t)v->blendMode));
     obj->setProperty("boneData", boneData);
 
@@ -3012,10 +3019,17 @@ bool spslot_to_seval(const spSlot* v, se::Value* ret)
     se::Value data;
     SE_PRECONDITION3(spslotdata_to_seval(v->data, &data), false, ret->setUndefined());
 
-    obj->setProperty("r", se::Value(v->r));
-    obj->setProperty("g", se::Value(v->g));
-    obj->setProperty("b", se::Value(v->b));
-    obj->setProperty("a", se::Value(v->a));
+    obj->setProperty("r", se::Value(v->color.r));
+    obj->setProperty("g", se::Value(v->color.g));
+    obj->setProperty("b", se::Value(v->color.b));
+    obj->setProperty("a", se::Value(v->color.a));
+    if (v->darkColor)
+    {
+        obj->setProperty("dr", se::Value(v->darkColor->r));
+        obj->setProperty("dg", se::Value(v->darkColor->g));
+        obj->setProperty("db", se::Value(v->darkColor->b));
+        obj->setProperty("da", se::Value(v->darkColor->a));
+    }
     obj->setProperty("bone", bone);
     obj->setProperty("attachment", attachment);
     obj->setProperty("data", data);

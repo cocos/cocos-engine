@@ -24,8 +24,8 @@
 #pragma once
 
 #include "IOBuffer.h"
-#include "map"
-#include "vector"
+#include <map>
+#include <vector>
 #include "base/CCRef.h"
 #include "MiddlewareMacro.h"
 
@@ -86,7 +86,7 @@ public:
     /**
      * @return opengl index buffer id
      */
-    uint32_t getGLIBID()
+    uint32_t getGLIBID() const
     {
         return _glIBID;
     }
@@ -94,13 +94,17 @@ public:
     /**
      * @return opengl vertex buffer id
      */
-    uint32_t getGLVBID()
+    uint32_t getGLVBID(int format)
     {
-        return _glVBID;
+        return _glVBMap[format];
     }
     
-    cocos2d::middleware::IOBuffer vb;
-    cocos2d::middleware::IOBuffer ib;
+    cocos2d::middleware::IOBuffer& getVB(int format);
+    
+    cocos2d::middleware::IOBuffer& getIB()
+    {
+        return _ib;
+    }
     
     MiddlewareManager();
     ~MiddlewareManager();
@@ -114,8 +118,14 @@ private:
 private:
     std::map<IMiddleware*, bool> _updateMap;
     std::vector<IMiddleware*> _removeList;
+    
     uint32_t _glIBID = 0;
-    uint32_t _glVBID = 0;
+    cocos2d::middleware::IOBuffer _ib;
+    
+    std::map<int, uint32_t> _glVBMap;
+    std::map<int, cocos2d::middleware::IOBuffer*> _vbMap;
+    std::vector<int> _vfList;
+    
     static MiddlewareManager* _instance;
 };
 MIDDLEWARE_END

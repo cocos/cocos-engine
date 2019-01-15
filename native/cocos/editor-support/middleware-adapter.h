@@ -29,8 +29,8 @@
 #include "MiddlewareMacro.h"
 
 MIDDLEWARE_BEGIN
-/** @struct Tex2F
- * A TEXCOORD composed of 2 floats: u, y
+/**
+ *  Texture format with u v.
  */
 struct Tex2F
 {
@@ -38,25 +38,55 @@ struct Tex2F
     GLfloat v;
 };
 
-/** @struct V2F_T2F_C4B
- * A Vec2 with a vertex point, a tex coord point and a color 4B.
+/**
+ *  Vertex Format with x y u v color.
  */
 struct V2F_T2F_C4B
 {
-    /// vertices (3F)
-    cocos2d::Vec2     vertices;            // 12 bytes
+    // vertices (2F)
+    cocos2d::Vec2       vertex;             // 8 bytes
     
     // tex coords (2F)
-    Tex2F        texCoords;           // 8 bytes
+    Tex2F               texCoord;                 // 8 bytes
     
-    /// colors (4B)
-    cocos2d::Color4B      colors;              // 4 bytes
+    // colors (4B)
+    cocos2d::Color4B    color;           // 4 bytes
+};
+
+/**
+ *  Vertex Format with x y u v color1 color2.
+ */
+struct V2F_T2F_C4B_C4B
+{
+    // vertices (2F)
+    cocos2d::Vec2       vertex;             // 8 bytes
+    
+    // tex coords (2F)
+    Tex2F               texCoord;                 // 8 bytes
+    
+    // colors (4B)
+    cocos2d::Color4B    color;           // 4 bytes
+    
+    // colors (4B)
+    cocos2d::Color4B    color2;          // 4 bytes
 };
 
 struct Triangles
 {
     /**Vertex data pointer.*/
     V2F_T2F_C4B* verts = nullptr;
+    /**Index data pointer.*/
+    unsigned short* indices = nullptr;
+    /**The number of vertices.*/
+    int vertCount = 0;
+    /**The number of indices.*/
+    int indexCount = 0;
+};
+
+struct TwoColorTriangles
+{
+    /**Vertex data pointer.*/
+    V2F_T2F_C4B_C4B* verts = nullptr;
     /**Index data pointer.*/
     unsigned short* indices = nullptr;
     /**The number of vertices.*/

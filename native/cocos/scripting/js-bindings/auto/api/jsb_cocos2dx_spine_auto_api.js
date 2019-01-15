@@ -9,6 +9,16 @@ var spine = spine || {};
 spine.Skeleton = {
 
 /**
+ * @method setUseTint
+ * @param {bool} arg0
+ */
+setUseTint : function (
+bool 
+)
+{
+},
+
+/**
  * @method setTimeScale
  * @param {float} arg0
  */
@@ -54,6 +64,14 @@ setBonesToSetupPose : function (
  * @method setSlotsToSetupPose
  */
 setSlotsToSetupPose : function (
+)
+{
+},
+
+/**
+ * @method stopSchedule
+ */
+stopSchedule : function (
 )
 {
 },
@@ -161,6 +179,20 @@ getDebugData : function (
 },
 
 /**
+ * @method initWithSkeleton
+ * @param {spSkeleton} arg0
+ * @param {bool} arg1
+ * @param {bool} arg2
+ */
+initWithSkeleton : function (
+spskeleton, 
+bool, 
+bool 
+)
+{
+},
+
+/**
  * @method update
  * @param {float} arg0
  */
@@ -213,9 +245,13 @@ getTimeScale : function (
 },
 
 /**
- * @method stopSchedule
+ * @method setSlotsRange
+ * @param {int} arg0
+ * @param {int} arg1
  */
-stopSchedule : function (
+setSlotsRange : function (
+int, 
+int 
 )
 {
 },
@@ -293,27 +329,11 @@ str
 },
 
 /**
- * @method createWithFile
-* @param {String|String} str
-* @param {spAtlas|String} spatlas
-* @param {float|float} float
-* @return {sp.SpineRenderer|sp.SpineRenderer|sp.SpineRenderer}
-*/
-createWithFile : function(
-str,
-str,
-float 
-)
-{
-    return sp.SpineRenderer;
-},
-
-/**
  * @method SpineRenderer
  * @constructor
-* @param {spSkeletonData|String|String} spskeletondata
-* @param {bool|spAtlas|String} bool
-* @param {float|float} float
+* @param {spSkeleton|spSkeletonData|String|String} spskeleton
+* @param {bool|bool|spAtlas|String} bool
+* @param {bool|float|float} bool
 */
 SpineRenderer : function(
 str,
@@ -370,6 +390,22 @@ str,
 float 
 )
 {
+},
+
+/**
+ * @method addEmptyAnimation
+ * @param {int} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @return {spTrackEntry}
+ */
+addEmptyAnimation : function (
+int, 
+float, 
+float 
+)
+{
+    return spTrackEntry;
 },
 
 /**
@@ -443,6 +479,20 @@ func
 },
 
 /**
+ * @method setEmptyAnimation
+ * @param {int} arg0
+ * @param {float} arg1
+ * @return {spTrackEntry}
+ */
+setEmptyAnimation : function (
+int, 
+float 
+)
+{
+    return spTrackEntry;
+},
+
+/**
  * @method clearTrack
  */
 clearTrack : function (
@@ -476,6 +526,16 @@ float
 )
 {
     return spTrackEntry;
+},
+
+/**
+ * @method setEmptyAnimations
+ * @param {float} arg0
+ */
+setEmptyAnimations : function (
+float 
+)
+{
 },
 
 /**

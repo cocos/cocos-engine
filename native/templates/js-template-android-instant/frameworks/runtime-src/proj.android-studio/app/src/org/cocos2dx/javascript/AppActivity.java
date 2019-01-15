@@ -28,10 +28,7 @@ import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxGLSurfaceView;
 
 import android.os.Bundle;
-import org.cocos2dx.javascript.SDKWrapper;
-import com.cocos.analytics.CAAgent;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 
@@ -40,27 +37,26 @@ public class AppActivity extends Cocos2dxActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Workaround in https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
+        // Workaround in
+        // https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
         if (!isTaskRoot()) {
             // Android launched another instance of the root activity into an existing task
-            //  so just quietly finish and go away, dropping the user back into the activity
-            //  at the top of the stack (ie: the last state of this task)
+            // so just quietly finish and go away, dropping the user back into the activity
+            // at the top of the stack (ie: the last state of this task)
             // Don't need to finish it again since it's finished in super.onCreate .
             return;
         }
         // DO OTHER INITIALIZATION BELOW
-        
         SDKWrapper.getInstance().init(this);
-        CAAgent.enableDebug(false);
+
     }
-	
+
     @Override
     public Cocos2dxGLSurfaceView onCreateView() {
         Cocos2dxGLSurfaceView glSurfaceView = new Cocos2dxGLSurfaceView(this);
         // TestCpp should create stencil buffer
         glSurfaceView.setEGLConfigChooser(5, 6, 5, 0, 16, 8);
-
-        SDKWrapper.getInstance().setGLSurfaceView(glSurfaceView);
+        SDKWrapper.getInstance().setGLSurfaceView(glSurfaceView, this);
 
         return glSurfaceView;
     }
@@ -69,24 +65,21 @@ public class AppActivity extends Cocos2dxActivity {
     protected void onResume() {
         super.onResume();
         SDKWrapper.getInstance().onResume();
-        if (CAAgent.isInited())
-            CAAgent.onResume(this);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         SDKWrapper.getInstance().onPause();
-        if (CAAgent.isInited())
-            CAAgent.onPause(this);
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         SDKWrapper.getInstance().onDestroy();
-        if (CAAgent.isInited())
-            CAAgent.onDestroy();
+
     }
 
     @Override
@@ -112,7 +105,7 @@ public class AppActivity extends Cocos2dxActivity {
         super.onStop();
         SDKWrapper.getInstance().onStop();
     }
-        
+
     @Override
     public void onBackPressed() {
         SDKWrapper.getInstance().onBackPressed();

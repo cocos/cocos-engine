@@ -28,7 +28,8 @@ USING_NS_CC;
 
 namespace spine {
     
-    AttachmentVertices::AttachmentVertices (middleware::Texture2D* texture, int verticesCount, unsigned short* triangles, int trianglesCount) {
+    AttachmentVertices::AttachmentVertices (middleware::Texture2D* texture, int verticesCount, unsigned short* triangles, int trianglesCount)
+    {
         _texture = texture;
         
         _triangles = new middleware::Triangles();
@@ -38,7 +39,8 @@ namespace spine {
         _triangles->indexCount = trianglesCount;
     }
     
-    AttachmentVertices::~AttachmentVertices () {
+    AttachmentVertices::~AttachmentVertices ()
+    {
         delete [] _triangles->verts;
         delete _triangles;
     }

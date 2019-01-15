@@ -48,8 +48,13 @@ base/csscolorparser.cpp \
 base/CCGLUtils.cpp \
 base/CCRenderTexture.cpp \
 storage/local-storage/LocalStorage-android.cpp \
+network/CCDownloader.cpp \
+network/CCDownloader-android.cpp \
+network/Uri.cpp \
+network/HttpClient-android.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp \
+scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
 scripting/js-bindings/manual/JavaScriptJavaBridge.cpp \
 scripting/js-bindings/manual/jsb_opengl_manual.cpp \
 scripting/js-bindings/manual/jsb_opengl_utils.cpp \
@@ -57,9 +62,8 @@ scripting/js-bindings/manual/jsb_classtype.cpp \
 scripting/js-bindings/manual/jsb_conversions.cpp \
 scripting/js-bindings/manual/jsb_cocos2dx_manual.cpp \
 scripting/js-bindings/manual/jsb_global.cpp \
-scripting/js-bindings/manual/jsb_socketio.cpp \
-scripting/js-bindings/manual/jsb_websocket.cpp \
 scripting/js-bindings/manual/jsb_xmlhttprequest.cpp \
+scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp \
 scripting/js-bindings/manual/jsb_platform_android.cpp \
 scripting/js-bindings/jswrapper/config.cpp \
 scripting/js-bindings/jswrapper/HandleObject.cpp \
@@ -97,6 +101,7 @@ scripting/js-bindings/jswrapper/v8/debugger/http_parser.c
 # uv_static only used in v8 debugger
 LOCAL_STATIC_LIBRARIES += uv_static
 LOCAL_STATIC_LIBRARIES += v8_inspector
+LOCAL_STATIC_LIBRARIES += cocos_extension_static
 
 # opengl bindings depend on GFXUtils "_JSB_GL_CHECK"
 LOCAL_SRC_FILES += \
@@ -155,13 +160,17 @@ scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp
 LOCAL_STATIC_LIBRARIES += audioengine_static
 endif # USE_AUDIO
 
-ifeq ($(USE_NET_WORK),1)
+ifeq ($(USE_SOCKET),1)
 LOCAL_SRC_FILES += \
-scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
-scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp
-LOCAL_STATIC_LIBRARIES += cocos_network_static
-LOCAL_STATIC_LIBRARIES += cocos_extension_static
-endif # USE_NET_WORK
+network/SocketIO.cpp \
+network/WebSocket-libwebsockets.cpp \
+scripting/js-bindings/manual/jsb_socketio.cpp \
+scripting/js-bindings/manual/jsb_websocket.cpp
+
+LOCAL_STATIC_LIBRARIES += libwebsockets_static
+LOCAL_STATIC_LIBRARIES += cocos_ssl_static
+LOCAL_STATIC_LIBRARIES += cocos_crypto_static
+endif # USE_SOCKET
 
 ifneq ($(USE_MIDDLEWARE),0_0)
 LOCAL_STATIC_LIBRARIES += editor_support_static
@@ -183,6 +192,7 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \
                     $(LOCAL_PATH)/platform \
                     $(LOCAL_PATH)/base \
+                    $(LOCAL_PATH)/network \
                     $(LOCAL_PATH)/../external/android/$(TARGET_ARCH_ABI)/include \
                     $(LOCAL_PATH)/../external/sources \
                     $(LOCAL_PATH)/renderer
@@ -222,6 +232,5 @@ $(call import-module,android)
 $(call import-module,editor-support)
 $(call import-module,platform/android)
 $(call import-module,audio/android)
-$(call import-module,network)
 $(call import-module,extensions)
 $(call import-module,android/cpufeatures)

@@ -425,6 +425,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
     private Cocos2dxRenderer addSurfaceView() {
         this.mGLSurfaceView = this.onCreateView();
+        this.mGLSurfaceView.setPreserveEGLContextOnPause(true);
         // Should set to transparent, or it will hide EditText
         // https://stackoverflow.com/questions/2978290/androids-edittext-is-hidden-when-the-virtual-keyboard-is-shown-and-a-surfacevie
         mGLSurfaceView.setBackgroundColor(Color.TRANSPARENT);

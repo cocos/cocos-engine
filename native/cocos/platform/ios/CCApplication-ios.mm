@@ -273,17 +273,10 @@ void Application::setPreferredFramesPerSecond(int fps)
 
 std::string Application::getCurrentLanguageCode() const
 {
-    char code[3]={0};
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
     NSString *currentLanguage = [languages objectAtIndex:0];
-
-    // get the current language code.(such as English is "en", Chinese is "zh" and so on)
-    NSDictionary* temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
-    NSString * languageCode = [temp objectForKey:NSLocaleLanguageCode];
-    [languageCode getCString:code maxLength:3 encoding:NSASCIIStringEncoding];
-    code[2]='\0';
-    return std::string(code);
+    return [currentLanguage UTF8String];
 }
 
 bool Application::isDisplayStats() {

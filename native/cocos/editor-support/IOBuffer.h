@@ -158,32 +158,47 @@ public:
         _readPos = 0;
     }
     
-    inline std::size_t length() const
+    inline void move (int pos)
+    {
+        if (_bufferSize < _curPos + pos)
+        {
+            _outRange = true;
+            return;
+        }
+        _curPos += pos;
+    }
+    
+    inline std::size_t length () const
     {
         return _curPos;
     }
 
-    inline std::size_t getCurPos() const
+    inline std::size_t getCurPos () const
     {
         return _curPos;
     }
 
-    inline uint8_t* getBuffer() const
+    inline uint8_t* getCurBuffer () const
+    {
+        return _buffer + _curPos;
+    }
+    
+    inline uint8_t* getBuffer () const
     {
         return _buffer;
     }
     
-    inline std::size_t getCapacity() const
+    inline std::size_t getCapacity () const
     {
         return _bufferSize;
     }
     
-    inline bool isOutRange()
+    inline bool isOutRange ()
     {
         return _outRange;
     }
 
-	inline void checkSpace(std::size_t needSize, bool needCopy = false)
+	inline void checkSpace (std::size_t needSize, bool needCopy = false)
 	{
 		auto needLen = _curPos + needSize;
 		if (_bufferSize < needLen)
@@ -198,7 +213,7 @@ public:
      * @param[in] newLen New size you want to adjustment.
      * @param[in] needCopy If true,will copy old data to new buffer,default false.
      */
-    virtual void resize(std::size_t newLen, bool needCopy = false);
+    virtual void resize (std::size_t newLen, bool needCopy = false);
 protected:
     uint8_t*                    _buffer = nullptr;
     std::size_t                 _bufferSize = 0;

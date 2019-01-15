@@ -31,11 +31,15 @@
 #ifndef SPINE_SKIN_H_
 #define SPINE_SKIN_H_
 
+#include <spine/dll.h>
 #include <spine/Attachment.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* Size of hashtable used in skin structure for fast attachment lookup. */
+#define SKIN_ENTRIES_HASH_TABLE_SIZE 100
 
 struct spSkeleton;
 
@@ -58,24 +62,31 @@ struct _Entry {
 	_Entry* next;
 };
 
+typedef struct _SkinHashTableEntry _SkinHashTableEntry;
+struct _SkinHashTableEntry {
+	_Entry* entry;
+	_SkinHashTableEntry* next;  /* list for elements with same hashes */
+};
+
 typedef struct {
 	spSkin super;
-	_Entry* entries;
+	_Entry* entries; /* entries list stored for getting attachment name by attachment index */
+	_SkinHashTableEntry* entriesHashTable[SKIN_ENTRIES_HASH_TABLE_SIZE];  /* hashtable for fast attachment lookup */
 } _spSkin;
 
-spSkin* spSkin_create (const char* name);
-void spSkin_dispose (spSkin* self);
+SP_API spSkin* spSkin_create (const char* name);
+SP_API void spSkin_dispose (spSkin* self);
 
 /* The Skin owns the attachment. */
-void spSkin_addAttachment (spSkin* self, int slotIndex, const char* name, spAttachment* attachment);
+SP_API void spSkin_addAttachment (spSkin* self, int slotIndex, const char* name, spAttachment* attachment);
 /* Returns 0 if the attachment was not found. */
-spAttachment* spSkin_getAttachment (const spSkin* self, int slotIndex, const char* name);
+SP_API spAttachment* spSkin_getAttachment (const spSkin* self, int slotIndex, const char* name);
 
 /* Returns 0 if the slot or attachment was not found. */
-const char* spSkin_getAttachmentName (const spSkin* self, int slotIndex, int attachmentIndex);
+SP_API const char* spSkin_getAttachmentName (const spSkin* self, int slotIndex, int attachmentIndex);
 
 /** Attach each attachment in this skin if the corresponding attachment in oldSkin is currently attached. */
-void spSkin_attachAll (const spSkin* self, struct spSkeleton* skeleton, const spSkin* oldspSkin);
+SP_API void spSkin_attachAll (const spSkin* self, struct spSkeleton* skeleton, const spSkin* oldspSkin);
 
 #ifdef SPINE_SHORT_NAMES
 typedef spSkin Skin;

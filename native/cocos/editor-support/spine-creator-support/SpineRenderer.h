@@ -38,9 +38,11 @@ namespace spine {
 
     /** Draws a skeleton.
      */
-    class SpineRenderer: public cocos2d::middleware::IMiddleware, public cocos2d::Ref {
+    class SpineRenderer: public cocos2d::middleware::IMiddleware, public cocos2d::Ref
+    {
     public:
         static SpineRenderer* create ();
+	    static SpineRenderer* createWithSkeleton(spSkeleton* skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
         static SpineRenderer* createWithData (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
         static SpineRenderer* createWithFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale = 1);
         static SpineRenderer* createWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
@@ -79,6 +81,12 @@ namespace spine {
         /* @param attachmentName May be 0 for no attachment. */
         bool setAttachment (const std::string& slotName, const char* attachmentName);
         
+        /* Enables/disables two color tinting for this instance. May break batching */
+        void setUseTint(bool enabled);
+        
+        /* Sets the range of slots that should be rendered. Use -1, -1 to clear the range */
+        void setSlotsRange(int startSlotIndex, int endSlotIndex);
+
         /**
          * @return debug data,it's a Float32Array,
          * format |debug bones length|[beginX|beginY|toX|toY|...loop...]
@@ -119,12 +127,14 @@ namespace spine {
         
     CC_CONSTRUCTOR_ACCESS:
         SpineRenderer ();
+        SpineRenderer(spSkeleton* skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
         SpineRenderer (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
         SpineRenderer (const std::string& skeletonDataFile, spAtlas* atlas, float scale = 1);
         SpineRenderer (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
 
         virtual ~SpineRenderer ();
 
+        void initWithSkeleton(spSkeleton* skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
         void initWithData (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
         void initWithJsonFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale = 1);
         void initWithJsonFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
@@ -139,9 +149,9 @@ namespace spine {
         virtual AttachmentVertices* getAttachmentVertices (spMeshAttachment* attachment) const;
 
         bool                _ownsSkeletonData = true;
+        bool                _ownsSkeleton = true;
         spAtlas*            _atlas = nullptr;
         spAttachmentLoader* _attachmentLoader = nullptr;
-        float*              _worldVertices = nullptr;
         spSkeleton*         _skeleton = nullptr;
         float               _timeScale = 1;
         bool                _paused = false;
@@ -150,9 +160,14 @@ namespace spine {
         bool                _debugBones = false;
         cocos2d::Color4B    _nodeColor = cocos2d::Color4B::WHITE;
         bool                _premultipliedAlpha = false;
+        spSkeletonClipping* _clipper = nullptr;
+        bool                _useTint = false;
         
-        cocos2d::middleware::IOTypedArray* _materialBuffer = nullptr;
-        cocos2d::middleware::IOTypedArray* _debugBuffer = nullptr;
+        int                 _startSlotIndex = -1;
+        int                 _endSlotIndex = -1;
+        
+        cocos2d::middleware::IOTypedArray*  _materialBuffer = nullptr;
+        cocos2d::middleware::IOTypedArray*  _debugBuffer = nullptr;
     };
 
 }

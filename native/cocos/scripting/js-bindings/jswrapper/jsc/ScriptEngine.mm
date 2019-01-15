@@ -607,6 +607,11 @@ namespace se {
                 internal::jsToSeValue(_cx, result, ret);
         }
 
+        if (!ok)
+        {
+            SE_LOGE("ScriptEngine::evalString script %s, failed!\n", fileName);
+        }
+
         _clearException(exception);
 
         return ok;
