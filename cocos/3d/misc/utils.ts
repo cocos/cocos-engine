@@ -1,4 +1,4 @@
-import { GFXAttributeName } from '../../gfx/define';
+import { GFXAttributeName, GFXPrimitiveMode } from '../../gfx/define';
 export { default as find } from '../../scene-graph/find';
 import Texture2D from '../../assets/texture-2d';
 import { Filter, PixelFormat, WrapMode } from '../../assets/texture-base';
@@ -113,6 +113,16 @@ export function createMesh (geometry: IGeometry) {
             },
         };
         bufferBlob.addBuffer(indexBuffer);
+    }
+
+    // geometric info for raycasting
+    if (geometry.primitiveMode >= GFXPrimitiveMode.TRIANGLE_LIST) {
+        const geomInfo = Float32Array.from(geometry.positions);
+        primitive.geomInfo = {
+            doubleSided: geometry.doubleSided,
+            range: { offset: bufferBlob.getLength(), length: geomInfo.byteLength },
+        };
+        bufferBlob.addBuffer(geomInfo.buffer);
     }
 
     // Create mesh struct.

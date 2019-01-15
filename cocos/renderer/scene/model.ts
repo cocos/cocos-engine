@@ -159,6 +159,7 @@ export class Model {
     set subMeshData (sm: IRenderingSubmesh | null) {
         this._subMeshObject = sm;
     }
+
     get subMeshData () {
         return this._subMeshObject;
     }

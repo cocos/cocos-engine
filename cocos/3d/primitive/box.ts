@@ -1,7 +1,7 @@
 import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
-import { IGeometry, IGeometryOptions } from './defines';
+import { IGeometry, IGeometryOptions } from './define';
 
 interface IBoxOptions extends IGeometryOptions {
     /**
