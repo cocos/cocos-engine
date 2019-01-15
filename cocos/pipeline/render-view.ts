@@ -1,15 +1,14 @@
 import { Root } from '../core/root';
 import { GFXWindow } from '../gfx/window';
 import { Camera } from '../renderer/scene/camera';
-import { RenderScene } from '../renderer/scene/render-scene';
 
 export enum RenderViewPriority {
     GENERAL = 100,
 }
 
 export interface IRenderViewInfo {
+    camera: Camera;
     name: string;
-    window: GFXWindow;
     priority: number;
 }
 
@@ -42,12 +41,8 @@ export class RenderView {
         return this._camera as Camera;
     }
 
-    public get scene () {
-        return this._scene as RenderScene;
-    }
-
     public static registerCreateFunc (root: Root) {
-        root._createViewFun = (_root: Root): RenderView => new RenderView(_root);
+        root._createViewFun = (_root: Root, _camera: Camera): RenderView => new RenderView(_root, _camera);
     }
 
     private _root: Root;
@@ -55,24 +50,17 @@ export class RenderView {
     private _window: GFXWindow | null = null;
     private _priority: number = 0;
     private _visibility: number = 0;
-    private _scene: RenderScene | null = null;
     private _camera: Camera | null = null;
-    private _isAttached: boolean = false;
     private _isEnable: boolean = true;
 
-    private constructor (root: Root) {
+    private constructor (root: Root, camera: Camera) {
         this._root = root;
+        this._camera = camera;
     }
 
     public initialize (info: IRenderViewInfo): boolean {
 
-        if (!info.window) {
-            console.error('RenderViewInfo.window is null.');
-            return false;
-        }
-
         this._name = info.name;
-        this._window = info.window;
         this._priority = info.priority;
 
         return true;
@@ -81,22 +69,11 @@ export class RenderView {
     public destroy () {
         this._window = null;
         this._priority = 0;
+        this._camera = null;
     }
 
     public resize (width, height) {
 
-    }
-
-    public attach (camera: Camera) {
-        this._scene = camera.scene;
-        this._camera = camera;
-        this._isAttached = true;
-    }
-
-    public detach () {
-        this._scene = null;
-        this._camera = null;
-        this._isAttached = false;
     }
 
     public enable (isEnable: boolean) {
@@ -105,9 +82,5 @@ export class RenderView {
 
     public isEnable (): boolean {
         return this._isEnable;
-    }
-
-    public isAttached (): boolean {
-        return this._isAttached;
     }
 }

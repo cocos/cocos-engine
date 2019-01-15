@@ -3,8 +3,8 @@ import { GFXWindow, IGFXWindowInfo } from '../gfx/window';
 import { ForwardPipeline } from '../pipeline/forward/forward-pipeline';
 import { RenderPipeline } from '../pipeline/render-pipeline';
 import { IRenderViewInfo, RenderView } from '../pipeline/render-view';
-import { IRenderSceneInfo, RenderScene } from '../renderer/scene/render-scene';
 import { GUI } from '../renderer/gui/gui';
+import { IRenderSceneInfo, RenderScene } from '../renderer/scene/render-scene';
 
 export let _createSceneFun;
 export let _createViewFun;
@@ -104,7 +104,7 @@ export class Root {
         this._frameTime = deltaTime;
 
         for (const view of this._views) {
-            if (view.isEnable() && view.isAttached) {
+            if (view.isEnable()) {
                 ( this._pipeline as RenderPipeline).render(view);
             }
         }
@@ -141,14 +141,11 @@ export class Root {
         this._windows = [];
     }
 
-    public createScene (info: IRenderSceneInfo): RenderScene | null {
-        const scene = this._createSceneFun(this);
-        if (scene.initialize(info)) {
-            this._scenes.push(scene);
-            return scene;
-        } else {
-            return null;
-        }
+    public createScene (info: IRenderSceneInfo): RenderScene {
+        const scene: RenderScene = this._createSceneFun(this);
+        scene.initialize(info);
+        this._scenes.push(scene);
+        return scene;
     }
 
     public destroyScene (scene: RenderScene) {
@@ -168,17 +165,16 @@ export class Root {
         this._scenes = [];
     }
 
-    public createView (info: IRenderViewInfo): RenderView | null {
-        const view = this._createViewFun(this);
-        if (view.initialize(info)) {
-            this._views.push(view);
-            this._views.sort((a: RenderView, b: RenderView) => {
-                return a.priority - b.priority;
-            });
-            return view;
-        } else {
-            return null;
-        }
+    public createView (info: IRenderViewInfo): RenderView {
+        const view: RenderView = this._createViewFun(this, info.camera);
+        view.initialize(info);
+
+        this._views.push(view);
+        this._views.sort((a: RenderView, b: RenderView) => {
+            return a.priority - b.priority;
+        });
+
+        return view;
     }
 
     public destroyView (view: RenderView) {

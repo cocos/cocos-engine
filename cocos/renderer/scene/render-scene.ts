@@ -180,8 +180,8 @@ export class RenderScene {
           if (!vbuffer || !vbuffer.buffer || !ibuffer || !ibuffer.buffer) { continue; }
           // narrowphase
           distance = Infinity;
-          const vb = new Float32Array(vbuffer.buffer);
-          const ib = new Uint16Array(ibuffer.buffer);
+          const vb = new Float32Array(vbuffer.buffer as ArrayBuffer);
+          const ib = new Uint16Array(ibuffer.buffer as ArrayBuffer);
           const sides = subModel.doubleSided;
           for (let j = 0; j < ib.length; j += 3) {
               const i0 = ib[j] * 3;

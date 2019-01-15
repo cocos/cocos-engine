@@ -6,13 +6,14 @@ import { Camera } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
 
 export class RenderItem {
-    public hash: number;
+    public hash: number = 0;
+    public depth: number = 0;
+    public shaderId: number = 0;
     public model: Model;
     public pass: Pass;
     public cmdBuff: GFXCommandBuffer;
 
-    constructor (hash: number, model: Model, pass: Pass, cmdBuff: GFXCommandBuffer) {
-        this.hash = hash;
+    constructor (model: Model, pass: Pass, cmdBuff: GFXCommandBuffer) {
         this.model = model;
         this.pass = pass;
         this.cmdBuff = cmdBuff;
@@ -24,22 +25,38 @@ export class RenderQueue {
     public transparents: CachedArray<RenderItem>;
     public cmdBuffs: CachedArray<GFXCommandBuffer>;
     public cmdBuffCount: number = 0;
-    private _buffer: ArrayBuffer;
-    private _f32View: Float32Array;
-    private _ui32View: Uint32Array;
 
     constructor () {
-        const compareFn = (a: RenderItem, b: RenderItem) => {
-            return a.hash - b.hash;
+
+        // Opaque objects are sorted by depth front to back -> pass priority -> shader id.
+        const opaqueCompareFn = (a: RenderItem, b: RenderItem) => {
+            if (a.hash === b.hash) {
+                if (a.depth === b.depth) {
+                    return a.shaderId - b.shaderId;
+                } else {
+                    return a.depth - b.depth;
+                }
+            } else {
+                return a.hash - b.hash;
+            }
         };
 
-        this.opaques = new CachedArray(64, compareFn);
-        this.transparents = new CachedArray(64, compareFn);
-        this.cmdBuffs = new CachedArray(64);
+        // Transparent objects are sorted by depth back to front -> pass priority -> shader id.
+        const transparentCompareFn = (a: RenderItem, b: RenderItem) => {
+            if (a.hash === b.hash) {
+                if (a.depth === b.depth) {
+                    return a.shaderId - b.shaderId;
+                } else {
+                    return b.depth - a.depth;
+                }
+            } else {
+                return a.hash - b.hash;
+            }
+        };
 
-        this._buffer = new ArrayBuffer(Float32Array.BYTES_PER_ELEMENT);
-        this._f32View = new Float32Array(this._buffer);
-        this._ui32View = new Uint32Array(this._buffer);
+        this.opaques = new CachedArray(64, opaqueCompareFn);
+        this.transparents = new CachedArray(64, transparentCompareFn);
+        this.cmdBuffs = new CachedArray(64);
     }
 
     public clear () {
@@ -50,11 +67,7 @@ export class RenderQueue {
 
     public add (model: Model, camera: Camera) {
 
-        this._f32View[0] = vec3.distance(camera.node.getPosition(), model.node.getPosition());
-        let ui32Depth: number = this._ui32View[0];
-        const mask = -(ui32Depth >> 31) | 0x8000000000000000;
-        ui32Depth = (ui32Depth ^ mask);
-        const ui32DepthInv = (ui32Depth ^ 0x00000000ffffffff);
+        const depth = vec3.distance(camera.node.getPosition(), model.node.getPosition());
 
         for (let i = 0; i < model.passes.length; ++i) {
             const pass = model.passes[i];
@@ -69,15 +82,15 @@ export class RenderQueue {
             // TODO: model priority
 
             if (!isTransparent) {
-                // Opaque objects are sorted by depth front to back -> pass priority -> shader id.
-                const hash = (0 << 61) | (i << 45) | (ui32Depth << 13) | pso.shader.id;
+                const hash = (0 << 30) | i;
 
-                this.opaques.push({hash, model, pass, cmdBuff: model.commandBuffers[i]});
+                this.opaques.push({hash, depth, shaderId: pso.shader.id,
+                    model, pass, cmdBuff: model.commandBuffers[i]});
             } else {
-                // Transparent objects are sorted by depth back to front -> pass priority -> shader id.
-                const hash = (1 << 61) | (i << 45) | (ui32DepthInv << 13) | pso.shader.id;
+                const hash = (1 << 30) | i;
 
-                this.transparents.push({hash, model, pass, cmdBuff: model.commandBuffers[i]});
+                this.transparents.push({hash, depth, shaderId: pso.shader.id,
+                    model, pass, cmdBuff: model.commandBuffers[i]});
             }
         }
     }

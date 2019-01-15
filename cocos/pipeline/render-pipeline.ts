@@ -338,8 +338,8 @@ export abstract class RenderPipeline {
 
     protected sceneCulling (view: RenderView) {
 
-        const scene = view.scene;
         const camera = view.camera;
+        const scene = camera.scene;
 
         this._queue.clear();
 

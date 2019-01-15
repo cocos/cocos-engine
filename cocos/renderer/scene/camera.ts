@@ -53,7 +53,7 @@ export class Camera {
     private _matViewProjInv: mat4 = new Mat4();
     private _frustum: frustum = new frustum();
     private _node: Node | null = null;
-    private _view: RenderView | null = null;
+    private _view: RenderView;
     private _visibility: number = 0;
 
     constructor (scene: RenderScene, info: ICameraInfo) {
@@ -74,6 +74,13 @@ export class Camera {
         this._clearFlag = info.clearFlags;
 
         this._aspect = this._width = this._height = 1;
+
+        this._view = scene.root.createView({
+            camera: this,
+            name: this._name,
+            priority: RenderViewPriority.GENERAL,
+        });
+
         this.changeTargetDisplay(info.targetDisplay);
     }
 
@@ -103,6 +110,10 @@ export class Camera {
         mat4.invert(this._matViewProjInv, this._matViewProj);
 
         this._frustum.update(this._matViewProj, this._matViewProjInv);
+    }
+
+    get view (): RenderView {
+        return this._view;
     }
 
     set node (val: Node) {
@@ -246,16 +257,7 @@ export class Camera {
         if (win) {
             this._width = win.width;
             this._height = win.height;
-            if (!this._view) {
-                this._view = scene.root.createView({
-                    name: this._name,
-                    window: win,
-                    priority: RenderViewPriority.GENERAL,
-                });
-                if (this._view) { this._view.attach(this); }
-            } else {
-                this._view.window = win;
-            }
+            this._view.window = win;
         }
         this._aspect = this._width / this._height;
     }
