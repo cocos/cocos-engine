@@ -43,16 +43,6 @@ export class WebGLGPUObject {
     }
 }
 
-export interface IWebGLIndirectBuffer {
-    vertexCount: number;
-    firstVertex: number;
-    indexCount: number;
-    firstIndex: number;
-    vertexOffset: number;
-    instanceCount: number;
-    firstInstance: number;
-}
-
 export class WebGLGPUBuffer extends WebGLGPUObject {
     public usage: GFXBufferUsage = GFXBufferUsageBit.NONE;
     public memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;

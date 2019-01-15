@@ -3,12 +3,13 @@ import { GFXWindow, IGFXWindowInfo } from '../gfx/window';
 import { ForwardPipeline } from '../pipeline/forward/forward-pipeline';
 import { RenderPipeline } from '../pipeline/render-pipeline';
 import { IRenderViewInfo, RenderView } from '../pipeline/render-view';
-import { GUI } from '../renderer/gui/gui';
 import { IRenderSceneInfo, RenderScene } from '../renderer/scene/render-scene';
+import { UI } from '../renderer/ui/ui';
 
 export let _createSceneFun;
 export let _createViewFun;
 
+// tslint:disable-next-line:no-empty-interface
 export interface IRootInfo {
 }
 
@@ -34,8 +35,8 @@ export class Root {
         return this._pipeline as RenderPipeline;
     }
 
-    public get gui (): GUI {
-        return this._gui as GUI;
+    public get ui (): UI {
+        return this._ui as UI;
     }
 
     public get scenes (): RenderScene[] {
@@ -57,7 +58,7 @@ export class Root {
     private _windows: GFXWindow[] = [];
     private _mainWindow: GFXWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
-    private _gui: GUI | null = null;
+    private _ui: UI | null = null;
     private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
     private _frameTime: number = 0;
@@ -79,12 +80,17 @@ export class Root {
 
         const pipeline = new ForwardPipeline(this);
         if (!pipeline.initialize()) {
+            this.destroy();
             return false;
         }
 
         this._pipeline = pipeline;
 
-        this._gui = new GUI(this);
+        this._ui = new UI(this);
+        if (!this._ui.initialize()) {
+            this.destroy();
+            return false;
+        }
 
         return true;
     }
@@ -97,6 +103,11 @@ export class Root {
             this._pipeline.destroy();
             this._pipeline = null;
         }
+
+        if (this._ui) {
+            this._ui.destroy();
+            this._ui = null;
+        }
     }
 
     public frameMove (deltaTime: number) {
@@ -106,6 +117,7 @@ export class Root {
         for (const view of this._views) {
             if (view.isEnable()) {
                 ( this._pipeline as RenderPipeline).render(view);
+                ( this._ui as UI).render(view);
             }
         }
 
