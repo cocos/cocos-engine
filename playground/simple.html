@@ -44,38 +44,59 @@
       textureAsset.image = new cc.ImageAsset(imgElms[0]);
       return textureAsset;
     }
-
+    function getRandom() { return Math.random() * 128 + 127; }
     function onStart() {
       const root = cc.director.root;
       const scene = new cc.Scene();
 
       const cameraNode = new cc.Node();
       cameraNode.parent = scene;
-      cameraNode.setPosition(2, 2, 2);
-      cameraNode.lookAt(cc.v3());
+      cameraNode.setPosition(4, 4, -2);
+      cameraNode.lookAt(cc.v3(0, 0, 20));
       const camComp = cameraNode.addComponent(cc.CameraComponent);
-      const mainWindow = root.mainWindow;
 
-      const material = new cc.Material();
-      material.setDefines({ USE_COLOR: true, USE_TEXTURE: true });
-      material.effectName = 'builtin-effect-unlit'; // parsed effect file is embedded in cocos/3d/builtin/effects.js
-      material.setProperty('color', cc.color('#ffaaaa'));
-      material.setProperty('mainTexture', createTexture(cc.game.canvas.getElementsByTagName('img')));
-      material.passes[0].update();
+      const texture = createTexture(cc.game.canvas.getElementsByTagName('img'));
 
-      const modelNode = new cc.Node();
-      modelNode.parent = scene;
-      const modelCom = modelNode.addComponent('cc.ModelComponent');
-      modelCom.material = material;
-      modelCom.mesh = cc.utils.createMesh(cc.primitives.box());
+      const len = 50;
+      const models = [], passes = [];
+      const color = cc.color()
+      for (let i = 0; i < len; i++) {
+        const material = new cc.Material();
+        material.setDefines({ USE_COLOR: true, USE_TEXTURE: true });
+        // parsed effect file is embedded in cocos/3d/builtin/effects.js
+        material.effectName = 'builtin-effect-unlit';
+        material.setProperty('mainTexture', texture);
+        passes.push(material.passes[0]);
 
-      canv.addEventListener('mousemove', (e) => {
-        if (!(e.buttons & 1)) return;
-        const { clientX: x, clientY: y } = e;
-        const ray = camComp.screenPointToRay(x, canv.height - y);
-        const res = cc.director._scene._renderScene.raycast(ray);
-        if (res.length) res.forEach((r) => console.log(r));
-      })
+        const modelNode = new cc.Node(`${i}`);
+        modelNode.parent = scene;
+        const modelCom = modelNode.addComponent('cc.ModelComponent');
+        modelCom.material = material;
+        modelCom.mesh = cc.utils.createMesh(cc.primitives.box());
+        models.push(modelNode);
+      }
+      const handle = passes[0].getHandle('color');
+
+      let buttonDown = false, pos = cc.v2();
+      canv.addEventListener('mousedown', () => buttonDown = true);
+      canv.addEventListener('mouseup', () => buttonDown = false);
+      canv.addEventListener('mousemove', (e) => (pos.x = e.x, pos.y = e.y));
+
+      cc.director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
+        if (buttonDown) {
+          const ray = camComp.screenPointToRay(pos.x, canv.height - pos.y);
+          const res = cc.director._scene._renderScene.raycast(ray);
+          if (res.length) res.forEach((r) => console.log(r.node.name, r.distance));
+        }
+        models.forEach((m, i) => {
+          const t = cc.director._totalFrames / 60;
+          const rad = i * 0.4;
+          const x = Math.cos(rad + t), y = Math.sin(rad + t);
+          m.setPosition(x * 2, y * 2, i * 2);
+          color.fromHSV((x + 1) * 0.5, 0.5, 1);
+          passes[i].setUniform(handle, color);
+        });
+      });
 
       cc.director.runSceneImmediate(scene);
     }
