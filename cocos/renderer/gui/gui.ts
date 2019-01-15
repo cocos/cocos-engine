@@ -1,5 +1,6 @@
 import { Root } from '../../core/root';
 import { RenderScene } from '../scene/render-scene';
+import { RenderView } from '../../pipeline/render-view';
 
 export class GUI {
 
@@ -21,6 +22,7 @@ export class GUI {
         });
     }
 
-    public frameMove (deltaTime: number) {
+    public render (view: RenderView) {
+
     }
 }
