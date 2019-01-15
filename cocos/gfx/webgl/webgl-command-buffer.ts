@@ -172,7 +172,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
                     const buff = data as ArrayBuffer;
 
                     cmd.gpuBuffer = gpuBuffer;
-                    cmd.buffer = buff.slice(0);
+                    cmd.buffer = buff;
                     cmd.offset = (offset !== undefined ? offset : 0);
                     cmd.size = buffSize;
                     this.cmdPackage.updateBufferCmds.push(cmd);

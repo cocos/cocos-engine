@@ -1,4 +1,4 @@
-import { GFXBuffer, IGFXDrawInfo } from './buffer';
+import { GFXBuffer, IGFXDrawInfo, IGFXIndirectBuffer } from './buffer';
 import { GFXFormat, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
@@ -93,14 +93,6 @@ export abstract class GFXInputAssembler extends GFXObject {
         return this._isIndirect;
     }
 
-    public set indirects (drawInfos: IGFXDrawInfo[]) {
-        this.indirects = drawInfos;
-    }
-
-    public get indirects (): IGFXDrawInfo[] {
-        return this._indirects;
-    }
-
     public get indirectBuffer (): GFXBuffer | null {
         return this._indirectBuffer;
     }
@@ -117,7 +109,6 @@ export abstract class GFXInputAssembler extends GFXObject {
     protected _instanceCount: number = 0;
     protected _firstInstance: number = 0;
     protected _isIndirect: boolean = false;
-    protected _indirects: IGFXDrawInfo[] = [];
     protected _indirectBuffer: GFXBuffer | null = null;
 
     constructor (device: GFXDevice) {
@@ -134,5 +125,15 @@ export abstract class GFXInputAssembler extends GFXObject {
         } else {
             return null;
         }
+    }
+
+    public extractDrawInfo (drawInfo: IGFXDrawInfo) {
+        drawInfo.vertexCount = this._vertexCount;
+        drawInfo.firstVertex = this._firstVertex;
+        drawInfo.indexCount = this._indexCount;
+        drawInfo.firstIndex = this._firstIndex;
+        drawInfo.vertexOffset = this._vertexOffset;
+        drawInfo.instanceCount = this._instanceCount;
+        drawInfo.firstInstance = this._firstInstance;
     }
 }
