@@ -265,9 +265,7 @@ export class Camera {
     /**
      * transform a screen position to a world space ray
      */
-    public screenPointToRay (x: number, y: number, out: ray): ray {
-        out = out || ray.create();
-
+    public screenPointToRay (out: ray, x: number, y: number): ray {
         const cx = this._viewport.x * this._width;
         const cy = this._viewport.y * this._height;
         const cw = this._viewport.width * this._width;

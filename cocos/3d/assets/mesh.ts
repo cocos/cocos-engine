@@ -281,9 +281,10 @@ export interface IMeshStruct {
 }
 
 // for raycast purpose
+export type IBArray = Uint8Array | Uint16Array | Uint32Array;
 export interface IGeometricInfo {
     positions: Float32Array;
-    indices: Uint16Array;
+    indices: IBArray;
     doubleSided?: boolean;
 }
 
