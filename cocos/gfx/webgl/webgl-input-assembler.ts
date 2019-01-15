@@ -40,10 +40,6 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
             this._vertexCount = vertBuff.size / vertBuff.stride;
         }
 
-        if (info.isIndirect !== undefined) {
-            this._isIndirect = info.isIndirect;
-        }
-
         this._gpuInputAssembler = this.webGLDevice.emitCmdCreateGPUInputAssembler(info);
         this._status = GFXStatus.SUCCESS;
 
@@ -59,8 +55,7 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
     }
 
     public extractCmdDraw (cmd: WebGLCmdDraw) {
-        cmd.isIndirect = this._isIndirect;
-        if (!this._isIndirect) {
+        if (!this._indirectBuffer) {
             cmd.drawInfo.vertexCount = this._vertexCount;
             cmd.drawInfo.firstVertex = this._firstVertex;
             cmd.drawInfo.indexCount = this._indexCount;
@@ -68,7 +63,7 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
             cmd.drawInfo.vertexOffset = this._vertexOffset;
             cmd.drawInfo.instanceCount = this._instanceCount;
             cmd.drawInfo.firstInstance = this._firstInstance;
-            cmd.isIndirect = this._isIndirect;
+            cmd.gpuIndirectBuffer = null;
         } else {
             cmd.gpuIndirectBuffer = (this._indirectBuffer as WebGLGFXBuffer).gpuBuffer;
         }

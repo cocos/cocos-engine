@@ -1,3 +1,4 @@
+import { CachedArray } from '../../core/memop/cached-array';
 import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
 import { GFXBindingType, GFXBufferTextureCopy, GFXBufferUsageBit, GFXColorMask,
     GFXCullMode, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit,
@@ -9,7 +10,6 @@ import { WebGLAttrib, WebGLGPUBindingLayout, WebGLGPUBuffer, WebGLGPUFramebuffer
     WebGLGPUInput, WebGLGPUInputAssembler, WebGLGPUPipelineState, WebGLGPUShader,
     WebGLGPUTexture, WebGLGPUUniform, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
 import { IWebGLTexUnit } from './webgl-state-cache';
-import { CachedArray } from '../../core/memop/cached-array';
 
 // tslint:disable: max-line-length
 
@@ -394,7 +394,6 @@ export class WebGLCmdDraw extends WebGLCmdObject {
         firstInstance: 0,
     };
 
-    public isIndirect: boolean = false;
     public gpuIndirectBuffer: WebGLGPUBuffer | null = null;
 
     constructor () {
@@ -1887,7 +1886,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
             case WebGLCmd.DRAW: {
                 const cmd3: WebGLCmdDraw = cmdPackage.drawCmds.array[cmdId];
                 if (gpuInputAssembler && gpuShader) {
-                    if (!cmd3.isIndirect) {
+                    if (!cmd3.gpuIndirectBuffer) {
                         const drawInfo = cmd3.drawInfo as IGFXDrawInfo;
 
                         const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;

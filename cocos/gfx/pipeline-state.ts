@@ -1,4 +1,16 @@
-import { GFXBlendFactor, GFXBlendOp, GFXColorMask, GFXComparisonFunc, GFXCullMode, GFXObject, GFXObjectType, GFXPolygonMode, GFXPrimitiveMode, GFXShadeModel, GFXStencilOp } from './define';
+import {
+    GFXBlendFactor,
+    GFXBlendOp,
+    GFXColorMask,
+    GFXComparisonFunc,
+    GFXCullMode,
+    GFXObject,
+    GFXObjectType,
+    GFXPolygonMode,
+    GFXPrimitiveMode,
+    GFXShadeModel,
+    GFXStencilOp,
+} from './define';
 import { GFXDevice } from './device';
 import { IGFXInputAttribute } from './input-assembler';
 import { GFXPipelineLayout } from './pipeline-layout';

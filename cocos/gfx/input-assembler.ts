@@ -1,4 +1,4 @@
-import { GFXBuffer, IGFXDrawInfo, IGFXIndirectBuffer } from './buffer';
+import { GFXBuffer, IGFXDrawInfo } from './buffer';
 import { GFXFormat, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
@@ -15,7 +15,6 @@ export interface IGFXInputAssemblerInfo {
     attributes: IGFXInputAttribute[];
     vertexBuffers: GFXBuffer[];
     indexBuffer?: GFXBuffer;
-    isIndirect?: boolean;
     indirectBuffer?: GFXBuffer;
 }
 
