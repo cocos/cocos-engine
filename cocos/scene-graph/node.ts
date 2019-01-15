@@ -288,7 +288,7 @@ class Node extends BaseNode {
      * @param z - The z component of the new local position.
      * @param w - The w component of the new local position.
      */
-    public setPosition (x: number, y?: number, z?: number, w?: number): void;
+    public setPosition (x: number, y: number, z: number): void;
 
     /**
      * set local position
@@ -334,7 +334,7 @@ class Node extends BaseNode {
      * @param z - The z component of the new local rotation.
      * @param w - The w component of the new local rotation.
      */
-    public setRotation (x: number, y?: number, z?: number, w?: number): void;
+    public setRotation (x: number, y: number, z: number, w: number): void;
 
     public setRotation (val: Quat | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
@@ -389,9 +389,8 @@ class Node extends BaseNode {
      * @param x - The x component of the new local scale.
      * @param y - The y component of the new local scale.
      * @param z - The z component of the new local scale.
-     * @param w - The w component of the new local scale.
      */
-    public setScale (x: number, y?: number, z?: number, w?: number): void;
+    public setScale (x: number, y: number, z: number): void;
 
     /**
      * set local scale
@@ -435,9 +434,8 @@ class Node extends BaseNode {
      * @param x - The x component of the new world position.
      * @param y - The y component of the new world position.
      * @param z - The z component of the new world position.
-     * @param w - The w component of the new world position.
      */
-    public setWorldPosition (x: number, y?: number, z?: number, w?: number): void;
+    public setWorldPosition (x: number, y: number, z: number): void;
 
     /**
      * set world position
@@ -493,7 +491,7 @@ class Node extends BaseNode {
      * @param z - The z component of the new world rotation.
      * @param w - The w component of the new world rotation.
      */
-    public setWorldRotation (x: number, y?: number, z?: number, w?: number): void;
+    public setWorldRotation (x: number, y: number, z: number, w: number): void;
 
     /**
      * set world rotation
@@ -566,9 +564,8 @@ class Node extends BaseNode {
      * @param x - The x component of the new world scale.
      * @param y - The y component of the new world scale.
      * @param z - The z component of the new world scale.
-     * @param w - The w component of the new world scale.
      */
-    public setWorldScale (x: number, y?: number, z?: number, w?: number): void;
+    public setWorldScale (x: number, y: number, z: number): void;
 
     /**
      * set world scale
