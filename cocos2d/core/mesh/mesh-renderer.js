@@ -26,6 +26,7 @@
 import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
 import IARenderData from '../../renderer/render-data/ia-render-data';
+const Material = require('../assets/material/CCMaterial');
 
 const MeshRenderer = require('./CCMeshRenderer');
 
@@ -47,9 +48,10 @@ let meshRendererAssembler = {
 
     createWireFrameData (ia, oldIbData, material, renderer) {
         let data = new IARenderData();
-        let m = material.clone();
-        m.setProperty('color', BLACK_COLOR);
-        m.define('USE_TEXTURE', false);
+        let m = new Material();
+        m.copy(Material.getBuiltinMaterial('unlit'));
+        m.setProperty('diffuseColor', BLACK_COLOR);
+        m.define('USE_DIFFUSE_TEXTURE', false);
         data.material = m;
 
         let indices = [];

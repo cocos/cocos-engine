@@ -182,8 +182,9 @@ export default class ProgramLib {
    * @param {string} name
    * @param {Object} defines
    * @param {Object} extensions
+   * @param {String} errPrefix
    */
-  getProgram(name, defines, extensions) {
+  getProgram(name, defines, extensions, errPrefix) {
     let key = this.getKey(name, defines);
     let program = this._cache[key];
     if (program) {
@@ -202,7 +203,23 @@ export default class ProgramLib {
       vert,
       frag
     });
-    program.link();
+    let errors = program.link();
+    if (errors) {
+      let vertLines = vert.split('\n');
+      let fragLines = frag.split('\n');
+      let defineLength = Object.keys(defines).length;
+      errors.forEach(err => {
+        let line = err.line - 1;
+        let originLine = err.line - defineLength;
+
+        let lines = err.type === 'vs' ? vertLines : fragLines;
+        // let source = ` ${lines[line-1]}\n>${lines[line]}\n ${lines[line+1]}`;
+        let source = lines[line];
+
+        let info = err.info || `Failed to compile ${err.type} ${err.fileID} (ln ${originLine}): \n ${err.message}: \n  ${source}`;
+        cc.error(`${errPrefix} : ${info}`);
+      })
+    }
     this._cache[key] = program;
 
     return program;
