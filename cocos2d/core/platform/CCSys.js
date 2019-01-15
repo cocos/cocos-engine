@@ -29,8 +29,8 @@ let settingPlatform;
     settingPlatform = window._CCSettings ? _CCSettings.platform: undefined;
  }
 const isBaiduGame = (settingPlatform === 'baidugame' || settingPlatform === 'baidugame-subcontext');
-const isVivoGame = (settingPlatform === 'vivogame');
-const isOppoGame = (settingPlatform === 'oppogame');
+const isVivoGame = (settingPlatform === 'qgame');
+const isOppoGame = (settingPlatform === 'quickgame');
  
 function initSys () {
     /**
