@@ -870,7 +870,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
         const gpuPipelineState: WebGLGPUPipelineState = {
             objType: WebGLGPUObjectType.PIPELINE_STATE,
-            glPrimitive: info.primitive,
+            glPrimitive: WebGLPrimitives[info.primitive],
             gpuShader,
             rs: info.rs,
             dss: info.dss,
@@ -978,7 +978,6 @@ export class WebGLGFXDevice extends GFXDevice {
             attributes: info.attributes,
             gpuVertexBuffers,
             gpuIndexBuffer,
-            isIndirect: (info.isIndirect !== undefined ? info.isIndirect : false),
             gpuIndirectBuffers: [],
 
             glAttribs: [],

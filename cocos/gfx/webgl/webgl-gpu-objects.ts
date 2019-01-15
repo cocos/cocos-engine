@@ -270,7 +270,6 @@ export class WebGLGPUInputAssembler extends WebGLGPUObject {
     public attributes: IGFXInputAttribute[] = [];
     public gpuVertexBuffers: WebGLGPUBuffer[] = [];
     public gpuIndexBuffer: WebGLGPUBuffer | null = null;
-    public isIndirect: boolean = false;
     public gpuIndirectBuffers: IWebGLIndirectBuffer[] = [];
 
     public glAttribs: WebGLAttrib[] = [];
