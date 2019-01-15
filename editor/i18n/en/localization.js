@@ -267,7 +267,8 @@ module.exports = {
             "animation_name": "The name of current playing animation.",
             "time_scale": "The time scale of this armature.",
             "play_times": "The play times of the default animation.\n-1 means using the value of config file\n0 means repeat for ever\n>0 means repeat times",
-            "debug_bones": "Indicates whether open debug bones"
+            "debug_bones": "Indicates whether open debug bones",
+            "cache_frame": "Indicates whether enabled cache frame",
         },
         'motionStreak': {
             'fadeTime': "Trail fragment fade time, in seconds",

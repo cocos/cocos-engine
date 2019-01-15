@@ -34,9 +34,16 @@ dragonBones.CCSlot = cc.Class({
     ctor () {
         this._curFrame = undefined;
         this._cacheFrame = [];
+        this._cacheFrameDirty = [];
+        this._realTimeFrame = [];
+
+        this._matrix = undefined;
+        this._cacheMatrix = [];
+        this._realTimeMatrix = math.mat4.create();
+
         this._localVertices = [];
         this._indices = [];
-        this._matrix = math.mat4.create();
+        
         this._worldMatrix = math.mat4.create();
         this._worldMatrixDirty = true;
         this._visible = false;
@@ -45,11 +52,19 @@ dragonBones.CCSlot = cc.Class({
 
     _onClear () {
         this._super();
+
         this._curFrame = undefined;
         this._cacheFrame.length = 0;
+        this._cacheFrameDirty.length = 0;
+        this._realTimeFrame.length = 0;
+
+        this._matrix = undefined;
+        this._cacheMatrix.length = 0;
+        math.mat4.identity(this._realTimeMatrix);
+
         this._localVertices.length = 0;
         this._indices.length = 0;
-        math.mat4.identity(this._matrix);
+
         math.mat4.identity(this._worldMatrix);
         this._worldMatrixDirty = true;
         this._color = cc.color();
@@ -314,56 +329,109 @@ dragonBones.CCSlot = cc.Class({
         this._meshDirty = true;
     },
 
-    update () {
+    update (cacheFrameIndex) {
         let displayDirty = this._displayDirty;
-        let colorDirty = this._colorDirty;
         let transformDirty = this._transformDirty;
-        this._super();
+        this._super(cacheFrameIndex);
+
         let meshDirty = this._meshDirty;
+        let isFromCache = this._isFromCache;
         this._meshDirty = false;
 
-        if (displayDirty || meshDirty || transformDirty) {
-            let curFrame = this.curFrame = [];
-            let vertices = this._localVertices;
-            let matrix = this._matrix;
-            
+        let cacheFrame = this._cacheFrame;
+        let cacheMatrix = this._cacheMatrix;
+        let cacheIndex = this._cachedFrameIndex;
+        let cacheFrameDirty = this._cacheFrameDirty;
+        let enabledCache = (cacheIndex !== -1);
+
+        let needUpdateCurFrameData = false;
+        let needUpdateMatrix = false;
+
+        // Display changed, clear all cache.
+        if (displayDirty) {
+            cacheFrame.length = 0;
+            cacheFrameDirty.length = 0;
+            needUpdateCurFrameData = true;
         }
-    },
 
-    _updateVertices (fromCache) {
-        let vertices = this._localVertices;
-        let matrix = this._matrix;
-        let curFrame = undefined;
-
-        if (this._cachedFrameIndex === -1) {
-            curFrame = this._curFrame = [];
-        } else {
-            curFrame = this._curFrame = this._cacheFrame[this._cachedFrameIndex];
+        // Mesh change, no need to clear all cache, just dirty.
+        if (meshDirty) {
+            for (var key in cacheFrameDirty) {
+                cacheFrameDirty[key] = true;
+            }
+            needUpdateCurFrameData = true;
         }
         
-        let offset = 0;
-        for (let i = 0; i < vertices.length; i++) {
-            let vertex = vertices[i];
-            curFrame[offset++] = vertex.x * matrix.m00 + vertex.y * matrix.m04 + matrix.m12;
-            curFrame[offset++] = vertex.x * matrix.m01 + vertex.y * matrix.m05 + matrix.m13;
-            curFrame[offset++] = vertex.u;
-            curFrame[offset++] = vertex.v;
+        // Transform update not from cache.
+        if (transformDirty && !isFromCache) {
+            needUpdateCurFrameData = true;
+            needUpdateMatrix = true;
         }
-        this._cacheFrame[this._cachedFrameIndex] = curFrame;
+
+        if (needUpdateMatrix || !cacheMatrix[cacheIndex]) {
+            // If no need to cache,just use real time matrix instead of create new one.
+            if (!enabledCache) {
+                this._matrix = this._realTimeMatrix;
+                math.mat4.identity(this._matrix);
+
+            // If has no cache, create new one.
+            } else {
+                this._matrix = math.mat4.create();
+                cacheMatrix[cacheIndex] = this._matrix;
+            }
+
+            let t = this._matrix;
+            let gt = this.globalTransformMatrix;
+            t.m00 = gt.a;
+            t.m01 = -gt.b;
+            t.m04 = -gt.c;
+            t.m05 = gt.d;
+            t.m12 = gt.tx - (gt.a * this._pivotX + gt.c * this._pivotY);
+            t.m13 = -(gt.ty - (gt.b * this._pivotX + gt.d * this._pivotY));
+
+        } else {
+            this._matrix = cacheMatrix[cacheIndex];
+        }
+
+        let cacheFrameItem = cacheFrame[cacheIndex];
+        let isCacheDirty = cacheFrameDirty[cacheIndex];
+        if (needUpdateCurFrameData || !cacheFrameItem || isCacheDirty) {
+            // If no need to cache,just use real time frame instead of create new one.
+            if (!enabledCache) {
+                this._curFrame = this._realTimeFrame;
+
+            // If has cache frame, use it.
+            } else if (cacheFrameItem) {
+                this._curFrame = cacheFrameItem;
+                cacheFrameDirty[cacheIndex] = false;
+
+            // If has no cache frame, create new one.
+            } else {
+                this._curFrame = [];
+                cacheFrame[cacheIndex] = this._curFrame;
+                cacheFrameDirty[cacheIndex] = false;
+            }
+
+            let vertices = this._localVertices;
+            let matrix = this._matrix;
+            let curFrame = this._curFrame;
+            let offset = 0;
+            curFrame.length = 0;
+            for (let i = 0, n = vertices.length; i < n; i++) {
+                let vertex = vertices[i];
+                curFrame[offset++] = vertex.x * matrix.m00 + vertex.y * matrix.m04 + matrix.m12;
+                curFrame[offset++] = vertex.x * matrix.m01 + vertex.y * matrix.m05 + matrix.m13;
+                curFrame[offset++] = vertex.u;
+                curFrame[offset++] = vertex.v;
+            }
+
+        } else {
+            this._curFrame = cacheFrame[cacheIndex];
+        }
     },
 
     _updateTransform () {
-        let t = this._matrix;
-        t.m00 = this.globalTransformMatrix.a;
-        t.m01 = -this.globalTransformMatrix.b;
-        t.m04 = -this.globalTransformMatrix.c;
-        t.m05 = this.globalTransformMatrix.d;
-        t.m12 = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-        t.m13 = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
-
         this._worldMatrixDirty = true;
-
-        // to do something
     },
 
     updateWorldMatrix () {
@@ -419,3 +487,9 @@ dragonBones.CCSlot = cc.Class({
         this._worldMatrixDirty = false;
     }
 });
+
+if (CC_DEBUG) {
+    dragonBones.CCSlot.calcTimes = 0;
+    dragonBones.CCSlot.cacheTimes = 0;
+    dragonBones.CCSlot.newTimes = 0;
+}

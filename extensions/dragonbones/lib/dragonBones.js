@@ -6275,6 +6275,7 @@ var dragonBones;
             }
             this._slotData = slotData;
             //
+            this._isFromCache = false;
             this._visibleDirty = true;
             this._blendModeDirty = true;
             this._colorDirty = true;
@@ -6296,6 +6297,7 @@ var dragonBones;
          * @private
          */
         Slot.prototype.update = function (cacheFrameIndex) {
+            this._isFromCache = false;
             if (this._displayDirty) {
                 this._displayDirty = false;
                 this._updateDisplay();
@@ -6381,6 +6383,7 @@ var dragonBones;
                     }
                 }
                 else {
+                    this._isFromCache = true;
                     this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
                 this._updateTransform();

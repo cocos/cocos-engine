@@ -271,7 +271,8 @@ module.exports = {
             "animation_name": "当前播放的动画名称",
             "time_scale": "当前骨骼中所有动画的时间缩放率",
             "play_times": "播放默认动画的循环次数\n-1 表示使用配置文件中的默认值\n0 表示无限循环\n>0 表示循环次数",
-            "debug_bones": "是否显示 bone 的 debug 信息"
+            "debug_bones": "是否显示 bone 的 debug 信息",
+            "cache_frame": "是否开启动画缓存",
         },
         'motionStreak': {
             'fadeTime': "拖尾的渐隐时间,以秒为单位",

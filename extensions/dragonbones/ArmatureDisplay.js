@@ -338,14 +338,29 @@ let ArmatureDisplay = cc.Class({
         debugBones: {
             default: false,
             notify () {
-                this._initDebugDraw();
+                this._updateDebugDraw();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.debug_bones'
+        },
+
+        _cacheFrameRate: 60,
+
+        /**
+         * !#en Enabled cache frame, but need more memery.
+         * !#zh 开启帧缓存，提高效率，但需更多内存空间。
+         * @property {Boolean} cacheFrame
+         * @default true
+         */
+        cacheFrame: {
+            default: true,
+            notify () {
+                this._updateCacheFrame();
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.cache_frame'
         },
     },
 
     ctor () {
-        this._renderDatas = [];
         this._material = new SpriteMaterial;
         // Property _materialCache Use to cache material,since dragonBones may use multiple texture,
         // it will clone from the '_material' property,if the dragonbones only have one texture,
@@ -370,6 +385,16 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
+    _updateCacheFrame () {
+        if (!this._armature) return;
+
+        if (this.cacheFrame) {
+            this._armature.cacheFrameRate = this._cacheFrameRate;
+        } else {
+            this._armature.cacheFrameRate = -1;
+        }
+    },
+
     // override
     _updateMaterial (material) {
         this._super(material);
@@ -387,6 +412,15 @@ let ArmatureDisplay = cc.Class({
         this._parseDragonAsset();
         this._parseDragonAtlasAsset();
         this._refresh();
+
+        var children = this.node.children;
+        for (var i = 0, n = children.length; i < n; i++) {
+            var child = children[i];
+            if (child && child._name === "DEBUG_DRAW_NODE" ) {
+                child.destroy();
+            }
+        }
+        this._updateDebugDraw();
     },
 
     onEnable () {
@@ -410,10 +444,9 @@ let ArmatureDisplay = cc.Class({
             this._armature.dispose();
             this._armature = null;
         }
-        this._renderDatas.length = 0;
     },
 
-    _initDebugDraw () {
+    _updateDebugDraw () {
         if (this.debugBones) {
             if (!this._debugDraw) {
                 let debugDrawNode = new cc.PrivateNode();
@@ -444,7 +477,8 @@ let ArmatureDisplay = cc.Class({
 
         this._armature = this._displayProxy._armature;
         this._armature.animation.timeScale = this.timeScale;
-
+        this._updateCacheFrame();
+        
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }
