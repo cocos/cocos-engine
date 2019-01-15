@@ -39,13 +39,13 @@ export function createJointsTexture (skinning: { joints: any[]; }) {
     return texture;
 }
 
+const copyAttribute = (attribute: IVertexAttribute) => Object.assign({}, attribute);
 export function createMesh (geometry: IGeometry) {
     // Collect attributes and calculate length of result vertex buffer.
     const attributes: IVertexAttribute[] = [];
     let stride = 0;
     const channels: Array<{ offset: number; data: number[]; attribute: IVertexAttribute; }> = [];
     let verticesCount = 0;
-    const copyAttribute = (attribute: IVertexAttribute) => Object.assign({}, attribute);
     const addAttribute = (attribute: IVertexAttribute, data: number[]) => {
         const componentCount = _getComponentCount(attribute);
         const componentBytesLength = _getComponentByteLength(attribute);

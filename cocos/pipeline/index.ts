@@ -1,1 +1,2 @@
-import "./render-view";
+import './define';
+import './render-view';
