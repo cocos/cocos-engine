@@ -273,6 +273,7 @@ module.exports = {
             "play_times": "播放默认动画的循环次数\n-1 表示使用配置文件中的默认值\n0 表示无限循环\n>0 表示循环次数",
             "debug_bones": "是否显示 bone 的 debug 信息",
             "cache_frame": "是否开启动画缓存",
+            "enabled_batch": "是否开启合批",
         },
         'motionStreak': {
             'fadeTime': "拖尾的渐隐时间,以秒为单位",

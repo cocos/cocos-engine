@@ -269,6 +269,7 @@ module.exports = {
             "play_times": "The play times of the default animation.\n-1 means using the value of config file\n0 means repeat for ever\n>0 means repeat times",
             "debug_bones": "Indicates whether open debug bones",
             "cache_frame": "Indicates whether enabled cache frame",
+            "enabled_batch": "Indicates whether enabled batch model",
         },
         'motionStreak': {
             'fadeTime': "Trail fragment fade time, in seconds",

@@ -358,6 +358,20 @@ let ArmatureDisplay = cc.Class({
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.cache_frame'
         },
+
+        /**
+         * !#en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
+         * !#zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
+         * @property {Boolean} cacheFrame
+         * @default false
+         */
+        enabledBatch: {
+            default: false,
+            notify () {
+                this._updateBatch();
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.enabled_batch'
+        }
     },
 
     ctor () {
@@ -395,6 +409,16 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
+    _updateBatch () {
+        var cache = this._materialCache;
+        for (var mKey in cache) {
+            var material = cache[mKey];
+            if (material) {
+                material.useModel = !this.enabledBatch;
+            }
+        }
+    },
+
     // override
     _updateMaterial (material) {
         this._super(material);
@@ -416,7 +440,7 @@ let ArmatureDisplay = cc.Class({
         var children = this.node.children;
         for (var i = 0, n = children.length; i < n; i++) {
             var child = children[i];
-            if (child && child._name === "DEBUG_DRAW_NODE" ) {
+            if (child && child._name === "DEBUG_DRAW_NODE") {
                 child.destroy();
             }
         }
@@ -478,7 +502,8 @@ let ArmatureDisplay = cc.Class({
         this._armature = this._displayProxy._armature;
         this._armature.animation.timeScale = this.timeScale;
         this._updateCacheFrame();
-        
+        this._updateBatch();
+
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }

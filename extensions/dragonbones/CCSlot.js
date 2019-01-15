@@ -26,6 +26,7 @@
 const math = require('../../cocos2d/core/renderer/render-engine').math;
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;
+const dbDebug = dragonBones.DragonBones.debug;
 
 dragonBones.CCSlot = cc.Class({
     name: 'dragonBones.CCSlot',
@@ -356,7 +357,7 @@ dragonBones.CCSlot = cc.Class({
 
         // Mesh change, no need to clear all cache, just dirty.
         if (meshDirty) {
-            for (var key in cacheFrameDirty) {
+            for (let key in cacheFrameDirty) {
                 cacheFrameDirty[key] = true;
             }
             needUpdateCurFrameData = true;
@@ -425,8 +426,18 @@ dragonBones.CCSlot = cc.Class({
                 curFrame[offset++] = vertex.v;
             }
 
+            if (dbDebug) {
+                dragonBones._calcTimes = dragonBones._calcTimes || 0;
+                dragonBones._calcTimes ++;
+            }
+
         } else {
             this._curFrame = cacheFrame[cacheIndex];
+
+            if (dbDebug) {
+                dragonBones._cacheTimes = dragonBones._cacheTimes || 0;
+                dragonBones._cacheTimes ++;
+            }
         }
     },
 
@@ -437,18 +448,18 @@ dragonBones.CCSlot = cc.Class({
     updateWorldMatrix () {
         if (!this._armature) return;
 
-        var parentSlot = this._armature._parent;
+        let parentSlot = this._armature._parent;
         if (parentSlot) {
             parentSlot.updateWorldMatrix();
         }
 
         if (this._worldMatrixDirty) {
             this._calculWorldMatrix();
-            var childArmature = this.childArmature;
+            let childArmature = this.childArmature;
             if (!childArmature) return;
-            var slots = childArmature.getSlots();
-            for (var i = 0,n = slots.length; i < n; i++) {
-                var slot = slots[i];
+            let slots = childArmature.getSlots();
+            for (let i = 0,n = slots.length; i < n; i++) {
+                let slot = slots[i];
                 if (slot) {
                     slot._worldMatrixDirty = true;
                 }
@@ -478,11 +489,18 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _calculWorldMatrix () {
-        var parent = this._armature._parent;
+        let parent = this._armature._parent;
         if (parent) {
-            this._mulMat(this._worldMatrix ,parent._worldMatrix, this._matrix);
+            this._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
         } else {
-            math.mat4.copy(this._worldMatrix, this._matrix);
+            let display = this._armature.getDisplay();
+            let ccNode = display._ccNode;
+            if (ccNode) {
+                ccNode._updateWorldMatrix();
+                this._mulMat(this._worldMatrix, ccNode._worldMatrix, this._matrix);
+            } else {
+                math.mat4.copy(this._worldMatrix, this._matrix);
+            }
         }
         this._worldMatrixDirty = false;
     }

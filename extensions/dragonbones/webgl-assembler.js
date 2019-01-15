@@ -34,7 +34,7 @@ let _slotColor = cc.color(0, 0, 255, 255);
 
 let _nodeR, _nodeG, _nodeB, _nodeA,
     _premultipliedAlpha,
-    _hasFlush, _buffer, _node,
+    _mustFlush, _buffer, _node,
     _renderer, _comp,
     _vertexFloatOffset, _indexOffset, _vertexOffset,
     _vertexCount, _indexCount,
@@ -79,7 +79,7 @@ function _getSlotMaterial (slot) {
             material = baseMaterial.clone();
         }
 
-        material.useModel = true;
+        material.useModel = !_comp.enabledBatch;
         // update texture
         material.texture = tex;
         material.useColor = false;
@@ -103,14 +103,10 @@ function _getSlotMaterial (slot) {
 }
 
 let armatureAssembler = {
-    useModel: true,
-
     updateRenderData (comp, batchData) {},
 
-    traverseArmature (armature) {
+    traverseArmature (armature, parentMat) {
         let slots = armature._slots;
-        let parentSlot = armature._parent;
-        let parentMat = parentSlot && parentSlot._worldMatrix;
         let vbuf, ibuf, uintbuf;
         let material;
         let vertices, indices;
@@ -123,16 +119,12 @@ let armatureAssembler = {
             if (!slot._visible || !slot._displayData) continue;
 
             if (slot.childArmature) {
-                if (slot._worldMatrixDirty) {
-                    // If no parent, then use local matrix directly.
-                    if (parentMat) {
-                        slot._mulMat(slot._worldMatrix, parentMat, slot._matrix);
-                    } else {
-                        math.mat4.copy(slot._worldMatrix, slot._matrix);
-                    }
-                    slot._worldMatrixDirty = false;
+                if (parentMat) {
+                    slot._mulMat(slot._worldMatrix, parentMat, slot._matrix);
+                } else {
+                    math.mat4.copy(slot._worldMatrix, slot._matrix);
                 }
-                this.traverseArmature(slot.childArmature);
+                this.traverseArmature(slot.childArmature, slot._worldMatrix);
                 continue;
             }
 
@@ -141,8 +133,8 @@ let armatureAssembler = {
                 continue;
             }
 
-            if (!_hasFlush || material._hash !== _renderer.material._hash) {
-                _hasFlush = true;
+            if (_mustFlush || material._hash !== _renderer.material._hash) {
+                _mustFlush = false;
                 _renderer._flush();
                 _renderer.node = _node;
                 _renderer.material = material;
@@ -206,7 +198,7 @@ let armatureAssembler = {
         if (!armature) return;
         
         // Init temp var.
-        _hasFlush = false;
+        _mustFlush = true;
         _premultipliedAlpha = comp.premultipliedAlpha;
         _node = comp.node;
         _buffer = renderer._meshBuffer;
@@ -219,8 +211,14 @@ let armatureAssembler = {
         _nodeB = nodeColor.b / 255;
         _nodeA = nodeColor.a / 255;
 
+        let worldMat = undefined;
+        if (_comp.enabledBatch) {
+            worldMat = _node._worldMatrix;
+            _mustFlush = false;
+        }
+
         // Traverse all armature.
-        this.traverseArmature(armature);
+        this.traverseArmature(armature, worldMat);
 
         // Clear temp var.
         _node = undefined;

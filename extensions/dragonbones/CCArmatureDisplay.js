@@ -37,22 +37,7 @@ dragonBones.CCArmatureDisplay = cc.Class({
         }
     },
 
-    getRootDisplay () {
-        var parentSlot = this._armature._parent;
-        if (!parentSlot) {
-            return this;
-        }
-        
-        var slot;
-        while (parentSlot)
-        {
-            slot = parentSlot;
-            parentSlot = parentSlot._armature._parent;
-        }
-        return slot._armature.getDisplay();
-    },
-
-    convertToRootSpace (pos) {
+    convertToWorldSpace (pos) {
         var slot = this._armature._parent;
         if (!slot)
         {
@@ -65,18 +50,6 @@ dragonBones.CCArmatureDisplay = cc.Class({
         newPos.x = pos.x * worldMatrix.m00 + pos.y * worldMatrix.m04 + worldMatrix.m12;
         newPos.y = pos.x * worldMatrix.m01 + pos.y * worldMatrix.m05 + worldMatrix.m13;
         return newPos;
-    },
-
-    convertToWorldSpace (point) {
-        var newPos = this.convertToRootSpace(point);
-        var ccNode = this.getRootNode();
-        var finalPos = ccNode.convertToWorldSpace(newPos);
-        return finalPos;
-    },
-
-    getRootNode () {
-        var rootDisplay = this.getRootDisplay();
-        return rootDisplay && rootDisplay._ccNode;
     },
 
     ////////////////////////////////////
