@@ -23,12 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// @ts-check
-import { _decorator } from '../../core/data';
-import { ccenum } from '../../core/value-types/enum';
-const { ccclass, property } = _decorator;
 import { Asset } from '../../assets/asset';
+import { ccclass, property } from '../../core/data/class-decorator';
 import { Vec3 } from '../../core/value-types';
+import { ccenum } from '../../core/value-types/enum';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
