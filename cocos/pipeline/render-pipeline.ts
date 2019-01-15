@@ -1,7 +1,6 @@
 import { intersect } from '../3d/geom-utils';
 import { Root } from '../core/root';
-import { vec3 } from '../core/vmath';
-import mat4 from '../core/vmath/mat4';
+import { mat4, vec3 } from '../core/vmath';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXType } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
@@ -14,10 +13,6 @@ import { Camera } from '../renderer/scene/camera';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
-
-export enum RenderPassStage {
-    DEFAULT = 100,
-}
 
 export class UBOGlobal {
     public static TIME_OFFSET: number = 0;

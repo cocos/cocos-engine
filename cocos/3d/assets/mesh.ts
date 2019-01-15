@@ -404,7 +404,7 @@ export class Mesh extends Asset {
      * !#en
      * Gets the specified submesh.
      * @param index Index of the specified submesh.
-     * @deprecated Using this.renderingMesh.getSubmesh(index)inputAssembler instead.
+     * @deprecated Use this.renderingMesh.getSubmesh(index).inputAssembler instead.
      */
     public getSubMesh (index: number) {
         const renderingSubmesh = this.renderingMesh ? this.renderingMesh.getSubmesh(index) : null;
