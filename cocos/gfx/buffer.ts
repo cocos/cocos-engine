@@ -18,6 +18,8 @@ export interface IGFXDrawInfo {
     firstInstance: number;
 }
 
+export const GFX_DRAW_INFO_SIZE: number = 56;
+
 export interface IGFXIndirectBuffer {
     drawInfos: IGFXDrawInfo[];
 }

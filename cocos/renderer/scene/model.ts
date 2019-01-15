@@ -12,6 +12,7 @@ import { Node } from '../../scene-graph';
 import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
 import { RenderScene } from './render-scene';
+import { GFXDevice } from '../../gfx/device';
 
 const _temp_floatx16 = new Float32Array(16);
 const _temp_mat4 = mat4.create();
@@ -21,13 +22,14 @@ const _temp_mat4 = mat4.create();
  */
 export class Model {
 
+    protected _device: GFXDevice;
+    protected _type: string;
+    protected _subMeshObject: IRenderingSubmesh | null;
     private _scene: RenderScene | null;
     private _id: number;
-    private _type: string;
     private _poolID: number;
     private _isEnable: boolean;
     private _node: Node;
-    private _subMeshObject: IRenderingSubmesh | null;
     private _effect: Effect | null;
     private _defines: Object;
     private _dependencies: Object;
@@ -64,10 +66,11 @@ export class Model {
         this._cmdBuffers = new Array<GFXCommandBuffer>();
         this._uboLocal = new UBOLocal();
         this._localUBO = null;
+        this._device = cc.director.root.device;
     }
 
     public initialize () {
-        this._localUBO = cc.director.root.device.createBuffer({
+        this._localUBO = this._device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST,
             size: UBOLocal.SIZE,
@@ -104,17 +107,11 @@ export class Model {
     public updateUBOs () {
         mat4.array(_temp_floatx16, this._node._mat);
         this._node._mat.invert(_temp_mat4);
-        if (this._uboLocal) {
-            this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
-        }
+        this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
         mat4.array(_temp_floatx16, _temp_mat4);
-        if (this._uboLocal) {
-            this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
-        }
+        this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
 
-        if (this._localUBO) {
-            this._localUBO.update(this._uboLocal.view);
-        }
+        this._localUBO!.update(this._uboLocal.view);
     }
 
     /**
@@ -194,7 +191,7 @@ export class Model {
     set material (material: Material) {
         this._material = material;
         for (let i = 0; i < this._material.passes.length; i++) {
-            if (this._material.passes[i].primitive !== (this._subMeshObject as IRenderingSubmesh).primitiveMode) {
+            if (this._material.passes[i].primitive !== this._subMeshObject!.primitiveMode) {
                 cc.error('the model(%d)\'s primitive type doesn\'t match its pass\'s');
             }
             this.recordCommandBuffer(i);
@@ -207,14 +204,14 @@ export class Model {
         }
     }
 
-    public recordCommandBuffer (index: number) {
-        const pass = (this._material as Material).passes[index];
+    private recordCommandBuffer (index: number) {
+        const pass = this._material!.passes[index];
         if (this._cmdBuffers[index] == null) {
             const cmdBufferInfo = {
-                allocator: cc.director.root.device.commandAllocator,
+                allocator: this._device.commandAllocator,
                 type: GFXCommandBufferType.SECONDARY,
             };
-            this._cmdBuffers[index] = cc.director.root.device.createCommandBuffer(cmdBufferInfo);
+            this._cmdBuffers[index] = this._device.createCommandBuffer(cmdBufferInfo);
         }
 
         const localUBO = this._localUBO as GFXBuffer;
@@ -240,7 +237,7 @@ export class Model {
     }
 
     get passes (): Pass[] {
-        return (this._material as Material).passes;
+        return this._material!.passes;
     }
 
     get commandBuffers (): GFXCommandBuffer[] {
@@ -252,6 +249,6 @@ export class Model {
     }
 
     get localUBO (): GFXBuffer {
-        return this._localUBO as GFXBuffer;
+        return this._localUBO!;
     }
 }
