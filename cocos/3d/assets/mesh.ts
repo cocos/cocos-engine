@@ -124,6 +124,15 @@ function getIndexUnitStride (indexUnit: IndexUnit) {
     return 1;
 }
 
+function getIndexUnitCtor (indexUnit: IndexUnit) {
+    switch (indexUnit) {
+        case IndexUnit.UINT8: return Uint8Array;
+        case IndexUnit.UINT16: return Uint16Array;
+        case IndexUnit.UINT32: return Uint32Array;
+    }
+    return Uint8Array;
+}
+
 export interface IVertexAttribute {
     /**
      * Attribute Name.
@@ -222,6 +231,11 @@ export interface IPrimitive {
      */
     vertexBundelIndices: number[];
 
+    /**
+     * This primitive's topology.
+     */
+    primitiveMode: GFXPrimitiveMode;
+
     indices?: {
         /**
          * The indices data range of this primitive.
@@ -234,10 +248,11 @@ export interface IPrimitive {
         indexUnit: IndexUnit;
     };
 
-    /**
-     * This primitive's topology.
-     */
-    primitiveMode: GFXPrimitiveMode;
+    // for raycast purpose
+    geomInfo?: {
+        doubleSided?: boolean;
+        range: IBufferRange;
+    };
 }
 
 /**
@@ -265,10 +280,17 @@ export interface IMeshStruct {
     maxPosition: Vec3;
 }
 
+// for raycast purpose
+export interface IGeometricInfo {
+    positions: Float32Array;
+    indices: Uint16Array;
+    doubleSided?: boolean;
+}
+
 export interface IRenderingSubmesh {
     inputAssembler: GFXInputAssembler;
     primitiveMode: GFXPrimitiveMode;
-    doubleSided?: boolean;
+    geometricInfo?: IGeometricInfo;
 }
 
 export class RenderingMesh {
@@ -434,6 +456,7 @@ export class Mesh extends Asset {
             }
 
             let indexBuffer: GFXBuffer | null = null;
+            let ib: any = null;
             if (primitive.indices) {
                 const indices = primitive.indices;
 
@@ -445,7 +468,9 @@ export class Mesh extends Asset {
                 });
                 indexBuffers.push(indexBuffer);
 
-                indexBuffer.update(new Uint8Array(buffer, indices.range.offset), 0, indices.range.length);
+                ib = new (getIndexUnitCtor(indices.indexUnit))(buffer, indices.range.offset,
+                    indices.range.length / getIndexUnitStride(indices.indexUnit));
+                indexBuffer.update(ib);
             }
 
             const gfxAttributes: IGFXInputAttribute[] = [];
@@ -464,20 +489,27 @@ export class Mesh extends Asset {
                 });
             });
 
-            const referedVertexBuffers = primitive.vertexBundelIndices.map(
+            const vbReference = primitive.vertexBundelIndices.map(
                 (i) => vertexBuffers[i]);
 
             const inputAssemblerInfo: IGFXInputAssemblerInfo = {
                 attributes: gfxAttributes,
-                vertexBuffers: referedVertexBuffers,
+                vertexBuffers: vbReference,
             };
             if (indexBuffer) {
                 inputAssemblerInfo.indexBuffer = indexBuffer;
             }
 
+            const geomInfo: any = primitive.geomInfo;
+            if (geomInfo) {
+                geomInfo.indices = ib;
+                geomInfo.positions = new Float32Array(buffer, geomInfo.range.offset, geomInfo.range.length / 4);
+            }
+
             return {
                 primitiveMode: primitive.primitiveMode,
                 inputAssembler: gfxDevice.createInputAssembler(inputAssemblerInfo),
+                geometricInfo: geomInfo,
             } as IRenderingSubmesh ;
         });
 

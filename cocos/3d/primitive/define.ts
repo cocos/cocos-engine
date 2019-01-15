@@ -60,4 +60,9 @@ export interface IGeometry {
      * Vertex colors.
      */
     colors?: number[];
+
+    /**
+     * whether rays casting from the back face of this geometry could collide with it
+     */
+    doubleSided?: boolean;
 }
