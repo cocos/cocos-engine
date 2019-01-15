@@ -210,13 +210,18 @@ export class Pass {
         if (this._pipelineState) { this._pipelineState.destroy(); }
         const ors = Object.assign({}, overrides);
         this._createPipelineState(info, (states) => {
+            if (overrides.primitive !== undefined) { states.primitive = overrides.primitive; }
             Object.assign(states.rs, ors.rs);
             Object.assign(states.dss, ors.dss);
-            for (let i = 0; i < ors.bs.targets.length; i++) {
-                Object.assign(states.bs.targets[i], ors.bs.targets[i]);
+            if (ors.bs) {
+                if (ors.bs.targets) {
+                    for (let i = 0; i < ors.bs.targets.length; i++) {
+                        Object.assign(states.bs.targets[i], ors.bs.targets[i]);
+                    }
+                    delete ors.bs.targets;
+                }
+                Object.assign(states.bs, ors.bs);
             }
-            delete ors.bs.targets;
-            Object.assign(states.bs, ors.bs);
         });
     }
 
