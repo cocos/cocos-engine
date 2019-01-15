@@ -6,11 +6,8 @@ const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')
 export default class RenderableComponent extends Component {
-    /**
-     * @type {Material[]}
-     */
     @property([Material])
-    public _materials = [];
+    private _materials: Material[] = [];
 
     constructor () {
         super();
@@ -39,7 +36,7 @@ export default class RenderableComponent extends Component {
      */
     get materials () {
         for (let i = 0; i < this._materials.length; i++) {
-            this._materials[i] = this.getMaterial(i);
+            this._materials[i] = this.getMaterial(i)!;
         }
         return this._materials;
     }
@@ -86,15 +83,15 @@ export default class RenderableComponent extends Component {
         return this.getMaterial(0);
     }
 
-    get sharedMaterial () {
-        return this.getSharedMaterial(0);
-    }
-
     set material (val) {
         if (this._materials.length === 1 && this._materials[0] === val) {
             return;
         }
         this.setMaterial(val, 0);
+    }
+
+    get sharedMaterial () {
+        return this.getSharedMaterial(0);
     }
 
     public setMaterial (material, index) {
