@@ -1,4 +1,4 @@
-import { GFXAttributeName, GFXPrimitiveMode } from '../../gfx/define';
+import { GFXAttributeName } from '../../gfx/define';
 export { default as find } from '../../scene-graph/find';
 import Texture2D from '../../assets/texture-2d';
 import { Filter, PixelFormat, WrapMode } from '../../assets/texture-base';
