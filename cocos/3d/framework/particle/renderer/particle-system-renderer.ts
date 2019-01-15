@@ -5,14 +5,18 @@ import { Material } from '../../../assets/material';
 import { RecyclePool } from '../../../memop';
 import Particle from '../particle';
 import RenderableComponent from '../../renderable-component';
-import { Enum } from '../../../../core/value-types';
+import { Enum, Vec2 } from '../../../../core/value-types';
 import { property, ccclass, executeInEditMode } from '../../../../core/data/class-decorator';
 import { Space } from '../particle-general-function';
+import { GFXAttributeName, GFXFormat } from '../../../../gfx/define';
+import ParticleBatchModel from '../../../../renderer/models/particle-batch-model';
+import { IGFXInputAttribute } from '../../../../gfx/input-assembler';
+// import ParticleSystemComponent from '../particle-system-component';
 
-let _tempAttribUV = vec3.create();
-let _tempAttribUV0 = vec2.create();
-let _tempAttribColor = vec4.create();
-let _tempWorldTrans = mat4.create();
+let _tempAttribUV: vec3 = vec3.create();
+let _tempAttribUV0: vec2 = vec2.create();
+let _tempAttribColor: vec4 = vec4.create();
+let _tempWorldTrans: mat4 = mat4.create();
 
 let _uvs = [
     0, 0, // bottom-left
@@ -29,6 +33,12 @@ const RenderMode = Enum({
     Mesh: 4
 });
 
+let USE_WORLD_SPACE = 'USE_WORLD_SPACE';
+let USE_BILLBOARD = 'USE_BILLBOARD';
+let USE_STRETCHED_BILLBOARD = 'USE_STRETCHED_BILLBOARD';
+let USE_HORIZONTAL_BILLBOARD = 'USE_HORIZONTAL_BILLBOARD';
+let USE_VERTICAL_BILLBOARD = 'USE_VERTICAL_BILLBOARD';
+
 @ccclass('cc.ParticleSystemRenderer')
 @executeInEditMode
 export default class ParticleSystemRenderer extends RenderableComponent {
@@ -36,16 +46,16 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     @property({
         type: RenderMode
     })
-    _renderMode = RenderMode.Billboard;
+    private _renderMode = RenderMode.Billboard;
 
     @property({
         type: RenderMode
     })
-    get renderMode() {
+    public get renderMode() {
         return this._renderMode;
     }
 
-    set renderMode(val) {
+    public set renderMode(val) {
         if (this._renderMode === val) {
             return;
         }
@@ -55,32 +65,41 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     }
 
     @property
-    _velocityScale = 1;
+    private _velocityScale = 1;
 
     @property
-    get velocityScale() {
+    public get velocityScale() {
         return this._velocityScale;
     }
 
-    set velocityScale(val) {
+    public set velocityScale(val) {
         this._velocityScale = val;
         this._updateMaterialParams();
         this._updateModel();
     }
 
     @property
-    _lengthScale = 1;
+    private _lengthScale = 1;
 
     @property
-    get lengthScale() {
+    public get lengthScale() {
         return this._lengthScale;
     }
 
-    set lengthScale(val) {
+    public set lengthScale(val) {
         this._lengthScale = val;
         this._updateMaterialParams();
         this._updateModel();
     }
+
+    private _defines: { [index: string]: boolean };
+    private _model: ParticleBatchModel | null;
+    private frameTile: Vec2;
+    private attrs: [any];
+    private _vertAttrs: IGFXInputAttribute[];
+    private particleSystem: any;
+    private _particles: RecyclePool;
+
 
     constructor() {
         super();
@@ -88,41 +107,53 @@ export default class ParticleSystemRenderer extends RenderableComponent {
 
         this.frameTile = cc.v2(1, 1);
         this.attrs = new Array(5);
-
-        this.device = cc.game._gfxDevice;
+        this._vertAttrs = [
+            { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
+            { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },
+            { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RG32F },
+            { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8,  isNormalized: true }
+        ];
+        this._defines = {
+            USE_WORLD_SPACE: true,
+            USE_BILLBOARD: true,
+            USE_STRETCHED_BILLBOARD: false,
+            USE_HORIZONTAL_BILLBOARD: false,
+            USE_VERTICAL_BILLBOARD: false
+        }
     }
 
     onInit() {
-        this._vertAttrs = [
-            { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3, index: gfx.ATTR_INDEX_POSITION },
-            { name: gfx.ATTR_UV, type: gfx.ATTR_TYPE_FLOAT32, num: 3, index: gfx.ATTR_INDEX_UV },
-            { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2, index: gfx.ATTR_INDEX_UV0 },
-            { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, index: gfx.ATTR_INDEX_COLOR, normalize: true }
-        ];
         this.particleSystem = this.node.getComponent('cc.ParticleSystemComponent');
         this._particles = new RecyclePool(() => {
             return new Particle(this);
         }, this.particleSystem.capacity);
         if (this.sharedMaterial == null) {
-            this.material = new Material();
-            this.sharedMaterial.effectAsset = cc.EffectAsset.get('builtin-effect-particle-add');
+            this._materials[0] = new Material();
+            this.sharedMaterial!.effectName = 'builtin-effect-particle-add';
         }
+        this.onEnable();
         this._updateMaterialParams();
         this._updateModel();
-        this.onEnable();
     }
 
     onEnable() {
-        if (this._model != null)
-            this._scene.addModel(this._model);
+        if (!this.particleSystem) {
+            return;
+        }
+        if (this._model == null) {
+            this._model = <ParticleBatchModel>this._getRenderScene().createModel(ParticleBatchModel);
+            this._model.setCapacity(this.particleSystem.capacity);
+            this._model.setVertexAttributes(this._vertAttrs);
+            this._model.node = this.node;
+        }
     }
 
     onDisable() {
-        this._scene.removeModel(this._model);
+        this._getRenderScene().destroyModel(this._model!);
     }
 
     onDestroy() {
-        this._model.destroy();
+        this._model!.destroy();
     }
 
     _updateMaterialParams() {
@@ -130,42 +161,43 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             return;
         }
         if (this.particleSystem._simulationSpace === Space.World) {
-            this.sharedMaterial.define('USE_WORLD_SPACE', true);
+            this._defines[USE_WORLD_SPACE] = true;
         } else {
-            this.sharedMaterial.define('USE_WORLD_SPACE', false);
+            this._defines[USE_WORLD_SPACE] = true;
         }
 
         if (this._renderMode === RenderMode.Billboard) {
-            this.sharedMaterial.define('USE_BILLBOARD', true);
-            this.sharedMaterial.define('USE_STRETCHED_BILLBOARD', false);
-            this.sharedMaterial.define('USE_HORIZONTAL_BILLBOARD', false);
-            this.sharedMaterial.define('USE_VERTICAL_BILLBOARD', false);
+            this._defines[USE_BILLBOARD] = true;
+            this._defines[USE_STRETCHED_BILLBOARD] = false;
+            this._defines[USE_HORIZONTAL_BILLBOARD] = false;
+            this._defines[USE_VERTICAL_BILLBOARD] = false;
         } else if (this._renderMode === RenderMode.StrecthedBillboard) {
-            this.sharedMaterial.define('USE_BILLBOARD', false);
-            this.sharedMaterial.define('USE_STRETCHED_BILLBOARD', true);
-            this.sharedMaterial.define('USE_HORIZONTAL_BILLBOARD', false);
-            this.sharedMaterial.define('USE_VERTICAL_BILLBOARD', false);
-            this.sharedMaterial.setProperty('velocityScale', this._velocityScale);
-            this.sharedMaterial.setProperty('lengthScale', this._lengthScale);
+            this._defines[USE_BILLBOARD] = false;
+            this._defines[USE_STRETCHED_BILLBOARD] = true;
+            this._defines[USE_HORIZONTAL_BILLBOARD] = false;
+            this._defines[USE_VERTICAL_BILLBOARD] = false;
+            this.sharedMaterial!.setProperty('velocityScale', this._velocityScale);
+            this.sharedMaterial!.setProperty('lengthScale', this._lengthScale);
         } else if (this._renderMode === RenderMode.HorizontalBillboard) {
-            this.sharedMaterial.define('USE_BILLBOARD', false);
-            this.sharedMaterial.define('USE_STRETCHED_BILLBOARD', false);
-            this.sharedMaterial.define('USE_HORIZONTAL_BILLBOARD', true);
-            this.sharedMaterial.define('USE_VERTICAL_BILLBOARD', false);
+            this._defines[USE_BILLBOARD] = false;
+            this._defines[USE_STRETCHED_BILLBOARD] = false;
+            this._defines[USE_HORIZONTAL_BILLBOARD] = true;
+            this._defines[USE_VERTICAL_BILLBOARD] = false;
         } else if (this._renderMode === RenderMode.VerticalBillboard) {
-            this.sharedMaterial.define('USE_BILLBOARD', false);
-            this.sharedMaterial.define('USE_STRETCHED_BILLBOARD', false);
-            this.sharedMaterial.define('USE_HORIZONTAL_BILLBOARD', false);
-            this.sharedMaterial.define('USE_VERTICAL_BILLBOARD', true);
+            this._defines[USE_BILLBOARD] = false;
+            this._defines[USE_STRETCHED_BILLBOARD] = false;
+            this._defines[USE_HORIZONTAL_BILLBOARD] = false;
+            this._defines[USE_VERTICAL_BILLBOARD] = true;
         } else {
             console.warn(`particle system renderMode ${this._renderMode} not support.`);
         }
+        this.sharedMaterial!.setDefines(this._defines);
 
         if (this.particleSystem.textureAnimationModule.enable) {
-            this.sharedMaterial.setProperty('frameTile', vec2.set(this.frameTile, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
+            this.sharedMaterial!.setProperty('frameTile', vec2.set(this.frameTile, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
         }
         else {
-            this.sharedMaterial.setProperty('frameTile', this.frameTile);
+            this.sharedMaterial!.setProperty('frameTile', this.frameTile);
         }
     }
 
@@ -173,18 +205,13 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         if (!this.particleSystem) {
             return;
         }
-        if (this._model === null) {
-            this._model = new renderer.ParticleBatchModel(this.device, this.particleSystem.capacity, this._vertAttrs);
-            this._model.setParticleRenderer(this);
-            this._model.setNode(this.node);
-        }
-        this._model.setEffect(this.sharedMaterial ? this.sharedMaterial.effect : null);
+        this._model!.material = this.sharedMaterial ? this.sharedMaterial : null;
         if (Object.getPrototypeOf(this).constructor.name === 'ParticleSystemGpuRenderer')
             return;
         if (this._renderMode === RenderMode.StrecthedBillboard) {
-            this._model.enableStretchedBillboard();
+            this._model!.enableStretchedBillboard();
         } else {
-            this._model.disableStretchedBillboard();
+            this._model!.disableStretchedBillboard();
         }
     }
 
@@ -275,12 +302,12 @@ export default class ParticleSystemRenderer extends RenderableComponent {
                     this.attrs[attrNum++] = p.ultimateVelocity;
                 }
 
-                this._model.addParticleVertexData(idx++, this.attrs);
+                this._model!.addParticleVertexData(idx++, this.attrs);
             }
         }
 
         // because we use index buffer, per particle index count = 6.
-        this._model.updateIA(this._particles.length * 6);
+        this._model!.updateIA(this._particles.length * 6);
     }
 
     updateShaderUniform() {

@@ -19,7 +19,7 @@ export class TestModelStage extends RenderStage {
     private _init: boolean = false;
     private _textureAsset: Texture2D | null = null;
 
-    constructor (flow: RenderFlow) {
+    constructor(flow: RenderFlow) {
         super(flow);
     }
 
@@ -43,7 +43,7 @@ export class TestModelStage extends RenderStage {
         // load texture
         const imgElms = this._device.canvas.getElementsByTagName('img');
         if (imgElms.length) {
-            if (!this.loadTexture( imgElms[0] as HTMLImageElement)) {
+            if (!this.loadTexture(imgElms[0] as HTMLImageElement)) {
                 console.error('Load texture failed.');
                 return false;
             }
@@ -85,7 +85,7 @@ export class TestModelStage extends RenderStage {
             this._scene._scene = this._scene;
             const modelCom = this._scene.addComponent('cc.ModelComponent');
             modelCom.material = this._material;
-            modelCom.mesh = cc.utils.createMesh(cc.game._gfxDevice, cc.primitives.box({length: 1, width: 1, height: 1}));
+            modelCom.mesh = cc.utils.createMesh(cc.game._gfxDevice, cc.primitives.box({ length: 1, width: 1, height: 1 }));
             this._model = modelCom._models[0];
             this._scene.setRotationFromEuler(45, 45, 45);
             this._scene._rot = this._scene._lrot;
@@ -94,16 +94,16 @@ export class TestModelStage extends RenderStage {
 
         const camera = view.camera as Camera;
 
-        const cmdBuff =  this._cmdBuff as GFXCommandBuffer;
+        const cmdBuff = this._cmdBuff as GFXCommandBuffer;
         this._renderArea.width = camera.width;
         this._renderArea.height = camera.height;
         this._model._updateTransform();
-        this._model.updateRenderData();
+        this._model.updateUBOs();
         cmdBuff.begin();
-        cmdBuff.beginRenderPass( this._framebuffer as GFXFramebuffer, this._renderArea, this._clearColors,
+        cmdBuff.beginRenderPass(this._framebuffer as GFXFramebuffer, this._renderArea, this._clearColors,
             this._clearDepth, this._clearStencil);
 
-        cmdBuff.execute(this._model.commandBuffers);
+        cmdBuff.execute(this._model.commandBuffers, this._model.commandBuffers.length);
         cmdBuff.endRenderPass();
         cmdBuff.end();
 

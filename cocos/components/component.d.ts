@@ -39,7 +39,7 @@ export class Component extends CCObject {
 
     public constructor();
 
-    protected _getRenderScene(index?: number): RenderScene;
+    protected _getRenderScene(): RenderScene;
     public addComponent(typeOrClassName: Function | string): Component;
     public getComponent(typeOrClassName: Function | string): Component;
     public getComponents(typeOrClassName: Function | string): Component[];
