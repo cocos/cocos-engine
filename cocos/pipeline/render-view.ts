@@ -50,7 +50,7 @@ export class RenderView {
     private _window: GFXWindow | null = null;
     private _priority: number = 0;
     private _visibility: number = 0;
-    private _camera: Camera | null = null;
+    private _camera: Camera;
     private _isEnable: boolean = true;
 
     private constructor (root: Root, camera: Camera) {
@@ -69,7 +69,6 @@ export class RenderView {
     public destroy () {
         this._window = null;
         this._priority = 0;
-        this._camera = null;
     }
 
     public resize (width, height) {

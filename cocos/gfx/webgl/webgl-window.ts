@@ -173,15 +173,6 @@ export class WebGLGFXWindow extends GFXWindow {
     }
 
     public resize (width: number, height: number) {
-        if (this._framebuffer) {
-            this._framebuffer.destroy();
-            this._framebuffer.initialize({
-                renderPass: this._renderPass!,
-                // colorViews: [this._colorTexView],
-                // depthStencilView: this._depthStencilTexView,
-                isOffscreen: false,
-            });
-        }
     }
 
     public get webGLDevice (): WebGLGFXDevice {

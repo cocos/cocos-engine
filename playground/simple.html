@@ -35,6 +35,12 @@
     const canv = document.getElementById('canvas');
     canv.width = bcr.width;
     canv.height = bcr.height;
+
+    window.addEventListener('resize', () => {
+      const bcr = $body.getBoundingClientRect();
+      cc.director.root.resize(bcr.width, bcr.height);
+    });
+
     // window.addEventListener('resize', () => {
     //   const bcr = $body.getBoundingClientRect();
     //   cc.view.setCanvasSize(bcr.width, bcr.height);

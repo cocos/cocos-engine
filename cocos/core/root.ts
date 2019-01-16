@@ -120,8 +120,21 @@ export class Root {
     }
 
     public resize (width: number, height: number) {
+
+        this._device.resize(width, height);
+
         for (const window of this._windows) {
             window.resize(width, height);
+        }
+
+        if (this._pipeline) {
+            this._pipeline.resize(width, height);
+        }
+
+        for (const view of this._views) {
+            if (view.camera.isWindowSize) {
+                view.camera.resize(width, height);
+            }
         }
     }
 

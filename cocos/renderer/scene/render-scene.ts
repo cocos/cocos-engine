@@ -6,7 +6,7 @@ import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Layers } from '../../scene-graph/layers';
 import { Camera, ICameraInfo } from './camera';
-import { Light } from './light';
+import { Light, LightType } from './light';
 import { Model } from './model';
 
 export interface IRenderSceneInfo {
@@ -38,8 +38,8 @@ export class RenderScene {
         return this._cameras;
     }
 
-    public get lights (): Light[] {
-        return this._lights;
+    public get pointLights (): Light[] {
+        return this._pointLights;
     }
 
     public get models (): Model[] {
@@ -53,7 +53,7 @@ export class RenderScene {
     private _root: Root;
     private _name: string = '';
     private _cameras: Camera[] = [];
-    private _lights: Light[] = [];
+    private _pointLights: Light[] = [];
     private _models: Model[] = [];
     private _modelId: number = 0;
 
@@ -69,7 +69,7 @@ export class RenderScene {
 
     public destroy () {
         this.destroyCameras();
-        this.destroyLights();
+        this.destroyPointLights();
         this.destroyModels();
     }
 
@@ -102,33 +102,23 @@ export class RenderScene {
         return null;
     }
 
-    public createLight (name: string): Light {
-        const light = new Light(this, name);
-        this._lights.push(light);
+    public createPointLight (name: string): Light {
+        const light = new Light(this, LightType.POINT, name);
+        this._pointLights.push(light);
         return light;
     }
 
-    public destroyLight (light: Light) {
-        for (let i = 0; i < this._lights.length; ++i) {
-            if (this._lights[i] === light) {
-                this._lights.slice(i);
+    public destroyPointLight (light: Light) {
+        for (let i = 0; i < this._pointLights.length; ++i) {
+            if (this._pointLights[i] === light) {
+                this._pointLights.slice(i);
                 return;
             }
         }
     }
 
-    public destroyLights () {
-        this._lights = [];
-    }
-
-    public getLight (name: string): Light | null {
-        for (const light of this._lights) {
-            if (light.getName() === name) {
-                return light;
-            }
-        }
-
-        return null;
+    public destroyPointLights () {
+        this._pointLights = [];
     }
 
     public createModel<T extends Model> (clazz: new () => T): Model {

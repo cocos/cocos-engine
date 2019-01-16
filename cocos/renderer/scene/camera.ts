@@ -35,6 +35,7 @@ export class Camera {
     private _scene: RenderScene;
     private _name: string;
     private _proj: CameraProjection;
+    private _isWindowSize: boolean = true;
     private _width: number;
     private _height: number;
     private _aspect: number;
@@ -90,6 +91,13 @@ export class Camera {
         this._aspect = this._width / this._height;
     }
 
+    public setFixedSize (width: number, height: number) {
+        this._width = width;
+        this._height = height;
+        this._aspect = this._width / this._height;
+        this._isWindowSize = false;
+    }
+
     public update () {
         if (!this._node) { return; }
         // view matrix
@@ -122,6 +130,10 @@ export class Camera {
 
     get node (): Node {
         return this._node!;
+    }
+
+    get isWindowSize (): boolean {
+        return this._isWindowSize;
     }
 
     set orthoHeight (val) {

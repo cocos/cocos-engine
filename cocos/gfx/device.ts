@@ -123,6 +123,7 @@ export abstract class GFXDevice {
 
     public abstract initialize (info: IGFXDeviceInfo): boolean;
     public abstract destroy (): void;
+    public abstract resize (width: number, height: number): void;
     public abstract createBuffer (info: IGFXBufferInfo): GFXBuffer;
     public abstract createTexture (info: IGFXTextureInfo): GFXTexture;
     public abstract createTextureView (info: IGFXTextureViewInfo): GFXTextureView;

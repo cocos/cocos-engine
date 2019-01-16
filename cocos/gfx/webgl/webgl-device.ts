@@ -393,6 +393,13 @@ export class WebGLGFXDevice extends GFXDevice {
         this._webGLRC = null;
     }
 
+    public resize (width: number, height: number) {
+        this._canvas!.width = width;
+        this._canvas!.height = height;
+        this._width = width;
+        this._height = height;
+    }
+
     public createBuffer (info: IGFXBufferInfo): GFXBuffer {
         const buffer = new WebGLGFXBuffer(this);
         buffer.initialize(info);
