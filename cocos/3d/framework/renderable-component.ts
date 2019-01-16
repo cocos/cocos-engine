@@ -64,7 +64,7 @@ export class RenderableComponent extends Component {
             return null;
         }
 
-        const instantiated = Material.getInstantiatedMaterial(this._materials[idx], this);
+        const instantiated = Material.getInstantiatedMaterial(this._materials[idx]!, this);
         if (instantiated !== this._materials[idx]) {
             this.setMaterial(instantiated, idx);
         }

@@ -274,12 +274,12 @@ export interface IMeshStruct {
     /**
      * The min position of this mesh's vertices.
      */
-    minPosition: Vec3;
+    minPosition?: Vec3;
 
     /**
      * The max position of this mesh's vertices.
      */
-    maxPosition: Vec3;
+    maxPosition?: Vec3;
 }
 
 // for raycast purpose
@@ -391,8 +391,6 @@ export class Mesh extends Asset {
         this._struct = {
             vertexBundles: [],
             primitives: [],
-            minPosition: new Vec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE),
-            maxPosition: new Vec3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE),
         };
     }
 
