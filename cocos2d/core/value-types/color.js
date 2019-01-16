@@ -336,12 +336,12 @@ var Color = (function () {
      */
     proto.setA = function (alpha) {
         alpha = ~~cc.misc.clampf(alpha, 0, 255);
-        this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
+        this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
         return this;
     };
 
     proto._fastSetA = function (alpha) {
-        this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
+        this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
     };
 
     js.getset(proto, 'r', proto.getR, proto.setR, true);

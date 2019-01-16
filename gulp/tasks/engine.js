@@ -28,6 +28,7 @@
 const Utils = require('../util/utils');
 const createBundler = require('../util/create-bundler');
 const Path = require('path');
+const Fs = require('fs-extra');
 
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');
@@ -384,6 +385,51 @@ exports.buildRuntimeMin = function (sourceFile, outputFile, excludes, opt_macroF
         }))
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
+};
+
+exports.excludeAllDepends = function (excludedModules) {
+    let modules = Fs.readJsonSync(Path.join(__dirname, '../../modules.json'));
+    if (modules && modules.length > 0) {
+        function _excludeMudules (muduleName) {
+            if (excMudules[muduleName]) {
+                return;
+            }
+            for (let module of modules) {
+                if (module.name === muduleName) {
+                    excMudules[muduleName] = module;
+                    break;
+                }
+            }
+
+            modules.forEach(module => {
+                if (module.dependencies && module.dependencies.indexOf(muduleName) !== -1) {
+                    _excludeMudules(module.name);
+                }
+            });
+        }
+
+        // exclude all mudules
+        let excMudules = Object.create(null);
+
+        excludedModules.forEach(_excludeMudules);
+
+        let excludes = [];
+        for (let key in excMudules) {
+            let module = excMudules[key];
+            if (module.entries) {
+                module.entries.forEach(function (file) {
+                    let path = Path.join(__dirname, '../engine', file);
+                    if (excludes.indexOf(path) === -1) {
+                        excludes.push(path);
+                    }
+                });
+            }
+        }
+        return excludes;
+    }
+    else {
+        return [];
+    }
 };
 
 exports.jsbSkipModules = jsbSkipModules;
