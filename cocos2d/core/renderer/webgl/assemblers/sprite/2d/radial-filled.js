@@ -223,6 +223,14 @@ module.exports = {
 
         packToDynamicAtlas(sprite, frame);
 
+        let fillStart = sprite._fillStart;
+        let fillRange = sprite._fillRange;
+
+        if (fillRange < 0) {
+            fillStart += fillRange;	
+            fillRange = -fillRange;
+        }
+
         //do round fill start [0,1), include 0, exclude 1
         while (fillStart >= 1.0) fillStart -= 1.0;
         while (fillStart < 0.0) fillStart += 1.0;
