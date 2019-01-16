@@ -489,12 +489,11 @@ var Sprite = cc.Class({
 
         // WebGL
         if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
-            this.markForUpdateRenderData(true);
-            this.markForRender(true);
-
             let material = this.sharedMaterials[0];
             // if material is not internal material, then need do nothing
             if (material && material!== this._graySpriteMaterial && material !== this._spriteMaterial) {
+                this.markForUpdateRenderData(true);
+                this.markForRender(true);
                 return;
             }
 
@@ -526,6 +525,9 @@ var Sprite = cc.Class({
                 if (this._renderData) {
                     this._renderData.material = material;
                 }
+
+                this.markForUpdateRenderData(true);
+                this.markForRender(true);
             }
             else {
                 this.disableRender();
