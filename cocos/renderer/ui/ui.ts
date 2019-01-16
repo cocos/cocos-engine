@@ -1,7 +1,6 @@
 
-import { MeshBuffer} from './mesh-buffer';
 // import { vfmt3D } from '../../2d/renderer/webgl/vertex-format';
-import { RecyclePool } from '../../3d/memop/recycle-pool';
+import RecyclePool from '../../3d/memop/recycle-pool';
 import { Root } from '../../core/root';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';

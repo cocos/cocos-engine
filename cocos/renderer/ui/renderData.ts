@@ -1,6 +1,6 @@
 
 import { Material } from '../../3d/assets/material';
-import { RecyclePool } from '../../3d/memop/recycle-pool';
+import RecyclePool from '../../3d/memop/recycle-pool';
 
 class BaseRenderData {
     public material: Material | null = null;
