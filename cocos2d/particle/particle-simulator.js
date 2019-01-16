@@ -60,7 +60,7 @@ let Particle = function () {
 let pool = new js.Pool(function (par) {
     par.pos.set(ZERO_VEC2);
     par.startPos.set(ZERO_VEC2);
-    par.color._val = ((255<<24) >>> 0);
+    par.color._val = 0xFF000000;
     par.deltaColor.r = par.deltaColor.g = par.deltaColor.b = 0;
     par.deltaColor.a = 255;
     par.size = 0;
