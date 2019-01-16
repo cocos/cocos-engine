@@ -211,7 +211,7 @@ export class Pass {
         if (this._pipelineState) { this._pipelineState.destroy(); }
         const ors = Object.assign({}, overrides);
         this._createPipelineState(info, (states) => {
-            if (overrides.primitive !== undefined) { states.primitive = overrides.primitive; }
+            if (overrides.primitive !== undefined) { this._primitive = states.primitive = overrides.primitive; }
             Object.assign(states.rs, ors.rs);
             Object.assign(states.dss, ors.dss);
             if (ors.bs) {
@@ -244,6 +244,15 @@ export class Pass {
             }
         }
         (this._bindingLayout as GFXBindingLayout).update();
+    }
+
+    public serializePipelineStates () {
+        const ps = this._pipelineState as GFXPipelineState;
+        let res = `${ps.shader.name},${this._stage},${ps.primitive}`;
+        res += serializeBlendState(ps.blendState);
+        res += serializeDepthStencilState(ps.depthStencilState);
+        res += serializeRasterizerState(ps.rasterizerState);
+        return res;
     }
 
     protected _createPipelineState (info: Partial<IPassInfo>, override?: (states: IGFXPipelineStateInfo) => any) {
@@ -286,4 +295,28 @@ export class Pass {
     get pipelineState () { return this._pipelineState as GFXPipelineState; }
     get bindingLayout () { return this._bindingLayout as GFXBindingLayout; }
     get primitive (): GFXPrimitiveMode { return this._primitive; }
+}
+
+function serializeBlendState (bs: GFXBlendState)  {
+    let res = `,bs,${bs.isA2C},${bs.blendColor}`;
+    for (const t of bs.targets) {
+        res += `,bt,${t.blend},${t.blendEq},${t.blendAlphaEq},${t.blendColorMask}`;
+        res += `,${t.blendSrc},${t.blendDst},${t.blendSrcAlpha},${t.blendDstAlpha}`;
+    }
+    return res;
+}
+
+function serializeRasterizerState (rs: GFXRasterizerState)  {
+    const res = `,rs,${rs.cullMode},${rs.depthBias},${rs.depthBiasFactor},${rs.isFrontFaceCCW}`;
+    return res;
+}
+
+// tslint:disable: max-line-length
+function serializeDepthStencilState (dss: GFXDepthStencilState)  {
+    let res = `,dss,${dss.depthTest},${dss.depthWrite},${dss.depthFunc}`;
+    res += `,${dss.stencilTestFront},${dss.stencilFuncFront},${dss.stencilRefFront},${dss.stencilReadMaskFront}`;
+    res += `,${dss.stencilFailOpFront},${dss.stencilZFailOpFront},${dss.stencilPassOpFront},${dss.stencilWriteMaskFront}`;
+    res += `,${dss.stencilTestBack},${dss.stencilFuncBack},${dss.stencilRefBack},${dss.stencilReadMaskBack}`;
+    res += `,${dss.stencilFailOpBack},${dss.stencilZFailOpBack},${dss.stencilPassOpBack},${dss.stencilWriteMaskBack}`;
+    return res;
 }

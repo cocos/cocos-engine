@@ -9,11 +9,6 @@ export interface IGeometryOptions {
 
 export interface IGeometry {
     /**
-     * Topology of the geometry vertices.
-     */
-    primitiveMode: GFXPrimitiveMode;
-
-    /**
      * Vertex positions.
      */
     positions: number[];
@@ -60,6 +55,11 @@ export interface IGeometry {
      * Vertex colors.
      */
     colors?: number[];
+
+    /**
+     * Topology of the geometry vertices. Default is TRIANGLE_LIST.
+     */
+    primitiveMode?: GFXPrimitiveMode;
 
     /**
      * whether rays casting from the back face of this geometry could collide with it

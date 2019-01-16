@@ -63,4 +63,5 @@ export abstract class GFXShader extends GFXObject {
 
     public abstract initialize (info: IGFXShaderInfo): boolean;
     public abstract destroy ();
+    public get name () { return this._name; }
 }

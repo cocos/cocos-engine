@@ -2,7 +2,7 @@ import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { RenderPassStage } from '../../pipeline/render-pipeline';
+import { RenderPassStage } from '../../pipeline/define';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted if not specified

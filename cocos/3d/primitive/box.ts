@@ -1,6 +1,5 @@
 import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
-import { GFXPrimitiveMode } from '../../gfx/define';
 import { IGeometry, IGeometryOptions } from './define';
 
 interface IBoxOptions extends IGeometryOptions {
@@ -132,7 +131,6 @@ export default function box (options?: IBoxOptions): IGeometry {
     _buildPlane(2, ws, ls); // TOP
 
     return {
-        primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
         positions,
         normals,
         uvs,

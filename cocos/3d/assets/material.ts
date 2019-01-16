@@ -24,6 +24,7 @@
  ****************************************************************************/
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
+import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { GFXBindingType } from '../../gfx/define';
 import { Effect } from '../../renderer/core/effect';
 import { IPassOverrides, Pass } from '../../renderer/core/pass';
@@ -54,6 +55,7 @@ export class Material extends Asset {
 
     protected _passes: Pass[] = [];
     protected _owner: any = null;
+    protected _hash = 0;
 
     @property
     set effectAsset (val: EffectAsset | null) {
@@ -87,6 +89,10 @@ export class Material extends Asset {
         return this._passes;
     }
 
+    get hash () {
+        return this._hash;
+    }
+
     public setDefines (defines: Record<string, number | boolean>) {
         this._defines = defines;
         this.update();
@@ -99,6 +105,7 @@ export class Material extends Asset {
      */
     public setProperty (name: string, val: any, passIdx?: number) {
         if (!val) { console.warn(`illegal property value: ${val}.`); return; }
+        let success = false;
         if (passIdx === undefined) { // set property for all applicable passes
             const passes = this._passes;
             const len = passes.length;
@@ -106,6 +113,7 @@ export class Material extends Asset {
                 const pass = passes[i];
                 if (this._uploadProperty(pass, name, val)) {
                     this._props[i][name] = val;
+                    success = true;
                 }
             }
         } else {
@@ -113,14 +121,15 @@ export class Material extends Asset {
             const pass = this._passes[passIdx];
             if (this._uploadProperty(pass, name, val)) {
                 this._props[passIdx][name] = val;
-            } else {
-                console.warn(`illegal property name: ${name}.`); return;
+                success = true;
             }
         }
+        if (!success) { console.warn(`illegal property name: ${name}.`); return; }
     }
 
     public copy (mat: Material) {
         this._props.length = mat._props.length;
+        this._props.fill({});
         for (let i = 0; i < mat._props.length; i++) {
             Object.assign(this._props[i], mat._props[i]);
         }
@@ -143,6 +152,7 @@ export class Material extends Asset {
         } else {
             this._passes[idx].rebuildWithOverrides(passInfos[idx], overrides);
         }
+        this.prepareHash();
     }
 
     public update (asset: EffectAsset | string | null = this._effectAsset, keepProps: boolean = true) {
@@ -177,6 +187,7 @@ export class Material extends Asset {
         } else {
             this._props.fill({});
         }
+        this.prepareHash();
     }
 
     protected _uploadProperty (pass: Pass, name: string, val: any) {
@@ -191,6 +202,14 @@ export class Material extends Asset {
             pass.bindTextureView(Pass.getBindingFromHandle(handle), tv);
         }
         return true;
+    }
+
+    protected prepareHash () {
+        let str = '';
+        for (const pass of this._passes) {
+            str += pass.serializePipelineStates();
+        }
+        this._hash = murmurhash2_32_gc(str, 666);
     }
 }
 
