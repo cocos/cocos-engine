@@ -110,6 +110,12 @@ export class Root {
         }
     }
 
+    public resize (width: number, height: number) {
+        for (const window of this._windows) {
+            window.resize(width, height);
+        }
+    }
+
     public frameMove (deltaTime: number) {
 
         this._frameTime = deltaTime;

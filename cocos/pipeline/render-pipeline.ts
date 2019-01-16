@@ -121,6 +121,12 @@ export abstract class RenderPipeline {
     public abstract initialize (): boolean;
     public abstract destroy ();
 
+    public resize (width: number, height: number) {
+        for (const flow of this._flows) {
+            flow.resize(width, height);
+        }
+    }
+
     public render (view: RenderView) {
 
         view.camera.update();

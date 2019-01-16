@@ -60,5 +60,6 @@ export abstract class GFXWindow extends GFXObject {
     }
 
     public abstract initialize (info: IGFXWindowInfo): boolean;
-    public abstract destroy (): void;
+    public abstract destroy ();
+    public abstract resize (width: number, height: number);
 }

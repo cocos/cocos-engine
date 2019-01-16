@@ -38,13 +38,22 @@ export abstract class RenderFlow {
     public abstract initialize (info: IRenderFlowInfo): boolean;
     public abstract destroy ();
 
+    public resize (width: number, height: number) {
+        for (const stage of this._stages) {
+            stage.resize(width, height);
+        }
+    }
+
     public render (view: RenderView) {
         for (const stage of this._stages) {
             stage.render(view);
         }
     }
 
-    public createStage<T extends RenderStage> (clazz: new(flow: RenderFlow) => T, info: IRenderStageInfo): RenderStage | null {
+    public createStage<T extends RenderStage> (
+        clazz: new(flow: RenderFlow) => T,
+        info: IRenderStageInfo): RenderStage | null {
+
         const stage: RenderStage = new clazz(this);
         if (stage.initialize(info)) {
             this._stages.push(stage);
