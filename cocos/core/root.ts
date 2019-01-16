@@ -123,9 +123,10 @@ export class Root {
         for (const view of this._views) {
             if (view.isEnable()) {
                 this._pipeline!.render(view);
-                this._ui!.render(view);
             }
         }
+
+        this._ui!.update(deltaTime);
 
         ( this._device as GFXDevice).present();
     }

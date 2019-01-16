@@ -1,57 +1,54 @@
+
+import { MeshBuffer} from './mesh-buffer';
+// import { vfmt3D } from '../../2d/renderer/webgl/vertex-format';
+import { RecyclePool } from '../../3d/memop/recycle-pool';
 import { Root } from '../../core/root';
-import { RenderView } from '../../pipeline/render-view';
 import { RenderScene } from '../scene/render-scene';
-import { UIWidget } from './ui-widget';
+import { UIBatchModel } from './ui-batch-model';
 
 export class UI {
+    // private _buffer: MeshBuffer | null = new MeshBuffer(this, vfmt3D);
+    private _batchedModels: UIBatchModel[] = [];
+    private _iaPool: RecyclePool | null = new RecyclePool(16, () => {
+        // return this._root.device.createInputAssembler({
 
-    public get root (): Root {
-        return this._root;
-    }
-
-    public get scene (): RenderScene {
-        return this._scene;
-    }
-
-    private _root: Root;
+        // });
+    });
+    private _modelPool: RecyclePool | null = new RecyclePool(16, () => {
+        return this._scene.createModel(UIBatchModel);
+    });
     private _scene: RenderScene;
-    private _widgets: UIWidget[] = [];
 
-    constructor (root: Root) {
-        this._root = root;
+    constructor (private _root: Root) {
         this._scene = this._root.createScene({
             name: 'GUIScene',
         });
     }
 
-    public initialize (): boolean {
+    public initialize () {
         return true;
     }
 
     public destroy () {
-        this.destroyWidgets();
+        // this._reset();
     }
 
-    public render (view: RenderView) {
-
+    public addScreen (comp) {
     }
 
-    public createWidget<T extends UIWidget> (clazz: new () => T): T {
-        const widget = new clazz();
-        this._widgets.push(widget);
-        return widget;
+    public removeScreen (comp) {
     }
 
-    public destroyWidget (widget: UIWidget) {
-        for (let i = 0; i < this._widgets.length; ++i) {
-            if (this._widgets[i] === widget) {
-                this._widgets.splice(i);
-                return;
-            }
-        }
+    public update (dt: number) {
+        const models = this._emit();
+        this._render(models);
     }
 
-    public destroyWidgets () {
-        this._widgets = [];
+    private _emit (): UIBatchModel[] {
+        return this._batchedModels;
+    }
+
+    private _render (models: UIBatchModel[]) {
+
     }
 }
