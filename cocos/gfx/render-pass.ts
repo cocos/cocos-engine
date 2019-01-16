@@ -1,4 +1,12 @@
-import { GFXFormat, GFXLoadOp, GFXObject, GFXObjectType, GFXPipelineBindPoint, GFXStoreOp, GFXTextureLayout } from './define';
+import {
+    GFXFormat,
+    GFXLoadOp,
+    GFXObject,
+    GFXObjectType,
+    GFXPipelineBindPoint,
+    GFXStoreOp,
+    GFXTextureLayout,
+} from './define';
 import { GFXDevice } from './device';
 
 export class GFXColorAttachment {

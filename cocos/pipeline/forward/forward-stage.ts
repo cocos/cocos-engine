@@ -39,10 +39,10 @@ export class ForwardStage extends RenderStage {
 
     public render (view: RenderView) {
 
-        const cmdBuff = this._cmdBuff as GFXCommandBuffer;
+        const cmdBuff = this._cmdBuff!;
         const queue = this._pipeline.queue;
 
-        const camera = view.camera as Camera;
+        const camera = view.camera!;
 
         this._renderArea.width = camera.width;
         this._renderArea.height = camera.height;

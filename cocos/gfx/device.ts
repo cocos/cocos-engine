@@ -24,6 +24,7 @@ export interface IGFXDeviceInfo {
     isPremultipliedAlpha?: boolean;
 }
 
+// tslint:disable: max-line-length
 export abstract class GFXDevice {
 
     public get canvas (): HTMLCanvasElement {

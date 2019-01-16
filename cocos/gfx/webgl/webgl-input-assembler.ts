@@ -13,7 +13,7 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
     }
 
     public get gpuInputAssembler (): WebGLGPUInputAssembler {
-        return  this._gpuInputAssembler as WebGLGPUInputAssembler;
+        return  this._gpuInputAssembler!;
     }
 
     private _gpuInputAssembler: WebGLGPUInputAssembler | null = null;

@@ -11,7 +11,7 @@ export class WebGLGFXPipelineLayout extends GFXPipelineLayout {
     }
 
     public get gpuPipelineLayout (): WebGLGPUPipelineLayout {
-        return  this._gpuPipelineLayout as WebGLGPUPipelineLayout;
+        return  this._gpuPipelineLayout!;
     }
 
     private _gpuPipelineLayout: WebGLGPUPipelineLayout | null = null;

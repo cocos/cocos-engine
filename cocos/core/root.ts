@@ -116,8 +116,8 @@ export class Root {
 
         for (const view of this._views) {
             if (view.isEnable()) {
-                ( this._pipeline as RenderPipeline).render(view);
-                ( this._ui as UI).render(view);
+                this._pipeline!.render(view);
+                this._ui!.render(view);
             }
         }
 

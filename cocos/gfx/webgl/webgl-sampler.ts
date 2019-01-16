@@ -11,7 +11,7 @@ export class WebGLGFXSampler extends GFXSampler {
     }
 
     public get gpuSampler (): WebGLGPUSampler {
-        return  this._gpuSampler as WebGLGPUSampler;
+        return  this._gpuSampler!;
     }
 
     private _gpuSampler: WebGLGPUSampler | null = null;

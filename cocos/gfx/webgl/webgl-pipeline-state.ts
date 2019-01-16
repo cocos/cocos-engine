@@ -11,7 +11,7 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
     }
 
     public get gpuPipelineState (): WebGLGPUPipelineState {
-        return  this._gpuPipelineState as WebGLGPUPipelineState;
+        return  this._gpuPipelineState!;
     }
 
     private _gpuPipelineState: WebGLGPUPipelineState | null = null;

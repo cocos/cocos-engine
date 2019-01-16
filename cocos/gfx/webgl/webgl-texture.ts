@@ -11,7 +11,7 @@ export class WebGLGFXTexture extends GFXTexture {
     }
 
     public get gpuTexture (): WebGLGPUTexture {
-        return  this._gpuTexture as WebGLGPUTexture;
+        return  this._gpuTexture!;
     }
 
     private _gpuTexture: WebGLGPUTexture | null = null;
@@ -44,7 +44,8 @@ export class WebGLGFXTexture extends GFXTexture {
             this._flags = info.flags;
         }
 
-        this._size = GFXFormatSurfaceSize(this._format, this.width, this.height, this.depth, this.mipLevel) * this._arrayLayer;
+        this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
+            this.depth, this.mipLevel) * this._arrayLayer;
 
         if (this._flags & GFXTextureFlagBit.BAKUP_BUFFER) {
             this._buffer = new ArrayBuffer(this._size);

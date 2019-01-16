@@ -121,7 +121,7 @@ export class Camera {
     }
 
     get node (): Node {
-        return this._node as Node;
+        return this._node!;
     }
 
     set orthoHeight (val) {

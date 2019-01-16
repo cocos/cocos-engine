@@ -85,7 +85,7 @@ export abstract class RenderPipeline {
     }
 
     public get quadIA (): GFXInputAssembler {
-        return this._quadIA as GFXInputAssembler;
+        return this._quadIA!;
     }
 
     public get uboGlobal (): UBOGlobal {
@@ -93,11 +93,11 @@ export abstract class RenderPipeline {
     }
 
     public get globalUBO (): GFXBuffer {
-        return this._globalUBO as GFXBuffer;
+        return this._globalUBO!;
     }
 
     public get defaultTexture (): GFXTexture {
-        return this._defaultTex as GFXTexture;
+        return this._defaultTex!;
     }
 
     protected _root: Root;
@@ -333,7 +333,7 @@ export abstract class RenderPipeline {
         this._uboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 
         // update ubos
-        (this._globalUBO as GFXBuffer).update(this._uboGlobal.view);
+        this._globalUBO!.update(this._uboGlobal.view);
     }
 
     protected sceneCulling (view: RenderView) {

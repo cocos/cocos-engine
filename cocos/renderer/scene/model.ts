@@ -7,12 +7,12 @@ import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXBufferUsageBit, GFXCommandBufferType, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXDevice } from '../../gfx/device';
 import { UBOLocal } from '../../pipeline/render-pipeline';
 import { Node } from '../../scene-graph';
 import { Effect } from '../core/effect';
 import { Pass } from '../core/pass';
 import { RenderScene } from './render-scene';
-import { GFXDevice } from '../../gfx/device';
 
 const _temp_floatx16 = new Float32Array(16);
 const _temp_mat4 = mat4.create();
@@ -214,10 +214,9 @@ export class Model {
             this._cmdBuffers[index] = this._device.createCommandBuffer(cmdBufferInfo);
         }
 
-        const localUBO = this._localUBO as GFXBuffer;
-        const subMesh = this._subMeshObject as IRenderingSubmesh;
+        const subMesh = this._subMeshObject!;
 
-        pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, localUBO);
+        pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localUBO!);
 
         const cmdBuff = this._cmdBuffers[index];
         cmdBuff.begin();

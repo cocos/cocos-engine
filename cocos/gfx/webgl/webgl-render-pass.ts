@@ -11,7 +11,7 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
     }
 
     public get gpuRenderPass (): WebGLGPURenderPass {
-        return  this._gpuRenderPass as WebGLGPURenderPass;
+        return  this._gpuRenderPass!;
     }
 
     private _gpuRenderPass: WebGLGPURenderPass | null = null;

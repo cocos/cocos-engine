@@ -38,7 +38,7 @@ export class RenderView {
     }
 
     public get camera () {
-        return this._camera as Camera;
+        return this._camera!;
     }
 
     public static registerCreateFunc (root: Root) {

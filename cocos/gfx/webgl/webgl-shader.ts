@@ -11,7 +11,7 @@ export class WebGLGFXShader extends GFXShader {
     }
 
     public get gpuShader (): WebGLGPUShader {
-        return  this._gpuShader as WebGLGPUShader;
+        return  this._gpuShader!;
     }
 
     private _gpuShader: WebGLGPUShader | null = null;

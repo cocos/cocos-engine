@@ -32,11 +32,11 @@ export abstract class GFXWindow extends GFXObject {
     }
 
     public get renderPass (): GFXRenderPass {
-        return this._renderPass as GFXRenderPass;
+        return this._renderPass!;
     }
 
     public get framebuffer (): GFXFramebuffer {
-        return this._framebuffer as GFXFramebuffer;
+        return this._framebuffer!;
     }
 
     protected _device: GFXDevice;

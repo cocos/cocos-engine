@@ -793,9 +793,9 @@ export class WebGLGFXDevice extends GFXDevice {
             glMagFilter = WebGLRenderingContext.NEAREST;
         }
 
-        const glWrapS = (info.addressU !== undefined ? WebGLWraps.get(info.addressU) : WebGLRenderingContext.REPEAT);
-        const glWrapT = (info.addressU !== undefined ? WebGLWraps.get(info.addressU) : WebGLRenderingContext.REPEAT);
-        const glWrapR = (info.addressU !== undefined ? WebGLWraps.get(info.addressU) : WebGLRenderingContext.REPEAT);
+        const glWrapS = (info.addressU !== undefined ? WebGLWraps.get(info.addressU)! : WebGLRenderingContext.REPEAT);
+        const glWrapT = (info.addressU !== undefined ? WebGLWraps.get(info.addressU)! : WebGLRenderingContext.REPEAT);
+        const glWrapR = (info.addressU !== undefined ? WebGLWraps.get(info.addressU)! : WebGLRenderingContext.REPEAT);
 
         const gpuSampler: WebGLGPUSampler = {
             objType: WebGLGPUObjectType.SAMPLER,
@@ -872,7 +872,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
         const gpuPipelineState: WebGLGPUPipelineState = {
             objType: WebGLGPUObjectType.PIPELINE_STATE,
-            glPrimitive: WebGLPrimitives.get(info.primitive),
+            glPrimitive: WebGLPrimitives.get(info.primitive)!,
             gpuShader,
             rs: info.rs,
             dss: info.dss,
