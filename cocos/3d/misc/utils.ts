@@ -129,8 +129,8 @@ export function createMesh (geometry: IGeometry) {
     const meshStruct: IMeshStruct = {
         vertexBundles: [vertexBundle],
         primitives: [primitive],
-        minPosition: new Vec3(geometry.minPos.x, geometry.minPos.y, geometry.minPos.z),
-        maxPosition: new Vec3(geometry.maxPos.x, geometry.maxPos.y, geometry.maxPos.z),
+        minPosition: geometry.minPos && new Vec3(geometry.minPos.x, geometry.minPos.y, geometry.minPos.z),
+        maxPosition: geometry.maxPos && new Vec3(geometry.maxPos.x, geometry.maxPos.y, geometry.maxPos.z),
     };
 
     // Create mesh.
