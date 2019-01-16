@@ -19,3 +19,4 @@ export default class IARenderData extends BaseRenderData {
 }
 
 IARenderData.type = 'IARenderData';
+cc.IARenderData = IARenderData;
