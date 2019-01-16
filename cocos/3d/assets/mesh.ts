@@ -248,8 +248,10 @@ export interface IPrimitive {
         indexUnit: IndexUnit;
     };
 
-    // for raycast purpose
-    geomInfo?: {
+    /**
+     * Geometric info for raycast purposes.
+     */
+    geometricInfo?: {
         doubleSided?: boolean;
         range: IBufferRange;
     };
@@ -501,7 +503,7 @@ export class Mesh extends Asset {
                 inputAssemblerInfo.indexBuffer = indexBuffer;
             }
 
-            const geomInfo: any = primitive.geomInfo;
+            const geomInfo: any = primitive.geometricInfo;
             if (geomInfo) {
                 geomInfo.indices = ib;
                 geomInfo.positions = new Float32Array(buffer, geomInfo.range.offset, geomInfo.range.length / 4);

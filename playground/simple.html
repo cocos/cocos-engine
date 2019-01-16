@@ -28,6 +28,7 @@
   </canvas>
 
   <script src="../bin/cocos-3d.dev.js"></script>
+  <script src="./camera.js"></script>
   <script>
     const $body = document.body;
     const bcr = $body.getBoundingClientRect();
@@ -44,15 +45,16 @@
       textureAsset.image = new cc.ImageAsset(imgElms[0]);
       return textureAsset;
     }
-    function getRandom() { return Math.random() * 128 + 127; }
+    const geomList = ['box', 'sphere', 'cylinder', 'cone', 'torus', 'capsule'];
     function onStart() {
       const root = cc.director.root;
       const scene = new cc.Scene();
 
-      const cameraNode = new cc.Node();
+      const cameraNode = new cc.Node('Camera');
       cameraNode.parent = scene;
-      cameraNode.setPosition(4, 4, -2);
-      cameraNode.lookAt(cc.v3(0, 0, 20));
+      cameraNode.setPosition(20, 0, 115);
+      cameraNode.setRotationFromEuler(0, 30, 0);
+      cameraNode.addComponent(FirstPersonCamera);
       const camComp = cameraNode.addComponent(cc.CameraComponent);
 
       const texture = createTexture(cc.game.canvas.getElementsByTagName('img'));
@@ -62,7 +64,7 @@
       const color = cc.color()
       for (let i = 0; i < len; i++) {
         const material = new cc.Material();
-        material.setDefines({ USE_COLOR: true, USE_TEXTURE: true });
+        material.setDefines({ USE_COLOR: true });
         // parsed effect file is embedded in cocos/3d/builtin/effects.js
         material.effectName = 'builtin-effect-unlit';
         material.setProperty('mainTexture', texture);
@@ -72,14 +74,15 @@
         modelNode.parent = scene;
         const modelCom = modelNode.addComponent('cc.ModelComponent');
         modelCom.material = material;
-        modelCom.mesh = cc.utils.createMesh(cc.primitives.box());
+        modelCom.mesh = cc.utils.createMesh(cc.primitives[geomList[i % geomList.length]]());
+        modelNode.setPosition(0, 0, i * 2);
         models.push(modelNode);
       }
       const handle = passes[0].getHandle('color');
 
       let buttonDown = false, pos = cc.v2();
-      canv.addEventListener('mousedown', () => buttonDown = true);
-      canv.addEventListener('mouseup', () => buttonDown = false);
+      canv.addEventListener('mousedown', (e) => buttonDown = (!e.button) ? true : buttonDown);
+      canv.addEventListener('mouseup', (e) => buttonDown = (!e.button) ? false : buttonDown);
       canv.addEventListener('mousemove', (e) => (pos.x = e.x, pos.y = e.y));
 
       cc.director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
@@ -89,10 +92,12 @@
           if (res.length) res.forEach((r) => console.log(r.node.name, r.distance));
         }
         models.forEach((m, i) => {
-          const t = cc.director._totalFrames / 60;
-          const rad = i * 0.4;
+          const dt = cc.director._deltaTime;
+          const t = cc.director._totalFrames / (60);
+          const rad = i * Math.PI * 8 / len;
           const x = Math.cos(rad + t), y = Math.sin(rad + t);
-          m.setPosition(x * 2, y * 2, i * 2);
+          let z = m._lpos.z + dt; if (z > len * 2) z = 0;
+          m.setPosition(x * 2, y * 2, z);
           color.fromHSV((x + 1) * 0.5, 0.5, 1);
           passes[i].setUniform(handle, color);
         });

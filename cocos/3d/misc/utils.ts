@@ -101,7 +101,7 @@ export function createMesh (geometry: IGeometry) {
 
     // Create primitive.
     const primitive: IPrimitive = {
-        primitiveMode: geometry.primitiveMode,
+        primitiveMode: geometry.primitiveMode || GFXPrimitiveMode.TRIANGLE_LIST,
         vertexBundelIndices: [0],
     };
     if (indexBuffer) {
@@ -116,9 +116,9 @@ export function createMesh (geometry: IGeometry) {
     }
 
     // geometric info for raycasting
-    if (geometry.primitiveMode >= GFXPrimitiveMode.TRIANGLE_LIST) {
+    if (primitive.primitiveMode >= GFXPrimitiveMode.TRIANGLE_LIST) {
         const geomInfo = Float32Array.from(geometry.positions);
-        primitive.geomInfo = {
+        primitive.geometricInfo = {
             doubleSided: geometry.doubleSided,
             range: { offset: bufferBlob.getLength(), length: geomInfo.byteLength },
         };

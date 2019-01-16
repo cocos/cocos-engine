@@ -126,9 +126,9 @@ export class ProgramLib {
     const vert = customDef + tmpl.vert;
     const frag = customDef + tmpl.frag;
 
-    tmpl.blocks = tmpl.blocks.concat(convertToBlockInfo(UBOGlobal.BLOCK), convertToBlockInfo(UBOLocal.BLOCK));
+    tmpl.blocks = tmpl.blocks.concat(globals, locals);
 
-    const instanceName = Object.keys(defines).reduce((acc, cur) => `${acc}|${cur}`, name);
+    const instanceName = Object.keys(defines).reduce((acc, cur) => defines[cur] ? `${acc}|${cur}` : acc, name);
     program = this._device.createShader({
       name: instanceName,
       blocks: tmpl.blocks,
@@ -142,6 +142,9 @@ export class ProgramLib {
     return program;
   }
 }
+
+const globals = convertToBlockInfo(UBOGlobal.BLOCK);
+const locals = convertToBlockInfo(UBOLocal.BLOCK);
 
 function convertToUniformInfo (uniform: GFXUniform): IBlockMember {
     return {
