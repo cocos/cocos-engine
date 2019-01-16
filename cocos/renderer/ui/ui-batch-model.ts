@@ -1,4 +1,4 @@
-import { Model } from "../scene/model";
+import { Model } from '../scene/model';
 
 export class UIBatchModel extends Model {
 

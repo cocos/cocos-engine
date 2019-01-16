@@ -138,8 +138,6 @@ export abstract class RenderPipeline {
         for (const flow of this._flows) {
             flow.render(view);
         }
-
-        // TODO : add ui render pipeline
     }
 
     public addRenderPass (stage: number, renderPass: GFXRenderPass) {

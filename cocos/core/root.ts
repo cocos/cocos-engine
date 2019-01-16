@@ -27,6 +27,10 @@ export class Root {
         return this._mainWindow;
     }
 
+    public get curWindow (): GFXWindow | null {
+        return this._curWindow;
+    }
+
     public get windows (): GFXWindow[] {
         return this._windows;
     }
@@ -57,6 +61,7 @@ export class Root {
     private _device: GFXDevice;
     private _windows: GFXWindow[] = [];
     private _mainWindow: GFXWindow | null = null;
+    private _curWindow: GFXWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
     private _ui: UI | null = null;
     private _scenes: RenderScene[] = [];
@@ -77,6 +82,7 @@ export class Root {
         }
 
         this._mainWindow = this._device.mainWindow;
+        this._curWindow = this._mainWindow;
 
         const pipeline = new ForwardPipeline(this);
         if (!pipeline.initialize()) {
@@ -108,6 +114,9 @@ export class Root {
             this._ui.destroy();
             this._ui = null;
         }
+
+        this._curWindow = null;
+        this._mainWindow = null;
     }
 
     public resize (width: number, height: number) {
@@ -116,19 +125,23 @@ export class Root {
         }
     }
 
+    public activeWindow (window: GFXWindow) {
+        this._curWindow = window;
+    }
+
     public frameMove (deltaTime: number) {
 
         this._frameTime = deltaTime;
 
         for (const view of this._views) {
-            if (view.isEnable()) {
+            if (view.isEnable() && view.window === this._mainWindow) {
                 this._pipeline!.render(view);
             }
         }
 
         this._ui!.update(deltaTime);
 
-        ( this._device as GFXDevice).present();
+        this._device.present();
     }
 
     public createWindow (info: IGFXWindowInfo): GFXWindow | null {

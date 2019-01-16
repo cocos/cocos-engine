@@ -42,6 +42,8 @@ export class ForwardStage extends RenderStage {
 
     public render (view: RenderView) {
 
+        const framebuffer = view.window!.framebuffer;
+
         const cmdBuff = this._cmdBuff!;
         const queue = this._pipeline.queue;
 
@@ -51,7 +53,7 @@ export class ForwardStage extends RenderStage {
         this._renderArea.height = camera.height;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer as GFXFramebuffer, this._renderArea,
+        cmdBuff.beginRenderPass(framebuffer, this._renderArea,
             [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
         cmdBuff.execute(queue.cmdBuffs.array, queue.cmdBuffCount);

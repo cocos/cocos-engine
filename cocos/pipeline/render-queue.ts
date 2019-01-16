@@ -5,31 +5,25 @@ import { Pass } from '../renderer/core/pass';
 import { Camera } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
 
-export class RenderItem {
-    public hash: number = 0;
-    public depth: number = 0;
-    public shaderId: number = 0;
-    public model: Model;
-    public pass: Pass;
-    public cmdBuff: GFXCommandBuffer;
-
-    constructor (model: Model, pass: Pass, cmdBuff: GFXCommandBuffer) {
-        this.model = model;
-        this.pass = pass;
-        this.cmdBuff = cmdBuff;
-    }
+export interface IRenderItem {
+    hash: number;
+    depth: number;
+    shaderId: number;
+    model: Model;
+    pass: Pass;
+    cmdBuff: GFXCommandBuffer;
 }
 
 export class RenderQueue {
-    public opaques: CachedArray<RenderItem>;
-    public transparents: CachedArray<RenderItem>;
+    public opaques: CachedArray<IRenderItem>;
+    public transparents: CachedArray<IRenderItem>;
     public cmdBuffs: CachedArray<GFXCommandBuffer>;
     public cmdBuffCount: number = 0;
 
     constructor () {
 
         // Opaque objects are sorted by depth front to back -> pass priority -> shader id.
-        const opaqueCompareFn = (a: RenderItem, b: RenderItem) => {
+        const opaqueCompareFn = (a: IRenderItem, b: IRenderItem) => {
             if (a.hash === b.hash) {
                 if (a.depth === b.depth) {
                     return a.shaderId - b.shaderId;
@@ -42,7 +36,7 @@ export class RenderQueue {
         };
 
         // Transparent objects are sorted by depth back to front -> pass priority -> shader id.
-        const transparentCompareFn = (a: RenderItem, b: RenderItem) => {
+        const transparentCompareFn = (a: IRenderItem, b: IRenderItem) => {
             if (a.hash === b.hash) {
                 if (a.depth === b.depth) {
                     return a.shaderId - b.shaderId;
