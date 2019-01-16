@@ -194,7 +194,7 @@ let MeshRenderer = cc.Class({
                 let material = this.sharedMaterials[i];
                 if (material) continue;
                 material = cc.Material.getInstantiatedMaterial(this._getDefaultMaterial(), this);
-                material.setProperty('texture', textures[i]);
+                material.setProperty('diffuseTexture', textures[i]);
                 this.setMaterial(i, material);
             }
         }
