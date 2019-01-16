@@ -25,8 +25,8 @@
 
 const Armature = require('./ArmatureDisplay');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const gfx = require('../../cocos2d/renderer/gfx');
 const Material = require('../../cocos2d/core/assets/material/CCMaterial');
+const gfx = cc.gfx;
 
 let _boneColor = cc.color(255, 0, 0, 255);
 let _slotColor = cc.color(0, 0, 255, 255);

@@ -372,7 +372,7 @@ let ArmatureDisplay = cc.Class({
 
     // override
     _updateMaterial (material) {
-        this._super(material);
+        this.setMaterial(0, material);
         this._materialCache = {};
     },
 
