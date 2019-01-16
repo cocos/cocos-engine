@@ -376,21 +376,25 @@ sp.Skeleton = cc.Class({
         this._rootBone = null;
         this._listener = null;
         this._boundingBox = cc.rect();
-        this._material = Material.getInstantiatedBuiltinMaterial('spine', this);
         this._materialCache = {};
         this._debugRenderer = null;
         this._startSlotIndex = -1;
         this._endSlotIndex = -1;
     },
 
+    onLoad() {
+        var material = Material.getInstantiatedBuiltinMaterial('spine', this);
+        this.setMaterial(0, material);
+    },
+
     // override
     _updateMaterial (material) {
-        this._super(material);
+        this.setMaterial(0, material);
         this._materialCache = {};
     },
 
     _updateUseTint () {
-        var cache = this._materialCache
+        var cache = this._materialCache;
         for (var mKey in cache) {
             var material = cache[mKey];
             if (material) {
