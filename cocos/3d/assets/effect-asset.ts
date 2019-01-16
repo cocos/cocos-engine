@@ -8,8 +8,6 @@ export interface IPropertyInfo {
     type: number; // auto-extracted if not specified
     value?: number[] | string;
     displayName?: string;
-    tech?: number;
-    pass?: number;
 }
 export interface IPassInfo {
     program: string;

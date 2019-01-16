@@ -25,7 +25,7 @@
 
 // @ts-check
 import { mat4 } from '../../core/vmath';
-import ModelComponent from './model-component';
+import { ModelComponent } from './model-component';
 import * as renderer from '../../renderer/index';
 import { ccclass, property, executionOrder, menu,executeInEditMode } from '../../core/data/class-decorator';
 import * as utils from '../misc/utils';

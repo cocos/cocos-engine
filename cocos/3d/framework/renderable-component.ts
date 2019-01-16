@@ -5,9 +5,9 @@ import { Material } from '../assets/material';
 const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')
-export default class RenderableComponent extends Component {
+export class RenderableComponent extends Component {
     @property([Material])
-    private _materials: Material[] = [];
+    private _materials: Array<Material | null> = [];
 
     constructor () {
         super();
@@ -59,7 +59,7 @@ export default class RenderableComponent extends Component {
      * !#ch 返回相对应序号的材质
      * @param {Number} idx - Look for the material list number
      */
-    public getMaterial (idx) {
+    public getMaterial (idx: number): Material | null {
         if (idx < 0 || idx >= this._materials.length || this._materials[idx] == null) {
             return null;
         }
@@ -72,7 +72,7 @@ export default class RenderableComponent extends Component {
         return this._materials[idx];
     }
 
-    public getSharedMaterial (idx) {
+    public getSharedMaterial (idx: number): Material | null {
         if (idx < 0 || idx >= this._materials.length) {
             return null;
         }
@@ -94,12 +94,12 @@ export default class RenderableComponent extends Component {
         return this.getSharedMaterial(0);
     }
 
-    public setMaterial (material, index) {
+    public setMaterial (material: Material | null, index: number) {
         this._materials[index] = material;
         this._onMaterialModified(index, material);
     }
 
-    public _onMaterialModified (index, material) {
+    public _onMaterialModified (index: number, material: Material | null) {
 
     }
 

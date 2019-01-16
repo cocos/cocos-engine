@@ -4,7 +4,7 @@ import gfx from '../../../../renderer/gfx';
 import { Material } from '../../../assets/material';
 import { RecyclePool } from '../../../memop';
 import Particle from '../particle';
-import RenderableComponent from '../../renderable-component';
+import { RenderableComponent } from '../../renderable-component';
 import { Enum, Vec2 } from '../../../../core/value-types';
 import { property, ccclass, executeInEditMode } from '../../../../core/data/class-decorator';
 import { Space } from '../particle-general-function';
