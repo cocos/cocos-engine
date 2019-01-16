@@ -27,7 +27,7 @@
 import { CameraComponent } from './camera-component';
 import AnimationComponent from './animation-component';
 import LightComponent from './light-component';
-import ModelComponent from './model-component';
+import { ModelComponent } from './model-component';
 import SkinningModelComponent from './skinning-model-component';
 import SkyboxComponent from './skybox-component';
 import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';

@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>spec-scroll-view</title>
+  <title>simple</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <style>
@@ -65,17 +65,16 @@
 
       const texture = createTexture(cc.game.canvas.getElementsByTagName('img'));
 
+      const material = new cc.Material();
+      material.setDefines({ USE_COLOR: true });
+      // parsed effect file is embedded in cocos/3d/builtin/effects.js
+      material.effectName = 'builtin-effect-unlit';
+      material.setProperty('mainTexture', texture);
+
       const len = 50;
       const models = [], passes = [];
-      const color = cc.color()
+      const color = cc.color();
       for (let i = 0; i < len; i++) {
-        const material = new cc.Material();
-        material.setDefines({ USE_COLOR: true });
-        // parsed effect file is embedded in cocos/3d/builtin/effects.js
-        material.effectName = 'builtin-effect-unlit';
-        material.setProperty('mainTexture', texture);
-        passes.push(material.passes[0]);
-
         const modelNode = new cc.Node(`${i}`);
         modelNode.parent = scene;
         const modelCom = modelNode.addComponent('cc.ModelComponent');
@@ -83,6 +82,7 @@
         modelCom.mesh = cc.utils.createMesh(cc.primitives[geomList[i % geomList.length]]());
         modelNode.setPosition(0, 0, i * 2);
         models.push(modelNode);
+        passes.push(modelCom.material.passes[0]);
       }
       const handle = passes[0].getHandle('color');
 
