@@ -382,11 +382,6 @@ sp.Skeleton = cc.Class({
         this._endSlotIndex = -1;
     },
 
-    onLoad() {
-        var material = Material.getInstantiatedBuiltinMaterial('spine', this);
-        this.setMaterial(0, material);
-    },
-
     // override
     _updateMaterial (material) {
         this.setMaterial(0, material);
@@ -394,6 +389,9 @@ sp.Skeleton = cc.Class({
     },
 
     _updateUseTint () {
+        var baseMaterial = this.sharedMaterials[0];
+        if (!baseMaterial) return;
+        baseMaterial.define('USE_TINT', this.useTint);
         var cache = this._materialCache;
         for (var mKey in cache) {
             var material = cache[mKey];
@@ -461,6 +459,10 @@ sp.Skeleton = cc.Class({
             
             this._refreshInspector();
         }
+
+        var material = Material.getInstantiatedBuiltinMaterial('spine', this);
+        material.define('_USE_MODEL', true);
+        this.setMaterial(0, material);
 
         this._updateSkeletonData();
 
