@@ -26,7 +26,7 @@ import { Model } from '../../renderer/scene/model';
 import { ccclass, property, menu, executionOrder, executeInEditMode } from '../../core/data/class-decorator';
 import { Mesh } from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
-import RenderableComponent from './renderable-component';
+import { RenderableComponent } from './renderable-component';
 
 /**
  * !#en Shadow projection mode
@@ -85,7 +85,7 @@ let ModelShadowCastingMode = Enum({
 @executionOrder(100)
 @menu('Components/ModelComponent')
 @executeInEditMode
-export default class ModelComponent extends RenderableComponent {
+export class ModelComponent extends RenderableComponent {
 
     /**
      * @type {Mesh}
