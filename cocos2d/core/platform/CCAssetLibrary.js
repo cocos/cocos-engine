@@ -394,7 +394,12 @@ let _builtins = {
 function loadBuiltins (name, type, cb) {
     let dirname = name  + 's';
     let builtin = _builtins[name] = {};
-    cc.loader.loadResDir(dirname, type, 'internal', () => { }, (err, assets) => {
+    let internalMountPath = 'internal';
+    // internal path will be changed when run simulator
+    if (CC_PREVIEW && CC_JSB) {
+        internalMountPath = 'temp/internal';
+    }
+    cc.loader.loadResDir(dirname, type, internalMountPath, () => { }, (err, assets) => {
         if (err) {
             cc.error(err);
         }
