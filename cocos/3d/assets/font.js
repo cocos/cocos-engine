@@ -29,9 +29,9 @@ import { Asset } from "../../assets/asset";
 
 @ccclass('cc.Font')
 export default class Font extends Asset {
-     /** Font size.
-     * @type {number}
-     */
+    /** Font size.
+    * @type {number}
+    */
     _size = 32;
 
     /** Font type.

@@ -24,8 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const misc = require('../utils/misc');
-const Component = require('./CCComponent');
+import Component from '../../components/CCComponent';
+import misc from '../../core/utils/misc';
+import { ccclass, menu, executionOrder, executeInEditMode, property } from '../../core/data/class-decorator';
 
 var GETTINGSHORTERFACTOR = 20;
 
@@ -52,117 +53,137 @@ var Direction = cc.Enum({
  * @class Scrollbar
  * @extends Component
  */
-var Scrollbar = cc.Class({
-    name: 'cc.Scrollbar',
-    extends: require('./CCComponent'),
+@ccclass('cc.ScrollBarComponent')
+@executionOrder(100)
+@menu('UI/ScrollBar')
+// @executeInEditMode
+export default class ScrollBarComponent extends Component {
+    @property
+    _scrollView = null;
+    _touching = false;
+    _autoHideRemainingTime = 0;
+    @property
+    _handle = null;
+    @property
+    _direction = Direction.HORIZONTAL;
+    @property
+    _enableAutoHide = false;
+    @property
+    _autoHideTime = 1.0;
+    /**
+     * !#en The "handle" part of the scrollbar.
+     * !#zh 作为当前滚动区域位置显示的滑块 Sprite。
+     * @property {Sprite} handle
+     */
+    @property({
+        type: cc.Node
+    })
+    get handle() {
+        return this._handle;
+    }
 
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.ui/ScrollBar',
-        help: 'i18n:COMPONENT.help_url.scrollbar',
-    },
-
-    properties: {
-        _scrollView: null,
-        _touching: false,
-        _autoHideRemainingTime: {
-            default: 0,
-            serializable: false
-        },
-        _opacity: 255,
-
-        /**
-         * !#en The "handle" part of the scrollbar.
-         * !#zh 作为当前滚动区域位置显示的滑块 Sprite。
-         * @property {Sprite} handle
-         */
-        handle: {
-            default: null,
-            type: cc.Sprite,
-            tooltip: CC_DEV && 'i18n:COMPONENT.scrollbar.handle',
-            notify: function() {
-                this._onScroll(cc.v2(0, 0));
-            },
-            animatable: false
-        },
-
-        /**
-         * !#en The direction of scrollbar.
-         * !#zh ScrollBar 的滚动方向。
-         * @property {Scrollbar.Direction} direction
-         */
-        direction: {
-            default: Direction.HORIZONTAL,
-            type: Direction,
-            tooltip: CC_DEV && 'i18n:COMPONENT.scrollbar.direction',
-            notify: function() {
-                this._onScroll(cc.v2(0, 0));
-            },
-            animatable: false
-        },
-
-        /**
-         * !#en Whether enable auto hide or not.
-         * !#zh 是否在没有滚动动作时自动隐藏 ScrollBar。
-         * @property {Boolean} enableAutoHide
-         */
-        enableAutoHide: {
-            default: true,
-            animatable: false,
-            tooltip: CC_DEV && 'i18n:COMPONENT.scrollbar.auto_hide',
-        },
-
-        /**
-         * !#en
-         * The time to hide scrollbar when scroll finished.
-         * Note: This value is only useful when enableAutoHide is true.
-         * !#zh
-         * 没有滚动动作后经过多久会自动隐藏。
-         * 注意：只要当 “enableAutoHide” 为 true 时，才有效。
-         * @property {Number} autoHideTime
-         */
-        autoHideTime: {
-            default: 1.0,
-            animatable: false,
-            tooltip: CC_DEV && 'i18n:COMPONENT.scrollbar.auto_hide_time',
+    set handle(value) {
+        value = value.getComponent(cc.RenderComponent);
+        if (this._handle === value) {
+            return
         }
-    },
+        this._handle = value;
+        this._onScroll(cc.v2(0, 0));
+    }
+    /**
+     * !#en The direction of scrollbar.
+     * !#zh ScrollBar 的滚动方向。
+     * @property {Scrollbar.Direction} direction
+     */
+    @property({
+        type: Direction
+    })
+    get direction() {
+        return this._direction;
+    }
 
-    statics: {
-        Direction: Direction
-    },
+    set direction(value) {
+        if (this._direction === value) {
+            return;
+        }
 
-    setTargetScrollView: function(scrollView) {
+        this._direction = value;
+        this._onScroll(cc.v2(0, 0));
+    }
+
+    /**
+     * !#en Whether enable auto hide or not.
+     * !#zh 是否在没有滚动动作时自动隐藏 ScrollBar。
+     * @property {Boolean} enableAutoHide
+     */
+    get enableAutoHide() {
+        return this._enableAutoHide;
+    }
+
+    set enableAutoHide(value) {
+        if (this._enableAutoHide === value) {
+            return;
+        }
+
+        this._enableAutoHide = value;
+    }
+
+    /**
+     * !#en
+     * The time to hide scrollbar when scroll finished.
+     * Note: This value is only useful when enableAutoHide is true.
+     * !#zh
+     * 没有滚动动作后经过多久会自动隐藏。
+     * 注意：只要当 “enableAutoHide” 为 true 时，才有效。
+     * @property {Number} autoHideTime
+     */
+    @property
+    get autoHideTime() {
+        return this._autoHideTime;
+    }
+
+    set autoHideTime(value) {
+        if (this._autoHideTime === value) {
+            return;
+        }
+
+        this._autoHideTime = value;
+    }
+
+    static Direction = Direction;
+
+    setTargetScrollView(scrollView) {
         this._scrollView = scrollView;
-    },
+    }
 
-    _convertToScrollViewSpace: function(content) {
+    _convertToScrollViewSpace(content) {
         var worldSpacePos = content.convertToWorldSpace(cc.v2(0, 0));
         var scrollViewSpacePos = this._scrollView.node.convertToNodeSpace(worldSpacePos);
         return scrollViewSpacePos;
-    },
+    }
 
-    _setOpacity: function(opacity) {
-        if (this.handle) {
-            this.node.opacity = opacity;
-            this.handle.node.opacity = opacity;
-        }
-    },
+    // _setOpacity(opacity) {
+    //     if (this._handle) {
+    //         this.node.opacity = opacity;
+    //         this._handle.node.opacity = opacity;
+    //     }
+    // }
 
-    _onScroll: function(outOfBoundary) {
+    _onScroll(outOfBoundary) {
         if (this._scrollView) {
 
             var content = this._scrollView.content;
-            if(content){
+            if (content) {
                 var contentSize = content.getContentSize();
                 var scrollViewSize = this._scrollView.node.getContentSize();
                 var handleNodeSize = this.node.getContentSize();
 
-                if(this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
+                if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
                     return;
                 }
 
-                if (this.enableAutoHide) {
-                    this._autoHideRemainingTime = this.autoHideTime;
+                if (this._enableAutoHide) {
+                    this._autoHideRemainingTime = this._autoHideTime;
                     this._setOpacity(this._opacity);
                 }
 
@@ -172,14 +193,14 @@ var Scrollbar = cc.Class({
                 var contentPosition = 0;
                 var handleNodeMeasure = 0;
 
-                if (this.direction === Direction.HORIZONTAL) {
+                if (this._direction === Direction.HORIZONTAL) {
                     contentMeasure = contentSize.width;
                     scrollViewMeasure = scrollViewSize.width;
                     handleNodeMeasure = handleNodeSize.width;
                     outOfBoundaryValue = outOfBoundary.x;
 
                     contentPosition = -this._convertToScrollViewSpace(content).x;
-                } else if (this.direction === Direction.VERTICAL) {
+                } else if (this._direction === Direction.VERTICAL) {
                     contentMeasure = contentSize.height;
                     scrollViewMeasure = scrollViewSize.height;
                     handleNodeMeasure = handleNodeSize.height;
@@ -195,85 +216,85 @@ var Scrollbar = cc.Class({
                 this._updateHanlderPosition(position);
             }
         }
-    },
+    }
 
-    _updateHanlderPosition: function(position) {
-        if (this.handle) {
+    _updateHanlderPosition(position) {
+        if (this._handle) {
             var oldPosition = this._fixupHandlerPosition();
 
-            this.handle.node.setPosition(position.x + oldPosition.x, position.y + oldPosition.y);
+            this._handle.node.setPosition(position.x + oldPosition.x, position.y + oldPosition.y);
         }
-    },
+    }
 
-    _fixupHandlerPosition: function() {
+    _fixupHandlerPosition() {
         var barSize = this.node.getContentSize();
         var barAnchor = this.node.getAnchorPoint();
-        var handleSize = this.handle.node.getContentSize();
+        var handleSize = this._handle.node.getContentSize();
 
-        var handleParent = this.handle.node.parent;
+        var handleParent = this._handle.node.parent;
 
         var leftBottomWorldPosition = this.node.convertToWorldSpaceAR(cc.v2(-barSize.width * barAnchor.x, -barSize.height * barAnchor.y));
         var fixupPosition = handleParent.convertToNodeSpaceAR(leftBottomWorldPosition);
 
-        if (this.direction === Direction.HORIZONTAL) {
+        if (this._direction === Direction.HORIZONTAL) {
             fixupPosition = cc.v2(fixupPosition.x, fixupPosition.y + (barSize.height - handleSize.height) / 2);
-        } else if (this.direction === Direction.VERTICAL) {
+        } else if (this._direction === Direction.VERTICAL) {
             fixupPosition = cc.v2(fixupPosition.x + (barSize.width - handleSize.width) / 2, fixupPosition.y);
         }
 
-        this.handle.node.setPosition(fixupPosition);
+        this._handle.node.setPosition(fixupPosition);
 
         return fixupPosition;
-    },
+    }
 
-    _onTouchBegan: function() {
-        if (!this.enableAutoHide) {
+    _onTouchBegan() {
+        if (!this._enableAutoHide) {
             return;
         }
         this._touching = true;
-    },
+    }
 
-    _conditionalDisableScrollBar: function (contentSize, scrollViewSize) {
-        if(contentSize.width <= scrollViewSize.width
-           && this.direction === Direction.HORIZONTAL){
+    _conditionalDisableScrollBar(contentSize, scrollViewSize) {
+        if (contentSize.width <= scrollViewSize.width
+            && this._direction === Direction.HORIZONTAL) {
             return true;
         }
 
-        if(contentSize.height <= scrollViewSize.height
-           && this.direction === Direction.VERTICAL){
+        if (contentSize.height <= scrollViewSize.height
+            && this._direction === Direction.VERTICAL) {
             return true;
         }
         return false;
-    },
+    }
 
-    _onTouchEnded: function() {
-        if (!this.enableAutoHide) {
+    _onTouchEnded() {
+        if (!this._enableAutoHide) {
             return;
         }
 
         this._touching = false;
 
-        if (this.autoHideTime <= 0) {
+        if (this._autoHideTime <= 0) {
             return;
         }
 
 
         if (this._scrollView) {
             var content = this._scrollView.content;
-            if(content){
+            if (content) {
                 var contentSize = content.getContentSize();
                 var scrollViewSize = this._scrollView.node.getContentSize();
 
-                if(this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
+                if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
                     return;
                 }
             }
         }
 
-        this._autoHideRemainingTime = this.autoHideTime;
-    },
+        this._autoHideRemainingTime = this._autoHideTime;
+    }
 
-    _calculateLength: function(contentMeasure, scrollViewMeasure, handleNodeMeasure, outOfBoundary) {
+    _calculateLength(contentMeasure, scrollViewMeasure, handleNodeMeasure, outOfBoundary) {
         var denominatorValue = contentMeasure;
         if (outOfBoundary) {
             denominatorValue += (outOfBoundary > 0 ? outOfBoundary : -outOfBoundary) * GETTINGSHORTERFACTOR;
@@ -281,9 +302,9 @@ var Scrollbar = cc.Class({
 
         var lengthRation = scrollViewMeasure / denominatorValue;
         return handleNodeMeasure * lengthRation;
-    },
+    }
 
-    _calculatePosition: function(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundary, actualLenth) {
+    _calculatePosition(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundary, actualLenth) {
         var denominatorValue = contentMeasure - scrollViewMeasure;
         if (outOfBoundary) {
             denominatorValue += Math.abs(outOfBoundary);
@@ -296,28 +317,28 @@ var Scrollbar = cc.Class({
         }
 
         var position = (handleNodeMeasure - actualLenth) * positionRatio;
-        if (this.direction === Direction.VERTICAL) {
+        if (this._direction === Direction.VERTICAL) {
             return cc.v2(0, position);
         } else {
             return cc.v2(position, 0);
         }
-    },
+    }
 
-    _updateLength: function(length) {
-        if (this.handle) {
-            var handleNode = this.handle.node;
+    _updateLength(length) {
+        if (this._handle) {
+            var handleNode = this._handle.node;
             var handleNodeSize = handleNode.getContentSize();
             handleNode.setAnchorPoint(cc.v2(0, 0));
-            if (this.direction === Direction.HORIZONTAL) {
+            if (this._direction === Direction.HORIZONTAL) {
                 handleNode.setContentSize(length, handleNodeSize.height);
             } else {
                 handleNode.setContentSize(handleNodeSize.width, length);
             }
         }
-    },
+    }
 
-    _processAutoHide: function(deltaTime) {
-        if (!this.enableAutoHide || this._autoHideRemainingTime <= 0) {
+    _processAutoHide(deltaTime) {
+        if (!this._enableAutoHide || this._autoHideRemainingTime <= 0) {
             return;
         } else if (this._touching) {
             return;
@@ -325,33 +346,30 @@ var Scrollbar = cc.Class({
 
 
         this._autoHideRemainingTime -= deltaTime;
-        if (this._autoHideRemainingTime <= this.autoHideTime) {
+        if (this._autoHideRemainingTime <= this._autoHideTime) {
             this._autoHideRemainingTime = Math.max(0, this._autoHideRemainingTime);
-            var opacity = this._opacity * (this._autoHideRemainingTime / this.autoHideTime);
+            var opacity = this._opacity * (this._autoHideRemainingTime / this._autoHideTime);
             this._setOpacity(opacity);
         }
-    },
+    }
 
-    start: function() {
-        if (this.enableAutoHide) {
+    start() {
+        if (this._enableAutoHide) {
             this._setOpacity(0);
         }
-    },
+    }
 
-    hide: function() {
+    hide() {
         this._autoHideRemainingTime = 0;
         this._setOpacity(0);
-    },
+    }
 
-    show: function() {
-        this._autoHideRemainingTime = this.autoHideTime;
+    show() {
+        this._autoHideRemainingTime = this._autoHideTime;
         this._setOpacity(this._opacity);
-    },
+    }
 
-    update: function(dt) {
+    update(dt) {
         this._processAutoHide(dt);
     }
-});
-
-
-cc.Scrollbar = module.exports = Scrollbar;
+}

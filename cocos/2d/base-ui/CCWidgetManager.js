@@ -24,14 +24,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Event = require('../CCNode').EventType;
+// var Event = require('../CCNode').EventType;
+import { Node } from '../../scene-graph/index'
 
-var TOP     = 1 << 0;
-var MID     = 1 << 1;   // vertical center
-var BOT     = 1 << 2;
-var LEFT    = 1 << 3;
-var CENTER  = 1 << 4;   // horizontal center
-var RIGHT   = 1 << 5;
+var Event = Node.EventType;
+var TOP = 1 << 0;
+var MID = 1 << 1;   // vertical center
+var BOT = 1 << 2;
+var LEFT = 1 << 3;
+var CENTER = 1 << 4;   // horizontal center
+var RIGHT = 1 << 5;
 var HORIZONTAL = LEFT | CENTER | RIGHT;
 var VERTICAL = TOP | MID | BOT;
 
@@ -42,7 +44,7 @@ var AlignMode = cc.Enum({
 });
 
 // returns a readonly size of the node
-function getReadonlyNodeSize (parent) {
+function getReadonlyNodeSize(parent) {
     if (parent instanceof cc.Scene) {
         return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.visibleRect;
     }
@@ -51,12 +53,12 @@ function getReadonlyNodeSize (parent) {
     }
 }
 
-function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate, out_inverseScale) {
+function computeInverseTransForTarget(widgetNode, target, out_inverseTranslate, out_inverseScale) {
     var scaleX = widgetNode._parent._scale.x;
     var scaleY = widgetNode._parent._scale.y;
     var translateX = 0;
     var translateY = 0;
-    for (var node = widgetNode._parent;;) {
+    for (var node = widgetNode._parent; ;) {
         var pos = node._position;
         translateX += pos.x;
         translateY += pos.y;
@@ -89,7 +91,7 @@ var tInverseTranslate = cc.Vec2.ZERO;
 var tInverseScale = cc.Vec2.ONE;
 
 // align to borders by adjusting node's position and size (ignore rotation)
-function align (node, widget) {
+function align(node, widget) {
     var hasTarget = widget._target;
     var target;
     var inverseTranslate, inverseScale;
@@ -225,7 +227,7 @@ function align (node, widget) {
     node.setPosition(x, y);
 }
 
-function visitNode (node) {
+function visitNode(node) {
     var widget = node._widget;
     if (widget) {
         if (CC_DEV) {
@@ -263,7 +265,7 @@ if (CC_EDITOR) {
     };
 }
 
-function refreshScene () {
+function refreshScene() {
     // check animation editor
     if (CC_EDITOR && !Editor.isBuilder) {
         var AnimUtils = Editor.require('scene://utils/animation');
@@ -433,19 +435,19 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (oldSize) {
 var activeWidgets = [];
 
 // updateAlignment from scene to node recursively
-function updateAlignment (node) {
+function updateAlignment(node) {
     var parent = node._parent;
     if (cc.Node.isNode(parent)) {
         updateAlignment(parent);
     }
     var widget = node._widget ||
-                 node.getComponent(cc.Widget);  // node._widget will be null when widget is disabled
+        node.getComponent(cc.Widget);  // node._widget will be null when widget is disabled
     if (widget) {
         align(node, widget);
     }
 }
 
-var widgetManager = cc._widgetManager = module.exports = {
+let WidgetManager = cc._widgetManager = {
     _AlignFlags: {
         TOP: TOP,
         MID: MID,       // vertical center
@@ -489,13 +491,13 @@ var widgetManager = cc._widgetManager = module.exports = {
             widget.node.off(Event.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         }
     },
-    onResized () {
+    onResized() {
         var scene = cc.director.getScene();
         if (scene) {
             this.refreshWidgetOnResized(scene);
         }
     },
-    refreshWidgetOnResized (node) {
+    refreshWidgetOnResized(node) {
         var widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
         if (widget) {
             if (widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
@@ -512,6 +514,8 @@ var widgetManager = cc._widgetManager = module.exports = {
     updateAlignment: updateAlignment,
     AlignMode: AlignMode,
 };
+
+export default WidgetManager;
 
 if (CC_EDITOR) {
     module.exports._computeInverseTransForTarget = computeInverseTransForTarget;

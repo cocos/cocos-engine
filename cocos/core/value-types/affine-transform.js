@@ -31,13 +31,13 @@
  * !#zh
  * AffineTransform 类代表一个仿射变换矩阵。它基本上是由平移旋转，缩放转变所组成。<br/>
  * @class AffineTransform
- * @method constructor
- * @param {Number} a
- * @param {Number} b
- * @param {Number} c
- * @param {Number} d
- * @param {Number} tx
- * @param {Number} ty
+ * 
+ * @param a
+ * @param b
+ * @param c
+ * @param d
+ * @param tx
+ * @param ty
  * @see AffineTransform.create
  */
 export default class AffineTransform {
@@ -53,15 +53,15 @@ export default class AffineTransform {
     /**
      * !#en Create a AffineTransform object with all contents in the matrix.
      * !#zh 用在矩阵中的所有内容创建一个 AffineTransform 对象。
-     * @method create
+     * 
      * @static
-     * @param {Number} a
-     * @param {Number} b
-     * @param {Number} c
-     * @param {Number} d
-     * @param {Number} tx
-     * @param {Number} ty
-     * @return {AffineTransform}
+     * @param a
+     * @param b
+     * @param c
+     * @param d
+     * @param tx
+     * @param ty
+     * @return
      */
     static create (a, b, c, d, tx, ty) {
         return new AffineTransform(a, b, c, d, tx, ty);
@@ -77,9 +77,9 @@ export default class AffineTransform {
      * [ 1, 0, 0, <br/>
      *   0, 1, 0 ]
      *
-     * @method identity
+     * 
      * @static
-     * @return {AffineTransform}
+     * @return
      */
     static identity () {
         return new AffineTransform();
@@ -88,10 +88,10 @@ export default class AffineTransform {
     /**
      * !#en Clone a AffineTransform object from the specified transform.
      * !#zh 克隆指定的 AffineTransform 对象。
-     * @method clone
+     * 
      * @static
-     * @param {AffineTransform} t
-     * @return {AffineTransform}
+     * @param t
+     * @return
      */
     static clone (t) {
         return new AffineTransform(t.a, t.b, t.c, t.d, t.tx, t.ty);
@@ -106,12 +106,12 @@ export default class AffineTransform {
      * !#zh
      * 拼接两个矩阵，将结果保存到 out 矩阵。这个函数不创建任何内存，你需要先创建 AffineTransform 对象用来存储结果，并作为第一个参数传入函数。
      * out = t1 * t2
-     * @method concat
+     * 
      * @static
-     * @param {AffineTransform} out Out object to store the concat result
-     * @param {AffineTransform} t1 The first transform object.
-     * @param {AffineTransform} t2 The transform object to concatenate.
-     * @return {AffineTransform} Out object with the result of concatenation.
+     * @param out Out object to store the concat result
+     * @param t1 The first transform object.
+     * @param t2 The transform object to concatenate.
+     * @return Out object with the result of concatenation.
      */
     static concat (out, t1, t2) {
         var a = t1.a, b = t1.b, c = t1.c, d = t1.d, tx = t1.tx, ty = t1.ty;
@@ -128,11 +128,11 @@ export default class AffineTransform {
      * !#en Get the invert transform of an AffineTransform object.
      * This function is memory free, you should create the output affine transform by yourself and manage its memory.
      * !#zh 求逆矩阵。这个函数不创建任何内存，你需要先创建 AffineTransform 对象用来存储结果，并作为第一个参数传入函数。
-     * @method invert
+     * 
      * @static
-     * @param {AffineTransform} out
-     * @param {AffineTransform} t
-     * @return {AffineTransform} Out object with inverted result.
+     * @param out
+     * @param t
+     * @return Out object with inverted result.
      */
     static invert (out, t) {
         var a = t.a, b = t.b, c = t.c, d = t.d;
@@ -151,11 +151,11 @@ export default class AffineTransform {
      * !#en Get an AffineTransform object from a given matrix 4x4.
      * This function is memory free, you should create the output affine transform by yourself and manage its memory.
      * !#zh 从一个 4x4 Matrix 获取 AffineTransform 对象。这个函数不创建任何内存，你需要先创建 AffineTransform 对象用来存储结果，并作为第一个参数传入函数。
-     * @method invert
+     * 
      * @static
-     * @param {AffineTransform} out
-     * @param {Mat4} mat
-     * @return {AffineTransform} Out object with inverted result.
+     * @param out
+     * @param mat
+     * @return Out object with inverted result.
      */
     static fromMat4 (out, mat) {
         out.a = mat.m00;
@@ -171,13 +171,13 @@ export default class AffineTransform {
      * !#en Apply the affine transformation on a point.
      * This function is memory free, you should create the output Vec2 by yourself and manage its memory.
      * !#zh 对一个点应用矩阵变换。这个函数不创建任何内存，你需要先创建一个 Vec2 对象用来存储结果，并作为第一个参数传入函数。
-     * @method transformVec2
+     * 
      * @static
-     * @param {Vec2} out The output point to store the result
+     * @param out The output point to store the result
      * @param {Vec2|Number} point Point to apply transform or x.
      * @param {AffineTransform|Number} transOrY transform matrix or y.
-     * @param {AffineTransform} [t] transform matrix.
-     * @return {Vec2}
+     * @param [t] transform matrix.
+     * @return
      */
     static transformVec2 (out, point, transOrY, t) {
         var x, y;
@@ -198,12 +198,12 @@ export default class AffineTransform {
      * !#en Apply the affine transformation on a size.
      * This function is memory free, you should create the output Size by yourself and manage its memory.
      * !#zh 应用仿射变换矩阵到 Size 上。这个函数不创建任何内存，你需要先创建一个 Size 对象用来存储结果，并作为第一个参数传入函数。
-     * @method transformSize
+     * 
      * @static
-     * @param {Size} out The output point to store the result
-     * @param {Size} size
-     * @param {AffineTransform} t
-     * @return {Size}
+     * @param out The output point to store the result
+     * @param size
+     * @param t
+     * @return
      */
     static transformSize (out, size, t) {
         out.width = t.a * size.width + t.c * size.height;
@@ -215,12 +215,12 @@ export default class AffineTransform {
      * !#en Apply the affine transformation on a rect.
      * This function is memory free, you should create the output Rect by yourself and manage its memory.
      * !#zh 应用仿射变换矩阵到 Rect 上。这个函数不创建任何内存，你需要先创建一个 Rect 对象用来存储结果，并作为第一个参数传入函数。
-     * @method transformRect
+     * 
      * @static
-     * @param {Rect} out
-     * @param {Rect} rect
-     * @param {AffineTransform} anAffineTransform
-     * @return {Rect}
+     * @param out
+     * @param rect
+     * @param anAffineTransform
+     * @return
      */
     static transformRect(out, rect, t){
         var ol = rect.x;
@@ -252,14 +252,14 @@ export default class AffineTransform {
      * !#en Apply the affine transformation on a rect, and truns to an Oriented Bounding Box.
      * This function is memory free, you should create the output vectors by yourself and manage their memory.
      * !#zh 应用仿射变换矩阵到 Rect 上, 并转换为有向包围盒。这个函数不创建任何内存，你需要先创建包围盒的四个 Vector 对象用来存储结果，并作为前四个参数传入函数。
-     * @method transformObb
+     * 
      * @static
-     * @param {Vec2} out_bl
-     * @param {Vec2} out_tl
-     * @param {Vec2} out_tr
-     * @param {Vec2} out_br
-     * @param {Rect} rect
-     * @param {AffineTransform} anAffineTransform
+     * @param out_bl
+     * @param out_tl
+     * @param out_tr
+     * @param out_br
+     * @param rect
+     * @param anAffineTransform
      */
     static transformObb (out_bl, out_tl, out_tr, out_br, rect, anAffineTransform) {
         var x = rect.x;

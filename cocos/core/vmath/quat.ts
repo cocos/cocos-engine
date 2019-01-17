@@ -682,7 +682,7 @@ export default class quat {
      * @param q - the quaternion to be converted
      * @return out.
      */
-    public static toEuler<Out extends IQuatLike>(out: Out, q: quat) {
+    public static toEuler<Out extends IVec3Like>(out: Out, q: quat) {
         const { x, y, z, w } = q;
         let heading: number = NaN;
         let attitude: number = NaN;
