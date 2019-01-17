@@ -79,7 +79,7 @@ export class RenderData extends BaseRenderData {
     }
 }
 
-const _dataPool = new RecyclePool(() => {
+const _dataPool = new RecyclePool(128, () => {
     return {
         x: 0.0,
         y: 0.0,
@@ -88,8 +88,8 @@ const _dataPool = new RecyclePool(() => {
         v: 0.0,
         color: 0,
     };
-}, 128);
+});
 
-const _pool = new RecyclePool( () => {
+const _pool = new RecyclePool(32, () => {
     return new RenderData();
-}, 32);
+});
