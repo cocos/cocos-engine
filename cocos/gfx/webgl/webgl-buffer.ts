@@ -70,7 +70,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
         }
 
         this.webGLDevice.emitCmdUpdateGPUBuffer(
-            this._gpuBuffer as WebGLGPUBuffer,
+            this._gpuBuffer!,
             buffer,
             offset !== undefined ? offset : 0,
             buffSize);

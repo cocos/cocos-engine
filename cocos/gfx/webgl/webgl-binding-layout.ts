@@ -52,7 +52,7 @@ export class WebGLGFXBindingLayout extends GFXBindingLayout {
 
     public update () {
         if (this._isDirty) {
-            this.webGLDevice.emitCmdUpdateGPUBindingLayout(this._gpuBindingLayout as WebGLGPUBindingLayout, this._bindingUnits);
+            this.webGLDevice.emitCmdUpdateGPUBindingLayout(this._gpuBindingLayout!, this._bindingUnits);
             this._isDirty = false;
         }
     }
