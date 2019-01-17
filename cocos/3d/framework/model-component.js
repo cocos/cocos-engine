@@ -158,9 +158,9 @@ export class ModelComponent extends RenderableComponent {
     constructor() {
         super();
         /**
-         * @type {Model[]}
+         * @type {Model}
          */
-        this._models = [];
+        this._model = null;
     }
 
     onLoad() {
@@ -174,10 +174,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     onDisable() {
-        for (let i = 0; i < this._models.length; ++i) {
-            this._getRenderScene().destroyModel(this._models[i]);
-        }
-        this._models.splice(0);
+        this._getRenderScene().destroyModel(this._model);
     }
 
     onDestroy() {
@@ -185,14 +182,14 @@ export class ModelComponent extends RenderableComponent {
     }
 
     _updateModels() {
-        if (!this.node._scene) return;
-        let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
-
-        for (let i = 0; i < meshCount; ++i) {
-            let model = this._createModel();
-            model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
-            this._models.push(model);
+        if (!this.node._scene) {
+            return;
         }
+
+        let model = this._createModel();
+        model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
+        this._model = model;
+        this._model.node = this.node;
 
         this._updateModelParams();
     }
@@ -203,51 +200,39 @@ export class ModelComponent extends RenderableComponent {
 
     _updateModelParams() {
         this.node._hasChanged = true;
-        for (let i = 0; i < this._models.length; ++i) {
-            let model = this._models[i];
+        let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
+        for (let i = 0; i < meshCount; ++i) {
             let material = this.getSharedMaterial(i);
-
-            model.subMeshData = this._mesh.renderingMesh.getSubmesh(i);
-            model.node = this.node;
-            this._updateModelMaterial(model, material);
+            let subMeshData = this._mesh.renderingMesh.getSubmesh(i);
+            this._model.setSubModel(i, subMeshData, material);
         }
     }
 
     _onMaterialModified(idx, material) {
-        if (idx < this._models.length) {
-            this._updateModelMaterial(this._models[idx], material);
+        if (this._model == null) {
+            return;
         }
+        this._model.setSubModelMaterial(idx, material);
     }
 
     _clearMaterials() {
-        for (let i = 0; i < this._models.length; ++i) {
+        for (let i = 0; i < this._model.subModelNum; ++i) {
             this._onMaterialModified(i, null);
         }
-    }
-
-    /**
-     *
-     * @param {Model} model
-     * @param {Material} material
-     */
-    _updateModelMaterial(model, material) {
-        if (!this.enabled)
-            return;
-        model.material = material ? material : this._getBuiltinMaterial();
     }
 
     _updateCastShadow() {
         if (!this.enabled)
             return;
         if (this._shadowCastingMode === ModelShadowCastingMode.Off) {
-            for (let i = 0; i < this._models.length; ++i) {
-                let model = this._models[i];
-                model._castShadow = false;
+            for (let i = 0; i < this._model.subModelNum; ++i) {
+                let subModel = this._model.getSubModel(i);
+                subModel.castShadow = false;
             }
         } else if (this._shadowCastingMode === ModelShadowCastingMode.On) {
-            for (let i = 0; i < this._models.length; ++i) {
-                let model = this._models[i];
-                model._castShadow = true;
+            for (let i = 0; i < this._model.subModelNum; ++i) {
+                let subModel = this._model.getSubModel(i);
+                subModel.castShadow = true;
             }
         } else {
             console.warn(`ShadowCastingMode ${this._shadowCastingMode} is not supported.`);
@@ -257,11 +242,11 @@ export class ModelComponent extends RenderableComponent {
     _updateReceiveShadow() {
         if (!this.enabled)
             return;
-        for (let i = 0; i < this._models.length; ++i) {
-            let model = this._models[i];
-            if (model._defines['CC_USE_SHADOW_MAP'] != undefined) {
-                this.getMaterial(i).define('CC_USE_SHADOW_MAP', this._receiveShadows);
-            }
+        for (let i = 0; i < this._model.subModelNum; ++i) {
+            let subModel = this._model.getSubModel(i);
+            // if (subModel._defines['CC_USE_SHADOW_MAP'] != undefined) {
+            //     this.getMaterial(i).define('CC_USE_SHADOW_MAP', this._receiveShadows);
+            // }
         }
     }
 

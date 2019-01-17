@@ -291,7 +291,9 @@ export interface IGeometricInfo {
 }
 
 export interface IRenderingSubmesh {
-    inputAssembler: GFXInputAssembler;
+    vertexBuffers: GFXBuffer[];
+    indexBuffer: GFXBuffer;
+    attributes: IGFXInputAttribute[];
     primitiveMode: GFXPrimitiveMode;
     geometricInfo?: IGeometricInfo;
 }
@@ -322,12 +324,6 @@ export class RenderingMesh {
             indexBuffer.destroy();
         });
         this._indexBuffers.length = 0;
-
-        this._subMeshes.forEach((subMesh) => {
-            if (subMesh) {
-                subMesh.inputAssembler.destroy();
-            }
-        });
         this._subMeshes.length = 0;
     }
 }
@@ -429,7 +425,7 @@ export class Mesh extends Asset {
      */
     public getSubMesh (index: number) {
         const renderingSubmesh = this.renderingMesh ? this.renderingMesh.getSubmesh(index) : null;
-        return renderingSubmesh ? renderingSubmesh.inputAssembler : null;
+        return renderingSubmesh;
     }
 
     private _deferredInit () {
@@ -493,14 +489,6 @@ export class Mesh extends Asset {
             const vbReference = primitive.vertexBundelIndices.map(
                 (i) => vertexBuffers[i]);
 
-            const inputAssemblerInfo: IGFXInputAssemblerInfo = {
-                attributes: gfxAttributes,
-                vertexBuffers: vbReference,
-            };
-            if (indexBuffer) {
-                inputAssemblerInfo.indexBuffer = indexBuffer;
-            }
-
             const geomInfo: any = primitive.geometricInfo;
             if (geomInfo) {
                 geomInfo.indices = ib;
@@ -509,9 +497,11 @@ export class Mesh extends Asset {
 
             return {
                 primitiveMode: primitive.primitiveMode,
-                inputAssembler: gfxDevice.createInputAssembler(inputAssemblerInfo),
+                vertexBuffers: vbReference,
+                indexBuffer,
+                attributes: gfxAttributes,
                 geometricInfo: geomInfo,
-            } as IRenderingSubmesh ;
+            } as IRenderingSubmesh;
         });
 
         this._renderingMesh = new RenderingMesh(renderingSubmeshes, vertexBuffers, indexBuffers);
