@@ -99,6 +99,9 @@ export class Pass {
     protected _handleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
     protected _bindings: IGFXBinding[] = [];
+    protected _bs: GFXBlendState = new GFXBlendState();
+    protected _dss: GFXDepthStencilState = new GFXDepthStencilState();
+    protected _rs: GFXRasterizerState = new GFXRasterizerState();
     // external references
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
@@ -275,13 +278,13 @@ export class Pass {
             Object.assign(bs, bsInfo);
         }
         const stateInfo = {
-            bs,
-            dss: Object.assign(new GFXDepthStencilState(), info.depthStencilState),
+            bs: this._bs = bs,
+            dss: this._dss = Object.assign(new GFXDepthStencilState(), info.depthStencilState),
             is: new GFXInputState(),
             layout: this._pipelineLayout,
             primitive: info.primitive || this._primitive,
             renderPass: this._renderPass,
-            rs: Object.assign(new GFXRasterizerState(), info.rasterizerState),
+            rs: this._rs = Object.assign(new GFXRasterizerState(), info.rasterizerState),
             shader: this._shader,
         };
         if (override) { override(stateInfo); }
@@ -297,7 +300,10 @@ export class Pass {
     get pipelineState () { return this._pipelineState as GFXPipelineState; }
     get bindingLayout () { return this._bindingLayout as GFXBindingLayout; }
     get primitive () { return this._primitive; }
-    get bindings () { return this.bindings; }
+    get bindings () { return this._bindings; }
+    get blendState (): GFXBlendState { return this._bs; }
+    get depthStencilState (): GFXDepthStencilState { return this._dss; }
+    get rasterizerState (): GFXRasterizerState { return this._rs; }
 }
 
 function serializeBlendState (bs: GFXBlendState)  {
