@@ -2,12 +2,13 @@
 
 import { IBlockInfo, IPassInfo, ISamplerInfo } from '../../3d/assets/effect-asset';
 import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
-import { IGFXBinding } from '../../gfx/binding-layout';
+import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
+import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
-    GFXRasterizerState } from '../../gfx/pipeline-state';
+    GFXInputState, GFXPipelineState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
@@ -22,6 +23,13 @@ export interface IPassInfoFull extends IPassInfo {
     shader: GFXShader;
     renderPass: GFXRenderPass;
 }
+
+type RecursivePartial<T> = {
+    [P in keyof T]?:
+        T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
+        T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
+};
+export type PassOverrides = RecursivePartial<IPassInfo>;
 
 const _type2fn = {
   [GFXType.INT]: (a: Float32Array, v: any) => a[0] = v,
@@ -72,6 +80,12 @@ interface IBlock {
     dirty: boolean;
 }
 
+interface IPassResources {
+    bindingLayout: GFXBindingLayout;
+    pipelineLayout: GFXPipelineLayout;
+    pipelineState: GFXPipelineState;
+}
+
 export class Pass {
     public static getBindingTypeFromHandle = getBindingTypeFromHandle;
     public static getTypeFromHandle = getTypeFromHandle;
@@ -80,6 +94,8 @@ export class Pass {
     // internal resources
     protected _buffers: Record<number, GFXBuffer> = {};
     protected _samplers: Record<number, GFXSampler> = {};
+    protected _textureViews: Record<number, GFXTextureView> = {};
+    protected _resources: IPassResources[] = [];
     // internal data
     protected _programName: string = '';
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
@@ -90,7 +106,6 @@ export class Pass {
     protected _rs: GFXRasterizerState = new GFXRasterizerState();
     protected _handleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
-    protected _textureViews: Record<number, GFXTextureView> = {};
     // external references
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
@@ -132,7 +147,7 @@ export class Pass {
             }
             // buffer data processing system
             const block: IBlock = this._blocks[u.binding] = {
-                buffer: new ArrayBuffer(u.size),
+                buffer: buffer.buffer as ArrayBuffer,
                 dirty: false,
                 views: [],
             };
@@ -185,17 +200,23 @@ export class Pass {
 
     public bindTextureView (binding: number, value: GFXTextureView) {
         this._textureViews[binding] = value;
+        for (const res of this._resources) {
+            res.bindingLayout.bindTextureView(binding, value);
+        }
     }
 
     public bindSampler (binding: number, value: GFXSampler) {
         this._samplers[binding] = value;
+        for (const res of this._resources) {
+            res.bindingLayout.bindSampler(binding, value);
+        }
     }
 
-    public overridePipelineStates (info: Partial<IPassInfo>, overrides: Partial<IPassInfo>) {
+    public overridePipelineStates (original: IPassInfo, overrides: PassOverrides) {
         this._bs = new GFXBlendState();
         this._dss = new GFXDepthStencilState();
         this._rs = new GFXRasterizerState();
-        this._fillinPipelineInfo(info);
+        this._fillinPipelineInfo(original);
         this._fillinPipelineInfo(overrides);
     }
 
@@ -222,6 +243,42 @@ export class Pass {
                 s.destroy();
             }
             this._samplers = {};
+        }
+    }
+
+    public createPipelineState () {
+        if (!this._renderPass || !this._shader) { return null; }
+        const bindingLayout = this._device.createBindingLayout({ bindings: this._bindings });
+        for (const b of Object.keys(this._buffers)) {
+            bindingLayout.bindBuffer(parseInt(b), this._buffers[b]);
+        }
+        for (const s of Object.keys(this._samplers)) {
+            bindingLayout.bindSampler(parseInt(s), this._samplers[s]);
+        }
+        for (const t of Object.keys(this._textureViews)) {
+            bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
+        }
+        const pipelineLayout = this._device.createPipelineLayout({ layouts: [bindingLayout] });
+        const pipelineState = this._device.createPipelineState({
+            bs: this._bs,
+            dss: this._dss,
+            is: new GFXInputState(),
+            layout: pipelineLayout,
+            primitive: this._primitive,
+            renderPass: this._renderPass,
+            rs: this._rs,
+            shader: this._shader,
+        });
+        this._resources.push({ bindingLayout, pipelineLayout, pipelineState });
+        return pipelineState;
+    }
+
+    public destroyPipelineState (pipelineStates: GFXPipelineState) {
+        const idx = this._resources.findIndex((res) => res.pipelineState === pipelineStates);
+        if (idx >= 0) {
+            const { bindingLayout: bl, pipelineLayout: pl, pipelineState: ps } = this._resources[idx];
+            bl.destroy(); pl.destroy(); ps.destroy();
+            this._resources.splice(idx, 1);
         }
     }
 

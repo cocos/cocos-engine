@@ -27,9 +27,9 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { GFXBindingType } from '../../gfx/define';
 import { Effect } from '../../renderer/core/effect';
-import { Pass } from '../../renderer/core/pass';
+import { Pass, PassOverrides } from '../../renderer/core/pass';
 import { RenderableComponent } from '../framework/renderable-component';
-import { EffectAsset, IPassInfo } from './effect-asset';
+import { EffectAsset } from './effect-asset';
 
 @ccclass('cc.Material')
 export class Material extends Asset {
@@ -143,7 +143,7 @@ export class Material extends Asset {
         this.update();
     }
 
-    public overridePipelineStates (overrides: Partial<IPassInfo>, passIdx: number = 0) {
+    public overridePipelineStates (overrides: PassOverrides, passIdx: number = 0) {
         if (!this._passes || !this._effectAsset) { return; }
         const passInfos = Effect.getPassInfos(this._effectAsset, this._techIdx);
         this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
