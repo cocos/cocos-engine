@@ -6,7 +6,7 @@ import { mat4, quat, vec3 } from '../core/vmath';
 import { UITransformComponent } from '../3d/ui/components/ui-transfrom-component';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
-import { EventTarget } from '../core/event/event-target-base';
+import { EventTarget, DefaultEventTarget } from '../core/event/event-target-base';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -1058,7 +1058,7 @@ class Node extends EventTarget(BaseNode) {
             //         break;
             // }
             if (!this._bubblingListeners) {
-                this._bubblingListeners = new EventTarget();
+                this._bubblingListeners = new DefaultEventTarget();
             }
             return this._bubblingListeners.on(type, callback, target);
         }
@@ -1092,10 +1092,10 @@ class Node extends EventTarget(BaseNode) {
 
     //     let listeners = null;
     //     if (forDispatch && useCapture) {
-    //         listeners = this._capturingListeners = this._capturingListeners || new EventTarget();
+    //         listeners = this._capturingListeners = this._capturingListeners || new DefaultEventTarget();
     //     }
     //     else {
-    //         listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
+    //         listeners = this._bubblingListeners = this._bubblingListeners || new DefaultEventTarget();
     //     }
 
     //     let hasOnceListener = listeners.hasEventListener(eventType_hasOnceListener, callback, target);
@@ -1124,9 +1124,9 @@ class Node extends EventTarget(BaseNode) {
 
         let listeners = null;
         if (useCapture) {
-            listeners = this._capturingListeners = this._capturingListeners || new EventTarget();
+            listeners = this._capturingListeners = this._capturingListeners || new DefaultEventTarget();
         } else {
-            listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
+            listeners = this._bubblingListeners = this._bubblingListeners || new DefaultEventTarget();
         }
 
         if (!listeners.hasEventListener(type, callback, target)) {

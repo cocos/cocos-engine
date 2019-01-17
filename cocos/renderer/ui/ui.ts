@@ -55,6 +55,7 @@ export interface IUIRenderItem {
 export interface IUIRenderData {
     meshBuffer: MeshBuffer;
     material: Material;
+    camera: Camera;
 }
 
 export class UI {
@@ -163,6 +164,18 @@ export class UI {
         this._screens.push(comp);
     }
 
+    public getScreen (visibility: number) {
+        for (const screen of this._screens) {
+            if (screen.camera) {
+                if (screen.camera.visibility === visibility) {
+                    return screen;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public removeScreen (comp) {
         const idx = this._screens.indexOf(comp);
         if (idx !== -1) {
@@ -226,7 +239,13 @@ export class UI {
             attributes: vfmt,
         } as IMeshBufferInitData);
         comp.updateRenderData(buffer);
-        this._commitBuffers.push({ meshBuffer: buffer, material: comp.material});
+        const canvasComp: CanvasComponent | null = this.getScreen(comp.viewID);
+
+        this._commitBuffers.push({
+            meshBuffer: buffer,
+            material: comp.material,
+            camera: canvasComp ? canvasComp.camera : null,
+        } as IUIRenderData);
     }
 
     private render () {

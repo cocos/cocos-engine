@@ -2,7 +2,7 @@
 
 import { IBlockInfo, IPassInfo, ISamplerInfo } from '../../3d/assets/effect-asset';
 import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
-import { GFXBindingLayout } from '../../gfx/binding-layout';
+import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
@@ -98,6 +98,7 @@ export class Pass {
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _handleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
+    protected _bindings: IGFXBinding[] = [];
     // external references
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
@@ -111,7 +112,7 @@ export class Pass {
         this._programName = info.program;
         // pipeline state
         const device = this._device;
-        const bindings = info.blocks.map((u) =>
+        const bindings = this._bindings = info.blocks.map((u) =>
             ({ name: u.name, binding: u.binding, type: GFXBindingType.UNIFORM_BUFFER }),
         ).concat(info.samplers.map((u) =>
             ({ name: u.name, binding: u.binding, type: GFXBindingType.SAMPLER }),
@@ -295,7 +296,8 @@ export class Pass {
     get shader (): GFXShader { return this._shader!; }
     get pipelineState () { return this._pipelineState as GFXPipelineState; }
     get bindingLayout () { return this._bindingLayout as GFXBindingLayout; }
-    get primitive (): GFXPrimitiveMode { return this._primitive; }
+    get primitive () { return this._primitive; }
+    get bindings () { return this.bindings; }
 }
 
 function serializeBlendState (bs: GFXBlendState)  {
