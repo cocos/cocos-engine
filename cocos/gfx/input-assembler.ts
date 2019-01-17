@@ -1,5 +1,5 @@
 import { GFXBuffer, IGFXDrawInfo } from './buffer';
-import { GFXFormat, GFXObject, GFXObjectType } from './define';
+import { GFXFormat, GFXFormatInfos, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXInputAttribute {
@@ -17,6 +17,8 @@ export interface IGFXInputAssemblerInfo {
     indexBuffer?: GFXBuffer;
     indirectBuffer?: GFXBuffer;
 }
+
+const isLittleEndian = cc.sys.isLittleEndian;
 
 export abstract class GFXInputAssembler extends GFXObject {
 
@@ -134,5 +136,33 @@ export abstract class GFXInputAssembler extends GFXObject {
         drawInfo.vertexOffset = this._vertexOffset;
         drawInfo.instanceCount = this._instanceCount;
         drawInfo.firstInstance = this._firstInstance;
+    }
+
+    public updateVertexAttr (attr: string, data: number[]) {
+        let offset = 0;
+        let count = 0;
+        let size = 0;
+        let fn = '';
+        for (const a of this._attributes) {
+            const info = GFXFormatInfos[a.format];
+            if (a.name === attr) {
+                count = info.count;
+                size = info.size / count;
+                fn = `set${info.isFloating ? 'Float' : 'Int'}${size * 8}`;
+                break;
+            }
+            offset += info.size;
+        }
+        const vb = this._vertexBuffers[0];
+        if (!count || !vb || !vb.buffer) { return; }
+        const stride = vb.stride;
+        const view = new DataView(vb.buffer as ArrayBuffer);
+        const len = data.length;
+        for (let idx = 0, beg = offset; idx < len; idx += count, beg += stride) {
+            for (let j = 0; j < count; j++) {
+                view[fn](beg + j * size, data[idx + j], isLittleEndian);
+            }
+        }
+        vb.update(vb.buffer);
     }
 }

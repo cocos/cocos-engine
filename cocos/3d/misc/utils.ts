@@ -5,7 +5,7 @@ import { Filter, PixelFormat, WrapMode } from '../../assets/texture-base';
 import { Vec3 } from '../../core/value-types';
 import { AttributeBaseType, AttributeType,
     IMeshStruct, IndexUnit, IPrimitive, IVertexAttribute, IVertexBundle, Mesh } from '../assets/mesh';
-import { IGeometry } from '../primitive/defines';
+import { IGeometry } from '../primitive/define';
 
 /**
  *
@@ -104,6 +104,16 @@ export function createMesh (geometry: IGeometry) {
         primitiveMode: geometry.primitiveMode || GFXPrimitiveMode.TRIANGLE_LIST,
         vertexBundelIndices: [0],
     };
+    // geometric info for raycasting
+    if (primitive.primitiveMode >= GFXPrimitiveMode.TRIANGLE_LIST) {
+        const geomInfo = Float32Array.from(geometry.positions);
+        primitive.geometricInfo = {
+            doubleSided: geometry.doubleSided,
+            range: { offset: bufferBlob.getLength(), length: geomInfo.byteLength },
+        };
+        bufferBlob.addBuffer(geomInfo.buffer);
+    }
+
     if (indexBuffer) {
         primitive.indices = {
             indexUnit: targetIndexUnit,
@@ -113,16 +123,6 @@ export function createMesh (geometry: IGeometry) {
             },
         };
         bufferBlob.addBuffer(indexBuffer);
-    }
-
-    // geometric info for raycasting
-    if (primitive.primitiveMode >= GFXPrimitiveMode.TRIANGLE_LIST) {
-        const geomInfo = Float32Array.from(geometry.positions);
-        primitive.geometricInfo = {
-            doubleSided: geometry.doubleSided,
-            range: { offset: bufferBlob.getLength(), length: geomInfo.byteLength },
-        };
-        bufferBlob.addBuffer(geomInfo.buffer);
     }
 
     // Create mesh struct.
@@ -244,6 +244,8 @@ function _getComponentCount (vertexAttribute: IVertexAttribute) {
     return 1;
 }
 
+const isLittleEndian = cc.sys.isLittleEndian;
+
 function _getVerticesWriter (dataView: DataView, baseType: AttributeBaseType) {
     switch (baseType) {
         case AttributeBaseType.INT8:
@@ -275,10 +277,3 @@ function _getIndicesWriter (dataView: DataView, indexUnit: IndexUnit) {
     }
     return (offset: number, value: number) => dataView.setUint8(offset, value);
 }
-
-const isLittleEndian = (() => {
-    const buffer = new ArrayBuffer(2);
-    new DataView(buffer).setInt16(0, 256, true);
-    // Int16Array uses the platform's endianness.
-    return new Int16Array(buffer)[0] === 256;
-})();
