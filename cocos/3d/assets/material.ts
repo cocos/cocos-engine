@@ -27,14 +27,9 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { GFXBindingType } from '../../gfx/define';
 import { Effect } from '../../renderer/core/effect';
-import { IPassOverrides, Pass } from '../../renderer/core/pass';
-import { EffectAsset } from './effect-asset';
-
-export interface IMaterialInfo {
-    technique?: number;
-    effectName?: string;
-    defines?: Record<string, number | boolean>;
-}
+import { Pass } from '../../renderer/core/pass';
+import { RenderableComponent } from '../framework/renderable-component';
+import { EffectAsset, IPassInfo } from './effect-asset';
 
 @ccclass('cc.Material')
 export class Material extends Asset {
@@ -60,17 +55,8 @@ export class Material extends Asset {
     protected _props: Array<Record<string, any>> = [];
 
     protected _passes: Pass[] = [];
-    protected _owner: any = null;
+    protected _owner: RenderableComponent | null = null;
     protected _hash = 0;
-
-    constructor (opts?: IMaterialInfo) {
-        super();
-        if (opts) {
-            if (opts.technique) { this._techIdx = opts.technique; }
-            if (opts.defines) { this._defines = opts.defines; }
-            if (opts.effectName) { this.effectName = opts.effectName; }
-        }
-    }
 
     @property
     set effectAsset (val: EffectAsset | null) {
@@ -157,17 +143,11 @@ export class Material extends Asset {
         this.update();
     }
 
-    public rebuildWithOverrides (overrides: IPassOverrides, idx?: number) {
+    public overridePipelineStates (overrides: Partial<IPassInfo>, passIdx: number = 0) {
         if (!this._passes || !this._effectAsset) { return; }
         const passInfos = Effect.getPassInfos(this._effectAsset, this._techIdx);
-        if (idx === undefined) {
-            for (let i = 0; i < this._passes.length; i++) {
-                this._passes[i].rebuildWithOverrides(passInfos[i], overrides);
-            }
-        } else {
-            this._passes[idx].rebuildWithOverrides(passInfos[idx], overrides);
-        }
-        this.prepareHash();
+        this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
+        this.onPassChange();
     }
 
     public update (asset: EffectAsset | string | null = this._effectAsset, keepProps: boolean = true) {
@@ -202,7 +182,7 @@ export class Material extends Asset {
         } else {
             this._props.fill({});
         }
-        this.prepareHash();
+        this.onPassChange();
     }
 
     protected _uploadProperty (pass: Pass, name: string, val: any) {
@@ -219,12 +199,17 @@ export class Material extends Asset {
         return true;
     }
 
-    protected prepareHash () {
+    protected onPassChange () {
         let str = '';
         for (const pass of this._passes) {
             str += pass.serializePipelineStates();
         }
         this._hash = murmurhash2_32_gc(str, 666);
+        if (this._owner) {
+            const comp = this._owner;
+            const index = comp.sharedMaterials.findIndex((m) => m === this);
+            if (index >= 0) { comp._onMaterialModified(index, this); }
+        }
     }
 }
 
