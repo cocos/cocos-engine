@@ -29,7 +29,7 @@ export class CachedArray<T> {
 
     public push (item: T) {
         if (this.length > this.array.length) {
-            this.array = new Array(length);
+            this.array = new Array(this.length);
             for (let i = 0; i < this._cache.length; ++i) {
                 this.array[i] = this._cache[i] as T;
             }
@@ -58,7 +58,7 @@ export class CachedArray<T> {
 
     public concat (array: CachedArray<T>) {
         if (array.length + this.length > this._cache.length) {
-            this.array = new Array(length);
+            this.array = new Array(array.length + this.length);
             for (let i = 0; i < this._cache.length; ++i) {
                 this.array[i] = this._cache[i] as T;
             }
@@ -72,7 +72,7 @@ export class CachedArray<T> {
 
     public append (array: T[]) {
         if (array.length + this.length > this._cache.length) {
-            this.array = new Array(length);
+            this.array = new Array(array.length + this.length);
             for (let i = 0; i < this._cache.length; ++i) {
                 this.array[i] = this._cache[i] as T;
             }

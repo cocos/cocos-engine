@@ -27,4 +27,3 @@
 export {Component} from './component';
 export {default as EventHandler} from './CCComponentEventHandler';
 export {default as MissingScript} from './missing-script';
-export {default as Canvas} from './CCCanvas';

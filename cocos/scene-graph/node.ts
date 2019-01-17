@@ -2,6 +2,7 @@ import { ccclass, mixins, property } from '../core/data/class-decorator';
 import { EventTarget } from '../core/event';
 import { Enum, Mat4, Quat, Vec3 } from '../core/value-types';
 import { mat4, quat, vec3 } from '../core/vmath';
+import { UITransformComponent } from '../3d/ui/components/ui-transfrom-component';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 
@@ -31,6 +32,8 @@ class Node extends BaseNode {
     public static isNode (obj: object) {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
+    public uiTransfromComp: UITransformComponent | null = null;
+
     // local transform
     @property
     protected _lpos = new Vec3();
@@ -57,6 +60,9 @@ class Node extends BaseNode {
     protected _matDirty = false;
     protected _eulerDirty = false;
 
+    protected _bubblingListeners: EventTarget|null = null;
+    protected _capturingListeners: EventTarget | null = null;
+
     @property({
         type: Vec3,
     })
@@ -79,9 +85,72 @@ class Node extends BaseNode {
         return this._layer;
     }
 
+    get width () {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        return this.uiTransfromComp.width;
+    }
+
+    set width (value) {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        this.uiTransfromComp.width = value;
+    }
+
+    get height () {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        return this.uiTransfromComp.height;
+    }
+
+    set height (value) {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+        this.uiTransfromComp.height = value;
+    }
+
+    get anchorX () {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        return this.uiTransfromComp.anchorX;
+    }
+
+    set anchorX (value) {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        this.uiTransfromComp.anchorX = value;
+    }
+
+    get anchorY () {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        return this.uiTransfromComp.anchorY;
+    }
+
+    set anchorY (value) {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        this.uiTransfromComp.anchorY = value;
+    }
+
     constructor (name: string) {
         super(name);
-        EventTarget.call(this);
+        // EventTarget.call(this);
     }
 
     // ===============================
@@ -645,6 +714,355 @@ class Node extends BaseNode {
             out = new Mat4();
         }
         return mat4.fromRT(out, this._rot, this._pos);
+    }
+
+    public getAnchorPoint () {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        return this.uiTransfromComp.anchorPoint;
+    }
+
+    public setAnchorPoint (point: Vec2, y: number) {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        this.uiTransfromComp.setAnchorPoint(point, y);
+    }
+
+    public getContentSize () {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        return this.uiTransfromComp.contentSize;
+    }
+
+    public setContentSize (size: Size, height: number = 0) {
+        if (!this.uiTransfromComp) {
+            return;
+        }
+
+        this.uiTransfromComp.setContentSize(size.height);
+    }
+
+    // EVENT TARGET
+
+    public _checknSetupSysEvent (type) {
+        let newAdded = false;
+        let forDispatch = false;
+        if (_touchEvents.indexOf(type) !== -1) {
+            if (!this._touchListener) {
+                this._touchListener = cc.EventListener.create({
+                    event: cc.EventListener.TOUCH_ONE_BY_ONE,
+                    swallowTouches: true,
+                    owner: this,
+                    mask: _searchMaskInParent(this),
+                    onTouchBegan: _touchStartHandler,
+                    onTouchMoved: _touchMoveHandler,
+                    onTouchEnded: _touchEndHandler,
+                    onTouchCancelled: _touchCancelHandler,
+                });
+                eventManager.addListener(this._touchListener, this);
+                newAdded = true;
+            }
+            forDispatch = true;
+        } else if (_mouseEvents.indexOf(type) !== -1) {
+            if (!this._mouseListener) {
+                this._mouseListener = cc.EventListener.create({
+                    event: cc.EventListener.MOUSE,
+                    _previousIn: false,
+                    owner: this,
+                    mask: _searchMaskInParent(this),
+                    onMouseDown: _mouseDownHandler,
+                    onMouseMove: _mouseMoveHandler,
+                    onMouseUp: _mouseUpHandler,
+                    onMouseScroll: _mouseWheelHandler,
+                });
+                eventManager.addListener(this._mouseListener, this);
+                newAdded = true;
+            }
+            forDispatch = true;
+        }
+        if (newAdded && !this._activeInHierarchy) {
+            cc.director.getScheduler().schedule(function () {
+                if (!this._activeInHierarchy) {
+                    eventManager.pauseTarget(this);
+                }
+            }, this, 0, 0, 0, false);
+        }
+        return forDispatch;
+    }
+
+    /**
+     * !#en
+     * Register a callback of a specific event type on Node.<br/>
+     * Use this method to register touch or mouse event permit propagation based on scene graph,<br/>
+     * These kinds of event are triggered with dispatchEvent, the dispatch process has three steps:<br/>
+     * 1. Capturing phase: dispatch in capture targets (`_getCapturingTargets`), e.g. parents in node tree, from root to the real target<br/>
+     * 2. At target phase: dispatch to the listeners of the real target<br/>
+     * 3. Bubbling phase: dispatch in bubble targets (`_getBubblingTargets`), e.g. parents in node tree, from the real target to root<br/>
+     * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmidiate()`.<br/>
+     * It's the recommended way to register touch/mouse event for Node,<br/>
+     * please do not use cc.eventManager directly for Node.<br/>
+     * You can also register custom event and use `emit` to trigger custom event on Node.<br/>
+     * For such events, there won't be capturing and bubbling phase, your event will be dispatched directly to its listeners registered on the same node.<br/>
+     * You can also pass event callback parameters with `emit` by passing parameters after `type`.
+     * !#zh
+     * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的 this 对象。<br/>
+     * 鼠标或触摸事件会被系统调用 dispatchEvent 方法触发，触发的过程包含三个阶段：<br/>
+     * 1. 捕获阶段：派发事件给捕获目标（通过 `_getCapturingTargets` 获取），比如，节点树中注册了捕获阶段的父节点，从根节点开始派发直到目标节点。<br/>
+     * 2. 目标阶段：派发给目标节点的监听器。<br/>
+     * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发知道根节点。<br/>
+     * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。<br/>
+     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。<br/>
+     * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器<br/>
+     * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
+     * @method on
+     * @param {String|Node.EventType} type - A string representing the event type to listen for.<br>See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched. The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {Event|any} [callback.event] event or first argument when emit
+     * @param {any} [callback.arg2] arg2
+     * @param {any} [callback.arg3] arg3
+     * @param {any} [callback.arg4] arg4
+     * @param {any} [callback.arg5] arg5
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     * @param {Boolean} [useCapture=false] - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
+     * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+     * @typescript
+     * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
+     * @example
+     * this.node.on(cc.Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
+     * node.on(cc.Node.EventType.TOUCH_START, callback, this);
+     * node.on(cc.Node.EventType.TOUCH_MOVE, callback, this);
+     * node.on(cc.Node.EventType.TOUCH_END, callback, this);
+     * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this);
+     * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     */
+    public on (type, callback, target, useCapture) {
+        const forDispatch = this._checknSetupSysEvent(type);
+        if (forDispatch) {
+            return this._onDispatch(type, callback, target, useCapture);
+        } else {
+            // switch (type) {
+            //     case EventType.POSITION_CHANGED:
+            //         this._eventMask |= POSITION_ON;
+            //         break;
+            //     case EventType.SCALE_CHANGED:
+            //         this._eventMask |= SCALE_ON;
+            //         break;
+            //     case EventType.ROTATION_CHANGED:
+            //         this._eventMask |= ROTATION_ON;
+            //         break;
+            //     case EventType.SIZE_CHANGED:
+            //         this._eventMask |= SIZE_ON;
+            //         break;
+            //     case EventType.ANCHOR_CHANGED:
+            //         this._eventMask |= ANCHOR_ON;
+            //         break;
+            // }
+            if (!this._bubblingListeners) {
+                this._bubblingListeners = new EventTarget();
+            }
+            return this._bubblingListeners.on(type, callback, target);
+        }
+    }
+
+    // /**
+    //  * !#en
+    //  * Register an callback of a specific event type on the Node,
+    //  * the callback will remove itself after the first time it is triggered.
+    //  * !#zh
+    //  * 注册节点的特定事件类型回调，回调会在第一时间被触发后删除自身。
+    //  *
+    //  * @method once
+    //  * @param {String} type - A string representing the event type to listen for.
+    //  * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+    //  *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+    //  * @param {Event|any} [callback.event] event or first argument when emit
+    //  * @param {any} [callback.arg2] arg2
+    //  * @param {any} [callback.arg3] arg3
+    //  * @param {any} [callback.arg4] arg4
+    //  * @param {any} [callback.arg5] arg5
+    //  * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+    //  * @typescript
+    //  * once<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
+    //  * @example
+    //  * node.once(cc.Node.EventType.ANCHOR_CHANGED, callback);
+    //  */
+    // once(type, callback, target, useCapture) {
+    //     let forDispatch = this._checknSetupSysEvent(type);
+    //     let eventType_hasOnceListener = '__ONCE_FLAG:' + type;
+
+    //     let listeners = null;
+    //     if (forDispatch && useCapture) {
+    //         listeners = this._capturingListeners = this._capturingListeners || new EventTarget();
+    //     }
+    //     else {
+    //         listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
+    //     }
+
+    //     let hasOnceListener = listeners.hasEventListener(eventType_hasOnceListener, callback, target);
+    //     if (!hasOnceListener) {
+    //         let self = this;
+    //         let onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
+    //             self.off(type, onceWrapper, target);
+    //             listeners.remove(eventType_hasOnceListener, callback, target);
+    //             callback.call(this, arg1, arg2, arg3, arg4, arg5);
+    //         };
+    //         this.on(type, onceWrapper, target);
+    //         listeners.add(eventType_hasOnceListener, callback, target);
+    //     }
+    // }
+
+    public _onDispatch (type, callback, target, useCapture) {
+        // Accept also patameters like: (type, callback, useCapture)
+        if (typeof target === 'boolean') {
+            useCapture = target;
+            target = undefined;
+        } else { useCapture = !!useCapture; }
+        if (!callback) {
+            cc.errorID(6800);
+            return;
+        }
+
+        let listeners = null;
+        if (useCapture) {
+            listeners = this._capturingListeners = this._capturingListeners || new EventTarget();
+        } else {
+            listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
+        }
+
+        if (!listeners.hasEventListener(type, callback, target)) {
+            listeners.add(type, callback, target);
+
+            if (target && target.__eventTargets) {
+                target.__eventTargets.push(this);
+            }
+        }
+
+        return callback;
+    }
+
+    /**
+     * !#en
+     * Removes the callback previously registered with the same type, callback, target and or useCapture.
+     * This method is merely an alias to removeEventListener.
+     * !#zh 删除之前与同类型，回调，目标或 useCapture 注册的回调。
+     * @method off
+     * @param {String} type - A string representing the event type being removed.
+     * @param {Function} [callback] - The callback to remove.
+     * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
+     * @param {Boolean} [useCapture=false] - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
+     * @example
+     * this.node.off(cc.Node.EventType.TOUCH_START, this.memberFunction, this);
+     * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
+     * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
+     */
+    public off (type, callback, target, useCapture) {
+        const touchEvent = _touchEvents.indexOf(type) !== -1;
+        const mouseEvent = !touchEvent && _mouseEvents.indexOf(type) !== -1;
+        if (touchEvent || mouseEvent) {
+            this._offDispatch(type, callback, target, useCapture);
+
+            if (touchEvent) {
+                if (this._touchListener && !_checkListeners(this, _touchEvents)) {
+                    eventManager.removeListener(this._touchListener);
+                    this._touchListener = null;
+                }
+            } else if (mouseEvent) {
+                if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
+                    eventManager.removeListener(this._mouseListener);
+                    this._mouseListener = null;
+                }
+            }
+        } else if (this._bubblingListeners) {
+            this._bubblingListeners.off(type, callback, target);
+
+            const hasListeners = this._bubblingListeners.hasEventListener(type);
+            // All listener removed
+            // if (!hasListeners) {
+            //     switch (type) {
+            //         case EventType.POSITION_CHANGED:
+            //             this._eventMask &= ~POSITION_ON;
+            //             break;
+            //         case EventType.SCALE_CHANGED:
+            //             this._eventMask &= ~SCALE_ON;
+            //             break;
+            //         case EventType.ROTATION_CHANGED:
+            //             this._eventMask &= ~ROTATION_ON;
+            //             break;
+            //         case EventType.SIZE_CHANGED:
+            //             this._eventMask &= ~SIZE_ON;
+            //             break;
+            //         case EventType.ANCHOR_CHANGED:
+            //             this._eventMask &= ~ANCHOR_ON;
+            //             break;
+            //     }
+            // }
+        }
+    }
+
+    public _offDispatch (type, callback, target, useCapture) {
+        // Accept also patameters like: (type, callback, useCapture)
+        if (typeof target === 'boolean') {
+            useCapture = target;
+            target = undefined;
+        } else { useCapture = !!useCapture; }
+        if (!callback) {
+            this._capturingListeners && this._capturingListeners.removeAll(type);
+            this._bubblingListeners && this._bubblingListeners.removeAll(type);
+        } else {
+            const listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
+            if (listeners) {
+                listeners.remove(type, callback, target);
+
+                if (target && target.__eventTargets) {
+                    js.array.fastRemove(target.__eventTargets, this);
+                }
+            }
+
+        }
+    }
+
+    /**
+     * !#en
+     * Trigger an event directly with the event name and necessary arguments.
+     * !#zh
+     * 通过事件名发送自定义事件
+     *
+     * @method emit
+     * @param {String} type - event type
+     * @param {*} [arg1] - First argument in callback
+     * @param {*} [arg2] - Second argument in callback
+     * @param {*} [arg3] - Third argument in callback
+     * @param {*} [arg4] - Fourth argument in callback
+     * @param {*} [arg5] - Fifth argument in callback
+     * @example
+     *
+     * eventTarget.emit('fire', event);
+     * eventTarget.emit('fire', message, emitter);
+     */
+    public emit (type, ...args: any[]) {
+        if (this._bubblingListeners) {
+            this._bubblingListeners.emit(type, ...args);
+        }
+    }
+
+    /**
+     * !#en
+     * Dispatches an event into the event flow.
+     * The event target is the EventTarget object upon which the dispatchEvent() method is called.
+     * !#zh 分发事件到事件流中。
+     *
+     * @method dispatchEvent
+     * @param {Event} event - The Event object that is dispatched into the event flow
+     */
+    public dispatchEvent (event) {
+        _doDispatchEvent(this, event);
+        _cachedArray.length = 0;
     }
 }
 
