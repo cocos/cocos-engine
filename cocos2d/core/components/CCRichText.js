@@ -769,7 +769,7 @@ let RichText = cc.Class({
         if (this.maxWidth > 0) {
             this._labelWidth = this.maxWidth;
         }
-        this._labelHeight = (this._lineCount + textUtils.getBaseLineRatio()) * this.lineHeight;
+        this._labelHeight = (this._lineCount + textUtils.BASELINE_RATIO) * this.lineHeight;
 
         // trigger "size-changed" event
         this.node.setContentSize(this._labelWidth, this._labelHeight);
