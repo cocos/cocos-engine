@@ -24,9 +24,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const _BASELINE_RATIO = 0.25;
+
 var textUtils = {
 
-    BASELINE_RATIO: 0.25,
+    getBaseLineRatio: function () {
+        return _BASELINE_RATIO;
+    },
+
+    getMiddleRatio: function () {
+        return (_BASELINE_RATIO + 1) / 2 - _BASELINE_RATIO;
+    },
 
     label_wordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)/,
     label_symbolRex : /^[!,.:;'}\]%\?>、‘“》？。，！]/,
