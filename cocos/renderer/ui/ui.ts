@@ -3,18 +3,31 @@
 import RecyclePool from '../../3d/memop/recycle-pool';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
+import { GFXBindingLayout } from '../../gfx/binding-layout';
+import { GFXBuffer } from '../../gfx/buffer';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType, IGFXRect } from '../../gfx/define';
+import { GFXBufferUsageBit, GFXCommandBufferType, GFXFormat, GFXMemoryUsageBit, IGFXRect } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXFramebuffer } from '../../gfx/framebuffer';
+import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
+import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { Pass } from '../core/pass';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 
+export interface IUIBufferBatch {
+    vb: GFXBuffer;
+    ib: GFXBuffer;
+}
+
 export interface IUIRenderItem {
     camera: Camera;
-    batchModel: UIBatchModel;
-    cmdBuff: GFXCommandBuffer;
+    pass: Pass;
+    bindingLayout: GFXBindingLayout;
+    pipelineLayout: GFXPipelineLayout;
+    pipelineState: GFXPipelineState;
+    inputAssembler: GFXInputAssembler;
 }
 
 export class UI {
@@ -32,6 +45,8 @@ export class UI {
     private _cmdBuff: GFXCommandBuffer | null = null;
     private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _scene: RenderScene;
+    private _attributes: IGFXInputAttribute[] = [];
+    private _bufferBatches: IUIBufferBatch[] = [];
     private _items: CachedArray<IUIRenderItem>;
 
     constructor (private _root: Root) {
@@ -45,6 +60,14 @@ export class UI {
 
     public initialize () {
 
+        this._attributes = [
+            { name: 'a_texCoord', format: GFXFormat.RGB32F },
+            { name: 'a_position', format: GFXFormat.RG32F },
+            { name: 'a_color', format: GFXFormat.RGBA8, isNormalized: true },
+        ];
+
+        this.createBufferBatch();
+
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
@@ -54,7 +77,12 @@ export class UI {
     }
 
     public destroy () {
-        // this._reset();
+
+        for (const buffBatch of this._bufferBatches) {
+            buffBatch.vb.destroy();
+            buffBatch.ib.destroy();
+        }
+        this._bufferBatches = [];
 
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
@@ -76,10 +104,6 @@ export class UI {
         this.render();
     }
 
-    private _emit (): UIBatchModel[] {
-        return this._batchedModels;
-    }
-
     private render () {
         if (this._items.length) {
             const framebuffer = this._root.curWindow!.framebuffer;
@@ -97,7 +121,10 @@ export class UI {
                 cmdBuff.beginRenderPass(framebuffer, this._renderArea,
                     [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
-                cmdBuff.execute([item.cmdBuff], 1);
+                cmdBuff.bindPipelineState(item.pipelineState);
+                cmdBuff.bindBindingLayout(item.bindingLayout);
+                cmdBuff.bindInputAssembler(item.inputAssembler);
+                cmdBuff.draw(item.inputAssembler);
 
                 cmdBuff.endRenderPass();
             }
@@ -106,5 +133,36 @@ export class UI {
 
             this._device.queue.submit([cmdBuff]);
         }
+    }
+
+    private createBufferBatch (): IUIBufferBatch {
+
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 6;
+
+        const vb = this._device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: vbStride * 128,
+            stride: vbStride,
+        });
+
+        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+
+        const ib = this._device.createBuffer({
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: ibStride * 128,
+            stride: ibStride,
+        });
+
+        const ia = this._device.createInputAssembler({
+            attributes: this._attributes,
+            vertexBuffers: [vb],
+            indexBuffer: ib,
+        });
+
+        const batch: IUIBufferBatch = { vb, ib };
+        this._bufferBatches.push(batch);
+        return batch;
     }
 }

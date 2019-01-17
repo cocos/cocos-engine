@@ -69,7 +69,7 @@ export default class ParticleBatchModel extends Model {
 
     public _createInputAssembler (): ArrayBuffer {
         const vertexBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX,
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: this._vertSize * this._capacity * 4,
             stride: this._vertSize,
@@ -90,7 +90,7 @@ export default class ParticleBatchModel extends Model {
         }
 
         const indexBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX,
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: this._capacity * 6 * Uint16Array.BYTES_PER_ELEMENT,
             stride: Uint16Array.BYTES_PER_ELEMENT,

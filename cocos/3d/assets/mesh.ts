@@ -462,7 +462,7 @@ export class Mesh extends Asset {
                 const indices = primitive.indices;
 
                 indexBuffer = gfxDevice.createBuffer({
-                    usage: GFXBufferUsageBit.INDEX,
+                    usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
                     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                     size: indices.range.length,
                     stride: getIndexUnitStride(indices.indexUnit),
@@ -520,7 +520,7 @@ export class Mesh extends Asset {
     private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
         return this._struct.vertexBundles.map((vertexBundle) => {
             const vertexBuffer = gfxDevice.createBuffer({
-                usage: GFXBufferUsageBit.VERTEX,
+                usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: vertexBundle.data.length,
                 stride: vertexBundle.data.length / vertexBundle.verticesCount,

@@ -1885,14 +1885,12 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 const cmd3: WebGLCmdDraw = cmdPackage.drawCmds.array[cmdId];
                 if (gpuInputAssembler && gpuShader) {
                     if (!gpuInputAssembler.gpuIndirectBuffer) {
-                        const drawInfo = cmd3.drawInfo as IGFXDrawInfo;
-
                         const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
-                        if (gpuBuffer && drawInfo.indexCount > 0) {
-                            const offset = drawInfo.firstIndex * gpuBuffer.stride;
-                            gl.drawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                        if (gpuBuffer && cmd3.drawInfo.indexCount > 0) {
+                            const offset = cmd3.drawInfo.firstIndex * gpuBuffer.stride;
+                            gl.drawElements(glPrimitive, cmd3.drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
                         } else {
-                            gl.drawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount);
+                            gl.drawArrays(glPrimitive, cmd3.drawInfo.firstVertex, cmd3.drawInfo.vertexCount);
                         }
                     } else {
                         if (gpuInputAssembler.gpuIndirectBuffer) {

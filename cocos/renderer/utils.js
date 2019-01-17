@@ -38,7 +38,7 @@ export function createIA(device, data) {
     }
 
     let vb = device.createBuffer({
-        usage: GFXBufferUsageBit.VERTEX,
+        usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
         memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
         size: verts.length * 4,
         stride: verts.length * 4 / vcount,
@@ -47,7 +47,7 @@ export function createIA(device, data) {
     vb.update(new Float32Array(verts));
 
     let ib = device.createBuffer({
-        usage: GFXBufferUsageBit.INDEX,
+        usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
         memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
         size: data.indices.length * 2,
         stride: 2,

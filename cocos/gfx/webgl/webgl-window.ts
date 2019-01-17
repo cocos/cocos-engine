@@ -173,6 +173,8 @@ export class WebGLGFXWindow extends GFXWindow {
     }
 
     public resize (width: number, height: number) {
+        this._width = width;
+        this._height = height;
     }
 
     public get webGLDevice (): WebGLGFXDevice {
