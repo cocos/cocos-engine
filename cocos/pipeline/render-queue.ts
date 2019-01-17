@@ -4,12 +4,13 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Pass } from '../renderer/core/pass';
 import { Camera } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
+import { SubModel } from '../renderer/scene/submodel';
 
 export interface IRenderItem {
     hash: number;
     depth: number;
     shaderId: number;
-    model: Model;
+    subModel: SubModel;
     pass: Pass;
     cmdBuff: GFXCommandBuffer;
 }
@@ -61,30 +62,36 @@ export class RenderQueue {
 
     public add (model: Model, camera: Camera) {
 
-        const depth = vec3.distance(camera.node.getPosition(), model.node.getPosition());
+        let depth = 0;
+        if (model.node) {
+            depth = vec3.distance(camera.node.getPosition(), model.node.getPosition());
+        }
 
-        for (let i = 0; i < model.passes.length; ++i) {
-            const pass = model.passes[i];
+        for (let i = 0; i < model.subModelNum; ++i) {
+            const subModel = model.getSubModel(i);
+            for (const pass of subModel.passes) {
+                // update pass
+                pass.update();
 
-            // update pass
-            pass.update();
+                const pso = pass.pipelineState;
 
-            const pso = pass.pipelineState;
+                const isTransparent = pso.blendState.targets[0].blend;
 
-            const isTransparent = pso.blendState.targets[0].blend;
+                // TODO: model priority
 
-            // TODO: model priority
+                if (!isTransparent) {
+                    const hash = (0 << 30) | i;
 
-            if (!isTransparent) {
-                const hash = (0 << 30) | i;
+                    this.opaques.push({
+                        hash, depth, shaderId: pso.shader.id,
+                        subModel, pass, cmdBuff: subModel.commandBuffers[i]});
+                } else {
+                    const hash = (1 << 30) | i;
 
-                this.opaques.push({hash, depth, shaderId: pso.shader.id,
-                    model, pass, cmdBuff: model.commandBuffers[i]});
-            } else {
-                const hash = (1 << 30) | i;
-
-                this.transparents.push({hash, depth, shaderId: pso.shader.id,
-                    model, pass, cmdBuff: model.commandBuffers[i]});
+                    this.transparents.push({
+                        hash, depth, shaderId: pso.shader.id,
+                        subModel, pass, cmdBuff: subModel.commandBuffers[i]});
+                }
             }
         }
     }

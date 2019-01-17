@@ -132,13 +132,16 @@ export class RenderScene {
     public destroyModel (model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
-                this._models.splice(i, 1);
+                this._models.splice(i, 1)[0].destroy();
                 return;
             }
         }
     }
 
     public destroyModels () {
+        for (const m of this._models) {
+            m.destroy();
+        }
         this._models = [];
     }
 
@@ -186,7 +189,7 @@ const m4 = mat4.create();
 let distance = Infinity;
 const tri = triangle.create();
 const pool = new RecyclePool(() => {
-  return { node: null, distance: Infinity };
+    return { node: null, distance: Infinity };
 }, 8);
 const results: IRaycastResult[] = [];
 
