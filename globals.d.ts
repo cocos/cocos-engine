@@ -38,3 +38,5 @@ declare const CC_RUNTIME: boolean;
 declare const CC_SUPPORT_JIT: boolean;
 
 declare const cc: any;
+
+declare const _cc: any;

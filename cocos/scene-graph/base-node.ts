@@ -295,10 +295,10 @@ export class BaseNode extends CCObject {
     }
 
     @property
-    private _parent: BaseNode | null = null;
+    protected _parent: this | null = null;
 
     @property
-    private _children: BaseNode[] = [];
+    protected _children: this[] = [];
 
     @property
     private _active = true;
@@ -372,7 +372,7 @@ export class BaseNode extends CCObject {
      * @example
      * node.setParent(newNode);
      */
-    public setParent (value: BaseNode | null) {
+    public setParent (value: this | null) {
         if (this._parent === value) {
             return;
         }
@@ -485,7 +485,7 @@ export class BaseNode extends CCObject {
      */
     public getChildByPath (path: string) {
         const segments = path.split('/');
-        let lastNode: BaseNode = this;
+        let lastNode: this = this;
         for (const segment of segments) {
             const next = lastNode.children.find((childNode) => childNode.name === segment);
             if (!next) {
@@ -498,7 +498,7 @@ export class BaseNode extends CCObject {
 
     // composition: ADD
 
-    public addChild (child: BaseNode): void {
+    public addChild (child: this): void {
 
         if (CC_DEV && !(child instanceof cc._BaseNode)) {
             return cc.errorID(1634, cc.js.getClassName(child));
@@ -521,7 +521,7 @@ export class BaseNode extends CCObject {
      * @example
      * node.insertChild(child, 2);
      */
-    public insertChild (child: BaseNode, siblingIndex: number) {
+    public insertChild (child: this, siblingIndex: number) {
         child.parent = this;
         child.setSiblingIndex(siblingIndex);
     }
@@ -591,11 +591,11 @@ export class BaseNode extends CCObject {
      *     console.log('Walked through node ' + target.name + ' after walked all children in its sub tree');
      * });
      */
-    public walk (prefunc: (target: BaseNode) => void, postfunc?: (target: BaseNode) => void) {
+    public walk (prefunc: (target: this) => void, postfunc?: (target: this) => void) {
         // const BaseNode = cc._BaseNode;
         let index = 1;
-        let children: BaseNode[] | null = null;
-        let curr: BaseNode | null = null;
+        let children: this[] | null = null;
+        let curr: this | null = null;
         let i = 0;
         let stack = BaseNode._stacks[BaseNode._stackId];
         if (!stack) {
@@ -606,11 +606,11 @@ export class BaseNode extends CCObject {
 
         stack.length = 0;
         stack[0] = this;
-        let parent: BaseNode | null = null;
+        let parent: this | null = null;
         let afterChildren = false;
         while (index) {
             index--;
-            curr = stack[index];
+            curr = stack[index] as (this | null);
             if (!curr) {
                 continue;
             }
@@ -718,7 +718,7 @@ export class BaseNode extends CCObject {
      * node.removeChild(newNode);
      * node.removeChild(newNode, false);
      */
-    public removeChild (child: BaseNode, cleanup?: boolean) {
+    public removeChild (child: this, cleanup?: boolean) {
         if (this._children.indexOf(child) > -1) {
             // If you don't do cleanup, the child's actions will not get removed and the
             if (cleanup || cleanup === undefined) {
@@ -770,8 +770,8 @@ export class BaseNode extends CCObject {
      * @example
      * node.isChildOf(newNode);
      */
-    public isChildOf (parent: BaseNode) {
-        let child: BaseNode | null = this;
+    public isChildOf (parent: this) {
+        let child: this | null = this;
         do {
             if (child === parent) {
                 return true;
@@ -1061,7 +1061,7 @@ export class BaseNode extends CCObject {
 
     public emit? (type: string, ...args: any[]): void;
 
-    protected _onSetParent (oldParent: BaseNode | null) {
+    protected _onSetParent (oldParent: this | null) {
         if ((oldParent == null || oldParent._scene !== this._parent!._scene) && this._parent!._scene != null) {
             this.walk((node) => {
                 BaseNode._setScene(node);
@@ -1133,7 +1133,7 @@ export class BaseNode extends CCObject {
         return destroyByParent;
     }
 
-    protected _onHierarchyChanged (oldParent: BaseNode | null) {
+    protected _onHierarchyChanged (oldParent: this | null) {
         const newParent = this._parent;
         if (this._persistNode && !(newParent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
@@ -1186,7 +1186,7 @@ export class BaseNode extends CCObject {
         }
     }
 
-    protected _onHierarchyChangedBase (oldParent: BaseNode) {
+    protected _onHierarchyChangedBase (oldParent: this) {
         return this._onHierarchyChanged(oldParent);
     }
 
