@@ -30,6 +30,7 @@ export * from './memop';
 import * as utils from './misc/utils';
 import * as primitives from './primitive';
 import * as geometry from './geom-utils';
+import './ui';
 
 export {
     utils,

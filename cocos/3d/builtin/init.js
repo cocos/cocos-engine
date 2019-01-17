@@ -4,38 +4,39 @@ import ImageAsset from '../../assets/image-asset';
 import { Material } from '../assets/material';
 import { EffectAsset } from '../assets/effect-asset';
 import effects from './effects';
+import { SpriteFrame} from '../../assets/CCSpriteFrame';
 
 let builtinResMgr = {
     // this should be called after renderer initialized
     initBuiltinRes: function(device) {
         builtinResMgr.device = device;
-        // let canvas = document.createElement('canvas');
-        // let context = canvas.getContext('2d');
+        let canvas = document.createElement('canvas');
+        let context = canvas.getContext('2d');
 
-        // // ============================
-        // // builtin textures
-        // // ============================
+        // ============================
+        // builtin textures
+        // ============================
 
-        // // default texture canvas fill
-        // canvas.width = canvas.height = 128;
-        // context.fillStyle = '#ddd';
-        // context.fillRect(0, 0, 128, 128);
-        // context.fillStyle = '#555';
-        // context.fillRect(0, 0, 64, 64);
-        // context.fillStyle = '#555';
-        // context.fillRect(64, 64, 64, 64);
+        // default texture canvas fill
+        canvas.width = canvas.height = 128;
+        context.fillStyle = '#ddd';
+        context.fillRect(0, 0, 128, 128);
+        context.fillStyle = '#555';
+        context.fillRect(0, 0, 64, 64);
+        context.fillStyle = '#555';
+        context.fillRect(64, 64, 64, 64);
 
-        // const canvasImage = new ImageAsset(canvas);
+        const canvasImage = new ImageAsset(canvas);
 
-        // // default-texture
-        // let defaultTexture = new Texture2D();
-        // defaultTexture.setMipFilter(Texture2D.Filter.LINEAR);
-        // defaultTexture.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
-        // defaultTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
-        // defaultTexture._uuid = 'default-texture';
-        // defaultTexture.image = canvasImage;
+        // default-texture
+        let defaultTexture = new Texture2D();
+        defaultTexture.setMipFilter(Texture2D.Filter.LINEAR);
+        defaultTexture.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
+        defaultTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
+        defaultTexture._uuid = 'default-texture';
+        defaultTexture.image = canvasImage;
 
-        // // default-texture-cube
+        // default-texture-cube
         // let defaultTextureCube = new TextureCube();
         // defaultTextureCube._uuid = 'default-texture-cube';
         // defaultTextureCube.image = {
@@ -47,29 +48,29 @@ let builtinResMgr = {
         //     bottom: canvasImage,
         // };
 
-        // // black texture canvas fill
-        // canvas.width = canvas.height = 2;
-        // context.fillStyle = '#000';
-        // context.fillRect(0, 0, 2, 2);
+        // black texture canvas fill
+        canvas.width = canvas.height = 2;
+        context.fillStyle = '#000';
+        context.fillRect(0, 0, 2, 2);
 
-        // // black-texture
-        // let blackTexture = new Texture2D();
-        // blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
-        // blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
-        // blackTexture._uuid = 'black-texture';
-        // defaultTexture.image = canvasImage;
+        // black-texture
+        let blackTexture = new Texture2D();
+        blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+        blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
+        blackTexture._uuid = 'black-texture';
+        defaultTexture.image = canvasImage;
 
-        // // white texture canvas fill
-        // canvas.width = canvas.height = 2;
-        // context.fillStyle = '#fff';
-        // context.fillRect(0, 0, 2, 2);
+        // white texture canvas fill
+        canvas.width = canvas.height = 2;
+        context.fillStyle = '#fff';
+        context.fillRect(0, 0, 2, 2);
 
-        // // white-texture
-        // let whiteTexture = new Texture2D();
-        // blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
-        // blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
-        // whiteTexture._uuid = 'white-texture';
-        // defaultTexture.image = canvasImage;
+        // white-texture
+        let whiteTexture = new Texture2D();
+        blackTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+        blackTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
+        whiteTexture._uuid = 'white-texture';
+        defaultTexture.image = canvasImage;
 
         // essential builtin effects
         let efxs = effects.map(e => {
@@ -81,15 +82,22 @@ let builtinResMgr = {
         let defaultMtl = new Material();
         defaultMtl._uuid = 'default-material';
         defaultMtl.setDefines({ USE_COLOR: true });
-        defaultMtl.effectAsset = efxs[0];
+        defaultMtl.effectName = 'builtin-effect-unlit';
         defaultMtl.setProperty('color', cc.color('#FF00FF'));
 
+        // sprite material
+        let spriteMtl = new Material();
+        spriteMtl._uuid = 'sprite-material';
+        spriteMtl.effectName = 'builtin-effect-sprite';
+        defaultMtl.setProperty('mainTexture', defaultTexture);
+
         let builtins = {
-            // [defaultTexture._uuid]: defaultTexture,
-            // [defaultTextureCube._uuid]: defaultTextureCube,
-            // [blackTexture._uuid]: blackTexture,
-            // [whiteTexture._uuid]: whiteTexture,
-            [defaultMtl._uuid]: defaultMtl
+            [defaultTexture._uuid]: defaultTexture,
+            // [defaultTextureCube._uuid]: defaultTextureCub
+            [blackTexture._uuid]: blackTexture,
+            [whiteTexture._uuid]: whiteTexture,
+            [spriteMtl._uuid]: spriteMtl,
+            [spriteFrame._uuid]:spriteFrame
         };
         return Object.assign(builtinResMgr, builtins);
     },
