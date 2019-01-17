@@ -28,13 +28,13 @@ export class CCObject {
     protected _name: string;
     protected _objFlags: number;
 
-    public constructor(name: string);
+    public constructor(name?: string);
 
     public name: string;
     public isValid: boolean;
     public isRealValid: boolean;
 
-    public destroy(): boolean;
+    public destroy(): any;
     public realDestroyInEditor(): void;
     public _clearDeferredDestroyTimer(): void;
 
@@ -43,6 +43,6 @@ export class CCObject {
 
     protected _serialize?(): any;
     protected _deserialize?(data: any, ctx: any): any;
-    protected _onPreDestroy: () => void | null;
+    protected _onPreDestroy (): any;
     protected Flags: object;
 }

@@ -48,10 +48,10 @@ export class Camera {
     private _clearFlag: GFXClearFlag;
     private _clearColor: IGFXColor = {r: 0, g: 0, b: 0, a: 0};
     private _viewport: Rect = new Rect(0, 0, 1, 1);
-    private _matView: mat4 = new Mat4();
-    private _matProj: mat4 = new Mat4();
-    private _matViewProj: mat4 = new Mat4();
-    private _matViewProjInv: mat4 = new Mat4();
+    private _matView: Mat4 = new Mat4();
+    private _matProj: Mat4 = new Mat4();
+    private _matViewProj: Mat4 = new Mat4();
+    private _matViewProjInv: Mat4 = new Mat4();
     private _frustum: frustum = new frustum();
     private _node: Node | null = null;
     private _view: RenderView;

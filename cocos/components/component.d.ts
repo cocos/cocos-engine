@@ -49,4 +49,8 @@ export class Component extends CCObject {
     public scheduleOnce(callback: Function, delay: number): void;
     public unschedule(callback: Function): void;
     public unscheduleAllCallbacks(): void;
+
+    // friend to class BaseNode
+    public _id: string;
+    public _enabled: boolean;
 }

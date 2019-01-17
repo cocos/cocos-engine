@@ -24,30 +24,30 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {createMap, getClassName, isChildClassOf} from '../core/utils/js';
-import {callInNextTick} from '../core/utils/misc';
+import { createMap, getClassName, isChildClassOf } from '../core/utils/js';
+import { callInNextTick } from '../core/utils/misc';
 import Pipeline from './pipeline';
 import LoadingItems from './loading-items';
 import AssetLoader from './asset-loader';
 import Downloader from './downloader';
 import Loader from './loader';
 import AssetTable from './asset-table';
-import {getDependsRecursively} from './auto-release-utils';
+import { getDependsRecursively } from './auto-release-utils';
 import ReleasedAssetChecker from './released-asset-checker';
 
 var assetTables = Object.create(null);
 assetTables.assets = new AssetTable();
 assetTables.internal = new AssetTable();
 
-function getXMLHttpRequest () {
+function getXMLHttpRequest() {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
 }
 
-var _info = {url: null, raw: false};
+var _info = { url: null, raw: false };
 
 // Convert a resources by finding its real url with uuid, otherwise we will use the uuid or raw url as its url
 // So we gurantee there will be url in result
-function getResWithUrl (res) {
+function getResWithUrl(res) {
     var id, result, isUuid;
     if (typeof res === 'object') {
         result = res;
@@ -85,7 +85,7 @@ var _sharedList = [];
  * @static
  */
 class CCLoader extends Pipeline {
-    constructor () {
+    constructor() {
         var assetLoader = new AssetLoader();
         var downloader = new Downloader();
         var loader = new Loader();
@@ -141,7 +141,7 @@ class CCLoader extends Pipeline {
         }
     }
 
-    init (director) {
+    init(director) {
         if (CC_DEBUG) {
             var self = this;
             director.on(cc.Director.EVENT_AFTER_UPDATE, function () {
@@ -160,7 +160,7 @@ class CCLoader extends Pipeline {
      * @method addDownloadHandlers
      * @param {Object} extMap Custom supported types with corresponded handler
      */
-    addDownloadHandlers (extMap) {
+    addDownloadHandlers(extMap) {
         this.downloader.addHandlers(extMap);
     }
 
@@ -174,7 +174,7 @@ class CCLoader extends Pipeline {
      * @method addLoadHandlers
      * @param {Object} extMap Custom supported types with corresponded handler
      */
-    addLoadHandlers (extMap) {
+    addLoadHandlers(extMap) {
         this.loader.addHandlers(extMap);
     }
 
@@ -218,7 +218,7 @@ class CCLoader extends Pipeline {
      * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, completeCallback?: Function): void
      * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: Function|null): void
      */
-    load (resources, progressCallback, completeCallback) {
+    load(resources, progressCallback, completeCallback) {
         if (CC_DEV && !resources) {
             return cc.error("[cc.loader.load] resources must be non-nil.");
         }
@@ -235,7 +235,7 @@ class CCLoader extends Pipeline {
             if (resources) {
                 singleRes = true;
                 resources = [resources];
-            } else { 
+            } else {
                 resources = [];
             }
         }
@@ -285,11 +285,11 @@ class CCLoader extends Pipeline {
         _sharedResources.length = 0;
     }
 
-    flowInDeps (owner, urlList, callback) {
+    flowInDeps(owner, urlList, callback) {
         _sharedList.length = 0;
         for (var i = 0; i < urlList.length; ++i) {
             var res = getResWithUrl(urlList[i]);
-            if (!res.url && ! res.uuid)
+            if (!res.url && !res.uuid)
                 continue;
             var item = this._cache[res.url];
             if (item) {
@@ -321,7 +321,7 @@ class CCLoader extends Pipeline {
         return accepted;
     }
 
-    _getResUuid (url, type, mount, quiet) {
+    _getResUuid(url, type, mount, quiet) {
         mount = mount || 'assets';
         var assetTable = assetTables[mount];
         if (!url || !assetTable) {
@@ -332,7 +332,7 @@ class CCLoader extends Pipeline {
         if (index !== -1)
             url = url.substr(0, index);
         var uuid = assetTable.getUuid(url, type);
-        if ( !uuid ) {
+        if (!uuid) {
             var extname = cc.path.extname(url);
             if (extname) {
                 // strip extname
@@ -346,7 +346,7 @@ class CCLoader extends Pipeline {
         return uuid;
     }
     // Find the asset's reference id in loader, asset could be asset object, asset uuid or asset url
-    _getReferenceKey (assetOrUrlOrUuid) {
+    _getReferenceKey(assetOrUrlOrUuid) {
         var key;
         if (typeof assetOrUrlOrUuid === 'object') {
             key = assetOrUrlOrUuid._uuid || null;
@@ -362,7 +362,7 @@ class CCLoader extends Pipeline {
         return this._cache[_info.url] ? _info.url : key;
     }
 
-    _urlNotFound (url, type, completeCallback) {
+    _urlNotFound(url, type, completeCallback) {
         callInNextTick(function () {
             url = cc.url.normalize(url);
             var info = `${type ? getClassName(type) : 'Asset'} in "resources/${url}" does not exist.`;
@@ -381,7 +381,7 @@ class CCLoader extends Pipeline {
      * @returns {Function} arguments.onProgress
      * @returns {Function} arguments.onComplete
      */
-    _parseLoadResArgs (type, onProgress, onComplete) {
+    _parseLoadResArgs(type, onProgress, onComplete) {
         if (onComplete === undefined) {
             var isValidType = isChildClassOf(type, cc.RawAsset);
             if (onProgress) {
@@ -451,7 +451,7 @@ class CCLoader extends Pipeline {
      * loadRes(url: string, completeCallback: (error: Error, resource: any) => void): void
      * loadRes(url: string): void
      */
-    loadRes (url, type, mount, progressCallback, completeCallback) {
+    loadRes(url, type, mount, progressCallback, completeCallback) {
         if (arguments.length !== 5) {
             completeCallback = progressCallback;
             progressCallback = mount;
@@ -486,7 +486,7 @@ class CCLoader extends Pipeline {
         }
     }
 
-    _loadResUuids (uuids, progressCallback, completeCallback, urls) {
+    _loadResUuids(uuids, progressCallback, completeCallback, urls) {
         if (uuids.length > 0) {
             var self = this;
             var res = uuids.map(function (uuid) {
@@ -572,7 +572,7 @@ class CCLoader extends Pipeline {
      * loadResArray(url: string[], completeCallback: (error: Error, resource: any[]) => void): void
      * loadResArray(url: string[]): void
      */
-    loadResArray (urls, type, mount, progressCallback, completeCallback) {
+    loadResArray(urls, type, mount, progressCallback, completeCallback) {
         if (arguments.length !== 5) {
             completeCallback = progressCallback;
             progressCallback = mount;
@@ -650,14 +650,14 @@ class CCLoader extends Pipeline {
      * loadResDir(url: string, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
      * loadResDir(url: string): void
      */
-    loadResDir (url, type, mount, progressCallback, completeCallback) {
+    loadResDir(url, type, mount, progressCallback, completeCallback) {
         if (arguments.length !== 5) {
             completeCallback = progressCallback;
             progressCallback = mount;
             mount = 'assets';
         }
-        
-        if (!assetTables[mount]) return; 
+
+        if (!assetTables[mount]) return;
 
         var args = this._parseLoadResArgs(type, progressCallback, completeCallback);
         type = args.type;
@@ -697,7 +697,7 @@ class CCLoader extends Pipeline {
      * @param {Function} [type] - Only asset of type will be returned if this argument is supplied.
      * @returns {*}
      */
-    getRes (url, type) {
+    getRes(url, type) {
         var item = this._cache[url];
         if (!item) {
             var uuid = this._getResUuid(url, type, null, true);
@@ -719,7 +719,7 @@ class CCLoader extends Pipeline {
      * Get total resources count in loader.
      * @returns {Number}
      */
-    getResCount () {
+    getResCount() {
         return Object.keys(this._cache).length;
     }
 
@@ -752,7 +752,7 @@ class CCLoader extends Pipeline {
      * @param {Asset|RawAsset|String} owner - The owner asset or the resource url or the asset's uuid
      * @returns {Array}
      */
-    getDependsRecursively (owner) {
+    getDependsRecursively(owner) {
         if (owner) {
             var key = this._getReferenceKey(owner);
             var assets = getDependsRecursively(key);
@@ -800,7 +800,7 @@ class CCLoader extends Pipeline {
      * @method release
      * @param {Asset|RawAsset|String|Array} asset
      */
-    release (asset) {
+    release(asset) {
         if (Array.isArray(asset)) {
             for (let i = 0; i < asset.length; i++) {
                 var key = asset[i];
@@ -834,7 +834,7 @@ class CCLoader extends Pipeline {
      * @method releaseAsset
      * @param {Asset} asset
      */
-    releaseAsset (asset) {
+    releaseAsset(asset) {
         var uuid = asset._uuid;
         if (uuid) {
             this.release(uuid);
@@ -849,7 +849,7 @@ class CCLoader extends Pipeline {
      * @param {String} url
      * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
      */
-    releaseRes (url, type, mount) {
+    releaseRes(url, type, mount) {
         var uuid = this._getResUuid(url, type, mount);
         if (uuid) {
             this.release(uuid);
@@ -867,10 +867,10 @@ class CCLoader extends Pipeline {
      * @param {String} url
      * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
      */
-    releaseResDir (url, type, mount) {
+    releaseResDir(url, type, mount) {
         mount = mount || 'assets';
         if (!assetTables[mount]) return;
-    
+
         var uuids = assetTables[mount].getUuidArray(url, type);
         for (var i = 0; i < uuids.length; i++) {
             var uuid = uuids[i];
@@ -884,7 +884,7 @@ class CCLoader extends Pipeline {
      *
      * @method releaseAll
      */
-    releaseAll () {
+    releaseAll() {
         for (var id in this._cache) {
             this.release(id);
         }
@@ -893,7 +893,7 @@ class CCLoader extends Pipeline {
     // AUTO RELEASE
 
     // override
-    removeItem (key) {
+    removeItem(key) {
         var removed = Pipeline.prototype.removeItem.call(this, key);
         delete this._autoReleaseSetting[key];
         return removed;
@@ -929,7 +929,7 @@ class CCLoader extends Pipeline {
      * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
      * @param {Boolean} autoRelease - indicates whether should release automatically
      */
-    setAutoRelease (assetOrUrlOrUuid, autoRelease) {
+    setAutoRelease(assetOrUrlOrUuid, autoRelease) {
         var key = this._getReferenceKey(assetOrUrlOrUuid);
         if (key) {
             this._autoReleaseSetting[key] = !!autoRelease;
@@ -969,7 +969,7 @@ class CCLoader extends Pipeline {
      * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
      * @param {Boolean} autoRelease - indicates whether should release automatically
      */
-    setAutoReleaseRecursively (assetOrUrlOrUuid, autoRelease) {
+    setAutoReleaseRecursively(assetOrUrlOrUuid, autoRelease) {
         autoRelease = !!autoRelease;
         var key = this._getReferenceKey(assetOrUrlOrUuid);
         if (key) {
@@ -1001,7 +1001,7 @@ class CCLoader extends Pipeline {
      * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
      * @returns {Boolean}
      */
-    isAutoRelease (assetOrUrl) {
+    isAutoRelease(assetOrUrl) {
         var key = this._getReferenceKey(assetOrUrl);
         if (key) {
             return !!this._autoReleaseSetting[key];

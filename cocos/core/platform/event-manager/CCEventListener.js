@@ -48,7 +48,7 @@
  * @param {Number} callback
  */
 export class EventListener {
-    constructor (type, listenerID, callback) {
+    constructor(type, listenerID, callback) {
         this._onEvent = callback;   // Event callback function
         this._type = type || 0;     // Event listener type
         this._listenerID = listenerID || "";    // Event listener ID
@@ -74,7 +74,7 @@ export class EventListener {
      * @param {Boolean} paused
      * @private
      */
-    _setPaused (paused) {
+    _setPaused(paused) {
         this._paused = paused;
     }
 
@@ -83,7 +83,7 @@ export class EventListener {
      * @returns {Boolean}
      * @private
      */
-    _isPaused () {
+    _isPaused() {
         return this._paused;
     }
 
@@ -92,7 +92,7 @@ export class EventListener {
      * @param {Boolean} registered
      * @private
      */
-    _setRegistered (registered) {
+    _setRegistered(registered) {
         this._registered = registered;
     }
 
@@ -101,7 +101,7 @@ export class EventListener {
      * @returns {Boolean}
      * @private
      */
-    _isRegistered () {
+    _isRegistered() {
         return this._registered;
     }
 
@@ -111,7 +111,7 @@ export class EventListener {
      * @returns {Number}
      * @private
      */
-    _getType () {
+    _getType() {
         return this._type;
     }
 
@@ -121,7 +121,7 @@ export class EventListener {
      * @returns {String}
      * @private
      */
-    _getListenerID () {
+    _getListenerID() {
         return this._listenerID;
     }
 
@@ -131,7 +131,7 @@ export class EventListener {
      * @param {Number} fixedPriority
      * @private
      */
-    _setFixedPriority (fixedPriority) {
+    _setFixedPriority(fixedPriority) {
         this._fixedPriority = fixedPriority;
     }
 
@@ -140,7 +140,7 @@ export class EventListener {
      * @returns {Number} 0 if it's a scene graph priority listener, non-zero for fixed priority listener
      * @private
      */
-    _getFixedPriority () {
+    _getFixedPriority() {
         return this._fixedPriority;
     }
 
@@ -149,7 +149,7 @@ export class EventListener {
      * @param {cc.Node} node
      * @private
      */
-    _setSceneGraphPriority (node) {
+    _setSceneGraphPriority(node) {
         this._target = node;
         this._node = node;
     }
@@ -159,7 +159,7 @@ export class EventListener {
      * @returns {cc.Node} if it's a fixed priority listener, non-null for scene graph priority listener
      * @private
      */
-    _getSceneGraphPriority () {
+    _getSceneGraphPriority() {
         return this._node;
     }
 
@@ -169,7 +169,7 @@ export class EventListener {
      * @method checkAvailable
      * @returns {Boolean}
      */
-    checkAvailable () {
+    checkAvailable() {
         return this._onEvent !== null;
     }
 
@@ -179,7 +179,7 @@ export class EventListener {
      * @method clone
      * @returns {EventListener}
      */
-    clone () {
+    clone() {
         return null;
     }
 
@@ -193,7 +193,7 @@ export class EventListener {
      *          An event listener can receive events when it is enabled and is not paused.
      *          paused state is always false when it is a fixed priority listener.
      */
-    setEnabled(enabled){
+    setEnabled(enabled) {
         this._isEnabled = enabled;
     }
 
@@ -203,7 +203,7 @@ export class EventListener {
      * @method isEnabled
      * @returns {Boolean}
      */
-    isEnabled(){
+    isEnabled() {
         return this._isEnabled;
     }
 }
@@ -275,7 +275,7 @@ var ListenerID = EventListener.ListenerID = {
 };
 
 export class Mouse extends EventListener {
-    constructor () {
+    constructor() {
         super(EventListener.MOUSE, ListenerID.MOUSE);
         this._onEvent = this._callback;
         this.onMouseDown = null;
@@ -284,7 +284,7 @@ export class Mouse extends EventListener {
         this.onMouseScroll = null;
     }
 
-    _callback (event) {
+    _callback(event) {
         var eventType = cc.Event.EventMouse;
         switch (event._eventType) {
             case eventType.DOWN:
@@ -308,7 +308,7 @@ export class Mouse extends EventListener {
         }
     }
 
-    clone () {
+    clone() {
         var eventListener = new Mouse();
         eventListener.onMouseDown = this.onMouseDown;
         eventListener.onMouseUp = this.onMouseUp;
@@ -317,17 +317,17 @@ export class Mouse extends EventListener {
         return eventListener;
     }
 
-    checkAvailable () {
+    checkAvailable() {
         return true;
     }
 }
 
 export class TouchOneByOne extends EventListener {
-    constructor () {
+    constructor() {
         super(EventListener.TOUCH_ONE_BY_ONE, ListenerID.TOUCH_ONE_BY_ONE);
         this._claimedTouches = [];
 
-        this._claimedTouches = null;
+        // this._claimedTouches = null;
         this.swallowTouches = false;
         this.onTouchBegan = null;
         this.onTouchMoved = null;
@@ -335,15 +335,15 @@ export class TouchOneByOne extends EventListener {
         this.onTouchCancelled = null;
     }
 
-    setSwallowTouches (needSwallow) {
+    setSwallowTouches(needSwallow) {
         this.swallowTouches = needSwallow;
     }
 
-    isSwallowTouches(){
+    isSwallowTouches() {
         return this.swallowTouches;
     }
 
-    clone () {
+    clone() {
         var eventListener = new TouchOneByOne();
         eventListener.onTouchBegan = this.onTouchBegan;
         eventListener.onTouchMoved = this.onTouchMoved;
@@ -353,8 +353,8 @@ export class TouchOneByOne extends EventListener {
         return eventListener;
     }
 
-    checkAvailable () {
-        if(!this.onTouchBegan){
+    checkAvailable() {
+        if (!this.onTouchBegan) {
             cc.logID(1801);
             return false;
         }
@@ -363,7 +363,7 @@ export class TouchOneByOne extends EventListener {
 }
 
 export class TouchAllAtOnce extends EventListener {
-    constructor () {
+    constructor() {
         super(EventListener.TOUCH_ALL_AT_ONCE, ListenerID.TOUCH_ALL_AT_ONCE);
 
         this.onTouchesBegan = null;
@@ -372,7 +372,7 @@ export class TouchAllAtOnce extends EventListener {
         this.onTouchesCancelled = null;
     }
 
-    clone () {
+    clone() {
         var eventListener = new TouchAllAtOnce();
         eventListener.onTouchesBegan = this.onTouchesBegan;
         eventListener.onTouchesMoved = this.onTouchesMoved;
@@ -381,7 +381,7 @@ export class TouchAllAtOnce extends EventListener {
         return eventListener;
     }
 
-    checkAvailable () {
+    checkAvailable() {
         if (this.onTouchesBegan === null && this.onTouchesMoved === null
             && this.onTouchesEnded === null && this.onTouchesCancelled === null) {
             cc.logID(1802);
@@ -393,23 +393,23 @@ export class TouchAllAtOnce extends EventListener {
 
 //Acceleration
 export class Acceleration extends EventListener {
-    constructor (callback) {
+    constructor(callback) {
         super(EventListener.ACCELERATION, ListenerID.ACCELERATION);
         this._onEvent = this._callback;
         this._onAccelerationEvent = callback;
         this_onAccelerationEvent = null;
     }
 
-    _callback (event) {
+    _callback(event) {
         this._onAccelerationEvent(event.acc, event);
     }
 
-    checkAvailable () {
+    checkAvailable() {
         cc.assertID(this._onAccelerationEvent, 1803);
         return true;
     }
 
-    clone () {
+    clone() {
         return new Acceleration(this._onAccelerationEvent);
     }
 }
@@ -417,14 +417,14 @@ export class Acceleration extends EventListener {
 
 //Keyboard
 export class Keyboard extends EventListener {
-    constructor () {
+    constructor() {
         super(EventListener.KEYBOARD, ListenerID.KEYBOARD);
         this._onEvent = this._callback;
         this.onKeyPressed = null;
         this.onKeyReleased = null;
     }
 
-    _callback (event) {
+    _callback(event) {
         if (event.isPressed) {
             if (this.onKeyPressed)
                 this.onKeyPressed(event.keyCode, event);
@@ -434,14 +434,14 @@ export class Keyboard extends EventListener {
         }
     }
 
-    clone () {
+    clone() {
         var eventListener = new Keyboard();
         eventListener.onKeyPressed = this.onKeyPressed;
         eventListener.onKeyReleased = this.onKeyReleased;
         return eventListener;
     }
 
-    checkAvailable () {
+    checkAvailable() {
         if (this.onKeyPressed === null && this.onKeyReleased === null) {
             cc.logID(1800);
             return false;
@@ -464,26 +464,26 @@ export class Keyboard extends EventListener {
  * @example {@link cocos2d/core/event-manager/CCEventListener/create.js}
  */
 EventListener.create = function (argObj) {
-    cc.assertID(argObj&&argObj.event, 1900);
+    cc.assertID(argObj && argObj.event, 1900);
 
     var listenerType = argObj.event;
     delete argObj.event;
 
     var listener = null;
-    if(listenerType === cc.EventListener.TOUCH_ONE_BY_ONE)
+    if (listenerType === cc.EventListener.TOUCH_ONE_BY_ONE)
         listener = new TouchOneByOne();
-    else if(listenerType === cc.EventListener.TOUCH_ALL_AT_ONCE)
+    else if (listenerType === cc.EventListener.TOUCH_ALL_AT_ONCE)
         listener = new TouchAllAtOnce();
-    else if(listenerType === cc.EventListener.MOUSE)
+    else if (listenerType === cc.EventListener.MOUSE)
         listener = new Mouse();
-    else if(listenerType === cc.EventListener.KEYBOARD)
+    else if (listenerType === cc.EventListener.KEYBOARD)
         listener = new Keyboard();
-    else if(listenerType === cc.EventListener.ACCELERATION){
+    else if (listenerType === cc.EventListener.ACCELERATION) {
         listener = new Acceleration(argObj.callback);
         delete argObj.callback;
     }
 
-    for(var key in argObj) {
+    for (var key in argObj) {
         listener[key] = argObj[key];
     }
     return listener;

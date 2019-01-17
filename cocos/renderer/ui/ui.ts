@@ -1,7 +1,9 @@
 
-// import { vfmt3D } from '../../2d/renderer/webgl/vertex-format';
 import RecyclePool from '../../3d/memop/recycle-pool';
 import { CachedArray } from '../../core/memop/cached-array';
+import { MeshBuffer, IMeshBufferInitData } from '../../3d/ui/mesh-buffer';
+import { Material } from '../../3d/assets/material';
+import { SpriteFrame } from '../../assets/CCSpriteFrame';
 import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -14,7 +16,15 @@ import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Pass } from '../core/pass';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
+import { CanvasComponent } from '../../3d/ui/components/canvas-component';
+import { LabelComponent } from '../../3d/ui/components/label-component';
+import { SpriteComponent } from '../../3d/ui/components/sprite-component';
 import { UIBatchModel } from './ui-batch-model';
+import { vfmt } from '../../gfx/vertex-format-sample';
+// import { GFXBuffer } from '../../gfx/buffer';
+// import { RenderComponent } from '../../3d/ui/components/ui-render-component';
+
+// import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 
 export interface IUIBufferBatch {
     vb: GFXBuffer;
@@ -30,17 +40,25 @@ export interface IUIRenderItem {
     inputAssembler: GFXInputAssembler;
 }
 
-export class UI {
-    // private _buffer: MeshBuffer | null = new MeshBuffer(this, vfmt3D);
-    private _batchedModels: UIBatchModel[] = [];
-    private _iaPool: RecyclePool | null = new RecyclePool(16, () => {
-        // return this._root.device.createInputAssembler({
+export interface IUIRenderData {
+    meshBuffer: MeshBuffer;
+    material: Material;
+}
 
-        // });
-    });
-    private _modelPool: RecyclePool = new RecyclePool(16, () => {
-        return this._scene.createModel(UIBatchModel);
-    });
+export class UI {
+    private _screens: CanvasComponent[] = [];
+    private _bufferPool: RecyclePool = new RecyclePool(() => {
+        return new MeshBuffer();
+    }, 128);
+
+    // private _currScreen: CanvasComponent | null = null;
+    // private _currMaterail: Material | null = null;
+    // private _currSpriteFrame: SpriteFrame | null = null;
+    // private _currUserKey = 0;
+    // private _dummyNode: Node | null = null;
+    // private _batchedModels: UIBatchModel[] = [];
+    // private _iaPool: RecyclePool | null = null;
+    // private _modelPool: RecyclePool | null = null;
     private _device: GFXDevice;
     private _cmdBuff: GFXCommandBuffer | null = null;
     private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
@@ -48,6 +66,7 @@ export class UI {
     private _attributes: IGFXInputAttribute[] = [];
     private _bufferBatches: IUIBufferBatch[] = [];
     private _items: CachedArray<IUIRenderItem>;
+    private _commitBuffers: any[] = [];
 
     constructor (private _root: Root) {
         this._device = _root.device;
@@ -91,21 +110,77 @@ export class UI {
     }
 
     public addScreen (comp) {
+        this._screens.push(comp);
     }
 
     public removeScreen (comp) {
+        const idx = this._screens.indexOf(comp);
+        if (idx !== -1) {
+            this._screens.splice(idx, 1);
+        }
     }
 
     public update (dt: number) {
         this._items.clear();
 
         // TODO: Merge batch here.
+        this._renderScreens();
 
         this.render();
     }
 
-    private _emit (): UIBatchModel[] {
-        return this._batchedModels;
+    public _walk (node, fn1, fn2, level = 0) {
+        level += 1;
+        const len = node.children.length;
+
+        for (let i = 0; i < len; ++i) {
+            const child = node.children[i];
+            const continueWalk = fn1(child, node, level);
+
+            if (continueWalk === false) {
+                fn2(child, node, level);
+                break;
+            }
+
+            this._walk(child, fn1, fn2, level);
+            // fn2(child, node, level);
+        }
+    }
+
+    private _renderScreens () {
+        for (const screen of this._screens) {
+            if (!screen.enabledInHierarchy) {
+                continue;
+            }
+            // this._currScreen = screen;
+
+            this._walk(screen.node, (c) => {
+                const image = c.getComponent(SpriteComponent);
+                if (image && image.enabledInHierarchy) {
+                    this._commitComp(image);
+                }
+
+                const label = c.getComponent(LabelComponent);
+                if (label && label.enabledInHierarchy) {
+                    this._commitComp(label);
+                }
+            }, null);
+        }
+    }
+
+    private _commitComp (comp) {
+        const buffer = this._bufferPool.add();
+        buffer.initialize({
+            vertexCount: comp.renderData.vertexCount,
+            indexCount: comp.renderData.indiceCount,
+            attributes: vfmt,
+        } as IMeshBufferInitData);
+        comp.updateRenderData(buffer);
+        this._emit({ meshBuffer: buffer, material: comp.material} as IUIRenderData);
+    }
+
+    private _emit (renderData: IUIRenderData) {
+        this._commitBuffers.push(renderData);
     }
 
     private render () {

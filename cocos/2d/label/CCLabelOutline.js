@@ -37,63 +37,51 @@
  *  node.parent = this.node;
  */
 
-let LabelOutline = cc.Class({
-    name: 'cc.LabelOutline',
-    extends: require('./CCComponent'),
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.renderers/LabelOutline',
-        executeInEditMode: true,
-        requireComponent: cc.Label,
-    },
+import Component from '../../components/component';
 
-    properties: {
-        _color: cc.color(255,255,255,255),
-        _width: 1,
+export default class LabelOutline extends Component {
+    _color = cc.color(255, 255, 255, 255);
+    _width = 1;
 
-        /**
-         * !#en Change the outline color
-         * !#zh 改变描边的颜色
-         * @property color
-         * @type {Color}
-         * @example
-         * outline.color = new cc.Color(0.5, 0.3, 0.7, 1.0);;
-         */
-        color: {
-            get: function () {
-                return this._color;
-            },
-            set: function (value) {
-                this._color = cc.color(value);
-                this._updateRenderData();
-            }
-        },
+    /**
+     * !#en Change the outline color
+     * !#zh 改变描边的颜色
+     * @property color
+     * @type {Color}
+     * @example
+     * outline.color = new cc.Color(0.5, 0.3, 0.7, 1.0);;
+     */
+    get color() {
+        return this._color;
+    }
+    set color(value) {
+        this._color = cc.color(value);
+        this._updateRenderData();
+    }
 
-        /**
-         * !#en Change the outline width
-         * !#zh 改变描边的宽度
-         * @property width
-         * @type {Number}
-         * @example
-         * outline.width = 3;
-         */
-        width: {
-            get: function () {
-                return this._width;
-            },
-            set: function (value) {
-                this._width = value;
-                this._updateRenderData();
-            }
-        }
-    },
+    /**
+     * !#en Change the outline width
+     * !#zh 改变描边的宽度
+     * @property width
+     * @type {Number}
+     * @example
+     * outline.width = 3;
+     */
+    get width() {
+        return this._width;
+    }
 
-    _updateRenderData () {
+    set width(value) {
+        this._width = value;
+        this._updateRenderData();
+    }
+
+    _updateRenderData() {
         let label = this.node.getComponent(cc.Label);
         if (label) {
             label._updateRenderData(true);
         }
     }
+}
 
-});
-
-cc.LabelOutline = module.exports = LabelOutline;
+cc.LabelOutline = LabelOutline;

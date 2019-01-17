@@ -36,9 +36,9 @@ export class ValueType {
     /**
      * !#en This method returns an exact copy of current value.
      * !#zh 克隆当前值，该方法返回一个新对象，新对象的值和原对象相等。
-     * @method clone
+     *
      */
-    public clone (): this {
+    public clone (): ValueType {
         cc.errorID('0100', js.getClassName(this) + '.clone');
         return this;
     }
@@ -64,7 +64,7 @@ export class ValueType {
      * @param ratio - the interpolation coefficient
      * @returns
      */
-    public lerp (to: this, ratio: this) {
+    public lerp (to: this, ratio: number) {
         cc.errorID('0100', js.getClassName(this) + '.lerp');
         return this.clone();
     }
