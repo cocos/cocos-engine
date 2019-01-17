@@ -1,26 +1,31 @@
 
-import RecyclePool from '../../3d/memop/recycle-pool';
-import { CachedArray } from '../../core/memop/cached-array';
-import { MeshBuffer, IMeshBufferInitData } from '../../3d/ui/mesh-buffer';
 import { Material } from '../../3d/assets/material';
+import RecyclePool from '../../3d/memop/recycle-pool';
+import { CanvasComponent } from '../../3d/ui/components/canvas-component';
+import { LabelComponent } from '../../3d/ui/components/label-component';
+import { SpriteComponent } from '../../3d/ui/components/sprite-component';
+import { IMeshBufferInitData, MeshBuffer } from '../../3d/ui/mesh-buffer';
 import { SpriteFrame } from '../../assets/CCSpriteFrame';
+import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXBufferUsageBit, GFXCommandBufferType, GFXFormat, GFXMemoryUsageBit, IGFXRect } from '../../gfx/define';
+import {
+    GFXBufferUsageBit,
+    GFXCommandBufferType,
+    GFXFormat,
+    GFXMemoryUsageBit,
+    IGFXRect,
+} from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { vfmt } from '../../gfx/vertex-format-sample';
 import { Pass } from '../core/pass';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
-import { CanvasComponent } from '../../3d/ui/components/canvas-component';
-import { LabelComponent } from '../../3d/ui/components/label-component';
-import { SpriteComponent } from '../../3d/ui/components/sprite-component';
-import { UIBatchModel } from './ui-batch-model';
-import { vfmt } from '../../gfx/vertex-format-sample';
 // import { GFXBuffer } from '../../gfx/buffer';
 // import { RenderComponent } from '../../3d/ui/components/ui-render-component';
 
@@ -29,6 +34,13 @@ import { vfmt } from '../../gfx/vertex-format-sample';
 export interface IUIBufferBatch {
     vb: GFXBuffer;
     ib: GFXBuffer;
+}
+
+export interface IUIMaterial {
+    pass: Pass;
+    bindingLayout: GFXBindingLayout;
+    pipelineLayout: GFXPipelineLayout;
+    pipelineState: GFXPipelineState;
 }
 
 export interface IUIRenderItem {
@@ -65,6 +77,7 @@ export class UI {
     private _scene: RenderScene;
     private _attributes: IGFXInputAttribute[] = [];
     private _bufferBatches: IUIBufferBatch[] = [];
+    private _materials: IUIMaterial[] = [];
     private _items: CachedArray<IUIRenderItem>;
     private _commitBuffers: any[] = [];
 
@@ -108,6 +121,43 @@ export class UI {
             this._cmdBuff = null;
         }
     }
+
+    /*
+    public registerMaterial (material: Material): IUIMaterial {
+        const pass = material.passes[0];
+        for (const mtrl of this._materials) {
+            if (mtrl.pass.shader.id === pass.shader.id) {
+                return mtrl;
+            }
+        }
+
+        const bindLayout = this._device.createBindingLayout({
+            bindings: [pass.binds],
+        });
+
+        const pipelineLayout = this._device.createPipelineLayout({
+            layouts: [bindLayout],
+        });
+
+        const pipelineState = this._device.createPipelineState({
+            primitive: GFXPrimitiveMode.TRIANGLE_LIST,
+            shader: this._shader,
+            is,
+            rs: this._rs,
+            dss: this._dss,
+            bs: this._bs,
+            layout: this._pipelineLayout,
+            renderPass:  this._framebuffer.renderPass as GFXRenderPass,
+        });
+
+        this._materials.push({
+            pass,
+            bindLayout,
+            pipelineLayout,
+            pipelineState,
+        });
+    }
+    */
 
     public addScreen (comp) {
         this._screens.push(comp);
@@ -171,16 +221,12 @@ export class UI {
     private _commitComp (comp) {
         const buffer = this._bufferPool.add();
         buffer.initialize({
-            vertexCount: comp.renderData.vertexCount,
-            indexCount: comp.renderData.indiceCount,
+            vertexCount: comp.renderData!.vertexCount,
+            indexCount: comp.renderData!.indiceCount,
             attributes: vfmt,
         } as IMeshBufferInitData);
         comp.updateRenderData(buffer);
-        this._emit({ meshBuffer: buffer, material: comp.material} as IUIRenderData);
-    }
-
-    private _emit (renderData: IUIRenderData) {
-        this._commitBuffers.push(renderData);
+        this._commitBuffers.push({ meshBuffer: buffer, material: comp.material});
     }
 
     private render () {

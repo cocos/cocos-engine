@@ -292,6 +292,7 @@ export class Pass {
     }
 
     get programName () { return this._programName; }
+    get shader (): GFXShader { return this._shader!; }
     get pipelineState () { return this._pipelineState as GFXPipelineState; }
     get bindingLayout () { return this._bindingLayout as GFXBindingLayout; }
     get primitive (): GFXPrimitiveMode { return this._primitive; }
