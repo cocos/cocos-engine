@@ -30,6 +30,12 @@ import { Effect } from '../../renderer/core/effect';
 import { IPassOverrides, Pass } from '../../renderer/core/pass';
 import { EffectAsset } from './effect-asset';
 
+export interface IMaterialInfo {
+    technique?: number;
+    effectName?: string;
+    defines?: Record<string, number | boolean>;
+}
+
 @ccclass('cc.Material')
 export class Material extends Asset {
     public static getInstantiatedMaterial (mat: Material, rndCom: any) {
@@ -56,6 +62,15 @@ export class Material extends Asset {
     protected _passes: Pass[] = [];
     protected _owner: any = null;
     protected _hash = 0;
+
+    constructor (opts?: IMaterialInfo) {
+        super();
+        if (opts) {
+            if (opts.technique) { this._techIdx = opts.technique; }
+            if (opts.defines) { this._defines = opts.defines; }
+            if (opts.effectName) { this.effectName = opts.effectName; }
+        }
+    }
 
     @property
     set effectAsset (val: EffectAsset | null) {
