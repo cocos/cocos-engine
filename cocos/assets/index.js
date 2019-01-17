@@ -29,7 +29,7 @@ export { Asset } from './asset';
 export {default as Prefab} from './CCPrefab';
 export * from './CCScripts';
 export {default as SceneAsset} from './CCSceneAsset';
-export { SpriteFrame } from './CCSpriteFrame';
+export {default as SpriteFrame} from './CCSpriteFrame';
 export {default as SpriteAtlas} from './CCSpriteAtlas';
 export {default as TextAsset} from './CCTextAsset';
 export {default as JsonAsset} from './CCJsonAsset';
