@@ -180,7 +180,7 @@ export default class LightComponent extends Component {
         } else if (this._type === LightType.Spot) {
             type = renderer.LIGHT_SPOT;
         }
-        if (this.enabled)
+        if (this._light)
             this._light.setType(type);
     }
 
@@ -197,7 +197,7 @@ export default class LightComponent extends Component {
 
     set color(val) {
         this._color = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setColor(val.r / 255, val.g / 255, val.b / 255);
     }
 
@@ -214,7 +214,7 @@ export default class LightComponent extends Component {
 
     set intensity(val) {
         this._intensity = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setIntensity(val);
     }
 
@@ -231,7 +231,7 @@ export default class LightComponent extends Component {
 
     set range(val) {
         this._range = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setRange(val);
     }
 
@@ -248,7 +248,7 @@ export default class LightComponent extends Component {
 
     set spotAngle(val) {
         this._spotAngle = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setSpotAngle(toRadian(val));
     }
 
@@ -265,7 +265,7 @@ export default class LightComponent extends Component {
 
     set spotExp(val) {
         this._spotExp = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setSpotExp(val);
     }
 
@@ -291,7 +291,7 @@ export default class LightComponent extends Component {
         } else if (val === LightShadowType.Soft) {
             type = renderer.SHADOW_SOFT;
         }
-        if (this.enabled)
+        if (this._light)
             this._light.setShadowType(type);
     }
 
@@ -309,7 +309,7 @@ export default class LightComponent extends Component {
 
     set shadowResolution(val) {
         this._shadowResolution = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setShadowResolution(val);
     }
 
@@ -327,7 +327,7 @@ export default class LightComponent extends Component {
 
     set shadowDarkness(val) {
         this._shadowDarkness = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setShadowDarkness(val);
     }
 
@@ -345,7 +345,7 @@ export default class LightComponent extends Component {
 
     set shadowMinDepth(val) {
         this._shadowMinDepth = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setShadowMinDepth(val);
     }
 
@@ -363,7 +363,7 @@ export default class LightComponent extends Component {
 
     set shadowMaxDepth(val) {
         this._shadowMaxDepth = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setShadowMaxDepth(val);
     }
 
@@ -381,7 +381,7 @@ export default class LightComponent extends Component {
 
     set shadowDepthScale(val) {
         this._shadowDepthScale = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setShadowDepthScale(val);
     }
 
@@ -399,7 +399,7 @@ export default class LightComponent extends Component {
 
     set shadowFrustumSize(val) {
         this._shadowFrustumSize = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setShadowFrustumSize(val);
     }
 
@@ -417,7 +417,7 @@ export default class LightComponent extends Component {
 
     set shadowBias(val) {
         this._shadowBias = val;
-        if (this.enabled)
+        if (this._light)
             this._light.setShadowBias(val);
     }
 
@@ -434,8 +434,8 @@ export default class LightComponent extends Component {
     }
 
     onEnable() {
-        this._light = this._getRenderScene().createLight(this.name);
-        this._light.setNode(this.node);
+        // this._light = this._getRenderScene().createLight(this.name);
+        // this._light.setNode(this.node);
         this.type = this._type;
         this.color = this._color;
         this.intensity = this._intensity;
@@ -452,7 +452,7 @@ export default class LightComponent extends Component {
     }
 
     onDisable() {
-        this._getRenderScene().destroyLight(this._light);
+        // this._getRenderScene().destroyLight(this._light);
     }
 
     onDestroy() {

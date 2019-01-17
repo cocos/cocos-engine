@@ -41,11 +41,6 @@
       cc.director.root.resize(bcr.width, bcr.height);
     });
 
-    // window.addEventListener('resize', () => {
-    //   const bcr = $body.getBoundingClientRect();
-    //   cc.view.setCanvasSize(bcr.width, bcr.height);
-    // });
-
     function createTexture(imgElms) {
       const textureAsset = new cc.Texture2D();
       textureAsset.image = new cc.ImageAsset(imgElms[0]);
@@ -69,7 +64,6 @@
       material.setDefines({ USE_COLOR: true });
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
       material.effectName = 'builtin-effect-unlit';
-      material.setProperty('mainTexture', texture);
 
       const len = 50;
       const models = [], passes = [];
@@ -85,6 +79,22 @@
         passes.push(modelCom.material.passes[0]);
       }
       const handle = passes[0].getHandle('color');
+
+      {
+        const material = new cc.Material();
+        material.effectName = 'builtin-effect-sprite';
+        material.setProperty('mainTexture', texture);
+        const modelNode = new cc.Node('test');
+        modelNode.parent = scene;
+        const modelCom = modelNode.addComponent('cc.ModelComponent');
+        modelCom.material = material;
+        const shape = cc.primitives.quad();
+        shape.colors = Array(shape.uvs.length / 2).fill(0)
+          .map((t) => [Math.random(), Math.random(), Math.random(), 0.8])
+          .reduce((c, a) => a.concat(c), []);
+        modelCom.mesh = cc.utils.createMesh(shape);
+        modelNode.setPosition(0, 3, 100);
+      }
 
       let buttonDown = false, pos = cc.v2();
       canv.addEventListener('mousedown', (e) => buttonDown = (!e.button) ? true : buttonDown);

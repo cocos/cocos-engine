@@ -527,6 +527,17 @@ sys.isNative = CC_JSB;
  */
 sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
 
+/**
+ * Endianess of current platform
+ * @property {boolean} isLittleEndian
+ */
+sys.isLittleEndian = (() => {
+    const buffer = new ArrayBuffer(2);
+    new DataView(buffer).setInt16(0, 256, true);
+    // Int16Array uses the platform's endianness.
+    return new Int16Array(buffer)[0] === 256;
+})();
+
 if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
     sys.platform = sys.EDITOR_CORE;

@@ -119,7 +119,7 @@ export class Model {
      * @param {vec3} minPos the min position of the model
      * @param {vec3} maxPos the max position of the model
      */
-    public createBoundingShape (minPos: Vec3, maxPos: Vec3) {
+    public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
