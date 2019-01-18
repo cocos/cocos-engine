@@ -21,7 +21,9 @@ export default function circle (options?: RecursivePartial<ICircleOptions> | ICi
     const segments = normalizedOptions.segments;
 
     const positions = new Array<number>(3 * (segments + 1));
-    positions.push(0, 0, 0);
+    positions[0] = 0;
+    positions[1] = 0;
+    positions[2] = 0;
     const indices = new Array<number>(1 + segments * 2);
     indices[0] = 0;
     const step = Math.PI * 2 / segments;
@@ -29,11 +31,13 @@ export default function circle (options?: RecursivePartial<ICircleOptions> | ICi
         const angle = step * iSegment;
         const x = Math.cos(angle);
         const y = Math.sin(angle);
-        const iVertex = (iSegment + 1) * 3;
-        positions[iVertex + 0] = x;
-        positions[iVertex + 0] = y;
-        positions[iVertex + 0] = 0;
-        indices.push(iSegment + 1, iSegment + 2);
+        const p = (iSegment + 1) * 3;
+        positions[p + 0] = x;
+        positions[p + 1] = y;
+        positions[p + 2] = 0;
+        const i = iSegment * 2;
+        indices[1 + (i)] = iSegment + 1;
+        indices[1 + (i + 1)] = iSegment + 2;
     }
     if (segments > 0) {
         indices[indices.length - 1] = 1;
