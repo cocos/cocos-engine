@@ -31,6 +31,5 @@ export * from './CCEvent';
 export * from './CCTouch';
 
 if (CC_TEST) {
-    cc._Test.eventManager = eventManager;
+    // cc._Test.eventManager = eventManager;
 }
-
