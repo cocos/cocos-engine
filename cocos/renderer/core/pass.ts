@@ -22,6 +22,7 @@ export interface IPassInfoFull extends IPassInfo {
     samplers: ISamplerInfo[];
     shader: GFXShader;
     renderPass: GFXRenderPass;
+    globals: GFXBuffer;
 }
 
 type RecursivePartial<T> = {
@@ -110,6 +111,7 @@ export class Pass {
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
     protected _renderPass: GFXRenderPass | null = null;
+    protected _globalUBO: GFXBuffer | null = null;
 
     public constructor (device: GFXDevice) {
         this._device = device;
@@ -126,6 +128,7 @@ export class Pass {
         ));
         this._shader = info.shader;
         this._renderPass = info.renderPass;
+        this._globalUBO = info.globals;
         this._fillinPipelineInfo(info);
 
         for (const u of info.blocks) {
@@ -258,6 +261,7 @@ export class Pass {
         for (const t of Object.keys(this._textureViews)) {
             bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
         }
+        bindingLayout.bindBuffer(UBOGlobal.BLOCK.binding, this._globalUBO!);
         const pipelineLayout = this._device.createPipelineLayout({ layouts: [bindingLayout] });
         const pipelineState = this._device.createPipelineState({
             bs: this._bs,
