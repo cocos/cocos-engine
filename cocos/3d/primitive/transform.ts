@@ -41,5 +41,6 @@ export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?:
     geometry.maxPos.x *= x;
     geometry.maxPos.y *= y;
     geometry.maxPos.z *= z;
+    geometry.boundingRadius = Math.max(Math.max(x, y), z);
     return geometry;
 }
