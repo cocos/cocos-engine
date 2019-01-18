@@ -40,7 +40,7 @@ const INSET_TOP = 1;
 const INSET_RIGHT = 2;
 const INSET_BOTTOM = 3;
 
-interface IUV {
+export interface IUV {
     u: number;
     v: number;
 }
@@ -176,6 +176,10 @@ export class SpriteFrame extends Texture2D {
         // if (this._texture) {
         this._calculateSlicedUV();
         // }
+    }
+
+    get atlasUuid () {
+        return this._atlasUuid;
     }
 
     public vertices: IVertices | null = null;

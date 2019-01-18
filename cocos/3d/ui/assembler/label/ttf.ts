@@ -26,55 +26,60 @@
 import * as js from '../../../../core/utils/js';
 import ttfUtls from '../../../../2d/renderer/utils/label/ttf';
 import { fillMeshVertices3D } from '../utils';
+import { IAssembler} from '../assembler';
+import { LabelComponent } from '../../components/label-component';
+import { RenderData } from '../../../../renderer/ui/renderData';
+import { MeshBuffer } from '../../mesh-buffer';
 
 const WHITE = cc.color(255, 255, 255, 255);
 
-let ttf = {
-    createData(comp) {
-        let renderData = comp.requestRenderData();
+export const ttf: IAssembler = {
+    useModel: false,
 
-        renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indiceCount = 6;
+    createData (comp: LabelComponent) {
+        const renderData: RenderData|null = comp.requestRenderData();
 
-        let data = renderData._data;
-        data[0].u = 0;
-        data[0].v = 1;
-        data[1].u = 1;
-        data[1].v = 1;
-        data[2].u = 0;
-        data[2].v = 0;
-        data[3].u = 1;
-        data[3].v = 0;
-        return renderData;
+        renderData!.dataLength = 4;
+        renderData!.vertexCount = 4;
+        renderData!.indiceCount = 6;
+
+        const datas = renderData!.datas;
+        datas[0].u = 0;
+        datas[0].v = 1;
+        datas[1].u = 1;
+        datas[1].v = 1;
+        datas[2].u = 0;
+        datas[2].v = 0;
+        datas[3].u = 1;
+        datas[3].v = 0;
+        return renderData as RenderData;
     },
 
-    fillBuffers(comp, /*renderer*/buffer) {
+    fillBuffers (comp: LabelComponent, /*renderer*/buffer: MeshBuffer) {
         fillMeshVertices3D(comp.node, /*renderer._quadBuffer3D*/buffer, comp._renderData, WHITE._val);
     },
 
-    _updateVerts(comp) {
-        let renderData = comp._renderData;
+    updateVerts (comp: LabelComponent) {
+        const renderData: RenderData|null = comp.renderData;
 
-        let node = comp.node,
-            width = node.width,
-            height = node.height,
-            appx = node.anchorX * width,
-            appy = node.anchorY * height;
+        const node = comp.node;
+        const width = node.width;
+        const height = node.height;
+        const appx = node.anchorX * width;
+        const appy = node.anchorY * height;
 
-        let data = renderData._data;
-        data[0].x = -appx;
-        data[0].y = -appy;
-        data[1].x = width - appx;
-        data[1].y = -appy;
-        data[2].x = -appx;
-        data[2].y = height - appy;
-        data[3].x = width - appx;
-        data[3].y = height - appy;
-    }
-}
+        const datas = renderData!.datas;
+        datas[0].x = -appx;
+        datas[0].y = -appy;
+        datas[1].x = width - appx;
+        datas[1].y = -appy;
+        datas[2].x = -appx;
+        datas[2].y = height - appy;
+        datas[3].x = width - appx;
+        datas[3].y = height - appy;
+    },
+
+    updateRenderData (comp: LabelComponent) {},
+};
 
 js.addon(ttf, ttfUtls);
-
-export default ttf;
-

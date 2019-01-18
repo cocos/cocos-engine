@@ -1,10 +1,10 @@
 
 import { CanvasComponent} from './components/canvas-component';
-import {RenderComponent} from './components/ui-render-component';
+import { UIRenderComponent} from './components/ui-render-component';
 import { SpriteComponent} from './components/sprite-component';
 import { UITransformComponent } from './components/ui-transfrom-component';
 // import LabelComponent from './components/label-component';
-// import UIRectComponent fro./components/ui-transfrom-componentent';
+// import {UITransformComponent} from './components/ui-transfrom-componentent';
 // import ButtonComponent from './components/button-component';
 // import ToggleGroupComponent from './components/toggle-group-component';
 // import ToggleComponent from './components/toggle-component';
@@ -16,7 +16,7 @@ import { UITransformComponent } from './components/ui-transfrom-component';
 import './assembler/index';
 
 cc.CanvasComponent = CanvasComponent;
-cc.RenderComponent = RenderComponent;
+cc.UIRenderComponent = UIRenderComponent;
 cc.SpriteComponent = SpriteComponent;
 // cc.LabelComponent = LabelComponent;
 // cc.UIRectComponent = UIRectComponent;

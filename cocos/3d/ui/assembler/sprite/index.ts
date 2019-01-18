@@ -24,55 +24,55 @@
  ****************************************************************************/
 
 // const Sprite = require('../../../../components/CCSprite');
-import { SpriteComponent} from '../../components/sprite-component';
+import { SpriteComponent } from '../../components/sprite-component';
 
 const SpriteType = SpriteComponent.Type;
 const FillType = SpriteComponent.FillType;
 
-import simpleRenderUtil from './simple';
-import slicedRenderUtil from './sliced';
-import tiledRenderUtil from './tiled';
-import radialFilledRenderUtil from './radial-filled';
-import barFilledRenderUtil from './bar-filled';
-import meshRenderUtil from './mesh';
+import { simple } from './simple';
+import { sliced } from './sliced';
+import { tilled } from './tiled';
+import { radialFilled } from './radial-filled';
+import { barFilled } from './bar-filled';
+import { Utils } from 'cannon';
+// import meshRenderUtil from './mesh';
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 
 const spriteAssembler = {
-    getAssembler(sprite) {
-        let util = simpleRenderUtil;
+    getAssembler (sprite) {
+        let util = simple;
 
-        // switch (sprite.type) {
-        //     case SpriteType.SLICED:
-        //         util = slicedRenderUtil;
-        //         break;
-        //     // case SpriteType.TILED:
-        //     //     util = tiledRenderUtil;
-        //     //     break;
-        //     case SpriteType.FILLED:
-        //         // if (sprite._fillType === FillType.RADIAL) {
-        //         //     util = radialFilledRenderUtil;
-        //         // }
-        //         // else {
-        //         util = barFilledRenderUtil;
-        //         // }
-        //         break;
-        //     // case SpriteType.MESH:
-        //     //     util = meshRenderUtil;
-        //     //     break;
-        // }
+        switch (sprite.type) {
+            case SpriteType.SLICED:
+                util = sliced;
+                break;
+            case SpriteType.TILED:
+                util = tilled;
+                break;
+            case SpriteType.FILLED:
+                if (sprite._fillType === FillType.RADIAL) {
+                    util = radialFilled;
+                } else {
+                    util = barFilled;
+                }
+                break;
+            // case SpriteType.MESH:
+            //     util = meshRenderUtil;
+            //     break;
+        }
 
         return util;
     },
 
     // Skip invalid sprites (without own _assembler)
-    updateRenderData(sprite) {
+    updateRenderData (sprite) {
         return sprite.__allocedDatas;
-    }
+    },
 };
 
 export {
-    spriteAssembler
-}
+    spriteAssembler,
+};
 
-SpriteComponent._assembler = spriteAssembler;
+SpriteComponent.Assembler = spriteAssembler;

@@ -9,7 +9,7 @@ import { IGFXInputAttribute } from '../../gfx/input-assembler';
 
 export interface IMeshBufferInitData {
     vertexCount: number;
-    indexCount: number;
+    indiceCount: number;
     attributes: IGFXInputAttribute[];
 }
 
@@ -24,7 +24,7 @@ export class MeshBuffer {
     // public _ib: GFXBuffer | null = null;
     public vData: Float32Array | null = null;
     public iData: Uint16Array | null = null;
-    public uintVData: Uint32Array | null = null;
+    // public uintVData: Uint32Array | null = null;
 
     private _vertexBytes: number = 0;
     private _vertexFormat: IGFXInputAttribute[] = [];
@@ -77,7 +77,7 @@ export class MeshBuffer {
         this._vertexFormat = data.attributes;
         this._vertexBytes = this.calculateBytes(this._vertexFormat);
         this._initVDataCount = data.vertexCount * this._vertexBytes;
-        this._initIDataCount = data.indexCount;
+        this._initIDataCount = data.indiceCount;
         this._reallocBuffer();
     }
 

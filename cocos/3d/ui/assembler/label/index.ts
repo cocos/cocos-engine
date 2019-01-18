@@ -27,15 +27,15 @@
 // const ttfAssembler = require('./ttf');
 // const bmfontAssembler = require('./bmfont');
 import { LabelComponent} from '../../components/label-component';
-import ttfAssembler from './ttf';
-import bmfontAssembler from './bmfont';
+import { ttf } from './ttf';
+// import bmfontAssembler from './bmfont';
 
-export default labelAssembler = {
+const labelAssembler = {
     getAssembler(comp) {
-        let assembler = ttfAssembler;
+        let assembler = ttf;
 
         if (comp.font instanceof cc.BitmapFont) {
-            assembler = bmfontAssembler;
+            // assembler = bmfontAssembler;
         }
 
         return assembler;
@@ -47,4 +47,8 @@ export default labelAssembler = {
     // }
 };
 
-LabelComponent._assembler = labelAssembler;
+export {
+    labelAssembler,
+};
+
+LabelComponent.Assembler = labelAssembler;
