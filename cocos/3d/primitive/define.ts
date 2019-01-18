@@ -4,7 +4,24 @@ export interface IGeometryOptions {
     /**
      * Whether to include normal. Default to true.
      */
-    includeNormal?: boolean;
+    includeNormal: boolean;
+
+    /**
+     * Whether to include uv. Default to true.
+     */
+    includeUV: boolean;
+}
+
+export function applyDefaultGeometryOptions<GeometryOptions = IGeometryOptions> (
+    options?: RecursivePartial<IGeometryOptions>): GeometryOptions {
+    options = options || {};
+    if (options.includeNormal === undefined) {
+        options.includeNormal = true;
+    }
+    if (options.includeUV === undefined) {
+        options.includeUV = true;
+    }
+    return options as GeometryOptions;
 }
 
 export interface IGeometry {
