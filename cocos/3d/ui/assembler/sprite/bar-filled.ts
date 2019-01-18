@@ -268,7 +268,7 @@ export const barFilled: IAssembler = {
             sprite.renderData!.vertexCount,
             sprite.renderData!.indiceCount
         );
-        const commitBuffer: IUIRenderData = renderer.createCommitBuffer();
+        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         // if (renderer.worldMatDirty) {
         // this.updateWorldVerts(sprite);
         // }

@@ -3,7 +3,7 @@
 // import { UI } from './ui';
 // import { GFXDevice } from '../../gfx/device';
 // import { GFXBuffer } from '../../gfx/buffer';
-import { GFXFormat } from '../../gfx/define';
+import { GFXFormat, GFXPrimitiveMode } from '../../gfx/define';
 import { IGFXInputAttribute } from '../../gfx/input-assembler';
 // import UISystem from '../UISystem';
 
@@ -25,6 +25,7 @@ export class MeshBuffer {
     public vData: Float32Array | null = null;
     public iData: Uint16Array | null = null;
     // public uintVData: Uint32Array | null = null;
+    public primitiveMode: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
 
     private _vertexBytes: number = 0;
     private _vertexFormat: IGFXInputAttribute[] = [];
@@ -33,6 +34,7 @@ export class MeshBuffer {
     private _initVDataCount: number = 0; // actually 256 * 4 * (vertexFormat._bytes / 4)
     private _initIDataCount: number = 0;
     private _dirty: boolean = false;
+
 
     constructor (/*device: GFXDevice*/) {
 

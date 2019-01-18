@@ -362,7 +362,7 @@ export const radialFilled: IAssembler = {
             comp.renderData!.vertexCount,
             comp.renderData!.indiceCount
         );
-        const commitBuffer: IUIRenderData = renderer.createCommitBuffer();
+        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
 
         const node = comp.node;
         const color: Color = comp.color;

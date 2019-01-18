@@ -120,7 +120,7 @@ export const sliced: IAssembler = {
             sprite.renderData!.vertexCount,
             sprite.renderData!.indiceCount
         );
-        const commitBuffer: IUIRenderData = renderer.createCommitBuffer();
+        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const renderData: RenderData|null = sprite.renderData;
         const node: Node = sprite.node;
         const color: Color = sprite.color;
