@@ -31,6 +31,12 @@ import { Pass, PassOverrides } from '../../renderer/core/pass';
 import { RenderableComponent } from '../framework/renderable-component';
 import { EffectAsset } from './effect-asset';
 
+export interface IMaterialInfo {
+    technique?: number;
+    defines?: Record<string, number | boolean>;
+    effectName?: string;
+}
+
 @ccclass('cc.Material')
 export class Material extends Asset {
     public static getInstantiatedMaterial (mat: Material, rndCom: any) {
@@ -57,6 +63,15 @@ export class Material extends Asset {
     protected _passes: Pass[] = [];
     protected _owner: RenderableComponent | null = null;
     protected _hash = 0;
+
+    constructor (info?: IMaterialInfo) {
+        super();
+        if (info) {
+            if (info.technique) { this._techIdx = info.technique; }
+            if (info.defines) { this._defines = info.defines; }
+            if (info.effectName) { this.effectName = info.effectName; }
+        }
+    }
 
     @property
     set effectAsset (val: EffectAsset | null) {
@@ -105,7 +120,6 @@ export class Material extends Asset {
      * if you need to do per-frame property update.
      */
     public setProperty (name: string, val: any, passIdx?: number) {
-        if (!val) { console.warn(`illegal property value: ${val}.`); return; }
         let success = false;
         if (passIdx === undefined) { // set property for all applicable passes
             const passes = this._passes;
@@ -143,10 +157,16 @@ export class Material extends Asset {
         this.update();
     }
 
-    public overridePipelineStates (overrides: PassOverrides, passIdx: number = 0) {
+    public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
         if (!this._passes || !this._effectAsset) { return; }
         const passInfos = Effect.getPassInfos(this._effectAsset, this._techIdx);
-        this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
+        if (passIdx === undefined) {
+            for (let i = 0; i < this._passes.length; i++) {
+                this._passes[i].overridePipelineStates(passInfos[i], overrides);
+            }
+        } else {
+            this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
+        }
         this.onPassChange();
     }
 

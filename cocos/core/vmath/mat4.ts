@@ -1,5 +1,7 @@
 import { EPSILON } from './utils';
 
+// tslint:disable: one-variable-per-declaration
+
 /**
  * Mathematical 4x4 matrix.
  *
@@ -27,24 +29,6 @@ import { EPSILON } from './utils';
  * apparent lack of consistency between the memory layout and the documentation.
  */
 class mat4 {
-
-    public m00: number = 1;
-    public m01: number = 0;
-    public m02: number = 0;
-    public m03: number = 0;
-    public m04: number = 0;
-    public m05: number = 1;
-    public m06: number = 0;
-    public m07: number = 0;
-    public m08: number = 0;
-    public m09: number = 0;
-    public m10: number = 1;
-    public m11: number = 0;
-    public m12: number = 0;
-    public m13: number = 0;
-    public m14: number = 0;
-    public m15: number = 1;
-
     /**
      * Creates a matrix, with elements specified separately.
      *
@@ -66,7 +50,7 @@ class mat4 {
      * @param m15 - Value assigned to element at column 3 row 3.
      * @return The newly created matrix.
      */
-    public static create(
+    public static create (
         m00 = 1, m01 = 0, m02 = 0, m03 = 0,
         m04 = 0, m05 = 1, m06 = 0, m07 = 0,
         m08 = 0, m09 = 0, m10 = 1, m11 = 0,
@@ -85,7 +69,7 @@ class mat4 {
      * @param a - Matrix to clone.
      * @return The newly created matrix.
      */
-    public static clone(a) {
+    public static clone (a) {
         return new mat4(
             a.m00, a.m01, a.m02, a.m03,
             a.m04, a.m05, a.m06, a.m07,
@@ -101,7 +85,7 @@ class mat4 {
      * @param a - The specified matrix.
      * @return out.
      */
-    public static copy(out, a) {
+    public static copy (out, a) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -143,7 +127,7 @@ class mat4 {
      * @param m33 - Value assigned to element at column 3 row 3.
      * @return out.
      */
-    public static set(out, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+    public static set (out, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
         out.m00 = m00;
         out.m01 = m01;
         out.m02 = m02;
@@ -169,7 +153,7 @@ class mat4 {
      * @param out - Matrix to modified.
      * @return out.
      */
-    public static identity(out) {
+    public static identity (out) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -196,7 +180,7 @@ class mat4 {
      * @param a - Matrix to transpose.
      * @return out.
      */
-    public static transpose(out, a) {
+    public static transpose (out, a) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
             const a01 = a.m01, a02 = a.m02, a03 = a.m03,
@@ -244,7 +228,7 @@ class mat4 {
      * @param a - Matrix to invert.
      * @return out.
      */
-    public static invert(out, a) {
+    public static invert (out, a) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -298,7 +282,7 @@ class mat4 {
      * @param a - Matrix to calculate.
      * @return out.
      */
-    public static adjoint(out, a) {
+    public static adjoint (out, a) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -329,7 +313,7 @@ class mat4 {
      * @param a - Matrix to calculate.
      * @return Determinant of a.
      */
-    public static determinant(a) {
+    public static determinant (a) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -360,7 +344,7 @@ class mat4 {
      * @param b - The second operand.
      * @return out.
      */
-    public static multiply(out, a, b) {
+    public static multiply (out, a, b) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -396,7 +380,7 @@ class mat4 {
     /**
      * Alias of {@link mat4.multiply}.
      */
-    public static mul(out, a, b) {
+    public static mul (out, a, b) {
         return mat4.multiply(out, a, b);
     }
 
@@ -408,9 +392,9 @@ class mat4 {
      * @param v - The translation offset.
      * @return out.
      */
-    public static translate(out, a, v) {
-        let x = v.x, y = v.y, z = v.z,
-            a00, a01, a02, a03,
+    public static translate (out, a, v) {
+        const x = v.x, y = v.y, z = v.z;
+        let a00, a01, a02, a03,
             a10, a11, a12, a13,
             a20, a21, a22, a23;
 
@@ -444,8 +428,8 @@ class mat4 {
      * @param a - Matrix to multiply.
      * @param v - The scale vector.
      * @return out
-     **/
-    public static scale(out, a, v) {
+     */
+    public static scale (out, a, v) {
         const x = v.x, y = v.y, z = v.z;
 
         out.m00 = a.m00 * x;
@@ -476,7 +460,7 @@ class mat4 {
      * @param axis - The rotation axis.
      * @return out.
      */
-    public static rotate(out, a, rad, axis) {
+    public static rotate (out, a, rad, axis) {
         let x = axis.x, y = axis.y, z = axis.z;
         let s, c, t,
             a00, a01, a02, a03,
@@ -543,7 +527,7 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    public static rotateX(out, a, rad) {
+    public static rotateX (out, a, rad) {
         const s = Math.sin(rad),
             c = Math.cos(rad),
             a10 = a.m04,
@@ -587,7 +571,7 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    public static rotateY(out, a, rad) {
+    public static rotateY (out, a, rad) {
         const s = Math.sin(rad),
             c = Math.cos(rad),
             a00 = a.m00,
@@ -631,7 +615,7 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    public static rotateZ(out, a, rad) {
+    public static rotateZ (out, a, rad) {
         const s = Math.sin(rad),
             c = Math.cos(rad),
             a00 = a.m00,
@@ -679,7 +663,7 @@ class mat4 {
      * @param v - The translation offset.
      * @return out.
      */
-    public static fromTranslation(out, v) {
+    public static fromTranslation (out, v) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -710,7 +694,7 @@ class mat4 {
      * @param v - The scale vector.
      * @return out.
      */
-    public static fromScaling(out, v) {
+    public static fromScaling (out, v) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -742,7 +726,7 @@ class mat4 {
      * @param axis - The rotation axis.
      * @return out.
      */
-    public static fromRotation(out, rad, axis) {
+    public static fromRotation (out, rad, axis) {
         let x = axis.x, y = axis.y, z = axis.z;
         let len = Math.sqrt(x * x + y * y + z * z);
         let s, c, t;
@@ -791,7 +775,7 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    public static fromXRotation(out, rad) {
+    public static fromXRotation (out, rad) {
         const s = Math.sin(rad),
             c = Math.cos(rad);
 
@@ -826,7 +810,7 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    public static fromYRotation(out, rad) {
+    public static fromYRotation (out, rad) {
         const s = Math.sin(rad),
             c = Math.cos(rad);
 
@@ -861,7 +845,7 @@ class mat4 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    public static fromZRotation(out, rad) {
+    public static fromZRotation (out, rad) {
         const s = Math.sin(rad),
             c = Math.cos(rad);
 
@@ -900,7 +884,7 @@ class mat4 {
      * @param v - Translation vector.
      * @return out.
      */
-    public static fromRT(out, q, v) {
+    public static fromRT (out, q, v) {
         // Quaternion math
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
@@ -946,7 +930,7 @@ class mat4 {
      * @param  {mat4} mat - Matrix to be decomposed.
      * @return out.
      */
-    public static getTranslation(out, mat) {
+    public static getTranslation (out, mat) {
         out.x = mat.m12;
         out.y = mat.m13;
         out.z = mat.m14;
@@ -964,7 +948,7 @@ class mat4 {
      * @param  {mat4} mat - Matrix to be decomposed.
      * @return out.
      */
-    public static getScaling(out, mat) {
+    public static getScaling (out, mat) {
         const m11 = mat.m00,
             m12 = mat.m01,
             m13 = mat.m02,
@@ -991,8 +975,8 @@ class mat4 {
      * @param mat - Matrix to be decomposed.
      * @return out.
      */
-    public static getRotation(out, mat) {
-        // Algorithm taken from http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+    public static getRotation (out, mat) {
+        // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
         const trace = mat.m00 + mat.m05 + mat.m10;
         let S = 0;
 
@@ -1042,7 +1026,7 @@ class mat4 {
      * @param s - Scale vector.
      * @return out.
      */
-    public static fromRTS(out, q, v, s) {
+    public static fromRTS (out, q, v, s) {
         // Quaternion math
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
@@ -1083,7 +1067,8 @@ class mat4 {
     }
 
     /**
-     * Creates a matrix from a quaternion rotation, translation offset and scale vector, rotating and scaling around the given origin.
+     * Creates a matrix from a quaternion rotation, translation offset and scale vector,
+     * rotating and scaling around the given origin.
      * This is equivalent to (but much faster than):
      *
      *     mat4.identity(dest);
@@ -1102,7 +1087,7 @@ class mat4 {
      * @param o The origin vector around which to scale and rotate.
      * @return out.
      */
-    public static fromRTSOrigin(out, q, v, s, o) {
+    public static fromRTSOrigin (out, q, v, s, o) {
         // Quaternion math
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
@@ -1155,7 +1140,7 @@ class mat4 {
      *
      * @return out.
      */
-    public static fromQuat(out, q) {
+    public static fromQuat (out, q) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -1206,7 +1191,7 @@ class mat4 {
      * @param far - Far bound of the frustum.
      * @return out.
      */
-    public static frustum(out, left, right, bottom, top, near, far) {
+    public static frustum (out, left, right, bottom, top, near, far) {
         const rl = 1 / (right - left);
         const tb = 1 / (top - bottom);
         const nf = 1 / (near - far);
@@ -1240,7 +1225,7 @@ class mat4 {
      * @param far - Far bound of the frustum.
      * @return out.
      */
-    public static perspective(out, fovy, aspect, near, far) {
+    public static perspective (out, fovy, aspect, near, far) {
         const f = 1.0 / Math.tan(fovy / 2);
         const nf = 1 / (near - far);
 
@@ -1274,7 +1259,7 @@ class mat4 {
      * @param far - Far bound of the frustum.
      * @return out.
      */
-    public static perspectiveFromFieldOfView(out, fov, near, far) {
+    public static perspectiveFromFieldOfView (out, fov, near, far) {
         const upTan = Math.tan(fov.upDegrees * Math.PI / 180.0);
         const downTan = Math.tan(fov.downDegrees * Math.PI / 180.0);
         const leftTan = Math.tan(fov.leftDegrees * Math.PI / 180.0);
@@ -1313,7 +1298,7 @@ class mat4 {
      * @param far - Far bound of the frustum.
      * @return out.
      */
-    public static ortho(out, left, right, bottom, top, near, far) {
+    public static ortho (out, left, right, bottom, top, near, far) {
         const lr = 1 / (left - right);
         const bt = 1 / (bottom - top);
         const nf = 1 / (near - far);
@@ -1346,7 +1331,7 @@ class mat4 {
      * @param up - Vector pointing up.
      * @return out
      */
-    public static lookAt(out, eye, center, up) {
+    public static lookAt (out, eye, center, up) {
         let x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
         const eyex = eye.x;
         const eyey = eye.y;
@@ -1405,8 +1390,67 @@ class mat4 {
      * @param a - The matrix.
      * @return String representation of this matrix.
      */
-    public static str(a) {
-        return `mat4(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ${a.m08}, ${a.m09}, ${a.m10}, ${a.m11}, ${a.m12}, ${a.m13}, ${a.m14}, ${a.m15})`;
+    public static str (a) {
+        return `mat4(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ` +
+            `${a.m08}, ${a.m09}, ${a.m10}, ${a.m11}, ${a.m12}, ${a.m13}, ${a.m14}, ${a.m15})`;
+    }
+
+    /**
+     * Calculates normal matrix (transpose inverse).
+     *
+     * @param out - Matrix to store result.
+     * @param a - A 4x4 matrix to derive the normal matrix from.
+     *
+     * @return out.
+     */
+    public static normalMatrix (out, a) {
+        const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
+            a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
+            a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
+            a30 = a.m12, a31 = a.m13, a32 = a.m14, a33 = a.m15;
+
+        const b00 = a00 * a11 - a01 * a10;
+        const b01 = a00 * a12 - a02 * a10;
+        const b02 = a00 * a13 - a03 * a10;
+        const b03 = a01 * a12 - a02 * a11;
+        const b04 = a01 * a13 - a03 * a11;
+        const b05 = a02 * a13 - a03 * a12;
+        const b06 = a20 * a31 - a21 * a30;
+        const b07 = a20 * a32 - a22 * a30;
+        const b08 = a20 * a33 - a23 * a30;
+        const b09 = a21 * a32 - a22 * a31;
+        const b10 = a21 * a33 - a23 * a31;
+        const b11 = a22 * a33 - a23 * a32;
+
+        // Calculate the determinant
+        let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+        if (!det) {
+            return null;
+        }
+        det = 1.0 / det;
+
+        out.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+        out.m01 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+        out.m02 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+        out.m03 = 0;
+
+        out.m04 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+        out.m05 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+        out.m06 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+        out.m07 = 0;
+
+        out.m08 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+        out.m09 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+        out.m10 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+        out.m11 = 0;
+
+        out.m12 = 0;
+        out.m13 = 0;
+        out.m14 = 0;
+        out.m15 = 1;
+
+        return out;
     }
 
     /**
@@ -1416,7 +1460,7 @@ class mat4 {
      * @param m - The matrix.
      * @return out.
      */
-    public static array(out, m) {
+    public static array (out, m) {
         out[0] = m.m00;
         out[1] = m.m01;
         out[2] = m.m02;
@@ -1443,8 +1487,11 @@ class mat4 {
      * @param a - Matrix to calculate Frobenius norm of.
      * @return - The frobenius norm.
      */
-    public static frob(a) {
-        return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + Math.pow(a.m06, 2) + Math.pow(a.m07, 2) + Math.pow(a.m08, 2) + Math.pow(a.m09, 2) + Math.pow(a.m10, 2) + Math.pow(a.m11, 2) + Math.pow(a.m12, 2) + Math.pow(a.m13, 2) + Math.pow(a.m14, 2) + Math.pow(a.m15, 2)));
+    public static frob (a) {
+        return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) +
+            Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + Math.pow(a.m06, 2) + Math.pow(a.m07, 2) + Math.pow(a.m08, 2) +
+            Math.pow(a.m09, 2) + Math.pow(a.m10, 2) + Math.pow(a.m11, 2) + Math.pow(a.m12, 2) + Math.pow(a.m13, 2) +
+            Math.pow(a.m14, 2) + Math.pow(a.m15, 2)));
     }
 
     /**
@@ -1455,7 +1502,7 @@ class mat4 {
      * @param b - The second operand.
      * @return out.
      */
-    public static add(out, a, b) {
+    public static add (out, a, b) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -1483,7 +1530,7 @@ class mat4 {
      * @param b - The second operand.
      * @return out.
      */
-    public static subtract(out, a, b) {
+    public static subtract (out, a, b) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -1506,7 +1553,7 @@ class mat4 {
     /**
      * Alias of {@link mat4.subtract}.
      */
-    public static sub(out, a, b) {
+    public static sub (out, a, b) {
         return mat4.subtract(out, a, b);
     }
 
@@ -1518,7 +1565,7 @@ class mat4 {
      * @param b - The scale number.
      * @return out.
      */
-    public static multiplyScalar(out, a, b) {
+    public static multiplyScalar (out, a, b) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -1547,7 +1594,7 @@ class mat4 {
      * @param scale - The scale number.
      * @return out.
      */
-    public static multiplyScalarAndAdd(out, a, b, scale) {
+    public static multiplyScalarAndAdd (out, a, b, scale) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);
@@ -1574,7 +1621,7 @@ class mat4 {
      * @param b - The second matrix.
      * @return True if the matrices are equal, false otherwise.
      */
-    public static exactEquals(a, b) {
+    public static exactEquals (a, b) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03 &&
             a.m04 === b.m04 && a.m05 === b.m05 && a.m06 === b.m06 && a.m07 === b.m07 &&
             a.m08 === b.m08 && a.m09 === b.m09 && a.m10 === b.m10 && a.m11 === b.m11 &&
@@ -1588,7 +1635,7 @@ class mat4 {
      * @param b - The second matrix.
      * @return True if the matrices are equal, false otherwise.
      */
-    public static equals(a, b) {
+    public static equals (a, b) {
         const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03,
             a4 = a.m04, a5 = a.m05, a6 = a.m06, a7 = a.m07,
             a8 = a.m08, a9 = a.m09, a10 = a.m10, a11 = a.m11,
@@ -1618,6 +1665,24 @@ class mat4 {
             Math.abs(a15 - b15) <= EPSILON * Math.max(1.0, Math.abs(a15), Math.abs(b15))
         );
     }
+
+    public m00: number = 1;
+    public m01: number = 0;
+    public m02: number = 0;
+    public m03: number = 0;
+    public m04: number = 0;
+    public m05: number = 1;
+    public m06: number = 0;
+    public m07: number = 0;
+    public m08: number = 0;
+    public m09: number = 0;
+    public m10: number = 1;
+    public m11: number = 0;
+    public m12: number = 0;
+    public m13: number = 0;
+    public m14: number = 0;
+    public m15: number = 1;
+
     /**
      * Creates a matrix, with elements specified separately.
      *
@@ -1638,7 +1703,7 @@ class mat4 {
      * @param m14 - Value assigned to element at column 3 row 2.
      * @param m15 - Value assigned to element at column 3 row 3.
      */
-    constructor(
+    constructor (
         m00 = 1, m01 = 0, m02 = 0, m03 = 0,
         m04 = 0, m05 = 1, m06 = 0, m07 = 0,
         m08 = 0, m09 = 0, m10 = 1, m11 = 0,
@@ -1647,97 +1712,97 @@ class mat4 {
         /**
          * The element at column 0 row 0.
          * @type {number}
-         * */
+         */
         this.m00 = m00;
 
         /**
          * The element at column 0 row 1.
          * @type {number}
-         * */
+         */
         this.m01 = m01;
 
         /**
          * The element at column 0 row 2.
          * @type {number}
-         * */
+         */
         this.m02 = m02;
 
         /**
          * The element at column 0 row 3.
          * @type {number}
-         * */
+         */
         this.m03 = m03;
 
         /**
          * The element at column 1 row 0.
          * @type {number}
-         * */
+         */
         this.m04 = m04;
 
         /**
          * The element at column 1 row 1.
          * @type {number}
-         * */
+         */
         this.m05 = m05;
 
         /**
          * The element at column 1 row 2.
          * @type {number}
-         * */
+         */
         this.m06 = m06;
 
         /**
          * The element at column 1 row 3.
          * @type {number}
-         * */
+         */
         this.m07 = m07;
 
         /**
          * The element at column 2 row 0.
          * @type {number}
-         * */
+         */
         this.m08 = m08;
 
         /**
          * The element at column 2 row 1.
          * @type {number}
-         * */
+         */
         this.m09 = m09;
 
         /**
          * The element at column 2 row 2.
          * @type {number}
-         * */
+         */
         this.m10 = m10;
 
         /**
          * The element at column 2 row 3.
          * @type {number}
-         * */
+         */
         this.m11 = m11;
 
         /**
          * The element at column 3 row 0.
          * @type {number}
-         * */
+         */
         this.m12 = m12;
 
         /**
          * The element at column 3 row 1.
          * @type {number}
-         * */
+         */
         this.m13 = m13;
 
         /**
          * The element at column 3 row 2.
          * @type {number}
-         * */
+         */
         this.m14 = m14;
 
         /**
          * The element at column 3 row 3.
          * @type {number}
-         * */
+         */
         this.m15 = m15;
     }
 }

@@ -2,6 +2,7 @@ import { IBArray } from '../../3d/assets/mesh';
 import { intersect, ray, triangle } from '../../3d/geom-utils';
 import { RecyclePool } from '../../3d/memop';
 import { Root } from '../../core/root';
+import { Mat4, Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Layers } from '../../scene-graph/layers';
@@ -121,10 +122,8 @@ export class RenderScene {
         this._pointLights = [];
     }
 
-    public createModel<T extends Model> (clazz: new () => T): T {
-        const model = new clazz();
-        model.initialize();
-        model.scene = this;
+    public createModel<T extends Model> (clazz: new (s: RenderScene, n: Node) => T, node: Node): T {
+        const model = new clazz(this, node);
         this._models.push(model);
         return model;
     }
@@ -153,7 +152,7 @@ export class RenderScene {
      * Cast a ray into the scene, record all the intersected models in the result array
      * @param worldRay - the testing ray
      * @param mask - the layer mask to filter the models
-     * @return the results array
+     * @returns the results array
      */
     public raycast (worldRay: ray, mask: number = Layers.RaycastMask): IRaycastResult[] {
         pool.reset();
@@ -167,15 +166,17 @@ export class RenderScene {
             // broadphase
             distance = intersect.ray_aabb(modelRay, m.modelBounds);
             if (distance <= 0) { continue; }
-            const subModel = m.subMeshData;
-            if (!subModel || !subModel.geometricInfo) { continue; }
-            const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
-            narrowphase(vb, ib, subModel.primitiveMode, sides);
-            if (distance < Infinity) {
-                const r = pool.add();
-                r.node = node;
-                r.distance = distance * vec3.magnitude(vec3.mul(v3, modelRay.d, node._scale));
-                results[pool.length - 1] = r;
+            for (let i = 0; i < m.subModelNum; ++i) {
+                const subModel = m.getSubModel(i).subMeshData;
+                if (!subModel || !subModel.geometricInfo) { continue; }
+                const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
+                narrowphase(vb, ib, subModel.primitiveMode, sides);
+                if (distance < Infinity) {
+                    const r = pool.add();
+                    r.node = node;
+                    r.distance = distance * vec3.magnitude(vec3.mul(v3, modelRay.d, node._scale));
+                    results[pool.length - 1] = r;
+                }
             }
         }
         results.length = pool.length;
@@ -184,8 +185,8 @@ export class RenderScene {
 }
 
 const modelRay = ray.create();
-const v3 = vec3.create();
-const m4 = mat4.create();
+const v3 = new Vec3();
+const m4 = new Mat4();
 let distance = Infinity;
 const tri = triangle.create();
 const pool = new RecyclePool(() => {

@@ -1,5 +1,6 @@
 import { EPSILON } from './utils';
 import vec3 from './vec3';
+// tslint:disable: one-variable-per-declaration
 
 /**
  * Mathematical 3x3 matrix.
@@ -15,7 +16,8 @@ import vec3 from './vec3';
  *  0, 0, 1, 0,
  *  x, y, z, 0]
  *
- * The same matrix in the [OpenGL documentation](https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glTranslate.xml)
+ * The same matrix in the
+ * [OpenGL documentation](https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glTranslate.xml)
  * is written as:
  *
  *  1 0 0 x
@@ -43,7 +45,7 @@ class mat3 {
      * @param m08 - Value assigned to element at column 2 row 2.
      * @return The newly created matrix.
      */
-    public static create(m00 = 1, m01 = 0, m02 = 0, m03 = 0, m04 = 1, m05 = 0, m06 = 0, m07 = 0, m08 = 1) {
+    public static create (m00 = 1, m01 = 0, m02 = 0, m03 = 0, m04 = 1, m05 = 0, m06 = 0, m07 = 0, m08 = 1) {
         return new mat3(m00, m01, m02, m03, m04, m05, m06, m07, m08);
     }
 
@@ -53,7 +55,7 @@ class mat3 {
      * @param a - Matrix to clone.
      * @return The newly created matrix.
      */
-    public static clone(a) {
+    public static clone (a) {
         return new mat3(
             a.m00, a.m01, a.m02,
             a.m03, a.m04, a.m05,
@@ -68,7 +70,7 @@ class mat3 {
      * @param a - The specified matrix.
      * @return out.
      */
-    public static copy(out, a) {
+    public static copy (out, a) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -96,7 +98,7 @@ class mat3 {
      * @param m22 - Value assigned to element at column 2 row 2.
      * @return out.
      */
-    public static set(out, m00, m01, m02, m10, m11, m12, m20, m21, m22) {
+    public static set (out, m00, m01, m02, m10, m11, m12, m20, m21, m22) {
         out.m00 = m00;
         out.m01 = m01;
         out.m02 = m02;
@@ -114,7 +116,7 @@ class mat3 {
      *
      * @return out.
      */
-    public static identity(out) {
+    public static identity (out) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -134,7 +136,7 @@ class mat3 {
      * @param a - Matrix to transpose.
      * @return out.
      */
-    public static transpose(out, a) {
+    public static transpose (out, a) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
             const a01 = a.m01, a02 = a.m02, a12 = a.m05;
@@ -166,7 +168,7 @@ class mat3 {
      * @param a - Matrix to invert.
      * @return out.
      */
-    public static invert(out, a) {
+    public static invert (out, a) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -202,7 +204,7 @@ class mat3 {
      * @param a - Matrix to calculate.
      * @return out.
      */
-    public static adjoint(out, a) {
+    public static adjoint (out, a) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -225,7 +227,7 @@ class mat3 {
      * @param a - Matrix to calculate.
      * @return Determinant of a.
      */
-    public static determinant(a) {
+    public static determinant (a) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -241,7 +243,7 @@ class mat3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static multiply(out, a, b) {
+    public static multiply (out, a, b) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -267,7 +269,7 @@ class mat3 {
     /**
      * Alias of {@link mat3.multiply}.
      */
-    public static mul(out, a, b) {
+    public static mul (out, a, b) {
         return mat3.multiply(out, a, b);
     }
 
@@ -279,7 +281,7 @@ class mat3 {
      * @param v - The translation offset.
      * @return out.
      */
-    public static translate(out, a, v) {
+    public static translate (out, a, v) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -307,7 +309,7 @@ class mat3 {
      * @param rad - The rotation angle.
      * @return out
      */
-    public static rotate(out, a, rad) {
+    public static rotate (out, a, rad) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -336,8 +338,8 @@ class mat3 {
      * @param a - Matrix to multiply.
      * @param v - The scale vector.
      * @return out
-     **/
-    public static scale(out, a, v) {
+     */
+    public static scale (out, a, v) {
         const x = v.x, y = v.y;
 
         out.m00 = x * a.m00;
@@ -361,7 +363,7 @@ class mat3 {
      * @param a - The 4x4 matrix.
      * @return out.
      */
-    public static fromMat4(out, a) {
+    public static fromMat4 (out, a) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -385,7 +387,7 @@ class mat3 {
      * @param v - The translation offset.
      * @return out.
      */
-    public static fromTranslation(out, v) {
+    public static fromTranslation (out, v) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -409,7 +411,7 @@ class mat3 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    public static fromRotation(out, rad) {
+    public static fromRotation (out, rad) {
         const s = Math.sin(rad), c = Math.cos(rad);
 
         out.m00 = c;
@@ -437,7 +439,7 @@ class mat3 {
      * @param v - Scale vector.
      * @return out.
      */
-    public static fromScaling(out, v) {
+    public static fromScaling (out, v) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -458,8 +460,8 @@ class mat3 {
      * @param out - Matrix to store result.
      * @param a - The 2x3 matrix.
      * @return out.
-     **/
-    public static fromMat2d(out, a) {
+     */
+    public static fromMat2d (out, a) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = 0;
@@ -482,7 +484,7 @@ class mat3 {
      *
      * @return out.
      */
-    public static fromQuat(out, q) {
+    public static fromQuat (out, q) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -522,13 +524,13 @@ class mat3 {
      *
      * @return out
      */
-    public static fromViewUp(out, view, up) {
-        const _fromViewUpIIFE = (function() {
+    public static fromViewUp (_out, _view, _up) {
+        const _fromViewUpIIFE = (() => {
             const default_up = vec3.create(0, 1, 0);
             const x = vec3.create(0, 0, 0);
             const y = vec3.create(0, 0, 0);
 
-            return function(out, view, up) {
+            return (out, view, up) => {
                 if (vec3.sqrMag(view) < EPSILON * EPSILON) {
                     mat3.identity(out);
                     return out;
@@ -553,7 +555,7 @@ class mat3 {
                 return out;
             };
         })();
-        return _fromViewUpIIFE(out, view, up);
+        return _fromViewUpIIFE(_out, _view, _up);
     }
 
     /**
@@ -564,7 +566,7 @@ class mat3 {
      *
      * @return out.
      */
-    public static normalFromMat4(out, a) {
+    public static normalFromMat4 (out, a) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -612,7 +614,7 @@ class mat3 {
      * @param a - The matrix.
      * @return String representation of this matrix.
      */
-    public static str(a) {
+    public static str (a) {
         return `mat3(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ${a.m08})`;
     }
 
@@ -623,7 +625,7 @@ class mat3 {
      * @param m - The matrix.
      * @return out.
      */
-    public static array(out, m) {
+    public static array (out, m) {
         out[0] = m.m00;
         out[1] = m.m01;
         out[2] = m.m02;
@@ -643,8 +645,10 @@ class mat3 {
      * @param a - Matrix to calculate Frobenius norm of.
      * @return - The frobenius norm.
      */
-    public static frob(a) {
-        return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + Math.pow(a.m06, 2) + Math.pow(a.m07, 2) + Math.pow(a.m08, 2)));
+    public static frob (a) {
+        return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) +
+            Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + Math.pow(a.m06, 2) +
+            Math.pow(a.m07, 2) + Math.pow(a.m08, 2)));
     }
 
     /**
@@ -655,7 +659,7 @@ class mat3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static add(out, a, b) {
+    public static add (out, a, b) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -676,7 +680,7 @@ class mat3 {
      * @param b - The second operand.
      * @return out.
      */
-    public static subtract(out, a, b) {
+    public static subtract (out, a, b) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -692,7 +696,7 @@ class mat3 {
     /**
      * Alias of {@link mat3.subtract}.
      */
-    public static sub(out, a, b) {
+    public static sub (out, a, b) {
         return mat3.subtract(out, a, b);
     }
 
@@ -704,7 +708,7 @@ class mat3 {
      * @param b - The scale number.
      * @return out.
      */
-    public static multiplyScalar(out, a, b) {
+    public static multiplyScalar (out, a, b) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -726,7 +730,7 @@ class mat3 {
      * @param scale - The scale number.
      * @return out.
      */
-    public static multiplyScalarAndAdd(out, a, b, scale) {
+    public static multiplyScalarAndAdd (out, a, b, scale) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);
@@ -746,7 +750,7 @@ class mat3 {
      * @param b - The second matrix.
      * @return True if the matrices are equal, false otherwise.
      */
-    public static exactEquals(a, b) {
+    public static exactEquals (a, b) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 &&
             a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05 &&
             a.m06 === b.m06 && a.m07 === b.m07 && a.m08 === b.m08;
@@ -759,9 +763,11 @@ class mat3 {
      * @param b - The second matrix.
      * @return True if the matrices are equal, false otherwise.
      */
-    public static equals(a, b) {
+    public static equals (a, b) {
+        // tslint:disable: max-line-length
         const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05, a6 = a.m06, a7 = a.m07, a8 = a.m08;
         const b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05, b6 = b.m06, b7 = b.m07, b8 = b.m08;
+        // tslint:enable: max-line-length
         return (
             Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
             Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
@@ -774,6 +780,17 @@ class mat3 {
             Math.abs(a8 - b8) <= EPSILON * Math.max(1.0, Math.abs(a8), Math.abs(b8))
         );
     }
+
+    public m00: number;
+    public m01: number;
+    public m02: number;
+    public m03: number;
+    public m04: number;
+    public m05: number;
+    public m06: number;
+    public m07: number;
+    public m08: number;
+
     /**
      * Creates a matrix, with elements specified separately.
      *
@@ -787,7 +804,7 @@ class mat3 {
      * @param m07 - Value assigned to element at column 2 row 1.
      * @param m08 - Value assigned to element at column 2 row 2.
      */
-    constructor(
+    constructor (
         m00 = 1, m01 = 0, m02 = 0,
         m03 = 0, m04 = 1, m05 = 0,
         m06 = 0, m07 = 0, m08 = 1,
@@ -795,55 +812,55 @@ class mat3 {
         /**
          * The element at column 0 row 0.
          * @type {number}
-         * */
+         */
         this.m00 = m00;
 
         /**
          * The element at column 0 row 1.
          * @type {number}
-         * */
+         */
         this.m01 = m01;
 
         /**
          * The element at column 0 row 2.
          * @type {number}
-         * */
+         */
         this.m02 = m02;
 
         /**
          * The element at column 1 row 0.
          * @type {number}
-         * */
+         */
         this.m03 = m03;
 
         /**
          * The element at column 1 row 1.
          * @type {number}
-         * */
+         */
         this.m04 = m04;
 
         /**
          * The element at column 1 row 2.
          * @type {number}
-         * */
+         */
         this.m05 = m05;
 
         /**
          * The element at column 2 row 0.
          * @type {number}
-         * */
+         */
         this.m06 = m06;
 
         /**
          * The element at column 2 row 1.
          * @type {number}
-         * */
+         */
         this.m07 = m07;
 
         /**
          * The element at column 2 row 2.
          * @type {number}
-         * */
+         */
         this.m08 = m08;
     }
 }

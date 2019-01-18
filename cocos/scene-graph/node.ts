@@ -271,6 +271,10 @@ class Node extends EventTarget(BaseNode) {
         return this._euler;
     }
 
+    get hasChanged () {
+        return this._hasChanged;
+    }
+
     set layer (l) {
         this._layer = l;
     }
