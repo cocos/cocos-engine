@@ -7,4 +7,5 @@ export { default as quad } from './quad';
 export { default as sphere } from './sphere';
 export { default as torus } from './torus';
 export { default as capsule } from './capsule';
-export { translate } from './transform';
+export { default as circle } from './circle';
+export { translate, scale } from './transform';

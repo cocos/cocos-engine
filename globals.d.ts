@@ -40,3 +40,9 @@ declare const CC_SUPPORT_JIT: boolean;
 declare const cc: any;
 
 declare const _cc: any;
+
+type RecursivePartial<T> = {
+    [P in keyof T]?:
+        T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
+        T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
+};
