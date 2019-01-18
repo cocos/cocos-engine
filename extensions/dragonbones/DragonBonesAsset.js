@@ -27,6 +27,7 @@
 /**
  * @module dragonBones
  */
+let ArmatureCache = require('./ArmatureCache').sharedCache;
 
 /**
  * !#en The skeleton data of dragonBones.
@@ -189,7 +190,9 @@ var DragonBonesAsset = cc.Class({
         var useGlobalFactory = !CC_JSB;
         if (useGlobalFactory && this._dragonBonesData) {
             var factory = dragonBones.CCFactory.getInstance();
-            factory.removeDragonBonesData(this._dragonBonesData.name, true);
+            let name = this._dragonBonesData.name;
+            factory.removeDragonBonesData(name, true);
+            ArmatureCache.clearByDBName(name);
         }
         this._super();
     },

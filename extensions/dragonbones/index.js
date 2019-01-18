@@ -133,6 +133,7 @@ if (_global.dragonBones !== undefined) {
             require('./CCSlot');
             require('./CCTextureData');
             require('./CCArmatureDisplay');
+            require('./ArmatureCache');
         }
         
         // require the component for dragonbones

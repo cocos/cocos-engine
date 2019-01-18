@@ -126,6 +126,8 @@ var DragonBonesAtlasAsset = cc.Class({
             var name = this._textureAtlasData.name;
             factory.removeTextureAtlasData(name, true);
             factory.removeDragonBonesData(name, true);
+            ArmatureCache.clearByDBName(name);
+            ArmatureCache.clearByAtlasName(name);
         }
         this._super();
     },

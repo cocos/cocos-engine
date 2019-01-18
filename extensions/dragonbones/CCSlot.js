@@ -26,25 +26,15 @@
 const math = require('../../cocos2d/core/renderer/render-engine').math;
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;
-const dbDebug = dragonBones.DragonBones.debug;
 
 dragonBones.CCSlot = cc.Class({
     name: 'dragonBones.CCSlot',
     extends: dragonBones.Slot,
 
     ctor () {
-        this._curFrame = undefined;
-        this._cacheFrame = [];
-        this._cacheFrameDirty = [];
-        this._realTimeFrame = [];
-
-        this._matrix = undefined;
-        this._cacheMatrix = [];
-        this._realTimeMatrix = math.mat4.create();
-
         this._localVertices = [];
         this._indices = [];
-        
+        this._matrix = math.mat4.create();
         this._worldMatrix = math.mat4.create();
         this._worldMatrixDirty = true;
         this._visible = false;
@@ -53,19 +43,9 @@ dragonBones.CCSlot = cc.Class({
 
     _onClear () {
         this._super();
-
-        this._curFrame = undefined;
-        this._cacheFrame.length = 0;
-        this._cacheFrameDirty.length = 0;
-        this._realTimeFrame.length = 0;
-
-        this._matrix = undefined;
-        this._cacheMatrix.length = 0;
-        math.mat4.identity(this._realTimeMatrix);
-
         this._localVertices.length = 0;
         this._indices.length = 0;
-
+        math.mat4.identity(this._matrix);
         math.mat4.identity(this._worldMatrix);
         this._worldMatrixDirty = true;
         this._color = cc.color();
@@ -135,6 +115,7 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateFrame () {
+        this._indices.length = 0;
         let indices = this._indices,
             localVertices = this._localVertices;
 
@@ -327,139 +308,35 @@ dragonBones.CCSlot = cc.Class({
             }
         }
 
-        this._meshDirty = true;
-    },
-
-    update (cacheFrameIndex) {
-        let displayDirty = this._displayDirty;
-        let transformDirty = this._transformDirty;
-        this._super(cacheFrameIndex);
-
-        let meshDirty = this._meshDirty;
-        let isFromCache = this._isFromCache;
-        this._meshDirty = false;
-
-        let cacheFrame = this._cacheFrame;
-        let cacheMatrix = this._cacheMatrix;
-        let cacheIndex = this._cachedFrameIndex;
-        let cacheFrameDirty = this._cacheFrameDirty;
-        let enabledCache = (cacheIndex !== -1);
-
-        let needUpdateCurFrameData = false;
-        let needUpdateMatrix = false;
-
-        // Display changed, clear all cache.
-        if (displayDirty) {
-            cacheFrame.length = 0;
-            cacheFrameDirty.length = 0;
-            needUpdateCurFrameData = true;
-        }
-
-        // Mesh change, no need to clear all cache, just dirty.
-        if (meshDirty) {
-            for (let key in cacheFrameDirty) {
-                cacheFrameDirty[key] = true;
-            }
-            needUpdateCurFrameData = true;
-        }
-        
-        // Transform update not from cache.
-        if (transformDirty && !isFromCache) {
-            needUpdateCurFrameData = true;
-            needUpdateMatrix = true;
-        }
-
-        if (needUpdateMatrix || !cacheMatrix[cacheIndex]) {
-            // If no need to cache,just use real time matrix instead of create new one.
-            if (!enabledCache) {
-                this._matrix = this._realTimeMatrix;
-                math.mat4.identity(this._matrix);
-
-            // If has no cache, create new one.
-            } else {
-                this._matrix = math.mat4.create();
-                cacheMatrix[cacheIndex] = this._matrix;
-            }
-
-            let t = this._matrix;
-            let gt = this.globalTransformMatrix;
-            t.m00 = gt.a;
-            t.m01 = -gt.b;
-            t.m04 = -gt.c;
-            t.m05 = gt.d;
-            t.m12 = gt.tx - (gt.a * this._pivotX + gt.c * this._pivotY);
-            t.m13 = -(gt.ty - (gt.b * this._pivotX + gt.d * this._pivotY));
-
-        } else {
-            this._matrix = cacheMatrix[cacheIndex];
-        }
-
-        let cacheFrameItem = cacheFrame[cacheIndex];
-        let isCacheDirty = cacheFrameDirty[cacheIndex];
-        if (needUpdateCurFrameData || !cacheFrameItem || isCacheDirty) {
-            // If no need to cache,just use real time frame instead of create new one.
-            if (!enabledCache) {
-                this._curFrame = this._realTimeFrame;
-
-            // If has cache frame, use it.
-            } else if (cacheFrameItem) {
-                this._curFrame = cacheFrameItem;
-                cacheFrameDirty[cacheIndex] = false;
-
-            // If has no cache frame, create new one.
-            } else {
-                this._curFrame = [];
-                cacheFrame[cacheIndex] = this._curFrame;
-                cacheFrameDirty[cacheIndex] = false;
-            }
-
-            let vertices = this._localVertices;
-            let matrix = this._matrix;
-            let curFrame = this._curFrame;
-            let offset = 0;
-            curFrame.length = 0;
-            for (let i = 0, n = vertices.length; i < n; i++) {
-                let vertex = vertices[i];
-                curFrame[offset++] = vertex.x * matrix.m00 + vertex.y * matrix.m04 + matrix.m12;
-                curFrame[offset++] = vertex.x * matrix.m01 + vertex.y * matrix.m05 + matrix.m13;
-                curFrame[offset++] = vertex.u;
-                curFrame[offset++] = vertex.v;
-            }
-
-            if (dbDebug) {
-                dragonBones._calcTimes = dragonBones._calcTimes || 0;
-                dragonBones._calcTimes ++;
-            }
-
-        } else {
-            this._curFrame = cacheFrame[cacheIndex];
-
-            if (dbDebug) {
-                dragonBones._cacheTimes = dragonBones._cacheTimes || 0;
-                dragonBones._cacheTimes ++;
-            }
-        }
     },
 
     _updateTransform () {
+        let t = this._matrix;
+        t.m00 = this.globalTransformMatrix.a;
+        t.m01 = -this.globalTransformMatrix.b;
+        t.m04 = -this.globalTransformMatrix.c;
+        t.m05 = this.globalTransformMatrix.d;
+        t.m12 = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+        t.m13 = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
+
         this._worldMatrixDirty = true;
     },
 
     updateWorldMatrix () {
         if (!this._armature) return;
 
-        let parentSlot = this._armature._parent;
+        var parentSlot = this._armature._parent;
         if (parentSlot) {
             parentSlot.updateWorldMatrix();
         }
 
         if (this._worldMatrixDirty) {
-            this._calculWorldMatrix();
-            let childArmature = this.childArmature;
+            this.calculWorldMatrix();
+            var childArmature = this.childArmature;
             if (!childArmature) return;
-            let slots = childArmature.getSlots();
-            for (let i = 0,n = slots.length; i < n; i++) {
-                let slot = slots[i];
+            var slots = childArmature.getSlots();
+            for (var i = 0,n = slots.length; i < n; i++) {
+                var slot = slots[i];
                 if (slot) {
                     slot._worldMatrixDirty = true;
                 }
@@ -488,26 +365,13 @@ dragonBones.CCSlot = cc.Class({
         }
     },
 
-    _calculWorldMatrix () {
-        let parent = this._armature._parent;
+    calculWorldMatrix () {
+        var parent = this._armature._parent;
         if (parent) {
-            this._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
+            this._mulMat(this._worldMatrix ,parent._worldMatrix, this._matrix);
         } else {
-            let display = this._armature.getDisplay();
-            let ccNode = display._ccNode;
-            if (ccNode) {
-                ccNode._updateWorldMatrix();
-                this._mulMat(this._worldMatrix, ccNode._worldMatrix, this._matrix);
-            } else {
-                math.mat4.copy(this._worldMatrix, this._matrix);
-            }
+            math.mat4.copy(this._worldMatrix, this._matrix);
         }
         this._worldMatrixDirty = false;
     }
 });
-
-if (CC_DEBUG) {
-    dragonBones.CCSlot.calcTimes = 0;
-    dragonBones.CCSlot.cacheTimes = 0;
-    dragonBones.CCSlot.newTimes = 0;
-}
