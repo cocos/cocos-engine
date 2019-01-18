@@ -5,13 +5,14 @@ import { Pass } from '../renderer/core/pass';
 import { Camera } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
+import { GFXPipelineState } from '../gfx/pipeline-state';
 
 export interface IRenderItem {
     hash: number;
     depth: number;
     shaderId: number;
     subModel: SubModel;
-    pass: Pass;
+    pso: GFXPipelineState;
     cmdBuff: GFXCommandBuffer;
 }
 
@@ -69,11 +70,7 @@ export class RenderQueue {
 
         for (let i = 0; i < model.subModelNum; ++i) {
             const subModel = model.getSubModel(i);
-            for (const pass of subModel.passes) {
-                // update pass
-                pass.update();
-
-                const pso = pass.pipelineState;
+            for (const pso of subModel.psos) {
 
                 const isTransparent = pso.blendState.targets[0].blend;
 
@@ -84,13 +81,13 @@ export class RenderQueue {
 
                     this.opaques.push({
                         hash, depth, shaderId: pso.shader.id,
-                        subModel, pass, cmdBuff: subModel.commandBuffers[i]});
+                        subModel, pso, cmdBuff: subModel.commandBuffers[i]});
                 } else {
                     const hash = (1 << 30) | i;
 
                     this.transparents.push({
                         hash, depth, shaderId: pso.shader.id,
-                        subModel, pass, cmdBuff: subModel.commandBuffers[i]});
+                        subModel, pso, cmdBuff: subModel.commandBuffers[i]});
                 }
             }
         }
