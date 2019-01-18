@@ -82,7 +82,7 @@ export const simple: IAssembler = {
             sprite.renderData!.vertexCount,
             sprite.renderData!.indiceCount
         );
-        const commitBuffer: IUIRenderData = renderer.createCommitBuffer();
+        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const datas: IRenderData[] = sprite!.renderData!.datas;
         const node: Node = sprite.node;
         const color: Color = sprite.color;

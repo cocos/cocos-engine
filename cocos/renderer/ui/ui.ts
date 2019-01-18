@@ -54,7 +54,7 @@ export interface IUIRenderData {
 }
 
 export class UI {
-    private _commitBuffers: RecyclePool = new RecyclePool(() => {
+    private _commitUIRenderDataPool: RecyclePool = new RecyclePool(() => {
         return new Object() as IUIRenderData;
     }, 128);
 
@@ -197,8 +197,8 @@ export class UI {
         return buffer;
     }
 
-    public createCommitBuffer(){
-        return this._commitBuffers.add();
+    public createUIRenderData(){
+        return this._commitUIRenderDataPool.add();
     }
 
     public update (dt: number) {
@@ -246,14 +246,14 @@ export class UI {
 
     private _reset(){
         this._bufferPool.reset();
-        this._commitBuffers.reset();
+        this._commitUIRenderDataPool.reset();
     }
 
     private _commitComp (comp: UIRenderComponent) {
         comp.updateAssembler(this);
         const canvasComp: CanvasComponent | null = this.getScreen(comp.viewID);
 
-        // const renderDataFormat: IUIRenderData = this._commitBuffers.add();
+        // const renderDataFormat: IUIRenderData = this._commitUIRenderDataPool.add();
         // renderDataFormat.meshBuffer = buffer;
         // renderDataFormat.material = comp.material as Material;
         // renderDataFormat.camera = canvasComp!.camera!;

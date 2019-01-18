@@ -110,7 +110,7 @@ export const tilled: IAssembler = {
             sprite.renderData!.vertexCount,
             sprite.renderData!.indiceCount
         );
-        const commitBuffer: IUIRenderData = renderer.createCommitBuffer();
+        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
 
         const node = sprite.node;
         const color = sprite.color;
