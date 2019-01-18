@@ -85,10 +85,10 @@ module.exports = js.addon({
         // opacity
         ctx.globalAlpha = node.opacity / 255;
 
-        let tex = comp._texture,
+        let tex = comp._frame._texture,
             verts = comp._renderData.vertices;
 
-        let image = tex.getHtmlElementObj();
+        let image = utils.getColorizedImage(tex, node._color);
 
         for (let i = 0, l = verts.length; i < l; i+=2) {
             let x = verts[i].x;

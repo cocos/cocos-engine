@@ -153,7 +153,7 @@ let TileFlag = cc.Enum({
      * @type {Number}
      * @static
      */
-    FLIPPED_MASK: (~((0x80000000 | 0x40000000 | 0x20000000) >>> 0)) >>> 0
+    FLIPPED_MASK: (~(0x80000000 | 0x40000000 | 0x20000000)) >>> 0
 });
 
 /*

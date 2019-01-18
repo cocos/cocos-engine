@@ -23,28 +23,52 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const StencilManager = require('../../cocos2d/core/renderer/webgl/stencil-manager').sharedManager;
 const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 import gfx from '../../cocos2d/renderer/gfx';
+const VertexFormat = require('../../cocos2d/core/renderer/webgl/vertex-format')
+const VFOneColor = VertexFormat.vfmtPosUvColor;
+const VFTwoColor = VertexFormat.vfmtPosUvTwoColor;
 
-const STENCIL_SEP = '@';
-
+let _quadTriangles = [0, 1, 2, 2, 3, 0];
 let _slotColor = cc.color(0, 0, 255, 255);
 let _boneColor = cc.color(255, 0, 0, 255);
 let _originColor = cc.color(0, 255, 0, 255);
 
-function _updateKeyWithStencilRef (key, stencilRef) {
-    return key.replace(/@\d+$/, STENCIL_SEP + stencilRef);
+let _finalColor = undefined;
+let _darkColor = undefined;
+if (!CC_JSB) {
+    _finalColor = new spine.Color(1, 1, 1, 1);
+    _darkColor = new spine.Color(1, 1, 1, 1);
 }
 
-function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
+let _premultipliedAlpha;
+let _multiplier;
+let _slotRangeStart;
+let _slotRangeEnd;
+let _useTint;
+let _debugSlots;
+let _debugBones;
+let _nodeR,
+    _nodeG,
+    _nodeB,
+    _nodeA;
+let _finalColor32, _darkColor32;
+let _vertexFormat;
+let _perVertexSize;
+let _perClipVertexSize;
+let _vertexFloatCount = 0, _vertexFloatOffset = 0, _vertexOffset = 0,
+    _indexCount = 0, _indexOffset = 0;
+let _tempr, _tempg, _tempb, _tempa;
+let _inRange;
+
+function _getSlotMaterial (comp, slot, tex) {
     let src, dst;
     switch (slot.data.blendMode) {
         case spine.BlendMode.Additive:
-            src = premultiAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA;
+            src = _premultipliedAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA;
             dst = cc.macro.ONE;
             break;
         case spine.BlendMode.Multiply:
@@ -57,12 +81,12 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
             break;
         case spine.BlendMode.Normal:
         default:
-            src = premultiAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA;
+            src = _premultipliedAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA;
             dst = cc.macro.ONE_MINUS_SRC_ALPHA;
             break;
     }
 
-    let key = tex.url + src + dst + STENCIL_SEP + '0';
+    let key = tex.url + src + dst;
     comp._material = comp._material || new Material();
     let baseMaterial = comp._material;
     let materialCache = comp._materialCache;
@@ -90,193 +114,308 @@ function _getSlotMaterial (comp, slot, tex, premultiAlpha) {
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        materialCache[key] = material;
         material.updateHash(key);
+        materialCache[key] = material;
     }
     else if (material.getProperty('texture') !== tex) {
         material.setProperty('texture', tex);
         material.updateHash(key);
+        materialCache[key] = material;
     }
     return material;
 }
 
 var spineAssembler = {
-    _readAttachmentData (comp, attachment, slot, premultipliedAlpha, renderData, dataOffset) {
-        // the vertices in format:
-        // X1, Y1, C1R, C1G, C1B, C1A, U1, V1
-        // get the vertex data
-        let vertices = attachment.updateWorldVertices(slot, premultipliedAlpha);
-        let vertexCount = vertices.length / 8;
-        // augment render data size to ensure capacity
-        renderData.dataLength += vertexCount;
-        let verts = renderData.vertices;
-        let nodeColor = comp.node._color;
-        let nodeR = nodeColor.r,
-            nodeG = nodeColor.g,
-            nodeB = nodeColor.b,
-            nodeA = nodeColor.a;
-        for (let i = 0, n = vertices.length; i < n; i += 8) {
-            let r = vertices[i + 2] * nodeR,
-                g = vertices[i + 3] * nodeG,
-                b = vertices[i + 4] * nodeB,
-                a = vertices[i + 5] * nodeA;
-            let color = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
-            let content = verts[dataOffset];
-            content.x = vertices[i];
-            content.y = vertices[i + 1];
-            content.color = color;
-            content.u = vertices[i + 6];
-            content.v = vertices[i + 7];
-            dataOffset++;
+    // Use model to avoid per vertex transform.
+    useModel: true,
+
+    updateRenderData (comp, batchData) {
+        let skeleton = comp._skeleton;
+        if (skeleton) {
+            skeleton.updateWorldTransform();
         }
-
-        if (comp.debugSlots && vertexCount === 4) {
-            let graphics = comp._debugRenderer;
-
-            // Debug Slot
-            let VERTEX = spine.RegionAttachment;
-            graphics.strokeColor = _slotColor;
-            graphics.lineWidth = 5;
-            graphics.moveTo(vertices[VERTEX.X1], vertices[VERTEX.Y1]);
-            graphics.lineTo(vertices[VERTEX.X2], vertices[VERTEX.Y2]);
-            graphics.lineTo(vertices[VERTEX.X3], vertices[VERTEX.Y3]);
-            graphics.lineTo(vertices[VERTEX.X4], vertices[VERTEX.Y4]);
-            graphics.close();
-            graphics.stroke();
-        }
-
-        return vertexCount;
     },
 
-    genRenderDatas (comp, batchData) {
+    fillVertices (skeletonColor, attachmentColor, slotColor, clipper, buffer) {
+
+        let vbuf = buffer._vData,
+            ibuf = buffer._iData,
+            uintVData = buffer._uintVData;
+
+        _tempa = slotColor.a * attachmentColor.a * skeletonColor.a * 255;
+        _multiplier = _premultipliedAlpha? _tempa : 255;
+        _tempr = _nodeR * attachmentColor.r * skeletonColor.r * _multiplier;
+        _tempg = _nodeG * attachmentColor.g * skeletonColor.g * _multiplier;
+        _tempb = _nodeB * attachmentColor.b * skeletonColor.b * _multiplier;
+        
+        _finalColor.r = _tempr * slotColor.r;
+        _finalColor.g = _tempg * slotColor.g;
+        _finalColor.b = _tempb * slotColor.b;
+        _finalColor.a = _tempa * _nodeA;
+
+        if (slot.darkColor == null) {
+            _darkColor.set(0.0, 0, 0, 1.0);
+        } else {
+            _darkColor.r = slot.darkColor.r * _tempr;
+            _darkColor.g = slot.darkColor.g * _tempg;
+            _darkColor.b = slot.darkColor.b * _tempb;
+        }
+        _darkColor.a = _premultipliedAlpha ? 255 : 0;
+
+        if (!clipper.isClipping()) {
+
+            _finalColor32 = ((_finalColor.a<<24) >>> 0) + (_finalColor.b<<16) + (_finalColor.g<<8) + _finalColor.r;
+            _darkColor32 = ((_darkColor.a<<24) >>> 0) + (_darkColor.b<<16) + (_darkColor.g<<8) + _darkColor.r;
+
+            if (!_useTint) {
+                for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount, u = 0; v < n; v += _perVertexSize, u += 2) {
+                    uintVData[v + 4] = _finalColor32;
+                }
+            } else {
+                for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount, u = 0; v < n; v += _perVertexSize, u += 2) {
+                    uintVData[v + 4]  = _finalColor32;     // light color
+                    uintVData[v + 5]  = _darkColor32;      // dark color
+                }
+            }
+
+        } else {
+            let uvs = vbuf.subarray(_vertexFloatOffset + 2);
+            clipper.clipTriangles(vbuf.subarray(_vertexFloatOffset), _vertexFloatCount, ibuf.subarray(_indexOffset), _indexCount, uvs, _finalColor, _darkColor, _useTint, _perVertexSize);
+            let clippedVertices = new Float32Array(clipper.clippedVertices);
+            let clippedTriangles = clipper.clippedTriangles;
+            
+            // insure capacity
+            _indexCount = clippedTriangles.length;
+            _vertexFloatCount = clippedVertices.length / _perClipVertexSize * _perVertexSize;
+
+            buffer.request(_vertexFloatCount / _perVertexSize, _indexCount);
+            vbuf = buffer._vData,
+            ibuf = buffer._iData;
+            uintVData = buffer._uintVData;
+
+            // fill indices
+            ibuf.set(clippedTriangles, _indexOffset);
+
+            // fill vertices contain x y u v light color dark color
+            if (!_useTint) {
+                for (let v = 0, n = clippedVertices.length, offset = _vertexFloatOffset; v < n; v += 8, offset += _perVertexSize) {
+                    vbuf[offset]     = clippedVertices[v];        // x
+                    vbuf[offset + 1] = clippedVertices[v + 1];    // y
+                    vbuf[offset + 2] = clippedVertices[v + 6];    // u
+                    vbuf[offset + 3] = clippedVertices[v + 7];    // v
+
+                    _finalColor32 = ((clippedVertices[v + 5]<<24) >>> 0) + (clippedVertices[v + 4]<<16) + (clippedVertices[v + 3]<<8) + clippedVertices[v + 2];
+                    uintVData[offset + 4] = _finalColor32;
+                }
+            } else {
+                for (let v = 0, n = clippedVertices.length, offset = _vertexFloatOffset; v < n; v += 12, offset += _perVertexSize) {
+                    vbuf[offset] = clippedVertices[v];                 // x
+                    vbuf[offset + 1] = clippedVertices[v + 1];         // y
+                    vbuf[offset + 2] = clippedVertices[v + 6];         // u
+                    vbuf[offset + 3] = clippedVertices[v + 7];         // v
+
+                    _finalColor32 = ((clippedVertices[v + 5]<<24) >>> 0) + (clippedVertices[v + 4]<<16) + (clippedVertices[v + 3]<<8) + clippedVertices[v + 2];
+                    uintVData[offset + 4] = _finalColor32;
+
+                    _darkColor32 = ((clippedVertices[v + 11]<<24) >>> 0) + (clippedVertices[v + 10]<<16) + (clippedVertices[v + 9]<<8) + clippedVertices[v + 8];
+                    uintVData[offset + 5] = _darkColor32;
+                }
+            }
+        }
+    },
+
+    fillBuffers (comp, renderer) {
+        
+        let node = comp.node;
+        node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+
+        let nodeColor = node._color;
+        _nodeR = nodeColor.r / 255;
+        _nodeG = nodeColor.g / 255;
+        _nodeB = nodeColor.b / 255;
+        _nodeA = nodeColor.a / 255;
+
+        _useTint = comp.useTint;
+        _vertexFormat = _useTint? VFTwoColor : VFOneColor;
+        let buffer = renderer.getBuffer('spine', _vertexFormat);
+        let vbuf;
+        let ibuf;
+
         let locSkeleton = comp._skeleton;
-        let premultiAlpha = comp.premultipliedAlpha;
+        let skeletonColor = locSkeleton.color;
         let graphics = comp._debugRenderer;
+        let clipper = comp._clipper;
+        let material = null;
+        let attachment, attachmentColor, slotColor, uvs, triangles;
+        let hasFlush = false;
+        let isRegion, isMesh, isClip;
 
-        if (comp.debugBones || comp.debugSlots) {
+        _premultipliedAlpha = comp.premultipliedAlpha;
+        _multiplier = 1.0;
+
+        _slotRangeStart = comp._startSlotIndex;
+        _slotRangeEnd = comp._endSlotIndex;
+        _inRange = false;
+        if (_slotRangeStart == -1) _inRange = true;
+
+        _debugSlots = comp.debugSlots;
+        _debugBones = comp.debugBones;
+        if (graphics && (_debugBones || _debugSlots)) {
             graphics.clear();
+            graphics.strokeColor = _slotColor;
+            graphics.lineWidth = 5;
         }
+    
+        // x y u v color1 color2 or x y u v color
+        _perVertexSize = _useTint ? 6 : 5;
+        // x y u v r1 g1 b1 a1 r2 g2 b2 a2 or x y u v r g b a 
+        _perClipVertexSize = _useTint ? 12 : 8;
+    
+        _vertexFloatCount = 0;
+        _vertexFloatOffset = 0;
+        _vertexOffset = 0;
+        _indexCount = 0;
+        _indexOffset = 0;
 
-        let attachment, slot, isMesh, isRegion;
-        let dataId = 0, datas = comp._renderDatas, data = datas[dataId], newData = false;
-        if (!data) {
-            data = datas[dataId] = comp.requestRenderData();
-        }
-        data.dataLength = 0;
-        let indices;
-        let material = null, currMaterial = null;
-        let vertexCount = 0, vertexOffset = 0;
-        let indiceCount = 0, indiceOffset = 0;
-        let materialCache = comp._materialCache;
-        for (let i = 0, n = locSkeleton.drawOrder.length; i < n; i++) {
-            slot = locSkeleton.drawOrder[i];
-            if (!slot.attachment)
-                continue;
-            attachment = slot.attachment;
-            isMesh = (attachment instanceof spine.MeshAttachment);
-            isRegion = (attachment instanceof spine.RegionAttachment);
-
-            // get the vertices length
-            vertexCount = 0;
-            if (isRegion) {
-                vertexCount = 4;
-                indiceCount = 6;
+        for (let slotIdx = 0, slotCount = locSkeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
+            slot = locSkeleton.drawOrder[slotIdx];
+    
+            if (_slotRangeStart >= 0 && _slotRangeStart == slot.data.index) {
+                _inRange = true;
             }
-            else if (isMesh) {
-                vertexCount = attachment.regionUVs.length / 2;
-                indiceCount = attachment.triangles.length;
-            }
-            else {
+            
+            if (!_inRange) {
+                clipper.clipEndWithSlot(slot);
                 continue;
             }
+    
+            if (_slotRangeEnd >= 0 && _slotRangeEnd == slot.data.index) {
+                _inRange = false;
+            }
+    
+            _vertexFloatCount = 0;
+            _indexCount = 0;
+    
+            _indexOffset = buffer.indiceOffset,
+            _vertexOffset = buffer.vertexOffset,
+            _vertexFloatOffset = buffer.byteOffset >> 2;
 
-            // no vertices to render
-            if (vertexCount === 0) {
+            attachment = slot.getAttachment();
+            if (!attachment) continue;
+
+            isRegion = attachment instanceof spine.RegionAttachment;
+            isMesh = attachment instanceof spine.MeshAttachment;
+            isClip = attachment instanceof spine.ClippingAttachment;
+
+            if (isClip) {
+                clipper.clipStart(slot, attachment);
                 continue;
             }
 
-            newData = false;
-            material = _getSlotMaterial(comp, slot, attachment.region.texture._texture, premultiAlpha);
+            if (!isRegion && !isMesh) continue;
+
+            material = _getSlotMaterial(comp, slot, attachment.region.texture._texture);
             if (!material) {
                 continue;
             }
-            // Check break
-            if (currMaterial !== material) {
-                if (currMaterial) {
-                    newData = true;
-                    data.material = currMaterial;
-                }
-                else {
-                    // Init data material
-                    data.material = material;
-                }
-                currMaterial = material;
+    
+            if (!hasFlush || material._hash !== renderer.material._hash) {
+                hasFlush = true;
+                renderer._flush();
+                renderer.node = node;
+                renderer.material = material;
             }
 
-            // Request new render data and new vertex content
-            if (newData) {
-                // set old data vertex indice
-                data.vertexCount = vertexOffset;
-                data.indiceCount = indiceOffset;
-                // gen new data
-                dataId++;
-                data = datas[dataId];
-                if (!data) {
-                    data = datas[dataId] = comp.requestRenderData();
-                }
-                data.dataLength = vertexCount;
-                data.material = currMaterial;
-                // reset offset
-                vertexOffset = 0;
-                indiceOffset = 0;
-            }
-
-            // Fill up indices
-            indices = data.indices;
             if (isRegion) {
-                indices[indiceOffset] = vertexOffset;
-                indices[indiceOffset + 1] = vertexOffset + 1;
-                indices[indiceOffset + 2] = vertexOffset + 2;
-                indices[indiceOffset + 3] = vertexOffset + 0;
-                indices[indiceOffset + 4] = vertexOffset + 2;
-                indices[indiceOffset + 5] = vertexOffset + 3;
-            } else {
-                let triangles = attachment.triangles;
-                for (let t = 0; t < triangles.length; t++) {
-                    indices[indiceOffset + t] = vertexOffset + triangles[t];
+                
+                triangles = _quadTriangles;
+    
+                // insure capacity
+                _vertexFloatCount = 4 * _perVertexSize;
+                _indexCount = 6;
+
+                buffer.request(4, 6);
+                vbuf = buffer._vData,
+                ibuf = buffer._iData;
+                uintVData = buffer._uintVData;
+    
+                // compute vertex and fill x y
+                attachment.computeWorldVertices(slot.bone, vbuf, _vertexFloatOffset, _perVertexSize);
+    
+                // draw debug slots if enabled graphics
+                if (graphics && _debugSlots) {
+                    graphics.moveTo(vbuf[_vertexFloatOffset], vbuf[_vertexFloatOffset + 1]);
+                    for (let ii = _vertexFloatOffset + _perVertexSize, nn = _vertexFloatOffset + _vertexFloatCount; ii < nn; ii += _perVertexSize) {
+                        graphics.lineTo(vbuf[ii], vbuf[ii + 1]);
+                    }
+                    graphics.close();
+                    graphics.stroke();
                 }
             }
-            indiceOffset += indiceCount;
-            // Fill up vertex render data
-            vertexOffset += this._readAttachmentData(comp, attachment, slot, premultiAlpha, data, vertexOffset);
-        }
+            else if (isMesh) {
+                
+                triangles = attachment.triangles;
+    
+                // insure capacity
+                _vertexFloatCount = (attachment.worldVerticesLength >> 1) * _perVertexSize;
+                _indexCount = triangles.length;
 
-        data.vertexCount = vertexOffset;
-        data.indiceCount = indiceOffset;
-        // Check for last data valid or not
-        if (vertexOffset > 0 && indiceOffset > 0) {
-            datas.length = dataId + 1;
-        }
-        else {
-            datas.length = dataId;
-        }
+                buffer.request(_vertexFloatCount / _perVertexSize, _indexCount);
+                vbuf = buffer._vData,
+                ibuf = buffer._iData;
+                uintVData = buffer._uintVData;
+    
+                // compute vertex and fill x y
+                attachment.computeWorldVertices(slot, 0, attachment.worldVerticesLength, vbuf, _vertexFloatOffset, _perVertexSize);
+            }
+    
+            if (_vertexFloatCount == 0 || _indexCount == 0) {
+                continue;
+            }
+    
+            // fill indices
+            ibuf.set(triangles, _indexOffset);
 
-        if (comp.debugBones) {
+            // fill u v
+            uvs = attachment.uvs;
+            for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount, u = 0; v < n; v += _perVertexSize, u += 2) {
+                vbuf[v + 2] = uvs[u];           // u
+                vbuf[v + 3] = uvs[u + 1];       // v
+            }
+
+            attachmentColor = attachment.color,
+            slotColor = slot.color;
+
+            this.fillVertices(skeletonColor, attachmentColor, slotColor, clipper, buffer);
+    
+            if (_indexCount > 0) {
+                for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {
+                    ibuf[ii] += _vertexOffset;
+                }
+                buffer.adjust(_vertexFloatCount / _perVertexSize, _indexCount);
+            }
+    
+            clipper.clipEndWithSlot(slot);
+        }
+    
+        clipper.clipEnd();
+    
+        if (graphics && _debugBones) {
             let bone;
-            graphics.lineWidth = 5;
             graphics.strokeColor = _boneColor;
             graphics.fillColor = _slotColor; // Root bone color is same as slot color.
-
+    
             for (let i = 0, n = locSkeleton.bones.length; i < n; i++) {
                 bone = locSkeleton.bones[i];
+                if (bone.parent == null) continue;
                 let x = bone.data.length * bone.a + bone.worldX;
                 let y = bone.data.length * bone.c + bone.worldY;
-
+    
                 // Bone lengths.
                 graphics.moveTo(bone.worldX, bone.worldY);
                 graphics.lineTo(x, y);
                 graphics.stroke();
-
+    
                 // Bone origins.
                 graphics.circle(bone.worldX, bone.worldY, Math.PI * 2);
                 graphics.fill();
@@ -285,78 +424,7 @@ var spineAssembler = {
                 }
             }
         }
-    },
-
-    updateRenderData (comp, batchData) {
-        let skeleton = comp._skeleton;
-        if (skeleton) {
-            skeleton.updateWorldTransform();
-            this.genRenderDatas(comp, batchData);
-        }
-        else {
-            comp._renderDatas.length = 0;
-        }
-    },
-
-    fillBuffers (comp, renderer) {
-        let renderDatas = comp._renderDatas;
-        let materialCache = comp._materialCache;
-        for (let index = 0, length = renderDatas.length; index < length; index++) {
-            let data = renderDatas[index];
-
-            // For generate new material for skeleton render data nested in mask,
-            // otherwise skeleton inside/outside mask with same material will interfere each other
-            let key = data.material.getHash();
-            let newKey = _updateKeyWithStencilRef(key, StencilManager.getStencilRef());
-            if (key !== newKey) {
-                data.material = materialCache[newKey] || data.material.clone();
-                data.material.updateHash(newKey);
-                if (!materialCache[newKey]) {
-                    materialCache[newKey] = data.material;
-                }
-            }
-
-            if (data.material !== renderer.material) {
-                renderer._flush();
-                renderer.node = comp.node;
-                renderer.material = data.material;
-            }
-
-            let vertexs = data.vertices;
-            let indices = data.indices;
-
-            let buffer = renderer._meshBuffer,
-                vertexOffset = buffer.byteOffset >> 2,
-                vertexCount = data.vertexCount;
-            
-            let indiceOffset = buffer.indiceOffset,
-                vertexId = buffer.vertexOffset;
-                
-            buffer.request(vertexCount, data.indiceCount);
-
-            // buffer data may be realloc, need get reference after request.
-            let vbuf = buffer._vData,
-                ibuf = buffer._iData,
-                uintbuf = buffer._uintVData;
-
-            // fill vertex buffer
-            let vert;
-            for (let i = 0, l = data.dataLength; i < l; i++) {
-                vert = vertexs[i];
-                vbuf[vertexOffset++] = vert.x;
-                vbuf[vertexOffset++] = vert.y;
-                vbuf[vertexOffset++] = vert.u;
-                vbuf[vertexOffset++] = vert.v;
-                uintbuf[vertexOffset++] = vert.color;
-            }
-
-            // index buffer
-            for (let i = 0, l = indices.length; i < l; i ++) {
-                ibuf[indiceOffset++] = vertexId + indices[i];
-            }
-        }
-
-        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+    
     }
 };
 

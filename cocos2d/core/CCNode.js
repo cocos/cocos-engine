@@ -573,7 +573,7 @@ let NodeDefines = {
             default: 0,
             serializable: false
         },
-        _childArrivalOrder: 1,
+    
 
         _is3DNode: false,
 
@@ -1177,6 +1177,7 @@ let NodeDefines = {
 
         this._eventMask = 0;
         this._cullingMask = 1;
+        this._childArrivalOrder = 1;
 
         this._eulerAngles = cc.v3();
 

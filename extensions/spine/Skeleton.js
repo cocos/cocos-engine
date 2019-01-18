@@ -336,7 +336,7 @@ sp.Skeleton = cc.Class({
             editorOnly: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_slots',
             notify () {
-                this._initDebugDraw();
+                this._updateDebugDraw();
             }
         },
 
@@ -351,9 +351,23 @@ sp.Skeleton = cc.Class({
             editorOnly: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_bones',
             notify () {
-                this._initDebugDraw();
+                this._updateDebugDraw();
             }
         },
+
+        /**
+         * !#en Enabled two color tint.
+         * !#zh 是否启用染色效果。
+         * @property {Boolean} useTint
+         * @default false
+         */
+        useTint: {
+            default: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.use_tint',
+            notify () {
+                this._updateUseTint();
+            }
+        }
     },
 
     // CONSTRUCTOR
@@ -364,14 +378,25 @@ sp.Skeleton = cc.Class({
         this._boundingBox = cc.rect();
         this._material = Material.getInstantiatedBuiltinMaterial('sprite', this);
         this._materialCache = {};
-        this._renderDatas = [];
         this._debugRenderer = null;
+        this._startSlotIndex = -1;
+        this._endSlotIndex = -1;
     },
 
     // override
     _updateMaterial (material) {
         this._super(material);
         this._materialCache = {};
+    },
+
+    _updateUseTint () {
+        var cache = this._materialCache
+        for (var mKey in cache) {
+            var material = cache[mKey];
+            if (material) {
+                material.useTint = this.useTint;
+            }
+        }
     },
 
     /**
@@ -390,8 +415,19 @@ sp.Skeleton = cc.Class({
         }
 
         this._skeleton = new spine.Skeleton(skeletonData);
-        // this._skeleton.updateWorldTransform();
+        this._clipper = new spine.SkeletonClipping();
         this._rootBone = this._skeleton.getRootBone();
+    },
+
+    /**
+     * !#en Sets slots visible range.
+     * !#zh 设置骨骼插槽可视范围。
+     * @method setSkeletonData
+     * @param {sp.spine.SkeletonData} skeletonData
+     */
+    setSlotsRange (startSlotIndex, endSlotIndex) {
+        this._startSlotIndex = startSlotIndex;
+        this._endSlotIndex = endSlotIndex;
     },
 
     /**
@@ -423,6 +459,17 @@ sp.Skeleton = cc.Class({
         }
 
         this._updateSkeletonData();
+
+        var children = this.node.children;
+        for (var i = 0, n = children.length; i < n; i++) {
+            var child = children[i];
+            if (child && child._name === "DEBUG_DRAW_NODE" ) {
+                child.destroy();
+            }
+        }
+
+        this._updateDebugDraw();
+        this._updateUseTint();
     },
 
     update (dt) {
@@ -446,23 +493,8 @@ sp.Skeleton = cc.Class({
             this._boundingBox = cc.rect();
             this._material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             this._materialCache = {};
-            this._renderDatas = [];
         }
     },
-
-    onDestroy () {
-        this._super();
-        // Render datas will be destroyed automatically by RenderComponent.onDestroy
-        this._renderDatas.length = 0;
-    },
-
-    // _getLocalBounds: CC_EDITOR && function (out_rect) {
-    //     var rect = this._boundingBox;
-    //     out_rect.x = rect.x;
-    //     out_rect.y = rect.y;
-    //     out_rect.width = rect.width;
-    //     out_rect.height = rect.height;
-    // },
 
     // RENDERER
 
@@ -962,7 +994,7 @@ sp.Skeleton = cc.Class({
         Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
     },
 
-    _initDebugDraw: function () {
+    _updateDebugDraw: function () {
         if (this.debugBones || this.debugSlots) {
             if (!this._debugRenderer) {
                 let debugDrawNode = new cc.PrivateNode();
