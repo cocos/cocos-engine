@@ -27,55 +27,43 @@ const _subMeshPool = new RecyclePool(() => {
  */
 export class Model {
 
+    protected _type: string = 'default';
     protected _device: GFXDevice;
-    protected _type: string;
-    private _scene: RenderScene | null;
+    private _scene: RenderScene;
+    private _node: Node;
     private _id: number;
-    private _isEnable: boolean;
-    private _node: Node | null;
-    private _viewID: number;
-    private _cameraID: number;
-    private _userKey: number;
-    private _worldBounds: aabb;
-    private _modelBounds: aabb;
-    private _cmdBuffers: GFXCommandBuffer[];
-    private _uboLocal: UBOLocal;
-    private _localUBO: GFXBuffer | null;
-    private _subModels: SubModel[];
+    private _isEnable: boolean = true;
+    private _viewID: number = -1;
+    private _cameraID: number = -1;
+    private _userKey: number = -1;
+    private _worldBounds: aabb | null = null;
+    private _modelBounds: aabb | null = null;
+    private _cmdBuffers: GFXCommandBuffer[] = [];
+    private _subModels: SubModel[] = [];
     private _matPSORecord: Map<Material, GFXPipelineState[]>;
     private _matRefCount: Map<Material, number>;
+    private _uboLocal: UBOLocal;
+    private _localUBO: GFXBuffer;
+
     /**
      * Setup a default empty model
      */
-    constructor () {
-        this._scene = null;
-        this._id = 0;
-
-        this._type = 'default';
-        this._isEnable = true;
-        this._node = null;
-        this._viewID = -1;
-        this._cameraID = -1;
-        this._userKey = -1;
-        this._cmdBuffers = new Array<GFXCommandBuffer>();
-        this._uboLocal = new UBOLocal();
-        this._localUBO = null;
+    constructor (scene: RenderScene, node: Node) {
         this._device = cc.director.root.device;
-        this._subModels = new Array<SubModel>();
+        this._scene = scene;
+        this._node = node;
+        this._id = this._scene.generateModelId();
+
         this._matPSORecord = new Map<Material, GFXPipelineState[]>();
         this._matRefCount = new Map<Material, number>();
-    }
-
-    public initialize () {
+        this._uboLocal = new UBOLocal();
         this._localUBO = this._device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST,
             size: UBOLocal.SIZE,
             stride: UBOLocal.SIZE,
         });
-        if (this._localUBO) {
-            this._localUBO.update(this._uboLocal.view);
-        }
+        this._localUBO.update(this._uboLocal.view);
     }
 
     public destroy () {
@@ -85,7 +73,7 @@ export class Model {
         }
     }
 
-    set scene (scene: RenderScene | null) {
+    set scene (scene: RenderScene) {
         this._scene = scene;
 
         if (this._scene) {
@@ -93,19 +81,19 @@ export class Model {
         }
     }
 
-    get scene (): RenderScene | null {
+    get scene () {
         return this._scene;
     }
 
-    get id (): number {
+    get id () {
         return this._id;
     }
 
-    get subModelNum (): number {
+    get subModelNum () {
         return this._subModels.length;
     }
 
-    public getSubModel (idx: number): SubModel {
+    public getSubModel (idx: number) {
         return this._subModels[idx];
     }
 
@@ -113,25 +101,30 @@ export class Model {
         if (this._node == null) {
             return;
         }
-        if (!this._node._hasChanged || !this._worldBounds) {
+        if (!this._node.hasChanged || !this._modelBounds) {
             return;
         }
         this._node.updateWorldTransformFull();
-        this._modelBounds.transform(this._node._mat, this._node._pos,
-            this._node._rot, this._node._scale, this._worldBounds);
+
+        this._modelBounds.transform(
+            // @ts-ignore
+            this._node._mat, this._node._pos, this._node._rot, this._node._scale,
+            this._worldBounds);
     }
 
     public updateUBOs () {
         if (this._node == null) {
             return;
         }
+        // @ts-ignore
         mat4.array(_temp_floatx16, this._node._mat);
-        this._node._mat.invert(_temp_mat4);
         this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
+        // @ts-ignore
+        mat4.normalMatrix(_temp_mat4, this._node._mat);
         mat4.array(_temp_floatx16, _temp_mat4);
         this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
 
-        this._localUBO!.update(this._uboLocal.view);
+        this._localUBO.update(this._uboLocal.view);
 
         for (const mat of this._matPSORecord.keys()) {
             for (const pass of mat.passes) {
@@ -158,15 +151,15 @@ export class Model {
         this._isEnable = isEnable;
     }
 
-    public isEnable (): boolean {
+    public isEnable () {
         return this._isEnable;
     }
 
     /**
      * Get the hosting node of this camera
-     * @returns {Node} the hosting node
+     * @returns the hosting node
      */
-    get node (): Node | null {
+    get node () {
         return this._node;
     }
 
@@ -174,18 +167,18 @@ export class Model {
      * Set the hosting node of this model
      * @param {Node} node the hosting node
      */
-    set node (node: Node | null) {
+    set node (node: Node) {
         this._node = node;
     }
 
-    get worldBounds (): aabb {
+    get worldBounds () {
         return this._worldBounds;
     }
-    get modelBounds (): aabb {
+    get modelBounds () {
         return this._modelBounds;
     }
 
-    get viewID (): number {
+    get viewID () {
         return this._viewID;
     }
 
@@ -257,11 +250,11 @@ export class Model {
         this._userKey = key;
     }
 
-    get uboLocal (): UBOLocal {
+    get uboLocal () {
         return this._uboLocal;
     }
 
-    get localUBO (): GFXBuffer {
-        return this._localUBO!;
+    get localUBO () {
+        return this._localUBO;
     }
 }
