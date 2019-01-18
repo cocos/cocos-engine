@@ -31,7 +31,7 @@ import { toRadian } from '../vmath';
 const renderer = require('../renderer/index');
 const Enum = require('../platform/CCEnum');
 const CCComponent = require('../components/CCComponent');
-const { ccclass, menu, property, executeInEditMode } = require('../platform/CCClassDecorator');
+const { ccclass, menu, inspector, property, executeInEditMode } = require('../platform/CCClassDecorator');
 
 /**
  * !#en The light source type
@@ -117,6 +117,7 @@ const LightShadowType = Enum({
 @ccclass('cc.LightComponent')
 @menu('i18n:MAIN_MENU.component.renderers/LightComponent')
 @executeInEditMode
+@inspector('packages://inspector/inspectors/comps/light.js')
 export default class LightComponent extends CCComponent {
     @property
     _type = LightType.DIRECTIONAL;

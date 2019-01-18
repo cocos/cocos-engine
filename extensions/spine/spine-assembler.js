@@ -26,11 +26,10 @@
 const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const Material = require('../../cocos2d/core/assets/material/CCMaterial');
-import gfx from '../../cocos2d/renderer/gfx';
 const VertexFormat = require('../../cocos2d/core/renderer/webgl/vertex-format')
 const VFOneColor = VertexFormat.vfmtPosUvColor;
 const VFTwoColor = VertexFormat.vfmtPosUvTwoColor;
+const gfx = cc.gfx;
 
 let _quadTriangles = [0, 1, 2, 2, 3, 0];
 let _slotColor = cc.color(0, 0, 255, 255);
@@ -87,21 +86,16 @@ function _getSlotMaterial (comp, slot, tex) {
     }
 
     let key = tex.url + src + dst;
-    comp._material = comp._material || new Material();
-    let baseMaterial = comp._material;
+    let baseMaterial = comp.sharedMaterials[0];
+    if (!baseMaterial) return null;
+
     let materialCache = comp._materialCache;
     let material = materialCache[key];
     if (!material) {
-        var baseKey = baseMaterial.getHash();
-        if (!materialCache[baseKey]) {
-            material = baseMaterial;
-        } else {
-            material = new Material();
-            material.copy(baseMaterial);
-        }
-
+        material = new cc.Material();
+        material.copy(baseMaterial);
         material.define('_USE_MODEL', true);
-        material.define('USE_TEXTURE', true);
+        material.define('USE_TINT', _useTint);
         // update texture
         material.setProperty('texture', tex);
 

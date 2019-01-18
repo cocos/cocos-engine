@@ -26,6 +26,8 @@
 const StencilManager = require('../../cocos2d/core/renderer/webgl/stencil-manager').sharedManager;
 const Armature = require('./ArmatureDisplay');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
+const Material = require('../../cocos2d/core/assets/material/CCMaterial');
+const gfx = cc.gfx;
 
 let _boneColor = cc.color(255, 0, 0, 255);
 let _slotColor = cc.color(0, 0, 255, 255);
@@ -57,28 +59,23 @@ function _getSlotMaterial (comp, slot, premultiAlpha) {
     }
 
     let key = tex.url + src + dst;
-    let baseMaterial = comp._material;
+    let baseMaterial = comp.sharedMaterials[0];
     if (!baseMaterial) {
         return null;
     }
     let materialCache = comp._materialCache;
     let material = materialCache[key];
     if (!material) {
-        var baseKey = baseMaterial._hash;
-        if (!materialCache[baseKey]) {
-            material = baseMaterial;
-        } else {
-            material = baseMaterial.clone();
-        }
+        material = new Material();
+        material.copy(baseMaterial);
 
-        material.useModel = true;
-        // update texture
-        material.texture = tex;
-        material.useColor = false;
+        material.define('_USE_MODEL', true);
+        material.setProperty('texture', tex);
 
         // update blend function
-        let pass = material._mainTech.passes[0];
+        let pass = material.effect.getDefaultTechnique().passes[0];
         pass.setBlend(
+            true,
             gfx.BLEND_FUNC_ADD,
             src, dst,
             gfx.BLEND_FUNC_ADD,
@@ -88,7 +85,7 @@ function _getSlotMaterial (comp, slot, premultiAlpha) {
         material.updateHash(key);
     }
     else if (material.texture !== tex) {
-        material.texture = tex;
+        material.setProperty('texture', tex);
         material.updateHash(key);
     }
     return material;

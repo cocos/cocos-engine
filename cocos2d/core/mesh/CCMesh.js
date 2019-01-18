@@ -290,6 +290,18 @@ let Mesh = cc.Class({
         vbs.length = 0;
     },
 
+    /**
+     * !#en Set mesh bounding box
+     * !#zh 设置网格的包围盒
+     * @method setBoundingBox
+     * @param {Vec3} min 
+     * @param {Vec3} max 
+     */
+    setBoundingBox (min, max) {
+        this._minPos = min;
+        this._maxPos = max;
+    },
+
     destroy () {
         this.clear();
     },

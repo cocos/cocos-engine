@@ -17,7 +17,12 @@ let rangePragma = /range\(([\d.,\s]+)\)\s(\w+)/;
 let defaultPragma = /default\(([\d.,]+)\)/;
 let namePragma = /name\(([^)]+)\)/;
 let precision = /(low|medium|high)p/;
-let builtins = /^_\w+$/;
+let builtins = /^(_|cc_)\w+$/;
+
+const vertHeader = '#define _IS_VERT_SHADER 1\n';
+const fragHeader = '#define _IS_FRAG_SHADER 1\n';
+
+let ignoreDefines = {};
 
 function convertType(t) { let tp = mappings.typeParams[t.toUpperCase()]; return tp === undefined ? t : tp; }
 
@@ -25,23 +30,35 @@ function unwindIncludes(str, chunks) {
   function replace(match, include) {
     let replace = chunks[include];
     if (replace === undefined) {
-      console.error(`can not resolve #include <${include}>`);
+      Editor.error(`can not resolve #include <${include}>`);
     }
     return unwindIncludes(replace, chunks);
   }
   return str.replace(includeRE, replace);
 }
 
-function glslStripComment(code) {
-  let tokens = tokenizer(code);
-
+function glslStrip(code, cache) {
+  // strip tag lines
   let result = '';
+  let codes = code.split('\n');
+  for (let i = 1; i <= codes.length; i++) {
+    if (cache.tagLines.indexOf(i) === -1) {
+      result += codes[i-1] + '\n';
+    }
+  }
+
+  // strip comment
+  let tokens = tokenizer(result);
+  result = '';
   for (let i = 0; i < tokens.length; ++i) {
     let t = tokens[i];
     if (t.type != 'block-comment' && t.type != 'line-comment' && t.type != 'eof') {
       result += t.data;
     }
   }
+
+  // strip multiple line break
+  result = result.replace(/\n\n+/g, '\n\n');
 
   return result;
 }
@@ -81,6 +98,10 @@ function extractDefines(tokens, defines, cache) {
   };
   for (let i = 0; i < tokens.length; ) {
     let t = tokens[i], str = t.data, id, df;
+    if (str.startsWith('#define')) {
+      ignoreDefines[str.split(whitespaces)[1]] = true;
+      i++; continue;
+    }
     if (t.type !== 'preprocessor' || str.startsWith('#extension')) { i++; continue; }
     tokens.splice(i, 1); // strip out other preprocessor tokens for parser to work
     str = str.split(whitespaces);
@@ -107,12 +128,13 @@ function extractDefines(tokens, defines, cache) {
         def.range = JSON.parse(`[${mc[1]}]`);
       }
       continue;
-    } else if (!ifprocessor.test(str[0])) continue;
+    } else if (!ifprocessor.test(str[0])) { cache[t.line] = str; cache.tagLines.push(t.line); continue; } // tags
     if (str[0] === '#elif') { curDefs.pop(); save(t.line); } // pop one level up
     let defs = [];
     str.splice(1).some(s => {
       id = s.match(ident);
       if (id) { // is identifier
+        if (ignoreDefines[id[0]]) return;
         let d = curDefs.reduce((acc, val) => acc.concat(val), defs.slice());
         df = defines.find(d => d.name === id[0]);
         if (df) { if (d.length < df.defines.length) df.defines = d; }
@@ -160,8 +182,9 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
         if (mc) param.displayName = mc[1];
         for (let j = 0; j < tags.length; j++) {
           let tag = tags[j];
-          if (tag === '#color') param.type = convertType(param.type);
+          if (tag.startsWith('#color')) param.type = convertType(tag.substring(1));
           else if (tag === '#property') param.property = true;
+          // else if (tag === '#value') param.value = ;
         }
       }
     }
@@ -264,7 +287,7 @@ let getChunkByName = (function() {
   let entryRE = /([\w-]+)(?::(\w+))?/;
   return function(name, cache) {
     let entryCap = entryRE.exec(name), entry = entryCap[2] || 'main', content = cache[entryCap[1]];
-    if (!content) { console.error(`shader ${entryCap[1]} not found!`); return [ '', entry ]; }
+    if (!content) { Editor.error(`shader ${entryCap[1]} not found!`); return [ '', entry ]; }
     return [ content, entry ];
   };
 })();
@@ -273,7 +296,7 @@ let wrapEntry = (function() {
   let wrapperFactory = (vert, fn) => `\nvoid main() { ${vert ? 'gl_Position' : 'gl_FragColor'} = ${fn}(); }\n`;
   return function(content, name, entry, ast, isVert) {
     if (!ast.scope[entry] || ast.scope[entry].parent.type !== 'function')
-      console.error(`entry function ${name} not found`);
+      Editor.error(`entry function ${name} not found`);
     return entry === 'main' ? content : content + wrapperFactory(isVert, entry);
   };
 })();
@@ -282,10 +305,10 @@ let buildShader = function(vertName, fragName, cache) {
   let [ vert, vEntry ] = getChunkByName(vertName, cache, true);
   let [ frag, fEntry ] = getChunkByName(fragName, cache);
 
-  let defines = [], defCache = { lines: [] }, tokens, ast;
+  let defines = [], defCache = { lines: [], tagLines: [] }, tokens, ast;
   let uniforms = [], attributes = [], extensions = [];
 
-  vert = glslStripComment(vert);
+  vert = vertHeader + vert;
   vert = unwindIncludes(vert, cache);
   vert = expandStructMacro(vert);
   tokens = tokenizer(vert);
@@ -294,10 +317,11 @@ let buildShader = function(vertName, fragName, cache) {
   try {
     ast = parser(tokens);
     vert = wrapEntry(vert, vertName, vEntry, ast, true);
-  } catch (e) { console.error(`parse ${vertName} failed: ${e}`); }
+  } catch (e) { Editor.error(`parse ${vertName} failed: ${e}`); }
+  vert = glslStrip(vert, defCache);
 
-  defCache = { lines: [] };
-  frag = glslStripComment(frag);
+  defCache = { lines: [], tagLines: [] };
+  frag = fragHeader + frag;
   frag = unwindIncludes(frag, cache);
   frag = expandStructMacro(frag);
   tokens = tokenizer(frag);
@@ -306,7 +330,8 @@ let buildShader = function(vertName, fragName, cache) {
   try {
     ast = parser(tokens);
     frag = wrapEntry(frag, fragName, fEntry, ast);
-  } catch (e) { console.error(`parse ${fragName} failed: ${e}`); }
+  } catch (e) { Editor.error(`parse ${fragName} failed: ${e}`); }
+  frag = glslStrip(frag, defCache);
 
   return { vert, frag, defines, uniforms, attributes, extensions };
 };
@@ -401,12 +426,13 @@ let addChunksCache = function(chunksDir) {
   for (let i = 0; i < files.length; ++i) {
     let name = path_.basename(files[i], '.inc');
     let content = fs.readFileSync(files[i], { encoding: 'utf8' });
-    chunksCache[name] = glslStripComment(content);
+    chunksCache[name] = content; //glslStrip(content);
   }
   return chunksCache;
 };
 
 let buildEffect = function (name, content) {
+  ignoreDefines = {};
   let { effect, templates } = parseEffect(content);
   effect = buildEffectJSON(effect); effect.name = name;
   Object.assign(templates, chunksCache);

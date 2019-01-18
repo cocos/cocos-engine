@@ -19,7 +19,8 @@ class Effect {
     /**
      * @param {Array} techniques
      */
-    constructor(techniques, properties = {}, defines = {}, dependencies = []) {
+    constructor(name, techniques, properties = {}, defines = {}, dependencies = []) {
+        this._name = name;
         this._techniques = techniques;
         this._properties = properties;
         this._defines = defines;
@@ -56,7 +57,7 @@ class Effect {
 
     getProperty(name) {
         if (!this._properties[name]) {
-            console.warn(`Failed to get property ${name}, property not found.`);
+            cc.warn(`${this._name} : Failed to get property ${name}, property not found.`);
             return null;
         }
         return this._properties[name].value;
@@ -65,11 +66,11 @@ class Effect {
     setProperty(name, value) {
         let prop = this._properties[name];
         if (!prop) {
-            console.warn(`Failed to set property ${name}, property not found.`);
+            cc.warn(`${this._name} : Failed to set property ${name}, property not found.`);
             return;
         }
         // else if (!typeCheck(value, prop.type)) { // re-enable this after 3.x migration
-        //     console.warn(`Failed to set property ${name}, property type mismatch.`);
+        //     cc.warn(`Failed to set property ${name}, property type mismatch.`);
         //     return;
         // }
         this._properties[name].value = value;
@@ -78,7 +79,7 @@ class Effect {
     getDefine(name) {
         let def = this._defines[name];
         if (def === undefined) {
-            console.warn(`Failed to get define ${name}, define not found.`);
+            cc.warn(`${this._name} : Failed to get define ${name}, define not found.`);
         }
 
         return def;
@@ -87,7 +88,7 @@ class Effect {
     define(name, value) {
         let def = this._defines[name];
         if (def === undefined) {
-            console.warn(`Failed to set define ${name}, define not found.`);
+            cc.warn(`${this._name} : Failed to set define ${name}, define not found.`);
             return;
         }
 
@@ -166,7 +167,7 @@ let parseProperties = (function() {
             }
             // the property is not defined in all the shaders used in techs
             if (!uniformInfo) {
-                console.warn(`illegal property: ${prop}`);
+                cc.warn(`${json.name} : illegal property: ${prop}`);
                 continue;
             }
             // TODO: different param with same name for different passes
@@ -223,7 +224,7 @@ Effect.parseEffect = function(effect) {
     let extensions = programs.reduce((acc, cur) => acc = acc.concat(cur.extensions), []);
     extensions = cloneObjArray(extensions);
 
-    return new Effect(techniques, uniforms, defines, extensions);
+    return new Effect(effect.name, techniques, uniforms, defines, extensions);
 };
 
 if (CC_EDITOR) {

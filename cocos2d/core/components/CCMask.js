@@ -371,7 +371,7 @@ let Mask = cc.Class({
             let material = this.sharedMaterials[0];
             if (!material) {
                 material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-                material.define('ALPHA_TEST', true);
+                material.define('USE_ALPHA_TEST', true);
             }
 
             // Reset material

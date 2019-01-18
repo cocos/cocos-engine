@@ -34,9 +34,6 @@ const packToDynamicAtlas = require('../utils').packToDynamicAtlas;
 const WHITE = cc.Color.WHITE;
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
 
-const BASELINE_RATIO = 0.25;
-const MIDDLE_RATIO = (BASELINE_RATIO + 1) / 2 - BASELINE_RATIO;
-
 let _context = null;
 let _canvas = null;
 let _texture = null;
@@ -240,10 +237,10 @@ textUtils.ttf = module.exports = {
             firstLinelabelY = lineHeight + _margin;
         }
         else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
-            firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _drawFontSize * MIDDLE_RATIO;
+            firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _drawFontSize * textUtils.MIDDLE_RATIO;
         }
         else {
-            firstLinelabelY = _canvasSize.height - drawStartY - _drawFontSize * BASELINE_RATIO - _margin;
+            firstLinelabelY = _canvasSize.height - drawStartY - _drawFontSize * textUtils.BASELINE_RATIO - _margin;
         }
 
         return cc.v2(labelX, firstLinelabelY);
@@ -304,7 +301,7 @@ textUtils.ttf = module.exports = {
         let paragraphedStrings = _string.split('\n');
 
         if (_overflow === Overflow.RESIZE_HEIGHT) {
-            _canvasSize.height = (_splitedStrings.length + BASELINE_RATIO) * this._getLineHeight() + 2 * _margin;
+            _canvasSize.height = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight() + 2 * _margin;
         }
         else if (_overflow === Overflow.NONE) {
             _splitedStrings = paragraphedStrings;
@@ -314,7 +311,7 @@ textUtils.ttf = module.exports = {
                 let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
-            canvasSizeY = (_splitedStrings.length + BASELINE_RATIO) * this._getLineHeight();
+            canvasSizeY = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
 
             _canvasSize.width = parseFloat(canvasSizeX.toFixed(2)) + 2 * _margin;
             _canvasSize.height = parseFloat(canvasSizeY.toFixed(2)) + 2 * _margin;

@@ -13,7 +13,7 @@ function _parseError(out, type, errorLog) {
         fileID: parts[1] | 0,
         line: parts[2] | 0,
         message: parts[3].trim()
-      });
+      })
     } else if (msg.length > 0) {
       out.push({
         type: type,
@@ -98,19 +98,12 @@ export default class Program {
     gl.deleteShader(fragShader);
 
     if (failed) {
-      errors.forEach(err => {
-        console.error(`Failed to compile ${err.type} ${err.fileID} (ln ${err.line}): ${err.message}`);
-      });
-      return;
+      return errors;
     }
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error(`Failed to link shader program: ${gl.getProgramInfoLog(program)}`);
-      failed = true;
-    }
-
-    if (failed) {
-      return;
+      errors.push({info: `Failed to link shader program: ${gl.getProgramInfoLog(program)}`});
+      return errors;
     }
 
     this._glID = program;

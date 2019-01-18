@@ -371,7 +371,7 @@ let ArmatureDisplay = cc.Class({
 
     // override
     _updateMaterial (material) {
-        this._super(material);
+        this.setMaterial(0, material);
         this._materialCache = {};
     },
 
@@ -438,6 +438,7 @@ let ArmatureDisplay = cc.Class({
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            material.define('_USE_MODEL', true);
             material.define('USE_TEXTURE', true);
         }
 

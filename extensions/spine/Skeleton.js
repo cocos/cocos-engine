@@ -376,7 +376,6 @@ sp.Skeleton = cc.Class({
         this._rootBone = null;
         this._listener = null;
         this._boundingBox = cc.rect();
-        this._material = Material.getInstantiatedBuiltinMaterial('sprite', this);
         this._materialCache = {};
         this._debugRenderer = null;
         this._startSlotIndex = -1;
@@ -385,16 +384,19 @@ sp.Skeleton = cc.Class({
 
     // override
     _updateMaterial (material) {
-        this._super(material);
+        this.setMaterial(0, material);
         this._materialCache = {};
     },
 
     _updateUseTint () {
-        var cache = this._materialCache
+        var baseMaterial = this.sharedMaterials[0];
+        if (!baseMaterial) return;
+        baseMaterial.define('USE_TINT', this.useTint);
+        var cache = this._materialCache;
         for (var mKey in cache) {
             var material = cache[mKey];
             if (material) {
-                material.useTint = this.useTint;
+                material.define('USE_TINT', this.useTint);
             }
         }
     },
@@ -458,6 +460,10 @@ sp.Skeleton = cc.Class({
             this._refreshInspector();
         }
 
+        var material = Material.getInstantiatedBuiltinMaterial('spine', this);
+        material.define('_USE_MODEL', true);
+        this.setMaterial(0, material);
+
         this._updateSkeletonData();
 
         var children = this.node.children;
@@ -491,7 +497,7 @@ sp.Skeleton = cc.Class({
         // Destroyed and restored in Editor
         if (!this._material) {
             this._boundingBox = cc.rect();
-            this._material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            this._material = Material.getInstantiatedBuiltinMaterial('spine', this);
             this._materialCache = {};
         }
     },
