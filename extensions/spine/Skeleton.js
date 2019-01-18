@@ -311,6 +311,7 @@ sp.Skeleton = cc.Class({
          */
         premultipliedAlpha: {
             default: true,
+            formerlySerializedAs: "_premultipliedAlpha",
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.premultipliedAlpha'
         },
 
