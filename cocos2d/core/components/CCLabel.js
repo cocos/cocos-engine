@@ -504,7 +504,7 @@ let Label = cc.Class({
     },
 
     onDestroy () {
-        this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
+        this._assembler && this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
         this._assemblerData = null;
         if (this._ttfTexture) {
             this._ttfTexture.destroy();
