@@ -2,10 +2,7 @@
 import { Material } from '../../3d/assets/material';
 import RecyclePool from '../../3d/memop/recycle-pool';
 import { CanvasComponent } from '../../3d/ui/components/canvas-component';
-import { LabelComponent } from '../../3d/ui/components/label-component';
-import { SpriteComponent } from '../../3d/ui/components/sprite-component';
 import { IMeshBufferInitData, MeshBuffer } from '../../3d/ui/mesh-buffer';
-import { SpriteFrame } from '../../assets/CCSpriteFrame';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
@@ -26,10 +23,8 @@ import { vfmt } from '../../gfx/vertex-format-sample';
 import { Pass } from '../core/pass';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
-// import { GFXBuffer } from '../../gfx/buffer';
-// import { RenderComponent } from '../../3d/ui/components/ui-render-component';
-
-// import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { UIRenderComponent } from '../../3d/ui/components/ui-render-component';
+import { BaseNode } from '../../scene-graph/base-node';
 
 export interface IUIBufferBatch {
     vb: GFXBuffer;
@@ -59,19 +54,14 @@ export interface IUIRenderData {
 }
 
 export class UI {
+    private _commitBuffers: RecyclePool = new RecyclePool(() => {
+        return new Object() as IUIRenderData;
+    }, 128);
+
     private _screens: CanvasComponent[] = [];
     private _bufferPool: RecyclePool = new RecyclePool(() => {
         return new MeshBuffer();
     }, 128);
-
-    // private _currScreen: CanvasComponent | null = null;
-    // private _currMaterail: Material | null = null;
-    // private _currSpriteFrame: SpriteFrame | null = null;
-    // private _currUserKey = 0;
-    // private _dummyNode: Node | null = null;
-    // private _batchedModels: UIBatchModel[] = [];
-    // private _iaPool: RecyclePool | null = null;
-    // private _modelPool: RecyclePool | null = null;
     private _device: GFXDevice;
     private _cmdBuff: GFXCommandBuffer | null = null;
     private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
@@ -80,7 +70,7 @@ export class UI {
     private _bufferBatches: IUIBufferBatch[] = [];
     private _uiMaterials: IUIMaterial[] = [];
     private _items: CachedArray<IUIRenderItem>;
-    private _commitBuffers: any[] = [];
+    private _bufferInitData: IMeshBufferInitData | null = null;
 
     constructor (private _root: Root) {
         this._device = _root.device;
@@ -89,6 +79,11 @@ export class UI {
         });
 
         this._items = new CachedArray(64);
+        this._bufferInitData = {
+            vertexCount: 0,
+            indiceCount: 0,
+            attributes: vfmt,
+        };
     }
 
     public initialize () {
@@ -194,6 +189,18 @@ export class UI {
         }
     }
 
+    public createBuffer(vertexCount: number, indiceCount: number){
+        const buffer = this._bufferPool.add();
+        this._bufferInitData!.vertexCount = vertexCount;
+        this._bufferInitData!.indiceCount = indiceCount;
+        buffer.initialize(this._bufferInitData as IMeshBufferInitData);
+        return buffer;
+    }
+
+    public createCommitBuffer(){
+        return this._commitBuffers.add();
+    }
+
     public update (dt: number) {
         this._items.clear();
 
@@ -203,60 +210,57 @@ export class UI {
         this.render();
     }
 
-    public _walk (node, fn1, fn2, level = 0) {
+    private _walk (node, fn1, fn2, level = 0) {
         level += 1;
         const len = node.children.length;
-
+        fn1(node);
         for (let i = 0; i < len; ++i) {
             const child = node.children[i];
-            const continueWalk = fn1(child, node, level);
-
-            if (continueWalk === false) {
-                fn2(child, node, level);
-                break;
-            }
-
             this._walk(child, fn1, fn2, level);
-            // fn2(child, node, level);
         }
+
+        fn2(node);
     }
 
     private _renderScreens () {
+        this._reset();
         for (const screen of this._screens) {
             if (!screen.enabledInHierarchy) {
                 continue;
             }
             // this._currScreen = screen;
 
-            this._walk(screen.node, (c) => {
-                const image = c.getComponent(SpriteComponent);
-                if (image && image.enabledInHierarchy) {
-                    this._commitComp(image);
+            this._walk(screen.node, (c: BaseNode) => {
+                const renderComponent = c.getComponent(UIRenderComponent);
+                if (renderComponent && renderComponent.enabledInHierarchy) {
+                    this._commitComp(renderComponent);
                 }
-
-                const label = c.getComponent(LabelComponent);
-                if (label && label.enabledInHierarchy) {
-                    this._commitComp(label);
-                }
-            }, null);
+            }, (c: BaseNode) => {
+                    const renderComponent = c.getComponent(UIRenderComponent);
+                    if (renderComponent && renderComponent.enabledInHierarchy) {
+                        this._postCommitComp(renderComponent);
+                    }
+            });
         }
     }
 
-    private _commitComp (comp) {
-        const buffer = this._bufferPool.add();
-        buffer.initialize({
-            vertexCount: comp.renderData!.vertexCount,
-            indexCount: comp.renderData!.indiceCount,
-            attributes: vfmt,
-        } as IMeshBufferInitData);
-        comp.updateRenderData(buffer);
+    private _reset(){
+        this._bufferPool.reset();
+        this._commitBuffers.reset();
+    }
+
+    private _commitComp (comp: UIRenderComponent) {
+        comp.updateAssembler(this);
         const canvasComp: CanvasComponent | null = this.getScreen(comp.viewID);
 
-        this._commitBuffers.push({
-            meshBuffer: buffer,
-            material: comp.material,
-            camera: canvasComp ? canvasComp.camera : null,
-        } as IUIRenderData);
+        // const renderDataFormat: IUIRenderData = this._commitBuffers.add();
+        // renderDataFormat.meshBuffer = buffer;
+        // renderDataFormat.material = comp.material as Material;
+        // renderDataFormat.camera = canvasComp!.camera!;
+    }
+
+    private _postCommitComp (comp: UIRenderComponent) {
+        comp.postUpdateAssembler();
     }
 
     private render () {

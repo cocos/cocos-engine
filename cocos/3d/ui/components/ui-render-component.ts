@@ -37,6 +37,9 @@ import { Color } from '../../../core/value-types/index';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { CanvasComponent } from './canvas-component';
 import { UITransformComponent } from './ui-transfrom-component';
+import { MeshBuffer } from '../mesh-buffer';
+import { IAssembler } from '../assembler/assembler';
+import { UI } from '../../../renderer/ui/ui';
 
 /**
  * !#en
@@ -44,13 +47,13 @@ import { UITransformComponent } from './ui-transfrom-component';
  * !#zh
  * 所有支持渲染的组件的基类
  *
- * @class RenderComponent
+ * @class UIRenderComponent
  * @extends Component
  */
-@ccclass('cc.RenderComponent')
+@ccclass('cc.UIRenderComponent')
 @executionOrder(100)
 @requireComponent(UITransformComponent)
-export class RenderComponent extends RenderableComponent {
+export class UIRenderComponent extends RenderableComponent {
 
     /**
      * !#en specify the source Blend Factor, this will generate a custom material object
@@ -108,11 +111,15 @@ export class RenderComponent extends RenderableComponent {
         return this._viewID;
     }
 
-    public get renderData () {
+    get renderData () {
         return this._renderData;
     }
 
     public static assembler = null;
+
+    protected _assembler: IAssembler | null = null;
+
+    protected _postAssembler: IAssembler | null = null;
     protected _renderDataPoolID: number = -1;
     protected _viewID: number = -1;
 
@@ -251,6 +258,27 @@ export class RenderComponent extends RenderableComponent {
         // if (updateHash) {
         //     this.material.updateHash();
         // }
+    }
+
+    public updateAssembler (render: UI) {
+        if (!this._assembler) {
+            return;
+        }
+        if (this._assembler.updateRenderData) {
+            this._assembler.updateRenderData(this);
+        }
+        this._assembler.fillBuffers(this, render);
+
+        return this._assembler.getRenderBuffers();
+    }
+
+    public postUpdateAssembler () {
+        if (!this._postAssembler) {
+            return;
+        }
+        if (this._postAssembler.updateRenderData) {
+            this._postAssembler.updateRenderData(this);
+        }
     }
 }
 

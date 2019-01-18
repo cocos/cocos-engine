@@ -29,7 +29,7 @@ import { ccclass, executeInEditMode, executionOrder,
 import { ccenum } from '../../../core/value-types/enum';
 import { clamp } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
-import { RenderComponent } from './ui-render-component';
+import { UIRenderComponent } from './ui-render-component';
 import { UITransformComponent } from './ui-transfrom-component';
 const renderEngine = require('../../../2d/renderer/render-engine');
 const math = renderEngine.math;
@@ -78,7 +78,7 @@ const SEGEMENTS_MAX = 10000;
 @menu('UI/Mask')
 @requireComponent(UITransformComponent)
 @executeInEditMode
-export class MaskComponent extends RenderComponent {
+export class MaskComponent extends UIRenderComponent {
     public static Type = MaskType;
 
     /**

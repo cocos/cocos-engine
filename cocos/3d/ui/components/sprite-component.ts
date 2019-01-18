@@ -30,7 +30,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { clampf } from '../../../core/utils/misc';
 import { Vec2, Enum } from '../../../core/value-types';
 import { MeshBuffer } from '../mesh-buffer';
-import { RenderComponent } from './ui-render-component';
+import { UIRenderComponent } from './ui-render-component';
 import { Node } from '../../../scene-graph/node';
 const EventType = Node.EventType;
 
@@ -143,7 +143,7 @@ const FillType = cc.Enum({
 @executionOrder(100)
 @menu('UI/Sprite')
 @executeInEditMode
-export class SpriteComponent extends RenderComponent {
+export class SpriteComponent extends UIRenderComponent {
 
     /**
      * !#en The sprite frame of the sprite.
@@ -357,7 +357,6 @@ export class SpriteComponent extends RenderComponent {
     // TODO:
     @property
     public _atlas: atlas | null = null;
-    public _assembler = null;
     public _spriteWidget = null;
     // static SizeMode = SizeMode;
     // static State = State;
@@ -400,13 +399,11 @@ export class SpriteComponent extends RenderComponent {
         // this.node.on(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
     }
 
-    public updateRenderData (buffer: MeshBuffer) {
+    public updateAssembler (buffer: MeshBuffer) {
         if (!this._spriteFrame || !this.material) {
             return;
         }
-
-        this._assembler.updateRenderData(this);
-        this._assembler.fillBuffers(this, buffer);
+        super.updateAssembler(buffer);
     }
 
     public onDestroy () {
@@ -418,8 +415,8 @@ export class SpriteComponent extends RenderComponent {
         // this._super();
         super.onDisable();
 
-        this.node.off(EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.off(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+        // this.node.off(EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        // this.node.off(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
     }
 
     public _onNodeSizeDirty () {
@@ -428,7 +425,7 @@ export class SpriteComponent extends RenderComponent {
     }
 
     public _updateAssembler () {
-        const assembler = SpriteComponent._assembler.getAssembler(this);
+        const assembler = SpriteComponent.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();
@@ -436,9 +433,11 @@ export class SpriteComponent extends RenderComponent {
         }
 
         if (!this._renderData) {
-            this._renderData = this._assembler.createData(this);
-            this._renderData.material = this.material;
-            this.markForUpdateRenderData(true);
+            if (this._assembler) {
+                this._renderData = this._assembler.createData(this);
+                this._renderData.material = this.material;
+                this.markForUpdateRenderData(true);
+            }
         }
     }
 
@@ -451,18 +450,20 @@ export class SpriteComponent extends RenderComponent {
                 this.material = cc.BuiltinResMgr['sprite-material'];
                 material = this.material;
                 if (spriteFrame && spriteFrame.textureLoaded()) {
-                    material.setProperty('mainTexture', spriteFrame);
+                    material!.setProperty('mainTexture', spriteFrame);
                     this.markForUpdateRenderData(true);
                 }
-            } else {
-                if (spriteFrame && spriteFrame.textureLoaded()) {
-                    const matTexture = material.effect && material.effect.getProperty('mainTexture');
-                    if (matTexture !== spriteFrame) {
-                        material.setProperty('mainTexture', spriteFrame);
-                        this.markForUpdateRenderData(true);
-                    }
-                }
             }
+            // TODO:
+            // else {
+            //     if (spriteFrame && spriteFrame.textureLoaded()) {
+            //         const matTexture = material && material.getProperty('mainTexture');
+            //         if (matTexture !== spriteFrame) {
+            //             material.setProperty('mainTexture', spriteFrame);
+            //             this.markForUpdateRenderData(true);
+            //         }
+            //     }
+            // }
 
             if (this._renderData) {
                 this._renderData.material = material;
@@ -478,9 +479,9 @@ export class SpriteComponent extends RenderComponent {
             return;
         }
         // Set atlas
-        if (spriteFrame && spriteFrame._atlasUuid) {
+        if (spriteFrame && spriteFrame.atlasUuid) {
             const self = this;
-            cc.AssetLibrary.loadAsset(spriteFrame._atlasUuid, function (err, asset) {
+            cc.AssetLibrary.loadAsset(spriteFrame.atlasUuid, (err, asset) => {
                 self._atlas = asset;
             });
         } else {

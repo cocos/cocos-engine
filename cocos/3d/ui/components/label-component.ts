@@ -25,7 +25,7 @@
  ****************************************************************************/
 // @ts-check
 import macro from '../../../core/platform/CCMacro';
-import { RenderComponent } from './ui-render-component';
+import { UIRenderComponent } from './ui-render-component';
 import ImageAsset from '../../../assets/image-asset';
 // import { vec2, vec3, mat4, color4 } from '../../../core/vmath/index';
 import {
@@ -142,13 +142,13 @@ const Overflow = Enum({
  * !#en The Label Component.
  * !#zh 文字标签组件
  * @class Label
- * @extends RenderComponent
+ * @extends UIRenderComponent
  */
 @ccclass('cc.LabelComponent')
 @executionOrder(100)
 @menu('UI/Label')
 @executeInEditMode
-export class LabelComponent extends RenderComponent {
+export class LabelComponent extends UIRenderComponent {
 
     /**
      * !#en Content string of label.
@@ -510,7 +510,6 @@ export class LabelComponent extends RenderComponent {
     private _ttfTexture: Texture2D | null = null;
     private _userDefinedFont: Font | null = null;
     private _assemblerData: object|null = null;
-    private _assembler: object|null = null;
 
     constructor () {
         super();
@@ -566,15 +565,6 @@ export class LabelComponent extends RenderComponent {
         // this._super();
     }
 
-    public updateRenderData (buffer: MeshBuffer) {
-        if (!this._assembler) {
-            return;
-        }
-
-        this._assembler.updateRenderData(this);
-        this._assembler.fillBuffers(this, buffer);
-    }
-
     public _canRender () {
         // let result = this._super();
         let result = this._enabled;
@@ -602,7 +592,7 @@ export class LabelComponent extends RenderComponent {
         }
 
         if (!this._renderData) {
-            this._renderData = this._assembler.createData(this);
+            this._renderData = this._assembler!.createData(this);
             this._renderData.material = this.material;
         }
     }
@@ -624,9 +614,9 @@ export class LabelComponent extends RenderComponent {
         } else {
             this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
         }
-        material.setProperty('mainTexture', this._texture);
+        material!.setProperty('mainTexture', this._texture);
         // For batch rendering, do not use uniform color.
-        material.useColor = false;
+        // material!.useColor = false;
         // this._updateMaterial(material);
     }
 
@@ -658,8 +648,8 @@ export class LabelComponent extends RenderComponent {
         } else {
             if (!this._ttfTexture) {
                 this._ttfTexture = new cc.SpriteFrame();
-                this._ttfTexture.setFilters(cc.Texture2D.Filter.LINEAR, cc.Texture2D.Filter.LINEAR);
-                this._ttfTexture.setWrapMode(cc.Texture2D.WrapMode.CLAMP_TO_EDGE, cc.Texture2D.WrapMode.CLAMP_TO_EDGE);
+                // this._ttfTexture.setFilters(cc.Texture2D.Filter.LINEAR, cc.Texture2D.Filter.LINEAR);
+                // this._ttfTexture.setWrapMode(cc.Texture2D.WrapMode.CLAMP_TO_EDGE, cc.Texture2D.WrapMode.CLAMP_TO_EDGE);
                 // TTF texture in web will blend with canvas or body background color
                 if (!CC_JSB) {
                     // this._ttfTexture.setPremultiplyAlpha(true);
@@ -671,8 +661,8 @@ export class LabelComponent extends RenderComponent {
             this._texture = this._ttfTexture;
             this._activateMaterial(force);
 
-            if (force) {
-                this._assembler && this._assembler.updateRenderData(this);
+            if (force && this._assembler) {
+                this._assembler.updateRenderData(this);
             }
         }
     }

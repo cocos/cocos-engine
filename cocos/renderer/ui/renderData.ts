@@ -1,6 +1,16 @@
 
 import { Material } from '../../3d/assets/material';
 import RecyclePool from '../../3d/memop/recycle-pool';
+import { Color } from '../../core/value-types';
+
+export class IRenderData {
+    public x: number = 0;
+    public y: number = 0;
+    public z: number = 0;
+    public u: number = 0;
+    public v: number = 0;
+    public color: Color = Color.WHITE;
+}
 
 class BaseRenderData {
     public material: Material | null = null;
@@ -11,11 +21,11 @@ class BaseRenderData {
 export class RenderData extends BaseRenderData {
 
     get dataLength () {
-        return this._data.length;
+        return this._datas.length;
     }
 
     set dataLength (length: number) {
-        const data = this._data;
+        const data: IRenderData[] = this._datas;
         if (data.length !== length) {
             // // Free extra data
             const value = data.length;
@@ -30,6 +40,10 @@ export class RenderData extends BaseRenderData {
         }
     }
 
+    get datas () {
+        return this._datas;
+    }
+
     public static add () {
         const data = _pool.add();
         return {
@@ -42,14 +56,15 @@ export class RenderData extends BaseRenderData {
         _pool.data[idx].clear();
         _pool.remove(idx);
     }
-    public _data: number[] = [];
-    public _indices: number[] = [];
-    public _pivotX: number = 0;
-    public _pivotY: number = 0;
-    public _width: number = 0;
-    public _height: number = 0;
+
     public uvDirty: boolean = true;
     public vertDirty: boolean = true;
+    private _datas: IRenderData[] = [];
+    private _indices: number[] = [];
+    private _pivotX: number = 0;
+    private _pivotY: number = 0;
+    private _width: number = 0;
+    private _height: number = 0;
 
     public updateSizeNPivot (width: number, height: number, pivotX: number, pivotY: number) {
         if (width !== this._width ||
@@ -65,7 +80,7 @@ export class RenderData extends BaseRenderData {
     }
 
     public clear () {
-        this._data.length = 0;
+        this._datas.length = 0;
         this._indices.length = 0;
         this._pivotX = 0;
         this._pivotY = 0;
@@ -80,14 +95,7 @@ export class RenderData extends BaseRenderData {
 }
 
 const _dataPool = new RecyclePool(() => {
-    return {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-        u: 0.0,
-        v: 0.0,
-        color: 0,
-    };
+    return new IRenderData();
 }, 128);
 
 const _pool = new RecyclePool( () => {
