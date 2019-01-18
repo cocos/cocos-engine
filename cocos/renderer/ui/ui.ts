@@ -37,7 +37,7 @@ export interface IUIBufferBatch {
 }
 
 export interface IUIMaterial {
-    pass: Pass;
+    material: Material;
     bindingLayout: GFXBindingLayout;
     pipelineLayout: GFXPipelineLayout;
     pipelineState: GFXPipelineState;
@@ -78,7 +78,7 @@ export class UI {
     private _scene: RenderScene;
     private _attributes: IGFXInputAttribute[] = [];
     private _bufferBatches: IUIBufferBatch[] = [];
-    private _materials: IUIMaterial[] = [];
+    private _uiMaterials: IUIMaterial[] = [];
     private _items: CachedArray<IUIRenderItem>;
     private _commitBuffers: any[] = [];
 
@@ -111,6 +111,13 @@ export class UI {
 
     public destroy () {
 
+        for (const uiMaterial of this._uiMaterials) {
+            uiMaterial.bindingLayout.destroy();
+            uiMaterial.pipelineLayout.destroy();
+            uiMaterial.pipelineState.destroy();
+        }
+        this._uiMaterials = [];
+
         for (const buffBatch of this._bufferBatches) {
             buffBatch.vb.destroy();
             buffBatch.ib.destroy();
@@ -126,37 +133,41 @@ export class UI {
     /*
     public registerMaterial (material: Material): IUIMaterial {
         const pass = material.passes[0];
-        for (const mtrl of this._materials) {
-            if (mtrl.pass.shader.id === pass.shader.id) {
+        for (const mtrl of this._uiMaterials) {
+            if (mtrl.pass === pass) {
                 return mtrl;
             }
         }
 
-        const bindLayout = this._device.createBindingLayout({
-            bindings: [pass.binds],
+        const bindingLayout = this._device.createBindingLayout({
+            bindings: pass.bindings,
         });
 
         const pipelineLayout = this._device.createPipelineLayout({
-            layouts: [bindLayout],
+            layouts: [bindingLayout],
         });
 
         const pipelineState = this._device.createPipelineState({
-            primitive: GFXPrimitiveMode.TRIANGLE_LIST,
-            shader: this._shader,
-            is,
-            rs: this._rs,
-            dss: this._dss,
-            bs: this._bs,
-            layout: this._pipelineLayout,
-            renderPass:  this._framebuffer.renderPass as GFXRenderPass,
+            primitive: pass.primitive,
+            shader: pass.shader,
+            is: { attributes: this._attributes },
+            rs: pass.rasterizerState,
+            dss: pass.depthStencilState,
+            bs: pass.blendState,
+            layout: pipelineLayout,
+            renderPass: pass.renderPass,
         });
 
-        this._materials.push({
+        const uiMaterial = {
             pass,
-            bindLayout,
+            bindingLayout,
             pipelineLayout,
             pipelineState,
-        });
+        };
+
+        this._uiMaterials.push(uiMaterial);
+
+        return uiMaterial;
     }
     */
 

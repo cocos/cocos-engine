@@ -304,6 +304,7 @@ export class Pass {
     get blendState (): GFXBlendState { return this._bs; }
     get depthStencilState (): GFXDepthStencilState { return this._dss; }
     get rasterizerState (): GFXRasterizerState { return this._rs; }
+    get renderPass (): GFXRenderPass { return this._renderPass!; }
 }
 
 function serializeBlendState (bs: GFXBlendState)  {
