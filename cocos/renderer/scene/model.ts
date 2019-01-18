@@ -93,10 +93,9 @@ export class Model {
     }
 
     public _updateTransform () {
-        if (!this._node.hasChanged || !this._modelBounds) {
-            return;
-        }
+        if (!this._node.hasChanged) { return; }
         this._node.updateWorldTransformFull();
+        if (!this._modelBounds) { return; }
 
         this._modelBounds.transform(
             // @ts-ignore

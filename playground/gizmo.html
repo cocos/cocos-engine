@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>gizmo</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <style>
+    body {
+      background-color: #333;
+      margin: 0px;
+      overflow: hidden;
+    }
+
+    .fit {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+  </style>
+</head>
+
+<body class="fit">
+  <canvas id="canvas" tabindex="-1" class="fit">
+    <img name="testImg" src="cubetexture.png" />
+  </canvas>
+
+  <script src="../bin/cocos-3d.dev.js"></script>
+  <script src="./camera.js"></script>
+  <script>
+    const $body = document.body;
+    const bcr = $body.getBoundingClientRect();
+    const canv = document.getElementById('canvas');
+    canv.width = bcr.width;
+    canv.height = bcr.height;
+
+    window.addEventListener('resize', () => {
+      const bcr = $body.getBoundingClientRect();
+      cc.director.root.resize(bcr.width, bcr.height);
+    });
+
+    const { vec3, quat } = cc.vmath;
+
+
+    function onStart() {
+      const root = cc.director.root;
+      const scene = new cc.Scene('scene');
+
+      const cameraNode = new cc.Node('camera');
+      cameraNode.parent = scene;
+      cameraNode.setPosition(20, 20, 20);
+      cameraNode.lookAt(cc.v3());
+      cameraNode.addComponent(FirstPersonCamera);
+      const camComp = cameraNode.addComponent(cc.CameraComponent);
+
+      const material = new cc.Material();
+      material.setDefines({ USE_COLOR: true });
+      material.effectName = 'builtin-effect-unlit';
+
+
+      const createArrow = (color, rotation) => {
+        const arrow = new cc.Node('arrow');
+        arrow.setRotation(rotation);
+        const arrowHead = new cc.Node('arrowHead');
+        arrowHead.parent = arrow;
+        arrowHead.setPosition(0, 10, 0);
+        const headModel = arrowHead.addComponent(cc.ModelComponent);
+        headModel.mesh = cc.utils.createMesh(cc.primitives.cone());
+        headModel.material = material;
+        headModel.material.setProperty('color', color);
+        const arrowBody = new cc.Node('arrowBody');
+        arrowBody.parent = arrow;
+        const bodyModel = arrowBody.addComponent(cc.ModelComponent);
+        bodyModel.mesh = cc.utils.createMesh({
+          positions: [0, 0, 0, 0, 10, 0],
+          indices: [0, 1],
+          primitiveMode: cc.GFXPrimitiveMode.LINE_LIST,
+        });
+        bodyModel.material = material;
+        bodyModel.material.setProperty('color', color);
+        bodyModel.material.overridePipelineStates({ primitive: cc.GFXPrimitiveMode.LINE_LIST });
+        return arrow;
+      }
+      const createBorderPlane = (color, position, rotation) => {
+        const borderPlane = new cc.Node('borderPlane');
+        borderPlane.setPosition(position);
+        borderPlane.setRotation(rotation);
+        const plane = new cc.Node('plane');
+        plane.parent = borderPlane;
+        const planeModel = plane.addComponent(cc.ModelComponent);
+        planeModel.mesh = cc.utils.createMesh(cc.primitives.quad());
+        planeModel.material = material;
+        planeModel.material.setProperty('color', color.lerp(cc.color(0, 0, 0, 0), 0.5));
+        planeModel.material.overridePipelineStates({
+          depthStencilState: { depthTest: false, depthWrite: false },
+          rasterizerState: { cullMode: cc.GFXCullMode.NONE },
+          blendState: { targets: [
+            { blend: true, blendDst: cc.GFXBlendFactor.ONE_MINUS_SRC_ALPHA, blendDstAlpha: cc.GFXBlendFactor.ONE_MINUS_SRC_ALPHA }
+          ] }
+        });
+        const border = new cc.Node('border');
+        border.parent = borderPlane;
+        const borderModel = border.addComponent(cc.ModelComponent);
+        borderModel.mesh = cc.utils.createMesh({
+          positions: [0.5, 0.5, 0, 0, 0.5, 0, 0.5, 0, 0],
+          indices: [0, 1, 0, 2],
+          primitiveMode: cc.GFXPrimitiveMode.LINE_LIST,
+        });
+        borderModel.material = material;
+        borderModel.material.setProperty('color', color);
+        borderModel.material.overridePipelineStates({ primitive: cc.GFXPrimitiveMode.LINE_LIST });
+        return borderPlane;
+      }
+
+      const moveTool = new cc.Node('moveTool');
+      moveTool.parent = scene;
+      createArrow(cc.Color.RED, quat.fromEuler(cc.quat(), 90, 0, 0)).parent = moveTool;
+      createArrow(cc.Color.GREEN, quat.fromEuler(cc.quat(), 0, 0, 0)).parent = moveTool;
+      createArrow(cc.Color.BLUE, quat.fromEuler(cc.quat(), 0, 0, -90)).parent = moveTool;
+      createBorderPlane(cc.Color.RED, cc.v3(0.5, 0.5, 0), quat.fromEuler(cc.quat(), 0, 0, 0)).parent = moveTool;
+      createBorderPlane(cc.Color.GREEN, cc.v3(0.5, 0, 0.5), quat.fromEuler(cc.quat(), -90, -90, 0)).parent = moveTool;
+      createBorderPlane(cc.Color.BLUE, cc.v3(0, 0.5, 0.5), quat.fromEuler(cc.quat(), 90, 0, 90)).parent = moveTool;
+
+      let vel = cc.v3(), speed = 0.1;
+      canv.addEventListener('keydown', (e) => {
+        if (e.key === 'i')      vel.z =  speed;
+        else if (e.key === 'k') vel.z = -speed;
+        else if (e.key === 'j') vel.x =  speed;
+        else if (e.key === 'l') vel.x = -speed;
+        else if (e.key === 'o') vel.y =  speed;
+        else if (e.key === 'u') vel.y = -speed;
+      });
+      canv.addEventListener('keyup', (e) => {
+        if (e.key === 'i')      vel.z = 0;
+        else if (e.key === 'k') vel.z = 0;
+        else if (e.key === 'j') vel.x = 0;
+        else if (e.key === 'l') vel.x = 0;
+        else if (e.key === 'o') vel.y = 0;
+        else if (e.key === 'u') vel.y = 0;
+      });
+      cc.director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
+        moveTool.setPosition(vec3.add(moveTool._lpos, moveTool._lpos, vel));
+      })
+
+      cc.director.runSceneImmediate(scene);
+    }
+    cc.game.run({ id: 'canvas' }, onStart);
+  </script>
+</body>
+
+</html>

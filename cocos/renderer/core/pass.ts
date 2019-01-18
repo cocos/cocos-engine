@@ -88,6 +88,13 @@ interface IPassResources {
     pipelineState: GFXPipelineState;
 }
 
+interface IPassDynamics {
+    [type: string]: {
+        dirty: boolean,
+        value: number[],
+    };
+}
+
 export class Pass {
     public static getBindingTypeFromHandle = getBindingTypeFromHandle;
     public static getTypeFromHandle = getTypeFromHandle;
@@ -106,7 +113,8 @@ export class Pass {
     protected _bs: GFXBlendState = new GFXBlendState();
     protected _dss: GFXDepthStencilState = new GFXDepthStencilState();
     protected _rs: GFXRasterizerState = new GFXRasterizerState();
-    protected _dynamics: GFXDynamicState[] = [];
+    protected _dynamicStates: GFXDynamicState[] = [];
+    protected _dynamics: IPassDynamics = {};
     protected _handleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
     // external references
@@ -217,6 +225,12 @@ export class Pass {
         }
     }
 
+    public setDynamicState (state: GFXDynamicState, value: any) {
+        const ds = this._dynamics[state];
+        if (ds && ds.value === value) { return; }
+        ds.value = value; ds.dirty = true;
+    }
+
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides) {
         this._bs = new GFXBlendState();
         this._dss = new GFXDepthStencilState();
@@ -268,6 +282,7 @@ export class Pass {
         const pipelineState = this._device.createPipelineState({
             bs: this._bs,
             dss: this._dss,
+            dynamicStates: this._dynamicStates,
             is: new GFXInputState(),
             layout: pipelineLayout,
             primitive: this._primitive,
@@ -299,7 +314,7 @@ export class Pass {
     protected _fillinPipelineInfo (info: PassOverrides) {
         if (info.primitive !== undefined) { this._primitive = info.primitive; }
         if (info.stage !== undefined) { this._stage = info.stage; }
-        if (info.dynamics !== undefined) { this._dynamics = info.dynamics; }
+        if (info.dynamics !== undefined) { this._dynamicStates = info.dynamics; }
 
         const bs = this._bs;
         if (info.blendState) {
@@ -324,6 +339,7 @@ export class Pass {
     get rasterizerState (): GFXRasterizerState { return this._rs; }
     get shader (): GFXShader | null { return this._shader; }
     get renderPass (): GFXRenderPass | null { return this._renderPass; }
+    get dynamics (): IPassDynamics { return this._dynamics; }
 }
 
 function serializeBlendState (bs: GFXBlendState)  {
