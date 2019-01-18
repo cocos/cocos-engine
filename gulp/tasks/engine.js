@@ -46,7 +46,37 @@ var jsbSkipModules = [
     '../../extensions/dragonbones/CCArmatureDisplay.js',
     '../../extensions/dragonbones/CCFactory.js',
     '../../extensions/dragonbones/CCSlot.js',
-    '../../extensions/dragonbones/CCTextureData.js'
+    '../../extensions/dragonbones/CCTextureData.js',
+
+    // gfx
+    '../../cocos2d/renderer/gfx/device.js',
+    '../../cocos2d/renderer/gfx/enums.js',
+    '../../cocos2d/renderer/gfx/frame-buffer.js',
+    '../../cocos2d/renderer/gfx/index-buffer.js',
+    '../../cocos2d/renderer/gfx/index.js',
+    '../../cocos2d/renderer/gfx/misc.js',
+    '../../cocos2d/renderer/gfx/program.js',
+    '../../cocos2d/renderer/gfx/render-buffer.js',
+    '../../cocos2d/renderer/gfx/state.js',
+    '../../cocos2d/renderer/gfx/texture-2d.js',
+    '../../cocos2d/renderer/gfx/texture-cube.js',
+    '../../cocos2d/renderer/gfx/texture.js',
+    '../../cocos2d/renderer/gfx/vertex-buffer.js',
+    '../../cocos2d/renderer/gfx/vertex-format.js',
+
+    // renderer
+    '../../cocos2d/renderer/core/base-renderer.js',
+    '../../cocos2d/renderer/core/effect.js',
+    '../../cocos2d/renderer/core/input-assembler.js',
+    '../../cocos2d/renderer/core/pass.js',
+    '../../cocos2d/renderer/core/program-lib.js',
+    '../../cocos2d/renderer/core/technique.js',
+    '../../cocos2d/renderer/core/view.js',
+    '../../cocos2d/renderer/renderers/forward-renderer.js',
+    '../../cocos2d/renderer/scene/camera.js',
+    '../../cocos2d/renderer/scene/light.js',
+    '../../cocos2d/renderer/scene/model.js',
+    '../../cocos2d/renderer/scene/scene.js',
 ];
 var jsbAliasify = {
     replacements: {
