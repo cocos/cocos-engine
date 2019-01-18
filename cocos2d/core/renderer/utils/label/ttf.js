@@ -255,7 +255,7 @@ module.exports = {
         let lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
 
         //do real rendering
         for (let i = 0; i < _splitedStrings.length; ++i) {
@@ -268,7 +268,7 @@ module.exports = {
                 _context.save();
                 _context.beginPath();
                 _context.lineWidth = _underlineThickness;
-                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
+                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
                 _context.moveTo(_drawUnderlinePos.x, _drawUnderlinePos.y);
                 _context.lineTo(_drawUnderlinePos.x + _canvas.width, _drawUnderlinePos.y);
                 _context.stroke();
