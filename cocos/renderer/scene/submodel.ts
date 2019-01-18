@@ -7,26 +7,29 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
 import { UBOLocal } from '../../pipeline/render-pipeline';
 import { Pass } from '../core/pass';
+import { GFXPipelineState, GFXInputState } from '../../gfx/pipeline-state';
+import { GFXBindingLayout } from '../../gfx/binding-layout';
+import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 
 export class SubModel {
     protected _subMeshObject: IRenderingSubmesh | null;
     private _inputAssembler: GFXInputAssembler | null;
     private _material: Material | null;
     private _cmdBuffers: GFXCommandBuffer[];
-    private _localUBO: GFXBuffer | null;
+    private _psos: GFXPipelineState[] | null;
     private _castShadow: boolean;
 
     constructor () {
         this._subMeshObject = null;
         this._material = null;
         this._cmdBuffers = new Array<GFXCommandBuffer>();
-        this._localUBO = null;
+        this._psos = null;
         this._castShadow = false;
         this._inputAssembler = null;
     }
 
-    public initialize (subMesh: IRenderingSubmesh, mat: Material, localUBO: GFXBuffer) {
-        this.localUBO = localUBO;
+    public initialize (subMesh: IRenderingSubmesh, mat: Material, psos: GFXPipelineState[]) {
+        this._psos = psos;
         this.subMeshData = subMesh;
         const iaInfo = {} as IGFXInputAssemblerInfo;
         iaInfo.attributes = this._subMeshObject!.attributes;
@@ -53,6 +56,14 @@ export class SubModel {
         return this._subMeshObject!;
     }
 
+    get psos (): GFXPipelineState[] {
+        return this._psos!;
+    }
+
+    set psos (val: GFXPipelineState[]) {
+        this._psos = val;
+    }
+
     set material (material: Material) {
         this._material = material;
         if (material == null) {
@@ -72,8 +83,8 @@ export class SubModel {
         }
     }
 
-    set localUBO (val: GFXBuffer) {
-        this._localUBO = val;
+    get material (): Material {
+        return this._material!;
     }
 
     get castShadow (): boolean {
@@ -85,8 +96,8 @@ export class SubModel {
     }
 
     private recordCommandBuffer (index: number) {
-        const device = cc.director.root.device;
-        const pass = this._material!.passes[index];
+        const device = cc.director.root.device as GFXDevice;
+        const pso = this._psos![index];
         if (this._cmdBuffers[index] == null) {
             const cmdBufferInfo = {
                 allocator: device.commandAllocator,
@@ -94,16 +105,12 @@ export class SubModel {
             };
             this._cmdBuffers[index] = device.createCommandBuffer(cmdBufferInfo);
         }
-
-        const localUBO = this._localUBO as GFXBuffer;
         const inputAssembler = this._inputAssembler as GFXInputAssembler;
-
-        pass.bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, localUBO);
 
         const cmdBuff = this._cmdBuffers[index];
         cmdBuff.begin();
-        cmdBuff.bindPipelineState(pass.pipelineState);
-        cmdBuff.bindBindingLayout(pass.bindingLayout);
+        cmdBuff.bindPipelineState(pso);
+        cmdBuff.bindBindingLayout(pso.pipelineLayout.layouts[0]);
         cmdBuff.bindInputAssembler(inputAssembler);
         cmdBuff.draw(inputAssembler);
         cmdBuff.end();

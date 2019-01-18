@@ -15,6 +15,10 @@ export interface IGFXPipelineLayoutInfo {
 
 export abstract class GFXPipelineLayout extends GFXObject {
 
+    public get layouts (): GFXBindingLayout[] {
+        return this._layouts;
+    }
+
     protected _device: GFXDevice;
     protected _pushConstantsRanges: IGFXPushConstantRange[] = [];
     protected _layouts: GFXBindingLayout[] = [];
