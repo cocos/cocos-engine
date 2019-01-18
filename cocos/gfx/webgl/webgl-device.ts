@@ -882,6 +882,7 @@ export class WebGLGFXDevice extends GFXDevice {
             rs: info.rs,
             dss: info.dss,
             bs: info.bs,
+            dynamicStates: (info.dynamicStates !== undefined ? info.dynamicStates : []),
             gpuLayout,
             gpuRenderPass,
         };

@@ -4,6 +4,7 @@ import {
     GFXColorMask,
     GFXComparisonFunc,
     GFXCullMode,
+    GFXDynamicState,
     GFXObject,
     GFXObjectType,
     GFXPolygonMode,
@@ -23,11 +24,12 @@ export class GFXRasterizerState {
     public shadeModel: GFXShadeModel = GFXShadeModel.GOURAND;
     public cullMode: GFXCullMode = GFXCullMode.BACK;
     public isFrontFaceCCW: boolean = true;
-    public depthBias: number = 0.0;
-    public depthBiasFactor: number = 0.0;
+    public depthBias: number = 0;
+    public depthBiasClamp: number = 0.0;
+    public depthBiasSlop: number = 0.0;
     public isDepthClip: boolean = true;
     public isMultisample: boolean = false;
-    // lineWidth: number = 1.0;
+    public lineWidth: number = 1.0;
 
     public compare (state: GFXRasterizerState): boolean {
         return (this.isDiscard === state.isDiscard) &&
@@ -36,9 +38,10 @@ export class GFXRasterizerState {
             (this.cullMode === state.cullMode) &&
             (this.isFrontFaceCCW === state.isFrontFaceCCW) &&
             (this.depthBias === state.depthBias) &&
-            (this.depthBiasFactor === state.depthBiasFactor) &&
+            (this.depthBiasClamp === state.depthBiasClamp) &&
+            (this.depthBiasSlop === state.depthBiasSlop) &&
             (this.isDepthClip === state.isDepthClip) &&
-            // (this.lineWidth === state.lineWidth) &&
+            (this.lineWidth === state.lineWidth) &&
             (this.isMultisample === state.isMultisample);
     }
 }
@@ -127,6 +130,7 @@ export interface IGFXPipelineStateInfo {
     rs: GFXRasterizerState;
     dss: GFXDepthStencilState;
     bs: GFXBlendState;
+    dynamicStates?: GFXDynamicState[];
     layout: GFXPipelineLayout;
     renderPass: GFXRenderPass;
 }
@@ -153,12 +157,16 @@ export abstract class GFXPipelineState extends GFXObject {
         return  this._bs as GFXBlendState;
     }
 
+    public get dynamicStates (): GFXDynamicState[] {
+        return this._dynamicStates;
+    }
+
     public get pipelineLayout (): GFXPipelineLayout {
-        return  this._layout as GFXPipelineLayout;
+        return this._layout as GFXPipelineLayout;
     }
 
     public get renderPass (): GFXRenderPass {
-        return  this._renderPass as GFXRenderPass;
+        return this._renderPass as GFXRenderPass;
     }
 
     protected _device: GFXDevice;
@@ -168,6 +176,7 @@ export abstract class GFXPipelineState extends GFXObject {
     protected _rs: GFXRasterizerState | null = null;
     protected _dss: GFXDepthStencilState | null = null;
     protected _bs: GFXBlendState | null = null;
+    protected _dynamicStates: GFXDynamicState[] = [];
     protected _layout: GFXPipelineLayout | null = null;
     protected _renderPass: GFXRenderPass | null = null;
 

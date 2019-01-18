@@ -472,6 +472,23 @@ export enum GFXPipelineBindPoint {
     RAY_TRACING,
 }
 
+export enum GFXDynamicState {
+    VIEWPORT,
+    SCISSOR,
+    LINE_WIDTH,
+    DEPTH_BIAS,
+    BLEND_CONSTANTS,
+    DEPTH_BOUNDS,
+    STENCIL_WRITE_MASK,
+    STENCIL_COMPARE_MASK,
+}
+
+export enum GFXStencilFace {
+    FRONT,
+    BACK,
+    ALL,
+}
+
 export enum GFXQueueType {
     GRAPHICS,
     COMPUTE,

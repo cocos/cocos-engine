@@ -3,6 +3,7 @@ import {
     GFXBindingType,
     GFXBufferUsage,
     GFXBufferUsageBit,
+    GFXDynamicState,
     GFXFormat,
     GFXMemoryUsage,
     GFXMemoryUsageBit,
@@ -217,6 +218,7 @@ export class WebGLGPUPipelineState extends WebGLGPUObject {
     public rs: GFXRasterizerState = new GFXRasterizerState();
     public dss: GFXDepthStencilState = new GFXDepthStencilState();
     public bs: GFXBlendState = new GFXBlendState();
+    public dynamicStates: GFXDynamicState[] = [];
     public gpuLayout: WebGLGPUPipelineLayout | null = null;
     public gpuRenderPass: WebGLGPURenderPass | null = null;
 

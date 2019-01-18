@@ -1,14 +1,12 @@
-import { IRenderingSubmesh } from "../../3d/assets/mesh";
-import { GFXDevice } from "../../gfx/device";
-import { Material } from "../../3d/assets/material";
-import { GFXCommandBuffer } from "../../gfx/command-buffer";
-import { aabb } from "../../3d/geom-utils";
-import { Vec3 } from "../../core/value-types";
-import { GFXCommandBufferType } from "../../gfx/define";
-import { GFXBuffer } from "../../gfx/buffer";
-import { UBOLocal } from "../../pipeline/render-pipeline";
-import { Pass } from "../core/pass";
-import { GFXInputAssembler, IGFXInputAssemblerInfo } from "../../gfx/input-assembler";
+import { Material } from '../../3d/assets/material';
+import { IRenderingSubmesh } from '../../3d/assets/mesh';
+import { GFXBuffer } from '../../gfx/buffer';
+import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { GFXCommandBufferType } from '../../gfx/define';
+import { GFXDevice } from '../../gfx/device';
+import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
+import { UBOLocal } from '../../pipeline/render-pipeline';
+import { Pass } from '../core/pass';
 
 export class SubModel {
     protected _subMeshObject: IRenderingSubmesh | null;

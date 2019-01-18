@@ -1,10 +1,11 @@
 import { CachedArray } from '../../core/memop/cached-array';
 import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
 import { GFXBindingType, GFXBufferTextureCopy, GFXBufferUsageBit, GFXColorMask,
-    GFXCullMode, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit,
-    GFXShaderType, GFXTextureFlagBit, GFXTextureLayout, GFXTextureViewType,
-    GFXType, IGFXColor, IGFXRect, WebGLEXT } from '../define';
+    GFXCullMode, GFXDynamicState, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXLoadOp,
+    GFXMemoryUsageBit, GFXShaderType, GFXStencilFace, GFXTextureFlagBit,
+    GFXTextureLayout, GFXTextureViewType, GFXType, IGFXColor, IGFXRect, IGFXViewport, WebGLEXT } from '../define';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
+import { IGFXDepthBias, IGFXDepthBounds, IGFXStencilCompareMask, IGFXStencilWriteMask } from './webgl-command-buffer';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLAttrib, WebGLGPUBindingLayout, WebGLGPUBuffer, WebGLGPUFramebuffer,
     WebGLGPUInput, WebGLGPUInputAssembler, WebGLGPUPipelineState, WebGLGPUShader,
@@ -376,7 +377,14 @@ export class WebGLCmdBindStates extends WebGLCmdObject {
     public gpuPipelineState: WebGLGPUPipelineState | null = null;
     public gpuBindingLayout: WebGLGPUBindingLayout | null = null;
     public gpuInputAssembler: WebGLGPUInputAssembler | null = null;
-
+    public viewport: IGFXViewport | null = null;
+    public scissor: IGFXRect | null = null;
+    public lineWidth: number | null = null;
+    public depthBias: IGFXDepthBias | null = null;
+    public blendConstants: number[] | null = null;
+    public depthBounds: IGFXDepthBounds | null = null;
+    public stencilWriteMask: IGFXStencilWriteMask | null = null;
+    public stencilCompareMask: IGFXStencilCompareMask | null = null;
     constructor () {
         super(WebGLCmd.BIND_STATES);
     }
@@ -1080,6 +1088,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
     const gl = device.gl;
     const cmdIds = [0, 0, 0, 0, 0, 0];   // 6
 
+    let gpuPipelineState: WebGLGPUPipelineState | null = null;
     let gpuShader: WebGLGPUShader | null = null;
     let gpuInputAssembler: WebGLGPUInputAssembler | null = null;
     let glPrimitive = WebGLRenderingContext.TRIANGLES;
@@ -1264,7 +1273,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                 const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
                 if (cmd2.gpuPipelineState) {
-
+                    gpuPipelineState = cmd2.gpuPipelineState;
                     glPrimitive = cmd2.gpuPipelineState.glPrimitive;
 
                     if (cmd2.gpuPipelineState.gpuShader) {
@@ -1310,18 +1319,16 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                         }
 
                         if ((device.stateCache.rs.depthBias !== rs.depthBias) ||
-                            (device.stateCache.rs.depthBiasFactor !== rs.depthBiasFactor)) {
-                            gl.polygonOffset(rs.depthBiasFactor, rs.depthBias);
+                            (device.stateCache.rs.depthBiasSlop !== rs.depthBiasSlop)) {
+                            gl.polygonOffset(rs.depthBias, rs.depthBiasSlop);
                             device.stateCache.rs.depthBias = rs.depthBias;
-                            device.stateCache.rs.depthBiasFactor = rs.depthBiasFactor;
+                            device.stateCache.rs.depthBiasSlop = rs.depthBiasSlop;
                         }
 
-                        /* no browser actually supports this
                         if (device.stateCache.rs.lineWidth !== rs.lineWidth) {
                             gl.lineWidth(rs.lineWidth);
                             device.stateCache.rs.lineWidth = rs.lineWidth;
                         }
-                        */
 
                     } // rasterizater state
 
@@ -1878,6 +1885,164 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                         }
                     }
                 }
+
+                if (gpuPipelineState) {
+                    for (const dynamicState of gpuPipelineState.dynamicStates) {
+                        switch (dynamicState) {
+                            case GFXDynamicState.VIEWPORT: {
+                                if (cmd2.viewport) {
+                                    if (device.stateCache.viewport.left !== cmd2.viewport.left ||
+                                        device.stateCache.viewport.top !== cmd2.viewport.top ||
+                                        device.stateCache.viewport.width !== cmd2.viewport.width ||
+                                        device.stateCache.viewport.height !== cmd2.viewport.height) {
+
+                                        gl.viewport(cmd2.viewport.left, cmd2.viewport.top, cmd2.viewport.width, cmd2.viewport.height);
+
+                                        device.stateCache.viewport.left = cmd2.viewport.left;
+                                        device.stateCache.viewport.top = cmd2.viewport.top;
+                                        device.stateCache.viewport.width = cmd2.viewport.width;
+                                        device.stateCache.viewport.height = cmd2.viewport.height;
+                                    }
+                                }
+                                break;
+                            }
+                            case GFXDynamicState.SCISSOR: {
+                                if (cmd2.scissor) {
+                                    if (device.stateCache.scissorRect.x !== cmd2.scissor.x ||
+                                        device.stateCache.scissorRect.y !== cmd2.scissor.y ||
+                                        device.stateCache.scissorRect.width !== cmd2.scissor.width ||
+                                        device.stateCache.scissorRect.height !== cmd2.scissor.height) {
+
+                                        gl.scissor(cmd2.scissor.x, cmd2.scissor.y, cmd2.scissor.width, cmd2.scissor.height);
+
+                                        device.stateCache.scissorRect.x = cmd2.scissor.x;
+                                        device.stateCache.scissorRect.y = cmd2.scissor.y;
+                                        device.stateCache.scissorRect.width = cmd2.scissor.width;
+                                        device.stateCache.scissorRect.height = cmd2.scissor.height;
+                                    }
+                                }
+                                break;
+                            }
+                            case GFXDynamicState.LINE_WIDTH: {
+                                if (cmd2.lineWidth) {
+                                    if (device.stateCache.rs.lineWidth !== cmd2.lineWidth) {
+                                        gl.lineWidth(cmd2.lineWidth);
+                                        device.stateCache.rs.lineWidth = cmd2.lineWidth;
+                                    }
+                                }
+                                break;
+                            }
+                            case GFXDynamicState.DEPTH_BIAS: {
+                                if (cmd2.depthBias) {
+
+                                    if ((device.stateCache.rs.depthBias !== cmd2.depthBias.constantFactor) ||
+                                        (device.stateCache.rs.depthBiasSlop !== cmd2.depthBias.slopeFactor)) {
+                                        gl.polygonOffset(cmd2.depthBias.constantFactor, cmd2.depthBias.slopeFactor);
+                                        device.stateCache.rs.depthBias = cmd2.depthBias.constantFactor;
+                                        device.stateCache.rs.depthBiasSlop = cmd2.depthBias.slopeFactor;
+                                    }
+                                }
+                                break;
+                            }
+                            case GFXDynamicState.BLEND_CONSTANTS: {
+                                if (cmd2.blendConstants) {
+                                    if ((device.stateCache.bs.blendColor[0] !== cmd2.blendConstants[0]) ||
+                                        (device.stateCache.bs.blendColor[1] !== cmd2.blendConstants[1]) ||
+                                        (device.stateCache.bs.blendColor[2] !== cmd2.blendConstants[2]) ||
+                                        (device.stateCache.bs.blendColor[3] !== cmd2.blendConstants[3])) {
+
+                                        gl.blendColor(cmd2.blendConstants[0], cmd2.blendConstants[1], cmd2.blendConstants[2], cmd2.blendConstants[3]);
+
+                                        device.stateCache.bs.blendColor[0] = cmd2.blendConstants[0];
+                                        device.stateCache.bs.blendColor[1] = cmd2.blendConstants[1];
+                                        device.stateCache.bs.blendColor[2] = cmd2.blendConstants[2];
+                                        device.stateCache.bs.blendColor[3] = cmd2.blendConstants[3];
+                                    }
+                                }
+                                break;
+                            }
+                            case GFXDynamicState.STENCIL_WRITE_MASK: {
+                                if (cmd2.stencilWriteMask) {
+                                    switch (cmd2.stencilWriteMask.face) {
+                                        case GFXStencilFace.FRONT: {
+                                            if (device.stateCache.dss.stencilWriteMaskFront !== cmd2.stencilWriteMask.writeMask) {
+                                                gl.stencilMaskSeparate(WebGLRenderingContext.FRONT, cmd2.stencilWriteMask.writeMask);
+                                                device.stateCache.dss.stencilWriteMaskFront = cmd2.stencilWriteMask.writeMask;
+                                            }
+                                            break;
+                                        }
+                                        case GFXStencilFace.BACK: {
+                                            if (device.stateCache.dss.stencilWriteMaskBack !== cmd2.stencilWriteMask.writeMask) {
+                                                gl.stencilMaskSeparate(WebGLRenderingContext.BACK, cmd2.stencilWriteMask.writeMask);
+                                                device.stateCache.dss.stencilWriteMaskBack = cmd2.stencilWriteMask.writeMask;
+                                            }
+                                            break;
+                                        }
+                                        case GFXStencilFace.ALL: {
+                                            if (device.stateCache.dss.stencilWriteMaskFront !== cmd2.stencilWriteMask.writeMask ||
+                                                device.stateCache.dss.stencilWriteMaskBack !== cmd2.stencilWriteMask.writeMask) {
+                                                gl.stencilMask(cmd2.stencilWriteMask.writeMask);
+                                                device.stateCache.dss.stencilWriteMaskFront = cmd2.stencilWriteMask.writeMask;
+                                                device.stateCache.dss.stencilWriteMaskBack = cmd2.stencilWriteMask.writeMask;
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            case GFXDynamicState.STENCIL_COMPARE_MASK: {
+                                if (cmd2.stencilCompareMask) {
+                                    switch (cmd2.stencilCompareMask.face) {
+                                        case GFXStencilFace.FRONT: {
+                                            if (device.stateCache.dss.stencilRefFront !== cmd2.stencilCompareMask.reference ||
+                                                device.stateCache.dss.stencilReadMaskFront !== cmd2.stencilCompareMask.compareMask) {
+                                                gl.stencilFuncSeparate(
+                                                    WebGLRenderingContext.FRONT,
+                                                    WebGLCmpFuncs[device.stateCache.dss.stencilFuncFront],
+                                                    cmd2.stencilCompareMask.reference,
+                                                    cmd2.stencilCompareMask.compareMask);
+                                                device.stateCache.dss.stencilRefFront = cmd2.stencilCompareMask.reference;
+                                                device.stateCache.dss.stencilReadMaskFront = cmd2.stencilCompareMask.compareMask;
+                                            }
+                                            break;
+                                        }
+                                        case GFXStencilFace.BACK: {
+                                            if (device.stateCache.dss.stencilRefBack !== cmd2.stencilCompareMask.reference ||
+                                                device.stateCache.dss.stencilReadMaskBack !== cmd2.stencilCompareMask.compareMask) {
+                                                gl.stencilFuncSeparate(
+                                                    WebGLRenderingContext.BACK,
+                                                    WebGLCmpFuncs[device.stateCache.dss.stencilFuncBack],
+                                                    cmd2.stencilCompareMask.reference,
+                                                    cmd2.stencilCompareMask.compareMask);
+                                                device.stateCache.dss.stencilRefBack = cmd2.stencilCompareMask.reference;
+                                                device.stateCache.dss.stencilReadMaskBack = cmd2.stencilCompareMask.compareMask;
+                                            }
+                                            break;
+                                        }
+                                        case GFXStencilFace.ALL: {
+                                            if (device.stateCache.dss.stencilRefFront !== cmd2.stencilCompareMask.reference ||
+                                                device.stateCache.dss.stencilReadMaskFront !== cmd2.stencilCompareMask.compareMask ||
+                                                device.stateCache.dss.stencilRefBack !== cmd2.stencilCompareMask.reference ||
+                                                device.stateCache.dss.stencilReadMaskBack !== cmd2.stencilCompareMask.compareMask) {
+                                                gl.stencilFunc(
+                                                    WebGLCmpFuncs[device.stateCache.dss.stencilFuncBack],
+                                                    cmd2.stencilCompareMask.reference,
+                                                    cmd2.stencilCompareMask.compareMask);
+                                                device.stateCache.dss.stencilRefFront = cmd2.stencilCompareMask.reference;
+                                                device.stateCache.dss.stencilReadMaskFront = cmd2.stencilCompareMask.compareMask;
+                                                device.stateCache.dss.stencilRefBack = cmd2.stencilCompareMask.reference;
+                                                device.stateCache.dss.stencilReadMaskBack = cmd2.stencilCompareMask.compareMask;
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        } // switch
+                    } // for
+                } // if
 
                 break;
             }

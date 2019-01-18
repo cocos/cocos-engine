@@ -8,7 +8,7 @@ import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXPrimitiveMode,
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
-    GFXInputState, GFXPipelineState, GFXRasterizerState, IGFXPipelineStateInfo } from '../../gfx/pipeline-state';
+    GFXInputState, GFXPipelineState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
@@ -22,15 +22,14 @@ export interface IPassInfoFull extends IPassInfo {
     samplers: ISamplerInfo[];
     shader: GFXShader;
     renderPass: GFXRenderPass;
-    globals: GFXBuffer;
 }
 
-export interface IPassOverrides {
-    bs: GFXBlendState;
-    dss: GFXDepthStencilState;
-    rs: GFXRasterizerState;
-    primitive: GFXPrimitiveMode;
-}
+type RecursivePartial<T> = {
+    [P in keyof T]?:
+        T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
+        T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
+};
+export type PassOverrides = RecursivePartial<IPassInfo>;
 
 const _type2fn = {
   [GFXType.INT]: (a: Float32Array, v: any) => a[0] = v,
@@ -81,27 +80,32 @@ interface IBlock {
     dirty: boolean;
 }
 
+interface IPassResources {
+    bindingLayout: GFXBindingLayout;
+    pipelineLayout: GFXPipelineLayout;
+    pipelineState: GFXPipelineState;
+}
+
 export class Pass {
     public static getBindingTypeFromHandle = getBindingTypeFromHandle;
     public static getTypeFromHandle = getTypeFromHandle;
     public static getBindingFromHandle = getBindingFromHandle;
     public static getIndexFromHandle = getIndexFromHandle;
     // internal resources
-    protected _pipelineState: GFXPipelineState | null = null;
-    protected _pipelineLayout: GFXPipelineLayout | null = null;
-    protected _bindingLayout: GFXBindingLayout | null = null;
-    protected _buffers: GFXBuffer[] = [];
-    protected _samplers: GFXSampler[] = [];
+    protected _buffers: Record<number, GFXBuffer> = {};
+    protected _samplers: Record<number, GFXSampler> = {};
+    protected _textureViews: Record<number, GFXTextureView> = {};
+    protected _resources: IPassResources[] = [];
     // internal data
     protected _programName: string = '';
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
-    protected _handleMap: Record<string, number> = {};
-    protected _blocks: IBlock[] = [];
     protected _bindings: IGFXBinding[] = [];
     protected _bs: GFXBlendState = new GFXBlendState();
     protected _dss: GFXDepthStencilState = new GFXDepthStencilState();
     protected _rs: GFXRasterizerState = new GFXRasterizerState();
+    protected _handleMap: Record<string, number> = {};
+    protected _blocks: IBlock[] = [];
     // external references
     protected _device: GFXDevice;
     protected _shader: GFXShader | null = null;
@@ -115,18 +119,14 @@ export class Pass {
         this._programName = info.program;
         // pipeline state
         const device = this._device;
-        const bindings = this._bindings = info.blocks.map((u) =>
+        this._bindings = info.blocks.map((u) =>
             ({ name: u.name, binding: u.binding, type: GFXBindingType.UNIFORM_BUFFER }),
         ).concat(info.samplers.map((u) =>
             ({ name: u.name, binding: u.binding, type: GFXBindingType.SAMPLER }),
         ));
-        this._bindingLayout = device.createBindingLayout({ bindings });
-        if (!this._bindingLayout) { console.error('create binding layout failed'); return; }
-        this._pipelineLayout = device.createPipelineLayout({ layouts: [this._bindingLayout] });
-        if (!this._pipelineLayout) { console.error('create pipeline layout failed'); return; }
         this._shader = info.shader;
         this._renderPass = info.renderPass;
-        this._createPipelineState(info);
+        this._fillinPipelineInfo(info);
 
         for (const u of info.blocks) {
             if (builtinRE.test(u.name)) {
@@ -140,7 +140,6 @@ export class Pass {
                 usage: GFXBufferUsageBit.UNIFORM,
             });
             if (buffer) {
-                this._bindingLayout.bindBuffer(u.binding, buffer);
                 this._buffers[u.binding] = buffer;
             } else {
                 console.error('create buffer failed.');
@@ -148,7 +147,7 @@ export class Pass {
             }
             // buffer data processing system
             const block: IBlock = this._blocks[u.binding] = {
-                buffer: new ArrayBuffer(u.size),
+                buffer: buffer.buffer as ArrayBuffer,
                 dirty: false,
                 views: [],
             };
@@ -167,8 +166,6 @@ export class Pass {
             }, 0); // === u.size
             buffer.update(block.buffer);
         }
-        // also bind builtin globals
-        this._bindingLayout.bindBuffer(UBOGlobal.BLOCK.binding, info.globals);
 
         for (const u of info.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
@@ -177,13 +174,11 @@ export class Pass {
                 // TODO: specify filter modes in effect
             });
             if (sampler) {
-                this._bindingLayout.bindSampler(u.binding, sampler);
-                this._samplers.push(sampler);
+                this._samplers[u.binding] = sampler;
             } else {
                 console.error('create sampler failed.');
             }
         }
-        this._bindingLayout.update();
     }
 
     public getHandle (name: string) {
@@ -204,38 +199,25 @@ export class Pass {
     }
 
     public bindTextureView (binding: number, value: GFXTextureView) {
-        (this._bindingLayout as GFXBindingLayout).bindTextureView(binding, value);
+        this._textureViews[binding] = value;
+        for (const res of this._resources) {
+            res.bindingLayout.bindTextureView(binding, value);
+        }
     }
 
     public bindSampler (binding: number, value: GFXSampler) {
-        (this._bindingLayout as GFXBindingLayout).bindSampler(binding, value);
+        this._samplers[binding] = value;
+        for (const res of this._resources) {
+            res.bindingLayout.bindSampler(binding, value);
+        }
     }
 
-    public rebuildWithOverrides (info: Partial<IPassInfo>, overrides: IPassOverrides) {
-        if (this._pipelineState) { this._pipelineState.destroy(); }
-        const ors = Object.assign({}, overrides);
-        this._createPipelineState(info, (states) => {
-            if (overrides.primitive !== undefined) { this._primitive = states.primitive = overrides.primitive; }
-            Object.assign(states.rs, ors.rs);
-            Object.assign(states.dss, ors.dss);
-            if (ors.bs) {
-                if (ors.bs.targets) {
-                    for (let i = 0; i < ors.bs.targets.length; i++) {
-                        Object.assign(states.bs.targets[i], ors.bs.targets[i]);
-                    }
-                    delete ors.bs.targets;
-                }
-                Object.assign(states.bs, ors.bs);
-            }
-        });
-    }
-
-    public destroy () {
-        if (this._buffers) { this._buffers.forEach((b) => b.destroy()); this._buffers.length = 0; }
-        if (this._samplers) { this._samplers.forEach((b) => b.destroy()); this._samplers.length = 0; }
-        if (this._bindingLayout) { this._bindingLayout.destroy(); this._bindingLayout = null; }
-        if (this._pipelineLayout) { this._pipelineLayout.destroy(); this._pipelineLayout = null; }
-        if (this._pipelineState) { this._pipelineState.destroy(); this._pipelineState = null; }
+    public overridePipelineStates (original: IPassInfo, overrides: PassOverrides) {
+        this._bs = new GFXBlendState();
+        this._dss = new GFXDepthStencilState();
+        this._rs = new GFXRasterizerState();
+        this._fillinPipelineInfo(original);
+        this._fillinPipelineInfo(overrides);
     }
 
     public update () {
@@ -247,27 +229,72 @@ export class Pass {
                 block.dirty = false;
             }
         }
-        (this._bindingLayout as GFXBindingLayout).update();
+    }
+
+    public destroy () {
+        if (this._buffers) {
+            for (const b of Object.values(this._buffers)) {
+                b.destroy();
+            }
+            this._buffers = {};
+        }
+        if (this._samplers) {
+            for (const s of Object.values(this._samplers)) {
+                s.destroy();
+            }
+            this._samplers = {};
+        }
+    }
+
+    public createPipelineState () {
+        if (!this._renderPass || !this._shader) { return null; }
+        const bindingLayout = this._device.createBindingLayout({ bindings: this._bindings });
+        for (const b of Object.keys(this._buffers)) {
+            bindingLayout.bindBuffer(parseInt(b), this._buffers[b]);
+        }
+        for (const s of Object.keys(this._samplers)) {
+            bindingLayout.bindSampler(parseInt(s), this._samplers[s]);
+        }
+        for (const t of Object.keys(this._textureViews)) {
+            bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
+        }
+        const pipelineLayout = this._device.createPipelineLayout({ layouts: [bindingLayout] });
+        const pipelineState = this._device.createPipelineState({
+            bs: this._bs,
+            dss: this._dss,
+            is: new GFXInputState(),
+            layout: pipelineLayout,
+            primitive: this._primitive,
+            renderPass: this._renderPass,
+            rs: this._rs,
+            shader: this._shader,
+        });
+        this._resources.push({ bindingLayout, pipelineLayout, pipelineState });
+        return pipelineState;
+    }
+
+    public destroyPipelineState (pipelineStates: GFXPipelineState) {
+        const idx = this._resources.findIndex((res) => res.pipelineState === pipelineStates);
+        if (idx >= 0) {
+            const { bindingLayout: bl, pipelineLayout: pl, pipelineState: ps } = this._resources[idx];
+            bl.destroy(); pl.destroy(); ps.destroy();
+            this._resources.splice(idx, 1);
+        }
     }
 
     public serializePipelineStates () {
-        const ps = this._pipelineState as GFXPipelineState;
-        let res = `${ps.shader.name},${this._stage},${ps.primitive}`;
-        res += serializeBlendState(ps.blendState);
-        res += serializeDepthStencilState(ps.depthStencilState);
-        res += serializeRasterizerState(ps.rasterizerState);
+        let res = `${this._shader && this._shader.name},${this._stage},${this._primitive}`;
+        res += serializeBlendState(this._bs);
+        res += serializeDepthStencilState(this._dss);
+        res += serializeRasterizerState(this._rs);
         return res;
     }
 
-    protected _createPipelineState (info: Partial<IPassInfo>, override?: (states: IGFXPipelineStateInfo) => any) {
-        if (info.primitive) { this._primitive = info.primitive; }
-        if (info.stage) { this._stage = info.stage; }
+    protected _fillinPipelineInfo (info: Partial<IPassInfo>) {
+        if (info.primitive !== undefined) { this._primitive = info.primitive; }
+        if (info.stage !== undefined) { this._stage = info.stage; }
 
-        if (!this._shader || !this._renderPass || !this._pipelineLayout) {
-            console.error('gfx resouces incomplete, create pipeline state failed.');
-            return null;
-        }
-        const bs = new GFXBlendState();
+        const bs = this._bs;
         if (info.blendState) {
             const bsInfo = Object.assign({}, info.blendState);
             if (bsInfo.targets) {
@@ -277,34 +304,19 @@ export class Pass {
             delete bsInfo.targets;
             Object.assign(bs, bsInfo);
         }
-        const stateInfo = {
-            bs: this._bs = bs,
-            dss: this._dss = Object.assign(new GFXDepthStencilState(), info.depthStencilState),
-            is: new GFXInputState(),
-            layout: this._pipelineLayout,
-            primitive: info.primitive || this._primitive,
-            renderPass: this._renderPass,
-            rs: this._rs = Object.assign(new GFXRasterizerState(), info.rasterizerState),
-            shader: this._shader,
-        };
-        if (override) { override(stateInfo); }
-        if (this._pipelineState) {
-            this._pipelineState.initialize(stateInfo);
-        } else {
-            this._pipelineState = this._device.createPipelineState(stateInfo);
-        }
+        Object.assign(this._rs, info.rasterizerState);
+        Object.assign(this._dss, info.depthStencilState);
     }
 
     get programName () { return this._programName; }
-    get shader (): GFXShader { return this._shader!; }
-    get pipelineState () { return this._pipelineState as GFXPipelineState; }
-    get bindingLayout () { return this._bindingLayout as GFXBindingLayout; }
-    get primitive () { return this._primitive; }
-    get bindings () { return this._bindings; }
+    get primitive (): GFXPrimitiveMode { return this._primitive; }
+    get stage (): RenderPassStage { return this._stage; }
+    get bindings (): IGFXBinding[] { return this._bindings; }
     get blendState (): GFXBlendState { return this._bs; }
     get depthStencilState (): GFXDepthStencilState { return this._dss; }
     get rasterizerState (): GFXRasterizerState { return this._rs; }
-    get renderPass (): GFXRenderPass { return this._renderPass!; }
+    get shader (): GFXShader | null { return this._shader; }
+    get renderPass (): GFXRenderPass | null { return this._renderPass; }
 }
 
 function serializeBlendState (bs: GFXBlendState)  {

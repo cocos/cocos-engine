@@ -6,9 +6,11 @@ import {
     GFXCommandBufferType,
     GFXObject,
     GFXObjectType,
+    GFXStencilFace,
     GFXTextureLayout,
     IGFXColor,
     IGFXRect,
+    IGFXViewport,
 } from './define';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
@@ -47,6 +49,14 @@ export abstract class GFXCommandBuffer extends GFXObject {
     public abstract bindPipelineState (pipelineState: GFXPipelineState);
     public abstract bindBindingLayout (bindingLayout: GFXBindingLayout);
     public abstract bindInputAssembler (inputAssembler: GFXInputAssembler);
+    public abstract setViewport (viewport: IGFXViewport);
+    public abstract setScissor (scissor: IGFXRect);
+    public abstract setLineWidth (lineWidth: number);
+    public abstract setDepthBias (depthBiasConstantFacotr: number, depthBiasClamp: number, depthBiasSlopeFactor: number);
+    public abstract setBlendConstants (blendConstants: number[]);
+    public abstract setDepthBound (minDepthBounds: number, maxDepthBounds: number);
+    public abstract setStencilWirteMask (faceMask: GFXStencilFace, writeMask: number);
+    public abstract setStencilCompareMask (face: GFXStencilFace, reference: number, compareMask: number);
     public abstract draw (inputAssembler: GFXInputAssembler);
     public abstract updateBuffer (buffer: GFXBuffer, data: ArrayBuffer, offset?: number);
     public abstract copyBufferToTexture (srcBuff: GFXBuffer, dstTex: GFXTexture, dstLayout: GFXTextureLayout, regions: GFXBufferTextureCopy[]);

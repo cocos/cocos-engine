@@ -6,9 +6,11 @@ import {
     GFXBufferUsageBit,
     GFXCommandBufferType,
     GFXStatus,
+    GFXStencilFace,
     GFXTextureLayout,
     IGFXColor,
     IGFXRect,
+    IGFXViewport,
 } from '../define';
 import { GFXDevice } from '../device';
 import { GFXFramebuffer } from '../framebuffer';
@@ -34,6 +36,28 @@ import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
 import { WebGLGFXTexture } from './webgl-texture';
 
+export interface IGFXDepthBias {
+    constantFactor: number;
+    clamp: number;
+    slopeFactor: number;
+}
+
+export interface IGFXDepthBounds {
+    minBounds: number;
+    maxBounds: number;
+}
+
+export interface IGFXStencilWriteMask {
+    face: GFXStencilFace;
+    writeMask: number;
+}
+
+export interface IGFXStencilCompareMask {
+    face: GFXStencilFace;
+    reference: number;
+    compareMask: number;
+}
+
 export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
@@ -41,6 +65,14 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     private _curGPUPipelineState: WebGLGPUPipelineState | null = null;
     private _curGPUBindingLayout: WebGLGPUBindingLayout | null = null;
     private _curGPUInputAssembler: WebGLGPUInputAssembler | null = null;
+    private _curViewport: IGFXViewport | null = null;
+    private _curScissor: IGFXRect | null = null;
+    private _curLineWidth: number | null = null;
+    private _curDepthBias: IGFXDepthBias | null = null;
+    private _curBlendConstants: number[] = [];
+    private _curDepthBounds: IGFXDepthBounds | null = null;
+    private _curStencilWriteMask: IGFXStencilWriteMask | null = null;
+    private _curStencilCompareMask: IGFXStencilCompareMask | null = null;
     private _isStateInvalied: boolean = false;
 
     constructor (device: GFXDevice) {
@@ -128,6 +160,165 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         if (this._curGPUInputAssembler !== gpuInputAssembler) {
             this._curGPUInputAssembler = gpuInputAssembler;
             this._isStateInvalied = true;
+        }
+    }
+
+    public setViewport (viewport: IGFXViewport) {
+        if (!this._curViewport) {
+            this._curViewport = {
+                left: viewport.left,
+                top: viewport.top,
+                width: viewport.width,
+                height: viewport.height,
+                minDepth: viewport.minDepth,
+                maxDepth: viewport.maxDepth,
+            };
+        } else {
+            if (this._curViewport.left !== viewport.left ||
+                this._curViewport.top !== viewport.top ||
+                this._curViewport.width !== viewport.width ||
+                this._curViewport.height !== viewport.height ||
+                this._curViewport.minDepth !== viewport.minDepth ||
+                this._curViewport.maxDepth !== viewport.maxDepth) {
+
+                this._curViewport.left = viewport.left;
+                this._curViewport.top = viewport.top;
+                this._curViewport.width = viewport.width;
+                this._curViewport.height = viewport.height;
+                this._curViewport.minDepth = viewport.minDepth;
+                this._curViewport.maxDepth = viewport.maxDepth;
+                this._isStateInvalied = true;
+            }
+        }
+
+        if (this._curViewport !== viewport) {
+            this._curViewport = viewport;
+            this._isStateInvalied = true;
+        }
+    }
+
+    public setScissor (scissor: IGFXRect) {
+        if (!this._curScissor) {
+            this._curScissor = {
+                x: scissor.x,
+                y: scissor.y,
+                width: scissor.width,
+                height: scissor.height,
+            };
+        } else {
+            if (this._curScissor.x !== scissor.x ||
+                this._curScissor.y !== scissor.y ||
+                this._curScissor.width !== scissor.width ||
+                this._curScissor.height !== scissor.height) {
+                this._curScissor.x = scissor.x;
+                this._curScissor.y = scissor.y;
+                this._curScissor.width = scissor.width;
+                this._curScissor.height = scissor.height;
+                this._isStateInvalied = true;
+            }
+        }
+    }
+
+    public setLineWidth (lineWidth: number) {
+        if (this._curLineWidth !== lineWidth) {
+            this._curLineWidth = lineWidth;
+            this._isStateInvalied = true;
+        }
+    }
+
+    public setDepthBias (depthBiasConstantFacotr: number, depthBiasClamp: number, depthBiasSlopeFactor: number) {
+        if (!this._curDepthBias) {
+            this._curDepthBias = {
+                constantFactor: depthBiasConstantFacotr,
+                clamp: depthBiasClamp,
+                slopeFactor: depthBiasSlopeFactor,
+            };
+            this._isStateInvalied = true;
+        } else {
+            if (this._curDepthBias.constantFactor !== depthBiasConstantFacotr ||
+                this._curDepthBias.clamp !== depthBiasClamp ||
+                this._curDepthBias.slopeFactor !== depthBiasSlopeFactor) {
+
+                this._curDepthBias.constantFactor = depthBiasConstantFacotr;
+                this._curDepthBias.clamp = depthBiasClamp;
+                this._curDepthBias.slopeFactor = depthBiasSlopeFactor;
+                this._isStateInvalied = true;
+            }
+        }
+    }
+
+    public setBlendConstants (blendConstants: number[]) {
+        if (!this._curBlendConstants &&
+            blendConstants.length === 4) {
+            this._curBlendConstants = [blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]];
+            this._isStateInvalied = true;
+        } else {
+            if (blendConstants.length === 4 && (
+                this._curBlendConstants[0] !== blendConstants[0] ||
+                this._curBlendConstants[1] !== blendConstants[1] ||
+                this._curBlendConstants[2] !== blendConstants[2] ||
+                this._curBlendConstants[3] !== blendConstants[3])) {
+                this._curBlendConstants = [blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]];
+                this._isStateInvalied = true;
+            }
+        }
+    }
+
+    public setDepthBound (minDepthBounds: number, maxDepthBounds: number) {
+        if (!this._curDepthBounds) {
+            this._curDepthBounds = {
+                minBounds: minDepthBounds,
+                maxBounds: maxDepthBounds,
+            };
+            this._isStateInvalied = true;
+        } else {
+            if (this._curDepthBounds.minBounds !== minDepthBounds ||
+                this._curDepthBounds.maxBounds !== maxDepthBounds) {
+                this._curDepthBounds = {
+                    minBounds: minDepthBounds,
+                    maxBounds: maxDepthBounds,
+                };
+                this._isStateInvalied = true;
+            }
+        }
+    }
+
+    public setStencilWirteMask (face: GFXStencilFace, writeMask: number) {
+        if (!this._curStencilWriteMask) {
+            this._curStencilWriteMask = {
+                face,
+                writeMask,
+            };
+            this._isStateInvalied = true;
+        } else {
+            if (this._curStencilWriteMask.face !== face ||
+                this._curStencilWriteMask.writeMask !== writeMask) {
+
+                this._curStencilWriteMask.face = face;
+                this._curStencilWriteMask.writeMask = writeMask;
+                this._isStateInvalied = true;
+            }
+        }
+    }
+
+    public setStencilCompareMask (face: GFXStencilFace, reference: number, compareMask: number) {
+        if (!this._curStencilCompareMask) {
+            this._curStencilCompareMask = {
+                face,
+                reference,
+                compareMask,
+            };
+            this._isStateInvalied = true;
+        } else {
+            if (this._curStencilCompareMask.face !== face ||
+                this._curStencilCompareMask.reference !== reference ||
+                this._curStencilCompareMask.compareMask !== compareMask) {
+
+                this._curStencilCompareMask.face = face;
+                this._curStencilCompareMask.reference = reference;
+                this._curStencilCompareMask.compareMask = compareMask;
+                this._isStateInvalied = true;
+            }
         }
     }
 
@@ -240,6 +431,14 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
             bindStatesCmd.gpuPipelineState = this._curGPUPipelineState;
             bindStatesCmd.gpuBindingLayout = this._curGPUBindingLayout;
             bindStatesCmd.gpuInputAssembler = this._curGPUInputAssembler;
+            bindStatesCmd.viewport = this._curViewport;
+            bindStatesCmd.scissor = this._curScissor;
+            bindStatesCmd.lineWidth = this._curLineWidth;
+            bindStatesCmd.depthBias = this._curDepthBias;
+            bindStatesCmd.blendConstants = this._curBlendConstants;
+            bindStatesCmd.depthBounds = this._curDepthBounds;
+            bindStatesCmd.stencilWriteMask = this._curStencilWriteMask;
+            bindStatesCmd.stencilCompareMask = this._curStencilCompareMask;
 
             this.cmdPackage.bindStatesCmds.push(bindStatesCmd);
             this.cmdPackage.cmds.push(WebGLCmd.BIND_STATES);

@@ -28,6 +28,11 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
         this._rs = info.rs;
         this._dss = info.dss;
         this._bs = info.bs;
+
+        if (info.dynamicStates !== undefined) {
+            this._dynamicStates = info.dynamicStates;
+        }
+
         this._layout = info.layout;
         this._renderPass = info.renderPass;
 
