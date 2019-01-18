@@ -1,3 +1,6 @@
+import { Vec2 } from '../../value-types';
+import { v2 } from '../../value-types/vec2';
+
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
@@ -34,145 +37,136 @@
  * @param {Number} id
  */
 export default class Touch {
-    constructor (x, y, id) {
-        this._lastModified = 0;
+    public _point: Vec2 = v2();
+    public _prevPoint: Vec2 = v2();
+    public _lastModified = 0;
+    private _id: number | null = null;
+    private _startPoint: Vec2 = v2();
+    private _startPointCaptured: boolean = false;
+
+    constructor (x: number, y: number, id: number | null = null) {
         this.setTouchInfo(id, x, y);
     }
 
     /**
      * !#en Returns the current touch location in OpenGL coordinates.、
      * !#zh 获取当前触点位置。
-     * @method getLocation
-     * @return {Vec2}
      */
-    getLocation () {
-        return cc.v2(this._point.x, this._point.y);
+    public getLocation () {
+        return v2(this._point.x, this._point.y);
     }
 
-	/**
-	 * !#en Returns X axis location value.
+    /**
+     * !#en Returns X axis location value.
      * !#zh 获取当前触点 X 轴位置。
-     * @method getLocationX
-	 * @returns {Number}
-	 */
-	getLocationX () {
-		return this._point.x;
-	}
+     */
+    public getLocationX () {
+        return this._point.x;
+    }
 
-	/**
+    /**
      * !#en Returns Y axis location value.
      * !#zh 获取当前触点 Y 轴位置。
-     * @method getLocationY
-	 * @returns {Number}
-	 */
-	getLocationY () {
-		return this._point.y;
-	}
+     */
+    public getLocationY () {
+        return this._point.y;
+    }
 
     /**
      * !#en Returns the previous touch location in OpenGL coordinates.
      * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
-     * @method getPreviousLocation
-     * @return {Vec2}
      */
-    getPreviousLocation () {
-        return cc.v2(this._prevPoint.x, this._prevPoint.y);
+    public getPreviousLocation () {
+        return v2(this._prevPoint.x, this._prevPoint.y);
     }
 
     /**
      * !#en Returns the start touch location in OpenGL coordinates.
      * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
-     * @method getStartLocation
-     * @returns {Vec2}
      */
-    getStartLocation () {
-        return cc.v2(this._startPoint.x, this._startPoint.y);
+    public getStartLocation () {
+        return v2(this._startPoint.x, this._startPoint.y);
     }
 
     /**
      * !#en Returns the delta distance from the previous touche to the current one in screen coordinates.
      * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
-     * @method getDelta
-     * @return {Vec2}
      */
-    getDelta () {
+    public getDelta () {
         return this._point.sub(this._prevPoint);
     }
 
     /**
      * !#en Returns the current touch location in screen coordinates.
      * !#zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
-     * @method getLocationInView
-     * @return {Vec2}
      */
-    getLocationInView () {
-        return cc.v2(this._point.x, cc.view._designResolutionSize.height - this._point.y);
+    public getLocationInView () {
+        return v2(this._point.x, cc.view._designResolutionSize.height - this._point.y);
     }
 
     /**
      * !#en Returns the previous touch location in screen coordinates.
      * !#zh 获取触点在上一次事件时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
-     * @method getPreviousLocationInView
-     * @return {Vec2}
      */
-    getPreviousLocationInView () {
-        return cc.v2(this._prevPoint.x, cc.view._designResolutionSize.height - this._prevPoint.y);
+    public getPreviousLocationInView () {
+        return v2(this._prevPoint.x, cc.view._designResolutionSize.height - this._prevPoint.y);
     }
 
     /**
      * !#en Returns the start touch location in screen coordinates.
      * !#zh 获取触点落下时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
-     * @method getStartLocationInView
-     * @return {Vec2}
      */
-    getStartLocationInView () {
-        return cc.v2(this._startPoint.x, cc.view._designResolutionSize.height - this._startPoint.y);
+    public getStartLocationInView () {
+        return v2(this._startPoint.x, cc.view._designResolutionSize.height - this._startPoint.y);
     }
 
     /**
      * !#en Returns the id of cc.Touch.
      * !#zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
-     * @method getID
-     * @return {Number}
      */
-    getID () {
+    public getID () {
         return this._id;
     }
 
     /**
      * !#en Sets information to touch.
      * !#zh 设置触摸相关的信息。用于监控触摸事件。
-     * @method setTouchInfo
-     * @param {Number} id
-     * @param  {Number} x
-     * @param  {Number} y
      */
-    setTouchInfo (id, x, y) {
+    public setTouchInfo (id: number | null = null, x?: number, y?: number) {
         this._prevPoint = this._point;
-        this._point = cc.v2(x || 0, y || 0);
+        this._point = v2(x || 0, y || 0);
         this._id = id;
-        if(!this._startPointCaptured){
-            this._startPoint = cc.v2(this._point);
+        if (!this._startPointCaptured) {
+            this._startPoint = v2(this._point);
             cc.view._convertPointWithScale(this._startPoint);
             this._startPointCaptured = true;
         }
     }
 
-    _setPoint (x, y) {
-        if(y === undefined){
+    public _setPoint (point: Vec2): void;
+
+    public _setPoint (x: number, y: number): void;
+
+    public _setPoint (x: number | Vec2, y?: number) {
+        if (typeof x === 'object') {
             this._point.x = x.x;
             this._point.y = x.y;
-        }else{
-            this._point.x = x;
-            this._point.y = y;
+        } else {
+            this._point.x = x || 0;
+            this._point.y = y || 0;
         }
     }
 
-    _setPrevPoint (x, y) {
-        if(y === undefined)
-            this._prevPoint = cc.v2(x.x, x.y);
-        else
-            this._prevPoint = cc.v2(x || 0, y || 0);
+    public _setPrevPoint (point: Vec2): void;
+
+    public _setPrevPoint (x: number, y: number): void;
+
+    public _setPrevPoint (x: number | Vec2, y?: number) {
+        if (typeof x === 'object') {
+            this._prevPoint = v2(x.x, x.y);
+        } else {
+            this._prevPoint = v2(x || 0, y || 0);
+        }
     }
 }
 
