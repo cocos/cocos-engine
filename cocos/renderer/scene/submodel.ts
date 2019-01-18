@@ -1,15 +1,11 @@
 import { Material } from '../../3d/assets/material';
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
-import { GFXBuffer } from '../../gfx/buffer';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
-import { UBOLocal } from '../../pipeline/render-pipeline';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Pass } from '../core/pass';
-import { GFXPipelineState, GFXInputState } from '../../gfx/pipeline-state';
-import { GFXBindingLayout } from '../../gfx/binding-layout';
-import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 
 export class SubModel {
     protected _subMeshObject: IRenderingSubmesh | null;

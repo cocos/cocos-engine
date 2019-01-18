@@ -2,20 +2,18 @@
 import { Material } from '../../3d/assets/material';
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { aabb } from '../../3d/geom-utils';
+import { RecyclePool } from '../../3d/memop';
 import { Vec3 } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXBufferUsageBit, GFXCommandBufferType, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { UBOLocal } from '../../pipeline/render-pipeline';
-import { Effect } from '../core/effect';
-import { Pass } from '../core/pass';
-import { RenderScene } from './render-scene';
-import { Node } from '../../scene-graph/node';
-import { RecyclePool } from '../../3d/memop';
-import { SubModel } from './submodel';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { UBOLocal } from '../../pipeline/render-pipeline';
+import { Node } from '../../scene-graph/node';
+import { RenderScene } from './render-scene';
+import { SubModel } from './submodel';
 
 const _temp_floatx16 = new Float32Array(16);
 const _temp_mat4 = mat4.create();

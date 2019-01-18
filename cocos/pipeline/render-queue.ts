@@ -1,18 +1,15 @@
 import { CachedArray } from '../core/memop/cached-array';
 import { vec3 } from '../core/vmath';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { Pass } from '../renderer/core/pass';
 import { Camera } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
-import { GFXPipelineState } from '../gfx/pipeline-state';
 
 export interface IRenderItem {
     hash: number;
     depth: number;
     shaderId: number;
     subModel: SubModel;
-    pso: GFXPipelineState;
     cmdBuff: GFXCommandBuffer;
 }
 
@@ -63,10 +60,7 @@ export class RenderQueue {
 
     public add (model: Model, camera: Camera) {
 
-        let depth = 0;
-        if (model.node) {
-            depth = vec3.distance(camera.node.getPosition(), model.node.getPosition());
-        }
+        const depth = vec3.distance(camera.node.getPosition(), model.node!.getPosition());
 
         for (let i = 0; i < model.subModelNum; ++i) {
             const subModel = model.getSubModel(i);
@@ -81,13 +75,13 @@ export class RenderQueue {
 
                     this.opaques.push({
                         hash, depth, shaderId: pso.shader.id,
-                        subModel, pso, cmdBuff: subModel.commandBuffers[i]});
+                        subModel, cmdBuff: subModel.commandBuffers[i]});
                 } else {
                     const hash = (1 << 30) | i;
 
                     this.transparents.push({
                         hash, depth, shaderId: pso.shader.id,
-                        subModel, pso, cmdBuff: subModel.commandBuffers[i]});
+                        subModel, cmdBuff: subModel.commandBuffers[i]});
                 }
             }
         }
