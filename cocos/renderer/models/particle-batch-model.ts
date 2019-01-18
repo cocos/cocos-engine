@@ -2,10 +2,13 @@
 
 import gfx from '../gfx';
 
-import { Model } from '../scene/model';
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat, GFXAttributeName, GFXPrimitiveMode, GFXFormatInfos } from '../../gfx/define';
+import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../gfx/buffer';
+import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos,
+    GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { IGFXInputAttribute } from '../../gfx/input-assembler';
-import { GFXBuffer, GFX_DRAW_INFO_SIZE, IGFXIndirectBuffer } from '../../gfx/buffer';
+import { Node } from '../../scene-graph/node';
+import { Model } from '../scene/model';
+import { RenderScene } from '../scene/render-scene';
 
 export default class ParticleBatchModel extends Model {
 
@@ -19,8 +22,8 @@ export default class ParticleBatchModel extends Model {
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
 
-    constructor () {
-        super();
+    constructor (scene: RenderScene, node: Node) {
+        super(scene, node);
 
         this._type = 'particle-batch';
         this._capacity = 0;
@@ -38,8 +41,8 @@ export default class ParticleBatchModel extends Model {
                 firstIndex: 0,
                 vertexOffset: 0,
                 instanceCount: 0,
-                firstInstance: 0
-            }]
+                firstInstance: 0,
+            }],
         };
         this._iaInfoBuffer = this._device.createBuffer({
             usage: GFXBufferUsageBit.INDIRECT,

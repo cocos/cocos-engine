@@ -6,7 +6,6 @@ import { RecyclePool } from '../../3d/memop';
 import { Vec3 } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
@@ -38,7 +37,6 @@ export class Model {
     private _userKey: number = -1;
     private _worldBounds: aabb | null = null;
     private _modelBounds: aabb | null = null;
-    private _cmdBuffers: GFXCommandBuffer[] = [];
     private _subModels: SubModel[] = [];
     private _matPSORecord: Map<Material, GFXPipelineState[]>;
     private _matRefCount: Map<Material, number>;
@@ -75,10 +73,7 @@ export class Model {
 
     set scene (scene: RenderScene) {
         this._scene = scene;
-
-        if (this._scene) {
-            this._id = this._scene.generateModelId();
-        }
+        this._id = this._scene.generateModelId();
     }
 
     get scene () {
@@ -98,9 +93,6 @@ export class Model {
     }
 
     public _updateTransform () {
-        if (this._node == null) {
-            return;
-        }
         if (!this._node.hasChanged || !this._modelBounds) {
             return;
         }
@@ -113,9 +105,6 @@ export class Model {
     }
 
     public updateUBOs () {
-        if (this._node == null) {
-            return;
-        }
         // @ts-ignore
         mat4.array(_temp_floatx16, this._node._mat);
         this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);

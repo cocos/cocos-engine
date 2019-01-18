@@ -4,7 +4,8 @@ import { IBlockInfo, IPassInfo, ISamplerInfo } from '../../3d/assets/effect-asse
 import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
 import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
+import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
+    GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
@@ -105,6 +106,7 @@ export class Pass {
     protected _bs: GFXBlendState = new GFXBlendState();
     protected _dss: GFXDepthStencilState = new GFXDepthStencilState();
     protected _rs: GFXRasterizerState = new GFXRasterizerState();
+    protected _dynamics: GFXDynamicState[] = [];
     protected _handleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
     // external references
@@ -294,9 +296,10 @@ export class Pass {
         return res;
     }
 
-    protected _fillinPipelineInfo (info: Partial<IPassInfo>) {
+    protected _fillinPipelineInfo (info: PassOverrides) {
         if (info.primitive !== undefined) { this._primitive = info.primitive; }
         if (info.stage !== undefined) { this._stage = info.stage; }
+        if (info.dynamics !== undefined) { this._dynamics = info.dynamics; }
 
         const bs = this._bs;
         if (info.blendState) {
@@ -333,7 +336,7 @@ function serializeBlendState (bs: GFXBlendState)  {
 }
 
 function serializeRasterizerState (rs: GFXRasterizerState)  {
-    const res = `,rs,${rs.cullMode},${rs.depthBias},${rs.depthBiasFactor},${rs.isFrontFaceCCW}`;
+    const res = `,rs,${rs.cullMode},${rs.depthBias},${rs.isFrontFaceCCW}`;
     return res;
 }
 
