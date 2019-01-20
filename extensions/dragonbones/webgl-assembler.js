@@ -156,12 +156,11 @@ let armatureAssembler = {
 
             indices = slot._indices;
             _indexCount = indices.length;
-
-            _vfOffset = _buffer.byteOffset >> 2;
-            _indexOffset = _buffer.indiceOffset;
-            _vertexOffset = _buffer.vertexOffset;
-
+            
             _buffer.request(_vertexCount, _indexCount);
+            _indexOffset = _buffer.preIndexOffset;
+            _vfOffset = _buffer.preByteOffset >> 2;
+            _vertexOffset = _buffer.preVertexOffset;
             vbuf = _buffer._vData;
             ibuf = _buffer._iData;
             uintbuf = _buffer._uintVData;
@@ -216,12 +215,11 @@ let armatureAssembler = {
 
             _vertexCount = segInfo.vertexCount;
             _indexCount = segInfo.indexCount;
-
-            _vfOffset = _buffer.byteOffset >> 2;
-            _indexOffset = _buffer.indiceOffset;
-            _vertexOffset = _buffer.vertexOffset;
-
+            
             _buffer.request(_vertexCount, _indexCount);
+            _indexOffset = _buffer.preIndexOffset;
+            _vertexOffset = _buffer.preVertexOffset;
+            _vfOffset = _buffer.preByteOffset >> 2;
             vbuf = _buffer._vData;
             ibuf = _buffer._iData;
             uintbuf = _buffer._uintVData;

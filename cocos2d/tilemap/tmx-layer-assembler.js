@@ -63,16 +63,15 @@ let tmxAssembler = {
         let data = renderData._data;
 
         let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
             vertexCount = renderData.vertexCount;
-        
-        let indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
             
         buffer.request(vertexCount, renderData.indiceCount);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
+        let indiceOffset = buffer.preIndexOffset,
+            vertexOffset = buffer.preByteOffset >> 2,
+            vertexId = buffer.preVertexOffset,
+            vbuf = buffer._vData,
             ibuf = buffer._iData,
             uintbuf = buffer._uintVData;
         
