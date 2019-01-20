@@ -191,13 +191,13 @@ let ArmatureDisplay = cc.Class({
                     }
                 }
 
-                if (this._armature && (!this.isCachedMode() || CC_EDITOR)) {
+                if (this._armature && !this.isCachedMode()) {
                     this._factory._dragonBones.clock.remove(this._armature);
                 }
 
                 this._refresh();
 
-                if (this._armature && (!this.isCachedMode() || CC_EDITOR)) {
+                if (this._armature && !this.isCachedMode()) {
                     this._factory._dragonBones.clock.add(this._armature);
                 }
                 
@@ -467,13 +467,14 @@ let ArmatureDisplay = cc.Class({
     },
 
     isCachedMode () {
+        if (CC_EDITOR) return false;
         return this._renderMode !== RenderModeEnum.realtime;
     },
 
     onEnable () {
         this._super();
         // If render mode is cache, no need to update by dragonbones library.
-        if (this._armature && (!this.isCachedMode() || CC_EDITOR)) {
+        if (this._armature && !this.isCachedMode()) {
             this._factory._dragonBones.clock.add(this._armature);
         }
     },
@@ -481,13 +482,12 @@ let ArmatureDisplay = cc.Class({
     onDisable () {
         this._super();
         // If render mode is cache, no need to update by dragonbones library.
-        if (this._armature && (!this.isCachedMode() || CC_EDITOR)) {
+        if (this._armature && !this.isCachedMode()) {
             this._factory._dragonBones.clock.remove(this._armature);
         }
     },
 
     update (dt) {
-        if (CC_EDITOR) return;
         if (!this.isCachedMode()) return;
         if (!this._playing) return;
 
@@ -574,7 +574,7 @@ let ArmatureDisplay = cc.Class({
         let atlasName = this.dragonAtlasAsset._textureAtlasData.name;
         let dragonbonesName = this.dragonAsset._dragonBonesData.name
 
-        if (!CC_EDITOR && this.isCachedMode()) {
+        if (this.isCachedMode()) {
             this._armature = this._armatureCache.updateDBCache(this.armatureName, dragonbonesName, atlasName);
             if (!this._armature) {
                 // Cache fail,swith to realtime render mode.
@@ -673,7 +673,7 @@ let ArmatureDisplay = cc.Class({
         this.playTimes = (playTimes === undefined) ? -1 : playTimes;
         this.animationName = animName;
 
-        if (!CC_EDITOR && this.isCachedMode()) {
+        if (this.isCachedMode()) {
             let atlasName = this.dragonAtlasAsset._textureAtlasData.name;
             let dragonbonesName = this.dragonAsset._dragonBonesData.name;
             let cache = this._armatureCache.getRenderCache(this.armatureName, dragonbonesName, atlasName, animName);
@@ -696,7 +696,7 @@ let ArmatureDisplay = cc.Class({
     },
 
     updateCache (animName) {
-        if (CC_EDITOR || !this.isCachedMode()) return;
+        if (!this.isCachedMode()) return;
         let atlasName = this.dragonAtlasAsset._textureAtlasData.name;
         let dragonbonesName = this.dragonAsset._dragonBonesData.name;
         let cache = this._armatureCache.updateRenderCache(this.armatureName, dragonbonesName, atlasName, animName);

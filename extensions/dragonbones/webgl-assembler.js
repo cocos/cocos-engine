@@ -294,7 +294,7 @@ let armatureAssembler = {
             _handleVal |= 0x10;
         }
 
-        if (!CC_EDITOR && comp.isCachedMode()) {
+        if (comp.isCachedMode()) {
             // Traverse input assembler.
             this.cacheTraverse(comp._curFrame, worldMat);
         } else {
