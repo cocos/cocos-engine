@@ -27,7 +27,7 @@
 /**
  * @module dragonBones
  */
-let ArmatureCache = require('./ArmatureCache').sharedCache;
+let ArmatureCache = !CC_JSB && require('./ArmatureCache').sharedCache;
 
 /**
  * !#en The skeleton data of dragonBones.

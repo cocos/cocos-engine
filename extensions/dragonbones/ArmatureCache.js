@@ -32,32 +32,45 @@ let _preTexUrl = undefined;
 let _preBlendMode = undefined;
 let _segVCount = 0;
 let _segICount = 0;
+let _segOffset = 0;
+let _colorOffset = 0;
+let _preColor = undefined;
+let _x, _y;
 
+// Cache an animation all frame.
 let CacheItem = cc.Class({
     ctor () {
         this.allFrame = [];
         this.totalTime = 0;
     },
 
+    // Clear texture quote.
+    clear () {
+        for (let i = 0, n = this.allFrame.length; i < n; i++) {
+            let frame = this.allFrame[i];
+            frame.segments.length = 0;
+        }
+    },
+
     getFrame (index) {
         return this.allFrame[index];
     },
 
-    init (armature, animationName) {
+    update (armature, animationName) {
         let animation = armature.animation;
-        animation.play(animationName, -1);
+        animation.play(animationName, 1);
         let frameIdx = 0;
         do {
             // Solid update frame rate 1/60.
             armature.advanceTime(_frameRate);
-            this._initFrame(armature, frameIdx) && frameIdx++;
+            this._updateFrame(armature, frameIdx) && frameIdx++;
         } while (!animation.isCompleted);
         // Update frame length.
         this.allFrame.length = frameIdx;
         this.totalTime = frameIdx * _frameRate;
     },
 
-    _initFrame (armature, index) {
+    _updateFrame (armature, index) {
         _vfOffset = 0;
         _indexOffset = 0;
         _vertexOffset = 0;
@@ -65,50 +78,65 @@ let CacheItem = cc.Class({
         _preBlendMode = undefined;
         _segVCount = 0;
         _segICount = 0;
+        _segOffset = 0;
+        _colorOffset = 0;
+        _preColor = undefined;
 
-        let segments = this.segments = [];
+        this.allFrame[index] = this.allFrame[index] || {
+            segments : [],
+            colors : [],
+        };
+        let frame = this.allFrame[index];
+
+        let segments = this.segments = frame.segments;
+        let colors = this.colors = frame.colors;
         this._traverseArmature(armature);
-        // handle pre
-        let preSegOffset = segments.length - 1;
+        if (_colorOffset > 0) {
+            colors[_colorOffset - 1].vfOffset = _vfOffset;
+        }
+        colors.length = _colorOffset;
+        // Handle pre segment
+        let preSegOffset = _segOffset - 1;
         if (preSegOffset >= 0 && _segICount > 0) {
             let preSegInfo = segments[preSegOffset];
             preSegInfo.indexCount = _segICount;
             preSegInfo.vfCount = _segVCount * 5;
             preSegInfo.vertexCount = _segVCount;
+            segments.length = _segOffset;
         } else {
+            segments.length = 0;
             return false;
         }
 
         // Fill vertices
-        let vertices = new Float32Array(_vfOffset);
-        let uintVert = new Uint32Array(frame.vertices.buffer);
-        for (let i = 0; i < _vfOffset;) {
-            vertices[i++] = _vertices[i++]; // x
-            vertices[i++] = _vertices[i++]; // y
-            vertices[i++] = _vertices[i++]; // u
-            vertices[i++] = _vertices[i++]; // v
-            uintVert[i++] = _vertices[i++]; // color
+        let vertices = frame.vertices || new Float32Array(_vfOffset);
+        let uintVert = frame.uintVert || new Uint32Array(vertices.buffer);
+        for (let i = 0, j = 0; i < _vfOffset;) {
+            vertices[i++] = _vertices[j++]; // x
+            vertices[i++] = _vertices[j++]; // y
+            vertices[i++] = _vertices[j++]; // u
+            vertices[i++] = _vertices[j++]; // v
+            uintVert[i++] = _vertices[j++]; // color
         }
 
         // Fill indices
-        let indices = new Uint16Array(_indexOffset);
+        let indices = frame.indices || new Uint16Array(_indexOffset);
         for (let i = 0; i < _indexOffset; i++) {
             indices[i] = _indices[i];
         }
 
-        let frame = this.allFrame[index] = {};
         frame.vertices = vertices;
         frame.uintVert = uintVert;
         frame.indices = indices;
-        frame.segments = this.segments;
         return true;
     },
 
     _traverseArmature (armature) {
+        let colors = this.colors;
         let segments = this.segments;
         let gVertices = _vertices;
         let gIndices = _indices;
-        let slotVertices, slotIndices, slotVertex;
+        let slotVertices, slotIndices;
         let slots = armature._slots, slot, slotMatrix, slotColor, colorVal;
         let texture;
         let preSegOffset, preSegInfo;
@@ -133,7 +161,7 @@ let CacheItem = cc.Class({
                 _preTexUrl = texture.url;
                 _preBlendMode = slot._blendMode;
                 // handle pre
-                preSegOffset = segments.length - 1;
+                preSegOffset = _segOffset - 1;
                 if (preSegOffset >= 0 && _segICount > 0) {
                     preSegInfo = segments[preSegOffset];
                     preSegInfo.indexCount = _segICount;
@@ -141,34 +169,45 @@ let CacheItem = cc.Class({
                     preSegInfo.vfCount = _segVCount * 5;
                 }
                 // handle now
-                segments.push({
+                segments[_segOffset++] = {
                     tex : texture,
                     blendMode : slot._blendMode,
                     indexCount : 0,
                     vertexCount : 0,
-                    vfCount : 0,
-                    r : slotColor.r,
-                    g : slotColor.g,
-                    b : slotColor.b,
-                    a : slotColor.a,
-                });
+                    vfCount : 0
+                };
                 _segICount = 0;
                 _segVCount = 0;
             }
 
             colorVal = ((slotColor.a<<24) >>> 0) + (slotColor.b<<16) + (slotColor.g<<8) + slotColor.r;
 
+            if (_preColor !== colorVal) {
+                _preColor = colorVal;
+                if (_colorOffset > 0) {
+                    colors[_colorOffset - 1].vfOffset = _vfOffset;
+                }
+                colors[_colorOffset++] = {
+                    r : slotColor.r,
+                    g : slotColor.g,
+                    b : slotColor.b,
+                    a : slotColor.a,
+                    vfOffset : 0
+                }
+            }
+
             slotVertices = slot._localVertices;
             slotIndices = slot._indices;
 
             slotMatrix = slot._worldMatrix;
 
-            for (let j = 0, vl = slotVertices.length; j < vl; j++) {
-                slotVertex = slotVertices[j];
-                gVertices[_vfOffset++] = slotVertex.x * slotMatrix.m00 + slotVertex.y * slotMatrix.m04 + slotMatrix.m12;
-                gVertices[_vfOffset++] = slotVertex.x * slotMatrix.m01 + slotVertex.y * slotMatrix.m05 + slotMatrix.m13;
-                gVertices[_vfOffset++] = slotVertex.u;
-                gVertices[_vfOffset++] = slotVertex.v;
+            for (let j = 0, vl = slotVertices.length; j < vl;) {
+                _x = slotVertices[j++];
+                _y = slotVertices[j++];
+                gVertices[_vfOffset++] = _x * slotMatrix.m00 + _y * slotMatrix.m04 + slotMatrix.m12;
+                gVertices[_vfOffset++] = _x * slotMatrix.m01 + _y * slotMatrix.m05 + slotMatrix.m13;
+                gVertices[_vfOffset++] = slotVertices[j++];
+                gVertices[_vfOffset++] = slotVertices[j++];
                 gVertices[_vfOffset++] = colorVal;
             }
             
@@ -177,20 +216,19 @@ let CacheItem = cc.Class({
             }
 
             _vertexOffset = _vfOffset / 5;
-            _segICount += _indexOffset;
-            _segVCount += _vertexOffset;
+            _segICount += slotIndices.length;
+            _segVCount += slotVertices.length / 4;
         }
-
-        return {vertexCount : vfOffset, indexCount : indexOffset}
     },
 });
 
 let ArmatureCache = cc.Class({
     ctor () {
-        this.renderCache = {};
+        this.renderPool = {};
         this.dbCache = {};
     },
 
+    // If cache is private, cache will be destroy when dragonbones node destroy.
     dispose () {
         for (var key in this.dbCache) {
             var dbInfo = this.dbCache[key];
@@ -200,83 +238,127 @@ let ArmatureCache = cc.Class({
             }
         }
         this.dbCache = undefined;
-        this.renderCache = undefined;
+        this.renderPool = undefined;
     },
 
+    removeDB (dbKey) {
+        var dbInfo = this.dbCache[dbKey];
+        let renderCache = dbInfo.renderCache;
+        for (var aniKey in renderCache) {
+            // Clear cache texture, and put cache into pool.
+            // No need to create TypedArray next time.
+            let cacheItem = renderCache[aniKey];
+            if (!cacheItem) continue;
+            this.renderPool[dbKey + "#" + aniKey] = cacheItem;
+            cacheItem.clear();
+        }
+
+        let armature = dbInfo.armature;
+        armature && armature.dispose();
+        delete this.dbCache[dbKey];
+    },
+
+    // When atlas asset be destroy, remove armature from db cache.
     clearByAtlasName (atlasName) {
-        for (var key in this.dbCache) {
-            var dbInfo = this.dbCache[key];
+        for (var dbKey in this.dbCache) {
+            var dbInfo = this.dbCache[dbKey];
             if (dbInfo && dbInfo.atlasName === atlasName) {
-                this.clearRenderCache(dbInfo.renderMap);
-                let armature = dbInfo.armature;
-                armature && armature.dispose();
-                delete this.dbCache[key];
+                this.removeDB(dbKey);
                 return;
             }
         }
     },
 
+    // When db assets be destroy, remove armature from db cache.
     clearByDBName (dbName) {
-        for (var key in this.dbCache) {
-            var dbInfo = this.dbCache[key];
+        for (var dbKey in this.dbCache) {
+            var dbInfo = this.dbCache[dbKey];
             if (dbInfo && dbInfo.dbName === dbName) {
-                this.clearRenderCache(dbInfo.renderMap);
-                let armature = dbInfo.armature;
-                armature && armature.dispose();
-                delete this.dbCache[key];
+                this.removeDB(dbKey);
                 return;
             }
         }
     },
 
-    clearRenderCache (renderMap) {
-        for (var key in renderMap) {
-            delete this.renderCache[key];
+    getDBCache (armatureName, dragonbonesName, atlasName) {
+        let dbKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
+        let dbInfo = this.dbCache[dbKey];
+        return dbInfo && dbInfo.armature;
+    },
+
+    updateDBCache (armatureName, dragonbonesName, atlasName) {
+        let dbKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
+        let dbInfo = this.dbCache[dbKey];
+        let armature;
+        if (!dbInfo) {
+            let factory = dragonBones.CCFactory.getInstance();
+            let proxy = factory.buildArmatureDisplay(armatureName, dragonbonesName, "", atlasName);
+            if (!proxy || !proxy._armature) return;
+            armature = proxy._armature;
+            // If armature has child armature, can not be cache, because it's
+            // animation data can not be precompute.
+            if (!ArmatureCache.canCache(armature)) {
+                armature.dispose();
+                return;
+            }
+
+            this.dbCache[dbKey] = {
+                armature : armature,
+                dbName : dragonbonesName,
+                atlasName : atlasName,
+                // Cache all kinds of animation frame.
+                // When armature is dispose, clear all animation cache.
+                renderCache : {},
+            };
+        } else {
+            armature = dbInfo.armature;
         }
-    },
-
-    getDBCache () {
-        
-    },
-
-    updateDBCache () {
-
+        return armature;
     },
 
     getRenderCache (armatureName, dragonbonesName, atlasName, animationName) {
-        let cacheKey = armatureName + "#" + dragonbonesName + "#" + atlasName + "#" + animationName;
-        return this.renderCache[cacheKey];
+        let dbKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
+        let dbInfo = this.dbCache[dbKey];
+        if (!dbInfo) return null;
+
+        let renderCache = dbInfo.renderCache;
+        return renderCache[animationName];
     },
 
     updateRenderCache (armatureName, dragonbonesName, atlasName, animationName) {
         let dbKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
         let dbInfo = this.dbCache[dbKey];
-        let armature;
-        if (!dbInfo) {
-            let proxy = this._factory.buildArmatureDisplay(armatureName, dragonbonesName, "", atlasName);
-            if (!proxy) return;
-            armature = proxy._armature;
-            this.dbCache[dbKey] = {
-                proxy : proxy,
-                armature : armature,
-                dbName : dragonbonesName,
-                atlasName : atlasName,
-                renderMap : {},
-            };
-        } else {
-            armature = dbInfo.armature;
-        }
+        let armature = dbInfo && dbInfo.armature;
+        if (!armature) return null;
 
-        let cacheKey = dbKey + "#" + animationName;
-        dbInfo.renderMap[cacheKey] = true;
-        let cacheItem = this.renderCache[cacheKey];
+        let renderCache = dbInfo.renderCache;
+        let cacheItem = renderCache[animationName];
         if (!cacheItem) {
-            cacheItem = new CacheItem();
-            this.renderCache[cacheKey] = cacheItem;
+            // If cache exist in pool, then just use it.
+            let poolKey = dbKey + "#" + animationName;
+            cacheItem = this.renderPool[poolKey];
+            if (cacheItem) {
+                delete this.renderPool[poolKey];
+            } else {
+                cacheItem = new CacheItem();
+            }
+            renderCache[animationName] = cacheItem;
         }
-        cacheItem.init(armature, animationName);
+        cacheItem.update(armature, animationName);
         return cacheItem;
     }
 });
+
 ArmatureCache.sharedCache = new ArmatureCache();
+ArmatureCache.canCache = function (armature) {
+    let slots = armature._slots;
+    for (let i = 0, l = slots.length; i < l; i++) {
+        let slot = slots[i];
+        if (slot.childArmature) {
+            return false;
+        }
+    }
+    return true;
+},
+
 module.exports = ArmatureCache;

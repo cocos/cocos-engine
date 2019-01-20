@@ -269,7 +269,7 @@ module.exports = {
             "play_times": "The play times of the default animation.\n-1 means using the value of config file\n0 means repeat for ever\n>0 means repeat times",
             "debug_bones": "Indicates whether open debug bones",
             "enabled_batch": "Indicates whether enabled batch model",
-            "render_mode": "The render mode of current armature. 'realtime' means realtime calculate animation data, support animation blend but low performance. 'precomputation' means precomputation animation data, high performance but not support animation blend",
+            "render_mode": "The render mode of current armature. 'realtime' means realtime calculate animation data, support animation blend but low performance. 'sharedCache' means precomputation animation data and share data with same armature, high performance and less memery but not support animation blend. 'privateCache' means precomputation animation data but not share data with other same armature, high performance and more memery, not support animation blend",
         },
         'motionStreak': {
             'fadeTime': "Trail fragment fade time, in seconds",

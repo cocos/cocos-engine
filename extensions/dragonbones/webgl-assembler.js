@@ -37,7 +37,7 @@ let _nodeR, _nodeG, _nodeB, _nodeA,
     _renderer, _comp,
     _vfOffset, _indexOffset, _vertexOffset,
     _vertexCount, _indexCount,
-    _x, _y, _c, _r, _g, _b, _a, _hasColor, _handleVal;
+    _x, _y, _c, _r, _g, _b, _a, _handleVal;
 
 function _getSlotMaterial (tex, blendMode) {
     if(!tex)return null;
@@ -131,7 +131,7 @@ let armatureAssembler = {
             }
 
             if (slot.childArmature) {
-                this.traverseArmature(slot.childArmature, slot._worldMatrix);
+                this.realTimeTraverse(slot.childArmature, slot._worldMatrix);
                 continue;
             }
 
@@ -152,7 +152,7 @@ let armatureAssembler = {
             slotMat = slot._worldMatrix;
 
             vertices = slot._localVertices;
-            _vertexCount = vertices.length;
+            _vertexCount = vertices.length >> 2;
 
             indices = slot._indices;
             _indexCount = indices.length;
@@ -194,9 +194,17 @@ let armatureAssembler = {
         let indices = frame.indices;
         let uintVert = frame.uintVert;
         let segments = frame.segments;
-        let segVFOffset = 0, segIndexOffset = 0, segVFCount;
+        let frameVFOffset = 0, frameIndexOffset = 0, segVFCount = 0;
+        let m00 = parentMat.m00, m04 = parentMat.m04, m12 = parentMat.m12;
+        let m01 = parentMat.m01, m05 = parentMat.m05, m13 = parentMat.m13; 
 
-        for (let i = 0; i < segments.length; i++) {
+        let colorOffset = 0;
+        let colors = frame.colors;
+        let nowColor = colors[colorOffset++];
+        let maxVFOffset = nowColor.vfOffset;
+        _handleColor(nowColor);
+
+        for (let i = 0, n = segments.length; i < n; i++) {
             let segInfo = segments[i];
             material = _getSlotMaterial(segInfo.tex, segInfo.blendMode);
             if (_mustFlush || material._hash !== _renderer.material._hash) {
@@ -216,40 +224,44 @@ let armatureAssembler = {
             _buffer.request(_vertexCount, _indexCount);
             vbuf = _buffer._vData;
             ibuf = _buffer._iData;
+            uintbuf = _buffer._uintVData;
 
             for (let ii = _indexOffset, il = _indexOffset + _indexCount; ii < il; ii++) {
-                ibuf[ii] = _vertexOffset + indices[segIndexOffset++];
+                ibuf[ii] = _vertexOffset + indices[frameIndexOffset++];
             }
 
             segVFCount = segInfo.vfCount;
-            _c = uintVert[segVFOffset + 4];
             switch (_handleVal) {
+                case 0x01:
                 case 0x0:
-                    vbuf.set(vertices.subarray(segVFOffset, segVFOffset + segVFCount), _vfOffset);
-                    segVFOffset += segInfo.vfCount;
+                    vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), _vfOffset);
+                    frameVFOffset += segVFCount;
                 break;
                 case 0x11:
-                    _handleColor(segInfo);
                 case 0x10:
-                    uintbuf = _buffer._uintVData;
                     for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il;) {
-                        _x = vertices[segVFOffset++];
-                        _y = vertices[segVFOffset++];
-                        vbuf[ii++] = _x * parentMat.m00 + _y * parentMat.m04 + parentMat.m12; // x
-                        vbuf[ii++] = _x * parentMat.m01 + _y * parentMat.m05 + parentMat.m13; // y
-                        vbuf[ii++] = vertices[segVFOffset++];
-                        vbuf[ii++] = vertices[segVFOffset++];
-                        uintbuf[i++] = _c;
-                        segVFOffset++;
+                        _x = vertices[frameVFOffset++];
+                        _y = vertices[frameVFOffset++];
+                        vbuf[ii++] = _x * m00 + _y * m04 + m12; // x
+                        vbuf[ii++] = _x * m01 + _y * m05 + m13; // y
+                        vbuf[ii++] = vertices[frameVFOffset++];
+                        vbuf[ii++] = vertices[frameVFOffset++];
+                        uintbuf[ii++] = uintVert[frameVFOffset++];
                     }
                 break;
-                case 0x01:
-                    _handleColor(segInfo);
-                    vbuf.set(vertices.subarray(segVFOffset, segVFOffset + segVFCount), _vfOffset);
-                    for (let ii = _vfOffset + 4, il = _vfOffset + 4 + segVFCount; ii < il; ii += 5) {
-                        uintbuf[i] = _c;
-                    }
-                break;
+            }
+
+            if ( !(_handleVal & 0x01) ) continue;
+
+            // handle color
+            let frameColorOffset = frameVFOffset - segVFCount;
+            for (let ii = _vfOffset + 4, il = _vfOffset + 4 + segVFCount; ii < il; ii+=5, frameColorOffset += 5) {
+                if (frameColorOffset >= maxVFOffset) {
+                    nowColor = colors[colorOffset++];
+                    _handleColor(nowColor);
+                    maxVFOffset = nowColor.vfOffset;
+                }
+                uintbuf[ii] = _c;
             }
         }
     },
@@ -282,9 +294,9 @@ let armatureAssembler = {
             _handleVal |= 0x10;
         }
 
-        if (comp.isCachedMode()) {
+        if (!CC_EDITOR && comp.isCachedMode()) {
             // Traverse input assembler.
-            this.cacheTraverse(comp._curFrame);
+            this.cacheTraverse(comp._curFrame, worldMat);
         } else {
             // Traverse all armature.
             let armature = comp._armature;

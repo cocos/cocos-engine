@@ -2695,7 +2695,3 @@ Stencil manager does not support level bigger than %d in this device.
 ### 9001
 
 Stencil manager is already empty, cannot pop any mask
-
-### 9002
-
-API `%s` not available in cached mode.
