@@ -34,7 +34,7 @@ import * as Types from './types';
 import * as math from '../../../../core/vmath';
 import { Size, Color } from '../../../../core/value-types';
 import { Node } from '../../../../scene-graph';
-import EditBoxComponent from './edit-box-component';
+import { EditBoxComponent} from './edit-box-component';
 const InputMode = Types.InputMode;
 const InputFlag = Types.InputFlag;
 const KeyboardReturnType = Types.KeyboardReturnType;
@@ -81,25 +81,26 @@ function getKeyboardReturnType(type) {
 }
 
 @ccclass
-export default class EditBoxImpl {
+export class EditBoxImpl {
     _delegate: EditBoxComponent | null = null;
-    _inputMode: number = -1;
-    _inputFlag: number = -1;
-    _returnType: number = KeyboardReturnType.DEFAULT;
-    _maxLength: number = 50;
-    _text: string = '';
-    _placeholderText: string = '';
-    _alwaysOnTop: boolean = false;
+    _inputMode= -1;
+    _inputFlag= -1;
+    _returnType= KeyboardReturnType.DEFAULT;
+    _maxLength= 50;
+    _text = '';
+    _placeholderText = '';
+    _alwaysOnTop = false;
     _size: Size = cc.size();
     _node: Node = null;
-    _editing: boolean = false;
+    _editing = false;
     __eventListeners: object = {};
-    __fullscreen: boolean = false;
-    __autoResize: boolean = false;
-    __rotateScreen: boolean = false;
+    __fullscreen = false;
+    __autoResize = false;
+    __rotateScreen = false;
     __orientationChanged: Function | null = null;
     _edTxt: HTMLElement | null = null;
     _textColor: Color = Color.WHITE;
+    _edFontSize = 14;
 
     onEnable() {
         if (!this._edTxt) {
@@ -271,7 +272,7 @@ export default class EditBoxImpl {
 
             let self = this;
             function startFocus() {
-                self._edTxt.focus();
+                self._edTxt!.focus();
             }
 
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
@@ -319,7 +320,7 @@ export default class EditBoxImpl {
         if (!edTxt) return;
 
         if (this._inputFlag === InputFlag.PASSWORD) {
-            edTxt.type = 'password';
+            edTxt!.type = 'password';
             return;
         }
 
@@ -367,7 +368,7 @@ export default class EditBoxImpl {
 
         math.mat4.translate(_matrix, _matrix, _vec3);
 
-        let camera;
+        // let camera;
         // can't find camera in editor
         // if (CC_EDITOR) {
         //     camera = cc.Camera.main;
@@ -379,7 +380,8 @@ export default class EditBoxImpl {
         if (!renderComp) {
             return false;
         }
-        let canvas = cc.CanvasComponent.findView(renderComp);
+        // let canvas = cc.CanvasComponent.findView(renderComp);
+        let canvas = cc.director.root.ui.getScreen()
         if (!canvas) {
             return;
         }
@@ -532,7 +534,7 @@ export default class EditBoxImpl {
         tmpEdTxt.type = 'text';
         tmpEdTxt.style.fontSize = this._edFontSize + 'px';
         tmpEdTxt.style.color = '#000000';
-        tmpEdTxt.style.border = 0;
+        tmpEdTxt.style.border = '0';
         tmpEdTxt.style.background = 'transparent';
         tmpEdTxt.style.width = '100%';
         tmpEdTxt.style.height = '100%';
@@ -597,7 +599,7 @@ function _inputValueHandle(input, editBoxImpl) {
     }
 }
 
-function registerInputEventListener(tmpEdTxt: HTMLElement, editBoxImpl: EditBoxImpl, isTextarea: boolean = false) {
+function registerInputEventListener(tmpEdTxt: HTMLElement, editBoxImpl: EditBoxImpl, isTextarea = false) {
     let inputLock = false;
     let cbs = editBoxImpl.__eventListeners;
     cbs.compositionstart = function () {

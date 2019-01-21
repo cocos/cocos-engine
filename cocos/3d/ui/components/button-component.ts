@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import SpriteFrame from '../../../assets/CCSpriteFrame';
+import { SpriteFrame } from '../../../assets/CCSpriteFrame';
 import ComponentEventHandler from '../../../components/CCComponentEventHandler';
 import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
@@ -33,7 +33,8 @@ import { lerp } from '../../../core/utils/misc';
 import { Color, Vec3 } from '../../../core/value-types/index';
 import * as math from '../../../core/vmath/index';
 import { Node } from '../../../scene-graph';
-import SpriteComponent from './sprite-component';
+import { SpriteComponent } from './sprite-component';
+import { EventTouch } from '../../../core/platform/event-manager';
 
 /**
  * !#en Enum for transition type.
@@ -96,24 +97,24 @@ const Transition = cc.Enum({
  *
  * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）：<br/>
  *   // 以下事件可以在全平台上都触发<br/>
- *   -cc.NodeUI.EventType.TOUCH_START  // 按下时事件<br/>
- *   -cc.NodeUI.EventType.TOUCH_Move   // 按住移动后事件<br/>
- *   -cc.NodeUI.EventType.TOUCH_END    // 按下后松开后事件<br/>
- *   -cc.NodeUI.EventType.TOUCH_CANCEL // 按下取消事件<br/>
+ *   -cc.Node.EventType.TOUCH_START  // 按下时事件<br/>
+ *   -cc.Node.EventType.TOUCH_Move   // 按住移动后事件<br/>
+ *   -cc.Node.EventType.TOUCH_END    // 按下后松开后事件<br/>
+ *   -cc.Node.EventType.TOUCH_CANCEL // 按下取消事件<br/>
  *   // 以下事件只在 PC 平台上触发<br/>
- *   -cc.NodeUI.EventType.MOUSE_DOWN  // 鼠标按下时事件<br/>
- *   -cc.NodeUI.EventType.MOUSE_MOVE  // 鼠标按住移动后事件<br/>
- *   -cc.NodeUI.EventType.MOUSE_ENTER // 鼠标进入目标事件<br/>
- *   -cc.NodeUI.EventType.MOUSE_LEAVE // 鼠标离开目标事件<br/>
- *   -cc.NodeUI.EventType.MOUSE_UP    // 鼠标松开事件<br/>
- *   -cc.NodeUI.EventType.MOUSE_WHEEL // 鼠标滚轮事件<br/>
+ *   -cc.Node.EventType.MOUSE_DOWN  // 鼠标按下时事件<br/>
+ *   -cc.Node.EventType.MOUSE_MOVE  // 鼠标按住移动后事件<br/>
+ *   -cc.Node.EventType.MOUSE_ENTER // 鼠标进入目标事件<br/>
+ *   -cc.Node.EventType.MOUSE_LEAVE // 鼠标离开目标事件<br/>
+ *   -cc.Node.EventType.MOUSE_UP    // 鼠标松开事件<br/>
+ *   -cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件<br/>
  *
  * @class Button
  * @extends Component
  * @example
  *
  * // Add an event to the button.
- * button.node.on(cc.NodeUI.EventType.TOUCH_START, function (event) {
+ * button.node.on(cc.Node.EventType.TOUCH_START, function (event) {
  *     cc.log("This is a callback after the trigger event");
  * });
  * // You could also add a click event
@@ -451,13 +452,13 @@ export default class ButtonComponent extends Component {
     @property
     public _transition: number = Transition.NONE;
     @property
-    public _normalColor: Color = cc.color(214, 214, 214);
+    public _normalColor: Color = new Color(214, 214, 214);
     @property
-    public _hoverColor: Color = cc.color(211, 211, 211);
+    public _hoverColor: Color = new Color(211, 211, 211);
     @property
-    public _pressColor: Color = cc.Color.WHITE;
+    public _pressColor: Color = Color.WHITE;
     @property
-    public _disabledColor: Color = cc.color(124, 124, 124);
+    public _disabledColor: Color = new Color(124, 124, 124);
     @property
     public _normalSprite: SpriteFrame | null = null;
     @property
@@ -465,7 +466,7 @@ export default class ButtonComponent extends Component {
     @property
     public _pressedSprite: SpriteFrame | null = null;
     @property
-    public _disabledSprite = null;
+    public _disabledSprite: SpriteFrame | null = null;
     @property
     public _duration: number = 0.1;
     @property
@@ -477,13 +478,13 @@ export default class ButtonComponent extends Component {
 
     public _pressed: boolean = false;
     public _hovered: boolean = false;
-    public _fromColor: Color = cc.color();
-    public _toColor: Color = cc.color();
+    public _fromColor: Color = new Color();
+    public _toColor: Color = new Color();
     public _time: number = 0;
     public _transitionFinished: boolean = true;
-    public _fromScale: Vec3 = cc.v3();
-    public _toScale: Vec3 = cc.v3();
-    public _originalScale: Vec3 = cc.v3();
+    public _fromScale: Vec3 = new Vec3();
+    public _toScale: Vec3 = new Vec3();
+    public _originalScale: Vec3 = new Vec3();
     public _sprite: SpriteComponent | null = null;
     public _previousNormalSprite: SpriteFrame | null = null;
 
@@ -535,11 +536,11 @@ export default class ButtonComponent extends Component {
         if (!CC_EDITOR) {
             this._registerEvent();
         } else {
-            this.node.on('spriteframe-changed', function (comp) {
+            this.node.on('spriteframe-changed', (comp) => {
                 if (this._transition === Transition.SPRITE) {
                     this._normalSprite = comp.spriteFrame;
                 }
-            }.bind(this));
+            }, this);
         }
     }
 
@@ -547,19 +548,19 @@ export default class ButtonComponent extends Component {
         this._resetState();
 
         if (!CC_EDITOR) {
-            this.node.off(cc.NodeUI.EventType.TOUCH_START, this._onTouchBegan, this);
-            this.node.off(cc.NodeUI.EventType.TOUCH_MOVE, this._onTouchMove, this);
-            this.node.off(cc.NodeUI.EventType.TOUCH_END, this._onTouchEnded, this);
-            this.node.off(cc.NodeUI.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
+            this.node.off(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+            this.node.off(cc.Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
+            this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+            this.node.off(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-            this.node.off(cc.NodeUI.EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-            this.node.off(cc.NodeUI.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+            this.node.off(cc.Node.EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+            this.node.off(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
         } else {
             this.node.off('spriteframe-changed');
         }
     }
 
-    public update (dt) {
+    public update (dt: number) {
         const target = this._target;
         if (this._transitionFinished) {
             return;
@@ -591,13 +592,13 @@ export default class ButtonComponent extends Component {
     }
 
     public _registerEvent () {
-        this.node.on(cc.NodeUI.EventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(cc.NodeUI.EventType.TOUCH_MOVE, this._onTouchMove, this);
-        this.node.on(cc.NodeUI.EventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(cc.NodeUI.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
+        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-        this.node.on(cc.NodeUI.EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-        this.node.on(cc.NodeUI.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+        this.node.on(cc.Node.EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+        this.node.on(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
     public _getTargetSprite (target: Node | null) {
@@ -621,15 +622,23 @@ export default class ButtonComponent extends Component {
 
         this._pressed = true;
         this._updateState();
-        event.stopPropagation();
+        event && event.stopPropagation();
     }
 
     public _onTouchMove (event: Event | null) {
         if (!this._interactable || !this.enabledInHierarchy || !this._pressed) { return; }
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
-        const touch = event.touch;
-        const hit = this.node._hitTest(touch.getLocation());
+        if (!event) {
+            return false;
+        }
+
+        const touch = (event as EventTouch).touch;
+        if (!touch) {
+            return false;
+        }
+
+        const hit = this.node.uiTransfromComp!.isHit(touch.getLocation());
 
         if (this._transition === Transition.SCALE && this._target) {
             if (hit) {
@@ -663,7 +672,7 @@ export default class ButtonComponent extends Component {
         }
         this._pressed = false;
         this._updateState();
-        event.stopPropagation();
+        event && event.stopPropagation();
     }
 
     public _onTouchCancel () {

@@ -59,7 +59,7 @@ export class UI {
     }, 128);
 
     private _screens: CanvasComponent[] = [];
-    private _bufferPool: RecyclePool = new RecyclePool(() => {
+    private _bufferPool: RecyclePool<MeshBuffer> = new RecyclePool(() => {
         return new MeshBuffer();
     }, 128);
     private _device: GFXDevice;

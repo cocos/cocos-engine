@@ -26,7 +26,11 @@ export function fillVertices(node, buffer, renderData, color) {
         vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        uintbuf[vertexOffset++] = color;
+        // uintbuf[vertexOffset++] = color;
+        vbuf[vertexOffset++] = color.r;
+        vbuf[vertexOffset++] = color.g;
+        vbuf[vertexOffset++] = color.b;
+        vbuf[vertexOffset++] = color.a;
     }
 }
 
@@ -56,7 +60,11 @@ export function fillMeshVertices(node, buffer, renderData, color) {
         vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        uintbuf[vertexOffset++] = color;
+        // uintbuf[vertexOffset++] = color;
+        vbuf[vertexOffset++] = color.r;
+        vbuf[vertexOffset++] = color.g;
+        vbuf[vertexOffset++] = color.b;
+        vbuf[vertexOffset++] = color.a;
     }
 
     // fill indice data
@@ -83,18 +91,22 @@ export function fillVertices3D(node, buffer, renderData, color) {
         uintbuf = buffer._uintVData;
 
     // let matrix = node._worldMatrix;
-    // node.getWorldMatrix(_worldMatrix);
+    node.getWorldMatrix(_worldMatrix);
 
     for (let i = 0; i < vertexCount; i++) {
         let vert = data[i];
         vec3.set(vec3_temp, vert.x, vert.y, 0);
-        // vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
+        vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
         vbuf[vertexOffset++] = vec3_temp.x;
         vbuf[vertexOffset++] = vec3_temp.y;
         vbuf[vertexOffset++] = vec3_temp.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        uintbuf[vertexOffset++] = color;
+        vbuf[vertexOffset++] = color.r;
+        vbuf[vertexOffset++] = color.g;
+        vbuf[vertexOffset++] = color.b;
+        vbuf[vertexOffset++] = color.a;
+        // uintbuf[vertexOffset++] = color;
     }
 }
 
@@ -114,18 +126,22 @@ export function fillMeshVertices3D(node, buffer, renderData, color) {
         ibuf = buffer._iData;
 
     // let matrix = node._worldMatrix;
-    // node.getWorldMatrix(_worldMatrix);
+    node.getWorldMatrix(_worldMatrix);
 
     for (let i = 0; i < vertexCount; i++) {
         let vert = data[i];
         vec3.set(vec3_temp, vert.x, vert.y, 0);
-        // vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
+        vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
         vbuf[vertexOffset++] = vec3_temp.x;
         vbuf[vertexOffset++] = vec3_temp.y;
         vbuf[vertexOffset++] = vec3_temp.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        uintbuf[vertexOffset++] = color;
+        vbuf[vertexOffset++] = color.r;
+        vbuf[vertexOffset++] = color.g;
+        vbuf[vertexOffset++] = color.b;
+        vbuf[vertexOffset++] = color.a;
+        // uintbuf[vertexOffset++] = color;
     }
 
     // fill indice data
@@ -157,7 +173,11 @@ export function fillVerticesWithoutCalc(node, buffer, renderData, color) {
         vbuf[vertexOffset++] = vert.y;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        uintbuf[vertexOffset++] = color;
+        // uintbuf[vertexOffset++] = color;
+        vbuf[vertexOffset++] = color.r;
+        vbuf[vertexOffset++] = color.g;
+        vbuf[vertexOffset++] = color.b;
+        vbuf[vertexOffset++] = color.a;
     }
 }
 
@@ -179,15 +199,10 @@ export function fillVerticesWithoutCalc3D(node, buffer, renderData, color) {
         vbuf[vertexOffset++] = vert.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        uintbuf[vertexOffset++] = color;
+        // uintbuf[vertexOffset++] = color;
+        vbuf[vertexOffset++] = color.r;
+        vbuf[vertexOffset++] = color.g;
+        vbuf[vertexOffset++] = color.b;
+        vbuf[vertexOffset++] = color.a;
     }
 }
-
-// module.exports = {
-//     fillVertices: fillVertices,
-//     fillMeshVertices: fillMeshVertices,
-//     fillVertices3D: fillVertices3D,
-//     fillMeshVertices3D: fillMeshVertices3D,
-//     fillVerticesWithoutCalc: fillVerticesWithoutCalc,
-//     fillVerticesWithoutCalc3D: fillVerticesWithoutCalc3D
-// };
