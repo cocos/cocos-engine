@@ -184,15 +184,14 @@ export class BaseNode extends CCObject {
     get active () {
         return this._active;
     }
-    set active (value) {
-        value = !!value;
-        if (this._active !== value) {
-            this._active = value;
+    set active (isActive: boolean) {
+        if (this._active !== isActive) {
+            this._active = isActive;
             const parent = this._parent;
             if (parent) {
                 const couldActiveInScene = parent._activeInHierarchy;
                 if (couldActiveInScene) {
-                    cc.director._nodeActivator.activateNode(this, value);
+                    cc.director._nodeActivator.activateNode(this, isActive);
                 }
             }
         }

@@ -99,7 +99,10 @@ export class Camera {
     }
 
     public update () {
-        if (!this._node) { return; }
+        if (!this._node) {
+            return;
+        }
+
         // view matrix
         this.node.getWorldRT(this._matView);
         mat4.invert(this._matView, this._matView);

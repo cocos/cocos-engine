@@ -290,8 +290,6 @@ export abstract class RenderPipeline {
     }
 
     protected updateUBOs (view: RenderView) {
-        const camera = view.camera as Camera;
-        camera.update();
 
         // update UBOGlobal
         _vec4Array[0] = this._root.frameTime;
@@ -312,27 +310,27 @@ export abstract class RenderPipeline {
         _vec4Array[3] = 1.0;
         this._uboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
 
-        mat4.array(_mat4Array, camera.matView);
+        mat4.array(_mat4Array, view.camera.matView);
         this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_OFFSET);
 
-        mat4.invert(_outMat, camera.matView);
+        mat4.invert(_outMat, view.camera.matView);
         mat4.array(_mat4Array, _outMat);
         this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_INV_OFFSET);
 
-        mat4.array(_mat4Array, camera.matProj);
+        mat4.array(_mat4Array, view.camera.matProj);
         this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_PROJ_OFFSET);
 
-        mat4.invert(_outMat, camera.matProj);
+        mat4.invert(_outMat, view.camera.matProj);
         mat4.array(_mat4Array, _outMat);
         this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_PROJ_INV_OFFSET);
 
-        mat4.array(_mat4Array, camera.matViewProj);
+        mat4.array(_mat4Array, view.camera.matViewProj);
         this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
 
-        mat4.array(_mat4Array, camera.matViewProjInv);
+        mat4.array(_mat4Array, view.camera.matViewProjInv);
         this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
 
-        vec3.array(_vec4Array, camera.node && camera.node.getPosition());
+        vec3.array(_vec4Array, view.camera.node && view.camera.node.getPosition());
         _vec4Array[3] = 1.0;
         this._uboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 
@@ -352,7 +350,7 @@ export abstract class RenderPipeline {
             // filter model by view visibility
             if (view.visibility > 0 && model.viewID !== view.visibility ||
                 !model.isEnable() ||
-                !model.node.active) {
+                !model.node.activeInHierarchy) {
                 continue;
             }
 
