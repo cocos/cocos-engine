@@ -27,6 +27,10 @@ const renderEngine = require('../../cocos2d/core/renderer/render-engine');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 const gfx = renderEngine.gfx;
 const math = require('../../cocos2d/core/renderer/render-engine').math;
+const NEED_NONE = 0x00;
+const NEED_COLOR = 0x01;
+const NEED_BATCH = 0x10;
+const NEED_COLOR_BATCH = 0x11;
 
 let _boneColor = cc.color(255, 0, 0, 255);
 let _slotColor = cc.color(0, 0, 255, 255);
@@ -247,26 +251,26 @@ let armatureAssembler = {
 
             segVFCount = segInfo.vfCount;
             switch (_handleVal) {
-                case 0x01:
-                case 0x0:
+                case NEED_COLOR:
+                case NEED_NONE:
                     vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), _vfOffset);
                     frameVFOffset += segVFCount;
                 break;
-                case 0x11:
-                case 0x10:
+                case NEED_BATCH:
+                case NEED_COLOR_BATCH:
                     for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il;) {
                         _x = vertices[frameVFOffset++];
                         _y = vertices[frameVFOffset++];
                         vbuf[ii++] = _x * _m00 + _y * _m04 + _m12; // x
                         vbuf[ii++] = _x * _m01 + _y * _m05 + _m13; // y
-                        vbuf[ii++] = vertices[frameVFOffset++];
-                        vbuf[ii++] = vertices[frameVFOffset++];
+                        vbuf[ii++] = vertices[frameVFOffset++]; // u
+                        vbuf[ii++] = vertices[frameVFOffset++]; // v
                         uintbuf[ii++] = uintVert[frameVFOffset++];
                     }
                 break;
             }
 
-            if ( !(_handleVal & 0x01) ) continue;
+            if ( !(_handleVal & NEED_COLOR) ) continue;
 
             // handle color
             let frameColorOffset = frameVFOffset - segVFCount;
@@ -299,14 +303,14 @@ let armatureAssembler = {
         _nodeB = nodeColor.b / 255;
         _nodeA = nodeColor.a / 255;
         if (nodeColor._val !== 0xffffffff) {
-            _handleVal |= 0x01;
+            _handleVal |= NEED_COLOR;
         }
 
         let worldMat = undefined;
         if (_comp.enabledBatch) {
             worldMat = _node._worldMatrix;
             _mustFlush = false;
-            _handleVal |= 0x10;
+            _handleVal |= NEED_BATCH;
         }
 
         if (comp.isCachedMode()) {
