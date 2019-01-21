@@ -27,10 +27,9 @@ export class WebGLGFXCommandPool<T> {
 
     public alloc (clazz: new() => T): T {
         if (this._count >= this._data.length) {
-            if (this._data.length * 2 > this._data.length) {
-                for (let i = this._data.length; i < this._data.length * 2; ++i) {
-                    this._data[i] = new clazz();
-                }
+            const size = this._data.length * 2;
+            for (let i = this._data.length; i < size; ++i) {
+                this._data[i] = new clazz();
             }
         }
 
