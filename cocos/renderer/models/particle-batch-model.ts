@@ -6,7 +6,7 @@ import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../gfx/buf
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { IGFXInputAttribute } from '../../gfx/input-assembler';
-import { Node } from '../../scene-graph/node';
+import { Node } from '../../scene-graph';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { IRenderingSubmesh } from '../../3d/assets/mesh';

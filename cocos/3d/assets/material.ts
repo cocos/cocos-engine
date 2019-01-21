@@ -26,14 +26,14 @@ import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { GFXBindingType } from '../../gfx/define';
-import { Effect } from '../../renderer/core/effect';
+import { Effect, IDefineMap } from '../../renderer/core/effect';
 import { Pass, PassOverrides } from '../../renderer/core/pass';
 import { RenderableComponent } from '../framework/renderable-component';
 import { EffectAsset } from './effect-asset';
 
 export interface IMaterialInfo {
     technique?: number;
-    defines?: Record<string, number | boolean>;
+    defines?: IDefineMap[];
     effectName?: string;
 }
 
@@ -56,7 +56,7 @@ export class Material extends Asset {
     @property
     protected _techIdx = 0;
     @property
-    protected _defines: Record<string, number | boolean> = {};
+    protected _defines: IDefineMap[] = [];
     @property
     protected _props: Array<Record<string, any>> = [];
 
@@ -68,7 +68,7 @@ export class Material extends Asset {
         super();
         if (info) {
             if (info.technique) { this._techIdx = info.technique; }
-            if (info.defines) { this._defines = info.defines; }
+            if (info.defines) { this.setDefines(info.defines); }
             if (info.effectName) { this.effectName = info.effectName; }
         }
     }
@@ -109,8 +109,8 @@ export class Material extends Asset {
         return this._hash;
     }
 
-    public setDefines (defines: Record<string, number | boolean>) {
-        this._defines = defines;
+    public setDefines (defines: IDefineMap | IDefineMap[]) {
+        this._defines = Array.isArray(defines) ? defines : [defines];
         this.update();
     }
 

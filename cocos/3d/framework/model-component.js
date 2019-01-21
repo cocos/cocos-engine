@@ -182,20 +182,23 @@ export class ModelComponent extends RenderableComponent {
     }
 
     _updateModels() {
-        if (!this.node._scene) {
+        if (!this.enabled || !this.node._scene) {
             return;
+        }
+
+        if (this._model) {
+            this._getRenderScene().destroyModel(this._model);
         }
 
         let model = this._createModel();
         model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
         this._model = model;
-        this._model.node = this.node;
 
         this._updateModelParams();
     }
 
     _createModel() {
-        return this._getRenderScene().createModel(Model);
+        return this._getRenderScene().createModel(Model, this.node);
     }
 
     _updateModelParams() {

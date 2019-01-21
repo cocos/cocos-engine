@@ -140,7 +140,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             return;
         }
         if (this._model == null) {
-            this._model = this._getRenderScene().createModel(ParticleBatchModel) as ParticleBatchModel;
+            this._model = this._getRenderScene().createModel(ParticleBatchModel, this.node) as ParticleBatchModel;
             this._model.setCapacity(this.particleSystem.capacity);
             this._model.setVertexAttributes(this._vertAttrs);
             this._model.node = this.node;
