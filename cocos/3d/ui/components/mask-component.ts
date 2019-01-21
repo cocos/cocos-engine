@@ -27,18 +27,19 @@ import {SpriteFrame} from '../../../assets/CCSpriteFrame';
 import { ccclass, executeInEditMode, executionOrder,
     menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { ccenum } from '../../../core/value-types/enum';
-import { clamp } from '../../../core/vmath';
+import { clamp, vec3 } from '../../../core/vmath';
+import { GFXPrimitiveMode } from '../../../gfx/define';
+import { IUIRenderData, UI } from '../../../renderer/ui/ui';
 import { Node } from '../../../scene-graph/node';
+import { Material } from '../../assets/material';
+import circle from '../../primitive/circle';
+import { IGeometry } from '../../primitive/define';
+import quad from '../../primitive/quad';
+import { scale, translate } from '../../primitive/transform';
+import { setupClearMaskMaterial, setupMaskMaterial } from '../assembler/mask-assembler';
+import { MeshBuffer } from '../mesh-buffer';
 import { UIRenderComponent } from './ui-render-component';
 import { UITransformComponent } from './ui-transfrom-component';
-const renderEngine = require('../../../2d/renderer/render-engine');
-const math = renderEngine.math;
-const StencilMaterial = renderEngine.StencilMaterial;
-// const RenderFlow = require('../../../2d/renderer/render-flow');
-const Graphics = require('../../../2d/graphics/graphics');
-
-const _vec2_temp = cc.v2();
-const _mat4_temp = math.mat4.create();
 
 /**
  * !#en the type for mask.
@@ -112,18 +113,10 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     public set spriteFrame (value) {
-        const lastSprite = this._spriteFrame;
-        if (CC_EDITOR) {
-            if ((lastSprite && lastSprite._uuid) === (value && value._uuid)) {
-                return;
-            }
-        } else {
-            if (lastSprite === value) {
-                return;
-            }
+        if (this._spriteFrame === value) {
+            return;
         }
-        this._spriteFrame = value;
-        this._applySpriteFrame(lastSprite);
+        this._applySpriteFrame(value);
     }
 
     /**
@@ -149,14 +142,6 @@ export class MaskComponent extends UIRenderComponent {
 
     public set alphaThreshold (value) {
         this._alphaThreshold = value;
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            cc.warnID(4201);
-            return;
-        }
-        if (this._material) {
-            this._material.alphaThreshold = this.alphaThreshold;
-            this._material.updateHash();
-        }
     }
 
     /**
@@ -189,15 +174,6 @@ export class MaskComponent extends UIRenderComponent {
         this._segments = clamp(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
     }
 
-    // _resizeToTarget: {
-    //     animatable: false,
-    //     set (value) {
-    //         if (value) {
-    //             this._resizeNodeToTargetNode();
-    //         }
-    //     },
-    // },
-
     @property
     private _spriteFrame: SpriteFrame | null = null;
 
@@ -213,68 +189,35 @@ export class MaskComponent extends UIRenderComponent {
     @property
     private _segments: number = 64;
 
-    private _graphics: Graphics | null = null;
+    private _maskMaterial: Material | null = null;
 
-    private _material: StencilMaterial | null = null;
+    private _clearMaskMaterial: Material | null = null;
+
+    private _maskGeometry: IGeometry | null = null;
 
     public onLoad () {
-        this._graphics = new Graphics();
-        this._graphics.node = this.node;
-        this._graphics.lineWidth = 0;
-        this._graphics.strokeColor = cc.color(0, 0, 0, 0);
-    }
-
-    public onRestore () {
-        if (!this._graphics) {
-            this._graphics = new Graphics();
-            this._graphics.node = this.node;
-            this._graphics.lineWidth = 0;
-        }
-        if (this._type !== MaskType.IMAGE_STENCIL) {
-            this._updateGraphics();
-        }
+        this._activateMaterial();
     }
 
     public onEnable () {
         super.onEnable();
-        if (this._type === MaskType.IMAGE_STENCIL) {
-            if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
-                // Do not render when sprite frame is not ready
-                this.markForRender(false);
-                if (this._spriteFrame) {
-                    this._spriteFrame.once('load', this._onTextureLoaded, this);
-                    this._spriteFrame.ensureLoadTexture();
-                }
-            }
-        } else {
-            this._updateGraphics();
-        }
-
-        this.node.on(Node.EventType.POSITION_CHANGED, this._updateGraphics, this);
-        this.node.on(Node.EventType.ROTATION_CHANGED, this._updateGraphics, this);
-        this.node.on(Node.EventType.SCALE_CHANGED, this._updateGraphics, this);
-        this.node.on(Node.EventType.SIZE_CHANGED, this._updateGraphics, this);
-        this.node.on(Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
-
-        // this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER;
         this._activateMaterial();
     }
 
     public onDisable () {
         super.onDisable();
 
-        this.node.off(Node.EventType.POSITION_CHANGED, this._updateGraphics, this);
-        this.node.off(Node.EventType.ROTATION_CHANGED, this._updateGraphics, this);
-        this.node.off(Node.EventType.SCALE_CHANGED, this._updateGraphics, this);
-        this.node.off(Node.EventType.SIZE_CHANGED, this._updateGraphics, this);
-        this.node.off(Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
+        // this.node.off(Node.EventType.POSITION_CHANGED, this._updateGraphics, this);
+        // this.node.off(Node.EventType.ROTATION_CHANGED, this._updateGraphics, this);
+        // this.node.off(Node.EventType.SCALE_CHANGED, this._updateGraphics, this);
+        // this.node.off(Node.EventType.SIZE_CHANGED, this._updateGraphics, this);
+        // this.node.off(Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
 
         // this.node._renderFlag &= ~RenderFlow.FLAG_POST_RENDER;
     }
 
     public onDestroy () {
         super.onDestroy();
-        this._graphics.destroy();
     }
 
     // _resizeNodeToTargetNode: CC_EDITOR && function () {
@@ -289,7 +232,6 @@ export class MaskComponent extends UIRenderComponent {
         if (this._renderData) {
             this._renderData.uvDirty = true;
             this._renderData.vertDirty = true;
-            this.markForUpdateRenderData(true);
         }
         // Reactivate material
         if (this.enabledInHierarchy) {
@@ -313,106 +255,110 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     public _activateMaterial () {
-        // cannot be activated if texture not loaded yet
-        if (this._type === MaskType.IMAGE_STENCIL && (!this.spriteFrame || !this.spriteFrame.textureLoaded())) {
-            this.markForRender(false);
-            return;
+        if (!this._maskMaterial) {
+            this._maskMaterial = Material.getInstantiatedMaterial(cc.BuiltinResMgr['sprite-material'], this);
+            setupMaskMaterial(this._maskMaterial);
         }
 
-        // WebGL
-        if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
-            // Init material
-            if (!this._material) {
-                this._material = new StencilMaterial();
-            }
-
-            // Reset material
-            if (this._type === MaskType.IMAGE_STENCIL) {
-                const texture = this._spriteFrame;
-                this._material.useModel = false;
-                this._material.useTexture = true;
-                this._material.useColor = true;
-                this._material.texture = texture;
-                this._material.alphaThreshold = this.alphaThreshold;
-            } else {
-                this._material.useModel = true;
-                this._material.useTexture = false;
-                this._material.useColor = false;
-            }
-        }
-
-        this.markForRender(true);
-    }
-
-    public _updateGraphics () {
-        const node = this.node;
-        const graphics = this._graphics;
-        // Share render data with graphics content
-        graphics.clear(false);
-        const width = node._contentSize.width;
-        const height = node._contentSize.height;
-        const x = -width * node._anchorPoint.x;
-        const y = -height * node._anchorPoint.y;
-        if (this._type === MaskType.RECT) {
-            graphics.rect(x, y, width, height);
-        } else if (this._type === MaskType.ELLIPSE) {
-            const cx = x + width / 2;
-            const cy = y + height / 2;
-            const rx = width / 2;
-            const ry = height / 2;
-            graphics.ellipse(cx, cy, rx, ry);
-        }
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            graphics.stroke();
-        } else {
-            graphics.fill();
+        if (!this._clearMaskMaterial) {
+            this._clearMaskMaterial = Material.getInstantiatedMaterial(cc.BuiltinResMgr['sprite-material'], this);
+            setupClearMaskMaterial(this._clearMaskMaterial);
         }
     }
 
-    public _hitTest (cameraPt) {
-        const node = this.node;
-        const size = node.getContentSize();
-        const w = size.width;
-        const h = size.height;
-        const testPt = _vec2_temp;
+    public _createRenderData (ui: UI) {
+        if (!this._maskGeometry || !this._maskMaterial || !this._clearMaskMaterial) {
+            return null;
+        }
 
-        node._updateWorldMatrix();
-        math.mat4.invert(_mat4_temp, node._worldMatrix);
-        math.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
-        testPt.x += node._anchorPoint.x * w;
-        testPt.y += node._anchorPoint.y * h;
+        const maskMeshBuffer = this._createMeshBuffer(ui, this._maskGeometry);
+        this._fillMaskMeshBuffer(maskMeshBuffer, this._maskGeometry);
+        const maskRenderData = ui.createUIRenderData() as IUIRenderData;
+        maskRenderData.meshBuffer = maskMeshBuffer;
+        maskRenderData.material = this._maskMaterial;
 
-        if (this.type === MaskType.RECT || this.type === MaskType.IMAGE_STENCIL) {
-            return testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
-        } else if (this.type === MaskType.ELLIPSE) {
-            const rx = w / 2;
-            const ry = h / 2;
-            const px = testPt.x - 0.5 * w;
-            const py = testPt.y - 0.5 * h;
-            return px * px / (rx * rx) + py * py / (ry * ry) < 1;
+        const clearMaskGeometry = this._drawRect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+        const clearMaskMeshBuffer = this._createMeshBuffer(ui, clearMaskGeometry);
+        this._fillClearMaskMeshBuffer(clearMaskMeshBuffer, clearMaskGeometry);
+        const clearMaskRenderData = ui.createUIRenderData() as IUIRenderData;
+        clearMaskRenderData.meshBuffer = clearMaskMeshBuffer;
+        clearMaskRenderData.material = this._clearMaskMaterial;
+    }
+
+    public _getMaskMaterial (): Material | null {
+        return this._maskMaterial;
+    }
+
+    public _getClearMaterial (): Material | null {
+        return this._clearMaskMaterial;
+    }
+
+    private _updateGraphics () {
+        this._maskGeometry = this._getGraphics();
+    }
+
+    private _getGraphics () {
+        const uiTransform = this.node.getComponent(UITransformComponent);
+        if (!uiTransform) {
+            return null;
+        }
+        const width = uiTransform.width;
+        const height = uiTransform.height;
+        const x = -width * uiTransform.anchorPoint.x;
+        const y = -height * uiTransform.anchorPoint.y;
+        switch (this._type) {
+            case MaskType.RECT:
+            case MaskType.IMAGE_STENCIL:
+                return this._drawRect(x, y, width, height);
+            case MaskType.ELLIPSE:
+                const cx = x + width / 2;
+                const cy = y + height / 2;
+                const rx = width / 2;
+                const ry = height / 2;
+                return this._drawEllipse(cx, cy, rx, ry);
+        }
+        return null;
+    }
+
+    private _fillMaskMeshBuffer (meshBuffer: MeshBuffer, geometry: IGeometry) {
+        const nVert = Math.floor(geometry.positions.length / 3);
+        const v = new vec3();
+        const worldMatrix = this.node.getWorldMatrix();
+        for (let i = 0; i < nVert; ++i) {
+            vec3.set(v, geometry.positions[3 * i + 0], geometry.positions[3 * i + 1], geometry.positions[3 * i + 2]);
+            vec3.transformMat4(v, v, worldMatrix);
+            meshBuffer.vData![3 * i + 0] = v.x;
+            meshBuffer.vData![3 * i + 1] = v.y;
+            meshBuffer.vData![3 * i + 2] = v.z;
         }
     }
 
-    public markForUpdateRenderData (enable) {
-        // if (enable && this.enabledInHierarchy) {
-        //     this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        // } else if (!enable) {
-        //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        // }
+    private _fillClearMaskMeshBuffer (meshBuffer: MeshBuffer, geometry: IGeometry) {
+        meshBuffer.vData!.set(geometry.positions);
     }
 
-    public markForRender (enable) {
-        // if (enable && this.enabledInHierarchy) {
-        //     this.node._renderFlag |= (RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA |
-        //         RenderFlow.FLAG_POST_RENDER);
-        // } else if (!enable) {
-        //     this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_POST_RENDER);
-        // }
+    private _createMeshBuffer (ui: UI, geometry: IGeometry) {
+        const nVert = Math.floor(geometry.positions.length / 3);
+        const meshBuffer =  ui.createBuffer(nVert, geometry.indices ? geometry.indices.length : 0);
+        if (geometry.indices) {
+            meshBuffer.iData!.set(geometry.indices);
+        }
+        // geometry.primitiveMode === undefined ? GFXPrimitiveMode.TRIANGLE_LIST : geometry.primitiveMode;
+        return meshBuffer;
     }
 
-    public disableRender () {
-        // this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA |
-        //     RenderFlow.FLAG_POST_RENDER);
+    private _drawRect (x: number, y: number, width: number, height: number) {
+        const geometry = quad({ includeNormal: false, includeUV: false });
+        scale(geometry, { x: width, y: height });
+        translate(geometry, { x: x + width / 2, y: y + height / 2 });
+        return geometry;
+    }
+
+    private _drawEllipse (cx: number, cy: number, rx: number, ry: number) {
+        const geometry = circle({ includeNormal: false, includeUV: false });
+        scale(geometry, { x: rx, y: ry });
+        translate(geometry, { x: cx, y: cy });
+        return geometry;
     }
 }
 
