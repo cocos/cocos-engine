@@ -99,11 +99,11 @@ export class RenderableComponent extends Component {
         this._onMaterialModified(index, material);
     }
 
-    public _onMaterialModified (index: number, material: Material | null) {
+    protected _onMaterialModified (index: number, material: Material | null) {
 
     }
 
-    public _clearMaterials () {
+    private _clearMaterials () {
 
     }
 }

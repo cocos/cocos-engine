@@ -293,6 +293,7 @@ export interface IGeometricInfo {
 export interface IRenderingSubmesh {
     vertexBuffers: GFXBuffer[];
     indexBuffer: GFXBuffer;
+    indirectBuffer?: GFXBuffer;
     attributes: IGFXInputAttribute[];
     primitiveMode: GFXPrimitiveMode;
     geometricInfo?: IGeometricInfo;
