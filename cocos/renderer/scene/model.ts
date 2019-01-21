@@ -95,9 +95,9 @@ export class Model {
     }
 
     public _updateTransform () {
-        if (!this._node.hasChanged) {
+        if (this._node.hasChanged) {
             this._node.updateWorldTransformFull();
-            if (!this._modelBounds) {
+            if (this._modelBounds) {
 
                 this._modelBounds.transform(
                     // @ts-ignore
