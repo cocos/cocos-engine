@@ -28,7 +28,7 @@ import { CCObject } from '../core/data/object';
 import { getClassName, value } from '../core/utils/js';
 import IDGenerator from '../core/utils/id-generator';
 import { ccclass, property } from '../core/data/class-decorator';
-import { Node } from '../scene-graph/node';
+import { Node } from '../scene-graph';
 import { RenderScene } from '../renderer/scene/render-scene';
 
 export class Component extends CCObject {
