@@ -32,6 +32,7 @@ import { Vec2, Enum } from '../../../core/value-types';
 import { MeshBuffer } from '../mesh-buffer';
 import { UIRenderComponent } from './ui-render-component';
 import { Node } from '../../../scene-graph/node';
+import { UI } from '../../../renderer/ui/ui';
 const EventType = Node.EventType;
 
 /**
@@ -399,11 +400,11 @@ export class SpriteComponent extends UIRenderComponent {
         // this.node.on(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
     }
 
-    public updateAssembler (buffer: MeshBuffer) {
+    public updateAssembler (render: UI) {
         if (!this._spriteFrame || !this.material) {
             return;
         }
-        super.updateAssembler(buffer);
+        super.updateAssembler(render);
     }
 
     public onDestroy () {

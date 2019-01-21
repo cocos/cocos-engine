@@ -56,7 +56,7 @@ export const ttf: IAssembler = {
     },
 
     fillBuffers (comp: LabelComponent, /*renderer*/buffer: MeshBuffer) {
-        fillMeshVertices3D(comp.node, /*renderer._quadBuffer3D*/buffer, comp._renderData, WHITE._val);
+        fillMeshVertices3D(comp.node, /*renderer._quadBuffer3D*/buffer, comp.renderData, WHITE);
     },
 
     updateVerts (comp: LabelComponent) {

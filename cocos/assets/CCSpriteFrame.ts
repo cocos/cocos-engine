@@ -234,8 +234,8 @@ export class SpriteFrame extends Texture2D {
 
         this._capInsets[INSET_BOTTOM] = 0;
         this._capInsets[INSET_LEFT] = 0;
-        this._capInsets[INSET_RIGHT] = 1;
-        this._capInsets[INSET_TOP] = 1;
+        this._capInsets[INSET_RIGHT] = 0;
+        this._capInsets[INSET_TOP] = 0;
 
         if (CC_EDITOR) {
             // Atlas asset uuid

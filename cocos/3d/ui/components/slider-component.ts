@@ -27,11 +27,12 @@
 import { Component} from '../../../components/component';
 import { clamp01 } from '../../../core/utils/misc';
 import { ccclass, menu, executionOrder, executeInEditMode, property } from '../../../core/data/class-decorator';
-import SpriteComponent from './sprite-component';
+import { SpriteComponent} from './sprite-component';
 import { Vec2 } from '../../../core/value-types/index';
 import ComponentEventHandler from '../../../components/CCComponentEventHandler';
 import Event from '../../../core/event/event';
 import { EventTouch } from '../../../core/platform/event-manager/CCEvent';
+import { UITransformComponent } from './ui-transfrom-component';
 /**
  * !#en The Slider Direction
  * !#zh 滑动器方向
@@ -62,7 +63,7 @@ var Direction = cc.Enum({
 @executionOrder(100)
 @menu('UI/Slider')
 // @executeInEditMode
-export default class SliderComponent extends Component {
+export class SliderComponent extends Component {
     @property
     _handle: SpriteComponent | null = null;
     @property
@@ -72,7 +73,7 @@ export default class SliderComponent extends Component {
     @property
     _slideEvents: ComponentEventHandler[] = [];
 
-    _offset: Vec2 = cc.v2();
+    _offset: Vec2 = new Vec2();
     _dragging = false;
     _touchHandle = false;
 
@@ -186,38 +187,42 @@ export default class SliderComponent extends Component {
         }
     }
 
-    _onHandleDragStart(event: Event | null) {
+    _onHandleDragStart(event: Event) {
+        if (!event){
+            return;
+        }
+
         this._dragging = true;
         this._touchHandle = true;
-        this._offset = this._handle.node.convertToNodeSpaceAR(event.touch.getLocation());
+        this._offset = this._handle && this._handle.node.uiTransfromComp && this._handle.node.uiTransfromComp.convertToNodeSpaceAR((event as EventTouch).touch.getLocation());
 
         event.stopPropagation();
     }
 
-    _onTouchBegan(event: Event | null) {
+    _onTouchBegan(event: Event) {
         if (!this._handle) { return; }
         this._dragging = true;
         if (!this._touchHandle) {
-            this._handleSliderLogic(event.touch);
+            this._handleSliderLogic((event as EventTouch).touch);
         }
 
         event.stopPropagation();
     }
 
-    _onTouchMoved(event: Event | null) {
+    _onTouchMoved(event: Event) {
         if (!this._dragging) { return; }
-        this._handleSliderLogic(event.touch);
+        this._handleSliderLogic((event as EventTouch).touch);
         event.stopPropagation();
     }
 
-    _onTouchEnded(event: Event | null) {
+    _onTouchEnded(event: Event) {
         this._dragging = false;
         this._touchHandle = false;
         this._offset = cc.v2();
         event.stopPropagation();
     }
 
-    _onTouchCancelled(event: Event | null) {
+    _onTouchCancelled(event: Event) {
         this._dragging = false;
         event.stopPropagation();
     }
@@ -232,9 +237,9 @@ export default class SliderComponent extends Component {
         this.node.emit('slide', this);
     }
 
-    _updateProgress(touch: EventTouch | null) {
+    _updateProgress(touch: EventTouch) {
         if (!this._handle) { return; }
-        var localTouchPos = this.node.convertToNodeSpaceAR(touch.getLocation());
+        var localTouchPos = this.node.uiTransfromComp!.convertToNodeSpaceAR((touch as EventTouch).getLocation());
         if (this.direction === Direction.Horizontal) {
             this.progress = clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width);
         }
@@ -252,8 +257,11 @@ export default class SliderComponent extends Component {
         else {
             handlelocalPos = cc.v2(0, -this.node.height * this.node.anchorY + this.progress * this.node.height);
         }
-        var worldSpacePos = this.node.convertToWorldSpaceAR(handlelocalPos);
-        this._handle.node.setPosition(this._handle.node.parent.convertToNodeSpaceAR(worldSpacePos));
+        var worldSpacePos = this.node.uiTransfromComp!.convertToWorldSpaceAR(handlelocalPos);
+        let transform: UITransformComponent | null = this._handle.node.parent && this._handle.node.parent.getComponent(cc.UITransformComponent);
+        if(transform){
+            this._handle.node.setPosition(transform.convertToNodeSpaceAR(worldSpacePos));
+        }
     }
 }
 

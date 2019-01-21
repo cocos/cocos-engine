@@ -27,7 +27,7 @@
 import { Component} from '../../../components/component';
 import { clamp01 } from '../../../core/utils/misc';
 import { ccclass, menu, executionOrder, executeInEditMode, property } from '../../../core/data/class-decorator';
-import SpriteComponent from './sprite-component';
+import { SpriteComponent } from './sprite-component';
 
 
 /**
@@ -83,7 +83,7 @@ var Mode = cc.Enum({
 @executionOrder(100)
 @menu('UI/ProgressBar')
 // @executeInEditMode
-export default class ProgressBarComponent extends Component {
+export class ProgressBarComponent extends Component {
     @property
     _barSprite: SpriteComponent | null = null;
     @property
@@ -300,7 +300,7 @@ export default class ProgressBarComponent extends Component {
                     var anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
                     var finalPosition = cc.v2(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
 
-                    entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y);
+                    entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y, entity.getPosition().z);
 
                     entity.setAnchorPoint(anchorPoint);
                     entity.setContentSize(finalContentSize);

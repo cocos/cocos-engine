@@ -268,8 +268,6 @@ export class UIRenderComponent extends RenderableComponent {
             this._assembler.updateRenderData(this);
         }
         this._assembler.fillBuffers(this, render);
-
-        return this._assembler.getRenderBuffers();
     }
 
     public postUpdateAssembler () {
