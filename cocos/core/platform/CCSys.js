@@ -1022,10 +1022,13 @@ else {
 
     try {
         if (__audioSupport.WEB_AUDIO) {
-            __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
-            if(__audioSupport.DELAY_CREATE_CTX) {
-                setTimeout(function(){ __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
-            }
+            __audioSupport._context = null;
+            Object.defineProperty(__audioSupport, 'context', {
+                get () {
+                    if (this._context) return this._context;
+                    return this._context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
+                }
+            });
         }
     } catch(error) {
         __audioSupport.WEB_AUDIO = false;

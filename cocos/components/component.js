@@ -28,6 +28,7 @@ import { CCObject } from '../core/data/object';
 import {getClassName, value} from '../core/utils/js';
 import IDGenerator from '../core/utils/id-generator';
 import {ccclass, property} from '../core/data/class-decorator';
+import {Script} from '../assets';
 
 let idGenerator = new IDGenerator('Comp');
 const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
@@ -102,7 +103,7 @@ class Component extends CCObject {
 
     @property({
         displayName: 'Script',
-        type: cc._Script,
+        type: Script,
         tooltip: CC_DEV && 'i18n:INSPECTOR.component.script'
     })
     get __scriptAsset () { return null; }

@@ -82,7 +82,7 @@
         bodyModel.material.setProperty('color', color);
         bodyModel.material.overridePipelineStates({ primitive: cc.GFXPrimitiveMode.LINE_LIST });
         return arrow;
-      }
+      };
       const createBorderPlane = (color, position, rotation) => {
         const borderPlane = new cc.Node('borderPlane');
         borderPlane.setPosition(position);
@@ -112,7 +112,7 @@
         borderModel.material.setProperty('color', color);
         borderModel.material.overridePipelineStates({ primitive: cc.GFXPrimitiveMode.LINE_LIST });
         return borderPlane;
-      }
+      };
 
       const moveTool = new cc.Node('moveTool');
       moveTool.parent = scene;
@@ -125,7 +125,7 @@
 
       let vel = cc.v3(), speed = 0.1;
       canv.addEventListener('keydown', (e) => {
-        if (e.key === 'i')      vel.z =  speed;
+        if      (e.key === 'i') vel.z =  speed;
         else if (e.key === 'k') vel.z = -speed;
         else if (e.key === 'j') vel.x =  speed;
         else if (e.key === 'l') vel.x = -speed;
@@ -133,7 +133,7 @@
         else if (e.key === 'u') vel.y = -speed;
       });
       canv.addEventListener('keyup', (e) => {
-        if (e.key === 'i')      vel.z = 0;
+        if      (e.key === 'i') vel.z = 0;
         else if (e.key === 'k') vel.z = 0;
         else if (e.key === 'j') vel.x = 0;
         else if (e.key === 'l') vel.x = 0;

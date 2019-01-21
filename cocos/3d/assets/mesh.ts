@@ -374,7 +374,10 @@ export class Mesh extends Asset {
     }
 
     @property
-    private _struct: IMeshStruct;
+    private _struct: IMeshStruct = {
+        vertexBundles: [],
+        primitives: [],
+    };
 
     private _data: Uint8Array | null = null;
 
@@ -384,11 +387,6 @@ export class Mesh extends Asset {
 
     constructor () {
         super();
-
-        this._struct = {
-            vertexBundles: [],
-            primitives: [],
-        };
     }
 
     /**
