@@ -37,7 +37,9 @@ let _nodeR, _nodeG, _nodeB, _nodeA,
     _renderer, _comp,
     _vfOffset, _indexOffset, _vertexOffset,
     _vertexCount, _indexCount,
-    _x, _y, _c, _r, _g, _b, _a, _handleVal;
+    _x, _y, _c, _r, _g, _b, _a, _handleVal,
+    _m00, _m04, _m12,
+    _m01, _m05, _m13;
 
 function _getSlotMaterial (tex, blendMode) {
     if(!tex)return null;
@@ -166,12 +168,19 @@ let armatureAssembler = {
             ibuf = _buffer._iData;
             uintbuf = _buffer._uintVData;
 
+            _m00 = slotMat.m00;
+            _m04 = slotMat.m04;
+            _m12 = slotMat.m12;
+            _m01 = slotMat.m01;
+            _m05 = slotMat.m05;
+            _m13 = slotMat.m13;
+
             for (let vi = 0, vl = vertices.length; vi < vl;) {
                 _x = vertices[vi++]; 
                 _y = vertices[vi++];
 
-                vbuf[_vfOffset++] = _x * slotMat.m00 + _y * slotMat.m04 + slotMat.m12; // x
-                vbuf[_vfOffset++] = _x * slotMat.m01 + _y * slotMat.m05 + slotMat.m13; // y
+                vbuf[_vfOffset++] = _x * _m00 + _y * _m04 + _m12; // x
+                vbuf[_vfOffset++] = _x * _m01 + _y * _m05 + _m13; // y
 
                 vbuf[_vfOffset++] = vertices[vi++]; // u
                 vbuf[_vfOffset++] = vertices[vi++]; // v
@@ -195,8 +204,14 @@ let armatureAssembler = {
         let uintVert = frame.uintVert;
         let segments = frame.segments;
         let frameVFOffset = 0, frameIndexOffset = 0, segVFCount = 0;
-        let m00 = parentMat.m00, m04 = parentMat.m04, m12 = parentMat.m12;
-        let m01 = parentMat.m01, m05 = parentMat.m05, m13 = parentMat.m13; 
+        if (parentMat) {
+            _m00 = parentMat.m00;
+            _m04 = parentMat.m04;
+            _m12 = parentMat.m12;
+            _m01 = parentMat.m01;
+            _m05 = parentMat.m05;
+            _m13 = parentMat.m13;
+        }
 
         let colorOffset = 0;
         let colors = frame.colors;
@@ -242,8 +257,8 @@ let armatureAssembler = {
                     for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il;) {
                         _x = vertices[frameVFOffset++];
                         _y = vertices[frameVFOffset++];
-                        vbuf[ii++] = _x * m00 + _y * m04 + m12; // x
-                        vbuf[ii++] = _x * m01 + _y * m05 + m13; // y
+                        vbuf[ii++] = _x * _m00 + _y * _m04 + _m12; // x
+                        vbuf[ii++] = _x * _m01 + _y * _m05 + _m13; // y
                         vbuf[ii++] = vertices[frameVFOffset++];
                         vbuf[ii++] = vertices[frameVFOffset++];
                         uintbuf[ii++] = uintVert[frameVFOffset++];
