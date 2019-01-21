@@ -35,7 +35,7 @@ export class CachedArray<T> {
             for (let i = 0; i < this._capacity; ++i) {
                 this.array[i] = temp[i];
             }
-            this._capacity = length;
+            this._capacity = this.length;
         }
 
         this.array[this.length++] = item;

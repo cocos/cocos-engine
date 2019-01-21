@@ -264,6 +264,19 @@ export class UI {
     }
 
     private render () {
+        /*
+        const framebuffer = this._root.curWindow!.framebuffer;
+        const cmdBuff = this._cmdBuff!;
+
+        cmdBuff.begin();
+        cmdBuff.beginRenderPass(framebuffer, this._renderArea,
+            [{r: 1, g: 1, b: 1, a: 1}], 1.0, 0);
+
+        cmdBuff.end();
+
+        this._device.queue.submit([cmdBuff]);
+        */
+
         if (this._items.length) {
             const framebuffer = this._root.curWindow!.framebuffer;
             const cmdBuff = this._cmdBuff!;

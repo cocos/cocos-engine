@@ -11,41 +11,51 @@ import {
 
 export class WebGLGFXCommandPool<T> {
 
-    private _frees: Array<T|null>;
-    private _freeIdx: number = 0;
+    private _count = 0;
+    private _data: T[];
+    private _objIdx: Map<T, number>;
 
     constructor (clazz: new() => T, count: number) {
-        this._frees = new Array(count);
+        this._data = new Array(count);
+        this._objIdx = new Map<T, number>();
+
         for (let i = 0; i < count; ++i) {
-            this._frees[i] = new clazz();
+            this._data[i] = new clazz();
+            this._objIdx.set(this._data[i], i);
         }
-
-        this._freeIdx = count - 1;
     }
 
-    public alloc (clazz: new() => T): T | null {
-
-        if (this._freeIdx < 0) {
-            const size = this._frees.length * 2;
-            const temp = this._frees;
-            this._frees = new Array<T>(size);
-
-            const increase = size - temp.length;
-            for (let i = 0; i < increase; ++i) {
-                this._frees[i] = new clazz();
+    public alloc (clazz: new() => T): T {
+        if (this._count >= this._data.length) {
+            if (this._data.length * 2 > this._data.length) {
+                for (let i = this._data.length; i < this._data.length * 2; ++i) {
+                    this._data[i] = new clazz();
+                }
             }
-
-            this._freeIdx += increase;
         }
 
-        const item = this._frees[this._freeIdx];
-        this._frees[this._freeIdx--] = null;
-
-        return item;
+        return this._data[this._count++];
     }
 
-    public free (cmd: T) {
-        this._frees[++this._freeIdx] = cmd;
+    public freeAt (idx: number) {
+        if (idx >= this._count) {
+            return;
+        }
+
+        const last = this._count - 1;
+        const tmp = this._data[idx];
+        this._data[idx] = this._data[last];
+        this._data[last] = tmp;
+        this._objIdx.set(this._data[idx], idx);
+        this._objIdx.set(this._data[last], last);
+        this._count -= 1;
+    }
+
+    public free (obj: T) {
+        const idx = this._objIdx.get(obj);
+        if (idx !== undefined) {
+            this.freeAt(idx);
+        }
     }
 }
 
