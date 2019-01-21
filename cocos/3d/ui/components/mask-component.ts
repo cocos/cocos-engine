@@ -27,17 +27,13 @@ import {SpriteFrame} from '../../../assets/CCSpriteFrame';
 import { ccclass, executeInEditMode, executionOrder,
     menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { ccenum } from '../../../core/value-types/enum';
-import { clamp, vec3 } from '../../../core/vmath';
-import { GFXPrimitiveMode } from '../../../gfx/define';
-import { IUIRenderData, UI } from '../../../renderer/ui/ui';
-import { Node } from '../../../scene-graph/node';
+import { clamp } from '../../../core/vmath';
 import { Material } from '../../assets/material';
 import circle from '../../primitive/circle';
 import { IGeometry } from '../../primitive/define';
 import quad from '../../primitive/quad';
 import { scale, translate } from '../../primitive/transform';
 import { setupClearMaskMaterial, setupMaskMaterial } from '../assembler/mask-assembler';
-import { MeshBuffer } from '../mesh-buffer';
 import { UIRenderComponent } from './ui-render-component';
 import { UITransformComponent } from './ui-transfrom-component';
 
@@ -195,6 +191,8 @@ export class MaskComponent extends UIRenderComponent {
 
     private _maskGeometry: IGeometry | null = null;
 
+    private _clearGeometry: IGeometry | null = null;
+
     public onLoad () {
         this._activateMaterial();
     }
@@ -266,23 +264,12 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
-    public _createRenderData (ui: UI) {
-        if (!this._maskGeometry || !this._maskMaterial || !this._clearMaskMaterial) {
-            return null;
-        }
+    public _getMaskGeometry () {
+        return this._maskGeometry;
+    }
 
-        const maskMeshBuffer = this._createMeshBuffer(ui, this._maskGeometry);
-        this._fillMaskMeshBuffer(maskMeshBuffer, this._maskGeometry);
-        const maskRenderData = ui.createUIRenderData() as IUIRenderData;
-        maskRenderData.meshBuffer = maskMeshBuffer;
-        maskRenderData.material = this._maskMaterial;
-
-        const clearMaskGeometry = this._drawRect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
-        const clearMaskMeshBuffer = this._createMeshBuffer(ui, clearMaskGeometry);
-        this._fillClearMaskMeshBuffer(clearMaskMeshBuffer, clearMaskGeometry);
-        const clearMaskRenderData = ui.createUIRenderData() as IUIRenderData;
-        clearMaskRenderData.meshBuffer = clearMaskMeshBuffer;
-        clearMaskRenderData.material = this._clearMaskMaterial;
+    public _getClearGeometry () {
+        return this._clearGeometry;
     }
 
     public _getMaskMaterial (): Material | null {
@@ -295,6 +282,8 @@ export class MaskComponent extends UIRenderComponent {
 
     private _updateGraphics () {
         this._maskGeometry = this._getGraphics();
+        this._clearGeometry = this._drawRect(
+            0, 0, cc.visibleRect.width, cc.visibleRect.height);
     }
 
     private _getGraphics () {
@@ -318,33 +307,6 @@ export class MaskComponent extends UIRenderComponent {
                 return this._drawEllipse(cx, cy, rx, ry);
         }
         return null;
-    }
-
-    private _fillMaskMeshBuffer (meshBuffer: MeshBuffer, geometry: IGeometry) {
-        const nVert = Math.floor(geometry.positions.length / 3);
-        const v = new vec3();
-        const worldMatrix = this.node.getWorldMatrix();
-        for (let i = 0; i < nVert; ++i) {
-            vec3.set(v, geometry.positions[3 * i + 0], geometry.positions[3 * i + 1], geometry.positions[3 * i + 2]);
-            vec3.transformMat4(v, v, worldMatrix);
-            meshBuffer.vData![3 * i + 0] = v.x;
-            meshBuffer.vData![3 * i + 1] = v.y;
-            meshBuffer.vData![3 * i + 2] = v.z;
-        }
-    }
-
-    private _fillClearMaskMeshBuffer (meshBuffer: MeshBuffer, geometry: IGeometry) {
-        meshBuffer.vData!.set(geometry.positions);
-    }
-
-    private _createMeshBuffer (ui: UI, geometry: IGeometry) {
-        const nVert = Math.floor(geometry.positions.length / 3);
-        const meshBuffer =  ui.createBuffer(nVert, geometry.indices ? geometry.indices.length : 0);
-        if (geometry.indices) {
-            meshBuffer.iData!.set(geometry.indices);
-        }
-        // geometry.primitiveMode === undefined ? GFXPrimitiveMode.TRIANGLE_LIST : geometry.primitiveMode;
-        return meshBuffer;
     }
 
     private _drawRect (x: number, y: number, width: number, height: number) {

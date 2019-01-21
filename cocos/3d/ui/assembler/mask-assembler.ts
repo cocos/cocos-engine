@@ -23,11 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { vec3 } from '../../../core/vmath';
 import { GFXComparisonFunc, GFXStencilOp } from '../../../gfx/define';
-import { UI } from '../../../renderer/ui/ui';
+import { IUIRenderData, UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets/material';
+import { IGeometry } from '../../primitive/define';
 import { MaskComponent } from '../components/mask-component';
-import { MeshBuffer } from '../mesh-buffer';
 import { IAssembler } from './assembler';
 
 interface IStencilState {
@@ -121,20 +122,46 @@ class StencilManager {
 const stencilManager = new StencilManager();
 
 export const maskAssembler: IAssembler = {
-    useModel : false,
-
-    updateRenderData (mask: MaskComponent) {
-    },
-
     fillBuffers (mask: MaskComponent, ui: UI) {
         stencilManager.enter(mask);
-        mask._createRenderData(ui);
+
+        const maskGeometry = mask._getMaskGeometry();
+        const maskMaterial = mask._getMaskMaterial();
+        if (maskGeometry && maskMaterial) {
+            const meshBuffer = createMeshBuffer(ui, maskGeometry);
+            const nVert = Math.floor(maskGeometry.positions.length / 3);
+            const v = new vec3();
+            const worldMatrix = mask.node.getWorldMatrix();
+            for (let i = 0; i < nVert; ++i) {
+                vec3.set(v,
+                    maskGeometry.positions[3 * i + 0],
+                    maskGeometry.positions[3 * i + 1],
+                    maskGeometry.positions[3 * i + 2]);
+                vec3.transformMat4(v, v, worldMatrix);
+                meshBuffer.vData![3 * i + 0] = v.x;
+                meshBuffer.vData![3 * i + 1] = v.y;
+                meshBuffer.vData![3 * i + 2] = v.z;
+            }
+            const maskRenderData = ui.createUIRenderData() as IUIRenderData;
+            maskRenderData.meshBuffer = meshBuffer;
+            maskRenderData.material = maskMaterial;
+        }
     },
 };
 
 export const maskEndAssembler: IAssembler = {
-    fillBuffers (mask: MaskComponent, meshBuffer: MeshBuffer) {
+    fillBuffers (mask: MaskComponent, ui: UI) {
         stencilManager.exit();
+
+        const clearGeometry = mask._getClearGeometry();
+        const clearMaterial = mask._getClearMaterial();
+        if (clearGeometry && clearMaterial) {
+            const meshBuffer = createMeshBuffer(ui, clearGeometry);
+            meshBuffer.vData!.set(clearGeometry.positions);
+            const clearMaskRenderData = ui.createUIRenderData() as IUIRenderData;
+            clearMaskRenderData.meshBuffer = meshBuffer;
+            clearMaskRenderData.material = clearMaterial;
+        }
     },
 };
 
@@ -172,4 +199,14 @@ export function setupMaskTargetMaterial (material: Material) {
         passOp: GFXStencilOp.KEEP,
         ref: 0,
     });
+}
+
+function createMeshBuffer (ui: UI, geometry: IGeometry) {
+    const nVert = Math.floor(geometry.positions.length / 3);
+    const meshBuffer =  ui.createBuffer(nVert, geometry.indices ? geometry.indices.length : 0);
+    if (geometry.indices) {
+        meshBuffer.iData!.set(geometry.indices);
+    }
+    // geometry.primitiveMode === undefined ? GFXPrimitiveMode.TRIANGLE_LIST : geometry.primitiveMode;
+    return meshBuffer;
 }
