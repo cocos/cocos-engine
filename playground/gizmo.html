@@ -52,14 +52,13 @@
       cameraNode.parent = scene;
       cameraNode.setPosition(20, 20, 20);
       cameraNode.lookAt(cc.v3());
-      // cameraNode.addComponent(FirstPersonCamera);
+      cameraNode.addComponent(FirstPersonCamera);
       const camComp = cameraNode.addComponent(cc.CameraComponent);
 
       const material = new cc.Material({
         effectName: 'builtin-effect-unlit',
         defines: { USE_COLOR: true },
       });
-
 
       const createArrow = (color, rotation) => {
         const arrow = new cc.Node('arrow');
@@ -143,7 +142,8 @@
       });
       cc.director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
         moveTool.setPosition(vec3.add(moveTool._lpos, moveTool._lpos, vel));
-      })
+      });
+      setInterval(()=> moveTool.active = !moveTool.active, 1000);
 
       cc.director.runSceneImmediate(scene);
     }
