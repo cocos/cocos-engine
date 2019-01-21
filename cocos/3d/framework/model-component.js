@@ -168,12 +168,13 @@ export class ModelComponent extends RenderableComponent {
     }
 
     onEnable() {
-        this._updateModels();
+        this._updateModels(true);
         this._updateCastShadow();
         this._updateReceiveShadow();
     }
 
     onDisable() {
+        this._getRenderScene().destroyModel(this._model);
     }
 
     onDestroy() {
