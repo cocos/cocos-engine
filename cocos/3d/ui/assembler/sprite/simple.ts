@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 import { vec3 } from '../../../../core/vmath/index';
-import { UIRenderComponent } from '../../components/ui-render-component';
 import { SpriteComponent } from '../../components/sprite-component';
 import { Vec3, Color } from '../../../../core/value-types';
 import { Node } from '../../../../scene-graph/node';

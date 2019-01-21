@@ -1,10 +1,10 @@
 import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import Event from '../../../core/platform/event-manager/CCEvent.js';
 import Size from '../../../core/value-types/size';
 import Vec2 from '../../../core/value-types/vec2';
 import * as math from '../../../core/vmath/index';
-import { Enum } from '../../../core/value-types';
+import { Enum, Mat4 } from '../../../core/value-types';
+import Event from '../../../core/event/event';
 
 const _vec2a = cc.v2();
 const _vec2b = cc.v2();
@@ -145,10 +145,11 @@ export class UITransformComponent extends Component {
      * node.setContentSize(cc.size(100, 100));
      * node.setContentSize(100, 100);
      */
-    public setContentSize (size: Size, height: number) {
+    public setContentSize (size: Size|number, height?: number) {
         const locContentSize = this._contentSize;
         // var clone;
         if (height === undefined) {
+            size = size as Size;
             if ((size.width === locContentSize.width) && (size.height === locContentSize.height)) {
                 return;
             }
@@ -197,9 +198,10 @@ export class UITransformComponent extends Component {
      * node.setAnchorPoint(cc.v2(1, 1));
      * node.setAnchorPoint(1, 1);
      */
-    public setAnchorPoint (point: Vec2, y: number) {
+    public setAnchorPoint (point: Vec2 | number, y?: number) {
         const locAnchorPoint = this._anchorPoint;
         if (y === undefined) {
+            point = point as Vec2;
             if ((point.x === locAnchorPoint.x) && (point.y === locAnchorPoint.y)) {
                 return;
             }
@@ -218,7 +220,7 @@ export class UITransformComponent extends Component {
         // }
     }
 
-    public isHit (point: Vec2, listener: Event) {
+    public isHit (point: Vec2, listener: Event|null = null) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const cameraPt = _vec2a;
@@ -271,7 +273,7 @@ export class UITransformComponent extends Component {
                 // find mask parent, should hit test it
                 if (parent === mask.node) {
                     const comp = parent.getComponent(cc.Mask);
-                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(cameraPt) : true;
+                    return (comp && comp.enabledInHierarchy) ? comp.node.uiTransfromComp!.isHit(cameraPt) : true;
                 } else {
                     listener.mask = null;
                     return true;
@@ -282,5 +284,41 @@ export class UITransformComponent extends Component {
         } else {
             return false;
         }
+    }
+
+    /**
+     * !#en
+     * Converts a Point to node (local) space coordinates in which the anchor point is the origin position.
+     * !#zh
+     * 将一个点转换到节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
+     * @method convertToNodeSpaceAR
+     * @param {Vec2} worldPoint
+     * @return {Vec2}
+     * @example
+     * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
+     */
+    convertToNodeSpaceAR(worldPoint) {
+        let matrix = new Mat4();
+        this.node.getWorldMatrix(matrix);
+        math.mat4.invert(_mat4_temp, matrix);
+        let out = new cc.Vec2();
+        return math.vec2.transformMat4(out, worldPoint, _mat4_temp);
+    }
+
+    /**
+     * !#en
+     * Converts a Point in node coordinates to world space coordinates.
+     * !#zh
+     * 将节点坐标系下的一个点转换到世界空间坐标系。
+     * @method convertToWorldSpaceAR
+     * @param {Vec2} nodePoint
+     * @return {Vec2}
+     * @example
+     * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
+     */
+    convertToWorldSpaceAR(nodePoint) {
+        this.node.getWorldMatrix(_worldMatrix);
+        let out = new cc.Vec2();
+        return math.vec2.transformMat4(out, nodePoint, _worldMatrix);
     }
 }

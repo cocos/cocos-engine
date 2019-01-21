@@ -25,7 +25,7 @@
  ****************************************************************************/
 import { Component} from '../../../components/component';
 import { ccclass, menu, executionOrder, executeInEditMode, property } from '../../../core/data/class-decorator';
-import ToggleComponent from './toggle-component';
+import { ToggleComponent} from './toggle-component';
 
 /**
  * !#en ToggleGroup is not a visiable UI component but a way to modify the behavior of a set of Toggles.
@@ -40,7 +40,7 @@ import ToggleComponent from './toggle-component';
 @executionOrder(100)
 @menu('UI/ToggleGroup')
 @executeInEditMode
-export default class ToggleGroupComponent extends Component {
+export class ToggleGroupComponent extends Component {
     @property
     _allowSwitchOff: boolean = false;
     _toggleItems: ToggleComponent[] = [];

@@ -76,6 +76,8 @@ let builtinResMgr = {
         spriteFrame.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         spriteFrame.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         spriteFrame._uuid = 'default-spriteframe';
+        spriteFrame.setOriginalSize(cc.size(canvasImage.width, canvasImage.height));
+        spriteFrame.setRect(0, 0, canvasImage.width, canvasImage.height);
         spriteFrame.image = canvasImage;
         if (spriteFrame.onLoaded) {
             spriteFrame.onLoaded();

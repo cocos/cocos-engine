@@ -80,6 +80,13 @@ export class MeshBuffer {
         this._vertexBytes = this.calculateBytes(this._vertexFormat);
         this._initVDataCount = data.vertexCount * this._vertexBytes;
         this._initIDataCount = data.indiceCount;
+        this.primitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
+        this.byteOffset = 0;
+        this.byteStart = 0;
+        this.indiceStart = 0;
+        this.indiceOffset = 0;
+        this.vertexStart = 0;
+        this.vertexOffset = 0;
         this._reallocBuffer();
     }
 
@@ -143,35 +150,45 @@ export class MeshBuffer {
     }
 
     public _reallocVData (copyOldData) {
-        let oldVData;
-        if (this.vData) {
-            oldVData = new Uint8Array(this.vData.buffer);
+        // let oldVData;
+        // if (this.vData) {
+        //     if (this._initVDataCount * 4 > this.vData.byteLength){
+        //         oldVData = new Uint8Array(this.vData.buffer);
+        //     }
+        // }
+
+        if (this.vData && this.vData.byteLength === this._initVDataCount){
+            return;
         }
 
         this.vData = new Float32Array(this._initVDataCount);
         // this.uintVData = new Uint32Array(this.vData.buffer);
-        const newData = new Uint8Array(this.vData.buffer);
+        // const newData = new Uint8Array(this.vData.buffer);
 
-        if (oldVData && copyOldData) {
-            for (let i = 0, l = oldVData.length; i < l; i++) {
-                newData[i] = oldVData[i];
-            }
-        }
+        // if (oldVData && copyOldData) {
+        //     for (let i = 0, l = oldVData.length; i < l; i++) {
+        //         newData[i] = oldVData[i];
+        //     }
+        // }
 
         // this._vb._bytes = this.vData.byteLength;
     }
 
     public _reallocIData (copyOldData) {
-        const oldIData = this.iData;
+        // const oldIData = this.iData;
+
+        if (this.iData && this.iData.byteLength === this._initIDataCount) {
+            return;
+        }
 
         this.iData = new Uint16Array(this._initIDataCount);
 
-        if (oldIData && copyOldData) {
-            const iData = this.iData;
-            for (let i = 0, l = oldIData.length; i < l; i++) {
-                iData[i] = oldIData[i];
-            }
-        }
+        // if (oldIData && copyOldData) {
+        //     const iData = this.iData;
+        //     for (let i = 0, l = oldIData.length; i < l; i++) {
+        //         iData[i] = oldIData[i];
+        //     }
+        // }
 
         // this._ib._bytes = this.iData.byteLength;
     }

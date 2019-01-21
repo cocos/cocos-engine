@@ -26,10 +26,8 @@
 import ComponentEventHandler from '../../../components/CCComponentEventHandler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import ButtonComponent from './button-component';
-// import * as js from '../../core/utils/js';
-import RenderComponent from './render-component';
-import SpriteComponent from './sprite-component';
-import ToggleGroupComponent from './toggle-group-component';
+import { SpriteComponent} from './sprite-component';
+import { ToggleGroupComponent} from './toggle-group-component';
 
 /**
  * !#en The toggle component is a CheckBox, when it used together with a ToggleGroup, it
@@ -42,7 +40,7 @@ import ToggleGroupComponent from './toggle-group-component';
 @executionOrder(100)
 @menu('UI/Toggle')
 @executeInEditMode
-export default class ToggleComponent extends ButtonComponent {
+export class ToggleComponent extends ButtonComponent {
     @property
     public _isChecked: boolean = true;
     @property

@@ -39,7 +39,7 @@ import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../../core/data/class-decorator';
 
 @ccclass('cc.ToggleContainerComponent')
-export default class ToggleContainerComponent extends Component {
+export class ToggleContainerComponent extends Component {
     @property
     protected _allowSwitchOff = false;
     @property
