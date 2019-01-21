@@ -26,6 +26,11 @@ export class WebGLGFXCommandPool<T> {
     }
 
     public alloc (clazz: new() => T): T {
+        return new clazz();
+    }
+
+    /*
+    public alloc (clazz: new() => T): T {
         if (this._count >= this._data.length) {
             const size = this._data.length * 2;
             for (let i = this._data.length; i < size; ++i) {
@@ -35,6 +40,7 @@ export class WebGLGFXCommandPool<T> {
 
         return this._data[this._count++];
     }
+    */
 
     public freeAt (idx: number) {
         if (idx >= this._count) {
@@ -51,11 +57,16 @@ export class WebGLGFXCommandPool<T> {
     }
 
     public free (obj: T) {
+    }
+
+    /*
+    public free (obj: T) {
         const idx = this._objIdx.get(obj);
         if (idx !== undefined) {
             this.freeAt(idx);
         }
     }
+    */
 }
 
 export class WebGLGFXCommandAllocator extends GFXCommandAllocator {
