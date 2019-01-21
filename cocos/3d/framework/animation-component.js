@@ -308,7 +308,7 @@ export default class AnimationComponent extends Component {
     /**
      * @type {AnimationClip[]}
      */
-    @property
+    @property({ type: [AnimationClip] })
     _clips = [];
 
     /**
@@ -318,7 +318,7 @@ export default class AnimationComponent extends Component {
      * @property currentClip
      * @type {AnimationClip}
      */
-    @property({type:AnimationClip})
+    @property({ type:AnimationClip })
     currentClip = null;
 
     /**
@@ -333,7 +333,7 @@ export default class AnimationComponent extends Component {
 
     _preview = false;
 
-    @property({type: Boolean})
+    @property({ type: Boolean })
     get preview() {
         return this._preview;
     }
@@ -383,7 +383,9 @@ export default class AnimationComponent extends Component {
      * @property clips
      * @type {AnimationClip[]}
      */
-    @property([AnimationClip])
+    @property({
+        type: [AnimationClip],
+    })
     get clips() {
         return this._clips;
     }

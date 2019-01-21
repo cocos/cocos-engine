@@ -36,7 +36,7 @@ import {ccclass} from '../core/data/class-decorator';
  * @private
  */
 @ccclass('cc.Script')
-class Script extends Asset {
+export class Script extends Asset {
 }
 cc._Script = Script;
 
