@@ -567,8 +567,7 @@ export function WebGLCmdFuncDestroyBuffer (device: WebGLGFXDevice, gpuBuffer: We
 export function WebGLCmdFuncUpdateBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer, buffer: GFXBufferSource, offset: number, size: number) {
 
     if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
-        const buff = buffer as ArrayBuffer;
-        gpuBuffer.vf32!.set(new Float32Array(buff.slice(0, size)), offset);
+        gpuBuffer.vf32!.set(buffer as Float32Array, offset);
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) {
         gpuBuffer.indirects = (buffer as IGFXIndirectBuffer).drawInfos;
     } else {
