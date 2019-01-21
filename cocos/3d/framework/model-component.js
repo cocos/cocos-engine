@@ -116,7 +116,7 @@ export class ModelComponent extends RenderableComponent {
 
     set mesh(val) {
         this._mesh = val;
-        this._updateModels();
+        this._updateModels(true);
     }
 
     /**
@@ -174,15 +174,14 @@ export class ModelComponent extends RenderableComponent {
     }
 
     onDisable() {
-        this._getRenderScene().destroyModel(this._model);
     }
 
     onDestroy() {
-
+        this._getRenderScene().destroyModel(this._model);
     }
 
-    _updateModels() {
-        if (!this.enabled || !this.node._scene) {
+    _updateModels(forceUpdate) {
+        if (!this.enabled || !this.node._scene || (this._model && !forceUpdate)) {
             return;
         }
 
