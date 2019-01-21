@@ -1,5 +1,5 @@
 import { GFXBindingLayout, GFXBindingUnit, IGFXBindingLayoutInfo } from '../binding-layout';
-import { GFXBuffer, GFXBufferSource, IGFXBufferInfo } from '../buffer';
+import { GFXBuffer, GFXBufferSource, IGFXBufferInfo, IGFXIndirectBuffer } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
@@ -566,13 +566,19 @@ export class WebGLGFXDevice extends GFXDevice {
             size: info.size,
             stride: info.stride ? info.stride : 1,
             buffer: null,
-            viewF32: null,
+            vf32: null,
+            uniforms: [],
+            indirects: [],
             glTarget: 0,
             glBuffer: 0,
         };
 
         if (buffer) {
-            gpuBuffer.buffer = buffer;
+            if (info.usage & GFXBufferUsageBit.INDIRECT) {
+                gpuBuffer.indirects = (buffer as IGFXIndirectBuffer).drawInfos;
+            } else {
+                gpuBuffer.buffer = buffer as ArrayBuffer;
+            }
         }
 
         // let isUBOSimulate = (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) !== GFXBufferUsageBit.NONE;

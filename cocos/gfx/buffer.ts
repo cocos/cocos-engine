@@ -5,8 +5,15 @@ import {
     GFXMemoryUsageBit,
     GFXObject,
     GFXObjectType,
+    GFXType,
 } from './define';
 import { GFXDevice } from './device';
+
+export interface IGFXUniformInfo {
+    name: string;
+    type: GFXType;
+    count: number;
+}
 
 export interface IGFXDrawInfo {
     vertexCount: number;
@@ -61,6 +68,7 @@ export abstract class GFXBuffer extends GFXObject {
     protected _size: number = 0;
     protected _stride: number = 1;
     protected _buffer: GFXBufferSource | null = null;
+    protected _uniforms: GFXBufferSource | null = null;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.BUFFER);

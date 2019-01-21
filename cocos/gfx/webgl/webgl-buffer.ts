@@ -1,5 +1,5 @@
 import { GFXBuffer, GFXBufferSource, IGFXBufferInfo } from '../buffer';
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXStatus } from '../define';
+import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUBuffer } from './webgl-gpu-objects';
@@ -11,7 +11,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
     }
 
     public get gpuBuffer (): WebGLGPUBuffer {
-        return  this._gpuBuffer as WebGLGPUBuffer;
+        return  this._gpuBuffer!;
     }
 
     private _gpuBuffer: WebGLGPUBuffer | null = null;
@@ -32,11 +32,10 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._stride = Math.max(this._stride, 1);
 
         if (this._memUsage & GFXMemoryUsageBit.HOST) {
-
-            if (!(this._usage & GFXBufferUsageBit.INDIRECT)) {
-                this._buffer = new ArrayBuffer(this._size);
-            } else {
+            if (this._usage & GFXBufferUsageBit.INDIRECT) {
                 this._buffer = { drawInfos: [] };
+            } else {
+                this._buffer = new ArrayBuffer(this._size);
             }
         }
 

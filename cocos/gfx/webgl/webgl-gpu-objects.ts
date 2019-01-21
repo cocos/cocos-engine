@@ -1,4 +1,4 @@
-import { GFXBufferSource } from '../buffer';
+import { IGFXDrawInfo } from '../buffer';
 import {
     GFXBindingType,
     GFXBufferUsage,
@@ -44,6 +44,15 @@ export class WebGLGPUObject {
     }
 }
 
+export interface IWebGLGPUUniformInfo {
+    name: string;
+    type: GFXType;
+    count: number;
+    offset: number;
+    view: Float32Array | Int32Array;
+    isDirty: boolean;
+}
+
 export class WebGLGPUBuffer extends WebGLGPUObject {
     public usage: GFXBufferUsage = GFXBufferUsageBit.NONE;
     public memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;
@@ -52,8 +61,10 @@ export class WebGLGPUBuffer extends WebGLGPUObject {
 
     public glTarget: GLenum = 0;
     public glBuffer: WebGLBuffer = 0;
-    public buffer: GFXBufferSource | null = null;
-    public viewF32: Float32Array | null = null;
+    public buffer: ArrayBuffer | null = null;
+    public vf32: Float32Array | null = null;
+    public uniforms: IWebGLGPUUniformInfo[] = [];
+    public indirects: IGFXDrawInfo[] = [];
 
     constructor () {
         super(WebGLGPUObjectType.BUFFER);
@@ -148,26 +159,28 @@ export class WebGLGPUInput {
     public glLoc: GLint = 0;
 }
 
-export class WebGLGPUUniform {
-    public binding: number = -1;
-    public name: string = '';
-    public type: GFXType = GFXType.UNKNOWN;
-    public stride: number = 0;
-    public count: number = 0;
-    public size: number = 0;
-    public offset: number = 0;
+export interface IWebGLGPUUniform {
+    binding: number;
+    name: string;
+    type: GFXType;
+    stride: number;
+    count: number;
+    size: number;
+    offset: number;
 
-    public glType: GLenum = 0;
-    public glLoc: WebGLUniformLocation = -1;
-    public view: Float32Array | Int32Array | null = null;
+    glType: GLenum;
+    glLoc: WebGLUniformLocation;
+    vi32: Int32Array | null;
+    vf32: Float32Array | null;
+    begin: number;
 }
 
 export class WebGLGPUUniformBlock {
     public binding: number = -1;
     public name: string = '';
     public size: number = 0;
-    public glUniforms: WebGLGPUUniform[] = [];
-    public glActiveUniforms: WebGLGPUUniform[] = [];
+    public glUniforms: IWebGLGPUUniform[] = [];
+    public glActiveUniforms: IWebGLGPUUniform[] = [];
 
     public isUniformPackage: boolean = false;  // Is a single uniform package?
     public buffer: ArrayBuffer | null = null;  // for cache
@@ -198,7 +211,7 @@ export class WebGLGPUShader extends WebGLGPUObject {
     public gpuStages: WebGLGPUShaderStage[] = [];
     public glProgram: WebGLProgram = 0;
     public glInputs: WebGLGPUInput[] = [];
-    public glUniforms: WebGLGPUUniform[] = [];
+    public glUniforms: IWebGLGPUUniform[] = [];
     public glBlocks: WebGLGPUUniformBlock[] = [];
     public glSamplers: WebGLGPUUniformSampler[] = [];
 
