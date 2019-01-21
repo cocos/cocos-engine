@@ -9,6 +9,7 @@ import { IGFXInputAttribute } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph/node';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
+import { IRenderingSubmesh } from '../../3d/assets/mesh';
 
 export default class ParticleBatchModel extends Model {
 
@@ -21,6 +22,7 @@ export default class ParticleBatchModel extends Model {
     private _vdataUint32: Uint32Array | null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
+    private _subMeshData: IRenderingSubmesh | null;
 
     constructor (scene: RenderScene, node: Node) {
         super(scene, node);
@@ -50,6 +52,7 @@ export default class ParticleBatchModel extends Model {
             size: GFX_DRAW_INFO_SIZE,
             stride: 1,
         });
+        this._subMeshData = null;
     }
 
     public setCapacity (capacity: number) {
@@ -60,17 +63,20 @@ export default class ParticleBatchModel extends Model {
         this._vertAttrs = attrs;
         this._vertSize = 0;
         for (const a of this._vertAttrs) {
-            this._vertSize += GFXFormatInfos[a.format].size;
+            this._vertSize += GFXFormatInfos[a.format].size * GFXFormatInfos[a.format].count;
         }
         // rebuid
-        this._vBuffer = this._createInputAssembler();
+        this._vBuffer = this._createSubMeshData();
         this._vertAttrsFloatCount = this._vertSize / 4; // number of float
         this._vBuffer = new ArrayBuffer(this._capacity * this._vertSize * 4);
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
     }
 
-    public _createInputAssembler (): ArrayBuffer {
+    public _createSubMeshData (): ArrayBuffer {
+        if (this._subMeshData) {
+            this.destroySubMeshData();
+        }
         const vertexBuffer = this._device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -105,15 +111,14 @@ export default class ParticleBatchModel extends Model {
         this._iaInfo.drawInfos[0].indexCount = this._capacity * 6;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this.subMeshData = {
-            inputAssembler: this._device.createInputAssembler({
-                attributes: this._vertAttrs!,
-                vertexBuffers: [vertexBuffer],
-                indexBuffer,
-                indirectBuffer: this._iaInfoBuffer,
-            }),
+        this._subMeshData = {
+            vertexBuffers: [vertexBuffer],
+            indexBuffer,
+            indirectBuffer: this._iaInfoBuffer,
+            attributes: this._vertAttrs!,
             primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
         };
+        this.setSubModelMesh(0, this._subMeshData);
         return vBuffer;
     }
 
@@ -131,7 +136,7 @@ export default class ParticleBatchModel extends Model {
         }
     }
 
-    public addParticleVertexData (index: number, pvdata: [any]) {
+    public addParticleVertexData (index: number, pvdata: any[]) {
         // if (pvdata.length !== this._vertAttrs.length) {
         //   console.error('particle vertex stream data not match.');
         // }
@@ -160,19 +165,27 @@ export default class ParticleBatchModel extends Model {
     }
 
     public updateIA (count: number) {
-        this._subMeshObject!.inputAssembler.vertexBuffers[0].update(this._vdataF32!);
-        this._subMeshObject!.inputAssembler.indexCount = count;
-        this._subMeshObject!.inputAssembler.extractDrawInfo(this._iaInfo.drawInfos[0]);
+        this.getSubModel(0).inputAssembler!.vertexBuffers[0].update(this._vdataF32!);
+        this.getSubModel(0).inputAssembler!.indexCount = count;
+        this.getSubModel(0).inputAssembler!.extractDrawInfo(this._iaInfo.drawInfos[0]);
         this._iaInfoBuffer.update(this._iaInfo);
     }
 
     public clear () {
-        this._subMeshObject!.inputAssembler.indexCount = 0;
+        this.getSubModel(0).inputAssembler!.indexCount = 0;
+    }
+
+    private destroySubMeshData () {
+        for (const vb of this._subMeshData!.vertexBuffers) {
+            vb.destroy();
+        }
+        this._subMeshData!.indexBuffer.destroy();
     }
 
     public destroy () {
+        super.destroy();
         this._vdataF32 = null;
-        this._subMeshObject!.inputAssembler.destroy();
+        this.destroySubMeshData();
         this._iaInfoBuffer.destroy();
     }
 }

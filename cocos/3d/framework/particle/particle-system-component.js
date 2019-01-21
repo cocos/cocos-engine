@@ -368,7 +368,7 @@ export default class ParticleSystemComponent extends Component {
                 //   }
                 // }
 
-                this._particles.remove(i);
+                this._particles.removeAt(i);
                 --i;
                 continue;
             }
