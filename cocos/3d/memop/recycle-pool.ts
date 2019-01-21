@@ -4,13 +4,16 @@ export default class RecyclePool<T = any> {
     private _fn: () => T;
     private _count = 0;
     private _data: T[];
+    private _objIdx: Map<T, number>;
 
     constructor (fn: () => T, size: number) {
         this._fn = fn;
         this._data = new Array(size);
+        this._objIdx = new Map<T, number>();
 
         for (let i = 0; i < size; ++i) {
             this._data[i] = fn();
+            this._objIdx.set(this._data[i], i);
         }
     }
 
@@ -51,13 +54,14 @@ export default class RecyclePool<T = any> {
         const tmp = this._data[idx];
         this._data[idx] = this._data[last];
         this._data[last] = tmp;
+        this._objIdx.set(this._data[idx], idx);
+        this._objIdx.set(this._data[last], last);
         this._count -= 1;
     }
 
-    public remove (element: T) {
-        const idx = this.data.indexOf(element);
-        if (idx >= 0) {
-            this.removeAt(idx);
+    public remove (obj: T) {
+        if (this._objIdx.has(obj)) {
+            this.removeAt(this._objIdx.get(obj));
         }
     }
 

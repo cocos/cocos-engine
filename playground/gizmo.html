@@ -52,12 +52,13 @@
       cameraNode.parent = scene;
       cameraNode.setPosition(20, 20, 20);
       cameraNode.lookAt(cc.v3());
-      cameraNode.addComponent(FirstPersonCamera);
+      // cameraNode.addComponent(FirstPersonCamera);
       const camComp = cameraNode.addComponent(cc.CameraComponent);
 
-      const material = new cc.Material();
-      material.setDefines({ USE_COLOR: true });
-      material.effectName = 'builtin-effect-unlit';
+      const material = new cc.Material({
+        effectName: 'builtin-effect-unlit',
+        defines: { USE_COLOR: true },
+      });
 
 
       const createArrow = (color, rotation) => {

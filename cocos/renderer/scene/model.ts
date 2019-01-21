@@ -69,6 +69,8 @@ export class Model {
             subModel.destroy();
             _subMeshPool.remove(subModel);
         }
+        this._matPSORecord.clear();
+        this._matRefCount.clear();
     }
 
     set scene (scene: RenderScene) {
@@ -93,14 +95,16 @@ export class Model {
     }
 
     public _updateTransform () {
-        if (!this._node.hasChanged) { return; }
-        this._node.updateWorldTransformFull();
-        if (!this._modelBounds) { return; }
+        if (this._node.hasChanged) {
+            this._node.updateWorldTransformFull();
+            if (this._modelBounds) {
 
-        this._modelBounds.transform(
-            // @ts-ignore
-            this._node._mat, this._node._pos, this._node._rot, this._node._scale,
-            this._worldBounds);
+                this._modelBounds.transform(
+                    // @ts-ignore
+                    this._node._mat, this._node._pos, this._node._rot, this._node._scale,
+                    this._worldBounds);
+            }
+        }
     }
 
     public updateUBOs () {
@@ -182,19 +186,30 @@ export class Model {
         this._subModels[idx].initialize(subMeshData, mat, this._matPSORecord.get(mat)!);
     }
 
-    public setSubModelMaterial (idx: number, mat: Material) {
+    public setSubModelMesh (idx: number, subMeshData: IRenderingSubmesh) {
+        if (this._subModels[idx] == null) {
+            this._subModels[idx] = _subMeshPool.add();
+        }
+        this._subModels[idx].subMeshData = subMeshData;
+    }
+
+    public setSubModelMaterial (idx: number, mat: Material | null) {
         if (this._subModels[idx] == null) {
             return;
         }
         if (this._subModels[idx].material === mat) {
-            this.destroyPipelineState(mat, this._matPSORecord.get(mat)!);
-            this._matPSORecord.set(mat, this.createPipelineState(mat));
+            this.destroyPipelineState(mat!, this._matPSORecord.get(mat!)!);
+            this._matPSORecord.set(mat!, this.createPipelineState(mat!));
         } else {
-            this.releasePSO(this._subModels[idx].material);
-            this.allocatePSO(mat);
+            if (this._subModels[idx].material) {
+                this.releasePSO(this._subModels[idx].material!);
+            }
+            if (mat) {
+                this.allocatePSO(mat);
+            }
         }
+        this._subModels[idx]._psos = mat ? this._matPSORecord.get(mat)! : null;
         this._subModels[idx].material = mat;
-        this._subModels[idx].psos = this._matPSORecord.get(mat)!;
     }
 
     protected createPipelineState (mat: Material): GFXPipelineState[] {

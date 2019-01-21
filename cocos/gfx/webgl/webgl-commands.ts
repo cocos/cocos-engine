@@ -2081,7 +2081,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                         if (gpuInputAssembler.gpuIndirectBuffer) {
                             for (const drawInfo of gpuInputAssembler.gpuIndirectBuffer.indirects) {
                                 const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
-                                if (gpuBuffer && drawInfo.indexCount > 0) {
+                                if (gpuBuffer && drawInfo.indexCount > -1) {
                                     const offset = drawInfo.firstIndex * gpuBuffer.stride;
                                     gl.drawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
                                 } else {

@@ -9,7 +9,7 @@ import { Pass } from '../core/pass';
 
 export class SubModel {
     protected _subMeshObject: IRenderingSubmesh | null;
-    private _inputAssembler: GFXInputAssembler | null;
+    protected _inputAssembler: GFXInputAssembler | null;
     private _material: Material | null;
     private _cmdBuffers: GFXCommandBuffer[];
     private _psos: GFXPipelineState[] | null;
@@ -27,13 +27,6 @@ export class SubModel {
     public initialize (subMesh: IRenderingSubmesh, mat: Material, psos: GFXPipelineState[]) {
         this._psos = psos;
         this.subMeshData = subMesh;
-        const iaInfo = {} as IGFXInputAssemblerInfo;
-        iaInfo.attributes = this._subMeshObject!.attributes;
-        iaInfo.vertexBuffers = this._subMeshObject!.vertexBuffers;
-        if (this._subMeshObject!.indexBuffer) {
-            iaInfo.indexBuffer = this._subMeshObject!.indexBuffer;
-        }
-        this._inputAssembler = (cc.director.root.device as GFXDevice).createInputAssembler(iaInfo);
 
         this.material = mat;
     }
@@ -42,10 +35,29 @@ export class SubModel {
         if (this._inputAssembler) {
             this._inputAssembler.destroy();
         }
+        for (let i = 0; i < this.passes.length; i++) {
+            this.passes[i].destroyPipelineState(this._psos![i]);
+        }
+        for (const cmdBuffer of this._cmdBuffers) {
+            cmdBuffer.destroy();
+        }
     }
 
     set subMeshData (sm: IRenderingSubmesh) {
+        if (this._inputAssembler) {
+            this._inputAssembler.destroy();
+        }
         this._subMeshObject = sm;
+        const iaInfo = {} as IGFXInputAssemblerInfo;
+        iaInfo.attributes = this._subMeshObject!.attributes;
+        iaInfo.vertexBuffers = this._subMeshObject!.vertexBuffers;
+        if (this._subMeshObject!.indexBuffer) {
+            iaInfo.indexBuffer = this._subMeshObject!.indexBuffer;
+        }
+        if (this._subMeshObject!.indirectBuffer) {
+            iaInfo.indirectBuffer = this._subMeshObject!.indirectBuffer;
+        }
+        this._inputAssembler = (cc.director.root.device as GFXDevice).createInputAssembler(iaInfo);
     }
 
     get subMeshData () {
@@ -60,14 +72,14 @@ export class SubModel {
         this._psos = val;
     }
 
-    set material (material: Material) {
+    set material (material: Material | null) {
         this._material = material;
         if (material == null) {
             return;
         }
         for (let i = 0; i < this._material!.passes.length; i++) {
             if (this._material!.passes[i].primitive !== this._subMeshObject!.primitiveMode) {
-                cc.error('the model(%d)\'s primitive type doesn\'t match its pass\'s', i);
+                cc.error(`the model(%d)'s primitive type doesn't match its pass's`, i);
             }
             this.recordCommandBuffer(i);
         }
@@ -79,8 +91,12 @@ export class SubModel {
         }
     }
 
-    get material (): Material {
+    get material (): Material | null {
         return this._material!;
+    }
+
+    get inputAssembler (): GFXInputAssembler | null {
+        return this._inputAssembler;
     }
 
     get castShadow (): boolean {

@@ -7,7 +7,7 @@ import { IPassInfoFull, Pass } from './pass';
 export interface IDefineMap { [name: string]: number | boolean; }
 export interface IEffectInfo {
     techIdx?: number;
-    defines?: IDefineMap;
+    defines?: IDefineMap[];
 }
 
 export class Effect {
@@ -24,7 +24,7 @@ export class Effect {
         for (let k = 0; k < passNum; ++k) {
             const passInfo = tech.passes[k] as IPassInfoFull;
             const prog = cc.game._programLib.getTemplate(passInfo.program);
-            passInfo.shader = cc.game._programLib.getGFXShader(passInfo.program, defines || {});
+            passInfo.shader = cc.game._programLib.getGFXShader(passInfo.program, defines && defines[k] || {});
             passInfo.renderPass = cc.director.root.pipeline.getRenderPass(passInfo.stage || RenderPassStage.DEFAULT);
             passInfo.globals = cc.director.root.pipeline.globalUBO;
             passInfo.blocks = prog!.blocks;
