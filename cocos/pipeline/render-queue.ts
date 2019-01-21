@@ -64,24 +64,25 @@ export class RenderQueue {
 
         for (let i = 0; i < model.subModelNum; ++i) {
             const subModel = model.getSubModel(i);
-            for (const pso of subModel.psos) {
+            for (let p = 0; p < subModel.psos.length; ++p) {
 
+                const pso = subModel.psos[p];
                 const isTransparent = pso.blendState.targets[0].blend;
 
                 // TODO: model priority
 
                 if (!isTransparent) {
-                    const hash = (0 << 30) | i;
+                    const hash = (0 << 30) | p;
 
                     this.opaques.push({
                         hash, depth, shaderId: pso.shader.id,
-                        subModel, cmdBuff: subModel.commandBuffers[i]});
+                        subModel, cmdBuff: subModel.commandBuffers[p]});
                 } else {
-                    const hash = (1 << 30) | i;
+                    const hash = (1 << 30) | p;
 
                     this.transparents.push({
                         hash, depth, shaderId: pso.shader.id,
-                        subModel, cmdBuff: subModel.commandBuffers[i]});
+                        subModel, cmdBuff: subModel.commandBuffers[p]});
                 }
             }
         }
