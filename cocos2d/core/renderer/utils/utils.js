@@ -4,7 +4,7 @@ module.exports = {
     packToDynamicAtlas (comp, frame) {
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
-        if (frame) {
+        if (frame && !CC_TEST) {
             if (!frame._original && dynamicAtlasManager) {
                 let packedFrame = dynamicAtlasManager.insertSpriteFrame(frame);
                 if (packedFrame) {
