@@ -315,7 +315,7 @@ export class Mouse extends EventListener {
 
     constructor () {
         super(EventListener.MOUSE, ListenerID.MOUSE, null);
-        this._onEvent = this._callback;
+        this._onEvent = (event: any) => this._callback(event);
     }
 
     public _callback (event) {
@@ -435,7 +435,7 @@ export class Acceleration extends EventListener {
 
     constructor (callback: Function | null) {
         super(EventListener.ACCELERATION, ListenerID.ACCELERATION, null);
-        this._onEvent = this._callback;
+        this._onEvent = (event: any) => this._callback(event);
         this._onAccelerationEvent = callback;
     }
 
@@ -462,7 +462,7 @@ export class Keyboard extends EventListener {
 
     constructor () {
         super(EventListener.KEYBOARD, ListenerID.KEYBOARD, null);
-        this._onEvent = this._callback;
+        this._onEvent = (event: any) => this._callback(event);
     }
 
     public _callback (event) {
