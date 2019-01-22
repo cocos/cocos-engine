@@ -19,7 +19,7 @@ const _temp_mat4 = mat4.create();
 
 const _subMeshPool = new RecyclePool(() => {
     return new SubModel();
-}, 100);
+}, 32);
 
 /**
  * A representation of a model
@@ -41,7 +41,7 @@ export class Model {
     private _matPSORecord: Map<Material, GFXPipelineState[]>;
     private _matRefCount: Map<Material, number>;
     private _uboLocal: UBOLocal;
-    private _localUBO: GFXBuffer;
+    private _localUBO: GFXBuffer | null;
 
     /**
      * Setup a default empty model
@@ -69,6 +69,13 @@ export class Model {
             subModel.destroy();
             _subMeshPool.remove(subModel);
         }
+        if (this._localUBO) {
+            this._localUBO.destroy();
+            this._localUBO = null;
+        }
+        this._worldBounds = null;
+        this._modelBounds = null;
+        this._subModels.splice(0);
         this._matPSORecord.clear();
         this._matRefCount.clear();
     }
@@ -174,7 +181,7 @@ export class Model {
         return this._viewID;
     }
 
-    public setSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {
+    public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subMeshPool.add();
         } else {
@@ -213,10 +220,19 @@ export class Model {
     }
 
     protected createPipelineState (mat: Material): GFXPipelineState[] {
+        if (this._localUBO) {
+            this._localUBO = this._device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST,
+                size: UBOLocal.SIZE,
+                stride: UBOLocal.SIZE,
+            });
+            this._localUBO.update(this._uboLocal.view);
+        }
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
             ret[i] = mat.passes[i].createPipelineState()!;
-            ret[i].pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this.localUBO);
+            ret[i].pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this.localUBO!);
         }
         return ret;
     }
