@@ -15,7 +15,7 @@ import {
     GFXTextureType,
     GFXTextureViewType,
 } from '../define';
-import { GFXDevice, IGFXDeviceInfo } from '../device';
+import { GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
@@ -350,6 +350,15 @@ export class WebGLGFXDevice extends GFXDevice {
         this._OES_standard_derivatives = gl.getExtension('OES_standard_derivatives');
         this._OES_element_index_uint = gl.getExtension('OES_element_index_uint');
         this._ANGLE_instanced_arrays = gl.getExtension('ANGLE_instanced_arrays');
+
+        this._features.fill(false);
+        if (this._OES_texture_float) {
+            this._features[GFXFeature.TEXTURE_FLOAT] = true;
+        }
+
+        if (this._OES_texture_half_float) {
+            this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
+        }
 
         // init states
         this.initStates(gl);

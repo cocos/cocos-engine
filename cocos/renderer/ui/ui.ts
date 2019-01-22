@@ -25,26 +25,18 @@ import { BaseNode } from '../../scene-graph/base-node';
 import { Pass } from '../core/pass';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
+import { IUIMaterialInfo, UIMaterial } from './ui-material';
 
 export interface IUIBufferBatch {
     vb: GFXBuffer;
     ib: GFXBuffer;
-}
-
-export interface IUIMaterial {
-    material: Material;
-    bindingLayout: GFXBindingLayout;
-    pipelineLayout: GFXPipelineLayout;
-    pipelineState: GFXPipelineState;
+    ia: GFXInputAssembler;
 }
 
 export interface IUIRenderItem {
     camera: Camera;
-    pass: Pass;
-    bindingLayout: GFXBindingLayout;
-    pipelineLayout: GFXPipelineLayout;
-    pipelineState: GFXPipelineState;
-    inputAssembler: GFXInputAssembler;
+    bufferBatch: IUIBufferBatch;
+    uiMaterial: UIMaterial;
 }
 
 export interface IUIRenderData {
@@ -68,8 +60,9 @@ export class UI {
     private _scene: RenderScene;
     private _attributes: IGFXInputAttribute[] = [];
     private _bufferBatches: IUIBufferBatch[] = [];
-    private _uiMaterials: IUIMaterial[] = [];
-    private _items: CachedArray<IUIRenderItem>;
+    private _uiMaterial: UIMaterial | null = null;
+    private _uiMaterials: UIMaterial[] = [];
+    private _items: CachedArray<IUIRenderData>;
     private _bufferInitData: IMeshBufferInitData | null = null;
     private _commitUIRenderDatas: IUIRenderData[] = [];
 
@@ -90,9 +83,9 @@ export class UI {
     public initialize () {
 
         this._attributes = [
-            { name: 'a_color', format: GFXFormat.RGBA32F, binding: 0, },
-            { name: 'a_position', format: GFXFormat.RGB32F, binding: 1, },
-            { name: 'a_texCoord', format: GFXFormat.RG32F, binding: 2, },
+            { name: 'a_color', format: GFXFormat.RGBA32F, binding: 0 },
+            { name: 'a_position', format: GFXFormat.RGB32F, binding: 1 },
+            { name: 'a_texCoord', format: GFXFormat.RG32F, binding: 2 },
         ];
 
         this.createBufferBatch();
@@ -102,17 +95,22 @@ export class UI {
             type: GFXCommandBufferType.PRIMARY,
         });
 
+        // create ui material
+
+        /*
+        const material = new Material();
+        material.effectName = 'sprite-material';
+        // material.setProperty('mainTexture', texture);
+        material.update();
+
+        this._uiMaterial = this.createUIMaterial( { material });
+        */
+
         return true;
     }
 
     public destroy () {
-
-        for (const uiMaterial of this._uiMaterials) {
-            uiMaterial.bindingLayout.destroy();
-            uiMaterial.pipelineLayout.destroy();
-            uiMaterial.pipelineState.destroy();
-        }
-        this._uiMaterials = [];
+        this.destroyUIMaterials();
 
         for (const buffBatch of this._bufferBatches) {
             buffBatch.vb.destroy();
@@ -126,46 +124,32 @@ export class UI {
         }
     }
 
-    /*
-    public registerMaterial (material: Material): IUIMaterial {
-        const pass = material.passes[0];
-        for (const mtrl of this._uiMaterials) {
-            if (mtrl.pass === pass) {
-                return mtrl;
+    public createUIMaterial (info: IUIMaterialInfo): UIMaterial | null {
+        const uiMtrl = new UIMaterial();
+        if (uiMtrl.initialize(info)) {
+            this._uiMaterials.push(uiMtrl);
+            return uiMtrl;
+        } else {
+            return null;
+        }
+    }
+
+    public destroyUIMaterial (uiMaterial: UIMaterial) {
+        for (let i = 0; i < this._uiMaterials.length; ++i) {
+            if (this._uiMaterials[i] === uiMaterial) {
+                uiMaterial.destroy();
+                this._uiMaterials.splice(i);
+                return;
             }
         }
-
-        const bindingLayout = this._device.createBindingLayout({
-            bindings: pass.bindings,
-        });
-
-        const pipelineLayout = this._device.createPipelineLayout({
-            layouts: [bindingLayout],
-        });
-
-        const pipelineState = this._device.createPipelineState({
-            primitive: pass.primitive,
-            shader: pass.shader,
-            is: { attributes: this._attributes },
-            rs: pass.rasterizerState,
-            dss: pass.depthStencilState,
-            bs: pass.blendState,
-            layout: pipelineLayout,
-            renderPass: pass.renderPass,
-        });
-
-        const uiMaterial = {
-            pass,
-            bindingLayout,
-            pipelineLayout,
-            pipelineState,
-        };
-
-        this._uiMaterials.push(uiMaterial);
-
-        return uiMaterial;
     }
-    */
+
+    public destroyUIMaterials () {
+        for (const uiMaterial of this._uiMaterials) {
+            uiMaterial.destroy();
+        }
+        this._uiMaterials = [];
+    }
 
     public addScreen (comp) {
         this._screens.push(comp);
@@ -198,26 +182,62 @@ export class UI {
         return buffer;
     }
 
-    public createUIRenderData(){
+    public createUIRenderData () {
         return this._commitUIRenderDataPool.add();
     }
 
-    public addToQueue(uiRenderData: IUIRenderData){
+    public addToQueue (uiRenderData: IUIRenderData) {
         this._commitUIRenderDatas.push(uiRenderData);
-    }
-
-    public flush(){
-        this.render();
     }
 
     public update (dt: number) {
         this._items.clear();
 
-        // TODO: Merge batch here.
         this._renderScreens();
 
-        // this.render();
-        this.flush();
+        // TODO: Merge batch here.
+        let curCamera: Camera | null = null;
+
+        for (const uiRenderData of this._commitUIRenderDatas) {
+
+            if (curCamera !== uiRenderData.camera) {
+                curCamera = uiRenderData.camera;
+            }
+
+            // uiRenderData.meshBuffer.iData.length;
+        }
+    }
+
+    public render () {
+
+        const material = this._uiMaterial!;
+
+        if (this._items.length) {
+            const framebuffer = this._root.curWindow!.framebuffer;
+            const cmdBuff = this._cmdBuff!;
+
+            cmdBuff.begin();
+
+            for (let i = 0; i < this._items.length; ++i) {
+                const item = this._items.array[i];
+                const camera = item.camera;
+
+                this._renderArea.width = camera.width;
+                this._renderArea.height = camera.height;
+
+                cmdBuff.beginRenderPass(framebuffer, this._renderArea, [], camera.clearDepth, camera.clearStencil);
+                cmdBuff.bindPipelineState(material.pipelineState);
+                cmdBuff.bindBindingLayout(material.bindingLayout);
+                // cmdBuff.bindInputAssembler(item.meshBuffer.indiceOffset);
+                // cmdBuff.draw(item.inputAssembler);
+
+                cmdBuff.endRenderPass();
+            }
+
+            cmdBuff.end();
+
+            this._device.queue.submit([cmdBuff]);
+        }
     }
 
     private _walk (node, fn1, fn2, level = 0) {
@@ -273,50 +293,6 @@ export class UI {
         comp.postUpdateAssembler();
     }
 
-    private render () {
-        /*
-        const framebuffer = this._root.curWindow!.framebuffer;
-        const cmdBuff = this._cmdBuff!;
-
-        cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer, this._renderArea,
-            [{r: 1, g: 1, b: 1, a: 1}], 1.0, 0);
-
-        cmdBuff.end();
-
-        this._device.queue.submit([cmdBuff]);
-        */
-
-        if (this._items.length) {
-            const framebuffer = this._root.curWindow!.framebuffer;
-            const cmdBuff = this._cmdBuff!;
-
-            cmdBuff.begin();
-
-            for (let i = 0; i < this._items.length; ++i) {
-                const item = this._items.array[i];
-                const camera = item.camera;
-
-                this._renderArea.width = camera.width;
-                this._renderArea.height = camera.height;
-
-                cmdBuff.beginRenderPass(framebuffer, this._renderArea,
-                    [camera.clearColor], camera.clearDepth, camera.clearStencil);
-
-                cmdBuff.bindPipelineState(item.pipelineState);
-                cmdBuff.bindBindingLayout(item.bindingLayout);
-                cmdBuff.bindInputAssembler(item.inputAssembler);
-                cmdBuff.draw(item.inputAssembler);
-
-                cmdBuff.endRenderPass();
-            }
-
-            cmdBuff.end();
-
-            this._device.queue.submit([cmdBuff]);
-        }
-    }
-
     private createBufferBatch (): IUIBufferBatch {
 
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 6;
@@ -343,7 +319,7 @@ export class UI {
             indexBuffer: ib,
         });
 
-        const batch: IUIBufferBatch = { vb, ib };
+        const batch: IUIBufferBatch = { vb, ib, ia };
         this._bufferBatches.push(batch);
         return batch;
     }

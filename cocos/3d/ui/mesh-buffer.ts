@@ -35,7 +35,6 @@ export class MeshBuffer {
     private _initIDataCount: number = 0;
     private _dirty: boolean = false;
 
-
     constructor (/*device: GFXDevice*/) {
 
         // const device = cc.game._renderContext;
@@ -157,7 +156,7 @@ export class MeshBuffer {
         //     }
         // }
 
-        if (this.vData && this.vData.byteLength === this._initVDataCount){
+        if (this.vData && this.vData.byteLength === this._initVDataCount) {
             return;
         }
 

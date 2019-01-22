@@ -552,8 +552,12 @@ class View extends EventTarget {
         var canvas = game.canvas;
         var container = game.container;
 
-        canvas.width = width * this._devicePixelRatio;
-        canvas.height = height * this._devicePixelRatio;
+        //canvas.width = width * this._devicePixelRatio;
+        //canvas.height = height * this._devicePixelRatio;
+
+        const w = width * this._devicePixelRatio;
+        const h = height * this._devicePixelRatio;
+        cc.director.root.resize(w, h);
 
         canvas.style.width = width + 'px';
         canvas.style.height = height + 'px';

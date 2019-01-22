@@ -1,6 +1,7 @@
 import { GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
+// tslint:disable-next-line:no-empty-interface
 export interface IGFXCommandAllocatorInfo {
 }
 

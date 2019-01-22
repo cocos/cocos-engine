@@ -16,6 +16,9 @@ import { GFXTextureView, IGFXTextureViewInfo } from './texture-view';
 import { GFXWindow, IGFXWindowInfo } from './window';
 
 export enum GFXFeature {
+    TEXTURE_FLOAT,
+    TEXTURE_HALF_FLOAT,
+    COUNT,
 }
 
 export interface IGFXDeviceInfo {
@@ -105,6 +108,7 @@ export abstract class GFXDevice {
     protected _renderer: string = '';
     protected _vendor: string = '';
     protected _version: string = '';
+    protected _features: boolean[] = new Array<boolean>(GFXFeature.COUNT);
     protected _queue: GFXQueue | null = null;
     protected _width: number = 0;
     protected _height: number = 0;
@@ -144,6 +148,10 @@ export abstract class GFXDevice {
     public abstract copyBufferToTexture (buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]);
     public abstract copyImageSourceToTexture (source: CanvasImageSource, texture: GFXTexture, regions: GFXBufferTextureCopy[]);
     public abstract copyFramebufferToBuffer (srcFramebuffer: GFXFramebuffer, dstBuffer: ArrayBuffer, regions: GFXBufferTextureCopy[]);
+
+    public hasFeature (feature: GFXFeature): boolean {
+        return this._features[feature];
+    }
 
     public genShaderId (): number {
         return this._shaderIdGen++;
