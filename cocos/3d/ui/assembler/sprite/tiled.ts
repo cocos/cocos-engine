@@ -24,18 +24,18 @@
  ****************************************************************************/
 
 // const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-import { vec3 } from '../../../../core/vmath/index';
 import { Mat4, Vec3 } from '../../../../core/value-types';
-import { IAssembler } from '../assembler';
-import { UIRenderComponent } from '../../components/ui-render-component';
+import { vec3 } from '../../../../core/vmath/index';
 import { RenderData } from '../../../../renderer/ui/renderData';
-import { MeshBuffer } from '../../mesh-buffer';
 import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
+import { UIRenderComponent } from '../../components/ui-render-component';
+import { MeshBuffer } from '../../mesh-buffer';
+import { IAssembler } from '../assembler';
 
 const matrix = new Mat4();
 
-let vec3_temps: Vec3[] = [];
+const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
@@ -47,11 +47,11 @@ const _tempColorOffset = 5;
 export const tilled: IAssembler = {
     useModel: false,
 
-    createData(sprite: UIRenderComponent) {
+    createData (sprite: UIRenderComponent) {
         return sprite.requestRenderData() as RenderData;
     },
 
-    updateRenderData(sprite: SpriteComponent) {
+    updateRenderData (sprite: SpriteComponent) {
         const frame = sprite.spriteFrame;
 
         // TODO: Material API design and export from editor could affect the material activation process
@@ -105,10 +105,10 @@ export const tilled: IAssembler = {
         renderData.vertDirty = false;
     },
 
-    fillBuffers(sprite: SpriteComponent, renderer: UI) {
+    fillBuffers (sprite: SpriteComponent, renderer: UI) {
         const buffer: MeshBuffer = renderer.createBuffer(
             sprite.renderData!.vertexCount,
-            sprite.renderData!.indiceCount
+            sprite.renderData!.indiceCount,
         );
         const commitBuffer: IUIRenderData = renderer.createUIRenderData();
 
@@ -160,12 +160,12 @@ export const tilled: IAssembler = {
                 vec3.set(vec3_temps[3], x1, y1, 0);
 
                 for (let i = 0; i < 4; i++) {
-                    let vec3_temp = vec3_temps[i];
+                    const vec3_temp = vec3_temps[i];
                     vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-                    let offset = i * 6;
-                    vbuf![vertexOffset + offset] = vec3_temp.x;
-                    vbuf![vertexOffset + offset + 1] = vec3_temp.y;
-                    vbuf![vertexOffset + offset + 2] = vec3_temp.z;
+                    const move = i * 6;
+                    vbuf![vertexOffset + move] = vec3_temp.x;
+                    vbuf![vertexOffset + move + 1] = vec3_temp.y;
+                    vbuf![vertexOffset + move + 2] = vec3_temp.z;
                 }
 
                 vertexOffset += 24;
@@ -186,8 +186,8 @@ export const tilled: IAssembler = {
             for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
                 coefu = Math.min(1, hRepeat - xindex);
 
-                let vertexOffsetU = vertexOffset + uvOffset;
-                let vertexOffsetV = vertexOffsetU + 1;
+                const vertexOffsetU = vertexOffset + uvOffset;
+                const vertexOffsetV = vertexOffsetU + 1;
                 // UV
                 if (rotated) {
                     // lb
@@ -202,8 +202,7 @@ export const tilled: IAssembler = {
                     // rt
                     vbuf![vertexOffsetU + offset3] = vbuf![vertexOffsetU + offset2];
                     vbuf![vertexOffsetV + offset3] = vbuf![vertexOffsetV + offset1];
-                }
-                else {
+                } else {
                     // lb
                     vbuf![vertexOffsetU] = uv[0];
                     vbuf![vertexOffsetV] = uv[1];
@@ -228,7 +227,7 @@ export const tilled: IAssembler = {
         }
 
         // update indices
-        let length = renderData!.indiceCount;
+        const length = renderData!.indiceCount;
         for (let i = 0; i < length; i += 6) {
             ibuf![indiceOffset++] = vertexId;
             ibuf![indiceOffset++] = vertexId + 1;
@@ -242,9 +241,10 @@ export const tilled: IAssembler = {
         commitBuffer.meshBuffer = buffer;
         commitBuffer.material = sprite.material!;
         commitBuffer.camera = renderer.getScreen(sprite.viewID)!.camera!;
+        renderer.addToQueue(commitBuffer);
     },
 
-    updateVerts(sprite: SpriteComponent) {
+    updateVerts (sprite: SpriteComponent) {
         // const renderData = sprite.renderData;
         // const datas = renderData!.datas;
         // const vbuf;

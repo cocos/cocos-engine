@@ -23,14 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { Color, Vec3 } from '../../../../core/value-types';
 import { vec3 } from '../../../../core/vmath/index';
-import { SpriteComponent } from '../../components/sprite-component';
-import { Vec3, Color } from '../../../../core/value-types';
-import { Node } from '../../../../scene-graph/node';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
-import { IAssembler } from '../assembler';
+import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
+import { Node } from '../../../../scene-graph/node';
+import { SpriteComponent } from '../../components/sprite-component';
 import { MeshBuffer } from '../../mesh-buffer';
-import { UI, IUIRenderData } from '../../../../renderer/ui/ui';
+import { IAssembler } from '../assembler';
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 const matrix = cc.mat4();
 const vec3_temps: Vec3[] = [];
@@ -79,7 +79,7 @@ export const simple: IAssembler = {
 
         const buffer: MeshBuffer = renderer.createBuffer(
             sprite.renderData!.vertexCount,
-            sprite.renderData!.indiceCount
+            sprite.renderData!.indiceCount,
         );
         const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const datas: IRenderData[] = sprite!.renderData!.datas;
@@ -141,6 +141,7 @@ export const simple: IAssembler = {
         commitBuffer.meshBuffer = buffer;
         commitBuffer.material = sprite.material!;
         commitBuffer.camera = renderer.getScreen(sprite.viewID)!.camera!;
+        renderer.addToQueue(commitBuffer);
     },
 
     updateVerts (sprite: SpriteComponent) {

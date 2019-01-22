@@ -2,6 +2,7 @@
 import { Material } from '../../3d/assets/material';
 import RecyclePool from '../../3d/memop/recycle-pool';
 import { CanvasComponent } from '../../3d/ui/components/canvas-component';
+import { UIRenderComponent } from '../../3d/ui/components/ui-render-component';
 import { IMeshBufferInitData, MeshBuffer } from '../../3d/ui/mesh-buffer';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
@@ -20,11 +21,10 @@ import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { vfmt } from '../../gfx/vertex-format-sample';
+import { BaseNode } from '../../scene-graph/base-node';
 import { Pass } from '../core/pass';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
-import { UIRenderComponent } from '../../3d/ui/components/ui-render-component';
-import { BaseNode } from '../../scene-graph/base-node';
 
 export interface IUIBufferBatch {
     vb: GFXBuffer;
@@ -71,6 +71,7 @@ export class UI {
     private _uiMaterials: IUIMaterial[] = [];
     private _items: CachedArray<IUIRenderItem>;
     private _bufferInitData: IMeshBufferInitData | null = null;
+    private _commitUIRenderDatas: IUIRenderData[] = [];
 
     constructor (private _root: Root) {
         this._device = _root.device;
@@ -89,9 +90,9 @@ export class UI {
     public initialize () {
 
         this._attributes = [
-            { name: 'a_texCoord', format: GFXFormat.RGB32F },
-            { name: 'a_position', format: GFXFormat.RG32F },
-            { name: 'a_color', format: GFXFormat.RGBA8, isNormalized: true },
+            { name: 'a_color', format: GFXFormat.RGBA32F, binding: 0, },
+            { name: 'a_position', format: GFXFormat.RGB32F, binding: 1, },
+            { name: 'a_texCoord', format: GFXFormat.RG32F, binding: 2, },
         ];
 
         this.createBufferBatch();
@@ -189,7 +190,7 @@ export class UI {
         }
     }
 
-    public createBuffer(vertexCount: number, indiceCount: number){
+    public createBuffer (vertexCount: number, indiceCount: number) {
         const buffer = this._bufferPool.add();
         this._bufferInitData!.vertexCount = vertexCount;
         this._bufferInitData!.indiceCount = indiceCount;
@@ -201,13 +202,22 @@ export class UI {
         return this._commitUIRenderDataPool.add();
     }
 
+    public addToQueue(uiRenderData: IUIRenderData){
+        this._commitUIRenderDatas.push(uiRenderData);
+    }
+
+    public flush(){
+        this.render();
+    }
+
     public update (dt: number) {
         this._items.clear();
 
         // TODO: Merge batch here.
         this._renderScreens();
 
-        this.render();
+        // this.render();
+        this.flush();
     }
 
     private _walk (node, fn1, fn2, level = 0) {
@@ -244,15 +254,15 @@ export class UI {
         }
     }
 
-    private _reset(){
+    private _reset () {
         this._bufferPool.reset();
         this._commitUIRenderDataPool.reset();
+        this._commitUIRenderDatas.length = 0;
     }
 
     private _commitComp (comp: UIRenderComponent) {
         comp.updateAssembler(this);
-        const canvasComp: CanvasComponent | null = this.getScreen(comp.viewID);
-
+        // const canvasComp: CanvasComponent | null = this.getScreen(comp.viewID);
         // const renderDataFormat: IUIRenderData = this._commitUIRenderDataPool.add();
         // renderDataFormat.meshBuffer = buffer;
         // renderDataFormat.material = comp.material as Material;

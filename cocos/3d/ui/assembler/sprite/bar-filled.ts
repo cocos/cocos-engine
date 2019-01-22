@@ -27,20 +27,20 @@ import { SpriteComponent } from '../../components/sprite-component';
 const FillType = SpriteComponent.FillType;
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-import { fillVerticesWithoutCalc3D } from '../utils';
-import { vec3 } from '../../../../core/vmath/index';
-import { RenderData, IRenderData } from '../../../../renderer/ui/renderData';
-import { Node } from '../../../../scene-graph/node';
-import { IAssembler } from '../assembler';
 import { Mat4 } from '../../../../core/value-types';
-import { MeshBuffer } from '../../mesh-buffer';
+import { vec3 } from '../../../../core/vmath/index';
+import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
+import { Node } from '../../../../scene-graph/node';
+import { MeshBuffer } from '../../mesh-buffer';
+import { IAssembler } from '../assembler';
+import { fillVerticesWithoutCalc3D } from '../utils';
 
 const matrix = new Mat4();
 
 export const barFilled: IAssembler = {
     useModel: false,
-    updateRenderData(sprite: SpriteComponent) {
+    updateRenderData (sprite: SpriteComponent) {
         const frame = sprite.spriteFrame;
 
         // TODO: Material API design and export from editor could affect the material activation process
@@ -95,7 +95,7 @@ export const barFilled: IAssembler = {
         }
     },
 
-    updateUVs(sprite: SpriteComponent, fillStart: number, fillEnd: number) {
+    updateUVs (sprite: SpriteComponent, fillStart: number, fillEnd: number) {
         const spriteFrame = sprite.spriteFrame;
         const renderData = sprite.renderData;
         const datas = renderData!.datas;
@@ -186,7 +186,7 @@ export const barFilled: IAssembler = {
         renderData!.uvDirty = false;
     },
 
-    updateVerts(sprite: SpriteComponent, fillStart: number, fillEnd: number) {
+    updateVerts (sprite: SpriteComponent, fillStart: number, fillEnd: number) {
         const renderData: RenderData|null = sprite.renderData;
         const datas: IRenderData[] = renderData!.datas;
         const node: Node = sprite.node;
@@ -234,7 +234,7 @@ export const barFilled: IAssembler = {
         renderData!.vertDirty = false;
     },
 
-    createData(sprite: SpriteComponent) {
+    createData (sprite: SpriteComponent) {
         const renderData: RenderData|null = sprite.requestRenderData();
         // 0-4 for world verts
         // 5-8 for local verts
@@ -250,7 +250,7 @@ export const barFilled: IAssembler = {
         return renderData as RenderData;
     },
 
-    updateWorldVerts(sprite: SpriteComponent) {
+    updateWorldVerts (sprite: SpriteComponent) {
         const node = sprite.node;
         const datas = sprite.renderData!.datas;
 
@@ -263,10 +263,10 @@ export const barFilled: IAssembler = {
         }
     },
 
-    fillBuffers(sprite: SpriteComponent, renderer: UI) {
+    fillBuffers (sprite: SpriteComponent, renderer: UI) {
         const buffer: MeshBuffer = renderer.createBuffer(
             sprite.renderData!.vertexCount,
-            sprite.renderData!.indiceCount
+            sprite.renderData!.indiceCount,
         );
         const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         // if (renderer.worldMatDirty) {
@@ -288,5 +288,10 @@ export const barFilled: IAssembler = {
         ibuf![indiceOffset++] = vertexId + 1;
         ibuf![indiceOffset++] = vertexId + 3;
         ibuf![indiceOffset++] = vertexId + 2;
+
+        commitBuffer.meshBuffer = buffer;
+        commitBuffer.material = sprite.material!;
+        commitBuffer.camera = renderer.getScreen(sprite.viewID)!.camera!;
+        renderer.addToQueue(commitBuffer);
     },
 };

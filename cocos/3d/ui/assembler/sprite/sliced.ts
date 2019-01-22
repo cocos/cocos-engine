@@ -24,15 +24,15 @@
  ****************************************************************************/
 
 // const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-import { vec3, mat4 } from '../../../../core/vmath/index';
-import { RenderData, IRenderData } from '../../../../renderer/ui/renderData';
-import { Node } from '../../../../scene-graph/node';
-import { Color, Mat4 } from '../../../../core/value-types';
 import { IUV, SpriteFrame } from '../../../../assets/CCSpriteFrame';
-import { IAssembler } from '../assembler';
+import { Color, Mat4 } from '../../../../core/value-types';
+import { vec3 } from '../../../../core/vmath/index';
+import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
+import { IUIRenderData } from '../../../../renderer/ui/ui';
+import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components/sprite-component';
 import { MeshBuffer } from '../../mesh-buffer';
-import { IUIRenderData } from '../../../../renderer/ui/ui';
+import { IAssembler } from '../assembler';
 
 const vec3_temp = vec3.create();
 const matrix = new Mat4();
@@ -118,7 +118,7 @@ export const sliced: IAssembler = {
 
         const buffer: MeshBuffer = renderer.createBuffer(
             sprite.renderData!.vertexCount,
-            sprite.renderData!.indiceCount
+            sprite.renderData!.indiceCount,
         );
         const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const renderData: RenderData|null = sprite.renderData;
@@ -172,6 +172,7 @@ export const sliced: IAssembler = {
         commitBuffer.meshBuffer = buffer;
         commitBuffer.material = sprite.material!;
         commitBuffer.camera = renderer.getScreen(sprite.viewID)!.camera!;
+        renderer.addToQueue(commitBuffer);
     },
 
     updateWorldVerts (sprite: SpriteComponent) {
