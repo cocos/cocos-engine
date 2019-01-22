@@ -1,6 +1,6 @@
 
-let AnimateAction = cc.Class({
-    name: 'AnimateAction',
+let TweenAction = cc.Class({
+    name: 'TweenAction',
     extends: cc.ActionInterval,
 
     ctor (duration, props, opts) {
@@ -42,7 +42,7 @@ let AnimateAction = cc.Class({
     },
 
     clone () {
-        var action = new AnimateAction(this._duration, this._originProps, this._opts);
+        var action = new TweenAction(this._duration, this._originProps, this._opts);
         this._cloneDecoration(action);
         return action;
     },
@@ -105,27 +105,27 @@ let AnimateAction = cc.Class({
  * Provide a simple and flexible way to create action
  * !#zh
  * 提供了一个简单灵活的方法来创建 action
- * @class Animate
+ * @class Tween
  * @example
- * cc.animate()
+ * cc.tween()
  *   .to(1, {scale: 2, position: cc.v3(100, 100, 100)})
  *   .call(() => { console.log('This is a callback'); })
  *   .by(1, {scale: 3, position: cc.v3(200, 200, 200)}, {easing: 'sineOutIn'})
  *   .run(cc.find('Canvas/cocos'));
  */
-function Animate () {
+function Tween () {
     this._actions = [];
 }
 
 /**
  * !#en
- * Add an action or animate to this sequence
+ * Add an action or tween to this sequence
  * !#zh
- * 添加一个 action 或者 animate 到队列中
+ * 添加一个 action 或者 tween 到队列中
  * @method add 
- * @param {Action|Animate} other
+ * @param {Action|Tween} other
  */
-Animate.prototype.add = function (other) {
+Tween.prototype.add = function (other) {
     if (other instanceof cc.Action) {
         this._actions.push(other.clone());
     }
@@ -140,13 +140,13 @@ Animate.prototype.add = function (other) {
 
 /**
  * !#en
- * Run this animate with the target
+ * Run this tween with the target
  * !#zh
- * 对目标运行当前 animate
+ * 对目标运行当前 tween
  * @method run
  * @param {Object} target
  */
-Animate.prototype.run = function (target) {
+Tween.prototype.run = function (target) {
     let action = this.get();
     cc.director.getActionManager().addAction(action, target, false);
     return this;
@@ -154,14 +154,14 @@ Animate.prototype.run = function (target) {
 
 /**
  * !#en
- * Clone a animate
+ * Clone a tween
  * !#zh
- * 克隆当前 animate
+ * 克隆当前 tween
  * @method clone
  */
-Animate.prototype.clone = function () {
+Tween.prototype.clone = function () {
     let action = this.get();
-    return cc.animate().add(action.clone());
+    return cc.tween().add(action.clone());
 };
 
 /**
@@ -172,14 +172,14 @@ Animate.prototype.clone = function () {
  * @method get
  * @return Action
  */
-Animate.prototype.get = function () {
+Tween.prototype.get = function () {
     let actions = this._actions;
 
     if (actions.length === 1) {
         actions = actions[0];
     }
     else {
-        actions = Animate.sequence(actions);
+        actions = Tween.sequence(actions);
     }
 
     return actions;
@@ -200,7 +200,7 @@ let actions = {
     to (duration, props, opts) {
         opts = opts || Object.create(null);
         opts.relative = false;
-        return new AnimateAction(duration, props, opts);
+        return new TweenAction(duration, props, opts);
     },
 
     /**
@@ -216,7 +216,7 @@ let actions = {
     by (duration, props, opts) {
         opts = opts || Object.create(null);
         opts.relative = true;
-        return new AnimateAction(duration, props, opts);
+        return new TweenAction(duration, props, opts);
     },
     
     /**
@@ -317,15 +317,14 @@ let constructors = {
     Repeat: cc.Repeat,
     RepeatForever: cc.RepeatForever,
     ReverseTime: cc.ReverseTime,
-    Animate: Animate
 };
 
-Object.assign(Animate, actions, otherActions, constructors);
+Object.assign(Tween, actions, otherActions, constructors);
 
 let keys = Object.keys(actions);
 for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
-    Animate.prototype[key] = function () {
+    Tween.prototype[key] = function () {
         let action = actions[key].apply(actions, arguments);
         this._actions.push(action);
         return this;
@@ -335,7 +334,7 @@ for (let i = 0; i < keys.length; i++) {
 keys = Object.keys(otherActions);
 for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
-    Animate.prototype[key] = function () {
+    Tween.prototype[key] = function () {
         let args = [];
         for (let l = arguments.length, i = 0; i < l; i++) {
             args[i] = arguments[i];
@@ -353,11 +352,11 @@ for (let i = 0; i < keys.length; i++) {
 }
 
 /**
- * @method animate
- * @return {Animate}
+ * @method tween
+ * @return {Tween}
  */
-cc.animate = function () {
-    return new Animate();
+cc.tween = function () {
+    return new Tween();
 };
 
-cc.Animate = Animate;
+cc.Tween = Tween;
