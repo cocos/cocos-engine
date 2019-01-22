@@ -25,7 +25,11 @@ import { BaseNode } from '../../scene-graph/base-node';
 import { Pass } from '../core/pass';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
+<<<<<<< HEAD
 import { IUIMaterialInfo, UIMaterial } from './ui-material';
+=======
+import { SpriteFrame } from '../../assets/CCSpriteFrame';
+>>>>>>> 86462dac... add texture to IUIRenderData
 
 export interface IUIBufferBatch {
     vb: GFXBuffer;
@@ -42,6 +46,7 @@ export interface IUIRenderItem {
 export interface IUIRenderData {
     meshBuffer: MeshBuffer;
     material: Material;
+    texture: SpriteFrame,
     camera: Camera;
 }
 
@@ -277,12 +282,12 @@ export class UI {
     private _reset () {
         this._bufferPool.reset();
         this._commitUIRenderDataPool.reset();
-        this._commitUIRenderDatas.length = 0;
     }
 
     private _commitComp (comp: UIRenderComponent) {
         comp.updateAssembler(this);
         // const canvasComp: CanvasComponent | null = this.getScreen(comp.viewID);
+
         // const renderDataFormat: IUIRenderData = this._commitUIRenderDataPool.add();
         // renderDataFormat.meshBuffer = buffer;
         // renderDataFormat.material = comp.material as Material;

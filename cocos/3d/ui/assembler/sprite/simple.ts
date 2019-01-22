@@ -140,6 +140,7 @@ export const simple: IAssembler = {
 
         commitBuffer.meshBuffer = buffer;
         commitBuffer.material = sprite.material!;
+        commitBuffer.texture = sprite.spriteFrame!;
         commitBuffer.camera = renderer.getScreen(sprite.viewID)!.camera!;
         renderer.addToQueue(commitBuffer);
     },
