@@ -145,6 +145,7 @@ export const maskAssembler: IAssembler = {
             const maskRenderData = ui.createUIRenderData() as IUIRenderData;
             maskRenderData.meshBuffer = meshBuffer;
             maskRenderData.material = maskMaterial;
+            ui.addToQueue(maskRenderData);
         }
     },
 };

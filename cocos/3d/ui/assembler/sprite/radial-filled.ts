@@ -24,13 +24,13 @@
  ****************************************************************************/
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-import { fillVertices3D } from '../utils';
-import { Vec2, Color } from '../../../../core/value-types';
+import { Color, Vec2 } from '../../../../core/value-types';
 import { RenderData } from '../../../../renderer/ui/renderData';
-import { IAssembler } from '../assembler';
+import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
 import { MeshBuffer } from '../../mesh-buffer';
-import { UI, IUIRenderData } from '../../../../renderer/ui/ui';
+import { IAssembler } from '../assembler';
+import { fillVertices3D } from '../utils';
 
 const PI_2 = Math.PI * 2;
 
@@ -360,7 +360,7 @@ export const radialFilled: IAssembler = {
     fillBuffers (comp: SpriteComponent, renderer: UI) {
         const buffer: MeshBuffer = renderer.createBuffer(
             comp.renderData!.vertexCount,
-            comp.renderData!.indiceCount
+            comp.renderData!.indiceCount,
         );
         const commitBuffer: IUIRenderData = renderer.createUIRenderData();
 
@@ -381,5 +381,6 @@ export const radialFilled: IAssembler = {
         commitBuffer.meshBuffer = buffer;
         commitBuffer.material = comp.material!;
         commitBuffer.camera = renderer.getScreen(comp.viewID)!.camera!;
+        renderer.addToQueue(commitBuffer);
     },
 };
