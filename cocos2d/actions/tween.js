@@ -119,13 +119,13 @@ function Tween () {
 
 /**
  * !#en
- * Add an action or tween to this sequence
+ * Insert an action or tween to this sequence
  * !#zh
- * 添加一个 action 或者 tween 到队列中
- * @method add 
+ * 插入一个 action 或者 tween 到队列中
+ * @method then 
  * @param {Action|Tween} other
  */
-Tween.prototype.add = function (other) {
+Tween.prototype.then = function (other) {
     if (other instanceof cc.Action) {
         this._actions.push(other.clone());
     }
