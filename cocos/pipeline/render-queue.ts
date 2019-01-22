@@ -5,12 +5,6 @@ import { Camera } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 
-export enum RenderPriority {
-    MIN = 0,
-    MAX = 0xff,
-    DEFAULT = 0x80,
-}
-
 export interface IRenderItem {
     hash: number;
     depth: number;
@@ -66,7 +60,7 @@ export class RenderQueue {
 
     public add (model: Model, camera: Camera) {
 
-        const depth = vec3.distance(camera.node.getPosition(), model.node!.getPosition());
+        const depth = vec3.squaredDistance(camera.node.getPosition(), model.node!.getPosition());
 
         for (let i = 0; i < model.subModelNum; ++i) {
             const subModel = model.getSubModel(i);

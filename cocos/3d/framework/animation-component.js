@@ -383,9 +383,7 @@ export default class AnimationComponent extends Component {
      * @property clips
      * @type {AnimationClip[]}
      */
-    @property({
-        type: [AnimationClip],
-    })
+    @property({ type: [AnimationClip] })
     get clips() {
         return this._clips;
     }

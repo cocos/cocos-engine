@@ -6,9 +6,7 @@ const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')
 export class RenderableComponent extends Component {
-    @property({
-        type: [Material],
-    })
+    @property({ type: [Material] })
     private _materials: Array<Material | null> = [];
 
     constructor () {
@@ -18,7 +16,6 @@ export class RenderableComponent extends Component {
     @property({
         type: [Material],
         displayName: 'Materials',
-        default: [],
     })
     get sharedMaterials () {
         return this._materials;
