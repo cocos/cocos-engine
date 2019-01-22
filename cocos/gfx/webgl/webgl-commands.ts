@@ -355,6 +355,7 @@ export enum WebGLCmd {
 
 export abstract class WebGLCmdObject {
     public cmdType: WebGLCmd;
+    public refCount: number = 0;
 
     constructor (type: WebGLCmd) {
         this.cmdType = type;
@@ -378,8 +379,6 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
     public clear () {
         this.gpuFramebuffer = null;
         this.clearColors = [];
-        this.clearDepth = 1.0;
-        this.clearStencil = 0;
     }
 }
 

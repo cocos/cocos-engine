@@ -102,9 +102,6 @@ export class RenderQueue {
 
         const opaqueCount = this.opaques.length;
         const cmdBuffCount = opaqueCount + this.transparents.length;
-
-        this.cmdBuffs.reserve(cmdBuffCount);
-
         this.cmdBuffCount = cmdBuffCount;
 
         for (let i = 0; i < this.opaques.length; ++i) {

@@ -122,16 +122,14 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         clearDepth: number,
         clearStencil: number) {
         const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
-        if (cmd) {
-            cmd.gpuFramebuffer = ( framebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
-            cmd.renderArea = renderArea;
-            cmd.clearColors = clearColors.slice();
-            cmd.clearDepth = clearDepth;
-            cmd.clearStencil = clearStencil;
-            this.cmdPackage.beginRenderPassCmds.push(cmd);
+        cmd.gpuFramebuffer = ( framebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
+        cmd.renderArea = renderArea;
+        cmd.clearColors = clearColors.slice();
+        cmd.clearDepth = clearDepth;
+        cmd.clearStencil = clearStencil;
+        this.cmdPackage.beginRenderPassCmds.push(cmd);
 
-            this.cmdPackage.cmds.push(WebGLCmd.BEGIN_RENDER_PASS);
-        }
+        this.cmdPackage.cmds.push(WebGLCmd.BEGIN_RENDER_PASS);
 
         this._isInRenderPass = true;
     }
@@ -409,11 +407,36 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         for (let i = 0; i < count; ++i) {
             const webGLCmdBuff = cmdBuffs[i] as WebGLGFXCommandBuffer;
 
-            this.cmdPackage.beginRenderPassCmds.concat(webGLCmdBuff.cmdPackage.beginRenderPassCmds);
-            this.cmdPackage.bindStatesCmds.concat(webGLCmdBuff.cmdPackage.bindStatesCmds);
-            this.cmdPackage.drawCmds.concat(webGLCmdBuff.cmdPackage.drawCmds);
-            this.cmdPackage.updateBufferCmds.concat(webGLCmdBuff.cmdPackage.updateBufferCmds);
-            this.cmdPackage.copyBufferToTextureCmds.concat(webGLCmdBuff.cmdPackage.copyBufferToTextureCmds);
+            for (let c = 0; c < webGLCmdBuff.cmdPackage.beginRenderPassCmds.length; ++c) {
+                const cmd = webGLCmdBuff.cmdPackage.beginRenderPassCmds.array[c];
+                ++cmd.refCount;
+                this.cmdPackage.beginRenderPassCmds.push(cmd);
+            }
+
+            for (let c = 0; c < webGLCmdBuff.cmdPackage.bindStatesCmds.length; ++c) {
+                const cmd = webGLCmdBuff.cmdPackage.bindStatesCmds.array[c];
+                ++cmd.refCount;
+                this.cmdPackage.bindStatesCmds.push(cmd);
+            }
+
+            for (let c = 0; c < webGLCmdBuff.cmdPackage.drawCmds.length; ++c) {
+                const cmd = webGLCmdBuff.cmdPackage.drawCmds.array[c];
+                ++cmd.refCount;
+                this.cmdPackage.drawCmds.push(cmd);
+            }
+
+            for (let c = 0; c < webGLCmdBuff.cmdPackage.updateBufferCmds.length; ++c) {
+                const cmd = webGLCmdBuff.cmdPackage.updateBufferCmds.array[c];
+                ++cmd.refCount;
+                this.cmdPackage.updateBufferCmds.push(cmd);
+            }
+
+            for (let c = 0; c < webGLCmdBuff.cmdPackage.copyBufferToTextureCmds.length; ++c) {
+                const cmd = webGLCmdBuff.cmdPackage.copyBufferToTextureCmds.array[c];
+                ++cmd.refCount;
+                this.cmdPackage.copyBufferToTextureCmds.push(cmd);
+            }
+
             this.cmdPackage.cmds.concat(webGLCmdBuff.cmdPackage.cmds);
         }
     }
