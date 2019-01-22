@@ -175,7 +175,6 @@ export class ModelComponent extends RenderableComponent {
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
-        this._model.enable = true;
     }
 
     onDisable() {
@@ -198,6 +197,7 @@ export class ModelComponent extends RenderableComponent {
         } else {
             this._model = this._createModel();
         }
+        this._model.enable = this.enabled;
 
         this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
 
@@ -235,7 +235,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     _updateCastShadow() {
-        if (!this.enabled)
+        if (!this.enabled || !this._model)
             return;
         if (this._shadowCastingMode === ModelShadowCastingMode.Off) {
             for (let i = 0; i < this._model.subModelNum; ++i) {
@@ -253,7 +253,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     _updateReceiveShadow() {
-        if (!this.enabled)
+        if (!this.enabled || !this._model)
             return;
         for (let i = 0; i < this._model.subModelNum; ++i) {
             let subModel = this._model.getSubModel(i);

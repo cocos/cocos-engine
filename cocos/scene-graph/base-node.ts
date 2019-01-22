@@ -286,7 +286,7 @@ export class BaseNode extends CCObject {
 
     private static _findChildComponents (children: BaseNode[], constructor, components) {
         for (const node of children) {
-            BaseNode._findComponents (node, constructor, components);
+            BaseNode._findComponents(node, constructor, components);
             if (node._children.length > 0) {
                 BaseNode._findChildComponents(node._children, constructor, components);
             }
@@ -1058,13 +1058,15 @@ export class BaseNode extends CCObject {
         return;
     }
 
-    public emit? (type: string, ...args: any[]): void;
+    public emit?(type: string, ...args: any[]): void;
 
     protected _onSetParent (oldParent: this | null) {
-        if ((oldParent == null || oldParent._scene !== this._parent!._scene) && this._parent!._scene != null) {
-            this.walk((node) => {
-                BaseNode._setScene(node);
-            });
+        if (this._parent) {
+            if ((oldParent == null || oldParent._scene !== this._parent._scene) && this._parent._scene != null) {
+                this.walk((node) => {
+                    BaseNode._setScene(node);
+                });
+            }
         }
     }
 
@@ -1252,11 +1254,11 @@ export class BaseNode extends CCObject {
         }
     }
 
-    private _onSiblingIndexChanged? (siblingIndex: number): void;
+    private _onSiblingIndexChanged?(siblingIndex: number): void;
 
-    private _registerIfAttached? (attached: boolean): void;
+    private _registerIfAttached?(attached: boolean): void;
 
-    private _checkMultipleComp? (constructor: Function): boolean;
+    private _checkMultipleComp?(constructor: Function): boolean;
 
     private _onPreDestroyBase () {
         return this._onPreDestroy();
