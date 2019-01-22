@@ -55,13 +55,7 @@ export class Model {
         this._matPSORecord = new Map<Material, GFXPipelineState[]>();
         this._matRefCount = new Map<Material, number>();
         this._uboLocal = new UBOLocal();
-        this._localUBO = this._device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST,
-            size: UBOLocal.SIZE,
-            stride: UBOLocal.SIZE,
-        });
-        this._localUBO.update(this._uboLocal.view);
+        this._localUBO = null;
     }
 
     public destroy () {
@@ -123,7 +117,9 @@ export class Model {
         mat4.array(_temp_floatx16, _temp_mat4);
         this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
 
-        this._localUBO.update(this._uboLocal.view);
+        if (this._localUBO) {
+            this._localUBO.update(this._uboLocal.view);
+        }
 
         for (const mat of this._matPSORecord.keys()) {
             for (const pass of mat.passes) {
@@ -220,7 +216,7 @@ export class Model {
     }
 
     protected createPipelineState (mat: Material): GFXPipelineState[] {
-        if (this._localUBO) {
+        if (this._localUBO == null) {
             this._localUBO = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST,
