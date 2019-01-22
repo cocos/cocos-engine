@@ -168,12 +168,14 @@ export class RenderScene {
             if (distance <= 0) { continue; }
             for (let i = 0; i < m.subModelNum; ++i) {
                 const subModel = m.getSubModel(i).subMeshData;
-                if (!subModel || !subModel.geometricInfo) { continue; }
-                const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
-                narrowphase(vb, ib, subModel.primitiveMode, sides);
+                if (subModel && subModel.geometricInfo) {
+                    const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
+                    narrowphase(vb, ib, subModel.primitiveMode, sides);
+                }
                 if (distance < Infinity) {
                     const r = pool.add();
                     r.node = node;
+                    // @ts-ignore
                     r.distance = distance * vec3.magnitude(vec3.mul(v3, modelRay.d, node._scale));
                     results[pool.length - 1] = r;
                 }

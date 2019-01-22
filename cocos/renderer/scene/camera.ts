@@ -1,5 +1,5 @@
 import { frustum, ray } from '../../3d/geom-utils';
-import { Color, Mat4, Rect } from '../../core/value-types';
+import { Color, Mat4, Rect, Vec3 } from '../../core/value-types';
 import { color4, lerp, mat4, toRadian, vec3 } from '../../core/vmath';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { RenderView, RenderViewPriority } from '../../pipeline/render-view';
@@ -53,6 +53,8 @@ export class Camera {
     private _matViewProj: Mat4 = new Mat4();
     private _matViewProjInv: Mat4 = new Mat4();
     private _frustum: frustum = new frustum();
+    private _forward: Vec3 = new Vec3();
+    private _position: Vec3 = new Vec3();
     private _node: Node | null = null;
     private _view: RenderView;
     private _visibility: number = 0;
@@ -119,6 +121,14 @@ export class Camera {
         // view-projection
         mat4.mul(this._matViewProj, this._matProj, this._matView);
         mat4.invert(this._matViewProjInv, this._matViewProj);
+
+        vec3.set(
+            this._forward,
+            -this._matView.m02,
+            -this._matView.m06,
+            -this._matView.m10,
+        );
+        this._node.getWorldPosition(this._position);
 
         this._frustum.update(this._matViewProj, this._matViewProjInv);
     }
@@ -257,6 +267,14 @@ export class Camera {
 
     get frustum () {
         return this._frustum;
+    }
+
+    get forward () {
+        return this._forward;
+    }
+
+    get position () {
+        return this._position;
     }
 
     set visibility (vis) {

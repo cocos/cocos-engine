@@ -1,5 +1,6 @@
 import { intersect } from '../3d/geom-utils';
 import { Root } from '../core/root';
+import { Mat4, Vec3 } from '../core/value-types';
 import { mat4, vec3 } from '../core/vmath';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXType } from '../gfx/define';
@@ -9,7 +10,6 @@ import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXUniformBlock } from '../gfx/shader';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
-import { Camera } from '../renderer/scene/camera';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
@@ -64,7 +64,8 @@ export class UBOLocal {
 
 const _vec4Array = new Float32Array(4);
 const _mat4Array = new Float32Array(16);
-const _outMat = new mat4();
+const _outMat = new Mat4();
+const _outVec3 = new Vec3();
 
 export abstract class RenderPipeline {
 
@@ -330,7 +331,7 @@ export abstract class RenderPipeline {
         mat4.array(_mat4Array, view.camera.matViewProjInv);
         this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
 
-        vec3.array(_vec4Array, view.camera.node && view.camera.node.getPosition());
+        vec3.array(_vec4Array, view.camera.node && view.camera.node.getWorldPosition(_outVec3));
         _vec4Array[3] = 1.0;
         this._uboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 

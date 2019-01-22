@@ -1,4 +1,5 @@
 import { CachedArray } from '../core/memop/cached-array';
+import { Vec3 } from '../core/value-types';
 import { vec3 } from '../core/vmath';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { Camera } from '../renderer/scene/camera';
@@ -12,6 +13,8 @@ export interface IRenderItem {
     subModel: SubModel;
     cmdBuff: GFXCommandBuffer;
 }
+
+const _v3tmp = new Vec3();
 
 export class RenderQueue {
     public opaques: CachedArray<IRenderItem>;
@@ -59,8 +62,9 @@ export class RenderQueue {
     }
 
     public add (model: Model, camera: Camera) {
-
-        const depth = vec3.squaredDistance(camera.node.getPosition(), model.node!.getPosition());
+        model.node.getWorldPosition(_v3tmp);
+        vec3.sub(_v3tmp, _v3tmp, camera.position);
+        const depth = vec3.dot(_v3tmp, camera.forward);
 
         for (let i = 0; i < model.subModelNum; ++i) {
             const subModel = model.getSubModel(i);
