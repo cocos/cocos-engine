@@ -61,6 +61,7 @@ export interface IGFXStencilCompareMask {
 export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
+    private _webGLAllocator: WebGLGFXCommandAllocator | null = null;
     private _isInRenderPass: boolean = false;
     private _curGPUPipelineState: WebGLGPUPipelineState | null = null;
     private _curGPUBindingLayout: WebGLGPUBindingLayout | null = null;
@@ -86,6 +87,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         }
 
         this._allocator = info.allocator;
+        this._webGLAllocator = this._allocator as WebGLGFXCommandAllocator;
         this._type = info.type;
         this._status = GFXStatus.SUCCESS;
 
@@ -93,16 +95,16 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     }
 
     public destroy () {
-        if (this._allocator) {
-            this.cmdPackage.clearCmds( this._allocator as WebGLGFXCommandAllocator);
+        if (this._webGLAllocator) {
+            this._webGLAllocator!.clearCmds(this.cmdPackage);
+            this._allocator = null;
+            this._webGLAllocator = null;
         }
         this._status = GFXStatus.UNREADY;
     }
 
     public begin () {
-        if (this._allocator) {
-            this.cmdPackage.clearCmds( this._allocator as WebGLGFXCommandAllocator);
-        }
+        this._webGLAllocator!.clearCmds(this.cmdPackage);
     }
 
     public end () {
@@ -119,8 +121,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         clearColors: IGFXColor[],
         clearDepth: number,
         clearStencil: number) {
-        const cmd = ( this._allocator as WebGLGFXCommandAllocator).
-                    beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
+        const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
         if (cmd) {
             cmd.gpuFramebuffer = ( framebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
             cmd.renderArea = renderArea;
@@ -347,8 +348,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
             this._type === GFXCommandBufferType.SECONDARY) {
             const gpuBuffer = (buffer as WebGLGFXBuffer).gpuBuffer;
             if (gpuBuffer) {
-                const cmd = (this._allocator as WebGLGFXCommandAllocator).
-                            updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
+                const cmd = this._webGLAllocator!.updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
                 if (cmd) {
 
                     let buffSize;
@@ -387,8 +387,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
             const gpuBuffer = ( srcBuff as WebGLGFXBuffer).gpuBuffer;
             const gpuTexture = ( dstTex as WebGLGFXTexture).gpuTexture;
             if (gpuBuffer && gpuTexture) {
-                const cmd = (this._allocator as WebGLGFXCommandAllocator).
-                            copyBufferToTextureCmdPool.alloc(WebGLCmdCopyBufferToTexture);
+                const cmd = this._webGLAllocator!.copyBufferToTextureCmdPool.alloc(WebGLCmdCopyBufferToTexture);
                 if (cmd) {
                     cmd.gpuBuffer = gpuBuffer;
                     cmd.gpuTexture = gpuTexture;
@@ -424,8 +423,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     }
 
     private bindStates () {
-        const bindStatesCmd = ( this._allocator as WebGLGFXCommandAllocator).
-        bindStatesCmdPool.alloc(WebGLCmdBindStates);
+        const bindStatesCmd = this._webGLAllocator!.bindStatesCmdPool.alloc(WebGLCmdBindStates);
 
         if (bindStatesCmd) {
             bindStatesCmd.gpuPipelineState = this._curGPUPipelineState;

@@ -491,6 +491,7 @@ export class WebGLGFXDevice extends GFXDevice {
     }
 
     public present () {
+        (this._cmdAllocator as WebGLGFXCommandAllocator).releaseCmds();
     }
 
     public copyBufferToTexture (buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]) {

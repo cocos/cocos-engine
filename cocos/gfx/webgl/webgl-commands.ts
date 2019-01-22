@@ -353,12 +353,14 @@ export enum WebGLCmd {
     COUNT,
 }
 
-export class WebGLCmdObject {
+export abstract class WebGLCmdObject {
     public cmdType: WebGLCmd;
 
     constructor (type: WebGLCmd) {
         this.cmdType = type;
     }
+
+    public abstract clear ();
 }
 
 export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
@@ -371,6 +373,13 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
 
     constructor () {
         super(WebGLCmd.BEGIN_RENDER_PASS);
+    }
+
+    public clear () {
+        this.gpuFramebuffer = null;
+        this.clearColors = [];
+        this.clearDepth = 1.0;
+        this.clearStencil = 0;
     }
 }
 
@@ -387,8 +396,23 @@ export class WebGLCmdBindStates extends WebGLCmdObject {
     public depthBounds: IGFXDepthBounds | null = null;
     public stencilWriteMask: IGFXStencilWriteMask | null = null;
     public stencilCompareMask: IGFXStencilCompareMask | null = null;
+
     constructor () {
         super(WebGLCmd.BIND_STATES);
+    }
+
+    public clear () {
+        this.gpuPipelineState = null;
+        this.gpuBindingLayout = null;
+        this.gpuInputAssembler = null;
+        this.viewport = null;
+        this.scissor = null;
+        this.lineWidth = null;
+        this.depthBias = null;
+        this.blendConstants = null;
+        this.depthBounds = null;
+        this.stencilWriteMask = null;
+        this.stencilCompareMask = null;
     }
 }
 
@@ -407,6 +431,9 @@ export class WebGLCmdDraw extends WebGLCmdObject {
     constructor () {
         super(WebGLCmd.DRAW);
     }
+
+    public clear () {
+    }
 }
 
 export class WebGLCmdUpdateBuffer extends WebGLCmdObject {
@@ -418,6 +445,11 @@ export class WebGLCmdUpdateBuffer extends WebGLCmdObject {
 
     constructor () {
         super(WebGLCmd.UPDATE_BUFFER);
+    }
+
+    public clear () {
+        this.gpuBuffer = null;
+        this.buffer = null;
     }
 }
 
@@ -447,6 +479,13 @@ export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
     constructor () {
         super(WebGLCmd.COPY_BUFFER_TO_TEXTURE);
     }
+
+    public clear () {
+        this.gpuBuffer = null;
+        this.gpuTexture = null;
+        this.dstLayout = null;
+        this.regions = [];
+    }
 }
 
 export class WebGLCmdPackage {
@@ -460,37 +499,27 @@ export class WebGLCmdPackage {
     public clearCmds (allocator: WebGLGFXCommandAllocator) {
 
         if (this.beginRenderPassCmds.length) {
-            for (let i = 0; i < this.beginRenderPassCmds.length; ++i) {
-                allocator.beginRenderPassCmdPool.free(this.beginRenderPassCmds.array[i]);
-            }
+            allocator.beginRenderPassCmdPool.freeCmds(this.beginRenderPassCmds);
             this.beginRenderPassCmds.clear();
         }
 
         if (this.bindStatesCmds.length) {
-            for (let i = 0; i < this.bindStatesCmds.length; ++i) {
-                allocator.bindStatesCmdPool.free(this.bindStatesCmds.array[i]);
-            }
+            allocator.bindStatesCmdPool.freeCmds(this.bindStatesCmds);
             this.bindStatesCmds.clear();
         }
 
         if (this.drawCmds.length) {
-            for (let i = 0; i < this.drawCmds.length; ++i) {
-                allocator.drawCmdPool.free(this.drawCmds.array[i]);
-            }
+            allocator.drawCmdPool.freeCmds(this.drawCmds);
             this.drawCmds.clear();
         }
 
         if (this.updateBufferCmds.length) {
-            for (let i = 0; i < this.updateBufferCmds.length; ++i) {
-                allocator.updateBufferCmdPool.free(this.updateBufferCmds.array[i]);
-            }
+            allocator.updateBufferCmdPool.freeCmds(this.updateBufferCmds);
             this.updateBufferCmds.clear();
         }
 
         if (this.copyBufferToTextureCmds.length) {
-            for (let i = 0; i < this.copyBufferToTextureCmds.length; ++i) {
-                allocator.copyBufferToTextureCmdPool.free(this.copyBufferToTextureCmds.array[i]);
-            }
+            allocator.copyBufferToTextureCmdPool.freeCmds(this.copyBufferToTextureCmds);
             this.copyBufferToTextureCmds.clear();
         }
 
