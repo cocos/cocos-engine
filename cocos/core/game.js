@@ -32,7 +32,6 @@ import { addon } from './utils/js';
 import * as renderer from '../renderer';
 import gfx from '../renderer/gfx';
 import builtinResMgr from '../3d/builtin/init';
-import { ProgramLib } from '../renderer/core/program-lib';
 
 /**
  * @module cc
@@ -818,7 +817,6 @@ var game = {
     },
 
     _initBuiltins: function() {
-        this._programLib = new ProgramLib(this._gfxDevice);
         builtinResMgr.initBuiltinRes(this._gfxDevice);
         // this._renderer.setBuiltins({
         //     defaultTexture: builtins['default-texture']._texture,

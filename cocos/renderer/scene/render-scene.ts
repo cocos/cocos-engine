@@ -158,7 +158,7 @@ export class RenderScene {
         pool.reset();
         for (const m of this._models) {
             const node = m.node;
-            if (!cc.Layers.check(node.layer, mask) || !m.modelBounds) { continue; }
+            if (!node.activeInHierarchy || !cc.Layers.check(node.layer, mask) || !m.modelBounds) { continue; }
             // transform ray back to model space
             mat4.invert(m4, node.getWorldMatrix(m4));
             vec3.transformMat4(modelRay.o, worldRay.o, m4);

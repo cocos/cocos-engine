@@ -367,7 +367,7 @@ export class Camera {
         const cw = this._viewport.width * this._width;
         const ch = this._viewport.height * this._height;
 
-        vec3.transformMat4(out, worldPos, this.matViewProjInv);
+        vec3.transformMat4(out, worldPos, this.matViewProj);
         out.x = cx + (out.x + 1) * 0.5 * cw;
         out.y = cy + (out.y + 1) * 0.5 * ch;
         out.z = out.z * 0.5 + 0.5;

@@ -143,6 +143,7 @@ export class Material extends Asset {
     }
 
     public copy (mat: Material) {
+        this._techIdx = mat._techIdx;
         this._props.length = mat._props.length;
         this._props.fill({});
         for (let i = 0; i < mat._props.length; i++) {

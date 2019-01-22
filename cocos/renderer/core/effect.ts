@@ -3,6 +3,7 @@
 import { EffectAsset } from '../../3d/assets/effect-asset';
 import { RenderPassStage } from '../../pipeline/define';
 import { IPassInfoFull, Pass } from './pass';
+import { programLib } from './program-lib';
 
 export interface IDefineMap { [name: string]: number | boolean; }
 export interface IEffectInfo {
@@ -23,8 +24,9 @@ export class Effect {
         const passes: Pass[] = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
             const passInfo = tech.passes[k] as IPassInfoFull;
-            const prog = cc.game._programLib.getTemplate(passInfo.program);
-            passInfo.shader = cc.game._programLib.getGFXShader(passInfo.program, defines && defines[k] || {});
+            const prog = programLib.getTemplate(passInfo.program);
+            passInfo.shader = programLib.getGFXShader(cc.game._gfxDevice,
+                passInfo.program, defines && defines[k] || {})!;
             passInfo.renderPass = cc.director.root.pipeline.getRenderPass(passInfo.stage || RenderPassStage.DEFAULT);
             passInfo.globals = cc.director.root.pipeline.globalUBO;
             passInfo.blocks = prog!.blocks;
