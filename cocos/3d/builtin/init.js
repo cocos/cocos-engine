@@ -107,6 +107,7 @@ let builtinResMgr = {
             // [defaultTextureCube._uuid]: defaultTextureCub
             [blackTexture._uuid]: blackTexture,
             [whiteTexture._uuid]: whiteTexture,
+            [defaultMtl._uuid]: defaultMtl,
             [spriteMtl._uuid]: spriteMtl,
             [spriteFrame._uuid]:spriteFrame
         };

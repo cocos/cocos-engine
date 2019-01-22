@@ -189,7 +189,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     _updateModels(forceUpdate) {
-        if (!this.enabled || !this.node._scene || (this._model && !forceUpdate)) {
+        if (!this.enabled || !this.node._scene || !this._mesh || (this._model && !forceUpdate)) {
             return;
         }
 
@@ -214,7 +214,7 @@ export class ModelComponent extends RenderableComponent {
         for (let i = 0; i < meshCount; ++i) {
             let material = this.getSharedMaterial(i);
             let subMeshData = this._mesh.renderingMesh.getSubmesh(i);
-            this._model.initSubModel(i, subMeshData, material);
+            this._model.initSubModel(i, subMeshData, material || this._getBuiltinMaterial());
         }
     }
 
