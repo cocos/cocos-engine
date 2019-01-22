@@ -54,12 +54,6 @@ var jsbAliasify = {
     },
     verbose: false
 };
-var canvasAliasify = {
-    replacements: {
-        '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.canvas')
-    },
-    verbose: false
-};
 
 exports.buildDebugInfos = require('./buildDebugInfos');
 
@@ -72,9 +66,6 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     var opts = {
         sourcemaps: createMap !== false
     };
-    if (opt_macroFlags && (opt_macroFlags.wechatgameSub || opt_macroFlags.baidugameSub)) {
-        opts.aliasifyConfig = canvasAliasify;
-    }
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
@@ -117,9 +108,6 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     var opts = {
         sourcemaps: createMap !== false
     };
-    if (opt_macroFlags && (opt_macroFlags.wechatgameSub || opt_macroFlags.baidugameSub)) {
-        opts.aliasifyConfig = canvasAliasify;
-    }
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
