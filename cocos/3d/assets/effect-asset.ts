@@ -12,6 +12,7 @@ export interface IPropertyInfo {
 export interface IPassInfo {
     program: string;
     // effect-writer part
+    priority?: number;
     primitive?: GFXPrimitiveMode;
     stage?: RenderPassStage;
     rasterizerState?: GFXRasterizerState;

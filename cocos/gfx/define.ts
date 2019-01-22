@@ -791,3 +791,9 @@ export function GFXGetTypeSize (type: GFXType): number {
         }
     }
 }
+
+export enum GFXPassPriority {
+    MIN = 0,
+    MAX = 0xff,
+    DEFAULT = 0x80,
+}
