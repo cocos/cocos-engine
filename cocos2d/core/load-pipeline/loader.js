@@ -125,8 +125,9 @@ const PVR_HEADER_MIPMAPCOUNT = 11;
 const PVR_HEADER_METADATA = 12;
 
 function loadCompressedTex (item) {
+    let buffer = item.content instanceof ArrayBuffer ? item.content : item.content.buffer;
     // Get a view of the arrayBuffer that represents the DDS header.
-    let header = new Int32Array(item.content.buffer, 0, PVR_HEADER_LENGTH);
+    let header = new Int32Array(buffer, 0, PVR_HEADER_LENGTH);
 
     // Do some sanity checks to make sure this is a valid DDS file.
     if(header[PVR_HEADER_MAGIC] != PVR_MAGIC) {
@@ -138,7 +139,7 @@ function loadCompressedTex (item) {
     let height = header[PVR_HEADER_HEIGHT];
     let levels = header[PVR_HEADER_MIPMAPCOUNT];
     let dataOffset = header[PVR_HEADER_METADATA] + 52;
-    let pvrtcData = new Uint8Array(item.content.buffer, dataOffset);
+    let pvrtcData = new Uint8Array(buffer, dataOffset);
 
     let pvrAsset = {
         _data: pvrtcData,
