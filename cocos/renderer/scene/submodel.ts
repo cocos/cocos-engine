@@ -44,6 +44,7 @@ export class SubModel {
         for (const cmdBuffer of this._cmdBuffers) {
             cmdBuffer.destroy();
         }
+        this._cmdBuffers.splice(0);
     }
 
     set priority (val: RenderPriority) {

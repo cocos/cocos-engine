@@ -33,6 +33,7 @@ export default class RecyclePool<T = any> {
         if (size > this._data.length) {
             for (let i = this._data.length; i < size; ++i) {
                 this._data[i] = this._fn();
+                this._objIdx.set(this._data[i], i);
             }
         }
     }

@@ -163,7 +163,7 @@ export class ModelComponent extends RenderableComponent {
         this._model = null;
     }
 
-    get model () {
+    get model() {
         return this._model;
     }
 
@@ -175,10 +175,13 @@ export class ModelComponent extends RenderableComponent {
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
+        this._model.enable = true;
     }
 
     onDisable() {
-        //this._getRenderScene().destroyModel(this._model);
+        if (this._model) {
+            this._model.enable = false;
+        }
     }
 
     onDestroy() {
@@ -191,12 +194,12 @@ export class ModelComponent extends RenderableComponent {
         }
 
         if (this._model) {
-            this._getRenderScene().destroyModel(this._model);
+            this._model.destroy();
+        } else {
+            this._model = this._createModel();
         }
 
-        let model = this._createModel();
-        model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
-        this._model = model;
+        this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
 
         this._updateModelParams();
     }
@@ -211,7 +214,7 @@ export class ModelComponent extends RenderableComponent {
         for (let i = 0; i < meshCount; ++i) {
             let material = this.getSharedMaterial(i);
             let subMeshData = this._mesh.renderingMesh.getSubmesh(i);
-            this._model.setSubModel(i, subMeshData, material);
+            this._model.initSubModel(i, subMeshData, material);
         }
     }
 
@@ -223,6 +226,9 @@ export class ModelComponent extends RenderableComponent {
     }
 
     _clearMaterials() {
+        if (this._model == null) {
+            return;
+        }
         for (let i = 0; i < this._model.subModelNum; ++i) {
             this._onMaterialModified(i, null);
         }
