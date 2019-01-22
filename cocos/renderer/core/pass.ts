@@ -5,7 +5,7 @@ import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
 import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
-    GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
+    GFXMemoryUsageBit, GFXPassPriority, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
@@ -107,6 +107,7 @@ export class Pass {
     protected _resources: IPassResources[] = [];
     // internal data
     protected _programName: string = '';
+    protected _priority: GFXPassPriority = GFXPassPriority.DEFAULT;
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _bindings: IGFXBinding[] = [];
@@ -312,6 +313,7 @@ export class Pass {
     }
 
     protected _fillinPipelineInfo (info: PassOverrides) {
+        if (info.priority !== undefined) { this._priority = info.priority; }
         if (info.primitive !== undefined) { this._primitive = info.primitive; }
         if (info.stage !== undefined) { this._stage = info.stage; }
         if (info.dynamics !== undefined) { this._dynamicStates = info.dynamics; }
@@ -331,15 +333,16 @@ export class Pass {
     }
 
     get programName () { return this._programName; }
-    get primitive (): GFXPrimitiveMode { return this._primitive; }
-    get stage (): RenderPassStage { return this._stage; }
-    get bindings (): IGFXBinding[] { return this._bindings; }
-    get blendState (): GFXBlendState { return this._bs; }
-    get depthStencilState (): GFXDepthStencilState { return this._dss; }
-    get rasterizerState (): GFXRasterizerState { return this._rs; }
-    get shader (): GFXShader | null { return this._shader; }
-    get renderPass (): GFXRenderPass | null { return this._renderPass; }
-    get dynamics (): IPassDynamics { return this._dynamics; }
+    get priority () { return this._priority; }
+    get primitive () { return this._primitive; }
+    get stage () { return this._stage; }
+    get bindings () { return this._bindings; }
+    get blendState () { return this._bs; }
+    get depthStencilState () { return this._dss; }
+    get rasterizerState () { return this._rs; }
+    get shader () { return this._shader; }
+    get renderPass () { return this._renderPass; }
+    get dynamics () { return this._dynamics; }
 }
 
 function serializeBlendState (bs: GFXBlendState)  {
