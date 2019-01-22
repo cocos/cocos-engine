@@ -69,6 +69,20 @@ export default class quat {
     }
 
     /**
+     * Sets a quaternion as identity quaternion.
+     *
+     * @param out - Quaternion to set.
+     * @return out.
+     */
+    public static identity<Out extends IQuatLike> (out: Out) {
+        out.x = 0;
+        out.y = 0;
+        out.z = 0;
+        out.w = 1;
+        return out;
+    }
+
+    /**
      * Sets a quaternion to represent the shortest rotation from one
      * vector to another.
      *

@@ -5,7 +5,7 @@ import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { RenderPriority } from '../../pipeline/render-queue';
+import { RenderPriority } from '../../pipeline/define';
 import { Pass } from '../core/pass';
 
 export class SubModel {
