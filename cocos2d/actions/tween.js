@@ -107,14 +107,16 @@ let TweenAction = cc.Class({
  * 提供了一个简单灵活的方法来创建 action
  * @class Tween
  * @example
- * cc.tween()
+ * cc.tween(node)
  *   .to(1, {scale: 2, position: cc.v3(100, 100, 100)})
  *   .call(() => { console.log('This is a callback'); })
  *   .by(1, {scale: 3, position: cc.v3(200, 200, 200)}, {easing: 'sineOutIn'})
  *   .run(cc.find('Canvas/cocos'));
  */
-function Tween () {
+function Tween (target) {
     this._actions = [];
+    this._finalAction = null;
+    this._target = target;
 }
 
 /**
@@ -140,17 +142,50 @@ Tween.prototype.then = function (other) {
 
 /**
  * !#en
- * Run this tween with the target
+ * Set tween target
  * !#zh
- * 对目标运行当前 tween
- * @method run
- * @param {Object} target
+ * 设置 tween 的 target
+ * @method target
  */
-Tween.prototype.run = function (target) {
-    let action = this.get();
-    cc.director.getActionManager().addAction(action, target, false);
+Tween.prototype.target = function (target) {
+    this._target = target;
     return this;
 };
+
+/**
+ * !#en
+ * Start this tween
+ * !#zh
+ * 运行当前 tween
+ * @method start
+ */
+Tween.prototype.start = function () {
+    if (!this._target) {
+        cc.warn('Please set target to tween first');
+        return this;
+    }
+    if (!this._finalAction) {
+        this._finalAction = this.get();
+    }
+    cc.director.getActionManager().addAction(this._finalAction, this._target, false);
+    return this;
+};
+
+/**
+ * !#en
+ * Stop this tween
+ * !#zh
+ * 停止当前 tween
+ * @method stop
+ */
+Tween.prototype.stop = function () {
+    if (this._finalAction) {
+        cc.director.getActionManager().removeAction(this._finalAction);
+    }
+    return this;
+};
+
+
 
 /**
  * !#en
@@ -158,10 +193,11 @@ Tween.prototype.run = function (target) {
  * !#zh
  * 克隆当前 tween
  * @method clone
+ * @param {Object} [target]
  */
-Tween.prototype.clone = function () {
+Tween.prototype.clone = function (target) {
     let action = this.get();
-    return cc.tween().add(action.clone());
+    return cc.tween(target).then(action.clone());
 };
 
 /**
@@ -196,6 +232,8 @@ let actions = {
      * @param {Number} duration 
      * @param {Object} props - {scale: 2, position: cc.v3(100, 100, 100)}
      * @param {Object} opts 
+     * @param {Function} opts.progress
+     * @param {Function|String} opts.easing
      */
     to (duration, props, opts) {
         opts = opts || Object.create(null);
@@ -209,9 +247,11 @@ let actions = {
      * !#zh
      * 添加一个对属性进行相对值计算的 action
      * @method by
-     * @param {*} duration 
-     * @param {*} props - {scale: 2, position: cc.v3(100, 100, 100)}
-     * @param {*} opts 
+     * @param {Number} duration 
+     * @param {Object} props - {scale: 2, position: cc.v3(100, 100, 100)}
+     * @param {Object} opts 
+     * @param {Function} opts.progress
+     * @param {Function|String} opts.easing
      */
     by (duration, props, opts) {
         opts = opts || Object.create(null);
@@ -225,7 +265,7 @@ let actions = {
      * !#zh
      * 添加一个延时 action
      * @method delay
-     * @param {*} duration 
+     * @param {Number} duration 
      */
     delay: cc.delayTime,
     /**
@@ -233,8 +273,8 @@ let actions = {
      * Add an callback action
      * !#zh
      * 添加一个回调 action
-     * @method delay
-     * @param {*} duration 
+     * @method call
+     * @param {Function} callback
      */
     call: cc.callFunc,
     /**
@@ -242,8 +282,7 @@ let actions = {
      * Add an hide action
      * !#zh
      * 添加一个隐藏 action
-     * @method delay
-     * @param {*} duration 
+     * @method hide
      */
     hide: cc.hide,
     /**
@@ -251,26 +290,24 @@ let actions = {
      * Add an show action
      * !#zh
      * 添加一个显示 action
-     * @method delay
-     * @param {*} duration 
+     * @method show
      */
     show: cc.show,
     /**
      * !#en
-     * Add an remove action
+     * Add an removeSelf action
      * !#zh
-     * 添加一个移除 action
-     * @method delay
-     * @param {*} duration 
+     * 添加一个移除自己 action
+     * @method removeSelf
      */
-    remove: cc.removeSelf,
+    removeSelf: cc.removeSelf,
     /**
      * !#en
      * Add an sequence action
      * !#zh
      * 添加一个队列 action
-     * @method delay
-     * @param {*} duration 
+     * @method sequence
+     * @param {[Action]} actions
      */
     sequence: cc.sequence,
 };
@@ -279,29 +316,30 @@ let actions = {
 let otherActions = {
     /**
      * !#en
-     * Add an repeat action
+     * Add an repeat action. 
+     * This action will integrate before actions to a sequence action as their parameters.
      * !#zh
-     * 添加一个重复 action
-     * @method delay
-     * @param {*} duration 
+     * 添加一个重复 action，这个 action 会将之前的 action 整合成一个 sequence action 作为他的参数。
+     * @method repeat
+     * @param {Number} repeatTimes 
      */
     repeat: cc.repeat,
     /**
      * !#en
      * Add an repeat forever action
+     * This action will integrate before actions to a sequence action as their parameters.
      * !#zh
-     * 添加一个永久重复 action
-     * @method delay
-     * @param {*} duration 
+     * 添加一个永久重复 action，这个 action 会将之前的 action 整合成一个 sequence action 作为他的参数。
+     * @method repeatForever
      */
     repeatForever: cc.repeatForever,
     /**
      * !#en
-     * Add an reverse time action
+     * Add an reverse time action.
+     * This action will integrate before actions to a sequence action as their parameters.
      * !#zh
-     * 添加一个倒置时间 action
-     * @method delay
-     * @param {*} duration 
+     * 添加一个倒置时间 action，这个 action 会将之前的 action 整合成一个 sequence action 作为他的参数。
+     * @method reverseTime
      */
     reverseTime: cc.reverseTime,
 };
@@ -327,6 +365,7 @@ for (let i = 0; i < keys.length; i++) {
     Tween.prototype[key] = function () {
         let action = actions[key].apply(actions, arguments);
         this._actions.push(action);
+        this._finalAction = null;
         return this;
     };
 }
@@ -347,16 +386,18 @@ for (let i = 0; i < keys.length; i++) {
         action = otherActions[key].apply(otherActions, [action].concat(args));
         this._actions.length = 0;
         this._actions.push(action);
+        this._finalAction = null;
         return this;
     };
 }
 
 /**
  * @method tween
+ * @param {Object} [target] - the target to animate
  * @return {Tween}
  */
-cc.tween = function () {
-    return new Tween();
+cc.tween = function (target) {
+    return new Tween(target);
 };
 
 cc.Tween = Tween;
