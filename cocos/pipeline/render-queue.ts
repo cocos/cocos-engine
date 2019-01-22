@@ -5,6 +5,12 @@ import { Camera } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 
+export enum RenderPriority {
+    MIN = 0,
+    MAX = 0xff,
+    DEFAULT = 0x80,
+}
+
 export interface IRenderItem {
     hash: number;
     depth: number;
@@ -64,21 +70,22 @@ export class RenderQueue {
 
         for (let i = 0; i < model.subModelNum; ++i) {
             const subModel = model.getSubModel(i);
-            for (let p = 0; p < subModel.psos.length; ++p) {
+            for (let p = 0; p < subModel.passes.length; ++p) {
 
+                const pass = subModel.passes[p];
                 const pso = subModel.psos[p];
                 const isTransparent = pso.blendState.targets[0].blend;
 
                 // TODO: model priority
 
                 if (!isTransparent) {
-                    const hash = (0 << 30) | p;
+                    const hash = (0 << 30) | pass.priority | subModel.priority | p;
 
                     this.opaques.push({
                         hash, depth, shaderId: pso.shader.id,
                         subModel, cmdBuff: subModel.commandBuffers[p]});
                 } else {
-                    const hash = (1 << 30) | p;
+                    const hash = (1 << 30) | pass.priority | subModel.priority | p;
 
                     this.transparents.push({
                         hash, depth, shaderId: pso.shader.id,

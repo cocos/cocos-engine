@@ -27,11 +27,11 @@ export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
         this._freeIdx = count - 1;
     }
 
+    /* */
     public alloc (clazz: new() => T): T {
         return new clazz();
     }
-
-    /*
+    /* *
     public alloc (clazz: new() => T): T {
         if (this._freeIdx < 0) {
             const size = this._frees.length * 2;
@@ -54,7 +54,7 @@ export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
         this._frees[this._freeIdx--] = null;
         return cmd!;
     }
-    */
+    /* */
 
     public free (cmd: T) {
         this._freeCmds.push(cmd);

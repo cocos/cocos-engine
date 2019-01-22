@@ -163,6 +163,10 @@ export class ModelComponent extends RenderableComponent {
         this._model = null;
     }
 
+    get model () {
+        return this._model;
+    }
+
     onLoad() {
 
     }
