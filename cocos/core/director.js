@@ -918,18 +918,14 @@ class Director extends EventTarget {
                 CCObject._deferredDestroy();
             }
 
-            // Render
             this._physicsSystem.update(this._deltaTime);
+
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
-            //this._renderSystem.update(this._deltaTime);
-
-
-            this._root.frameMove(this._deltaTime);
-
-            // After draw
+            this._root.frameMove(this._deltaTime); // Render
             this.emit(cc.Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
+            this._scene.resetHasChanged();
             this._totalFrames++;
         }
     }

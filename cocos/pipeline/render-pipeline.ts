@@ -349,9 +349,7 @@ export abstract class RenderPipeline {
         for (const model of scene.models) {
 
             // filter model by view visibility
-            if (view.visibility > 0 && model.viewID !== view.visibility ||
-                !model.enabled ||
-                !model.node.activeInHierarchy) {
+            if (view.visibility > 0 && model.viewID !== view.visibility || !model.enabled) {
                 continue;
             }
 
