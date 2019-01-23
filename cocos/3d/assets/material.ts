@@ -120,14 +120,14 @@ export class Material extends Asset {
      * pass.setUniform should be used instead
      * if you need to do per-frame property update.
      */
-    public setProperty (name: string, val: any, passIdx?: number, arrayIdx?: number) {
+    public setProperty (name: string, val: any, passIdx?: number) {
         let success = false;
         if (passIdx === undefined) { // set property for all applicable passes
             const passes = this._passes;
             const len = passes.length;
             for (let i = 0; i < len; i++) {
                 const pass = passes[i];
-                if (this._uploadProperty(pass, name, val, arrayIdx)) {
+                if (this._uploadProperty(pass, name, val)) {
                     this._props[i][name] = val;
                     success = true;
                 }
@@ -135,7 +135,7 @@ export class Material extends Asset {
         } else {
             if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
             const pass = this._passes[passIdx];
-            if (this._uploadProperty(pass, name, val, arrayIdx)) {
+            if (this._uploadProperty(pass, name, val)) {
                 this._props[passIdx][name] = val;
                 success = true;
             }
@@ -207,17 +207,21 @@ export class Material extends Asset {
         this.onPassChange();
     }
 
-    protected _uploadProperty (pass: Pass, name: string, val: any, arrayIdx?: number) {
+    protected _uploadProperty (pass: Pass, name: string, val: any) {
         const handle = pass.getHandle(name);
         if (handle === undefined) { return false; }
         const bindingType = Pass.getBindingTypeFromHandle(handle);
         if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
-            pass.setUniform(handle, val, arrayIdx);
+            if (Array.isArray(val)) {
+                pass.setUniformArray(handle, val);
+            } else {
+                pass.setUniform(handle, val);
+            }
         } else if (bindingType === GFXBindingType.SAMPLER) {
             const textureView = val instanceof GFXTextureView ? val : val.getGFXTextureView();
             if (!textureView) { console.warn('texture asset incomplete!'); return false; }
             const binding = Pass.getBindingFromHandle(handle);
-            pass.bindTextureView(binding, textureView, arrayIdx);
+            pass.bindTextureView(binding, textureView);
         }
         return true;
     }

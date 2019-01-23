@@ -206,12 +206,23 @@ export class Pass {
         return Pass.getBindingFromHandle(this.getHandle(name));
     }
 
-    public setUniform (handle: number, value: any, arrayIdx?: number) {
+    public setUniform (handle: number, value: any) {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const idx = Pass.getIndexFromHandle(handle);
         const block = this._blocks[binding];
-        _type2fn[type](block.views[idx], value, arrayIdx);
+        _type2fn[type](block.views[idx], value);
+        block.dirty = true;
+    }
+
+    public setUniformArray (handle: number, value: any[]) {
+        const binding = Pass.getBindingFromHandle(handle);
+        const type = Pass.getTypeFromHandle(handle);
+        const idx = Pass.getIndexFromHandle(handle);
+        const block = this._blocks[binding];
+        for (let i = 0; i < value.length; i++) {
+            _type2fn[type](block.views[idx], value[i], i);
+        }
         block.dirty = true;
     }
 
