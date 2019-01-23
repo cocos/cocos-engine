@@ -1,6 +1,7 @@
 window.files = {
     "aa": [
-        "simple"
+        "simple",
+        "ui"
     ],
 // 	"animation": [
 // 		"spec-skeleton"

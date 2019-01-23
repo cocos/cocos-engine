@@ -30,7 +30,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import Rect from '../../../core/value-types/rect';
 import Size from '../../../core/value-types/size';
 import { GFXClearFlag } from '../../../gfx/define';
-import { Camera } from '../../../renderer/scene/camera';
+import { Camera, ICameraInfo } from '../../../renderer/scene/camera';
 
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
@@ -109,15 +109,15 @@ export class CanvasComponent extends Component {
     }
 
     get visibility () {
-        if (this._camere) {
-            return this._camere.view.visibility;
+        if (this._camera) {
+            return this._camera.view.visibility;
         }
 
         return -1;
     }
 
     get camera () {
-        return this._camere;
+        return this._camera;
     }
 
     public static views = [];
@@ -138,8 +138,8 @@ export class CanvasComponent extends Component {
 
     private _thisOnResized: Function | null = null;
 
-    private _camere: Camera | null = null;
-    private _cameraInfo: object | null = null;
+    private _camera: Camera | null = null;
+    private _cameraInfo: ICameraInfo | null = null;
 
     // /**
     // * !#en Current active canvas, the scene should only have one active canvas at the same time.
@@ -194,23 +194,25 @@ export class CanvasComponent extends Component {
     public onEnable () {
         this._cameraInfo = {
             name: 'ui',
-            clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
             node: this.node,
-            stencil: 0,
             projection: CameraComponent.ProjectionType.ORTHO,
+            fov: 45,
+            stencil: 0,
             orthoHeight: 10,
             far: 4096,
-            near: 0.1,
+            near: -0.1,
+            color: cc.color(255, 0, 0, 1),
+            clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
             rect: new Rect(0, 0, 1, 1),
-            color: cc.color(255, 255, 255, 255),
-        };
-        this._camere = this._getRenderScene().createCamera(this._cameraInfo);
+            depth: 1
+        } as ICameraInfo;
+        this._camera = this._getRenderScene().createCamera(this._cameraInfo);
         cc.director.root.ui.addScreen(this);
     }
 
     public onDisable () {
-        if (this._camere) {
-            this._getRenderScene().destroyCamera(this._cameraInfo);
+        if (this._camera) {
+            this._getRenderScene().destroyCamera(this._camera);
             cc.director.root.ui.removeScreen(this);
         }
     }
@@ -243,10 +245,10 @@ export class CanvasComponent extends Component {
     //
 
     public alignWithScreen () {
-        if (this._camere) {
-            this._camere.resize(cc.game.canvas.width, cc.game.canvas.height);
-            this._camere.orthoHeight = cc.game.canvas.height / cc.view._scaleY / 2;
-            const viewport = this._camere.viewport;
+        if (this._camera) {
+            this._camera.resize(cc.game.canvas.width, cc.game.canvas.height);
+            this._camera.orthoHeight = cc.game.canvas.height / cc.view._scaleY / 2;
+            const viewport = this._camera.viewport;
             viewport.x = viewport.y = 0;
             viewport.width = cc.game.canvas.width;
             viewport.height = cc.game.canvas.height;

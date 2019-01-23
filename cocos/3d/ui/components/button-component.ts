@@ -30,7 +30,7 @@ import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import Event from '../../../core/event/event';
 import { lerp } from '../../../core/utils/misc';
-import { Color, Vec3 } from '../../../core/value-types/index';
+import { Color, Vec3, Enum } from '../../../core/value-types/index';
 import * as math from '../../../core/vmath/index';
 import { Node } from '../../../scene-graph';
 import { SpriteComponent } from './sprite-component';
@@ -41,34 +41,34 @@ import { EventTouch } from '../../../core/platform/event-manager';
  * !#zh 过渡类型
  * @enum Button.Transition
  */
-const Transition = cc.Enum({
+enum Transition {
     /**
      * !#en The none type.
      * !#zh 不做任何过渡
      * @property {Number} NONE
      */
-    NONE: 0,
+    NONE = 0,
 
     /**
      * !#en The color type.
      * !#zh 颜色过渡
      * @property {Number} COLOR
      */
-    COLOR: 1,
+    COLOR = 1,
 
     /**
      * !#en The sprite type.
      * !#zh 精灵过渡
      * @property {Number} SPRITE
      */
-    SPRITE: 2,
+    SPRITE = 2,
     /**
      * !#en The scale type
      * !#zh 缩放过渡
      * @property {Number} SCALE
      */
-    SCALE: 3,
-});
+    SCALE = 3,
+};
 
 /**
  * !#en
@@ -129,7 +129,7 @@ const Transition = cc.Enum({
 @executionOrder(100)
 @menu('UI/Button')
 @executeInEditMode
-export default class ButtonComponent extends Component {
+export class ButtonComponent extends Component {
 
     /**
      * !#en
@@ -193,7 +193,7 @@ export default class ButtonComponent extends Component {
         return this._transition;
     }
 
-    set transition (value: number) {
+    set transition(value: Transition) {
         if (this._transition === value) {
             return;
         }
