@@ -414,6 +414,10 @@ function loadBuiltins (name, type, cb) {
 }
 
 AssetLibrary._loadBuiltins = function (cb) {
+    if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+        return cb && cb();
+    }
+
     loadBuiltins('effect', cc.EffectAsset, () => {
         loadBuiltins('material', cc.Material, cb);
     });
