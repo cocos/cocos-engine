@@ -61,7 +61,7 @@ export default class ParticleBatchModel extends Model {
         this._vertAttrs = attrs;
         this._vertSize = 0;
         for (const a of this._vertAttrs) {
-            this._vertSize += GFXFormatInfos[a.format].size * GFXFormatInfos[a.format].count;
+            this._vertSize += GFXFormatInfos[a.format].size;
         }
         // rebuid
         this._vBuffer = this._createSubMeshData();
@@ -128,7 +128,7 @@ export default class ParticleBatchModel extends Model {
     }
 
     public disableStretchedBillboard () {
-        if (this._vertAttrs!.find((attr) => attr.name === GFXAttributeName.ATTR_COLOR) !== undefined) {
+        if (this._vertAttrs!.find((attr) => attr.name === GFXAttributeName.ATTR_COLOR1) !== undefined) {
             this._vertAttrs!.pop();
             this.setVertexAttributes(this._vertAttrs!);
         }
