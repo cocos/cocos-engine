@@ -1,7 +1,29 @@
 import { vec3, color4 } from '../../../core/vmath';
+import { Color } from '../../../core/value-types';
+import ParticleSystemComponent from './particle-system-component';
 
 export default class Particle {
-    constructor(particleSystem) {
+    public particleSystem: ParticleSystemComponent;
+    public position: vec3;
+    public velocity: vec3;
+    public animatedVelocity: vec3;
+    public ultimateVelocity: vec3;
+    public angularVelocity: vec3;
+    public axisOfRotation: vec3;
+    public rotation: vec3;
+    public startSize: vec3;
+    public size: vec3;
+    public startColor: Color;
+    public startColor01: color4;
+    public color = cc.Color.WHITE;
+    public randomSeed: number; // uint
+    public remainingLifetime: number;
+    public startLifetime: number;
+    public emitAccumulator0: number;
+    public emitAccumulator1: number;
+    public frameIndex: number;
+
+    constructor (particleSystem: any) {
         this.particleSystem = particleSystem;
         this.position = vec3.create(0, 0, 0);
         this.velocity = vec3.create(0, 0, 0);
