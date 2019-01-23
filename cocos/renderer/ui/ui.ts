@@ -100,14 +100,15 @@ export class UI {
             type: GFXCommandBufferType.PRIMARY,
         });
 
+        /*
         // create ui material
         const material = new Material();
         material.effectName = 'sprite-material';
         // material.setProperty('mainTexture', texture);
         material.update();
 
-        // this._uiMaterial = this.createUIMaterial( { material });
-
+        this._uiMaterial = this.createUIMaterial( { material });
+        */
         return true;
     }
 
