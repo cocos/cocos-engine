@@ -67,7 +67,7 @@ const _type2default = {
   [GFXType.SAMPLER_CUBE]: 'default-cube-texture',
 };
 
-const builtinRE = /^cc/i;
+const builtinRE = /^CC.*?/;
 
 const btMask      = 0xf0000000; // 4 bits, 16 slots
 const typeMask    = 0x0fc00000; // 6 bits, 64 slots
@@ -184,7 +184,6 @@ export class Pass {
         }
 
         for (const u of info.samplers) {
-            if (builtinRE.test(u.name)) { continue; }
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
             const sampler = device.createSampler({
                 name: u.name,

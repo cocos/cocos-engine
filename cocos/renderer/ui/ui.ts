@@ -4,6 +4,7 @@ import RecyclePool from '../../3d/memop/recycle-pool';
 import { CanvasComponent } from '../../3d/ui/components/canvas-component';
 import { UIRenderComponent } from '../../3d/ui/components/ui-render-component';
 import { IMeshBufferInitData, MeshBuffer } from '../../3d/ui/mesh-buffer';
+import { SpriteFrame } from '../../assets/CCSpriteFrame';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
@@ -23,7 +24,7 @@ import { vfmt } from '../../gfx/vertex-format-sample';
 import { BaseNode } from '../../scene-graph/base-node';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
-import { SpriteFrame } from '../../assets/CCSpriteFrame';
+import { IUIMaterialInfo, UIMaterial } from './ui-material';
 
 export class UIBufferBatch {
     public vb: GFXBuffer | null = null;
