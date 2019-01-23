@@ -38,20 +38,20 @@ import { UITransformComponent } from './ui-transfrom-component';
  * !#zh 滑动器方向
  * @enum Slider.Direction
  */
-var Direction = cc.Enum({
+enum Direction {
     /**
      * !#en The horizontal direction.
      * !#zh 水平方向
      * @property {Number} Horizontal
      */
-    Horizontal: 0,
+    Horizontal = 0,
     /**
      * !#en The vertical direction.
      * !#zh 垂直方向
      * @property {Number} Vertical
      */
-    Vertical: 1
-});
+    Vertical = 1
+};
 
 /**
  * !#en The Slider Control
@@ -124,7 +124,11 @@ export class SliderComponent extends Component {
      * !#zh 当前进度值，该数值的区间是 0-1 之间
      * @property {Number} progress
      */
-    @property
+    @property({
+        default: 0.1,
+        slide: true,
+        range: [0.1, 1, 0.01],
+    })
     get progress() {
         return this._progress;
     }

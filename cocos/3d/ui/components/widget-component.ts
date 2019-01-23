@@ -28,7 +28,7 @@
 import WidgetManager from '../../../2d/base-ui/CCWidgetManager';
 import { Component} from '../../../components/component';
 import { ccclass, property, executeInEditMode, menu, executionOrder } from '../../../core/data/class-decorator';
-import { Node } from '../../../scene-graph/index'
+import { Node } from '../../../scene-graph/index';
 /**
  * !#en Enum for Widget's alignment mode, indicating when the widget should refresh.
  * !#zh Widget 的对齐模式，表示 Widget 应该何时刷新。
@@ -83,7 +83,7 @@ var LEFT_RIGHT = LEFT | RIGHT;
 @executionOrder(100)
 @menu('UI/Widget')
 @executeInEditMode
-export default class WidgetComponent extends Component {
+export class WidgetComponent extends Component {
     /**
      * !#zh: 对齐开关，由 AlignFlags 组成
      *
@@ -144,7 +144,7 @@ export default class WidgetComponent extends Component {
      * @default null
      */
     @property({
-        type: cc.NodeUI
+        type: Node
     })
     get target() {
         return this._target;

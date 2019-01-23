@@ -25,7 +25,7 @@
  ****************************************************************************/
 import ComponentEventHandler from '../../../components/CCComponentEventHandler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import ButtonComponent from './button-component';
+import { ButtonComponent} from './button-component';
 import { SpriteComponent} from './sprite-component';
 import { ToggleGroupComponent} from './toggle-group-component';
 

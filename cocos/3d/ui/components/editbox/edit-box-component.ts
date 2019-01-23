@@ -672,7 +672,7 @@ export class EditBoxComponent extends Component {
         textLabel.string = displayText;
         if (this._impl) {
             this._impl.setString(text);
-            if (!this._impl._editing && !this.stayOnTop) {
+            if (!this._impl.editing && !this.stayOnTop) {
                 this._showLabels();
             }
         }

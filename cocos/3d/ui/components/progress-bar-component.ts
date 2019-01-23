@@ -35,27 +35,27 @@ import { SpriteComponent } from './sprite-component';
  * !#zh 进度条模式
  * @enum ProgressBar.Mode
  */
-var Mode = cc.Enum({
+enum Mode {
     /**
      * !#en TODO
      * !#zh 水平方向模式
      * @property {Number} HORIZONTAL
      */
-    HORIZONTAL: 0,
+    HORIZONTAL = 0,
 
     /**
      * !#en TODO
      * !#zh 垂直方向模式
      * @property {Number} VERTICAL
      */
-    VERTICAL: 1,
+    VERTICAL = 1,
     /**
      * !#en TODO
      * !#zh 填充模式
      * @property {Number} FILLED
      */
-    FILLED: 2,
-});
+    FILLED = 2,
+};
 
 /**
  * !#en
@@ -171,7 +171,11 @@ export class ProgressBarComponent extends Component {
      * !#zh 当前进度值，该数值的区间是 0-1 之间。
      * @property {Number} progress
      */
-    @property
+    @property({
+        default: 0.1,
+        range: [0, 1, 0.1],
+        slide: true
+    })
     get progress() {
         return this._progress;
     }
