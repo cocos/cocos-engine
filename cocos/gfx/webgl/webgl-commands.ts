@@ -918,13 +918,15 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
     }
 
     const glProgram = gl.createProgram();
-    if (glProgram) {
-        gpuShader.glProgram = glProgram;
+    if (!glProgram) {
+        return;
+    }
 
-        // link program
-        for (const gpuStage of gpuShader.gpuStages) {
-            gl.attachShader(gpuShader.glProgram, gpuStage.glShader);
-        }
+    gpuShader.glProgram = glProgram;
+
+    // link program
+    for (const gpuStage of gpuShader.gpuStages) {
+        gl.attachShader(gpuShader.glProgram, gpuStage.glShader);
     }
 
     gl.linkProgram(gpuShader.glProgram);
@@ -1066,6 +1068,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
     const activeUniformCount = gl.getProgramParameter(gpuShader.glProgram, gl.ACTIVE_UNIFORMS);
     let unitIdx = 0;
 
+    const glActiveSamplers: WebGLGPUUniformSampler[] = [];
+
     for (let i = 0; i < activeUniformCount; ++i) {
         const uniformInfo = gl.getActiveUniform(gpuShader.glProgram, i);
         if (uniformInfo) {
@@ -1112,6 +1116,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
                             glSampler.glLoc = glLoc;
 
                             unitIdx += uniformInfo.size;
+                            glActiveSamplers.push(glSampler);
 
                             break;
                         }
@@ -1120,6 +1125,17 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
             }
         }
     } // for
+
+    if (glActiveSamplers.length) {
+        if (device.stateCache.glProgram !== gpuShader.glProgram) {
+            gl.useProgram(gpuShader.glProgram);
+            device.stateCache.glProgram = gpuShader.glProgram;
+        }
+
+        for (const glSampler of glActiveSamplers) {
+            gl.uniform1iv(glSampler.glLoc, glSampler.units);
+        }
+    }
 }
 
 export function WebGLCmdFuncDestroyShader (device: WebGLGFXDevice, gpuShader: WebGLGPUShader) {
@@ -1877,6 +1893,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                             }
 
                                             let glTexUnit: IWebGLTexUnit | null = null;
+                                            let isTexParamInvalied = false;
 
                                             switch (glSampler.glType) {
                                                 case WebGLRenderingContext.SAMPLER_2D: {
@@ -1884,6 +1901,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                                                         gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, gpuTexture.glTexture);
                                                         glTexUnit.glTexture = gpuTexture.glTexture;
+                                                        isTexParamInvalied = true;
                                                     }
                                                     break;
                                                 }
@@ -1893,6 +1911,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                                                         gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                                                         glTexUnit.glTexture = gpuTexture.glTexture;
+                                                        isTexParamInvalied = true;
                                                     }
                                                     break;
                                                 }
@@ -1904,28 +1923,28 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                             if (glTexUnit) {
                                                 const gpuSampler = gpuBinding.gpuSampler;
 
-                                                if (glTexUnit.minFilter !== gpuSampler.glMinFilter) {
+                                                if (glTexUnit.minFilter !== gpuSampler.glMinFilter || isTexParamInvalied) {
                                                     gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
                                                     glTexUnit.minFilter = gpuSampler.glMinFilter;
                                                 }
 
-                                                if (glTexUnit.magFilter !== gpuSampler.glMagFilter) {
+                                                if (glTexUnit.magFilter !== gpuSampler.glMagFilter || isTexParamInvalied) {
                                                     gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
                                                     glTexUnit.magFilter = gpuSampler.glMagFilter;
                                                 }
 
-                                                if (glTexUnit.wrapS !== gpuSampler.glWrapS) {
+                                                if (glTexUnit.wrapS !== gpuSampler.glWrapS || isTexParamInvalied) {
                                                     gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, gpuSampler.glWrapS);
                                                     glTexUnit.wrapS = gpuSampler.glWrapS;
                                                 }
 
-                                                if (glTexUnit.wrapT !== gpuSampler.glWrapT) {
+                                                if (glTexUnit.wrapT !== gpuSampler.glWrapT || isTexParamInvalied) {
                                                     gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, gpuSampler.glWrapT);
                                                     glTexUnit.wrapT = gpuSampler.glWrapT;
                                                 }
 
                                                 /*
-                                                if(glTexUnit.wrapR !== gpuSampler.glWrapR) {
+                                                if(glTexUnit.wrapR !== gpuSampler.glWrapR || isTexParamInvalied) {
                                                     gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_R, gpuSampler.glWrapR);
                                                     glTexUnit.wrapR = gpuSampler.glWrapR;
                                                 }
