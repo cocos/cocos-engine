@@ -47,7 +47,7 @@ function GFXFormatToWebGLType (format: GFXFormat, device: WebGLGFXDevice): GLenu
         case GFXFormat.R8SN: return WebGLRenderingContext.BYTE;
         case GFXFormat.R8UI: return WebGLRenderingContext.UNSIGNED_INT;
         case GFXFormat.R8I: return WebGLRenderingContext.INT;
-        case GFXFormat.R16F: return WebGLRenderingContext.FLOAT;
+        case GFXFormat.R16F: return device.OES_texture_half_float ? device.OES_texture_half_float.HALF_FLOAT_OES : WebGLRenderingContext.FLOAT;
         case GFXFormat.R16UI: return WebGLRenderingContext.UNSIGNED_INT;
         case GFXFormat.R16I: return WebGLRenderingContext.INT;
         case GFXFormat.R32F: return WebGLRenderingContext.FLOAT;
@@ -58,7 +58,7 @@ function GFXFormatToWebGLType (format: GFXFormat, device: WebGLGFXDevice): GLenu
         case GFXFormat.RG8SN: return WebGLRenderingContext.BYTE;
         case GFXFormat.RG8UI: return WebGLRenderingContext.UNSIGNED_INT;
         case GFXFormat.RG8I: return WebGLRenderingContext.INT;
-        case GFXFormat.RG16F: return WebGLRenderingContext.FLOAT;
+        case GFXFormat.RG16F: return device.OES_texture_half_float ? device.OES_texture_half_float.HALF_FLOAT_OES : WebGLRenderingContext.FLOAT;
         case GFXFormat.RG16UI: return WebGLRenderingContext.UNSIGNED_INT;
         case GFXFormat.RG16I: return WebGLRenderingContext.INT;
         case GFXFormat.RG32F: return WebGLRenderingContext.FLOAT;
@@ -70,7 +70,7 @@ function GFXFormatToWebGLType (format: GFXFormat, device: WebGLGFXDevice): GLenu
         case GFXFormat.RGB8SN: return WebGLRenderingContext.BYTE;
         case GFXFormat.RGB8UI: return WebGLRenderingContext.UNSIGNED_INT;
         case GFXFormat.RGB8I: return WebGLRenderingContext.INT;
-        case GFXFormat.RGB16F: return WebGLRenderingContext.FLOAT;
+        case GFXFormat.RGB16F: return device.OES_texture_half_float ? device.OES_texture_half_float.HALF_FLOAT_OES : WebGLRenderingContext.FLOAT;
         case GFXFormat.RGB16UI: return WebGLRenderingContext.UNSIGNED_INT;
         case GFXFormat.RGB16I: return WebGLRenderingContext.INT;
         case GFXFormat.RGB32F: return WebGLRenderingContext.FLOAT;
@@ -82,7 +82,7 @@ function GFXFormatToWebGLType (format: GFXFormat, device: WebGLGFXDevice): GLenu
         case GFXFormat.RGBA8SN: return WebGLRenderingContext.BYTE;
         case GFXFormat.RGBA8UI: return WebGLRenderingContext.UNSIGNED_INT;
         case GFXFormat.RGBA8I: return WebGLRenderingContext.INT;
-        case GFXFormat.RGBA16F: return WebGLRenderingContext.FLOAT;
+        case GFXFormat.RGBA16F: return device.OES_texture_half_float ? device.OES_texture_half_float.HALF_FLOAT_OES : WebGLRenderingContext.FLOAT;
         case GFXFormat.RGBA16UI: return WebGLRenderingContext.UNSIGNED_INT;
         case GFXFormat.RGBA16I: return WebGLRenderingContext.INT;
         case GFXFormat.RGBA32F: return WebGLRenderingContext.FLOAT;
@@ -150,7 +150,10 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat): GLenum {
         case GFXFormat.L8: return WebGLRenderingContext.LUMINANCE;
         case GFXFormat.LA8: return WebGLRenderingContext.LUMINANCE_ALPHA;
         case GFXFormat.RGB8: return WebGLRenderingContext.RGB;
+        case GFXFormat.RGB16F: return WebGLRenderingContext.RGB;
+        case GFXFormat.RGB32F: return WebGLRenderingContext.RGB;
         case GFXFormat.RGBA8: return WebGLRenderingContext.RGBA;
+        case GFXFormat.RGBA16F: return WebGLRenderingContext.RGBA;
         case GFXFormat.RGBA32F: return WebGLRenderingContext.RGBA;
         case GFXFormat.R5G6B5: return WebGLRenderingContext.RGB565;
         case GFXFormat.RGB5A1: return WebGLRenderingContext.RGB5_A1;
@@ -191,7 +194,10 @@ function GFXFormatToWebGLFormat (format: GFXFormat): GLenum {
         case GFXFormat.L8: return WebGLRenderingContext.LUMINANCE;
         case GFXFormat.LA8: return WebGLRenderingContext.LUMINANCE_ALPHA;
         case GFXFormat.RGB8: return WebGLRenderingContext.RGB;
+        case GFXFormat.RGB16F: return WebGLRenderingContext.RGB;
+        case GFXFormat.RGB32F: return WebGLRenderingContext.RGB;
         case GFXFormat.RGBA8: return WebGLRenderingContext.RGBA;
+        case GFXFormat.RGBA16F: return WebGLRenderingContext.RGBA;
         case GFXFormat.RGBA32F: return WebGLRenderingContext.RGBA;
         case GFXFormat.R5G6B5: return WebGLRenderingContext.RGB;
         case GFXFormat.RGB5A1: return WebGLRenderingContext.RGBA;
