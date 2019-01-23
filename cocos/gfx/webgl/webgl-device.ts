@@ -42,6 +42,7 @@ import {
     WebGLCmdFuncDestroyFramebuffer,
     WebGLCmdFuncDestroyShader,
     WebGLCmdFuncDestroyTexture,
+    WebGLCmdFuncResizeBuffer,
     WebGLCmdFuncUpdateBuffer,
 } from './webgl-commands';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
@@ -505,7 +506,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public copyBufferToTexture (buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
         WebGLCmdFuncCopyBufferToTexture(
-            this as WebGLGFXDevice,
+            this,
             buffer,
             (texture as WebGLGFXTexture).gpuTexture,
             regions);
@@ -523,7 +524,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
                 const imgData = context.getImageData(0, 0, this._canvas2D.width, this._canvas2D.height);
                 WebGLCmdFuncCopyBufferToTexture(
-                    this as WebGLGFXDevice,
+                    this,
                     imgData.data,
                     (texture as WebGLGFXTexture).gpuTexture,
                     regions);
@@ -603,14 +604,27 @@ export class WebGLGFXDevice extends GFXDevice {
 
         // TODO: Async
         // let cmd : WebGLCmd = { type : WebGLCmdType.DESTROY_BUFFER, gpuObj : gpuBuffer, isFree : false };
-        WebGLCmdFuncDestroyBuffer(this as WebGLGFXDevice, gpuBuffer);
+        WebGLCmdFuncDestroyBuffer(this, gpuBuffer);
+    }
+
+    public emitCmdResizeGPUBuffer (gpuBuffer: WebGLGPUBuffer, buffer: GFXBufferSource | null) {
+
+        if (buffer) {
+            if ((gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) === GFXBufferUsageBit.NONE) {
+                gpuBuffer.buffer = buffer as ArrayBuffer;
+                gpuBuffer.size = gpuBuffer.buffer.byteLength;
+            }
+        }
+
+        // TODO: Async
+        WebGLCmdFuncResizeBuffer(this, gpuBuffer);
     }
 
     public emitCmdUpdateGPUBuffer (gpuBuffer: WebGLGPUBuffer, buffer: GFXBufferSource, offset: number, size: number) {
         // TODO: Async
         const isStagingBuffer = (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_SRC) !== GFXBufferUsageBit.NONE;
         if (!isStagingBuffer) {
-            WebGLCmdFuncUpdateBuffer(this as WebGLGFXDevice, gpuBuffer, buffer, offset, size);
+            WebGLCmdFuncUpdateBuffer(this, gpuBuffer, buffer, offset, size);
         }
     }
 
@@ -681,7 +695,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
         // TODO: Async
         // let cmd : WebGLCmd = { type : WebGLCmdType.CREATE_BUFFER, gpuObj : gpuBuffer, isFree : false };
-        WebGLCmdFuncCreateTexture(this as WebGLGFXDevice, gpuTexture);
+        WebGLCmdFuncCreateTexture(this, gpuTexture);
 
         return gpuTexture;
     }
@@ -690,7 +704,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
         // TODO: Async
         // let cmd : WebGLCmd = { type : WebGLCmdType.DESTROY_BUFFER, gpuObj : gpuBuffer, isFree : false };
-        WebGLCmdFuncDestroyTexture(this as WebGLGFXDevice, gpuTexture);
+        WebGLCmdFuncDestroyTexture(this, gpuTexture);
     }
 
     public emitCmdCreateGPUTextureView (info: IGFXTextureViewInfo): WebGLGPUTextureView {
@@ -756,7 +770,7 @@ export class WebGLGFXDevice extends GFXDevice {
             };
 
             // TODO: Async
-            WebGLCmdFuncCreateFramebuffer(this as WebGLGFXDevice, gpuFramebuffer);
+            WebGLCmdFuncCreateFramebuffer(this, gpuFramebuffer);
 
             return gpuFramebuffer;
 
@@ -777,7 +791,7 @@ export class WebGLGFXDevice extends GFXDevice {
     public emitCmdDestroyGPUFramebuffer (gpuFramebuffer: WebGLGPUFramebuffer) {
         if (gpuFramebuffer.isOffscreen) {
             // TODO: Async
-            WebGLCmdFuncDestroyFramebuffer(this as WebGLGFXDevice, gpuFramebuffer);
+            WebGLCmdFuncDestroyFramebuffer(this, gpuFramebuffer);
         }
     }
 
@@ -864,14 +878,14 @@ export class WebGLGFXDevice extends GFXDevice {
         };
 
         // TODO: Async
-        WebGLCmdFuncCreateShader(this as WebGLGFXDevice, gpuShader);
+        WebGLCmdFuncCreateShader(this, gpuShader);
 
         return gpuShader;
     }
 
     public emitCmdDestroyGPUShader (gpuShader: WebGLGPUShader) {
         // TODO: Async
-        WebGLCmdFuncDestroyShader(this as WebGLGFXDevice, gpuShader);
+        WebGLCmdFuncDestroyShader(this, gpuShader);
     }
 
     public emitCmdCreateGPUPipelineState (info: IGFXPipelineStateInfo): WebGLGPUPipelineState {

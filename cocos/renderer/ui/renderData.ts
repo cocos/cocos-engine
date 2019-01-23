@@ -34,7 +34,7 @@ export class RenderData extends BaseRenderData {
                 data[i] = _dataPool.add();
             }
             for (i = value; i > length; i--) {
-                _dataPool.remove(i);
+                _dataPool.removeAt(i);
                 data.splice(i, 1);
             }
         }
@@ -54,7 +54,7 @@ export class RenderData extends BaseRenderData {
 
     public static remove (idx: number) {
         _pool.data[idx].clear();
-        _pool.remove(idx);
+        _pool.removeAt(idx);
     }
 
     public uvDirty: boolean = true;

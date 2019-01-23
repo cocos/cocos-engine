@@ -58,6 +58,10 @@ export abstract class GFXBuffer extends GFXObject {
         return this._stride;
     }
 
+    public get count (): number {
+        return this._count;
+    }
+
     public get buffer (): GFXBufferSource | null {
         return this._buffer;
     }
@@ -67,6 +71,7 @@ export abstract class GFXBuffer extends GFXObject {
     protected _memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;
     protected _size: number = 0;
     protected _stride: number = 1;
+    protected _count: number = 0;
     protected _buffer: GFXBufferSource | null = null;
     protected _uniforms: GFXBufferSource | null = null;
 
@@ -77,5 +82,6 @@ export abstract class GFXBuffer extends GFXObject {
 
     public abstract initialize (info: IGFXBufferInfo): boolean;
     public abstract destroy (): void;
+    public abstract resize (size: number);
     public abstract update (buffer: GFXBufferSource, offset?: number, size?: number);
 }

@@ -30,6 +30,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
             this._stride = info.stride;
         }
         this._stride = Math.max(this._stride, 1);
+        this._count = this._size / this._stride;
 
         if (this._memUsage & GFXMemoryUsageBit.HOST) {
             if (this._usage & GFXBufferUsageBit.INDIRECT) {
@@ -54,6 +55,17 @@ export class WebGLGFXBuffer extends GFXBuffer {
 
         this._buffer = null;
         this._status = GFXStatus.UNREADY;
+    }
+
+    public resize (size: number) {
+
+        if (this._memUsage & GFXMemoryUsageBit.HOST) {
+            if ((this._usage & GFXBufferUsageBit.INDIRECT) === GFXBufferUsageBit.NONE) {
+                this._buffer = new ArrayBuffer(this._size);
+            }
+        }
+
+        this.webGLDevice.emitCmdResizeGPUBuffer(this._gpuBuffer!, this._buffer);
     }
 
     public update (buffer: GFXBufferSource, offset?: number, size?: number) {
