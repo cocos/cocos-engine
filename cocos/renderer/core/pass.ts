@@ -185,18 +185,11 @@ export class Pass {
 
         for (const u of info.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
-            const sampler = device.createSampler({
-                name: u.name,
-                // TODO: specify filter modes in effect
-            });
-            if (sampler) {
-                this._samplers[u.binding] = sampler;
-            } else {
-                console.error('create sampler failed.');
-            }
             const inf = info.properties && info.properties[u.name];
             const name = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
-            this._textureViews[u.binding] = builtinResMgr.get<TextureBase>(name).getGFXTextureView()!;
+            const texture = builtinResMgr.get<TextureBase>(name);
+            this._samplers[u.binding] = texture.getGFXSampler()!;
+            this._textureViews[u.binding] = texture.getGFXTextureView()!;
         }
     }
 

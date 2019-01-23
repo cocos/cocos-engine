@@ -30,7 +30,7 @@ import IDGenerator from '../core/utils/id-generator';
 import {addon} from '../core/utils/js';
 import { ccenum } from '../core/value-types/enum';
 import { GFXAddress, GFXBufferTextureCopy, GFXFilter, GFXFormat,
-    GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
+    GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXSampler } from '../gfx/sampler';
 import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
@@ -243,7 +243,6 @@ export class TextureBase extends Asset {
 
     protected constructor (flipY: boolean = false) {
         super();
-        // @ts-ignore
         EventTarget.call(this);
 
         this._flipY = flipY;
@@ -268,6 +267,7 @@ export class TextureBase extends Asset {
         this._potientialHeight = height;
         this._format = format;
         this._mipmapLevel = 1;
+        this._updateSampler();
         this._recreateTexture();
     }
 
@@ -558,19 +558,18 @@ export class TextureBase extends Asset {
     protected _getTextureCreateInfo (): IGFXTextureInfo {
         return {
             type: GFXTextureType.TEX2D,
-            /* tslint:disable:no-bitwise */
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            /* tslint:enable:no-bitwise */
             format: toGfxFormat(this._format),
             width: this._potientialWidth,
             height: this._potientialHeight,
             mipLevel: this._mipmapLevel,
+            flags: this._genMipmap ? GFXTextureFlagBit.GEN_MIPMAP : GFXTextureFlagBit.NONE,
         };
     }
 
     protected _getTextureViewCreateInfo (): IGFXTextureViewInfo {
         return {
-            texture: this._texture,
+            texture: this._texture!,
             type: GFXTextureViewType.TV2D,
             format: this._getGfxFormat(),
         };
@@ -622,8 +621,7 @@ export class TextureBase extends Asset {
     }
 }
 
-/* tslint:disable:no-string-literal */
-cc['TextureBase'] = TextureBase;
+cc.TextureBase = TextureBase;
 
 /**
  * !#zh
