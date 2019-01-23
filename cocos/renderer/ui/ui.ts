@@ -106,7 +106,7 @@ export class UI {
         // material.setProperty('mainTexture', texture);
         material.update();
 
-        this._uiMaterial = this.createUIMaterial( { material });
+        // this._uiMaterial = this.createUIMaterial( { material });
 
         return true;
     }

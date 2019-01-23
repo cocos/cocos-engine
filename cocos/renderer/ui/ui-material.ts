@@ -34,6 +34,11 @@ export class UIMaterial {
     }
 
     public initialize (info: IUIMaterialInfo): boolean {
+
+        if (!this._material) {
+            return false;
+        }
+
         this._material = info.material;
 
         this._pass = this._material.passes[0];
