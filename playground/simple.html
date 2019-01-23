@@ -64,6 +64,8 @@
       material.setDefines({ USE_COLOR: true });
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
       material.effectName = 'builtin-effect-unlit';
+      material.setProperty('color', cc.Color.RED, 0, 0);
+      material.setProperty('color', cc.Color.BLUE, 0, 1);
 
       const len = 50;
       const models = [], passes = [];
@@ -115,8 +117,8 @@
           const x = Math.cos(rad + t), y = Math.sin(rad + t);
           let z = m._lpos.z + dt; if (z > len * 2) z = 0;
           m.setPosition(x * 2, y * 2, z);
-          color.fromHSV((x + 1) * 0.5, 0.5, 1);
-          passes[i].setUniform(handle, color);
+          // color.fromHSV((x + 1) * 0.5, 0.5, 1);
+          // passes[i].setUniform(handle, color);
         });
       });
 
