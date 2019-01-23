@@ -2,6 +2,7 @@ import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { GFXDynamicState, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
+import { IGFXSamplerInfo } from '../../gfx/sampler';
 import { RenderPassStage } from '../../pipeline/define';
 import { programLib } from '../../renderer/core/program-lib';
 
@@ -9,6 +10,7 @@ export interface IPropertyInfo {
     type: number; // auto-extracted if not specified
     value?: number[] | string;
     displayName?: string;
+    sampler?: IGFXSamplerInfo;
 }
 export interface IPassInfo {
     program: string;

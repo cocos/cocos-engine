@@ -186,10 +186,15 @@ export class Pass {
         for (const u of info.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
             const inf = info.properties && info.properties[u.name];
-            const name = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
-            const texture = builtinResMgr.get<TextureBase>(name);
-            this._samplers[u.binding] = texture.getGFXSampler()!;
-            this._textureViews[u.binding] = texture.getGFXTextureView()!;
+            const samplerInfo = Object.assign({ name: u.name }, inf && inf.sampler);
+            const sampler = device.createSampler(samplerInfo);
+            if (sampler) {
+                this._samplers[u.binding] = sampler;
+            } else {
+                console.error('create sampler failed.');
+            }
+            const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
+            this._textureViews[u.binding] = builtinResMgr.get<TextureBase>(texName).getGFXTextureView()!;
         }
     }
 

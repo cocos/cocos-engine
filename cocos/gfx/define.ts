@@ -294,8 +294,8 @@ export enum GFXPrimitiveMode {
 
 export enum GFXPolygonMode {
     FILL,
-    LINE,
     POINT,
+    LINE,
 }
 
 export enum GFXShadeModel {
