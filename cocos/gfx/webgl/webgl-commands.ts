@@ -151,6 +151,7 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat): GLenum {
         case GFXFormat.LA8: return WebGLRenderingContext.LUMINANCE_ALPHA;
         case GFXFormat.RGB8: return WebGLRenderingContext.RGB;
         case GFXFormat.RGBA8: return WebGLRenderingContext.RGBA;
+        case GFXFormat.RGBA32F: return WebGLRenderingContext.RGBA;
         case GFXFormat.R5G6B5: return WebGLRenderingContext.RGB565;
         case GFXFormat.RGB5A1: return WebGLRenderingContext.RGB5_A1;
         case GFXFormat.RGBA4: return WebGLRenderingContext.RGBA4;
@@ -191,6 +192,7 @@ function GFXFormatToWebGLFormat (format: GFXFormat): GLenum {
         case GFXFormat.LA8: return WebGLRenderingContext.LUMINANCE_ALPHA;
         case GFXFormat.RGB8: return WebGLRenderingContext.RGB;
         case GFXFormat.RGBA8: return WebGLRenderingContext.RGBA;
+        case GFXFormat.RGBA32F: return WebGLRenderingContext.RGBA;
         case GFXFormat.R5G6B5: return WebGLRenderingContext.RGB;
         case GFXFormat.RGB5A1: return WebGLRenderingContext.RGBA;
         case GFXFormat.RGBA4: return WebGLRenderingContext.RGBA;

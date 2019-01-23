@@ -36,7 +36,7 @@ import { GFXSampler } from '../gfx/sampler';
 import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
 import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
 import { Asset } from './asset';
-import { ImageAsset } from './image-asset';
+import { ImageAsset, ImageSource } from './image-asset';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -243,6 +243,7 @@ export class TextureBase extends Asset {
 
     protected constructor (flipY: boolean = false) {
         super();
+        // @ts-ignore
         EventTarget.call(this);
 
         this._flipY = flipY;
@@ -266,7 +267,7 @@ export class TextureBase extends Asset {
         this._potientialWidth = width;
         this._potientialHeight = height;
         this._format = format;
-        this._mipmapLevel = 1;
+        this._mipmapLevel = mipmapLevel;
         this._updateSampler();
         this._recreateTexture();
     }
@@ -495,7 +496,18 @@ export class TextureBase extends Asset {
     }
 
     protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number) {
-        const upload = () => { this._uploadImage(image, level, arrayIndex); };
+        const upload = () => {
+            if (!image.data) {
+                return;
+            }
+            let source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer;
+            if (image.data instanceof HTMLElement) {
+                source = image.data;
+            } else {
+                source = image.data.buffer;
+            }
+            this._uploadData(source, level, arrayIndex);
+        };
         // @ts-ignore
         if (image.loaded) {
             upload();
@@ -507,17 +519,13 @@ export class TextureBase extends Asset {
         }
     }
 
-    protected _uploadImage (image: ImageAsset, level: number, arrayIndex?: number) {
+    protected _uploadData (
+        source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer, level: number, arrayIndex?: number) {
         if (!this._texture) {
             return;
         }
 
         if (level >= this._texture.mipLevel) {
-            return;
-        }
-
-        const data = image.data;
-        if (!data) {
             return;
         }
 
@@ -548,10 +556,10 @@ export class TextureBase extends Asset {
             },
         };
 
-        if (data instanceof HTMLElement) {
-            gfxDevice.copyImageSourceToTexture(data, this._texture, [region]);
+        if (source instanceof HTMLElement) {
+            gfxDevice.copyImageSourceToTexture(source, this._texture, [region]);
         } else {
-            gfxDevice.copyBufferToTexture(data.buffer, this._texture, [region]);
+            gfxDevice.copyBufferToTexture(source, this._texture, [region]);
         }
     }
 
@@ -621,7 +629,8 @@ export class TextureBase extends Asset {
     }
 }
 
-cc.TextureBase = TextureBase;
+/* tslint:disable:no-string-literal */
+cc['TextureBase'] = TextureBase;
 
 /**
  * !#zh

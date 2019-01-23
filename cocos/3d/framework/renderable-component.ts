@@ -103,7 +103,7 @@ export class RenderableComponent extends Component {
 
     }
 
-    private _clearMaterials () {
+    protected _clearMaterials () {
 
     }
 }

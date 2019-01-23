@@ -25,7 +25,7 @@
  ****************************************************************************/
 // @ts-check
 import { ccclass, property } from '../core/data/class-decorator';
-import { ImageAsset } from './image-asset';
+import { ImageAsset, ImageSource } from './image-asset';
 import { TextureBase } from './texture-base';
 
 /**
@@ -93,14 +93,13 @@ export class Texture2D extends TextureBase {
 
     /**
      * Updates mipmaps at specified range of levels.
-     * @param sources The image sources.
      * @param firstLevel The first level from which the sources update.
      * @description
      * If the range specified by [firstLevel, firstLevel + sources.length) exceeds
      * the actually range of mipmaps this texture contains, only overlaped mipmaps are updated.
      * Use this method if your mipmap data are modified.
      */
-    public updateMipmaps (firstLevel: number, count?: number) {
+    public updateMipmaps (firstLevel: number = 0, count?: number) {
         if (firstLevel >= this._mipmaps.length) {
             return;
         }
@@ -111,8 +110,12 @@ export class Texture2D extends TextureBase {
 
         for (let i = 0; i < nUpdate; ++i) {
             const level = firstLevel + i;
-            this._uploadImage(this._mipmaps[level], level);
+            this._assignImage(this._mipmaps[level], level);
         }
+    }
+
+    public directUpdate (source: HTMLImageElement | HTMLCanvasElement | ArrayBuffer, level: number = 0) {
+        this._uploadData(source, level);
     }
 
     /**

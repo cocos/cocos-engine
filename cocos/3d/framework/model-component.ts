@@ -22,12 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { Model } from '../../renderer/scene/model';
-import { ccclass, property, menu, executionOrder, executeInEditMode } from '../../core/data/class-decorator';
-import { Mesh } from '../assets/mesh';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import Enum from '../../core/value-types/enum';
+import { Model } from '../../renderer/scene/model';
+import { Material } from '../assets/material';
+import { Mesh } from '../assets/mesh';
 import { RenderableComponent } from './renderable-component';
-import { builtinResMgr } from '../builtin';
 
 /**
  * !#en Shadow projection mode
@@ -36,7 +36,7 @@ import { builtinResMgr } from '../builtin';
  * @static
  * @enum ModelComponent.ShadowCastingMode
  */
-let ModelShadowCastingMode = Enum({
+const ModelShadowCastingMode = Enum({
     /**
      * !#en
      *
@@ -89,30 +89,19 @@ let ModelShadowCastingMode = Enum({
 export class ModelComponent extends RenderableComponent {
 
     /**
-     * @type {Mesh}
-     */
-    @property({ type: Mesh })
-    _mesh = null;
-
-    @property({ type: ModelShadowCastingMode })
-    _shadowCastingMode = ModelShadowCastingMode.Off;
-
-    @property
-    _receiveShadows = false;
-
-    static _builtinMaterial = null;
-
-    /**
      * !#en The mesh of the model
      *
      * !#ch 模型网格
      * @type {Mesh}
      */
-    @property({ type: Mesh })
-    get mesh() {
+    @property({
+        type: Mesh,
+    })
+    get mesh () {
         return this._mesh;
     }
-    set mesh(val) {
+
+    set mesh (val) {
         this._mesh = val;
         this._updateModels(true);
     }
@@ -123,11 +112,14 @@ export class ModelComponent extends RenderableComponent {
      * !#ch 投射阴影方式
      * @type {Number}
      */
-    @property({ type: ModelShadowCastingMode })
-    get shadowCastingMode() {
+    @property({
+        type: ModelShadowCastingMode,
+    })
+    get shadowCastingMode () {
         return this._shadowCastingMode;
     }
-    set shadowCastingMode(val) {
+
+    set shadowCastingMode (val) {
         this._shadowCastingMode = val;
         this._updateCastShadow();
     }
@@ -139,86 +131,108 @@ export class ModelComponent extends RenderableComponent {
      * @type {Boolean}
      */
     @property
-    get receiveShadows() {
+    get receiveShadows () {
         return this._receiveShadows;
     }
 
-    set receiveShadows(val) {
+    set receiveShadows (val) {
         this._receiveShadows = val;
         this._updateReceiveShadow();
     }
 
-    static ShadowCastingMode = ModelShadowCastingMode;
-
-    constructor() {
-        super();
-        /**
-         * @type {Model}
-         */
-        this._model = null;
-    }
-
-    get model() {
+    get model () {
         return this._model;
     }
 
-    onLoad() {
+    public static ShadowCastingMode = ModelShadowCastingMode;
+
+    protected _model: Model | null = null;
+
+    @property
+    private _mesh: Mesh | null = null;
+
+    @property
+    private _shadowCastingMode = ModelShadowCastingMode.Off;
+
+    @property
+    private _receiveShadows = false;
+
+    constructor () {
+        super();
+    }
+
+    public onLoad () {
 
     }
 
-    onEnable() {
+    public onEnable () {
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
-        if (this._model) { this._model.enabled = true; }
+        if (this._model) {
+            this._model.enabled = true;
+        }
     }
 
-    onDisable() {
-        if (this._model) { this._model.enabled = false; }
+    public onDisable () {
+        if (this._model) {
+            this._model.enabled = false;
+        }
     }
 
-    onDestroy() {
-        this._getRenderScene().destroyModel(this._model);
+    public onDestroy () {
+        if (this._model) {
+            this._getRenderScene().destroyModel(this._model);
+        }
     }
 
-    _updateModels(forceUpdate) {
+    protected _updateModels (forceUpdate: boolean = false) {
         if (!this.enabled || !this.node._scene || !this._mesh || (this._model && !forceUpdate)) {
             return;
         }
 
         if (this._model) {
             this._model.destroy();
-        } else {
-            this._model = this._createModel();
+            this._model = null;
         }
 
-        this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
+        this._model = this._createModel();
+
+        this._model!.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
 
         this._updateModelParams();
     }
 
-    _createModel() {
+    protected _createModel () {
         return this._getRenderScene().createModel(Model, this.node);
     }
 
-    _updateModelParams() {
+    protected _updateModelParams () {
         this.node._hasChanged = true;
-        let meshCount = this._mesh ? this._mesh.subMeshCount : 0;
+        if (!this._mesh || !this._model) {
+            return;
+        }
+        const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {
-            let material = this.getSharedMaterial(i);
-            let subMeshData = this._mesh.renderingMesh.getSubmesh(i);
-            this._model.initSubModel(i, subMeshData, material || this._getBuiltinMaterial());
+            const material = this.getSharedMaterial(i);
+            const renderingMesh = this._mesh.renderingMesh;
+            if (renderingMesh) {
+                const subMeshData = renderingMesh.getSubmesh(i);
+                if (subMeshData) {
+                    this._model.initSubModel(i, subMeshData, material || this._getBuiltinMaterial());
+                }
+            }
         }
     }
 
-    _onMaterialModified(idx, material) {
+    protected _onMaterialModified (idx: number, material: Material | null) {
         if (this._model == null) {
             return;
         }
         this._model.setSubModelMaterial(idx, material);
     }
 
-    _clearMaterials() {
+    protected _clearMaterials () {
         if (this._model == null) {
             return;
         }
@@ -227,17 +241,18 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    _updateCastShadow() {
-        if (!this.enabled || !this._model)
+    private _updateCastShadow () {
+        if (!this.enabled || !this._model) {
             return;
+        }
         if (this._shadowCastingMode === ModelShadowCastingMode.Off) {
             for (let i = 0; i < this._model.subModelNum; ++i) {
-                let subModel = this._model.getSubModel(i);
+                const subModel = this._model.getSubModel(i);
                 subModel.castShadow = false;
             }
         } else if (this._shadowCastingMode === ModelShadowCastingMode.On) {
             for (let i = 0; i < this._model.subModelNum; ++i) {
-                let subModel = this._model.getSubModel(i);
+                const subModel = this._model.getSubModel(i);
                 subModel.castShadow = true;
             }
         } else {
@@ -245,19 +260,20 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    _updateReceiveShadow() {
-        if (!this.enabled || !this._model)
+    private _updateReceiveShadow () {
+        if (!this.enabled || !this._model) {
             return;
+        }
         for (let i = 0; i < this._model.subModelNum; ++i) {
-            let subModel = this._model.getSubModel(i);
+            const subModel = this._model.getSubModel(i);
             // if (subModel._defines['CC_USE_SHADOW_MAP'] != undefined) {
             //     this.getMaterial(i).define('CC_USE_SHADOW_MAP', this._receiveShadows);
             // }
         }
     }
 
-    _getBuiltinMaterial() {
+    private _getBuiltinMaterial () {
         // classic ugly pink indicating missing material
-        return builtinResMgr.get('default-material');
+        return cc.BuiltinResMgr['default-material'];
     }
 }

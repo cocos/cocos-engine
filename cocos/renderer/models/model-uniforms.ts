@@ -1,10 +1,10 @@
 import { GFXType } from '../../gfx/define';
-import { GFXUniformBlock } from '../../gfx/shader';
+import { GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
 
 export class SkinningUBO {
     public static MAT_JOINT_OFFSET: number = 0;
-    public static JOINTS_TEXTURE_SIZE_OFFSET: number = SkinningUBO.MAT_JOINT_OFFSET + 128 * 4;
-    public static COUNT: number = SkinningUBO.MAT_JOINT_OFFSET + 4;
+    public static JOINTS_TEXTURE_SIZE_OFFSET: number = SkinningUBO.MAT_JOINT_OFFSET + 128 * 16;
+    public static COUNT: number = SkinningUBO.JOINTS_TEXTURE_SIZE_OFFSET + 4;
     public static SIZE: number = SkinningUBO.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
@@ -14,5 +14,7 @@ export class SkinningUBO {
         ],
     };
 
-    // public view: Float32Array = new Float32Array(SkinningUBO.COUNT);
+    public static JOINT_TEXTURE: GFXUniformSampler = {
+        binding: 28, name: 'CCJointTexture', type: GFXType.SAMPLER2D, count: 1,
+    };
 }
