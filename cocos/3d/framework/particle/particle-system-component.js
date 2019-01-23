@@ -104,7 +104,7 @@ export default class ParticleSystemComponent extends Component {
     simulationSpeed = 1.0;
 
     @property
-    playOnAwake = false;
+    playOnAwake = true;
 
     @property({
         type: CurveRange
@@ -215,7 +215,7 @@ export default class ParticleSystemComponent extends Component {
     }
 
     onEnable() {
-        if (this._playOnAwake) {
+        if (this.playOnAwake) {
             this.play();
         }
     }
