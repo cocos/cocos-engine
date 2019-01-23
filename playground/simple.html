@@ -64,8 +64,7 @@
       material.setDefines({ USE_COLOR: true });
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
       material.effectName = 'builtin-effect-unlit';
-      material.setProperty('color', cc.Color.RED, 0, 0);
-      material.setProperty('color', cc.Color.BLUE, 0, 1);
+      material.setProperty('color', [ cc.Color.RED, cc.Color.BLUE ]);
 
       const len = 50;
       const models = [], passes = [];

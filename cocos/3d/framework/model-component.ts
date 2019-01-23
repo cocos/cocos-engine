@@ -169,6 +169,9 @@ export class ModelComponent extends RenderableComponent {
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
+        if (this._model) {
+            this._model.enabled = true;
+        }
     }
 
     public onDisable () {
@@ -279,6 +282,6 @@ export class ModelComponent extends RenderableComponent {
 
     private _getBuiltinMaterial () {
         // classic ugly pink indicating missing material
-        return cc.BuiltinResMgr['default-material'];
+        return builtinResMgr['default-material'];
     }
 }
