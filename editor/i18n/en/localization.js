@@ -1,4 +1,8 @@
 module.exports = {
+    "menu": {
+        "custom_script": "Custom script",
+    },
+
     "help_url": {
         "animation": "http://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/animation/",
         "sprite": "http://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/sprite/",
