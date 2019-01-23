@@ -925,7 +925,7 @@ class Director extends EventTarget {
             this.emit(cc.Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
-            this._scene.resetHasChanged();
+            if (this._scene) { this._scene.resetHasChanged(); }
             this._totalFrames++;
         }
     }

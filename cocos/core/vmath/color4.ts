@@ -222,12 +222,12 @@ class color4 {
      * @param a - The color.
      * @return out.
      */
-    public static array<Out extends IWritableArrayLike<number>> (out: Out, a: color4) {
+    public static array<Out extends IWritableArrayLike<number>> (out: Out, a: color4, ofs = 0) {
         const scale = (a instanceof cc.Color || a.a > 1) ? 1 / 255 : 1;
-        out[0] = a.r * scale;
-        out[1] = a.g * scale;
-        out[2] = a.b * scale;
-        out[3] = a.a * scale;
+        out[ofs + 0] = a.r * scale;
+        out[ofs + 1] = a.g * scale;
+        out[ofs + 2] = a.b * scale;
+        out[ofs + 3] = a.a * scale;
 
         return out;
     }

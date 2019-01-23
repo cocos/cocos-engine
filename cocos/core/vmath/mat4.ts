@@ -1460,23 +1460,23 @@ class mat4 {
      * @param m - The matrix.
      * @return out.
      */
-    public static array (out, m) {
-        out[0] = m.m00;
-        out[1] = m.m01;
-        out[2] = m.m02;
-        out[3] = m.m03;
-        out[4] = m.m04;
-        out[5] = m.m05;
-        out[6] = m.m06;
-        out[7] = m.m07;
-        out[8] = m.m08;
-        out[9] = m.m09;
-        out[10] = m.m10;
-        out[11] = m.m11;
-        out[12] = m.m12;
-        out[13] = m.m13;
-        out[14] = m.m14;
-        out[15] = m.m15;
+    public static array (out, m, ofs = 0) {
+        out[ofs + 0] = m.m00;
+        out[ofs + 1] = m.m01;
+        out[ofs + 2] = m.m02;
+        out[ofs + 3] = m.m03;
+        out[ofs + 4] = m.m04;
+        out[ofs + 5] = m.m05;
+        out[ofs + 6] = m.m06;
+        out[ofs + 7] = m.m07;
+        out[ofs + 8] = m.m08;
+        out[ofs + 9] = m.m09;
+        out[ofs + 10] = m.m10;
+        out[ofs + 11] = m.m11;
+        out[ofs + 12] = m.m12;
+        out[ofs + 13] = m.m13;
+        out[ofs + 14] = m.m14;
+        out[ofs + 15] = m.m15;
 
         return out;
     }

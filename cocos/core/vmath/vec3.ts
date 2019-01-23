@@ -737,10 +737,10 @@ export default class vec3 {
      * @param v - The vector.
      * @return out.
      */
-    public static array<Out extends IWritableArrayLike<number>> (out: Out, v: vec3) {
-        out[0] = v.x;
-        out[1] = v.y;
-        out[2] = v.z;
+    public static array<Out extends IWritableArrayLike<number>> (out: Out, v: vec3, ofs = 0) {
+        out[ofs + 0] = v.x;
+        out[ofs + 1] = v.y;
+        out[ofs + 2] = v.z;
 
         return out;
     }

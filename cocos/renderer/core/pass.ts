@@ -36,18 +36,18 @@ type RecursivePartial<T> = {
 export type PassOverrides = RecursivePartial<IPassInfo>;
 
 const _type2fn = {
-  [GFXType.INT]: (a: Float32Array, v: any) => a[0] = v,
-  [GFXType.INT2]: (a: Float32Array, v: any) => vec2.array(a, v),
-  [GFXType.INT3]: (a: Float32Array, v: any) => vec3.array(a, v),
-  [GFXType.INT4]: (a: Float32Array, v: any) => vec4.array(a, v),
-  [GFXType.FLOAT]: (a: Float32Array, v: any) => a[0] = v,
-  [GFXType.FLOAT2]: (a: Float32Array, v: any) => vec2.array(a, v),
-  [GFXType.FLOAT3]: (a: Float32Array, v: any) => vec3.array(a, v),
-  [GFXType.FLOAT4]: (a: Float32Array, v: any) => vec4.array(a, v),
-  [GFXType.COLOR4]: (a: Float32Array, v: any) => color4.array(a, v),
-  [GFXType.MAT2]: (a: Float32Array, v: any) => mat2.array(a, v),
-  [GFXType.MAT3]: (a: Float32Array, v: any) => mat3.array(a, v),
-  [GFXType.MAT4]: (a: Float32Array, v: any) => mat4.array(a, v),
+  [GFXType.INT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
+  [GFXType.INT2]: (a: Float32Array, v: any, idx: number = 0) => vec2.array(a, v, idx * 2),
+  [GFXType.INT3]: (a: Float32Array, v: any, idx: number = 0) => vec3.array(a, v, idx * 3),
+  [GFXType.INT4]: (a: Float32Array, v: any, idx: number = 0) => vec4.array(a, v, idx * 4),
+  [GFXType.FLOAT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
+  [GFXType.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => vec2.array(a, v, idx * 2),
+  [GFXType.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => vec3.array(a, v, idx * 3),
+  [GFXType.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => vec4.array(a, v, idx * 4),
+  [GFXType.COLOR4]: (a: Float32Array, v: any, idx: number = 0) => color4.array(a, v, idx * 4),
+  [GFXType.MAT2]: (a: Float32Array, v: any, idx: number = 0) => mat2.array(a, v, idx * 4),
+  [GFXType.MAT3]: (a: Float32Array, v: any, idx: number = 0) => mat3.array(a, v, idx * 9),
+  [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => mat4.array(a, v, idx * 16),
 };
 
 const _type2default = {
@@ -206,16 +206,16 @@ export class Pass {
         return Pass.getBindingFromHandle(this.getHandle(name));
     }
 
-    public setUniform (handle: number, value: any) {
+    public setUniform (handle: number, value: any, arrayIdx?: number) {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const idx = Pass.getIndexFromHandle(handle);
         const block = this._blocks[binding];
-        _type2fn[type](block.views[idx], value);
+        _type2fn[type](block.views[idx], value, arrayIdx);
         block.dirty = true;
     }
 
-    public bindTextureView (binding: number, value: GFXTextureView) {
+    public bindTextureView (binding: number, value: GFXTextureView, arrayIdx?: number) {
         this._textureViews[binding] = value;
         for (const res of this._resources) {
             res.bindingLayout.bindTextureView(binding, value);
