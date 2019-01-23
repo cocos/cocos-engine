@@ -24,8 +24,8 @@
  ****************************************************************************/
 // @ts-check
 import { Texture2D } from '../../assets';
-import ImageAsset from '../../assets/image-asset';
-import TextureBase from '../../assets/texture-base';
+import { ImageAsset } from '../../assets/image-asset';
+import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { GFXTextureFlagBit, GFXTextureViewType } from '../../gfx/define';
 
@@ -39,7 +39,7 @@ interface ITextureCubeMipmap {
 }
 
 @ccclass('cc.TextureCube')
-export default class TextureCube extends TextureBase {
+export class TextureCube extends TextureBase {
     /**
      * Gets the mipmap images.
      * Note that the result do not contains the auto generated mipmaps.

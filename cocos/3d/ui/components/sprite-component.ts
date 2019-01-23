@@ -393,7 +393,7 @@ export class SpriteComponent extends UIRenderComponent {
         this._activateMaterial();
 
         if (!this._spriteFrame) {
-            this.spriteFrame = cc.BuiltinResMgr['default-spriteframe'];
+            this.spriteFrame = cc.builtinResMgr.get('default-spriteframe');
         }
 
         // this.node.on(EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
@@ -448,7 +448,7 @@ export class SpriteComponent extends UIRenderComponent {
         // WebGL
         if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
             if (!material) {
-                this.material = cc.BuiltinResMgr['sprite-material'];
+                this.material = cc.builtinResMgr.get('sprite-material');
                 material = this.material;
                 if (spriteFrame && spriteFrame.textureLoaded()) {
                     material!.setProperty('mainTexture', spriteFrame);

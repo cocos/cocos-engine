@@ -703,7 +703,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         let w = gpuTexture.width;
                         let h = gpuTexture.height;
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                            gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                            gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
                             w = Math.max(1, w >> 1);
                             h = Math.max(1, h >> 1);
                         }
@@ -715,7 +715,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         let w = gpuTexture.width;
                         let h = gpuTexture.height;
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                            gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
+                            gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
                             w = Math.max(1, w >> 1);
                             h = Math.max(1, h >> 1);
                         }
@@ -2228,7 +2228,7 @@ export function WebGLCmdFuncCopyBufferToTexture (
                             const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
                             const data = bufferView.subarray(buffOffset, buffOffset + memSize);
 
-                            gl.texSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X + f, m,
+                            gl.texSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, gpuTexture.glType, data);
 
@@ -2250,7 +2250,7 @@ export function WebGLCmdFuncCopyBufferToTexture (
                             const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
                             const data = bufferView.subarray(buffOffset, buffOffset + memSize);
 
-                            gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X + f, m,
+                            gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, data);
 

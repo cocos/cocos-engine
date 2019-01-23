@@ -32,7 +32,7 @@ import Rect, { rect } from '../core/value-types/rect';
 import Size, { size } from '../core/value-types/size';
 import Vec2, { v2 } from '../core/value-types/vec2';
 import { Asset } from './asset';
-import Texture2D from './texture-2d';
+import { Texture2D } from './texture-2d';
 import textureUtil from './texture-util';
 
 const INSET_LEFT = 0;

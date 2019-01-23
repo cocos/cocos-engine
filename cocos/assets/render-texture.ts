@@ -5,8 +5,8 @@ import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { RenderPassStage } from '../pipeline/define';
-import ImageAsset from './image-asset';
-import Texture2D from './texture-2d';
+import { ImageAsset } from './image-asset';
+import { Texture2D } from './texture-2d';
 
 type DSFormat = 'D24S8' | 'S8' | 'D16';
 const _formatMap = {
@@ -21,7 +21,7 @@ const _formatMap = {
  * @extends Texture2D
  */
 @ccclass('cc.RenderTexture')
-export default class RenderTexture extends Texture2D {
+export class RenderTexture extends Texture2D {
     private _framebuffer: GFXFramebuffer | null = null;
 
     private _depthStencilTexture: GFXTexture | null = null;

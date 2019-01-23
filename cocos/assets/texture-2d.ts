@@ -25,14 +25,14 @@
  ****************************************************************************/
 // @ts-check
 import { ccclass, property } from '../core/data/class-decorator';
-import ImageAsset from './image-asset';
-import TextureBase from './texture-base';
+import { ImageAsset } from './image-asset';
+import { TextureBase } from './texture-base';
 
 /**
  * Represents a 2-dimension texture.
  */
 @ccclass('cc.Texture2D')
-export default class Texture2D extends TextureBase {
+export class Texture2D extends TextureBase {
     /**
      * Gets the mipmap images.
      * Note that the result do not contains the auto generated mipmaps.

@@ -1,7 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import gfx from '../gfx';
-
+import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
@@ -9,7 +8,6 @@ import { IGFXInputAttribute } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
-import { IRenderingSubmesh } from '../../3d/assets/mesh';
 
 export default class ParticleBatchModel extends Model {
 
@@ -130,7 +128,7 @@ export default class ParticleBatchModel extends Model {
     }
 
     public disableStretchedBillboard () {
-        if (this._vertAttrs!.find((attr) => attr.name === gfx.ATTR_COLOR0) !== undefined) {
+        if (this._vertAttrs!.find((attr) => attr.name === GFXAttributeName.ATTR_COLOR) !== undefined) {
             this._vertAttrs!.pop();
             this.setVertexAttributes(this._vertAttrs!);
         }
@@ -175,17 +173,17 @@ export default class ParticleBatchModel extends Model {
         this.getSubModel(0).inputAssembler!.indexCount = 0;
     }
 
-    private destroySubMeshData () {
-        for (const vb of this._subMeshData!.vertexBuffers) {
-            vb.destroy();
-        }
-        this._subMeshData!.indexBuffer.destroy();
-    }
-
     public destroy () {
         super.destroy();
         this._vdataF32 = null;
         this.destroySubMeshData();
         this._iaInfoBuffer.destroy();
+    }
+
+    private destroySubMeshData () {
+        for (const vb of this._subMeshData!.vertexBuffers) {
+            vb.destroy();
+        }
+        this._subMeshData!.indexBuffer.destroy();
     }
 }

@@ -33,7 +33,7 @@ import { EffectAsset } from './effect-asset';
 
 export interface IMaterialInfo {
     technique?: number;
-    defines?: IDefineMap[];
+    defines?: IDefineMap | IDefineMap[];
     effectName?: string;
 }
 
@@ -229,6 +229,7 @@ export class Material extends Asset {
         if (this._owner) {
             const comp = this._owner;
             const index = comp.sharedMaterials.findIndex((m) => m === this);
+            // @ts-ignore
             if (index >= 0) { comp._onMaterialModified(index, this); }
         }
     }

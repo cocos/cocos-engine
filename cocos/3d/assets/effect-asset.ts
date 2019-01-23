@@ -1,6 +1,6 @@
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { GFXDynamicState, GFXPrimitiveMode } from '../../gfx/define';
+import { GFXDynamicState, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { RenderPassStage } from '../../pipeline/define';
 import { programLib } from '../../renderer/core/program-lib';
@@ -31,7 +31,7 @@ export interface ITechniqueInfo {
 
 export interface IBlockMember {
     name: string;
-    type: number;
+    type: GFXType;
     count: number;
     size: number;
 }
@@ -46,7 +46,7 @@ export interface ISamplerInfo {
     name: string;
     binding: number;
     defines: string[];
-    type: number;
+    type: GFXType;
     count: number;
 }
 export interface IDefineInfo {

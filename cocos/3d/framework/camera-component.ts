@@ -28,7 +28,7 @@ import { ccclass, executeInEditMode, menu, property } from '../../core/data/clas
 import { Enum, Rect, Vec3 } from '../../core/value-types';
 import { color4, toRadian } from '../../core/vmath';
 import { GFXClearFlag } from '../../gfx/define';
-import { Camera } from '../../renderer/scene/camera';
+import { Camera } from '../../renderer';
 
 /**
  * !#en The light source type

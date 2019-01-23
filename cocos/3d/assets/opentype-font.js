@@ -23,13 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import { _decorator } from "../../core/data/index";
-const {ccclass} = _decorator;
+import { ccclass } from "../../core/data/class-decorator";
 import Font from "./font";
-import vec2 from "../../core/vmath/vec2";
+import { vec2 } from "../../core/vmath";
 import ShelfPack from "./utils/shelf-pack";
-import ImageAsset from "../../assets/image-asset";
-import Texture2D from "../../assets/texture-2d";
+import { ImageAsset } from "../../assets/image-asset";
+import { Texture2D } from "../../assets/texture-2d";
 
 @ccclass('cc.OpentypeFont')
 export default class OpentypeFont extends Font {

@@ -26,7 +26,7 @@
 // @ts-check
 import macro from '../../../core/platform/CCMacro';
 import { UIRenderComponent } from './ui-render-component';
-import ImageAsset from '../../../assets/image-asset';
+import { ImageAsset } from '../../../assets/image-asset';
 // import { vec2, vec3, mat4, color4 } from '../../../core/vmath/index';
 import {
     ccclass,
@@ -36,7 +36,7 @@ import {
     executeInEditMode,
 } from '../../../core/data/class-decorator';
 import Font from '../../../assets/CCFont';
-import Texture2D from '../../../assets/texture-2d';
+import { Texture2D } from '../../../assets/texture-2d';
 import { MeshBuffer } from '../mesh-buffer';
 import { Enum } from '../../../core/value-types';
 // import { value } from '../../../core/utils/js';
@@ -605,7 +605,7 @@ export class LabelComponent extends UIRenderComponent {
 
         if (!material) {
             // material = new SpriteMaterial();
-            this.material = cc.BuiltinResMgr['sprite-material'];
+            this.material = cc.builtinResMgr.get('sprite-material');
             material = this.material;
         }
         // Setup blend function for premultiplied ttf label texture

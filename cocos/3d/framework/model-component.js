@@ -27,6 +27,7 @@ import { ccclass, property, menu, executionOrder, executeInEditMode } from '../.
 import { Mesh } from '../assets/mesh';
 import Enum from '../../core/value-types/enum';
 import { RenderableComponent } from './renderable-component';
+import { builtinResMgr } from '../builtin';
 
 /**
  * !#en Shadow projection mode
@@ -90,10 +91,10 @@ export class ModelComponent extends RenderableComponent {
     /**
      * @type {Mesh}
      */
-    @property
+    @property({ type: Mesh })
     _mesh = null;
 
-    @property
+    @property({ type: ModelShadowCastingMode })
     _shadowCastingMode = ModelShadowCastingMode.Off;
 
     @property
@@ -107,13 +108,10 @@ export class ModelComponent extends RenderableComponent {
      * !#ch 模型网格
      * @type {Mesh}
      */
-    @property({
-        type: Mesh
-    })
+    @property({ type: Mesh })
     get mesh() {
         return this._mesh;
     }
-
     set mesh(val) {
         this._mesh = val;
         this._updateModels(true);
@@ -125,13 +123,10 @@ export class ModelComponent extends RenderableComponent {
      * !#ch 投射阴影方式
      * @type {Number}
      */
-    @property({
-        type: ModelShadowCastingMode
-    })
+    @property({ type: ModelShadowCastingMode })
     get shadowCastingMode() {
         return this._shadowCastingMode;
     }
-
     set shadowCastingMode(val) {
         this._shadowCastingMode = val;
         this._updateCastShadow();
@@ -178,9 +173,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     onDisable() {
-        if (this._model) {
-            this._model.enable = false;
-        }
+        if (this._model) { this._model.enabled = this.enabled; }
     }
 
     onDestroy() {
@@ -265,6 +258,6 @@ export class ModelComponent extends RenderableComponent {
 
     _getBuiltinMaterial() {
         // classic ugly pink indicating missing material
-        return cc.BuiltinResMgr['default-material'];
+        return builtinResMgr.get('default-material');
     }
 }

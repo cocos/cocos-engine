@@ -39,16 +39,16 @@ export class Component extends CCObject {
 
     public constructor();
 
-    protected _getRenderScene(): RenderScene;
-    public addComponent(typeOrClassName: Function | string): Component;
-    public getComponent(typeOrClassName: Function | string): Component;
-    public getComponents(typeOrClassName: Function | string): Component[];
-    public getComponentInChildren(typeOrClassName: Function | string): Component;
-    public getComponentsInChildren(typeOrClassName: Function | string): Component[];
-    public schedule(callback: Function, interval: number, repeat: number, delay: number): void;
-    public scheduleOnce(callback: Function, delay: number): void;
-    public unschedule(callback: Function): void;
-    public unscheduleAllCallbacks(): void;
+    protected _getRenderScene (): RenderScene;
+    public addComponent<T extends Component> (typeOrClassName: string | (new () => T)): T;
+    public getComponent<T extends Component> (typeOrClassName: string | (new () => T)): T;
+    public getComponents<T extends Component> (typeOrClassName: string | (new () => T)): T[];
+    public getComponentInChildren<T extends Component> (typeOrClassName: string | (new () => T)): T;
+    public getComponentsInChildren<T extends Component> (typeOrClassName: string | (new () => T)): T[];
+    public schedule (callback: Function, interval: number, repeat: number, delay: number): void;
+    public scheduleOnce (callback: Function, delay: number): void;
+    public unschedule (callback: Function): void;
+    public unscheduleAllCallbacks (): void;
 
     // friend to class BaseNode
     public _id: string;

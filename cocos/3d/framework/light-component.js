@@ -22,9 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
-import RenderSystemActor from './renderSystemActor';
-import * as renderer from '../../renderer/index';
 import { Color, Enum } from '../../core/value-types';
 import { toRadian } from '../../core/vmath';
 import { ccclass, menu, property, executeInEditMode } from "../../core/data/class-decorator";

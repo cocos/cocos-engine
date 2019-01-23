@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Texture2D from '../assets/texture-2d';
+import {Texture2D} from '../assets/texture-2d';
 import {_getClassId} from '../core/utils/js';
 
 export class JsonUnpacker {

@@ -142,11 +142,11 @@ export class Model {
         this._worldBounds = aabb.clone(this._modelBounds);
     }
 
-    public enable (isEnable: boolean) {
+    set enabled (isEnable) {
         this._isEnable = isEnable;
     }
 
-    public isEnable () {
+    get enabled () {
         return this._isEnable;
     }
 

@@ -35,7 +35,6 @@ import ComponentScheduler from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
 // import AnimationSystem from '../3d/framework/animation-system';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
-import RenderSystem from '../3d/framework/render-system';
 import { PhysicsSystem } from '../3d/framework/physics/physics-system';
 import { getClassByName } from './utils/js';
 import { Root } from './root';

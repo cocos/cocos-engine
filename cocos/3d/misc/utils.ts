@@ -1,6 +1,6 @@
 import { GFXAttributeName, GFXPrimitiveMode } from '../../gfx/define';
 export { default as find } from '../../scene-graph/find';
-import Texture2D from '../../assets/texture-2d';
+import { Texture2D } from '../../assets/texture-2d';
 import { Filter, PixelFormat, WrapMode } from '../../assets/texture-base';
 import { Vec3 } from '../../core/value-types';
 import { AttributeBaseType, AttributeType,

@@ -25,11 +25,7 @@ import { BaseNode } from '../../scene-graph/base-node';
 import { Pass } from '../core/pass';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
-<<<<<<< HEAD
-import { IUIMaterialInfo, UIMaterial } from './ui-material';
-=======
 import { SpriteFrame } from '../../assets/CCSpriteFrame';
->>>>>>> 86462dac... add texture to IUIRenderData
 
 export interface IUIBufferBatch {
     vb: GFXBuffer;

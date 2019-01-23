@@ -1,6 +1,8 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import { IBlockInfo, IPassInfo, ISamplerInfo } from '../../3d/assets/effect-asset';
+import { builtinResMgr } from '../../3d/builtin';
+import { TextureBase } from '../../assets/texture-base';
 import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
 import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -15,7 +17,7 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
-import { UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
+import { UBOGlobal } from '../../pipeline/render-pipeline';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -61,9 +63,11 @@ const _type2default = {
   [GFXType.MAT2]: [1, 0, 0, 1],
   [GFXType.MAT3]: [1, 0, 0, 0, 1, 0, 0, 0, 1],
   [GFXType.MAT4]: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  [GFXType.SAMPLER2D]: 'default-texture',
+  [GFXType.SAMPLER_CUBE]: 'default-cube-texture',
 };
 
-const builtinRE = new RegExp(UBOGlobal.BLOCK.name + '|' + UBOLocal.BLOCK.name);
+const builtinRE = /^cc/i;
 
 const btMask      = 0xf0000000; // 4 bits, 16 slots
 const typeMask    = 0x0fc00000; // 6 bits, 64 slots
@@ -143,9 +147,7 @@ export class Pass {
         this._fillinPipelineInfo(info);
 
         for (const u of info.blocks) {
-            if (builtinRE.test(u.name)) {
-                continue;
-            }
+            if (builtinRE.test(u.name)) { continue; }
             // create gfx buffer resource
             const buffer = device.createBuffer({
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -182,6 +184,7 @@ export class Pass {
         }
 
         for (const u of info.samplers) {
+            if (builtinRE.test(u.name)) { continue; }
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
             const sampler = device.createSampler({
                 name: u.name,
@@ -192,6 +195,9 @@ export class Pass {
             } else {
                 console.error('create sampler failed.');
             }
+            const inf = info.properties && info.properties[u.name];
+            const name = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
+            this._textureViews[u.binding] = builtinResMgr.get<TextureBase>(name).getGFXTextureView()!;
         }
     }
 

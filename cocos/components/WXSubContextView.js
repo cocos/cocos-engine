@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import { Component } from './component';
-const ImageAsset = require('../assets/image-asset');
+const { ImageAsset } = require('../assets/image-asset');
 
 let WXSubContextView;
 

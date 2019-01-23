@@ -28,10 +28,8 @@ import EventTarget from './event/event-target';
 import inputManager from './platform/event-manager/CCInputManager';
 import debug from './platform/CCDebug';
 import { addon } from './utils/js';
-
-import * as renderer from '../renderer';
-import gfx from '../renderer/gfx';
-import builtinResMgr from '../3d/builtin/init';
+import { EffectAsset } from '../3d/assets/effect-asset';
+import { builtinResMgr, effects } from '../3d/builtin';
 
 /**
  * @module cc
@@ -459,6 +457,12 @@ var game = {
             return;
         }
 
+        // Load builtin effects
+        effects.map(e => {
+            let effect = Object.assign(new EffectAsset(), e);
+            effect.onLoaded(); return effect;
+        });
+
         // Load game scripts
         let jsList = this.config.jsList;
         if (jsList && jsList.length > 0) {
@@ -818,10 +822,6 @@ var game = {
 
     _initBuiltins: function() {
         builtinResMgr.initBuiltinRes(this._gfxDevice);
-        // this._renderer.setBuiltins({
-        //     defaultTexture: builtins['default-texture']._texture,
-        //     defaultTextureCube: builtins['default-texture-cube']._texture,
-        // });
     },
 
     _initEvents: function () {

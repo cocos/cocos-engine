@@ -42,7 +42,7 @@ type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource;
  * Class ImageAsset.
  */
 @ccclass('cc.ImageAsset')
-export default class ImageAsset extends Asset {
+export class ImageAsset extends Asset {
 
     @property({override: true})
     get _nativeAsset () {

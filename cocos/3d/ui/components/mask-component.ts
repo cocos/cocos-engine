@@ -254,12 +254,12 @@ export class MaskComponent extends UIRenderComponent {
 
     public _activateMaterial () {
         if (!this._maskMaterial) {
-            this._maskMaterial = Material.getInstantiatedMaterial(cc.BuiltinResMgr['sprite-material'], this);
+            this._maskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'), this);
             setupMaskMaterial(this._maskMaterial);
         }
 
         if (!this._clearMaskMaterial) {
-            this._clearMaskMaterial = Material.getInstantiatedMaterial(cc.BuiltinResMgr['sprite-material'], this);
+            this._clearMaskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'), this);
             setupClearMaskMaterial(this._clearMaskMaterial);
         }
     }

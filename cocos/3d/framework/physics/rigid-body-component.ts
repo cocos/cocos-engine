@@ -9,6 +9,12 @@ import {
 import { PhysicsMaterial } from '../../assets/physics/material';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
+const NonRigidBodyProperties = {
+    mass: 0,
+    linearDamping: 0,
+    angularDamping: 0,
+};
+
 @ccclass('cc.RigidBodyComponent')
 @executionOrder(100)
 @menu('Components/RigidBodyComponent')
@@ -108,9 +114,3 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 }
-
-const NonRigidBodyProperties = {
-    mass: 0,
-    linearDamping: 0,
-    angularDamping: 0,
-};

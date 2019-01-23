@@ -36,7 +36,7 @@ import { GFXSampler } from '../gfx/sampler';
 import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
 import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
 import { Asset } from './asset';
-import ImageAsset from './image-asset';
+import { ImageAsset } from './image-asset';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -157,7 +157,7 @@ function toGfxFilterMode (filter: Filter) {
 }
 
 @ccclass('cc.TextureBase')
-export default class TextureBase extends Asset {
+export class TextureBase extends Asset {
 
     /**
      * !#en
