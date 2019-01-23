@@ -58,6 +58,8 @@ export class WebGLGFXBuffer extends GFXBuffer {
     }
 
     public resize (size: number) {
+        this._size = size;
+        this._count = this._size / this._stride;
 
         if (this._memUsage & GFXMemoryUsageBit.HOST) {
             if ((this._usage & GFXBufferUsageBit.INDIRECT) === GFXBufferUsageBit.NONE) {

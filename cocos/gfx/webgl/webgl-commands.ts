@@ -1,9 +1,29 @@
 import { CachedArray } from '../../core/memop/cached-array';
 import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
-import { GFXBindingType, GFXBufferTextureCopy, GFXBufferUsageBit, GFXColorMask,
-    GFXCullMode, GFXDynamicState, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXLoadOp,
-    GFXMemoryUsageBit, GFXShaderType, GFXStencilFace, GFXTextureFlagBit,
-    GFXTextureLayout, GFXTextureViewType, GFXType, IGFXColor, IGFXRect, IGFXViewport, WebGLEXT } from '../define';
+import {
+    GFXBindingType,
+    GFXBufferTextureCopy,
+    GFXBufferUsageBit,
+    GFXColorMask,
+    GFXCullMode,
+    GFXDynamicState,
+    GFXFormat,
+    GFXFormatInfos,
+    GFXFormatSize,
+    GFXLoadOp,
+    GFXMemoryUsageBit,
+    GFXShaderType,
+    GFXStencilFace,
+    GFXTextureFlagBit,
+    GFXTextureLayout,
+    GFXTextureViewType,
+    GFXType,
+    IGFXColor,
+    IGFXFormatInfo,
+    IGFXRect,
+    IGFXViewport,
+    WebGLEXT,
+} from '../define';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { IGFXDepthBias, IGFXDepthBounds, IGFXStencilCompareMask, IGFXStencilWriteMask } from './webgl-command-buffer';
 import { WebGLGFXDevice } from './webgl-device';
@@ -2195,7 +2215,8 @@ export function WebGLCmdFuncCopyBufferToTexture (
 
     const gl = device.gl;
 
-    const bufferView = new Uint8Array(buffer as ArrayBuffer);
+    const buff = buffer as ArrayBuffer;
+    const fmtInfo: IGFXFormatInfo = GFXFormatInfos[gpuTexture.format];
 
     switch (gpuTexture.glTarget) {
         case WebGLRenderingContext.TEXTURE_2D: {
@@ -2215,11 +2236,12 @@ export function WebGLCmdFuncCopyBufferToTexture (
 
                     for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                         const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                        const data = bufferView.subarray(buffOffset, buffOffset + memSize);
+                        const data = buff.slice(buffOffset, buffOffset + memSize);
+                        const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
 
                         gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
                             region.texOffset.x, region.texOffset.y, w, h,
-                            gpuTexture.glFormat, gpuTexture.glType, data);
+                            gpuTexture.glFormat, gpuTexture.glType, pixels);
 
                         buffOffset += memSize;
                         w = Math.max(1, w >> 1);
@@ -2235,11 +2257,12 @@ export function WebGLCmdFuncCopyBufferToTexture (
 
                     for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                         const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                        const data = bufferView.subarray(buffOffset, buffOffset + memSize);
+                        const data = buff.slice(buffOffset, buffOffset + memSize);
+                        const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
 
                         gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
                             region.texOffset.x, region.texOffset.y, w, h,
-                            gpuTexture.glFormat, data);
+                            gpuTexture.glFormat, pixels);
 
                         buffOffset += memSize;
                         w = Math.max(1, w >> 1);
@@ -2267,11 +2290,12 @@ export function WebGLCmdFuncCopyBufferToTexture (
 
                         for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                             const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                            const data = bufferView.subarray(buffOffset, buffOffset + memSize);
+                            const data = buff.slice(buffOffset, buffOffset + memSize);
+                            const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
 
                             gl.texSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
-                                gpuTexture.glFormat, gpuTexture.glType, data);
+                                gpuTexture.glFormat, gpuTexture.glType, pixels);
 
                             buffOffset += memSize;
                             w = Math.max(1, w >> 1);
@@ -2289,11 +2313,12 @@ export function WebGLCmdFuncCopyBufferToTexture (
 
                         for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                             const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                            const data = bufferView.subarray(buffOffset, buffOffset + memSize);
+                            const data = buff.slice(buffOffset, buffOffset + memSize);
+                            const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
 
                             gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
-                                gpuTexture.glFormat, data);
+                                gpuTexture.glFormat, pixels);
 
                             buffOffset += memSize;
                             w = Math.max(1, w >> 1);

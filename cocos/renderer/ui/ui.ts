@@ -26,22 +26,24 @@ import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
 import { IUIMaterialInfo, UIMaterial } from './ui-material';
 
-export class UIBufferBatch {
-    public vb: GFXBuffer | null = null;
-    public ib: GFXBuffer | null = null;
-    public ia: GFXInputAssembler | null = null;
+export interface IUIBufferBatch {
+    vb: GFXBuffer;
+    ib: GFXBuffer;
+    ia: GFXInputAssembler;
+    vf32: Float32Array;
+    vi16: Int16Array;
 }
 
-export class UIDrawBatch {
-    public camera: Camera | null = null;
-    public bufferBatch: UIBufferBatch | null = null;
-    public uiMaterial: UIMaterial | null = null;
+export interface IUIDrawBatch {
+    camera: Camera;
+    bufferBatch: IUIBufferBatch;
+    uiMaterial: UIMaterial;
 }
 
 export interface IUIRenderData {
     meshBuffer: MeshBuffer;
     material: Material;
-    texture: SpriteFrame,
+    texture: SpriteFrame;
     camera: Camera;
 }
 
@@ -54,21 +56,21 @@ export class UI {
     private _bufferPool: RecyclePool<MeshBuffer> = new RecyclePool(() => {
         return new MeshBuffer();
     }, 128);
-    private _bufferBatchPool: RecyclePool<UIBufferBatch> = new RecyclePool(() => {
-        return new UIBufferBatch();
+    private _bufferBatchPool: RecyclePool<IUIBufferBatch> = new RecyclePool(() => {
+        return new Object() as IUIBufferBatch;
     }, 128);
-    private _drawBatchPool: RecyclePool<UIDrawBatch> = new RecyclePool(() => {
-        return new UIDrawBatch();
+    private _drawBatchPool: RecyclePool<IUIDrawBatch> = new RecyclePool(() => {
+        return new Object() as IUIDrawBatch;
     }, 128);
     private _device: GFXDevice;
     private _cmdBuff: GFXCommandBuffer | null = null;
     private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _scene: RenderScene;
     private _attributes: IGFXInputAttribute[] = [];
-    private _bufferBatches: UIBufferBatch[] = [];
+    private _bufferBatches: IUIBufferBatch[] = [];
     private _uiMaterial: UIMaterial | null = null;
     private _uiMaterials: UIMaterial[] = [];
-    private _batches: CachedArray<UIDrawBatch>;
+    private _batches: CachedArray<IUIDrawBatch>;
     private _bufferInitData: IMeshBufferInitData | null = null;
     private _commitUIRenderDatas: IUIRenderData[] = [];
 
@@ -106,10 +108,11 @@ export class UI {
         const material = new Material();
         material.effectName = 'sprite-material';
         // material.setProperty('mainTexture', texture);
-        material.update();
+        // material.update();
 
-        this._uiMaterial = this.createUIMaterial( { material });
+        this._uiMaterial = this.createUIMaterial({ material });
         */
+
         return true;
     }
 
@@ -200,52 +203,65 @@ export class UI {
 
         this._renderScreens();
 
-        // Merge batch
         /*
-        let curCamera: Camera | null = null;
-        let curTexture: GFXTexture | null = null;
-        let curBufferBatch: UIBufferBatch = this._bufferBatches[0];
-        let vbOffset = 0;
+        // Merge batch
+        if (this._commitUIRenderDatas.length) {
+            const first = this._commitUIRenderDatas[0];
 
-        for (const uiRenderData of this._commitUIRenderDatas) {
+            let curCamera: Camera = first.camera;
+            let curTexture: GFXTexture | null = first.texture.getGFXTexture();
+            let curBufferBatch: IUIBufferBatch = this._bufferBatches[0];
+            let vbOffset = 0;
+            let ibOffset = 0;
+            let ibcount = 0;
+            let vb = curBufferBatch.vb;
+            let vbBuffer = (vb.buffer as ArrayBuffer);
+            let lastVF32;
 
-            if (curCamera === uiRenderData.camera &&
-                curTexture === uiRenderData.texture.getGFXTexture()) {
+            for (const uiRenderData of this._commitUIRenderDatas) {
 
-                if (curBufferBatch.ib!.count + uiRenderData.meshBuffer.iData!.length < 65535) {
-
+                if (ibcount + uiRenderData.meshBuffer.iData!.length < 65535) {
                     const vf32: Float32Array = uiRenderData.meshBuffer.vData!;
-                    const vbSize = uiRenderData.meshBuffer.vData!.length * 4 + vbOffset;
-                    if (vbSize > curBufferBatch.vb!.size) {
-                        curBufferBatch.vb!.resize(vbSize);
+                    const vbSize = vf32.length * 4 + vbOffset;
+                    if (vbSize > vb.size) {
+                        vb.resize(vbSize);
+
+                        vbBuffer = (vb.buffer as ArrayBuffer);
+                        lastVF32 = curBufferBatch.vf32;
+                        curBufferBatch.vf32 = new Float32Array(vbBuffer);
+                        curBufferBatch.vf32.set(lastVF32, 0);
                     }
 
-                    curBufferBatch.vb!.update(vf32, vbOffset, vf32.length * 4);
-                    vbOffset += vf32.length;
+                    curBufferBatch.vf32.set(vf32, vbOffset);
+                    vbOffset += vf32.length * 4;
+
+
+                } else {
+
                 }
-            }
 
-            if (curCamera !== uiRenderData.camera) {
+                if (curCamera !== uiRenderData.camera) {
 
-                if (curBufferBatch) {
+                    if (curBufferBatch) {
 
-                    if (curBufferBatch.ib!.count + uiRenderData.meshBuffer.iData!.length > 65535) {
+                        if (curBufferBatch.ib!.count + uiRenderData.meshBuffer.iData!.length > 65535) {
 
+                        }
                     }
+
+                    curCamera = uiRenderData.camera;
+                    curTexture = uiRenderData.texture.getGFXTexture();
+                    curBufferBatch = this._drawBatchPool.add();
+
+                    continue;
                 }
 
-                curCamera = uiRenderData.camera;
-                curTexture = uiRenderData.texture.getGFXTexture();
-                curBufferBatch = this._drawBatchPool.add();
+                if (curTexture !== uiRenderData.texture.getGFXTexture()) {
+                    curTexture = uiRenderData.texture.getGFXTexture();
+                }
 
-                continue;
+                // uiRenderData.meshBuffer.iData.length;
             }
-
-            if (curTexture !== uiRenderData.texture.getGFXTexture()) {
-                curTexture = uiRenderData.texture.getGFXTexture();
-            }
-
-            // uiRenderData.meshBuffer.iData.length;
         }
         */
     }
@@ -335,7 +351,7 @@ export class UI {
         comp.postUpdateAssembler();
     }
 
-    private createBufferBatch (): UIBufferBatch {
+    private createBufferBatch (): IUIBufferBatch {
 
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
 
