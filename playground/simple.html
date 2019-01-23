@@ -61,7 +61,7 @@
       const texture = createTexture(cc.game.canvas.getElementsByTagName('img'));
 
       const material = new cc.Material();
-      material.setDefines({ USE_COLOR: true });
+      material.setDefines({ USE_COLOR: true, USE_TEXTURE: true });
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
       material.effectName = 'builtin-effect-unlit';
 
@@ -76,6 +76,7 @@
         modelCom.mesh = cc.utils.createMesh(cc.primitives[geomList[i % geomList.length]]());
         modelNode.setPosition(0, 0, i * 2);
         models.push(modelNode);
+        // material instance initialized here
         passes.push(modelCom.material.passes[0]);
       }
       const handle = passes[0].getHandle('color');

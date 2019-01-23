@@ -213,9 +213,15 @@ export class Material extends Asset {
         if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
             pass.setUniform(handle, val);
         } else if (bindingType === GFXBindingType.SAMPLER) {
-            const tv = val.getGFXTextureView();
-            if (!tv) { console.warn('texture asset incomplete!'); return; }
-            pass.bindTextureView(Pass.getBindingFromHandle(handle), tv);
+            const sampler = val.getGFXSampler();
+            const textureView = val.getGFXTextureView();
+            if (!sampler || !textureView) {
+                console.warn('texture asset incomplete, missing ' + (sampler ? 'GFXTextureView' : 'GFXSampler'));
+                return false;
+            }
+            const binding = Pass.getBindingFromHandle(handle);
+            pass.bindSampler(binding, sampler);
+            pass.bindTextureView(binding, textureView);
         }
         return true;
     }

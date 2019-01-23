@@ -5,8 +5,8 @@ import { GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniform, GFXUniformBlock } from '../../gfx/shader';
 import { UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
-import { IDefineMap } from './effect';
 import { SkinningUBO } from '../models/model-uniforms';
+import { IDefineMap } from './effect';
 
 function _generateDefines (
     device: GFXDevice,
@@ -86,7 +86,7 @@ class ProgramLib {
                 def._map = ((value: any) => (value ? (1 << def._offset) : 0));
             }
             if (def.name === 'CC_USE_SKINNING') {
-                tmpl.blocks = tmpl.blocks.concat(convertToBlockInfo(SkinningUBO.BLOCK));
+                tmpl.blocks = tmpl.blocks.concat(skinning);
             }
             offset += cnt;
             def._offset = offset;
@@ -149,6 +149,7 @@ class ProgramLib {
 
 const globals = convertToBlockInfo(UBOGlobal.BLOCK);
 const locals = convertToBlockInfo(UBOLocal.BLOCK);
+const skinning = convertToBlockInfo(SkinningUBO.BLOCK);
 
 function convertToUniformInfo (uniform: GFXUniform): IBlockMember {
     return {

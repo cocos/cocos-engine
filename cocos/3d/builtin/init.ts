@@ -17,7 +17,8 @@ class BuiltinResMgr {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d')!;
         const imgAsset = new ImageAsset(canvas);
-        canvas.width = canvas.height = 2;
+        const l = canvas.width = canvas.height = 2;
+        const hl = l / 2;
 
         // ============================
         // builtin textures
@@ -25,7 +26,7 @@ class BuiltinResMgr {
 
         // black texture
         context.fillStyle = '#000';
-        context.fillRect(0, 0, 2, 2);
+        context.fillRect(0, 0, l, l);
         const blackTexture = new Texture2D();
         blackTexture._uuid = 'black-texture';
         blackTexture.image = imgAsset;
@@ -33,16 +34,24 @@ class BuiltinResMgr {
 
         // grey texture
         context.fillStyle = '#777';
-        context.fillRect(0, 0, 2, 2);
+        context.fillRect(0, 0, l, l);
         const greyTexture = new Texture2D();
         greyTexture._uuid = 'grey-texture';
         greyTexture.image = imgAsset;
         resources[greyTexture._uuid] = greyTexture;
 
-        // grey cube texture
-        // const greyCubeTexture = new TextureCube();
-        // greyCubeTexture._uuid = 'grey-cube-texture';
-        // greyCubeTexture.image = {
+        // white texture
+        context.fillStyle = '#fff';
+        context.fillRect(0, 0, l, l);
+        const whiteTexture = new Texture2D();
+        whiteTexture._uuid = 'white-texture';
+        whiteTexture.image = imgAsset;
+        resources[whiteTexture._uuid] = whiteTexture;
+
+        // white cube texture
+        // const whiteCubeTexture = new TextureCube();
+        // whiteCubeTexture._uuid = 'white-cube-texture';
+        // whiteCubeTexture.image = {
         //     front: new ImageAsset(canvas),
         //     back: new ImageAsset(canvas),
         //     left: new ImageAsset(canvas),
@@ -50,19 +59,12 @@ class BuiltinResMgr {
         //     top: new ImageAsset(canvas),
         //     bottom: new ImageAsset(canvas),
         // };
-        // resources[greyCubeTexture._uuid] = greyCubeTexture;
-
-        // white texture
-        context.fillStyle = '#fff';
-        context.fillRect(0, 0, 2, 2);
-        const whiteTexture = new Texture2D();
-        whiteTexture._uuid = 'white-texture';
-        whiteTexture.image = imgAsset;
-        resources[whiteTexture._uuid] = whiteTexture;
+        // whiteCubeTexture.onLoaded();
+        // resources[whiteCubeTexture._uuid] = whiteCubeTexture;
 
         // normal texture
         context.fillStyle = '#7f7fff';
-        context.fillRect(0, 0, 2, 2);
+        context.fillRect(0, 0, l, l);
         const normalTexture = new Texture2D();
         normalTexture._uuid = 'normal-texture';
         normalTexture.image = imgAsset;
@@ -70,12 +72,14 @@ class BuiltinResMgr {
 
         // default texture
         context.fillStyle = '#ddd';
-        context.fillRect(0, 0, 2, 2);
+        context.fillRect(0, 0, l, l);
         context.fillStyle = '#555';
-        context.fillRect(0, 0, 1, 1);
+        context.fillRect(0, 0, hl, hl);
         context.fillStyle = '#555';
-        context.fillRect(1, 1, 1, 1);
+        context.fillRect(hl, hl, hl, hl);
         const defaultTexture = new Texture2D();
+        defaultTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+        defaultTexture.setMipFilter(Texture2D.Filter.NEAREST);
         defaultTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         defaultTexture._uuid = 'default-texture';
         defaultTexture.image = imgAsset;
@@ -92,6 +96,7 @@ class BuiltinResMgr {
         //     top: new ImageAsset(canvas),
         //     bottom: new ImageAsset(canvas),
         // };
+        // defaultCubeTexture.onLoaded();
         // resources.push(defaultCubeTexture);
 
         const spriteFrame = new SpriteFrame();
@@ -101,9 +106,7 @@ class BuiltinResMgr {
         spriteFrame.setOriginalSize(cc.size(imgAsset.width, imgAsset.height));
         spriteFrame.setRect(new Rect(0, 0, imgAsset.width, imgAsset.height));
         spriteFrame.image = imgAsset;
-        if (spriteFrame.onLoaded) {
-            spriteFrame.onLoaded();
-        }
+        spriteFrame.onLoaded();
         resources[spriteFrame._uuid] = spriteFrame;
 
         // default material
@@ -123,7 +126,7 @@ class BuiltinResMgr {
     }
 
     public get<T extends Asset> (uuid: string): T {
-        return this._resources[uuid];
+        return this._resources[uuid] as T;
     }
 }
 
