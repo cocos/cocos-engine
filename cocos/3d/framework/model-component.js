@@ -170,10 +170,11 @@ export class ModelComponent extends RenderableComponent {
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
+        if (this._model) { this._model.enabled = true; }
     }
 
     onDisable() {
-        if (this._model) { this._model.enabled = this.enabled; }
+        if (this._model) { this._model.enabled = false; }
     }
 
     onDestroy() {
@@ -190,7 +191,6 @@ export class ModelComponent extends RenderableComponent {
         } else {
             this._model = this._createModel();
         }
-        this._model.enable = this.enabled;
 
         this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
 
