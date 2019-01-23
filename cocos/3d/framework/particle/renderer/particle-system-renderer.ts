@@ -125,9 +125,10 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this.particleSystem = this.node.getComponent('cc.ParticleSystemComponent');
         this._particles = new RecyclePool(() => {
             return new Particle(this);
-        }, this.particleSystem.capacity);
+        }, 16);
         if (this.sharedMaterial == null) {
-            this._materials[0] = new Material();
+            this.setMaterial(new Material(), 0, false);
+            this.sharedMaterial!._owner = this;
             this.sharedMaterial!.effectName = 'builtin-effect-particle-add';
         }
         this.onEnable();
@@ -162,11 +163,11 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         return this._particles.add();
     }
 
-    public _setNewParticle (p) {
+    public _setNewParticle (p: Particle) {
 
     }
 
-    public _updateParticles (dt) {
+    public _updateParticles (dt: number) {
         this.node.getWorldMatrix(_tempWorldTrans);
         if (this.particleSystem.velocityOvertimeModule.enable) {
             this.particleSystem.velocityOvertimeModule.update(this.particleSystem._simulationSpace, _tempWorldTrans);
@@ -254,9 +255,15 @@ export default class ParticleSystemRenderer extends RenderableComponent {
 
     }
 
-    public _onMaterialModified (index, material) {
+    public _onMaterialModified (index: number, material: Material) {
         this._updateMaterialParams();
         this._updateModel();
+    }
+
+    public _onRebuildPSO (index: number, material: Material) {
+        if (this._model) {
+            this._model.setSubModelMaterial(0, material);
+        }
     }
 
     private _updateMaterialParams () {
@@ -294,12 +301,12 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         } else {
             console.warn(`particle system renderMode ${this._renderMode} not support.`);
         }
-        this.sharedMaterial!.setDefines(this._defines);
+        this.getMaterial(0, CC_EDITOR)!.setDefines(this._defines);
 
         if (this.particleSystem.textureAnimationModule.enable) {
-            this.sharedMaterial!.setProperty('frameTile', vec2.set(this.frameTile, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
+            this.getMaterial(0, CC_EDITOR)!.setProperty('frameTile', vec2.set(this.frameTile, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
         } else {
-            this.sharedMaterial!.setProperty('frameTile', this.frameTile);
+            this.getMaterial(0, CC_EDITOR)!.setProperty('frameTile', this.frameTile);
         }
     }
 

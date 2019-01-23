@@ -40,7 +40,7 @@ export interface IMaterialInfo {
 
 @ccclass('cc.Material')
 export class Material extends Asset {
-    public static getInstantiatedMaterial (mat: Material, rndCom: any) {
+    public static getInstantiatedMaterial (mat: Material, rndCom: any, inEditor: boolean) {
         if (mat._owner === rndCom) {
             return mat;
         } else {
@@ -48,6 +48,9 @@ export class Material extends Asset {
             instance.copy(mat);
             instance._native = mat._native + ' (Instance)';
             instance._owner = rndCom;
+            if (inEditor) {
+                instance._uuid = mat._uuid;
+            }
             return instance;
         }
     }
@@ -232,7 +235,7 @@ export class Material extends Asset {
             const comp = this._owner;
             const index = comp.sharedMaterials.findIndex((m) => m === this);
             // @ts-ignore
-            if (index >= 0) { comp._onMaterialModified(index, this); }
+            if (index >= 0) { comp._onRebuildPSO(index, this); }
         }
     }
 }

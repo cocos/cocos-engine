@@ -59,14 +59,14 @@ export class RenderableComponent extends Component {
      * !#ch 返回相对应序号的材质
      * @param {Number} idx - Look for the material list number
      */
-    public getMaterial (idx: number): Material | null {
+    public getMaterial (idx: number, inEditor: boolean = false): Material | null {
         if (idx < 0 || idx >= this._materials.length || this._materials[idx] == null) {
             return null;
         }
 
-        const instantiated = Material.getInstantiatedMaterial(this._materials[idx]!, this);
+        const instantiated = Material.getInstantiatedMaterial(this._materials[idx]!, this, inEditor);
         if (instantiated !== this._materials[idx]) {
-            this.setMaterial(instantiated, idx);
+            this.setMaterial(instantiated, idx, !inEditor);
         }
 
         return this._materials[idx];
@@ -94,13 +94,18 @@ export class RenderableComponent extends Component {
         return this.getSharedMaterial(0);
     }
 
-    public setMaterial (material: Material | null, index: number) {
+    public setMaterial (material: Material | null, index: number, notify: boolean = true) {
         this._materials[index] = material;
-        this._onMaterialModified(index, material);
+        if (notify) {
+            this._onMaterialModified(index, material);
+        }
     }
 
     protected _onMaterialModified (index: number, material: Material | null) {
 
+    }
+
+    protected _onRebuildPSO (index: number, material: Material | null) {
     }
 
     protected _clearMaterials () {
