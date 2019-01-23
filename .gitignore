@@ -14,3 +14,4 @@ node_modules
 npm-debug.log
 DebugInfos.json
 /rollup/out
+/package-lock.json

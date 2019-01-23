@@ -36,7 +36,7 @@ export interface IMemoryImageSource {
     format: number;
 }
 
-type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource;
+export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource;
 
 /**
  * Class ImageAsset.
