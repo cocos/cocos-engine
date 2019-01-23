@@ -6,6 +6,7 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniform, GFXUniformBlock } from '../../gfx/shader';
 import { UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
 import { IDefineMap } from './effect';
+import { SkinningUBO } from '../models/model-uniforms';
 
 function _generateDefines (
     device: GFXDevice,
@@ -82,6 +83,9 @@ export class ProgramLib {
                 def._map = ((value: number) => (value - range[0]) << def._offset);
             } else { // boolean
                 def._map = ((value: any) => (value ? (1 << def._offset) : 0));
+            }
+            if (def.name === 'CC_USE_SKINNING') {
+                tmpl.blocks = tmpl.blocks.concat(convertToBlockInfo(SkinningUBO.BLOCK));
             }
             offset += cnt;
             def._offset = offset;

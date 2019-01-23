@@ -228,7 +228,7 @@ export class Model {
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
             ret[i] = mat.passes[i].createPipelineState()!;
-            ret[i].pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this.localUBO!);
+            this._onCreatePSO(ret[i]);
         }
         return ret;
     }
@@ -255,6 +255,10 @@ export class Model {
             this._matPSORecord.delete(mat);
             this._matRefCount.delete(mat);
         }
+    }
+
+    protected _onCreatePSO (pso: GFXPipelineState) {
+        pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this.localUBO!);
     }
 
     /**
