@@ -1,10 +1,12 @@
 import { Asset } from '../../assets/asset';
-import { SpriteFrame} from '../../assets/CCSpriteFrame';
+import { SpriteFrame } from '../../assets/CCSpriteFrame';
 import { ImageAsset } from '../../assets/image-asset';
 import { Texture2D } from '../../assets/texture-2d';
 import { Rect } from '../../core/value-types';
 import { GFXDevice } from '../../gfx/device';
+import { EffectAsset } from '../assets/effect-asset';
 import { TextureCube } from '../assets/texture-cube';
+import effects from './effects';
 
 class BuiltinResMgr {
     protected _device: GFXDevice | null = null;
@@ -108,6 +110,12 @@ class BuiltinResMgr {
         spriteFrame.image = imgAsset;
         spriteFrame.onLoaded();
         resources[spriteFrame._uuid] = spriteFrame;
+
+        // builtin effects
+        effects.forEach((e: any) => {
+            const effect = Object.assign(new EffectAsset(), e);
+            effect.onLoaded();
+        });
 
         // default material
         const defaultMtl = new cc.Material();

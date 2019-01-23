@@ -1,3 +1,4 @@
+import { builtinResMgr } from '../3d/builtin';
 import { GFXDevice } from '../gfx/device';
 import { GFXWindow, IGFXWindowInfo } from '../gfx/window';
 import { ForwardPipeline } from '../pipeline/forward/forward-pipeline';
@@ -91,6 +92,8 @@ export class Root {
         }
 
         this._pipeline = pipeline;
+
+        builtinResMgr.initBuiltinRes(this._device);
 
         this._ui = new UI(this);
         if (!this._ui.initialize()) {

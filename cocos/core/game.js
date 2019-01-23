@@ -28,8 +28,6 @@ import EventTarget from './event/event-target';
 import inputManager from './platform/event-manager/CCInputManager';
 import debug from './platform/CCDebug';
 import { addon } from './utils/js';
-import { EffectAsset } from '../3d/assets/effect-asset';
-import { builtinResMgr, effects } from '../3d/builtin';
 
 /**
  * @module cc
@@ -370,8 +368,6 @@ var game = {
         // Init engine
         this._initEngine();
 
-        this._initBuiltins();
-
         // Log engine version
         console.log('Cocos3D v' + cc.ENGINE_VERSION);
 
@@ -456,12 +452,6 @@ var game = {
             if (cb) cb();
             return;
         }
-
-        // Load builtin effects
-        effects.map(e => {
-            let effect = Object.assign(new EffectAsset(), e);
-            effect.onLoaded(); return effect;
-        });
 
         // Load game scripts
         let jsList = this.config.jsList;
@@ -818,10 +808,6 @@ var game = {
         };
 
         this._rendererInitialized = true;
-    },
-
-    _initBuiltins: function() {
-        builtinResMgr.initBuiltinRes(this._gfxDevice);
     },
 
     _initEvents: function () {

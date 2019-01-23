@@ -35,7 +35,7 @@ export class UIMaterial {
 
     public initialize (info: IUIMaterialInfo): boolean {
 
-        if (!this._material) {
+        if (!info.material) {
             return false;
         }
 

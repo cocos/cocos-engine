@@ -842,6 +842,7 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
                     gpuFramebuffer.gpuDepthStencilView.baseLevel);
             }
 
+            /*
             const status = gl.checkFramebufferStatus(WebGLRenderingContext.FRAMEBUFFER);
             if (status !== WebGLRenderingContext.FRAMEBUFFER_COMPLETE) {
                 switch (status) {
@@ -864,6 +865,7 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
                     default:
                 }
             }
+            */
         }
     }
 }
