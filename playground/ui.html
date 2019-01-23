@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>ui</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+            body {
+                background-color: #333;
+                margin: 0px;
+                overflow: hidden;
+            }
+
+            .fit {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+        </style>
+    </head>
+
+    <body class="fit">
+        <canvas id="canvas" tabindex="-1" class="fit">
+            <img name="testImg" src="cubetexture.png" />
+        </canvas>
+
+        <script src="../bin/cocos-3d.dev.js"></script>
+        <script>
+            const $body = document.body;
+            const bcr = $body.getBoundingClientRect();
+            const canv = document.getElementById('canvas');
+            canv.width = bcr.width;
+            canv.height = bcr.height;
+
+            window.addEventListener('resize', () => {
+                const bcr = $body.getBoundingClientRect();
+                cc.director.root.resize(bcr.width, bcr.height);
+            });
+
+            function createTexture(imgElms) {
+                const textureAsset = new cc.Texture2D();
+                textureAsset.image = new cc.ImageAsset(imgElms[0]);
+                return textureAsset;
+            }
+            const geomList = ['box', 'sphere', 'cylinder', 'cone', 'torus', 'capsule'];
+            function onStart() {
+                const root = cc.director.root;
+                const scene = new cc.Scene();
+
+                const canvasNode = new cc.Node('Canvas');
+                canvasNode.parent = scene;
+                canvasNode.addComponent(cc.CanvasComponent);
+
+                const spriteNode = new cc.Node('sprite');
+                spriteNode.parent = canvasNode;
+                spriteNode.setPosition(0, 0, 0);
+                const spriteComp = spriteNode.addComponent(cc.SpriteComponent);
+
+                // let elem = cc.game.canvas.getElementsByTagName('img')[0];
+                const spriteFrame = new cc.SpriteFrame();
+                let elem = cc.game.canvas.getElementsByTagName('img')[0];
+                spriteFrame.image = new cc.ImageAsset(elem);
+                // spriteFrame.setOriginalSize(cc.size(elem.width, elem.height));
+                // spriteFrame.setRect(0, 0, elem.width, elem.height);
+                spriteComp.spriteFrame = spriteFrame;
+
+                cc.director.runSceneImmediate(scene);
+            }
+            cc.game.run({ id: 'canvas' }, onStart);
+        </script>
+    </body>
+
+</html>

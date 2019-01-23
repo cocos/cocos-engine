@@ -31,7 +31,7 @@ export class Model {
     private _scene: RenderScene;
     private _node: Node;
     private _id: number;
-    private _isEnable: boolean = true;
+    private _isEnable: boolean = false;
     private _viewID: number = -1;
     private _cameraID: number = -1;
     private _userKey: number = -1;
@@ -99,7 +99,6 @@ export class Model {
         if (this._node.hasChanged) {
             this._node.updateWorldTransformFull();
             if (this._modelBounds) {
-
                 this._modelBounds.transform(
                     // @ts-ignore
                     this._node._mat, this._node._pos, this._node._rot, this._node._scale,

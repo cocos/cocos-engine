@@ -26,6 +26,7 @@ import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { GFXBindingType } from '../../gfx/define';
+import { GFXTextureView } from '../../gfx/texture-view';
 import { Effect, IDefineMap } from '../../renderer/core/effect';
 import { Pass, PassOverrides } from '../../renderer/core/pass';
 import { RenderableComponent } from '../framework/renderable-component';
@@ -213,14 +214,9 @@ export class Material extends Asset {
         if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
             pass.setUniform(handle, val);
         } else if (bindingType === GFXBindingType.SAMPLER) {
-            const sampler = val.getGFXSampler();
-            const textureView = val.getGFXTextureView();
-            if (!sampler || !textureView) {
-                console.warn('texture asset incomplete, missing ' + (sampler ? 'GFXTextureView' : 'GFXSampler'));
-                return false;
-            }
+            const textureView = val instanceof GFXTextureView ? val : val.getGFXTextureView();
+            if (!textureView) { console.warn('texture asset incomplete!'); return false; }
             const binding = Pass.getBindingFromHandle(handle);
-            pass.bindSampler(binding, sampler);
             pass.bindTextureView(binding, textureView);
         }
         return true;

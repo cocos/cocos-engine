@@ -28,44 +28,44 @@
  * @readonly
  * @enum EditBox.KeyboardReturnType
  */
-let KeyboardReturnType = cc.Enum({
+export enum KeyboardReturnType {
     /**
      * !#en TODO
      * !#zh 默认
      * @property {Number} DEFAULT
      */
-    DEFAULT: 0,
+    DEFAULT = 0,
     /**
      * !#en TODO
      * !#zh 完成类型
      * @property {Number} DONE
      */
-    DONE: 1,
+    DONE = 1,
     /**
      * !#en TODO
      * !#zh 发送类型
      * @property {Number} SEND
      */
-    SEND: 2,
+    SEND = 2,
     /**
      * !#en TODO
      * !#zh 搜索类型
      * @property {Number} SEARCH
      */
-    SEARCH: 3,
+    SEARCH = 3,
     /**
      * !#en TODO
      * !#zh 跳转类型
      * @property {Number} GO
      */
-    GO: 4,
+    GO = 4,
     /**
      * !#en TODO
      * !#zh 下一个类型
      * @property {Number} NEXT
      */
-    NEXT: 5
-});
+    NEXT = 5
+};
 
 /**
  * !#en The EditBox's InputMode defines the type of text that the user is allowed to enter.
@@ -73,37 +73,37 @@ let KeyboardReturnType = cc.Enum({
  * @readonly
  * @enum EditBox.InputMode
  */
-let InputMode = cc.Enum({
+export enum InputMode {
     /**
      * !#en TODO
      * !#zh 用户可以输入任何文本，包括换行符。
      * @property {Number} ANY
      */
-    ANY: 0,
+    ANY = 0,
     /**
      * !#en The user is allowed to enter an e-mail address.
      * !#zh 允许用户输入一个电子邮件地址。
      * @property {Number} EMAIL_ADDR
      */
-    EMAIL_ADDR: 1,
+    EMAIL_ADDR = 1,
     /**
      * !#en The user is allowed to enter an integer value.
      * !#zh 允许用户输入一个整数值。
      * @property {Number} NUMERIC
      */
-    NUMERIC: 2,
+    NUMERIC = 2,
     /**
      * !#en The user is allowed to enter a phone number.
      * !#zh 允许用户输入一个电话号码。
      * @property {Number} PHONE_NUMBER
      */
-    PHONE_NUMBER: 3,
+    PHONE_NUMBER = 3,
     /**
      * !#en The user is allowed to enter a URL.
      * !#zh 允许用户输入一个 URL。
      * @property {Number} URL
      */
-    URL: 4,
+    URL = 4,
     /**
      * !#en
      * The user is allowed to enter a real number value.
@@ -112,14 +112,14 @@ let InputMode = cc.Enum({
      * 允许用户输入一个实数。
      * @property {Number} DECIMAL
      */
-    DECIMAL: 5,
+    DECIMAL = 5,
     /**
      * !#en The user is allowed to enter any text, except for line breaks.
      * !#zh 除了换行符以外，用户可以输入任何文本。
      * @property {Number} SINGLE_LINE
      */
-    SINGLE_LINE: 6
-});
+    SINGLE_LINE = 6
+};
 
 /**
  * !#en Enum for the EditBox's input flags
@@ -127,7 +127,7 @@ let InputMode = cc.Enum({
  * @readonly
  * @enum EditBox.InputFlag
  */
-let InputFlag = cc.Enum({
+export enum InputFlag {
     /**
      * !#en
      * Indicates that the text entered is confidential data that should be
@@ -136,7 +136,7 @@ let InputFlag = cc.Enum({
      * 表明输入的文本是保密的数据，任何时候都应该隐藏起来，它隐含了 EDIT_BOX_INPUT_FLAG_SENSITIVE。
      * @property {Number} PASSWORD
      */
-    PASSWORD: 0,
+    PASSWORD = 0,
     /**
      * !#en
      * Indicates that the text entered is sensitive data that the
@@ -148,7 +148,7 @@ let InputFlag = cc.Enum({
      * 一个信用卡号码就是一个敏感数据的例子。
      * @property {Number} SENSITIVE
      */
-    SENSITIVE: 1,
+    SENSITIVE = 1,
     /**
      * !#en
      * This flag is a hint to the implementation that during text editing,
@@ -157,7 +157,7 @@ let InputFlag = cc.Enum({
      *  这个标志用来指定在文本编辑的时候，是否把每一个单词的首字母大写。
      * @property {Number} INITIAL_CAPS_WORD
      */
-    INITIAL_CAPS_WORD: 2,
+    INITIAL_CAPS_WORD = 2,
     /**
      * !#en
      * This flag is a hint to the implementation that during text editing,
@@ -166,18 +166,17 @@ let InputFlag = cc.Enum({
      * 这个标志用来指定在文本编辑是否每个句子的首字母大写。
      * @property {Number} INITIAL_CAPS_SENTENCE
      */
-    INITIAL_CAPS_SENTENCE: 3,
+    INITIAL_CAPS_SENTENCE = 3,
     /**
      * !#en Capitalize all characters automatically.
      * !#zh 自动把输入的所有字符大写。
      * @property {Number} INITIAL_CAPS_ALL_CHARACTERS
      */
-    INITIAL_CAPS_ALL_CHARACTERS: 4,
+    INITIAL_CAPS_ALL_CHARACTERS = 4,
     /**
      * Don't do anything with the input text.
      * @property {Number} DEFAULT
      */
-    DEFAULT: 5
-});
+    DEFAULT = 5
+};
 
-export { KeyboardReturnType, InputMode, InputFlag }

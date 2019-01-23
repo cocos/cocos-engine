@@ -73,16 +73,14 @@ class BuiltinResMgr {
         resources[normalTexture._uuid] = normalTexture;
 
         // default texture
+        canvas.width = canvas.height = 16;
         context.fillStyle = '#ddd';
-        context.fillRect(0, 0, l, l);
+        context.fillRect(0, 0, 16, 16);
         context.fillStyle = '#555';
-        context.fillRect(0, 0, hl, hl);
+        context.fillRect(0, 0, 8, 8);
         context.fillStyle = '#555';
-        context.fillRect(hl, hl, hl, hl);
+        context.fillRect(8, 8, 8, 8);
         const defaultTexture = new Texture2D();
-        defaultTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
-        defaultTexture.setMipFilter(Texture2D.Filter.NEAREST);
-        defaultTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         defaultTexture._uuid = 'default-texture';
         defaultTexture.image = imgAsset;
         resources[defaultTexture._uuid] = defaultTexture;
@@ -102,8 +100,6 @@ class BuiltinResMgr {
         // resources.push(defaultCubeTexture);
 
         const spriteFrame = new SpriteFrame();
-        spriteFrame.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
-        spriteFrame.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
         spriteFrame._uuid = 'default-spriteframe';
         spriteFrame.setOriginalSize(cc.size(imgAsset.width, imgAsset.height));
         spriteFrame.setRect(new Rect(0, 0, imgAsset.width, imgAsset.height));

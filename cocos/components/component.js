@@ -178,7 +178,7 @@ class Component extends CCObject {
         visible: false
     })
     get enabledInHierarchy () {
-        return (this._objFlags & IsOnEnableCalled) > 0;
+        return this._enabled && this.node._activeInHierarchy;
     }
 
     /**

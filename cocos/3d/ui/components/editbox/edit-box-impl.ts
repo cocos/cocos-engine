@@ -33,8 +33,8 @@ import macro from '../../../../core/platform/CCMacro';
 import * as Types from './types';
 import * as math from '../../../../core/vmath';
 import { Size, Color } from '../../../../core/value-types';
-import { Node } from '../../../../scene-graph';
 import { EditBoxComponent} from './edit-box-component';
+import { Node } from '../../../../scene-graph/node';
 const InputMode = Types.InputMode;
 const InputFlag = Types.InputFlag;
 const KeyboardReturnType = Types.KeyboardReturnType;
@@ -50,7 +50,7 @@ let _matrix = cc.mat4();
 let _matrix_temp = cc.mat4();
 let _vec3 = cc.v3();
 
-let _currentEditBoxImpl = null;
+let _currentEditBoxImpl: EditBoxImpl | null= null;
 
 // polyfill
 let polyfill = {
@@ -82,25 +82,61 @@ function getKeyboardReturnType(type) {
 
 @ccclass
 export class EditBoxImpl {
-    _delegate: EditBoxComponent | null = null;
-    _inputMode= -1;
-    _inputFlag= -1;
-    _returnType= KeyboardReturnType.DEFAULT;
-    _maxLength= 50;
-    _text = '';
-    _placeholderText = '';
-    _alwaysOnTop = false;
-    _size: Size = cc.size();
-    _node: Node = null;
-    _editing = false;
-    __eventListeners: object = {};
-    __fullscreen = false;
-    __autoResize = false;
-    __rotateScreen = false;
-    __orientationChanged: Function | null = null;
-    _edTxt: HTMLElement | null = null;
-    _textColor: Color = Color.WHITE;
-    _edFontSize = 14;
+    private _delegate: EditBoxComponent | null = null;
+    private _inputMode= -1;
+    private _inputFlag= -1;
+    private _returnType = KeyboardReturnType.DEFAULT;
+    private _maxLength= 50;
+    private _text = '';
+    private _placeholderText = '';
+    private _alwaysOnTop = false;
+    private _size: Size = cc.size();
+    private _node: Node | null = null;
+    private _editing = false;
+    private __eventListeners: any = {};
+    private __fullscreen = false;
+    private __autoResize = false;
+    private __rotateScreen = false;
+    private __orientationChanged: any;
+    private _edTxt: HTMLElement | null = null;
+    private _textColor: Color = Color.WHITE;
+    private _edFontSize = 14;
+
+    get text() {
+        return this._text;
+    }
+
+    set text(value: string) {
+        this._text = value;
+    }
+
+    get textColor() {
+        return this._textColor;
+    }
+
+    get fontSize() {
+        return this._edFontSize;
+    }
+
+    set returnType(value: Types.KeyboardReturnType) {
+        this._returnType = value;
+    }
+
+    get alwayOnTop() {
+        return this._alwaysOnTop;
+    }
+
+    set editing(value: boolean) {
+        this._editing = value;
+    }
+
+    get delegate() {
+        return this._delegate;
+    }
+
+    get eventListeners() {
+        return this.__eventListeners;
+    }
 
     onEnable() {
         if (!this._edTxt) {
@@ -316,7 +352,7 @@ export class EditBoxImpl {
 
     _updateDomInputType() {
         let inputMode = this._inputMode;
-        let edTxt = this._edTxt;
+        let edTxt = this._edTxt as HTMLInputElement;
         if (!edTxt) return;
 
         if (this._inputFlag === InputFlag.PASSWORD) {
@@ -356,15 +392,18 @@ export class EditBoxImpl {
     _updateMatrix() {
         if (!this._edTxt) return;
 
-        let node = this._node,
-            scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
-            viewport = cc.view._viewportRect,
-            dpr = cc.view._devicePixelRatio;
+        const node = this._node;
+        let scaleX = cc.view._scaleX;
+        let scaleY = cc.view._scaleY;
+        const viewport = cc.view._viewportRect;
+        const dpr = cc.view._devicePixelRatio;
 
-        node.getWorldMatrix(_matrix);
-        let contentSize = node._contentSize;
-        _vec3.x = -node._anchorPoint.x * contentSize.width;
-        _vec3.y = -node._anchorPoint.y * contentSize.height;
+        node!.getWorldMatrix(_matrix);
+        const transform = node!.uiTransfromComp
+        if (transform) {
+            _vec3.x = -transform.anchorX.x * transform.width;
+            _vec3.y = -transform.anchorY.y * transform.height;
+        }
 
         math.mat4.translate(_matrix, _matrix, _vec3);
 
@@ -376,7 +415,7 @@ export class EditBoxImpl {
         // else {
         //     camera = cc.Camera.findCamera(node);
         // }
-        let renderComp = node.getComponent(cc.RenderComponent);
+        let renderComp = node!.getComponent(cc.RenderComponent);
         if (!renderComp) {
             return false;
         }
@@ -422,7 +461,7 @@ export class EditBoxImpl {
     }
 
     _adjustEditBoxPosition() {
-        this._node.getWorldMatrix(_matrix);
+        this._node!.getWorldMatrix(_matrix);
         let y = _matrix.m13;
         let windowHeight = cc.visibleRect.height;
         let windowWidth = cc.visibleRect.width;
@@ -484,7 +523,9 @@ export class EditBoxImpl {
             this.__rotateScreen = false;
         }
 
-        window.removeEventListener('orientationchange', this.__orientationChanged);
+        if (this.__orientationChanged) {
+            window.removeEventListener('orientationchange', this.__orientationChanged);
+        }
 
         if (this.__fullscreen) {
             cc.view.enableAutoFullScreen(true);
@@ -506,11 +547,11 @@ export class EditBoxImpl {
         tmpEdTxt.type = 'text';
         tmpEdTxt.style.fontSize = this._edFontSize + 'px';
         tmpEdTxt.style.color = '#000000';
-        tmpEdTxt.style.border = 0;
+        tmpEdTxt.style.border = '0px';
         tmpEdTxt.style.background = 'transparent';
         tmpEdTxt.style.width = '100%';
         tmpEdTxt.style.height = '100%';
-        tmpEdTxt.style.active = 0;
+        // tmpEdTxt.style.active = 0;
         tmpEdTxt.style.outline = 'medium';
         tmpEdTxt.style.padding = '0';
         tmpEdTxt.style.textTransform = 'uppercase';
@@ -519,7 +560,7 @@ export class EditBoxImpl {
         tmpEdTxt.style.bottom = "0px";
         tmpEdTxt.style.left = LEFT_PADDING + "px";
         tmpEdTxt.style['-moz-appearance'] = 'textfield';
-        tmpEdTxt.style.className = "cocosEditBox";
+        tmpEdTxt.className = "cocosEditBox";
         tmpEdTxt.style.fontFamily = 'Arial';
 
         registerInputEventListener(tmpEdTxt, this);
@@ -531,24 +572,24 @@ export class EditBoxImpl {
         this.removeDom();
 
         let tmpEdTxt = this._edTxt = document.createElement('textarea');
-        tmpEdTxt.type = 'text';
+        // tmpEdTxt.type = 'text';
         tmpEdTxt.style.fontSize = this._edFontSize + 'px';
         tmpEdTxt.style.color = '#000000';
         tmpEdTxt.style.border = '0';
         tmpEdTxt.style.background = 'transparent';
         tmpEdTxt.style.width = '100%';
         tmpEdTxt.style.height = '100%';
-        tmpEdTxt.style.active = 0;
+        // tmpEdTxt.style.active = 0;
         tmpEdTxt.style.outline = 'medium';
         tmpEdTxt.style.padding = '0';
         tmpEdTxt.style.resize = 'none';
         tmpEdTxt.style.textTransform = 'uppercase';
-        tmpEdTxt.style.overflow_y = 'scroll';
+        tmpEdTxt.style.overflowY = 'scroll';
         tmpEdTxt.style.display = 'none';
         tmpEdTxt.style.position = "absolute";
         tmpEdTxt.style.bottom = "0px";
         tmpEdTxt.style.left = LEFT_PADDING + "px";
-        tmpEdTxt.style.className = "cocosEditBox";
+        tmpEdTxt.className = "cocosEditBox";
         tmpEdTxt.style.fontFamily = 'Arial';
 
         registerInputEventListener(tmpEdTxt, this, true);
@@ -601,7 +642,7 @@ function _inputValueHandle(input, editBoxImpl) {
 
 function registerInputEventListener(tmpEdTxt: HTMLElement, editBoxImpl: EditBoxImpl, isTextarea = false) {
     let inputLock = false;
-    let cbs = editBoxImpl.__eventListeners;
+    let cbs = editBoxImpl.eventListeners;
     cbs.compositionstart = function () {
         inputLock = true;
     };
@@ -622,19 +663,19 @@ function registerInputEventListener(tmpEdTxt: HTMLElement, editBoxImpl: EditBoxI
     tmpEdTxt.addEventListener('input', cbs.input);
 
     cbs.focus = function () {
-        this.style.fontSize = editBoxImpl._edFontSize + 'px';
-        this.style.color = editBoxImpl._textColor.toCSS('rgba');
+        this.style.fontSize = editBoxImpl.fontSize + 'px';
+        this.style.color = editBoxImpl.textColor.toCSS('rgba');
         // When stayOnTop, input will swallow touch event
-        if (editBoxImpl._alwaysOnTop) {
-            editBoxImpl._editing = true;
+        if (editBoxImpl.alwayOnTop) {
+            editBoxImpl.editing = true;
         }
 
         if (cc.sys.isMobile) {
             editBoxImpl._beginEditingOnMobile();
         }
 
-        if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan) {
-            editBoxImpl._delegate.editBoxEditingDidBegan();
+        if (editBoxImpl.delegate && editBoxImpl.delegate.editBoxEditingDidBegan) {
+            editBoxImpl.delegate.editBoxEditingDidBegan();
         }
 
     };
@@ -644,11 +685,11 @@ function registerInputEventListener(tmpEdTxt: HTMLElement, editBoxImpl: EditBoxI
         if (e.keyCode === macro.KEY.enter) {
             e.stopPropagation();
 
-            if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn) {
-                editBoxImpl._delegate.editBoxEditingReturn();
+            if (editBoxImpl.delegate && editBoxImpl.delegate.editBoxEditingReturn) {
+                editBoxImpl.delegate.editBoxEditingReturn();
             }
             if (!isTextarea) {
-                editBoxImpl._text = this.value;
+                editBoxImpl.text = this.value;
                 editBoxImpl._endEditing();
                 cc.game.canvas.focus();
             }
@@ -657,7 +698,7 @@ function registerInputEventListener(tmpEdTxt: HTMLElement, editBoxImpl: EditBoxI
     tmpEdTxt.addEventListener('keypress', cbs.keypress);
 
     cbs.blur = function () {
-        editBoxImpl._text = this.value;
+        editBoxImpl.text = this.value;
         editBoxImpl._endEditing();
     };
     tmpEdTxt.addEventListener('blur', cbs.blur);
