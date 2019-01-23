@@ -175,7 +175,7 @@ export class TextureCube extends TextureBase {
     protected _getTextureCreateInfo () {
         const result =  super._getTextureCreateInfo();
         result.arrayLayer = 6;
-        result.flags = result.flags | GFXTextureFlagBit.CUBEMAP;
+        result.flags = (result.flags || 0) | GFXTextureFlagBit.CUBEMAP;
         return result;
     }
 
