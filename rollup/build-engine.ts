@@ -66,6 +66,7 @@ async function _doBundle (options: IBuildOptions) {
         commonjs({
             namedExports: {
                 cannon: ['CANNON', 'Shape'],
+                'webgl-debug': ['makeDebugContext', 'glEnumToString'],
             },
         }),
     ];
