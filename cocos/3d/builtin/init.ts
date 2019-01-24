@@ -125,7 +125,7 @@ class BuiltinResMgr {
         const spriteMtl = new cc.Material();
         spriteMtl._uuid = 'sprite-material';
         spriteMtl.effectName = 'builtin-effect-sprite';
-        spriteMtl.setProperty('mainTexture', defaultTexture);
+        spriteMtl.setProperty('u_texSampler', defaultTexture);
         resources[spriteMtl._uuid] = spriteMtl;
     }
 

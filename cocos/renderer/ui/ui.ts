@@ -228,6 +228,7 @@ export class UI {
 
     public update (dt: number) {
         this._batches.clear();
+        this._commitUIRenderDatas = [];
 
         this._renderScreens();
 
@@ -276,9 +277,6 @@ export class UI {
                     this._renderArea.width = camera.width;
                     this._renderArea.height = camera.height;
 
-                    cmdBuff.beginRenderPass(framebuffer, this._renderArea, [], camera.clearDepth, camera.clearStencil);
-                    curCamera = camera;
-
                     camera.update();
 
                     // update ubo
@@ -286,10 +284,14 @@ export class UI {
                     this._uboUI.view.set(_mat4Array, UBOUI.MAT_VIEW_PROJ_OFFSET);
 
                     this._uiUBO!.update(this._uboUI.view);
+
+                    curCamera = camera;
+
+                    cmdBuff.beginRenderPass(framebuffer, this._renderArea, [], camera.clearDepth, camera.clearStencil);
                 }
 
                 material.bindingLayout.bindBuffer(0, this._uiUBO!);
-                material.bindingLayout.bindTextureView(5, batch.texView);
+                material.bindingLayout.bindTextureView(1, batch.texView);
                 material.bindingLayout.update();
 
                 cmdBuff.bindPipelineState(material.pipelineState);
@@ -440,6 +442,7 @@ export class UI {
 
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
         const vbCount = 128;
+        const varrCount = 128 * 9;
 
         const vb = this._device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
@@ -468,7 +471,7 @@ export class UI {
         batch.vb = vb;
         batch.ib = ib;
         batch.ia = ia;
-        batch.vf32 = new Float32Array(vbCount);
+        batch.vf32 = new Float32Array(varrCount);
         batch.vui16 = new Uint16Array(ibCount);
         batch.vbSize = vb.size;
         batch.ibSize = ib.size;

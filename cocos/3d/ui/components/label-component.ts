@@ -614,7 +614,7 @@ export class LabelComponent extends UIRenderComponent {
         } else {
             this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
         }
-        material!.setProperty('mainTexture', this._texture);
+        material!.setProperty('u_texSampler', this._texture);
         // For batch rendering, do not use uniform color.
         // material!.useColor = false;
         // this._updateMaterial(material);

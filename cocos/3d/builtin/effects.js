@@ -79,16 +79,20 @@ export default [
   },
   {
     "name": "builtin-effect-sprite",
-    "techniques": [{"passes":[{"depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag", "properties":{"mainTexture":{"type":29, "value":"default"}}}]}],
+    "techniques": [{"passes":[{"depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag", "properties":{"u_texSampler":{"type":29, "value":"default"}}}]}],
     "shaders": [
       {
         "name": "builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag",
-        "vert": "\nattribute vec3 a_position;\nattribute vec2 a_texCoord;\nattribute vec4 a_color;\n  uniform vec4 cc_time;\n  uniform vec4 cc_screenSize;\n  uniform vec4 cc_screenScale;\n  uniform mat4 cc_matProj;\n  uniform mat4 cc_matProjInv;\n  uniform mat4 cc_matView;\n  uniform mat4 cc_matViewInv;\n  uniform mat4 cc_matViewProj;\n  uniform mat4 cc_matViewProjInv;\n  uniform vec4 cc_cameraPos;\n  uniform vec4 cc_dirLightDirection[4];\n  uniform vec4 cc_dirLightColor[4];\n  uniform vec4 cc_pointLightPositionAndRange[4];\n  uniform vec4 cc_pointLightColor[4];\n  uniform vec4 cc_spotLightPositionAndRange[4];\n  uniform vec4 cc_spotLightDirection[4];\n  uniform vec4 cc_spotLightColor[4];\n  uniform mat4 cc_matViewProjLight;\n  uniform vec4 cc_shadowParam1;\n  uniform vec4 cc_shadowParam2;\n  uniform mat4 cc_matWorld;\n  uniform mat4 cc_matWorldIT;\nvarying vec2 uv0;\nvarying vec4 color;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * cc_matWorld * pos;\n  uv0 = a_texCoord;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n",
-        "frag": "\nuniform sampler2D mainTexture;\nvarying vec2 uv0;\nvarying vec4 color;\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  o *= texture2D(mainTexture, uv0);\n  o *= color;\n  return o;\n}\nvoid main() { gl_FragColor = frag(); }\n",
+        "vert": "\nattribute vec3 a_position;\nattribute vec2 a_texCoord;\nattribute vec4 a_color;\n  uniform mat4 cc_matViewProj;\nvarying vec2 v_uv0;\nvarying vec4 v_color;\nvec4 vert () {\n  vec4 pos = cc_matViewProj * vec4(a_position, 1);\n  v_uv0 = a_texCoord;\n  v_color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n",
+        "frag": "\nuniform sampler2D u_texSampler;\nvarying vec2 v_uv0;\nvarying vec4 v_color;\nvec4 frag () {\n  return texture2D(u_texSampler, v_uv0) * v_color;\n}\nvoid main() { gl_FragColor = frag(); }\n",
         "defines": [],
-        "blocks": [],
+        "blocks": [
+          {"name": "UI", "size": 64, "defines": [], "binding": 0, "members": [
+            {"name":"cc_matViewProj", "type":26, "count":1, "size":64}
+          ]}
+        ],
         "samplers": [
-          {"name":"mainTexture", "type":29, "count":1, "defines":[], "binding":0}
+          {"name":"u_texSampler", "type":29, "count":1, "defines":[], "binding":1}
         ],
         "dependencies": {}
       }

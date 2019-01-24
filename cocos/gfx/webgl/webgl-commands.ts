@@ -1258,7 +1258,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                     const invalidateAttachments: GLenum[] = [0, 0, 0, 0];
                     let numInvalidAttach = 0;
 
-                    if (curGPURenderPass.colorAttachments.length > 0) {
+                    if (curGPURenderPass.colorAttachments.length > 0 && cmd0.clearColors.length) {
                         const colorAttachment = curGPURenderPass.colorAttachments[0];
 
                         if (colorAttachment.format !== GFXFormat.UNKNOWN) {

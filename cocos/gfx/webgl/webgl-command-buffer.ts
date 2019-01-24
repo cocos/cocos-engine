@@ -105,6 +105,17 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
     public begin () {
         this._webGLAllocator!.clearCmds(this.cmdPackage);
+        this._curGPUPipelineState = null;
+        this._curGPUBindingLayout = null;
+        this._curGPUInputAssembler = null;
+        this._curViewport = null;
+        this._curScissor = null;
+        this._curLineWidth = null;
+        this._curDepthBias = null;
+        this._curBlendConstants = [];
+        this._curDepthBounds = null;
+        this._curStencilWriteMask = null;
+        this._curStencilCompareMask = null;
     }
 
     public end () {

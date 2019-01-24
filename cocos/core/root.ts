@@ -156,6 +156,7 @@ export class Root {
         }
 
         this._ui!.update(deltaTime);
+        this._ui!.render();
 
         this._device.present();
     }

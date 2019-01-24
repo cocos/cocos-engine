@@ -458,9 +458,9 @@ export class SpriteComponent extends UIRenderComponent {
             // TODO:
             // else {
             //     if (spriteFrame && spriteFrame.textureLoaded()) {
-            //         const matTexture = material && material.getProperty('mainTexture');
+            //         const matTexture = material && material.getProperty('u_texSampler');
             //         if (matTexture !== spriteFrame) {
-            //             material.setProperty('mainTexture', spriteFrame);
+            //             material.setProperty('u_texSampler', spriteFrame);
             //             this.markForUpdateRenderData(true);
             //         }
             //     }
