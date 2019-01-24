@@ -1058,7 +1058,7 @@ export class BaseNode extends CCObject {
         return;
     }
 
-    public emit?(type: string, ...args: any[]): void;
+    public emit? (type: string, ...args: any[]): void;
 
     protected _onSetParent (oldParent: this | null) {
         if (this._parent) {
@@ -1083,58 +1083,42 @@ export class BaseNode extends CCObject {
     }
 
     protected _onPreDestroy () {
-        // marked as destroying
-        this._objFlags |= Destroying;
-
-        // detach self and children from editor
-        const parent = this._parent;
-        const destroyByParent: boolean = (parent !== null) && ((parent._objFlags & Destroying) !== 0);
-        if (!destroyByParent && (CC_EDITOR || CC_TEST)) {
-            this._registerIfAttached!(false);
-        }
-
-        // destroy children
-        // destroy children
-        for (const child of this._children) {
-            // destroy immediate so its _onPreDestroy can be called
-            child._destroyImmediate();
-        }
-
-        // destroy self components
-        for (const component of this._components) {
-            // destroy immediate so its _onPreDestroy can be called
-            // TO DO
-            // @ts-ignore
-            component._destroyImmediate();
-        }
-
-        for (const eventTarget of this.__eventTargets) {
-            if (eventTarget) {
-                eventTarget.targetOff(this);
-            }
-        }
-        this.__eventTargets.length = 0;
-
-        // remove from persist
-        if (this._persistNode) {
-            cc.game.removePersistRootNode(this);
-        }
-
-        if (!destroyByParent) {
-            // remove from parent
-            if (parent) {
-                const childIndex = parent._children.indexOf(this);
-                parent._children.splice(childIndex, 1);
-                if (parent.emit) {
-                    parent.emit('child-removed', this);
-                }
-            }
-        }
-
-        return destroyByParent;
+        this._onPreDestroyBase();
     }
 
     protected _onHierarchyChanged (oldParent: this | null) {
+        return this._onHierarchyChangedBase(oldParent);
+    }
+
+    protected _instantiate (cloned) {
+        if (!cloned) {
+            cloned = cc.instantiate._clone(this, this);
+        }
+
+        const thisPrefabInfo = this._prefab;
+        if (CC_EDITOR && thisPrefabInfo) {
+            if (this !== thisPrefabInfo.root) {
+                // var PrefabUtils = Editor.require('scene://utils/prefab');
+                // PrefabUtils.initClonedChildOfPrefab(cloned);
+            }
+        }
+        const syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
+        if (syncing) {
+            // if (thisPrefabInfo._synced) {
+            //    return clone;
+            // }
+        } else if (CC_EDITOR && cc.engine._isPlaying) {
+            cloned._name += ' (Clone)';
+        }
+
+        // reset and init
+        cloned._parent = null;
+        cloned._onBatchRestored();
+
+        return cloned;
+    }
+
+    private _onHierarchyChangedBase (oldParent: this | null) {
         const newParent = this._parent;
         if (this._persistNode && !(newParent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
@@ -1187,36 +1171,56 @@ export class BaseNode extends CCObject {
         }
     }
 
-    protected _onHierarchyChangedBase (oldParent: this) {
-        return this._onHierarchyChanged(oldParent);
-    }
+    private _onPreDestroyBase () {
+        // marked as destroying
+        this._objFlags |= Destroying;
 
-    protected _instantiate (cloned) {
-        if (!cloned) {
-            cloned = cc.instantiate._clone(this, this);
+        // detach self and children from editor
+        const parent = this._parent;
+        const destroyByParent: boolean = (parent !== null) && ((parent._objFlags & Destroying) !== 0);
+        if (!destroyByParent && (CC_EDITOR || CC_TEST)) {
+            this._registerIfAttached!(false);
         }
 
-        const thisPrefabInfo = this._prefab;
-        if (CC_EDITOR && thisPrefabInfo) {
-            if (this !== thisPrefabInfo.root) {
-                // var PrefabUtils = Editor.require('scene://utils/prefab');
-                // PrefabUtils.initClonedChildOfPrefab(cloned);
+        // destroy children
+        // destroy children
+        for (const child of this._children) {
+            // destroy immediate so its _onPreDestroy can be called
+            child._destroyImmediate();
+        }
+
+        // destroy self components
+        for (const component of this._components) {
+            // destroy immediate so its _onPreDestroy can be called
+            // TO DO
+            // @ts-ignore
+            component._destroyImmediate();
+        }
+
+        for (const eventTarget of this.__eventTargets) {
+            if (eventTarget) {
+                eventTarget.targetOff(this);
             }
         }
-        const syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
-        if (syncing) {
-            // if (thisPrefabInfo._synced) {
-            //    return clone;
-            // }
-        } else if (CC_EDITOR && cc.engine._isPlaying) {
-            cloned._name += ' (Clone)';
+        this.__eventTargets.length = 0;
+
+        // remove from persist
+        if (this._persistNode) {
+            cc.game.removePersistRootNode(this);
         }
 
-        // reset and init
-        cloned._parent = null;
-        cloned._onBatchRestored();
+        if (!destroyByParent) {
+            // remove from parent
+            if (parent) {
+                const childIndex = parent._children.indexOf(this);
+                parent._children.splice(childIndex, 1);
+                if (parent.emit) {
+                    parent.emit('child-removed', this);
+                }
+            }
+        }
 
-        return cloned;
+        return destroyByParent;
     }
 
     // do remove component, only used internally
@@ -1254,15 +1258,11 @@ export class BaseNode extends CCObject {
         }
     }
 
-    private _onSiblingIndexChanged?(siblingIndex: number): void;
+    private _onSiblingIndexChanged? (siblingIndex: number): void;
 
-    private _registerIfAttached?(attached: boolean): void;
+    private _registerIfAttached? (attached: boolean): void;
 
-    private _checkMultipleComp?(constructor: Function): boolean;
-
-    private _onPreDestroyBase () {
-        return this._onPreDestroy();
-    }
+    private _checkMultipleComp? (constructor: Function): boolean;
 }
 
 baseNodePolyfill(BaseNode);
