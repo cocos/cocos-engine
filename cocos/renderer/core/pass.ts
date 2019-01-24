@@ -226,7 +226,14 @@ export class Pass {
         block.dirty = true;
     }
 
-    public bindTextureView (binding: number, value: GFXTextureView, arrayIdx?: number) {
+    public bindBuffer (binding: number, value: GFXBuffer) {
+        this._buffers[binding] = value;
+        for (const res of this._resources) {
+            res.bindingLayout.bindBuffer(binding, value);
+        }
+    }
+
+    public bindTextureView (binding: number, value: GFXTextureView) {
         this._textureViews[binding] = value;
         for (const res of this._resources) {
             res.bindingLayout.bindTextureView(binding, value);
