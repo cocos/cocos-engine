@@ -283,6 +283,6 @@ export class ModelComponent extends RenderableComponent {
 
     private _getBuiltinMaterial () {
         // classic ugly pink indicating missing material
-        return builtinResMgr['default-material'];
+        return builtinResMgr.get<Material>('default-material');
     }
 }

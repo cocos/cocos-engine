@@ -40,7 +40,7 @@ export interface IMaterialInfo {
 
 @ccclass('cc.Material')
 export class Material extends Asset {
-    public static getInstantiatedMaterial (mat: Material, rndCom: any, inEditor: boolean) {
+    public static getInstantiatedMaterial (mat: Material, rndCom: RenderableComponent, inEditor: boolean) {
         if (mat._owner === rndCom) {
             return mat;
         } else {
