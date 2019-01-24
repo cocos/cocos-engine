@@ -1,7 +1,7 @@
 import { Material } from '../../3d/assets/material';
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType } from '../../gfx/define';
+import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
@@ -69,7 +69,11 @@ export class SubModel {
         if (this._subMeshObject!.indirectBuffer) {
             iaInfo.indirectBuffer = this._subMeshObject!.indirectBuffer;
         }
-        this._inputAssembler = (cc.director.root.device as GFXDevice).createInputAssembler(iaInfo);
+        if (this._inputAssembler) {
+            this._inputAssembler.initialize(iaInfo);
+        } else {
+            this._inputAssembler = (cc.director.root.device as GFXDevice).createInputAssembler(iaInfo);
+        }
     }
 
     get subMeshData () {
@@ -128,6 +132,11 @@ export class SubModel {
                 type: GFXCommandBufferType.SECONDARY,
             };
             this._cmdBuffers[index] = device.createCommandBuffer(cmdBufferInfo);
+        } else if (this._cmdBuffers[index].status == GFXStatus.UNREADY) {
+            this._cmdBuffers[index].initialize({
+                allocator: device.commandAllocator,
+                type: GFXCommandBufferType.SECONDARY,
+            });
         }
         const inputAssembler = this._inputAssembler as GFXInputAssembler;
 
