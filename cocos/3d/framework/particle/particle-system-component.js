@@ -179,6 +179,11 @@ export default class ParticleSystemComponent extends Component {
     constructor() {
         super();
 
+        this.rateOverTime.constant = 10;
+        this.startLifetime.constant = 5;
+        this.startSize.constant = 1;
+        this.startSpeed.constant = 1;
+
         // internal status
         this._isPlaying = false;
         this._isPaused = false;

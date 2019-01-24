@@ -36,11 +36,15 @@ export default class ShapeModule {
     @property
     enable = false;
 
-    @property
+    @property({
+        type: ShapeType
+    })
     shapeType = ShapeType.Box;
 
-    @property
-    emitFrom = EmitLocation.Base;
+    @property({
+        type: EmitLocation
+    })
+    emitFrom = EmitLocation.Volume;
 
     @property
     _position = new Vec3(0, 0, 0);
