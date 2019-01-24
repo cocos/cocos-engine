@@ -24,21 +24,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import macro from '../../../core/platform/CCMacro';
-import { UIRenderComponent } from './ui-render-component';
+import Font from '../../../assets/CCFont';
 import { ImageAsset } from '../../../assets/image-asset';
+import { Texture2D } from '../../../assets/texture-2d';
 // import { vec2, vec3, mat4, color4 } from '../../../core/vmath/index';
 import {
     ccclass,
-    property,
-    menu,
-    executionOrder,
     executeInEditMode,
+    executionOrder,
+    menu,
+    property,
 } from '../../../core/data/class-decorator';
-import Font from '../../../assets/CCFont';
-import { Texture2D } from '../../../assets/texture-2d';
-import { MeshBuffer } from '../mesh-buffer';
+import macro from '../../../core/platform/CCMacro';
 import { Enum } from '../../../core/value-types';
+import { MeshBuffer } from '../mesh-buffer';
+import { UIRenderComponent } from './ui-render-component';
 // import { value } from '../../../core/utils/js';
 
 /**
@@ -553,7 +553,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     public onDestroy () {
-        if (this._assembler && this._assembler._resetAssemblerData){
+        if (this._assembler && this._assembler._resetAssemblerData) {
             this._assembler._resetAssemblerData(this._assemblerData);
         }
 
@@ -584,7 +584,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     public _updateAssembler () {
-        const assembler = LabelComponent._assembler.getAssembler(this);
+        const assembler = LabelComponent.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();

@@ -25,10 +25,10 @@
  ****************************************************************************/
 
 import { Component} from '../../../components/component';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { clamp01 } from '../../../core/utils/misc';
-import { ccclass, menu, executionOrder, executeInEditMode, property } from '../../../core/data/class-decorator';
+import { Enum } from '../../../core/value-types';
 import { SpriteComponent } from './sprite-component';
-
 
 /**
  * !#en Enum for ProgressBar mode
@@ -55,7 +55,9 @@ enum Mode {
      * @property {Number} FILLED
      */
     FILLED = 2,
-};
+}
+
+Enum(Mode);
 
 /**
  * !#en
@@ -84,15 +86,6 @@ enum Mode {
 @menu('UI/ProgressBar')
 // @executeInEditMode
 export class ProgressBarComponent extends Component {
-    @property
-    _barSprite: SpriteComponent | null = null;
-    @property
-    _mode: number = Mode.HORIZONTAL;
-    _N$totalLength: number = 1;
-    @property
-    _progress: number = 0.1;
-    @property
-    _reverse: boolean = false;
 
     /**
      * !#en The targeted Sprite which will be changed progressively.
@@ -100,15 +93,15 @@ export class ProgressBarComponent extends Component {
      * @property {Sprite} barSprite
      */
     @property({
-        type: SpriteComponent
+        type: SpriteComponent,
     })
-    get barSprite() {
+    get barSprite () {
         return this._barSprite;
     }
 
-    set barSprite(value: SpriteComponent) {
+    set barSprite (value: SpriteComponent) {
         if (this._barSprite === value) {
-            return
+            return;
         }
 
         this._barSprite = value;
@@ -121,23 +114,23 @@ export class ProgressBarComponent extends Component {
      * @property {ProgressBar.Mode} mode
      */
     @property({
-        type: Mode
+        type: Mode,
     })
-    get mode() {
+    get mode () {
         return this._mode;
     }
 
-    set mode(value: number) {
+    set mode (value: Mode) {
         if (this._mode === value) {
             return;
         }
 
         this._mode = value;
         if (this._barSprite) {
-            var entity = this._barSprite.node;
-            if (!entity) return;
+            const entity = this._barSprite.node;
+            if (!entity) { return; }
 
-            var entitySize = entity.getContentSize();
+            const entitySize = entity.getContentSize();
             if (this._mode === Mode.HORIZONTAL) {
                 this.totalLength = entitySize.width;
             } else if (this._mode === Mode.VERTICAL) {
@@ -154,11 +147,11 @@ export class ProgressBarComponent extends Component {
      * @property {Number} totalLength - range[[0, Number.MAX_VALUE]]
      */
     @property
-    get totalLength() {
+    get totalLength () {
         return this._N$totalLength;
     }
 
-    set totalLength(value: number) {
+    set totalLength (value: number) {
         if (this._mode === Mode.FILLED) {
             value = clamp01(value);
         }
@@ -172,17 +165,16 @@ export class ProgressBarComponent extends Component {
      * @property {Number} progress
      */
     @property({
-        default: 0.1,
         range: [0, 1, 0.1],
-        slide: true
+        slide: true,
     })
-    get progress() {
+    get progress () {
         return this._progress;
     }
 
-    set progress(value: number) {
+    set progress (value: number) {
         if (this._progress === value) {
-            return
+            return;
         }
 
         this._progress = value;
@@ -195,11 +187,11 @@ export class ProgressBarComponent extends Component {
      * @property {Boolean} reverse
      */
     @property
-    get reverse() {
+    get reverse () {
         return this._reverse;
     }
 
-    set reverse(value: boolean) {
+    set reverse (value: boolean) {
         if (this._reverse === value) {
             return;
         }
@@ -211,17 +203,26 @@ export class ProgressBarComponent extends Component {
         this._updateBarStatus();
     }
 
-    static Mode = Mode;
+    public static Mode = Mode;
+    @property
+    private _barSprite: SpriteComponent | null = null;
+    @property
+    private _mode: number = Mode.HORIZONTAL;
+    private _N$totalLength: number = 1;
+    @property
+    private _progress: number = 0.1;
+    @property
+    private _reverse: boolean = false;
 
-    _initBarSprite() {
+    public _initBarSprite () {
         if (this._barSprite) {
-            var entity = this._barSprite.node;
-            if (!entity) return;
+            const entity = this._barSprite.node;
+            if (!entity) { return; }
 
-            var nodeSize = this.node.getContentSize();
-            var nodeAnchor = this.node.getAnchorPoint();
+            const nodeSize = this.node.getContentSize();
+            const nodeAnchor = this.node.getAnchorPoint();
 
-            var entitySize = entity.getContentSize();
+            const entitySize = entity.getContentSize();
 
             if (entity.parent === this.node) {
                 this.node.setContentSize(entitySize);
@@ -231,41 +232,39 @@ export class ProgressBarComponent extends Component {
                 this._mode = Mode.FILLED;
             }
 
-            var barSpriteSize = entity.getContentSize();
+            const barSpriteSize = entity.getContentSize();
             if (this._mode === Mode.HORIZONTAL) {
                 this.totalLength = barSpriteSize.width;
-            }
-            else if (this._mode === Mode.VERTICAL) {
+            } else if (this._mode === Mode.VERTICAL) {
                 this.totalLength = barSpriteSize.height;
-            }
-            else {
+            } else {
                 this.totalLength = this._barSprite.fillRange;
             }
 
             if (entity.parent === this.node) {
-                var x = - nodeSize.width * nodeAnchor.x;
-                var y = 0;
+                const x = - nodeSize.width * nodeAnchor.x;
+                const y = 0;
                 entity.setPosition(cc.v2(x, y));
             }
         }
     }
 
-    _updateBarStatus() {
+    public _updateBarStatus () {
         if (this._barSprite) {
-            var entity = this._barSprite.node;
+            const entity = this._barSprite.node;
 
-            if (!entity) return;
+            if (!entity) { return; }
 
-            var entityAnchorPoint = entity.getAnchorPoint();
-            var entitySize = entity.getContentSize();
-            var entityPosition = entity.getPosition();
+            const entityAnchorPoint = entity.getAnchorPoint();
+            const entitySize = entity.getContentSize();
+            const entityPosition = entity.getPosition();
 
-            var anchorPoint = cc.v2(0, 0.5);
-            var progress = clamp01(this._progress);
-            var actualLenth = this.totalLength * progress;
-            var finalContentSize;
-            var totalWidth;
-            var totalHeight;
+            let anchorPoint = cc.v2(0, 0.5);
+            const progress = clamp01(this._progress);
+            let actualLenth = this.totalLength * progress;
+            let finalContentSize;
+            let totalWidth;
+            let totalHeight;
             switch (this._mode) {
                 case Mode.HORIZONTAL:
                     if (this._reverse) {
@@ -287,7 +286,7 @@ export class ProgressBarComponent extends Component {
                     break;
             }
 
-            //handling filled mode
+            // handling filled mode
             if (this._mode === Mode.FILLED) {
                 if (this._barSprite.type !== cc.SpriteComponent.Type.FILLED) {
                     cc.warn('ProgressBar FILLED mode only works when barSprite\'s Type is FILLED!');
@@ -300,9 +299,9 @@ export class ProgressBarComponent extends Component {
             } else {
                 if (this._barSprite.type !== cc.SpriteComponent.Type.FILLED) {
 
-                    var anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
-                    var anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
-                    var finalPosition = cc.v2(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
+                    const anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
+                    const anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
+                    const finalPosition = cc.v2(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
 
                     entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y, entity.getPosition().z);
 
@@ -315,4 +314,3 @@ export class ProgressBarComponent extends Component {
         }
     }
 }
-

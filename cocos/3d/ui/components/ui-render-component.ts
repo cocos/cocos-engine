@@ -35,11 +35,11 @@ import {
 import macro from '../../../core/platform/CCMacro';
 import { Color } from '../../../core/value-types/index';
 import { RenderData } from '../../../renderer/ui/renderData';
+import { UI } from '../../../renderer/ui/ui';
+import { IAssembler } from '../assembler/assembler';
+import { MeshBuffer } from '../mesh-buffer';
 import { CanvasComponent } from './canvas-component';
 import { UITransformComponent } from './ui-transfrom-component';
-import { MeshBuffer } from '../mesh-buffer';
-import { IAssembler } from '../assembler/assembler';
-import { UI } from '../../../renderer/ui/ui';
 
 /**
  * !#en
@@ -107,8 +107,8 @@ export class UIRenderComponent extends RenderableComponent {
         this._color = value;
     }
 
-    get viewID () {
-        return this._viewID;
+    get visibility () {
+        return this._visibility;
     }
 
     get renderData () {
@@ -121,7 +121,7 @@ export class UIRenderComponent extends RenderableComponent {
 
     protected _postAssembler: IAssembler | null = null;
     protected _renderDataPoolID: number = -1;
-    protected _viewID: number = -1;
+    protected _visibility: number = -1;
 
     protected _srcBlendFactor: number = macro.BlendFactor.SRC_ALPHA;
     protected _dstBlendFactor: number = macro.BlendFactor.ONE_MINUS_SRC_ALPHA;
@@ -144,7 +144,7 @@ export class UIRenderComponent extends RenderableComponent {
             if (parent) {
                 const canvasComp = parent.getComponent(CanvasComponent);
                 if (canvasComp) {
-                    this._viewID = canvasComp.visibility;
+                    this._visibility = canvasComp.visibility;
                     break;
                 }
             }
@@ -160,7 +160,7 @@ export class UIRenderComponent extends RenderableComponent {
     }
 
     public onDisable () {
-        this._viewID = -1;
+        this._visibility = -1;
         // this.node._renderComponent = null;
         // this.disableRender();
     }

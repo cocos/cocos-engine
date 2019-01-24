@@ -23,13 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import * as js from '../../../../core/utils/js';
 import ttfUtls from '../../../../2d/renderer/utils/label/ttf';
-import { fillMeshVertices3D } from '../utils';
-import { IAssembler} from '../assembler';
-import { LabelComponent } from '../../components/label-component';
+import * as js from '../../../../core/utils/js';
 import { RenderData } from '../../../../renderer/ui/renderData';
-import { MeshBuffer } from '../../mesh-buffer';
+import { UI } from '../../../../renderer/ui/ui';
+import { LabelComponent } from '../../components/label-component';
+import { IAssembler} from '../assembler';
+import { fillMeshVertices3D } from '../utils';
 
 const WHITE = cc.color(255, 255, 255, 255);
 
@@ -55,7 +55,7 @@ export const ttf: IAssembler = {
         return renderData as RenderData;
     },
 
-    fillBuffers (comp: LabelComponent, /*renderer*/buffer: MeshBuffer) {
+    fillBuffers (comp: LabelComponent, /*renderer*/buffer: UI) {
         fillMeshVertices3D(comp.node, /*renderer._quadBuffer3D*/buffer, comp.renderData, WHITE);
     },
 

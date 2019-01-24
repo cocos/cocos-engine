@@ -24,33 +24,30 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass, menu, executionOrder, executeInEditMode, property } from '../../../../core/data/class-decorator';
-import { Component } from '../../../../components/component';
-import Color from '../../../../core/value-types/color';
-import macro from '../../../../core/platform/CCMacro';
-import { EditBoxImpl} from './edit-box-impl';
-import { LabelComponent } from '../label-component';
-// import { InputMode, InputFlag, KeyboardReturnType } from './types';
-import * as Types from './types';
 import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
 import ComponentEventHandler from '../../../../components/CCComponentEventHandler';
+import { Component } from '../../../../components/component';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../../core/data/class-decorator';
+import macro from '../../../../core/platform/CCMacro';
+import Color from '../../../../core/value-types/color';
+import { LabelComponent } from '../label-component';
 import { SpriteComponent } from '../sprite-component';
 import { UIRenderComponent } from '../ui-render-component';
 import { UITransformComponent } from '../ui-transfrom-component';
-const InputMode = Types.InputMode;
-const InputFlag = Types.InputFlag;
-const KeyboardReturnType = Types.KeyboardReturnType;
+import { EditBoxImpl} from './edit-box-impl';
+import { InputFlag, InputMode, KeyboardReturnType } from './types';
 
 const LEFT_PADDING = 2;
 
-function capitalize(string) {
-    return string.replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
+function capitalize (string) {
+    return string.replace(/(?:^|\s)\S/g, (a) => {
+        return a.toUpperCase();
+    });
 }
 
-function capitalizeFirstLetter(string) {
+function capitalizeFirstLetter (string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
-
 
 /**
  * !#en cc.EditBox is a component for inputing text, you can use it to gather small amounts of text from users.
@@ -64,72 +61,6 @@ function capitalizeFirstLetter(string) {
 @menu('UI/EditBox')
 @executeInEditMode
 export class EditBoxComponent extends Component {
-    @property
-    _useOriginalSize = true;
-    @property
-    _string = '';
-    @property
-    _tabIndex = 0;
-    @property
-    _backgroundImage: SpriteFrame | null = null;
-    @property
-    _returnType = KeyboardReturnType.DEFAULT;
-    @property
-    _inputFlag = InputFlag.DEFAULT;
-    @property
-    _inputMode = InputMode.SINGLE_LINE;
-    @property
-    _fontSize = 20;
-    @property
-    _lineHeight = 40;
-    @property
-    _maxLength = 20;
-    @property
-    _fontColor: Color = Color.WHITE;
-    @property
-    _placeholder = 'Enter text here...';
-    @property
-    _placeholderFontSize = 20;
-    @property
-    _placeholderFontColor: Color = Color.GRAY;
-    @property
-    _stayOnTop = false;
-    /**
-     * !#en The event handler to be called when EditBox began to edit text.
-     * !#zh 开始编辑文本输入框触发的事件回调。
-     * @property {Component.EventHandler[]} editingDidBegan
-     */
-    @property
-    editingDidBegan: ComponentEventHandler[] = [];
-
-    /**
-     * !#en The event handler to be called when EditBox text changes.
-     * !#zh 编辑文本输入框时触发的事件回调。
-     * @property {Component.EventHandler[]} textChanged
-     */
-    @property
-    textChanged: ComponentEventHandler[] = [];
-
-    /**
-     * !#en The event handler to be called when EditBox edit ends.
-     * !#zh 结束编辑文本输入框时触发的事件回调。
-     * @property {Component.EventHandler[]} editingDidEnded
-     */
-    @property
-    editingDidEnded: ComponentEventHandler[] = [];
-
-    /**
-     * !#en The event handler to be called when return key is pressed. Windows is not supported.
-     * !#zh 当用户按下回车按键时的事件回调，目前不支持 windows 平台
-     * @property {Component.EventHandler[]} editingReturn
-     */
-    @property
-    editingReturn: ComponentEventHandler[] = [];
-
-    _impl: EditBoxImpl | null = null;
-    _textLabel: LabelComponent | null = null;
-    _placeholderLabel: LabelComponent | null = null;
-    _background: SpriteComponent | null = null;
 
     /**
      * !#en Input string of EditBox.
@@ -137,11 +68,11 @@ export class EditBoxComponent extends Component {
      * @property {String} string
      */
     @property
-    get string() {
+    get string () {
         return this._string;
     }
 
-    set string(value) {
+    set string (value) {
         if (this._maxLength >= 0 && value.length >= this._maxLength) {
             value = value.slice(0, this._maxLength);
         }
@@ -158,13 +89,13 @@ export class EditBoxComponent extends Component {
      * @property {SpriteFrame} backgroundImage
      */
     @property({
-        type: SpriteFrame
+        type: SpriteFrame,
     })
-    get backgroundImage() {
+    get backgroundImage () {
         return this._backgroundImage;
     }
 
-    set backgroundImage(value: SpriteFrame | null) {
+    set backgroundImage (value: SpriteFrame | null) {
         if (this._backgroundImage === value) {
             return;
         }
@@ -184,19 +115,18 @@ export class EditBoxComponent extends Component {
      * @default KeyboardReturnType.DEFAULT
      */
     @property({
-        type: KeyboardReturnType
+        type: KeyboardReturnType,
     })
-    get returnType() {
+    get returnType () {
         return this._returnType;
     }
 
-    set returnType(value) {
+    set returnType (value: KeyboardReturnType) {
         this._returnType = value;
         if (this._impl) {
             this._impl.returnType = this._returnType;
         }
     }
-
 
     /**
      * !#en Set the input flags that are to be applied to the EditBox.
@@ -205,13 +135,13 @@ export class EditBoxComponent extends Component {
      * @default InputFlag.DEFAULT
      */
     @property({
-        type: InputFlag
+        type: InputFlag,
     })
-    get inputFlag() {
+    get inputFlag () {
         return this._inputFlag;
     }
 
-    set inputFlag(value) {
+    set inputFlag (value: InputFlag) {
         this._inputFlag = value;
         if (this._impl) {
             this._impl.setInputFlag(this._inputFlag);
@@ -228,13 +158,13 @@ export class EditBoxComponent extends Component {
      * @default InputMode.ANY
      */
     @property({
-        type: InputMode
+        type: InputMode,
     })
-    get inputMode() {
+    get inputMode () {
         return this._inputMode;
     }
 
-    set inputMode(value) {
+    set inputMode (value: InputMode) {
         this._inputMode = value;
         if (this._impl) {
             this._impl.setInputMode(this._inputMode);
@@ -247,11 +177,11 @@ export class EditBoxComponent extends Component {
      * @property {Number} fontSize
      */
     @property
-    get fontSize() {
+    get fontSize () {
         return this._fontSize;
     }
 
-    set fontSize(value) {
+    set fontSize (value) {
         if (this._fontSize === value) {
             return;
         }
@@ -265,18 +195,17 @@ export class EditBoxComponent extends Component {
         }
     }
 
-
     /**
      * !#en Change the lineHeight of displayed text.
      * !#zh 输入框文本的行高。
      * @property {Number} lineHeight
      */
     @property
-    get lineHeight() {
+    get lineHeight () {
         return this._lineHeight;
     }
 
-    set lineHeight(value) {
+    set lineHeight (value) {
         if (this._lineHeight === value) {
             return;
         }
@@ -287,28 +216,27 @@ export class EditBoxComponent extends Component {
         }
     }
 
-
     /**
      * !#en Font color of the input text.
      * !#zh 输入框文本的颜色。
      * @property {Color} fontColor
      */
     @property({
-        type: Color
+        type: Color,
     })
-    get fontColor() {
+    get fontColor () {
         return this._fontColor;
     }
 
-    set fontColor(value: Color) {
+    set fontColor (value: Color) {
         if (this._fontColor === value) {
-            return
+            return;
         }
 
         this._fontColor = value;
         if (this._textLabel) {
             // this._textLabel.node.opacity = this._fontColor.a;
-            let renderComp = this._textLabel.node.getComponent(UIRenderComponent);
+            const renderComp = this._textLabel.node.getComponent(UIRenderComponent);
             if (renderComp) {
                 renderComp.color = this._fontColor;
             }
@@ -324,11 +252,11 @@ export class EditBoxComponent extends Component {
      * @property {String} placeholder
      */
     @property
-    get placeholder() {
+    get placeholder () {
         return this._placeholder;
     }
 
-    set placeholder(value) {
+    set placeholder (value) {
         if (this._placeholder === value) {
             return;
         }
@@ -348,11 +276,11 @@ export class EditBoxComponent extends Component {
      * @property {Number} placeholderFontSize
      */
     @property
-    get placeholderFontSize() {
+    get placeholderFontSize () {
         return this._placeholderFontSize;
     }
 
-    set placeholderFontSize(value) {
+    set placeholderFontSize (value) {
         if (this._placeholderFontSize === value) {
             return;
         }
@@ -369,21 +297,21 @@ export class EditBoxComponent extends Component {
      * @property {Color} placeholderFontColor
      */
     @property
-    get placeholderFontColor() {
+    get placeholderFontColor () {
         return this._placeholderFontColor;
     }
 
-    set placeholderFontColor(value: Color) {
+    set placeholderFontColor (value: Color) {
         if (this._placeholderFontColor === value) {
             return;
         }
 
         this._placeholderFontColor = value;
         if (this._placeholderLabel) {
-            let comp = this._placeholderLabel.node.getComponent(UIRenderComponent);
+            const comp = this._placeholderLabel.node.getComponent(UIRenderComponent);
             if (comp) {
-                comp.color = this._placeholderFontColor
-            };
+                comp.color = this._placeholderFontColor;
+            }
             // this._placeholderLabel.node.opacity = this._placeholderFontColor.a;
         }
     }
@@ -398,12 +326,12 @@ export class EditBoxComponent extends Component {
      * @property {Number} maxLength
      */
     @property
-    get maxLength() {
+    get maxLength () {
         return this._maxLength;
     }
-    set maxLength(value) {
+    set maxLength (value) {
         if (this._maxLength === value) {
-            return
+            return;
         }
 
         this._maxLength = value;
@@ -419,11 +347,11 @@ export class EditBoxComponent extends Component {
      * @property {Boolean} stayOnTop
      */
     @property
-    get stayOnTop() {
+    get stayOnTop () {
         return this._stayOnTop;
     }
 
-    set stayOnTop(value) {
+    set stayOnTop (value) {
         this._stayOnTop = value;
         if (this._impl) {
             this._updateStayOnTop();
@@ -436,40 +364,106 @@ export class EditBoxComponent extends Component {
      * @property {Number} tabIndex
      */
     @property
-    get tabIndex() {
+    get tabIndex () {
         return this._tabIndex;
     }
 
-    set tabIndex(value) {
+    set tabIndex (value) {
         this._tabIndex = value;
         if (this._impl) {
             this._impl.setTabIndex(value);
         }
     }
 
-    static _EditBoxImpl = EditBoxImpl;
-    static KeyboardReturnType = KeyboardReturnType;
-    static InputFlag = InputFlag;
-    static InputMode = InputMode;
+    public static _EditBoxImpl = EditBoxImpl;
+    public static KeyboardReturnType = KeyboardReturnType;
+    public static InputFlag = InputFlag;
+    public static InputMode = InputMode;
+    @property
+    public _useOriginalSize = true;
+    @property
+    public _string = '';
+    @property
+    public _tabIndex = 0;
+    @property
+    public _backgroundImage: SpriteFrame | null = null;
+    @property
+    public _returnType = KeyboardReturnType.DEFAULT;
+    @property
+    public _inputFlag = InputFlag.DEFAULT;
+    @property
+    public _inputMode = InputMode.SINGLE_LINE;
+    @property
+    public _fontSize = 20;
+    @property
+    public _lineHeight = 40;
+    @property
+    public _maxLength = 20;
+    @property
+    public _fontColor: Color = Color.WHITE;
+    @property
+    public _placeholder = 'Enter text here...';
+    @property
+    public _placeholderFontSize = 20;
+    @property
+    public _placeholderFontColor: Color = Color.GRAY;
+    @property
+    public _stayOnTop = false;
+    /**
+     * !#en The event handler to be called when EditBox began to edit text.
+     * !#zh 开始编辑文本输入框触发的事件回调。
+     * @property {Component.EventHandler[]} editingDidBegan
+     */
+    @property
+    public editingDidBegan: ComponentEventHandler[] = [];
 
-    onEnable() {
+    /**
+     * !#en The event handler to be called when EditBox text changes.
+     * !#zh 编辑文本输入框时触发的事件回调。
+     * @property {Component.EventHandler[]} textChanged
+     */
+    @property
+    public textChanged: ComponentEventHandler[] = [];
+
+    /**
+     * !#en The event handler to be called when EditBox edit ends.
+     * !#zh 结束编辑文本输入框时触发的事件回调。
+     * @property {Component.EventHandler[]} editingDidEnded
+     */
+    @property
+    public editingDidEnded: ComponentEventHandler[] = [];
+
+    /**
+     * !#en The event handler to be called when return key is pressed. Windows is not supported.
+     * !#zh 当用户按下回车按键时的事件回调，目前不支持 windows 平台
+     * @property {Component.EventHandler[]} editingReturn
+     */
+    @property
+    public editingReturn: ComponentEventHandler[] = [];
+
+    public _impl: EditBoxImpl | null = null;
+    public _textLabel: LabelComponent | null = null;
+    public _placeholderLabel: LabelComponent | null = null;
+    public _background: SpriteComponent | null = null;
+
+    public onEnable () {
         this._impl && this._impl.onEnable();
     }
 
-    onDisable() {
+    public onDisable () {
         this._impl && this._impl.onDisable();
     }
 
-    onDestroy() {
+    public onDestroy () {
         this._impl && this._impl.clear();
     }
 
-    _init() {
+    public _init () {
         this._createBackgroundSprite();
         this._createLabels();
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._resizeChildNodes, this);
 
-        let impl = this._impl = new EditBoxImpl();
+        const impl = this._impl = new EditBoxImpl();
 
         impl.setDelegate(this);
         impl.setNode(this.node);
@@ -487,30 +481,29 @@ export class EditBoxComponent extends Component {
         this._syncSize();
     }
 
-    __preload() {
+    public __preload () {
         if (!CC_EDITOR) {
             this._registerEvent();
         }
         this._init();
     }
 
-    _registerEvent() {
+    public _registerEvent () {
         this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
     }
 
-    _updateStayOnTop() {
+    public _updateStayOnTop () {
         if (this.stayOnTop) {
             this._hideLabels();
-        }
-        else {
+        } else {
             this._showLabels();
         }
         this._impl && this._impl.stayOnTop(this.stayOnTop);
     }
 
-    _syncSize() {
-        let size = this.node.getContentSize();
+    public _syncSize () {
+        const size = this.node.getContentSize();
 
         this._background && this._background.node.setAnchorPoint(this.node.getAnchorPoint());
         this._background && this._background.node.setContentSize(size);
@@ -519,13 +512,13 @@ export class EditBoxComponent extends Component {
         this._impl && this._impl.setSize(size.width, size.height);
     }
 
-    _updateLabelPosition(size) {
-        let node = this.node;
-        let offx = -node.anchorX * node.width;
-        let offy = -node.anchorY * node.height;
+    public _updateLabelPosition (size) {
+        const node = this.node;
+        const offx = -node.anchorX * node.width;
+        const offy = -node.anchorY * node.height;
 
-        let placeholderLabel = this._placeholderLabel;
-        let textLabel = this._textLabel;
+        const placeholderLabel = this._placeholderLabel;
+        const textLabel = this._textLabel;
         if (textLabel) {
             textLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
             textLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height, textLabel.node.getPosition().z);
@@ -543,7 +536,7 @@ export class EditBoxComponent extends Component {
         }
     }
 
-    _createBackgroundSprite() {
+    public _createBackgroundSprite () {
         if (!this._background) {
             this._background = this.node.getComponent(cc.SpriteComponent);
             if (!this._background) {
@@ -573,7 +566,7 @@ export class EditBoxComponent extends Component {
         // background.spriteFrame = this._backgroundImage;
     }
 
-    _createLabels() {
+    public _createLabels () {
         if (!this._textLabel) {
             let node = this.node.getChildByName('TEXT_LABEL');
             if (!node) {
@@ -586,7 +579,7 @@ export class EditBoxComponent extends Component {
                 textLabel = node!.addComponent(LabelComponent);
             }
 
-            let transformComp = node!.getComponent(UITransformComponent);
+            const transformComp = node!.getComponent(UITransformComponent);
             transformComp!.setAnchorPoint(0, 1);
             textLabel!.color = this._fontColor;
             textLabel!.overflow = LabelComponent.Overflow.CLAMP;
@@ -604,12 +597,11 @@ export class EditBoxComponent extends Component {
             if (!placeholderLabel) {
                 placeholderLabel = node!.addComponent(LabelComponent);
             }
-            let transform = node!.getComponent(UITransformComponent);
+            const transform = node!.getComponent(UITransformComponent);
 
             node!.parent = this.node;
             placeholderLabel!.color = this._placeholderFontColor;
             transform!.setAnchorPoint(0, 1);
-
 
             placeholderLabel!.overflow = LabelComponent.Overflow.CLAMP;
             placeholderLabel!.fontSize = this._placeholderFontSize;
@@ -618,7 +610,7 @@ export class EditBoxComponent extends Component {
         }
     }
 
-    _resizeChildNodes() {
+    public _resizeChildNodes () {
         const textLabelNode = this._textLabel && this._textLabel.node;
         if (textLabelNode) {
             textLabelNode.setPosition(-this.node.width / 2, this.node.height / 2, textLabelNode.getPosition().z);
@@ -638,9 +630,9 @@ export class EditBoxComponent extends Component {
         }
     }
 
-    _showLabels() {
+    public _showLabels () {
         if (this._textLabel) {
-            let displayText = this._textLabel.string;
+            const displayText = this._textLabel.string;
             this._textLabel.node.active = displayText !== '';
             if (this._placeholderLabel) {
                 this._placeholderLabel.node.active = displayText === '';
@@ -648,7 +640,7 @@ export class EditBoxComponent extends Component {
         }
     }
 
-    _hideLabels() {
+    public _hideLabels () {
         if (this._textLabel) {
             this._textLabel.node.active = false;
         }
@@ -657,8 +649,8 @@ export class EditBoxComponent extends Component {
         }
     }
 
-    _updateString(text) {
-        let textLabel = this._textLabel;
+    public _updateString (text) {
+        const textLabel = this._textLabel;
         // Not inited yet
         if (!textLabel) {
             return;
@@ -678,36 +670,33 @@ export class EditBoxComponent extends Component {
         }
     }
 
-    _updateLabelStringStyle(text: string, ignorePassword: boolean = false) {
-        let inputFlag = this._inputFlag;
+    public _updateLabelStringStyle (text: string, ignorePassword: boolean = false) {
+        const inputFlag = this._inputFlag;
         if (!ignorePassword && inputFlag === InputFlag.PASSWORD) {
             let passwordString = '';
-            let len = text.length;
+            const len = text.length;
             for (let i = 0; i < len; ++i) {
                 passwordString += '\u25CF';
             }
             text = passwordString;
-        }
-        else if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
+        } else if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
             text = text.toUpperCase();
-        }
-        else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+        } else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
             text = capitalize(text);
-        }
-        else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE) {
+        } else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE) {
             text = capitalizeFirstLetter(text);
         }
 
         return text;
     }
 
-    editBoxEditingDidBegan() {
+    public editBoxEditingDidBegan () {
         this._hideLabels();
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit('editing-did-began', this);
     }
 
-    editBoxEditingDidEnded() {
+    public editBoxEditingDidEnded () {
         if (!this.stayOnTop) {
             this._showLabels();
         }
@@ -715,33 +704,33 @@ export class EditBoxComponent extends Component {
         this.node.emit('editing-did-ended', this);
     }
 
-    editBoxTextChanged(text) {
+    public editBoxTextChanged (text) {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
         ComponentEventHandler.emitEvents(this.textChanged, text, this);
         this.node.emit('text-changed', this);
     }
 
-    editBoxEditingReturn() {
+    public editBoxEditingReturn () {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
         this.node.emit('editing-return', this);
     }
 
-    _onTouchBegan(event) {
+    public _onTouchBegan (event) {
         if (this._impl) {
             this._impl._onTouchBegan(event.touch);
         }
         event.stopPropagation();
     }
 
-    _onTouchCancel(event) {
+    public _onTouchCancel (event) {
         // if (this._impl) {
         //     this._impl._onTouchCancel();
         // }
         event.stopPropagation();
     }
 
-    _onTouchEnded(event) {
+    public _onTouchEnded (event) {
         if (this._impl) {
             this._impl._onTouchEnded();
         }
@@ -753,7 +742,7 @@ export class EditBoxComponent extends Component {
      * !#zh 让当前 EditBox 获得焦点
      * @method setFocus
      */
-    setFocus() {
+    public setFocus () {
         if (this._impl) {
             this._impl.setFocus();
         }
@@ -765,7 +754,7 @@ export class EditBoxComponent extends Component {
      * Note: only available on Web at the moment.
      * @method isFocused
      */
-    isFocused() {
+    public isFocused () {
         let isFocused = false;
         if (this._impl) {
             isFocused = this._impl.isFocused();
@@ -773,7 +762,7 @@ export class EditBoxComponent extends Component {
         return isFocused;
     }
 
-    update() {
+    public update () {
         if (this._impl) {
             this._impl.update();
         }

@@ -29,12 +29,12 @@ import ComponentEventHandler from '../../../components/CCComponentEventHandler';
 import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import Event from '../../../core/event/event';
+import { EventTouch } from '../../../core/platform/event-manager';
 import { lerp } from '../../../core/utils/misc';
-import { Color, Vec3, Enum } from '../../../core/value-types/index';
+import { Color, Enum, Vec3 } from '../../../core/value-types/index';
 import * as math from '../../../core/vmath/index';
 import { Node } from '../../../scene-graph';
 import { SpriteComponent } from './sprite-component';
-import { EventTouch } from '../../../core/platform/event-manager';
 
 /**
  * !#en Enum for transition type.
@@ -68,7 +68,9 @@ enum Transition {
      * @property {Number} SCALE
      */
     SCALE = 3,
-};
+}
+
+Enum(Transition);
 
 /**
  * !#en
@@ -193,7 +195,7 @@ export class ButtonComponent extends Component {
         return this._transition;
     }
 
-    set transition(value: Transition) {
+    set transition (value: Transition) {
         if (this._transition === value) {
             return;
         }

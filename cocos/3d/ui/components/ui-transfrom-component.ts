@@ -1,10 +1,10 @@
 import { Component} from '../../../components/component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
+import Event from '../../../core/event/event';
+import { Enum, Mat4 } from '../../../core/value-types';
 import Size from '../../../core/value-types/size';
 import Vec2 from '../../../core/value-types/vec2';
 import * as math from '../../../core/vmath/index';
-import { Enum, Mat4 } from '../../../core/value-types';
-import Event from '../../../core/event/event';
 
 const _vec2a = cc.v2();
 const _vec2b = cc.v2();
@@ -36,6 +36,7 @@ const EventType = Enum({
 
 @ccclass('cc.UITransformComponent')
 @executionOrder(100)
+@executeInEditMode
 export class UITransformComponent extends Component {
 
     @property
@@ -124,11 +125,11 @@ export class UITransformComponent extends Component {
     @property
     public _anchorPoint = cc.v2(0.5, 0.5);
 
-    public onEnable () {
+    public __preload () {
         this.node.uiTransfromComp = this;
     }
 
-    public onDisable () {
+    public onDestroy () {
         this.node.uiTransfromComp = null;
     }
 
@@ -297,11 +298,11 @@ export class UITransformComponent extends Component {
      * @example
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
-    convertToNodeSpaceAR(worldPoint) {
-        let matrix = new Mat4();
+    public convertToNodeSpaceAR (worldPoint) {
+        const matrix = new Mat4();
         this.node.getWorldMatrix(matrix);
         math.mat4.invert(_mat4_temp, matrix);
-        let out = new cc.Vec2();
+        const out = new cc.Vec2();
         return math.vec2.transformMat4(out, worldPoint, _mat4_temp);
     }
 
@@ -316,9 +317,9 @@ export class UITransformComponent extends Component {
      * @example
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      */
-    convertToWorldSpaceAR(nodePoint) {
+    public convertToWorldSpaceAR (nodePoint) {
         this.node.getWorldMatrix(_worldMatrix);
-        let out = new cc.Vec2();
+        const out = new cc.Vec2();
         return math.vec2.transformMat4(out, nodePoint, _worldMatrix);
     }
 }

@@ -31,8 +31,8 @@ import { ttf } from './ttf';
 // import bmfontAssembler from './bmfont';
 
 const labelAssembler = {
-    getAssembler(comp) {
-        let assembler = ttf;
+    getAssembler (comp) {
+        const assembler = ttf;
 
         if (comp.font instanceof cc.BitmapFont) {
             // assembler = bmfontAssembler;

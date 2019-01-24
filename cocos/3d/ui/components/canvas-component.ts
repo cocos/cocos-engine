@@ -204,7 +204,7 @@ export class CanvasComponent extends Component {
             color: cc.color(255, 0, 0, 1),
             clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
             rect: new Rect(0, 0, 1, 1),
-            depth: 1
+            depth: 1,
         } as ICameraInfo;
         this._camera = this._getRenderScene().createCamera(this._cameraInfo);
         cc.director.root.ui.addScreen(this);

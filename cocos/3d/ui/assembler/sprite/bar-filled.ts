@@ -291,7 +291,8 @@ export const barFilled: IAssembler = {
 
         commitBuffer.meshBuffer = buffer;
         commitBuffer.material = sprite.material!;
-        commitBuffer.camera = renderer.getScreen(sprite.viewID)!.camera!;
+        commitBuffer.texture = sprite.spriteFrame!;
+        commitBuffer.camera = renderer.getScreen(sprite.visibility)!.camera!;
         renderer.addToQueue(commitBuffer);
     },
 };
