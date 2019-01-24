@@ -26,8 +26,6 @@
 let BaseObject = dragonBones.BaseObject,
     BaseFactory = dragonBones.BaseFactory;
 
-const dbDebug = dragonBones.DragonBones.debug;
-
 /**
  * @module dragonBones
 */
@@ -73,19 +71,6 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
 
     update (dt) {
         this._dragonBones.advanceTime(dt);
-
-        if (dbDebug) {
-            this.curTime = this.curTime || 0;
-            this.curTime += dt;
-            if (this.curTime < 1.0) return;
-            this.curTime = 0;
-            let calcTimes = dragonBones._calcTimes;
-            let cacheTimes = dragonBones._cacheTimes;
-            let totalTimes = calcTimes + cacheTimes;
-            dragonBones._calcTimes = 0;
-            dragonBones._cacheTimes = 0;
-            console.log("calc:", calcTimes / totalTimes,"cache:", cacheTimes / totalTimes);
-        }
     },
 
     parseDragonBonesDataOnly (rawData, name, scale) {
