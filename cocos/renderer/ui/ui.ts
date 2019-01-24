@@ -227,7 +227,12 @@ export class UI {
     }
 
     public update (dt: number) {
+        
+        for (let i = 0; i < this._batches.array.length; ++i) {
+            this._drawBatchPool.remove(this._batches.array[i]);
+        }
         this._batches.clear();
+
         this._commitUIRenderDatas = [];
 
         this._renderScreens();
@@ -287,7 +292,7 @@ export class UI {
 
                     curCamera = camera;
 
-                    cmdBuff.beginRenderPass(framebuffer, this._renderArea, [], camera.clearDepth, camera.clearStencil);
+                    cmdBuff.beginRenderPass(framebuffer, this._renderArea, [camera.clearColor], camera.clearDepth, camera.clearStencil);
                 }
 
                 material.bindingLayout.bindBuffer(0, this._uiUBO!);
@@ -422,7 +427,9 @@ export class UI {
             if (curCamera !== uiRenderData.camera) {
                 isNewBatch = true;
                 curCamera = uiRenderData.camera;
-            } else if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
+            }
+            
+            if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
                 curTexView = uiRenderData.texture.getGFXTextureView();
                 isNewBatch = true;
             }

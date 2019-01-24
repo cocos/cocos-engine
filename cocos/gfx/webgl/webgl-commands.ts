@@ -1899,7 +1899,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             }
                             case GFXBindingType.SAMPLER: {
 
-                                if (gpuBinding.gpuSampler && gpuBinding.gpuTexView) {
+                                if (gpuBinding.gpuSampler) {
 
                                     let glSampler: WebGLGPUUniformSampler | null = null;
 
@@ -1911,8 +1911,6 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                     }
 
                                     if (glSampler) {
-                                        const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
-
                                         for (const texUnit of glSampler.units) {
 
                                             if (device.stateCache.texUnit !== texUnit) {
@@ -1923,64 +1921,71 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                             let glTexUnit: IWebGLTexUnit | null = null;
                                             let isTexParamInvalied = false;
 
-                                            switch (glSampler.glType) {
-                                                case WebGLRenderingContext.SAMPLER_2D: {
-                                                    glTexUnit = device.stateCache.glTex2DUnits[texUnit];
-                                                    if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                                                        gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, gpuTexture.glTexture);
-                                                        glTexUnit.glTexture = gpuTexture.glTexture;
-                                                        isTexParamInvalied = true;
+                                            if (gpuBinding.gpuTexView) {
+                                                const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
+                                                switch (glSampler.glType) {
+                                                    case WebGLRenderingContext.SAMPLER_2D: {
+                                                        glTexUnit = device.stateCache.glTex2DUnits[texUnit];
+                                                        if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                                                            gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, gpuTexture.glTexture);
+                                                            glTexUnit.glTexture = gpuTexture.glTexture;
+                                                            isTexParamInvalied = true;
+                                                        }
+                                                        break;
                                                     }
-                                                    break;
-                                                }
-                                                case WebGLRenderingContext.SAMPLER_CUBE: {
-                                                    glTexUnit = device.stateCache.glTexCubeUnits[texUnit];
-
-                                                    if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                                                        gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
-                                                        glTexUnit.glTexture = gpuTexture.glTexture;
-                                                        isTexParamInvalied = true;
+                                                    case WebGLRenderingContext.SAMPLER_CUBE: {
+                                                        glTexUnit = device.stateCache.glTexCubeUnits[texUnit];
+    
+                                                        if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                                                            gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
+                                                            glTexUnit.glTexture = gpuTexture.glTexture;
+                                                            isTexParamInvalied = true;
+                                                        }
+                                                        break;
                                                     }
-                                                    break;
-                                                }
-                                                default: {
-                                                    console.error('Unsupported GL Texture type.');
-                                                }
-                                            }
-
-                                            if (glTexUnit) {
-                                                const gpuSampler = gpuBinding.gpuSampler;
-
-                                                if (glTexUnit.minFilter !== gpuSampler.glMinFilter || isTexParamInvalied) {
-                                                    gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
-                                                    glTexUnit.minFilter = gpuSampler.glMinFilter;
+                                                    default: {
+                                                        console.error('Unsupported GL Texture type.');
+                                                    }
                                                 }
 
-                                                if (glTexUnit.magFilter !== gpuSampler.glMagFilter || isTexParamInvalied) {
-                                                    gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
-                                                    glTexUnit.magFilter = gpuSampler.glMagFilter;
+                                                if (glTexUnit) {
+                                                    const gpuSampler = gpuBinding.gpuSampler;
+    
+                                                    if (glTexUnit.minFilter !== gpuSampler.glMinFilter || isTexParamInvalied) {
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
+                                                        glTexUnit.minFilter = gpuSampler.glMinFilter;
+                                                    }
+    
+                                                    if (glTexUnit.magFilter !== gpuSampler.glMagFilter || isTexParamInvalied) {
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
+                                                        glTexUnit.magFilter = gpuSampler.glMagFilter;
+                                                    }
+    
+                                                    if (glTexUnit.wrapS !== gpuSampler.glWrapS || isTexParamInvalied) {
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, gpuSampler.glWrapS);
+                                                        glTexUnit.wrapS = gpuSampler.glWrapS;
+                                                    }
+    
+                                                    if (glTexUnit.wrapT !== gpuSampler.glWrapT || isTexParamInvalied) {
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, gpuSampler.glWrapT);
+                                                        glTexUnit.wrapT = gpuSampler.glWrapT;
+                                                    }
+    
+                                                    /*
+                                                    if(glTexUnit.wrapR !== gpuSampler.glWrapR || isTexParamInvalied) {
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_R, gpuSampler.glWrapR);
+                                                        glTexUnit.wrapR = gpuSampler.glWrapR;
+                                                    }
+                                                    */
                                                 }
-
-                                                if (glTexUnit.wrapS !== gpuSampler.glWrapS || isTexParamInvalied) {
-                                                    gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, gpuSampler.glWrapS);
-                                                    glTexUnit.wrapS = gpuSampler.glWrapS;
-                                                }
-
-                                                if (glTexUnit.wrapT !== gpuSampler.glWrapT || isTexParamInvalied) {
-                                                    gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, gpuSampler.glWrapT);
-                                                    glTexUnit.wrapT = gpuSampler.glWrapT;
-                                                }
-
-                                                /*
-                                                if(glTexUnit.wrapR !== gpuSampler.glWrapR || isTexParamInvalied) {
-                                                    gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_R, gpuSampler.glWrapR);
-                                                    glTexUnit.wrapR = gpuSampler.glWrapR;
-                                                }
-                                                */
+                                            } else {
+                                                console.error("Not found texture view on binding unit " + gpuBinding.binding);
                                             }
                                         }
                                     } // if
-                                } // if
+                                } else {
+                                    console.error("Not found sampler or texture view on binding unit " + gpuBinding.binding);
+                                }
 
                                 break;
                             }
