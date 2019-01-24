@@ -155,12 +155,8 @@ export class Pass {
                 stride: 1, // N/A for blocks
                 usage: GFXBufferUsageBit.UNIFORM,
             });
-            if (buffer) {
-                this._buffers[u.binding] = buffer;
-            } else {
-                console.error('create buffer failed.');
-                return;
-            }
+            if (buffer) { this._buffers[u.binding] = buffer; }
+            else { console.error('create buffer failed.'); return; }
             // buffer data processing system
             const block: IBlock = this._blocks[u.binding] = {
                 buffer: buffer.buffer as ArrayBuffer,
@@ -188,13 +184,12 @@ export class Pass {
             const inf = info.properties && info.properties[u.name];
             const samplerInfo = Object.assign({ name: u.name }, inf && inf.sampler);
             const sampler = device.createSampler(samplerInfo);
-            if (sampler) {
-                this._samplers[u.binding] = sampler;
-            } else {
-                console.error('create sampler failed.');
-            }
+            if (sampler) { this._samplers[u.binding] = sampler; }
+            else { console.error('create sampler failed.'); }
             const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
-            this._textureViews[u.binding] = builtinResMgr.get<TextureBase>(texName).getGFXTextureView()!;
+            const texture = builtinResMgr.get<TextureBase>(texName);
+            if (texture) { this._textureViews[u.binding] = texture.getGFXTextureView()!; }
+            else { console.warn(`illegal texture default value ${texName}`); }
         }
     }
 

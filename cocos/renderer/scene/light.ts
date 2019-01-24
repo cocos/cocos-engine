@@ -8,7 +8,7 @@ export enum LightType {
 }
 
 export class Light {
-    protected _color = new Float32Array(4);
+    protected _color = Float32Array.from([1, 1, 1, 1]);
     protected _enabled = false;
 
     set enabled (val) {
