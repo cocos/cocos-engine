@@ -1743,7 +1743,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                             }
 
                                                             glUniform.vf32!.set(_uniformValues);
-                                                            gl.uniform1fv(glUniform.glLoc, glUniform.vf32!);
+                                                            gl.uniform1fv(glUniform.glLoc, _uniformValues);
                                                             break;
                                                         }
                                                     }
