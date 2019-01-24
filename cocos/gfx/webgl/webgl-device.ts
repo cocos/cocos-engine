@@ -1,4 +1,4 @@
-import * as WebGLDeveloperTools from 'webgl-debug';
+//import * as WebGLDeveloperTools from 'webgl-debug';
 import { GFXBindingLayout, GFXBindingUnit, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, GFXBufferSource, IGFXBufferInfo, IGFXIndirectBuffer } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
@@ -254,9 +254,11 @@ export class WebGLGFXDevice extends GFXDevice {
             };
 
             this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs);
+            /*
             if (this._webGLRC && info.debug) {
                 this._webGLRC = WebGLDeveloperTools.makeDebugContext(this._webGLRC, this._onWebGLError.bind(this));
             }
+            */
         } catch (err) {
             console.error(err);
             return false;
