@@ -37,23 +37,22 @@ let _colorOffset = 0;
 let _preColor = undefined;
 let _x, _y;
 
-// Cache an animation all frame.
-let CacheItem = cc.Class({
+//Cache all frames in an animation
+let AnimationCache = cc.Class({
     ctor () {
-        this.allFrame = [];
+        this.frames = [];
         this.totalTime = 0;
+
+        this._tempSegments = undefined;
+        this._tempColors = undefined;
     },
 
     // Clear texture quote.
     clear () {
-        for (let i = 0, n = this.allFrame.length; i < n; i++) {
-            let frame = this.allFrame[i];
+        for (let i = 0, n = this.frames.length; i < n; i++) {
+            let frame = this.frames[i];
             frame.segments.length = 0;
         }
-    },
-
-    getFrame (index) {
-        return this.allFrame[index];
     },
 
     update (armature, animationName) {
@@ -66,7 +65,7 @@ let CacheItem = cc.Class({
             this._updateFrame(armature, frameIdx) && frameIdx++;
         } while (!animation.isCompleted);
         // Update frame length.
-        this.allFrame.length = frameIdx;
+        this.frames.length = frameIdx;
         this.totalTime = frameIdx * _frameRate;
     },
 
@@ -82,14 +81,14 @@ let CacheItem = cc.Class({
         _colorOffset = 0;
         _preColor = undefined;
 
-        this.allFrame[index] = this.allFrame[index] || {
+        this.frames[index] = this.frames[index] || {
             segments : [],
             colors : [],
         };
-        let frame = this.allFrame[index];
+        let frame = this.frames[index];
 
-        let segments = this.segments = frame.segments;
-        let colors = this.colors = frame.colors;
+        let segments = this._tempSegments = frame.segments;
+        let colors = this._tempColors = frame.colors;
         this._traverseArmature(armature);
         if (_colorOffset > 0) {
             colors[_colorOffset - 1].vfOffset = _vfOffset;
@@ -132,8 +131,8 @@ let CacheItem = cc.Class({
     },
 
     _traverseArmature (armature) {
-        let colors = this.colors;
-        let segments = this.segments;
+        let colors = this._tempColors;
+        let segments = this._tempSegments;
         let gVertices = _vertices;
         let gIndices = _indices;
         let slotVertices, slotIndices;
@@ -224,46 +223,46 @@ let CacheItem = cc.Class({
 
 let ArmatureCache = cc.Class({
     ctor () {
-        this.renderPool = {};
-        this.dbCache = {};
+        this._animationPool = {};
+        this._armatureCache = {};
     },
 
     // If cache is private, cache will be destroy when dragonbones node destroy.
     dispose () {
-        for (var key in this.dbCache) {
-            var dbInfo = this.dbCache[key];
-            if (dbInfo) {
-                let armature = dbInfo.armature;
+        for (var key in this._armatureCache) {
+            var armatureInfo = this._armatureCache[key];
+            if (armatureInfo) {
+                let armature = armatureInfo.armature;
                 armature && armature.dispose();
             }
         }
-        this.dbCache = undefined;
-        this.renderPool = undefined;
+        this._armatureCache = undefined;
+        this._animationPool = undefined;
     },
 
-    removeDB (dbKey) {
-        var dbInfo = this.dbCache[dbKey];
-        let renderCache = dbInfo.renderCache;
-        for (var aniKey in renderCache) {
+    _removeArmature (armatureKey) {
+        var armatureInfo = this._armatureCache[armatureKey];
+        let animationsCache = armatureInfo.animationsCache;
+        for (var aniKey in animationsCache) {
             // Clear cache texture, and put cache into pool.
             // No need to create TypedArray next time.
-            let cacheItem = renderCache[aniKey];
-            if (!cacheItem) continue;
-            this.renderPool[dbKey + "#" + aniKey] = cacheItem;
-            cacheItem.clear();
+            let animationCache = animationsCache[aniKey];
+            if (!animationCache) continue;
+            this._animationPool[armatureKey + "#" + aniKey] = animationCache;
+            animationCache.clear();
         }
 
-        let armature = dbInfo.armature;
+        let armature = armatureInfo.armature;
         armature && armature.dispose();
-        delete this.dbCache[dbKey];
+        delete this._armatureCache[armatureKey];
     },
 
     // When atlas asset be destroy, remove armature from db cache.
     clearByAtlasName (atlasName) {
-        for (var dbKey in this.dbCache) {
-            var dbInfo = this.dbCache[dbKey];
-            if (dbInfo && dbInfo.atlasName === atlasName) {
-                this.removeDB(dbKey);
+        for (var armatureKey in this._armatureCache) {
+            var armatureInfo = this._armatureCache[armatureKey];
+            if (armatureInfo && armatureInfo.atlasName === atlasName) {
+                this._removeArmature(armatureKey);
                 return;
             }
         }
@@ -271,26 +270,20 @@ let ArmatureCache = cc.Class({
 
     // When db assets be destroy, remove armature from db cache.
     clearByDBName (dbName) {
-        for (var dbKey in this.dbCache) {
-            var dbInfo = this.dbCache[dbKey];
-            if (dbInfo && dbInfo.dbName === dbName) {
-                this.removeDB(dbKey);
+        for (var armatureKey in this._armatureCache) {
+            var armatureInfo = this._armatureCache[armatureKey];
+            if (armatureInfo && armatureInfo.dbName === dbName) {
+                this._removeArmature(armatureKey);
                 return;
             }
         }
     },
 
-    getDBCache (armatureName, dragonbonesName, atlasName) {
-        let dbKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
-        let dbInfo = this.dbCache[dbKey];
-        return dbInfo && dbInfo.armature;
-    },
-
-    updateDBCache (armatureName, dragonbonesName, atlasName) {
-        let dbKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
-        let dbInfo = this.dbCache[dbKey];
+    getArmatureCache (armatureName, dragonbonesName, atlasName) {
+        let armatureKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
+        let armatureInfo = this._armatureCache[armatureKey];
         let armature;
-        if (!dbInfo) {
+        if (!armatureInfo) {
             let factory = dragonBones.CCFactory.getInstance();
             let proxy = factory.buildArmatureDisplay(armatureName, dragonbonesName, "", atlasName);
             if (!proxy || !proxy._armature) return;
@@ -302,50 +295,50 @@ let ArmatureCache = cc.Class({
                 return;
             }
 
-            this.dbCache[dbKey] = {
+            this._armatureCache[armatureKey] = {
                 armature : armature,
                 dbName : dragonbonesName,
                 atlasName : atlasName,
                 // Cache all kinds of animation frame.
                 // When armature is dispose, clear all animation cache.
-                renderCache : {},
+                animationsCache : {},
             };
         } else {
-            armature = dbInfo.armature;
+            armature = armatureInfo.armature;
         }
         return armature;
     },
 
-    getRenderCache (armatureName, dragonbonesName, atlasName, animationName) {
-        let dbKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
-        let dbInfo = this.dbCache[dbKey];
-        if (!dbInfo) return null;
+    getAnimationCache (armatureName, dragonbonesName, atlasName, animationName) {
+        let armatureKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
+        let armatureInfo = this._armatureCache[armatureKey];
+        if (!armatureInfo) return null;
 
-        let renderCache = dbInfo.renderCache;
-        return renderCache[animationName];
+        let animationsCache = armatureInfo.animationsCache;
+        return animationsCache[animationName];
     },
 
-    updateRenderCache (armatureName, dragonbonesName, atlasName, animationName) {
-        let dbKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
-        let dbInfo = this.dbCache[dbKey];
-        let armature = dbInfo && dbInfo.armature;
+    updateAnimationCache (armatureName, dragonbonesName, atlasName, animationName) {
+        let armatureKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
+        let armatureInfo = this._armatureCache[armatureKey];
+        let armature = armatureInfo && armatureInfo.armature;
         if (!armature) return null;
 
-        let renderCache = dbInfo.renderCache;
-        let cacheItem = renderCache[animationName];
-        if (!cacheItem) {
+        let animationsCache = armatureInfo.animationsCache;
+        let animationCache = animationsCache[animationName];
+        if (!animationCache) {
             // If cache exist in pool, then just use it.
-            let poolKey = dbKey + "#" + animationName;
-            cacheItem = this.renderPool[poolKey];
-            if (cacheItem) {
-                delete this.renderPool[poolKey];
+            let poolKey = armatureKey + "#" + animationName;
+            animationCache = this._animationPool[poolKey];
+            if (animationCache) {
+                delete this._animationPool[poolKey];
             } else {
-                cacheItem = new CacheItem();
+                animationCache = new AnimationCache();
             }
-            renderCache[animationName] = cacheItem;
+            animationsCache[animationName] = animationCache;
         }
-        cacheItem.update(armature, animationName);
-        return cacheItem;
+        animationCache.update(armature, animationName);
+        return animationCache;
     }
 });
 
