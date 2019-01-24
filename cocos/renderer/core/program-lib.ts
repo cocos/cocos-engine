@@ -125,7 +125,6 @@ class ProgramLib {
         if (program !== undefined) {
             return program;
         }
-        defines.CC_NUM_DIR_LIGHTS = 1;
 
         // get template
         const tmpl = this._templates[name];

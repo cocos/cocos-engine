@@ -9,6 +9,10 @@
             true,
             "single"
         ],
+        "one-line": [
+            true,
+            "check-open-brace"
+        ],
         "no-console": false,
         "space-before-function-paren": true,
         "max-classes-per-file": false,
@@ -18,7 +22,6 @@
         "no-bitwise": false,
         "no-empty": false,
         "radix": false,
-        "one-line": false,
     },
     "rulesDirectory": []
 }

@@ -13,6 +13,7 @@ import { Light } from './light';
 import { Model } from './model';
 import { PointLight } from './point-light';
 import { SpotLight } from './spot-light';
+import { UBOGlobal } from '../../pipeline/render-pipeline';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -97,7 +98,7 @@ export class RenderScene {
     public destroyCamera (camera: Camera) {
         for (let i = 0; i < this._cameras.length; ++i) {
             if (this._cameras[i] === camera) {
-                this._cameras.slice(i);
+                this._cameras.splice(i, 1);
                 return;
             }
         }
@@ -117,9 +118,9 @@ export class RenderScene {
         return null;
     }
 
-    public createPointLight (name: string): Light | null {
-        if (this._pointLights.length >= 4) { return null; }
-        const light = new PointLight(this, name);
+    public createPointLight (name: string, node: Node): Light | null {
+        if (this._pointLights.length >= UBOGlobal.MAX_POINT_LIGHTS) { return null; }
+        const light = new PointLight(this, node, name);
         this._pointLights.push(light);
         return light;
     }
@@ -127,15 +128,15 @@ export class RenderScene {
     public destroyPointLight (light: Light) {
         for (let i = 0; i < this._pointLights.length; ++i) {
             if (this._pointLights[i] === light) {
-                this._pointLights.slice(i);
+                this._pointLights.splice(i, 1);
                 return;
             }
         }
     }
 
-    public createDirectionalLight (name: string): Light | null {
-        if (this._directionalLights.length >= 4) { return null; }
-        const light = new DirectionalLight(this, name);
+    public createDirectionalLight (name: string, node: Node): Light | null {
+        if (this._directionalLights.length >= UBOGlobal.MAX_DIR_LIGHTS) { return null; }
+        const light = new DirectionalLight(this, node, name);
         this._directionalLights.push(light);
         return light;
     }
@@ -143,15 +144,15 @@ export class RenderScene {
     public destroyDirectionalLight (light: Light) {
         for (let i = 0; i < this._directionalLights.length; ++i) {
             if (this._directionalLights[i] === light) {
-                this._directionalLights.slice(i);
+                this._directionalLights.splice(i, 1);
                 return;
             }
         }
     }
 
-    public createSpotLight (name: string): Light | null {
-        if (this._spotLights.length >= 4) { return null; }
-        const light = new SpotLight(this, name);
+    public createSpotLight (name: string, node: Node): Light | null {
+        if (this._spotLights.length >= UBOGlobal.MAX_SPOT_LIGHTS) { return null; }
+        const light = new SpotLight(this, node, name);
         this._spotLights.push(light);
         return light;
     }
@@ -159,7 +160,7 @@ export class RenderScene {
     public destroySpotLight (light: Light) {
         for (let i = 0; i < this._spotLights.length; ++i) {
             if (this._spotLights[i] === light) {
-                this._spotLights.slice(i);
+                this._spotLights.splice(i, 1);
                 return;
             }
         }

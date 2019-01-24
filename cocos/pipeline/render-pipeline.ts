@@ -15,6 +15,10 @@ import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
 
 export class UBOGlobal {
+    public static MAX_DIR_LIGHTS = 4;
+    public static MAX_POINT_LIGHTS = 4;
+    public static MAX_SPOT_LIGHTS = 4;
+
     public static TIME_OFFSET: number = 0;
     public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
     public static SCREEN_SCALE_OFFSET: number = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
@@ -50,13 +54,13 @@ export class UBOGlobal {
             { name: 'cc_matViewProjInv', type: GFXType.MAT4, count: 1 },
             { name: 'cc_cameraPos', type: GFXType.FLOAT4, count: 1 },
             // lights
-            { name: 'cc_dirLightDirection', type: GFXType.FLOAT4, count: 4 },
-            { name: 'cc_dirLightColor', type: GFXType.FLOAT4, count: 4 },
-            { name: 'cc_pointLightPositionAndRange', type: GFXType.FLOAT4, count: 4 },
-            { name: 'cc_pointLightColor', type: GFXType.FLOAT4, count: 4 },
-            { name: 'cc_spotLightPositionAndRange', type: GFXType.FLOAT4, count: 4 },
-            { name: 'cc_spotLightDirection', type: GFXType.FLOAT4, count: 4 },
-            { name: 'cc_spotLightColor', type: GFXType.FLOAT4, count: 4 },
+            { name: 'cc_dirLightDirection', type: GFXType.FLOAT4, count: UBOGlobal.MAX_DIR_LIGHTS },
+            { name: 'cc_dirLightColor', type: GFXType.FLOAT4, count: UBOGlobal.MAX_DIR_LIGHTS },
+            { name: 'cc_pointLightPositionAndRange', type: GFXType.FLOAT4, count: UBOGlobal.MAX_POINT_LIGHTS },
+            { name: 'cc_pointLightColor', type: GFXType.FLOAT4, count: UBOGlobal.MAX_POINT_LIGHTS },
+            { name: 'cc_spotLightPositionAndRange', type: GFXType.FLOAT4, count: UBOGlobal.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLightDirection', type: GFXType.FLOAT4, count: UBOGlobal.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLightColor', type: GFXType.FLOAT4, count: UBOGlobal.MAX_SPOT_LIGHTS },
         ],
     };
 
@@ -79,6 +83,7 @@ export class UBOLocal {
     public view: Float32Array = new Float32Array(UBOLocal.COUNT);
 }
 
+const _idVec4Array = Float32Array.from([0, 0, 0, 1]);
 const _vec4Array = new Float32Array(4);
 const _mat4Array = new Float32Array(16);
 const _outMat = new Mat4();
@@ -354,20 +359,42 @@ export abstract class RenderPipeline {
 
         const scene = view.camera.scene;
         const dLights = scene.directionalLights;
-        for (let i = 0; i < dLights.length; i++) {
-            this._uboGlobal.view.set(dLights[i].directionArray, UBOGlobal.DIR_LIGHT_DIR_OFFSET + 4 * i);
-            this._uboGlobal.view.set(dLights[i].colorData, UBOGlobal.DIR_LIGHT_COLOR_OFFSET + 4 * i);
+        for (let i = 0; i < UBOGlobal.MAX_DIR_LIGHTS; i++) {
+            const light = dLights[i];
+            if (light && light.enabled) {
+                light.update();
+                this._uboGlobal.view.set(light.directionArray, UBOGlobal.DIR_LIGHT_DIR_OFFSET + 4 * i);
+                this._uboGlobal.view.set(light.colorData, UBOGlobal.DIR_LIGHT_COLOR_OFFSET + 4 * i);
+            } else {
+                this._uboGlobal.view.set(_idVec4Array, UBOGlobal.DIR_LIGHT_DIR_OFFSET + 4 * i);
+                this._uboGlobal.view.set(_idVec4Array, UBOGlobal.DIR_LIGHT_COLOR_OFFSET + 4 * i);
+            }
         }
         const pLights = scene.pointLights;
-        for (let i = 0; i < pLights.length; i++) {
-            this._uboGlobal.view.set(pLights[i].positionAndRange, UBOGlobal.POINT_LIGHT_POS_RANGE_OFFSET + 4 * i);
-            this._uboGlobal.view.set(pLights[i].colorData, UBOGlobal.POINT_LIGHT_COLOR_OFFSET + 4 * i);
+        for (let i = 0; i < UBOGlobal.MAX_POINT_LIGHTS; i++) {
+            const light = pLights[i];
+            if (light && light.enabled) {
+                light.update();
+                this._uboGlobal.view.set(light.positionAndRange, UBOGlobal.POINT_LIGHT_POS_RANGE_OFFSET + 4 * i);
+                this._uboGlobal.view.set(light.colorData, UBOGlobal.POINT_LIGHT_COLOR_OFFSET + 4 * i);
+            } else {
+                this._uboGlobal.view.set(_idVec4Array, UBOGlobal.POINT_LIGHT_POS_RANGE_OFFSET + 4 * i);
+                this._uboGlobal.view.set(_idVec4Array, UBOGlobal.POINT_LIGHT_COLOR_OFFSET + 4 * i);
+            }
         }
         const sLights = scene.spotLights;
-        for (let i = 0; i < sLights.length; i++) {
-            this._uboGlobal.view.set(sLights[i].positionAndRange, UBOGlobal.SPOT_LIGHT_POS_RANGE_OFFSET + 4 * i);
-            this._uboGlobal.view.set(sLights[i].directionArray, UBOGlobal.SPOT_LIGHT_DIR_OFFSET + 4 * i);
-            this._uboGlobal.view.set(sLights[i].colorData, UBOGlobal.SPOT_LIGHT_COLOR_OFFSET + 4 * i);
+        for (let i = 0; i < UBOGlobal.MAX_SPOT_LIGHTS; i++) {
+            const light = sLights[i];
+            if (light && light.enabled) {
+                light.update();
+                this._uboGlobal.view.set(light.positionAndRange, UBOGlobal.SPOT_LIGHT_POS_RANGE_OFFSET + 4 * i);
+                this._uboGlobal.view.set(light.directionArray, UBOGlobal.SPOT_LIGHT_DIR_OFFSET + 4 * i);
+                this._uboGlobal.view.set(light.colorData, UBOGlobal.SPOT_LIGHT_COLOR_OFFSET + 4 * i);
+            } else {
+                this._uboGlobal.view.set(_idVec4Array, UBOGlobal.SPOT_LIGHT_POS_RANGE_OFFSET + 4 * i);
+                this._uboGlobal.view.set(_idVec4Array, UBOGlobal.SPOT_LIGHT_DIR_OFFSET + 4 * i);
+                this._uboGlobal.view.set(_idVec4Array, UBOGlobal.SPOT_LIGHT_COLOR_OFFSET + 4 * i);
+            }
         }
 
         // update ubos
