@@ -46,21 +46,30 @@ export class UBOUI {
 
 const _mat4Array = new Float32Array(16);
 
-export interface IUIBufferBatch {
-    vf32: Float32Array;
-    vui16: Uint16Array;
-    vbSize: number;
-    ibSize: number;
-    vb: GFXBuffer;
-    ib: GFXBuffer;
-    ia: GFXInputAssembler;
+export class UIBufferBatch {
+    public vf32: Float32Array | null = null;
+    public vui16: Uint16Array | null = null;
+    public vb: GFXBuffer | null = null;
+    public ib: GFXBuffer | null = null;
+    public ia: GFXInputAssembler | null = null;
+    public vbSize: number = 0;
+    public ibSize: number = 0;
 }
 
-export interface IUIDrawBatch {
-    camera: Camera;
-    bufferBatch: IUIBufferBatch;
-    uiMaterial: UIMaterial;
-    texView: GFXTextureView;
+export class UIDrawBatch {
+    public camera: Camera | null = null;
+    public bufferBatch: UIBufferBatch | null = null;
+    public uiMaterial: UIMaterial | null = null;
+    public texView: GFXTextureView | null = null;
+    public idxCount: number = 0;
+
+    clear() {
+        this.camera = null;
+        this.bufferBatch = null;
+        this.uiMaterial = null;
+        this.texView = null;
+        this.idxCount = 0;
+    }
 }
 
 export interface IUIRenderData {
@@ -79,23 +88,23 @@ export class UI {
     private _bufferPool: RecyclePool<MeshBuffer> = new RecyclePool(() => {
         return new MeshBuffer();
     }, 128);
-    private _bufferBatchPool: RecyclePool<IUIBufferBatch> = new RecyclePool(() => {
-        return new Object() as IUIBufferBatch;
+    private _bufferBatchPool: RecyclePool<UIBufferBatch> = new RecyclePool(() => {
+        return new UIBufferBatch();
     }, 128);
-    private _drawBatchPool: RecyclePool<IUIDrawBatch> = new RecyclePool(() => {
-        return new Object() as IUIDrawBatch;
+    private _drawBatchPool: RecyclePool<UIDrawBatch> = new RecyclePool(() => {
+        return new UIDrawBatch();
     }, 128);
     private _device: GFXDevice;
     private _cmdBuff: GFXCommandBuffer | null = null;
     private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _scene: RenderScene;
     private _attributes: IGFXInputAttribute[] = [];
-    private _bufferBatches: IUIBufferBatch[] = [];
+    private _bufferBatches: UIBufferBatch[] = [];
     private _uiMaterial: UIMaterial | null = null;
     private _uiMaterials: UIMaterial[] = [];
     private _uboUI: UBOUI = new UBOUI();
     private _uiUBO: GFXBuffer | null = null;
-    private _batches: CachedArray<IUIDrawBatch>;
+    private _batches: CachedArray<UIDrawBatch>;
     private _bufferInitData: IMeshBufferInitData | null = null;
     private _commitUIRenderDatas: IUIRenderData[] = [];
 
@@ -228,8 +237,10 @@ export class UI {
 
     public update (dt: number) {
         
-        for (let i = 0; i < this._batches.array.length; ++i) {
-            this._drawBatchPool.remove(this._batches.array[i]);
+        for (let i = 0; i < this._batches.length; ++i) {
+            const batch = this._batches.array[i];
+            batch.clear();
+            this._drawBatchPool.remove(batch);
         }
         this._batches.clear();
 
@@ -243,18 +254,15 @@ export class UI {
 
             // update buffers
             for (const bufferBatch of this._bufferBatches) {
-                if (bufferBatch.vbSize > bufferBatch.vb.size) {
-                    bufferBatch.vb.resize(bufferBatch.vbSize);
+                if (bufferBatch.vbSize > bufferBatch.vb!.size) {
+                    bufferBatch.vb!.resize(bufferBatch.vbSize);
                 }
-                bufferBatch.vb.update(bufferBatch.vf32);
+                bufferBatch.vb!.update(bufferBatch.vf32!);
 
-                if (bufferBatch.ibSize > bufferBatch.ib.size) {
-                    bufferBatch.ib.resize(bufferBatch.ibSize);
+                if (bufferBatch.ibSize > bufferBatch.ib!.size) {
+                    bufferBatch.ib!.resize(bufferBatch.ibSize);
                 }
-                bufferBatch.ib.update(bufferBatch.vui16);
-
-                bufferBatch.ia.vertexCount = bufferBatch.vf32.length;
-                bufferBatch.ia.indexCount = bufferBatch.vui16.length;
+                bufferBatch.ib!.update(bufferBatch.vui16!);
             }
         }
     }
@@ -296,13 +304,16 @@ export class UI {
                 }
 
                 material.bindingLayout.bindBuffer(0, this._uiUBO!);
-                material.bindingLayout.bindTextureView(1, batch.texView);
+                material.bindingLayout.bindTextureView(1, batch.texView!);
                 material.bindingLayout.update();
+
+                let ia = batch.bufferBatch!.ia!
+                ia.indexCount = batch.idxCount;
 
                 cmdBuff.bindPipelineState(material.pipelineState);
                 cmdBuff.bindBindingLayout(material.bindingLayout);
-                cmdBuff.bindInputAssembler(batch.bufferBatch.ia);
-                cmdBuff.draw(batch.bufferBatch.ia);
+                cmdBuff.bindInputAssembler(batch.bufferBatch!.ia!);
+                cmdBuff.draw(batch.bufferBatch!.ia!);
             }
 
             cmdBuff.endRenderPass();
@@ -369,9 +380,10 @@ export class UI {
         let curCamera: Camera | null = null;
         let curTexView: GFXTextureView | null = null;
         let bufferBatchIdx = 0;
-        let curBufferBatch: IUIBufferBatch = this._bufferBatches[bufferBatchIdx++];
-        let vOffset = 0;
-        let iOffset = 0;
+        let curBufferBatch: UIBufferBatch = this._bufferBatches[bufferBatchIdx++];
+        let idxCount = 0;
+        let vertCount = 0;
+        
         let vf32: Float32Array;
         let vui16: Uint16Array;
         let vbSize = 0;
@@ -380,14 +392,14 @@ export class UI {
 
         for (const uiRenderData of this._commitUIRenderDatas) {
 
-            if (iOffset + uiRenderData.meshBuffer.vData!.length > 65535) {
+            if (idxCount + uiRenderData.meshBuffer.vData!.length > 65535) {
                 if (bufferBatchIdx >= this._bufferBatches.length) {
                     this.createBufferBatch();
                 }
 
                 curBufferBatch = this._bufferBatches[bufferBatchIdx++];
-                vOffset = 0;
-                iOffset = 0;
+                vertCount = 0;
+                idxCount = 0;
                 isNewBatch = true;
             } else {
                 isNewBatch = false;
@@ -395,34 +407,34 @@ export class UI {
 
             // merge vertices
             vf32 = uiRenderData.meshBuffer.vData!;
-            vbSize = (vf32.length + vOffset) * 4;
+            vbSize = (vf32.length + vertCount) * 4;
             if (vbSize > curBufferBatch.vbSize) {
                 curBufferBatch.vbSize = vbSize;
                 const lastVF32 = curBufferBatch.vf32;
-                curBufferBatch.vf32 = new Float32Array(vf32.length + vOffset);
-                curBufferBatch.vf32.set(lastVF32, 0);
+                curBufferBatch.vf32 = new Float32Array(vf32.length + vertCount);
+                curBufferBatch.vf32.set(lastVF32!, 0);
             }
 
-            curBufferBatch.vf32.set(vf32, vOffset);
+            curBufferBatch.vf32!.set(vf32, vertCount);
 
             // merge indices
             vui16 = uiRenderData.meshBuffer.iData!;
-            ibSize = (vui16.length + iOffset) * 2;
+            ibSize = (vui16.length + idxCount) * 2;
             if (ibSize > curBufferBatch.ibSize) {
                 curBufferBatch.ibSize = ibSize;
-                const lastVUI16 = curBufferBatch.vui16;
-                curBufferBatch.vui16 = new Uint16Array(vui16.length + iOffset);
+                const lastVUI16 = curBufferBatch.vui16!;
+                curBufferBatch.vui16 = new Uint16Array(vui16.length + idxCount);
                 curBufferBatch.vui16.set(lastVUI16, 0);
             }
 
             for (let n = 0; n < vui16.length; ++n) {
-                curBufferBatch.vui16[iOffset + n] = vui16[n] + vOffset;
+                curBufferBatch.vui16![idxCount + n] = vui16[n] + vertCount;
             }
 
-            curBufferBatch.vui16.set(vui16, iOffset);
+            curBufferBatch.vui16!.set(vui16, idxCount);
 
-            vOffset += vf32.length;
-            iOffset += vui16.length;
+            vertCount += vf32.length;
+            idxCount += vui16.length;
 
             if (curCamera !== uiRenderData.camera) {
                 isNewBatch = true;
@@ -440,12 +452,14 @@ export class UI {
                 batch.bufferBatch = curBufferBatch;
                 batch.uiMaterial = this._uiMaterial!;
                 batch.texView = curTexView!;
+                batch.idxCount = idxCount;
+                
                 this._batches.push(batch);
             }
         } // for
     }
 
-    private createBufferBatch (): IUIBufferBatch {
+    private createBufferBatch (): UIBufferBatch {
 
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
         const vbCount = 128;

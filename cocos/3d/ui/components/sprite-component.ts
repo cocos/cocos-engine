@@ -451,7 +451,7 @@ export class SpriteComponent extends UIRenderComponent {
                 this.material = cc.builtinResMgr.get('sprite-material');
                 material = this.material;
                 if (spriteFrame && spriteFrame.textureLoaded()) {
-                    material!.setProperty('mainTexture', spriteFrame);
+                    material!.setProperty('u_texSampler', spriteFrame);
                     this.markForUpdateRenderData(true);
                 }
             }
