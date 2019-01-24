@@ -1,4 +1,5 @@
 import { RenderScene } from './render-scene';
+import { Node } from '../../scene-graph/node';
 
 export enum LightType {
     UNKNOWN,
@@ -10,6 +11,10 @@ export enum LightType {
 export class Light {
     protected _color = Float32Array.from([1, 1, 1, 1]);
     protected _enabled = false;
+    protected _scene: RenderScene;
+    protected _node: Node;
+    protected _type: LightType;
+    protected _name: string;
 
     set enabled (val) {
         this._enabled = val;
@@ -32,12 +37,11 @@ export class Light {
         return this._name;
     }
 
-    protected _scene: RenderScene;
-    protected _type: LightType;
-    protected _name: string;
+    public update () {}
 
-    constructor (scene: RenderScene, name: string) {
+    constructor (scene: RenderScene, node: Node, name: string) {
         this._scene = scene;
+        this._node = node;
         this._name = name;
         this._type = LightType.UNKNOWN;
     }

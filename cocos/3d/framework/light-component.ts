@@ -251,8 +251,8 @@ export default class LightComponent extends Component {
     }
 
     public onEnable () {
-        if (this._light) { this._light.enabled = true; return; }
         this._createLight();
+        if (this._light) { this._light.enabled = true; return; }
     }
 
     public onDisable () {
@@ -268,14 +268,14 @@ export default class LightComponent extends Component {
         const scene = this._getRenderScene();
         switch (this._type) {
         case Type.DIRECTIONAL:
-            this._light = scene.createDirectionalLight(this.name);
+            this._light = scene.createDirectionalLight(this.name, this.node);
             break;
         case Type.POINT:
-            this._light = scene.createPointLight(this.name);
+            this._light = scene.createPointLight(this.name, this.node);
             this.range = this._range;
             break;
         case Type.SPOT:
-            this._light = scene.createSpotLight(this.name);
+            this._light = scene.createSpotLight(this.name, this.node);
             this.range = this._range;
             this.spotAngle = this._spotAngle;
             break;
