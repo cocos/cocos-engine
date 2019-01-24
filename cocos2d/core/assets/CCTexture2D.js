@@ -731,6 +731,11 @@ var Texture2D = cc.Class({
         let wrapS = this._wrapS === WrapMode.REPEAT ? 1 : (this._wrapS === WrapMode.CLAMP_TO_EDGE ? 2 : 3);
         let wrapT = this._wrapT === WrapMode.REPEAT ? 1 : (this._wrapT === WrapMode.CLAMP_TO_EDGE ? 2 : 3);
         let pixelFormat = this._format;
+        // native platform use the image data straightly
+        let gl = window.__gl;
+        if (CC_JSB && this._image && this._image.glFormat !== gl.RGBA) {
+            pixelFormat = 0;
+        }
 
         this._hash = parseInt(`${minFilter}${magFilter}${pixelFormat}${wrapS}${wrapT}${hasMipmap}${premultiplyAlpha}${flipY}`);
         this._hashDirty = false;
