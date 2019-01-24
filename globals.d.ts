@@ -46,3 +46,12 @@ type RecursivePartial<T> = {
         T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
         T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
 };
+
+declare module "webgl-debug" {
+    export function makeDebugContext(
+        webGLRenderingContext: WebGLRenderingContext,
+        throwOnGLError: (err: GLenum, funcName: string, ...args: any[]) => void
+    ): WebGLRenderingContext;
+
+    export function glEnumToString(glEnum: GLenum): string;
+}
