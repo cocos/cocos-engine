@@ -15,6 +15,6 @@ export class SkinningUBO {
     };
 
     public static JOINT_TEXTURE: GFXUniformSampler = {
-        binding: 28, name: 'CCJointTexture', type: GFXType.SAMPLER2D, count: 1,
+        binding: 28, name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
     };
 }

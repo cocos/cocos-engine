@@ -27,7 +27,7 @@
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { mat4 } from '../../core/vmath';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { SkinningModel } from '../../renderer/models/skinning-model';
+import { SkinningModel, __FORCE_USE_UNIFORM_STORAGE__ } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Material } from '../assets/material';
 import Skeleton from '../assets/skeleton';
@@ -131,15 +131,16 @@ export default class SkinningModelComponent extends ModelComponent {
     }
 
     public _updateModelParams () {
-        super._updateModelParams();
+        // Should bind skeleton before super create pso
         this._bindSkeleton();
+        super._updateModelParams();
     }
 
     protected _onMaterialModified (index: number, material: Material) {
         super._onMaterialModified(index, material);
 
         const device = _getGlobalDevice();
-        const useJointTexture = device !== null && device.hasFeature(GFXFeature.TEXTURE_FLOAT) && false;
+        const useJointTexture = !__FORCE_USE_UNIFORM_STORAGE__ && device !== null && device.hasFeature(GFXFeature.TEXTURE_FLOAT);
         this.getMaterial(0, CC_EDITOR)!.setDefines({
             CC_USE_SKINNING: true,
             CC_USE_JOINTS_TEXTURE: useJointTexture,

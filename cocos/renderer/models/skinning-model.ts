@@ -1,7 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import Skeleton from '../../3d/assets/skeleton';
-import { createJointsTexture } from '../../3d/misc/utils';
 import { Texture2D } from '../../assets/texture-2d';
 import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -12,6 +11,7 @@ import { Node } from '../../scene-graph/node';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { SkinningUBO } from './model-uniforms';
+import { PixelFormat, Filter, WrapMode } from '../../assets/texture-base';
 
 const textureSizeBuffer = new Float32Array(4);
 
@@ -34,6 +34,8 @@ function isUniformStorage (storage: JointStorage): storage is IJointUniformsStor
     return !('texture' in storage);
 }
 
+export const __FORCE_USE_UNIFORM_STORAGE__ = false;
+
 export class SkinningModel extends Model {
     private _jointStorage: JointStorage | null = null;
     private _skinningUBO: GFXBuffer;
@@ -52,8 +54,8 @@ export class SkinningModel extends Model {
     public bindSkeleton (skeleton: Skeleton) {
         this._destroyJointStorage();
 
-        if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT) && false) {
-            const jointsTexture = createJointsTexture(skeleton);
+        if (!__FORCE_USE_UNIFORM_STORAGE__ && this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+            const jointsTexture = _createJointsTexture(skeleton);
             textureSizeBuffer[0] = jointsTexture.width;
             this._skinningUBO.update(
             textureSizeBuffer, SkinningUBO.JOINTS_TEXTURE_SIZE_OFFSET, textureSizeBuffer.byteLength);
@@ -128,4 +130,33 @@ function _setJointMatrix (out: Float32Array, iMatrix: number, matrix: mat4) {
     out[16 * iMatrix + 13] = matrix.m13;
     out[16 * iMatrix + 14] = matrix.m14;
     out[16 * iMatrix + 15] = matrix.m15;
+}
+
+function _createJointsTexture (skinning: { joints: any[]; }) {
+    const jointCount = skinning.joints.length;
+
+    // Set jointsTexture.
+    // A squared texture with side length N(N > 1) multiples of 2 can store
+    // 2 ^ (2 * N - 2) matrices.
+    // We support most 1024 joints.
+    let size = 0;
+    if (jointCount > 1024) {
+        throw new Error('To many joints(more than 1024).');
+    } else if (jointCount > 256) {
+        size = 64;
+    } else if (jointCount > 64) {
+        size = 32;
+    } else if (jointCount > 16) {
+        size = 16;
+    } else if (jointCount > 4) {
+        size = 8;
+    } else {
+        size = 4;
+    }
+
+    const texture = new Texture2D();
+    texture.create(size, size, PixelFormat.RGBA32F);
+    texture.setFilters(Filter.NEAREST, Filter.NEAREST);
+    texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
+    return texture;
 }
