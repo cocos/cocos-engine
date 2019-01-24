@@ -197,15 +197,15 @@ export class ModelComponent extends RenderableComponent {
             this._model = null;
         }
 
-        if (this._model) {
-            this._model.enabled = this.enabledInHierarchy;
-        }
-
         this._model = this._createModel();
 
         this._model!.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
 
         this._updateModelParams();
+
+        if (this._model) {
+            this._model.enabled = this.enabledInHierarchy;
+        }
     }
 
     protected _createModel () {

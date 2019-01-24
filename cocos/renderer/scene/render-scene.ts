@@ -8,8 +8,11 @@ import { GFXPrimitiveMode } from '../../gfx/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { Camera, ICameraInfo } from './camera';
-import { Light, LightType } from './light';
+import { DirectionalLight } from './directional-light';
+import { Light } from './light';
 import { Model } from './model';
+import { PointLight } from './point-light';
+import { SpotLight } from './spot-light';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -28,23 +31,31 @@ export interface IRaycastResult {
 
 export class RenderScene {
 
-    public get root (): Root {
+    get root (): Root {
         return this._root;
     }
 
-    public get name (): string {
+    get name (): string {
         return this._name;
     }
 
-    public get cameras (): Camera[] {
+    get cameras (): Camera[] {
         return this._cameras;
     }
 
-    public get pointLights (): Light[] {
+    get directionalLights (): DirectionalLight[] {
+        return this._directionalLights;
+    }
+
+    get pointLights (): PointLight[] {
         return this._pointLights;
     }
 
-    public get models (): Model[] {
+    get spotLights (): SpotLight[] {
+        return this._spotLights;
+    }
+
+    get models (): Model[] {
         return this._models;
     }
 
@@ -55,7 +66,9 @@ export class RenderScene {
     private _root: Root;
     private _name: string = '';
     private _cameras: Camera[] = [];
-    private _pointLights: Light[] = [];
+    private _pointLights: PointLight[] = [];
+    private _directionalLights: DirectionalLight[] = [];
+    private _spotLights: SpotLight[] = [];
     private _models: Model[] = [];
     private _modelId: number = 0;
 
@@ -104,8 +117,9 @@ export class RenderScene {
         return null;
     }
 
-    public createPointLight (name: string): Light {
-        const light = new Light(this, LightType.POINT, name);
+    public createPointLight (name: string): Light | null {
+        if (this._pointLights.length >= 4) { return null; }
+        const light = new PointLight(this, name);
         this._pointLights.push(light);
         return light;
     }
@@ -119,8 +133,48 @@ export class RenderScene {
         }
     }
 
+    public createDirectionalLight (name: string): Light | null {
+        if (this._directionalLights.length >= 4) { return null; }
+        const light = new DirectionalLight(this, name);
+        this._directionalLights.push(light);
+        return light;
+    }
+
+    public destroyDirectionalLight (light: Light) {
+        for (let i = 0; i < this._directionalLights.length; ++i) {
+            if (this._directionalLights[i] === light) {
+                this._directionalLights.slice(i);
+                return;
+            }
+        }
+    }
+
+    public createSpotLight (name: string): Light | null {
+        if (this._spotLights.length >= 4) { return null; }
+        const light = new SpotLight(this, name);
+        this._spotLights.push(light);
+        return light;
+    }
+
+    public destroySpotLight (light: Light) {
+        for (let i = 0; i < this._spotLights.length; ++i) {
+            if (this._spotLights[i] === light) {
+                this._spotLights.slice(i);
+                return;
+            }
+        }
+    }
+
     public destroyPointLights () {
         this._pointLights = [];
+    }
+
+    public destroyDirectionalLights () {
+        this._directionalLights = [];
+    }
+
+    public destroySpotLights () {
+        this._spotLights = [];
     }
 
     public createModel<T extends Model> (clazz: new (scene: RenderScene, node: Node) => T, node: Node): T {
