@@ -1,8 +1,12 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+import Skeleton from '../../3d/assets/skeleton';
+import { createJointsTexture } from '../../3d/misc/utils';
 import { Texture2D } from '../../assets/texture-2d';
+import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXFeature } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Node } from '../../scene-graph/node';
 import { Model } from '../scene/model';
@@ -11,9 +15,28 @@ import { SkinningUBO } from './model-uniforms';
 
 const textureSizeBuffer = new Float32Array(4);
 
+interface IJointTextureStorage {
+    nativeData: Float32Array;
+    texture: Texture2D;
+}
+
+interface IJointUniformsStorage {
+    nativeData: Float32Array;
+}
+
+type JointStorage = IJointTextureStorage | IJointUniformsStorage;
+
+function isTextureStorage (storage: JointStorage): storage is IJointTextureStorage {
+    return 'texture' in storage;
+}
+
+function isUniformStorage (storage: JointStorage): storage is IJointUniformsStorage {
+    return !('texture' in storage);
+}
+
 export class SkinningModel extends Model {
+    private _jointStorage: JointStorage | null = null;
     private _skinningUBO: GFXBuffer;
-    private _jointTexture: Texture2D | null = null;
 
     constructor (scene: RenderScene, node: Node) {
         super(scene, node);
@@ -26,27 +49,83 @@ export class SkinningModel extends Model {
         });
     }
 
-    public setJointTexture (texture: Texture2D) {
-        this._jointTexture = texture;
-        textureSizeBuffer[0] = texture.width;
-        this._skinningUBO.update(
+    public bindSkeleton (skeleton: Skeleton) {
+        this._destroyJointStorage();
+
+        if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT) && false) {
+            const jointsTexture = createJointsTexture(skeleton);
+            textureSizeBuffer[0] = jointsTexture.width;
+            this._skinningUBO.update(
             textureSizeBuffer, SkinningUBO.JOINTS_TEXTURE_SIZE_OFFSET, textureSizeBuffer.byteLength);
+            this._jointStorage = {
+                texture: jointsTexture,
+                nativeData: new Float32Array(jointsTexture.width * jointsTexture.height * 4),
+            } as IJointTextureStorage;
+        } else {
+            this._jointStorage = {
+                nativeData: new Float32Array(skeleton.joints.length * 16),
+            } as IJointUniformsStorage;
+        }
     }
 
-    public setJointMatrices (data: Float32Array) {
-        this._skinningUBO.update(data, SkinningUBO.MAT_JOINT_OFFSET);
+    public updateJointMatrix (iMatrix: number, matrix: mat4) {
+        if (!this._jointStorage) {
+            return;
+        }
+        _setJointMatrix(this._jointStorage.nativeData, iMatrix, matrix);
+    }
+
+    public commitJointMatrices () {
+        if (!this._jointStorage) {
+            return;
+        }
+        if (isUniformStorage(this._jointStorage)) {
+            this._skinningUBO.update(this._jointStorage.nativeData, SkinningUBO.MAT_JOINT_OFFSET);
+        } else if (isTextureStorage(this._jointStorage)) {
+            this._jointStorage.texture.directUpdate(this._jointStorage.nativeData.buffer);
+        }
     }
 
     protected _onCreatePSO (pso: GFXPipelineState) {
         super._onCreatePSO(pso);
         pso.pipelineLayout.layouts[0].bindBuffer(SkinningUBO.BLOCK.binding, this._skinningUBO);
-        if (this._jointTexture) {
-            const view = this._jointTexture.getGFXTextureView();
-            const sampler = this._jointTexture.getGFXSampler();
+        if (this._jointStorage && isTextureStorage(this._jointStorage)) {
+            const jointTexture = this._jointStorage.texture;
+            const view = jointTexture.getGFXTextureView();
+            const sampler = jointTexture.getGFXSampler();
             if (view && sampler) {
                 pso.pipelineLayout.layouts[0].bindTextureView(SkinningUBO.JOINT_TEXTURE.binding, view);
                 pso.pipelineLayout.layouts[0].bindSampler(SkinningUBO.JOINT_TEXTURE.binding, sampler);
             }
         }
     }
+
+    private _destroyJointStorage () {
+        if (!this._jointStorage) {
+            return;
+        }
+        if (isTextureStorage(this._jointStorage)) {
+            this._jointStorage.texture.destroy();
+        }
+        this._jointStorage = null;
+    }
+}
+
+function _setJointMatrix (out: Float32Array, iMatrix: number, matrix: mat4) {
+    out[16 * iMatrix + 0] = matrix.m00;
+    out[16 * iMatrix + 1] = matrix.m01;
+    out[16 * iMatrix + 2] = matrix.m02;
+    out[16 * iMatrix + 3] = matrix.m03;
+    out[16 * iMatrix + 4] = matrix.m04;
+    out[16 * iMatrix + 5] = matrix.m05;
+    out[16 * iMatrix + 6] = matrix.m06;
+    out[16 * iMatrix + 7] = matrix.m07;
+    out[16 * iMatrix + 8] = matrix.m08;
+    out[16 * iMatrix + 9] = matrix.m09;
+    out[16 * iMatrix + 10] = matrix.m10;
+    out[16 * iMatrix + 11] = matrix.m11;
+    out[16 * iMatrix + 12] = matrix.m12;
+    out[16 * iMatrix + 13] = matrix.m13;
+    out[16 * iMatrix + 14] = matrix.m14;
+    out[16 * iMatrix + 15] = matrix.m15;
 }

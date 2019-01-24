@@ -68,7 +68,7 @@
       const material = new cc.Material();
       material.setDefines({ USE_COLOR: true });
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
-      material.effectName = 'builtin-effect-phong';
+      material.effectName = 'builtin-effect-pbr';
 
       const len = 50;
       const models = [], passes = [];
@@ -84,7 +84,7 @@
         // material instance initialized here
         passes.push(modelCom.material.passes[0]);
       }
-      const handle = passes[0].getHandle('diffuseColor');
+      const handle = passes[0].getHandle('albedo');
 
       {
         const material = new cc.Material();

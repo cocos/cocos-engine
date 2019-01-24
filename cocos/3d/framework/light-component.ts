@@ -183,9 +183,10 @@ export default class LightComponent extends Component {
 
     set color (val) {
         this._color = val;
-        this._colorData[0] = val.r * this._intensity;
-        this._colorData[1] = val.g * this._intensity;
-        this._colorData[2] = val.b * this._intensity;
+        const scale = this._intensity / 255;
+        this._colorData[0] = val.r * scale;
+        this._colorData[1] = val.g * scale;
+        this._colorData[2] = val.b * scale;
         if (this._light) {
             this._light.color = this._colorData;
         }
@@ -204,9 +205,10 @@ export default class LightComponent extends Component {
 
     set intensity (val) {
         this._intensity = val;
-        this._colorData[0] = this._color.r * val;
-        this._colorData[1] = this._color.g * val;
-        this._colorData[2] = this._color.b * val;
+        const scale = val / 255;
+        this._colorData[0] = this._color.r * scale;
+        this._colorData[1] = this._color.g * scale;
+        this._colorData[2] = this._color.b * scale;
         if (this._light) {
             this._light.color = this._colorData;
         }

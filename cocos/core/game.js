@@ -771,6 +771,7 @@ var game = {
                 this._gfxDevice = new cc.WebGLGFXDevice;
                 this._gfxDevice.initialize({
                     canvasElm : localCanvas,
+                    debug: true,
                 });
 
                 //let device = this._renderContext = new gfx.Device(localCanvas, {});

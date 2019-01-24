@@ -13,6 +13,10 @@ export class RenderableComponent extends Component {
         super();
     }
 
+    public onLoad () {
+        this.sharedMaterials = this._materials.concat();
+    }
+
     @property({
         type: [Material],
         displayName: 'Materials',
