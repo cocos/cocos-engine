@@ -39,11 +39,9 @@
  * @class ViewGroup
  * @extends Component
  */
-var ViewGroup = cc.Class({
-    name: 'cc.ViewGroup',
-    extends: require('./CCComponent')
 
-});
+import { Component } from "../../../components/component";
 
+export class ViewGroupComponent extends Component{
 
-cc.ViewGroup = module.exports = ViewGroup;
+}

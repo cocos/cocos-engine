@@ -24,10 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// var WidgetManager = require('../base-ui/CCWidgetManager');
-import WidgetManager from '../../../2d/base-ui/CCWidgetManager';
+import { widgetManager } from '../../../2d/base-ui/widget-manager';
 import { Component} from '../../../components/component';
-import { ccclass, property, executeInEditMode, menu, executionOrder } from '../../../core/data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Node } from '../../../scene-graph/index';
 /**
  * !#en Enum for Widget's alignment mode, indicating when the widget should refresh.
@@ -55,17 +54,17 @@ import { Node } from '../../../scene-graph/index';
  * !#zh 始终保持对齐。
  * @property {Number} ALWAYS
  */
-var AlignMode = WidgetManager.AlignMode;
+const AlignMode = widgetManager.AlignMode;
 
-var AlignFlags = WidgetManager._AlignFlags;
-var TOP = AlignFlags.TOP;
-var MID = AlignFlags.MID;
-var BOT = AlignFlags.BOT;
-var LEFT = AlignFlags.LEFT;
-var CENTER = AlignFlags.CENTER;
-var RIGHT = AlignFlags.RIGHT;
-var TOP_BOT = TOP | BOT;
-var LEFT_RIGHT = LEFT | RIGHT;
+const AlignFlags = widgetManager._AlignFlags;
+const TOP = AlignFlags.TOP;
+const MID = AlignFlags.MID;
+const BOT = AlignFlags.BOT;
+const LEFT = AlignFlags.LEFT;
+const CENTER = AlignFlags.CENTER;
+const RIGHT = AlignFlags.RIGHT;
+const TOP_BOT = TOP | BOT;
+const LEFT_RIGHT = LEFT | RIGHT;
 
 /**
  * !#en
@@ -84,57 +83,6 @@ var LEFT_RIGHT = LEFT | RIGHT;
 @menu('UI/Widget')
 @executeInEditMode
 export class WidgetComponent extends Component {
-    /**
-     * !#zh: 对齐开关，由 AlignFlags 组成
-     *
-     * @property _alignFlags
-     * @type {Number}
-     * @default 0
-     * @private
-     */
-    _alignFlags: number = 0;
-    _wasAlignOnce: boolean = false;
-    @property
-    _target: Node | null = null;
-    @property
-    _isAlignTop: boolean = false;
-    @property
-    _isAlignBottom: boolean = false;
-    @property
-    _isAlignLeft: boolean = false;
-    @property
-    _isAlignRight: boolean = false;
-    @property
-    _left: number = 0;
-    @property
-    _right: number = 0;
-    @property
-    _top: number = 0;
-    @property
-    _bottom: number = 0;
-    @property
-    _horizontalCenter: number = 0;
-    @property
-    _verticalCenter: number = 0;
-    @property
-    _isAbsLeft: boolean = true;
-    @property
-    _isAbsRight: boolean = true;
-    @property
-    _isAbsTop: boolean = true;
-    @property
-    _isAbsBottom: boolean = true;
-    @property
-    _isAbsHorizontalCenter: boolean = true;
-    @property
-    _isAbsVerticalCenter: boolean = true;
-    // original size before align
-    @property
-    _originalWidth: number = 0;
-    @property
-    _originalHeight: number = 0;
-    @property
-    _alignMode: number = AlignMode.ON_WINDOW_RESIZE;
 
     /**
      * !#en Specifies an alignment target that can only be one of the parent nodes of the current node.
@@ -144,17 +92,17 @@ export class WidgetComponent extends Component {
      * @default null
      */
     @property({
-        type: Node
+        type: Node,
     })
-    get target() {
+    get target () {
         return this._target;
     }
 
-    set target(value) {
+    set target (value) {
         this._target = value;
         if (CC_EDITOR && !cc.engine._isPlaying && this.node._parent) {
             // adjust the offsets to keep the size and position unchanged after target chagned
-            WidgetManager.updateOffsetsToStayPut(this);
+            // widgetManager.updateOffsetsToStayPut(this);
         }
     }
 
@@ -168,11 +116,10 @@ export class WidgetComponent extends Component {
      * @default false
      */
     @property
-    get isAlignTop() {
+    get isAlignTop () {
         return (this._alignFlags & TOP) > 0;
     }
-    set isAlignTop(value) {
-        this._isAlignTop = value;
+    set isAlignTop (value) {
         this._setAlign(TOP, value);
     }
 
@@ -184,10 +131,10 @@ export class WidgetComponent extends Component {
      * @default false
      */
     @property
-    get isAlignBottom() {
+    get isAlignBottom () {
         return (this._alignFlags & BOT) > 0;
     }
-    set isAlignBottom(value) {
+    set isAlignBottom (value) {
         this._setAlign(BOT, value);
     }
 
@@ -199,10 +146,10 @@ export class WidgetComponent extends Component {
      * @default false
      */
     @property
-    get isAlignLeft() {
+    get isAlignLeft () {
         return (this._alignFlags & LEFT) > 0;
     }
-    set isAlignLeft(value) {
+    set isAlignLeft (value) {
         this._setAlign(LEFT, value);
     }
 
@@ -214,14 +161,12 @@ export class WidgetComponent extends Component {
      * @default false
      */
     @property
-    get isAlignRight() {
+    get isAlignRight () {
         return (this._alignFlags & RIGHT) > 0;
     }
-    set isAlignRight(value) {
+    set isAlignRight (value) {
         this._setAlign(RIGHT, value);
     }
-
-
 
     /**
      * !#en
@@ -233,16 +178,15 @@ export class WidgetComponent extends Component {
      * @default false
      */
     @property
-    get isAlignVerticalCenter() {
+    get isAlignVerticalCenter () {
         return (this._alignFlags & MID) > 0;
     }
-    set isAlignVerticalCenter(value) {
+    set isAlignVerticalCenter (value) {
         if (value) {
             this.isAlignTop = false;
             this.isAlignBottom = false;
             this._alignFlags |= MID;
-        }
-        else {
+        } else {
             this._alignFlags &= ~MID;
         }
     }
@@ -257,16 +201,15 @@ export class WidgetComponent extends Component {
      * @default false
      */
     @property
-    get isAlignHorizontalCenter() {
+    get isAlignHorizontalCenter () {
         return (this._alignFlags & CENTER) > 0;
     }
-    set isAlignHorizontalCenter(value) {
+    set isAlignHorizontalCenter (value) {
         if (value) {
             this.isAlignLeft = false;
             this.isAlignRight = false;
             this._alignFlags |= CENTER;
-        }
-        else {
+        } else {
             this._alignFlags &= ~CENTER;
         }
     }
@@ -283,9 +226,9 @@ export class WidgetComponent extends Component {
      * @readOnly
      */
     @property({
-        visible: false
+        visible: false,
     })
-    get isStretchWidth() {
+    get isStretchWidth () {
         return (this._alignFlags & LEFT_RIGHT) === LEFT_RIGHT;
     }
 
@@ -301,9 +244,9 @@ export class WidgetComponent extends Component {
      * @readOnly
      */
     @property({
-        visible: false
+        visible: false,
     })
-    get isStretchHeight() {
+    get isStretchHeight () {
         return (this._alignFlags & TOP_BOT) === TOP_BOT;
     }
 
@@ -320,10 +263,10 @@ export class WidgetComponent extends Component {
      * @default 0
      */
     @property
-    get top() {
+    get top () {
         return this._top;
     }
-    set top(value) {
+    set top (value) {
         this._top = value;
     }
 
@@ -338,10 +281,10 @@ export class WidgetComponent extends Component {
      * @default 0
      */
     @property
-    get bottom() {
+    get bottom () {
         return this._bottom;
     }
-    set bottom(value) {
+    set bottom (value) {
         this._bottom = value;
     }
 
@@ -356,10 +299,10 @@ export class WidgetComponent extends Component {
      * @default 0
      */
     @property
-    get left() {
+    get left () {
         return this._left;
     }
-    set left(value) {
+    set left (value) {
         this._left = value;
     }
 
@@ -374,10 +317,10 @@ export class WidgetComponent extends Component {
      * @default 0
      */
     @property
-    get right() {
+    get right () {
         return this._right;
     }
-    set right(value) {
+    set right (value) {
         this._right = value;
     }
 
@@ -391,10 +334,10 @@ export class WidgetComponent extends Component {
      * @default 0
      */
     @property
-    get horizontalCenter() {
+    get horizontalCenter () {
         return this._horizontalCenter;
     }
-    set horizontalCenter(value) {
+    set horizontalCenter (value) {
         this._horizontalCenter = value;
     }
 
@@ -408,10 +351,10 @@ export class WidgetComponent extends Component {
      * @default 0
      */
     @property
-    get verticalCenter() {
+    get verticalCenter () {
         return this._verticalCenter;
     }
-    set verticalCenter(value) {
+    set verticalCenter (value) {
         this._verticalCenter = value;
     }
 
@@ -425,10 +368,10 @@ export class WidgetComponent extends Component {
      * @default true
      */
     @property
-    get isAbsoluteTop() {
+    get isAbsoluteTop () {
         return this._isAbsTop;
     }
-    set isAbsoluteTop(value) {
+    set isAbsoluteTop (value) {
         this._isAbsTop = value;
     }
 
@@ -442,10 +385,10 @@ export class WidgetComponent extends Component {
      * @default true
      */
     @property
-    get isAbsoluteBottom() {
+    get isAbsoluteBottom () {
         return this._isAbsBottom;
     }
-    set isAbsoluteBottom(value) {
+    set isAbsoluteBottom (value) {
         this._isAbsBottom = value;
     }
 
@@ -459,10 +402,10 @@ export class WidgetComponent extends Component {
      * @default true
      */
     @property
-    get isAbsoluteLeft() {
+    get isAbsoluteLeft () {
         return this._isAbsLeft;
     }
-    set isAbsoluteLeft(value) {
+    set isAbsoluteLeft (value) {
         this._isAbsLeft = value;
     }
 
@@ -476,10 +419,10 @@ export class WidgetComponent extends Component {
      * @default true
      */
     @property
-    get isAbsoluteRight() {
+    get isAbsoluteRight () {
         return this._isAbsRight;
     }
-    set isAbsoluteRight(value) {
+    set isAbsoluteRight (value) {
         this._isAbsRight = value;
     }
 
@@ -491,13 +434,13 @@ export class WidgetComponent extends Component {
      * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
      */
     @property({
-        type: AlignMode
+        type: AlignMode,
     })
-    get alignMode() {
+    get alignMode () {
         return this._alignMode;
     }
 
-    set alignMode(value) {
+    set alignMode (value) {
         this._alignMode = value;
     }
 
@@ -509,14 +452,13 @@ export class WidgetComponent extends Component {
      * @default true
      */
     @property
-    get isAbsoluteHorizontalCenter() {
+    get isAbsoluteHorizontalCenter () {
         return this._isAbsHorizontalCenter;
     }
 
-    set isAbsoluteHorizontalCenter(value) {
+    set isAbsoluteHorizontalCenter (value) {
         this._isAbsHorizontalCenter = value;
     }
-
 
     /**
      * !#en If true, verticalCenter is pixel margin, otherwise is percentage (0 - 1) margin.
@@ -526,85 +468,57 @@ export class WidgetComponent extends Component {
      * @default true
      */
     @property
-    get isAbsoluteVerticalCenter() {
+    get isAbsoluteVerticalCenter () {
         return this._isAbsVerticalCenter;
     }
-    set isAbsoluteVerticalCenter(value) {
+    set isAbsoluteVerticalCenter (value) {
         this._isAbsVerticalCenter = value;
     }
 
-    static AlignMode = AlignMode;
-
-    onLoad() {
-        if (this._wasAlignOnce) {
-            // migrate for old version
-            this.alignMode = this._wasAlignOnce ? AlignMode.ONCE : AlignMode.ALWAYS;
-            this._wasAlignOnce = false;
-        }
-    }
-
-    onEnable() {
-        WidgetManager.add(this);
-    }
-
-    onDisable() {
-        WidgetManager.remove(this);
-    }
-
-    _setAlign(flag: number, isAlign: boolean) {
-        var current = (this._alignFlags & flag) > 0;
-        if (isAlign == current) {
-            return;
-        }
-        var isHorizontal = (flag & LEFT_RIGHT) > 0;
-        if (isAlign) {
-            this._alignFlags |= flag;
-
-            if (isHorizontal) {
-                this.isAlignHorizontalCenter = false;
-                if (this.isStretchWidth) {
-                    // become stretch
-                    this._originalWidth = this.node.width;
-                    // test check conflict
-                    if (CC_EDITOR && !cc.engine.isPlaying) {
-                        _Scene.DetectConflict.checkConflict_Widget(this);
-                    }
-                }
-            }
-            else {
-                this.isAlignVerticalCenter = false;
-                if (this.isStretchHeight) {
-                    // become stretch
-                    this._originalHeight = this.node.height;
-                    // test check conflict
-                    if (CC_EDITOR && !cc.engine.isPlaying) {
-                        _Scene.DetectConflict.checkConflict_Widget(this);
-                    }
-                }
-            }
-
-            if (CC_EDITOR && !cc.engine._isPlaying && this.node._parent) {
-                // adjust the offsets to keep the size and position unchanged after alignment chagned
-                WidgetManager.updateOffsetsToStayPut(this, flag);
-            }
-        }
-        else {
-            if (isHorizontal) {
-                if (this.isStretchWidth) {
-                    // will cancel stretch
-                    this.node.width = this._originalWidth;
-                }
-            }
-            else {
-                if (this.isStretchHeight) {
-                    // will cancel stretch
-                    this.node.height = this._originalHeight;
-                }
-            }
-
-            this._alignFlags &= ~flag;
-        }
-    }
+    public static AlignMode = AlignMode;
+    /**
+     * !#zh: 对齐开关，由 AlignFlags 组成
+     *
+     * @property _alignFlags
+     * @type {Number}
+     * @default 0
+     * @private
+     */
+    private _alignFlags = 0;
+    private _wasAlignOnce = false;
+    @property
+    private _target: Node | null = null;
+    @property
+    private _left = 0;
+    @property
+    private _right = 0;
+    @property
+    private _top = 0;
+    @property
+    private _bottom = 0;
+    @property
+    private _horizontalCenter = 0;
+    @property
+    private _verticalCenter = 0;
+    @property
+    private _isAbsLeft = true;
+    @property
+    private _isAbsRight = true;
+    @property
+    private _isAbsTop = true;
+    @property
+    private _isAbsBottom = true;
+    @property
+    private _isAbsHorizontalCenter = true;
+    @property
+    private _isAbsVerticalCenter = true;
+    // original size before align
+    @property
+    private _originalWidth = 0;
+    @property
+    private _originalHeight = 0;
+    @property
+    private _alignMode = AlignMode.ON_WINDOW_RESIZE;
 
     /**
      * !#en
@@ -622,8 +536,80 @@ export class WidgetComponent extends Component {
      * widget.updateAlignment();
      * cc.log(widget.node.y); // changed
      */
-    updateAlignment() {
-        WidgetManager.updateAlignment(this.node);
+    public updateAlignment () {
+        widgetManager.updateAlignment(this.node);
+    }
+
+    protected onLoad () {
+        // TODO:
+        // if (this._wasAlignOnce) {
+        //     // migrate for old version
+        //     this.alignMode = this._wasAlignOnce ? AlignMode.ONCE : AlignMode.ALWAYS;
+        //     this._wasAlignOnce = false;
+        // }
+        if(this._alignMode === AlignMode.ONCE){
+            this._wasAlignOnce = true;
+        }
+    }
+
+    protected onEnable () {
+        widgetManager.add(this);
+    }
+
+    protected onDisable () {
+        widgetManager.remove(this);
+    }
+
+    private _setAlign (flag, isAlign) {
+        const current = (this._alignFlags & flag) > 0;
+        if (isAlign === current) {
+            return;
+        }
+        const isHorizontal = (flag & LEFT_RIGHT) > 0;
+        if (isAlign) {
+            this._alignFlags |= flag;
+
+            if (isHorizontal) {
+                this.isAlignHorizontalCenter = false;
+                if (this.isStretchWidth) {
+                    // become stretch
+                    this._originalWidth = this.node.width;
+                    // test check conflict
+                    if (CC_EDITOR && !cc.engine.isPlaying) {
+                        // _Scene.DetectConflict.checkConflict_Widget(this);
+                    }
+                }
+            } else {
+                this.isAlignVerticalCenter = false;
+                if (this.isStretchHeight) {
+                    // become stretch
+                    this._originalHeight = this.node.height;
+                    // test check conflict
+                    if (CC_EDITOR && !cc.engine.isPlaying) {
+                        // _Scene.DetectConflict.checkConflict_Widget(this);
+                    }
+                }
+            }
+
+            if (CC_EDITOR && !cc.engine._isPlaying && this.node._parent) {
+                // adjust the offsets to keep the size and position unchanged after alignment chagned
+                // widgetManager.updateOffsetsToStayPut(this, flag);
+            }
+        } else {
+            if (isHorizontal) {
+                if (this.isStretchWidth) {
+                    // will cancel stretch
+                    this.node.width = this._originalWidth;
+                }
+            } else {
+                if (this.isStretchHeight) {
+                    // will cancel stretch
+                    this.node.height = this._originalHeight;
+                }
+            }
+
+            this._alignFlags &= ~flag;
+        }
     }
 }
 
@@ -655,6 +641,5 @@ export class WidgetComponent extends Component {
 //         this.alignMode = value ? AlignMode.ONCE : AlignMode.ALWAYS;
 //     }
 // });
-
 
 // cc.Widget = module.exports = Widget;

@@ -22,6 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+import { Enum } from '../../../../core/value-types';
 /**
  * !#en Enum for keyboard return types
  * !#zh 键盘的返回键类型
@@ -64,8 +66,9 @@ export enum KeyboardReturnType {
      * !#zh 下一个类型
      * @property {Number} NEXT
      */
-    NEXT = 5
-};
+    NEXT = 5,
+}
+Enum(KeyboardReturnType);
 
 /**
  * !#en The EditBox's InputMode defines the type of text that the user is allowed to enter.
@@ -118,8 +121,10 @@ export enum InputMode {
      * !#zh 除了换行符以外，用户可以输入任何文本。
      * @property {Number} SINGLE_LINE
      */
-    SINGLE_LINE = 6
-};
+    SINGLE_LINE = 6,
+}
+
+Enum(InputMode);
 
 /**
  * !#en Enum for the EditBox's input flags
@@ -177,6 +182,7 @@ export enum InputFlag {
      * Don't do anything with the input text.
      * @property {Number} DEFAULT
      */
-    DEFAULT = 5
-};
+    DEFAULT = 5,
+}
 
+Enum(InputFlag);

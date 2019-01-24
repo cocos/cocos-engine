@@ -23,17 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// const macro = require('../../../platform/CCMacro');
-// const textUtils = require('../../../utils/text-utils');
-
-// const Component = require('../../../components/component');
-// const Label = require('../../../components/CCLabel');
-// const LabelOutline = require('../../../components/CCLabelOutline');
 import macro from '../../../../core/platform/CCMacro';
 import * as textUtils from '../../../../core/utils/text-utils';
-import Component from '../../../../components/component';
-import LabelComponent from '../../../../3d/ui/components/label-component';
-import LabelOutline from '../../../../2d/label/CCLabelOutline';
+import { Component } from '../../../../components/component';
+import { LabelComponent } from '../../../../3d/ui/components/label-component';
+import { LabelOutline } from '../../../label/label-outline';
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = cc.Color.WHITE;

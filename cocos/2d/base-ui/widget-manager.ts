@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -23,43 +23,48 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+// import { WidgetComponent } from '../../3d/ui/components/widget-component';
+import { array } from '../../core/utils/js';
+import { Enum, Size, Vec3 } from '../../core/value-types';
+import { Node } from '../../scene-graph/node';
+const Event = Node.EventType;
 
-// var Event = require('../CCNode').EventType;
-import { Node } from '../../scene-graph/index'
+const TOP = 1 << 0;
+const MID = 1 << 1;   // vertical center
+const BOT = 1 << 2;
+const LEFT = 1 << 3;
+const CENTER = 1 << 4;   // horizontal center
+const RIGHT = 1 << 5;
+const HORIZONTAL = LEFT | CENTER | RIGHT;
+const VERTICAL = TOP | MID | BOT;
 
-var Event = Node.EventType;
-var TOP = 1 << 0;
-var MID = 1 << 1;   // vertical center
-var BOT = 1 << 2;
-var LEFT = 1 << 3;
-var CENTER = 1 << 4;   // horizontal center
-var RIGHT = 1 << 5;
-var HORIZONTAL = LEFT | CENTER | RIGHT;
-var VERTICAL = TOP | MID | BOT;
-
-var AlignMode = cc.Enum({
-    ONCE: 0,
-    ON_WINDOW_RESIZE: 1,
-    ALWAYS: 2,
-});
-
-// returns a readonly size of the node
-function getReadonlyNodeSize(parent) {
-    if (parent instanceof cc.Scene) {
-        return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.visibleRect;
-    }
-    else {
-        return parent._contentSize;
-    }
+enum AlignMode {
+    ONCE = 0,
+    ON_WINDOW_RESIZE = 1,
+    ALWAYS = 2,
 }
 
-function computeInverseTransForTarget(widgetNode, target, out_inverseTranslate, out_inverseScale) {
-    var scaleX = widgetNode._parent._scale.x;
-    var scaleY = widgetNode._parent._scale.y;
-    var translateX = 0;
-    var translateY = 0;
-    for (var node = widgetNode._parent; ;) {
-        var pos = node._position;
+Enum(AlignMode);
+
+// returns a readonly size of the node
+export function getReadonlyNodeSize (parent) {
+    // TODO: check with Editor
+    // if (parent instanceof cc.Scene) {
+    //     return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.visibleRect;
+    // } else {
+    //     return parent._contentSize;
+    // }
+
+    return cc.visibleRect;
+}
+
+export function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate, out_inverseScale) {
+    let scaleX = widgetNode._parent._scale.x;
+    let scaleY = widgetNode._parent._scale.y;
+    let translateX = 0;
+    let translateY = 0;
+    for (let node = widgetNode._parent; ;) {
+        const pos = node._position;
         translateX += pos.x;
         translateY += pos.y;
         node = node._parent;    // loop increment
@@ -70,14 +75,13 @@ function computeInverseTransForTarget(widgetNode, target, out_inverseTranslate, 
             return;
         }
         if (node !== target) {
-            var sx = node._scale.x;
-            var sy = node._scale.y;
+            const sx = node._scale.x;
+            const sy = node._scale.y;
             translateX *= sx;
             translateY *= sy;
             scaleX *= sx;
             scaleY *= sy;
-        }
-        else {
+        } else {
             break;
         }
     }
@@ -87,38 +91,40 @@ function computeInverseTransForTarget(widgetNode, target, out_inverseTranslate, 
     out_inverseTranslate.y = -translateY;
 }
 
-var tInverseTranslate = cc.Vec2.ZERO;
-var tInverseScale = cc.Vec2.ONE;
+const tInverseTranslate = cc.Vec2.ZERO;
+const tInverseScale = cc.Vec2.ONE;
 
 // align to borders by adjusting node's position and size (ignore rotation)
-function align(node, widget) {
-    var hasTarget = widget._target;
-    var target;
-    var inverseTranslate, inverseScale;
+function align (node, widget) {
+    const hasTarget = widget._target;
+    let target;
+    let inverseTranslate;
+    let inverseScale;
     if (hasTarget) {
         target = hasTarget;
         inverseTranslate = tInverseTranslate;
         inverseScale = tInverseScale;
         computeInverseTransForTarget(node, target, inverseTranslate, inverseScale);
-    }
-    else {
+    } else {
         target = node._parent;
     }
-    var targetSize = getReadonlyNodeSize(target);
-    var targetAnchor = target._anchorPoint;
+    const targetSize = getReadonlyNodeSize(target);
+    const targetAnchor = target._anchorPoint;
 
-    var isRoot = !CC_EDITOR && target instanceof cc.Scene;
-    var x = node._position.x, y = node._position.y;
-    var anchor = node._anchorPoint;
+    const isRoot = !CC_EDITOR && target instanceof cc.Scene;
+    let x = node._position.x;
+    let y = node._position.y;
+    const anchor = node._anchorPoint;
 
     if (widget._alignFlags & HORIZONTAL) {
 
-        var localLeft, localRight, targetWidth = targetSize.width;
+        let localLeft;
+        let localRight;
+        const targetWidth = targetSize.width;
         if (isRoot) {
             localLeft = cc.visibleRect.left.x;
             localRight = cc.visibleRect.right.x;
-        }
-        else {
+        } else {
             localLeft = -targetAnchor.x * targetWidth;
             localRight = localLeft + targetWidth;
         }
@@ -134,7 +140,9 @@ function align(node, widget) {
             localRight *= inverseScale.x;
         }
 
-        var width, anchorX = anchor.x, scaleX = node._scale.x;
+        let width;
+        let anchorX = anchor.x;
+        let scaleX = node._scale.x;
         if (scaleX < 0) {
             anchorX = 1.0 - anchorX;
             scaleX = -scaleX;
@@ -145,23 +153,21 @@ function align(node, widget) {
                 node.width = width / scaleX;
             }
             x = localLeft + anchorX * width;
-        }
-        else {
+        } else {
             width = node.width * scaleX;
             if (widget.isAlignHorizontalCenter) {
-                var localHorizontalCenter = widget._isAbsHorizontalCenter ? widget._horizontalCenter : widget._horizontalCenter * targetWidth;
-                var targetCenter = (0.5 - targetAnchor.x) * targetSize.width;
+                let localHorizontalCenter = widget._isAbsHorizontalCenter ?
+                 widget._horizontalCenter : widget._horizontalCenter * targetWidth;
+                let targetCenter = (0.5 - targetAnchor.x) * targetSize.width;
                 if (hasTarget) {
                     localHorizontalCenter *= inverseScale.x;
                     targetCenter += inverseTranslate.x;
                     targetCenter *= inverseScale.x;
                 }
                 x = targetCenter + (anchorX - 0.5) * width + localHorizontalCenter;
-            }
-            else if (widget.isAlignLeft) {
+            } else if (widget.isAlignLeft) {
                 x = localLeft + anchorX * width;
-            }
-            else {
+            } else {
                 x = localRight + (anchorX - 1) * width;
             }
         }
@@ -169,12 +175,13 @@ function align(node, widget) {
 
     if (widget._alignFlags & VERTICAL) {
 
-        var localTop, localBottom, targetHeight = targetSize.height;
+        let localTop;
+        let localBottom;
+        const targetHeight = targetSize.height;
         if (isRoot) {
             localBottom = cc.visibleRect.bottom.y;
             localTop = cc.visibleRect.top.y;
-        }
-        else {
+        } else {
             localBottom = -targetAnchor.y * targetHeight;
             localTop = localBottom + targetHeight;
         }
@@ -191,7 +198,9 @@ function align(node, widget) {
             localTop *= inverseScale.y;
         }
 
-        var height, anchorY = anchor.y, scaleY = node._scale.y;
+        let height;
+        let anchorY = anchor.y;
+        let scaleY = node._scale.y;
         if (scaleY < 0) {
             anchorY = 1.0 - anchorY;
             scaleY = -scaleY;
@@ -202,23 +211,21 @@ function align(node, widget) {
                 node.height = height / scaleY;
             }
             y = localBottom + anchorY * height;
-        }
-        else {
+        } else {
             height = node.height * scaleY;
             if (widget.isAlignVerticalCenter) {
-                var localVerticalCenter = widget._isAbsVerticalCenter ? widget._verticalCenter : widget._verticalCenter * targetHeight;
-                var targetMiddle = (0.5 - targetAnchor.y) * targetSize.height;
+                let localVerticalCenter = widget._isAbsVerticalCenter ?
+                 widget._verticalCenter : widget._verticalCenter * targetHeight;
+                let targetMiddle = (0.5 - targetAnchor.y) * targetSize.height;
                 if (hasTarget) {
                     localVerticalCenter *= inverseScale.y;
                     targetMiddle += inverseTranslate.y;
                     targetMiddle *= inverseScale.y;
                 }
                 y = targetMiddle + (anchorY - 0.5) * height + localVerticalCenter;
-            }
-            else if (widget.isAlignBottom) {
+            } else if (widget.isAlignBottom) {
                 y = localBottom + anchorY * height;
-            }
-            else {
+            } else {
                 y = localTop + (anchorY - 1) * height;
             }
         }
@@ -227,149 +234,141 @@ function align(node, widget) {
     node.setPosition(x, y);
 }
 
-function visitNode(node) {
-    var widget = node._widget;
+function visitNode (node: Node) {
+    const widget = node.uiWidgetComp;
     if (widget) {
         if (CC_DEV) {
-            var target = widget._target;
-            if (target) {
-                var isParent = node !== target && node.isChildOf(target);
-                if (!isParent) {
-                    cc.errorID(6500);
-                    widget._target = null;
-                }
-            }
+            // widget._validateTargetInDEV();
         }
         align(node, widget);
-        if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
+        if ((!CC_EDITOR /*|| animationState.animatedSinceLastFrame*/) && widget.alignMode !== AlignMode.ALWAYS) {
             widget.enabled = false;
-        }
-        else {
+        } else {
             activeWidgets.push(widget);
         }
     }
-    var children = node._children;
-    for (var i = 0; i < children.length; i++) {
-        var child = children[i];
-        if (child._active) {
+    const children = node.children;
+    for (const child of children) {
+        if (child.active) {
             visitNode(child);
         }
     }
 }
 
 if (CC_EDITOR) {
-    var animationState = {
+    const animationState = {
         previewing: false,
         time: 0,
         animatedSinceLastFrame: false,
     };
 }
 
-function refreshScene() {
+function refreshScene () {
     // check animation editor
-    if (CC_EDITOR && !Editor.isBuilder) {
-        var AnimUtils = Editor.require('scene://utils/animation');
-        var EditMode = Editor.require('scene://edit-mode');
-        if (AnimUtils && EditMode) {
-            var nowPreviewing = (EditMode.curMode().name === 'animation' && !!AnimUtils.Cache.animation);
-            if (nowPreviewing !== animationState.previewing) {
-                animationState.previewing = nowPreviewing;
-                if (nowPreviewing) {
-                    animationState.animatedSinceLastFrame = true;
-                    let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
-                    if (component) {
-                        let animation = component.getAnimationState(AnimUtils.Cache.animation);
-                        animationState.time = animation.time;
-                    }
-                }
-                else {
-                    animationState.animatedSinceLastFrame = false;
-                }
-            }
-            else if (nowPreviewing) {
-                let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
-                if (component) {
-                    let animation = component.getAnimationState(AnimUtils.Cache.animation);
-                    if (animationState.time !== animation.time) {
-                        animationState.animatedSinceLastFrame = true;
-                        animationState.time = AnimUtils.Cache.animation.time;
-                    }
-                }
-            }
-        }
-    }
+    // if (CC_EDITOR && !Editor.isBuilder) {
+    //     const AnimUtils = Editor.require('scene://utils/animation');
+    //     const EditMode = Editor.require('scene://edit-mode');
+    //     if (AnimUtils && EditMode) {
+    //         const nowPreviewing = (EditMode.curMode().name === 'animation' && !!AnimUtils.Cache.animation);
+    //         if (nowPreviewing !== animationState.previewing) {
+    //             animationState.previewing = nowPreviewing;
+    //             if (nowPreviewing) {
+    //                 animationState.animatedSinceLastFrame = true;
+    //                 const component = cc.engine.getInstanceById(AnimUtils.Cache.component);
+    //                 if (component) {
+    //                     const animation = component.getAnimationState(AnimUtils.Cache.animation);
+    //                     animationState.time = animation.time;
+    //                 }
+    //             } else {
+    //                 animationState.animatedSinceLastFrame = false;
+    //             }
+    //         } else if (nowPreviewing) {
+    //             const component = cc.engine.getInstanceById(AnimUtils.Cache.component);
+    //             if (component) {
+    //                 const animation = component.getAnimationState(AnimUtils.Cache.animation);
+    //                 if (animationState.time !== animation.time) {
+    //                     animationState.animatedSinceLastFrame = true;
+    //                     animationState.time = AnimUtils.Cache.animation.time;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-    var scene = cc.director.getScene();
+    const scene = cc.director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
         if (widgetManager._nodesOrderDirty) {
             activeWidgets.length = 0;
             visitNode(scene);
             widgetManager._nodesOrderDirty = false;
-        }
-        else {
-            var i, widget, iterator = widgetManager._activeWidgetsIterator;
-            var AnimUtils;
-            if (CC_EDITOR &&
-                (AnimUtils = Editor.require('scene://utils/animation')) &&
-                AnimUtils.Cache.animation) {
-                var editingNode = cc.engine.getInstanceById(AnimUtils.Cache.rNode);
-                if (editingNode) {
-                    for (i = activeWidgets.length - 1; i >= 0; i--) {
-                        widget = activeWidgets[i];
-                        var node = widget.node;
-                        if (widget.alignMode !== AlignMode.ALWAYS &&
-                            animationState.animatedSinceLastFrame &&
-                            node.isChildOf(editingNode)
-                        ) {
-                            // widget contains in activeWidgets should aligned at least once
-                            widget.enabled = false;
-                        }
-                        else {
-                            align(node, widget);
-                        }
-                    }
-                }
-            }
-            else {
-                // loop reversely will not help to prevent out of sync
-                // because user may remove more than one item during a step.
-                for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
-                    widget = activeWidgets[iterator.i];
-                    align(widget.node, widget);
-                }
-            }
+        } else {
+            // // let i;
+            // let widget;
+            // const iterator = widgetManager._activeWidgetsIterator;
+            // // TODO: animation
+            // let AnimUtils;
+            // if (CC_EDITOR &&
+            //     (AnimUtils = Editor.require('scene://utils/animation')) &&
+            //     AnimUtils.Cache.animation) {
+            //     const editingNode = cc.engine.getInstanceById(AnimUtils.Cache.rNode);
+            //     if (editingNode) {
+            //         for (i = activeWidgets.length - 1; i >= 0; i--) {
+            //             widget = activeWidgets[i];
+            //             const node = widget.node;
+            //             if (widget.alignMode !== AlignMode.ALWAYS &&
+            //                 animationState.animatedSinceLastFrame &&
+            //                 node.isChildOf(editingNode)
+            //             ) {
+            //                 // widget contains in activeWidgets should aligned at least once
+            //                 widget.enabled = false;
+            //             } else {
+            //                 align(node, widget);
+            //             }
+            //         }
+            //     }
+            // } else {
+            //     // loop reversely will not help to prevent out of sync
+            //     // because user may remove more than one item during a step.
+            //     for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
+            //         widget = activeWidgets[iterator.i];
+            //         align(widget.node, widget);
+            //     }
+            // }
         }
         widgetManager.isAligning = false;
     }
 
     // check animation editor
     if (CC_EDITOR) {
-        animationState.animatedSinceLastFrame = false;
+        // animationState.animatedSinceLastFrame = false;
     }
 }
 
-var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (oldPos) {
+function adjustWidgetToAllowMovingInEditor (oldPos: Vec3) {
+    if (!CC_EDITOR) {
+        return;
+    }
+
     if (widgetManager.isAligning) {
         return;
     }
-    var newPos = this.node.position;
-    var delta = newPos.sub(oldPos);
+    const newPos = this.node.position;
+    const delta = newPos.sub(oldPos);
 
-    var target = this.node._parent;
-    var inverseScale = cc.Vec2.ONE;
+    let target = this.node._parent;
+    const inverseScale = cc.Vec2.ONE;
 
     if (this._target) {
         target = this._target;
         computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale);
     }
 
-    var targetSize = getReadonlyNodeSize(target);
-    var deltaInPercent;
+    const targetSize = getReadonlyNodeSize(target);
+    let deltaInPercent;
     if (targetSize.width !== 0 && targetSize.height !== 0) {
         deltaInPercent = new cc.Vec2(delta.x / targetSize.width, delta.y / targetSize.height);
-    }
-    else {
+    } else {
         deltaInPercent = cc.Vec2.ZERO;
     }
 
@@ -391,32 +390,35 @@ var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (oldPos) {
     if (this.isAlignVerticalCenter) {
         this.verticalCenter += (this.isAbsoluteVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
     }
-};
+}
 
-var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (oldSize) {
+function adjustWidgetToAllowResizingInEditor (oldSize: Size) {
+    if (!CC_EDITOR) {
+        return;
+    }
+
     if (widgetManager.isAligning) {
         return;
     }
-    var newSize = this.node.getContentSize();
-    var delta = cc.v2(newSize.width - oldSize.width, newSize.height - oldSize.height);
+    const newSize = this.node.getContentSize();
+    const delta = cc.v2(newSize.width - oldSize.width, newSize.height - oldSize.height);
 
-    var target = this.node._parent;
-    var inverseScale = cc.Vec2.ONE;
+    let target = this.node._parent;
+    const inverseScale = cc.Vec2.ONE;
     if (this._target) {
         target = this._target;
         computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale);
     }
 
-    var targetSize = getReadonlyNodeSize(target);
-    var deltaInPercent;
+    const targetSize = getReadonlyNodeSize(target);
+    let deltaInPercent;
     if (targetSize.width !== 0 && targetSize.height !== 0) {
         deltaInPercent = new cc.Vec2(delta.x / targetSize.width, delta.y / targetSize.height);
-    }
-    else {
+    } else {
         deltaInPercent = cc.Vec2.ZERO;
     }
 
-    var anchor = this.node._anchorPoint;
+    const anchor = this.node._anchorPoint;
 
     if (this.isAlignTop) {
         this.top -= (this.isAbsoluteTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
@@ -430,52 +432,51 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (oldSize) {
     if (this.isAlignRight) {
         this.right -= (this.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
     }
-};
+}
 
-var activeWidgets = [];
+const activeWidgets = [];
 
 // updateAlignment from scene to node recursively
-function updateAlignment(node) {
-    var parent = node._parent;
-    if (cc.Node.isNode(parent)) {
+function updateAlignment (node: Node) {
+    const parent = node.parent;
+    if (parent && cc.Node.isNode(parent)) {
         updateAlignment(parent);
     }
-    var widget = node._widget ||
-        node.getComponent(cc.Widget);  // node._widget will be null when widget is disabled
-    if (widget) {
+
+    // node._widget will be null when widget is disabled
+    const widget = node.uiWidgetComp || node.getComponent(cc.WidgetComponent);
+    if (widget && parent) {
         align(node, widget);
     }
 }
 
-let WidgetManager = cc._widgetManager = {
+export const widgetManager = cc._widgetManager = {
     _AlignFlags: {
-        TOP: TOP,
-        MID: MID,       // vertical center
-        BOT: BOT,
-        LEFT: LEFT,
-        CENTER: CENTER, // horizontal center
-        RIGHT: RIGHT
+        TOP,
+        MID,       // vertical center
+        BOT,
+        LEFT,
+        CENTER, // horizontal center
+        RIGHT,
     },
     isAligning: false,
     _nodesOrderDirty: false,
-    _activeWidgetsIterator: new cc.js.array.MutableForwardIterator(activeWidgets),
+    _activeWidgetsIterator: new array.MutableForwardIterator(activeWidgets),
 
-    init: function (director) {
+    init (director) {
         director.on(cc.Director.EVENT_AFTER_UPDATE, refreshScene);
 
         if (CC_EDITOR && cc.engine) {
             cc.engine.on('design-resolution-changed', this.onResized.bind(this));
-        }
-        else {
+        } else {
             if (cc.sys.isMobile) {
                 window.addEventListener('resize', this.onResized.bind(this));
-            }
-            else {
+            } else {
                 cc.view.on('canvas-resize', this.onResized, this);
             }
         }
     },
-    add: function (widget) {
+    add (widget) {
         widget.node._widget = widget;
         this._nodesOrderDirty = true;
         if (CC_EDITOR && !cc.engine.isPlaying) {
@@ -483,7 +484,7 @@ let WidgetManager = cc._widgetManager = {
             widget.node.on(Event.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         }
     },
-    remove: function (widget) {
+    remove (widget) {
         widget.node._widget = null;
         this._activeWidgetsIterator.remove(widget);
         if (CC_EDITOR && !cc.engine.isPlaying) {
@@ -491,33 +492,25 @@ let WidgetManager = cc._widgetManager = {
             widget.node.off(Event.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         }
     },
-    onResized() {
-        var scene = cc.director.getScene();
+    onResized () {
+        const scene = cc.director.getScene();
         if (scene) {
             this.refreshWidgetOnResized(scene);
         }
     },
-    refreshWidgetOnResized(node) {
-        var widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
+    refreshWidgetOnResized (node) {
+        const widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
         if (widget) {
             if (widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
                 widget.enabled = true;
             }
         }
 
-        var children = node._children;
-        for (var i = 0; i < children.length; i++) {
-            var child = children[i];
+        const children = node._children;
+        for (const child of children) {
             this.refreshWidgetOnResized(child);
         }
     },
-    updateAlignment: updateAlignment,
-    AlignMode: AlignMode,
+    updateAlignment,
+    AlignMode,
 };
-
-export default WidgetManager;
-
-if (CC_EDITOR) {
-    module.exports._computeInverseTransForTarget = computeInverseTransForTarget;
-    module.exports._getReadonlyNodeSize = getReadonlyNodeSize;
-}

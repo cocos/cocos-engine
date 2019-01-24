@@ -24,8 +24,8 @@
  ****************************************************************************/
 
 // require('./sprite');
-import './sprite/index';
 // require('./mask-assembler');
 // require('./graphics');
-// import './label/index';
+import './label/index';
+import './sprite/index';
 // require('./motion-streak');

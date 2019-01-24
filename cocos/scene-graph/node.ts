@@ -7,6 +7,7 @@ import Vec2 from '../core/value-types/vec2';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
+import { WidgetComponent } from '../3d/ui/components/widget-component';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -227,6 +228,7 @@ class Node extends EventTarget(BaseNode) {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
     public uiTransfromComp: UITransformComponent | null = null;
+    public uiWidgetComp: WidgetComponent | null = null;
 
     // local transform
     @property
@@ -938,12 +940,12 @@ class Node extends EventTarget(BaseNode) {
         return this.uiTransfromComp.contentSize;
     }
 
-    public setContentSize (size: Size, height: number = 0) {
+    public setContentSize (size: Size, height?: number) {
         if (!this.uiTransfromComp) {
             return;
         }
 
-        this.uiTransfromComp.setContentSize(size.height);
+        this.uiTransfromComp.setContentSize(size, height);
     }
 
     // EVENT TARGET
@@ -1039,7 +1041,7 @@ class Node extends EventTarget(BaseNode) {
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this);
      * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
      */
-    public on (type, callback, target, useCapture) {
+    public on (type, callback, target, useCapture?: number) {
         const forDispatch = this._checknSetupSysEvent(type);
         if (forDispatch) {
             return this._onDispatch(type, callback, target, useCapture);
@@ -1159,7 +1161,7 @@ class Node extends EventTarget(BaseNode) {
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
      * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      */
-    public off (type, callback, target, useCapture) {
+    public off (type, callback, target, useCapture?: number) {
         const touchEvent = _touchEvents.indexOf(type) !== -1;
         const mouseEvent = !touchEvent && _mouseEvents.indexOf(type) !== -1;
         if (touchEvent || mouseEvent) {

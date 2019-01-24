@@ -380,7 +380,8 @@ export const radialFilled: IAssembler = {
 
         commitBuffer.meshBuffer = buffer;
         commitBuffer.material = comp.material!;
-        commitBuffer.camera = renderer.getScreen(comp.viewID)!.camera!;
+        commitBuffer.texture = comp.spriteFrame!;
+        commitBuffer.camera = renderer.getScreen(comp.visibility)!.camera!;
         renderer.addToQueue(commitBuffer);
     },
 };

@@ -24,14 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Component} from '../../../components/component';
-import { clamp01 } from '../../../core/utils/misc';
-import { ccclass, menu, executionOrder, executeInEditMode, property } from '../../../core/data/class-decorator';
-import { SpriteComponent} from './sprite-component';
-import { Vec2 } from '../../../core/value-types/index';
 import ComponentEventHandler from '../../../components/CCComponentEventHandler';
+import { Component} from '../../../components/component';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import Event from '../../../core/event/event';
 import { EventTouch } from '../../../core/platform/event-manager/CCEvent';
+import { clamp01 } from '../../../core/utils/misc';
+import { Enum, Vec2 } from '../../../core/value-types/index';
+import { SpriteComponent} from './sprite-component';
 import { UITransformComponent } from './ui-transfrom-component';
 /**
  * !#en The Slider Direction
@@ -50,8 +50,10 @@ enum Direction {
      * !#zh 垂直方向
      * @property {Number} Vertical
      */
-    Vertical = 1
-};
+    Vertical = 1,
+}
+
+Enum(Direction);
 
 /**
  * !#en The Slider Control
@@ -64,18 +66,6 @@ enum Direction {
 @menu('UI/Slider')
 // @executeInEditMode
 export class SliderComponent extends Component {
-    @property
-    _handle: SpriteComponent | null = null;
-    @property
-    _direction: number = Direction.Horizontal;
-    @property
-    _progress: number = 0.1;
-    @property
-    _slideEvents: ComponentEventHandler[] = [];
-
-    _offset: Vec2 = new Vec2();
-    _dragging = false;
-    _touchHandle = false;
 
     /**
      * !#en The "handle" part of the slider
@@ -83,13 +73,13 @@ export class SliderComponent extends Component {
      * @property {Button} handle
      */
     @property({
-        type: SpriteComponent
+        type: SpriteComponent,
     })
-    get handle() {
+    get handle () {
         return this._handle;
     }
 
-    set handle(value: SpriteComponent) {
+    set handle (value: SpriteComponent) {
         if (this._handle === value) {
             return;
         }
@@ -106,13 +96,13 @@ export class SliderComponent extends Component {
      * @property {Slider.Direction} direction
      */
     @property({
-        type: Direction
+        type: Direction,
     })
-    get direction() {
+    get direction () {
         return this._direction;
     }
 
-    set direction(value: number) {
+    set direction (value: number) {
         if (this._direction === value) {
             return;
         }
@@ -125,15 +115,14 @@ export class SliderComponent extends Component {
      * @property {Number} progress
      */
     @property({
-        default: 0.1,
         slide: true,
         range: [0.1, 1, 0.01],
     })
-    get progress() {
+    get progress () {
         return this._progress;
     }
 
-    set progress(value: number) {
+    set progress (value: number) {
         if (this._progress === value) {
             return;
         }
@@ -148,24 +137,36 @@ export class SliderComponent extends Component {
      * @property {ComponentEventHandler[]} slideEvents
      */
     @property({
-        type: ComponentEventHandler
+        type: ComponentEventHandler,
     })
-    get slideEvents() {
+    get slideEvents () {
         return this._slideEvents;
     }
 
-    set slideEvents(value: ComponentEventHandler[]) {
+    set slideEvents (value: ComponentEventHandler[]) {
         this._slideEvents = value;
     }
 
-    static Direction = Direction;
+    public static Direction = Direction;
+    @property
+    public _handle: SpriteComponent | null = null;
+    @property
+    public _direction: number = Direction.Horizontal;
+    @property
+    public _progress: number = 0.1;
+    @property
+    public _slideEvents: ComponentEventHandler[] = [];
 
-    __preload() {
+    public _offset: Vec2 = new Vec2();
+    public _dragging = false;
+    public _touchHandle = false;
+
+    public __preload () {
         this._updateHandlePosition();
     }
 
     // 注册事件
-    onEnable() {
+    public onEnable () {
         this._updateHandlePosition();
 
         this.node.on(cc.NodeUI.EventType.TOUCH_START, this._onTouchBegan, this);
@@ -179,7 +180,7 @@ export class SliderComponent extends Component {
         }
     }
 
-    onDisable() {
+    public onDisable () {
         this.node.off(cc.NodeUI.EventType.TOUCH_START, this._onTouchBegan, this);
         this.node.off(cc.NodeUI.EventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.off(cc.NodeUI.EventType.TOUCH_END, this._onTouchEnded, this);
@@ -191,8 +192,8 @@ export class SliderComponent extends Component {
         }
     }
 
-    _onHandleDragStart(event: Event) {
-        if (!event){
+    public _onHandleDragStart (event: Event) {
+        if (!event) {
             return;
         }
 
@@ -203,7 +204,7 @@ export class SliderComponent extends Component {
         event.stopPropagation();
     }
 
-    _onTouchBegan(event: Event) {
+    public _onTouchBegan (event: Event) {
         if (!this._handle) { return; }
         this._dragging = true;
         if (!this._touchHandle) {
@@ -213,57 +214,55 @@ export class SliderComponent extends Component {
         event.stopPropagation();
     }
 
-    _onTouchMoved(event: Event) {
+    public _onTouchMoved (event: Event) {
         if (!this._dragging) { return; }
         this._handleSliderLogic((event as EventTouch).touch);
         event.stopPropagation();
     }
 
-    _onTouchEnded(event: Event) {
+    public _onTouchEnded (event: Event) {
         this._dragging = false;
         this._touchHandle = false;
         this._offset = cc.v2();
         event.stopPropagation();
     }
 
-    _onTouchCancelled(event: Event) {
+    public _onTouchCancelled (event: Event) {
         this._dragging = false;
         event.stopPropagation();
     }
 
-    _handleSliderLogic(touch) {
+    public _handleSliderLogic (touch) {
         this._updateProgress(touch);
         this._emitSlideEvent();
     }
 
-    _emitSlideEvent() {
+    public _emitSlideEvent () {
         cc.Component.EventHandler.emitEvents(this.slideEvents, this);
         this.node.emit('slide', this);
     }
 
-    _updateProgress(touch: EventTouch) {
+    public _updateProgress (touch: EventTouch) {
         if (!this._handle) { return; }
-        var localTouchPos = this.node.uiTransfromComp!.convertToNodeSpaceAR((touch as EventTouch).getLocation());
+        const localTouchPos = this.node.uiTransfromComp!.convertToNodeSpaceAR((touch as EventTouch).getLocation());
         if (this.direction === Direction.Horizontal) {
             this.progress = clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width);
-        }
-        else {
+        } else {
             this.progress = clamp01(0.5 + (localTouchPos.y - this._offset.y) / this.node.height);
         }
     }
 
-    _updateHandlePosition() {
+    public _updateHandlePosition () {
         if (!this._handle) { return; }
-        var handlelocalPos;
+        let handlelocalPos;
         if (this._direction === Direction.Horizontal) {
             handlelocalPos = cc.v2(-this.node.width * this.node.anchorX + this.progress * this.node.width, 0);
-        }
-        else {
+        } else {
             handlelocalPos = cc.v2(0, -this.node.height * this.node.anchorY + this.progress * this.node.height);
         }
-        var worldSpacePos = this.node.uiTransfromComp!.convertToWorldSpaceAR(handlelocalPos);
-        let transform: UITransformComponent | null = this._handle.node.parent && this._handle.node.parent.getComponent(cc.UITransformComponent);
-        if(transform){
+        const worldSpacePos = this.node.uiTransfromComp!.convertToWorldSpaceAR(handlelocalPos);
+        const transform: UITransformComponent | null = this._handle.node.parent && this._handle.node.parent.getComponent(cc.UITransformComponent);
+        if (transform) {
             this._handle.node.setPosition(transform.convertToNodeSpaceAR(worldSpacePos));
         }
     }

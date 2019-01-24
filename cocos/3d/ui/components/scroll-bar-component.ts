@@ -24,9 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Component from '../../components/CCComponent';
-import misc from '../../core/utils/misc';
-import { ccclass, menu, executionOrder, executeInEditMode, property } from '../../core/data/class-decorator';
+import { Component} from '../../../components/component';
+import { clamp01 } from '../../../core/utils/misc';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { UIRenderComponent } from './ui-render-component';
+import { Vec2 } from '../../../core/value-types';
+import { Node } from '../../../scene-graph/node';
 
 var GETTINGSHORTERFACTOR = 20;
 
@@ -55,41 +58,43 @@ var Direction = cc.Enum({
  */
 @ccclass('cc.ScrollBarComponent')
 @executionOrder(100)
-@menu('UI/ScrollBar')
-// @executeInEditMode
-export default class ScrollBarComponent extends Component {
+@executeInEditMode
+export class ScrollBarComponent extends Component {
     @property
-    _scrollView = null;
-    _touching = false;
-    _autoHideRemainingTime = 0;
+    private _scrollView: Component | null = null;
     @property
-    _handle = null;
+    private _handle: UIRenderComponent | null = null;
     @property
-    _direction = Direction.HORIZONTAL;
+    private _direction = Direction.HORIZONTAL;
     @property
-    _enableAutoHide = false;
+    private _enableAutoHide = false;
     @property
-    _autoHideTime = 1.0;
+    private _autoHideTime = 1.0;
+
+    private _touching = false;
+    private _opacity = 0;
+    private _autoHideRemainingTime = 0;
+
     /**
      * !#en The "handle" part of the scrollbar.
      * !#zh 作为当前滚动区域位置显示的滑块 Sprite。
      * @property {Sprite} handle
      */
     @property({
-        type: cc.Node
+        type: UIRenderComponent
     })
     get handle() {
         return this._handle;
     }
 
-    set handle(value) {
-        value = value.getComponent(cc.RenderComponent);
+    set handle(value: UIRenderComponent) {
         if (this._handle === value) {
             return
         }
         this._handle = value;
-        this._onScroll(cc.v2(0, 0));
+        this.onScroll(cc.v2(0, 0));
     }
+
     /**
      * !#en The direction of scrollbar.
      * !#zh ScrollBar 的滚动方向。
@@ -108,7 +113,7 @@ export default class ScrollBarComponent extends Component {
         }
 
         this._direction = value;
-        this._onScroll(cc.v2(0, 0));
+        this.onScroll(cc.v2(0, 0));
     }
 
     /**
@@ -126,6 +131,9 @@ export default class ScrollBarComponent extends Component {
         }
 
         this._enableAutoHide = value;
+        if(this._enableAutoHide){
+            this._setOpacity(0);
+        }
     }
 
     /**
@@ -152,24 +160,60 @@ export default class ScrollBarComponent extends Component {
 
     static Direction = Direction;
 
-    setTargetScrollView(scrollView) {
-        this._scrollView = scrollView;
+    protected onEnable() {
+        let renderComp = this.node.getComponent(UIRenderComponent);
+        if (renderComp) {
+            this._opacity = renderComp.color.a;
+        }
     }
 
-    _convertToScrollViewSpace(content) {
-        var worldSpacePos = content.convertToWorldSpace(cc.v2(0, 0));
-        var scrollViewSpacePos = this._scrollView.node.convertToNodeSpace(worldSpacePos);
-        return scrollViewSpacePos;
+    protected start() {
+        if (this._enableAutoHide) {
+            this._setOpacity(0);
+        }
     }
 
-    // _setOpacity(opacity) {
-    //     if (this._handle) {
-    //         this.node.opacity = opacity;
-    //         this._handle.node.opacity = opacity;
-    //     }
-    // }
+    public hide() {
+        this._autoHideRemainingTime = 0;
+        this._setOpacity(0);
+    }
 
-    _onScroll(outOfBoundary) {
+    public show() {
+        this._autoHideRemainingTime = this._autoHideTime;
+        this._setOpacity(this._opacity);
+    }
+
+    protected update(dt) {
+        this._processAutoHide(dt);
+    }
+
+    private _convertToScrollViewSpace(content: Node) {
+        return new Vec2(0, 0);
+        if (!this._scrollView){
+            return;
+        }
+
+        // TODO:
+        // var worldSpacePos = content.convertToWorldSpace(new Vec2(0, 0));
+        // var scrollViewSpacePos = this._scrollView.node.convertToNodeSpace(worldSpacePos);
+        // return scrollViewSpacePos;
+    }
+
+    private _setOpacity(opacity: number) {
+        if (this._handle) {
+            let renderComp = this.node.getComponent(UIRenderComponent);
+            if (renderComp){
+                renderComp.color.a = opacity;
+            }
+
+            renderComp = this._handle.getComponent(UIRenderComponent);
+            if (renderComp) {
+                renderComp.color.a = opacity;
+            }
+        }
+    }
+
+    public onScroll(outOfBoundary) {
         if (this._scrollView) {
 
             var content = this._scrollView.content;
@@ -184,7 +228,7 @@ export default class ScrollBarComponent extends Component {
 
                 if (this._enableAutoHide) {
                     this._autoHideRemainingTime = this._autoHideTime;
-                    this._setOpacity(this._opacity);
+                    // this._setOpacity(this._opacity);
                 }
 
                 var contentMeasure = 0;
@@ -218,7 +262,12 @@ export default class ScrollBarComponent extends Component {
         }
     }
 
-    _updateHanlderPosition(position) {
+    // FIXME: use ScrollViewComponent
+    public setScrollView(scrollView: Component) {
+        this._scrollView = scrollView;
+    }
+
+    private _updateHanlderPosition(position) {
         if (this._handle) {
             var oldPosition = this._fixupHandlerPosition();
 
@@ -226,7 +275,11 @@ export default class ScrollBarComponent extends Component {
         }
     }
 
-    _fixupHandlerPosition() {
+    private _fixupHandlerPosition() {
+        if(!this._handle){
+            return;
+        }
+
         var barSize = this.node.getContentSize();
         var barAnchor = this.node.getAnchorPoint();
         var handleSize = this._handle.node.getContentSize();
@@ -247,14 +300,14 @@ export default class ScrollBarComponent extends Component {
         return fixupPosition;
     }
 
-    _onTouchBegan() {
+    public onTouchBegan() {
         if (!this._enableAutoHide) {
             return;
         }
         this._touching = true;
     }
 
-    _conditionalDisableScrollBar(contentSize, scrollViewSize) {
+    private _conditionalDisableScrollBar(contentSize, scrollViewSize) {
         if (contentSize.width <= scrollViewSize.width
             && this._direction === Direction.HORIZONTAL) {
             return true;
@@ -267,7 +320,7 @@ export default class ScrollBarComponent extends Component {
         return false;
     }
 
-    _onTouchEnded() {
+    public onTouchEnded() {
         if (!this._enableAutoHide) {
             return;
         }
@@ -294,7 +347,7 @@ export default class ScrollBarComponent extends Component {
         this._autoHideRemainingTime = this._autoHideTime;
     }
 
-    _calculateLength(contentMeasure, scrollViewMeasure, handleNodeMeasure, outOfBoundary) {
+    private _calculateLength(contentMeasure, scrollViewMeasure, handleNodeMeasure, outOfBoundary) {
         var denominatorValue = contentMeasure;
         if (outOfBoundary) {
             denominatorValue += (outOfBoundary > 0 ? outOfBoundary : -outOfBoundary) * GETTINGSHORTERFACTOR;
@@ -304,7 +357,7 @@ export default class ScrollBarComponent extends Component {
         return handleNodeMeasure * lengthRation;
     }
 
-    _calculatePosition(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundary, actualLenth) {
+    private _calculatePosition(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundary, actualLenth) {
         var denominatorValue = contentMeasure - scrollViewMeasure;
         if (outOfBoundary) {
             denominatorValue += Math.abs(outOfBoundary);
@@ -313,7 +366,7 @@ export default class ScrollBarComponent extends Component {
         var positionRatio = 0;
         if (denominatorValue) {
             positionRatio = contentPosition / denominatorValue;
-            positionRatio = misc.clamp01(positionRatio);
+            positionRatio = clamp01(positionRatio);
         }
 
         var position = (handleNodeMeasure - actualLenth) * positionRatio;
@@ -324,7 +377,7 @@ export default class ScrollBarComponent extends Component {
         }
     }
 
-    _updateLength(length) {
+    private _updateLength(length) {
         if (this._handle) {
             var handleNode = this._handle.node;
             var handleNodeSize = handleNode.getContentSize();
@@ -337,7 +390,7 @@ export default class ScrollBarComponent extends Component {
         }
     }
 
-    _processAutoHide(deltaTime) {
+    private _processAutoHide(deltaTime) {
         if (!this._enableAutoHide || this._autoHideRemainingTime <= 0) {
             return;
         } else if (this._touching) {
@@ -348,28 +401,8 @@ export default class ScrollBarComponent extends Component {
         this._autoHideRemainingTime -= deltaTime;
         if (this._autoHideRemainingTime <= this._autoHideTime) {
             this._autoHideRemainingTime = Math.max(0, this._autoHideRemainingTime);
-            var opacity = this._opacity * (this._autoHideRemainingTime / this._autoHideTime);
-            this._setOpacity(opacity);
+            // var opacity = this._opacity * (this._autoHideRemainingTime / this._autoHideTime);
+            // this._setOpacity(opacity);
         }
-    }
-
-    start() {
-        if (this._enableAutoHide) {
-            this._setOpacity(0);
-        }
-    }
-
-    hide() {
-        this._autoHideRemainingTime = 0;
-        this._setOpacity(0);
-    }
-
-    show() {
-        this._autoHideRemainingTime = this._autoHideTime;
-        this._setOpacity(this._opacity);
-    }
-
-    update(dt) {
-        this._processAutoHide(dt);
     }
 }

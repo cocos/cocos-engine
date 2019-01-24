@@ -37,11 +37,11 @@
  *  node.parent = this.node;
  */
 
-import Component from '../../components/component';
+import { Component } from '../../components/component';
 
-export default class LabelOutline extends Component {
-    _color = cc.color(255, 255, 255, 255);
-    _width = 1;
+export class LabelOutline extends Component {
+    private _color = cc.color(255, 255, 255, 255);
+    private _width = 1;
 
     /**
      * !#en Change the outline color
@@ -51,10 +51,10 @@ export default class LabelOutline extends Component {
      * @example
      * outline.color = new cc.Color(0.5, 0.3, 0.7, 1.0);;
      */
-    get color() {
+    get color () {
         return this._color;
     }
-    set color(value) {
+    set color (value) {
         this._color = cc.color(value);
         this._updateRenderData();
     }
@@ -67,17 +67,17 @@ export default class LabelOutline extends Component {
      * @example
      * outline.width = 3;
      */
-    get width() {
+    get width () {
         return this._width;
     }
 
-    set width(value) {
+    set width (value) {
         this._width = value;
         this._updateRenderData();
     }
 
-    _updateRenderData() {
-        let label = this.node.getComponent(cc.Label);
+    private _updateRenderData () {
+        const label = this.node.getComponent(cc.Label);
         if (label) {
             label._updateRenderData(true);
         }
