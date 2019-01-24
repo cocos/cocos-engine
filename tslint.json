@@ -17,7 +17,8 @@
         "ban-types": false,
         "no-bitwise": false,
         "no-empty": false,
-        "radix": false
+        "radix": false,
+        "one-line": false,
     },
     "rulesDirectory": []
 }

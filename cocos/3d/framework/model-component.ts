@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import { builtinResMgr } from '../../3d/builtin';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import Enum from '../../core/value-types/enum';
 import { Model } from '../../renderer/scene/model';
@@ -196,15 +197,15 @@ export class ModelComponent extends RenderableComponent {
             this._model = null;
         }
 
-        if (this._model) {
-            this._model.enabled = this.enabledInHierarchy;
-        }
-
         this._model = this._createModel();
 
         this._model!.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
 
         this._updateModelParams();
+
+        if (this._model) {
+            this._model.enabled = this.enabledInHierarchy;
+        }
     }
 
     protected _createModel () {

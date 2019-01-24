@@ -58,13 +58,17 @@
       cameraNode.addComponent(FirstPersonCamera);
       const camComp = cameraNode.addComponent(cc.CameraComponent);
 
+      const lightNode = new cc.Node('Light');
+      lightNode.parent = scene;
+      lightNode.setRotationFromEuler(70, 0, 0);
+      const lightComp = lightNode.addComponent(cc.LightComponent);
+
       const texture = createTexture(cc.game.canvas.getElementsByTagName('img'));
 
       const material = new cc.Material();
       material.setDefines({ USE_COLOR: true });
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
-      material.effectName = 'builtin-effect-unlit';
-      material.setProperty('color', [ cc.Color.RED, cc.Color.BLUE ]);
+      material.effectName = 'builtin-effect-phong';
 
       const len = 50;
       const models = [], passes = [];
@@ -80,7 +84,7 @@
         // material instance initialized here
         passes.push(modelCom.material.passes[0]);
       }
-      const handle = passes[0].getHandle('color');
+      const handle = passes[0].getHandle('diffuseColor');
 
       {
         const material = new cc.Material();
@@ -116,8 +120,8 @@
           const x = Math.cos(rad + t), y = Math.sin(rad + t);
           let z = m._lpos.z + dt; if (z > len * 2) z = 0;
           m.setPosition(x * 2, y * 2, z);
-          // color.fromHSV((x + 1) * 0.5, 0.5, 1);
-          // passes[i].setUniform(handle, color);
+          color.fromHSV((x + 1) * 0.5, 0.5, 1);
+          passes[i].setUniform(handle, color);
         });
       });
 

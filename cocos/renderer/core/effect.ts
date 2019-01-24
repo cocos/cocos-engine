@@ -24,13 +24,17 @@ export class Effect {
         const passes: Pass[] = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
             const passInfo = tech.passes[k] as IPassInfoFull;
+            const shader = programLib.getGFXShader(cc.game._gfxDevice,
+                passInfo.program, defines && defines[k] || {});
+            const renderPass = cc.director.root.pipeline.getRenderPass(passInfo.stage || RenderPassStage.DEFAULT);
             const prog = programLib.getTemplate(passInfo.program);
-            passInfo.shader = programLib.getGFXShader(cc.game._gfxDevice,
-                passInfo.program, defines && defines[k] || {})!;
-            passInfo.renderPass = cc.director.root.pipeline.getRenderPass(passInfo.stage || RenderPassStage.DEFAULT);
+            passInfo.blocks = prog.blocks;
+            passInfo.samplers = prog.samplers;
             passInfo.globals = cc.director.root.pipeline.globalUBO;
-            passInfo.blocks = prog!.blocks;
-            passInfo.samplers = prog!.samplers;
+            if (shader) { passInfo.shader = shader; }
+            else { console.warn(`create shader ${passInfo.program} failed`); }
+            if (renderPass) { passInfo.renderPass = renderPass; }
+            else { console.warn(`illegal pass stage in ${effect.name}`); }
             const pass = new Pass(cc.game._gfxDevice);
             pass.initialize(passInfo);
             passes[k] = pass;

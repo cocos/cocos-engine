@@ -1,27 +1,44 @@
 import { RenderScene } from './render-scene';
 
 export enum LightType {
+    UNKNOWN,
     DIRECTIONAL,
     POINT,
+    SPOT,
 }
 
 export class Light {
+    protected _color = new Float32Array(4);
+    protected _enabled = false;
 
-    public get type (): LightType {
-        return this._type;
+    set enabled (val) {
+        this._enabled = val;
+    }
+    get enabled () {
+        return this._enabled;
     }
 
-    public get name (): string {
+    set color (val: number[]) {
+        this._color.set(val);
+    }
+    get colorData () {
+        return this._color;
+    }
+
+    get type (): LightType {
+        return this._type;
+    }
+    get name (): string {
         return this._name;
     }
 
-    private _scene: RenderScene;
-    private _type: LightType;
-    private _name: string;
+    protected _scene: RenderScene;
+    protected _type: LightType;
+    protected _name: string;
 
-    constructor (scene: RenderScene, type: LightType, name: string) {
+    constructor (scene: RenderScene, name: string) {
         this._scene = scene;
-        this._type = type;
         this._name = name;
+        this._type = LightType.UNKNOWN;
     }
 }

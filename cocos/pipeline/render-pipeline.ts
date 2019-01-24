@@ -25,14 +25,23 @@ export class UBOGlobal {
     public static MAT_VIEW_PROJ_OFFSET: number = UBOGlobal.MAT_PROJ_INV_OFFSET + 16;
     public static MAT_VIEW_PROJ_INV_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_OFFSET + 16;
     public static CAMERA_POS_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET + 16;
-    public static COUNT: number = UBOGlobal.CAMERA_POS_OFFSET + 4;
+    public static DIR_LIGHT_DIR_OFFSET: number = UBOGlobal.CAMERA_POS_OFFSET + 4;
+    public static DIR_LIGHT_COLOR_OFFSET: number = UBOGlobal.DIR_LIGHT_DIR_OFFSET + 16;
+    public static POINT_LIGHT_POS_RANGE_OFFSET: number = UBOGlobal.DIR_LIGHT_COLOR_OFFSET + 16;
+    public static POINT_LIGHT_COLOR_OFFSET: number = UBOGlobal.POINT_LIGHT_POS_RANGE_OFFSET + 16;
+    public static SPOT_LIGHT_POS_RANGE_OFFSET: number = UBOGlobal.POINT_LIGHT_COLOR_OFFSET + 16;
+    public static SPOT_LIGHT_DIR_OFFSET: number = UBOGlobal.SPOT_LIGHT_POS_RANGE_OFFSET + 16;
+    public static SPOT_LIGHT_COLOR_OFFSET: number = UBOGlobal.SPOT_LIGHT_DIR_OFFSET + 16;
+    public static COUNT: number = UBOGlobal.SPOT_LIGHT_COLOR_OFFSET + 16;
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: 30, name: 'CCGlobal', members: [
+            // constants
             { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenScale', type: GFXType.FLOAT4, count: 1 },
+            // transform
             { name: 'cc_matView', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matViewInv', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matProj', type: GFXType.MAT4, count: 1 },
@@ -40,6 +49,14 @@ export class UBOGlobal {
             { name: 'cc_matViewProj', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matViewProjInv', type: GFXType.MAT4, count: 1 },
             { name: 'cc_cameraPos', type: GFXType.FLOAT4, count: 1 },
+            // lights
+            { name: 'cc_dirLightDirection', type: GFXType.FLOAT4, count: 4 },
+            { name: 'cc_dirLightColor', type: GFXType.FLOAT4, count: 4 },
+            { name: 'cc_pointLightPositionAndRange', type: GFXType.FLOAT4, count: 4 },
+            { name: 'cc_pointLightColor', type: GFXType.FLOAT4, count: 4 },
+            { name: 'cc_spotLightPositionAndRange', type: GFXType.FLOAT4, count: 4 },
+            { name: 'cc_spotLightDirection', type: GFXType.FLOAT4, count: 4 },
+            { name: 'cc_spotLightColor', type: GFXType.FLOAT4, count: 4 },
         ],
     };
 
@@ -334,6 +351,24 @@ export abstract class RenderPipeline {
         vec3.array(_vec4Array, camera.position);
         _vec4Array[3] = 1.0;
         this._uboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
+
+        const scene = view.camera.scene;
+        const dLights = scene.directionalLights;
+        for (let i = 0; i < dLights.length; i++) {
+            this._uboGlobal.view.set(dLights[i].directionArray, UBOGlobal.DIR_LIGHT_DIR_OFFSET + 4 * i);
+            this._uboGlobal.view.set(dLights[i].colorData, UBOGlobal.DIR_LIGHT_COLOR_OFFSET + 4 * i);
+        }
+        const pLights = scene.pointLights;
+        for (let i = 0; i < pLights.length; i++) {
+            this._uboGlobal.view.set(pLights[i].positionAndRange, UBOGlobal.POINT_LIGHT_POS_RANGE_OFFSET + 4 * i);
+            this._uboGlobal.view.set(pLights[i].colorData, UBOGlobal.POINT_LIGHT_COLOR_OFFSET + 4 * i);
+        }
+        const sLights = scene.spotLights;
+        for (let i = 0; i < sLights.length; i++) {
+            this._uboGlobal.view.set(sLights[i].positionAndRange, UBOGlobal.SPOT_LIGHT_POS_RANGE_OFFSET + 4 * i);
+            this._uboGlobal.view.set(sLights[i].directionArray, UBOGlobal.SPOT_LIGHT_DIR_OFFSET + 4 * i);
+            this._uboGlobal.view.set(sLights[i].colorData, UBOGlobal.SPOT_LIGHT_COLOR_OFFSET + 4 * i);
+        }
 
         // update ubos
         this._globalUBO!.update(this._uboGlobal.view);
