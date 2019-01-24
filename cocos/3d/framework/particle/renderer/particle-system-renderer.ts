@@ -145,6 +145,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             this._model.setCapacity(this.particleSystem.capacity);
             this._model.setVertexAttributes(this._vertAttrs);
             this._model.node = this.node;
+            this._model.enabled = this.enabledInHierarchy;
         }
     }
 

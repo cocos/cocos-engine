@@ -200,8 +200,10 @@ export class Model {
             return;
         }
         if (this._subModels[idx].material === mat) {
-            this.destroyPipelineState(mat!, this._matPSORecord.get(mat!)!);
-            this._matPSORecord.set(mat!, this.createPipelineState(mat!));
+            if (mat) {
+                this.destroyPipelineState(mat!, this._matPSORecord.get(mat!)!);
+                this._matPSORecord.set(mat!, this.createPipelineState(mat!));
+            }
         } else {
             if (this._subModels[idx].material) {
                 this.releasePSO(this._subModels[idx].material!);
