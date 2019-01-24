@@ -279,8 +279,8 @@ export class UI {
                     if (curCamera) {
                         cmdBuff.endRenderPass();
                     }
-                    this._renderArea.width = camera.width;
-                    this._renderArea.height = camera.height;
+                    this._renderArea.width = camera.orthoHeight * camera.aspect;
+                    this._renderArea.height = camera.orthoHeight;
 
                     camera.update();
 
@@ -292,7 +292,7 @@ export class UI {
 
                     curCamera = camera;
 
-                    cmdBuff.beginRenderPass(framebuffer, this._renderArea, [camera.clearColor], camera.clearDepth, camera.clearStencil);
+                    cmdBuff.beginRenderPass(framebuffer, this._renderArea, [], camera.clearDepth, camera.clearStencil);
                 }
 
                 material.bindingLayout.bindBuffer(0, this._uiUBO!);
