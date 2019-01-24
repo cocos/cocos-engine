@@ -4,7 +4,7 @@ import { Light, LightType } from './light';
 import { RenderScene } from './render-scene';
 
 export class DirectionalLight extends Light {
-    protected _direction = new Float32Array(4);
+    protected _direction = Float32Array.from([0, 0, 1, 0]);
 
     set direction (val: Vec3) {
         vec3.array(this._direction, val);
