@@ -60,15 +60,12 @@ export class RenderableComponent extends Component {
      * @param {Number} idx - Look for the material list number
      */
     public getMaterial (idx: number, inEditor: boolean = false): Material | null {
-        if (idx < 0 || idx >= this._materials.length || this._materials[idx] == null) {
-            return null;
-        }
-
-        const instantiated = Material.getInstantiatedMaterial(this._materials[idx]!, this, inEditor);
+        const mat = this._materials[idx];
+        if (!mat) { return null; }
+        const instantiated = Material.getInstantiatedMaterial(mat, this, inEditor);
         if (instantiated !== this._materials[idx]) {
             this.setMaterial(instantiated, idx, !inEditor);
         }
-
         return this._materials[idx];
     }
 
