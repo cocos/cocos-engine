@@ -728,6 +728,14 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
+    /**
+     * !#en
+     * Update an animation cache.
+     * !#zh
+     * 更新某个动画缓存。
+     * @method updateAnimationCache
+     * @param {String} animName
+     */
     updateAnimationCache (animName) {
         if (!this.isCachedMode()) return;
         let atlasName = this.dragonAtlasAsset._textureAtlasData.name;
