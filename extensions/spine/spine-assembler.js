@@ -229,6 +229,8 @@ var spineAssembler = {
         
         let node = comp.node;
         node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        let locSkeleton = comp._skeleton;
+        if (!locSkeleton) return;
 
         let nodeColor = node._color;
         _nodeR = nodeColor.r / 255;
@@ -242,7 +244,6 @@ var spineAssembler = {
         let vbuf;
         let ibuf;
 
-        let locSkeleton = comp._skeleton;
         let skeletonColor = locSkeleton.color;
         let graphics = comp._debugRenderer;
         let clipper = comp._clipper;
