@@ -1,9 +1,9 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { IBlockInfo, IBlockMember, IDefineInfo, IShaderInfo } from '../../3d/assets/effect-asset';
+import { IBlockInfo, IBlockMember, IDefineInfo, IShaderInfo, ISamplerInfo } from '../../3d/assets/effect-asset';
 import { GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXShader, GFXUniform, GFXUniformBlock } from '../../gfx/shader';
+import { GFXShader, GFXUniform, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
 import { UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
 import { SkinningUBO } from '../models/model-uniforms';
 import { IDefineMap } from './effect';
@@ -87,6 +87,8 @@ class ProgramLib {
             }
             if (def.name === 'CC_USE_SKINNING') {
                 tmpl.blocks = tmpl.blocks.concat(skinning);
+            } else if (def.name === 'CC_USE_JOINTS_TEXTURE') {
+                tmpl.samplers = tmpl.samplers.concat(jointsTexture);
             }
             offset += cnt;
             def._offset = offset;
@@ -151,6 +153,7 @@ class ProgramLib {
 const globals = convertToBlockInfo(UBOGlobal.BLOCK);
 const locals = convertToBlockInfo(UBOLocal.BLOCK);
 const skinning = convertToBlockInfo(SkinningUBO.BLOCK);
+const jointsTexture = convertToSamplerInfo(SkinningUBO.JOINT_TEXTURE);
 
 function convertToUniformInfo (uniform: GFXUniform): IBlockMember {
     return {
@@ -174,6 +177,16 @@ function convertToBlockInfo (block: GFXUniformBlock): IBlockInfo {
         defines: [],
         members,
         size,
+    };
+}
+
+function convertToSamplerInfo (sampler: GFXUniformSampler): ISamplerInfo {
+    return {
+        name: sampler.name,
+        binding: sampler.binding,
+        defines: [],
+        type: sampler.type,
+        count: sampler.count
     };
 }
 
