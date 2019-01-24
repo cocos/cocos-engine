@@ -25,6 +25,7 @@ export interface IGFXDeviceInfo {
     canvasElm: HTMLElement;
     isAntialias?: boolean;
     isPremultipliedAlpha?: boolean;
+    debug?: boolean;
 }
 
 // tslint:disable: max-line-length

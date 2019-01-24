@@ -24,37 +24,18 @@
  ****************************************************************************/
 
 // @ts-check
-import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { mat4 } from '../../core/vmath';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
+import { Material } from '../assets/material';
 import Skeleton from '../assets/skeleton';
-import * as utils from '../misc/utils';
 import { ModelComponent } from './model-component';
 
 const _m4_tmp = mat4.create();
 
-interface IJointTextureStorage {
-    nativeData: Float32Array;
-    texture: Texture2D;
-}
-
-interface IJointUniformsStorage {
-    nativeData: Float32Array;
-}
-
-type JointStorage = IJointTextureStorage | IJointUniformsStorage;
-
-interface ISkinningState {
-    skinningTarget: Map<string, Node>;
-    storage: JointStorage;
-}
-
-function isTextureStorage (storage: JointStorage): storage is IJointTextureStorage {
-    return (storage as any).texture !== undefined;
-}
+type SkinningTarget = Map<string, Node>;
 
 /**
  * !#en The Skinning Model Component
@@ -65,17 +46,6 @@ function isTextureStorage (storage: JointStorage): storage is IJointTextureStora
 @executeInEditMode
 @menu('Components/SkinningModelComponent')
 export default class SkinningModelComponent extends ModelComponent {
-    @property(Skeleton)
-    private _skeleton: Skeleton | null = null;
-
-    @property(Node)
-    private _skinningRoot: Node | null = null;
-
-    private _skinningState: ISkinningState | null = null;
-
-    constructor () {
-        super();
-    }
 
     /**
      * !#en The bone nodes
@@ -89,7 +59,8 @@ export default class SkinningModelComponent extends ModelComponent {
 
     set skeleton (val) {
         this._skeleton = val;
-        this._resetSkinningState();
+        this._resetSkinningTarget();
+        this._bindSkeleton();
     }
 
     @property({type: Node})
@@ -99,11 +70,23 @@ export default class SkinningModelComponent extends ModelComponent {
 
     set skinningRoot (value) {
         this._skinningRoot = value;
-        this._resetSkinningState();
+        this._resetSkinningTarget();
+    }
+    @property(Skeleton)
+    private _skeleton: Skeleton | null = null;
+
+    @property(Node)
+    private _skinningRoot: Node | null = null;
+
+    private _skinningTarget: SkinningTarget | null = null;
+
+    constructor () {
+        super();
     }
 
     public onLoad () {
-        this._resetSkinningState();
+        super.onLoad();
+        this._resetSkinningTarget();
     }
 
     public update (dt) {
@@ -114,19 +97,19 @@ export default class SkinningModelComponent extends ModelComponent {
     }
 
     public _tryUpdateMatrices () {
-        if (!this._skeleton || !this._skinningState) {
+        if (!this._skeleton || !this._skinningTarget || !this._model) {
             return;
         }
 
-        const skinningState = this._skinningState!;
-        const skeleton = this._skeleton!;
+        const skinningModel = this._model as SkinningModel;
+        const skeleton = this._skeleton;
+        const skinningTarget = this._skinningTarget;
 
         const cancelThisNodeTransform = this.node.getWorldMatrix();
         mat4.invert(cancelThisNodeTransform, cancelThisNodeTransform);
-
         this._skeleton.joints.forEach((joint, index) => {
             // If target joint doesn't exists in scene graph, skip it.
-            const targetNode = skinningState.skinningTarget.get(joint);
+            const targetNode = skinningTarget.get(joint);
             if (!targetNode) {
                 return;
             }
@@ -137,13 +120,10 @@ export default class SkinningModelComponent extends ModelComponent {
             const jointMatrix = _m4_tmp;
             mat4.multiply(jointMatrix, cancelThisNodeTransform, targetNode.getWorldMatrix());
             mat4.multiply(jointMatrix, jointMatrix, bindpose);
-            _setJointMatrix(skinningState.storage.nativeData, index, jointMatrix);
+            skinningModel.updateJointMatrix(index, jointMatrix);
         });
 
-        const storage = skinningState.storage;
-        if (isTextureStorage(storage)) {
-            storage.texture.directUpdate(storage.nativeData.buffer);
-        }
+        skinningModel.commitJointMatrices();
     }
 
     public _createModel () {
@@ -152,53 +132,33 @@ export default class SkinningModelComponent extends ModelComponent {
 
     public _updateModelParams () {
         super._updateModelParams();
-        // Upload joint matrices.
-        if (this._skinningState !== null) {
-            const skinningState = this._skinningState;
-            const skinningModel = this._model as SkinningModel;
-            if (isTextureStorage(skinningState.storage)) {
-                const texture = skinningState.storage.texture;
-                skinningModel.setJointTexture(texture);
-            } else {
-                skinningModel.setJointMatrices(skinningState.storage.nativeData);
-            }
+        this._bindSkeleton();
+    }
+
+    protected _onMaterialModified (index: number, material: Material) {
+        super._onMaterialModified(index, material);
+
+        const device = _getGlobalDevice();
+        const useJointTexture = device !== null && device.hasFeature(GFXFeature.TEXTURE_FLOAT) && false;
+        this.getMaterial(0, CC_EDITOR)!.setDefines({
+            CC_USE_SKINNING: true,
+            CC_USE_JOINTS_TEXTURE: useJointTexture,
+        });
+    }
+
+    private _bindSkeleton () {
+        if (this._model && this._skeleton) {
+            (this._model as SkinningModel).bindSkeleton(this._skeleton);
         }
     }
 
-    private _resetSkinningState () {
-        if (this._skinningState) {
-            if (isTextureStorage(this._skinningState.storage)) {
-                this._skinningState.storage.texture.destroy();
-            }
-            this._skinningState = null;
-        }
-
+    private _resetSkinningTarget () {
         if (!this._skeleton || !this._skinningRoot) {
             return;
         }
 
-        let storage: JointStorage;
-
-        // Allocate joint matrices storage.
-        const device = _getGlobalDevice();
-        if (device && device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-            const jointsTexture = utils.createJointsTexture(this._skeleton);
-            storage = {
-                texture: jointsTexture,
-                nativeData: new Float32Array(jointsTexture.width * jointsTexture.height * 4),
-            } as IJointTextureStorage;
-        } else {
-            storage = {
-                nativeData: new Float32Array(this._skeleton.joints.length * 16),
-            } as IJointUniformsStorage;
-        }
-
-        const skinningState: ISkinningState = {
-            skinningTarget: new Map(),
-            storage,
-        };
-
         // Collect target to skin.
+        this._skinningTarget = new Map();
         const rootNode = this._skinningRoot;
         this._skeleton.joints.forEach((joint) => {
             const targetNode = rootNode.getChildByPath(joint);
@@ -206,33 +166,12 @@ export default class SkinningModelComponent extends ModelComponent {
                 console.warn(`Skinning target ${joint} not found in scene graph.`);
                 return;
             }
-            skinningState.skinningTarget.set(joint, targetNode);
+            this._skinningTarget!.set(joint, targetNode);
         });
-
-        this._skinningState = skinningState;
     }
 }
 
 function _getGlobalDevice (): GFXDevice | null {
     // @ts-ignore
     return cc.director.root.device;
-}
-
-function _setJointMatrix (out: Float32Array, iMatrix: number, matrix: mat4) {
-    out[16 * iMatrix + 0] = matrix.m00;
-    out[16 * iMatrix + 1] = matrix.m01;
-    out[16 * iMatrix + 2] = matrix.m02;
-    out[16 * iMatrix + 3] = matrix.m03;
-    out[16 * iMatrix + 4] = matrix.m04;
-    out[16 * iMatrix + 5] = matrix.m05;
-    out[16 * iMatrix + 6] = matrix.m06;
-    out[16 * iMatrix + 7] = matrix.m07;
-    out[16 * iMatrix + 8] = matrix.m08;
-    out[16 * iMatrix + 9] = matrix.m09;
-    out[16 * iMatrix + 10] = matrix.m10;
-    out[16 * iMatrix + 11] = matrix.m11;
-    out[16 * iMatrix + 12] = matrix.m12;
-    out[16 * iMatrix + 13] = matrix.m13;
-    out[16 * iMatrix + 14] = matrix.m14;
-    out[16 * iMatrix + 15] = matrix.m15;
 }
