@@ -163,15 +163,16 @@ export class ModelComponent extends RenderableComponent {
     }
 
     public onLoad () {
-
+        super.onLoad();
     }
 
     public onEnable () {
         this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
+
         if (this._model) {
-            this._model.enabled = true;
+            this._model.enabled = this.enabledInHierarchy;
         }
     }
 
@@ -189,23 +190,21 @@ export class ModelComponent extends RenderableComponent {
 
     protected _updateModels (forceUpdate: boolean = false) {
         if (!this.enabled || !this.node._scene || !this._mesh || (this._model && !forceUpdate)) {
+            if (this._model) {
+                this._model.enabled = false;
+            }
             return;
         }
 
         if (this._model) {
             this._model.destroy();
-            this._model = null;
+        } else {
+            this._model = this._createModel();
         }
-
-        this._model = this._createModel();
 
         this._model!.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
 
         this._updateModelParams();
-
-        if (this._model) {
-            this._model.enabled = this.enabledInHierarchy;
-        }
     }
 
     protected _createModel () {
@@ -234,11 +233,13 @@ export class ModelComponent extends RenderableComponent {
         if (this._model == null) {
             return;
         }
-        this._model.setSubModelMaterial(idx, material);
+        this._onRebuildPSO(idx, material);
     }
 
     protected _onRebuildPSO (idx, material) {
-        this._onMaterialModified(idx, material);
+        if (this._model) {
+            this._model.setSubModelMaterial(idx, material);
+        }
     }
 
     protected _clearMaterials () {
