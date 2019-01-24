@@ -418,7 +418,7 @@ exports.excludeAllDepends = function (excludedModules) {
             let module = excMudules[key];
             if (module.entries) {
                 module.entries.forEach(function (file) {
-                    let path = Path.join(__dirname, '../engine', file);
+                    let path = Path.join(__dirname, '..', '..', file);
                     if (excludes.indexOf(path) === -1) {
                         excludes.push(path);
                     }

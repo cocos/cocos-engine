@@ -30,7 +30,7 @@ const ValueType = require('./value-type');
 const js = require('../platform/js');
 const CCClass = require('../platform/CCClass');
 const misc = require('../utils/misc');
-const Vec2 = require('./vec2');
+const v2Proto = require('./vec2').prototype;
 
 /**
  * !#en Representation of 3D vectors and points.
@@ -464,7 +464,7 @@ proto.transformMat4 = function (m, out) {
  * @param {Vec3} vector
  * @return {number} from 0 to Math.PI
  */
-proto.angle = Vec2.angle;
+proto.angle = v2Proto.angle;
 
 /**
  * !#en Calculates the projection of the current vector over the given vector.
@@ -477,7 +477,50 @@ proto.angle = Vec2.angle;
  * var v2 = cc.v3(5, 5, 5);
  * v1.project(v2); // Vec3 {x: 20, y: 20, z: 20};
  */
-proto.project = Vec2.project;
+proto.project = v2Proto.project;
+
+// Compatible with the vec2 API
+
+/**
+ * !#en Get angle in radian between this and vector with direction. <br/>
+ * In order to compatible with the vec2 API.
+ * !#zh 带方向的夹角的弧度。该方法仅用做兼容 2D 计算。
+ * @method signAngle
+ * @param {Vec3 | Vec2} vector
+ * @return {number} from -MathPI to Math.PI
+ */
+proto.signAngle = function (vector) {
+    cc.warnID(1408, 'vec3.signAngle', 'v2.1', 'cc.v2(selfVector).signAngle(vector)');
+    let vec1 = new cc.Vec2(this.x, this.y);
+    let vec2 = new cc.Vec2(vector.x, vector.y);
+    return vec1.signAngle(vec2);
+};
+
+/**
+ * !#en rotate. In order to compatible with the vec2 API.
+ * !#zh 返回旋转给定弧度后的新向量。该方法仅用做兼容 2D 计算。
+ * @method rotate
+ * @param {number} radians
+ * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
+ * @return {Vec2 | Vec3} if the 'out' value is a vec3 you will get a Vec3 return. 
+ */
+proto.rotate = function (radians, out) {
+    cc.warnID(1408, 'vec3.rotate', 'v2.1', 'cc.v2(selfVector).rotate(radians, out)');
+    return v2Proto.rotate.call(this, radians, out);
+};
+
+/**
+ * !#en rotate self. In order to compatible with the vec2 API.
+ * !#zh 按指定弧度旋转向量。该方法仅用做兼容 2D 计算。
+ * @method rotateSelf
+ * @param {number} radians
+ * @return {Vec3} returns this
+ * @chainable
+ */
+proto.rotateSelf = function (radians) {
+    cc.warnID(1408, 'vec3.rotateSelf', 'v2.1', 'cc.v2(selfVector).rotateSelf(radians)');
+    return v2Proto.rotateSelf.call(this, radians);
+};
 
 /**
  * !#en return a Vec3 object with x = 1, y = 1, z = 1.
