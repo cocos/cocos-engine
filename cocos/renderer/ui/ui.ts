@@ -25,10 +25,10 @@ import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler
 import { GFXUniformBlock } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { vfmt } from '../../gfx/vertex-format-sample';
-import { BaseNode } from '../../scene-graph/base-node';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
 import { IUIMaterialInfo, UIMaterial } from './ui-material';
+import { Node } from '../../scene-graph/node';
 
 export class UBOUI {
     public static MAT_VIEW_PROJ_OFFSET: number = 0;
@@ -76,7 +76,11 @@ export interface IUIRenderData {
     meshBuffer: MeshBuffer;
     material: Material;
     texture: SpriteFrame;
+    priority: number;
+}
+export interface IUICanvas {
     camera: Camera;
+    datas: IUIRenderData[];
 }
 
 export class UI {
@@ -107,6 +111,10 @@ export class UI {
     private _batches: CachedArray<UIDrawBatch>;
     private _bufferInitData: IMeshBufferInitData | null = null;
     private _commitUIRenderDatas: IUIRenderData[] = [];
+    private _commitUICanvasDatas: IUICanvas[] = [];
+    private _sortChildList: RecyclePool = new RecyclePool(() => {
+        return [];
+    }, 128);
 
     constructor (private _root: Root) {
         this._device = _root.device;
@@ -200,15 +208,14 @@ export class UI {
         this._screens.push(comp);
     }
 
-    public getScreen (visibility: number) {
-        for (const screen of this._screens) {
+    public getScreen(visibility: number) {
+        this._screens.forEach((screen) => {
             if (screen.camera) {
                 if (screen.camera.visibility === visibility) {
                     return screen;
                 }
             }
-        }
-
+        })
         return null;
     }
 
@@ -236,7 +243,7 @@ export class UI {
     }
 
     public update (dt: number) {
-        
+
         for (let i = 0; i < this._batches.length; ++i) {
             const batch = this._batches.array[i];
             batch.clear();
@@ -244,7 +251,7 @@ export class UI {
         }
         this._batches.clear();
 
-        this._commitUIRenderDatas = [];
+        // this._commitUIRenderDatas = [];
 
         this._renderScreens();
 
@@ -323,16 +330,52 @@ export class UI {
         }
     }
 
-    private _walk (node, fn1, fn2, level = 0) {
-        level += 1;
-        const len = node.children.length;
-        fn1(node);
-        for (let i = 0; i < len; ++i) {
-            const child = node.children[i];
-            this._walk(child, fn1, fn2, level);
+    // skip the first object
+    private _walk (renderComp, fn1, fn2, level = 0) {
+        let renderCompList;
+        if(level === 0){
+            level+=1;
+            renderCompList = this._defineNodeOrder(renderComp.children);
+            renderCompList.forEach(comp => {
+                this._walk(comp, fn1, fn2, level);
+            });
+            this._sortChildList.remove(renderCompList);
+            return;
         }
 
-        fn2(node);
+        // const len = node.children.length;
+        fn1(renderComp);
+
+        renderCompList = this._defineNodeOrder(renderComp.node.children);
+        for (const comp of renderCompList){
+            this._walk(comp, fn1, fn2, level);
+        }
+        // for (let i = 0; i < len; ++i) {
+        //     const child = node.children[i];
+        //     this._walk(child, fn1, fn2, level);
+        // }
+
+
+        this._sortChildList.remove(renderCompList);
+        fn2(renderComp);
+        level += 1;
+    }
+
+    private _defineNodeOrder(childs: Node[]) {
+        let sortList = this._sortChildList.add();
+
+        childs.forEach((child) => {
+            let renderComp = child.getComponent(UIRenderComponent);
+            if (renderComp) {
+                sortList.push(renderComp);
+            }
+        })
+
+        sortList.sort((a, b) => {
+            return (a.priority - b.priority);
+        });
+
+        return sortList;
     }
 
     private _renderScreens () {
@@ -342,24 +385,28 @@ export class UI {
                 continue;
             }
             // this._currScreen = screen;
+            this._commitUIRenderDatas.length = 0;
 
-            this._walk(screen.node, (c: BaseNode) => {
-                const renderComponent = c.getComponent(UIRenderComponent);
-                if (renderComponent && renderComponent.enabledInHierarchy) {
-                    this._commitComp(renderComponent);
+            this._walk(screen.node, (c: UIRenderComponent) => {
+                // const renderComponent = c.getComponent(UIRenderComponent);
+                if (c.enabledInHierarchy) {
+                    this._commitComp(c);
                 }
-            }, (c: BaseNode) => {
-                    const renderComponent = c.getComponent(UIRenderComponent);
-                    if (renderComponent && renderComponent.enabledInHierarchy) {
-                        this._postCommitComp(renderComponent);
-                    }
+            }, (c: UIRenderComponent) => {
+                // const renderComponent = c.getComponent(UIRenderComponent);
+                if (c.enabledInHierarchy) {
+                    this._postCommitComp(c);
+                }
             });
+
+            this._commitUICanvasDatas.push({ camera: screen.camera!, datas: this._commitUIRenderDatas });
         }
     }
 
     private _reset () {
         this._bufferPool.reset();
         this._commitUIRenderDataPool.reset();
+        this._commitUICanvasDatas.length = 0;
     }
 
     private _commitComp (comp: UIRenderComponent) {
@@ -383,7 +430,7 @@ export class UI {
         let curBufferBatch: UIBufferBatch = this._bufferBatches[bufferBatchIdx++];
         let idxCount = 0;
         let vertCount = 0;
-        
+
         let vf32: Float32Array;
         let vui16: Uint16Array;
         let vbSize = 0;
@@ -440,7 +487,7 @@ export class UI {
                 isNewBatch = true;
                 curCamera = uiRenderData.camera;
             }
-            
+
             if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
                 curTexView = uiRenderData.texture.getGFXTextureView();
                 isNewBatch = true;
@@ -453,7 +500,7 @@ export class UI {
                 batch.uiMaterial = this._uiMaterial!;
                 batch.texView = curTexView!;
                 batch.idxCount = idxCount;
-                
+
                 this._batches.push(batch);
             }
         } // for
