@@ -125,6 +125,7 @@ let armatureAssembler = {
         let slotColor;
         let slot;
         let slotMat;
+        let offsetInfo;
 
         for (let i = 0, l = slots.length; i < l; i++) {
             slot = slots[i];
@@ -163,10 +164,10 @@ let armatureAssembler = {
             indices = slot._indices;
             _indexCount = indices.length;
             
-            _buffer.request(_vertexCount, _indexCount);
-            _indexOffset = _buffer.preIndexOffset;
-            _vfOffset = _buffer.preByteOffset >> 2;
-            _vertexOffset = _buffer.preVertexOffset;
+            offsetInfo = _buffer.request(_vertexCount, _indexCount);
+            _indexOffset = offsetInfo.indiceOffset;
+            _vfOffset = offsetInfo.byteOffset >> 2;
+            _vertexOffset = offsetInfo.vertexOffset;
             vbuf = _buffer._vData;
             ibuf = _buffer._iData;
             uintbuf = _buffer._uintVData;
@@ -202,6 +203,7 @@ let armatureAssembler = {
         let vbuf, ibuf, uintbuf;
         let material;
         
+        let offsetInfo;
         let vertices = frame.vertices;
         let indices = frame.indices;
         let uintVert = frame.uintVert;
@@ -235,10 +237,10 @@ let armatureAssembler = {
             _vertexCount = segInfo.vertexCount;
             _indexCount = segInfo.indexCount;
             
-            _buffer.request(_vertexCount, _indexCount);
-            _indexOffset = _buffer.preIndexOffset;
-            _vertexOffset = _buffer.preVertexOffset;
-            _vfOffset = _buffer.preByteOffset >> 2;
+            offsetInfo = _buffer.request(_vertexCount, _indexCount);
+            _indexOffset = offsetInfo.indiceOffset;
+            _vertexOffset = offsetInfo.vertexOffset;
+            _vfOffset = offsetInfo.byteOffset >> 2;
             vbuf = _buffer._vData;
             ibuf = _buffer._iData;
             uintbuf = _buffer._uintVData;

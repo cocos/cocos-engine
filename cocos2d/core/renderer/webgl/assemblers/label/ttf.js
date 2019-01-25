@@ -49,12 +49,12 @@ module.exports = js.addon({
     
         let buffer = renderer._meshBuffer;
 
-        buffer.request(4, 6);
+        let offsetInfo = buffer.request(4, 6);
 
         // buffer data may be realloc, need get reference after request.
-        let indiceOffset = buffer.preIndexOffset,
-            vertexOffset = buffer.preByteOffset >> 2,
-            vertexId = buffer.preVertexOffset,
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
             vbuf = buffer._vData,
             uintbuf = buffer._uintVData,
             ibuf = buffer._iData;

@@ -103,12 +103,12 @@ module.exports = {
 
         let uvSliced = sprite.spriteFrame.uvSliced;
             
-        buffer.request(vertexCount, renderData.indiceCount);
+        let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
         // buffer data may be realloc, need get reference after request.
-        let indiceOffset = buffer.preIndexOffset,
-            vertexOffset = buffer.preByteOffset >> 2,
-            vertexId = buffer.preVertexOffset,
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
             vbuf = buffer._vData,
             uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
