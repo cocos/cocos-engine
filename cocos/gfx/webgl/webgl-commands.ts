@@ -1000,7 +1000,6 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
                 glUniforms: new Array<IWebGLGPUUniform>(block.members.length),
                 glActiveUniforms: [],
                 isUniformPackage: true,
-                buffer: null,
             };
 
             gpuShader.glBlocks[i] = glBlock;
@@ -1662,7 +1661,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniform1iv(glUniform.glLoc, glUniform.array);
@@ -1676,7 +1675,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniform2iv(glUniform.glLoc, glUniform.array);
@@ -1690,7 +1689,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniform3iv(glUniform.glLoc, glUniform.array);
@@ -1704,7 +1703,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniform4iv(glUniform.glLoc, glUniform.array);
@@ -1717,7 +1716,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniform1fv(glUniform.glLoc, glUniform.array);
@@ -1730,7 +1729,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniform2fv(glUniform.glLoc, glUniform.array);
@@ -1743,7 +1742,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniform3fv(glUniform.glLoc, glUniform.array);
@@ -1756,7 +1755,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniform4fv(glUniform.glLoc, glUniform.array);
@@ -1769,7 +1768,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniformMatrix2fv(glUniform.glLoc, false, glUniform.array);
@@ -1782,7 +1781,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniformMatrix3fv(glUniform.glLoc, false, glUniform.array);
@@ -1795,7 +1794,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
-                                                            for (let n = 0, m = glUniform.begin; n < glUniform.array.length; ++n, ++m) {
+                                                            for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
                                                             gl.uniformMatrix4fv(glUniform.glLoc, false, glUniform.array);
