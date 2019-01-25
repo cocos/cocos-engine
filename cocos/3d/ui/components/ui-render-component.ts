@@ -95,11 +95,29 @@ export class UIRenderComponent extends RenderableComponent {
         this._updateBlendFunc(true);
     }
 
-    get color () {
+    /**
+     * !#en render order, render order according to width, and arrange once under the same level node.
+     * !#zh 渲染先后顺序，按照广度渲染排列，同级节点下进行一次排列
+     */
+    @property
+    get priority() {
+        return this._priority;
+    }
+
+    set priority(value) {
+        this._priority = value;
+    }
+
+    /**
+     * !#en render color
+     * !#zh 渲染颜色
+     * @property color
+     */
+    get color() {
         return this._color;
     }
 
-    set color (value) {
+    set color(value) {
         if (this._color === value) {
             return;
         }
@@ -127,6 +145,8 @@ export class UIRenderComponent extends RenderableComponent {
     protected _dstBlendFactor: number = macro.BlendFactor.ONE_MINUS_SRC_ALPHA;
     @property
     protected _color: Color = Color.WHITE;
+    @property
+    protected _priority: number = 0;
     protected _renderData: RenderData | null = null;
     // _allocedDatas = [];
     // _vertexFormat = null;

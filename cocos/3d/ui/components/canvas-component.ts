@@ -95,18 +95,18 @@ export class CanvasComponent extends Component {
         }
     }
 
-    /**
-     * !#en priority in render
-     * !#zh 显示优先级
-     */
-    @property
-    get priority () {
-        return this._priority;
-    }
+    // /**
+    //  * !#en priority in render
+    //  * !#zh 显示优先级
+    //  */
+    // @property
+    // get priority () {
+    //     return this._priority;
+    // }
 
-    set priority (value: number) {
-        this._priority = value;
-    }
+    // set priority (value: number) {
+    //     this._priority = value;
+    // }
 
     get visibility () {
         if (this._camera) {
@@ -133,8 +133,8 @@ export class CanvasComponent extends Component {
     private _fitWidth = false;
     @property
     private _fitHeight = true;
-    @property
-    private _priority = 0;
+    // @property
+    // private _priority = 0;
 
     private _thisOnResized: ()=>void;
 
