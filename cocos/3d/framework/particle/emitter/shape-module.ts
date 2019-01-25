@@ -1,12 +1,14 @@
 import { randomUnitVector, particleEmitZAxis, randomSortArray, randomSign, randomPointBetweenSphere, randomPointInCube, randomPointBetweenCircleAtFixedAngle, fixedAngleUnitVector2 } from '../particle-general-function';
-import { vec3, vec2, random, randomRange, mat4, quat, clamp, repeat, pingPong } from '../../../../core/vmath';
+import { vec3, vec2, random, randomRange, mat4, quat, clamp, repeat, pingPong, toRadian, toDegree } from '../../../../core/vmath';
 import { Enum, Vec3 } from '../../../../core/value-types';
 import CurveRange from '../animator/curve-range';
 import { CCClass } from '../../../../core/data';
 import { property, ccclass } from '../../../../core/data/class-decorator';
+import ParticleSystemComponent from '../particle-system-component';
 
-let _intermediVec = vec3.create(0, 0, 0);
-let _intermediArr = new Array();
+// tslint:disable: max-line-length
+const _intermediVec = vec3.create(0, 0, 0);
+const _intermediArr = new Array();
 const _unitBoxExtent = vec3.create(0.5, 0.5, 0.5);
 
 const ShapeType = Enum({
@@ -14,130 +16,162 @@ const ShapeType = Enum({
     Circle: 1,
     Cone: 2,
     Sphere: 3,
-    Hemisphere: 4
+    Hemisphere: 4,
 });
 
 const EmitLocation = Enum({
     Base: 0,
     Edge: 1,
     Shell: 2,
-    Volume: 3
+    Volume: 3,
 });
 
 const ArcMode = Enum({
     Random: 0,
     Loop: 1,
-    PingPong: 2
+    PingPong: 2,
 });
 
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
 
     @property
-    enable = false;
+    public enable = false;
 
     @property({
-        type: ShapeType
+        type: ShapeType,
     })
-    shapeType = ShapeType.Box;
+    public shapeType = ShapeType.Box;
 
     @property({
-        type: EmitLocation
+        type: EmitLocation,
     })
-    emitFrom = EmitLocation.Volume;
+    public emitFrom = EmitLocation.Volume;
 
     @property
-    _position = new Vec3(0, 0, 0);
+    private _position = new Vec3(0, 0, 0);
 
-    get position() {
+    @property
+    get position () {
         return this._position;
     }
-    set position(val) {
+    set position (val) {
         this._position = val;
         this.constructMat();
     }
 
     @property
-    _rotation = new Vec3(0, 0, 0);
+    private _rotation = new Vec3(0, 0, 0);
 
-    get rotation() {
+    @property
+    get rotation () {
         return this._rotation;
     }
-    set rotation(val) {
+    set rotation (val) {
         this._rotation = val;
         this.constructMat();
     }
 
     @property
-    _scale = new Vec3(0, 0, 0);
+    private _scale = new Vec3(1, 1, 1);
 
-    get scale() {
+    @property
+    get scale () {
         return this._scale;
     }
-    set scale(val) {
+    set scale (val) {
         this._scale = val;
         this.constructMat();
     }
 
     @property
-    alignToDirection = false;
+    public alignToDirection = false;
 
     @property
-    randomDirectionAmount = 0;
+    public randomDirectionAmount = 0;
 
     @property
-    sphericalDirectionAmount = 0;
+    public sphericalDirectionAmount = 0;
 
     @property
-    randomPositionAmount = 0;
+    public randomPositionAmount = 0;
 
     @property
-    radius = 0;
+    public radius = 1;
 
     @property
-    radiusThickness = 1;
+    public radiusThickness = 1;
 
     @property
-    arc = 0;
+    private _arc = toRadian(360);
 
     @property
-    arcMode = ArcMode.Random;
-
-    @property
-    arcSpread = 0;
-
-    @property({
-        type: CurveRange
-    })
-    arcSpeed = new CurveRange();
-
-    @property
-    angle = 0;
-
-    @property
-    length = 0;
-
-    @property
-    boxThickness = new Vec3(0, 0, 0);
-
-    constructor() {
-        this.mat = mat4.create();
-        this.quat = quat.create();
+    get arc () {
+        return toDegree(this._arc);
     }
 
-    onInit(ps) {
+    set arc (val) {
+        this._arc = toRadian(val);
+    }
+
+    @property({
+        type: ArcMode,
+    })
+    public arcMode = ArcMode.Random;
+
+    @property
+    public arcSpread = 0;
+
+    @property({
+        type: CurveRange,
+    })
+    public arcSpeed = new CurveRange();
+
+    @property
+    private _angle = toRadian(25);
+
+    @property
+    get angle () {
+        return toDegree(this._angle);
+    }
+
+    set angle (val) {
+        this._angle = toRadian(val);
+    }
+
+    @property
+    public length = 0;
+
+    @property
+    public boxThickness = new Vec3(0, 0, 0);
+
+    private mat: mat4;
+    private quat: quat;
+    private particleSystem: ParticleSystemComponent | null;
+    private lastTime: number;
+    private totalAngle: number;
+
+    constructor () {
+        this.mat = mat4.create();
+        this.quat = quat.create();
+        this.particleSystem = null;
+        this.lastTime = 0;
+        this.totalAngle = 0;
+    }
+
+    public onInit (ps: ParticleSystemComponent) {
         this.constructMat();
         this.particleSystem = ps;
         this.lastTime = ps._time;
         this.totalAngle = 0;
     }
 
-    constructMat() {
+    private constructMat () {
         quat.fromEuler(this.quat, this._rotation.x, this._rotation.y, this._rotation.z);
         mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
     }
 
-    emit(p) {
+    public emit (p) {
         switch (this.shapeType) {
             case ShapeType.Box:
                 boxEmit(this.emitFrom, this.boxThickness, p.position, p.velocity);
@@ -146,7 +180,7 @@ export default class ShapeModule {
                 circleEmit(this.radius, this.radiusThickness, this.generateArcAngle(), p.position, p.velocity);
                 break;
             case ShapeType.Cone:
-                coneEmit(this.emitFrom, this.radius, this.radiusThickness, this.generateArcAngle(), this.angle, this.length, p.position, p.velocity);
+                coneEmit(this.emitFrom, this.radius, this.radiusThickness, this.generateArcAngle(), this._angle, this.length, p.position, p.velocity);
                 break;
             case ShapeType.Sphere:
                 sphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
@@ -165,31 +199,31 @@ export default class ShapeModule {
         vec3.transformQuat(p.velocity, p.velocity, this.quat);
         vec3.transformMat4(p.position, p.position, this.mat);
         if (this.sphericalDirectionAmount > 0) {
-            let sphericalVel = vec3.normalize(_intermediVec, p.position);
+            const sphericalVel = vec3.normalize(_intermediVec, p.position);
             vec3.lerp(p.velocity, p.velocity, sphericalVel, this.sphericalDirectionAmount);
         }
-        this.lastTime = this.particleSystem._time;
+        this.lastTime = this.particleSystem!._time;
     }
 
-    generateArcAngle() {
+    private generateArcAngle () {
         if (this.arcMode === ArcMode.Random) {
-            return randomRange(0, this.arc);
+            return randomRange(0, this._arc);
         }
-        let angle = this.totalAngle + 2 * Math.PI * this.arcSpeed.evaluate(this.particleSystem._time) * (this.particleSystem._time - this.lastTime);
+        let angle = this.totalAngle + 2 * Math.PI * this.arcSpeed.evaluate(this.particleSystem!._time, 1)! * (this.particleSystem!._time - this.lastTime);
         this.totalAngle = angle;
         if (this.arcSpread !== 0) {
-            angle = Math.floor(angle / (this.arc * this.arcSpread)) * this.arc * this.arcSpread;
+            angle = Math.floor(angle / (this._arc * this.arcSpread)) * this._arc * this.arcSpread;
         }
         switch (this.arcMode) {
             case ArcMode.Loop:
-                return repeat(angle, this.arc);
+                return repeat(angle, this._arc);
             case ArcMode.PingPong:
-                return pingPong(angle, this.arc);
+                return pingPong(angle, this._arc);
         }
     }
 }
 
-function sphereEmit(emitFrom, radius, radiusThickness, pos, dir) {
+function sphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
     switch (emitFrom) {
         case EmitLocation.Volume:
             randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
@@ -206,7 +240,7 @@ function sphereEmit(emitFrom, radius, radiusThickness, pos, dir) {
     }
 }
 
-function hemisphereEmit(emitFrom, radius, radiusThickness, pos, dir) {
+function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
     switch (emitFrom) {
         case EmitLocation.Volume:
             randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
@@ -229,7 +263,7 @@ function hemisphereEmit(emitFrom, radius, radiusThickness, pos, dir) {
     }
 }
 
-function coneEmit(emitFrom, radius, radiusThickness, theta, angle, length, pos, dir) {
+function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos, dir) {
     switch (emitFrom) {
         case EmitLocation.Base:
             randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
@@ -259,7 +293,7 @@ function coneEmit(emitFrom, radius, radiusThickness, theta, angle, length, pos, 
     }
 }
 
-function boxEmit(emitFrom, boxThickness, pos, dir) {
+function boxEmit (emitFrom, boxThickness, pos, dir) {
     switch (emitFrom) {
         case EmitLocation.Volume:
             randomPointInCube(pos, _unitBoxExtent);
@@ -289,12 +323,12 @@ function boxEmit(emitFrom, boxThickness, pos, dir) {
     vec3.copy(dir, particleEmitZAxis);
 }
 
-function circleEmit(radius, radiusThickness, theta, pos, dir) {
+function circleEmit (radius, radiusThickness, theta, pos, dir) {
     randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
     vec3.normalize(dir, pos);
 }
 
-function applyBoxThickness(pos, thickness) {
+function applyBoxThickness (pos, thickness) {
     if (thickness.x > 0) {
         pos[0] += 0.5 * randomRange(-thickness.x, thickness.x);
         pos[0] = clamp(pos[0], -0.5, 0.5);

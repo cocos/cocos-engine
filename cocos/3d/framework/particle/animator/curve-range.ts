@@ -8,49 +8,49 @@ const Mode = Enum({
     Constant: 0,
     Curve: 1,
     TwoCurves: 2,
-    TwoConstants: 3
+    TwoConstants: 3,
 });
 
 @ccclass('cc.CurveRange')
 export default class CurveRange {
 
     @property({
-        type: Mode
+        type: Mode,
     })
-    mode = Mode.Constant;
+    public mode = Mode.Constant;
 
     @property({
-        type: AnimationCurve
+        type: AnimationCurve,
     })
-    curve = new AnimationCurve();
+    public curve = new AnimationCurve();
 
     @property({
-        type: AnimationCurve
+        type: AnimationCurve,
     })
-    curveMin = new AnimationCurve();
+    public curveMin = new AnimationCurve();
 
     @property({
-        type: AnimationCurve
+        type: AnimationCurve,
     })
-    curveMax = new AnimationCurve();
+    public curveMax = new AnimationCurve();
 
     @property
-    constant = 0;
+    public constant = 0;
 
     @property
-    constantMin = 0;
+    public constantMin = 0;
 
     @property
-    constantMax = 0;
+    public constantMax = 0;
 
     @property
-    multiplier = 1;
+    public multiplier = 1;
 
-    constructor() {
+    constructor () {
 
     }
 
-    evaluate(time, rndRatio) {
+    public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {
             case Mode.Constant:
                 return this.constant;

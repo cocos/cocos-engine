@@ -2,23 +2,26 @@ import { pseudoRandom } from "../../../../core/vmath";
 import { CCClass } from "../../../../core/data";
 import CurveRange from "./curve-range";
 import { property, ccclass } from "../../../../core/data/class-decorator";
+import Particle from "../particle";
 
+// tslint:disable: max-line-length
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
 @ccclass('cc.RotationOvertimeModule')
 export default class RotationOvertimeModule {
 
     @property
-    enable = false;
+    public enable = false;
 
     @property
-    _separateAxes = false;
+    private _separateAxes = false;
 
-    get separateAxes() {
+    @property
+    get separateAxes () {
         return this._separateAxes;
     }
 
-    set separateAxes(val) {
+    set separateAxes (val) {
         if (!val) {
             this._separateAxes = val;
         }
@@ -28,28 +31,28 @@ export default class RotationOvertimeModule {
     }
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    x = new CurveRange();
+    public x = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    y = new CurveRange();
+    public y = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    z = new CurveRange();
+    public z = new CurveRange();
 
-    constructor() {
+    constructor () {
 
     }
 
-    animate(p, dt) {
-        let normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
+    public animate (p: Particle, dt: number) {
+        const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         if (!this._separateAxes) {
-            p.rotation.x += this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET)) * dt;
+            p.rotation.x += this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET))! * dt;
         }
         else {
             // TODO: separateAxes is temporarily not supported!
