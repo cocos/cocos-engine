@@ -112,7 +112,6 @@ export class UI {
         this._device = _root.device;
         this._scene = this._root.createScene({
             name: 'GUIScene',
-            isUIScene: true,
         });
 
         this._batches = new CachedArray(64);

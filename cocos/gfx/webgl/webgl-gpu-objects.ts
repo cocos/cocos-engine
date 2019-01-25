@@ -170,9 +170,9 @@ export interface IWebGLGPUUniform {
 
     glType: GLenum;
     glLoc: WebGLUniformLocation;
-    vi32: Int32Array | null;
-    vf32: Float32Array | null;
+    array: number[];
     begin: number;
+    isFirst: boolean;
 }
 
 export class WebGLGPUUniformBlock {
@@ -183,7 +183,6 @@ export class WebGLGPUUniformBlock {
     public glActiveUniforms: IWebGLGPUUniform[] = [];
 
     public isUniformPackage: boolean = false;  // Is a single uniform package?
-    public buffer: ArrayBuffer | null = null;  // for cache
 }
 
 export class WebGLGPUUniformSampler {

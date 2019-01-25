@@ -53,7 +53,9 @@ export default class Scene extends Node {
         // cache all depend assets for auto release
         this.dependAssets = null;
 
-        this._renderScene = cc.director.root.createScene({});
+        if (cc.director && cc.director.root) {
+            this._renderScene = cc.director.root.createScene({});
+        }
     }
 
     /**
