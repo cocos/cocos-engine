@@ -233,10 +233,10 @@ export class ModelComponent extends RenderableComponent {
         if (this._model == null) {
             return;
         }
-        this._onRebuildPSO(idx, material);
+        this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
     }
 
-    protected _onRebuildPSO (idx, material) {
+    protected _onRebuildPSO (idx: number, material: Material) {
         if (this._model) {
             this._model.setSubModelMaterial(idx, material);
         }
