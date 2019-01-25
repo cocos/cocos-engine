@@ -364,7 +364,7 @@ function define (className, baseClass, mixins, options) {
             if (uuid) {
                 js._setClassId(uuid, cls);
                 if (CC_EDITOR) {
-                    Component._addMenuItem(cls, 'i18n:MAIN_MENU.component.scripts/' + className, -1);
+                    Component._addMenuItem(cls, "i18n:menu.custom_script/" + className, -1);
                     cls.prototype.__scriptUuid = Editor.Utils.UuidUtils.decompressUuid(uuid);
                 }
             }

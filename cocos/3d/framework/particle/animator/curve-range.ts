@@ -15,9 +15,9 @@ const Mode = Enum({
 export default class CurveRange {
 
     @property({
-        type: Mode,
+        type: Mode
     })
-    public mode = Mode.Constant;
+    mode = Mode.Constant;
 
     @property({
         type: AnimationCurve,

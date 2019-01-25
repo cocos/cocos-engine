@@ -1,4 +1,8 @@
 module.exports = {
+    "menu": {
+        "custom_script": "自定义脚本",
+    },
+
     "help_url": {
         "audiosource": "http://docs.cocos.com/creator/manual/zh/components/audiosource.html",
         "animation": "http://www.cocos.com/docs/creator/components/animation.html",

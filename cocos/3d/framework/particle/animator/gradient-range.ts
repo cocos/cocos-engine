@@ -27,9 +27,9 @@ const Mode = Enum({
 export default class GradientRange {
 
     @property({
-        type: Mode,
+        type: Mode
     })
-    public mode = Mode.Color;
+    mode = Mode.Color;
 
     @property
     public color = cc.Color.WHITE;
