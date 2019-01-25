@@ -150,7 +150,7 @@ export class Root {
         this._frameTime = deltaTime;
 
         for (const view of this._views) {
-            if (view.isEnable() && view.window === this._mainWindow) {
+            if (view.isEnable && view.window === this._mainWindow) {
                 this._pipeline!.render(view);
             }
         }
@@ -218,10 +218,12 @@ export class Root {
         const view: RenderView = this._createViewFun(this, info.camera);
         view.initialize(info);
 
-        this._views.push(view);
-        this._views.sort((a: RenderView, b: RenderView) => {
-            return a.priority - b.priority;
-        });
+        if (!info.isUI) {
+            this._views.push(view);
+            this._views.sort((a: RenderView, b: RenderView) => {
+                return a.priority - b.priority;
+            });
+        }
 
         return view;
     }

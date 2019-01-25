@@ -112,6 +112,7 @@ export class UI {
         this._device = _root.device;
         this._scene = this._root.createScene({
             name: 'GUIScene',
+            isUIScene: true,
         });
 
         this._batches = new CachedArray(64);
@@ -287,8 +288,8 @@ export class UI {
                     if (curCamera) {
                         cmdBuff.endRenderPass();
                     }
-                    this._renderArea.width = camera.orthoHeight * camera.aspect;
-                    this._renderArea.height = camera.orthoHeight;
+                    this._renderArea.width = camera.width;
+                    this._renderArea.height = camera.height;
 
                     camera.update();
 

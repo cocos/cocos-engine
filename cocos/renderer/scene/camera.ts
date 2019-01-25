@@ -25,6 +25,7 @@ export interface ICameraInfo {
     clearFlags: GFXClearFlag;
     rect: Rect;
     targetDisplay: number;
+    isUI?: boolean;
 }
 
 const v_a = cc.v3();
@@ -61,7 +62,7 @@ export class Camera {
 
     constructor (scene: RenderScene, info: ICameraInfo) {
         this._scene = scene;
-        this._name = name;
+        this._name = info.name;
         this._node = info.node;
         this._proj = info.projection;
         this._fov = toRadian(info.fov);
@@ -82,6 +83,7 @@ export class Camera {
             camera: this,
             name: this._name,
             priority: RenderViewPriority.GENERAL,
+            isUI: (info.isUI !== undefined? info.isUI : false),
         });
 
         this.changeTargetDisplay(info.targetDisplay);

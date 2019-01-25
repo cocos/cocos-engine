@@ -10,6 +10,7 @@ export interface IRenderViewInfo {
     camera: Camera;
     name: string;
     priority: number;
+    isUI: boolean;
 }
 
 export class RenderView {
@@ -41,6 +42,14 @@ export class RenderView {
         return this._camera!;
     }
 
+    public get isEnable (): boolean {
+        return this._isEnable;
+    }
+
+    public get isUI (): boolean {
+        return this._isUI;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createViewFun = (_root: Root, _camera: Camera): RenderView => new RenderView(_root, _camera);
     }
@@ -52,6 +61,7 @@ export class RenderView {
     private _visibility: number = 0;
     private _camera: Camera;
     private _isEnable: boolean = true;
+    private _isUI: boolean = false;
 
     private constructor (root: Root, camera: Camera) {
         this._root = root;
@@ -62,6 +72,7 @@ export class RenderView {
 
         this._name = info.name;
         this._priority = info.priority;
+        this._isUI = info.isUI;
 
         return true;
     }
@@ -77,9 +88,5 @@ export class RenderView {
 
     public enable (isEnable: boolean) {
         this._isEnable = isEnable;
-    }
-
-    public isEnable (): boolean {
-        return this._isEnable;
     }
 }
