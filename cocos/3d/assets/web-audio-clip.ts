@@ -22,49 +22,32 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
-import { _decorator } from "../../core/data/index";
-const { ccclass } = _decorator;
-import { AudioClip, AudioSourceType, PlayingState } from "./audio-clip";
+
+import { ccclass } from "../../core/data/class-decorator";
+import { AudioClip, AudioSourceType, PlayingState, IAudioInfo } from "./audio-clip";
 
 @ccclass('cc.WebAudioClip')
 export default class WebAudioClip extends AudioClip {
-    /**
-     * @type {number}
-     */
-    _startTime;
+    protected _startTime = 0;
+    protected _offset = 0;
+    protected _volume = 1;
+    protected _loop = false;
+    protected _currentTimer = 0;
+    protected _audio: AudioBuffer | null = null;
 
-    /**
-     * @type {number}
-     */
-    _offset;
+    private _context: AudioContext;
+    private _sourceNode: AudioBufferSourceNode;
+    private _gainNode: GainNode;
+    private _on_ended: () => void;
+    private _do_play: () => void;
+    private _on_gesture: () => void;
+    private _alreadyDelayed = false;
 
-    /**
-     * @type {number}
-     */
-    _volume;
-
-    /**
-     * @type {boolean}
-     */
-    _loop;
-
-    /**
-     * @type {number}
-     */
-    _currentTimer;
-    
-    constructor(context, app) {
+    constructor(context: AudioContext) {
         super();
 
-        this.loadMode = AudioSourceType.WEB_AUDIO;
-        this._currentTimer = 0;
-        this._startTime = 0;
-        this._offset = 0;
-        this._loop = false;
-        this._volume = 1;
+        this._loadMode = AudioSourceType.WEB_AUDIO;
 
-        this._app = app;
         this._context = context;
         this._sourceNode = this._context.createBufferSource();
         this._gainNode = this._context.createGain();
@@ -88,19 +71,18 @@ export default class WebAudioClip extends AudioClip {
             this._state = PlayingState.PLAYING;
             this._startTime = this._context.currentTime;
             // delay eval here to yield uniform behavior with other platforms
-            // @ts-ignore
-            this._app.once('tick', () => { this.emit('started'); });
+            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => { this.emit('started'); });
             /* still not supported by all platforms *
             this._sourceNode.onended = this._on_ended;
             /* doing it manually for now */
             clearInterval(this._currentTimer);
-            this._currentTimer = setInterval(() => {
+            this._currentTimer = window.setInterval(() => {
                 this._on_ended();
                 clearInterval(this._currentTimer);
                 if (this._sourceNode.loop) {
-                    this._currentTimer = setInterval(this._on_ended, this._audio.duration * 1000);
+                    this._currentTimer = window.setInterval(this._on_ended, this._audio!.duration * 1000);
                 }
-            }, (this._audio.duration - this._offset) * 1000);
+            }, (this._audio!.duration - this._offset) * 1000);
         };
 
         this._on_gesture = () => {
@@ -112,7 +94,7 @@ export default class WebAudioClip extends AudioClip {
         };
     }
 
-    setNativeAsset(clip, info) {
+    setNativeAsset(clip: AudioBuffer, info: IAudioInfo) {
         super.setNativeAsset(clip, info);
         if (this._context.state === 'running') return;
         window.addEventListener('touchend', this._on_gesture);
@@ -154,7 +136,7 @@ export default class WebAudioClip extends AudioClip {
         sourceNode.start();
     }
 
-    setCurrentTime(val) {
+    setCurrentTime(val: number) {
         this._offset = val;
         if (this._state !== PlayingState.PLAYING) return;
         this._sourceNode.stop(); this._do_play();
@@ -169,7 +151,7 @@ export default class WebAudioClip extends AudioClip {
         return this._audio ? this._audio.duration : 0;
     }
 
-    setVolume(val) {
+    setVolume(val: number) {
         this._volume = val;
         if (this._gainNode.gain.setTargetAtTime) {
             this._gainNode.gain.setTargetAtTime(val, this._context.currentTime, 0.01);
@@ -182,7 +164,7 @@ export default class WebAudioClip extends AudioClip {
         return this._volume;
     }
 
-    setLoop(val) {
+    setLoop(val: boolean) {
         this._loop = val;
         this._sourceNode.loop = val;
     }

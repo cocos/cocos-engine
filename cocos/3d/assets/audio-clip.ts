@@ -22,99 +22,63 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
-import { _decorator } from "../../core/data/index";
+
+import { ccclass, mixins } from "../../core/data/class-decorator";
 import { Asset } from "../../assets/asset";
 import { EventTarget } from "../../core/event/index";
-const { ccclass, mixins } = _decorator;
 
-/**
- * @typedef {number} PlayingState
- * @enum {number}
- */
 export const PlayingState = {
-  INITIALIZING: 0,
-  PLAYING: 1,
-  STOPPED: 2,
+    INITIALIZING: 0,
+    PLAYING: 1,
+    STOPPED: 2,
 };
 
-/**
- * Enums indicating the load mode of an audio clip
- * @typedef {number} AudioSourceType
- * @enum {number}
- */
 export const AudioSourceType = {
-  UNKNOWN_AUDIO: -1,
+    UNKNOWN_AUDIO: -1,
+    /**
+     * load through Web Audio API interface
+     */
+    WEB_AUDIO: 0,
+    /**
+     * load through an audio DOM element
+     */
+    DOM_AUDIO: 1,
 
-  /**
-   * load through Web Audio API interface
-   */
-  WEB_AUDIO: 0,
-
-  /**
-   * load through an audio DOM element
-   */
-  DOM_AUDIO: 1,
-
-  WX_GAME_AUDIO: 2,
+    WX_GAME_AUDIO: 2,
 };
 
-/**
- * @typedef {AudioBuffer|HTMLAudioElement|any} AudioSource
- */
+export interface IAudioInfo {
+    length: number;
+}
 
-/**
- * The base class for audio clip asset.
- * @mixes {EventTarget}
- */
 @ccclass('cc.AudioClip')
 @mixins(EventTarget)
 export class AudioClip extends Asset {
-  /**
-   * @type {AudioSource}
-   */
-  _audio = null;
+    protected _audio: any = null;
+    protected _duration = 0;
+    protected _state = PlayingState.INITIALIZING;
+    protected _loadMode = AudioSourceType.UNKNOWN_AUDIO;
 
-  /**
-   * @type {number}
-   */
-  _duration = 0;
-
-  /**
-   * @type { PlayingState }
-   */
-  _state = PlayingState.INITIALIZING;
-
-  /**
-   * @type { AudioSourceType }
-   */
-  loadMode = AudioSourceType.UNKNOWN_AUDIO;
-
-  /**
-   * Set the actual audio clip asset
-   * @param {AudioSource} clip
-   * @param {Object} info
-   */
-  setNativeAsset(clip, info) {
-    this._audio = clip;
-    this._duration = info ? info.length : 0;
-    if (clip) {
-      super.loaded = true;
-      this._state = PlayingState.STOPPED;
-    } else {
-      super.loaded = false;
-      this._state = PlayingState.INITIALIZING;
-      this.duration = 0;
+    public setNativeAsset (clip: any, info: IAudioInfo) {
+        this._audio = clip;
+        this._duration = info ? info.length : 0;
+        if (clip) {
+            super.loaded = true;
+            this._state = PlayingState.STOPPED;
+        } else {
+            super.loaded = false;
+            this._state = PlayingState.INITIALIZING;
+            this._duration = 0;
+        }
     }
-  }
 
-  /**
-   * Get current state of the clip
-   * @return {PlayingState}
-   */
-  getState() {
-    return this._state;
-  }
+    get loadMode () {
+        return this._loadMode;
+    }
+
+    get state() {
+        return this._state;
+    }
 }
 
 cc.AudioClip = AudioClip;
