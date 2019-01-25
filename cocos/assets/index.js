@@ -24,18 +24,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export {default as RawAsset} from './CCRawAsset';
-export {default as Asset} from './CCAsset';
+export { RawAsset } from './raw-asset';
+export { Asset } from './asset';
 export {default as Prefab} from './CCPrefab';
 export * from './CCScripts';
 export {default as SceneAsset} from './CCSceneAsset';
-export {default as SpriteFrame} from './CCSpriteFrame';
+export { SpriteFrame } from './CCSpriteFrame';
 export {default as SpriteAtlas} from './CCSpriteAtlas';
 export {default as TextAsset} from './CCTextAsset';
 export {default as JsonAsset} from './CCJsonAsset';
 export {default as GLTFAsset} from './CCGLTFAsset';
 export {default as BufferAsset} from './CCBufferAsset';
 export {default as AssetLibrary} from './CCAssetLibrary';
-export {default as ImageAsset} from './image-asset';
-export {default as Texture2D} from './texture-2d';
-export {default as RenderTexture} from './render-texture';
+export { ImageAsset } from './image-asset';
+export { Texture2D } from './texture-2d';
+export { RenderTexture } from './render-texture';

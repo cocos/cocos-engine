@@ -8,6 +8,9 @@ import { EPSILON, random } from './utils';
  * x, y is alias of the first, second component of vector, respectively.
  */
 export default class vec2 {
+    public static ZERO = new vec2(0, 0);
+    public static ONE = new vec2(1, 1);
+    public static NEG_ONE = new vec2(-1, -1);
 
     /**
      * Creates a vector, with components specified separately.
@@ -542,9 +545,9 @@ export default class vec2 {
      * @param v - The vector.
      * @return out.
      */
-    public static array<Out extends IWritableArrayLike<number>> (out: Out, v: vec2) {
-        out[0] = v.x;
-        out[1] = v.y;
+    public static array<Out extends IWritableArrayLike<number>> (out: Out, v: vec2, ofs = 0) {
+        out[ofs + 0] = v.x;
+        out[ofs + 1] = v.y;
 
         return out;
     }

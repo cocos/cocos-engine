@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import {mixin} from '../core/utils/js';
-import ImageAsset from '../assets/image-asset';
+import {ImageAsset} from '../assets/image-asset';
 import plistParser from './plist-parser';
 import Pipeline from './pipeline';
 import {loadUuid} from './uuid-loader';
@@ -59,7 +59,7 @@ function loadImage (item) {
     var image = item.content;
     if (!CC_WECHATGAME && !CC_QQPLAY && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
-    } 
+    }
 
     // load cc.ImageAsset
     var rawUrl = item.rawUrl;

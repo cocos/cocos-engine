@@ -23,8 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Node from './node';
+import { Node } from './node';
 import { ccclass, property } from '../core/data/class-decorator';
+import { BaseNode } from './base-node';
 
 /**
  * !#en
@@ -38,6 +39,7 @@ import { ccclass, property } from '../core/data/class-decorator';
  */
 @ccclass("cc.Scene")
 export default class Scene extends Node {
+
     constructor(name) {
         super(name);
 
@@ -50,6 +52,10 @@ export default class Scene extends Node {
 
         // cache all depend assets for auto release
         this.dependAssets = null;
+
+        if (cc.director && cc.director.root) {
+            this._renderScene = cc.director.root.createScene({});
+        }
     }
 
     /**
@@ -58,20 +64,21 @@ export default class Scene extends Node {
      * @property {Boolean} autoReleaseAssets
      * @default false
      */
-     @property({
+    @property({
         type: cc.Boolean
-     })
+    })
     autoReleaseAssets = undefined;
 
-    destroy () {
+    destroy() {
         super.destroy();
+        cc.director.root.destroyScene(this._renderScene);
         this._activeInHierarchy = false;
     }
 
-    _onHierarchyChanged() {}
-    _instantiate() {}
+    _onHierarchyChanged() { }
+    _instantiate() { }
 
-    _load () {
+    _load() {
         if (!this._inited) {
             if (CC_TEST) {
                 cc.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
@@ -84,9 +91,10 @@ export default class Scene extends Node {
             }
             this._inited = true;
         }
+        this.walk(BaseNode._setScene);
     }
 
-    _activate (active) {
+    _activate(active) {
         active = (active !== false);
         if (CC_EDITOR || CC_TEST) {
             // register all nodes to editor

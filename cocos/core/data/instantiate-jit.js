@@ -28,7 +28,7 @@
 
 import * as js from '../utils/js';
 import CCClass from './class';
-import CCObject from './object';
+import { CCObject } from './object';
 import * as Attr from './utils/attribute';
 import {flattenCodeArray} from './utils/compiler';
 

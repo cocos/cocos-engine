@@ -26,7 +26,7 @@
 import { _decorator } from "../core/data/index";
 const { ccclass, property } = _decorator;
 import BufferAsset from "./CCBufferAsset";
-import Asset from "./CCAsset";
+import { Asset } from "./asset";
 
 /**
  * @typedef {import("../../../types/glTF/glTF").GlTf} GlTf
@@ -37,7 +37,7 @@ import Asset from "./CCAsset";
  * Class for GLTF file.
  *
  * !#zh
- * GLTF 资源类。<br>
+ * GLTF 资溝类。<br>
  *
  * @class GLTFAsset
  * @extends Asset

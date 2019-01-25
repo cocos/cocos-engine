@@ -1,6 +1,7 @@
 'use strict';
 
 import { vec3 } from '../../core/vmath';
+import { GFXPrimitiveMode } from '../../gfx/define';
 
 /**
  * @param {Number} radius

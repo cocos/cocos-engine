@@ -29,7 +29,6 @@ import debug from '../core/platform/CCDebug';
 
 var __audioSupport = sys.__audioSupport;
 var formatSupport = __audioSupport.format;
-var context = __audioSupport.context;
 
 function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
@@ -70,6 +69,7 @@ function loadDomAudio (item, callback) {
 }
 
 function loadWebAudio (item, callback) {
+    const context = __audioSupport.context;
     if (!context)
         callback(new Error(debug.getError(4926)));
 

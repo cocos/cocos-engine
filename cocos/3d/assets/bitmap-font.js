@@ -27,7 +27,7 @@ import { _decorator } from "../../core/data/index";
 const { ccclass, property } = _decorator;
 import Font from "./font";
 import vec2 from "../../core/vmath/vec2";
-import Texture2D from "../../assets/texture-2d";
+import { Texture2D } from "../../assets/texture-2d";
 
 @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {

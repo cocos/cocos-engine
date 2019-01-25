@@ -23,14 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('../../../platform/CCMacro');
-const textUtils = require('../../../utils/text-utils');
+import macro from '../../../../core/platform/CCMacro';
+import * as textUtils from '../../../../core/utils/text-utils';
+import { Component } from '../../../../components/component';
+import { LabelComponent } from '../../../../3d/ui/components/label-component';
+import { LabelOutline } from '../../../label/label-outline';
 
-const Component = require('../../../components/CCComponent');
-const Label = require('../../../components/CCLabel');
-const LabelOutline = require('../../../components/CCLabelOutline');
-const Overflow = Label.Overflow;
-
+const Overflow = LabelComponent.Overflow;
 const WHITE = cc.Color.WHITE;
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
 
@@ -67,7 +66,7 @@ let _sharedLabelData;
 //
 let _canvasPool = {
     pool: [],
-    get () {
+    get() {
         let data = this.pool.pop();
 
         if (!data) {
@@ -81,7 +80,7 @@ let _canvasPool = {
 
         return data;
     },
-    put (canvas) {
+    put(canvas) {
         if (this.pool.length >= 32) {
             return;
         }
@@ -90,32 +89,31 @@ let _canvasPool = {
 };
 
 
-module.exports = {
-
-    _getAssemblerData () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            _sharedLabelData = _canvasPool.get();
-        }
-        else {
-            if (!_sharedLabelData) {
-                let labelCanvas = document.createElement("canvas");
-                _sharedLabelData = {
-                    canvas: labelCanvas,
-                    context: labelCanvas.getContext("2d")
-                };
-            }
-        }
-        _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
-        return _sharedLabelData;
+export default {
+    _getAssemblerData() {
+        // if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+        //     _sharedLabelData = _canvasPool.get();
+        // }
+        // else {
+        // if (!_sharedLabelData) {
+        let labelCanvas = document.createElement("canvas");
+        let sharedLabelData = {
+            canvas: labelCanvas,
+            context: labelCanvas.getContext("2d")
+        };
+        // }
+        // }
+        sharedLabelData.canvas.width = sharedLabelData.canvas.height = 1;
+        return sharedLabelData;
     },
 
-    _resetAssemblerData (assemblerData) {
+    _resetAssemblerData(assemblerData) {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS && assemblerData) {
             _canvasPool.put(assemblerData);
         }
     },
 
-    updateRenderData (comp) {
+    updateRenderData(comp) {
         if (!comp._renderData.vertDirty) return;
 
         this._updateFontFamly(comp);
@@ -138,10 +136,10 @@ module.exports = {
         _texture = null;
     },
 
-    _updateVerts () {
+    _updateVerts() {
     },
 
-    _updateFontFamly (comp) {
+    _updateFontFamly(comp) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {
@@ -163,12 +161,12 @@ module.exports = {
         }
     },
 
-    _updateProperties (comp) {
+    _updateProperties(comp) {
         let assemblerData = comp._assemblerData;
         _context = assemblerData.context;
         _canvas = assemblerData.canvas;
         _texture = comp._texture;
-        
+
         _string = comp.string.toString();
         _fontSize = comp._fontSize;
         _drawFontsize = _fontSize;
@@ -178,7 +176,7 @@ module.exports = {
         _lineHeight = comp._lineHeight;
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
-        _color = comp.node.color;
+        _color = comp._color;
         _isBold = comp._isBold;
         _isItalic = comp._isItalic;
         _isUnderline = comp._isUnderline;
@@ -208,7 +206,7 @@ module.exports = {
         }
     },
 
-    _calculateFillTextStartPosition () {
+    _calculateFillTextStartPosition() {
         let lineHeight = this._getLineHeight();
         let lineCount = _splitedStrings.length;
         let labelX;
@@ -237,7 +235,7 @@ module.exports = {
         return cc.v2(labelX, firstLinelabelY);
     },
 
-    _updateTexture () {
+    _updateTexture() {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
@@ -271,10 +269,11 @@ module.exports = {
             }
         }
 
-        _texture.handleLoadedTexture();
+        // _texture.handleLoadedTexture();
+        _texture.mipmaps = [_texture.image];
     },
 
-    _calculateUnderlineStartPosition () {
+    _calculateUnderlineStartPosition() {
         let lineHeight = this._getLineHeight();
         let lineCount = _splitedStrings.length;
         let labelX;
@@ -295,7 +294,7 @@ module.exports = {
         return cc.v2(labelX, firstLinelabelY);
     },
 
-    _updateLabelDimensions () {
+    _updateLabelDimensions() {
         let paragraphedStrings = _string.split('\n');
 
         if (_overflow === Overflow.RESIZE_HEIGHT) {
@@ -323,7 +322,7 @@ module.exports = {
         _canvas.height = _canvasSize.height;
     },
 
-    _calculateTextBaseline () {
+    _calculateTextBaseline() {
         let node = this._node;
         let hAlign;
         let vAlign;
@@ -351,7 +350,7 @@ module.exports = {
         _context.textBaseline = vAlign;
     },
 
-    _calculateSplitedStrings () {
+    _calculateSplitedStrings() {
         let paragraphedStrings = _string.split('\n');
 
         if (_isWrapText) {
@@ -360,9 +359,9 @@ module.exports = {
             for (let i = 0; i < paragraphedStrings.length; ++i) {
                 let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
                 let textFragment = textUtils.fragmentText(paragraphedStrings[i],
-                                                        allWidth,
-                                                        canvasWidthNoMargin,
-                                                        this._measureText(_context));
+                    allWidth,
+                    canvasWidthNoMargin,
+                    this._measureText(_context));
                 _splitedStrings = _splitedStrings.concat(textFragment);
             }
         }
@@ -372,7 +371,7 @@ module.exports = {
 
     },
 
-    _getFontDesc () {
+    _getFontDesc() {
         let fontDesc = _fontSize.toString() + 'px ';
         fontDesc = fontDesc + _fontFamily;
         if (_isBold) {
@@ -382,7 +381,7 @@ module.exports = {
         return fontDesc;
     },
 
-    _getLineHeight () {
+    _getLineHeight() {
         let nodeSpacingY = _lineHeight;
         if (nodeSpacingY === 0) {
             nodeSpacingY = _fontSize;
@@ -393,7 +392,7 @@ module.exports = {
         return nodeSpacingY | 0;
     },
 
-    _calculateParagraphLength (paragraphedStrings, ctx) {
+    _calculateParagraphLength(paragraphedStrings, ctx) {
         let paragraphLength = [];
 
         for (let i = 0; i < paragraphedStrings.length; ++i) {
@@ -404,20 +403,20 @@ module.exports = {
         return paragraphLength;
     },
 
-    _measureText (ctx) {
+    _measureText(ctx) {
         return function (string) {
             return textUtils.safeMeasureText(ctx, string);
         };
     },
 
-    _calculateLabelFont () {
+    _calculateLabelFont() {
         _fontDesc = this._getFontDesc();
         _context.font = _fontDesc;
 
         if (_overflow === Overflow.SHRINK) {
             let paragraphedStrings = _string.split('\n');
             let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
-        
+
             _splitedStrings = paragraphedStrings;
             let i = 0;
             let totalHeight = 0;
@@ -459,9 +458,9 @@ module.exports = {
                         let j = 0;
                         let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
                         textFragment = textUtils.fragmentText(paragraphedStrings[i],
-                                                            allWidth,
-                                                            canvasWidthNoMargin,
-                                                            this._measureText(_context));
+                            allWidth,
+                            canvasWidthNoMargin,
+                            this._measureText(_context));
                         while (j < textFragment.length) {
                             let measureWidth = textUtils.safeMeasureText(_context, textFragment[j]);
                             maxLength = measureWidth;

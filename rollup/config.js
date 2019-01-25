@@ -60,7 +60,8 @@ export default {
 
         commonjs({
             namedExports: {
-                'cannon': ['CANNON']
+                'cannon': ['CANNON'],
+                'webgl-debug': ['makeDebugContext', 'glEnumToString']
             }
         }),
     ]

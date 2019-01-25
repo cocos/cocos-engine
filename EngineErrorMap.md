@@ -276,7 +276,7 @@ warning: you CANNOT change update priority in scheduled function
 
 ### 1507
 
-CCScheduler#scheduleSelector. Selector already scheduled. Updating interval from: %.4f to %.4f
+scheduler#scheduleSelector. Selector already scheduled. Updating interval from: %.4f to %.4f
 
 ### 1508
 

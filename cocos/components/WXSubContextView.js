@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Component = require('./CCComponent');
-const ImageAsset = require('../assets/image-asset');
+import { Component } from './component';
+const { ImageAsset } = require('../assets/image-asset');
 
 let WXSubContextView;
 
@@ -37,7 +37,7 @@ if (!CC_EDITOR && !CC_WECHATGAME) {
 else {
     /**
      * !#en WXSubContextView is a view component which controls open data context viewport in Wechat game platform.<br/>
-     * The component's node size decide the viewport of the sub context content in main context, 
+     * The component's node size decide the viewport of the sub context content in main context,
      * the entire sub context texture will be scaled to the node's bounding box area.<br/>
      * This component provides multiple important features:<br/>
      * 1. Sub context could use its own resolution size and policy.<br/>
@@ -45,7 +45,7 @@ else {
      * 3. Resolution of sub context content could be increased.<br/>
      * 4. User touch input is transformed to the correct viewport.<br/>
      * 5. Texture update is handled by this component. User don't need to worry.<br/>
-     * One important thing to be noted, whenever the node's bounding box change, 
+     * One important thing to be noted, whenever the node's bounding box change,
      * you need to manually reset the viewport of sub context using updateSubContextViewport.
      * !#zh WXSubContextView 可以用来控制微信小游戏平台开放数据域在主域中的视窗的位置。<br/>
      * 这个组件的节点尺寸决定了开放数据域内容在主域中的尺寸，整个开放数据域会被缩放到节点的包围盒范围内。<br/>

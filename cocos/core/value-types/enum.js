@@ -38,9 +38,9 @@ import * as js from '../utils/js';
  * 定义一个枚举类型。<br/>
  * 用户可以把枚举值设为任意的整数，如果设为 -1，系统将会分配为上一个枚举值 + 1。
  *
- * @method Enum
- * @param {object} obj - a JavaScript literal object containing enum names and values, or a TypeScript enum type
- * @return {object} the defined enum type
+ * 
+ * @param obj - a JavaScript literal object containing enum names and values, or a TypeScript enum type
+ * @return the defined enum type
  * @example {@link cocos2d/core/platform/CCEnum/Enum.js}
  * @typescript Enum<T>(obj: T): T
  */
@@ -85,8 +85,8 @@ Enum.isEnum = function (enumType) {
 };
 
 /**
- * @method getList
- * @param {Object} enumDef - the enum type defined from cc.Enum
+ * 
+ * @param enumDef - the enum type defined from cc.Enum
  * @return {Object[]}
  * @private
  */
@@ -116,6 +116,17 @@ if (CC_DEV) {
     if (_TestEnum.ZERO !== 0 || _TestEnum.ONE !== 1 || _TestEnum.THREE !== 3) {
         cc.errorID(7101);
     }
+}
+
+/**
+ * 
+ * @param enumx 
+ */
+export function ccenum(enumx) {
+    if ('__enums__' in enumx) {
+        return;
+    }
+    js.value(enumx, '__enums__', null, true);
 }
 
 cc.Enum = Enum;

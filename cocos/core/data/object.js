@@ -536,4 +536,4 @@ if (CC_EDITOR || CC_TEST) {
 }
 
 cc.Object = CCObject;
-export default CCObject;
+export { CCObject };

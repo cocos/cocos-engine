@@ -34,10 +34,10 @@ export * from './event';
 export * from './platform';
 export * from './value-types';
 // Cause error:
-// export * from './CCGame';
-import './CCGame';
-export * from './CCScheduler';
+// export * from './game';
+import './game';
+export * from './scheduler';
 // Cause error:
-// export * from './CCDirector';
-import './CCDirector';
+// export * from './director';
+import './director';
 export { vmath };

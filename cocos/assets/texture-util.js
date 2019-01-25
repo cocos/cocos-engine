@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import ImageAsset from './image-asset';
-import Texture2D from './texture-2d';
+import { ImageAsset } from './image-asset';
+import { Texture2D } from './texture-2d';
 
 /**
  * cc.textureUtil is a singleton object, it can load cc.Texture2D asynchronously

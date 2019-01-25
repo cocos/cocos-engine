@@ -27,9 +27,10 @@ export * from './assets';
 export * from './builtin';
 export * from './framework';
 export * from './memop';
-import utils from './misc/utils';
+import * as utils from './misc/utils';
 import * as primitives from './primitive';
 import * as geometry from './geom-utils';
+import './ui';
 
 export {
     utils,

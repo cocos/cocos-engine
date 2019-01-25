@@ -46,8 +46,10 @@ export class PhysicsWorld {
 
     constructor() {
         this._defaultMaterial = new PhysicsMaterial();
-        this._defaultContactMaterial = new ContactMaterial(
-            this._defaultMaterial, this._defaultMaterial, { friction: 0.3, restitution: 0.0 });
+        const mtl = new PhysicsMaterial();
+        mtl.friction = 0.3;
+        mtl.restitution = 0;
+        this._defaultContactMaterial = new ContactMaterial(this._defaultMaterial, mtl);
 
         this._cannonWorld = new CANNON.World();
         setWrap<PhysicsWorld>(this._cannonWorld, this);

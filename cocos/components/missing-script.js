@@ -26,7 +26,7 @@
 
 import {_getClassById} from '../core/utils/js';
 import {BUILTIN_CLASSID_RE} from '../core/utils/misc';
-import Component from './CCComponent';
+import { Component } from './component';
 import {ccclass, property, inspector} from '../core/data/class-decorator';
 
 /*
@@ -48,7 +48,7 @@ class MissingClass {
 @ccclass('cc.MissingScript')
 @inspector('packages://inspector/inspectors/comps/missing-script.js')
 export default class MissingScript extends Component {
-    
+
     //_scriptUuid: {
     //    get: function () {
     //        var id = this._$erialized.__type__;

@@ -2,7 +2,7 @@
 
 import { bits } from '../../core/vmath';
 import ArrayBufferHelper from './array-buffer-helper';
-import enums from '../enums';
+import * as enums from '../enums';
 
 const _DEFAULT_MAX_BATCH_BYTES = 512000; // 500 kb
 const _MIN_BATCH_BYTES = 64;

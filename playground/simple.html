@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>spec-scroll-view</title>
+  <title>simple</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <style>
@@ -23,41 +23,111 @@
 </head>
 
 <body class="fit">
-  <canvas id="canvas" tabindex="-1" class="fit"></canvas>
+  <canvas id="canvas" tabindex="-1" class="fit">
+    <img name="testImg" src="cubetexture.png" />
+  </canvas>
+
   <script src="../bin/cocos-3d.dev.js"></script>
-  <!-- <script src="./loadScene.js"></script> -->
+  <script src="./camera.js"></script>
   <script>
-    function onStart() {
-        //todo initialization
-        let scene = new cc.Scene();
-        let node = new cc.Node();
-        scene.addChild(node);
-        node.addComponent('cc.CameraComponent');
-        let modelNode = new cc.Node();
-        modelNode.setPosition(0, 0, -10);
-        scene.addChild(modelNode);
-        let model = modelNode.addComponent('cc.ModelComponent');
-        // init mesh
-        model.mesh = cc.utils.createMesh(cc.game._renderContext, cc.primitives.box());
-        /**
-        // init effect
-        let mtl = new cc.Material();
-        let color = cc.color('#B58C42');
-        mtl.effectName = cc.game._builtins['builtin-effect-unlit'];
-        mtl.define('USE_COLOR', true);
-        mtl.setProperty('color', color);
-        /**
-        mtl.effect = cc.game._builtins['builtin-effect-phong'];
-        mtl.setProperty('diffuseColor', color);
-        /**
-        mtl.effect = cc.game._builtins['builtin-effect-pbr'];
-        mtl.define('USE_EMISSIVE', true);
-        mtl.setProperty('emissive', color);
-        /**/
-        // model.material = mtl;
-        cc.director.runSceneImmediate(scene);
+    const $body = document.body;
+    const bcr = $body.getBoundingClientRect();
+    const canv = document.getElementById('canvas');
+    canv.width = bcr.width;
+    canv.height = bcr.height;
+
+    window.addEventListener('resize', () => {
+      const bcr = $body.getBoundingClientRect();
+      cc.director.root.resize(bcr.width, bcr.height);
+    });
+
+    function createTexture(imgElms) {
+      const textureAsset = new cc.Texture2D();
+      textureAsset.image = new cc.ImageAsset(imgElms[0]);
+      return textureAsset;
     }
-    cc.game.run({id:'canvas'}, onStart);
+    const geomList = ['box', 'sphere', 'cylinder', 'cone', 'torus', 'capsule'];
+    function onStart() {
+      const root = cc.director.root;
+      const scene = new cc.Scene();
+
+      const cameraNode = new cc.Node('Camera');
+      cameraNode.parent = scene;
+      cameraNode.setPosition(20, 0, 115);
+      cameraNode.setRotationFromEuler(0, 30, 0);
+      cameraNode.addComponent(FirstPersonCamera);
+      const camComp = cameraNode.addComponent(cc.CameraComponent);
+
+      const lightNode = new cc.Node('Light');
+      lightNode.parent = scene;
+      lightNode.setRotationFromEuler(70, 0, 0);
+      const lightComp = lightNode.addComponent(cc.LightComponent);
+
+      const texture = createTexture(cc.game.canvas.getElementsByTagName('img'));
+
+      const material = new cc.Material();
+      material.setDefines({ USE_COLOR: true });
+      // parsed effect file is embedded in cocos/3d/builtin/effects.js
+      material.effectName = 'builtin-effect-unlit';
+
+      const len = 50;
+      const models = [], passes = [];
+      const color = cc.color();
+      for (let i = 0; i < len; i++) {
+        const modelNode = new cc.Node(`${i}`);
+        modelNode.parent = scene;
+        const modelCom = modelNode.addComponent('cc.ModelComponent');
+        modelCom.material = material;
+        modelCom.mesh = cc.utils.createMesh(cc.primitives[geomList[i % geomList.length]]());
+        modelNode.setPosition(0, 0, i * 2);
+        models.push(modelNode);
+        // material instance initialized here
+        passes.push(modelCom.material.passes[0]);
+      }
+      const handle = passes[0].getHandle('color');
+
+      {
+        const material = new cc.Material();
+        material.effectName = 'builtin-effect-sprite';
+        material.setProperty('mainTexture', texture);
+        const modelNode = new cc.Node('test');
+        modelNode.parent = scene;
+        const modelCom = modelNode.addComponent('cc.ModelComponent');
+        modelCom.material = material;
+        const shape = cc.primitives.quad();
+        shape.colors = Array(shape.uvs.length / 2).fill(0)
+          .map((t) => [Math.random(), Math.random(), Math.random(), 0.8])
+          .reduce((c, a) => a.concat(c), []);
+        modelCom.mesh = cc.utils.createMesh(shape);
+        modelNode.setPosition(0, 3, 100);
+      }
+
+      let buttonDown = false, pos = cc.v2();
+      canv.addEventListener('mousedown', (e) => buttonDown = (!e.button) ? true : buttonDown);
+      canv.addEventListener('mouseup', (e) => buttonDown = (!e.button) ? false : buttonDown);
+      canv.addEventListener('mousemove', (e) => (pos.x = e.x, pos.y = e.y));
+
+      cc.director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
+        if (buttonDown) {
+          const ray = camComp.screenPointToRay(pos.x, canv.height - pos.y);
+          const res = cc.director._scene._renderScene.raycast(ray);
+          if (res.length) res.forEach((r) => console.log(r.node.name, r.distance));
+        }
+        models.forEach((m, i) => {
+          const dt = cc.director._deltaTime;
+          const t = cc.director._totalFrames / (60);
+          const rad = i * Math.PI * 8 / len;
+          const x = Math.cos(rad + t), y = Math.sin(rad + t);
+          let z = m._lpos.z + dt; if (z > len * 2) z = 0;
+          m.setPosition(x * 2, y * 2, z);
+          color.fromHSV((x + 1) * 0.5, 0.5, 1);
+          passes[i].setUniform(handle, color);
+        });
+      });
+
+      cc.director.runSceneImmediate(scene);
+    }
+    cc.game.run({ id: 'canvas' }, onStart);
   </script>
 </body>
 

@@ -8,6 +8,13 @@ import { EPSILON, random } from './utils';
  * x, y, z is alias of the first, second, third component of vector, respectively.
  */
 export default class vec3 {
+    public static UNIT_X = new vec3(1, 0, 0);
+    public static UNIT_Y = new vec3(0, 1, 0);
+    public static UNIT_Z = new vec3(0, 0, 1);
+    public static ZERO = new vec3(0, 0, 0);
+    public static ONE = new vec3(1, 1, 1);
+    public static NEG_ONE = new vec3(-1, -1, -1);
+
     /**
      * Creates a vector, with components specified separately.
      *
@@ -730,10 +737,10 @@ export default class vec3 {
      * @param v - The vector.
      * @return out.
      */
-    public static array<Out extends IWritableArrayLike<number>> (out: Out, v: vec3) {
-        out[0] = v.x;
-        out[1] = v.y;
-        out[2] = v.z;
+    public static array<Out extends IWritableArrayLike<number>> (out: Out, v: vec3, ofs = 0) {
+        out[ofs + 0] = v.x;
+        out[ofs + 1] = v.y;
+        out[ofs + 2] = v.z;
 
         return out;
     }

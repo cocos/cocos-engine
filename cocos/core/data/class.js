@@ -144,7 +144,7 @@ function defineProp (cls, className, propName, val, es6) {
     appendProp(cls, propName);
 
     // apply attributes
-    var attrs = parseAttributes(cls, val, className, propName, false);    
+    var attrs = parseAttributes(cls, val, className, propName, false);
     if (attrs) {
         var onAfterProp = tmpArray;
         for (var i = 0; i < attrs.length; i++) {

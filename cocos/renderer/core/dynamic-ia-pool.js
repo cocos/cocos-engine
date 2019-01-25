@@ -4,7 +4,7 @@ import gfx from '../gfx';
 import { CircularPool } from '../../3d/memop';
 import InputAssembler from './input-assembler';
 import BufferPool from './buffer-pool';
-import enums from '../enums';
+import * as enums from '../enums';
 
 let _attr2bufviewType = {};
 _attr2bufviewType[gfx.ATTR_TYPE_INT8] = enums.BUFFER_VIEW_INT8;

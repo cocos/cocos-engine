@@ -31,12 +31,16 @@ import cc from './predefine';
 // LOAD ENGINE CORE
 export * from './cocos/core';
 export * from './cocos/scene-graph';
-export * from './cocos/renderer';
+import * as renderer from './cocos/renderer';
+export { renderer };
+cc.renderer = renderer;
 
 export * from './cocos/assets';
 export * from './cocos/load-pipeline';
 export * from './cocos/components';
 export * from './cocos/animation';
 export * from './cocos/3d';
+export * from './cocos/gfx';
+export * from './cocos/pipeline';
 
 // export default cc;

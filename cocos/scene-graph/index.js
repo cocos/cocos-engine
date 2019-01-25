@@ -24,10 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export { default as BaseNode } from './base-node';
-export { default as Node } from './node';
+export { BaseNode } from './base-node';
+export { Node } from './node';
 export { default as PrivateNode } from './private-node';
 export { default as NodeActivator } from './node-activator';
 export { default as Scene } from './scene';
 export { default as find } from './find';
-export { default as Layers } from './layers';
+export { Layers } from './layers';

@@ -25,7 +25,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass } = _decorator;
-import Asset from "../../assets/CCAsset";
+import { Asset } from "../../assets/asset";
 import { vec3, mat4 } from '../../core/vmath/index';
 
 let _t_tmp = vec3.create(0, 0, 0);

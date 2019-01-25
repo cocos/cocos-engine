@@ -8,6 +8,9 @@ import { EPSILON, random } from './utils';
  * x, y, z, w is alias of the first, second, third, fourth component of vector, respectively.
  */
 export default class vec4 {
+    public static ZERO = new vec4(0, 0, 0, 0);
+    public static ONE = new vec4(1, 1, 1, 1);
+    public static NEG_ONE = new vec4(-1, -1, -1, -1);
 
     /**
      * Create a vector, with components specified separately.
@@ -567,11 +570,11 @@ export default class vec4 {
      * @param v - The vector.
      * @return out.
      */
-    public static array<Out extends IWritableArrayLike<number>> (out: Out, v: vec4) {
-        out[0] = v.x;
-        out[1] = v.y;
-        out[2] = v.z;
-        out[3] = v.w;
+    public static array<Out extends IWritableArrayLike<number>> (out: Out, v: vec4, ofs = 0) {
+        out[ofs + 0] = v.x;
+        out[ofs + 1] = v.y;
+        out[ofs + 2] = v.z;
+        out[ofs + 3] = v.w;
 
         return out;
     }

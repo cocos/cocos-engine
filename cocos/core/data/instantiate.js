@@ -24,9 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import CCObject from './object';
-import ValueType from '../value-types/value-type';
-import {isDomNode} from '../utils/misc';
+import { CCObject } from './object';
+import { ValueType } from '../value-types/value-type';
+import { isDomNode } from '../utils/misc';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
