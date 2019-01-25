@@ -567,9 +567,9 @@ class Node extends EventTarget(BaseNode) {
      */
     public setPosition (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
-            vec3.copy(this._lpos, val);
+            vec3.copy(this._lpos, val as Vec3);
         } else if (arguments.length === 3) {
-            vec3.set(this._lpos, val, y, z);
+            vec3.set(this._lpos, val as number, y, z);
         }
         vec3.copy(this._pos, this._lpos);
 
@@ -607,9 +607,9 @@ class Node extends EventTarget(BaseNode) {
 
     public setRotation (val: Quat | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
-            quat.copy(this._lrot, val);
+            quat.copy(this._lrot, val as Quat);
         } else if (arguments.length === 4) {
-            quat.set(this._lrot, val, y, z, w);
+            quat.set(this._lrot, val as number, y, z, w);
         }
         quat.copy(this._rot, this._lrot);
         this._eulerDirty = true;
@@ -669,9 +669,9 @@ class Node extends EventTarget(BaseNode) {
      */
     public setScale (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
-            vec3.copy(this._lscale, val);
+            vec3.copy(this._lscale, val as Vec3);
         } else if (arguments.length === 3) {
-            vec3.set(this._lscale, val, y, z);
+            vec3.set(this._lscale, val as number, y, z);
         }
         vec3.copy(this._scale, this._lscale);
 
@@ -714,9 +714,9 @@ class Node extends EventTarget(BaseNode) {
      */
     public setWorldPosition (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
-            vec3.copy(this._pos, val);
+            vec3.copy(this._pos, val as Vec3);
         } else if (arguments.length === 3) {
-            vec3.set(this._pos, val, y, z);
+            vec3.set(this._pos, val as number, y, z);
         }
         const parent = this._parent;
         const local = this._lpos;
@@ -771,9 +771,9 @@ class Node extends EventTarget(BaseNode) {
      */
     public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
-            quat.copy(this._rot, val);
+            quat.copy(this._rot, val as Quat);
         } else if (arguments.length === 4) {
-            quat.set(this._rot, val, y, z, w);
+            quat.set(this._rot, val as number, y, z, w);
         }
         if (this._parent) {
             this._parent.getWorldRotation(q_a);
@@ -894,11 +894,8 @@ class Node extends EventTarget(BaseNode) {
      */
     public getWorldRS (out?: Mat4): Mat4 {
         this.updateWorldTransformFull();
-        if (out) {
-            mat4.copy(out, this._mat);
-        } else {
-            out = mat4.copy(new Mat4(), this._mat);
-        }
+        if (out === undefined) { out = new Mat4(); }
+        mat4.copy(out, this._mat);
         out.m12 = 0; out.m13 = 0; out.m14 = 0;
         return out;
     }

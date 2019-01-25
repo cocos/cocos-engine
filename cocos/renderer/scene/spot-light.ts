@@ -4,7 +4,7 @@ import { Light, LightType } from './light';
 import { RenderScene } from './render-scene';
 import { Node } from '../../scene-graph/node';
 
-const _forward = new Vec3(0, 0, 1);
+const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
 const _qt = new Quat();
 
