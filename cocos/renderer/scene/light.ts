@@ -2,10 +2,10 @@ import { RenderScene } from './render-scene';
 import { Node } from '../../scene-graph/node';
 
 export enum LightType {
-    UNKNOWN,
     DIRECTIONAL,
     POINT,
     SPOT,
+    UNKNOWN,
 }
 
 export class Light {

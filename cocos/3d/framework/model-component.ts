@@ -104,7 +104,7 @@ export class ModelComponent extends RenderableComponent {
 
     set mesh (val) {
         this._mesh = val;
-        this._updateModels(true);
+        this._updateModels();
     }
 
     /**
@@ -167,12 +167,11 @@ export class ModelComponent extends RenderableComponent {
     }
 
     public onEnable () {
-        this._updateModels();
+        if (!this._model) { this._updateModels(); }
         this._updateCastShadow();
         this._updateReceiveShadow();
-
         if (this._model) {
-            this._model.enabled = this.enabledInHierarchy;
+            this._model.enabled = true;
         }
     }
 
@@ -188,11 +187,8 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    protected _updateModels (forceUpdate: boolean = false) {
-        if (!this.enabled || !this.node._scene || !this._mesh || (this._model && !forceUpdate)) {
-            if (this._model) {
-                this._model.enabled = false;
-            }
+    protected _updateModels () {
+        if (!this.enabledInHierarchy || !this.node._scene || !this._mesh) {
             return;
         }
 
@@ -205,6 +201,10 @@ export class ModelComponent extends RenderableComponent {
         this._model!.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
 
         this._updateModelParams();
+
+        if (this._model) {
+            this._model.enabled = true;
+        }
     }
 
     protected _createModel () {
@@ -252,7 +252,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     private _updateCastShadow () {
-        if (!this.enabled || !this._model) {
+        if (!this.enabledInHierarchy || !this._model) {
             return;
         }
         if (this._shadowCastingMode === ModelShadowCastingMode.Off) {
@@ -271,15 +271,15 @@ export class ModelComponent extends RenderableComponent {
     }
 
     private _updateReceiveShadow () {
-        if (!this.enabled || !this._model) {
+        if (!this.enabledInHierarchy || !this._model) {
             return;
         }
-        for (let i = 0; i < this._model.subModelNum; ++i) {
-            const subModel = this._model.getSubModel(i);
-            // if (subModel._defines['CC_USE_SHADOW_MAP'] != undefined) {
-            //     this.getMaterial(i).define('CC_USE_SHADOW_MAP', this._receiveShadows);
-            // }
-        }
+        // for (let i = 0; i < this._model.subModelNum; ++i) {
+        //     const subModel = this._model.getSubModel(i);
+        //     if (subModel._defines['CC_USE_SHADOW_MAP'] != undefined) {
+        //         this.getMaterial(i).define('CC_USE_SHADOW_MAP', this._receiveShadows);
+        //     }
+        // }
     }
 
     private _getBuiltinMaterial () {

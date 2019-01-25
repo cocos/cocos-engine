@@ -165,8 +165,8 @@ export default class LightComponent extends Component {
     }
 
     set type (val) {
-        this._type = val;
         this._destroyLight();
+        this._type = parseInt(val);
         this._createLight();
     }
 
@@ -279,6 +279,9 @@ export default class LightComponent extends Component {
             this.range = this._range;
             this.spotAngle = this._spotAngle;
             break;
+        default:
+            console.warn(`illegal light type ${this._type}`);
+            return;
         }
         if (!this._light) { console.warn('we don\'t support this many lights in forward pipeline.'); }
         this.color = this._color;
