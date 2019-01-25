@@ -1,21 +1,21 @@
 import { repeat } from '../../../../core/vmath';
-import { Enum, ValueType } from '../../../../core/value-types';
+import { Enum, ValueType, Color } from '../../../../core/value-types';
 import { CCClass } from '../../../../core/data';
 import { property, ccclass } from '../../../../core/data/class-decorator';
 
 const Mode = Enum({
     Blend: 0,
-    Fixed: 1
+    Fixed: 1,
 });
 
 @ccclass('cc.ColorKey')
 export class ColorKey {
 
     @property
-    color = cc.Color.WHITE;
+    public color = cc.Color.WHITE;
 
     @property
-    time = 0;
+    public time = 0;
 }
 
 // CCClass.fastDefine('cc.ColorKey', ColorKey, {
@@ -27,10 +27,10 @@ export class ColorKey {
 export class AlphaKey {
 
     @property
-    alpha = 1;
+    public alpha = 1;
 
     @property
-    time = 0;
+    public time = 0;
 }
 
 // CCClass.fastDefine('cc.AlphaKey', AlphaKey, {
@@ -42,24 +42,26 @@ export class AlphaKey {
 export default class Gradient {
 
     @property
-    colorKeys = [];
+    public colorKeys = new Array<ColorKey>();
 
     @property
-    alphaKeys = []
+    public alphaKeys = new Array<AlphaKey>();
 
     @property
-    mode = Mode.Blend;
+    public mode = Mode.Blend;
 
-    constructor() {
+    private _color: Color;
+
+    constructor () {
         this._color = cc.Color.WHITE;
     }
 
-    setKeys(colorKeys, alphaKeys) {
+    public setKeys (colorKeys, alphaKeys) {
         this.colorKeys = colorKeys;
         this.alphaKeys = alphaKeys;
     }
 
-    sortKeys() {
+    public sortKeys () {
         if (this.colorKeys.length > 1) {
             this.colorKeys.sort((a, b) => a.time - b.time);
         }
@@ -68,17 +70,17 @@ export default class Gradient {
         }
     }
 
-    getRGB(time) {
+    private getRGB (time: number) {
         if (this.colorKeys.length > 1) {
             time = repeat(time, 1);
             for (let i = 1; i < this.colorKeys.length; ++i) {
-                let preTime = this.colorKeys[i - 1].time;
-                let curTime = this.colorKeys[i].time;
+                const preTime = this.colorKeys[i - 1].time;
+                const curTime = this.colorKeys[i].time;
                 if (time >= preTime && time < curTime) {
-                    if (this._mode === 'fixed') {
+                    if (this.mode === 'fixed') {
                         return this.colorKeys[i].color;
                     }
-                    let factor = (time - preTime) / (curTime - preTime);
+                    const factor = (time - preTime) / (curTime - preTime);
                     this.colorKeys[i - 1].color.lerp(this.colorKeys[i].color, factor, this._color);
                     return this._color;
                 }
@@ -96,17 +98,17 @@ export default class Gradient {
         }
     }
 
-    getAlpha(time) {
+    private getAlpha (time) {
         if (this.alphaKeys.length > 1) {
             time = repeat(time, 1);
             for (let i = 1; i < this.alphaKeys.length; ++i) {
-                let preTime = this.alphaKeys[i - 1].time;
-                let curTime = this.alphaKeys[i].time;
+                const preTime = this.alphaKeys[i - 1].time;
+                const curTime = this.alphaKeys[i].time;
                 if (time >= preTime && time < curTime) {
-                    if (this._mode === 'fixed') {
+                    if (this.mode === 'fixed') {
                         return this.alphaKeys[i].alpha;
                     }
-                    let factor = (time - preTime) / (curTime - preTime);
+                    const factor = (time - preTime) / (curTime - preTime);
                     return (this.alphaKeys[i - 1].alpha * (1 - factor) + this.alphaKeys[i].alpha * factor);
                 }
             }
@@ -118,19 +120,19 @@ export default class Gradient {
         }
     }
 
-    evaluate(time) {
+    public evaluate (time) {
         this.getRGB(time);
-        this._color.a = this.getAlpha(time);
+        this._color.a = this.getAlpha(time)!;
         return this._color;
     }
 
-    randomColor() {
-        let c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
-        let a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
-        this._color.r = c.r;
-        this._color.g = c.g;
-        this._color.b = c.b;
-        this._color.a = a;
+    public randomColor () {
+        const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
+        const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
+        this._color.r = c.color.r;
+        this._color.g = c.color.g;
+        this._color.b = c.color.b;
+        this._color.a = a.alpha;
         return this._color;
     }
 }

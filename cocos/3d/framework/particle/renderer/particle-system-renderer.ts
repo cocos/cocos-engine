@@ -7,7 +7,7 @@ import * as renderer from '../../../../renderer';
 import gfx from '../../../../renderer/gfx';
 import ParticleBatchModel from '../../../../renderer/models/particle-batch-model';
 import { Material } from '../../../assets/material';
-import { RecyclePool } from '../../../memop';
+import RecyclePool from '../../../memop/recycle-pool';
 import Particle from '../particle';
 import { RenderableComponent } from '../../renderable-component';
 import { Space } from '../particle-general-function';
@@ -157,7 +157,12 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this._model!.destroy();
     }
 
-    public _getFreeParticle () {
+    private clear () {
+        this._particles.reset();
+        this._model!.destroy();
+    }
+
+    public _getFreeParticle (): Particle | null {
         if (this._particles.length >= this.particleSystem._capacity) {
             return null;
         }
@@ -254,6 +259,10 @@ export default class ParticleSystemRenderer extends RenderableComponent {
 
     public updateShaderUniform () {
 
+    }
+
+    public getParticleCount (): number {
+        return this._particles.length;
     }
 
     public _onMaterialModified (index: number, material: Material) {

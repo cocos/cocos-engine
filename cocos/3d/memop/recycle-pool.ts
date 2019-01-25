@@ -62,7 +62,7 @@ export default class RecyclePool<T = any> {
 
     public remove (obj: T) {
         if (this._objIdx.has(obj)) {
-            this.removeAt(this._objIdx.get(obj));
+            this.removeAt(this._objIdx.get(obj)!);
         }
     }
 

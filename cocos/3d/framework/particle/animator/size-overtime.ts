@@ -2,41 +2,43 @@ import { vec3, pseudoRandom } from '../../../../core/vmath';
 import CurveRange from './curve-range';
 import { CCClass } from '../../../../core/data';
 import { property, ccclass } from '../../../../core/data/class-decorator';
+import Particle from '../particle';
 
+// tslint:disable: max-line-length
 const SIZE_OVERTIME_RAND_OFFSET = 39825;
 
 @ccclass('cc.SizeOvertimeModule')
 export default class SizeOvertimeModule {
 
     @property
-    enable = false;
+    public enable = false;
 
     @property
-    separateAxes = false;
+    public separateAxes = false;
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    size = new CurveRange();
+    public size = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    x = new CurveRange();
+    public x = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    y = new CurveRange();
+    public y = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    z = new CurveRange();
+    public z = new CurveRange();
 
-    animate(particle) {
+    public animate (particle: Particle) {
         if (!this.separateAxes) {
-            vec3.scale(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET)));
+            vec3.scale(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET))!);
         }
     }
 }

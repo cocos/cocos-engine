@@ -4,46 +4,53 @@ import CurveRange from './curve-range';
 import { CCClass } from '../../../../core/data';
 import { property, ccclass } from '../../../../core/data/class-decorator';
 
+// tslint:disable: max-line-length
 const FORCE_OVERTIME_RAND_OFFSET = 212165;
 
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule {
 
     @property
-    enable = false;
+    public enable = false;
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    x = new CurveRange();
+    public x = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    y = new CurveRange();
+    public y = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    z = new CurveRange();
+    public z = new CurveRange();
 
-    @property
-    space = Space.Local;
+    @property({
+        type: Space,
+    })
+    public space = Space.Local;
 
     // TODO:currently not supported
-    randomized = false;
+    public randomized = false;
 
-    constructor() {
+    private rotation: quat;
+    private needTransform: boolean;
+
+    constructor () {
         this.rotation = quat.create();
+        this.needTransform = false;
     }
 
-    update(space, worldTransform) {
-        this.needTransform = calculateTransform(space, this._space, worldTransform, this.rotation);
+    public update (space, worldTransform) {
+        this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
-    animate(p, dt) {
-        let normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        let force = vec3.create(this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET)), this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET)), this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET)));
+    public animate (p, dt) {
+        const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
+        const force = vec3.create(this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET)), this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET)), this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET)));
         if (this.needTransform) {
             vec3.transformQuat(force, force, this.rotation);
         }

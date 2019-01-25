@@ -18,7 +18,7 @@ import { particleEmitZAxis, Space } from './particle-general-function';
 import { INT_MAX } from '../../../core/vmath/bits';
 import { ccclass, executionOrder, executeInEditMode, property, requireComponent, menu } from '../../../core/data/class-decorator';
 
-let _world_mat = mat4.create();
+const _world_mat = mat4.create();
 
 @ccclass('cc.ParticleSystemComponent')
 @menu('Components/ParticleSystemComponent')
@@ -28,155 +28,165 @@ let _world_mat = mat4.create();
 export default class ParticleSystemComponent extends Component {
 
     @property
-    capacity = 2000;
+    public capacity = 2000;
 
     @property({
-        type:GradientRange
+        type: GradientRange,
     })
-    startColor = new GradientRange();
+    public startColor = new GradientRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    startSize = new CurveRange();
+    public startSize = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    startSpeed = new CurveRange();
+    public startSpeed = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    startRotation = new CurveRange();
+    public startRotation = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    startDelay = new CurveRange();
+    public startDelay = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    startLifetime = new CurveRange();
+    public startLifetime = new CurveRange();
 
     @property
-    duration = 5.0;
+    public duration = 5.0;
 
     @property
-    loop = true;
+    public loop = true;
 
     @property
-    _prewarm = false;
+    private _prewarm = false;
 
     @property
-    get prewarm() {
+    get prewarm () {
         return this._prewarm;
     }
 
-    set prewarm(val) {
-        if (val === true && this._loop === false) {
+    set prewarm (val) {
+        if (val === true && this.loop === false) {
             // console.warn('prewarm only works if loop is also enabled.');
         }
         this._prewarm = val;
     }
 
     @property
-    _simulationSpace = Space.Local;
+    private _simulationSpace = Space.Local;
 
     @property({
-        type: Space
+        type: Space,
     })
-    get simulationSpace() {
+    get simulationSpace () {
         return this._simulationSpace;
     }
 
-    set simulationSpace(val) {
-        if (val === Space.World) {
-            this._renderer._material.define('USE_WORLD_SPACE', true);
-        } else {
-            this._renderer._material.define('USE_WORLD_SPACE', false);
+    set simulationSpace (val) {
+        if (val !== this._simulationSpace) {
+            this._simulationSpace = val;
+            this.renderer!._updateMaterialParams();
         }
-        this._simulationSpace = val;
     }
 
     @property
-    simulationSpeed = 1.0;
+    public simulationSpeed = 1.0;
 
     @property
-    playOnAwake = true;
+    public playOnAwake = true;
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    gravityModifier = new CurveRange();
+    public gravityModifier = new CurveRange();
 
     // emission module
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    rateOverTime = new CurveRange();
+    public rateOverTime = new CurveRange();
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    rateOverDistance = new CurveRange();
+    public rateOverDistance = new CurveRange();
 
     @property({
-        type: [Burst]
+        type: [Burst],
     })
-    bursts = new Array();
+    public bursts = new Array();
 
     // color over lifetime module
     @property({
-        type: ColorOverLifetimeModule
+        type: ColorOverLifetimeModule,
     })
-    colorOverLifetimeModule = new ColorOverLifetimeModule();
+    public colorOverLifetimeModule = new ColorOverLifetimeModule();
 
     // shpae module
     @property({
-        type: ShapeModule
+        type: ShapeModule,
     })
-    shapeModule = new ShapeModule();
-
-    // particle system renderer
-    @property({
-        type: ParticleSystemRenderer
-    })
-    renderer = null;
+    public shapeModule = new ShapeModule();
 
     // size over lifetime module
     @property({
-        type: SizeOvertimeModule
+        type: SizeOvertimeModule,
     })
-    sizeOvertimeModule = new SizeOvertimeModule();
+    public sizeOvertimeModule = new SizeOvertimeModule();
 
     @property({
-        type: VelocityOvertimeModule
+        type: VelocityOvertimeModule,
     })
-    velocityOvertimeModule = new VelocityOvertimeModule();
+    public velocityOvertimeModule = new VelocityOvertimeModule();
 
     @property({
-        type: ForceOvertimeModule
+        type: ForceOvertimeModule,
     })
-    forceOvertimeModule = new ForceOvertimeModule();
+    public forceOvertimeModule = new ForceOvertimeModule();
 
     @property({
-        type: LimitVelocityOvertimeModule
+        type: LimitVelocityOvertimeModule,
     })
-    limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
+    public limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
 
     @property({
-        type: RotationOvertimeModule
+        type: RotationOvertimeModule,
     })
-    rotationOvertimeModule = new RotationOvertimeModule();
+    public rotationOvertimeModule = new RotationOvertimeModule();
 
     @property({
-        type: TextureAnimationModule
+        type: TextureAnimationModule,
     })
-    textureAnimationModule = new TextureAnimationModule();
+    public textureAnimationModule = new TextureAnimationModule();
 
-    constructor() {
+    // particle system renderer
+    private renderer: ParticleSystemRenderer | null;
+    private _isPlaying: boolean;
+    private _isPaused: boolean;
+    private _isStopped: boolean;
+    private _isEmitting: boolean;
+
+    private _time: number;  // playback position in seconds.
+    private _emitRateTimeCounter: number;
+    private _emitRateDistanceCounter: number;
+    private _oldWPos: vec3;
+    private _curWPos: vec3;
+
+    private _customData1: vec2;
+    private _customData2: vec2;
+
+    private _subEmitters: any[]; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
+
+    constructor () {
         super();
 
         this.rateOverTime.constant = 10;
@@ -200,9 +210,10 @@ export default class ParticleSystemComponent extends Component {
         this._customData2 = vec2.create(0, 0);
 
         this._subEmitters = []; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
+        this.renderer = null;
     }
 
-    onLoad() {
+    private onLoad () {
         // HACK, TODO
         this.renderer = this.getComponent(ParticleSystemRenderer);
         this.renderer.onInit();
@@ -215,17 +226,17 @@ export default class ParticleSystemComponent extends Component {
         // this._system.add(this);
     }
 
-    onDestroy() {
+    private onDestroy () {
         // this._system.remove(this);
     }
 
-    onEnable() {
+    private onEnable () {
         if (this.playOnAwake) {
             this.play();
         }
     }
 
-    onDisable() {
+    private onDisable () {
 
     }
 
@@ -234,7 +245,7 @@ export default class ParticleSystemComponent extends Component {
 
     // }
 
-    play() {
+    public play () {
         if (this._isPaused) {
             this._isPaused = false;
         }
@@ -254,7 +265,7 @@ export default class ParticleSystemComponent extends Component {
         }
     }
 
-    pause() {
+    public pause () {
         if (this._isStopped) {
             console.warn('pause(): particle system is already stopped.');
             return;
@@ -266,7 +277,7 @@ export default class ParticleSystemComponent extends Component {
         this._isPaused = true;
     }
 
-    stop() {
+    public stop () {
         if (this._isPlaying) {
             this._isPlaying = false;
         }
@@ -283,21 +294,21 @@ export default class ParticleSystemComponent extends Component {
     }
 
     // remove all particles from current particle system.
-    clear() {
-        this._particles.reset();
-        this._renderer._model.clear();
+    public clear () {
+        this.renderer!.clear();
     }
 
-    emit(count, emitParams = null) {
+    private emit (count, emitParams = null) {
         if (emitParams !== null) {
             // TODO:
         }
 
         for (let i = 0; i < count; ++i) {
-            let particle = this.renderer._getFreeParticle();
-            if (particle === null)
+            const particle = this.renderer!._getFreeParticle();
+            if (particle === null) {
                 return;
-            let rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+            }
+            const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
 
             if (this.shapeModule.enable) {
                 this.shapeModule.emit(particle);
@@ -312,13 +323,12 @@ export default class ParticleSystemComponent extends Component {
             switch (this._simulationSpace) {
                 case Space.Local:
                     break;
-                case Space.World: {
+                case Space.World:
                     this.node.getWorldMatrix(_world_mat);
                     vec3.transformMat4(particle.position, particle.position, _world_mat);
-                    let worldRot = quat.create();
+                    const worldRot = quat.create();
                     this.node.getWorldRotation(worldRot);
                     vec3.transformQuat(particle.velocity, particle.velocity, worldRot);
-                }
                     break;
                 case Space.Custom:
                     // TODO:
@@ -342,88 +352,28 @@ export default class ParticleSystemComponent extends Component {
 
             particle.randomSeed = randomRangeInt(0, 233280);
 
-            this.renderer._setNewParticle(particle);
+            this.renderer!._setNewParticle(particle);
 
         } // end of particles forLoop.
     }
 
-    // simulation, update particles.
-    _updateParticles(dt) {
-        this._entity.getWorldMatrix(_world_mat);
-        if (this._velocityOvertimeModule.enable) {
-            this._velocityOvertimeModule.update(this._simulationSpace, _world_mat);
-        }
-        if (this._forceOvertimeModule.enable) {
-            this._forceOvertimeModule.update(this._simulationSpace, _world_mat);
-        }
-        for (let i = 0; i < this._particles.length; ++i) {
-            let p = this._particles.data[i];
-            p.remainingLifetime -= dt;
-            vec3.set(p.animatedVelocity, 0, 0, 0);
-
-            if (p.remainingLifetime < 0.0) {
-                // subEmitter
-                // if (this._subEmitters.length > 0) {
-                //   for (let idx = 0; idx < this._subEmitters.length; ++idx) {
-                //     let subEmitter = this._subEmitters[idx];
-                //     if (subEmitter.type === 'death') {
-                //       vec3.copy(subEmitter.emitter.entity.lpos, p.position);
-                //       subEmitter.emitter.play();
-                //     }
-                //   }
-                // }
-
-                this._particles.removeAt(i);
-                --i;
-                continue;
-            }
-
-            p.velocity.y -= this._gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, p.randomSeed) * 9.8 * dt; // apply gravity.
-            if (this._sizeOvertimeModule.enable) {
-                this._sizeOvertimeModule.animate(p);
-            }
-            if (this._colorOverLifetimeModule.enable) {
-                this._colorOverLifetimeModule.animate(p);
-            }
-            if (this._forceOvertimeModule.enable) {
-                this._forceOvertimeModule.animate(p, dt);
-            }
-            if (this._velocityOvertimeModule.enable) {
-                this._velocityOvertimeModule.animate(p);
-            }
-            else {
-                vec3.copy(p.ultimateVelocity, p.velocity);
-            }
-            if (this._limitVelocityOvertimeModule.enable) {
-                this._limitVelocityOvertimeModule.animate(p);
-            }
-            if (this._rotationOvertimeModule.enable) {
-                this._rotationOvertimeModule.animate(p, dt);
-            }
-            if (this._textureAnimationModule.enable) {
-                this._textureAnimationModule.animate(p);
-            }
-            vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
-        }
-    }
-
     // initialize particle system as though it had already completed a full cycle.
-    _prewarmSystem() {
-        this._startDelay.mode = 'constant'; // clear startDelay.
-        this._startDelay.constant = 0;
-        let dt = 1.0; // should use varying value?
-        let cnt = this.duration / dt;
+    private _prewarmSystem () {
+        this.startDelay.mode = 'constant'; // clear startDelay.
+        this.startDelay.constant = 0;
+        const dt = 1.0; // should use varying value?
+        const cnt = this.duration / dt;
         for (let i = 0; i < cnt; ++i) {
             this._time += dt;
             this._emit(dt);
-            this._renderer._updateParticles(dt);
+            this.renderer!._updateParticles(dt);
         }
     }
 
     // internal function
-    _emit(dt) {
+    private _emit (dt) {
         // emit particles.
-        let startDelay = this.startDelay.evaluate();
+        const startDelay = this.startDelay.evaluate();
         if (this._time > startDelay) {
             if (!this._isStopped) {
                 this._isEmitting = true;
@@ -441,30 +391,30 @@ export default class ParticleSystemComponent extends Component {
             // emit by rateOverTime
             this._emitRateTimeCounter += this.rateOverTime.evaluate(this._time / this.duration, 1) * dt;
             if (this._emitRateTimeCounter > 1 && this._isEmitting) {
-                let emitNum = Math.floor(this._emitRateTimeCounter);
+                const emitNum = Math.floor(this._emitRateTimeCounter);
                 this._emitRateTimeCounter -= emitNum;
                 this.emit(emitNum);
             }
             // emit by rateOverDistance
             this.node.getWorldPosition(this._curWPos);
-            let distance = vec3.distance(this._curWPos, this._oldWPos);
+            const distance = vec3.distance(this._curWPos, this._oldWPos);
             vec3.copy(this._oldWPos, this._curWPos);
             this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1);
             if (this._emitRateDistanceCounter > 1 && this._isEmitting) {
-                let emitNum = Math.floor(this._emitRateDistanceCounter);
+                const emitNum = Math.floor(this._emitRateDistanceCounter);
                 this._emitRateDistanceCounter -= emitNum;
                 this.emit(emitNum);
             }
 
             // bursts
-            for (let i = 0; i < this.bursts.length; ++i) {
-                this.bursts[i].update(this, dt);
+            for (const burst of this.bursts) {
+                burst.update(this, dt);
             }
         }
     }
 
-    update(dt) {
-        let scaledDeltaTime = dt * this.simulationSpeed;
+    private update (dt) {
+        const scaledDeltaTime = dt * this.simulationSpeed;
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 
@@ -472,58 +422,58 @@ export default class ParticleSystemComponent extends Component {
             this._emit(scaledDeltaTime);
 
             // simulation, update particles.
-            this.renderer._updateParticles(scaledDeltaTime);
+            this.renderer!._updateParticles(scaledDeltaTime);
 
             // update render data
-            this.renderer._updateRenderData();
+            this.renderer!._updateRenderData();
         }
     }
 
-    addSubEmitter(subEmitter) {
+    private addSubEmitter (subEmitter) {
         this._subEmitters.push(subEmitter);
     }
 
-    removeSubEmitter(idx) {
-        this._subEmitters.remove(idx);
+    private removeSubEmitter (idx) {
+        this._subEmitters.splice(this._subEmitters.indexOf(idx), 1);
     }
 
-    addBurst(burst) {
-        this._bursts.push(burst);
+    private addBurst (burst) {
+        this.bursts.push(burst);
     }
 
-    removeBurst(idx) {
-        this._bursts.remove(idx);
+    private removeBurst (idx) {
+        this.bursts.splice(this.bursts.indexOf(idx), 1);
     }
 
-    getParticleCount() {
-        return this._particles.length;
+    public getParticleCount () {
+        return this.renderer!.getParticleCount();
     }
 
-    setCustomData1(x, y) {
+    public setCustomData1 (x, y) {
         vec2.set(this._customData1, x, y);
     }
 
-    setCustomData2(x, y) {
+    public setCustomData2 (x, y) {
         vec2.set(this._customData2, x, y);
     }
 
-    get isPlaying() {
+    get isPlaying () {
         return this._isPlaying;
     }
 
-    get isPaused() {
+    get isPaused () {
         return this._isPaused;
     }
 
-    get isStopped() {
+    get isStopped () {
         return this._isStopped;
     }
 
-    get isEmitting() {
+    get isEmitting () {
         return this._isEmitting;
     }
 
-    get time() {
+    get time () {
         return this._time;
     }
 }
