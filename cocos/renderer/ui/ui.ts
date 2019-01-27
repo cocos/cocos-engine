@@ -19,16 +19,18 @@ import {
     GFXMemoryUsageBit,
     GFXType,
     IGFXRect,
+    GFXClearFlag,
 } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
 import { GFXUniformBlock } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { vfmt } from '../../gfx/vertex-format-sample';
-import { Camera } from '../scene/camera';
+import { Camera, CameraProjection } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
 import { IUIMaterialInfo, UIMaterial } from './ui-material';
 import { Node } from '../../scene-graph/node';
+import { Rect } from '../../core/value-types';
 
 export class UBOUI {
     public static MAT_VIEW_PROJ_OFFSET: number = 0;
@@ -52,7 +54,9 @@ export class UIBufferBatch {
     public vb: GFXBuffer | null = null;
     public ib: GFXBuffer | null = null;
     public ia: GFXInputAssembler | null = null;
+    public vbCount: number = 0;
     public vbSize: number = 0;
+    public ibCount: number = 0;
     public ibSize: number = 0;
 }
 
@@ -102,7 +106,11 @@ export class UI {
     private _cmdBuff: GFXCommandBuffer | null = null;
     private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _scene: RenderScene;
+    private _cameraNode: Node;
+    private _camera: Camera;
     private _attributes: IGFXInputAttribute[] = [];
+    private _vertStride = 0;
+    private _vertF32Count = 0;
     private _bufferBatches: UIBufferBatch[] = [];
     private _uiMaterial: UIMaterial | null = null;
     private _uiMaterials: UIMaterial[] = [];
@@ -111,7 +119,7 @@ export class UI {
     private _batches: CachedArray<UIDrawBatch>;
     private _bufferInitData: IMeshBufferInitData | null = null;
     private _commitUIRenderDatas: IUIRenderData[] = [];
-    private _commitUICanvasDatas: IUICanvas[] = [];
+    private _commitUICanvas: IUICanvas[] = [];
     private _sortChildList: RecyclePool = new RecyclePool(() => {
         return [];
     }, 128);
@@ -122,20 +130,44 @@ export class UI {
             name: 'GUIScene',
         });
 
+        this._cameraNode = new Node('UICameraNode');
+
+        this._camera = this._scene.createCamera({
+            name: 'UICamera',
+            node: this._cameraNode,
+            projection: CameraProjection.ORTHO,
+            fov: 45,
+            stencil: 0,
+            orthoHeight: 10,
+            far: 4096,
+            near: 0.1,
+            color: cc.color(0, 0, 0, 255),
+            clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
+            rect: new Rect(0, 0, 1, 1),
+            depth: 1,
+            targetDisplay: 0,
+            isUI: true,
+        });
+
         this._batches = new CachedArray(64);
         this._bufferInitData = {
             vertexCount: 0,
             indiceCount: 0,
             attributes: vfmt,
         };
+
+        this._vertF32Count = 9;
+        this._vertStride = this._vertF32Count * 4;
+
+        this.resize(this._camera.width, this._camera.height);
     }
 
     public initialize () {
 
         this._attributes = [
-            { name: 'a_color', format: GFXFormat.RGBA32F },
             { name: 'a_position', format: GFXFormat.RGB32F },
             { name: 'a_texCoord', format: GFXFormat.RG32F },
+            { name: 'a_color', format: GFXFormat.RGBA32F },
         ];
 
         this.createBufferBatch();
@@ -175,6 +207,17 @@ export class UI {
             this._cmdBuff.destroy();
             this._cmdBuff = null;
         }
+    }
+
+    public resize (width: number, height: number) {
+        this._camera.orthoHeight = height;
+
+        let cameraPos =  this._camera.node.getWorldPosition();
+        cameraPos.x = width * 0.5;
+        cameraPos.y = height * 0.5;
+        cameraPos.z = 1000.0;
+        this._camera.node.setPosition(cameraPos);
+        this._camera.update();
     }
 
     public createUIMaterial (info: IUIMaterialInfo): UIMaterial | null {
@@ -250,8 +293,7 @@ export class UI {
             this._drawBatchPool.remove(batch);
         }
         this._batches.clear();
-
-        // this._commitUIRenderDatas = [];
+        this._commitUICanvas = [];
 
         this._renderScreens();
 
@@ -294,13 +336,11 @@ export class UI {
                     if (curCamera) {
                         cmdBuff.endRenderPass();
                     }
-                    this._renderArea.width = camera.width;
-                    this._renderArea.height = camera.height;
-
-                    camera.update();
+                    this._renderArea.width = this._camera.width;
+                    this._renderArea.height = this._camera.height;
 
                     // update ubo
-                    mat4.array(_mat4Array, camera.matViewProj);
+                    mat4.array(_mat4Array, this._camera.matViewProj);
                     this._uboUI.view.set(_mat4Array, UBOUI.MAT_VIEW_PROJ_OFFSET);
 
                     this._uiUBO!.update(this._uboUI.view);
@@ -355,7 +395,6 @@ export class UI {
         //     this._walk(child, fn1, fn2, level);
         // }
 
-
         this._sortChildList.remove(renderCompList);
         fn2(renderComp);
         level += 1;
@@ -363,6 +402,7 @@ export class UI {
 
     private _defineNodeOrder(childs: Node[]) {
         let sortList = this._sortChildList.add();
+        sortList = [];
 
         childs.forEach((child) => {
             let renderComp = child.getComponent(UIRenderComponent);
@@ -384,6 +424,9 @@ export class UI {
             if (!screen.enabledInHierarchy) {
                 continue;
             }
+
+            this._commitUIRenderDatas = [];
+
             // this._currScreen = screen;
             this._commitUIRenderDatas.length = 0;
 
@@ -399,14 +442,14 @@ export class UI {
                 }
             });
 
-            this._commitUICanvasDatas.push({ camera: screen.camera!, datas: this._commitUIRenderDatas });
+            this._commitUICanvas.push({ camera: screen.camera!, datas: this._commitUIRenderDatas });
         }
     }
 
     private _reset () {
         this._bufferPool.reset();
         this._commitUIRenderDataPool.reset();
-        this._commitUICanvasDatas.length = 0;
+        this._commitUICanvas.length = 0;
     }
 
     private _commitComp (comp: UIRenderComponent) {
@@ -433,99 +476,108 @@ export class UI {
 
         let vf32: Float32Array;
         let vui16: Uint16Array;
+        let vCount = 0;
         let vbSize = 0;
         let ibSize = 0;
         let isNewBatch = false;
 
-        for (const uiRenderData of this._commitUIRenderDatas) {
+        for (const uiCanvas of this._commitUICanvas) {
 
-            if (idxCount + uiRenderData.meshBuffer.vData!.length > 65535) {
-                if (bufferBatchIdx >= this._bufferBatches.length) {
-                    this.createBufferBatch();
+            if (curCamera !== uiCanvas.camera) {
+                isNewBatch = true;
+                curCamera = uiCanvas.camera;
+            }
+
+            for (const uiRenderData of uiCanvas.datas) {
+
+                if (idxCount + uiRenderData.meshBuffer.vData!.length > 65535) {
+                    if (bufferBatchIdx >= this._bufferBatches.length) {
+                        this.createBufferBatch();
+                    }
+    
+                    curBufferBatch = this._bufferBatches[bufferBatchIdx++];
+                    vertCount = 0;
+                    idxCount = 0;
+                    isNewBatch = true;
                 }
+    
+                // merge vertices
+                vf32 = uiRenderData.meshBuffer.vData!;
+                vCount = (vf32.length / this._vertF32Count);
+                vbSize = (vCount + vertCount) * this._vertStride;
+                if (vbSize > curBufferBatch.vbSize) {
+                    curBufferBatch.vbCount = vCount + vertCount;
+                    curBufferBatch.vbSize = vbSize;
+                    
+                    const lastVF32 = curBufferBatch.vf32;
+                    curBufferBatch.vf32 = new Float32Array(curBufferBatch.vbCount * this._vertF32Count);
+                    if (lastVF32) {
+                        curBufferBatch.vf32.set(lastVF32!, 0);
+                    }
+                }
+    
+                curBufferBatch.vf32!.set(vf32, vertCount);
+    
+                // merge indices
+                vui16 = uiRenderData.meshBuffer.iData!;
+                ibSize = (vui16.length + idxCount) * 2;
+                if (ibSize > curBufferBatch.ibSize) {
+                    curBufferBatch.ibCount = vui16.length + idxCount;
+                    curBufferBatch.ibSize = ibSize;
 
-                curBufferBatch = this._bufferBatches[bufferBatchIdx++];
-                vertCount = 0;
-                idxCount = 0;
-                isNewBatch = true;
-            } else {
-                isNewBatch = false;
-            }
-
-            // merge vertices
-            vf32 = uiRenderData.meshBuffer.vData!;
-            vbSize = (vf32.length + vertCount) * 4;
-            if (vbSize > curBufferBatch.vbSize) {
-                curBufferBatch.vbSize = vbSize;
-                const lastVF32 = curBufferBatch.vf32;
-                curBufferBatch.vf32 = new Float32Array(vf32.length + vertCount);
-                curBufferBatch.vf32.set(lastVF32!, 0);
-            }
-
-            curBufferBatch.vf32!.set(vf32, vertCount);
-
-            // merge indices
-            vui16 = uiRenderData.meshBuffer.iData!;
-            ibSize = (vui16.length + idxCount) * 2;
-            if (ibSize > curBufferBatch.ibSize) {
-                curBufferBatch.ibSize = ibSize;
-                const lastVUI16 = curBufferBatch.vui16!;
-                curBufferBatch.vui16 = new Uint16Array(vui16.length + idxCount);
-                curBufferBatch.vui16.set(lastVUI16, 0);
-            }
-
-            for (let n = 0; n < vui16.length; ++n) {
-                curBufferBatch.vui16![idxCount + n] = vui16[n] + vertCount;
-            }
-
-            curBufferBatch.vui16!.set(vui16, idxCount);
-
-            vertCount += vf32.length;
-            idxCount += vui16.length;
-
-            if (curCamera !== uiRenderData.camera) {
-                isNewBatch = true;
-                curCamera = uiRenderData.camera;
-            }
-
-            if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
-                curTexView = uiRenderData.texture.getGFXTextureView();
-                isNewBatch = true;
-            }
-
-            if (isNewBatch) {
-                const batch = this._drawBatchPool.add();
-                batch.camera = curCamera;
-                batch.bufferBatch = curBufferBatch;
-                batch.uiMaterial = this._uiMaterial!;
-                batch.texView = curTexView!;
-                batch.idxCount = idxCount;
-
-                this._batches.push(batch);
-            }
-        } // for
+                    const lastVUI16 = curBufferBatch.vui16!;
+                    curBufferBatch.vui16 = new Uint16Array(curBufferBatch.ibCount);
+                    if (lastVUI16) {
+                        curBufferBatch.vui16.set(lastVUI16, 0);
+                    }
+                }
+    
+                for (let n = 0; n < vui16.length; ++n) {
+                    curBufferBatch.vui16![idxCount + n] = vui16[n] + vertCount;
+                }
+    
+                curBufferBatch.vui16!.set(vui16, idxCount);
+    
+                vertCount += vCount;
+                idxCount += vui16.length;
+    
+                if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
+                    curTexView = uiRenderData.texture.getGFXTextureView();
+                    isNewBatch = true;
+                }
+    
+                if (isNewBatch) {
+                    const batch = this._drawBatchPool.add();
+                    batch.camera = curCamera;
+                    batch.bufferBatch = curBufferBatch;
+                    batch.uiMaterial = this._uiMaterial!;
+                    batch.texView = curTexView!;
+                    batch.idxCount = idxCount;
+    
+                    this._batches.push(batch);
+                    isNewBatch = false;
+                }
+            } // for
+        }
     }
 
     private createBufferBatch (): UIBufferBatch {
 
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
-        const vbCount = 128;
-        const varrCount = 128 * 9;
 
         const vb = this._device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: vbStride * vbCount,
+            size: 0,
             stride: vbStride,
         });
 
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-        const ibCount = 128;
 
         const ib = this._device.createBuffer({
             usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: ibStride * ibCount,
+            size: 0,
             stride: ibStride,
         });
 
@@ -539,8 +591,8 @@ export class UI {
         batch.vb = vb;
         batch.ib = ib;
         batch.ia = ia;
-        batch.vf32 = new Float32Array(varrCount);
-        batch.vui16 = new Uint16Array(ibCount);
+        batch.vf32 = null;
+        batch.vui16 = null;
         batch.vbSize = vb.size;
         batch.ibSize = ib.size;
         this._bufferBatches.push(batch);

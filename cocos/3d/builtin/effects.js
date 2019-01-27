@@ -60,7 +60,7 @@ export default [
       {
         "name": "builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag",
         "vert": "\nattribute vec3 a_position;\nattribute vec2 a_texCoord;\nattribute vec4 a_color;\n  uniform mat4 cc_matViewProj;\nvarying vec2 v_uv0;\nvarying vec4 v_color;\nvec4 vert () {\n  vec4 pos = cc_matViewProj * vec4(a_position, 1);\n  v_uv0 = a_texCoord;\n  v_color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n",
-        "frag": "\nuniform sampler2D u_texSampler;\nvarying vec2 v_uv0;\nvarying vec4 v_color;\nvec4 frag () {\n  return texture2D(u_texSampler, v_uv0) * v_color;\n  \n}\nvoid main() { gl_FragColor = frag(); }\n",
+        "frag": "\nuniform sampler2D u_texSampler;\nvarying vec2 v_uv0;\nvarying vec4 v_color;\nvec4 frag () {\n return texture2D(u_texSampler, v_uv0) * v_color;\n  \n}\nvoid main() { gl_FragColor = frag(); }\n",
         "defines": [],
         "blocks": [
           {"name": "UI", "size": 64, "defines": [], "binding": 0, "members": [

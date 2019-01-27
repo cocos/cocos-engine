@@ -169,7 +169,7 @@ export class CanvasComponent extends Component {
             stencil: 0,
             orthoHeight: 10,
             far: 4096,
-            near: -0.1,
+            near: 0.1,
             color: cc.color(0, 0, 0, 255),
             clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
             rect: new Rect(0, 0, 1, 1),

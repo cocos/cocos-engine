@@ -10,6 +10,7 @@ import { Layers } from './layers';
 import { WidgetComponent } from '../3d/ui/components/widget-component';
 
 const v3_a = new Vec3();
+const v3_b = new Vec3();
 const q_a = new Quat();
 const array_a = new Array(10);
 const _cachedArray = new Array(16);
@@ -377,6 +378,40 @@ class Node extends EventTarget(BaseNode) {
     // ===============================
     // transform helper, convenient but not the most efficient
     // ===============================
+
+    /**
+     * Translate the node
+     * @param trans - translation
+     * @param ns - the operating space
+     */
+    public translate (trans: Vec3, ns?: NodeSpace) {
+        const space = ns || NodeSpace.LOCAL;
+        if (space === NodeSpace.LOCAL) {
+            vec3.transformQuat(v3_a, trans, this._lrot);
+            this._lpos.x += v3_a.x;
+            this._lpos.y += v3_a.y;
+            this._lpos.z += v3_a.z;
+        } else if (space === NodeSpace.WORLD) {
+            // position is relative to parent so transform upwards
+			if (this._parent)
+			{
+                this._parent.getWorldRotation(q_a);
+                quat.invert(q_a, q_a);
+                vec3.transformQuat(v3_a, trans, q_a);
+
+                this._parent.getWorldScale(v3_b);
+                this._lpos.x += (v3_a.x * v3_b.x);
+                this._lpos.y += (v3_a.y + v3_b.y);
+                this._lpos.z += (v3_a.z + v3_b.z);
+			}
+			else
+			{
+				this._lpos.x += trans.x;
+                this._lpos.y += trans.y;
+                this._lpos.z += trans.z;
+            }
+        }
+    }
 
     /**
      * Rotate the node
