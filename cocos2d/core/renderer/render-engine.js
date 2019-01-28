@@ -14392,7 +14392,7 @@ var GraySpriteMaterial = (function (Material$$1) {
         'color': this._color
       },
       [
-        { name: 'useColor', value: true },
+        { name: 'useColor', value: false }
       ]
     );
     
