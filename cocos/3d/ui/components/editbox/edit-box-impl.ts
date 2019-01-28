@@ -690,7 +690,7 @@ function registerInputEventListener (tmpEdTxt: HTMLElement, editBoxImpl: EditBox
 
     cbs.keypress = function (e) {
         if (e.keyCode === macro.KEY.enter) {
-            e.stopPropagation();
+            e.propagationStopped = true;
 
             if (editBoxImpl.delegate && editBoxImpl.delegate.editBoxEditingReturn) {
                 editBoxImpl.delegate.editBoxEditingReturn();

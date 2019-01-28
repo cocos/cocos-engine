@@ -945,7 +945,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     //This is for Scrollview as children of a Button
     _stopPropagationIfTargetIsMe(event) {
         if (event.eventPhase === cc.Event.AT_TARGET && event.target === this.node) {
-            event.stopPropagation();
+            event.propagationStopped = true;
         }
     }
 
@@ -1002,7 +1002,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
             this._handleReleaseLogic(touch);
         }
         if (this._touchMoved) {
-            event.stopPropagation();
+            event.propagationStopped = true;
         } else {
             this._stopPropagationIfTargetIsMe(event);
         }

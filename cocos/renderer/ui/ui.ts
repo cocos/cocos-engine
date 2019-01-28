@@ -252,13 +252,14 @@ export class UI {
     }
 
     public getScreen(visibility: number) {
-        this._screens.forEach((screen) => {
+        for (const screen of this._screens) {
             if (screen.camera) {
                 if (screen.camera.visibility === visibility) {
                     return screen;
                 }
             }
-        })
+        }
+
         return null;
     }
 
@@ -497,13 +498,13 @@ export class UI {
                     if (bufferBatchIdx >= this._bufferBatches.length) {
                         this.createBufferBatch();
                     }
-    
+
                     curBufferBatch = this._bufferBatches[bufferBatchIdx++];
                     vertCount = 0;
                     idxCount = 0;
                     isNewBatch = true;
                 }
-    
+
                 // merge vertices
                 vf32 = uiRenderData.meshBuffer.vData!;
                 vCount = (vf32.length / this._vertF32Count);
@@ -511,16 +512,16 @@ export class UI {
                 if (vbSize > curBufferBatch.vbSize) {
                     curBufferBatch.vbCount = vCount + vertCount;
                     curBufferBatch.vbSize = vbSize;
-                    
+
                     const lastVF32 = curBufferBatch.vf32;
                     curBufferBatch.vf32 = new Float32Array(curBufferBatch.vbCount * this._vertF32Count);
                     if (lastVF32) {
                         curBufferBatch.vf32.set(lastVF32!, 0);
                     }
                 }
-    
+
                 curBufferBatch.vf32!.set(vf32, vertCount);
-    
+
                 // merge indices
                 vui16 = uiRenderData.meshBuffer.iData!;
                 ibSize = (vui16.length + idxCount) * 2;
@@ -534,21 +535,21 @@ export class UI {
                         curBufferBatch.vui16.set(lastVUI16, 0);
                     }
                 }
-    
+
                 for (let n = 0; n < vui16.length; ++n) {
                     curBufferBatch.vui16![idxCount + n] = vui16[n] + vertCount;
                 }
-    
+
                 curBufferBatch.vui16!.set(vui16, idxCount);
-    
+
                 vertCount += vCount;
                 idxCount += vui16.length;
-    
+
                 if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
                     curTexView = uiRenderData.texture.getGFXTextureView();
                     isNewBatch = true;
                 }
-    
+
                 if (isNewBatch) {
                     const batch = this._drawBatchPool.add();
                     batch.camera = curCamera;
@@ -556,7 +557,7 @@ export class UI {
                     batch.uiMaterial = this._uiMaterial!;
                     batch.texView = curTexView!;
                     batch.idxCount = idxCount;
-    
+
                     this._batches.push(batch);
                     isNewBatch = false;
                 }
