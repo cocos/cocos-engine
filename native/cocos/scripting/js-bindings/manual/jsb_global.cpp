@@ -723,6 +723,45 @@ namespace
         bool freeData = false;
     };
 
+    void cvRGB2RGBA (ImageInfo* imgInfo, const Image* img) {
+        imgInfo->length = img->getWidth() * img->getHeight() * 4;
+        uint8_t* dst = new uint8_t[imgInfo->length];
+        uint8_t* src = imgInfo->data;
+        for (uint32_t i = 0, length = imgInfo->length; i < length; i += 4) {
+            dst[i] = *src++;
+            dst[i + 1] = *src++;
+            dst[i + 2] = *src++;
+            dst[i + 3] = 255;
+        }
+        imgInfo->data = dst;
+    }
+
+    void cvIA2RGBA (ImageInfo* imgInfo, const Image* img) {
+        imgInfo->length = img->getWidth() * img->getHeight() * 4;
+        uint8_t* dst = new uint8_t[imgInfo->length];
+        uint8_t* src = imgInfo->data;
+        for (uint32_t i = 0, length = imgInfo->length; i < length; i += 2) {
+            dst[i] = *src;
+            dst[i + 1] = *src;
+            dst[i + 2] = *src++;
+            dst[i + 3] = *src;
+        }
+        imgInfo->data = dst;
+    }
+
+    void cvI2RGBA (ImageInfo* imgInfo, const Image* img) {
+        imgInfo->length = img->getWidth() * img->getHeight() * 4;
+        uint8_t* dst = new uint8_t[imgInfo->length];
+        uint8_t* src = imgInfo->data;
+        for (uint32_t i = 0, length = imgInfo->length; i < length; i++) {
+            dst[i] = *src;
+            dst[i + 1] = *src;
+            dst[i + 2] = *src;
+            dst[i + 3] = 255;
+        }
+        imgInfo->data = dst;
+    }
+
     struct ImageInfo* createImageInfo(const Image* img)
     {
         struct ImageInfo* imgInfo = new struct ImageInfo();
@@ -747,25 +786,25 @@ namespace
         // will create a big texture, and update its content with small pictures.
         // The big texture is RGBA888, then the small picture should be the same
         // format, or it will cause 0x502 error on OpenGL ES 2.
-        if (GL_RGB == imgInfo->glFormat)
-        {
-            imgInfo->length = img->getWidth() * img->getHeight() * 4;
-            uint8_t* dst = new uint8_t[imgInfo->length];
-            uint8_t* src = imgInfo->data;
-            for (uint32_t i = 0, length = imgInfo->length; i < length; i += 4)
-            {
-                dst[i] = *src++;
-                dst[i + 1] = *src++;
-                dst[i + 2] = *src++;
-                dst[i + 3] = 255;
-            }
-            imgInfo->data = dst;
-            imgInfo->hasAlpha = true;
-            imgInfo->bpp = 32;
-            imgInfo->glFormat = GL_RGBA;
-            imgInfo->glInternalFormat = GL_RGBA;
-            imgInfo->freeData = true;
+        switch(imgInfo->glFormat) {
+            case GL_LUMINANCE_ALPHA:
+                cvIA2RGBA(imgInfo, img);
+                break;
+            case GL_ALPHA:
+            case GL_LUMINANCE
+                cvI2RGBA(imgInfo, img);
+                break;
+            case GL_RGB:
+            case default:
+                cvRGB2RGBA(imgInfo, img);
+                break;
         }
+
+        imgInfo->hasAlpha = true;
+        imgInfo->bpp = 32;
+        imgInfo->glFormat = GL_RGBA;
+        imgInfo->glInternalFormat = GL_RGBA;
+        imgInfo->freeData = true;
 
         return imgInfo;
     }
