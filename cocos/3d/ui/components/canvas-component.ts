@@ -31,6 +31,7 @@ import Rect from '../../../core/value-types/rect';
 import Size from '../../../core/value-types/size';
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera, ICameraInfo } from '../../../renderer/scene/camera';
+import { Node } from '../../../scene-graph/node';
 
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
@@ -139,7 +140,6 @@ export class CanvasComponent extends Component {
     private _thisOnResized: ()=>void;
 
     private _camera: Camera | null = null;
-    private _cameraInfo: ICameraInfo | null = null;
 
     // /**
     // * !#en Current active canvas, the scene should only have one active canvas at the same time.
@@ -161,9 +161,11 @@ export class CanvasComponent extends Component {
     }
 
     public __preload () {
-        this._cameraInfo = {
+        let cameraNode = new Node('UICamera');
+        cameraNode.setPosition(0, 0, 1000);
+        this._camera = this._getRenderScene().createCamera({
             name: 'ui',
-            node: this.node,
+            node: cameraNode,
             projection: CameraComponent.ProjectionType.ORTHO,
             fov: 45,
             stencil: 0,
@@ -174,9 +176,10 @@ export class CanvasComponent extends Component {
             clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
             rect: new Rect(0, 0, 1, 1),
             depth: 1,
+            targetDisplay: 0,
             isUI: true,
-        } as ICameraInfo;
-        this._camera = this._getRenderScene().createCamera(this._cameraInfo);
+        });
+
         cc.director.root.ui.addScreen(this);
 
         // if (CC_DEV) {
@@ -259,6 +262,12 @@ export class CanvasComponent extends Component {
         }
         this.node.width = nodeSize.width;
         this.node.height = nodeSize.height;
+        let nodeWorldPos = this.node.getWorldPosition();
+        if (this._camera) {
+            this._camera.orthoHeight = this._camera.height;
+            this._camera.node.setPosition(nodeWorldPos.x, nodeWorldPos.y, this._camera.node.getWorldPosition().z);
+            this._camera.update();
+        }
     }
 
     public applySettings () {

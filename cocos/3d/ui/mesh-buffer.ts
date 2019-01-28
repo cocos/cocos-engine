@@ -76,8 +76,8 @@ export class MeshBuffer {
 
     public initialize (data: IMeshBufferInitData) {
         this._vertexFormat = data.attributes;
-        this._vertexBytes = this.calculateBytes(this._vertexFormat);
-        this._initVDataCount = data.vertexCount * this._vertexBytes;
+        // this._vertexBytes = this.calculateBytes(this._vertexFormat);
+        this._initVDataCount = data.vertexCount * this._calculateFormatNum(this._vertexFormat);
         this._initIDataCount = data.indiceCount;
         this.primitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
         this.byteOffset = 0;
@@ -207,40 +207,40 @@ export class MeshBuffer {
         // this._vb.destroy();
     }
 
-    private calculateBytes (vertexFormat: IGFXInputAttribute[]) {
-        let bytes = 0;
+    private _calculateFormatNum (vertexFormat: IGFXInputAttribute[]) {
+        // let bytes = 0;
         let num = 0;
         for (const attr of vertexFormat) {
             let name = GFXFormat[attr.format].toString();
             if (name.startsWith('RGBA')) {
-                num = 4;
+                num += 4;
             } else if (name.startsWith('RGB')) {
-                num = 3;
+                num += 3;
             } else if (name.startsWith('RG')) {
-                num = 2;
+                num += 2;
             } else {
-                num = 1;
+                num += 1;
             }
 
-            name = name.substring(num);
-            switch (name) {
-                case '8I':
-                case '8UI':
-                    bytes += num * 1;
-                    break;
-                case '16I':
-                case '16UI':
-                    bytes += num * 2;
-                    break;
-                case '32I':
-                case '32UI':
-                case '32F':
-                    bytes += num * 4;
-                    break;
-            }
+            // name = name.substring(num);
+            // switch (name) {
+            //     case '8I':
+            //     case '8UI':
+            //         bytes += num * 1;
+            //         break;
+            //     case '16I':
+            //     case '16UI':
+            //         bytes += num * 2;
+            //         break;
+            //     case '32I':
+            //     case '32UI':
+            //     case '32F':
+            //         bytes += num * 4;
+            //         break;
+            // }
         }
 
-        return bytes;
+        return num;
     }
 }
 cc.MeshBuffer = MeshBuffer;
