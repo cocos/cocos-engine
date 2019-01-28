@@ -106,8 +106,8 @@ export class UI {
     private _cmdBuff: GFXCommandBuffer | null = null;
     private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _scene: RenderScene;
-    private _cameraNode: Node;
-    private _camera: Camera;
+    // private _cameraNode: Node;
+    // private _camera: Camera;
     private _attributes: IGFXInputAttribute[] = [];
     private _vertStride = 0;
     private _vertF32Count = 0;
@@ -130,24 +130,24 @@ export class UI {
             name: 'GUIScene',
         });
 
-        this._cameraNode = new Node('UICameraNode');
+        // this._cameraNode = new Node('UICameraNode');
 
-        this._camera = this._scene.createCamera({
-            name: 'UICamera',
-            node: this._cameraNode,
-            projection: CameraProjection.ORTHO,
-            fov: 45,
-            stencil: 0,
-            orthoHeight: 10,
-            far: 4096,
-            near: 0.1,
-            color: cc.color(0, 0, 0, 255),
-            clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
-            rect: new Rect(0, 0, 1, 1),
-            depth: 1,
-            targetDisplay: 0,
-            isUI: true,
-        });
+        // this._camera = this._scene.createCamera({
+        //     name: 'UICamera',
+        //     node: this._cameraNode,
+        //     projection: CameraProjection.ORTHO,
+        //     fov: 45,
+        //     stencil: 0,
+        //     orthoHeight: 10,
+        //     far: 4096,
+        //     near: 0.1,
+        //     color: cc.color(0, 0, 0, 255),
+        //     clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
+        //     rect: new Rect(0, 0, 1, 1),
+        //     depth: 1,
+        //     targetDisplay: 0,
+        //     isUI: true,
+        // });
 
         this._batches = new CachedArray(64);
         this._bufferInitData = {
@@ -159,7 +159,7 @@ export class UI {
         this._vertF32Count = 9;
         this._vertStride = this._vertF32Count * 4;
 
-        this.resize(this._camera.width, this._camera.height);
+        // this.resize(this._camera.width, this._camera.height);
     }
 
     public initialize () {
@@ -209,16 +209,16 @@ export class UI {
         }
     }
 
-    public resize (width: number, height: number) {
-        this._camera.orthoHeight = height;
+    // public resize (width: number, height: number) {
+    //     this._camera.orthoHeight = height;
 
-        let cameraPos =  this._camera.node.getWorldPosition();
-        cameraPos.x = width * 0.5;
-        cameraPos.y = height * 0.5;
-        cameraPos.z = 1000.0;
-        this._camera.node.setPosition(cameraPos);
-        this._camera.update();
-    }
+    //     let cameraPos =  this._camera.node.getWorldPosition();
+    //     cameraPos.x = width * 0.5;
+    //     cameraPos.y = height * 0.5;
+    //     cameraPos.z = 1000.0;
+    //     this._camera.node.setPosition(cameraPos);
+    //     this._camera.update();
+    // }
 
     public createUIMaterial (info: IUIMaterialInfo): UIMaterial | null {
         const uiMtrl = new UIMaterial();
@@ -336,11 +336,11 @@ export class UI {
                     if (curCamera) {
                         cmdBuff.endRenderPass();
                     }
-                    this._renderArea.width = this._camera.width;
-                    this._renderArea.height = this._camera.height;
+                    this._renderArea.width = camera.width;
+                    this._renderArea.height = camera.height;
 
                     // update ubo
-                    mat4.array(_mat4Array, this._camera.matViewProj);
+                    mat4.array(_mat4Array, camera.matViewProj);
                     this._uboUI.view.set(_mat4Array, UBOUI.MAT_VIEW_PROJ_OFFSET);
 
                     this._uiUBO!.update(this._uboUI.view);
@@ -386,23 +386,26 @@ export class UI {
         // const len = node.children.length;
         fn1(renderComp);
 
-        renderCompList = this._defineNodeOrder(renderComp.node.children);
-        for (const comp of renderCompList){
-            this._walk(comp, fn1, fn2, level);
-        }
-        // for (let i = 0; i < len; ++i) {
-        //     const child = node.children[i];
-        //     this._walk(child, fn1, fn2, level);
-        // }
+        if (renderComp.node.children.length > 0) {
+            renderCompList = this._defineNodeOrder(renderComp.node.children);
+            for (const comp of renderCompList) {
+                this._walk(comp, fn1, fn2, level);
+            }
+            // for (let i = 0; i < len; ++i) {
+            //     const child = node.children[i];
+            //     this._walk(child, fn1, fn2, level);
+            // }
 
-        this._sortChildList.remove(renderCompList);
+            this._sortChildList.remove(renderCompList);
+        }
+
         fn2(renderComp);
         level += 1;
     }
 
     private _defineNodeOrder(childs: Node[]) {
         let sortList = this._sortChildList.add();
-        sortList = [];
+        sortList.length = 0;
 
         childs.forEach((child) => {
             let renderComp = child.getComponent(UIRenderComponent);
