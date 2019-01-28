@@ -91,28 +91,30 @@ android {
 
 android.featureVariants.all { variant ->
     // delete previous files first
-    delete "${buildDir}/intermediates/assets/${variant.dirName}"
+    delete "${buildDir}/intermediates/merged_assets/${variant.dirName}"
 
     variant.mergeAssets.doLast {
+        def sourceDir = "${buildDir}/../../../../.."
+
         copy {
-            from "${buildDir}/../../../../../res"
-            into "${buildDir}/intermediates/assets/${variant.dirName}/res"
+            from "${sourceDir}/res"
+            into "${outputDir}/res"
         }
 
         copy {
-            from "${buildDir}/../../../../../src"
-            into "${buildDir}/intermediates/assets/${variant.dirName}/src"
+            from "${sourceDir}/src"
+            into "${outputDir}/src"
         }
 
         copy {
-            from "${buildDir}/../../../../../jsb-adapter"
-            into "${buildDir}/intermediates/assets/${variant.dirName}/jsb-adapter"
+            from "${sourceDir}/jsb-adapter"
+            into "${outputDir}/jsb-adapter"
         }
 
         copy {
-            from "${buildDir}/../../../../../main.js"
-            from "${buildDir}/../../../../../project.json"
-            into "${buildDir}/intermediates/assets/${variant.dirName}"
+            from "${sourceDir}/main.js"
+            from "${sourceDir}/project.json"
+            into outputDir
         }
     }
 }
