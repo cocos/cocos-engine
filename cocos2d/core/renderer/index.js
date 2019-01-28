@@ -140,11 +140,9 @@ cc.renderer = module.exports = {
         let canvasRenderer = require('./canvas');
         const Texture2D = require('./canvas/Texture2D');
         const Device = require('./canvas/Device');
-
-        if (CC_TEST) {
-            // It's actually running with original render engine
-            this.Device = Device;
-        }
+        
+        // It's actually running with original render engine
+        this.Device = Device;        
         
         this.Texture2D = Texture2D;
 
