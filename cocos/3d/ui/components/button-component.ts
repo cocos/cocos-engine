@@ -35,6 +35,7 @@ import { Color, Enum, Vec3 } from '../../../core/value-types/index';
 import * as math from '../../../core/vmath/index';
 import { Node } from '../../../scene-graph';
 import { SpriteComponent } from './sprite-component';
+import { UIRenderComponent } from './ui-render-component';
 
 /**
  * !#en Enum for transition type.
@@ -510,7 +511,7 @@ export class ButtonComponent extends Component {
         this._hovered = false;
         // // Restore button status
         const target = this.target;
-        const renderComp = this.target.getComponent(cc.RenderComponent);
+        const renderComp = this.target.getComponent(UIRenderComponent);
         const transition = this.transition;
         if (transition === Transition.COLOR && this.interactable) {
             renderComp.color = this.normalColor;
@@ -583,7 +584,7 @@ export class ButtonComponent extends Component {
             this._transitionFinished = true;
         }
 
-        const renderComp = target.getComponent(cc.RenderComponent);
+        const renderComp = target.getComponent(UIRenderComponent);
         if (this._transition === Transition.COLOR) {
             renderComp.color = this._fromColor.lerp(this._toColor, ratio);
         } else if (this.transition === Transition.SCALE) {
@@ -624,7 +625,9 @@ export class ButtonComponent extends Component {
 
         this._pressed = true;
         this._updateState();
-        event && event.stopPropagation();
+        if(event){
+            event.propagationStopped = true
+        };
     }
 
     public _onTouchMove (event: Event | null) {
@@ -662,7 +665,10 @@ export class ButtonComponent extends Component {
             }
             this._applyTransition(state);
         }
-        event.stopPropagation();
+
+        if (event) {
+            event.propagationStopped = true
+        }
     }
 
     public _onTouchEnded (event: Event | null) {
@@ -674,7 +680,10 @@ export class ButtonComponent extends Component {
         }
         this._pressed = false;
         this._updateState();
-        event && event.stopPropagation();
+
+        if (event) {
+            event.propagationStopped = true
+        };
     }
 
     public _onTouchCancel () {
@@ -725,8 +734,11 @@ export class ButtonComponent extends Component {
     public _updateColorTransition (state: string) {
         const color = this[state + 'Color'];
         const target = this._target;
+        if(!target){
+            return;
+        }
 
-        const renderComp = target.getComponent(cc.RenderComponent);
+        const renderComp = target.getComponent(UIRenderComponent);
         if (!renderComp) {
             return;
         }

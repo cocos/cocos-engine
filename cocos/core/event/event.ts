@@ -129,15 +129,18 @@ export default class Event {
      */
     public eventPhase = 0;
 
-    /*
-    * Indicates whether or not event.stopPropagation() has been called on the event.
-    */
-    private _propagationStopped = false;
+    /**
+     * !#en Stops propagation for current event.
+     * !#zh 停止传递当前事件。
+     */
+    public propagationStopped = false;
 
-    /*
-    * Indicates whether or not event.stopPropagationImmediate() has been called on the event.
-    */
-    private _propagationImmediateStopped = false;
+    /**
+     * !#en Stops propagation for current event immediately,
+     * the event won't even be dispatched to the listeners attached in the current target.
+     * !#zh 立即停止当前事件的传递，事件甚至不会被分派到所连接的当前目标。
+     */
+    public propagationImmediateStopped = false;
 
     /**
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
@@ -157,8 +160,8 @@ export default class Event {
         this.target = null;
         this.currentTarget = null;
         this.eventPhase = Event.NONE;
-        this._propagationStopped = false;
-        this._propagationImmediateStopped = false;
+        this.propagationStopped = false;
+        this.propagationImmediateStopped = false;
     }
 
     /**
@@ -170,29 +173,29 @@ export default class Event {
         this.bubbles = bubbles || false;
     }
 
-    /**
-     * !#en Stops propagation for current event.
-     * !#zh 停止传递当前事件。
-     */
-    public stopPropagation () {
-        this._propagationStopped = true;
-    }
+    // /**
+    //  * !#en Stops propagation for current event.
+    //  * !#zh 停止传递当前事件。
+    //  */
+    // public stopPropagation () {
+    //     this.propagationStopped = true;
+    // }
 
-    /**
-     * !#en Stops propagation for current event immediately,
-     * the event won't even be dispatched to the listeners attached in the current target.
-     * !#zh 立即停止当前事件的传递，事件甚至不会被分派到所连接的当前目标。
-     */
-    public stopPropagationImmediate () {
-        this._propagationImmediateStopped = true;
-    }
+    // /**
+    //  * !#en Stops propagation for current event immediately,
+    //  * the event won't even be dispatched to the listeners attached in the current target.
+    //  * !#zh 立即停止当前事件的传递，事件甚至不会被分派到所连接的当前目标。
+    //  */
+    // public stopPropagationImmediate () {
+    //     this.propagationImmediateStopped = true;
+    // }
 
     /**
      * !#en Checks whether the event has been stopped.
      * !#zh 检查该事件是否已经停止传递.
      */
     public isStopped () {
-        return this._propagationStopped || this._propagationImmediateStopped;
+        return this.propagationStopped || this.propagationImmediateStopped;
     }
 
     /**

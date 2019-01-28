@@ -201,7 +201,7 @@ export class SliderComponent extends Component {
         this._touchHandle = true;
         this._offset = this._handle && this._handle.node.uiTransfromComp && this._handle.node.uiTransfromComp.convertToNodeSpaceAR((event as EventTouch).touch.getLocation());
 
-        event.stopPropagation();
+        event.propagationStopped = true;
     }
 
     public _onTouchBegan (event: Event) {
@@ -211,25 +211,25 @@ export class SliderComponent extends Component {
             this._handleSliderLogic((event as EventTouch).touch);
         }
 
-        event.stopPropagation();
+        event.propagationStopped = true;
     }
 
     public _onTouchMoved (event: Event) {
         if (!this._dragging) { return; }
         this._handleSliderLogic((event as EventTouch).touch);
-        event.stopPropagation();
+        event.propagationStopped = true;
     }
 
     public _onTouchEnded (event: Event) {
         this._dragging = false;
         this._touchHandle = false;
         this._offset = cc.v2();
-        event.stopPropagation();
+        event.propagationStopped = true;
     }
 
     public _onTouchCancelled (event: Event) {
         this._dragging = false;
-        event.stopPropagation();
+        event.propagationStopped = true;
     }
 
     public _handleSliderLogic (touch) {

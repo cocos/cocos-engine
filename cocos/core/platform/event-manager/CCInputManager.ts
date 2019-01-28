@@ -117,20 +117,19 @@ class InputManager {
             }
             const index = locTouchIntDict[touchID];
             if (index === undefined) {
-                continue;
+                const unusedIndex = this._getUnUsedIndex();
+                if (unusedIndex === -1) {
+                    cc.logID(2300, unusedIndex);
+                    continue;
+                }
+                // curTouch = this._touches[unusedIndex] = touch;
+                const curTouch = new CCTouch(touch._point.x, touch._point.y, touch.getID());
+                this._touches[unusedIndex] = curTouch;
+                curTouch._lastModified = now;
+                curTouch._setPrevPoint(touch._prevPoint);
+                locTouchIntDict[touchID] = unusedIndex;
+                handleTouches.push(curTouch);
             }
-            const unusedIndex = this._getUnUsedIndex();
-            if (unusedIndex === -1) {
-                cc.logID(2300, unusedIndex);
-                continue;
-            }
-            // curTouch = this._touches[unusedIndex] = touch;
-            const curTouch = new CCTouch(touch._point.x, touch._point.y, touch.getID());
-            this._touches[unusedIndex] = curTouch;
-            curTouch._lastModified = now;
-            curTouch._setPrevPoint(touch._prevPoint);
-            locTouchIntDict[touchID] = unusedIndex;
-            handleTouches.push(curTouch);
         }
         if (handleTouches.length > 0) {
             this._glView!._convertTouchesWithScale(handleTouches);
@@ -597,7 +596,7 @@ class InputManager {
                 handler(event, mouseEvent, location, pos);
 
                 eventManager.dispatchEvent(mouseEvent);
-                event.stopPropagation();
+                event.propagationStopped = true;
                 event.preventDefault();
             });
         };
@@ -653,7 +652,7 @@ class InputManager {
                 pos.left -= document.documentElement.scrollLeft;
                 pos.top -= document.documentElement.scrollTop;
                 touchEvent.call(this, [this.getTouchByXY(event.clientX, event.clientY, pos)]);
-                event.stopPropagation();
+                event.propagationStopped = true;
             }, false);
         }
     }
@@ -702,7 +701,7 @@ class InputManager {
                 pos.left -= body.scrollLeft || 0;
                 pos.top -= body.scrollTop || 0;
                 touchesHandler(this.getTouchesByEvent(event, pos));
-                event.stopPropagation();
+                event.propagationStopped = true;
                 event.preventDefault();
             };
         };
@@ -731,12 +730,12 @@ class InputManager {
         const canvas = cc.game.canvas as HTMLCanvasElement;
         canvas.addEventListener('keydown', (event: KeyboardEvent) => {
             eventManager.dispatchEvent(new EventKeyboard(event.keyCode, true));
-            event.stopPropagation();
+            event.propagationStopped = true;
             event.preventDefault();
         }, false);
         canvas.addEventListener('keyup', (event: KeyboardEvent) => {
             eventManager.dispatchEvent(new EventKeyboard(event.keyCode, false));
-            event.stopPropagation();
+            event.propagationStopped = true;
             event.preventDefault();
         }, false);
     }

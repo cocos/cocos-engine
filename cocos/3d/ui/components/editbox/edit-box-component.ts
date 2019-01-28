@@ -720,21 +720,21 @@ export class EditBoxComponent extends Component {
         if (this._impl) {
             this._impl._onTouchBegan(event.touch);
         }
-        event.stopPropagation();
+        event.propagationStopped = true;
     }
 
     public _onTouchCancel (event) {
         // if (this._impl) {
         //     this._impl._onTouchCancel();
         // }
-        event.stopPropagation();
+        event.propagationStopped = true;
     }
 
     public _onTouchEnded (event) {
         if (this._impl) {
             this._impl._onTouchEnded();
         }
-        event.stopPropagation();
+        event.propagationStopped = true;
     }
 
     /**

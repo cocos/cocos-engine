@@ -148,33 +148,33 @@ export class UITransformComponent extends Component {
      */
     public setContentSize (size: Size|number, height?: number) {
         const locContentSize = this._contentSize;
-        // var clone;
+        let clone;
         if (height === undefined) {
             size = size as Size;
             if ((size.width === locContentSize.width) && (size.height === locContentSize.height)) {
                 return;
             }
-            // if (CC_EDITOR) {
-            //     clone = cc.size(locContentSize.width, locContentSize.height);
-            // }
+            if (CC_EDITOR) {
+                clone = cc.size(locContentSize.width, locContentSize.height);
+            }
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
             if ((size === locContentSize.width) && (height === locContentSize.height)) {
                 return;
             }
-            // if (CC_EDITOR) {
-            //     clone = cc.size(locContentSize.width, locContentSize.height);
-            // }
+            if (CC_EDITOR) {
+                clone = cc.size(locContentSize.width, locContentSize.height);
+            }
             locContentSize.width = size;
             locContentSize.height = height;
         }
-        // if (CC_EDITOR) {
-        //     this.emit(EventType.SIZE_CHANGED, clone);
-        // }
-        // else {
-        this.node.emit(EventType.SIZE_CHANGED);
-        // }
+        if (CC_EDITOR) {
+            this.node.emit(EventType.SIZE_CHANGED, clone);
+        }
+        else {
+            this.node.emit(EventType.SIZE_CHANGED);
+        }
     }
 
     /**
@@ -221,17 +221,17 @@ export class UITransformComponent extends Component {
         // }
     }
 
-    public isHit (point: Vec2, listener: Event|null = null) {
+    public isHit(point: Vec2, listener: EventListener) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
-        const renderComp = this.node.getComponent(cc.RenderComponent);
+        const renderComp = this.node.getComponent(cc.UIRenderComponent);
         if (!renderComp) {
             return false;
         }
-        const canvas = cc.CanvasComponent.findView(renderComp);
+        const canvas = cc.director.root.ui.getScreen(renderComp.visibility);
         if (!canvas) {
             return;
         }
