@@ -589,6 +589,11 @@ bool openURLJNI(const std::string& url)
     return JniHelper::callStaticBooleanMethod(JCLS_HELPER, "openURL", url);
 }
 
+void copyTextToClipboardJNI(const std::string& text)
+{
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "copyTextToClipboard", text);
+}
+
 void setPreferredFramesPerSecondJNI(int fps)
 {
     JniHelper::callStaticVoidMethod(JCLS_RENDERER, "setPreferredFramesPerSecond", fps);

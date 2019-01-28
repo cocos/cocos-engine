@@ -1048,6 +1048,24 @@ static bool JSB_openURL(se::State& s)
 }
 SE_BIND_FUNC(JSB_openURL)
 
+static bool JSB_copyTextToClipboard(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc > 0) {
+        std::string text;
+        ok = seval_to_std_string(args[0], &text);
+        SE_PRECONDITION2(ok, false, "text is invalid!");
+        Application::getInstance()->copyTextToClipboard(text);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_copyTextToClipboard)
+
 static bool JSB_setPreferredFramesPerSecond(se::State& s)
 {
     const auto& args = s.args();
@@ -1185,6 +1203,8 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("openDebugView", _SE(js_openDebugView));
     __jsbObj->defineFunction("disableBatchGLCommandsToNative", _SE(js_disableBatchGLCommandsToNative));
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
+    __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
+
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
