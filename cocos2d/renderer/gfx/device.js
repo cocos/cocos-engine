@@ -656,14 +656,18 @@ export default class Device {
 
     for (let i = 0; i < extensions.length; ++i) {
       let name = extensions[i];
+      let vendorPrefixes = ["", "WEBKIT_", "MOZ_"];
 
-      try {
-        let ext = gl.getExtension(name);
-        if (ext) {
-          this._extensions[name] = ext;
+      for (var j = 0; j < vendorPrefixes.length; j++) {
+        try {
+          let ext = gl.getExtension(vendorPrefixes[j] + name);
+          if (ext) {
+            this._extensions[name] = ext;
+            break;
+          }
+        } catch (e) {
+          console.error(e);
         }
-      } catch (e) {
-        console.error(e);
       }
     }
   }
