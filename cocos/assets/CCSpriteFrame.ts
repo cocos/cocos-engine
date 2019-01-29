@@ -744,6 +744,8 @@ export class SpriteFrame extends Texture2D {
             super.onLoaded();
         }
 
+        this.updateMipmaps();
+
         this._textureLoadedCallback();
     }
 

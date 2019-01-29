@@ -18,7 +18,8 @@ export class RenderableComponent extends Component {
     }
 
     @property({
-        type: [Material],
+        default: [],
+        type: Material,
         displayName: 'Materials',
     })
     get sharedMaterials () {
