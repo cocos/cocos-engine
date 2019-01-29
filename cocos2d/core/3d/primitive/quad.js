@@ -1,6 +1,7 @@
 'use strict';
 
 import { vec3 } from '../../vmath';
+import VertexData from './vertex-data';
 
 let positions = [
   -0.5, -0.5, 0, // bottom-left
@@ -34,7 +35,7 @@ let maxPos = vec3.create(0.5, 0.5, 0);
 let boundingRadius = Math.sqrt(0.5 * 0.5 + 0.5 * 0.5);
 
 export default function () {
-  return {
+  return new VertexData(
     positions,
     indices,
     normals,
@@ -42,5 +43,5 @@ export default function () {
     minPos,
     maxPos,
     boundingRadius
-  };
+  );
 }

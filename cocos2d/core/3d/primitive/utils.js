@@ -1,3 +1,4 @@
+import { vec3 } from '../../vmath';
 
 export function wireframe(indices) {
   const offsets = [[0, 1], [1, 2], [2, 0]];
@@ -62,4 +63,64 @@ export function normals(positions, normals, length = 1) {
   }
 
   return verts;
+}
+
+
+function fromArray (out, a, offset) {
+  out.x = a[offset];
+  out.y = a[offset+1];
+  out.z = a[offset+2];
+}
+
+export function calcNormals (positions, indices, normals) {
+  normals = normals || new Array(positions.length);
+  for (let i = 0, l = normals.length; i < l; i++) {
+      normals[i] = 0;
+  }
+
+  let vA, vB, vC;
+  let pA = cc.v3(), pB = cc.v3(), pC = cc.v3();
+  let cb = cc.v3(), ab = cc.v3();
+
+  for (let i = 0, il = indices.length; i < il; i += 3) {
+
+      vA = indices[i + 0] * 3;
+      vB = indices[i + 1] * 3;
+      vC = indices[i + 2] * 3;
+
+      fromArray(pA, positions, vA);
+      fromArray(pB, positions, vB);
+      fromArray(pC, positions, vC);
+
+      vec3.sub(cb, pC, pB);
+      vec3.sub(ab, pA, pB);
+      vec3.cross(cb, cb, ab);
+
+      normals[vA] += cb.x;
+      normals[vA + 1] += cb.y;
+      normals[vA + 2] += cb.z;
+
+      normals[vB] += cb.x;
+      normals[vB + 1] += cb.y;
+      normals[vB + 2] += cb.z;
+
+      normals[vC] += cb.x;
+      normals[vC + 1] += cb.y;
+      normals[vC + 2] += cb.z;
+  }
+
+  let tempNormal = cc.v3();
+  for (let i = 0, l = normals.length; i < l; i+=3) {
+      tempNormal.x = normals[i];
+      tempNormal.y = normals[i+1];
+      tempNormal.z = normals[i+2];
+
+      tempNormal.normalizeSelf();
+
+      normals[i] = tempNormal.x;
+      normals[i+1] = tempNormal.y;
+      normals[i+2] = tempNormal.z;
+  }
+
+  return normals;
 }

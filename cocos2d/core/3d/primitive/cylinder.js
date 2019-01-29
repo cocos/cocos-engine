@@ -1,6 +1,7 @@
 'use strict';
 
 import { vec3 } from '../../vmath';
+import VertexData from './vertex-data';
 
 let temp1 = vec3.create(0, 0, 0);
 let temp2 = vec3.create(0, 0, 0);
@@ -69,7 +70,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     }
   }
 
-  return {
+  return new VertexData(
     positions,
     normals,
     uvs,
@@ -77,7 +78,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     minPos,
     maxPos,
     boundingRadius
-  };
+  );
 
   // =======================
   // internal fucntions

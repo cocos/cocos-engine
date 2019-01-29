@@ -1,6 +1,8 @@
 'use strict';
 
 import { vec3 } from '../../vmath';
+import VertexData from './vertex-data';
+
 /**
  * @param {Number} radius
  * @param {Number} tube
@@ -57,7 +59,7 @@ export default function (radius = 0.4, tube = 0.1, opts = {}) {
     }
   }
 
-  return {
+  return new VertexData(
     positions,
     normals,
     uvs,
@@ -65,5 +67,5 @@ export default function (radius = 0.4, tube = 0.1, opts = {}) {
     minPos,
     maxPos,
     boundingRadius
-  };
+  );
 }
