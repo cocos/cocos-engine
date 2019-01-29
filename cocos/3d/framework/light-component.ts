@@ -250,6 +250,10 @@ export default class LightComponent extends Component {
         }
     }
 
+    public onLoad () {
+        this.node.on(cc.Node.SCENE_CHANGED_FOR_PERSISTS, () => this._destroyLight());
+    }
+
     public onEnable () {
         this._createLight();
         if (this._light) { this._light.enabled = true; return; }
@@ -283,8 +287,12 @@ export default class LightComponent extends Component {
             console.warn(`illegal light type ${this._type}`);
             return;
         }
-        if (!this._light) { console.warn('we don\'t support this many lights in forward pipeline.'); }
+        if (!this._light) {
+            console.warn('we don\'t support this many lights in forward pipeline.');
+            return;
+        }
         this.color = this._color;
+        this._light.enabled = this.enabledInHierarchy;
     }
 
     protected _destroyLight () {

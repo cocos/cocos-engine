@@ -163,7 +163,12 @@ export class ModelComponent extends RenderableComponent {
     }
 
     public onLoad () {
-        super.onLoad();
+        this.node.on(cc.Node.SCENE_CHANGED_FOR_PERSISTS, () => {
+            if (this._model) {
+                this._getRenderScene().destroyModel(this._model);
+                this._model = null;
+            }
+        });
     }
 
     public onEnable () {
@@ -184,6 +189,7 @@ export class ModelComponent extends RenderableComponent {
     public onDestroy () {
         if (this._model) {
             this._getRenderScene().destroyModel(this._model);
+            this._model = null;
         }
     }
 

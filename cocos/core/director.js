@@ -417,6 +417,7 @@ class Director extends EventTarget {
             else {
                 node.parent = scene;
             }
+            node.emit(cc.Node.SCENE_CHANGED_FOR_PERSISTS);
         }
         CC_BUILD && CC_DEBUG && console.timeEnd('AttachPersist');
 
