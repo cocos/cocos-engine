@@ -32,6 +32,7 @@ import quat from '../../core/vmath/quat';
 import { clamp } from '../../core/vmath/utils';
 import vec3 from '../../core/vmath/vec3';
 import { Node } from '../../scene-graph/node';
+import { ccenum } from '../../core/value-types/enum';
 
 const tmpvec3 = new Vec3();
 const tmpquat = new Quat();
@@ -53,6 +54,33 @@ function _binaryIndexOf (array: number[], key: number) {
     return lo;
 }
 
+export enum AnimationTargetProperty {
+    position,
+    rotation,
+    scale,
+}
+
+cc.AnimationTargetProperty = AnimationTargetProperty;
+
+ccenum(AnimationTargetProperty);
+
+export interface IPropertyAnimation {
+    /**
+     * Target Property to animate.
+     */
+    property: AnimationTargetProperty;
+
+    /**
+     * Index of keys into animation's keysList property;
+     */
+    indexOfKeys: number;
+
+    /**
+     * Property values.
+     */
+    values: number[];
+}
+
 export interface IAnimationChannel {
     /**
      * Target node's path in scene graph.
@@ -60,19 +88,9 @@ export interface IAnimationChannel {
     target: string;
 
     /**
-     * Target node's position animation curve.
+     * Properties animation.
      */
-    positionCurve: Vec3[];
-
-    /**
-     * Target node's scale animation curve.
-     */
-    scaleCurve: Vec3[];
-
-    /**
-     * Target node's rotation animation curve.
-     */
-    rotationCurve: Quat[];
+    propertyAnimations: IPropertyAnimation[];
 }
 
 @ccclass('cc.AnimationClip')
@@ -81,13 +99,13 @@ export default class AnimationClip extends Asset {
     private _channels: IAnimationChannel[] = [];
 
     @property
-    private _times: number[] = [];
+    private _keysList: number[][] = [];
 
     @property
     private _length: number = 0.0;
 
-    get times () {
-        return this._times;
+    get keysList () {
+        return this._keysList;
     }
 
     get channels () {
@@ -98,6 +116,7 @@ export default class AnimationClip extends Asset {
         return this._length;
     }
 }
+
 cc.AnimationClip = AnimationClip;
 
 export class AnimationTarget {
@@ -196,6 +215,22 @@ export class AnimationSampler {
     public sample (clip: AnimationClip, t: number, weight: number, mask?: any) {
         t = clamp(t, 0, clip.length);
 
+        const binaryIndicesOfKeysList: number[] = new Array(clip.keysList.length);
+        binaryIndicesOfKeysList.fill(-1);
+        const calcBinarayIndicesOfKeys = (iKeys: number) => {
+            let v = binaryIndicesOfKeysList[iKeys];
+            if (v < 0) {
+                const keys = clip.keysList[iKeys];
+                if (keys.length === 1) {
+                    v = 0;
+                } else {
+                    v = _binaryIndexOf(keys, t);
+                }
+                binaryIndicesOfKeysList[iKeys] = v;
+            }
+            return v;
+        };
+
         const getState = (channel: IAnimationChannel) => {
             const iNode = this._animationTarget.get(channel.target);
             if (iNode === undefined) {
@@ -204,56 +239,65 @@ export class AnimationSampler {
             return this._nodeSamplingStates[iNode];
         };
 
-        let idx = 0;
-        if (clip.times.length !== 1) {
-            idx = _binaryIndexOf(clip.times, t);
-        }
-        if (idx === 0) {
-            clip.channels.forEach((channel) => {
-                const nodeSamlingState = getState(channel);
-                if (!nodeSamlingState) {
-                    return;
-                }
-                if (channel.positionCurve.length !== 0) {
-                    nodeSamlingState.blendPosition(channel.positionCurve[0], weight);
-                }
-                if (channel.rotationCurve.length !== 0) {
-                    nodeSamlingState.blendRotation(channel.rotationCurve[0], weight);
-                }
-                if (channel.scaleCurve.length !== 0) {
-                    nodeSamlingState.blendScale(channel.scaleCurve[0], weight);
-                }
-            });
-        } else {
-            const loIdx = Math.max(idx - 1, 0);
-            const hiIdx = Math.min(idx, clip.times.length);
-            const ratio = (t - clip.times[loIdx]) / (clip.times[hiIdx] - clip.times[loIdx]);
+        const tempVec3_1 = new Vec3();
+        const tempVec3_2 = new Vec3();
+        const tempQuat_1 = new Quat();
+        const tempQuat_2 = new Quat();
 
-            clip.channels.forEach((channel) => {
-                const nodeSamlingState = getState(channel);
-                if (!nodeSamlingState) {
-                    return;
-                }
-                if (channel.positionCurve.length !== 0) {
-                    const a = channel.positionCurve[loIdx];
-                    const b = channel.positionCurve[hiIdx];
-                    vec3.lerp(tmpvec3, a, b, ratio);
-                    nodeSamlingState.blendPosition(tmpvec3, weight);
-                }
-                if (channel.rotationCurve.length !== 0) {
-                    const a = channel.rotationCurve[loIdx];
-                    const b = channel.rotationCurve[hiIdx];
-                    quat.slerp(tmpquat, a, b, ratio);
-                    nodeSamlingState.blendRotation(tmpquat, weight);
-                }
-                if (channel.scaleCurve.length !== 0) {
-                    const a = channel.scaleCurve[loIdx];
-                    const b = channel.scaleCurve[hiIdx];
-                    vec3.lerp(tmpvec3, a, b, ratio);
-                    nodeSamlingState.blendScale(tmpvec3, weight);
+        clip.channels.forEach((channel) => {
+            const nodeSamlingState = getState(channel);
+            if (!nodeSamlingState) {
+                return;
+            }
+            channel.propertyAnimations.forEach((propertyAnimation) => {
+                const getPositionAt = (index: number, out: Vec3) => vec3.set(out,
+                    propertyAnimation.values[index * 3 + 0],
+                    propertyAnimation.values[index * 3 + 1],
+                    propertyAnimation.values[index * 3 + 2]);
+                const getRotationAt = (index: number, out: Quat) => quat.set(out,
+                    propertyAnimation.values[index * 4 + 0], 
+                    propertyAnimation.values[index * 4 + 1], 
+                    propertyAnimation.values[index * 4 + 2], 
+                    propertyAnimation.values[index * 4 + 3]);
+                const getScaleAt = getPositionAt;
+                const keys = clip.keysList[propertyAnimation.indexOfKeys];
+                const idx = calcBinarayIndicesOfKeys(propertyAnimation.indexOfKeys);
+
+                if (idx === 0) {
+                    if (propertyAnimation.property === AnimationTargetProperty.position) {
+                        const p = getPositionAt(0, tempVec3_1);
+                        nodeSamlingState.blendPosition(p, weight);
+                    } else if (propertyAnimation.property === AnimationTargetProperty.rotation) {
+                        const r = getRotationAt(0, tempQuat_1);
+                        nodeSamlingState.blendRotation(r, weight);
+                    } else if (propertyAnimation.property === AnimationTargetProperty.scale) {
+                        const s = getScaleAt(0, tempVec3_1);
+                        nodeSamlingState.blendScale(s, weight);
+                    }
+                } else {
+                    const loIdx = Math.max(idx - 1, 0);
+                    const hiIdx = Math.min(idx, keys.length);
+                    const ratio = (t - keys[loIdx]) / (keys[hiIdx] - keys[loIdx]);
+                    if (propertyAnimation.property === AnimationTargetProperty.position) {
+                        const a = getPositionAt(loIdx, tempVec3_1);
+                        const b = getPositionAt(hiIdx, tempVec3_2);
+                        vec3.lerp(tmpvec3, a, b, ratio);
+                        nodeSamlingState.blendPosition(tmpvec3, weight);
+                    } else if (propertyAnimation.property === AnimationTargetProperty.rotation) {
+                        const a = getRotationAt(loIdx, tempQuat_1);
+                        const b = getRotationAt(hiIdx, tempQuat_2);
+                        quat.slerp(tmpquat, a, b, ratio);
+                        nodeSamlingState.blendRotation(tmpquat, weight);
+                    } else if (propertyAnimation.property === AnimationTargetProperty.scale) {
+                        const a = getScaleAt(loIdx, tempVec3_1);
+                        const b = getScaleAt(hiIdx, tempVec3_2);
+                        vec3.lerp(tmpvec3, a, b, ratio);
+                        nodeSamlingState.blendScale(tmpvec3, weight);
+                    }
                 }
             });
-        }
+            
+        });
     }
 }
 
