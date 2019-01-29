@@ -13,6 +13,9 @@
 void MULTIPLY_EMISSIVE_TEXTRUE_COLOR (inout vec3 color, in vec2 uv) {
   #if USE_EMISSIVE_TEXTURE && _USE_ATTRIBUTE_UV0
     vec4 emissiveTextureColor = texture2D(emissiveTexture, uv);
+    #if _USE_ETC_EMISSIVETEXTURE
+      emissiveTextureColor.a *= texture2D(emissiveTexture, uv + vec2(0, 0.5)).r;
+    #endif
     emissiveTextureColor = TEXEL_TO_LINEAR(emissiveTextureColor);
     color *= emissiveTextureColor.rgb;
   #endif

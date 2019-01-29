@@ -10,6 +10,9 @@ uniform vec4 diffuseColor;
 void MULTIPLY_DIFFUSE_TEXTRUE_COLOR (inout vec4 color, in vec2 uv) {
   #if USE_DIFFUSE_TEXTURE && _USE_ATTRIBUTE_UV0
     vec4 diffuseTextureColor = texture2D(diffuseTexture, uv);
+    #if _USE_ETC_DIFFUSETEXTURE
+      diffuseTextureColor.a *= texture2D(diffuseTexture, uv + vec2(0, 0.5)).r;
+    #endif
     color *= TEXEL_TO_LINEAR(diffuseTextureColor);
   #endif
 }
