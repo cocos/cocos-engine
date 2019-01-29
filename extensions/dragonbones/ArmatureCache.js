@@ -90,6 +90,9 @@ let AnimationCache = cc.Class({
         let segments = this._tempSegments = frame.segments;
         let colors = this._tempColors = frame.colors;
         this._traverseArmature(armature);
+        // At last must handle pre color and segment.
+        // Because vertex count will right at the end.
+        // Handle pre color.
         if (_colorOffset > 0) {
             colors[_colorOffset - 1].vfOffset = _vfOffset;
         }

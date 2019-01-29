@@ -846,4 +846,154 @@ let ArmatureDisplay = cc.Class({
     },
 });
 
+/**
+ * !#en
+ * Animation start play.
+ * !#zh
+ * 动画开始播放。
+ *
+ * @event dragonBones.EventObject.START
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation loop play complete once.
+ * !#zh
+ * 动画循环播放完成一次。
+ *
+ * @event dragonBones.EventObject.LOOP_COMPLETE
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation play complete.
+ * !#zh
+ * 动画播放完成。
+ *
+ * @event dragonBones.EventObject.COMPLETE
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation fade in start.
+ * !#zh
+ * 动画淡入开始。
+ *
+ * @event dragonBones.EventObject.FADE_IN
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation fade in complete.
+ * !#zh
+ * 动画淡入完成。
+ *
+ * @event dragonBones.EventObject.FADE_IN_COMPLETE
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation fade out start.
+ * !#zh
+ * 动画淡出开始。
+ *
+ * @event dragonBones.EventObject.FADE_OUT
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation fade out complete.
+ * !#zh
+ * 动画淡出完成。
+ *
+ * @event dragonBones.EventObject.FADE_OUT_COMPLETE
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation frame event.
+ * !#zh
+ * 动画帧事件。
+ *
+ * @event dragonBones.EventObject.FRAME_EVENT
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {String} [callback.event.name]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ * @param {dragonBones.Bone} [callback.event.bone]
+ * @param {dragonBones.Slot} [callback.event.slot]
+ */
+
+/**
+ * !#en
+ * Animation frame sound event.
+ * !#zh
+ * 动画帧声音事件。
+ *
+ * @event dragonBones.EventObject.SOUND_EVENT
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {String} [callback.event.name]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ * @param {dragonBones.Bone} [callback.event.bone]
+ * @param {dragonBones.Slot} [callback.event.slot]
+ */
+
 module.exports = dragonBones.ArmatureDisplay = ArmatureDisplay;
