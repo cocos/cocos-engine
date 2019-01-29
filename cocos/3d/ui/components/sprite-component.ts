@@ -58,7 +58,7 @@ enum SpriteType {
     //  * !#zh 平铺类型
     //  * @property {Number} TILED
     //  */
-    TILED =  2,
+    // TILED =  2,
     /**
      * !#en The filled type.
      * !#zh 填充类型
@@ -98,7 +98,7 @@ enum FillType {
     //  * !#zh 径向填充
     //  * @property {Number} RADIAL
     //  */
-    RADIAL = 2,
+    // RADIAL = 2,
 };
 
 ccenum(FillType);

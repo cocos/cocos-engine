@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>ui</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+            body {
+                background-color: #333;
+                margin: 0px;
+                overflow: hidden;
+            }
+
+            .fit {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+        </style>
+    </head>
+
+    <body class="fit">
+        <canvas id="canvas" tabindex="-1" class="fit">
+            <img name="testImg" src="cubetexture.png" />
+        </canvas>
+
+        <script src="../bin/cocos-3d.dev.js"></script>
+        <script>
+            const $body = document.body;
+            const bcr = $body.getBoundingClientRect();
+            const canv = document.getElementById('canvas');
+            canv.width = bcr.width;
+            canv.height = bcr.height;
+
+            window.addEventListener('resize', () => {
+                const bcr = $body.getBoundingClientRect();
+                cc.director.root.resize(bcr.width, bcr.height);
+            });
+
+            function createTexture(imgElms) {
+                const textureAsset = new cc.Texture2D();
+                textureAsset.image = new cc.ImageAsset(imgElms[0]);
+                return textureAsset;
+            }
+            const geomList = ['box', 'sphere', 'cylinder', 'cone', 'torus', 'capsule'];
+            function onStart() {
+                const root = cc.director.root;
+                const scene = new cc.Scene();
+
+                const canvasNode = new cc.Node('Canvas');
+                canvasNode.parent = scene;
+                canvasNode.addComponent(cc.CanvasComponent);
+
+                const spriteFrame = new cc.SpriteFrame();
+                let elem = cc.game.canvas.getElementsByTagName('img')[0];
+                spriteFrame.setOriginalSize(cc.size(elem.width, elem.height));
+                spriteFrame.setRect(cc.rect(0, 0, elem.width, elem.height));
+                spriteFrame.onLoaded();
+                spriteFrame.image = new cc.ImageAsset(elem);
+
+                let spriteList = [];
+
+                // for (let i = 0; i < 3; i++) {
+                    const spriteNode = new cc.Node('sprite');
+                    spriteNode.parent = canvasNode;
+                    spriteNode.setPosition(-250 /*+ 200 * i*/, 150, 0);
+                    const spriteComp = spriteNode.addComponent(cc.SpriteComponent);
+                    spriteComp.sharedMaterials = [cc.builtinResMgr.get('sprite-material')];
+                    spriteComp.spriteFrame = spriteFrame;
+                    spriteList.push(spriteComp);
+                // }
+
+                // spriteList[1].type = cc.SpriteComponent.Type.FILLED;
+                // spriteList[1].fillType = cc.SpriteComponent.FillType.HORIZONTAL;
+                // spriteList[1].fillRange = 0.3;
+
+                // spriteList[2].type = cc.SpriteComponent.Type.FILLED;
+                // spriteList[2].fillType = cc.SpriteComponent.FillType.VERTICAL;
+                // spriteList[2].fillRange = 0.5;
+
+                // const topLabelTipNode = new cc.Node('top tip');
+                // topLabelTipNode.parent = canvasNode;
+                // topLabelTipNode.setPosition(0, 300, 0);
+                // const topLabelTipComp = topLabelTipNode.addComponent(cc.LabelComponent);
+                // topLabelTipComp.sharedMaterials = [cc.builtinResMgr.get('sprite-material')];
+                // topLabelTipComp.string = 'But it rain still, when will the rainbow come? \n
+                // But I\'m pain still, when will I overcome? \n I must keep singing \n I cannot keep trying \n I must keep dreaming I must keep cheating myself';
+
+                const bomLabelTipNode = new cc.Node('bottom tip');
+                bomLabelTipNode.parent = canvasNode;
+                bomLabelTipNode.setPosition(0, -50, 0);
+                const bomLabelTipComp = bomLabelTipNode.addComponent(cc.LabelComponent);
+                bomLabelTipComp.sharedMaterials = [cc.builtinResMgr.get('sprite-material')];
+                bomLabelTipComp.string = 'show labels';
+
+                // const labelNodel = new cc.Node('label');
+                // labelNodel.parent = canvasNode;
+                // labelNodel.setPosition(0, 100, 0);
+                // const labelComp = labelNodel.addComponent(cc.LabelComponent);
+                // labelComp.sharedMaterials = [cc.builtinResMgr.get('sprite-material')];
+                // labelComp.string = 'start';
+
+                cc.director.runSceneImmediate(scene);
+            }
+            cc.game.run({ id: 'canvas' }, onStart);
+        </script>
+    </body>
+
+</html>
