@@ -3,13 +3,6 @@ import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipe
 
 export interface IWebGLTexUnit {
     glTexture: WebGLTexture;
-    minFilter: GLenum;
-    magFilter: GLenum;
-    wrapS: GLenum;
-    wrapT: GLenum;
-    wrapR: GLenum;
-    baseLevel: number;
-    maxLevel: number;
 }
 
 export class WebGLStateCache {

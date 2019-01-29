@@ -89,6 +89,10 @@ export class WebGLGPUTexture extends WebGLGPUObject {
     public glType: GLenum = 0;
     public glUsage: GLenum = 0;
     public glTexture: WebGLTexture = 0;
+    public glWrapS: GLenum = 0;
+    public glWrapT: GLenum = 0;
+    public glMinFilter: GLenum = 0;
+    public glMagFilter: GLenum = 0;
 
     constructor () {
         super(WebGLGPUObjectType.TEXTURE);

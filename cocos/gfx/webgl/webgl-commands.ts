@@ -748,6 +748,15 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         h = Math.max(1, h >> 1);
                     }
                 }
+
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, WebGLRenderingContext.CLAMP_TO_EDGE);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, WebGLRenderingContext.CLAMP_TO_EDGE);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
+                gpuTexture.glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
+                gpuTexture.glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
+                gpuTexture.glMinFilter = WebGLRenderingContext.LINEAR;
+                gpuTexture.glMagFilter = WebGLRenderingContext.LINEAR;
             }
 
             break;
@@ -790,6 +799,15 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         }
                     }
                 }
+
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, WebGLRenderingContext.CLAMP_TO_EDGE);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, WebGLRenderingContext.CLAMP_TO_EDGE);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
+                gpuTexture.glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
+                gpuTexture.glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
+                gpuTexture.glMinFilter = WebGLRenderingContext.LINEAR;
+                gpuTexture.glMagFilter = WebGLRenderingContext.LINEAR;
             }
 
             break;
@@ -1833,7 +1851,6 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                             }
 
                                             let glTexUnit: IWebGLTexUnit | null = null;
-                                            let isTexParamInvalied = false;
 
                                             if (gpuBinding.gpuTexView) {
                                                 const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
@@ -1843,7 +1860,6 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                         if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                                                             gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, gpuTexture.glTexture);
                                                             glTexUnit.glTexture = gpuTexture.glTexture;
-                                                            isTexParamInvalied = true;
                                                         }
                                                         break;
                                                     }
@@ -1853,7 +1869,6 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                         if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                                                             gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                                                             glTexUnit.glTexture = gpuTexture.glTexture;
-                                                            isTexParamInvalied = true;
                                                         }
                                                         break;
                                                     }
@@ -1865,33 +1880,26 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                 if (glTexUnit) {
                                                     const gpuSampler = gpuBinding.gpuSampler;
     
-                                                    if (glTexUnit.minFilter !== gpuSampler.glMinFilter || isTexParamInvalied) {
-                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
-                                                        glTexUnit.minFilter = gpuSampler.glMinFilter;
-                                                    }
-    
-                                                    if (glTexUnit.magFilter !== gpuSampler.glMagFilter || isTexParamInvalied) {
-                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
-                                                        glTexUnit.magFilter = gpuSampler.glMagFilter;
-                                                    }
-    
-                                                    if (glTexUnit.wrapS !== gpuSampler.glWrapS || isTexParamInvalied) {
+                                                    if (gpuTexture.glWrapS !== gpuSampler.glWrapS) {
                                                         gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, gpuSampler.glWrapS);
-                                                        glTexUnit.wrapS = gpuSampler.glWrapS;
+                                                        gpuTexture.glWrapS = gpuSampler.glWrapS;
                                                     }
-    
-                                                    if (glTexUnit.wrapT !== gpuSampler.glWrapT || isTexParamInvalied) {
+
+                                                    if (gpuTexture.glWrapT !== gpuSampler.glWrapT) {
                                                         gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, gpuSampler.glWrapT);
-                                                        glTexUnit.wrapT = gpuSampler.glWrapT;
+                                                        gpuTexture.glWrapT = gpuSampler.glWrapT;
                                                     }
-    
-                                                    /*
-                                                    if(glTexUnit.wrapR !== gpuSampler.glWrapR || isTexParamInvalied) {
-                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_R, gpuSampler.glWrapR);
-                                                        glTexUnit.wrapR = gpuSampler.glWrapR;
+
+                                                    if (gpuTexture.glMinFilter !== gpuSampler.glMinFilter) {
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
+                                                        gpuTexture.glMinFilter = gpuSampler.glMinFilter;
                                                     }
-                                                    */
-                                                }
+
+                                                    if (gpuTexture.glMagFilter !== gpuSampler.glMagFilter) {
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
+                                                        gpuTexture.glMagFilter = gpuSampler.glMagFilter;
+                                                    }
+T                                                }
                                             } else {
                                                 console.error("Not found texture view on binding unit " + gpuBinding.binding);
                                             }
