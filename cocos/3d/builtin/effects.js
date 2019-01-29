@@ -55,7 +55,7 @@ export default [
   },
   {
     "name": "builtin-effect-sprite",
-    "techniques": [{"passes":[{"rasterizerState":{"cullMode":0}, "depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag", "properties":{"u_texSampler":{"type":29, "value":"default", "sampler":{"minFilter":2, "magFilter":2, "mipFilter":0, "addressU":2, "addressV":2}}}}]}],
+    "techniques": [{"passes":[{"depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag", "properties":{"u_texSampler":{"type":29, "value":"default", "sampler":{"minFilter":2, "magFilter":2, "mipFilter":0, "addressU":2, "addressV":2}}}}]}],
     "shaders": [
       {
         "name": "builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag",

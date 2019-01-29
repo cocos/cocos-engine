@@ -2249,8 +2249,8 @@ export function WebGLCmdFuncCopyBufferToTexture (
             if (!isCompressed) {
                 for (const region of regions) {
                     let buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
-
-                    for (let f = 0; f < 6; ++f) {
+                    let fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
+                    for (let f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                         let w = region.texExtent.width;
                         let h = region.texExtent.height;
 
