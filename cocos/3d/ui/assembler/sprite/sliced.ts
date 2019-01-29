@@ -25,8 +25,8 @@
 
 // const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 import { IUV, SpriteFrame } from '../../../../assets/CCSpriteFrame';
-import { Color, Mat4 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath/index';
+import { Mat4 } from '../../../../core/value-types';
+import { vec3, color4 } from '../../../../core/vmath/index';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { IUIRenderData } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
@@ -36,6 +36,7 @@ import { IAssembler } from '../assembler';
 
 const vec3_temp = vec3.create();
 const matrix = new Mat4();
+const color_temp = color4.create();
 
 export const sliced: IAssembler = {
     useModel: false,
@@ -122,9 +123,10 @@ export const sliced: IAssembler = {
         );
         const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const renderData: RenderData|null = sprite.renderData;
-        const node: Node = sprite.node;
-        const color: Color = sprite.color;
+        // const node: Node = sprite.node;
+        // const color: Color = sprite.color;
         const datas: IRenderData[] = renderData!.datas;
+        sprite.color.to01(color_temp);
 
         let vertexOffset = buffer.byteOffset >> 2;
         const vertexCount = renderData!.vertexCount;
@@ -150,10 +152,10 @@ export const sliced: IAssembler = {
             vbuf![vertexOffset++] = vert.z;
             vbuf![vertexOffset++] = uvs.u;
             vbuf![vertexOffset++] = uvs.v;
-            vbuf![vertexOffset++] = color.r;
-            vbuf![vertexOffset++] = color.g;
-            vbuf![vertexOffset++] = color.b;
-            vbuf![vertexOffset++] = color.a;
+            vbuf![vertexOffset++] = color_temp.r;
+            vbuf![vertexOffset++] = color_temp.g;
+            vbuf![vertexOffset++] = color_temp.b;
+            vbuf![vertexOffset++] = color_temp.a;
             // uintbuf[vertexOffset++] = color;
         }
 

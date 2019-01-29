@@ -31,9 +31,9 @@ export interface IAssembler {
 
     useModel: boolean;
     fillBuffers (component: UIRenderComponent, render: UI): void;
-    updateRenderData (component: UIRenderComponent): void;
-    createData (component: UIRenderComponent): RenderData;
-    updateVerts (component: UIRenderComponent, start?: number, end?: number): void;
+    updateRenderData? (component: UIRenderComponent): void;
+    createData? (component: UIRenderComponent): RenderData;
+    updateVerts? (component: UIRenderComponent, start?: number, end?: number): void;
     updateWorldVerts? (component: UIRenderComponent): void;
     updateUVs?(component: UIRenderComponent, start?: number, end?: number);
 }

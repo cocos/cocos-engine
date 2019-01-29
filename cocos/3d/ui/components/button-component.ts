@@ -455,13 +455,13 @@ export class ButtonComponent extends Component {
     @property
     public _transition: number = Transition.NONE;
     @property
-    public _normalColor: Color = new Color(214, 214, 214);
+    public _normalColor: Color = new Color(214, 214, 214, 255);
     @property
-    public _hoverColor: Color = new Color(211, 211, 211);
+    public _hoverColor: Color = new Color(211, 211, 211, 255);
     @property
     public _pressColor: Color = Color.WHITE;
     @property
-    public _disabledColor: Color = new Color(124, 124, 124);
+    public _disabledColor: Color = new Color(124, 124, 124, 255);
     @property
     public _normalSprite: SpriteFrame | null = null;
     @property
