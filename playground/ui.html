@@ -58,14 +58,23 @@
                 spriteNode.parent = canvasNode;
                 spriteNode.setPosition(0, 0, 0);
                 const spriteComp = spriteNode.addComponent(cc.SpriteComponent);
+                spriteComp.sharedMaterials = [cc.builtinResMgr.get('sprite-material')];
 
                 // let elem = cc.game.canvas.getElementsByTagName('img')[0];
                 const spriteFrame = new cc.SpriteFrame();
                 let elem = cc.game.canvas.getElementsByTagName('img')[0];
                 spriteFrame.image = new cc.ImageAsset(elem);
-                // spriteFrame.setOriginalSize(cc.size(elem.width, elem.height));
-                // spriteFrame.setRect(0, 0, elem.width, elem.height);
+                spriteFrame.setOriginalSize(cc.size(elem.width, elem.height));
+                spriteFrame.setRect(0, 0, elem.width, elem.height);
+                spriteFrame.onLoaded();
                 spriteComp.spriteFrame = spriteFrame;
+
+                const buttonNode = new cc.Node('button');
+                buttonNode.parent = canvasNode;
+                buttonNode.setPosition(0, 120 ,0);
+                const buttonSpriteComp = buttonNode.addComponent(cc.SpriteComponent);
+                buttonSpriteComp.sharedMaterials = [cc.builtinResMgr.get('sprite-material')];
+                buttonSpriteComp.spriteFrame = spriteFrame;
 
                 cc.director.runSceneImmediate(scene);
             }
