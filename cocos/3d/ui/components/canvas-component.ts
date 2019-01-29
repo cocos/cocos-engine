@@ -264,7 +264,7 @@ export class CanvasComponent extends Component {
         this.node.height = nodeSize.height;
         let nodeWorldPos = this.node.getWorldPosition();
         if (this._camera) {
-            this._camera.orthoHeight = this._camera.height;
+            this._camera.orthoHeight = this._camera.height / 2;
             this._camera.node.setPosition(nodeWorldPos.x, nodeWorldPos.y, this._camera.node.getWorldPosition().z);
             this._camera.update();
         }

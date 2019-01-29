@@ -5,34 +5,14 @@ import { Enum, Mat4 } from '../../../core/value-types';
 import Size from '../../../core/value-types/size';
 import Vec2 from '../../../core/value-types/vec2';
 import * as math from '../../../core/vmath/index';
+import { EventType } from '../../../scene-graph/node-event-enum';
+import { MaskComponent } from './mask-component';
 
 const _vec2a = cc.v2();
 const _vec2b = cc.v2();
 const _mat4_temp = cc.mat4();
 const _worldMatrix = cc.mat4();
 
-const EventType = Enum({
-    /**
-     * !#en The event type for size change events.
-     * Performance note, this event will be triggered every time corresponding properties being changed,
-     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
-     * !#zh 当节点尺寸改变时触发的事件。
-     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
-     * @property {String} SIZE_CHANGED
-     * @static
-     */
-    SIZE_CHANGED: 'size-changed',
-    /**
-     * !#en The event type for anchor point change events.
-     * Performance note, this event will be triggered every time corresponding properties being changed,
-     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
-     * !#zh 当节点锚点改变时触发的事件。
-     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
-     * @property {String} ANCHOR_CHANGED
-     * @static
-     */
-    ANCHOR_CHANGED: 'anchor-changed',
-});
 
 @ccclass('cc.UITransformComponent')
 @executionOrder(100)
@@ -268,17 +248,17 @@ export class UITransformComponent extends Component {
         testPt.y += this._anchorPoint.y * h;
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
-            if (listener && listener.mask) {
-                const mask = listener.mask;
+            if (listener /*&& listener.mask*/) {
+                // const mask = listener.mask;
                 const parent = this;
                 // find mask parent, should hit test it
-                if (parent === mask.node) {
-                    const comp = parent.getComponent(cc.Mask);
-                    return (comp && comp.enabledInHierarchy) ? comp.node.uiTransfromComp!.isHit(cameraPt) : true;
-                } else {
-                    listener.mask = null;
-                    return true;
-                }
+                // if (parent === mask.node) {
+                //     const comp = parent.getComponent(MaskComponent);
+                //     return (comp && comp.enabledInHierarchy) ? comp.node.uiTransfromComp!.isHit(cameraPt) : true;
+                // } else {
+                //     listener.mask = null;
+                //     return true;
+                // }
             } else {
                 return true;
             }

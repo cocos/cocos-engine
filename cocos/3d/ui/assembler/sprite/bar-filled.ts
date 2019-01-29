@@ -118,7 +118,7 @@ export const barFilled: IAssembler = {
         let quadUV5 = 0;
         let quadUV6 = 0;
         let quadUV7 = 0;
-        if (spriteFrame!.isRotated) {
+        if (spriteFrame!.isRotated()) {
             ul = (textureRect.x) / atlasWidth;
             vb = (textureRect.y + textureRect.width) / atlasHeight;
             ur = (textureRect.x + textureRect.height) / atlasWidth;
@@ -142,15 +142,6 @@ export const barFilled: IAssembler = {
 
         switch (sprite.fillType) {
             case FillType.HORIZONTAL:
-                // datas[0].u = ul + (ur - ul) * fillStart;
-                // datas[0].v = vb;
-                // datas[1].u = ul + (ur - ul) * fillEnd;
-                // datas[1].v = vb;
-                // datas[2].u = ul + (ur - ul) * fillStart;
-                // datas[2].v = vt;
-                // datas[3].u = ul + (ur - ul) * fillEnd;
-                // datas[3].v = vt;
-
                 datas[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
                 datas[0].v = quadUV1 + (quadUV3 - quadUV1) * fillStart;
                 datas[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
@@ -161,15 +152,6 @@ export const barFilled: IAssembler = {
                 datas[3].v = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
                 break;
             case FillType.VERTICAL:
-                // datas[0].u = ul;
-                // datas[0].v = vb + (vt - vb) * fillStart;
-                // datas[1].u = ur;
-                // datas[1].v = vb + (vt - vb) * fillStart;
-                // datas[2].u = ul;
-                // datas[2].v = vb + (vt - vb) * fillEnd;
-                // datas[3].u = ur;
-                // datas[3].v = vb + (vt - vb) * fillEnd;
-
                 datas[0].u = quadUV0 + (quadUV4 - quadUV0) * fillStart;
                 datas[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
                 datas[1].u = quadUV2 + (quadUV6 - quadUV2) * fillStart;
@@ -223,14 +205,14 @@ export const barFilled: IAssembler = {
                 break;
         }
 
-        datas[0].x = l;
-        datas[0].y = b;
-        datas[1].x = r;
-        datas[1].y = b;
-        datas[2].x = l;
-        datas[2].y = t;
-        datas[3].x = r;
-        datas[3].y = t;
+        datas[4].x = l;
+        datas[4].y = b;
+        datas[5].x = r;
+        datas[5].y = b;
+        datas[6].x = l;
+        datas[6].y = t;
+        datas[7].x = r;
+        datas[7].y = t;
 
         renderData!.vertDirty = false;
     },

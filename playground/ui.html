@@ -59,22 +59,33 @@
                 spriteNode.setPosition(0, 0, 0);
                 const spriteComp = spriteNode.addComponent(cc.SpriteComponent);
                 spriteComp.sharedMaterials = [cc.builtinResMgr.get('sprite-material')];
+                spriteComp.type = cc.SpriteComponent.Type.FILLED;
+                spriteComp.fillType = cc.SpriteComponent.FillType.HORIZONTAL;
+                spriteComp.fillRange = 0.3;
 
-                // let elem = cc.game.canvas.getElementsByTagName('img')[0];
                 const spriteFrame = new cc.SpriteFrame();
                 let elem = cc.game.canvas.getElementsByTagName('img')[0];
-                spriteFrame.image = new cc.ImageAsset(elem);
                 spriteFrame.setOriginalSize(cc.size(elem.width, elem.height));
-                spriteFrame.setRect(0, 0, elem.width, elem.height);
+                spriteFrame.setRect(cc.rect(0, 0, elem.width, elem.height));
                 spriteFrame.onLoaded();
+                spriteFrame.image = new cc.ImageAsset(elem);
+
                 spriteComp.spriteFrame = spriteFrame;
 
-                const buttonNode = new cc.Node('button');
-                buttonNode.parent = canvasNode;
-                buttonNode.setPosition(0, 120 ,0);
-                const buttonSpriteComp = buttonNode.addComponent(cc.SpriteComponent);
-                buttonSpriteComp.sharedMaterials = [cc.builtinResMgr.get('sprite-material')];
-                buttonSpriteComp.spriteFrame = spriteFrame;
+                // const buttonNode = new cc.Node('button');
+                // buttonNode.parent = canvasNode;
+                // buttonNode.setPosition(0, 120, 0);
+                // const uiTransfromComp = buttonNode.addComponent(cc.UITransformComponent);
+                // uiTransfromComp.setContentSize(100, 100);
+                // const buttonSpriteComp = buttonNode.addComponent(cc.SpriteComponent);
+                // buttonSpriteComp.sharedMaterials = [cc.builtinResMgr.get('sprite-material')];
+                // buttonSpriteComp.spriteFrame = spriteFrame;
+                // const buttonComp = buttonNode.addComponent(cc.ButtonComponent);
+                // buttonComp.transition = cc.ButtonComponent.Transition.COLOR;
+                // buttonComp.hoverColor = cc.color(255, 0, 0, 255);
+                // buttonComp.pressedColor = cc.color(0, 128, 52, 255);
+
+                cc.eventManager.setEnabled(true);
 
                 cc.director.runSceneImmediate(scene);
             }
