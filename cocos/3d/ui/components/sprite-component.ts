@@ -28,8 +28,8 @@ import atlas from '../../../assets/CCSpriteAtlas';
 import { SpriteFrame } from '../../../assets/CCSpriteFrame';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { clampf } from '../../../core/utils/misc';
-import { Vec2, Enum } from '../../../core/value-types';
-import { MeshBuffer } from '../mesh-buffer';
+import { Vec2 } from '../../../core/value-types';
+import { ccenum } from '../../../core/value-types/enum';
 import { UIRenderComponent } from './ui-render-component';
 import { Node } from '../../../scene-graph/node';
 import { UI } from '../../../renderer/ui/ui';
@@ -40,64 +40,68 @@ const EventType = Node.EventType;
  * !#zh Sprite 类型
  * @enum Sprite.Type
  */
-const SpriteType = Enum({
+enum SpriteType {
     /**
      * !#en The simple type.
      * !#zh 普通类型
      * @property {Number} SIMPLE
      */
-    SIMPLE: 0,
+    SIMPLE = 0,
     /**
      * !#en The sliced type.
      * !#zh 切片（九宫格）类型
      * @property {Number} SLICED
      */
-    SLICED: 1,
+    SLICED = 1,
     // /**
     //  * !#en The tiled type.
     //  * !#zh 平铺类型
     //  * @property {Number} TILED
     //  */
-    // TILED: 2,
+    TILED =  2,
     /**
      * !#en The filled type.
      * !#zh 填充类型
      * @property {Number} FILLED
      */
-    FILLED: 3,
+    FILLED = 3,
     // /**
     //  * !#en The mesh type.
     //  * !#zh 以 Mesh 三角形组成的类型
     //  * @property {Number} MESH
     //  */
     // MESH: 4
-});
+};
+
+ccenum(SpriteType);
 
 /**
  * !#en Enum for fill type.
  * !#zh 填充类型
  * @enum Sprite.FillType
  */
-const FillType = cc.Enum({
+enum FillType {
     /**
      * !#en The horizontal fill.
      * !#zh 水平方向填充
      * @property {Number} HORIZONTAL
      */
-    HORIZONTAL: 0,
+    HORIZONTAL = 0,
     /**
      * !#en The vertical fill.
      * !#zh 垂直方向填充
      * @property {Number} VERTICAL
      */
-    VERTICAL: 1,
+    VERTICAL = 1,
     // /**
     //  * !#en The radial fill.
     //  * !#zh 径向填充
     //  * @property {Number} RADIAL
     //  */
-    // RADIAL: 2,
-});
+    RADIAL = 2,
+};
+
+ccenum(FillType);
 
 /**
  * !#en Sprite Size can track trimmed size, raw size or none.
@@ -178,7 +182,7 @@ export class SpriteComponent extends UIRenderComponent {
      * !#en The sprite render type.
      * !#zh 精灵渲染类型
      * @property type
-     * @type {Sprite.Type}
+     * @type {SpriteType}
      * @example
      * sprite.type = cc.Sprite.Type.SIMPLE;
      */
@@ -188,7 +192,7 @@ export class SpriteComponent extends UIRenderComponent {
     get type () {
         return this._type;
     }
-    set type (value: number) {
+    set type(value: SpriteType) {
         if (this._type !== value) {
             this._type = value;
             this._updateAssembler();
@@ -201,7 +205,7 @@ export class SpriteComponent extends UIRenderComponent {
      * !#zh
      * 精灵填充类型，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
      * @property fillType
-     * @type {Sprite.FillType}
+     * @type {FillType}
      * @example
      * sprite.fillType = SpriteComponent.FillType.HORIZONTAL;
      */
@@ -211,7 +215,7 @@ export class SpriteComponent extends UIRenderComponent {
     get fillType () {
         return this._fillType;
     }
-    set fillType (value: number) {
+    set fillType (value: FillType) {
         if (value !== this._fillType) {
             if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
                 // this.destroyRenderData(/*this._renderData*/);
@@ -396,8 +400,8 @@ export class SpriteComponent extends UIRenderComponent {
         //     this.spriteFrame = cc.builtinResMgr.get('default-spriteframe');
         // }
 
-        // this.node.on(EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        // this.node.on(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+        this.node.on(EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        this.node.on(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
     }
 
     public updateAssembler (render: UI) {
@@ -416,8 +420,8 @@ export class SpriteComponent extends UIRenderComponent {
         // this._super();
         super.onDisable();
 
-        // this.node.off(EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        // this.node.off(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+        this.node.off(EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
+        this.node.off(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
     }
 
     public _onNodeSizeDirty () {
