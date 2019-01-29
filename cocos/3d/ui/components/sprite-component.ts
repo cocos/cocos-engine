@@ -392,9 +392,9 @@ export class SpriteComponent extends UIRenderComponent {
         this._updateAssembler();
         this._activateMaterial();
 
-        if (!this._spriteFrame) {
-            this.spriteFrame = cc.builtinResMgr.get('default-spriteframe');
-        }
+        // if (!this._spriteFrame) {
+        //     this.spriteFrame = cc.builtinResMgr.get('default-spriteframe');
+        // }
 
         // this.node.on(EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         // this.node.on(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
@@ -447,23 +447,26 @@ export class SpriteComponent extends UIRenderComponent {
         let material = this.material;
         // WebGL
         if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
-            if (!material) {
-                this.material = cc.builtinResMgr.get('sprite-material');
-                material = this.material;
-                if (spriteFrame && spriteFrame.textureLoaded()) {
-                    material!.setProperty('u_texSampler', spriteFrame);
-                    this.markForUpdateRenderData(true);
-                }
-            }
+            // if (!material) {
+            //     this.material = cc.builtinResMgr.get('sprite-material');
+            //     material = this.material;
+            //     if (spriteFrame && spriteFrame.textureLoaded()) {
+            //         material!.setProperty('u_texSampler', spriteFrame);
+            //         this.markForUpdateRenderData(true);
+            //     }
+            // }
             // TODO:
             // else {
-            //     if (spriteFrame && spriteFrame.textureLoaded()) {
-            //         const matTexture = material && material.getProperty('u_texSampler');
-            //         if (matTexture !== spriteFrame) {
-            //             material.setProperty('u_texSampler', spriteFrame);
-            //             this.markForUpdateRenderData(true);
-            //         }
-            //     }
+                if (spriteFrame && spriteFrame.textureLoaded()) {
+                    if (material){
+                        // const matTexture = material.getProperty('u_texSampler');
+                        // if (matTexture !== spriteFrame) {
+                            material.setProperty('u_texSampler', spriteFrame);
+                            this.markForUpdateRenderData(true);
+                        // }
+                    }
+
+                }
             // }
 
             if (this._renderData) {
