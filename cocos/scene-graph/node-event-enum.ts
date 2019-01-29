@@ -5,6 +5,9 @@ export enum EventType {
     POSITION_PART = 'position-part',
     ROTATION_PART = 'rotation-part',
     SCALE_PART = 'scale-part',
+
+    SCENE_CHANGED_FOR_PERSISTS = 'scene-changed-for-persists',
+
     TOUCH_START = 'touch-start',
     TOUCH_MOVE = 'touch-move',
     TOUCH_END = 'touch-end',

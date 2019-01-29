@@ -35,6 +35,7 @@ export class Camera {
 
     private _scene: RenderScene;
     private _name: string;
+    private _enabled: boolean = false;
     private _proj: CameraProjection;
     private _isWindowSize: boolean = true;
     private _width: number;
@@ -133,6 +134,14 @@ export class Camera {
         this._node.getWorldPosition(this._position);
 
         this._frustum.update(this._matViewProj, this._matViewProjInv);
+    }
+
+    set enabled (val) {
+        this._enabled = val;
+    }
+
+    get enabled () {
+        return this._enabled;
     }
 
     get view (): RenderView {

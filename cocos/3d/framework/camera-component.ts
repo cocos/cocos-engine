@@ -285,19 +285,22 @@ export class CameraComponent extends Component {
     }
 
     public onLoad () {
-
+        this.node.on(cc.Node.SCENE_CHANGED_FOR_PERSISTS, () => {
+            if (this._camera) { this._getRenderScene().destroyCamera(this._camera); this._camera = null; }
+        });
     }
 
     public onEnable () {
-        this._camera = this._getRenderScene().createCamera(this);
+        if (!this._camera) { this._camera = this._getRenderScene().createCamera(this); }
+        this._camera.enabled = true;
     }
 
     public onDisable () {
-        if (this._camera) { this._getRenderScene().destroyCamera(this._camera); }
+        if (this._camera) { this._camera.enabled = false; }
     }
 
     public onDestroy () {
-
+        if (this._camera) { this._getRenderScene().destroyCamera(this._camera); this._camera = null; }
     }
 
     public screenPointToRay (x: number, y: number, out?: ray) {
