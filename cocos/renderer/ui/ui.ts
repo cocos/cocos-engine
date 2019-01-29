@@ -484,6 +484,7 @@ export class UI {
         let vbSize = 0;
         let ibSize = 0;
         let isNewBatch = false;
+        let curDrawBatch: UIDrawBatch | null = null;
 
         for (const uiCanvas of this._commitUICanvas) {
 
@@ -520,7 +521,7 @@ export class UI {
                     }
                 }
 
-                curBufferBatch.vf32!.set(vf32, vertCount);
+                curBufferBatch.vf32!.set(vf32, vertCount * this._vertF32Count);
 
                 // merge indices
                 vui16 = uiRenderData.meshBuffer.iData!;
@@ -540,7 +541,7 @@ export class UI {
                     curBufferBatch.vui16![idxCount + n] = vui16[n] + vertCount;
                 }
 
-                curBufferBatch.vui16!.set(vui16, idxCount);
+                //curBufferBatch.vui16!.set(vui16, idxCount);
 
                 vertCount += vCount;
                 idxCount += vui16.length;
@@ -551,15 +552,17 @@ export class UI {
                 }
 
                 if (isNewBatch) {
-                    const batch = this._drawBatchPool.add();
-                    batch.camera = curCamera;
-                    batch.bufferBatch = curBufferBatch;
-                    batch.uiMaterial = this._uiMaterial!;
-                    batch.texView = curTexView!;
-                    batch.idxCount = idxCount;
+                    curDrawBatch = this._drawBatchPool.add();
+                    curDrawBatch.camera = curCamera;
+                    curDrawBatch.bufferBatch = curBufferBatch;
+                    curDrawBatch.uiMaterial = this._uiMaterial!;
+                    curDrawBatch.texView = curTexView!;
+                    curDrawBatch.idxCount = idxCount;
 
-                    this._batches.push(batch);
+                    this._batches.push(curDrawBatch);
                     isNewBatch = false;
+                } else {
+                    curDrawBatch!.idxCount = idxCount;
                 }
             } // for
         }
