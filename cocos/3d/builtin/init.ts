@@ -20,7 +20,6 @@ class BuiltinResMgr {
         const context = canvas.getContext('2d')!;
         const imgAsset = new ImageAsset(canvas);
         const l = canvas.width = canvas.height = 2;
-        const hl = l / 2;
 
         // ============================
         // builtin textures
@@ -51,18 +50,18 @@ class BuiltinResMgr {
         resources[whiteTexture._uuid] = whiteTexture;
 
         // white cube texture
-        // const whiteCubeTexture = new TextureCube();
-        // whiteCubeTexture._uuid = 'white-cube-texture';
-        // whiteCubeTexture.image = {
-        //     front: new ImageAsset(canvas),
-        //     back: new ImageAsset(canvas),
-        //     left: new ImageAsset(canvas),
-        //     right: new ImageAsset(canvas),
-        //     top: new ImageAsset(canvas),
-        //     bottom: new ImageAsset(canvas),
-        // };
-        // whiteCubeTexture.onLoaded();
-        // resources[whiteCubeTexture._uuid] = whiteCubeTexture;
+        const whiteCubeTexture = new TextureCube();
+        whiteCubeTexture._uuid = 'white-cube-texture';
+        whiteCubeTexture.image = {
+            front: new ImageAsset(canvas),
+            back: new ImageAsset(canvas),
+            left: new ImageAsset(canvas),
+            right: new ImageAsset(canvas),
+            top: new ImageAsset(canvas),
+            bottom: new ImageAsset(canvas),
+        };
+        whiteCubeTexture.onLoaded();
+        resources[whiteCubeTexture._uuid] = whiteCubeTexture;
 
         // normal texture
         context.fillStyle = '#7f7fff';
@@ -86,18 +85,18 @@ class BuiltinResMgr {
         resources[defaultTexture._uuid] = defaultTexture;
 
         // default cube texture
-        // const defaultCubeTexture = new TextureCube();
-        // defaultCubeTexture._uuid = 'default-cube-texture';
-        // defaultCubeTexture.image = {
-        //     front: new ImageAsset(canvas),
-        //     back: new ImageAsset(canvas),
-        //     left: new ImageAsset(canvas),
-        //     right: new ImageAsset(canvas),
-        //     top: new ImageAsset(canvas),
-        //     bottom: new ImageAsset(canvas),
-        // };
-        // defaultCubeTexture.onLoaded();
-        // resources.push(defaultCubeTexture);
+        const defaultCubeTexture = new TextureCube();
+        defaultCubeTexture._uuid = 'default-cube-texture';
+        defaultCubeTexture.image = {
+            front: new ImageAsset(canvas),
+            back: new ImageAsset(canvas),
+            left: new ImageAsset(canvas),
+            right: new ImageAsset(canvas),
+            top: new ImageAsset(canvas),
+            bottom: new ImageAsset(canvas),
+        };
+        defaultCubeTexture.onLoaded();
+        resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
         const spriteFrame = new SpriteFrame();
         spriteFrame._uuid = 'default-spriteframe';

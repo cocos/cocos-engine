@@ -104,6 +104,9 @@ export class ModelComponent extends RenderableComponent {
 
     set mesh (val) {
         this._mesh = val;
+        if (this._model) {
+            this._model.destroy();
+        }
         this._updateModels();
     }
 
@@ -162,17 +165,8 @@ export class ModelComponent extends RenderableComponent {
         super();
     }
 
-    public onLoad () {
-        this.node.on(cc.Node.SCENE_CHANGED_FOR_PERSISTS, () => {
-            if (this._model) {
-                this._getRenderScene().destroyModel(this._model);
-                this._model = null;
-            }
-        });
-    }
-
     public onEnable () {
-        if (!this._model) { this._updateModels(); }
+        this._updateModels();
         this._updateCastShadow();
         this._updateReceiveShadow();
         if (this._model) {
@@ -194,15 +188,11 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _updateModels () {
-        if (!this.enabledInHierarchy || !this.node._scene || !this._mesh) {
+        if (!this.enabledInHierarchy || !this._mesh) {
             return;
         }
 
-        if (this._model) {
-            this._model.destroy();
-        } else {
-            this._model = this._createModel();
-        }
+        this._createModel();
 
         this._model!.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
 
@@ -214,10 +204,14 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _createModel () {
-        return this._getRenderScene().createModel(Model, this.node);
+        if (!this.node.scene) { return; }
+        const scene = this._getRenderScene();
+        if (this._model && scene.models.find((c) => c === this._model)) { return; }
+        this._model = scene.createModel(Model, this.node);
     }
 
     protected _updateModelParams () {
+        // @ts-ignore
         this.node._hasChanged = true;
         if (!this._mesh || !this._model) {
             return;

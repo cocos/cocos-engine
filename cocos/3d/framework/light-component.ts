@@ -29,6 +29,7 @@ import { toRadian } from '../../core/vmath';
 import { Light, LightType } from '../../renderer/scene/light';
 import { PointLight } from '../../renderer/scene/point-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
+import { RenderScene } from '../../renderer/scene/render-scene';
 
 /**
  * !#en The light source type
@@ -250,10 +251,6 @@ export default class LightComponent extends Component {
         }
     }
 
-    public onLoad () {
-        this.node.on(cc.Node.SCENE_CHANGED_FOR_PERSISTS, () => this._destroyLight());
-    }
-
     public onEnable () {
         this._createLight();
         if (this._light) { this._light.enabled = true; return; }
@@ -267,18 +264,21 @@ export default class LightComponent extends Component {
         this._destroyLight();
     }
 
-    protected _createLight () {
-        if (!this.node._scene || this._light) { return; }
-        const scene = this._getRenderScene();
+    protected _createLight (scene?: RenderScene) {
+        if (!this.node.scene) { return; }
+        if (!scene) scene = this._getRenderScene();
         switch (this._type) {
         case Type.DIRECTIONAL:
+            if (this._light && scene.directionalLights.find((c) => c === this._light)) { break; }
             this._light = scene.createDirectionalLight(this.name, this.node);
             break;
         case Type.POINT:
+            if (this._light && scene.pointLights.find((c) => c === this._light)) { break; }
             this._light = scene.createPointLight(this.name, this.node);
             this.range = this._range;
             break;
         case Type.SPOT:
+            if (this._light && scene.spotLights.find((c) => c === this._light)) { break; }
             this._light = scene.createSpotLight(this.name, this.node);
             this.range = this._range;
             this.spotAngle = this._spotAngle;
@@ -295,9 +295,9 @@ export default class LightComponent extends Component {
         this._light.enabled = this.enabledInHierarchy;
     }
 
-    protected _destroyLight () {
-        if (!this.node._scene || !this._light) { return; }
-        const scene = this._getRenderScene();
+    protected _destroyLight (scene?: RenderScene) {
+        if (!this.node.scene || !this._light) { return; }
+        if (!scene) scene = this._getRenderScene();
         switch (this._type) {
         case Type.DIRECTIONAL:
             scene.destroyDirectionalLight(this._light);
