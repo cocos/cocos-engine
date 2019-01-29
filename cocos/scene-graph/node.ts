@@ -216,6 +216,10 @@ class Node extends BaseNode {
                 this._lpos.z += trans.z;
             }
         }
+
+        vec3.copy(this._pos, this._lpos);
+        this.invalidateChildren();
+        this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
     }
 
     /**

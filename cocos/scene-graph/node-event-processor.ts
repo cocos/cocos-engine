@@ -225,7 +225,7 @@ function _checkListeners(listeners: EventTarget, events) {
 }
 
 export class NodeEventProcessor {
-    public get node(){
+    public get node(): Node {
         return this._node;
     }
     // Event listeners
