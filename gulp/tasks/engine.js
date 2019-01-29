@@ -43,6 +43,7 @@ var jsbSkipModules = [
     // modules need to skip in jsb
     '../../extensions/spine/lib/spine.js',
     '../../extensions/dragonbones/lib/dragonBones.js',
+    '../../extensions/dragonbones/ArmatureCache.js',
     '../../extensions/dragonbones/CCArmatureDisplay.js',
     '../../extensions/dragonbones/CCFactory.js',
     '../../extensions/dragonbones/CCSlot.js',

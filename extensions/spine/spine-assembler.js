@@ -120,12 +120,8 @@ function _getSlotMaterial (comp, slot, tex) {
         materialCache[key] = material;
     }
     else if (material.texture !== tex) {
-        if (materialCache[material._hash]) {
-            delete materialCache[material._hash];
-        }
         material.texture = tex;
         material.updateHash(key);
-        materialCache[key] = material;
     }
     return material;
 }

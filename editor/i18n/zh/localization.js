@@ -271,7 +271,9 @@ module.exports = {
             "animation_name": "当前播放的动画名称",
             "time_scale": "当前骨骼中所有动画的时间缩放率",
             "play_times": "播放默认动画的循环次数\n-1 表示使用配置文件中的默认值\n0 表示无限循环\n>0 表示循环次数",
-            "debug_bones": "是否显示 bone 的 debug 信息"
+            "debug_bones": "是否显示 bone 的 debug 信息",
+            "enabled_batch": "是否开启合批",
+            "render_mode": "当前骨骼动画的渲染模式\nrealtime 表示实时计算，支持动画融合，较耗性能\nsharedCache 表示预计算且共享动画数据，性能较高，占用较少内存\nprivateCache 表示预计算但不共享动画数据，性能较高，占用较多内存\n以上两种缓存模式，不支持骨骼嵌套，不支持fade相关接口",
         },
         'motionStreak': {
             'fadeTime': "拖尾的渐隐时间,以秒为单位",

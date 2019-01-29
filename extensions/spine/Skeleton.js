@@ -390,7 +390,7 @@ sp.Skeleton = cc.Class({
     },
 
     _updateUseTint () {
-        var cache = this._materialCache
+        var cache = this._materialCache;
         for (var mKey in cache) {
             var material = cache[mKey];
             if (material) {
