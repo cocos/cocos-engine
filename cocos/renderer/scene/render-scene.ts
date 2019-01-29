@@ -5,8 +5,8 @@ import { Root } from '../../core/root';
 import { Mat4, Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
-import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
+import { Node } from '../../scene-graph/node';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
 import { Light } from './light';
@@ -73,7 +73,7 @@ export class RenderScene {
     private _models: Model[] = [];
     private _modelId: number = 0;
 
-    private constructor (root: Root) {
+    constructor (root: Root) {
         this._root = root;
     }
 
@@ -86,6 +86,8 @@ export class RenderScene {
     public destroy () {
         this.destroyCameras();
         this.destroyPointLights();
+        this.destroyDirectionalLights();
+        this.destroySpotLights();
         this.destroyModels();
     }
 
@@ -106,16 +108,6 @@ export class RenderScene {
 
     public destroyCameras () {
         this._cameras = [];
-    }
-
-    public getCamera (name: string): Camera | null {
-        for (const camera of this._cameras) {
-            if (camera.name === name) {
-                return camera;
-            }
-        }
-
-        return null;
     }
 
     public createPointLight (name: string, node: Node): Light | null {

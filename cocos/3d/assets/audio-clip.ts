@@ -23,9 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass, mixins } from "../../core/data/class-decorator";
+import { ccclass } from "../../core/data/class-decorator";
 import { Asset } from "../../assets/asset";
-import { EventTarget } from "../../core/event/index";
+import { EventTargetFactory } from "../../core/event/event-target-factory";
 
 export const PlayingState = {
     INITIALIZING: 0,
@@ -52,8 +52,7 @@ export interface IAudioInfo {
 }
 
 @ccclass('cc.AudioClip')
-@mixins(EventTarget)
-export class AudioClip extends Asset {
+export class AudioClip extends EventTargetFactory(Asset) {
     protected _audio: any = null;
     protected _duration = 0;
     protected _state = PlayingState.INITIALIZING;

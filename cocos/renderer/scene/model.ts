@@ -31,7 +31,7 @@ export class Model {
     private _scene: RenderScene;
     private _node: Node;
     private _id: number;
-    private _isEnable: boolean = false;
+    private _enabled: boolean = false;
     private _viewID: number = -1;
     private _cameraID: number = -1;
     private _userKey: number = -1;
@@ -141,12 +141,12 @@ export class Model {
         this._worldBounds = aabb.clone(this._modelBounds);
     }
 
-    set enabled (isEnable) {
-        this._isEnable = isEnable;
+    set enabled (val) {
+        this._enabled = val;
     }
 
     get enabled () {
-        return this._isEnable;
+        return this._enabled;
     }
 
     /**

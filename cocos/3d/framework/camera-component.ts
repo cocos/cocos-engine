@@ -284,15 +284,9 @@ export class CameraComponent extends Component {
         if (this._camera) { this._camera.changeTargetDisplay(val); }
     }
 
-    public onLoad () {
-        this.node.on(cc.Node.SCENE_CHANGED_FOR_PERSISTS, () => {
-            if (this._camera) { this._getRenderScene().destroyCamera(this._camera); this._camera = null; }
-        });
-    }
-
     public onEnable () {
-        if (!this._camera) { this._camera = this._getRenderScene().createCamera(this); }
-        this._camera.enabled = true;
+        this._createCamera();
+        this._camera!.enabled = true;
     }
 
     public onDisable () {
@@ -319,5 +313,12 @@ export class CameraComponent extends Component {
         if (!out) { out = this.node.getWorldPosition(); }
         if (this._camera) { this._camera.screenToWorld(out, screenPos); }
         return out;
+    }
+
+    protected _createCamera () {
+        if (!this.node.scene) { return; }
+        const scene = this._getRenderScene();
+        if (this._camera && scene.cameras.find((c) => c === this._camera)) { return; }
+        this._camera = scene.createCamera(this);
     }
 }

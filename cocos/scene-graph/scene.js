@@ -75,6 +75,10 @@ export default class Scene extends Node {
         this._activeInHierarchy = false;
     }
 
+    get renderScene () {
+        return this._renderScene;
+    }
+
     _onHierarchyChanged() { }
     _instantiate() { }
 

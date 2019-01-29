@@ -8,9 +8,10 @@ type Constructor<T = {}> = new(...args: any[]) => T;
 
 export type IEventTargetCallback = (...args: any[]) => void;
 
-class Empty {}
+class Empty { protected constructor () {}; }
 
-export function EventTarget<Base extends Constructor<{}>> (base: Base) {
+export function EventTargetFactory<Base extends Constructor<{}>> (b?: Base) {
+    const base = b || Empty;
     class EventTarget extends base {
         private _callbacksInvoker = new CallbacksInvoker();
 
@@ -173,5 +174,3 @@ export function EventTarget<Base extends Constructor<{}>> (base: Base) {
 interface ITargetImpl extends Object {
     __eventTargets?: Object[];
 }
-
-export const DefaultEventTarget = EventTarget(Empty);

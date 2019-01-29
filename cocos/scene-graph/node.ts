@@ -7,8 +7,6 @@ import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { WidgetComponent } from '../3d/ui/components/widget-component';
-// import { EventTarget } from '../core/event/event-target-base';
-// import { NodeEventProcessor } from './node-event-processor';
 import { EventType } from './node-event-enum';
 
 const v3_a = new Vec3();
@@ -21,7 +19,6 @@ enum NodeSpace {
 }
 
 @ccclass('cc.Node')
-// @mixins(EventTarget)
 class Node extends BaseNode {
     public static EventType = EventType;
     public static NodeSpace = NodeSpace;

@@ -342,6 +342,10 @@ export class BaseNode extends CCObject {
      */
     private __eventTargets: any[] = [];
 
+    get scene () {
+        return this._scene;
+    }
+
     /**
      * @method constructor
      * @param {String} [name]
