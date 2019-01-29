@@ -198,7 +198,7 @@ export class AnimationSampler {
 
         const getState = (channel: IAnimationChannel) => {
             const iNode = this._animationTarget.get(channel.target);
-            if (!iNode) {
+            if (iNode === undefined) {
                 return null;
             }
             return this._nodeSamplingStates[iNode];
@@ -299,6 +299,9 @@ class NodeSamplingState {
      * https://gamedev.stackexchange.com/questions/62354/method-for-interpolation-between-3-quaternions
      */
     public blendRotation (rotation: Quat, weight: number) {
+        if (weight === 0) {
+            return;
+        }
         const t = weight / (this._sumRotWeight + weight);
         quat.slerp(tmpquat, this._target.getRotation(), rotation, t);
         this._target.setRotation(tmpquat);
@@ -306,6 +309,12 @@ class NodeSamplingState {
     }
 
     public apply () {
+        if (CC_DEV) {
+            if (this._sumPosWeight > 1.0 || this._sumRotWeight > 1.0 || this._sumScaleWeight > 1.0) {
+                throw new Error(`Unexpected.`);
+            }
+        }
+
         if (this._sumPosWeight < 1.0) {
             this.blendPosition(this._defaultPosition, 1.0 - this._sumPosWeight);
         }

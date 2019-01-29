@@ -216,7 +216,7 @@ class AnimationCtrl {
         }
 
         // handle playing
-        if (this._current) {
+        else if (this._current) {
             const t0 = this._getTime(this._current);
             this._animationSampler.sample(this._current.clip, t0, 1.0);
             this._current.time += deltaTime;
