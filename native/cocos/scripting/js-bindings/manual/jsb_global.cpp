@@ -723,43 +723,37 @@ namespace
         bool freeData = false;
     };
 
-    void cvRGB2RGBA (ImageInfo* imgInfo, const Image* img) {
-        imgInfo->length = img->getWidth() * img->getHeight() * 4;
-        uint8_t* dst = new uint8_t[imgInfo->length];
-        uint8_t* src = imgInfo->data;
-        for (uint32_t i = 0, length = imgInfo->length; i < length; i += 4) {
+    uint8_t* cvRGB2RGBA (uint32_t length, uint8_t* src) {
+        uint8_t* dst = new uint8_t[length];
+        for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src++;
             dst[i + 1] = *src++;
             dst[i + 2] = *src++;
             dst[i + 3] = 255;
         }
-        imgInfo->data = dst;
+        return dst;
     }
 
-    void cvIA2RGBA (ImageInfo* imgInfo, const Image* img) {
-        imgInfo->length = img->getWidth() * img->getHeight() * 4;
-        uint8_t* dst = new uint8_t[imgInfo->length];
-        uint8_t* src = imgInfo->data;
-        for (uint32_t i = 0, length = imgInfo->length; i < length; i += 2) {
+    uint8_t* cvIA2RGBA (uint32_t length, uint8_t* src) {
+        uint8_t* dst = new uint8_t[length];
+        for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src;
             dst[i + 1] = *src;
             dst[i + 2] = *src++;
             dst[i + 3] = *src;
         }
-        imgInfo->data = dst;
+        return dst;
     }
 
-    void cvI2RGBA (ImageInfo* imgInfo, const Image* img) {
-        imgInfo->length = img->getWidth() * img->getHeight() * 4;
-        uint8_t* dst = new uint8_t[imgInfo->length];
-        uint8_t* src = imgInfo->data;
-        for (uint32_t i = 0, length = imgInfo->length; i < length; i++) {
+    uint8_t* cvI2RGBA (uint32_t length, uint8_t* src) {
+        uint8_t* dst = new uint8_t[length];
+        for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src;
             dst[i + 1] = *src;
-            dst[i + 2] = *src;
+            dst[i + 2] = *src++;
             dst[i + 3] = 255;
         }
-        imgInfo->data = dst;
+        return dst;
     }
 
     struct ImageInfo* createImageInfo(const Image* img)
@@ -780,31 +774,40 @@ namespace
         imgInfo->hasAlpha = img->hasAlpha();
         imgInfo->hasPremultipliedAlpha = img->hasPremultipliedAlpha();
         imgInfo->compressed = img->isCompressed();
+        imgInfo->length = img->getWidth() * img->getHeight() * 4;
 
         // Convert to RGBA888 because standard web api will return only RGBA888.
         // If not, then it may have issue in glTexSubImage. For example, engine
         // will create a big texture, and update its content with small pictures.
         // The big texture is RGBA888, then the small picture should be the same
         // format, or it will cause 0x502 error on OpenGL ES 2.
+        uint8_t* dst = nullptr;
+        uint32_t length = imgInfo->length;
+        uint8_t* src = imgInfo->data;
         switch(imgInfo->glFormat) {
+            case GL_RGBA: break;
             case GL_LUMINANCE_ALPHA:
-                cvIA2RGBA(imgInfo, img);
+                dst = cvIA2RGBA(length, src);
                 break;
             case GL_ALPHA:
-            case GL_LUMINANCE
-                cvI2RGBA(imgInfo, img);
+            case GL_LUMINANCE:
+                dst = cvI2RGBA(length, src);
                 break;
             case GL_RGB:
-            case default:
-                cvRGB2RGBA(imgInfo, img);
+                dst = cvRGB2RGBA(length, src);
                 break;
+            default:
+                SE_LOGE("unknown image format");
         }
 
-        imgInfo->hasAlpha = true;
-        imgInfo->bpp = 32;
-        imgInfo->glFormat = GL_RGBA;
-        imgInfo->glInternalFormat = GL_RGBA;
-        imgInfo->freeData = true;
+        if (imgInfo->glFormat != GL_RGBA) {
+            imgInfo->data = dst;
+            imgInfo->hasAlpha = true;
+            imgInfo->bpp = 32;
+            imgInfo->glFormat = GL_RGBA;
+            imgInfo->glInternalFormat = GL_RGBA;
+            imgInfo->freeData = true;
+        }
 
         return imgInfo;
     }
