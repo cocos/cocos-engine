@@ -22,45 +22,34 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
-import { _decorator } from "../../core/data/index";
-const { ccclass } = _decorator;
-import { AudioClip, AudioSourceType, PlayingState } from "./audio-clip";
+
+import { ccclass } from "../../core/data/class-decorator";
+import { AudioClip, AudioSourceType, PlayingState, IAudioInfo } from "./audio-clip";
 
 @ccclass('cc.DOMAudioClip')
 export class DOMAudioClip extends AudioClip {
-    /**
-     * @type {number}
-     */
-    _volume = 1;
+    protected _volume = 1;
+    protected _loop = false;
+    protected _currentTimer = 0;
+    protected _oneShoting = false;
+    protected _audio: HTMLAudioElement | null = null;
 
-    /**
-     * @type {boolean}
-     */
-    _loop = false;
-
-    /**
-     * @type {number}
-     */
-    _currentTimer = 0;
-
-    /**
-     * @type {boolean}
-     */
-    _oneShoting = false;
+    private _post_play: () => void;
+    private _on_gesture: () => void;
+    private _alreadyDelayed = false;
 
     constructor() {
         super();
 
-        this.loadMode = AudioSourceType.DOM_AUDIO;
+        this._loadMode = AudioSourceType.DOM_AUDIO;
 
         this._post_play = () => {
-            this._state = AudioSourceType.PLAYING;
-            // @ts-ignore
+            this._state = PlayingState.PLAYING;
             this.emit('started');
         };
 
         this._on_gesture = () => {
+            if (!this._audio) { return; }
             let promise = this._audio.play();
             if (!promise) {
                 console.warn('no promise returned from HTMLMediaElement.play()');
@@ -68,14 +57,14 @@ export class DOMAudioClip extends AudioClip {
             }
             promise.then(() => {
                 if (this._alreadyDelayed) this._post_play();
-                else { this._audio.pause(); this._audio.currentTime = 0; }
+                else { this._audio!.pause(); this._audio!.currentTime = 0; }
                 window.removeEventListener('touchend', this._on_gesture);
                 document.removeEventListener('mouseup', this._on_gesture);
             });
         };
     }
 
-    setNativeAsset(clip, info) {
+    setNativeAsset(clip: HTMLAudioElement, info: IAudioInfo) {
         super.setNativeAsset(clip, info);
         clip.volume = this._volume;
         clip.loop = this._loop;
@@ -83,7 +72,7 @@ export class DOMAudioClip extends AudioClip {
         clip.addEventListener('ended', () => {
             if (this._oneShoting) return;
             this._state = PlayingState.STOPPED;
-            this._audio.currentTime = 0;
+            clip.currentTime = 0;
             // @ts-ignore
             this.emit('ended');
         });
@@ -104,13 +93,14 @@ export class DOMAudioClip extends AudioClip {
     }
 
     pause() {
-        if (this._state !== PlayingState.PLAYING) return;
+        if (!this._audio || this._state !== PlayingState.PLAYING) return;
         this._audio.pause();
         this._state = PlayingState.STOPPED;
         this._oneShoting = false;
     }
 
     stop() {
+        if (!this._audio) return;
         this._audio.currentTime = 0;
         if (this._state !== PlayingState.PLAYING) return;
         this._audio.pause();
@@ -121,23 +111,24 @@ export class DOMAudioClip extends AudioClip {
     playOneShot(volume = 1) {
         /* HTMLMediaElement doesn't support multiple playback at the
            same time so here we fall back to re-start style approach */
-        if (!this._audio) return;
-        this._audio.currentTime = 0;
-        this._audio.volume = volume;
+        const clip = this._audio;
+        if (!clip) return;
+        clip.currentTime = 0;
+        clip.volume = volume;
         if (this._oneShoting) return;
-        this._audio.loop = false;
+        clip.loop = false;
         this._oneShoting = true;
-        this._audio.play().then(() => {
-            this._audio.addEventListener('ended', () => {
-                this._audio.currentTime = 0;
-                this._audio.volume = this._volume;
-                this._audio.loop = this._loop;
+        clip.play().then(() => {
+            clip.addEventListener('ended', () => {
+                clip.currentTime = 0;
+                clip.volume = this._volume;
+                clip.loop = this._loop;
                 this._oneShoting = false;
             }, { once: true });
         }).catch(() => { this._oneShoting = false; });
     }
 
-    setCurrentTime(val) {
+    setCurrentTime(val: number) {
         if (!this._audio) return;
         this._audio.currentTime = val;
     }
@@ -152,7 +143,7 @@ export class DOMAudioClip extends AudioClip {
         return isNaN(this._audio.duration) ? this._duration : this._audio.duration;
     }
 
-    setVolume(val) {
+    setVolume(val: number) {
         this._volume = val;
         /* note this won't work for ios devices, for there
            is just no way to set HTMLMediaElement's volume */
@@ -164,7 +155,7 @@ export class DOMAudioClip extends AudioClip {
         return this._volume;
     }
 
-    setLoop(val) {
+    setLoop(val: boolean) {
         this._loop = val;
         if (this._audio) this._audio.loop = val;
     }

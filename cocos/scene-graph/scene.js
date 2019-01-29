@@ -83,12 +83,7 @@ export default class Scene extends Node {
             if (CC_TEST) {
                 cc.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
-            if (CC_EDITOR && this._prefabSyncedInLiveReload) {
-                this._onBatchRestored();
-            }
-            else {
-                this._onBatchCreated();
-            }
+            this._onBatchCreated();
             this._inited = true;
         }
         this.walk(BaseNode._setScene);

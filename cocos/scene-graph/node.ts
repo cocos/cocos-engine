@@ -12,7 +12,6 @@ import { NodeEventProcessor } from './node-event-processor';
 import { EventType } from './node-event-enum';
 
 const v3_a = new Vec3();
-const v3_b = new Vec3();
 const q_a = new Quat();
 const array_a = new Array(10);
 
@@ -167,17 +166,19 @@ class Node extends BaseNode {
     /**
      * invalidate all children after relevant events
      */
-    public onRestore () {
-        this.invalidateChildren();
-    }
-
     public _onSetParent (oldParent: this) {
         super._onSetParent(oldParent);
         this.invalidateChildren();
     }
 
-    public _onPostActivated () {
-        this.invalidateChildren();
+    public _onBatchCreated () {
+        vec3.copy(this._pos, this._lpos);
+        quat.copy(this._rot, this._lrot);
+        vec3.copy(this._scale, this._lscale);
+        this._dirty = this._hasChanged = true;
+        for (const child of this._children) {
+            child._onBatchCreated();
+        }
     }
 
     // ===============================
@@ -193,28 +194,9 @@ class Node extends BaseNode {
         const space = ns || NodeSpace.LOCAL;
         if (space === NodeSpace.LOCAL) {
             vec3.transformQuat(v3_a, trans, this._lrot);
-            this._lpos.x += v3_a.x;
-            this._lpos.y += v3_a.y;
-            this._lpos.z += v3_a.z;
+            this.setPosition(vec3.add(v3_a, this._lpos, v3_a));
         } else if (space === NodeSpace.WORLD) {
-            // position is relative to parent so transform upwards
-			if (this._parent)
-			{
-                this._parent.getWorldRotation(q_a);
-                quat.invert(q_a, q_a);
-                vec3.transformQuat(v3_a, trans, q_a);
-
-                this._parent.getWorldScale(v3_b);
-                this._lpos.x += (v3_a.x * v3_b.x);
-                this._lpos.y += (v3_a.y + v3_b.y);
-                this._lpos.z += (v3_a.z + v3_b.z);
-			}
-			else
-			{
-				this._lpos.x += trans.x;
-                this._lpos.y += trans.y;
-                this._lpos.z += trans.z;
-            }
+            this.setPosition(vec3.add(v3_a, this._lpos, trans));
         }
 
         vec3.copy(this._pos, this._lpos);
