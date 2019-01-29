@@ -127,7 +127,7 @@ export default {
         comp._actualFontSize = _fontSize;
         comp.node.setContentSize(_canvasSize);
 
-        this._updateVerts(comp);
+        this.updateVerts(comp);
 
         comp._renderData.vertDirty = comp._renderData.uvDirty = false;
 
@@ -136,7 +136,7 @@ export default {
         _texture = null;
     },
 
-    _updateVerts() {
+    updateVerts() {
     },
 
     _updateFontFamly(comp) {

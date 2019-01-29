@@ -39,6 +39,7 @@ import macro from '../../../core/platform/CCMacro';
 import { Enum } from '../../../core/value-types';
 import { MeshBuffer } from '../mesh-buffer';
 import { UIRenderComponent } from './ui-render-component';
+import { SpriteFrame } from '../../../assets/CCSpriteFrame';
 // import { value } from '../../../core/utils/js';
 
 /**
@@ -465,6 +466,10 @@ export class LabelComponent extends UIRenderComponent {
         this._isUnderline = value;
     }
 
+    get texture(){
+        return this._texture;
+    }
+
     public static HorizontalAlign = HorizontalAlign;
     public static VerticalAlign = VerticalAlign;
     public static Overflow = Overflow;
@@ -506,8 +511,8 @@ export class LabelComponent extends UIRenderComponent {
     public _isUnderline: boolean = false;
 
     // don't need serialize
-    private _texture: Texture2D | null = null;
-    private _ttfTexture: Texture2D | null = null;
+    private _texture: SpriteFrame | null = null;
+    private _ttfTexture: SpriteFrame | null = null;
     private _userDefinedFont: Font | null = null;
     private _assemblerData: object|null = null;
 
@@ -597,30 +602,33 @@ export class LabelComponent extends UIRenderComponent {
         }
     }
 
-    public _activateMaterial (force: boolean) {
+    private _activateMaterial (force: boolean) {
         let material = this.material;
-        if (material && !force) {
-            return;
-        }
+        // if (material && !force) {
+        //     return;
+        // }
 
-        if (!material) {
-            // material = new SpriteMaterial();
-            this.material = cc.builtinResMgr.get('sprite-material');
-            material = this.material;
-        }
+        // if (!material) {
+        //     // material = new SpriteMaterial();
+        //     this.material = cc.builtinResMgr.get('sprite-material');
+        //     material = this.material;
+        // }
         // Setup blend function for premultiplied ttf label texture
         if (this._texture === this._ttfTexture) {
             this._srcBlendFactor = cc.macro.BlendFactor.ONE;
         } else {
             this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
         }
-        material!.setProperty('u_texSampler', this._texture);
+
+        if (material) {
+            material.setProperty('u_texSampler', this._texture);
+        }
         // For batch rendering, do not use uniform color.
         // material!.useColor = false;
         // this._updateMaterial(material);
     }
 
-    public _applyFontTexture (force: boolean) {
+    private _applyFontTexture (force: boolean) {
         const font = this._font;
         if (font instanceof cc.BitmapFont) {
             const spriteFrame = font.spriteFrame;
@@ -655,7 +663,7 @@ export class LabelComponent extends UIRenderComponent {
                     // this._ttfTexture.setPremultiplyAlpha(true);
                 }
                 this._assemblerData = this._assembler._getAssemblerData();
-                this._ttfTexture.image = new ImageAsset(this._assemblerData.canvas);
+                this._ttfTexture!.image = new ImageAsset(this._assemblerData.canvas);
                 // this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
             this._texture = this._ttfTexture;
@@ -667,7 +675,7 @@ export class LabelComponent extends UIRenderComponent {
         }
     }
 
-    public _updateColor () {
+    private _updateColor () {
         const font = this.font;
         if (font instanceof cc.BitmapFont) {
             // this._super();
@@ -677,7 +685,7 @@ export class LabelComponent extends UIRenderComponent {
         }
     }
 
-    public _updateRenderData (force: boolean = false) {
+    private _updateRenderData (force: boolean = false) {
         const renderData = this._renderData;
         if (renderData) {
             renderData.vertDirty = true;

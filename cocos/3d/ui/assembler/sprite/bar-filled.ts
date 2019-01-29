@@ -237,8 +237,7 @@ export const barFilled: IAssembler = {
         const node = sprite.node;
         const datas = sprite.renderData!.datas;
 
-        // node._updateWorldMatrix();
-        // const matrix = node._worldMatrix;
+        node.getWorldMatrix(matrix);
         for (let i = 0; i < 4; i++) {
             const local = datas[i + 4];
             const world = datas[i];

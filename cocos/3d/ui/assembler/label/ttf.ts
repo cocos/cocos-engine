@@ -26,12 +26,14 @@
 import ttfUtls from '../../../../2d/renderer/utils/label/ttf';
 import * as js from '../../../../core/utils/js';
 import { RenderData } from '../../../../renderer/ui/renderData';
-import { UI } from '../../../../renderer/ui/ui';
+import { UI, IUIRenderData } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
 import { IAssembler} from '../assembler';
 import { fillMeshVertices3D } from '../utils';
+import { MeshBuffer } from '../../mesh-buffer';
+import { color4 } from '../../../../core/vmath';
 
-const WHITE = cc.color(255, 255, 255, 255);
+const WHITE = color4.create();
 
 export const ttf: IAssembler = {
     useModel: false,
@@ -55,8 +57,19 @@ export const ttf: IAssembler = {
         return renderData as RenderData;
     },
 
-    fillBuffers (comp: LabelComponent, /*renderer*/buffer: UI) {
-        fillMeshVertices3D(comp.node, /*renderer._quadBuffer3D*/buffer, comp.renderData, WHITE);
+    fillBuffers (comp: LabelComponent, renderer: UI) {
+        const buffer: MeshBuffer = renderer.createBuffer(
+            comp.renderData!.vertexCount,
+            comp.renderData!.indiceCount,
+        );
+        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+        fillMeshVertices3D(comp.node, buffer, comp.renderData, WHITE);
+
+        commitBuffer.meshBuffer = buffer;
+        commitBuffer.material = comp.material!;
+        commitBuffer.texture = comp.texture!;
+        commitBuffer.priority = comp.priority;
+        renderer.addToQueue(commitBuffer);
     },
 
     updateVerts (comp: LabelComponent) {
@@ -78,8 +91,6 @@ export const ttf: IAssembler = {
         datas[3].x = width - appx;
         datas[3].y = height - appy;
     },
-
-    updateRenderData (comp: LabelComponent) {},
 };
 
 js.addon(ttf, ttfUtls);
