@@ -24,13 +24,14 @@
  ****************************************************************************/
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-import { Color, Vec2 } from '../../../../core/value-types';
+import { Vec2 } from '../../../../core/value-types';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
 import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler } from '../assembler';
 import { fillVertices3D } from '../utils';
+import { color4 } from '../../../../core/vmath';
 
 const PI_2 = Math.PI * 2;
 
@@ -43,6 +44,7 @@ const _center = new Vec2();
 const _triangles: [[number, number], [number, number], [number, number], [number, number]] = [
     [0, 0], [0, 0], [0, 0], [0, 0],
 ];
+const color_temp = color4.create();
 
 function _calcInsectedPoints (left, right, bottom, top, center, angle, intersectPoints) {
     // left bottom, right, top
@@ -365,12 +367,13 @@ export const radialFilled: IAssembler = {
         const commitBuffer: IUIRenderData = renderer.createUIRenderData();
 
         const node = comp.node;
-        const color: Color = comp.color;
+        // const color: Color = comp.color;
+        comp.color.to01(color_temp);
         /*buffer = renderer._meshBuffer3D,*/
         const renderData: RenderData|null = comp.renderData;
         const indiceOffset = buffer!.indiceOffset;
         const vertexId = buffer.vertexOffset;
-        fillVertices3D(node, buffer, renderData, color);
+        fillVertices3D(node, buffer, renderData, color_temp);
 
         // buffer data may be realloc, need get reference after request.
         const ibuf = buffer.iData;

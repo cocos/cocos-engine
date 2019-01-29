@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import './node-event-processor';
 export { BaseNode } from './base-node';
 export { Node } from './node';
 export { default as PrivateNode } from './private-node';

@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Color, Vec3 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath/index';
+import { Vec3 } from '../../../../core/value-types';
+import { vec3, color4 } from '../../../../core/vmath/index';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
@@ -37,6 +37,7 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
+const color_temp = color4.create();
 
 export const simple: IAssembler = {
 
@@ -84,7 +85,8 @@ export const simple: IAssembler = {
         const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const datas: IRenderData[] = sprite!.renderData!.datas;
         const node: Node = sprite.node;
-        const color: Color = sprite.color;
+        // const color: Color = sprite.color;
+        sprite.color.to01(color_temp);
 
         node.getWorldMatrix(matrix);
 
@@ -108,6 +110,7 @@ export const simple: IAssembler = {
 
         // get uv from sprite frame directly
         const uv = sprite!.spriteFrame!.uv;
+
         for (let i = 0; i < 4; i++) {
             // vertex
             const vertex = vec3_temps[i];
@@ -123,10 +126,10 @@ export const simple: IAssembler = {
             vbuf![vertexOffset++] = uv[1 + uvOffset];
 
             // color
-            vbuf![vertexOffset++] = color.r;
-            vbuf![vertexOffset++] = color.g;
-            vbuf![vertexOffset++] = color.b;
-            vbuf![vertexOffset++] = color.a;
+            vbuf![vertexOffset++] = color_temp.r;
+            vbuf![vertexOffset++] = color_temp.g;
+            vbuf![vertexOffset++] = color_temp.b;
+            vbuf![vertexOffset++] = color_temp.a;
             // uintbuf[vertexOffset++] = color;
         }
 

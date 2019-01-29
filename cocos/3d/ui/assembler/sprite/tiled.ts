@@ -25,7 +25,7 @@
 
 // const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 import { Mat4, Vec3 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath/index';
+import { vec3, color4 } from '../../../../core/vmath/index';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
@@ -39,6 +39,7 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
+const color_temp = color4.create();
 
 const _tempVertexOffset = 6;
 const _tempUvOffset = 3;
@@ -113,7 +114,8 @@ export const tilled: IAssembler = {
         const commitBuffer: IUIRenderData = renderer.createUIRenderData();
 
         const node = sprite.node;
-        const color = sprite.color;
+        // const color = sprite.color;
+        sprite.color.to01(color_temp);
         const renderData = sprite.renderData;
         const datas = renderData!.datas;
 
@@ -216,6 +218,11 @@ export const tilled: IAssembler = {
                     vbuf![vertexOffsetU + offset3] = vbuf![vertexOffsetU + offset1];
                     vbuf![vertexOffsetV + offset3] = vbuf![vertexOffsetV + offset2];
                 }
+
+                vbuf![vertexOffset + colorOffset] = color_temp.r;
+                vbuf![vertexOffset + colorOffset + offset1] = color_temp.g;
+                vbuf![vertexOffset + colorOffset + offset2] = color_temp.b;
+                vbuf![vertexOffset + colorOffset + offset3] = color_temp.a;
                 // TODO: addColor
                 // color
                 // uintbuf[vertexOffset + colorOffset] = color;

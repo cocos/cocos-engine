@@ -599,3 +599,5 @@ export class NodeEventProcessor {
         }
     }
 }
+
+cc.NodeEventProcessor = NodeEventProcessor;

@@ -28,7 +28,7 @@ const FillType = SpriteComponent.FillType;
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 import { Mat4 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath/index';
+import { vec3, color4 } from '../../../../core/vmath/index';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
@@ -37,6 +37,7 @@ import { IAssembler } from '../assembler';
 import { fillVerticesWithoutCalc3D } from '../utils';
 
 const matrix = new Mat4();
+const color_temp = color4.create();
 
 export const barFilled: IAssembler = {
     useModel: false,
@@ -278,7 +279,8 @@ export const barFilled: IAssembler = {
         const vertexId: number = buffer.vertexOffset;
 
         const node = sprite.node;
-        fillVerticesWithoutCalc3D(node, buffer, sprite.renderData, sprite.color);
+        sprite.color.to01(color_temp);
+        fillVerticesWithoutCalc3D(node, buffer, sprite.renderData, color_temp);
 
         // buffer data may be realloc, need get reference after request.
         const ibuf = buffer.iData;

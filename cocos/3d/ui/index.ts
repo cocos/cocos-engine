@@ -17,6 +17,7 @@ import { ScrollBarComponent } from './components/scroll-bar-component';
 import { ViewGroupComponent } from './components/view-group-component';
 import { ScrollViewComponent } from './components/scroll-view-component';
 import { LayoutComponent  } from './components/layout-component';
+import { UITransformComponent }from './components/ui-transfrom-component'
 
 cc.CanvasComponent = CanvasComponent;
 cc.UIRenderComponent = UIRenderComponent;
@@ -34,4 +35,5 @@ cc.ViewGroupComponent = ViewGroupComponent;
 cc.ScrollBarComponent = ScrollBarComponent;
 cc.ScrollViewComponent = ScrollViewComponent;
 cc.LayoutComponent = LayoutComponent;
+cc.UITransformComponent = UITransformComponent;
 

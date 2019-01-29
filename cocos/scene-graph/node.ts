@@ -8,7 +8,7 @@ import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { WidgetComponent } from '../3d/ui/components/widget-component';
 // import { EventTarget } from '../core/event/event-target-base';
-import { NodeEventProcessor } from './node-event-processor';
+// import { NodeEventProcessor } from './node-event-processor';
 import { EventType } from './node-event-enum';
 
 const v3_a = new Vec3();
@@ -59,7 +59,7 @@ class Node extends BaseNode {
     protected _matDirty = false;
     protected _eulerDirty = false;
 
-    protected _eventProcessor: NodeEventProcessor;
+    protected _eventProcessor;
 
     @property({
         type: Vec3,
@@ -156,7 +156,7 @@ class Node extends BaseNode {
 
     constructor (name: string) {
         super(name);
-        this._eventProcessor = new NodeEventProcessor(this);
+        this._eventProcessor = new cc.NodeEventProcessor(this);
     }
 
     // ===============================
