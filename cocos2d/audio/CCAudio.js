@@ -467,7 +467,7 @@ let WebAudioElement = function (buffer, audio) {
     proto.__defineSetter__('volume', function (num) {
         this._volume = num;
         if (this._gainObj['gain'].setTargetAtTime) {
-            this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0.01);
+            this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0.001);
         } else {
             this._volume['gain'].value = num;
         }
