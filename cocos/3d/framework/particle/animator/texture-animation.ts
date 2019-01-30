@@ -25,6 +25,7 @@ export default class TextureAnimationModule {
     @property
     private _enable = false;
 
+    @property
     get enable () {
         return this._enable;
     }
