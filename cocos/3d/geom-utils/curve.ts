@@ -1,6 +1,6 @@
-import { repeat, pingPong, inverseLerp, clamp } from '../../core/vmath';
-import { Enum } from '../../core/value-types';
 import { CCClass } from '../../core/data';
+import { Enum } from '../../core/value-types';
+import { clamp, inverseLerp, pingPong, repeat } from '../../core/vmath';
 
 const LOOK_FORWARD = 3;
 
@@ -48,7 +48,7 @@ export class OptimizedKey {
     }
 }
 
-export function evalOptCurve (t: number, coefs: Float32Array) {
+export function evalOptCurve (t: number, coefs: Float32Array | number[]) {
     return (t * (t * (t * coefs[0] + coefs[1]) + coefs[2])) + coefs[3];
 }
 
@@ -56,14 +56,26 @@ export class AnimationCurve {
 
     public keyFrames: Keyframe[] | null;
 
-    public preWrapMode: number = WrapMode.Default;
+    public preWrapMode: number = WrapMode.Loop;
 
-    public postWrapMode: number = WrapMode.Default;
+    public postWrapMode: number = WrapMode.Loop;
 
     private cachedKey: OptimizedKey;
 
+    private static defaultKF: Keyframe[] = [{
+        time: 0,
+        value: 1,
+        inTangent: 0,
+        outTangent: 0,
+    }, {
+        time: 1,
+        value: 1,
+        inTangent: 0,
+        outTangent: 0,
+    }];
+
     constructor (keyFrames: Keyframe[] | null = null) {
-        this.keyFrames = keyFrames;
+        this.keyFrames = keyFrames || ([] as Keyframe[]).concat(AnimationCurve.defaultKF);
         this.cachedKey = new OptimizedKey();
     }
 
@@ -125,7 +137,7 @@ export class AnimationCurve {
         return a * keyframe0.value + b * m0 + c * m1 + d * keyframe1.value;
     }
 
-    public evaluate (time) {
+    public evaluate (time: number) {
         let wrappedTime = time;
         const wrapMode = time < 0 ? this.preWrapMode : this.postWrapMode;
         const startTime = this.keyFrames![0].time;
@@ -154,7 +166,7 @@ export class AnimationCurve {
         }
     }
 
-    private calcOptimizedKey (optKey: OptimizedKey, leftIndex: number, rightIndex: number) {
+    public calcOptimizedKey (optKey: OptimizedKey, leftIndex: number, rightIndex: number) {
         const lhs = this.keyFrames![leftIndex];
         const rhs = this.keyFrames![rightIndex];
         optKey.index = leftIndex;
@@ -195,14 +207,14 @@ export class AnimationCurve {
         }
         let left = 0;
         let right = this.keyFrames!.length;
-        let mid = parseInt((left + right) / 2);
+        let mid = Math.floor((left + right) / 2);
         while (right - left > 1) {
             if (this.keyFrames![mid].time >= t) {
                 right = mid;
             } else {
                 left = mid + 1;
             }
-            mid = parseInt((left + right) / 2);
+            mid = Math.floor((left + right) / 2);
         }
         return left;
     }

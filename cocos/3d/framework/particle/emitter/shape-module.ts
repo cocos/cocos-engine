@@ -335,11 +335,11 @@ function applyBoxThickness (pos, thickness) {
     }
     if (thickness.y > 0) {
         pos[1] += 0.5 * randomRange(-thickness.y, thickness.y);
-        pos[1] = clamp(pos[0], -0.5, 0.5);
+        pos[1] = clamp(pos[1], -0.5, 0.5);
     }
     if (thickness.z > 0) {
         pos[2] += 0.5 * randomRange(-thickness.z, thickness.z);
-        pos[2] = clamp(pos[0], -0.5, 0.5);
+        pos[2] = clamp(pos[2], -0.5, 0.5);
     }
 }
 
