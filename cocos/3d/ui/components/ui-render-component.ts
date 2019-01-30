@@ -38,6 +38,7 @@ import { UI } from '../../../renderer/ui/ui';
 import { IAssembler, IAssemblerManager } from '../assembler/assembler';
 import { CanvasComponent } from './canvas-component';
 import { UITransformComponent } from './ui-transfrom-component';
+import { EventType} from '../../../scene-graph/node-event-enum';
 
 /**
  * !#en
@@ -171,6 +172,10 @@ export class UIRenderComponent extends RenderableComponent {
             // @ts-ignore
             parent = parent.parent;
         }
+
+        this.node.on(EventType.ANCHOR_CHANGED, this._stateChange,this);
+
+        this.node.on(EventType.SIZE_CHANGED, this._stateChange,this);
         // if (this.node._renderComponent) {
         //     this.node._renderComponent.enabled = false;
         // }
@@ -182,6 +187,9 @@ export class UIRenderComponent extends RenderableComponent {
         this._visibility = -1;
         // this.node._renderComponent = null;
         // this.disableRender();
+        this.node.off(EventType.ANCHOR_CHANGED, this._stateChange, this);
+
+        this.node.off(EventType.SIZE_CHANGED, this._stateChange, this);
     }
 
     public onDestroy () {
@@ -198,14 +206,27 @@ export class UIRenderComponent extends RenderableComponent {
     //     return this._enabled;
     // }
 
-    // markForUpdateRenderData(enable) {
-    //     // if (enable && this._canRender()) {
-    //     //     this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-    //     // }
-    //     // else if (!enable) {
-    //     //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-    //     // }
-    // }
+    markForUpdateRenderData(enable: boolean = true) {
+        // if (enable && this._canRender()) {
+        //     this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        // }
+        // else if (!enable) {
+        //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        // }
+
+        if (enable /*&& this._canRender()*/) {
+            // this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+
+            const renderData = this._renderData;
+            if (renderData) {
+                renderData.uvDirty = true;
+                renderData.vertDirty = true;
+            }
+        }
+        // else if (!enable) {
+        //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        // }
+    }
 
     // markForRender(enable) {
     //     // if (enable && this._canRender()) {
@@ -277,6 +298,10 @@ export class UIRenderComponent extends RenderableComponent {
         // if (updateHash) {
         //     this.material.updateHash();
         // }
+    }
+
+    private _stateChange(){
+        this.markForUpdateRenderData();
     }
 
     public updateAssembler (render: UI) {

@@ -1,7 +1,6 @@
 import { Component} from '../../../components/component';
-import { ccclass, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
-import Event from '../../../core/event/event';
-import { Enum, Mat4 } from '../../../core/value-types';
+import { ccclass, executeInEditMode, executionOrder, property, menu } from '../../../core/data/class-decorator';
+import { Mat4 } from '../../../core/value-types';
 import Size from '../../../core/value-types/size';
 import Vec2 from '../../../core/value-types/vec2';
 import * as math from '../../../core/vmath/index';
@@ -17,6 +16,7 @@ const _worldMatrix = cc.mat4();
 
 @ccclass('cc.UITransformComponent')
 @executionOrder(100)
+@menu('UI/UITransform')
 @executeInEditMode
 export class UITransformComponent extends Component {
 
@@ -26,11 +26,11 @@ export class UITransformComponent extends Component {
     }
 
     set contentSize (value) {
-        if (this._contentSize === value) {
-            return;
-        }
+        // if (this._contentSize.equals(value)) {
+        //     return;
+        // }
 
-        this._contentSize = value;
+        this._contentSize.set(value);
         this.node.emit(EventType.SIZE_CHANGED);
     }
 
@@ -39,9 +39,9 @@ export class UITransformComponent extends Component {
     }
 
     set width (value) {
-        if (this._contentSize.width === value) {
-            return;
-        }
+        // if (this._contentSize.width === value) {
+        //     return;
+        // }
 
         this._contentSize.width = value;
         this.node.emit(EventType.SIZE_CHANGED);
@@ -52,9 +52,9 @@ export class UITransformComponent extends Component {
     }
 
     set height (value) {
-        if (this._contentSize.height === value) {
-            return;
-        }
+        // if (this._contentSize.height === value) {
+        //     return;
+        // }
 
         this._contentSize.height = value;
         this.node.emit(EventType.SIZE_CHANGED);
@@ -66,11 +66,11 @@ export class UITransformComponent extends Component {
     }
 
     set anchorPoint (value) {
-        if (this._anchorPoint === value) {
-            return;
-        }
+        // if (this._anchorPoint.equals(value)) {
+        //     return;
+        // }
 
-        this._anchorPoint = value;
+        this._anchorPoint.set(value);
         this.node.emit(EventType.ANCHOR_CHANGED);
     }
 
@@ -79,9 +79,9 @@ export class UITransformComponent extends Component {
     }
 
     set anchorX (value) {
-        if (this._anchorPoint.x === value) {
-            return;
-        }
+        // if (this._anchorPoint.x === value) {
+        //     return;
+        // }
 
         this._anchorPoint.x = value;
         this.node.emit(EventType.ANCHOR_CHANGED);
@@ -92,9 +92,9 @@ export class UITransformComponent extends Component {
     }
 
     set anchorY (value) {
-        if (this._anchorPoint.y === value) {
-            return;
-        }
+        // if (this._anchorPoint.y === value) {
+        //     return;
+        // }
 
         this._anchorPoint.y = value;
         this.node.emit(EventType.ANCHOR_CHANGED);
@@ -102,9 +102,9 @@ export class UITransformComponent extends Component {
 
     public static EventType = EventType;
     @property
-    public _contentSize = new cc.Size(100, 100);
+    public _contentSize = new Size(100, 100);
     @property
-    public _anchorPoint = cc.v2(0.5, 0.5);
+    public _anchorPoint = new Vec2(0.5, 0.5);
 
     public __preload () {
         this.node.uiTransfromComp = this;

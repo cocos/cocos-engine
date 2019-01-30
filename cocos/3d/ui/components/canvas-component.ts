@@ -260,8 +260,15 @@ export class CanvasComponent extends Component {
             }
             this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 1);
         }
-        this.node.width = nodeSize.width;
-        this.node.height = nodeSize.height;
+
+        if(this.node.width!==nodeSize.width){
+            this.node.width = nodeSize.width;
+        }
+
+        if(this.node.height !== nodeSize.height){
+            this.node.height = nodeSize.height;
+        }
+
         let nodeWorldPos = this.node.getWorldPosition();
         if (this._camera) {
             this._camera.orthoHeight = this._camera.height / 2;
