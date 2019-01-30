@@ -36,4 +36,9 @@ export interface IAssembler {
     updateVerts? (component: UIRenderComponent, start?: number, end?: number): void;
     updateWorldVerts? (component: UIRenderComponent): void;
     updateUVs?(component: UIRenderComponent, start?: number, end?: number);
+    getAssemblerData?(): void;
+}
+
+export interface IAssemblerManager {
+    getAssembler (component: UIRenderComponent): IAssembler;
 }

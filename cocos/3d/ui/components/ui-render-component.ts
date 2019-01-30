@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 import { RenderableComponent } from '../../../3d/framework/renderable-component';
-// import gfx from '../../renderer/gfx/index';
 import {
     ccclass,
     executeInEditMode,
@@ -36,8 +35,7 @@ import macro from '../../../core/platform/CCMacro';
 import { Color } from '../../../core/value-types/index';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
-import { IAssembler } from '../assembler/assembler';
-import { MeshBuffer } from '../mesh-buffer';
+import { IAssembler, IAssemblerManager } from '../assembler/assembler';
 import { CanvasComponent } from './canvas-component';
 import { UITransformComponent } from './ui-transfrom-component';
 
@@ -53,6 +51,7 @@ import { UITransformComponent } from './ui-transfrom-component';
 @ccclass('cc.UIRenderComponent')
 @executionOrder(100)
 @requireComponent(UITransformComponent)
+@executeInEditMode
 export class UIRenderComponent extends RenderableComponent {
 
     /**
@@ -133,7 +132,7 @@ export class UIRenderComponent extends RenderableComponent {
         return this._renderData;
     }
 
-    public static assembler = null;
+    public static Assembler: IAssemblerManager | null = null;
 
     protected _assembler: IAssembler | null = null;
 
@@ -253,7 +252,7 @@ export class UIRenderComponent extends RenderableComponent {
         this._renderData = null;
     }
 
-    public _updateColor () {
+    protected _updateColor () {
         const material = this.material;
         if (material) {
             material.setProperty('color', this._color);
@@ -262,7 +261,7 @@ export class UIRenderComponent extends RenderableComponent {
     }
 
     // TODO:
-    public _updateBlendFunc (updateHash) {
+    private _updateBlendFunc (updateHash) {
         // if (!this.material) {
         //     return;
         // }

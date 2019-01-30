@@ -28,13 +28,14 @@
 // const bmfontAssembler = require('./bmfont');
 import { LabelComponent} from '../../components/label-component';
 import { ttf } from './ttf';
+import { IAssemblerManager } from '../assembler';
 // import bmfontAssembler from './bmfont';
 
-const labelAssembler = {
+export const labelAssembler: IAssemblerManager = {
     getAssembler (comp) {
         const assembler = ttf;
 
-        if (comp.font instanceof cc.BitmapFont) {
+        if ((comp as LabelComponent).font instanceof cc.BitmapFont) {
             // assembler = bmfontAssembler;
         }
 
@@ -45,10 +46,6 @@ const labelAssembler = {
     // updateRenderData(label) {
     //     return label.__allocedDatas;
     // }
-};
-
-export {
-    labelAssembler,
 };
 
 LabelComponent.Assembler = labelAssembler;

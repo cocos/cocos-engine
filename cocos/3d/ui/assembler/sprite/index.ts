@@ -34,28 +34,29 @@ import { sliced } from './sliced';
 import { tilled } from './tiled';
 import { radialFilled } from './radial-filled';
 import { barFilled } from './bar-filled';
-import { Utils } from 'cannon';
+import { IAssemblerManager } from '../assembler';
+import { UIRenderComponent } from '../../components/ui-render-component';
 // import meshRenderUtil from './mesh';
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 
-const spriteAssembler = {
-    getAssembler (sprite) {
+export const spriteAssembler: IAssemblerManager = {
+    getAssembler (sprite: UIRenderComponent) {
         let util = simple;
 
-        switch (sprite.type) {
+        switch ((sprite as SpriteComponent).type) {
             case SpriteType.SLICED:
                 util = sliced;
                 break;
-            case SpriteType.TILED:
-                util = tilled;
-                break;
+            // case SpriteType.TILED:
+            //     util = tilled;
+            //     break;
             case SpriteType.FILLED:
-                if (sprite._fillType === FillType.RADIAL) {
-                    util = radialFilled;
-                } else {
+                // if (sprite._fillType === FillType.RADIAL) {
+                //     util = radialFilled;
+                // } else {
                     util = barFilled;
-                }
+                // }
                 break;
             // case SpriteType.MESH:
             //     util = meshRenderUtil;
@@ -66,13 +67,9 @@ const spriteAssembler = {
     },
 
     // Skip invalid sprites (without own _assembler)
-    updateRenderData (sprite) {
-        return sprite.__allocedDatas;
-    },
-};
-
-export {
-    spriteAssembler,
+    // updateRenderData (sprite) {
+    //     return sprite.__allocedDatas;
+    // },
 };
 
 SpriteComponent.Assembler = spriteAssembler;

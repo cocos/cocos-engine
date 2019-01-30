@@ -147,7 +147,6 @@ ccenum(FillType);
 @ccclass('cc.SpriteComponent')
 @executionOrder(100)
 @menu('UI/Sprite')
-@executeInEditMode
 export class SpriteComponent extends UIRenderComponent {
 
     /**
@@ -455,7 +454,7 @@ export class SpriteComponent extends UIRenderComponent {
             //     this.material = cc.builtinResMgr.get('sprite-material');
             //     material = this.material;
             //     if (spriteFrame && spriteFrame.textureLoaded()) {
-            //         material!.setProperty('u_texSampler', spriteFrame);
+            //         material!.setProperty('mainTexture', spriteFrame);
             //         this.markForUpdateRenderData(true);
             //     }
             // }
@@ -463,9 +462,9 @@ export class SpriteComponent extends UIRenderComponent {
             // else {
                 if (spriteFrame && spriteFrame.textureLoaded()) {
                     if (material){
-                        // const matTexture = material.getProperty('u_texSampler');
+                        // const matTexture = material.getProperty('mainTexture');
                         // if (matTexture !== spriteFrame) {
-                            material.setProperty('u_texSampler', spriteFrame);
+                            material.setProperty('mainTexture', spriteFrame);
                             this.markForUpdateRenderData(true);
                         // }
                     }
