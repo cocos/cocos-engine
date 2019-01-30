@@ -50,7 +50,8 @@ var SkeletonAnimationClip = cc.Class({
                 return this._buffer;
             },
             set (bin) {
-                this._buffer = new Float32Array(bin.buffer, 0, bin.buffer.byteLength/4);
+                let buffer = ArrayBuffer.isView(bin) ? bin.buffer : bin;
+                this._buffer = new Float32Array(buffer || bin, 0, buffer.byteLength/4);
             }
         },
         description: {
