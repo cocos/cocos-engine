@@ -481,7 +481,11 @@ export class TextureBase extends EventTargetFactory(Asset) {
 
     protected _getGlobalDevice (): GFXDevice | null {
         // @ts-ignore
-        return cc.director && cc.director.root && cc.director.root.device;
+        if (cc.director && cc.director.root) {
+            return cc.director.root.device;
+        } else {
+            return null;
+        }
     }
 
     protected _getGfxFormat () {
