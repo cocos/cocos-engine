@@ -161,6 +161,8 @@ export class CanvasComponent extends Component {
     }
 
     public __preload () {
+        // hack
+        cc.eventManager.setEnabled(true);
         let cameraNode = new Node('UICamera');
         cameraNode.setPosition(0, 0, 1000);
         this._camera = this._getRenderScene().createCamera({
