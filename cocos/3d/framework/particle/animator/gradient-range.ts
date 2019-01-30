@@ -27,9 +27,9 @@ const Mode = Enum({
 export default class GradientRange {
 
     @property({
-        type: Mode
+        type: Mode,
     })
-    mode = Mode.Color;
+    public mode = Mode.Color;
 
     @property
     public color = cc.Color.WHITE;
@@ -86,17 +86,17 @@ export default class GradientRange {
 // });
 
 export class GradientUniform {
-    public gr: GradientRange;
-    public minColor: Float32Array;
-    public maxColor: Float32Array;
-    public minColorKeyTime: Float32Array;
-    public minColorKeyValue: Float32Array;
-    public minAlphaKeyTime: Float32Array;
-    public minAlphaKeyValue: Float32Array;
-    public maxColorKeyTime: Float32Array;
-    public maxColorKeyValue: Float32Array;
-    public maxAlphaKeyTime: Float32Array;
-    public maxAlphaKeyValue: Float32Array;
+    public gr: GradientRange | null;
+    public minColor: Float32Array | null = null;
+    public maxColor: Float32Array | null = null;
+    public minColorKeyTime: Float32Array | null = null;
+    public minColorKeyValue: Float32Array | null = null;
+    public minAlphaKeyTime: Float32Array | null = null;
+    public minAlphaKeyValue: Float32Array | null = null;
+    public maxColorKeyTime: Float32Array | null = null;
+    public maxColorKeyValue: Float32Array | null = null;
+    public maxAlphaKeyTime: Float32Array | null = null;
+    public maxAlphaKeyValue: Float32Array | null = null;
 
     constructor (gr: GradientRange) {
         this.gr = gr;
@@ -113,49 +113,51 @@ export class GradientUniform {
             this.minColorKeyValue = new Float32Array(3 * this.minColorKeyTime.length);
             this.minAlphaKeyTime = new Float32Array(gr.gradient.alphaKeys.length);
             this.minAlphaKeyValue = new Float32Array(this.minAlphaKeyTime.length);
-            this.constructor.generateGradientUniform(gr.gradient, this.minColorKeyTime, this.minColorKeyValue, this.minAlphaKeyTime, this.minAlphaKeyValue);
+            (this.constructor as any).generateGradientUniform(gr.gradient, this.minColorKeyTime, this.minColorKeyValue, this.minAlphaKeyTime, this.minAlphaKeyValue);
         } else if (gr.mode === 'twoGradients') {
             this.minColorKeyTime = new Float32Array(gr.gradientMin.colorKeys.length);
             this.minColorKeyValue = new Float32Array(3 * this.minColorKeyTime.length);
             this.minAlphaKeyTime = new Float32Array(gr.gradientMin.alphaKeys.length);
             this.minAlphaKeyValue = new Float32Array(this.minAlphaKeyTime.length);
-            this.constructor.generateGradientUniform(gr.gradientMin, this.minColorKeyTime, this.minColorKeyValue, this.minAlphaKeyTime, this.minAlphaKeyValue);
+            (this.constructor as any).generateGradientUniform(gr.gradientMin, this.minColorKeyTime, this.minColorKeyValue, this.minAlphaKeyTime, this.minAlphaKeyValue);
             this.maxColorKeyTime = new Float32Array(gr.gradientMax.colorKeys.length);
             this.maxColorKeyValue = new Float32Array(3 * this.maxColorKeyTime.length);
             this.maxAlphaKeyTime = new Float32Array(gr.gradientMax.alphaKeys.length);
             this.maxAlphaKeyValue = new Float32Array(this.maxAlphaKeyTime.length);
-            this.constructor.generateGradientUniform(gr.gradientMax, this.maxColorKeyTime, this.maxColorKeyValue, this.maxAlphaKeyTime, this.maxAlphaKeyValue);
+            (this.constructor as any).generateGradientUniform(gr.gradientMax, this.maxColorKeyTime, this.maxColorKeyValue, this.maxAlphaKeyTime, this.maxAlphaKeyValue);
         }
     }
 
     public uploadUniform (device: any, name: string) {
-        if (this.gr.mode === 'color') {
-            device.setUniform('u_' + name + '_rangeMode', GRADIENT_RANGE_MODE_COLOR);
-            device.setUniform('u_' + name + '_minColor', this.minColor);
-        } else if (this.gr.mode === 'twoColors') {
-            device.setUniform('u_' + name + '_rangeMode', GRADIENT_RANGE_MODE_TWO_COLOR);
-            device.setUniform('u_' + name + '_minColor', this.minColor);
-            device.setUniform('u_' + name + '_maxColor', this.maxColor);
-        } else if (this.gr.mode === 'gradient') {
-            device.setUniform('u_' + name + '_rangeMode', GRADIENT_RANGE_MODE_GRADIENT);
-            device.setUniform('u_' + name + '_minGradMode', this.gr.gradient.mode === 'blend' ? GRADIENT_MODE_BLEND : GRADIENT_MODE_FIX);
-            device.setUniform('u_' + name + '_minColorKeyValue', this.minColorKeyValue);
-            device.setUniform('u_' + name + '_minColorKeyTime', this.minColorKeyTime);
-            device.setUniform('u_' + name + '_minAlphaKeyValue', this.minAlphaKeyValue);
-            device.setUniform('u_' + name + '_minAlphaKeyTime', this.minAlphaKeyTime);
-        } else if (this.gr.mode === 'twoGradients') {
-            device.setUniform('u_' + name + '_rangeMode', GRADIENT_RANGE_MODE_TWO_GRADIENT);
-            device.setUniform('u_' + name + '_minGradMode', this.gr.gradientMin.mode === 'blend' ? GRADIENT_MODE_BLEND : GRADIENT_MODE_FIX);
-            device.setUniform('u_' + name + '_minColorKeyValue', this.minColorKeyValue);
-            device.setUniform('u_' + name + '_minColorKeyTime', this.minColorKeyTime);
-            device.setUniform('u_' + name + '_minAlphaKeyValue', this.minAlphaKeyValue);
-            device.setUniform('u_' + name + '_minAlphaKeyTime', this.minAlphaKeyTime);
+        if (this.gr != null) {
+            if (this.gr.mode === 'color') {
+                device.setUniform('u_' + name + '_rangeMode', GRADIENT_RANGE_MODE_COLOR);
+                device.setUniform('u_' + name + '_minColor', this.minColor);
+            } else if (this.gr.mode === 'twoColors') {
+                device.setUniform('u_' + name + '_rangeMode', GRADIENT_RANGE_MODE_TWO_COLOR);
+                device.setUniform('u_' + name + '_minColor', this.minColor);
+                device.setUniform('u_' + name + '_maxColor', this.maxColor);
+            } else if (this.gr.mode === 'gradient') {
+                device.setUniform('u_' + name + '_rangeMode', GRADIENT_RANGE_MODE_GRADIENT);
+                device.setUniform('u_' + name + '_minGradMode', this.gr.gradient.mode === 'blend' ? GRADIENT_MODE_BLEND : GRADIENT_MODE_FIX);
+                device.setUniform('u_' + name + '_minColorKeyValue', this.minColorKeyValue);
+                device.setUniform('u_' + name + '_minColorKeyTime', this.minColorKeyTime);
+                device.setUniform('u_' + name + '_minAlphaKeyValue', this.minAlphaKeyValue);
+                device.setUniform('u_' + name + '_minAlphaKeyTime', this.minAlphaKeyTime);
+            } else if (this.gr.mode === 'twoGradients') {
+                device.setUniform('u_' + name + '_rangeMode', GRADIENT_RANGE_MODE_TWO_GRADIENT);
+                device.setUniform('u_' + name + '_minGradMode', this.gr.gradientMin.mode === 'blend' ? GRADIENT_MODE_BLEND : GRADIENT_MODE_FIX);
+                device.setUniform('u_' + name + '_minColorKeyValue', this.minColorKeyValue);
+                device.setUniform('u_' + name + '_minColorKeyTime', this.minColorKeyTime);
+                device.setUniform('u_' + name + '_minAlphaKeyValue', this.minAlphaKeyValue);
+                device.setUniform('u_' + name + '_minAlphaKeyTime', this.minAlphaKeyTime);
 
-            device.setUniform('u_' + name + '_maxGradMode', this.gr.gradientMax.mode === 'blend' ? GRADIENT_MODE_BLEND : GRADIENT_MODE_FIX);
-            device.setUniform('u_' + name + '_maxColorKeyValue', this.maxColorKeyValue);
-            device.setUniform('u_' + name + '_maxColorKeyTime', this.maxColorKeyTime);
-            device.setUniform('u_' + name + '_maxAlphaKeyValue', this.maxAlphaKeyValue);
-            device.setUniform('u_' + name + '_maxAlphaKeyTime', this.maxAlphaKeyTime);
+                device.setUniform('u_' + name + '_maxGradMode', this.gr.gradientMax.mode === 'blend' ? GRADIENT_MODE_BLEND : GRADIENT_MODE_FIX);
+                device.setUniform('u_' + name + '_maxColorKeyValue', this.maxColorKeyValue);
+                device.setUniform('u_' + name + '_maxColorKeyTime', this.maxColorKeyTime);
+                device.setUniform('u_' + name + '_maxAlphaKeyValue', this.maxAlphaKeyValue);
+                device.setUniform('u_' + name + '_maxAlphaKeyTime', this.maxAlphaKeyTime);
+            }
         }
     }
 

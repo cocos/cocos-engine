@@ -56,7 +56,7 @@ export default class Gradient {
         this._color = cc.Color.WHITE;
     }
 
-    public setKeys (colorKeys, alphaKeys) {
+    public setKeys (colorKeys: ColorKey[], alphaKeys: AlphaKey[]) {
         this.colorKeys = colorKeys;
         this.alphaKeys = alphaKeys;
     }
@@ -98,7 +98,7 @@ export default class Gradient {
         }
     }
 
-    private getAlpha (time) {
+    private getAlpha (time: number) {
         if (this.alphaKeys.length > 1) {
             time = repeat(time, 1);
             for (let i = 1; i < this.alphaKeys.length; ++i) {
@@ -120,7 +120,7 @@ export default class Gradient {
         }
     }
 
-    public evaluate (time) {
+    public evaluate (time: number) {
         this.getRGB(time);
         this._color.a = this.getAlpha(time)!;
         return this._color;

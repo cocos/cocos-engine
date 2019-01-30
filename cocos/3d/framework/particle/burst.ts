@@ -7,49 +7,54 @@ import { property, ccclass } from "../../../core/data/class-decorator";
 export default class Burst {
 
     @property
-    _time = 0;
+    private _time: number = 0;
 
-    get time() {
+    @property
+    get time () {
         return this._time;
     }
 
-    set time(val) {
+    set time (val) {
         this._time = val;
         this._curTime = val;
     }
 
     @property
-    minCount = 30;
+    public minCount: number = 30;
 
     @property
-    maxCount = 30;
+    public maxCount: number = 30;
 
     @property
-    _repeatCount = 1;
+    private _repeatCount: number = 1;
 
-    get repeatCount() {
+    @property
+    get repeatCount () {
         return this._repeatCount;
     }
 
-    set repeatCount(val) {
+    set repeatCount (val) {
         this._repeatCount = val;
         this._remainingCount = val;
     }
 
     @property
-    repeatInterval = 1;
+    public repeatInterval: number = 1;
 
     @property({
-        type: CurveRange
+        type: CurveRange,
     })
-    count = null;
+    public count: CurveRange = new CurveRange();
 
-    constructor() {
+    private _remainingCount: number;
+    private _curTime: number;
+
+    constructor () {
         this._remainingCount = 1;
         this._curTime = 0.0;
     }
 
-    update(psys, dt) {
+    public update (psys, dt: number) {
         if (psys.loop && this._remainingCount === 0) {
             this._remainingCount = this._repeatCount;
             this._curTime = this._time;
@@ -57,9 +62,9 @@ export default class Burst {
         if (this._remainingCount > 0) {
             let preFrameTime = repeat(psys._time - psys.startDelay.evaluate(), psys.duration) - dt;
             preFrameTime = (preFrameTime > 0.0) ? preFrameTime : 0.0;
-            let curFrameTime = repeat(psys.time - psys.startDelay.evaluate(), psys.duration);
+            const curFrameTime = repeat(psys.time - psys.startDelay.evaluate(), psys.duration);
             if (this._curTime >= preFrameTime && this._curTime < curFrameTime) {
-                psys.emit(this.count.evaluate(this._curTime / psys.duration));
+                psys.emit(this.count.evaluate(this._curTime / psys.duration, 1));
                 this._curTime += this.repeatInterval;
                 --this._remainingCount;
             }

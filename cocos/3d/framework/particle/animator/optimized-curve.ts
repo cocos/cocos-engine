@@ -12,7 +12,7 @@ const CURVE_MODE_RANDOM_CURVE = 3;
 const UNIFORM_CURVE_KEY_NUM = 8;
 
 // calculate the coefficience of the first order integral of the curve
-function integrateKeyframe (coef: Float32Array) {
+function integrateKeyframe (coef: Float32Array | number[]) {
     coef[0] = coef[0] / 4;
     coef[1] = coef[1] / 3;
     coef[2] = coef[2] / 2;
@@ -21,7 +21,7 @@ function integrateKeyframe (coef: Float32Array) {
 }
 
 // calculate the coefficience of the second order integral of the curve
-function integrateKeyframeTwice (coef: Float32Array) {
+function integrateKeyframeTwice (coef: Float32Array | number[]) {
     coef[0] = coef[0] / 20;
     coef[1] = coef[1] / 12;
     coef[2] = coef[2] / 6;
@@ -33,14 +33,17 @@ export class OptimizedCurve {
     private optimizedKeys: OptimizedKey[];
     private integral: number[];
     private constructUniform: boolean;
-    private coefUniform: Float32Array;
-    private timeUniform: Float32Array;
-    private integralUniform: Float32Array;
+    public coefUniform: Float32Array | null;
+    public timeUniform: Float32Array | null;
+    public integralUniform: Float32Array | null;
 
     constructor (constructUniform = false) {
         this.optimizedKeys = new Array<OptimizedKey>(); // the i-th optimezed key stores coefficients of [i,i+1] segment in the original curve,so if the time of last key of the original key is 1,the last key won't be kept in the opt curve.
         this.integral = new Array<number>();      // the integral of the curve between 0 and corresponding key,the i-th integral corresponds to the i+1-th key in optimizedKeys (because the integral of the first key is always zero,the first key won't be stored)
         this.constructUniform = constructUniform;
+        this.coefUniform = null;
+        this.timeUniform = null;
+        this.integralUniform = null;
     }
 
     public buildCurve (animationCurve: AnimationCurve, multiplier: number = 1) {
@@ -177,12 +180,14 @@ export class OptimizedCurve {
     }
 
     public updateKeyUniform () {
-        for (let i = 0; i < this.optimizedKeys.length; i++) {
-            this.coefUniform[i * 4] = this.optimizedKeys[i].coefficient[0];
-            this.coefUniform[i * 4 + 1] = this.optimizedKeys[i].coefficient[1];
-            this.coefUniform[i * 4 + 2] = this.optimizedKeys[i].coefficient[2];
-            this.coefUniform[i * 4 + 3] = this.optimizedKeys[i].coefficient[3];
-            this.timeUniform[i] = this.optimizedKeys[i].endTime;
+        if (this.coefUniform != null && this.timeUniform != null) {
+            for (let i = 0; i < this.optimizedKeys.length; i++) {
+                this.coefUniform[i * 4] = this.optimizedKeys[i].coefficient[0];
+                this.coefUniform[i * 4 + 1] = this.optimizedKeys[i].coefficient[1];
+                this.coefUniform[i * 4 + 2] = this.optimizedKeys[i].coefficient[2];
+                this.coefUniform[i * 4 + 3] = this.optimizedKeys[i].coefficient[3];
+                this.timeUniform[i] = this.optimizedKeys[i].endTime;
+            }
         }
     }
 
@@ -198,8 +203,16 @@ export class CurveUniform {
     private mode: number;
     private minConstant: number;
     private maxConstant: number;
-    private minCurve: OptimizedCurve;
-    private maxCurve: OptimizedCurve;
+    private minCurve: OptimizedCurve | null;
+    private maxCurve: OptimizedCurve | null;
+
+    constructor () {
+        this.mode = 0;
+        this.minConstant = 0;
+        this.maxConstant = 0;
+        this.minCurve = null;
+        this.maxCurve = null;
+    }
 
     public constructCurve (cr: CurveRange) {
         this.mode = cr.mode;
@@ -288,24 +301,28 @@ export class CurveUniform {
                 device.setUniform('u_' + name + '_maxConstant', this.maxConstant);
                 break;
             case 'curve':
-                device.setUniform('u_' + name + '_curveMode', CURVE_MODE_CURVE);
-                device.setUniform('u_' + name + '_minKeyTime', this.minCurve.timeUniform);
-                device.setUniform('u_' + name + '_minKeyCoef', this.minCurve.coefUniform);
-                if (this.minCurve.integralUniform !== undefined) {
-                    device.setUniform('u_' + name + '_minIntegral', this.minCurve.integralUniform);
+                if (this.minCurve != null) {
+                    device.setUniform('u_' + name + '_curveMode', CURVE_MODE_CURVE);
+                    device.setUniform('u_' + name + '_minKeyTime', this.minCurve.timeUniform);
+                    device.setUniform('u_' + name + '_minKeyCoef', this.minCurve.coefUniform);
+                    if (this.minCurve.integralUniform !== undefined) {
+                        device.setUniform('u_' + name + '_minIntegral', this.minCurve.integralUniform);
+                    }
                 }
                 break;
             case 'twoCurves':
-                device.setUniform('u_' + name + '_curveMode', CURVE_MODE_RANDOM_CURVE);
-                device.setUniform('u_' + name + '_minKeyTime', this.minCurve.timeUniform);
-                device.setUniform('u_' + name + '_minKeyCoef', this.minCurve.coefUniform);
-                if (this.minCurve.integralUniform !== undefined) {
-                    device.setUniform('u_' + name + '_minIntegral', this.minCurve.integralUniform);
-                }
-                device.setUniform('u_' + name + '_maxKeyTime', this.maxCurve.timeUniform);
-                device.setUniform('u_' + name + '_maxKeyCoef', this.maxCurve.coefUniform);
-                if (this.minCurve.integralUniform !== undefined) {
-                    device.setUniform('u_' + name + '_maxIntegral', this.maxCurve.integralUniform);
+                if (this.minCurve != null && this.maxCurve != null) {
+                    device.setUniform('u_' + name + '_curveMode', CURVE_MODE_RANDOM_CURVE);
+                    device.setUniform('u_' + name + '_minKeyTime', this.minCurve.timeUniform);
+                    device.setUniform('u_' + name + '_minKeyCoef', this.minCurve.coefUniform);
+                    if (this.minCurve.integralUniform !== undefined) {
+                        device.setUniform('u_' + name + '_minIntegral', this.minCurve.integralUniform);
+                    }
+                    device.setUniform('u_' + name + '_maxKeyTime', this.maxCurve.timeUniform);
+                    device.setUniform('u_' + name + '_maxKeyCoef', this.maxCurve.coefUniform);
+                    if (this.minCurve.integralUniform !== undefined) {
+                        device.setUniform('u_' + name + '_maxIntegral', this.maxCurve.integralUniform);
+                    }
                 }
                 break;
         }
