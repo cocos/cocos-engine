@@ -2262,7 +2262,8 @@ export function WebGLCmdFuncCopyBufferToTexture (
                         let w = region.texExtent.width;
                         let h = region.texExtent.height;
 
-                        for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
+                        let mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
+                        for (let m = region.texSubres.baseMipLevel; m < mcount; ++m) {
                             const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
                             const data = buff.slice(buffOffset, buffOffset + memSize);
                             const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);

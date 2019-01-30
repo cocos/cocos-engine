@@ -838,9 +838,9 @@ export class WebGLGFXDevice extends GFXDevice {
             glMagFilter = WebGLRenderingContext.NEAREST;
         }
 
-        const glWrapS = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.REPEAT);
-        const glWrapT = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.REPEAT);
-        const glWrapR = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.REPEAT);
+        const glWrapS = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.CLAMP_TO_EDGE);
+        const glWrapT = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.CLAMP_TO_EDGE);
+        const glWrapR = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.CLAMP_TO_EDGE);
 
         const gpuSampler: WebGLGPUSampler = {
             objType: WebGLGPUObjectType.SAMPLER,
