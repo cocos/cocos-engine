@@ -125,7 +125,7 @@ export class Material extends Asset {
      */
     public setProperty (name: string, val: any, passIdx?: number) {
         let success = false;
-        if (passIdx === undefined) { // set property for all applicable passes
+        if (passIdx === undefined) { // try set property for all applicable passes
             const passes = this._passes;
             const len = passes.length;
             for (let i = 0; i < len; i++) {
@@ -144,6 +144,26 @@ export class Material extends Asset {
             }
         }
         if (!success) { console.warn(`illegal property name: ${name}.`); return; }
+    }
+
+    public getProperty (name: string, passIdx?: number) {
+        if (passIdx === undefined) { // try get property in all possible passes
+            const propsArray = this._props;
+            const len = propsArray.length;
+            for (let i = 0; i < len; i++) {
+                const props = propsArray[i];
+                for (const p of Object.keys(props)) {
+                    if (p === name) { return props[p]; }
+                }
+            }
+        } else {
+            if (passIdx >= this._props.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
+            const props = this._props[passIdx];
+            for (const p of Object.keys(props)) {
+                if (p === name) { return props[p]; }
+            }
+        }
+        return null;
     }
 
     public copy (mat: Material) {

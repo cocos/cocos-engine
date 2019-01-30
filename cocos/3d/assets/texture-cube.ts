@@ -115,6 +115,31 @@ export class TextureCube extends TextureBase {
     }
 
     /**
+     * Updates mipmaps at specified range of levels.
+     * @param firstLevel The first level from which the sources update.
+     * @description
+     * If the range specified by [firstLevel, firstLevel + sources.length) exceeds
+     * the actually range of mipmaps this texture contains, only overlaped mipmaps are updated.
+     * Use this method if your mipmap data are modified.
+     */
+    public updateMipmaps (firstLevel: number = 0, count?: number) {
+        if (firstLevel >= this._mipmaps.length) {
+            return;
+        }
+
+        const nUpdate = Math.min(
+            count === undefined ? this._mipmaps.length : count,
+            this._mipmaps.length - firstLevel);
+
+        for (let i = 0; i < nUpdate; ++i) {
+            const level = firstLevel + i;
+            _forEachFace(this._mipmaps[level], (face, faceIndex) => {
+                this._assignImage(face, level, faceIndex);
+            });
+        }
+    }
+
+    /**
      * !#en
      * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
      * After destroy, this object is not usable any more.
