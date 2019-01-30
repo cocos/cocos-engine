@@ -1865,7 +1865,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     }
                                                     case WebGLRenderingContext.SAMPLER_CUBE: {
                                                         glTexUnit = device.stateCache.glTexCubeUnits[texUnit];
-    
+
                                                         if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                                                             gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                                                             glTexUnit.glTexture = gpuTexture.glTexture;
@@ -1879,7 +1879,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                                                 if (glTexUnit) {
                                                     const gpuSampler = gpuBinding.gpuSampler;
-    
+
                                                     if (gpuTexture.glWrapS !== gpuSampler.glWrapS) {
                                                         gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, gpuSampler.glWrapS);
                                                         gpuTexture.glWrapS = gpuSampler.glWrapS;
@@ -1899,7 +1899,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                         gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
                                                         gpuTexture.glMagFilter = gpuSampler.glMagFilter;
                                                     }
-T                                                }
+                                                }
                                             } else {
                                                 console.error("Not found texture view on binding unit " + gpuBinding.binding);
                                             }
