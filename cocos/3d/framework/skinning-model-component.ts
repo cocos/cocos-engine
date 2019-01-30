@@ -141,10 +141,11 @@ export default class SkinningModelComponent extends ModelComponent {
 
         const device = _getGlobalDevice();
         const useJointTexture = !__FORCE_USE_UNIFORM_STORAGE__ && device !== null && device.hasFeature(GFXFeature.TEXTURE_FLOAT);
-        this.getMaterial(0, CC_EDITOR)!.setDefines({
+        const m = this.getMaterial(0, CC_EDITOR)!;
+        m.setDefines(Object.assign(m._defines[0], {
             CC_USE_SKINNING: true,
             CC_USE_JOINTS_TEXTURE: useJointTexture,
-        });
+        }));
     }
 
     private _bindSkeleton () {
