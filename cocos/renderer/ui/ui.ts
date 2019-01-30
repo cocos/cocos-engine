@@ -66,6 +66,7 @@ export class UIDrawBatch {
     public bufferBatch: UIBufferBatch | null = null;
     public material: Material | null = null;
     public texView: GFXTextureView | null = null;
+    public firstIdx: number = 0;
     public idxCount: number = 0;
     public pipelineState: GFXPipelineState | null = null;
     public bindingLayout: GFXBindingLayout | null = null;
@@ -87,6 +88,7 @@ export class UIDrawBatch {
         this.bufferBatch = null;
         this.material = null;
         this.texView = null;
+        this.firstIdx = 0;
         this.idxCount = 0;
     }
 }
@@ -376,6 +378,7 @@ export class UI {
                 bindingLayout.update();
 
                 let ia = batch.bufferBatch!.ia!
+                ia.firstIndex = batch.firstIdx;
                 ia.indexCount = batch.idxCount;
 
                 cmdBuff.bindPipelineState(batch.pipelineState!);
@@ -495,6 +498,7 @@ export class UI {
         let curTexView: GFXTextureView | null = null;
         let bufferBatchIdx = 0;
         let curBufferBatch: UIBufferBatch = this._bufferBatches[bufferBatchIdx++];
+        let firstIdx = 0;
         let idxCount = 0;
         let vertCount = 0;
 
@@ -521,8 +525,9 @@ export class UI {
                     }
 
                     curBufferBatch = this._bufferBatches[bufferBatchIdx++];
-                    vertCount = 0;
+                    firstIdx = 0;
                     idxCount = 0;
+                    vertCount = 0;
                     isNewBatch = true;
                 }
 
@@ -561,13 +566,14 @@ export class UI {
                     curBufferBatch.vui16![idxCount + n] = vui16[n] + vertCount;
                 }
 
-                vertCount += vCount;
-                idxCount += vui16.length;
-
                 if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
                     curTexView = uiRenderData.texture.getGFXTextureView();
                     isNewBatch = true;
+                    firstIdx = idxCount;
+                    idxCount = 0;
                 }
+
+                idxCount += vui16.length;
 
                 if (isNewBatch) {
                     curDrawBatch = this._drawBatchPool.add();
@@ -575,6 +581,7 @@ export class UI {
                     curDrawBatch.bufferBatch = curBufferBatch;
                     curDrawBatch.material = uiRenderData.material;
                     curDrawBatch.texView = curTexView!;
+                    curDrawBatch.firstIdx = firstIdx;
                     curDrawBatch.idxCount = idxCount;
 
                     if (!curDrawBatch.pipelineState) {
@@ -587,6 +594,8 @@ export class UI {
                 } else {
                     curDrawBatch!.idxCount = idxCount;
                 }
+
+                vertCount += vCount;
             } // for
         }
     }
