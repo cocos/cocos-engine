@@ -174,7 +174,7 @@ export class UIRenderComponent extends RenderableComponent {
         }
 
         this.node.on(EventType.ANCHOR_CHANGED, this._stateChange,this);
-
+        this.node.on(EventType.TRANSFORM_CHANGED, this._stateChange, this);
         this.node.on(EventType.SIZE_CHANGED, this._stateChange,this);
         // if (this.node._renderComponent) {
         //     this.node._renderComponent.enabled = false;
@@ -188,7 +188,7 @@ export class UIRenderComponent extends RenderableComponent {
         // this.node._renderComponent = null;
         // this.disableRender();
         this.node.off(EventType.ANCHOR_CHANGED, this._stateChange, this);
-
+        this.node.off(EventType.TRANSFORM_CHANGED, this._stateChange, this);
         this.node.off(EventType.SIZE_CHANGED, this._stateChange, this);
     }
 
