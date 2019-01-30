@@ -11,8 +11,10 @@ import RecyclePool from '../../../memop/recycle-pool';
 import Particle from '../particle';
 import { RenderableComponent } from '../../renderable-component';
 import { Space } from '../particle-general-function';
+import { builtinResMgr } from '../../../builtin';
 // import ParticleSystemComponent from '../particle-system-component';
 
+// tslint:disable: max-line-length
 const _tempAttribUV: vec3 = vec3.create();
 const _tempAttribUV0: vec2 = vec2.create();
 const _tempAttribColor: vec4 = vec4.create();
@@ -67,7 +69,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     public set velocityScale (val) {
         this._velocityScale = val;
         this._updateMaterialParams();
-        this._updateModel();
+        // this._updateModel();
     }
 
     @property
@@ -78,7 +80,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     public set lengthScale (val) {
         this._lengthScale = val;
         this._updateMaterialParams();
-        this._updateModel();
+        // this._updateModel();
     }
 
     @property({
@@ -126,11 +128,6 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this._particles = new RecyclePool(() => {
             return new Particle(this);
         }, 16);
-        if (this.sharedMaterial == null) {
-            this.setMaterial(new Material(), 0, false);
-            this.sharedMaterial!._owner = this;
-            this.sharedMaterial!.effectName = 'builtin-effect-particle-add';
-        }
         this.onEnable();
         this._updateMaterialParams();
         this._updateModel();
@@ -157,7 +154,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this._model!.destroy();
     }
 
-    private clear () {
+    public clear () {
         this._particles.reset();
         this._model!.destroy();
     }
@@ -280,6 +277,9 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         if (!this.particleSystem) {
             return;
         }
+        if (this.sharedMaterial == null) {
+            this.setMaterial(builtinResMgr.get<Material>('default-particle-material'), 0, false);
+        }
         if (this.particleSystem._simulationSpace === Space.World) {
             this._defines[USE_WORLD_SPACE] = true;
         } else {
@@ -324,15 +324,15 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         if (!this.particleSystem) {
             return;
         }
-        this._model!.setSubModelMaterial(0, this.sharedMaterial ? this.sharedMaterial : null);
-        if (Object.getPrototypeOf(this).constructor.name === 'ParticleSystemGpuRenderer') {
-            return;
-        }
         if (this._renderMode === RenderMode.StrecthedBillboard) {
             this._model!.enableStretchedBillboard();
         } else {
             this._model!.disableStretchedBillboard();
         }
+        this._model!.setSubModelMaterial(0, this.sharedMaterial ? this.sharedMaterial : null);
+        // if (Object.getPrototypeOf(this).constructor.name === 'ParticleSystemGpuRenderer') {
+        //     return;
+        // }
     }
 }
 

@@ -34,9 +34,14 @@ export default class TextureAnimationModule {
         this.ps!.renderer!._updateMaterialParams();
     }
 
-    @property
+    @property({
+        type: Mode,
+    })
     private _mode = Mode.Grid;
 
+    @property({
+        type: Mode,
+    })
     get mode () {
         return this._mode;
     }
@@ -54,7 +59,9 @@ export default class TextureAnimationModule {
     @property
     public numTilesY = 0;
 
-    @property
+    @property({
+        type: Animation,
+    })
     public animation = Animation.WholeSheet;
 
     @property({

@@ -1,5 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+// tslint:disable: max-line-length
+
 import { Component } from '../../../components/component';
 import { vec3, vec2, mat4, quat, randomRangeInt, pseudoRandom } from '../../../core/vmath';
 import CurveRange from './animator/curve-range';
@@ -318,7 +320,7 @@ export default class ParticleSystemComponent extends Component {
                 vec3.copy(particle.velocity, particleEmitZAxis);
             }
 
-            vec3.scale(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand));
+            vec3.scale(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand)!);
 
             switch (this._simulationSpace) {
                 case Space.Local:
@@ -335,10 +337,10 @@ export default class ParticleSystemComponent extends Component {
                     break;
             }
             // apply startRotation. now 2D only.
-            vec3.set(particle.rotation, this.startRotation.evaluate(this._time / this.duration, rand), 0, 0);
+            vec3.set(particle.rotation, this.startRotation.evaluate(this._time / this.duration, rand)!, 0, 0);
 
             // apply startSize. now 2D only.
-            vec3.set(particle.startSize, this.startSize.evaluate(this._time / this.duration, rand), 0, 0);
+            vec3.set(particle.startSize, this.startSize.evaluate(this._time / this.duration, rand)!, 0, 0);
             vec3.copy(particle.size, particle.startSize);
 
             // apply startColor.
@@ -347,7 +349,7 @@ export default class ParticleSystemComponent extends Component {
             particle.color.set(particle.startColor);
 
             // apply startLifetime.
-            particle.startLifetime = this.startLifetime.evaluate(this._time / this.duration, rand);
+            particle.startLifetime = this.startLifetime.evaluate(this._time / this.duration, rand)!;
             particle.remainingLifetime = particle.startLifetime;
 
             particle.randomSeed = randomRangeInt(0, 233280);
@@ -373,7 +375,7 @@ export default class ParticleSystemComponent extends Component {
     // internal function
     private _emit (dt) {
         // emit particles.
-        const startDelay = this.startDelay.evaluate();
+        const startDelay = this.startDelay.evaluate(0, 1)!;
         if (this._time > startDelay) {
             if (!this._isStopped) {
                 this._isEmitting = true;
@@ -389,7 +391,7 @@ export default class ParticleSystemComponent extends Component {
             }
 
             // emit by rateOverTime
-            this._emitRateTimeCounter += this.rateOverTime.evaluate(this._time / this.duration, 1) * dt;
+            this._emitRateTimeCounter += this.rateOverTime.evaluate(this._time / this.duration, 1)! * dt;
             if (this._emitRateTimeCounter > 1 && this._isEmitting) {
                 const emitNum = Math.floor(this._emitRateTimeCounter);
                 this._emitRateTimeCounter -= emitNum;
@@ -399,7 +401,7 @@ export default class ParticleSystemComponent extends Component {
             this.node.getWorldPosition(this._curWPos);
             const distance = vec3.distance(this._curWPos, this._oldWPos);
             vec3.copy(this._oldWPos, this._curWPos);
-            this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1);
+            this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
             if (this._emitRateDistanceCounter > 1 && this._isEmitting) {
                 const emitNum = Math.floor(this._emitRateDistanceCounter);
                 this._emitRateDistanceCounter -= emitNum;

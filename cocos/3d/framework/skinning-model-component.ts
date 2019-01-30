@@ -126,8 +126,8 @@ export default class SkinningModelComponent extends ModelComponent {
         skinningModel.commitJointMatrices();
     }
 
-    public _createModel () {
-        return this._getRenderScene().createModel(SkinningModel, this.node);
+    protected _getModelConstructor () {
+        return SkinningModel;
     }
 
     public _updateModelParams () {
@@ -174,5 +174,9 @@ export default class SkinningModelComponent extends ModelComponent {
 
 function _getGlobalDevice (): GFXDevice | null {
     // @ts-ignore
-    return cc.director && cc.director.root && cc.director.device;
+    if (cc.director && cc.director.root) {
+        return cc.director.root.device;
+    } else {
+        return null;
+    }
 }
