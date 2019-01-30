@@ -1200,6 +1200,10 @@ sp.Skeleton = cc.Class({
                 this._skeletonCache = SkeletonCache.sharedCache;
             } else if (this.renderMode === RenderModeEnum.PRIVATE_CACHE) {
                 this._skeletonCache = new SkeletonCache;
+                
+                // validate skeleton state
+                // as render may happen before `update`
+                this._state.apply(this._skeleton);
             }
         }
 
