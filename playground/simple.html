@@ -25,6 +25,12 @@
 <body class="fit">
   <canvas id="canvas" tabindex="-1" class="fit">
     <img name="testImg" src="cubetexture.png" />
+    <!-- <img name="testImg" src="environment_0.hdr.png" />
+    <img name="testImg" src="environment_1.hdr.png" />
+    <img name="testImg" src="environment_2.hdr.png" />
+    <img name="testImg" src="environment_3.hdr.png" />
+    <img name="testImg" src="environment_4.hdr.png" />
+    <img name="testImg" src="environment_5.hdr.png" /> -->
   </canvas>
 
   <script src="../bin/cocos-3d.dev.js"></script>
@@ -41,11 +47,13 @@
       cc.director.root.resize(bcr.width, bcr.height);
     });
 
-    function createTexture(imgElms) {
+    const imgs = canv.getElementsByTagName('img');
+    function createTexture(idx) {
       const textureAsset = new cc.Texture2D();
-      textureAsset.image = new cc.ImageAsset(imgElms[0]);
+      textureAsset.image = new cc.ImageAsset(imgs[idx]);
       return textureAsset;
     }
+
     const geomList = ['box', 'sphere', 'cylinder', 'cone', 'torus', 'capsule'];
     function onStart() {
       const root = cc.director.root;
@@ -56,14 +64,26 @@
       cameraNode.setPosition(20, 0, 115);
       cameraNode.setRotationFromEuler(0, 30, 0);
       cameraNode.addComponent(FirstPersonCamera);
+
+      const skybox = cameraNode.addComponent(cc.SkyboxComponent);
+      // const textureCube = new cc.TextureCube();
+      // textureCube.image = {
+      //   right:  new cc.ImageAsset(imgs[1]),
+      //   left:   new cc.ImageAsset(imgs[2]),
+      //   top:    new cc.ImageAsset(imgs[3]),
+      //   bottom: new cc.ImageAsset(imgs[4]),
+      //   front:  new cc.ImageAsset(imgs[5]),
+      //   back:   new cc.ImageAsset(imgs[6]),
+      // };
+      // skybox.rgbeTexture = true;
+      // skybox.cubemap = textureCube;
+
       const camComp = cameraNode.addComponent(cc.CameraComponent);
 
       const lightNode = new cc.Node('Light');
       lightNode.parent = scene;
       lightNode.setRotationFromEuler(70, 0, 0);
       const lightComp = lightNode.addComponent(cc.LightComponent);
-
-      const texture = createTexture(cc.game.canvas.getElementsByTagName('img'));
 
       const material = new cc.Material();
       material.setDefines({ USE_COLOR: true });
@@ -89,7 +109,7 @@
       {
         const material = new cc.Material();
         material.effectName = 'builtin-effect-sprite';
-        material.setProperty('mainTexture', texture);
+        material.setProperty('mainTexture', createTexture(0));
         const modelNode = new cc.Node('test');
         modelNode.parent = scene;
         const modelCom = modelNode.addComponent('cc.ModelComponent');
