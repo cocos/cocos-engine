@@ -31,6 +31,7 @@ import { RenderScene } from '../scene/render-scene';
 import { IUIMaterialInfo, UIMaterial } from './ui-material';
 import { Node } from '../../scene-graph/node';
 import { Rect } from '../../core/value-types';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
 
 export class UBOUI {
     public static MAT_VIEW_PROJ_OFFSET: number = 0;
@@ -63,14 +64,28 @@ export class UIBufferBatch {
 export class UIDrawBatch {
     public camera: Camera | null = null;
     public bufferBatch: UIBufferBatch | null = null;
-    public uiMaterial: UIMaterial | null = null;
+    public material: Material | null = null;
     public texView: GFXTextureView | null = null;
     public idxCount: number = 0;
+    public pipelineState: GFXPipelineState | null = null;
+    public bindingLayout: GFXBindingLayout | null = null;
+
+    destroy() {
+        if (this.pipelineState) {
+            this.pipelineState.destroy();
+            this.pipelineState = null;
+        }
+
+        if (this.bindingLayout) {
+            this.bindingLayout.destroy();
+            this.bindingLayout = null;
+        }
+    }
 
     clear() {
         this.camera = null;
         this.bufferBatch = null;
-        this.uiMaterial = null;
+        this.material = null;
         this.texView = null;
         this.idxCount = 0;
     }
@@ -194,6 +209,10 @@ export class UI {
         if (this._uiUBO) {
             this._uiUBO.destroy();
             this._uiUBO = null;
+        }
+
+        for (const batch of this._batches.array) {
+            batch.destroy();
         }
 
         for (const buffBatch of this._bufferBatches) {
@@ -351,15 +370,16 @@ export class UI {
                     cmdBuff.beginRenderPass(framebuffer, this._renderArea, [], camera.clearDepth, camera.clearStencil);
                 }
 
-                material.bindingLayout.bindBuffer(0, this._uiUBO!);
-                material.bindingLayout.bindTextureView(1, batch.texView!);
-                material.bindingLayout.update();
+                const bindingLayout = batch.bindingLayout!;
+                bindingLayout.bindBuffer(0, this._uiUBO!);
+                bindingLayout.bindTextureView(1, batch.texView!);
+                bindingLayout.update();
 
                 let ia = batch.bufferBatch!.ia!
                 ia.indexCount = batch.idxCount;
 
-                cmdBuff.bindPipelineState(material.pipelineState);
-                cmdBuff.bindBindingLayout(material.bindingLayout);
+                cmdBuff.bindPipelineState(batch.pipelineState!);
+                cmdBuff.bindBindingLayout(bindingLayout);
                 cmdBuff.bindInputAssembler(batch.bufferBatch!.ia!);
                 cmdBuff.draw(batch.bufferBatch!.ia!);
             }
@@ -541,8 +561,6 @@ export class UI {
                     curBufferBatch.vui16![idxCount + n] = vui16[n] + vertCount;
                 }
 
-                //curBufferBatch.vui16!.set(vui16, idxCount);
-
                 vertCount += vCount;
                 idxCount += vui16.length;
 
@@ -555,9 +573,14 @@ export class UI {
                     curDrawBatch = this._drawBatchPool.add();
                     curDrawBatch.camera = curCamera;
                     curDrawBatch.bufferBatch = curBufferBatch;
-                    curDrawBatch.uiMaterial = this._uiMaterial!;
+                    curDrawBatch.material = uiRenderData.material;
                     curDrawBatch.texView = curTexView!;
                     curDrawBatch.idxCount = idxCount;
+
+                    if (!curDrawBatch.pipelineState) {
+                        curDrawBatch.pipelineState = this._uiMaterial!.pass.createPipelineState();
+                        curDrawBatch.bindingLayout = curDrawBatch.pipelineState!.pipelineLayout.layouts[0];
+                    }
 
                     this._batches.push(curDrawBatch);
                     isNewBatch = false;

@@ -151,26 +151,20 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
     public bindPipelineState (pipelineState: GFXPipelineState) {
         const gpuPipelineState = (pipelineState as WebGLGFXPipelineState).gpuPipelineState;
-        if (this._curGPUPipelineState !== gpuPipelineState) {
-            this._curGPUPipelineState = gpuPipelineState;
-            this._isStateInvalied = true;
-        }
+        this._curGPUPipelineState = gpuPipelineState;
+        this._isStateInvalied = true;
     }
 
     public bindBindingLayout (bindingLayout: GFXBindingLayout) {
         const gpuBindingLayout = (bindingLayout as WebGLGFXBindingLayout).gpuBindingLayout;
-        if (this._curGPUBindingLayout !== gpuBindingLayout) {
-            this._curGPUBindingLayout = gpuBindingLayout;
-            this._isStateInvalied = true;
-        }
+        this._curGPUBindingLayout = gpuBindingLayout;
+        this._isStateInvalied = true;
     }
 
     public bindInputAssembler (inputAssembler: GFXInputAssembler) {
         const gpuInputAssembler = (inputAssembler as WebGLGFXInputAssembler).gpuInputAssembler;
-        if (this._curGPUInputAssembler !== gpuInputAssembler) {
-            this._curGPUInputAssembler = gpuInputAssembler;
-            this._isStateInvalied = true;
-        }
+        this._curGPUInputAssembler = gpuInputAssembler;
+        this._isStateInvalied = true;
     }
 
     public setViewport (viewport: IGFXViewport) {

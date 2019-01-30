@@ -35,23 +35,9 @@ export class WebGLStateCache {
         for (let i = 0; i < GFX_MAX_TEXTURE_UNITS; ++i) {
             this.glTex2DUnits[i] = {
                 glTexture: 0,
-                minFilter: WebGLRenderingContext.NONE,
-                magFilter: WebGLRenderingContext.NONE,
-                wrapS: WebGLRenderingContext.NONE,
-                wrapT: WebGLRenderingContext.NONE,
-                wrapR: WebGLRenderingContext.NONE,
-                baseLevel: 0,
-                maxLevel: 1000,
             };
             this.glTexCubeUnits[i] = {
                 glTexture: 0,
-                minFilter: WebGLRenderingContext.NONE,
-                magFilter: WebGLRenderingContext.NONE,
-                wrapS: WebGLRenderingContext.NONE,
-                wrapT: WebGLRenderingContext.NONE,
-                wrapR: WebGLRenderingContext.NONE,
-                baseLevel: 0,
-                maxLevel: 1000,
             };
         }
 

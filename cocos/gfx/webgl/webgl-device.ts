@@ -697,6 +697,10 @@ export class WebGLGFXDevice extends GFXDevice {
             glType: 0,
             glUsage: 0,
             glTexture: 0,
+            glWrapS: 0,
+            glWrapT: 0,
+            glMinFilter: 0,
+            glMagFilter: 0,
         };
 
         // TODO: Async
