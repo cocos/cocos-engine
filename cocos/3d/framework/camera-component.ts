@@ -59,7 +59,6 @@ const ProjectionType = Enum({
 });
 
 const CameraClearFlag = Enum({
-    SKYBOX: GFXClearFlag.SKYBOX | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
     SOLID_COLOR: GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
     DEPTH_ONLY: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
     DONT_CLEAR: GFXClearFlag.NONE,
