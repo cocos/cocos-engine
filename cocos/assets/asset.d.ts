@@ -27,7 +27,7 @@ import { RawAsset } from "./raw-asset";
 
 export class Asset extends RawAsset {
     protected _native: string;
-    protected loaded: boolean;
+    public loaded: boolean;
 
     public _nativeAsset: any;
     public nativeUrl: string;

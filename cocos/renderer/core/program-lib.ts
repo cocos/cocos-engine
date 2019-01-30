@@ -68,7 +68,6 @@ class ProgramLib {
      *   programLib.define(program);
      */
     public define (prog: IShaderInfo) {
-        if (this._templates[prog.name]) { return; }
         const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
         tmpl.vert = this._precision + prog.vert;
         tmpl.frag = this._precision + prog.frag;

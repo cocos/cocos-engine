@@ -25,9 +25,7 @@
  ****************************************************************************/
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
-import EventTarget from '../core/event/event-target';
 import IDGenerator from '../core/utils/id-generator';
-import {addon} from '../core/utils/js';
 import { ccenum } from '../core/value-types/enum';
 import { GFXAddress, GFXBufferTextureCopy, GFXFilter, GFXFormat,
     GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
@@ -37,6 +35,7 @@ import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
 import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
 import { Asset } from './asset';
 import { ImageAsset, ImageSource } from './image-asset';
+import { EventTargetFactory } from '../core/event/event-target-factory';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -157,7 +156,7 @@ function toGfxFilterMode (filter: Filter) {
 }
 
 @ccclass('cc.TextureBase')
-export class TextureBase extends Asset {
+export class TextureBase extends EventTargetFactory(Asset) {
 
     /**
      * !#en
@@ -243,8 +242,6 @@ export class TextureBase extends Asset {
 
     protected constructor (flipY: boolean = false) {
         super();
-        // @ts-ignore
-        EventTarget.call(this);
 
         this._flipY = flipY;
 
@@ -256,10 +253,7 @@ export class TextureBase extends Asset {
          * Whether the texture is loaded or not
          * !#zh
          * 贴图是否已经成功加载
-         * @property loaded
-         * @type {Boolean}
          */
-        // @ts-ignore
         this.loaded = false;
     }
 
@@ -483,12 +477,11 @@ export class TextureBase extends Asset {
 
     public onLoaded () {
         this._updateSampler();
-        this._recreateTexture();
     }
 
     protected _getGlobalDevice (): GFXDevice | null {
         // @ts-ignore
-        return cc.director.root.device;
+        return cc.director && cc.director.root && cc.director.root.device;
     }
 
     protected _getGfxFormat () {
@@ -508,12 +501,10 @@ export class TextureBase extends Asset {
             }
             this._uploadData(source, level, arrayIndex);
         };
-        // @ts-ignore
         if (image.loaded) {
             upload();
         } else {
-            // @ts-ignore
-            image.addEventListener('load', () => {
+            image.on('load', () => {
                 upload();
             });
         }
@@ -631,14 +622,3 @@ export class TextureBase extends Asset {
 
 /* tslint:disable:no-string-literal */
 cc['TextureBase'] = TextureBase;
-
-/**
- * !#zh
- * 当该资源加载成功后触发该事件
- * !#en
- * This event is emitted when the asset is loaded
- *
- * @event load
- */
-
-addon(TextureBase.prototype, EventTarget.prototype);
