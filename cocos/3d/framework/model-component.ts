@@ -207,7 +207,11 @@ export class ModelComponent extends RenderableComponent {
         if (!this.node.scene) { return; }
         const scene = this._getRenderScene();
         if (this._model && scene.models.find((c) => c === this._model)) { return; }
-        this._model = scene.createModel(Model, this.node);
+        this._model = scene.createModel(this._getModelConstructor(), this.node);
+    }
+
+    protected _getModelConstructor () {
+        return Model;
     }
 
     protected _updateModelParams () {
