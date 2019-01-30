@@ -174,5 +174,5 @@ export default class SkinningModelComponent extends ModelComponent {
 
 function _getGlobalDevice (): GFXDevice | null {
     // @ts-ignore
-    return cc.director.root.device;
+    return cc.director && cc.director.root && cc.director.device;
 }

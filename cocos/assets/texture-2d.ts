@@ -77,6 +77,11 @@ export class Texture2D extends TextureBase {
         super(true);
     }
 
+    onLoaded () {
+        super.onLoaded();
+        this.updateMipmaps();
+    }
+
     /**
      * Returns the string representation of this texture.
      */
