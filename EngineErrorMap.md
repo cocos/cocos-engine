@@ -174,7 +174,7 @@ loadScene: Unknown name type to load: '%s'
 
 ### 1208
 
-loadScene: Failed to load scene '%s' because '%s' is already loading
+loadScene: Failed to load scene '%s' because '%s' is already being loaded.
 
 ### 1209
 
