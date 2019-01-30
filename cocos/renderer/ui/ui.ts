@@ -361,6 +361,7 @@ export class UI {
                     this._renderArea.width = camera.width;
                     this._renderArea.height = camera.height;
 
+                    // TODO: add screen adapter
                     // update ubo
                     mat4.array(_mat4Array, camera.matViewProj);
                     this._uboUI.view.set(_mat4Array, UBOUI.MAT_VIEW_PROJ_OFFSET);

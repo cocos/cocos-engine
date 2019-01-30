@@ -124,7 +124,7 @@ class BuiltinResMgr {
         const spriteMtl = new cc.Material();
         spriteMtl._uuid = 'sprite-material';
         spriteMtl.effectName = 'builtin-effect-sprite';
-        spriteMtl.setProperty('u_texSampler', defaultTexture);
+        spriteMtl.setProperty('mainTexture', defaultTexture);
         resources[spriteMtl._uuid] = spriteMtl;
 
         // default particle material
