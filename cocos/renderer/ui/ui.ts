@@ -508,17 +508,24 @@ export class UI {
         let vCount = 0;
         let vbSize = 0;
         let ibSize = 0;
-        let isNewBatch = false;
         let curDrawBatch: UIDrawBatch | null = null;
+
+        let index = 0;
+        let len = 0;
+        let isEnding = false;
 
         for (const uiCanvas of this._commitUICanvas) {
 
             if (curCamera !== uiCanvas.camera) {
-                isNewBatch = true;
+                // isNewBatch = true;
                 curCamera = uiCanvas.camera;
             }
 
+            index = 0;
+            len = uiCanvas.datas.length;
+
             for (const uiRenderData of uiCanvas.datas) {
+                index++;
 
                 if (idxCount + uiRenderData.meshBuffer.vData!.length > 65535) {
                     if (bufferBatchIdx >= this._bufferBatches.length) {
@@ -529,7 +536,7 @@ export class UI {
                     firstIdx = 0;
                     idxCount = 0;
                     vertCount = 0;
-                    isNewBatch = true;
+                    // isNewBatch = true;
                 }
 
                 // merge vertices
@@ -568,15 +575,36 @@ export class UI {
                 }
 
                 if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
+                    if(curTexView){
+                        curDrawBatch = this._drawBatchPool.add();
+                        curDrawBatch.camera = curCamera;
+                        curDrawBatch.bufferBatch = curBufferBatch;
+                        curDrawBatch.material = uiRenderData.material;
+                        curDrawBatch.texView = curTexView!;
+                        curDrawBatch.firstIdx = firstIdx;
+                        curDrawBatch.idxCount = idxCount - firstIdx;
+                        firstIdx = idxCount;
+
+                        if (!curDrawBatch.pipelineState) {
+                            curDrawBatch.pipelineState = this._uiMaterial!.pass.createPipelineState();
+                            curDrawBatch.bindingLayout = curDrawBatch.pipelineState!.pipelineLayout.layouts[0];
+                        }
+
+                        this._batches.push(curDrawBatch);
+                    }
+
                     curTexView = uiRenderData.texture.getGFXTextureView();
-                    isNewBatch = true;
+
                     // firstIdx = idxCount;
                     // idxCount = 0;
                 }
 
                 idxCount += vui16.length;
+                vertCount += vCount;
 
-                if (isNewBatch) {
+                isEnding  = index === len;
+                // get the last data
+                if(isEnding){
                     curDrawBatch = this._drawBatchPool.add();
                     curDrawBatch.camera = curCamera;
                     curDrawBatch.bufferBatch = curBufferBatch;
@@ -592,12 +620,7 @@ export class UI {
                     }
 
                     this._batches.push(curDrawBatch);
-                    isNewBatch = false;
-                } else {
-                    curDrawBatch!.idxCount = idxCount;
                 }
-
-                vertCount += vCount;
             } // for
         }
     }

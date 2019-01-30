@@ -539,10 +539,6 @@ export class LabelComponent extends UIRenderComponent {
             this.fontFamily = 'Arial';
         }
 
-        // Keep track of Node size
-        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
-        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
-
         this._checkStringEmpty();
         this._updateRenderData(true);
         // this._updateAssembler();
@@ -552,8 +548,6 @@ export class LabelComponent extends UIRenderComponent {
     public onDisable () {
         super.onDisable();
         // this._super();
-        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
-        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
     }
 
     public onDestroy () {

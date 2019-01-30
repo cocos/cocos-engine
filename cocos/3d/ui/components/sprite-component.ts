@@ -216,10 +216,11 @@ export class SpriteComponent extends UIRenderComponent {
     }
     set fillType (value: FillType) {
         if (value !== this._fillType) {
-            if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
-                // this.destroyRenderData(/*this._renderData*/);
-                this._renderData = null;
-            } else if (this._renderData) {
+            // if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
+            //     // this.destroyRenderData(/*this._renderData*/);
+            //     this._renderData = null;
+            // } else
+            if (this._renderData) {
                 this.markForUpdateRenderData(true);
             }
             this._fillType = value;
@@ -398,9 +399,6 @@ export class SpriteComponent extends UIRenderComponent {
         // if (!this._spriteFrame) {
         //     this.spriteFrame = cc.builtinResMgr.get('default-spriteframe');
         // }
-
-        this.node.on(EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.on(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
     }
 
     public updateAssembler (render: UI) {
@@ -418,9 +416,6 @@ export class SpriteComponent extends UIRenderComponent {
     public onDisable () {
         // this._super();
         super.onDisable();
-
-        this.node.off(EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.off(EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
     }
 
     public _onNodeSizeDirty () {
