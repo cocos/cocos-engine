@@ -60,7 +60,6 @@ class BuiltinResMgr {
             top: new ImageAsset(canvas),
             bottom: new ImageAsset(canvas),
         };
-        whiteCubeTexture.onLoaded();
         resources[whiteCubeTexture._uuid] = whiteCubeTexture;
 
         // normal texture
@@ -95,7 +94,6 @@ class BuiltinResMgr {
             top: new ImageAsset(canvas),
             bottom: new ImageAsset(canvas),
         };
-        defaultCubeTexture.onLoaded();
         resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
         const spriteFrame = new SpriteFrame();
@@ -124,7 +122,7 @@ class BuiltinResMgr {
         const spriteMtl = new cc.Material();
         spriteMtl._uuid = 'sprite-material';
         spriteMtl.effectName = 'builtin-effect-sprite';
-        spriteMtl.setProperty('u_texSampler', defaultTexture);
+        spriteMtl.setProperty('mainTexture', defaultTexture);
         resources[spriteMtl._uuid] = spriteMtl;
 
         // default particle material

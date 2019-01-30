@@ -7,6 +7,7 @@ import Vec2 from '../../../core/value-types/vec2';
 import * as math from '../../../core/vmath/index';
 import { EventType } from '../../../scene-graph/node-event-enum';
 import { MaskComponent } from './mask-component';
+import { UIRenderComponent } from './ui-render-component';
 
 const _vec2a = cc.v2();
 const _vec2b = cc.v2();
@@ -207,7 +208,7 @@ export class UITransformComponent extends Component {
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
-        const renderComp = this.node.getComponent(cc.UIRenderComponent);
+        const renderComp = this.node.getComponent(UIRenderComponent);
         if (!renderComp) {
             return false;
         }
@@ -248,20 +249,20 @@ export class UITransformComponent extends Component {
         testPt.y += this._anchorPoint.y * h;
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
-            if (listener /*&& listener.mask*/) {
-                // const mask = listener.mask;
-                const parent = this;
-                // find mask parent, should hit test it
-                // if (parent === mask.node) {
-                //     const comp = parent.getComponent(MaskComponent);
-                //     return (comp && comp.enabledInHierarchy) ? comp.node.uiTransfromComp!.isHit(cameraPt) : true;
-                // } else {
-                //     listener.mask = null;
-                //     return true;
-                // }
-            } else {
+            // if (listener && listener.mask) {
+            //     const mask = listener.mask;
+            //     const parent = this;
+            //     // find mask parent, should hit test it
+            //     if (parent === mask.node) {
+            //         const comp = parent.getComponent(MaskComponent);
+            //         return (comp && comp.enabledInHierarchy) ? comp.node.uiTransfromComp!.isHit(cameraPt) : true;
+            //     } else {
+            //         listener.mask = null;
+            //         return true;
+            //     }
+            // } else {
                 return true;
-            }
+            // }
         } else {
             return false;
         }

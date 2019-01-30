@@ -90,7 +90,7 @@ let _canvasPool = {
 
 
 export default {
-    _getAssemblerData() {
+    getAssemblerData() {
         // if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
         //     _sharedLabelData = _canvasPool.get();
         // }

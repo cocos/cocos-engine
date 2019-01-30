@@ -148,7 +148,6 @@ const Overflow = Enum({
 @ccclass('cc.LabelComponent')
 @executionOrder(100)
 @menu('UI/Label')
-@executeInEditMode
 export class LabelComponent extends UIRenderComponent {
 
     /**
@@ -589,7 +588,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     public _updateAssembler () {
-        const assembler = LabelComponent.Assembler.getAssembler(this);
+        const assembler = LabelComponent.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();
@@ -597,8 +596,10 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         if (!this._renderData) {
-            this._renderData = this._assembler!.createData(this);
-            this._renderData.material = this.material;
+            if(this._assembler){
+                this._renderData = this._assembler!.createData(this);
+                this._renderData.material = this.material;
+            }
         }
     }
 
@@ -621,7 +622,7 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         if (material) {
-            material.setProperty('u_texSampler', this._texture);
+            material.setProperty('mainTexture', this._texture);
         }
         // For batch rendering, do not use uniform color.
         // material!.useColor = false;
@@ -662,7 +663,7 @@ export class LabelComponent extends UIRenderComponent {
                 if (!CC_JSB) {
                     // this._ttfTexture.setPremultiplyAlpha(true);
                 }
-                this._assemblerData = this._assembler._getAssemblerData();
+                this._assemblerData = this._assembler!.getAssemblerData();
                 this._ttfTexture!.image = new ImageAsset(this._assemblerData.canvas);
                 // this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
@@ -675,7 +676,7 @@ export class LabelComponent extends UIRenderComponent {
         }
     }
 
-    private _updateColor () {
+    protected _updateColor () {
         const font = this.font;
         if (font instanceof cc.BitmapFont) {
             // this._super();
