@@ -1899,7 +1899,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                         gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
                                                         gpuTexture.glMagFilter = gpuSampler.glMagFilter;
                                                     }
-T                                                }
+                                                }
                                             } else {
                                                 console.error("Not found texture view on binding unit " + gpuBinding.binding);
                                             }
