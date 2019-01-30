@@ -142,6 +142,7 @@ var spineAssembler = {
         let vbuf = buffer._vData,
             ibuf = buffer._iData,
             uintVData = buffer._uintVData;
+        let offsetInfo;
 
         _tempa = slotColor.a * attachmentColor.a * skeletonColor.a * 255;
         _multiplier = _premultipliedAlpha? _tempa : 255;
@@ -189,7 +190,10 @@ var spineAssembler = {
             _indexCount = clippedTriangles.length;
             _vertexFloatCount = clippedVertices.length / _perClipVertexSize * _perVertexSize;
 
-            buffer.request(_vertexFloatCount / _perVertexSize, _indexCount);
+            offsetInfo = buffer.request(_vertexFloatCount / _perVertexSize, _indexCount);
+            _indexOffset = offsetInfo.indiceOffset,
+            _vertexOffset = offsetInfo.vertexOffset,
+            _vertexFloatOffset = offsetInfo.byteOffset >> 2;
             vbuf = buffer._vData,
             ibuf = buffer._iData;
             uintVData = buffer._uintVData;
@@ -229,6 +233,8 @@ var spineAssembler = {
         
         let node = comp.node;
         node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        let locSkeleton = comp._skeleton;
+        if (!locSkeleton) return;
 
         let nodeColor = node._color;
         _nodeR = nodeColor.r / 255;
@@ -242,7 +248,6 @@ var spineAssembler = {
         let vbuf;
         let ibuf;
 
-        let locSkeleton = comp._skeleton;
         let skeletonColor = locSkeleton.color;
         let graphics = comp._debugRenderer;
         let clipper = comp._clipper;
@@ -250,6 +255,7 @@ var spineAssembler = {
         let attachment, attachmentColor, slotColor, uvs, triangles;
         let hasFlush = false;
         let isRegion, isMesh, isClip;
+        let offsetInfo;
 
         _premultipliedAlpha = comp.premultipliedAlpha;
         _multiplier = 1.0;
@@ -296,10 +302,6 @@ var spineAssembler = {
     
             _vertexFloatCount = 0;
             _indexCount = 0;
-    
-            _indexOffset = buffer.indiceOffset,
-            _vertexOffset = buffer.vertexOffset,
-            _vertexFloatOffset = buffer.byteOffset >> 2;
 
             attachment = slot.getAttachment();
             if (!attachment) continue;
@@ -335,7 +337,10 @@ var spineAssembler = {
                 _vertexFloatCount = 4 * _perVertexSize;
                 _indexCount = 6;
 
-                buffer.request(4, 6);
+                offsetInfo = buffer.request(4, 6);
+                _indexOffset = offsetInfo.indiceOffset,
+                _vertexOffset = offsetInfo.vertexOffset,
+                _vertexFloatOffset = offsetInfo.byteOffset >> 2;
                 vbuf = buffer._vData,
                 ibuf = buffer._iData;
                 uintVData = buffer._uintVData;
@@ -361,7 +366,10 @@ var spineAssembler = {
                 _vertexFloatCount = (attachment.worldVerticesLength >> 1) * _perVertexSize;
                 _indexCount = triangles.length;
 
-                buffer.request(_vertexFloatCount / _perVertexSize, _indexCount);
+                offsetInfo = buffer.request(_vertexFloatCount / _perVertexSize, _indexCount);
+                _indexOffset = offsetInfo.indiceOffset,
+                _vertexOffset = offsetInfo.vertexOffset,
+                _vertexFloatOffset = offsetInfo.byteOffset >> 2;
                 vbuf = buffer._vData,
                 ibuf = buffer._iData;
                 uintVData = buffer._uintVData;

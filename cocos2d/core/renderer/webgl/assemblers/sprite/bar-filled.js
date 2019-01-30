@@ -220,15 +220,15 @@ module.exports = {
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
-            indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
+        let buffer = renderer._meshBuffer;
 
-        buffer.request(4, 6);
+        let offsetInfo = buffer.request(4, 6);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            vbuf = buffer._vData,
             uintbuf = buffer._uintVData;
 
         // vertex

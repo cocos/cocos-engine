@@ -41,16 +41,15 @@ module.exports = js.addon({
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05, 
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
-            indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
-        
+        let buffer = renderer._meshBuffer;
         let vertexCount = renderData.vertexCount;
-        buffer.request(vertexCount, renderData.indiceCount);
+        let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            vbuf = buffer._vData,
             uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
