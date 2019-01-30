@@ -13703,9 +13703,10 @@ var chunks = {
 var templates = [
   {
     name: 'gray_sprite',
-    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute mediump vec2 a_uv0;\nvarying mediump vec2 uv0;\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  gl_Position = pos;\n  uv0 = a_uv0;\n}',
-    frag: '\n \nuniform sampler2D texture;\nvarying mediump vec2 uv0;\nuniform lowp vec4 color;\nvoid main () {\n  vec4 c = color * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
+    vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute mediump vec2 a_uv0;\nvarying mediump vec2 uv0;\n#ifndef useColor\nattribute lowp vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#endif\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  gl_Position = pos;\n  uv0 = a_uv0;\n #ifndef useColor\n  v_fragmentColor = a_color;\n #endif\n}',
+    frag: '\n \nuniform sampler2D texture;\nvarying mediump vec2 uv0;\n#ifdef useColor\n  uniform lowp vec4 color;\n#else\n  varying lowp vec4 v_fragmentColor;\n#endif\nvoid main () {\n  #ifdef useColor\n    vec4 o = color;\n  #else\n    vec4 o = v_fragmentColor;\n  #endif\n  vec4 c = o * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
     defines: [
+      { name: 'useColor', }
     ],
   },
   {
@@ -14390,7 +14391,9 @@ var GraySpriteMaterial = (function (Material$$1) {
       {
         'color': this._color
       },
-      []
+      [
+        { name: 'useColor', value: false }
+      ]
     );
     
     this._mainTech = mainTech;
