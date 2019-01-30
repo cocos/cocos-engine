@@ -24,9 +24,9 @@
  ****************************************************************************/
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
-import EventTarget from '../core/event/event-target';
 import {addon} from '../core/utils/js';
 import { Asset } from './asset';
+import { EventTargetFactory } from '../core/event/event-target-factory';
 
 export interface IMemoryImageSource {
     _data: ArrayBufferView | null;
@@ -42,7 +42,7 @@ export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSou
  * Class ImageAsset.
  */
 @ccclass('cc.ImageAsset')
-export class ImageAsset extends Asset {
+export class ImageAsset extends EventTargetFactory(Asset) {
 
     @property({override: true})
     get _nativeAsset () {
@@ -99,8 +99,6 @@ export class ImageAsset extends Asset {
      */
     constructor (nativeAsset?: ImageSource) {
         super();
-        // @ts-ignore
-        EventTarget.call(this);
 
         this._url = '';
 
@@ -213,7 +211,6 @@ export class ImageAsset extends Asset {
 
     public _onDataComplete () {
         this.loaded = true;
-        // @ts-ignore
         this.emit('load');
     }
 }

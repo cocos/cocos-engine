@@ -79,7 +79,7 @@ export class Texture2D extends TextureBase {
 
     onLoaded () {
         super.onLoaded();
-        this.updateMipmaps();
+        this.mipmaps = this._mipmaps;
     }
 
     /**
