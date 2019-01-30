@@ -60,7 +60,6 @@ class BuiltinResMgr {
             top: new ImageAsset(canvas),
             bottom: new ImageAsset(canvas),
         };
-        whiteCubeTexture.onLoaded();
         resources[whiteCubeTexture._uuid] = whiteCubeTexture;
 
         // normal texture
@@ -95,7 +94,6 @@ class BuiltinResMgr {
             top: new ImageAsset(canvas),
             bottom: new ImageAsset(canvas),
         };
-        defaultCubeTexture.onLoaded();
         resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
         const spriteFrame = new SpriteFrame();

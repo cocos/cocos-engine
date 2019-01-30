@@ -90,13 +90,6 @@ export class Texture2D extends TextureBase {
     }
 
     /**
-     * Updates mipmaps at level 0.
-     */
-    public updateImage () {
-        this.updateMipmaps(0);
-    }
-
-    /**
      * Updates mipmaps at specified range of levels.
      * @param firstLevel The first level from which the sources update.
      * @description

@@ -407,7 +407,8 @@ export class TextureBase extends EventTargetFactory(Asset) {
     public setGenMipmap (mipmap: boolean) {
         if (this._genMipmap !== mipmap) {
             this._genMipmap = mipmap;
-            this._updateSampler();
+            this._recreateTexture();
+            this.updateImage();
         }
     }
 
@@ -477,6 +478,25 @@ export class TextureBase extends EventTargetFactory(Asset) {
 
     public onLoaded () {
         this._updateSampler();
+    }
+
+    /**
+     * Updates mipmaps at level 0.
+     */
+    public updateImage () {
+        this.updateMipmaps(0);
+    }
+
+    /**
+     * Updates mipmaps at specified range of levels.
+     * @param firstLevel The first level from which the sources update.
+     * @description
+     * If the range specified by [firstLevel, firstLevel + sources.length) exceeds
+     * the actually range of mipmaps this texture contains, only overlaped mipmaps are updated.
+     * Use this method if your mipmap data are modified.
+     */
+    public updateMipmaps (firstLevel: number = 0, count?: number) {
+
     }
 
     protected _getGlobalDevice (): GFXDevice | null {
