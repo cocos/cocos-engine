@@ -11,7 +11,10 @@ export type IEventTargetCallback = (...args: any[]) => void;
 class Empty { protected constructor () {}; }
 
 export function EventTargetFactory<Base extends Constructor<{}>> (b?: Base) {
-    const base = b || Empty;
+    let base = b;
+    if (!base) {
+        base = <Base>Empty;
+    }
     class EventTarget extends base {
         private _callbacksInvoker = new CallbacksInvoker();
 

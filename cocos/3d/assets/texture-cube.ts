@@ -109,6 +109,11 @@ export class TextureCube extends TextureBase {
         super();
     }
 
+    onLoaded () {
+        super.onLoaded();
+        this.mipmaps = this._mipmaps;
+    }
+
     /**
      * !#en
      * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
