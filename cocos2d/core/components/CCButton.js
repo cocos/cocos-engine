@@ -136,7 +136,7 @@ let Button = cc.Class({
         // init _originalScale in __preload()
         this._fromScale = cc.Vec2.ZERO;
         this._toScale = cc.Vec2.ZERO;
-        this._originalScale = cc.Vec2.ZERO;
+        this._originalScale = null;
 
         this._sprite = null;
     },
@@ -422,7 +422,7 @@ let Button = cc.Class({
         let transition = this.transition;
         if (transition === Transition.COLOR && this.interactable) {
             this._setTargetColor(this.normalColor);
-        } else if (transition === Transition.SCALE) {
+        } else if (transition === Transition.SCALE && this._originalScale) {
             target.scaleX = this._originalScale.x;
             target.scaleY = this._originalScale.y;
         }
@@ -565,7 +565,7 @@ let Button = cc.Class({
         if (this.transition === Transition.COLOR) {
             let color = this._fromColor.lerp(this._toColor, ratio);
             this._setTargetColor(color);
-        } else if (this.transition === Transition.SCALE) {
+        } else if (this.transition === Transition.SCALE && this._originalScale) {
             target.scale = this._fromScale.lerp(this._toScale, ratio);
         }
 
@@ -592,6 +592,7 @@ let Button = cc.Class({
     _applyTarget () {
         let target = this._getTarget();
         this._sprite = this._getTargetSprite(target);
+        this._originalScale = cc.Vec2.ZERO
         this._originalScale.x = target.scaleX;
         this._originalScale.y = target.scaleY;
     },
@@ -613,7 +614,7 @@ let Button = cc.Class({
         let hit = this.node._hitTest(touch.getLocation());
         let target = this._getTarget();
 
-        if (this.transition === Transition.SCALE) {
+        if (this.transition === Transition.SCALE && this._originalScale) {
             if (hit) {
                 this._fromScale.x = this._originalScale.x;
                 this._fromScale.y = this._originalScale.y;
@@ -733,6 +734,10 @@ let Button = cc.Class({
     },
 
     _zoomUp () {
+        // skip before __preload()
+        if (!this._originalScale) {
+            return;
+        }
         this._fromScale.x = this._originalScale.x;
         this._fromScale.y = this._originalScale.y;
         this._toScale.x = this._originalScale.x * this.zoomScale;
@@ -742,6 +747,10 @@ let Button = cc.Class({
     },
 
     _zoomBack () {
+        // skip before __preload()
+        if (!this._originalScale) {
+            return;
+        }
         let target = this._getTarget();
         this._fromScale.x = target.scaleX;
         this._fromScale.y = target.scaleY;
