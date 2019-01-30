@@ -245,7 +245,7 @@ export class SpriteComponent extends UIRenderComponent {
         this._fillCenter.x = value.x;
         this._fillCenter.y = value.y;
         if (this._type === SpriteType.FILLED && this._renderData) {
-            this.markForUpdateRenderData(true);
+            this.markForUpdateRenderData();
         }
     }
 
@@ -268,7 +268,7 @@ export class SpriteComponent extends UIRenderComponent {
     set fillStart (value: number) {
         this._fillStart = clampf(value, -1, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
-            this.markForUpdateRenderData(true);
+            this.markForUpdateRenderData();
         }
     }
 
@@ -292,7 +292,7 @@ export class SpriteComponent extends UIRenderComponent {
         // this._fillRange = cc.misc.clampf(value, -1, 1);
         this._fillRange = clampf(value, 0, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
-            this.markForUpdateRenderData(true);
+            this.markForUpdateRenderData();
         }
     }
     /**
@@ -425,7 +425,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     public _onNodeSizeDirty () {
         if (!this._renderData) { return; }
-        this.markForUpdateRenderData(true);
+        this.markForUpdateRenderData();
     }
 
     public _updateAssembler () {
@@ -440,7 +440,7 @@ export class SpriteComponent extends UIRenderComponent {
             if (this._assembler) {
                 this._renderData = this._assembler.createData(this);
                 this._renderData.material = this.material;
-                this.markForUpdateRenderData(true);
+                this.markForUpdateRenderData();
             }
         }
     }
@@ -455,7 +455,7 @@ export class SpriteComponent extends UIRenderComponent {
             //     material = this.material;
             //     if (spriteFrame && spriteFrame.textureLoaded()) {
             //         material!.setProperty('mainTexture', spriteFrame);
-            //         this.markForUpdateRenderData(true);
+            //         this.markForUpdateRenderData();
             //     }
             // }
             // TODO:
@@ -465,7 +465,7 @@ export class SpriteComponent extends UIRenderComponent {
                         // const matTexture = material.getProperty('mainTexture');
                         // if (matTexture !== spriteFrame) {
                             material.setProperty('mainTexture', spriteFrame);
-                            this.markForUpdateRenderData(true);
+                            this.markForUpdateRenderData();
                         // }
                     }
 
@@ -510,20 +510,20 @@ export class SpriteComponent extends UIRenderComponent {
         return true;
     }
 
-    public markForUpdateRenderData (enable: boolean) {
-        if (enable /*&& this._canRender()*/) {
-            // this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+    // public markForUpdateRenderData (enable: boolean) {
+    //     if (enable /*&& this._canRender()*/) {
+    //         // this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
-            const renderData = this._renderData;
-            if (renderData) {
-                renderData.uvDirty = true;
-                renderData.vertDirty = true;
-            }
-        }
-        // else if (!enable) {
-        //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        // }
-    }
+    //         const renderData = this._renderData;
+    //         if (renderData) {
+    //             renderData.uvDirty = true;
+    //             renderData.vertDirty = true;
+    //         }
+    //     }
+    //     // else if (!enable) {
+    //     //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
+    //     // }
+    // }
 
     // _applySpriteSize() {
     //     if (this._spriteFrame) {
