@@ -31,6 +31,8 @@ import { Mesh } from '../assets/mesh';
 import { TextureCube } from '../assets/texture-cube';
 import { createMesh } from '../misc/utils';
 import { box } from '../primitive';
+import { builtinResMgr } from '../builtin';
+import { GFXTextureView } from '../../gfx/texture-view';
 
 /**
  * !#en The Skybox Component
@@ -49,6 +51,8 @@ export default class SkyboxComponent extends Component {
     @property
     protected _rgbeTexture = false;
 
+    private _defaultTex: GFXTextureView | null = null;
+
     @property({
         type: TextureCube,
         displayName: 'Cubemap',
@@ -59,7 +63,7 @@ export default class SkyboxComponent extends Component {
 
     set cubemap (val) {
         this._cubemap = val;
-        if (this._material) { this._material.setProperty('cubeMap', this._cubemap); }
+        if (this._material) { this._material.setProperty('cubeMap', this._cubemap || this._defaultTex); }
     }
 
     @property({
@@ -68,7 +72,12 @@ export default class SkyboxComponent extends Component {
     })
     set rgbeTexture (v) {
         this._rgbeTexture = v;
-        if (this._material) { this._material.setDefines({ USE_RGBE_CUBEMAP: v }); }
+        if (this._material) {
+            this._material.setDefines({ USE_RGBE_CUBEMAP: v });
+            if (this._model) {
+                this._model.setSubModelMaterial(0, this._material);
+            }
+        }
     }
     get rgbeTexture () {
         return this._rgbeTexture;
@@ -86,6 +95,7 @@ export default class SkyboxComponent extends Component {
             effectName: 'builtin-effect-skybox',
             defines: { USE_RGBE_CUBEMAP: this._rgbeTexture },
         });
+        this._defaultTex = builtinResMgr.get<TextureCube>('white-cube-texture').getGFXTextureView();
         if (this._cubemap) { this._material.setProperty('cubeMap', this._cubemap); }
 
         const subMeshData = this._mesh.renderingMesh!.getSubmesh(0);
