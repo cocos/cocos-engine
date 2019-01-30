@@ -2191,6 +2191,7 @@ export function WebGLCmdFuncCopyBufferToTexture (
 
     const buff = buffer as ArrayBuffer;
     const fmtInfo: IGFXFormatInfo = GFXFormatInfos[gpuTexture.format];
+    let m = 0, w = 1, h = 1, f = 0, buffOffset = 0;
 
     switch (gpuTexture.glTarget) {
         case WebGLRenderingContext.TEXTURE_2D: {
@@ -2203,12 +2204,12 @@ export function WebGLCmdFuncCopyBufferToTexture (
             const isCompressed = GFXFormatInfos[gpuTexture.format].isCompressed;
             if (!isCompressed) {
                 for (const region of regions) {
-                    let buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
+                    buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
 
-                    let w = region.texExtent.width;
-                    let h = region.texExtent.height;
+                    w = region.texExtent.width;
+                    h = region.texExtent.height;
 
-                    for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
+                    for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                         const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
                         const data = buff.slice(buffOffset, buffOffset + memSize);
                         const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
@@ -2224,12 +2225,12 @@ export function WebGLCmdFuncCopyBufferToTexture (
                 }
             } else {
                 for (const region of regions) {
-                    let buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
+                    buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
 
-                    let w = region.texExtent.width;
-                    let h = region.texExtent.height;
+                    w = region.texExtent.width;
+                    h = region.texExtent.height;
 
-                    for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
+                    for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                         const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
                         const data = buff.slice(buffOffset, buffOffset + memSize);
                         const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
@@ -2256,14 +2257,14 @@ export function WebGLCmdFuncCopyBufferToTexture (
             const isCompressed = GFXFormatInfos[gpuTexture.format].isCompressed;
             if (!isCompressed) {
                 for (const region of regions) {
-                    let buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
+                    buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
                     let fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
-                    for (let f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
-                        let w = region.texExtent.width;
-                        let h = region.texExtent.height;
+                    for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
+                        w = region.texExtent.width;
+                        h = region.texExtent.height;
 
                         let mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
-                        for (let m = region.texSubres.baseMipLevel; m < mcount; ++m) {
+                        for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
                             const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
                             const data = buff.slice(buffOffset, buffOffset + memSize);
                             const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
@@ -2280,13 +2281,13 @@ export function WebGLCmdFuncCopyBufferToTexture (
                 }
             } else {
                 for (const region of regions) {
-                    let buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
+                    buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
 
-                    for (let f = 0; f < 6; ++f) {
-                        let w = region.texExtent.width;
-                        let h = region.texExtent.height;
+                    for (f = 0; f < 6; ++f) {
+                        w = region.texExtent.width;
+                        h = region.texExtent.height;
 
-                        for (let m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
+                        for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                             const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
                             const data = buff.slice(buffOffset, buffOffset + memSize);
                             const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);

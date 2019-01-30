@@ -52,6 +52,7 @@ class BuiltinResMgr {
         // white cube texture
         const whiteCubeTexture = new TextureCube();
         whiteCubeTexture._uuid = 'white-cube-texture';
+        whiteCubeTexture.setGenMipmap(true);
         whiteCubeTexture.image = {
             front: new ImageAsset(canvas),
             back: new ImageAsset(canvas),
@@ -85,6 +86,7 @@ class BuiltinResMgr {
 
         // default cube texture
         const defaultCubeTexture = new TextureCube();
+        defaultCubeTexture.setGenMipmap(true);
         defaultCubeTexture._uuid = 'default-cube-texture';
         defaultCubeTexture.image = {
             front: new ImageAsset(canvas),
