@@ -29,3 +29,6 @@ export * from './CCMacro';
 export * from './CCVisibleRect';
 export * from './CCView';
 export * from './event-manager';
+
+import { screen } from './CCScreen';
+export { screen };
