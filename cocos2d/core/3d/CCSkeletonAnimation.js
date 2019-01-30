@@ -83,13 +83,6 @@ let SkeletonAnimation = cc.Class({
         },
     },
 
-    getAnimationState (name) {
-        let state = this._super(name);
-        let clip = state.clip;
-        clip.init();
-        return state;
-    },
-
     searchClips: CC_EDITOR && function () {
         this._clips.length = 0;
         let self = this;

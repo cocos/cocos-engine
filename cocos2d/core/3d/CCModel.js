@@ -212,10 +212,10 @@ let Model = cc.Class({
         }
     },
 
-    _createArray (gltf, accessorID) {
+    _createArray (gltf, accessorID, buffers) {
         let acc = gltf.accessors[accessorID];
         let bufView = gltf.bufferViews[acc.bufferView];
-        let bin = this._buffers[bufView.buffer]._buffer;
+        let bin = buffers[bufView.buffer].buffer;
 
         let num = _type2size[acc.type];
         let typedArray = _compType2Array[acc.componentType];
@@ -284,8 +284,8 @@ let Model = cc.Class({
             let gltfChannel = channels[i];
             let sampler = samplers[gltfChannel.sampler];
 
-            let inputArray = this._createArray(gltf, sampler.input);
-            let outputArray = this._createArray(gltf, sampler.output);
+            let inputArray = this._createArray(gltf, sampler.input, this._buffers);
+            let outputArray = this._createArray(gltf, sampler.output, this._buffers);
 
             let target = gltfChannel.target;
             let node = nodes[target.node];

@@ -46,6 +46,9 @@ var BufferAsset = cc.Class({
             },
             override: true
         },
+        buffer () {
+            return this._buffer;
+        }
     }
 });
 
