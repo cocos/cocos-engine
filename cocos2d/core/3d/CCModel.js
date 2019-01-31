@@ -63,6 +63,16 @@ const _gltfAttribMap = {
     WEIGHTS_0: gfx.ATTR_WEIGHTS
 };
 
+
+function copyFloat32Array (src, offset, length) {
+    let out = new Float32Array(src.buffer, src.byteOffset + offset * 4, length);
+    // let out = new Float32Array(length);
+    // for (let i = 0; i < length; i++) {
+    //     out[i] = src[offset + i];
+    // }
+    return out;
+}
+
 let Model = cc.Class({
     name: 'cc.Model',
     extends: cc.Asset,
@@ -318,21 +328,21 @@ let Model = cc.Class({
             if (target.path === 'translation') {
                 for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
                     let i = frameIdx * 3;
-                    frames[frameIdx].value = cc.v3(outputArray[i], outputArray[i + 1], outputArray[i + 2]);
+                    frames[frameIdx].value = copyFloat32Array(outputArray, i, 3);
                 }
                 curves.props.position = frames;
             }
             else if (target.path === 'rotation') {
                 for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
                     let i = frameIdx * 4;
-                    frames[frameIdx].value = cc.quat(outputArray[i], outputArray[i + 1], outputArray[i + 2], outputArray[i + 3]);
+                    frames[frameIdx].value = copyFloat32Array(outputArray, i, 4);
                 }
                 curves.props.quat = frames;
             }
             else if (target.path === 'scale') {
                 for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
                     let i = frameIdx * 3;
-                    frames[frameIdx].value = cc.v3(outputArray[i], outputArray[i + 1], outputArray[i + 2]);
+                    frames[frameIdx].value = copyFloat32Array(outputArray, i, 3);
                 }
                 curves.props.scale = frames;
             }
@@ -349,7 +359,7 @@ let Model = cc.Class({
             if (rotation) {
                 props.quat = [{
                     frame: 0,
-                    value: cc.quat(rotation[0], rotation[1], rotation[2], rotation[3])
+                    value: rotation
                 }];
             }
 
@@ -357,7 +367,7 @@ let Model = cc.Class({
             if (scale) {
                 props.scale = [{
                     frame: 0,
-                    value: cc.v3(scale[0], scale[1], scale[2])
+                    value: scale
                 }];
             }
 
@@ -365,7 +375,7 @@ let Model = cc.Class({
             if (translation) {
                 props.position = [{
                     frame: 0,
-                    value: cc.v3(translation[0], translation[1], translation[2])
+                    value: translation
                 }];
             }
         }

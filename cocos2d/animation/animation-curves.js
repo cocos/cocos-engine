@@ -24,11 +24,13 @@
  ****************************************************************************/
 
 
-var bezierByTime = require('./bezier').bezierByTime;
+const bezierByTime = require('./bezier').bezierByTime;
 
-var binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
-var WrapModeMask = require('./types').WrapModeMask;
-var WrappedInfo = require('./types').WrappedInfo;
+const binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
+const WrapModeMask = require('./types').WrapModeMask;
+const WrappedInfo = require('./types').WrappedInfo;
+
+const quat = require('../core/vmath/quat');
 
 /**
  * Compute a new ratio by curve type
@@ -143,13 +145,58 @@ var DynamicAnimCurve = cc.Class({
         // - [x, x, x, x]: Four control points for bezier
         // - null: linear
         types: [],
-
-        // @property {string[]} subProps - The path of sub property being animated.
-        subProps: null
     },
 
     _findFrameIndex: binarySearch,
+    _lerp: undefined,
 
+    _lerpNumber (from, to, t) {
+        return from + (to - from) * t;
+    },
+
+    _lerpObject (from, to, t) {
+        return from.lerp(to, t);
+    },
+
+    _lerpVector: (function () {
+        let out = cc.v3();
+        return function (from, to, t) {
+            from.lerp(to, t, out);
+            return out;
+        };
+    })(),
+
+    _lerpVec2Array: (function () {
+        let out = cc.v2();
+        return function (from, to, t) {
+            out.x = from[0] + (to[0] - from[0]) * t;
+            out.y = from[1] + (to[1] - from[1]) * t;
+            return out;
+        };
+    })(),
+
+    _lerpVec3Array: (function () {
+        let out = cc.v3();
+        return function (from, to, t) {
+            out.x = from[0] + (to[0] - from[0]) * t;
+            out.y = from[1] + (to[1] - from[1]) * t;
+            out.z = from[2] + (to[2] - from[2]) * t;
+            return out;
+        };
+    })(),
+
+    _lerpQuatArray: (function () {
+        let a = cc.quat();
+        let b = cc.quat();
+        let out = cc.quat();
+        return function (from, to, t) {
+            quat.set(a, from[0], from[1], from[2], from[3]);
+            quat.set(b, to[0], to[1], to[2], to[3]);
+            quat.slerp(out, a, b, t);
+            return out;
+        };
+    })(),
+    
     sample: function (time, ratio, state) {
         var values = this.values;
         var ratios = this.ratios;
@@ -175,10 +222,7 @@ var DynamicAnimCurve = cc.Class({
             else {
                 var fromVal = values[index - 1];
 
-                var isNumber = typeof fromVal === 'number';
-                var canLerp = fromVal && fromVal.lerp;
-
-                if (!isNumber && !canLerp) {
+                if (!this._lerp) {
                     value = fromVal;
                 }
                 else {
@@ -194,46 +238,13 @@ var DynamicAnimCurve = cc.Class({
                     // calculate value
                     var toVal = values[index];
 
-                    // lerp
-                    if (isNumber) {
-                        value = fromVal + (toVal - fromVal) * ratioBetweenFrames;
-                    }
-                    else if (canLerp) {
-                        value = fromVal.lerp(toVal, ratioBetweenFrames);
-                    }
+                    value = this._lerp(fromVal, toVal, ratioBetweenFrames);
                 }
             }
         }
         else {
             value = values[index];
-        }
-
-        var subProps = this.subProps;
-        if (subProps) {
-            // create batched value dynamically
-            var mainProp = this.target[this.prop];
-            var subProp = mainProp;
-
-            for (var i = 0; i < subProps.length - 1; i++) {
-                var subPropName = subProps[i];
-                if (subProp) {
-                    subProp = subProp[subPropName];
-                }
-                else {
-                    return;
-                }
-            }
-
-            var propName = subProps[subProps.length - 1];
-
-            if (subProp) {
-                subProp[propName] = value;
-            }
-            else {
-                return;
-            }
-
-            value = mainProp;
+            value = this._lerp(value, value, 0);
         }
 
         // apply value
