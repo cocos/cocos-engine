@@ -93,7 +93,8 @@ cc.screen = /** @lends cc.screen# */{
         }
 
         this._supportsFullScreen = (this._fn.requestFullscreen !== undefined);
-        this._touchEvent = ('ontouchstart' in window) ? 'touchstart' : 'mousedown';
+        // Bug fix only for v2.1, don't merge into v2.0
+        this._touchEvent = ('ontouchend' in window) ? 'touchend' : 'mousedown';
     },
     
     /**

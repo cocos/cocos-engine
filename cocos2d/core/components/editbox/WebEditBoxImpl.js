@@ -243,8 +243,12 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     _hideDomOnMobile () {
-        cc.view.enableAutoFullScreen(_fullscreen);
-        cc.view.resizeWithBrowserSize(_autoResize);
+        if (_fullscreen) {
+            cc.view.enableAutoFullScreen(true);
+        }
+        if (_autoResize) {
+            cc.view.resizeWithBrowserSize(true);
+        }
         
         this._scrollBackWindow();
     },
@@ -574,6 +578,14 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.removeEventListener('keypress', cbs.onKeypress);
         elem.removeEventListener('blur', cbs.onBlur);
         elem.removeEventListener('touchstart', cbs.onClick);
+        
+        cbs.compositionStart = null;
+        cbs.compositionEnd = null;
+        cbs.onInput = null;
+        cbs.onFocus = null;
+        cbs.onKeypress = null;
+        cbs.onBlur = null;
+        cbs.onClick = null;
     },
 });
 
