@@ -358,8 +358,15 @@ export class UI {
                     if (curCamera) {
                         cmdBuff.endRenderPass();
                     }
-                    this._renderArea.width = camera.width;
-                    this._renderArea.height = camera.height;
+
+                    // hack
+                    if(CC_EDITOR){
+                        this._renderArea.width = camera.width;
+                        this._renderArea.height = camera.height;
+                    }else{
+                        this._renderArea.width = camera.width * 2;
+                        this._renderArea.height = camera.height * 2;
+                    }
 
                     // TODO: add screen adapter
                     // update ubo

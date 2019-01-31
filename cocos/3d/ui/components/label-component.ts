@@ -36,8 +36,7 @@ import {
     property,
 } from '../../../core/data/class-decorator';
 import macro from '../../../core/platform/CCMacro';
-import { Enum } from '../../../core/value-types';
-import { MeshBuffer } from '../mesh-buffer';
+import { ccenum } from '../../../core/value-types/enum';
 import { UIRenderComponent } from './ui-render-component';
 import { SpriteFrame } from '../../../assets/CCSpriteFrame';
 // import { value } from '../../../core/utils/js';
@@ -111,12 +110,14 @@ const VerticalAlign = macro.VerticalTextAlignment;
  * !#zh 在 RESIZE_HEIGHT 模式下，只能更改文本的宽度，高度是自动改变的。
  * @property {Number} RESIZE_HEIGHT
  */
-const Overflow = Enum({
-    NONE: 0,
-    CLAMP: 1,
-    SHRINK: 2,
-    RESIZE_HEIGHT: 3,
-});
+enum Overflow {
+    NONE = 0,
+    CLAMP = 1,
+    SHRINK = 2,
+    RESIZE_HEIGHT = 3,
+};
+
+ccenum(Overflow);
 
 /**
  * !#en Enum for font type.
@@ -246,6 +247,7 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 文本字体名称, 只在 useSystemFont 属性为 true 的时候生效。
      * @property {String} fontFamily
      */
+    @property
     get fontFamily () {
         return this._fontFamily;
     }
@@ -280,14 +282,16 @@ export class LabelComponent extends UIRenderComponent {
     /**
      * !#en Overflow of label.
      * !#zh 文字显示超出范围时的处理方式。
-     * @property {Label.Overflow} overflow
+     * @property {Overflow} overflow
      */
-    @property
+    @property({
+        type: Overflow
+    })
     get overflow () {
         return this._overflow;
     }
 
-    set overflow (value: number) {
+    set overflow(value: Overflow) {
         if (this._overflow === value) {
             return;
         }
@@ -419,6 +423,7 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 字体是否加粗。
      * @property {Boolean} isBold
      */
+    @property
     get isBold () {
         return this._isBold;
     }
@@ -436,6 +441,7 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 字体是否倾斜。
      * @property {Boolean} isBold
      */
+    @property
     get isItalic () {
         return this._isItalic;
     }
@@ -453,6 +459,7 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 字体是否加下划线。
      * @property {Boolean} isBold
      */
+    @property
     get isUnderline () {
         return this._isUnderline;
     }
@@ -489,7 +496,7 @@ export class LabelComponent extends UIRenderComponent {
     @property
     public _lineHeight: number = 40;
     @property
-    public _overflow: number = Overflow.NONE;
+    public _overflow: Overflow = Overflow.NONE;
     @property
     public _enableWrapText: boolean = true;
     // // 这个保存了旧项目的 file 数据
