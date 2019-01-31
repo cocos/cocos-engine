@@ -28,8 +28,8 @@ import { Color, Enum } from '../../core/value-types';
 import { toRadian } from '../../core/vmath';
 import { Light, LightType } from '../../renderer/scene/light';
 import { PointLight } from '../../renderer/scene/point-light';
-import { SpotLight } from '../../renderer/scene/spot-light';
 import { RenderScene } from '../../renderer/scene/render-scene';
+import { SpotLight } from '../../renderer/scene/spot-light';
 
 /**
  * !#en The light source type
@@ -266,7 +266,7 @@ export default class LightComponent extends Component {
 
     protected _createLight (scene?: RenderScene) {
         if (!this.node.scene) { return; }
-        if (!scene) scene = this._getRenderScene();
+        if (!scene) { scene = this._getRenderScene(); }
         switch (this._type) {
         case Type.DIRECTIONAL:
             if (this._light && scene.directionalLights.find((c) => c === this._light)) { break; }
@@ -297,7 +297,7 @@ export default class LightComponent extends Component {
 
     protected _destroyLight (scene?: RenderScene) {
         if (!this.node.scene || !this._light) { return; }
-        if (!scene) scene = this._getRenderScene();
+        if (!scene) { scene = this._getRenderScene(); }
         switch (this._type) {
         case Type.DIRECTIONAL:
             scene.destroyDirectionalLight(this._light);

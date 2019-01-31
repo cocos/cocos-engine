@@ -37,7 +37,6 @@ import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
 import { IAssembler, IAssemblerManager } from '../assembler/assembler';
 import { CanvasComponent } from './canvas-component';
-import { UITransformComponent } from './ui-transfrom-component';
 import { EventType} from '../../../scene-graph/node-event-enum';
 
 /**
@@ -51,7 +50,7 @@ import { EventType} from '../../../scene-graph/node-event-enum';
  */
 @ccclass('cc.UIRenderComponent')
 @executionOrder(100)
-@requireComponent(UITransformComponent)
+@requireComponent(cc.UITransformComponent)
 @executeInEditMode
 export class UIRenderComponent extends RenderableComponent {
 

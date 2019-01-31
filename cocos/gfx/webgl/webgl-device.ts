@@ -518,24 +518,32 @@ export class WebGLGFXDevice extends GFXDevice {
             regions);
     }
 
-    public copyImageSourceToTexture (source: CanvasImageSource, texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
+    public copyImageSourceToTexture (
+        source: CanvasImageSource[],
+        texture: GFXTexture,
+        regions: GFXBufferTextureCopy[]) {
 
-        if (this._canvas2D) {
-            const context = this._canvas2D.getContext('2d');
+        if (!this._canvas2D) { return; }
+        const context = this._canvas2D.getContext('2d');
+        if (!context) { return; }
 
-            if (context) {
-                this._canvas2D.width = texture.width;
-                this._canvas2D.height = texture.height;
-                context.drawImage(source, 0, 0);
-
-                const imgData = context.getImageData(0, 0, this._canvas2D.width, this._canvas2D.height);
-                WebGLCmdFuncCopyBufferToTexture(
-                    this,
-                    imgData.data,
-                    (texture as WebGLGFXTexture).gpuTexture,
-                    regions);
-            }
+        const data: Uint8ClampedArray[] = [];
+        for (let i = 0; i < source.length; i++) {
+            const level = regions[i].texSubres.baseMipLevel;
+            this._canvas2D.width = texture.width >> level;
+            this._canvas2D.height = texture.height >> level;
+            context.drawImage(source[i], 0, 0);
+            data.push(context.getImageData(0, 0, this._canvas2D.width, this._canvas2D.height).data);
         }
+
+        const buffer = new Uint8ClampedArray(data.reduce((acc, cur) => acc + cur.length, 0));
+        data.reduce((acc, cur) => { buffer.set(cur, acc); return acc + cur.length; }, 0);
+
+        WebGLCmdFuncCopyBufferToTexture(
+            this,
+            buffer,
+            (texture as WebGLGFXTexture).gpuTexture,
+            regions);
     }
 
     public copyFramebufferToBuffer (

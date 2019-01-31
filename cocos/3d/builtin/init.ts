@@ -115,22 +115,24 @@ class BuiltinResMgr {
         // default material
         const defaultMtl = new cc.Material();
         defaultMtl._uuid = 'default-material';
-        defaultMtl.setDefines({ USE_COLOR: true });
-        defaultMtl.effectName = 'builtin-effect-unlit';
+        defaultMtl.initialize({
+            defines: { USE_COLOR: true },
+            effectName: 'builtin-effect-unlit',
+        });
         defaultMtl.setProperty('color', cc.color('#FF00FF'));
         resources[defaultMtl._uuid] = defaultMtl;
 
         // sprite material
         const spriteMtl = new cc.Material();
         spriteMtl._uuid = 'sprite-material';
-        spriteMtl.effectName = 'builtin-effect-sprite';
+        spriteMtl.initialize({ effectName: 'builtin-effect-sprite' });
         spriteMtl.setProperty('mainTexture', defaultTexture);
         resources[spriteMtl._uuid] = spriteMtl;
 
         // default particle material
         const defaultParticleMtl = new cc.Material();
         defaultParticleMtl._uuid = 'default-particle-material';
-        defaultParticleMtl.effectName = 'builtin-effect-particle-add';
+        spriteMtl.initialize({ effectName: 'builtin-effect-particle-add' });
         resources[defaultParticleMtl._uuid] = defaultParticleMtl;
     }
 
