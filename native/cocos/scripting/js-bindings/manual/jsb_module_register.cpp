@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+#include "cocos2d.h"
+
 #include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
@@ -38,10 +40,6 @@
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
-
-#if USE_MIDDLEWARE
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_editor_support_auto.hpp"
-#endif
 
 #if USE_GFX_RENDERER
 #include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
@@ -59,6 +57,17 @@
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp"
 #endif
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#include "cocos/scripting/js-bindings/manual/JavaScriptObjCBridge.h"
+#endif
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "cocos/scripting/js-bindings/manual/JavaScriptJavaBridge.h"
+#endif
+
+#if USE_MIDDLEWARE
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_editor_support_auto.hpp"
+
 #if USE_SPINE
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_spine_manual.hpp"
@@ -69,23 +78,19 @@
 #include "cocos/scripting/js-bindings/manual/jsb_dragonbones_manual.hpp"
 #endif
 
-#if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#endif // USE_MIDDLEWARE
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
+#if USE_VIDEO
 #include "cocos/scripting/js-bindings/auto/jsb_video_auto.hpp"
 #endif
 
-#if USE_WEB_VIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if USE_WEB_VIEW
 #include "cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp"
 #endif
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-#include "cocos/scripting/js-bindings/manual/JavaScriptObjCBridge.h"
-#endif
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-#include "cocos/scripting/js-bindings/manual/JavaScriptJavaBridge.h"
-#endif
-
-#include "cocos2d.h"
+#endif // (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 
 using namespace cocos2d;
 
@@ -115,11 +120,7 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_xmlhttprequest);
     // extension depend on network
     se->addRegisterCallback(register_all_extension);
-    
-#if USE_MIDDLEWARE
-    se->addRegisterCallback(register_all_cocos2dx_editor_support);
-#endif
-    
+
 #if USE_GFX_RENDERER
     se->addRegisterCallback(register_all_gfx);
     se->addRegisterCallback(jsb_register_gfx_manual);
@@ -139,6 +140,15 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_audioengine);
 #endif
 
+    
+#if USE_SOCKET
+    se->addRegisterCallback(register_all_websocket);
+    se->addRegisterCallback(register_all_socketio);
+#endif
+
+#if USE_MIDDLEWARE
+    se->addRegisterCallback(register_all_cocos2dx_editor_support);
+
 #if USE_SPINE
     se->addRegisterCallback(register_all_cocos2dx_spine);
     se->addRegisterCallback(register_all_spine_manual);
@@ -148,19 +158,20 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_cocos2dx_dragonbones);
     se->addRegisterCallback(register_all_dragonbones_manual);
 #endif
-    
-#if USE_SOCKET
-    se->addRegisterCallback(register_all_websocket);
-    se->addRegisterCallback(register_all_socketio);
-#endif
 
-#if USE_VIDEO && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#endif // USE_MIDDLEWARE
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+
+#if USE_VIDEO
     se->addRegisterCallback(register_all_video);
 #endif
 
-#if USE_WEB_VIEW && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if USE_WEB_VIEW
     se->addRegisterCallback(register_all_webview);
 #endif
+
+#endif // (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 
     se->addAfterCleanupHook([](){
         PoolManager::getInstance()->getCurrentPool()->clear();

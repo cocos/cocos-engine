@@ -152,6 +152,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4040F40621EED02300A7D1A3 /* UserConfigMac.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = UserConfigMac.release.xcconfig; path = "../../frameworks/runtime-src/proj.ios_mac/mac/UserConfigMac.release.xcconfig"; sourceTree = "<group>"; };
+		4040F40721EED02300A7D1A3 /* UserConfigMac.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = UserConfigMac.debug.xcconfig; path = "../../frameworks/runtime-src/proj.ios_mac/mac/UserConfigMac.debug.xcconfig"; sourceTree = "<group>"; };
 		9F2F21BB1A635F1C006B8BF1 /* RuntimeProtocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RuntimeProtocol.cpp; sourceTree = "<group>"; };
 		9F2F21BC1A635F1C006B8BF1 /* RuntimeProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RuntimeProtocol.h; sourceTree = "<group>"; };
 		9F2F21C61A635FFF006B8BF1 /* Runtime_ios-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "Runtime_ios-mac.mm"; sourceTree = "<group>"; };
@@ -280,6 +282,8 @@
 		9F72142C1A5C271F00DAED06 = {
 			isa = PBXGroup;
 			children = (
+				4040F40721EED02300A7D1A3 /* UserConfigMac.debug.xcconfig */,
+				4040F40621EED02300A7D1A3 /* UserConfigMac.release.xcconfig */,
 				9FD6FC0D1A5D281D0028EDC6 /* lib */,
 				9F7214361A5C271F00DAED06 /* Products */,
 			);
@@ -874,6 +878,7 @@
 		};
 		9F7214971A5C28BA00DAED06 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4040F40721EED02300A7D1A3 /* UserConfigMac.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = (
@@ -905,6 +910,7 @@
 		};
 		9F7214981A5C28BA00DAED06 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4040F40621EED02300A7D1A3 /* UserConfigMac.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = (

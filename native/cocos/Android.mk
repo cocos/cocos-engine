@@ -172,7 +172,7 @@ LOCAL_STATIC_LIBRARIES += cocos_ssl_static
 LOCAL_STATIC_LIBRARIES += cocos_crypto_static
 endif # USE_SOCKET
 
-ifneq ($(USE_MIDDLEWARE),0_0)
+ifneq ($(USE_MIDDLEWARE),0)
 LOCAL_STATIC_LIBRARIES += editor_support_static
 endif # USE_SPINE or USE_DRAGONBONES
 
