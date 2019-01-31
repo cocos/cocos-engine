@@ -77,10 +77,6 @@ let Model = cc.Class({
     name: 'cc.Model',
     extends: cc.Asset,
 
-    ctor () {
-        this._nodesInited = false;
-    },
-
     properties: {
         _buffers: [BufferAsset],
 
@@ -89,29 +85,7 @@ let Model = cc.Class({
         }
     },
 
-    _initNodes () {
-        if (this._nodesInited) return;
-        this._nodesInited = true;
-
-        let nodes = this._gltf.nodes;
-        for (let i = 0; i < nodes.length; i++) {
-            let node = nodes[i];
-
-            node.path = node.parent ? node.parent.path + '/' + node.name : '';
-
-            let children = node.children;
-            if (children) {
-                for (let j = 0; j < children.length; j++) {
-                    let child = nodes[children[j]];
-                    child.parent = node;
-                }
-            }
-        }
-    },
-
     initSkeleton (skeleton) {
-        this._initNodes();
-
         let gltf = this._gltf;
         let buffers = this._buffers;
         let skinID = skeleton._skinID;
@@ -273,115 +247,6 @@ let Model = cc.Class({
             meshAsset._ibs[i] = ib;
         }
     },
-
-    initAnimationClip (clip) {
-        this._initNodes();
-
-        let gltf = this._gltf;
-        let gltfAnimation = gltf.animations[clip._animationID];
-
-        clip.wrapMode = cc.WrapMode.Loop;
-        let duration = 0;
-
-        let curveData = clip.curveData;
-        let paths = curveData.paths = {};
-
-        let nodes = gltf.nodes;
-
-        let samplers = gltfAnimation.samplers;
-        let channels = gltfAnimation.channels;
-        for (let i = 0; i < channels.length; ++i) {
-            let gltfChannel = channels[i];
-            let sampler = samplers[gltfChannel.sampler];
-
-            let inputArray = this._createArray(gltf, sampler.input, this._buffers);
-            let outputArray = this._createArray(gltf, sampler.output, this._buffers);
-
-            let target = gltfChannel.target;
-            let node = nodes[target.node];
-
-            let path = node.path;
-
-            let curves;
-            if (path === '') {
-                curves = curveData;
-            }
-            else {
-                if (!paths[path]) {
-                    paths[path] = {};
-                }
-                curves = paths[path];
-            }
-
-            if (!curves.props) {
-                curves.props = {};
-            }
-
-            let frames = [];
-            for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
-                let frame = inputArray[frameIdx];
-                if (frame > duration) {
-                    duration = frame;
-                }
-                frames.push({ frame: frame });
-            }
-            if (target.path === 'translation') {
-                for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
-                    let i = frameIdx * 3;
-                    frames[frameIdx].value = copyFloat32Array(outputArray, i, 3);
-                }
-                curves.props.position = frames;
-            }
-            else if (target.path === 'rotation') {
-                for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
-                    let i = frameIdx * 4;
-                    frames[frameIdx].value = copyFloat32Array(outputArray, i, 4);
-                }
-                curves.props.quat = frames;
-            }
-            else if (target.path === 'scale') {
-                for (let frameIdx = 0; frameIdx < inputArray.length; frameIdx++) {
-                    let i = frameIdx * 3;
-                    frames[frameIdx].value = copyFloat32Array(outputArray, i, 3);
-                }
-                curves.props.scale = frames;
-            }
-        }
-
-        for (let i = 1; i < nodes.length; i++) {
-            let node = nodes[i];
-            if (paths[node.path]) continue;
-
-            let curves = paths[node.path] = { props: {} };
-            let props = curves.props;
-
-            let rotation = node.rotation;
-            if (rotation) {
-                props.quat = [{
-                    frame: 0,
-                    value: rotation
-                }];
-            }
-
-            let scale = node.scale;
-            if (scale) {
-                props.scale = [{
-                    frame: 0,
-                    value: scale
-                }];
-            }
-
-            let translation = node.translation;
-            if (translation) {
-                props.position = [{
-                    frame: 0,
-                    value: translation
-                }];
-            }
-        }
-
-        clip._duration = duration;
-    }
 });
 
 cc.Model = module.exports = Model;
