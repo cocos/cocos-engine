@@ -122,7 +122,7 @@ function setPosition (newPosOrX, y, z) {
 function setScale (x, y, z) {
     if (x && typeof x !== 'number') {
         y = x.y;
-        z = x.z || 1;
+        z = x.z === undefined ? 1 : x.z;
         x = x.x;
     }
     else if (x !== undefined && y === undefined) {
