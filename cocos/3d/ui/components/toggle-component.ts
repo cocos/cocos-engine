@@ -158,9 +158,6 @@ export class ToggleComponent extends ButtonComponent {
         if (this._toggleGroup && this._toggleGroup.enabled) {
             this._toggleGroup.addToggle(this);
         }
-
-        // hack
-        this._checkMark = this.node.getComponentInChildren(cc.UIRenderComponent);
     }
 
     public onDisable () {

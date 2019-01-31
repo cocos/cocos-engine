@@ -168,9 +168,6 @@ export class SliderComponent extends Component {
 
     // 注册事件
     public onEnable () {
-        // hack
-        this._handle = this.node.getComponentInChildren(cc.UIRenderComponent);
-
         this._updateHandlePosition();
 
         this.node.on(EventType.TOUCH_START, this._onTouchBegan, this);
