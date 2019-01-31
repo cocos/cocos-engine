@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass } from "../../core/data/class-decorator";
-import { AudioClip, AudioSourceType, PlayingState, IAudioInfo } from "./audio-clip";
+import { ccclass } from '../../core/data/class-decorator';
+import { AudioClip, AudioSourceType, IAudioInfo, PlayingState } from './audio-clip';
 
 @ccclass('cc.DOMAudioClip')
 export class DOMAudioClip extends AudioClip {
@@ -38,7 +38,7 @@ export class DOMAudioClip extends AudioClip {
     private _on_gesture: () => void;
     private _alreadyDelayed = false;
 
-    constructor() {
+    constructor () {
         super();
 
         this._loadMode = AudioSourceType.DOM_AUDIO;
@@ -50,13 +50,13 @@ export class DOMAudioClip extends AudioClip {
 
         this._on_gesture = () => {
             if (!this._audio) { return; }
-            let promise = this._audio.play();
+            const promise = this._audio.play();
             if (!promise) {
                 console.warn('no promise returned from HTMLMediaElement.play()');
                 return;
             }
             promise.then(() => {
-                if (this._alreadyDelayed) this._post_play();
+                if (this._alreadyDelayed) { this._post_play(); }
                 else { this._audio!.pause(); this._audio!.currentTime = 0; }
                 window.removeEventListener('touchend', this._on_gesture);
                 document.removeEventListener('mouseup', this._on_gesture);
@@ -64,13 +64,13 @@ export class DOMAudioClip extends AudioClip {
         };
     }
 
-    setNativeAsset(clip: HTMLAudioElement, info: IAudioInfo) {
+    public setNativeAsset (clip: HTMLAudioElement, info: IAudioInfo) {
         super.setNativeAsset(clip, info);
         clip.volume = this._volume;
         clip.loop = this._loop;
         // callback on audio ended
         clip.addEventListener('ended', () => {
-            if (this._oneShoting) return;
+            if (this._oneShoting) { return; }
             this._state = PlayingState.STOPPED;
             clip.currentTime = 0;
             // @ts-ignore
@@ -82,9 +82,9 @@ export class DOMAudioClip extends AudioClip {
         document.addEventListener('mouseup', this._on_gesture);
     }
 
-    play() {
-        if (!this._audio || this._state === PlayingState.PLAYING) return;
-        let promise = this._audio.play();
+    public play () {
+        if (!this._audio || this._state === PlayingState.PLAYING) { return; }
+        const promise = this._audio.play();
         if (!promise) {
             console.warn('no promise returned from HTMLMediaElement.play()');
             return;
@@ -92,30 +92,30 @@ export class DOMAudioClip extends AudioClip {
         promise.then(this._post_play).catch(() => { this._alreadyDelayed = true; });
     }
 
-    pause() {
-        if (!this._audio || this._state !== PlayingState.PLAYING) return;
+    public pause () {
+        if (!this._audio || this._state !== PlayingState.PLAYING) { return; }
         this._audio.pause();
         this._state = PlayingState.STOPPED;
         this._oneShoting = false;
     }
 
-    stop() {
-        if (!this._audio) return;
+    public stop () {
+        if (!this._audio) { return; }
         this._audio.currentTime = 0;
-        if (this._state !== PlayingState.PLAYING) return;
+        if (this._state !== PlayingState.PLAYING) { return; }
         this._audio.pause();
         this._state = PlayingState.STOPPED;
         this._oneShoting = false;
     }
 
-    playOneShot(volume = 1) {
+    public playOneShot (volume = 1) {
         /* HTMLMediaElement doesn't support multiple playback at the
            same time so here we fall back to re-start style approach */
         const clip = this._audio;
-        if (!clip) return;
+        if (!clip) { return; }
         clip.currentTime = 0;
         clip.volume = volume;
-        if (this._oneShoting) return;
+        if (this._oneShoting) { return; }
         clip.loop = false;
         this._oneShoting = true;
         clip.play().then(() => {
@@ -128,39 +128,39 @@ export class DOMAudioClip extends AudioClip {
         }).catch(() => { this._oneShoting = false; });
     }
 
-    setCurrentTime(val: number) {
-        if (!this._audio) return;
+    public setCurrentTime (val: number) {
+        if (!this._audio) { return; }
         this._audio.currentTime = val;
     }
 
-    getCurrentTime() {
+    public getCurrentTime () {
         return this._audio ? this._audio.currentTime : 0;
     }
 
-    getDuration() {
-        if (!this._audio) return this._duration;
+    public getDuration () {
+        if (!this._audio) { return this._duration; }
         // ios wechat browser doesn't have duration
         return isNaN(this._audio.duration) ? this._duration : this._audio.duration;
     }
 
-    setVolume(val: number) {
+    public setVolume (val: number) {
         this._volume = val;
         /* note this won't work for ios devices, for there
            is just no way to set HTMLMediaElement's volume */
-        if (this._audio) this._audio.volume = val;
+        if (this._audio) { this._audio.volume = val; }
     }
 
-    getVolume() {
-        if (this._audio) return this._audio.volume;
+    public getVolume () {
+        if (this._audio) { return this._audio.volume; }
         return this._volume;
     }
 
-    setLoop(val: boolean) {
+    public setLoop (val: boolean) {
         this._loop = val;
-        if (this._audio) this._audio.loop = val;
+        if (this._audio) { this._audio.loop = val; }
     }
 
-    getLoop() {
+    public getLoop () {
         return this._loop;
     }
 }

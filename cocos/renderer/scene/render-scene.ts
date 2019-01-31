@@ -5,6 +5,7 @@ import { Root } from '../../core/root';
 import { Mat4, Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
+import { UBOGlobal } from '../../pipeline/render-pipeline';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
 import { Camera, ICameraInfo } from './camera';
@@ -13,7 +14,6 @@ import { Light } from './light';
 import { Model } from './model';
 import { PointLight } from './point-light';
 import { SpotLight } from './spot-light';
-import { UBOGlobal } from '../../pipeline/render-pipeline';
 
 export interface IRenderSceneInfo {
     name: string;

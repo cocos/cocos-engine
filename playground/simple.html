@@ -85,10 +85,12 @@
       lightNode.setRotationFromEuler(70, 0, 0);
       const lightComp = lightNode.addComponent(cc.LightComponent);
 
-      const material = new cc.Material();
-      material.setDefines({ USE_COLOR: true });
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
-      material.effectName = 'builtin-effect-unlit';
+      const material = new cc.Material();
+      material.initialize({
+        effectName: 'builtin-effect-unlit',
+        defines: { USE_COLOR: true },
+      });
 
       const len = 50;
       const models = [], passes = [];
@@ -108,7 +110,7 @@
 
       {
         const material = new cc.Material();
-        material.effectName = 'builtin-effect-sprite';
+        material.initialize({ effectName: 'builtin-effect-sprite' });
         material.setProperty('mainTexture', createTexture(0));
         const modelNode = new cc.Node('test');
         modelNode.parent = scene;

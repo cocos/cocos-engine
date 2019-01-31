@@ -311,7 +311,9 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         } else {
             console.warn(`particle system renderMode ${this._renderMode} not support.`);
         }
-        this.getMaterial(0, CC_EDITOR)!.setDefines(this._defines);
+        const mat = this.getMaterial(0, CC_EDITOR)!;
+        mat.destroy();
+        mat.initialize({ defines: this._defines });
 
         if (this.particleSystem.textureAnimationModule.enable) {
             this.getMaterial(0, CC_EDITOR)!.setProperty('frameTile', vec2.set(this.frameTile, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));

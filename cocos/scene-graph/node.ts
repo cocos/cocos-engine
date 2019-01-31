@@ -1,4 +1,5 @@
 import { UITransformComponent } from '../3d/ui/components/ui-transfrom-component';
+import { WidgetComponent } from '../3d/ui/components/widget-component';
 import { ccclass, property } from '../core/data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../core/value-types';
 import Size from '../core/value-types/size';
@@ -6,7 +7,6 @@ import Vec2 from '../core/value-types/vec2';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
-import { WidgetComponent } from '../3d/ui/components/widget-component';
 import { EventType } from './node-event-enum';
 
 const v3_a = new Vec3();
@@ -147,7 +147,7 @@ class Node extends BaseNode {
         this.uiTransfromComp.anchorY = value;
     }
 
-    get eventProcessor(){
+    get eventProcessor (){
         return this._eventProcessor;
     }
 
@@ -770,15 +770,15 @@ class Node extends BaseNode {
 
     // Event
 
-    public on(type: string | EventType, callback: Function, target?: Object, useCapture?: any) {
-        this._eventProcessor.on(type,callback,target,useCapture);
+    public on (type: string | EventType, callback: Function, target?: Object, useCapture?: any) {
+        this._eventProcessor.on(type, callback, target, useCapture);
     }
 
-    public off(type: string, callback: Function, target?: Object, useCapture?: any) {
-        this._eventProcessor.off(type,callback,target,useCapture);
+    public off (type: string, callback: Function, target?: Object, useCapture?: any) {
+        this._eventProcessor.off(type, callback, target, useCapture);
     }
 
-    public once(type, callback, target, useCapture) {
+    public once (type, callback, target, useCapture) {
         this._eventProcessor.once(type, callback, target, useCapture);
     }
 

@@ -84,7 +84,7 @@ export class Camera {
             camera: this,
             name: this._name,
             priority: RenderViewPriority.GENERAL,
-            isUI: (info.isUI !== undefined? info.isUI : false),
+            isUI: (info.isUI !== undefined ? info.isUI : false),
         });
 
         this.changeTargetDisplay(info.targetDisplay);
