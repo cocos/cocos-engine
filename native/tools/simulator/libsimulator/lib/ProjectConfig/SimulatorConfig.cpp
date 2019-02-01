@@ -40,20 +40,25 @@ SimulatorConfig *SimulatorConfig::getInstance()
 
 SimulatorConfig::SimulatorConfig()
 {
-    _screenSizeArray.push_back(SimulatorScreenSize("iPhone 3Gs (320x480)", 320, 480));
-    _screenSizeArray.push_back(SimulatorScreenSize("iPhone 4 (640x960)", 640, 960));
-    _screenSizeArray.push_back(SimulatorScreenSize("iPhone 5 (640x1136)", 640, 1136));
-    _screenSizeArray.push_back(SimulatorScreenSize("iPhone 6 (750x1334)", 750, 1334));
-    _screenSizeArray.push_back(SimulatorScreenSize("iPhone 6Plus (1242x2208)", 1242, 2208));
-    _screenSizeArray.push_back(SimulatorScreenSize("iPad (768x1024)", 768, 1024));
-    _screenSizeArray.push_back(SimulatorScreenSize("iPad Retina (1536x2048)", 1536, 2048));
-    _screenSizeArray.push_back(SimulatorScreenSize("Android (480x800)", 480, 800));
-    _screenSizeArray.push_back(SimulatorScreenSize("Android (480x854)", 480, 854));
-    _screenSizeArray.push_back(SimulatorScreenSize("Android (540x960)", 540, 960));
-    _screenSizeArray.push_back(SimulatorScreenSize("Android (600x1024)", 600, 1024));
-    _screenSizeArray.push_back(SimulatorScreenSize("Android (720x1280)", 720, 1280));
-    _screenSizeArray.push_back(SimulatorScreenSize("Android (800x1280)", 800, 1280));
-    _screenSizeArray.push_back(SimulatorScreenSize("Android (1080x1920)", 1080, 1920));
+    _screenSizeArray.push_back(SimulatorScreenSize("Apple iPhone 5 (640x1136)", 640, 1136));
+    _screenSizeArray.push_back(SimulatorScreenSize("Apple iPhone 6 (750x1334)", 750, 1334));
+    _screenSizeArray.push_back(SimulatorScreenSize("Apple iPhone 6Plus (1242x2208)", 1242, 2208));
+    _screenSizeArray.push_back(SimulatorScreenSize("Apple iPhone 7 (750x1334)", 750, 1334));
+    _screenSizeArray.push_back(SimulatorScreenSize("Apple iPhone 7Plus (1242x2208)", 1242, 2208));
+    _screenSizeArray.push_back(SimulatorScreenSize("Apple iPhone X (750x2436)", 750, 2436));
+
+    _screenSizeArray.push_back(SimulatorScreenSize("Apple iPad (2048x1536)", 2048, 1536));
+    _screenSizeArray.push_back(SimulatorScreenSize("Apple iPad Air 2 (1536x2048)", 1536, 2048));
+    _screenSizeArray.push_back(SimulatorScreenSize("Apple iPad Pro 10.5-inch (1668x2224)", 1668, 2224));
+    _screenSizeArray.push_back(SimulatorScreenSize("Apple iPad Pro 12.9-inch (2048x2732)", 2048, 2732));
+
+    _screenSizeArray.push_back(SimulatorScreenSize("Huawei P9 (1080x1920)", 1080, 1920));
+    _screenSizeArray.push_back(SimulatorScreenSize("Huawei Mate9 Pro (1440x2560)", 1440, 2560));
+
+    _screenSizeArray.push_back(SimulatorScreenSize("Goolge Nexus 5 (1080x2880)", 1080, 2880));
+    _screenSizeArray.push_back(SimulatorScreenSize("Goolge Nexus 5X (1079x1919)", 1079, 1919));
+    _screenSizeArray.push_back(SimulatorScreenSize("Goolge Nexus 6 (1442x2562)", 1442, 2562));
+    _screenSizeArray.push_back(SimulatorScreenSize("Goolge Nexus 7 (1920x1200)", 1920, 1200));
 }
 
 int SimulatorConfig::getScreenSizeCount() const

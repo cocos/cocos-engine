@@ -13,54 +13,84 @@
     },
     "simulator_screen_size": [
         {
-            "title": "iPhone 3Gs (480x320)",
-            "width": 480,
-            "height": 320
+            "title": "Apple iPhone 5 (640x1136)",
+            "width": 640,
+            "height": 1136
         },
         {
-            "title": "iPhone 4 (960x640)",
-            "width": 960,
-            "height": 640
+            "title": "Apple iPhone 6 (750x1334)",
+            "width": 750,
+            "height": 1334
         },
         {
-            "title": "iPhone 5 (1136x640)",
-            "width": 1136,
-            "height": 640
+            "title": "Apple iPhone 6Plus (1242x2208)",
+            "width": 1242,
+            "height": 2208
         },
         {
-            "title": "iPhone 6 (1334x750)",
-            "width": 1334,
-            "height": 750
+            "title": "Apple iPhone 7 (750x1334)",
+            "width": 750,
+            "height": 1334
         },
         {
-            "title": "iPhone 6 Plus (1920x1080)",
-            "width": 1920,
-            "height": 1080
+            "title": "Apple iPhone 7Plus (1242x2208)",
+            "width": 1242,
+            "height": 2208
         },
         {
-            "title": "iPad (1024x768)",
-            "width": 1024,
-            "height": 768
+            "title": "Apple iPhone X (750x2436)",
+            "width": 750,
+            "height": 2436
         },
         {
-            "title": "iPad Retina (2048x1536)",
+            "title": "Apple iPad (2048x1536)",
             "width": 2048,
             "height": 1536
         },
         {
-            "title": "Android (800x480)",
-            "width": 800,
-            "height": 480
+            "title": "Apple iPad Air 2 (1536x2048)",
+            "width": 1536,
+            "height": 2048
         },
         {
-            "title": "Android (854x480)",
-            "width": 854,
-            "height": 480
+            "title": "Apple iPad Pro 10.5-inch (1668x2224)",
+            "width": 1668,
+            "height": 2224
         },
         {
-            "title": "Android (1280x720)",
+            "title": "Apple iPad Pro 12.9-inch (2048x2732)",
             "width": 1280,
-            "height": 720
+            "height": 2732
+        },
+        {
+          "title": "Huawei P9 (1080x1920)",
+          "width": 1080,
+          "height": 1920
+        },
+        {
+          "title": "Huawei Mate9 Pro (1440x2560)",
+          "width": 1440,
+          "height": 2560
+        },
+        {
+          "title": "Goolge Nexus 5 (1080x2880)",
+          "width": 1080,
+          "height": 2880
+        },
+        {
+          "title": "Goolge Nexus 5X (1079x1919)",
+          "width": 1079,
+          "height": 1919
+        },
+        {
+          "title": "Goolge Nexus 6 (1442x2562)",
+          "width": 1442,
+          "height": 2562
+        },
+        {
+          "title": "Goolge Nexus 7 (1920x1200)",
+          "width": 1920,
+          "height": 1200
         }
     ]
 }
