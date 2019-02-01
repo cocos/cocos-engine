@@ -82,6 +82,7 @@ const State = cc.Enum({
  *  Button.EVENT_HOVER_IN<br/>
  *  Button.EVENT_HOVER_MOVE<br/>
  *  Button.EVENT_HOVER_OUT<br/>
+ * The user can get the current clicked object through the 'event.target' which is from the clickEvent callback function.
  *
  * !#zh
  * 按钮组件。可以被按下,或者点击。<br/>
@@ -105,7 +106,7 @@ const State = cc.Enum({
  *   -cc.Node.EventType.MOUSE_LEAVE // 鼠标离开目标事件<br/>
  *   -cc.Node.EventType.MOUSE_UP    // 鼠标松开事件<br/>
  *   -cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件<br/>
- *
+ * 用户可以通过获取 __点击事件__ 回调参数属性 event.target 获取当前点击对象。
  * @class Button
  * @extends Component
  * @example
