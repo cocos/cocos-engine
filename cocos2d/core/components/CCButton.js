@@ -527,6 +527,7 @@ let Button = cc.Class({
     onDestroy () {
         let target = this._getTarget();
         this._unregisterNodeEvent(target);
+        this._originalScale = null;
     },
 
     update (dt) {
@@ -628,7 +629,9 @@ let Button = cc.Class({
     _applyTarget () {
         let target = this._getTarget();
         this._sprite = this._getTargetSprite(target);
-        this._originalScale = cc.Vec2.ZERO
+        if (!this._originalScale) {
+            this._originalScale = cc.Vec2.ZERO;
+        }
         this._originalScale.x = target.scaleX;
         this._originalScale.y = target.scaleY;
         this._registerNodeEvent(target);
