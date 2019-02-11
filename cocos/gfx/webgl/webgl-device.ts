@@ -178,8 +178,8 @@ export class WebGLGFXDevice extends GFXDevice {
     public initialize (info: IGFXDeviceInfo): boolean {
 
         this._canvas = info.canvasElm as HTMLCanvasElement;
-        this._isAntialias = info.isAntialias !== undefined? info.isAntialias : true;
-        this._isPremultipliedAlpha = info.isPremultipliedAlpha !== undefined? info.isPremultipliedAlpha : true;
+        this._isAntialias = info.isAntialias !== undefined ? info.isAntialias : true;
+        this._isPremultipliedAlpha = info.isPremultipliedAlpha !== undefined ? info.isPremultipliedAlpha : true;
 
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {

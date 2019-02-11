@@ -1,9 +1,9 @@
-import { GFXFormatSurfaceSize, GFXStatus, GFXTextureFlagBit, GFXTextureViewType, GFXTextureType } from '../define';
+import { GFXFormatSurfaceSize, GFXStatus, GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../define';
 import { GFXDevice } from '../device';
 import { GFXTexture, IGFXTextureInfo } from '../texture';
+import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUTexture } from './webgl-gpu-objects';
-import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture } from './webgl-commands';
 
 export class WebGLGFXTexture extends GFXTexture {
 

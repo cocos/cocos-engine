@@ -1,9 +1,9 @@
 import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXShader, IGFXShaderInfo } from '../shader';
+import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUShader, WebGLGPUShaderStage } from './webgl-gpu-objects';
-import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
 
 export class WebGLGFXShader extends GFXShader {
 

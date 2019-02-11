@@ -1,4 +1,4 @@
-import { GFXStatus, GFXFilter } from '../define';
+import { GFXFilter, GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXSampler, GFXSamplerState, IGFXSamplerInfo } from '../sampler';
 import { WebGLGFXDevice } from './webgl-device';

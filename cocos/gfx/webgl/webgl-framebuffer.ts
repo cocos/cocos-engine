@@ -1,11 +1,11 @@
 import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
+import { WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUFramebuffer, WebGLGPUTextureView } from './webgl-gpu-objects';
 import { WebGLGFXRenderPass } from './webgl-render-pass';
 import { WebGLGFXTextureView } from './webgl-texture-view';
-import { WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer } from './webgl-commands';
 
 export class WebGLGFXFramebuffer extends GFXFramebuffer {
 
@@ -24,7 +24,7 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
         this._renderPass = info.renderPass;
         this._colorViews = info.colorViews || [];
         this._depthStencilView = info.depthStencilView || null;
-        this._isOffscreen = info.isOffscreen !== undefined? info.isOffscreen : false;
+        this._isOffscreen = info.isOffscreen !== undefined ? info.isOffscreen : false;
 
         if (this._isOffscreen) {
 

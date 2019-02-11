@@ -1,10 +1,10 @@
 import { GFXBindingLayout, GFXBindingUnit, IGFXBindingLayoutInfo } from '../binding-layout';
-import { GFXStatus, GFXBindingType } from '../define';
+import { GFXBindingType, GFXStatus } from '../define';
 import { GFXDevice } from '../device';
-import { WebGLGPUBindingLayout, WebGLGPUBinding } from './webgl-gpu-objects';
 import { WebGLGFXBuffer } from './webgl-buffer';
-import { WebGLGFXTextureView } from './webgl-texture-view';
+import { WebGLGPUBinding, WebGLGPUBindingLayout } from './webgl-gpu-objects';
 import { WebGLGFXSampler } from './webgl-sampler';
+import { WebGLGFXTextureView } from './webgl-texture-view';
 
 export class WebGLGFXBindingLayout extends GFXBindingLayout {
 
@@ -66,17 +66,19 @@ export class WebGLGFXBindingLayout extends GFXBindingLayout {
                 switch (bindingUnit.type) {
                     case GFXBindingType.UNIFORM_BUFFER: {
                         if (bindingUnit.buffer) {
-                            this._gpuBindingLayout.gpuBindings[i].gpuBuffer = (bindingUnit.buffer as WebGLGFXBuffer).gpuBuffer;
+                            this._gpuBindingLayout.gpuBindings[i].gpuBuffer =
+                                (bindingUnit.buffer as WebGLGFXBuffer).gpuBuffer;
                         }
                         break;
                     }
                     case GFXBindingType.SAMPLER: {
                         if (bindingUnit.texView) {
-                            this._gpuBindingLayout.gpuBindings[i].gpuTexView = (bindingUnit.texView as WebGLGFXTextureView).gpuTextureView;
+                            this._gpuBindingLayout.gpuBindings[i].gpuTexView =
+                                (bindingUnit.texView as WebGLGFXTextureView).gpuTextureView;
                         }
-    
                         if (bindingUnit.sampler) {
-                            this._gpuBindingLayout.gpuBindings[i].gpuSampler = (bindingUnit.sampler as WebGLGFXSampler).gpuSampler;
+                            this._gpuBindingLayout.gpuBindings[i].gpuSampler =
+                                (bindingUnit.sampler as WebGLGFXSampler).gpuSampler;
                         }
                         break;
                     }

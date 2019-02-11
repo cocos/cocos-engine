@@ -1,9 +1,14 @@
 import { GFXBuffer, GFXBufferSource, IGFXBufferInfo, IGFXIndirectBuffer } from '../buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXStatus } from '../define';
 import { GFXDevice } from '../device';
+import {
+    WebGLCmdFuncCreateBuffer,
+    WebGLCmdFuncDestroyBuffer,
+    WebGLCmdFuncResizeBuffer,
+    WebGLCmdFuncUpdateBuffer,
+} from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUBuffer } from './webgl-gpu-objects';
-import { WebGLCmdFuncCreateBuffer, WebGLCmdFuncDestroyBuffer, WebGLCmdFuncResizeBuffer, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
 
 export class WebGLGFXBuffer extends GFXBuffer {
 
@@ -88,7 +93,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
                     this._gpuBuffer.size = this._gpuBuffer.buffer.byteLength;
                 }
             }
-    
+
             WebGLCmdFuncResizeBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
         }
     }
@@ -105,10 +110,10 @@ export class WebGLGFXBuffer extends GFXBuffer {
         }
 
         WebGLCmdFuncUpdateBuffer(
-            this._device as WebGLGFXDevice, 
-            this._gpuBuffer!, 
-            buffer, 
-            offset || 0, 
+            this._device as WebGLGFXDevice,
+            this._gpuBuffer!,
+            buffer,
+            offset || 0,
             buffSize);
     }
 }

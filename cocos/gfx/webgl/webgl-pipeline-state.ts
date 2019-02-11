@@ -2,9 +2,9 @@ import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
 import { WebGLGPUPipelineState } from './webgl-gpu-objects';
+import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
 import { WebGLGFXRenderPass } from './webgl-render-pass';
 import { WebGLGFXShader } from './webgl-shader';
-import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
 
 const WebGLPrimitives: GLenum[] = [
     WebGLRenderingContext.POINTS,

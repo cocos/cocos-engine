@@ -4,7 +4,7 @@ import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLCmdDraw, WebGLCmdFuncCreateInputAssember } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPUInputAssembler, WebGLGPUBuffer } from './webgl-gpu-objects';
+import { WebGLGPUBuffer, WebGLGPUInputAssembler } from './webgl-gpu-objects';
 
 export class WebGLGFXInputAssembler extends GFXInputAssembler {
 
