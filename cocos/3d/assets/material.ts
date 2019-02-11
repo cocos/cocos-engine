@@ -35,6 +35,7 @@ import { EffectAsset } from './effect-asset';
 export interface IMaterialInfo {
     technique?: number;
     defines?: IDefineMap | IDefineMap[];
+    effectAsset?: EffectAsset | null;
     effectName?: string;
 }
 
@@ -68,39 +69,14 @@ export class Material extends Asset {
     protected _owner: RenderableComponent | null = null;
     protected _hash = 0;
 
-    constructor (info?: IMaterialInfo) {
-        super();
-        if (info) {
-            if (info.technique) { this._techIdx = info.technique; }
-            if (info.defines) { this.setDefines(info.defines); }
-            if (info.effectName) { this.effectName = info.effectName; }
-        }
-    }
-
-    @property
-    set effectAsset (val: EffectAsset | null) {
-        if (!val || this.effectName !== val.name) { this.update(val, false); }
-    }
     get effectAsset () {
         return this._effectAsset;
     }
-    // helper setter
-    @property
-    set effectName (val) {
-        if (this.effectName !== val) { this.update(val, false); }
-    }
+
     get effectName () {
         return this._effectAsset ? this._effectAsset.name : '';
     }
 
-    @property
-    set technique (val: number) {
-        this._techIdx = val;
-        if (val !== this._techIdx) {
-            this._techIdx = val;
-            this.update();
-        }
-    }
     get technique () {
         return this._techIdx;
     }
@@ -113,9 +89,31 @@ export class Material extends Asset {
         return this._hash;
     }
 
-    public setDefines (defines: IDefineMap | IDefineMap[]) {
-        this._defines = Array.isArray(defines) ? defines : [defines];
-        this.update();
+    public initialize (info: IMaterialInfo) {
+        if (info.technique) { this._techIdx = info.technique; }
+        if (info.effectAsset) { this._effectAsset = info.effectAsset; }
+        else if (info.effectName) { this._effectAsset = EffectAsset.get(info.effectName); }
+        if (info.defines) {
+            const cur = this._defines;
+            let patch = info.defines;
+            if (!Array.isArray(patch) && this._effectAsset) { // fill all the passes if not specified
+                const len = Effect.getPassInfos(this._effectAsset, this._techIdx).length;
+                patch = Array(len).fill(info.defines);
+            }
+            for (let i = 0; i < patch.length; i++) {
+                Object.assign(cur[i] || (cur[i] = {}), patch[i]);
+            }
+        }
+        this._update();
+    }
+
+    public destroy () {
+        if (this._passes) {
+            for (const pass of this._passes) {
+                pass.destroy();
+            }
+            this._passes.length = 0;
+        }
     }
 
     /**
@@ -174,12 +172,7 @@ export class Material extends Asset {
             Object.assign(this._props[i], mat._props[i]);
         }
         Object.assign(this._defines, mat._defines);
-        this.update(mat.effectAsset);
-        this._uuid = mat._uuid;
-    }
-
-    public onLoaded () {
-        this.update();
+        this._update(mat._effectAsset);
     }
 
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
@@ -192,20 +185,16 @@ export class Material extends Asset {
         } else {
             this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
         }
-        this.onPassChange();
+        this._onPassChange();
     }
 
-    public update (asset: EffectAsset | string | null = this._effectAsset, keepProps: boolean = true) {
+    public onLoaded () {
+        this._update();
+    }
+
+    protected _update (asset: EffectAsset | null = this._effectAsset, keepProps: boolean = true) {
         // get effect asset
-        if (typeof asset === 'string') {
-            this._effectAsset = EffectAsset.get(asset);
-            if (!this._effectAsset) {
-                console.warn(`no effect named '${asset}' found`);
-                return;
-            }
-        } else {
-            this._effectAsset = asset;
-        }
+        this._effectAsset = asset;
         if (!this._effectAsset) { return; }
         // create passes
         this._passes = Effect.parseEffect(this._effectAsset, {
@@ -227,7 +216,7 @@ export class Material extends Asset {
         } else {
             this._props.fill({});
         }
-        this.onPassChange();
+        this._onPassChange();
     }
 
     protected _uploadProperty (pass: Pass, name: string, val: any) {
@@ -249,7 +238,7 @@ export class Material extends Asset {
         return true;
     }
 
-    protected onPassChange () {
+    protected _onPassChange () {
         let str = '';
         for (const pass of this._passes) {
             str += pass.serializePipelineStates();

@@ -25,6 +25,7 @@
  ****************************************************************************/
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
+import { EventTargetFactory } from '../core/event/event-target-factory';
 import IDGenerator from '../core/utils/id-generator';
 import { ccenum } from '../core/value-types/enum';
 import { GFXAddress, GFXBufferTextureCopy, GFXFilter, GFXFormat,
@@ -35,7 +36,6 @@ import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
 import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
 import { Asset } from './asset';
 import { ImageAsset, ImageSource } from './image-asset';
-import { EventTargetFactory } from '../core/event/event-target-factory';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -559,8 +559,8 @@ export class TextureBase extends EventTargetFactory(Asset) {
                 z: 0,
             },
             texExtent: {
-                width: this._texture.width,
-                height: this._texture.height,
+                width: this._texture.width >> level,
+                height: this._texture.height >> level,
                 depth: 1,
             },
             texSubres: {
@@ -572,7 +572,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
         };
 
         if (source instanceof HTMLElement) {
-            gfxDevice.copyImageSourceToTexture(source, this._texture, [region]);
+            gfxDevice.copyImageSourceToTexture([source], this._texture, [region]);
         } else {
             gfxDevice.copyBufferToTexture(source, this._texture, [region]);
         }

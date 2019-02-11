@@ -1,8 +1,8 @@
 import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
+import { Node } from '../../scene-graph/node';
 import { Light, LightType } from './light';
 import { RenderScene } from './render-scene';
-import { Node } from '../../scene-graph/node';
 
 const _v3 = new Vec3();
 

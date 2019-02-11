@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass } from "../../core/data/class-decorator";
-import { AudioClip, AudioSourceType, PlayingState, IAudioInfo } from "./audio-clip";
+import { ccclass } from '../../core/data/class-decorator';
+import { AudioClip, AudioSourceType, IAudioInfo, PlayingState } from './audio-clip';
 
 @ccclass('cc.WebAudioClip')
 export default class WebAudioClip extends AudioClip {
@@ -43,7 +43,7 @@ export default class WebAudioClip extends AudioClip {
     private _on_gesture: () => void;
     private _alreadyDelayed = false;
 
-    constructor(context: AudioContext) {
+    constructor (context: AudioContext) {
         super();
 
         this._loadMode = AudioSourceType.WEB_AUDIO;
@@ -56,7 +56,7 @@ export default class WebAudioClip extends AudioClip {
         this._on_ended = () => {
             this._offset = 0;
             this._startTime = this._context.currentTime;
-            if (this._sourceNode.loop) return;
+            if (this._sourceNode.loop) { return; }
             // @ts-ignore
             this.emit('ended');
             this._state = PlayingState.STOPPED;
@@ -87,71 +87,71 @@ export default class WebAudioClip extends AudioClip {
 
         this._on_gesture = () => {
             this._context.resume().then(() => {
-                if (this._alreadyDelayed) this._do_play();
+                if (this._alreadyDelayed) { this._do_play(); }
                 window.removeEventListener('touchend', this._on_gesture);
                 document.removeEventListener('mouseup', this._on_gesture);
             });
         };
     }
 
-    setNativeAsset(clip: AudioBuffer, info: IAudioInfo) {
+    public setNativeAsset (clip: AudioBuffer, info: IAudioInfo) {
         super.setNativeAsset(clip, info);
-        if (this._context.state === 'running') return;
+        if (this._context.state === 'running') { return; }
         window.addEventListener('touchend', this._on_gesture);
         document.addEventListener('mouseup', this._on_gesture);
     }
 
-    play() {
-        if (!this._audio || this._state === PlayingState.PLAYING) return;
+    public play () {
+        if (!this._audio || this._state === PlayingState.PLAYING) { return; }
         if (this._context.state === 'running') {
             this._do_play();
-        } else this._alreadyDelayed = true;
+        } else { this._alreadyDelayed = true; }
     }
 
-    pause() {
-        if (this._state !== PlayingState.PLAYING) return;
+    public pause () {
+        if (this._state !== PlayingState.PLAYING) { return; }
         this._sourceNode.stop();
         this._offset += this._context.currentTime - this._startTime;
         this._state = PlayingState.STOPPED;
         clearInterval(this._currentTimer);
     }
 
-    stop() {
+    public stop () {
         this._offset = 0;
-        if (this._state !== PlayingState.PLAYING) return;
+        if (this._state !== PlayingState.PLAYING) { return; }
         this._sourceNode.stop();
         this._state = PlayingState.STOPPED;
         clearInterval(this._currentTimer);
     }
 
-    playOneShot(volume = 1) {
-        if (!this._audio) return;
-        let gainNode = this._context.createGain();
+    public playOneShot (volume = 1) {
+        if (!this._audio) { return; }
+        const gainNode = this._context.createGain();
         gainNode.connect(this._context.destination);
         gainNode.gain.value = volume;
-        let sourceNode = this._context.createBufferSource();
+        const sourceNode = this._context.createBufferSource();
         sourceNode.buffer = this._audio;
         sourceNode.loop = false;
         sourceNode.connect(gainNode);
         sourceNode.start();
     }
 
-    setCurrentTime(val: number) {
+    public setCurrentTime (val: number) {
         this._offset = val;
-        if (this._state !== PlayingState.PLAYING) return;
+        if (this._state !== PlayingState.PLAYING) { return; }
         this._sourceNode.stop(); this._do_play();
     }
 
-    getCurrentTime() {
-        if (this._state !== PlayingState.PLAYING) return this._offset;
+    public getCurrentTime () {
+        if (this._state !== PlayingState.PLAYING) { return this._offset; }
         return this._context.currentTime - this._startTime + this._offset;
     }
 
-    getDuration() {
+    public getDuration () {
         return this._audio ? this._audio.duration : 0;
     }
 
-    setVolume(val: number) {
+    public setVolume (val: number) {
         this._volume = val;
         if (this._gainNode.gain.setTargetAtTime) {
             this._gainNode.gain.setTargetAtTime(val, this._context.currentTime, 0.01);
@@ -160,16 +160,16 @@ export default class WebAudioClip extends AudioClip {
         }
     }
 
-    getVolume() {
+    public getVolume () {
         return this._volume;
     }
 
-    setLoop(val: boolean) {
+    public setLoop (val: boolean) {
         this._loop = val;
         this._sourceNode.loop = val;
     }
 
-    getLoop() {
+    public getLoop () {
         return this._loop;
     }
 }

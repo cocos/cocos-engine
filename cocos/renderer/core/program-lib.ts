@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { IBlockInfo, IBlockMember, IDefineInfo, IShaderInfo, ISamplerInfo } from '../../3d/assets/effect-asset';
+import { IBlockInfo, IBlockMember, IDefineInfo, ISamplerInfo, IShaderInfo } from '../../3d/assets/effect-asset';
 import { GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniform, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';

@@ -402,25 +402,15 @@ export class UI {
         }
     }
 
-    // skip the first object
-    private _walk (renderComp, fn1, fn2, level = 0) {
-        let renderCompList;
-        if(level === 0){
-            level+=1;
-            renderCompList = this._defineNodeOrder(renderComp.children);
-            renderCompList.forEach(comp => {
-                this._walk(comp, fn1, fn2, level);
-            });
-            this._sortChildList.remove(renderCompList);
-            return;
-        }
+    private _walk (node: Node, fn1, fn2, level = 0, isRenderComp  = false) {
+        let resortNodeList;
 
-        // const len = node.children.length;
-        fn1(renderComp);
+        const len = node.childrenCount;
 
-        if (renderComp.node.children.length > 0) {
-            renderCompList = this._defineNodeOrder(renderComp.node.children);
-            for (const comp of renderCompList) {
+        fn1(node);
+        if (len > 0){
+            resortNodeList = this._defineNodeOrder(node);
+            for (const comp of resortNodeList) {
                 this._walk(comp, fn1, fn2, level);
             }
             // for (let i = 0; i < len; ++i) {
@@ -428,26 +418,26 @@ export class UI {
             //     this._walk(child, fn1, fn2, level);
             // }
 
-            this._sortChildList.remove(renderCompList);
+            this._sortChildList.remove(resortNodeList);
         }
 
-        fn2(renderComp);
+        fn2(node);
         level += 1;
     }
 
-    private _defineNodeOrder(childs: Node[]) {
-        let sortList = this._sortChildList.add();
-        sortList.length = 0;
-
-        childs.forEach((child) => {
-            let renderComp = child.getComponent(UIRenderComponent);
-            if (renderComp) {
-                sortList.push(renderComp);
-            }
-        })
+    private _defineNodeOrder(node: Node) {
+        let sortList: any[] = this._sortChildList.add();
+        sortList = node.children.slice();
 
         sortList.sort((a, b) => {
-            return (a.priority - b.priority);
+            const ca = a.getComponent(UIRenderComponent);
+            const cb = b.getComponent(UIRenderComponent);
+            if (ca && cb) return ca.priority - cb.priority;
+            else if (!ca) {
+                return -Number.MAX_SAFE_INTEGER;
+            } else {
+                return 1;
+            }
         });
 
         return sortList;
@@ -465,15 +455,15 @@ export class UI {
             // this._currScreen = screen;
             this._commitUIRenderDatas.length = 0;
 
-            this._walk(screen.node, (c: UIRenderComponent) => {
-                // const renderComponent = c.getComponent(UIRenderComponent);
-                if (c.enabledInHierarchy) {
-                    this._commitComp(c);
+            this._walk(screen.node, (c: Node) => {
+                const render = c.getComponent(UIRenderComponent);
+                if (render && render.enabledInHierarchy) {
+                    this._commitComp(render);
                 }
-            }, (c: UIRenderComponent) => {
-                // const renderComponent = c.getComponent(UIRenderComponent);
-                if (c.enabledInHierarchy) {
-                    this._postCommitComp(c);
+            }, (c: Node) => {
+                    const render = c.getComponent(UIRenderComponent);
+                if (render && render.enabledInHierarchy) {
+                    this._postCommitComp(render);
                 }
             });
 

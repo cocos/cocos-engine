@@ -23,9 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass } from "../../core/data/class-decorator";
-import { Asset } from "../../assets/asset";
-import { EventTargetFactory } from "../../core/event/event-target-factory";
+import { Asset } from '../../assets/asset';
+import { ccclass } from '../../core/data/class-decorator';
+import { EventTargetFactory } from '../../core/event/event-target-factory';
 
 export const PlayingState = {
     INITIALIZING: 0,
@@ -75,7 +75,7 @@ export class AudioClip extends EventTargetFactory(Asset) {
         return this._loadMode;
     }
 
-    get state() {
+    get state () {
         return this._state;
     }
 }

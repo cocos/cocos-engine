@@ -21,7 +21,7 @@
         "ban-types": false,
         "no-bitwise": false,
         "no-empty": false,
-        "radix": false,
+        "radix": false
     },
     "rulesDirectory": []
 }

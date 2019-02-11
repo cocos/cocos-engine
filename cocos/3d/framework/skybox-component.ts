@@ -25,14 +25,14 @@
 
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
+import { GFXTextureView } from '../../gfx/texture-view';
 import { Camera, Model } from '../../renderer';
 import { Material } from '../assets/material';
 import { Mesh } from '../assets/mesh';
 import { TextureCube } from '../assets/texture-cube';
+import { builtinResMgr } from '../builtin';
 import { createMesh } from '../misc/utils';
 import { box } from '../primitive';
-import { builtinResMgr } from '../builtin';
-import { GFXTextureView } from '../../gfx/texture-view';
 
 /**
  * !#en The Skybox Component
@@ -45,13 +45,6 @@ import { GFXTextureView } from '../../gfx/texture-view';
 @menu('Components/SkyboxComponent')
 @executeInEditMode
 export default class SkyboxComponent extends Component {
-
-    @property
-    protected _cubemap = null;
-    @property
-    protected _rgbeTexture = false;
-
-    private _defaultTex: GFXTextureView | null = null;
 
     @property({
         type: TextureCube,
@@ -73,7 +66,8 @@ export default class SkyboxComponent extends Component {
     set rgbeTexture (v) {
         this._rgbeTexture = v;
         if (this._material) {
-            this._material.setDefines({ USE_RGBE_CUBEMAP: v });
+            this._material.destroy();
+            this._material.initialize({ defines: { USE_RGBE_CUBEMAP: v } });
             if (this._model) {
                 this._model.setSubModelMaterial(0, this._material);
             }
@@ -83,15 +77,23 @@ export default class SkyboxComponent extends Component {
         return this._rgbeTexture;
     }
 
+    @property
+    protected _cubemap = null;
+    @property
+    protected _rgbeTexture = false;
+
     protected _attachedCamera: Camera | null = null;
     protected _model: Model | null = null;
     protected _mesh: Mesh | null = null;
     protected _material: Material | null = null;
 
+    private _defaultTex: GFXTextureView | null = null;
+
     public onLoad () {
         this._model = this._getRenderScene().createModel(Model, this.node);
         this._mesh = createMesh(box({ width: 2, height: 2, length: 2 }));
-        this._material = new Material({
+        this._material = new Material();
+        this._material.initialize({
             effectName: 'builtin-effect-skybox',
             defines: { USE_RGBE_CUBEMAP: this._rgbeTexture },
         });
