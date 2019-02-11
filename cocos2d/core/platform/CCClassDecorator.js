@@ -228,7 +228,10 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
                 isDefaultValueSpecified &&
                 defaultValue == null
             ) {
-                cc.warnID(3656, JS.getClassName(ctor), propName);
+                // Avoid excessive warning when the ts decorator format is wrong
+                if (typeof options !== 'function' || cc.RawAsset.isRawAssetType(options)) {
+                    cc.warnID(3656, js.getClassName(ctor), propName);
+                }
             }
         }
         prop.default = defaultValue;
