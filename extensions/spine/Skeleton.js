@@ -31,11 +31,14 @@ const SpineMaterial = require('../../cocos2d/core/renderer/render-engine').Spine
 const Graphics = require('../../cocos2d/core/graphics/graphics');
 const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
 
+let SkeletonCache = require('./skeleton-cache');
+
 /**
  * @module sp
  */
 let DefaultSkinsEnum = cc.Enum({ 'default': -1 });
 let DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
+let RenderModeEnum = cc.Enum({ 'realtime': 0, 'sharedCache': 1, "privateCache": 2 });
 
 function setEnumAttr (obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
@@ -175,8 +178,12 @@ sp.Skeleton = cc.Class({
          */
         animation: {
             get () {
-                var entry = this.getCurrent(0);
-                return (entry && entry.animation.name) || "";
+                if (this.isCachedMode()) {
+                    return this._animationName;
+                } else {
+                    var entry = this.getCurrent(0);
+                    return (entry && entry.animation.name) || "";
+                }
             },
             set (value) {
                 this.defaultAnimation = value;
@@ -275,19 +282,21 @@ sp.Skeleton = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.animation'
         },
 
-        //// for inspector
-        //_animationList: {
-        //    default: [],
-        //    type: cc.String,
-        //    serializable: false
-        //},
-        //
-        //// for inspector
-        //_skinList: {
-        //    default: [],
-        //    type: cc.String,
-        //    serializable: false
-        //},
+        // Record pre render mode.
+        _preRenderMode: 0,
+        renderMode: {
+            default: 0,
+            type: RenderModeEnum,
+            notify () {
+                if (this._preRenderMode !== this.renderMode) {
+                    this._updateSkeletonData();
+                }
+            },
+            visible: true,
+            animatable: false,
+            displayName: "Render Mode",
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.render_mode'
+        },
 
         /**
          * !#en TODO
@@ -368,7 +377,41 @@ sp.Skeleton = cc.Class({
             notify () {
                 this._updateUseTint();
             }
-        }
+        },
+
+        /**
+         * !#en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
+         * !#zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
+         * @property {Boolean} enabledBatch
+         * @default false
+         */
+        enabledBatch: {
+            default: false,
+            notify () {
+                this._updateBatch();
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.enabled_batch'
+        },
+
+        // Below properties will effect when render mode is sharedCache or privateCache.
+        // accumulate time
+        _accTime: 0,
+        // Play times counter
+        _playCount: 0,
+        // Frame cache
+        _frameCache: null,
+        // Cur frame
+        _curFrame: null,
+        // Skeleton cache
+        _skeletonCache : null,
+        // Aimation name
+        _animationName : null,
+        // Animation queue
+        _animationQueue : [],
+        // Head animation info of 
+        _headAniInfo : null,
+        // Play times
+        _playTimes : 0,
     },
 
     // CONSTRUCTOR
@@ -382,6 +425,8 @@ sp.Skeleton = cc.Class({
         this._debugRenderer = null;
         this._startSlotIndex = -1;
         this._endSlotIndex = -1;
+        this._startEntry = {animation : {name : ""}, trackIndex : 0};
+        this._endEntry = {animation : {name : ""}, trackIndex : 0};
     },
 
     // override
@@ -396,6 +441,16 @@ sp.Skeleton = cc.Class({
             var material = cache[mKey];
             if (material) {
                 material.useTint = this.useTint;
+            }
+        }
+    },
+
+    _updateBatch () {
+        let cache = this._materialCache;
+        for (let mKey in cache) {
+            let material = cache[mKey];
+            if (material) {
+                material.useModel = !this.enabledBatch;
             }
         }
     },
@@ -415,20 +470,31 @@ sp.Skeleton = cc.Class({
             this.node.setContentSize(skeletonData.width, skeletonData.height);
         }
 
-        this._skeleton = new spine.Skeleton(skeletonData);
-        this._clipper = new spine.SkeletonClipping();
-        this._rootBone = this._skeleton.getRootBone();
+        if (this.isCachedMode()) {
+            let skeletonInfo = this._skeletonCache.getSkeletonCache(this.skeletonData._uuid, skeletonData);
+            this._skeleton = skeletonInfo.skeleton;
+            this._clipper = skeletonInfo.clipper;
+            this._rootBone = this._skeleton.getRootBone();
+        } else {
+            this._skeleton = new spine.Skeleton(skeletonData);
+            this._clipper = new spine.SkeletonClipping();
+            this._rootBone = this._skeleton.getRootBone();
+        }
     },
 
     /**
      * !#en Sets slots visible range.
      * !#zh 设置骨骼插槽可视范围。
-     * @method setSkeletonData
+     * @method setSlotsRange
      * @param {sp.spine.SkeletonData} skeletonData
      */
     setSlotsRange (startSlotIndex, endSlotIndex) {
-        this._startSlotIndex = startSlotIndex;
-        this._endSlotIndex = endSlotIndex;
+        if (this.isCachedMode()) {
+            console.warn("cached mode do not support slots visible range");
+        } else {
+            this._startSlotIndex = startSlotIndex;
+            this._endSlotIndex = endSlotIndex;
+        }
     },
 
     /**
@@ -440,14 +506,19 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.AnimationStateData} stateData
      */
     setAnimationStateData (stateData) {
-        var state = new spine.AnimationState(stateData);
-        if (this._listener) {
-            if (this._state) {
-                this._state.removeListener(this._listener);
+        if (this.isCachedMode()) {
+            console.warn("cached mode do not support set animation state data");
+        } else {
+            var state = new spine.AnimationState(stateData);
+            if (this._listener) {
+                if (this._state) {
+                    this._state.removeListener(this._listener);
+                }
+                state.addListener(this._listener);
             }
-            state.addListener(this._listener);
+            this._state = state;
         }
-        this._state = state;
+        
     },
 
     // IMPLEMENT
@@ -459,8 +530,6 @@ sp.Skeleton = cc.Class({
             this._refreshInspector();
         }
 
-        this._updateSkeletonData();
-
         var children = this.node.children;
         for (var i = 0, n = children.length; i < n; i++) {
             var child = children[i];
@@ -469,13 +538,82 @@ sp.Skeleton = cc.Class({
             }
         }
 
+        if (CC_JSB) {
+            this.renderMode = RenderModeEnum.realtime;
+        }
+
+        this._updateSkeletonData();
         this._updateDebugDraw();
         this._updateUseTint();
+        this._updateBatch();
+    },
+
+    isCachedMode () {
+        if (CC_EDITOR) return false;
+        return this.renderMode !== RenderModeEnum.realtime;
     },
 
     update (dt) {
         if (CC_EDITOR) return;
-        if (this.paused) return;
+        if (this.paused) {
+            // Cache mode and has animation queue.
+            if (this._animationQueue.length === 0 && !this._headAniInfo) return;
+            if (!this._headAniInfo) {
+                this._headAniInfo = this._animationQueue.shift();
+            }
+            this._accTime += dt;
+            if (this._accTime > this._headAniInfo.delay) {
+                let aniInfo = this._headAniInfo;
+                this._headAniInfo = null;
+                this.setAnimation (0, aniInfo.animationName, aniInfo.loop);
+            }
+            return;
+        }
+
+        if (this.isCachedMode()) {
+            this._updateCache(dt);
+        } else {
+            this._updateRealtime(dt);
+        }
+    },
+
+    _updateCache (dt) {
+        let frames = this._frameCache.frames;
+        let totalTime = this._frameCache.totalTime;
+        let frameCount = frames.length;
+
+        // Animation Start, the event diffrent from dragonbones inner event,
+        // It has no event object.
+        if (this._accTime == 0 && this._playCount == 0) {
+            this._startEntry.animation.name = this._animationName;
+            this._listener && this._listener.start && this._listener.start(this._startEntry);
+        }
+
+        this._accTime += dt * this.timeScale;
+        let frameIdx = Math.floor(this._accTime / totalTime * frameCount);
+        if (frameIdx >= frameCount) {
+
+            // Animation complete, the event diffrent from dragonbones inner event,
+            // It has no event object.
+            this._endEntry.animation.name = this._animationName;
+            this._listener && this._listener.complete && this._listener.complete(this._endEntry);
+            this._listener && this._listener.end && this._listener.end(this._endEntry);
+
+            this._playCount ++;
+            if (this._playTimes > 0 && this._playCount >= this._playTimes) {
+                this._accTime = 0;
+                this._playCount = 0;
+                this.paused = true;
+                return;
+            }
+            this._accTime = 0;
+            frameIdx = 0;
+        }
+
+        this._curFrame = frames[frameIdx];
+    },
+
+    _updateRealtime (dt) {
         let skeleton = this._skeleton;
         let state = this._state;
         if (skeleton) {
@@ -512,6 +650,8 @@ sp.Skeleton = cc.Class({
      * cc.log(bone.worldX); // return -23.12;
      */
     updateWorldTransform () {
+        if (!this.isCachedMode()) return;
+
         if (this._skeleton) {
             this._skeleton.updateWorldTransform();
         }
@@ -523,8 +663,12 @@ sp.Skeleton = cc.Class({
      * @method setToSetupPose
      */
     setToSetupPose () {
-        if (this._skeleton) {
-            this._skeleton.setToSetupPose();
+        if (this.isCachedMode()) {
+            cc.warn("cached mode do not support setToSetupPose interface");
+        } else {
+            if (this._skeleton) {
+                this._skeleton.setToSetupPose();
+            }
         }
     },
 
@@ -538,8 +682,12 @@ sp.Skeleton = cc.Class({
      * @method setBonesToSetupPose
      */
     setBonesToSetupPose () {
-        if (this._skeleton) {
-            this._skeleton.setBonesToSetupPose();
+        if (this.isCachedMode()) {
+            cc.warn("cached mode do not support setBonesToSetupPose interface");
+        } else {
+            if (this._skeleton) {
+                this._skeleton.setBonesToSetupPose();
+            }
         }
     },
 
@@ -553,9 +701,27 @@ sp.Skeleton = cc.Class({
      * @method setSlotsToSetupPose
      */
     setSlotsToSetupPose () {
-        if (this._skeleton) {
-            this._skeleton.setSlotsToSetupPose();
+        if (this.isCachedMode()) {
+            cc.warn("cached mode do not support setSlotsToSetupPose interface");
+        } else {
+            if (this._skeleton) {
+                this._skeleton.setSlotsToSetupPose();
+            }
         }
+    },
+
+    /**
+     * !#en
+     * Update an animation cache.
+     * !#zh
+     * 更新某个动画缓存。
+     * @method updateAnimationCache
+     * @param {String} animName
+     */
+    updateAnimationCache (animName) {
+        if (!this.isCachedMode()) return;
+        let cache = this._skeletonCache.updateAnimationCache(this.skeletonData._uuid, animName);
+        this._frameCache = cache || this._frameCache;
     },
 
     /**
@@ -614,8 +780,13 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.Skin}
      */
     setSkin (skinName) {
-        if (this._skeleton) {
-            return this._skeleton.setSkinByName(skinName);
+        if (this.isCachedMode()) {
+            this._skeletonCache.resetSkeleton();
+            this._animationName && (this.animation = this._animationName);
+        } else {
+            if (this._skeleton) {
+                return this._skeleton.setSkinByName(skinName);
+            }
         }
         return null;
     },
@@ -697,18 +868,39 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.TrackEntry}
      */
     setAnimation (trackIndex, name, loop) {
-        if (this._skeleton) {
-            var animation = this._skeleton.data.findAnimation(name);
-            if (!animation) {
-                cc.logID(7509, name);
-                return null;
+
+        this._playTimes = loop ? 0 : 1;
+        this._animationName = name;
+
+        if (this.isCachedMode()) {
+            if (trackIndex !== 0) {
+                cc.warn("cached mode do not support superimposed animation");
             }
-            var res = this._state.setAnimationWith(trackIndex, animation, loop);
-            if (CC_EDITOR && !cc.engine.isPlaying) {
-                this._state.update(0);
-                this._state.apply(this._skeleton);
+            let cache = this._skeletonCache.getAnimationCache(this.skeletonData._uuid, name);
+            if (!cache) {
+                cache = this._skeletonCache.updateAnimationCache(this.skeletonData._uuid, name);
             }
-            return res;
+            if (cache) {
+                this.paused = false;
+                this._accTime = 0;
+                this._playCount = 0;
+                this._frameCache = cache;
+                this._curFrame = this._frameCache.frames[0];
+            }
+        } else {
+            if (this._skeleton) {
+                var animation = this._skeleton.data.findAnimation(name);
+                if (!animation) {
+                    cc.logID(7509, name);
+                    return null;
+                }
+                var res = this._state.setAnimationWith(trackIndex, animation, loop);
+                if (CC_EDITOR && !cc.engine.isPlaying) {
+                    this._state.update(0);
+                    this._state.apply(this._skeleton);
+                }
+                return res;
+            }
         }
         return null;
     },
@@ -726,14 +918,21 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.TrackEntry}
      */
     addAnimation (trackIndex, name, loop, delay) {
-        if (this._skeleton) {
-            delay = delay || 0;
-            var animation = this._skeleton.data.findAnimation(name);
-            if (!animation) {
-                cc.logID(7510, name);
-                return null;
+        if (this.isCachedMode()) {
+            if (trackIndex !== 0) {
+                cc.warn("cached mode do not support superimposed animation");
             }
-            return this._state.addAnimationWith(trackIndex, animation, loop, delay);
+            this._animationQueue.push({animationName : name, loop: loop, delay : delay});
+        } else {
+            if (this._skeleton) {
+                delay = delay || 0;
+                var animation = this._skeleton.data.findAnimation(name);
+                if (!animation) {
+                    cc.logID(7510, name);
+                    return null;
+                }
+                return this._state.addAnimationWith(trackIndex, animation, loop, delay);
+            }
         }
         return null;
     },
@@ -762,8 +961,12 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.TrackEntry}
      */
     getCurrent (trackIndex) {
-        if (this._state) {
-            return this._state.getCurrent(trackIndex);
+        if (this.isCachedMode()) {
+            cc.warn("cached mode do not support getCurrent interface");
+        } else {
+            if (this._state) {
+                return this._state.getCurrent(trackIndex);
+            }
         }
         return null;
     },
@@ -774,8 +977,12 @@ sp.Skeleton = cc.Class({
      * @method clearTracks
      */
     clearTracks () {
-        if (this._state) {
-            this._state.clearTracks();
+        if (this.isCachedMode()) {
+            cc.warn("cached mode do not support clearTracks interface");
+        } else {
+            if (this._state) {
+                this._state.clearTracks();
+            }
         }
     },
 
@@ -786,10 +993,14 @@ sp.Skeleton = cc.Class({
      * @param {number} trackIndex
      */
     clearTrack (trackIndex) {
-        if (this._state) {
-            this._state.clearTrack(trackIndex);
-            if (CC_EDITOR && !cc.engine.isPlaying) {
-                this._state.update(0);
+        if (this.isCachedMode()) {
+            cc.warn("cached mode do not support clearTrack interface");
+        } else {
+            if (this._state) {
+                this._state.clearTrack(trackIndex);
+                if (CC_EDITOR && !cc.engine.isPlaying) {
+                    this._state.update(0);
+                }
             }
         }
     },
@@ -970,29 +1181,47 @@ sp.Skeleton = cc.Class({
     },
 
     _updateSkeletonData () {
-        if (this.skeletonData/* && this.atlasFile*/) {
-            let data = this.skeletonData.getRuntimeData();
-            if (data) {
-                try {
-                    this.setSkeletonData(data);
-                    this.setAnimationStateData(new spine.AnimationStateData(this._skeleton.data));
-                    if (this.defaultSkin) {
-                        this._skeleton.setSkinByName(this.defaultSkin);
-                    }
-                }
-                catch (e) {
-                    cc.warn(e);
-                }
-                this.animation = this.defaultAnimation;
+        if (!this.skeletonData) return;
+        let data = this.skeletonData.getRuntimeData();
+        if (!data) return;
+        
+        if (!CC_EDITOR) {
+            if (this.renderMode === RenderModeEnum.sharedCache) {
+                this._skeletonCache = SkeletonCache.sharedCache;
+            } else if (this.renderMode === RenderModeEnum.privateCache) {
+                this._skeletonCache = new SkeletonCache;
             }
         }
+
+        if (this.isCachedMode() && (this.debugBones || this.debugSlots)) {
+            cc.warn("cached mode do not support debug bones");
+        }
+
+        try {
+            this.setSkeletonData(data);
+            if (!this.isCachedMode()) {
+                this.setAnimationStateData(new spine.AnimationStateData(this._skeleton.data));
+            }
+            this.defaultSkin && this.setSkin(this.defaultSkin);
+        }
+        catch (e) {
+            cc.warn(e);
+        }
+        
+        this._preRenderMode = this.renderMode;
+        this.animation = this.defaultAnimation;
     },
 
     _refreshInspector () {
         // update inspector
         this._updateAnimEnum();
         this._updateSkinEnum();
+        this._updateRenderModeEnum();
         Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
+    },
+
+    _updateRenderModeEnum: CC_EDITOR && function () {
+        setEnumAttr(this, 'renderMode', RenderModeEnum);
     },
 
     _updateDebugDraw: function () {
@@ -1008,6 +1237,9 @@ sp.Skeleton = cc.Class({
             }
 
             this._debugRenderer.node.parent = this.node;
+            if (this.isCachedMode()) {
+                cc.warn("cached mode do not support debug bones");
+            }
         }
         else if (this._debugRenderer) {
             this._debugRenderer.node.parent = null;

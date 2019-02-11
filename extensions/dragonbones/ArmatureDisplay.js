@@ -384,8 +384,6 @@ let ArmatureDisplay = cc.Class({
         // Below properties will effect when render mode is sharedCache or privateCache.
         // accumulate time
         _accTime: 0,
-        // Frame counter
-        _frameCount: 0,
         // Play times counter
         _playCount: 0,
         // Frame cache
@@ -394,6 +392,8 @@ let ArmatureDisplay = cc.Class({
         _curFrame: null,
         // Playing flag
         _playing: false,
+        // Armature cache
+        _armatureCache: null,
     },
 
     ctor () {
@@ -522,7 +522,6 @@ let ArmatureDisplay = cc.Class({
         }
 
         this._curFrame = frames[frameIdx];
-        this._frameIdx = frameIdx;
     },
 
     onDestroy () {
@@ -620,7 +619,7 @@ let ArmatureDisplay = cc.Class({
         }
 
         if (this.renderMode !== RenderModeEnum.realtime && this.debugBones) {
-            console.warn("cached mode do not support debug bones");
+            cc.warn("cached mode do not support debug bones");
         }
 
         this._updateBatch();
@@ -715,7 +714,6 @@ let ArmatureDisplay = cc.Class({
             }
             if (cache) {
                 this._accTime = 0;
-                this._frameCount = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
                 this._playing = true;

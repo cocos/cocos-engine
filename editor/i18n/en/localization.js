@@ -258,7 +258,9 @@ module.exports = {
             "debug_slots": "Indicates whether show debug slots.",
             "debug_bones": "Indicates whether show debug bones.",
             "premultipliedAlpha": "Indicates whether to enable premultiplied alpha.",
-            "use_tint": "Indicates whether to use tint effect."
+            "use_tint": "Indicates whether to use tint effect.",
+            "enabled_batch": "Indicates whether enabled batch model",
+            "render_mode": "The render mode of current armature. \n'realtime' means realtime calculate animation data, support animation blend but low performance. \n'sharedCache' means precomputation animation data and share data with same armature, high performance and less memery. \n'privateCache' means precomputation animation data but not share data with other same armature, high performance and more memery.\nAbove two cache mode, not support nest armature, not support 'fade' related interface.",
         },
         "dragon_bones": {
             "dragon_bones_asset": "The json data contains the DragonBones information, drag the json file exported from DragonBones to get started.",
