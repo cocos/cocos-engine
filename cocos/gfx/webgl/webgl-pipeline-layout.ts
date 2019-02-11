@@ -6,10 +6,6 @@ import { WebGLGPUPipelineLayout } from './webgl-gpu-objects';
 
 export class WebGLGFXPipelineLayout extends GFXPipelineLayout {
 
-    public get webGLDevice (): WebGLGFXDevice {
-        return  this._device as WebGLGFXDevice;
-    }
-
     public get gpuPipelineLayout (): WebGLGPUPipelineLayout {
         return  this._gpuPipelineLayout!;
     }
@@ -23,10 +19,7 @@ export class WebGLGFXPipelineLayout extends GFXPipelineLayout {
     public initialize (info: IGFXPipelineLayoutInfo): boolean {
 
         this._layouts = info.layouts;
-
-        if (info.pushConstantsRanges !== undefined) {
-            this._pushConstantsRanges = info.pushConstantsRanges;
-        }
+        this._pushConstantsRanges = info.pushConstantsRanges || [];
         this._status = GFXStatus.SUCCESS;
 
         return true;

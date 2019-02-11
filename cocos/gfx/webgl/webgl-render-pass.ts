@@ -22,26 +22,21 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
 
     public initialize (info: IGFXRenderPassInfo): boolean {
 
-        if (info.colorAttachments !== undefined) {
-            this._colorInfos = info.colorAttachments;
-        }
+        this._colorInfos = info.colorAttachments || [];
+        this._depthStencilInfo = info.depthStencilAttachment || null;
 
-        if (info.depthStencilAttachment !== undefined) {
-            this._depthStencilInfo = info.depthStencilAttachment;
-        }
+        this._gpuRenderPass = {
+            colorAttachments: this._colorInfos,
+            depthStencilAttachment: this._depthStencilInfo,
+        };
 
-        this._gpuRenderPass = this.webGLDevice.emitCmdCreateGPURenderPass(info);
         this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
     public destroy () {
-
-        if (this._gpuRenderPass) {
-            this.webGLDevice.emitCmdDestroyGPURenderPass(this._gpuRenderPass);
-            this._gpuRenderPass = null;
-        }
+        this._gpuRenderPass = null;
         this._status = GFXStatus.UNREADY;
     }
 }

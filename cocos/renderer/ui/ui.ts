@@ -502,7 +502,6 @@ export class UI {
     }
 
     private mergeBatches () {
-        let curCamera: Camera | null = null;
         let curTexView: GFXTextureView | null = null;
         let bufferBatchIdx = 0;
         let curBufferBatch: UIBufferBatch = this._bufferBatches[bufferBatchIdx++];
@@ -522,11 +521,6 @@ export class UI {
         let isEnding = false;
 
         for (const uiCanvas of this._commitUICanvas) {
-
-            if (curCamera !== uiCanvas.camera) {
-                // isNewBatch = true;
-                curCamera = uiCanvas.camera;
-            }
 
             index = 0;
             len = uiCanvas.datas.length;
@@ -584,7 +578,7 @@ export class UI {
                 if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
                     if(curTexView){
                         curDrawBatch = this._drawBatchPool.add();
-                        curDrawBatch.camera = curCamera;
+                        curDrawBatch.camera = uiCanvas.camera;
                         curDrawBatch.bufferBatch = curBufferBatch;
                         curDrawBatch.material = uiRenderData.material;
                         curDrawBatch.texView = curTexView!;
@@ -613,7 +607,7 @@ export class UI {
                 // get the last data
                 if(isEnding){
                     curDrawBatch = this._drawBatchPool.add();
-                    curDrawBatch.camera = curCamera;
+                    curDrawBatch.camera = uiCanvas.camera;
                     curDrawBatch.bufferBatch = curBufferBatch;
                     curDrawBatch.material = uiRenderData.material;
                     curDrawBatch.texView = curTexView!;

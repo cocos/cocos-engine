@@ -96,7 +96,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
     public destroy () {
         if (this._webGLAllocator) {
-            this._webGLAllocator!.clearCmds(this.cmdPackage);
+            this._webGLAllocator.clearCmds(this.cmdPackage);
             this._allocator = null;
             this._webGLAllocator = null;
         }

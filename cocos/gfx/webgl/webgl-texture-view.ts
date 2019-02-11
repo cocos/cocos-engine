@@ -3,6 +3,7 @@ import { GFXDevice } from '../device';
 import { GFXTextureView, IGFXTextureViewInfo } from '../texture-view';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUTextureView } from './webgl-gpu-objects';
+import { WebGLGFXTexture } from './webgl-texture';
 
 export class WebGLGFXTextureView extends GFXTextureView {
 
@@ -43,17 +44,21 @@ export class WebGLGFXTextureView extends GFXTextureView {
             this._layerCount = info.layerCount;
         }
 
-        this._gpuTextureView = this.webGLDevice.emitCmdCreateGPUTextureView(info);
+        this._gpuTextureView = {
+            gpuTexture: (info.texture as WebGLGFXTexture).gpuTexture,
+            type: info.type,
+            format: info.format,
+            baseLevel: info.baseLevel ? info.baseLevel : 0,
+            levelCount: info.levelCount ? info.levelCount : 1,
+        };
+
         this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
     public destroy () {
-        if (this._gpuTextureView) {
-            this.webGLDevice.emitCmdDestroyGPUTextureView(this._gpuTextureView);
-            this._gpuTextureView = null;
-        }
+        this._gpuTextureView = null;
         this._texture = null;
         this._status = GFXStatus.UNREADY;
     }

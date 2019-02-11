@@ -55,7 +55,7 @@ export default [
   },
   {
     "name": "builtin-effect-sprite",
-    "techniques": [{"passes":[{"depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag", "properties":{"mainTexture":{"type":29, "value":"white"}}}]}],
+    "techniques": [{"passes":[{"depthStencilState":{"depthTest":false, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendSrcAlpha":1, "blendDstAlpha":1}]}, "program":"builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag", "properties":{"mainTexture":{"type":29, "value":"white"}}}]}],
     "shaders": [
       {
         "name": "builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag",

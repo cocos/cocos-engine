@@ -2,13 +2,10 @@ import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXShader, IGFXShaderInfo } from '../shader';
 import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPUShader } from './webgl-gpu-objects';
+import { WebGLGPUShader, WebGLGPUShaderStage } from './webgl-gpu-objects';
+import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
 
 export class WebGLGFXShader extends GFXShader {
-
-    public get webGLDevice (): WebGLGFXDevice {
-        return  this._device as WebGLGFXDevice;
-    }
 
     public get gpuShader (): WebGLGPUShader {
         return  this._gpuShader!;
@@ -33,7 +30,31 @@ export class WebGLGFXShader extends GFXShader {
             this._samplers = info.samplers;
         }
 
-        this._gpuShader = this.webGLDevice.emitCmdCreateGPUShader(info);
+        this._gpuShader = {
+            name: info.name ? info.name : '',
+            blocks: (info.blocks !== undefined ? info.blocks : []),
+            samplers: (info.samplers !== undefined ? info.samplers : []),
+
+            gpuStages: new Array<WebGLGPUShaderStage>(info.stages.length),
+            glProgram: 0,
+            glInputs: [],
+            glUniforms: [],
+            glBlocks: [],
+            glSamplers: [],
+        };
+
+        for (let i = 0; i < info.stages.length; ++i) {
+            const stage = info.stages[i];
+            this._gpuShader.gpuStages[i] = {
+                type: stage.type,
+                source: stage.source,
+                macros: stage.macros ? stage.macros : [],
+                glShader: 0,
+            };
+        }
+
+        WebGLCmdFuncCreateShader(this._device as WebGLGFXDevice, this._gpuShader);
+
         this._status = GFXStatus.SUCCESS;
 
         return true;
@@ -41,7 +62,7 @@ export class WebGLGFXShader extends GFXShader {
 
     public destroy () {
         if (this._gpuShader) {
-            this.webGLDevice.emitCmdDestroyGPUShader(this._gpuShader);
+            WebGLCmdFuncDestroyShader(this._device as WebGLGFXDevice, this._gpuShader);
             this._gpuShader = null;
         }
         this._status = GFXStatus.UNREADY;

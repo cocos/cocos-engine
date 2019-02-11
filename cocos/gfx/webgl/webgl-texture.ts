@@ -1,8 +1,9 @@
-import { GFXFormatSurfaceSize, GFXStatus, GFXTextureFlagBit } from '../define';
+import { GFXFormatSurfaceSize, GFXStatus, GFXTextureFlagBit, GFXTextureViewType, GFXTextureType } from '../define';
 import { GFXDevice } from '../device';
 import { GFXTexture, IGFXTextureInfo } from '../texture';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUTexture } from './webgl-gpu-objects';
+import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture } from './webgl-commands';
 
 export class WebGLGFXTexture extends GFXTexture {
 
@@ -51,7 +52,74 @@ export class WebGLGFXTexture extends GFXTexture {
             this._buffer = new ArrayBuffer(this._size);
         }
 
-        this._gpuTexture = this.webGLDevice.emitCmdCreateGPUTexture(info);
+        let viewType: GFXTextureViewType;
+
+        switch (info.type) {
+            case GFXTextureType.TEX1D: {
+
+                if (info.arrayLayer) {
+                    viewType = info.arrayLayer <= 1 ? GFXTextureViewType.TV1D : GFXTextureViewType.TV1D_ARRAY;
+                } else {
+                    viewType = GFXTextureViewType.TV1D;
+                }
+
+                break;
+            }
+            case GFXTextureType.TEX2D: {
+                let flags = GFXTextureFlagBit.NONE;
+                if (info.flags) {
+                    flags = info.flags;
+                }
+
+                if (info.arrayLayer) {
+                    if (info.arrayLayer <= 1) {
+                        viewType = GFXTextureViewType.TV2D;
+                    } else if (flags & GFXTextureFlagBit.CUBEMAP) {
+                        viewType = GFXTextureViewType.CUBE;
+                    } else {
+                        viewType = GFXTextureViewType.TV2D_ARRAY;
+                    }
+                } else {
+                    viewType = GFXTextureViewType.TV2D;
+                }
+
+                break;
+            }
+            case GFXTextureType.TEX3D: {
+                viewType = GFXTextureViewType.TV3D;
+                break;
+            }
+            default: {
+                viewType = GFXTextureViewType.TV2D;
+            }
+        }
+
+        this._gpuTexture = {
+            type: info.type,
+            viewType,
+            format: info.format,
+            usage: info.usage,
+            width: info.width,
+            height: info.height,
+            depth: Math.max(info.depth || 1, 1),
+            arrayLayer: Math.max(info.arrayLayer || 1, 1),
+            mipLevel: Math.max(info.mipLevel || 1, 1),
+            flags: info.flags || GFXTextureFlagBit.NONE,
+
+            glTarget: 0,
+            glInternelFmt: 0,
+            glFormat: 0,
+            glType: 0,
+            glUsage: 0,
+            glTexture: 0,
+            glWrapS: 0,
+            glWrapT: 0,
+            glMinFilter: 0,
+            glMagFilter: 0,
+        };
+
+        WebGLCmdFuncCreateTexture(this._device as WebGLGFXDevice, this._gpuTexture);
+
         this._status = GFXStatus.SUCCESS;
 
         return true;
@@ -59,7 +127,7 @@ export class WebGLGFXTexture extends GFXTexture {
 
     public destroy () {
         if (this._gpuTexture) {
-            this.webGLDevice.emitCmdDestroyGPUTexture(this._gpuTexture);
+            WebGLCmdFuncDestroyTexture(this._device as WebGLGFXDevice, this._gpuTexture);
             this._gpuTexture = null;
         }
         this._status = GFXStatus.UNREADY;

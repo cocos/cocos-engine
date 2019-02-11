@@ -2282,12 +2282,13 @@ export function WebGLCmdFuncCopyBufferToTexture (
             } else {
                 for (const region of regions) {
                     buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
-
-                    for (f = 0; f < 6; ++f) {
+                    let fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
+                    for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                         w = region.texExtent.width;
                         h = region.texExtent.height;
 
-                        for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
+                        let mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
+                        for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
                             const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
                             const data = buff.slice(buffOffset, buffOffset + memSize);
                             const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);

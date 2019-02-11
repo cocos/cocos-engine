@@ -2,15 +2,11 @@ import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { WebGLGFXBuffer } from './webgl-buffer';
-import { WebGLCmdDraw } from './webgl-commands';
+import { WebGLCmdDraw, WebGLCmdFuncCreateInputAssember } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPUInputAssembler } from './webgl-gpu-objects';
+import { WebGLGPUInputAssembler, WebGLGPUBuffer } from './webgl-gpu-objects';
 
 export class WebGLGFXInputAssembler extends GFXInputAssembler {
-
-    public get webGLDevice (): WebGLGFXDevice {
-        return  this._device as WebGLGFXDevice;
-    }
 
     public get gpuInputAssembler (): WebGLGPUInputAssembler {
         return  this._gpuInputAssembler!;
@@ -40,21 +36,57 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
             this._vertexCount = vertBuff.size / vertBuff.stride;
         }
 
-        if (info.indirectBuffer !== undefined) {
-            this._indirectBuffer = info.indirectBuffer;
+        this._indirectBuffer = info.indirectBuffer || null;
+
+        const gpuVertexBuffers: WebGLGPUBuffer[] = new Array<WebGLGPUBuffer>(info.vertexBuffers.length);
+        for (let i = 0; i < info.vertexBuffers.length; ++i) {
+            const vb = info.vertexBuffers[i] as WebGLGFXBuffer;
+            if (vb.gpuBuffer) {
+                gpuVertexBuffers[i] = vb.gpuBuffer;
+            }
         }
 
-        this._gpuInputAssembler = this.webGLDevice.emitCmdCreateGPUInputAssembler(info);
+        let gpuIndexBuffer: WebGLGPUBuffer | null = null;
+        let glIndexType = 0;
+        if (info.indexBuffer) {
+            gpuIndexBuffer = (info.indexBuffer as WebGLGFXBuffer).gpuBuffer;
+            if (gpuIndexBuffer) {
+                switch (gpuIndexBuffer.stride) {
+                    case 1: glIndexType = WebGLRenderingContext.UNSIGNED_BYTE; break;
+                    case 2: glIndexType = WebGLRenderingContext.UNSIGNED_SHORT; break;
+                    case 4: glIndexType = WebGLRenderingContext.UNSIGNED_INT; break;
+                    default: {
+                        console.error('Error index buffer stride.');
+                    }
+                }
+            }
+        }
+
+        let gpuIndirectBuffer: WebGLGPUBuffer | null = null;
+        if (info.indirectBuffer !== undefined) {
+            gpuIndirectBuffer = (info.indirectBuffer as WebGLGFXBuffer).gpuBuffer;
+        }
+
+        this._gpuInputAssembler = {
+            attributes: info.attributes,
+            gpuVertexBuffers,
+            gpuIndexBuffer,
+            gpuIndirectBuffer,
+
+            glAttribs: [],
+            glIndexType,
+            glVAO: 0,
+        };
+
+        WebGLCmdFuncCreateInputAssember(this._device as WebGLGFXDevice, this._gpuInputAssembler);
+
         this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
     public destroy () {
-        if (this._gpuInputAssembler) {
-            this.webGLDevice.emitCmdDestroyGPUInputAssembler(this._gpuInputAssembler);
-            this._gpuInputAssembler = null;
-        }
+        this._gpuInputAssembler = null;
         this._status = GFXStatus.UNREADY;
     }
 

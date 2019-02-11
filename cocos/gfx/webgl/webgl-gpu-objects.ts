@@ -21,29 +21,6 @@ import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipe
 import { GFXColorAttachment, GFXDepthStencilAttachment } from '../render-pass';
 import { GFXUniformBlock, GFXUniformSampler, IGFXShaderMacro } from '../shader';
 
-export enum WebGLGPUObjectType {
-    UNKNOWN,
-    BUFFER,
-    TEXTURE,
-    TEXTURE_VIEW,
-    RENDER_PASS,
-    FRAMEBUFFER,
-    SAMPLER,
-    SHADER,
-    PIPELINE_STATE,
-    BINDING_LAYOUT,
-    INPUT_ASSEMBLER,
-    COMMAND_BUFFER,
-}
-
-export class WebGLGPUObject {
-    public objType: WebGLGPUObjectType;
-
-    constructor (type: WebGLGPUObjectType) {
-        this.objType = type;
-    }
-}
-
 export interface IWebGLGPUUniformInfo {
     name: string;
     type: GFXType;
@@ -53,7 +30,7 @@ export interface IWebGLGPUUniformInfo {
     isDirty: boolean;
 }
 
-export class WebGLGPUBuffer extends WebGLGPUObject {
+export class WebGLGPUBuffer {
     public usage: GFXBufferUsage = GFXBufferUsageBit.NONE;
     public memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;
     public size: number = 0;
@@ -65,13 +42,9 @@ export class WebGLGPUBuffer extends WebGLGPUObject {
     public vf32: Float32Array | null = null;
     public uniforms: IWebGLGPUUniformInfo[] = [];
     public indirects: IGFXDrawInfo[] = [];
-
-    constructor () {
-        super(WebGLGPUObjectType.BUFFER);
-    }
 }
 
-export class WebGLGPUTexture extends WebGLGPUObject {
+export class WebGLGPUTexture {
     public type: GFXTextureType = GFXTextureType.TEX2D;
     public viewType: GFXTextureViewType = GFXTextureViewType.TV2D;
     public format: GFXFormat = GFXFormat.UNKNOWN;
@@ -93,13 +66,9 @@ export class WebGLGPUTexture extends WebGLGPUObject {
     public glWrapT: GLenum = 0;
     public glMinFilter: GLenum = 0;
     public glMagFilter: GLenum = 0;
-
-    constructor () {
-        super(WebGLGPUObjectType.TEXTURE);
-    }
 }
 
-export class WebGLGPUTextureView extends WebGLGPUObject {
+export class WebGLGPUTextureView {
 
     public gpuTexture: WebGLGPUTexture;
     public type: GFXTextureViewType = GFXTextureViewType.TV2D;
@@ -108,22 +77,17 @@ export class WebGLGPUTextureView extends WebGLGPUObject {
     public levelCount: number = 1;
 
     constructor (texture: WebGLGPUTexture) {
-        super(WebGLGPUObjectType.TEXTURE_VIEW);
         this.gpuTexture = texture;
     }
 }
 
-export class WebGLGPURenderPass extends WebGLGPUObject {
+export class WebGLGPURenderPass {
 
     public colorAttachments: GFXColorAttachment[] = [];
     public depthStencilAttachment: GFXDepthStencilAttachment | null = null;
-
-    constructor () {
-        super(WebGLGPUObjectType.RENDER_PASS);
-    }
 }
 
-export class WebGLGPUFramebuffer extends WebGLGPUObject {
+export class WebGLGPUFramebuffer {
 
     public gpuRenderPass: WebGLGPURenderPass;
     public gpuColorViews: WebGLGPUTextureView[] = [];
@@ -133,22 +97,16 @@ export class WebGLGPUFramebuffer extends WebGLGPUObject {
     public glFramebuffer: WebGLFramebuffer = 0;
 
     constructor (gpuRenderPass: WebGLGPURenderPass) {
-        super(WebGLGPUObjectType.FRAMEBUFFER);
-
         this.gpuRenderPass = gpuRenderPass;
     }
 }
 
-export class WebGLGPUSampler extends WebGLGPUObject {
+export class WebGLGPUSampler {
     public glMinFilter: GLenum = WebGLRenderingContext.NONE;
     public glMagFilter: GLenum = WebGLRenderingContext.NONE;
     public glWrapS: GLenum = WebGLRenderingContext.NONE;
     public glWrapT: GLenum = WebGLRenderingContext.NONE;
     public glWrapR: GLenum = WebGLRenderingContext.NONE;
-
-    constructor () {
-        super(WebGLGPUObjectType.SAMPLER);
-    }
 }
 
 export class WebGLGPUInput {
@@ -206,7 +164,7 @@ export class WebGLGPUShaderStage {
     public glShader: WebGLShader = 0;
 }
 
-export class WebGLGPUShader extends WebGLGPUObject {
+export class WebGLGPUShader {
     public name: string = '';
     public blocks: GFXUniformBlock[] = [];
     public samplers: GFXUniformSampler[] = [];
@@ -217,17 +175,13 @@ export class WebGLGPUShader extends WebGLGPUObject {
     public glUniforms: IWebGLGPUUniform[] = [];
     public glBlocks: WebGLGPUUniformBlock[] = [];
     public glSamplers: WebGLGPUUniformSampler[] = [];
-
-    constructor () {
-        super(WebGLGPUObjectType.SHADER);
-    }
 }
 
-export class WebGLGPUPipelineLayout extends WebGLGPUObject {
+export class WebGLGPUPipelineLayout {
 
 }
 
-export class WebGLGPUPipelineState extends WebGLGPUObject {
+export class WebGLGPUPipelineState {
 
     public glPrimitive: GLenum = WebGLRenderingContext.TRIANGLES;
     public gpuShader: WebGLGPUShader | null = null;
@@ -237,10 +191,6 @@ export class WebGLGPUPipelineState extends WebGLGPUObject {
     public dynamicStates: GFXDynamicState[] = [];
     public gpuLayout: WebGLGPUPipelineLayout | null = null;
     public gpuRenderPass: WebGLGPURenderPass | null = null;
-
-    constructor () {
-        super(WebGLGPUObjectType.PIPELINE_STATE);
-    }
 }
 
 export class WebGLGPUBinding {
@@ -252,13 +202,9 @@ export class WebGLGPUBinding {
     public gpuSampler: WebGLGPUSampler | null = null;
 }
 
-export class WebGLGPUBindingLayout extends WebGLGPUObject {
+export class WebGLGPUBindingLayout {
 
     public gpuBindings: WebGLGPUBinding[] = [];
-
-    constructor () {
-        super(WebGLGPUObjectType.BINDING_LAYOUT);
-    }
 }
 
 export class WebGLAttrib {
@@ -274,7 +220,7 @@ export class WebGLAttrib {
     public offset: number = 0;
 }
 
-export class WebGLGPUInputAssembler extends WebGLGPUObject {
+export class WebGLGPUInputAssembler {
     public attributes: IGFXInputAttribute[] = [];
     public gpuVertexBuffers: WebGLGPUBuffer[] = [];
     public gpuIndexBuffer: WebGLGPUBuffer | null = null;
@@ -283,8 +229,4 @@ export class WebGLGPUInputAssembler extends WebGLGPUObject {
     public glAttribs: WebGLAttrib[] = [];
     public glIndexType: GLenum = 0;
     public glVAO: WebGLVertexArrayObjectOES = 0;
-
-    constructor () {
-        super(WebGLGPUObjectType.INPUT_ASSEMBLER);
-    }
 }
