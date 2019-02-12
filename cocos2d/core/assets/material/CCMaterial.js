@@ -26,6 +26,7 @@
 
 const Asset = require('../CCAsset');
 const Texture = require('../CCTexture2D');
+const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('../CCEffectAsset');
 
 import Effect from '../../../renderer/core/effect';
@@ -142,6 +143,9 @@ let Material = cc.Class({
         if (this._effect) {
             if (val instanceof Texture) {
                 this._effect.setProperty(name, val.getImpl());
+                if (val.getPixelFormat() === PixelFormat.RGB_ETC1) {
+                    this.define('_USE_ETC1_' + name.toUpperCase(), true);
+                }
             }
             else {
                 this._effect.setProperty(name, val);

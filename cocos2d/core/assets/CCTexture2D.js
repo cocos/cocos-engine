@@ -153,6 +153,13 @@ const PixelFormat = cc.Enum({
      * @type {Number}
      */
     RGBA_PVRTC_4BPPV1: gfx.TEXTURE_FMT_RGBA_PVRTC_4BPPV1,
+    /**
+     * rgb etc
+     * @property RGB_ETC1
+     * @readonly
+     * @type {Number}
+     */
+    RGB_ETC1: gfx.TEXTURE_FMT_RGB_ETC1,
 });
 
 /**
@@ -280,10 +287,11 @@ var Texture2D = cc.Class({
         _FilterIndex: FilterIndex,
 
         // predefined most common extnames
-        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.etc'],
+        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm'],
 
         _isCompressed (texture) {
-            return texture._format >= PixelFormat.RGB_PVRTC_2BPPV1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
+            let format = texture._format;
+            return (format >= PixelFormat.RGB_PVRTC_2BPPV1 && format <= PixelFormat.RGBA_PVRTC_4BPPV1) || format === PixelFormat.RGB_ETC1;
         }
     },
 

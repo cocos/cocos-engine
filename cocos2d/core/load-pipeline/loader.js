@@ -124,7 +124,7 @@ const PVR_HEADER_WIDTH = 7;
 const PVR_HEADER_MIPMAPCOUNT = 11;
 const PVR_HEADER_METADATA = 12;
 
-function loadCompressedTex (item) {
+function loadPVRTex (item) {
     let buffer = item.content instanceof ArrayBuffer ? item.content : item.content.buffer;
     // Get a view of the arrayBuffer that represents the DDS header.
     let header = new Int32Array(buffer, 0, PVR_HEADER_LENGTH);
@@ -137,7 +137,6 @@ function loadCompressedTex (item) {
     // Gather other basic metrics and a view of the raw the DXT data.
     let width = header[PVR_HEADER_WIDTH];
     let height = header[PVR_HEADER_HEIGHT];
-    let levels = header[PVR_HEADER_MIPMAPCOUNT];
     let dataOffset = header[PVR_HEADER_METADATA] + 52;
     let pvrtcData = new Uint8Array(buffer, dataOffset);
 
@@ -152,6 +151,38 @@ function loadCompressedTex (item) {
     return pvrAsset;
 }
 
+//===============//
+// ETC constants //
+//===============//
+const ETC1_PKM_FORMAT_OFFSET = 6;
+const ETC1_PKM_ENCODED_WIDTH_OFFSET = 8;
+const ETC1_PKM_ENCODED_HEIGHT_OFFSET = 10;
+const ETC1_PKM_WIDTH_OFFSET = 12;
+const ETC1_PKM_HEIGHT_OFFSET = 14;
+const ETC1_RGB_NO_MIPMAPS = 0;
+const ETC_PKM_HEADER_SIZE = 16;
+
+function readBEUint16(header, offset) {
+    return (header[offset] << 8) | header[offset+1];
+}
+function loadPKMTex(item) {
+    let buffer = item.content instanceof ArrayBuffer ? item.content : item.content.buffer;
+    let header = new Uint8Array(buffer);
+    if (readBEUint16(header, ETC1_PKM_FORMAT_OFFSET) !== ETC1_RGB_NO_MIPMAPS) return new Error("Invalid magic number in ETC header");
+    let width = readBEUint16(header, ETC1_PKM_WIDTH_OFFSET);
+    let height = readBEUint16(header, ETC1_PKM_HEIGHT_OFFSET);
+    let encodedWidth = readBEUint16(header, ETC1_PKM_ENCODED_WIDTH_OFFSET);
+    let encodedHeight = readBEUint16(header, ETC1_PKM_ENCODED_HEIGHT_OFFSET);
+    let etcData = new Uint8Array(buffer, ETC_PKM_HEADER_SIZE);
+    let etcAsset = {
+        _data: etcData,
+        _compressed: true,
+        width: width,
+        height: height
+    };
+    return etcAsset;
+}
+
 var defaultMap = {
     // Images
     'png' : loadImage,
@@ -163,8 +194,8 @@ var defaultMap = {
     'tiff' : loadImage,
     'webp' : loadImage,
     'image' : loadImage,
-    'pvr' : loadCompressedTex,
-    'etc' : loadCompressedTex,
+    'pvr' : loadPVRTex,
+    'pkm' : loadPKMTex,
 
     // Audio
     'mp3' : loadAudioAsAsset,
