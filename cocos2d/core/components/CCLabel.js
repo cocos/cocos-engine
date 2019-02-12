@@ -575,10 +575,6 @@ let Label = cc.Class({
         else {
             if (!this._ttfTexture) {
                 this._ttfTexture = new cc.Texture2D();
-                // TTF texture in web will blend with canvas or body background color
-                if (!CC_JSB && !CC_RUNTIME) {
-                    this._ttfTexture.setPremultiplyAlpha(true);
-                }
                 this._assemblerData = this._assembler._getAssemblerData();
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
@@ -613,12 +609,7 @@ let Label = cc.Class({
                 material = new SpriteMaterial();
             }
             // Setup blend function for premultiplied ttf label texture
-            if (this._frame._texture === this._ttfTexture) {
-                this._srcBlendFactor = cc.macro.BlendFactor.ONE;
-            }
-            else {
-                this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
-            }
+            this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             material.texture = this._frame._texture;
             // For batch rendering, do not use uniform color.
             material.useColor = false;

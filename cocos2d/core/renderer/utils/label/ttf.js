@@ -244,13 +244,17 @@ module.exports = {
 
     _updateTexture (comp) {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
+        //Add a white background to avoid black edges.
+        //TODO: it is best to add alphaTest to filter out the background color.
+        _context.fillStyle = `rgba(${255}, ${255}, ${255}, ${0.005})`;
+        _context.fillRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
         let startPosition = this._calculateFillTextStartPosition();
         let lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${1})`;
         let underlineStartPosition;
 
         //do real rendering
