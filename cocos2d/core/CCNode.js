@@ -3095,56 +3095,56 @@ var Node = cc.Class({
 
 /**
  * !#en
- * The position changing event, you can listen to this event through the statement cc.node.on(cc.Node.EventType.POSITION_CHANGED, callback, this);
+ * The position changing event, you can listen to this event through the statement this.node.on(cc.Node.EventType.POSITION_CHANGED, callback, this);
  * !#zh
- * 位置变动监听事件, 通过 cc.node.on(cc.Node.EventType.POSITION_CHANGED, callback, this); 进行监听。
+ * 位置变动监听事件, 通过 this.node.on(cc.Node.EventType.POSITION_CHANGED, callback, this); 进行监听。
  * @event position-changed
  * @param {Vec2} oldPos - The old position, but this parameter is only available in editor!
  */
 /**
  * !#en
- * The size changing event, you can listen to this event through the statement cc.node.on(cc.Node.EventType.SIZE_CHANGED, callback, this);
+ * The size changing event, you can listen to this event through the statement this.node.on(cc.Node.EventType.SIZE_CHANGED, callback, this);
  * !#zh
- * 尺寸变动监听事件，通过 cc.node.on(cc.Node.EventType.SIZE_CHANGED, callback, this); 进行监听。
+ * 尺寸变动监听事件，通过 this.node.on(cc.Node.EventType.SIZE_CHANGED, callback, this); 进行监听。
  * @event size-changed
  * @param {Size} oldSize - The old size, but this parameter is only available in editor!
  */
 /**
  * !#en
- * The anchor changing event, you can listen to this event through the statement cc.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
+ * The anchor changing event, you can listen to this event through the statement this.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
  * !#zh
- * 锚点变动监听事件，通过 cc.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this); 进行监听。
+ * 锚点变动监听事件，通过 this.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this); 进行监听。
  * @event anchor-changed
  */
 /**
  * !#en
- * The adding child event, you can listen to this event through the statement cc.node.on(cc.Node.EventType.CHILD_ADDED, callback, this);
+ * The adding child event, you can listen to this event through the statement this.node.on(cc.Node.EventType.CHILD_ADDED, callback, this);
  * !#zh
- * 增加子节点监听事件，通过 cc.node.on(cc.Node.EventType.CHILD_ADDED, callback, this); 进行监听。
+ * 增加子节点监听事件，通过 this.node.on(cc.Node.EventType.CHILD_ADDED, callback, this); 进行监听。
  * @event child-added
  * @param {Node} child - child which have been added
  */
 /**
  * !#en
- * The removing child event, you can listen to this event through the statement cc.node.on(cc.Node.EventType.CHILD_REMOVED, callback, this);
+ * The removing child event, you can listen to this event through the statement this.node.on(cc.Node.EventType.CHILD_REMOVED, callback, this);
  * !#zh
- * 删除子节点监听事件，通过 cc.node.on(cc.Node.EventType.CHILD_REMOVED, callback, this); 进行监听。
+ * 删除子节点监听事件，通过 this.node.on(cc.Node.EventType.CHILD_REMOVED, callback, this); 进行监听。
  * @event child-removed
  * @param {Node} child - child which have been removed
  */
 /**
  * !#en
- * The reordering child event, you can listen to this event through the statement cc.node.on(cc.Node.EventType.CHILD_REORDER, callback, this);
+ * The reordering child event, you can listen to this event through the statement this.node.on(cc.Node.EventType.CHILD_REORDER, callback, this);
  * !#zh
- * 自节点顺序变动监听事件，通过 cc.node.on(cc.Node.EventType.CHILD_REORDER, callback, this); 进行监听。
+ * 子节点顺序变动监听事件，通过 this.node.on(cc.Node.EventType.CHILD_REORDER, callback, this); 进行监听。
  * @event child-reorder
  * @param {Node} node - node whose children have been reordered
  */
 /**
  * !#en
- * The group changing event, you can listen to this event through the statement cc.node.on(cc.Node.EventType.GROUP_CHANGED, callback, this);
+ * The group changing event, you can listen to this event through the statement this.node.on(cc.Node.EventType.GROUP_CHANGED, callback, this);
  * !#zh
- * 节点分组变动监听事件，通过 cc.node.on(cc.Node.EventType.GROUP_CHANGED, callback, this); 进行监听。
+ * 节点分组变动监听事件，通过 this.node.on(cc.Node.EventType.GROUP_CHANGED, callback, this); 进行监听。
  * @event group-changed
  * @param {Node} node - node whose group has changed
  */
