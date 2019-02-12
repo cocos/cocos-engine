@@ -373,6 +373,11 @@ bool Application::openURL(const std::string &url)
     return (size_t)r>32;
 }
 
+void Application::copyTextToClipboard(const std::string &text)
+{
+    //TODO
+}
+
 bool Application::applicationDidFinishLaunching()
 {
     return true;

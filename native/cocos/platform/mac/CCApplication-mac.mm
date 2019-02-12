@@ -268,6 +268,14 @@ bool Application::openURL(const std::string &url)
     return [[NSWorkspace sharedWorkspace] openURL:nsUrl];
 }
 
+void Application::copyTextToClipboard(const std::string &text)
+{
+    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+    [pasteboard clearContents];
+    NSString* tmp = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
+    [pasteboard setString:tmp forType:NSStringPboardType];
+}
+
 bool Application::applicationDidFinishLaunching()
 {
     return true;

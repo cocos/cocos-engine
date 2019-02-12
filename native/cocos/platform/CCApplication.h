@@ -179,6 +179,8 @@ public:
      */
     bool openURL(const std::string &url);
 
+    void copyTextToClipboard(const std::string &text);
+
     std::string getSystemVersion();
     
 protected:

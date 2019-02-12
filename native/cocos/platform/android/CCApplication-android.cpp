@@ -257,6 +257,11 @@ bool Application::openURL(const std::string &url)
     return openURLJNI(url);
 }
 
+void Application::copyTextToClipboard(const std::string &text)
+{
+    copyTextToClipboardJNI(text);
+}
+
 std::string Application::getSystemVersion()
 {
     return getSystemVersionJNI();

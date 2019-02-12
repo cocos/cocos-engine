@@ -42,6 +42,7 @@ extern int getDeviceAudioBufferSizeInFramesJNI();
 extern std::string getCurrentLanguageJNI();
 extern std::string getSystemVersionJNI();
 extern bool openURLJNI(const std::string& url);
+extern void copyTextToClipboardJNI(const std::string& text);
 extern void setPreferredFramesPerSecondJNI(int fps);
 extern void setGameInfoDebugViewTextJNI(int index, const std::string& text);
 extern void setJSBInvocationCountJNI(int count);

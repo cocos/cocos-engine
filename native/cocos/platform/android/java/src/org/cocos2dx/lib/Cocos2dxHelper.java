@@ -25,6 +25,8 @@ THE SOFTWARE.
  ****************************************************************************/
 package org.cocos2dx.lib;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -377,6 +379,18 @@ public class Cocos2dxHelper {
         } catch (Exception e) {
         }
         return ret;
+    }
+
+    // 复制文本到剪切板
+    public static void copyTextToClipboard(final String text){
+        sActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ClipboardManager myClipboard = (ClipboardManager)sActivity.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData myClip = ClipData.newPlainText("text", text);
+                myClipboard.setPrimaryClip(myClip);
+            }
+        });
     }
     
     public static long[] getObbAssetFileDescriptor(final String path) {
