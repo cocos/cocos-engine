@@ -67,6 +67,10 @@ function parseNotify (val, propName, notify, properties) {
             notify.call(this, oldValue);
         };
 
+        if (CC_EDITOR) {
+            val.notifyFor = newKey;
+        }
+
         var newValue = {};
         properties[newKey] = newValue;
         // 将不能用于get方法中的属性移动到newValue中
