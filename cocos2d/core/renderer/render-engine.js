@@ -14145,6 +14145,7 @@ var SpriteMaterial = (function (Material$$1) {
       ['transparent'],
       [
         { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+        { name: 'alphaThreshold', type: renderer.PARAM_FLOAT },
         { name: 'color', type: renderer.PARAM_COLOR4 } ],
       [
         pass
@@ -14161,7 +14162,7 @@ var SpriteMaterial = (function (Material$$1) {
       [
         { name: 'useTexture', value: true },
         { name: 'useModel', value: false },
-        { name: 'alphaTest', value: false },
+        { name: 'alphaTest', value: true },
         { name: 'use2DPos', value: true },
         { name: 'useColor', value: true } ]
     );
@@ -14174,7 +14175,7 @@ var SpriteMaterial = (function (Material$$1) {
   SpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   SpriteMaterial.prototype.constructor = SpriteMaterial;
 
-  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },use2DPos: { configurable: true },useColor: { configurable: true },texture: { configurable: true },color: { configurable: true } };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },use2DPos: { configurable: true },useColor: { configurable: true },texture: { configurable: true },color: { configurable: true },alphaThreshold: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -14212,6 +14213,14 @@ var SpriteMaterial = (function (Material$$1) {
     this._effect.define('useColor', val);
   };
 
+  prototypeAccessors.alphaThreshold.get = function () {
+    return this._effect.getProperty('alphaThreshold');
+  };
+
+  prototypeAccessors.alphaThreshold.set = function (val) {
+    this._effect.setProperty('alphaThreshold', val);
+  };
+
   prototypeAccessors.texture.get = function () {
     return this._texture;
   };
@@ -14245,6 +14254,7 @@ var SpriteMaterial = (function (Material$$1) {
     copy.useModel = this.useModel;
     copy.use2DPos = this.use2DPos;
     copy.useColor = this.useColor;
+    copy.alphaThreshold = this.alphaThreshold;
     copy.updateHash();
     return copy;
   };

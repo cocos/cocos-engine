@@ -145,6 +145,7 @@ let Label = cc.Class({
 
         this._actualFontSize = 0;
         this._assemblerData = null;
+        this._alphaThreshold = 0.01;
 
         this._frame = null;
         this._ttfTexture = null;
@@ -613,6 +614,7 @@ let Label = cc.Class({
             material.texture = this._frame._texture;
             // For batch rendering, do not use uniform color.
             material.useColor = false;
+            material.alphaThreshold = this._alphaThreshold;
             this._updateMaterial(material);
         }
 
