@@ -689,7 +689,7 @@ let Camera = cc.Class({
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
         RenderFlow.visit(root);
-        renderer._forward.renderCamera(this._camera, renderer.scene);
+        renderer._forward._render(this._camera.view, renderer.scene);
     },
 
     _layout () {
