@@ -1,7 +1,8 @@
 import { GFXFilter, GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXSampler, GFXSamplerState, IGFXSamplerInfo } from '../sampler';
-import { WebGLGPUSampler } from './webgl-gpu-objects';
+import { WebGL2GFXDevice } from './webgl2-device';
+import { WebGL2GPUSampler } from './webgl2-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
     WebGLRenderingContext.REPEAT,
@@ -10,13 +11,13 @@ const WebGLWraps: GLenum[] = [
     WebGLRenderingContext.CLAMP_TO_EDGE,
 ];
 
-export class WebGLGFXSampler extends GFXSampler {
+export class WebGL2GFXSampler extends GFXSampler {
 
-    public get gpuSampler (): WebGLGPUSampler {
+    public get gpuSampler (): WebGL2GPUSampler {
         return  this._gpuSampler!;
     }
 
-    private _gpuSampler: WebGLGPUSampler | null = null;
+    private _gpuSampler: WebGL2GPUSampler | null = null;
 
     constructor (device: GFXDevice) {
         super(device);

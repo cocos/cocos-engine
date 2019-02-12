@@ -767,8 +767,13 @@ var game = {
 
             {
                 // todo, adjust opts here
+                let gl2 = localCanvas.getContext('webgl2');
+                if (!gl2) {
+                    this._gfxDevice = new cc.WebGLGFXDevice;
+                } else {
+                    this._gfxDevice = new cc.WebGL2GFXDevice;
+                }
 
-                this._gfxDevice = new cc.WebGLGFXDevice;
                 this._gfxDevice.initialize({
                     canvasElm : localCanvas,
                     debug: true,

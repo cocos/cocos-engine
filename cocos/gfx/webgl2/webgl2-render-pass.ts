@@ -1,16 +1,16 @@
 import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
-import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPURenderPass } from './webgl-gpu-objects';
+import { WebGL2GFXDevice } from './webgl2-device';
+import { WebGL2GPURenderPass } from './webgl2-gpu-objects';
 
-export class WebGLGFXRenderPass extends GFXRenderPass {
+export class WebGL2GFXRenderPass extends GFXRenderPass {
 
-    public get gpuRenderPass (): WebGLGPURenderPass {
+    public get gpuRenderPass (): WebGL2GPURenderPass {
         return  this._gpuRenderPass!;
     }
 
-    private _gpuRenderPass: WebGLGPURenderPass | null = null;
+    private _gpuRenderPass: WebGL2GPURenderPass | null = null;
 
     constructor (device: GFXDevice) {
         super(device);

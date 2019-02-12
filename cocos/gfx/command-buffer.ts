@@ -23,6 +23,28 @@ export interface IGFXCommandBufferInfo {
     type: GFXCommandBufferType;
 }
 
+export interface IGFXDepthBias {
+    constantFactor: number;
+    clamp: number;
+    slopeFactor: number;
+}
+
+export interface IGFXDepthBounds {
+    minBounds: number;
+    maxBounds: number;
+}
+
+export interface IGFXStencilWriteMask {
+    face: GFXStencilFace;
+    writeMask: number;
+}
+
+export interface IGFXStencilCompareMask {
+    face: GFXStencilFace;
+    reference: number;
+    compareMask: number;
+}
+
 // tslint:disable: max-line-length
 export abstract class GFXCommandBuffer extends GFXObject {
 

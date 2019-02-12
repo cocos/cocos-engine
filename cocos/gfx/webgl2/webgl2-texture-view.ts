@@ -1,17 +1,17 @@
 import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXTextureView, IGFXTextureViewInfo } from '../texture-view';
-import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPUTextureView } from './webgl-gpu-objects';
-import { WebGLGFXTexture } from './webgl-texture';
+import { WebGL2GFXDevice } from './webgl2-device';
+import { WebGL2GPUTextureView } from './webgl2-gpu-objects';
+import { WebGL2GFXTexture } from './webgl2-texture';
 
-export class WebGLGFXTextureView extends GFXTextureView {
+export class WebGL2GFXTextureView extends GFXTextureView {
 
-    public get gpuTextureView (): WebGLGPUTextureView {
-        return  this._gpuTextureView as WebGLGPUTextureView;
+    public get gpuTextureView (): WebGL2GPUTextureView {
+        return  this._gpuTextureView as WebGL2GPUTextureView;
     }
 
-    private _gpuTextureView: WebGLGPUTextureView | null = null;
+    private _gpuTextureView: WebGL2GPUTextureView | null = null;
 
     constructor (device: GFXDevice) {
         super(device);
@@ -41,7 +41,7 @@ export class WebGLGFXTextureView extends GFXTextureView {
         }
 
         this._gpuTextureView = {
-            gpuTexture: (info.texture as WebGLGFXTexture).gpuTexture,
+            gpuTexture: (info.texture as WebGL2GFXTexture).gpuTexture,
             type: info.type,
             format: info.format,
             baseLevel: info.baseLevel ? info.baseLevel : 0,

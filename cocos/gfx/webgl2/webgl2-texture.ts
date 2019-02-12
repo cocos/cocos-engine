@@ -1,17 +1,17 @@
 import { GFXFormatSurfaceSize, GFXStatus, GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../define';
 import { GFXDevice } from '../device';
 import { GFXTexture, IGFXTextureInfo } from '../texture';
-import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture } from './webgl-commands';
-import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPUTexture } from './webgl-gpu-objects';
+import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture } from './webgl2-commands';
+import { WebGL2GFXDevice } from './webgl2-device';
+import { WebGL2GPUTexture } from './webgl2-gpu-objects';
 
-export class WebGLGFXTexture extends GFXTexture {
+export class WebGL2GFXTexture extends GFXTexture {
 
-    public get gpuTexture (): WebGLGPUTexture {
+    public get gpuTexture (): WebGL2GPUTexture {
         return  this._gpuTexture!;
     }
 
-    private _gpuTexture: WebGLGPUTexture | null = null;
+    private _gpuTexture: WebGL2GPUTexture | null = null;
 
     constructor (device: GFXDevice) {
         super(device);
@@ -114,7 +114,7 @@ export class WebGLGFXTexture extends GFXTexture {
             glMagFilter: 0,
         };
 
-        WebGLCmdFuncCreateTexture(this._device as WebGLGFXDevice, this._gpuTexture);
+        WebGL2CmdFuncCreateTexture(this._device as WebGL2GFXDevice, this._gpuTexture);
 
         this._status = GFXStatus.SUCCESS;
 
@@ -123,7 +123,7 @@ export class WebGLGFXTexture extends GFXTexture {
 
     public destroy () {
         if (this._gpuTexture) {
-            WebGLCmdFuncDestroyTexture(this._device as WebGLGFXDevice, this._gpuTexture);
+            WebGL2CmdFuncDestroyTexture(this._device as WebGL2GFXDevice, this._gpuTexture);
             this._gpuTexture = null;
         }
         this._status = GFXStatus.UNREADY;
