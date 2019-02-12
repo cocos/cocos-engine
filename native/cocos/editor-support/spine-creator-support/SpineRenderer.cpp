@@ -30,6 +30,7 @@
 #include "platform/CCApplication.h"
 #include "base/CCScheduler.h"
 #include "MiddlewareMacro.h"
+#include "MeshBuffer.h"
 
 USING_NS_CC;
 USING_NS_MW;
@@ -281,8 +282,10 @@ void SpineRenderer::update (float deltaTime)
     Color4F darkColor;
     AttachmentVertices* attachmentVertices = nullptr;
     bool inRange = _startSlotIndex != -1 || _endSlotIndex != -1 ? false : true;
-    middleware::IOBuffer& vb = mgr->getVB(_useTint? VF_XYUVCC : VF_XYUVC);
-    middleware::IOBuffer& ib = mgr->getIB();
+    auto vertexFormat = _useTint? VF_XYUVCC : VF_XYUVC;
+    MeshBuffer* mb = mgr->getMeshBuffer(vertexFormat);
+    middleware::IOBuffer& vb = mb->getVB();
+    middleware::IOBuffer& ib = mb->getIB();
     
     // vertex size in floats with one color
     int vs1 = sizeof(V2F_T2F_C4B) / sizeof(float);
@@ -303,7 +306,8 @@ void SpineRenderer::update (float deltaTime)
     
     int debugSlotsLen = 0;
     int materialLen = 0;
-
+    int isFull = 0;
+    
     if (_debugSlots || _debugBones)
     {
         // If enable debug draw,then init debug buffer.
@@ -327,6 +331,8 @@ void SpineRenderer::update (float deltaTime)
     
     for (int i = 0, n = _skeleton->slotsCount; i < n; ++i)
     {
+        // Reset isFull flag.
+        isFull = 0;
         spSlot* slot = _skeleton->drawOrder[i];
         if (_startSlotIndex >= 0 && _startSlotIndex == slot->data->index)
         {
@@ -388,7 +394,7 @@ void SpineRenderer::update (float deltaTime)
                     
                     triangles.vertCount = attachmentVertices->_triangles->vertCount;
                     vbSize = triangles.vertCount * sizeof(V2F_T2F_C4B);
-                    vb.checkSpace(vbSize);
+                    isFull |= vb.checkSpace(vbSize);
                     triangles.verts = (V2F_T2F_C4B*)vb.getCurBuffer();
                     memcpy(triangles.verts, attachmentVertices->_triangles->verts, vbSize);
                     spRegionAttachment_computeWorldVertices(attachment, slot->bone, (float*)triangles.verts, 0, vs1);
@@ -404,7 +410,7 @@ void SpineRenderer::update (float deltaTime)
                     
                     trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
                     vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4B_C4B);
-                    vb.checkSpace(vbSize);
+                    isFull |= vb.checkSpace(vbSize);
                     trianglesTwoColor.verts = (V2F_T2F_C4B_C4B*)vb.getCurBuffer();
                     for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++)
                     {
@@ -456,7 +462,7 @@ void SpineRenderer::update (float deltaTime)
                     
                     triangles.vertCount = attachmentVertices->_triangles->vertCount;
                     vbSize = triangles.vertCount * sizeof(V2F_T2F_C4B);
-                    vb.checkSpace(vbSize);
+                    isFull |= vb.checkSpace(vbSize);
                     triangles.verts = (V2F_T2F_C4B*)vb.getCurBuffer();
                     memcpy(triangles.verts, attachmentVertices->_triangles->verts, vbSize);
                     spVertexAttachment_computeWorldVertices(SUPER(attachment), slot, 0, attachment->super.worldVerticesLength, (float*)triangles.verts, 0, vs1);
@@ -472,7 +478,7 @@ void SpineRenderer::update (float deltaTime)
                     
                     trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
                     vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4B_C4B);
-                    vb.checkSpace(vbSize);
+                    isFull |= vb.checkSpace(vbSize);
                     trianglesTwoColor.verts = (V2F_T2F_C4B_C4B*)vb.getCurBuffer();
                     for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++)
                     {
@@ -530,51 +536,6 @@ void SpineRenderer::update (float deltaTime)
         }
         darkColor.a = _premultipliedAlpha ? 255 : 0;
         
-        switch (slot->data->blendMode)
-        {
-            case SP_BLEND_MODE_ADDITIVE:
-                curBlendSrc = _premultipliedAlpha ? GL_ONE : GL_SRC_ALPHA;
-                curBlendDst = GL_ONE;
-                break;
-            case SP_BLEND_MODE_MULTIPLY:
-                curBlendSrc = GL_DST_COLOR;
-                curBlendDst = GL_ONE_MINUS_SRC_ALPHA;
-                break;
-            case SP_BLEND_MODE_SCREEN:
-                curBlendSrc = GL_ONE;
-                curBlendDst = GL_ONE_MINUS_SRC_COLOR;
-                break;
-            default:
-                curBlendSrc = _premultipliedAlpha ? GL_ONE : GL_SRC_ALPHA;
-                curBlendDst = GL_ONE_MINUS_SRC_ALPHA;
-        }
-        
-        curTextureIndex = attachmentVertices->_texture->getRealTextureIndex();
-        // If texture or blendMode change,will change material.
-        if (preTextureIndex != curTextureIndex || preBlendDst != curBlendDst || preBlendSrc != curBlendSrc)
-        {
-            if (preISegWritePos != -1)
-            {
-                _materialBuffer->writeUint32(preISegWritePos, curISegLen);
-            }
-            
-            _materialBuffer->writeUint32(curTextureIndex);
-            _materialBuffer->writeUint32(curBlendSrc);
-            _materialBuffer->writeUint32(curBlendDst);
-            
-           //Reserve indice segamentation count.
-            preISegWritePos = (int)_materialBuffer->getCurPos();
-            _materialBuffer->writeUint32(0);
-            
-            preTextureIndex = curTextureIndex;
-            preBlendDst = curBlendDst;
-            preBlendSrc = curBlendSrc;
-            
-            // Clear index segmentation count,prepare to next segmentation.
-            curISegLen = 0;
-            materialLen++;
-        }
-        
         // One color tint logic
         if (!_useTint)
         {
@@ -591,7 +552,7 @@ void SpineRenderer::update (float deltaTime)
                 
                 triangles.vertCount = _clipper->clippedVertices->size >> 1;
                 vbSize = triangles.vertCount * sizeof(V2F_T2F_C4B);
-                vb.checkSpace(vbSize);
+                isFull |= vb.checkSpace(vbSize);
                 triangles.verts = (V2F_T2F_C4B*)vb.getCurBuffer();
                 
                 triangles.indexCount = _clipper->clippedTriangles->size;
@@ -643,7 +604,7 @@ void SpineRenderer::update (float deltaTime)
                 
                 trianglesTwoColor.vertCount = _clipper->clippedVertices->size >> 1;
                 vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4B_C4B);
-                vb.checkSpace(vbSize);
+                isFull |= vb.checkSpace(vbSize);
                 trianglesTwoColor.verts = (V2F_T2F_C4B_C4B*)vb.getCurBuffer();
                 
                 trianglesTwoColor.indexCount = _clipper->clippedTriangles->size;
@@ -689,6 +650,55 @@ void SpineRenderer::update (float deltaTime)
             }
         }
         
+        switch (slot->data->blendMode)
+        {
+            case SP_BLEND_MODE_ADDITIVE:
+                curBlendSrc = _premultipliedAlpha ? GL_ONE : GL_SRC_ALPHA;
+                curBlendDst = GL_ONE;
+                break;
+            case SP_BLEND_MODE_MULTIPLY:
+                curBlendSrc = GL_DST_COLOR;
+                curBlendDst = GL_ONE_MINUS_SRC_ALPHA;
+                break;
+            case SP_BLEND_MODE_SCREEN:
+                curBlendSrc = GL_ONE;
+                curBlendDst = GL_ONE_MINUS_SRC_COLOR;
+                break;
+            default:
+                curBlendSrc = _premultipliedAlpha ? GL_ONE : GL_SRC_ALPHA;
+                curBlendDst = GL_ONE_MINUS_SRC_ALPHA;
+        }
+        
+        curTextureIndex = attachmentVertices->_texture->getRealTextureIndex();
+        // If texture or blendMode change,will change material.
+        if (preTextureIndex != curTextureIndex || preBlendDst != curBlendDst || preBlendSrc != curBlendSrc || isFull)
+        {
+            if (preISegWritePos != -1)
+            {
+                _materialBuffer->writeUint32(preISegWritePos, curISegLen);
+            }
+            
+            _materialBuffer->writeUint32(curTextureIndex);
+            _materialBuffer->writeUint32(curBlendSrc);
+            _materialBuffer->writeUint32(curBlendDst);
+            auto glIB = mb->getGLIB();
+            auto glVB = mb->getGLVB();
+            _materialBuffer->writeUint32(glIB);
+            _materialBuffer->writeUint32(glVB);
+            
+            //Reserve indice segamentation count.
+            preISegWritePos = (int)_materialBuffer->getCurPos();
+            _materialBuffer->writeUint32(0);
+            
+            preTextureIndex = curTextureIndex;
+            preBlendDst = curBlendDst;
+            preBlendSrc = curBlendSrc;
+            
+            // Clear index segmentation count,prepare to next segmentation.
+            curISegLen = 0;
+            materialLen++;
+        }
+        
         if (vbSize > 0 && ibSize > 0)
         {
             auto vertexOffset = vb.getCurPos() / sizeof(middleware::V2F_T2F_C4B);
@@ -722,13 +732,11 @@ void SpineRenderer::update (float deltaTime)
         _debugBuffer->writeFloat32(0, debugSlotsLen);
     }
     
-    bool isVBOutRange = vb.isOutRange();
-    bool isIBOutRange = ib.isOutRange();
     bool isMatOutRange = _materialBuffer->isOutRange();
     
     // If vertex buffer or index buffer or material buffer out of range,then discard this time render
     // next time will enlarge vertex buffer or index buffer to fill the animation data.
-    if (isVBOutRange || isIBOutRange || isMatOutRange)
+    if (isMatOutRange)
     {
         _materialBuffer->writeUint32(0, 0);
     }

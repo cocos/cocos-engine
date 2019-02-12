@@ -461,7 +461,7 @@ public:
     static bool checkInPool;
     
 private:
-    std::vector<BaseObject*> _objects;
+    std::map<BaseObject*,bool> _objectsMap;
     std::vector<EventObject*> _events;
     WorldClock* _clock;
     IEventDispatcher* _eventManager;
