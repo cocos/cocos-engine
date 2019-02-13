@@ -576,10 +576,8 @@ let EditBox = cc.Class({
     },
 
     _onTouchEnded (event) {
-        // On Web platform, editBox can't receive touch event because it is covered by a transparent dom input.
-        // We call beginEditing in the focus callback of dom input included in WebEditBoxImpl.
         if (this._impl) {
-            this._impl.beginEditing();
+            this._impl._onTouchEnded();
         }
         event.stopPropagation();
     },

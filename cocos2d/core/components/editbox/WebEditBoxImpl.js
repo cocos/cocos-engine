@@ -47,8 +47,8 @@ if (cc.sys.OS_ANDROID === cc.sys.os &&
 }
 
 // https://segmentfault.com/q/1010000002914610
-const DELAY_TIME = 400;
-const SCROLLY = 40;
+const DELAY_TIME = 800;
+const SCROLLY = 100;
 const LEFT_PADDING = 2;
 
  // private static property
@@ -115,6 +115,9 @@ Object.assign(WebEditBoxImpl.prototype, {
         this._initStyleSheet();
         this._registerEventListeners();
         this._addDomToGameContainer();
+
+        _fullscreen = cc.view.isAutoFullScreenEnabled();
+        _autoResize = cc.view._resizeWithBrowserSize;
     },
 
     enable () {
@@ -169,6 +172,10 @@ Object.assign(WebEditBoxImpl.prototype, {
         _currentEditBoxImpl = null;
         this._hideDom();
         this._delegate.editBoxEditingDidEnded();
+    },
+
+    _onTouchEnded () {
+        // not support on web platform
     },
 
     // ==========================================================================
@@ -229,42 +236,42 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     _showDomOnMobile () {
-        if (cc.view.isAutoFullScreenEnabled()) {
-            _fullscreen = true;
+        if (cc.sys.os !== cc.sys.OS_ANDROID) {
+            return;
+        }
+        
+        if (_fullscreen) {
             cc.view.enableAutoFullScreen(false);
             cc.screen.exitFullScreen();
-        } else {
-            _fullscreen = false;
         }
-        _autoResize = cc.view._resizeWithBrowserSize;
-        cc.view.resizeWithBrowserSize(false);
+        if (_autoResize) {
+            cc.view.resizeWithBrowserSize(false);
+        }
 
         this._adjustWindowScroll();
     },
 
     _hideDomOnMobile () {
-        cc.view.enableAutoFullScreen(_fullscreen);
-        cc.view.resizeWithBrowserSize(_autoResize);
+        if (cc.sys.os !== cc.sys.OS_ANDROID) {
+            return;
+        }
+
+        if (_fullscreen) {
+            cc.view.enableAutoFullScreen(true);
+        }
+        if (_autoResize) {
+            cc.view.resizeWithBrowserSize(true);
+        }
         
         this._scrollBackWindow();
     },
 
     // adjust view to editBox
     _adjustWindowScroll () {
-        this._delegate.node.getWorldMatrix(this._worldMat);
-        let y = this._worldMat.m13;
-        let windowHeight = cc.visibleRect.height;
-        let windowWidth = cc.visibleRect.width;
-        let factor = 0.5;
-        if (windowWidth > windowHeight) {
-            factor = 0.7;
-        }
+        let self = this;
         setTimeout(function() {
-            if (window.scrollY < SCROLLY && y < windowHeight * factor) {
-                let scrollOffset = windowHeight * factor - y - window.scrollY;
-                if (scrollOffset < 35) scrollOffset = 35;
-                if (scrollOffset > 320) scrollOffset = 320;
-                window.scrollTo(0, scrollOffset);
+            if (window.scrollY < SCROLLY) {
+                self._elem.scrollIntoView(true);
             }
         }, DELAY_TIME);
     },
@@ -574,6 +581,14 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.removeEventListener('keypress', cbs.onKeypress);
         elem.removeEventListener('blur', cbs.onBlur);
         elem.removeEventListener('touchstart', cbs.onClick);
+        
+        cbs.compositionStart = null;
+        cbs.compositionEnd = null;
+        cbs.onInput = null;
+        cbs.onFocus = null;
+        cbs.onKeypress = null;
+        cbs.onBlur = null;
+        cbs.onClick = null;
     },
 });
 

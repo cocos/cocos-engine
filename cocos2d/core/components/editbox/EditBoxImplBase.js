@@ -74,6 +74,10 @@ let EditBoxImplBase = cc.Class({
     endEditing () {
 
     },
+
+    _onTouchEnded () {
+        this.beginEditing();
+    },
 });
 
 module.exports = EditBoxImplBase;
