@@ -620,17 +620,6 @@ let Label = cc.Class({
         this.markForUpdateRenderData(true);
         this.markForRender(true);
     },
-    
-    _updateColor () {
-        let font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            this._super();
-        }
-        else {
-            this._updateRenderData();
-            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
-        }
-    },
 
     _updateRenderData (force) {
         let renderData = this._renderData;
