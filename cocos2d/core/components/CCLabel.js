@@ -609,8 +609,6 @@ let Label = cc.Class({
             if (!material) {
                 material = new SpriteMaterial();
             }
-            // Setup blend function for premultiplied ttf label texture
-            this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             material.texture = this._frame._texture;
             // For batch rendering, do not use uniform color.
             material.useColor = false;
