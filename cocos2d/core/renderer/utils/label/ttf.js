@@ -255,7 +255,7 @@ module.exports = {
         let lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${1})`;
+        _context.fillStyle = 'white';
         let underlineStartPosition;
 
         //do real rendering
