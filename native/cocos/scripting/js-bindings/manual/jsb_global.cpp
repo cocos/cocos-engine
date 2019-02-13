@@ -723,7 +723,7 @@ namespace
         bool freeData = false;
     };
 
-    uint8_t* cvRGB2RGBA (uint32_t length, uint8_t* src) {
+    uint8_t* convertRGB2RGBA (uint32_t length, uint8_t* src) {
         uint8_t* dst = new uint8_t[length];
         for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src++;
@@ -734,7 +734,7 @@ namespace
         return dst;
     }
 
-    uint8_t* cvIA2RGBA (uint32_t length, uint8_t* src) {
+    uint8_t* convertIA2RGBA (uint32_t length, uint8_t* src) {
         uint8_t* dst = new uint8_t[length];
         for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src;
@@ -745,7 +745,7 @@ namespace
         return dst;
     }
 
-    uint8_t* cvI2RGBA (uint32_t length, uint8_t* src) {
+    uint8_t* convertI2RGBA (uint32_t length, uint8_t* src) {
         uint8_t* dst = new uint8_t[length];
         for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src;
@@ -787,17 +787,18 @@ namespace
         switch(imgInfo->glFormat) {
             case GL_RGBA: break;
             case GL_LUMINANCE_ALPHA:
-                dst = cvIA2RGBA(length, src);
+                dst = convertIA2RGBA(length, src);
                 break;
             case GL_ALPHA:
             case GL_LUMINANCE:
-                dst = cvI2RGBA(length, src);
+                dst = convertI2RGBA(length, src);
                 break;
             case GL_RGB:
-                dst = cvRGB2RGBA(length, src);
+                dst = convertRGB2RGBA(length, src);
                 break;
             default:
                 SE_LOGE("unknown image format");
+                break;
         }
 
         if (imgInfo->glFormat != GL_RGBA) {
