@@ -23,58 +23,55 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Model = require('./CCModel');
+import gfx from '../../renderer/gfx';
 
-let ModelMeshResource = cc.Class({
-    name: 'ModelMeshResource',
-
-    ctor () {
-        this._subMeshes = [];
-        this._ibs = [];
-        this._vbs = [];
-        this._inited = false;
-        this._minPos = cc.v3();
-        this._maxPos = cc.v3();
-    },
+export let BufferRange = cc.Class({
+    name: 'cc.BufferRange',
 
     properties: {
-        _meshID: -1,
-        _model: {
-            type: Model,
-            default: null
-        },
-
-        meshID: {
-            get () {
-                return this._meshID;
-            },
-            set (val) {
-                this._meshID = val;
-            }
-        },
-
-        model: {
-            get () {
-                return this._model;
-            },
-            set (val) {
-                this._model = val;
-            }
-        }
-    },
-
-    flush (mesh) {
-        if (!this._inited) {
-            this._inited = true;
-            this.model.initMesh(this);
-        }
-
-        mesh._vbs = this._vbs;
-        mesh._ibs = this._ibs;
-        mesh._subMeshes = this._subMeshes;
-        mesh._minPos = this._minPos;
-        mesh._maxPos = this._maxPos;
+        offset: 0,
+        length: 0
     }
 });
 
-module.exports = ModelMeshResource;
+export let VertexFormat = cc.Class({
+    name: 'cc.mesh.VertexFormat',
+
+    properties: {
+        name: '',
+        type: -1,
+        num: -1,
+        normalize: false
+    }
+});
+
+export let VertexBundle = cc.Class({
+    name: 'cc.mesh.VertexBundle',
+    properties: {
+        data: {
+            default: null,
+            type: BufferRange
+        },
+        formats: {
+            default: [],
+            type: VertexFormat
+        },
+        verticesCount: 0,
+    }
+});
+
+export let Primitive = cc.Class({
+    name: 'cc.mesh.Primitive',
+    properties: {
+        vertexBundleIndices: {
+            default: [],
+            type: Number
+        },
+        data: {
+            default: null,
+            type: BufferRange
+        },
+        indexUnit: gfx.INDEX_FMT_UINT16,
+        topology: gfx.PT_TRIANGLES
+    }
+});

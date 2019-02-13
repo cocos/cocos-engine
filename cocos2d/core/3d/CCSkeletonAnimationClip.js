@@ -46,6 +46,7 @@ var SkeletonAnimationClip = cc.Class({
 
     properties: {
         _nativeAsset: {
+            override: true,
             get () {
                 return this._buffer;
             },
@@ -54,6 +55,11 @@ var SkeletonAnimationClip = cc.Class({
                 this._buffer = new Float32Array(buffer || bin, 0, buffer.byteLength/4);
             }
         },
+
+        /**
+         * Describe the data structure.
+         * { path: { offset, frameCount, property } }
+         */
         description: {
             default: null,
             type: Object,

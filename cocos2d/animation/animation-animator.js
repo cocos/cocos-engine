@@ -212,13 +212,6 @@ if (CC_TEST) {
     cc._Test.createBatchedProperty = createBatchedProperty;
 }
 
-function splitPropPath (propPath) {
-    let array = propPath.split('.');
-    array.shift();
-    //array = array.filter(function (item) { return !!item; });
-    return array.length > 0 ? array : null;
-}
-
 
 function initClipData (root, state) {
     let clip = state.clip;
@@ -332,21 +325,11 @@ function initClipData (root, state) {
         // find the lerp function
         let firstValue = curve.values[0];
         if (firstValue) {
-            if (Array.isArray(firstValue) || firstValue instanceof Float32Array) {
-                if (propPath === 'position' || propPath === 'scale') {
-                    if (firstValue.length === 2) {
-                        curve._lerp = DynamicAnimCurve.prototype._lerpVec2Array;
-                    }
-                    else {
-                        curve._lerp = DynamicAnimCurve.prototype._lerpVec3Array;
-                    }
-                }
-                else if (propPath === 'quat') {
-                    curve._lerp = DynamicAnimCurve.prototype._lerpQuatArray;
-                }
-            }
-            else if (typeof firstValue === 'number') {
+            if (typeof firstValue === 'number') {
                 curve._lerp = DynamicAnimCurve.prototype._lerpNumber;
+            }
+            else if (firstValue instanceof cc.Quat) {
+                curve._lerp = DynamicAnimCurve.prototype._lerpQuat;
             }
             else if (firstValue instanceof cc.Vec2 || firstValue instanceof cc.Vec3) {
                 curve._lerp = DynamicAnimCurve.prototype._lerpVector;

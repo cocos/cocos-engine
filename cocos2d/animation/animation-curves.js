@@ -158,45 +158,20 @@ var DynamicAnimCurve = cc.Class({
         return from.lerp(to, t);
     },
 
+    _lerpQuat: (function () {
+        let out = cc.quat();
+        return function (from, to, t) {
+            return from.lerp(to, t, out);
+        };
+    })(),
+
     _lerpVector: (function () {
         let out = cc.v3();
         return function (from, to, t) {
-            from.lerp(to, t, out);
-            return out;
+            return from.lerp(to, t, out);
         };
     })(),
 
-    _lerpVec2Array: (function () {
-        let out = cc.v2();
-        return function (from, to, t) {
-            out.x = from[0] + (to[0] - from[0]) * t;
-            out.y = from[1] + (to[1] - from[1]) * t;
-            return out;
-        };
-    })(),
-
-    _lerpVec3Array: (function () {
-        let out = cc.v3();
-        return function (from, to, t) {
-            out.x = from[0] + (to[0] - from[0]) * t;
-            out.y = from[1] + (to[1] - from[1]) * t;
-            out.z = from[2] + (to[2] - from[2]) * t;
-            return out;
-        };
-    })(),
-
-    _lerpQuatArray: (function () {
-        let a = cc.quat();
-        let b = cc.quat();
-        let out = cc.quat();
-        return function (from, to, t) {
-            quat.set(a, from[0], from[1], from[2], from[3]);
-            quat.set(b, to[0], to[1], to[2], to[3]);
-            quat.slerp(out, a, b, t);
-            return out;
-        };
-    })(),
-    
     sample: function (time, ratio, state) {
         var values = this.values;
         var ratios = this.ratios;

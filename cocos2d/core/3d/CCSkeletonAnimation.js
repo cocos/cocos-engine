@@ -46,7 +46,11 @@ let SkeletonAnimation = cc.Class({
     },
 
     properties: {
-        _model: Model,
+        _model: {
+            default: null,
+            type: Model,
+            editorOnly: true
+        },
 
         _defaultClip: {
             override: true,
@@ -79,7 +83,8 @@ let SkeletonAnimation = cc.Class({
             set (val) {
                 this._model = val;
             },
-            type: Model
+            type: Model,
+            editorOnly: true
         },
     },
 
