@@ -18,7 +18,6 @@ export class RenderableComponent extends Component {
     }
 
     @property({
-        default: [],
         type: Material,
         displayName: 'Materials',
     })
