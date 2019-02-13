@@ -14162,7 +14162,7 @@ var SpriteMaterial = (function (Material$$1) {
       [
         { name: 'useTexture', value: true },
         { name: 'useModel', value: false },
-        { name: 'alphaTest', value: true },
+        { name: 'alphaTest', value: false },
         { name: 'use2DPos', value: true },
         { name: 'useColor', value: true } ]
     );
@@ -14175,7 +14175,7 @@ var SpriteMaterial = (function (Material$$1) {
   SpriteMaterial.prototype = Object.create( Material$$1 && Material$$1.prototype );
   SpriteMaterial.prototype.constructor = SpriteMaterial;
 
-  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },use2DPos: { configurable: true },useColor: { configurable: true },texture: { configurable: true },color: { configurable: true },alphaThreshold: { configurable: true } };
+  var prototypeAccessors = { effect: { configurable: true },useTexture: { configurable: true },useModel: { configurable: true },use2DPos: { configurable: true },useColor: { configurable: true },alphaTest: { configurable: true },texture: { configurable: true },color: { configurable: true },alphaThreshold: { configurable: true } };
 
   prototypeAccessors.effect.get = function () {
     return this._effect;
@@ -14211,6 +14211,14 @@ var SpriteMaterial = (function (Material$$1) {
 
   prototypeAccessors.useColor.set = function (val) {
     this._effect.define('useColor', val);
+  };
+
+  prototypeAccessors.alphaTest.get = function () {
+    return  this._effect.getDefine('alphaTest');
+  };
+
+  prototypeAccessors.alphaTest.set = function (val) {
+    this._effect.define('alphaTest', val);
   };
 
   prototypeAccessors.alphaThreshold.get = function () {

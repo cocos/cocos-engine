@@ -612,6 +612,7 @@ let Label = cc.Class({
             material.texture = this._frame._texture;
             // For batch rendering, do not use uniform color.
             material.useColor = false;
+            material.alphaTest = true;
             material.alphaThreshold = this._alphaThreshold;
             this._updateMaterial(material);
         }
