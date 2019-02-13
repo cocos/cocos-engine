@@ -38,7 +38,7 @@ let SkeletonCache = require('./skeleton-cache');
  */
 let DefaultSkinsEnum = cc.Enum({ 'default': -1 });
 let DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
-let RenderModeEnum = cc.Enum({ 'realtime': 0, 'sharedCache': 1, "privateCache": 2 });
+let RenderModeEnum = cc.Enum({ 'REALTIME': 0, 'SHARED_CACHE': 1, "PRIVATE_CACHE": 2 });
 
 function setEnumAttr (obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
@@ -382,10 +382,10 @@ sp.Skeleton = cc.Class({
         /**
          * !#en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
          * !#zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-         * @property {Boolean} enabledBatch
+         * @property {Boolean} enableBatch
          * @default false
          */
-        enabledBatch: {
+        enableBatch: {
             default: false,
             notify () {
                 this._updateBatch();
@@ -393,7 +393,7 @@ sp.Skeleton = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.enabled_batch'
         },
 
-        // Below properties will effect when render mode is sharedCache or privateCache.
+        // Below properties will effect when render mode is SHARED_CACHE or PRIVATE_CACHE.
         // accumulate time
         _accTime: 0,
         // Play times counter
@@ -450,7 +450,7 @@ sp.Skeleton = cc.Class({
         for (let mKey in cache) {
             let material = cache[mKey];
             if (material) {
-                material.useModel = !this.enabledBatch;
+                material.useModel = !this.enableBatch;
             }
         }
     },
@@ -539,7 +539,7 @@ sp.Skeleton = cc.Class({
         }
 
         if (CC_JSB) {
-            this.renderMode = RenderModeEnum.realtime;
+            this.renderMode = RenderModeEnum.REALTIME;
         }
 
         this._updateSkeletonData();
@@ -550,7 +550,7 @@ sp.Skeleton = cc.Class({
 
     isCachedMode () {
         if (CC_EDITOR) return false;
-        return this.renderMode !== RenderModeEnum.realtime;
+        return this.renderMode !== RenderModeEnum.REALTIME;
     },
 
     update (dt) {
@@ -1186,9 +1186,9 @@ sp.Skeleton = cc.Class({
         if (!data) return;
         
         if (!CC_EDITOR) {
-            if (this.renderMode === RenderModeEnum.sharedCache) {
+            if (this.renderMode === RenderModeEnum.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
-            } else if (this.renderMode === RenderModeEnum.privateCache) {
+            } else if (this.renderMode === RenderModeEnum.PRIVATE_CACHE) {
                 this._skeletonCache = new SkeletonCache;
             }
         }

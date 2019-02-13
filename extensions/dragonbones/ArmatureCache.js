@@ -369,7 +369,7 @@ let ArmatureCache = cc.Class({
         }
         animationCache.update(armature);
         if (animationCache.totalTime >= MaxCacheTime) {
-            cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change armature render mode to realtime, dragonbones name is [%s], animation name is [%s]", dragonbonesName, animationName);
+            cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change armature render mode to REALTIME, dragonbones name is [%s], animation name is [%s]", dragonbonesName, animationName);
         }
         return animationCache;
     }

@@ -98,7 +98,7 @@ function _getSlotMaterial (tex, blendMode) {
             break;
     }
 
-    let useModel = !_comp.enabledBatch;
+    let useModel = !_comp.enableBatch;
     let key = tex.url + src + dst + _useTint + useModel;
     let baseMaterial = _comp._material;
     if (!baseMaterial) return null;
@@ -616,7 +616,7 @@ var spineAssembler = {
         }
 
         let worldMat = undefined;
-        if (_comp.enabledBatch) {
+        if (_comp.enableBatch) {
             worldMat = _node._worldMatrix;
             _mustFlush = false;
             _handleVal |= FLAG_BATCH;

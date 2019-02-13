@@ -41,6 +41,7 @@ const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
     // modules need to skip in jsb
+    '../../extensions/spine/skeleton-cache.js',
     '../../extensions/spine/lib/spine.js',
     '../../extensions/dragonbones/lib/dragonBones.js',
     '../../extensions/dragonbones/ArmatureCache.js',

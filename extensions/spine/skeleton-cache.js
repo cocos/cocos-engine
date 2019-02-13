@@ -497,7 +497,7 @@ let SkeletonCache = cc.Class({
         }
         animationCache.update(skeletonInfo);
         if (animationCache.totalTime >= MaxCacheTime) {
-            cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change skeleton render mode to realtime, animation name is [%s]",animationName);
+            cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change skeleton render mode to REALTIME, animation name is [%s]",animationName);
         }
         return animationCache;
     }

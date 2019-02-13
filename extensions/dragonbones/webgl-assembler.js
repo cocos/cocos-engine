@@ -69,7 +69,7 @@ function _getSlotMaterial (tex, blendMode) {
             break;
     }
 
-    let useModel = !_comp.enabledBatch;
+    let useModel = !_comp.enableBatch;
     // Add useModel flag due to if pre same db useModel but next db no useModel,
     // then next db will multiply model matrix more than once.
     let key = tex.url + src + dst + useModel;
@@ -311,7 +311,7 @@ let armatureAssembler = {
         }
 
         let worldMat = undefined;
-        if (_comp.enabledBatch) {
+        if (_comp.enableBatch) {
             worldMat = _node._worldMatrix;
             _mustFlush = false;
             _handleVal |= NEED_BATCH;
