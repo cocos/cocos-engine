@@ -302,7 +302,7 @@ Downloader.prototype.loadSubpackage = function (name, completeCallback) {
             if (completeCallback) completeCallback();
         }
         else {
-            downloadScript({url: pac.path}, function (err) {
+            downloadScript({url: pac.path + 'game.js'}, function (err) {
                 if (!err) {
                     pac.loaded = true;
                 }
