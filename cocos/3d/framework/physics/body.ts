@@ -1,10 +1,10 @@
 import CANNON from 'cannon';
+import { Quat } from '../../../core/value-types';
 import Vec3 from '../../../core/value-types/vec3';
 import { vec3 } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { PhysicsMaterial as PhysicsMaterial } from '../../assets/physics/material';
-import { setWrap, getWrap } from './util';
-import { Quat } from '../../../core/value-types';
+import { getWrap, setWrap } from './util';
 
 export enum DataFlow {
     PUSHING,
@@ -32,7 +32,9 @@ export class PhysicsBody {
 
     private _useGravity = true;
 
-    constructor() {
+    private _velocity = new Vec3();
+
+    constructor () {
         const cannonBodyOptions: CANNON.IBodyOptions = {
             mass: 0,
             // material: new CANNON.Material(''),
@@ -50,16 +52,16 @@ export class PhysicsBody {
         };
     }
 
-    public bind(node: Node) {
+    public bind (node: Node) {
         this._node = node;
         this.pullTransform();
     }
 
-    public destroy() {
+    public destroy () {
         this._cannonBody.removeEventListener('collide', this._onCollidedListener);
     }
 
-    public _onAdded() {
+    public _onAdded () {
         this.pullTransform();
 
         this._onWorldBeforeStepListener = this._onWorldBeforeStep.bind(this);
@@ -69,7 +71,7 @@ export class PhysicsBody {
         this._cannonBody.world.addEventListener('postStep', this._onWorldPostStepListener);
     }
 
-    public _onRemoved() {
+    public _onRemoved () {
         if (this._cannonBody.world) {
             if (this._onWorldPostStepListener) {
                 this._cannonBody.world.removeEventListener('postStep', this._onWorldPostStepListener);
@@ -83,11 +85,11 @@ export class PhysicsBody {
         }
     }
 
-    public _getCannonBody() {
+    public _getCannonBody () {
         return this._cannonBody;
     }
 
-    public addShape(shape: PhysicsShape) {
+    public addShape (shape: PhysicsShape) {
         // if (this._node) {
         //     shape.__debugNodeName = this._node.name;
         // }
@@ -99,11 +101,11 @@ export class PhysicsBody {
         this.commitShapesUpdate();
     }
 
-    public removeShape(shape: PhysicsShape) {
+    public removeShape (shape: PhysicsShape) {
         throw new Error(`not impl`);
     }
 
-    public getCenter(shape: PhysicsShape) {
+    public getCenter (shape: PhysicsShape) {
         const iShape = this._cannonBody.shapes.indexOf(shape._getCannonShape());
         if (iShape >= 0) {
             const shapeOffset = this._cannonBody.shapeOffsets[iShape];
@@ -112,26 +114,32 @@ export class PhysicsBody {
         throw new Error(`shape not found.`);
     }
 
-    get velocity() {
-        return this._cannonBody.velocity;
+    get velocity () {
+        vec3.copy(this._velocity, this._cannonBody.velocity);
+        return this._velocity;
     }
 
-    get force() {
+    set velocity (value: Vec3) {
+        vec3.set(this._velocity, value.x, value.y, value.z);
+        vec3.copy(this._cannonBody.velocity, this._velocity);
+    }
+
+    get force () {
         return this._cannonBody.force;
     }
 
-    public applyForce(force: Vec3, position?: Vec3) {
+    public applyForce (force: Vec3, position?: Vec3) {
         if (!position) {
             position = this._cannonBody.position;
         }
         this._cannonBody.applyForce(force, position);
     }
 
-    get material() {
+    get material () {
         return this._material;
     }
 
-    set material(value) {
+    set material (value) {
         this._material = value;
         if (!this._material) {
             return;
@@ -140,11 +148,11 @@ export class PhysicsBody {
         this._cannonBody.material = this._material._getImpl();
     }
 
-    get mass() {
+    get mass () {
         return this._cannonBody.mass;
     }
 
-    set mass(value) {
+    set mass (value) {
         this._cannonBody.mass = value;
         this._cannonBody.updateMassProperties();
         if (this._cannonBody.type !== CANNON.Body.KINEMATIC) {
@@ -153,11 +161,11 @@ export class PhysicsBody {
         }
     }
 
-    get isKinematic() {
+    get isKinematic () {
         return this._cannonBody.type === CANNON.Body.KINEMATIC;
     }
 
-    set isKinematic(value) {
+    set isKinematic (value) {
         if (value) {
             this._cannonBody.type = CANNON.Body.KINEMATIC;
         } else {
@@ -166,11 +174,11 @@ export class PhysicsBody {
         this._onBodyTypeUpdated();
     }
 
-    get useGravity() {
+    get useGravity () {
         return this._useGravity;
     }
 
-    set useGravity(value) {
+    set useGravity (value) {
         this._useGravity = value;
         if (this._useGravity) {
             this._cannonBody.world.removeEventListener('beforeStep', this._cancelGravityListener);
@@ -179,40 +187,40 @@ export class PhysicsBody {
         }
     }
 
-    get freezeRotation() {
+    get freezeRotation () {
         return this._cannonBody.fixedRotation;
     }
 
-    set freezeRotation(value) {
+    set freezeRotation (value) {
         this._cannonBody.fixedRotation = value;
         this._cannonBody.updateMassProperties();
     }
 
-    get linearDamping() {
+    get linearDamping () {
         return this._cannonBody.linearDamping;
     }
 
-    set linearDamping(value) {
+    set linearDamping (value) {
         this._cannonBody.linearDamping = value;
     }
 
-    get angularDamping() {
+    get angularDamping () {
         return this._cannonBody.angularDamping;
     }
 
-    set angularDamping(value) {
+    set angularDamping (value) {
         this._cannonBody.angularDamping = value;
     }
 
-    get isTrigger() {
+    get isTrigger () {
         return this._cannonBody.collisionResponse;
     }
 
-    set isTrigger(value) {
+    set isTrigger (value) {
         this._cannonBody.collisionResponse = value;
     }
 
-    get dataFlow() {
+    get dataFlow () {
         return this._dataflow;
     }
 
@@ -221,24 +229,24 @@ export class PhysicsBody {
      * @param {number} group The group which this body will be put into.
      * @param {number} mask The groups which this body can collide with.
      */
-    public setCollisionFilter(group: number, mask: number) {
+    public setCollisionFilter (group: number, mask: number) {
         this._cannonBody.collisionFilterGroup = group;
         this._cannonBody.collisionFilterMask = mask;
     }
 
-    public setWorldPosition(position: Vec3) {
+    public setWorldPosition (position: Vec3) {
         this._cannonBody.position.set(position.x, position.y, position.z);
     }
 
-    public setWorldScale(scale: Vec3) {
+    public setWorldScale (scale: Vec3) {
         this._pullScale(scale);
     }
 
-    public setWorldRotation(rotation: Quat) {
+    public setWorldRotation (rotation: Quat) {
         this._cannonBody.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
     }
 
-    public pullTransform() {
+    public pullTransform () {
         if (!this._node) {
             return;
         }
@@ -254,7 +262,7 @@ export class PhysicsBody {
      * Is this body currently in contact with the specified body?
      * @param {CannonBody} body The body to test against.
      */
-    public isInContactWith(body: PhysicsBody) {
+    public isInContactWith (body: PhysicsBody) {
         if (!this._cannonBody.world) {
             return false;
         }
@@ -263,21 +271,21 @@ export class PhysicsBody {
             this._cannonBody.id, body._cannonBody.id) > 0;
     }
 
-    public commitShapesUpdate() {
+    public commitShapesUpdate () {
         this._cannonBody.updateBoundingRadius();
     }
 
-    private _onCollided(event: CANNON.ICollisionEvent) {
+    private _onCollided (event: CANNON.ICollisionEvent) {
         // console.log(`Collided {${getWrap<PhysicsBody>(event.body)._node.name}} and {${getWrap<PhysicsBody>(event.target)._node.name}}.`);
     }
 
-    private _onWorldBeforeStep(event: CANNON.IEvent) {
+    private _onWorldBeforeStep (event: CANNON.IEvent) {
         if (this._dataflow === DataFlow.PULLING) {
             this._pull();
         }
     }
 
-    private _onWorldPostStep(event: CANNON.IEvent) {
+    private _onWorldPostStep (event: CANNON.IEvent) {
         if (this._dataflow === DataFlow.PUSHING) {
             this._push();
         }
@@ -286,7 +294,7 @@ export class PhysicsBody {
     /**
      * Pull node's transform information into rigidbody.
      */
-    private _pull() {
+    private _pull () {
         if (!this._node) {
             return;
         }
@@ -298,7 +306,7 @@ export class PhysicsBody {
         this.pullTransform();
     }
 
-    private _pullScale(scale: Vec3) {
+    private _pullScale (scale: Vec3) {
         let shapeUpdated = false;
         this._shapes.forEach((shape) => {
             let calcShapeOffset = false;
@@ -329,7 +337,7 @@ export class PhysicsBody {
     /**
      * Push the rigidbody's transform information back to node.
      */
-    private _push() {
+    private _push () {
         if (!this._node) {
             return;
         }
@@ -342,15 +350,15 @@ export class PhysicsBody {
         }
     }
 
-    private _resetBodyTypeAccordingMess() {
+    private _resetBodyTypeAccordingMess () {
         if (this.mass <= 0) {
             this._cannonBody.type = CANNON.Body.STATIC;
         } else {
-            this._cannonBody.type = CANNON.Body.DYNAMIC
+            this._cannonBody.type = CANNON.Body.DYNAMIC;
         }
     }
 
-    private _onBodyTypeUpdated() {
+    private _onBodyTypeUpdated () {
         if (this._cannonBody.type !== CANNON.Body.STATIC) {
             this._dataflow = DataFlow.PUSHING;
         } else {
@@ -360,62 +368,62 @@ export class PhysicsBody {
 }
 
 export class PhysicsShape {
+
+    public get center () {
+        return this._center;
+    }
+
+    public set center (value) {
+        vec3.copy(this._center, value);
+    }
+
+    public get scale () {
+        return this._scale;
+    }
+
+    public set scale (value) {
+        vec3.copy(this._scale, value);
+        this._onShapeParamUpdated();
+    }
+
+    public _centerChanged = true;
     // public __debugNodeName: string = '';
 
     private _scale: Vec3 = new Vec3(1.0, 1.0, 1.0);
 
     private _center: Vec3 = new Vec3(0, 0, 0);
 
-    public _centerChanged = true;
-
-    public get center() {
-        return this._center;
-    }
-
-    public set center(value) {
-        vec3.copy(this._center, value);
-    }
-
-    constructor(private _cannonShape: CANNON.Shape) {
+    constructor (private _cannonShape: CANNON.Shape) {
         setWrap<PhysicsShape>(this._cannonShape, this);
     }
 
-    public get scale() {
-        return this._scale;
-    }
-
-    public set scale(value) {
-        vec3.copy(this._scale, value);
-        this._onShapeParamUpdated();
-    }
-
-    public _getCannonShape<T extends CANNON.Shape>() {
+    public _getCannonShape<T extends CANNON.Shape> () {
         return this._cannonShape as T;
     }
 
-    protected _onShapeParamUpdated() {
+    protected _onShapeParamUpdated () {
     }
 }
 
 export class PhysicsBoxShape extends PhysicsShape {
     private _size: Vec3;
 
-    constructor(size: Vec3) {
+    constructor (size: Vec3) {
         super(new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2)));
 
         this._size = new Vec3(size.x, size.y, size.z);
     }
 
-    public get size() {
+    public get size () {
         return this._size;
     }
 
-    public set size(value) {
+    public set size (value) {
         vec3.copy(this._size, value);
         this._onShapeParamUpdated();
     }
 
-    protected _onShapeParamUpdated() {
+    protected _onShapeParamUpdated () {
         const shape = this._getCannonShape<CANNON.Box>();
         if (!shape.halfExtents) {
             shape.halfExtents = new CANNON.Vec3();
@@ -434,22 +442,22 @@ export class PhysicsBoxShape extends PhysicsShape {
 export class PhysicsSphereShape extends PhysicsShape {
     private _radius: number;
 
-    constructor(radius: number) {
+    constructor (radius: number) {
         super(new CANNON.Sphere(radius));
 
         this._radius = radius;
     }
 
-    public get radius() {
+    public get radius () {
         return this._radius;
     }
 
-    public set radius(value) {
+    public set radius (value) {
         this._radius = value;
         this._onShapeParamUpdated();
     }
 
-    protected _onShapeParamUpdated() {
+    protected _onShapeParamUpdated () {
         const shape = this._getCannonShape<CANNON.Sphere>();
         shape.radius = this._radius * maxComponent(this.scale);
         // shape.updateBoundingSphereRadius();
@@ -458,6 +466,6 @@ export class PhysicsSphereShape extends PhysicsShape {
     }
 }
 
-function maxComponent(v: { x: number, y: number, z: number }) {
+function maxComponent (v: { x: number, y: number, z: number }) {
     return Math.max(v.x, Math.max(v.y, v.z));
 }
