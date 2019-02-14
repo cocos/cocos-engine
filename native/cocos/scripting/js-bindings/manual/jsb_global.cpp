@@ -740,7 +740,7 @@ namespace
             dst[i] = *src;
             dst[i + 1] = *src;
             dst[i + 2] = *src++;
-            dst[i + 3] = *src;
+            dst[i + 3] = *src++;
         }
         return dst;
     }
