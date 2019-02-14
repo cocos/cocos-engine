@@ -413,9 +413,9 @@ var Color = (function () {
      */
     proto.toHEX = function ( fmt ) {
         var hex = [
-            (this.r | 0 ).toString(16),
-            (this.g | 0 ).toString(16),
-            (this.b | 0 ).toString(16)
+            ('0' + (this.r | 0).toString(16)).slice(-2),
+            ('0' + (this.g | 0).toString(16)).slice(-2),
+            ('0' + (this.b | 0).toString(16)).slice(-2),
         ];
         var i = -1;
         if ( fmt === '#rgb' ) {
@@ -432,13 +432,8 @@ var Color = (function () {
                 }
             }
         }
-        else if ( fmt === '#rrggbbaa' ) {
-            hex.push((this.a | 0 ).toString(16));
-            for ( i = 0; i < hex.length; ++i ) {
-                if ( hex[i].length === 1 ) {
-                    hex[i] = '0' + hex[i];
-                }
-            }
+        else if (fmt === '#rrggbbaa') {
+            hex.push(('0' + (this.a | 0).toString(16)).slice(-2));
         }
         return hex.join('');
     };
