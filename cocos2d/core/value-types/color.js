@@ -412,10 +412,11 @@ var Color = (function () {
      * color.toHEX("#rrggbb");  // "000000";
      */
     proto.toHEX = function ( fmt ) {
-        var hex = [
-            ('0' + (this.r | 0).toString(16)).slice(-2),
-            ('0' + (this.g | 0).toString(16)).slice(-2),
-            ('0' + (this.b | 0).toString(16)).slice(-2),
+        let prefix = '0';
+        let hex = [
+            (this.r < 16 ? prefix : '') + (this.r | 0).toString(16),
+            (this.g < 16 ? prefix : '') + (this.g | 0).toString(16),
+            (this.b < 16 ? prefix : '') + (this.b | 0).toString(16),
         ];
         var i = -1;
         if ( fmt === '#rgb' ) {
@@ -433,7 +434,7 @@ var Color = (function () {
             }
         }
         else if (fmt === '#rrggbbaa') {
-            hex.push(('0' + (this.a | 0).toString(16)).slice(-2));
+            hex.push((this.a < 16 ? prefix : '') + (this.a | 0).toString(16));
         }
         return hex.join('');
     };
