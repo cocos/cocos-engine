@@ -415,7 +415,7 @@ var _Deserializer = (function () {
         var DEFAULT = Attr.DELIMETER + 'default';
         var attrs = Attr.getClassAttrs(klass);
         var fastDefinedProps = klass.__props__ ||
-                               Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来;
+                               Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
         for (var i = 0; i < fastDefinedProps.length; i++) {
             var propName = fastDefinedProps[i];
             var value = serialized[propName];
