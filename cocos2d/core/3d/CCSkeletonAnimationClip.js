@@ -63,7 +63,18 @@ var SkeletonAnimationClip = cc.Class({
         description: {
             default: null,
             type: Object,
-        }
+        },
+
+        /**
+         * SkeletonAnimationClip's curveData is generated from binary buffer.
+         * So should not serialize curveData.
+         */
+        curveData: {
+            default: {},
+            visible: false,
+            override: true,
+            serializable: false
+        },
     },
 
     statics: { 
@@ -95,28 +106,25 @@ var SkeletonAnimationClip = cc.Class({
             let frameCount = des.frameCount;
             let property = des.property;
 
-            let position = property & PropertyEnum.POSITION ? [] : undefined;
-            let scale = property & PropertyEnum.SCALE ? [] : undefined;
-            let quat = property & PropertyEnum.QUAT ? [] : undefined;
+            let hasPosition = property & PropertyEnum.POSITION;
+            let hasScale = property & PropertyEnum.SCALE;
+            let hasQuat = property & PropertyEnum.QUAT;
+
+            let frames = [];
+
             for (let i = 0; i < frameCount; i++) {
                 let time = getValue();
-                position && position.push({ 
-                    frame: time, 
-                    value: cc.v3(getValue(), getValue(), getValue())
-                });
-                scale && scale.push({ 
-                    frame: time, 
-                    value: cc.v3(getValue(), getValue(), getValue())
-                });
-                quat && quat.push({ 
-                    frame: time, 
-                    value: cc.quat(getValue(), getValue(), getValue(), getValue())
-                });
+                let value = {};
+                let frame = { frame: time, value };
+
+                hasPosition && (value.position = cc.v3(getValue(), getValue(), getValue()));
+                hasScale && (value.scale = cc.v3(getValue(), getValue(), getValue()));
+                hasQuat && (value.quat = cc.quat(getValue(), getValue(), getValue(), getValue()));
+
+                frames.push(frame);
             }
 
-            if (position) curves.position = position;
-            if (scale) curves.scale = scale;
-            if (quat) curves.quat = quat;
+            curves.rts = frames;
         }
     }
 

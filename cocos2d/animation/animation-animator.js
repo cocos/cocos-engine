@@ -25,11 +25,8 @@
 
 const js = cc.js;
 const Playable = require('./playable');
-const DynamicAnimCurve = require('./animation-curves').DynamicAnimCurve;
-const quickFindIndex = require('./animation-curves').quickFindIndex;
+const { DynamicAnimCurve, RTSAnimCurve, EventAnimCurve, EventInfo, quickFindIndex } = require('./animation-curves');
 const sampleMotionPaths = require('./motion-path-helper').sampleMotionPaths;
-const EventAnimCurve = require('./animation-curves').EventAnimCurve;
-const EventInfo = require('./animation-curves').EventInfo;
 const WrapModeMask = require('./types').WrapModeMask;
 const binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
 
@@ -246,15 +243,23 @@ function initClipData (root, state) {
     }
 
     function createPropCurve (target, propPath, keyframes) {
+        let firstValue = keyframes[0] && keyframes[0].value;
+        
         let isMotionPathProp = (target instanceof cc.Node)
             && (propPath === 'position')
-            && (keyframes[0] 
-            && Array.isArray(keyframes[0].value)) 
-            && keyframes[0].value.length === 2;
+            && Array.isArray(firstValue) 
+            && firstValue.length === 2;
     
         let motionPaths = [];
-        
-        let curve = new DynamicAnimCurve();
+
+        let curve;
+        if (target instanceof cc.Node) {
+            curve = new RTSAnimCurve();
+            curve.testProperty(firstValue);
+        }
+        else {
+            curve = new DynamicAnimCurve();
+        }
 
         // 缓存目标对象，所以 Component 必须一开始都创建好并且不能运行时动态替换……
         curve.target = target;
@@ -323,8 +328,7 @@ function initClipData (root, state) {
         curve._findFrameIndex = canOptimize ? quickFindIndex : binarySearch;
         
         // find the lerp function
-        let firstValue = curve.values[0];
-        if (firstValue) {
+        if (!curve._lerp && firstValue) {
             if (typeof firstValue === 'number') {
                 curve._lerp = DynamicAnimCurve.prototype._lerpNumber;
             }

@@ -172,7 +172,7 @@ var DynamicAnimCurve = cc.Class({
         };
     })(),
 
-    sample: function (time, ratio, state) {
+    sample (time, ratio, state) {
         var values = this.values;
         var ratios = this.ratios;
         var frameCount = ratios.length;
@@ -222,7 +222,10 @@ var DynamicAnimCurve = cc.Class({
             value = this._lerp(value, value, 0);
         }
 
-        // apply value
+        this._apply(value);
+    },
+
+    _apply (value) {
         this.target[this.prop] = value;
     }
 });
@@ -231,6 +234,47 @@ DynamicAnimCurve.Linear = null;
 DynamicAnimCurve.Bezier = function (controlPoints) {
     return controlPoints;
 };
+
+/**
+ * RTSAnimCurve process rotation, scale, position property of node in one curve instead of
+ * three separate curve.
+ * RTSAnimCurve only need to calculate the time ratio once, it can improve performance.
+ * @class RTSAnimCurve
+ */
+let RTSAnimCurve = cc.Class({
+    name: 'cc.RTSAnimCurve',
+    extends: DynamicAnimCurve,
+
+    testProperty (prop) {
+        let hasProperty = 0;
+        if (prop.position) hasProperty |= 1;
+        if (prop.scale) hasProperty |= 2;
+        if (prop.quat) hasProperty |= 4;
+        this._hasProperty = hasProperty;
+    },
+
+    _lerp: (function () {
+        let out = {
+            position: cc.v3(),
+            scale: cc.v3(),
+            quat: cc.quat()
+        };
+        return function (from, to, t) {
+            let hasProperty = this._hasProperty;
+            (hasProperty & 1) && from.position.lerp(to.position, t, out.position);
+            (hasProperty & 2) && from.scale.lerp(to.scale, t, out.scale);
+            (hasProperty & 4) && from.quat.lerp(to.quat, t, out.quat);
+            return out;
+        };
+    })(),
+
+    _apply (value) {
+        let hasProperty = this._hasProperty;
+        (hasProperty & 1) && (this.target.position = value.position);
+        (hasProperty & 2) && (this.target.scale = value.scale);
+        (hasProperty & 4) && (this.target.quat = value.quat);
+    }
+});
 
 
 
@@ -433,6 +477,7 @@ if (CC_TEST) {
 module.exports = {
     AnimCurve: AnimCurve,
     DynamicAnimCurve: DynamicAnimCurve,
+    RTSAnimCurve: RTSAnimCurve,
     EventAnimCurve: EventAnimCurve,
     EventInfo: EventInfo,
     computeRatioByType: computeRatioByType,
