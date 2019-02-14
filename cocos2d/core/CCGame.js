@@ -797,7 +797,7 @@ var game = {
                 dynamicAtlasManager.enabled = true;
             }
             // Disable dynamicAtlasManager to fix rendering residue for transparent images on Chrome69.
-            if (cc.sys.browserType == cc.sys.BROWSER_TYPE_CHROME && parseFloat(cc.sys.browserVersion) >= 69.0) {
+            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_CHROME && parseFloat(cc.sys.browserVersion) >= 69.0) {
                 dynamicAtlasManager.enabled = false;
             }
         }
