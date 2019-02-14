@@ -304,7 +304,7 @@ module.exports = {
             'playOnLoad': '如果设置为 true 运行时会自动发射粒子',
             'autoRemoveOnFinish': '粒子播放完毕后自动销毁所在的节点',
             'duration': '发射器生存时间，单位秒，-1表示持续发射',
-            'emissionRate': '每秒发射的粒子数目',
+            'emissionRate': '每秒发射的粒子数目（此属性值为 totalParticles / life）',
             'life': '粒子的运行时间及变化范围',
             'totalParticles': '粒子最大数量',
             'startColor': '粒子初始颜色',

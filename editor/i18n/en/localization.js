@@ -300,7 +300,7 @@ module.exports = {
             'playOnLoad': 'If set to true, the particle system will automatically start playing on onLoad',
             'autoRemoveOnFinish': 'Indicate whether the owner node will be auto-removed when it has no particles left',
             'duration': 'How many seconds the emitter wil run. -1 means forever',
-            'emissionRate': 'Emission rate of the particles',
+            'emissionRate': 'Emission rate of the particles (This property is value by totalParticles / life)',
             'life': 'Life and variation of each particle setter',
             'totalParticles': 'Maximum particles of the system',
             'startColor': 'Start color of each particle',
