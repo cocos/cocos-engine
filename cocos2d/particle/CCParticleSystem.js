@@ -964,27 +964,31 @@ var ParticleSystem = cc.Class({
             var textureData = dict["textureImageData"];
 
             if (textureData && textureData.length > 0) {
-                var buffer = codec.unzipBase64AsArray(textureData, 1);
-                if (!buffer) {
-                    cc.logID(6030);
-                    return false;
-                }
+                let tex = cc.loader.getRes(imgPath);
+                
+                if (!tex) {
+                    var buffer = codec.unzipBase64AsArray(textureData, 1);
+                    if (!buffer) {
+                        cc.logID(6030);
+                        return false;
+                    }
 
-                var imageFormat = getImageFormatByData(buffer);
-                if (imageFormat !== macro.ImageFormat.TIFF && imageFormat !== macro.ImageFormat.PNG) {
-                    cc.logID(6031);
-                    return false;
-                }
+                    var imageFormat = getImageFormatByData(buffer);
+                    if (imageFormat !== macro.ImageFormat.TIFF && imageFormat !== macro.ImageFormat.PNG) {
+                        cc.logID(6031);
+                        return false;
+                    }
 
-                var canvasObj = document.createElement("canvas");
-                if(imageFormat === macro.ImageFormat.PNG){
-                    var myPngObj = new PNGReader(buffer);
-                    myPngObj.render(canvasObj);
-                } else {
-                    tiffReader.parseTIFF(buffer,canvasObj);
+                    var canvasObj = document.createElement("canvas");
+                    if(imageFormat === macro.ImageFormat.PNG){
+                        var myPngObj = new PNGReader(buffer);
+                        myPngObj.render(canvasObj);
+                    } else {
+                        tiffReader.parseTIFF(buffer,canvasObj);
+                    }
+                    tex = textureUtil.cacheImage(imgPath, canvasObj);
                 }
-
-                var tex = textureUtil.cacheImage(imgPath, canvasObj);
+                
                 if (!tex)
                     cc.logID(6032);
                 // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
