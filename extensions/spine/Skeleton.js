@@ -907,8 +907,8 @@ sp.Skeleton = cc.Class({
                 var res = this._state.setAnimationWith(trackIndex, animation, loop);
                 if (CC_EDITOR && !cc.engine.isPlaying) {
                     this._state.update(0);
-                    this._state.apply(this._skeleton);
                 }
+                this._state.apply(this._skeleton);
                 return res;
             }
         }
@@ -1200,10 +1200,6 @@ sp.Skeleton = cc.Class({
                 this._skeletonCache = SkeletonCache.sharedCache;
             } else if (this.renderMode === RenderModeEnum.PRIVATE_CACHE) {
                 this._skeletonCache = new SkeletonCache;
-                
-                // validate skeleton state
-                // as render may happen before `update`
-                this._state.apply(this._skeleton);
             }
         }
 
