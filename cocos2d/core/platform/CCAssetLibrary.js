@@ -31,6 +31,7 @@ var PackDownloader = require('../load-pipeline/pack-downloader');
 var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
 var decodeUuid = require('../utils/decode-uuid');
 var MD5Pipe = require('../load-pipeline/md5-pipe');
+var SubPackPipe = require('../load-pipeline/subpackage-pipe');
 var js = require('./js');
 
 /**
@@ -284,6 +285,12 @@ var AssetLibrary = {
 
         _rawAssetsBase = options.rawAssetsBase;
 
+        if (options.subpackages) {
+            var subPackPipe = new SubPackPipe(options.subpackages);
+            cc.loader.insertPipeAfter(cc.loader.assetLoader, subPackPipe);
+            cc.loader.subPackPipe = subPackPipe;
+        }
+        
         var md5AssetsMap = options.md5AssetsMap;
         if (md5AssetsMap && md5AssetsMap.import) {
             // decode uuid
