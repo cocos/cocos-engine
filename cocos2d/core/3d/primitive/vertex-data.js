@@ -1,6 +1,6 @@
 
 /**
- * @class Primitive.VertexData
+ * @class primitive.VertexData
  * @param {[Number]} positions 
  * @param {[Number]} normals 
  * @param {[Number]} uvs 
