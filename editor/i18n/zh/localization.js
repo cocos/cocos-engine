@@ -75,7 +75,7 @@ module.exports = {
             'hover_color': '悬停状态的按钮背景颜色',
             'disabled_color': '禁用状态的按钮背景颜色',
             'duration': '按钮颜色变化或者缩放变化的过渡时间',
-            'zoom_scale': '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。不建议 zoomScale 的值小于 1, 否则缩放后如果触摸点在触摸区域外, 则会触发 touchCancel 事件',
+            'zoom_scale': '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。',
             'auto_gray_effect': "如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰",
             'normal_sprite': '普通状态的按钮背景图资源',
             'pressed_sprite': '按下状态的按钮背景图资源',
