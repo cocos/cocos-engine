@@ -102,9 +102,20 @@ let TweenAction = cc.Class({
 
 /**
  * !#en
- * Provide a simple and flexible way to create action
+ * Tween provide a simple and flexible way to create action.
+ * Tween's api is more flexible than cc.Action:
+ *  - Support creating an action sequence in chained api,
+ *  - Support animate any objects' any properties, not limited to node's properties.
+ *    By contrast, cc.Action needs to create a new action to support new node property.
+ *  - Support working with cc.Action,
+ *  - Support easing and progress function,
  * !#zh
- * 提供了一个简单灵活的方法来创建 action
+ * Tween 提供了一个简单灵活的方法来创建 action。
+ * 相对于 Cocos 传统的 cc.Action，cc.Tween 在创建动画上要灵活非常多：
+ *  - 支持以链式结构的方式创建一个动画序列。
+ *  - 支持对任意对象的任意属性进行缓动，不再局限于节点上的属性，而 cc.Action 添加一个属性的支持时还需要添加一个新的 action。
+ *  - 支持与 cc.Action 混用
+ *  - 支持设置 easing 或者 progress 函数
  * @class Tween
  * @example
  * cc.tween(node)
