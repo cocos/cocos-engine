@@ -38,7 +38,7 @@ let TweenAction = cc.Class({
         }
 
         this._originProps = props;
-		this.initWithDuration(duration);
+        this.initWithDuration(duration);
     },
 
     clone () {
@@ -165,7 +165,7 @@ Tween.prototype.start = function () {
         return this;
     }
     if (!this._finalAction) {
-        this._finalAction = this.get();
+        this._finalAction = this._get();
     }
     cc.director.getActionManager().addAction(this._finalAction, this._target, false);
     return this;
@@ -196,7 +196,7 @@ Tween.prototype.stop = function () {
  * @param {Object} [target]
  */
 Tween.prototype.clone = function (target) {
-    let action = this.get();
+    let action = this._get();
     return cc.tween(target).then(action.clone());
 };
 
@@ -205,10 +205,8 @@ Tween.prototype.clone = function (target) {
  * Get an union action from current sequence
  * !#zh
  * 从当前队列中获取一个整合的 action
- * @method get
- * @return Action
  */
-Tween.prototype.get = function () {
+Tween.prototype._get = function () {
     let actions = this._actions;
 
     if (actions.length === 1) {
@@ -344,21 +342,6 @@ let otherActions = {
     reverseTime: cc.reverseTime,
 };
 
-// action constructors
-let constructors = {
-    Sequence: cc.Sequence,
-    Delay: cc.DelayTime,
-    Call: cc.CallFunc,
-    Hide: cc.Hide,
-    Show: cc.Show,
-    Remove: cc.RemoveSelf,
-    Repeat: cc.Repeat,
-    RepeatForever: cc.RepeatForever,
-    ReverseTime: cc.ReverseTime,
-};
-
-Object.assign(Tween, actions, otherActions, constructors);
-
 let keys = Object.keys(actions);
 for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
@@ -381,7 +364,7 @@ for (let i = 0; i < keys.length; i++) {
 
         let action = arguments[0];
         if (!(action instanceof cc.Action)) {
-            action = this.get();
+            action = this._get();
         }
         action = otherActions[key].apply(otherActions, [action].concat(args));
         this._actions.length = 0;
