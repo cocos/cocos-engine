@@ -30,11 +30,15 @@ let Skeleton = cc.Class({
     extends: cc.Asset,
 
     ctor () {
+        // {[Mat4]}
         this._bindposes = [];
     },
 
     properties: {
         _jointPaths: [],
+        /**
+         * Bindposes data stores in one array, it is better for data size.
+         */
         _bindposesData: [],
 
         jointPaths: {

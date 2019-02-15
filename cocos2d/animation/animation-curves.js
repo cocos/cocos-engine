@@ -217,13 +217,8 @@ var DynamicAnimCurve = cc.Class({
         }
         else {
             value = values[index];
-            value = this._lerp(value, value, 0);
         }
 
-        this._apply(value);
-    },
-
-    _apply (value) {
         this.target[this.prop] = value;
     }
 });

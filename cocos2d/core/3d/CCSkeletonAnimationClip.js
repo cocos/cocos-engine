@@ -25,12 +25,6 @@
 
 const AnimationClip = require('../../animation/animation-clip');
 
-const PropertyEnum = cc.Enum({
-    POSITION: 1,
-    SCALE: 2,
-    QUAT: 4
-});
-
  /**
  * @module cc
  */
@@ -77,10 +71,6 @@ var SkeletonAnimationClip = cc.Class({
         },
     },
 
-    statics: { 
-        PropertyEnum
-    },
-    
     onLoad () {
         let buffer = this._buffer;
         let description = this.description;

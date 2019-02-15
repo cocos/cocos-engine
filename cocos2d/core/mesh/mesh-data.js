@@ -25,11 +25,22 @@
 
 import gfx from '../../renderer/gfx';
 
+/**
+ * The class BufferRange denotes a range of the buffer.
+ */
 export let BufferRange = cc.Class({
     name: 'cc.BufferRange',
 
     properties: {
+        /**
+         * The offset of the range.
+         * @property {Number} offset
+         */
         offset: 0,
+        /**
+         * The length of the range.
+         * @property {Number} length
+         */
         length: 0
     }
 });
@@ -45,33 +56,71 @@ export let VertexFormat = cc.Class({
     }
 });
 
+/**
+ * A vertex bundle describes a serials of vertex attributes.
+ * These vertex attributes occupy a range of the buffer and
+ * are interleaved, no padding bytes, in the range.
+ */
 export let VertexBundle = cc.Class({
     name: 'cc.mesh.VertexBundle',
     properties: {
+        /**
+         * The data range of this bundle.
+         * This range of data is essentially mapped to a GPU vertex buffer.
+         * @property {BufferRange} data
+         */
         data: {
             default: null,
             type: BufferRange
         },
+        /**
+         * The attribute formats.
+         * @property {VertexFormat} formats
+         */
         formats: {
             default: [],
             type: VertexFormat
         },
+        /**
+         * The bundle's vertices count.
+         */
         verticesCount: 0,
     }
 });
 
+/**
+ * A primitive is a geometry constituted with a list of
+ * same topology primitive graphic(such as points, lines or triangles).
+ */
 export let Primitive = cc.Class({
     name: 'cc.mesh.Primitive',
     properties: {
+        /**
+         * The vertex bundle that the primitive use.
+         * @property {[Number]} vertexBundleIndices
+         */
         vertexBundleIndices: {
             default: [],
             type: Number
         },
+        /**
+         * The data range of the primitive.
+         * This range of data is essentially mapped to a GPU indices buffer.
+         * @property {BufferRange} data
+         */
         data: {
             default: null,
             type: BufferRange
         },
+        /**
+         * The type of this primitive's indices.
+         * @property {Number} indexUnit
+         */
         indexUnit: gfx.INDEX_FMT_UINT16,
+        /**
+         * The primitive's topology.
+         * @property {Number} topology
+         */
         topology: gfx.PT_TRIANGLES
     }
 });
