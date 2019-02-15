@@ -580,6 +580,10 @@ if (CC_DEBUG) {
         cc.warnID(1400, 'cc.KEY', 'cc.macro.KEY');
         return cc.macro.KEY;
     });
+    js.get(cc, 'Easing', function () {
+        cc.warnID(1400, 'cc.Easing', 'cc.easing');
+        return cc.easing;
+    });
 
     // cc.pool
     js.get(cc, 'pool', function () {
