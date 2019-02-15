@@ -619,7 +619,7 @@ let ArmatureDisplay = cc.Class({
         }
 
         if (this.renderMode !== RenderModeEnum.REALTIME && this.debugBones) {
-            cc.warn("cached mode do not support debug bones");
+            cc.warn("Debug bones is invalid in cached mode");
         }
 
         this._updateBatch();

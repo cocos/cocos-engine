@@ -32,7 +32,7 @@ let _indices = [];
 let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
-let _frameRate = 1 / 60;
+let _frameTime = 1 / 60;
 let _preTexUrl = null;
 let _preBlendMode = null;
 let _segVCount = 0;
@@ -95,6 +95,10 @@ let AnimationCache = cc.Class({
     },
 
     update (skeletonInfo) {
+        if (!this._animationName) {
+            cc.error("AnimationCache:update animationName is empty");
+            return;
+        }
         let skeleton = skeletonInfo.skeleton;
         let clipper = skeletonInfo.clipper;
         let listener = skeletonInfo.listener;
@@ -110,13 +114,13 @@ let AnimationCache = cc.Class({
 
         do {
             // Solid update frame rate 1/60.
-            skeleton.update(_frameRate);
-            state.update(_frameRate);
+            skeleton.update(_frameTime);
+            state.update(_frameTime);
             state.apply(skeleton);
             skeleton.updateWorldTransform()
             this._updateFrame(skeleton, clipper, frameIdx)
             frameIdx++;
-            this.totalTime += _frameRate;
+            this.totalTime += _frameTime;
         } while (!this._isCompleted && this.totalTime < MaxCacheTime);
         // Update frame length.
         this.frames.length = frameIdx;

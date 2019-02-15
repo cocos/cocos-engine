@@ -412,6 +412,8 @@ sp.Skeleton = cc.Class({
         _headAniInfo : null,
         // Play times
         _playTimes : 0,
+        // Is animation complete.
+        _isAniComplete : true,
     },
 
     // CONSTRUCTOR
@@ -490,7 +492,7 @@ sp.Skeleton = cc.Class({
      */
     setSlotsRange (startSlotIndex, endSlotIndex) {
         if (this.isCachedMode()) {
-            console.warn("cached mode do not support slots visible range");
+            console.warn("Slots visible range can not be modified in cached mode.");
         } else {
             this._startSlotIndex = startSlotIndex;
             this._endSlotIndex = endSlotIndex;
@@ -507,7 +509,7 @@ sp.Skeleton = cc.Class({
      */
     setAnimationStateData (stateData) {
         if (this.isCachedMode()) {
-            console.warn("cached mode do not support set animation state data");
+            console.warn("'setAnimationStateData' interface can not be invoked in cached mode.");
         } else {
             var state = new spine.AnimationState(stateData);
             if (this._listener) {
@@ -548,6 +550,11 @@ sp.Skeleton = cc.Class({
         this._updateBatch();
     },
 
+    /**
+     * !#en Whether in cached mode.
+     * !#zh 当前是否处于缓存模式。
+     * @method isCachedMode
+     */
     isCachedMode () {
         if (CC_EDITOR) return false;
         return this.renderMode !== RenderModeEnum.REALTIME;
@@ -555,22 +562,25 @@ sp.Skeleton = cc.Class({
 
     update (dt) {
         if (CC_EDITOR) return;
-        if (this.paused) {
-            // Cache mode and has animation queue.
-            if (this._animationQueue.length === 0 && !this._headAniInfo) return;
-            if (!this._headAniInfo) {
-                this._headAniInfo = this._animationQueue.shift();
-            }
-            this._accTime += dt;
-            if (this._accTime > this._headAniInfo.delay) {
-                let aniInfo = this._headAniInfo;
-                this._headAniInfo = null;
-                this.setAnimation (0, aniInfo.animationName, aniInfo.loop);
-            }
-            return;
-        }
+        if (this.paused) return;
 
         if (this.isCachedMode()) {
+
+            // Cache mode and has animation queue.
+            if (this._isAniComplete) {
+                if (this._animationQueue.length === 0 && !this._headAniInfo) return;
+                if (!this._headAniInfo) {
+                    this._headAniInfo = this._animationQueue.shift();
+                }
+                this._accTime += dt;
+                if (this._accTime > this._headAniInfo.delay) {
+                    let aniInfo = this._headAniInfo;
+                    this._headAniInfo = null;
+                    this.setAnimation (0, aniInfo.animationName, aniInfo.loop);
+                }
+                return;
+            }
+
             this._updateCache(dt);
         } else {
             this._updateRealtime(dt);
@@ -603,7 +613,7 @@ sp.Skeleton = cc.Class({
             if (this._playTimes > 0 && this._playCount >= this._playTimes) {
                 this._accTime = 0;
                 this._playCount = 0;
-                this.paused = true;
+                this._isAniComplete = true;
                 return;
             }
             this._accTime = 0;
@@ -664,7 +674,7 @@ sp.Skeleton = cc.Class({
      */
     setToSetupPose () {
         if (this.isCachedMode()) {
-            cc.warn("cached mode do not support setToSetupPose interface");
+            cc.warn("'SetToSetupPose' interface can not be invoked in cached mode.");
         } else {
             if (this._skeleton) {
                 this._skeleton.setToSetupPose();
@@ -683,7 +693,7 @@ sp.Skeleton = cc.Class({
      */
     setBonesToSetupPose () {
         if (this.isCachedMode()) {
-            cc.warn("cached mode do not support setBonesToSetupPose interface");
+            cc.warn("'setBonesToSetupPose' interface can not be invoked in cached mode.");
         } else {
             if (this._skeleton) {
                 this._skeleton.setBonesToSetupPose();
@@ -702,7 +712,7 @@ sp.Skeleton = cc.Class({
      */
     setSlotsToSetupPose () {
         if (this.isCachedMode()) {
-            cc.warn("cached mode do not support setSlotsToSetupPose interface");
+            cc.warn("'setSlotsToSetupPose' interface can not be invoked in cached mode.");
         } else {
             if (this._skeleton) {
                 this._skeleton.setSlotsToSetupPose();
@@ -874,14 +884,14 @@ sp.Skeleton = cc.Class({
 
         if (this.isCachedMode()) {
             if (trackIndex !== 0) {
-                cc.warn("cached mode do not support superimposed animation");
+                cc.warn("Track index can not greater than 0 in cached mode.");
             }
             let cache = this._skeletonCache.getAnimationCache(this.skeletonData._uuid, name);
             if (!cache) {
                 cache = this._skeletonCache.updateAnimationCache(this.skeletonData._uuid, name);
             }
             if (cache) {
-                this.paused = false;
+                this._isAniComplete = false;
                 this._accTime = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
@@ -920,7 +930,7 @@ sp.Skeleton = cc.Class({
     addAnimation (trackIndex, name, loop, delay) {
         if (this.isCachedMode()) {
             if (trackIndex !== 0) {
-                cc.warn("cached mode do not support superimposed animation");
+                cc.warn("Track index can not greater than 0 in cached mode.");
             }
             this._animationQueue.push({animationName : name, loop: loop, delay : delay});
         } else {
@@ -962,7 +972,7 @@ sp.Skeleton = cc.Class({
      */
     getCurrent (trackIndex) {
         if (this.isCachedMode()) {
-            cc.warn("cached mode do not support getCurrent interface");
+            console.warn("'getCurrent' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
                 return this._state.getCurrent(trackIndex);
@@ -978,7 +988,7 @@ sp.Skeleton = cc.Class({
      */
     clearTracks () {
         if (this.isCachedMode()) {
-            cc.warn("cached mode do not support clearTracks interface");
+            console.warn("'clearTracks' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
                 this._state.clearTracks();
@@ -994,7 +1004,7 @@ sp.Skeleton = cc.Class({
      */
     clearTrack (trackIndex) {
         if (this.isCachedMode()) {
-            cc.warn("cached mode do not support clearTrack interface");
+            console.warn("'clearTrack' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
                 this._state.clearTrack(trackIndex);
@@ -1194,7 +1204,7 @@ sp.Skeleton = cc.Class({
         }
 
         if (this.isCachedMode() && (this.debugBones || this.debugSlots)) {
-            cc.warn("cached mode do not support debug bones");
+            cc.warn("Debug bones or slots is invalid in cached mode");
         }
 
         try {
@@ -1238,7 +1248,7 @@ sp.Skeleton = cc.Class({
 
             this._debugRenderer.node.parent = this.node;
             if (this.isCachedMode()) {
-                cc.warn("cached mode do not support debug bones");
+                cc.warn("Debug bones or slots is invalid in cached mode");
             }
         }
         else if (this._debugRenderer) {
