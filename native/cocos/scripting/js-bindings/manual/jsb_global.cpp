@@ -780,7 +780,7 @@ namespace
         // will create a big texture, and update its content with small pictures.
         // The big texture is RGBA888, then the small picture should be the same
         // format, or it will cause 0x502 error on OpenGL ES 2.
-        if (!imgInfo->compressed && imgInfo.glFormat != GL_RGBA) {
+        if (!imgInfo->compressed && imgInfo->glFormat != GL_RGBA) {
             imgInfo->length = img->getWidth() * img->getHeight() * 4;
             uint8_t* dst = nullptr;
             uint32_t length = imgInfo->length;
