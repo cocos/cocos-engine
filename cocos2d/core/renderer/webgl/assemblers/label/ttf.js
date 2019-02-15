@@ -26,8 +26,6 @@
 const js = require('../../../../platform/js');
 const ttfUtls = require('../../../utils/label/ttf');
 
-const WHITE_VAL = cc.Color.WHITE._val;
-
 module.exports = js.addon({
     createData (comp) {
         let renderData = comp.requestRenderData();
@@ -42,7 +40,7 @@ module.exports = js.addon({
     fillBuffers (comp, renderer) {
         let data = comp._renderData._data,
             node = comp.node,
-            color = WHITE_VAL,
+            color = node.color._val,
             matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
