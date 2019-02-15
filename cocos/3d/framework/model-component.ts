@@ -116,9 +116,9 @@ export class ModelComponent extends RenderableComponent {
      * !#ch 投射阴影方式
      * @type {Number}
      */
-    @property({
-        type: ModelShadowCastingMode,
-    })
+    // @property({
+    //     type: ModelShadowCastingMode,
+    // })
     get shadowCastingMode () {
         return this._shadowCastingMode;
     }
@@ -134,7 +134,7 @@ export class ModelComponent extends RenderableComponent {
      * !#ch 是否接受阴影?
      * @type {Boolean}
      */
-    @property
+    // @property
     get receiveShadows () {
         return this._receiveShadows;
     }
@@ -192,7 +192,11 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
 
-        this._createModel();
+        if (this._model) {
+            this._model.destroy();
+        } else {
+            this._createModel();
+        }
 
         this._model!.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
 
@@ -206,7 +210,6 @@ export class ModelComponent extends RenderableComponent {
     protected _createModel () {
         if (!this.node.scene) { return; }
         const scene = this._getRenderScene();
-        if (this._model && scene.models.find((c) => c === this._model)) { return; }
         this._model = scene.createModel(this._getModelConstructor(), this.node);
     }
 
