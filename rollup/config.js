@@ -11,7 +11,7 @@ const moduleName = 'cc_modular';
 fsJetpack.dir(dest);
 
 export default {
-    input: './index.js',
+    input: './index.ts',
 
     output: [{
         file: `${dest}/${file}.js`,
