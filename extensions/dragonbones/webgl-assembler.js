@@ -69,7 +69,10 @@ function _getSlotMaterial (tex, blendMode) {
             break;
     }
 
-    let key = tex.url + src + dst;
+    let useModel = !_comp.enableBatch;
+    // Add useModel flag due to if pre same db useModel but next db no useModel,
+    // then next db will multiply model matrix more than once.
+    let key = tex.url + src + dst + useModel;
     let baseMaterial = _comp._material;
     if (!baseMaterial) return null;
     let materialCache = _comp._materialCache;
@@ -83,7 +86,7 @@ function _getSlotMaterial (tex, blendMode) {
             material = baseMaterial.clone();
         }
 
-        material.useModel = !_comp.enabledBatch;
+        material.useModel = useModel;
         // update texture
         material.texture = tex;
         material.useColor = false;
@@ -199,15 +202,16 @@ let armatureAssembler = {
 
     cacheTraverse (frame, parentMat) {
         if (!frame) return;
+        let segments = frame.segments;
+        if (segments.length == 0) return;
 
         let vbuf, ibuf, uintbuf;
         let material;
-        
         let offsetInfo;
         let vertices = frame.vertices;
         let indices = frame.indices;
         let uintVert = frame.uintVert;
-        let segments = frame.segments;
+        
         let frameVFOffset = 0, frameIndexOffset = 0, segVFCount = 0;
         if (parentMat) {
             _m00 = parentMat.m00;
@@ -307,7 +311,7 @@ let armatureAssembler = {
         }
 
         let worldMat = undefined;
-        if (_comp.enabledBatch) {
+        if (_comp.enableBatch) {
             worldMat = _node._worldMatrix;
             _mustFlush = false;
             _handleVal |= NEED_BATCH;

@@ -22,19 +22,21 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+const MaxCacheTime = 30;
+
 let _vertices = [];
 let _indices = [];
 let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
-let _frameRate = 1 / 60;
-let _preTexUrl = undefined;
-let _preBlendMode = undefined;
+let _frameTime = 1 / 60;
+let _preTexUrl = null;
+let _preBlendMode = null;
 let _segVCount = 0;
 let _segICount = 0;
 let _segOffset = 0;
 let _colorOffset = 0;
-let _preColor = undefined;
+let _preColor = null;
 let _x, _y;
 
 //Cache all frames in an animation
@@ -43,8 +45,13 @@ let AnimationCache = cc.Class({
         this.frames = [];
         this.totalTime = 0;
 
-        this._tempSegments = undefined;
-        this._tempColors = undefined;
+        this._animationName = null;
+        this._tempSegments = null;
+        this._tempColors = null;
+    },
+
+    init (animationName) {
+        this._animationName = animationName;
     },
 
     // Clear texture quote.
@@ -55,35 +62,44 @@ let AnimationCache = cc.Class({
         }
     },
 
-    update (armature, animationName) {
+    update (armature) {
+        if (!this._animationName) {
+            cc.error("AnimationCache:update animationName is empty");
+            return;
+        }
         let animation = armature.animation;
-        animation.play(animationName, 1);
+        animation.play(this._animationName, 1);
         let frameIdx = 0;
+        this.totalTime = 0;
         do {
             // Solid update frame rate 1/60.
-            armature.advanceTime(_frameRate);
-            this._updateFrame(armature, frameIdx) && frameIdx++;
-        } while (!animation.isCompleted);
+            armature.advanceTime(_frameTime);
+            this._updateFrame(armature, frameIdx);
+            frameIdx++;
+            this.totalTime += _frameTime;
+        } while (!animation.isCompleted && this.totalTime < MaxCacheTime);
         // Update frame length.
         this.frames.length = frameIdx;
-        this.totalTime = frameIdx * _frameRate;
     },
 
     _updateFrame (armature, index) {
         _vfOffset = 0;
         _indexOffset = 0;
         _vertexOffset = 0;
-        _preTexUrl = undefined;
-        _preBlendMode = undefined;
+        _preTexUrl = null;
+        _preBlendMode = null;
         _segVCount = 0;
         _segICount = 0;
         _segOffset = 0;
         _colorOffset = 0;
-        _preColor = undefined;
+        _preColor = null;
 
         this.frames[index] = this.frames[index] || {
             segments : [],
             colors : [],
+            vertices : null,
+            uintVert : null,
+            indices : null,
         };
         let frame = this.frames[index];
 
@@ -99,16 +115,20 @@ let AnimationCache = cc.Class({
         colors.length = _colorOffset;
         // Handle pre segment
         let preSegOffset = _segOffset - 1;
-        if (preSegOffset >= 0 && _segICount > 0) {
-            let preSegInfo = segments[preSegOffset];
-            preSegInfo.indexCount = _segICount;
-            preSegInfo.vfCount = _segVCount * 5;
-            preSegInfo.vertexCount = _segVCount;
-            segments.length = _segOffset;
-        } else {
-            segments.length = 0;
-            return false;
+        if (preSegOffset >= 0) {
+            if (_segICount > 0) {
+                let preSegInfo = segments[preSegOffset];
+                preSegInfo.indexCount = _segICount;
+                preSegInfo.vfCount = _segVCount * 5;
+                preSegInfo.vertexCount = _segVCount;
+                segments.length = _segOffset;
+            } else {
+                segments.length = _segOffset - 1;
+            }
         }
+
+        // Discard all segments.
+        if (segments.length === 0) return;
 
         // Fill vertices
         let vertices = frame.vertices || new Float32Array(_vfOffset);
@@ -130,7 +150,6 @@ let AnimationCache = cc.Class({
         frame.vertices = vertices;
         frame.uintVert = uintVert;
         frame.indices = indices;
-        return true;
     },
 
     _traverseArmature (armature) {
@@ -162,22 +181,28 @@ let AnimationCache = cc.Class({
             if (_preTexUrl !== texture.url || _preBlendMode !== slot._blendMode) {
                 _preTexUrl = texture.url;
                 _preBlendMode = slot._blendMode;
-                // handle pre
+                // Handle pre segment.
                 preSegOffset = _segOffset - 1;
-                if (preSegOffset >= 0 && _segICount > 0) {
-                    preSegInfo = segments[preSegOffset];
-                    preSegInfo.indexCount = _segICount;
-                    preSegInfo.vertexCount = _segVCount;
-                    preSegInfo.vfCount = _segVCount * 5;
+                if (preSegOffset >= 0) {
+                    if (_segICount > 0) {
+                        preSegInfo = segments[preSegOffset];
+                        preSegInfo.indexCount = _segICount;
+                        preSegInfo.vertexCount = _segVCount;
+                        preSegInfo.vfCount = _segVCount * 5;
+                    } else {
+                        // Discard pre segment.
+                        _segOffset--;
+                    }
                 }
-                // handle now
-                segments[_segOffset++] = {
+                // Handle now segment.
+                segments[_segOffset] = {
                     tex : texture,
                     blendMode : slot._blendMode,
                     indexCount : 0,
                     vertexCount : 0,
                     vfCount : 0
                 };
+                _segOffset++;
                 _segICount = 0;
                 _segVCount = 0;
             }
@@ -213,8 +238,10 @@ let AnimationCache = cc.Class({
                 gVertices[_vfOffset++] = colorVal;
             }
             
+            // This place must use segment vertex count to calculate vertex offset.
+            // Assembler will calculate vertex offset again for different segment.
             for (let ii = 0, il = slotIndices.length; ii < il; ii ++) {
-                gIndices[_indexOffset++] = _vertexOffset + slotIndices[ii];
+                gIndices[_indexOffset++] = _segVCount + slotIndices[ii];
             }
 
             _vertexOffset = _vfOffset / 5;
@@ -239,8 +266,8 @@ let ArmatureCache = cc.Class({
                 armature && armature.dispose();
             }
         }
-        this._armatureCache = undefined;
-        this._animationPool = undefined;
+        this._armatureCache = null;
+        this._animationPool = null;
     },
 
     _removeArmature (armatureKey) {
@@ -326,6 +353,9 @@ let ArmatureCache = cc.Class({
         let armatureInfo = this._armatureCache[armatureKey];
         let armature = armatureInfo && armatureInfo.armature;
         if (!armature) return null;
+        let animation = armature.animation;
+        let hasAni = animation.hasAnimation(animationName);
+        if (!hasAni) return null;
 
         let animationsCache = armatureInfo.animationsCache;
         let animationCache = animationsCache[animationName];
@@ -337,10 +367,14 @@ let ArmatureCache = cc.Class({
                 delete this._animationPool[poolKey];
             } else {
                 animationCache = new AnimationCache();
+                animationCache.init(animationName);
             }
             animationsCache[animationName] = animationCache;
         }
-        animationCache.update(armature, animationName);
+        animationCache.update(armature);
+        if (animationCache.totalTime >= MaxCacheTime) {
+            cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change armature render mode to REALTIME, dragonbones name is [%s], animation name is [%s]", dragonbonesName, animationName);
+        }
         return animationCache;
     }
 });

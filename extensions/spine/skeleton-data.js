@@ -26,6 +26,7 @@
 /**
  * @module sp
  */
+let SkeletonCache = !CC_JSB && require('./skeleton-cache').sharedCache;
 
 /**
  * !#en The skeleton data of spine.
@@ -246,7 +247,14 @@ var SkeletonData = cc.Class({
         }
 
         return this._atlasCache = new sp.spine.TextureAtlas(this.atlasText, this._getTexture.bind(this));
-    }
+    },
+
+    destroy () {
+        if (!CC_JSB) {
+            SkeletonCache.removeSkeleton(this._uuid);
+        }
+        this._super();
+    },
 });
 
 sp.SkeletonData = module.exports = SkeletonData;

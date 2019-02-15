@@ -41,8 +41,8 @@ let ArmatureCache = require('./ArmatureCache');
 
 let DefaultArmaturesEnum = cc.Enum({ 'default': -1 });
 let DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
-let DefaultRenderModeEnum = cc.Enum({ 'realtime': 0 });
-let RenderModeEnum = cc.Enum({ 'realtime': 0, 'sharedCache': 1, "privateCache": 2 });
+let DefaultRenderModeEnum = cc.Enum({ 'REALTIME': 0 });
+let RenderModeEnum = cc.Enum({ 'REALTIME': 0, 'SHARED_CACHE': 1, "PRIVATE_CACHE": 2 });
 
 function setEnumAttr (obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
@@ -370,10 +370,10 @@ let ArmatureDisplay = cc.Class({
         /**
          * !#en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
          * !#zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-         * @property {Boolean} enabledBatch
+         * @property {Boolean} enableBatch
          * @default false
          */
-        enabledBatch: {
+        enableBatch: {
             default: false,
             notify () {
                 this._updateBatch();
@@ -381,11 +381,9 @@ let ArmatureDisplay = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.enabled_batch'
         },
 
-        // Below properties will effect when render mode is sharedCache or privateCache.
+        // Below properties will effect when render mode is SHARED_CACHE or PRIVATE_CACHE.
         // accumulate time
         _accTime: 0,
-        // Frame counter
-        _frameCount: 0,
         // Play times counter
         _playCount: 0,
         // Frame cache
@@ -394,6 +392,8 @@ let ArmatureDisplay = cc.Class({
         _curFrame: null,
         // Playing flag
         _playing: false,
+        // Armature cache
+        _armatureCache: null,
     },
 
     ctor () {
@@ -426,7 +426,7 @@ let ArmatureDisplay = cc.Class({
         for (let mKey in cache) {
             let material = cache[mKey];
             if (material) {
-                material.useModel = !this.enabledBatch;
+                material.useModel = !this.enableBatch;
             }
         }
     },
@@ -446,7 +446,7 @@ let ArmatureDisplay = cc.Class({
         this._inited = true;
 
         if (CC_JSB) {
-            this.renderMode = RenderModeEnum.realtime;
+            this.renderMode = RenderModeEnum.REALTIME;
         }
         
         this._parseDragonAsset();
@@ -465,7 +465,7 @@ let ArmatureDisplay = cc.Class({
 
     isCachedMode () {
         if (CC_EDITOR) return false;
-        return this.renderMode !== RenderModeEnum.realtime;
+        return this.renderMode !== RenderModeEnum.REALTIME;
     },
 
     onEnable () {
@@ -522,7 +522,6 @@ let ArmatureDisplay = cc.Class({
         }
 
         this._curFrame = frames[frameIdx];
-        this._frameIdx = frameIdx;
     },
 
     onDestroy () {
@@ -530,11 +529,11 @@ let ArmatureDisplay = cc.Class({
         this._inited = false;
 
         if (!CC_EDITOR) {
-            if (this.renderMode === RenderModeEnum.privateCache) {
+            if (this.renderMode === RenderModeEnum.PRIVATE_CACHE) {
                 this._armatureCache.dispose();
                 this._armatureCache = null;
                 this._armature = null;
-            } else if (this.renderMode === RenderModeEnum.sharedCache) {
+            } else if (this.renderMode === RenderModeEnum.SHARED_CACHE) {
                 this._armatureCache = null;
                 this._armature = null;
             } else if (this._armature) {
@@ -574,9 +573,9 @@ let ArmatureDisplay = cc.Class({
         if (this._armature) {
             // dispose pre build armature
             if (!CC_EDITOR) {
-                if (this._preRenderMode === RenderModeEnum.privateCache) {
+                if (this._preRenderMode === RenderModeEnum.PRIVATE_CACHE) {
                     this._armatureCache.dispose();
-                } else if (this._preRenderMode === RenderModeEnum.realtime) {
+                } else if (this._preRenderMode === RenderModeEnum.REALTIME) {
                     this._armature.dispose();
                 }
             } else {
@@ -592,9 +591,9 @@ let ArmatureDisplay = cc.Class({
         }
 
         if (!CC_EDITOR) {
-            if (this.renderMode === RenderModeEnum.sharedCache) {
+            if (this.renderMode === RenderModeEnum.SHARED_CACHE) {
                 this._armatureCache = ArmatureCache.sharedCache;
-            } else if (this.renderMode === RenderModeEnum.privateCache) {
+            } else if (this.renderMode === RenderModeEnum.PRIVATE_CACHE) {
                 this._armatureCache = new ArmatureCache;
             }
         }
@@ -605,13 +604,13 @@ let ArmatureDisplay = cc.Class({
         if (this.isCachedMode()) {
             this._armature = this._armatureCache.getArmatureCache(this.armatureName, dragonbonesName, atlasName);
             if (!this._armature) {
-                // Cache fail,swith to realtime render mode.
-                this.renderMode = RenderModeEnum.realtime;
+                // Cache fail,swith to REALTIME render mode.
+                this.renderMode = RenderModeEnum.REALTIME;
             } 
         } 
         
         this._preRenderMode = this.renderMode;
-        if (CC_EDITOR || this.renderMode === RenderModeEnum.realtime) {
+        if (CC_EDITOR || this.renderMode === RenderModeEnum.REALTIME) {
             this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, dragonbonesName, "", atlasName);
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
@@ -619,8 +618,8 @@ let ArmatureDisplay = cc.Class({
             this._armature.animation.timeScale = this.timeScale;
         }
 
-        if (this.renderMode !== RenderModeEnum.realtime && this.debugBones) {
-            console.warn("cached mode do not support debug bones");
+        if (this.renderMode !== RenderModeEnum.REALTIME && this.debugBones) {
+            cc.warn("Debug bones is invalid in cached mode");
         }
 
         this._updateBatch();
@@ -715,7 +714,6 @@ let ArmatureDisplay = cc.Class({
             }
             if (cache) {
                 this._accTime = 0;
-                this._frameCount = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
                 this._playing = true;
