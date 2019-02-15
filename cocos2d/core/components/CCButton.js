@@ -297,9 +297,7 @@ let Button = cc.Class({
         /**
          * !#en  When user press the button, the button will zoom to a scale.
          * The final scale of the button  equals (button original scale * zoomScale)
-         * Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling. 
          * !#zh 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale
-         * 不建议 zoomScale 的值小于 1, 否则缩放后如果触摸点在触摸区域外, 则会触发 touchCancel 事件。
          * @property {Number} zoomScale
          */
         zoomScale: {

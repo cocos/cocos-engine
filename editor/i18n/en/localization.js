@@ -72,7 +72,7 @@ module.exports = {
             "hover_color": "Button color when the mouse hovers over it",
             "disabled_color": "Button color when disabled",
             "duration": "How long until the button color/scale transitions to a new color?",
-            "zoom_scale": "When user press the button, the button will zoom to a scale.The final scale of the button  equals (button original scale * zoomScale). Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling.",
+            "zoom_scale": "When user press the button, the button will zoom to a scale.The final scale of the button  equals (button original scale * zoomScale).",
             "auto_gray_effect": "When this flag is true, Button target sprite will turn gray when interactable is false.",
             "normal_sprite": "The Sprite that is used when the button is in a normal sate.",
             "pressed_sprite": "The Sprite that is used when the button is in a pressed sate.",
