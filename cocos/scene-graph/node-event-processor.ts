@@ -452,7 +452,7 @@ export class NodeEventProcessor {
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
      * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
      */
-    public off(type: string, callback: Function, target?: Object, useCapture?: Object) {
+    public off(type: string, callback?: Function, target?: Object, useCapture?: Object) {
         const touchEvent = _touchEvents.indexOf(type) !== -1;
         const mouseEvent = !touchEvent && _mouseEvents.indexOf(type) !== -1;
         if (touchEvent || mouseEvent) {

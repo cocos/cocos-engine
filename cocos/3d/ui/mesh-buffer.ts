@@ -156,7 +156,7 @@ export class MeshBuffer {
         //     }
         // }
 
-        if (this.vData && this.vData.byteLength === this._initVDataCount) {
+        if (this.vData && this.vData.length === this._initVDataCount) {
             return;
         }
 
@@ -176,7 +176,7 @@ export class MeshBuffer {
     public _reallocIData (copyOldData) {
         // const oldIData = this.iData;
 
-        if (this.iData && this.iData.byteLength === this._initIDataCount) {
+        if (this.iData && this.iData.length === this._initIDataCount) {
             return;
         }
 

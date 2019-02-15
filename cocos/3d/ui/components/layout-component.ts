@@ -26,8 +26,10 @@
 
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Enum, Size } from '../../../core/value-types';
+import { Size, Vec3, Rect, Vec2 } from '../../../core/value-types';
+import { ccenum } from '../../../core/value-types/enum';
 import { Node } from '../../../scene-graph/node';
+import { UITransformComponent } from './ui-transfrom-component';
 const NodeEvent = Node.EventType;
 /**
  * !#en Enum for Layout type
@@ -61,7 +63,7 @@ enum Type {
     GRID = 3,
 }
 
-Enum(Type);
+ccenum(Type);
 
 /**
  * !#en Enum for Layout Resize Mode
@@ -89,7 +91,7 @@ enum ResizeMode {
     CHILDREN = 2,
 }
 
-Enum(ResizeMode);
+ccenum(ResizeMode);
 
 /**
  * !#en Enum for Grid Layout start axis direction.
@@ -112,7 +114,7 @@ enum AxisDirection {
     VERTICAL = 1,
 }
 
-Enum(AxisDirection);
+ccenum(AxisDirection);
 
 /**
  * !#en Enum for vertical layout direction.
@@ -135,7 +137,7 @@ enum VerticalDirection {
     TOP_TO_BOTTOM = 1,
 }
 
-Enum(VerticalDirection);
+ccenum(VerticalDirection);
 
 /**
  * !#en Enum for horizontal layout direction.
@@ -156,7 +158,10 @@ enum HorizontalDirection {
     RIGHT_TO_LEFT = 1,
 }
 
-Enum(HorizontalDirection);
+ccenum(HorizontalDirection);
+
+let _tempPos = new Vec3();
+let _tempScale = new Vec3();
 
 /**
  * !#en
@@ -185,15 +190,17 @@ export class LayoutComponent extends Component {
      * @property {Layout.Type} type
      * @default Layout.Type.NONE
      */
-    @property
-    get type () {
+    @property({
+        type: Type
+    })
+    get type() {
         return this._N$layoutType;
     }
 
-    set type (value) {
+    set type(value: Type) {
         this._N$layoutType = value;
 
-        if (CC_EDITOR && this.type !== Type.NONE && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
+        if (CC_EDITOR && this._N$layoutType !== Type.NONE && this._resizeMode === ResizeMode.CONTAINER /*&& !cc.engine.isPlaying*/) {
             // const reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
             // if (reLayouted) {
             //     return;
@@ -212,16 +219,16 @@ export class LayoutComponent extends Component {
     @property({
         type: ResizeMode,
     })
-    get resizeMode () {
-        return this._resize;
+    get resizeMode() {
+        return this._resizeMode;
     }
-    set resizeMode (value) {
-        if (this.type === Type.NONE && value === ResizeMode.CHILDREN) {
+    set resizeMode(value) {
+        if (this._N$layoutType === Type.NONE && value === ResizeMode.CHILDREN) {
             return;
         }
 
-        this._resize = value;
-        if (CC_EDITOR && value === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
+        this._resizeMode = value;
+        if (CC_EDITOR && value === ResizeMode.CONTAINER /*&& !cc.engine.isPlaying*/) {
             // const reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
             // if (reLayouted) {
             //     return;
@@ -237,11 +244,11 @@ export class LayoutComponent extends Component {
      * @default cc.size(40, 40)
      */
     @property
-    get cellSize () {
+    get cellSize() {
         return this._cellSize;
     }
 
-    set cellSize (value: Size) {
+    set cellSize(value: Size) {
         if (this._cellSize === value) {
             return;
         }
@@ -257,17 +264,19 @@ export class LayoutComponent extends Component {
      * !#zh 起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效。
      * @property {Layout.AxisDirection} startAxis
      */
-    @property
-    get startAxis () {
+    @property({
+        type: AxisDirection
+    })
+    get startAxis() {
         return this._startAxis;
     }
 
-    set startAxis (value) {
+    set startAxis(value) {
         if (this._startAxis === value) {
             return;
         }
 
-        if (CC_EDITOR && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
+        if (CC_EDITOR && this._resizeMode === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
             // const reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
             // if (reLayouted) {
             //     return;
@@ -283,10 +292,10 @@ export class LayoutComponent extends Component {
      * @property {Number} paddingLeft
      */
     @property
-    get paddingLeft () {
+    get paddingLeft() {
         return this._paddingLeft;
     }
-    set paddingLeft (value) {
+    set paddingLeft(value) {
         if (this._paddingLeft === value) {
             return;
         }
@@ -301,10 +310,10 @@ export class LayoutComponent extends Component {
      * @property {Number} paddingRight
      */
     @property
-    get paddingRight () {
+    get paddingRight() {
         return this._paddingRight;
     }
-    set paddingRight (value) {
+    set paddingRight(value) {
         if (this._paddingRight === value) {
             return;
         }
@@ -319,10 +328,10 @@ export class LayoutComponent extends Component {
      * @property {Number} paddingTop
      */
     @property
-    get paddingTop () {
+    get paddingTop() {
         return this._paddingTop;
     }
-    set paddingTop (value) {
+    set paddingTop(value) {
         if (this._paddingTop === value) {
             return;
         }
@@ -337,10 +346,10 @@ export class LayoutComponent extends Component {
      * @property {Number} paddingBottom
      */
     @property
-    get paddingBottom () {
+    get paddingBottom() {
         return this._paddingBottom;
     }
-    set paddingBottom (value) {
+    set paddingBottom(value) {
         if (this._paddingBottom === value) {
             return;
         }
@@ -354,11 +363,12 @@ export class LayoutComponent extends Component {
      * !#zh 子节点之间的水平间距。
      * @property {Number} spacingX
      */
-    get spacingX () {
+    @property
+    get spacingX() {
         return this._spacingX;
     }
 
-    set spacingX (value) {
+    set spacingX(value) {
         if (this._spacingX === value) {
             return;
         }
@@ -373,11 +383,11 @@ export class LayoutComponent extends Component {
      * @property {Number} spacingY
      */
     @property
-    get spacingY () {
+    get spacingY() {
         return this._spacingY;
     }
 
-    set spacingY (value) {
+    set spacingY(value) {
         if (this._spacingY === value) {
             return;
         }
@@ -396,11 +406,11 @@ export class LayoutComponent extends Component {
     @property({
         type: VerticalDirection,
     })
-    get verticalDirection () {
+    get verticalDirection() {
         return this._verticalDirection;
     }
 
-    set verticalDirection (value: VerticalDirection) {
+    set verticalDirection(value: VerticalDirection) {
         if (this._verticalDirection === value) {
             return;
         }
@@ -419,11 +429,11 @@ export class LayoutComponent extends Component {
     @property({
         type: HorizontalDirection,
     })
-    get horizontalDirection () {
+    get horizontalDirection() {
         return this._horizontalDirection;
     }
 
-    set horizontalDirection (value: HorizontalDirection) {
+    set horizontalDirection(value: HorizontalDirection) {
         if (this._horizontalDirection === value) {
             return;
         }
@@ -473,33 +483,46 @@ export class LayoutComponent extends Component {
     public static AxisDirection = AxisDirection;
 
     private _layoutDirty = true;
-    private _resize = ResizeMode.NONE;
-
+    @property
+    private _resizeMode = ResizeMode.NONE;
     // TODO: refactoring this name after data upgrade machanism is out.
+    @property
     private _N$layoutType = Type.NONE;
+    @property
     private _N$padding = 0;
+    @property
     private _cellSize = cc.size(40, 40);
+    @property
     private _startAxis = AxisDirection.HORIZONTAL;
+    @property
     private _paddingLeft = 0;
+    @property
     private _paddingRight = 0;
+    @property
     private _paddingTop = 0;
+    @property
     private _paddingBottom = 0;
+    @property
     private _spacingX = 0;
+    @property
     private _spacingY = 0;
     private _layoutSize = cc.size(300, 200);
+    @property
     private _verticalDirection = VerticalDirection.TOP_TO_BOTTOM;
+    @property
     private _horizontalDirection = HorizontalDirection.LEFT_TO_RIGHT;
+    @property
     private _affectedByScale = false;
 
-    private _migratePaddingData () {
-        this.paddingLeft = this._N$padding;
-        this.paddingRight = this._N$padding;
-        this.paddingTop = this._N$padding;
-        this.paddingBottom = this._N$padding;
+    private _migratePaddingData() {
+        this._paddingLeft = this._N$padding;
+        this._paddingRight = this._N$padding;
+        this._paddingTop = this._N$padding;
+        this._paddingBottom = this._N$padding;
         this._N$padding = 0;
     }
 
-    protected onEnable () {
+    protected onEnable() {
         this._addEventListeners();
 
         if (this.node.getContentSize().equals(cc.size(0, 0))) {
@@ -513,91 +536,91 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
 
-    protected onDisable () {
+    protected onDisable() {
         this._removeEventListeners();
     }
 
-    private _addEventListeners () {
+    private _addEventListeners() {
         cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
         this.node.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.on(NodeEvent.CHILD_ADDED, this._childAdded, this);
         this.node.on(NodeEvent.CHILD_REMOVED, this._childRemoved, this);
-        this.node.on(NodeEvent.CHILD_REORDER, this._doLayoutDirty, this);
+        // this.node.on(NodeEvent.CHILD_REORDER, this._doLayoutDirty, this);
         this._addChildrenEventListeners();
     }
 
-    private _removeEventListeners () {
+    private _removeEventListeners() {
         cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.off(NodeEvent.SIZE_CHANGED, this._resized, this);
         this.node.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.off(NodeEvent.CHILD_ADDED, this._childAdded, this);
         this.node.off(NodeEvent.CHILD_REMOVED, this._childRemoved, this);
-        this.node.off(NodeEvent.CHILD_REORDER, this._doLayoutDirty, this);
+        // this.node.off(NodeEvent.CHILD_REORDER, this._doLayoutDirty, this);
         this._removeChildrenEventListeners();
     }
 
-    private _addChildrenEventListeners () {
+    private _addChildrenEventListeners() {
         const children = this.node.children;
         for (const child of children) {
-            child.on(NodeEvent.SCALE_CHANGED, this._doScaleDirty, this);
+            child.on(NodeEvent.SCALE_PART, this._doScaleDirty, this);
             child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-            child.on(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
+            child.on(NodeEvent.POSITION_PART, this._doLayoutDirty, this);
             child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
             child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
         }
     }
 
-    private _removeChildrenEventListeners () {
+    private _removeChildrenEventListeners() {
         const children = this.node.children;
         for (const child of children) {
-            child.off(NodeEvent.SCALE_CHANGED, this._doScaleDirty, this);
+            child.off(NodeEvent.SCALE_PART, this._doScaleDirty, this);
             child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-            child.off(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
+            child.off(NodeEvent.POSITION_PART, this._doLayoutDirty, this);
             child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
             child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
         }
     }
 
-    private _childAdded (child) {
-        child.on(NodeEvent.SCALE_CHANGED, this._doScaleDirty, this);
+    private _childAdded(child) {
+        child.on(NodeEvent.SCALE_PART, this._doScaleDirty, this);
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-        child.on(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
+        child.on(NodeEvent.POSITION_PART, this._doLayoutDirty, this);
         child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
 
         this._doLayoutDirty();
     }
 
-    private _childRemoved (child) {
-        child.off(NodeEvent.SCALE_CHANGED, this._doScaleDirty, this);
+    private _childRemoved(child) {
+        child.off(NodeEvent.SCALE_PART, this._doScaleDirty, this);
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-        child.off(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
+        child.off(NodeEvent.POSITION_PART, this._doLayoutDirty, this);
         child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
 
         this._doLayoutDirty();
     }
 
-    private _resized () {
+    private _resized() {
         this._layoutSize = this.node.getContentSize();
         this._doLayoutDirty();
     }
 
-    private _doLayoutHorizontally (baseWidth, rowBreak, fnPositionY, applyChildren) {
+    private _doLayoutHorizontally(baseWidth, rowBreak, fnPositionY, applyChildren) {
         const layoutAnchor = this.node.getAnchorPoint();
         const children = this.node.children;
 
         let sign = 1;
-        let paddingX = this.paddingLeft;
-        let leftBoundaryOfLayout = -layoutAnchor.x * baseWidth;
-        if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+        let paddingX = this._paddingLeft;
+        let startPos = -layoutAnchor.x * baseWidth;
+        if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
             sign = -1;
-            leftBoundaryOfLayout = (1 - layoutAnchor.x) * baseWidth;
-            paddingX = this.paddingRight;
+            startPos = (1 - layoutAnchor.x) * baseWidth;
+            paddingX = this._paddingRight;
         }
 
-        let nextX = leftBoundaryOfLayout + sign * paddingX - sign * this.spacingX;
+        let nextX = startPos + sign * paddingX - sign * this._spacingX;
         let rowMaxHeight = 0;
         let tempMaxHeight = 0;
         let secondMaxHeight = 0;
@@ -614,29 +637,30 @@ export class LayoutComponent extends Component {
             }
         }
 
-        let newChildWidth = this.cellSize.width;
-        if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
-            newChildWidth = (baseWidth - (this.paddingLeft + this.paddingRight) - (activeChildCount - 1) * this.spacingX) / activeChildCount;
+        let newChildWidth = this._cellSize.width;
+        if (this._N$layoutType!== Type.GRID && this._resizeMode === ResizeMode.CHILDREN) {
+            newChildWidth = (baseWidth - (this._paddingLeft + this._paddingRight) - (activeChildCount - 1) * this._spacingX) / activeChildCount;
         }
 
         for (const child of children) {
-
-            const childScaleX = this._getUsedScaleValue(child.scaleX);
-            const childScaleY = this._getUsedScaleValue(child.scaleY);
             if (!child.activeInHierarchy) {
                 continue;
             }
+
+            child.getScale(_tempScale);
+            const childScaleX = this._getUsedScaleValue(_tempScale.x);
+            const childScaleY = this._getUsedScaleValue(_tempScale.y);
             // for resizing children
-            if (this._resize === ResizeMode.CHILDREN) {
+            if (this._resizeMode === ResizeMode.CHILDREN) {
                 child.width = newChildWidth / childScaleX;
-                if (this.type === Type.GRID) {
-                    child.height = this.cellSize.height / childScaleY;
+                if (this._N$layoutType === Type.GRID) {
+                    child.height = this._cellSize.height / childScaleY;
                 }
             }
 
             let anchorX = child.anchorX;
-            const childBoundingBoxWidth = child.width * childScaleX;
-            const childBoundingBoxHeight = child.height * childScaleY;
+            const childBoundingBoxWidth = child.width! * childScaleX;
+            const childBoundingBoxHeight = child.height! * childScaleY;
 
             if (secondMaxHeight > tempMaxHeight) {
                 tempMaxHeight = secondMaxHeight;
@@ -648,16 +672,16 @@ export class LayoutComponent extends Component {
                 maxHeightChildAnchorY = child.getAnchorPoint().y;
             }
 
-            if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
-                anchorX = 1 - child.anchorX;
+            if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+                anchorX = 1 - child.anchorX!;
             }
-            nextX = nextX + sign * anchorX * childBoundingBoxWidth + sign * this.spacingX;
-            const rightBoundaryOfChild = sign * (1 - anchorX) * childBoundingBoxWidth;
+            nextX = nextX + sign * anchorX! * childBoundingBoxWidth + sign * this._spacingX;
+            const rightBoundaryOfChild = sign * (1 - anchorX!) * childBoundingBoxWidth;
 
             if (rowBreak) {
-                const rowBreakBoundary = nextX + rightBoundaryOfChild + sign * (sign > 0 ? this.paddingRight : this.paddingLeft);
-                const leftToRightRowBreak = this.horizontalDirection === HorizontalDirection.LEFT_TO_RIGHT && rowBreakBoundary > (1 - layoutAnchor.x) * baseWidth;
-                const rightToLeftRowBreak = this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT && rowBreakBoundary < -layoutAnchor.x * baseWidth;
+                const rowBreakBoundary = nextX + rightBoundaryOfChild + sign * (sign > 0 ? this._paddingRight : this._paddingLeft);
+                const leftToRightRowBreak = this._horizontalDirection === HorizontalDirection.LEFT_TO_RIGHT && rowBreakBoundary > (1 - layoutAnchor.x) * baseWidth;
+                const rightToLeftRowBreak = this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT && rowBreakBoundary < -layoutAnchor.x * baseWidth;
 
                 if (leftToRightRowBreak || rightToLeftRowBreak) {
 
@@ -672,15 +696,16 @@ export class LayoutComponent extends Component {
                         secondMaxHeight = childBoundingBoxHeight;
                         tempMaxHeight = 0;
                     }
-                    nextX = leftBoundaryOfLayout + sign * (paddingX + anchorX * childBoundingBoxWidth);
+                    nextX = startPos + sign * (paddingX + anchorX! * childBoundingBoxWidth);
                     row++;
                 }
             }
 
             const finalPositionY = fnPositionY(child, rowMaxHeight, row);
-            if (baseWidth >= (childBoundingBoxWidth + this.paddingLeft + this.paddingRight)) {
+            if (baseWidth >= (childBoundingBoxWidth + this._paddingLeft + this._paddingRight)) {
                 if (applyChildren) {
-                    child.setPosition(cc.v2(nextX, finalPositionY));
+                    child.getPosition(_tempPos);
+                    child.setPosition(nextX, finalPositionY, _tempPos.z);
                 }
             }
 
@@ -688,16 +713,16 @@ export class LayoutComponent extends Component {
             let tempFinalPositionY;
             const topMarign = (tempMaxHeight === 0) ? childBoundingBoxHeight : tempMaxHeight;
 
-            if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
-                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.height;
+            if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+                containerResizeBoundary = containerResizeBoundary || this.node.getContentSize().height;
                 signX = -1;
-                tempFinalPositionY = finalPositionY + signX * (topMarign * maxHeightChildAnchorY + this.paddingBottom);
+                tempFinalPositionY = finalPositionY + signX * (topMarign * maxHeightChildAnchorY + this._paddingBottom);
                 if (tempFinalPositionY < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
             } else {
-                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.height;
-                tempFinalPositionY = finalPositionY + signX * (topMarign * maxHeightChildAnchorY + this.paddingTop);
+                containerResizeBoundary = containerResizeBoundary || -this.node.getContentSize().height;
+                tempFinalPositionY = finalPositionY + signX * (topMarign * maxHeightChildAnchorY + this._paddingTop);
                 if (tempFinalPositionY > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
@@ -709,38 +734,20 @@ export class LayoutComponent extends Component {
         return containerResizeBoundary;
     }
 
-    private _getVerticalBaseHeight (children) {
-        let newHeight = 0;
-        let activeChildCount = 0;
-        if (this.resizeMode === ResizeMode.CONTAINER) {
-            for (const child of children) {
-                if (child.activeInHierarchy) {
-                    activeChildCount++;
-                    newHeight += child.height * this._getUsedScaleValue(child.scaleY);
-                }
-            }
-
-            newHeight += (activeChildCount - 1) * this.spacingY + this.paddingBottom + this.paddingTop;
-        } else {
-            newHeight = this.node.getContentSize().height;
-        }
-        return newHeight;
-    }
-
-    private _doLayoutVertically (baseHeight, columnBreak, fnPositionX, applyChildren) {
+    private _doLayoutVertically(baseHeight, columnBreak, fnPositionX, applyChildren) {
         const layoutAnchor = this.node.getAnchorPoint();
         const children = this.node.children;
 
         let sign = 1;
-        let paddingY = this.paddingBottom;
+        let paddingY = this._paddingBottom;
         let bottomBoundaryOfLayout = -layoutAnchor.y * baseHeight;
-        if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+        if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
             sign = -1;
             bottomBoundaryOfLayout = (1 - layoutAnchor.y) * baseHeight;
-            paddingY = this.paddingTop;
+            paddingY = this._paddingTop;
         }
 
-        let nextY = bottomBoundaryOfLayout + sign * paddingY - sign * this.spacingY;
+        let nextY = bottomBoundaryOfLayout + sign * paddingY - sign * this._spacingY;
         let columnMaxWidth = 0;
         let tempMaxWidth = 0;
         let secondMaxWidth = 0;
@@ -755,30 +762,34 @@ export class LayoutComponent extends Component {
             }
         }
 
-        let newChildHeight = this.cellSize.height;
-        if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
-            newChildHeight = (baseHeight - (this.paddingTop + this.paddingBottom) - (activeChildCount - 1) * this.spacingY) / activeChildCount;
+        let newChildHeight = this._cellSize.height;
+        if (this._N$layoutType!== Type.GRID && this._resizeMode === ResizeMode.CHILDREN) {
+            newChildHeight = (baseHeight - (this._paddingTop + this._paddingBottom) - (activeChildCount - 1) * this._spacingY) / activeChildCount;
         }
 
         for (const child of children) {
+            if (!child) {
+                continue;
+            }
 
-            const childScaleX = this._getUsedScaleValue(child.scaleX);
-            const childScaleY = this._getUsedScaleValue(child.scaleY);
+            const scale = child.getScale();
+            const childScaleX = this._getUsedScaleValue(scale.x);
+            const childScaleY = this._getUsedScaleValue(scale.y);
             if (!child.activeInHierarchy) {
                 continue;
             }
 
             // for resizing children
-            if (this.resizeMode === ResizeMode.CHILDREN) {
+            if (this._resizeMode === ResizeMode.CHILDREN) {
                 child.height = newChildHeight / childScaleY;
-                if (this.type === Type.GRID) {
-                    child.width = this.cellSize.width / childScaleX;
+                if (this._N$layoutType=== Type.GRID) {
+                    child.width = this._cellSize.width / childScaleX;
                 }
             }
 
             let anchorY = child.anchorY;
-            const childBoundingBoxWidth = child.width * childScaleX;
-            const childBoundingBoxHeight = child.height * childScaleY;
+            const childBoundingBoxWidth = child.width! * childScaleX;
+            const childBoundingBoxHeight = child.height! * childScaleY;
 
             if (secondMaxWidth > tempMaxWidth) {
                 tempMaxWidth = secondMaxWidth;
@@ -790,16 +801,16 @@ export class LayoutComponent extends Component {
                 maxWidthChildAnchorX = child.getAnchorPoint().x;
             }
 
-            if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
-                anchorY = 1 - child.anchorY;
+            if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+                anchorY = 1 - child.anchorY!;
             }
-            nextY = nextY + sign * anchorY * childBoundingBoxHeight + sign * this.spacingY;
-            const topBoundaryOfChild = sign * (1 - anchorY) * childBoundingBoxHeight;
+            nextY = nextY + sign * anchorY! * childBoundingBoxHeight + sign * this._spacingY;
+            const topBoundaryOfChild = sign * (1 - anchorY!) * childBoundingBoxHeight;
 
             if (columnBreak) {
-                const columnBreakBoundary = nextY + topBoundaryOfChild + sign * (sign > 0 ? this.paddingTop : this.paddingBottom);
-                const bottomToTopColumnBreak = this.verticalDirection === VerticalDirection.BOTTOM_TO_TOP && columnBreakBoundary > (1 - layoutAnchor.y) * baseHeight;
-                const topToBottomColumnBreak = this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM && columnBreakBoundary < -layoutAnchor.y * baseHeight;
+                const columnBreakBoundary = nextY + topBoundaryOfChild + sign * (sign > 0 ? this._paddingTop : this._paddingBottom);
+                const bottomToTopColumnBreak = this._verticalDirection === VerticalDirection.BOTTOM_TO_TOP && columnBreakBoundary > (1 - layoutAnchor.y) * baseHeight;
+                const topToBottomColumnBreak = this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM && columnBreakBoundary < -layoutAnchor.y * baseHeight;
 
                 if (bottomToTopColumnBreak || topToBottomColumnBreak) {
                     if (childBoundingBoxWidth >= tempMaxWidth) {
@@ -813,15 +824,16 @@ export class LayoutComponent extends Component {
                         secondMaxWidth = childBoundingBoxWidth;
                         tempMaxWidth = 0;
                     }
-                    nextY = bottomBoundaryOfLayout + sign * (paddingY + anchorY * childBoundingBoxHeight);
+                    nextY = bottomBoundaryOfLayout + sign * (paddingY + anchorY! * childBoundingBoxHeight);
                     column++;
                 }
             }
 
             const finalPositionX = fnPositionX(child, columnMaxWidth, column);
-            if (baseHeight >= (childBoundingBoxHeight + (this.paddingTop + this.paddingBottom))) {
+            if (baseHeight >= (childBoundingBoxHeight + (this._paddingTop + this._paddingBottom))) {
                 if (applyChildren) {
-                    child.setPosition(cc.v2(finalPositionX, nextY));
+                    child.getPosition(_tempPos);
+                    child.setPosition(finalPositionX, nextY, _tempPos.z);
                 }
             }
 
@@ -830,16 +842,16 @@ export class LayoutComponent extends Component {
             // when the item is the last column break item, the tempMaxWidth will be 0.
             const rightMarign = (tempMaxWidth === 0) ? childBoundingBoxWidth : tempMaxWidth;
 
-            if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+            if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 signX = -1;
-                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.width;
-                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.paddingLeft);
+                containerResizeBoundary = containerResizeBoundary || this.node.getContentSize().width;
+                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this._paddingLeft);
                 if (tempFinalPositionX < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
             } else {
-                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.width;
-                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.paddingRight);
+                containerResizeBoundary = containerResizeBoundary || -this.node.getContentSize().width;
+                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this._paddingRight);
                 if (tempFinalPositionX > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
@@ -852,63 +864,73 @@ export class LayoutComponent extends Component {
         return containerResizeBoundary;
     }
 
-    private _doLayoutBasic () {
+    private _doLayoutBasic() {
         const children = this.node.children;
 
-        let allChildrenBoundingBox = null;
+        let allChildrenBoundingBox: Rect|null = null;
 
         for (const child of children) {
+            const childTransform = child.getComponent(UITransformComponent);
+            if(!childTransform){
+                continue;
+            }
+
             if (child.activeInHierarchy) {
                 if (!allChildrenBoundingBox) {
-                    allChildrenBoundingBox = child.getBoundingBoxToWorld();
+                    allChildrenBoundingBox = childTransform.getBoundingBoxToWorld();
                 } else {
-                    // allChildrenBoundingBox.union(allChildrenBoundingBox, child.getBoundingBoxToWorld());
+                    allChildrenBoundingBox.union(allChildrenBoundingBox!, childTransform.getBoundingBoxToWorld());
                 }
             }
         }
 
         if (allChildrenBoundingBox) {
-            let leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
-            leftBottomInParentSpace = cc.v2(leftBottomInParentSpace.x - this.paddingLeft, leftBottomInParentSpace.y - this.paddingBottom);
+            const parentTransform = this.node.parent!.getComponent(UITransformComponent);
+            if(!parentTransform){
+                return;
+            }
 
-            let rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
+            let leftBottomInParentSpace = parentTransform.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+            leftBottomInParentSpace = cc.v2(leftBottomInParentSpace.x - this._paddingLeft, leftBottomInParentSpace.y - this._paddingBottom);
+
+            let rightTopInParentSpace = parentTransform.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
                 allChildrenBoundingBox.y + allChildrenBoundingBox.height));
-            rightTopInParentSpace = cc.v2(rightTopInParentSpace.x + this.paddingRight, rightTopInParentSpace.y + this.paddingTop);
+            rightTopInParentSpace = cc.v2(rightTopInParentSpace.x + this._paddingRight, rightTopInParentSpace.y + this._paddingTop);
 
             const newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
                 parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
 
-            const layoutPosition = this.node.getPosition();
+            this.node.getPosition(_tempPos);
             if (newSize.width !== 0) {
-                const newAnchorX = (layoutPosition.x - leftBottomInParentSpace.x) / newSize.width;
+                const newAnchorX = (_tempPos.x - leftBottomInParentSpace.x) / newSize.width;
                 this.node.anchorX = parseFloat(newAnchorX.toFixed(2));
             }
             if (newSize.height !== 0) {
-                const newAnchorY = (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height;
+                const newAnchorY = (_tempPos.y - leftBottomInParentSpace.y) / newSize.height;
                 this.node.anchorY = parseFloat(newAnchorY.toFixed(2));
             }
             this.node.setContentSize(newSize);
         }
     }
 
-    private _doLayoutGridAxisHorizontal (layoutAnchor, layoutSize) {
+    private _doLayoutGridAxisHorizontal(layoutAnchor, layoutSize) {
         const baseWidth = layoutSize.width;
 
         let sign = 1;
         let bottomBoundaryOfLayout = -layoutAnchor.y * layoutSize.height;
-        let paddingY = this.paddingBottom;
-        if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+        let paddingY = this._paddingBottom;
+        if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
             sign = -1;
             bottomBoundaryOfLayout = (1 - layoutAnchor.y) * layoutSize.height;
-            paddingY = this.paddingTop;
+            paddingY = this._paddingTop;
         }
 
         const fnPositionY = function (child, topOffset, row) {
-            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height * this._getUsedScaleValue(child.scaleY) + paddingY + row * this.spacingY);
+            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height * this._getUsedScaleValue(child.scaleY) + paddingY + row * this._spacingY);
         }.bind(this);
 
         let newHeight = 0;
-        if (this.resizeMode === ResizeMode.CONTAINER) {
+        if (this._resizeMode === ResizeMode.CONTAINER) {
             // calculate the new height of container, it won't change the position of it's children
             const boundary = this._doLayoutHorizontally(baseWidth, true, fnPositionY, false);
             newHeight = bottomBoundaryOfLayout - boundary;
@@ -918,7 +940,7 @@ export class LayoutComponent extends Component {
 
             bottomBoundaryOfLayout = -layoutAnchor.y * newHeight;
 
-            if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+            if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
                 sign = -1;
                 bottomBoundaryOfLayout = (1 - layoutAnchor.y) * newHeight;
             }
@@ -926,29 +948,29 @@ export class LayoutComponent extends Component {
 
         this._doLayoutHorizontally(baseWidth, true, fnPositionY, true);
 
-        if (this.resizeMode === ResizeMode.CONTAINER) {
+        if (this._resizeMode === ResizeMode.CONTAINER) {
             this.node.setContentSize(baseWidth, newHeight);
         }
     }
 
-    private _doLayoutGridAxisVertical (layoutAnchor, layoutSize) {
+    private _doLayoutGridAxisVertical(layoutAnchor: Vec2, layoutSize: Size) {
         const baseHeight = layoutSize.height;
 
         let sign = 1;
         let leftBoundaryOfLayout = -layoutAnchor.x * layoutSize.width;
-        let paddingX = this.paddingLeft;
-        if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+        let paddingX = this._paddingLeft;
+        if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
             sign = -1;
             leftBoundaryOfLayout = (1 - layoutAnchor.x) * layoutSize.width;
-            paddingX = this.paddingRight;
+            paddingX = this._paddingRight;
         }
 
         const fnPositionX = function (child, leftOffset, column) {
-            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width * this._getUsedScaleValue(child.scaleX) + paddingX + column * this.spacingX);
+            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width * this._getUsedScaleValue(child.scaleX) + paddingX + column * this._spacingX);
         }.bind(this);
 
         let newWidth = 0;
-        if (this.resizeMode === ResizeMode.CONTAINER) {
+        if (this._resizeMode === ResizeMode.CONTAINER) {
             const boundary = this._doLayoutVertically(baseHeight, true, fnPositionX, false);
             newWidth = leftBoundaryOfLayout - boundary;
             if (newWidth < 0) {
@@ -957,7 +979,7 @@ export class LayoutComponent extends Component {
 
             leftBoundaryOfLayout = -layoutAnchor.x * newWidth;
 
-            if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+            if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 sign = -1;
                 leftBoundaryOfLayout = (1 - layoutAnchor.x) * newWidth;
             }
@@ -965,12 +987,12 @@ export class LayoutComponent extends Component {
 
         this._doLayoutVertically(baseHeight, true, fnPositionX, true);
 
-        if (this.resizeMode === ResizeMode.CONTAINER) {
+        if (this._resizeMode === ResizeMode.CONTAINER) {
             this.node.setContentSize(newWidth, baseHeight);
         }
     }
 
-    private _doLayoutGrid () {
+    private _doLayoutGrid() {
         const layoutAnchor = this.node.getAnchorPoint();
         const layoutSize = this.node.getContentSize();
 
@@ -983,56 +1005,78 @@ export class LayoutComponent extends Component {
 
     }
 
-    private _getHorizontalBaseWidth (children) {
+    private _getHorizontalBaseWidth(children: Node[]) {
         let newWidth = 0;
         let activeChildCount = 0;
-        if (this.resizeMode === ResizeMode.CONTAINER) {
+        if (this._resizeMode === ResizeMode.CONTAINER) {
             for (const child of children) {
+                child.getScale(_tempScale);
                 if (child.activeInHierarchy) {
                     activeChildCount++;
-                    newWidth += child.width * this._getUsedScaleValue(child.scaleX);
+                    newWidth += child.width! * this._getUsedScaleValue(_tempScale.x);
                 }
             }
-            newWidth += (activeChildCount - 1) * this.spacingX + this.paddingLeft + this.paddingRight;
+            newWidth += (activeChildCount - 1) * this._spacingX + this._paddingLeft + this._paddingRight;
         } else {
             newWidth = this.node.getContentSize().width;
         }
         return newWidth;
     }
 
-    private _doLayout () {
+    private _getVerticalBaseHeight(children: Node[]) {
+        let newHeight = 0;
+        let activeChildCount = 0;
+        if (this._resizeMode === ResizeMode.CONTAINER) {
+            for (const child of children) {
+                child.getScale(_tempScale);
+                if (child.activeInHierarchy) {
+                    activeChildCount++;
+                    newHeight += child.height! * this._getUsedScaleValue(_tempScale.y);
+                }
+            }
 
-        if (this.type === Type.HORIZONTAL) {
+            newHeight += (activeChildCount - 1) * this._spacingY + this._paddingBottom + this._paddingTop;
+        } else {
+            newHeight = this.node.getContentSize().height;
+        }
+        return newHeight;
+    }
+
+    private _doLayout() {
+
+        if (this._N$layoutType=== Type.HORIZONTAL) {
             const newWidth = this._getHorizontalBaseWidth(this.node.children);
 
             const fnPositionY = (child) => {
-                return child.y;
+                child.getPosition(_tempPos)
+                return _tempPos.y;
             };
 
             this._doLayoutHorizontally(newWidth, false, fnPositionY, true);
 
             this.node.width = newWidth;
-        } else if (this.type === Type.VERTICAL) {
+        } else if (this._N$layoutType=== Type.VERTICAL) {
             const newHeight = this._getVerticalBaseHeight(this.node.children);
 
             const fnPositionX = (child) => {
-                return child.x;
+                child.getPosition(_tempPos);
+                return _tempPos.x;
             };
 
             this._doLayoutVertically(newHeight, false, fnPositionX, true);
 
             this.node.height = newHeight;
-        } else if (this.type === Type.NONE) {
-            if (this.resizeMode === ResizeMode.CONTAINER) {
+        } else if (this._N$layoutType=== Type.NONE) {
+            if (this._resizeMode === ResizeMode.CONTAINER) {
                 this._doLayoutBasic();
             }
-        } else if (this.type === Type.GRID) {
+        } else if (this._N$layoutType=== Type.GRID) {
             this._doLayoutGrid();
         }
     }
 
-    private _getUsedScaleValue (value) {
-        return this.affectedByScale ? Math.abs(value) : 1;
+    private _getUsedScaleValue(value) {
+        return this._affectedByScale ? Math.abs(value) : 1;
     }
 
     /**
@@ -1048,19 +1092,19 @@ export class LayoutComponent extends Component {
      * layout.updateLayout();
      * cc.log(childNode.x); // changed
      */
-    public updateLayout () {
+    public updateLayout() {
         if (this._layoutDirty && this.node.children.length > 0) {
             this._doLayout();
             this._layoutDirty = false;
         }
     }
 
-    private _doLayoutDirty () {
+    private _doLayoutDirty() {
         this._layoutDirty = true;
     }
 
-    private _doScaleDirty () {
-        this._layoutDirty = this._layoutDirty || this.affectedByScale;
+    private _doScaleDirty() {
+        this._layoutDirty = this._layoutDirty || this._affectedByScale;
     }
 
 }

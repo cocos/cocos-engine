@@ -30,6 +30,7 @@ import { CCObject } from '../core/data/object';
 import IdGenerator from '../core/utils/id-generator';
 import * as js from '../core/utils/js';
 import { baseNodePolyfill } from './base-node-dev';
+import { EventType } from './node-event-enum';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -40,8 +41,8 @@ const DontDestroy = CCObject.Flags.DontDestroy;
 // @ts-ignore
 const Deactivating = CCObject.Flags.Deactivating;
 
-const CHILD_ADDED = 'child-added';
-const CHILD_REMOVED = 'child-removed';
+// const CHILD_ADDED = 'child-added';
+// const CHILD_REMOVED = 'child-removed';
 
 const idGenerator = new IdGenerator('Node');
 
@@ -394,7 +395,7 @@ export class BaseNode extends CCObject {
             this._level = value._level + 1;
             value._children.push(this);
             if (value.emit) {
-                value.emit(CHILD_ADDED, this);
+                value.emit(EventType.CHILD_ADDED, this);
             }
         }
         if (oldParent) {
@@ -405,7 +406,7 @@ export class BaseNode extends CCObject {
                 }
                 oldParent._children.splice(removeAt, 1);
                 if (oldParent.emit) {
-                    oldParent.emit(CHILD_REMOVED, this);
+                    oldParent.emit(EventType.CHILD_REMOVED, this);
                 }
             }
         }

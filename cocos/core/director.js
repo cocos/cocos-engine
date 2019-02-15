@@ -37,6 +37,7 @@ import NodeActivator from '../scene-graph/node-activator';
 import { PhysicsSystem } from '../3d/framework/physics/physics-system';
 import { getClassByName } from './utils/js';
 import { Root } from './root';
+import { widgetManager } from '../3d/ui/components/widget-manager';
 
 // const ComponentScheduler = require('./component-scheduler');
 // const NodeActivator = require('./node-activator');
@@ -189,6 +190,14 @@ class Director extends EventTarget {
     sharedInit () {
         this._compScheduler = new ComponentScheduler();
         this._nodeActivator = new NodeActivator();
+
+        // Event manager
+        if (eventManager) {
+            eventManager.setEnabled(true);
+        }
+
+        // widgetManager
+        widgetManager.init(this);
 
         // this.registerSystem('animation', AnimationSystem, ['AnimationComponent'], 200);
         // this.registerSystem('skinning-model', SkinningModelSystem, ['SkinningModelComponent'], 100);

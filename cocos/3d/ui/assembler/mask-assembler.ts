@@ -125,8 +125,8 @@ export const maskAssembler: IAssembler = {
     fillBuffers (mask: MaskComponent, ui: UI) {
         stencilManager.enter(mask);
 
-        const maskGeometry = mask._getMaskGeometry();
-        const maskMaterial = mask._getMaskMaterial();
+        const maskGeometry = mask.getMaskGeometry();
+        const maskMaterial = mask.getMaskMaterial();
         if (maskGeometry && maskMaterial) {
             const meshBuffer = createMeshBuffer(ui, maskGeometry);
             const nVert = Math.floor(maskGeometry.positions.length / 3);
@@ -154,8 +154,8 @@ export const maskEndAssembler: IAssembler = {
     fillBuffers (mask: MaskComponent, ui: UI) {
         stencilManager.exit();
 
-        const clearGeometry = mask._getClearGeometry();
-        const clearMaterial = mask._getClearMaterial();
+        const clearGeometry = mask.getClearGeometry();
+        const clearMaterial = mask.getClearMaterial();
         if (clearGeometry && clearMaterial) {
             const meshBuffer = createMeshBuffer(ui, clearGeometry);
             meshBuffer.vData!.set(clearGeometry.positions);

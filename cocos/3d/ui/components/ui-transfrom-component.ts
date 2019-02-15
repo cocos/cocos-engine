@@ -1,18 +1,16 @@
 import { Component} from '../../../components/component';
-import { ccclass, executeInEditMode, executionOrder, property, menu } from '../../../core/data/class-decorator';
-import { Mat4 } from '../../../core/value-types';
-import Size from '../../../core/value-types/size';
-import Vec2 from '../../../core/value-types/vec2';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { Mat4, Vec3, Vec2, Size, Rect } from '../../../core/value-types';
 import * as math from '../../../core/vmath/index';
 import { EventType } from '../../../scene-graph/node-event-enum';
 import { MaskComponent } from './mask-component';
 import { UIRenderComponent } from './ui-render-component';
 
-const _vec2a = cc.v2();
-const _vec2b = cc.v2();
-const _mat4_temp = cc.mat4();
-const _worldMatrix = cc.mat4();
-
+const _vec2a = new Vec2();
+const _vec2b = new Vec2();
+const _mat4_temp = new Mat4();
+const _matrix = new Mat4();
+const _worldMatrix = new Mat4();
 
 @ccclass('cc.UITransformComponent')
 @executionOrder(100)
@@ -26,12 +24,13 @@ export class UITransformComponent extends Component {
     }
 
     set contentSize (value) {
-        // if (this._contentSize.equals(value)) {
-        //     return;
-        // }
+        if (this._contentSize.equals(value)) {
+            return;
+        }
 
         this._contentSize.set(value);
-        this.node.emit(EventType.SIZE_CHANGED);
+        this.node.emit(EventType.SIZE_CHANGED, this._contentSize);
+
     }
 
     get width () {
@@ -39,12 +38,12 @@ export class UITransformComponent extends Component {
     }
 
     set width (value) {
-        // if (this._contentSize.width === value) {
-        //     return;
-        // }
+        if (this._contentSize.width === value) {
+            return;
+        }
 
         this._contentSize.width = value;
-        this.node.emit(EventType.SIZE_CHANGED);
+        this.node.emit(EventType.SIZE_CHANGED, this._contentSize);
     }
 
     get height () {
@@ -52,12 +51,12 @@ export class UITransformComponent extends Component {
     }
 
     set height (value) {
-        // if (this._contentSize.height === value) {
-        //     return;
-        // }
+        if(this.contentSize.height === value){
+            return;
+        }
 
         this._contentSize.height = value;
-        this.node.emit(EventType.SIZE_CHANGED);
+        this.node.emit(EventType.SIZE_CHANGED, this._contentSize);
     }
 
     @property
@@ -66,12 +65,12 @@ export class UITransformComponent extends Component {
     }
 
     set anchorPoint (value) {
-        // if (this._anchorPoint.equals(value)) {
-        //     return;
-        // }
+        if (this._anchorPoint.equals(value)) {
+            return;
+        }
 
         this._anchorPoint.set(value);
-        this.node.emit(EventType.ANCHOR_CHANGED);
+        this.node.emit(EventType.ANCHOR_CHANGED, this._anchorPoint);
     }
 
     get anchorX () {
@@ -79,12 +78,12 @@ export class UITransformComponent extends Component {
     }
 
     set anchorX (value) {
-        // if (this._anchorPoint.x === value) {
-        //     return;
-        // }
+        if (this._anchorPoint.x === value) {
+            return;
+        }
 
         this._anchorPoint.x = value;
-        this.node.emit(EventType.ANCHOR_CHANGED);
+        this.node.emit(EventType.ANCHOR_CHANGED, this._anchorPoint);
     }
 
     get anchorY () {
@@ -92,12 +91,12 @@ export class UITransformComponent extends Component {
     }
 
     set anchorY (value) {
-        // if (this._anchorPoint.y === value) {
-        //     return;
-        // }
+        if (this._anchorPoint.y === value) {
+            return;
+        }
 
         this._anchorPoint.y = value;
-        this.node.emit(EventType.ANCHOR_CHANGED);
+        this.node.emit(EventType.ANCHOR_CHANGED, this._anchorPoint);
     }
 
     public static EventType = EventType;
@@ -129,33 +128,24 @@ export class UITransformComponent extends Component {
      */
     public setContentSize (size: Size|number, height?: number) {
         const locContentSize = this._contentSize;
-        let clone;
         if (height === undefined) {
             size = size as Size;
             if ((size.width === locContentSize.width) && (size.height === locContentSize.height)) {
                 return;
             }
-            if (CC_EDITOR) {
-                clone = cc.size(locContentSize.width, locContentSize.height);
-            }
+
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
             if ((size === locContentSize.width) && (height === locContentSize.height)) {
                 return;
             }
-            if (CC_EDITOR) {
-                clone = cc.size(locContentSize.width, locContentSize.height);
-            }
-            locContentSize.width = size;
+
+            locContentSize.width = size as number;
             locContentSize.height = height;
         }
-        if (CC_EDITOR) {
-            this.node.emit(EventType.SIZE_CHANGED, clone);
-        }
-        else {
-            this.node.emit(EventType.SIZE_CHANGED);
-        }
+
+        this.node.emit(EventType.SIZE_CHANGED, this._contentSize);
     }
 
     /**
@@ -193,16 +183,18 @@ export class UITransformComponent extends Component {
             if ((point === locAnchorPoint.x) && (y === locAnchorPoint.y)) {
                 return;
             }
-            locAnchorPoint.x = point;
+            locAnchorPoint.x = point as number;
             locAnchorPoint.y = y;
         }
+
         // this.setLocalDirty(LocalDirtyFlag.POSITION);
         // if (this._eventMask & ANCHOR_ON) {
-        this.node.emit(EventType.ANCHOR_CHANGED);
+        this.node.emit(EventType.ANCHOR_CHANGED, this._anchorPoint);
+
         // }
     }
 
-    public isHit(point: Vec2, listener: EventListener) {
+    public isHit (point: Vec2, listener?: EventListener) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const cameraPt = _vec2a;
@@ -274,16 +266,19 @@ export class UITransformComponent extends Component {
      * !#zh
      * 将一个点转换到节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
      * @method convertToNodeSpaceAR
-     * @param {Vec2} worldPoint
-     * @return {Vec2}
+     * @param {Vec3} worldPoint
+     * @return {Vec3}
      * @example
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
-    public convertToNodeSpaceAR (worldPoint) {
+    public convertToNodeSpaceAR(out: Vec3, worldPoint: Vec3) {
         const matrix = new Mat4();
         this.node.getWorldMatrix(matrix);
         math.mat4.invert(_mat4_temp, matrix);
-        const out = new cc.Vec2();
+        if (!out) {
+            out = new Vec3();
+        }
+
         return math.vec2.transformMat4(out, worldPoint, _mat4_temp);
     }
 
@@ -298,9 +293,92 @@ export class UITransformComponent extends Component {
      * @example
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      */
-    public convertToWorldSpaceAR (nodePoint) {
+    public convertToWorldSpaceAR(out: Vec3, nodePoint: Vec3) {
         this.node.getWorldMatrix(_worldMatrix);
-        const out = new cc.Vec2();
+        if (!out) {
+            out = new Vec3();
+        }
+
         return math.vec2.transformMat4(out, nodePoint, _worldMatrix);
     }
+
+    /**
+     * !#en
+     * Returns a "local" axis aligned bounding box of the node. <br/>
+     * The returned box is relative only to its parent.
+     * !#zh 返回父节坐标系下的轴向对齐的包围盒。
+     * @method getBoundingBox
+     * @return {Rect} The calculated bounding box of the node
+     * @example
+     * var boundingBox = node.getBoundingBox();
+     */
+    public getBoundingBox() {
+        math.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
+        let width = this._contentSize.width;
+        let height = this._contentSize.height;
+        let rect = new Rect(
+            -this._anchorPoint.x * width,
+            -this._anchorPoint.y * height,
+            width,
+            height);
+        return rect.transformMat4(rect, _matrix);
+    }
+
+    /**
+     * !#en
+     * Returns a "world" axis aligned bounding box of the node.<br/>
+     * The bounding box contains self and active children's world bounding box.
+     * !#zh
+     * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。<br/>
+     * 该边框包含自身和已激活的子节点的世界边框。
+     * @method getBoundingBoxToWorld
+     * @return {Rect}
+     * @example
+     * var newRect = node.getBoundingBoxToWorld();
+     */
+    public getBoundingBoxToWorld() {
+        if (this.node.parent) {
+            this.node.parent.getWorldMatrix(_worldMatrix);
+            return this.getBoundingBoxTo(_worldMatrix);
+        } else {
+            return this.getBoundingBox();
+        }
+    }
+
+    public getBoundingBoxTo(parentMat: Mat4) {
+        math.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
+        let width = this._contentSize.width;
+        let height = this._contentSize.height;
+        let rect = new Rect(
+            -this._anchorPoint.x * width,
+            -this._anchorPoint.y * height,
+            width,
+            height);
+
+        math.mat4.mul(_worldMatrix, parentMat, _matrix);
+        rect.transformMat4(rect, _worldMatrix);
+
+        //query child's BoundingBox
+        if (!this.node.children) {
+            return rect;
+        }
+
+        var locChildren = this.node.children;
+        for (var i = 0; i < locChildren.length; i++) {
+            var child = locChildren[i];
+            if (child && child.active) {
+                const uiTransform = child.getComponent(UITransformComponent);
+                if (uiTransform) {
+                    var childRect = uiTransform.getBoundingBoxTo(parentMat);
+                    if (childRect) {
+                        rect.union(rect, childRect);
+                    }
+                }
+            }
+        }
+
+        return rect;
+    }
 }
+
+cc.UITransformComponent = UITransformComponent;

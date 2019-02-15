@@ -8,30 +8,30 @@ import { IMeshBufferInitData, MeshBuffer } from '../../3d/ui/mesh-buffer';
 import { SpriteFrame } from '../../assets/CCSpriteFrame';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
+import { Rect } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import {
     GFXBufferUsageBit,
+    GFXClearFlag,
     GFXCommandBufferType,
     GFXFormat,
     GFXMemoryUsageBit,
     GFXType,
     IGFXRect,
-    GFXClearFlag,
 } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { GFXUniformBlock } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { vfmt } from '../../gfx/vertex-format-sample';
+import { Node } from '../../scene-graph/node';
 import { Camera, CameraProjection } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
 import { IUIMaterialInfo, UIMaterial } from './ui-material';
-import { Node } from '../../scene-graph/node';
-import { Rect } from '../../core/value-types';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 
 export class UBOUI {
     public static MAT_VIEW_PROJ_OFFSET: number = 0;
@@ -71,7 +71,7 @@ export class UIDrawBatch {
     public pipelineState: GFXPipelineState | null = null;
     public bindingLayout: GFXBindingLayout | null = null;
 
-    destroy() {
+    public destroy () {
         if (this.pipelineState) {
             this.pipelineState.destroy();
             this.pipelineState = null;
@@ -83,7 +83,7 @@ export class UIDrawBatch {
         }
     }
 
-    clear() {
+    public clear () {
         this.camera = null;
         this.bufferBatch = null;
         this.material = null;
@@ -272,7 +272,7 @@ export class UI {
         this._screens.push(comp);
     }
 
-    public getScreen(visibility: number) {
+    public getScreen (visibility: number) {
         for (const screen of this._screens) {
             if (screen.camera) {
                 if (screen.camera.visibility === visibility) {
@@ -359,14 +359,8 @@ export class UI {
                         cmdBuff.endRenderPass();
                     }
 
-                    // hack
-                    if(CC_EDITOR){
-                        this._renderArea.width = camera.width;
-                        this._renderArea.height = camera.height;
-                    }else{
-                        this._renderArea.width = camera.width * 2;
-                        this._renderArea.height = camera.height * 2;
-                    }
+                    this._renderArea.width = camera.width ;
+                    this._renderArea.height = camera.height ;
 
                     // TODO: add screen adapter
                     // update ubo
@@ -385,7 +379,7 @@ export class UI {
                 bindingLayout.bindTextureView(1, batch.texView!);
                 bindingLayout.update();
 
-                let ia = batch.bufferBatch!.ia!
+                const ia = batch.bufferBatch!.ia!;
                 ia.firstIndex = batch.firstIdx;
                 ia.indexCount = batch.idxCount;
 
@@ -425,14 +419,14 @@ export class UI {
         level += 1;
     }
 
-    private _defineNodeOrder(node: Node) {
+    private _defineNodeOrder (node: Node) {
         let sortList: any[] = this._sortChildList.add();
         sortList = node.children.slice();
 
         sortList.sort((a, b) => {
             const ca = a.getComponent(UIRenderComponent);
             const cb = b.getComponent(UIRenderComponent);
-            if (ca && cb) return ca.priority - cb.priority;
+            if (ca && cb) { return ca.priority - cb.priority; }
             else if (!ca) {
                 return -Number.MAX_SAFE_INTEGER;
             } else {
@@ -461,7 +455,7 @@ export class UI {
                     this._commitComp(render);
                 }
             }, (c: Node) => {
-                    const render = c.getComponent(UIRenderComponent);
+                const render = c.getComponent(UIRenderComponent);
                 if (render && render.enabledInHierarchy) {
                     this._postCommitComp(render);
                 }
@@ -566,7 +560,7 @@ export class UI {
                 }
 
                 if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
-                    if(curTexView){
+                    if (curTexView){
                         curDrawBatch = this._drawBatchPool.add();
                         curDrawBatch.camera = uiCanvas.camera;
                         curDrawBatch.bufferBatch = curBufferBatch;
@@ -595,7 +589,7 @@ export class UI {
 
                 isEnding  = index === len;
                 // get the last data
-                if(isEnding){
+                if (isEnding){
                     curDrawBatch = this._drawBatchPool.add();
                     curDrawBatch.camera = uiCanvas.camera;
                     curDrawBatch.bufferBatch = curBufferBatch;

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import ttfUtls from '../../../../2d/renderer/utils/label/ttf';
+import { ttfUtils } from './ttfUtils';
 import * as js from '../../../../core/utils/js';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { UI, IUIRenderData } from '../../../../renderer/ui/ui';
@@ -76,10 +76,10 @@ export const ttf: IAssembler = {
         const renderData: RenderData|null = comp.renderData;
 
         const node = comp.node;
-        const width = node.width;
-        const height = node.height;
-        const appx = node.anchorX * width;
-        const appy = node.anchorY * height;
+        const width = node.width!;
+        const height = node.height!;
+        const appx = node.anchorX! * width;
+        const appy = node.anchorY! * height;
 
         const datas = renderData!.datas;
         datas[0].x = -appx;
@@ -93,4 +93,4 @@ export const ttf: IAssembler = {
     },
 };
 
-js.addon(ttf, ttfUtls);
+js.addon(ttf, ttfUtils);

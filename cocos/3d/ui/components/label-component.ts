@@ -23,23 +23,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
+
 import Font from '../../../assets/CCFont';
+import { SpriteFrame } from '../../../assets/CCSpriteFrame';
 import { ImageAsset } from '../../../assets/image-asset';
-import { Texture2D } from '../../../assets/texture-2d';
-// import { vec2, vec3, mat4, color4 } from '../../../core/vmath/index';
-import {
-    ccclass,
-    executeInEditMode,
-    executionOrder,
-    menu,
-    property,
-} from '../../../core/data/class-decorator';
+import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import macro from '../../../core/platform/CCMacro';
 import { ccenum } from '../../../core/value-types/enum';
 import { UIRenderComponent } from './ui-render-component';
-import { SpriteFrame } from '../../../assets/CCSpriteFrame';
-// import { value } from '../../../core/utils/js';
+import { ISharedLabelData } from '../assembler/label/ttfUtils';
+import { UI } from '../../../renderer/ui/ui';
 
 /**
  * !#en Enum for text alignment.
@@ -115,7 +108,7 @@ enum Overflow {
     CLAMP = 1,
     SHRINK = 2,
     RESIZE_HEIGHT = 3,
-};
+}
 
 ccenum(Overflow);
 
@@ -150,7 +143,6 @@ ccenum(Overflow);
 @executionOrder(100)
 @menu('UI/Label')
 export class LabelComponent extends UIRenderComponent {
-
     /**
      * !#en Content string of label.
      * !#zh 标签显示的文本内容。
@@ -160,14 +152,14 @@ export class LabelComponent extends UIRenderComponent {
     get string () {
         return this._string;
     }
-    set string (value: string) {
+    set string (value) {
         value = value.toString();
         if (this._string === value) {
             return;
         }
 
         this._string = value;
-        this._updateRenderData();
+        this.updateRenderData();
         this._checkStringEmpty();
     }
 
@@ -183,13 +175,13 @@ export class LabelComponent extends UIRenderComponent {
         return this._horizontalAlign;
     }
 
-    set horizontalAlign (value: number) {
+    set horizontalAlign (value) {
         if (this._horizontalAlign === value) {
             return;
         }
 
         this._horizontalAlign = value;
-        this._updateRenderData();
+        this.updateRenderData();
     }
 
     /**
@@ -204,13 +196,13 @@ export class LabelComponent extends UIRenderComponent {
         return this._verticalAlign;
     }
 
-    set verticalAlign (value: number) {
+    set verticalAlign (value) {
         if (this._verticalAlign === value) {
             return;
         }
 
         this._verticalAlign = value;
-        this._updateRenderData();
+        this.updateRenderData();
     }
 
     /**
@@ -233,13 +225,13 @@ export class LabelComponent extends UIRenderComponent {
         return this._fontSize;
     }
 
-    set fontSize (value: number) {
+    set fontSize (value) {
         if (this._fontSize === value) {
             return;
         }
 
         this._fontSize = value;
-        this._updateRenderData();
+        this.updateRenderData();
     }
 
     /**
@@ -252,13 +244,13 @@ export class LabelComponent extends UIRenderComponent {
         return this._fontFamily;
     }
 
-    set fontFamily (value: string) {
+    set fontFamily (value) {
         if (this._fontFamily === value) {
             return;
         }
 
         this._fontFamily = value;
-        this._updateRenderData();
+        this.updateRenderData();
     }
 
     /**
@@ -270,13 +262,13 @@ export class LabelComponent extends UIRenderComponent {
     get lineHeight () {
         return this._lineHeight;
     }
-    set lineHeight (value: number) {
+    set lineHeight (value) {
         if (this._lineHeight === value) {
             return;
         }
 
         this._lineHeight = value;
-        this._updateRenderData();
+        this.updateRenderData();
     }
 
     /**
@@ -285,19 +277,19 @@ export class LabelComponent extends UIRenderComponent {
      * @property {Overflow} overflow
      */
     @property({
-        type: Overflow
+        type: Overflow,
     })
     get overflow () {
         return this._overflow;
     }
 
-    set overflow(value: Overflow) {
+    set overflow (value: Overflow) {
         if (this._overflow === value) {
             return;
         }
 
         this._overflow = value;
-        this._updateRenderData();
+        this.updateRenderData();
     }
 
     /**
@@ -309,13 +301,13 @@ export class LabelComponent extends UIRenderComponent {
     get enableWrapText () {
         return this._enableWrapText;
     }
-    set enableWrapText (value: boolean) {
+    set enableWrapText (value) {
         if (this._enableWrapText === value) {
             return;
         }
 
         this._enableWrapText = value;
-        this._updateRenderData();
+        this.updateRenderData();
     }
 
     /**
@@ -362,7 +354,7 @@ export class LabelComponent extends UIRenderComponent {
         // this._fontAtlas = null;
         this._updateAssembler();
         this._applyFontTexture(true);
-        this._updateRenderData();
+        this.updateRenderData();
     }
 
     /**
@@ -375,7 +367,7 @@ export class LabelComponent extends UIRenderComponent {
         return this._isSystemFontUsed;
     }
 
-    set useSystemFont (value: boolean) {
+    set useSystemFont (value) {
         if (this._isSystemFontUsed === value) {
             return;
         }
@@ -395,7 +387,7 @@ export class LabelComponent extends UIRenderComponent {
         if (value) {
             this.font = null;
             this._updateAssembler();
-            this._updateRenderData();
+            this.updateRenderData();
             this._checkStringEmpty();
         }
         // else if (!this._userDefinedFont) {
@@ -409,13 +401,13 @@ export class LabelComponent extends UIRenderComponent {
         return this._spacingX;
     }
 
-    set spacingX (value: number) {
+    set spacingX (value) {
         if (this._spacingX === value) {
             return;
         }
 
         this._spacingX = value;
-        this._updateRenderData();
+        this.updateRenderData();
     }
 
     /**
@@ -428,7 +420,7 @@ export class LabelComponent extends UIRenderComponent {
         return this._isBold;
     }
 
-    set isBold (value: boolean) {
+    set isBold (value) {
         if (this._isBold === value) {
             return;
         }
@@ -446,7 +438,7 @@ export class LabelComponent extends UIRenderComponent {
         return this._isItalic;
     }
 
-    set isItalic (value: boolean) {
+    set isItalic (value) {
         if (this._isItalic === value) {
             return;
         }
@@ -464,7 +456,7 @@ export class LabelComponent extends UIRenderComponent {
         return this._isUnderline;
     }
 
-    set isUnderline (value: boolean) {
+    set isUnderline (value) {
         if (this._isUnderline === value) {
             return;
         }
@@ -472,63 +464,65 @@ export class LabelComponent extends UIRenderComponent {
         this._isUnderline = value;
     }
 
-    get texture(){
+    get texture (){
         return this._texture;
+    }
+
+    get assemblerData(){
+        return this._assemblerData;
     }
 
     public static HorizontalAlign = HorizontalAlign;
     public static VerticalAlign = VerticalAlign;
     public static Overflow = Overflow;
     @property
-    public _useOriginalSize: boolean = true;
+    public _useOriginalSize = true;
     @property
-    public _string: string = 'label';
+    public _string = 'label';
     @property
-    public _horizontalAlign: number = HorizontalAlign.LEFT;
+    public _horizontalAlign = HorizontalAlign.LEFT;
     @property
-    public _verticalAlign: number = VerticalAlign.TOP;
+    public _verticalAlign = VerticalAlign.TOP;
     @property
-    public _actualFontSize: number = 0;
+    public _actualFontSize = 0;
     @property
-    public _fontSize: number = 40;
+    public _fontSize = 40;
     @property
-    public _fontFamily: string = 'Arial';
+    public _fontFamily = 'Arial';
     @property
-    public _lineHeight: number = 40;
+    public _lineHeight = 40;
     @property
     public _overflow: Overflow = Overflow.NONE;
     @property
-    public _enableWrapText: boolean = true;
+    public _enableWrapText = true;
     // // 这个保存了旧项目的 file 数据
     // _N$file = null;
     @property
     public _font: Font | null = null;
     @property
-    public _isSystemFontUsed: boolean = true;
+    public _isSystemFontUsed = true;
     @property
-    public _bmFontOriginalSize: number = -1;
+    public _bmFontOriginalSize = -1;
     @property
-    public _spacingX: number = 0;
+    public _spacingX = 0;
     @property
-    public _isItalic: boolean = false;
+    public _isItalic = false;
     @property
-    public _isBold: boolean = false;
+    public _isBold = false;
     @property
-    public _isUnderline: boolean = false;
+    public _isUnderline = false;
 
     // don't need serialize
     private _texture: SpriteFrame | null = null;
     private _ttfTexture: SpriteFrame | null = null;
     private _userDefinedFont: Font | null = null;
-    private _assemblerData: object|null = null;
+    private _assemblerData: ISharedLabelData|null = null;
 
     constructor () {
         super();
         if (CC_EDITOR) {
             this._userDefinedFont = null;
         }
-
-        this._assemblerData = null;
 
         this._ttfTexture = null;
     }
@@ -547,7 +541,7 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         this._checkStringEmpty();
-        this._updateRenderData(true);
+        this.updateRenderData(true);
         // this._updateAssembler();
         // this._activateMaterial();
     }
@@ -558,8 +552,8 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     public onDestroy () {
-        if (this._assembler && this._assembler._resetAssemblerData) {
-            this._assembler._resetAssemblerData(this._assemblerData);
+        if (this._assembler && this._assembler.resetAssemblerData) {
+            this._assembler.resetAssemblerData(this._assemblerData!);
         }
 
         this._assemblerData = null;
@@ -570,25 +564,46 @@ export class LabelComponent extends UIRenderComponent {
         // this._super();
     }
 
-    public _canRender () {
-        // let result = this._super();
-        let result = this._enabled;
-        const font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            const spriteFrame = font.spriteFrame;
-            // cannot be activated if texture not loaded yet
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
-                result = false;
-            }
+    public updateAssembler(render: UI) {
+        if (!this._material) {
+            return;
         }
-        return result;
+        super.updateAssembler(render);
     }
 
-    public _checkStringEmpty () {
+    public updateRenderData(force = false) {
+        const renderData = this._renderData;
+        if (renderData) {
+            renderData.vertDirty = true;
+            renderData.uvDirty = true;
+            // this.markForUpdateRenderData(true);
+        }
+
+        if (force) {
+            this._updateAssembler();
+            this._applyFontTexture(force);
+        }
+    }
+
+    // private _canRender () {
+    //     // let result = this._super();
+    //     let result = this._enabled;
+    //     const font = this.font;
+    //     if (font instanceof cc.BitmapFont) {
+    //         const spriteFrame = font.spriteFrame;
+    //         // cannot be activated if texture not loaded yet
+    //         if (!spriteFrame || !spriteFrame.textureLoaded()) {
+    //             result = false;
+    //         }
+    //     }
+    //     return result;
+    // }
+
+    private _checkStringEmpty () {
         // this.markForRender(!!this.string);
     }
 
-    public _updateAssembler () {
+    private _updateAssembler () {
         const assembler = LabelComponent.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -597,23 +612,33 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         if (!this._renderData) {
-            if(this._assembler){
-                this._renderData = this._assembler!.createData(this);
-                this._renderData.material = this.material;
+            if (this._assembler && this._assembler.createData){
+                this._renderData = this._assembler.createData(this);
+                this._renderData.material = this._material;
             }
         }
     }
 
-    private _activateMaterial (force: boolean) {
-        let material = this.material;
+    protected _updateColor () {
+        const font = this.font;
+        if (font instanceof cc.BitmapFont) {
+            // this._super();
+        } else {
+            this.updateRenderData(false);
+            // this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
+        }
+    }
+
+    private _activateMaterial (force) {
+        const material = this._material;
         // if (material && !force) {
         //     return;
         // }
 
         // if (!material) {
         //     // material = new SpriteMaterial();
-        //     this.material = cc.builtinResMgr.get('sprite-material');
-        //     material = this.material;
+        //     this._material = cc.builtinResMgr.get('sprite-material');
+        //     material = this._material;
         // }
         // Setup blend function for premultiplied ttf label texture
         if (this._texture === this._ttfTexture) {
@@ -630,18 +655,18 @@ export class LabelComponent extends UIRenderComponent {
         // this._updateMaterial(material);
     }
 
-    private _applyFontTexture (force: boolean) {
+    private _applyFontTexture (force) {
         const font = this._font;
         if (font instanceof cc.BitmapFont) {
             const spriteFrame = font.spriteFrame;
             const self = this;
-            const onBMFontTextureLoaded = function () {
+            const onBMFontTextureLoaded = () => {
                 // TODO: old texture in material have been released by loader
                 self._texture = spriteFrame;
                 self._activateMaterial(force);
 
-                if (force) {
-                    self._assembler && self._assembler.updateRenderData(self);
+                if (force && self._assembler && self._assembler.updateRenderData) {
+                    self._assembler.updateRenderData(self);
                 }
             };
             // cannot be activated if texture not loaded yet
@@ -664,40 +689,24 @@ export class LabelComponent extends UIRenderComponent {
                 if (!CC_JSB) {
                     // this._ttfTexture.setPremultiplyAlpha(true);
                 }
-                this._assemblerData = this._assembler!.getAssemblerData();
-                this._ttfTexture!.image = new ImageAsset(this._assemblerData.canvas);
+
+                if (this._assembler && this._assembler.getAssemblerData) {
+                    this._assemblerData = this._assembler.getAssemblerData();
+                }
+
+                if (this._assemblerData) {
+                    this._ttfTexture!.image = new ImageAsset(this._assemblerData.canvas);
+                }
                 // this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
             this._texture = this._ttfTexture;
             this._activateMaterial(force);
 
-            if (force && this._assembler) {
+            if (force && this._assembler && this._assembler.updateRenderData) {
                 this._assembler.updateRenderData(this);
             }
         }
     }
-
-    protected _updateColor () {
-        const font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            // this._super();
-        } else {
-            this._updateRenderData(false);
-            // this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
-        }
-    }
-
-    private _updateRenderData (force: boolean = false) {
-        const renderData = this._renderData;
-        if (renderData) {
-            renderData.vertDirty = true;
-            renderData.uvDirty = true;
-            // this.markForUpdateRenderData(true);
-        }
-
-        if (force) {
-            this._updateAssembler();
-            this._applyFontTexture(force);
-        }
-    }
 }
+
+cc.LabelComponent = LabelComponent;
