@@ -10,8 +10,12 @@ import capsule from './capsule';
 import { PolyhedronType, polyhedron } from './polyhedron';
 
 /**
- * @class Primitive
+ * 一个创建 3D 物体顶点数据的基础模块，你可以通过 "cc.primitive" 来访问这个模块。
+ * @module primitive
+ * @submodule primitive
+ * @main
  */
+
 cc.primitive = Object.assign({
     /**
      * !#en Create box vertex data
@@ -25,7 +29,7 @@ cc.primitive = Object.assign({
      * @param {Number} opts.widthSegments
      * @param {Number} opts.heightSegments
      * @param {Number} opts.lengthSegments
-     * @return Primitive.VertextData
+     * @return {primitive.VertextData}
      */
     box,
     /**
@@ -40,7 +44,7 @@ cc.primitive = Object.assign({
      * @param {Number} opts.heightSegments
      * @param {Boolean} opts.capped
      * @param {Number} opts.arc
-     * @return Primitive.VertextData
+     * @return {primitive.VertextData}
      */
     cone,
     /**
@@ -56,13 +60,9 @@ cc.primitive = Object.assign({
      * @param {Number} opts.heightSegments
      * @param {Boolean} opts.capped
      * @param {Number} opts.arc
-     * @return Primitive.VertextData
+     * @return {primitive.VertextData}
      */
     cylinder,
-    /**
-     * !#en Create plane vertex data
-     * 
-     */
     /**
      * !#en Create plane vertex data
      * !#zh 创建平台顶点数据
@@ -73,7 +73,7 @@ cc.primitive = Object.assign({
      * @param {Object} opts
      * @param {Number} opts.widthSegments
      * @param {Number} opts.lengthSegments
-     * @return Primitive.VertextData
+     * @return {primitive.VertextData}
      */
     plane,
     /**
@@ -81,7 +81,7 @@ cc.primitive = Object.assign({
      * !#zh 创建面片顶点数据
      * @method quad
      * @static
-     * @return Primitive.VertextData
+     * @return {primitive.VertextData}
      */
     quad,
     /**
@@ -92,7 +92,7 @@ cc.primitive = Object.assign({
      * @param {Number} radius
      * @param {Object} opts
      * @param {Number} opts.segments
-     * @return Primitive.VertextData
+     * @return {primitive.VertextData}
      */
     sphere,
     /**
@@ -106,7 +106,7 @@ cc.primitive = Object.assign({
      * @param {Number} opts.radialSegments
      * @param {Number} opts.tubularSegments
      * @param {Number} opts.arc
-     * @return Primitive.VertextData
+     * @return {primitive.VertextData}
      */
     torus,
     /**
@@ -122,7 +122,7 @@ cc.primitive = Object.assign({
      * @param {Number} opts.heightSegments
      * @param {Boolean} opts.capped
      * @param {Number} opts.arc
-     * @return Primitive.VertextData
+     * @return {primitive.VertextData}
      */
     capsule,
     /**
@@ -130,24 +130,14 @@ cc.primitive = Object.assign({
      * !#zh 创建多面体顶点数据
      * @method polyhedron
      * @static
-     * @param {Primitive.PolyhedronType} type
+     * @param {primitive.PolyhedronType} type
      * @param {Number} Size
      * @param {Object} opts
      * @param {Number} opts.sizeX
      * @param {Number} opts.sizeY
      * @param {Number} opts.sizeZ
-     * @return Primitive.VertextData
+     * @return {primitive.VertextData}
      */
     polyhedron,
-
     PolyhedronType: PolyhedronType
 }, utils);
-
-/**
- * @module cc
- */
-
-/**
- * @property primitive
- * @type Primitive
- */

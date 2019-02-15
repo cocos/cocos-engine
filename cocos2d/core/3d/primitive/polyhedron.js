@@ -4,9 +4,9 @@ import { vec3 } from '../../vmath';
 import VertexData from './vertex-data';
 
 /**
- * @enum Primitive.PolyhedronType
+ * @enum primitive.PolyhedronType
  * @static
- * @namespace Primitive
+ * @namespace primitive
  */
 export const PolyhedronType = cc.Enum({
   /**
