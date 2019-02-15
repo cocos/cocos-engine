@@ -25,7 +25,7 @@
 
 const js = cc.js;
 const Playable = require('./playable');
-const { DynamicAnimCurve, RTSAnimCurve, EventAnimCurve, EventInfo, quickFindIndex } = require('./animation-curves');
+const { DynamicAnimCurve, EventAnimCurve, EventInfo, quickFindIndex } = require('./animation-curves');
 const sampleMotionPaths = require('./motion-path-helper').sampleMotionPaths;
 const WrapModeMask = require('./types').WrapModeMask;
 const binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
@@ -252,14 +252,7 @@ function initClipData (root, state) {
     
         let motionPaths = [];
 
-        let curve;
-        if (target instanceof cc.Node) {
-            curve = new RTSAnimCurve();
-            curve.testProperty(firstValue);
-        }
-        else {
-            curve = new DynamicAnimCurve();
-        }
+        let curve = new DynamicAnimCurve();
 
         // 缓存目标对象，所以 Component 必须一开始都创建好并且不能运行时动态替换……
         curve.target = target;

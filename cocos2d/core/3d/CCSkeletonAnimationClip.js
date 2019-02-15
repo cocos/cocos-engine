@@ -103,28 +103,25 @@ var SkeletonAnimationClip = cc.Class({
             let curves = {};
             paths[path] = { props: curves };
             
-            let frameCount = des.frameCount;
-            let property = des.property;
+            for (let property in des) {
+                let frames = [];
 
-            let hasPosition = property & PropertyEnum.POSITION;
-            let hasScale = property & PropertyEnum.SCALE;
-            let hasQuat = property & PropertyEnum.QUAT;
-
-            let frames = [];
-
-            for (let i = 0; i < frameCount; i++) {
-                let time = getValue();
-                let value = {};
-                let frame = { frame: time, value };
-
-                hasPosition && (value.position = cc.v3(getValue(), getValue(), getValue()));
-                hasScale && (value.scale = cc.v3(getValue(), getValue(), getValue()));
-                hasQuat && (value.quat = cc.quat(getValue(), getValue(), getValue(), getValue()));
-
-                frames.push(frame);
+                let frameCount = des[property].frameCount;
+                offset = des[property].offset;
+                for (let i = 0; i < frameCount; i++) {
+                    let frame = getValue();
+                    let value;
+                    if (property === 'position' || property === 'scale') {
+                        value = cc.v3(getValue(), getValue(), getValue());
+                    }
+                    else if (property === 'quat') {
+                        value = cc.quat(getValue(), getValue(), getValue(), getValue());
+                    }
+                    frames.push({ frame, value });
+                }
+                
+                curves[property] = frames;
             }
-
-            curves.rts = frames;
         }
     }
 

@@ -30,8 +30,6 @@ const binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
 const WrapModeMask = require('./types').WrapModeMask;
 const WrappedInfo = require('./types').WrappedInfo;
 
-const quat = require('../core/vmath/quat');
-
 /**
  * Compute a new ratio by curve type
  * @param {Number} ratio - The origin ratio
@@ -235,48 +233,6 @@ DynamicAnimCurve.Bezier = function (controlPoints) {
     return controlPoints;
 };
 
-/**
- * RTSAnimCurve process rotation, scale, position property of node in one curve instead of
- * three separate curve.
- * RTSAnimCurve only need to calculate the time ratio once, it can improve performance.
- * @class RTSAnimCurve
- */
-let RTSAnimCurve = cc.Class({
-    name: 'cc.RTSAnimCurve',
-    extends: DynamicAnimCurve,
-
-    testProperty (prop) {
-        let hasProperty = 0;
-        if (prop.position) hasProperty |= 1;
-        if (prop.scale) hasProperty |= 2;
-        if (prop.quat) hasProperty |= 4;
-        this._hasProperty = hasProperty;
-    },
-
-    _lerp: (function () {
-        let out = {
-            position: cc.v3(),
-            scale: cc.v3(),
-            quat: cc.quat()
-        };
-        return function (from, to, t) {
-            let hasProperty = this._hasProperty;
-            (hasProperty & 1) && from.position.lerp(to.position, t, out.position);
-            (hasProperty & 2) && from.scale.lerp(to.scale, t, out.scale);
-            (hasProperty & 4) && from.quat.lerp(to.quat, t, out.quat);
-            return out;
-        };
-    })(),
-
-    _apply (value) {
-        let hasProperty = this._hasProperty;
-        (hasProperty & 1) && (this.target.position = value.position);
-        (hasProperty & 2) && (this.target.scale = value.scale);
-        (hasProperty & 4) && (this.target.quat = value.quat);
-    }
-});
-
-
 
 /**
  * Event information,
@@ -477,7 +433,6 @@ if (CC_TEST) {
 module.exports = {
     AnimCurve: AnimCurve,
     DynamicAnimCurve: DynamicAnimCurve,
-    RTSAnimCurve: RTSAnimCurve,
     EventAnimCurve: EventAnimCurve,
     EventInfo: EventInfo,
     computeRatioByType: computeRatioByType,
