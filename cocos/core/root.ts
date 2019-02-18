@@ -10,9 +10,8 @@ import { UI } from '../renderer/ui/ui';
 export let _createSceneFun;
 export let _createViewFun;
 
-// tslint:disable-next-line:no-empty-interface
-export interface IRootInfo {
-}
+// export interface IRootInfo {
+// }
 
 export interface ISceneInfo {
     name: string;
@@ -76,7 +75,7 @@ export class Root {
         RenderView.registerCreateFunc(this);
     }
 
-    public initialize (info: IRootInfo): boolean {
+    public initialize (/*info: IRootInfo*/): boolean {
 
         if (!this._device.mainWindow) {
             return false;

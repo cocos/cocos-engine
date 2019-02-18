@@ -77,7 +77,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
     public abstract setDepthBias (depthBiasConstantFacotr: number, depthBiasClamp: number, depthBiasSlopeFactor: number);
     public abstract setBlendConstants (blendConstants: number[]);
     public abstract setDepthBound (minDepthBounds: number, maxDepthBounds: number);
-    public abstract setStencilWirteMask (faceMask: GFXStencilFace, writeMask: number);
+    public abstract setStencilWriteMask (faceMask: GFXStencilFace, writeMask: number);
     public abstract setStencilCompareMask (face: GFXStencilFace, reference: number, compareMask: number);
     public abstract draw (inputAssembler: GFXInputAssembler);
     public abstract updateBuffer (buffer: GFXBuffer, data: ArrayBuffer, offset?: number);

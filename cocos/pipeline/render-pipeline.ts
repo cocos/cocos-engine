@@ -14,6 +14,7 @@ import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
 
+// tslint:disable: max-line-length
 export class UBOGlobal {
     public static MAX_DIR_LIGHTS = 4;
     public static MAX_POINT_LIGHTS = 4;
@@ -66,6 +67,7 @@ export class UBOGlobal {
 
     public view: Float32Array = new Float32Array(UBOGlobal.COUNT);
 }
+// tslint:enable: max-line-length
 
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;

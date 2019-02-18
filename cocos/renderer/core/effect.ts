@@ -42,5 +42,3 @@ export class Effect {
         return passes;
     }
 }
-
-cc.Effect = Effect;
