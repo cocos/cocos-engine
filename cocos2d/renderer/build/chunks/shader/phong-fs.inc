@@ -1,8 +1,4 @@
 
-#if USE_NORMAL_TEXTURE
-#extension GL_OES_standard_derivatives : enable
-#endif
-
 #include <cc-global>
 #include <common-attribute>
 #include <encodings>

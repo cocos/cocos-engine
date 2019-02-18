@@ -4,15 +4,22 @@ import gfx from '../gfx';
 
 let _shdID = 0;
 
-function _generateDefines(device, defs, deps) {
+function _generateDefines(defs) {
   let defines = [];
   for (let def in defs) {
     let result = defs[def] ? 1 : 0;
-    // fallback if extension dependency not supported
-    if (deps && deps[def] && !device.ext(deps[def])) result = 0;
     defines.push(`#define ${def} ${result}`);
   }
-  return defines.join('\n');
+  return defines.join('\n') + '\n';
+}
+
+function _generateExtensions (device, exts) {
+  let extensions = [];
+  for (let i = 0; i < exts.length; i++) {
+    if (!device.ext(exts[i])) continue;
+    extensions.push(`#extension GL_${exts[i]}: enable`);
+  }
+  return extensions.join('\n') + '\n';
 }
 
 function _replaceMacroNums(string, defs) {
@@ -88,12 +95,12 @@ export default class ProgramLib {
    *     ],
    *     attributes: [{ name: 'a_position', type: 'vec3' }],
    *     uniforms: [{ name: 'color', type: 'vec4' }],
-   *     extensions: [{ name: 'GL_OES_standard_derivatives', defines: ['USE_NORMAL_TEXTURE'] }],
+   *     extensions: ['GL_OES_standard_derivatives'],
    *   };
    *   programLib.define(program);
    */
   define(prog) {
-    let name = prog.name, vert = prog.vert, frag = prog.frag, defines = prog.defines;
+    let { name, vert, frag, defines, extensions } = prog;
     if (this._templates[name]) {
       console.warn(`Failed to define shader ${name}: already exists.`);
       return;
@@ -129,8 +136,8 @@ export default class ProgramLib {
       def._offset = offset;
     }
 
-    vert = this._precision + vert;
-    frag = this._precision + frag;
+    vert = _generateExtensions(this._device, extensions) + this._precision + vert;
+    frag = _generateExtensions(this._device, extensions) + this._precision + frag;
 
     // store it
     this._templates[name] = {
@@ -181,10 +188,9 @@ export default class ProgramLib {
   /**
    * @param {string} name
    * @param {Object} defines
-   * @param {Object} extensions
    * @param {String} errPrefix
    */
-  getProgram(name, defines, extensions, errPrefix) {
+  getProgram(name, defines, errPrefix) {
     let key = this.getKey(name, defines);
     let program = this._cache[key];
     if (program) {
@@ -193,7 +199,7 @@ export default class ProgramLib {
 
     // get template
     let tmpl = this._templates[name];
-    let customDef = _generateDefines(this._device, defines, extensions) + '\n';
+    let customDef = _generateDefines(defines);
     let vert = _replaceMacroNums(tmpl.vert, defines);
     vert = customDef + _unrollLoops(vert);
     let frag = _replaceMacroNums(tmpl.frag, defines);
