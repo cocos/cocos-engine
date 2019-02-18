@@ -73,6 +73,10 @@ sp.Skeleton = cc.Class({
         //playOnFocus: true
     },
 
+    statics: {
+        RenderMode: RenderModeEnum,
+    },
+
     properties: {
         /**
          * !#en The skeletal animation is paused?
@@ -283,15 +287,15 @@ sp.Skeleton = cc.Class({
         },
 
         // Record pre render mode.
-        _preRenderMode: 0,
-        renderMode: {
+        _preRenderMode: -1,
+        _renderMode: RenderModeEnum.REALTIME,
+        _defaultRenderMode: {
             default: 0,
             type: RenderModeEnum,
             notify () {
-                if (this._preRenderMode !== this.renderMode) {
-                    this._updateSkeletonData();
-                }
+                this.setRenderMode(this._defaultRenderMode);
             },
+            editorOnly: true,
             visible: true,
             animatable: false,
             displayName: "Render Mode",
@@ -541,7 +545,7 @@ sp.Skeleton = cc.Class({
         }
 
         if (CC_JSB) {
-            this.renderMode = RenderModeEnum.REALTIME;
+            this._renderMode = RenderModeEnum.REALTIME;
         }
 
         this._updateSkeletonData();
@@ -551,13 +555,34 @@ sp.Skeleton = cc.Class({
     },
 
     /**
+     * !#en
+     * It's best to set render mode before set property 'dragonAsset', or will waste some cpu time.
+     * If set the mode in editor, then no need to worry about order problem.
+     * !#zh 
+     * 若想切换渲染模式，最好在设置'dragonAsset'之前，先设置好渲染模式，否则有运行时开销。
+     * 若在编辑中设置渲染模式，则无需担心设置次序的问题。
+     * 
+     * @method setRenderMode
+     * @param {RenderMode} renderMode
+     * * @example
+     * armatureDisplay.setRenderMode(sp.Skeleton.RenderMode.SHARED_CACHE);
+     */
+    setRenderMode (renderMode) {
+        if (CC_JSB) return;
+        if (this._preRenderMode !== renderMode) {
+            this._renderMode = renderMode;
+            this._updateSkeletonData();
+        }
+    },
+
+    /**
      * !#en Whether in cached mode.
      * !#zh 当前是否处于缓存模式。
      * @method isCachedMode
      */
     isCachedMode () {
         if (CC_EDITOR) return false;
-        return this.renderMode !== RenderModeEnum.REALTIME;
+        return this._renderMode !== RenderModeEnum.REALTIME;
     },
 
     update (dt) {
@@ -1193,9 +1218,9 @@ sp.Skeleton = cc.Class({
         if (!data) return;
         
         if (!CC_EDITOR) {
-            if (this.renderMode === RenderModeEnum.SHARED_CACHE) {
+            if (this._renderMode === RenderModeEnum.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
-            } else if (this.renderMode === RenderModeEnum.PRIVATE_CACHE) {
+            } else if (this._renderMode === RenderModeEnum.PRIVATE_CACHE) {
                 this._skeletonCache = new SkeletonCache;
             }
         }
@@ -1215,7 +1240,7 @@ sp.Skeleton = cc.Class({
             cc.warn(e);
         }
         
-        this._preRenderMode = this.renderMode;
+        this._preRenderMode = this._renderMode;
         this.animation = this.defaultAnimation;
     },
 
