@@ -1,7 +1,9 @@
-import { repeat } from '../../../../core/vmath';
+import { repeat, lerp } from '../../../../core/vmath';
 import { Enum, ValueType, Color } from '../../../../core/value-types';
 import { CCClass } from '../../../../core/data';
 import { property, ccclass } from '../../../../core/data/class-decorator';
+
+// tslint:disable: max-line-length
 
 const Mode = Enum({
     Blend: 0,
@@ -77,7 +79,7 @@ export default class Gradient {
                 const preTime = this.colorKeys[i - 1].time;
                 const curTime = this.colorKeys[i].time;
                 if (time >= preTime && time < curTime) {
-                    if (this.mode === 'fixed') {
+                    if (this.mode === Mode.Fixed) {
                         return this.colorKeys[i].color;
                     }
                     const factor = (time - preTime) / (curTime - preTime);
@@ -85,7 +87,13 @@ export default class Gradient {
                     return this._color;
                 }
             }
-            console.warn('something went wrong. can not get gradient color.');
+            const lastIndex = this.colorKeys.length - 1;
+            if (time < this.colorKeys[0].time) {
+                Color.BLACK.lerp(this.colorKeys[0].color, time / this.colorKeys[0].time, this._color);
+            } else if (time > this.colorKeys[lastIndex].time) {
+                this.colorKeys[lastIndex].color.lerp(Color.BLACK, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time), this._color);
+            }
+            // console.warn('something went wrong. can not get gradient color.');
         } else if (this.colorKeys.length === 1) {
             this._color.set(this.colorKeys[0].color);
             return this._color;
@@ -105,14 +113,19 @@ export default class Gradient {
                 const preTime = this.alphaKeys[i - 1].time;
                 const curTime = this.alphaKeys[i].time;
                 if (time >= preTime && time < curTime) {
-                    if (this.mode === 'fixed') {
+                    if (this.mode === Mode.Fixed) {
                         return this.alphaKeys[i].alpha;
                     }
                     const factor = (time - preTime) / (curTime - preTime);
-                    return (this.alphaKeys[i - 1].alpha * (1 - factor) + this.alphaKeys[i].alpha * factor);
+                    return lerp(this.alphaKeys[i - 1].alpha , this.alphaKeys[i].alpha , factor);
                 }
             }
-            console.warn('something went wrong. can not get gradient alpha.');
+            const lastIndex = this.alphaKeys.length - 1;
+            if (time < this.alphaKeys[0].time) {
+                return lerp(255, this.alphaKeys[0].alpha, time / this.alphaKeys[0].time);
+            } else if (time > this.alphaKeys[lastIndex].time) {
+                return lerp(this.alphaKeys[lastIndex].alpha, 255, (time - this.alphaKeys[lastIndex].time) / (1 - this.alphaKeys[lastIndex].time));
+            }
         } else if (this.alphaKeys.length === 1) {
             return this.alphaKeys[0].alpha;
         } else {

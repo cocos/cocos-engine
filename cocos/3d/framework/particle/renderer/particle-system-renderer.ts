@@ -160,7 +160,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     }
 
     public _getFreeParticle (): Particle | null {
-        if (this._particles.length >= this.particleSystem._capacity) {
+        if (this._particles.length >= this.particleSystem.capacity) {
             return null;
         }
         return this._particles.add();
@@ -189,7 +189,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
                 continue;
             }
 
-            p.velocity.y -= this.particleSystem.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, p.randomSeed) * 9.8 * dt; // apply gravity.
+            p.velocity.y -= this.particleSystem.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, p.randomSeed)! * 9.8 * dt; // apply gravity.
             if (this.particleSystem.sizeOvertimeModule.enable) {
                 this.particleSystem.sizeOvertimeModule.animate(p);
             }
