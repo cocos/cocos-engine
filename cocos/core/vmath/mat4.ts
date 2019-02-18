@@ -1,6 +1,8 @@
 import { EPSILON } from './utils';
 
 // tslint:disable: one-variable-per-declaration
+// tslint:disable: max-line-length
+// tslint:disable: class-name
 
 /**
  * Mathematical 4x4 matrix.
@@ -29,6 +31,70 @@ import { EPSILON } from './utils';
  * apparent lack of consistency between the memory layout and the documentation.
  */
 class mat4 {
+
+    /**
+     * Inverts a matrix.
+     *
+     * @param out - Matrix to store result.
+     * @param a - Matrix to invert.
+     * @return out.
+     */
+    public static invert = (() => {
+        // cache temps due to the high frequency invocations of this function
+        let a00 = 1, a01 = 0, a02 = 0, a03 = 0;
+        let a10 = 0, a11 = 1, a12 = 0, a13 = 0;
+        let a20 = 0, a21 = 0, a22 = 1, a23 = 0;
+        let a30 = 0, a31 = 0, a32 = 0, a33 = 1;
+        let b00 = 1, b01 = 0, b02 = 0, b03 = 0;
+        let b04 = 0, b05 = 0, b06 = 0, b07 = 0;
+        let b08 = 0, b09 = 0, b10 = 0, b11 = 1;
+        let det = 1;
+        return (out, a) => {
+            a00 = a.m00; a01 = a.m01; a02 = a.m02; a03 = a.m03;
+            a10 = a.m04; a11 = a.m05; a12 = a.m06; a13 = a.m07;
+            a20 = a.m08; a21 = a.m09; a22 = a.m10; a23 = a.m11;
+            a30 = a.m12; a31 = a.m13; a32 = a.m14; a33 = a.m15;
+
+            b00 = a00 * a11 - a01 * a10;
+            b01 = a00 * a12 - a02 * a10;
+            b02 = a00 * a13 - a03 * a10;
+            b03 = a01 * a12 - a02 * a11;
+            b04 = a01 * a13 - a03 * a11;
+            b05 = a02 * a13 - a03 * a12;
+            b06 = a20 * a31 - a21 * a30;
+            b07 = a20 * a32 - a22 * a30;
+            b08 = a20 * a33 - a23 * a30;
+            b09 = a21 * a32 - a22 * a31;
+            b10 = a21 * a33 - a23 * a31;
+            b11 = a22 * a33 - a23 * a32;
+
+            // Calculate the determinant
+            det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+            if (det === 0) { return null; }
+            det = 1.0 / det;
+
+            out.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+            out.m01 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+            out.m02 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+            out.m03 = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+            out.m04 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+            out.m05 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+            out.m06 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+            out.m07 = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+            out.m08 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+            out.m09 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+            out.m10 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+            out.m11 = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+            out.m12 = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+            out.m13 = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+            out.m14 = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+            out.m15 = (a20 * b03 - a21 * b01 + a22 * b00) * det;
+
+            return out;
+        };
+    })();
+
     /**
      * Creates a matrix, with elements specified separately.
      *
@@ -217,60 +283,6 @@ class mat4 {
             out.m14 = a.m11;
             out.m15 = a.m15;
         }
-
-        return out;
-    }
-
-    /**
-     * Inverts a matrix.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to invert.
-     * @return out.
-     */
-    public static invert (out, a) {
-        const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
-            a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
-            a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
-            a30 = a.m12, a31 = a.m13, a32 = a.m14, a33 = a.m15;
-
-        const b00 = a00 * a11 - a01 * a10;
-        const b01 = a00 * a12 - a02 * a10;
-        const b02 = a00 * a13 - a03 * a10;
-        const b03 = a01 * a12 - a02 * a11;
-        const b04 = a01 * a13 - a03 * a11;
-        const b05 = a02 * a13 - a03 * a12;
-        const b06 = a20 * a31 - a21 * a30;
-        const b07 = a20 * a32 - a22 * a30;
-        const b08 = a20 * a33 - a23 * a30;
-        const b09 = a21 * a32 - a22 * a31;
-        const b10 = a21 * a33 - a23 * a31;
-        const b11 = a22 * a33 - a23 * a32;
-
-        // Calculate the determinant
-        let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
-        if (!det) {
-            return null;
-        }
-        det = 1.0 / det;
-
-        out.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
-        out.m01 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
-        out.m02 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
-        out.m03 = (a22 * b04 - a21 * b05 - a23 * b03) * det;
-        out.m04 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
-        out.m05 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
-        out.m06 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
-        out.m07 = (a20 * b05 - a22 * b02 + a23 * b01) * det;
-        out.m08 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
-        out.m09 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
-        out.m10 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
-        out.m11 = (a21 * b02 - a20 * b04 - a23 * b00) * det;
-        out.m12 = (a11 * b07 - a10 * b09 - a12 * b06) * det;
-        out.m13 = (a00 * b09 - a01 * b07 + a02 * b06) * det;
-        out.m14 = (a31 * b01 - a30 * b03 - a32 * b00) * det;
-        out.m15 = (a20 * b03 - a21 * b01 + a22 * b00) * det;
 
         return out;
     }

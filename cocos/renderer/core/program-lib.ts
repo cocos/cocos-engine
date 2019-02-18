@@ -2,11 +2,12 @@
 
 import { IBlockInfo, IBlockMember, IDefineInfo, ISamplerInfo, IShaderInfo } from '../../3d/assets/effect-asset';
 import { GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
+import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniform, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
 import { UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
 import { SkinningUBO } from '../models/model-uniforms';
 import { IDefineMap } from './effect';
+import { UBOForwardLights } from '../../pipeline/forward/forward-pipeline';
 
 function _generateDefines (
     device: GFXDevice,
@@ -69,9 +70,7 @@ class ProgramLib {
      */
     public define (prog: IShaderInfo) {
         const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
-        tmpl.vert = this._precision + prog.vert;
-        tmpl.frag = this._precision + prog.frag;
-        tmpl.blocks = tmpl.blocks.concat(globals, locals);
+        tmpl.blocks = tmpl.blocks.concat(globals, locals, lights);
 
         // calculate option mask offset
         let offset = 0;
@@ -130,8 +129,12 @@ class ProgramLib {
         // get template
         const tmpl = this._templates[name];
         const customDef = _generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
-        const vert = customDef + tmpl.vert;
-        const frag = customDef + tmpl.frag;
+
+        const source = tmpl.glsl1; // temporary measure
+        // const source = (device.gfxAPI === GFXAPI.WEBGL2 ? tmpl.glsl3 : tmpl.glsl1);
+
+        const vert = customDef + this._precision + source.vert;
+        const frag = customDef + this._precision + source.frag;
 
         const instanceName = Object.keys(defines).reduce((acc, cur) => defines[cur] ? `${acc}|${cur}` : acc, name);
         program = device.createShader({
@@ -150,6 +153,7 @@ class ProgramLib {
 
 const globals = convertToBlockInfo(UBOGlobal.BLOCK);
 const locals = convertToBlockInfo(UBOLocal.BLOCK);
+const lights = convertToBlockInfo(UBOForwardLights.BLOCK);
 const skinning = convertToBlockInfo(SkinningUBO.BLOCK);
 const jointsTexture = convertToSamplerInfo(SkinningUBO.JOINT_TEXTURE);
 
@@ -184,7 +188,7 @@ function convertToSamplerInfo (sampler: GFXUniformSampler): ISamplerInfo {
         binding: sampler.binding,
         defines: [],
         type: sampler.type,
-        count: sampler.count
+        count: sampler.count,
     };
 }
 

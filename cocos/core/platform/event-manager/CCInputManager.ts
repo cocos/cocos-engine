@@ -782,4 +782,4 @@ const inputManager = new InputManager();
 
 export default inputManager;
 
-_cc.inputManager = inputManager;
+cc.internal.inputManager = inputManager;

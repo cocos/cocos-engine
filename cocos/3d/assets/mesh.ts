@@ -469,14 +469,19 @@ export class Mesh extends Asset {
                 indexBuffer.update(ib);
             }
 
+            const vbReference = primitive.vertexBundelIndices.map(
+                (i) => vertexBuffers[i]);
+
             const gfxAttributes: IGFXInputAttribute[] = [];
             primitive.vertexBundelIndices.forEach((iVertexBundle) => {
+                // const istream = iVertexBundle;
+                const istream = vbReference.indexOf(vertexBuffers[iVertexBundle]);
                 const vertexBundle = this._struct.vertexBundles[iVertexBundle];
                 vertexBundle.attributes.forEach((attribute) => {
                     const gfxAttribute: IGFXInputAttribute = {
                         name: attribute.name,
                         format: toGFXAttributeType(attribute),
-                        stream: iVertexBundle,
+                        stream: istream,
                     };
                     if ('normalize' in attribute) {
                         gfxAttribute.isNormalized = attribute.normalize;
@@ -484,9 +489,6 @@ export class Mesh extends Asset {
                     gfxAttributes.push(gfxAttribute);
                 });
             });
-
-            const vbReference = primitive.vertexBundelIndices.map(
-                (i) => vertexBuffers[i]);
 
             const geomInfo: any = primitive.geometricInfo;
             if (geomInfo) {

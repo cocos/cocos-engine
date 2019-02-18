@@ -39,12 +39,14 @@ export default {
             extensions: ['.js', '.ts'],
 
             presets: [
-                '@babel/preset-env',
+                [
+                    '@babel/preset-env',
+                    // { targets: { "esmodules": true } }
+                ],
                 '@babel/preset-typescript'
             ],
 
             plugins: [
-                //'./rollup/babel-plugin-mix-ts-js',
                 ['@babel/plugin-proposal-decorators', {
                     legacy: true
                 }],

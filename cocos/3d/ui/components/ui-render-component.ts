@@ -270,6 +270,12 @@ export class UIRenderComponent extends Component {
             if (renderData) {
                 renderData.uvDirty = enable;
                 renderData.vertDirty = enable;
+                for (const child of this.node.children) {
+                    const renderComp = child.getComponent(UIRenderComponent);
+                    if(renderComp){
+                        renderComp.markForUpdateRenderData();
+                    }
+                }
             }
         // }
         // else if (!enable) {

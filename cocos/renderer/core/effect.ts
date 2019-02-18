@@ -31,6 +31,7 @@ export class Effect {
             passInfo.blocks = prog.blocks;
             passInfo.samplers = prog.samplers;
             passInfo.globals = cc.director.root.pipeline.globalUBO;
+            passInfo.lights = cc.director.root.pipeline.lightsUBO;
             if (shader) { passInfo.shader = shader; }
             else { console.warn(`create shader ${passInfo.program} failed`); }
             if (renderPass) { passInfo.renderPass = renderPass; }
@@ -42,5 +43,3 @@ export class Effect {
         return passes;
     }
 }
-
-cc.Effect = Effect;

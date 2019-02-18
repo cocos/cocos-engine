@@ -42,7 +42,7 @@ export class RenderTexture extends Texture2D {
      * @param [string]
      * @method initWithSize
      */
-    public initWithSize (width?: number, height?: number, format?: DSFormat) {
+    public initWithSize (width: number, height: number, format: DSFormat = 'D24S8') {
         this.destroy();
 
         const gfxDevice = this._getGlobalDevice();
@@ -50,29 +50,17 @@ export class RenderTexture extends Texture2D {
             return;
         }
 
-        const w = Math.floor(width || cc.visibleRect.width);
-        const h = Math.floor(height || cc.visibleRect.height);
         const image = new ImageAsset({
-            width: w,
-            height: h,
+            width,
+            height,
             format: GFXFormat.RGBA8UI,
-            _data: new Uint8Array(w * h * 4),
+            _data: new Uint8Array(width * height * 4),
             _compressed: false,
         });
 
         this.image = image;
 
-        if (!this._texture) {
-            return;
-        }
-
-        const colorView = gfxDevice.createTextureView({
-            texture: this._texture,
-            type: GFXTextureViewType.TV2D,
-            format: this._getGfxFormat(),
-        });
-
-        if (!colorView) {
+        if (!this._textureView) {
             return;
         }
 
@@ -81,12 +69,9 @@ export class RenderTexture extends Texture2D {
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
                 format: _formatMap[format],
-                width: w,
-                height: h,
+                width,
+                height,
             });
-            if (!this._depthStencilTexture) {
-                return;
-            }
             this._depthStencilTextureView = gfxDevice.createTextureView({
                 texture: this._depthStencilTexture,
                 type: GFXTextureViewType.TV2D,
@@ -94,19 +79,14 @@ export class RenderTexture extends Texture2D {
             });
         }
 
-        if (this._depthStencilTextureView === null) {
-            return;
-        }
-
         this._framebuffer = gfxDevice.createFramebuffer({
             renderPass: cc.director.root.pipeline.getRenderPass(RenderPassStage.DEFAULT),
-            colorViews: [ colorView ],
-            depthStencilView: this._depthStencilTextureView === null ? undefined : this._depthStencilTextureView,
+            colorViews: [ this._textureView ],
+            depthStencilView: this._depthStencilTextureView!,
             isOffscreen: true,
         });
 
         this.loaded = true;
-        // @ts-ignore
         this.emit('load');
     }
 
@@ -139,30 +119,9 @@ export class RenderTexture extends Texture2D {
     // }
 
     /**
-     * !#en Draw a texture to the specified position
-     * !#zh 将指定的图片渲染到指定的位置上
-     * @param texture
-     * @param x
-     * @param y
-     */
-    public drawTextureAt (texture: Texture2D, x: number, y: number) {
-        if (!this._texture) {
-            return;
-        }
-
-        const image = texture.image;
-
-        if (!image) {
-            return;
-        }
-
-        this._assignImage(image, 0);
-    }
-
-    /**
      * !#en
      * Get pixels from render texture, the pixels data stores in a RGBA Uint8Array.
-     * It will return a new (width * height * 4) length Uint8Array by default。
+     * It will return a new (width * height * 4) length Uint8Array by default.
      * You can specify a data to store the pixels to reuse the data,
      * you and can specify other params to specify the texture region to read.
      * !#zh

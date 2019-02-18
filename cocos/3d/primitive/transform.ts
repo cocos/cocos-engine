@@ -1,4 +1,5 @@
 import { IGeometry } from './define';
+import { GFXPrimitiveMode } from '../../gfx/define';
 
 export function translate (geometry: IGeometry, offset: { x?: number; y?: number; z?: number; }) {
     const x = offset.x || 0;
@@ -51,6 +52,11 @@ export function wireframed (geometry: IGeometry) {
         return geometry;
     }
 
+    // We only support triangles' wireframe.
+    if (geometry.primitiveMode && geometry.primitiveMode !== GFXPrimitiveMode.TRIANGLE_LIST) {
+        return geometry;
+    }
+
     const offsets = [[0, 1], [1, 2], [2, 0]];
     const lines: number[] = [];
     const lineIDs = {};
@@ -70,5 +76,6 @@ export function wireframed (geometry: IGeometry) {
     }
 
     geometry.indices = lines;
+    geometry.primitiveMode = GFXPrimitiveMode.LINE_LIST;
     return geometry;
   }

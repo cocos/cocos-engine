@@ -100,7 +100,7 @@ export class CameraComponent extends Component {
     @property
     protected _rect = new Rect(0, 0, 1, 1);
     @property
-    protected _targetDisplay = 0;
+    protected _targetDisplay = -1;
 
     protected _camera: Camera | null = null;
 

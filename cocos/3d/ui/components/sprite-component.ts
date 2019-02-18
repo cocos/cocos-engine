@@ -32,6 +32,7 @@ import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
 import { UIRenderComponent } from './ui-render-component';
+import { EventType } from '../../../scene-graph/node-event-enum';
 
 /**
  * !#en Enum for sprite type.
@@ -106,26 +107,28 @@ ccenum(FillType);
  * !#zh 精灵尺寸调整模式
  * @enum Sprite.SizeMode
  */
-// var SizeMode = cc.Enum({
-//     /**
-//      * !#en Use the customized node size.
-//      * !#zh 使用节点预设的尺寸
-//      * @property {Number} CUSTOM
-//      */
-//     CUSTOM: 0,
-//     /**
-//      * !#en Match the trimmed size of the sprite frame automatically.
-//      * !#zh 自动适配为精灵裁剪后的尺寸
-//      * @property {Number} TRIMMED
-//      */
-//     TRIMMED: 1,
-//     /**
-//      * !#en Match the raw size of the sprite frame automatically.
-//      * !#zh 自动适配为精灵原图尺寸
-//      * @property {Number} RAW
-//      */
-//     RAW: 2
-// });
+enum SizeMode {
+    /**
+     * !#en Use the customized node size.
+     * !#zh 使用节点预设的尺寸
+     * @property {Number} CUSTOM
+     */
+    CUSTOM = 0,
+    /**
+     * !#en Match the trimmed size of the sprite frame automatically.
+     * !#zh 自动适配为精灵裁剪后的尺寸
+     * @property {Number} TRIMMED
+     */
+    TRIMMED = 1,
+    /**
+     * !#en Match the raw size of the sprite frame automatically.
+     * !#zh 自动适配为精灵原图尺寸
+     * @property {Number} RAW
+     */
+    RAW = 2
+};
+
+ccenum(SizeMode);
 
 // var State = cc.Enum({
 //     /**
@@ -302,41 +305,45 @@ export class SpriteComponent extends UIRenderComponent {
      * @example
      * sprite.trim = true;
      */
+    @property
     get trim () {
-        // return this._isTrimmedMode;
+        return this._isTrimmedMode;
         return false;
     }
 
     set trim (value: boolean) {
-        // if (this._isTrimmedMode !== value) {
-        //     this._isTrimmedMode = value;
-        //     if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) &&
-        //         this._renderData) {
-        //         this.markForUpdateRenderData(true);
-        //     }
-        // }
+        if (this._isTrimmedMode !== value) {
+            this._isTrimmedMode = value;
+            if ((this._type === SpriteType.SIMPLE /*|| this._type === SpriteType.MESH*/) &&
+                this._renderData) {
+                this.markForUpdateRenderData(true);
+            }
+        }
         if (this._spriteFrame) {
             this.node.setContentSize(this._spriteFrame.getOriginalSize());
         }
     }
 
-    // /**
-    //  * !#en specify the size tracing mode.
-    //  * !#zh 精灵尺寸调整模式
-    //  * @property sizeMode
-    //  * @type {Sprite.SizeMode}
-    //  * @example
-    //  * sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
-    //  */
-    // get sizeMode() {
-    //     return this._sizeMode;
-    // }
-    // set sizeMode(value) {
-    //     // this._sizeMode = value;
-    //     // if (value !== SizeMode.CUSTOM) {
-    //     //     this._applySpriteSize();
-    //     // }
-    // }
+    /**
+     * !#en specify the size tracing mode.
+     * !#zh 精灵尺寸调整模式
+     * @property sizeMode
+     * @type {Sprite.SizeMode}
+     * @example
+     * sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
+     */
+    @property({
+        type: SizeMode
+    })
+    get sizeMode() {
+        return this._sizeMode;
+    }
+    set sizeMode(value) {
+        this._sizeMode = value;
+        if (value !== SizeMode.CUSTOM) {
+            this._applySpriteSize();
+        }
+    }
 
     public static FillType = FillType;
     public static Type = SpriteType;
@@ -346,23 +353,33 @@ export class SpriteComponent extends UIRenderComponent {
     public _type: number = SpriteType.SIMPLE;
     @property
     public _fillType: number = FillType.HORIZONTAL;
-    // @property
-    // _sizeMode = SizeMode.TRIMMED;
     @property
-    public _fillCenter: Vec2 = cc.v2(0, 0);
+    public _sizeMode = SizeMode.TRIMMED;
+    @property
+    public _fillCenter: Vec2 = new Vec2(0, 0);
     @property
     public _fillStart: number = 0;
     @property
     public _fillRange: number = 0;
-    // @property
-    // _isTrimmedMode = true;
+    @property
+    _isTrimmedMode = true;
     // _state = 0;
     // TODO:
     @property
     public _atlas: atlas | null = null;
     public _spriteWidget = null;
-    // static SizeMode = SizeMode;
+    static SizeMode = SizeMode;
     // static State = State;
+
+    public __preload() {
+        if (super.__preload) {
+            super.__preload();
+        }
+
+        if (CC_EDITOR) {
+            this.node.on(EventType.SIZE_CHANGED, this._resized, this);
+        }
+    }
 
     // /**
     //  * Change the state of sprite.
@@ -400,7 +417,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     public updateAssembler (render: UI) {
-        if (!this._spriteFrame || !this._material) {
+        if (!this._spriteFrame || !this.sharedMaterial) {
             return;
         }
         super.updateAssembler(render);
@@ -409,6 +426,9 @@ export class SpriteComponent extends UIRenderComponent {
     public onDestroy () {
         super.onDestroy();
         this.destroyRenderData();
+        if (CC_EDITOR) {
+            this.node.off(EventType.SIZE_CHANGED, this._resized, this);
+        }
     }
 
     // public onDisable () {
@@ -432,7 +452,7 @@ export class SpriteComponent extends UIRenderComponent {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData.material = this._material;
+                this._renderData.material = this.sharedMaterial;
                 this.markForUpdateRenderData();
             }
         }
@@ -440,7 +460,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     private _activateMaterial () {
         const spriteFrame = this._spriteFrame;
-        const material = this._material;
+        const material = this.sharedMaterial;
         // WebGL
         if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
             // if (!material) {
@@ -518,19 +538,19 @@ export class SpriteComponent extends UIRenderComponent {
     //     // }
     // }
 
-    // _applySpriteSize() {
-    //     if (this._spriteFrame) {
-    //         if (SizeMode.RAW === this._sizeMode) {
-    //             var size = this._spriteFrame.getOriginalSize();
-    //             this.node.setContentSize(size);
-    //         } else if (SizeMode.TRIMMED === this._sizeMode) {
-    //             var rect = this._spriteFrame.getRect();
-    //             this.node.setContentSize(rect.width, rect.height);
-    //         }
+    _applySpriteSize() {
+        if (this._spriteFrame) {
+            if (SizeMode.RAW === this._sizeMode) {
+                const size = this._spriteFrame.getOriginalSize();
+                this.node.setContentSize(size);
+            } else if (SizeMode.TRIMMED === this._sizeMode) {
+                const rect = this._spriteFrame.getRect();
+                this.node.setContentSize(rect.width, rect.height);
+            }
 
-    //         this._activateMaterial();
-    //     }
-    // }
+            this._activateMaterial();
+        }
+    }
 
     // _onTextureLoaded() {
     //     if (!this.isValid) {
@@ -573,46 +593,31 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
-    // _resized() {
-    //     if (!CC_EDITOR) {
-    //         return;
-    //     }
+    _resized() {
+        if (!CC_EDITOR) {
+            return;
+        }
 
-    //     if (this._spriteFrame) {
-    //         var actualSize = this.node.getContentSize();
-    //         var expectedW = actualSize.width;
-    //         var expectedH = actualSize.height;
-    //         if (this._sizeMode === SizeMode.RAW) {
-    //             var size = this._spriteFrame.getOriginalSize();
-    //             expectedW = size.width;
-    //             expectedH = size.height;
-    //         } else if (this._sizeMode === SizeMode.TRIMMED) {
-    //             var rect = this._spriteFrame.getRect();
-    //             expectedW = rect.width;
-    //             expectedH = rect.height;
+        if (this._spriteFrame) {
+            const actualSize = this.node.getContentSize();
+            let expectedW = actualSize.width;
+            let expectedH = actualSize.height;
+            if (this._sizeMode === SizeMode.RAW) {
+                const size = this._spriteFrame.getOriginalSize();
+                expectedW = size.width;
+                expectedH = size.height;
+            } else if (this._sizeMode === SizeMode.TRIMMED) {
+                const rect = this._spriteFrame.getRect();
+                expectedW = rect.width;
+                expectedH = rect.height;
 
-    //         }
+            }
 
-    //         if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
-    //             this._sizeMode = SizeMode.CUSTOM;
-    //         }
-    //     }
-    // }
+            if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
+                this._sizeMode = SizeMode.CUSTOM;
+            }
+        }
+    }
 }
-
-// if (CC_EDITOR) {
-//     // override __preload
-//     Sprite.prototype.__superPreload = cc.Component.prototype.__preload;
-//     Sprite.prototype.__preload = function () {
-//         if (this.__superPreload) this.__superPreload();
-//         this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
-//     };
-//     // override onDestroy
-//     Sprite.prototype.__superOnDestroy = cc.Component.prototype.onDestroy;
-//     Sprite.prototype.onDestroy = function () {
-//         if (this.__superOnDestroy) this.__superOnDestroy();
-//         this.node.off(NodeEvent.SIZE_CHANGED, this._resized, this);
-//     };
-// }
 
 cc.SpriteComponent = SpriteComponent;

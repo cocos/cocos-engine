@@ -135,7 +135,9 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
         cmd.gpuFramebuffer = ( framebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
         cmd.renderArea = renderArea;
-        cmd.clearColors = clearColors.slice();
+        for (let i = 0; i < clearColors.length; i++) {
+            cmd.clearColors[i] = clearColors[i];
+        }
         cmd.clearDepth = clearDepth;
         cmd.clearStencil = clearStencil;
         this.cmdPackage.beginRenderPassCmds.push(cmd);
@@ -287,7 +289,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public setStencilWirteMask (face: GFXStencilFace, writeMask: number) {
+    public setStencilWriteMask (face: GFXStencilFace, writeMask: number) {
         if (!this._curStencilWriteMask) {
             this._curStencilWriteMask = {
                 face,

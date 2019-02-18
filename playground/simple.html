@@ -121,7 +121,6 @@
           .map((t) => [Math.random(), Math.random(), Math.random(), 0.8])
           .reduce((c, a) => a.concat(c), []);
         modelCom.mesh = cc.utils.createMesh(shape);
-        modelNode.setPosition(0, 3, 100);
       }
 
       let buttonDown = false, pos = cc.v2();

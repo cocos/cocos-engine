@@ -59,8 +59,8 @@ export interface IDefineInfo {
 }
 export interface IShaderInfo {
     name: string;
-    vert: string;
-    frag: string;
+    glsl3: { vert: string, frag: string };
+    glsl1: { vert: string, frag: string };
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
     samplers: ISamplerInfo[];
