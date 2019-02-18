@@ -287,7 +287,7 @@ sp.Skeleton = cc.Class({
         },
 
         // Record pre render mode.
-        _preRenderMode: null,
+        _preRenderMode: -1,
         _renderMode: RenderModeEnum.REALTIME,
         _defaultRenderMode: {
             default: 0,
