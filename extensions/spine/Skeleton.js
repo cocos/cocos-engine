@@ -905,10 +905,7 @@ sp.Skeleton = cc.Class({
                     return null;
                 }
                 var res = this._state.setAnimationWith(trackIndex, animation, loop);
-                if (CC_EDITOR && !cc.engine.isPlaying) {
-                    this._state.update(0);
-                    this._state.apply(this._skeleton);
-                }
+                this._state.apply(this._skeleton);
                 return res;
             }
         }
