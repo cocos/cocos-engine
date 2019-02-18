@@ -1,10 +1,13 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType } from '../../gfx/define';
+import { GFXCommandBufferType, IGFXColor } from '../../gfx/define';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { Camera } from '../../renderer/scene/camera';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
+
+const colors: IGFXColor[] = [];
+const bufs: GFXCommandBuffer[] = [];
 
 export class ForwardStage extends RenderStage {
 
@@ -51,16 +54,18 @@ export class ForwardStage extends RenderStage {
 
         this._renderArea.width = camera.width;
         this._renderArea.height = camera.height;
+        colors[0] = camera.clearColor;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer, this._renderArea,
-            [camera.clearColor], camera.clearDepth, camera.clearStencil);
+            colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.execute(queue.cmdBuffs.array, queue.cmdBuffCount);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
-        this._device.queue.submit([cmdBuff]);
+        bufs[0] = cmdBuff;
+        this._device.queue.submit(bufs);
     }
 }

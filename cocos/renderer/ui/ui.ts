@@ -39,7 +39,7 @@ export class UBOUI {
     public static SIZE: number = UBOUI.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 30, name: 'CCUI', members: [
+        binding: 26, name: 'CCUI', members: [
             { name: 'cc_matViewProj', type: GFXType.MAT4, count: 1 },
         ],
     };

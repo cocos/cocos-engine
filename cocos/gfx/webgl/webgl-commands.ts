@@ -1226,10 +1226,14 @@ export function WebGLCmdFuncCreateInputAssember (device: WebGLGFXDevice, gpuInpu
 export function WebGLCmdFuncDestroyInputAssembler (device: WebGLGFXDevice, gpuInputAssembler: WebGLGPUInputAssembler) {
 }
 
+const cmdIds = [0, 0, 0, 0, 0, 0];   // 6
+const invalidateAttachments: GLenum[] = [0, 0, 0, 0];
 export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: WebGLCmdPackage) {
 
     const gl = device.gl;
-    const cmdIds = [0, 0, 0, 0, 0, 0];   // 6
+    for (let initID = 0; initID < cmdIds.length; initID++) {
+        cmdIds[initID] = 0;
+    }
 
     let gpuPipelineState: WebGLGPUPipelineState | null = null;
     let gpuShader: WebGLGPUShader | null = null;
@@ -1281,7 +1285,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                     const curGPURenderPass = cmd0.gpuFramebuffer.gpuRenderPass;
 
-                    const invalidateAttachments: GLenum[] = [0, 0, 0, 0];
+                    for (let initAtt = 0; initAtt < invalidateAttachments.length; initAtt++) {
+                        invalidateAttachments[initAtt] = 0;
+                    }
                     let numInvalidAttach = 0;
 
                     if (curGPURenderPass.colorAttachments.length > 0 && cmd0.clearColors.length) {

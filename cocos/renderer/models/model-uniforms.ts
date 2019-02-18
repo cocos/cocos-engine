@@ -8,13 +8,13 @@ export class SkinningUBO {
     public static SIZE: number = SkinningUBO.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 29, name: 'CCSkinning', members: [
+        binding: 28, name: 'CCSkinning', members: [
             { name: 'cc_matJoint', type: GFXType.MAT4, count: 128 },
             { name: 'cc_jointsTextureSize', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 
     public static JOINT_TEXTURE: GFXUniformSampler = {
-        binding: 28, name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
+        binding: 27, name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
     };
 }
