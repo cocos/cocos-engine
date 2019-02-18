@@ -84,7 +84,6 @@ let SkeletonAnimation = cc.Class({
                 this._model = val;
             },
             type: Model,
-            editorOnly: true
         },
     },
 

@@ -321,7 +321,7 @@ function initClipData (root, state) {
         curve._findFrameIndex = canOptimize ? quickFindIndex : binarySearch;
         
         // find the lerp function
-        if (!curve._lerp && firstValue) {
+        if (!curve._lerp && firstValue !== undefined) {
             if (typeof firstValue === 'number') {
                 curve._lerp = DynamicAnimCurve.prototype._lerpNumber;
             }
