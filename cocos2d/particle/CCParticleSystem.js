@@ -1010,7 +1010,13 @@ var ParticleSystem = cc.Class({
         this.lifeVar = parseFloat(dict["particleLifespanVariance"] || 0);
 
         // emission Rate
-        this.emissionRate = Math.min(this.totalParticles / this.life, Number.MAX_VALUE);
+        var _tempEmissionRate = dict["emissionRate"];
+        if (_tempEmissionRate) {
+            this.emissionRate = _tempEmissionRate;
+        }
+        else {
+            this.emissionRate = Math.min(this.totalParticles / this.life, Number.MAX_VALUE);
+        }
 
         // duration
         this.duration = parseFloat(dict["duration"] || 0);
