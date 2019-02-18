@@ -195,6 +195,7 @@ export class UITransformComponent extends Component {
     }
 
     public isHit (point: Vec2, listener?: EventListener) {
+        // console.log('click point  ' + point.toString());
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const cameraPt = _vec2a;
@@ -209,30 +210,15 @@ export class UITransformComponent extends Component {
             return;
         }
 
+        // 将一个摄像机坐标系下的点转换到世界坐标系下
         canvas.node.getWorldRT(_mat4_temp);
-
         const m12 = _mat4_temp.m12;
         const m13 = _mat4_temp.m13;
-
         const center = cc.visibleRect.center;
-        // let size = cc.view.getFrameSize();
-        // let center = cc.v2(size.width / 2, size.height / 2);
-        // let center = cc.v2(cc.game._renderer._device._gl.canvas.width / 2, cc.game._renderer._device._gl.canvas.height / 2);
         _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
         _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
-
-        // if (out !== _mat4_temp) {
-        //     mat4.copy(out, _mat4_temp);
-        // }
         math.mat4.invert(_mat4_temp, _mat4_temp);
         math.vec2.transformMat4(cameraPt, point, _mat4_temp);
-        // let camera = cc.Camera.findCamera(this);
-        // if (camera) {
-        //     camera.getCameraToWorldPoint(point, cameraPt);
-        // }
-        // else {
-        //     cameraPt.set(point);
-        // }
 
         this.node.getWorldMatrix(_worldMatrix);
         math.mat4.invert(_mat4_temp, _worldMatrix);
@@ -241,6 +227,8 @@ export class UITransformComponent extends Component {
         testPt.y += this._anchorPoint.y * h;
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
+            // console.log('wpos  '+this.node.getWorldPosition().toString());
+            // console.log('click  '+this.node.name);
             // if (listener && listener.mask) {
             //     const mask = listener.mask;
             //     const parent = this;
@@ -258,6 +246,50 @@ export class UITransformComponent extends Component {
         } else {
             return false;
         }
+    }
+
+    /**
+     * !#en Converts a Point to node (local) space coordinates then add the anchor point position.
+     * So the return position will be related to the left bottom corner of the node's bounding box.
+     * This equals to the API behavior of cocos2d-x, you probably want to use convertToNodeSpaceAR instead
+     * !#zh 将一个点转换到节点 (局部) 坐标系，并加上锚点的坐标。<br/>
+     * 也就是说返回的坐标是相对于节点包围盒左下角的坐标。<br/>
+     * 这个 API 的设计是为了和 cocos2d-x 中行为一致，更多情况下你可能需要使用 convertToNodeSpaceAR。
+     * @method convertToNodeSpace
+     * @param {Vec3} worldPoint
+     * @return {Vec3}
+     * @example
+     * var newVec2 = node.convertToNodeSpace(cc.v3(100, 100));
+     */
+    convertToNodeSpace(worldPoint: Vec3) {
+        this.node.getWorldMatrix(_worldMatrix);
+        math.mat4.invert(_mat4_temp, _worldMatrix);
+        let out = new Vec3();
+        math.vec3.transformMat4(out, worldPoint, _mat4_temp);
+        out.x += this._anchorPoint.x * this._contentSize.width;
+        out.y += this._anchorPoint.y * this._contentSize.height;
+        return out;
+    }
+
+    /**
+     * !#en Converts a Point related to the left bottom corner of the node's bounding box to world space coordinates.
+     * This equals to the API behavior of cocos2d-x, you probably want to use convertToWorldSpaceAR instead
+     * !#zh 将一个相对于节点左下角的坐标位置转换到世界空间坐标系。
+     * 这个 API 的设计是为了和 cocos2d-x 中行为一致，更多情况下你可能需要使用 convertToWorldSpaceAR
+     * @method convertToWorldSpace
+     * @param {Vec3} nodePoint
+     * @return {Vec3}
+     * @example
+     * var newVec3 = node.convertToWorldSpace(cc.v3(100, 100));
+     */
+    convertToWorldSpace(nodePoint: Vec3) {
+        this.node.getWorldMatrix(_worldMatrix);
+        let out = new Vec3(
+            nodePoint.x - this._anchorPoint.x * this._contentSize.width,
+            nodePoint.y - this._anchorPoint.y * this._contentSize.height,
+            0
+        );
+        return math.vec3.transformMat4(out, out, _worldMatrix);
     }
 
     /**

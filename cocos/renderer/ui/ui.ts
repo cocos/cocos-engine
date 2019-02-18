@@ -359,8 +359,10 @@ export class UI {
                         cmdBuff.endRenderPass();
                     }
 
-                    this._renderArea.width = camera.width ;
-                    this._renderArea.height = camera.height ;
+                    // this._renderArea.width = camera.width;
+                    // this._renderArea.height = camera.height;
+                    this._renderArea.width = this._root.device.width;
+                    this._renderArea.height = this._root.device.height;
 
                     // TODO: add screen adapter
                     // update ubo

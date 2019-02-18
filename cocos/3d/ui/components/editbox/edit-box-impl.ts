@@ -29,7 +29,7 @@
 import { ccclass } from '../../../../core/data/class-decorator';
 import macro from '../../../../core/platform/CCMacro';
 import { contains } from '../../../../core/utils/misc';
-import { Color, Size } from '../../../../core/value-types';
+import { Color, Size, Mat4, Vec3 } from '../../../../core/value-types';
 import * as math from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 import { UIRenderComponent } from '../ui-render-component';
@@ -47,9 +47,9 @@ const DELAY_TIME = 400;
 const FOCUS_DELAY_UC = 400;
 const FOCUS_DELAY_FIREFOX = 0;
 
-const _matrix = cc.mat4();
-const _matrix_temp = cc.mat4();
-const _vec3 = cc.v3();
+const _matrix = new Mat4();
+const _matrix_temp = new Mat4();
+const _vec3 = new Vec3();
 
 let _currentEditBoxImpl: EditBoxImpl | null = null;
 
@@ -405,8 +405,7 @@ export class EditBoxImpl {
         node!.getWorldMatrix(_matrix);
         const transform = node!.uiTransfromComp;
         if (transform) {
-            _vec3.x = -transform.anchorX.x * transform.width;
-            _vec3.y = -transform.anchorY.y * transform.height;
+            math.vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
         }
 
         math.mat4.translate(_matrix, _matrix, _vec3);

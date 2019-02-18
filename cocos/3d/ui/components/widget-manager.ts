@@ -59,21 +59,21 @@ export function computeInverseTransForTarget (widgetNode: Node, target: Node, ou
     let scaleY = scale.y;
     let translateX = 0;
     let translateY = 0;
-    for (const node = widgetNode.parent; ;) {
+    for (let node = widgetNode.parent; ;) {
         if (!node) {
             // ERROR: widgetNode should be child of target
-            // out_inverseTranslate.x = out_inverseTranslate.y = 0;
-            // out_inverseScale.x = out_inverseScale.y = 1;
+            out_inverseTranslate.x = out_inverseTranslate.y = 0;
+            out_inverseScale.x = out_inverseScale.y = 1;
             return;
         }
 
         const pos = node.getPosition();
         translateX += pos.x;
         translateY += pos.y;
-        // node = node.parent;    // loop increment
+        node = node.parent;    // loop increment
 
         if (node !== target) {
-            scale = node.getScale();
+            scale = node!.getScale();
             const sx = scale.x;
             const sy = scale.y;
             translateX *= sx;

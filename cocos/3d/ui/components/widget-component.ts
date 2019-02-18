@@ -486,19 +486,29 @@ export class WidgetComponent extends Component {
         this._isAbsVerticalCenter = value;
     }
 
-    get alignFlags(){
-        return this._alignFlags;
-    }
-
-    public static AlignMode = AlignMode;
     /**
      * !#zh: 对齐开关，由 AlignFlags 组成
-     *
      * @property _alignFlags
      * @type {Number}
      * @default 0
      * @private
      */
+    @property
+    get alignFlags() {
+        return this._alignFlags;
+    }
+
+    set alignFlags(value) {
+        if (this._alignFlags === value) {
+            return;
+        }
+
+        this._alignFlags = value;
+    }
+
+    public static AlignMode = AlignMode;
+
+    @property
     private _alignFlags = 0;
     private _wasAlignOnce = false;
     // @property
@@ -562,7 +572,7 @@ export class WidgetComponent extends Component {
         //     this.alignMode = this._wasAlignOnce ? AlignMode.ONCE : AlignMode.ALWAYS;
         //     this._wasAlignOnce = false;
         // }
-        this._target = this.node.parent;
+
         if(this._alignMode === AlignMode.ONCE){
             this._wasAlignOnce = true;
         }
