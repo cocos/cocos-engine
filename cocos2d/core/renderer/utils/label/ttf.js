@@ -51,7 +51,7 @@ let _color = null;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
-let _backgroundAlpha = 0.005;
+let _backgroundStyle = 'rgba(255, 255, 255, 0.005)';
 
 // outline
 let _isOutlined = false;
@@ -244,11 +244,10 @@ module.exports = {
     },
 
     _updateTexture (comp) {
-        _context.clearRect(0, 0, _canvas.width, _canvas.height);
         //Add a white background to avoid black edges.
         //TODO: it is best to add alphaTest to filter out the background color.
-        _context.fillStyle = `rgba(${255}, ${255}, ${255}, ${_backgroundAlpha})`;
-        _context.fillRect(0, 0, _canvas.width, _canvas.height);
+        _context.fillStyle = _backgroundStyle;
+        _context.fillRect(0, 0, _canvas.width + 2, _canvas.height + 2);
         _context.font = _fontDesc;
 
         let startPosition = this._calculateFillTextStartPosition();
