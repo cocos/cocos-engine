@@ -32,6 +32,7 @@ import { Node } from '../../scene-graph/node';
 import { Camera, CameraProjection } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
 import { IUIMaterialInfo, UIMaterial } from './ui-material';
+import Pool from '../../3d/memop/pool';
 
 export class UBOUI {
     public static MAT_VIEW_PROJ_OFFSET: number = 0;
@@ -71,19 +72,22 @@ export class UIDrawBatch {
     public pipelineState: GFXPipelineState | null = null;
     public bindingLayout: GFXBindingLayout | null = null;
 
-    public destroy () {
+    public destroy (ui: UI) {
         if (this.pipelineState) {
-            this.pipelineState.destroy();
+            ui._getUIMaterial(this.material!).revertPipelineState(this.pipelineState);
             this.pipelineState = null;
         }
 
         if (this.bindingLayout) {
-            this.bindingLayout.destroy();
             this.bindingLayout = null;
         }
     }
 
-    public clear () {
+    public clear (ui: UI) {
+        if (this.pipelineState) {
+            ui._getUIMaterial(this.material!).revertPipelineState(this.pipelineState);
+            this.pipelineState = null;
+        }
         this.camera = null;
         this.bufferBatch = null;
         this.material = null;
@@ -116,7 +120,7 @@ export class UI {
     private _bufferBatchPool: RecyclePool<UIBufferBatch> = new RecyclePool(() => {
         return new UIBufferBatch();
     }, 128);
-    private _drawBatchPool: RecyclePool<UIDrawBatch> = new RecyclePool(() => {
+    private _drawBatchPool: Pool<UIDrawBatch> = new Pool(() => {
         return new UIDrawBatch();
     }, 128);
     private _device: GFXDevice;
@@ -130,14 +134,14 @@ export class UI {
     private _vertF32Count = 0;
     private _bufferBatches: UIBufferBatch[] = [];
     private _uiMaterial: UIMaterial | null = null;
-    private _uiMaterials: UIMaterial[] = [];
+    private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
     private _uboUI: UBOUI = new UBOUI();
     private _uiUBO: GFXBuffer | null = null;
     private _batches: CachedArray<UIDrawBatch>;
     private _bufferInitData: IMeshBufferInitData | null = null;
     private _commitUIRenderDatas: IUIRenderData[] = [];
     private _commitUICanvas: IUICanvas[] = [];
-    private _sortChildList: RecyclePool = new RecyclePool(() => {
+    private _sortChildList: Pool<any[]> = new Pool(() => {
         return [];
     }, 128);
 
@@ -194,7 +198,7 @@ export class UI {
             type: GFXCommandBufferType.PRIMARY,
         });
 
-        this._uiMaterial = this.createUIMaterial({ material: builtinResMgr.get<Material>('sprite-material')});
+        // this._uiMaterial = this.createUIMaterial({ material: builtinResMgr.get<Material>('sprite-material') });
 
         this._uiUBO = this._device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -206,7 +210,7 @@ export class UI {
     }
 
     public destroy () {
-        this.destroyUIMaterials();
+        this._destroyUIMaterials();
 
         if (this._uiUBO) {
             this._uiUBO.destroy();
@@ -214,7 +218,7 @@ export class UI {
         }
 
         for (const batch of this._batches.array) {
-            batch.destroy();
+            batch.destroy(this);
         }
 
         for (const buffBatch of this._bufferBatches) {
@@ -223,6 +227,10 @@ export class UI {
             buffBatch.ia!.destroy();
         }
         this._bufferBatches.splice(0);
+
+        for (const uiMat of this._uiMaterials.values()) {
+            uiMat.destroy();
+        }
 
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
@@ -241,31 +249,29 @@ export class UI {
     //     this._camera.update();
     // }
 
-    public createUIMaterial (info: IUIMaterialInfo): UIMaterial | null {
-        const uiMtrl = new UIMaterial();
-        if (uiMtrl.initialize(info)) {
-            this._uiMaterials.push(uiMtrl);
-            return uiMtrl;
+    public _getUIMaterial (mat: Material): UIMaterial {
+        if (this._uiMaterials.has(mat.hash)) {
+            return this._uiMaterials.get(mat.hash)!;
         } else {
-            return null;
+            const uiMat = new UIMaterial();
+            uiMat.initialize({ material: mat });
+            this._uiMaterials.set(mat.hash, uiMat);
+            return uiMat;
         }
     }
 
-    public destroyUIMaterial (uiMaterial: UIMaterial) {
-        for (let i = 0; i < this._uiMaterials.length; ++i) {
-            if (this._uiMaterials[i] === uiMaterial) {
-                uiMaterial.destroy();
-                this._uiMaterials.splice(i);
-                return;
-            }
+    private _deleteUIMaterial (mat: Material) {
+        if (this._uiMaterials.has(mat.hash)) {
+            this._uiMaterials.get(mat.hash)!.destroy();
+            this._uiMaterials.delete(mat.hash);
         }
     }
 
-    public destroyUIMaterials () {
-        for (const uiMaterial of this._uiMaterials) {
-            uiMaterial.destroy();
+    private _destroyUIMaterials () {
+        for (const uiMat of this._uiMaterials.values()) {
+            uiMat.destroy();
         }
-        this._uiMaterials = [];
+        this._uiMaterials.clear();
     }
 
     public addScreen (comp) {
@@ -311,8 +317,8 @@ export class UI {
 
         for (let i = 0; i < this._batches.length; ++i) {
             const batch = this._batches.array[i];
-            batch.clear();
-            this._drawBatchPool.remove(batch);
+            batch.clear(this);
+            this._drawBatchPool.free(batch);
         }
         this._batches.clear();
         this._commitUICanvas = [];
@@ -340,7 +346,6 @@ export class UI {
 
     public render () {
 
-        const material = this._uiMaterial!;
 
         if (this._batches.length) {
             const framebuffer = this._root.curWindow!.framebuffer;
@@ -366,6 +371,7 @@ export class UI {
 
                     // TODO: add screen adapter
                     // update ubo
+                    camera.matViewProj.m14 /= 1000;     // hack:to be resolved later
                     mat4.array(_mat4Array, camera.matViewProj);
                     this._uboUI.view.set(_mat4Array, UBOUI.MAT_VIEW_PROJ_OFFSET);
 
@@ -398,13 +404,13 @@ export class UI {
         }
     }
 
-    private _walk (node: Node, fn1, fn2, level = 0, isRenderComp  = false) {
+    private _walk (node: Node, fn1, fn2, level = 0, isRenderComp = false) {
         let resortNodeList;
 
         const len = node.childrenCount;
 
         fn1(node);
-        if (len > 0){
+        if (len > 0) {
             resortNodeList = this._defineNodeOrder(node);
             for (const comp of resortNodeList) {
                 this._walk(comp, fn1, fn2, level);
@@ -414,7 +420,7 @@ export class UI {
             //     this._walk(child, fn1, fn2, level);
             // }
 
-            this._sortChildList.remove(resortNodeList);
+            this._sortChildList.free(resortNodeList);
         }
 
         fn2(node);
@@ -422,13 +428,15 @@ export class UI {
     }
 
     private _defineNodeOrder (node: Node) {
-        let sortList: any[] = this._sortChildList.add();
+        let sortList: any[] = this._sortChildList.alloc();
         sortList = node.children.slice();
 
         sortList.sort((a, b) => {
             const ca = a.getComponent(UIRenderComponent);
             const cb = b.getComponent(UIRenderComponent);
-            if (ca && cb) { return ca.priority - cb.priority; }
+            if (ca && cb) {
+                return ca.priority - cb.priority;
+            }
             else if (!ca) {
                 return -Number.MAX_SAFE_INTEGER;
             } else {
@@ -489,6 +497,7 @@ export class UI {
 
     private mergeBatches () {
         let curTexView: GFXTextureView | null = null;
+        let curMaterialHash: number = 0;
         let bufferBatchIdx = 0;
         let curBufferBatch: UIBufferBatch = this._bufferBatches[bufferBatchIdx++];
         let firstIdx = 0;
@@ -561,9 +570,10 @@ export class UI {
                     curBufferBatch.vui16![idxCount + n] = vui16[n] + vertCount;
                 }
 
-                if (curTexView !== uiRenderData.texture.getGFXTextureView()) {
-                    if (curTexView){
-                        curDrawBatch = this._drawBatchPool.add();
+                if (curMaterialHash !== uiRenderData.material.hash ||
+                     curTexView !== uiRenderData.texture.getGFXTextureView()) {
+                    if (curTexView) {
+                        curDrawBatch = this._drawBatchPool.alloc();
                         curDrawBatch.camera = uiCanvas.camera;
                         curDrawBatch.bufferBatch = curBufferBatch;
                         curDrawBatch.material = uiRenderData.material;
@@ -572,15 +582,14 @@ export class UI {
                         curDrawBatch.idxCount = idxCount - firstIdx;
                         firstIdx = idxCount;
 
-                        if (!curDrawBatch.pipelineState) {
-                            curDrawBatch.pipelineState = this._uiMaterial!.pass.createPipelineState();
-                            curDrawBatch.bindingLayout = curDrawBatch.pipelineState!.pipelineLayout.layouts[0];
-                        }
+                        curDrawBatch.pipelineState = this._getUIMaterial(uiRenderData.material).getPipelineState();
+                        curDrawBatch.bindingLayout = curDrawBatch.pipelineState!.pipelineLayout.layouts[0];
 
                         this._batches.push(curDrawBatch);
                     }
 
                     curTexView = uiRenderData.texture.getGFXTextureView();
+                    curMaterialHash = uiRenderData.material.hash;
 
                     // firstIdx = idxCount;
                     // idxCount = 0;
@@ -589,10 +598,10 @@ export class UI {
                 idxCount += vui16.length;
                 vertCount += vCount;
 
-                isEnding  = index === len;
+                isEnding = index === len;
                 // get the last data
-                if (isEnding){
-                    curDrawBatch = this._drawBatchPool.add();
+                if (isEnding) {
+                    curDrawBatch = this._drawBatchPool.alloc();
                     curDrawBatch.camera = uiCanvas.camera;
                     curDrawBatch.bufferBatch = curBufferBatch;
                     curDrawBatch.material = uiRenderData.material;
@@ -601,10 +610,8 @@ export class UI {
                     curDrawBatch.idxCount = idxCount - firstIdx;
                     firstIdx = idxCount;
 
-                    if (!curDrawBatch.pipelineState) {
-                        curDrawBatch.pipelineState = this._uiMaterial!.pass.createPipelineState();
-                        curDrawBatch.bindingLayout = curDrawBatch.pipelineState!.pipelineLayout.layouts[0];
-                    }
+                    curDrawBatch.pipelineState = this._getUIMaterial(uiRenderData.material).getPipelineState();
+                    curDrawBatch.bindingLayout = curDrawBatch.pipelineState!.pipelineLayout.layouts[0];
 
                     this._batches.push(curDrawBatch);
                 }
