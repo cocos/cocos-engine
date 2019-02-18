@@ -39,6 +39,8 @@ export enum EventType {
      * @static
      */
     ANCHOR_CHANGED = 'anchor-changed',
+    CHILD_ADDED = 'child-added',
+    CHILD_REMOVED = 'child-removed',
 }
 
 ccenum(EventType);

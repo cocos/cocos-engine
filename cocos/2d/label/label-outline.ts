@@ -38,9 +38,11 @@
  */
 
 import { Component } from '../../components/component';
+import { Color } from '../../core/value-types';
+import { LabelComponent } from '../../3d/ui/components/label-component';
 
 export class LabelOutline extends Component {
-    private _color = cc.color(255, 255, 255, 255);
+    private _color = new Color(255, 255, 255, 255);
     private _width = 1;
 
     /**
@@ -55,7 +57,11 @@ export class LabelOutline extends Component {
         return this._color;
     }
     set color (value) {
-        this._color = cc.color(value);
+        if(this._color === value){
+            return
+        }
+
+        this._color = value;
         this._updateRenderData();
     }
 
@@ -67,19 +73,23 @@ export class LabelOutline extends Component {
      * @example
      * outline.width = 3;
      */
-    get width () {
+    get width() {
         return this._width;
     }
 
-    set width (value) {
+    set width(value) {
+        if (this._width === value) {
+            return;
+        }
+
         this._width = value;
         this._updateRenderData();
     }
 
     private _updateRenderData () {
-        const label = this.node.getComponent(cc.Label);
+        const label = this.node.getComponent(LabelComponent);
         if (label) {
-            label._updateRenderData(true);
+            label.updateRenderData(true);
         }
     }
 }

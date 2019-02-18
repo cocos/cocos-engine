@@ -26,34 +26,36 @@
 import macro from '../../../../core/platform/CCMacro';
 import * as textUtils from '../../../../core/utils/text-utils';
 import { Component } from '../../../../components/component';
-import { LabelComponent } from '../../../../3d/ui/components/label-component';
-import { LabelOutline } from '../../../label/label-outline';
+import { LabelComponent } from '../../components/label-component';
+import { LabelOutline } from '../../../../2d/label/label-outline';
+import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
+import { Size, Color } from '../../../../core/value-types';
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = cc.Color.WHITE;
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
 
-let _context = null;
-let _canvas = null;
-let _texture = null;
+let _context: CanvasRenderingContext2D | null = null;
+let _canvas: HTMLCanvasElement | null = null;
+let _texture: SpriteFrame | null = null;
 
 let _fontDesc = '';
 let _string = '';
 let _fontSize = 0;
 let _drawFontsize = 0;
-let _splitedStrings = [];
-let _canvasSize = cc.size();
+let _splitedStrings: string[] = [];
+let _canvasSize = new Size();
 let _lineHeight = 0;
 let _hAlign = 0;
 let _vAlign = 0;
-let _color = null;
+let _color = new Color();
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
 
 // outline
 let _isOutlined = false;
-let _outlineColor = null;
+let _outlineColor = new Color();
 let _outlineWidth = 0;
 let _margin = 0;
 
@@ -61,10 +63,16 @@ let _isBold = false;
 let _isItalic = false;
 let _isUnderline = false;
 
-let _sharedLabelData;
+// let _sharedLabelData;
 
 //
-let _canvasPool = {
+interface ICanvasPool {
+    pool: ISharedLabelData[],
+    get(): ISharedLabelData,
+    put(canvas: ISharedLabelData):void,
+}
+
+let _canvasPool: ICanvasPool = {
     pool: [],
     get() {
         let data = this.pool.pop();
@@ -80,7 +88,7 @@ let _canvasPool = {
 
         return data;
     },
-    put(canvas) {
+    put(canvas: ISharedLabelData) {
         if (this.pool.length >= 32) {
             return;
         }
@@ -88,8 +96,13 @@ let _canvasPool = {
     }
 };
 
+export interface ISharedLabelData {
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D | null
+}
 
-export default {
+
+export const ttfUtils =  {
     getAssemblerData() {
         // if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
         //     _sharedLabelData = _canvasPool.get();
@@ -107,14 +120,14 @@ export default {
         return sharedLabelData;
     },
 
-    _resetAssemblerData(assemblerData) {
+    resetAssemblerData(assemblerData: ISharedLabelData) {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS && assemblerData) {
             _canvasPool.put(assemblerData);
         }
     },
 
-    updateRenderData(comp) {
-        if (!comp._renderData.vertDirty) return;
+    updateRenderData(comp: LabelComponent) {
+        if (!comp.renderData||!comp.renderData.vertDirty) return;
 
         this._updateFontFamly(comp);
         this._updateProperties(comp);
@@ -122,24 +135,24 @@ export default {
         this._calculateSplitedStrings();
         this._updateLabelDimensions();
         this._calculateTextBaseline();
-        this._updateTexture(comp);
+        this._updateTexture();
 
         comp._actualFontSize = _fontSize;
         comp.node.setContentSize(_canvasSize);
 
         this.updateVerts(comp);
 
-        comp._renderData.vertDirty = comp._renderData.uvDirty = false;
+        comp.markForUpdateRenderData(false);
 
         _context = null;
         _canvas = null;
         _texture = null;
     },
 
-    updateVerts() {
+    updateVerts(comp: LabelComponent) {
     },
 
-    _updateFontFamly(comp) {
+    _updateFontFamly(comp: LabelComponent) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {
@@ -148,7 +161,7 @@ export default {
                 else {
                     cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
                         _fontFamily = fontFamily || 'Arial';
-                        comp._updateRenderData(true);
+                        comp.updateRenderData(true);
                     });
                 }
             }
@@ -161,22 +174,26 @@ export default {
         }
     },
 
-    _updateProperties(comp) {
-        let assemblerData = comp._assemblerData;
+    _updateProperties(comp: LabelComponent) {
+        let assemblerData = comp.assemblerData;
+        if(!assemblerData){
+            return;
+        }
+
         _context = assemblerData.context;
         _canvas = assemblerData.canvas;
-        _texture = comp._texture;
+        _texture = comp.texture;
 
         _string = comp.string.toString();
         _fontSize = comp._fontSize;
         _drawFontsize = _fontSize;
         _overflow = comp.overflow;
-        _canvasSize.width = comp.node.width;
-        _canvasSize.height = comp.node.height;
+        _canvasSize.width = comp.node.width!;
+        _canvasSize.height = comp.node.height!;
         _lineHeight = comp._lineHeight;
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
-        _color = comp._color;
+        _color = comp.color;
         _isBold = comp._isBold;
         _isItalic = comp._isItalic;
         _isUnderline = comp._isUnderline;
@@ -196,9 +213,9 @@ export default {
         if (outline && outline.enabled) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;
-            _outlineColor = cc.color(outline.color);
+            _outlineColor = outline.color.clone();
             // TODO: temporary solution, cascade opacity for outline color
-            _outlineColor.a = _outlineColor.a * comp.node.color.a / 255.0;
+            _outlineColor.a = _outlineColor.a * comp.color.a / 255.0;
         }
         else {
             _isOutlined = false;
@@ -236,6 +253,10 @@ export default {
     },
 
     _updateTexture() {
+        if (!_context || !_canvas){
+            return;
+        }
+
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
@@ -270,7 +291,9 @@ export default {
         }
 
         // _texture.handleLoadedTexture();
-        _texture.mipmaps = [_texture.image];
+        if (_texture) {
+            _texture.mipmaps = [_texture.image!];
+        }
     },
 
     _calculateUnderlineStartPosition() {
@@ -318,12 +341,16 @@ export default {
             }
         }
 
+        if(!_canvas){
+            return;
+        }
+
         _canvas.width = _canvasSize.width;
         _canvas.height = _canvasSize.height;
     },
 
     _calculateTextBaseline() {
-        let node = this._node;
+        // let node = this._node;
         let hAlign;
         let vAlign;
 
@@ -336,7 +363,6 @@ export default {
         else {
             hAlign = 'left';
         }
-        _context.textAlign = hAlign;
 
         if (_vAlign === macro.VerticalTextAlignment.TOP) {
             vAlign = 'top';
@@ -347,7 +373,11 @@ export default {
         else {
             vAlign = 'bottom';
         }
-        _context.textBaseline = vAlign;
+
+        if (_context) {
+            _context.textAlign = hAlign;
+            _context.textBaseline = vAlign;
+        }
     },
 
     _calculateSplitedStrings() {
@@ -361,7 +391,7 @@ export default {
                 let textFragment = textUtils.fragmentText(paragraphedStrings[i],
                     allWidth,
                     canvasWidthNoMargin,
-                    this._measureText(_context));
+                    this._measureText(_context!));
                 _splitedStrings = _splitedStrings.concat(textFragment);
             }
         }
@@ -392,24 +422,28 @@ export default {
         return nodeSpacingY | 0;
     },
 
-    _calculateParagraphLength(paragraphedStrings, ctx) {
-        let paragraphLength = [];
+    _calculateParagraphLength(paragraphedStrings: string[], ctx: CanvasRenderingContext2D) {
+        let paragraphLength: number[] = [];
 
         for (let i = 0; i < paragraphedStrings.length; ++i) {
-            let width = textUtils.safeMeasureText(ctx, paragraphedStrings[i]);
+            let width: number = textUtils.safeMeasureText(ctx, paragraphedStrings[i]);
             paragraphLength.push(width);
         }
 
         return paragraphLength;
     },
 
-    _measureText(ctx) {
+    _measureText(ctx: CanvasRenderingContext2D) {
         return function (string) {
             return textUtils.safeMeasureText(ctx, string);
         };
     },
 
     _calculateLabelFont() {
+        if(!_context){
+            return;
+        }
+
         _fontDesc = this._getFontDesc();
         _context.font = _fontDesc;
 

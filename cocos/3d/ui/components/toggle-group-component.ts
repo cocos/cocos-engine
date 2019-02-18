@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 import { Component} from '../../../components/component';
-import { ccclass, menu, executionOrder, executeInEditMode, property } from '../../../core/data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ToggleComponent} from './toggle-component';
 
 /**
@@ -42,8 +42,8 @@ import { ToggleComponent} from './toggle-component';
 @executeInEditMode
 export class ToggleGroupComponent extends Component {
     @property
-    _allowSwitchOff: boolean = false;
-    _toggleItems: ToggleComponent[] = [];
+    private _allowSwitchOff: boolean = false;
+    private _toggleItems: ToggleComponent[] = [];
 
     /**
      * !#en If this setting is true, a toggle could be switched off and on when pressed.
@@ -53,11 +53,11 @@ export class ToggleGroupComponent extends Component {
      * @property {Boolean} allowSwitchOff
      */
     @property
-    get allowSwitchOff() {
+    get allowSwitchOff () {
         return this._allowSwitchOff;
     }
 
-    set allowSwitchOff(value: boolean) {
+    set allowSwitchOff (value: boolean) {
         this._allowSwitchOff = value;
     }
 
@@ -66,18 +66,18 @@ export class ToggleGroupComponent extends Component {
      * !#zh 只读属性，返回 toggleGroup 管理的 toggle 数组引用
      * @property {Array} toggleItems
      */
-    get toggleItems() {
+    get toggleItems () {
         return this._toggleItems;
     }
 
-    start() {
+    public start () {
         this._makeAtLeastOneToggleChecked();
     }
 
-    updateToggles(toggle: ToggleComponent) {
-        if (!this.enabledInHierarchy) return;
+    public updateToggles (toggle: ToggleComponent) {
+        if (!this.enabledInHierarchy) { return; }
 
-        this._toggleItems.forEach(function (item) {
+        this._toggleItems.forEach((item) => {
             if (toggle.isChecked) {
                 if (item !== toggle && item.isChecked && item.enabled) {
                     item.isChecked = false;
@@ -86,25 +86,25 @@ export class ToggleGroupComponent extends Component {
         });
     }
 
-    addToggle(toggle: ToggleComponent) {
-        var index = this._toggleItems.indexOf(toggle);
+    public addToggle (toggle: ToggleComponent) {
+        const index = this._toggleItems.indexOf(toggle);
         if (index === -1) {
             this._toggleItems.push(toggle);
         }
         this._allowOnlyOneToggleChecked();
     }
 
-    removeToggle(toggle: ToggleComponent) {
-        var index = this._toggleItems.indexOf(toggle);
+    public removeToggle (toggle: ToggleComponent) {
+        const index = this._toggleItems.indexOf(toggle);
         if (index > -1) {
             this._toggleItems.splice(index, 1);
         }
         this._makeAtLeastOneToggleChecked();
     }
 
-    _allowOnlyOneToggleChecked() {
-        var isChecked = false;
-        this._toggleItems.forEach(function (item) {
+    public _allowOnlyOneToggleChecked () {
+        let isChecked = false;
+        this._toggleItems.forEach((item) => {
             if (isChecked && item.enabled) {
                 item.isChecked = false;
             }
@@ -117,8 +117,8 @@ export class ToggleGroupComponent extends Component {
         return isChecked;
     }
 
-    _makeAtLeastOneToggleChecked() {
-        var isChecked = this._allowOnlyOneToggleChecked();
+    public _makeAtLeastOneToggleChecked () {
+        const isChecked = this._allowOnlyOneToggleChecked();
 
         if (!isChecked && !this._allowSwitchOff) {
             if (this._toggleItems.length > 0) {
@@ -127,3 +127,5 @@ export class ToggleGroupComponent extends Component {
         }
     }
 }
+
+cc.ToggleGroupComponent = ToggleGroupComponent;

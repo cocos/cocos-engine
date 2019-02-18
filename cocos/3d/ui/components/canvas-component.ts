@@ -27,11 +27,10 @@
 import { CameraComponent } from '../../../3d/framework/camera-component';
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import Rect from '../../../core/value-types/rect';
-import Size from '../../../core/value-types/size';
 import { GFXClearFlag } from '../../../gfx/define';
-import { Camera, ICameraInfo } from '../../../renderer/scene/camera';
+import { Camera } from '../../../renderer/scene/camera';
 import { Node } from '../../../scene-graph/node';
+import { Color, Rect, Size } from '../../../core/value-types';
 
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
@@ -51,11 +50,12 @@ export class CanvasComponent extends Component {
         type: Size,
     })
     get designResolution () {
-        return cc.size(this._designResolution);
+        return this._designResolution;
     }
     set designResolution (value: Size) {
         this._designResolution.width = value.width;
         this._designResolution.height = value.height;
+        this.node.emit('design-resolution-changed', this._designResolution);
         this.applySettings();
         this.alignWithScreen();
     }
@@ -95,19 +95,6 @@ export class CanvasComponent extends Component {
             this.alignWithScreen();
         }
     }
-
-    // /**
-    //  * !#en priority in render
-    //  * !#zh 显示优先级
-    //  */
-    // @property
-    // get priority () {
-    //     return this._priority;
-    // }
-
-    // set priority (value: number) {
-    //     this._priority = value;
-    // }
 
     get visibility () {
         if (this._camera) {
@@ -161,8 +148,6 @@ export class CanvasComponent extends Component {
     }
 
     public __preload () {
-        // hack
-        cc.eventManager.setEnabled(true);
         let cameraNode = new Node('UICamera');
         cameraNode.setPosition(0, 0, 1000);
         this._camera = this._getRenderScene().createCamera({
@@ -174,7 +159,7 @@ export class CanvasComponent extends Component {
             orthoHeight: 10,
             far: 4096,
             near: 0.1,
-            color: cc.color(0, 0, 0, 255),
+            color: new Color(0, 0, 0, 255),
             clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
             rect: new Rect(0, 0, 1, 1),
             depth: 1,

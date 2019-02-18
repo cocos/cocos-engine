@@ -24,14 +24,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Component} from '../../../components/component';
+import { Component } from '../../../components/component';
 import { clamp01 } from '../../../core/utils/misc';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { UIRenderComponent } from './ui-render-component';
-import { Vec2 } from '../../../core/value-types';
+import { Vec3 } from '../../../core/value-types';
 import { Node } from '../../../scene-graph/node';
+import { ScrollViewComponent } from './scroll-view-component';
+import { UITransformComponent } from './ui-transfrom-component';
+import { vec3 } from '../../../core/vmath';
 
-var GETTINGSHORTERFACTOR = 20;
+const GETTINGSHORTERFACTOR = 20;
+const ZERO = new Vec3();
+const _tempPos = new Vec3();
 
 /**
  * Enum for Scrollbar direction
@@ -61,7 +66,7 @@ var Direction = cc.Enum({
 @executeInEditMode
 export class ScrollBarComponent extends Component {
     @property
-    private _scrollView: Component | null = null;
+    private _scrollView: ScrollViewComponent | null = null;
     @property
     private _handle: UIRenderComponent | null = null;
     @property
@@ -87,7 +92,7 @@ export class ScrollBarComponent extends Component {
         return this._handle;
     }
 
-    set handle(value: UIRenderComponent) {
+    set handle(value: UIRenderComponent | null) {
         if (this._handle === value) {
             return
         }
@@ -131,7 +136,7 @@ export class ScrollBarComponent extends Component {
         }
 
         this._enableAutoHide = value;
-        if(this._enableAutoHide){
+        if (this._enableAutoHide) {
             this._setOpacity(0);
         }
     }
@@ -188,21 +193,21 @@ export class ScrollBarComponent extends Component {
     }
 
     private _convertToScrollViewSpace(content: Node) {
-        return new Vec2(0, 0);
-        if (!this._scrollView){
-            return;
+        if (!this._scrollView) {
+            return ZERO;
         }
 
-        // TODO:
-        // var worldSpacePos = content.convertToWorldSpace(new Vec2(0, 0));
-        // var scrollViewSpacePos = this._scrollView.node.convertToNodeSpace(worldSpacePos);
-        // return scrollViewSpacePos;
+        const uiTransform = this._scrollView.node.getComponent(UITransformComponent)!;
+        const worldSpacePos = content.getWorldPosition();
+        // const scrollViewSpacePos = uiTransform.convertToNodeSpace(worldSpacePos);
+        const scrollViewSpacePos = uiTransform.convertToNodeSpaceAR(worldSpacePos);
+        return scrollViewSpacePos;
     }
 
     private _setOpacity(opacity: number) {
         if (this._handle) {
             let renderComp = this.node.getComponent(UIRenderComponent);
-            if (renderComp){
+            if (renderComp) {
                 renderComp.color.a = opacity;
             }
 
@@ -214,80 +219,88 @@ export class ScrollBarComponent extends Component {
     }
 
     public onScroll(outOfBoundary) {
-        if (this._scrollView) {
-
-            var content = this._scrollView.content;
-            if (content) {
-                var contentSize = content.getContentSize();
-                var scrollViewSize = this._scrollView.node.getContentSize();
-                var handleNodeSize = this.node.getContentSize();
-
-                if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
-                    return;
-                }
-
-                if (this._enableAutoHide) {
-                    this._autoHideRemainingTime = this._autoHideTime;
-                    // this._setOpacity(this._opacity);
-                }
-
-                var contentMeasure = 0;
-                var scrollViewMeasure = 0;
-                var outOfBoundaryValue = 0;
-                var contentPosition = 0;
-                var handleNodeMeasure = 0;
-
-                if (this._direction === Direction.HORIZONTAL) {
-                    contentMeasure = contentSize.width;
-                    scrollViewMeasure = scrollViewSize.width;
-                    handleNodeMeasure = handleNodeSize.width;
-                    outOfBoundaryValue = outOfBoundary.x;
-
-                    contentPosition = -this._convertToScrollViewSpace(content).x;
-                } else if (this._direction === Direction.VERTICAL) {
-                    contentMeasure = contentSize.height;
-                    scrollViewMeasure = scrollViewSize.height;
-                    handleNodeMeasure = handleNodeSize.height;
-                    outOfBoundaryValue = outOfBoundary.y;
-
-                    contentPosition = -this._convertToScrollViewSpace(content).y;
-                }
-
-                var length = this._calculateLength(contentMeasure, scrollViewMeasure, handleNodeMeasure, outOfBoundaryValue);
-                var position = this._calculatePosition(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundaryValue, length);
-
-                this._updateLength(length);
-                this._updateHanlderPosition(position);
-            }
+        if (!this._scrollView) {
+            return
         }
+
+        const content = this._scrollView.content;
+        if (!content) {
+            return;
+        }
+
+        var contentSize = content.getContentSize();
+        var scrollViewSize = this._scrollView.node.getContentSize();
+        var barSize = this.node.getContentSize();
+
+        if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
+            return;
+        }
+
+        if (this._enableAutoHide) {
+            this._autoHideRemainingTime = this._autoHideTime;
+            // this._setOpacity(this._opacity);
+        }
+
+        let contentMeasure = 0;
+        let scrollViewMeasure = 0;
+        let outOfBoundaryValue = 0;
+        let contentPosition = 0;
+        let handleNodeMeasure = 0;
+
+        if (this._direction === Direction.HORIZONTAL) {
+            contentMeasure = contentSize.width;
+            scrollViewMeasure = scrollViewSize.width;
+            handleNodeMeasure = barSize.width;
+            outOfBoundaryValue = outOfBoundary.x;
+
+            contentPosition = -this._convertToScrollViewSpace(content).x;
+        } else if (this._direction === Direction.VERTICAL) {
+            contentMeasure = contentSize.height;
+            scrollViewMeasure = scrollViewSize.height;
+            handleNodeMeasure = barSize.height;
+            outOfBoundaryValue = outOfBoundary.y;
+
+            contentPosition = -this._convertToScrollViewSpace(content).y;
+        }
+
+        const length = this._calculateLength(contentMeasure, scrollViewMeasure, handleNodeMeasure, outOfBoundaryValue);
+        const position = this._calculatePosition(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundaryValue, length);
+
+        this._updateLength(length);
+        this._updateHanlderPosition(position);
+
+
     }
 
-    // FIXME: use ScrollViewComponent
-    public setScrollView(scrollView: Component) {
+    public setScrollView(scrollView: ScrollViewComponent) {
         this._scrollView = scrollView;
     }
 
     private _updateHanlderPosition(position) {
         if (this._handle) {
-            var oldPosition = this._fixupHandlerPosition();
+            const oldPosition = this._fixupHandlerPosition();
 
-            this._handle.node.setPosition(position.x + oldPosition.x, position.y + oldPosition.y);
+            this._handle.node.setPosition(position.x + oldPosition.x, position.y + oldPosition.y, oldPosition.z);
         }
     }
 
     private _fixupHandlerPosition() {
-        if(!this._handle){
-            return;
+        if (!this._handle) {
+            return ZERO;
         }
 
-        var barSize = this.node.getContentSize();
-        var barAnchor = this.node.getAnchorPoint();
-        var handleSize = this._handle.node.getContentSize();
+        const barSize = this.node.getContentSize();
+        const barAnchor = this.node.getAnchorPoint();
+        const handleSize = this._handle.node.getContentSize();
+        // const handleParent = this._handle.node.parent!;
+        const handleTransform = handleParent.getComponent(UITransformComponent);
+        if (!handleTransform) {
+            return ZERO;
+        }
 
-        var handleParent = this._handle.node.parent;
-
-        var leftBottomWorldPosition = this.node.convertToWorldSpaceAR(cc.v2(-barSize.width * barAnchor.x, -barSize.height * barAnchor.y));
-        var fixupPosition = handleParent.convertToNodeSpaceAR(leftBottomWorldPosition);
+        vec3.set(_tempPos, -barSize.width * barAnchor.x, -barSize.height * barAnchor.y)
+        const leftBottomWorldPosition = this.node.getWorldPosition(_tempPos);
+        const fixupPosition = handleParent.convertToNodeSpaceAR(leftBottomWorldPosition);
 
         if (this._direction === Direction.HORIZONTAL) {
             fixupPosition = cc.v2(fixupPosition.x, fixupPosition.y + (barSize.height - handleSize.height) / 2);
@@ -308,13 +321,11 @@ export class ScrollBarComponent extends Component {
     }
 
     private _conditionalDisableScrollBar(contentSize, scrollViewSize) {
-        if (contentSize.width <= scrollViewSize.width
-            && this._direction === Direction.HORIZONTAL) {
+        if (contentSize.width <= scrollViewSize.width && this._direction === Direction.HORIZONTAL) {
             return true;
         }
 
-        if (contentSize.height <= scrollViewSize.height
-            && this._direction === Direction.VERTICAL) {
+        if (contentSize.height <= scrollViewSize.height && this._direction === Direction.VERTICAL) {
             return true;
         }
         return false;

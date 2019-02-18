@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { RenderableComponent } from '../../../3d/framework/renderable-component';
 import {
     ccclass,
     executeInEditMode,
@@ -35,9 +34,12 @@ import macro from '../../../core/platform/CCMacro';
 import { Color } from '../../../core/value-types/index';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
+import { EventType} from '../../../scene-graph/node-event-enum';
 import { IAssembler, IAssemblerManager } from '../assembler/assembler';
 import { CanvasComponent } from './canvas-component';
-import { EventType} from '../../../scene-graph/node-event-enum';
+import { Component } from '../../../components/component';
+import { Material } from '../../assets/material';
+import { RenderableComponent } from '../../framework/renderable-component';
 
 /**
  * !#en
@@ -52,7 +54,7 @@ import { EventType} from '../../../scene-graph/node-event-enum';
 @executionOrder(100)
 @requireComponent(cc.UITransformComponent)
 @executeInEditMode
-export class UIRenderComponent extends RenderableComponent {
+export class UIRenderComponent extends Component {
 
     /**
      * !#en specify the source Blend Factor, this will generate a custom material object
@@ -99,11 +101,11 @@ export class UIRenderComponent extends RenderableComponent {
      * !#zh 渲染先后顺序，按照广度渲染排列，同级节点下进行一次排列
      */
     @property
-    get priority() {
+    get priority () {
         return this._priority;
     }
 
-    set priority(value) {
+    set priority (value) {
         this._priority = value;
     }
 
@@ -112,18 +114,45 @@ export class UIRenderComponent extends RenderableComponent {
      * !#zh 渲染颜色
      * @property color
      */
-    get color() {
+    @property
+    get color () {
         return this._color;
     }
 
-    set color(value) {
+    set color (value) {
         if (this._color === value) {
             return;
         }
 
         this._color = value;
+        this.markForUpdateRenderData();
     }
 
+    /**
+     * !#en render material
+     * !#zh 渲染共用材质
+     * @property material
+     */
+    @property({
+        type: Material
+    })
+    get sharedMaterial() {
+        return this._sharedMaterial;
+    }
+
+    set sharedMaterial(value) {
+        if (this._sharedMaterial === value) {
+            return;
+        }
+
+        this._sharedMaterial = value;
+        this._instanceMaterial();
+    }
+
+    /**
+     * !#en find the rendered camera
+     * !#zh 查找被渲染相机
+     */
     get visibility () {
         return this._visibility;
     }
@@ -132,20 +161,37 @@ export class UIRenderComponent extends RenderableComponent {
         return this._renderData;
     }
 
+    get material() {
+        return this._material;
+    }
+
+    set material(value) {
+        if (this._material === value) {
+            return;
+        }
+
+        this._material = value;
+    }
+
     public static Assembler: IAssemblerManager | null = null;
 
-    protected _assembler: IAssembler | null = null;
-
-    protected _postAssembler: IAssembler | null = null;
-    protected _renderDataPoolID: number = -1;
-    protected _visibility: number = -1;
-
-    protected _srcBlendFactor: number = macro.BlendFactor.SRC_ALPHA;
-    protected _dstBlendFactor: number = macro.BlendFactor.ONE_MINUS_SRC_ALPHA;
+    @property
+    protected _srcBlendFactor = macro.BlendFactor.SRC_ALPHA;
+    @property
+    protected _dstBlendFactor = macro.BlendFactor.ONE_MINUS_SRC_ALPHA;
     @property
     protected _color: Color = Color.WHITE;
     @property
-    protected _priority: number = 0;
+    protected _priority = 0;
+    @property
+    private _sharedMaterial: Material | null = null;
+    @property
+    protected _material: Material | null = null;
+
+    protected _assembler: IAssembler | null = null;
+    protected _postAssembler: IAssembler | null = null;
+    protected _renderDataPoolID = -1;
+    protected _visibility = -1;
     protected _renderData: RenderData | null = null;
     // _allocedDatas = [];
     // _vertexFormat = null;
@@ -155,6 +201,10 @@ export class UIRenderComponent extends RenderableComponent {
         super();
         // this._assembler = this.constructor._assembler;
         // this._postAssembler = this.constructor._postAssembler;
+    }
+
+    public __preload(){
+        this._instanceMaterial();
     }
 
     public onEnable () {
@@ -172,9 +222,9 @@ export class UIRenderComponent extends RenderableComponent {
             parent = parent.parent;
         }
 
-        this.node.on(EventType.ANCHOR_CHANGED, this._stateChange,this);
+        this.node.on(EventType.ANCHOR_CHANGED, this._stateChange, this);
         this.node.on(EventType.TRANSFORM_CHANGED, this._stateChange, this);
-        this.node.on(EventType.SIZE_CHANGED, this._stateChange,this);
+        this.node.on(EventType.SIZE_CHANGED, this._stateChange, this);
         // if (this.node._renderComponent) {
         //     this.node._renderComponent.enabled = false;
         // }
@@ -205,7 +255,7 @@ export class UIRenderComponent extends RenderableComponent {
     //     return this._enabled;
     // }
 
-    markForUpdateRenderData(enable: boolean = true) {
+    public markForUpdateRenderData (enable: boolean = true) {
         // if (enable && this._canRender()) {
         //     this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         // }
@@ -213,15 +263,15 @@ export class UIRenderComponent extends RenderableComponent {
         //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
         // }
 
-        if (enable /*&& this._canRender()*/) {
+        // if (enable /*&& this._canRender()*/) {
             // this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
             const renderData = this._renderData;
             if (renderData) {
-                renderData.uvDirty = true;
-                renderData.vertDirty = true;
+                renderData.uvDirty = enable;
+                renderData.vertDirty = enable;
             }
-        }
+        // }
         // else if (!enable) {
         //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
         // }
@@ -272,6 +322,25 @@ export class UIRenderComponent extends RenderableComponent {
         this._renderData = null;
     }
 
+    public updateAssembler (render: UI) {
+        if (!this._assembler) {
+            return;
+        }
+        if (this._assembler.updateRenderData) {
+            this._assembler.updateRenderData(this);
+        }
+        this._assembler.fillBuffers(this, render);
+    }
+
+    public postUpdateAssembler () {
+        if (!this._postAssembler) {
+            return;
+        }
+        if (this._postAssembler.updateRenderData) {
+            this._postAssembler.updateRenderData(this);
+        }
+    }
+
     protected _updateColor () {
         const material = this.material;
         if (material) {
@@ -299,29 +368,18 @@ export class UIRenderComponent extends RenderableComponent {
         // }
     }
 
-    private _stateChange(){
+    private _stateChange (){
         this.markForUpdateRenderData();
     }
 
-    public updateAssembler (render: UI) {
-        if (!this._assembler) {
-            return;
-        }
-        if (this._assembler.updateRenderData) {
-            this._assembler.updateRenderData(this);
-        }
-        this._assembler.fillBuffers(this, render);
-    }
-
-    public postUpdateAssembler () {
-        if (!this._postAssembler) {
-            return;
-        }
-        if (this._postAssembler.updateRenderData) {
-            this._postAssembler.updateRenderData(this);
+    private _instanceMaterial(){
+        if (this._sharedMaterial) {
+            this._material = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
         }
     }
 }
 
 // RenderComponent._assembler = null;
 // RenderComponent._postAssembler = null;
+
+cc.UIRenderComponent = UIRenderComponent;

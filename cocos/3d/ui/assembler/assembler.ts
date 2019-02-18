@@ -26,17 +26,19 @@
 import { UIRenderComponent } from '../components/ui-render-component';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
+import { ISharedLabelData } from './label/ttfUtils';
 
 export interface IAssembler {
 
-    useModel: boolean;
+    useModel?: boolean;
     fillBuffers (component: UIRenderComponent, render: UI): void;
     updateRenderData? (component: UIRenderComponent): void;
     createData? (component: UIRenderComponent): RenderData;
     updateVerts? (component: UIRenderComponent, start?: number, end?: number): void;
     updateWorldVerts? (component: UIRenderComponent): void;
     updateUVs?(component: UIRenderComponent, start?: number, end?: number);
-    getAssemblerData?(): void;
+    getAssemblerData?(): ISharedLabelData;
+    resetAssemblerData?(assemblerData: ISharedLabelData):void
 }
 
 export interface IAssemblerManager {

@@ -26,14 +26,12 @@
 // @ts-check
 import atlas from '../../../assets/CCSpriteAtlas';
 import { SpriteFrame } from '../../../assets/CCSpriteFrame';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { clampf } from '../../../core/utils/misc';
 import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
-import { UIRenderComponent } from './ui-render-component';
-import { Node } from '../../../scene-graph/node';
 import { UI } from '../../../renderer/ui/ui';
-const EventType = Node.EventType;
+import { UIRenderComponent } from './ui-render-component';
 
 /**
  * !#en Enum for sprite type.
@@ -71,7 +69,7 @@ enum SpriteType {
     //  * @property {Number} MESH
     //  */
     // MESH: 4
-};
+}
 
 ccenum(SpriteType);
 
@@ -98,8 +96,8 @@ enum FillType {
     //  * !#zh 径向填充
     //  * @property {Number} RADIAL
     //  */
-    // RADIAL = 2,
-};
+    RADIAL = 2,
+}
 
 ccenum(FillType);
 
@@ -191,10 +189,10 @@ export class SpriteComponent extends UIRenderComponent {
     get type () {
         return this._type;
     }
-    set type(value: SpriteType) {
+    set type (value: SpriteType) {
         if (this._type !== value) {
             this._type = value;
-            this._updateAssembler();
+            this._flushAssembler();
         }
     }
 
@@ -224,7 +222,7 @@ export class SpriteComponent extends UIRenderComponent {
                 this.markForUpdateRenderData(true);
             }
             this._fillType = value;
-            this._updateAssembler();
+            this._flushAssembler();
         }
     }
 
@@ -393,7 +391,7 @@ export class SpriteComponent extends UIRenderComponent {
             }
         }
 
-        this._updateAssembler();
+        this._flushAssembler();
         this._activateMaterial();
 
         // if (!this._spriteFrame) {
@@ -402,7 +400,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     public updateAssembler (render: UI) {
-        if (!this._spriteFrame || !this.material) {
+        if (!this._spriteFrame || !this._material) {
             return;
         }
         super.updateAssembler(render);
@@ -413,18 +411,18 @@ export class SpriteComponent extends UIRenderComponent {
         this.destroyRenderData();
     }
 
-    public onDisable () {
-        // this._super();
-        super.onDisable();
-    }
+    // public onDisable () {
+    //     // this._super();
+    //     super.onDisable();
+    // }
 
     public _onNodeSizeDirty () {
         if (!this._renderData) { return; }
         this.markForUpdateRenderData();
     }
 
-    public _updateAssembler () {
-        const assembler = SpriteComponent.Assembler.getAssembler(this);
+    private _flushAssembler () {
+        const assembler = SpriteComponent.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();
@@ -432,22 +430,22 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         if (!this._renderData) {
-            if (this._assembler) {
+            if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData.material = this.material;
+                this._renderData.material = this._material;
                 this.markForUpdateRenderData();
             }
         }
     }
 
-    public _activateMaterial () {
+    private _activateMaterial () {
         const spriteFrame = this._spriteFrame;
-        let material = this.material;
+        const material = this._material;
         // WebGL
         if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
             // if (!material) {
-            //     this.material = cc.builtinResMgr.get('sprite-material');
-            //     material = this.material;
+            //     this._material = cc.builtinResMgr.get('sprite-material');
+            //     material = this._material;
             //     if (spriteFrame && spriteFrame.textureLoaded()) {
             //         material!.setProperty('mainTexture', spriteFrame);
             //         this.markForUpdateRenderData();
@@ -455,16 +453,16 @@ export class SpriteComponent extends UIRenderComponent {
             // }
             // TODO:
             // else {
-                if (spriteFrame && spriteFrame.textureLoaded()) {
-                    if (material){
-                        // const matTexture = material.getProperty('mainTexture');
-                        // if (matTexture !== spriteFrame) {
-                            material.setProperty('mainTexture', spriteFrame);
-                            this.markForUpdateRenderData();
-                        // }
-                    }
-
+            if (spriteFrame && spriteFrame.textureLoaded()) {
+                if (material) {
+                    // const matTexture = material.getProperty('mainTexture');
+                    // if (matTexture !== spriteFrame) {
+                    material.setProperty('mainTexture', spriteFrame);
+                    this.markForUpdateRenderData();
+                    // }
                 }
+
+            }
             // }
 
             if (this._renderData) {
@@ -476,7 +474,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
-    public _applyAtlas (spriteFrame: SpriteFrame | null) {
+    private _applyAtlas (spriteFrame: SpriteFrame | null) {
         if (!CC_EDITOR) {
             return;
         }
@@ -491,19 +489,19 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
-    public _canRender () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            if (!this._enabled) { return false; }
-        } else {
-            if (!this._enabled || !this.material) { return false; }
-        }
+    // private _canRender () {
+    //     if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+    //         if (!this._enabled) { return false; }
+    //     } else {
+    //         if (!this._enabled || !this._material) { return false; }
+    //     }
 
-        const spriteFrame = this._spriteFrame;
-        if (!spriteFrame || !spriteFrame.textureLoaded()) {
-            return false;
-        }
-        return true;
-    }
+    //     const spriteFrame = this._spriteFrame;
+    //     if (!spriteFrame || !spriteFrame.textureLoaded()) {
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     // public markForUpdateRenderData (enable: boolean) {
     //     if (enable /*&& this._canRender()*/) {
@@ -542,7 +540,7 @@ export class SpriteComponent extends UIRenderComponent {
     //     this._applySpriteSize();
     // }
 
-    public _applySpriteFrame (oldFrame: SpriteFrame | null) {
+    private _applySpriteFrame (oldFrame: SpriteFrame | null) {
         // if (oldFrame && oldFrame.off) {
         //     oldFrame.off('load', this._onTextureLoaded, this);
         // }
@@ -555,7 +553,7 @@ export class SpriteComponent extends UIRenderComponent {
 
         if (spriteFrame) {
             if (!oldFrame || spriteFrame !== oldFrame) {
-                // this.material.setProperty('mainTexture', spriteFrame);
+                // this._material.setProperty('mainTexture', spriteFrame);
                 if (spriteFrame.textureLoaded()) {
                     // this._onTextureLoaded();
                     this._activateMaterial();
@@ -617,4 +615,4 @@ export class SpriteComponent extends UIRenderComponent {
 //     };
 // }
 
-// cc.Sprite = module.exports = Sprite;
+cc.SpriteComponent = SpriteComponent;
