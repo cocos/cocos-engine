@@ -237,7 +237,7 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat): GLenum {
 
         default: {
             console.error('Unsupported GFXFormat, convert to WebGL internal format failed.');
-            return WebGLRenderingContext.RGBA;
+            return WebGL2RenderingContext.RGBA;
         }
     }
 }
@@ -317,7 +317,7 @@ function GFXFormatToWebGLFormat (format: GFXFormat): GLenum {
 
         default: {
             console.error('Unsupported GFXFormat, convert to WebGL format failed.');
-            return WebGLRenderingContext.RGBA;
+            return WebGL2RenderingContext.RGBA;
         }
     }
 }
@@ -360,24 +360,36 @@ function GFXTypeToWebGLType (type: GFXType): GLenum {
 
 function WebGLTypeToGFXType (glType: GLenum): GFXType {
     switch (glType) {
-        case WebGLRenderingContext.BOOL: return GFXType.BOOL;
-        case WebGLRenderingContext.BOOL_VEC2: return GFXType.BOOL2;
-        case WebGLRenderingContext.BOOL_VEC3: return GFXType.BOOL3;
-        case WebGLRenderingContext.BOOL_VEC4: return GFXType.BOOL4;
-        case WebGLRenderingContext.INT: return GFXType.INT;
-        case WebGLRenderingContext.INT_VEC2: return GFXType.INT2;
-        case WebGLRenderingContext.INT_VEC3: return GFXType.INT3;
-        case WebGLRenderingContext.INT_VEC4: return GFXType.INT4;
-        case WebGLRenderingContext.UNSIGNED_INT: return GFXType.UINT;
-        case WebGLRenderingContext.FLOAT: return GFXType.FLOAT;
-        case WebGLRenderingContext.FLOAT_VEC2: return GFXType.FLOAT2;
-        case WebGLRenderingContext.FLOAT_VEC3: return GFXType.FLOAT3;
-        case WebGLRenderingContext.FLOAT_VEC4: return GFXType.FLOAT4;
-        case WebGLRenderingContext.FLOAT_MAT2: return GFXType.MAT2;
-        case WebGLRenderingContext.FLOAT_MAT3: return GFXType.MAT3;
-        case WebGLRenderingContext.FLOAT_MAT4: return GFXType.MAT4;
-        case WebGLRenderingContext.SAMPLER_2D: return GFXType.SAMPLER2D;
-        case WebGLRenderingContext.SAMPLER_CUBE: return GFXType.SAMPLER_CUBE;
+        case WebGL2RenderingContext.BOOL: return GFXType.BOOL;
+        case WebGL2RenderingContext.BOOL_VEC2: return GFXType.BOOL2;
+        case WebGL2RenderingContext.BOOL_VEC3: return GFXType.BOOL3;
+        case WebGL2RenderingContext.BOOL_VEC4: return GFXType.BOOL4;
+        case WebGL2RenderingContext.INT: return GFXType.INT;
+        case WebGL2RenderingContext.INT_VEC2: return GFXType.INT2;
+        case WebGL2RenderingContext.INT_VEC3: return GFXType.INT3;
+        case WebGL2RenderingContext.INT_VEC4: return GFXType.INT4;
+        case WebGL2RenderingContext.UNSIGNED_INT: return GFXType.UINT;
+        case WebGL2RenderingContext.UNSIGNED_INT_VEC2: return GFXType.UINT2;
+        case WebGL2RenderingContext.UNSIGNED_INT_VEC3: return GFXType.UINT3;
+        case WebGL2RenderingContext.UNSIGNED_INT_VEC4: return GFXType.UINT4;
+        case WebGL2RenderingContext.UNSIGNED_INT: return GFXType.UINT;
+        case WebGL2RenderingContext.FLOAT: return GFXType.FLOAT;
+        case WebGL2RenderingContext.FLOAT_VEC2: return GFXType.FLOAT2;
+        case WebGL2RenderingContext.FLOAT_VEC3: return GFXType.FLOAT3;
+        case WebGL2RenderingContext.FLOAT_VEC4: return GFXType.FLOAT4;
+        case WebGL2RenderingContext.FLOAT_MAT2: return GFXType.MAT2;
+        case WebGL2RenderingContext.FLOAT_MAT2x3: return GFXType.MAT2X3;
+        case WebGL2RenderingContext.FLOAT_MAT2x4: return GFXType.MAT2X4;
+        case WebGL2RenderingContext.FLOAT_MAT3x2: return GFXType.MAT3X2;
+        case WebGL2RenderingContext.FLOAT_MAT3: return GFXType.MAT3;
+        case WebGL2RenderingContext.FLOAT_MAT3x4: return GFXType.MAT3X4;
+        case WebGL2RenderingContext.FLOAT_MAT4x2: return GFXType.MAT4X2;
+        case WebGL2RenderingContext.FLOAT_MAT4x3: return GFXType.MAT4X3;
+        case WebGL2RenderingContext.FLOAT_MAT4: return GFXType.MAT4;
+        case WebGL2RenderingContext.SAMPLER_2D: return GFXType.SAMPLER2D;
+        case WebGL2RenderingContext.SAMPLER_2D_ARRAY: return GFXType.SAMPLER2D_ARRAY;
+        case WebGL2RenderingContext.SAMPLER_3D: return GFXType.SAMPLER3D;
+        case WebGL2RenderingContext.SAMPLER_CUBE: return GFXType.SAMPLER_CUBE;
         default: {
             console.error('Unsupported GLType, convert to GFXType failed.');
             return GFXType.UNKNOWN;
@@ -684,56 +696,68 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
 
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
 
-        gpuBuffer.glTarget = WebGLRenderingContext.ARRAY_BUFFER;
+        gpuBuffer.glTarget = WebGL2RenderingContext.ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
 
             if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
+                gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
                 device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
             }
 
-            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
-            gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
+            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
+            gl.bufferData(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
 
-            gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, null);
+            gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, null);
             device.stateCache.glArrayBuffer = 0;
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDEX) {
 
-        gpuBuffer.glTarget = WebGLRenderingContext.ELEMENT_ARRAY_BUFFER;
+        gpuBuffer.glTarget = WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
 
             if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                 device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
             }
 
-            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
-            gl.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
+            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
+            gl.bufferData(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
 
-            gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, null);
+            gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, null);
             device.stateCache.glElementArrayBuffer = 0;
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
-        // console.error("WebGL 1.0 doesn't support uniform buffer.");
-        gpuBuffer.glTarget = WebGLRenderingContext.NONE;
+
+        /*
+        gpuBuffer.glTarget = WebGL2RenderingContext.UNIFORM_BUFFER;
+        const glBuffer = gl.createBuffer();
+        if (glBuffer) {
+            gpuBuffer.glBuffer = glBuffer;
+            if (device.stateCache.glUniformBuffer !== gpuBuffer.glBuffer) {
+                gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.glBuffer);
+                device.stateCache.glUniformBuffer = gpuBuffer.glBuffer;
+            }
+        }
+        */
+
+        gpuBuffer.glTarget = WebGL2RenderingContext.NONE;
 
         if (gpuBuffer.buffer) {
             gpuBuffer.vf32 = new Float32Array(gpuBuffer.buffer as ArrayBuffer);
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) {
-        gpuBuffer.glTarget = WebGLRenderingContext.NONE;
+        gpuBuffer.glTarget = WebGL2RenderingContext.NONE;
     } else if (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_DST) {
-        gpuBuffer.glTarget = WebGLRenderingContext.NONE;
+        gpuBuffer.glTarget = WebGL2RenderingContext.NONE;
     } else if (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_SRC) {
-        gpuBuffer.glTarget = WebGLRenderingContext.NONE;
+        gpuBuffer.glTarget = WebGL2RenderingContext.NONE;
     } else {
         console.error('Unsupported GFXBufferType, create buffer failed.');
-        gpuBuffer.glTarget = WebGLRenderingContext.NONE;
+        gpuBuffer.glTarget = WebGL2RenderingContext.NONE;
     }
 }
 
@@ -751,37 +775,47 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2GFXDevice, gpuBuffer: W
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
 
         if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
-            gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
+            gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
         }
 
-        const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
-        gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
+        const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
+        gl.bufferData(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
 
-        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, null);
+        gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, null);
         device.stateCache.glArrayBuffer = 0;
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDEX) {
 
         if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-            gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+            gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
         }
 
-        const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
-        gl.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
+        const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
+        gl.bufferData(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
 
-        gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, null);
         device.stateCache.glElementArrayBuffer = 0;
     } else if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
-        // console.error("WebGL 1.0 doesn't support uniform buffer.");
+        /*
+        if (device.stateCache.glUniformBuffer !== gpuBuffer.glBuffer) {
+            gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.glBuffer);
+        }
+
+        const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
+        gl.bufferData(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.size, glUsage);
+
+        gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, null);
+        device.stateCache.glUniformBuffer = 0;
+        */
         if (gpuBuffer.buffer) {
             gpuBuffer.vf32 = new Float32Array(gpuBuffer.buffer as ArrayBuffer);
         }
     } else if ((gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) ||
             (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_DST) ||
             (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_SRC)) {
-        gpuBuffer.glTarget = WebGLRenderingContext.NONE;
+        gpuBuffer.glTarget = WebGL2RenderingContext.NONE;
     } else {
         console.error('Unsupported GFXBufferType, create buffer failed.');
-        gpuBuffer.glTarget = WebGLRenderingContext.NONE;
+        gpuBuffer.glTarget = WebGL2RenderingContext.NONE;
     }
 }
 
@@ -796,9 +830,9 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
         const gl = device.gl;
 
         switch (gpuBuffer.glTarget) {
-            case WebGLRenderingContext.ARRAY_BUFFER: {
+            case WebGL2RenderingContext.ARRAY_BUFFER: {
                 if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
-                    gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
                 }
 
@@ -810,9 +844,9 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
 
                 break;
             }
-            case WebGLRenderingContext.ELEMENT_ARRAY_BUFFER: {
+            case WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER: {
                 if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                    gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
                 }
 
@@ -843,7 +877,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
         case GFXTextureViewType.TV2D: {
 
             gpuTexture.viewType = GFXTextureViewType.TV2D;
-            gpuTexture.glTarget = WebGLRenderingContext.TEXTURE_2D;
+            gpuTexture.glTarget = WebGL2RenderingContext.TEXTURE_2D;
 
             const glTexture = gl.createTexture();
             if (glTexture) {
@@ -851,7 +885,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                 const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
 
                 if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                    gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, gpuTexture.glTexture);
+                    gl.bindTexture(WebGL2RenderingContext.TEXTURE_2D, gpuTexture.glTexture);
                     glTexUnit.glTexture = gpuTexture.glTexture;
                 }
 
@@ -860,27 +894,27 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
 
                 if (!GFXFormatInfos[gpuTexture.format].isCompressed) {
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                        gl.texImage2D(WebGLRenderingContext.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                        gl.texImage2D(WebGL2RenderingContext.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);
                     }
                 } else {
                     const view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                        gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
+                        gl.compressedTexImage2D(WebGL2RenderingContext.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);
                     }
                 }
 
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, WebGLRenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, WebGLRenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
-                gpuTexture.glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
-                gpuTexture.glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
-                gpuTexture.glMinFilter = WebGLRenderingContext.LINEAR;
-                gpuTexture.glMagFilter = WebGLRenderingContext.LINEAR;
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_S, WebGL2RenderingContext.CLAMP_TO_EDGE);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_T, WebGL2RenderingContext.CLAMP_TO_EDGE);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
+                gpuTexture.glWrapS = WebGL2RenderingContext.CLAMP_TO_EDGE;
+                gpuTexture.glWrapT = WebGL2RenderingContext.CLAMP_TO_EDGE;
+                gpuTexture.glMinFilter = WebGL2RenderingContext.LINEAR;
+                gpuTexture.glMagFilter = WebGL2RenderingContext.LINEAR;
             }
 
             break;
@@ -888,7 +922,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
         case GFXTextureViewType.CUBE: {
 
             gpuTexture.viewType = GFXTextureViewType.CUBE;
-            gpuTexture.glTarget = WebGLRenderingContext.TEXTURE_CUBE_MAP;
+            gpuTexture.glTarget = WebGL2RenderingContext.TEXTURE_CUBE_MAP;
 
             const glTexture = gl.createTexture();
             if (glTexture) {
@@ -896,7 +930,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                 const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
 
                 if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                    gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
+                    gl.bindTexture(WebGL2RenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                     glTexUnit.glTexture = gpuTexture.glTexture;
                 }
 
@@ -905,7 +939,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                         let w = gpuTexture.width;
                         let h = gpuTexture.height;
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                            gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
                             w = Math.max(1, w >> 1);
                             h = Math.max(1, h >> 1);
                         }
@@ -917,21 +951,21 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                         let w = gpuTexture.width;
                         let h = gpuTexture.height;
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                            gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
+                            gl.compressedTexImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
                             w = Math.max(1, w >> 1);
                             h = Math.max(1, h >> 1);
                         }
                     }
                 }
 
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, WebGLRenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, WebGLRenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
-                gpuTexture.glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
-                gpuTexture.glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
-                gpuTexture.glMinFilter = WebGLRenderingContext.LINEAR;
-                gpuTexture.glMagFilter = WebGLRenderingContext.LINEAR;
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_S, WebGL2RenderingContext.CLAMP_TO_EDGE);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_T, WebGL2RenderingContext.CLAMP_TO_EDGE);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
+                gpuTexture.glWrapS = WebGL2RenderingContext.CLAMP_TO_EDGE;
+                gpuTexture.glWrapT = WebGL2RenderingContext.CLAMP_TO_EDGE;
+                gpuTexture.glMinFilter = WebGL2RenderingContext.LINEAR;
+                gpuTexture.glMagFilter = WebGL2RenderingContext.LINEAR;
             }
 
             break;
@@ -939,7 +973,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
         default: {
             console.error('Unsupported GFXTextureType, create texture failed.');
             gpuTexture.viewType = GFXTextureViewType.TV2D;
-            gpuTexture.glTarget = WebGLRenderingContext.TEXTURE_2D;
+            gpuTexture.glTarget = WebGL2RenderingContext.TEXTURE_2D;
         }
     }
 }
@@ -962,7 +996,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFram
             gpuFramebuffer.glFramebuffer = glFramebuffer;
 
             if (device.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
-                gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
+                gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
                 device.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
             }
 
@@ -971,8 +1005,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFram
                 const gpuColorView = gpuFramebuffer.gpuColorViews[i];
                 if (gpuColorView) {
                     gl.framebufferTexture2D(
-                        WebGLRenderingContext.FRAMEBUFFER,
-                        WebGLRenderingContext.COLOR_ATTACHMENT0 + i,
+                        WebGL2RenderingContext.FRAMEBUFFER,
+                        WebGL2RenderingContext.COLOR_ATTACHMENT0 + i,
                         gpuColorView.gpuTexture.glTarget,
                         gpuColorView.gpuTexture.glTexture,
                         gpuColorView.baseLevel);
@@ -982,10 +1016,10 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFram
             if (gpuFramebuffer.gpuDepthStencilView) {
 
                 const glAttachment = GFXFormatInfos[gpuFramebuffer.gpuDepthStencilView.format].hasStencil ?
-                    WebGLRenderingContext.DEPTH_STENCIL_ATTACHMENT : WebGLRenderingContext.DEPTH_ATTACHMENT;
+                    WebGL2RenderingContext.DEPTH_STENCIL_ATTACHMENT : WebGL2RenderingContext.DEPTH_ATTACHMENT;
 
                 gl.framebufferTexture2D(
-                    WebGLRenderingContext.FRAMEBUFFER,
+                    WebGL2RenderingContext.FRAMEBUFFER,
                     glAttachment,
                     gpuFramebuffer.gpuDepthStencilView.gpuTexture.glTarget,
                     gpuFramebuffer.gpuDepthStencilView.gpuTexture.glTexture,
@@ -993,22 +1027,22 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFram
             }
 
             /*
-            const status = gl.checkFramebufferStatus(WebGLRenderingContext.FRAMEBUFFER);
-            if (status !== WebGLRenderingContext.FRAMEBUFFER_COMPLETE) {
+            const status = gl.checkFramebufferStatus(WebGL2RenderingContext.FRAMEBUFFER);
+            if (status !== WebGL2RenderingContext.FRAMEBUFFER_COMPLETE) {
                 switch (status) {
-                    case WebGLRenderingContext.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
+                    case WebGL2RenderingContext.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
                         console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
                         break;
                     }
-                    case WebGLRenderingContext.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
+                    case WebGL2RenderingContext.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
                         console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
                         break;
                     }
-                    case WebGLRenderingContext.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: {
+                    case WebGL2RenderingContext.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: {
                         console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
                         break;
                     }
-                    case WebGLRenderingContext.FRAMEBUFFER_UNSUPPORTED: {
+                    case WebGL2RenderingContext.FRAMEBUFFER_UNSUPPORTED: {
                         console.error('glCheckFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED');
                         break;
                     }
@@ -1038,12 +1072,12 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
         switch (gpuStage.type) {
             case GFXShaderType.VERTEX: {
                 shaderTypeStr = 'VertexShader';
-                glShaderType = WebGLRenderingContext.VERTEX_SHADER;
+                glShaderType = WebGL2RenderingContext.VERTEX_SHADER;
                 break;
             }
             case GFXShaderType.FRAGMENT: {
                 shaderTypeStr = 'FragmentShader';
-                glShaderType = WebGLRenderingContext.FRAGMENT_SHADER;
+                glShaderType = WebGL2RenderingContext.FRAGMENT_SHADER;
                 break;
             }
             default: {
@@ -1238,8 +1272,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
                     varName = uniformInfo.name;
                 }
 
-                const isSampler = (uniformInfo.type === WebGLRenderingContext.SAMPLER_2D) ||
-                    (uniformInfo.type === WebGLRenderingContext.SAMPLER_CUBE);
+                const isSampler = (uniformInfo.type === WebGL2RenderingContext.SAMPLER_2D) ||
+                    (uniformInfo.type === WebGL2RenderingContext.SAMPLER_CUBE);
 
                 if (!isSampler) {
                     // let stride = WebGLGetTypeSize(info.type);
@@ -1353,7 +1387,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
     let gpuPipelineState: WebGL2GPUPipelineState | null = null;
     let gpuShader: WebGL2GPUShader | null = null;
     let gpuInputAssembler: WebGL2GPUInputAssembler | null = null;
-    let glPrimitive = WebGLRenderingContext.TRIANGLES;
+    let glPrimitive = WebGL2RenderingContext.TRIANGLES;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];
@@ -1368,7 +1402,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                 if (cmd0.gpuFramebuffer) {
                     if (device.stateCache.glFramebuffer !== cmd0.gpuFramebuffer.glFramebuffer) {
                         const glFBO = (cmd0.gpuFramebuffer.glFramebuffer !== 0 ? cmd0.gpuFramebuffer.glFramebuffer : null);
-                        gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, glFBO);
+                        gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, glFBO);
                         device.stateCache.glFramebuffer = cmd0.gpuFramebuffer.glFramebuffer;
                     }
 
@@ -1417,13 +1451,13 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                                     const clearColor = cmd0.clearColors[0];
                                     gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-                                    clears |= WebGLRenderingContext.COLOR_BUFFER_BIT;
+                                    clears |= WebGL2RenderingContext.COLOR_BUFFER_BIT;
 
                                     break;
                                 }
                                 case GFXLoadOp.DISCARD: {
                                     // invalidate the framebuffer
-                                    invalidateAttachments[numInvalidAttach++] = WebGLRenderingContext.COLOR_ATTACHMENT0;
+                                    invalidateAttachments[numInvalidAttach++] = WebGL2RenderingContext.COLOR_ATTACHMENT0;
                                     break;
                                 }
                                 default:
@@ -1444,13 +1478,13 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                                     gl.clearDepth(cmd0.clearDepth);
 
-                                    clears |= WebGLRenderingContext.DEPTH_BUFFER_BIT;
+                                    clears |= WebGL2RenderingContext.DEPTH_BUFFER_BIT;
 
                                     break;
                                 }
                                 case GFXLoadOp.DISCARD: {
                                     // invalidate the framebuffer
-                                    invalidateAttachments[numInvalidAttach++] = WebGLRenderingContext.DEPTH_ATTACHMENT;
+                                    invalidateAttachments[numInvalidAttach++] = WebGL2RenderingContext.DEPTH_ATTACHMENT;
                                     break;
                                 }
                                 default:
@@ -1462,21 +1496,21 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                     case GFXLoadOp.CLEAR: {
 
                                         if (!device.stateCache.dss.stencilWriteMaskFront) {
-                                            gl.stencilMaskSeparate(WebGLRenderingContext.FRONT, 0xFFFFFFFF);
+                                            gl.stencilMaskSeparate(WebGL2RenderingContext.FRONT, 0xFFFFFFFF);
                                         }
 
                                         if (!device.stateCache.dss.stencilWriteMaskBack) {
-                                            gl.stencilMaskSeparate(WebGLRenderingContext.BACK, 0xFFFFFFFF);
+                                            gl.stencilMaskSeparate(WebGL2RenderingContext.BACK, 0xFFFFFFFF);
                                         }
 
                                         gl.clearStencil(cmd0.clearStencil);
-                                        clears |= WebGLRenderingContext.STENCIL_BUFFER_BIT;
+                                        clears |= WebGL2RenderingContext.STENCIL_BUFFER_BIT;
 
                                         break;
                                     }
                                     case GFXLoadOp.DISCARD: {
                                         // invalidate the framebuffer
-                                        invalidateAttachments[numInvalidAttach++] = WebGLRenderingContext.STENCIL_ATTACHMENT;
+                                        invalidateAttachments[numInvalidAttach++] = WebGL2RenderingContext.STENCIL_ATTACHMENT;
                                         break;
                                     }
                                     default:
@@ -1487,7 +1521,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                     /*
                     if (numInvalidAttach) {
-                        gl.invalidateFramebuffer(WebGLRenderingContext.FRAMEBUFFER, numInvalidAttach, invalidateAttachments);
+                        gl.invalidateFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, numInvalidAttach, invalidateAttachments);
                     }
                     */
 
@@ -1496,7 +1530,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                     }
 
                     // restore states
-                    if (clears & WebGLRenderingContext.COLOR_BUFFER_BIT) {
+                    if (clears & WebGL2RenderingContext.COLOR_BUFFER_BIT) {
 
                         const colorMask = device.stateCache.bs.targets[0].blendColorMask;
                         if (colorMask !== GFXColorMask.ALL) {
@@ -1508,18 +1542,18 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                         }
                     }
 
-                    if ((clears & WebGLRenderingContext.DEPTH_BUFFER_BIT) &&
+                    if ((clears & WebGL2RenderingContext.DEPTH_BUFFER_BIT) &&
                         !device.stateCache.dss.depthWrite) {
                         gl.depthMask(false);
                     }
 
-                    if (clears & WebGLRenderingContext.STENCIL_BUFFER_BIT) {
+                    if (clears & WebGL2RenderingContext.STENCIL_BUFFER_BIT) {
                         if (!device.stateCache.dss.stencilWriteMaskFront) {
-                            gl.stencilMaskSeparate(WebGLRenderingContext.FRONT, 0);
+                            gl.stencilMaskSeparate(WebGL2RenderingContext.FRONT, 0);
                         }
 
                         if (!device.stateCache.dss.stencilWriteMaskBack) {
-                            gl.stencilMaskSeparate(WebGLRenderingContext.BACK, 0);
+                            gl.stencilMaskSeparate(WebGL2RenderingContext.BACK, 0);
                         }
                     }
                 } // if (curGPURenderPass)
@@ -1556,17 +1590,17 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                         if (device.stateCache.rs.cullMode !== rs.cullMode) {
                             switch (rs.cullMode) {
                                 case GFXCullMode.NONE: {
-                                    gl.disable(WebGLRenderingContext.CULL_FACE);
+                                    gl.disable(WebGL2RenderingContext.CULL_FACE);
                                     break;
                                 }
                                 case GFXCullMode.FRONT: {
-                                    gl.enable(WebGLRenderingContext.CULL_FACE);
-                                    gl.cullFace(WebGLRenderingContext.FRONT);
+                                    gl.enable(WebGL2RenderingContext.CULL_FACE);
+                                    gl.cullFace(WebGL2RenderingContext.FRONT);
                                     break;
                                 }
                                 case GFXCullMode.BACK: {
-                                    gl.enable(WebGLRenderingContext.CULL_FACE);
-                                    gl.cullFace(WebGLRenderingContext.BACK);
+                                    gl.enable(WebGL2RenderingContext.CULL_FACE);
+                                    gl.cullFace(WebGL2RenderingContext.BACK);
                                     break;
                                 }
                                 default:
@@ -1576,7 +1610,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                         }
 
                         if (device.stateCache.rs.isFrontFaceCCW !== rs.isFrontFaceCCW) {
-                            gl.frontFace(rs.isFrontFaceCCW ? WebGLRenderingContext.CCW : WebGLRenderingContext.CW);
+                            gl.frontFace(rs.isFrontFaceCCW ? WebGL2RenderingContext.CCW : WebGL2RenderingContext.CW);
                             device.stateCache.rs.isFrontFaceCCW = rs.isFrontFaceCCW;
                         }
 
@@ -1600,9 +1634,9 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                         if (device.stateCache.dss.depthTest !== dss.depthTest) {
                             if (dss.depthTest) {
-                                gl.enable(WebGLRenderingContext.DEPTH_TEST);
+                                gl.enable(WebGL2RenderingContext.DEPTH_TEST);
                             } else {
-                                gl.disable(WebGLRenderingContext.DEPTH_TEST);
+                                gl.disable(WebGL2RenderingContext.DEPTH_TEST);
                             }
                             device.stateCache.dss.depthTest = dss.depthTest;
                         }
@@ -1621,9 +1655,9 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                         if ((device.stateCache.dss.stencilTestFront !== dss.stencilTestFront) ||
                             (device.stateCache.dss.stencilTestBack !== dss.stencilTestBack)) {
                             if (dss.stencilTestFront || dss.stencilTestBack) {
-                                gl.enable(WebGLRenderingContext.STENCIL_TEST);
+                                gl.enable(WebGL2RenderingContext.STENCIL_TEST);
                             } else {
-                                gl.disable(WebGLRenderingContext.STENCIL_TEST);
+                                gl.disable(WebGL2RenderingContext.STENCIL_TEST);
                             }
                             device.stateCache.dss.stencilTestFront = dss.stencilTestFront;
                             device.stateCache.dss.stencilTestBack = dss.stencilTestBack;
@@ -1634,7 +1668,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             (device.stateCache.dss.stencilReadMaskFront !== dss.stencilReadMaskFront)) {
 
                             gl.stencilFuncSeparate(
-                                WebGLRenderingContext.FRONT,
+                                WebGL2RenderingContext.FRONT,
                                 WebGLCmpFuncs[dss.stencilFuncFront],
                                 dss.stencilRefFront,
                                 dss.stencilReadMaskFront);
@@ -1649,7 +1683,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             (device.stateCache.dss.stencilPassOpFront !== dss.stencilPassOpFront)) {
 
                             gl.stencilOpSeparate(
-                                WebGLRenderingContext.FRONT,
+                                WebGL2RenderingContext.FRONT,
                                 WebGLStencilOps[dss.stencilFailOpFront],
                                 WebGLStencilOps[dss.stencilZFailOpFront],
                                 WebGLStencilOps[dss.stencilPassOpFront]);
@@ -1660,7 +1694,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                         }
 
                         if (device.stateCache.dss.stencilWriteMaskFront !== dss.stencilWriteMaskFront) {
-                            gl.stencilMaskSeparate(WebGLRenderingContext.FRONT, dss.stencilWriteMaskFront);
+                            gl.stencilMaskSeparate(WebGL2RenderingContext.FRONT, dss.stencilWriteMaskFront);
                             device.stateCache.dss.stencilWriteMaskFront = dss.stencilWriteMaskFront;
                         }
 
@@ -1670,7 +1704,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             (device.stateCache.dss.stencilReadMaskBack !== dss.stencilReadMaskBack)) {
 
                             gl.stencilFuncSeparate(
-                                WebGLRenderingContext.BACK,
+                                WebGL2RenderingContext.BACK,
                                 WebGLCmpFuncs[dss.stencilFuncBack],
                                 dss.stencilRefBack,
                                 dss.stencilReadMaskBack);
@@ -1685,7 +1719,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             (device.stateCache.dss.stencilPassOpBack !== dss.stencilPassOpBack)) {
 
                             gl.stencilOpSeparate(
-                                WebGLRenderingContext.BACK,
+                                WebGL2RenderingContext.BACK,
                                 WebGLStencilOps[dss.stencilFailOpBack],
                                 WebGLStencilOps[dss.stencilZFailOpBack],
                                 WebGLStencilOps[dss.stencilPassOpBack]);
@@ -1696,7 +1730,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                         }
 
                         if (device.stateCache.dss.stencilWriteMaskBack !== dss.stencilWriteMaskBack) {
-                            gl.stencilMaskSeparate(WebGLRenderingContext.BACK, dss.stencilWriteMaskBack);
+                            gl.stencilMaskSeparate(WebGL2RenderingContext.BACK, dss.stencilWriteMaskBack);
                             device.stateCache.dss.stencilWriteMaskBack = dss.stencilWriteMaskBack;
                         }
                     } // depth-stencil state
@@ -1707,9 +1741,9 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                         if (device.stateCache.bs.isA2C !== bs.isA2C) {
                             if (bs.isA2C) {
-                                gl.enable(WebGLRenderingContext.SAMPLE_ALPHA_TO_COVERAGE);
+                                gl.enable(WebGL2RenderingContext.SAMPLE_ALPHA_TO_COVERAGE);
                             } else {
-                                gl.disable(WebGLRenderingContext.SAMPLE_ALPHA_TO_COVERAGE);
+                                gl.disable(WebGL2RenderingContext.SAMPLE_ALPHA_TO_COVERAGE);
                             }
                             device.stateCache.bs.isA2C = bs.isA2C;
                         }
@@ -1732,9 +1766,9 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                         if (catchTarget0.blend !== target0.blend) {
                             if (target0.blend) {
-                                gl.enable(WebGLRenderingContext.BLEND);
+                                gl.enable(WebGL2RenderingContext.BLEND);
                             } else {
-                                gl.disable(WebGLRenderingContext.BLEND);
+                                gl.disable(WebGL2RenderingContext.BLEND);
                             }
                             catchTarget0.blend = target0.blend;
                         }
@@ -1798,8 +1832,8 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                     if (glBlock && gpuBinding.gpuBuffer.vf32) {
                                         for (const glUniform of glBlock.glActiveUniforms) {
                                             switch (glUniform.glType) {
-                                                case WebGLRenderingContext.BOOL:
-                                                case WebGLRenderingContext.INT: {
+                                                case WebGL2RenderingContext.BOOL:
+                                                case WebGL2RenderingContext.INT: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
@@ -1812,8 +1846,8 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                     break;
                                                 }
-                                                case WebGLRenderingContext.BOOL_VEC2:
-                                                case WebGLRenderingContext.INT_VEC2: {
+                                                case WebGL2RenderingContext.BOOL_VEC2:
+                                                case WebGL2RenderingContext.INT_VEC2: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
@@ -1826,8 +1860,8 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                     break;
                                                 }
-                                                case WebGLRenderingContext.BOOL_VEC3:
-                                                case WebGLRenderingContext.INT_VEC3: {
+                                                case WebGL2RenderingContext.BOOL_VEC3:
+                                                case WebGL2RenderingContext.INT_VEC3: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
@@ -1840,8 +1874,8 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                     break;
                                                 }
-                                                case WebGLRenderingContext.BOOL_VEC4:
-                                                case WebGLRenderingContext.INT_VEC4: {
+                                                case WebGL2RenderingContext.BOOL_VEC4:
+                                                case WebGL2RenderingContext.INT_VEC4: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
@@ -1854,7 +1888,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                     break;
                                                 }
-                                                case WebGLRenderingContext.FLOAT: {
+                                                case WebGL2RenderingContext.FLOAT: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
@@ -1867,7 +1901,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                     break;
                                                 }
-                                                case WebGLRenderingContext.FLOAT_VEC2: {
+                                                case WebGL2RenderingContext.FLOAT_VEC2: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
@@ -1880,7 +1914,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                     break;
                                                 }
-                                                case WebGLRenderingContext.FLOAT_VEC3: {
+                                                case WebGL2RenderingContext.FLOAT_VEC3: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
@@ -1893,7 +1927,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                     break;
                                                 }
-                                                case WebGLRenderingContext.FLOAT_VEC4: {
+                                                case WebGL2RenderingContext.FLOAT_VEC4: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
@@ -1906,7 +1940,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                     break;
                                                 }
-                                                case WebGLRenderingContext.FLOAT_MAT2: {
+                                                case WebGL2RenderingContext.FLOAT_MAT2: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
@@ -1919,7 +1953,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                     break;
                                                 }
-                                                case WebGLRenderingContext.FLOAT_MAT3: {
+                                                case WebGL2RenderingContext.FLOAT_MAT3: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
@@ -1932,7 +1966,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                     break;
                                                 }
-                                                case WebGLRenderingContext.FLOAT_MAT4: {
+                                                case WebGL2RenderingContext.FLOAT_MAT4: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
                                                         if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
@@ -1970,7 +2004,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                         for (const texUnit of glSampler.units) {
 
                                             if (device.stateCache.texUnit !== texUnit) {
-                                                gl.activeTexture(WebGLRenderingContext.TEXTURE0 + texUnit);
+                                                gl.activeTexture(WebGL2RenderingContext.TEXTURE0 + texUnit);
                                                 device.stateCache.texUnit = texUnit;
                                             }
 
@@ -1979,19 +2013,19 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                             if (gpuBinding.gpuTexView) {
                                                 const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
                                                 switch (glSampler.glType) {
-                                                    case WebGLRenderingContext.SAMPLER_2D: {
+                                                    case WebGL2RenderingContext.SAMPLER_2D: {
                                                         glTexUnit = device.stateCache.glTex2DUnits[texUnit];
                                                         if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                                                            gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, gpuTexture.glTexture);
+                                                            gl.bindTexture(WebGL2RenderingContext.TEXTURE_2D, gpuTexture.glTexture);
                                                             glTexUnit.glTexture = gpuTexture.glTexture;
                                                         }
                                                         break;
                                                     }
-                                                    case WebGLRenderingContext.SAMPLER_CUBE: {
+                                                    case WebGL2RenderingContext.SAMPLER_CUBE: {
                                                         glTexUnit = device.stateCache.glTexCubeUnits[texUnit];
 
                                                         if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                                                            gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
+                                                            gl.bindTexture(WebGL2RenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                                                             glTexUnit.glTexture = gpuTexture.glTexture;
                                                         }
                                                         break;
@@ -2005,22 +2039,22 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     const gpuSampler = gpuBinding.gpuSampler;
 
                                                     if (gpuTexture.glWrapS !== gpuSampler.glWrapS) {
-                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, gpuSampler.glWrapS);
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_S, gpuSampler.glWrapS);
                                                         gpuTexture.glWrapS = gpuSampler.glWrapS;
                                                     }
 
                                                     if (gpuTexture.glWrapT !== gpuSampler.glWrapT) {
-                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, gpuSampler.glWrapT);
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_T, gpuSampler.glWrapT);
                                                         gpuTexture.glWrapT = gpuSampler.glWrapT;
                                                     }
 
                                                     if (gpuTexture.glMinFilter !== gpuSampler.glMinFilter) {
-                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
                                                         gpuTexture.glMinFilter = gpuSampler.glMinFilter;
                                                     }
 
                                                     if (gpuTexture.glMagFilter !== gpuSampler.glMagFilter) {
-                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
                                                         gpuTexture.glMagFilter = gpuSampler.glMagFilter;
                                                     }
                                                 }
@@ -2058,7 +2092,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                         if (glAttrib) {
                             if (device.stateCache.glArrayBuffer !== glAttrib.glBuffer) {
-                                gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, glAttrib.glBuffer);
+                                gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, glAttrib.glBuffer);
                                 device.stateCache.glArrayBuffer = glAttrib.glBuffer;
                             }
 
@@ -2080,7 +2114,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                     const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                     if (gpuBuffer) {
                         if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                            gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                            gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                             device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
                         }
                     }
@@ -2173,14 +2207,14 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                     switch (cmd2.stencilWriteMask.face) {
                                         case GFXStencilFace.FRONT: {
                                             if (device.stateCache.dss.stencilWriteMaskFront !== cmd2.stencilWriteMask.writeMask) {
-                                                gl.stencilMaskSeparate(WebGLRenderingContext.FRONT, cmd2.stencilWriteMask.writeMask);
+                                                gl.stencilMaskSeparate(WebGL2RenderingContext.FRONT, cmd2.stencilWriteMask.writeMask);
                                                 device.stateCache.dss.stencilWriteMaskFront = cmd2.stencilWriteMask.writeMask;
                                             }
                                             break;
                                         }
                                         case GFXStencilFace.BACK: {
                                             if (device.stateCache.dss.stencilWriteMaskBack !== cmd2.stencilWriteMask.writeMask) {
-                                                gl.stencilMaskSeparate(WebGLRenderingContext.BACK, cmd2.stencilWriteMask.writeMask);
+                                                gl.stencilMaskSeparate(WebGL2RenderingContext.BACK, cmd2.stencilWriteMask.writeMask);
                                                 device.stateCache.dss.stencilWriteMaskBack = cmd2.stencilWriteMask.writeMask;
                                             }
                                             break;
@@ -2205,7 +2239,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                             if (device.stateCache.dss.stencilRefFront !== cmd2.stencilCompareMask.reference ||
                                                 device.stateCache.dss.stencilReadMaskFront !== cmd2.stencilCompareMask.compareMask) {
                                                 gl.stencilFuncSeparate(
-                                                    WebGLRenderingContext.FRONT,
+                                                    WebGL2RenderingContext.FRONT,
                                                     WebGLCmpFuncs[device.stateCache.dss.stencilFuncFront],
                                                     cmd2.stencilCompareMask.reference,
                                                     cmd2.stencilCompareMask.compareMask);
@@ -2218,7 +2252,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                             if (device.stateCache.dss.stencilRefBack !== cmd2.stencilCompareMask.reference ||
                                                 device.stateCache.dss.stencilReadMaskBack !== cmd2.stencilCompareMask.compareMask) {
                                                 gl.stencilFuncSeparate(
-                                                    WebGLRenderingContext.BACK,
+                                                    WebGL2RenderingContext.BACK,
                                                     WebGLCmpFuncs[device.stateCache.dss.stencilFuncBack],
                                                     cmd2.stencilCompareMask.reference,
                                                     cmd2.stencilCompareMask.compareMask);
@@ -2322,10 +2356,10 @@ export function WebGL2CmdFuncCopyBufferToTexture (
     let buffOffset = 0;
 
     switch (gpuTexture.glTarget) {
-        case WebGLRenderingContext.TEXTURE_2D: {
+        case WebGL2RenderingContext.TEXTURE_2D: {
             const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, gpuTexture.glTexture);
+                gl.bindTexture(WebGL2RenderingContext.TEXTURE_2D, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
@@ -2342,7 +2376,7 @@ export function WebGL2CmdFuncCopyBufferToTexture (
                         const data = buff.slice(buffOffset, buffOffset + memSize);
                         const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
 
-                        gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
+                        gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, m,
                             region.texOffset.x, region.texOffset.y, w, h,
                             gpuTexture.glFormat, gpuTexture.glType, pixels);
 
@@ -2363,7 +2397,7 @@ export function WebGL2CmdFuncCopyBufferToTexture (
                         const data = buff.slice(buffOffset, buffOffset + memSize);
                         const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
 
-                        gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
+                        gl.compressedTexSubImage2D(WebGL2RenderingContext.TEXTURE_2D, m,
                             region.texOffset.x, region.texOffset.y, w, h,
                             gpuTexture.glFormat, pixels);
 
@@ -2375,10 +2409,10 @@ export function WebGL2CmdFuncCopyBufferToTexture (
             }
             break;
         }
-        case WebGLRenderingContext.TEXTURE_CUBE_MAP: {
+        case WebGL2RenderingContext.TEXTURE_CUBE_MAP: {
             const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
+                gl.bindTexture(WebGL2RenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
@@ -2397,7 +2431,7 @@ export function WebGL2CmdFuncCopyBufferToTexture (
                             const data = buff.slice(buffOffset, buffOffset + memSize);
                             const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
 
-                            gl.texSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                            gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, gpuTexture.glType, pixels);
 
@@ -2421,7 +2455,7 @@ export function WebGL2CmdFuncCopyBufferToTexture (
                             const data = buff.slice(buffOffset, buffOffset + memSize);
                             const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
 
-                            gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                            gl.compressedTexSubImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, pixels);
 
