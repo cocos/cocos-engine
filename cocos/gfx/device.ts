@@ -15,6 +15,12 @@ import { GFXTexture, IGFXTextureInfo } from './texture';
 import { GFXTextureView, IGFXTextureViewInfo } from './texture-view';
 import { GFXWindow, IGFXWindowInfo } from './window';
 
+export enum GFXAPI {
+    UNKNOWN,
+    WEBGL,
+    WEBGL2,
+}
+
 export enum GFXFeature {
     TEXTURE_FLOAT,
     TEXTURE_HALF_FLOAT,
@@ -37,6 +43,10 @@ export abstract class GFXDevice {
 
     public get canvas2D (): HTMLCanvasElement {
         return this._canvas2D as HTMLCanvasElement;
+    }
+
+    public get gfxAPI (): GFXAPI {
+        return this._gfxAPI;
     }
 
     public get queue (): GFXQueue {
@@ -105,6 +115,7 @@ export abstract class GFXDevice {
 
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
+    protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
     protected _deviceName: string = '';
     protected _renderer: string = '';
     protected _vendor: string = '';

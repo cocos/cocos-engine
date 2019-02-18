@@ -13,7 +13,7 @@ import {
     GFXTextureType,
     GFXTextureViewType,
 } from '../define';
-import { GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
+import { GFXDevice, GFXFeature, IGFXDeviceInfo, GFXAPI } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
@@ -215,6 +215,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
         console.info('WebGL device initialized.');
 
+        this._gfxAPI = GFXAPI.WEBGL;
         this._deviceName = 'WebGL';
         const gl = this._webGLRC;
 

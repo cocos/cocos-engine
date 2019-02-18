@@ -3,7 +3,7 @@ import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import { GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXQueueType } from '../define';
-import { GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
+import { GFXDevice, GFXFeature, IGFXDeviceInfo, GFXAPI } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
@@ -124,7 +124,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         // No errors are thrown using try catch
         // Tested through ios baidu browser 4.14.1
         if (!this._webGL2RC) {
-            console.error('This device does not support WebGL.');
+            console.error('This device does not support WebGL2.');
             return false;
         }
 
@@ -132,6 +132,7 @@ export class WebGL2GFXDevice extends GFXDevice {
 
         console.info('WebGL2 device initialized.');
 
+        this._gfxAPI = GFXAPI.WEBGL2;
         this._deviceName = 'WebGL2';
         const gl = this._webGL2RC;
 
