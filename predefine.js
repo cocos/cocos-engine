@@ -131,7 +131,7 @@ var _global = typeof window === 'undefined' ? global : window;
 let cc = _global.cc = _global.cc || {};
 
 // For internal usage
-_global._cc = _global._cc || {};
+cc.internal = cc.internal || {};
 
 
 function defineMacro (name, defaultValue) {

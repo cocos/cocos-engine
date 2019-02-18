@@ -27,6 +27,8 @@
 import { CCObject } from '../core/data/object';
 import { MutableForwardIterator } from '../core/utils/array';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
+import * as js from '../core/utils/js';
+const fastRemoveAt = js.array.fastRemoveAt;
 
 var IsStartCalled = CCObject.Flags.IsStartCalled;
 var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
@@ -333,7 +335,7 @@ class ComponentScheduler {
         // cancel schedule task
         var index = this.scheduleInNextFrame.indexOf(comp);
         if (index >= 0) {
-            array.fastRemoveAt(this.scheduleInNextFrame, index);
+            js.array.fastRemoveAt(this.scheduleInNextFrame, index);
             return;
         }
 

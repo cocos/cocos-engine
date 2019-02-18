@@ -34,7 +34,7 @@ function isUniformStorage (storage: JointStorage): storage is IJointUniformsStor
     return !('texture' in storage);
 }
 
-export const __FORCE_USE_UNIFORM_STORAGE__ = false;
+export const __FORCE_USE_UNIFORM_STORAGE__ = true;
 
 export class SkinningModel extends Model {
     private _jointStorage: JointStorage | null = null;
