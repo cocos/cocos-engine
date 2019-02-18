@@ -25,7 +25,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass, property } from '../core/data/class-decorator';
+import { ccclass } from '../core/data/class-decorator';
 import EventTarget from '../core/event/event-target';
 import { addon } from '../core/utils/js';
 import Rect, { rect } from '../core/value-types/rect';

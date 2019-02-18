@@ -558,6 +558,7 @@ class View extends EventTarget {
         const w = width * this._devicePixelRatio;
         const h = height * this._devicePixelRatio;
         cc.director.root.resize(w, h);
+        this.emit('canvas-size-update');
 
         canvas.style.width = width + 'px';
         canvas.style.height = height + 'px';

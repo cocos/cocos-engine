@@ -45,3 +45,5 @@ import { Component } from "../../../components/component";
 export class ViewGroupComponent extends Component{
 
 }
+
+cc.ViewGroupComponent = ViewGroupComponent;

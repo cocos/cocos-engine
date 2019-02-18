@@ -34,6 +34,7 @@ import { vec3 } from '../../../core/vmath';
 import { EventType } from '../../../scene-graph/node-event-enum';
 import { SpriteComponent } from './sprite-component';
 
+const _tempPos = new Vec3();
 /**
  * !#en The Slider Direction
  * !#zh 滑动器方向
@@ -203,7 +204,7 @@ export class SliderComponent extends Component {
         this._touchHandle = true;
         const touhPos = event.touch!.getLocation();
         vec3.set(this._touchPos, touhPos.x, touhPos.y, 0);
-        this._offset = this._handle.node.uiTransfromComp.convertToNodeSpaceAR(this._touchPos);
+        this._handle.node.uiTransfromComp.convertToNodeSpaceAR(this._offset, this._touchPos);
 
         event.propagationStopped = true;
     }
@@ -261,7 +262,7 @@ export class SliderComponent extends Component {
         if (!this._handle) { return; }
         const touchPos = (touch as EventTouch).getLocation();
         vec3.set(this._touchPos, touchPos.x, touchPos.y, 0);
-        const localTouchPos = this.node.uiTransfromComp!.convertToNodeSpaceAR(this._touchPos);
+        const localTouchPos = this.node.uiTransfromComp!.convertToNodeSpaceAR(_tempPos, this._touchPos);
         if (this.direction === Direction.Horizontal) {
             this.progress = clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width!);
         } else {

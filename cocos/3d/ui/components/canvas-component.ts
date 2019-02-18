@@ -30,7 +30,10 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer/scene/camera';
 import { Node } from '../../../scene-graph/node';
-import { Color, Rect, Size } from '../../../core/value-types';
+import { Color, Rect, Size, Vec3 } from '../../../core/value-types';
+
+let _tempPos= new Vec3();
+let _worldPos = new Vec3();
 
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
@@ -108,6 +111,7 @@ export class CanvasComponent extends Component {
         return this._camera;
     }
 
+    public static instance: CanvasComponent | null = null;
     public static views = [];
     /**
      * !#en The desigin resolution for current scene.
@@ -139,6 +143,9 @@ export class CanvasComponent extends Component {
     constructor () {
         super();
         this._thisOnResized = this.alignWithScreen.bind(this);
+        if(!CanvasComponent.instance){
+            CanvasComponent.instance = this;
+        }
     }
 
     // public onLoad () {}
@@ -167,6 +174,9 @@ export class CanvasComponent extends Component {
             isUI: true,
         });
 
+        const device = cc.director.root.device;
+        this._camera.resize(device.width, device.height);
+
         cc.director.root.ui.addScreen(this);
 
         // if (CC_DEV) {
@@ -182,16 +192,18 @@ export class CanvasComponent extends Component {
 
         if (CC_EDITOR) {
             cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-            cc.engine.on('design-resolution-changed', this._thisOnResized);
+            // cc.view.on('canvas-resize', this._thisOnResized);
+            // cc.engine.on('design-resolution-changed', this._thisOnResized);
         }
         else {
-            if (cc.sys.isMobile) {
-                window.addEventListener('resize', this._thisOnResized);
-            }
-            else {
-                cc.view.on('canvas-resize', this._thisOnResized);
-            }
+            // if (cc.sys.isMobile) {
+            //     window.addEventListener('resize', this._thisOnResized);
+            // }
+            // else {
+            //     cc.view.on('canvas-resize', this._thisOnResized);
+            // }
         }
+        cc.view.on('canvas-size-update', this._thisOnResized);
 
         this.applySettings();
         this.alignWithScreen();
@@ -207,24 +219,23 @@ export class CanvasComponent extends Component {
     public onDestroy () {
         if (CC_EDITOR) {
             cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-            cc.engine.off('design-resolution-changed', this._thisOnResized);
+            // cc.view.off('canvas-resize', this._thisOnResized);
+            // cc.engine.off('design-resolution-changed', this._thisOnResized);
         }
-        else {
-            if (cc.sys.isMobile) {
-                window.removeEventListener('resize', this._thisOnResized);
-            } else {
-                cc.view.off('canvas-resize', this._thisOnResized);
-            }
-        }
-
-        cc.view.off('design-resolution-changed', this._thisOnResized);
-
-        // if (CanvasComponent.instance === this) {
-        //     CanvasComponent.instance = null;
+        // else {
+            // if (cc.sys.isMobile) {
+            //     window.removeEventListener('resize', this._thisOnResized);
+            // } else {
+            //     cc.view.off('canvas-resize', this._thisOnResized);
+            // }
         // }
-    }
+        cc.view.off('canvas-size-update', this._thisOnResized);
+        // cc.view.off('design-resolution-changed', this._thisOnResized);
 
-    //
+        if (CanvasComponent.instance === this) {
+            CanvasComponent.instance = null;
+        }
+    }
 
     public alignWithScreen() {
         let nodeSize, designSize;
@@ -248,18 +259,20 @@ export class CanvasComponent extends Component {
             this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 1);
         }
 
-        if(this.node.width!==nodeSize.width){
+        if (this.node.width !== nodeSize.width) {
             this.node.width = nodeSize.width;
         }
 
-        if(this.node.height !== nodeSize.height){
+        if (this.node.height !== nodeSize.height) {
             this.node.height = nodeSize.height;
         }
 
-        let nodeWorldPos = this.node.getWorldPosition();
+        this.node.getWorldPosition(_worldPos);
         if (this._camera) {
+            const size = cc.view.getVisibleSize();
+            this._camera.resize(size.width, size.height);
             this._camera.orthoHeight = this._camera.height / 2;
-            this._camera.node.setPosition(nodeWorldPos.x, nodeWorldPos.y, this._camera.node.getWorldPosition().z);
+            this._camera.node.setPosition(_worldPos.x, _worldPos.y, 1000);
             this._camera.update();
         }
     }

@@ -30,6 +30,7 @@ import { Size, Vec3, Rect, Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { Node } from '../../../scene-graph/node';
 import { UITransformComponent } from './ui-transfrom-component';
+import { vec3 } from '../../../core/vmath';
 const NodeEvent = Node.EventType;
 /**
  * !#en Enum for Layout type
@@ -890,12 +891,15 @@ export class LayoutComponent extends Component {
                 return;
             }
 
-            let leftBottomInParentSpace = parentTransform.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
-            leftBottomInParentSpace = cc.v2(leftBottomInParentSpace.x - this._paddingLeft, leftBottomInParentSpace.y - this._paddingBottom);
+            vec3.set(_tempPos, allChildrenBoundingBox.x, allChildrenBoundingBox.y, 0);
+            let leftBottomInParentSpace = new Vec3();
+            parentTransform.convertToNodeSpaceAR(leftBottomInParentSpace, _tempPos);
+            vec3.set(leftBottomInParentSpace, leftBottomInParentSpace.x - this._paddingLeft, leftBottomInParentSpace.y - this._paddingBottom, leftBottomInParentSpace.z);
 
-            let rightTopInParentSpace = parentTransform.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
-                allChildrenBoundingBox.y + allChildrenBoundingBox.height));
-            rightTopInParentSpace = cc.v2(rightTopInParentSpace.x + this._paddingRight, rightTopInParentSpace.y + this._paddingTop);
+            vec3.set(_tempPos, allChildrenBoundingBox.x + allChildrenBoundingBox.width, allChildrenBoundingBox.y + allChildrenBoundingBox.height, 0);
+            let rightTopInParentSpace = new Vec3();
+            parentTransform.convertToNodeSpaceAR(rightTopInParentSpace, _tempPos);
+            vec3.set(rightTopInParentSpace, rightTopInParentSpace.x + this._paddingRight, rightTopInParentSpace.y + this._paddingTop, rightTopInParentSpace.z)
 
             const newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
                 parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
@@ -925,8 +929,10 @@ export class LayoutComponent extends Component {
             paddingY = this._paddingTop;
         }
 
+        const self = this;
+
         const fnPositionY = function (child, topOffset, row) {
-            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height * this._getUsedScaleValue(child.scaleY) + paddingY + row * this._spacingY);
+            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height * self._getUsedScaleValue(child.scaleY) + paddingY + row * this._spacingY);
         }.bind(this);
 
         let newHeight = 0;
@@ -965,8 +971,9 @@ export class LayoutComponent extends Component {
             paddingX = this._paddingRight;
         }
 
+        const self = this;
         const fnPositionX = function (child, leftOffset, column) {
-            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width * this._getUsedScaleValue(child.scaleX) + paddingX + column * this._spacingX);
+            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width * self._getUsedScaleValue(child.scaleX) + paddingX + column * this._spacingX);
         }.bind(this);
 
         let newWidth = 0;

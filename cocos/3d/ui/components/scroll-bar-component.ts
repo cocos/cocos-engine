@@ -26,33 +26,37 @@
 
 import { Component } from '../../../components/component';
 import { clamp01 } from '../../../core/utils/misc';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { UIRenderComponent } from './ui-render-component';
-import { Vec3 } from '../../../core/value-types';
+import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { Vec3, Vec2, Size } from '../../../core/value-types';
 import { Node } from '../../../scene-graph/node';
 import { ScrollViewComponent } from './scroll-view-component';
-import { UITransformComponent } from './ui-transfrom-component';
 import { vec3 } from '../../../core/vmath';
+import { SpriteComponent } from './sprite-component';
+import { ccenum } from '../../../core/value-types/enum';
 
 const GETTINGSHORTERFACTOR = 20;
 const ZERO = new Vec3();
-const _tempPos = new Vec3();
+const _tempPos_1 = new Vec3();
+const _tempPos_2 = new Vec3();
+const defaultAnchor = new Vec2();
 
 /**
  * Enum for Scrollbar direction
  * @enum Scrollbar.Direction
  */
-var Direction = cc.Enum({
+enum Direction {
     /**
      * @property {Number} HORIZONTAL
      */
-    HORIZONTAL: 0,
+    HORIZONTAL = 0,
 
     /**
      * @property {Number} VERTICAL
      */
-    VERTICAL: 1
-});
+    VERTICAL = 1
+};
+
+ccenum(Direction);
 
 /**
  * !#en
@@ -63,12 +67,12 @@ var Direction = cc.Enum({
  */
 @ccclass('cc.ScrollBarComponent')
 @executionOrder(100)
-@executeInEditMode
+@menu('UI/ScrollBar')
 export class ScrollBarComponent extends Component {
     @property
     private _scrollView: ScrollViewComponent | null = null;
     @property
-    private _handle: UIRenderComponent | null = null;
+    private _handle: SpriteComponent | null = null;
     @property
     private _direction = Direction.HORIZONTAL;
     @property
@@ -77,7 +81,7 @@ export class ScrollBarComponent extends Component {
     private _autoHideTime = 1.0;
 
     private _touching = false;
-    private _opacity = 0;
+    private _opacity = 255;
     private _autoHideRemainingTime = 0;
 
     /**
@@ -86,13 +90,13 @@ export class ScrollBarComponent extends Component {
      * @property {Sprite} handle
      */
     @property({
-        type: UIRenderComponent
+        type: SpriteComponent
     })
     get handle() {
         return this._handle;
     }
 
-    set handle(value: UIRenderComponent | null) {
+    set handle(value: SpriteComponent | null) {
         if (this._handle === value) {
             return
         }
@@ -118,7 +122,7 @@ export class ScrollBarComponent extends Component {
         }
 
         this._direction = value;
-        this.onScroll(cc.v2(0, 0));
+        this.onScroll(new Vec3());
     }
 
     /**
@@ -126,6 +130,7 @@ export class ScrollBarComponent extends Component {
      * !#zh 是否在没有滚动动作时自动隐藏 ScrollBar。
      * @property {Boolean} enableAutoHide
      */
+    @property
     get enableAutoHide() {
         return this._enableAutoHide;
     }
@@ -166,7 +171,7 @@ export class ScrollBarComponent extends Component {
     static Direction = Direction;
 
     protected onEnable() {
-        let renderComp = this.node.getComponent(UIRenderComponent);
+        let renderComp = this.node.getComponent(SpriteComponent);
         if (renderComp) {
             this._opacity = renderComp.color.a;
         }
@@ -197,28 +202,26 @@ export class ScrollBarComponent extends Component {
             return ZERO;
         }
 
-        const uiTransform = this._scrollView.node.getComponent(UITransformComponent)!;
-        const worldSpacePos = content.getWorldPosition();
-        // const scrollViewSpacePos = uiTransform.convertToNodeSpace(worldSpacePos);
-        const scrollViewSpacePos = uiTransform.convertToNodeSpaceAR(worldSpacePos);
+        const worldSpacePos = content.uiTransfromComp!.convertToWorldSpace(ZERO);
+        const scrollViewSpacePos = this._scrollView.node.uiTransfromComp!.convertToNodeSpace(worldSpacePos);
         return scrollViewSpacePos;
     }
 
     private _setOpacity(opacity: number) {
         if (this._handle) {
-            let renderComp = this.node.getComponent(UIRenderComponent);
+            let renderComp = this.node.getComponent(SpriteComponent);
             if (renderComp) {
                 renderComp.color.a = opacity;
             }
 
-            renderComp = this._handle.getComponent(UIRenderComponent);
+            renderComp = this._handle.getComponent(SpriteComponent);
             if (renderComp) {
                 renderComp.color.a = opacity;
             }
         }
     }
 
-    public onScroll(outOfBoundary) {
+    public onScroll(outOfBoundary: Vec3) {
         if (!this._scrollView) {
             return
         }
@@ -238,7 +241,7 @@ export class ScrollBarComponent extends Component {
 
         if (this._enableAutoHide) {
             this._autoHideRemainingTime = this._autoHideTime;
-            // this._setOpacity(this._opacity);
+            this._setOpacity(this._opacity);
         }
 
         let contentMeasure = 0;
@@ -276,7 +279,7 @@ export class ScrollBarComponent extends Component {
         this._scrollView = scrollView;
     }
 
-    private _updateHanlderPosition(position) {
+    private _updateHanlderPosition(position: Vec3) {
         if (this._handle) {
             const oldPosition = this._fixupHandlerPosition();
 
@@ -285,30 +288,25 @@ export class ScrollBarComponent extends Component {
     }
 
     private _fixupHandlerPosition() {
-        if (!this._handle) {
-            return ZERO;
-        }
-
         const barSize = this.node.getContentSize();
         const barAnchor = this.node.getAnchorPoint();
-        const handleSize = this._handle.node.getContentSize();
-        // const handleParent = this._handle.node.parent!;
-        const handleTransform = handleParent.getComponent(UITransformComponent);
-        if (!handleTransform) {
-            return ZERO;
+        const handleSize = this.handle!.node.getContentSize();
+
+        const handleParent = this.handle!.node.parent!;
+
+
+        vec3.set(_tempPos_1, -barSize.width * barAnchor.x, -barSize.height * barAnchor.y, 0);
+        const leftBottomWorldPosition = this.node!.uiTransfromComp!.convertToWorldSpaceAR(_tempPos_2, _tempPos_1);
+        let fixupPosition = new Vec3();
+        handleParent.uiTransfromComp!.convertToNodeSpaceAR(fixupPosition, leftBottomWorldPosition);
+
+        if (this.direction === Direction.HORIZONTAL) {
+            fixupPosition = new Vec3(fixupPosition.x, fixupPosition.y + (barSize.height - handleSize.height) / 2, 0);
+        } else if (this.direction === Direction.VERTICAL) {
+            fixupPosition = new Vec3(fixupPosition.x + (barSize.width - handleSize.width) / 2, fixupPosition.y, 0);
         }
 
-        vec3.set(_tempPos, -barSize.width * barAnchor.x, -barSize.height * barAnchor.y)
-        const leftBottomWorldPosition = this.node.getWorldPosition(_tempPos);
-        const fixupPosition = handleParent.convertToNodeSpaceAR(leftBottomWorldPosition);
-
-        if (this._direction === Direction.HORIZONTAL) {
-            fixupPosition = cc.v2(fixupPosition.x, fixupPosition.y + (barSize.height - handleSize.height) / 2);
-        } else if (this._direction === Direction.VERTICAL) {
-            fixupPosition = cc.v2(fixupPosition.x + (barSize.width - handleSize.width) / 2, fixupPosition.y);
-        }
-
-        this._handle.node.setPosition(fixupPosition);
+        this.handle!.node.setPosition(fixupPosition);
 
         return fixupPosition;
     }
@@ -320,7 +318,7 @@ export class ScrollBarComponent extends Component {
         this._touching = true;
     }
 
-    private _conditionalDisableScrollBar(contentSize, scrollViewSize) {
+    private _conditionalDisableScrollBar(contentSize: Size, scrollViewSize: Size) {
         if (contentSize.width <= scrollViewSize.width && this._direction === Direction.HORIZONTAL) {
             return true;
         }
@@ -344,10 +342,10 @@ export class ScrollBarComponent extends Component {
 
 
         if (this._scrollView) {
-            var content = this._scrollView.content;
+            const content = this._scrollView.content;
             if (content) {
-                var contentSize = content.getContentSize();
-                var scrollViewSize = this._scrollView.node.getContentSize();
+                const contentSize = content.getContentSize();
+                const scrollViewSize = this._scrollView.node.getContentSize();
 
                 if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
                     return;
@@ -358,41 +356,45 @@ export class ScrollBarComponent extends Component {
         this._autoHideRemainingTime = this._autoHideTime;
     }
 
-    private _calculateLength(contentMeasure, scrollViewMeasure, handleNodeMeasure, outOfBoundary) {
-        var denominatorValue = contentMeasure;
+    private _calculateLength(contentMeasure: number, scrollViewMeasure: number, handleNodeMeasure: number, outOfBoundary: number) {
+        let denominatorValue = contentMeasure;
         if (outOfBoundary) {
             denominatorValue += (outOfBoundary > 0 ? outOfBoundary : -outOfBoundary) * GETTINGSHORTERFACTOR;
         }
 
-        var lengthRation = scrollViewMeasure / denominatorValue;
+        const lengthRation = scrollViewMeasure / denominatorValue;
         return handleNodeMeasure * lengthRation;
     }
 
-    private _calculatePosition(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundary, actualLenth) {
-        var denominatorValue = contentMeasure - scrollViewMeasure;
+    private _calculatePosition(contentMeasure: number, scrollViewMeasure: number, handleNodeMeasure: number, contentPosition: number, outOfBoundary: number, actualLenth: number) {
+        let denominatorValue = contentMeasure - scrollViewMeasure;
         if (outOfBoundary) {
             denominatorValue += Math.abs(outOfBoundary);
         }
 
-        var positionRatio = 0;
+        let positionRatio = 0;
         if (denominatorValue) {
             positionRatio = contentPosition / denominatorValue;
             positionRatio = clamp01(positionRatio);
         }
 
-        var position = (handleNodeMeasure - actualLenth) * positionRatio;
+        const position = (handleNodeMeasure - actualLenth) * positionRatio;
         if (this._direction === Direction.VERTICAL) {
-            return cc.v2(0, position);
+            return new Vec3(0, position, 0);
         } else {
-            return cc.v2(position, 0);
+            return new Vec3(position, 0, 0);
         }
     }
 
-    private _updateLength(length) {
+    private _updateLength(length: number) {
         if (this._handle) {
-            var handleNode = this._handle.node;
-            var handleNodeSize = handleNode.getContentSize();
-            handleNode.setAnchorPoint(cc.v2(0, 0));
+            let handleNode = this._handle.node;
+            const handleNodeSize = handleNode.getContentSize();
+            const anchor = handleNode.getAnchorPoint();
+            if(anchor.x !== defaultAnchor.x || anchor.y !== defaultAnchor.y){
+                handleNode.setAnchorPoint(defaultAnchor);
+            }
+
             if (this._direction === Direction.HORIZONTAL) {
                 handleNode.setContentSize(length, handleNodeSize.height);
             } else {
@@ -401,7 +403,7 @@ export class ScrollBarComponent extends Component {
         }
     }
 
-    private _processAutoHide(deltaTime) {
+    private _processAutoHide(deltaTime: number) {
         if (!this._enableAutoHide || this._autoHideRemainingTime <= 0) {
             return;
         } else if (this._touching) {
@@ -412,8 +414,8 @@ export class ScrollBarComponent extends Component {
         this._autoHideRemainingTime -= deltaTime;
         if (this._autoHideRemainingTime <= this._autoHideTime) {
             this._autoHideRemainingTime = Math.max(0, this._autoHideRemainingTime);
-            // var opacity = this._opacity * (this._autoHideRemainingTime / this._autoHideTime);
-            // this._setOpacity(opacity);
+            const opacity = this._opacity * (this._autoHideRemainingTime / this._autoHideTime);
+            this._setOpacity(opacity);
         }
     }
 }
