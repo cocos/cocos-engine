@@ -276,6 +276,10 @@ export class PhysicsBody {
     }
 
     private _onCollided (event: CANNON.ICollisionEvent) {
+        if (!this._node) {
+            return;
+        }
+        this._node.emit('collided', {});
         // console.log(`Collided {${getWrap<PhysicsBody>(event.body)._node.name}} and {${getWrap<PhysicsBody>(event.target)._node.name}}.`);
     }
 

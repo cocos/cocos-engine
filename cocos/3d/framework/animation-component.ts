@@ -177,6 +177,9 @@ class AnimationCtrl {
      * @param duration
      */
     public crossFade (to: AnimationState | null, duration: number) {
+        if (this._current === to) {
+            return;
+        }
         if (this._current && duration > 0.0) {
             this._next = to;
             this._blendTime = 0.0;
