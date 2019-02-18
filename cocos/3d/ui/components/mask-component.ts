@@ -36,6 +36,7 @@ import { scale, translate } from '../../primitive/transform';
 import { setupClearMaskMaterial, setupMaskMaterial } from '../assembler/mask-assembler';
 import { UIRenderComponent } from './ui-render-component';
 import { UITransformComponent } from './ui-transfrom-component';
+import { EventType }from '../../../scene-graph/node-event-enum';
 
 /**
  * !#en the type for mask.
@@ -70,11 +71,9 @@ const SEGEMENTS_MAX = 10000;
  * !#en The Mask Component.
  * !#zh 遮罩组件。
  */
-@ccclass('cc.Mask')
+@ccclass('cc.MaskComponent')
 @executionOrder(100)
 @menu('UI/Mask')
-@requireComponent(UITransformComponent)
-@executeInEditMode
 export class MaskComponent extends UIRenderComponent {
     public static Type = MaskType;
 
@@ -82,11 +81,14 @@ export class MaskComponent extends UIRenderComponent {
      * !#en The mask type.
      * !#zh 遮罩类型。
      */
-    public get type () {
+    @property({
+        type: MaskType
+    })
+    get type () {
         return this._type;
     }
 
-    public set type (value) {
+    set type(value: MaskType) {
         this._type = value;
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this.spriteFrame = null;
@@ -104,11 +106,14 @@ export class MaskComponent extends UIRenderComponent {
      * !#en The mask image
      * !#zh 遮罩所需要的贴图
      */
-    public get spriteFrame () {
+    @property({
+        type: SpriteFrame
+    })
+    get spriteFrame () {
         return this._spriteFrame;
     }
 
-    public set spriteFrame (value) {
+    set spriteFrame (value: SpriteFrame | null) {
         if (this._spriteFrame === value) {
             return;
         }
@@ -131,12 +136,15 @@ export class MaskComponent extends UIRenderComponent {
      */
     // @range: [0, 1, 0.1],
     // slide: true,
-    @property({type: cc.Float})
-    public get alphaThreshold () {
+    @property({
+        slide: true,
+        range:[0, 1, 0.1]
+    })
+    get alphaThreshold () {
         return this._alphaThreshold;
     }
 
-    public set alphaThreshold (value) {
+    set alphaThreshold (value) {
         this._alphaThreshold = value;
     }
 
@@ -144,12 +152,12 @@ export class MaskComponent extends UIRenderComponent {
      * !#en Reverse mask(Not supported in Canvas Mode).
      * !#zh 反向遮罩（不支持 Canvas 模式）。
      */
-    @property({type: Boolean})
-    public get inverted () {
+    @property()
+    get inverted () {
         return this._inverted;
     }
 
-    public set inverted (value) {
+    set inverted (value) {
         this._inverted = value;
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             cc.warnID(4202);
@@ -162,11 +170,12 @@ export class MaskComponent extends UIRenderComponent {
      * !#en The segements for ellipse mask.
      * !#zh 椭圆遮罩的曲线细分数
      */
-    public get segments () {
+    @property
+    get segments () {
         return this._segments;
     }
 
-    public set segments (value) {
+    set segments (value) {
         this._segments = clamp(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
     }
 
@@ -177,13 +186,13 @@ export class MaskComponent extends UIRenderComponent {
     private _type = MaskType.RECT;
 
     @property
-    private _alphaThreshold: number = 0;
+    private _alphaThreshold = 0;
 
     @property
-    private _inverted: boolean = false;
+    private _inverted = false;
 
     @property
-    private _segments: number = 64;
+    private _segments = 64;
 
     private _maskMaterial: Material | null = null;
 
@@ -200,16 +209,22 @@ export class MaskComponent extends UIRenderComponent {
     public onEnable () {
         super.onEnable();
         this._activateMaterial();
+
+        this.node.on(EventType.POSITION_PART, this._updateGraphics, this);
+        this.node.on(EventType.ROTATION_PART, this._updateGraphics, this);
+        this.node.on(EventType.SCALE_PART, this._updateGraphics, this);
+        this.node.on(EventType.SIZE_CHANGED, this._updateGraphics, this);
+        this.node.on(EventType.ANCHOR_CHANGED, this._updateGraphics, this);
     }
 
     public onDisable () {
         super.onDisable();
 
-        // this.node.off(Node.EventType.POSITION_CHANGED, this._updateGraphics, this);
-        // this.node.off(Node.EventType.ROTATION_CHANGED, this._updateGraphics, this);
-        // this.node.off(Node.EventType.SCALE_CHANGED, this._updateGraphics, this);
-        // this.node.off(Node.EventType.SIZE_CHANGED, this._updateGraphics, this);
-        // this.node.off(Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
+        this.node.off(EventType.POSITION_PART, this._updateGraphics, this);
+        this.node.off(EventType.ROTATION_PART, this._updateGraphics, this);
+        this.node.off(EventType.SCALE_PART, this._updateGraphics, this);
+        this.node.off(EventType.SIZE_CHANGED, this._updateGraphics, this);
+        this.node.off(EventType.ANCHOR_CHANGED, this._updateGraphics, this);
 
         // this.node._renderFlag &= ~RenderFlow.FLAG_POST_RENDER;
     }
@@ -225,7 +240,7 @@ export class MaskComponent extends UIRenderComponent {
     //     }
     // }
 
-    public _onTextureLoaded () {
+    private _onTextureLoaded () {
         // Mark render data dirty
         if (this._renderData) {
             this._renderData.uvDirty = true;
@@ -237,7 +252,7 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
-    public _applySpriteFrame (oldFrame) {
+    private _applySpriteFrame (oldFrame) {
         if (oldFrame && oldFrame.off) {
             oldFrame.off('load', this._onTextureLoaded, this);
         }
@@ -252,31 +267,31 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
-    public _activateMaterial () {
+    private _activateMaterial () {
         if (!this._maskMaterial) {
-            this._maskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'), this);
+            this._maskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'), this, CC_EDITOR ? true : false);
             setupMaskMaterial(this._maskMaterial);
         }
 
         if (!this._clearMaskMaterial) {
-            this._clearMaskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'), this);
+            this._clearMaskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'), this, CC_EDITOR ? true : false);
             setupClearMaskMaterial(this._clearMaskMaterial);
         }
     }
 
-    public _getMaskGeometry () {
+    public getMaskGeometry () {
         return this._maskGeometry;
     }
 
-    public _getClearGeometry () {
+    public getClearGeometry () {
         return this._clearGeometry;
     }
 
-    public _getMaskMaterial (): Material | null {
+    public getMaskMaterial (): Material | null {
         return this._maskMaterial;
     }
 
-    public _getClearMaterial (): Material | null {
+    public getClearMaterial (): Material | null {
         return this._clearMaskMaterial;
     }
 
@@ -309,14 +324,14 @@ export class MaskComponent extends UIRenderComponent {
         return null;
     }
 
-    private _drawRect (x: number, y: number, width: number, height: number) {
+    private _drawRect (x, y, width, height) {
         const geometry = quad({ includeNormal: false, includeUV: false });
         scale(geometry, { x: width, y: height });
         translate(geometry, { x: x + width / 2, y: y + height / 2 });
         return geometry;
     }
 
-    private _drawEllipse (cx: number, cy: number, rx: number, ry: number) {
+    private _drawEllipse (cx, cy, rx, ry) {
         const geometry = circle({ includeNormal: false, includeUV: false });
         scale(geometry, { x: rx, y: ry });
         translate(geometry, { x: cx, y: cy });
@@ -325,4 +340,4 @@ export class MaskComponent extends UIRenderComponent {
 }
 
 // tslint:disable-next-line
-cc['MaskComponent'] = MaskComponent;
+cc.MaskComponent = MaskComponent;

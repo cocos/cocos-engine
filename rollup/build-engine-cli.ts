@@ -19,7 +19,7 @@ const globalDefs = getGlobalDefs(yargs.argv.platform as Platform, flags);
 build({
     compress: yargs.argv.compress as (boolean | undefined),
     globalDefines: globalDefs,
-    inputPath: './index.js',
+    inputPath: './index.ts',
     outputPath: yargs.argv.destination as string,
     sourcemap: yargs.argv.sourcemap as (boolean | undefined),
 }).then(

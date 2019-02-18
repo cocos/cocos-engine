@@ -70,7 +70,7 @@ export const sliced: IAssembler = {
         if (renderData && frame) {
             const vertDirty = renderData.vertDirty;
             if (vertDirty) {
-                this.updateVerts(sprite);
+                this.updateVerts!(sprite);
                 this.updateWorldVerts!(sprite);
             }
         }
@@ -80,10 +80,10 @@ export const sliced: IAssembler = {
         const renderData: RenderData | null = sprite.renderData;
         const datas: IRenderData[] = renderData!.datas;
         const node: Node = sprite.node;
-        const width = node.width;
-        const height = node.height;
-        const appx = node.anchorX * width;
-        const appy = node.anchorY * height;
+        const width = node.width!;
+        const height = node.height!;
+        const appx = node.anchorX! * width;
+        const appy = node.anchorY! * height;
 
         const frame: SpriteFrame|null = sprite.spriteFrame;
         const leftWidth = frame!.insetLeft;
@@ -142,8 +142,7 @@ export const sliced: IAssembler = {
         // const  uintbuf = buffer._uintVData,
         const ibuf: Uint16Array|null = buffer.iData;
 
-        // for (let i = 4; i < 20; ++i) {
-        for (let i = 4; i < 16; ++i) {
+        for (let i = 4; i < 20; ++i) {
             const vert = datas[i];
             const uvs = uvSliced[i - 4];
 

@@ -25,9 +25,9 @@
  ****************************************************************************/
 
 import { Component} from '../../../components/component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { clamp01 } from '../../../core/utils/misc';
-import { Enum } from '../../../core/value-types';
+import { Enum, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { SpriteComponent } from './sprite-component';
 
 /**
@@ -99,7 +99,7 @@ export class ProgressBarComponent extends Component {
         return this._barSprite;
     }
 
-    set barSprite (value: SpriteComponent) {
+    set barSprite (value: SpriteComponent | null) {
         if (this._barSprite === value) {
             return;
         }
@@ -130,7 +130,7 @@ export class ProgressBarComponent extends Component {
             const entity = this._barSprite.node;
             if (!entity) { return; }
 
-            const entitySize = entity.getContentSize();
+            const entitySize = entity.getContentSize() as Size;
             if (this._mode === Mode.HORIZONTAL) {
                 this.totalLength = entitySize.width;
             } else if (this._mode === Mode.VERTICAL) {
@@ -148,14 +148,14 @@ export class ProgressBarComponent extends Component {
      */
     @property
     get totalLength () {
-        return this._N$totalLength;
+        return this._totalLength;
     }
 
-    set totalLength (value: number) {
+    set totalLength (value) {
         if (this._mode === Mode.FILLED) {
             value = clamp01(value);
         }
-        this._N$totalLength = value;
+        this._totalLength = value;
         this._updateBarStatus();
     }
 
@@ -172,7 +172,7 @@ export class ProgressBarComponent extends Component {
         return this._progress;
     }
 
-    set progress (value: number) {
+    set progress (value) {
         if (this._progress === value) {
             return;
         }
@@ -191,7 +191,7 @@ export class ProgressBarComponent extends Component {
         return this._reverse;
     }
 
-    set reverse (value: boolean) {
+    set reverse (value) {
         if (this._reverse === value) {
             return;
         }
@@ -207,32 +207,32 @@ export class ProgressBarComponent extends Component {
     @property
     private _barSprite: SpriteComponent | null = null;
     @property
-    private _mode: number = Mode.HORIZONTAL;
-    private _N$totalLength: number = 1;
+    private _mode = Mode.HORIZONTAL;
     @property
-    private _progress: number = 0.1;
+    private _totalLength = 1;
     @property
-    private _reverse: boolean = false;
+    private _progress = 0.1;
+    @property
+    private _reverse = false;
 
-    public _initBarSprite () {
+    private _initBarSprite () {
         if (this._barSprite) {
             const entity = this._barSprite.node;
             if (!entity) { return; }
 
-            const nodeSize = this.node.getContentSize();
-            const nodeAnchor = this.node.getAnchorPoint();
+            const nodeSize = this.node.getContentSize() as Size;
+            const nodeAnchor = this.node.getAnchorPoint() as Vec2;
 
-            const entitySize = entity.getContentSize();
+            const barSpriteSize = entity.getContentSize() as Size;
 
-            if (entity.parent === this.node) {
-                this.node.setContentSize(entitySize);
-            }
+            // if (entity.parent === this.node) {
+            //     this.node.setContentSize(barSpriteSize);
+            // }
 
-            if (this._barSprite.fillType === cc.SpriteComponent.FillType.RADIAL) {
+            if (this._barSprite.fillType === SpriteComponent.FillType.RADIAL) {
                 this._mode = Mode.FILLED;
             }
 
-            const barSpriteSize = entity.getContentSize();
             if (this._mode === Mode.HORIZONTAL) {
                 this.totalLength = barSpriteSize.width;
             } else if (this._mode === Mode.VERTICAL) {
@@ -243,46 +243,47 @@ export class ProgressBarComponent extends Component {
 
             if (entity.parent === this.node) {
                 const x = - nodeSize.width * nodeAnchor.x;
-                const y = 0;
-                entity.setPosition(cc.v2(x, y));
+                entity.setPosition(x, 0, 0);
             }
         }
     }
 
-    public _updateBarStatus () {
+    private _updateBarStatus () {
         if (this._barSprite) {
             const entity = this._barSprite.node;
 
             if (!entity) { return; }
 
-            const entityAnchorPoint = entity.getAnchorPoint();
-            const entitySize = entity.getContentSize();
+            const entityAnchorPoint = entity.getAnchorPoint() as Vec2;
+            const entitySize = entity.getContentSize() as Size;
             const entityPosition = entity.getPosition();
 
-            let anchorPoint = cc.v2(0, 0.5);
+            let anchorPoint = new Vec2(0, 0.5);
             const progress = clamp01(this._progress);
-            let actualLenth = this.totalLength * progress;
-            let finalContentSize;
-            let totalWidth;
-            let totalHeight;
+            let actualLenth = this._totalLength * progress;
+            let finalContentSize = entitySize;
+            let totalWidth = 0;
+            let totalHeight = 0;
             switch (this._mode) {
                 case Mode.HORIZONTAL:
                     if (this._reverse) {
-                        anchorPoint = cc.v2(1, 0.5);
+                        anchorPoint = new Vec2(1, 0.5);
                     }
-                    finalContentSize = cc.size(actualLenth, entitySize.height);
-                    totalWidth = this.totalLength;
+
+                    finalContentSize = new Size(actualLenth, entitySize.height);
+                    totalWidth = this._totalLength;
                     totalHeight = entitySize.height;
                     break;
                 case Mode.VERTICAL:
                     if (this._reverse) {
-                        anchorPoint = cc.v2(0.5, 1);
+                        anchorPoint = new Vec2(0.5, 1);
                     } else {
-                        anchorPoint = cc.v2(0.5, 0);
+                        anchorPoint = new Vec2(0.5, 0);
                     }
-                    finalContentSize = cc.size(entitySize.width, actualLenth);
+
+                    finalContentSize = new Size(entitySize.width, actualLenth);
                     totalWidth = entitySize.width;
-                    totalHeight = this.totalLength;
+                    totalHeight = this._totalLength;
                     break;
             }
 
@@ -301,9 +302,9 @@ export class ProgressBarComponent extends Component {
 
                     const anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
                     const anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
-                    const finalPosition = cc.v2(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
+                    const finalPosition = new Vec3(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY, 0);
 
-                    entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y, entity.getPosition().z);
+                    entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y, entityPosition.z);
 
                     entity.setAnchorPoint(anchorPoint);
                     entity.setContentSize(finalContentSize);
@@ -314,3 +315,5 @@ export class ProgressBarComponent extends Component {
         }
     }
 }
+
+cc.ProgressBarComponent = ProgressBarComponent;

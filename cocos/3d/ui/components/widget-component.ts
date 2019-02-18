@@ -24,10 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { widgetManager } from '../../../2d/base-ui/widget-manager';
+import { widgetManager } from './widget-manager';
 import { Component} from '../../../components/component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { Node } from '../../../scene-graph/index';
+import { UITransformComponent } from './ui-transfrom-component';
+import { ccenum } from '../../../core/value-types/enum';
 /**
  * !#en Enum for Widget's alignment mode, indicating when the widget should refresh.
  * !#zh Widget 的对齐模式，表示 Widget 应该何时刷新。
@@ -54,17 +56,28 @@ import { Node } from '../../../scene-graph/index';
  * !#zh 始终保持对齐。
  * @property {Number} ALWAYS
  */
-const AlignMode = widgetManager.AlignMode;
 
-const AlignFlags = widgetManager._AlignFlags;
-const TOP = AlignFlags.TOP;
-const MID = AlignFlags.MID;
-const BOT = AlignFlags.BOT;
-const LEFT = AlignFlags.LEFT;
-const CENTER = AlignFlags.CENTER;
-const RIGHT = AlignFlags.RIGHT;
-const TOP_BOT = TOP | BOT;
-const LEFT_RIGHT = LEFT | RIGHT;
+export enum AlignMode {
+    ONCE = 0,
+    ON_WINDOW_RESIZE = 1,
+    ALWAYS = 2,
+}
+
+ccenum(AlignMode);
+
+export enum AlignFlags {
+    TOP = 1 << 0,
+    MID = 1 << 1,
+    BOT = 1 << 2,
+    LEFT = 1 << 3,
+    CENTER = 1 << 4,
+    RIGHT = 1 << 5,
+    HORIZONTAL = LEFT | CENTER | RIGHT,
+    VERTICAL = TOP | MID | BOT,
+}
+
+const TOP_BOT = AlignFlags.TOP | AlignFlags.BOT;
+const LEFT_RIGHT = AlignFlags.LEFT | AlignFlags.RIGHT;
 
 /**
  * !#en
@@ -81,9 +94,9 @@ const LEFT_RIGHT = LEFT | RIGHT;
 @ccclass('cc.WidgetComponent')
 @executionOrder(100)
 @menu('UI/Widget')
+@requireComponent(UITransformComponent)
 @executeInEditMode
 export class WidgetComponent extends Component {
-
     /**
      * !#en Specifies an alignment target that can only be one of the parent nodes of the current node.
      * The default value is null, and when null, indicates the current parent.
@@ -100,13 +113,11 @@ export class WidgetComponent extends Component {
 
     set target (value) {
         this._target = value;
-        if (CC_EDITOR && !cc.engine._isPlaying && this.node._parent) {
+        if (CC_EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
             // adjust the offsets to keep the size and position unchanged after target chagned
-            // widgetManager.updateOffsetsToStayPut(this);
+            widgetManager.updateOffsetsToStayPut(this);
         }
     }
-
-    // ENABLE ALIGN ?
 
     /**
      * !#en Whether to align the top.
@@ -117,10 +128,10 @@ export class WidgetComponent extends Component {
      */
     @property
     get isAlignTop () {
-        return (this._alignFlags & TOP) > 0;
+        return (this._alignFlags & AlignFlags.TOP) > 0;
     }
     set isAlignTop (value) {
-        this._setAlign(TOP, value);
+        this._setAlign(AlignFlags.TOP, value);
     }
 
     /**
@@ -132,10 +143,10 @@ export class WidgetComponent extends Component {
      */
     @property
     get isAlignBottom () {
-        return (this._alignFlags & BOT) > 0;
+        return (this._alignFlags & AlignFlags.BOT) > 0;
     }
     set isAlignBottom (value) {
-        this._setAlign(BOT, value);
+        this._setAlign(AlignFlags.BOT, value);
     }
 
     /**
@@ -147,10 +158,10 @@ export class WidgetComponent extends Component {
      */
     @property
     get isAlignLeft () {
-        return (this._alignFlags & LEFT) > 0;
+        return (this._alignFlags & AlignFlags.LEFT) > 0;
     }
     set isAlignLeft (value) {
-        this._setAlign(LEFT, value);
+        this._setAlign(AlignFlags.LEFT, value);
     }
 
     /**
@@ -162,10 +173,10 @@ export class WidgetComponent extends Component {
      */
     @property
     get isAlignRight () {
-        return (this._alignFlags & RIGHT) > 0;
+        return (this._alignFlags & AlignFlags.RIGHT) > 0;
     }
     set isAlignRight (value) {
-        this._setAlign(RIGHT, value);
+        this._setAlign(AlignFlags.RIGHT, value);
     }
 
     /**
@@ -179,15 +190,15 @@ export class WidgetComponent extends Component {
      */
     @property
     get isAlignVerticalCenter () {
-        return (this._alignFlags & MID) > 0;
+        return (this._alignFlags & AlignFlags.MID) > 0;
     }
     set isAlignVerticalCenter (value) {
         if (value) {
             this.isAlignTop = false;
             this.isAlignBottom = false;
-            this._alignFlags |= MID;
+            this._alignFlags |= AlignFlags.MID;
         } else {
-            this._alignFlags &= ~MID;
+            this._alignFlags &= ~AlignFlags.MID;
         }
     }
 
@@ -202,15 +213,15 @@ export class WidgetComponent extends Component {
      */
     @property
     get isAlignHorizontalCenter () {
-        return (this._alignFlags & CENTER) > 0;
+        return (this._alignFlags & AlignFlags.CENTER) > 0;
     }
     set isAlignHorizontalCenter (value) {
         if (value) {
             this.isAlignLeft = false;
             this.isAlignRight = false;
-            this._alignFlags |= CENTER;
+            this._alignFlags |= AlignFlags.CENTER;
         } else {
-            this._alignFlags &= ~CENTER;
+            this._alignFlags &= ~AlignFlags.CENTER;
         }
     }
 
@@ -475,6 +486,10 @@ export class WidgetComponent extends Component {
         this._isAbsVerticalCenter = value;
     }
 
+    get alignFlags(){
+        return this._alignFlags;
+    }
+
     public static AlignMode = AlignMode;
     /**
      * !#zh: 对齐开关，由 AlignFlags 组成
@@ -486,7 +501,7 @@ export class WidgetComponent extends Component {
      */
     private _alignFlags = 0;
     private _wasAlignOnce = false;
-    @property
+    // @property
     private _target: Node | null = null;
     @property
     private _left = 0;
@@ -547,6 +562,7 @@ export class WidgetComponent extends Component {
         //     this.alignMode = this._wasAlignOnce ? AlignMode.ONCE : AlignMode.ALWAYS;
         //     this._wasAlignOnce = false;
         // }
+        this._target = this.node.parent;
         if(this._alignMode === AlignMode.ONCE){
             this._wasAlignOnce = true;
         }
@@ -560,7 +576,7 @@ export class WidgetComponent extends Component {
         widgetManager.remove(this);
     }
 
-    private _setAlign (flag, isAlign) {
+    private _setAlign (flag: AlignFlags, isAlign: boolean) {
         const current = (this._alignFlags & flag) > 0;
         if (isAlign === current) {
             return;
@@ -573,9 +589,9 @@ export class WidgetComponent extends Component {
                 this.isAlignHorizontalCenter = false;
                 if (this.isStretchWidth) {
                     // become stretch
-                    this._originalWidth = this.node.width;
+                    this._originalWidth = this.node.width!;
                     // test check conflict
-                    if (CC_EDITOR && !cc.engine.isPlaying) {
+                    if (CC_EDITOR /*&& !cc.engine.isPlaying*/) {
                         // _Scene.DetectConflict.checkConflict_Widget(this);
                     }
                 }
@@ -583,7 +599,7 @@ export class WidgetComponent extends Component {
                 this.isAlignVerticalCenter = false;
                 if (this.isStretchHeight) {
                     // become stretch
-                    this._originalHeight = this.node.height;
+                    this._originalHeight = this.node.height!;
                     // test check conflict
                     if (CC_EDITOR && !cc.engine.isPlaying) {
                         // _Scene.DetectConflict.checkConflict_Widget(this);
@@ -591,9 +607,9 @@ export class WidgetComponent extends Component {
                 }
             }
 
-            if (CC_EDITOR && !cc.engine._isPlaying && this.node._parent) {
+            if (CC_EDITOR && !cc.engine._isPlaying && this.node.parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment chagned
-                // widgetManager.updateOffsetsToStayPut(this, flag);
+                widgetManager.updateOffsetsToStayPut(this, flag);
             }
         } else {
             if (isHorizontal) {

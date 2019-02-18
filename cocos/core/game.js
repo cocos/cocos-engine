@@ -121,8 +121,6 @@ var game = {
     _prepared: false, //whether the engine has prepared
     _rendererInitialized: false,
 
-    _renderContext: null,
-
     _gfxDevice: null,
 
     _intervalId: null,//interval target of main
@@ -778,35 +776,14 @@ var game = {
                     canvasElm : localCanvas,
                     debug: true,
                 });
-
-                //let device = this._renderContext = new gfx.Device(localCanvas, {});
-
-                /*
-                renderer.addStage('opaque');
-                renderer.addStage('transparent');
-                renderer.addStage('ui');
-                renderer.addStage('shadowcast');
-                */
-
-                //this._renderer = new renderer.ForwardRenderer(device);
             }
-            // renderer.initWebGL(localCanvas, opts);
-            // this._renderContext = renderer.device._gl;
         }
 
         if (!this._gfxDevice) {
-        //if (!this._renderContext) {
-
             // todo fix here for wechat game
             console.error('can not support canvas rendering in 3D');
-            this._renderer = null;
-            this._renderContext = null;
             this.renderType = this.RENDER_TYPE_CANVAS;
             return;
-            // this.renderType = this.RENDER_TYPE_CANVAS;
-            // Could be ignored by module settings
-            // renderer.initCanvas(localCanvas);
-            // this._renderContext = renderer.device._ctx;
         }
 
         this.canvas.oncontextmenu = function () {

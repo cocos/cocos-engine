@@ -27,7 +27,7 @@ class Node extends BaseNode {
     public static isNode (obj: object) {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
-    public uiTransfromComp: UITransformComponent | null = null;
+
     public uiWidgetComp: WidgetComponent | null = null;
 
     // local transform
@@ -61,6 +61,7 @@ class Node extends BaseNode {
     protected _eulerDirty = false;
 
     protected _eventProcessor;
+    private _uiTransfromComp: UITransformComponent | null = null;
 
     @property({
         type: Vec3,
@@ -88,67 +89,49 @@ class Node extends BaseNode {
         return this._layer;
     }
 
-    get width () {
-        if (!this.uiTransfromComp) {
-            return;
+    get uiTransfromComp(){
+        if(!this._uiTransfromComp){
+            this._uiTransfromComp = this.getComponent(UITransformComponent);
         }
 
-        return this.uiTransfromComp.width;
+        return this._uiTransfromComp;
     }
 
-    set width (value) {
-        if (!this.uiTransfromComp) {
-            return;
-        }
+    // NOTE: don't set it manually
+    set uiTransfromComp(value) {
+        this._uiTransfromComp = value;
+    }
 
-        this.uiTransfromComp.width = value;
+    get width () {
+        return this.uiTransfromComp!.width;
+    }
+
+    set width (value: number) {
+        this.uiTransfromComp!.width = value;
     }
 
     get height () {
-        if (!this.uiTransfromComp) {
-            return;
-        }
-
-        return this.uiTransfromComp.height;
+        return this.uiTransfromComp!.height;
     }
 
-    set height (value) {
-        if (!this.uiTransfromComp) {
-            return;
-        }
-        this.uiTransfromComp.height = value;
+    set height (value: number) {
+        this.uiTransfromComp!.height = value;
     }
 
     get anchorX () {
-        if (!this.uiTransfromComp) {
-            return;
-        }
-
-        return this.uiTransfromComp.anchorX;
+        return this.uiTransfromComp!.anchorX;
     }
 
     set anchorX (value) {
-        if (!this.uiTransfromComp) {
-            return;
-        }
-
-        this.uiTransfromComp.anchorX = value;
+        this.uiTransfromComp!.anchorX = value;
     }
 
     get anchorY () {
-        if (!this.uiTransfromComp) {
-            return;
-        }
-
-        return this.uiTransfromComp.anchorY;
+        return this.uiTransfromComp!.anchorY;
     }
 
-    set anchorY (value) {
-        if (!this.uiTransfromComp) {
-            return;
-        }
-
-        this.uiTransfromComp.anchorY = value;
+    set anchorY (value: number) {
+        this.uiTransfromComp!.anchorY = value;
     }
 
     get eventProcessor (){
@@ -741,35 +724,19 @@ class Node extends BaseNode {
     }
 
     public getAnchorPoint () {
-        if (!this.uiTransfromComp) {
-            return;
-        }
-
-        return this.uiTransfromComp.anchorPoint;
+        return this.uiTransfromComp!.anchorPoint;
     }
 
-    public setAnchorPoint (point: Vec2, y: number) {
-        if (!this.uiTransfromComp) {
-            return;
-        }
-
-        this.uiTransfromComp.setAnchorPoint(point, y);
+    public setAnchorPoint (point: Vec2 | number, y?: number) {
+        this.uiTransfromComp!.setAnchorPoint(point, y);
     }
 
     public getContentSize () {
-        if (!this.uiTransfromComp) {
-            return;
-        }
-
-        return this.uiTransfromComp.contentSize;
+        return this.uiTransfromComp!.contentSize;
     }
 
-    public setContentSize (size: Size, height?: number) {
-        if (!this.uiTransfromComp) {
-            return;
-        }
-
-        this.uiTransfromComp.setContentSize(size, height);
+    public setContentSize (size: Size | number, height?: number) {
+        this.uiTransfromComp!.setContentSize(size, height);
     }
 
     // Event

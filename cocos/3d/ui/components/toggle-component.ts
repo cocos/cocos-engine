@@ -110,7 +110,7 @@ export class ToggleComponent extends ButtonComponent {
         return this._checkMark;
     }
 
-    set checkMark (value: SpriteComponent) {
+    set checkMark (value: SpriteComponent | null) {
         if (this._checkMark === value) {
             return;
         }
@@ -217,7 +217,7 @@ export class ToggleComponent extends ButtonComponent {
         this._emitToggleEvents();
     }
 
-    public _emitToggleEvents () {
+    private _emitToggleEvents () {
         this.node.emit('toggle', this);
         if (this._checkEvents) {
             ComponentEventHandler.emitEvents(this._checkEvents, this);
@@ -267,7 +267,7 @@ export class ToggleComponent extends ButtonComponent {
     }
 }
 
-// cc.Toggle = module.exports = Toggle;
+cc.ToggleComponent = ToggleComponent;
 
 // var js = require('../platform/js');
 
