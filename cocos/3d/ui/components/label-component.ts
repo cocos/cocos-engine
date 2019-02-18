@@ -352,7 +352,7 @@ export class LabelComponent extends UIRenderComponent {
             this._renderData = null;
         }
         // this._fontAtlas = null;
-        this._updateAssembler();
+        this._flushAssembler();
         this._applyFontTexture(true);
         this.updateRenderData();
     }
@@ -386,7 +386,7 @@ export class LabelComponent extends UIRenderComponent {
         this._isSystemFontUsed = !!value;
         if (value) {
             this.font = null;
-            this._updateAssembler();
+            this._flushAssembler();
             this.updateRenderData();
             this._checkStringEmpty();
         }
@@ -565,7 +565,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     public updateAssembler(render: UI) {
-        if (!this._material) {
+        if (!this._material || this.string.length <= 0) {
             return;
         }
         super.updateAssembler(render);
@@ -580,7 +580,7 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         if (force) {
-            this._updateAssembler();
+            this._flushAssembler();
             this._applyFontTexture(force);
         }
     }
@@ -603,7 +603,7 @@ export class LabelComponent extends UIRenderComponent {
         // this.markForRender(!!this.string);
     }
 
-    private _updateAssembler () {
+    private _flushAssembler () {
         const assembler = LabelComponent.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
