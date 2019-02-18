@@ -2,7 +2,7 @@
 import { Material } from '../../3d/assets/material';
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { aabb } from '../../3d/geom-utils';
-import { RecyclePool } from '../../3d/memop';
+import Pool from '../../3d/memop/pool';
 import { Vec3 } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -17,7 +17,7 @@ import { SubModel } from './submodel';
 const _temp_floatx16 = new Float32Array(16);
 const _temp_mat4 = mat4.create();
 
-const _subMeshPool = new RecyclePool(() => {
+const _subMeshPool = new Pool(() => {
     return new SubModel();
 }, 32);
 
@@ -61,7 +61,7 @@ export class Model {
     public destroy () {
         for (const subModel of this._subModels) {
             subModel.destroy();
-            _subMeshPool.remove(subModel);
+            _subMeshPool.free(subModel);
         }
         if (this._localUBO) {
             this._localUBO.destroy();
@@ -178,7 +178,7 @@ export class Model {
 
     public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {
         if (this._subModels[idx] == null) {
-            this._subModels[idx] = _subMeshPool.add();
+            this._subModels[idx] = _subMeshPool.alloc();
         } else {
             const oldMat = this._subModels[idx].material;
             this._subModels[idx].destroy();
@@ -190,7 +190,7 @@ export class Model {
 
     public setSubModelMesh (idx: number, subMeshData: IRenderingSubmesh) {
         if (this._subModels[idx] == null) {
-            this._subModels[idx] = _subMeshPool.add();
+            this._subModels[idx] = _subMeshPool.alloc();
         }
         this._subModels[idx].subMeshData = subMeshData;
     }

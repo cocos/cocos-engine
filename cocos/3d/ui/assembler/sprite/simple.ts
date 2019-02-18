@@ -142,7 +142,7 @@ export const simple: IAssembler = {
         ibuf![indiceOffset++] = vertexId + 2;
 
         commitBuffer.meshBuffer = buffer;
-        commitBuffer.material = sprite.material!;
+        commitBuffer.material = sprite.sharedMaterial!;
         commitBuffer.texture = sprite.spriteFrame!;
         commitBuffer.priority = sprite.priority;
         renderer.addToQueue(commitBuffer);
