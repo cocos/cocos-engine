@@ -106,19 +106,19 @@ function GFXFormatToWebGLType (format: GFXFormat, device: WebGL2GFXDevice): GLen
         case GFXFormat.RGBA32I: return WebGL2RenderingContext.INT;
 
         case GFXFormat.R5G6B5: return WebGL2RenderingContext.UNSIGNED_SHORT_5_6_5;
-        case GFXFormat.R11G11B10F: return WebGL2RenderingContext.FLOAT;
+        case GFXFormat.R11G11B10F: return WebGL2RenderingContext.UNSIGNED_INT_10F_11F_11F_REV;
         case GFXFormat.RGB5A1: return WebGL2RenderingContext.UNSIGNED_SHORT_5_5_5_1;
         case GFXFormat.RGBA4: return WebGL2RenderingContext.UNSIGNED_SHORT_4_4_4_4;
         case GFXFormat.RGB10A2: return WebGL2RenderingContext.UNSIGNED_BYTE;
         case GFXFormat.RGB10A2UI: return WebGL2RenderingContext.UNSIGNED_INT;
-        case GFXFormat.RGB9E5: return WebGL2RenderingContext.UNSIGNED_BYTE;
+        case GFXFormat.RGB9E5: return WebGL2RenderingContext.FLOAT;
 
         case GFXFormat.D16: return WebGL2RenderingContext.UNSIGNED_SHORT;
         case GFXFormat.D16S8: return WebGL2RenderingContext.UNSIGNED_SHORT;
         case GFXFormat.D24: return WebGL2RenderingContext.UNSIGNED_INT;
-        case GFXFormat.D24S8: return WebGL2RenderingContext.DEPTH24_STENCIL8;
+        case GFXFormat.D24S8: return WebGL2RenderingContext.UNSIGNED_INT_24_8;
         case GFXFormat.D32F: return WebGL2RenderingContext.FLOAT;
-        case GFXFormat.D32F_S8: return WebGL2RenderingContext.DEPTH32F_STENCIL8;
+        case GFXFormat.D32F_S8: return WebGL2RenderingContext.FLOAT_32_UNSIGNED_INT_24_8_REV;
 
         case GFXFormat.BC1: return WebGL2RenderingContext.UNSIGNED_BYTE;
         case GFXFormat.BC1_SRGB: return WebGL2RenderingContext.UNSIGNED_BYTE;
@@ -162,24 +162,61 @@ function GFXFormatToWebGLType (format: GFXFormat, device: WebGL2GFXDevice): GLen
 
 function GFXFormatToWebGLInternalFormat (format: GFXFormat): GLenum {
     switch (format) {
-        case GFXFormat.A8: return WebGLRenderingContext.ALPHA;
-        case GFXFormat.L8: return WebGLRenderingContext.LUMINANCE;
-        case GFXFormat.LA8: return WebGLRenderingContext.LUMINANCE_ALPHA;
-        case GFXFormat.RGB8: return WebGLRenderingContext.RGB;
-        case GFXFormat.RGB16F: return WebGLRenderingContext.RGB;
-        case GFXFormat.RGB32F: return WebGLRenderingContext.RGB;
-        case GFXFormat.RGBA8: return WebGLRenderingContext.RGBA;
-        case GFXFormat.RGBA16F: return WebGLRenderingContext.RGBA;
-        case GFXFormat.RGBA32F: return WebGLRenderingContext.RGBA;
-        case GFXFormat.R5G6B5: return WebGLRenderingContext.RGB565;
-        case GFXFormat.RGB5A1: return WebGLRenderingContext.RGB5_A1;
-        case GFXFormat.RGBA4: return WebGLRenderingContext.RGBA4;
-        case GFXFormat.D16: return WebGLRenderingContext.DEPTH_COMPONENT16;
-        case GFXFormat.D16S8: return WebGLRenderingContext.DEPTH_STENCIL;
-        case GFXFormat.D24: return WebGLRenderingContext.DEPTH_COMPONENT;
-        case GFXFormat.D24S8: return WebGLRenderingContext.DEPTH_STENCIL;
-        case GFXFormat.D32F: return WebGLRenderingContext.DEPTH_COMPONENT;
-        case GFXFormat.D32F_S8: return WebGLRenderingContext.DEPTH_STENCIL;
+        case GFXFormat.A8: return WebGL2RenderingContext.ALPHA;
+        case GFXFormat.L8: return WebGL2RenderingContext.LUMINANCE;
+        case GFXFormat.LA8: return WebGL2RenderingContext.LUMINANCE_ALPHA;
+        case GFXFormat.R8: return WebGL2RenderingContext.R8;
+        case GFXFormat.R8SN: return WebGL2RenderingContext.R8_SNORM;
+        case GFXFormat.R8UI: return WebGL2RenderingContext.R8UI;
+        case GFXFormat.R8I: return WebGL2RenderingContext.R8I;
+        case GFXFormat.RG8: return WebGL2RenderingContext.RG8;
+        case GFXFormat.RG8SN: return WebGL2RenderingContext.RG8_SNORM;
+        case GFXFormat.RG8UI: return WebGL2RenderingContext.RG8UI;
+        case GFXFormat.RG8I: return WebGL2RenderingContext.RG8I;
+        case GFXFormat.RGB8: return WebGL2RenderingContext.RGB8;
+        case GFXFormat.RGB8SN: return WebGL2RenderingContext.RGB8_SNORM;
+        case GFXFormat.RGB8UI: return WebGL2RenderingContext.RGB8UI;
+        case GFXFormat.RGB8I: return WebGL2RenderingContext.RGB8I;
+        case GFXFormat.RGBA8: return WebGL2RenderingContext.RGBA;
+        case GFXFormat.RGBA8SN: return WebGL2RenderingContext.RGBA8_SNORM;
+        case GFXFormat.RGBA8UI: return WebGL2RenderingContext.RGBA8UI;
+        case GFXFormat.RGBA8I: return WebGL2RenderingContext.RGBA8I;
+        case GFXFormat.R16I: return WebGL2RenderingContext.R16I;
+        case GFXFormat.R16UI: return WebGL2RenderingContext.R16UI;
+        case GFXFormat.R16F: return WebGL2RenderingContext.R16F;
+        case GFXFormat.RG16I: return WebGL2RenderingContext.RG16I;
+        case GFXFormat.RG16UI: return WebGL2RenderingContext.RG16UI;
+        case GFXFormat.RG16F: return WebGL2RenderingContext.RG16F;
+        case GFXFormat.RGB16I: return WebGL2RenderingContext.RGB16I;
+        case GFXFormat.RGB16UI: return WebGL2RenderingContext.RGB16UI;
+        case GFXFormat.RGB16F: return WebGL2RenderingContext.RGB16F;
+        case GFXFormat.RGBA16I: return WebGL2RenderingContext.RGBA16I;
+        case GFXFormat.RGBA16UI: return WebGL2RenderingContext.RGBA16UI;
+        case GFXFormat.RGBA16F: return WebGL2RenderingContext.RGBA16F;
+        case GFXFormat.R32I: return WebGL2RenderingContext.R32I;
+        case GFXFormat.R32UI: return WebGL2RenderingContext.R32UI;
+        case GFXFormat.R32F: return WebGL2RenderingContext.R32F;
+        case GFXFormat.RG32I: return WebGL2RenderingContext.RG32I;
+        case GFXFormat.RG32UI: return WebGL2RenderingContext.RG32UI;
+        case GFXFormat.RG32F: return WebGL2RenderingContext.RG32F;
+        case GFXFormat.RGB32I: return WebGL2RenderingContext.RGB32I;
+        case GFXFormat.RGB32UI: return WebGL2RenderingContext.RGB32UI;
+        case GFXFormat.RGB32F: return WebGL2RenderingContext.RGB32F;
+        case GFXFormat.RGBA32I: return WebGL2RenderingContext.RGBA32I;
+        case GFXFormat.RGBA32UI: return WebGL2RenderingContext.RGBA32UI;
+        case GFXFormat.RGBA32F: return WebGL2RenderingContext.RGBA32F;
+        case GFXFormat.R5G6B5: return WebGL2RenderingContext.RGB565;
+        case GFXFormat.RGB5A1: return WebGL2RenderingContext.RGB5_A1;
+        case GFXFormat.RGBA4: return WebGL2RenderingContext.RGBA4;
+        case GFXFormat.RGB10A2: return WebGL2RenderingContext.RGB10_A2;
+        case GFXFormat.RGB10A2UI: return WebGL2RenderingContext.RGB10_A2UI;
+        case GFXFormat.R11G11B10F: return WebGL2RenderingContext.R11F_G11F_B10F;
+        case GFXFormat.D16: return WebGL2RenderingContext.DEPTH_COMPONENT16;
+        case GFXFormat.D16S8: return WebGL2RenderingContext.DEPTH_STENCIL;
+        case GFXFormat.D24: return WebGL2RenderingContext.DEPTH_COMPONENT24;
+        case GFXFormat.D24S8: return WebGL2RenderingContext.DEPTH24_STENCIL8;
+        case GFXFormat.D32F: return WebGL2RenderingContext.DEPTH_COMPONENT32F;
+        case GFXFormat.D32F_S8: return WebGL2RenderingContext.DEPTH32F_STENCIL8;
 
         case GFXFormat.BC1: return WebGLEXT.COMPRESSED_RGB_S3TC_DXT1_EXT;
         case GFXFormat.BC1_ALPHA: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -191,6 +228,7 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat): GLenum {
         case GFXFormat.BC3_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
 
         case GFXFormat.ETC_RGB8: return WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL;
+        case GFXFormat.ETC2_RGB8: return WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL;
 
         case GFXFormat.PVRTC_RGB2: return WebGLEXT.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
         case GFXFormat.PVRTC_RGBA2: return WebGLEXT.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
@@ -206,24 +244,60 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat): GLenum {
 
 function GFXFormatToWebGLFormat (format: GFXFormat): GLenum {
     switch (format) {
-        case GFXFormat.A8: return WebGLRenderingContext.ALPHA;
-        case GFXFormat.L8: return WebGLRenderingContext.LUMINANCE;
-        case GFXFormat.LA8: return WebGLRenderingContext.LUMINANCE_ALPHA;
-        case GFXFormat.RGB8: return WebGLRenderingContext.RGB;
-        case GFXFormat.RGB16F: return WebGLRenderingContext.RGB;
-        case GFXFormat.RGB32F: return WebGLRenderingContext.RGB;
-        case GFXFormat.RGBA8: return WebGLRenderingContext.RGBA;
-        case GFXFormat.RGBA16F: return WebGLRenderingContext.RGBA;
-        case GFXFormat.RGBA32F: return WebGLRenderingContext.RGBA;
-        case GFXFormat.R5G6B5: return WebGLRenderingContext.RGB;
-        case GFXFormat.RGB5A1: return WebGLRenderingContext.RGBA;
-        case GFXFormat.RGBA4: return WebGLRenderingContext.RGBA;
-        case GFXFormat.D16: return WebGLRenderingContext.DEPTH_COMPONENT;
-        case GFXFormat.D16S8: return WebGLRenderingContext.DEPTH_STENCIL;
-        case GFXFormat.D24: return WebGLRenderingContext.DEPTH_COMPONENT;
-        case GFXFormat.D24S8: return WebGLRenderingContext.DEPTH_STENCIL;
-        case GFXFormat.D32F: return WebGLRenderingContext.DEPTH_COMPONENT;
-        case GFXFormat.D32F_S8: return WebGLRenderingContext.DEPTH_STENCIL;
+        case GFXFormat.A8: return WebGL2RenderingContext.ALPHA;
+        case GFXFormat.L8: return WebGL2RenderingContext.LUMINANCE;
+        case GFXFormat.LA8: return WebGL2RenderingContext.LUMINANCE_ALPHA;
+        case GFXFormat.R8:
+        case GFXFormat.R8SN:
+        case GFXFormat.R8UI:
+        case GFXFormat.R8I: return WebGL2RenderingContext.RED;
+        case GFXFormat.RG8:
+        case GFXFormat.RG8SN:
+        case GFXFormat.RG8UI:
+        case GFXFormat.RG8I: return WebGL2RenderingContext.RG;
+        case GFXFormat.RGB8:
+        case GFXFormat.RGB8SN:
+        case GFXFormat.RGB8UI:
+        case GFXFormat.RGB8I: return WebGL2RenderingContext.RGB;
+        case GFXFormat.RGBA8:
+        case GFXFormat.RGBA8SN:
+        case GFXFormat.RGBA8UI:
+        case GFXFormat.RGBA8I: return WebGL2RenderingContext.RGBA;
+        case GFXFormat.R16UI:
+        case GFXFormat.R16I:
+        case GFXFormat.R16F: return WebGL2RenderingContext.RED;
+        case GFXFormat.RG16UI:
+        case GFXFormat.RG16I:
+        case GFXFormat.RG16F: return WebGL2RenderingContext.RG;
+        case GFXFormat.RGB16UI:
+        case GFXFormat.RGB16I:
+        case GFXFormat.RGB16F: return WebGL2RenderingContext.RGB;
+        case GFXFormat.RGBA16UI:
+        case GFXFormat.RGBA16I:
+        case GFXFormat.RGBA16F: return WebGL2RenderingContext.RGBA;
+        case GFXFormat.R32UI:
+        case GFXFormat.R32I:
+        case GFXFormat.R32F: return WebGL2RenderingContext.RED;
+        case GFXFormat.RG32UI:
+        case GFXFormat.RG32I:
+        case GFXFormat.RG32F: return WebGL2RenderingContext.RG;
+        case GFXFormat.RGB32UI:
+        case GFXFormat.RGB32I:
+        case GFXFormat.RGB32F: return WebGL2RenderingContext.RGB;
+        case GFXFormat.RGBA32UI:
+        case GFXFormat.RGBA32I:
+        case GFXFormat.RGBA32F: return WebGL2RenderingContext.RGBA;
+        case GFXFormat.RGB10A2: return WebGL2RenderingContext.RGBA;
+        case GFXFormat.R11G11B10F: return WebGL2RenderingContext.RGB;
+        case GFXFormat.R5G6B5: return WebGL2RenderingContext.RGB;
+        case GFXFormat.RGB5A1: return WebGL2RenderingContext.RGBA;
+        case GFXFormat.RGBA4: return WebGL2RenderingContext.RGBA;
+        case GFXFormat.D16: return WebGL2RenderingContext.DEPTH_COMPONENT;
+        case GFXFormat.D16S8: return WebGL2RenderingContext.DEPTH_STENCIL;
+        case GFXFormat.D24: return WebGL2RenderingContext.DEPTH_COMPONENT;
+        case GFXFormat.D24S8: return WebGL2RenderingContext.DEPTH_STENCIL;
+        case GFXFormat.D32F: return WebGL2RenderingContext.DEPTH_COMPONENT;
+        case GFXFormat.D32F_S8: return WebGL2RenderingContext.DEPTH_STENCIL;
 
         case GFXFormat.BC1: return WebGLEXT.COMPRESSED_RGB_S3TC_DXT1_EXT;
         case GFXFormat.BC1_ALPHA: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT1_EXT;

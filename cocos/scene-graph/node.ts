@@ -32,13 +32,13 @@ class Node extends BaseNode {
 
     // local transform
     @property({
-        default: cc.v3(0, 0, 0),
+        // default: cc.v3(0, 0, 0),
     })
     protected _lpos = new Vec3();
     @property
     protected _lrot = new Quat();
     @property({
-        default: cc.v3(1, 1, 1),
+        // default: cc.v3(1, 1, 1),
     })
     protected _lscale = new Vec3(1, 1, 1);
     @property
