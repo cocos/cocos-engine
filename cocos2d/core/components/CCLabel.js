@@ -249,7 +249,7 @@ let Label = cc.Class({
                 this._fontSize = value;
                 this._updateRenderData();
             },
-            range: [0, 2048],
+            range: [0, 512],
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_size',
         },
 
