@@ -100,7 +100,10 @@ cc.screen = /** @lends cc.screen# */{
         }
 
         this._supportsFullScreen = (this._fn.requestFullscreen !== undefined);
+
         // Bug fix only for v2.1, don't merge into v2.0
+        // In v2.0, screen touchend events conflict with editBox touchend events if it's not stayOnTop.
+        // While in v2.1, editBox always keep stayOnTop and it doesn't support touchend events.
         this._touchEvent = ('ontouchend' in window) ? 'touchend' : 'mousedown';
     },
     
@@ -151,7 +154,6 @@ cc.screen = /** @lends cc.screen# */{
             document.addEventListener(eventName, onFullScreenChange, false);
         }
 
-        this._ensureFullScreen(element);
         element[this._fn.requestFullscreen]();
     },
     
@@ -181,6 +183,8 @@ cc.screen = /** @lends cc.screen# */{
      */
     autoFullScreen: function (element, onFullScreenChange) {
         element = element || document.body;
+
+        this._ensureFullScreen(element, onFullScreenChange);
         this.requestFullScreen(element, onFullScreenChange);
     },
 
@@ -194,7 +198,7 @@ cc.screen = /** @lends cc.screen# */{
     },
 
     // Register touch event if request full screen failed
-    _ensureFullScreen (element) {
+    _ensureFullScreen (element, onFullScreenChange) {
         let self = this;
         let touchTarget = cc.game.canvas || element;
         let fullScreenErrorEventName = this._fn.fullscreenerror;
@@ -206,7 +210,7 @@ cc.screen = /** @lends cc.screen# */{
             // handle touch event listener
             function onTouch() {
                 self._preOnTouch = null;
-                element[self._fn.requestFullscreen]();
+                self.requestFullScreen(element, onFullScreenChange);
             }
             if (self._preOnTouch) {
                 touchTarget.removeEventListener(touchEventName, self._preOnTouch);

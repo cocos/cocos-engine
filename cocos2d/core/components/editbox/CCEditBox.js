@@ -112,9 +112,12 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.returnType',
             displayName: 'KeyboardReturnType',
             type: KeyboardReturnType,
-            notify () {
-                
-            }
+        },
+
+        // To be removed in the future
+        _N$returnType: {
+            default: undefined,
+            type: cc.Float,
         },
 
         /**
@@ -144,9 +147,12 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.input_mode',
             default: InputMode.ANY,
             type: InputMode,
-            notify () {
-                
-            }
+        },
+
+        // To be removed in the future
+        _N$inputMode: {
+            default: undefined,
+            type: cc.Float,
         },
 
         /**
@@ -260,15 +266,15 @@ let EditBox = cc.Class({
 
         /**
          * !#en The input is always visible and be on top of the game view (only useful on Web).
-         * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义），这个属性已经在 v2.0.8 中废弃。
-         * Note: only available on Web at the moment, this property has been deprecated since v2.0.8
+         * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义），这个属性已经在 v2.0.9 中废弃。
+         * Note: only available on Web at the moment, this property has been deprecated since v2.0.9
          * @property {Boolean} stayOnTop
          */
         stayOnTop: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.stay_on_top',
             default: false,
             notify () {
-                cc.warn('editBox.stayOnTop is deprecated since v2.1.');
+                cc.warn('editBox.stayOnTop is removed since v2.1.');
             }
         },
 
@@ -342,6 +348,10 @@ let EditBox = cc.Class({
     },
 
     _init () {
+        if (CC_EDITOR) {
+            this._upgradeComp();            
+        }
+
         this._createBackgroundSprite();
         this._createLabels();
         this._isLabelVisible = true;
@@ -352,6 +362,17 @@ let EditBox = cc.Class({
 
         this._updateString(this.string);
         this._syncSize();
+    },
+
+    _upgradeComp () {
+        if (this._N$returnType !== undefined) {
+            this.returnType = this._N$returnType;
+            this._N$returnType = undefined;
+        }
+        if (this._N$inputMode !== undefined) {
+            this.inputMode = this._N$inputMode;
+            this._N$inputMode = undefined;
+        }
     },
 
     _syncSize () {
@@ -487,9 +508,7 @@ let EditBox = cc.Class({
 
         textLabel.string = displayText;
 
-        if (this._impl && !this._impl.isFocused()) {
-            this._updateLabels();
-        }
+        this._updateLabels();
     },
 
     _updateLabelStringStyle (text, ignorePassword) {
@@ -538,12 +557,18 @@ let EditBox = cc.Class({
     },
 
     onEnable () {
+        if (!CC_EDITOR) {
+            this._registerEvent();
+        }
         if (this._impl) {
             this._impl.enable();
         }
     },
 
     onDisable () {
+        if (!CC_EDITOR) {
+            this._unregisterEvent();
+        }
         if (this._impl) {
             this._impl.disable();
         }
@@ -556,15 +581,17 @@ let EditBox = cc.Class({
     },
 
     __preload () {
-        if (!CC_EDITOR) {
-            this._registerEvent();
-        }
         this._init();
     },
 
     _registerEvent () {
         this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+    },
+
+    _unregisterEvent () {
+        this.node.off(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
     },
 
     _onTouchBegan (event) {
@@ -577,7 +604,7 @@ let EditBox = cc.Class({
 
     _onTouchEnded (event) {
         if (this._impl) {
-            this._impl._onTouchEnded();
+            this._impl.beginEditing();
         }
         event.stopPropagation();
     },

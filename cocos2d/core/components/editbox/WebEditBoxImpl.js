@@ -122,6 +122,10 @@ Object.assign(WebEditBoxImpl.prototype, {
 
     enable () {
         this._enableDom();
+
+        if (!CC_EDITOR) {
+            this._delegate._unregisterEvent();  // not support touch events on web platform
+        }
     },
 
     disable () {
@@ -172,10 +176,6 @@ Object.assign(WebEditBoxImpl.prototype, {
         _currentEditBoxImpl = null;
         this._hideDom();
         this._delegate.editBoxEditingDidEnded();
-    },
-
-    _onTouchEnded () {
-        // not support on web platform
     },
 
     // ==========================================================================
@@ -271,7 +271,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         let self = this;
         setTimeout(function() {
             if (window.scrollY < SCROLLY) {
-                self._elem.scrollIntoView(true);
+                self._elem.scrollIntoView({block: "start", inline: "nearest", behavior: "smooth"});
             }
         }, DELAY_TIME);
     },
