@@ -4,10 +4,10 @@ import { IBlockInfo, IBlockMember, IDefineInfo, ISamplerInfo, IShaderInfo } from
 import { GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniform, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
+import { UBOForwardLights } from '../../pipeline/forward/forward-pipeline';
 import { UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
 import { SkinningUBO } from '../models/model-uniforms';
 import { IDefineMap } from './effect';
-import { UBOForwardLights } from '../../pipeline/forward/forward-pipeline';
 
 function _generateDefines (
     device: GFXDevice,
@@ -40,12 +40,10 @@ interface IProgramInfo extends IShaderInfo {
 }
 
 class ProgramLib {
-    protected _precision: string;
     protected _templates: Record<string, IProgramInfo>;
     protected _cache: Record<string, GFXShader | null>;
 
     constructor () {
-        this._precision = `precision highp float;\n`;
         this._templates = {};
         this._cache = {};
     }
@@ -130,11 +128,15 @@ class ProgramLib {
         const tmpl = this._templates[name];
         const customDef = _generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
 
-        const source = tmpl.glsl1; // temporary measure
-        // const source = (device.gfxAPI === GFXAPI.WEBGL2 ? tmpl.glsl3 : tmpl.glsl1);
-
-        const vert = customDef + this._precision + source.vert;
-        const frag = customDef + this._precision + source.frag;
+        let vert: string = '';
+        let frag: string = '';
+        // if (device.gfxAPI === GFXAPI.WEBGL2) {
+        //     vert = `#version 300 es\n${customDef}\n${tmpl.glsl3.vert}`;
+        //     frag = `#version 300 es\n${customDef}\n${tmpl.glsl3.frag}`;
+        // } else {
+            vert = `#version 100\n${customDef}\n${tmpl.glsl1.vert}`;
+            frag = `#version 100\n${customDef}\n${tmpl.glsl1.frag}`;
+        // }
 
         const instanceName = Object.keys(defines).reduce((acc, cur) => defines[cur] ? `${acc}|${cur}` : acc, name);
         program = device.createShader({

@@ -176,7 +176,7 @@ export class Root {
         for (let i = 0; i < this._windows.length; ++i) {
             if (this._windows[i] === window) {
                 window.destroy();
-                this._windows.splice(i);
+                this._windows.splice(i, 1);
                 return;
             }
         }
@@ -200,7 +200,7 @@ export class Root {
         for (let i = 0; i < this._scenes.length; ++i) {
             if (this._scenes[i] === scene) {
                 scene.destroy();
-                this._scenes.splice(i);
+                this._scenes.splice(i, 1);
                 return;
             }
         }
@@ -230,7 +230,7 @@ export class Root {
     public destroyView (view: RenderView) {
         for (let i = 0; i < this._views.length; ++i) {
             if (this._views[i] === view) {
-                this._views.splice(i);
+                this._views.splice(i, 1);
                 return;
             }
         }

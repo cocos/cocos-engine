@@ -3,7 +3,7 @@ import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import { GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXQueueType } from '../define';
-import { GFXDevice, GFXFeature, IGFXDeviceInfo, GFXAPI } from '../device';
+import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
