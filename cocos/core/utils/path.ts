@@ -29,24 +29,14 @@ const DIRNAME_RE = /((.*)(\/|\\|\\\\))?(.*?\..*$)?/;
 const NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
 
 /**
- * !#en The module provides utilities for working with file and directory paths
- * !#zh 用于处理文件与目录的路径的模块
- * @class path
- * @static
- */
-
-/**
  * !#en Join strings to be a path.
- * !#zh 拼接字符串为 Path
- * @method join
+ * !#zh 拼接字符串为路径。
  * @example {@link cocos2d/core/utils/CCPath/join.js}
- * @returns {String}
  */
-export function join () {
-    let l = arguments.length;
-    let result = "";
-    for (let i = 0; i < l; i++) {
-        result = (result + (result === "" ? "" : "/") + arguments[i]).replace(/(\/|\\\\)$/, "");
+export function join (...segments: string[]) {
+    let result = '';
+    for (const segment of segments) {
+        result = (result + (result === '' ? '' : '/') + segment).replace(/(\/|\\\\)$/, '');
     }
     return result;
 }
@@ -54,29 +44,24 @@ export function join () {
 /**
  * !#en Get the ext name of a path including '.', like '.png'.
  * !#zh 返回 Path 的扩展名，包括 '.'，例如 '.png'。
- * @method extname
  * @example {@link cocos2d/core/utils/CCPath/extname.js}
- * @param {String} pathStr
- * @returns {*}
  */
-export function extname (pathStr) {
-    let temp = EXTNAME_RE.exec(pathStr);
+export function extname (path: string) {
+    const temp = EXTNAME_RE.exec(path);
     return temp ? temp[1] : '';
 }
 
 /**
- * !#en Get the main name of a file name
- * !#zh 获取文件名的主名称
- * @method mainFileName
- * @param {String} fileName
- * @returns {String}
+ * !#en Get the main name of a file name.
+ * !#zh 获取文件名的主名称。
  * @deprecated
  */
-export function mainFileName (fileName) {
+export function mainFileName (fileName: string) {
     if (fileName) {
-        let idx = fileName.lastIndexOf(".");
-        if (idx !== -1)
+        const idx = fileName.lastIndexOf('.');
+        if (idx !== -1) {
             return fileName.substring(0, idx);
+        }
     }
     return fileName;
 }
@@ -84,110 +69,92 @@ export function mainFileName (fileName) {
 /**
  * !#en Get the file name of a file path.
  * !#zh 获取文件路径的文件名。
- * @method basename
  * @example {@link cocos2d/core/utils/CCPath/basename.js}
- * @param {String} pathStr
- * @param {String} [extname]
- * @returns {*}
  */
-export function basename (pathStr, extname) {
-    let index = pathStr.indexOf("?");
-    if (index > 0) pathStr = pathStr.substring(0, index);
-    let reg = /(\/|\\)([^\/\\]+)$/g;
-    let result = reg.exec(pathStr.replace(/(\/|\\)$/, ""));
-    if (!result) return null;
-    let baseName = result[2];
-    if (extname && pathStr.substring(pathStr.length - extname.length).toLowerCase() === extname.toLowerCase())
-        return baseName.substring(0, baseName.length - extname.length);
+export function basename (path: string, extName?: string) {
+    const index = path.indexOf('?');
+    if (index > 0) {
+        path = path.substring(0, index);
+    }
+    const reg = /(\/|\\)([^\/\\]+)$/g;
+    const result = reg.exec(path.replace(/(\/|\\)$/, ''));
+    if (!result) {
+        return '';
+    }
+    const baseName = result[2];
+    if (extName && path.substring(path.length - extName.length).toLowerCase() === extName.toLowerCase()) {
+        return baseName.substring(0, baseName.length - extName.length);
+    }
     return baseName;
 }
 
 /**
  * !#en Get dirname of a file path.
  * !#zh 获取文件路径的目录名。
- * @method dirname
  * @example {@link cocos2d/core/utils/CCPath/dirname.js}
- * @param {String} pathStr
- * @returns {*}
  */
-export function dirname (pathStr) {
-    let temp = DIRNAME_RE.exec(pathStr);
+export function dirname (path: string) {
+    const temp = DIRNAME_RE.exec(path);
     return temp ? temp[2] : '';
 }
 
 /**
  * !#en Change extname of a file path.
  * !#zh 更改文件路径的扩展名。
- * @method changeExtname
  * @example {@link cocos2d/core/utils/CCPath/changeExtname.js}
- * @param {String} pathStr
- * @param {String} [extname]
- * @returns {String}
  */
-export function changeExtname (pathStr, extname) {
-    extname = extname || "";
-    let index = pathStr.indexOf("?");
-    let tempStr = "";
+export function changeExtname (path: string, extName?: string) {
+    extName = extName || '';
+    let index = path.indexOf('?');
+    let tempStr = '';
     if (index > 0) {
-        tempStr = pathStr.substring(index);
-        pathStr = pathStr.substring(0, index);
+        tempStr = path.substring(index);
+        path = path.substring(0, index);
     }
-    index = pathStr.lastIndexOf(".");
-    if (index < 0) return pathStr + extname + tempStr;
-    return pathStr.substring(0, index) + extname + tempStr;
+    index = path.lastIndexOf('.');
+    if (index < 0) {
+        return path + extName + tempStr;
+    }
+    return path.substring(0, index) + extName + tempStr;
 }
 
 /**
  * !#en Change file name of a file path.
  * !#zh 更改文件路径的文件名。
  * @example {@link cocos2d/core/utils/CCPath/changeBasename.js}
- * @param {String} pathStr
- * @param {String} basename
- * @param {Boolean} [isSameExt]
- * @returns {String}
  */
-export function changeBasename (pathStr, basename, isSameExt) {
-    if (basename.indexOf(".") === 0) return this.changeExtname(pathStr, basename);
-    let index = pathStr.indexOf("?");
-    let tempStr = "";
-    let ext = isSameExt ? this.extname(pathStr) : "";
-    if (index > 0) {
-        tempStr = pathStr.substring(index);
-        pathStr = pathStr.substring(0, index);
+export function changeBasename (path: string, baseName: string, isSameExt?: boolean) {
+    if (baseName.indexOf('.') === 0) {
+        return changeExtname(path, baseName);
     }
-    index = pathStr.lastIndexOf("/");
+    let index = path.indexOf('?');
+    let tempStr = '';
+    const ext = isSameExt ? extname(path) : '';
+    if (index > 0) {
+        tempStr = path.substring(index);
+        path = path.substring(0, index);
+    }
+    index = path.lastIndexOf('/');
     index = index <= 0 ? 0 : index + 1;
-    return pathStr.substring(0, index) + basename + ext + tempStr;
+    return path.substring(0, index) + baseName + ext + tempStr;
 }
 
-//todo make public after verification
+// todo make public after verification
 export function _normalize (url) {
     let oldUrl = url = String(url);
 
-    //removing all ../
+    // removing all ../
     do {
         oldUrl = url;
-        url = url.replace(NORMALIZE_RE, "");
+        url = url.replace(NORMALIZE_RE, '');
     } while (oldUrl.length !== url.length);
     return url;
 }
 
-// @param {string} path
-export function stripSep (path) {
+export function stripSep (path: string) {
     return path.replace(/[\/\\]$/, '');
 }
 
-cc.path = {
-    join,
-    extname,
-    mainFileName,
-    basename,
-    dirname,
-    changeExtname,
-    changeBasename,
-    _normalize,
-    stripSep,
-    get sep () {
-        return (cc.sys.os === cc.sys.OS_WINDOWS ? '\\' : '/');
-    }
-};
+export function getSeperator () {
+    return cc.sys.os === cc.sys.OS_WINDOWS ? '\\' : '/';
+}

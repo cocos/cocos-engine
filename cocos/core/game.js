@@ -26,7 +26,7 @@
 
 import EventTarget from './event/event-target';
 import inputManager from './platform/event-manager/CCInputManager';
-import debug from './platform/CCDebug';
+import * as debug from './platform/CCDebug';
 import { addon } from './utils/js';
 
 /**

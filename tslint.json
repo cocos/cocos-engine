@@ -21,7 +21,11 @@
         "ban-types": false,
         "no-bitwise": false,
         "no-empty": false,
-        "radix": false
+        "radix": false,
+        "max-line-length": [
+            true,
+            160
+        ]
     },
     "rulesDirectory": []
 }

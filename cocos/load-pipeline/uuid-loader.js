@@ -26,7 +26,7 @@
 
 import * as js from '../core/utils/js';
 import {_getClassById} from '../core/utils/js';
-import debug from '../core/platform/CCDebug';
+import * as debug from '../core/platform/CCDebug';
 import deserialize from '../core/data/deserialize';
 import LoadingItems from './loading-items';
 
@@ -227,6 +227,10 @@ export function loadUuid (item, callback) {
     }
     else {
         return new Error(debug.getError(4924));
+    }
+
+    if (json === undefined || json === null) {
+        return new Error(debug.getError(4923, item.id));
     }
 
     var classFinder;
