@@ -287,7 +287,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public setStencilWirteMask (face: GFXStencilFace, writeMask: number) {
+    public setStencilWriteMask (face: GFXStencilFace, writeMask: number) {
         if (!this._curStencilWriteMask) {
             this._curStencilWriteMask = {
                 face,

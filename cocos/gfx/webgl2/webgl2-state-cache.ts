@@ -9,6 +9,7 @@ export class WebGL2StateCache {
     public glArrayBuffer: WebGLBuffer = 0;
     public glElementArrayBuffer: WebGLBuffer = 0;
     public glUniformBuffer: WebGLBuffer = 0;
+    public glBindUBO: WebGLBuffer = 0;
     public texUnit: number = 0;
     public glTex2DUnits: IWebGL2TexUnit[];
     public glTexCubeUnits: IWebGL2TexUnit[];

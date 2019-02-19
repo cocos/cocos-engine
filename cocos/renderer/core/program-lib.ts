@@ -130,8 +130,8 @@ class ProgramLib {
         const tmpl = this._templates[name];
         const customDef = _generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
 
-        const source = tmpl.glsl1; // temporary measure
-        // const source = (device.gfxAPI === GFXAPI.WEBGL2 ? tmpl.glsl3 : tmpl.glsl1);
+        // const source = tmpl.glsl1; // temporary measure
+        const source = (device.gfxAPI === GFXAPI.WEBGL2 ? tmpl.glsl3 : tmpl.glsl1);
 
         const vert = customDef + this._precision + source.vert;
         const frag = customDef + this._precision + source.frag;
