@@ -243,6 +243,14 @@ var properties = {
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.spriteFrame'
     },
 
+
+    // just used to read data from 1.x
+    _texture: {
+        default: null,
+        type: cc.Texture2D,
+        editorOnly: true,
+    },
+
     /**
      * !#en Texture of Particle System, readonly, please use spriteFrame to setup new texture。
      * !#zh 粒子贴图，只读属性，请使用 spriteFrame 属性来替换贴图。
@@ -711,7 +719,6 @@ var ParticleSystem = cc.Class({
     ctor: function () {
         this._previewTimer = null;
         this._focused = false;
-        this._texture = null;
 
         this._simulator = new ParticleSimulator(this);
 
@@ -791,7 +798,44 @@ var ParticleSystem = cc.Class({
 
     // LIFE-CYCLE METHODS
 
+    // just used to read data from 1.x
+    _convertTextureToSpriteFrame: CC_EDITOR && function () {
+        if (this._spriteFrame) {
+            return;
+        }
+        let texture = this.texture;
+        if (!texture || !texture._uuid) {
+            return;
+        }
+
+        let _this = this;
+        Editor.assetdb.queryMetaInfoByUuid(texture._uuid, function (err, metaInfo) {
+            if (err) return Editor.error(err);
+            let meta = JSON.parse(metaInfo.json);
+            if (meta.type === 'raw') {
+                const NodeUtils = Editor.require('app://editor/page/scene-utils/utils/node');
+                let nodePath = NodeUtils.getNodePath(_this.node);
+                return Editor.warn(`The texture ${metaInfo.assetUrl} used by particle ${nodePath} does not contain any SpriteFrame, please set the texture type to Sprite and reassign the SpriteFrame to the particle component.`);
+            }
+            else {
+                let Url = require('fire-url');
+                let name = Url.basenameNoExt(metaInfo.assetPath);
+                let uuid = meta.subMetas[name].uuid;
+                cc.AssetLibrary.loadAsset(uuid, function (err, sp) {
+                    if (err) return Editor.error(err);
+                    _this._texture = null;
+                    _this.spriteFrame = sp;
+                });
+            }
+        });
+    },
+
     __preload: function () {
+
+        if (CC_EDITOR) {
+            this._convertTextureToSpriteFrame();
+        }
+
         if (this._file) { 
             if (this._custom) { 
                 var missCustomTexture = !this._texture; 
