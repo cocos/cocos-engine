@@ -13,15 +13,6 @@ function _generateDefines(defs) {
   return defines.join('\n') + '\n';
 }
 
-function _generateExtensions (device, exts) {
-  let extensions = [];
-  for (let i = 0; i < exts.length; i++) {
-    if (!device.ext(exts[i])) continue;
-    extensions.push(`#extension GL_${exts[i]}: enable`);
-  }
-  return extensions.join('\n') + '\n';
-}
-
 function _replaceMacroNums(string, defs) {
   let cache = {};
   let tmp = string;

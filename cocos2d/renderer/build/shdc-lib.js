@@ -340,7 +340,6 @@ let buildShader = function(vertName, fragName, cache) {
   vert = glslExtractExtensions(vert);
 
   defCache = { lines: [], tagLines: [] };
-  extensions = [];
   frag = fragHeader + frag;
   frag = unwindIncludes(frag, cache);
   frag = expandStructMacro(frag);
