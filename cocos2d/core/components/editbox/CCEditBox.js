@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const macro = require('../../platform/CCMacro');
-const EditBoxImpl = require('../editbox/CCEditBoxImpl');
+const EditBoxImplBase = require('./EditBoxImplBase');
 const Label = require('../CCLabel');
 const Types = require('./types');
 const InputMode = Types.InputMode;
@@ -79,9 +79,7 @@ let EditBox = cc.Class({
                 }
 
                 this._string = value;
-                if (this._impl) {
-                    this._updateString(value);
-                }
+                this._updateString(value);
             }
         },
 
@@ -114,11 +112,12 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.returnType',
             displayName: 'KeyboardReturnType',
             type: KeyboardReturnType,
-            notify () {
-                if (this._impl) {
-                    this._impl.returnType = this.returnType;
-                }
-            }
+        },
+
+        // To be removed in the future
+        _N$returnType: {
+            default: undefined,
+            type: cc.Float,
         },
 
         /**
@@ -132,10 +131,7 @@ let EditBox = cc.Class({
             default: InputFlag.DEFAULT,
             type: InputFlag,
             notify () {
-                if (this._impl) {
-                    this._impl.setInputFlag(this.inputFlag);
-                    this._updateString(this._string);
-                }
+                this._updateString(this._string);
             }
         },
         /**
@@ -151,11 +147,12 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.input_mode',
             default: InputMode.ANY,
             type: InputMode,
-            notify () {
-                if (this._impl) {
-                    this._impl.setInputMode(this.inputMode);
-                }
-            }
+        },
+
+        // To be removed in the future
+        _N$inputMode: {
+            default: undefined,
+            type: cc.Float,
         },
 
         /**
@@ -169,9 +166,6 @@ let EditBox = cc.Class({
             notify () {
                 if (this._textLabel) {
                     this._textLabel.fontSize = this.fontSize;
-                }
-                if (this._impl) {
-                    this._impl.setFontSize(this.fontSize);
                 }
             }
         },
@@ -204,9 +198,6 @@ let EditBox = cc.Class({
                     this._textLabel.node.opacity = this.fontColor.a;
                     this._textLabel.node.color = this.fontColor;
                 }
-                if (this._impl) {
-                    this._impl.setFontColor(this.fontColor);
-                }
             }
         },
 
@@ -221,9 +212,6 @@ let EditBox = cc.Class({
             notify () {
                 if (this._placeholderLabel) {
                     this._placeholderLabel.string = this.placeholder;
-                }
-                if (this._impl) {
-                    this._impl.setPlaceholderText(this.placeholder);
                 }
             }
         },
@@ -272,25 +260,21 @@ let EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.max_length',
             default: 20,
             notify () {
-                if (this._impl) {
-                    this._impl.setMaxLength(this.maxLength);
-                }
+                
             }
         },
 
         /**
          * !#en The input is always visible and be on top of the game view (only useful on Web).
-         * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
-         * Note: only available on Web at the moment.
+         * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义），这个属性已经在 v2.0.9 中废弃。
+         * Note: only available on Web at the moment, this property has been deprecated since v2.0.9
          * @property {Boolean} stayOnTop
          */
         stayOnTop: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.stay_on_top',
             default: false,
             notify () {
-                if (this._impl) {
-                    this._updateStayOnTop();
-                }
+                cc.warn('editBox.stayOnTop is removed since v2.1.');
             }
         },
 
@@ -357,43 +341,38 @@ let EditBox = cc.Class({
     },
 
     statics: {
-        _EditBoxImpl: EditBoxImpl,
+        _ImplClass: EditBoxImplBase,  // implemented on different platform adapter
         KeyboardReturnType: KeyboardReturnType,
         InputFlag: InputFlag,
         InputMode: InputMode
     },
 
     _init () {
+        if (CC_EDITOR) {
+            this._upgradeComp();            
+        }
+
         this._createBackgroundSprite();
         this._createLabels();
-        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._resizeChildNodes, this);
+        this._isLabelVisible = true;
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._syncSize, this);
 
-        let impl = this._impl = new EditBoxImpl();
+        let impl = this._impl = new EditBox._ImplClass();
+        impl.init(this);
 
-        impl.setDelegate(this);
-        impl.setNode(this.node);
-        impl.setInputMode(this.inputMode);
-        impl.setMaxLength(this.maxLength);
-        impl.setInputFlag(this.inputFlag);
-        impl.setReturnType(this.returnType);
-        impl.setTabIndex(this.tabIndex);
-        impl.setFontColor(this.fontColor);
-        impl.setFontSize(this.fontSize);
-        impl.setPlaceholderText(this.placeholder);
-
-        this._updateStayOnTop();
         this._updateString(this.string);
         this._syncSize();
     },
 
-    _updateStayOnTop () {
-        if (this.stayOnTop) {
-            this._hideLabels();
+    _upgradeComp () {
+        if (this._N$returnType !== undefined) {
+            this.returnType = this._N$returnType;
+            this._N$returnType = undefined;
         }
-        else {
-            this._showLabels();
+        if (this._N$inputMode !== undefined) {
+            this.inputMode = this._N$inputMode;
+            this._N$inputMode = undefined;
         }
-        this._impl.stayOnTop(this.stayOnTop);
     },
 
     _syncSize () {
@@ -403,7 +382,9 @@ let EditBox = cc.Class({
         this._background.node.setContentSize(size);
 
         this._updateLabelPosition(size);
-        this._impl.setSize(size.width, size.height);
+        if (this._impl) {
+            this._impl.setSize(size.width, size.height);
+        }
     },
 
     _updateLabelPosition (size) {
@@ -416,7 +397,6 @@ let EditBox = cc.Class({
 
         textLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
         placeholderLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
-        placeholderLabel.lineHeight = size.height;
 
         placeholderLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
         textLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
@@ -495,34 +475,23 @@ let EditBox = cc.Class({
         }
     },
 
-    _resizeChildNodes () {
-        let textLabelNode = this._textLabel.node,
-            placeholderLabelNode = this._placeholderLabel.node,
-            backgroundNode = this._background.node;
-            
-        textLabelNode.x = -this.node.width/2;
-        textLabelNode.y = this.node.height/2;
-        textLabelNode.width = this.node.width;
-        textLabelNode.height = this.node.height;
-        
-        placeholderLabelNode.x = -this.node.width/2;
-        placeholderLabelNode.y = this.node.height/2;
-        placeholderLabelNode.width = this.node.width;
-        placeholderLabelNode.height = this.node.height;            
-        
-        backgroundNode.width = this.node.width;
-        backgroundNode.height = this.node.height;
-    },
-
     _showLabels () {
-        let displayText = this._textLabel.string;
-        this._textLabel.node.active = displayText !== '';
-        this._placeholderLabel.node.active = displayText === '';
+        this._isLabelVisible = true;
+        this._updateLabels();
     },
 
     _hideLabels () {
+        this._isLabelVisible = false;
         this._textLabel.node.active = false;
         this._placeholderLabel.node.active = false;
+    },
+
+    _updateLabels () {
+        if (this._isLabelVisible) {
+            let displayText = this._textLabel.string;
+            this._textLabel.node.active = displayText !== '';
+            this._placeholderLabel.node.active = displayText === '';
+        }
     },
 
     _updateString (text) {
@@ -538,10 +507,8 @@ let EditBox = cc.Class({
         }
 
         textLabel.string = displayText;
-        this._impl.setString(text);
-        if (!this._impl._editing && !this.stayOnTop) {
-            this._showLabels();
-        }
+
+        this._updateLabels();
     },
 
     _updateLabelStringStyle (text, ignorePassword) {
@@ -568,15 +535,11 @@ let EditBox = cc.Class({
     },
 
     editBoxEditingDidBegan () {
-        this._hideLabels();
         cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit('editing-did-began', this);
     },
 
     editBoxEditingDidEnded () {
-        if (!this.stayOnTop) {
-            this._showLabels();
-        }
         cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit('editing-did-ended', this);
     },
@@ -593,22 +556,31 @@ let EditBox = cc.Class({
         this.node.emit('editing-return', this);
     },
 
-    onDestroy () {
-        this._impl.clear();
-    },
-
     onEnable () {
-        this._impl && this._impl.onEnable();
-    },
-
-    onDisable () {
-        this._impl && this._impl.onDisable();
-    },
-
-    __preload () {
         if (!CC_EDITOR) {
             this._registerEvent();
         }
+        if (this._impl) {
+            this._impl.enable();
+        }
+    },
+
+    onDisable () {
+        if (!CC_EDITOR) {
+            this._unregisterEvent();
+        }
+        if (this._impl) {
+            this._impl.disable();
+        }
+    },
+
+    onDestroy () {
+        if (this._impl) {
+            this._impl.clear();
+        }
+    },
+
+    __preload () {
         this._init();
     },
 
@@ -617,50 +589,72 @@ let EditBox = cc.Class({
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
     },
 
+    _unregisterEvent () {
+        this.node.off(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+    },
+
     _onTouchBegan (event) {
-        if (this._impl) {
-            this._impl._onTouchBegan(event.touch);
-        }
         event.stopPropagation();
     },
 
     _onTouchCancel (event) {
-        if (this._impl) {
-            this._impl._onTouchCancel();
-        }
         event.stopPropagation();
     },
 
     _onTouchEnded (event) {
         if (this._impl) {
-            this._impl._onTouchEnded();
+            this._impl.beginEditing();
         }
         event.stopPropagation();
     },
 
     /**
-     * !#en Let the EditBox get focus
-     * !#zh 让当前 EditBox 获得焦点
+     * !#en Let the EditBox get focus, this method has been deprecated since v2.0.8, please use focus() instead. Call blur() in turn.
+     * !#zh 让当前 EditBox 获得焦点, 这个方法已经在 v2.0.8 中废弃，请使用 focus(). 相反的请使用 blur()
      * @method setFocus
      */
     setFocus () {
-        if(this._impl) {
-            this._impl.setFocus();
+        cc.warnID(1400, 'setFocus()', 'focus()');
+        if (this._impl) {
+            this._impl.setFocus(true);
+        }
+    },
+
+    /**
+     * !#en Let the EditBox get focus
+     * !#zh 让当前 EditBox 获得焦点
+     * @method focus
+     */
+    focus () {
+        if (this._impl) {
+            this._impl.setFocus(true);
+        }
+    },
+
+    /**
+     * !#en Let the EditBox lose focus
+     * !#zh 让当前 EditBox 失去焦点
+     * @method blur
+     */
+    blur () {
+        if (this._impl) {
+            this._impl.setFocus(false);
         }
     },
 
     /**
      * !#en Determine whether EditBox is getting focus or not.
      * !#zh 判断 EditBox 是否获得了焦点
-     * Note: only available on Web at the moment.
      * @method isFocused
      */
     isFocused () {
-        let isFocused = false;
         if (this._impl) {
-            isFocused = this._impl.isFocused();
+            return this._impl.isFocused();
         }
-        return isFocused;
+        else {
+            return false;
+        }
     },
 
     update () {
@@ -672,6 +666,10 @@ let EditBox = cc.Class({
 });
 
 cc.EditBox = module.exports = EditBox;
+
+if (cc.sys.isBrowser) {
+    require('./WebEditBoxImpl');
+}
 
 /**
  * !#en
