@@ -9771,7 +9771,9 @@ Device.prototype.clear = function clear (opts) {
     gl.clearStencil(opts.stencil);
   }
 
-  gl.clear(flags);
+  if (flags !== 0) {
+    gl.clear(flags);
+  }
 
   // restore depth-write
   if (opts.depth !== undefined) {
