@@ -34,7 +34,7 @@ const READY_STATE = {
     HAVE_CURRENT_DATA: 2,
     HAVE_FUTURE_DATA: 3,
     HAVE_ENOUGH_DATA: 4
-}
+};
 
 let _mat4_temp = math.mat4.create();
 
@@ -168,6 +168,8 @@ let VideoPlayerImpl = cc.Class({
         video.className = "cocosVideo";
         video.setAttribute('preload', 'auto');
         video.setAttribute('webkit-playsinline', '');
+        // This x5-playsinline tag must be added, otherwise the play, pause events will only fire once, in the qq browser.
+        video.setAttribute("x5-playsinline", '');
         video.setAttribute('playsinline', '');
 
         this._video = video;
