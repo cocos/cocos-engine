@@ -62,7 +62,6 @@ export default class ProgramLib {
    */
   constructor(device, templates = [], chunks = {}) {
     this._device = device;
-    this._precision = `precision highp float;\n`;
 
     // register templates
     this._templates = {};
@@ -135,9 +134,6 @@ export default class ProgramLib {
       offset += cnt;
       def._offset = offset;
     }
-
-    vert = _generateExtensions(this._device, extensions) + this._precision + vert;
-    frag = _generateExtensions(this._device, extensions) + this._precision + frag;
 
     // store it
     this._templates[name] = {

@@ -43,7 +43,7 @@ function glslStrip(code, cache) {
   let result = '';
   let codes = code.split('\n');
   for (let i = 0; i < codes.length; i++) {
-    if (cache.tagLines.indexOf(i+1) === -1 && codes[i].indexOf('#extension') === -1) {
+    if (cache.tagLines.indexOf(i+1) === -1) {
       result += codes[i] + '\n';
     }
   }
@@ -61,6 +61,24 @@ function glslStrip(code, cache) {
 
   // strip multiple line break
   result = result.replace(/\n\n+/g, '\n\n');
+
+  return result;
+}
+
+function glslExtractExtensions (code) {
+  let extensions = [];
+  let result = '';
+  let codes = code.split('\n');
+  for (let i = 0; i < codes.length; i++) {
+    if (codes[i].indexOf('#extension') === -1) {
+      result += codes[i] + '\n';
+    }
+    else {
+      extensions.push(codes[i]);
+    }
+  }
+
+  result = extensions.join('\n') + '\n' + result;
 
   return result;
 }
@@ -319,8 +337,10 @@ let buildShader = function(vertName, fragName, cache) {
     vert = wrapEntry(vert, vertName, vEntry, ast, true);
   } catch (e) { Editor.error(`parse ${vertName} failed: ${e}`); }
   vert = glslStrip(vert, defCache);
+  vert = glslExtractExtensions(vert);
 
   defCache = { lines: [], tagLines: [] };
+  extensions = [];
   frag = fragHeader + frag;
   frag = unwindIncludes(frag, cache);
   frag = expandStructMacro(frag);
@@ -332,6 +352,7 @@ let buildShader = function(vertName, fragName, cache) {
     frag = wrapEntry(frag, fragName, fEntry, ast);
   } catch (e) { Editor.error(`parse ${fragName} failed: ${e}`); }
   frag = glslStrip(frag, defCache);
+  frag = glslExtractExtensions(frag);
 
   return { vert, frag, defines, uniforms, attributes, extensions };
 };

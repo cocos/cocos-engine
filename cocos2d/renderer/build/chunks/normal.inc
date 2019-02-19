@@ -1,3 +1,4 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 #if USE_NORMAL_TEXTURE && GL_OES_standard_derivatives
   #extension GL_OES_standard_derivatives : enable

@@ -1,3 +1,4 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 #if USE_EMISSIVE
   #property #color3

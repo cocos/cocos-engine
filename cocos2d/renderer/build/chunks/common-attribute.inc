@@ -1,3 +1,4 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 #ifndef USE_DIFFUSE_TEXTURE
   #ifndef USE_EMISSIVE_TEXTURE

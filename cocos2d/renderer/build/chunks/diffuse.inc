@@ -1,3 +1,4 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 #property #color4
 uniform vec4 diffuseColor;
