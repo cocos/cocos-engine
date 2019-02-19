@@ -9749,6 +9749,10 @@ Device.prototype.setScissor = function setScissor (x, y, w, h) {
  * @param {Number} opts.stencil
  */
 Device.prototype.clear = function clear (opts) {
+  if (opts.color === undefined && opts.depth === undefined && opts.stencil === undefined) {
+    return;
+  }
+
   var gl = this._gl;
   var flags = 0;
 
@@ -9771,9 +9775,7 @@ Device.prototype.clear = function clear (opts) {
     gl.clearStencil(opts.stencil);
   }
 
-  if (flags !== 0) {
-    gl.clear(flags);
-  }
+  gl.clear(flags);
 
   // restore depth-write
   if (opts.depth !== undefined) {
