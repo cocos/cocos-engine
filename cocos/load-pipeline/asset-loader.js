@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import {extname} from '../core/utils/path';
-import debug from '../core/platform/CCDebug';
+import * as debug from '../core/platform/CCDebug';
 import Pipeline from './pipeline';
 import LoadingItems from './loading-items';
 

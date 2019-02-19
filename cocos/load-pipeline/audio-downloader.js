@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import sys from '../core/platform/CCSys';
-import debug from '../core/platform/CCDebug';
+import * as debug from '../core/platform/CCDebug';
 
 var __audioSupport = sys.__audioSupport;
 var formatSupport = __audioSupport.format;

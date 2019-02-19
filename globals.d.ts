@@ -53,3 +53,9 @@ declare module "webgl-debug" {
 
     export function glEnumToString(glEnum: GLenum): string;
 }
+
+declare namespace Editor {
+    function log (message?: any, ...optionalParams: any[]): void;
+    function error (message?: any, ...optionalParams: any[]): void;
+    function warn (message?: any, ...optionalParams: any[]): void;
+}
