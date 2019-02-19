@@ -5,7 +5,7 @@ import { Root } from '../../core/root';
 import { Mat4, Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
-import { UBOGlobal } from '../../pipeline/render-pipeline';
+import { UBOForwardLights } from '../../pipeline/forward/forward-pipeline';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
 import { Camera, ICameraInfo } from './camera';
@@ -111,7 +111,7 @@ export class RenderScene {
     }
 
     public createPointLight (name: string, node: Node): Light | null {
-        if (this._pointLights.length >= UBOGlobal.MAX_POINT_LIGHTS) { return null; }
+        if (this._pointLights.length >= UBOForwardLights.MAX_POINT_LIGHTS) { return null; }
         const light = new PointLight(this, node, name);
         this._pointLights.push(light);
         return light;
@@ -127,7 +127,7 @@ export class RenderScene {
     }
 
     public createDirectionalLight (name: string, node: Node): Light | null {
-        if (this._directionalLights.length >= UBOGlobal.MAX_DIR_LIGHTS) { return null; }
+        if (this._directionalLights.length >= UBOForwardLights.MAX_DIR_LIGHTS) { return null; }
         const light = new DirectionalLight(this, node, name);
         this._directionalLights.push(light);
         return light;
@@ -143,7 +143,7 @@ export class RenderScene {
     }
 
     public createSpotLight (name: string, node: Node): Light | null {
-        if (this._spotLights.length >= UBOGlobal.MAX_SPOT_LIGHTS) { return null; }
+        if (this._spotLights.length >= UBOForwardLights.MAX_SPOT_LIGHTS) { return null; }
         const light = new SpotLight(this, node, name);
         this._spotLights.push(light);
         return light;
