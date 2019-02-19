@@ -42,6 +42,7 @@ export class Model {
     private _matRefCount: Map<Material, number>;
     private _uboLocal: UBOLocal;
     private _localUBO: GFXBuffer | null;
+    private _inited: boolean;
 
     /**
      * Setup a default empty model
@@ -56,6 +57,7 @@ export class Model {
         this._matRefCount = new Map<Material, number>();
         this._uboLocal = new UBOLocal();
         this._localUBO = null;
+        this._inited = false;
     }
 
     public destroy () {
@@ -72,6 +74,7 @@ export class Model {
         this._subModels.splice(0);
         this._matPSORecord.clear();
         this._matRefCount.clear();
+        this._inited = false;
     }
 
     set scene (scene: RenderScene) {
@@ -89,6 +92,10 @@ export class Model {
 
     get subModelNum () {
         return this._subModels.length;
+    }
+
+    get inited (): boolean {
+        return this._inited;
     }
 
     public getSubModel (idx: number) {
@@ -186,6 +193,7 @@ export class Model {
         }
         this.allocatePSO(mat);
         this._subModels[idx].initialize(subMeshData, mat, this._matPSORecord.get(mat)!);
+        this._inited = true;
     }
 
     public setSubModelMesh (idx: number, subMeshData: IRenderingSubmesh) {
