@@ -28,6 +28,8 @@
 
 import cc from './predefine';
 
+import './cocos/legacy';
+
 // LOAD ENGINE CORE
 export * from './cocos/core';
 export * from './cocos/scene-graph';

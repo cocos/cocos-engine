@@ -25,6 +25,11 @@
  ****************************************************************************/
 
 import * as js from './js';
+
+/**
+ * !#en The module provides utilities for working with file and directory paths
+ * !#zh 用于处理文件与目录的路径的模块
+ */
 import * as path from './path';
 
 export * from './prefab-helper';

@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import {mixin} from '../core/utils/js';
-import debug from '../core/platform/CCDebug';
+import * as debug from '../core/platform/CCDebug';
 import Pipeline from './pipeline';
 import * as PackDownloader from './pack-downloader';
 import downloadBinary from './binary-downloader';
