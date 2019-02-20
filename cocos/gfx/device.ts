@@ -2,7 +2,7 @@ import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
-import { GFXBufferTextureCopy, GFXFormat } from './define';
+import { GFXBufferTextureCopy, GFXFormat, GFX_MAX_BUFFER_BINDINGS } from './define';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from './pipeline-layout';
@@ -97,6 +97,14 @@ export abstract class GFXDevice {
         return this._maxVertexTextureUnits;
     }
 
+    public get maxUniformBufferBindings (): number {
+        return this._maxUniformBufferBindings;
+    }
+
+    public get maxUniformBlockSize (): number {
+        return this._maxUniformBlockSize;
+    }
+
     public get depthBits (): number {
         return this._depthBits;
     }
@@ -131,6 +139,8 @@ export abstract class GFXDevice {
     protected _maxFragmentUniformVectors: number = 0;
     protected _maxTextureUnits: number = 0;
     protected _maxVertexTextureUnits: number = 0;
+    protected _maxUniformBufferBindings: number = GFX_MAX_BUFFER_BINDINGS;
+    protected _maxUniformBlockSize: number = 0;
     protected _depthBits: number = 0;
     protected _stencilBits: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;

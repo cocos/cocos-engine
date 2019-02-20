@@ -1,4 +1,4 @@
-import { GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUTES, IGFXRect, IGFXViewport } from '../define';
+import { GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUTES, IGFXRect, IGFXViewport, GFX_MAX_BUFFER_BINDINGS } from '../define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 
 export interface IWebGL2TexUnit {
@@ -9,7 +9,7 @@ export class WebGL2StateCache {
     public glArrayBuffer: WebGLBuffer = 0;
     public glElementArrayBuffer: WebGLBuffer = 0;
     public glUniformBuffer: WebGLBuffer = 0;
-    public glBindUBO: WebGLBuffer = 0;
+    public glBindUBOs: WebGLBuffer[];
     public texUnit: number = 0;
     public glTex2DUnits: IWebGL2TexUnit[];
     public glTexCubeUnits: IWebGL2TexUnit[];
@@ -24,6 +24,9 @@ export class WebGL2StateCache {
     public glCurrentAttribLocs: boolean[];
 
     constructor () {
+        this.glBindUBOs = new Array<WebGLBuffer>(GFX_MAX_BUFFER_BINDINGS);
+        this.glBindUBOs.fill(0);
+
         this.glTex2DUnits = new Array<IWebGL2TexUnit>(GFX_MAX_TEXTURE_UNITS);
         this.glTexCubeUnits = new Array<IWebGL2TexUnit>(GFX_MAX_TEXTURE_UNITS);
         this.viewport = { left: 0.0, top: 0.0, width: 0.0, height: 0.0, minDepth: 0.0, maxDepth: 0.0 };

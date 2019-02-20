@@ -40,7 +40,6 @@ export class WebGL2GPUBuffer {
     public glBuffer: WebGLBuffer = 0;
     public buffer: ArrayBuffer | null = null;
     public vf32: Float32Array | null = null;
-    public uniforms: IWebGL2GPUUniformInfo[] = [];
     public indirects: IGFXDrawInfo[] = [];
 }
 
@@ -139,6 +138,7 @@ export interface IWebGL2GPUUniform {
 
 export class WebGL2GPUUniformBlock {
     public binding: number = -1;
+    public idx: number = 0;
     public name: string = '';
     public size: number = 0;
     public glUniforms: IWebGL2GPUUniform[] = [];

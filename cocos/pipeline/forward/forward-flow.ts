@@ -1,7 +1,6 @@
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
 // import { TestStage } from "./test-stage";
-import { TestModelStage } from '../testcase/test-model-stage';
 import { ForwardStage } from './forward-stage';
 
 export enum ForwardStagePriority {

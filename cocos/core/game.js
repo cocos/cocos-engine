@@ -766,6 +766,7 @@ var game = {
             {
                 // todo, adjust opts here
                 this._gfxDevice = new cc.WebGLGFXDevice;
+                
                 /*
                 let gl2 = localCanvas.getContext('webgl2');
                 if (!gl2) {

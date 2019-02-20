@@ -47,6 +47,7 @@ import {
     WebGL2GPUUniformSampler,
 } from './webgl2-gpu-objects';
 import { IWebGL2TexUnit } from './webgl2-state-cache';
+import { GFXUniformBlock } from '../shader';
 
 const _uniformValues = new Array<number>(1024 * 4);
 
@@ -740,9 +741,13 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                 gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.glBuffer);
                 device.stateCache.glUniformBuffer = gpuBuffer.glBuffer;
             }
-        }
 
-        gpuBuffer.glTarget = WebGL2RenderingContext.NONE;
+            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
+            gl.bufferData(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.size, glUsage);
+
+            gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, null);
+            device.stateCache.glUniformBuffer = 0;
+        }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) {
         gpuBuffer.glTarget = WebGL2RenderingContext.NONE;
     } else if (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_DST) {
@@ -765,6 +770,7 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2GFXDevice, gpuBuffer: 
 export function WebGL2CmdFuncResizeBuffer (device: WebGL2GFXDevice, gpuBuffer: WebGL2GPUBuffer) {
 
     const gl = device.gl;
+    const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
 
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
 
@@ -772,9 +778,7 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2GFXDevice, gpuBuffer: W
             gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
         }
 
-        const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
         gl.bufferData(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
-
         gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, null);
         device.stateCache.glArrayBuffer = 0;
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDEX) {
@@ -783,9 +787,7 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2GFXDevice, gpuBuffer: W
             gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
         }
 
-        const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
         gl.bufferData(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
-
         gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, null);
         device.stateCache.glElementArrayBuffer = 0;
     } else if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
@@ -793,9 +795,7 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2GFXDevice, gpuBuffer: W
             gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.glBuffer);
         }
 
-        const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
         gl.bufferData(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.size, glUsage);
-
         gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, null);
         device.stateCache.glUniformBuffer = 0;
     } else if ((gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) ||
@@ -822,13 +822,6 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                     gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
                 }
-
-                if (size === buff.byteLength) {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-                } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
-                }
-
                 break;
             }
             case WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER: {
@@ -836,32 +829,25 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                     gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
                 }
-
-                if (size === buff.byteLength) {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-                } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
-                }
-
                 break;
             }
             case WebGL2RenderingContext.UNIFORM_BUFFER: {
                 if (device.stateCache.glUniformBuffer !== gpuBuffer.glBuffer) {
                     gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.glBuffer);
-                    device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
+                    device.stateCache.glUniformBuffer = gpuBuffer.glBuffer;
                 }
-
-                if (size === buff.byteLength) {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-                } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
-                }
-
                 break;
             }
             default: {
                 console.error('Unsupported GFXBufferType, update buffer failed.');
+                return;
             }
+        }
+
+        if (size === buff.byteLength) {
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+        } else {
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
         }
     }
 }
@@ -1165,75 +1151,96 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
     }
 
     // create uniform blocks
-    if (gpuShader.blocks.length > 0) {
-        gpuShader.glBlocks = new Array<WebGL2GPUUniformBlock>(gpuShader.blocks.length);
-        for (let i = 0; i < gpuShader.blocks.length; ++i) {
-            const block = gpuShader.blocks[i];
+    const activeBlockCount = gl.getProgramParameter(gpuShader.glProgram, gl.ACTIVE_UNIFORM_BLOCKS);
+    let blockName: string;
+    // let blockIdx: number;
+    let blockSize: number;
+    let uBlock: GFXUniformBlock | null;
 
-            const glBlock: WebGL2GPUUniformBlock = {
-                binding: block.binding,
-                name: block.name,
-                size: 0,
-                glUniforms: new Array<IWebGL2GPUUniform>(block.members.length),
-                glActiveUniforms: [],
-                isUniformPackage: true,
-            };
+    let blockUniformCount: number;
+    let uIndices: Uint32Array;
+    let indices: number[];
+    let glUniformTypes: GLenum[];
+    let glUniformSizes: GLenum[];
+    let glUniformOffsets: GLenum[];
+    let glUniformInfo: WebGLActiveInfo | null;
 
-            gpuShader.glBlocks[i] = glBlock;
+    if (activeBlockCount) {
+        gpuShader.glBlocks = new Array<WebGL2GPUUniformBlock>(activeBlockCount);
 
-            for (let u = 0; u < block.members.length; ++u) {
-                const uniform = block.members[u];
-                const glType = GFXTypeToWebGLType(uniform.type);
-                const stride = WebGLGetTypeSize(glType);
-                const size = stride * uniform.count;
-                const begin = glBlock.size / 4;
-                const count = size / 4;
-                const array = new Array<number>(count);
-                array.fill(0);
+        for (let i = 0; i < activeBlockCount; ++i) {
 
-                glBlock.glUniforms[u] = {
-                    binding: -1,
-                    name: uniform.name,
-                    type: uniform.type,
-                    stride,
-                    count: uniform.count,
-                    size,
-                    offset: glBlock.size,
-
-                    glType,
-                    glLoc: -1,
-                    array,
-                    begin,
-                    isFirst: true,
-                };
-
-                glBlock.size += size;
+            blockName = gl.getActiveUniformBlockName(gpuShader.glProgram, i)!;
+            const nameOffset = blockName.indexOf('[');
+            if (nameOffset !== -1) {
+                blockName = blockName.substr(0, nameOffset);
             }
 
-            /*
-            glBlock.buffer = new ArrayBuffer(glBlock.size);
+            // blockIdx = gl.getUniformBlockIndex(gpuShader.glProgram, blockName);
 
-            for (const glUniform of glBlock.glUniforms) {
-                switch (glUniform.glType) {
-                    case gl.BOOL:
-                    case gl.BOOL_VEC2:
-                    case gl.BOOL_VEC3:
-                    case gl.BOOL_VEC4:
-                    case gl.INT:
-                    case gl.INT_VEC2:
-                    case gl.INT_VEC3:
-                    case gl.INT_VEC4:
-                    case gl.SAMPLER_2D:
-                    case gl.SAMPLER_CUBE: {
-                        glUniform.vi32 = new Int32Array(glBlock.buffer);
-                        break;
-                    }
-                    default: {
-                        glUniform.vf32 = new Float32Array(glBlock.buffer);
+            uBlock = null;
+            for (const block of gpuShader.blocks) {
+                if (block.name === blockName) {
+                    uBlock = block;
+                    break;
+                }
+            }
+
+            if (uBlock) {
+                gl.uniformBlockBinding(gpuShader.glProgram, i, uBlock.binding);
+
+                blockSize = gl.getActiveUniformBlockParameter(gpuShader.glProgram, i, gl.UNIFORM_BLOCK_DATA_SIZE);
+                blockUniformCount = gl.getActiveUniformBlockParameter(gpuShader.glProgram, i, gl.UNIFORM_BLOCK_ACTIVE_UNIFORMS);
+
+                const glBlock: WebGL2GPUUniformBlock = {
+                    binding: uBlock.binding,
+                    idx: i,
+                    name: blockName,
+                    size: blockSize,
+                    glUniforms: new Array<IWebGL2GPUUniform>(blockUniformCount),
+                    glActiveUniforms: [],
+                    isUniformPackage: false,
+                };
+
+                gpuShader.glBlocks[i] = glBlock;
+
+                uIndices = gl.getActiveUniformBlockParameter(gpuShader.glProgram, i, gl.UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES);
+                indices = new Array(uIndices.length);
+                for (let n = 0; n < uIndices.length; ++n) {
+                    indices[n] = uIndices[n];
+                }
+
+                glUniformTypes = gl.getActiveUniforms(gpuShader.glProgram, indices, gl.UNIFORM_TYPE);
+                glUniformSizes = gl.getActiveUniforms(gpuShader.glProgram, indices, gl.UNIFORM_SIZE);
+                glUniformOffsets = gl.getActiveUniforms(gpuShader.glProgram, indices, gl.UNIFORM_OFFSET);
+
+                for (let u = 0; u < blockUniformCount; ++u) {
+                    glUniformInfo = gl.getActiveUniform(gpuShader.glProgram, uIndices[u]);
+                    if (glUniformInfo) {
+                        const stride = WebGLGetTypeSize(glUniformInfo.type);
+                        const size = glUniformSizes[u] * stride;
+                        const begin = glUniformOffsets[u] / 4;
+                        const count = size / 4;
+                        const array = new Array<number>(count);
+                        array.fill(0);
+
+                        glBlock.glUniforms[u] = {
+                            binding: -1,
+                            name: glUniformInfo.name,
+                            type: WebGLTypeToGFXType(glUniformInfo.type),
+                            stride,
+                            count: glUniformInfo.size,
+                            size,
+                            offset: glUniformOffsets[u],
+                            glType: glUniformInfo.type,
+                            glLoc: -1,
+                            array,
+                            begin,
+                            isFirst: true,
+                        };
                     }
                 }
             }
-            */
         }
     }
 
@@ -1276,25 +1283,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
                 const isSampler = (uniformInfo.type === WebGL2RenderingContext.SAMPLER_2D) ||
                     (uniformInfo.type === WebGL2RenderingContext.SAMPLER_CUBE);
 
-                if (!isSampler) {
-                    // let stride = WebGLGetTypeSize(info.type);
-
-                    // build uniform block mapping
-                    for (const glBlock of gpuShader.glBlocks) {
-
-                        for (const glUniform of glBlock.glUniforms) {
-                            if (glUniform.name === varName) {
-                                // let varSize = stride * info.size;
-
-                                glUniform.glLoc = glLoc;
-                                glBlock.glActiveUniforms.push(glUniform);
-
-                                break;
-                            }
-                        }
-                    } // for
-                } else {
-
+                if (isSampler) {
                     for (const glSampler of gpuShader.glSamplers) {
                         if (glSampler.name === varName) {
                             // let varSize = stride * uniformInfo.size;
@@ -1826,11 +1815,11 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             case GFXBindingType.UNIFORM_BUFFER: {
 
                                 if (gpuBinding.gpuBuffer) {
-                                    for (const block of gpuShader.glBlocks) {
-                                        if (block.binding === gpuBinding.binding) {
-                                            if (device.stateCache.glBindUBO !== gpuBinding.gpuBuffer.glBuffer) {
-                                                gl.bindBufferBase(WebGL2RenderingContext.UNIFORM_BUFFER, block.binding, gpuBinding.gpuBuffer.glBuffer);
-                                                device.stateCache.glBindUBO = gpuBinding.gpuBuffer.glBuffer;
+                                    for (const glBlock of gpuShader.glBlocks) {
+                                        if (glBlock.binding === gpuBinding.binding) {
+                                            if (device.stateCache.glBindUBOs[glBlock.binding] !== gpuBinding.gpuBuffer.glBuffer) {
+                                                gl.bindBufferBase(WebGL2RenderingContext.UNIFORM_BUFFER, glBlock.binding, gpuBinding.gpuBuffer.glBuffer);
+                                                device.stateCache.glBindUBOs[glBlock.binding] = gpuBinding.gpuBuffer.glBuffer;
                                             }
 
                                             break;

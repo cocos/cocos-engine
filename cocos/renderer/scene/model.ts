@@ -26,6 +26,78 @@ const _subMeshPool = new Pool(() => {
  */
 export class Model {
 
+    set scene (scene: RenderScene) {
+        this._scene = scene;
+        this._id = this._scene.generateModelId();
+    }
+
+    get scene () {
+        return this._scene;
+    }
+
+    get id () {
+        return this._id;
+    }
+
+    get subModelNum () {
+        return this._subModels.length;
+    }
+
+    get inited (): boolean {
+        return this._inited;
+    }
+
+    set enabled (val) {
+        this._enabled = val;
+    }
+
+    get enabled () {
+        return this._enabled;
+    }
+
+    /**
+     * Get the hosting node of this camera
+     * @returns the hosting node
+     */
+    get node () {
+        return this._node;
+    }
+
+    /**
+     * Set the hosting node of this model
+     * @param {Node} node the hosting node
+     */
+    set node (node: Node) {
+        this._node = node;
+    }
+
+    get worldBounds () {
+        return this._worldBounds;
+    }
+    get modelBounds () {
+        return this._modelBounds;
+    }
+
+    get viewID () {
+        return this._viewID;
+    }
+
+    /**
+     * Set the user key
+     * @param {number} key
+     */
+    set userKey (key: number) {
+        this._userKey = key;
+    }
+
+    get uboLocal () {
+        return this._uboLocal;
+    }
+
+    get localUBO () {
+        return this._localUBO;
+    }
+
     protected _type: string = 'default';
     protected _device: GFXDevice;
     private _scene: RenderScene;
@@ -42,6 +114,7 @@ export class Model {
     private _matRefCount: Map<Material, number>;
     private _uboLocal: UBOLocal;
     private _localUBO: GFXBuffer | null;
+    private _inited: boolean;
 
     /**
      * Setup a default empty model
@@ -56,6 +129,7 @@ export class Model {
         this._matRefCount = new Map<Material, number>();
         this._uboLocal = new UBOLocal();
         this._localUBO = null;
+        this._inited = false;
     }
 
     public destroy () {
@@ -72,23 +146,7 @@ export class Model {
         this._subModels.splice(0);
         this._matPSORecord.clear();
         this._matRefCount.clear();
-    }
-
-    set scene (scene: RenderScene) {
-        this._scene = scene;
-        this._id = this._scene.generateModelId();
-    }
-
-    get scene () {
-        return this._scene;
-    }
-
-    get id () {
-        return this._id;
-    }
-
-    get subModelNum () {
-        return this._subModels.length;
+        this._inited = false;
     }
 
     public getSubModel (idx: number) {
@@ -141,41 +199,6 @@ export class Model {
         this._worldBounds = aabb.clone(this._modelBounds);
     }
 
-    set enabled (val) {
-        this._enabled = val;
-    }
-
-    get enabled () {
-        return this._enabled;
-    }
-
-    /**
-     * Get the hosting node of this camera
-     * @returns the hosting node
-     */
-    get node () {
-        return this._node;
-    }
-
-    /**
-     * Set the hosting node of this model
-     * @param {Node} node the hosting node
-     */
-    set node (node: Node) {
-        this._node = node;
-    }
-
-    get worldBounds () {
-        return this._worldBounds;
-    }
-    get modelBounds () {
-        return this._modelBounds;
-    }
-
-    get viewID () {
-        return this._viewID;
-    }
-
     public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subMeshPool.alloc();
@@ -186,6 +209,7 @@ export class Model {
         }
         this.allocatePSO(mat);
         this._subModels[idx].initialize(subMeshData, mat, this._matPSORecord.get(mat)!);
+        this._inited = true;
     }
 
     public setSubModelMesh (idx: number, subMeshData: IRenderingSubmesh) {
@@ -240,6 +264,10 @@ export class Model {
         }
     }
 
+    protected _onCreatePSO (pso: GFXPipelineState) {
+        pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this.localUBO!);
+    }
+
     private allocatePSO (mat: Material) {
         if (this._matRefCount.get(mat) == null) {
             this._matRefCount.set(mat, 1);
@@ -256,25 +284,5 @@ export class Model {
             this._matPSORecord.delete(mat);
             this._matRefCount.delete(mat);
         }
-    }
-
-    protected _onCreatePSO (pso: GFXPipelineState) {
-        pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this.localUBO!);
-    }
-
-    /**
-     * Set the user key
-     * @param {number} key
-     */
-    set userKey (key: number) {
-        this._userKey = key;
-    }
-
-    get uboLocal () {
-        return this._uboLocal;
-    }
-
-    get localUBO () {
-        return this._localUBO;
     }
 }

@@ -192,7 +192,7 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
 
-        if (this._model) {
+        if (this._model && this._model.inited) {
             this._model.destroy();
         } else {
             this._createModel();

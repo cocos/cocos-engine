@@ -9,11 +9,8 @@ import {
     GFXFormatInfos,
     GFXFormatSize,
     GFXQueueType,
-    GFXTextureFlagBit,
-    GFXTextureType,
-    GFXTextureViewType,
 } from '../define';
-import { GFXDevice, GFXFeature, IGFXDeviceInfo, GFXAPI } from '../device';
+import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';

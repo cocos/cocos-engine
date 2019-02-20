@@ -51,5 +51,10 @@ declare module "webgl-debug" {
         throwOnGLError: (err: GLenum, funcName: string, ...args: any[]) => void
     ): WebGLRenderingContext;
 
+    export function makeDebugContext(
+        webGL2RenderingContext: WebGL2RenderingContext,
+        throwOnGLError: (err: GLenum, funcName: string, ...args: any[]) => void
+    ): WebGL2RenderingContext;
+
     export function glEnumToString(glEnum: GLenum): string;
 }

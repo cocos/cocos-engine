@@ -562,6 +562,7 @@ export class WebGLCmdPackage {
 export function WebGLCmdFuncCreateBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer) {
 
     const gl = device.gl;
+    const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
 
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
 
@@ -575,9 +576,7 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
                 device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
             }
 
-            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
             gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
-
             gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, null);
             device.stateCache.glArrayBuffer = 0;
         }
@@ -593,9 +592,7 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
                 device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
             }
 
-            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
             gl.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
-
             gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, null);
             device.stateCache.glElementArrayBuffer = 0;
         }
@@ -628,6 +625,7 @@ export function WebGLCmdFuncDestroyBuffer (device: WebGLGFXDevice, gpuBuffer: We
 export function WebGLCmdFuncResizeBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer) {
 
     const gl = device.gl;
+    const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
 
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
 
@@ -635,9 +633,7 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLGFXDevice, gpuBuffer: Web
             gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
         }
 
-        const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
         gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
-
         gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, null);
         device.stateCache.glArrayBuffer = 0;
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDEX) {
@@ -646,9 +642,7 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLGFXDevice, gpuBuffer: Web
             gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
         }
 
-        const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGLRenderingContext.STATIC_DRAW : WebGLRenderingContext.DYNAMIC_DRAW;
         gl.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
-
         gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, null);
         device.stateCache.glElementArrayBuffer = 0;
     } else if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
@@ -682,13 +676,6 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
                     gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
                 }
-
-                if (size === buff.byteLength) {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-                } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
-                }
-
                 break;
             }
             case WebGLRenderingContext.ELEMENT_ARRAY_BUFFER: {
@@ -696,18 +683,18 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
                     gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
                 }
-
-                if (size === buff.byteLength) {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-                } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
-                }
-
                 break;
             }
             default: {
                 console.error('Unsupported GFXBufferType, update buffer failed.');
+                return;
             }
+        }
+
+        if (size === buff.byteLength) {
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+        } else {
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
         }
     }
 }

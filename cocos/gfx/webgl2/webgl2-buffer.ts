@@ -45,7 +45,6 @@ export class WebGL2GFXBuffer extends GFXBuffer {
             stride: info.stride ? info.stride : 1,
             buffer: null,
             vf32: null,
-            uniforms: [],
             indirects: [],
             glTarget: 0,
             glBuffer: 0,

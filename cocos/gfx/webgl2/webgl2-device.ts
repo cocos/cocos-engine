@@ -1,9 +1,10 @@
+import * as WebGLDeveloperTools from 'webgl-debug';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import { GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXQueueType } from '../define';
-import { GFXDevice, GFXFeature, IGFXDeviceInfo, GFXAPI } from '../device';
+import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
@@ -112,8 +113,8 @@ export class WebGL2GFXDevice extends GFXDevice {
 
             this._webGL2RC = this._canvas.getContext('webgl2', webGLCtxAttribs);
             /*
-            if (this._webGLRC && info.debug) {
-                this._webGLRC = WebGLDeveloperTools.makeDebugContext(this._webGLRC, this._onWebGLError.bind(this));
+            if (this._webGL2RC && info.debug) {
+                this._webGL2RC = WebGLDeveloperTools.makeDebugContext(this._webGL2RC, this._onWebGLError.bind(this));
             }
             */
         } catch (err) {
@@ -141,18 +142,20 @@ export class WebGL2GFXDevice extends GFXDevice {
             this._renderer = gl.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
             this._vendor = gl.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
         } else {
-            this._renderer = gl.getParameter(WebGLRenderingContext.RENDERER);
-            this._vendor = gl.getParameter(WebGLRenderingContext.VENDOR);
+            this._renderer = gl.getParameter(WebGL2RenderingContext.RENDERER);
+            this._vendor = gl.getParameter(WebGL2RenderingContext.VENDOR);
         }
 
-        this._version = gl.getParameter(WebGLRenderingContext.VERSION);
-        this._maxVertexAttributes = gl.getParameter(WebGLRenderingContext.MAX_VERTEX_ATTRIBS);
-        this._maxVertexUniformVectors = gl.getParameter(WebGLRenderingContext.MAX_VERTEX_UNIFORM_VECTORS);
-        this._maxFragmentUniformVectors = gl.getParameter(WebGLRenderingContext.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._maxTextureUnits = gl.getParameter(WebGLRenderingContext.MAX_TEXTURE_IMAGE_UNITS);
-        this._maxVertexTextureUnits = gl.getParameter(WebGLRenderingContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._depthBits = gl.getParameter(WebGLRenderingContext.DEPTH_BITS);
-        this._stencilBits = gl.getParameter(WebGLRenderingContext.STENCIL_BITS);
+        this._version = gl.getParameter(WebGL2RenderingContext.VERSION);
+        this._maxVertexAttributes = gl.getParameter(WebGL2RenderingContext.MAX_VERTEX_ATTRIBS);
+        this._maxVertexUniformVectors = gl.getParameter(WebGL2RenderingContext.MAX_VERTEX_UNIFORM_VECTORS);
+        this._maxFragmentUniformVectors = gl.getParameter(WebGL2RenderingContext.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._maxTextureUnits = gl.getParameter(WebGL2RenderingContext.MAX_TEXTURE_IMAGE_UNITS);
+        this._maxVertexTextureUnits = gl.getParameter(WebGL2RenderingContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._maxUniformBufferBindings = gl.getParameter(WebGL2RenderingContext.MAX_UNIFORM_BUFFER_BINDINGS);
+        this._maxUniformBlockSize = gl.getParameter(WebGL2RenderingContext.MAX_UNIFORM_BLOCK_SIZE);
+        this._depthBits = gl.getParameter(WebGL2RenderingContext.DEPTH_BITS);
+        // let uboOffsetAlignment = gl.getParameter(WebGL2RenderingContext.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
 
         this._width = this._canvas.width;
         this._height = this._canvas.height;
@@ -190,8 +193,11 @@ export class WebGL2GFXDevice extends GFXDevice {
         console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
         console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
         console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
+        console.info('MAX_UNIFORM_BUFFER_BINDINGS: ' + this._maxUniformBufferBindings);
+        console.info('MAX_UNIFORM_BLOCK_SIZE: ' + this._maxUniformBlockSize);
         console.info('DEPTH_BITS: ' + this._depthBits);
         console.info('STENCIL_BITS: ' + this._stencilBits);
+        // console.info('UNIFORM_BUFFER_OFFSET_ALIGNMENT: ' + uboOffsetAlignment);
 
         this._extensions = gl.getSupportedExtensions();
         /*
@@ -466,5 +472,9 @@ export class WebGL2GFXDevice extends GFXDevice {
         gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
         gl.colorMask(true, true, true, true);
         gl.blendColor(0.0, 0.0, 0.0, 0.0);
+    }
+
+    private _onWebGLError (error: GLenum, functionName: string, ...args: any[]) {
+        throw new Error(`${WebGLDeveloperTools.glEnumToString(error)} was caused by call to ${functionName}`);
     }
 }

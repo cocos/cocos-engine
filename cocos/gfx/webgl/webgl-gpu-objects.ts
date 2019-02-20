@@ -40,7 +40,6 @@ export class WebGLGPUBuffer {
     public glBuffer: WebGLBuffer = 0;
     public buffer: ArrayBuffer | null = null;
     public vf32: Float32Array | null = null;
-    public uniforms: IWebGLGPUUniformInfo[] = [];
     public indirects: IGFXDrawInfo[] = [];
 }
 
