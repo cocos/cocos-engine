@@ -356,15 +356,7 @@ cc.macro = {
 };
 
 
-let SUPPORT_TEXTURE_FORMATS = ['.webp', '.jpg', '.jpeg', '.bmp', '.png'];
-if (cc.sys.isMobile) {
-    if (cc.sys.os === cc.sys.OS_IOS) {
-        SUPPORT_TEXTURE_FORMATS = ['.pvr'].concat(SUPPORT_TEXTURE_FORMATS);
-    }
-    else if (cc.sys.os === cc.sys.OS_ANDROID) {
-        SUPPORT_TEXTURE_FORMATS = ['.pkm'].concat(SUPPORT_TEXTURE_FORMATS);
-    }
-}
+let SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
 /**
  * !en

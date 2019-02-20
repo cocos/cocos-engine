@@ -154,13 +154,19 @@ function loadPVRTex (item) {
 //===============//
 // ETC constants //
 //===============//
-const ETC1_PKM_FORMAT_OFFSET = 6;
-const ETC1_PKM_ENCODED_WIDTH_OFFSET = 8;
-const ETC1_PKM_ENCODED_HEIGHT_OFFSET = 10;
-const ETC1_PKM_WIDTH_OFFSET = 12;
-const ETC1_PKM_HEIGHT_OFFSET = 14;
-const ETC1_RGB_NO_MIPMAPS = 0;
+
 const ETC_PKM_HEADER_SIZE = 16;
+
+const ETC_PKM_FORMAT_OFFSET = 6;
+const ETC_PKM_ENCODED_WIDTH_OFFSET = 8;
+const ETC_PKM_ENCODED_HEIGHT_OFFSET = 10;
+const ETC_PKM_WIDTH_OFFSET = 12;
+const ETC_PKM_HEIGHT_OFFSET = 14;
+
+const ETC1_RGB_NO_MIPMAPS   = 0;
+const ETC2_RGB_NO_MIPMAPS   = 1;
+const ETC2_RGBA_NO_MIPMAPS  = 3;
+
 
 function readBEUint16(header, offset) {
     return (header[offset] << 8) | header[offset+1];
@@ -168,11 +174,14 @@ function readBEUint16(header, offset) {
 function loadPKMTex(item) {
     let buffer = item.content instanceof ArrayBuffer ? item.content : item.content.buffer;
     let header = new Uint8Array(buffer);
-    if (readBEUint16(header, ETC1_PKM_FORMAT_OFFSET) !== ETC1_RGB_NO_MIPMAPS) return new Error("Invalid magic number in ETC header");
-    let width = readBEUint16(header, ETC1_PKM_WIDTH_OFFSET);
-    let height = readBEUint16(header, ETC1_PKM_HEIGHT_OFFSET);
-    let encodedWidth = readBEUint16(header, ETC1_PKM_ENCODED_WIDTH_OFFSET);
-    let encodedHeight = readBEUint16(header, ETC1_PKM_ENCODED_HEIGHT_OFFSET);
+    let format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
+    if (format !== ETC1_RGB_NO_MIPMAPS && format !== ETC2_RGB_NO_MIPMAPS && format !== ETC2_RGBA_NO_MIPMAPS) {
+        return new Error("Invalid magic number in ETC header");
+    }
+    let width = readBEUint16(header, ETC_PKM_WIDTH_OFFSET);
+    let height = readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
+    let encodedWidth = readBEUint16(header, ETC_PKM_ENCODED_WIDTH_OFFSET);
+    let encodedHeight = readBEUint16(header, ETC_PKM_ENCODED_HEIGHT_OFFSET);
     let etcData = new Uint8Array(buffer, ETC_PKM_HEADER_SIZE);
     let etcAsset = {
         _data: etcData,
