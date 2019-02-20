@@ -756,8 +756,8 @@ let NodeDefines = {
         },
 
         /**
-         * !#en The rotation as Euler angles in degrees, used in 2.5D project.
-         * !#zh 该节点的欧拉角度，用于 2.5D 项目。
+         * !#en The rotation as Euler angles in degrees, used in 3D project.
+         * !#zh 该节点的欧拉角度，用于 3D 项目。
          * @property eulerAngles
          * @type {Vec3}
          */
