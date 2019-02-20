@@ -39,17 +39,18 @@ module.exports = {
         let data = sprite._renderData._data,
             node = sprite.node,
             color = node._color._val,
-            matrix = node._worldMatrix;
+            matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13,    
+            buffer = renderer._meshBuffer;
 
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
-            indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
-
-        buffer.request(4, 6);
-
+        let offsetInfo = buffer.request(4, 6);
+        
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            vbuf = buffer._vData,
             uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
@@ -68,8 +69,6 @@ module.exports = {
             vl = data0.x, vr = data3.x,
             vb = data0.y, vt = data3.y;
 
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
         let al = a * vl, ar = a * vr,
             bl = b * vl, br = b * vr,
             cb = c * vb, ct = c * vt,

@@ -34,9 +34,9 @@ module.exports = js.addon({
             buffer = renderer._meshBuffer3D,
             renderData = comp._renderData;
 
-        let indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
-        fillVertices3D(node, buffer, renderData, color);
+        let offsetInfo = fillVertices3D(node, buffer, renderData, color);
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexId = offsetInfo.vertexOffset;
 
         // buffer data may be realloc, need get reference after request.
         let ibuf = buffer._iData;

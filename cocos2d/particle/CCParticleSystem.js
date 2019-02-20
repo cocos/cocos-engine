@@ -243,6 +243,14 @@ var properties = {
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.spriteFrame'
     },
 
+
+    // just used to read data from 1.x
+    _texture: {
+        default: null,
+        type: cc.Texture2D,
+        editorOnly: true,
+    },
+
     /**
      * !#en Texture of Particle System, readonly, please use spriteFrame to setup new texture。
      * !#zh 粒子贴图，只读属性，请使用 spriteFrame 属性来替换贴图。
@@ -711,7 +719,6 @@ var ParticleSystem = cc.Class({
     ctor: function () {
         this._previewTimer = null;
         this._focused = false;
-        this._texture = null;
 
         this._simulator = new ParticleSimulator(this);
 
@@ -791,7 +798,44 @@ var ParticleSystem = cc.Class({
 
     // LIFE-CYCLE METHODS
 
+    // just used to read data from 1.x
+    _convertTextureToSpriteFrame: CC_EDITOR && function () {
+        if (this._spriteFrame) {
+            return;
+        }
+        let texture = this.texture;
+        if (!texture || !texture._uuid) {
+            return;
+        }
+
+        let _this = this;
+        Editor.assetdb.queryMetaInfoByUuid(texture._uuid, function (err, metaInfo) {
+            if (err) return Editor.error(err);
+            let meta = JSON.parse(metaInfo.json);
+            if (meta.type === 'raw') {
+                const NodeUtils = Editor.require('app://editor/page/scene-utils/utils/node');
+                let nodePath = NodeUtils.getNodePath(_this.node);
+                return Editor.warn(`The texture ${metaInfo.assetUrl} used by particle ${nodePath} does not contain any SpriteFrame, please set the texture type to Sprite and reassign the SpriteFrame to the particle component.`);
+            }
+            else {
+                let Url = require('fire-url');
+                let name = Url.basenameNoExt(metaInfo.assetPath);
+                let uuid = meta.subMetas[name].uuid;
+                cc.AssetLibrary.loadAsset(uuid, function (err, sp) {
+                    if (err) return Editor.error(err);
+                    _this._texture = null;
+                    _this.spriteFrame = sp;
+                });
+            }
+        });
+    },
+
     __preload: function () {
+
+        if (CC_EDITOR) {
+            this._convertTextureToSpriteFrame();
+        }
+
         if (this._file) { 
             if (this._custom) { 
                 var missCustomTexture = !this._texture; 
@@ -964,27 +1008,31 @@ var ParticleSystem = cc.Class({
             var textureData = dict["textureImageData"];
 
             if (textureData && textureData.length > 0) {
-                var buffer = codec.unzipBase64AsArray(textureData, 1);
-                if (!buffer) {
-                    cc.logID(6030);
-                    return false;
-                }
+                let tex = cc.loader.getRes(imgPath);
+                
+                if (!tex) {
+                    var buffer = codec.unzipBase64AsArray(textureData, 1);
+                    if (!buffer) {
+                        cc.logID(6030);
+                        return false;
+                    }
 
-                var imageFormat = getImageFormatByData(buffer);
-                if (imageFormat !== macro.ImageFormat.TIFF && imageFormat !== macro.ImageFormat.PNG) {
-                    cc.logID(6031);
-                    return false;
-                }
+                    var imageFormat = getImageFormatByData(buffer);
+                    if (imageFormat !== macro.ImageFormat.TIFF && imageFormat !== macro.ImageFormat.PNG) {
+                        cc.logID(6031);
+                        return false;
+                    }
 
-                var canvasObj = document.createElement("canvas");
-                if(imageFormat === macro.ImageFormat.PNG){
-                    var myPngObj = new PNGReader(buffer);
-                    myPngObj.render(canvasObj);
-                } else {
-                    tiffReader.parseTIFF(buffer,canvasObj);
+                    var canvasObj = document.createElement("canvas");
+                    if(imageFormat === macro.ImageFormat.PNG){
+                        var myPngObj = new PNGReader(buffer);
+                        myPngObj.render(canvasObj);
+                    } else {
+                        tiffReader.parseTIFF(buffer,canvasObj);
+                    }
+                    tex = textureUtil.cacheImage(imgPath, canvasObj);
                 }
-
-                var tex = textureUtil.cacheImage(imgPath, canvasObj);
+                
                 if (!tex)
                     cc.logID(6032);
                 // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
@@ -1006,7 +1054,13 @@ var ParticleSystem = cc.Class({
         this.lifeVar = parseFloat(dict["particleLifespanVariance"] || 0);
 
         // emission Rate
-        this.emissionRate = Math.min(this.totalParticles / this.life, Number.MAX_VALUE);
+        var _tempEmissionRate = dict["emissionRate"];
+        if (_tempEmissionRate) {
+            this.emissionRate = _tempEmissionRate;
+        }
+        else {
+            this.emissionRate = Math.min(this.totalParticles / this.life, Number.MAX_VALUE);
+        }
 
         // duration
         this.duration = parseFloat(dict["duration"] || 0);

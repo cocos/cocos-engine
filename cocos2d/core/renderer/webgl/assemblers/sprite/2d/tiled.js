@@ -112,15 +112,14 @@ module.exports = {
             data = renderData._data;
 
         // buffer
-        let buffer = is3DNode ? renderer._meshBuffer3D : renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
-            indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
-            
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
+        let buffer = is3DNode ? renderer._meshBuffer3D : renderer._meshBuffer;
+        let offsetInfo = buffer.request(renderData.vertexCount, renderData.indiceCount);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            vbuf = buffer._vData,
             uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 
