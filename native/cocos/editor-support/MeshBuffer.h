@@ -22,26 +22,50 @@
  THE SOFTWARE.
  ****************************************************************************/
 #pragma once
-// index buffer init capacity
-#define INIT_IB_BUFFER_SIZE 1024000
-// can fill material data max capacity
-#define MAX_MATERIAL_BUFFER_SIZE 512
-// fill debug data max capacity
-#define MAX_DEBUG_BUFFER_SIZE 40960
-// type array pool min size
-#define MIN_TYPE_ARRAY_SIZE 1024
 
-#ifndef MIDDLEWARE_BEGIN
-#define MIDDLEWARE_BEGIN namespace cocos2d { namespace middleware {
-#endif // MIDDLEWARE_BEGIN
+#include "IOBuffer.h"
+#include <vector>
 
-#ifndef MIDDLEWARE_END
-#define MIDDLEWARE_END }}
-#endif // MIDDLEWARE_END
+MIDDLEWARE_BEGIN
 
-#ifndef USING_NS_MW
-#define USING_NS_MW using namespace cocos2d::middleware
-#endif
+class MeshBuffer
+{
+public:
+    MeshBuffer(int vertexFormat);
+    ~MeshBuffer();
 
-#define VF_XYUVC 5
-#define VF_XYUVCC 6
+    uint32_t getGLVB()
+    {
+        return _glVBArr[_bufferPos];
+    }
+    
+    uint32_t getGLIB()
+    {
+        return _glIBArr[_bufferPos];
+    }
+    
+    IOBuffer& getVB()
+    {
+        return _vb;
+    }
+    
+    IOBuffer& getIB()
+    {
+        return _ib;
+    }
+    
+    void uploadVB();
+    void uploadIB();
+    void reset();
+private:
+    void next();
+private:
+    std::vector<uint32_t> _glIBArr;
+    std::vector<uint32_t> _glVBArr;
+    
+    std::size_t _bufferPos = 0;
+    IOBuffer _vb;
+    IOBuffer _ib;
+};
+
+MIDDLEWARE_END

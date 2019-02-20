@@ -105,18 +105,6 @@ Texture2D : function (
 middleware.MiddlewareManager = {
 
 /**
- * @method getGLVBID
- * @param {int} arg0
- * @return {unsigned int}
- */
-getGLVBID : function (
-int 
-)
-{
-    return 0;
-},
-
-/**
  * @method update
  * @param {float} arg0
  */
@@ -124,16 +112,6 @@ update : function (
 float 
 )
 {
-},
-
-/**
- * @method getGLIBID
- * @return {unsigned int}
- */
-getGLIBID : function (
-)
-{
-    return 0;
 },
 
 /**

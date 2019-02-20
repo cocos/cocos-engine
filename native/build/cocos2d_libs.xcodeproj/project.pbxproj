@@ -387,6 +387,10 @@
 		04AF6300219190ED00AED9DE /* TypedArrayPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AF62FD219190ED00AED9DE /* TypedArrayPool.cpp */; };
 		04AF6301219190ED00AED9DE /* TypedArrayPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AF62FE219190ED00AED9DE /* TypedArrayPool.h */; };
 		04AF6302219190ED00AED9DE /* TypedArrayPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AF62FE219190ED00AED9DE /* TypedArrayPool.h */; };
+		04ED68D821F8188F006E82F8 /* MeshBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04ED68D621F8188F006E82F8 /* MeshBuffer.cpp */; };
+		04ED68D921F8188F006E82F8 /* MeshBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04ED68D621F8188F006E82F8 /* MeshBuffer.cpp */; };
+		04ED68DA21F8188F006E82F8 /* MeshBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 04ED68D721F8188F006E82F8 /* MeshBuffer.h */; };
+		04ED68DB21F8188F006E82F8 /* MeshBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 04ED68D721F8188F006E82F8 /* MeshBuffer.h */; };
 		1A14FD912080B4E300E10ABE /* CCGLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A14FD8F2080B4E300E10ABE /* CCGLUtils.cpp */; };
 		1A14FD922080B4E300E10ABE /* CCGLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A14FD8F2080B4E300E10ABE /* CCGLUtils.cpp */; };
 		1A14FD932080B4E300E10ABE /* CCGLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A14FD902080B4E300E10ABE /* CCGLUtils.h */; };
@@ -1369,6 +1373,8 @@
 		046E070E218B01EF00B24E2D /* jsb_dragonbones_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_dragonbones_manual.hpp; sourceTree = "<group>"; };
 		04AF62FD219190ED00AED9DE /* TypedArrayPool.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TypedArrayPool.cpp; path = "../cocos/editor-support/TypedArrayPool.cpp"; sourceTree = "<group>"; };
 		04AF62FE219190ED00AED9DE /* TypedArrayPool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TypedArrayPool.h; path = "../cocos/editor-support/TypedArrayPool.h"; sourceTree = "<group>"; };
+		04ED68D621F8188F006E82F8 /* MeshBuffer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MeshBuffer.cpp; path = "../cocos/editor-support/MeshBuffer.cpp"; sourceTree = "<group>"; };
+		04ED68D721F8188F006E82F8 /* MeshBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MeshBuffer.h; path = "../cocos/editor-support/MeshBuffer.h"; sourceTree = "<group>"; };
 		051C016F21E2F85C00D4A347 /* CCModuleConfigIOS.debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = CCModuleConfigIOS.debug.xcconfig; sourceTree = "<group>"; };
 		051C017021E2F85C00D4A347 /* CCModuleConfigIOS.release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = CCModuleConfigIOS.release.xcconfig; sourceTree = "<group>"; };
 		051C017121E2F86900D4A347 /* CCModuleConfigMac.release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = CCModuleConfigMac.release.xcconfig; sourceTree = "<group>"; };
@@ -1906,6 +1912,8 @@
 				046B688E21A00F5600B33469 /* IOTypedArray.cpp */,
 				046B688F21A00F5600B33469 /* IOTypedArray.h */,
 				046B689421A10D5800B33469 /* MiddlewareMacro.h */,
+				04ED68D621F8188F006E82F8 /* MeshBuffer.cpp */,
+				04ED68D721F8188F006E82F8 /* MeshBuffer.h */,
 			);
 			name = "editor-support";
 			sourceTree = "<group>";
@@ -3105,6 +3113,7 @@
 				46AE3FDF2092F3A600F3A228 /* env.h in Headers */,
 				0430124D21DCF2B80007084D /* SkeletonBinary.h in Headers */,
 				46AE3FE72092F3A600F3A228 /* inspector_io.h in Headers */,
+				04ED68DA21F8188F006E82F8 /* MeshBuffer.h in Headers */,
 				46FDDBCF202ADDCE00931238 /* CCMap.h in Headers */,
 				1A52DB34205BCD9200350EE3 /* Object.hpp in Headers */,
 				469303962046AE05004A3D6C /* Class.hpp in Headers */,
@@ -3611,6 +3620,7 @@
 				0430123621DCF2B80007084D /* extension.h in Headers */,
 				46FDDAAE202ACC6A00931238 /* Macro.h in Headers */,
 				0430123E21DCF2B80007084D /* spine.h in Headers */,
+				04ED68DB21F8188F006E82F8 /* MeshBuffer.h in Headers */,
 				0430129C21DCF2B80007084D /* AttachmentLoader.h in Headers */,
 				469303872046AE05004A3D6C /* Object.hpp in Headers */,
 				1A28FF5E1F20AFAB007A1D9D /* SRProxyConnect.h in Headers */,
@@ -3932,6 +3942,7 @@
 				46FDDBFB202ADDCE00931238 /* ccCArray.cpp in Sources */,
 				1AAAC8E1205CB6E9005321B9 /* AudioPlayer.mm in Sources */,
 				1A28FF631F20AFAB007A1D9D /* SRRunLoopThread.m in Sources */,
+				04ED68D821F8188F006E82F8 /* MeshBuffer.cpp in Sources */,
 				50ABBD5C1925AB0000A911A9 /* Vec3.cpp in Sources */,
 				469303662046AE05004A3D6C /* HandleObject.cpp in Sources */,
 				469301D1203FC696004A3D6C /* CCConfiguration.cpp in Sources */,
@@ -4122,6 +4133,7 @@
 				046E06592185B41B00B24E2D /* Armature.cpp in Sources */,
 				403ACADC20CE542600BB433D /* jsb_module_register.cpp in Sources */,
 				046E06BC2185B49F00B24E2D /* TextureAtlasData.cpp in Sources */,
+				04ED68D921F8188F006E82F8 /* MeshBuffer.cpp in Sources */,
 				46FDDA9A202ACC6A00931238 /* Model.cpp in Sources */,
 				046E0710218B01EF00B24E2D /* jsb_dragonbones_manual.cpp in Sources */,
 				4693038F2046AE05004A3D6C /* Value.cpp in Sources */,

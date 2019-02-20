@@ -153,6 +153,8 @@
         "cocos/editor-support/IOBuffer.h", 
         "cocos/editor-support/IOTypedArray.cpp", 
         "cocos/editor-support/IOTypedArray.h", 
+        "cocos/editor-support/MeshBuffer.cpp", 
+        "cocos/editor-support/MeshBuffer.h", 
         "cocos/editor-support/MiddlewareMacro.h", 
         "cocos/editor-support/MiddlewareManager.cpp", 
         "cocos/editor-support/MiddlewareManager.h", 

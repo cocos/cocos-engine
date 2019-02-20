@@ -30,48 +30,37 @@ MIDDLEWARE_BEGIN
 MiddlewareManager* MiddlewareManager::_instance = nullptr;
 
 MiddlewareManager::MiddlewareManager()
-:_ib(MAX_IB_BUFFER_SIZE)
 {
-    glGenBuffers(1, &_glIBID);
     
-    _vfList.push_back(VF_XYUVC);
-    _vfList.push_back(VF_XYUVCC);
-    
-    for(auto vf : _vfList)
-    {
-        glGenBuffers(1, &_glVBMap[vf]);
-    }
 }
 
 MiddlewareManager::~MiddlewareManager()
 {
-    cocos2d::ccDeleteBuffers(1, &_glIBID);
-    
-    for (auto vf : _vfList)
+    for (auto it : _mbMap)
     {
-        IOBuffer* buffer = _vbMap[vf];
+        auto buffer = it.second;
         if (buffer)
         {
             delete buffer;
         }
-        cocos2d::ccDeleteBuffers(1, &_glVBMap[vf]);
     }
+    _mbMap.clear();
 }
 
-cocos2d::middleware::IOBuffer& MiddlewareManager::getVB(int format)
+MeshBuffer* MiddlewareManager::getMeshBuffer(int format)
 {
-    auto buffer = _vbMap[format];
-    if (buffer == nullptr)
+    MeshBuffer* mb = _mbMap[format];
+    if (!mb)
     {
-        buffer = new IOBuffer(MAX_VB_BUFFER_SIZE);
-        _vbMap[format] = buffer;
+        mb = new MeshBuffer(format);
+        _mbMap[format] = mb;
     }
-    return *buffer;
+    return mb;
 }
 
 void MiddlewareManager::update(float dt)
 {
-    for (auto it : _vbMap)
+    for (auto it : _mbMap)
     {
         auto buffer = it.second;
         if (buffer)
@@ -79,7 +68,6 @@ void MiddlewareManager::update(float dt)
             buffer->reset();
         }
     }
-    _ib.reset();
     
     isUpdating = true;
     
@@ -114,22 +102,15 @@ void MiddlewareManager::update(float dt)
     
     _removeList.clear();
     
-    for (auto it : _vbMap)
+    for (auto it : _mbMap)
     {
         auto buffer = it.second;
-        if (buffer && buffer->isOutRange())
+        if (buffer)
         {
-            buffer->resize(buffer->getCapacity() + INCREASE_BUFFER_SIZE, true);
+            buffer->uploadIB();
+            buffer->uploadVB();
         }
     }
-    
-    if (_ib.isOutRange())
-    {
-        _ib.resize(_ib.getCapacity() + INCREASE_BUFFER_SIZE, true);
-    }
-    
-    uploadVB();
-    uploadIB();
 }
 
 void MiddlewareManager::addTimer(IMiddleware* editor)
@@ -156,47 +137,5 @@ void MiddlewareManager::removeTimer(IMiddleware* editor)
             _updateMap.erase(it);
         }
     }
-}
-
-void MiddlewareManager::uploadVB()
-{
-    for(auto vf : _vfList)
-    {
-        IOBuffer* vb = _vbMap[vf];
-        if (!vb) continue;
-        
-        uint32_t glVBID = _glVBMap[vf];
-        if (glVBID == 0)
-        {
-            cocos2d::log("Vertex buffer is destroyed");
-            continue;
-        }
-        
-        auto length = vb->length();
-        if (length == 0) continue;
-        
-        cocos2d::ccBindBuffer(GL_ARRAY_BUFFER, glVBID);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)length, vb->getBuffer(), GL_DYNAMIC_DRAW);
-        cocos2d::ccBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
-}
-
-void MiddlewareManager::uploadIB()
-{
-    if (_glIBID == 0)
-    {
-        cocos2d::log("Index buffer is destroyed");
-        return;
-    }
-    
-    auto length = _ib.length();
-    if (length == 0) return;
-    
-    GLint _oldGLID = 0;
-    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &_oldGLID);
-    
-    cocos2d::ccBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _glIBID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)length, _ib.getBuffer(), GL_STATIC_DRAW);
-    cocos2d::ccBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _oldGLID);
 }
 MIDDLEWARE_END

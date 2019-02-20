@@ -92,8 +92,9 @@ void CCArmatureDisplay::dbUpdate()
     auto mgr = MiddlewareManager::getInstance();
     if (!mgr->isUpdating) return;
     
-    IOBuffer& vb = mgr->getVB(VF_XYUVC);
-    IOBuffer& ib = mgr->getIB();
+    MeshBuffer* mb = mgr->getMeshBuffer(VF_XYUVC);
+    IOBuffer& vb = mb->getVB();
+    IOBuffer& ib = mb->getIB();
     
     _materialBuffer->reset();
     
@@ -226,11 +227,16 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
 {
     auto& slots = armature->getSlots();
     auto mgr = MiddlewareManager::getInstance();
-    IOBuffer& vb = mgr->getVB(VF_XYUVC);
-    IOBuffer& ib = mgr->getIB();
+    MeshBuffer* mb = mgr->getMeshBuffer(VF_XYUVC);
+    IOBuffer& vb = mb->getVB();
+    IOBuffer& ib = mb->getIB();
+    int isFull = 0;
     
     for (std::size_t i = 0, len = slots.size(); i < len; i++)
     {
+        // Reset isFull flag.
+        isFull = 0;
+
         CCSlot* slot = (CCSlot*)slots[i];
         if (!slot->getVisible())
         {
@@ -271,8 +277,11 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
         if (!texture) continue;
         _curTextureIndex = texture->getRealTextureIndex();
         
+        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4B);
+        isFull |= vb.checkSpace(vbSize, true);
+        
         // If texture or blendMode change,will change material.
-        if (_preTextureIndex != _curTextureIndex || _preBlendDst != _curBlendDst || _preBlendSrc != _curBlendSrc)
+        if (_preTextureIndex != _curTextureIndex || _preBlendDst != _curBlendDst || _preBlendSrc != _curBlendSrc || isFull)
         {
             if (_preISegWritePos != -1)
             {
@@ -282,6 +291,10 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
             _materialBuffer->writeUint32(_curTextureIndex);
             _materialBuffer->writeUint32(_curBlendSrc);
             _materialBuffer->writeUint32(_curBlendDst);
+            auto glIB = mb->getGLIB();
+            auto glVB = mb->getGLVB();
+            _materialBuffer->writeUint32(glIB);
+            _materialBuffer->writeUint32(glVB);
             
             //Reserve indice segamentation count.
             _preISegWritePos = (int)_materialBuffer->getCurPos();
@@ -322,8 +335,6 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
         
         // Fill MiddlewareManager vertex buffer
         auto vertexOffset = vb.getCurPos() / sizeof(middleware::V2F_T2F_C4B);
-		auto vbSize = triangles.vertCount * sizeof(middleware::V2F_T2F_C4B);
-		vb.checkSpace(vbSize, true);
         vb.writeBytes((char*)worldTriangles, vbSize);
         
 		auto ibSize = triangles.indexCount * sizeof(unsigned short);

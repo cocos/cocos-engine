@@ -10,6 +10,7 @@ LOCAL_ARM_MODE := arm
 LOCAL_SRC_FILES := \
 ../scripting/js-bindings/manual/jsb_helper.cpp \
 IOBuffer.cpp \
+MeshBuffer.cpp \
 middleware-adapter.cpp \
 TypedArrayPool.cpp \
 IOTypedArray.cpp \
