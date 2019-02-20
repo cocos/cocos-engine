@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Easing = {
+var easing = {
     constant: function () { return 0; },
     linear: function (k) { return k; },
 
     // quad
-    //  Easing equation function for a quadratic (t^2)
+    //  easing equation function for a quadratic (t^2)
     //  @param t: Current time (in frames or seconds).
     //  @return: The correct value.
 
@@ -42,7 +42,7 @@ var Easing = {
     },
 
     // cubic
-    //  Easing equation function for a cubic (t^3)
+    //  easing equation function for a cubic (t^3)
     //  @param t: Current time (in frames or seconds).
     //  @return: The correct value.
 
@@ -56,7 +56,7 @@ var Easing = {
     },
 
     // quart
-    //  Easing equation function for a quartic (t^4)
+    //  easing equation function for a quartic (t^4)
     //  @param t: Current time (in frames or seconds).
     //  @return: The correct value.
 
@@ -70,7 +70,7 @@ var Easing = {
     },
 
     // quint
-    //  Easing equation function for a quintic (t^5)
+    //  easing equation function for a quintic (t^5)
     //  @param t: Current time (in frames or seconds).
     //  @return: The correct value.
 
@@ -84,7 +84,7 @@ var Easing = {
     },
 
     // sine
-    //  Easing equation function for a sinusoidal (sin(t))
+    //  easing equation function for a sinusoidal (sin(t))
     //  @param t: Current time (in frames or seconds).
     //  @return: The correct value.
 
@@ -93,7 +93,7 @@ var Easing = {
     sineInOut: function (k) { return 0.5 * ( 1 - Math.cos(Math.PI * k) ); },
 
     // expo
-    //  Easing equation function for an exponential (2^t)
+    //  easing equation function for an exponential (2^t)
     //  param t: Current time (in frames or seconds).
     //  return: The correct value.
 
@@ -113,7 +113,7 @@ var Easing = {
     },
 
     // circ
-    //  Easing equation function for a circular (sqrt(1-t^2))
+    //  easing equation function for a circular (sqrt(1-t^2))
     //  @param t: Current time (in frames or seconds).
     //  @return:	The correct value.
 
@@ -127,7 +127,7 @@ var Easing = {
     },
 
     // elastic
-    //  Easing equation function for an elastic (exponentially decaying sine wave)
+    //  easing equation function for an elastic (exponentially decaying sine wave)
     //  @param t: Current time (in frames or seconds).
     //  @return: The correct value.
     //  recommand value: elastic (t)
@@ -189,7 +189,7 @@ var Easing = {
     },
 
     // back
-    //  Easing equation function for a back (overshooting cubic easing: (s+1)*t^3 - s*t^2)
+    //  easing equation function for a back (overshooting cubic easing: (s+1)*t^3 - s*t^2)
     //  @param t: Current time (in frames or seconds).
     //  @return: The correct value.
 
@@ -210,7 +210,7 @@ var Easing = {
     },
 
     // bounce
-    //  Easing equation function for a bounce (exponentially decaying parabolic bounce)
+    //  easing equation function for a bounce (exponentially decaying parabolic bounce)
     //  @param t: Current time (in frames or seconds).
     //  @return: The correct value.
 
@@ -262,22 +262,22 @@ function _makeOutIn (fnIn, fnOut) {
         return fnIn(2 * k - 1) / 2 + 0.5;
     };
 }
-Easing.quadOutIn = _makeOutIn(Easing.quadIn, Easing.quadOut);
-Easing.cubicOutIn = _makeOutIn(Easing.cubicIn, Easing.cubicOut);
-Easing.quartOutIn = _makeOutIn(Easing.quartIn, Easing.quartOut);
-Easing.quintOutIn = _makeOutIn(Easing.quintIn, Easing.quintOut);
-Easing.sineOutIn = _makeOutIn(Easing.sineIn, Easing.sineOut);
-Easing.expoOutIn = _makeOutIn(Easing.expoIn, Easing.expoOut);
-Easing.circOutIn = _makeOutIn(Easing.circIn, Easing.circOut);
-Easing.backOutIn = _makeOutIn(Easing.backIn, Easing.backOut);
-Easing.backOutIn = _makeOutIn(Easing.backIn, Easing.backOut);
-Easing.bounceIn = function (k) { return 1 - Easing.bounceOut(1 - k); };
-Easing.bounceInOut = function (k) {
+easing.quadOutIn = _makeOutIn(easing.quadIn, easing.quadOut);
+easing.cubicOutIn = _makeOutIn(easing.cubicIn, easing.cubicOut);
+easing.quartOutIn = _makeOutIn(easing.quartIn, easing.quartOut);
+easing.quintOutIn = _makeOutIn(easing.quintIn, easing.quintOut);
+easing.sineOutIn = _makeOutIn(easing.sineIn, easing.sineOut);
+easing.expoOutIn = _makeOutIn(easing.expoIn, easing.expoOut);
+easing.circOutIn = _makeOutIn(easing.circIn, easing.circOut);
+easing.backOutIn = _makeOutIn(easing.backIn, easing.backOut);
+easing.backOutIn = _makeOutIn(easing.backIn, easing.backOut);
+easing.bounceIn = function (k) { return 1 - easing.bounceOut(1 - k); };
+easing.bounceInOut = function (k) {
     if (k < 0.5) {
-        return Easing.bounceIn(k * 2) * 0.5;
+        return easing.bounceIn(k * 2) * 0.5;
     }
-    return Easing.bounceOut(k * 2 - 1) * 0.5 + 0.5;
+    return easing.bounceOut(k * 2 - 1) * 0.5 + 0.5;
 };
-Easing.bounceOutIn = _makeOutIn(Easing.bounceIn, Easing.bounceOut);
+easing.bounceOutIn = _makeOutIn(easing.bounceIn, easing.bounceOut);
 
-cc.Easing = module.exports = Easing;
+cc.easing = module.exports = easing;

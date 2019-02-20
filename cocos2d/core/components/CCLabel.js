@@ -247,6 +247,7 @@ let Label = cc.Class({
                 this._fontSize = value;
                 this._updateRenderData();
             },
+            range: [0, 512],
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_size',
         },
 
@@ -490,7 +491,6 @@ let Label = cc.Class({
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
-        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this._checkStringEmpty();
         this._updateRenderData(true);
@@ -512,12 +512,6 @@ let Label = cc.Class({
         this._super();
     },
 
-    _updateColor () {
-        if (!(this.font instanceof cc.BitmapFont)) {
-            this._updateRenderData();
-        }
-    },
-
     _canRender () {
         let result = this._super();
         let font = this.font;
@@ -537,6 +531,7 @@ let Label = cc.Class({
 
     _on3DNodeChanged () {
         this._updateAssembler();
+        this._applyFontTexture(true);
     },
 
     _updateAssembler () {
@@ -585,10 +580,6 @@ let Label = cc.Class({
         else {
             if (!this._ttfTexture) {
                 this._ttfTexture = new cc.Texture2D();
-                // TTF texture in web will blend with canvas or body background color
-                if (!CC_JSB && !CC_RUNTIME) {
-                    this._ttfTexture.setPremultiplyAlpha(true);
-                }
                 this._assemblerData = this._assembler._getAssemblerData();
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
@@ -623,13 +614,10 @@ let Label = cc.Class({
                 material = Material.getInstantiatedBuiltinMaterial('sprite', this);
                 material.define('USE_TEXTURE', true);
             }
-            // Setup blend function for premultiplied ttf label texture
-            if (this._frame._texture === this._ttfTexture) {
-                this._srcBlendFactor = cc.macro.BlendFactor.ONE;
-            }
-            else {
-                this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
-            }
+
+            this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
+            this._dstBlendFactor = cc.macro.BlendFactor.ONE_MINUS_SRC_ALPHA;
+            
             material.setProperty('texture', this._frame._texture);
             this.setMaterial(0, material);
         }

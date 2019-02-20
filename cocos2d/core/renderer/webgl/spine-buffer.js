@@ -3,6 +3,9 @@ var SpineBuffer = cc.Class({
     extends: require('./mesh-buffer'),
 
     requestStatic (vertexCount, indiceCount) {
+        
+        this.checkAndSwitchBuffer(vertexCount);
+
         let byteOffset = this.byteOffset + vertexCount * this._vertexBytes;
         let indiceOffset = this.indiceOffset + indiceCount;
 
@@ -19,6 +22,11 @@ var SpineBuffer = cc.Class({
 
             this._reallocBuffer();
         }
+
+        let offsetInfo = this._offsetInfo;
+        offsetInfo.vertexOffset = this.vertexOffset;
+        offsetInfo.indiceOffset = this.indiceOffset;
+        offsetInfo.byteOffset = this.byteOffset;
     },
 
     adjust (vertexCount, indiceCount) {
