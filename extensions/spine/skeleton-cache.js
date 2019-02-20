@@ -199,7 +199,7 @@ let AnimationCache = cc.Class({
         frame.indices = indices;
     },
 
-    fillVertices (skeletonColor, attachmentColor, slotColor, clipper) {
+    fillVertices (skeletonColor, attachmentColor, slotColor, clipper, slot) {
 
         _tempa = slotColor.a * attachmentColor.a * skeletonColor.a * 255;
         _tempr = attachmentColor.r * skeletonColor.r * 255;
@@ -285,6 +285,7 @@ let AnimationCache = cc.Class({
         let texture;
         let preSegOffset, preSegInfo;
         let blendMode;
+        let slot;
 
         for (let slotIdx = 0, slotCount = skeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
             slot = skeleton.drawOrder[slotIdx];
@@ -383,7 +384,7 @@ let AnimationCache = cc.Class({
             attachmentColor = attachment.color;
             slotColor = slot.color;
 
-            this.fillVertices(skeletonColor, attachmentColor, slotColor, clipper);
+            this.fillVertices(skeletonColor, attachmentColor, slotColor, clipper, slot);
     
             if (_indexCount > 0) {
                 for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {

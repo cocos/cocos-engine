@@ -41,8 +41,33 @@ let ArmatureCache = require('./ArmatureCache');
 
 let DefaultArmaturesEnum = cc.Enum({ 'default': -1 });
 let DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
-let DefaultRenderModeEnum = cc.Enum({ 'REALTIME': 0 });
-let RenderModeEnum = cc.Enum({ 'REALTIME': 0, 'SHARED_CACHE': 1, "PRIVATE_CACHE": 2 });
+let DefaultRenderMode = cc.Enum({ 'REALTIME': 0 });
+
+/**
+ * !#en Enum for render mode type.
+ * !#zh Dragonbones渲染类型
+ * @enum ArmatureDisplay.RenderMode
+ */
+let RenderMode = cc.Enum({
+    /**
+     * !#en The realtime mode.
+     * !#zh 实时计算模式。
+     * @property {Number} REALTIME
+     */
+    REALTIME: 0,
+    /**
+     * !#en The shared cache mode.
+     * !#zh 共享缓存模式。
+     * @property {Number} SHARED_CACHE
+     */
+    SHARED_CACHE: 1,
+    /**
+     * !#en The private cache mode.
+     * !#zh 私有缓存模式。
+     * @property {Number} PRIVATE_CACHE
+     */
+    PRIVATE_CACHE: 2 
+});
 
 function setEnumAttr (obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
@@ -79,7 +104,7 @@ let ArmatureDisplay = cc.Class({
     },
     
     statics: {
-        RenderMode: RenderModeEnum,
+        RenderMode: RenderMode,
     },
     
     properties: {
@@ -294,10 +319,10 @@ let ArmatureDisplay = cc.Class({
 
         // Record pre render mode.
         _preRenderMode: -1,
-        _renderMode: RenderModeEnum.REALTIME,
+        _renderMode: RenderMode.REALTIME,
         _defaultRenderMode: {
             default: 0,
-            type: RenderModeEnum,
+            type: RenderMode,
             notify () {
                 this.setRenderMode(this._defaultRenderMode);
             },
@@ -448,7 +473,7 @@ let ArmatureDisplay = cc.Class({
         this._inited = true;
 
         if (CC_JSB) {
-            this._renderMode = RenderModeEnum.REALTIME;
+            this._renderMode = RenderMode.REALTIME;
         }
         
         this._parseDragonAsset();
@@ -493,7 +518,7 @@ let ArmatureDisplay = cc.Class({
      */
     isCachedMode () {
         if (CC_EDITOR) return false;
-        return this._renderMode !== RenderModeEnum.REALTIME;
+        return this._renderMode !== RenderMode.REALTIME;
     },
 
     onEnable () {
@@ -557,11 +582,11 @@ let ArmatureDisplay = cc.Class({
         this._inited = false;
 
         if (!CC_EDITOR) {
-            if (this._renderMode === RenderModeEnum.PRIVATE_CACHE) {
+            if (this._renderMode === RenderMode.PRIVATE_CACHE) {
                 this._armatureCache.dispose();
                 this._armatureCache = null;
                 this._armature = null;
-            } else if (this._renderMode === RenderModeEnum.SHARED_CACHE) {
+            } else if (this._renderMode === RenderMode.SHARED_CACHE) {
                 this._armatureCache = null;
                 this._armature = null;
             } else if (this._armature) {
@@ -601,9 +626,9 @@ let ArmatureDisplay = cc.Class({
         if (this._armature) {
             // dispose pre build armature
             if (!CC_EDITOR) {
-                if (this._preRenderMode === RenderModeEnum.PRIVATE_CACHE) {
+                if (this._preRenderMode === RenderMode.PRIVATE_CACHE) {
                     this._armatureCache.dispose();
-                } else if (this._preRenderMode === RenderModeEnum.REALTIME) {
+                } else if (this._preRenderMode === RenderMode.REALTIME) {
                     this._armature.dispose();
                 }
             } else {
@@ -620,9 +645,9 @@ let ArmatureDisplay = cc.Class({
         }
 
         if (!CC_EDITOR) {
-            if (this._renderMode === RenderModeEnum.SHARED_CACHE) {
+            if (this._renderMode === RenderMode.SHARED_CACHE) {
                 this._armatureCache = ArmatureCache.sharedCache;
-            } else if (this._renderMode === RenderModeEnum.PRIVATE_CACHE) {
+            } else if (this._renderMode === RenderMode.PRIVATE_CACHE) {
                 this._armatureCache = new ArmatureCache;
             }
         }
@@ -634,12 +659,12 @@ let ArmatureDisplay = cc.Class({
             this._armature = this._armatureCache.getArmatureCache(this.armatureName, dragonbonesName, atlasName);
             if (!this._armature) {
                 // Cache fail,swith to REALTIME render mode.
-                this._renderMode = RenderModeEnum.REALTIME;
+                this._renderMode = RenderMode.REALTIME;
             } 
         } 
         
         this._preRenderMode = this._renderMode;
-        if (CC_EDITOR || this._renderMode === RenderModeEnum.REALTIME) {
+        if (CC_EDITOR || this._renderMode === RenderMode.REALTIME) {
             this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, dragonbonesName, "", atlasName);
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
@@ -647,7 +672,7 @@ let ArmatureDisplay = cc.Class({
             this._armature.animation.timeScale = this.timeScale;
         }
 
-        if (this._renderMode !== RenderModeEnum.REALTIME && this.debugBones) {
+        if (this._renderMode !== RenderMode.REALTIME && this.debugBones) {
             cc.warn("Debug bones is invalid in cached mode");
         }
 
@@ -683,9 +708,9 @@ let ArmatureDisplay = cc.Class({
 
     _updateRenderModeEnum: CC_EDITOR && function () {
         if (this._armature && ArmatureCache.canCache(this._armature)) {
-            setEnumAttr(this, 'renderMode', RenderModeEnum);
+            setEnumAttr(this, 'renderMode', RenderMode);
         } else {
-            setEnumAttr(this, 'renderMode', DefaultRenderModeEnum);
+            setEnumAttr(this, 'renderMode', DefaultRenderMode);
         }
     },
 

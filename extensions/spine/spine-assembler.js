@@ -68,13 +68,14 @@ let _finalColor32, _darkColor32;
 let _vertexFormat;
 let _perVertexSize;
 let _perClipVertexSize;
-let _vertexFloatCount = 0, _vertexFloatOffset = 0, _vertexOffset = 0,
-    _indexCount = 0, _indexOffset = 0;
+let _vertexFloatCount = 0, _vertexCount = 0, _vertexFloatOffset = 0, _vertexOffset = 0,
+    _indexCount = 0, _indexOffset = 0, _vfOffset = 0;
 let _tempr, _tempg, _tempb, _tempa;
 let _inRange;
 let _mustFlush;
 let _x, _y, _m00, _m04, _m12, _m01, _m05, _m13;
-let _r, _g, _b, _a, _fr, _fg, _fb, _fa, _dr, _dg, _db, _da;
+let _r, _g, _b, _fr, _fg, _fb, _fa, _dr, _dg, _db, _da;
+let _comp, _buffer, _renderer, _node, _needColor;
 
 function _getSlotMaterial (tex, blendMode) {
     let src, dst;
@@ -167,7 +168,7 @@ var spineAssembler = {
         }
     },
 
-    fillVertices (skeletonColor, attachmentColor, slotColor, clipper) {
+    fillVertices (skeletonColor, attachmentColor, slotColor, clipper, slot) {
 
         let vbuf = _buffer._vData,
             ibuf = _buffer._iData,
@@ -271,6 +272,7 @@ var spineAssembler = {
         let attachment, attachmentColor, slotColor, uvs, triangles;
         let isRegion, isMesh, isClip;
         let offsetInfo;
+        let slot;
 
         _slotRangeStart = _comp._startSlotIndex;
         _slotRangeEnd = _comp._endSlotIndex;
@@ -353,7 +355,6 @@ var spineAssembler = {
                 _vertexFloatOffset = offsetInfo.byteOffset >> 2;
                 vbuf = _buffer._vData,
                 ibuf = _buffer._iData;
-                uintVData = _buffer._uintVData;
     
                 // compute vertex and fill x y
                 attachment.computeWorldVertices(slot.bone, vbuf, _vertexFloatOffset, _perVertexSize);
@@ -382,7 +383,6 @@ var spineAssembler = {
                 _vertexFloatOffset = offsetInfo.byteOffset >> 2;
                 vbuf = _buffer._vData,
                 ibuf = _buffer._iData;
-                uintVData = _buffer._uintVData;
     
                 // compute vertex and fill x y
                 attachment.computeWorldVertices(slot, 0, attachment.worldVerticesLength, vbuf, _vertexFloatOffset, _perVertexSize);
@@ -405,7 +405,7 @@ var spineAssembler = {
             attachmentColor = attachment.color,
             slotColor = slot.color;
 
-            this.fillVertices(skeletonColor, attachmentColor, slotColor, clipper);
+            this.fillVertices(skeletonColor, attachmentColor, slotColor, clipper, slot);
     
             if (_indexCount > 0) {
                 for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {
