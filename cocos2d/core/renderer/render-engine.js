@@ -10089,10 +10089,15 @@ Device.prototype.setUniform = function setUniform (name, value) {
     var oldValue = uniform.value;
     var dirty = false;
     if (uniform.isArray) {
-      for (var i = 0, l = oldValue.length; i < l; i++) {
-        if (oldValue[i] !== value[i]) {
-          dirty = true;
-          oldValue[i] = value[i];
+      if (oldValue.length !== value.length) {
+        dirty = true;
+        uniform.value = value;
+      } else {
+        for (var i = 0, l = oldValue.length; i < l; i++) {
+          if (oldValue[i] !== value[i]) {
+            dirty = true;
+            oldValue[i] = value[i];
+          }
         }
       }
     }
