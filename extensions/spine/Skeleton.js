@@ -38,7 +38,32 @@ let SkeletonCache = require('./skeleton-cache');
  */
 let DefaultSkinsEnum = cc.Enum({ 'default': -1 });
 let DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
-let RenderModeEnum = cc.Enum({ 'REALTIME': 0, 'SHARED_CACHE': 1, "PRIVATE_CACHE": 2 });
+
+/**
+ * !#en Enum for render mode type.
+ * !#zh Spine渲染类型
+ * @enum Skeleton.RenderMode
+ */
+let RenderMode = cc.Enum({
+    /**
+     * !#en The realtime mode.
+     * !#zh 实时计算模式。
+     * @property {Number} REALTIME
+     */
+    REALTIME: 0,
+    /**
+     * !#en The shared cache mode.
+     * !#zh 共享缓存模式。
+     * @property {Number} SHARED_CACHE
+     */
+    SHARED_CACHE: 1,
+    /**
+     * !#en The private cache mode.
+     * !#zh 私有缓存模式。
+     * @property {Number} PRIVATE_CACHE
+     */
+    PRIVATE_CACHE: 2 
+});
 
 function setEnumAttr (obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
@@ -74,7 +99,7 @@ sp.Skeleton = cc.Class({
     },
 
     statics: {
-        RenderMode: RenderModeEnum,
+        RenderMode: RenderMode,
     },
 
     properties: {
@@ -288,10 +313,10 @@ sp.Skeleton = cc.Class({
 
         // Record pre render mode.
         _preRenderMode: -1,
-        _renderMode: RenderModeEnum.REALTIME,
+        _renderMode: RenderMode.REALTIME,
         _defaultRenderMode: {
             default: 0,
-            type: RenderModeEnum,
+            type: RenderMode,
             notify () {
                 this.setRenderMode(this._defaultRenderMode);
             },
@@ -544,7 +569,7 @@ sp.Skeleton = cc.Class({
         }
 
         if (CC_JSB) {
-            this._renderMode = RenderModeEnum.REALTIME;
+            this._renderMode = RenderMode.REALTIME;
         }
 
         var material = Material.getInstantiatedBuiltinMaterial('spine', this);
@@ -585,7 +610,7 @@ sp.Skeleton = cc.Class({
      */
     isCachedMode () {
         if (CC_EDITOR) return false;
-        return this._renderMode !== RenderModeEnum.REALTIME;
+        return this._renderMode !== RenderMode.REALTIME;
     },
 
     update (dt) {
@@ -1221,9 +1246,9 @@ sp.Skeleton = cc.Class({
         if (!data) return;
         
         if (!CC_EDITOR) {
-            if (this._renderMode === RenderModeEnum.SHARED_CACHE) {
+            if (this._renderMode === RenderMode.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
-            } else if (this._renderMode === RenderModeEnum.PRIVATE_CACHE) {
+            } else if (this._renderMode === RenderMode.PRIVATE_CACHE) {
                 this._skeletonCache = new SkeletonCache;
             }
         }
@@ -1256,7 +1281,7 @@ sp.Skeleton = cc.Class({
     },
 
     _updateRenderModeEnum: CC_EDITOR && function () {
-        setEnumAttr(this, 'renderMode', RenderModeEnum);
+        setEnumAttr(this, 'renderMode', RenderMode);
     },
 
     _updateDebugDraw: function () {

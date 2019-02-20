@@ -66,14 +66,15 @@ let _finalColor32, _darkColor32;
 let _vertexFormat;
 let _perVertexSize;
 let _perClipVertexSize;
-let _vertexFloatCount = 0, _vertexFloatOffset = 0, _vertexOffset = 0,
-    _indexCount = 0, _indexOffset = 0, _vertexCount = 0, _vfOffset = 0;
+
+let _vertexFloatCount = 0, _vertexCount = 0, _vertexFloatOffset = 0, _vertexOffset = 0,
+    _indexCount = 0, _indexOffset = 0, _vfOffset = 0;
 let _tempr, _tempg, _tempb, _tempa;
 let _inRange;
 let _mustFlush;
 let _x, _y, _m00, _m04, _m12, _m01, _m05, _m13;
 let _r, _g, _b, _fr, _fg, _fb, _fa, _dr, _dg, _db, _da;
-let _comp, _node, _buffer, _renderer, _needColor, _slot;
+let _comp, _buffer, _renderer, _node, _needColor;
 
 function _getSlotMaterial (tex, blendMode) {
     let src, dst;
@@ -159,7 +160,7 @@ var spineAssembler = {
         }
     },
 
-    fillVertices (skeletonColor, attachmentColor, slotColor, clipper) {
+    fillVertices (skeletonColor, attachmentColor, slotColor, clipper, slot) {
 
         let vbuf = _buffer._vData,
             ibuf = _buffer._iData,
@@ -177,12 +178,12 @@ var spineAssembler = {
         _finalColor.b = _tempb * slotColor.b;
         _finalColor.a = _tempa * _nodeA;
 
-        if (_slot.darkColor == null) {
+        if (slot.darkColor == null) {
             _darkColor.set(0.0, 0, 0, 1.0);
         } else {
-            _darkColor.r = _slot.darkColor.r * _tempr;
-            _darkColor.g = _slot.darkColor.g * _tempg;
-            _darkColor.b = _slot.darkColor.b * _tempb;
+            _darkColor.r = slot.darkColor.r * _tempr;
+            _darkColor.g = slot.darkColor.g * _tempg;
+            _darkColor.b = slot.darkColor.b * _tempb;
         }
         _darkColor.a = _premultipliedAlpha ? 255 : 0;
 
@@ -263,6 +264,7 @@ var spineAssembler = {
         let attachment, attachmentColor, slotColor, uvs, triangles;
         let isRegion, isMesh, isClip;
         let offsetInfo;
+        let slot;
 
         _slotRangeStart = _comp._startSlotIndex;
         _slotRangeEnd = _comp._endSlotIndex;
@@ -287,25 +289,25 @@ var spineAssembler = {
         _indexOffset = 0;
 
         for (let slotIdx = 0, slotCount = locSkeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
-            _slot = locSkeleton.drawOrder[slotIdx];
+            slot = locSkeleton.drawOrder[slotIdx];
     
-            if (_slotRangeStart >= 0 && _slotRangeStart == _slot.data.index) {
+            if (_slotRangeStart >= 0 && _slotRangeStart == slot.data.index) {
                 _inRange = true;
             }
             
             if (!_inRange) {
-                clipper.clipEndWithSlot(_slot);
+                clipper.clipEndWithSlot(slot);
                 continue;
             }
     
-            if (_slotRangeEnd >= 0 && _slotRangeEnd == _slot.data.index) {
+            if (_slotRangeEnd >= 0 && _slotRangeEnd == slot.data.index) {
                 _inRange = false;
             }
     
             _vertexFloatCount = 0;
             _indexCount = 0;
 
-            attachment = _slot.getAttachment();
+            attachment = slot.getAttachment();
             if (!attachment) continue;
 
             isRegion = attachment instanceof spine.RegionAttachment;
@@ -313,13 +315,13 @@ var spineAssembler = {
             isClip = attachment instanceof spine.ClippingAttachment;
 
             if (isClip) {
-                clipper.clipStart(_slot, attachment);
+                clipper.clipStart(slot, attachment);
                 continue;
             }
 
             if (!isRegion && !isMesh) continue;
 
-            material = _getSlotMaterial(attachment.region.texture._texture, _slot.data.blendMode);
+            material = _getSlotMaterial(attachment.region.texture._texture, slot.data.blendMode);
             if (!material) {
                 continue;
             }
@@ -347,7 +349,7 @@ var spineAssembler = {
                 ibuf = _buffer._iData;
     
                 // compute vertex and fill x y
-                attachment.computeWorldVertices(_slot.bone, vbuf, _vertexFloatOffset, _perVertexSize);
+                attachment.computeWorldVertices(slot.bone, vbuf, _vertexFloatOffset, _perVertexSize);
     
                 // draw debug slots if enabled graphics
                 if (graphics && _debugSlots) {
@@ -375,7 +377,7 @@ var spineAssembler = {
                 ibuf = _buffer._iData;
     
                 // compute vertex and fill x y
-                attachment.computeWorldVertices(_slot, 0, attachment.worldVerticesLength, vbuf, _vertexFloatOffset, _perVertexSize);
+                attachment.computeWorldVertices(slot, 0, attachment.worldVerticesLength, vbuf, _vertexFloatOffset, _perVertexSize);
             }
     
             if (_vertexFloatCount == 0 || _indexCount == 0) {
@@ -393,9 +395,9 @@ var spineAssembler = {
             }
 
             attachmentColor = attachment.color,
-            slotColor = _slot.color;
+            slotColor = slot.color;
 
-            this.fillVertices(skeletonColor, attachmentColor, slotColor, clipper);
+            this.fillVertices(skeletonColor, attachmentColor, slotColor, clipper, slot);
     
             if (_indexCount > 0) {
                 for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {
@@ -419,7 +421,7 @@ var spineAssembler = {
                 _buffer.adjust(_vertexFloatCount / _perVertexSize, _indexCount);
             }
     
-            clipper.clipEndWithSlot(_slot);
+            clipper.clipEndWithSlot(slot);
         }
     
         clipper.clipEnd();
