@@ -36,28 +36,6 @@ enum class CanvasTextBaseline {
     BOTTOM
 };
 
-namespace {
-    void fillRectWithColor(uint8_t* buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b)
-    {
-        if ((x + width) > totalWidth || (y + height) > totalHeight)
-            return;
-
-        uint32_t y0 = totalHeight - (y + height);
-        uint32_t y1 = totalHeight - y;
-        uint8_t* p;
-        for (uint32_t offsetY = y0; offsetY < y1; ++offsetY)
-        {
-            for (uint32_t offsetX = x; offsetX < (x + width); ++offsetX)
-            {
-                p = buf + (totalWidth * offsetY + offsetX) * 3;
-                *p++ = r;
-                *p++ = g;
-                *p++ = b;
-            }
-        }
-    }
-}
-
 @interface CanvasRenderingContext2DImpl : NSObject {
     NSFont* _font;
     NSMutableDictionary* _tokenAttributesDict;
@@ -456,14 +434,18 @@ namespace {
 }
 
 -(void) fillRect:(CGRect) rect {
-    uint8_t* buffer = _imageData.getBytes();
-    if (buffer)
-    {
-        uint8_t r = _fillStyle.r * 255.0f;
-        uint8_t g = _fillStyle.g * 255.0f;
-        uint8_t b = _fillStyle.b * 255.0f;
-        fillRectWithColor(buffer, (uint32_t)_width, (uint32_t)_height, (uint32_t)rect.origin.x, (uint32_t)rect.origin.y, (uint32_t)rect.size.width, (uint32_t)rect.size.height, r, g, b);
-    }
+    [self saveContext];
+
+    NSColor* color = [NSColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a];
+    [color setFill];
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    CGRect tmpRect = CGRectMake(rect.origin.x, _height - rect.origin.y - rect.size.height, rect.size.width, rect.size.height);
+    [NSBezierPath fillRect:tmpRect];
+#else
+    NSBezierPath* path = [NSBezierPath bezierPathWithRect:rect];
+    [path fill];
+#endif
+    [self restoreContext];
 }
 
 -(void) saveContext {

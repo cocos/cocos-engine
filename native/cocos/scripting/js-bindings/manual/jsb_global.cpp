@@ -723,7 +723,7 @@ namespace
         bool freeData = false;
     };
 
-    uint8_t* cvRGB2RGBA (uint32_t length, uint8_t* src) {
+    uint8_t* convertRGB2RGBA (uint32_t length, uint8_t* src) {
         uint8_t* dst = new uint8_t[length];
         for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src++;
@@ -734,18 +734,18 @@ namespace
         return dst;
     }
 
-    uint8_t* cvIA2RGBA (uint32_t length, uint8_t* src) {
+    uint8_t* convertIA2RGBA (uint32_t length, uint8_t* src) {
         uint8_t* dst = new uint8_t[length];
         for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src;
             dst[i + 1] = *src;
             dst[i + 2] = *src++;
-            dst[i + 3] = *src;
+            dst[i + 3] = *src++;
         }
         return dst;
     }
 
-    uint8_t* cvI2RGBA (uint32_t length, uint8_t* src) {
+    uint8_t* convertI2RGBA (uint32_t length, uint8_t* src) {
         uint8_t* dst = new uint8_t[length];
         for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src;
@@ -774,33 +774,33 @@ namespace
         imgInfo->hasAlpha = img->hasAlpha();
         imgInfo->hasPremultipliedAlpha = img->hasPremultipliedAlpha();
         imgInfo->compressed = img->isCompressed();
-        imgInfo->length = img->getWidth() * img->getHeight() * 4;
 
         // Convert to RGBA888 because standard web api will return only RGBA888.
         // If not, then it may have issue in glTexSubImage. For example, engine
         // will create a big texture, and update its content with small pictures.
         // The big texture is RGBA888, then the small picture should be the same
         // format, or it will cause 0x502 error on OpenGL ES 2.
-        uint8_t* dst = nullptr;
-        uint32_t length = imgInfo->length;
-        uint8_t* src = imgInfo->data;
-        switch(imgInfo->glFormat) {
-            case GL_RGBA: break;
-            case GL_LUMINANCE_ALPHA:
-                dst = cvIA2RGBA(length, src);
-                break;
-            case GL_ALPHA:
-            case GL_LUMINANCE:
-                dst = cvI2RGBA(length, src);
-                break;
-            case GL_RGB:
-                dst = cvRGB2RGBA(length, src);
-                break;
-            default:
-                SE_LOGE("unknown image format");
-        }
+        if (!imgInfo->compressed && imgInfo->glFormat != GL_RGBA) {
+            imgInfo->length = img->getWidth() * img->getHeight() * 4;
+            uint8_t* dst = nullptr;
+            uint32_t length = imgInfo->length;
+            uint8_t* src = imgInfo->data;
+            switch(imgInfo->glFormat) {
+                case GL_LUMINANCE_ALPHA:
+                    dst = convertIA2RGBA(length, src);
+                    break;
+                case GL_ALPHA:
+                case GL_LUMINANCE:
+                    dst = convertI2RGBA(length, src);
+                    break;
+                case GL_RGB:
+                    dst = convertRGB2RGBA(length, src);
+                    break;
+                default:
+                    SE_LOGE("unknown image format");
+                    break;
+            }
 
-        if (imgInfo->glFormat != GL_RGBA) {
             imgInfo->data = dst;
             imgInfo->hasAlpha = true;
             imgInfo->bpp = 32;

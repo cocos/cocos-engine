@@ -13,11 +13,10 @@ bool DragonBones::yDown = true;
 bool DragonBones::debug = false;
 bool DragonBones::debugDraw = false;
 bool DragonBones::webAssembly = false;
-bool DragonBones::checkInPool = false;
+bool DragonBones::checkInPool = true;
 
 DragonBones::DragonBones(IEventDispatcher* eventManager) :
     _events(),
-    _objects(),
     _clock(nullptr),
     _eventManager(eventManager)
 {
@@ -38,14 +37,16 @@ DragonBones::~DragonBones()
 
 void DragonBones::advanceTime(float passedTime)
 {
-    if (!_objects.empty())
+    if (!_objectsMap.empty())
     {
-        for (const auto object : _objects)
+        for (auto it = _objectsMap.begin(); it != _objectsMap.end(); it ++)
         {
-            object->returnToPool();
+            auto object = it->first;
+            if (object) {
+                object->returnToPool();
+            }
         }
-        
-        _objects.clear();
+        _objectsMap.clear();
     }
     
     if (!_events.empty())
@@ -80,11 +81,8 @@ void DragonBones::bufferEvent(EventObject* value)
 void DragonBones::bufferObject(BaseObject* object)
 {
     if(object == nullptr || object->isInPool())return;
-    auto it = std::find(_objects.begin(), _objects.end(), object);
-    if (it != _objects.end())
-    {
-        _objects.push_back(object);
-    }
+    // Just mark object will be put in pool next frame, 'true' is useless.
+    _objectsMap[object] = true;
 }
 
 WorldClock* DragonBones::getClock()

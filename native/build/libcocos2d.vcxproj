@@ -76,6 +76,7 @@
     <ClCompile Include="..\cocos\editor-support\dragonbones\parser\BinaryDataParser.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones\parser\DataParser.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones\parser\JSONDataParser.cpp" />
+    <ClCompile Include="..\cocos\editor-support\MeshBuffer.cpp" />
     <ClCompile Include="..\cocos\editor-support\middleware-adapter.cpp" />
     <ClCompile Include="..\cocos\editor-support\MiddlewareManager.cpp" />
     <ClCompile Include="..\cocos\editor-support\IOBuffer.cpp" />
@@ -323,6 +324,7 @@
     <ClInclude Include="..\cocos\editor-support\dragonbones\parser\DataParser.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones\parser\JSONDataParser.h" />
     <ClInclude Include="..\cocos\editor-support\IOBuffer.h" />
+    <ClInclude Include="..\cocos\editor-support\MeshBuffer.h" />
     <ClInclude Include="..\cocos\editor-support\middleware-adapter.h" />
     <ClInclude Include="..\cocos\editor-support\MiddlewareMacro.h" />
     <ClInclude Include="..\cocos\editor-support\MiddlewareManager.h" />
