@@ -72,7 +72,7 @@ export default [
       {
         "name": "builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag",
         "glsl3": {
-          "vert": `\nprecision mediump float;\nin vec3 a_position;\nin vec2 a_texCoord;\nin vec4 a_color;\nout vec2 uv0;\nout vec4 color;\nuniform CCUI {\n  mat4 cc_matViewProj;\n};\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * pos;\n  uv0 = a_texCoord;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "vert": `\nprecision mediump float;\nin vec3 a_position;\nin vec2 a_texCoord;\nin vec4 a_color;\nout vec2 uv0;\nout vec4 color;\nuniform ui {\n  mat4 cc_matViewProj;\n};\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * pos;\n  uv0 = a_texCoord;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
           "frag": `\nprecision mediump float;\nuniform sampler2D mainTexture;\nin vec2 uv0;\nin vec4 color;\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  o *= texture(mainTexture, uv0);\n  o *= color;\n  return o;\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`
         },
         "glsl1": {
@@ -80,9 +80,13 @@ export default [
           "frag": `\nprecision mediump float;\nuniform sampler2D mainTexture;\nvarying vec2 uv0;\nvarying vec4 color;\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  o *= texture2D(mainTexture, uv0);\n  o *= color;\n  return o;\n}\nvoid main() { gl_FragColor = frag(); }\n`
         },
         "defines": [],
-        "blocks": [],
+        "blocks": [
+          {"name": "ui", "size": 64, "defines": [], "binding": 0, "members": [
+            {"name":"cc_matViewProj", "type":26, "count":1, "size":64}
+          ]}
+        ],
         "samplers": [
-          {"name":"mainTexture", "type":29, "count":1, "defines":[], "binding":0}
+          {"name":"mainTexture", "type":29, "count":1, "defines":[], "binding":1}
         ],
         "dependencies": {}
       }
