@@ -1,6 +1,6 @@
 import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Mat4, Vec3, Vec2, Size, Rect } from '../../../core/value-types';
+import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import * as math from '../../../core/vmath/index';
 import { EventType } from '../../../scene-graph/node-event-enum';
 import { MaskComponent } from './mask-component';
@@ -51,7 +51,7 @@ export class UITransformComponent extends Component {
     }
 
     set height (value) {
-        if(this.contentSize.height === value){
+        if (this.contentSize.height === value){
             return;
         }
 
@@ -261,10 +261,10 @@ export class UITransformComponent extends Component {
      * @example
      * var newVec2 = node.convertToNodeSpace(cc.v3(100, 100));
      */
-    convertToNodeSpace(worldPoint: Vec3) {
+    public convertToNodeSpace (worldPoint: Vec3) {
         this.node.getWorldMatrix(_worldMatrix);
         math.mat4.invert(_mat4_temp, _worldMatrix);
-        let out = new Vec3();
+        const out = new Vec3();
         math.vec3.transformMat4(out, worldPoint, _mat4_temp);
         out.x += this._anchorPoint.x * this._contentSize.width;
         out.y += this._anchorPoint.y * this._contentSize.height;
@@ -282,12 +282,12 @@ export class UITransformComponent extends Component {
      * @example
      * var newVec3 = node.convertToWorldSpace(cc.v3(100, 100));
      */
-    convertToWorldSpace(nodePoint: Vec3) {
+    public convertToWorldSpace (nodePoint: Vec3) {
         this.node.getWorldMatrix(_worldMatrix);
-        let out = new Vec3(
+        const out = new Vec3(
             nodePoint.x - this._anchorPoint.x * this._contentSize.width,
             nodePoint.y - this._anchorPoint.y * this._contentSize.height,
-            0
+            0,
         );
         return math.vec3.transformMat4(out, out, _worldMatrix);
     }
@@ -303,7 +303,7 @@ export class UITransformComponent extends Component {
      * @example
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
-    public convertToNodeSpaceAR(out: Vec3, worldPoint: Vec3) {
+    public convertToNodeSpaceAR (out: Vec3, worldPoint: Vec3) {
         const matrix = new Mat4();
         this.node.getWorldMatrix(matrix);
         math.mat4.invert(_mat4_temp, matrix);
@@ -325,7 +325,7 @@ export class UITransformComponent extends Component {
      * @example
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      */
-    public convertToWorldSpaceAR(out: Vec3, nodePoint: Vec3) {
+    public convertToWorldSpaceAR (out: Vec3, nodePoint: Vec3) {
         this.node.getWorldMatrix(_worldMatrix);
         if (!out) {
             out = new Vec3();
@@ -344,11 +344,11 @@ export class UITransformComponent extends Component {
      * @example
      * var boundingBox = node.getBoundingBox();
      */
-    public getBoundingBox() {
+    public getBoundingBox () {
         math.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
-        let width = this._contentSize.width;
-        let height = this._contentSize.height;
-        let rect = new Rect(
+        const width = this._contentSize.width;
+        const height = this._contentSize.height;
+        const rect = new Rect(
             -this._anchorPoint.x * width,
             -this._anchorPoint.y * height,
             width,
@@ -368,7 +368,7 @@ export class UITransformComponent extends Component {
      * @example
      * var newRect = node.getBoundingBoxToWorld();
      */
-    public getBoundingBoxToWorld() {
+    public getBoundingBoxToWorld () {
         if (this.node.parent) {
             this.node.parent.getWorldMatrix(_worldMatrix);
             return this.getBoundingBoxTo(_worldMatrix);
@@ -377,11 +377,11 @@ export class UITransformComponent extends Component {
         }
     }
 
-    public getBoundingBoxTo(parentMat: Mat4) {
+    public getBoundingBoxTo (parentMat: Mat4) {
         math.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
-        let width = this._contentSize.width;
-        let height = this._contentSize.height;
-        let rect = new Rect(
+        const width = this._contentSize.width;
+        const height = this._contentSize.height;
+        const rect = new Rect(
             -this._anchorPoint.x * width,
             -this._anchorPoint.y * height,
             width,
@@ -390,18 +390,17 @@ export class UITransformComponent extends Component {
         math.mat4.mul(_worldMatrix, parentMat, _matrix);
         rect.transformMat4(rect, _worldMatrix);
 
-        //query child's BoundingBox
+        // query child's BoundingBox
         if (!this.node.children) {
             return rect;
         }
 
-        var locChildren = this.node.children;
-        for (var i = 0; i < locChildren.length; i++) {
-            var child = locChildren[i];
+        const locChildren = this.node.children;
+        for (const child of locChildren) {
             if (child && child.active) {
                 const uiTransform = child.getComponent(UITransformComponent);
                 if (uiTransform) {
-                    var childRect = uiTransform.getBoundingBoxTo(parentMat);
+                    const childRect = uiTransform.getBoundingBoxTo(parentMat);
                     if (childRect) {
                         rect.union(rect, childRect);
                     }

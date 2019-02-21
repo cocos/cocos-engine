@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Asset } from './asset';
 import {ccclass} from '../core/data/class-decorator';
+import { Asset } from './asset';
 
 /**
  * !#en Class for Font handling.
@@ -34,7 +34,7 @@ import {ccclass} from '../core/data/class-decorator';
  * @extends Asset
  */
 @ccclass('cc.Font')
-export default class Font extends Asset {
+export class Font extends Asset {
 }
 
 cc.Font = Font;
