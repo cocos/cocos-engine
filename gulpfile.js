@@ -35,6 +35,8 @@ const Engine = require('./gulp/tasks/engine');
 const Test = require('./gulp/tasks/test');
 const Watch = require('./gulp/tasks/watch');
 
+const APIDocGenerator = require('./gulp/tasks/3DAPIGenerator');
+
 /////////////
 // engine //
 /////////////
@@ -193,4 +195,17 @@ gulp.task('test-in-ci', function () {
             process.exit();
         }
     });
+});
+
+
+// Generate the 3D API doc
+gulp.task('3d-api-build', ['clean-API-Doc'], function () {
+    APIDocGenerator.builder();
+});
+gulp.task('clean-API-Doc', function () {
+    APIDocGenerator.cleanAPIDoc();
+});
+
+gulp.task('testDTs', function () {
+    APIDocGenerator.createGFXModule();
 });
