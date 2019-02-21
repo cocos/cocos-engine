@@ -33,11 +33,11 @@ var WrappedInfo = require('./types').WrappedInfo;
 /**
  * Compute a new ratio by curve type
  * @param {Number} ratio - The origin ratio
- * @param {Array|String} type - If it's Array, then ratio will be computed with bezierByTime. If it's string, then ratio will be computed with cc.Easing function
+ * @param {Array|String} type - If it's Array, then ratio will be computed with bezierByTime. If it's string, then ratio will be computed with cc.easing function
  */
 function computeRatioByType (ratio, type) {
     if (typeof type === 'string') {
-        var func = cc.Easing[type];
+        var func = cc.easing[type];
         if (func) {
             ratio = func(ratio);
         }

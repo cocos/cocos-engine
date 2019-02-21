@@ -215,15 +215,14 @@ module.exports = {
         }
 
         // buffer
-        let buffer = renderer._meshBuffer,
-            indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
-
+        let buffer = renderer._meshBuffer;
         let node = sprite.node;
-        fillVerticesWithoutCalc(node, buffer, sprite._renderData, node._color._val);
+        let offsetInfo = fillVerticesWithoutCalc(node, buffer, sprite._renderData, node._color._val);
 
-        // buffer data may be realloc, need get reference after request.
-        let ibuf = buffer._iData;
+        let ibuf = buffer._iData,
+            indiceOffset = offsetInfo.indiceOffset,
+            vertexId = offsetInfo.vertexOffset;
+
         ibuf[indiceOffset++] = vertexId;
         ibuf[indiceOffset++] = vertexId + 1;
         ibuf[indiceOffset++] = vertexId + 2;

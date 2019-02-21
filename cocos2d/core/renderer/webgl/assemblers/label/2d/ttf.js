@@ -27,8 +27,6 @@ const js = require('../../../../../platform/js');
 const ttfUtls = require('../../../../utils/label/ttf');
 const fillMeshVertices = require('../../utils').fillMeshVertices;
 
-const WHITE = cc.Color.WHITE;
-
 module.exports = js.addon({
     createData (comp) {
         let renderData = comp.requestRenderData();
@@ -42,8 +40,7 @@ module.exports = js.addon({
 
     fillBuffers (comp, renderer) {
         let node = comp.node;
-        WHITE._fastSetA(node.color.a);
-        fillMeshVertices(node, renderer._meshBuffer, comp._renderData, WHITE._val);
+        fillMeshVertices(node, renderer._meshBuffer, comp._renderData, node.color._val);
     },
 
     _updateVerts (comp) {

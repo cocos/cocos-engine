@@ -75,7 +75,7 @@ module.exports = {
             'hover_color': '悬停状态的按钮背景颜色',
             'disabled_color': '禁用状态的按钮背景颜色',
             'duration': '按钮颜色变化或者缩放变化的过渡时间',
-            'zoom_scale': '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。不建议 zoomScale 的值小于 1, 否则缩放后如果触摸点在触摸区域外, 则会触发 touchCancel 事件',
+            'zoom_scale': '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。',
             'auto_gray_effect': "如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰",
             'normal_sprite': '普通状态的按钮背景图资源',
             'pressed_sprite': '按下状态的按钮背景图资源',
@@ -270,7 +270,9 @@ module.exports = {
             "animation_name": "当前播放的动画名称",
             "time_scale": "当前骨骼中所有动画的时间缩放率",
             "play_times": "播放默认动画的循环次数\n-1 表示使用配置文件中的默认值\n0 表示无限循环\n>0 表示循环次数",
-            "debug_bones": "是否显示 bone 的 debug 信息"
+            "debug_bones": "是否显示 bone 的 debug 信息",
+            "enabled_batch": "是否开启合批",
+            "render_mode": "当前骨骼动画的渲染模式\nrealtime 表示实时计算，支持动画融合，较耗性能\nsharedCache 表示预计算且共享动画数据，性能较高，占用较少内存\nprivateCache 表示预计算但不共享动画数据，性能较高，占用较多内存\n以上两种缓存模式，不支持骨骼嵌套，不支持fade相关接口",
         },
         'motionStreak': {
             'fadeTime': "拖尾的渐隐时间,以秒为单位",

@@ -72,7 +72,7 @@ module.exports = {
             "hover_color": "Button color when the mouse hovers over it",
             "disabled_color": "Button color when disabled",
             "duration": "How long until the button color/scale transitions to a new color?",
-            "zoom_scale": "When user press the button, the button will zoom to a scale.The final scale of the button  equals (button original scale * zoomScale). Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling.",
+            "zoom_scale": "When user press the button, the button will zoom to a scale.The final scale of the button  equals (button original scale * zoomScale).",
             "auto_gray_effect": "When this flag is true, Button target sprite will turn gray when interactable is false.",
             "normal_sprite": "The Sprite that is used when the button is in a normal sate.",
             "pressed_sprite": "The Sprite that is used when the button is in a pressed sate.",
@@ -257,7 +257,9 @@ module.exports = {
             "debug_slots": "Indicates whether show debug slots.",
             "debug_bones": "Indicates whether show debug bones.",
             "premultipliedAlpha": "Indicates whether to enable premultiplied alpha.",
-            "use_tint": "Indicates whether to use tint effect."
+            "use_tint": "Indicates whether to use tint effect.",
+            "enabled_batch": "Indicates whether enabled batch model",
+            "render_mode": "The render mode of current armature. \n'REALTIME' means REALTIME calculate animation data, support animation blend but low performance. \n'SHARED_CACHE' means precomputation animation data and share data with same armature, high performance and less memery. \n'PRIVATE_CACHE' means precomputation animation data but not share data with other same armature, high performance and more memery.\nAbove two cache mode, not support nest armature, not support 'fade' related interface.",
         },
         "dragon_bones": {
             "dragon_bones_asset": "The json data contains the DragonBones information, drag the json file exported from DragonBones to get started.",
@@ -266,7 +268,9 @@ module.exports = {
             "animation_name": "The name of current playing animation.",
             "time_scale": "The time scale of this armature.",
             "play_times": "The play times of the default animation.\n-1 means using the value of config file\n0 means repeat for ever\n>0 means repeat times",
-            "debug_bones": "Indicates whether open debug bones"
+            "debug_bones": "Indicates whether open debug bones",
+            "enabled_batch": "Indicates whether enabled batch model",
+            "render_mode": "The render mode of current armature. \n'REALTIME' means REALTIME calculate animation data, support animation blend but low performance. \n'SHARED_CACHE' means precomputation animation data and share data with same armature, high performance and less memery. \n'PRIVATE_CACHE' means precomputation animation data but not share data with other same armature, high performance and more memery.\nAbove two cache mode, not support nest armature, not support 'fade' related interface.",
         },
         'motionStreak': {
             'fadeTime': "Trail fragment fade time, in seconds",

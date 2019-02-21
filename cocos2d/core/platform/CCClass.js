@@ -1187,6 +1187,8 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
     parseSimpleAttr('formerlySerializedAs', 'string');
 
     if (CC_EDITOR) {
+        parseSimpleAttr('notifyFor', 'string');
+
         if ('animatable' in attrs && !attrs.animatable) {
             (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = false;
         }

@@ -3887,25 +3887,39 @@ var spine;
 		SkeletonClipping.prototype.isClipping = function () {
 			return this.clipAttachment != null;
 		};
-		SkeletonClipping.prototype.clipTriangles = function (vertices, verticesLength, triangles, trianglesLength, uvs, light, dark, twoColor, stride) {
+		SkeletonClipping.prototype.clipTriangles = function (vertices, verticesLength, triangles, trianglesLength, uvs, light, dark, twoColor, stride, originIndexOffset, originVertOffset, originUVSOffset) {
 			var clipOutput = this.clipOutput, clippedVertices = this.clippedVertices;
 			var clippedTriangles = this.clippedTriangles;
 			var polygons = this.clippingPolygons;
 			var polygonsCount = this.clippingPolygons.length;
 			var vertexSize = twoColor ? 12 : 8;
-			var index = 0;
+            var index = 0;
+
+            originIndexOffset = originIndexOffset || 0;
+            originVertOffset = originVertOffset || 0;
+            originUVSOffset = originUVSOffset || 0;
+
 			clippedVertices.length = 0;
 			clippedTriangles.length = 0;
-			outer: for (var i = 0; i < trianglesLength; i += 3) {
-				var vertexOffset = triangles[i] * stride;
-				var x1 = vertices[vertexOffset], y1 = vertices[vertexOffset + 1];
-				var u1 = uvs[vertexOffset], v1 = uvs[vertexOffset + 1];
-				vertexOffset = triangles[i + 1] * stride;
-				var x2 = vertices[vertexOffset], y2 = vertices[vertexOffset + 1];
-				var u2 = uvs[vertexOffset], v2 = uvs[vertexOffset + 1];
-				vertexOffset = triangles[i + 2] * stride;
-				var x3 = vertices[vertexOffset], y3 = vertices[vertexOffset + 1];
-				var u3 = uvs[vertexOffset], v3 = uvs[vertexOffset + 1];
+			outer: for (var i = originIndexOffset, n = originIndexOffset + trianglesLength; i < n; i += 3) {
+                var vertexOffset = triangles[i] * stride;
+                var xyOffset = vertexOffset + originVertOffset;
+                var uvOffset = vertexOffset + originUVSOffset;
+				var x1 = vertices[xyOffset], y1 = vertices[xyOffset + 1];
+                var u1 = uvs[uvOffset], v1 = uvs[uvOffset + 1];
+                
+                vertexOffset = triangles[i + 1] * stride;
+                xyOffset = vertexOffset + originVertOffset;
+                uvOffset = vertexOffset + originUVSOffset;
+				var x2 = vertices[xyOffset], y2 = vertices[xyOffset + 1];
+                var u2 = uvs[uvOffset], v2 = uvs[uvOffset + 1];
+                
+                vertexOffset = triangles[i + 2] * stride;
+                xyOffset = vertexOffset + originVertOffset;
+                uvOffset = vertexOffset + originUVSOffset;
+				var x3 = vertices[xyOffset], y3 = vertices[xyOffset + 1];
+                var u3 = uvs[uvOffset], v3 = uvs[uvOffset + 1];
+                
 				for (var p = 0; p < polygonsCount; p++) {
 					var s = clippedVertices.length;
 					if (this.clip(x1, y1, x2, y2, x3, y3, polygons[p], clipOutput)) {

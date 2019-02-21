@@ -39,15 +39,14 @@ module.exports = js.addon({
                 color = node._color._val,
                 matrix = node._worldMatrix;
     
-            let buffer = renderer._meshBuffer3D,
-                vertexOffset = buffer.byteOffset >> 2,
-                indiceOffset = buffer.indiceOffset,
-                vertexId = buffer.vertexOffset;
-    
-            buffer.request(4, 6);
+            let buffer = renderer._meshBuffer3D;
+            let offsetInfo = buffer.request(4, 6);
     
             // buffer data may be realloc, need get reference after request.
-            let vbuf = buffer._vData,
+            let vertexOffset = offsetInfo.byteOffset >> 2,
+                indiceOffset = offsetInfo.indiceOffset,
+                vertexId = offsetInfo.vertexOffset,
+                vbuf = buffer._vData,
                 uintbuf = buffer._uintVData,
                 ibuf = buffer._iData;
     

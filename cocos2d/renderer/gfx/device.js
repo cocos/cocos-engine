@@ -860,6 +860,9 @@ export default class Device {
    * @param {Number} opts.stencil
    */
   clear(opts) {
+    if (opts.color === undefined && opts.depth === undefined && opts.stencil === undefined) {
+        return;
+    }
     const gl = this._gl;
     let flags = 0;
 
