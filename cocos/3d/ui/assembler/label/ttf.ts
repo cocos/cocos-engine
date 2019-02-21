@@ -23,15 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ttfUtils } from './ttfUtils';
 import * as js from '../../../../core/utils/js';
+import { color4 } from '../../../../core/vmath';
 import { RenderData } from '../../../../renderer/ui/renderData';
-import { UI, IUIRenderData } from '../../../../renderer/ui/ui';
+import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
+import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler} from '../assembler';
 import { fillMeshVertices3D } from '../utils';
-import { MeshBuffer } from '../../mesh-buffer';
-import { color4 } from '../../../../core/vmath';
+import { ttfUtils } from './ttfUtils';
 
 const WHITE = color4.create();
 

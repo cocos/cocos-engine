@@ -24,15 +24,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import atlas from '../../../assets/CCSpriteAtlas';
 import { SpriteFrame } from '../../../assets/CCSpriteFrame';
+import { SpriteAtlas } from '../../../assets/sprite-atlas';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { clampf } from '../../../core/utils/misc';
 import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
-import { UIRenderComponent } from './ui-render-component';
 import { EventType } from '../../../scene-graph/node-event-enum';
+import { UIRenderComponent } from './ui-render-component';
 
 /**
  * !#en Enum for sprite type.
@@ -125,8 +125,8 @@ enum SizeMode {
      * !#zh 自动适配为精灵原图尺寸
      * @property {Number} RAW
      */
-    RAW = 2
-};
+    RAW = 2,
+}
 
 ccenum(SizeMode);
 
@@ -267,7 +267,7 @@ export class SpriteComponent extends UIRenderComponent {
         return this._fillStart;
     }
 
-    set fillStart (value: number) {
+    set fillStart (value) {
         this._fillStart = clampf(value, -1, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
@@ -289,7 +289,7 @@ export class SpriteComponent extends UIRenderComponent {
     get fillRange () {
         return this._fillRange;
     }
-    set fillRange (value: number) {
+    set fillRange (value) {
         // ??? -1 ~ 1
         // this._fillRange = cc.misc.clampf(value, -1, 1);
         this._fillRange = clampf(value, 0, 1);
@@ -333,12 +333,12 @@ export class SpriteComponent extends UIRenderComponent {
      * sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
      */
     @property({
-        type: SizeMode
+        type: SizeMode,
     })
-    get sizeMode() {
+    get sizeMode () {
         return this._sizeMode;
     }
-    set sizeMode(value) {
+    set sizeMode (value) {
         this._sizeMode = value;
         if (value !== SizeMode.CUSTOM) {
             this._applySpriteSize();
@@ -347,31 +347,31 @@ export class SpriteComponent extends UIRenderComponent {
 
     public static FillType = FillType;
     public static Type = SpriteType;
+    public static SizeMode = SizeMode;
     @property
-    public _spriteFrame: SpriteFrame | null = null;
+    private _spriteFrame: SpriteFrame | null = null;
     @property
-    public _type: number = SpriteType.SIMPLE;
+    private _type = SpriteType.SIMPLE;
     @property
-    public _fillType: number = FillType.HORIZONTAL;
+    private _fillType = FillType.HORIZONTAL;
     @property
-    public _sizeMode = SizeMode.TRIMMED;
+    private _sizeMode = SizeMode.TRIMMED;
     @property
-    public _fillCenter: Vec2 = new Vec2(0, 0);
+    private _fillCenter: Vec2 = new Vec2(0, 0);
     @property
-    public _fillStart: number = 0;
+    private _fillStart = 0;
     @property
-    public _fillRange: number = 0;
+    private _fillRange = 0;
     @property
-    _isTrimmedMode = true;
+    private _isTrimmedMode = true;
     // _state = 0;
     // TODO:
     @property
-    public _atlas: atlas | null = null;
-    public _spriteWidget = null;
-    static SizeMode = SizeMode;
+    private _atlas: SpriteAtlas | null = null;
+    private _spriteWidget = null;
     // static State = State;
 
-    public __preload() {
+    public __preload () {
         if (super.__preload) {
             super.__preload();
         }
@@ -439,6 +439,85 @@ export class SpriteComponent extends UIRenderComponent {
     public _onNodeSizeDirty () {
         if (!this._renderData) { return; }
         this.markForUpdateRenderData();
+    }
+
+    // public markForUpdateRenderData (enable: boolean) {
+    //     if (enable /*&& this._canRender()*/) {
+    //         // this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+
+    //         const renderData = this._renderData;
+    //         if (renderData) {
+    //             renderData.uvDirty = true;
+    //             renderData.vertDirty = true;
+    //         }
+    //     }
+    //     // else if (!enable) {
+    //     //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
+    //     // }
+    // }
+
+    public _applySpriteSize () {
+        if (this._spriteFrame) {
+            if (SizeMode.RAW === this._sizeMode) {
+                const size = this._spriteFrame.getOriginalSize();
+                this.node.setContentSize(size);
+            } else if (SizeMode.TRIMMED === this._sizeMode) {
+                const rect = this._spriteFrame.getRect();
+                this.node.setContentSize(rect.width, rect.height);
+            }
+
+            this._activateMaterial();
+        }
+    }
+
+    public _resized () {
+        if (!CC_EDITOR) {
+            return;
+        }
+
+        if (this._spriteFrame) {
+            const actualSize = this.node.getContentSize();
+            let expectedW = actualSize.width;
+            let expectedH = actualSize.height;
+            if (this._sizeMode === SizeMode.RAW) {
+                const size = this._spriteFrame.getOriginalSize();
+                expectedW = size.width;
+                expectedH = size.height;
+            } else if (this._sizeMode === SizeMode.TRIMMED) {
+                const rect = this._spriteFrame.getRect();
+                expectedW = rect.width;
+                expectedH = rect.height;
+
+            }
+
+            if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
+                this._sizeMode = SizeMode.CUSTOM;
+            }
+        }
+    }
+
+    protected _canRender () {
+        // if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+        //     if (!this._enabled) { return false; }
+        // } else {
+        //     if (!this._enabled || !this._material) { return false; }
+        // }
+
+        // const spriteFrame = this._spriteFrame;
+        // if (!spriteFrame || !spriteFrame.textureLoaded()) {
+        //     return false;
+        // }
+        // return true;
+        let canRender = super._canRender();
+        if (canRender) {
+            const spriteFrame = this._spriteFrame;
+            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+                canRender = false;
+            }
+            canRender = true;
+        }
+
+        return canRender;
     }
 
     private _flushAssembler () {
@@ -509,49 +588,6 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
-    // private _canRender () {
-    //     if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-    //         if (!this._enabled) { return false; }
-    //     } else {
-    //         if (!this._enabled || !this._material) { return false; }
-    //     }
-
-    //     const spriteFrame = this._spriteFrame;
-    //     if (!spriteFrame || !spriteFrame.textureLoaded()) {
-    //         return false;
-    //     }
-    //     return true;
-    // }
-
-    // public markForUpdateRenderData (enable: boolean) {
-    //     if (enable /*&& this._canRender()*/) {
-    //         // this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-
-    //         const renderData = this._renderData;
-    //         if (renderData) {
-    //             renderData.uvDirty = true;
-    //             renderData.vertDirty = true;
-    //         }
-    //     }
-    //     // else if (!enable) {
-    //     //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-    //     // }
-    // }
-
-    _applySpriteSize() {
-        if (this._spriteFrame) {
-            if (SizeMode.RAW === this._sizeMode) {
-                const size = this._spriteFrame.getOriginalSize();
-                this.node.setContentSize(size);
-            } else if (SizeMode.TRIMMED === this._sizeMode) {
-                const rect = this._spriteFrame.getRect();
-                this.node.setContentSize(rect.width, rect.height);
-            }
-
-            this._activateMaterial();
-        }
-    }
-
     // _onTextureLoaded() {
     //     if (!this.isValid) {
     //         return;
@@ -590,32 +626,6 @@ export class SpriteComponent extends UIRenderComponent {
         if (CC_EDITOR) {
             // Set atlas
             this._applyAtlas(spriteFrame);
-        }
-    }
-
-    _resized() {
-        if (!CC_EDITOR) {
-            return;
-        }
-
-        if (this._spriteFrame) {
-            const actualSize = this.node.getContentSize();
-            let expectedW = actualSize.width;
-            let expectedH = actualSize.height;
-            if (this._sizeMode === SizeMode.RAW) {
-                const size = this._spriteFrame.getOriginalSize();
-                expectedW = size.width;
-                expectedH = size.height;
-            } else if (this._sizeMode === SizeMode.TRIMMED) {
-                const rect = this._spriteFrame.getRect();
-                expectedW = rect.width;
-                expectedH = rect.height;
-
-            }
-
-            if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
-                this._sizeMode = SizeMode.CUSTOM;
-            }
         }
     }
 }

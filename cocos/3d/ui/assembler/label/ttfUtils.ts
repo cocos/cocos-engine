@@ -23,13 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import macro from '../../../../core/platform/CCMacro';
-import * as textUtils from '../../../../core/utils/text-utils';
-import { Component } from '../../../../components/component';
-import { LabelComponent } from '../../components/label-component';
 import { LabelOutline } from '../../../../2d/label/label-outline';
 import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
-import { Size, Color } from '../../../../core/value-types';
+import { Component } from '../../../../components/component';
+import macro from '../../../../core/platform/CCMacro';
+import * as textUtils from '../../../../core/utils/text-utils';
+import { Color, Size } from '../../../../core/value-types';
+import { LabelComponent } from '../../components/label-component';
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = cc.Color.WHITE;
@@ -44,7 +44,7 @@ let _string = '';
 let _fontSize = 0;
 let _drawFontsize = 0;
 let _splitedStrings: string[] = [];
-let _canvasSize = new Size();
+const _canvasSize = new Size();
 let _lineHeight = 0;
 let _hAlign = 0;
 let _vAlign = 0;
@@ -67,52 +67,51 @@ let _isUnderline = false;
 
 //
 interface ICanvasPool {
-    pool: ISharedLabelData[],
-    get(): ISharedLabelData,
-    put(canvas: ISharedLabelData):void,
+    pool: ISharedLabelData[];
+    get (): ISharedLabelData;
+    put (canvas: ISharedLabelData): void;
 }
 
-let _canvasPool: ICanvasPool = {
+const _canvasPool: ICanvasPool = {
     pool: [],
-    get() {
+    get () {
         let data = this.pool.pop();
 
         if (!data) {
-            let canvas = document.createElement("canvas");
-            let context = canvas.getContext("2d");
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
             data = {
-                canvas: canvas,
-                context: context
-            }
+                canvas,
+                context,
+            };
         }
 
         return data;
     },
-    put(canvas: ISharedLabelData) {
+    put (canvas: ISharedLabelData) {
         if (this.pool.length >= 32) {
             return;
         }
         this.pool.push(canvas);
-    }
+    },
 };
 
 export interface ISharedLabelData {
-    canvas: HTMLCanvasElement,
-    context: CanvasRenderingContext2D | null
+    canvas: HTMLCanvasElement;
+    context: CanvasRenderingContext2D | null;
 }
 
-
 export const ttfUtils =  {
-    getAssemblerData() {
+    getAssemblerData () {
         // if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
         //     _sharedLabelData = _canvasPool.get();
         // }
         // else {
         // if (!_sharedLabelData) {
-        let labelCanvas = document.createElement("canvas");
-        let sharedLabelData = {
+        const labelCanvas = document.createElement('canvas');
+        const sharedLabelData = {
             canvas: labelCanvas,
-            context: labelCanvas.getContext("2d")
+            context: labelCanvas.getContext('2d'),
         };
         // }
         // }
@@ -120,14 +119,14 @@ export const ttfUtils =  {
         return sharedLabelData;
     },
 
-    resetAssemblerData(assemblerData: ISharedLabelData) {
+    resetAssemblerData (assemblerData: ISharedLabelData) {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS && assemblerData) {
             _canvasPool.put(assemblerData);
         }
     },
 
-    updateRenderData(comp: LabelComponent) {
-        if (!comp.renderData||!comp.renderData.vertDirty) return;
+    updateRenderData (comp: LabelComponent) {
+        if (!comp.renderData || !comp.renderData.vertDirty) { return; }
 
         this._updateFontFamly(comp);
         this._updateProperties(comp);
@@ -149,17 +148,17 @@ export const ttfUtils =  {
         _texture = null;
     },
 
-    updateVerts(comp: LabelComponent) {
+    updateVerts (comp: LabelComponent) {
     },
 
-    _updateFontFamly(comp: LabelComponent) {
+    _updateFontFamly (comp: LabelComponent) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
+                    cc.loader.load(comp.font.nativeUrl, (err, fontFamily) => {
                         _fontFamily = fontFamily || 'Arial';
                         comp.updateRenderData(true);
                     });
@@ -174,9 +173,9 @@ export const ttfUtils =  {
         }
     },
 
-    _updateProperties(comp: LabelComponent) {
-        let assemblerData = comp.assemblerData;
-        if(!assemblerData){
+    _updateProperties (comp: LabelComponent) {
+        const assemblerData = comp.assemblerData;
+        if (!assemblerData){
             return;
         }
 
@@ -209,7 +208,7 @@ export const ttfUtils =  {
         }
 
         // outline
-        let outline = OUTLINE_SUPPORTED && comp.getComponent(LabelOutline);
+        const outline = OUTLINE_SUPPORTED && comp.getComponent(LabelOutline);
         if (outline && outline.enabled) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;
@@ -223,9 +222,9 @@ export const ttfUtils =  {
         }
     },
 
-    _calculateFillTextStartPosition() {
-        let lineHeight = this._getLineHeight();
-        let lineCount = _splitedStrings.length;
+    _calculateFillTextStartPosition () {
+        const lineHeight = this._getLineHeight();
+        const lineCount = _splitedStrings.length;
         let labelX;
         let firstLinelabelY;
 
@@ -252,7 +251,7 @@ export const ttfUtils =  {
         return cc.v2(labelX, firstLinelabelY);
     },
 
-    _updateTexture() {
+    _updateTexture () {
         if (!_context || !_canvas){
             return;
         }
@@ -260,17 +259,17 @@ export const ttfUtils =  {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
-        let startPosition = this._calculateFillTextStartPosition();
-        let lineHeight = this._getLineHeight();
-        //use round for line join to avoid sharp intersect point
+        const startPosition = this._calculateFillTextStartPosition();
+        const lineHeight = this._getLineHeight();
+        // use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
         _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
         let underlineStartPosition;
 
-        //do real rendering
+        // do real rendering
         for (let i = 0; i < _splitedStrings.length; ++i) {
             if (_isOutlined) {
-                let strokeColor = _outlineColor || WHITE;
+                const strokeColor = _outlineColor || WHITE;
                 _context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
                 _context.lineWidth = _outlineWidth * 2;
                 _context.strokeText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
@@ -291,14 +290,15 @@ export const ttfUtils =  {
         }
 
         // _texture.handleLoadedTexture();
-        if (_texture) {
+        // hack
+        if (_texture && _texture.image && _texture.image!.width !== 0 && _texture.image!.height !== 0) {
             _texture.mipmaps = [_texture.image!];
         }
     },
 
-    _calculateUnderlineStartPosition() {
-        let lineHeight = this._getLineHeight();
-        let lineCount = _splitedStrings.length;
+    _calculateUnderlineStartPosition () {
+        const lineHeight = this._getLineHeight();
+        const lineCount = _splitedStrings.length;
         let labelX;
         let firstLinelabelY;
 
@@ -317,8 +317,8 @@ export const ttfUtils =  {
         return cc.v2(labelX, firstLinelabelY);
     },
 
-    _updateLabelDimensions() {
-        let paragraphedStrings = _string.split('\n');
+    _updateLabelDimensions () {
+        const paragraphedStrings = _string.split('\n');
 
         if (_overflow === Overflow.RESIZE_HEIGHT) {
             _canvasSize.height = _splitedStrings.length * this._getLineHeight();
@@ -327,8 +327,8 @@ export const ttfUtils =  {
             _splitedStrings = paragraphedStrings;
             let canvasSizeX = 0;
             let canvasSizeY = 0;
-            for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
+            for (const para of paragraphedStrings) {
+                const paraLength = textUtils.safeMeasureText(_context, para);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
             canvasSizeY = _splitedStrings.length * this._getLineHeight();
@@ -336,12 +336,12 @@ export const ttfUtils =  {
             _canvasSize.width = parseFloat(canvasSizeX.toFixed(2)) + 2 * _margin;
             _canvasSize.height = parseFloat(canvasSizeY.toFixed(2));
             if (_isItalic) {
-                //0.0174532925 = 3.141592653 / 180
+                // 0.0174532925 = 3.141592653 / 180
                 _canvasSize.width += _drawFontsize * Math.tan(12 * 0.0174532925);
             }
         }
 
-        if(!_canvas){
+        if (!_canvas){
             return;
         }
 
@@ -349,7 +349,7 @@ export const ttfUtils =  {
         _canvas.height = _canvasSize.height;
     },
 
-    _calculateTextBaseline() {
+    _calculateTextBaseline () {
         // let node = this._node;
         let hAlign;
         let vAlign;
@@ -380,15 +380,15 @@ export const ttfUtils =  {
         }
     },
 
-    _calculateSplitedStrings() {
-        let paragraphedStrings = _string.split('\n');
+    _calculateSplitedStrings () {
+        const paragraphedStrings = _string.split('\n');
 
         if (_isWrapText) {
             _splitedStrings = [];
-            let canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
-            for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
-                let textFragment = textUtils.fragmentText(paragraphedStrings[i],
+            const canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
+            for (const para of paragraphedStrings) {
+                const allWidth = textUtils.safeMeasureText(_context, para);
+                const textFragment = textUtils.fragmentText(para,
                     allWidth,
                     canvasWidthNoMargin,
                     this._measureText(_context!));
@@ -401,17 +401,17 @@ export const ttfUtils =  {
 
     },
 
-    _getFontDesc() {
+    _getFontDesc () {
         let fontDesc = _fontSize.toString() + 'px ';
         fontDesc = fontDesc + _fontFamily;
         if (_isBold) {
-            fontDesc = "bold " + fontDesc;
+            fontDesc = 'bold ' + fontDesc;
         }
 
         return fontDesc;
     },
 
-    _getLineHeight() {
+    _getLineHeight () {
         let nodeSpacingY = _lineHeight;
         if (nodeSpacingY === 0) {
             nodeSpacingY = _fontSize;
@@ -422,25 +422,25 @@ export const ttfUtils =  {
         return nodeSpacingY | 0;
     },
 
-    _calculateParagraphLength(paragraphedStrings: string[], ctx: CanvasRenderingContext2D) {
-        let paragraphLength: number[] = [];
+    _calculateParagraphLength (paragraphedStrings: string[], ctx: CanvasRenderingContext2D) {
+        const paragraphLength: number[] = [];
 
-        for (let i = 0; i < paragraphedStrings.length; ++i) {
-            let width: number = textUtils.safeMeasureText(ctx, paragraphedStrings[i]);
+        for (const para of paragraphedStrings) {
+            const width: number = textUtils.safeMeasureText(ctx, para);
             paragraphLength.push(width);
         }
 
         return paragraphLength;
     },
 
-    _measureText(ctx: CanvasRenderingContext2D) {
-        return function (string) {
+    _measureText (ctx: CanvasRenderingContext2D) {
+        return (string) => {
             return textUtils.safeMeasureText(ctx, string);
         };
     },
 
-    _calculateLabelFont() {
-        if(!_context){
+    _calculateLabelFont () {
+        if (!_context){
             return;
         }
 
@@ -448,8 +448,8 @@ export const ttfUtils =  {
         _context.font = _fontDesc;
 
         if (_overflow === Overflow.SHRINK) {
-            let paragraphedStrings = _string.split('\n');
-            let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
+            const paragraphedStrings = _string.split('\n');
+            const paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
 
             _splitedStrings = paragraphedStrings;
             let i = 0;
@@ -457,8 +457,8 @@ export const ttfUtils =  {
             let maxLength = 0;
 
             if (_isWrapText) {
-                let canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
-                let canvasHeightNoMargin = _canvasSize.height - 2 * _margin;
+                const canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
+                const canvasHeightNoMargin = _canvasSize.height - 2 * _margin;
                 if (canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
                     _fontDesc = this._getFontDesc();
                     _context.font = _fontDesc;
@@ -467,7 +467,7 @@ export const ttfUtils =  {
                 totalHeight = canvasHeightNoMargin + 1;
                 maxLength = canvasWidthNoMargin + 1;
                 let actualFontSize = _fontSize + 1;
-                let textFragment = "";
+                let textFragment = '';
                 let tryDivideByTwo = true;
                 let startShrinkFontSize = actualFontSize | 0;
 
@@ -490,13 +490,13 @@ export const ttfUtils =  {
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         let j = 0;
-                        let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
+                        const allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
                         textFragment = textUtils.fragmentText(paragraphedStrings[i],
                             allWidth,
                             canvasWidthNoMargin,
                             this._measureText(_context));
                         while (j < textFragment.length) {
-                            let measureWidth = textUtils.safeMeasureText(_context, textFragment[j]);
+                            const measureWidth = textUtils.safeMeasureText(_context, textFragment[j]);
                             maxLength = measureWidth;
                             totalHeight += this._getLineHeight();
                             ++j;
@@ -522,13 +522,13 @@ export const ttfUtils =  {
                         maxLength = paragraphLength[i];
                     }
                 }
-                let scaleX = (_canvasSize.width - 2 * _margin) / maxLength;
-                let scaleY = _canvasSize.height / totalHeight;
+                const scaleX = (_canvasSize.width - 2 * _margin) / maxLength;
+                const scaleY = _canvasSize.height / totalHeight;
 
                 _fontSize = (_drawFontsize * Math.min(1, scaleX, scaleY)) | 0;
                 _fontDesc = this._getFontDesc();
                 _context.font = _fontDesc;
             }
         }
-    }
+    },
 };

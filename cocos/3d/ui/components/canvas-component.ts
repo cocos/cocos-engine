@@ -27,13 +27,13 @@
 import { CameraComponent } from '../../../3d/framework/camera-component';
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { Color, Rect, Size, Vec3 } from '../../../core/value-types';
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer/scene/camera';
 import { Node } from '../../../scene-graph/node';
-import { Color, Rect, Size, Vec3 } from '../../../core/value-types';
 
-let _tempPos= new Vec3();
-let _worldPos = new Vec3();
+const _tempPos = new Vec3();
+const _worldPos = new Vec3();
 
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
@@ -128,7 +128,7 @@ export class CanvasComponent extends Component {
     // @property
     // private _priority = 0;
 
-    private _thisOnResized: ()=>void;
+    private _thisOnResized: () => void;
 
     private _camera: Camera | null = null;
 
@@ -143,7 +143,7 @@ export class CanvasComponent extends Component {
     constructor () {
         super();
         this._thisOnResized = this.alignWithScreen.bind(this);
-        if(!CanvasComponent.instance){
+        if (!CanvasComponent.instance){
             CanvasComponent.instance = this;
         }
     }
@@ -155,7 +155,7 @@ export class CanvasComponent extends Component {
     }
 
     public __preload () {
-        let cameraNode = new Node('UICamera');
+        const cameraNode = new Node('UICamera');
         cameraNode.setPosition(0, 0, 1000);
         this._camera = this._getRenderScene().createCamera({
             name: 'ui',
@@ -237,7 +237,7 @@ export class CanvasComponent extends Component {
         }
     }
 
-    public alignWithScreen() {
+    public alignWithScreen () {
         let nodeSize, designSize;
         if (CC_EDITOR) {
             // nodeSize = designSize = cc.engine.getDesignResolutionSize();

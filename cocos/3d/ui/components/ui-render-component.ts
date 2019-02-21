@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { Component } from '../../../components/component';
 import {
     ccclass,
     executeInEditMode,
@@ -35,11 +36,11 @@ import { Color } from '../../../core/value-types/index';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
 import { EventType} from '../../../scene-graph/node-event-enum';
-import { IAssembler, IAssemblerManager } from '../assembler/assembler';
-import { CanvasComponent } from './canvas-component';
-import { Component } from '../../../components/component';
 import { Material } from '../../assets/material';
 import { RenderableComponent } from '../../framework/renderable-component';
+import { IAssembler, IAssemblerManager } from '../assembler/assembler';
+import { CanvasComponent } from './canvas-component';
+import { UITransformComponent } from './ui-transfrom-component';
 
 /**
  * !#en
@@ -52,7 +53,7 @@ import { RenderableComponent } from '../../framework/renderable-component';
  */
 @ccclass('cc.UIRenderComponent')
 @executionOrder(100)
-@requireComponent(cc.UITransformComponent)
+@requireComponent(UITransformComponent)
 @executeInEditMode
 export class UIRenderComponent extends Component {
 
@@ -134,13 +135,13 @@ export class UIRenderComponent extends Component {
      * @property material
      */
     @property({
-        type: Material
+        type: Material,
     })
-    get sharedMaterial() {
+    get sharedMaterial () {
         return this._sharedMaterial;
     }
 
-    set sharedMaterial(value) {
+    set sharedMaterial (value) {
         if (this._sharedMaterial === value) {
             return;
         }
@@ -161,11 +162,11 @@ export class UIRenderComponent extends Component {
         return this._renderData;
     }
 
-    get material() {
+    get material () {
         return this._material;
     }
 
-    set material(value) {
+    set material (value) {
         if (this._material === value) {
             return;
         }
@@ -184,8 +185,6 @@ export class UIRenderComponent extends Component {
     @property
     protected _priority = 0;
     @property
-    private _sharedMaterial: Material | null = null;
-    @property
     protected _material: Material | null = null;
 
     protected _assembler: IAssembler | null = null;
@@ -193,6 +192,8 @@ export class UIRenderComponent extends Component {
     protected _renderDataPoolID = -1;
     protected _visibility = -1;
     protected _renderData: RenderData | null = null;
+    @property
+    private _sharedMaterial: Material | null = null;
     // _allocedDatas = [];
     // _vertexFormat = null;
     // _toPostHandle = false;
@@ -203,7 +204,7 @@ export class UIRenderComponent extends Component {
         // this._postAssembler = this.constructor._postAssembler;
     }
 
-    public __preload(){
+    public __preload (){
         this._instanceMaterial();
     }
 
@@ -251,10 +252,6 @@ export class UIRenderComponent extends Component {
         this._renderData = null;
     }
 
-    // _canRender() {
-    //     return this._enabled;
-    // }
-
     public markForUpdateRenderData (enable: boolean = true) {
         // if (enable && this._canRender()) {
         //     this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
@@ -272,7 +269,7 @@ export class UIRenderComponent extends Component {
                 renderData.vertDirty = enable;
                 for (const child of this.node.children) {
                     const renderComp = child.getComponent(UIRenderComponent);
-                    if(renderComp){
+                    if (renderComp){
                         renderComp.markForUpdateRenderData();
                     }
                 }
@@ -329,13 +326,13 @@ export class UIRenderComponent extends Component {
     }
 
     public updateAssembler (render: UI) {
-        if (!this._assembler) {
+        if (!this._canRender()) {
             return;
         }
-        if (this._assembler.updateRenderData) {
-            this._assembler.updateRenderData(this);
+        if (this._assembler!.updateRenderData) {
+            this._assembler!.updateRenderData!(this);
         }
-        this._assembler.fillBuffers(this, render);
+        this._assembler!.fillBuffers(this, render);
     }
 
     public postUpdateAssembler () {
@@ -345,6 +342,10 @@ export class UIRenderComponent extends Component {
         if (this._postAssembler.updateRenderData) {
             this._postAssembler.updateRenderData(this);
         }
+    }
+
+    protected _canRender () {
+        return this._assembler !== null && this._material !== null;
     }
 
     protected _updateColor () {
@@ -378,7 +379,7 @@ export class UIRenderComponent extends Component {
         this.markForUpdateRenderData();
     }
 
-    private _instanceMaterial(){
+    private _instanceMaterial (){
         if (this._sharedMaterial) {
             this._material = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
         }
