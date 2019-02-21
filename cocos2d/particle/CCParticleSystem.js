@@ -341,35 +341,55 @@ var properties = {
      * @property {Number} totalParticles
      * @default 150
      */
-    totalParticles: 150,
+    totalParticles: {
+        default: 150,
+        type: cc.Float,
+        formerlySerializedAs: '_totalParticles'
+    },
     /**
      * !#en How many seconds the emitter wil run. -1 means 'forever'.
      * !#zh 发射器生存时间，单位秒，-1表示持续发射。
      * @property {Number} duration
      * @default ParticleSystem.DURATION_INFINITY
      */
-    duration: -1,
+    duration: {
+        default: -1,
+        type: cc.Float,
+        formerlySerializedAs: '_duration'
+    },
     /**
      * !#en Emission rate of the particles.
      * !#zh 每秒发射的粒子数目。
      * @property {Number} emissionRate
      * @default 10
      */
-    emissionRate: 10,
+    emissionRate: {
+        default: 10,
+        type: cc.Float,
+        formerlySerializedAs: '_emissionRate'
+    },
     /**
      * !#en Life of each particle setter.
      * !#zh 粒子的运行时间。
      * @property {Number} life
      * @default 1
      */
-    life: 1,
+    life: {
+        default: 1,
+        type: cc.Float,
+        formerlySerializedAs: '_life'
+    },
     /**
      * !#en Variation of life.
      * !#zh 粒子的运行时间变化范围。
      * @property {Number} lifeVar
      * @default 0
      */
-    lifeVar: 0,
+    lifeVar: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_lifeVar'
+    },
 
     /**
      * !#en Start color of each particle.
@@ -454,70 +474,110 @@ var properties = {
      * @property {Number} angle
      * @default 90
      */
-    angle: 90,
+    angle: {
+        default: 90,
+        type: cc.Float,
+        formerlySerializedAs: '_angle'
+    },
     /**
      * !#en Variation of angle of each particle setter.
      * !#zh 粒子角度变化范围。
      * @property {Number} angleVar
      * @default 20
      */
-    angleVar: 20,
+    angleVar: {
+        default: 20,
+        type: cc.Float,
+        formerlySerializedAs: '_angleVar'
+    },
     /**
      * !#en Start size in pixels of each particle.
      * !#zh 粒子的初始大小。
      * @property {Number} startSize
      * @default 50
      */
-    startSize: 50,
+    startSize: {
+        default: 50,
+        type: cc.Float,
+        formerlySerializedAs: '_startSize'
+    },
     /**
      * !#en Variation of start size in pixels.
      * !#zh 粒子初始大小的变化范围。
      * @property {Number} startSizeVar
      * @default 0
      */
-    startSizeVar: 0,
+    startSizeVar: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_startSizeVar'
+    },
     /**
      * !#en End size in pixels of each particle.
      * !#zh 粒子结束时的大小。
      * @property {Number} endSize
      * @default 0
      */
-    endSize: 0,
+    endSize: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_endSize'
+    },
     /**
      * !#en Variation of end size in pixels.
      * !#zh 粒子结束大小的变化范围。
      * @property {Number} endSizeVar
      * @default 0
      */
-    endSizeVar: 0,
+    endSizeVar: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_endSizeVar'
+    },
     /**
      * !#en Start angle of each particle.
      * !#zh 粒子开始自旋角度。
      * @property {Number} startSpin
      * @default 0
      */
-    startSpin: 0,
+    startSpin: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_startSpin'
+    },
     /**
      * !#en Variation of start angle.
      * !#zh 粒子开始自旋角度变化范围。
      * @property {Number} startSpinVar
      * @default 0
      */
-    startSpinVar: 0,
+    startSpinVar: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_startSpinVar'
+    },
     /**
      * !#en End angle of each particle.
      * !#zh 粒子结束自旋角度。
      * @property {Number} endSpin
      * @default 0
      */
-    endSpin: 0,
+    endSpin: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_endSpin'
+    },
     /**
      * !#en Variation of end angle.
      * !#zh 粒子结束自旋角度变化范围。
      * @property {Number} endSpinVar
      * @default 0
      */
-    endSpinVar: 0,
+    endSpinVar: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_endSpinVar'
+    },
 
     /**
      * !#en Source position of the emitter.
@@ -525,7 +585,11 @@ var properties = {
      * @property {Vec2} sourcePos
      * @default cc.Vec2.ZERO
      */
-    sourcePos: cc.v2(0, 0),
+    sourcePos: {
+        default: cc.Vec2.ZERO,
+        type: cc.Vec2,
+        formerlySerializedAs: '_sourcePos'
+    },
 
     /**
      * !#en Variation of source position.
@@ -533,7 +597,11 @@ var properties = {
      * @property {Vec2} posVar
      * @default cc.Vec2.ZERO
      */
-    posVar: cc.v2(0, 0),
+    posVar: {
+        default: cc.Vec2.ZERO,
+        type: cc.Vec2,
+        formerlySerializedAs: '_posVar'
+    },
 
     /**
      * !#en Particles movement type.
@@ -565,49 +633,77 @@ var properties = {
      * @property {Vec2} gravity
      * @default cc.Vec2.ZERO
      */
-    gravity: cc.v2(0, 0),
+    gravity: {
+        default: cc.Vec2.ZERO,
+        type: cc.Vec2,
+        formerlySerializedAs: '_gravity'
+    },
     /**
      * !#en Speed of the emitter.
      * !#zh 速度。
      * @property {Number} speed
      * @default 180
      */
-    speed: 180,
+    speed: {
+        default: 180,
+        type: cc.Float,
+        formerlySerializedAs: '_speed'
+    },
     /**
      * !#en Variation of the speed.
      * !#zh 速度变化范围。
      * @property {Number} speedVar
      * @default 50
      */
-    speedVar: 50,
+    speedVar: {
+        default: 50,
+        type: cc.Float,
+        formerlySerializedAs: '_speedVar'
+    },
     /**
      * !#en Tangential acceleration of each particle. Only available in 'Gravity' mode.
      * !#zh 每个粒子的切向加速度，即垂直于重力方向的加速度，只有在重力模式下可用。
      * @property {Number} tangentialAccel
      * @default 80
      */
-    tangentialAccel: 80,
+    tangentialAccel: {
+        default: 80,
+        type: cc.Float,
+        formerlySerializedAs: '_tangentialAccel'
+    },
     /**
      * !#en Variation of the tangential acceleration.
      * !#zh 每个粒子的切向加速度变化范围。
      * @property {Number} tangentialAccelVar
      * @default 0
      */
-    tangentialAccelVar: 0,
+    tangentialAccelVar: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_tangentialAccelVar'
+    },
     /**
      * !#en Acceleration of each particle. Only available in 'Gravity' mode.
      * !#zh 粒子径向加速度，即平行于重力方向的加速度，只有在重力模式下可用。
      * @property {Number} radialAccel
      * @default 0
      */
-    radialAccel: 0,
+    radialAccel: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_radialAccel'
+    },
     /**
      * !#en Variation of the radial acceleration.
      * !#zh 粒子径向加速度变化范围。
      * @property {Number} radialAccelVar
      * @default 0
      */
-    radialAccelVar: 0,
+    radialAccelVar: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_radialAccelVar'
+    },
 
     /**
      * !#en Indicate whether the rotation of each particle equals to its direction. Only available in 'Gravity' mode.
@@ -615,7 +711,11 @@ var properties = {
      * @property {Boolean} rotationIsDir
      * @default false
      */
-    rotationIsDir: false,
+    rotationIsDir: {
+        default: false,
+        type: cc.Boolean,
+        formerlySerializedAs: '_rotationIsDir'
+    },
 
     // RADIUS MODE
 
@@ -625,42 +725,68 @@ var properties = {
      * @property {Number} startRadius
      * @default 0
      */
-    startRadius: 0,
+    startRadius: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_startRadius'
+    },
     /**
      * !#en Variation of the starting radius.
      * !#zh 初始半径变化范围。
      * @property {Number} startRadiusVar
      * @default 0
      */
-    startRadiusVar: 0,
+    startRadiusVar: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_startRadiusVar'
+    },
     /**
      * !#en Ending radius of the particles. Only available in 'Radius' mode.
      * !#zh 结束半径，只有在半径模式下可用。
      * @property {Number} endRadius
      * @default 0
      */
-    endRadius: 0,
+    endRadius: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_endRadius'
+    },
     /**
      * !#en Variation of the ending radius.
      * !#zh 结束半径变化范围。
      * @property {Number} endRadiusVar
      * @default 0
      */
-    endRadiusVar: 0,
+    endRadiusVar: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_endRadiusVar'
+    },
     /**
      * !#en Number of degress to rotate a particle around the source pos per second. Only available in 'Radius' mode.
      * !#zh 粒子每秒围绕起始点的旋转角度，只有在半径模式下可用。
      * @property {Number} rotatePerS
      * @default 0
      */
-    rotatePerS: 0,
+    rotatePerS: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_rotatePerS'
+    },
     /**
      * !#en Variation of the degress to rotate a particle around the source pos per second.
      * !#zh 粒子每秒围绕起始点的旋转角度变化范围。
      * @property {Number} rotatePerSVar
      * @default 0
      */
-    rotatePerSVar: 0
+    rotatePerSVar: {
+        default: 0,
+        type: cc.Float,
+        formerlySerializedAs: '_rotatePerSVar'
+    }
+
+
 };
 
 /**
