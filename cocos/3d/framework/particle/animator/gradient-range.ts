@@ -1,6 +1,6 @@
 import { color4 } from '../../../../core/vmath';
 import { Enum } from '../../../../core/value-types';
-import Gradient from './gradient';
+import Gradient, { ColorKey, AlphaKey } from './gradient';
 import { CCClass } from '../../../../core/data';
 import { property, ccclass } from '../../../../core/data/class-decorator';
 
@@ -29,7 +29,28 @@ export default class GradientRange {
     @property({
         type: Mode,
     })
-    public mode = Mode.Color;
+    private _mode = Mode.Color;
+
+    @property({
+        type: Mode,
+    })
+    get mode () {
+        return this._mode;
+    }
+
+    set mode (m) {
+        if (CC_EDITOR) {
+            if (m === Mode.RandomColor) {
+                if (this.gradient.colorKeys.length === 0) {
+                    this.gradient.colorKeys.push(new ColorKey());
+                }
+                if (this.gradient.alphaKeys.length === 0) {
+                    this.gradient.alphaKeys.push(new AlphaKey());
+                }
+            }
+        }
+        this._mode = m;
+    }
 
     @property
     public color = cc.Color.WHITE;
