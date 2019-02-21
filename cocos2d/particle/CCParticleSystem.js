@@ -343,7 +343,6 @@ var properties = {
      */
     totalParticles: {
         default: 150,
-        type: cc.Float,
         formerlySerializedAs: '_totalParticles'
     },
     /**
@@ -354,7 +353,6 @@ var properties = {
      */
     duration: {
         default: -1,
-        type: cc.Float,
         formerlySerializedAs: '_duration'
     },
     /**
@@ -365,7 +363,6 @@ var properties = {
      */
     emissionRate: {
         default: 10,
-        type: cc.Float,
         formerlySerializedAs: '_emissionRate'
     },
     /**
@@ -376,7 +373,6 @@ var properties = {
      */
     life: {
         default: 1,
-        type: cc.Float,
         formerlySerializedAs: '_life'
     },
     /**
@@ -387,7 +383,6 @@ var properties = {
      */
     lifeVar: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_lifeVar'
     },
 
@@ -476,7 +471,6 @@ var properties = {
      */
     angle: {
         default: 90,
-        type: cc.Float,
         formerlySerializedAs: '_angle'
     },
     /**
@@ -487,7 +481,6 @@ var properties = {
      */
     angleVar: {
         default: 20,
-        type: cc.Float,
         formerlySerializedAs: '_angleVar'
     },
     /**
@@ -498,7 +491,6 @@ var properties = {
      */
     startSize: {
         default: 50,
-        type: cc.Float,
         formerlySerializedAs: '_startSize'
     },
     /**
@@ -509,7 +501,6 @@ var properties = {
      */
     startSizeVar: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_startSizeVar'
     },
     /**
@@ -520,7 +511,6 @@ var properties = {
      */
     endSize: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_endSize'
     },
     /**
@@ -531,7 +521,6 @@ var properties = {
      */
     endSizeVar: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_endSizeVar'
     },
     /**
@@ -542,7 +531,6 @@ var properties = {
      */
     startSpin: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_startSpin'
     },
     /**
@@ -553,7 +541,6 @@ var properties = {
      */
     startSpinVar: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_startSpinVar'
     },
     /**
@@ -564,7 +551,6 @@ var properties = {
      */
     endSpin: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_endSpin'
     },
     /**
@@ -575,7 +561,6 @@ var properties = {
      */
     endSpinVar: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_endSpinVar'
     },
 
@@ -587,7 +572,6 @@ var properties = {
      */
     sourcePos: {
         default: cc.Vec2.ZERO,
-        type: cc.Vec2,
         formerlySerializedAs: '_sourcePos'
     },
 
@@ -599,7 +583,6 @@ var properties = {
      */
     posVar: {
         default: cc.Vec2.ZERO,
-        type: cc.Vec2,
         formerlySerializedAs: '_posVar'
     },
 
@@ -635,7 +618,6 @@ var properties = {
      */
     gravity: {
         default: cc.Vec2.ZERO,
-        type: cc.Vec2,
         formerlySerializedAs: '_gravity'
     },
     /**
@@ -646,7 +628,6 @@ var properties = {
      */
     speed: {
         default: 180,
-        type: cc.Float,
         formerlySerializedAs: '_speed'
     },
     /**
@@ -657,7 +638,6 @@ var properties = {
      */
     speedVar: {
         default: 50,
-        type: cc.Float,
         formerlySerializedAs: '_speedVar'
     },
     /**
@@ -668,7 +648,6 @@ var properties = {
      */
     tangentialAccel: {
         default: 80,
-        type: cc.Float,
         formerlySerializedAs: '_tangentialAccel'
     },
     /**
@@ -679,7 +658,6 @@ var properties = {
      */
     tangentialAccelVar: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_tangentialAccelVar'
     },
     /**
@@ -690,7 +668,6 @@ var properties = {
      */
     radialAccel: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_radialAccel'
     },
     /**
@@ -701,7 +678,6 @@ var properties = {
      */
     radialAccelVar: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_radialAccelVar'
     },
 
@@ -713,7 +689,6 @@ var properties = {
      */
     rotationIsDir: {
         default: false,
-        type: cc.Boolean,
         formerlySerializedAs: '_rotationIsDir'
     },
 
@@ -727,7 +702,6 @@ var properties = {
      */
     startRadius: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_startRadius'
     },
     /**
@@ -738,7 +712,6 @@ var properties = {
      */
     startRadiusVar: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_startRadiusVar'
     },
     /**
@@ -749,7 +722,6 @@ var properties = {
      */
     endRadius: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_endRadius'
     },
     /**
@@ -760,7 +732,6 @@ var properties = {
      */
     endRadiusVar: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_endRadiusVar'
     },
     /**
@@ -771,7 +742,6 @@ var properties = {
      */
     rotatePerS: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_rotatePerS'
     },
     /**
@@ -782,10 +752,8 @@ var properties = {
      */
     rotatePerSVar: {
         default: 0,
-        type: cc.Float,
         formerlySerializedAs: '_rotatePerSVar'
     }
-
 
 };
 
