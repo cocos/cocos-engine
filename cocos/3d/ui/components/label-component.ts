@@ -24,15 +24,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Font from '../../../assets/CCFont';
 import { SpriteFrame } from '../../../assets/CCSpriteFrame';
+import { Font} from '../../../assets/font';
 import { ImageAsset } from '../../../assets/image-asset';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import macro from '../../../core/platform/CCMacro';
 import { ccenum } from '../../../core/value-types/enum';
-import { UIRenderComponent } from './ui-render-component';
-import { ISharedLabelData } from '../assembler/label/ttfUtils';
 import { UI } from '../../../renderer/ui/ui';
+import { ISharedLabelData } from '../assembler/label/ttfUtils';
+import { UIRenderComponent } from './ui-render-component';
 
 /**
  * !#en Enum for text alignment.
@@ -210,7 +210,10 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh SHRINK 模式下面文本实际渲染的字体大小
      * @property {Number} actualFontSize
      */
-    @property
+    @property({
+        readonly: true,
+        displayName: 'Actual Font Size',
+    })
     get actualFontSize () {
         return this._actualFontSize;
     }
@@ -431,7 +434,7 @@ export class LabelComponent extends UIRenderComponent {
     /**
      * !#en Whether the font is tilted or not.
      * !#zh 字体是否倾斜。
-     * @property {Boolean} isBold
+     * @property {Boolean} isItalic
      */
     @property
     get isItalic () {
@@ -449,7 +452,7 @@ export class LabelComponent extends UIRenderComponent {
     /**
      * !#en Whether the font is underlined.
      * !#zh 字体是否加下划线。
-     * @property {Boolean} isBold
+     * @property {Boolean} isUnderline
      */
     @property
     get isUnderline () {
@@ -468,7 +471,7 @@ export class LabelComponent extends UIRenderComponent {
         return this._texture;
     }
 
-    get assemblerData(){
+    get assemblerData (){
         return this._assemblerData;
     }
 
@@ -564,14 +567,7 @@ export class LabelComponent extends UIRenderComponent {
         // this._super();
     }
 
-    public updateAssembler(render: UI) {
-        if (!this._material || this.string.length <= 0) {
-            return;
-        }
-        super.updateAssembler(render);
-    }
-
-    public updateRenderData(force = false) {
+    public updateRenderData (force = false) {
         const renderData = this._renderData;
         if (renderData) {
             renderData.vertDirty = true;
@@ -583,6 +579,38 @@ export class LabelComponent extends UIRenderComponent {
             this._flushAssembler();
             this._applyFontTexture(force);
         }
+    }
+
+    protected _updateColor () {
+        const font = this.font;
+        if (font instanceof cc.BitmapFont) {
+            // this._super();
+        } else {
+            this.updateRenderData(false);
+            // this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
+        }
+    }
+
+    protected _canRender () {
+        // let result = this._super();
+        // TODO: use renderFlag
+        let result = super._canRender();
+        // if (result) {
+        //     const font = this._font;
+        //     if (font && font instanceof cc.BitmapFont) {
+        //         const spriteFrame = font.spriteFrame;
+        //         // cannot be activated if texture not loaded yet
+        //         if (!spriteFrame || !spriteFrame.textureLoaded()) {
+        //             result = false;
+        //         }
+        //     }
+        // }
+
+        if (result) {
+            result = this._string.length > 0 ? true : false;
+        }
+
+        return result;
     }
 
     // private _canRender () {
@@ -616,16 +644,6 @@ export class LabelComponent extends UIRenderComponent {
                 this._renderData = this._assembler.createData(this);
                 this._renderData.material = this._material;
             }
-        }
-    }
-
-    protected _updateColor () {
-        const font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            // this._super();
-        } else {
-            this.updateRenderData(false);
-            // this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
     }
 
