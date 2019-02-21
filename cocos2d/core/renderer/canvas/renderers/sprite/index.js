@@ -30,6 +30,11 @@ let simple = require('./simple');
 let sliced = require('./sliced');
 let tiled = require('./tiled');
 
+if (CC_TEST) {
+    // 2.x not support test with the canvas simple, in order to test in local test construct.
+    cc._Test._spriteWebGLAssembler = require('../../../webgl/assemblers/sprite/index.js');
+}
+
 module.exports = {
     getAssembler: function (sprite) {
         switch (sprite.type) {
