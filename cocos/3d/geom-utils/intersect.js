@@ -13,8 +13,10 @@ let ray_plane = (function () {
   let pt = vec3.create(0, 0, 0);
 
   return function (ray, plane) {
-    distance.pt_point_plane(pt, ray.o, plane);
-    let t = vec3.dot(pt, plane.n) / vec3.dot(ray.d, plane.n);
+    const denom = vec3.dot(ray.d, plane.n);
+    if (Math.abs(denom) < Number.EPSILON) return 0;
+    vec3.scale(pt, plane.n, plane.d);
+    const t = vec3.dot(vec3.sub(pt, pt, ray.o), plane.n) / denom;
     if (t < 0) return 0;
     return t;
   };
