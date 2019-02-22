@@ -28,7 +28,7 @@ import AnimationComponent from './animation-component';
 import { CameraComponent } from './camera-component';
 import LightComponent from './light-component';
 import { ModelComponent } from './model-component';
-import { BoxColliderComponent, SphereColliderComponent, ColliderComponentBase } from './physics/collider-component';
+import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';
 import { RigidBodyComponent } from './physics/rigid-body-component';
 import SkinningModelComponent from './skinning-model-component';
 import SkyboxComponent from './skybox-component';
@@ -56,7 +56,6 @@ cc.SkinningModelComponent = SkinningModelComponent;
 cc.SkyboxComponent = SkyboxComponent;
 
 cc.RigidBodyComponent = RigidBodyComponent;
-cc.ColliderComponentBase = ColliderComponentBase;
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.SphereColliderComponent = SphereColliderComponent;
 cc.ParticleSystemComponent = ParticleSystemComponent;

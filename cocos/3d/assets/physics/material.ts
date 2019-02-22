@@ -20,11 +20,11 @@ export class PhysicsMaterial extends Asset {
      * If non-negative, it will be used instead of the friction given by ContactMaterials.
      * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
      */
-    get friction() {
+    get friction () {
         return this._friction;
     }
 
-    set friction(value) {
+    set friction (value) {
         this._friction = value;
         this._cannonMaterial.friction = value;
     }
@@ -34,21 +34,21 @@ export class PhysicsMaterial extends Asset {
      * If non-negative, it will be used instead of the restitution given by ContactMaterials.
      * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used
      */
-    get restitution() {
+    get restitution () {
         return this._restitution;
     }
 
-    set restitution(value) {
+    set restitution (value) {
         this._restitution = value;
         this._cannonMaterial.restitution = value;
     }
 
-    constructor() {
+    constructor () {
         super();
         this._cannonMaterial = new CANNON.Material('');
     }
 
-    public _getImpl() {
+    public _getImpl () {
         return this._cannonMaterial;
     }
 }

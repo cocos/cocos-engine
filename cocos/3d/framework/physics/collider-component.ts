@@ -1,4 +1,3 @@
-
 import {
     ccclass,
     executeInEditMode,
@@ -7,24 +6,30 @@ import {
     property,
 } from '../../../core/data/class-decorator';
 import Vec3 from '../../../core/value-types/vec3';
-import { PhysicsBoxShape, PhysicsShape, PhysicsSphereShape } from './body';
+import { vec3 } from '../../../core/vmath';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
-@ccclass('cc.ColliderComponentBase')
 export class ColliderComponentBase extends PhysicsBasedComponent {
-    protected _shape: PhysicsShape;
+    /**
+     * The center of the collider, in local space.
+     */
+    @property({type: Vec3})
+    get center () {
+        return this._center;
+    }
+
+    set center (value: Vec3) {
+        vec3.copy(this._center, value);
+        if (this.sharedBody) {
+            this.sharedBody.updateCollidier(this);
+        }
+    }
 
     @property
     private _center: Vec3 = new cc.Vec3(0, 0, 0);
 
-    constructor (shape: PhysicsShape) {
+    constructor () {
         super();
-        this._center = new Vec3(0, 0, 0);
-        this._shape = shape;
-    }
-
-    public get body () {
-        return this._body;
     }
 
     public onLoad () {
@@ -33,25 +38,12 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     }
 
     public onEnable () {
-        super.onEnable();
-        this._body!.addShape(this._shape);
+        this.sharedBody!.addCollider(this);
     }
 
     public onDisable () {
-        super.onDisable();
-        this._body!.removeShape(this._shape);
-    }
-
-    @property({
-        type: Vec3,
-    })
-    get center () {
-        return this._center;
-    }
-
-    set center (value: Vec3) {
-        this._center = new Vec3(value.x, value.y, value.z);
-        this._shape.center = value;
+        // throw new Error(`Not impl!`);
+        // this._body!.removeShape(this._impl);
     }
 }
 
@@ -64,7 +56,7 @@ export class BoxColliderComponent extends ColliderComponentBase {
     private _size: Vec3 = new Vec3(0, 0, 0);
 
     constructor () {
-        super(new PhysicsBoxShape(new Vec3(0, 0, 0)));
+        super();
     }
 
     public onLoad () {
@@ -72,21 +64,19 @@ export class BoxColliderComponent extends ColliderComponentBase {
         this.size = this._size;
     }
 
-    @property({
-        type: Vec3,
-    })
+    /**
+     * The size of the box, in local space.
+     * @note Shall not specify size with component 0.
+     */
+    @property({type: Vec3})
     get size () {
         return this._size;
     }
 
-    /**
-     * Note, shall not specify size with component 0
-     */
     set size (value) {
-        this._size = value;
-        (this._shape as PhysicsBoxShape).size = this._size;
-        if (this._body) {
-            this._body.commitShapesUpdate();
+        vec3.copy(this._size, value);
+        if (this.sharedBody) {
+            this.sharedBody.updateCollidier(this);
         }
     }
 }
@@ -100,7 +90,7 @@ export class SphereColliderComponent extends ColliderComponentBase {
     private _radius: number = 0;
 
     constructor () {
-        super(new PhysicsSphereShape(0));
+        super();
     }
 
     public onLoad () {
@@ -108,6 +98,9 @@ export class SphereColliderComponent extends ColliderComponentBase {
         this.radius = this._radius;
     }
 
+    /**
+     * The radius of the sphere.
+     */
     @property
     get radius () {
         return this._radius;
@@ -115,9 +108,8 @@ export class SphereColliderComponent extends ColliderComponentBase {
 
     set radius (value) {
         this._radius = value;
-        (this._shape as PhysicsSphereShape).radius = value;
-        if (this._body) {
-            this._body.commitShapesUpdate();
+        if (this.sharedBody) {
+            this.sharedBody.updateCollidier(this);
         }
     }
 }
