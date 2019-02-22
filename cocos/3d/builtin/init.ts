@@ -33,6 +33,20 @@ class BuiltinResMgr {
         blackTexture.image = imgAsset;
         resources[blackTexture._uuid] = blackTexture;
 
+        // black texture
+        const blackCubeTexture = new TextureCube();
+        blackCubeTexture._uuid = 'black-cube-texture';
+        blackCubeTexture.setGenMipmap(true);
+        blackCubeTexture.image = {
+            front: new ImageAsset(canvas),
+            back: new ImageAsset(canvas),
+            left: new ImageAsset(canvas),
+            right: new ImageAsset(canvas),
+            top: new ImageAsset(canvas),
+            bottom: new ImageAsset(canvas),
+        };
+        resources[blackCubeTexture._uuid] = blackCubeTexture;
+
         // grey texture
         context.fillStyle = '#777';
         context.fillRect(0, 0, l, l);
