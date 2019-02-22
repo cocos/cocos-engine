@@ -247,10 +247,6 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
         return;
     }
 
-    values = values.map(function (value) {
-        return v2(value[0], value[1]);
-    });
-
     if (values.length === 1) {
         data.values = values;
         return;

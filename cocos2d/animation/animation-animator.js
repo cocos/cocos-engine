@@ -243,14 +243,8 @@ function initClipData (root, state) {
     }
 
     function createPropCurve (target, propPath, keyframes) {
-        let firstValue = keyframes[0] && keyframes[0].value;
-        
-        let isMotionPathProp = (target instanceof cc.Node)
-            && (propPath === 'position')
-            && Array.isArray(firstValue) 
-            && firstValue.length === 2;
-    
         let motionPaths = [];
+        let isMotionPathProp = false;
 
         let curve = new DynamicAnimCurve();
 
@@ -264,16 +258,15 @@ function initClipData (root, state) {
             let ratio = keyframe.frame / state.duration;
             curve.ratios.push(ratio);
 
-            if (isMotionPathProp) {
-                let motionPath = keyframe.motionPath;
-
-                if (motionPath && !checkMotionPath(motionPath)) {
-                    cc.errorID(3904, target.name, propPath, i);
-                    motionPath = null;
-                }
-
-                motionPaths.push(motionPath);
+            let motionPath = keyframe.motionPath;
+            if (motionPath && !checkMotionPath(motionPath)) {
+                cc.errorID(3904, target.name, propPath, i);
+                motionPath = null;
             }
+            if (motionPath && motionPath.length > 0) {
+                isMotionPathProp = true;
+            }
+            motionPaths.push(motionPath);
 
             let curveValue = keyframe.value;
             curve.values.push(curveValue);
@@ -298,6 +291,12 @@ function initClipData (root, state) {
             curve.types.push(DynamicAnimCurve.Linear);
         }
 
+        if (target instanceof cc.Node && propPath === 'position') {
+            curve.values = curve.values.map(function (value) {
+                return value.length === 2 ? cc.v2(value[0], value[1]) : cc.v3(value[0], value[1], value[2]);
+            });
+        }
+        
         if (isMotionPathProp) {
             sampleMotionPaths(motionPaths, curve, clip.duration, clip.sample);
         }
@@ -321,6 +320,7 @@ function initClipData (root, state) {
         curve._findFrameIndex = canOptimize ? quickFindIndex : binarySearch;
         
         // find the lerp function
+        let firstValue = curve.values[0];
         if (!curve._lerp && firstValue !== undefined) {
             if (typeof firstValue === 'number') {
                 curve._lerp = DynamicAnimCurve.prototype._lerpNumber;
