@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const MaxCacheTime = 30;
+const MaxCacheTime = 120;
 
 let _vertices = [];
 let _indices = [];
@@ -287,35 +287,20 @@ let ArmatureCache = cc.Class({
         delete this._armatureCache[armatureKey];
     },
 
-    // When atlas asset be destroy, remove armature from db cache.
-    clearByAtlasName (atlasName) {
-        for (var armatureKey in this._armatureCache) {
-            var armatureInfo = this._armatureCache[armatureKey];
-            if (armatureInfo && armatureInfo.atlasName === atlasName) {
-                this._removeArmature(armatureKey);
-                return;
-            }
-        }
-    },
-
     // When db assets be destroy, remove armature from db cache.
-    clearByDBName (dbName) {
+    resetArmature (uuid) {
         for (var armatureKey in this._armatureCache) {
-            var armatureInfo = this._armatureCache[armatureKey];
-            if (armatureInfo && armatureInfo.dbName === dbName) {
-                this._removeArmature(armatureKey);
-                return;
-            }
+            if (armatureKey.indexOf(uuid) == -1) continue;
+            this._removeArmature(armatureKey);
         }
     },
 
-    getArmatureCache (armatureName, dragonbonesName, atlasName) {
-        let armatureKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
+    getArmatureCache (armatureName, armatureKey, atlasUUID) {
         let armatureInfo = this._armatureCache[armatureKey];
         let armature;
         if (!armatureInfo) {
             let factory = dragonBones.CCFactory.getInstance();
-            let proxy = factory.buildArmatureDisplay(armatureName, dragonbonesName, "", atlasName);
+            let proxy = factory.buildArmatureDisplay(armatureName, armatureKey, "", atlasUUID);
             if (!proxy || !proxy._armature) return;
             armature = proxy._armature;
             // If armature has child armature, can not be cache, because it's
@@ -327,8 +312,6 @@ let ArmatureCache = cc.Class({
 
             this._armatureCache[armatureKey] = {
                 armature : armature,
-                dbName : dragonbonesName,
-                atlasName : atlasName,
                 // Cache all kinds of animation frame.
                 // When armature is dispose, clear all animation cache.
                 animationsCache : {},
@@ -339,8 +322,7 @@ let ArmatureCache = cc.Class({
         return armature;
     },
 
-    getAnimationCache (armatureName, dragonbonesName, atlasName, animationName) {
-        let armatureKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
+    getAnimationCache (armatureKey, animationName) {
         let armatureInfo = this._armatureCache[armatureKey];
         if (!armatureInfo) return null;
 
@@ -348,8 +330,7 @@ let ArmatureCache = cc.Class({
         return animationsCache[animationName];
     },
 
-    updateAnimationCache (armatureName, dragonbonesName, atlasName, animationName) {
-        let armatureKey = armatureName + "#" + dragonbonesName + "#" + atlasName;
+    updateAnimationCache (armatureKey, animationName) {
         let armatureInfo = this._armatureCache[armatureKey];
         let armature = armatureInfo && armatureInfo.armature;
         if (!armature) return null;
@@ -373,7 +354,7 @@ let ArmatureCache = cc.Class({
         }
         animationCache.update(armature);
         if (animationCache.totalTime >= MaxCacheTime) {
-            cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change armature render mode to REALTIME, dragonbones name is [%s], animation name is [%s]", dragonbonesName, animationName);
+            cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change armature render mode to REALTIME, dragonbones uuid is [%s], animation name is [%s]", armatureKey, animationName);
         }
         return animationCache;
     }

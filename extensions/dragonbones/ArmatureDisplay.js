@@ -167,8 +167,6 @@ let ArmatureDisplay = cc.Class({
             default: null,
             type: dragonBones.DragonBonesAsset,
             notify () {
-                // parse the asset data
-                this._parseDragonAsset();
                 this._refresh();
                 if (CC_EDITOR) {
                     this._defaultArmatureIndex = 0;
@@ -304,7 +302,7 @@ let ArmatureDisplay = cc.Class({
 
                 let animName = animsEnum[this._animationIndex];
                 if (animName !== undefined) {
-                    this.animationName = animName;
+                    this.playAnimation(animName, this.playTimes);
                 }
                 else {
                     cc.errorID(7402, this.name);
@@ -408,6 +406,9 @@ let ArmatureDisplay = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.enabled_batch'
         },
 
+        // DragonBones data store key.
+        _armatureKey: "",
+
         // Below properties will effect when render mode is SHARED_CACHE or PRIVATE_CACHE.
         // accumulate time
         _accTime: 0,
@@ -476,7 +477,6 @@ let ArmatureDisplay = cc.Class({
             this._renderMode = RenderMode.REALTIME;
         }
         
-        this._parseDragonAsset();
         this._parseDragonAtlasAsset();
         this._refresh();
 
@@ -622,6 +622,7 @@ let ArmatureDisplay = cc.Class({
 
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
+
         // Switch Asset or Atlas or renderMode will rebuild armature.
         if (this._armature) {
             // dispose pre build armature
@@ -652,11 +653,11 @@ let ArmatureDisplay = cc.Class({
             }
         }
 
-        let atlasName = this.dragonAtlasAsset._textureAtlasData.name;
-        let dragonbonesName = this.dragonAsset._dragonBonesData.name;
+        let atlasUUID = this.dragonAtlasAsset._uuid;
+        this._armatureKey = this.dragonAsset.init(this._factory, atlasUUID);
 
         if (this.isCachedMode()) {
-            this._armature = this._armatureCache.getArmatureCache(this.armatureName, dragonbonesName, atlasName);
+            this._armature = this._armatureCache.getArmatureCache(this.armatureName, this._armatureKey, atlasUUID);
             if (!this._armature) {
                 // Cache fail,swith to REALTIME render mode.
                 this._renderMode = RenderMode.REALTIME;
@@ -665,7 +666,7 @@ let ArmatureDisplay = cc.Class({
         
         this._preRenderMode = this._renderMode;
         if (CC_EDITOR || this._renderMode === RenderMode.REALTIME) {
-            this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, dragonbonesName, "", atlasName);
+            this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, "", atlasUUID);
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
             this._armature = this._displayProxy._armature;
@@ -679,12 +680,6 @@ let ArmatureDisplay = cc.Class({
         this._updateBatch();
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
-        }
-    },
-
-    _parseDragonAsset () {
-        if (this.dragonAsset) {
-            this.dragonAsset.init(this._factory);
         }
     },
 
@@ -708,9 +703,9 @@ let ArmatureDisplay = cc.Class({
 
     _updateRenderModeEnum: CC_EDITOR && function () {
         if (this._armature && ArmatureCache.canCache(this._armature)) {
-            setEnumAttr(this, 'renderMode', RenderMode);
+            setEnumAttr(this, '_defaultRenderMode', RenderMode);
         } else {
-            setEnumAttr(this, 'renderMode', DefaultRenderMode);
+            setEnumAttr(this, '_defaultRenderMode', DefaultRenderMode);
         }
     },
 
@@ -760,11 +755,9 @@ let ArmatureDisplay = cc.Class({
         this.animationName = animName;
 
         if (this.isCachedMode()) {
-            let atlasName = this.dragonAtlasAsset._textureAtlasData.name;
-            let dragonbonesName = this.dragonAsset._dragonBonesData.name;
-            let cache = this._armatureCache.getAnimationCache(this.armatureName, dragonbonesName, atlasName, animName);
+            let cache = this._armatureCache.getAnimationCache(this._armatureKey, animName);
             if (!cache) {
-                cache = this._armatureCache.updateAnimationCache(this.armatureName, dragonbonesName, atlasName, animName);
+                cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
             }
             if (cache) {
                 this._accTime = 0;

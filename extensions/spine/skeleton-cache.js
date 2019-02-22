@@ -25,7 +25,7 @@
 const TrackEntryListeners = require('./track-entry-listeners');
 const spine = require('./lib/spine');
 // Permit max cache time, unit is second.
-const MaxCacheTime = 30;
+const MaxCacheTime = 120;
 
 let _vertices = [];
 let _indices = [];
