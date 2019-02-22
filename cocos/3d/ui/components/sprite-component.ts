@@ -308,7 +308,6 @@ export class SpriteComponent extends UIRenderComponent {
     @property
     get trim () {
         return this._isTrimmedMode;
-        return false;
     }
 
     set trim (value: boolean) {
@@ -318,9 +317,6 @@ export class SpriteComponent extends UIRenderComponent {
                 this._renderData) {
                 this.markForUpdateRenderData(true);
             }
-        }
-        if (this._spriteFrame) {
-            this.node.setContentSize(this._spriteFrame.getOriginalSize());
         }
     }
 

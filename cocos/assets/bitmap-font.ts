@@ -24,13 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Font from './CCFont';
-import SpriteFrame from './CCSpriteFrame';
-import {ccclass, property} from '../core/data/class-decorator';
+import { ccclass, property } from '../core/data/class-decorator';
+import { SpriteFrame } from './CCSpriteFrame';
+import { Font } from './font';
 
-/**
- * @module cc
- */
+export interface IConfig {
+    [key: string]: any;
+}
+
 /**
  * !#en Class for BitmapFont handling.
  * !#zh 位图字体资源类。
@@ -38,20 +39,20 @@ import {ccclass, property} from '../core/data/class-decorator';
  * @extends Font
  */
 @ccclass('cc.BitmapFont')
-export default class BitmapFont extends Font {
+export class BitmapFont extends Font {
     @property
-    fntDataStr = '';
+    public fntDataStr = '';
 
     @property({
-        type: SpriteFrame
+        type: SpriteFrame,
     })
-    spriteFrame = null;
+    public spriteFrame: SpriteFrame | null = null;
 
     @property
-    fontSize = -1;
+    public fontSize = -1;
 
     @property
-    _fntConfig = null;
+    public fntConfig: IConfig | null = null;
 }
 
 cc.BitmapFont = BitmapFont;

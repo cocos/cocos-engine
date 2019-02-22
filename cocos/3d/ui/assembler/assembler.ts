@@ -23,9 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { UIRenderComponent } from '../components/ui-render-component';
+import { SpriteFrame } from '../../../assets/CCSpriteFrame';
+import { Rect } from '../../../core/value-types';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
+import { UIRenderComponent } from '../components/ui-render-component';
 import { ISharedLabelData } from './label/ttfUtils';
 
 export interface IAssembler {
@@ -36,9 +38,10 @@ export interface IAssembler {
     createData? (component: UIRenderComponent): RenderData;
     updateVerts? (component: UIRenderComponent, start?: number, end?: number): void;
     updateWorldVerts? (component: UIRenderComponent): void;
-    updateUVs?(component: UIRenderComponent, start?: number, end?: number);
-    getAssemblerData?(): ISharedLabelData;
-    resetAssemblerData?(assemblerData: ISharedLabelData):void
+    updateUVs? (component: UIRenderComponent, start?: number, end?: number);
+    getAssemblerData? (): ISharedLabelData;
+    resetAssemblerData? (assemblerData: ISharedLabelData): void;
+    appendQuad? (renderData: RenderData, texture: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number): void;
 }
 
 export interface IAssemblerManager {

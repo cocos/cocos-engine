@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Font from './CCFont';
 import {ccclass, property} from '../core/data/class-decorator';
+import { Font } from './font';
 
 /**
  * @module cc
@@ -38,13 +38,13 @@ import {ccclass, property} from '../core/data/class-decorator';
  *
  */
 @ccclass('cc.TTFFont')
-export default class TTFFont extends Font {
+export class TTFFont extends Font {
     @property
-    _fontFamily = null;
+    public _fontFamily: any = null;
 
     @property({
         type: cc.String,
-        override: true
+        override: true,
     })
     get _nativeAsset () {
         return this._fontFamily;
