@@ -1123,7 +1123,7 @@ var Node = cc.Class({
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
 
                     if (this._parent) {
-                        this._parent._delaySort();
+                        this._onSiblingIndexChanged();
                     }
                 }
             }
