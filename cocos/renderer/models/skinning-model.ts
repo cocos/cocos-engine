@@ -45,7 +45,7 @@ export class SkinningModel extends Model {
         this._type = 'skinning';
         this._skinningUBO = this._device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: SkinningUBO.SIZE,
             stride: SkinningUBO.SIZE,
         });

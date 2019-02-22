@@ -151,8 +151,7 @@ export class Pass {
             const buffer = device.createBuffer({
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: u.size,
-                stride: 1, // N/A for blocks
-                usage: GFXBufferUsageBit.UNIFORM,
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             });
             if (buffer) { this._buffers[u.binding] = buffer; }
             else { console.error('create buffer failed.'); return; }

@@ -679,9 +679,10 @@ interface WebGL2RenderingContextBase {
     bufferData(target: GLenum, size: GLsizeiptr, usage: GLenum);
     bufferData(target: GLenum, data: BufferSource | null, usage: GLenum);
     bufferSubData(target: GLenum, dstOffset: GLintptr, data: BufferSource);
+    
     // WebGL2:
     bufferData(target: GLenum, data: BufferSource, usage: GLenum, srcOffset: GLintptr, length?: GLuint);
-    bufferSubData(target: GLenum, dstOffset: GLintptr, data: BufferSource, srcOffset: GLintptr, length?: GLuint);
+    bufferSubData(target: GLenum, dstOffset: GLintptr, data: ArrayBufferView, srcOffset: GLintptr, length?: GLuint);
 
     copyBufferSubData(readTarget: GLenum, writeTarget: GLenum, readOffset: GLintptr, writeOffset: GLintptr, size: GLsizeiptr);
     // MapBufferRange, in particular its read-only and write-only modes,

@@ -1,6 +1,7 @@
 
 import { Material } from '../../3d/assets/material';
 import { builtinResMgr } from '../../3d/builtin';
+import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
 import { CanvasComponent } from '../../3d/ui/components/canvas-component';
 import { UIRenderComponent } from '../../3d/ui/components/ui-render-component';
@@ -29,10 +30,9 @@ import { GFXUniformBlock } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { vfmt } from '../../gfx/vertex-format-sample';
 import { Node } from '../../scene-graph/node';
-import { Camera, CameraProjection } from '../scene/camera';
+import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
-import { IUIMaterialInfo, UIMaterial } from './ui-material';
-import Pool from '../../3d/memop/pool';
+import { UIMaterial } from './ui-material';
 
 export class UBOUI {
     public static MAT_VIEW_PROJ_OFFSET: number = 0;
@@ -260,20 +260,6 @@ export class UI {
         }
     }
 
-    private _deleteUIMaterial (mat: Material) {
-        if (this._uiMaterials.has(mat.hash)) {
-            this._uiMaterials.get(mat.hash)!.destroy();
-            this._uiMaterials.delete(mat.hash);
-        }
-    }
-
-    private _destroyUIMaterials () {
-        for (const uiMat of this._uiMaterials.values()) {
-            uiMat.destroy();
-        }
-        this._uiMaterials.clear();
-    }
-
     public addScreen (comp) {
         this._screens.push(comp);
     }
@@ -346,7 +332,6 @@ export class UI {
 
     public render () {
 
-
         if (this._batches.length) {
             const framebuffer = this._root.curWindow!.framebuffer;
             const cmdBuff = this._cmdBuff!;
@@ -402,6 +387,20 @@ export class UI {
 
             this._device.queue.submit([cmdBuff]);
         }
+    }
+
+    private _deleteUIMaterial (mat: Material) {
+        if (this._uiMaterials.has(mat.hash)) {
+            this._uiMaterials.get(mat.hash)!.destroy();
+            this._uiMaterials.delete(mat.hash);
+        }
+    }
+
+    private _destroyUIMaterials () {
+        for (const uiMat of this._uiMaterials.values()) {
+            uiMat.destroy();
+        }
+        this._uiMaterials.clear();
     }
 
     private _walk (node: Node, fn1, fn2, level = 0, isRenderComp = false) {

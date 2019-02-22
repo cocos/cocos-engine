@@ -273,7 +273,7 @@ export abstract class RenderPipeline {
     protected createUBOs (): boolean {
         this._globalUBO = this._root.device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: UBOGlobal.SIZE,
         });
 

@@ -24,6 +24,7 @@ import {
     IGFXViewport,
     WebGLEXT,
 } from '../define';
+import { GFXUniformBlock } from '../shader';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
 import {
     IWebGL2DepthBias,
@@ -47,7 +48,6 @@ import {
     WebGL2GPUUniformSampler,
 } from './webgl2-gpu-objects';
 import { IWebGL2TexUnit } from './webgl2-state-cache';
-import { GFXUniformBlock } from '../shader';
 
 const _uniformValues = new Array<number>(1024 * 4);
 
@@ -694,6 +694,7 @@ export class WebGL2CmdPackage {
 export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: WebGL2GPUBuffer) {
 
     const gl = device.gl;
+    const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.HOST ? WebGL2RenderingContext.DYNAMIC_DRAW : WebGL2RenderingContext.STATIC_DRAW;
 
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
 
@@ -707,7 +708,6 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                 device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
             }
 
-            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
             gl.bufferData(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
 
             gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, null);
@@ -725,7 +725,6 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                 device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
             }
 
-            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
             gl.bufferData(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
 
             gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, null);
@@ -742,7 +741,6 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                 device.stateCache.glUniformBuffer = gpuBuffer.glBuffer;
             }
 
-            const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
             gl.bufferData(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.size, glUsage);
 
             gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, null);
@@ -770,7 +768,7 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2GFXDevice, gpuBuffer: 
 export function WebGL2CmdFuncResizeBuffer (device: WebGL2GFXDevice, gpuBuffer: WebGL2GPUBuffer) {
 
     const gl = device.gl;
-    const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.DEVICE ? WebGL2RenderingContext.STATIC_DRAW : WebGL2RenderingContext.DYNAMIC_DRAW;
+    const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.HOST ? WebGL2RenderingContext.DYNAMIC_DRAW : WebGL2RenderingContext.STATIC_DRAW;
 
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
 
@@ -822,12 +820,24 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                     gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
                 }
+
+                if (size === buff.byteLength) {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+                } else {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
+                }
                 break;
             }
             case WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER: {
                 if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
                     gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
+                }
+
+                if (size === buff.byteLength) {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+                } else {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
                 }
                 break;
             }
@@ -836,18 +846,18 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                     gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glUniformBuffer = gpuBuffer.glBuffer;
                 }
+
+                if (size === buff.byteLength) {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+                } else {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
+                }
                 break;
             }
             default: {
                 console.error('Unsupported GFXBufferType, update buffer failed.');
                 return;
             }
-        }
-
-        if (size === buff.byteLength) {
-            gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-        } else {
-            gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
         }
     }
 }
@@ -1826,7 +1836,6 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                         }
                                     }
                                 } // if
-
                                 break;
                             }
                             case GFXBindingType.SAMPLER: {

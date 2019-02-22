@@ -244,9 +244,8 @@ export class Model {
         if (this._localUBO == null) {
             this._localUBO = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: UBOLocal.SIZE,
-                stride: UBOLocal.SIZE,
             });
             this._localUBO.update(this._uboLocal.view);
         }

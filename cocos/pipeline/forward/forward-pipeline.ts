@@ -104,7 +104,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         this._lightsUBO = this._root.device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: UBOForwardLights.SIZE,
         });
 
