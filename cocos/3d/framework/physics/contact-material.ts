@@ -4,7 +4,7 @@ import { PhysicsMaterial } from '../../assets/physics/material';
 export class ContactMaterial {
     private _cannonContactMaterial: CANNON.ContactMaterial;
 
-    constructor(lhs: PhysicsMaterial, rhs: PhysicsMaterial) {
+    constructor (lhs: PhysicsMaterial, rhs: PhysicsMaterial) {
         const opts: CANNON.IContactMaterialOptions = {
             friction: 0.3,
             restitution: 0.3,
@@ -19,70 +19,72 @@ export class ContactMaterial {
     /**
      * Friction coefficient. Default value 0.3.
      */
-    get friction() {
-        return this._cannonContactMaterial.friction;   
+    get friction () {
+        return this._cannonContactMaterial.friction;
     }
 
-    set friction(value) {
+    set friction (value) {
         this._cannonContactMaterial.friction = value;
     }
 
     /**
      * Restitution coefficient. Default value 0.3.
      */
-    get restitution() {
-        return this._cannonContactMaterial.restitution;   
+    get restitution () {
+        return this._cannonContactMaterial.restitution;
     }
 
-    set restitution(value) {
+    set restitution (value) {
         this._cannonContactMaterial.restitution = value;
     }
 
     /**
      *  Stiffness of the produced contact equations. Default value 1e7.
      */
-    get contactEquationStiffness() {
-        return this._cannonContactMaterial.contactEquationStiffness;   
+    get contactEquationStiffness () {
+        return this._cannonContactMaterial.contactEquationStiffness;
     }
 
-    set contactEquationStiffness(value) {
+    set contactEquationStiffness (value) {
         this._cannonContactMaterial.contactEquationStiffness = value;
     }
 
     /**
      * Relaxation time of the produced contact equations. Default value 0.3.
      */
-    get contactEquationRelaxation() {
-        return this._cannonContactMaterial.contactEquationRelaxation;   
+    get contactEquationRelaxation () {
+        return this._cannonContactMaterial.contactEquationRelaxation;
     }
 
-    set contactEquationRelaxation(value) {
+    set contactEquationRelaxation (value) {
         this._cannonContactMaterial.contactEquationRelaxation = value;
     }
 
     /**
      * Stiffness of the produced friction equations. Default value 1e7.
      */
-    get frictionEquationStiffness() {
-        return this._cannonContactMaterial.frictionEquationStiffness;   
+    get frictionEquationStiffness () {
+        return this._cannonContactMaterial.frictionEquationStiffness;
     }
 
-    set frictionEquationStiffness(value) {
+    set frictionEquationStiffness (value) {
         this._cannonContactMaterial.frictionEquationStiffness = value;
     }
 
     /**
      * Relaxation time of the produced friction equations. Default value 3.
      */
-    get frictionEquationRelaxation() {
+    get frictionEquationRelaxation () {
         return this._cannonContactMaterial.frictionEquationRelaxation;
     }
 
-    set frictionEquationRelaxation(value) {
+    set frictionEquationRelaxation (value) {
         this._cannonContactMaterial.frictionEquationRelaxation = value;
     }
 
-    public _getImpl() {
+    public _getImpl () {
         return this._cannonContactMaterial;
     }
 }
+
+cc.ContactMaterial = ContactMaterial;
