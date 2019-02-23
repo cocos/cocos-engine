@@ -1,18 +1,23 @@
 
-import { mat4, vec3 } from '../../../core/vmath/index';
+import { Color, Mat4 } from '../../../core/value-types';
+import { vec3 } from '../../../core/vmath/index';
+import { RenderData } from '../../../renderer/ui/renderData';
+import { Node } from '../../../scene-graph/node';
+import { MeshBuffer } from '../mesh-buffer';
 
 const vec3_temp = vec3.create();
-const _worldMatrix = mat4.create();
+const _worldMatrix = new Mat4();
+const _tempColor = new Color();
 
-export function fillVertices (node, buffer, renderData, color) {
-    const data = renderData._data;
+export function fillVertices (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
+    const data = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
 
     const vertexCount = renderData.vertexCount;
     buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    const vbuf = buffer.vData;
+    const vbuf = buffer.vData!;
     // uintbuf = buffer._uintVData;
 
     // let matrix = node._worldMatrix;
@@ -38,7 +43,7 @@ export function fillVertices (node, buffer, renderData, color) {
     }
 }
 
-export function fillMeshVertices (node, buffer, renderData, color) {
+export function fillMeshVertices (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
 
@@ -49,9 +54,9 @@ export function fillMeshVertices (node, buffer, renderData, color) {
     buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    const vbuf = buffer.vData;
+    const vbuf = buffer.vData!;
     // uintbuf = buffer._uintVData,
-    const ibuf = buffer._iData;
+    const ibuf = buffer.iData!;
 
     // let matrix = node._worldMatrix;
     node.getWorldMatrix(_worldMatrix);
@@ -87,15 +92,16 @@ export function fillMeshVertices (node, buffer, renderData, color) {
     }
 }
 
-export function fillVertices3D (node, buffer, renderData, color) {
+export function fillVertices3D (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
+    color.to01(_tempColor);
 
     const vertexCount = renderData.vertexCount;
     buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    const vbuf = buffer.vData;
+    const vbuf = buffer.vData!;
     // uintbuf = buffer._uintVData;
 
     // let matrix = node._worldMatrix;
@@ -110,17 +116,18 @@ export function fillVertices3D (node, buffer, renderData, color) {
         vbuf[vertexOffset++] = vec3_temp.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        vbuf[vertexOffset++] = color.r;
-        vbuf[vertexOffset++] = color.g;
-        vbuf[vertexOffset++] = color.b;
-        vbuf[vertexOffset++] = color.a;
+        vbuf[vertexOffset++] = _tempColor.r;
+        vbuf[vertexOffset++] = _tempColor.g;
+        vbuf[vertexOffset++] = _tempColor.b;
+        vbuf[vertexOffset++] = _tempColor.a;
         // uintbuf[vertexOffset++] = color;
     }
 }
 
-export function fillMeshVertices3D (node, buffer, renderData, color) {
+export function fillMeshVertices3D (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
+    color.to01(_tempColor);
 
     const vertexCount = renderData.vertexCount;
     let indiceOffset = buffer.indiceOffset;
@@ -129,9 +136,9 @@ export function fillMeshVertices3D (node, buffer, renderData, color) {
     buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    const vbuf = buffer.vData;
+    const vbuf = buffer.vData!;
     // uintbuf = buffer._uintVData,
-    const ibuf = buffer.iData;
+    const ibuf = buffer.iData!;
 
     // let matrix = node._worldMatrix;
     node.getWorldMatrix(_worldMatrix);
@@ -145,10 +152,10 @@ export function fillMeshVertices3D (node, buffer, renderData, color) {
         vbuf[vertexOffset++] = vec3_temp.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        vbuf[vertexOffset++] = color.r;
-        vbuf[vertexOffset++] = color.g;
-        vbuf[vertexOffset++] = color.b;
-        vbuf[vertexOffset++] = color.a;
+        vbuf[vertexOffset++] = _tempColor.r;
+        vbuf[vertexOffset++] = _tempColor.g;
+        vbuf[vertexOffset++] = _tempColor.b;
+        vbuf[vertexOffset++] = _tempColor.a;
         // uintbuf[vertexOffset++] = color;
     }
 
@@ -164,7 +171,7 @@ export function fillMeshVertices3D (node, buffer, renderData, color) {
     }
 }
 
-export function fillVerticesWithoutCalc (node, buffer, renderData, color) {
+export function fillVerticesWithoutCalc (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
 
@@ -172,7 +179,7 @@ export function fillVerticesWithoutCalc (node, buffer, renderData, color) {
     buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    const vbuf = buffer.vData;
+    const vbuf = buffer.vData!;
     // uintbuf = buffer._uintVData;
 
     for (let i = 0; i < vertexCount; i++) {
@@ -189,15 +196,16 @@ export function fillVerticesWithoutCalc (node, buffer, renderData, color) {
     }
 }
 
-export function fillVerticesWithoutCalc3D (node, buffer, renderData, color) {
+export function fillVerticesWithoutCalc3D (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
+    color.to01(_tempColor);
 
     const vertexCount = renderData.vertexCount;
     buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    const vbuf = buffer.vData;
+    const vbuf = buffer.vData!;
     // const   uintbuf = buffer._uintVData;
 
     for (let i = 0; i < vertexCount; i++) {
@@ -208,9 +216,9 @@ export function fillVerticesWithoutCalc3D (node, buffer, renderData, color) {
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
         // uintbuf[vertexOffset++] = color;
-        vbuf[vertexOffset++] = color.r;
-        vbuf[vertexOffset++] = color.g;
-        vbuf[vertexOffset++] = color.b;
-        vbuf[vertexOffset++] = color.a;
+        vbuf[vertexOffset++] = _tempColor.r;
+        vbuf[vertexOffset++] = _tempColor.g;
+        vbuf[vertexOffset++] = _tempColor.b;
+        vbuf[vertexOffset++] = _tempColor.a;
     }
 }

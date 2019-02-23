@@ -25,7 +25,7 @@
 
 // const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
 import { Mat4, Vec3 } from '../../../../core/value-types';
-import { vec3, color4 } from '../../../../core/vmath/index';
+import { color4, vec3 } from '../../../../core/vmath/index';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';

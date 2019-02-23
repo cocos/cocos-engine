@@ -25,13 +25,13 @@
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 import { Vec2 } from '../../../../core/value-types';
+import { color4 } from '../../../../core/vmath';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
 import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler } from '../assembler';
 import { fillVertices3D } from '../utils';
-import { color4 } from '../../../../core/vmath';
 
 const PI_2 = Math.PI * 2;
 
@@ -255,8 +255,8 @@ export const radialFilled: IAssembler = {
             if (renderData.vertDirty || renderData.uvDirty) {
                 const datas = renderData.datas;
 
-                let fillStart = sprite._fillStart;
-                let fillRange = sprite._fillRange;
+                let fillStart = sprite.fillStart;
+                let fillRange = sprite.fillRange;
                 if (fillRange < 0) {
                     fillStart += fillRange;
                     fillRange = -fillRange;
@@ -368,12 +368,11 @@ export const radialFilled: IAssembler = {
 
         const node = comp.node;
         // const color: Color = comp.color;
-        comp.color.to01(color_temp);
         /*buffer = renderer._meshBuffer3D,*/
-        const renderData: RenderData|null = comp.renderData;
+        const renderData: RenderData = comp.renderData!;
         const indiceOffset = buffer!.indiceOffset;
         const vertexId = buffer.vertexOffset;
-        fillVertices3D(node, buffer, renderData, color_temp);
+        fillVertices3D(node, buffer, renderData, comp.color);
 
         // buffer data may be realloc, need get reference after request.
         const ibuf = buffer.iData;

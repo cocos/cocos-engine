@@ -32,7 +32,7 @@ import { Color, Size } from '../../../../core/value-types';
 import { LabelComponent } from '../../components/label-component';
 
 const Overflow = LabelComponent.Overflow;
-const WHITE = cc.Color.WHITE;
+const WHITE = Color.WHITE;
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
 
 let _context: CanvasRenderingContext2D | null = null;
@@ -136,7 +136,7 @@ export const ttfUtils =  {
         this._calculateTextBaseline();
         this._updateTexture();
 
-        comp._actualFontSize = _fontSize;
+        // comp._actualFontSize = _fontSize;
         comp.node.setContentSize(_canvasSize);
 
         this.updateVerts(comp);
@@ -184,18 +184,18 @@ export const ttfUtils =  {
         _texture = comp.texture;
 
         _string = comp.string.toString();
-        _fontSize = comp._fontSize;
+        _fontSize = comp.fontSize;
         _drawFontsize = _fontSize;
         _overflow = comp.overflow;
         _canvasSize.width = comp.node.width!;
         _canvasSize.height = comp.node.height!;
-        _lineHeight = comp._lineHeight;
+        _lineHeight = comp.lineHeight;
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
         _color = comp.color;
-        _isBold = comp._isBold;
-        _isItalic = comp._isItalic;
-        _isUnderline = comp._isUnderline;
+        _isBold = comp.isBold;
+        _isItalic = comp.isItalic;
+        _isUnderline = comp.isUnderline;
 
         if (_overflow === Overflow.NONE) {
             _isWrapText = false;
@@ -290,8 +290,7 @@ export const ttfUtils =  {
         }
 
         // _texture.handleLoadedTexture();
-        // hack
-        if (_texture && _texture.image && _texture.image!.width !== 0 && _texture.image!.height !== 0) {
+        if (_texture) {
             _texture.mipmaps = [_texture.image!];
         }
     },
@@ -406,6 +405,10 @@ export const ttfUtils =  {
         fontDesc = fontDesc + _fontFamily;
         if (_isBold) {
             fontDesc = 'bold ' + fontDesc;
+        }
+
+        if (_isItalic) {
+            fontDesc = 'italic ' + fontDesc;
         }
 
         return fontDesc;

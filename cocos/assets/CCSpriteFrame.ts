@@ -27,13 +27,14 @@
 
 import { ccclass } from '../core/data/class-decorator';
 import EventTarget from '../core/event/event-target';
+import { EventTargetFactory } from '../core/event/event-target-factory';
 import { addon } from '../core/utils/js';
 import Rect, { rect } from '../core/value-types/rect';
 import Size, { size } from '../core/value-types/size';
 import Vec2, { v2 } from '../core/value-types/vec2';
-import { Asset } from './asset';
 import { Texture2D } from './texture-2d';
 import textureUtil from './texture-util';
+import { ImageAsset } from './image-asset';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -83,7 +84,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  * });
  */
 @ccclass('cc.SpriteFrame')
-export class SpriteFrame extends Texture2D {
+export class SpriteFrame extends EventTargetFactory(Texture2D) {
     // Use this property to set texture when loading dependency
     // @property
     // set _textureSetter(texture) {
@@ -182,6 +183,18 @@ export class SpriteFrame extends Texture2D {
         return this._atlasUuid;
     }
 
+    set atlasUuid (value) {
+        this._atlasUuid = value;
+    }
+
+    get atlasSize () {
+        return this._atlasSize;
+    }
+
+    set atlasSize (value: Size) {
+        this._atlasSize = value;
+    }
+
     public vertices: IVertices | null = null;
 
     public uv: number[] = [];
@@ -206,6 +219,8 @@ export class SpriteFrame extends Texture2D {
 
     private _atlasUuid?: string;
 
+    private _atlasSize = new Size();
+
     /**
      * !#en
      * Constructor of SpriteFrame class.
@@ -221,21 +236,20 @@ export class SpriteFrame extends Texture2D {
     constructor () {
         super();
         // Init EventTarget data
-        EventTarget.call(this);
 
         // let filename = arguments[0];
-        const rect = arguments[0];
-        const rotated = arguments[1];
-        const offset = arguments[2];
-        const originalSize = arguments[3];
+        // const rect = arguments[0];
+        // const rotated = arguments[1];
+        // const offset = arguments[2];
+        // const originalSize = arguments[3];
 
         // this._texture = null;
         // this._textureFilename = '';
 
-        this._capInsets[INSET_BOTTOM] = 0;
-        this._capInsets[INSET_LEFT] = 0;
-        this._capInsets[INSET_RIGHT] = 0;
-        this._capInsets[INSET_TOP] = 0;
+        // this._capInsets[INSET_BOTTOM] = 0;
+        // this._capInsets[INSET_LEFT] = 0;
+        // this._capInsets[INSET_RIGHT] = 0;
+        // this._capInsets[INSET_TOP] = 0;
 
         if (CC_EDITOR) {
             // Atlas asset uuid
@@ -305,6 +319,14 @@ export class SpriteFrame extends Texture2D {
         this._originalSize.set(size);
     }
 
+    // resource initialization assignment
+    public _setBorder (l: number, b: number, r: number, t: number){
+        this._capInsets[INSET_LEFT] = l;
+        this._capInsets[INSET_BOTTOM] = b;
+        this._capInsets[INSET_RIGHT] = r;
+        this._capInsets[INSET_TOP] = t;
+    }
+
     /**
      * !#en Returns the texture of the frame.
      * !#zh 获取使用的纹理实例
@@ -326,19 +348,19 @@ export class SpriteFrame extends Texture2D {
         let w = self.width;
         let h = self.height;
 
-        if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            // TODO: rotate texture for canvas
-            // self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
-            self._rotated = false;
-            // w = self._texture.width;
-            // h = self._texture.height;
-            w = self.width;
-            h = self.height;
-            self.setRect(cc.rect(0, 0, w, h));
-        }
+        // if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+        //     // TODO: rotate texture for canvas
+        //     // self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
+        //     self._rotated = false;
+        //     // w = self._texture.width;
+        //     // h = self._texture.height;
+        //     w = self.width;
+        //     h = self.height;
+        //     self.setRect(cc.rect(0, 0, w, h));
+        // }
 
         if (self._rect) {
-            self._checkRect(/*self._texture*/);
+            self.checkRect(this.image!);
         } else {
             self.setRect(cc.rect(0, 0, w, h));
         }
@@ -389,7 +411,7 @@ export class SpriteFrame extends Texture2D {
      * @param offsets
      */
     public setOffset (offsets: Vec2) {
-        this._offset = cc.v2(offsets);
+        this._offset = new Vec2(offsets);
     }
 
     /**
@@ -514,7 +536,7 @@ export class SpriteFrame extends Texture2D {
     //     this._texture = null;   // TODO - release texture
     // }
 
-    public _checkRect (/*texture*/) {
+    public checkRect(texture: ImageAsset) {
         const rect = this._rect;
         let maxX = rect.x;
         let maxY = rect.y;
@@ -531,20 +553,18 @@ export class SpriteFrame extends Texture2D {
         // if (maxY > texture.height) {
         //     cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
         // }
-        if (maxX > this._originalSize.width) {
+        if (maxX > texture.width) {
             cc.errorID(3300, /*this.url*/ + '/' + this.name, maxX, this._originalSize.width);
         }
-        if (maxY > this._originalSize.height) {
+        if (maxY > texture.height) {
             cc.errorID(3400, /*this.url +*/ '/' + this.name, maxY, this._originalSize.height);
         }
     }
 
     public _calculateSlicedUV () {
         const rect = this._rect;
-        // let atlasWidth = this._texture.width;
-        // let atlasHeight = this._texture.height;
-        const atlasWidth = this._originalSize.width;
-        const atlasHeight = this._originalSize.height;
+        const atlasWidth = this.image!.width;
+        const atlasHeight = this.image!.height;
         const leftWidth = this._capInsets[INSET_LEFT];
         const rightWidth = this._capInsets[INSET_RIGHT];
         const centerWidth = rect.width - leftWidth - rightWidth;
@@ -599,12 +619,10 @@ export class SpriteFrame extends Texture2D {
 
     public _calculateUV () {
         const rect = this._rect;
-        // texture = this._texture,
+        const texture = this.image!;
         const uv = this.uv;
-        // texw = texture.width,
-        // texh = texture.height;
-        const texw = this._originalSize.width;
-        const texh = this._originalSize.height;
+        const texw = texture.width;
+        const texh = texture.height;
 
         if (this._rotated) {
             const l = texw === 0 ? 0 : rect.x / texw;
@@ -744,8 +762,6 @@ export class SpriteFrame extends Texture2D {
             super.onLoaded();
         }
 
-        // this.updateMipmaps();
-
         this._textureLoadedCallback();
     }
 
@@ -761,9 +777,5 @@ export class SpriteFrame extends Texture2D {
     //     return this.setTexture(...args);
     // }
 }
-
-const proto = SpriteFrame.prototype;
-
-addon(proto, EventTarget.prototype);
 
 cc.SpriteFrame = SpriteFrame;

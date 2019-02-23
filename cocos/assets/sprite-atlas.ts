@@ -24,8 +24,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { ccclass, property } from '../core/data/class-decorator';
 import { Asset } from './asset';
-import {ccclass, property} from '../core/data/class-decorator';
+import { SpriteFrame } from './CCSpriteFrame';
+
+interface ISpriteAtlas {
+    [key: string]: SpriteFrame | null;
+}
 
 /**
  * !#en Class for sprite atlas handling.
@@ -34,20 +39,21 @@ import {ccclass, property} from '../core/data/class-decorator';
  * @extends Asset
  */
 @ccclass('cc.SpriteAtlas')
-export default class SpriteAtlas extends Asset {
+export class SpriteAtlas extends Asset {
     @property
-    _spriteFrames = {};
+    public spriteFrames: ISpriteAtlas = {};
 
     /**
      * Returns the texture of the sprite atlas
      * @method getTexture
      * @returns {Texture2D}
      */
-    getTexture () {
-        var keys = Object.keys(this._spriteFrames);
+    public getTexture () {
+        const keys = Object.keys(this.spriteFrames);
         if (keys.length > 0) {
-            var spriteFrame = this._spriteFrames[keys[0]];
-            return spriteFrame ? spriteFrame.getTexture() : null;
+            const spriteFrame = this.spriteFrames[keys[0]];
+            // return spriteFrame ? spriteFrame.getTexture() : null;
+            return spriteFrame;
         }
         else {
             return null;
@@ -60,8 +66,8 @@ export default class SpriteAtlas extends Asset {
      * @param {String} key
      * @returns {SpriteFrame}
      */
-    getSpriteFrame (key) {
-        let sf = this._spriteFrames[key];
+    public getSpriteFrame (key: string) {
+        const sf = this.spriteFrames[key];
         if (!sf) {
             return null;
         }
@@ -76,15 +82,21 @@ export default class SpriteAtlas extends Asset {
      * @method getSpriteFrames
      * @returns {[SpriteFrame]}
      */
-    getSpriteFrames () {
-        var frames = [];
-        var spriteFrames = this._spriteFrames;
+    public getSpriteFrames () {
+        const frames: Array<SpriteFrame | null> = [];
+        const spriteFrames = this.spriteFrames;
 
-        for (var key in spriteFrames) {
+        for (const key of Object.keys(spriteFrames)) {
             frames.push(this.getSpriteFrame(key));
         }
 
         return frames;
+    }
+
+    public _serialize () {
+        return {
+            spriteFrames: this.spriteFrames,
+        };
     }
 }
 

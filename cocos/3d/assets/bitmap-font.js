@@ -29,7 +29,7 @@ import Font from "./font";
 import vec2 from "../../core/vmath/vec2";
 import { Texture2D } from "../../assets/texture-2d";
 
-@ccclass('cc.BitmapFont')
+// @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {
     /**
      * @type {Texture2D}
@@ -82,4 +82,4 @@ export class BitmapFont extends Font {
     }
 }
 
-cc.BitmapFont = BitmapFont;
+// cc.BitmapFont = BitmapFont;

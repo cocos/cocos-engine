@@ -166,12 +166,12 @@ export class UIRenderComponent extends Component {
         return this._material;
     }
 
-    set material (value) {
+    set material (value: Material | null) {
         if (this._material === value) {
             return;
         }
 
-        this._material = value;
+        this._updateMaterial(value);
     }
 
     public static Assembler: IAssemblerManager | null = null;
@@ -186,14 +186,18 @@ export class UIRenderComponent extends Component {
     protected _priority = 0;
     @property
     protected _material: Material | null = null;
+    @property
+    protected _sharedMaterial: Material | null = null;
 
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
     protected _renderDataPoolID = -1;
     protected _visibility = -1;
     protected _renderData: RenderData | null = null;
-    @property
-    private _sharedMaterial: Material | null = null;
+    protected _renderDataDirty = false;
+    // 特殊渲染标记，在可渲染情况下，因为自身某个原因不给予渲染
+    protected _renderPermit = true;
+
     // _allocedDatas = [];
     // _vertexFormat = null;
     // _toPostHandle = false;
@@ -210,6 +214,7 @@ export class UIRenderComponent extends Component {
 
     public onEnable () {
         let parent = this.node;
+        // 获取被渲染相机的 visibility
         while (parent) {
             if (parent) {
                 const canvasComp = parent.getComponent(CanvasComponent);
@@ -223,23 +228,24 @@ export class UIRenderComponent extends Component {
             parent = parent.parent;
         }
 
-        this.node.on(EventType.ANCHOR_CHANGED, this._stateChange, this);
-        this.node.on(EventType.TRANSFORM_CHANGED, this._stateChange, this);
-        this.node.on(EventType.SIZE_CHANGED, this._stateChange, this);
+        this.node.on(EventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.on(EventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
+        this.node.on(EventType.SIZE_CHANGED, this._nodeStateChange, this);
         // if (this.node._renderComponent) {
         //     this.node._renderComponent.enabled = false;
         // }
         // this.node._renderComponent = this;
         // this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
+        this._renderDataDirty = true;
     }
 
     public onDisable () {
         this._visibility = -1;
         // this.node._renderComponent = null;
         // this.disableRender();
-        this.node.off(EventType.ANCHOR_CHANGED, this._stateChange, this);
-        this.node.off(EventType.TRANSFORM_CHANGED, this._stateChange, this);
-        this.node.off(EventType.SIZE_CHANGED, this._stateChange, this);
+        this.node.off(EventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.off(EventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
+        this.node.off(EventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
 
     public onDestroy () {
@@ -253,50 +259,23 @@ export class UIRenderComponent extends Component {
     }
 
     public markForUpdateRenderData (enable: boolean = true) {
-        // if (enable && this._canRender()) {
-        //     this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        // }
-        // else if (!enable) {
-        //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        // }
-
-        // if (enable /*&& this._canRender()*/) {
-            // this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-
-            const renderData = this._renderData;
-            if (renderData) {
-                renderData.uvDirty = enable;
-                renderData.vertDirty = enable;
-                for (const child of this.node.children) {
-                    const renderComp = child.getComponent(UIRenderComponent);
-                    if (renderComp){
-                        renderComp.markForUpdateRenderData();
-                    }
-                }
-            }
-        // }
-        // else if (!enable) {
-        //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        // }
+        if (enable && this._canRender()) {
+            this._renderDataDirty = enable;
+        }
+        else if (!enable) {
+            this._renderDataDirty = enable;
+        }
     }
 
-    // markForRender(enable) {
-    //     // if (enable && this._canRender()) {
-    //     //     this.node._renderFlag |= RenderFlow.FLAG_RENDER;
-    //     // }
-    //     // else if (!enable) {
-    //     //     this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
-    //     // }
-    // }
-
-    // markForCustomIARender(enable) {
-    //     // if (enable && this._canRender()) {
-    //     //     this.node._renderFlag |= RenderFlow.FLAG_CUSTOM_IA_RENDER;
-    //     // }
-    //     // else if (!enable) {
-    //     //     this.node._renderFlag &= ~RenderFlow.FLAG_CUSTOM_IA_RENDER;
-    //     // }
-    // }
+    // TODO:
+    public markForCustomIARender (enable) {
+        // if (enable && this._canRender()) {
+        //     this.node._renderFlag |= RenderFlow.FLAG_CUSTOM_IA_RENDER;
+        // }
+        // else if (!enable) {
+        //     this.node._renderFlag &= ~RenderFlow.FLAG_CUSTOM_IA_RENDER;
+        // }
+    }
 
     // disableRender() {
     //     // this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
@@ -311,11 +290,6 @@ export class UIRenderComponent extends Component {
     }
 
     public destroyRenderData () {
-        // let index = this._allocedDatas.indexOf(data);
-        // if (index !== -1) {
-        //     this._allocedDatas.splice(index, 1);
-        //     RenderData.free(data);
-        // }
         if (this._renderDataPoolID === -1) {
             return;
         }
@@ -329,23 +303,35 @@ export class UIRenderComponent extends Component {
         if (!this._canRender()) {
             return;
         }
-        if (this._assembler!.updateRenderData) {
-            this._assembler!.updateRenderData!(this);
-        }
+
+        this._checkAndUpdateRenderData();
         this._assembler!.fillBuffers(this, render);
     }
 
     public postUpdateAssembler () {
-        if (!this._postAssembler) {
-            return;
-        }
-        if (this._postAssembler.updateRenderData) {
-            this._postAssembler.updateRenderData(this);
+        // if (!this._canRender() || !this._postAssembler) {
+        //     return;
+        // }
+
+        // if (this._renderDataDirty) {
+        //     this._postAssembler.updateRenderData(this);
+        //     this._renderDataDirty = false;
+        // }
+    }
+
+    public updateRenderData (force = false) {
+
+    }
+
+    protected _checkAndUpdateRenderData (){
+        if (this._renderDataDirty) {
+            this._assembler!.updateRenderData!(this);
+            this._renderDataDirty = false;
         }
     }
 
     protected _canRender () {
-        return this._assembler !== null && this._material !== null;
+        return this._material !== null && this._renderPermit;
     }
 
     protected _updateColor () {
@@ -356,12 +342,19 @@ export class UIRenderComponent extends Component {
         }
     }
 
-    // TODO:
-    private _updateBlendFunc (updateHash) {
-        // if (!this.material) {
-        //     return;
-        // }
+    protected _updateMaterial (material: Material | null) {
+        this._material = material;
 
+        this._updateBlendFunc();
+        // material.updateHash();
+    }
+
+    private _updateBlendFunc (updateHash: boolean = false) {
+        if (!this._material) {
+            return;
+        }
+
+        // TODO:
         // var pass = this.material._mainTech.passes[0];
         // pass.setBlend(
         //     gfx.BLEND_FUNC_ADD,
@@ -375,13 +368,22 @@ export class UIRenderComponent extends Component {
         // }
     }
 
-    private _stateChange (){
-        this.markForUpdateRenderData();
+    // pos, rot, scale changed
+    private _nodeStateChange (){
+        if (this._renderData) {
+            this.markForUpdateRenderData();
+            for (const child of this.node.children) {
+                const renderComp = child.getComponent(UIRenderComponent);
+                if (renderComp) {
+                    renderComp.updateRenderData();
+                }
+            }
+        }
     }
 
     private _instanceMaterial (){
         if (this._sharedMaterial) {
-            this._material = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
+            this.material = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
         }
     }
 }

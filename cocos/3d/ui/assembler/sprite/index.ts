@@ -29,13 +29,13 @@ import { SpriteComponent } from '../../components/sprite-component';
 const SpriteType = SpriteComponent.Type;
 const FillType = SpriteComponent.FillType;
 
+import { UIRenderComponent } from '../../components/ui-render-component';
+import { IAssemblerManager } from '../assembler';
+import { barFilled } from './bar-filled';
+import { radialFilled } from './radial-filled';
 import { simple } from './simple';
 import { sliced } from './sliced';
 import { tilled } from './tiled';
-import { radialFilled } from './radial-filled';
-import { barFilled } from './bar-filled';
-import { IAssemblerManager } from '../assembler';
-import { UIRenderComponent } from '../../components/ui-render-component';
 // import meshRenderUtil from './mesh';
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
@@ -57,7 +57,7 @@ export const spriteAssembler: IAssemblerManager = {
                 // } else {
                     util = barFilled;
                 // }
-                break;
+                    break;
             // case SpriteType.MESH:
             //     util = meshRenderUtil;
             //     break;

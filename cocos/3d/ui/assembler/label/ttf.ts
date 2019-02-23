@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import * as js from '../../../../core/utils/js';
-import { color4 } from '../../../../core/vmath';
+import { Color } from '../../../../core/value-types';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
@@ -33,7 +33,7 @@ import { IAssembler} from '../assembler';
 import { fillMeshVertices3D } from '../utils';
 import { ttfUtils } from './ttfUtils';
 
-const WHITE = color4.create();
+const WHITE = Color.WHITE;
 
 export const ttf: IAssembler = {
     useModel: false,
@@ -63,7 +63,7 @@ export const ttf: IAssembler = {
             comp.renderData!.indiceCount,
         );
         const commitBuffer: IUIRenderData = renderer.createUIRenderData();
-        fillMeshVertices3D(comp.node, buffer, comp.renderData, WHITE);
+        fillMeshVertices3D(comp.node, buffer, comp.renderData!, WHITE);
 
         commitBuffer.meshBuffer = buffer;
         commitBuffer.material = comp.material!;

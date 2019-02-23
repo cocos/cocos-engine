@@ -28,7 +28,7 @@ const FillType = SpriteComponent.FillType;
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 import { Mat4 } from '../../../../core/value-types';
-import { vec3, color4 } from '../../../../core/vmath/index';
+import { color4, vec3 } from '../../../../core/vmath/index';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
@@ -65,8 +65,8 @@ export const barFilled: IAssembler = {
                 return;
             }
 
-            let fillStart = sprite._fillStart;
-            let fillRange = sprite._fillRange;
+            let fillStart = sprite.fillStart;
+            let fillRange = sprite.fillRange;
 
             if (fillRange < 0) {
                 fillStart += fillRange;
@@ -90,7 +90,9 @@ export const barFilled: IAssembler = {
                 this.updateUVs!(sprite, fillStart, fillEnd);
             }
             if (vertDirty) {
-                this.updateVerts(sprite, fillStart, fillEnd);
+                if (this.updateVerts) {
+                    this.updateVerts(sprite, fillStart, fillEnd);
+                }
                 this.updateWorldVerts!(sprite);
             }
         }
@@ -185,7 +187,7 @@ export const barFilled: IAssembler = {
 
         let progressStart = 0;
         let progressEnd = 0;
-        switch (sprite._fillType) {
+        switch (sprite.fillType) {
             case FillType.HORIZONTAL:
                 progressStart = l + (r - l) * fillStart;
                 progressEnd = l + (r - l) * fillEnd;
@@ -260,8 +262,7 @@ export const barFilled: IAssembler = {
         const vertexId: number = buffer.vertexOffset;
 
         const node = sprite.node;
-        sprite.color.to01(color_temp);
-        fillVerticesWithoutCalc3D(node, buffer, sprite.renderData, color_temp);
+        fillVerticesWithoutCalc3D(node, buffer, sprite.renderData!, sprite.color);
 
         // buffer data may be realloc, need get reference after request.
         const ibuf = buffer.iData;
