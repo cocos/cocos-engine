@@ -26,9 +26,7 @@
 const Component = require('./CCComponent');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
-const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const RenderData = renderEngine.RenderData;
-const gfx = renderEngine.gfx;
 
 /**
  * !#en
@@ -49,52 +47,6 @@ let RenderComponent = cc.Class({
     },
 
     properties: {
-        _srcBlendFactor: BlendFactor.SRC_ALPHA,
-        _dstBlendFactor: BlendFactor.ONE_MINUS_SRC_ALPHA,
-
-          /**
-         * !#en specify the source Blend Factor, this will generate a custom material object, please pay attention to the memory cost.
-         * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的开销
-         * @property srcBlendFactor
-         * @type {macro.BlendFactor}
-         * @example
-         * sprite.srcBlendFactor = cc.macro.BlendFactor.ONE;
-         */
-        srcBlendFactor: {
-            get: function() {
-                return this._srcBlendFactor;
-            },
-            set: function(value) {
-                if (this._srcBlendFactor === value) return;
-                this._srcBlendFactor = value;
-                this._updateBlendFunc(true);
-            },
-            animatable: false,
-            type:BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor'
-        },
-
-        /**
-         * !#en specify the destination Blend Factor.
-         * !#zh 指定目标的混合模式
-         * @property dstBlendFactor
-         * @type {macro.BlendFactor}
-         * @example
-         * sprite.dstBlendFactor = cc.macro.BlendFactor.ONE;
-         */
-        dstBlendFactor: {
-            get: function() {
-                return this._dstBlendFactor;
-            },
-            set: function(value) {
-                if (this._dstBlendFactor === value) return;
-                this._dstBlendFactor = value;
-                this._updateBlendFunc(true);
-            },
-            animatable: false,
-            type: BlendFactor,
-            tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor'
-        },
     },
     
     ctor () {
@@ -199,27 +151,7 @@ let RenderComponent = cc.Class({
 
     _updateMaterial (material) {
         this._material = material;
-
-        this._updateBlendFunc();
         material.updateHash();
-    },
-        
-    _updateBlendFunc: function (updateHash) {
-        if (!this._material) {
-            return;
-        }
-
-        var pass = this._material._mainTech.passes[0];
-        pass.setBlend(
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor,
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor
-        );
-
-        if (updateHash) {
-            this._material.updateHash();
-        }
     },
 });
 RenderComponent._assembler = null;

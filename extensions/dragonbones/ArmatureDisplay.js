@@ -31,7 +31,6 @@ let EventTarget = require('../../cocos2d/core/event/event-target');
 
 const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
-const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
 
 let ArmatureCache = require('./ArmatureCache');
 
@@ -112,44 +111,6 @@ let ArmatureDisplay = cc.Class({
             default: null,
             type: dragonBones.CCFactory,
             serializable: false,
-        },
-
-        /**
-         * !#en don't try to get or set srcBlendFactor,it doesn't affect,if you want to change dragonbones blend mode,please set it in dragonbones editor directly.
-         * !#zh 不要试图去获取或者设置 srcBlendFactor，没有意义，如果你想设置 dragonbones 的 blendMode，直接在 dragonbones 编辑器中设置即可。
-         * @property srcBlendFactor
-         * @type {macro.BlendFactor}
-         */
-        srcBlendFactor: {
-            get: function() {
-                return this._srcBlendFactor;
-            },
-            set: function(value) {
-                // shield set _srcBlendFactor
-            },
-            animatable: false,
-            type:BlendFactor,
-            override: true,
-            visible: false
-        },
-
-        /**
-         * !#en don't try to get or set dstBlendFactor,it doesn't affect,if you want to change dragonbones blend mode,please set it in dragonbones editor directly.
-         * !#zh 不要试图去获取或者设置 dstBlendFactor，没有意义，如果想设置 dragonbones 的 blendMode，直接在 dragonbones 编辑器中设置即可。
-         * @property dstBlendFactor
-         * @type {macro.BlendFactor}
-         */
-        dstBlendFactor: {
-            get: function() {
-                return this._dstBlendFactor;
-            },
-            set: function(value) {
-                // shield set _dstBlendFactor
-            },
-            animatable: false,
-            type: BlendFactor,
-            override: true,
-            visible: false
         },
 
         /**
