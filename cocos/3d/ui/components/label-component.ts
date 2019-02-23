@@ -214,6 +214,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         readonly: true,
         displayName: 'Actual Font Size',
+        visible: false,
     })
     get actualFontSize () {
         return this._actualFontSize;
@@ -301,7 +302,7 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 是否自动换行。
      * @property {Boolean} enableWrapText
      */
-    @property
+    @property()
     get enableWrapText () {
         return this._enableWrapText;
     }
@@ -402,7 +403,6 @@ export class LabelComponent extends UIRenderComponent {
 
     }
 
-    @property
     get spacingX () {
         return this._spacingX;
     }
@@ -421,7 +421,9 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 字体是否加粗。
      * @property {Boolean} isBold
      */
-    @property
+    @property({
+        // visible: false,
+    })
     get isBold () {
         return this._isBold;
     }
@@ -432,6 +434,7 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         this._isBold = value;
+        this.updateRenderData();
     }
 
     /**
@@ -439,7 +442,9 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 字体是否倾斜。
      * @property {Boolean} isItalic
      */
-    @property
+    @property({
+        // visible: false,
+    })
     get isItalic () {
         return this._isItalic;
     }
@@ -450,6 +455,7 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         this._isItalic = value;
+        this.updateRenderData();
     }
 
     /**
@@ -457,7 +463,9 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 字体是否加下划线。
      * @property {Boolean} isUnderline
      */
-    @property
+    @property({
+        // visible: false,
+    })
     get isUnderline () {
         return this._isUnderline;
     }
@@ -468,6 +476,7 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         this._isUnderline = value;
+        this.updateRenderData();
     }
 
     get texture (){
@@ -517,7 +526,6 @@ export class LabelComponent extends UIRenderComponent {
     private _isSystemFontUsed = true;
     @property
     private _bmFontOriginalSize = -1;
-    @property
     private _spacingX = 0;
     @property
     private _isItalic = false;
@@ -543,7 +551,6 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     public onEnable () {
-        // this._super();
         super.onEnable();
 
         // TODO: Hack for barbarians
@@ -557,13 +564,10 @@ export class LabelComponent extends UIRenderComponent {
 
         this._checkStringEmpty();
         this.updateRenderData(true);
-        // this._updateAssembler();
-        // this._activateMaterial();
     }
 
     public onDisable () {
         super.onDisable();
-        // this._super();
     }
 
     public onDestroy () {
@@ -576,7 +580,8 @@ export class LabelComponent extends UIRenderComponent {
             this._ttfTexture.destroy();
             this._ttfTexture = null;
         }
-        // this._super();
+
+        super.onDestroy();
     }
 
     public updateRenderData (force = false) {
@@ -584,7 +589,7 @@ export class LabelComponent extends UIRenderComponent {
         if (renderData) {
             renderData.vertDirty = true;
             renderData.uvDirty = true;
-            // this.markForUpdateRenderData(true);
+            this.markForUpdateRenderData(true);
         }
 
         if (force) {
@@ -594,53 +599,31 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _updateColor () {
-        const font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            // this._super();
+        if (this._font instanceof BitmapFont) {
+           super._updateColor();
         } else {
             this.updateRenderData(false);
-            // this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
     }
 
     protected _canRender () {
-        // let result = this._super();
-        // TODO: use renderFlag
         let result = super._canRender();
-        // if (result) {
-        //     const font = this._font;
-        //     if (font && font instanceof cc.BitmapFont) {
-        //         const spriteFrame = font.spriteFrame;
-        //         // cannot be activated if texture not loaded yet
-        //         if (!spriteFrame || !spriteFrame.textureLoaded()) {
-        //             result = false;
-        //         }
-        //     }
-        // }
-
         if (result) {
-            result = this._string.length > 0 ? true : false;
+            const font = this._font;
+            if (font && font instanceof BitmapFont) {
+                const spriteFrame = font.spriteFrame;
+                // cannot be activated if texture not loaded yet
+                if (!spriteFrame || !spriteFrame.textureLoaded()) {
+                    result = false;
+                }
+            }
         }
 
         return result;
     }
 
-    // private _canRender () {
-    //     // let result = this._super();
-    //     let result = this._enabled;
-    //     const font = this.font;
-    //     if (font instanceof cc.BitmapFont) {
-    //         const spriteFrame = font.spriteFrame;
-    //         // cannot be activated if texture not loaded yet
-    //         if (!spriteFrame || !spriteFrame.textureLoaded()) {
-    //             result = false;
-    //         }
-    //     }
-    //     return result;
-    // }
-
     private _checkStringEmpty () {
-        // this.markForRender(!!this.string);
+        this._renderPermit = !!this.string;
     }
 
     private _flushAssembler () {
@@ -659,30 +642,20 @@ export class LabelComponent extends UIRenderComponent {
         }
     }
 
-    private _activateMaterial (force) {
+    private _flushMaterial () {
         const material = this._material;
-        // if (material && !force) {
-        //     return;
-        // }
-
-        // if (!material) {
-        //     // material = new SpriteMaterial();
-        //     this._material = cc.builtinResMgr.get('sprite-material');
-        //     material = this._material;
-        // }
         // Setup blend function for premultiplied ttf label texture
         if (this._texture === this._ttfTexture) {
-            this._srcBlendFactor = cc.macro.BlendFactor.ONE;
+            this._srcBlendFactor = macro.BlendFactor.ONE;
         } else {
-            this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
+            this._srcBlendFactor = macro.BlendFactor.SRC_ALPHA;
         }
 
         if (material) {
             material.setProperty('mainTexture', this._texture);
         }
-        // For batch rendering, do not use uniform color.
-        // material!.useColor = false;
-        // this._updateMaterial(material);
+
+        this._updateMaterial(material);
     }
 
     private _applyFontTexture (force) {
@@ -693,7 +666,7 @@ export class LabelComponent extends UIRenderComponent {
             const onBMFontTextureLoaded = () => {
                 // TODO: old texture in material have been released by loader
                 self._texture = spriteFrame;
-                self._activateMaterial(force);
+                self._flushMaterial();
 
                 if (force && self._assembler && self._assembler.updateRenderData) {
                     self._assembler.updateRenderData(self);
@@ -712,7 +685,7 @@ export class LabelComponent extends UIRenderComponent {
             }
         } else {
             if (!this._ttfTexture) {
-                this._ttfTexture = new cc.SpriteFrame();
+                this._ttfTexture = new SpriteFrame();
                 // this._ttfTexture.setFilters(cc.Texture2D.Filter.LINEAR, cc.Texture2D.Filter.LINEAR);
                 // this._ttfTexture.setWrapMode(cc.Texture2D.WrapMode.CLAMP_TO_EDGE, cc.Texture2D.WrapMode.CLAMP_TO_EDGE);
                 // TTF texture in web will blend with canvas or body background color
@@ -730,7 +703,7 @@ export class LabelComponent extends UIRenderComponent {
                 // this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
             this._texture = this._ttfTexture;
-            this._activateMaterial(force);
+            this._flushMaterial();
 
             if (force && this._assembler && this._assembler.updateRenderData) {
                 this._assembler.updateRenderData(this);

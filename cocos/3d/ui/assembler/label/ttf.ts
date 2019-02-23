@@ -33,7 +33,7 @@ import { IAssembler} from '../assembler';
 import { fillMeshVertices3D } from '../utils';
 import { ttfUtils } from './ttfUtils';
 
-const WHITE = new Color();
+const WHITE = Color.WHITE;
 
 export const ttf: IAssembler = {
     useModel: false,

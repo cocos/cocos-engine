@@ -216,17 +216,19 @@ export class SpriteComponent extends UIRenderComponent {
         return this._fillType;
     }
     set fillType (value: FillType) {
-        if (value !== this._fillType) {
-            // if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
-            //     // this.destroyRenderData(/*this._renderData*/);
-            //     this._renderData = null;
-            // } else
-            if (this._renderData) {
-                this.markForUpdateRenderData(true);
+        if (this._fillType !== value) {
+            if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
+                this.destroyRenderData();
+                this._renderData = null;
+            } else {
+                if (this._renderData) {
+                    this.markForUpdateRenderData(true);
+                }
             }
-            this._fillType = value;
-            this._flushAssembler();
         }
+
+        this._fillType = value;
+        this._flushAssembler();
     }
 
     /**
@@ -427,30 +429,19 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
-    // public onDisable () {
-    //     // this._super();
-    //     super.onDisable();
-    // }
+    public markForUpdateRenderData (enable: boolean = true) {
+        if (enable && this._canRender()) {
+            const renderData = this._renderData;
+            if (renderData) {
+                renderData.uvDirty = true;
+                renderData.vertDirty = true;
+            }
 
-    public _onNodeSizeDirty () {
-        if (!this._renderData) { return; }
-        this.markForUpdateRenderData();
+            this._renderDataDirty = enable;
+        } else if (!enable) {
+            this._renderDataDirty = enable;
+        }
     }
-
-    // public markForUpdateRenderData (enable: boolean) {
-    //     if (enable /*&& this._canRender()*/) {
-    //         // this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-
-    //         const renderData = this._renderData;
-    //         if (renderData) {
-    //             renderData.uvDirty = true;
-    //             renderData.vertDirty = true;
-    //         }
-    //     }
-    //     // else if (!enable) {
-    //     //     this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-    //     // }
-    // }
 
     public _applySpriteSize () {
         if (this._spriteFrame) {
