@@ -100,7 +100,8 @@ var DragonBonesAsset = cc.Class({
         }
 
         let armatureKey = this._uuid + "#" + atlasUUID;
-        if (this._dragonBonesDatas[armatureKey]) return armatureKey;
+        let dragonBonesData = this._factory.getDragonBonesData(armatureKey);
+        if (dragonBonesData) return armatureKey;
 
         let rawData = null;
         if (this.dragonBonesJson) {
@@ -108,8 +109,7 @@ var DragonBonesAsset = cc.Class({
         } else {
             rawData = this._nativeAsset;
         }
-        let dragonBonesData = this._factory.parseDragonBonesData(rawData, armatureKey);
-        this._dragonBonesDatas[armatureKey] = dragonBonesData;
+        this._factory.parseDragonBonesData(rawData, armatureKey);
         return armatureKey;
     },
 
@@ -120,7 +120,7 @@ var DragonBonesAsset = cc.Class({
             return this._armaturesEnum;
         }
         this.init();
-        let dragonBonesData = this._getADragonBonesData();
+        let dragonBonesData = this._factory.getDragonBonesDataByUUID(this._uuid);
         if (dragonBonesData) {
             var armatureNames = dragonBonesData.armatureNames;
             var enumDef = {};
@@ -133,19 +133,10 @@ var DragonBonesAsset = cc.Class({
         return null;
     },
 
-    _getADragonBonesData () {
-        let dragonBonesData = null;
-        for(var key in this._dragonBonesDatas) {
-            dragonBonesData = this._dragonBonesDatas[key];
-            if (dragonBonesData) break;
-        }
-        return dragonBonesData;
-    },
-
     getAnimsEnum: CC_EDITOR && function (armatureName) {
         this.init();
 
-        let dragonBonesData = this._getADragonBonesData();
+        let dragonBonesData = this._factory.getDragonBonesDataByUUID(this._uuid);
         if (dragonBonesData) {
             var armature = dragonBonesData.getArmature(armatureName);
             if (!armature) {
@@ -169,12 +160,9 @@ var DragonBonesAsset = cc.Class({
     _clear () {
         if (CC_JSB) return;
         if (this._factory) {
-            for (var key in this._dragonBonesDatas) {
-                ArmatureCache.resetArmature(this._uuid);
-                this._factory.removeDragonBonesDataByUUID(this._uuid, true);
-            }
+            ArmatureCache.resetArmature(this._uuid);
+            this._factory.removeDragonBonesDataByUUID(this._uuid, true);
         }
-        this._dragonBonesDatas = {};
     },
 
     destroy () {

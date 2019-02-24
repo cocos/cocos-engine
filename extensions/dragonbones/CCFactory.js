@@ -165,6 +165,15 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
         return slot;
     },
 
+    getDragonBonesDataByUUID (uuid) {
+        for (var name in this._dragonBonesDataMap) {
+            if (name.indexOf(uuid) != -1) {
+                return this._dragonBonesDataMap[name];
+            }
+        }
+        return null;
+    },
+
     removeDragonBonesDataByUUID (uuid, disposeData) {
         if (disposeData === void 0) { disposeData = true; }
         for (var name in this._dragonBonesDataMap) {
