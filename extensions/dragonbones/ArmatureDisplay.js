@@ -96,7 +96,6 @@ function setEnumAttr (obj, propName, enumDef) {
 let ArmatureDisplay = cc.Class({
     name: 'dragonBones.ArmatureDisplay',
     extends: RenderComponent,
-    mixins: [EventTarget],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
@@ -422,6 +421,8 @@ let ArmatureDisplay = cc.Class({
         _playing: false,
         // Armature cache
         _armatureCache: null,
+        // Event target
+        _eventTarget: new EventTarget,
     },
 
     ctor () {
@@ -434,6 +435,7 @@ let ArmatureDisplay = cc.Class({
         this._materialCache = {};
         this._inited = false;
         this._factory = dragonBones.CCFactory.getInstance();
+        EventTarget
     },
 
     onLoad () {
@@ -829,6 +831,54 @@ let ArmatureDisplay = cc.Class({
 
     /**
      * !#en
+     * Add event listener for the DragonBones Event, the same to addEventListener.
+     * !#zh
+     * 添加 DragonBones 事件监听器，与 addEventListener 作用相同。
+     * @method on
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} listener - The callback that will be invoked when the event is dispatched.
+     * @param {Event} listener.event event
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     */
+    on (eventType, listener, target) {
+        this.addEventListener(eventType, listener, target);
+    },
+
+    /**
+     * !#en
+     * Remove the event listener for the DragonBones Event, the same to removeEventListener.
+     * !#zh
+     * 移除 DragonBones 事件监听器，与 removeEventListener 作用相同。
+     * @method off
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} [listener]
+     * @param {Object} [target]
+     */
+    off (eventType, listener, target) {
+        this.removeEventListener(eventType, listener, target);
+    },
+
+    /**
+     * !#en
+     * Add event listener for the DragonBones Event, the same to addEventListener.
+     * !#zh
+     * 添加 DragonBones 一次性事件监听器，回调会在第一时间被触发后删除自身。。
+     * @method on
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} listener - The callback that will be invoked when the event is dispatched.
+     * @param {Event} listener.event event
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     */
+    once (eventType, listener, target) {
+        if (this._displayProxy) {
+            this._displayProxy.once(eventType, listener, target);
+        } else {
+            this._eventTarget.once(eventType, listener, target);
+        }
+    },
+
+    /**
+     * !#en
      * Add event listener for the DragonBones Event.
      * !#zh
      * 添加 DragonBones 事件监听器。
@@ -840,9 +890,9 @@ let ArmatureDisplay = cc.Class({
      */
     addEventListener (eventType, listener, target) {
         if (this._displayProxy) {
-            this._displayProxy.addDBEventListener(eventType, listener, target);
+            this._displayProxy.on(eventType, listener, target);
         } else {
-            this.on(eventType, listener, target);
+            this._eventTarget.on(eventType, listener, target);
         }
     },
 
@@ -858,9 +908,9 @@ let ArmatureDisplay = cc.Class({
      */
     removeEventListener (eventType, listener, target) {
         if (this._displayProxy) {
-            this._displayProxy.removeDBEventListener(eventType, listener, target);
+            this._displayProxy.off(eventType, listener, target);
         } else {
-            this.off(eventType, listener, target);
+            this._eventTarget.off(eventType, listener, target);
         }
     },
 
