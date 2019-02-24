@@ -421,8 +421,6 @@ let ArmatureDisplay = cc.Class({
         _playing: false,
         // Armature cache
         _armatureCache: null,
-        // Event target
-        _eventTarget: new EventTarget,
     },
 
     ctor () {
@@ -435,7 +433,6 @@ let ArmatureDisplay = cc.Class({
         this._materialCache = {};
         this._inited = false;
         this._factory = dragonBones.CCFactory.getInstance();
-        EventTarget
     },
 
     onLoad () {
@@ -550,7 +547,7 @@ let ArmatureDisplay = cc.Class({
         // Animation Start, the event diffrent from dragonbones inner event,
         // It has no event object.
         if (this._accTime == 0 && this._playCount == 0) {
-            this.emit(dragonBones.EventObject.START);
+            this._eventTarget.emit(dragonBones.EventObject.START);
         }
 
         this._accTime += dt * this.timeScale;
@@ -559,11 +556,11 @@ let ArmatureDisplay = cc.Class({
 
             // Animation loop complete, the event diffrent from dragonbones inner event,
             // It has no event object.
-            this.emit(dragonBones.EventObject.LOOP_COMPLETE);
+            this._eventTarget.emit(dragonBones.EventObject.LOOP_COMPLETE);
 
             // Animation complete the event diffrent from dragonbones inner event,
             // It has no event object.
-            this.emit(dragonBones.EventObject.COMPLETE);
+            this._eventTarget.emit(dragonBones.EventObject.COMPLETE);
 
             this._playCount ++;
             if (this.playTimes === -1 || (this.playTimes > 0 && this._playCount >= this.playTimes)) {
@@ -645,13 +642,16 @@ let ArmatureDisplay = cc.Class({
             this._curFrame = null;
             this._playing = false;
             this._preRenderMode = null;
+            this._eventTarget = null;
         }
 
         if (!CC_EDITOR) {
             if (this._renderMode === RenderMode.SHARED_CACHE) {
                 this._armatureCache = ArmatureCache.sharedCache;
+                this._eventTarget = new EventTarget;
             } else if (this._renderMode === RenderMode.PRIVATE_CACHE) {
                 this._armatureCache = new ArmatureCache;
+                this._eventTarget = new EventTarget;
             }
         }
 
@@ -785,9 +785,7 @@ let ArmatureDisplay = cc.Class({
      */
     updateAnimationCache (animName) {
         if (!this.isCachedMode()) return;
-        let atlasName = this.dragonAtlasAsset._textureAtlasData.name;
-        let dragonbonesName = this.dragonAsset._dragonBonesData.name;
-        let cache = this._armatureCache.updateAnimationCache(this.armatureName, dragonbonesName, atlasName, animName);
+        let cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
         this._frameCache = cache || this._frameCache;
     },
 
@@ -800,7 +798,7 @@ let ArmatureDisplay = cc.Class({
      * @returns {Array}
      */
     getArmatureNames () {
-        let dragonBonesData = this.dragonAsset && this.dragonAsset._dragonBonesData;
+        let dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
         return (dragonBonesData && dragonBonesData.armatureNames) || [];
     },
 
@@ -815,8 +813,9 @@ let ArmatureDisplay = cc.Class({
      */
     getAnimationNames (armatureName) {
         let ret = [];
-        if (this.dragonAsset && this.dragonAsset._dragonBonesData) {
-            let armatureData = this.dragonAsset._dragonBonesData.getArmature(armatureName);
+        let dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
+        if (dragonBonesData) {
+            let armatureData = dragonBonesData.getArmature(armatureName);
             if (armatureData) {
                 for (let animName in armatureData.animations) {
                     if (armatureData.animations.hasOwnProperty(animName)) {
@@ -825,7 +824,6 @@ let ArmatureDisplay = cc.Class({
                 }
             }
         }
-
         return ret;
     },
 
