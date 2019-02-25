@@ -25,14 +25,14 @@
  ****************************************************************************/
 
 import { Component } from '../../../components/component';
-import { clamp01 } from '../../../core/utils/misc';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Vec3, Vec2, Size } from '../../../core/value-types';
+import { clamp01 } from '../../../core/utils/misc';
+import { Size, Vec2, Vec3 } from '../../../core/value-types';
+import { ccenum } from '../../../core/value-types/enum';
+import { vec3 } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { ScrollViewComponent } from './scroll-view-component';
-import { vec3 } from '../../../core/vmath';
 import { SpriteComponent } from './sprite-component';
-import { ccenum } from '../../../core/value-types/enum';
 
 const GETTINGSHORTERFACTOR = 20;
 const ZERO = new Vec3();
@@ -53,8 +53,8 @@ enum Direction {
     /**
      * @property {Number} VERTICAL
      */
-    VERTICAL = 1
-};
+    VERTICAL = 1,
+}
 
 ccenum(Direction);
 
@@ -69,20 +69,6 @@ ccenum(Direction);
 @executionOrder(100)
 @menu('UI/ScrollBar')
 export class ScrollBarComponent extends Component {
-    @property
-    private _scrollView: ScrollViewComponent | null = null;
-    @property
-    private _handle: SpriteComponent | null = null;
-    @property
-    private _direction = Direction.HORIZONTAL;
-    @property
-    private _enableAutoHide = false;
-    @property
-    private _autoHideTime = 1.0;
-
-    private _touching = false;
-    private _opacity = 255;
-    private _autoHideRemainingTime = 0;
 
     /**
      * !#en The "handle" part of the scrollbar.
@@ -90,15 +76,15 @@ export class ScrollBarComponent extends Component {
      * @property {Sprite} handle
      */
     @property({
-        type: SpriteComponent
+        type: SpriteComponent,
     })
-    get handle() {
+    get handle () {
         return this._handle;
     }
 
-    set handle(value: SpriteComponent | null) {
+    set handle (value: SpriteComponent | null) {
         if (this._handle === value) {
-            return
+            return;
         }
         this._handle = value;
         this.onScroll(cc.v2(0, 0));
@@ -110,13 +96,13 @@ export class ScrollBarComponent extends Component {
      * @property {Scrollbar.Direction} direction
      */
     @property({
-        type: Direction
+        type: Direction,
     })
-    get direction() {
+    get direction () {
         return this._direction;
     }
 
-    set direction(value) {
+    set direction (value) {
         if (this._direction === value) {
             return;
         }
@@ -131,11 +117,11 @@ export class ScrollBarComponent extends Component {
      * @property {Boolean} enableAutoHide
      */
     @property
-    get enableAutoHide() {
+    get enableAutoHide () {
         return this._enableAutoHide;
     }
 
-    set enableAutoHide(value) {
+    set enableAutoHide (value) {
         if (this._enableAutoHide === value) {
             return;
         }
@@ -156,11 +142,11 @@ export class ScrollBarComponent extends Component {
      * @property {Number} autoHideTime
      */
     @property
-    get autoHideTime() {
+    get autoHideTime () {
         return this._autoHideTime;
     }
 
-    set autoHideTime(value) {
+    set autoHideTime (value) {
         if (this._autoHideTime === value) {
             return;
         }
@@ -168,62 +154,35 @@ export class ScrollBarComponent extends Component {
         this._autoHideTime = value;
     }
 
-    static Direction = Direction;
+    public static Direction = Direction;
+    @property
+    private _scrollView: ScrollViewComponent | null = null;
+    @property
+    private _handle: SpriteComponent | null = null;
+    @property
+    private _direction = Direction.HORIZONTAL;
+    @property
+    private _enableAutoHide = false;
+    @property
+    private _autoHideTime = 1.0;
 
-    protected onEnable() {
-        let renderComp = this.node.getComponent(SpriteComponent);
-        if (renderComp) {
-            this._opacity = renderComp.color.a;
-        }
-    }
+    private _touching = false;
+    private _opacity = 255;
+    private _autoHideRemainingTime = 0;
 
-    protected start() {
-        if (this._enableAutoHide) {
-            this._setOpacity(0);
-        }
-    }
-
-    public hide() {
+    public hide () {
         this._autoHideRemainingTime = 0;
         this._setOpacity(0);
     }
 
-    public show() {
+    public show () {
         this._autoHideRemainingTime = this._autoHideTime;
         this._setOpacity(this._opacity);
     }
 
-    protected update(dt) {
-        this._processAutoHide(dt);
-    }
-
-    private _convertToScrollViewSpace(content: Node) {
+    public onScroll (outOfBoundary: Vec3) {
         if (!this._scrollView) {
-            return ZERO;
-        }
-
-        const worldSpacePos = content.uiTransfromComp!.convertToWorldSpace(ZERO);
-        const scrollViewSpacePos = this._scrollView.node.uiTransfromComp!.convertToNodeSpace(worldSpacePos);
-        return scrollViewSpacePos;
-    }
-
-    private _setOpacity(opacity: number) {
-        if (this._handle) {
-            let renderComp = this.node.getComponent(SpriteComponent);
-            if (renderComp) {
-                renderComp.color.a = opacity;
-            }
-
-            renderComp = this._handle.getComponent(SpriteComponent);
-            if (renderComp) {
-                renderComp.color.a = opacity;
-            }
-        }
-    }
-
-    public onScroll(outOfBoundary: Vec3) {
-        if (!this._scrollView) {
-            return
+            return;
         }
 
         const content = this._scrollView.content;
@@ -231,9 +190,9 @@ export class ScrollBarComponent extends Component {
             return;
         }
 
-        var contentSize = content.getContentSize();
-        var scrollViewSize = this._scrollView.node.getContentSize();
-        var barSize = this.node.getContentSize();
+        const contentSize = content.getContentSize();
+        const scrollViewSize = this._scrollView.node.getContentSize();
+        const barSize = this.node.getContentSize();
 
         if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
             return;
@@ -272,14 +231,87 @@ export class ScrollBarComponent extends Component {
         this._updateLength(length);
         this._updateHanlderPosition(position);
 
-
     }
 
-    public setScrollView(scrollView: ScrollViewComponent) {
+    public setScrollView (scrollView: ScrollViewComponent) {
         this._scrollView = scrollView;
     }
 
-    private _updateHanlderPosition(position: Vec3) {
+    public onTouchBegan () {
+        if (!this._enableAutoHide) {
+            return;
+        }
+        this._touching = true;
+    }
+
+    public onTouchEnded () {
+        if (!this._enableAutoHide) {
+            return;
+        }
+
+        this._touching = false;
+
+        if (this._autoHideTime <= 0) {
+            return;
+        }
+
+        if (this._scrollView) {
+            const content = this._scrollView.content;
+            if (content) {
+                const contentSize = content.getContentSize();
+                const scrollViewSize = this._scrollView.node.getContentSize();
+
+                if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
+                    return;
+                }
+            }
+        }
+
+        this._autoHideRemainingTime = this._autoHideTime;
+    }
+
+    protected onEnable () {
+        const renderComp = this.node.getComponent(SpriteComponent);
+        if (renderComp) {
+            this._opacity = renderComp.color.a;
+        }
+    }
+
+    protected start () {
+        if (this._enableAutoHide) {
+            this._setOpacity(0);
+        }
+    }
+
+    protected update (dt) {
+        this._processAutoHide(dt);
+    }
+
+    private _convertToScrollViewSpace (content: Node) {
+        if (!this._scrollView) {
+            return ZERO;
+        }
+
+        const worldSpacePos = content.uiTransfromComp!.convertToWorldSpace(ZERO);
+        const scrollViewSpacePos = this._scrollView.node.uiTransfromComp!.convertToNodeSpace(worldSpacePos);
+        return scrollViewSpacePos;
+    }
+
+    private _setOpacity (opacity: number) {
+        if (this._handle) {
+            let renderComp = this.node.getComponent(SpriteComponent);
+            if (renderComp) {
+                renderComp.color.a = opacity;
+            }
+
+            renderComp = this._handle.getComponent(SpriteComponent);
+            if (renderComp) {
+                renderComp.color.a = opacity;
+            }
+        }
+    }
+
+    private _updateHanlderPosition (position: Vec3) {
         if (this._handle) {
             const oldPosition = this._fixupHandlerPosition();
 
@@ -287,13 +319,12 @@ export class ScrollBarComponent extends Component {
         }
     }
 
-    private _fixupHandlerPosition() {
+    private _fixupHandlerPosition () {
         const barSize = this.node.getContentSize();
         const barAnchor = this.node.getAnchorPoint();
         const handleSize = this.handle!.node.getContentSize();
 
         const handleParent = this.handle!.node.parent!;
-
 
         vec3.set(_tempPos_1, -barSize.width * barAnchor.x, -barSize.height * barAnchor.y, 0);
         const leftBottomWorldPosition = this.node!.uiTransfromComp!.convertToWorldSpaceAR(_tempPos_2, _tempPos_1);
@@ -311,14 +342,7 @@ export class ScrollBarComponent extends Component {
         return fixupPosition;
     }
 
-    public onTouchBegan() {
-        if (!this._enableAutoHide) {
-            return;
-        }
-        this._touching = true;
-    }
-
-    private _conditionalDisableScrollBar(contentSize: Size, scrollViewSize: Size) {
+    private _conditionalDisableScrollBar (contentSize: Size, scrollViewSize: Size) {
         if (contentSize.width <= scrollViewSize.width && this._direction === Direction.HORIZONTAL) {
             return true;
         }
@@ -329,34 +353,7 @@ export class ScrollBarComponent extends Component {
         return false;
     }
 
-    public onTouchEnded() {
-        if (!this._enableAutoHide) {
-            return;
-        }
-
-        this._touching = false;
-
-        if (this._autoHideTime <= 0) {
-            return;
-        }
-
-
-        if (this._scrollView) {
-            const content = this._scrollView.content;
-            if (content) {
-                const contentSize = content.getContentSize();
-                const scrollViewSize = this._scrollView.node.getContentSize();
-
-                if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
-                    return;
-                }
-            }
-        }
-
-        this._autoHideRemainingTime = this._autoHideTime;
-    }
-
-    private _calculateLength(contentMeasure: number, scrollViewMeasure: number, handleNodeMeasure: number, outOfBoundary: number) {
+    private _calculateLength (contentMeasure: number, scrollViewMeasure: number, handleNodeMeasure: number, outOfBoundary: number) {
         let denominatorValue = contentMeasure;
         if (outOfBoundary) {
             denominatorValue += (outOfBoundary > 0 ? outOfBoundary : -outOfBoundary) * GETTINGSHORTERFACTOR;
@@ -366,7 +363,14 @@ export class ScrollBarComponent extends Component {
         return handleNodeMeasure * lengthRation;
     }
 
-    private _calculatePosition(contentMeasure: number, scrollViewMeasure: number, handleNodeMeasure: number, contentPosition: number, outOfBoundary: number, actualLenth: number) {
+    private _calculatePosition (
+        contentMeasure: number,
+        scrollViewMeasure: number,
+        handleNodeMeasure: number,
+        contentPosition: number,
+        outOfBoundary: number,
+        actualLenth: number,
+    ) {
         let denominatorValue = contentMeasure - scrollViewMeasure;
         if (outOfBoundary) {
             denominatorValue += Math.abs(outOfBoundary);
@@ -386,12 +390,12 @@ export class ScrollBarComponent extends Component {
         }
     }
 
-    private _updateLength(length: number) {
+    private _updateLength (length: number) {
         if (this._handle) {
-            let handleNode = this._handle.node;
+            const handleNode = this._handle.node;
             const handleNodeSize = handleNode.getContentSize();
             const anchor = handleNode.getAnchorPoint();
-            if(anchor.x !== defaultAnchor.x || anchor.y !== defaultAnchor.y){
+            if (anchor.x !== defaultAnchor.x || anchor.y !== defaultAnchor.y){
                 handleNode.setAnchorPoint(defaultAnchor);
             }
 
@@ -403,13 +407,12 @@ export class ScrollBarComponent extends Component {
         }
     }
 
-    private _processAutoHide(deltaTime: number) {
+    private _processAutoHide (deltaTime: number) {
         if (!this._enableAutoHide || this._autoHideRemainingTime <= 0) {
             return;
         } else if (this._touching) {
             return;
         }
-
 
         this._autoHideRemainingTime -= deltaTime;
         if (this._autoHideRemainingTime <= this._autoHideTime) {
@@ -419,3 +422,5 @@ export class ScrollBarComponent extends Component {
         }
     }
 }
+
+cc.ScrollBarComponent = ScrollBarComponent;
