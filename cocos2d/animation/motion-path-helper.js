@@ -266,6 +266,7 @@ function sampleMotionPaths (motionPaths, data, duration, fps, target) {
 
     let motionPathValid = false;
     for (let i = 0; i < motionPaths.length; i++) {
+        let motionPath = motionPaths[i];
         if (motionPath && !checkMotionPath(motionPath)) {
             cc.errorID(3904, target ? target.name : '', 'position', i);
             motionPath = null;
