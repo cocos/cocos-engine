@@ -305,6 +305,10 @@ export class WebGLGFXDevice extends GFXDevice {
             this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
         }
 
+        if (this._WEBGL_depth_texture) {
+            this._features[GFXFeature.FORMAT_D24S8] = true;
+        }
+
         // init states
         this.initStates(gl);
 

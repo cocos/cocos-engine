@@ -24,6 +24,8 @@ export enum GFXAPI {
 export enum GFXFeature {
     TEXTURE_FLOAT,
     TEXTURE_HALF_FLOAT,
+    FORMAT_R11G11B10F,
+    FORMAT_D24S8,
     COUNT,
 }
 

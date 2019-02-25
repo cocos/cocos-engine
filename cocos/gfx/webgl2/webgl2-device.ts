@@ -225,6 +225,8 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._features.fill(false);
         this._features[GFXFeature.TEXTURE_FLOAT] = true;
         this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
+        this._features[GFXFeature.FORMAT_R11G11B10F] = true;
+        this._features[GFXFeature.FORMAT_D24S8] = true;
 
         // init states
         this.initStates(gl);

@@ -61,6 +61,10 @@ export class ForwardPipeline extends RenderPipeline {
 
     public initialize (): boolean {
 
+        if (!this.createShadingTarget()) {
+            return false;
+        }
+
         if (!this.createQuadInputAssembler()) {
             return false;
         }

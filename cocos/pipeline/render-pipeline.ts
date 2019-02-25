@@ -3,8 +3,8 @@ import { Root } from '../core/root';
 import { Mat4 } from '../core/value-types';
 import { mat4, vec3 } from '../core/vmath';
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXType } from '../gfx/define';
-import { GFXDevice } from '../gfx/device';
+import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXType, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXFormatInfos } from '../gfx/define';
+import { GFXDevice, GFXFeature, GFXAPI } from '../gfx/device';
 import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXUniformBlock } from '../gfx/shader';
@@ -13,6 +13,7 @@ import { GFXTextureView } from '../gfx/texture-view';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
+import { GFXFramebuffer } from '../gfx/framebuffer';
 
 export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
@@ -50,8 +51,8 @@ export class UBOGlobal {
 
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;
-    public static MAT_WORLD_IT_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
-    public static COUNT: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
+    public static MAT_WORLD_IT_OFFSET: number = 16;
+    public static COUNT: number = 32;
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
@@ -86,6 +87,14 @@ export abstract class RenderPipeline {
         return this._flows;
     }
 
+    public get shadingTex (): GFXTexture {
+        return this._shadingTex!;
+    }
+
+    public get shadingTexView (): GFXTextureView {
+        return this._shadingTexView!;
+    }
+
     public get quadIA (): GFXInputAssembler {
         return this._quadIA!;
     }
@@ -107,6 +116,11 @@ export abstract class RenderPipeline {
     protected _queue: RenderQueue = new RenderQueue();
     protected _renderPasses: Map<number, GFXRenderPass> = new Map();
     protected _flows: RenderFlow[] = [];
+    protected _isHDR: boolean = false;
+    protected _shadingPass: GFXRenderPass | null = null;
+    protected _shadingTex: GFXTexture | null = null;
+    protected _shadingTexView: GFXTextureView | null = null;
+    protected _shadingFBO: GFXFramebuffer | null = null;
     protected _quadVB: GFXBuffer | null = null;
     protected _quadIB: GFXBuffer | null = null;
     protected _quadIA: GFXInputAssembler | null = null;
@@ -187,6 +201,59 @@ export abstract class RenderPipeline {
             flow.destroy();
         }
         this._flows = [];
+    }
+
+    protected createShadingTarget (): boolean {
+
+        let colorFmt: GFXFormat;
+        let depthFmt: GFXFormat;
+
+        // Try to use HDR format
+        if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
+            colorFmt = GFXFormat.R11G11B10F;
+            this._isHDR = true;
+        } else if (this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
+            colorFmt = GFXFormat.RGB16F;
+            this._isHDR = true;
+        } else if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+            colorFmt = GFXFormat.RGB32F;
+            this._isHDR = true;
+        } else { // Fallback to LDR
+            colorFmt = GFXFormat.RGBA8;
+            this._isHDR = false;
+        }
+
+        if (this._device.hasFeature(GFXFeature.FORMAT_D24S8)) {
+            depthFmt = GFXFormat.D24S8;
+        } else {
+            depthFmt = GFXFormat.D16;
+        }
+
+        console.info('Shading Color Format: ' + GFXFormatInfos[colorFmt].name);
+        console.info('Shading Depth Format: ' + GFXFormatInfos[depthFmt].name);
+
+        this._shadingPass = this._device.createRenderPass({
+            colorAttachments: [{
+                format: colorFmt,
+                loadOp: GFXLoadOp.CLEAR,
+                storeOp: GFXStoreOp.STORE,
+                sampleCount: 1,
+                beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+                endLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+            }],
+            depthStencilAttachment: {
+                format : depthFmt,
+                depthLoadOp : GFXLoadOp.CLEAR,
+                depthStoreOp : GFXStoreOp.STORE,
+                stencilLoadOp : GFXLoadOp.CLEAR,
+                stencilStoreOp : GFXStoreOp.STORE,
+                sampleCount : 1,
+                beginLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                endLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+            },
+        });
+
+        return true;
     }
 
     protected createQuadInputAssembler (): boolean {
