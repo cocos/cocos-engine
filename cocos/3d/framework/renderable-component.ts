@@ -22,14 +22,22 @@ export class RenderableComponent extends Component {
         displayName: 'Materials',
     })
     get sharedMaterials () {
-        return this._materials;
+        // if we don't create an array copy, the editor will modify the original array directly.
+        return this._materials.slice();
     }
 
     set sharedMaterials (val) {
-        // 因为现在编辑器的做法是，当这个val传进来时，内部的materials已经被修改了。
-        // 我们没办法做到上面的最优化，只能先清理ModelComponent里所有Submodel的材质，再重新关联。
-        this._clearMaterials();
-        val.forEach((newMaterial, index) => this.setMaterial(newMaterial, index));
+        for (let i = 0; i < val.length; i++) {
+            if (val[i] !== this._materials[i]) {
+                this.setMaterial(val[i], i);
+            }
+        }
+        if (val.length < this._materials.length) {
+            for (let i = val.length; i < this._materials.length; i++) {
+                this.setMaterial(null, i);
+            }
+            this._materials.splice(val.length);
+        }
     }
 
     /**

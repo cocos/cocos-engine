@@ -31,7 +31,8 @@ import { vfmt } from '../../gfx/vertex-format-sample';
 import { Node } from '../../scene-graph/node';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
-import { UIMaterial } from './ui-material';
+import { IUIMaterialInfo, UIMaterial } from './ui-material';
+import { UIBatchModel } from './ui-batch-model';
 
 export class UBOUI {
     public static MAT_VIEW_PROJ_OFFSET: number = 0;
@@ -143,12 +144,29 @@ export class UI {
     private _sortChildList: Pool<any[]> = new Pool(() => {
         return [];
     }, 128);
+    private _uiModelPool: Pool<UIBatchModel> | null = null;
+    private _modelInUse: CachedArray<UIBatchModel>;
+
+    get renderScene (): RenderScene {
+        return this._scene;
+    }
 
     constructor (private _root: Root) {
         this._device = _root.device;
-        this._scene = this._root.createScene({
-            name: 'GUIScene',
-        });
+        if (CC_EDITOR) {
+            cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, (scene) => {
+                this._scene = scene.renderScene;
+                // the models will be destroyed in renderScene
+                this._modelInUse.clear();
+                this._uiModelPool = new Pool(() => this._scene.createModel<UIBatchModel>(UIBatchModel, null), 2);
+            });
+        } else {
+            this._scene = this._root.createScene({
+                name: 'GUIScene',
+            });
+            this._uiModelPool = new Pool(() => this._scene.createModel<UIBatchModel>(UIBatchModel, null), 2);
+        }
+        this._modelInUse = new CachedArray<UIBatchModel>(10);
 
         // this._cameraNode = new Node('UICameraNode');
 
@@ -178,6 +196,8 @@ export class UI {
 
         this._vertF32Count = 9;
         this._vertStride = this._vertF32Count * 4;
+
+        cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.update, this);
 
         // this.resize(this._camera.width, this._camera.height);
     }
@@ -261,6 +281,9 @@ export class UI {
 
     public addScreen (comp) {
         this._screens.push(comp);
+        if (comp.camera) {
+            comp.camera.view.visibility = this._screens.length;
+        }
     }
 
     public getScreen (visibility: number) {
@@ -279,6 +302,11 @@ export class UI {
         const idx = this._screens.indexOf(comp);
         if (idx !== -1) {
             this._screens.splice(idx, 1);
+        }
+        for (let i = idx; i < this._screens.length;) {
+            if (this._screens[i].camera) {
+                this._screens[i].camera.view.visibility = ++i;
+            }
         }
     }
 
@@ -327,64 +355,42 @@ export class UI {
                 bufferBatch.ib!.update(bufferBatch.vui16!);
             }
         }
+
+        this.render();
     }
 
     public render () {
 
+        let batchPriority = 0;
+
+        for (let i = 0; i < this._modelInUse.length; i++) {
+            this._modelInUse.get(i).enabled = false;
+            this._uiModelPool!.free(this._modelInUse.get(i));
+        }
+        this._modelInUse.clear();
+
         if (this._batches.length) {
-            const framebuffer = this._root.curWindow!.framebuffer;
-            const cmdBuff = this._cmdBuff!;
-
-            cmdBuff.begin();
-
-            let curCamera: Camera | null = null;
 
             for (let i = 0; i < this._batches.length; ++i) {
                 const batch = this._batches.array[i];
-                const camera = batch.camera!;
-
-                if (curCamera !== camera) {
-                    if (curCamera) {
-                        cmdBuff.endRenderPass();
-                    }
-
-                    // this._renderArea.width = camera.width;
-                    // this._renderArea.height = camera.height;
-                    this._renderArea.width = this._root.device.width;
-                    this._renderArea.height = this._root.device.height;
-
-                    // TODO: add screen adapter
-                    // update ubo
-                    camera.matViewProj.m14 /= 1000;     // hack:to be resolved later
-                    mat4.array(_mat4Array, camera.matViewProj);
-                    this._uboUI.view.set(_mat4Array, UBOUI.MAT_VIEW_PROJ_OFFSET);
-
-                    this._uiUBO!.update(this._uboUI.view);
-
-                    curCamera = camera;
-
-                    cmdBuff.beginRenderPass(framebuffer, this._renderArea, [], camera.clearDepth, camera.clearStencil);
-                }
 
                 const bindingLayout = batch.bindingLayout!;
-                bindingLayout.bindBuffer(0, this._uiUBO!);
-                bindingLayout.bindTextureView(1, batch.texView!);
+                bindingLayout.bindTextureView(0, batch.texView!);
                 bindingLayout.update();
 
                 const ia = batch.bufferBatch!.ia!;
                 ia.firstIndex = batch.firstIdx;
                 ia.indexCount = batch.idxCount;
 
-                cmdBuff.bindPipelineState(batch.pipelineState!);
-                cmdBuff.bindBindingLayout(bindingLayout);
-                cmdBuff.bindInputAssembler(batch.bufferBatch!.ia!);
-                cmdBuff.draw(batch.bufferBatch!.ia!);
+                const uiModel = this._uiModelPool!.alloc();
+                uiModel.initialize(ia, batch);
+                uiModel.enabled = true;
+                uiModel.getSubModel(0).priority = batchPriority++;
+                if (batch.camera) {
+                    uiModel.viewID = batch.camera.view.visibility;
+                }
+                this._modelInUse.push(uiModel);
             }
-
-            cmdBuff.endRenderPass();
-            cmdBuff.end();
-
-            this._device.queue.submit([cmdBuff]);
         }
     }
 
@@ -569,7 +575,7 @@ export class UI {
                 }
 
                 if (curMaterialHash !== uiRenderData.material.hash ||
-                     curTexView !== uiRenderData.texture.getGFXTextureView()) {
+                    curTexView !== uiRenderData.texture.getGFXTextureView()) {
                     if (curTexView) {
                         curDrawBatch = this._drawBatchPool.alloc();
                         curDrawBatch.camera = uiCanvas.camera;

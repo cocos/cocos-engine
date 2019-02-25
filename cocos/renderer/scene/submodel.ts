@@ -94,7 +94,7 @@ export class SubModel {
             return;
         }
         for (let i = 0; i < this._material!.passes.length; i++) {
-            if (this._material!.passes[i].primitive !== this._subMeshObject!.primitiveMode) {
+            if (this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
                 cc.error(`the model(%d)'s primitive type doesn't match its pass's`, i);
             }
             this.recordCommandBuffer(i);
@@ -123,7 +123,7 @@ export class SubModel {
         this._castShadow = val;
     }
 
-    private recordCommandBuffer (index: number) {
+    protected recordCommandBuffer (index: number) {
         const device = cc.director.root.device as GFXDevice;
         const pso = this._psos![index];
         if (this._cmdBuffers[index] == null) {
