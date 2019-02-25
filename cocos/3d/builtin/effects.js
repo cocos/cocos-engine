@@ -78,17 +78,21 @@ export default [
       {
         "name": "builtin-effect-sprite|sprite-vs:vert|sprite-fs:frag",
         "glsl3": {
-          "vert": `\nuniform CCGlobal {\n  \n  vec4 cc_time; \n  vec4 cc_screenSize; \n  vec4 cc_screenScale; \n  \n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos; \n};\nprecision mediump float;\nin vec3 a_position;\nin vec2 a_texCoord;\nin vec4 a_color;\nout vec2 uv0;\nout vec4 color;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * pos;\n  uv0 = a_texCoord;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "vert": `\n  precision mediump float;\n  in vec3 a_position;\n  in vec2 a_texCoord;\n  in vec4 a_color;\n  out vec2 uv0;\n  out vec4 color;\n  uniform UI {\n    mat4 u_matViewProj;\n  };\n  vec4 vert () {\n    vec4 pos = vec4(a_position, 1);\n    pos = u_matViewProj * pos;\n    uv0 = a_texCoord;\n    color = a_color;\n    return pos;\n  }\nvoid main() { gl_Position = vert(); }\n`,
           "frag": `\n  precision mediump float;\n  in vec2 uv0;\n  in vec4 color;\n  uniform sampler2D mainTexture;\n  vec4 frag () {\n    vec4 o = vec4(1, 1, 1, 1);\n    o *= texture(mainTexture, uv0);\n    o *= color;\n    return o;\n  }\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`
         },
         "glsl1": {
-          "vert": `\n  uniform vec4 cc_time;\n  uniform vec4 cc_screenSize;\n  uniform vec4 cc_screenScale;\n  uniform mat4 cc_matView;\n  uniform mat4 cc_matViewInv;\n  uniform mat4 cc_matProj;\n  uniform mat4 cc_matProjInv;\n  uniform mat4 cc_matViewProj;\n  uniform mat4 cc_matViewProjInv;\n  uniform vec4 cc_cameraPos;\nprecision mediump float;\nattribute vec3 a_position;\nattribute vec2 a_texCoord;\nattribute vec4 a_color;\nvarying vec2 uv0;\nvarying vec4 color;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * pos;\n  uv0 = a_texCoord;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "vert": `\n  precision mediump float;\n  attribute vec3 a_position;\n  attribute vec2 a_texCoord;\n  attribute vec4 a_color;\n  varying vec2 uv0;\n  varying vec4 color;\n    uniform mat4 u_matViewProj;\n  vec4 vert () {\n    vec4 pos = vec4(a_position, 1);\n    pos = u_matViewProj * pos;\n    uv0 = a_texCoord;\n    color = a_color;\n    return pos;\n  }\nvoid main() { gl_Position = vert(); }\n`,
           "frag": `\n  precision mediump float;\n  varying vec2 uv0;\n  varying vec4 color;\n  uniform sampler2D mainTexture;\n  vec4 frag () {\n    vec4 o = vec4(1, 1, 1, 1);\n    o *= texture2D(mainTexture, uv0);\n    o *= color;\n    return o;\n  }\nvoid main() { gl_FragColor = frag(); }\n`
         },
         "defines": [],
-        "blocks": [],
+        "blocks": [
+          {"name": "UI", "size": 64, "defines": [], "binding": 0, "members": [
+            {"name":"u_matViewProj", "type":26, "count":1, "size":64}
+          ]}
+        ],
         "samplers": [
-          {"name":"mainTexture", "type":29, "count":1, "defines":[], "binding":0}
+          {"name":"mainTexture", "type":29, "count":1, "defines":[], "binding":1}
         ],
         "dependencies": {}
       }
