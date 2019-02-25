@@ -663,7 +663,11 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLGFXDevice, gpuBuffer: Web
 export function WebGLCmdFuncUpdateBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer, buffer: GFXBufferSource, offset: number, size: number) {
 
     if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
-        gpuBuffer.vf32!.set(buffer as Float32Array, offset);
+        if (buffer instanceof Float32Array) {
+            gpuBuffer.vf32!.set(buffer, offset);
+        } else {
+            gpuBuffer.vf32!.set(new Float32Array(buffer as ArrayBuffer), offset);
+        }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) {
         gpuBuffer.indirects = (buffer as IGFXIndirectBuffer).drawInfos;
     } else {

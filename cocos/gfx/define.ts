@@ -21,7 +21,7 @@ export enum WebGLEXT {
 export const GFX_MAX_VERTEX_ATTRIBUTES: number = 16;
 export const GFX_MAX_TEXTURE_UNITS: number = 16;
 export const GFX_MAX_ATTACHMENTS: number = 4;
-export const GFX_MAX_BUFFER_BINDINGS: number = 32;
+export const GFX_MAX_BUFFER_BINDINGS: number = 24;
 
 export enum GFXObjectType {
     UNKNOWN,

@@ -157,7 +157,8 @@ export class Pass {
             else { console.error('create buffer failed.'); return; }
             // buffer data processing system
             const block: IBlock = this._blocks[u.binding] = {
-                buffer: buffer.buffer as ArrayBuffer,
+                // buffer: buffer.buffer as ArrayBuffer,
+                buffer: new ArrayBuffer(u.size),
                 dirty: false,
                 views: [],
             };

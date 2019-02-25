@@ -16,20 +16,20 @@ import { RenderView } from './render-view';
 
 export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
-    public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
-    public static SCREEN_SCALE_OFFSET: number = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
-    public static MAT_VIEW_OFFSET: number = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
-    public static MAT_VIEW_INV_OFFSET: number = UBOGlobal.MAT_VIEW_OFFSET + 16;
-    public static MAT_PROJ_OFFSET: number = UBOGlobal.MAT_VIEW_INV_OFFSET + 16;
-    public static MAT_PROJ_INV_OFFSET: number = UBOGlobal.MAT_PROJ_OFFSET + 16;
-    public static MAT_VIEW_PROJ_OFFSET: number = UBOGlobal.MAT_PROJ_INV_OFFSET + 16;
-    public static MAT_VIEW_PROJ_INV_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_OFFSET + 16;
-    public static CAMERA_POS_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET + 16;
-    public static COUNT: number = UBOGlobal.CAMERA_POS_OFFSET + 4;
+    public static SCREEN_SIZE_OFFSET: number = 4;
+    public static SCREEN_SCALE_OFFSET: number = 8;
+    public static MAT_VIEW_OFFSET: number = 12;
+    public static MAT_VIEW_INV_OFFSET: number = 28;
+    public static MAT_PROJ_OFFSET: number = 44;
+    public static MAT_PROJ_INV_OFFSET: number = 60;
+    public static MAT_VIEW_PROJ_OFFSET: number = 76;
+    public static MAT_VIEW_PROJ_INV_OFFSET: number = 92;
+    public static CAMERA_POS_OFFSET: number = 108;
+    public static COUNT: number = 112;
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 30, name: 'CCGlobal', members: [
+        binding: 20, name: 'CCGlobal', members: [
             // constants
             { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
@@ -55,7 +55,7 @@ export class UBOLocal {
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 31, name: 'CCLocal', members: [
+        binding: 21, name: 'CCLocal', members: [
             { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
         ],
@@ -338,7 +338,7 @@ export abstract class RenderPipeline {
         this._uboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 
         // update ubos
-        this._globalUBO!.update(this._uboGlobal.view);
+        this._globalUBO!.update(this._uboGlobal.view.buffer);
     }
 
     protected sceneCulling (view: RenderView) {

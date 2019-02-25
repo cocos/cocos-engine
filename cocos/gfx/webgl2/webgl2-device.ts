@@ -154,7 +154,11 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._maxVertexTextureUnits = gl.getParameter(WebGL2RenderingContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         this._maxUniformBufferBindings = gl.getParameter(WebGL2RenderingContext.MAX_UNIFORM_BUFFER_BINDINGS);
         this._maxUniformBlockSize = gl.getParameter(WebGL2RenderingContext.MAX_UNIFORM_BLOCK_SIZE);
+        this._maxCombinedUniformBlocks = gl.getParameter(WebGL2RenderingContext.MAX_COMBINED_UNIFORM_BLOCKS);
         this._depthBits = gl.getParameter(WebGL2RenderingContext.DEPTH_BITS);
+        this._stencilBits = gl.getParameter(WebGL2RenderingContext.STENCIL_BITS);
+        // let maxVertexUniformBlocks = gl.getParameter(WebGL2RenderingContext.MAX_VERTEX_UNIFORM_BLOCKS);
+        // let maxFragmentUniformBlocks = gl.getParameter(WebGL2RenderingContext.MAX_FRAGMENT_UNIFORM_BLOCKS);
         // let uboOffsetAlignment = gl.getParameter(WebGL2RenderingContext.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
 
         this._width = this._canvas.width;
@@ -195,6 +199,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
         console.info('MAX_UNIFORM_BUFFER_BINDINGS: ' + this._maxUniformBufferBindings);
         console.info('MAX_UNIFORM_BLOCK_SIZE: ' + this._maxUniformBlockSize);
+        console.info('MAX_COMBINED_UNIFORM_BLOCKS: ' + this._maxCombinedUniformBlocks);
         console.info('DEPTH_BITS: ' + this._depthBits);
         console.info('STENCIL_BITS: ' + this._stencilBits);
         // console.info('UNIFORM_BUFFER_OFFSET_ALIGNMENT: ' + uboOffsetAlignment);

@@ -105,6 +105,10 @@ export abstract class GFXDevice {
         return this._maxUniformBlockSize;
     }
 
+    public get maxCombinedUniformBlocks (): number {
+        return this._maxCombinedUniformBlocks;
+    }
+
     public get depthBits (): number {
         return this._depthBits;
     }
@@ -141,6 +145,7 @@ export abstract class GFXDevice {
     protected _maxVertexTextureUnits: number = 0;
     protected _maxUniformBufferBindings: number = GFX_MAX_BUFFER_BINDINGS;
     protected _maxUniformBlockSize: number = 0;
+    protected _maxCombinedUniformBlocks: number = GFX_MAX_BUFFER_BINDINGS;
     protected _depthBits: number = 0;
     protected _stencilBits: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;

@@ -29,7 +29,7 @@ export class UBOForwardLights {
     public static SIZE: number = UBOForwardLights.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 29, name: 'CCForwardLights', members: [
+        binding: 22, name: 'CCForwardLights', members: [
             { name: 'cc_dirLightDirection', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_DIR_LIGHTS },
             { name: 'cc_dirLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_DIR_LIGHTS },
             { name: 'cc_pointLightPositionAndRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_POINT_LIGHTS },

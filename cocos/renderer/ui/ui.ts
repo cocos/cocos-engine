@@ -36,12 +36,12 @@ import { UIMaterial } from './ui-material';
 
 export class UBOUI {
     public static MAT_VIEW_PROJ_OFFSET: number = 0;
-    public static COUNT: number = UBOUI.MAT_VIEW_PROJ_OFFSET + 16;
+    public static COUNT: number = 16;
     public static SIZE: number = UBOUI.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: 26, name: 'CCUI', members: [
-            { name: 'cc_matViewProj', type: GFXType.MAT4, count: 1 },
+        binding: 26, name: 'UI', members: [
+            { name: 'u_matViewProj', type: GFXType.MAT4, count: 1 },
         ],
     };
 
