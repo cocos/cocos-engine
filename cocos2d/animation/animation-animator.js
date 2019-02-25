@@ -230,21 +230,9 @@ function initClipData (root, state) {
 
     // create curves
 
-    function checkMotionPath(motionPath) {
-        if (!Array.isArray(motionPath)) return false;
-
-        for (let i = 0, l = motionPath.length; i < l; i++) {
-            let controls = motionPath[i];
-
-            if (!Array.isArray(controls) || controls.length !== 6) return false;
-        }
-
-        return true;
-    }
-
     function createPropCurve (target, propPath, keyframes) {
         let motionPaths = [];
-        let isMotionPathProp = false;
+        let isMotionPathProp = target instanceof cc.Node && propPath === 'position';
 
         let curve = new DynamicAnimCurve();
 
@@ -258,15 +246,9 @@ function initClipData (root, state) {
             let ratio = keyframe.frame / state.duration;
             curve.ratios.push(ratio);
 
-            let motionPath = keyframe.motionPath;
-            if (motionPath && !checkMotionPath(motionPath)) {
-                cc.errorID(3904, target.name, propPath, i);
-                motionPath = null;
+            if (isMotionPathProp) {
+                motionPaths.push(keyframe.motionPath);
             }
-            if (motionPath && motionPath.length > 0) {
-                isMotionPathProp = true;
-            }
-            motionPaths.push(motionPath);
 
             let curveValue = keyframe.value;
             curve.values.push(curveValue);
@@ -290,15 +272,9 @@ function initClipData (root, state) {
             }
             curve.types.push(DynamicAnimCurve.Linear);
         }
-
-        if (target instanceof cc.Node && propPath === 'position') {
-            curve.values = curve.values.map(function (value) {
-                return value.length === 2 ? cc.v2(value[0], value[1]) : cc.v3(value[0], value[1], value[2]);
-            });
-        }
         
         if (isMotionPathProp) {
-            sampleMotionPaths(motionPaths, curve, clip.duration, clip.sample);
+            sampleMotionPaths(motionPaths, curve, clip.duration, clip.sample, target);
         }
 
         // if every piece of ratios are the same, we can use the quick function to find frame index.
