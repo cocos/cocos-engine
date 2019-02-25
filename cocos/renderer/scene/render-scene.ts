@@ -170,7 +170,7 @@ export class RenderScene {
         this._spotLights = [];
     }
 
-    public createModel<T extends Model> (clazz: new (scene: RenderScene, node: Node) => T, node: Node): T {
+    public createModel<T extends Model> (clazz: new (scene: RenderScene, node: Node | null) => T, node: Node | null): T {
         const model = new clazz(this, node);
         this._models.push(model);
         return model;
@@ -206,7 +206,7 @@ export class RenderScene {
         pool.reset();
         for (const m of this._models) {
             const node = m.node;
-            if (!m.enabled || !cc.Layers.check(node.layer, mask) || !m.modelBounds) { continue; }
+            if (!node || !m.enabled || !cc.Layers.check(node.layer, mask) || !m.modelBounds) { continue; }
             // transform ray back to model space
             mat4.invert(m4, node.getWorldMatrix(m4));
             vec3.transformMat4(modelRay.o, worldRay.o, m4);

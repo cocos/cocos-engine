@@ -25,6 +25,8 @@ export interface ICameraInfo {
     clearFlags: GFXClearFlag;
     rect: Rect;
     targetDisplay: number;
+    priority: number;
+    pipeline: string;
     isUI?: boolean;
 }
 
@@ -60,6 +62,8 @@ export class Camera {
     private _node: Node | null = null;
     private _view: RenderView;
     private _visibility: number = 0;
+    private _priority: number = 0;
+    private _pipeline: string;
 
     constructor (scene: RenderScene, info: ICameraInfo) {
         this._scene = scene;
@@ -71,6 +75,8 @@ export class Camera {
         this._nearClip = info.near;
         this._farClip = info.far;
         this._viewport = info.rect;
+        this._pipeline = info.pipeline || 'forward';
+        this._priority = info.priority || 0;
 
         const c = info.color;
         color4.set(this._clearColor, c.r / 255, c.g / 255, c.b / 255, c.a / 255);
@@ -83,7 +89,7 @@ export class Camera {
         this._view = scene.root.createView({
             camera: this,
             name: this._name,
-            priority: RenderViewPriority.GENERAL,
+            priority: this._priority,
             isUI: (info.isUI !== undefined ? info.isUI : false),
         });
 
@@ -293,6 +299,19 @@ export class Camera {
     }
     get visibility () {
         return this._visibility;
+    }
+
+    get pipeline () {
+        return this._pipeline;
+    }
+
+    get priority () {
+        return this._priority;
+    }
+
+    set priority (val: number) {
+        this._priority = val;
+        this._view.priority = this._priority;
     }
 
     public changeTargetDisplay (val: number) {

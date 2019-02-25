@@ -31,6 +31,13 @@ export class RenderView {
         return this._priority;
     }
 
+    public set priority (val: number) {
+        this._priority = val;
+        if (this._isUI) {
+            this._priority |= 1 << 30;
+        }
+    }
+
     public set visibility (vis) {
         this._visibility = vis;
     }
@@ -71,8 +78,8 @@ export class RenderView {
     public initialize (info: IRenderViewInfo): boolean {
 
         this._name = info.name;
-        this._priority = info.priority;
         this._isUI = info.isUI;
+        this.priority = info.priority;
 
         return true;
     }

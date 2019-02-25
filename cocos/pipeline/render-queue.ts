@@ -62,9 +62,12 @@ export class RenderQueue {
     }
 
     public add (model: Model, camera: Camera) {
-        model.node.getWorldPosition(_v3tmp);
-        vec3.sub(_v3tmp, _v3tmp, camera.position);
-        const depth = vec3.dot(_v3tmp, camera.forward);
+        let depth = 0;
+        if (model.node) {
+            model.node.getWorldPosition(_v3tmp);
+            vec3.sub(_v3tmp, _v3tmp, camera.position);
+            depth = vec3.dot(_v3tmp, camera.forward);
+        }
 
         for (let i = 0; i < model.subModelNum; ++i) {
             const subModel = model.getSubModel(i);
@@ -77,13 +80,13 @@ export class RenderQueue {
                 // TODO: model priority
 
                 if (!isTransparent) {
-                    const hash = (0 << 30) | pass.priority | subModel.priority | p;
+                    const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | p;
 
                     this.opaques.push({
                         hash, depth, shaderId: pso.shader.id,
                         subModel, cmdBuff: subModel.commandBuffers[p]});
                 } else {
-                    const hash = (1 << 30) | pass.priority | subModel.priority | p;
+                    const hash = (1 << 30) | pass.priority << 16 | subModel.priority << 8 | p;
 
                     this.transparents.push({
                         hash, depth, shaderId: pso.shader.id,

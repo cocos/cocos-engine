@@ -99,6 +99,18 @@ export class CanvasComponent extends Component {
         }
     }
 
+    @property()
+    get priority () {
+        return this._priority;
+    }
+
+    set priority (val: number) {
+        this._priority = val;
+        if (this._camera) {
+            this._camera.priority = val;
+        }
+    }
+
     get visibility () {
         if (this._camera) {
             return this._camera.view.visibility;
@@ -125,6 +137,8 @@ export class CanvasComponent extends Component {
     private _fitWidth = false;
     @property
     private _fitHeight = true;
+    @property
+    private _priority = 0;
     // @property
     // private _priority = 0;
 
@@ -157,25 +171,29 @@ export class CanvasComponent extends Component {
     public __preload () {
         const cameraNode = new Node('UICamera');
         cameraNode.setPosition(0, 0, 1000);
-        this._camera = this._getRenderScene().createCamera({
-            name: 'ui',
-            node: cameraNode,
-            projection: CameraComponent.ProjectionType.ORTHO,
-            fov: 45,
-            stencil: 0,
-            orthoHeight: 10,
-            far: 4096,
-            near: 0.1,
-            color: new Color(0, 0, 0, 255),
-            clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
-            rect: new Rect(0, 0, 1, 1),
-            depth: 1,
-            targetDisplay: 0,
-            isUI: true,
-        });
+        if (!CC_EDITOR) {
+            this._camera = cc.director.root.ui.renderScene.createCamera({
+                name: 'ui',
+                node: cameraNode,
+                projection: CameraComponent.ProjectionType.ORTHO,
+                fov: 45,
+                stencil: 0,
+                orthoHeight: 10,
+                far: 4096,
+                near: 0.1,
+                color: new Color(0, 0, 0, 255),
+                clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
+                rect: new Rect(0, 0, 1, 1),
+                depth: 1,
+                targetDisplay: 0,
+                priority: this._priority,
+                isUI: true,
+                pipeline: 'ui',
+            });
+            const device = cc.director.root.device;
+            this._camera.resize(device.width, device.height);
+        }
 
-        const device = cc.director.root.device;
-        this._camera.resize(device.width, device.height);
 
         cc.director.root.ui.addScreen(this);
 

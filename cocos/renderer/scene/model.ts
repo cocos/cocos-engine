@@ -60,7 +60,7 @@ export class Model {
      * @returns the hosting node
      */
     get node () {
-        return this._node;
+        return this._node!;
     }
 
     /**
@@ -82,6 +82,10 @@ export class Model {
         return this._viewID;
     }
 
+    set viewID (id: number) {
+        this._viewID = id;
+    }
+
     /**
      * Set the user key
      * @param {number} key
@@ -101,7 +105,7 @@ export class Model {
     protected _type: string = 'default';
     protected _device: GFXDevice;
     private _scene: RenderScene;
-    private _node: Node;
+    private _node: Node | null;
     private _id: number;
     private _enabled: boolean = false;
     private _viewID: number = -1;
@@ -119,7 +123,7 @@ export class Model {
     /**
      * Setup a default empty model
      */
-    constructor (scene: RenderScene, node: Node) {
+    constructor (scene: RenderScene, node: Node | null) {
         this._device = cc.director.root.device;
         this._scene = scene;
         this._node = node;
@@ -154,7 +158,7 @@ export class Model {
     }
 
     public _updateTransform () {
-        if (this._node.hasChanged) {
+        if (this._node && this._node.hasChanged) {
             this._node.updateWorldTransformFull();
             if (this._modelBounds) {
                 this._modelBounds.transform(
@@ -205,7 +209,7 @@ export class Model {
         } else {
             const oldMat = this._subModels[idx].material;
             this._subModels[idx].destroy();
-            this.releasePSO(oldMat);
+            this.releasePSO(oldMat!);
         }
         this.allocatePSO(mat);
         this._subModels[idx].initialize(subMeshData, mat, this._matPSORecord.get(mat)!);
