@@ -53,6 +53,8 @@
 #endif
 #endif
 
+#define SE_LOG_TO_JS_ENV 0 // print log to JavaScript environment, for example DevTools
+
 #if !defined(ANDROID_INSTANT) && defined(USE_V8_DEBUGGER) && USE_V8_DEBUGGER > 0
 #define SE_ENABLE_INSPECTOR 1
 #define SE_DEBUG 2

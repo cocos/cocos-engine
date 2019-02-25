@@ -136,10 +136,18 @@ namespace se {
             return true;
         }
 
+        // exist potential crash in iOS, when invoke log to javascript
+        void JSB_invoke_js_log(Value& v, State& s)
+        {
+#if SE_LOG_TO_JS_ENV
+            v.toObject()->call(s.args(), __consoleVal.toObject());
+#endif
+        }
+
         bool JSB_console_log(State& s)
         {
             JSB_console_format_log(s, "");
-            __oldConsoleLog.toObject()->call(s.args(), __consoleVal.toObject());
+            JSB_invoke_js_log(__oldConsoleLog, s);
             return true;
         }
         SE_BIND_FUNC(JSB_console_log)
@@ -147,7 +155,7 @@ namespace se {
         bool JSB_console_debug(State& s)
         {
             JSB_console_format_log(s, "[DEBUG]: ");
-            __oldConsoleDebug.toObject()->call(s.args(), __consoleVal.toObject());
+            JSB_invoke_js_log(__oldConsoleDebug, s);
             return true;
         }
         SE_BIND_FUNC(JSB_console_debug)
@@ -155,7 +163,7 @@ namespace se {
         bool JSB_console_info(State& s)
         {
             JSB_console_format_log(s, "[INFO]: ");
-            __oldConsoleInfo.toObject()->call(s.args(), __consoleVal.toObject());
+            JSB_invoke_js_log(__oldConsoleInfo, s);
             return true;
         }
         SE_BIND_FUNC(JSB_console_info)
@@ -163,7 +171,7 @@ namespace se {
         bool JSB_console_warn(State& s)
         {
             JSB_console_format_log(s, "[WARN]: ");
-            __oldConsoleWarn.toObject()->call(s.args(), __consoleVal.toObject());
+            JSB_invoke_js_log(__oldConsoleWarn, s);
             return true;
         }
         SE_BIND_FUNC(JSB_console_warn)
@@ -171,7 +179,7 @@ namespace se {
         bool JSB_console_error(State& s)
         {
             JSB_console_format_log(s, "[ERROR]: ");
-            __oldConsoleError.toObject()->call(s.args(), __consoleVal.toObject());
+            JSB_invoke_js_log(__oldConsoleError, s);
             return true;
         }
         SE_BIND_FUNC(JSB_console_error)
@@ -184,7 +192,7 @@ namespace se {
                 if (args[0].isBoolean() && !args[0].toBoolean())
                 {
                     JSB_console_format_log(s, "[ASSERT]: ", 1);
-                    __oldConsoleAssert.toObject()->call(s.args(), __consoleVal.toObject());
+                    JSB_invoke_js_log(__oldConsoleAssert, s);
                 }
             }
             return true;
@@ -263,22 +271,19 @@ namespace se {
 
         if (_globalObj->getProperty("console", &__consoleVal) && __consoleVal.isObject())
         {
+#if SE_LOG_TO_JS_ENV
             __consoleVal.toObject()->getProperty("log", &__oldConsoleLog);
-            __consoleVal.toObject()->defineFunction("log", _SE(JSB_console_log));
-
             __consoleVal.toObject()->getProperty("debug", &__oldConsoleDebug);
-            __consoleVal.toObject()->defineFunction("debug", _SE(JSB_console_debug));
-
             __consoleVal.toObject()->getProperty("info", &__oldConsoleInfo);
-            __consoleVal.toObject()->defineFunction("info", _SE(JSB_console_info));
-
             __consoleVal.toObject()->getProperty("warn", &__oldConsoleWarn);
-            __consoleVal.toObject()->defineFunction("warn", _SE(JSB_console_warn));
-
             __consoleVal.toObject()->getProperty("error", &__oldConsoleError);
-            __consoleVal.toObject()->defineFunction("error", _SE(JSB_console_error));
-
             __consoleVal.toObject()->getProperty("assert", &__oldConsoleAssert);
+#endif
+            __consoleVal.toObject()->defineFunction("log", _SE(JSB_console_log));
+            __consoleVal.toObject()->defineFunction("debug", _SE(JSB_console_debug));
+            __consoleVal.toObject()->defineFunction("info", _SE(JSB_console_info));
+            __consoleVal.toObject()->defineFunction("warn", _SE(JSB_console_warn));
+            __consoleVal.toObject()->defineFunction("error", _SE(JSB_console_error));
             __consoleVal.toObject()->defineFunction("assert", _SE(JSB_console_assert));
         }
 
