@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Model = require('./CCModel');
 const AnimationClip = require('../../animation/animation-clip');
 
  /**
@@ -40,55 +39,82 @@ var SkeletonAnimationClip = cc.Class({
     extends: AnimationClip,
 
     properties: {
-        _modelSetter: {
-            set: function (model) {
-                this._model = model;
+        _nativeAsset: {
+            override: true,
+            get () {
+                return this._buffer;
+            },
+            set (bin) {
+                let buffer = ArrayBuffer.isView(bin) ? bin.buffer : bin;
+                this._buffer = new Float32Array(buffer || bin, 0, buffer.byteLength/4);
             }
         },
 
-        model: {
-            get () {
-                return this._model;
-            },
+        /**
+         * Describe the data structure.
+         * { path: { offset, frameCount, property } }
+         */
+        description: {
+            default: null,
+            type: Object,
+        },
 
-            type: Model
+        /**
+         * SkeletonAnimationClip's curveData is generated from binary buffer.
+         * So should not serialize curveData.
+         */
+        curveData: {
+            default: {},
+            visible: false,
+            override: true,
+            serializable: false
+        },
+    },
+
+    onLoad () {
+        let buffer = this._buffer;
+        let description = this.description;
+
+        let offset = 0;
+        function getValue () {
+            return buffer[offset++];
         }
-    },
 
-    ctor () {
-        this._modelUuid = '';
-        this._animationID = -1;
-        this._model = null;
-        this._inited = false;
-    },
-
-    init () {
-        if (this._inited) return;
-        this._inited = true;
-        this._model.initAnimationClip(this);
-    },
-
-    _serialize: CC_EDITOR && function (exporting) {
-        let modelUuid = this._modelUuid;
-        if (exporting) {
-            modelUuid = Editor.Utils.UuidUtils.compressUuid(modelUuid, true);
+        if (!this.curveData) {
+            this.curveData = {};
         }
-        return {
-            modelUuid: modelUuid,
-            animationID: this._animationID,
-            name: this._name,
+        if (!this.curveData.paths) {
+            this.curveData.paths = {};
         }
-    },
+        let paths = this.curveData.paths;
 
-    _deserialize (data, handle) {
-        this._modelUuid = data.modelUuid;
-        this._animationID = data.animationID;
-        this._name = data.name;
+        for (let path in description) {
+            let des = description[path];
+            let curves = {};
+            paths[path] = { props: curves };
+            
+            for (let property in des) {
+                let frames = [];
 
-        if (this._modelUuid) {
-            handle.result.push(this, '_modelSetter', this._modelUuid);
+                let frameCount = des[property].frameCount;
+                offset = des[property].offset;
+                for (let i = 0; i < frameCount; i++) {
+                    let frame = getValue();
+                    let value;
+                    if (property === 'position' || property === 'scale') {
+                        value = cc.v3(getValue(), getValue(), getValue());
+                    }
+                    else if (property === 'quat') {
+                        value = cc.quat(getValue(), getValue(), getValue(), getValue());
+                    }
+                    frames.push({ frame, value });
+                }
+                
+                curves[property] = frames;
+            }
         }
     }
+
 });
 
 cc.SkeletonAnimationClip = module.exports = SkeletonAnimationClip;

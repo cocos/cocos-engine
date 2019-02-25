@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const MeshResource = require('./CCMeshResource');
 const renderer = require('../renderer');
 const EventTarget = require('../event/event-target');
 
 import InputAssembler from '../../renderer/core/input-assembler';
 import gfx from '../../renderer/gfx';
+import { Primitive, VertexBundle } from './mesh-data';
 
 function applyColor (data, offset, value) {
     data[offset] = value._val;
@@ -60,10 +60,26 @@ let Mesh = cc.Class({
     mixins: [EventTarget],
 
     properties: {
-        _resource: {
-            default: null,
-            type: MeshResource
+        _nativeAsset: {
+            override: true,
+            get () {
+                return this._buffer;
+            },
+            set (bin) {
+                this._buffer = ArrayBuffer.isView(bin) ? bin.buffer : bin;
+            }
         },
+
+        _vertexBundles: {
+            default: null,
+            type: VertexBundle
+        },
+        _primitives: {
+            default: null,
+            Primitive
+        },
+        _minPos: cc.v3(),
+        _maxPos: cc.v3(),
 
         /**
          * !#en Get ir set the sub meshes.
@@ -85,18 +101,45 @@ let Mesh = cc.Class({
 
         this._ibs = [];
         this._vbs = [];
-
-        this._minPos = cc.v3();
-        this._maxPos = cc.v3();
-
-        this._resourceInited = false;
     },
 
-    _initResource () {
-        if (this._resourceInited || !this._resource) return;
-        this._resourceInited = true;
+    onLoad () {
+        this._subMeshes.length = 0;
 
-        this._resource.flush(this);
+        let primitives = this._primitives;
+        for (let i = 0; i < primitives.length; i++) {
+            let primitive = primitives[i];
+            
+            // ib
+            let ibrange = primitive.data;
+            let ibData = new Uint16Array(this._buffer, ibrange.offset, ibrange.length / 2);
+            let ibBuffer = new gfx.IndexBuffer(
+                renderer.device,
+                primitive.indexUnit,
+                gfx.USAGE_STATIC,
+                ibData,
+                ibData.length
+            );
+
+            // vb
+            let vertexBundle = this._vertexBundles[primitive.vertexBundleIndices[0]];
+            let vbRange = vertexBundle.data;
+            let gfxVFmt = new gfx.VertexFormat(vertexBundle.formats);
+            let vbData = new Uint8Array(this._buffer, vbRange.offset, vbRange.length);
+            let vbBuffer = new gfx.VertexBuffer(
+                renderer.device,
+                gfxVFmt,
+                gfx.USAGE_STATIC,
+                vbData,
+                vertexBundle.verticesCount
+            );
+
+            // create sub meshes
+            this._subMeshes.push(new InputAssembler(vbBuffer, ibBuffer));
+            this._ibs.push({ buffer: ibBuffer, data: ibData });
+            this._vbs.push({ buffer: vbBuffer, data: vbData });
+        }
+        
     },
 
     /**

@@ -173,10 +173,6 @@ let MeshRenderer = cc.Class({
 
     _activateMaterial (force) {
         let mesh = this._mesh;
-        // TODO: should init mesh when mesh loaded, need asset load event support
-        if (mesh) {
-            mesh._initResource();
-        }
 
         if (!mesh || mesh.subMeshes.length === 0) {
             this.disableRender();

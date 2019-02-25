@@ -216,7 +216,19 @@ Bezier.prototype.getUtoTmapping = function ( u, distance ) {
 };
 
 
-function sampleMotionPaths (motionPaths, data, duration, fps) {
+function checkMotionPath(motionPath) {
+    if (!Array.isArray(motionPath)) return false;
+
+    for (let i = 0, l = motionPath.length; i < l; i++) {
+        let controls = motionPath[i];
+
+        if (!Array.isArray(controls) || controls.length !== 6) return false;
+    }
+
+    return true;
+}
+
+function sampleMotionPaths (motionPaths, data, duration, fps, target) {
 
     function createControlPoints(array) {
         if (array instanceof cc.Vec2) {
@@ -241,18 +253,35 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
         };
     }
 
-    var values = data.values;
+    let values = data.values = data.values.map(function (value) {
+        if (Array.isArray(value)) {
+            value = value.length === 2 ? cc.v2(value[0], value[1]) : cc.v3(value[0], value[1], value[2]);
+        }
+        return value;
+    });
 
     if (motionPaths.length === 0 || values.length === 0) {
         return;
     }
 
-    values = values.map(function (value) {
-        return v2(value[0], value[1]);
-    });
+    let motionPathValid = false;
+    for (let i = 0; i < motionPaths.length; i++) {
+        let motionPath = motionPaths[i];
+        if (motionPath && !checkMotionPath(motionPath)) {
+            cc.errorID(3904, target ? target.name : '', 'position', i);
+            motionPath = null;
+        }
+        if (motionPath && motionPath.length > 0) {
+            motionPathValid = true;
+            break;
+        }
+    }
+
+    if (!motionPathValid) {
+        return;
+    }
 
     if (values.length === 1) {
-        data.values = values;
         return;
     }
 
