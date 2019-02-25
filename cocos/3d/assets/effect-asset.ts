@@ -26,9 +26,7 @@ export interface IPassInfo {
 }
 export interface ITechniqueInfo {
     passes: IPassInfo[];
-    queue?: number;
-    priority?: number;
-    lod?: number;
+    name?: string;
 }
 
 export interface IBlockMember {
