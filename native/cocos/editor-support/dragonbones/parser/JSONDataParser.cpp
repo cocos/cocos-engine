@@ -1,4 +1,5 @@
 #include "JSONDataParser.h"
+#include "base/ccMacros.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -1340,6 +1341,7 @@ unsigned JSONDataParser::_parseZOrderFrame(const rapidjson::Value& rawData, unsi
                 }
                 
                 unsigned index = originalIndex + zOrderOffset;
+                CCASSERT(index >= 0 && index < zOrders.size(), "DragonBones::JSONDataParser index is invalid");
                 zOrders[index] = originalIndex++;
             }
 

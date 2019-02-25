@@ -239,11 +239,10 @@ public:
     }
     
     void removeTextureAtlasDataByIndex(const std::string& name, int textureIndex);
+    void removeDragonBonesDataByUUID(const std::string& uuid, bool disposeData = true);
     
     CCTextureAtlasData* getTextureAtlasDataByIndex(const std::string& name, int textureIndex) const;
-    
-    DragonBonesData* parseDragonBonesDataOnly(const std::string& filePath, const std::string& name = "", float scale = 1.0f);
-    void handleTextureAtlasData(bool isBinary, const std::string& name = "", float scale = 1.0f);
+    DragonBonesData* parseDragonBonesDataByPath(const std::string& filePath, const std::string& name = "", float scale = 1.0f);
 };
 
 DRAGONBONES_NAMESPACE_END
