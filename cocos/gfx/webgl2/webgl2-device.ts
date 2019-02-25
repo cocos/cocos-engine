@@ -192,14 +192,14 @@ export class WebGL2GFXDevice extends GFXDevice {
         console.info('COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
         console.info('DEPTH_STENCIL_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
 
-        console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
+        // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
         console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
         console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
         console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
-        console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
+        // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
         console.info('MAX_UNIFORM_BUFFER_BINDINGS: ' + this._maxUniformBufferBindings);
-        console.info('MAX_UNIFORM_BLOCK_SIZE: ' + this._maxUniformBlockSize);
-        console.info('MAX_COMBINED_UNIFORM_BLOCKS: ' + this._maxCombinedUniformBlocks);
+        // console.info('MAX_UNIFORM_BLOCK_SIZE: ' + this._maxUniformBlockSize);
+        // console.info('MAX_COMBINED_UNIFORM_BLOCKS: ' + this._maxCombinedUniformBlocks);
         console.info('DEPTH_BITS: ' + this._depthBits);
         console.info('STENCIL_BITS: ' + this._stencilBits);
         // console.info('UNIFORM_BUFFER_OFFSET_ALIGNMENT: ' + uboOffsetAlignment);
@@ -403,7 +403,7 @@ export class WebGL2GFXDevice extends GFXDevice {
                     return ;
                 }
 
-                context.drawImage(source[j * faces + i], 0, 0);
+                context.drawImage(imgSrc, 0, 0);
                 data.push(context.getImageData(0, 0, this._canvas2D.width, this._canvas2D.height).data);
             }
         }
