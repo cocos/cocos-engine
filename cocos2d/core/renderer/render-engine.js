@@ -10068,7 +10068,25 @@ Device.prototype.setTextureArray = function setTextureArray (name, textures, slo
  */
 Device.prototype.setUniform = function setUniform (name, value) {
   var uniform = this._uniforms[name];
-  if (!uniform) {
+
+  var sameType = false;
+  do {
+    if (!uniform) {
+      break;
+    }
+
+    if (uniform.isArray !== Array.isArray(value)) {
+      break;
+    }
+
+    if (uniform.isArray && uniform.value.length !== value.length) {
+      break;
+    }
+
+    sameType = true;
+  } while (false);
+
+  if (!sameType) {
     var newValue = value;
     var isArray = false;
     if (value instanceof Float32Array || Array.isArray(value)) {
@@ -10086,23 +10104,16 @@ Device.prototype.setUniform = function setUniform (name, value) {
       isArray: isArray
     };
   } else {
-    var oldValue = uniform.value;
     var dirty = false;
     if (uniform.isArray) {
-      if (oldValue.length !== value.length) {
-        dirty = true;
-        uniform.value = value;
-      } else {
-        for (var i = 0, l = oldValue.length; i < l; i++) {
-          if (oldValue[i] !== value[i]) {
-            dirty = true;
-            oldValue[i] = value[i];
-          }
+      for (var i = 0, l = uniform.value.length; i < l; i++) {
+        if (uniform.value[i] !== value[i]) {
+          dirty = true;
+          uniform.value[i] = value[i];
         }
       }
-    }
-    else {
-      if (oldValue !== value) {
+    } else {
+      if (uniform.value !== value) {
         dirty = true;
         uniform.value = value;
       }
@@ -10112,6 +10123,7 @@ Device.prototype.setUniform = function setUniform (name, value) {
       uniform.dirty = true;
     }
   }
+
   this._uniforms[name] = uniform;
 };
 
