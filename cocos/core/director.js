@@ -501,8 +501,8 @@ class Director extends EventTarget {
     _getSceneUuid (key) {
         var scenes = game._sceneInfos;
         if (typeof key === 'string') {
-            if (!key.endsWith('.fire')) {
-                key += '.fire';
+            if (!key.endsWith('.scene')) {
+                key += '.scene';
             }
             if (key[0] !== '/' && !key.startsWith('db://')) {
                 key = '/' + key;    // 使用全名匹配

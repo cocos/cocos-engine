@@ -471,11 +471,19 @@ export class WebGLGFXDevice extends GFXDevice {
 
         const data: Uint8ClampedArray[] = [];
         const faces = source.length / regions.length;
+        let imgSrc: CanvasImageSource;
+
         for (let j = 0; j < regions.length; j++) {
             for (let i = 0; i < faces; i++) {
                 const level = regions[j].texSubres.baseMipLevel;
                 this._canvas2D.width = texture.width >> level;
                 this._canvas2D.height = texture.height >> level;
+                imgSrc = source[j * faces + i];
+
+                if (imgSrc.width <= 0 || imgSrc.height <= 0) {
+                    return ;
+                }
+
                 context.drawImage(source[j * faces + i], 0, 0);
                 data.push(context.getImageData(0, 0, this._canvas2D.width, this._canvas2D.height).data);
             }
