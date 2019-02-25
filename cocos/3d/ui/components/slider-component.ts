@@ -76,11 +76,11 @@ export class SliderComponent extends Component {
     @property({
         type: SpriteComponent,
     })
-    get handle() {
+    get handle () {
         return this._handle;
     }
 
-    set handle(value: SpriteComponent | null) {
+    set handle (value: SpriteComponent | null) {
         if (this._handle === value) {
             return;
         }
@@ -99,11 +99,11 @@ export class SliderComponent extends Component {
     @property({
         type: Direction,
     })
-    get direction() {
+    get direction () {
         return this._direction;
     }
 
-    set direction(value: number) {
+    set direction (value: number) {
         if (this._direction === value) {
             return;
         }
@@ -119,11 +119,11 @@ export class SliderComponent extends Component {
         slide: true,
         range: [0, 1, 0.01],
     })
-    get progress() {
+    get progress () {
         return this._progress;
     }
 
-    set progress(value: number) {
+    set progress (value: number) {
         if (this._progress === value) {
             return;
         }
@@ -140,11 +140,11 @@ export class SliderComponent extends Component {
     @property({
         type: ComponentEventHandler,
     })
-    get slideEvents() {
+    get slideEvents () {
         return this._slideEvents;
     }
 
-    set slideEvents(value: ComponentEventHandler[]) {
+    set slideEvents (value: ComponentEventHandler[]) {
         this._slideEvents = value;
     }
 
@@ -164,12 +164,12 @@ export class SliderComponent extends Component {
     private _handlelocalPos = new Vec3();
     private _touchPos = new Vec3();
 
-    public __preload() {
+    public __preload () {
         this._updateHandlePosition();
     }
 
     // 注册事件
-    public onEnable() {
+    public onEnable () {
         this._updateHandlePosition();
 
         this.node.on(EventType.TOUCH_START, this._onTouchBegan, this);
@@ -183,7 +183,7 @@ export class SliderComponent extends Component {
         }
     }
 
-    public onDisable() {
+    public onDisable () {
         this.node.off(EventType.TOUCH_START, this._onTouchBegan, this);
         this.node.off(EventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.off(EventType.TOUCH_END, this._onTouchEnded, this);
@@ -195,7 +195,7 @@ export class SliderComponent extends Component {
         }
     }
 
-    private _onHandleDragStart(event?: EventTouch) {
+    private _onHandleDragStart (event?: EventTouch) {
         if (!event || !this._handle || !this._handle.node.uiTransfromComp) {
             return;
         }
@@ -209,7 +209,7 @@ export class SliderComponent extends Component {
         event.propagationStopped = true;
     }
 
-    private _onTouchBegan(event?: EventTouch) {
+    private _onTouchBegan (event?: EventTouch) {
         if (!this._handle || !event) {
             return;
         }
@@ -222,7 +222,7 @@ export class SliderComponent extends Component {
         event.propagationStopped = true;
     }
 
-    private _onTouchMoved(event?: EventTouch) {
+    private _onTouchMoved (event?: EventTouch) {
         if (!this._dragging || !event) {
             return;
         }
@@ -231,7 +231,7 @@ export class SliderComponent extends Component {
         event.propagationStopped = true;
     }
 
-    private _onTouchEnded(event?: EventTouch) {
+    private _onTouchEnded (event?: EventTouch) {
         this._dragging = false;
         this._touchHandle = false;
         this._offset = cc.v2();
@@ -241,24 +241,24 @@ export class SliderComponent extends Component {
         }
     }
 
-    private _onTouchCancelled(event?: EventTouch) {
+    private _onTouchCancelled (event?: EventTouch) {
         this._dragging = false;
         if (event) {
             event.propagationStopped = true;
         }
     }
 
-    private _handleSliderLogic(touch) {
+    private _handleSliderLogic (touch) {
         this._updateProgress(touch);
         this._emitSlideEvent();
     }
 
-    private _emitSlideEvent() {
+    private _emitSlideEvent () {
         cc.Component.EventHandler.emitEvents(this.slideEvents, this);
         this.node.emit('slide', this);
     }
 
-    private _updateProgress(touch: EventTouch) {
+    private _updateProgress (touch: EventTouch) {
         if (!this._handle) { return; }
         const touchPos = (touch as EventTouch).getLocation();
         vec3.set(this._touchPos, touchPos.x, touchPos.y, 0);
@@ -270,7 +270,7 @@ export class SliderComponent extends Component {
         }
     }
 
-    private _updateHandlePosition() {
+    private _updateHandlePosition () {
         if (!this._handle) { return; }
         this._handlelocalPos.set(this._handle.node.getPosition());
         if (this._direction === Direction.Horizontal) {

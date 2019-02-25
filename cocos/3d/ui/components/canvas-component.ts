@@ -238,7 +238,8 @@ export class CanvasComponent extends Component {
     }
 
     public alignWithScreen () {
-        let nodeSize, designSize;
+        let nodeSize;
+        let designSize;
         if (CC_EDITOR) {
             // nodeSize = designSize = cc.engine.getDesignResolutionSize();
             nodeSize = designSize = this._designResolution;
@@ -247,7 +248,7 @@ export class CanvasComponent extends Component {
         else {
             const canvasSize = cc.visibleRect;
             nodeSize = canvasSize;
-            const designSize = cc.view.getDesignResolutionSize();
+            designSize = cc.view.getDesignResolutionSize();
             const clipTopRight = !this.fitHeight && !this.fitWidth;
             let offsetX = 0;
             let offsetY = 0;
@@ -300,3 +301,5 @@ export class CanvasComponent extends Component {
         }
     }
 }
+
+cc.CanvasComponent = CanvasComponent;
