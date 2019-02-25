@@ -430,6 +430,7 @@ let ArmatureDisplay = cc.Class({
         // it will just use the _material,won't clone it.
         // So if invoke getMaterial,it only return _material,if you want to change all materialCache,
         // you can change materialCache directly.
+        this._eventTarget = null;
         this._materialCache = {};
         this._inited = false;
         this._factory = dragonBones.CCFactory.getInstance();

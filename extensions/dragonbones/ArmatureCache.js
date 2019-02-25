@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const MaxCacheTime = 120;
+const MaxCacheTime = 30;
 
 let _vertices = [];
 let _indices = [];
