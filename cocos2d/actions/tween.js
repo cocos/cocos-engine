@@ -1,6 +1,6 @@
 
 let TweenAction = cc.Class({
-    name: 'TweenAction',
+    name: 'cc.TweenAction',
     extends: cc.ActionInterval,
 
     ctor (duration, props, opts) {
@@ -224,7 +224,7 @@ Tween.prototype._get = function () {
         actions = actions[0];
     }
     else {
-        actions = Tween.sequence(actions);
+        actions = cc.sequence(actions);
     }
 
     return actions;
