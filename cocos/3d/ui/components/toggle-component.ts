@@ -41,14 +41,6 @@ import { ToggleGroupComponent} from './toggle-group-component';
 @menu('UI/Toggle')
 @executeInEditMode
 export class ToggleComponent extends ButtonComponent {
-    @property
-    public _isChecked: boolean = true;
-    @property
-    public _toggleGroup: ToggleGroupComponent | null = null;
-    @property
-    public _checkMark: SpriteComponent | null = null;
-    @property
-    public _checkEvents: ComponentEventHandler[] = [];
 
     /**
      * !#en When this value is true, the check mark component will be enabled, otherwise
@@ -148,6 +140,14 @@ export class ToggleComponent extends ButtonComponent {
         // }
         return null;
     }
+    @property
+    public _isChecked: boolean = true;
+    @property
+    public _toggleGroup: ToggleGroupComponent | null = null;
+    @property
+    public _checkMark: SpriteComponent | null = null;
+    @property
+    public _checkEvents: ComponentEventHandler[] = [];
 
     public onEnable () {
         super.onEnable();
@@ -217,13 +217,6 @@ export class ToggleComponent extends ButtonComponent {
         this._emitToggleEvents();
     }
 
-    private _emitToggleEvents () {
-        this.node.emit('toggle', this);
-        if (this._checkEvents) {
-            ComponentEventHandler.emitEvents(this._checkEvents, this);
-        }
-    }
-
     /**
      * !#en Make the toggle button checked.
      * !#zh 使 toggle 按钮处于选中状态
@@ -264,6 +257,13 @@ export class ToggleComponent extends ButtonComponent {
         this.isChecked = false;
 
         this._emitToggleEvents();
+    }
+
+    private _emitToggleEvents () {
+        this.node.emit('toggle', this);
+        if (this._checkEvents) {
+            ComponentEventHandler.emitEvents(this._checkEvents, this);
+        }
     }
 }
 
