@@ -2,7 +2,7 @@
 
 #if USE_EMISSIVE
   #property #color3
-  uniform vec3 emissiveColor;
+  uniform lowp vec3 emissiveColor;
 
   #if USE_EMISSIVE_TEXTURE
     #property

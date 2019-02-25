@@ -2,7 +2,7 @@
 
 #if USE_SPECULAR
   #property #color3
-  uniform vec3 specularColor;
+  uniform lowp vec3 specularColor;
 
   #if USE_SPECULAR_TEXTURE
     #property
