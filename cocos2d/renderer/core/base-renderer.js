@@ -574,7 +574,7 @@ export default class Base {
       device.setPrimitiveType(ia._primitiveType);
 
       // set program
-      let program = programLib.getProgram(pass._programName, defines, null, effect._name);
+      let program = programLib.getProgram(pass._programName, defines, effect._name);
       device.setProgram(program);
 
       // cull mode

@@ -1,7 +1,6 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-#if USE_NORMAL_TEXTURE
-#extension GL_OES_standard_derivatives : enable
-#endif
+precision highp float;
 
 #include <cc-global>
 #include <common-attribute>

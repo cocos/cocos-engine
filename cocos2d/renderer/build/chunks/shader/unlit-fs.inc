@@ -1,5 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+precision highp float;
+
 #include <common-attribute>
 #include <encodings>
 #include <diffuse>
