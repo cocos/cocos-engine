@@ -441,7 +441,6 @@ var spineAssembler = {
     
             for (let i = 0, n = locSkeleton.bones.length; i < n; i++) {
                 bone = locSkeleton.bones[i];
-                if (bone.parent == null) continue;
                 let x = bone.data.length * bone.a + bone.worldX;
                 let y = bone.data.length * bone.c + bone.worldY;
     

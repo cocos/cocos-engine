@@ -73,41 +73,15 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
         this._dragonBones.advanceTime(dt);
     },
 
-    parseDragonBonesDataOnly (rawData, name, scale) {
-        if (name === undefined) { name = null; }
-        if (scale === undefined) { scale = 1.0; }
-        var dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser;
-        var dragonBonesData = dataParser.parseDragonBonesData(rawData, scale);
-        return dragonBonesData;
-    },
-
-    handleTextureAtlasData (isBinary, name, scale) {
-        if (name === undefined) { name = null; }
-        if (scale === undefined) { scale = 1.0; }
-
-        var dataParser = isBinary ? BaseFactory._binaryParser : this._dataParser;
-
-        while (true) {
-            var textureAtlasData = this._buildTextureAtlasData(null, null);
-            if (dataParser.parseTextureAtlasData(null, textureAtlasData, scale)) {
-                this.addTextureAtlasData(textureAtlasData, name);
-            }
-            else {
-                textureAtlasData.returnToPool();
-                break;
-            }
-        }
-    },
-
     // Build new aramture with a new display.
     buildArmatureDisplay (armatureName, dragonBonesName, skinName, textureAtlasName) {
         let armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
         return armature && armature._display;
     },
 
-    parseTextureAtlasData (jsonString, texture) {
+    parseTextureAtlasData (jsonString, texture, atlasUUID) {
         var atlasJsonObj = JSON.parse(jsonString);
-        return this._super(atlasJsonObj, texture);
+        return this._super(atlasJsonObj, texture, atlasUUID);
     },
 
     // Build sub armature from an exist armature component.
@@ -189,5 +163,26 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
         let display = slot;
         slot.init(slotData, displays, display, display);
         return slot;
+    },
+
+    getDragonBonesDataByUUID (uuid) {
+        for (var name in this._dragonBonesDataMap) {
+            if (name.indexOf(uuid) != -1) {
+                return this._dragonBonesDataMap[name];
+            }
+        }
+        return null;
+    },
+
+    removeDragonBonesDataByUUID (uuid, disposeData) {
+        if (disposeData === void 0) { disposeData = true; }
+        for (var name in this._dragonBonesDataMap) {
+            if (disposeData) {
+                this._dragonBones.bufferObject(this._dragonBonesDataMap[name]);
+            }
+            if (name.indexOf(uuid) != -1) {
+                delete this._dragonBonesDataMap[name];
+            }
+        }
     }
 });

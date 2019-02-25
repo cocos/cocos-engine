@@ -95,7 +95,6 @@ function setEnumAttr (obj, propName, enumDef) {
 let ArmatureDisplay = cc.Class({
     name: 'dragonBones.ArmatureDisplay',
     extends: RenderComponent,
-    mixins: [EventTarget],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
@@ -128,8 +127,6 @@ let ArmatureDisplay = cc.Class({
             default: null,
             type: dragonBones.DragonBonesAsset,
             notify () {
-                // parse the asset data
-                this._parseDragonAsset();
                 this._refresh();
                 if (CC_EDITOR) {
                     this._defaultArmatureIndex = 0;
@@ -265,7 +262,7 @@ let ArmatureDisplay = cc.Class({
 
                 let animName = animsEnum[this._animationIndex];
                 if (animName !== undefined) {
-                    this.animationName = animName;
+                    this.playAnimation(animName, this.playTimes);
                 }
                 else {
                     cc.errorID(7402, this.name);
@@ -369,6 +366,9 @@ let ArmatureDisplay = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.enabled_batch'
         },
 
+        // DragonBones data store key.
+        _armatureKey: "",
+
         // Below properties will effect when render mode is SHARED_CACHE or PRIVATE_CACHE.
         // accumulate time
         _accTime: 0,
@@ -391,6 +391,7 @@ let ArmatureDisplay = cc.Class({
         // it will just use the _material,won't clone it.
         // So if invoke getMaterial,it only return _material,if you want to change all materialCache,
         // you can change materialCache directly.
+        this._eventTarget = null;
         this._materialCache = {};
         this._inited = false;
         this._factory = dragonBones.CCFactory.getInstance();
@@ -437,7 +438,6 @@ let ArmatureDisplay = cc.Class({
             this._renderMode = RenderMode.REALTIME;
         }
         
-        this._parseDragonAsset();
         this._parseDragonAtlasAsset();
         this._refresh();
 
@@ -509,7 +509,7 @@ let ArmatureDisplay = cc.Class({
         // Animation Start, the event diffrent from dragonbones inner event,
         // It has no event object.
         if (this._accTime == 0 && this._playCount == 0) {
-            this.emit(dragonBones.EventObject.START);
+            this._eventTarget.emit(dragonBones.EventObject.START);
         }
 
         this._accTime += dt * this.timeScale;
@@ -518,11 +518,11 @@ let ArmatureDisplay = cc.Class({
 
             // Animation loop complete, the event diffrent from dragonbones inner event,
             // It has no event object.
-            this.emit(dragonBones.EventObject.LOOP_COMPLETE);
+            this._eventTarget.emit(dragonBones.EventObject.LOOP_COMPLETE);
 
             // Animation complete the event diffrent from dragonbones inner event,
             // It has no event object.
-            this.emit(dragonBones.EventObject.COMPLETE);
+            this._eventTarget.emit(dragonBones.EventObject.COMPLETE);
 
             this._playCount ++;
             if (this.playTimes === -1 || (this.playTimes > 0 && this._playCount >= this.playTimes)) {
@@ -583,6 +583,7 @@ let ArmatureDisplay = cc.Class({
 
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
+
         // Switch Asset or Atlas or renderMode will rebuild armature.
         if (this._armature) {
             // dispose pre build armature
@@ -603,21 +604,24 @@ let ArmatureDisplay = cc.Class({
             this._curFrame = null;
             this._playing = false;
             this._preRenderMode = null;
+            this._eventTarget = null;
         }
 
         if (!CC_EDITOR) {
             if (this._renderMode === RenderMode.SHARED_CACHE) {
                 this._armatureCache = ArmatureCache.sharedCache;
+                this._eventTarget = new EventTarget;
             } else if (this._renderMode === RenderMode.PRIVATE_CACHE) {
                 this._armatureCache = new ArmatureCache;
+                this._eventTarget = new EventTarget;
             }
         }
 
-        let atlasName = this.dragonAtlasAsset._textureAtlasData.name;
-        let dragonbonesName = this.dragonAsset._dragonBonesData.name;
+        let atlasUUID = this.dragonAtlasAsset._uuid;
+        this._armatureKey = this.dragonAsset.init(this._factory, atlasUUID);
 
         if (this.isCachedMode()) {
-            this._armature = this._armatureCache.getArmatureCache(this.armatureName, dragonbonesName, atlasName);
+            this._armature = this._armatureCache.getArmatureCache(this.armatureName, this._armatureKey, atlasUUID);
             if (!this._armature) {
                 // Cache fail,swith to REALTIME render mode.
                 this._renderMode = RenderMode.REALTIME;
@@ -626,7 +630,7 @@ let ArmatureDisplay = cc.Class({
         
         this._preRenderMode = this._renderMode;
         if (CC_EDITOR || this._renderMode === RenderMode.REALTIME) {
-            this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, dragonbonesName, "", atlasName);
+            this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, "", atlasUUID);
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
             this._armature = this._displayProxy._armature;
@@ -640,12 +644,6 @@ let ArmatureDisplay = cc.Class({
         this._updateBatch();
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
-        }
-    },
-
-    _parseDragonAsset () {
-        if (this.dragonAsset) {
-            this.dragonAsset.init(this._factory);
         }
     },
 
@@ -669,9 +667,9 @@ let ArmatureDisplay = cc.Class({
 
     _updateRenderModeEnum: CC_EDITOR && function () {
         if (this._armature && ArmatureCache.canCache(this._armature)) {
-            setEnumAttr(this, 'renderMode', RenderMode);
+            setEnumAttr(this, '_defaultRenderMode', RenderMode);
         } else {
-            setEnumAttr(this, 'renderMode', DefaultRenderMode);
+            setEnumAttr(this, '_defaultRenderMode', DefaultRenderMode);
         }
     },
 
@@ -721,11 +719,9 @@ let ArmatureDisplay = cc.Class({
         this.animationName = animName;
 
         if (this.isCachedMode()) {
-            let atlasName = this.dragonAtlasAsset._textureAtlasData.name;
-            let dragonbonesName = this.dragonAsset._dragonBonesData.name;
-            let cache = this._armatureCache.getAnimationCache(this.armatureName, dragonbonesName, atlasName, animName);
+            let cache = this._armatureCache.getAnimationCache(this._armatureKey, animName);
             if (!cache) {
-                cache = this._armatureCache.updateAnimationCache(this.armatureName, dragonbonesName, atlasName, animName);
+                cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
             }
             if (cache) {
                 this._accTime = 0;
@@ -751,9 +747,7 @@ let ArmatureDisplay = cc.Class({
      */
     updateAnimationCache (animName) {
         if (!this.isCachedMode()) return;
-        let atlasName = this.dragonAtlasAsset._textureAtlasData.name;
-        let dragonbonesName = this.dragonAsset._dragonBonesData.name;
-        let cache = this._armatureCache.updateAnimationCache(this.armatureName, dragonbonesName, atlasName, animName);
+        let cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
         this._frameCache = cache || this._frameCache;
     },
 
@@ -766,7 +760,7 @@ let ArmatureDisplay = cc.Class({
      * @returns {Array}
      */
     getArmatureNames () {
-        let dragonBonesData = this.dragonAsset && this.dragonAsset._dragonBonesData;
+        let dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
         return (dragonBonesData && dragonBonesData.armatureNames) || [];
     },
 
@@ -781,8 +775,9 @@ let ArmatureDisplay = cc.Class({
      */
     getAnimationNames (armatureName) {
         let ret = [];
-        if (this.dragonAsset && this.dragonAsset._dragonBonesData) {
-            let armatureData = this.dragonAsset._dragonBonesData.getArmature(armatureName);
+        let dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
+        if (dragonBonesData) {
+            let armatureData = dragonBonesData.getArmature(armatureName);
             if (armatureData) {
                 for (let animName in armatureData.animations) {
                     if (armatureData.animations.hasOwnProperty(animName)) {
@@ -791,8 +786,55 @@ let ArmatureDisplay = cc.Class({
                 }
             }
         }
-
         return ret;
+    },
+
+    /**
+     * !#en
+     * Add event listener for the DragonBones Event, the same to addEventListener.
+     * !#zh
+     * 添加 DragonBones 事件监听器，与 addEventListener 作用相同。
+     * @method on
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} listener - The callback that will be invoked when the event is dispatched.
+     * @param {Event} listener.event event
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     */
+    on (eventType, listener, target) {
+        this.addEventListener(eventType, listener, target);
+    },
+
+    /**
+     * !#en
+     * Remove the event listener for the DragonBones Event, the same to removeEventListener.
+     * !#zh
+     * 移除 DragonBones 事件监听器，与 removeEventListener 作用相同。
+     * @method off
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} [listener]
+     * @param {Object} [target]
+     */
+    off (eventType, listener, target) {
+        this.removeEventListener(eventType, listener, target);
+    },
+
+    /**
+     * !#en
+     * Add event listener for the DragonBones Event, the same to addEventListener.
+     * !#zh
+     * 添加 DragonBones 一次性事件监听器，回调会在第一时间被触发后删除自身。。
+     * @method on
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} listener - The callback that will be invoked when the event is dispatched.
+     * @param {Event} listener.event event
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     */
+    once (eventType, listener, target) {
+        if (this._displayProxy) {
+            this._displayProxy.once(eventType, listener, target);
+        } else {
+            this._eventTarget.once(eventType, listener, target);
+        }
     },
 
     /**
@@ -808,9 +850,9 @@ let ArmatureDisplay = cc.Class({
      */
     addEventListener (eventType, listener, target) {
         if (this._displayProxy) {
-            this._displayProxy.addDBEventListener(eventType, listener, target);
+            this._displayProxy.on(eventType, listener, target);
         } else {
-            this.on(eventType, listener, target);
+            this._eventTarget.on(eventType, listener, target);
         }
     },
 
@@ -826,9 +868,9 @@ let ArmatureDisplay = cc.Class({
      */
     removeEventListener (eventType, listener, target) {
         if (this._displayProxy) {
-            this._displayProxy.removeDBEventListener(eventType, listener, target);
+            this._displayProxy.off(eventType, listener, target);
         } else {
-            this.off(eventType, listener, target);
+            this._eventTarget.off(eventType, listener, target);
         }
     },
 
