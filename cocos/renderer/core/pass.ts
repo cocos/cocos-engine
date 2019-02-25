@@ -188,13 +188,13 @@ export class Pass {
             const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
             const texture = builtinResMgr.get<TextureBase>(texName);
             if (texture) { this._textureViews[u.binding] = texture.getGFXTextureView()!; }
-            else { console.warn(`illegal texture default value ${texName}`); }
+            else { console.warn('illegal texture default value ' + texName); }
         }
     }
 
     public getHandle (name: string) {
         const handle = this._handleMap[name];
-        if (!handle) { console.warn(`illegal property name ${name}`); }
+        if (!handle) { console.warn('illegal property name ' + name); }
         return handle;
     }
 

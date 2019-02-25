@@ -3,6 +3,7 @@ import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Pass } from '../core/pass';
 import Pool from '../../3d/memop/pool';
+import { UBOGlobal } from '../../pipeline/render-pipeline';
 
 export interface IUIMaterialInfo {
     material: Material;
@@ -36,7 +37,13 @@ export class UIMaterial {
 
         this._pass = this._material.passes[0];
 
-        this._psos = new Pool(() => this._pass!.createPipelineState()!, 1);
+        this._psos = new Pool(() => {
+            const pso = this._pass!.createPipelineState()!;
+            if (!CC_EDITOR) {
+                pso.pipelineLayout.layouts[0].bindBuffer(UBOGlobal.BLOCK.binding, cc.director.root.getRenderPipeline('ui').globalUBO);
+            }
+            return pso;
+        }, 1);
 
         return true;
     }
