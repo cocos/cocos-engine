@@ -211,7 +211,7 @@ export class MeshBuffer {
         // let bytes = 0;
         let num = 0;
         for (const attr of vertexFormat) {
-            let name = GFXFormat[attr.format].toString();
+            const name = GFXFormat[attr.format].toString();
             if (name.startsWith('RGBA')) {
                 num += 4;
             } else if (name.startsWith('RGB')) {

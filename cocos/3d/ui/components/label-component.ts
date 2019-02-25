@@ -24,13 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { BitmapFont } from '../../../assets/bitmap-font';
 import { SpriteFrame } from '../../../assets/CCSpriteFrame';
 import { Font} from '../../../assets/font';
 import { ImageAsset } from '../../../assets/image-asset';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import macro from '../../../core/platform/CCMacro';
 import { ccenum } from '../../../core/value-types/enum';
-import { UI } from '../../../renderer/ui/ui';
+import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { ISharedLabelData } from '../assembler/label/ttfUtils';
 import { UIRenderComponent } from './ui-render-component';
 
@@ -103,7 +104,7 @@ const VerticalAlign = macro.VerticalTextAlignment;
  * !#zh 在 RESIZE_HEIGHT 模式下，只能更改文本的宽度，高度是自动改变的。
  * @property {Number} RESIZE_HEIGHT
  */
-enum Overflow {
+export enum Overflow {
     NONE = 0,
     CLAMP = 1,
     SHRINK = 2,
@@ -213,6 +214,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         readonly: true,
         displayName: 'Actual Font Size',
+        visible: false,
     })
     get actualFontSize () {
         return this._actualFontSize;
@@ -300,7 +302,7 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 是否自动换行。
      * @property {Boolean} enableWrapText
      */
-    @property
+    @property()
     get enableWrapText () {
         return this._enableWrapText;
     }
@@ -327,7 +329,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     set font (value: Font | null) {
-        if (this._font === value) { return; }
+        if (this._font === value) {
+            return;
+        }
 
         // if delete the font, we should change isSystemFontUsed to true
         this._isSystemFontUsed = !value;
@@ -346,7 +350,7 @@ export class LabelComponent extends UIRenderComponent {
             cc.warnID(4000);
         }
 
-        if (value instanceof cc.BitmapFont) {
+        if (value instanceof BitmapFont) {
             this._bmFontOriginalSize = value.fontSize;
         }
 
@@ -399,7 +403,6 @@ export class LabelComponent extends UIRenderComponent {
 
     }
 
-    @property
     get spacingX () {
         return this._spacingX;
     }
@@ -418,7 +421,9 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 字体是否加粗。
      * @property {Boolean} isBold
      */
-    @property
+    @property({
+        // visible: false,
+    })
     get isBold () {
         return this._isBold;
     }
@@ -429,6 +434,7 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         this._isBold = value;
+        this.updateRenderData();
     }
 
     /**
@@ -436,7 +442,9 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 字体是否倾斜。
      * @property {Boolean} isItalic
      */
-    @property
+    @property({
+        // visible: false,
+    })
     get isItalic () {
         return this._isItalic;
     }
@@ -447,6 +455,7 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         this._isItalic = value;
+        this.updateRenderData();
     }
 
     /**
@@ -454,7 +463,9 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 字体是否加下划线。
      * @property {Boolean} isUnderline
      */
-    @property
+    @property({
+        // visible: false,
+    })
     get isUnderline () {
         return this._isUnderline;
     }
@@ -465,6 +476,7 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         this._isUnderline = value;
+        this.updateRenderData();
     }
 
     get texture (){
@@ -475,51 +487,59 @@ export class LabelComponent extends UIRenderComponent {
         return this._assemblerData;
     }
 
+    get fontAtlas () {
+        return this._fontAtlas;
+    }
+
+    set fontAtlas (value) {
+        this._fontAtlas = value;
+    }
+
     public static HorizontalAlign = HorizontalAlign;
     public static VerticalAlign = VerticalAlign;
     public static Overflow = Overflow;
     @property
-    public _useOriginalSize = true;
+    private _useOriginalSize = true;
     @property
-    public _string = 'label';
+    private _string = 'label';
     @property
-    public _horizontalAlign = HorizontalAlign.LEFT;
+    private _horizontalAlign = HorizontalAlign.LEFT;
     @property
-    public _verticalAlign = VerticalAlign.TOP;
+    private _verticalAlign = VerticalAlign.TOP;
     @property
-    public _actualFontSize = 0;
+    private _actualFontSize = 0;
     @property
-    public _fontSize = 40;
+    private _fontSize = 40;
     @property
-    public _fontFamily = 'Arial';
+    private _fontFamily = 'Arial';
     @property
-    public _lineHeight = 40;
+    private _lineHeight = 40;
     @property
-    public _overflow: Overflow = Overflow.NONE;
+    private _overflow: Overflow = Overflow.NONE;
     @property
-    public _enableWrapText = true;
+    private _enableWrapText = true;
     // // 这个保存了旧项目的 file 数据
     // _N$file = null;
     @property
-    public _font: Font | null = null;
+    private _font: Font | null = null;
     @property
-    public _isSystemFontUsed = true;
+    private _isSystemFontUsed = true;
     @property
-    public _bmFontOriginalSize = -1;
+    private _bmFontOriginalSize = -1;
+    private _spacingX = 0;
     @property
-    public _spacingX = 0;
+    private _isItalic = false;
     @property
-    public _isItalic = false;
+    private _isBold = false;
     @property
-    public _isBold = false;
-    @property
-    public _isUnderline = false;
+    private _isUnderline = false;
 
     // don't need serialize
     private _texture: SpriteFrame | null = null;
     private _ttfTexture: SpriteFrame | null = null;
     private _userDefinedFont: Font | null = null;
     private _assemblerData: ISharedLabelData|null = null;
+    private _fontAtlas: FontAtlas | null = null;
 
     constructor () {
         super();
@@ -531,7 +551,6 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     public onEnable () {
-        // this._super();
         super.onEnable();
 
         // TODO: Hack for barbarians
@@ -545,13 +564,10 @@ export class LabelComponent extends UIRenderComponent {
 
         this._checkStringEmpty();
         this.updateRenderData(true);
-        // this._updateAssembler();
-        // this._activateMaterial();
     }
 
     public onDisable () {
         super.onDisable();
-        // this._super();
     }
 
     public onDestroy () {
@@ -564,7 +580,8 @@ export class LabelComponent extends UIRenderComponent {
             this._ttfTexture.destroy();
             this._ttfTexture = null;
         }
-        // this._super();
+
+        super.onDestroy();
     }
 
     public updateRenderData (force = false) {
@@ -572,7 +589,7 @@ export class LabelComponent extends UIRenderComponent {
         if (renderData) {
             renderData.vertDirty = true;
             renderData.uvDirty = true;
-            // this.markForUpdateRenderData(true);
+            this.markForUpdateRenderData(true);
         }
 
         if (force) {
@@ -582,53 +599,31 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _updateColor () {
-        const font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            // this._super();
+        if (this._font instanceof BitmapFont) {
+           super._updateColor();
         } else {
             this.updateRenderData(false);
-            // this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
     }
 
     protected _canRender () {
-        // let result = this._super();
-        // TODO: use renderFlag
         let result = super._canRender();
-        // if (result) {
-        //     const font = this._font;
-        //     if (font && font instanceof cc.BitmapFont) {
-        //         const spriteFrame = font.spriteFrame;
-        //         // cannot be activated if texture not loaded yet
-        //         if (!spriteFrame || !spriteFrame.textureLoaded()) {
-        //             result = false;
-        //         }
-        //     }
-        // }
-
         if (result) {
-            result = this._string.length > 0 ? true : false;
+            const font = this._font;
+            if (font && font instanceof BitmapFont) {
+                const spriteFrame = font.spriteFrame;
+                // cannot be activated if texture not loaded yet
+                if (!spriteFrame || !spriteFrame.textureLoaded()) {
+                    result = false;
+                }
+            }
         }
 
         return result;
     }
 
-    // private _canRender () {
-    //     // let result = this._super();
-    //     let result = this._enabled;
-    //     const font = this.font;
-    //     if (font instanceof cc.BitmapFont) {
-    //         const spriteFrame = font.spriteFrame;
-    //         // cannot be activated if texture not loaded yet
-    //         if (!spriteFrame || !spriteFrame.textureLoaded()) {
-    //             result = false;
-    //         }
-    //     }
-    //     return result;
-    // }
-
     private _checkStringEmpty () {
-        // this.markForRender(!!this.string);
+        this._renderPermit = !!this.string;
     }
 
     private _flushAssembler () {
@@ -647,41 +642,31 @@ export class LabelComponent extends UIRenderComponent {
         }
     }
 
-    private _activateMaterial (force) {
+    private _flushMaterial () {
         const material = this._material;
-        // if (material && !force) {
-        //     return;
-        // }
-
-        // if (!material) {
-        //     // material = new SpriteMaterial();
-        //     this._material = cc.builtinResMgr.get('sprite-material');
-        //     material = this._material;
-        // }
         // Setup blend function for premultiplied ttf label texture
         if (this._texture === this._ttfTexture) {
-            this._srcBlendFactor = cc.macro.BlendFactor.ONE;
+            this._srcBlendFactor = macro.BlendFactor.ONE;
         } else {
-            this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
+            this._srcBlendFactor = macro.BlendFactor.SRC_ALPHA;
         }
 
         if (material) {
             material.setProperty('mainTexture', this._texture);
         }
-        // For batch rendering, do not use uniform color.
-        // material!.useColor = false;
-        // this._updateMaterial(material);
+
+        this._updateMaterial(material);
     }
 
     private _applyFontTexture (force) {
         const font = this._font;
-        if (font instanceof cc.BitmapFont) {
+        if (font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;
             const self = this;
             const onBMFontTextureLoaded = () => {
                 // TODO: old texture in material have been released by loader
                 self._texture = spriteFrame;
-                self._activateMaterial(force);
+                self._flushMaterial();
 
                 if (force && self._assembler && self._assembler.updateRenderData) {
                     self._assembler.updateRenderData(self);
@@ -700,7 +685,7 @@ export class LabelComponent extends UIRenderComponent {
             }
         } else {
             if (!this._ttfTexture) {
-                this._ttfTexture = new cc.SpriteFrame();
+                this._ttfTexture = new SpriteFrame();
                 // this._ttfTexture.setFilters(cc.Texture2D.Filter.LINEAR, cc.Texture2D.Filter.LINEAR);
                 // this._ttfTexture.setWrapMode(cc.Texture2D.WrapMode.CLAMP_TO_EDGE, cc.Texture2D.WrapMode.CLAMP_TO_EDGE);
                 // TTF texture in web will blend with canvas or body background color
@@ -718,7 +703,7 @@ export class LabelComponent extends UIRenderComponent {
                 // this._ttfTexture.initWithElement(this._assemblerData.canvas);
             }
             this._texture = this._ttfTexture;
-            this._activateMaterial(force);
+            this._flushMaterial();
 
             if (force && this._assembler && this._assembler.updateRenderData) {
                 this._assembler.updateRenderData(this);

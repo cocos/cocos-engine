@@ -9,7 +9,6 @@ import { IMeshBufferInitData, MeshBuffer } from '../../3d/ui/mesh-buffer';
 import { SpriteFrame } from '../../assets/CCSpriteFrame';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
-import { Rect } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';

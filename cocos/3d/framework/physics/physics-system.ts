@@ -3,18 +3,18 @@ import { PhysicsWorld } from './world';
 export class PhysicsSystem {
     private _world: PhysicsWorld;
 
-    constructor() {
+    constructor () {
         this._world = new PhysicsWorld();
     }
 
-    public update(deltaTime: number) {
+    public update (deltaTime: number) {
         if (CC_EDITOR) {
             return;
         }
         this._world.step(deltaTime);
     }
 
-    get world() {
+    get world () {
         return this._world;
     }
 }

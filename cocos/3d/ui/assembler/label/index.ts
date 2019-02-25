@@ -26,17 +26,18 @@
 // const Label = require('../../../../components/CCLabel');
 // const ttfAssembler = require('./ttf');
 // const bmfontAssembler = require('./bmfont');
+import { BitmapFont } from '../../../../assets/bitmap-font';
 import { LabelComponent} from '../../components/label-component';
-import { ttf } from './ttf';
 import { IAssemblerManager } from '../assembler';
-// import bmfontAssembler from './bmfont';
+import { bmfont } from './bmfont';
+import { ttf } from './ttf';
 
 export const labelAssembler: IAssemblerManager = {
     getAssembler (comp) {
-        const assembler = ttf;
+        let assembler = ttf;
 
-        if ((comp as LabelComponent).font instanceof cc.BitmapFont) {
-            // assembler = bmfontAssembler;
+        if ((comp as LabelComponent).font instanceof BitmapFont) {
+            assembler = bmfont;
         }
 
         return assembler;

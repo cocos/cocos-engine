@@ -68,7 +68,9 @@ export const simple: IAssembler = {
         const renderData = sprite.renderData;
         if (renderData && frame) {
             if (renderData.vertDirty) {
-                this.updateVerts(sprite);
+                if (this.updateVerts) {
+                    this.updateVerts(sprite);
+                }
             }
         }
     },
