@@ -191,8 +191,6 @@ CCArmatureDisplay* CCFactory::buildArmatureDisplay(const std::string& armatureNa
     const auto armature = buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
     if (armature != nullptr)
     {
-        _dragonBones->getClock()->add(armature);
-
         return static_cast<CCArmatureDisplay*>(armature->getDisplay());
     }
 
