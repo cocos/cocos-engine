@@ -3,7 +3,7 @@ export default [
   {
     "name": "builtin-particle",
     "techniques": [
-      {"name":"add", "passes":[{"rasterizerState":{"cullMode":0}, "depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":8, "blendSrcAlpha":2, "blendDstAlpha":8}]}, "program":"builtin-particle|particle-vs-legacy:lpvs_main|tinted-fs:add", "properties":{"mainTexture":{"type":29, "value":"grey"}, "mainTiling_Offset":{"type":16, "value":[1, 1, 0, 0]}, "frameTile_velLenScale":{"type":16, "value":[1, 1, 0, 0]}, "tintColor":{"type":17, "value":[0.5, 0.5, 0.5, 0.5]}}}]}
+      {"name":"add", "passes":[{"rasterizerState":{"cullMode":0}, "depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":8, "blendSrcAlpha":2, "blendDstAlpha":8}]}, "program":"builtin-particle|particle-vs-legacy:lpvs_main|tinted-fs:add", "properties":{"mainTexture":{"type":29, "value":"grey"}, "mainTiling":{"type":14, "value":[1, 1]}, "mainOffset":{"type":14, "value":[0, 0]}, "frameTile":{"type":14, "value":[1, 1]}, "velocityScale":{"type":13, "value":[0]}, "lengthScale":{"type":13, "value":[0]}, "tintColor":{"type":17, "value":[0.5, 0.5, 0.5, 0.5]}}}]}
     ],
     "shaders": [
       {
@@ -69,7 +69,7 @@ export default [
   {
     "name": "builtin-sprite",
     "techniques": [
-      {"passes":[{"depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"builtin-sprite|sprite-vs:vert|sprite-fs:frag", "properties":{"mainTexture":{"type":29, "value":"white"}}, "priority":244}]}
+      {"passes":[{"depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"builtin-sprite|sprite-vs:vert|sprite-fs:frag", "properties":{"mainTexture":{"type":29, "value":"white"}}}]}
     ],
     "shaders": [
       {

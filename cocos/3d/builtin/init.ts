@@ -145,9 +145,15 @@ class BuiltinResMgr {
 
         // default particle material
         const defaultParticleMtl = new cc.Material();
+<<<<<<< HEAD
         defaultParticleMtl._uuid = null;
         defaultParticleMtl.initialize({ effectName: 'builtin-particle' });
         resources['default-particle-material'] = defaultParticleMtl;
+=======
+        defaultParticleMtl._uuid = 'default-particle-material';
+        defaultParticleMtl.initialize({ effectName: 'builtin-particle-add' });
+        resources[defaultParticleMtl._uuid] = defaultParticleMtl;
+>>>>>>> shorter effect name
     }
 
     public get<T extends Asset> (uuid: string): T {

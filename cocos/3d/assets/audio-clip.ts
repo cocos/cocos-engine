@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import { Asset } from '../../assets/asset';
-import { ccclass } from '../../core/data/class-decorator';
+import { ccclass, property } from '../../core/data/class-decorator';
 import { EventTargetFactory } from '../../core/event/event-target-factory';
 
 export const PlayingState = {
@@ -56,6 +56,8 @@ export class AudioClip extends EventTargetFactory(Asset) {
     protected _audio: any = null;
     protected _duration = 0;
     protected _state = PlayingState.INITIALIZING;
+
+    @property(AudioSourceType)
     protected _loadMode = AudioSourceType.UNKNOWN_AUDIO;
 
     public setNativeAsset (clip: any, info: IAudioInfo) {

@@ -52,12 +52,12 @@ export default class ParticleSystemGpuRenderer extends ParticleSystemRenderer {
     this.particleSystem = ps;
     if (this._material === null || this._material === undefined) {
       this._material = new Material();
-      this._material.effect = cc.EffectAsset.get('builtin-effect-particle-add');
+      this._material.effect = cc.EffectAsset.get('builtin-particle');
     }
     //the following code is just for test use,it will be deleted on release
     let m = new Material();
     m.copy(this._material);
-    m.effect = cc.EffectAsset.get('builtin-effect-particle-add-gpu');
+    m.effect = cc.EffectAsset.get('builtin-particle-gpu');
     Object.keys(this._material._props).forEach(pn => {
       m.setProperty(pn, this._material._props[pn]);
     });
