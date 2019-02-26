@@ -105,8 +105,6 @@ let Camera = cc.Class({
                 'opaque',
             ]);
 
-            let view = new View();
-            camera.view = view;
             camera.dirty = true;
 
             this._inited = false;
@@ -422,8 +420,6 @@ let Camera = cc.Class({
             camera.setNear(0.1);
             camera.setFar(4096);
 
-            let view = new View();
-            camera.view = view;
             camera.dirty = true;
 
             camera._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;

@@ -75,6 +75,20 @@ export default class ForwardRenderer extends BaseRenderer {
     }
   }
 
+  // direct render a single camera
+  renderCamera (camera, scene) {
+    this._reset();
+    
+    const canvas = this._device._gl.canvas;
+    let width = canvas.width;
+    let height = canvas.height;
+
+    let view = this._requestView();
+    camera.extractView(view, width, height);
+    
+    this._render(view, scene);
+  }
+
   _updateLights (scene) {
     this._directionalLights.length = 0;
     this._pointLights.length = 0;
