@@ -281,7 +281,6 @@ let EditBox = cc.Class({
         /**
          * !#en The input is always visible and be on top of the game view (only useful on Web).
          * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
-         * Note: only available on Web at the moment.
          * @property {Boolean} stayOnTop
          */
         stayOnTop: {

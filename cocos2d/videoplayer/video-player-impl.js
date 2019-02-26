@@ -49,6 +49,7 @@ let VideoPlayerImpl = cc.Class({
         this._url = '';
 
         this._fullScreenEnabled = false;
+        this._stayOnBottom = false;
 
         this._loadedmeta = false;
         this._loaded = false;
@@ -165,6 +166,8 @@ let VideoPlayerImpl = cc.Class({
         video.style.position = "absolute";
         video.style.bottom = "0px";
         video.style.left = "0px";
+        video.style['z-index'] = this._stayOnBottom ? -100 : 0;
+
         video.className = "cocosVideo";
         video.setAttribute('preload', 'auto');
         video.setAttribute('webkit-playsinline', '');
@@ -296,7 +299,7 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return;
 
-        if (this._loaded) {
+        if (this._loaded || this._loadedmeta) {
             video.currentTime = time;
         }
         else {
@@ -352,6 +355,13 @@ let VideoPlayerImpl = cc.Class({
 
     isKeepAspectRatioEnabled: function () {
         return true;
+    },
+
+    setStayOnBottom: function (enable) {
+        this._stayOnBottom = enable;
+        if (this._video && this._video.style) {
+            this._video.style['z-index'] = enable ? -100 : 0;
+        }
     },
 
     setFullScreenEnabled: function (enable) {
