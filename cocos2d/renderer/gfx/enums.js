@@ -347,7 +347,3 @@ export function glTextureFmt(fmt) {
 
   return result;
 }
-
-export function glTextureFmtCount() {
-  return _textureFmtGL.length;
-}

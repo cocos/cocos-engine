@@ -3,7 +3,6 @@ import {
   attrTypeBytes,
   glFilter,
   glTextureFmt,
-  glTextureFmtCount
 } from './enums';
 
 import VertexFormat from './vertex-format';
@@ -34,7 +33,6 @@ let gfx = {
   attrTypeBytes,
   glFilter,
   glTextureFmt,
-  glTextureFmtCount
 };
 Object.assign(gfx, enums);
 
