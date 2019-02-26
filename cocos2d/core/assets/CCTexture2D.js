@@ -166,7 +166,8 @@ const PixelFormat = cc.Enum({
      * @readonly
      * @type {Number}
      */
-    RGBA_ETC1: gfx.glTextureFmtCount(),
+    // gfx do not have a standard definition for RGBA_ETC1, need define a specified number for it.
+    RGBA_ETC1: 1024,
 
     /**
      * rgb etc2
