@@ -10104,16 +10104,17 @@ Device.prototype.setUniform = function setUniform (name, value) {
       isArray: isArray
     };
   } else {
+    var oldValue = uniform.value;
     var dirty = false;
     if (uniform.isArray) {
-      for (var i = 0, l = uniform.value.length; i < l; i++) {
-        if (uniform.value[i] !== value[i]) {
+      for (var i = 0, l = oldValue.length; i < l; i++) {
+        if (oldValue[i] !== value[i]) {
           dirty = true;
-          uniform.value[i] = value[i];
+          oldValue[i] = value[i];
         }
       }
     } else {
-      if (uniform.value !== value) {
+      if (oldValue !== value) {
         dirty = true;
         uniform.value = value;
       }
@@ -10123,7 +10124,6 @@ Device.prototype.setUniform = function setUniform (name, value) {
       uniform.dirty = true;
     }
   }
-
   this._uniforms[name] = uniform;
 };
 
