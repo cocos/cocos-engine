@@ -26,6 +26,7 @@
 const Label = require('../../../../components/CCLabel');
 const ttfAssembler = require('./ttf');
 const bmfontAssembler = require('./bmfont');
+const letterAssembler = require('./letter-font')
 
 var labelAssembler = {
     getAssembler (comp) {
@@ -33,6 +34,8 @@ var labelAssembler = {
         
         if (comp.font instanceof cc.BitmapFont) {
             assembler = bmfontAssembler;
+        } else if (comp.cacheMode === Label.CacheMode.LETTER) {
+            assembler = letterAssembler;
         }
 
         return assembler;

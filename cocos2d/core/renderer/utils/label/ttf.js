@@ -51,7 +51,7 @@ let _color = null;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
-let _backgroundAlpha = 0.005;
+let _backgroundStyle = 'rgba(255, 255, 255, 0.005)';
 
 // outline
 let _isOutlined = false;
@@ -94,24 +94,12 @@ let _canvasPool = {
 module.exports = {
 
     _getAssemblerData () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            _sharedLabelData = _canvasPool.get();
-        }
-        else {
-            if (!_sharedLabelData) {
-                let labelCanvas = document.createElement("canvas");
-                _sharedLabelData = {
-                    canvas: labelCanvas,
-                    context: labelCanvas.getContext("2d")
-                };
-            }
-        }
-        _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
+        _sharedLabelData = _canvasPool.get();
         return _sharedLabelData;
     },
 
     _resetAssemblerData (assemblerData) {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS && assemblerData) {
+        if (assemblerData) {
             _canvasPool.put(assemblerData);
         }
     },
@@ -247,7 +235,7 @@ module.exports = {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         //Add a white background to avoid black edges.
         //TODO: it is best to add alphaTest to filter out the background color.
-        _context.fillStyle = `rgba(${255}, ${255}, ${255}, ${_backgroundAlpha})`;
+        _context.fillStyle = _backgroundStyle;
         _context.fillRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
@@ -343,9 +331,14 @@ module.exports = {
                 _canvasSize.width += _drawFontsize * Math.tan(12 * 0.0174532925);
             }
         }
+        
+        if (_canvas.width !== _canvasSize.width) {
+            _canvas.width = _canvasSize.width;
+        }
 
-        _canvas.width = _canvasSize.width;
-        _canvas.height = _canvasSize.height;
+        if (_canvas.height !== _canvasSize.height) {
+            _canvas.height = _canvasSize.height;
+        }
     },
 
     _calculateTextBaseline () {

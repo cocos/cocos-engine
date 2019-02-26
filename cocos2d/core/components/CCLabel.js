@@ -128,6 +128,27 @@ const Overflow = cc.Enum({
  * @property {Number} SystemFont
  */
 
+ /**
+ * !#en NONE.
+ * !#zh 不做任何缓存。
+ * @property {Number} NONE
+ */
+/**
+ * !#en In BITMAP mode, cache the label as a static image and add it to the dynamic atlas.
+ * !#zh BITMAP 模式，将label缓存成静态图像并加入到动态图集。
+ * @property {Number} BITMAP
+ */
+/**
+ * !#en In LETTER mode, split text into characters and cache characters into a dynamic atlas.
+ * !#zh LETTER 模式下，将文本拆分为字符，并将字符缓存到一张图集中。
+ * @property {Number} LETTER
+ */
+const CacheMode = cc.Enum({
+    NONE: 0,
+    BITMAP: 1,
+    LETTER: 2,
+});
+
 /**
  * !#en The Label Component.
  * !#zh 文字标签组件
@@ -433,29 +454,29 @@ let Label = cc.Class({
             }
         },
 
-        _batchAsBitmap: false,
         /**
-         * !#en Whether cache label to static texture and draw in dynamicAtlas.
-         * !#zh 是否将label缓存成静态图像并加入到动态图集.（对于静态文本建议使用该选项，便于批次合并减少drawcall）
-         * @property {Boolean} batchAsBitmap
+         * !#en The cache mode of label.
+         * !#zh 文本缓存模式
+         * @property {Label.CacheMode} cacheMode
          */
-        batchAsBitmap: {
-            get () {
-                return this._batchAsBitmap;
-            },
-            set (value) {
-                if (this._batchAsBitmap === value) return;
-
-                this._batchAsBitmap = value;
-
-                if (!this._batchAsBitmap && !(this.font instanceof cc.BitmapFont)) {
+        cacheMode: {
+            default: CacheMode.NONE,
+            type: CacheMode,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.cacheMode',
+            notify (oldValue) {
+                if (this.cacheMode === oldValue) return;
+                
+                if (oldValue === CacheMode.BITMAP && !(this.font instanceof cc.BitmapFont)) {
                     this._frame._resetDynamicAtlasFrame();
                 }
-                this._activateMaterial(true);
-                this._updateRenderData();
+
+                if (oldValue === CacheMode.LETTER) {
+                    this._ttfTexture = null;
+                }
+
+                this._updateRenderData(true);
             },
-            animatable: false,
-            tooltip: CC_DEV && 'i18n:COMPONENT.label.batch_as_bitmap',
+            animatable: false
         },
 
         _isBold: {
@@ -476,6 +497,7 @@ let Label = cc.Class({
         HorizontalAlign: HorizontalAlign,
         VerticalAlign: VerticalAlign,
         Overflow: Overflow,
+        CacheMode: CacheMode,
     },
 
     onEnable () {
@@ -507,7 +529,7 @@ let Label = cc.Class({
     onDestroy () {
         this._assembler && this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
         this._assemblerData = null;
-        if (this._ttfTexture) {
+        if (this._ttfTexture && this.cacheMode !== CacheMode.LETTER) {
             this._ttfTexture.destroy();
             this._ttfTexture = null;
         }
@@ -574,12 +596,15 @@ let Label = cc.Class({
             }
         }
         else {
-            if (!this._ttfTexture) {
+
+            if (this.cacheMode === CacheMode.LETTER) {
+                this._ttfTexture = this._assembler._getAssemblerData();
+            } else if (!this._ttfTexture) {
                 this._ttfTexture = new cc.Texture2D();
                 this._assemblerData = this._assembler._getAssemblerData();
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
-            }
-
+            } 
+            
             if (!this._frame) {
                 this._frame = new LabelFrame();
             }
@@ -610,6 +635,7 @@ let Label = cc.Class({
                 material = new SpriteMaterial();
             }
             material.texture = this._frame._texture;
+            this.srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             // For batch rendering, do not use uniform color.
             material.useColor = false;
             this._updateMaterial(material);

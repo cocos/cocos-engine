@@ -288,6 +288,8 @@ var Texture2D = cc.Class({
         this._hashDirty = true;
         this._hash = 0;
         this._texture = null;
+
+        this._reservedImage = false;
     },
 
     /**
@@ -558,11 +560,7 @@ var Texture2D = cc.Class({
         this.emit("load");
 
         if (cc.macro.CLEANUP_IMAGE_CACHE && this._image instanceof HTMLImageElement) {
-            // wechat game platform will cache image parsed data, 
-            // so image will consume much more memory than web, releasing it
-            this._image.src = "";
-            // Release image in loader cache
-            cc.loader.removeItem(this._image.id);
+            this._clearImage();
         }
     },
 
@@ -735,6 +733,20 @@ var Texture2D = cc.Class({
         this._hash = parseInt(`${minFilter}${magFilter}${pixelFormat}${wrapS}${wrapT}${hasMipmap}${premultiplyAlpha}${flipY}`);
         this._hashDirty = false;
         return this._hash;
+    },
+
+    _setReserved (state) {
+        this._reservedImage = state;
+    },
+
+    _clearImage (force) {
+        if (!this._reservedImage || force) {
+            // wechat game platform will cache image parsed data, 
+            // so image will consume much more memory than web, releasing it
+            this._image.src = "";
+            // Release image in loader cache
+            cc.loader.removeItem(this._image.id);
+        }
     }
 });
 
