@@ -54,9 +54,9 @@ module.exports = {
             appy = node.anchorY * contentHeight;
 
         let rectWidth = rect.width,
-            rectHeight = rect.height,
-            hRepeat = contentWidth / rectWidth,
-            vRepeat = contentHeight / rectHeight,
+            rectHeight = rect.height;
+        let hRepeat = rectWidth === 0 ? 0 : contentWidth / rectWidth,
+            vRepeat = rectHeight === 0 ? 0 : contentHeight / rectHeight,
             row = Math.ceil(vRepeat), 
             col = Math.ceil(hRepeat);
 
@@ -101,8 +101,8 @@ module.exports = {
         let rect = sprite.spriteFrame._rect;
         let contentWidth = Math.abs(node.width);
         let contentHeight = Math.abs(node.height);
-        let hRepeat = contentWidth / rect.width;
-        let vRepeat = contentHeight / rect.height;
+        let hRepeat = rect.width === 0 ? 0 : contentWidth / rect.width;
+        let vRepeat = rect.height === 0 ? 0 : contentHeight / rect.height;
         let row = Math.ceil(vRepeat), 
             col = Math.ceil(hRepeat);
         
