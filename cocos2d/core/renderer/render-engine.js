@@ -10068,7 +10068,25 @@ Device.prototype.setTextureArray = function setTextureArray (name, textures, slo
  */
 Device.prototype.setUniform = function setUniform (name, value) {
   var uniform = this._uniforms[name];
-  if (!uniform) {
+
+  var sameType = false;
+  do {
+    if (!uniform) {
+      break;
+    }
+
+    if (uniform.isArray !== Array.isArray(value)) {
+      break;
+    }
+
+    if (uniform.isArray && uniform.value.length !== value.length) {
+      break;
+    }
+
+    sameType = true;
+  } while (false);
+
+  if (!sameType) {
     var newValue = value;
     var isArray = false;
     if (value instanceof Float32Array || Array.isArray(value)) {
@@ -10095,8 +10113,7 @@ Device.prototype.setUniform = function setUniform (name, value) {
           oldValue[i] = value[i];
         }
       }
-    }
-    else {
+    } else {
       if (oldValue !== value) {
         dirty = true;
         uniform.value = value;
