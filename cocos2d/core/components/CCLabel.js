@@ -140,7 +140,7 @@ const Overflow = cc.Enum({
  */
 /**
  * !#en In LETTER mode, split text into characters and cache characters into a dynamic atlas.
- * !#zh LETTER 模式下，将文本拆分为字符，并将字符缓存到一张图集中。
+ * !#zh LETTER 模式下，将文本拆分为字符，并将字符缓存到一张图集中进行重复使用，暂时不支持SHRINK自适应文本尺寸（后续完善）。
  * @property {Number} LETTER
  */
 const CacheMode = cc.Enum({
@@ -577,7 +577,6 @@ let Label = cc.Class({
                 // TODO: old texture in material have been released by loader
                 self._frame._texture = spriteFrame._texture;
                 self._activateMaterial(force);
-
                 if (force) {
                     self._assembler && self._assembler.updateRenderData(self);
                 }
@@ -610,7 +609,6 @@ let Label = cc.Class({
             }
 
             this._frame._refreshTexture(this._ttfTexture);
-
             this._activateMaterial(force);
 
             if (force) {

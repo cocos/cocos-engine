@@ -127,21 +127,15 @@ LetterTexture.prototype = {
         _context.fillRect(0, 0, this._canvas.width, this._canvas.height);
         _context.font = this._labelInfo._fontDesc;
 
-        let startPosition = this._calculateFillTextStartPosition();
+        let startX = _margin / 2;
+        let startY = this._canvas.height - _margin / 2;
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
         _context.fillStyle = 'white';
 
-        _context.fillText(this._char, startPosition.x, startPosition.y);
+        _context.fillText(this._char, startX, startY);
 
         this._texture.handleLoadedTexture();
-    },
-
-    _calculateFillTextStartPosition () {
-        let labelX = _margin / 2;
-        let firstLinelabelY = this._canvas.height - _margin / 2;
-        
-        return cc.v2(labelX, firstLinelabelY);
     },
 
     destroy () {
@@ -267,7 +261,7 @@ cc.js.mixin(LetterAtlas.prototype, {
         }
     },
     getLetterDefinitionForChar: function(char, labelInfo) {
-        let hash = char.charCodeAt(0) + labelInfo._hash
+        let hash = char.charCodeAt(0) + labelInfo._hash;
         let letterDefinition = this._letterDefinitions[hash];
         if (!letterDefinition) {
             let temp = new LetterTexture(char, labelInfo);

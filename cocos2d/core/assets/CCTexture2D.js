@@ -289,7 +289,7 @@ var Texture2D = cc.Class({
         this._hash = 0;
         this._texture = null;
 
-        this._reservedImage = false;
+        this._reserveImage = false;
     },
 
     /**
@@ -736,11 +736,11 @@ var Texture2D = cc.Class({
     },
 
     _setReserved (state) {
-        this._reservedImage = state;
+        this._reserveImage = state;
     },
 
     _clearImage (force) {
-        if (!this._reservedImage || force) {
+        if (!this._reserveImage || force) {
             // wechat game platform will cache image parsed data, 
             // so image will consume much more memory than web, releasing it
             this._image.src = "";
