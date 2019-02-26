@@ -36,6 +36,9 @@ const GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG = 0x8C03; // ext.COMPRESSED_RGBA_PVRTC
 
 const GL_COMPRESSED_RGB_ETC1_WEBGL = 0x8D64; // ext.COMPRESSED_RGB_ETC1_WEBGL
 
+const GL_COMPRESSED_RGB8_ETC2 = 0x9274;       // ext.COMPRESSED_RGB8_ETC2
+const GL_COMPRESSED_RGBA8_ETC2_EAC = 0x9278;  // ext.COMPRESSED_RGBA8_ETC2_EAC
+
 const _filterGL = [
   [ GL_NEAREST,  GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR ],
   [ GL_LINEAR,  GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_LINEAR ],
@@ -124,7 +127,13 @@ const _textureFmtGL = [
   { format: GL_DEPTH_COMPONENT, internalFormat: GL_DEPTH_COMPONENT, pixelType: GL_UNSIGNED_INT },
 
   // TEXTURE_FMT_D24S8: 27
-  { format: null, internalFormat: null, pixelType: null },
+  { format: GL_DEPTH_COMPONENT, internalFormat: GL_DEPTH_COMPONENT, pixelType: GL_UNSIGNED_INT },
+
+  // TEXTURE_FMT_RGB_ETC2: 28
+  { format: GL_RGB, internalFormat: GL_COMPRESSED_RGB8_ETC2, pixelType: null },
+
+  // TEXTURE_FMT_RGBA_ETC2: 29
+  { format: GL_RGBA, internalFormat: GL_COMPRESSED_RGBA8_ETC2_EAC, pixelType: null },
 ];
 
 /**
@@ -213,6 +222,10 @@ export const enums = {
   TEXTURE_FMT_D16: 25,
   TEXTURE_FMT_D32: 26,
   TEXTURE_FMT_D24S8: 27,
+
+  // etc2 format
+  TEXTURE_FMT_RGB_ETC2: 28,
+  TEXTURE_FMT_RGBA_ETC2: 29,
 
   // depth and stencil function
   DS_FUNC_NEVER: 512,    // gl.NEVER
@@ -333,4 +346,8 @@ export function glTextureFmt(fmt) {
   }
 
   return result;
+}
+
+export function glTextureFmtCount() {
+  return _textureFmtGL.length;
 }

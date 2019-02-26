@@ -143,7 +143,7 @@ let Material = cc.Class({
         if (this._effect) {
             if (val instanceof Texture) {
                 this._effect.setProperty(name, val.getImpl());
-                if (val.getPixelFormat() === PixelFormat.RGB_ETC1) {
+                if (val.getPixelFormat() === PixelFormat.RGBA_ETC1) {
                     this.define('_USE_ETC1_' + name.toUpperCase(), true);
                 }
             }
