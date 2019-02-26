@@ -177,12 +177,11 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
     removeDragonBonesDataByUUID (uuid, disposeData) {
         if (disposeData === void 0) { disposeData = true; }
         for (var name in this._dragonBonesDataMap) {
+            if (name.indexOf(uuid) === -1) continue;
             if (disposeData) {
                 this._dragonBones.bufferObject(this._dragonBonesDataMap[name]);
             }
-            if (name.indexOf(uuid) != -1) {
-                delete this._dragonBonesDataMap[name];
-            }
+            delete this._dragonBonesDataMap[name];
         }
     }
 });
