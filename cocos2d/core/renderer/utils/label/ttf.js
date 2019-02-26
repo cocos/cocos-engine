@@ -255,7 +255,12 @@ module.exports = {
         let lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = 'white';
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
+        }
+        else {
+            _context.fillStyle = 'white';
+        }
         let underlineStartPosition;
 
         //do real rendering
