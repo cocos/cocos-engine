@@ -110,6 +110,10 @@ export class Root {
             return false;
         }
 
+        cc.view.on('canvas-resize', function () {
+            this.resize(cc.game.canvas.width, cc.game.canvas.height);
+        }, this);
+
         return true;
     }
 
@@ -152,7 +156,7 @@ export class Root {
         }
 
         for (const view of this._views) {
-            if (view.camera.isWindowSize) {
+            if (view.camera.isWindowSize && view.priority < 1 << 30) {
                 view.camera.resize(width, height);
             }
         }
@@ -231,6 +235,7 @@ export class Root {
     public createView (info: IRenderViewInfo): RenderView {
         const view: RenderView = this._createViewFun(this, info.camera);
         view.initialize(info);
+        view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
 
         this._views.push(view);
         this._views.sort((a: RenderView, b: RenderView) => {

@@ -221,7 +221,7 @@ export class CanvasComponent extends Component {
             //     cc.view.on('canvas-resize', this._thisOnResized);
             // }
         }
-        cc.view.on('canvas-size-update', this._thisOnResized);
+        cc.view.on('canvas-resize', this._thisOnResized);
 
         this.applySettings();
         this.alignWithScreen();
@@ -247,7 +247,7 @@ export class CanvasComponent extends Component {
             //     cc.view.off('canvas-resize', this._thisOnResized);
             // }
         // }
-        cc.view.off('canvas-size-update', this._thisOnResized);
+        cc.view.off('canvas-resize', this._thisOnResized);
         // cc.view.off('design-resolution-changed', this._thisOnResized);
 
         if (CanvasComponent.instance === this) {
