@@ -1,5 +1,5 @@
 import { ccclass, executeInEditMode, property } from '../../../../core/data/class-decorator';
-import { Enum, Vec2 } from '../../../../core/value-types';
+import { Enum, Vec2, Vec4 } from '../../../../core/value-types';
 import { mat4, vec2, vec3, vec4 } from '../../../../core/vmath';
 import { GFXAttributeName, GFXFormat } from '../../../../gfx/define';
 import { IGFXInputAttribute } from '../../../../gfx/input-assembler';
@@ -96,7 +96,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
 
     private _defines: { [index: string]: boolean };
     private _model: ParticleBatchModel | null;
-    private frameTile: Vec2;
+    private frameTile_velLenScale: Vec4;
     private attrs: any[];
     private _vertAttrs: IGFXInputAttribute[];
     private particleSystem: any;
@@ -106,7 +106,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         super();
         this._model = null;
 
-        this.frameTile = cc.v2(1, 1);
+        this.frameTile_velLenScale = cc.v4(1, 1, 0, 0);
         this.attrs = new Array(5);
         this._vertAttrs = [
             { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
@@ -296,8 +296,8 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             this._defines[USE_STRETCHED_BILLBOARD] = true;
             this._defines[USE_HORIZONTAL_BILLBOARD] = false;
             this._defines[USE_VERTICAL_BILLBOARD] = false;
-            this.sharedMaterial!.setProperty('velocityScale', this._velocityScale);
-            this.sharedMaterial!.setProperty('lengthScale', this._lengthScale);
+            this.frameTile_velLenScale.z = this._velocityScale;
+            this.frameTile_velLenScale.w = this._lengthScale;
         } else if (this._renderMode === RenderMode.HorizontalBillboard) {
             this._defines[USE_BILLBOARD] = false;
             this._defines[USE_STRETCHED_BILLBOARD] = false;
@@ -316,9 +316,9 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         mat.initialize({ defines: this._defines });
 
         if (this.particleSystem.textureAnimationModule.enable) {
-            this.getMaterial(0, CC_EDITOR)!.setProperty('frameTile', vec2.set(this.frameTile, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
+            this.getMaterial(0, CC_EDITOR)!.setProperty('frameTile_velLenScale', vec2.set(this.frameTile_velLenScale, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
         } else {
-            this.getMaterial(0, CC_EDITOR)!.setProperty('frameTile', this.frameTile);
+            this.getMaterial(0, CC_EDITOR)!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
         }
     }
 
