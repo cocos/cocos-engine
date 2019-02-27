@@ -422,12 +422,13 @@ let Button = cc.Class({
         // // Restore button status
         let target = this._getTarget();
         let transition = this.transition;
+        let originalScale = this._originalScale;
+
         if (transition === Transition.COLOR && this.interactable) {
             this._setTargetColor(this.normalColor);
         }
-        else if (transition === Transition.SCALE && this._originalScale) {
-            target.scaleX = this._originalScale.x;
-            target.scaleY = this._originalScale.y;
+        else if (transition === Transition.SCALE && originalScale) {
+            target.setScale(originalScale.x, originalScale.y);
         }
         this._transitionFinished = true;
     },
@@ -656,19 +657,19 @@ let Button = cc.Class({
         let touch = event.touch;
         let hit = this.node._hitTest(touch.getLocation());
         let target = this._getTarget();
+        let originalScale = this._originalScale;
 
-        if (this.transition === Transition.SCALE && this._originalScale) {
+        if (this.transition === Transition.SCALE && originalScale) {
             if (hit) {
-                this._fromScale.x = this._originalScale.x;
-                this._fromScale.y = this._originalScale.y;
-                this._toScale.x = this._originalScale.x * this.zoomScale;
-                this._toScale.y = this._originalScale.y * this.zoomScale;
+                this._fromScale.x = originalScale.x;
+                this._fromScale.y = originalScale.y;
+                this._toScale.x = originalScale.x * this.zoomScale;
+                this._toScale.y = originalScale.y * this.zoomScale;
                 this._transitionFinished = false;
             } else {
                 this.time = 0;
                 this._transitionFinished = true;
-                target.scaleX = this._originalScale.x;
-                target.scaleY = this._originalScale.y;
+                target.setScale(originalScale.x, originalScale.y);
             }
         } else {
             let state;
