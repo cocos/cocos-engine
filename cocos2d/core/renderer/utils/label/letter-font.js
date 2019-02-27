@@ -25,10 +25,13 @@
 
 const macro = require('../../../platform/CCMacro');
 const Label = require('../../../components/CCLabel');
+const LabelOutline = require('../../../components/CCLabelOutline');
 const textUtils = require('../../../utils/text-utils');
-const Overflow = Label.Overflow;
-
+const Component = require('../../../components/CCComponent');
 const RenderTexture = require('../../../assets/CCRenderTexture');
+const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
+const Overflow = Label.Overflow;
+const WHITE = cc.Color.WHITE;
 const space = 2;
 
 let LetterInfo = function() {
@@ -81,7 +84,7 @@ LetterTexture.prototype = {
         this._context = this._data.context;
         this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
-        this._width = parseFloat(width.toFixed(2));
+        this._width = parseFloat(width.toFixed(2)) + 2 * this._labelInfo.margin;
         this._height = this._labelInfo.lineHeight;
         
         if (this._canvas.width !== this._width) {
@@ -95,26 +98,32 @@ LetterTexture.prototype = {
         this._texture.initWithElement(this._canvas);
     },
     _updateTexture () {
-        let _context = this._context;
-        let width = this._canvas.width,
+        let context = this._context;
+        let labelInfo = this._labelInfo,
+            width = this._canvas.width,
             height = this._canvas.height;
 
-        _context.textAlign = 'center';
-        _context.textBaseline = 'middle';
-        _context.clearRect(0, 0, width, height);
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.clearRect(0, 0, width, height);
         //Add a white background to avoid black edges.
-        _context.fillStyle = _backgroundStyle;
-        _context.fillRect(0, 0, width, height);
-        _context.font = this._labelInfo.fontDesc;
+        context.fillStyle = _backgroundStyle;
+        context.fillRect(0, 0, width, height);
+        context.font = labelInfo.fontDesc;
 
         let startX = width / 2;
         let startY = height / 2;
-        let color = this._labelInfo.color;
+        let color = labelInfo.color;
         //use round for line join to avoid sharp intersect point
-        _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${1})`;
-
-        _context.fillText(this._char, startX, startY);
+        context.lineJoin = 'round';
+        context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${1})`;
+        if (labelInfo.isOutlined) {
+            let strokeColor = labelInfo.out || WHITE;
+            context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
+            context.lineWidth = labelInfo.margin * 2;
+            context.strokeText(this._char, startX, startY);
+        }
+        context.fillText(this._char, startX, startY);
 
         this._texture.handleLoadedTexture();
     },
@@ -301,7 +310,10 @@ let _labelInfo = {
     fontDesc:"Arial",
     hAlign:0,
     vAlign:0,
-    color:cc.Color.WHITE,
+    color:WHITE,
+    isOutlined:false,
+    out:WHITE,
+    margin:0,
 };
 
 module.exports = {
@@ -353,12 +365,6 @@ module.exports = {
         _overflow = _comp.overflow;
         _lineHeight = _comp._lineHeight;
         _isBold = _comp._isBold;
-  
-        _labelInfo.lineHeight = _lineHeight;
-        _labelInfo.fontSize = _fontSize;
-        _labelInfo.fontFamily = _fontFamily;
-        _labelInfo.color = _comp.node.color;
-        _labelInfo.hash = this._computeHash(_labelInfo);
 
         // should wrap text
         if (_overflow === Overflow.NONE) {
@@ -371,7 +377,27 @@ module.exports = {
             _isWrapText = _comp.enableWrapText;
         }
 
+        // outline
+        let outline = OUTLINE_SUPPORTED && _comp.getComponent(LabelOutline);
+        if (outline && outline.enabled) {
+            _labelInfo.isOutlined = true;
+            _labelInfo.margin = outline.width;
+            _labelInfo.out = outline.color;
+            _labelInfo.out.a = outline.color.a * _comp.node.color.a / 255.0;
+        }
+        else {
+            _labelInfo.isOutlined = false;
+            _labelInfo.margin = 0;
+        }
+
+        _labelInfo.lineHeight = _lineHeight;
+        _labelInfo.fontSize = _fontSize;
+        _labelInfo.fontFamily = _fontFamily;
+        _labelInfo.color = _comp.node.color;
+        _labelInfo.hash = this._computeHash(_labelInfo);
+
         this._setupBMFontOverflowMetrics();
+
     },
 
     _updateFontFamily (comp) {
@@ -402,8 +428,13 @@ module.exports = {
 
     _computeHash (labelInfo) {
         let hashData = '';
-        let color = labelInfo.color;
-        return hashData + labelInfo.fontSize + labelInfo.fontFamily + color.r + ',' + color.g + ',' + color.b;
+        let color = labelInfo.color.toHEX("#rrggbb");
+        let out = '';
+        if (labelInfo.isOutlined) {
+            out = labelInfo.out.toHEX("#rrggbb");
+        };
+        
+        return hashData + labelInfo.fontSize + labelInfo.fontFamily + color + out;
     },
 
     _getFontDesc () {
