@@ -1,5 +1,9 @@
-import { GFXUniformBlock, GFXUniformSampler } from "../gfx/shader";
-import { GFXType } from "../gfx/define";
+import { GFXBuffer } from '../gfx/buffer';
+import { GFXObjectType } from '../gfx/define';
+import { GFXType } from '../gfx/define';
+import { GFXSampler } from '../gfx/sampler';
+import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
+import { GFXTextureView } from '../gfx/texture-view';
 
 export enum RenderPassStage {
     DEFAULT = 100,
@@ -116,3 +120,11 @@ export class UBOSkinning {
 export const UNIFORM_JOINTS_TEXTURE: GFXUniformSampler = {
     binding: UniformBinding.JOINTS_TEXTURE, name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
 };
+export interface IGlobalBindingDesc {
+    type: GFXObjectType;
+    blockInfo?: GFXUniformBlock;
+    uniformBuffer?: GFXBuffer;
+    samplerInfo?: GFXUniformSampler;
+    sampler?: GFXSampler;
+    textureView?: GFXTextureView;
+}
