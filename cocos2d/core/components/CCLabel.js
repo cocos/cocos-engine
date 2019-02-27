@@ -129,18 +129,18 @@ const Overflow = cc.Enum({
  */
 
  /**
- * !#en NONE.
+ * !#en Do not do any caching.
  * !#zh 不做任何缓存。
  * @property {Number} NONE
  */
 /**
- * !#en In BITMAP mode, cache the label as a static image and add it to the dynamic atlas.
- * !#zh BITMAP 模式，将label缓存成静态图像并加入到动态图集。
+ * !#en In BITMAP mode, cache the label as a static image and add it to the dynamic atlas for batch rendering, and can batching with Sprites using broken images.
+ * !#zh BITMAP 模式，将 label 缓存成静态图像并加入到动态图集，以便进行批次合并，可与使用碎图的 Sprite 进行合批（注：动态图集在 Chrome 以及微信小游戏暂时关闭，该功能无效）。
  * @property {Number} BITMAP
  */
 /**
- * !#en In LETTER mode, split text into characters and cache characters into a dynamic atlas.
- * !#zh LETTER 模式下，将文本拆分为字符，并将字符缓存到一张图集中进行重复使用，暂时不支持SHRINK自适应文本尺寸（后续完善）。
+ * !#en In LETTER mode, split text into characters and cache characters into a dynamic atlas which the size of 2048*2048. 
+ * !#zh LETTER 模式，将文本拆分为字符，并将字符缓存到一张单独的大小为 2048*2048 的图集中进行重复使用，不再使用动态图集（注：当图集满时将不再进行缓存，暂时不支持 SHRINK 自适应文本尺寸（后续完善））。
  * @property {Number} LETTER
  */
 const CacheMode = cc.Enum({
@@ -456,8 +456,15 @@ let Label = cc.Class({
         },
 
         /**
-         * !#en The cache mode of label.
-         * !#zh 文本缓存模式
+         * !#en For compatibility with v2.0.x temporary reservation.
+         * !#zh 兼容2.0.x版本暂时保留
+         * @deprecated
+         */
+        _batchAsBitmap: false,
+
+        /**
+         * !#en The cache mode of label. This mode only supports system fonts.
+         * !#zh 文本缓存模式, 该模式只支持系统字体。
          * @property {Label.CacheMode} cacheMode
          */
         cacheMode: {
@@ -511,6 +518,11 @@ let Label = cc.Class({
         // Reapply default font family if necessary
         if (this.useSystemFont && !this.fontFamily) {
             this.fontFamily = 'Arial';
+        }
+        // For compatibility with v2.0.x temporary reservation.
+        if (this._batchAsBitmap && this.cacheMode == CacheMode.NONE) {
+            this.cacheMode = CacheMode.BITMAP;
+            this._batchAsBitmap = false;
         }
 
         // Keep track of Node size
