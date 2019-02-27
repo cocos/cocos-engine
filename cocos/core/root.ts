@@ -4,9 +4,9 @@ import { GFXWindow, IGFXWindowInfo } from '../gfx/window';
 import { ForwardPipeline } from '../pipeline/forward/forward-pipeline';
 import { RenderPipeline } from '../pipeline/render-pipeline';
 import { IRenderViewInfo, RenderView } from '../pipeline/render-view';
+import { UIPipeline } from '../pipeline/ui/ui-pipeline';
 import { IRenderSceneInfo, RenderScene } from '../renderer/scene/render-scene';
 import { UI } from '../renderer/ui/ui';
-import { UIPipeline } from '../pipeline/ui/ui-pipeline';
 
 export let _createSceneFun;
 export let _createViewFun;
@@ -85,6 +85,7 @@ export class Root {
 
         this._mainWindow = this._device.mainWindow;
         this._curWindow = this._mainWindow;
+        this._windows.push(this._mainWindow);
 
         let pipeline: RenderPipeline = new ForwardPipeline(this);
         this._pipeline = pipeline;
@@ -109,7 +110,7 @@ export class Root {
             return false;
         }
 
-        cc.view.on('canvas-resize', function () {
+        cc.view.on('canvas-resize', () => {
             this.resize(cc.game.canvas.width, cc.game.canvas.height);
         }, this);
 
