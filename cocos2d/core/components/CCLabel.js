@@ -508,6 +508,14 @@ let Label = cc.Class({
         CacheMode: CacheMode,
     },
 
+    onLoad () {
+        // For compatibility with v2.0.x temporary reservation.
+        if (this._batchAsBitmap && this.cacheMode == CacheMode.NONE) {
+            this.cacheMode = CacheMode.BITMAP;
+            this._batchAsBitmap = false;
+        }
+    },
+
     onEnable () {
         this._super();
 
@@ -518,11 +526,6 @@ let Label = cc.Class({
         // Reapply default font family if necessary
         if (this.useSystemFont && !this.fontFamily) {
             this.fontFamily = 'Arial';
-        }
-        // For compatibility with v2.0.x temporary reservation.
-        if (this._batchAsBitmap && this.cacheMode == CacheMode.NONE) {
-            this.cacheMode = CacheMode.BITMAP;
-            this._batchAsBitmap = false;
         }
 
         // Keep track of Node size
@@ -659,7 +662,6 @@ let Label = cc.Class({
                 material = new SpriteMaterial();
             }
             material.texture = this._frame._texture;
-            this.srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
             // For batch rendering, do not use uniform color.
             material.useColor = false;
             this._updateMaterial(material);

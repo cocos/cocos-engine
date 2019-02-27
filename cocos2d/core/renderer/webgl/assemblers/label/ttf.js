@@ -25,6 +25,7 @@
 
 const js = require('../../../../platform/js');
 const ttfUtls = require('../../../utils/label/ttf');
+const WHITE = cc.color(255, 255, 255, 255);
 
 module.exports = js.addon({
     createData (comp) {
@@ -43,9 +44,10 @@ module.exports = js.addon({
             matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
-        let color = cc.color(255, 255, 255, node.color.a)._val;
-        let buffer = renderer._meshBuffer;
 
+        WHITE._fastSetA(node.color.a);
+        let color = WHITE._val;
+        let buffer = renderer._meshBuffer;
         let offsetInfo = buffer.request(4, 6);
 
         // buffer data may be realloc, need get reference after request.
