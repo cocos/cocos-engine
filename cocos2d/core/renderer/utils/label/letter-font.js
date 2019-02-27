@@ -150,6 +150,10 @@ function LetterAtlas (width, height) {
     this._height = height;
 
     this._letterDefinitions = {};
+
+    if (CC_EDITOR) {
+        cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
+    }
 }
 
 cc.js.mixin(LetterAtlas.prototype, {
@@ -216,6 +220,10 @@ cc.js.mixin(LetterAtlas.prototype, {
     destroy () {
         this.reset();
         this._texture.destroy();
+    },
+
+    beforeSceneLoad () {
+        this.reset();
     },
 
     getLetter (key) {
