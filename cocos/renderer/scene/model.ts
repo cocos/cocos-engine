@@ -9,10 +9,10 @@ import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { UBOLocal } from '../../pipeline/render-pipeline';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
+import { UBOLocal } from '../../pipeline/define';
 
 const _temp_floatx16 = new Float32Array(16);
 const _temp_mat4 = mat4.create();

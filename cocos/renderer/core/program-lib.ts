@@ -4,10 +4,8 @@ import { IBlockInfo, IBlockMember, IDefineInfo, ISamplerInfo, IShaderInfo } from
 import { GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniform, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
-import { UBOForwardLights } from '../../pipeline/forward/forward-pipeline';
-import { UBOGlobal, UBOLocal } from '../../pipeline/render-pipeline';
-import { SkinningUBO } from '../models/model-uniforms';
 import { IDefineMap } from './effect';
+import { UBOGlobal, UBOLocal, UBOForwardLights, UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 
 function _generateDefines (
     device: GFXDevice,
@@ -156,8 +154,8 @@ class ProgramLib {
 const globals = convertToBlockInfo(UBOGlobal.BLOCK);
 const locals = convertToBlockInfo(UBOLocal.BLOCK);
 const lights = convertToBlockInfo(UBOForwardLights.BLOCK);
-const skinning = convertToBlockInfo(SkinningUBO.BLOCK);
-const jointsTexture = convertToSamplerInfo(SkinningUBO.JOINT_TEXTURE);
+const skinning = convertToBlockInfo(UBOSkinning.BLOCK);
+const jointsTexture = convertToSamplerInfo(UNIFORM_JOINTS_TEXTURE);
 
 function convertToUniformInfo (uniform: GFXUniform): IBlockMember {
     return {

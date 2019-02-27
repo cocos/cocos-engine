@@ -11,7 +11,7 @@ import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Node } from '../../scene-graph/node';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
-import { SkinningUBO } from './model-uniforms';
+import { UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 
 const textureSizeBuffer = new Float32Array(4);
 
@@ -46,8 +46,8 @@ export class SkinningModel extends Model {
         this._skinningUBO = this._device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: SkinningUBO.SIZE,
-            stride: SkinningUBO.SIZE,
+            size: UBOSkinning.SIZE,
+            stride: UBOSkinning.SIZE,
         });
     }
 
@@ -58,7 +58,7 @@ export class SkinningModel extends Model {
             const jointsTexture = _createJointsTexture(skeleton);
             textureSizeBuffer[0] = jointsTexture.width;
             this._skinningUBO.update(
-            textureSizeBuffer, SkinningUBO.JOINTS_TEXTURE_SIZE_OFFSET, textureSizeBuffer.byteLength);
+            textureSizeBuffer, UBOSkinning.JOINTS_TEXTURE_SIZE_OFFSET, textureSizeBuffer.byteLength);
             this._jointStorage = {
                 texture: jointsTexture,
                 nativeData: new Float32Array(jointsTexture.width * jointsTexture.height * 4),
@@ -82,22 +82,22 @@ export class SkinningModel extends Model {
             return;
         }
         if (isUniformStorage(this._jointStorage)) {
-            this._skinningUBO.update(this._jointStorage.nativeData, SkinningUBO.MAT_JOINT_OFFSET);
+            this._skinningUBO.update(this._jointStorage.nativeData, UBOSkinning.MAT_JOINT_OFFSET);
         } else if (isTextureStorage(this._jointStorage)) {
-            this._jointStorage.texture.directUpdate(this._jointStorage.nativeData.buffer);
+            (this._jointStorage as IJointTextureStorage).texture.directUpdate(this._jointStorage!.nativeData.buffer);
         }
     }
 
     protected _onCreatePSO (pso: GFXPipelineState) {
         super._onCreatePSO(pso);
-        pso.pipelineLayout.layouts[0].bindBuffer(SkinningUBO.BLOCK.binding, this._skinningUBO);
+        pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinning.BLOCK.binding, this._skinningUBO);
         if (this._jointStorage && isTextureStorage(this._jointStorage)) {
             const jointTexture = this._jointStorage.texture;
             const view = jointTexture.getGFXTextureView();
             const sampler = jointTexture.getGFXSampler();
             if (view && sampler) {
-                pso.pipelineLayout.layouts[0].bindTextureView(SkinningUBO.JOINT_TEXTURE.binding, view);
-                pso.pipelineLayout.layouts[0].bindSampler(SkinningUBO.JOINT_TEXTURE.binding, sampler);
+                pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, view);
+                pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);
             }
         }
     }

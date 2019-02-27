@@ -3,67 +3,28 @@ import { Root } from '../core/root';
 import { Mat4 } from '../core/value-types';
 import { mat4, vec3 } from '../core/vmath';
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXLoadOp, GFXMemoryUsageBit, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, GFXType } from '../gfx/define';
-import { GFXAPI, GFXDevice, GFXFeature } from '../gfx/device';
+import {
+    GFXBufferUsageBit,
+    GFXFormat,
+    GFXFormatInfos,
+    GFXLoadOp,
+    GFXMemoryUsageBit,
+    GFXStoreOp,
+    GFXTextureLayout,
+    GFXTextureType,
+    GFXTextureUsageBit,
+    GFXTextureViewType,
+} from '../gfx/define';
+import { GFXDevice, GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
-import { GFXUniformBlock } from '../gfx/shader';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
+import { UBOGlobal } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
-
-export class UBOGlobal {
-    public static TIME_OFFSET: number = 0;
-    public static SCREEN_SIZE_OFFSET: number = 4;
-    public static SCREEN_SCALE_OFFSET: number = 8;
-    public static MAT_VIEW_OFFSET: number = 12;
-    public static MAT_VIEW_INV_OFFSET: number = 28;
-    public static MAT_PROJ_OFFSET: number = 44;
-    public static MAT_PROJ_INV_OFFSET: number = 60;
-    public static MAT_VIEW_PROJ_OFFSET: number = 76;
-    public static MAT_VIEW_PROJ_INV_OFFSET: number = 92;
-    public static CAMERA_POS_OFFSET: number = 108;
-    public static COUNT: number = 112;
-    public static SIZE: number = UBOGlobal.COUNT * 4;
-
-    public static BLOCK: GFXUniformBlock = {
-        binding: 20, name: 'CCGlobal', members: [
-            // constants
-            { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_screenScale', type: GFXType.FLOAT4, count: 1 },
-            // transform
-            { name: 'cc_matView', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matViewInv', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matProj', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matProjInv', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matViewProj', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matViewProjInv', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_cameraPos', type: GFXType.FLOAT4, count: 1 },
-        ],
-    };
-
-    public view: Float32Array = new Float32Array(UBOGlobal.COUNT);
-}
-
-export class UBOLocal {
-    public static MAT_WORLD_OFFSET: number = 0;
-    public static MAT_WORLD_IT_OFFSET: number = 16;
-    public static COUNT: number = 32;
-    public static SIZE: number = UBOLocal.COUNT * 4;
-
-    public static BLOCK: GFXUniformBlock = {
-        binding: 21, name: 'CCLocal', members: [
-            { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
-        ],
-    };
-
-    public view: Float32Array = new Float32Array(UBOLocal.COUNT);
-}
 
 const _vec4Array = new Float32Array(4);
 const _mat4Array = new Float32Array(16);

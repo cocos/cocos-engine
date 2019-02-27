@@ -31,8 +31,8 @@ import { vfmt } from '../../gfx/vertex-format-sample';
 import { Node } from '../../scene-graph/node';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
-import { IUIMaterialInfo, UIMaterial } from './ui-material';
 import { UIBatchModel } from './ui-batch-model';
+import { IUIMaterialInfo, UIMaterial } from './ui-material';
 
 export class UBOUI {
     public static MAT_VIEW_PROJ_OFFSET: number = 0;

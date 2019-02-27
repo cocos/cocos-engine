@@ -3,47 +3,14 @@ import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXType } from '../../gfx/define';
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXUniformBlock } from '../../gfx/shader';
-import { RenderPassStage } from '../define';
+import { RenderPassStage, UBOForwardLights } from '../define';
 import { RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { ForwardFlow } from './forward-flow';
-import { ToneMapFlow } from '../ppfx/tonemap-flow';
 
 export enum ForwardFlowPriority {
     FORWARD = 0,
 }
-
-// tslint:disable: max-line-length
-export class UBOForwardLights {
-    public static MAX_DIR_LIGHTS = 4;
-    public static MAX_POINT_LIGHTS = 4;
-    public static MAX_SPOT_LIGHTS = 4;
-
-    public static DIR_LIGHT_DIR_OFFSET: number = 0;
-    public static DIR_LIGHT_COLOR_OFFSET: number = UBOForwardLights.DIR_LIGHT_DIR_OFFSET + UBOForwardLights.MAX_DIR_LIGHTS * 4;
-    public static POINT_LIGHT_POS_RANGE_OFFSET: number = UBOForwardLights.DIR_LIGHT_COLOR_OFFSET + UBOForwardLights.MAX_DIR_LIGHTS * 4;
-    public static POINT_LIGHT_COLOR_OFFSET: number = UBOForwardLights.POINT_LIGHT_POS_RANGE_OFFSET + UBOForwardLights.MAX_POINT_LIGHTS * 4;
-    public static SPOT_LIGHT_POS_RANGE_OFFSET: number = UBOForwardLights.POINT_LIGHT_COLOR_OFFSET + UBOForwardLights.MAX_POINT_LIGHTS * 4;
-    public static SPOT_LIGHT_DIR_OFFSET: number = UBOForwardLights.SPOT_LIGHT_POS_RANGE_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
-    public static SPOT_LIGHT_COLOR_OFFSET: number = UBOForwardLights.SPOT_LIGHT_DIR_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
-    public static COUNT: number = UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
-    public static SIZE: number = UBOForwardLights.COUNT * 4;
-
-    public static BLOCK: GFXUniformBlock = {
-        binding: 22, name: 'CCForwardLights', members: [
-            { name: 'cc_dirLightDirection', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_DIR_LIGHTS },
-            { name: 'cc_dirLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_DIR_LIGHTS },
-            { name: 'cc_pointLightPositionAndRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_POINT_LIGHTS },
-            { name: 'cc_pointLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_POINT_LIGHTS },
-            { name: 'cc_spotLightPositionAndRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-            { name: 'cc_spotLightDirection', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-            { name: 'cc_spotLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-        ],
-    };
-
-    public view: Float32Array = new Float32Array(UBOForwardLights.COUNT);
-}
-// tslint:enable: max-line-length
 
 const _idVec4Array = Float32Array.from([0, 0, 0, 1]);
 

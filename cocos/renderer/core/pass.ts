@@ -16,9 +16,7 @@ import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { RenderPassStage, RenderPriority } from '../../pipeline/define';
-import { UBOForwardLights } from '../../pipeline/forward/forward-pipeline';
-import { UBOGlobal } from '../../pipeline/render-pipeline';
+import { RenderPassStage, RenderPriority, UBOForwardLights, UBOGlobal } from '../../pipeline/define';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part

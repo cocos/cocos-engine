@@ -1,9 +1,8 @@
 import { Material } from '../../3d/assets/material';
-import { GFXBindingLayout } from '../../gfx/binding-layout';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Pass } from '../core/pass';
 import Pool from '../../3d/memop/pool';
-import { UBOGlobal } from '../../pipeline/render-pipeline';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { UBOGlobal } from '../../pipeline/define';
+import { Pass } from '../core/pass';
 
 export interface IUIMaterialInfo {
     material: Material;
