@@ -620,6 +620,17 @@ let Label = cc.Class({
         }
     },
 
+    _updateColor () {
+        let font = this.font;
+        if (font instanceof cc.BitmapFont) {
+            this._super();
+        }
+        else {
+            this._updateRenderData();
+            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
+        }
+    },
+
     _activateMaterial (force) {
         let material = this._material;
         if (material && !force) {

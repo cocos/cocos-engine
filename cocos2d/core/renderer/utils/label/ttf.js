@@ -217,14 +217,9 @@ module.exports = {
         let lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
-        }
-        else {
-            _context.fillStyle = 'white';
-        }
-        let underlineStartPosition;
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${1})`;
 
+        let underlineStartPosition;
         //do real rendering
         for (let i = 0; i < _splitedStrings.length; ++i) {
             if (_isOutlined) {
@@ -240,7 +235,7 @@ module.exports = {
                 _context.save();
                 _context.beginPath();
                 _context.lineWidth = _fontSize / 8;
-                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
+                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${1})`;
                 _context.moveTo(underlineStartPosition.x, underlineStartPosition.y + i * lineHeight - 1);
                 _context.lineTo(underlineStartPosition.x + _canvas.width, underlineStartPosition.y + i * lineHeight - 1);
                 _context.stroke();
@@ -252,7 +247,7 @@ module.exports = {
     },
 
     _calDynamicAtlas (comp) {
-        if(!comp.batchAsBitmap) return;
+        if(comp.cacheMode !== Label.CacheMode.BITMAP) return;
         
         if (!comp._frame._original) {
             comp._frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));

@@ -735,10 +735,6 @@ var Texture2D = cc.Class({
         return this._hash;
     },
 
-    _setReserved (state) {
-        this._reserveImage = state;
-    },
-
     _clearImage (force) {
         if (!this._reserveImage || force) {
             // wechat game platform will cache image parsed data, 

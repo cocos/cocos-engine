@@ -40,11 +40,10 @@ module.exports = js.addon({
     fillBuffers (comp, renderer) {
         let data = comp._renderData._data,
             node = comp.node,
-            color = node.color._val,
             matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
-    
+        let color = cc.color(255, 255, 255, node.color.a)._val;
         let buffer = renderer._meshBuffer;
 
         let offsetInfo = buffer.request(4, 6);

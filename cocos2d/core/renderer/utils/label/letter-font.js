@@ -76,7 +76,6 @@ LetterTexture.prototype = {
     },
     _updateProperties () {
         this._texture = new cc.Texture2D();
-        this._texture._setReserved(true);
         this._data = Label._canvasPool.get();
         this._canvas = this._data.canvas;
         this._context = this._data.context;
