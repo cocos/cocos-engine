@@ -87,12 +87,11 @@ export class Root {
         this._curWindow = this._mainWindow;
 
         let pipeline: RenderPipeline = new ForwardPipeline(this);
+        this._pipeline = pipeline;
         if (!pipeline.initialize()) {
             this.destroy();
             return false;
         }
-
-        this._pipeline = pipeline;
 
         this.registerRenderPipeline('forward', pipeline);
         pipeline = new UIPipeline(this);

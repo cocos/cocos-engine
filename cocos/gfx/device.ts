@@ -34,6 +34,8 @@ export interface IGFXDeviceInfo {
     isAntialias?: boolean;
     isPremultipliedAlpha?: boolean;
     debug?: boolean;
+    nativeWidth?: number;
+    nativeHeight?: number;
 }
 
 // tslint:disable: max-line-length
@@ -61,6 +63,14 @@ export abstract class GFXDevice {
 
     public get height (): number {
         return this._height;
+    }
+
+    public get nativeWidth (): number {
+        return this._nativeWidth;
+    }
+
+    public get nativeHeight (): number {
+        return this._nativeHeight;
     }
 
     public get mainWindow (): GFXWindow {
@@ -138,6 +148,8 @@ export abstract class GFXDevice {
     protected _queue: GFXQueue | null = null;
     protected _width: number = 0;
     protected _height: number = 0;
+    protected _nativeWidth: number = 0;
+    protected _nativeHeight: number = 0;
     protected _mainWindow: GFXWindow | null = null;
     protected _cmdAllocator: GFXCommandAllocator | null = null;
     protected _maxVertexAttributes: number = 0;

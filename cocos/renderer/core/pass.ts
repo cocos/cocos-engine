@@ -194,7 +194,9 @@ export class Pass {
 
     public getHandle (name: string) {
         const handle = this._handleMap[name];
-        if (!handle) { console.warn('illegal property name ' + name); }
+        if (!handle) {
+            console.warn('illegal property name ' + name);
+        }
         return handle;
     }
 
@@ -283,7 +285,7 @@ export class Pass {
         }
     }
 
-    public createPipelineState () {
+    public createPipelineState (): GFXPipelineState | null {
         if (!this._renderPass || !this._shader) { return null; }
         const bindingLayout = this._device.createBindingLayout({ bindings: this._bindings });
         for (const b of Object.keys(this._buffers)) {

@@ -1,12 +1,8 @@
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
-import { ForwardStage } from './forward-stage';
+import { ToneMapStage } from './tonemap-stage';
 
-export enum ForwardStagePriority {
-    FORWARD = 0,
-}
-
-export class ForwardFlow extends RenderFlow {
+export class ToneMapFlow extends RenderFlow {
 
     constructor (pipeline: RenderPipeline) {
         super(pipeline);
@@ -20,12 +16,18 @@ export class ForwardFlow extends RenderFlow {
 
         this._priority = info.priority;
 
+        const material = new cc.Material();
+        material.initialize({
+            effectName: 'builtin-tonemap',
+        });
+
+        this._material = material;
+
         const framebuffer = this._pipeline.root.mainWindow!.framebuffer!;
 
-        this.createStage(ForwardStage, {
-            name: 'ForwardStage',
-            priority: ForwardStagePriority.FORWARD,
-            // framebuffer:  this._pipeline.shadingFBO,
+        this.createStage(ToneMapStage, {
+            name: 'ToneMapStage',
+            priority: 0,
             framebuffer,
         });
 

@@ -3,8 +3,9 @@ import { Root } from '../core/root';
 import { Mat4 } from '../core/value-types';
 import { mat4, vec3 } from '../core/vmath';
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXType, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXFormatInfos } from '../gfx/define';
-import { GFXDevice, GFXFeature, GFXAPI } from '../gfx/device';
+import { GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXLoadOp, GFXMemoryUsageBit, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, GFXType } from '../gfx/define';
+import { GFXAPI, GFXDevice, GFXFeature } from '../gfx/device';
+import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXUniformBlock } from '../gfx/shader';
@@ -13,7 +14,6 @@ import { GFXTextureView } from '../gfx/texture-view';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
-import { GFXFramebuffer } from '../gfx/framebuffer';
 
 export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
@@ -87,12 +87,16 @@ export abstract class RenderPipeline {
         return this._flows;
     }
 
-    public get shadingTex (): GFXTexture {
-        return this._shadingTex!;
-    }
-
     public get shadingTexView (): GFXTextureView {
         return this._shadingTexView!;
+    }
+
+    public get shadingFBO (): GFXFramebuffer {
+        return this._shadingFBO!;
+    }
+
+    public get depthStencilTexView (): GFXTextureView {
+        return this._depthStencilTexView!;
     }
 
     public get quadIA (): GFXInputAssembler {
@@ -120,6 +124,8 @@ export abstract class RenderPipeline {
     protected _shadingPass: GFXRenderPass | null = null;
     protected _shadingTex: GFXTexture | null = null;
     protected _shadingTexView: GFXTextureView | null = null;
+    protected _depthStencilTex: GFXTexture | null = null;
+    protected _depthStencilTexView: GFXTextureView | null = null;
     protected _shadingFBO: GFXFramebuffer | null = null;
     protected _quadVB: GFXBuffer | null = null;
     protected _quadIB: GFXBuffer | null = null;
@@ -232,6 +238,20 @@ export abstract class RenderPipeline {
         console.info('Shading Color Format: ' + GFXFormatInfos[colorFmt].name);
         console.info('Shading Depth Format: ' + GFXFormatInfos[depthFmt].name);
 
+        this._shadingTex = this._device.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+            format: colorFmt,
+            width: this._device.nativeWidth,
+            height: this._device.nativeHeight,
+        });
+
+        this._shadingTexView = this._device.createTextureView({
+            texture : this._shadingTex,
+            type : GFXTextureViewType.TV2D,
+            format : colorFmt,
+        });
+
         this._shadingPass = this._device.createRenderPass({
             colorAttachments: [{
                 format: colorFmt,
@@ -253,7 +273,35 @@ export abstract class RenderPipeline {
             },
         });
 
+        this._shadingFBO = this._device.createFramebuffer({
+            renderPass: this._shadingPass,
+            colorViews: [ this._shadingTexView ],
+            depthStencilView: this._depthStencilTexView!,
+        });
+
         return true;
+    }
+
+    protected destroyShadingTarget () {
+        if (this._shadingTexView) {
+            this._shadingTexView.destroy();
+            this._shadingTexView = null;
+        }
+
+        if (this._shadingTex) {
+            this._shadingTex.destroy();
+            this._shadingTex = null;
+        }
+
+        if (this._shadingFBO) {
+            this._shadingFBO.destroy();
+            this._shadingFBO = null;
+        }
+
+        if (this._shadingPass) {
+            this._shadingPass.destroy();
+            this._shadingPass = null;
+        }
     }
 
     protected createQuadInputAssembler (): boolean {

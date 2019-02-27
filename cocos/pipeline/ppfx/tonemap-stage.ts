@@ -1,13 +1,16 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, IGFXColor } from '../../gfx/define';
+import { GFXFramebuffer } from '../../gfx/framebuffer';
+import { Camera } from '../../renderer/scene/camera';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
 
 const colors: IGFXColor[] = [];
 const bufs: GFXCommandBuffer[] = [];
 
-export class ForwardStage extends RenderStage {
+export class ToneMapStage extends RenderStage {
 
     constructor (flow: RenderFlow) {
         super(flow);
@@ -27,6 +30,9 @@ export class ForwardStage extends RenderStage {
             type: GFXCommandBufferType.PRIMARY,
         });
 
+        this._pass = this._flow.material.passes[0];
+        this._pso = this._pass.createPipelineState();
+
         return true;
     }
 
@@ -42,25 +48,24 @@ export class ForwardStage extends RenderStage {
 
     public render (view: RenderView) {
 
-        const cmdBuff = this._cmdBuff!;
-        const queue = this._pipeline.queue;
-
         const camera = view.camera!;
 
-        this._renderArea.width = camera.width;
-        this._renderArea.height = camera.height;
-        colors[0] = camera.clearColor;
+        if (this._cmdBuff && camera.view.window) {
 
-        cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+            this._renderArea.width = camera.width;
+            this._renderArea.height = camera.height;
+            const framebuffer = camera.view.window.framebuffer;
 
-        cmdBuff.execute(queue.cmdBuffs.array, queue.cmdBuffCount);
+            this._cmdBuff.begin();
+            this._cmdBuff.beginRenderPass(framebuffer, this._renderArea, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
+            this._cmdBuff.bindPipelineState(this._pso!);
+            this._cmdBuff.bindBindingLayout(this._pso!.pipelineLayout.layouts[0]);
+            this._cmdBuff.bindInputAssembler(this._pipeline.quadIA);
+            this._cmdBuff.draw(this._pipeline.quadIA);
+            this._cmdBuff.endRenderPass();
+            this._cmdBuff.end();
+        }
 
-        cmdBuff.endRenderPass();
-        cmdBuff.end();
-
-        bufs[0] = cmdBuff;
-        this._device.queue.submit(bufs);
+        this._device.queue.submit([this._cmdBuff!]);
     }
 }

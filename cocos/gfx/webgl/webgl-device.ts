@@ -256,9 +256,9 @@ export class WebGLGFXDevice extends GFXDevice {
         console.info('VENDOR: ' + this._vendor);
         console.info('VERSION: ' + this._version);
         console.info('SCREEN_SIZE: ' + this._width + ' x ' + this._height);
-        console.info('COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
-        console.info('DEPTH_STENCIL_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
-
+        console.info('NATIVE_SIZE: ' + this._nativeWidth + ' x ' + this._nativeHeight);
+        // console.info('COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
+        // console.info('DEPTH_STENCIL_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
         // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
         console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
         console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);

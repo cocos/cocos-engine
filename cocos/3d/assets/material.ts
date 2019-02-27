@@ -141,7 +141,10 @@ export class Material extends Asset {
                 success = true;
             }
         }
-        if (!success) { console.warn(`illegal property name: ${name}.`); return; }
+        if (!success) {
+            console.warn(`illegal property name: ${name}.`);
+            return;
+        }
     }
 
     public getProperty (name: string, passIdx?: number) {

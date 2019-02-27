@@ -775,8 +775,10 @@ var game = {
                 }
 
                 this._gfxDevice.initialize({
-                    canvasElm : localCanvas,
+                    canvasElm: localCanvas,
                     debug: true,
+                    nativeWidth: screen.width,
+                    nativeHeight: screen.height,
                 });
             }
         }

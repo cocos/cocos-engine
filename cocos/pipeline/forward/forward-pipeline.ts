@@ -7,6 +7,7 @@ import { RenderPassStage } from '../define';
 import { RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { ForwardFlow } from './forward-flow';
+import { ToneMapFlow } from '../ppfx/tonemap-flow';
 
 export enum ForwardFlowPriority {
     FORWARD = 0,
@@ -88,11 +89,17 @@ export class ForwardPipeline extends RenderPipeline {
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
 
         // create flows
-        this.createFlow<ForwardFlow>(ForwardFlow, {
+        this.createFlow(ForwardFlow, {
             name: 'ForwardFlow',
             priority: ForwardFlowPriority.FORWARD,
         });
 
+        /*
+        this.createFlow(ToneMapFlow, {
+            name: 'ToneMapFlow',
+            priority: 0,
+        });
+        */
         return true;
     }
 
@@ -101,6 +108,7 @@ export class ForwardPipeline extends RenderPipeline {
         this.clearRenderPasses();
         this.destroyUBOs();
         this.destroyQuadInputAssembler();
+        this.destroyShadingTarget();
     }
 
     protected createUBOs (): boolean {

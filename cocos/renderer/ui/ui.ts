@@ -303,9 +303,12 @@ export class UI {
         if (idx !== -1) {
             this._screens.splice(idx, 1);
         }
+
+        let camera;
         for (let i = idx; i < this._screens.length;) {
-            if (this._screens[i].camera) {
-                this._screens[i].camera.view.visibility = ++i;
+            camera = this._screens[i].camera;
+            if (camera) {
+                camera.view.visibility = ++i;
             }
         }
     }

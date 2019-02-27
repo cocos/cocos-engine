@@ -6,6 +6,8 @@ import { Camera } from '../renderer/scene/camera';
 import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
 import { RenderView } from './render-view';
+import { GFXPipelineState } from '../gfx/pipeline-state';
+import { Pass } from '../renderer';
 
 export interface IRenderStageInfo {
     name?: string;
@@ -42,6 +44,8 @@ export abstract class RenderStage {
     protected _clearDepth: number = 1.0;
     protected _clearStencil: number = 0;
     protected _renderArea: IGFXRect;
+    protected _pass: Pass | null = null;
+    protected _pso: GFXPipelineState | null = null;
 
     constructor (flow: RenderFlow) {
         this._flow = flow;

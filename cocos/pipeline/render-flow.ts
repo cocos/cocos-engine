@@ -1,5 +1,5 @@
+import { Material } from '../3d/assets/material';
 import { GFXDevice } from '../gfx/device';
-import { Camera } from '../renderer/scene/camera';
 import { RenderPipeline } from './render-pipeline';
 import { IRenderStageInfo, RenderStage } from './render-stage';
 import { RenderView } from './render-view';
@@ -23,12 +23,16 @@ export abstract class RenderFlow {
         return this._priority;
     }
 
+    public get material (): Material {
+        return this._material!;
+    }
+
     protected _device: GFXDevice;
     protected _pipeline: RenderPipeline;
     protected _name: string = '';
     protected _priority: number = 0;
     protected _stages: RenderStage[] = [];
-    protected _material: null = null;   // TODO
+    protected _material: Material | null = null;
 
     constructor (pipeline: RenderPipeline) {
         this._device = pipeline.device;
