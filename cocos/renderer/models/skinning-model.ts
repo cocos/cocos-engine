@@ -2,6 +2,7 @@
 
 import Skeleton from '../../3d/assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
+import { Filter, PixelFormat, WrapMode } from '../../assets/texture-base';
 import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
@@ -11,7 +12,6 @@ import { Node } from '../../scene-graph/node';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { SkinningUBO } from './model-uniforms';
-import { PixelFormat, Filter, WrapMode } from '../../assets/texture-base';
 
 const textureSizeBuffer = new Float32Array(4);
 

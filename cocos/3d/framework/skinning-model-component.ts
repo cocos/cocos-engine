@@ -27,7 +27,7 @@
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { mat4 } from '../../core/vmath';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { SkinningModel, __FORCE_USE_UNIFORM_STORAGE__ } from '../../renderer/models/skinning-model';
+import { __FORCE_USE_UNIFORM_STORAGE__, SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Material } from '../assets/material';
 import Skeleton from '../assets/skeleton';
@@ -86,6 +86,11 @@ export default class SkinningModelComponent extends ModelComponent {
 
     public onLoad () {
         super.onLoad();
+        this._materials.forEach((material, index) => {
+            if (material) {
+                this._onMaterialModified(index, material);
+            }
+        });
         this._resetSkinningTarget();
     }
 
@@ -126,14 +131,14 @@ export default class SkinningModelComponent extends ModelComponent {
         skinningModel.commitJointMatrices();
     }
 
-    protected _getModelConstructor () {
-        return SkinningModel;
-    }
-
     public _updateModelParams () {
         // Should bind skeleton before super create pso
         this._bindSkeleton();
         super._updateModelParams();
+    }
+
+    protected _getModelConstructor () {
+        return SkinningModel;
     }
 
     protected _onMaterialModified (index: number, material: Material) {
