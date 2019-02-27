@@ -7,7 +7,7 @@ const { ccclass, property } = _decorator;
 @ccclass('cc.RenderableComponent')
 export class RenderableComponent extends Component {
     @property({ type: [Material] })
-    private _materials: Array<Material | null> = [];
+    protected _materials: Array<Material | null> = [];
 
     constructor () {
         super();
