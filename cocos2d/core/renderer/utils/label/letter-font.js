@@ -56,24 +56,24 @@ let _canvasPool = {
 };
 
 let LetterInfo = function() {
-    this._char = '';
-    this._valid = true;
-    this._positionX = 0;
-    this._positionY = 0;
-    this._lineIndex = 0;
-    this._hash = "";
+    this.char = '';
+    this.valid = true;
+    this.x = 0;
+    this.y = 0;
+    this.line = 0;
+    this.hash = "";
 };
 
 let FontLetterDefinition = function() {
-    this._u = 0;
-    this._v = 0;
-    this._width = 0;
-    this._height = 0;
-    this._offsetX = 0;
-    this._offsetY = 0;
-    this._textureID = 0;
-    this._validDefinition = false;
-    this._xAdvance = 0;
+    this.u = 0;
+    this.v = 0;
+    this.w = 0;
+    this.h = 0;
+    this.texture = null;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.valid = false;
+    this.xAdvance = 0;
 };
 
 let _backgroundStyle = 'rgba(255, 255, 255, 0.005)';
@@ -88,7 +88,7 @@ function LetterTexture(char, labelInfo) {
     this._context = null;
     this._width = 0;
     this._height = 0;
-    this._hash = char.charCodeAt(0) + labelInfo._hash;
+    this._hash = char.charCodeAt(0) + labelInfo.hash;
 }
 
 LetterTexture.prototype = {
@@ -104,10 +104,10 @@ LetterTexture.prototype = {
         this._data = _canvasPool.get();
         this._canvas = this._data.canvas;
         this._context = this._data.context;
-        this._context.font = this._labelInfo._fontDesc;
+        this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
         this._width = parseFloat(width.toFixed(2)) + _margin;
-        this._height = this._labelInfo._lineHeight + _margin;
+        this._height = this._labelInfo.lineHeight + _margin;
 
         if (this._canvas.width !== this._width) {
             this._canvas.width = this._width;
@@ -125,7 +125,7 @@ LetterTexture.prototype = {
         //Add a white background to avoid black edges.
         _context.fillStyle = _backgroundStyle;
         _context.fillRect(0, 0, this._canvas.width, this._canvas.height);
-        _context.font = this._labelInfo._fontDesc;
+        _context.font = this._labelInfo.fontDesc;
 
         let startX = _margin / 2;
         let startY = this._canvas.height - _margin / 2;
@@ -140,6 +140,7 @@ LetterTexture.prototype = {
 
     destroy () {
         this._texture.destroy();
+        this._texture = null;
         _canvasPool.put(this._data);
     },
 }
@@ -184,13 +185,13 @@ cc.js.mixin(LetterAtlas.prototype, {
         this._dirty = true;
         
         let letterDefinition = new FontLetterDefinition();
-        letterDefinition._u = this._x;
-        letterDefinition._v = this._y;
-        letterDefinition._texture = this._texture;
-        letterDefinition._validDefinition = true;
-        letterDefinition._width = letterTexture._width;
-        letterDefinition._height = letterTexture._height;
-        letterDefinition._xAdvance = letterTexture._width;
+        letterDefinition.u = this._x;
+        letterDefinition.v = this._y;
+        letterDefinition.texture = this._texture;
+        letterDefinition.valid = true;
+        letterDefinition.w = letterTexture._width;
+        letterDefinition.h = letterTexture._height;
+        letterDefinition.xAdvance = letterTexture._width;
 
         this._x += width + space;
 
@@ -253,15 +254,15 @@ cc.js.mixin(LetterAtlas.prototype, {
     scaleFontLetterDefinition: function(scaleFactor) {
         for (let fontDefinition in this._letterDefinitions) {
             let letterDefinitions = this._letterDefinitions[fontDefinition];
-            letterDefinitions._width *= scaleFactor;
-            letterDefinitions._height *= scaleFactor;
-            letterDefinitions._offsetX *= scaleFactor;
-            letterDefinitions._offsetY *= scaleFactor;
-            letterDefinitions._xAdvance *= scaleFactor;
+            letterDefinitions.w *= scaleFactor;
+            letterDefinitions.h *= scaleFactor;
+            letterDefinitions.offsetX *= scaleFactor;
+            letterDefinitions.offsetY *= scaleFactor;
+            letterDefinitions.xAdvance *= scaleFactor;
         }
     },
     getLetterDefinitionForChar: function(char, labelInfo) {
-        let hash = char.charCodeAt(0) + labelInfo._hash;
+        let hash = char.charCodeAt(0) + labelInfo.hash;
         let letterDefinition = this._letterDefinitions[hash];
         if (!letterDefinition) {
             let temp = new LetterTexture(char, labelInfo);
@@ -312,13 +313,13 @@ let _atlasHeight = 2048;
 let _fontFamily = "";
 let _isBold = false;
 let _labelInfo = {
-    _fontSize:0,
-    _lineHeight:0,
-    _hash:"",
-    _fontFamily:"",
-    _fontDesc:"Arial",
-    _hAlign:0,
-    _vAlign:0,
+    fontSize:0,
+    lineHeight:0,
+    hash:"",
+    fontFamily:"",
+    fontDesc:"Arial",
+    hAlign:0,
+    vAlign:0,
 };
 
 module.exports = {
@@ -337,10 +338,10 @@ module.exports = {
         _comp = comp;
         
         this._updateFontFamily(comp);
-        _labelInfo._fontFamily = _fontFamily;
+        _labelInfo.fontFamily = _fontFamily;
 
         this._updateProperties();
-        _labelInfo._fontDesc = this._getFontDesc();
+        _labelInfo.fontDesc = this._getFontDesc();
 
         this._updateContent();
         
@@ -371,10 +372,10 @@ module.exports = {
         _lineHeight = _comp._lineHeight;
         _isBold = _comp._isBold;
 
-        _labelInfo._hash = this._computeHash();  
-        _labelInfo._lineHeight = _lineHeight;
-        _labelInfo._fontSize = _fontSize;
-        _labelInfo._fontFamily = _fontFamily;
+        _labelInfo.hash = this._computeHash();  
+        _labelInfo.lineHeight = _lineHeight;
+        _labelInfo.fontSize = _fontSize;
+        _labelInfo.fontFamily = _fontFamily;
 
         // should wrap text
         if (_overflow === Overflow.NONE) {
@@ -510,12 +511,12 @@ module.exports = {
                     continue;
                 }
 
-                let letterX = nextLetterX + letterDef._offsetX * _bmfontScale;
+                let letterX = nextLetterX + letterDef.offsetX * _bmfontScale;
 
                 if (_isWrapText
                     && _maxLineWidth > 0
                     && nextTokenX > 0
-                    && letterX + letterDef._width * _bmfontScale > _maxLineWidth
+                    && letterX + letterDef.w * _bmfontScale > _maxLineWidth
                     && !textUtils.isUnicodeSpace(character)) {
                     _linesWidth.push(letterRight);
                     letterRight = 0;
@@ -528,23 +529,23 @@ module.exports = {
                     letterPosition.x = letterX;
                 }
 
-                letterPosition.y = nextTokenY - letterDef._offsetY * _bmfontScale;
+                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale;
                 this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < _horizontalKernings.length && letterIndex < textLen - 1) {
                     nextLetterX += _horizontalKernings[letterIndex + 1];
                 }
 
-                nextLetterX += letterDef._xAdvance * _bmfontScale + _spacingX;
+                nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX;
 
-                tokenRight = letterPosition.x + letterDef._width * _bmfontScale;
+                tokenRight = letterPosition.x + letterDef.w * _bmfontScale;
 
                 if (tokenHighestY < letterPosition.y) {
                     tokenHighestY = letterPosition.y;
                 }
 
-                if (tokenLowestY > letterPosition.y - letterDef._height * _bmfontScale) {
-                    tokenLowestY = letterPosition.y - letterDef._height * _bmfontScale;
+                if (tokenLowestY > letterPosition.y - letterDef.h * _bmfontScale) {
+                    tokenLowestY = letterPosition.y - letterDef.h * _bmfontScale;
                 }
 
             } //end of for loop
@@ -613,7 +614,7 @@ module.exports = {
         if (!letterDef) {
             return len;
         }
-        let nextLetterX = letterDef._xAdvance * _bmfontScale + _spacingX;
+        let nextLetterX = letterDef.xAdvance * _bmfontScale + _spacingX;
         let letterX;
         for (let index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
@@ -622,14 +623,14 @@ module.exports = {
             if (!letterDef) {
                 break;
             }
-            letterX = nextLetterX + letterDef._offsetX * _bmfontScale;
+            letterX = nextLetterX + letterDef.offsetX * _bmfontScale;
 
-            if(letterX + letterDef._width * _bmfontScale > _maxLineWidth
+            if(letterX + letterDef.w * _bmfontScale > _maxLineWidth
                && !textUtils.isUnicodeSpace(character)
                && _maxLineWidth > 0) {
                 return len;
             }
-            nextLetterX += letterDef._xAdvance * _bmfontScale + _spacingX;
+            nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX;
             if (character === "\n"
                 || textUtils.isUnicodeSpace(character)
                 || textUtils.isUnicodeCJK(character)) {
@@ -655,9 +656,9 @@ module.exports = {
             _lettersInfo.push(tmpInfo);
         }
 
-        _lettersInfo[letterIndex]._char = char;
-        _lettersInfo[letterIndex]._hash = char.charCodeAt(0) + _labelInfo._hash;
-        _lettersInfo[letterIndex]._valid = false;
+        _lettersInfo[letterIndex].char = char;
+        _lettersInfo[letterIndex].hash = char.charCodeAt(0) + _labelInfo.hash;
+        _lettersInfo[letterIndex].valid = false;
     },
 
     _recordLetterInfo: function(letterPosition, character, letterIndex, lineIndex) {
@@ -666,13 +667,13 @@ module.exports = {
             _lettersInfo.push(tmpInfo);
         }
         let char = character.charCodeAt(0);
-        let key = char + _labelInfo._hash;
-        _lettersInfo[letterIndex]._lineIndex = lineIndex;
-        _lettersInfo[letterIndex]._char = character;
-        _lettersInfo[letterIndex]._hash = key;
-        _lettersInfo[letterIndex]._valid = _fontAtlas.getLetter(key)._validDefinition;
-        _lettersInfo[letterIndex]._positionX = letterPosition.x;
-        _lettersInfo[letterIndex]._positionY = letterPosition.y;
+        let key = char + _labelInfo.hash;
+        _lettersInfo[letterIndex].line = lineIndex;
+        _lettersInfo[letterIndex].char = character;
+        _lettersInfo[letterIndex].hash = key;
+        _lettersInfo[letterIndex].valid = _fontAtlas.getLetter(key).valid;
+        _lettersInfo[letterIndex].x = letterPosition.x;
+        _lettersInfo[letterIndex].y = letterPosition.y;
     },
 
     _alignText: function() {
@@ -727,11 +728,11 @@ module.exports = {
         let letterClamp = false;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
             let letterInfo = _lettersInfo[ctr];
-            if (letterInfo._valid) {
-                let letterDef = _fontAtlas.getLetter(letterInfo._hash);
+            if (letterInfo.valid) {
+                let letterDef = _fontAtlas.getLetter(letterInfo.hash);
 
-                let px = letterInfo._positionX + letterDef._width / 2 * _bmfontScale;
-                let lineIndex = letterInfo._lineIndex;
+                let px = letterInfo.x + letterDef.w / 2 * _bmfontScale;
+                let lineIndex = letterInfo.line;
                 if (_labelWidth > 0) {
                     if (!_isWrapText) {
                         if(px > _contentSize.width){
@@ -778,15 +779,15 @@ module.exports = {
         let ret = true;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
             let letterInfo = _lettersInfo[ctr];
-            if (!letterInfo._valid) continue;
-            let letterDef = _fontAtlas.getLetter(letterInfo._hash);
+            if (!letterInfo.valid) continue;
+            let letterDef = _fontAtlas.getLetter(letterInfo.hash);
 
-            _tmpRect.height = letterDef._height;
-            _tmpRect.width = letterDef._width;
-            _tmpRect.x = letterDef._u;
-            _tmpRect.y = letterDef._v;
+            _tmpRect.height = letterDef.h;
+            _tmpRect.width = letterDef.w;
+            _tmpRect.x = letterDef.u;
+            _tmpRect.y = letterDef.v;
 
-            let py = letterInfo._positionY + _letterOffsetY;
+            let py = letterInfo.y + _letterOffsetY;
 
             if (_labelHeight > 0) {
                 if (py > _tailoredTopY) {
@@ -796,20 +797,20 @@ module.exports = {
                     py = py - clipTop;
                 }
 
-                if (py - letterDef._height * _bmfontScale < _tailoredBottomY) {
+                if (py - letterDef.h * _bmfontScale < _tailoredBottomY) {
                     _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY);
                 }
             }
 
-            let lineIndex = letterInfo._lineIndex;
-            let px = letterInfo._positionX + letterDef._width / 2 * _bmfontScale + _linesOffsetX[lineIndex];
+            let lineIndex = letterInfo.line;
+            let px = letterInfo.x + letterDef.w / 2 * _bmfontScale + _linesOffsetX[lineIndex];
 
             if (_labelWidth > 0) {
                 if (this._isHorizontalClamped(px, lineIndex)) {
                     if (_overflow === Overflow.CLAMP) {
                         _tmpRect.width = 0;
                     } else if (_overflow === Overflow.SHRINK) {
-                        if (_contentSize.width > letterDef._width) {
+                        if (_contentSize.width > letterDef.w) {
                             ret = false;
                             break;
                         } else {
@@ -820,7 +821,7 @@ module.exports = {
             }
 
             if (_tmpRect.height > 0 && _tmpRect.width > 0) {
-                let letterPositionX = letterInfo._positionX + _linesOffsetX[letterInfo._lineIndex];
+                let letterPositionX = letterInfo.x + _linesOffsetX[letterInfo.line];
                 this.appendQuad(renderData, texture, _tmpRect, false, letterPositionX - appx, py - appy, _bmfontScale);
             }
         }

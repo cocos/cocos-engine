@@ -169,6 +169,7 @@ let Label = cc.Class({
 
         this._frame = null;
         this._ttfTexture = null;
+        this._letterTexture = null;
     },
 
     editor: CC_EDITOR && {
@@ -529,7 +530,8 @@ let Label = cc.Class({
     onDestroy () {
         this._assembler && this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
         this._assemblerData = null;
-        if (this._ttfTexture && this.cacheMode !== CacheMode.LETTER) {
+        this._letterTexture = null;
+        if (this._ttfTexture) {
             this._ttfTexture.destroy();
             this._ttfTexture = null;
         }
@@ -596,19 +598,20 @@ let Label = cc.Class({
         }
         else {
 
-            if (this.cacheMode === CacheMode.LETTER) {
-                this._ttfTexture = this._assembler._getAssemblerData();
-            } else if (!this._ttfTexture) {
-                this._ttfTexture = new cc.Texture2D();
-                this._assemblerData = this._assembler._getAssemblerData();
-                this._ttfTexture.initWithElement(this._assemblerData.canvas);
-            } 
-            
             if (!this._frame) {
                 this._frame = new LabelFrame();
             }
 
-            this._frame._refreshTexture(this._ttfTexture);
+            if (this.cacheMode === CacheMode.LETTER) {
+                this._letterTexture = this._assembler._getAssemblerData();
+                this._frame._refreshTexture(this._letterTexture);
+            } else if (!this._ttfTexture) {
+                this._ttfTexture = new cc.Texture2D();
+                this._assemblerData = this._assembler._getAssemblerData();
+                this._ttfTexture.initWithElement(this._assemblerData.canvas);
+                this._frame._refreshTexture(this._ttfTexture);
+            } 
+            
             this._activateMaterial(force);
 
             if (force) {
