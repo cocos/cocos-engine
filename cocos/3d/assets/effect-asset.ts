@@ -58,10 +58,15 @@ export interface IDefineInfo {
     range?: number[];
     defines: string[];
 }
+export interface IBuiltinInfo {
+    blocks: string[];
+    textures: string[];
+}
 export interface IShaderInfo {
     name: string;
     glsl3: { vert: string, frag: string };
     glsl1: { vert: string, frag: string };
+    builtins: IBuiltinInfo;
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
     samplers: ISamplerInfo[];

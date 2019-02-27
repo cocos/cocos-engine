@@ -1,11 +1,12 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import { IBlockInfo, IBlockMember, IDefineInfo, ISamplerInfo, IShaderInfo } from '../../3d/assets/effect-asset';
-import { GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
+import { GFXBindingType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniform, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
+import { UBOLocal, UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
+import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { IDefineMap } from './effect';
-import { UBOGlobal, UBOLocal, UBOForwardLights, UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 
 function _generateDefines (
     device: GFXDevice,
@@ -27,13 +28,6 @@ function _generateDefines (
     return defines.join('\n');
 }
 
-function insertBuiltinBlock (tmpl: IProgramInfo, blocks: GFXUniformBlock | GFXUniformBlock[]) {
-    (tmpl.blocks as GFXUniformBlock[]) = (tmpl.blocks as GFXUniformBlock[]).concat(blocks);
-}
-function insertBuiltinSampler (tmpl: IProgramInfo, samplers: GFXUniformSampler | GFXUniformSampler[]) {
-    (tmpl.samplers as GFXUniformSampler[]) = (tmpl.samplers as GFXUniformSampler[]).concat(samplers);
-}
-
 let _shdID = 0;
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
@@ -42,6 +36,7 @@ interface IDefineRecord extends IDefineInfo {
 interface IProgramInfo extends IShaderInfo {
     id: number;
     defines: IDefineRecord[];
+    builtinInited: boolean;
 }
 
 class ProgramLib {
@@ -58,22 +53,23 @@ class ProgramLib {
      *   // this object is auto-generated from your actual shaders
      *   let program = {
      *     name: 'foobar',
-     *     vert: vertTmpl,
-     *     frag: fragTmpl,
+     *     glsl1: { vert: '// shader source', frag: '// shader source' },
+     *     glsl3: { vert: '// shader source', frag: '// shader source' },
      *     defines: [
-     *       { name: 'shadow', type: 'boolean' },
-     *       { name: 'lightCount', type: 'number', range: [1, 4] }
+     *       { name: 'shadow', type: 'boolean', defines: [] },
+     *       { name: 'lightCount', type: 'number', range: [1, 4], defines: [] }
      *     ],
-     *     blocks: [{ name: 'Constants', binding: 0, size: 16, members: [
-     *       { name: 'color', type: 'vec4' }], defines: [] }
+     *     blocks: [{ name: 'Constants', binding: 0, members: [
+     *       { name: 'color', type: 'vec4', count: 1, size: 16 }], defines: [], size: 16 }
      *     ],
+     *     samplers: [],
      *     dependencies: { 'USE_NORMAL_TEXTURE': 'OES_standard_derivatives' },
      *   };
      *   programLib.define(program);
      */
     public define (prog: IShaderInfo) {
         const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
-        insertBuiltinBlock(tmpl, [UBOGlobal.BLOCK, UBOLocal.BLOCK, UBOForwardLights.BLOCK]);
+        processSpecialBindingLayout(tmpl);
 
         // calculate option mask offset
         let offset = 0;
@@ -85,11 +81,6 @@ class ProgramLib {
                 def._map = ((value: number) => (value - range[0]) << def._offset);
             } else { // boolean
                 def._map = ((value: any) => (value ? (1 << def._offset) : 0));
-            }
-            if (def.name === 'CC_USE_SKINNING') {
-                insertBuiltinBlock(tmpl, SkinningUBO.BLOCK);
-            } else if (def.name === 'CC_USE_JOINTS_TEXTURE') {
-                insertBuiltinSampler(tmpl, SkinningUBO.JOINT_TEXTURE);
             }
             offset += cnt;
             def._offset = offset;
@@ -122,7 +113,7 @@ class ProgramLib {
         return key << 8 | (tmpl.id & 0xff);
     }
 
-    public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap = {}) {
+    public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap = {}, pipeline: RenderPipeline) {
         const key = this.getKey(name, defines);
         let program = this._cache[key];
         if (program !== undefined) {
@@ -132,6 +123,7 @@ class ProgramLib {
         // get template
         const tmpl = this._templates[name];
         const customDef = _generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
+        if (!tmpl.builtinInited) { insertPipelineBuiltins(tmpl, pipeline); }
 
         let vert: string = '';
         let frag: string = '';
@@ -158,11 +150,33 @@ class ProgramLib {
     }
 }
 
-const globals = convertToBlockInfo(UBOGlobal.BLOCK);
+function insertPipelineBuiltins (tmpl: IProgramInfo, pipeline: RenderPipeline) {
+    const source = pipeline.globalBindings;
+    const target = tmpl.builtins;
+    for (const b of target.blocks) {
+        const info = source.get(b);
+        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
+        tmpl.blocks.push(convertToBlockInfo(info.blockInfo!));
+    }
+    for (const s of target.textures) {
+        const info = source.get(s);
+        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin texture '${s}' not available!`); continue; }
+        tmpl.samplers.push(convertToSamplerInfo(info.samplerInfo!));
+    }
+    tmpl.builtinInited = true;
+}
+
 const locals = convertToBlockInfo(UBOLocal.BLOCK);
-const lights = convertToBlockInfo(UBOForwardLights.BLOCK);
 const skinning = convertToBlockInfo(UBOSkinning.BLOCK);
 const jointsTexture = convertToSamplerInfo(UNIFORM_JOINTS_TEXTURE);
+function processSpecialBindingLayout (tmpl: IProgramInfo) {
+    let blockIdx = tmpl.builtins.blocks.findIndex((b) => b === 'CCSkinning');
+    if (blockIdx >= 0) { tmpl.blocks.push(skinning); tmpl.builtins.blocks.splice(blockIdx, 1); }
+    const samplerIdx = tmpl.builtins.textures.findIndex((t) => t === 'cc_jointsTexture');
+    if (samplerIdx >= 0) { tmpl.samplers.push(jointsTexture); tmpl.builtins.textures.splice(samplerIdx, 1); }
+    blockIdx = tmpl.builtins.blocks.findIndex((t) => t === 'CCLocal');
+    if (blockIdx >= 0) { tmpl.blocks.push(locals); tmpl.builtins.blocks.splice(blockIdx, 1); }
+}
 
 function convertToUniformInfo (uniform: GFXUniform): IBlockMember {
     return {
@@ -172,7 +186,6 @@ function convertToUniformInfo (uniform: GFXUniform): IBlockMember {
         size: GFXGetTypeSize(uniform.type) * uniform.count,
     };
 }
-
 function convertToBlockInfo (block: GFXUniformBlock): IBlockInfo {
     const members: IBlockMember[] = [];
     let size: number = 0;
@@ -181,21 +194,20 @@ function convertToBlockInfo (block: GFXUniformBlock): IBlockInfo {
         size += members[i].size;
     }
     return {
-        name: block.name,
         binding: block.binding,
-        defines: [],
+        name: block.name,
         members,
+        defines: [],
         size,
     };
 }
-
 function convertToSamplerInfo (sampler: GFXUniformSampler): ISamplerInfo {
     return {
-        name: sampler.name,
         binding: sampler.binding,
-        defines: [],
+        name: sampler.name,
         type: sampler.type,
         count: sampler.count,
+        defines: [],
     };
 }
 

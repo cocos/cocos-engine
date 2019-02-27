@@ -369,6 +369,8 @@ const WebGLBlendFactors: GLenum[] = [
     WebGLRenderingContext.ONE_MINUS_DST_ALPHA,
     WebGLRenderingContext.SRC_COLOR,
     WebGLRenderingContext.DST_COLOR,
+    WebGLRenderingContext.ONE_MINUS_SRC_COLOR,
+    WebGLRenderingContext.ONE_MINUS_DST_COLOR,
     WebGLRenderingContext.SRC_ALPHA_SATURATE,
     WebGLRenderingContext.CONSTANT_COLOR,
     WebGLRenderingContext.ONE_MINUS_CONSTANT_COLOR,
