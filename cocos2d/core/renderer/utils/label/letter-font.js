@@ -53,7 +53,6 @@ let FontLetterDefinition = function() {
 };
 
 let _backgroundStyle = 'rgba(255, 255, 255, 0.005)';
-let _margin = 2;
 function LetterTexture(char, labelInfo) {
     this._texture = null;
     this._labelInfo = labelInfo;
@@ -81,9 +80,9 @@ LetterTexture.prototype = {
         this._context = this._data.context;
         this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
-        this._width = parseFloat(width.toFixed(2)) + _margin;
-        this._height = this._labelInfo.lineHeight + _margin;
-
+        this._width = parseFloat(width.toFixed(2));
+        this._height = this._labelInfo.lineHeight;
+        
         if (this._canvas.width !== this._width) {
             this._canvas.width = this._width;
         }
@@ -96,14 +95,19 @@ LetterTexture.prototype = {
     },
     _updateTexture () {
         let _context = this._context;
-        _context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        let width = this._canvas.width,
+            height = this._canvas.height;
+
+        _context.textAlign = 'center';
+        _context.textBaseline = 'middle';
+        _context.clearRect(0, 0, width, height);
         //Add a white background to avoid black edges.
         _context.fillStyle = _backgroundStyle;
-        _context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+        _context.fillRect(0, 0, width, height);
         _context.font = this._labelInfo.fontDesc;
 
-        let startX = _margin / 2;
-        let startY = this._canvas.height - _margin / 2;
+        let startX = width / 2;
+        let startY = height / 2;
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
         _context.fillStyle = 'white';
