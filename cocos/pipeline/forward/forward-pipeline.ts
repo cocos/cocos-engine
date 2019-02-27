@@ -1,6 +1,6 @@
 import { Root } from '../../core/root';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXType } from '../../gfx/define';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXType, GFXObjectType } from '../../gfx/define';
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXUniformBlock } from '../../gfx/shader';
 import { RenderPassStage, UBOForwardLights } from '../define';
@@ -91,6 +91,12 @@ export class ForwardPipeline extends RenderPipeline {
             return false;
         }
 
+        this._globalBindings.set(UBOForwardLights.BLOCK.name, {
+            type: GFXObjectType.BUFFER,
+            blockInfo: UBOForwardLights.BLOCK,
+            uniformBuffer: this._lightsUBO,
+        });
+
         return true;
     }
 
@@ -101,6 +107,7 @@ export class ForwardPipeline extends RenderPipeline {
             this._lightsUBO.destroy();
             this._lightsUBO = null;
         }
+        this._globalBindings.delete(UBOForwardLights.BLOCK.name);
     }
 
     protected updateUBOs (view: RenderView) {

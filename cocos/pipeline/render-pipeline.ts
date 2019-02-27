@@ -9,19 +9,21 @@ import {
     GFXFormatInfos,
     GFXLoadOp,
     GFXMemoryUsageBit,
+    GFXObjectType,
     GFXStoreOp,
     GFXTextureLayout,
     GFXTextureType,
     GFXTextureUsageBit,
     GFXTextureViewType,
-} from '../gfx/define';
-import { GFXDevice, GFXFeature } from '../gfx/device';
+    GFXType} from '../gfx/define';
+import { GFXAPI, GFXDevice, GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { UBOGlobal } from './define';
+import { IGlobalBindingDesc } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
@@ -64,12 +66,8 @@ export abstract class RenderPipeline {
         return this._quadIA!;
     }
 
-    public get uboGlobal (): UBOGlobal {
-        return this._uboGlobal;
-    }
-
-    public get globalUBO (): GFXBuffer {
-        return this._globalUBO!;
+    public get globalBindings (): Map<string, IGlobalBindingDesc> {
+        return this._globalBindings;
     }
 
     public get defaultTexture (): GFXTexture {
@@ -91,8 +89,8 @@ export abstract class RenderPipeline {
     protected _quadVB: GFXBuffer | null = null;
     protected _quadIB: GFXBuffer | null = null;
     protected _quadIA: GFXInputAssembler | null = null;
-    protected _uboGlobal: UBOGlobal = new UBOGlobal();
-    protected _globalUBO: GFXBuffer | null = null;
+    protected _defaultUboGlobal: UBOGlobal | null = null;
+    protected _globalBindings: Map<string, IGlobalBindingDesc> = new Map<string, IGlobalBindingDesc>();
     protected _defaultTex: GFXTexture | null = null;
     protected _defaultTexView: GFXTextureView | null = null;
 
@@ -347,23 +345,32 @@ export abstract class RenderPipeline {
     }
 
     protected createUBOs (): boolean {
-        this._globalUBO = this._root.device.createBuffer({
+        const globalUBO = this._root.device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: UBOGlobal.SIZE,
         });
 
-        if (!this._globalUBO) {
+        if (!globalUBO) {
             return false;
         }
+
+        this._defaultUboGlobal = new UBOGlobal();
+
+        this._globalBindings.set(UBOGlobal.BLOCK.name, {
+            type: GFXObjectType.BUFFER,
+            blockInfo: UBOGlobal.BLOCK,
+            uniformBuffer: globalUBO,
+        });
 
         return true;
     }
 
     protected destroyUBOs () {
-        if (this._globalUBO) {
-            this._globalUBO.destroy();
-            this._globalUBO = null;
+        const defaultUBO = this._globalBindings.get(UBOGlobal.BLOCK.name);
+        if (defaultUBO) {
+            defaultUBO.uniformBuffer!.destroy();
+            this._globalBindings.delete(UBOGlobal.BLOCK.name);
         }
     }
 
@@ -374,47 +381,47 @@ export abstract class RenderPipeline {
         _vec4Array[1] = 0.0;
         _vec4Array[2] = 0.0;
         _vec4Array[3] = 0.0;
-        this._uboGlobal.view.set(_vec4Array, UBOGlobal.TIME_OFFSET);
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.TIME_OFFSET);
 
         _vec4Array[0] = this._root.device.width;
         _vec4Array[1] = this._root.device.height;
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
-        this._uboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
 
         _vec4Array[0] = 1.0;
         _vec4Array[1] = 1.0;
         _vec4Array[2] = 1.0;
         _vec4Array[3] = 1.0;
-        this._uboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
 
         const camera = view.camera;
         mat4.array(_mat4Array, camera.matView);
-        this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_OFFSET);
+        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_OFFSET);
 
         mat4.invert(_outMat, camera.matView);
         mat4.array(_mat4Array, _outMat);
-        this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_INV_OFFSET);
+        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_INV_OFFSET);
 
         mat4.array(_mat4Array, camera.matProj);
-        this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_PROJ_OFFSET);
+        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_PROJ_OFFSET);
 
         mat4.invert(_outMat, camera.matProj);
         mat4.array(_mat4Array, _outMat);
-        this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_PROJ_INV_OFFSET);
+        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_PROJ_INV_OFFSET);
 
         mat4.array(_mat4Array, camera.matViewProj);
-        this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
+        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
 
         mat4.array(_mat4Array, camera.matViewProjInv);
-        this._uboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
+        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
 
         vec3.array(_vec4Array, camera.position);
         _vec4Array[3] = 1.0;
-        this._uboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 
         // update ubos
-        this._globalUBO!.update(this._uboGlobal.view.buffer);
+        this._globalBindings.get(UBOGlobal.BLOCK.name)!.uniformBuffer!.update(this._defaultUboGlobal!.view.buffer);
     }
 
     protected sceneCulling (view: RenderView) {
