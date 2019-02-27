@@ -26,7 +26,7 @@
 
 import sys from '../core/platform/CCSys';
 import * as debug from '../core/platform/CCDebug';
-import { AudioClip, AudioSourceType } from '../3d/asset/audio-clip';
+import { AudioClip, AudioSourceType } from '../3d/assets/audio-clip';
 
 var __audioSupport = sys.__audioSupport;
 var formatSupport = __audioSupport.format;

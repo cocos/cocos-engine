@@ -33,21 +33,24 @@ export interface IBlockMember {
     name: string;
     type: GFXType;
     count: number;
+    // extends GFXUniform
     size: number;
 }
 export interface IBlockInfo {
-    name: string;
     binding: number;
-    defines: string[];
+    name: string;
     members: IBlockMember[];
+    // extends GFXUniformBlock
+    defines: string[];
     size: number;
 }
 export interface ISamplerInfo {
-    name: string;
     binding: number;
-    defines: string[];
+    name: string;
     type: GFXType;
     count: number;
+    // extends GFXUniformSampler
+    defines: string[];
 }
 export interface IDefineInfo {
     name: string;

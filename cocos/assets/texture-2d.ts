@@ -183,8 +183,7 @@ export class Texture2D extends TextureBase {
     }
 }
 
-/* tslint:disable:no-string-literal */
-cc['Texture2D'] = Texture2D;
+cc.Texture2D = Texture2D;
 
 interface ITexture2DSerializeData {
     base: string;

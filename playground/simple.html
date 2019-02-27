@@ -63,6 +63,7 @@
       cameraNode.parent = scene;
       cameraNode.setPosition(20, 0, 115);
       cameraNode.setRotationFromEuler(0, 30, 0);
+      cameraNode.addComponent(cc.CameraComponent);
       cameraNode.addComponent(FirstPersonCamera);
 
       const skybox = cameraNode.addComponent(cc.SkyboxComponent);
@@ -78,7 +79,6 @@
       // skybox.rgbeTexture = true;
       // skybox.cubemap = textureCube;
 
-      const camComp = cameraNode.addComponent(cc.CameraComponent);
 
       const lightNode = new cc.Node('Light');
       lightNode.parent = scene;

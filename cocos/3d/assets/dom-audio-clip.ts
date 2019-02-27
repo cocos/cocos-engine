@@ -64,8 +64,8 @@ export class DOMAudioClip extends AudioClip {
         };
     }
 
-    public setNativeAsset (clip: HTMLAudioElement, info: IAudioInfo) {
-        super.setNativeAsset(clip, info);
+    public setNativeAsset (clip: HTMLAudioElement) {
+        super._nativeAsset = clip;
         clip.volume = this._volume;
         clip.loop = this._loop;
         // callback on audio ended

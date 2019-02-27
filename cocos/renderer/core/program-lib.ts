@@ -27,6 +27,13 @@ function _generateDefines (
     return defines.join('\n');
 }
 
+function insertBuiltinBlock (tmpl: IProgramInfo, blocks: GFXUniformBlock | GFXUniformBlock[]) {
+    (tmpl.blocks as GFXUniformBlock[]) = (tmpl.blocks as GFXUniformBlock[]).concat(blocks);
+}
+function insertBuiltinSampler (tmpl: IProgramInfo, samplers: GFXUniformSampler | GFXUniformSampler[]) {
+    (tmpl.samplers as GFXUniformSampler[]) = (tmpl.samplers as GFXUniformSampler[]).concat(samplers);
+}
+
 let _shdID = 0;
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
@@ -66,7 +73,7 @@ class ProgramLib {
      */
     public define (prog: IShaderInfo) {
         const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
-        tmpl.blocks = tmpl.blocks.concat(globals, locals, lights);
+        insertBuiltinBlock(tmpl, [UBOGlobal.BLOCK, UBOLocal.BLOCK, UBOForwardLights.BLOCK]);
 
         // calculate option mask offset
         let offset = 0;
@@ -80,9 +87,9 @@ class ProgramLib {
                 def._map = ((value: any) => (value ? (1 << def._offset) : 0));
             }
             if (def.name === 'CC_USE_SKINNING') {
-                tmpl.blocks = tmpl.blocks.concat(skinning);
+                insertBuiltinBlock(tmpl, SkinningUBO.BLOCK);
             } else if (def.name === 'CC_USE_JOINTS_TEXTURE') {
-                tmpl.samplers = tmpl.samplers.concat(jointsTexture);
+                insertBuiltinSampler(tmpl, SkinningUBO.JOINT_TEXTURE);
             }
             offset += cnt;
             def._offset = offset;

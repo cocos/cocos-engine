@@ -94,8 +94,8 @@ export default class WebAudioClip extends AudioClip {
         };
     }
 
-    public setNativeAsset (clip: AudioBuffer, info: IAudioInfo) {
-        super.setNativeAsset(clip, info);
+    public set _nativeAsset (clip: AudioBuffer) {
+        super._nativeAsset = clip;
         if (this._context.state === 'running') { return; }
         window.addEventListener('touchend', this._on_gesture);
         document.addEventListener('mouseup', this._on_gesture);
