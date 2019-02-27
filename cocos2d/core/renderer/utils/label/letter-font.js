@@ -31,30 +31,6 @@ const Overflow = Label.Overflow;
 const RenderTexture = require('../../../assets/CCRenderTexture');
 const space = 2;
 
-let _canvasPool = {
-    pool: [],
-    get () {
-        let data = this.pool.pop();
-
-        if (!data) {
-            let canvas = document.createElement("canvas");
-            let context = canvas.getContext("2d");
-            data = {
-                canvas: canvas,
-                context: context
-            }
-        }
-
-        return data;
-    },
-    put (canvas) {
-        if (this.pool.length >= 32) {
-            return;
-        }
-        this.pool.push(canvas);
-    }
-};
-
 let LetterInfo = function() {
     this.char = '';
     this.valid = true;
@@ -101,7 +77,7 @@ LetterTexture.prototype = {
     _updateProperties () {
         this._texture = new cc.Texture2D();
         this._texture._setReserved(true);
-        this._data = _canvasPool.get();
+        this._data = Label._canvasPool.get();
         this._canvas = this._data.canvas;
         this._context = this._data.context;
         this._context.font = this._labelInfo.fontDesc;
@@ -141,7 +117,7 @@ LetterTexture.prototype = {
     destroy () {
         this._texture.destroy();
         this._texture = null;
-        _canvasPool.put(this._data);
+        Label._canvasPool.put(this._data);
     },
 }
 

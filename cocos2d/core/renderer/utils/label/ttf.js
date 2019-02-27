@@ -65,42 +65,16 @@ let _isUnderline = false;
 
 let _sharedLabelData;
 
-//
-let _canvasPool = {
-    pool: [],
-    get () {
-        let data = this.pool.pop();
-
-        if (!data) {
-            let canvas = document.createElement("canvas");
-            let context = canvas.getContext("2d");
-            data = {
-                canvas: canvas,
-                context: context
-            }
-        }
-
-        return data;
-    },
-    put (canvas) {
-        if (this.pool.length >= 32) {
-            return;
-        }
-        this.pool.push(canvas);
-    }
-};
-
-
 module.exports = {
 
     _getAssemblerData () {
-        _sharedLabelData = _canvasPool.get();
+        _sharedLabelData = Label._canvasPool.get();
         return _sharedLabelData;
     },
 
     _resetAssemblerData (assemblerData) {
         if (assemblerData) {
-            _canvasPool.put(assemblerData);
+            Label._canvasPool.put(assemblerData);
         }
     },
 
