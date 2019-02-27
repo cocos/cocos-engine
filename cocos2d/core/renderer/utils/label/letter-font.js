@@ -53,6 +53,7 @@ let FontLetterDefinition = function() {
 };
 
 let _backgroundStyle = 'rgba(255, 255, 255, 0.005)';
+
 function LetterTexture(char, labelInfo) {
     this._texture = null;
     this._labelInfo = labelInfo;
@@ -108,9 +109,10 @@ LetterTexture.prototype = {
 
         let startX = width / 2;
         let startY = height / 2;
+        let color = this._labelInfo.color;
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = 'white';
+        _context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${1})`;
 
         _context.fillText(this._char, startX, startY);
 
@@ -299,6 +301,7 @@ let _labelInfo = {
     fontDesc:"Arial",
     hAlign:0,
     vAlign:0,
+    color:cc.Color.WHITE,
 };
 
 module.exports = {
@@ -350,11 +353,12 @@ module.exports = {
         _overflow = _comp.overflow;
         _lineHeight = _comp._lineHeight;
         _isBold = _comp._isBold;
-
-        _labelInfo.hash = this._computeHash();  
+  
         _labelInfo.lineHeight = _lineHeight;
         _labelInfo.fontSize = _fontSize;
         _labelInfo.fontFamily = _fontFamily;
+        _labelInfo.color = _comp.node.color;
+        _labelInfo.hash = this._computeHash(_labelInfo);
 
         // should wrap text
         if (_overflow === Overflow.NONE) {
@@ -396,9 +400,10 @@ module.exports = {
         }
     },
 
-    _computeHash () {
+    _computeHash (labelInfo) {
         let hashData = '';
-        return hashData + _fontSize + _fontFamily;
+        let color = labelInfo.color;
+        return hashData + labelInfo.fontSize + labelInfo.fontFamily + color.r + ',' + color.g + ',' + color.b;
     },
 
     _getFontDesc () {
