@@ -94,7 +94,7 @@ export default class SkyboxComponent extends Component {
         this._mesh = createMesh(box({ width: 2, height: 2, length: 2 }));
         this._material = new Material();
         this._material.initialize({
-            effectName: 'builtin-effect-skybox',
+            effectName: 'builtin-skybox',
             defines: { USE_RGBE_CUBEMAP: this._rgbeTexture },
         });
         this._defaultTex = builtinResMgr.get<TextureCube>('default-cube-texture').getGFXTextureView();
