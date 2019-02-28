@@ -58,7 +58,7 @@ var labelAssembler = {
         
         if (comp.font instanceof cc.BitmapFont) {
             assembler = bmfontAssembler;
-        } else if (comp.cacheMode === Label.CacheMode.LETTER) {
+        } else if (comp.cacheMode === Label.CacheMode.CHAR) {
             assembler = letterAssembler;
         }
 

@@ -139,14 +139,14 @@ const Overflow = cc.Enum({
  * @property {Number} BITMAP
  */
 /**
- * !#en In LETTER mode, split text into characters and cache characters into a dynamic atlas which the size of 2048*2048. 
- * !#zh LETTER 模式，将文本拆分为字符，并将字符缓存到一张单独的大小为 2048*2048 的图集中进行重复使用，不再使用动态图集（注：当图集满时将不再进行缓存，暂时不支持 SHRINK 自适应文本尺寸（后续完善））。
- * @property {Number} LETTER
+ * !#en In CHAR mode, split text into characters and cache characters into a dynamic atlas which the size of 2048*2048. 
+ * !#zh CHAR 模式，将文本拆分为字符，并将字符缓存到一张单独的大小为 2048*2048 的图集中进行重复使用，不再使用动态图集（注：当图集满时将不再进行缓存，暂时不支持 SHRINK 自适应文本尺寸（后续完善））。
+ * @property {Number} CHAR
  */
 const CacheMode = cc.Enum({
     NONE: 0,
     BITMAP: 1,
-    LETTER: 2,
+    CHAR: 2,
 });
 
 /**
@@ -478,7 +478,7 @@ let Label = cc.Class({
                     this._frame._resetDynamicAtlasFrame();
                 }
 
-                if (oldValue === CacheMode.LETTER) {
+                if (oldValue === CacheMode.CHAR) {
                     this._ttfTexture = null;
                 }
 
@@ -617,7 +617,7 @@ let Label = cc.Class({
                 this._frame = new LabelFrame();
             }
 
-            if (this.cacheMode === CacheMode.LETTER) {
+            if (this.cacheMode === CacheMode.CHAR) {
                 this._letterTexture = this._assembler._getAssemblerData();
                 this._frame._refreshTexture(this._letterTexture);
             } else if (!this._ttfTexture) {
