@@ -12,7 +12,9 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
     GFXInputState, GFXPipelineState, GFXRasterizerState } from '../../gfx/pipeline-state';
+import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
+import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
@@ -115,6 +117,8 @@ export class Pass {
     protected _defines: IDefineMap = {};
     // external references
     protected _device: GFXDevice;
+    protected _renderPass: GFXRenderPass | null = null;
+    protected _shader: GFXShader | null = null;
 
     public constructor (device: GFXDevice) {
         this._device = device;
@@ -173,6 +177,8 @@ export class Pass {
             if (texture) { this._textureViews[u.binding] = texture.getGFXTextureView()!; }
             else { console.warn('illegal texture default value ' + texName); }
         }
+
+        this.tryCompile();
     }
 
     public getHandle (name: string) {
@@ -268,12 +274,13 @@ export class Pass {
         }
     }
 
-    public createPipelineState () {
-        const pipeline = cc.director.root.pipeline as RenderPipeline;
-        const renderPass = pipeline.getRenderPass(this._stage);
-        if (!renderPass) { console.warn(`illegal pass stage.`); return; }
-        const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
-        if (!shader) { console.warn(`create shader ${this._programName} failed`); return; }
+    public tryCompile () {
+        const pipeline = cc.director.root.pipeline as RenderPipeline | null;
+        if (!pipeline) { return false; }
+        this._renderPass = pipeline.getRenderPass(this._stage);
+        if (!this._renderPass) { console.warn(`illegal pass stage.`); return false; }
+        this._shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        if (!this._shader) { console.warn(`create shader ${this._programName} failed`); return false; }
         if (!this._bindings.length) {
             this._bindings = this._shaderInfo!.blocks.map((u) =>
                 ({ name: u.name, binding: u.binding, type: GFXBindingType.UNIFORM_BUFFER }),
@@ -281,6 +288,11 @@ export class Pass {
                 ({ name: u.name, binding: u.binding, type: GFXBindingType.SAMPLER }),
             ));
         }
+        return true;
+    }
+
+    public createPipelineState () {
+        if ((!this._renderPass || !this._shader || !this._bindings.length) && !this.tryCompile()) { return; }
         // bind resources
         const bindingLayout = this._device.createBindingLayout({ bindings: this._bindings });
         for (const b of Object.keys(this._buffers)) {
@@ -293,7 +305,7 @@ export class Pass {
             bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
         }
         // bind pipeline builtins
-        const source = pipeline.globalBindings;
+        const source = cc.director.root.pipeline.globalBindings;
         const target = this._shaderInfo!.builtins;
         for (const b of target.blocks) {
             const info = source.get(b);
@@ -315,8 +327,9 @@ export class Pass {
             is: new GFXInputState(),
             layout: pipelineLayout,
             primitive: this._primitive,
+            renderPass: this._renderPass!,
             rs: this._rs,
-            renderPass, shader,
+            shader: this._shader!,
         });
         this._resources.push({ bindingLayout, pipelineLayout, pipelineState });
         return pipelineState;
