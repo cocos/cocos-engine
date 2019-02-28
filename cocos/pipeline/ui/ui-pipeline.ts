@@ -1,8 +1,11 @@
 import { Root } from '../../core/root';
-import { RenderPassStage } from '../define';
+import { RenderPassStage, UBOGlobal } from '../define';
 import { RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIFlow } from './ui-flow';
+import { mat4 } from '../../core/vmath';
+
+const _mat4Array = new Float32Array(16);
 
 export class UIPipeline extends RenderPipeline {
 
@@ -33,7 +36,10 @@ export class UIPipeline extends RenderPipeline {
     }
 
     protected updateUBOs (view: RenderView) {
-        // view.camera.matViewProj.m14=1E-100;
-        super.updateUBOs(view);
+        const camera = view.camera;
+        mat4.array(_mat4Array, camera.matViewProj);
+        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
+        // update ubos
+        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal!.view.buffer);
     }
 }
