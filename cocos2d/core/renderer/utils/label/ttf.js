@@ -68,7 +68,18 @@ let _sharedLabelData;
 module.exports = {
 
     _getAssemblerData () {
-        _sharedLabelData = Label._canvasPool.get();
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            _sharedLabelData = Label._canvasPool.get();
+        }
+        else {
+            if (!_sharedLabelData) {
+                let labelCanvas = document.createElement("canvas");
+                _sharedLabelData = {
+                    canvas: labelCanvas,
+                    context: labelCanvas.getContext("2d")
+                };
+            }
+        }
         _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
         return _sharedLabelData;
     },
