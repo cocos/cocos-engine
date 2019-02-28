@@ -69,6 +69,7 @@ module.exports = {
 
     _getAssemblerData () {
         _sharedLabelData = Label._canvasPool.get();
+        _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
         return _sharedLabelData;
     },
 
