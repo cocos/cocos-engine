@@ -24,8 +24,7 @@
  ****************************************************************************/
 
 export { default as AnimationClip } from "./animation-clip";
-export { AudioClip } from "./audio-clip";
-export { DOMAudioClip } from "./dom-audio-clip";
+export { AudioClip } from "./audio/clip";
 export { BitmapFont } from "./bitmap-font";
 export { EffectAsset } from "./effect-asset";
 export { Material } from "./material";
@@ -33,7 +32,5 @@ export { Mesh } from "./mesh";
 export { default as OpentypeFont } from "./opentype-font";
 export { default as Skeleton } from "./skeleton";
 export { default as Sprite } from "./sprite";
-export { default as WebAudioClip } from "./web-audio-clip";
-export { default as WxGameAudioClip } from "./wx-game-audio-clip";
 
 export { PhysicsMaterial } from './physics/material';

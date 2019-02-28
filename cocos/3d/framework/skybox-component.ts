@@ -44,7 +44,7 @@ import { box } from '../primitive';
 @ccclass('cc.SkyboxComponent')
 @menu('Components/SkyboxComponent')
 @executeInEditMode
-export default class SkyboxComponent extends Component {
+export class SkyboxComponent extends Component {
 
     @property({
         type: TextureCube,

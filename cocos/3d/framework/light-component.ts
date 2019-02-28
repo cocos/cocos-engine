@@ -115,7 +115,7 @@ const LightShadowType = Enum({
 @ccclass('cc.LightComponent')
 @menu('Components/LightComponent')
 @executeInEditMode
-export default class LightComponent extends Component {
+export class LightComponent extends Component {
 
     public static Type = Type;
     public static ShadowType = LightShadowType;

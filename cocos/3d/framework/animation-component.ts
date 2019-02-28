@@ -267,7 +267,7 @@ class AnimationCtrl {
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/AnimationComponent')
-export default class AnimationComponent extends Component {
+export class AnimationComponent extends Component {
     @property({ type: [AnimationClip] })
     public _clips: AnimationClip[] = [];
 

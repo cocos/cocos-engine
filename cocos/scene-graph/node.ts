@@ -89,8 +89,8 @@ class Node extends BaseNode {
         return this._layer;
     }
 
-    get uiTransfromComp(){
-        if(!this._uiTransfromComp){
+    get uiTransfromComp () {
+        if (!this._uiTransfromComp){
             this._uiTransfromComp = this.getComponent(UITransformComponent);
         }
 
@@ -98,7 +98,7 @@ class Node extends BaseNode {
     }
 
     // NOTE: don't set it manually
-    set uiTransfromComp(value) {
+    set uiTransfromComp (value) {
         this._uiTransfromComp = value;
     }
 

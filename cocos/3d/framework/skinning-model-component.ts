@@ -45,7 +45,7 @@ type SkinningTarget = Map<string, Node>;
 @executionOrder(100)
 @executeInEditMode
 @menu('Components/SkinningModelComponent')
-export default class SkinningModelComponent extends ModelComponent {
+export class SkinningModelComponent extends ModelComponent {
 
     /**
      * !#en The bone nodes
