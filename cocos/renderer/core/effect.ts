@@ -2,7 +2,6 @@
 
 import { EffectAsset } from '../../3d/assets/effect-asset';
 import { IPassInfoFull, Pass } from './pass';
-import { programLib } from './program-lib';
 
 export interface IDefineMap { [name: string]: number | boolean; }
 export interface IEffectInfo {
@@ -23,7 +22,6 @@ export class Effect {
         const passes: Pass[] = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
             const passInfo = tech.passes[k] as IPassInfoFull;
-            passInfo.shaderInfo = programLib.getTemplate(passInfo.program);
             passInfo.defines = defines && defines[k] || {};
             const pass = new Pass(cc.game._gfxDevice);
             pass.initialize(passInfo);
