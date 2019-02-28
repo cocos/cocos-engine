@@ -33,21 +33,24 @@ export interface IBlockMember {
     name: string;
     type: GFXType;
     count: number;
+    // extends GFXUniform
     size: number;
 }
 export interface IBlockInfo {
-    name: string;
     binding: number;
-    defines: string[];
+    name: string;
     members: IBlockMember[];
+    // extends GFXUniformBlock
+    defines: string[];
     size: number;
 }
 export interface ISamplerInfo {
-    name: string;
     binding: number;
-    defines: string[];
+    name: string;
     type: GFXType;
     count: number;
+    // extends GFXUniformSampler
+    defines: string[];
 }
 export interface IDefineInfo {
     name: string;
@@ -55,10 +58,15 @@ export interface IDefineInfo {
     range?: number[];
     defines: string[];
 }
+export interface IBuiltinInfo {
+    blocks: string[];
+    textures: string[];
+}
 export interface IShaderInfo {
     name: string;
     glsl3: { vert: string, frag: string };
     glsl1: { vert: string, frag: string };
+    builtins: IBuiltinInfo;
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
     samplers: ISamplerInfo[];

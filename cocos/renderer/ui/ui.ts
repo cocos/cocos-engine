@@ -33,20 +33,7 @@ import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { IUIMaterialInfo, UIMaterial } from './ui-material';
-
-export class UBOUI {
-    public static MAT_VIEW_PROJ_OFFSET: number = 0;
-    public static COUNT: number = 16;
-    public static SIZE: number = UBOUI.COUNT * 4;
-
-    public static BLOCK: GFXUniformBlock = {
-        binding: 26, name: 'UI', members: [
-            { name: 'u_matViewProj', type: GFXType.MAT4, count: 1 },
-        ],
-    };
-
-    public view: Float32Array = new Float32Array(UBOUI.COUNT);
-}
+import { UBOUI } from '../../pipeline/define';
 
 const _mat4Array = new Float32Array(16);
 

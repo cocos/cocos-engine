@@ -501,6 +501,8 @@ const WebGLBlendFactors: GLenum[] = [
     WebGL2RenderingContext.ONE_MINUS_DST_ALPHA,
     WebGL2RenderingContext.SRC_COLOR,
     WebGL2RenderingContext.DST_COLOR,
+    WebGL2RenderingContext.ONE_MINUS_SRC_COLOR,
+    WebGL2RenderingContext.ONE_MINUS_DST_COLOR,
     WebGL2RenderingContext.SRC_ALPHA_SATURATE,
     WebGL2RenderingContext.CONSTANT_COLOR,
     WebGL2RenderingContext.ONE_MINUS_CONSTANT_COLOR,

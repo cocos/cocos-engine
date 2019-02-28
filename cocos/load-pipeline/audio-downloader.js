@@ -26,6 +26,7 @@
 
 import sys from '../core/platform/CCSys';
 import * as debug from '../core/platform/CCDebug';
+import { AudioClip, AudioSourceType } from '../3d/assets/audio-clip';
 
 var __audioSupport = sys.__audioSupport;
 var formatSupport = __audioSupport.format;
@@ -106,9 +107,9 @@ export default function downloadAudio (item, callback) {
         loader = loadDomAudio;
     }
     else {
-        var loadByDeserializedAudio = item._owner instanceof cc.AudioClip;
+        var loadByDeserializedAudio = item._owner instanceof AudioClip;
         if (loadByDeserializedAudio) {
-            loader = (item._owner.loadMode === cc.AudioClip.LoadMode.WEB_AUDIO) ? loadWebAudio : loadDomAudio;
+            loader = (item._owner.loadMode === AudioSourceType.WEB_AUDIO) ? loadWebAudio : loadDomAudio;
         }
         else {
             loader = (item.urlParam && item.urlParam['useDom']) ? loadDomAudio : loadWebAudio;

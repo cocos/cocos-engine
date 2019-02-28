@@ -63,6 +63,7 @@
       cameraNode.parent = scene;
       cameraNode.setPosition(20, 0, 115);
       cameraNode.setRotationFromEuler(0, 30, 0);
+      cameraNode.addComponent(cc.CameraComponent);
       cameraNode.addComponent(FirstPersonCamera);
 
       const skybox = cameraNode.addComponent(cc.SkyboxComponent);
@@ -78,7 +79,6 @@
       // skybox.rgbeTexture = true;
       // skybox.cubemap = textureCube;
 
-      const camComp = cameraNode.addComponent(cc.CameraComponent);
 
       const lightNode = new cc.Node('Light');
       lightNode.parent = scene;
@@ -88,7 +88,7 @@
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
       const material = new cc.Material();
       material.initialize({
-        effectName: 'builtin-effect-unlit',
+        effectName: 'builtin-unlit',
         defines: { USE_COLOR: true },
       });
 
@@ -110,7 +110,7 @@
 
       {
         const material = new cc.Material();
-        material.initialize({ effectName: 'builtin-effect-sprite' });
+        material.initialize({ effectName: 'builtin-sprite' });
         material.setProperty('mainTexture', createTexture(0));
         const modelNode = new cc.Node('test');
         modelNode.parent = scene;

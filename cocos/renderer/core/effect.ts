@@ -1,7 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import { EffectAsset } from '../../3d/assets/effect-asset';
-import { RenderPassStage } from '../../pipeline/define';
 import { IPassInfoFull, Pass } from './pass';
 import { programLib } from './program-lib';
 
@@ -24,18 +23,8 @@ export class Effect {
         const passes: Pass[] = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
             const passInfo = tech.passes[k] as IPassInfoFull;
-            const shader = programLib.getGFXShader(cc.game._gfxDevice,
-                passInfo.program, defines && defines[k] || {});
-            const renderPass = cc.director.root.pipeline.getRenderPass(passInfo.stage || RenderPassStage.DEFAULT);
-            const prog = programLib.getTemplate(passInfo.program);
-            passInfo.blocks = prog.blocks;
-            passInfo.samplers = prog.samplers;
-            passInfo.globals = cc.director.root.pipeline.globalUBO;
-            passInfo.lights = cc.director.root.pipeline.lightsUBO;
-            if (shader) { passInfo.shader = shader; }
-            else { console.warn(`create shader ${passInfo.program} failed`); }
-            if (renderPass) { passInfo.renderPass = renderPass; }
-            else { console.warn(`illegal pass stage in ${effect.name}`); }
+            passInfo.shaderInfo = programLib.getTemplate(passInfo.program);
+            passInfo.defines = defines && defines[k] || {};
             const pass = new Pass(cc.game._gfxDevice);
             pass.initialize(passInfo);
             passes[k] = pass;
