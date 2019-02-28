@@ -16,7 +16,7 @@
     "build-rollup": "tsc --build rollup/tsconfig.json",
     "dev": "rollup -w -c ./rollup/config.js",
     "postinstall": "npm run build-rollup",
-	"build-docs-3d": "typedoc ./index.ts"
+    "build-docs-3d": "typedoc ./index.ts"
   },
   "repository": {
     "type": "git",
@@ -36,7 +36,6 @@
     "async": "1.5.2",
     "babel-preset-env": "^1.2.2",
     "babelify": "7.3.0",
-    "browserify": "^16.2.3",
     "cannon": "^0.6.2",
     "chalk": "1.1.0",
     "del": "1.2.0",
@@ -58,7 +57,6 @@
     "gulp-shell": "^0.6.5",
     "gulp-size": "2.1.0",
     "gulp-sourcemaps": "1.5.2",
-    "gulp-typedoc": "^2.2.2",
     "gulp-uglify": "^3.0.0",
     "gulp-util": "3.0.6",
     "http-server": "^0.11.1",
@@ -73,7 +71,7 @@
     "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-watch": "^4.3.1",
     "tslint": "^5.12.0",
-    "typedoc": "^0.14.2",
+    "typedoc": "github:cocos-creator/typedoc#master",
     "typedoc-plugin-external-module-name": "^2.0.0",
     "typedoc-plugin-internal-external": "^2.0.1",
     "typedoc-plugin-markdown": "^1.1.26",

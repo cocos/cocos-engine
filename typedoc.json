@@ -2,5 +2,5 @@
     "mode": "modules",
     "out": "docs-3d",
 	"ignoreCompilerErrors": true,
-	"excludeExternals": true
-  }
+    "excludeExternals": true
+}

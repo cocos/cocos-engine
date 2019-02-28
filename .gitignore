@@ -15,5 +15,6 @@ npm-debug.log
 DebugInfos.json
 /rollup/out
 /package-lock.json
+playground/resources
 .vscode
 docs-3d

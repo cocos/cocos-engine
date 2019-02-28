@@ -94,6 +94,15 @@ For details below:
     
     ```
 
+### API-Docs-3D
+
+1. Make sure you have installed the typedoc package which is customed in creator repository.
+
+2. Then execture command:
+
+```
+    npm run build-docs-3d
+```
 
 ## Links
 
