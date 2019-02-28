@@ -14,11 +14,17 @@ export enum RenderPriority {
     DEFAULT = 0x80,
 }
 
-const MAX_BINDING_SUPPORTED = 24; // TODO
-const getNextAvailableBuiltinBinding = (() => {
-    let nextAvailable = MAX_BINDING_SUPPORTED - 1;
-    return () => nextAvailable--;
-})();
+const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
+export enum UniformBinding {
+    // UBOs
+    UBO_GLOBAL = MAX_BINDING_SUPPORTED - 1,
+    UBO_LOCAL = MAX_BINDING_SUPPORTED - 2,
+    UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 3,
+    UBO_SKINNING = MAX_BINDING_SUPPORTED - 4,
+    UBO_UI = MAX_BINDING_SUPPORTED - 5,
+    // samplers
+    SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
+}
 
 export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
@@ -35,7 +41,7 @@ export class UBOGlobal {
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: getNextAvailableBuiltinBinding(), name: 'CCGlobal', members: [
+        binding: UniformBinding.UBO_GLOBAL, name: 'CCGlobal', members: [
             // constants
             { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
@@ -61,7 +67,7 @@ export class UBOLocal {
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: getNextAvailableBuiltinBinding(), name: 'CCLocal', members: [
+        binding: UniformBinding.UBO_LOCAL, name: 'CCLocal', members: [
             { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
         ],
@@ -86,7 +92,7 @@ export class UBOForwardLights {
     public static SIZE: number = UBOForwardLights.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: getNextAvailableBuiltinBinding(), name: 'CCForwardLights', members: [
+        binding: UniformBinding.UBO_FORWARD_LIGHTS, name: 'CCForwardLights', members: [
             { name: 'cc_dirLightDirection', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_DIR_LIGHTS },
             { name: 'cc_dirLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_DIR_LIGHTS },
             { name: 'cc_pointLightPositionAndRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_POINT_LIGHTS },
@@ -107,7 +113,7 @@ export class UBOSkinning {
     public static SIZE: number = UBOSkinning.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: getNextAvailableBuiltinBinding(), name: 'CCSkinning', members: [
+        binding: UniformBinding.UBO_SKINNING, name: 'CCSkinning', members: [
             { name: 'cc_matJoint', type: GFXType.MAT4, count: 128 },
             { name: 'cc_jointsTextureSize', type: GFXType.FLOAT4, count: 1 },
         ],
@@ -115,7 +121,7 @@ export class UBOSkinning {
 }
 
 export const UNIFORM_JOINTS_TEXTURE: GFXUniformSampler = {
-    binding: getNextAvailableBuiltinBinding(), name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
+    binding: UniformBinding.SAMPLER_JOINTS, name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
 };
 
 export class UBOUI {
@@ -124,7 +130,7 @@ export class UBOUI {
     public static SIZE: number = UBOUI.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: getNextAvailableBuiltinBinding(), name: 'UI', members: [
+        binding: UniformBinding.UBO_UI, name: 'UI', members: [
             { name: 'u_matViewProj', type: GFXType.MAT4, count: 1 },
         ],
     };
