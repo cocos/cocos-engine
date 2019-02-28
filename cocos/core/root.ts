@@ -37,7 +37,11 @@ export class Root {
     }
 
     public get pipeline (): RenderPipeline {
-        return this._pipeline as RenderPipeline;
+        return this._pipeline!;
+    }
+
+    public get uiPipeline (): UIPipeline {
+        return this._uiPipeline!;
     }
 
     public get ui (): UI {
@@ -64,11 +68,12 @@ export class Root {
     private _mainWindow: GFXWindow | null = null;
     private _curWindow: GFXWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
+    private _uiPipeline: UIPipeline | null = null;
     private _ui: UI | null = null;
     private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
+    private _uiViews: RenderView[] = [];
     private _frameTime: number = 0;
-    private _pipelines: Map<string, RenderPipeline> = new Map<string, RenderPipeline>();
 
     constructor (device: GFXDevice) {
         this._device = device;
@@ -86,20 +91,17 @@ export class Root {
         this._mainWindow = this._device.mainWindow;
         this._curWindow = this._mainWindow;
 
-        let pipeline: RenderPipeline = new ForwardPipeline(this);
-        this._pipeline = pipeline;
-        if (!pipeline.initialize()) {
+        this._pipeline = new ForwardPipeline(this);
+        if (!this._pipeline.initialize()) {
             this.destroy();
             return false;
         }
 
-        this.registerRenderPipeline('forward', pipeline);
-        pipeline = new UIPipeline(this);
-        if (!pipeline.initialize()) {
+        this._uiPipeline = new UIPipeline(this);
+        if (!this._uiPipeline.initialize()) {
             this.destroy();
             return false;
         }
-        this.registerRenderPipeline('ui', pipeline);
 
         builtinResMgr.initBuiltinRes(this._device);
 
@@ -134,14 +136,6 @@ export class Root {
         this._mainWindow = null;
     }
 
-    public registerRenderPipeline (name: string, rp: RenderPipeline) {
-        this._pipelines.set(name, rp);
-    }
-
-    public getRenderPipeline (name: string) {
-        return this._pipelines.get(name);
-    }
-
     public resize (width: number, height: number) {
 
         this._device.resize(width, height);
@@ -173,7 +167,13 @@ export class Root {
 
         for (const view of this._views) {
             if (view.isEnable && view.window === this._mainWindow) {
-                this._pipelines.get(view.camera.pipeline)!.render(view);
+                this._pipeline!.render(view);
+            }
+        }
+
+        for (const view of this._uiViews) {
+            if (view.isEnable && view.window === this._mainWindow) {
+                this._uiPipeline!.render(view);
             }
         }
 
@@ -238,10 +238,17 @@ export class Root {
         view.initialize(info);
         view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
 
-        this._views.push(view);
-        this._views.sort((a: RenderView, b: RenderView) => {
-            return a.priority - b.priority;
-        });
+        if (!view.isUI) {
+            this._views.push(view);
+            this._views.sort((a: RenderView, b: RenderView) => {
+                return a.priority - b.priority;
+            });
+        } else {
+            this._uiViews.push(view);
+            this._uiViews.sort((a: RenderView, b: RenderView) => {
+                return a.priority - b.priority;
+            });
+        }
 
         return view;
     }
@@ -253,6 +260,13 @@ export class Root {
                 return;
             }
         }
+
+        for (let i = 0; i < this._uiViews.length; ++i) {
+            if (this._uiViews[i] === view) {
+                this._uiViews.splice(i, 1);
+                return;
+            }
+        }
     }
 
     public destroyViews () {
@@ -260,5 +274,10 @@ export class Root {
             view.destroy();
         }
         this._views = [];
+
+        for (const view of this._uiViews) {
+            view.destroy();
+        }
+        this._uiViews = [];
     }
 }

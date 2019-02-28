@@ -104,21 +104,21 @@ export class Model {
 
     protected _type: string = 'default';
     protected _device: GFXDevice;
-    private _scene: RenderScene;
-    private _node: Node | null;
-    private _id: number;
-    private _enabled: boolean = false;
-    private _viewID: number = -1;
-    private _cameraID: number = -1;
-    private _userKey: number = -1;
-    private _worldBounds: aabb | null = null;
-    private _modelBounds: aabb | null = null;
-    private _subModels: SubModel[] = [];
-    private _matPSORecord: Map<Material, GFXPipelineState[]>;
-    private _matRefCount: Map<Material, number>;
-    private _uboLocal: UBOLocal;
-    private _localUBO: GFXBuffer | null;
-    private _inited: boolean;
+    protected _scene: RenderScene;
+    protected _node: Node | null;
+    protected _id: number;
+    protected _enabled: boolean = false;
+    protected _viewID: number = -1;
+    protected _cameraID: number = -1;
+    protected _userKey: number = -1;
+    protected _worldBounds: aabb | null = null;
+    protected _modelBounds: aabb | null = null;
+    protected _subModels: SubModel[] = [];
+    protected _matPSORecord: Map<Material, GFXPipelineState[]>;
+    protected _matRefCount: Map<Material, number>;
+    protected _uboLocal: UBOLocal;
+    protected _localUBO: GFXBuffer | null;
+    protected _inited: boolean;
 
     /**
      * Setup a default empty model
