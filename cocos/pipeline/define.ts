@@ -1,6 +1,5 @@
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXBindingType } from '../gfx/define';
-import { GFXType } from '../gfx/define';
+import { GFXBindingType, GFXType } from '../gfx/define';
 import { GFXSampler } from '../gfx/sampler';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { GFXTextureView } from '../gfx/texture-view';

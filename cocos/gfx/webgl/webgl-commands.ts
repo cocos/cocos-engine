@@ -38,6 +38,7 @@ import { IWebGLGPUUniform, WebGLAttrib, WebGLGPUBindingLayout, WebGLGPUBuffer,
 import { IWebGLTexUnit } from './webgl-state-cache';
 
 const _uniformValues = new Array<number>(1024 * 4);
+const _f32v4 = new Float32Array(4);
 
 // tslint:disable: max-line-length
 
@@ -830,6 +831,7 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
     if (!gpuFramebuffer.isOffscreen) {
 
         const gl = device.gl;
+        const attachments: GLenum[] = [];
 
         const glFramebuffer = gl.createFramebuffer();
         if (glFramebuffer) {
@@ -850,6 +852,8 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
                         gpuColorView.gpuTexture.glTarget,
                         gpuColorView.gpuTexture.glTexture,
                         gpuColorView.baseLevel);
+
+                    attachments.push(WebGL2RenderingContext.COLOR_ATTACHMENT0 + i);
                 }
             }
 
@@ -864,6 +868,10 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
                     gpuFramebuffer.gpuDepthStencilView.gpuTexture.glTarget,
                     gpuFramebuffer.gpuDepthStencilView.gpuTexture.glTexture,
                     gpuFramebuffer.gpuDepthStencilView.baseLevel);
+            }
+
+            if (device.WEBGL_draw_buffers) {
+                device.WEBGL_draw_buffers.drawBuffersWEBGL(attachments);
             }
 
             /*
@@ -1219,14 +1227,11 @@ export function WebGLCmdFuncCreateInputAssember (device: WebGLGFXDevice, gpuInpu
 export function WebGLCmdFuncDestroyInputAssembler (device: WebGLGFXDevice, gpuInputAssembler: WebGLGPUInputAssembler) {
 }
 
-const cmdIds = [0, 0, 0, 0, 0, 0];   // 6
-const invalidateAttachments: GLenum[] = [0, 0, 0, 0];
+const cmdIds = new Array<number>(WebGLCmd.COUNT);
 export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: WebGLCmdPackage) {
 
     const gl = device.gl;
-    for (let initID = 0; initID < cmdIds.length; initID++) {
-        cmdIds[initID] = 0;
-    }
+    cmdIds.fill(0);
 
     let gpuPipelineState: WebGLGPUPipelineState | null = null;
     let gpuShader: WebGLGPUShader | null = null;
@@ -1277,14 +1282,15 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                     }
 
                     const curGPURenderPass = cmd0.gpuFramebuffer.gpuRenderPass;
+                    // const invalidateAttachments: GLenum[] = [];
+                    let clearCount = cmd0.clearColors.length;
 
-                    for (let initAtt = 0; initAtt < invalidateAttachments.length; initAtt++) {
-                        invalidateAttachments[initAtt] = 0;
+                    if (!device.WEBGL_draw_buffers) {
+                        clearCount = 1;
                     }
-                    let numInvalidAttach = 0;
 
-                    if (curGPURenderPass.colorAttachments.length > 0 && cmd0.clearColors.length) {
-                        const colorAttachment = curGPURenderPass.colorAttachments[0];
+                    for (let j = 0; j < clearCount; ++j) {
+                        const colorAttachment = curGPURenderPass.colorAttachments[j];
 
                         if (colorAttachment.format !== GFXFormat.UNKNOWN) {
                             switch (colorAttachment.loadOp) {
@@ -1295,15 +1301,17 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                         gl.colorMask(true, true, true, true);
                                     }
 
-                                    const clearColor = cmd0.clearColors[0];
-                                    gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-                                    clears |= WebGLRenderingContext.COLOR_BUFFER_BIT;
+                                    if (!cmd0.gpuFramebuffer.isOffscreen) {
+                                        const clearColor = cmd0.clearColors[0];
+                                        gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+                                        clears |= WebGL2RenderingContext.COLOR_BUFFER_BIT;
+                                    }
 
                                     break;
                                 }
                                 case GFXLoadOp.DISCARD: {
                                     // invalidate the framebuffer
-                                    invalidateAttachments[numInvalidAttach++] = WebGLRenderingContext.COLOR_ATTACHMENT0;
+                                    // invalidateAttachments.push(WebGLRenderingContext.COLOR_ATTACHMENT0 + j);
                                     break;
                                 }
                                 default:
@@ -1330,7 +1338,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                 }
                                 case GFXLoadOp.DISCARD: {
                                     // invalidate the framebuffer
-                                    invalidateAttachments[numInvalidAttach++] = WebGLRenderingContext.DEPTH_ATTACHMENT;
+                                    // invalidateAttachments.push(WebGLRenderingContext.DEPTH_ATTACHMENT);
                                     break;
                                 }
                                 default:
@@ -1356,7 +1364,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                     }
                                     case GFXLoadOp.DISCARD: {
                                         // invalidate the framebuffer
-                                        invalidateAttachments[numInvalidAttach++] = WebGLRenderingContext.STENCIL_ATTACHMENT;
+                                        // invalidateAttachments.push(WebGLRenderingContext.STENCIL_ATTACHMENT);
                                         break;
                                     }
                                     default:

@@ -110,8 +110,8 @@ export class WebGLGFXSampler extends GFXSampler {
         }
 
         const glWrapS = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.CLAMP_TO_EDGE);
-        const glWrapT = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.CLAMP_TO_EDGE);
-        const glWrapR = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.CLAMP_TO_EDGE);
+        const glWrapT = (info.addressV !== undefined ? WebGLWraps[info.addressV] : WebGLRenderingContext.CLAMP_TO_EDGE);
+        const glWrapR = (info.addressW !== undefined ? WebGLWraps[info.addressW] : WebGLRenderingContext.CLAMP_TO_EDGE);
 
         this._gpuSampler = {
             glMinFilter,

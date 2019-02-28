@@ -17,6 +17,8 @@ export class WebGLGFXBuffer extends GFXBuffer {
     }
 
     private _gpuBuffer: WebGLGPUBuffer | null = null;
+    private _uniformBuffer: ArrayBuffer | null = null;
+    private _indirectBuffer: IGFXIndirectBuffer | null = null;
 
     constructor (device: GFXDevice) {
         super(device);
@@ -30,12 +32,10 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._stride = Math.max(info.stride || this._size, 1);
         this._count = this._size / this._stride;
 
-        if (this._memUsage & GFXMemoryUsageBit.HOST) {
-            if (this._usage & GFXBufferUsageBit.INDIRECT) {
-                this._buffer = { drawInfos: [] };
-            } else {
-                this._buffer = new ArrayBuffer(this._size);
-            }
+        if (this._usage & GFXBufferUsageBit.INDIRECT) {
+            this._indirectBuffer = { drawInfos: [] };
+        } else if (this._usage & GFXBufferUsageBit.UNIFORM) {
+            this._uniformBuffer = new ArrayBuffer(this._size);
         }
 
         this._gpuBuffer = {
@@ -50,12 +50,10 @@ export class WebGLGFXBuffer extends GFXBuffer {
             glBuffer: 0,
         };
 
-        if (this._buffer) {
-            if (info.usage & GFXBufferUsageBit.INDIRECT) {
-                this._gpuBuffer.indirects = (this._buffer as IGFXIndirectBuffer).drawInfos;
-            } else {
-                this._gpuBuffer.buffer = this._buffer as ArrayBuffer;
-            }
+        if (info.usage & GFXBufferUsageBit.INDIRECT) {
+            this._gpuBuffer.indirects = this._indirectBuffer!.drawInfos;
+        } else if (this._usage & GFXBufferUsageBit.UNIFORM) {
+            this._gpuBuffer.buffer = this._uniformBuffer;
         }
 
         WebGLCmdFuncCreateBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
@@ -71,7 +69,6 @@ export class WebGLGFXBuffer extends GFXBuffer {
             this._gpuBuffer = null;
         }
 
-        this._buffer = null;
         this._status = GFXStatus.UNREADY;
     }
 
@@ -79,19 +76,15 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._size = size;
         this._count = this._size / this._stride;
 
-        if (this._memUsage & GFXMemoryUsageBit.HOST) {
-            if ((this._usage & GFXBufferUsageBit.INDIRECT) === GFXBufferUsageBit.NONE) {
-                this._buffer = new ArrayBuffer(this._size);
-            }
+        if (this._uniformBuffer) {
+            this._uniformBuffer = new ArrayBuffer(this._size);
         }
 
         if (this._gpuBuffer) {
-            if (this._buffer) {
-                if ((this._usage & GFXBufferUsageBit.INDIRECT) === GFXBufferUsageBit.NONE) {
-                    this._gpuBuffer.buffer = this._buffer as ArrayBuffer;
-                    this._gpuBuffer.size = this._gpuBuffer.buffer.byteLength;
-                }
+            if (this._uniformBuffer) {
+                this._gpuBuffer.buffer = this._uniformBuffer;
             }
+            this._gpuBuffer.size = this._size;
 
             WebGLCmdFuncResizeBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
         }

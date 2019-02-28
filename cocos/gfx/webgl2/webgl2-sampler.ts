@@ -1,15 +1,9 @@
-import { GFXFilter, GFXStatus } from '../define';
+import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXSampler, GFXSamplerState, IGFXSamplerInfo } from '../sampler';
+import { WebGL2CmdFuncCreateSampler, WebGL2CmdFuncDestroySampler } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
 import { WebGL2GPUSampler } from './webgl2-gpu-objects';
-
-const WebGLWraps: GLenum[] = [
-    WebGLRenderingContext.REPEAT,
-    WebGLRenderingContext.MIRRORED_REPEAT,
-    WebGLRenderingContext.CLAMP_TO_EDGE,
-    WebGLRenderingContext.CLAMP_TO_EDGE,
-];
 
 export class WebGL2GFXSampler extends GFXSampler {
 
@@ -79,48 +73,25 @@ export class WebGL2GFXSampler extends GFXSampler {
             this._state.mipLODBias = info.mipLODBias;
         }
 
-        let glMinFilter = WebGLRenderingContext.NONE;
-        let glMagFilter = WebGLRenderingContext.NONE;
-
-        const minFilter = (info.minFilter !== undefined ? info.minFilter : GFXFilter.LINEAR);
-        const magFilter = (info.magFilter !== undefined ? info.magFilter : GFXFilter.LINEAR);
-        const mipFilter = (info.mipFilter !== undefined ? info.mipFilter : GFXFilter.NONE);
-
-        if (minFilter === GFXFilter.LINEAR || minFilter === GFXFilter.ANISOTROPIC) {
-            if (mipFilter === GFXFilter.LINEAR || mipFilter === GFXFilter.ANISOTROPIC) {
-                glMinFilter = WebGLRenderingContext.LINEAR_MIPMAP_LINEAR;
-            } else if (mipFilter === GFXFilter.POINT) {
-                glMinFilter = WebGLRenderingContext.LINEAR_MIPMAP_NEAREST;
-            } else {
-                glMinFilter = WebGLRenderingContext.LINEAR;
-            }
-        } else {
-            if (mipFilter === GFXFilter.LINEAR || mipFilter === GFXFilter.ANISOTROPIC) {
-                glMinFilter = WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
-            } else if (mipFilter === GFXFilter.POINT) {
-                glMinFilter = WebGLRenderingContext.NEAREST_MIPMAP_NEAREST;
-            } else {
-                glMinFilter = WebGLRenderingContext.NEAREST;
-            }
-        }
-
-        if (magFilter === GFXFilter.LINEAR || magFilter === GFXFilter.ANISOTROPIC) {
-            glMagFilter = WebGLRenderingContext.LINEAR;
-        } else {
-            glMagFilter = WebGLRenderingContext.NEAREST;
-        }
-
-        const glWrapS = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.CLAMP_TO_EDGE);
-        const glWrapT = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.CLAMP_TO_EDGE);
-        const glWrapR = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.CLAMP_TO_EDGE);
-
         this._gpuSampler = {
-            glMinFilter,
-            glMagFilter,
-            glWrapS,
-            glWrapT,
-            glWrapR,
+            glSampler: 0,
+            minFilter: this._state.minFilter,
+            magFilter: this._state.magFilter,
+            mipFilter: this._state.mipFilter,
+            addressU: this._state.addressU,
+            addressV: this._state.addressV,
+            addressW: this._state.addressW,
+            minLOD: this._state.minLOD,
+            maxLOD: this._state.maxLOD,
+
+            glMinFilter: WebGL2RenderingContext.NONE,
+            glMagFilter: WebGL2RenderingContext.NONE,
+            glWrapS: WebGL2RenderingContext.NONE,
+            glWrapT: WebGL2RenderingContext.NONE,
+            glWrapR: WebGL2RenderingContext.NONE,
         };
+
+        WebGL2CmdFuncCreateSampler(this._device as WebGL2GFXDevice, this._gpuSampler);
 
         this._status = GFXStatus.SUCCESS;
 
@@ -128,7 +99,10 @@ export class WebGL2GFXSampler extends GFXSampler {
     }
 
     public destroy () {
-        this._gpuSampler = null;
+        if (this._gpuSampler) {
+            WebGL2CmdFuncDestroySampler(this._device as WebGL2GFXDevice, this._gpuSampler);
+            this._gpuSampler = null;
+        }
         this._status = GFXStatus.UNREADY;
     }
 }

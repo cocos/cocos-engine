@@ -15,6 +15,8 @@ import {
     GFXTextureUsageBit,
     GFXTextureViewType,
     GFXType,
+    GFXFilter,
+    GFXAddress,
 } from '../define';
 import { IGFXInputAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
@@ -101,11 +103,21 @@ export class WebGL2GPUFramebuffer {
 }
 
 export class WebGL2GPUSampler {
-    public glMinFilter: GLenum = WebGLRenderingContext.NONE;
-    public glMagFilter: GLenum = WebGLRenderingContext.NONE;
-    public glWrapS: GLenum = WebGLRenderingContext.NONE;
-    public glWrapT: GLenum = WebGLRenderingContext.NONE;
-    public glWrapR: GLenum = WebGLRenderingContext.NONE;
+    public glSampler: WebGLSampler = 0;
+    public minFilter: GFXFilter = GFXFilter.NONE;
+    public magFilter: GFXFilter = GFXFilter.NONE;
+    public mipFilter: GFXFilter = GFXFilter.NONE;
+    public addressU: GFXAddress = GFXAddress.CLAMP;
+    public addressV: GFXAddress = GFXAddress.CLAMP;
+    public addressW: GFXAddress = GFXAddress.CLAMP;
+    public minLOD: number = 0;
+    public maxLOD: number = 1000;
+
+    public glMinFilter: GLenum = WebGL2RenderingContext.NONE;
+    public glMagFilter: GLenum = WebGL2RenderingContext.NONE;
+    public glWrapS: GLenum = WebGL2RenderingContext.NONE;
+    public glWrapT: GLenum = WebGL2RenderingContext.NONE;
+    public glWrapR: GLenum = WebGL2RenderingContext.NONE;
 }
 
 export class WebGL2GPUInput {
@@ -183,7 +195,7 @@ export class WebGL2GPUPipelineLayout {
 
 export class WebGL2GPUPipelineState {
 
-    public glPrimitive: GLenum = WebGLRenderingContext.TRIANGLES;
+    public glPrimitive: GLenum = WebGL2RenderingContext.TRIANGLES;
     public gpuShader: WebGL2GPUShader | null = null;
     public rs: GFXRasterizerState = new GFXRasterizerState();
     public dss: GFXDepthStencilState = new GFXDepthStencilState();

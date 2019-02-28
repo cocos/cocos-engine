@@ -13,6 +13,7 @@ export class WebGL2StateCache {
     public texUnit: number = 0;
     public glTex2DUnits: IWebGL2TexUnit[];
     public glTexCubeUnits: IWebGL2TexUnit[];
+    public glSamplerUnits: WebGLSampler[];
     public glFramebuffer: WebGLFramebuffer = 0;
     public viewport: IGFXViewport;
     public scissorRect: IGFXRect;
@@ -29,6 +30,7 @@ export class WebGL2StateCache {
 
         this.glTex2DUnits = new Array<IWebGL2TexUnit>(GFX_MAX_TEXTURE_UNITS);
         this.glTexCubeUnits = new Array<IWebGL2TexUnit>(GFX_MAX_TEXTURE_UNITS);
+        this.glSamplerUnits = new Array<WebGLSampler>(GFX_MAX_TEXTURE_UNITS);
         this.viewport = { left: 0.0, top: 0.0, width: 0.0, height: 0.0, minDepth: 0.0, maxDepth: 0.0 };
         this.scissorRect = { x: 0.0, y: 0.0, width: 0.0, height: 0.0 };
         this.rs = new GFXRasterizerState();
@@ -44,6 +46,7 @@ export class WebGL2StateCache {
             this.glTexCubeUnits[i] = {
                 glTexture: 0,
             };
+            this.glSamplerUnits[i] = 0;
         }
 
         for (let i = 0; i < GFX_MAX_VERTEX_ATTRIBUTES; ++i) {

@@ -62,9 +62,11 @@ export abstract class GFXBuffer extends GFXObject {
         return this._count;
     }
 
+    /*
     public get buffer (): GFXBufferSource | null {
         return this._buffer;
     }
+    */
 
     protected _device: GFXDevice;
     protected _usage: GFXBufferUsage = GFXBufferUsageBit.NONE;
@@ -72,8 +74,7 @@ export abstract class GFXBuffer extends GFXObject {
     protected _size: number = 0;
     protected _stride: number = 1;
     protected _count: number = 0;
-    protected _buffer: GFXBufferSource | null = null;
-    protected _uniforms: GFXBufferSource | null = null;
+    // protected _buffer: GFXBufferSource | null = null;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.BUFFER);
