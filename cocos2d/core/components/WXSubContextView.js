@@ -35,7 +35,7 @@ if (!CC_EDITOR && !CC_WECHATGAME) {
 }
 else {
     /**
-     * !#en WXSubContextView is a view component which controls open data context viewport in Wechat game platform.<br/>
+     * !#en WXSubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
      * The component's node size decide the viewport of the sub context content in main context, 
      * the entire sub context texture will be scaled to the node's bounding box area.<br/>
      * This component provides multiple important features:<br/>
