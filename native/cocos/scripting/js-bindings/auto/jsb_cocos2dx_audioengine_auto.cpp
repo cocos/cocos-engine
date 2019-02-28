@@ -610,6 +610,25 @@ static bool js_audioengine_AudioEngine_getDuration(se::State& s)
 }
 SE_BIND_FUNC(js_audioengine_AudioEngine_getDuration)
 
+static bool js_audioengine_AudioEngine_getDurationFromFile(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+        if (argc == 1) {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_getDurationFromFile : Error processing arguments");
+        float result = cocos2d::AudioEngine::getDurationFromFile(arg0);
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_getDurationFromFile : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_audioengine_AudioEngine_getDurationFromFile)
+
 static bool js_audioengine_AudioEngine_setLoop(se::State& s)
 {
     const auto& args = s.args();
@@ -772,6 +791,7 @@ bool js_register_audioengine_AudioEngine(se::Object* obj)
     cls->defineStaticFunction("resume", _SE(js_audioengine_AudioEngine_resume));
     cls->defineStaticFunction("stop", _SE(js_audioengine_AudioEngine_stop));
     cls->defineStaticFunction("getDuration", _SE(js_audioengine_AudioEngine_getDuration));
+    cls->defineStaticFunction("getDurationFromFile", _SE(js_audioengine_AudioEngine_getDurationFromFile));
     cls->defineStaticFunction("setLoop", _SE(js_audioengine_AudioEngine_setLoop));
     cls->defineStaticFunction("getDefaultProfile", _SE(js_audioengine_AudioEngine_getDefaultProfile));
     cls->defineStaticFunction("setFinishCallback", _SE(js_audioengine_AudioEngine_setFinishCallback));

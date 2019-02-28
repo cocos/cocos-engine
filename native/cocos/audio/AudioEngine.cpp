@@ -431,6 +431,18 @@ float AudioEngine::getDuration(int audioID)
     return TIME_UNKNOWN;
 }
 
+float AudioEngine::getDurationFromFile(const std::string& filePath)
+{
+    lazyInit();
+
+    if (_audioEngineImpl)
+    {
+        return _audioEngineImpl->getDurationFromFile(filePath);
+    }
+
+    return TIME_UNKNOWN;
+}
+
 bool AudioEngine::setCurrentTime(int audioID, float time)
 {
     auto it = _audioIDInfoMap.find(audioID);

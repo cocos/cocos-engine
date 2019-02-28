@@ -400,6 +400,16 @@ float AudioEngineImpl::getDuration(int audioID)
     return 0.0f;
 }
 
+float AudioEngineImpl::getDurationFromFile(const std::string &filePath)
+{
+    if (_audioPlayerProvider != nullptr)
+    {
+        auto fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
+        return _audioPlayerProvider->getDurationFromFile(fullPath);
+    }
+    return 0;
+}
+
 float AudioEngineImpl::getCurrentTime(int audioID)
 {
     auto iter = _audioPlayers.find(audioID);

@@ -574,6 +574,17 @@ float AudioEngineImpl::getDuration(int audioID)
     }
 }
 
+float AudioEngineImpl::getDurationFromFile(const std::string &filePath)
+{
+    auto it = _audioCaches.find(filePath);
+    if (it == _audioCaches.end()) {
+        this->preload(filePath, nullptr);
+        return AudioEngine::TIME_UNKNOWN;
+    }
+
+    return it->second._duration;
+}
+
 float AudioEngineImpl::getCurrentTime(int audioID)
 {
     float ret = 0.0f;

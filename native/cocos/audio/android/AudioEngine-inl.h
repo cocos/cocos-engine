@@ -64,6 +64,7 @@ public:
     void stop(int audioID);
     void stopAll();
     float getDuration(int audioID);
+    float getDurationFromFile(const std::string &fileFullPath);
     float getCurrentTime(int audioID);
     bool setCurrentTime(int audioID, float time);
     void setFinishCallback(int audioID, const std::function<void (int, const std::string &)> &callback);
