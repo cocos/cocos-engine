@@ -196,7 +196,7 @@ module.exports = {
             firstLinelabelY = 0;
         }
         else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
-            firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
+            firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + 0.4;
         }
         else {
             firstLinelabelY = _canvasSize.height - lineHeight * (lineCount - 1);
