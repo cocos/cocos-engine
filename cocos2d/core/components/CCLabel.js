@@ -455,11 +455,7 @@ let Label = cc.Class({
             }
         },
 
-        /**
-         * !#en For compatibility with v2.0.x temporary reservation.
-         * !#zh 兼容2.0.x版本暂时保留
-         * @deprecated
-         */
+        //For compatibility with v2.0.x temporary reservation.
         _batchAsBitmap: false,
 
         /**
@@ -510,7 +506,7 @@ let Label = cc.Class({
 
     onLoad () {
         // For compatibility with v2.0.x temporary reservation.
-        if (this._batchAsBitmap && this.cacheMode == CacheMode.NONE) {
+        if (this._batchAsBitmap && this.cacheMode === CacheMode.NONE) {
             this.cacheMode = CacheMode.BITMAP;
             this._batchAsBitmap = false;
         }
