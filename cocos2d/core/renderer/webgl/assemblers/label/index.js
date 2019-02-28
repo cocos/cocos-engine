@@ -26,6 +26,31 @@
 const Label = require('../../../../components/CCLabel');
 const ttfAssembler = require('./ttf');
 const bmfontAssembler = require('./bmfont');
+const letterAssembler = require('./letter-font')
+
+let canvasPool = {
+    pool: [],
+    get () {
+        let data = this.pool.pop();
+
+        if (!data) {
+            let canvas = document.createElement("canvas");
+            let context = canvas.getContext("2d");
+            data = {
+                canvas: canvas,
+                context: context
+            }
+        }
+
+        return data;
+    },
+    put (canvas) {
+        if (this.pool.length >= 32) {
+            return;
+        }
+        this.pool.push(canvas);
+    }
+};
 
 var labelAssembler = {
     getAssembler (comp) {
@@ -33,6 +58,8 @@ var labelAssembler = {
         
         if (comp.font instanceof cc.BitmapFont) {
             assembler = bmfontAssembler;
+        } else if (comp.cacheMode === Label.CacheMode.CHAR) {
+            assembler = letterAssembler;
         }
 
         return assembler;
@@ -45,5 +72,5 @@ var labelAssembler = {
 };
 
 Label._assembler = labelAssembler;
-
+Label._canvasPool = canvasPool;
 module.exports = labelAssembler;
