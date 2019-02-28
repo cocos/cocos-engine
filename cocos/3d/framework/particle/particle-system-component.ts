@@ -27,7 +27,7 @@ const _world_mat = mat4.create();
 @requireComponent(ParticleSystemRenderer)
 @executionOrder(99)
 @executeInEditMode
-export default class ParticleSystemComponent extends Component {
+export class ParticleSystemComponent extends Component {
 
     @property
     public capacity = 2000;

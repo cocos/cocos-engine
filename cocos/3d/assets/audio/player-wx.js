@@ -25,7 +25,7 @@
 // @ts-check
 import { _decorator } from "../../core/data/index";
 const { ccclass } = _decorator;
-import { AudioClip, AudioSourceType, PlayingState } from './audio-clip';
+import { AudioClip, AudioType, PlayingState } from './audio-clip';
 
 /**
  * WeChat audio to port. https://developers.weixin.qq.com/minigame/dev/document/media/audio/InnerAudioContext.html
@@ -34,7 +34,7 @@ import { AudioClip, AudioSourceType, PlayingState } from './audio-clip';
 export default class WxGameAudioClip extends AudioClip {
   constructor() {
     super();
-    this.loadMode = AudioSourceType.WX_GAME_AUDIO;
+    this.loadMode = AudioType.WX_GAME_AUDIO;
     this._volume = 1;
     this._loop = false;
     this._oneShoting = false;

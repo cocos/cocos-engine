@@ -23,29 +23,26 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass } from '../../core/data/class-decorator';
-import { AudioClip, AudioSourceType, IAudioInfo, PlayingState } from './audio-clip';
+import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
-@ccclass('cc.DOMAudioClip')
-export class DOMAudioClip extends AudioClip {
+export class AudioPlayerDOM extends AudioPlayer {
     protected _volume = 1;
     protected _loop = false;
     protected _currentTimer = 0;
     protected _oneShoting = false;
-    protected _audio: HTMLAudioElement | null = null;
+    protected _audio: HTMLAudioElement;
 
     private _post_play: () => void;
     private _on_gesture: () => void;
     private _alreadyDelayed = false;
 
-    constructor () {
-        super();
-
-        this._loadMode = AudioSourceType.DOM_AUDIO;
+    constructor (info: IAudioInfo) {
+        super(info);
+        this._audio = info.clip;
 
         this._post_play = () => {
             this._state = PlayingState.PLAYING;
-            this.emit('started');
+            this._eventTarget.emit('started');
         };
 
         this._on_gesture = () => {
@@ -62,19 +59,15 @@ export class DOMAudioClip extends AudioClip {
                 document.removeEventListener('mouseup', this._on_gesture);
             });
         };
-    }
 
-    public setNativeAsset (clip: HTMLAudioElement) {
-        super._nativeAsset = clip;
-        clip.volume = this._volume;
-        clip.loop = this._loop;
+        this._audio.volume = this._volume;
+        this._audio.loop = this._loop;
         // callback on audio ended
-        clip.addEventListener('ended', () => {
+        this._audio.addEventListener('ended', () => {
             if (this._oneShoting) { return; }
             this._state = PlayingState.STOPPED;
-            clip.currentTime = 0;
-            // @ts-ignore
-            this.emit('ended');
+            this._audio!.currentTime = 0;
+            this._eventTarget.emit('ended');
         });
         /* play & stop immediately after receiving a gesture so that
            we can freely invoke play() outside event listeners later */
@@ -164,5 +157,3 @@ export class DOMAudioClip extends AudioClip {
         return this._loop;
     }
 }
-
-cc.DOMAudioClip = DOMAudioClip;

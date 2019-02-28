@@ -27,10 +27,9 @@
 import { CameraComponent } from '../../../3d/framework/camera-component';
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Color, Rect, Size, Vec3 } from '../../../core/value-types';
+import { Size, Vec3 } from '../../../core/value-types';
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer/scene/camera';
-import { Node } from '../../../scene-graph/node';
 
 const _tempPos = new Vec3();
 const _worldPos = new Vec3();
@@ -169,7 +168,7 @@ export class CanvasComponent extends Component {
     }
 
     public __preload () {
-        const cameraNode = new Node('UICamera');
+        const cameraNode = new cc.Node('UICamera');
         cameraNode.setPosition(0, 0, 1000);
         if (!CC_EDITOR) {
             this._camera = cc.director.root.ui.renderScene.createCamera({
@@ -188,7 +187,6 @@ export class CanvasComponent extends Component {
             const device = cc.director.root.device;
             this._camera!.resize(device.width, device.height);
         }
-
 
         cc.director.root.ui.addScreen(this);
 

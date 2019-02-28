@@ -3,8 +3,6 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import * as math from '../../../core/vmath/index';
 import { EventType } from '../../../scene-graph/node-event-enum';
-import { MaskComponent } from './mask-component';
-import { UIRenderComponent } from './ui-render-component';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -201,7 +199,7 @@ export class UITransformComponent extends Component {
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
-        const renderComp = this.node.getComponent(UIRenderComponent);
+        const renderComp = this.node.getComponent(cc.UIRenderComponent) as any;
         if (!renderComp) {
             return false;
         }

@@ -57,6 +57,16 @@
       cameraNode.addComponent(cc.CameraComponent);
       cameraNode.addComponent(FirstPersonCamera);
 
+      const n1 = new cc.Node('Audio Source 1');
+      n1.parent = scene;
+      const s1 = n1.addComponent(cc.AudioSourceComponent);
+      const n2 = new cc.Node('Audio Source 2');
+      n2.parent = scene;
+      const s2 = n2.addComponent(cc.AudioSourceComponent);
+      s2.loop = true;
+      s2.volume = 0.5;
+      s2.playOnAwake = false;
+
       cc.AssetLibrary.init({
         libraryPath: 'resources',
         rawAssetsBase: 'resources',
@@ -67,11 +77,16 @@
           }
         }
       });
-      cc.loader.loadRes('nocturne', cc.AudioClip, (err, asset) => {
-          debugger
-      });
 
-      cc.director.runSceneImmediate(scene);
+      let jobsRemaining = 2;
+      cc.loader.loadRes('morceaux', cc.AudioClip, (err, asset) => {
+          s1.clip = asset;
+          if (!--jobsRemaining) cc.director.runSceneImmediate(scene);
+      });
+      cc.loader.loadRes('nocturne', cc.AudioClip, (err, asset) => {
+          s2.clip = asset;
+          if (!--jobsRemaining) cc.director.runSceneImmediate(scene);
+      });
     }
     cc.game.run({ id: 'canvas' }, onStart);
   </script>

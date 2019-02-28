@@ -23,11 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass } from '../../core/data/class-decorator';
-import { AudioClip, AudioSourceType, IAudioInfo, PlayingState } from './audio-clip';
+import sys from '../../../core/platform/CCSys';
+import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
-@ccclass('cc.WebAudioClip')
-export default class WebAudioClip extends AudioClip {
+const audioSupport = sys.__audioSupport;
+
+export class AudioPlayerWeb extends AudioPlayer {
     protected _startTime = 0;
     protected _offset = 0;
     protected _volume = 1;
@@ -43,12 +44,11 @@ export default class WebAudioClip extends AudioClip {
     private _on_gesture: () => void;
     private _alreadyDelayed = false;
 
-    constructor (context: AudioContext) {
-        super();
+    constructor (info: IAudioInfo) {
+        super(info);
+        this._audio = info.clip;
 
-        this._loadMode = AudioSourceType.WEB_AUDIO;
-
-        this._context = context;
+        this._context = audioSupport.context;
         this._sourceNode = this._context.createBufferSource();
         this._gainNode = this._context.createGain();
         this._gainNode.connect(this._context.destination);
@@ -57,8 +57,7 @@ export default class WebAudioClip extends AudioClip {
             this._offset = 0;
             this._startTime = this._context.currentTime;
             if (this._sourceNode.loop) { return; }
-            // @ts-ignore
-            this.emit('ended');
+            this._eventTarget.emit('ended');
             this._state = PlayingState.STOPPED;
         };
 
@@ -71,7 +70,7 @@ export default class WebAudioClip extends AudioClip {
             this._state = PlayingState.PLAYING;
             this._startTime = this._context.currentTime;
             // delay eval here to yield uniform behavior with other platforms
-            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => { this.emit('started'); });
+            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => { this._eventTarget.emit('started'); });
             /* still not supported by all platforms *
             this._sourceNode.onended = this._on_ended;
             /* doing it manually for now */
@@ -92,10 +91,7 @@ export default class WebAudioClip extends AudioClip {
                 document.removeEventListener('mouseup', this._on_gesture);
             });
         };
-    }
 
-    public set _nativeAsset (clip: AudioBuffer) {
-        super._nativeAsset = clip;
         if (this._context.state === 'running') { return; }
         window.addEventListener('touchend', this._on_gesture);
         document.addEventListener('mouseup', this._on_gesture);
@@ -173,5 +169,3 @@ export default class WebAudioClip extends AudioClip {
         return this._loop;
     }
 }
-
-cc.WebAudioClip = WebAudioClip;

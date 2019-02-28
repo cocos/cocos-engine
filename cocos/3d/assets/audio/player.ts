@@ -23,64 +23,38 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Asset } from '../../assets/asset';
-import { ccclass, property } from '../../core/data/class-decorator';
-import { EventTargetFactory } from '../../core/event/event-target-factory';
-
 export const PlayingState = {
     INITIALIZING: 0,
     PLAYING: 1,
     STOPPED: 2,
 };
 
-export const AudioSourceType = {
-    UNKNOWN_AUDIO: -1,
-    /**
-     * load through Web Audio API interface
-     */
-    WEB_AUDIO: 0,
-    /**
-     * load through an audio DOM element
-     */
-    DOM_AUDIO: 1,
-
-    WX_GAME_AUDIO: 2,
-};
-
-@ccclass('cc.AudioClip')
-export class AudioClip extends EventTargetFactory(Asset) {
-    protected _audio: any = null;
-    protected _state = PlayingState.INITIALIZING;
-
-    @property // we serialize this because it's unavailable at runtime on some platforms
-    protected _duration = 0;
-
-    @property(AudioSourceType)
-    protected _loadMode = AudioSourceType.UNKNOWN_AUDIO;
-
-    public set _nativeAsset (clip: any) {
-        this._audio = clip;
-        if (clip) {
-            this.loaded = true;
-            this.emit('load');
-            this._state = PlayingState.STOPPED;
-        } else {
-            this.loaded = false;
-            this._state = PlayingState.INITIALIZING;
-            this._duration = 0;
-        }
-    }
-    public get _nativeAsset () {
-        return this._audio;
-    }
-
-    get loadMode () {
-        return this._loadMode;
-    }
-
-    get state () {
-        return this._state;
-    }
+export interface IAudioInfo {
+    clip: any;
+    duration: number;
+    eventTarget: any;
 }
 
-cc.AudioClip = AudioClip;
+export abstract class AudioPlayer {
+    protected _state = PlayingState.STOPPED;
+    protected _duration = 0;
+    protected _eventTarget: any;
+
+    constructor (info: IAudioInfo) {
+        this._duration = info.duration;
+        this._eventTarget = info.eventTarget;
+    }
+
+    public abstract play (): void;
+    public abstract pause (): void;
+    public abstract stop (): void;
+    public abstract playOneShot (volume: number): void;
+    public abstract setCurrentTime (val: number): void;
+    public abstract getCurrentTime (): number;
+    public abstract getDuration (): number;
+    public abstract setVolume (val: number): void;
+    public abstract getVolume (): number;
+    public abstract setLoop (val: boolean): void;
+    public abstract getLoop (): boolean;
+    public getState () { return this._state; }
+}

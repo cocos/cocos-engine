@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { widgetManager } from './widget-manager';
 import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { Node } from '../../../scene-graph/index';
@@ -115,7 +114,7 @@ export class WidgetComponent extends Component {
         this._target = value;
         if (CC_EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
             // adjust the offsets to keep the size and position unchanged after target chagned
-            widgetManager.updateOffsetsToStayPut(this);
+            cc._widgetManager.updateOffsetsToStayPut(this);
         }
     }
 
@@ -562,7 +561,7 @@ export class WidgetComponent extends Component {
      * cc.log(widget.node.y); // changed
      */
     public updateAlignment () {
-        widgetManager.updateAlignment(this.node);
+        cc._widgetManager.updateAlignment(this.node);
     }
 
     protected onLoad () {
@@ -579,11 +578,11 @@ export class WidgetComponent extends Component {
     }
 
     protected onEnable () {
-        widgetManager.add(this);
+        cc._widgetManager.add(this);
     }
 
     protected onDisable () {
-        widgetManager.remove(this);
+        cc._widgetManager.remove(this);
     }
 
     private _setAlign (flag: AlignFlags, isAlign: boolean) {
@@ -619,7 +618,7 @@ export class WidgetComponent extends Component {
 
             if (CC_EDITOR && !cc.engine._isPlaying && this.node.parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment chagned
-                widgetManager.updateOffsetsToStayPut(this, flag);
+                cc._widgetManager.updateOffsetsToStayPut(this, flag);
             }
         } else {
             if (isHorizontal) {
