@@ -262,7 +262,9 @@ module.exports = {
             "debug_slots": "是否显示 slot 的 debug 信息",
             "debug_bones": "是否显示 bone 的 debug 信息",
             "premultipliedAlpha": "是否启用贴图预乘",
-            "use_tint": "是否启用染色效果"
+            "use_tint": "是否启用染色效果",
+            "enabled_batch": "是否开启合批",
+            "render_mode": "当前骨骼动画的渲染模式\nREALTIME 表示实时计算，支持动画融合，较耗性能\nSHARED_CACHE 表示预计算且共享动画数据，性能较高，占用较少内存\nPRIVATE_CACHE 表示预计算但不共享动画数据，性能较高，占用较多内存\n以上两种缓存模式，不支持动作融合",
         },
         "dragon_bones": {
             "dragon_bones_asset": "骨骼信息数据，拖拽 DragonBones 导出的骨骼动画信息 json 资源到这里来开始使用",
@@ -273,7 +275,7 @@ module.exports = {
             "play_times": "播放默认动画的循环次数\n-1 表示使用配置文件中的默认值\n0 表示无限循环\n>0 表示循环次数",
             "debug_bones": "是否显示 bone 的 debug 信息",
             "enabled_batch": "是否开启合批",
-            "render_mode": "当前骨骼动画的渲染模式\nrealtime 表示实时计算，支持动画融合，较耗性能\nsharedCache 表示预计算且共享动画数据，性能较高，占用较少内存\nprivateCache 表示预计算但不共享动画数据，性能较高，占用较多内存\n以上两种缓存模式，不支持骨骼嵌套，不支持fade相关接口",
+            "render_mode": "当前骨骼动画的渲染模式\nREALTIME 表示实时计算，支持动画融合，较耗性能\nSHARED_CACHE 表示预计算且共享动画数据，性能较高，占用较少内存\nPRIVATE_CACHE 表示预计算但不共享动画数据，性能较高，占用较多内存\n以上两种缓存模式，不支持骨骼嵌套，不支持fade相关接口",
         },
         'motionStreak': {
             'fadeTime': "拖尾的渐隐时间,以秒为单位",
