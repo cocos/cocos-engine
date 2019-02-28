@@ -1,4 +1,4 @@
-import { GFXBuffer, IGFXDrawInfo } from './buffer';
+import { GFXBuffer, IGFXDrawInfo, GFXBufferSource } from './buffer';
 import { GFXFormat, GFXFormatInfos, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
@@ -138,7 +138,7 @@ export abstract class GFXInputAssembler extends GFXObject {
         drawInfo.firstInstance = this._firstInstance;
     }
 
-    public updateVertexAttr (attr: string, data: number[]) {
+    public updateVertexAttr (vbuffer: GFXBufferSource, attr: string, data: number[]) {
         let offset = 0;
         let count = 0;
         let size = 0;
@@ -154,15 +154,15 @@ export abstract class GFXInputAssembler extends GFXObject {
             offset += info.size;
         }
         const vb = this._vertexBuffers[0];
-        if (!count || !vb || !vb.buffer) { return; }
+        if (!count || !vb) { return; }
         const stride = vb.stride;
-        const view = new DataView(vb.buffer as ArrayBuffer);
+        const view = new DataView(vbuffer as ArrayBuffer);
         const len = data.length;
         for (let idx = 0, beg = offset; idx < len; idx += count, beg += stride) {
             for (let j = 0; j < count; j++) {
                 view[fn](beg + j * size, data[idx + j], isLittleEndian);
             }
         }
-        vb.update(vb.buffer);
+        vb.update(vbuffer);
     }
 }
