@@ -318,6 +318,21 @@ export class CameraComponent extends Component {
         if (!this.node.scene) { return; }
         const scene = this._getRenderScene();
         if (this._camera && scene.cameras.find((c) => c === this._camera)) { return; }
-        this._camera = scene.createCamera(this);
+        this._camera = scene.createCamera({
+            name: this._name,
+            node: this.node,
+            projection: this._projection,
+            targetDisplay: this._targetDisplay,
+            priority: this._priority,
+        });
+
+        this._camera.viewport = this._rect;
+        this._camera.fov = this._fov;
+        this._camera.nearClip = this._near;
+        this._camera.farClip = this._far;
+        this._camera.clearColor = color4.create(this._color.r / 255, this._color.g / 255, this._color.b / 255, this._color.a / 255)
+        this._camera.clearDepth = this._depth;
+        this._camera.clearStencil = this._stencil;
+        this._camera.clearFlag = this._clearFlags;
     }
 }

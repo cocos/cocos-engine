@@ -176,22 +176,17 @@ export class CanvasComponent extends Component {
                 name: 'ui',
                 node: cameraNode,
                 projection: CameraComponent.ProjectionType.ORTHO,
-                fov: 45,
-                stencil: 0,
-                orthoHeight: 10,
-                far: 4096,
-                near: 0.1,
-                color: new Color(0, 0, 0, 255),
-                clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
-                rect: new Rect(0, 0, 1, 1),
-                depth: 1,
                 targetDisplay: 0,
                 priority: this._priority,
                 isUI: true,
                 pipeline: 'ui',
             });
+
+            this._camera!.fov = 45;
+            this._camera!.clearFlag = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
+
             const device = cc.director.root.device;
-            this._camera.resize(device.width, device.height);
+            this._camera!.resize(device.width, device.height);
         }
 
 

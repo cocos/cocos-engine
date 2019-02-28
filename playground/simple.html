@@ -143,11 +143,13 @@
       canv.addEventListener('mousemove', (e) => (pos.x = e.x, pos.y = e.y));
 
       cc.director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
+        /*
         if (buttonDown) {
           const ray = camComp.screenPointToRay(pos.x, canv.height - pos.y);
           const res = cc.director._scene._renderScene.raycast(ray);
           if (res.length) res.forEach((r) => console.log(r.node.name, r.distance));
         }
+        */
         models.forEach((m, i) => {
           const dt = cc.director._deltaTime;
           const t = cc.director._totalFrames / (60);

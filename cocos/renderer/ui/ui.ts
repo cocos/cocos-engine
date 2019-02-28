@@ -154,26 +154,6 @@ export class UI {
             this._uiModelPool = new Pool(() => this._scene.createModel<UIBatchModel>(UIBatchModel, null), 2);
         }
         this._modelInUse = new CachedArray<UIBatchModel>(10);
-
-        // this._cameraNode = new Node('UICameraNode');
-
-        // this._camera = this._scene.createCamera({
-        //     name: 'UICamera',
-        //     node: this._cameraNode,
-        //     projection: CameraProjection.ORTHO,
-        //     fov: 45,
-        //     stencil: 0,
-        //     orthoHeight: 10,
-        //     far: 4096,
-        //     near: 0.1,
-        //     color: cc.color(0, 0, 0, 255),
-        //     clearFlags: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
-        //     rect: new Rect(0, 0, 1, 1),
-        //     depth: 1,
-        //     targetDisplay: 0,
-        //     isUI: true,
-        // });
-
         this._batches = new CachedArray(64);
         this._bufferInitData = {
             vertexCount: 0,

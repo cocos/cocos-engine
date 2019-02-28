@@ -85,7 +85,6 @@ export class Root {
 
         this._mainWindow = this._device.mainWindow;
         this._curWindow = this._mainWindow;
-        this._windows.push(this._mainWindow);
 
         let pipeline: RenderPipeline = new ForwardPipeline(this);
         this._pipeline = pipeline;
@@ -146,6 +145,8 @@ export class Root {
     public resize (width: number, height: number) {
 
         this._device.resize(width, height);
+
+        this._mainWindow!.resize(width, height);
 
         for (const window of this._windows) {
             window.resize(width, height);

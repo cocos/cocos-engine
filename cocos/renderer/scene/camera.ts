@@ -15,18 +15,9 @@ export interface ICameraInfo {
     name: string;
     node: Node;
     projection: number;
-    fov: number;
-    orthoHeight: number;
-    near: number;
-    far: number;
-    color: Color;
-    depth: number;
-    stencil: number;
-    clearFlags: GFXClearFlag;
-    rect: Rect;
     targetDisplay: number;
     priority: number;
-    pipeline: string;
+    pipeline?: string;
     isUI?: boolean;
 }
 
@@ -43,13 +34,13 @@ export class Camera {
     private _width: number;
     private _height: number;
     private _aspect: number;
-    private _orthoHeight: number;
-    private _fov: number;
-    private _nearClip: number;
-    private _farClip: number;
-    private _clearStencil: number;
-    private _clearDepth: number;
-    private _clearFlag: GFXClearFlag;
+    private _orthoHeight: number = 10.0;
+    private _fov: number = toRadian(45);
+    private _nearClip: number = 0.1;
+    private _farClip: number = 1000.0;
+    private _clearStencil: number = 0;
+    private _clearDepth: number = 1.0;
+    private _clearFlag: GFXClearFlag = GFXClearFlag.NONE;
     private _clearColor: IGFXColor = {r: 0, g: 0, b: 0, a: 0};
     private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _matView: Mat4 = new Mat4();
@@ -70,19 +61,8 @@ export class Camera {
         this._name = info.name;
         this._node = info.node;
         this._proj = info.projection;
-        this._fov = toRadian(info.fov);
-        this._orthoHeight = info.orthoHeight;
-        this._nearClip = info.near;
-        this._farClip = info.far;
-        this._viewport = info.rect;
         this._pipeline = info.pipeline || 'forward';
         this._priority = info.priority || 0;
-
-        const c = info.color;
-        color4.set(this._clearColor, c.r / 255, c.g / 255, c.b / 255, c.a / 255);
-        this._clearDepth = info.depth;
-        this._clearStencil = info.stencil;
-        this._clearFlag = info.clearFlags;
 
         this._aspect = this._width = this._height = 1;
 
@@ -306,7 +286,7 @@ export class Camera {
     }
 
     get priority () {
-        return this._priority;
+        return this._view.priority;
     }
 
     set priority (val: number) {
