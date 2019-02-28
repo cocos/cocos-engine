@@ -33,9 +33,6 @@ export class RenderView {
 
     public set priority (val: number) {
         this._priority = val;
-        if (this._isUI) {
-            this._priority |= 1 << 30;
-        }
     }
 
     public set visibility (vis) {

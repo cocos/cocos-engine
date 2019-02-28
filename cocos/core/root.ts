@@ -151,7 +151,7 @@ export class Root {
         }
 
         for (const view of this._views) {
-            if (view.camera.isWindowSize && view.priority < 1 << 30) {
+            if (view.camera.isWindowSize) {
                 view.camera.resize(width, height);
             }
         }
@@ -238,25 +238,20 @@ export class Root {
         view.initialize(info);
         view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
 
-        if (!view.isUI) {
-            this._views.push(view);
-            this._views.sort((a: RenderView, b: RenderView) => {
-                return a.priority - b.priority;
-            });
-        } else {
-            this._uiViews.push(view);
-            this._uiViews.sort((a: RenderView, b: RenderView) => {
-                return a.priority - b.priority;
-            });
-        }
+        const views = view.isUI ? this._uiViews : this._views;
+        views.push(view);
+        views.sort((a: RenderView, b: RenderView) => {
+            return a.priority - b.priority;
+        });
 
         return view;
     }
 
     public destroyView (view: RenderView) {
-        for (let i = 0; i < this._views.length; ++i) {
-            if (this._views[i] === view) {
-                this._views.splice(i, 1);
+        const views = view.isUI ? this._uiViews : this._views;
+        for (let i = 0; i < views.length; ++i) {
+            if (views[i] === view) {
+                views.splice(i, 1);
                 return;
             }
         }
