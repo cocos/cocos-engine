@@ -36,6 +36,7 @@ export class RaycastResult {
         return getWrap<Node>(this._cannonResult.body);
     }
 }
+cc.RaycastResult = RaycastResult;
 
 export class PhysicsWorld {
     private _cannonWorld: CANNON.World;
