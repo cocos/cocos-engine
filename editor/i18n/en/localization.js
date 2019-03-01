@@ -346,7 +346,8 @@ module.exports = {
                 'linearVelocity': 'The linear velocity of the body\'s origin in world co-ordinates',
                 'angularVelocity': 'The angular velocity of the body.',
                 'fixedRotation': 'Should this body be prevented from rotating?',
-                'awake': 'Is this body initially awake or sleeping?'
+                'awake': 'Set the sleep state of the body. A sleeping body has very low CPU cost.(When the rigid body is hit, if the rigid body is in sleep state, it will be immediately awakened.)',
+                'awakeOnLoad': 'Whether to wake up this rigid body during initialization',
             },
             'physics_collider': {
                 'density': 'The density',
