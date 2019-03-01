@@ -235,10 +235,10 @@ class SharedRigidBody {
     }
 
     private _deactiveBody () {
-        this._world.removeBody(this._body);
         this._body.removeEventListener('collide', this._onCollidedListener);
         this._body.world.removeEventListener('postStep', this._onWorldPostStepListener);
         this._body.world.removeEventListener('beforeStep', this._onWorldBeforeStepListener);
+        this._world.removeBody(this._body);
     }
 
     private _onCollided (event: CANNON.ICollisionEvent) {
