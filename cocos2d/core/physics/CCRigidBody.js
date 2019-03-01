@@ -372,6 +372,7 @@ var RigidBody = cc.Class({
          * @default false
          */
         awake: {
+            visible: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.awake',
             get: function () {
                 return this._b2Body ? this._b2Body.IsAwake() : false;
