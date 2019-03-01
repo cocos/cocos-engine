@@ -67,7 +67,7 @@ export class ForwardPipeline extends RenderPipeline {
             priority: 0,
         });
         */
-       
+
         return true;
     }
 
