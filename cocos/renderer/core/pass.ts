@@ -291,8 +291,10 @@ export class Pass {
         return true;
     }
 
-    public createPipelineState () {
-        if ((!this._renderPass || !this._shader || !this._bindings.length) && !this.tryCompile()) { return; }
+    public createPipelineState (): GFXPipelineState | null {
+        if ((!this._renderPass || !this._shader || !this._bindings.length) && !this.tryCompile()) {
+            return null;
+        }
         // bind resources
         const bindingLayout = this._device.createBindingLayout({ bindings: this._bindings });
         for (const b of Object.keys(this._buffers)) {
@@ -318,6 +320,7 @@ export class Pass {
             if (info.sampler) { bindingLayout.bindSampler(info.samplerInfo!.binding, info.sampler); }
             bindingLayout.bindTextureView(info.samplerInfo!.binding, info.textureView!);
         }
+
         // create pipeline state
         const pipelineLayout = this._device.createPipelineLayout({ layouts: [bindingLayout] });
         const pipelineState = this._device.createPipelineState({

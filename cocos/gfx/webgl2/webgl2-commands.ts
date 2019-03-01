@@ -1054,7 +1054,7 @@ export function WebGL2CmdFuncDestroySampler (device: WebGL2GFXDevice, gpuSampler
 
 export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFramebuffer: WebGL2GPUFramebuffer) {
 
-    if (!gpuFramebuffer.isOffscreen) {
+    if (gpuFramebuffer.isOffscreen) {
 
         const gl = device.gl;
         const attachments: GLenum[] = [];
@@ -1974,7 +1974,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                         }
                                     } // if
                                 } else {
-                                    console.error('Not found sampler or texture view on binding unit ' + gpuBinding.binding);
+                                    console.error('Not found sampler on binding unit ' + gpuBinding.binding);
                                 }
 
                                 break;

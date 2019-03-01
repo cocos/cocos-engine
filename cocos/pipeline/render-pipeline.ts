@@ -177,10 +177,10 @@ export abstract class RenderPipeline {
             colorFmt = GFXFormat.R11G11B10F;
             this._isHDR = true;
         } else if (this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
-            colorFmt = GFXFormat.RGB16F;
+            colorFmt = GFXFormat.RGBA16F;
             this._isHDR = true;
         } else if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-            colorFmt = GFXFormat.RGB32F;
+            colorFmt = GFXFormat.RGBA32F;
             this._isHDR = true;
         } else { // Fallback to LDR
             colorFmt = GFXFormat.RGBA8;
@@ -192,6 +192,8 @@ export abstract class RenderPipeline {
         } else {
             depthFmt = GFXFormat.D16;
         }
+
+        // colorFmt = GFXFormat.RGBA16F;
 
         console.info('Shading Color Format: ' + GFXFormatInfos[colorFmt].name);
         console.info('Shading Depth Format: ' + GFXFormatInfos[depthFmt].name);
@@ -377,6 +379,9 @@ export abstract class RenderPipeline {
 
     protected updateUBOs (view: RenderView) {
 
+        const camera = view.camera;
+        const device = this._root.device;
+
         // update UBOGlobal
         _vec4Array[0] = this._root.frameTime;
         _vec4Array[1] = 0.0;
@@ -384,19 +389,18 @@ export abstract class RenderPipeline {
         _vec4Array[3] = 0.0;
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.TIME_OFFSET);
 
-        _vec4Array[0] = this._root.device.width;
-        _vec4Array[1] = this._root.device.height;
+        _vec4Array[0] = device.width;
+        _vec4Array[1] = device.height;
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
 
-        _vec4Array[0] = 1.0;
-        _vec4Array[1] = 1.0;
-        _vec4Array[2] = 1.0;
-        _vec4Array[3] = 1.0;
+        _vec4Array[0] = camera.width / device.nativeWidth;
+        _vec4Array[1] = camera.height / device.nativeHeight;
+        _vec4Array[2] = 1.0 / _vec4Array[0];
+        _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
 
-        const camera = view.camera;
         mat4.array(_mat4Array, camera.matView);
         this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_OFFSET);
 

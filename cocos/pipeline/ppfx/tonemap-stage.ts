@@ -6,6 +6,7 @@ import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { UBOGlobal } from '../define';
 
 const colors: IGFXColor[] = [];
 const bufs: GFXCommandBuffer[] = [];
@@ -31,7 +32,15 @@ export class ToneMapStage extends RenderStage {
         });
 
         this._pass = this._flow.material.passes[0];
+        const binding = this._pass.getBinding('u_texSampler');
+
+        const globalUBO = this._pipeline.globalBindings.get(UBOGlobal.BLOCK.name);
+        this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
+        this._pass.bindTextureView(binding, this._pipeline.shadingTexView);
+        this._pass.update();
+
         this._pso = this._pass.createPipelineState();
+        this._pso!.pipelineLayout.layouts[0].update();
 
         return true;
     }

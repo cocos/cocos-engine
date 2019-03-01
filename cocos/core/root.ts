@@ -91,6 +91,8 @@ export class Root {
         this._mainWindow = this._device.mainWindow;
         this._curWindow = this._mainWindow;
 
+        builtinResMgr.initBuiltinRes(this._device);
+
         this._pipeline = new ForwardPipeline(this);
         if (!this._pipeline.initialize()) {
             this.destroy();
@@ -102,8 +104,6 @@ export class Root {
             this.destroy();
             return false;
         }
-
-        builtinResMgr.initBuiltinRes(this._device);
 
         this._ui = new UI(this);
         if (!this._ui.initialize()) {

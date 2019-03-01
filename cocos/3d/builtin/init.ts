@@ -126,6 +126,14 @@ class BuiltinResMgr {
             effect.onLoaded();
         });
 
+        // tonemap material
+        const tonemapMtl = new cc.Material();
+        tonemapMtl._uuid = 'tonemap-material';
+        tonemapMtl.initialize({
+            effectName: 'builtin-tonemap',
+        });
+        resources[tonemapMtl._uuid] = tonemapMtl;
+
         // default material
         const defaultMtl = new cc.Material();
         defaultMtl._uuid = 'default-material';

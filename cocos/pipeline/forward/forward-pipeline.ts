@@ -3,6 +3,7 @@ import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { RenderPassStage, UBOForwardLights } from '../define';
+import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { ForwardFlow } from './forward-flow';
@@ -66,6 +67,7 @@ export class ForwardPipeline extends RenderPipeline {
             priority: 0,
         });
         */
+       
         return true;
     }
 
