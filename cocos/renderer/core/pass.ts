@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { IPassInfo, IShaderInfo } from '../../3d/assets/effect-asset';
+import { IPassInfo, IShaderInfo, ISamplerInfo } from '../../3d/assets/effect-asset';
 import { builtinResMgr } from '../../3d/builtin';
 import { TextureBase } from '../../assets/texture-base';
 import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
@@ -13,7 +13,7 @@ import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
     GFXInputState, GFXPipelineState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXRenderPass } from '../../gfx/render-pass';
-import { GFXSampler } from '../../gfx/sampler';
+import { GFXSampler, IGFXSamplerInfo } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
@@ -387,7 +387,23 @@ export class Pass {
     get dynamics () { return this._dynamics; }
 }
 
-function serializeBlendState (bs: GFXBlendState)  {
+const samplerLib = new Map<string, GFXSampler>();
+const getSampler = (device: GFXDevice, info: IGFXSamplerInfo) => {
+    const s = serializeSamplerInfo(info);
+    let res = samplerLib.get(s);
+    if (!res) { res = device.createSampler(info); samplerLib.set(s, res); }
+    return res;
+};
+
+const serializeSamplerInfo = (info: IGFXSamplerInfo) => {
+    let res = '';
+    for (const key of Object.keys(info)) {
+        res += `${key}:${info[key]},`;
+    }
+    return res;
+};
+
+const serializeBlendState = (bs: GFXBlendState) => {
     let res = `,bs,${bs.isA2C},${bs.blendColor}`;
     for (const t of bs.targets) {
         res += `,bt,${t.blend},${t.blendEq},${t.blendAlphaEq},${t.blendColorMask}`;
@@ -396,13 +412,12 @@ function serializeBlendState (bs: GFXBlendState)  {
     return res;
 }
 
-function serializeRasterizerState (rs: GFXRasterizerState)  {
+const serializeRasterizerState = (rs: GFXRasterizerState) => {
     const res = `,rs,${rs.cullMode},${rs.depthBias},${rs.isFrontFaceCCW}`;
     return res;
 }
 
-// tslint:disable: max-line-length
-function serializeDepthStencilState (dss: GFXDepthStencilState)  {
+const serializeDepthStencilState = (dss: GFXDepthStencilState) => {
     let res = `,dss,${dss.depthTest},${dss.depthWrite},${dss.depthFunc}`;
     res += `,${dss.stencilTestFront},${dss.stencilFuncFront},${dss.stencilRefFront},${dss.stencilReadMaskFront}`;
     res += `,${dss.stencilFailOpFront},${dss.stencilZFailOpFront},${dss.stencilPassOpFront},${dss.stencilWriteMaskFront}`;
