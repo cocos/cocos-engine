@@ -621,7 +621,7 @@ var spineAssembler = {
             _handleVal |= FLAG_BATCH;
         }
 
-        if (comp.isAnimationCacheMode()) {
+        if (comp.isAnimationCached()) {
             // Traverse input assembler.
             this.cacheTraverse(worldMat);
         } else {

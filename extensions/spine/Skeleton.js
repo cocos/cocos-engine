@@ -168,7 +168,7 @@ sp.Skeleton = cc.Class({
          */
         animation: {
             get () {
-                if (this.isAnimationCacheMode()) {
+                if (this.isAnimationCached()) {
                     return this._animationName;
                 } else {
                     var entry = this.getCurrent(0);
@@ -461,7 +461,7 @@ sp.Skeleton = cc.Class({
             this.node.setContentSize(skeletonData.width, skeletonData.height);
         }
 
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             let skeletonInfo = this._skeletonCache.getSkeletonCache(this.skeletonData._uuid, skeletonData);
             this._skeleton = skeletonInfo.skeleton;
             this._clipper = skeletonInfo.clipper;
@@ -480,7 +480,7 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.SkeletonData} skeletonData
      */
     setSlotsRange (startSlotIndex, endSlotIndex) {
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             console.warn("Slots visible range can not be modified in cached mode.");
         } else {
             this._startSlotIndex = startSlotIndex;
@@ -497,7 +497,7 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.AnimationStateData} stateData
      */
     setAnimationStateData (stateData) {
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             console.warn("'setAnimationStateData' interface can not be invoked in cached mode.");
         } else {
             var state = new spine.AnimationState(stateData);
@@ -563,9 +563,9 @@ sp.Skeleton = cc.Class({
     /**
      * !#en Whether in cached mode.
      * !#zh 当前是否处于缓存模式。
-     * @method isAnimationCacheMode
+     * @method isAnimationCached
      */
-    isAnimationCacheMode () {
+    isAnimationCached () {
         if (CC_EDITOR) return false;
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     },
@@ -574,7 +574,7 @@ sp.Skeleton = cc.Class({
         if (CC_EDITOR) return;
         if (this.paused) return;
 
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
 
             // Cache mode and has animation queue.
             if (this._isAniComplete) {
@@ -670,7 +670,7 @@ sp.Skeleton = cc.Class({
      * cc.log(bone.worldX); // return -23.12;
      */
     updateWorldTransform () {
-        if (!this.isAnimationCacheMode()) return;
+        if (!this.isAnimationCached()) return;
 
         if (this._skeleton) {
             this._skeleton.updateWorldTransform();
@@ -683,7 +683,7 @@ sp.Skeleton = cc.Class({
      * @method setToSetupPose
      */
     setToSetupPose () {
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             cc.warn("'SetToSetupPose' interface can not be invoked in cached mode.");
         } else {
             if (this._skeleton) {
@@ -702,7 +702,7 @@ sp.Skeleton = cc.Class({
      * @method setBonesToSetupPose
      */
     setBonesToSetupPose () {
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             cc.warn("'setBonesToSetupPose' interface can not be invoked in cached mode.");
         } else {
             if (this._skeleton) {
@@ -721,7 +721,7 @@ sp.Skeleton = cc.Class({
      * @method setSlotsToSetupPose
      */
     setSlotsToSetupPose () {
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             cc.warn("'setSlotsToSetupPose' interface can not be invoked in cached mode.");
         } else {
             if (this._skeleton) {
@@ -739,7 +739,7 @@ sp.Skeleton = cc.Class({
      * @param {String} animName
      */
     updateAnimationCache (animName) {
-        if (!this.isAnimationCacheMode()) return;
+        if (!this.isAnimationCached()) return;
         let cache = this._skeletonCache.updateAnimationCache(this.skeletonData._uuid, animName);
         this._frameCache = cache || this._frameCache;
     },
@@ -800,7 +800,7 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.Skin}
      */
     setSkin (skinName) {
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             this._skeletonCache.resetSkeleton();
             this._animationName && (this.animation = this._animationName);
         } else {
@@ -892,7 +892,7 @@ sp.Skeleton = cc.Class({
         this._playTimes = loop ? 0 : 1;
         this._animationName = name;
 
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             if (trackIndex !== 0) {
                 cc.warn("Track index can not greater than 0 in cached mode.");
             }
@@ -935,7 +935,7 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.TrackEntry}
      */
     addAnimation (trackIndex, name, loop, delay) {
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             if (trackIndex !== 0) {
                 cc.warn("Track index can not greater than 0 in cached mode.");
             }
@@ -978,7 +978,7 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.TrackEntry}
      */
     getCurrent (trackIndex) {
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             console.warn("'getCurrent' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
@@ -994,7 +994,7 @@ sp.Skeleton = cc.Class({
      * @method clearTracks
      */
     clearTracks () {
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             console.warn("'clearTracks' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
@@ -1010,7 +1010,7 @@ sp.Skeleton = cc.Class({
      * @param {number} trackIndex
      */
     clearTrack (trackIndex) {
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             console.warn("'clearTrack' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
@@ -1210,13 +1210,13 @@ sp.Skeleton = cc.Class({
             }
         }
 
-        if (this.isAnimationCacheMode() && (this.debugBones || this.debugSlots)) {
+        if (this.isAnimationCached() && (this.debugBones || this.debugSlots)) {
             cc.warn("Debug bones or slots is invalid in cached mode");
         }
 
         try {
             this.setSkeletonData(data);
-            if (!this.isAnimationCacheMode()) {
+            if (!this.isAnimationCached()) {
                 this.setAnimationStateData(new spine.AnimationStateData(this._skeleton.data));
             }
             this.defaultSkin && this.setSkin(this.defaultSkin);
@@ -1249,7 +1249,7 @@ sp.Skeleton = cc.Class({
             }
 
             this._debugRenderer.node.parent = this.node;
-            if (this.isAnimationCacheMode()) {
+            if (this.isAnimationCached()) {
                 cc.warn("Debug bones or slots is invalid in cached mode");
             }
         }

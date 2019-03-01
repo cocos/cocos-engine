@@ -178,13 +178,13 @@ let ArmatureDisplay = cc.Class({
                     }
                 }
 
-                if (this._armature && !this.isAnimationCacheMode()) {
+                if (this._armature && !this.isAnimationCached()) {
                     this._factory._dragonBones.clock.remove(this._armature);
                 }
 
                 this._refresh();
 
-                if (this._armature && !this.isAnimationCacheMode()) {
+                if (this._armature && !this.isAnimationCached()) {
                     this._factory._dragonBones.clock.add(this._armature);
                 }
                 
@@ -475,9 +475,9 @@ let ArmatureDisplay = cc.Class({
     /**
      * !#en Whether in cached mode.
      * !#zh 当前是否处于缓存模式。
-     * @method isAnimationCacheMode
+     * @method isAnimationCached
      */
-    isAnimationCacheMode () {
+    isAnimationCached () {
         if (CC_EDITOR) return false;
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     },
@@ -485,7 +485,7 @@ let ArmatureDisplay = cc.Class({
     onEnable () {
         this._super();
         // If cache mode is cache, no need to update by dragonbones library.
-        if (this._armature && !this.isAnimationCacheMode()) {
+        if (this._armature && !this.isAnimationCached()) {
             this._factory._dragonBones.clock.add(this._armature);
         }
     },
@@ -493,13 +493,13 @@ let ArmatureDisplay = cc.Class({
     onDisable () {
         this._super();
         // If cache mode is cache, no need to update by dragonbones library.
-        if (this._armature && !this.isAnimationCacheMode()) {
+        if (this._armature && !this.isAnimationCached()) {
             this._factory._dragonBones.clock.remove(this._armature);
         }
     },
 
     update (dt) {
-        if (!this.isAnimationCacheMode()) return;
+        if (!this.isAnimationCached()) return;
         if (!this._playing) return;
 
         let frames = this._frameCache.frames;
@@ -620,7 +620,7 @@ let ArmatureDisplay = cc.Class({
         let atlasUUID = this.dragonAtlasAsset._uuid;
         this._armatureKey = this.dragonAsset.init(this._factory, atlasUUID);
 
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             this._armature = this._armatureCache.getArmatureCache(this.armatureName, this._armatureKey, atlasUUID);
             if (!this._armature) {
                 // Cache fail,swith to REALTIME cache mode.
@@ -718,7 +718,7 @@ let ArmatureDisplay = cc.Class({
         this.playTimes = (playTimes === undefined) ? -1 : playTimes;
         this.animationName = animName;
 
-        if (this.isAnimationCacheMode()) {
+        if (this.isAnimationCached()) {
             let cache = this._armatureCache.getAnimationCache(this._armatureKey, animName);
             if (!cache) {
                 cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
@@ -746,7 +746,7 @@ let ArmatureDisplay = cc.Class({
      * @param {String} animName
      */
     updateAnimationCache (animName) {
-        if (!this.isAnimationCacheMode()) return;
+        if (!this.isAnimationCached()) return;
         let cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
         this._frameCache = cache || this._frameCache;
     },
