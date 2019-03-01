@@ -620,8 +620,11 @@ let Label = cc.Class({
                 this._ttfTexture = new cc.Texture2D();
                 this._assemblerData = this._assembler._getAssemblerData();
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
-                this._frame._refreshTexture(this._ttfTexture);
             } 
+
+            if (this.cacheMode !== CacheMode.CHAR) {
+                this._frame._refreshTexture(this._ttfTexture);
+            }
             
             this._activateMaterial(force);
 
