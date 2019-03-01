@@ -350,7 +350,8 @@ module.exports = {
                 'linearVelocity': '刚体在世界坐标下的线性速度',
                 'angularVelocity': '刚体的角速度',
                 'fixedRotation': '是否禁止此刚体进行旋转',
-                'awake': '是否立刻唤醒此刚体'
+                'awake': '设置刚体的睡眠状态。 睡眠的刚体具有非常低的 CPU 成本。（当刚体被碰撞到时，如果刚体处于睡眠状态，它会立即被唤醒）',
+                'awakeOnLoad': '是否在初始化时唤醒此刚体',
             },
             'physics_collider': {
                 'density': '密度',
