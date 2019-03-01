@@ -343,8 +343,8 @@ const WebGLCmpFuncs: GLenum[] = [
 ];
 
 const WebGLStencilOps: GLenum[] = [
-    WebGLRenderingContext.KEEP,
     WebGLRenderingContext.ZERO,
+    WebGLRenderingContext.KEEP,
     WebGLRenderingContext.REPLACE,
     WebGLRenderingContext.INCR,
     WebGLRenderingContext.DECR,
