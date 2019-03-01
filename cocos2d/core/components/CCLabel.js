@@ -612,8 +612,8 @@ let Label = cc.Class({
             if (!this._frame) {
                 this._frame = new LabelFrame();
             }
-
-            if (this.cacheMode === CacheMode.CHAR) {
+ 
+            if (this.cacheMode === CacheMode.CHAR && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 this._letterTexture = this._assembler._getAssemblerData();
                 this._frame._refreshTexture(this._letterTexture);
             } else if (!this._ttfTexture) {
