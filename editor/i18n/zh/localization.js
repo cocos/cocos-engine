@@ -264,7 +264,7 @@ module.exports = {
             "premultipliedAlpha": "是否启用贴图预乘",
             "use_tint": "是否启用染色效果",
             "enabled_batch": "是否开启合批",
-            "render_mode": "当前骨骼动画的渲染模式\nREALTIME 表示实时计算，支持动画融合，较耗性能\nSHARED_CACHE 表示预计算且共享动画数据，性能较高，占用较少内存\nPRIVATE_CACHE 表示预计算但不共享动画数据，性能较高，占用较多内存\n以上两种缓存模式，不支持动作融合",
+            "animation_cache_mode": "REALTIME 模式，实时运算，支持 Spine 所有的功能。\nSHARED_CACHE 模式，将骨骼动画及贴图数据进行缓存并共享，相当于预烘焙骨骼动画。拥有较高性能，但不支持动作融合、动作叠加，只支持动作开始和结束事件。至于内存方面，当创建 N(N>=3) 个相同骨骼、相同动作的动画时，会呈现内存优势。N 值越大，优势越明显。综上 SHARED_CACHE 模式适用于场景动画，特效，副本怪物，NPC 等，能极大提高帧率和降低内存。\nPRIVATE_CACHE 模式，与 SHARED_CACHE 类似，但不共享动画及贴图数据，所以在内存方面没有优势，仅存在性能优势。当想利用缓存模式的高性能，但又存在换装的需求，因此不能共享贴图数据时，那么 PRIVATE_CACHE 就适合你。",
         },
         "dragon_bones": {
             "dragon_bones_asset": "骨骼信息数据，拖拽 DragonBones 导出的骨骼动画信息 json 资源到这里来开始使用",
@@ -275,7 +275,7 @@ module.exports = {
             "play_times": "播放默认动画的循环次数\n-1 表示使用配置文件中的默认值\n0 表示无限循环\n>0 表示循环次数",
             "debug_bones": "是否显示 bone 的 debug 信息",
             "enabled_batch": "是否开启合批",
-            "render_mode": "当前骨骼动画的渲染模式\nREALTIME 表示实时计算，支持动画融合，较耗性能\nSHARED_CACHE 表示预计算且共享动画数据，性能较高，占用较少内存\nPRIVATE_CACHE 表示预计算但不共享动画数据，性能较高，占用较多内存\n以上两种缓存模式，不支持骨骼嵌套，不支持fade相关接口",
+            "animation_cache_mode": "REALTIME 模式，实时运算，支持 DragonBones 所有的功能。\nSHARED_CACHE 模式，将骨骼动画及贴图数据进行缓存并共享，相当于预烘焙骨骼动画。拥有较高性能，但不支持动作融合、动作叠加、骨骼嵌套，只支持动作开始和结束事件。至于内存方面，当创建 N(N>=3) 个相同骨骼、相同动作的动画时，会呈现内存优势。N 值越大，优势越明显。综上 SHARED_CACHE 模式适用于场景动画，特效，副本怪物，NPC 等，能极大提高帧率和降低内存。\nPRIVATE_CACHE 模式，与 SHARED_CACHE 类似，但不共享动画及贴图数据，所以在内存方面没有优势，仅存在性能优势。当想利用缓存模式的高性能，但又存在换装的需求，因此不能共享贴图数据时，那么 PRIVATE_CACHE 就适合你。",
         },
         'motionStreak': {
             'fadeTime': "拖尾的渐隐时间,以秒为单位",
