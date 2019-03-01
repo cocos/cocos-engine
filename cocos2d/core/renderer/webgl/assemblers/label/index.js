@@ -59,7 +59,11 @@ var labelAssembler = {
         if (comp.font instanceof cc.BitmapFont) {
             assembler = bmfontAssembler;
         } else if (comp.cacheMode === Label.CacheMode.CHAR) {
-            assembler = letterAssembler;
+            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+                cc.warn('sorry, subdomain does not support CHAR mode currently!');
+            } else {
+                assembler = letterAssembler;
+            }  
         }
 
         return assembler;
