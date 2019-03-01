@@ -256,7 +256,7 @@ export class UI {
     public getScreen (visibility: number) {
         for (const screen of this._screens) {
             if (screen.camera) {
-                if (screen.camera.visibility === visibility) {
+                if (screen.camera.view.visibility === visibility) {
                     return screen;
                 }
             }
@@ -466,7 +466,7 @@ export class UI {
     }
 
     private _postCommitComp (comp: UIRenderComponent) {
-        comp.postUpdateAssembler();
+        comp.postUpdateAssembler(this);
     }
 
     private mergeBatches () {
