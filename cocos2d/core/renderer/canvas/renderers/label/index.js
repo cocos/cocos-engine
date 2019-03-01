@@ -22,9 +22,35 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+const Label = require('../../../../components/CCLabel');
 const ttf = require('./ttf');
 const bmfont = require('./bmfont');
+
+let canvasPool = {
+    pool: [],
+    get () {
+        let data = this.pool.pop();
+
+        if (!data) {
+            let canvas = document.createElement("canvas");
+            let context = canvas.getContext("2d");
+            data = {
+                canvas: canvas,
+                context: context
+            }
+        }
+
+        return data;
+    },
+    put (canvas) {
+        if (this.pool.length >= 32) {
+            return;
+        }
+        this.pool.push(canvas);
+    }
+};
+
+Label._canvasPool = canvasPool;
 
 module.exports = {
     getAssembler (comp) {
