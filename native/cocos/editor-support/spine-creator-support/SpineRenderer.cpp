@@ -259,11 +259,6 @@ void SpineRenderer::update (float deltaTime)
     auto mgr = MiddlewareManager::getInstance();
     if (!mgr->isUpdating) return;
     
-    if (!_paused)
-    {
-        spSkeleton_update(_skeleton, deltaTime * _timeScale);
-    }
-    
     Color4F nodeColor;
     nodeColor.r = _nodeColor.r / (float)255;
     nodeColor.g = _nodeColor.g / (float)255;
