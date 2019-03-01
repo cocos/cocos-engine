@@ -13,7 +13,7 @@ import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
     GFXInputState, GFXPipelineState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXRenderPass } from '../../gfx/render-pass';
-import { GFXSampler, IGFXSamplerInfo } from '../../gfx/sampler';
+import { GFXSampler, IGFXSamplerInfo, GFXSamplerState } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
@@ -168,8 +168,8 @@ export class Pass {
         for (const u of shaderInfo.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
             const inf = info.properties && info.properties[u.name];
-            const samplerInfo = Object.assign({ name: u.name }, inf && inf.sampler);
-            const sampler = device.createSampler(samplerInfo);
+            const samplerInfo = Object.assign({}, inf && inf.sampler);
+            const sampler = getSampler(device, samplerInfo);
             if (sampler) { this._samplers[u.binding] = sampler; }
             else { console.error('create sampler failed.'); }
             const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
@@ -387,22 +387,6 @@ export class Pass {
     get dynamics () { return this._dynamics; }
 }
 
-const samplerLib = new Map<string, GFXSampler>();
-const getSampler = (device: GFXDevice, info: IGFXSamplerInfo) => {
-    const s = serializeSamplerInfo(info);
-    let res = samplerLib.get(s);
-    if (!res) { res = device.createSampler(info); samplerLib.set(s, res); }
-    return res;
-};
-
-const serializeSamplerInfo = (info: IGFXSamplerInfo) => {
-    let res = '';
-    for (const key of Object.keys(info)) {
-        res += `${key}:${info[key]},`;
-    }
-    return res;
-};
-
 const serializeBlendState = (bs: GFXBlendState) => {
     let res = `,bs,${bs.isA2C},${bs.blendColor}`;
     for (const t of bs.targets) {
@@ -410,12 +394,12 @@ const serializeBlendState = (bs: GFXBlendState) => {
         res += `,${t.blendSrc},${t.blendDst},${t.blendSrcAlpha},${t.blendDstAlpha}`;
     }
     return res;
-}
+};
 
 const serializeRasterizerState = (rs: GFXRasterizerState) => {
     const res = `,rs,${rs.cullMode},${rs.depthBias},${rs.isFrontFaceCCW}`;
     return res;
-}
+};
 
 const serializeDepthStencilState = (dss: GFXDepthStencilState) => {
     let res = `,dss,${dss.depthTest},${dss.depthWrite},${dss.depthFunc}`;
@@ -424,4 +408,22 @@ const serializeDepthStencilState = (dss: GFXDepthStencilState) => {
     res += `,${dss.stencilTestBack},${dss.stencilFuncBack},${dss.stencilRefBack},${dss.stencilReadMaskBack}`;
     res += `,${dss.stencilFailOpBack},${dss.stencilZFailOpBack},${dss.stencilPassOpBack},${dss.stencilWriteMaskBack}`;
     return res;
-}
+};
+
+const samplerLib = new Map<string, GFXSampler>();
+const getSampler = (() => {
+    const serializeObject = (info: Object) => {
+        let res = '';
+        for (const key of Object.keys(info).sort()) {
+            const value = info[key];
+            res += `${key}:${typeof value === 'object' ? serializeObject(value) : value},`;
+        }
+        return res;
+    };
+    return (device: GFXDevice, info: IGFXSamplerInfo) => {
+        const s = serializeObject(info);
+        let res = samplerLib.get(s);
+        if (!res) { res = device.createSampler(info); samplerLib.set(s, res); }
+        return res;
+    };
+})();

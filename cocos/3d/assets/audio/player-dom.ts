@@ -132,7 +132,7 @@ export class AudioPlayerDOM extends AudioPlayer {
 
     public getDuration () {
         if (!this._audio) { return this._duration; }
-        // ios wechat browser doesn't have duration
+        // electron & ios wechat browser doesn't have duration
         return isNaN(this._audio.duration) ? this._duration : this._audio.duration;
     }
 
