@@ -183,6 +183,15 @@ class SharedRigidBody {
         this.body.updateBoundingRadius();
     }
 
+    public removeCollider (collider: Collider) {
+        const ishape = this._colliders.get(collider);
+        if (ishape === undefined) {
+            return;
+        }
+        this._colliders.delete(collider);
+        this._removeShape(ishape);
+    }
+
     public syncPhysWithScene () {
         vec3.copy(this._body.position, this._node.getWorldPosition());
         quat.copy(this._body.quaternion, this._node.getWorldRotation());
@@ -226,10 +235,10 @@ class SharedRigidBody {
     }
 
     private _deactiveBody () {
-        this._world.removeBody(this._body);
         this._body.removeEventListener('collide', this._onCollidedListener);
         this._body.world.removeEventListener('postStep', this._onWorldPostStepListener);
         this._body.world.removeEventListener('beforeStep', this._onWorldBeforeStepListener);
+        this._world.removeBody(this._body);
     }
 
     private _onCollided (event: CANNON.ICollisionEvent) {
@@ -250,6 +259,18 @@ class SharedRigidBody {
         if (this._transformSource === TransformSource.Phycis) {
             this._syncSceneWithPhys();
         }
+    }
+
+    private _removeShape (iShape: number) {
+        const body = this._body;
+        const shape = body.shapes[iShape];
+        body.shapes.splice(iShape, 1);
+        body.shapeOffsets.splice(iShape, 1);
+        body.shapeOrientations.splice(iShape, 1);
+        body.updateMassProperties();
+        body.updateBoundingRadius();
+        body.aabbNeedsUpdate = true;
+        (shape as any).body = null;
     }
 }
 

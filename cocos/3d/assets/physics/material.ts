@@ -5,7 +5,7 @@ import CANNON from 'cannon';
 import { Asset } from '../../../assets/asset';
 import { ccclass, property } from '../../../core/data/class-decorator';
 
-@ccclass('cc.PhysicalMaterial')
+@ccclass('cc.PhysicsMaterial')
 export class PhysicsMaterial extends Asset {
     @property
     public _friction = -1;

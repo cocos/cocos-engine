@@ -42,8 +42,14 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     }
 
     public onDisable () {
-        // throw new Error(`Not impl!`);
-        // this._body!.removeShape(this._impl);
+        this.sharedBody!.removeCollider(this);
+    }
+
+    public destroy () {
+        if (this.sharedBody) {
+            this.sharedBody.removeCollider(this);
+        }
+        super.destroy();
     }
 }
 
