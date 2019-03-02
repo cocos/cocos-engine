@@ -1177,7 +1177,7 @@ var Node = cc.Class({
 
     // OVERRIDES
 
-    _onSiblingIndexChanged (index) {
+    _onSiblingIndexChanged () {
         // update rendering scene graph, sort them by arrivalOrder
         var parent = this._parent;
         var siblings = parent._children;
