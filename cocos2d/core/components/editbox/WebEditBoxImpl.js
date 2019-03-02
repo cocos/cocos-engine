@@ -27,6 +27,7 @@
 const utils = require('../../platform/utils');
 const macro = require('../../platform/CCMacro');
 const Types = require('./types');
+const Label = require('../CCLabel');
 
 const EditBox = cc.EditBox;
 const js = cc.js;
@@ -64,7 +65,8 @@ let _autoResize = false;
  // This is an adapter for EditBoxImpl on web platform.
  // For more adapters on other platforms, please inherit from EditBoxImplBase and implement the interface.
 function WebEditBoxImpl () {
-    this._domId = ++_domCount;
+    this._domId = `EditBoxId_${++_domCount}`;
+    this._placeholderStyleSheet = null;
     this._elem = null;
     this._isTextArea = false;
     this._editing = false;
@@ -89,6 +91,18 @@ function WebEditBoxImpl () {
 
     // event listeners
     this._eventListeners = {};
+
+    // update style sheet cache
+    this._textLabelFont = null;
+    this._textLabelFontSize = null;
+    this._textLabelFontColor = null;
+    this._textLabelAlign = null;
+
+    this._placeholderLabelFont = null;
+    this._placeholderLabelFontSize = null;
+    this._placeholderLabelFontColor = null;
+    this._placeholderLabelAlign = null;
+    this._placeholderLineHeight = null;
 }
 
 js.extend(WebEditBoxImpl, EditBox._ImplClass);
@@ -192,15 +206,21 @@ Object.assign(WebEditBoxImpl.prototype, {
 
     _addDomToGameContainer () {
         cc.game.container.appendChild(this._elem);
+        document.head.appendChild(this._placeholderStyleSheet);
     },
 
     _removeDomFromGameContainer () {
-        let hasChild = utils.contains(cc.game.container, this._elem);
-        if (hasChild) {
+        let hasElem = utils.contains(cc.game.container, this._elem);
+        if (hasElem) {
             cc.game.container.removeChild(this._elem);
         }
-
+        let hasStyleSheet = utils.contains(document.head, this._placeholderStyleSheet);
+        if (hasStyleSheet) {
+            document.head.removeChild(this._placeholderStyleSheet);
+        }
+        
         delete this._elem;
+        delete this._placeholderStyleSheet;
     },
 
     _enableDom () {
@@ -451,7 +471,8 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.style.position = "absolute";
         elem.style.bottom = "0px";
         elem.style.left = LEFT_PADDING + "px";
-        elem.style.className = "cocosEditBox";
+        elem.className = "cocosEditBox";
+        elem.id = this._domId;
 
         if (!this._isTextArea) {
             elem.type = 'text';
@@ -461,6 +482,8 @@ Object.assign(WebEditBoxImpl.prototype, {
             elem.style.resize = 'none';
             elem.style.overflow_y = 'scroll';
         }
+
+        this._placeholderStyleSheet = document.createElement('style');
     },
     
     _updateStyleSheet () {
@@ -470,35 +493,137 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.value = delegate.string;
         elem.placeholder = delegate.placeholder;
 
-        // TODO: handle update cache
-        // update after issue solved: https://github.com/cocos-creator/2d-tasks/issues/372
-        this._updateTextLabel(delegate._textLabel);
-        this._updatePlaceholderLabel(delegate._placeholderLabel);
+        this._updateTextLabel(delegate.textLabel);
+        this._updatePlaceholderLabel(delegate.placeholderLabel);
     },
 
     _updateTextLabel (textLabel) {
         if (!textLabel) {
             return;
         }
-        let elem = this._elem;
+        // get font
+        let font = textLabel.font;
+        if (font && !(font instanceof cc.BitmapFont)) {
+            font = font._fontFamily;
+        }
+        else {
+            font = textLabel.fontFamily;
+        }
 
+        // whether need to update
+        if (this._textLabelFont === font
+            && this._textLabelFontSize === textLabel.fontSize
+            && this._textLabelFontColor === textLabel.fontColor
+            && this._textLabelAlign === textLabel.horizontalAlign) {
+                return;
+        }
+
+        // update cache
+        this._textLabelFont = font;
+        this._textLabelFontSize = textLabel.fontSize;
+        this._textLabelFontColor = textLabel.fontColor;
+        this._textLabelAlign = textLabel.horizontalAlign;
+
+        let elem = this._elem;
         // font size
         elem.style.fontSize = `${textLabel.fontSize}px`;
-
         // font color
         elem.style.color = textLabel.node.color.toCSS('rgba');
-
-        // TODO: update after issue solved: https://github.com/cocos-creator/2d-tasks/issues/372
-        // update color, font-family, text-align, line-height ...
+        // font family
+        elem.style.fontFamily = font;
+        // text-align
+        switch(textLabel.horizontalAlign) {
+            case Label.HorizontalAlign.LEFT:
+                elem.style.textAlign = 'left';
+                break;
+            case Label.HorizontalAlign.CENTER:
+                elem.style.textAlign = 'center';
+                break;
+            case Label.HorizontalAlign.RIGHT:
+                elem.style.textAlign = 'right';
+                break;
+        }
+        // lineHeight
+        // Can't sync lineHeight property, because lineHeight would change the touch area of input
     },
 
     _updatePlaceholderLabel (placeholderLabel) {
         if (!placeholderLabel) {
             return;
         }
-        let elem = this._elem;
 
-        // TODO: update after issue solved: https://github.com/cocos-creator/2d-tasks/issues/372
+        // get font
+        let font = placeholderLabel.font;
+        if (font && !(font instanceof cc.BitmapFont)) {
+            font = placeholderLabel.font._fontFamily;
+        }
+        else {
+            font = placeholderLabel.fontFamily;
+        }
+
+        // whether need to update
+        if (this._placeholderLabelFont === font
+            && this._placeholderLabelFontSize === placeholderLabel.fontSize
+            && this._placeholderLabelFontColor === placeholderLabel.fontColor
+            && this._placeholderLabelAlign === placeholderLabel.horizontalAlign
+            && this._placeholderLineHeight === placeholderLabel.lineHeight) {
+                return;
+        }
+
+        // update cache
+        this._placeholderLabelFont = font;
+        this._placeholderLabelFontSize = placeholderLabel.fontSize;
+        this._placeholderLabelFontColor = placeholderLabel.fontColor;
+        this._placeholderLabelAlign = placeholderLabel.horizontalAlign;
+        this._placeholderLineHeight = placeholderLabel.lineHeight;
+
+        let styleEl = this._placeholderStyleSheet;
+        // font size
+        let fontSize = placeholderLabel.fontSize;
+        // font color
+        let fontColor = placeholderLabel.node.color.toCSS('rgba');
+        // line height
+        let lineHeight = placeholderLabel.lineHeight;
+        // horizontal align
+        let horizontalAlign;
+        switch (placeholderLabel.horizontalAlign) {
+            case Label.HorizontalAlign.LEFT:
+                horizontalAlign = 'left';
+                break;
+            case Label.HorizontalAlign.CENTER:
+                horizontalAlign = 'center';
+                break;
+            case Label.HorizontalAlign.RIGHT:
+                horizontalAlign = 'right';
+                break;
+        }
+
+        styleEl.innerHTML = `
+            #${this._domId}::-webkit-input-placeholder {
+                text-transform: initial;
+                font-family: ${font};
+                font-size: ${fontSize}px;
+                color: ${fontColor};
+                line-height: ${lineHeight}px;
+                text-align: ${horizontalAlign};
+            }
+            #${this._domId}::-moz-placeholder {
+                text-transform: initial;
+                font-family: ${font};
+                font-size: ${fontSize}px;
+                color: ${fontColor};
+                line-height: ${lineHeight}px;
+                text-align: ${horizontalAlign};
+            }
+            #${this._domId}:-ms-input-placeholder {
+                text-transform: initial;
+                font-family: ${font};
+                font-size: ${fontSize}px;
+                color: ${fontColor};
+                line-height: ${lineHeight}px;
+                text-align: ${horizontalAlign};
+            }
+        `;
     },
 
     // ===========================================
