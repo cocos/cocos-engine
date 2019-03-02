@@ -24,9 +24,15 @@
 
 <body class="fit">
   <canvas id="canvas" tabindex="-1" class="fit"></canvas>
+  <script src="../../node_modules/vconsole/dist/vconsole.min.js"></script>
+  <script src="../../node_modules/dat.gui/build/dat.gui.min.js"></script>
   <script src="../bin/cocos-3d.dev.js"></script>
   <script src="./camera.js"></script>
   <script>
+    new window.VConsole();
+    let dgui = new window.dat.GUI({ width: 300 });
+    dgui.domElement.classList.add('dgui');
+
     const $body = document.body;
     const bcr = $body.getBoundingClientRect();
     const canv = document.getElementById('canvas');
@@ -38,14 +44,6 @@
       cc.director.root.resize(bcr.width, bcr.height);
     });
 
-    const imgs = canv.getElementsByTagName('img');
-    function createTexture(idx) {
-      const textureAsset = new cc.Texture2D();
-      textureAsset.image = new cc.ImageAsset(imgs[idx]);
-      return textureAsset;
-    }
-
-    const geomList = ['box', 'sphere', 'cylinder', 'cone', 'torus', 'capsule'];
     function onStart() {
       const root = cc.director.root;
       const scene = new cc.Scene();
@@ -55,40 +53,111 @@
       cameraNode.setPosition(20, 0, 115);
       cameraNode.setRotationFromEuler(0, 30, 0);
       cameraNode.addComponent(cc.CameraComponent);
-      cameraNode.addComponent(FirstPersonCamera);
 
       const n1 = new cc.Node('Audio Source 1');
       n1.parent = scene;
-      const s1 = n1.addComponent(cc.AudioSourceComponent);
+      const source = n1.addComponent(cc.AudioSourceComponent);
+      source.clip = clip1;
       const n2 = new cc.Node('Audio Source 2');
       n2.parent = scene;
-      const s2 = n2.addComponent(cc.AudioSourceComponent);
-      s2.loop = true;
-      s2.volume = 0.5;
-      s2.playOnAwake = false;
+      const source2 = n2.addComponent(cc.AudioSourceComponent);
+      source2.clip = clip2;
+      source2.loop = true;
+      source2.volume = 0.5;
+      source2.playOnAwake = false;
 
-      cc.AssetLibrary.init({
-        libraryPath: 'resources',
-        rawAssetsBase: 'resources',
-        rawAssets: {
-          assets: {
-            "bf43d245-3a77-4b55-bc7f-9a3bb09544d0": ["morceaux", "cc.AudioClip"],
-            "da0936bf-2873-4bc0-ab91-7aa11a6b7d23": ["nocturne", "cc.AudioClip"]
-          }
-        }
-      });
+      cc.director.runSceneImmediate(scene);
 
-      let jobsRemaining = 2;
-      cc.loader.loadRes('morceaux', cc.AudioClip, (err, asset) => {
-          s1.clip = asset;
-          if (!--jobsRemaining) cc.director.runSceneImmediate(scene);
+      let t1 = 17, off2 = 5, t2 = 15;
+      /* discrete callbacks *
+      source.clip.once('started', () => {
+        setTimeout(function(){ source.volume = 0.55; }, t1 * 500);
+        setTimeout(function(){ source.volume = 0.1; }, t1 * 1000);
+
+        setTimeout(function(){ source2.play(); }, off2 * 1000);
+        setTimeout(function(){ source2.volume = 0.75; }, (off2 + t2 * 0.5) * 1000);
+        setTimeout(function(){ source2.volume = 1; }, (off2 + t2) * 1000);
       });
-      cc.loader.loadRes('nocturne', cc.AudioClip, (err, asset) => {
-          s2.clip = asset;
-          if (!--jobsRemaining) cc.director.runSceneImmediate(scene);
+      /* smooth transition */
+      let startTime = cc.director.getTotalFrames();
+      const sineLerp = (b, e, t) => {
+        return b + (e - b) * (Math.sin((t - 0.5) * Math.PI) + 1) * 0.5;
+      };
+      const animation1 = () => {
+        source.volume = sineLerp(1, 0.1, (cc.director.getTotalFrames() - startTime) / t1 / 60);
+      };
+      const animation2 = () => {
+        source2.volume = sineLerp(0.5, 1, (cc.director.getTotalFrames() - startTime - off2) / t2 / 60);
+      };
+      source.clip.once('started', () => {
+        // animate audio 1
+        startTime = cc.director.getTotalFrames();
+        // setActive(volumes[0], false);
+        cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, animation1);
+        setTimeout(() => {
+          cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, animation1);
+          // setActive(volumes[0], true);
+        }, t1 * 1000);
+        // animate audio 2
+        setTimeout(() => {
+          source2.play();
+          // setActive(volumes[1], false);
+          cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, animation2);
+        }, off2 * 1000);
+        setTimeout(() => {
+          cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, animation2);
+          // setActive(volumes[1], true);
+        }, (off2 + t2) * 1000);
       });
+      /**/
+
+      // controlls
+      let sources = [source, source2];
+      let names = ['Morceaux de Fantasie', 'Nocturne'];
+      let volumes = [];
+      let setActive = (c, active) => {
+        c.domElement.style.pointerEvents = active ? "all" : "none";
+        c.domElement.style.opacity = active ? 1.0 : 0.3;
+      };
+      setActive(dgui.add(cc.sys.__audioSupport, 'WEB_AUDIO').listen(), false);
+      for (let i = 0; i < sources.length; i++) {
+        let f = dgui.addFolder(names[i]);
+        f.add(sources[i], 'play');
+        f.add(sources[i], 'pause');
+        f.add(sources[i], 'stop');
+        volumes.push(f.add(sources[i], 'volume', 0, 1).listen());
+        f.add(sources[i], 'currentTime', 0, sources[i].duration).listen();
+        f.add(sources[i], 'loop').listen();
+        f.add(sources[i], 'playOnAwake').listen();
+        setActive(f.add(sources[i], 'playing').listen(), false);
+        f.open();
+      }
     }
-    cc.game.run({ id: 'canvas' }, onStart);
+
+    cc.AssetLibrary.init({
+      libraryPath: 'library',
+      rawAssetsBase: 'library',
+      rawAssets: {
+        assets: {
+          "f1d8eb66-ccf5-48b9-a54a-e1ffa438b0e0": ["morceaux", "cc.AudioClip"],
+          "d0d4d969-8db9-4024-86e4-527d8b354ead": ["nocturne", "cc.AudioClip"]
+        }
+      }
+    });
+
+    // cc.sys.__audioSupport.WEB_AUDIO = false;
+
+    let jobsRemaining = 2, clip1, clip2;
+    cc.loader.loadRes('morceaux', cc.AudioClip, (err, asset) => {
+        clip1 = asset;
+        if (!--jobsRemaining) run();
+    });
+    cc.loader.loadRes('nocturne', cc.AudioClip, (err, asset) => {
+        clip2 = asset;
+        if (!--jobsRemaining) run();
+    });
+
+    const run = () => cc.game.run({ id: 'canvas' }, onStart);
   </script>
 </body>
 

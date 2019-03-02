@@ -1,4 +1,4 @@
-import { GFXBuffer, IGFXDrawInfo, GFXBufferSource } from './buffer';
+import { GFXBuffer, GFXBufferSource, IGFXDrawInfo } from './buffer';
 import { GFXFormat, GFXFormatInfos, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 

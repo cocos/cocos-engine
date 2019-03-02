@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 import { Component } from '../../components/component';
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, menu, property } from '../../core/data/class-decorator';
 import { AudioClip } from '../assets/audio/clip';
 
 /**
@@ -31,6 +31,7 @@ import { AudioClip } from '../assets/audio/clip';
  * contains basic functionalities like play, pause and stop.
  */
 @ccclass('cc.AudioSourceComponent')
+@menu('Components/AudioSourceComponent')
 export class AudioSourceComponent extends Component {
     @property(AudioClip)
     protected _clip: AudioClip | null = null;
@@ -100,6 +101,7 @@ export class AudioSourceComponent extends Component {
 
     public onLoad () {
         this._syncStates();
+        if (this._playOnAwake) { this.play(); }
     }
 
     /**
@@ -141,7 +143,6 @@ export class AudioSourceComponent extends Component {
         this._clip.setCurrentTime(this._cachedCurrentTime);
         this._clip.setLoop(this._loop);
         this.volume = this._volume;
-        if (this._playOnAwake) { this.play(); }
     }
 
     /**
