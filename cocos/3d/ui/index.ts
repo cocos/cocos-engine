@@ -5,6 +5,7 @@ import './components/canvas-component';
 import './components/editbox/edit-box-component';
 import './components/label-component';
 import './components/layout-component';
+import './components/mask-component';
 import './components/progress-bar-component';
 import './components/scroll-bar-component';
 import './components/scroll-view-component';

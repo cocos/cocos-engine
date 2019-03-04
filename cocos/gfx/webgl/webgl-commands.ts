@@ -571,33 +571,37 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
 
         gpuBuffer.glTarget = WebGLRenderingContext.ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
-        if (glBuffer && gpuBuffer.size > 0) {
+        if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
+            if (gpuBuffer.size > 0) {
+                if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
+                    gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
+                }
 
-            if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
-                device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
+                gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
+                gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, null);
+                device.stateCache.glArrayBuffer = 0;
             }
-
-            gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
-            gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, null);
-            device.stateCache.glArrayBuffer = 0;
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDEX) {
 
         gpuBuffer.glTarget = WebGLRenderingContext.ELEMENT_ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
-        if (glBuffer && gpuBuffer.size > 0) {
+
+        if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
+            if (gpuBuffer.size > 0) {
 
-            if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
-                device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
+                if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
+                    gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
+                }
+
+                gl.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
+                gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, null);
+                device.stateCache.glElementArrayBuffer = 0;
             }
-
-            gl.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
-            gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, null);
-            device.stateCache.glElementArrayBuffer = 0;
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
         // console.error("WebGL 1.0 doesn't support uniform buffer.");
