@@ -1,115 +1,94 @@
-// import gfx from '../gfx/index';
-// import VertexFormat from '../gfx/vertex-format';
-// import { UI } from './ui';
-// import { GFXDevice } from '../../gfx/device';
-// import { GFXBuffer } from '../../gfx/buffer';
-import { GFXFormat, GFXPrimitiveMode } from '../../gfx/define';
-import { IGFXInputAttribute } from '../../gfx/input-assembler';
-// import UISystem from '../UISystem';
-
-export interface IMeshBufferInitData {
-    vertexCount: number;
-    indiceCount: number;
-    attributes: IGFXInputAttribute[];
-}
+import { GFXBuffer } from '../../gfx/buffer';
+import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
+import { UI } from '../../renderer/ui/ui';
 
 export class MeshBuffer {
+    public batcher: UI;
+
+    public vData: Float32Array | null = null;
+    public iData: Uint16Array | null = null;
+    public vb: GFXBuffer | null = null;
+    public ib: GFXBuffer | null = null;
+    public ia: GFXInputAssembler | null = null;
+    // public vbCount: number = 0;
+    // public vbSize: number = 0;
+    // public ibCount: number = 0;
+    // public ibSize: number = 0;
+
     public byteStart: number = 0;
     public byteOffset: number = 0;
     public indiceStart: number = 0;
     public indiceOffset: number = 0;
     public vertexStart: number = 0;
     public vertexOffset: number = 0;
-    // public _vb: GFXBuffer | null = null;
-    // public _ib: GFXBuffer | null = null;
-    public vData: Float32Array | null = null;
-    public iData: Uint16Array | null = null;
-    // public uintVData: Uint32Array | null = null;
-    public primitiveMode: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
 
-    private _vertexBytes: number = 0;
-    private _vertexFormat: IGFXInputAttribute[] = [];
-    // private _renderer: UI|null = null;
+    public dirty = false;
 
-    private _initVDataCount: number = 0; // actually 256 * 4 * (vertexFormat._bytes / 4)
-    private _initIDataCount: number = 0;
-    private _dirty: boolean = false;
+    // NOTE:
+    // actually 256 * 4 * (vertexFormat._bytes / 4)
+    // include pos, uv, color in ui attributes
+    private _vertexFormatBytes = 9 * Float32Array.BYTES_PER_ELEMENT;
+    private _initVDataCount = 256 * this._vertexFormatBytes;
+    private _initIDataCount = 256 * 6;
+    private _outofCallback: ((...args: number[]) => void) | null = null;
 
-    constructor (/*device: GFXDevice*/) {
-
-        // const device = cc.game._renderContext;
-        // this._vertexFormat = vertexFormat;
-
-        // TODO: calculate
-        // this._vertexBytes = this.calculateBytes(vertexFormat)/*this._vertexFormat._bytes*/;
-        // this._vb = new gfx.VertexBuffer(
-        //     device,
-        //     vertexFormat,
-        //     gfx.USAGE_DYNAMIC,
-        //     new ArrayBuffer(0),
-        //     0,
-        // );
-        // this._vb = device.createBuffer({
-        //     usage: GFXBufferUsageBit.VERTEX,
-        //     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-        //     size: 0,
-        //     stride: 0,
-        // });
-        // this._ib = new gfx.IndexBuffer(
-        //     device,
-        //     gfx.INDEX_FMT_UINT16,
-        //     gfx.USAGE_STATIC,
-        //     new ArrayBuffer(0),
-        //     0,
-        // );
-
-        // this._ib = device.createBuffer({
-        //     usage: GFXBufferUsageBit.INDEX,
-        //     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-        //     size: 0,
-        //     stride: 2,
-        // });
-        // this._renderer = renderer;
-        // this._initVDataCount = 256 * this._vertexBytes;
-        // this._reallocBuffer();
+    constructor (batcher: UI) {
+        this.batcher = batcher;
     }
 
-    public initialize (data: IMeshBufferInitData) {
-        this._vertexFormat = data.attributes;
-        // this._vertexBytes = this.calculateBytes(this._vertexFormat);
-        this._initVDataCount = data.vertexCount * this._calculateFormatNum(this._vertexFormat);
-        this._initIDataCount = data.indiceCount;
-        this.primitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
-        this.byteOffset = 0;
-        this.byteStart = 0;
-        this.indiceStart = 0;
-        this.indiceOffset = 0;
-        this.vertexStart = 0;
-        this.vertexOffset = 0;
+    public initialize (attrs: IGFXInputAttribute[], outofCallback: ((...args: number[]) => void) | null) {
+        this._outofCallback = outofCallback;
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
+
+        this.vb = this.vb || this.batcher.device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: 0,
+            stride: vbStride,
+        });
+
+        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+
+        this.ib = this.ib || this.batcher.device.createBuffer({
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: 0,
+            stride: ibStride,
+        });
+
+        this.ia = this.ia || this.batcher.device.createInputAssembler({
+            attributes: attrs,
+            vertexBuffers: [this.vb],
+            indexBuffer: this.ib,
+        });
+
         this._reallocBuffer();
+
+        // const batch = this._bufferBatchPool.add();
+        // batch.vb = vb;
+        // batch.ib = ib;
+        // batch.ia = ia;
+        // batch.vf32 = null;
+        // batch.vui16 = null;
+        // batch.vbSize = vb.size;
+        // batch.ibSize = ib.size;
     }
 
-    public uploadData () {
-        if (this.byteOffset === 0 || !this._dirty) {
+    public request (vertexCount: number, indiceCount: number) {
+        const byteOffset = this.byteOffset + vertexCount * this._vertexFormatBytes;
+        const indiceOffset = this.indiceOffset + indiceCount;
+
+        if (vertexCount + this.vertexOffset > 65535) {
+            const vCount = vertexCount;
+            const iCount = indiceCount;
+            // UIBufferBatch.CurrBatchBuffer = this.batcher.createBufferBatch();
+            // UIBufferBatch.requst(vCount, iCount);
+            if (this._outofCallback) {
+                this._outofCallback(vCount, iCount);
+            }
             return;
         }
-
-        // update vertext data
-        // const vertexsData = new Float32Array(this.vData!.buffer, 0, this.byteOffset >> 2);
-        // const indicesData = new Uint16Array(this.iData!.buffer, 0, this.indiceOffset);
-
-        // const vb = this._vb;
-        // vb.update(0, vertexsData);
-
-        // const ib = this._ib;
-        // ib.update(0, indicesData);
-
-        this._dirty = false;
-    }
-
-    public requestStatic (vertexCount, indiceCount) {
-        const byteOffset = this.byteOffset + vertexCount * this._vertexBytes;
-        const indiceOffset = this.indiceOffset + indiceCount;
 
         let byteLength = this.vData!.byteLength;
         let indiceLength = this.iData!.length;
@@ -127,120 +106,96 @@ export class MeshBuffer {
 
         this.vertexOffset += vertexCount;
         this.indiceOffset += indiceCount;
-
         this.byteOffset = byteOffset;
 
-        this._dirty = true;
-    }
-
-    public request (vertexCount, indiceCount) {
-        // There used to be two buffer, quad and mesh, now together.
-        // if (this._renderer!.buffer !== this) {
-        //     this._renderer!.flush();
-        //     this._renderer!.buffer = this;
-        // }
-
-        this.requestStatic(vertexCount, indiceCount);
-    }
-
-    public _reallocBuffer () {
-        this._reallocVData(true);
-        this._reallocIData(true);
-    }
-
-    public _reallocVData (copyOldData) {
-        // let oldVData;
-        // if (this.vData) {
-        //     if (this._initVDataCount * 4 > this.vData.byteLength){
-        //         oldVData = new Uint8Array(this.vData.buffer);
-        //     }
-        // }
-
-        if (this.vData && this.vData.length === this._initVDataCount) {
-            return;
-        }
-
-        this.vData = new Float32Array(this._initVDataCount);
-        // this.uintVData = new Uint32Array(this.vData.buffer);
-        // const newData = new Uint8Array(this.vData.buffer);
-
-        // if (oldVData && copyOldData) {
-        //     for (let i = 0, l = oldVData.length; i < l; i++) {
-        //         newData[i] = oldVData[i];
-        //     }
-        // }
-
-        // this._vb._bytes = this.vData.byteLength;
-    }
-
-    public _reallocIData (copyOldData) {
-        // const oldIData = this.iData;
-
-        if (this.iData && this.iData.length === this._initIDataCount) {
-            return;
-        }
-
-        this.iData = new Uint16Array(this._initIDataCount);
-
-        // if (oldIData && copyOldData) {
-        //     const iData = this.iData;
-        //     for (let i = 0, l = oldIData.length; i < l; i++) {
-        //         iData[i] = oldIData[i];
-        //     }
-        // }
-
-        // this._ib._bytes = this.iData.byteLength;
+        this.dirty = true;
     }
 
     public reset () {
+        // this._arrOffset = 0;
+        // this._vb = this._vbArr[0];
+        // this._ib = this._ibArr[0];
+
         this.byteStart = 0;
         this.byteOffset = 0;
         this.indiceStart = 0;
         this.indiceOffset = 0;
         this.vertexStart = 0;
         this.vertexOffset = 0;
-        this._dirty = false;
+
+        this.dirty = false;
     }
 
     public destroy () {
-        // this._ib.destroy();
-        // this._vb.destroy();
+        // for (const key in this._vbArr) {
+        //     const vb = this._vbArr[key];
+        //     vb.destroy();
+        // }
+        // this._vbArr = undefined;
+
+        // for (const key in this._ibArr) {
+        //     const ib = this._ibArr[key];
+        //     ib.destroy();
+        // }
+        // this._ibArr = undefined;
+        this.ib!.destroy();
+        this.vb!.destroy();
+        this.ia!.destroy();
+        this.ib = null;
+        this.vb = null;
+        this.ia = null;
     }
 
-    private _calculateFormatNum (vertexFormat: IGFXInputAttribute[]) {
-        // let bytes = 0;
-        let num = 0;
-        for (const attr of vertexFormat) {
-            const name = GFXFormat[attr.format].toString();
-            if (name.startsWith('RGBA')) {
-                num += 4;
-            } else if (name.startsWith('RGB')) {
-                num += 3;
-            } else if (name.startsWith('RG')) {
-                num += 2;
-            } else {
-                num += 1;
-            }
-
-            // name = name.substring(num);
-            // switch (name) {
-            //     case '8I':
-            //     case '8UI':
-            //         bytes += num * 1;
-            //         break;
-            //     case '16I':
-            //     case '16UI':
-            //         bytes += num * 2;
-            //         break;
-            //     case '32I':
-            //     case '32UI':
-            //     case '32F':
-            //         bytes += num * 4;
-            //         break;
-            // }
+    public uploadData () {
+        if (this.byteOffset === 0 || !this.dirty) {
+            return;
         }
 
-        return num;
+        const vertexsData = new Float32Array(this.vData!.buffer, 0, this.byteOffset >> 2);
+        const indicesData = new Uint16Array(this.iData!.buffer, 0, this.indiceOffset);
+
+        if (this.byteOffset > this.vb!.size) {
+            this.vb!.resize(this.byteOffset);
+        }
+        this.vb!.update(vertexsData);
+
+        if (this.indiceOffset * 2 > this.ib!.size) {
+            this.ib!.resize(this.indiceOffset * 2);
+        }
+        this.ib!.update(indicesData);
+    }
+
+    private _reallocBuffer () {
+        this._reallocVData(true);
+        this._reallocIData(true);
+    }
+
+    private _reallocVData (copyOldData) {
+        let oldVData;
+        if (this.vData) {
+            oldVData = new Uint8Array(this.vData.buffer);
+        }
+
+        this.vData = new Float32Array(this._initVDataCount);
+
+        if (oldVData && copyOldData) {
+            const newData = new Uint8Array(this.vData.buffer);
+            for (let i = 0, l = oldVData.length; i < l; i++) {
+                newData[i] = oldVData[i];
+            }
+        }
+    }
+
+    private _reallocIData (copyOldData) {
+        const oldIData = this.iData;
+
+        this.iData = new Uint16Array(this._initIDataCount);
+
+        if (oldIData && copyOldData) {
+            const iData = this.iData;
+            for (let i = 0, l = oldIData.length; i < l; i++) {
+                iData[i] = oldIData[i];
+            }
+        }
     }
 }
-cc.MeshBuffer = MeshBuffer;

@@ -23,9 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// require('./sprite');
-// require('./mask-assembler');
 // require('./graphics');
 import './label/index';
+import './mask/index';
 import './sprite/index';
 // require('./motion-streak');

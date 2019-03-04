@@ -175,6 +175,7 @@ export class UIRenderComponent extends Component {
     }
 
     public static Assembler: IAssemblerManager | null = null;
+    public static PostAssembler: IAssemblerManager | null = null;
 
     @property
     protected _srcBlendFactor = macro.BlendFactor.SRC_ALPHA;
@@ -260,6 +261,12 @@ export class UIRenderComponent extends Component {
 
     public markForUpdateRenderData (enable: boolean = true) {
         if (enable && this._canRender()) {
+            const renderData = this._renderData;
+            if (renderData) {
+                renderData.uvDirty = true;
+                renderData.vertDirty = true;
+            }
+
             this._renderDataDirty = enable;
         }
         else if (!enable) {
@@ -300,23 +307,9 @@ export class UIRenderComponent extends Component {
     }
 
     public updateAssembler (render: UI) {
-        if (!this._canRender()) {
-            return;
-        }
-
-        this._checkAndUpdateRenderData();
-        this._assembler!.fillBuffers(this, render);
     }
 
-    public postUpdateAssembler () {
-        // if (!this._canRender() || !this._postAssembler) {
-        //     return;
-        // }
-
-        // if (this._renderDataDirty) {
-        //     this._postAssembler.updateRenderData(this);
-        //     this._renderDataDirty = false;
-        // }
+    public postUpdateAssembler (render: UI) {
     }
 
     public updateRenderData (force = false) {
@@ -349,7 +342,7 @@ export class UIRenderComponent extends Component {
         // material.updateHash();
     }
 
-    private _updateBlendFunc (updateHash: boolean = false) {
+    protected _updateBlendFunc (updateHash: boolean = false) {
         if (!this._material) {
             return;
         }
@@ -369,14 +362,15 @@ export class UIRenderComponent extends Component {
     }
 
     // pos, rot, scale changed
-    private _nodeStateChange (){
+    protected _nodeStateChange (){
         if (this._renderData) {
             this.markForUpdateRenderData();
-            for (const child of this.node.children) {
-                const renderComp = child.getComponent(UIRenderComponent);
-                if (renderComp) {
-                    renderComp.updateRenderData();
-                }
+        }
+
+        for (const child of this.node.children) {
+            const renderComp = child.getComponent(UIRenderComponent);
+            if (renderComp) {
+                renderComp.updateRenderData();
             }
         }
     }

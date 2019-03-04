@@ -27,7 +27,7 @@
 import { Mat4, Vec3 } from '../../../../core/value-types';
 import { color4, vec3 } from '../../../../core/vmath/index';
 import { RenderData } from '../../../../renderer/ui/renderData';
-import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
+import { UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
 import { UIRenderComponent } from '../../components/ui-render-component';
 import { MeshBuffer } from '../../mesh-buffer';
@@ -107,11 +107,7 @@ export const tilled: IAssembler = {
     },
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
-        const buffer: MeshBuffer = renderer.createBuffer(
-            sprite.renderData!.vertexCount,
-            sprite.renderData!.indiceCount,
-        );
-        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+        const buffer = renderer.currBufferBatch!;
 
         const node = sprite.node;
         // const color = sprite.color;
@@ -244,12 +240,6 @@ export const tilled: IAssembler = {
             ibuf![indiceOffset++] = vertexId + 2;
             vertexId += 4;
         }
-
-        commitBuffer.meshBuffer = buffer;
-        commitBuffer.material = sprite.material!;
-        commitBuffer.texture = sprite.spriteFrame!;
-        commitBuffer.priority = sprite.priority;
-        renderer.addToQueue(commitBuffer);
     },
 
     updateVerts (sprite: SpriteComponent) {

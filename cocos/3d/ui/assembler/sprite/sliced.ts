@@ -28,11 +28,11 @@ import { IUV, SpriteFrame } from '../../../../assets/CCSpriteFrame';
 import { Mat4 } from '../../../../core/value-types';
 import { color4, vec3 } from '../../../../core/vmath/index';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
-import { IUIRenderData } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components/sprite-component';
 import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler } from '../assembler';
+import { UI } from '../../../../renderer/ui/ui';
 
 const vec3_temp = vec3.create();
 const matrix = new Mat4();
@@ -112,21 +112,16 @@ export const sliced: IAssembler = {
         renderData!.vertDirty = false;
     },
 
-    fillBuffers (sprite: SpriteComponent, renderer) {
+    fillBuffers (sprite: SpriteComponent, renderer: UI) {
         // if (renderer.worldMatDirty) {
         // this.updateWorldVerts(sprite);
         // }
 
-        const buffer: MeshBuffer = renderer.createBuffer(
-            sprite.renderData!.vertexCount,
-            sprite.renderData!.indiceCount,
-        );
-        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+        const buffer = renderer.currBufferBatch!;
         const renderData: RenderData|null = sprite.renderData;
         // const node: Node = sprite.node;
         // const color: Color = sprite.color;
         const datas: IRenderData[] = renderData!.datas;
-        sprite.color.to01(color_temp);
 
         let vertexOffset = buffer.byteOffset >> 2;
         const vertexCount = renderData!.vertexCount;
@@ -151,10 +146,8 @@ export const sliced: IAssembler = {
             vbuf![vertexOffset++] = vert.z;
             vbuf![vertexOffset++] = uvs.u;
             vbuf![vertexOffset++] = uvs.v;
-            vbuf![vertexOffset++] = color_temp.r;
-            vbuf![vertexOffset++] = color_temp.g;
-            vbuf![vertexOffset++] = color_temp.b;
-            vbuf![vertexOffset++] = color_temp.a;
+            color4.array(vbuf!, sprite.color, vertexOffset);
+            vertexOffset += 4;
             // uintbuf[vertexOffset++] = color;
         }
 
@@ -169,12 +162,6 @@ export const sliced: IAssembler = {
                 ibuf![indiceOffset++] = start + 4;
             }
         }
-
-        commitBuffer.meshBuffer = buffer;
-        commitBuffer.material = sprite.material!;
-        commitBuffer.texture = sprite.spriteFrame!;
-        commitBuffer.priority = sprite.priority;
-        renderer.addToQueue(commitBuffer);
     },
 
     updateWorldVerts (sprite: SpriteComponent) {

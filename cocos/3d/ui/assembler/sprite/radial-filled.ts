@@ -24,32 +24,33 @@
  ****************************************************************************/
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
+import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
 import { Vec2 } from '../../../../core/value-types';
-import { color4 } from '../../../../core/vmath';
-import { RenderData } from '../../../../renderer/ui/renderData';
-import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
+import { color4, vec2 } from '../../../../core/vmath';
+import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
+import { UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
-import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler } from '../assembler';
 import { fillVertices3D } from '../utils';
 
 const PI_2 = Math.PI * 2;
+const EPSILON = 1e-6;
 
 const _vertPos: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
-const _vertices: number[] = [0, 0, 0, 0];
-const _uvs: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
+const _vertices: number[] = new Array(4);
+const _uvs: number[] = new Array(8);
 const _intersectPoint_1: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 const _intersectPoint_2: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 const _center = new Vec2();
-const _triangles: [[number, number], [number, number], [number, number], [number, number]] = [
-    [0, 0], [0, 0], [0, 0], [0, 0],
-];
+const _triangles: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 const color_temp = color4.create();
 
 function _calcInsectedPoints (left, right, bottom, top, center, angle, intersectPoints) {
     // left bottom, right, top
-    const sinAngle = Math.sin(angle);
-    const cosAngle = Math.cos(angle);
+    let sinAngle = Math.sin(angle);
+    sinAngle = Math.abs(sinAngle) > EPSILON ? sinAngle : 0;
+    let cosAngle = Math.cos(angle);
+    cosAngle = Math.abs(cosAngle) > EPSILON ? cosAngle : 0;
     let tanAngle = 0;
     let cotAngle = 0;
     if (cosAngle !== 0) {
@@ -86,7 +87,7 @@ function _calcInsectedPoints (left, right, bottom, top, center, angle, intersect
     }
 }
 
-function _calculateVertices (sprite) {
+function _calculateVertices (sprite: SpriteComponent) {
     const node = sprite.node;
     const width = node.width;
     const height = node.height;
@@ -104,7 +105,7 @@ function _calculateVertices (sprite) {
     vertices[2] = r;
     vertices[3] = t;
 
-    const fillCenter = sprite._fillCenter;
+    const fillCenter = sprite.fillCenter;
     const cx = _center.x = Math.min(Math.max(0, fillCenter.x), 1) * (r - l) + l;
     const cy = _center.y = Math.min(Math.max(0, fillCenter.y), 1) * (t - b) + b;
 
@@ -113,28 +114,28 @@ function _calculateVertices (sprite) {
     _vertPos[0].y = _vertPos[1].y = b;
     _vertPos[2].y = _vertPos[3].y = t;
 
-    for (let num of _triangles) {
-        num = [0, 0];
+    for (const num of _triangles) {
+        vec2.set(num, 0, 0);
     }
 
     if (cx !== vertices[0]) {
-        _triangles[0] = [3, 0];
+        vec2.set(_triangles[0], 3, 0);
     }
     if (cx !== vertices[2]) {
-        _triangles[2] = [1, 2];
+        vec2.set(_triangles[2], 1, 2);
     }
     if (cy !== vertices[1]) {
-        _triangles[1] = [0, 1];
+        vec2.set(_triangles[1], 0, 1);
     }
     if (cy !== vertices[3]) {
-        _triangles[3] = [2, 3];
+        vec2.set(_triangles[3], 2, 3);
     }
 }
 
-function _calculateUVs (spriteFrame) {
+function _calculateUVs (spriteFrame: SpriteFrame) {
     const atlasWidth = spriteFrame.width;
     const atlasHeight = spriteFrame.height;
-    const textureRect = spriteFrame._rect;
+    const textureRect = spriteFrame.getRect();
 
     let u0 = 0;
     let u1 = 0;
@@ -142,7 +143,7 @@ function _calculateUVs (spriteFrame) {
     let v1 = 0;
     const uvs = _uvs;
 
-    if (spriteFrame._rotated) {
+    if (spriteFrame.isRotated()) {
         u0 = (textureRect.x) / atlasWidth;
         u1 = (textureRect.x + textureRect.height) / atlasWidth;
 
@@ -167,7 +168,7 @@ function _calculateUVs (spriteFrame) {
     }
 }
 
-function _getVertAngle (start, end) {
+function _getVertAngle (start: Vec2, end: Vec2) {
     const placementX = end.x - start.x;
     const placementY = end.y - start.y;
 
@@ -189,36 +190,36 @@ function _getVertAngle (start, end) {
     }
 }
 
-function _generateTriangle (data, offset, vert0, vert1, vert2) {
+function _generateTriangle (datas: IRenderData[], offset: number, vert0: Vec2, vert1: Vec2, vert2: Vec2) {
     const vertices = _vertices;
     const v0x = vertices[0];
     const v0y = vertices[1];
     const v1x = vertices[2];
     const v1y = vertices[3];
 
-    data[offset].x = vert0.x;
-    data[offset].y = vert0.y;
-    data[offset + 1].x = vert1.x;
-    data[offset + 1].y = vert1.y;
-    data[offset + 2].x = vert2.x;
-    data[offset + 2].y = vert2.y;
+    datas[offset].x = vert0.x;
+    datas[offset].y = vert0.y;
+    datas[offset + 1].x = vert1.x;
+    datas[offset + 1].y = vert1.y;
+    datas[offset + 2].x = vert2.x;
+    datas[offset + 2].y = vert2.y;
 
-    let progressX;
-    let progressY;
+    let progressX = 0;
+    let progressY = 0;
     progressX = (vert0.x - v0x) / (v1x - v0x);
     progressY = (vert0.y - v0y) / (v1y - v0y);
-    _generateUV(progressX, progressY, data, offset);
+    _generateUV(progressX, progressY, datas, offset);
 
     progressX = (vert1.x - v0x) / (v1x - v0x);
     progressY = (vert1.y - v0y) / (v1y - v0y);
-    _generateUV(progressX, progressY, data, offset + 1);
+    _generateUV(progressX, progressY, datas, offset + 1);
 
     progressX = (vert2.x - v0x) / (v1x - v0x);
     progressY = (vert2.y - v0y) / (v1y - v0y);
-    _generateUV(progressX, progressY, data, offset + 2);
+    _generateUV(progressX, progressY, datas, offset + 2);
 }
 
-function _generateUV (progressX, progressY, data, offset) {
+function _generateUV (progressX: number, progressY: number, data: IRenderData[], offset: number) {
     const uvs = _uvs;
     const px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
     const px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
@@ -295,13 +296,13 @@ export const radialFilled: IAssembler = {
                     // all in
                     if (fillRange >= PI_2) {
                         renderData.dataLength = offset + 3;
-                        _generateTriangle(datas, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
+                        _generateTriangle(datas, offset, _center, _vertPos[triangle.x], _vertPos[triangle.y]);
                         offset += 3;
                         continue;
                     }
                     // test against
-                    let startAngle = _getVertAngle(_center, _vertPos[triangle[0]]);
-                    let endAngle = _getVertAngle(_center, _vertPos[triangle[1]]);
+                    let startAngle = _getVertAngle(_center, _vertPos[triangle.x]);
+                    let endAngle = _getVertAngle(_center, _vertPos[triangle.y]);
                     if (endAngle < startAngle) { endAngle += PI_2; }
                     startAngle -= PI_2;
                     endAngle -= PI_2;
@@ -315,13 +316,13 @@ export const radialFilled: IAssembler = {
                                 // startAngle to fillEnd
                                 _generateTriangle(
                                     datas, offset, _center,
-                                    _vertPos[triangle[0]],
+                                    _vertPos[triangle.x],
                                     _intersectPoint_2[triangleIndex],
                                 );
                             } else {
                                 // startAngle to endAngle
                                 _generateTriangle(datas, offset, _center,
-                                    _vertPos[triangle[0]], _vertPos[triangle[1]],
+                                    _vertPos[triangle.x], _vertPos[triangle.y],
                                 );
                             }
                             offset += 3;
@@ -334,7 +335,7 @@ export const radialFilled: IAssembler = {
                                 // fillStart to endAngle
                                 _generateTriangle(datas, offset, _center,
                                     _intersectPoint_1[triangleIndex],
-                                    _vertPos[triangle[1]],
+                                    _vertPos[triangle.y],
                                 );
                                 offset += 3;
                             } else {
@@ -360,15 +361,9 @@ export const radialFilled: IAssembler = {
     },
 
     fillBuffers (comp: SpriteComponent, renderer: UI) {
-        const buffer: MeshBuffer = renderer.createBuffer(
-            comp.renderData!.vertexCount,
-            comp.renderData!.indiceCount,
-        );
-        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+        const buffer = renderer.currBufferBatch!;
 
         const node = comp.node;
-        // const color: Color = comp.color;
-        /*buffer = renderer._meshBuffer3D,*/
         const renderData: RenderData = comp.renderData!;
         const indiceOffset = buffer!.indiceOffset;
         const vertexId = buffer.vertexOffset;
@@ -379,11 +374,5 @@ export const radialFilled: IAssembler = {
         for (let i = 0; i < renderData!.dataLength; i++) {
             ibuf![indiceOffset + i] = vertexId + i;
         }
-
-        commitBuffer.meshBuffer = buffer;
-        commitBuffer.material = comp.material!;
-        commitBuffer.texture = comp.spriteFrame!;
-        commitBuffer.priority = comp.priority;
-        renderer.addToQueue(commitBuffer);
     },
 };

@@ -24,12 +24,11 @@
  ****************************************************************************/
 
 import { Vec3 } from '../../../../core/value-types';
-import { vec3, color4 } from '../../../../core/vmath/index';
+import { color4, vec3 } from '../../../../core/vmath/index';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
-import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
+import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components/sprite-component';
-import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler } from '../assembler';
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 const matrix = cc.mat4();
@@ -37,7 +36,6 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
-const color_temp = color4.create();
 
 export const simple: IAssembler = {
 
@@ -80,28 +78,27 @@ export const simple: IAssembler = {
             return;
         }
 
-        const buffer: MeshBuffer = renderer.createBuffer(
-            sprite.renderData!.vertexCount,
-            sprite.renderData!.indiceCount,
-        );
-        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+        // const buffer: MeshBuffer = renderer.createBuffer(
+        //     sprite.renderData!.vertexCount,
+        //     sprite.renderData!.indiceCount,
+        // );
+        // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const datas: IRenderData[] = sprite!.renderData!.datas;
         const node: Node = sprite.node;
-        // const color: Color = sprite.color;
-        sprite.color.to01(color_temp);
 
         node.getWorldMatrix(matrix);
 
-        let vertexOffset: number = buffer.byteOffset >> 2;
-        let indiceOffset: number = buffer.indiceOffset;
-        const vertexId: number = buffer.vertexOffset;
+        const buffer = renderer.currBufferBatch!;
+        let vertexOffset = buffer.byteOffset >> 2;
+        let indiceOffset = buffer.indiceOffset;
+        const vertexId = buffer.vertexOffset;
 
         buffer.request(4, 6);
 
         // buffer data may be realloc, need get reference after request.
-        const vbuf: Float32Array|null = buffer.vData;
+        const vbuf: Float32Array | null = buffer.vData;
         // const uintbuf = buffer.uintVData;
-        const ibuf: Uint16Array|null = buffer.iData;
+        const ibuf: Uint16Array | null = buffer.iData;
 
         const data0 = datas[0];
         const data3 = datas[3];
@@ -128,11 +125,9 @@ export const simple: IAssembler = {
             vbuf![vertexOffset++] = uv[1 + uvOffset];
 
             // color
-            vbuf![vertexOffset++] = color_temp.r;
-            vbuf![vertexOffset++] = color_temp.g;
-            vbuf![vertexOffset++] = color_temp.b;
-            vbuf![vertexOffset++] = color_temp.a;
-            // uintbuf[vertexOffset++] = color;
+            color4.array(vbuf!, sprite.color, vertexOffset);
+
+            vertexOffset += 4;
         }
 
         // fill indice data
@@ -142,51 +137,50 @@ export const simple: IAssembler = {
         ibuf![indiceOffset++] = vertexId + 1;
         ibuf![indiceOffset++] = vertexId + 3;
         ibuf![indiceOffset++] = vertexId + 2;
-
-        commitBuffer.meshBuffer = buffer;
-        commitBuffer.material = sprite.sharedMaterial!;
-        commitBuffer.texture = sprite.spriteFrame!;
-        commitBuffer.priority = sprite.priority;
-        renderer.addToQueue(commitBuffer);
     },
 
     updateVerts (sprite: SpriteComponent) {
-        const renderData: RenderData|null = sprite.renderData;
+        const renderData: RenderData | null = sprite.renderData;
         if (!renderData) {
             return;
         }
 
         const node: Node = sprite.node;
         const datas: IRenderData[] = renderData.datas;
-        const cw: number = node.width;
-        const ch: number = node.height;
-        const appx: number = node.anchorX * cw;
-        const appy: number = node.anchorY * ch;
-        let l: number = 0;
-        let b: number = 0;
-        let r: number = 0;
-        let t: number = 0;
-        // if (sprite.trim) {
-        l = -appx;
-        b = -appy;
-        r = cw - appx;
-        t = ch - appy;
-        // }
-        // else {
-        //     let frame = sprite.spriteFrame,
-        //         ow = frame._originalSize.width, oh = frame._originalSize.height,
-        //         rw = frame._rect.width, rh = frame._rect.height,
-        //         offset = frame._offset,
-        //         scaleX = cw / ow, scaleY = ch / oh;
-        //     let trimLeft = offset.x + (ow - rw) / 2;
-        //     let trimRight = offset.x - (ow - rw) / 2;
-        //     let trimBottom = offset.y + (oh - rh) / 2;
-        //     let trimTop = offset.y - (oh - rh) / 2;
-        //     l = trimLeft * scaleX - appx;
-        //     b = trimBottom * scaleY - appy;
-        //     r = cw + trimRight * scaleX - appx;
-        //     t = ch + trimTop * scaleY - appy;
-        // }
+        const cw = node.width;
+        const ch = node.height;
+        const appx = node.anchorX * cw;
+        const appy = node.anchorY * ch;
+        let l = 0;
+        let b = 0;
+        let r = 0;
+        let t = 0;
+        if (sprite.trim) {
+            l = -appx;
+            b = -appy;
+            r = cw - appx;
+            t = ch - appy;
+        }
+        else {
+            const frame = sprite.spriteFrame!;
+            const originSize = frame.getOriginalSize();
+            const rect = frame.getRect();
+            const ow = originSize.width;
+            const oh = originSize.height;
+            const rw = rect.width;
+            const rh = rect.height;
+            const offset = frame.getOffset();
+            const scaleX = cw / ow;
+            const scaleY = ch / oh;
+            const trimLeft = offset.x + (ow - rw) / 2;
+            const trimRight = offset.x - (ow - rw) / 2;
+            const trimBottom = offset.y + (oh - rh) / 2;
+            const trimTop = offset.y - (oh - rh) / 2;
+            l = trimLeft * scaleX - appx;
+            b = trimBottom * scaleY - appy;
+            r = cw + trimRight * scaleX - appx;
+            t = ch + trimTop * scaleY - appy;
+        }
 
         datas[0].x = l;
         datas[0].y = b;

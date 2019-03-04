@@ -711,35 +711,38 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
 
         gpuBuffer.glTarget = WebGL2RenderingContext.ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
-        if (glBuffer && gpuBuffer.size > 0) {
+
+        if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
+            if (gpuBuffer.size > 0) {
+                if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
+                    gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
+                }
 
-            if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.glBuffer);
-                device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
+                gl.bufferData(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
+
+                gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, null);
+                device.stateCache.glArrayBuffer = 0;
             }
-
-            gl.bufferData(WebGL2RenderingContext.ARRAY_BUFFER, gpuBuffer.size, glUsage);
-
-            gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, null);
-            device.stateCache.glArrayBuffer = 0;
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDEX) {
 
         gpuBuffer.glTarget = WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
-        if (glBuffer && gpuBuffer.size > 0) {
+        if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
+            if (gpuBuffer.size > 0) {
+                if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
+                    gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
+                }
 
-            if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
-                device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
+                gl.bufferData(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
+
+                gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, null);
+                device.stateCache.glElementArrayBuffer = 0;
             }
-
-            gl.bufferData(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
-
-            gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, null);
-            device.stateCache.glElementArrayBuffer = 0;
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
 

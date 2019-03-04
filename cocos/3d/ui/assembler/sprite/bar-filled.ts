@@ -30,7 +30,7 @@ const FillType = SpriteComponent.FillType;
 import { Mat4 } from '../../../../core/value-types';
 import { color4, vec3 } from '../../../../core/vmath/index';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
-import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
+import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
 import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler } from '../assembler';
@@ -248,11 +248,7 @@ export const barFilled: IAssembler = {
     },
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
-        const buffer: MeshBuffer = renderer.createBuffer(
-            sprite.renderData!.vertexCount,
-            sprite.renderData!.indiceCount,
-        );
-        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+        const buffer = renderer.currBufferBatch!;
         // if (renderer.worldMatDirty) {
         // this.updateWorldVerts(sprite);
         // }
@@ -272,11 +268,5 @@ export const barFilled: IAssembler = {
         ibuf![indiceOffset++] = vertexId + 1;
         ibuf![indiceOffset++] = vertexId + 3;
         ibuf![indiceOffset++] = vertexId + 2;
-
-        commitBuffer.meshBuffer = buffer;
-        commitBuffer.material = sprite.material!;
-        commitBuffer.texture = sprite.spriteFrame!;
-        commitBuffer.priority = sprite.priority;
-        renderer.addToQueue(commitBuffer);
     },
 };
