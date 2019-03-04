@@ -862,13 +862,13 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                 if (buffer instanceof Float32Array) {
                     buf = buffer;
                 } else {
-                    buf = new Float32Array(buffer as ArrayBuffer);
+                    buf = new Float32Array(buffer as ArrayBuffer, 0, size / 4);
                 }
 
-                if (size === buff.byteLength) {
+                if (size === buf.byteLength) {
                     gl.bufferSubData(gpuBuffer.glTarget, offset, buf);
                 } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buff, 0, size / 4));
                 }
                 break;
             }

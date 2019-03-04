@@ -28,20 +28,20 @@ export enum UniformBinding {
 
 export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
-    public static SCREEN_SIZE_OFFSET: number = 4;
-    public static SCREEN_SCALE_OFFSET: number = 8;
-    public static MAT_VIEW_OFFSET: number = 12;
-    public static MAT_VIEW_INV_OFFSET: number = 28;
-    public static MAT_PROJ_OFFSET: number = 44;
-    public static MAT_PROJ_INV_OFFSET: number = 60;
-    public static MAT_VIEW_PROJ_OFFSET: number = 76;
-    public static MAT_VIEW_PROJ_INV_OFFSET: number = 92;
-    public static CAMERA_POS_OFFSET: number = 108;
-    public static MAIN_LIT_DIR_OFFSET: number = 112;
-    public static MAIN_LIT_COLOR_OFFSET: number = 116;
-    public static AMBIENT_SKY_OFFSET: number = 120;
-    public static AMBIENT_GROUND_OFFSET: number = 124;
-    public static COUNT: number = 128;
+    public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
+    public static SCREEN_SCALE_OFFSET: number = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
+    public static MAT_VIEW_OFFSET: number = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
+    public static MAT_VIEW_INV_OFFSET: number = UBOGlobal.MAT_VIEW_OFFSET + 16;
+    public static MAT_PROJ_OFFSET: number = UBOGlobal.MAT_VIEW_INV_OFFSET + 16;
+    public static MAT_PROJ_INV_OFFSET: number = UBOGlobal.MAT_PROJ_OFFSET + 16;
+    public static MAT_VIEW_PROJ_OFFSET: number = UBOGlobal.MAT_PROJ_INV_OFFSET + 16;
+    public static MAT_VIEW_PROJ_INV_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_OFFSET + 16;
+    public static CAMERA_POS_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET + 16;
+    public static MAIN_LIT_DIR_OFFSET: number = UBOGlobal.CAMERA_POS_OFFSET + 4;
+    public static MAIN_LIT_COLOR_OFFSET: number = UBOGlobal.MAIN_LIT_DIR_OFFSET + 4;
+    public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
+    public static AMBIENT_GROUND_OFFSET: number = UBOGlobal.AMBIENT_SKY_OFFSET + 4;
+    public static COUNT: number = UBOGlobal.AMBIENT_GROUND_OFFSET + 4;
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
@@ -70,8 +70,8 @@ export class UBOGlobal {
 
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;
-    public static MAT_WORLD_IT_OFFSET: number = 16;
-    public static COUNT: number = 32;
+    public static MAT_WORLD_IT_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
+    public static COUNT: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
