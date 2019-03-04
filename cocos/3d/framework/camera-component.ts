@@ -100,6 +100,8 @@ export class CameraComponent extends Component {
     @property
     protected _rect = new Rect(0, 0, 1, 1);
     @property
+    protected _screenScale = 1;
+    @property
     protected _targetDisplay = -1;
 
     protected _camera: Camera | null = null;
@@ -112,7 +114,6 @@ export class CameraComponent extends Component {
      * !#en The projection type of the camera
      *
      * !#ch 相机的投影类型
-     * @type {Number}
      */
     @property({
         type: ProjectionType,
@@ -129,8 +130,7 @@ export class CameraComponent extends Component {
     /**
      * !#en The camera field of view
      *
-     * !#ch 相机的视野
-     * @type {Number}
+     * !#ch 相机的视角高度
      */
     @property
     get fov () {
@@ -145,8 +145,7 @@ export class CameraComponent extends Component {
     /**
      * !#en The camera height when in orthogonal mode
      *
-     * !#ch 在正交模式下的相机高度
-     * @type {Number}
+     * !#ch 正交模式下的相机高度
      */
     @property
     get orthoHeight () {
@@ -161,8 +160,7 @@ export class CameraComponent extends Component {
     /**
      * !#en The near clipping distance of the camera
      *
-     * !#ch 相机的最近剪切距离
-     * @type {Number}
+     * !#ch 相机的近平面
      */
     @property
     get near () {
@@ -177,8 +175,7 @@ export class CameraComponent extends Component {
     /**
      * !#en The far clipping distance of the camera
      *
-     * !#ch 相机的最近剪切距离
-     * @type {Number}
+     * !#ch 相机的远平面
      */
     @property
     get far () {
@@ -191,10 +188,9 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The clearing color of the camera
+     * !#en The color clearing value of the camera
      *
-     * !#ch 在没有天空盒的情况下的屏幕颜色
-     * @type {Color}
+     * !#ch 相机的颜色缓冲默认值
      */
     @property
     get color () {
@@ -209,10 +205,9 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The clearing depth value of the camera
+     * !#en The depth clearing value of the camera
      *
-     * !#ch 清除相机的深度值
-     * @type {Number}
+     * !#ch 相机的深度缓冲默认值
      */
     @property
     get depth () {
@@ -225,10 +220,9 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The clearing stencil value of the camera
+     * !#en The stencil clearing value of the camera
      *
-     * !#ch 清除相机的模板值
-     * @type {Number}
+     * !#ch 相机的模板缓冲默认值
      */
     @property
     get stencil () {
@@ -243,8 +237,7 @@ export class CameraComponent extends Component {
     /**
      * !#en The clearing flags of this camera
      *
-     * !#ch 清除相机标志位
-     * @type {Number}
+     * !#ch 相机的缓冲清除标志位
      */
     @property({
         type: CameraClearFlag,
@@ -259,10 +252,9 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The screen rect of the camera
+     * !#en The screen viewport of the camera wrt. sceen size
      *
-     * !#ch 相机的屏幕矩形
-     * @type {Rect}
+     * !#ch 相机相对屏幕的 viewport
      */
     @property
     get rect () {
@@ -274,6 +266,27 @@ export class CameraComponent extends Component {
         if (this._camera) { this._camera.viewport = val; }
     }
 
+    /**
+     * !#en The scale of the interal buffer size,
+     * set to 1 to keep the same with the canvas size
+     *
+     * !#ch 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同
+     */
+    @property
+    get screenScale () {
+        return this._screenScale;
+    }
+
+    set screenScale (val) {
+        this._screenScale = val;
+        if (this._camera) { this._camera.screenScale = val; }
+    }
+
+    /**
+     * !#en The target display for this Camera.
+     *
+     * !#ch 相机的目标屏幕序号
+     */
     @property
     get targetDisplay () {
         return this._targetDisplay;

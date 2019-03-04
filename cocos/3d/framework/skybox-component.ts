@@ -82,7 +82,6 @@ export class SkyboxComponent extends Component {
     @property
     protected _rgbeTexture = false;
 
-    protected _attachedCamera: Camera | null = null;
     protected _model: Model | null = null;
     protected _mesh: Mesh | null = null;
     protected _material: Material | null = null;

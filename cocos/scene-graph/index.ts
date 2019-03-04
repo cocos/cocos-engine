@@ -27,8 +27,8 @@
 import './node-event-processor';
 export { BaseNode } from './base-node';
 export { Node } from './node';
+export { Scene } from './scene';
+export { Layers } from './layers';
+export { find } from './find';
 export { default as PrivateNode } from './private-node';
 export { default as NodeActivator } from './node-activator';
-export { default as Scene } from './scene';
-export { default as find } from './find';
-export { Layers } from './layers';
