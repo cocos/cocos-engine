@@ -1216,6 +1216,15 @@ export default class Device {
     this._uniforms[name] = uniform;
   }
 
+  setUniformDirectly(name, value) {
+    let uniform = this._uniforms[name];
+    if (!uniform) {
+      this._uniforms[name] = uniform = {};
+    }
+    uniform.dirty = true;
+    uniform.value = value;
+  }
+
   /**
    * @method setPrimitiveType
    * @param {PT_*} type
