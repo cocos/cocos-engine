@@ -46,9 +46,11 @@ export class ForwardStage extends RenderStage {
         const queue = this._pipeline.queue;
 
         const camera = view.camera!;
-
-        this._renderArea.width = camera.width;
-        this._renderArea.height = camera.height;
+        const vp = camera.viewport;
+        this._renderArea.x = vp.x * camera.width;
+        this._renderArea.y = vp.y * camera.height;
+        this._renderArea.width = vp.width * camera.width;
+        this._renderArea.height = vp.height * camera.height;
         colors[0] = camera.clearColor;
 
         cmdBuff.begin();

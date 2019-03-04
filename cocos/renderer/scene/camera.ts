@@ -162,11 +162,11 @@ export class Camera {
         return this._proj;
     }
 
-    set viewport (v) {
+    set viewport (v: Rect) {
         this._viewport = v;
     }
 
-    get viewport () {
+    get viewport (): Rect {
         return this._viewport;
     }
 

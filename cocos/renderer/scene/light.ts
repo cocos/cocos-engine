@@ -1,6 +1,5 @@
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
-import { vec4 } from '../../core/vmath';
 
 export enum LightType {
     DIRECTIONAL,

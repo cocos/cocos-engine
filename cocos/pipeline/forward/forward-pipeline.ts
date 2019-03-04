@@ -12,7 +12,7 @@ export enum ForwardFlowPriority {
     FORWARD = 0,
 }
 
-const _idVec4Array = Float32Array.from([0, 0, 0, 1]);
+const _idVec4Array = Float32Array.from([1, 1, 1, 0]);
 
 export class ForwardPipeline extends RenderPipeline {
 
