@@ -302,7 +302,7 @@ module.exports = {
             }
         }
         
-        if (_canvas.width !== _canvasSize.width) {
+        if (_canvas.width !== _canvasSize.width || CC_QQPLAY) {
             _canvas.width = _canvasSize.width;
         }
 

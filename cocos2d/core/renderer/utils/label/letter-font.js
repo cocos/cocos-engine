@@ -87,7 +87,7 @@ LetterTexture.prototype = {
         this._width = parseFloat(width.toFixed(2)) + 2 * this._labelInfo.margin;
         this._height = this._labelInfo.lineHeight;
         
-        if (this._canvas.width !== this._width) {
+        if (this._canvas.width !== this._width || CC_QQPLAY) {
             this._canvas.width = this._width;
         }
 
