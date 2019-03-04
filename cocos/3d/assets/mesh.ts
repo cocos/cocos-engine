@@ -119,7 +119,7 @@ function getIndexUnitStride (indexUnit: IndexUnit) {
     switch (indexUnit) {
         case IndexUnit.UINT8: return 1;
         case IndexUnit.UINT16: return 2;
-        case IndexUnit.UINT32: return 3;
+        case IndexUnit.UINT32: return 4;
     }
     return 1;
 }
