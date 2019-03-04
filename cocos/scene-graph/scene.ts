@@ -23,9 +23,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Node } from './node';
+import { TextureCube } from '../3d/assets/texture-cube';
 import { ccclass, property } from '../core/data/class-decorator';
+import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
+import { Node } from './node';
+
+export interface IRenderSceneInfo {
+    mainLight: Node;
+    ambient: number[];
+    skybox: TextureCube;
+}
 
 /**
  * !#en
@@ -37,39 +45,30 @@ import { BaseNode } from './base-node';
  * @class Scene
  * @extends Node
  */
-@ccclass("cc.Scene")
-export default class Scene extends Node {
+@ccclass('cc.Scene')
+export class Scene extends Node {
+    /**
+     * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
+     * !#zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
+     */
+    @property
+    public autoReleaseAssets = false;
 
-    constructor(name) {
+    protected _renderScene: RenderScene | null = null;
+
+    protected _inited = !cc.game._isCloning;
+    protected _prefabSyncedInLiveReload = false;
+    protected dependAssets = null; // cache all depend assets for auto release
+
+    constructor (name: string) {
         super(name);
-
         this._activeInHierarchy = false;
-        this._inited = !cc.game._isCloning;
-
-        if (CC_EDITOR) {
-            this._prefabSyncedInLiveReload = false;
-        }
-
-        // cache all depend assets for auto release
-        this.dependAssets = null;
-
         if (cc.director && cc.director.root) {
             this._renderScene = cc.director.root.createScene({});
         }
     }
 
-    /**
-     * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
-     * !#zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
-     * @property {Boolean} autoReleaseAssets
-     * @default false
-     */
-    @property({
-        type: cc.Boolean
-    })
-    autoReleaseAssets = undefined;
-
-    destroy() {
+    public destroy () {
         super.destroy();
         cc.director.root.destroyScene(this._renderScene);
         this._activeInHierarchy = false;
@@ -79,10 +78,10 @@ export default class Scene extends Node {
         return this._renderScene;
     }
 
-    _onHierarchyChanged() { }
-    _instantiate() { }
+    protected _onHierarchyChanged () { }
+    protected _instantiate () { }
 
-    _load() {
+    protected _load () {
         if (!this._inited) {
             if (CC_TEST) {
                 cc.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
@@ -93,11 +92,11 @@ export default class Scene extends Node {
         this.walk(BaseNode._setScene);
     }
 
-    _activate(active) {
+    protected _activate (active: boolean) {
         active = (active !== false);
         if (CC_EDITOR || CC_TEST) {
             // register all nodes to editor
-            this._registerIfAttached(active);
+            this._registerIfAttached!(active);
         }
         cc.director._nodeActivator.activateNode(this, active);
     }

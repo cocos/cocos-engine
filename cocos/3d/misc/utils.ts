@@ -1,5 +1,5 @@
 import { GFXAttributeName, GFXPrimitiveMode } from '../../gfx/define';
-export { default as find } from '../../scene-graph/find';
+export { find } from '../../scene-graph/find';
 import { Vec3 } from '../../core/value-types';
 import { AttributeBaseType, AttributeType,
     IMeshStruct, IndexUnit, IPrimitive, IVertexAttribute, IVertexBundle, Mesh } from '../assets/mesh';

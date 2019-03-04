@@ -1,8 +1,8 @@
 import { frustum, ray } from '../../3d/geom-utils';
-import { Color, Mat4, Rect, Vec3 } from '../../core/value-types';
-import { color4, lerp, mat4, toRadian, vec3 } from '../../core/vmath';
+import { Mat4, Rect, Vec3 } from '../../core/value-types';
+import { lerp, mat4, toRadian, vec3 } from '../../core/vmath';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
-import { RenderView, RenderViewPriority } from '../../pipeline/render-view';
+import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
 
@@ -33,6 +33,7 @@ export class Camera {
     private _isWindowSize: boolean = true;
     private _width: number;
     private _height: number;
+    private _screenScale: number;
     private _aspect: number;
     private _orthoHeight: number = 10.0;
     private _fov: number = toRadian(45);
@@ -64,7 +65,7 @@ export class Camera {
         this._pipeline = info.pipeline || 'forward';
         this._priority = info.priority || 0;
 
-        this._aspect = this._width = this._height = 1;
+        this._aspect = this._width = this._height = this._screenScale = 1;
 
         this._view = scene.root.createView({
             camera: this,
@@ -120,6 +121,14 @@ export class Camera {
         this._node.getWorldPosition(this._position);
 
         this._frustum.update(this._matViewProj, this._matViewProjInv);
+    }
+
+    set screenScale (val) {
+        this._screenScale = val;
+    }
+
+    get screenScale () {
+        return this._screenScale;
     }
 
     set enabled (val) {

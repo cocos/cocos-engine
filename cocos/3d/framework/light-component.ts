@@ -131,23 +131,6 @@ export class LightComponent extends Component {
     @property
     protected _spotAngle = 60;
 
-    // @property
-    // protected _shadowType = LightShadowType.None;
-    // @property
-    // protected _shadowResolution = 1024;
-    // @property
-    // protected _shadowDarkness = 0.5;
-    // @property
-    // protected _shadowMinDepth = 1;
-    // @property
-    // protected _shadowMaxDepth = 1000;
-    // @property
-    // protected _shadowDepthScale = 250;
-    // @property
-    // protected _shadowFrustumSize = 50;
-    // @property
-    // protected _shadowBias = 0.0005;
-
     protected _light: Light | null = null;
 
     /**
