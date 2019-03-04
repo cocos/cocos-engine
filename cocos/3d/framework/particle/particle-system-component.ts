@@ -255,10 +255,6 @@ export class ParticleSystemComponent extends Component {
             this._isStopped = false;
         }
 
-        this._time = 0.0;
-        this._emitRateTimeCounter = 0.0;
-        this._emitRateDistanceCounter = 0.0;
-
         this._isPlaying = true;
 
         // prewarm
