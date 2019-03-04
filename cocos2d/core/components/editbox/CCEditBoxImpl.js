@@ -615,8 +615,8 @@ _p._createDomInput = function () {
     tmpEdTxt.style.bottom = "0px";
     tmpEdTxt.style.left = LEFT_PADDING + "px";
     tmpEdTxt.style['-moz-appearance'] = 'textfield';
-    tmpEdTxt.style.className = "cocosEditBox";
     tmpEdTxt.style.fontFamily = 'Arial';
+    tmpEdTxt.className = "cocosEditBox";
 
     registerInputEventListener(tmpEdTxt, this);
 
@@ -627,7 +627,6 @@ _p._createDomTextArea = function () {
     this.removeDom();
 
     let tmpEdTxt = this._edTxt = document.createElement('textarea');
-    tmpEdTxt.type = 'text';
     tmpEdTxt.style.fontSize = this._edFontSize + 'px';
     tmpEdTxt.style.color = '#000000';
     tmpEdTxt.style.border = 0;
@@ -644,8 +643,8 @@ _p._createDomTextArea = function () {
     tmpEdTxt.style.position = "absolute";
     tmpEdTxt.style.bottom = "0px";
     tmpEdTxt.style.left = LEFT_PADDING + "px";
-    tmpEdTxt.style.className = "cocosEditBox";
     tmpEdTxt.style.fontFamily = 'Arial';
+    tmpEdTxt.className = "cocosEditBox";
 
     registerInputEventListener(tmpEdTxt, this, true);
 
