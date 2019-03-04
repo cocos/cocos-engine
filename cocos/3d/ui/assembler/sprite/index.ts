@@ -44,7 +44,8 @@ export const spriteAssembler: IAssemblerManager = {
     getAssembler (sprite: UIRenderComponent) {
         let util = simple;
 
-        switch ((sprite as SpriteComponent).type) {
+        const comp = sprite as SpriteComponent;
+        switch (comp.type) {
             case SpriteType.SLICED:
                 util = sliced;
                 break;
@@ -52,12 +53,12 @@ export const spriteAssembler: IAssemblerManager = {
             //     util = tilled;
             //     break;
             case SpriteType.FILLED:
-                // if (sprite._fillType === FillType.RADIAL) {
-                //     util = radialFilled;
-                // } else {
+                if (comp.fillType === FillType.RADIAL) {
+                    util = radialFilled;
+                } else {
                     util = barFilled;
-                // }
-                    break;
+                }
+                break;
             // case SpriteType.MESH:
             //     util = meshRenderUtil;
             //     break;

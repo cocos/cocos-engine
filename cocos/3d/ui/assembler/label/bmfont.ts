@@ -27,7 +27,7 @@ import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
 import * as js from '../../../../core/utils/js';
 import { Rect } from '../../../../core/value-types';
 import { RenderData } from '../../../../renderer/ui/renderData';
-import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
+import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
 import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler } from '../assembler';
@@ -40,20 +40,10 @@ export const bmfont: IAssembler = {
     },
 
     fillBuffers (comp: LabelComponent, renderer: UI) {
-        const buffer: MeshBuffer = renderer.createBuffer(
-            comp.renderData!.vertexCount,
-            comp.renderData!.indiceCount,
-        );
-        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+        const buffer = renderer.currBufferBatch!;
 
         const node = comp.node;
         fillMeshVertices3D(node, buffer, comp.renderData!, comp.color);
-
-        commitBuffer.meshBuffer = buffer;
-        commitBuffer.material = comp.material!;
-        commitBuffer.texture = comp.texture!;
-        commitBuffer.priority = comp.priority;
-        renderer.addToQueue(commitBuffer);
     },
 
     appendQuad (renderData: RenderData, texture: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {

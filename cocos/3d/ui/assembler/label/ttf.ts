@@ -26,9 +26,8 @@
 import * as js from '../../../../core/utils/js';
 import { Color } from '../../../../core/value-types';
 import { RenderData } from '../../../../renderer/ui/renderData';
-import { IUIRenderData, UI } from '../../../../renderer/ui/ui';
+import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
-import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler} from '../assembler';
 import { fillMeshVertices3D } from '../utils';
 import { ttfUtils } from './ttfUtils';
@@ -58,18 +57,8 @@ export const ttf: IAssembler = {
     },
 
     fillBuffers (comp: LabelComponent, renderer: UI) {
-        const buffer: MeshBuffer = renderer.createBuffer(
-            comp.renderData!.vertexCount,
-            comp.renderData!.indiceCount,
-        );
-        const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+        const buffer = renderer.currBufferBatch!;
         fillMeshVertices3D(comp.node, buffer, comp.renderData!, WHITE);
-
-        commitBuffer.meshBuffer = buffer;
-        commitBuffer.material = comp.material!;
-        commitBuffer.texture = comp.texture!;
-        commitBuffer.priority = comp.priority;
-        renderer.addToQueue(commitBuffer);
     },
 
     updateVerts (comp: LabelComponent) {

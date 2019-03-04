@@ -181,7 +181,7 @@ export const ttfUtils =  {
 
         _context = assemblerData.context;
         _canvas = assemblerData.canvas;
-        _texture = comp.texture;
+        _texture = comp.spriteFrame;
 
         _string = comp.string.toString();
         _fontSize = comp.fontSize;

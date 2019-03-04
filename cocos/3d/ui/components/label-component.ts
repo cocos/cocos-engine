@@ -34,6 +34,7 @@ import { ccenum } from '../../../core/value-types/enum';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { ISharedLabelData } from '../assembler/label/ttfUtils';
 import { UIRenderComponent } from './ui-render-component';
+import { UI } from '../../../renderer/ui/ui';
 
 /**
  * !#en Enum for text alignment.
@@ -479,7 +480,7 @@ export class LabelComponent extends UIRenderComponent {
         this.updateRenderData();
     }
 
-    get texture (){
+    get spriteFrame (){
         return this._texture;
     }
 
@@ -585,17 +586,21 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     public updateRenderData (force = false) {
-        const renderData = this._renderData;
-        if (renderData) {
-            renderData.vertDirty = true;
-            renderData.uvDirty = true;
-            this.markForUpdateRenderData(true);
-        }
+        this.markForUpdateRenderData(true);
 
         if (force) {
             this._flushAssembler();
             this._applyFontTexture(force);
         }
+    }
+
+    public updateAssembler (render: UI) {
+        if (!this._canRender() || !this._texture) {
+            return;
+        }
+
+        this._checkAndUpdateRenderData();
+        render.commitComp(this, this._texture, this._assembler!);
     }
 
     protected _updateColor () {

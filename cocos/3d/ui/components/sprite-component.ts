@@ -366,7 +366,6 @@ export class SpriteComponent extends UIRenderComponent {
     // TODO:
     @property
     private _atlas: SpriteAtlas | null = null;
-    private _spriteWidget = null;
     // static State = State;
 
     public __preload () {
@@ -408,17 +407,15 @@ export class SpriteComponent extends UIRenderComponent {
 
         this._flushAssembler();
         this._activateMaterial();
-
-        // if (!this._spriteFrame) {
-        //     this.spriteFrame = cc.builtinResMgr.get('default-spriteframe');
-        // }
     }
 
     public updateAssembler (render: UI) {
-        if (!this._spriteFrame || !this.sharedMaterial) {
+        if (!this._canRender() || !this._spriteFrame) {
             return;
         }
-        super.updateAssembler(render);
+
+        this._checkAndUpdateRenderData();
+        render.commitComp(this, this._spriteFrame, this._assembler!);
     }
 
     public onDestroy () {
@@ -426,20 +423,6 @@ export class SpriteComponent extends UIRenderComponent {
         this.destroyRenderData();
         if (CC_EDITOR) {
             this.node.off(EventType.SIZE_CHANGED, this._resized, this);
-        }
-    }
-
-    public markForUpdateRenderData (enable: boolean = true) {
-        if (enable && this._canRender()) {
-            const renderData = this._renderData;
-            if (renderData) {
-                renderData.uvDirty = true;
-                renderData.vertDirty = true;
-            }
-
-            this._renderDataDirty = enable;
-        } else if (!enable) {
-            this._renderDataDirty = enable;
         }
     }
 
@@ -537,7 +520,7 @@ export class SpriteComponent extends UIRenderComponent {
             //         this.markForUpdateRenderData();
             //     }
             // }
-            // TODO:
+            // TODO: use editor assets
             // else {
             if (spriteFrame && spriteFrame.textureLoaded()) {
                 if (material) {
