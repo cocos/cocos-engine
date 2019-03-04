@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { IPassInfo, IShaderInfo, ISamplerInfo } from '../../3d/assets/effect-asset';
+import { IPassInfo, IShaderInfo } from '../../3d/assets/effect-asset';
 import { builtinResMgr } from '../../3d/builtin';
 import { TextureBase } from '../../assets/texture-base';
 import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
@@ -13,7 +13,7 @@ import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
     GFXInputState, GFXPipelineState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXRenderPass } from '../../gfx/render-pass';
-import { GFXSampler, IGFXSamplerInfo, GFXSamplerState } from '../../gfx/sampler';
+import { GFXSampler, IGFXSamplerInfo } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';

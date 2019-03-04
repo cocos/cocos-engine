@@ -32,13 +32,15 @@ export class SpotLight extends Light {
         return this._direction;
     }
 
-    constructor (scene: RenderScene, node: Node, name: string) {
-        super(scene, node, name);
+    constructor (scene: RenderScene, name: string) {
+        super(scene, name);
         this._type = LightType.DIRECTIONAL;
     }
 
     public update () {
-        this.position = this._node.getWorldPosition(_v3);
-        this.direction = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
+        if (this._node) {
+            this.position = this._node.getWorldPosition(_v3);
+            this.direction = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
+        }
     }
 }

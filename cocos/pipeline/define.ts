@@ -37,7 +37,11 @@ export class UBOGlobal {
     public static MAT_VIEW_PROJ_OFFSET: number = 76;
     public static MAT_VIEW_PROJ_INV_OFFSET: number = 92;
     public static CAMERA_POS_OFFSET: number = 108;
-    public static COUNT: number = 112;
+    public static MAIN_LIT_DIR_OFFSET: number = 112;
+    public static MAIN_LIT_COLOR_OFFSET: number = 116;
+    public static AMBIENT_SKY_OFFSET: number = 120;
+    public static AMBIENT_GROUND_OFFSET: number = 124;
+    public static COUNT: number = 128;
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
@@ -54,6 +58,10 @@ export class UBOGlobal {
             { name: 'cc_matViewProj', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matViewProjInv', type: GFXType.MAT4, count: 1 },
             { name: 'cc_cameraPos', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_mainLitDir', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_mainLitColor', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_ambientSky', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_ambientGround', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 

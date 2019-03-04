@@ -34,7 +34,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
 
         if (this._usage & GFXBufferUsageBit.INDIRECT) {
             this._indirectBuffer = { drawInfos: [] };
-        } else if (this._usage & GFXBufferUsageBit.UNIFORM) {
+        } else if ((this._usage & GFXBufferUsageBit.UNIFORM) && this._size > 0) {
             this._uniformBuffer = new ArrayBuffer(this._size);
         }
 
@@ -85,8 +85,9 @@ export class WebGLGFXBuffer extends GFXBuffer {
                 this._gpuBuffer.buffer = this._uniformBuffer;
             }
             this._gpuBuffer.size = this._size;
-
-            WebGLCmdFuncResizeBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
+            if (this._size > 0) {
+                WebGLCmdFuncResizeBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
+            }
         }
     }
 

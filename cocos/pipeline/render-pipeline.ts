@@ -170,7 +170,7 @@ export abstract class RenderPipeline {
     protected createShadingTarget (): boolean {
 
         let colorFmt: GFXFormat;
-        let depthFmt: GFXFormat;
+        let depthStencilFmt: GFXFormat;
 
         // Try to use HDR format
         if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
@@ -188,15 +188,15 @@ export abstract class RenderPipeline {
         }
 
         if (this._device.hasFeature(GFXFeature.FORMAT_D24S8)) {
-            depthFmt = GFXFormat.D24S8;
+            depthStencilFmt = GFXFormat.D24S8;
         } else {
-            depthFmt = GFXFormat.D16;
+            depthStencilFmt = GFXFormat.D16;
         }
 
         // colorFmt = GFXFormat.RGBA16F;
 
         console.info('Shading Color Format: ' + GFXFormatInfos[colorFmt].name);
-        console.info('Shading Depth Format: ' + GFXFormatInfos[depthFmt].name);
+        console.info('Shading Depth Format: ' + GFXFormatInfos[depthStencilFmt].name);
 
         this._shadingTex = this._device.createTexture({
             type: GFXTextureType.TEX2D,
@@ -212,6 +212,20 @@ export abstract class RenderPipeline {
             format : colorFmt,
         });
 
+        this._depthStencilTex = this._device.createTexture({
+            type : GFXTextureType.TEX2D,
+            usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+            format : depthStencilFmt,
+            width : this._device.nativeWidth,
+            height : this._device.nativeHeight,
+        });
+
+        this._depthStencilTexView = this._device.createTextureView({
+            texture : this._depthStencilTex,
+            type : GFXTextureViewType.TV2D,
+            format : depthStencilFmt,
+        });
+
         this._shadingPass = this._device.createRenderPass({
             colorAttachments: [{
                 format: colorFmt,
@@ -222,7 +236,7 @@ export abstract class RenderPipeline {
                 endLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
             }],
             depthStencilAttachment: {
-                format : depthFmt,
+                format : depthStencilFmt,
                 depthLoadOp : GFXLoadOp.CLEAR,
                 depthStoreOp : GFXStoreOp.STORE,
                 stencilLoadOp : GFXLoadOp.CLEAR,
@@ -251,6 +265,16 @@ export abstract class RenderPipeline {
         if (this._shadingTex) {
             this._shadingTex.destroy();
             this._shadingTex = null;
+        }
+
+        if (this._depthStencilTexView) {
+            this._depthStencilTexView.destroy();
+            this._depthStencilTexView = null;
+        }
+
+        if (this._depthStencilTex) {
+            this._depthStencilTex.destroy();
+            this._depthStencilTex = null;
         }
 
         if (this._shadingFBO) {
@@ -380,7 +404,15 @@ export abstract class RenderPipeline {
     protected updateUBOs (view: RenderView) {
 
         const camera = view.camera;
+        const scene = camera.scene;
         const device = this._root.device;
+
+        const mainLight = scene.mainLight;
+        if (mainLight && mainLight.enabled) {
+            mainLight.update();
+        }
+
+        const ambient = scene.ambient;
 
         // update UBOGlobal
         _vec4Array[0] = this._root.frameTime;
@@ -424,6 +456,20 @@ export abstract class RenderPipeline {
         vec3.array(_vec4Array, camera.position);
         _vec4Array[3] = 1.0;
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
+
+        vec3.array(_vec4Array, mainLight.direction);
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.MAIN_LIT_DIR_OFFSET);
+
+        _vec4Array.set(mainLight.color);
+        _vec4Array[3] = 1.0;
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+
+        _vec4Array.set(ambient.skyColor);
+        _vec4Array[3] = ambient.skyIllum;
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.AMBIENT_SKY_OFFSET);
+
+        _vec4Array.set(ambient.groundAlbedo);
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.AMBIENT_GROUND_OFFSET);
 
         // update ubos
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal!.view.buffer);

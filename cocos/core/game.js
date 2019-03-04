@@ -764,11 +764,15 @@ var game = {
             }
 
             {
+                this._gfxDevice = new cc.WebGLGFXDevice();
+
+                /*
                 if (window.WebGL2RenderingContext) {
                     this._gfxDevice = new cc.WebGL2GFXDevice();
                 } else {
                     this._gfxDevice = new cc.WebGLGFXDevice();
                 }
+                */
 
                 this._gfxDevice.initialize({
                     canvasElm: localCanvas,

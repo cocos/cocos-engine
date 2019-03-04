@@ -25,7 +25,6 @@ import {
     IGFXViewport,
     WebGLEXT,
 } from '../define';
-import { GFXUniformBlock } from '../shader';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
 import {
     IWebGL2DepthBias,
@@ -52,10 +51,10 @@ import {
 import { IWebGL2TexUnit } from './webgl2-state-cache';
 
 const WebGLWraps: GLenum[] = [
-    WebGL2RenderingContext.REPEAT,
-    WebGL2RenderingContext.MIRRORED_REPEAT,
-    WebGL2RenderingContext.CLAMP_TO_EDGE,
-    WebGL2RenderingContext.CLAMP_TO_EDGE,
+    WebGLRenderingContext.REPEAT,
+    WebGLRenderingContext.MIRRORED_REPEAT,
+    WebGLRenderingContext.CLAMP_TO_EDGE,
+    WebGLRenderingContext.CLAMP_TO_EDGE,
 ];
 
 const _uniformValues = new Array<number>(1024 * 4);
@@ -473,51 +472,51 @@ function WebGLGetComponentCount (glType: GLenum): GFXType {
 }
 
 const WebGLCmpFuncs: GLenum[] = [
-    WebGL2RenderingContext.NEVER,
-    WebGL2RenderingContext.LESS,
-    WebGL2RenderingContext.EQUAL,
-    WebGL2RenderingContext.LEQUAL,
-    WebGL2RenderingContext.GREATER,
-    WebGL2RenderingContext.NOTEQUAL,
-    WebGL2RenderingContext.GEQUAL,
-    WebGL2RenderingContext.ALWAYS,
+    WebGLRenderingContext.NEVER,
+    WebGLRenderingContext.LESS,
+    WebGLRenderingContext.EQUAL,
+    WebGLRenderingContext.LEQUAL,
+    WebGLRenderingContext.GREATER,
+    WebGLRenderingContext.NOTEQUAL,
+    WebGLRenderingContext.GEQUAL,
+    WebGLRenderingContext.ALWAYS,
 ];
 
 const WebGLStencilOps: GLenum[] = [
-    WebGL2RenderingContext.ZERO,
-    WebGL2RenderingContext.KEEP,
-    WebGL2RenderingContext.REPLACE,
-    WebGL2RenderingContext.INCR,
-    WebGL2RenderingContext.DECR,
-    WebGL2RenderingContext.INVERT,
-    WebGL2RenderingContext.INCR_WRAP,
-    WebGL2RenderingContext.DECR_WRAP,
+    WebGLRenderingContext.ZERO,
+    WebGLRenderingContext.KEEP,
+    WebGLRenderingContext.REPLACE,
+    WebGLRenderingContext.INCR,
+    WebGLRenderingContext.DECR,
+    WebGLRenderingContext.INVERT,
+    WebGLRenderingContext.INCR_WRAP,
+    WebGLRenderingContext.DECR_WRAP,
 ];
 
 const WebGLBlendOps: GLenum[] = [
-    WebGL2RenderingContext.FUNC_ADD,
-    WebGL2RenderingContext.FUNC_SUBTRACT,
-    WebGL2RenderingContext.FUNC_REVERSE_SUBTRACT,
-    WebGL2RenderingContext.FUNC_ADD,
-    WebGL2RenderingContext.FUNC_ADD,
+    WebGLRenderingContext.FUNC_ADD,
+    WebGLRenderingContext.FUNC_SUBTRACT,
+    WebGLRenderingContext.FUNC_REVERSE_SUBTRACT,
+    WebGLRenderingContext.FUNC_ADD,
+    WebGLRenderingContext.FUNC_ADD,
 ];
 
 const WebGLBlendFactors: GLenum[] = [
-    WebGL2RenderingContext.ZERO,
-    WebGL2RenderingContext.ONE,
-    WebGL2RenderingContext.SRC_ALPHA,
-    WebGL2RenderingContext.DST_ALPHA,
-    WebGL2RenderingContext.ONE_MINUS_SRC_ALPHA,
-    WebGL2RenderingContext.ONE_MINUS_DST_ALPHA,
-    WebGL2RenderingContext.SRC_COLOR,
-    WebGL2RenderingContext.DST_COLOR,
-    WebGL2RenderingContext.ONE_MINUS_SRC_COLOR,
-    WebGL2RenderingContext.ONE_MINUS_DST_COLOR,
-    WebGL2RenderingContext.SRC_ALPHA_SATURATE,
-    WebGL2RenderingContext.CONSTANT_COLOR,
-    WebGL2RenderingContext.ONE_MINUS_CONSTANT_COLOR,
-    WebGL2RenderingContext.CONSTANT_ALPHA,
-    WebGL2RenderingContext.ONE_MINUS_CONSTANT_ALPHA,
+    WebGLRenderingContext.ZERO,
+    WebGLRenderingContext.ONE,
+    WebGLRenderingContext.SRC_ALPHA,
+    WebGLRenderingContext.DST_ALPHA,
+    WebGLRenderingContext.ONE_MINUS_SRC_ALPHA,
+    WebGLRenderingContext.ONE_MINUS_DST_ALPHA,
+    WebGLRenderingContext.SRC_COLOR,
+    WebGLRenderingContext.DST_COLOR,
+    WebGLRenderingContext.ONE_MINUS_SRC_COLOR,
+    WebGLRenderingContext.ONE_MINUS_DST_COLOR,
+    WebGLRenderingContext.SRC_ALPHA_SATURATE,
+    WebGLRenderingContext.CONSTANT_COLOR,
+    WebGLRenderingContext.ONE_MINUS_CONSTANT_COLOR,
+    WebGLRenderingContext.CONSTANT_ALPHA,
+    WebGLRenderingContext.ONE_MINUS_CONSTANT_ALPHA,
 ];
 
 export enum WebGL2Cmd {
@@ -712,7 +711,7 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
 
         gpuBuffer.glTarget = WebGL2RenderingContext.ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
-        if (glBuffer) {
+        if (glBuffer && gpuBuffer.size > 0) {
             gpuBuffer.glBuffer = glBuffer;
 
             if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
@@ -729,7 +728,7 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
 
         gpuBuffer.glTarget = WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
-        if (glBuffer) {
+        if (glBuffer && gpuBuffer.size > 0) {
             gpuBuffer.glBuffer = glBuffer;
 
             if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
@@ -746,7 +745,7 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
 
         gpuBuffer.glTarget = WebGL2RenderingContext.UNIFORM_BUFFER;
         const glBuffer = gl.createBuffer();
-        if (glBuffer) {
+        if (glBuffer && gpuBuffer.size > 0) {
             gpuBuffer.glBuffer = glBuffer;
             if (device.stateCache.glUniformBuffer !== gpuBuffer.glBuffer) {
                 gl.bindBuffer(WebGL2RenderingContext.UNIFORM_BUFFER, gpuBuffer.glBuffer);
@@ -891,7 +890,6 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
 
     switch (gpuTexture.viewType) {
         case GFXTextureViewType.TV2D: {
-
             gpuTexture.viewType = GFXTextureViewType.TV2D;
             gpuTexture.glTarget = WebGL2RenderingContext.TEXTURE_2D;
 
@@ -922,21 +920,10 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                         h = Math.max(1, h >> 1);
                     }
                 }
-
-                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_S, WebGL2RenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_T, WebGL2RenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR);
-                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
-                gpuTexture.glWrapS = WebGL2RenderingContext.CLAMP_TO_EDGE;
-                gpuTexture.glWrapT = WebGL2RenderingContext.CLAMP_TO_EDGE;
-                gpuTexture.glMinFilter = WebGL2RenderingContext.LINEAR;
-                gpuTexture.glMagFilter = WebGL2RenderingContext.LINEAR;
             }
-
             break;
         }
         case GFXTextureViewType.CUBE: {
-
             gpuTexture.viewType = GFXTextureViewType.CUBE;
             gpuTexture.glTarget = WebGL2RenderingContext.TEXTURE_CUBE_MAP;
 
@@ -973,17 +960,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                         }
                     }
                 }
-
-                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_S, WebGL2RenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_T, WebGL2RenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR);
-                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
-                gpuTexture.glWrapS = WebGL2RenderingContext.CLAMP_TO_EDGE;
-                gpuTexture.glWrapT = WebGL2RenderingContext.CLAMP_TO_EDGE;
-                gpuTexture.glMinFilter = WebGL2RenderingContext.LINEAR;
-                gpuTexture.glMagFilter = WebGL2RenderingContext.LINEAR;
             }
-
             break;
         }
         default: {
@@ -1098,7 +1075,6 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFram
 
             gl.drawBuffers(attachments);
 
-            /*
             const status = gl.checkFramebufferStatus(WebGL2RenderingContext.FRAMEBUFFER);
             if (status !== WebGL2RenderingContext.FRAMEBUFFER_COMPLETE) {
                 switch (status) {
@@ -1121,7 +1097,6 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFram
                     default:
                 }
             }
-            */
         }
     }
 }

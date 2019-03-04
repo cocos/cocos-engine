@@ -9,21 +9,32 @@ const _v3 = new Vec3();
 const _qt = new Quat();
 
 export class DirectionalLight extends Light {
-    protected _direction = Float32Array.from([0, 0, 1, 0]);
+    protected _direction: vec3 = new vec3(0, 0, 1);
+    protected _directionArray: Float32Array =  Float32Array.from([0, 0, 1, 0]);
 
-    set direction (val: Vec3) {
-        vec3.array(this._direction, val);
+    set direction (val: vec3) {
+        this._direction = val;
+        vec3.normalize(this._direction, this._direction);
+        vec3.array(this._directionArray, this._direction);
     }
-    get directionArray () {
+
+    get direction (): vec3 {
         return this._direction;
     }
 
-    constructor (scene: RenderScene, node: Node, name: string) {
-        super(scene, node, name);
+    get directionArray (): Float32Array {
+        return this._directionArray;
+    }
+
+    constructor (scene: RenderScene, name: string) {
+        super(scene, name);
         this._type = LightType.DIRECTIONAL;
     }
 
     public update () {
-        this.direction = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
+        if (this._node) {
+            this._direction = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
+            vec3.array(this._directionArray, this._direction);
+        }
     }
 }

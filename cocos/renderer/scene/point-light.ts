@@ -20,12 +20,14 @@ export class PointLight extends Light {
         return this._positionAndRange;
     }
 
-    constructor (scene: RenderScene, node: Node, name: string) {
-        super(scene, node, name);
+    constructor (scene: RenderScene, name: string) {
+        super(scene, name);
         this._type = LightType.POINT;
     }
 
     public update () {
-        this.position = this._node.getWorldPosition(_v3);
+        if (this._node) {
+            this.position = this._node.getWorldPosition(_v3);
+        }
     }
 }

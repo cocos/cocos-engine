@@ -565,13 +565,13 @@ export class WebGLCmdPackage {
 export function WebGLCmdFuncCreateBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer) {
 
     const gl = device.gl;
-    const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.HOST ? WebGL2RenderingContext.DYNAMIC_DRAW : WebGL2RenderingContext.STATIC_DRAW;
+    const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.HOST ? WebGLRenderingContext.DYNAMIC_DRAW : WebGLRenderingContext.STATIC_DRAW;
 
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
 
         gpuBuffer.glTarget = WebGLRenderingContext.ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
-        if (glBuffer) {
+        if (glBuffer && gpuBuffer.size > 0) {
             gpuBuffer.glBuffer = glBuffer;
 
             if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
@@ -587,7 +587,7 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
 
         gpuBuffer.glTarget = WebGLRenderingContext.ELEMENT_ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
-        if (glBuffer) {
+        if (glBuffer && gpuBuffer.size > 0) {
             gpuBuffer.glBuffer = glBuffer;
 
             if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
@@ -628,7 +628,7 @@ export function WebGLCmdFuncDestroyBuffer (device: WebGLGFXDevice, gpuBuffer: We
 export function WebGLCmdFuncResizeBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer) {
 
     const gl = device.gl;
-    const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.HOST ? WebGL2RenderingContext.DYNAMIC_DRAW : WebGL2RenderingContext.STATIC_DRAW;
+    const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.HOST ? WebGLRenderingContext.DYNAMIC_DRAW : WebGLRenderingContext.STATIC_DRAW;
 
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
 
@@ -853,7 +853,7 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
                         gpuColorView.gpuTexture.glTexture,
                         gpuColorView.baseLevel);
 
-                    attachments.push(WebGL2RenderingContext.COLOR_ATTACHMENT0 + i);
+                    attachments.push(WebGLRenderingContext.COLOR_ATTACHMENT0 + i);
                 }
             }
 
@@ -874,7 +874,6 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
                 device.WEBGL_draw_buffers.drawBuffersWEBGL(attachments);
             }
 
-            /*
             const status = gl.checkFramebufferStatus(WebGLRenderingContext.FRAMEBUFFER);
             if (status !== WebGLRenderingContext.FRAMEBUFFER_COMPLETE) {
                 switch (status) {
@@ -897,7 +896,6 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
                     default:
                 }
             }
-            */
         }
     }
 }
@@ -1301,11 +1299,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                         gl.colorMask(true, true, true, true);
                                     }
 
-                                    if (!cmd0.gpuFramebuffer.isOffscreen) {
-                                        const clearColor = cmd0.clearColors[0];
-                                        gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-                                        clears |= WebGL2RenderingContext.COLOR_BUFFER_BIT;
-                                    }
+                                    const clearColor = cmd0.clearColors[0];
+                                    gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+                                    clears |= WebGLRenderingContext.COLOR_BUFFER_BIT;
 
                                     break;
                                 }

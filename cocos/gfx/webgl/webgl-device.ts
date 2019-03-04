@@ -6,7 +6,6 @@ import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
     GFXBufferTextureCopy,
     GFXFormat,
-    GFXFormatInfos,
     GFXFormatSize,
     GFXQueueType,
 } from '../define';

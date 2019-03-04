@@ -73,7 +73,9 @@ export class WebGL2GFXBuffer extends GFXBuffer {
 
         if (this._gpuBuffer) {
             this._gpuBuffer.size = this._size;
-            WebGL2CmdFuncResizeBuffer(this._device as WebGL2GFXDevice, this._gpuBuffer);
+            if (this._size > 0) {
+                WebGL2CmdFuncResizeBuffer(this._device as WebGL2GFXDevice, this._gpuBuffer);
+            }
         }
     }
 

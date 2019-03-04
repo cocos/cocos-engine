@@ -134,6 +134,14 @@ class BuiltinResMgr {
         });
         resources[tonemapMtl._uuid] = tonemapMtl;
 
+        // standard material
+        const standardMtl = new cc.Material();
+        standardMtl._uuid = 'standard-material';
+        standardMtl.initialize({
+            effectName: 'builtin-standard',
+        });
+        resources[standardMtl._uuid] = standardMtl;
+
         // default material
         const defaultMtl = new cc.Material();
         defaultMtl._uuid = 'default-material';

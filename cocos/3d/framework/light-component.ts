@@ -149,7 +149,6 @@ export class LightComponent extends Component {
     // protected _shadowBias = 0.0005;
 
     protected _light: Light | null = null;
-    protected _colorData = [1, 1, 1];
 
     /**
      * !#en The light source type
@@ -185,11 +184,10 @@ export class LightComponent extends Component {
     set color (val) {
         this._color = val;
         const scale = this._intensity / 255;
-        this._colorData[0] = val.r * scale;
-        this._colorData[1] = val.g * scale;
-        this._colorData[2] = val.b * scale;
         if (this._light) {
-            this._light.color = this._colorData;
+            this._light.color[0] = val.r * scale;
+            this._light.color[1] = val.g * scale;
+            this._light.color[2] = val.b * scale;
         }
     }
 
@@ -207,11 +205,10 @@ export class LightComponent extends Component {
     set intensity (val) {
         this._intensity = val;
         const scale = val / 255;
-        this._colorData[0] = this._color.r * scale;
-        this._colorData[1] = this._color.g * scale;
-        this._colorData[2] = this._color.b * scale;
         if (this._light) {
-            this._light.color = this._colorData;
+            this._light.color[0] = this._color.r * scale;
+            this._light.color[1] = this._color.g * scale;
+            this._light.color[2] = this._color.b * scale;
         }
     }
 

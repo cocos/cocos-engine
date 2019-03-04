@@ -5,15 +5,16 @@ import { Root } from '../../core/root';
 import { Mat4, Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
+import { UBOForwardLights } from '../../pipeline/define';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
+import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
 import { Light } from './light';
 import { Model } from './model';
 import { PointLight } from './point-light';
 import { SpotLight } from './spot-light';
-import { UBOForwardLights } from '../../pipeline/define';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -44,6 +45,14 @@ export class RenderScene {
         return this._cameras;
     }
 
+    get ambient (): Ambient {
+        return this._ambient;
+    }
+
+    get mainLight (): DirectionalLight {
+        return this._mainLight;
+    }
+
     get directionalLights (): DirectionalLight[] {
         return this._directionalLights;
     }
@@ -67,6 +76,9 @@ export class RenderScene {
     private _root: Root;
     private _name: string = '';
     private _cameras: Camera[] = [];
+    private _ambient: Ambient;
+    private _mainLight: DirectionalLight;
+    private _mainLightNode: Node;
     private _pointLights: PointLight[] = [];
     private _directionalLights: DirectionalLight[] = [];
     private _spotLights: SpotLight[] = [];
@@ -75,10 +87,15 @@ export class RenderScene {
 
     constructor (root: Root) {
         this._root = root;
+        this._ambient = new Ambient (this);
+        this._mainLight = new DirectionalLight(this, name);
+        this._mainLightNode = new Node('mainLightNode');
+        this._mainLight.node = this._mainLightNode;
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
+        this._mainLight.direction = new vec3(1.0, -1.0, -1.0);
 
         return true;
     }
@@ -110,25 +127,12 @@ export class RenderScene {
         this._cameras = [];
     }
 
-    public createPointLight (name: string, node: Node): Light | null {
-        if (this._pointLights.length >= UBOForwardLights.MAX_POINT_LIGHTS) { return null; }
-        const light = new PointLight(this, node, name);
-        this._pointLights.push(light);
-        return light;
-    }
-
-    public destroyPointLight (light: Light) {
-        for (let i = 0; i < this._pointLights.length; ++i) {
-            if (this._pointLights[i] === light) {
-                this._pointLights.splice(i, 1);
-                return;
-            }
-        }
-    }
-
-    public createDirectionalLight (name: string, node: Node): Light | null {
+    public createDirectionalLight (name: string, node?: Node): Light | null {
         if (this._directionalLights.length >= UBOForwardLights.MAX_DIR_LIGHTS) { return null; }
-        const light = new DirectionalLight(this, node, name);
+        const light = new DirectionalLight(this, name);
+        if (node) {
+            light.node = node;
+        }
         this._directionalLights.push(light);
         return light;
     }
@@ -142,9 +146,31 @@ export class RenderScene {
         }
     }
 
-    public createSpotLight (name: string, node: Node): Light | null {
+    public createPointLight (name: string, node?: Node): Light | null {
+        if (this._pointLights.length >= UBOForwardLights.MAX_POINT_LIGHTS) { return null; }
+        const light = new PointLight(this, name);
+        if (node) {
+            light.node = node;
+        }
+        this._pointLights.push(light);
+        return light;
+    }
+
+    public destroyPointLight (light: Light) {
+        for (let i = 0; i < this._pointLights.length; ++i) {
+            if (this._pointLights[i] === light) {
+                this._pointLights.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    public createSpotLight (name: string, node?: Node): Light | null {
         if (this._spotLights.length >= UBOForwardLights.MAX_SPOT_LIGHTS) { return null; }
-        const light = new SpotLight(this, node, name);
+        const light = new SpotLight(this, name);
+        if (node) {
+            light.node = node;
+        }
         this._spotLights.push(light);
         return light;
     }

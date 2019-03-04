@@ -1,5 +1,6 @@
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
+import { vec4 } from '../../core/vmath';
 
 export enum LightType {
     DIRECTIONAL,
@@ -17,10 +18,11 @@ export class Light {
         return this._enabled;
     }
 
-    set color (val: number[]) {
-        this._color.set(val);
+    set color (color: Float32Array) {
+        this._color.set(color);
     }
-    get colorData () {
+
+    get color () {
         return this._color;
     }
 
@@ -30,16 +32,24 @@ export class Light {
     get name (): string {
         return this._name;
     }
+
+    set node (n: Node | null) {
+        this._node = n;
+    }
+
+    get node (): Node | null {
+        return this._node;
+    }
+
     protected _color = Float32Array.from([1, 1, 1, 1]);
     protected _enabled = false;
     protected _scene: RenderScene;
-    protected _node: Node;
+    protected _node: Node | null = null;
     protected _type: LightType;
     protected _name: string;
 
-    constructor (scene: RenderScene, node: Node, name: string) {
+    constructor (scene: RenderScene, name: string) {
         this._scene = scene;
-        this._node = node;
         this._name = name;
         this._type = LightType.UNKNOWN;
     }
