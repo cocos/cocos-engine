@@ -24,10 +24,11 @@
  ****************************************************************************/
 
 const AnimationClip = require('../../animation/animation-clip');
+import mat4 from '../vmath/mat4';
 
- /**
- * @module cc
- */
+/**
+* @module cc
+*/
 /**
  * !#en SkeletonAnimationClip Asset.
  * !#zh 骨骼动画剪辑。
@@ -46,7 +47,7 @@ var SkeletonAnimationClip = cc.Class({
             },
             set (bin) {
                 let buffer = ArrayBuffer.isView(bin) ? bin.buffer : bin;
-                this._buffer = new Float32Array(buffer || bin, 0, buffer.byteLength/4);
+                this._buffer = new Float32Array(buffer || bin, 0, buffer.byteLength / 4);
             }
         },
 
@@ -64,14 +65,34 @@ var SkeletonAnimationClip = cc.Class({
          * So should not serialize curveData.
          */
         curveData: {
-            default: {},
             visible: false,
             override: true,
-            serializable: false
+            get () {
+                return this._curveData || {};
+            },
+            set () {}
         },
+
+        precomputeJointMatrix: true
     },
 
-    onLoad () {
+    _init (joints) {
+        if (this._curveData) {
+            return this._curveData;
+        }
+
+        this._curveData = {};
+        
+        this._generateCommonCurve();
+
+        if (this.precomputeJointMatrix) {
+            this._generateJointMatrixCurve(joints);
+        }
+
+        return this._curveData;
+    },
+
+    _generateCommonCurve () {
         let buffer = this._buffer;
         let description = this.description;
 
@@ -80,19 +101,16 @@ var SkeletonAnimationClip = cc.Class({
             return buffer[offset++];
         }
 
-        if (!this.curveData) {
-            this.curveData = {};
+        if (!this._curveData.paths) {
+            this._curveData.paths = {};
         }
-        if (!this.curveData.paths) {
-            this.curveData.paths = {};
-        }
-        let paths = this.curveData.paths;
+        let paths = this._curveData.paths;
 
         for (let path in description) {
             let des = description[path];
             let curves = {};
             paths[path] = { props: curves };
-            
+
             for (let property in des) {
                 let frames = [];
 
@@ -109,12 +127,118 @@ var SkeletonAnimationClip = cc.Class({
                     }
                     frames.push({ frame, value });
                 }
-                
+
                 curves[property] = frames;
             }
         }
-    }
+    },
 
+    _generateJointMatrixCurve (joints) {
+        let curveData = this._curveData;
+        let paths = curveData.paths;
+
+        // first build a virtual node tree, 
+        // each virtual node should contain position, scale, quat, bindpose properties.
+        let root = { children: [] };
+        for (let path in paths) {
+            let nodeLevels = path.split('/');
+            let node = root;
+            let currentPath = '';
+            for (let i = 0; i < nodeLevels.length; i++) {
+                let nodeName = nodeLevels[i];
+                currentPath += i === 0 ? nodeName : '/' + nodeName;
+                if (!node.children[nodeName]) {
+                    let joint = joints[currentPath];
+                    if (!joint) {
+                        cc.warn(`Can not find joint ${currentPath} when generate joint matrix curve.`)
+                        break;
+                    }
+                    node.children[nodeName] = {
+                        name: nodeName,
+                        path: currentPath,
+                        children: {},
+                        position: joint.position,
+                        quat:  joint.quat, 
+                        scale:  joint.scale,
+                        bindpose: joint.bindpose
+                    };
+                }
+                node = node.children[nodeName];
+            }
+        }
+
+        // walk through node tree to calculate node's joint matrix at time.
+        function walk (node, time, pm) {
+            let matrix;
+            let EPSILON = 10e-5;
+
+            if (node !== root) {
+                let props = paths[node.path].props;
+                for (let prop in props) {
+                    let frames = props[prop];
+                    for (let i = 0; i < frames.length; i++) {
+                        let end = frames[i];
+
+                        if (Math.abs(end.frame - time) < EPSILON) {
+                            node[prop].set(end.value);
+                            break;
+                        }
+                        else if (end.frame > time) {
+                            let start = frames[i - 1];
+                            let ratio = (time - start.frame) / (end.frame - start.frame);
+                            start.value.lerp(end.value, ratio, node[prop]);
+                            break;
+                        }
+                    }
+                }
+
+                matrix = cc.mat4();
+                mat4.fromRTS(matrix, node.quat, node.position, node.scale);
+
+                if (pm) {
+                    mat4.mul(matrix, pm, matrix);
+                }
+
+                if (!props._jointMatrix) {
+                    props._jointMatrix = [];
+                }
+
+                let bindWorldMatrix;
+                if (node.bindpose) {
+                    bindWorldMatrix = cc.mat4();
+                    mat4.mul(bindWorldMatrix, matrix, node.bindpose);
+                }
+
+                props._jointMatrix.push({
+                    frame: time,
+                    value: bindWorldMatrix || matrix
+                });
+            }
+
+            let children = node.children;
+            for (let name in children) {
+                let child = children[name];
+                walk(child, time, matrix);
+            }
+        }
+
+        let time = 0;
+        let duration = this.duration;
+        let step = 1 / this.sample;
+
+        while (time < duration) {
+            walk(root, time);
+            time += step;
+        }
+
+        // do not need position, quat, scale property curve any more.
+        for (let path in paths) {
+            let props = paths[path].props;
+            delete props.position;
+            delete props.quat;
+            delete props.scale;
+        }
+    }
 });
 
 cc.SkeletonAnimationClip = module.exports = SkeletonAnimationClip;

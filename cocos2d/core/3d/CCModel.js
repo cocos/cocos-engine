@@ -23,19 +23,53 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const BufferAsset = require('../assets/CCBufferAsset');
-
 let Model = cc.Class({
     name: 'cc.Model',
     extends: cc.Asset,
 
-    properties: {
-        _buffers: [BufferAsset],
+    ctor () {
+        this._nodeMap = {};
+    },
 
-        _gltf: {
-            default: {}
+    properties: {
+        _nodes: {
+            default: []
+        },
+
+        nodes: {
+            get () {
+                return this._nodes;
+            }
+        },
+        nodeMap: {
+            get () {
+                return this._nodeMap;
+            }
         }
     },
+
+    onLoad () {
+        let nodes = this._nodes;
+        let map = this._nodeMap;
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes[i];
+            node.position = cc.v3.apply(this, node.position);
+            node.scale = cc.v3.apply(this, node.scale);
+            node.quat = cc.quat.apply(this, node.rotation);
+            
+            let pose = node.bindpose;
+            if (pose) {
+                node.bindpose = cc.mat4(
+                    pose[0], pose[1], pose[2], pose[3],
+                    pose[4], pose[5], pose[6], pose[7],
+                    pose[8], pose[9], pose[10], pose[11],
+                    pose[12], pose[13], pose[14], pose[15]
+                );
+            }
+
+            map[node.path] = node;
+        }
+    }
 });
 
 cc.Model = module.exports = Model;

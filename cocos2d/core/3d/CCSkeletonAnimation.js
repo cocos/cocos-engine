@@ -48,8 +48,7 @@ let SkeletonAnimation = cc.Class({
     properties: {
         _model: {
             default: null,
-            type: Model,
-            editorOnly: true
+            type: Model
         },
 
         _defaultClip: {
@@ -85,6 +84,13 @@ let SkeletonAnimation = cc.Class({
             },
             type: Model,
         },
+    },
+
+    getAnimationState (name) {
+        let state = this._super(name);	
+        let clip = state.clip;
+        clip._init(this._model.nodeMap);
+        return state;	
     },
 
     searchClips: CC_EDITOR && function () {
