@@ -410,12 +410,12 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     public updateAssembler (render: UI) {
-        if (!this._canRender() || !this._spriteFrame) {
-            return;
+        if (super.updateAssembler(render) && this._spriteFrame) {
+            render.commitComp(this, this._spriteFrame, this._assembler!);
+            return true;
         }
 
-        this._checkAndUpdateRenderData();
-        render.commitComp(this, this._spriteFrame, this._assembler!);
+        return false;
     }
 
     public onDestroy () {

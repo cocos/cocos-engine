@@ -26,6 +26,7 @@
 // import {SpriteFrame} from '../../../assets/CCSpriteFrame';
 import { ccclass/*, executeInEditMode*/, executionOrder,
     menu/*, property*/ } from '../../../core/data/class-decorator';
+import { UI } from '../../../renderer/ui/ui';
 // import { ccenum } from '../../../core/value-types/enum';
 // import { clamp } from '../../../core/vmath';
 import { EventType } from '../../../scene-graph/node-event-enum';
@@ -37,7 +38,6 @@ import quad from '../../primitive/quad';
 import { scale, translate } from '../../primitive/transform';
 import { UIRenderComponent } from './ui-render-component';
 import { UITransformComponent } from './ui-transfrom-component';
-import { UI } from '../../../renderer/ui/ui';
 
 // /**
 //  * !#en the type for mask.
@@ -241,12 +241,12 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     public updateAssembler (render: UI) {
-        if (!this._canRender()) {
-            return;
+        if (super.updateAssembler(render)) {
+            render.commitComp(this, null, this._assembler!);
+            return true;
         }
 
-        this._checkAndUpdateRenderData();
-        render.commitComp(this, null, this._assembler!);
+        return false;
     }
 
     public postUpdateAssembler (render: UI) {
