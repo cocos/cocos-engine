@@ -210,6 +210,8 @@ export class BaseNode extends CCObject {
     get activeInHierarchy () {
         return this._activeInHierarchy;
     }
+
+    @property
     get parent () {
         return this._parent;
     }
