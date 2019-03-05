@@ -5,7 +5,7 @@ import { Quat, Vec3 } from '../../../../core/value-types';
 import { quat, vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 import { BoxColliderComponent, ColliderComponentBase, SphereColliderComponent } from '../collider-component';
-import { setWrap } from '../util';
+import { getWrap, setWrap } from '../util';
 import { PhysicsWorld } from '../world';
 
 export class PhysicsBasedComponent extends Component {
@@ -245,8 +245,10 @@ class SharedRigidBody {
         if (!this._node) {
             return;
         }
-        this._node.emit('collided', {});
-        // console.log(`Collided {${getWrap<PhysicsBody>(event.body)._node.name}} and {${getWrap<PhysicsBody>(event.target)._node.name}}.`);
+        this._node.emit('collided', {
+            source: getWrap<Node>(event.body),
+            target: getWrap<Node>((event as any).target),
+        });
     }
 
     private _onWorldBeforeStep (event: CANNON.IEvent) {
