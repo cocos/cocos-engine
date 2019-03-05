@@ -1,5 +1,6 @@
 import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { EventListener } from '../../../core/platform/event-manager/CCEventListener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import * as math from '../../../core/vmath/index';
 import { EventType } from '../../../scene-graph/node-event-enum';
@@ -225,22 +226,20 @@ export class UITransformComponent extends Component {
         testPt.y += this._anchorPoint.y * h;
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
-            // console.log('wpos  '+this.node.getWorldPosition().toString());
-            // console.log('click  '+this.node.name);
-            // if (listener && listener.mask) {
-            //     const mask = listener.mask;
-            //     const parent = this;
-            //     // find mask parent, should hit test it
-            //     if (parent === mask.node) {
-            //         const comp = parent.getComponent(MaskComponent);
-            //         return (comp && comp.enabledInHierarchy) ? comp.node.uiTransfromComp!.isHit(cameraPt) : true;
-            //     } else {
-            //         listener.mask = null;
-            //         return true;
-            //     }
-            // } else {
+            if (listener && listener.mask) {
+                const mask = listener.mask;
+                const parent = this.node;
+                // find mask parent, should hit test it
+                if (parent === mask.node) {
+                    const comp = parent.getComponent(cc.MaskComponent);
+                    return (comp && comp.enabledInHierarchy) ? comp.node.uiTransfromComp!.isHit(cameraPt) : true;
+                } else {
+                    listener.mask = null;
+                    return true;
+                }
+            } else {
                 return true;
-            // }
+            }
         } else {
             return false;
         }
