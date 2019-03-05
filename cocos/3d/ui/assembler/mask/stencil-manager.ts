@@ -1,6 +1,8 @@
 import { GFXComparisonFunc, GFXStencilOp } from '../../../../gfx/define';
 import { Material } from '../../../assets/material';
 import { MaskComponent } from '../../components/mask-component';
+import { Pass, Effect } from '../../../../renderer';
+import { IPassInfo } from '../../../assets/effect-asset';
 
 // import { GFXStencilOp } from '../../../../gfx/define';
 // import { MaskComponent } from '../../components/mask-component';
@@ -65,29 +67,6 @@ function updateDynamicStencilStates (material: Material, state: IStencilStateUpd
 
 }
 
-function overrideStencilState (material: Material, state: IStencilState) {
-    material.overridePipelineStates({
-        depthStencilState: {
-            stencilTestFront: state.stencilTest,
-            stencilFuncFront: state.func,
-            stencilReadMaskFront: state.stencilMask,
-            stencilWriteMaskFront: state.writeMask,
-            stencilFailOpFront: state.failOp,
-            stencilZFailOpFront: state.zFailOp,
-            stencilPassOpFront: state.passOp,
-            stencilRefFront: state.ref,
-            stencilTestBack: state.stencilTest,
-            stencilFuncBack: state.func,
-            stencilReadMaskBack: state.stencilMask,
-            stencilWriteMaskBack: state.writeMask,
-            stencilFailOpBack: state.failOp,
-            stencilZFailOpBack: state.zFailOp,
-            stencilPassOpBack: state.passOp,
-            stencilRefBack: state.ref,
-        },
-    });
-}
-
 export class StencilManager {
     public static sharedManager: StencilManager | null = null;
     public stage = Stage.DISABLED;
@@ -134,57 +113,51 @@ export class StencilManager {
     }
 
     public handleMaterial (mat: Material){
+        const pattern = this._stencilPattern;
         if (this.stage === Stage.DISABLED) {
+            pattern.stencilTest = false;
+        } else {
+            pattern.stencilTest = true;
+            if (this.stage === Stage.ENABLED) {
+                pattern.func = GFXComparisonFunc.EQUAL;
+                pattern.failOp = GFXStencilOp.KEEP;
+                pattern.stencilMask = pattern.ref = this.getStencilRef();
+                pattern.writeMask = this.getWriteMask();
+            } else if (this.stage === Stage.CLEAR) {
+                pattern.func = GFXComparisonFunc.NEVER;
+                pattern.failOp = GFXStencilOp.ZERO;
+                pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
+            } else if (this.stage === Stage.ENTER_LEVEL) {
+                pattern.func = GFXComparisonFunc.NEVER;
+                pattern.failOp = GFXStencilOp.REPLACE;
+                pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
+            }
+        }
 
-        } else if (this.stage === Stage.ENABLED) {
-            this.updateMaskTargetMaterial(mat);
-        } else if (this.stage === Stage.CLEAR) {
-            this.updateClearMaskMaterial(mat);
-        } else if (this.stage === Stage.ENTER_LEVEL){
-            this.updateMaskMaterial(mat);
+        const state = this._stencilPattern;
+        if (this._changed(mat.passes[0])){
+            mat.overridePipelineStates({
+                depthStencilState: {
+                    stencilTestFront: state.stencilTest,
+                    stencilFuncFront: state.func,
+                    stencilReadMaskFront: state.stencilMask,
+                    stencilWriteMaskFront: state.writeMask,
+                    stencilFailOpFront: state.failOp,
+                    stencilZFailOpFront: state.zFailOp,
+                    stencilPassOpFront: state.passOp,
+                    stencilRefFront: state.ref,
+                    stencilTestBack: state.stencilTest,
+                    stencilFuncBack: state.func,
+                    stencilReadMaskBack: state.stencilMask,
+                    stencilWriteMaskBack: state.writeMask,
+                    stencilFailOpBack: state.failOp,
+                    stencilZFailOpBack: state.zFailOp,
+                    stencilPassOpBack: state.passOp,
+                    stencilRefBack: state.ref,
+                },
+            });
         }
     }
-
-    public updateMaskMaterial (material: Material) {
-        const pattern = this._stencilPattern;
-        pattern.func = GFXComparisonFunc.NEVER;
-        pattern.failOp = GFXStencilOp.REPLACE;
-        pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
-        overrideStencilState(material, pattern);
-    }
-
-    public updateClearMaskMaterial (material: Material) {
-        const pattern = this._stencilPattern;
-        pattern.func = GFXComparisonFunc.NEVER;
-        pattern.failOp = GFXStencilOp.ZERO;
-        pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
-        overrideStencilState(material, pattern);
-    }
-
-    public updateMaskTargetMaterial (material: Material) {
-        const pattern = this._stencilPattern;
-        pattern.func = GFXComparisonFunc.EQUAL;
-        pattern.failOp = GFXStencilOp.KEEP;
-        pattern.stencilMask = pattern.ref = this.getStencilRef();
-        pattern.writeMask = this.getWriteMask();
-        overrideStencilState(material, pattern);
-    }
-
-    // public updateMaskMaterial (material: Material) {
-    //     updateDynamicStencilStates (material, {
-    //         func: GFXComparisonFunc.ALWAYS,
-    //         writeMask: this._protectAncestorMasks(),
-    //         ref: this._getWriteMaskForTopMask(),
-    //     });
-    // }
-
-    // public updateClearMaskMaterial (material: Material) {
-    //     updateDynamicStencilStates(material, {
-    //         func: GFXComparisonFunc.NEVER,
-    //         writeMask: this._protectAncestorMasks(),
-    //         ref: 0,
-    //     });
-    // }
 
     public getWriteMask () {
         return 0x00000001 << (this._maskStack.length - 1);
@@ -202,21 +175,36 @@ export class StencilManager {
         return result;
     }
 
-    // private _readAncestorMasks (): number {
-    //     let result = 0;
-    //     this._maskStack.forEach((mask, iBit) => {
-    //         result |= (1 << iBit);
-    //     });
-    //     return result;
-    // }
+    public getInvertedRef () {
+        let result = 0;
+        for (let i = 0; i < this._maskStack.length - 1; ++i) {
+            result += (0x01 << i);
+        }
+        return result;
+    }
 
-    // private _protectAncestorMasks (): number {
-    //     return ~this._readAncestorMasks();
-    // }
+    public reset () {
+        // reset stack and stage
+        this._maskStack.length = 0;
+        this.stage = Stage.DISABLED;
+    }
 
-    // private _getWriteMaskForTopMask (): number {
-    //     return 1 << this._maskStack.length;
-    // }
+    private _changed (pass: Pass) {
+        const stencilState = pass.depthStencilState;
+        const pattern = this._stencilPattern;
+        if (pattern.stencilTest !== stencilState.stencilTestFront ||
+            pattern.func !== stencilState.stencilFuncFront ||
+            pattern.failOp !== stencilState.stencilFailOpFront ||
+            pattern.zFailOp !== stencilState.stencilZFailOpFront ||
+            pattern.passOp !== stencilState.stencilPassOpFront ||
+            pattern.stencilMask !== stencilState.stencilReadMaskFront ||
+            pattern.writeMask !== stencilState.stencilWriteMaskFront ||
+            pattern.ref !== stencilState.stencilRefFront) {
+            return true;
+        }
+
+        return false;
+    }
 }
 
 StencilManager.sharedManager = new StencilManager();

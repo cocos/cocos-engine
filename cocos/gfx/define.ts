@@ -1,3 +1,5 @@
+import { ccenum } from '../core/value-types/enum';
+
 // Extensions
 export enum WebGLEXT {
     COMPRESSED_RGB_S3TC_DXT1_EXT = 0x83F0,
@@ -357,6 +359,8 @@ export enum GFXBlendFactor {
     CONSTANT_ALPHA,
     ONE_MINUS_CONSTANT_ALPHA,
 }
+
+ccenum(GFXBlendFactor);
 
 export enum GFXColorMask {
     NONE = 0x0,
