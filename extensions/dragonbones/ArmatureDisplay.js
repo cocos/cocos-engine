@@ -509,7 +509,7 @@ let ArmatureDisplay = cc.Class({
         // Animation Start, the event diffrent from dragonbones inner event,
         // It has no event object.
         if (this._accTime == 0 && this._playCount == 0) {
-            this._eventTarget.emit(dragonBones.EventObject.START);
+            this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.START);
         }
 
         this._accTime += dt * this.timeScale;
@@ -518,11 +518,11 @@ let ArmatureDisplay = cc.Class({
 
             // Animation loop complete, the event diffrent from dragonbones inner event,
             // It has no event object.
-            this._eventTarget.emit(dragonBones.EventObject.LOOP_COMPLETE);
+            this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.LOOP_COMPLETE);
 
             // Animation complete the event diffrent from dragonbones inner event,
             // It has no event object.
-            this._eventTarget.emit(dragonBones.EventObject.COMPLETE);
+            this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.COMPLETE);
 
             this._playCount ++;
             if (this.playTimes === -1 || (this.playTimes > 0 && this._playCount >= this.playTimes)) {
@@ -832,7 +832,7 @@ let ArmatureDisplay = cc.Class({
     once (eventType, listener, target) {
         if (this._displayProxy) {
             this._displayProxy.once(eventType, listener, target);
-        } else {
+        } else if (this._eventTarget) {
             this._eventTarget.once(eventType, listener, target);
         }
     },
@@ -851,7 +851,7 @@ let ArmatureDisplay = cc.Class({
     addEventListener (eventType, listener, target) {
         if (this._displayProxy) {
             this._displayProxy.on(eventType, listener, target);
-        } else {
+        } else if (this._eventTarget) {
             this._eventTarget.on(eventType, listener, target);
         }
     },
@@ -869,7 +869,7 @@ let ArmatureDisplay = cc.Class({
     removeEventListener (eventType, listener, target) {
         if (this._displayProxy) {
             this._displayProxy.off(eventType, listener, target);
-        } else {
+        } else if (this._eventTarget) {
             this._eventTarget.off(eventType, listener, target);
         }
     },
