@@ -23,26 +23,21 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import { Node } from './node';
 
 /**
  * Finds a node by hierarchy path, the path is case-sensitive.
  * It will traverse the hierarchy by splitting the path using '/' character.
  * This function will still returns the node even if it is inactive.
  * It is recommended to not use this function every frame instead cache the result at startup.
- *
- * @method find
- * @static
- * @param {String} path
- * @param {Node} [referenceNode]
- * @return {Node|null} the node or null if not found
  */
-export default function find (path, referenceNode) {
+export function find (path: string, referenceNode?: Node): Node | null {
     if (path == null) {
         cc.errorID(5600);
         return null;
     }
     if (!referenceNode) {
-        var scene = cc.director.getScene();
+        const scene = cc.director.getScene();
         if (!scene) {
             if (CC_DEV) {
                 cc.warnID(5601);
@@ -54,29 +49,29 @@ export default function find (path, referenceNode) {
             return null;
         }
         referenceNode = scene;
-    }
-    else if (CC_DEV && !referenceNode.isValid) {
+    } else if (CC_DEV && !referenceNode.isValid) {
         cc.warnID(5603);
         return null;
     }
 
-    var match = referenceNode;
-    var startIndex = (path[0] !== '/') ? 0 : 1; // skip first '/'
-    var nameList = path.split('/');
+    let match = referenceNode!;
+    const startIndex = (path[0] !== '/') ? 0 : 1; // skip first '/'
+    const nameList = path.split('/');
 
     // parse path
-    for (var n = startIndex; n < nameList.length; n++) {
-        var name = nameList[n];
-        var children = match._children;
-        match = null;
-        for (var t = 0, len = children.length; t < len; ++t) {
-            var subChild = children[t];
+    for (let n = startIndex; n < nameList.length; n++) {
+        const name = nameList[n];
+        const children = match.children;
+        let found = false;
+        for (let t = 0, len = children.length; t < len; ++t) {
+            const subChild = children[t];
             if (subChild.name === name) {
                 match = subChild;
+                found = true;
                 break;
             }
         }
-        if (!match) {
+        if (!found) {
             return null;
         }
     }

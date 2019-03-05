@@ -71,7 +71,7 @@ function getConstructor (typeOrClassName: string | Function): Function | null {
  * @uses EventTarget
  * @method constructor
  * @param {String} [name]
- * @private
+ * @protected
  */
 @ccclass('cc._BaseNode')
 export class BaseNode extends CCObject {
@@ -82,7 +82,7 @@ export class BaseNode extends CCObject {
      * @property _persistNode
      * @type {Boolean}
      * @default false
-     * @private
+     * @protected
      */
     @property
     get _persistNode () {
@@ -210,6 +210,8 @@ export class BaseNode extends CCObject {
     get activeInHierarchy () {
         return this._activeInHierarchy;
     }
+
+    @property
     get parent () {
         return this._parent;
     }
@@ -229,13 +231,13 @@ export class BaseNode extends CCObject {
         }
     }
 
-    private static idGenerator = idGenerator;
+    protected static idGenerator = idGenerator;
 
     // For walk
-    private static _stacks: Array<Array<(BaseNode | null)>> = [[]];
-    private static _stackId = 0;
+    protected static _stacks: Array<Array<(BaseNode | null)>> = [[]];
+    protected static _stackId = 0;
 
-    private static _findComponent (node: BaseNode, constructor: Function) {
+    protected static _findComponent (node: BaseNode, constructor: Function) {
         // tslint:disable-next-line
         if (constructor['_sealed']) {
             for (const comp of node._components) {
@@ -253,7 +255,7 @@ export class BaseNode extends CCObject {
         return null;
     }
 
-    private static _findComponents (node: BaseNode, constructor: Function, components: Component[]) {
+    protected static _findComponents (node: BaseNode, constructor: Function, components: Component[]) {
         // tslint:disable-next-line
         if (constructor['_sealed']) {
             for (const comp of node._components) {
@@ -270,7 +272,7 @@ export class BaseNode extends CCObject {
         }
     }
 
-    private static _findChildComponent (children: BaseNode[], constructor) {
+    protected static _findChildComponent (children: BaseNode[], constructor) {
         for (const node of children) {
             let comp = BaseNode._findComponent(node, constructor);
             if (comp) {
@@ -285,7 +287,7 @@ export class BaseNode extends CCObject {
         return null;
     }
 
-    private static _findChildComponents (children: BaseNode[], constructor, components) {
+    protected static _findChildComponents (children: BaseNode[], constructor, components) {
         for (const node of children) {
             BaseNode._findComponents(node, constructor, components);
             if (node._children.length > 0) {
@@ -301,47 +303,47 @@ export class BaseNode extends CCObject {
     protected _children: this[] = [];
 
     @property
-    private _active = true;
+    protected _active = true;
 
     /**
      * @default 0
      */
     @property
-    private _level = 0;
+    protected _level = 0;
 
     /**
      * @default []
      * @readOnly
      */
     @property
-    private _components: Component[] = [];
+    protected _components: Component[] = [];
 
     /**
      * The PrefabInfo object
      * @type {PrefabInfo}
      */
     @property
-    private _prefab: any = null;
+    protected _prefab: any = null;
 
     /**
      * !#en which scene this node belongs to.
      * !#zh 此节点属于哪个场景。
      * @type {cc.Scene}}
      */
-    private _scene: any = null;
+    protected _scene: any = null;
 
-    private _activeInHierarchy = false;
+    protected _activeInHierarchy = false;
 
     // TO DO
     // @ts-ignore
-    private _id: string = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerator.getNewId();
+    protected _id: string = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerator.getNewId();
 
     /**
      * Register all related EventTargets,
      * all event callbacks will be removed in _onPreDestroy
-     * private __eventTargets: EventTarget[] = [];
+     * protected __eventTargets: EventTarget[] = [];
      */
-    private __eventTargets: any[] = [];
+    protected __eventTargets: any[] = [];
 
     get scene () {
         return this._scene;
@@ -1123,7 +1125,7 @@ export class BaseNode extends CCObject {
         return cloned;
     }
 
-    private _onHierarchyChangedBase (oldParent: this | null) {
+    protected _onHierarchyChangedBase (oldParent: this | null) {
         const newParent = this._parent;
         if (this._persistNode && !(newParent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
@@ -1176,7 +1178,7 @@ export class BaseNode extends CCObject {
         }
     }
 
-    private _onPreDestroyBase () {
+    protected _onPreDestroyBase () {
         // marked as destroying
         this._objFlags |= Destroying;
 
@@ -1229,7 +1231,7 @@ export class BaseNode extends CCObject {
     }
 
     // do remove component, only used internally
-    private _removeComponent (component: Component) {
+    protected _removeComponent (component: Component) {
         if (!component) {
             cc.errorID(3814);
             return;
@@ -1248,7 +1250,7 @@ export class BaseNode extends CCObject {
         }
     }
 
-    private _disableChildComps () {
+    protected _disableChildComps () {
         // leave this._activeInHierarchy unmodified
         for (const component of this._components) {
             if (component._enabled) {
@@ -1263,11 +1265,11 @@ export class BaseNode extends CCObject {
         }
     }
 
-    private _onSiblingIndexChanged? (siblingIndex: number): void;
+    protected _onSiblingIndexChanged? (siblingIndex: number): void;
 
-    private _registerIfAttached? (attached: boolean): void;
+    protected _registerIfAttached? (attached: boolean): void;
 
-    private _checkMultipleComp? (constructor: Function): boolean;
+    protected _checkMultipleComp? (constructor: Function): boolean;
 }
 
 baseNodePolyfill(BaseNode);

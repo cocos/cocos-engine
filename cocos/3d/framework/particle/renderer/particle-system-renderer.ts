@@ -101,6 +101,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     private _vertAttrs: IGFXInputAttribute[];
     private particleSystem: any;
     private _particles: RecyclePool;
+    private _defaultMat: Material | null = null;
 
     constructor () {
         super();
@@ -156,7 +157,6 @@ export default class ParticleSystemRenderer extends RenderableComponent {
 
     public clear () {
         this._particles.reset();
-        this._model!.destroy();
     }
 
     public _getFreeParticle (): Particle | null {
@@ -277,9 +277,10 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         if (!this.particleSystem) {
             return;
         }
-        if (this.sharedMaterial == null) {
-            this.setMaterial(builtinResMgr.get<Material>('default-particle-material'), 0, false);
+        if (this.sharedMaterial == null && this._defaultMat == null) {
+            this._defaultMat = Material.getInstantiatedMaterial(builtinResMgr.get<Material>('default-particle-material'), this, true);
         }
+        const mat: Material | null = this.sharedMaterial ? this.getMaterial(0, CC_EDITOR)! : this._defaultMat;
         if (this.particleSystem._simulationSpace === Space.World) {
             this._defines[USE_WORLD_SPACE] = true;
         } else {
@@ -311,14 +312,13 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         } else {
             console.warn(`particle system renderMode ${this._renderMode} not support.`);
         }
-        const mat = this.getMaterial(0, CC_EDITOR)!;
-        mat.destroy();
-        mat.initialize({ defines: this._defines });
+        mat!.destroy();
+        mat!.initialize({ defines: this._defines });
 
         if (this.particleSystem.textureAnimationModule.enable) {
-            this.getMaterial(0, CC_EDITOR)!.setProperty('frameTile_velLenScale', vec2.set(this.frameTile_velLenScale, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
+            mat!.setProperty('frameTile_velLenScale', vec2.set(this.frameTile_velLenScale, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
         } else {
-            this.getMaterial(0, CC_EDITOR)!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
+            mat!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
         }
     }
 
@@ -331,7 +331,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         } else {
             this._model!.disableStretchedBillboard();
         }
-        this._model!.setSubModelMaterial(0, this.sharedMaterial ? this.sharedMaterial : null);
+        this._model!.setSubModelMaterial(0, this.sharedMaterial || this._defaultMat);
         // if (Object.getPrototypeOf(this).constructor.name === 'ParticleSystemGpuRenderer') {
         //     return;
         // }
