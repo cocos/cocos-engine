@@ -14,6 +14,7 @@ import { DirectionalLight } from './directional-light';
 import { Light } from './light';
 import { Model } from './model';
 import { PointLight } from './point-light';
+import { Skybox } from './skybox';
 import { SpotLight } from './spot-light';
 
 export interface IRenderSceneInfo {
@@ -49,6 +50,10 @@ export class RenderScene {
         return this._ambient;
     }
 
+    get skybox (): Skybox {
+        return this._skybox;
+    }
+
     get mainLight (): DirectionalLight {
         return this._mainLight;
     }
@@ -77,8 +82,8 @@ export class RenderScene {
     private _name: string = '';
     private _cameras: Camera[] = [];
     private _ambient: Ambient;
+    private _skybox: Skybox;
     private _mainLight: DirectionalLight;
-    private _mainLightNode: Node;
     private _pointLights: PointLight[] = [];
     private _directionalLights: DirectionalLight[] = [];
     private _spotLights: SpotLight[] = [];
@@ -88,15 +93,14 @@ export class RenderScene {
     constructor (root: Root) {
         this._root = root;
         this._ambient = new Ambient (this);
-        this._mainLight = new DirectionalLight(this, name);
-        this._mainLightNode = new Node('mainLightNode');
-        this._mainLight.node = this._mainLightNode;
+        this._mainLight = new DirectionalLight(this, 'Main Light');
+        this._mainLight.node = new Node('Main Light');
+        this._skybox = new Skybox(this);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        this._mainLight.direction = new vec3(1.0, -1.0, -1.0);
-
+        // this._mainLight.direction = new Vec3(1.0, -1.0, -1.0); // should be in editor prefab
         return true;
     }
 
@@ -127,12 +131,9 @@ export class RenderScene {
         this._cameras = [];
     }
 
-    public createDirectionalLight (name: string, node?: Node): Light | null {
+    public createDirectionalLight (name: string, node: Node): Light | null {
         if (this._directionalLights.length >= UBOForwardLights.MAX_DIR_LIGHTS) { return null; }
-        const light = new DirectionalLight(this, name);
-        if (node) {
-            light.node = node;
-        }
+        const light = new DirectionalLight(this, name, node);
         this._directionalLights.push(light);
         return light;
     }
@@ -146,12 +147,9 @@ export class RenderScene {
         }
     }
 
-    public createPointLight (name: string, node?: Node): Light | null {
+    public createPointLight (name: string, node: Node): Light | null {
         if (this._pointLights.length >= UBOForwardLights.MAX_POINT_LIGHTS) { return null; }
-        const light = new PointLight(this, name);
-        if (node) {
-            light.node = node;
-        }
+        const light = new PointLight(this, name, node);
         this._pointLights.push(light);
         return light;
     }
@@ -165,12 +163,9 @@ export class RenderScene {
         }
     }
 
-    public createSpotLight (name: string, node?: Node): Light | null {
+    public createSpotLight (name: string, node: Node): Light | null {
         if (this._spotLights.length >= UBOForwardLights.MAX_SPOT_LIGHTS) { return null; }
-        const light = new SpotLight(this, name);
-        if (node) {
-            light.node = node;
-        }
+        const light = new SpotLight(this, name, node);
         this._spotLights.push(light);
         return light;
     }

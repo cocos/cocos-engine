@@ -33,7 +33,6 @@ import { ParticleSystemComponent } from './particle/particle-system-component';
 import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';
 import { RigidBodyComponent } from './physics/rigid-body-component';
 import { SkinningModelComponent } from './skinning-model-component';
-import { SkyboxComponent } from './skybox-component';
 export * from './physics';
 
 export {
@@ -43,7 +42,6 @@ export {
     LightComponent,
     ModelComponent,
     SkinningModelComponent,
-    SkyboxComponent,
 
     BoxColliderComponent,
     ParticleSystemComponent,
@@ -57,7 +55,6 @@ cc.CameraComponent = CameraComponent;
 cc.LightComponent = LightComponent;
 cc.ModelComponent = ModelComponent;
 cc.SkinningModelComponent = SkinningModelComponent;
-cc.SkyboxComponent = SkyboxComponent;
 
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.ParticleSystemComponent = ParticleSystemComponent;

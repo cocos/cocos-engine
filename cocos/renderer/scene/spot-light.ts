@@ -1,6 +1,6 @@
 import { Quat, Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
-import { Node } from '../../scene-graph/node';
+import { Node } from '../../scene-graph';
 import { Light, LightType } from './light';
 import { RenderScene } from './render-scene';
 
@@ -32,8 +32,8 @@ export class SpotLight extends Light {
         return this._direction;
     }
 
-    constructor (scene: RenderScene, name: string) {
-        super(scene, name);
+    constructor (scene: RenderScene, name: string, node: Node) {
+        super(scene, name, node);
         this._type = LightType.DIRECTIONAL;
     }
 

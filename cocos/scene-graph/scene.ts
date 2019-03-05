@@ -23,17 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { TextureCube } from '../3d/assets/texture-cube';
 import { ccclass, property } from '../core/data/class-decorator';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
 import { Node } from './node';
-
-export interface IRenderSceneInfo {
-    mainLight: Node;
-    ambient: number[];
-    skybox: TextureCube;
-}
+import { SceneGlobals } from './scene-globals';
 
 /**
  * !#en
@@ -53,6 +47,12 @@ export class Scene extends Node {
      */
     @property
     public autoReleaseAssets = false;
+    /**
+     * !#en Per-scene level rendering info
+     * !#zh 场景级别的渲染信息
+     */
+    @property
+    public _globals = new SceneGlobals();
 
     protected _renderScene: RenderScene | null = null;
 
@@ -64,7 +64,8 @@ export class Scene extends Node {
         super(name);
         this._activeInHierarchy = false;
         if (cc.director && cc.director.root) {
-            this._renderScene = cc.director.root.createScene({});
+            const rs = this._renderScene = cc.director.root.createScene({});
+            this._globals.renderScene = rs;
         }
     }
 
@@ -76,6 +77,10 @@ export class Scene extends Node {
 
     get renderScene () {
         return this._renderScene;
+    }
+
+    get globals () {
+        return this._globals;
     }
 
     protected _onHierarchyChanged () { }

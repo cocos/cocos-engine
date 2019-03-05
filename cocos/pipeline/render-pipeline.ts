@@ -482,6 +482,8 @@ export abstract class RenderPipeline {
 
         this._queue.clear();
 
+        if (scene.skybox.enabled) { this._queue.add(scene.skybox, camera); }
+
         for (const model of scene.models) {
 
             // filter model by view visibility
