@@ -381,8 +381,8 @@ export class ParticleSystemComponent extends Component {
                 // this._emitRateTimeCounter = 0.0;
                 // this._emitRateDistanceCounter = 0.0;
                 if (!this.loop) {
-                    this._isEmitting = false;
-                    this._isStopped = true;
+                    this.stop();
+                    return;
                 }
             }
 
