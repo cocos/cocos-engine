@@ -28,8 +28,6 @@ class Node extends BaseNode {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
 
-    public uiWidgetComp: WidgetComponent | null = null;
-
     // local transform
     @property({
         // default: cc.v3(0, 0, 0),
@@ -62,6 +60,7 @@ class Node extends BaseNode {
 
     protected _eventProcessor;
     private _uiTransfromComp: UITransformComponent | null = null;
+    private _uiWidgetComp: WidgetComponent | null = null;
 
     @property({
         type: Vec3,
@@ -98,8 +97,20 @@ class Node extends BaseNode {
     }
 
     // NOTE: don't set it manually
-    set uiTransfromComp (value) {
+    set uiTransfromComp (value: UITransformComponent | null) {
         this._uiTransfromComp = value;
+    }
+
+    get uiWidgetComp () {
+        if (!this._uiWidgetComp) {
+            this._uiWidgetComp = this.getComponent(WidgetComponent);
+        }
+
+        return this._uiWidgetComp;
+    }
+
+    set uiWidgetComp (value: WidgetComponent | null) {
+        this._uiWidgetComp = value;
     }
 
     get width () {

@@ -595,12 +595,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     public updateAssembler (render: UI) {
-        if (!this._canRender() || !this._texture) {
-            return;
+        if (super.updateAssembler(render) && this._texture) {
+            render.commitComp(this, this._texture, this._assembler!);
+            return true;
         }
 
-        this._checkAndUpdateRenderData();
-        render.commitComp(this, this._texture, this._assembler!);
+        return false;
     }
 
     protected _updateColor () {

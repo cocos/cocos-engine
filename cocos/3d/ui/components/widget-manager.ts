@@ -448,7 +448,7 @@ function updateAlignment (node: Node) {
     }
 
     // node._widget will be null when widget is disabled
-    const widget = node.uiWidgetComp || node.getComponent(WidgetComponent);
+    const widget = node.uiWidgetComp;
     if (widget && parent) {
         align(node, widget);
     }
@@ -514,8 +514,8 @@ export const widgetManager = cc._widgetManager = {
     },
     refreshWidgetOnResized (node: Node) {
         if (Node.isNode(node)){
-            // const widget = node.getComponent(WidgetComponent);
-            const widget: WidgetComponent | null = null;
+            const widget = node.uiWidgetComp;
+            // const widget: WidgetComponent | null = null;
             if (widget) {
                 if (widget!.alignMode === AlignMode.ON_WINDOW_RESIZE) {
                     widget!.enabled = true;
@@ -560,7 +560,10 @@ export const widgetManager = cc._widgetManager = {
                 l += zero.x;
                 l *= one.x;
                 temp = pos.x - myAP.x * widgetNode.width! * widgetNodeScale.x - l;
-                widget.isAbsoluteLeft || (temp /= matchSize.width);
+                if (widget.isAbsoluteLeft) {
+                    temp /= matchSize.width;
+                }
+
                 temp /= one.x;
                 widget.left = i(widget.left, temp);
             }
@@ -569,7 +572,10 @@ export const widgetManager = cc._widgetManager = {
                 let r = (1 - parentAP.x) * matchSize.width;
                 r += zero.x;
                 temp = (r *= one.x) - (pos.x + (1 - myAP.x) * widgetNode.width! * widgetNodeScale.x);
-                widget.isAbsoluteRight || (temp /= matchSize.width);
+                if (widget.isAbsoluteRight) {
+                    temp /= matchSize.width;
+                }
+
                 temp /= one.x;
                 widget.right = i(widget.right, temp);
             }
@@ -578,7 +584,10 @@ export const widgetManager = cc._widgetManager = {
                 let t = (1 - parentAP.y) * matchSize.height;
                 t += zero.y;
                 temp = (t *= one.y) - (pos.y + (1 - myAP.y) * widgetNode.height! * widgetNodeScale.y);
-                widget.isAbsoluteTop || (temp /= matchSize.height);
+                if (!widget.isAbsoluteTop){
+                    temp /= matchSize.height;
+                }
+
                 temp /= one.y;
                 widget.top = i(widget.top, temp);
             }
@@ -588,7 +597,10 @@ export const widgetManager = cc._widgetManager = {
                 b += zero.y;
                 b *= one.y;
                 temp = pos.y - myAP.y * widgetNode.height! * widgetNodeScale.y - b;
-                widget.isAbsoluteBottom || (temp /= matchSize.height);
+                if (!widget.isAbsoluteBottom){
+                    temp /= matchSize.height;
+                }
+
                 temp /= one.y;
                 widget.bottom = i(widget.bottom, temp);
             }

@@ -440,7 +440,7 @@ export class ButtonComponent extends Component {
         return this._target;
     }
 
-    set target (value: Node) {
+    set target (value: Node | null) {
         if (this._target === value) {
             return;
         }

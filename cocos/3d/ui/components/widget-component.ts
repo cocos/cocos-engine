@@ -26,9 +26,9 @@
 
 import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
-import { Node } from '../../../scene-graph/index';
-import { UITransformComponent } from './ui-transfrom-component';
 import { ccenum } from '../../../core/value-types/enum';
+import { Node } from '../../../scene-graph/node';
+import { UITransformComponent } from './ui-transfrom-component';
 /**
  * !#en Enum for Widget's alignment mode, indicating when the widget should refresh.
  * !#zh Widget 的对齐模式，表示 Widget 应该何时刷新。
@@ -101,7 +101,6 @@ export class WidgetComponent extends Component {
      * The default value is null, and when null, indicates the current parent.
      * !#zh 指定一个对齐目标，只能是当前节点的其中一个父节点，默认为空，为空时表示当前父节点。
      * @property {Node} target
-     * @default null
      */
     @property({
         type: Node,
@@ -110,7 +109,11 @@ export class WidgetComponent extends Component {
         return this._target;
     }
 
-    set target (value) {
+    set target (value: Node | null) {
+        if (this._target === value){
+            return;
+        }
+
         this._target = value;
         if (CC_EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
             // adjust the offsets to keep the size and position unchanged after target chagned
@@ -493,11 +496,11 @@ export class WidgetComponent extends Component {
      * @private
      */
     @property
-    get alignFlags() {
+    get alignFlags () {
         return this._alignFlags;
     }
 
-    set alignFlags(value) {
+    set alignFlags (value) {
         if (this._alignFlags === value) {
             return;
         }
@@ -510,7 +513,7 @@ export class WidgetComponent extends Component {
     @property
     private _alignFlags = 0;
     private _wasAlignOnce = false;
-    // @property
+    @property
     private _target: Node | null = null;
     @property
     private _left = 0;
@@ -572,7 +575,7 @@ export class WidgetComponent extends Component {
         //     this._wasAlignOnce = false;
         // }
 
-        if(this._alignMode === AlignMode.ONCE){
+        if (this._alignMode === AlignMode.ONCE){
             this._wasAlignOnce = true;
         }
     }

@@ -307,6 +307,16 @@ export class UIRenderComponent extends Component {
     }
 
     public updateAssembler (render: UI) {
+        if (!this._canRender()) {
+            return false;
+        }
+
+        if (this.node.hasChanged && !this._renderDataDirty) {
+            this.markForUpdateRenderData();
+        }
+
+        this._checkAndUpdateRenderData();
+        return true;
     }
 
     public postUpdateAssembler (render: UI) {
