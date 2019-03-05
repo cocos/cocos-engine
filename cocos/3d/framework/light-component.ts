@@ -35,35 +35,24 @@ import { SpotLight } from '../../renderer/scene/spot-light';
  * !#en The light source type
  *
  * !#ch 光源类型
- * @static
- * @enum LightComponent.Type
  */
 const Type = Enum({
     /**
      * !#en The direction of light
      *
      * !#ch 平行光
-     * @property Directional
-     * @readonly
-     * @type {Number}
      */
     DIRECTIONAL: LightType.DIRECTIONAL,
     /**
      * !#en The point of light
      *
      * !#ch 点光源
-     * @property Point
-     * @readonly
-     * @type {Number}
      */
     POINT: LightType.POINT,
     /**
      * !#en The spot of light
      *
      * !#ch 聚光灯
-     * @property Spot
-     * @readonly
-     * @type {Number}
      */
     SPOT: LightType.SPOT,
 });
@@ -80,27 +69,18 @@ const LightShadowType = Enum({
      * !#en No shadows
      *
      * !#ch 阴影关闭
-     * @property None
-     * @readonly
-     * @type {Number}
      */
     None: 0,
     /**
      * !#en Soft shadows
      *
      * !#ch 软阴影
-     * @property Soft
-     * @readonly
-     * @type {Number}
      */
     Soft: 1,
     /**
      * !#en Hard shadows
      *
      * !#ch 阴硬影
-     * @property Hard
-     * @readonly
-     * @type {Number}
      */
     Hard: 2,
 });
@@ -130,15 +110,35 @@ export class LightComponent extends Component {
     protected _range = 10;
     @property
     protected _spotAngle = 60;
+    @property
+    protected _isMainLight = false;
 
     protected _light: Light | null = null;
+
+    /**
+     * !#en Is this the main light in scene?
+     *
+     * !#ch 此光源是否为场景主光源?
+     */
+    @property({
+        type: Boolean,
+    })
+    get isMainLight () {
+        return this._isMainLight;
+    }
+
+    set isMainLight (val) {
+        if (this._isMainLight === val) { return; }
+        this._destroyLight();
+        this._isMainLight = val;
+        this._type = Type.DIRECTIONAL;
+        this._createLight();
+    }
 
     /**
      * !#en The light source type
      *
      * !#ch 光源类型
-     *
-     * @type {Number}
      */
     @property({
         type: Type,
@@ -157,7 +157,6 @@ export class LightComponent extends Component {
      * !#en The light source color
      *
      * !#ch 光源颜色
-     * @type {Color}
      */
     @property
     get color () {
@@ -178,7 +177,6 @@ export class LightComponent extends Component {
      * !#en The light source intensity
      *
      * !#ch 光源强度
-     * @type {Number}
      */
     @property
     get intensity () {
@@ -199,7 +197,6 @@ export class LightComponent extends Component {
      * !#en The light range, used for spot and point light
      *
      * !#ch 针对聚光灯和点光源设置光源范围
-     * @type {Number}
      */
     @property
     get range () {
@@ -217,7 +214,6 @@ export class LightComponent extends Component {
      * !#en The spot light cone angle
      *
      * !#ch 聚光灯锥角
-     * @type {Number}
      */
     @property
     get spotAngle () {
@@ -247,29 +243,39 @@ export class LightComponent extends Component {
     protected _createLight (scene?: RenderScene) {
         if (!this.node.scene) { return; }
         if (!scene) { scene = this._getRenderScene(); }
-        switch (this._type) {
-        case Type.DIRECTIONAL:
-            if (this._light && scene.directionalLights.find((c) => c === this._light)) { break; }
-            this._light = scene.createDirectionalLight(this.name, this.node);
-            break;
-        case Type.POINT:
-            if (this._light && scene.pointLights.find((c) => c === this._light)) { break; }
-            this._light = scene.createPointLight(this.name, this.node);
-            this.range = this._range;
-            break;
-        case Type.SPOT:
-            if (this._light && scene.spotLights.find((c) => c === this._light)) { break; }
-            this._light = scene.createSpotLight(this.name, this.node);
-            this.range = this._range;
-            this.spotAngle = this._spotAngle;
-            break;
-        default:
-            console.warn(`illegal light type ${this._type}`);
-            return;
-        }
-        if (!this._light) {
-            console.warn('we don\'t support this many lights in forward pipeline.');
-            return;
+        if (this._isMainLight) {
+            if (scene.mainLight.node.activeInHierarchy) {
+                this._isMainLight = false;
+                console.warn('there can be only one main light!');
+                return;
+            }
+            this._light = scene.mainLight;
+            this._light.node = this.node;
+        } else {
+            switch (this._type) {
+            case Type.DIRECTIONAL:
+                if (this._light && scene.directionalLights.find((c) => c === this._light)) { break; }
+                this._light = scene.createDirectionalLight(this.name, this.node);
+                break;
+            case Type.POINT:
+                if (this._light && scene.pointLights.find((c) => c === this._light)) { break; }
+                this._light = scene.createPointLight(this.name, this.node);
+                this.range = this._range;
+                break;
+            case Type.SPOT:
+                if (this._light && scene.spotLights.find((c) => c === this._light)) { break; }
+                this._light = scene.createSpotLight(this.name, this.node);
+                this.range = this._range;
+                this.spotAngle = this._spotAngle;
+                break;
+            default:
+                console.warn(`illegal light type ${this._type}`);
+                return;
+            }
+            if (!this._light) {
+                console.warn('we don\'t support this many lights in forward pipeline.');
+                return;
+            }
         }
         this.color = this._color;
         this._light.enabled = this.enabledInHierarchy;
@@ -278,16 +284,18 @@ export class LightComponent extends Component {
     protected _destroyLight (scene?: RenderScene) {
         if (!this.node.scene || !this._light) { return; }
         if (!scene) { scene = this._getRenderScene(); }
-        switch (this._type) {
-        case Type.DIRECTIONAL:
-            scene.destroyDirectionalLight(this._light);
-            break;
-        case Type.POINT:
-            scene.destroyPointLight(this._light);
-            break;
-        case Type.SPOT:
-            scene.destroySpotLight(this._light);
-            break;
+        if (!this._isMainLight) {
+            switch (this._type) {
+            case Type.DIRECTIONAL:
+                scene.destroyDirectionalLight(this._light);
+                break;
+            case Type.POINT:
+                scene.destroyPointLight(this._light);
+                break;
+            case Type.SPOT:
+                scene.destroySpotLight(this._light);
+                break;
+            }
         }
         this._light = null;
     }

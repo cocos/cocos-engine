@@ -17,7 +17,7 @@ export class Light {
         return this._enabled;
     }
 
-    set color (color: Float32Array) {
+    set color (color) {
         this._color.set(color);
     }
 
@@ -25,32 +25,34 @@ export class Light {
         return this._color;
     }
 
-    get type (): LightType {
-        return this._type;
-    }
-    get name (): string {
-        return this._name;
-    }
-
-    set node (n: Node | null) {
+    set node (n) {
         this._node = n;
     }
 
-    get node (): Node | null {
+    get node () {
         return this._node;
+    }
+
+    get type () {
+        return this._type;
+    }
+
+    get name () {
+        return this._name;
     }
 
     protected _color = Float32Array.from([1, 1, 1, 1]);
     protected _enabled = false;
     protected _scene: RenderScene;
-    protected _node: Node | null = null;
+    protected _node: Node;
     protected _type: LightType;
     protected _name: string;
 
-    constructor (scene: RenderScene, name: string) {
+    constructor (scene: RenderScene, name: string, node: Node) {
         this._scene = scene;
         this._name = name;
         this._type = LightType.UNKNOWN;
+        this._node = node;
     }
 
     public update () {}

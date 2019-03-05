@@ -29,15 +29,11 @@ class Node extends BaseNode {
     }
 
     // local transform
-    @property({
-        // default: cc.v3(0, 0, 0),
-    })
+    @property
     protected _lpos = new Vec3();
     @property
     protected _lrot = new Quat();
-    @property({
-        // default: cc.v3(1, 1, 1),
-    })
+    @property
     protected _lscale = new Vec3(1, 1, 1);
     @property
     protected _layer = Layers.Default; // the layer this node belongs to

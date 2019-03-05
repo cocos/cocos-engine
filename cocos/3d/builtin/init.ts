@@ -166,7 +166,7 @@ class BuiltinResMgr {
         resources[defaultParticleMtl._uuid] = defaultParticleMtl;
     }
 
-    public get<T extends Asset> (uuid: string): T {
+    public get<T extends Asset> (uuid: string) {
         return this._resources[uuid] as T;
     }
 }
