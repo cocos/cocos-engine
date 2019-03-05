@@ -41,6 +41,7 @@ export function createMesh (geometry: IGeometry) {
     for (const channel of channels) {
         _writeVertices(vertexBufferView, channel.offset, stride, channel.attribute, channel.data);
     }
+    bufferBlob.setNextAlignment(0);
     const vertexBundle: IVertexBundle = {
         verticesCount,
         attributes,
@@ -54,9 +55,9 @@ export function createMesh (geometry: IGeometry) {
     // Fill index buffer.
     let indexBuffer: ArrayBuffer | null = null;
     const targetIndexUnit = IndexUnit.UINT16;
+    const indexUnitBytesLength = 2;
     if (geometry.indices) {
         const { indices } = geometry;
-        const indexUnitBytesLength = 2;
         indexBuffer = new ArrayBuffer(indexUnitBytesLength * indices.length);
         const indexBufferView = new DataView(indexBuffer);
         const writer = _getIndicesWriter(indexBufferView, targetIndexUnit);
@@ -73,6 +74,7 @@ export function createMesh (geometry: IGeometry) {
     // geometric info for raycasting
     if (primitive.primitiveMode >= GFXPrimitiveMode.TRIANGLE_LIST) {
         const geomInfo = Float32Array.from(geometry.positions);
+        bufferBlob.setNextAlignment(4);
         primitive.geometricInfo = {
             doubleSided: geometry.doubleSided,
             range: { offset: bufferBlob.getLength(), length: geomInfo.byteLength },
@@ -81,6 +83,7 @@ export function createMesh (geometry: IGeometry) {
     }
 
     if (indexBuffer) {
+        bufferBlob.setNextAlignment(indexUnitBytesLength);
         primitive.indices = {
             indexUnit: targetIndexUnit,
             range: {
@@ -141,12 +144,23 @@ const predefinedAttributes = {
 };
 
 class BufferBlob {
-    private _arrayBuffers: ArrayBuffer[] = [];
+    private _arrayBufferOrPaddings: Array<ArrayBuffer | number> = [];
     private _length = 0;
+
+    public setNextAlignment (align: number) {
+        if (align !== 0) {
+            const remainder = this._length % align;
+            if (remainder !== 0) {
+                const padding = align - remainder;
+                this._arrayBufferOrPaddings.push(padding);
+                this._length += padding;
+            }
+        }
+    }
 
     public addBuffer (arrayBuffer: ArrayBuffer) {
         const result = this._length;
-        this._arrayBuffers.push(arrayBuffer);
+        this._arrayBufferOrPaddings.push(arrayBuffer);
         this._length += arrayBuffer.byteLength;
         return result;
     }
@@ -156,13 +170,15 @@ class BufferBlob {
     }
 
     public getCombined () {
-        let length = 0;
-        this._arrayBuffers.forEach((arrayBuffer) => length += arrayBuffer.byteLength);
-        const result = new Uint8Array(length);
+        const result = new Uint8Array(this._length);
         let counter = 0;
-        this._arrayBuffers.forEach((arrayBuffer) => {
-            result.set(new Uint8Array(arrayBuffer), counter);
-            counter += arrayBuffer.byteLength;
+        this._arrayBufferOrPaddings.forEach((arrayBufferOrPadding) => {
+            if (typeof arrayBufferOrPadding === 'number') {
+                counter += arrayBufferOrPadding;
+            } else {
+                result.set(new Uint8Array(arrayBufferOrPadding), counter);
+                counter += arrayBufferOrPadding.byteLength;
+            }
         });
         return result.buffer;
     }
