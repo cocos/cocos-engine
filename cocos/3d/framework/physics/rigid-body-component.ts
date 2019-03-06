@@ -204,6 +204,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         this._body!.applyForce(toCannonVec3(force), toCannonVec3(position));
     }
 
+    public applyImpulse (impulse: Vec3) {
+        this._body!.applyImpulse(toCannonVec3(impulse), toCannonVec3(new Vec3()));
+    }
+
     /**
      * Set the collision filter of this body, remember that they are tested bitwise.
      * @param {number} group The group which this body will be put into.

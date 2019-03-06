@@ -26,6 +26,7 @@ export class PhysicsBasedComponent extends Component {
 
     public onLoad () {
         this._refSharedBody();
+        this._sharedBody!.syncPhysWithScene();
     }
 
     public start () {

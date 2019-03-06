@@ -1,3 +1,4 @@
+import CANNON from 'cannon';
 import { Vec3 } from '../../../core/value-types';
 
 export interface IWrappedCANNON<T> {
