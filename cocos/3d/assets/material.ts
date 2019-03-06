@@ -29,6 +29,7 @@ import { GFXBindingType } from '../../gfx/define';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Effect, IDefineMap } from '../../renderer/core/effect';
 import { Pass, PassOverrides } from '../../renderer/core/pass';
+import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from '../framework/renderable-component';
 import { EffectAsset } from './effect-asset';
 
@@ -198,9 +199,9 @@ export class Material extends Asset {
     protected _update (asset: EffectAsset | null = this._effectAsset, keepProps: boolean = true) {
         // get effect asset
         this._effectAsset = asset;
-        if (!this._effectAsset) { return; }
+        asset = asset || builtinResMgr.get<Material>('default-material').effectAsset!;
         // create passes
-        this._passes = Effect.parseEffect(this._effectAsset, {
+        this._passes = Effect.parseEffect(asset, {
             techIdx: this._techIdx,
             defines: this._defines,
         });

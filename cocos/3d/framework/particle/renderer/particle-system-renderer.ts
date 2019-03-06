@@ -4,7 +4,6 @@ import { mat4, vec2, vec3, vec4 } from '../../../../core/vmath';
 import { GFXAttributeName, GFXFormat } from '../../../../gfx/define';
 import { IGFXInputAttribute } from '../../../../gfx/input-assembler';
 import * as renderer from '../../../../renderer';
-import gfx from '../../../../renderer/gfx';
 import ParticleBatchModel from '../../../../renderer/models/particle-batch-model';
 import { Material } from '../../../assets/material';
 import RecyclePool from '../../../memop/recycle-pool';
