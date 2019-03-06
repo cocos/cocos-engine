@@ -80,7 +80,7 @@ cc.AmbientInfo = AmbientInfo;
 
 @ccclass('cc.SkyboxInfo')
 export class SkyboxInfo {
-    @property
+    @property(TextureCube)
     protected _cubemap: TextureCube | null = null;
     @property
     protected _isRGBE: boolean = false;
