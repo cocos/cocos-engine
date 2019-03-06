@@ -5,6 +5,7 @@ import { Quat, Vec3 } from '../../../../core/value-types';
 import { quat, vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 import { BoxColliderComponent, ColliderComponentBase, SphereColliderComponent } from '../collider-component';
+import { DefaultPhysicsMaterial } from '../default-material';
 import { getWrap, setWrap } from '../util';
 import { PhysicsWorld } from '../world';
 
@@ -103,7 +104,9 @@ class SharedRigidBody {
     private _worldScale: Vec3 = new Vec3(1, 1, 1);
 
     constructor (node: Node, world: PhysicsWorld) {
-        this._body = new CANNON.Body();
+        this._body = new CANNON.Body({
+            material: DefaultPhysicsMaterial._getImpl(),
+        });
         this._node = node;
         setWrap<Node>(this._body, this._node);
         this._world = world;

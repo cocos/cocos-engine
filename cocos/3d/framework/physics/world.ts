@@ -5,6 +5,7 @@ import { Node } from '../../../scene-graph/node';
 import { PhysicsMaterial } from '../../assets/physics/material';
 import { Constraint } from './constraints';
 import { ContactMaterial } from './contact-material';
+import { DefaultPhysicsMaterial } from './default-material';
 import { getWrap, setWrap, toCannonOptions } from './util';
 
 export interface IRaycastOptions {
@@ -40,24 +41,19 @@ cc.RaycastResult = RaycastResult;
 
 export class PhysicsWorld {
     private _cannonWorld: CANNON.World;
-    private _defaultMaterial: PhysicsMaterial;
     private _defaultContactMaterial: ContactMaterial;
     private _beforeStepEvent: CANNON.IEvent = {
         type: 'beforeStep',
     };
 
     constructor () {
-        this._defaultMaterial = new PhysicsMaterial();
-        const mtl = new PhysicsMaterial();
-        mtl.friction = 0.3;
-        mtl.restitution = 0;
-        this._defaultContactMaterial = new ContactMaterial(this._defaultMaterial, mtl);
+        this._defaultContactMaterial = new ContactMaterial(DefaultPhysicsMaterial, DefaultPhysicsMaterial);
 
         this._cannonWorld = new CANNON.World();
         setWrap<PhysicsWorld>(this._cannonWorld, this);
         this._cannonWorld.gravity.set(0, -9.81, 0);
         this._cannonWorld.broadphase = new CANNON.NaiveBroadphase();
-        this._cannonWorld.defaultMaterial = this._defaultMaterial._getImpl();
+        this._cannonWorld.defaultMaterial = DefaultPhysicsMaterial._getImpl();
         this._cannonWorld.defaultContactMaterial = this._defaultContactMaterial._getImpl();
     }
 
