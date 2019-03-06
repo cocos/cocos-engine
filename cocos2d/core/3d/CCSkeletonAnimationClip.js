@@ -26,6 +26,27 @@
 const AnimationClip = require('../../animation/animation-clip');
 import mat4 from '../vmath/mat4';
 
+function maxtrixToArray (matrix) {
+    let data = new Float32Array(16);
+    data[0] = matrix.m00;
+    data[1] = matrix.m01;
+    data[2] = matrix.m02;
+    data[3] = matrix.m03;
+    data[4] = matrix.m04;
+    data[5] = matrix.m05;
+    data[6] = matrix.m06;
+    data[7] = matrix.m07;
+    data[8] = matrix.m08;
+    data[9] = matrix.m09;
+    data[10] = matrix.m10;
+    data[11] = matrix.m11;
+    data[12] = matrix.m12;
+    data[13] = matrix.m13;
+    data[14] = matrix.m14;
+    data[15] = matrix.m15;
+    return data;
+}
+
 /**
 * @module cc
 */
@@ -35,7 +56,7 @@ import mat4 from '../vmath/mat4';
  * @class SkeletonAnimationClip
  * @extends AnimationClip
  */
-var SkeletonAnimationClip = cc.Class({
+let SkeletonAnimationClip = cc.Class({
     name: 'cc.SkeletonAnimationClip',
     extends: AnimationClip,
 
@@ -71,12 +92,10 @@ var SkeletonAnimationClip = cc.Class({
                 return this._curveData || {};
             },
             set () {}
-        },
-
-        precomputeJointMatrix: true
+        }
     },
 
-    _init (joints) {
+    _init (model) {
         if (this._curveData) {
             return this._curveData;
         }
@@ -85,8 +104,9 @@ var SkeletonAnimationClip = cc.Class({
         
         this._generateCommonCurve();
 
-        if (this.precomputeJointMatrix) {
-            this._generateJointMatrixCurve(joints);
+        this._model = model;
+        if (this._model.precomputeJointMatrix) {
+            this._generateJointMatrixCurve();
         }
 
         return this._curveData;
@@ -133,7 +153,8 @@ var SkeletonAnimationClip = cc.Class({
         }
     },
 
-    _generateJointMatrixCurve (joints) {
+    _generateJointMatrixCurve () {
+        let joints = this._model.nodeMap;
         let curveData = this._curveData;
         let paths = curveData.paths;
 
@@ -192,7 +213,7 @@ var SkeletonAnimationClip = cc.Class({
                     }
                 }
 
-                matrix = cc.mat4();
+                matrix = mat4.create();
                 mat4.fromRTS(matrix, node.quat, node.position, node.scale);
 
                 if (pm) {
@@ -205,13 +226,13 @@ var SkeletonAnimationClip = cc.Class({
 
                 let bindWorldMatrix;
                 if (node.bindpose) {
-                    bindWorldMatrix = cc.mat4();
+                    bindWorldMatrix = mat4.create();
                     mat4.mul(bindWorldMatrix, matrix, node.bindpose);
                 }
 
                 props._jointMatrix.push({
                     frame: time,
-                    value: bindWorldMatrix || matrix
+                    value: maxtrixToArray(bindWorldMatrix || matrix)
                 });
             }
 

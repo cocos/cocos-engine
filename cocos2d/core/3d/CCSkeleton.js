@@ -46,6 +46,12 @@ let Skeleton = cc.Class({
             get () {
                 return this._bindposes;
             }
+        },
+
+        model: {
+            get () {
+                return this._model;
+            }
         }
     },
 

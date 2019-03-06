@@ -36,6 +36,8 @@ let Model = cc.Class({
             default: []
         },
 
+        _precomputeJointMatrix: false,
+
         nodes: {
             get () {
                 return this._nodes;
@@ -44,6 +46,12 @@ let Model = cc.Class({
         nodeMap: {
             get () {
                 return this._nodeMap;
+            }
+        },
+
+        precomputeJointMatrix: {
+            get () {
+                return this._precomputeJointMatrix;
             }
         }
     },
@@ -55,16 +63,11 @@ let Model = cc.Class({
             let node = nodes[i];
             node.position = cc.v3.apply(this, node.position);
             node.scale = cc.v3.apply(this, node.scale);
-            node.quat = cc.quat.apply(this, node.rotation);
+            node.quat = cc.quat.apply(this, node.quat);
             
             let pose = node.bindpose;
             if (pose) {
-                node.bindpose = cc.mat4(
-                    pose[0], pose[1], pose[2], pose[3],
-                    pose[4], pose[5], pose[6], pose[7],
-                    pose[8], pose[9], pose[10], pose[11],
-                    pose[12], pose[13], pose[14], pose[15]
-                );
+                node.bindpose = cc.mat4.apply(this, pose);
             }
 
             map[node.path] = node;

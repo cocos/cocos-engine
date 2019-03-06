@@ -89,7 +89,7 @@ let SkeletonAnimation = cc.Class({
     getAnimationState (name) {
         let state = this._super(name);	
         let clip = state.clip;
-        clip._init(this._model.nodeMap);
+        clip._init(this._model);
         return state;	
     },
 
