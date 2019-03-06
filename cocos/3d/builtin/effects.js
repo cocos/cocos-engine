@@ -97,7 +97,7 @@ export default [
   {
     "name": "builtin-standard",
     "techniques": [
-      {"name":"opaque", "passes":[{"program":"builtin-standard|standard-vs:vert|standard-fs:frag", "properties":{"tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "albedo":{"type":17, "value":[1, 1, 1, 1]}, "albedoScale":{"type":16, "value":[1, 1, 1, 0]}, "pbrParams":{"type":16, "value":[0.6, 0.2, 1, 1]}, "pbrScale":{"type":16, "value":[1, 1, 1, 1]}, "emissive":{"type":17, "value":[1, 1, 1, 1]}, "emissiveScale":{"type":16, "value":[1, 1, 1, 1]}, "albedoSampler":{"type":29, "value":"grey"}, "normalSampler":{"type":29, "value":"normal"}, "pbrSampler":{"type":29, "value":"grey"}, "emissiveSampler":{"type":29, "value":"grey"}}}, {"program":"builtin-standard|planar-shadow-vs:vert|planar-shadow-fs:frag", "switch":"USE_PLANAR_SHADOW"}]}
+      {"name":"opaque", "passes":[{"program":"builtin-standard|standard-vs:vert|standard-fs:frag", "properties":{"tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "albedo":{"type":17, "value":[1, 1, 1, 1]}, "albedoScale":{"type":16, "value":[1, 1, 1, 0]}, "pbrParams":{"type":16, "value":[0.6, 0.2, 1, 1]}, "pbrScale":{"type":16, "value":[1, 1, 1, 1]}, "emissive":{"type":17, "value":[1, 1, 1, 1]}, "emissiveScale":{"type":16, "value":[1, 1, 1, 1]}, "albedoSampler":{"type":29, "value":"grey"}, "normalSampler":{"type":29, "value":"normal"}, "pbrSampler":{"type":29, "value":"grey"}, "emissiveSampler":{"type":29, "value":"grey"}}}, {"depthStencilState":{"depthTest":true, "depthWrite":false}, "program":"builtin-standard|planar-shadow-vs:vert|planar-shadow-fs:frag", "properties":{"shadowColor":{"type":17, "value":[0.3, 0.3, 0.3, 1]}}, "switch":"USE_PLANAR_SHADOW"}]}
     ],
     "shaders": [
       {
@@ -142,16 +142,23 @@ export default [
       {
         "name": "builtin-standard|planar-shadow-vs:vert|planar-shadow-fs:frag",
         "glsl3": {
-          "vert": `\nprecision mediump float;\nvec4 vert () {\n  return vec4();\n}\nvoid main() { gl_Position = vert(); }\n`,
-          "frag": `\nprecision mediump float;\nvec4 frag () {\n  return vec4();\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`
+          "vert": `\nprecision highp float;\nuniform CCGlobal {\n  \n  vec4 cc_time; \n  vec4 cc_screenSize; \n  vec4 cc_screenScale; \n  \n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos; \n  vec4 cc_mainLitDir; \n  vec4 cc_mainLitColor; \n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nuniform CCLocal {\n  mat4 cc_matWorld;\n  mat4 cc_matWorldIT;\n};\nuniform Transforms {\n  mat4 matLightPlaneProj;\n};\nin vec3 a_position;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  return cc_matViewProj * matLightPlaneProj * cc_matWorld * pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "frag": `\nprecision highp float;\nuniform Constants {\n  vec4 shadowColor;\n};\nvec4 frag () {\n  return shadowColor;\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`
         },
         "glsl1": {
-          "vert": `\nprecision mediump float;\nvec4 vert () {\n  return vec4();\n}\nvoid main() { gl_Position = vert(); }\n`,
-          "frag": `\nprecision mediump float;\nvec4 frag () {\n  return vec4();\n}\nvoid main() { gl_FragColor = frag(); }\n`
+          "vert": `\nprecision highp float;\nuniform vec4 cc_time;\nuniform vec4 cc_screenSize;\nuniform vec4 cc_screenScale;\nuniform mat4 cc_matView;\nuniform mat4 cc_matViewInv;\nuniform mat4 cc_matProj;\nuniform mat4 cc_matProjInv;\nuniform mat4 cc_matViewProj;\nuniform mat4 cc_matViewProjInv;\nuniform vec4 cc_cameraPos;\nuniform vec4 cc_mainLitDir;\nuniform vec4 cc_mainLitColor;\nuniform vec4 cc_ambientSky;\nuniform vec4 cc_ambientGround;\nuniform mat4 cc_matWorld;\nuniform mat4 cc_matWorldIT;\nuniform mat4 matLightPlaneProj;\nattribute vec3 a_position;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  return cc_matViewProj * matLightPlaneProj * cc_matWorld * pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "frag": `\nprecision highp float;\nuniform vec4 shadowColor;\nvec4 frag () {\n  return shadowColor;\n}\nvoid main() { gl_FragColor = frag(); }\n`
         },
-        "builtins": {"blocks":[], "textures":[]},
+        "builtins": {"blocks":["CCGlobal", "CCLocal"], "textures":[]},
         "defines": [],
-        "blocks": [],
+        "blocks": [
+          {"name": "Transforms", "size": 64, "defines": [], "binding": 0, "members": [
+            {"name":"matLightPlaneProj", "type":26, "count":1, "size":64}
+          ]},
+          {"name": "Constants", "size": 16, "defines": [], "binding": 1, "members": [
+            {"name":"shadowColor", "type":16, "count":1, "size":16}
+          ]}
+        ],
         "samplers": [],
         "dependencies": {}
       }

@@ -26,10 +26,10 @@ interface IPlaneOptions extends RecursivePartial<IGeometryOptions> {
 
 function applyDefaultPlaneOptions (options?: RecursivePartial<IPlaneOptions>): IPlaneOptions {
     options = applyDefaultGeometryOptions<IPlaneOptions>(options);
-    options.width = 10;
-    options.length = 10;
-    options.widthSegments = 10;
-    options.lengthSegments = 10;
+    options.width = options.width || 10;
+    options.length = options.length || 10;
+    options.widthSegments = options.widthSegments || 10;
+    options.lengthSegments = options.lengthSegments || 10;
     return options as IPlaneOptions;
 }
 

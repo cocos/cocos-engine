@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>planar shadow</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <style>
+    body {
+      background-color: #333;
+      margin: 0px;
+      overflow: hidden;
+    }
+
+    .fit {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+  </style>
+</head>
+
+<body class="fit">
+  <canvas id="canvas" tabindex="-1" class="fit"></canvas>
+
+  <script src="../bin/cocos-3d.dev.js"></script>
+  <script src="./camera.js"></script>
+  <script>
+    const $body = document.body;
+    const bcr = $body.getBoundingClientRect();
+    const canv = document.getElementById('canvas');
+    canv.width = bcr.width;
+    canv.height = bcr.height;
+
+    window.addEventListener('resize', () => {
+      const bcr = $body.getBoundingClientRect();
+      cc.director.root.resize(bcr.width, bcr.height);
+    });
+
+    const getLightPlaneProj = (light, plane) => {
+      const lx = light.x, ly = light.y, lz = light.z;
+      const n = plane.n, d = plane.d + 0.01;
+      const nx = n.x, ny = n.y, nz = n.z;
+      const NdL = cc.vmath.vec3.dot(plane.n, light);
+      return cc.mat4(
+        NdL - d - lx * nx, -ly * nx, -lz * nx, -nx,
+        -lx * ny, NdL - d - ly * ny, -lz * ny, -ny,
+        -lx * nz, -ly * nz, NdL - d - lz * nz, -nz,
+        lx * d, ly * d, lz * d, NdL);
+    };
+
+    function onStart() {
+      const root = cc.director.root;
+      const scene = new cc.Scene();
+      const rt = new cc.Node();
+      rt.parent = scene;
+      const altitude = 0;
+      rt.setPosition(0, altitude, 0);
+
+      const cameraNode = new cc.Node('Camera');
+      cameraNode.parent = rt;
+      cameraNode.setPosition(-4, 10, -17);
+      cameraNode.setRotationFromEuler(-30, -165, 0);
+      cameraNode.addComponent(cc.CameraComponent);
+      cameraNode.addComponent(FirstPersonCamera);
+
+      // parsed effect file is embedded in cocos/3d/builtin/effects.js
+      const noShadow = new cc.Material();
+      noShadow.initialize({ effectName: 'builtin-standard' });
+      const material = new cc.Material();
+      material.initialize({
+        effectName: 'builtin-standard',
+        defines: { USE_PLANAR_SHADOW: true },
+      });
+
+      const manifest = [
+        { name: 'box', pos: cc.v3(0, 1, 0) },
+        { name: 'sphere', pos: cc.v3(5, 1, 5) },
+        { name: 'cylinder', pos: cc.v3(-5, 1, -5) },
+        { name: 'torus', pos: cc.v3(5, 1, -5) },
+        { name: 'cone', pos: cc.v3(-5, 1, 5) },
+        { name: 'plane', pos: cc.v3(0, 0, 0), mat: noShadow, param: { width: 100, length: 100 } },
+      ];
+      const models = {};
+      for (const info of manifest) {
+        const modelNode = new cc.Node(`${info.name}`);
+        modelNode.parent = rt;
+        const modelCom = modelNode.addComponent('cc.ModelComponent');
+        modelCom.material = info.mat || material;
+        modelCom.mesh = cc.utils.createMesh(cc.primitives[info.name](info.param));
+        modelNode.setPosition(info.pos);
+        models[info.name] = modelCom;
+      }
+
+      const qt = cc.vmath.quat.fromEuler(cc.quat(), 0, 0, 0);
+      const nm = cc.vmath.vec3.transformQuat(cc.v3(), cc.v3(0, 1, 0), qt);
+
+      models.plane.node.setRotation(qt);
+      material.setProperty('matLightPlaneProj', getLightPlaneProj(cc.v3(-10, altitude + 10, -10), // light
+        cc.geometry.plane.create(nm.x, nm.y, nm.z, cc.vmath.vec3.dot(nm, models.plane.node.getWorldPosition()))));
+
+      cc.director.runSceneImmediate(scene);
+    }
+    cc.game.run({ id: 'canvas' }, onStart);
+  </script>
+</body>
+
+</html>

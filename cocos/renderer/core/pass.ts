@@ -185,11 +185,7 @@ export class Pass {
     }
 
     public getHandle (name: string) {
-        const handle = this._handleMap[name];
-        if (!handle) {
-            console.warn('illegal property name ' + name);
-        }
-        return handle;
+        return this._handleMap[name];
     }
 
     public getBinding (name: string) {
