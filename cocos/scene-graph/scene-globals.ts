@@ -118,8 +118,9 @@ export class SkyboxInfo {
 
     set renderScene (val: RenderScene) {
         this._resource = val.skybox;
-        this.cubemap = this._cubemap;
         this.isRGBE = this._isRGBE;
+        this.cubemap = this._cubemap;
+        this.enabled = this._enabled;
     }
 }
 cc.SkyboxInfo = SkyboxInfo;

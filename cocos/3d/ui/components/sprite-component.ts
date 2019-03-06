@@ -501,7 +501,7 @@ export class SpriteComponent extends UIRenderComponent {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData.material = this.sharedMaterial;
+                this._renderData.material = this._material;
                 this.markForUpdateRenderData();
             }
         }
@@ -509,7 +509,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     private _activateMaterial () {
         const spriteFrame = this._spriteFrame;
-        const material = this.sharedMaterial;
+        const material = this._material;
         // WebGL
         if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
             // if (!material) {

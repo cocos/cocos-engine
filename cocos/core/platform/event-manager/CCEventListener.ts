@@ -1,3 +1,5 @@
+import { MaskComponent } from "../../../3d/ui/components/mask-component";
+
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
@@ -136,6 +138,12 @@ export class EventListener {
 
         return listener!;
     }
+
+    // hack: How to solve the problem of uncertain attribute
+    // callback's this object
+    public owner: Object | null = null;
+    public mask: MaskComponent | null = null;
+    public _previousIn?: boolean = false;
 
     public _target: any = null;
 

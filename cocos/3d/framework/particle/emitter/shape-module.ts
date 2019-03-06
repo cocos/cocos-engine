@@ -4,7 +4,7 @@ import { Enum, Vec3 } from '../../../../core/value-types';
 import CurveRange from '../animator/curve-range';
 import { CCClass } from '../../../../core/data';
 import { property, ccclass } from '../../../../core/data/class-decorator';
-import ParticleSystemComponent from '../particle-system-component';
+import { ParticleSystemComponent } from '../particle-system-component';
 
 // tslint:disable: max-line-length
 const _intermediVec = vec3.create(0, 0, 0);

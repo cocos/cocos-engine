@@ -11,9 +11,7 @@ export class Skybox extends Model {
     set cubemap (val: TextureCube | null) {
         this._cubemap = val || this._default;
         this._material.setProperty('cubeMap', this._cubemap);
-        for (const pso of this._matPSORecord.get(this._material)!) {
-            pso.pipelineLayout.layouts[0].update();
-        }
+        this._updateBindingLayout();
     }
     get cubemap () {
         return this._cubemap;
@@ -25,6 +23,7 @@ export class Skybox extends Model {
         this._material.destroy();
         this._material.initialize({ defines: { USE_RGBE_CUBEMAP: val } });
         this.setSubModelMaterial(0, this._material);
+        this._updateBindingLayout();
     }
     get isRGBE () {
         return this._isRGBE;
@@ -50,5 +49,10 @@ export class Skybox extends Model {
         const mesh = createMesh(box({ width: 2, height: 2, length: 2 }));
         const subMeshData = mesh.renderingMesh!.getSubmesh(0)!;
         this.initSubModel(0, subMeshData, this._material);
+        this._updateBindingLayout();
+    }
+
+    protected _updateBindingLayout () {
+        this._matPSORecord.get(this._material)![0].pipelineLayout.layouts[0].update();
     }
 }

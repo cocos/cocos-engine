@@ -26,15 +26,12 @@
  ****************************************************************************/
 
 import { ccclass } from '../core/data/class-decorator';
-import EventTarget from '../core/event/event-target';
 import { EventTargetFactory } from '../core/event/event-target-factory';
-import { addon } from '../core/utils/js';
-import Rect, { rect } from '../core/value-types/rect';
-import Size, { size } from '../core/value-types/size';
-import Vec2, { v2 } from '../core/value-types/vec2';
+import { Rect, Size, Vec2 } from '../core/value-types';
+import { vec2 } from '../core/vmath';
+import { ImageAsset } from './image-asset';
 import { Texture2D } from './texture-2d';
 import textureUtil from './texture-util';
-import { ImageAsset } from './image-asset';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -121,6 +118,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     get insetTop () {
         return this._capInsets[INSET_TOP];
     }
+
     set insetTop (value) {
         this._capInsets[INSET_TOP] = value;
         // if (this._texture) {
@@ -138,6 +136,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     get insetBottom () {
         return this._capInsets[INSET_BOTTOM];
     }
+
     set insetBottom (value) {
         this._capInsets[INSET_BOTTOM] = value;
         // if (this._texture) {
@@ -155,6 +154,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     get insetLeft () {
         return this._capInsets[INSET_LEFT];
     }
+
     set insetLeft (value) {
         this._capInsets[INSET_LEFT] = value;
         // if (this._texture) {
@@ -172,6 +172,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     get insetRight () {
         return this._capInsets[INSET_RIGHT];
     }
+
     set insetRight (value) {
         this._capInsets[INSET_RIGHT] = value;
         // if (this._texture) {
@@ -183,7 +184,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
         return this._atlasUuid;
     }
 
-    set atlasUuid (value) {
+    set atlasUuid (value: string) {
         this._atlasUuid = value;
     }
 
@@ -217,7 +218,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     // store original info before packed to dynamic atlas
     private _original = null;
 
-    private _atlasUuid?: string;
+    private _atlasUuid: string = '';
 
     private _atlasSize = new Size();
 
@@ -291,8 +292,13 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
      * !#en Returns the rect of the sprite frame in the texture.
      * !#zh 获取 SpriteFrame 的纹理矩形区域
      */
-    public getRect () {
-        return rect(this._rect);
+    public getRect (out?: Rect) {
+        if (out) {
+            out.set(this._rect);
+            return out;
+        }
+
+        return this._rect.clone();
     }
 
     /**
@@ -307,8 +313,13 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
      * !#en Returns the original size of the trimmed image.
      * !#zh 获取修剪前的原始大小
      */
-    public getOriginalSize () {
-        return size(this._originalSize);
+    public getOriginalSize (out?: Size) {
+        if (out) {
+            out.set(this._originalSize);
+            return out;
+        }
+
+        return this._originalSize.clone();
     }
 
     /**
@@ -345,8 +356,8 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
         //     return;
         // }
         // let w = texture.width, h = texture.height;
-        let w = self.width;
-        let h = self.height;
+        const w = self.width;
+        const h = self.height;
 
         // if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
         //     // TODO: rotate texture for canvas
@@ -362,15 +373,15 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
         if (self._rect) {
             self.checkRect(this.image!);
         } else {
-            self.setRect(cc.rect(0, 0, w, h));
+            self.setRect(new Rect(0, 0, w, h));
         }
 
         if (!self._originalSize) {
-            self.setOriginalSize(cc.size(w, h));
+            self.setOriginalSize(new Size(w, h));
         }
 
         if (!self._offset) {
-            self.setOffset(cc.v2(0, 0));
+            self.setOffset(new Vec2(0, 0));
         }
 
         self._calculateUV();
@@ -401,8 +412,13 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
      * !#en Returns the offset of the frame in the texture.
      * !#zh 获取偏移量
      */
-    public getOffset () {
-        return v2(this._offset);
+    public getOffset (out?: Vec2) {
+        if (out) {
+            out.set(this._offset);
+            return out;
+        }
+
+        return this._offset.clone();
     }
 
     /**
@@ -411,7 +427,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
      * @param offsets
      */
     public setOffset (offsets: Vec2) {
-        this._offset = new Vec2(offsets);
+        vec2.set(this._offset, offsets.x, offsets.y);
     }
 
     /**
@@ -536,7 +552,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     //     this._texture = null;   // TODO - release texture
     // }
 
-    public checkRect(texture: ImageAsset) {
+    public checkRect (texture: ImageAsset) {
         const rect = this._rect;
         let maxX = rect.x;
         let maxY = rect.y;

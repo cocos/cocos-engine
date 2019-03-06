@@ -93,8 +93,7 @@ export class RenderScene {
     constructor (root: Root) {
         this._root = root;
         this._ambient = new Ambient (this);
-        this._mainLight = new DirectionalLight(this, 'Main Light');
-        this._mainLight.node = new Node('Main Light');
+        this._mainLight = new DirectionalLight(this, 'Main Light', new Node('Main Light'));
         this._skybox = new Skybox(this);
     }
 

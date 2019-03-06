@@ -10,6 +10,7 @@ import {
 import { Quat, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { PhysicsMaterial } from '../../assets/physics/material';
+import { DefaultPhysicsMaterial as DefaultPhysicsMaterial } from './default-material';
 import { PhysicsBasedComponent, TransformSource } from './detail/physics-based-component';
 import { toCannonVec3 } from './util';
 
@@ -62,12 +63,16 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         this.mass = this._mass;
         this.linearDamping = this._linearDamping;
         this.angularDamping = this._angularDamping;
+        this.material = this._material;
+        this.useGravity = this._useGravity;
     }
 
     public onDisable () {
         this.mass = NonRigidBodyProperties.mass;
         this.linearDamping = NonRigidBodyProperties.linearDamping;
         this.angularDamping = NonRigidBodyProperties.angularDamping;
+        this.material = DefaultPhysicsMaterial;
+        this.useGravity = true;
     }
 
     @property({
@@ -80,7 +85,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     set material (value) {
         this._material = value;
         if (this._body) {
-            this._body.material = this._material ? this._material._getImpl() : null;
+            this._body.material = (this._material || DefaultPhysicsMaterial)._getImpl();
         }
     }
 

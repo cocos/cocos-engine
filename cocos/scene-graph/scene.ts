@@ -64,8 +64,7 @@ export class Scene extends Node {
         super(name);
         this._activeInHierarchy = false;
         if (cc.director && cc.director.root) {
-            const rs = this._renderScene = cc.director.root.createScene({});
-            this._globals.renderScene = rs;
+            this._renderScene = cc.director.root.createScene({});
         }
     }
 
@@ -95,6 +94,7 @@ export class Scene extends Node {
             this._inited = true;
         }
         this.walk(BaseNode._setScene);
+        this._globals.renderScene = this._renderScene!;
     }
 
     protected _activate (active: boolean) {

@@ -3,7 +3,7 @@ import { Enum } from "../../../../core/value-types";
 import CurveRange from "./curve-range";
 import { CCClass } from "../../../../core/data";
 import { property, ccclass } from "../../../../core/data/class-decorator";
-import ParticleSystemComponent from "../particle-system-component";
+import { ParticleSystemComponent } from "../particle-system-component";
 import Particle from "../particle";
 
 // tslint:disable: max-line-length

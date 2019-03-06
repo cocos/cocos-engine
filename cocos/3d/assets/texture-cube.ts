@@ -80,8 +80,9 @@ export class TextureCube extends TextureBase {
     }
 
     /**
-     * @param textures
-     * @deprecated Manually assign to mipmaps property instead.
+     * convenient util for cubemap creation (even with custom mipmaps)
+     * @param texture - texture asset array containing six faces in a row
+     * @param out - the resulting texture cube asset
      */
     public static fromTexture2DArray (textures: Texture2D[], out?: TextureCube) {
         const mipmaps: ITextureCubeMipmap[] = [];
