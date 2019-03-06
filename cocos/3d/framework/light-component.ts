@@ -296,6 +296,8 @@ export class LightComponent extends Component {
                 scene.destroySpotLight(this._light);
                 break;
             }
+        } else {
+            this._light.node = scene.defaultMainLightNode;
         }
         this._light = null;
     }

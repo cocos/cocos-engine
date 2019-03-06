@@ -5,7 +5,7 @@ import { Root } from '../../core/root';
 import { Mat4, Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
-import { UBOForwardLights } from '../../pipeline/define';
+import { UBOForwardLight } from '../../pipeline/define';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
 import { Ambient } from './ambient';
@@ -13,6 +13,7 @@ import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
 import { Light } from './light';
 import { Model } from './model';
+import { PlanarShadow } from './planar-shadow';
 import { PointLight } from './point-light';
 import { Skybox } from './skybox';
 import { SpotLight } from './spot-light';
@@ -54,6 +55,14 @@ export class RenderScene {
         return this._skybox;
     }
 
+    get planarShadow (): PlanarShadow {
+        return this._planarShadow;
+    }
+
+    get defaultMainLightNode (): Node {
+        return this._defaultMainLightNode;
+    }
+
     get mainLight (): DirectionalLight {
         return this._mainLight;
     }
@@ -83,7 +92,9 @@ export class RenderScene {
     private _cameras: Camera[] = [];
     private _ambient: Ambient;
     private _skybox: Skybox;
+    private _planarShadow: PlanarShadow;
     private _mainLight: DirectionalLight;
+    private _defaultMainLightNode: Node;
     private _pointLights: PointLight[] = [];
     private _directionalLights: DirectionalLight[] = [];
     private _spotLights: SpotLight[] = [];
@@ -92,14 +103,15 @@ export class RenderScene {
 
     constructor (root: Root) {
         this._root = root;
-        this._ambient = new Ambient (this);
-        this._mainLight = new DirectionalLight(this, 'Main Light', new Node('Main Light'));
+        this._ambient = new Ambient(this);
+        this._defaultMainLightNode = new Node('Main Light');
+        this._mainLight = new DirectionalLight(this, 'Main Light', this._defaultMainLightNode);
         this._skybox = new Skybox(this);
+        this._planarShadow = new PlanarShadow(this);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        // this._mainLight.direction = new Vec3(1.0, -1.0, -1.0); // should be in editor prefab
         return true;
     }
 
@@ -131,7 +143,7 @@ export class RenderScene {
     }
 
     public createDirectionalLight (name: string, node: Node): Light | null {
-        if (this._directionalLights.length >= UBOForwardLights.MAX_DIR_LIGHTS) { return null; }
+        if (this._directionalLights.length >= UBOForwardLight.MAX_DIR_LIGHTS) { return null; }
         const light = new DirectionalLight(this, name, node);
         this._directionalLights.push(light);
         return light;
@@ -147,7 +159,7 @@ export class RenderScene {
     }
 
     public createPointLight (name: string, node: Node): Light | null {
-        if (this._pointLights.length >= UBOForwardLights.MAX_POINT_LIGHTS) { return null; }
+        if (this._pointLights.length >= UBOForwardLight.MAX_POINT_LIGHTS) { return null; }
         const light = new PointLight(this, name, node);
         this._pointLights.push(light);
         return light;
@@ -163,7 +175,7 @@ export class RenderScene {
     }
 
     public createSpotLight (name: string, node: Node): Light | null {
-        if (this._spotLights.length >= UBOForwardLights.MAX_SPOT_LIGHTS) { return null; }
+        if (this._spotLights.length >= UBOForwardLight.MAX_SPOT_LIGHTS) { return null; }
         const light = new SpotLight(this, name, node);
         this._spotLights.push(light);
         return light;

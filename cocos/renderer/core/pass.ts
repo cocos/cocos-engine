@@ -23,7 +23,8 @@ import { programLib } from './program-lib';
 export interface IDefineMap { [name: string]: number | boolean; }
 export interface IPassInfoFull extends IPassInfo {
     // generated part
-    defines: IDefineMap;
+    idxInTech: number;
+    curDefs: IDefineMap;
 }
 
 export type PassOverrides = RecursivePartial<IPassInfo>;
@@ -101,7 +102,8 @@ export class Pass {
     protected _textureViews: Record<number, GFXTextureView> = {};
     protected _resources: IPassResources[] = [];
     // internal data
-    protected _programName: string = '';
+    protected _idxInTech = 0;
+    protected _programName = '';
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
@@ -125,8 +127,9 @@ export class Pass {
     }
 
     public initialize (info: IPassInfoFull) {
+        this._idxInTech = info.idxInTech;
         this._programName = info.program;
-        this._defines = info.defines;
+        this._defines = info.curDefs;
         const shaderInfo = this._shaderInfo = programLib.getTemplate(info.program);
         // pipeline state
         const device = this._device;
@@ -144,7 +147,6 @@ export class Pass {
             else { console.error('create buffer failed.'); return; }
             // buffer data processing system
             const block: IBlock = this._blocks[u.binding] = {
-                // buffer: buffer.buffer as ArrayBuffer,
                 buffer: new ArrayBuffer(u.size),
                 dirty: false,
                 views: [],
@@ -182,11 +184,7 @@ export class Pass {
     }
 
     public getHandle (name: string) {
-        const handle = this._handleMap[name];
-        if (!handle) {
-            console.warn('illegal property name ' + name);
-        }
-        return handle;
+        return this._handleMap[name];
     }
 
     public getBinding (name: string) {
@@ -376,6 +374,7 @@ export class Pass {
         Object.assign(this._dss, info.depthStencilState);
     }
 
+    get idxInTech () { return this._idxInTech; }
     get programName () { return this._programName; }
     get priority () { return this._priority; }
     get primitive () { return this._primitive; }

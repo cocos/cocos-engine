@@ -123,7 +123,7 @@ class ProgramLib {
         // get template
         const tmpl = this._templates[name];
         const customDef = _generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
-        if (!tmpl.builtinInited) { insertPipelineBuiltins(tmpl, pipeline); }
+        if (!tmpl.builtinInited) { insertPipelineGlobalBindings(tmpl, pipeline); }
 
         let vert: string = '';
         let frag: string = '';
@@ -150,7 +150,7 @@ class ProgramLib {
     }
 }
 
-function insertPipelineBuiltins (tmpl: IProgramInfo, pipeline: RenderPipeline) {
+function insertPipelineGlobalBindings (tmpl: IProgramInfo, pipeline: RenderPipeline) {
     const source = pipeline.globalBindings;
     const target = tmpl.builtins;
     for (const b of target.blocks) {
