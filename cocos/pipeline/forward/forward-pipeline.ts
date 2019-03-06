@@ -2,7 +2,7 @@ import { Root } from '../../core/root';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXRenderPass } from '../../gfx/render-pass';
-import { RenderPassStage, UBOForwardLights } from '../define';
+import { RenderPassStage, UBOForwardLight } from '../define';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
@@ -16,7 +16,7 @@ const _idVec4Array = Float32Array.from([1, 1, 1, 0]);
 
 export class ForwardPipeline extends RenderPipeline {
 
-    protected _uboLights: UBOForwardLights = new UBOForwardLights();
+    protected _uboLights: UBOForwardLight = new UBOForwardLight();
     protected _lightsUBO: GFXBuffer | null = null;
 
     public get lightsUBO (): GFXBuffer {
@@ -80,20 +80,20 @@ export class ForwardPipeline extends RenderPipeline {
     protected createUBOs (): boolean {
         super.createUBOs();
 
-        if (!this._globalBindings.get(UBOForwardLights.BLOCK.name)) {
+        if (!this._globalBindings.get(UBOForwardLight.BLOCK.name)) {
             const lightsUBO = this._root.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOForwardLights.SIZE,
+                size: UBOForwardLight.SIZE,
             });
 
             if (!lightsUBO) {
                 return false;
             }
 
-            this._globalBindings.set(UBOForwardLights.BLOCK.name, {
+            this._globalBindings.set(UBOForwardLight.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
-                blockInfo: UBOForwardLights.BLOCK,
+                blockInfo: UBOForwardLight.BLOCK,
                 buffer: lightsUBO,
             });
         }
@@ -104,10 +104,10 @@ export class ForwardPipeline extends RenderPipeline {
     protected destroyUBOs () {
         super.destroyUBOs();
 
-        const lightsUBO = this._globalBindings.get(UBOForwardLights.BLOCK.name);
+        const lightsUBO = this._globalBindings.get(UBOForwardLight.BLOCK.name);
         if (lightsUBO) {
             lightsUBO.buffer!.destroy();
-            this._globalBindings.delete(UBOForwardLights.BLOCK.name);
+            this._globalBindings.delete(UBOForwardLight.BLOCK.name);
         }
     }
 
@@ -117,45 +117,45 @@ export class ForwardPipeline extends RenderPipeline {
         const scene = view.camera.scene;
         const dLights = scene.directionalLights;
 
-        for (let i = 0; i < UBOForwardLights.MAX_DIR_LIGHTS; i++) {
+        for (let i = 0; i < UBOForwardLight.MAX_DIR_LIGHTS; i++) {
             const light = dLights[i];
             if (light && light.enabled) {
                 light.update();
-                this._uboLights.view.set(light.directionArray, UBOForwardLights.DIR_LIGHT_DIR_OFFSET + i * 4);
-                this._uboLights.view.set(light.color, UBOForwardLights.DIR_LIGHT_COLOR_OFFSET + i * 4);
+                this._uboLights.view.set(light.directionArray, UBOForwardLight.DIR_LIGHT_DIR_OFFSET + i * 4);
+                this._uboLights.view.set(light.color, UBOForwardLight.DIR_LIGHT_COLOR_OFFSET + i * 4);
             } else {
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.DIR_LIGHT_DIR_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.DIR_LIGHT_COLOR_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLight.DIR_LIGHT_DIR_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLight.DIR_LIGHT_COLOR_OFFSET + i * 4);
             }
         }
         const pLights = scene.pointLights;
-        for (let i = 0; i < UBOForwardLights.MAX_POINT_LIGHTS; i++) {
+        for (let i = 0; i < UBOForwardLight.MAX_POINT_LIGHTS; i++) {
             const light = pLights[i];
             if (light && light.enabled) {
                 light.update();
-                this._uboLights.view.set(light.positionAndRange, UBOForwardLights.POINT_LIGHT_POS_RANGE_OFFSET + i * 4);
-                this._uboLights.view.set(light.color, UBOForwardLights.POINT_LIGHT_COLOR_OFFSET + i * 4);
+                this._uboLights.view.set(light.positionAndRange, UBOForwardLight.POINT_LIGHT_POS_RANGE_OFFSET + i * 4);
+                this._uboLights.view.set(light.color, UBOForwardLight.POINT_LIGHT_COLOR_OFFSET + i * 4);
             } else {
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.POINT_LIGHT_POS_RANGE_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.POINT_LIGHT_COLOR_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLight.POINT_LIGHT_POS_RANGE_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLight.POINT_LIGHT_COLOR_OFFSET + i * 4);
             }
         }
         const sLights = scene.spotLights;
-        for (let i = 0; i < UBOForwardLights.MAX_SPOT_LIGHTS; i++) {
+        for (let i = 0; i < UBOForwardLight.MAX_SPOT_LIGHTS; i++) {
             const light = sLights[i];
             if (light && light.enabled) {
                 light.update();
-                this._uboLights.view.set(light.positionAndRange, UBOForwardLights.SPOT_LIGHT_POS_RANGE_OFFSET + i * 4);
-                this._uboLights.view.set(light.directionArray, UBOForwardLights.SPOT_LIGHT_DIR_OFFSET + i * 4);
-                this._uboLights.view.set(light.color, UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + i * 4);
+                this._uboLights.view.set(light.positionAndRange, UBOForwardLight.SPOT_LIGHT_POS_RANGE_OFFSET + i * 4);
+                this._uboLights.view.set(light.directionArray, UBOForwardLight.SPOT_LIGHT_DIR_OFFSET + i * 4);
+                this._uboLights.view.set(light.color, UBOForwardLight.SPOT_LIGHT_COLOR_OFFSET + i * 4);
             } else {
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_POS_RANGE_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_DIR_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLight.SPOT_LIGHT_POS_RANGE_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLight.SPOT_LIGHT_DIR_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLight.SPOT_LIGHT_COLOR_OFFSET + i * 4);
             }
         }
 
         // update ubos
-        this._globalBindings.get(UBOForwardLights.BLOCK.name)!.buffer!.update(this._uboLights.view);
+        this._globalBindings.get(UBOForwardLight.BLOCK.name)!.buffer!.update(this._uboLights.view);
     }
 }

@@ -9,8 +9,8 @@ const _v3 = new Vec3();
 const _qt = new Quat();
 
 export class DirectionalLight extends Light {
-    protected _direction: Vec3 = new Vec3(0, 0, 1);
-    protected _directionArray: Float32Array =  Float32Array.from([0, 0, 1, 0]);
+    protected _direction = new Vec3(0, 0, 1);
+    protected _directionArray = Float32Array.from([0, 0, 1, 0]);
 
     set direction (val: Vec3) {
         this._direction = val;

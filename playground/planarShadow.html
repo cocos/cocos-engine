@@ -66,6 +66,12 @@
       cameraNode.addComponent(cc.CameraComponent);
       cameraNode.addComponent(FirstPersonCamera);
 
+      const lightNode = new cc.Node('Light');
+      lightNode.parent = rt;
+      lightNode.setPosition(-10, 10, -10);
+      const lightComp = lightNode.addComponent(cc.LightComponent);
+      lightComp.isMainLight = true;
+
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
       const noShadow = new cc.Material();
       noShadow.initialize({ effectName: 'builtin-standard' });
@@ -96,10 +102,12 @@
 
       const qt = cc.vmath.quat.fromEuler(cc.quat(), 0, 0, 0);
       const nm = cc.vmath.vec3.transformQuat(cc.v3(), cc.v3(0, 1, 0), qt);
-
       models.plane.node.setRotation(qt);
-      material.setProperty('matLightPlaneProj', getLightPlaneProj(cc.v3(-10, altitude + 10, -10), // light
-        cc.geometry.plane.create(nm.x, nm.y, nm.z, cc.vmath.vec3.dot(nm, models.plane.node.getWorldPosition()))));
+
+      scene.globals.planarShadow.setPlaneFromNode(models.plane.node);
+
+      // material.setProperty('matLightPlaneProj', getLightPlaneProj(cc.v3(-10, altitude + 10, -10), // light
+      //   cc.geometry.plane.create(nm.x, nm.y, nm.z, cc.vmath.vec3.dot(nm, models.plane.node.getWorldPosition()))));
 
       cc.director.runSceneImmediate(scene);
     }
