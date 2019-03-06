@@ -24,8 +24,8 @@
  ****************************************************************************/
 
 const Skeleton = require('./CCSkeleton');
-const MeshRenderer = require('../mesh/CCMeshRenderer');
-const RenderFlow = require('../renderer/render-flow');
+const MeshRenderer = require('../../mesh/CCMeshRenderer');
+const RenderFlow = require('../../renderer/render-flow');
 const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();

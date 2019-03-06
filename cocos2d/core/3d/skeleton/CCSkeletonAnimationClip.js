@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const AnimationClip = require('../../animation/animation-clip');
-import mat4 from '../vmath/mat4';
+const AnimationClip = require('../../../animation/animation-clip');
+import mat4 from '../../vmath/mat4';
 
 function maxtrixToArray (matrix) {
     let data = new Float32Array(16);
