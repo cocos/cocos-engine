@@ -108,6 +108,7 @@
       }
       const handle = passes[0].getHandle('color');
 
+      /*
       {
         const material = new cc.Material();
         material.initialize({ effectName: 'builtin-sprite' });
@@ -122,20 +123,16 @@
           .reduce((c, a) => a.concat(c), []);
         modelCom.mesh = cc.utils.createMesh(shape);
       }
+      */
 
-      /*
       const material2 = new cc.Material();
-      material2.initialize({ effectName: 'builtin-effect-pbr' });
+      material2.initialize({ effectName: 'builtin-standard' });
       const modelNode2 = new cc.Node('test2');
       modelNode2.parent = scene;
       const modelCom2 = modelNode2.addComponent('cc.ModelComponent');
       modelCom2.material = material2;
-      const shape2 = cc.primitives.quad();
-      shape2.colors = Array(shape2.uvs.length / 2).fill(0)
-        .map((t) => [Math.random(), Math.random(), Math.random(), 0.8])
-        .reduce((c, a) => a.concat(c), []);
+      const shape2 = cc.primitives.sphere();
       modelCom2.mesh = cc.utils.createMesh(shape2);
-      */
 
       let buttonDown = false, pos = cc.v2();
       canv.addEventListener('mousedown', (e) => buttonDown = (!e.button) ? true : buttonDown);
