@@ -235,7 +235,7 @@ function align (node: Node, widget: WidgetComponent) {
 }
 
 function visitNode (node: Node) {
-    const widget = node.uiWidgetComp;
+    const widget = node.getComponent(WidgetComponent);
     if (widget) {
         if (CC_DEV) {
             // widget._validateTargetInDEV();
@@ -448,7 +448,7 @@ function updateAlignment (node: Node) {
     }
 
     // node._widget will be null when widget is disabled
-    const widget = node.uiWidgetComp;
+    const widget = node.getComponent(WidgetComponent);
     if (widget && parent) {
         align(node, widget);
     }
@@ -483,7 +483,6 @@ export const widgetManager = cc._widgetManager = {
         }
     },
     add (widget: WidgetComponent) {
-        widget.node.uiWidgetComp = widget;
         this._nodesOrderDirty = true;
         if (CC_EDITOR /*&& !cc.engine.isPlaying*/) {
             const renderComp = widget.node.getComponent(UIRenderComponent);
@@ -499,7 +498,6 @@ export const widgetManager = cc._widgetManager = {
         }
     },
     remove (widget: WidgetComponent) {
-        widget.node.uiWidgetComp = null;
         this._activeWidgetsIterator.remove(widget);
         if (CC_EDITOR && !cc.engine.isPlaying) {
             widget.node.off(Event.POSITION_PART, adjustWidgetToAllowMovingInEditor, widget);
@@ -514,7 +512,7 @@ export const widgetManager = cc._widgetManager = {
     },
     refreshWidgetOnResized (node: Node) {
         if (Node.isNode(node)){
-            const widget = node.uiWidgetComp;
+            const widget = node.getComponent(WidgetComponent);
             // const widget: WidgetComponent | null = null;
             if (widget) {
                 if (widget!.alignMode === AlignMode.ON_WINDOW_RESIZE) {

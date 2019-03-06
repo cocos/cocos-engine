@@ -31,10 +31,10 @@ import { ImageAsset } from '../../../assets/image-asset';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import macro from '../../../core/platform/CCMacro';
 import { ccenum } from '../../../core/value-types/enum';
+import { UI } from '../../../renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { ISharedLabelData } from '../assembler/label/ttfUtils';
 import { UIRenderComponent } from './ui-render-component';
-import { UI } from '../../../renderer/ui/ui';
 
 /**
  * !#en Enum for text alignment.
@@ -539,7 +539,7 @@ export class LabelComponent extends UIRenderComponent {
     private _texture: SpriteFrame | null = null;
     private _ttfTexture: SpriteFrame | null = null;
     private _userDefinedFont: Font | null = null;
-    private _assemblerData: ISharedLabelData|null = null;
+    private _assemblerData: ISharedLabelData | null = null;
     private _fontAtlas: FontAtlas | null = null;
 
     constructor () {

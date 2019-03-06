@@ -215,10 +215,10 @@ class Component extends CCObject {
         /**
          * Register all related EventTargets,
          * all event callbacks will be removed in _onPreDestroy
-         * @property {Array} __eventTargets
+         * @property {Array} _eventTargets
          * @private
          */
-        this.__eventTargets = [];
+        this._eventTargets = [];
     }
 
     // PUBLIC
@@ -341,7 +341,7 @@ class Component extends CCObject {
         this.unscheduleAllCallbacks();
 
         // Remove all listeners
-        var eventTargets = this.__eventTargets;
+        var eventTargets = this._eventTargets;
         for (var i = 0, l = eventTargets.length; i < l; ++i) {
             var target = eventTargets[i];
             target && target.targetOff(this);

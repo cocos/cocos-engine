@@ -1,5 +1,4 @@
 import { UITransformComponent } from '../3d/ui/components/ui-transfrom-component';
-import { WidgetComponent } from '../3d/ui/components/widget-component';
 import { ccclass, property } from '../core/data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../core/value-types';
 import Size from '../core/value-types/size';
@@ -56,7 +55,6 @@ class Node extends BaseNode {
 
     protected _eventProcessor;
     private _uiTransfromComp: UITransformComponent | null = null;
-    private _uiWidgetComp: WidgetComponent | null = null;
 
     @property({
         type: Vec3,
@@ -95,18 +93,6 @@ class Node extends BaseNode {
     // NOTE: don't set it manually
     set uiTransfromComp (value: UITransformComponent | null) {
         this._uiTransfromComp = value;
-    }
-
-    get uiWidgetComp () {
-        if (!this._uiWidgetComp) {
-            this._uiWidgetComp = this.getComponent(WidgetComponent);
-        }
-
-        return this._uiWidgetComp;
-    }
-
-    set uiWidgetComp (value: WidgetComponent | null) {
-        this._uiWidgetComp = value;
     }
 
     get width () {

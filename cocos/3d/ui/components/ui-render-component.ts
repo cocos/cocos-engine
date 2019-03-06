@@ -150,6 +150,10 @@ export class UIRenderComponent extends Component {
         this._instanceMaterial();
     }
 
+    get material () {
+        return this._material;
+    }
+
     /**
      * !#en find the rendered camera
      * !#zh 查找被渲染相机
@@ -160,18 +164,6 @@ export class UIRenderComponent extends Component {
 
     get renderData () {
         return this._renderData;
-    }
-
-    get material () {
-        return this._material;
-    }
-
-    set material (value: Material | null) {
-        if (this._material === value) {
-            return;
-        }
-
-        this._updateMaterial(value);
     }
 
     public static Assembler: IAssemblerManager | null = null;
@@ -255,7 +247,7 @@ export class UIRenderComponent extends Component {
         // }
         // this._allocedDatas.length = 0;
         this.destroyRenderData();
-        this.material = null;
+        this._updateMaterial(null);
         this._renderData = null;
     }
 
@@ -338,7 +330,7 @@ export class UIRenderComponent extends Component {
     }
 
     protected _updateColor () {
-        const material = this.material;
+        const material = this._material;
         if (material) {
             material.setProperty('color', this._color);
             // material.updateHash();
@@ -387,7 +379,7 @@ export class UIRenderComponent extends Component {
 
     private _instanceMaterial (){
         if (this._sharedMaterial) {
-            this.material = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
+            this._updateMaterial(Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false));
         }
     }
 }

@@ -654,6 +654,7 @@ export class UI {
         this._currTexView = null;
         this._meshBufferUseCount = 0;
         this._requireBufferBatch();
+        StencilManager.sharedManager!.reset();
         // this._commitUIRenderDataPool.reset();
         // this._commitUICanvas.length = 0;
     }

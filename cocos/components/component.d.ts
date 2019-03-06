@@ -30,6 +30,7 @@ import IDGenerator from '../core/utils/id-generator';
 import { ccclass, property } from '../core/data/class-decorator';
 import { Node } from '../scene-graph/node';
 import { RenderScene } from '../renderer/scene/render-scene';
+import { EventTarget } from '../core/event/event-target';
 
 export class Component extends CCObject {
     node: Node;
@@ -53,4 +54,5 @@ export class Component extends CCObject {
     // friend to class BaseNode
     public _id: string;
     public _enabled: boolean;
+    public _eventTargets: Array<Node | EventTarget>;
 }
