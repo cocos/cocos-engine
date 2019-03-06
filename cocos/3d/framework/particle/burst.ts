@@ -55,7 +55,7 @@ export default class Burst {
     }
 
     public update (psys, dt: number) {
-        if (psys.loop && this._remainingCount === 0) {
+        if (this._remainingCount === 0) {
             this._remainingCount = this._repeatCount;
             this._curTime = this._time;
         }
