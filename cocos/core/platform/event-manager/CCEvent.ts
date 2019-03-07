@@ -479,6 +479,11 @@ export class EventKeyboard extends Event {
      */
     public keyCode: number;
 
+    /**
+     * Raw DOM event.
+     */
+    public rawEvent?: KeyboardEvent;
+
     public isPressed: boolean;
 
     /**
@@ -486,9 +491,14 @@ export class EventKeyboard extends Event {
      * @param isPressed - A boolean indicating whether the key have been pressed
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    constructor (keyCode: number, isPressed: boolean, bubbles?: boolean) {
+    constructor (keyCode: number | KeyboardEvent, isPressed: boolean, bubbles?: boolean) {
         super(Event.KEYBOARD, bubbles);
-        this.keyCode = keyCode;
+        if (typeof keyCode === 'number') {
+            this.keyCode = keyCode;
+        } else {
+            this.keyCode = keyCode.keyCode;
+            this.rawEvent = keyCode;
+        }
         this.isPressed = isPressed;
     }
 }

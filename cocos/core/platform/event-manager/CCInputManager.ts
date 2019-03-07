@@ -729,12 +729,12 @@ class InputManager {
     private _registerKeyboardEvent () {
         const canvas = cc.game.canvas as HTMLCanvasElement;
         canvas.addEventListener('keydown', (event: KeyboardEvent) => {
-            eventManager.dispatchEvent(new EventKeyboard(event.keyCode, true));
+            eventManager.dispatchEvent(new EventKeyboard(event, true));
             event.propagationStopped = true;
             event.preventDefault();
         }, false);
         canvas.addEventListener('keyup', (event: KeyboardEvent) => {
-            eventManager.dispatchEvent(new EventKeyboard(event.keyCode, false));
+            eventManager.dispatchEvent(new EventKeyboard(event, false));
             event.propagationStopped = true;
             event.preventDefault();
         }, false);
