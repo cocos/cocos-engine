@@ -1,8 +1,7 @@
 import { GFXComparisonFunc, GFXStencilOp } from '../../../../gfx/define';
+import { Pass } from '../../../../renderer';
 import { Material } from '../../../assets/material';
 import { MaskComponent } from '../../components/mask-component';
-import { Pass, Effect } from '../../../../renderer';
-import { IPassInfo } from '../../../assets/effect-asset';
 
 // import { GFXStencilOp } from '../../../../gfx/define';
 // import { MaskComponent } from '../../components/mask-component';
@@ -79,7 +78,13 @@ export class StencilManager {
         failOp: GFXStencilOp.KEEP,
         zFailOp: GFXStencilOp.KEEP,
         passOp: GFXStencilOp.KEEP,
-        ref: 0,
+        ref: 1,
+    };
+
+    private _defaultPipelineState = {
+        depthStencilState: {},
+        rasterizerState: {},
+        blendState: {},
     };
 
     public pushMask (mask: MaskComponent) {
@@ -135,27 +140,29 @@ export class StencilManager {
         }
 
         const state = this._stencilPattern;
-        if (this._changed(mat.passes[0])){
-            mat.overridePipelineStates({
-                depthStencilState: {
-                    stencilTestFront: state.stencilTest,
-                    stencilFuncFront: state.func,
-                    stencilReadMaskFront: state.stencilMask,
-                    stencilWriteMaskFront: state.writeMask,
-                    stencilFailOpFront: state.failOp,
-                    stencilZFailOpFront: state.zFailOp,
-                    stencilPassOpFront: state.passOp,
-                    stencilRefFront: state.ref,
-                    stencilTestBack: state.stencilTest,
-                    stencilFuncBack: state.func,
-                    stencilReadMaskBack: state.stencilMask,
-                    stencilWriteMaskBack: state.writeMask,
-                    stencilFailOpBack: state.failOp,
-                    stencilZFailOpBack: state.zFailOp,
-                    stencilPassOpBack: state.passOp,
-                    stencilRefBack: state.ref,
-                },
-            });
+        const pass = mat.passes[0];
+        if (this._changed(pass)){
+            this._defaultPipelineState.depthStencilState = {
+                stencilTestFront: state.stencilTest,
+                stencilFuncFront: state.func,
+                stencilReadMaskFront: state.stencilMask,
+                stencilWriteMaskFront: state.writeMask,
+                stencilFailOpFront: state.failOp,
+                stencilZFailOpFront: state.zFailOp,
+                stencilPassOpFront: state.passOp,
+                stencilRefFront: state.ref,
+                stencilTestBack: state.stencilTest,
+                stencilFuncBack: state.func,
+                stencilReadMaskBack: state.stencilMask,
+                stencilWriteMaskBack: state.writeMask,
+                stencilFailOpBack: state.failOp,
+                stencilZFailOpBack: state.zFailOp,
+                stencilPassOpBack: state.passOp,
+                stencilRefBack: state.ref,
+            };
+            this._defaultPipelineState.blendState = pass.blendState;
+            this._defaultPipelineState.rasterizerState = pass.rasterizerState;
+            mat.overridePipelineStates(this._defaultPipelineState);
         }
     }
 
