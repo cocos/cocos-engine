@@ -4,6 +4,7 @@ import { color4, vec3 } from '../../../core/vmath/index';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { Node } from '../../../scene-graph/node';
 import { MeshBuffer } from '../mesh-buffer';
+import { UI } from '../../../renderer/ui/ui';
 
 const vec3_temp = vec3.create();
 const _worldMatrix = new Mat4();
@@ -83,13 +84,22 @@ export function fillMeshVertices (node: Node, buffer: MeshBuffer, renderData: Re
     }
 }
 
-export function fillVertices3D (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
+export function fillVertices3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
+    let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
     color.to01(_tempColor);
 
-    const vertexCount = renderData.vertexCount;
-    buffer.request(vertexCount, renderData.indiceCount);
+    let vertexCount = renderData.vertexCount;
+    let indiceOffset = buffer!.indiceOffset;
+    let vertexId = buffer.vertexOffset;
+    const isRecreate = buffer.request(vertexCount, renderData.indiceCount);
+    if (!isRecreate) {
+        buffer = renderer.currBufferBatch!;
+        vertexCount = 0;
+        indiceOffset = 0;
+        vertexId = 0;
+    }
 
     // buffer data may be realloc, need get reference after request.
     const vbuf = buffer.vData!;
@@ -108,17 +118,30 @@ export function fillVertices3D (node: Node, buffer: MeshBuffer, renderData: Rend
         color4.array(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
+
+    // buffer data may be realloc, need get reference after request.
+    const ibuf = buffer.iData;
+    for (let i = 0; i < renderData!.dataLength; i++) {
+        ibuf![indiceOffset + i] = vertexId + i;
+    }
 }
 
-export function fillMeshVertices3D (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
+export function fillMeshVertices3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
+    let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
 
-    const vertexCount = renderData.vertexCount;
+    let vertexCount = renderData.vertexCount;
     let indiceOffset = buffer.indiceOffset;
-    const vertexId = buffer.vertexOffset;
+    let vertexId = buffer.vertexOffset;
 
-    buffer.request(vertexCount, renderData.indiceCount);
+    const isRecreate = buffer.request(vertexCount, renderData.indiceCount);
+    if (!isRecreate) {
+        buffer = renderer.currBufferBatch!;
+        vertexCount = 0;
+        indiceOffset = 0;
+        vertexId = 0;
+    }
 
     // buffer data may be realloc, need get reference after request.
     const vbuf = buffer.vData!;
@@ -173,13 +196,23 @@ export function fillVerticesWithoutCalc (node: Node, buffer: MeshBuffer, renderD
     }
 }
 
-export function fillVerticesWithoutCalc3D (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
+export function fillVerticesWithoutCalc3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
+    let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
     color.to01(_tempColor);
 
-    const vertexCount = renderData.vertexCount;
-    buffer.request(vertexCount, renderData.indiceCount);
+    // buffer
+    let vertexCount = renderData.vertexCount;
+    let indiceOffset: number = buffer.indiceOffset;
+    let vertexId: number = buffer.vertexOffset;
+    const isRecreate = buffer.request(vertexCount, renderData.indiceCount);
+    if (!isRecreate) {
+        buffer = renderer.currBufferBatch!;
+        vertexCount = 0;
+        indiceOffset = 0;
+        vertexId = 0;
+    }
 
     // buffer data may be realloc, need get reference after request.
     const vbuf = buffer.vData!;
@@ -194,4 +227,13 @@ export function fillVerticesWithoutCalc3D (node: Node, buffer: MeshBuffer, rende
         color4.array(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
+
+    // buffer data may be realloc, need get reference after request.
+    const ibuf = buffer.iData;
+    ibuf![indiceOffset++] = vertexId;
+    ibuf![indiceOffset++] = vertexId + 1;
+    ibuf![indiceOffset++] = vertexId + 2;
+    ibuf![indiceOffset++] = vertexId + 1;
+    ibuf![indiceOffset++] = vertexId + 3;
+    ibuf![indiceOffset++] = vertexId + 2;
 }

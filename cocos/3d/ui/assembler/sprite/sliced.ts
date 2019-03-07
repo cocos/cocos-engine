@@ -117,7 +117,7 @@ export const sliced: IAssembler = {
         // this.updateWorldVerts(sprite);
         // }
 
-        const buffer = renderer.currBufferBatch!;
+        let buffer = renderer.currBufferBatch!;
         const renderData: RenderData|null = sprite.renderData;
         // const node: Node = sprite.node;
         // const color: Color = sprite.color;
@@ -126,11 +126,17 @@ export const sliced: IAssembler = {
         let vertexOffset = buffer.byteOffset >> 2;
         const vertexCount = renderData!.vertexCount;
         let indiceOffset: number = buffer.indiceOffset;
-        const vertexId: number = buffer.vertexOffset;
+        let vertexId: number = buffer.vertexOffset;
 
         const uvSliced: IUV[] = sprite!.spriteFrame!.uvSliced;
 
-        buffer.request(vertexCount, renderData!.indiceCount);
+        const isRecreate = buffer.request(vertexCount, renderData!.indiceCount);
+        if (!isRecreate) {
+            buffer = renderer.currBufferBatch!;
+            vertexOffset = 0;
+            indiceOffset = 0;
+            vertexId = 0;
+        }
 
         // buffer data may be realloc, need get reference after request.
         const vbuf: Float32Array|null = buffer.vData;

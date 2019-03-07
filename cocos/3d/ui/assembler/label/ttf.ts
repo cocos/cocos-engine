@@ -57,8 +57,7 @@ export const ttf: IAssembler = {
     },
 
     fillBuffers (comp: LabelComponent, renderer: UI) {
-        const buffer = renderer.currBufferBatch!;
-        fillMeshVertices3D(comp.node, buffer, comp.renderData!, WHITE);
+        fillMeshVertices3D(comp.node, renderer, comp.renderData!, WHITE);
     },
 
     updateVerts (comp: LabelComponent) {
