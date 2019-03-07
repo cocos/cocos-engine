@@ -43,5 +43,6 @@ export * from './cocos/components';
 export * from './cocos/3d';
 export * from './cocos/gfx';
 export * from './cocos/pipeline';
+export * from './extensions/ccpool/CCNodePool';
 
 // export default cc;
