@@ -65,8 +65,8 @@ export abstract class RenderPipeline {
         return this._quadIA!;
     }
 
-    public get globalBindings (): Map<string, IGlobalBindingDesc> {
-        return this._globalBindings;
+    public get builtinBindings (): Map<string, IGlobalBindingDesc> {
+        return this._builtinBindings;
     }
 
     public get defaultTexture (): GFXTexture {
@@ -89,7 +89,7 @@ export abstract class RenderPipeline {
     protected _quadIB: GFXBuffer | null = null;
     protected _quadIA: GFXInputAssembler | null = null;
     protected _defaultUboGlobal: UBOGlobal | null = null;
-    protected _globalBindings: Map<string, IGlobalBindingDesc> = new Map<string, IGlobalBindingDesc>();
+    protected _builtinBindings: Map<string, IGlobalBindingDesc> = new Map<string, IGlobalBindingDesc>();
     protected _defaultTex: GFXTexture | null = null;
     protected _defaultTexView: GFXTextureView | null = null;
 
@@ -370,7 +370,7 @@ export abstract class RenderPipeline {
     }
 
     protected createUBOs (): boolean {
-        if (!this._globalBindings.get(UBOGlobal.BLOCK.name)) {
+        if (!this._builtinBindings.get(UBOGlobal.BLOCK.name)) {
             const globalUBO = this._root.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -383,14 +383,14 @@ export abstract class RenderPipeline {
 
             this._defaultUboGlobal = new UBOGlobal();
 
-            this._globalBindings.set(UBOGlobal.BLOCK.name, {
+            this._builtinBindings.set(UBOGlobal.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
                 blockInfo: UBOGlobal.BLOCK,
                 buffer: globalUBO,
             });
         }
 
-        if (!this._globalBindings.get(UBOShadow.BLOCK.name)) {
+        if (!this._builtinBindings.get(UBOShadow.BLOCK.name)) {
             const shadowUBO = this._root.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -401,7 +401,7 @@ export abstract class RenderPipeline {
                 return false;
             }
 
-            this._globalBindings.set(UBOShadow.BLOCK.name, {
+            this._builtinBindings.set(UBOShadow.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
                 blockInfo: UBOShadow.BLOCK,
                 buffer: shadowUBO,
@@ -412,15 +412,15 @@ export abstract class RenderPipeline {
     }
 
     protected destroyUBOs () {
-        const globalUBO = this._globalBindings.get(UBOGlobal.BLOCK.name);
+        const globalUBO = this._builtinBindings.get(UBOGlobal.BLOCK.name);
         if (globalUBO) {
             globalUBO.buffer!.destroy();
-            this._globalBindings.delete(UBOGlobal.BLOCK.name);
+            this._builtinBindings.delete(UBOGlobal.BLOCK.name);
         }
-        const shadowUBO = this._globalBindings.get(UBOShadow.BLOCK.name);
+        const shadowUBO = this._builtinBindings.get(UBOShadow.BLOCK.name);
         if (shadowUBO) {
             shadowUBO.buffer!.destroy();
-            this._globalBindings.delete(UBOShadow.BLOCK.name);
+            this._builtinBindings.delete(UBOShadow.BLOCK.name);
         }
     }
 
@@ -495,11 +495,11 @@ export abstract class RenderPipeline {
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.AMBIENT_GROUND_OFFSET);
 
         // update ubos
-        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal!.view.buffer);
+        this._builtinBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal!.view.buffer);
 
         const planarShadow = scene.planarShadow;
         planarShadow.update(scene.mainLight);
-        this._globalBindings.get(UBOShadow.BLOCK.name)!.buffer!.update(planarShadow.data);
+        this._builtinBindings.get(UBOShadow.BLOCK.name)!.buffer!.update(planarShadow.data);
     }
 
     protected sceneCulling (view: RenderView) {

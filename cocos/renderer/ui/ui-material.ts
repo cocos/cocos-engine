@@ -40,7 +40,7 @@ export class UIMaterial {
             const pso = this._pass!.createPipelineState()!;
             if (!CC_EDITOR) {
                 pso.pipelineLayout.layouts[0].bindBuffer(UBOGlobal.BLOCK.binding,
-                    cc.director.root.uiPipeline.globalBindings.get(UBOGlobal.BLOCK.name).buffer);
+                    cc.director.root.uiPipeline.builtinBindings.get(UBOGlobal.BLOCK.name).buffer);
             }
             return pso;
         }, 1);

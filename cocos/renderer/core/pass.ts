@@ -305,7 +305,7 @@ export class Pass {
             bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
         }
         // bind pipeline builtins
-        const source = cc.director.root.pipeline.globalBindings;
+        const source = cc.director.root.pipeline.builtinBindings;
         const target = this._shaderInfo!.builtins;
         for (const b of target.blocks) {
             const info = source.get(b);
