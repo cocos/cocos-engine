@@ -1,3 +1,6 @@
+import { Component } from '../../cocos/components/component';
+import { Node } from '../../cocos/scene-graph';
+
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
@@ -22,6 +25,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+type Constructor<T = {}> = new(...args: any[]) => T;
+
+interface IPoolHandlerComponent extends Component {
+    unuse (): void;
+
+    reuse (...args: any[]): void;
+}
 
 /**
  * !#en
@@ -48,62 +59,57 @@
  *      1.在游戏中的子弹（死亡很快，频繁创建，对其他对象无副作用）<br/>
  *      2.糖果粉碎传奇中的木块（频繁创建）。
  *      等等....
- * @class NodePool
  */
+export class NodePool {
 
-/**
- * !#en
- * Constructor for creating a pool for a specific node template (usually a prefab). You can pass a component (type or name) argument for handling event for reusing and recycling node.
- * !#zh
- * 使用构造函数来创建一个节点专用的对象池，您可以传递一个组件类型或名称，用于处理节点回收和复用时的事件逻辑。
- * @method constructor
- * @param {Function|String} [poolHandlerComp] !#en The constructor or the class name of the component to control the unuse/reuse logic. !#zh 处理节点回收和复用事件逻辑的组件类型或名称。
- * @example
- *  properties: {
- *    template: cc.Prefab
- *  },
- *  onLoad () {
-      // MyTemplateHandler is a component with 'unuse' and 'reuse' to handle events when node is reused or recycled.
- *    this.myPool = new cc.NodePool('MyTemplateHandler');
- *  }
- * @typescript
- * constructor(poolHandlerComp?: {prototype: Component}|string)
- */
-const NodePool = function (poolHandlerComp) {
     /**
      * !#en The pool handler component, it could be the class name or the constructor.
      * !#zh 缓冲池处理组件，用于节点的回收和复用逻辑，这个属性可以是组件类名或组件的构造函数。
-     * @property poolHandlerComp
-     * @type {Function|String}
      */
-    this.poolHandlerComp = poolHandlerComp;
-    this._pool = [];
-};
-NodePool.prototype = {
-    constructor: NodePool,
+    public poolHandlerComp?: Constructor<IPoolHandlerComponent> | string;
+    private _pool: Node[];
+
+    /**
+     * !#en
+     * Constructor for creating a pool for a specific node template (usually a prefab).
+     * You can pass a component (type or name) argument for handling event for reusing and recycling node.
+     * !#zh
+     * 使用构造函数来创建一个节点专用的对象池，您可以传递一个组件类型或名称，用于处理节点回收和复用时的事件逻辑。
+     * @param poolHandlerComp !#en The constructor or the class name of the component to control the unuse/reuse logic. !#zh 处理节点回收和复用事件逻辑的组件类型或名称。
+     * @example
+     *  properties: {
+     *      template: cc.Prefab
+     *     },
+     *     onLoad () {
+     *       // MyTemplateHandler is a component with 'unuse' and 'reuse' to handle events when node is reused or recycled.
+     *       this.myPool = new cc.NodePool('MyTemplateHandler');
+     *     }
+     *  }
+     */
+    constructor (poolHandlerComp?: Constructor<IPoolHandlerComponent> | string) {
+        this.poolHandlerComp = poolHandlerComp;
+        this._pool = [];
+    }
 
     /**
      * !#en The current available size in the pool
      * !#zh 获取当前缓冲池的可用对象数量
-     * @method size
-     * @return {Number}
      */
-    size: function () {
+    public size () {
         return this._pool.length;
-    },
+    }
 
     /**
      * !#en Destroy all cached nodes in the pool
      * !#zh 销毁对象池中缓存的所有节点
-     * @method clear
      */
-    clear: function () {
-        var count = this._pool.length;
-        for (var i = 0; i < count; ++i) {
+    public clear () {
+        const count = this._pool.length;
+        for (let i = 0; i < count; ++i) {
             this._pool[i].destroy();
         }
         this._pool.length = 0;
-    },
+    }
 
     /**
      * !#en Put a new Node into the pool.
@@ -112,57 +118,54 @@ NodePool.prototype = {
      * !#zh 向缓冲池中存入一个不再需要的节点对象。
      * 这个函数会自动将目标节点从父节点上移除，但是不会进行 cleanup 操作。
      * 这个函数会调用 poolHandlerComp 的 unuse 函数，如果组件和函数都存在的话。
-     * @method put
-     * @param {Node} obj
      * @example
      *   let myNode = cc.instantiate(this.template);
      *   this.myPool.put(myNode);
      */
-    put: function (obj) {
+    public put (obj: Node) {
         if (obj && this._pool.indexOf(obj) === -1) {
             // Remove from parent, but don't cleanup
             obj.removeFromParent(false);
 
             // Invoke pool handler
-            var handler = this.poolHandlerComp ? obj.getComponent(this.poolHandlerComp) : null;
+            // @ts-ignore
+            const handler = this.poolHandlerComp ? obj.getComponent(this.poolHandlerComp) : null;
             if (handler && handler.unuse) {
                 handler.unuse();
             }
 
             this._pool.push(obj);
         }
-    },
+    }
 
     /**
      * !#en Get a obj from pool, if no available object in pool, null will be returned.
      * This function will invoke the reuse function of poolHandlerComp if exist.
      * !#zh 获取对象池中的对象，如果对象池没有可用对象，则返回空。
      * 这个函数会调用 poolHandlerComp 的 reuse 函数，如果组件和函数都存在的话。
-     * @method get
-     * @param {any} ...params - !#en Params to pass to 'reuse' method in poolHandlerComp !#zh 向 poolHandlerComp 中的 'reuse' 函数传递的参数
-     * @return {Node|null}
+     * @param args - !#en Params to pass to 'reuse' method in poolHandlerComp !#zh 向 poolHandlerComp 中的 'reuse' 函数传递的参数
      * @example
      *   let newNode = this.myPool.get();
      */
-    get: function () {
-        var last = this._pool.length-1;
+    public get (...args: any[]): Node | null {
+        const last = this._pool.length - 1;
         if (last < 0) {
             return null;
         }
         else {
             // Pop the last object in pool
-            var obj = this._pool[last];
+            const obj = this._pool[last];
             this._pool.length = last;
 
             // Invoke pool handler
-            var handler = this.poolHandlerComp ? obj.getComponent(this.poolHandlerComp) : null;
+            // @ts-ignore
+            const handler = this.poolHandlerComp ? obj.getComponent(this.poolHandlerComp) : null;
             if (handler && handler.reuse) {
-                handler.reuse.apply(handler, arguments);
+                handler.reuse.apply(handler, ...args);
             }
             return obj;
         }
     }
-};
+}
 
 cc.NodePool = NodePool;
-export { NodePool };

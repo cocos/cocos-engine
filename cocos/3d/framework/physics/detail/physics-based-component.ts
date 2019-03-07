@@ -94,6 +94,8 @@ class SharedRigidBody {
 
     private _refCount = 0;
 
+    private _actived = false;
+
     private _world: PhysicsWorld;
 
     private _node: Node;
@@ -103,6 +105,8 @@ class SharedRigidBody {
     private _colliders: Map<Collider, number> = new Map();
 
     private _worldScale: Vec3 = new Vec3(1, 1, 1);
+
+    private _useGravity = true;
 
     constructor (node: Node, world: PhysicsWorld) {
         this._body = new CANNON.Body({
@@ -116,7 +120,7 @@ class SharedRigidBody {
         this._onWorldBeforeStepListener = this._onWorldBeforeStep.bind(this);
         this._onWorldPostStepListener = this._onWorldPostStep.bind(this);
         this._cancelGravityListener = (event) => {
-            if (this._body) {
+            if (!this._useGravity && this._body) {
                 const gravity = this._body.world.gravity;
                 vec3.scaleAndAdd(this._body.force, this._body.force, gravity, this._body.mass * -1);
             }
@@ -147,6 +151,14 @@ class SharedRigidBody {
         if (!this._refCount) {
             this._deactiveBody();
         }
+    }
+
+    public enable () {
+        this._activeBody();
+    }
+
+    public disable () {
+        this._deactiveBody();
     }
 
     public addCollider (collider: Collider) {
@@ -208,11 +220,7 @@ class SharedRigidBody {
     }
 
     public setUseGravity (value: boolean) {
-        if (value) {
-            this._body.world.removeEventListener('beforeStep', this._cancelGravityListener);
-        } else {
-            this._body.world.addEventListener('beforeStep', this._cancelGravityListener);
-        }
+        this._useGravity = value;
     }
 
     /**
@@ -232,16 +240,26 @@ class SharedRigidBody {
     }
 
     private _activeBody () {
+        if (this._actived) {
+            return;
+        }
+        this._actived = true;
         this._world.addBody(this._body);
         this._body.addEventListener('collide', this._onCollidedListener);
         this._body.world.addEventListener('beforeStep', this._onWorldBeforeStepListener);
         this._body.world.addEventListener('postStep', this._onWorldPostStepListener);
+        this._body.world.addEventListener('beforeStep', this._cancelGravityListener);
     }
 
     private _deactiveBody () {
+        if (!this._actived) {
+            return;
+        }
+        this._actived = false;
         this._body.removeEventListener('collide', this._onCollidedListener);
         this._body.world.removeEventListener('postStep', this._onWorldPostStepListener);
         this._body.world.removeEventListener('beforeStep', this._onWorldBeforeStepListener);
+        this._body.world.removeEventListener('beforeStep', this._cancelGravityListener);
         this._world.removeBody(this._body);
     }
 

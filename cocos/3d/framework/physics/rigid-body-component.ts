@@ -65,14 +65,15 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         this.angularDamping = this._angularDamping;
         this.material = this._material;
         this.useGravity = this._useGravity;
+        if (this.sharedBody) {
+            this.sharedBody.body.wakeUp();
+        }
     }
 
     public onDisable () {
-        this.mass = NonRigidBodyProperties.mass;
-        this.linearDamping = NonRigidBodyProperties.linearDamping;
-        this.angularDamping = NonRigidBodyProperties.angularDamping;
-        this.material = DefaultPhysicsMaterial;
-        this.useGravity = true;
+        if (this.sharedBody) {
+            this.sharedBody.body.sleep();
+        }
     }
 
     @property({
