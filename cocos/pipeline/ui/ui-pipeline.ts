@@ -40,6 +40,6 @@ export class UIPipeline extends RenderPipeline {
         mat4.array(_mat4Array, camera.matViewProj);
         this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
         // update ubos
-        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal!.view.buffer);
+        this._builtinBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal!.view.buffer);
     }
 }

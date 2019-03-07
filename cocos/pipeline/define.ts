@@ -22,6 +22,7 @@ export enum UniformBinding {
     UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 3,
     UBO_SKINNING = MAX_BINDING_SUPPORTED - 4,
     UBO_UI = MAX_BINDING_SUPPORTED - 5,
+    UBO_SHADOW = MAX_BINDING_SUPPORTED - 6,
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
 }
@@ -118,28 +119,28 @@ export class UBOForwardLights {
     public static MAX_SPOT_LIGHTS = 4;
 
     public static DIR_LIGHT_DIR_OFFSET: number = 0;
-    public static DIR_LIGHT_COLOR_OFFSET: number = UBOForwardLights.DIR_LIGHT_DIR_OFFSET + UBOForwardLights.MAX_DIR_LIGHTS * 4;
-    public static POINT_LIGHT_POS_RANGE_OFFSET: number = UBOForwardLights.DIR_LIGHT_COLOR_OFFSET + UBOForwardLights.MAX_DIR_LIGHTS * 4;
-    public static POINT_LIGHT_COLOR_OFFSET: number = UBOForwardLights.POINT_LIGHT_POS_RANGE_OFFSET + UBOForwardLights.MAX_POINT_LIGHTS * 4;
-    public static SPOT_LIGHT_POS_RANGE_OFFSET: number = UBOForwardLights.POINT_LIGHT_COLOR_OFFSET + UBOForwardLights.MAX_POINT_LIGHTS * 4;
-    public static SPOT_LIGHT_DIR_OFFSET: number = UBOForwardLights.SPOT_LIGHT_POS_RANGE_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
-    public static SPOT_LIGHT_COLOR_OFFSET: number = UBOForwardLights.SPOT_LIGHT_DIR_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
-    public static COUNT: number = UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
-    public static SIZE: number = UBOForwardLights.COUNT * 4;
+    public static DIR_LIGHT_COLOR_OFFSET: number = UBOForwardLight.DIR_LIGHT_DIR_OFFSET + UBOForwardLight.MAX_DIR_LIGHTS * 4;
+    public static POINT_LIGHT_POS_RANGE_OFFSET: number = UBOForwardLight.DIR_LIGHT_COLOR_OFFSET + UBOForwardLight.MAX_DIR_LIGHTS * 4;
+    public static POINT_LIGHT_COLOR_OFFSET: number = UBOForwardLight.POINT_LIGHT_POS_RANGE_OFFSET + UBOForwardLight.MAX_POINT_LIGHTS * 4;
+    public static SPOT_LIGHT_POS_RANGE_OFFSET: number = UBOForwardLight.POINT_LIGHT_COLOR_OFFSET + UBOForwardLight.MAX_POINT_LIGHTS * 4;
+    public static SPOT_LIGHT_DIR_OFFSET: number = UBOForwardLight.SPOT_LIGHT_POS_RANGE_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static SPOT_LIGHT_COLOR_OFFSET: number = UBOForwardLight.SPOT_LIGHT_DIR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static COUNT: number = UBOForwardLight.SPOT_LIGHT_COLOR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static SIZE: number = UBOForwardLight.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_FORWARD_LIGHTS, name: 'CCForwardLights', members: [
-            { name: 'cc_dirLightDirection', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_DIR_LIGHTS },
-            { name: 'cc_dirLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_DIR_LIGHTS },
-            { name: 'cc_pointLightPositionAndRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_POINT_LIGHTS },
-            { name: 'cc_pointLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_POINT_LIGHTS },
-            { name: 'cc_spotLightPositionAndRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-            { name: 'cc_spotLightDirection', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-            { name: 'cc_spotLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+            { name: 'cc_dirLightDirection', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_DIR_LIGHTS },
+            { name: 'cc_dirLightColor', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_DIR_LIGHTS },
+            { name: 'cc_pointLightPositionAndRange', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_POINT_LIGHTS },
+            { name: 'cc_pointLightColor', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_POINT_LIGHTS },
+            { name: 'cc_spotLightPositionAndRange', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLightDirection', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLightColor', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
         ],
     };
 
-    public view: Float32Array = new Float32Array(UBOForwardLights.COUNT);
+    public view: Float32Array = new Float32Array(UBOForwardLight.COUNT);
 }
 */
 
@@ -173,6 +174,20 @@ export class UBOUI {
     };
 
     public view: Float32Array = new Float32Array(UBOUI.COUNT);
+}
+
+export class UBOShadow {
+    public static MAT_LIGHT_PLANE_PROJ_OFFSET: number = 0;
+    public static SHADOW_COLOR_OFFSET: number = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    public static COUNT: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static SIZE: number = UBOShadow.COUNT * 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        binding: UniformBinding.UBO_SHADOW, name: 'CCShadow', members: [
+            { name: 'cc_matLightPlaneProj', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_shadowColor', type: GFXType.FLOAT4, count: 1 },
+        ],
+    };
 }
 
 export interface IGlobalBindingDesc {

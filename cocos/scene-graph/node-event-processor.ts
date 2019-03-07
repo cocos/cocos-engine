@@ -30,22 +30,25 @@ const _mouseEvents = [
 // TODO: rearrange event
 function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouch) {
     const pos = touch.getLocation();
-    const node = this.owner;
+    const node = this.owner as Node;
+    if (!node || ! node.uiTransfromComp){
+        return false;
+    }
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.TOUCH_START.toString();
         event.touch = touch;
         event.bubbles = true;
         node.dispatchEvent(event);
-        return true;
     }
-    return false;
+
+    return true;
 }
 
 function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch) {
     const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
-        return;
+        return false;
     }
 
     event.type = EventType.TOUCH_MOVE.toString();
@@ -504,6 +507,7 @@ export class NodeEventProcessor {
     private _checknSetupSysEvent (type: string) {
         let newAdded = false;
         let forDispatch = false;
+        // just for ui
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this.touchListener) {
                 this.touchListener = cc.EventListener.create({

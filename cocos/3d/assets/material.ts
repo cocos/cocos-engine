@@ -98,7 +98,7 @@ export class Material extends Asset {
             const cur = this._defines;
             let patch = info.defines;
             if (!Array.isArray(patch) && this._effectAsset) { // fill all the passes if not specified
-                const len = Effect.getPassInfos(this._effectAsset, this._techIdx).length;
+                const len = Effect.getPassesInfo(this._effectAsset, this._techIdx).length;
                 patch = Array(len).fill(info.defines);
             }
             for (let i = 0; i < patch.length; i++) {
@@ -181,10 +181,10 @@ export class Material extends Asset {
 
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
         if (!this._passes || !this._effectAsset) { return; }
-        const passInfos = Effect.getPassInfos(this._effectAsset, this._techIdx);
+        const passInfos = Effect.getPassesInfo(this._effectAsset, this._techIdx);
         if (passIdx === undefined) {
-            for (let i = 0; i < this._passes.length; i++) {
-                this._passes[i].overridePipelineStates(passInfos[i], overrides);
+            for (const pass of this._passes) {
+                pass.overridePipelineStates(passInfos[pass.idxInTech], overrides);
             }
         } else {
             this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);

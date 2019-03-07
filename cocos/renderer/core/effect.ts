@@ -10,7 +10,7 @@ export interface IEffectInfo {
 }
 
 export class Effect {
-    public static getPassInfos (effect: EffectAsset, techIdx: number) {
+    public static getPassesInfo (effect: EffectAsset, techIdx: number) {
         return effect.techniques[techIdx].passes;
     }
 
@@ -19,13 +19,15 @@ export class Effect {
         const { techIdx, defines } = info || {} as IEffectInfo;
         const tech = effect.techniques[techIdx || 0];
         const passNum = tech.passes.length;
-        const passes: Pass[] = new Array(passNum);
+        const passes: Pass[] = [];
         for (let k = 0; k < passNum; ++k) {
             const passInfo = tech.passes[k] as IPassInfoFull;
-            passInfo.defines = defines && defines[k] || {};
+            const defs = passInfo.curDefs = defines && defines[k] || {};
+            if (passInfo.switch && !defs[passInfo.switch]) { continue; }
+            passInfo.idxInTech = k;
             const pass = new Pass(cc.game._gfxDevice);
             pass.initialize(passInfo);
-            passes[k] = pass;
+            passes.push(pass);
         }
         return passes;
     }

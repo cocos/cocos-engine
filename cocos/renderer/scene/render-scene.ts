@@ -10,8 +10,8 @@ import { Node } from '../../scene-graph/node';
 import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
-import { Light } from './light';
 import { Model } from './model';
+import { PlanarShadow } from './planar-shadow';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
@@ -53,6 +53,14 @@ export class RenderScene {
         return this._skybox;
     }
 
+    get planarShadow (): PlanarShadow {
+        return this._planarShadow;
+    }
+
+    get defaultMainLightNode (): Node {
+        return this._defaultMainLightNode;
+    }
+
     get mainLight (): DirectionalLight {
         return this._mainLight;
     }
@@ -78,7 +86,9 @@ export class RenderScene {
     private _cameras: Camera[] = [];
     private _ambient: Ambient;
     private _skybox: Skybox;
+    private _planarShadow: PlanarShadow;
     private _mainLight: DirectionalLight;
+    private _defaultMainLightNode: Node;
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
     private _models: Model[] = [];
@@ -87,14 +97,16 @@ export class RenderScene {
     constructor (root: Root) {
         this._root = root;
         this._ambient = new Ambient (this);
-        this._mainLight = new DirectionalLight(this, 'Main Light', new Node('Main Light'));
+        this._defaultMainLightNode = new Node('Main Light');
+        this._mainLight = new DirectionalLight(this, 'Main Light', this._defaultMainLightNode);
         this._mainLight.illuminance = Ambient.SUN_ILLUM;
+        this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
+        this._planarShadow = new PlanarShadow(this);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        // this._mainLight.direction = new Vec3(1.0, -1.0, -1.0); // should be in editor prefab
         return true;
     }
 

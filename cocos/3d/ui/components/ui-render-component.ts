@@ -31,8 +31,9 @@ import {
     property,
     requireComponent,
 } from '../../../core/data/class-decorator';
-import macro from '../../../core/platform/CCMacro';
+import { ccenum } from '../../../core/value-types/enum';
 import { Color } from '../../../core/value-types/index';
+import { GFXBlendFactor } from '../../../gfx/define';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
 import { EventType} from '../../../scene-graph/node-event-enum';
@@ -41,6 +42,9 @@ import { RenderableComponent } from '../../framework/renderable-component';
 import { IAssembler, IAssemblerManager } from '../assembler/assembler';
 import { CanvasComponent } from './canvas-component';
 import { UITransformComponent } from './ui-transfrom-component';
+
+// hack
+ccenum(GFXBlendFactor);
 
 /**
  * !#en
@@ -65,15 +69,19 @@ export class UIRenderComponent extends Component {
      * sprite.srcBlendFactor = macro.BlendFactor.ONE;
      */
     @property({
-        type: macro.BlendFactor,
+        type: GFXBlendFactor,
     })
     get srcBlendFactor () {
         return this._srcBlendFactor;
     }
-    set srcBlendFactor (value) {
-        if (this._srcBlendFactor === value) { return; }
+
+    set srcBlendFactor (value: GFXBlendFactor) {
+        if (this._srcBlendFactor === value) {
+            return;
+        }
+
         this._srcBlendFactor = value;
-        this._updateBlendFunc(true);
+        this._updateBlendFunc();
     }
 
     /**
@@ -82,19 +90,22 @@ export class UIRenderComponent extends Component {
      * @property dstBlendFactor
      * @type {macro.BlendFactor}
      * @example
-     * sprite.dstBlendFactor = cc.macro.BlendFactor.ONE;
+     * sprite.dstBlendFactor = GFXBlendFactor.ONE;
      */
     @property({
-        type: macro.BlendFactor,
+        type: GFXBlendFactor,
     })
     get dstBlendFactor () {
         return this._dstBlendFactor;
     }
 
-    set dstBlendFactor (value) {
-        if (this._dstBlendFactor === value) { return; }
+    set dstBlendFactor (value: GFXBlendFactor) {
+        if (this._dstBlendFactor === value) {
+            return;
+        }
+
         this._dstBlendFactor = value;
-        this._updateBlendFunc(true);
+        this._updateBlendFunc();
     }
 
     /**
@@ -170,15 +181,13 @@ export class UIRenderComponent extends Component {
     public static PostAssembler: IAssemblerManager | null = null;
 
     @property
-    protected _srcBlendFactor = macro.BlendFactor.SRC_ALPHA;
+    protected _srcBlendFactor = GFXBlendFactor.SRC_ALPHA;
     @property
-    protected _dstBlendFactor = macro.BlendFactor.ONE_MINUS_SRC_ALPHA;
+    protected _dstBlendFactor = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
     @property
     protected _color: Color = Color.WHITE;
     @property
     protected _priority = 0;
-    @property
-    protected _material: Material | null = null;
     @property
     protected _sharedMaterial: Material | null = null;
 
@@ -190,6 +199,19 @@ export class UIRenderComponent extends Component {
     protected _renderDataDirty = false;
     // 特殊渲染标记，在可渲染情况下，因为自身某个原因不给予渲染
     protected _renderPermit = true;
+    protected _material: Material | null = null;
+    protected _blendTemplate = {
+        blendState: {
+            targets: [
+                {
+                    blendSrc: GFXBlendFactor.SRC_ALPHA,
+                    blendDst: GFXBlendFactor.ONE_MINUS_SRC_ALPHA,
+                },
+            ],
+        },
+        depthStencilState: {},
+        rasterizerState: {},
+    };
 
     // _allocedDatas = [];
     // _vertexFormat = null;
@@ -266,20 +288,6 @@ export class UIRenderComponent extends Component {
         }
     }
 
-    // TODO:
-    public markForCustomIARender (enable) {
-        // if (enable && this._canRender()) {
-        //     this.node._renderFlag |= RenderFlow.FLAG_CUSTOM_IA_RENDER;
-        // }
-        // else if (!enable) {
-        //     this.node._renderFlag &= ~RenderFlow.FLAG_CUSTOM_IA_RENDER;
-        // }
-    }
-
-    // disableRender() {
-    //     // this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR);
-    // }
-
     public requestRenderData () {
         const data = RenderData.add();
         // this._allocedDatas.push(data);
@@ -333,7 +341,6 @@ export class UIRenderComponent extends Component {
         const material = this._material;
         if (material) {
             material.setProperty('color', this._color);
-            // material.updateHash();
         }
     }
 
@@ -341,26 +348,21 @@ export class UIRenderComponent extends Component {
         this._material = material;
 
         this._updateBlendFunc();
-        // material.updateHash();
     }
 
-    protected _updateBlendFunc (updateHash: boolean = false) {
+    protected _updateBlendFunc () {
         if (!this._material) {
             return;
         }
 
-        // TODO:
-        // var pass = this.material._mainTech.passes[0];
-        // pass.setBlend(
-        //     gfx.BLEND_FUNC_ADD,
-        //     this._srcBlendFactor, this._dstBlendFactor,
-        //     gfx.BLEND_FUNC_ADD,
-        //     this._srcBlendFactor, this._dstBlendFactor
-        // );
-
-        // if (updateHash) {
-        //     this.material.updateHash();
-        // }
+        const target = this._blendTemplate.blendState.targets[0];
+        if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
+            target.blendDst = this._dstBlendFactor;
+            target.blendSrc = this._srcBlendFactor;
+            this._blendTemplate.depthStencilState = this._material.passes[0].depthStencilState;
+            this._blendTemplate.rasterizerState = this._material.passes[0].rasterizerState;
+            this._material.overridePipelineStates(this._blendTemplate, 0);
+        }
     }
 
     // pos, rot, scale changed
@@ -383,8 +385,5 @@ export class UIRenderComponent extends Component {
         }
     }
 }
-
-// RenderComponent._assembler = null;
-// RenderComponent._postAssembler = null;
 
 cc.UIRenderComponent = UIRenderComponent;

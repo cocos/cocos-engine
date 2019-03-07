@@ -25,11 +25,17 @@
 
 import { TextureCube } from '../3d/assets/texture-cube';
 import { ccclass, property } from '../core/data/class-decorator';
-import { Color } from '../core/value-types';
-import { color4 } from '../core/vmath';
+import { Color, Quat, Vec3 } from '../core/value-types';
+import { color4, vec3 } from '../core/vmath';
 import { Ambient } from '../renderer/scene/ambient';
+import { PlanarShadow } from '../renderer/scene/planar-shadow';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { Skybox } from '../renderer/scene/skybox';
+import { Node } from './node';
+
+const _up = new Vec3(0, 1, 0);
+const _v3 = new Vec3();
+const _qt = new Quat();
 
 @ccclass('cc.AmbientInfo')
 export class AmbientInfo {
@@ -44,7 +50,7 @@ export class AmbientInfo {
 
     @property({ type: Color })
     set skyColor (val: Color) {
-        this._skyColor = val;
+        this._skyColor.set(val);
         if (this._resource) { color4.array(this._resource.skyColor, this.skyColor); }
     }
     get skyColor () {
@@ -62,7 +68,7 @@ export class AmbientInfo {
 
     @property({ type: Color })
     set groundAlbedo (val: Color) {
-        this._groundAlbedo = val;
+        this._groundAlbedo.set(val);
         if (this._resource) { color4.array(this._resource.groundAlbedo, this.groundAlbedo); }
     }
     get groundAlbedo () {
@@ -80,7 +86,7 @@ cc.AmbientInfo = AmbientInfo;
 
 @ccclass('cc.SkyboxInfo')
 export class SkyboxInfo {
-    @property
+    @property(TextureCube)
     protected _cubemap: TextureCube | null = null;
     @property
     protected _isRGBE: boolean = false;
@@ -125,16 +131,73 @@ export class SkyboxInfo {
 }
 cc.SkyboxInfo = SkyboxInfo;
 
+@ccclass('cc.PlanarShadowInfo')
+export class PlanarShadowInfo {
+    @property
+    protected _normal = new Vec3(0, 1, 0);
+    @property
+    protected _distance = 0;
+    @property
+    protected _shadowColor = new Color(76, 76, 76, 255);
+
+    protected _resource: PlanarShadow | null = null;
+
+    @property({ type: Vec3 })
+    set normal (val: Vec3) {
+        vec3.copy(this._normal, val);
+        if (this._resource) { this._resource.normal = val; }
+    }
+    get normal () {
+        return this._normal;
+    }
+
+    @property({ type: Number })
+    set distance (val: number) {
+        this._distance = val;
+        if (this._resource) { this._resource.distance = val; }
+    }
+    get distance () {
+        return this._distance;
+    }
+
+    @property({ type: Color })
+    set shadowColor (val: Color) {
+        this._shadowColor.set(val);
+        if (this._resource) { this._resource.shadowColor = val; }
+    }
+    get shadowColor () {
+        return this._shadowColor;
+    }
+
+    public setPlaneFromNode (node: Node) {
+        node.getWorldRotation(_qt);
+        this.normal = vec3.transformQuat(_v3, _up, _qt);
+        node.getWorldPosition(_v3);
+        this.distance = vec3.dot(this._normal, _v3);
+    }
+
+    set renderScene (val: RenderScene) {
+        this._resource = val.planarShadow;
+        this.normal = this._normal;
+        this.distance = this._distance;
+        this.shadowColor = this._shadowColor;
+    }
+}
+cc.PlanarShadowInfo = PlanarShadowInfo;
+
 @ccclass('cc.SceneGlobals')
 export class SceneGlobals {
     @property({ type: AmbientInfo })
     public ambient = new AmbientInfo();
     @property({ type: SkyboxInfo })
     public skybox = new SkyboxInfo();
+    @property({ type: PlanarShadowInfo })
+    public planarShadow = new PlanarShadowInfo();
 
     set renderScene (rs: RenderScene) {
         this.ambient.renderScene = rs;
         this.skybox.renderScene = rs;
+        this.planarShadow.renderScene = rs;
     }
 }
 cc.SceneGlobals = SceneGlobals;
