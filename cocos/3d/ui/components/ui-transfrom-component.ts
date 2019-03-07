@@ -4,6 +4,7 @@ import { EventListener } from '../../../core/platform/event-manager/CCEventListe
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import * as math from '../../../core/vmath/index';
 import { EventType } from '../../../scene-graph/node-event-enum';
+import { CanvasComponent } from './canvas-component';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -200,11 +201,16 @@ export class UITransformComponent extends Component {
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
+        // hack: discuss how to distribute 3D event
+        let visibility = -1;
         const renderComp = this.node.getComponent(cc.UIRenderComponent) as any;
         if (!renderComp) {
-            return false;
+            visibility = this._getVisibility();
+        } else {
+            visibility = renderComp.visibility;
         }
-        const canvas = cc.director.root.ui.getScreen(renderComp.visibility);
+
+        const canvas = cc.director.root.ui.getScreen(visibility);
         if (!canvas) {
             return;
         }
@@ -406,6 +412,26 @@ export class UITransformComponent extends Component {
         }
 
         return rect;
+    }
+
+    private _getVisibility (){
+        let visibility = -1;
+        let parent = this.node;
+        // 获取被渲染相机的 visibility
+        while (parent) {
+            if (parent) {
+                const canvasComp = parent.getComponent(CanvasComponent);
+                if (canvasComp) {
+                    visibility = canvasComp.visibility;
+                    break;
+                }
+            }
+
+            // @ts-ignore
+            parent = parent.parent;
+        }
+
+        return visibility;
     }
 }
 

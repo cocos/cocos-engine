@@ -32,7 +32,7 @@ function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouc
     const pos = touch.getLocation();
     const node = this.owner as Node;
     if (!node || ! node.uiTransfromComp){
-        return;
+        return false;
     }
 
     if (node.uiTransfromComp.isHit(pos, this)) {
@@ -41,6 +41,8 @@ function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouc
         event.bubbles = true;
         node.dispatchEvent(event);
     }
+
+    return true;
 }
 
 function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch) {
