@@ -147,9 +147,8 @@ class BuiltinResMgr {
         defaultMtl._uuid = 'default-material';
         defaultMtl.initialize({
             defines: { USE_COLOR: true },
-            effectName: 'builtin-unlit',
+            effectName: 'builtin-standard',
         });
-        defaultMtl.setProperty('color', cc.color('#FF00FF'));
         resources[defaultMtl._uuid] = defaultMtl;
 
         // sprite material

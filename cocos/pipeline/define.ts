@@ -37,7 +37,8 @@ export class UBOGlobal {
     public static MAT_VIEW_PROJ_OFFSET: number = UBOGlobal.MAT_PROJ_INV_OFFSET + 16;
     public static MAT_VIEW_PROJ_INV_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_OFFSET + 16;
     public static CAMERA_POS_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET + 16;
-    public static MAIN_LIT_DIR_OFFSET: number = UBOGlobal.CAMERA_POS_OFFSET + 4;
+    public static EXPOSURE_OFFSET: number = UBOGlobal.CAMERA_POS_OFFSET + 4;
+    public static MAIN_LIT_DIR_OFFSET: number = UBOGlobal.EXPOSURE_OFFSET + 4;
     public static MAIN_LIT_COLOR_OFFSET: number = UBOGlobal.MAIN_LIT_DIR_OFFSET + 4;
     public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
     public static AMBIENT_GROUND_OFFSET: number = UBOGlobal.AMBIENT_SKY_OFFSET + 4;
@@ -46,11 +47,9 @@ export class UBOGlobal {
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_GLOBAL, name: 'CCGlobal', members: [
-            // constants
             { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenScale', type: GFXType.FLOAT4, count: 1 },
-            // transform
             { name: 'cc_matView', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matViewInv', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matProj', type: GFXType.MAT4, count: 1 },
@@ -58,6 +57,7 @@ export class UBOGlobal {
             { name: 'cc_matViewProj', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matViewProjInv', type: GFXType.MAT4, count: 1 },
             { name: 'cc_cameraPos', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_exposure', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_mainLitDir', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_mainLitColor', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_ambientSky', type: GFXType.FLOAT4, count: 1 },
@@ -84,6 +84,34 @@ export class UBOLocal {
     public view: Float32Array = new Float32Array(UBOLocal.COUNT);
 }
 
+export class UBOForwardLights {
+    public static MAX_SPHERE_LIGHTS = 4;
+    public static MAX_SPOT_LIGHTS = 4;
+
+    public static SPHERE_LIGHT_POS_OFFSET: number = 0;
+    public static SPHERE_LIGHT_SIZE_RANGE_OFFSET: number = UBOForwardLights.SPHERE_LIGHT_POS_OFFSET + UBOForwardLights.MAX_SPHERE_LIGHTS * 4;
+    public static SPHERE_LIGHT_COLOR_OFFSET: number = UBOForwardLights.SPHERE_LIGHT_SIZE_RANGE_OFFSET + UBOForwardLights.MAX_SPHERE_LIGHTS * 4;
+    public static SPOT_LIGHT_POS_SIZE_OFFSET: number = UBOForwardLights.SPHERE_LIGHT_COLOR_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
+    public static SPOT_LIGHT_DIR_RANGE_OFFSET: number = UBOForwardLights.SPOT_LIGHT_POS_SIZE_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
+    public static SPOT_LIGHT_COLOR_OFFSET: number = UBOForwardLights.SPOT_LIGHT_DIR_RANGE_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
+    public static COUNT: number = UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
+    public static SIZE: number = UBOForwardLights.COUNT * 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        binding: UniformBinding.UBO_FORWARD_LIGHTS, name: 'CCForwardLights', members: [
+            { name: 'cc_sphereLightPos', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
+            { name: 'cc_sphereLightSizeRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
+            { name: 'cc_sphereLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
+            { name: 'cc_spotLightPosSize', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLightDirRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+        ],
+    };
+
+    public view: Float32Array = new Float32Array(UBOForwardLights.COUNT);
+}
+
+/*
 export class UBOForwardLights {
     public static MAX_DIR_LIGHTS = 4;
     public static MAX_POINT_LIGHTS = 4;
@@ -113,6 +141,7 @@ export class UBOForwardLights {
 
     public view: Float32Array = new Float32Array(UBOForwardLights.COUNT);
 }
+*/
 
 export class UBOSkinning {
     public static MAT_JOINT_OFFSET: number = 0;

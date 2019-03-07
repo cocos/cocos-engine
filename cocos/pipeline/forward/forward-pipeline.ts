@@ -1,17 +1,22 @@
 import { Root } from '../../core/root';
+import { Vec3 } from '../../core/value-types';
+import { vec3, vec4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { RenderPassStage, UBOForwardLights } from '../define';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
-import { RenderPipeline } from '../render-pipeline';
+import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { ForwardFlow } from './forward-flow';
+import { GFXFeature } from '../../gfx/device';
 
 export enum ForwardFlowPriority {
     FORWARD = 0,
 }
 
+const _v3 = new Vec3();
+const _vec4Array = new Float32Array(4);
 const _idVec4Array = Float32Array.from([1, 1, 1, 0]);
 
 export class ForwardPipeline extends RenderPipeline {
@@ -27,9 +32,15 @@ export class ForwardPipeline extends RenderPipeline {
         super(root);
     }
 
-    public initialize (): boolean {
+    public initialize (info: IRenderPipelineInfo): boolean {
 
-        if (!this.createShadingTarget()) {
+        if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
+            this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
+            this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+            this._isHDRSupported = true;
+        }
+
+        if (!this.createShadingTarget(info)) {
             return false;
         }
 
@@ -54,6 +65,8 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
+
+        this._macros.USE_HDR = this._isHDR;
 
         // create flows
         this.createFlow(ForwardFlow, {
@@ -115,42 +128,51 @@ export class ForwardPipeline extends RenderPipeline {
         super.updateUBOs(view);
 
         const scene = view.camera.scene;
-        const dLights = scene.directionalLights;
+        const sphereLits = scene.sphereLights;
 
-        for (let i = 0; i < UBOForwardLights.MAX_DIR_LIGHTS; i++) {
-            const light = dLights[i];
-            if (light && light.enabled) {
-                light.update();
-                this._uboLights.view.set(light.directionArray, UBOForwardLights.DIR_LIGHT_DIR_OFFSET + i * 4);
-                this._uboLights.view.set(light.color, UBOForwardLights.DIR_LIGHT_COLOR_OFFSET + i * 4);
+        for (let i = 0; i < sphereLits.length; i++) {
+            const light = sphereLits[i];
+            if (light.enabled && light.node) {
+
+                light.node.getWorldPosition(_v3);
+                vec3.array(_vec4Array, _v3);
+                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_POS_OFFSET + i * 4);
+
+                _vec4Array[0] = light.size;
+                _vec4Array[1] = light.range;
+                _vec4Array[2] = 0.0;
+                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_SIZE_RANGE_OFFSET + i * 4);
+
+                vec3.array(_vec4Array, light.color);
+                _vec4Array[0] = light.luminance;
+                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_COLOR_OFFSET + i * 4);
             } else {
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.DIR_LIGHT_DIR_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.DIR_LIGHT_COLOR_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPHERE_LIGHT_POS_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPHERE_LIGHT_SIZE_RANGE_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPHERE_LIGHT_COLOR_OFFSET + i * 4);
             }
         }
-        const pLights = scene.pointLights;
-        for (let i = 0; i < UBOForwardLights.MAX_POINT_LIGHTS; i++) {
-            const light = pLights[i];
-            if (light && light.enabled) {
-                light.update();
-                this._uboLights.view.set(light.positionAndRange, UBOForwardLights.POINT_LIGHT_POS_RANGE_OFFSET + i * 4);
-                this._uboLights.view.set(light.color, UBOForwardLights.POINT_LIGHT_COLOR_OFFSET + i * 4);
+
+        const spotLits = scene.spotLights;
+        for (let i = 0; i < spotLits.length; i++) {
+            const light = spotLits[i];
+            if (light.enabled && light.node) {
+
+                light.node.getWorldPosition(_v3);
+                vec3.array(_vec4Array, _v3);
+                _vec4Array[3] = light.size;
+                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_POS_SIZE_OFFSET + i * 4);
+
+                vec3.array(_vec4Array, light.direction);
+                _vec4Array[3] = light.range;
+                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_DIR_RANGE_OFFSET + i * 4);
+
+                vec3.array(_vec4Array, light.color);
+                _vec4Array[0] = light.luminance;
+                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + i * 4);
             } else {
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.POINT_LIGHT_POS_RANGE_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.POINT_LIGHT_COLOR_OFFSET + i * 4);
-            }
-        }
-        const sLights = scene.spotLights;
-        for (let i = 0; i < UBOForwardLights.MAX_SPOT_LIGHTS; i++) {
-            const light = sLights[i];
-            if (light && light.enabled) {
-                light.update();
-                this._uboLights.view.set(light.positionAndRange, UBOForwardLights.SPOT_LIGHT_POS_RANGE_OFFSET + i * 4);
-                this._uboLights.view.set(light.directionArray, UBOForwardLights.SPOT_LIGHT_DIR_OFFSET + i * 4);
-                this._uboLights.view.set(light.color, UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + i * 4);
-            } else {
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_POS_RANGE_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_DIR_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_POS_SIZE_OFFSET + i * 4);
+                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_DIR_RANGE_OFFSET + i * 4);
                 this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + i * 4);
             }
         }

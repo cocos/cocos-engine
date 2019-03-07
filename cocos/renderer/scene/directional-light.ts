@@ -9,21 +9,25 @@ const _v3 = new Vec3();
 const _qt = new Quat();
 
 export class DirectionalLight extends Light {
-    protected _direction: Vec3 = new Vec3(0, 0, 1);
-    protected _directionArray: Float32Array =  Float32Array.from([0, 0, 1, 0]);
 
-    set direction (val: Vec3) {
-        this._direction = val;
-        vec3.normalize(this._direction, this._direction);
-        vec3.array(this._directionArray, this._direction);
+    protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
+    protected _illum: number = 65000.0;
+
+    set direction (dir: Vec3) {
+        this._dir = dir;
+        vec3.normalize(this._dir, this._dir);
     }
 
     get direction (): Vec3 {
-        return this._direction;
+        return this._dir;
     }
 
-    get directionArray (): Float32Array {
-        return this._directionArray;
+    set illuminance (illum: number) {
+        this._illum = illum;
+    }
+
+    get illuminance (): number {
+        return this._illum;
     }
 
     constructor (scene: RenderScene, name: string, node: Node) {
@@ -33,8 +37,7 @@ export class DirectionalLight extends Light {
 
     public update () {
         if (this._node) {
-            this._direction = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
-            vec3.array(this._directionArray, this._direction);
+            this._dir = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
         }
     }
 }

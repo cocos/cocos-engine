@@ -11,6 +11,60 @@ export enum CameraProjection {
     PERSPECTIVE,
 }
 
+export enum CameraAperture {
+    F1_8,
+    F2_0,
+    F2_2,
+    F2_5,
+    F2_8,
+    F3_2,
+    F3_5,
+    F4_0,
+    F4_5,
+    F5_0,
+    F5_6,
+    F6_3,
+    F7_1,
+    F8_0,
+    F9_0,
+    F10_0,
+    F11_0,
+    F13_0,
+    F14_0,
+    F16_0,
+    F18_0,
+    F20_0,
+    F22_0,
+}
+
+export enum CameraISO {
+    ISO100,
+    ISO200,
+    ISO400,
+    ISO800,
+}
+
+export enum CameraShutter {
+    D1,
+    D2,
+    D4,
+    D8,
+    D15,
+    D30,
+    D60,
+    D125,
+    D250,
+    D500,
+    D1000,
+    D2000,
+    D4000,
+}
+
+const FSTOPS: number[] = [1.8, 2.0, 2.2, 2.5, 2.8, 3.2, 3.5, 4.0, 4.5, 5.0, 5.6, 6.3, 7.1, 8.0, 9.0, 10.0, 11.0, 13.0, 14.0, 16.0, 18.0, 20.0, 22.0];
+const SHUTERS: number[] = [1.0, 1.0 / 2.0, 1.0 / 4.0, 1.0 / 8.0, 1.0 / 15.0, 1.0 / 30.0, 1.0 / 60.0, 1.0 / 125.0,
+    1.0 / 250.0, 1.0 / 500.0, 1.0 / 1000.0, 1.0 / 2000.0, 1.0 / 4000.0];
+const ISOS: number[] = [100.0, 200.0, 400.0, 800.0];
+
 export interface ICameraInfo {
     name: string;
     node: Node;
@@ -55,15 +109,25 @@ export class Camera {
     private _view: RenderView;
     private _visibility: number = 0;
     private _priority: number = 0;
-    private _pipeline: string;
+    private _aperture: CameraAperture = CameraAperture.F16_0;
+    private _apertureValue: number;
+    private _shutter: CameraShutter = CameraShutter.D125;
+    private _shutterValue: number = 0.0;
+    private _iso: CameraISO = CameraISO.ISO100;
+    private _isoValue: number = 0.0;
+    private _ec: number = 0.0;
+    private _exposure: number = 0.0;
 
     constructor (scene: RenderScene, info: ICameraInfo) {
         this._scene = scene;
         this._name = info.name;
         this._node = info.node;
         this._proj = info.projection;
-        this._pipeline = info.pipeline || 'forward';
         this._priority = info.priority || 0;
+
+        this._apertureValue = FSTOPS[this._aperture];
+        this._shutterValue = SHUTERS[this._shutter];
+        this._isoValue = ISOS[this._iso];
 
         this._aspect = this._width = this._height = this._screenScale = 1;
 
@@ -121,6 +185,9 @@ export class Camera {
         this._node.getWorldPosition(this._position);
 
         this._frustum.update(this._matViewProj, this._matViewProjInv);
+
+        const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
+        this._exposure = 0.833333 / Math.pow(2.0, ev100);
     }
 
     set screenScale (val) {
@@ -290,17 +357,64 @@ export class Camera {
         return this._visibility;
     }
 
-    get pipeline () {
-        return this._pipeline;
-    }
-
-    get priority () {
+    get priority (): number {
         return this._view.priority;
     }
 
     set priority (val: number) {
         this._priority = val;
         this._view.priority = this._priority;
+    }
+
+    set aperture (val: CameraAperture) {
+        this._aperture = val;
+        this._apertureValue = FSTOPS[this._aperture];
+    }
+
+    get aperture (): CameraAperture {
+        return this._aperture;
+    }
+
+    get apertureValue (): number {
+        return this._apertureValue;
+    }
+
+    set shutter (val: CameraShutter) {
+        this._shutter = val;
+        this._shutterValue = SHUTERS[this._shutter];
+    }
+
+    get shutter (): CameraShutter {
+        return this._shutter;
+    }
+
+    get shutterValue (): number {
+        return this._shutterValue;
+    }
+
+    set iso (val: CameraISO) {
+        this._iso = val;
+        this._isoValue = ISOS[this._iso];
+    }
+
+    get iso (): CameraISO {
+        return this._iso;
+    }
+
+    get isoValue (): number {
+        return this._isoValue;
+    }
+
+    set exposureCompensation (val: number) {
+        this._ec = val;
+    }
+
+    get exposureCompensation (): number {
+        return this._ec;
+    }
+
+    get exposure (): number {
+        return this._exposure;
     }
 
     public changeTargetDisplay (val: number) {

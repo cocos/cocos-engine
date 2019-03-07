@@ -11,8 +11,9 @@ import { UI } from '../renderer/ui/ui';
 export let _createSceneFun;
 export let _createViewFun;
 
-// export interface IRootInfo {
-// }
+export interface IRootInfo {
+    enableHDR?: boolean;
+}
 
 export interface ISceneInfo {
     name: string;
@@ -82,7 +83,7 @@ export class Root {
         RenderView.registerCreateFunc(this);
     }
 
-    public initialize (/*info: IRootInfo*/): boolean {
+    public initialize (info: IRootInfo): boolean {
 
         if (!this._device.mainWindow) {
             return false;
@@ -94,13 +95,13 @@ export class Root {
         builtinResMgr.initBuiltinRes(this._device);
 
         this._pipeline = new ForwardPipeline(this);
-        if (!this._pipeline.initialize()) {
+        if (!this._pipeline.initialize(info)) {
             this.destroy();
             return false;
         }
 
         this._uiPipeline = new UIPipeline(this);
-        if (!this._uiPipeline.initialize()) {
+        if (!this._uiPipeline.initialize(info)) {
             this.destroy();
             return false;
         }

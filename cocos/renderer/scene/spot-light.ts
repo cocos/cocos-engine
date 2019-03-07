@@ -9,38 +9,63 @@ const _v3 = new Vec3();
 const _qt = new Quat();
 
 export class SpotLight extends Light {
-    protected _direction = Float32Array.from([0, 0, 1, Math.cos(Math.PI / 6)]);
-    protected _positionAndRange = Float32Array.from([0, 0, 0, 10]);
+    protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
+    protected _size: number = 15.0;
+    protected _range: number = 500.0;
+    protected _luminance: number = 10000.0;
+    protected _luminousPower: number = 0.0;
 
-    set position (val: Vec3) {
-        vec3.array(this._positionAndRange, val);
+    set size (size: number) {
+        this._size = size;
     }
-    set range (val: number) {
-        this._positionAndRange[3] = val;
+
+    get size (): number {
+        return this._size;
     }
-    set direction (val: Vec3) {
-        vec3.array(this._direction, val);
+
+    set range (range: number) {
+        this._range = range;
     }
+
+    get range (): number {
+        return this._range;
+    }
+
+    set luminance (lum: number) {
+        this._luminance = lum;
+        this._luminousPower = this._luminance * 4.0 * Math.PI;
+    }
+
+    get luminance (): number {
+        return this._luminance;
+    }
+
+    set luminousPower (lm: number) {
+        this._luminousPower = lm;
+        this._luminance = this._luminousPower / 4.0 / Math.PI;
+    }
+
+    get luminousPower (): number {
+        return this._luminousPower;
+    }
+
+    get direction (): Vec3 {
+        return this._dir;
+    }
+
     set spotAngle (val: number) {
-        this._direction[3] = Math.cos(val * 0.5);
-    }
-
-    get positionAndRange () {
-        return this._positionAndRange;
-    }
-    get directionArray () {
-        return this._direction;
+        this._range = Math.cos(val * 0.5);
     }
 
     constructor (scene: RenderScene, name: string, node: Node) {
         super(scene, name, node);
-        this._type = LightType.DIRECTIONAL;
+        this._type = LightType.SPOT;
+        this._luminousPower = this._luminance * 4.0 * Math.PI;
     }
 
     public update () {
         if (this._node) {
-            this.position = this._node.getWorldPosition(_v3);
-            this.direction = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
+            this._dir = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
         }
     }
 }

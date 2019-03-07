@@ -1,9 +1,10 @@
+import { Vec3 } from '../../core/value-types';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
 
 export enum LightType {
     DIRECTIONAL,
-    POINT,
+    SPHERE,
     SPOT,
     UNKNOWN,
 }
@@ -17,12 +18,28 @@ export class Light {
         return this._enabled;
     }
 
-    set color (color) {
+    set color (color: Vec3) {
         this._color.set(color);
     }
 
-    get color () {
+    get color (): Vec3 {
         return this._color;
+    }
+
+    set useColorTemperature (enable: boolean) {
+        this._useColorTemp = enable;
+    }
+
+    get useColorTemperature (): boolean {
+        return this._useColorTemp;
+    }
+
+    set colorTemperature (val: number) {
+        this._colorTemp = val;
+    }
+
+    get colorTemperature (): number {
+        return this._colorTemp;
     }
 
     set node (n) {
@@ -41,8 +58,10 @@ export class Light {
         return this._name;
     }
 
-    protected _color = Float32Array.from([1, 1, 1, 1]);
-    protected _enabled = false;
+    protected _enabled = true;
+    protected _color: Vec3 = new Vec3(1, 1, 1);
+    protected _useColorTemp: boolean = false;
+    protected _colorTemp: number = 6550.0;
     protected _scene: RenderScene;
     protected _node: Node;
     protected _type: LightType;

@@ -114,6 +114,7 @@ class ProgramLib {
     }
 
     public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap = {}, pipeline: RenderPipeline) {
+        Object.assign(defines, pipeline.macros);
         const key = this.getKey(name, defines);
         let program = this._cache[key];
         if (program !== undefined) {

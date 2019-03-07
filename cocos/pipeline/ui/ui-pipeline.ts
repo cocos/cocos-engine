@@ -1,6 +1,6 @@
 import { Root } from '../../core/root';
 import { RenderPassStage, UBOGlobal } from '../define';
-import { RenderPipeline } from '../render-pipeline';
+import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIFlow } from './ui-flow';
 import { mat4 } from '../../core/vmath';
@@ -13,7 +13,7 @@ export class UIPipeline extends RenderPipeline {
         super(root);
     }
 
-    public initialize (): boolean {
+    public initialize (info: IRenderPipelineInfo): boolean {
 
         if (!this.createUBOs()) {
             return false;

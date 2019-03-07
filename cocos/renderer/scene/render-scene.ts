@@ -5,7 +5,6 @@ import { Root } from '../../core/root';
 import { Mat4, Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
-import { UBOForwardLights } from '../../pipeline/define';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
 import { Ambient } from './ambient';
@@ -13,8 +12,8 @@ import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
 import { Light } from './light';
 import { Model } from './model';
-import { PointLight } from './point-light';
 import { Skybox } from './skybox';
+import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 
 export interface IRenderSceneInfo {
@@ -58,12 +57,8 @@ export class RenderScene {
         return this._mainLight;
     }
 
-    get directionalLights (): DirectionalLight[] {
-        return this._directionalLights;
-    }
-
-    get pointLights (): PointLight[] {
-        return this._pointLights;
+    get sphereLights (): SphereLight[] {
+        return this._sphereLights;
     }
 
     get spotLights (): SpotLight[] {
@@ -84,8 +79,7 @@ export class RenderScene {
     private _ambient: Ambient;
     private _skybox: Skybox;
     private _mainLight: DirectionalLight;
-    private _pointLights: PointLight[] = [];
-    private _directionalLights: DirectionalLight[] = [];
+    private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
     private _models: Model[] = [];
     private _modelId: number = 0;
@@ -94,6 +88,7 @@ export class RenderScene {
         this._root = root;
         this._ambient = new Ambient (this);
         this._mainLight = new DirectionalLight(this, 'Main Light', new Node('Main Light'));
+        this._mainLight.illuminance = Ambient.SUN_ILLUM;
         this._skybox = new Skybox(this);
     }
 
@@ -106,7 +101,6 @@ export class RenderScene {
     public destroy () {
         this.destroyCameras();
         this.destroyPointLights();
-        this.destroyDirectionalLights();
         this.destroySpotLights();
         this.destroyModels();
     }
@@ -130,46 +124,28 @@ export class RenderScene {
         this._cameras = [];
     }
 
-    public createDirectionalLight (name: string, node: Node): Light | null {
-        if (this._directionalLights.length >= UBOForwardLights.MAX_DIR_LIGHTS) { return null; }
-        const light = new DirectionalLight(this, name, node);
-        this._directionalLights.push(light);
+    public createSphereLight (name: string, node: Node): SphereLight | null {
+        const light = new SphereLight(this, name, node);
+        this._sphereLights.push(light);
         return light;
     }
 
-    public destroyDirectionalLight (light: Light) {
-        for (let i = 0; i < this._directionalLights.length; ++i) {
-            if (this._directionalLights[i] === light) {
-                this._directionalLights.splice(i, 1);
+    public destroySphereLight (light: SphereLight) {
+        for (let i = 0; i < this._sphereLights.length; ++i) {
+            if (this._sphereLights[i] === light) {
+                this._sphereLights.splice(i, 1);
                 return;
             }
         }
     }
 
-    public createPointLight (name: string, node: Node): Light | null {
-        if (this._pointLights.length >= UBOForwardLights.MAX_POINT_LIGHTS) { return null; }
-        const light = new PointLight(this, name, node);
-        this._pointLights.push(light);
-        return light;
-    }
-
-    public destroyPointLight (light: Light) {
-        for (let i = 0; i < this._pointLights.length; ++i) {
-            if (this._pointLights[i] === light) {
-                this._pointLights.splice(i, 1);
-                return;
-            }
-        }
-    }
-
-    public createSpotLight (name: string, node: Node): Light | null {
-        if (this._spotLights.length >= UBOForwardLights.MAX_SPOT_LIGHTS) { return null; }
+    public createSpotLight (name: string, node: Node): SpotLight | null {
         const light = new SpotLight(this, name, node);
         this._spotLights.push(light);
         return light;
     }
 
-    public destroySpotLight (light: Light) {
+    public destroySpotLight (light: SpotLight) {
         for (let i = 0; i < this._spotLights.length; ++i) {
             if (this._spotLights[i] === light) {
                 this._spotLights.splice(i, 1);
@@ -179,11 +155,7 @@ export class RenderScene {
     }
 
     public destroyPointLights () {
-        this._pointLights = [];
-    }
-
-    public destroyDirectionalLights () {
-        this._directionalLights = [];
+        this._sphereLights = [];
     }
 
     public destroySpotLights () {

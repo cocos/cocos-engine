@@ -21,6 +21,7 @@ import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
+import { IDefineMap } from '../renderer/core/effect';
 import { UBOGlobal } from './define';
 import { IGlobalBindingDesc } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
@@ -30,6 +31,10 @@ import { RenderView } from './render-view';
 const _vec4Array = new Float32Array(4);
 const _mat4Array = new Float32Array(16);
 const _outMat = new Mat4();
+
+export interface IRenderPipelineInfo {
+    enableHDR?: boolean;
+}
 
 export abstract class RenderPipeline {
 
@@ -47,6 +52,14 @@ export abstract class RenderPipeline {
 
     public get flows (): RenderFlow[] {
         return this._flows;
+    }
+
+    public get isHDRSupported (): boolean {
+        return this._isHDRSupported;
+    }
+
+    public get isHDR (): boolean {
+        return this._isHDR;
     }
 
     public get shadingTexView (): GFXTextureView {
@@ -73,11 +86,24 @@ export abstract class RenderPipeline {
         return this._defaultTex!;
     }
 
+    public get fpScale (): number {
+        return this._fpScale;
+    }
+
+    public get fpScaleInv (): number {
+        return this._fpScaleInv;
+    }
+
+    public get macros (): IDefineMap {
+        return this._macros;
+    }
+
     protected _root: Root;
     protected _device: GFXDevice;
     protected _queue: RenderQueue = new RenderQueue();
     protected _renderPasses: Map<number, GFXRenderPass> = new Map();
     protected _flows: RenderFlow[] = [];
+    protected _isHDRSupported: boolean = false;
     protected _isHDR: boolean = false;
     protected _shadingPass: GFXRenderPass | null = null;
     protected _shadingTex: GFXTexture | null = null;
@@ -92,13 +118,16 @@ export abstract class RenderPipeline {
     protected _globalBindings: Map<string, IGlobalBindingDesc> = new Map<string, IGlobalBindingDesc>();
     protected _defaultTex: GFXTexture | null = null;
     protected _defaultTexView: GFXTextureView | null = null;
+    protected _fpScale: number = 1.0 / 1024.0;
+    protected _fpScaleInv: number = 1024.0;
+    protected _macros: IDefineMap = {};
 
     constructor (root: Root) {
         this._root = root;
         this._device = root.device;
     }
 
-    public abstract initialize (): boolean;
+    public abstract initialize (info: IRenderPipelineInfo): boolean;
     public abstract destroy ();
 
     public resize (width: number, height: number) {
@@ -167,21 +196,27 @@ export abstract class RenderPipeline {
         this._flows = [];
     }
 
-    protected createShadingTarget (): boolean {
-
+    protected createShadingTarget (info: IRenderPipelineInfo): boolean {
         let colorFmt: GFXFormat;
         let depthStencilFmt: GFXFormat;
 
-        // Try to use HDR format
-        if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
-            colorFmt = GFXFormat.R11G11B10F;
-            this._isHDR = true;
-        } else if (this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
-            colorFmt = GFXFormat.RGBA16F;
-            this._isHDR = true;
-        } else if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-            colorFmt = GFXFormat.RGBA32F;
-            this._isHDR = true;
+        const enableHDR = (info.enableHDR !== undefined ? info.enableHDR : true);
+        if (enableHDR && this._isHDRSupported) {
+            // Try to use HDR format
+            if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
+                colorFmt = GFXFormat.R11G11B10F;
+                this._isHDR = true;
+            } else if (this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
+                colorFmt = GFXFormat.RGBA16F;
+                this._isHDR = true;
+            } else if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+                colorFmt = GFXFormat.RGBA32F;
+                this._isHDR = true;
+            } else {
+                colorFmt = GFXFormat.RGBA8;
+                this._isHDR = false;
+                console.error('RenderPipeline doesn\'t support HDR.');
+            }
         } else { // Fallback to LDR
             colorFmt = GFXFormat.RGBA8;
             this._isHDR = false;
@@ -457,11 +492,17 @@ export abstract class RenderPipeline {
         _vec4Array[3] = 1.0;
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 
+        _vec4Array[0] = camera.exposure;
+        _vec4Array[1] = _vec4Array[0] * this._fpScaleInv;
+        _vec4Array[2] = 0.0;
+        _vec4Array[3] = 1.0 / _vec4Array[1];
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.EXPOSURE_OFFSET);
+
         vec3.array(_vec4Array, mainLight.direction);
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.MAIN_LIT_DIR_OFFSET);
 
-        _vec4Array.set(mainLight.color);
-        _vec4Array[3] = 1.0;
+        vec3.array(_vec4Array, mainLight.color);
+        _vec4Array[3] = mainLight.illuminance;
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
 
         _vec4Array.set(ambient.skyColor);

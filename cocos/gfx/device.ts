@@ -137,6 +137,10 @@ export abstract class GFXDevice {
         return this._depthStencilFmt;
     }
 
+    public get macros (): Map<string, string> {
+        return this._macros;
+    }
+
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
     protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
@@ -165,6 +169,7 @@ export abstract class GFXDevice {
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _shaderIdGen: number = 0;
+    protected _macros: Map<string, string> = new Map();
 
     public abstract initialize (info: IGFXDeviceInfo): boolean;
     public abstract destroy (): void;
@@ -196,5 +201,10 @@ export abstract class GFXDevice {
 
     public genShaderId (): number {
         return this._shaderIdGen++;
+    }
+
+    public defineMacro (macro: string, value?: string) {
+        const val = (value !== undefined? value : '');
+        this._macros.set(macro, val);
     }
 }

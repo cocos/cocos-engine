@@ -36,7 +36,7 @@ export class AmbientInfo {
     @property
     protected _skyColor = new Color(51, 128, 204, 1.0);
     @property
-    protected _skyIllum = 1.0;
+    protected _skyIllum = Ambient.SKY_ILLUM;
     @property
     protected _groundAlbedo = new Color(51, 51, 51, 255);
 
