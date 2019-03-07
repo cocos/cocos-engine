@@ -3,6 +3,7 @@ import { GFXCommandBufferType, IGFXColor } from '../../gfx/define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
+import { SRGBToLinear } from '../define';
 
 const colors: IGFXColor[] = [];
 const bufs: GFXCommandBuffer[] = [];
@@ -51,7 +52,16 @@ export class ForwardStage extends RenderStage {
         this._renderArea.y = vp.y * camera.height;
         this._renderArea.width = vp.width * camera.width;
         this._renderArea.height = vp.height * camera.height;
+
         colors[0] = camera.clearColor;
+
+        if (this._pipeline.isHDR) {
+            colors[0] = SRGBToLinear(colors[0]);
+            const scale = 1.0 / (camera.exposure * this._pipeline.fpScaleInv);
+            colors[0].r *= scale;
+            colors[0].g *= scale;
+            colors[0].b *= scale;
+        }
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea,

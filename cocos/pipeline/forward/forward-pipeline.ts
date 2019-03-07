@@ -3,13 +3,13 @@ import { Vec3 } from '../../core/value-types';
 import { vec3, vec4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXFeature } from '../../gfx/device';
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { RenderPassStage, UBOForwardLights } from '../define';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
-import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
+import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { ForwardFlow } from './forward-flow';
-import { GFXFeature } from '../../gfx/device';
 
 export enum ForwardFlowPriority {
     FORWARD = 0,
@@ -39,6 +39,8 @@ export class ForwardPipeline extends RenderPipeline {
             this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
             this._isHDRSupported = true;
         }
+
+        // this._isHDRSupported = false;
 
         if (!this.createShadingTarget(info)) {
             return false;
