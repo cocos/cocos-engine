@@ -44,6 +44,8 @@ var SkeletonData = cc.Class({
 
     properties: {
 
+        // store skeleton json string for jsb
+        skeletonJsonStr: "",
         _skeletonJson: null,
 
         /**
