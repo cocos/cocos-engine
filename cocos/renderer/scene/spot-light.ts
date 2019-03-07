@@ -14,6 +14,7 @@ export class SpotLight extends Light {
     protected _range: number = 500.0;
     protected _luminance: number = 10000.0;
     protected _luminousPower: number = 0.0;
+    protected _spotAngle: number = Math.cos(Math.PI / 6);
 
     set size (size: number) {
         this._size = size;
@@ -54,7 +55,11 @@ export class SpotLight extends Light {
     }
 
     set spotAngle (val: number) {
-        this._range = Math.cos(val * 0.5);
+        this._spotAngle = Math.cos(val * 0.5);
+    }
+
+    get spotAngle () {
+        return this._spotAngle;
     }
 
     constructor (scene: RenderScene, name: string, node: Node) {

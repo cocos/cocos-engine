@@ -27,12 +27,15 @@
 import { AnimationComponent } from './animation-component';
 import { AudioSourceComponent } from './audio-source-component';
 import { CameraComponent } from './camera-component';
+import { DirectionalLightComponent } from './directional-light-component';
 import { LightComponent } from './light-component';
 import { ModelComponent } from './model-component';
 import { ParticleSystemComponent } from './particle/particle-system-component';
 import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';
 import { RigidBodyComponent } from './physics/rigid-body-component';
 import { SkinningModelComponent } from './skinning-model-component';
+import { SphereLightComponent } from './sphere-light-component';
+import { SpotLightComponent } from './spot-light-component';
 export * from './physics';
 
 export {
@@ -52,9 +55,13 @@ export {
 cc.AnimationComponent = AnimationComponent;
 cc.AudioSourceComponent = AudioSourceComponent;
 cc.CameraComponent = CameraComponent;
-cc.LightComponent = LightComponent;
 cc.ModelComponent = ModelComponent;
 cc.SkinningModelComponent = SkinningModelComponent;
+
+cc.LightComponent = LightComponent;
+cc.DirectionalLightComponent = DirectionalLightComponent;
+cc.SphereLightComponent = SphereLightComponent;
+cc.SpotLightComponent = SpotLightComponent;
 
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.ParticleSystemComponent = ParticleSystemComponent;
