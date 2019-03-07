@@ -120,11 +120,18 @@ export const maskAssembler: IAssembler = {
         // const meshBuffer = createMeshBuffer(ui, clearGeometry);
         // const nVert = Math.floor(clearGeometry.positions.length / 3);
         screen.node.getWorldMatrix(_worldMatrix);
-        const buffer = renderer.currBufferBatch!;
+
+        let buffer = renderer.currBufferBatch!;
         let vertexOffset = buffer.byteOffset >> 2;
         let indiceOffset = buffer.indiceOffset;
         let vertexId = buffer.vertexOffset;
-        buffer.request(4, 6);
+        const isRecreate = buffer.request(4, 6);
+        if (!isRecreate) {
+            buffer = renderer.currBufferBatch!;
+            vertexOffset = 0;
+            indiceOffset = 0;
+            vertexId = 0;
+        }
 
         let vbuf = buffer.vData;
         let iData = buffer.iData!;

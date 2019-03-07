@@ -248,25 +248,11 @@ export const barFilled: IAssembler = {
     },
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
-        const buffer = renderer.currBufferBatch!;
         // if (renderer.worldMatDirty) {
         // this.updateWorldVerts(sprite);
         // }
 
-        // buffer
-        let indiceOffset: number = buffer.indiceOffset;
-        const vertexId: number = buffer.vertexOffset;
-
         const node = sprite.node;
-        fillVerticesWithoutCalc3D(node, buffer, sprite.renderData!, sprite.color);
-
-        // buffer data may be realloc, need get reference after request.
-        const ibuf = buffer.iData;
-        ibuf![indiceOffset++] = vertexId;
-        ibuf![indiceOffset++] = vertexId + 1;
-        ibuf![indiceOffset++] = vertexId + 2;
-        ibuf![indiceOffset++] = vertexId + 1;
-        ibuf![indiceOffset++] = vertexId + 3;
-        ibuf![indiceOffset++] = vertexId + 2;
+        fillVerticesWithoutCalc3D(node, renderer, sprite.renderData!, sprite.color);
     },
 };

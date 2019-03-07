@@ -80,14 +80,14 @@ export class MeshBuffer {
         const indiceOffset = this.indiceOffset + indiceCount;
 
         if (vertexCount + this.vertexOffset > 65535) {
+            // merge last state
+            this.batcher.autoMergeBatches();
             const vCount = vertexCount;
             const iCount = indiceCount;
-            // UIBufferBatch.CurrBatchBuffer = this.batcher.createBufferBatch();
-            // UIBufferBatch.requst(vCount, iCount);
             if (this._outofCallback) {
-                this._outofCallback(vCount, iCount);
+                this._outofCallback.call(this.batcher, vCount, iCount);
             }
-            return;
+            return false;
         }
 
         let byteLength = this.vData!.byteLength;
@@ -109,6 +109,7 @@ export class MeshBuffer {
         this.byteOffset = byteOffset;
 
         this.dirty = true;
+        return true;
     }
 
     public reset () {
