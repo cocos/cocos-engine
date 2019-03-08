@@ -3,7 +3,6 @@ import { GFXBindingType, GFXType, IGFXColor } from '../gfx/define';
 import { GFXSampler } from '../gfx/sampler';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { GFXTextureView } from '../gfx/texture-view';
-import { Vec3 } from '../core/value-types';
 
 export enum RenderPassStage {
     DEFAULT = 100,

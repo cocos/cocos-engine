@@ -2,17 +2,17 @@ import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
-import { WebGL2CmdDraw, WebGL2CmdFuncCreateInputAssember } from './webgl2-commands';
+import { WebGL2CmdDraw, WebGL2CmdFuncCreateInputAssember, WebGL2CmdFuncDestroyInputAssembler } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
-import { WebGL2GPUBuffer, WebGL2GPUInputAssembler } from './webgl2-gpu-objects';
+import { WebGL2GPUBuffer, IWebGL2GPUInputAssembler } from './webgl2-gpu-objects';
 
 export class WebGL2GFXInputAssembler extends GFXInputAssembler {
 
-    public get gpuInputAssembler (): WebGL2GPUInputAssembler {
+    public get gpuInputAssembler (): IWebGL2GPUInputAssembler {
         return  this._gpuInputAssembler!;
     }
 
-    private _gpuInputAssembler: WebGL2GPUInputAssembler | null = null;
+    private _gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
 
     constructor (device: GFXDevice) {
         super(device);
@@ -75,7 +75,7 @@ export class WebGL2GFXInputAssembler extends GFXInputAssembler {
 
             glAttribs: [],
             glIndexType,
-            glVAO: 0,
+            glVAOs: new Map<WebGLProgram, WebGLVertexArrayObject>(),
         };
 
         WebGL2CmdFuncCreateInputAssember(this._device as WebGL2GFXDevice, this._gpuInputAssembler);
@@ -86,6 +86,10 @@ export class WebGL2GFXInputAssembler extends GFXInputAssembler {
     }
 
     public destroy () {
+        const webgl2Dev = this._device as WebGL2GFXDevice;
+        if (this._gpuInputAssembler && webgl2Dev.useVAO) {
+            WebGL2CmdFuncDestroyInputAssembler(webgl2Dev, this._gpuInputAssembler);
+        }
         this._gpuInputAssembler = null;
         this._status = GFXStatus.UNREADY;
     }

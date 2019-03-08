@@ -59,6 +59,10 @@ export class WebGLGFXDevice extends GFXDevice {
         return this._isPremultipliedAlpha;
     }
 
+    public get useVAO (): boolean {
+        return this._useVAO;
+    }
+
     public get EXT_texture_filter_anisotropic (): EXT_texture_filter_anisotropic | null {
         return this._EXT_texture_filter_anisotropic;
     }
@@ -144,7 +148,7 @@ export class WebGLGFXDevice extends GFXDevice {
     private _webGLRC: WebGLRenderingContext | null = null;
     private _isAntialias: boolean = true;
     private _isPremultipliedAlpha: boolean = true;
-
+    private _useVAO: boolean = false;
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
     private _EXT_frag_depth: EXT_frag_depth | null = null;
@@ -190,11 +194,9 @@ export class WebGLGFXDevice extends GFXDevice {
             };
 
             this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs);
-            /*
             if (this._webGLRC && info.debug) {
                 this._webGLRC = WebGLDeveloperTools.makeDebugContext(this._webGLRC, this._onWebGLError.bind(this));
             }
-            */
         } catch (err) {
             console.error(err);
             return false;
@@ -254,21 +256,6 @@ export class WebGLGFXDevice extends GFXDevice {
             }
         }
 
-        console.info('RENDERER: ' + this._renderer);
-        console.info('VENDOR: ' + this._vendor);
-        console.info('VERSION: ' + this._version);
-        console.info('SCREEN_SIZE: ' + this._width + ' x ' + this._height);
-        console.info('NATIVE_SIZE: ' + this._nativeWidth + ' x ' + this._nativeHeight);
-        // console.info('COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
-        // console.info('DEPTH_STENCIL_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
-        // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
-        console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
-        console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
-        console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
-        // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
-        console.info('DEPTH_BITS: ' + this._depthBits);
-        console.info('STENCIL_BITS: ' + this._stencilBits);
-
         this._extensions = gl.getSupportedExtensions();
         /*
         if (this._extensions) {
@@ -310,6 +297,26 @@ export class WebGLGFXDevice extends GFXDevice {
         if (this._WEBGL_depth_texture) {
             this._features[GFXFeature.FORMAT_D24S8] = true;
         }
+
+        if (this._OES_vertex_array_object) {
+            this._useVAO = true;
+        }
+
+        console.info('RENDERER: ' + this._renderer);
+        console.info('VENDOR: ' + this._vendor);
+        console.info('VERSION: ' + this._version);
+        console.info('SCREEN_SIZE: ' + this._width + ' x ' + this._height);
+        console.info('NATIVE_SIZE: ' + this._nativeWidth + ' x ' + this._nativeHeight);
+        // console.info('COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
+        // console.info('DEPTH_STENCIL_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
+        // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
+        console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
+        console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
+        console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
+        // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
+        console.info('DEPTH_BITS: ' + this._depthBits);
+        console.info('STENCIL_BITS: ' + this._stencilBits);
+        console.info('USE_VAO: ' + this._useVAO);
 
         // init states
         this.initStates(gl);

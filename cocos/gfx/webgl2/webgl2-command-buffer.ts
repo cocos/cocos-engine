@@ -31,7 +31,7 @@ import {
 } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
 import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
-import { WebGL2GPUBindingLayout, WebGL2GPUInputAssembler, WebGL2GPUPipelineState } from './webgl2-gpu-objects';
+import { WebGL2GPUBindingLayout, IWebGL2GPUInputAssembler, WebGL2GPUPipelineState } from './webgl2-gpu-objects';
 import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
 import { WebGL2GFXPipelineState } from './webgl2-pipeline-state';
 import { WebGL2GFXTexture } from './webgl2-texture';
@@ -65,7 +65,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     private _isInRenderPass: boolean = false;
     private _curGPUPipelineState: WebGL2GPUPipelineState | null = null;
     private _curGPUBindingLayout: WebGL2GPUBindingLayout | null = null;
-    private _curGPUInputAssembler: WebGL2GPUInputAssembler | null = null;
+    private _curGPUInputAssembler: IWebGL2GPUInputAssembler | null = null;
     private _curViewport: IGFXViewport | null = null;
     private _curScissor: IGFXRect | null = null;
     private _curLineWidth: number | null = null;

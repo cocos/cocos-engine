@@ -219,13 +219,13 @@ export class WebGLAttrib {
     public offset: number = 0;
 }
 
-export class WebGLGPUInputAssembler {
-    public attributes: IGFXInputAttribute[] = [];
-    public gpuVertexBuffers: WebGLGPUBuffer[] = [];
-    public gpuIndexBuffer: WebGLGPUBuffer | null = null;
-    public gpuIndirectBuffer: WebGLGPUBuffer | null = null;
+export interface IWebGLGPUInputAssembler {
+    attributes: IGFXInputAttribute[];
+    gpuVertexBuffers: WebGLGPUBuffer[];
+    gpuIndexBuffer: WebGLGPUBuffer | null;
+    gpuIndirectBuffer: WebGLGPUBuffer | null;
 
-    public glAttribs: WebGLAttrib[] = [];
-    public glIndexType: GLenum = 0;
-    public glVAO: WebGLVertexArrayObjectOES = 0;
+    glAttribs: WebGLAttrib[];
+    glIndexType: GLenum;
+    glVAOs: Map<WebGLProgram, WebGLVertexArrayObjectOES>;
 }

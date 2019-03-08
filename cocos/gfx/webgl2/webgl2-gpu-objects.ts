@@ -1,9 +1,11 @@
 import { IGFXDrawInfo } from '../buffer';
 import {
+    GFXAddress,
     GFXBindingType,
     GFXBufferUsage,
     GFXBufferUsageBit,
     GFXDynamicState,
+    GFXFilter,
     GFXFormat,
     GFXMemoryUsage,
     GFXMemoryUsageBit,
@@ -15,8 +17,6 @@ import {
     GFXTextureUsageBit,
     GFXTextureViewType,
     GFXType,
-    GFXFilter,
-    GFXAddress,
 } from '../define';
 import { IGFXInputAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
@@ -232,13 +232,13 @@ export class WebGL2Attrib {
     public offset: number = 0;
 }
 
-export class WebGL2GPUInputAssembler {
-    public attributes: IGFXInputAttribute[] = [];
-    public gpuVertexBuffers: WebGL2GPUBuffer[] = [];
-    public gpuIndexBuffer: WebGL2GPUBuffer | null = null;
-    public gpuIndirectBuffer: WebGL2GPUBuffer | null = null;
+export interface IWebGL2GPUInputAssembler {
+    attributes: IGFXInputAttribute[];
+    gpuVertexBuffers: WebGL2GPUBuffer[];
+    gpuIndexBuffer: WebGL2GPUBuffer | null;
+    gpuIndirectBuffer: WebGL2GPUBuffer | null;
 
-    public glAttribs: WebGL2Attrib[] = [];
-    public glIndexType: GLenum = 0;
-    public glVAO: WebGLVertexArrayObject = 0;
+    glAttribs: WebGL2Attrib[];
+    glIndexType: GLenum;
+    glVAOs: Map<WebGLProgram, WebGLVertexArrayObject>;
 }

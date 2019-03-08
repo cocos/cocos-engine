@@ -48,6 +48,10 @@ export class WebGL2GFXDevice extends GFXDevice {
         return this._isPremultipliedAlpha;
     }
 
+    public get useVAO (): boolean {
+        return this._useVAO;
+    }
+
     public get EXT_texture_filter_anisotropic (): EXT_texture_filter_anisotropic | null {
         return this._EXT_texture_filter_anisotropic;
     }
@@ -77,6 +81,7 @@ export class WebGL2GFXDevice extends GFXDevice {
     private _webGL2RC: WebGL2RenderingContext | null = null;
     private _isAntialias: boolean = true;
     private _isPremultipliedAlpha: boolean = true;
+    private _useVAO: boolean = true;
 
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
@@ -188,25 +193,6 @@ export class WebGL2GFXDevice extends GFXDevice {
             }
         }
 
-        console.info('RENDERER: ' + this._renderer);
-        console.info('VENDOR: ' + this._vendor);
-        console.info('VERSION: ' + this._version);
-        console.info('SCREEN_SIZE: ' + this._width + ' x ' + this._height);
-        console.info('NATIVE_SIZE: ' + this._nativeWidth + ' x ' + this._nativeHeight);
-        // console.info('COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
-        // console.info('DEPTH_STENCIL_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
-        // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
-        console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
-        console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
-        console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
-        // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
-        console.info('MAX_UNIFORM_BUFFER_BINDINGS: ' + this._maxUniformBufferBindings);
-        // console.info('MAX_UNIFORM_BLOCK_SIZE: ' + this._maxUniformBlockSize);
-        // console.info('MAX_COMBINED_UNIFORM_BLOCKS: ' + this._maxCombinedUniformBlocks);
-        console.info('DEPTH_BITS: ' + this._depthBits);
-        console.info('STENCIL_BITS: ' + this._stencilBits);
-        // console.info('UNIFORM_BUFFER_OFFSET_ALIGNMENT: ' + uboOffsetAlignment);
-
         this._extensions = gl.getSupportedExtensions();
         /*
         if (this._extensions) {
@@ -230,6 +216,26 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
         this._features[GFXFeature.FORMAT_R11G11B10F] = true;
         this._features[GFXFeature.FORMAT_D24S8] = true;
+
+        console.info('RENDERER: ' + this._renderer);
+        console.info('VENDOR: ' + this._vendor);
+        console.info('VERSION: ' + this._version);
+        console.info('SCREEN_SIZE: ' + this._width + ' x ' + this._height);
+        console.info('NATIVE_SIZE: ' + this._nativeWidth + ' x ' + this._nativeHeight);
+        // console.info('COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
+        // console.info('DEPTH_STENCIL_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
+        // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
+        console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
+        console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
+        console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
+        // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
+        console.info('MAX_UNIFORM_BUFFER_BINDINGS: ' + this._maxUniformBufferBindings);
+        // console.info('MAX_UNIFORM_BLOCK_SIZE: ' + this._maxUniformBlockSize);
+        // console.info('MAX_COMBINED_UNIFORM_BLOCKS: ' + this._maxCombinedUniformBlocks);
+        console.info('DEPTH_BITS: ' + this._depthBits);
+        console.info('STENCIL_BITS: ' + this._stencilBits);
+        // console.info('UNIFORM_BUFFER_OFFSET_ALIGNMENT: ' + uboOffsetAlignment);
+        console.info('USE_VAO: ' + this._useVAO);
 
         // init states
         this.initStates(gl);

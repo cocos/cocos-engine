@@ -230,7 +230,7 @@ export abstract class RenderPipeline {
 
         // colorFmt = GFXFormat.RGBA16F;
 
-        console.info('HDR: ' + this._isHDR);
+        console.info('USE_HDR: ' + this._isHDR);
         console.info('Shading Color Format: ' + GFXFormatInfos[colorFmt].name);
         console.info('Shading Depth Format: ' + GFXFormatInfos[depthStencilFmt].name);
 

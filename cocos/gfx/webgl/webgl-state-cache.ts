@@ -8,6 +8,7 @@ export interface IWebGLTexUnit {
 export class WebGLStateCache {
     public glArrayBuffer: WebGLBuffer = 0;
     public glElementArrayBuffer: WebGLBuffer = 0;
+    public glVAO: WebGLVertexArrayObjectOES = 0;
     public texUnit: number = 0;
     public glTex2DUnits: IWebGLTexUnit[];
     public glTexCubeUnits: IWebGLTexUnit[];

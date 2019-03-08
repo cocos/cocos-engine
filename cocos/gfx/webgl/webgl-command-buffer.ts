@@ -31,7 +31,7 @@ import {
 } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
-import { WebGLGPUBindingLayout, WebGLGPUInputAssembler, WebGLGPUPipelineState } from './webgl-gpu-objects';
+import { IWebGLGPUInputAssembler, WebGLGPUBindingLayout, WebGLGPUPipelineState } from './webgl-gpu-objects';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineState } from './webgl-pipeline-state';
 import { WebGLGFXTexture } from './webgl-texture';
@@ -65,7 +65,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     private _isInRenderPass: boolean = false;
     private _curGPUPipelineState: WebGLGPUPipelineState | null = null;
     private _curGPUBindingLayout: WebGLGPUBindingLayout | null = null;
-    private _curGPUInputAssembler: WebGLGPUInputAssembler | null = null;
+    private _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
     private _curViewport: IGFXViewport | null = null;
     private _curScissor: IGFXRect | null = null;
     private _curLineWidth: number | null = null;
