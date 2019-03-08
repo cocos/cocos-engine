@@ -361,18 +361,8 @@ export const radialFilled: IAssembler = {
     },
 
     fillBuffers (comp: SpriteComponent, renderer: UI) {
-        const buffer = renderer.currBufferBatch!;
-
         const node = comp.node;
         const renderData: RenderData = comp.renderData!;
-        const indiceOffset = buffer!.indiceOffset;
-        const vertexId = buffer.vertexOffset;
-        fillVertices3D(node, buffer, renderData, comp.color);
-
-        // buffer data may be realloc, need get reference after request.
-        const ibuf = buffer.iData;
-        for (let i = 0; i < renderData!.dataLength; i++) {
-            ibuf![indiceOffset + i] = vertexId + i;
-        }
+        fillVertices3D(node, renderer, renderData, comp.color);
     },
 };

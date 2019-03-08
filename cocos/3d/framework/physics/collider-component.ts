@@ -7,9 +7,13 @@ import {
 } from '../../../core/data/class-decorator';
 import Vec3 from '../../../core/value-types/vec3';
 import { vec3 } from '../../../core/vmath';
+import { BoxShapeBase, ShapeBase, SphereShapeBase } from '../../physics/api';
+import { createBoxShape, createSphereShape } from '../../physics/instance';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 export class ColliderComponentBase extends PhysicsBasedComponent {
+    protected _shapeBase: ShapeBase | null = null;
+
     /**
      * The center of the collider, in local space.
      */
@@ -20,9 +24,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
 
     set center (value: Vec3) {
         vec3.copy(this._center, value);
-        if (this.sharedBody) {
-            this.sharedBody.updateCollidier(this);
-        }
+        this._shapeBase!.setCenter(this._center);
     }
 
     @property
@@ -38,16 +40,16 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     }
 
     public onEnable () {
-        this.sharedBody!.addCollider(this);
+        this.sharedBody!.body.addShape(this._shapeBase!);
     }
 
     public onDisable () {
-        this.sharedBody!.removeCollider(this);
+        this.sharedBody!.body.removeShape(this._shapeBase!);
     }
 
     public destroy () {
         if (this.sharedBody) {
-            this.sharedBody.removeCollider(this);
+            this.sharedBody.body.removeShape(this._shapeBase!);
         }
         super.destroy();
     }
@@ -61,8 +63,12 @@ export class BoxColliderComponent extends ColliderComponentBase {
     @property
     private _size: Vec3 = new Vec3(0, 0, 0);
 
+    private _shape: BoxShapeBase;
+
     constructor () {
         super();
+        this._shape = createBoxShape(this._size);
+        this._shapeBase = this._shape;
     }
 
     public onLoad () {
@@ -81,8 +87,9 @@ export class BoxColliderComponent extends ColliderComponentBase {
 
     set size (value) {
         vec3.copy(this._size, value);
+        this._shape.setSize(this._size);
         if (this.sharedBody) {
-            this.sharedBody.updateCollidier(this);
+            this.sharedBody.body.commitShapeUpdates();
         }
     }
 }
@@ -95,8 +102,12 @@ export class SphereColliderComponent extends ColliderComponentBase {
     @property
     private _radius: number = 0;
 
+    private _shape: SphereShapeBase;
+
     constructor () {
         super();
+        this._shape = createSphereShape(this._radius);
+        this._shapeBase = this._shape;
     }
 
     public onLoad () {
@@ -114,8 +125,9 @@ export class SphereColliderComponent extends ColliderComponentBase {
 
     set radius (value) {
         this._radius = value;
+        this._shape.setRadius(value);
         if (this.sharedBody) {
-            this.sharedBody.updateCollidier(this);
+            this.sharedBody.body.commitShapeUpdates();
         }
     }
 }

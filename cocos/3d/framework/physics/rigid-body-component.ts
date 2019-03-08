@@ -1,5 +1,4 @@
 
-import CANNON from 'cannon';
 import {
     ccclass,
     executeInEditMode,
@@ -11,8 +10,7 @@ import { Quat, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { PhysicsMaterial } from '../../assets/physics/material';
 import { DefaultPhysicsMaterial as DefaultPhysicsMaterial } from './default-material';
-import { PhysicsBasedComponent, TransformSource } from './detail/physics-based-component';
-import { toCannonVec3 } from './util';
+import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 const NonRigidBodyProperties = {
     mass: 0,
@@ -65,15 +63,15 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         this.angularDamping = this._angularDamping;
         this.material = this._material;
         this.useGravity = this._useGravity;
-        if (this.sharedBody) {
-            this.sharedBody.body.wakeUp();
-        }
+        // if (this.sharedBody) {
+        //     this.sharedBody.body.wakeUp();
+        // }
     }
 
     public onDisable () {
-        if (this.sharedBody) {
-            this.sharedBody.body.sleep();
-        }
+        // if (this.sharedBody) {
+        //     this.sharedBody.body.sleep();
+        // }
     }
 
     @property({
@@ -85,9 +83,9 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     set material (value) {
         this._material = value;
-        if (this._body) {
-            this._body.material = (this._material || DefaultPhysicsMaterial)._getImpl();
-        }
+        // if (this._body) {
+        //     this._body.material = (this._material || DefaultPhysicsMaterial)._getImpl();
+        // }
     }
 
     @property
@@ -98,12 +96,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     set mass (value) {
         this._mass = value;
         if (this._body) {
-            this._body.mass = value;
-            this._body.updateMassProperties();
-            if (this._body.type !== CANNON.Body.KINEMATIC) {
-                this._resetBodyTypeAccordingMess();
-                this._onBodyTypeUpdated();
-            }
+            this._body.setMass(value);
         }
     }
 
@@ -115,12 +108,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     set isKinematic (value) {
         this._isKinematic = value;
         if (this._body) {
-            if (value) {
-                this._body.type = CANNON.Body.KINEMATIC;
-            } else {
-                this._resetBodyTypeAccordingMess();
-            }
-            this._onBodyTypeUpdated();
+            this._body.setIsKinematic(value);
         }
     }
 
@@ -131,8 +119,8 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     set useGravity (value) {
         this._useGravity = value;
-        if (this.sharedBody) {
-            this.sharedBody.setUseGravity(value);
+        if (this._body) {
+            this._body.setUseGravity(value);
         }
     }
 
@@ -144,7 +132,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     set linearDamping (value) {
         this._linearDamping = value;
         if (this._body) {
-            this._body.linearDamping = value;
+            this._body.setLinearDamping(value);
         }
     }
 
@@ -156,7 +144,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     set angularDamping (value) {
         this._angularDamping = value;
         if (this._body) {
-            this._body.angularDamping = value;
+            this._body.setAngularDamping(value);
         }
     }
 
@@ -167,8 +155,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     set fixedRotation (value) {
         this._fixedRotation = value;
         if (this._body) {
-            this._body.fixedRotation = value;
-            this._body.updateMassProperties();
+            this._body.setFreezeRotation(!value);
         }
     }
 
@@ -179,13 +166,13 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     set isTrigger (value) {
         this._triggered = value;
         if (this._body) {
-            this._body.collisionResponse = value;
+            this._body.setIsTrigger(value);
         }
     }
 
     get velocity () {
         if (this._body) {
-            vec3.copy(this._velocity, this._body!.velocity);
+            vec3.copy(this._velocity, this._body!.getVelocity());
         }
         return this._velocity;
     }
@@ -193,64 +180,19 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     set velocity (value: Vec3) {
         vec3.copy(this._velocity, value);
         if (this._body) {
-            vec3.copy(this._body.velocity, this._velocity);
+            this._body.setVelocity(this._velocity);
         }
     }
 
     public applyForce (force: Vec3, position?: Vec3) {
-        if (!position) {
-            position = new Vec3();
-            vec3.copy(position, this._body!.position);
-        }
-        this._body!.applyForce(toCannonVec3(force), toCannonVec3(position));
+        this._body!.applyForce(force, position);
     }
 
     public applyImpulse (impulse: Vec3) {
-        this._body!.applyImpulse(toCannonVec3(impulse), toCannonVec3(new Vec3()));
+        this._body!.applyImpulse(impulse);
     }
 
-    /**
-     * Set the collision filter of this body, remember that they are tested bitwise.
-     * @param {number} group The group which this body will be put into.
-     * @param {number} mask The groups which this body can collide with.
-     */
     public setCollisionFilter (group: number, mask: number) {
-        if (this._body) {
-            this._body.collisionFilterGroup = group;
-            this._body.collisionFilterMask = mask;
-        }
-    }
-
-    // /**
-    //  * Is this body currently in contact with the specified body?
-    //  * @param {CannonBody} body The body to test against.
-    //  */
-    // public isInContactWith (body: PhysicsBody) {
-    //     if (!this._cannonBody.world) {
-    //         return false;
-    //     }
-
-    //     return this._cannonBody.world.collisionMatrix.get(
-    //         this._cannonBody.id, body._cannonBody.id) > 0;
-    // }
-
-    private _resetBodyTypeAccordingMess () {
-        if (this._body) {
-            if (this.mass <= 0) {
-                this._body.type = CANNON.Body.STATIC;
-            } else {
-                this._body.type = CANNON.Body.DYNAMIC;
-            }
-        }
-    }
-
-    private _onBodyTypeUpdated () {
-        if (this.sharedBody) {
-            if (this.sharedBody.body.type === CANNON.Body.STATIC) {
-                this.sharedBody.transformSource = TransformSource.Scene;
-            } else {
-                this.sharedBody.transformSource = TransformSource.Phycis;
-            }
-        }
+        this._body!.setCollisionFilter(group, mask);
     }
 }

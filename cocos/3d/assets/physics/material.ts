@@ -1,7 +1,6 @@
 
 // @ts-check
 
-import CANNON from 'cannon';
 import { Asset } from '../../../assets/asset';
 import { ccclass, property } from '../../../core/data/class-decorator';
 
@@ -12,8 +11,6 @@ export class PhysicsMaterial extends Asset {
 
     @property
     public _restitution = -1;
-
-    private _cannonMaterial: CANNON.Material;
 
     /**
      * Friction for this material.
@@ -26,7 +23,6 @@ export class PhysicsMaterial extends Asset {
 
     set friction (value) {
         this._friction = value;
-        this._cannonMaterial.friction = value;
     }
 
     /**
@@ -40,16 +36,10 @@ export class PhysicsMaterial extends Asset {
 
     set restitution (value) {
         this._restitution = value;
-        this._cannonMaterial.restitution = value;
     }
 
     constructor () {
         super();
-        this._cannonMaterial = new CANNON.Material('');
-    }
-
-    public _getImpl () {
-        return this._cannonMaterial;
     }
 }
 cc.PhysicsMaterial = PhysicsMaterial;
