@@ -170,16 +170,14 @@ export abstract class GFXInputAssembler extends GFXObject {
         const count = this._indexCount;
         const ib = this._indexBuffer;
         if (!count || !ib) { return; }
-        let size = 0;
-        let fn = `setInt${size * 8}`;
         const stride = ib.stride;
+        const fn = `setInt${stride * 8}`;
         const view = new DataView(ibuffer as ArrayBuffer);
         const len = data.length;
-        for (let idx = 0, beg = 0; idx < len; idx += count, beg += stride) {
-            for (let j = 0; j < count; j++) {
-                view[fn](beg + j * size, data[idx + j], isLittleEndian);
-            }
+        for (let idx = 0; idx < len; idx ++) {
+            view[fn](idx * stride, data[idx], isLittleEndian);
         }
         ib.update(ibuffer);
+        this._indexCount = data.length;
     }
 }

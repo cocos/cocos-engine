@@ -93,18 +93,7 @@ export class SubModel {
         if (material == null) {
             return;
         }
-        for (let i = 0; i < this._material!.passes.length; i++) {
-            if (this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
-                cc.error(`the model(%d)'s primitive type doesn't match its pass's`, i);
-            }
-            this.recordCommandBuffer(i);
-        }
-        for (let i = this._cmdBuffers.length - 1; i >= this._material!.passes.length; i--) {
-            const cmdBuff = this._cmdBuffers.pop();
-            if (cmdBuff) {
-                cmdBuff.destroy();
-            }
-        }
+        this.updateCommandBuffer();
     }
 
     get material (): Material | null {
@@ -123,6 +112,21 @@ export class SubModel {
         this._castShadow = val;
     }
 
+    public updateCommandBuffer () {
+        for (let i = 0; i < this._material!.passes.length; i++) {
+            if (this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
+                cc.error(`the model(%d)'s primitive type doesn't match its pass's`, i);
+            }
+            this.recordCommandBuffer(i);
+        }
+        for (let i = this._cmdBuffers.length - 1; i >= this._material!.passes.length; i--) {
+            const cmdBuff = this._cmdBuffers.pop();
+            if (cmdBuff) {
+                cmdBuff.destroy();
+            }
+        }
+    }
+
     protected recordCommandBuffer (index: number) {
         const device = cc.director.root.device as GFXDevice;
         const pso = this._psos![index];
@@ -132,7 +136,7 @@ export class SubModel {
                 type: GFXCommandBufferType.SECONDARY,
             };
             this._cmdBuffers[index] = device.createCommandBuffer(cmdBufferInfo);
-        } else if (this._cmdBuffers[index].status == GFXStatus.UNREADY) {
+        } else if (this._cmdBuffers[index].status === GFXStatus.UNREADY) {
             this._cmdBuffers[index].initialize({
                 allocator: device.commandAllocator,
                 type: GFXCommandBufferType.SECONDARY,

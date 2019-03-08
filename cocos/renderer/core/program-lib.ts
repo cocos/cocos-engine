@@ -167,7 +167,7 @@ function insertGlobalBindings (tmpl: IProgramInfo, pipeline: RenderPipeline) {
     tmpl.builtinInited = true;
 }
 
-const localRE = /^ccl/i;
+const localRE = /^ccl_/i;
 function insertLocalBindings (tmpl: IProgramInfo) {
     const source = localBindingsDesc;
     const target = tmpl.builtins;

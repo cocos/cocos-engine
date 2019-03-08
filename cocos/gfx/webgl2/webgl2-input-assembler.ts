@@ -56,7 +56,7 @@ export class WebGL2GFXInputAssembler extends GFXInputAssembler {
                     case 2: glIndexType = WebGLRenderingContext.UNSIGNED_SHORT; break;
                     case 4: glIndexType = WebGLRenderingContext.UNSIGNED_INT; break;
                     default: {
-                        console.error('Error index buffer stride.');
+                        console.error('Illegal index buffer stride.');
                     }
                 }
             }

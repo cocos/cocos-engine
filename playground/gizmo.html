@@ -55,7 +55,8 @@
       cameraNode.addComponent(FirstPersonCamera);
       const camComp = cameraNode.addComponent(cc.CameraComponent);
 
-      const material = new cc.Material({
+      const material = new cc.Material();
+      material.initialize({
         effectName: 'builtin-unlit',
         defines: { USE_COLOR: true },
       });
@@ -78,6 +79,8 @@
           indices: [0, 1],
           primitiveMode: cc.GFXPrimitiveMode.LINE_LIST,
         });
+
+
         bodyModel.material = material;
         bodyModel.material.setProperty('color', color);
         bodyModel.material.overridePipelineStates({ primitive: cc.GFXPrimitiveMode.LINE_LIST });
@@ -90,7 +93,14 @@
         const plane = new cc.Node('plane');
         plane.parent = borderPlane;
         const planeModel = plane.addComponent(cc.ModelComponent);
-        planeModel.mesh = cc.utils.createMesh(cc.primitives.quad());
+        const mesh = planeModel.mesh = cc.utils.createMesh(cc.primitives.quad());
+        const submesh = mesh.renderingMesh.getSubmesh(0);
+
+        const vbInfo = mesh.struct.vertexBundles[0].data;
+        submesh.vbuffer = mesh.data.buffer.slice(vbInfo.offset, vbInfo.offset + vbInfo.length);
+        const ibInfo = mesh.struct.primitives[0].indices.range;
+        submesh.ibuffer = mesh.data.buffer.slice(ibInfo.offset, ibInfo.offset + ibInfo.length);
+
         planeModel.material = material;
         planeModel.material.setProperty('color', color.lerp(cc.color(0, 0, 0, 0), 0.5));
         planeModel.material.overridePipelineStates({
@@ -143,6 +153,18 @@
       });
       cc.director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
         moveTool.setPosition(vec3.add(moveTool._lpos, moveTool._lpos, vel));
+      });
+
+      cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => {
+        const comp = cc.director.getScene().getChildByName('moveTool').getChildByName('borderPlane').getChildByName('plane').getComponent(cc.ModelComponent);
+        const model = comp.model.getSubModel(0);
+        const ia = model.inputAssembler;
+        if (ia && model.subMeshData) {
+            const mesh = model.subMeshData;
+            const points = [0, 1, 2];
+            ia.updateIndexBuffer(mesh.ibuffer, points);
+            model.updateCommandBuffer();
+        }
       });
 
       cc.director.runSceneImmediate(scene);
