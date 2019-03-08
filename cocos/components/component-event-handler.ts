@@ -1,4 +1,4 @@
-import { CCClass } from "../core/data";
+import { CCClass } from '../core/data';
 
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
@@ -27,6 +27,7 @@ import { CCClass } from "../core/data";
  ****************************************************************************/
 
 import {ccclass, property} from '../core/data/class-decorator';
+import { Node } from '../scene-graph';
 
 /**
  * !#en
@@ -47,29 +48,7 @@ import {ccclass, property} from '../core/data/class-decorator';
  * eventHandler.customEventData = "my data";
  */
 @ccclass('cc.ClickEvent')
-export default class EventHandler {
-    /**
-     * !#en Event target
-     * !#zh 目标节点
-     * @property target
-     * @type {Node}
-     * @default null
-     */
-    @property(cc.Node)
-    target = null;
-    /**
-     * !#en Component name
-     * !#zh 目标组件名
-     * @property component
-     * @type {String}
-     * @default ''
-     */
-    // only for deserializing old project component field
-    @property
-    component = '';
-
-    @property
-    _componentId = '';
+export class EventHandler {
 
     @property
     get _componentName () {
@@ -82,6 +61,45 @@ export default class EventHandler {
     }
 
     /**
+     * @method emitEvents
+     * @param {Component.EventHandler[]} events
+     * @param {any} ...params
+     * @static
+     */
+    public static emitEvents (events: EventHandler[], ...args: any[]) {
+        for (let i = 0, l = events.length; i < l; i++) {
+            const event = events[i];
+            if (!(event instanceof EventHandler)) {
+                continue;
+            }
+
+            event.emit(args);
+        }
+    }
+    /**
+     * !#en Event target
+     * !#zh 目标节点
+     * @property target
+     * @type {Node}
+     * @default null
+     */
+    @property(cc.Node)
+    public target: Node | null = null;
+    /**
+     * !#en Component name
+     * !#zh 目标组件名
+     * @property component
+     * @type {String}
+     * @default ''
+     */
+    // only for deserializing old project component field
+    @property
+    public component = '';
+
+    @property
+    public _componentId = '';
+
+    /**
      * !#en Event handler
      * !#zh 响应事件函数名
      * @property handler
@@ -89,7 +107,7 @@ export default class EventHandler {
      * @default ''
      */
     @property
-    handler = '';
+    public handler = '';
 
     /**
      * !#en Custom Event Data
@@ -99,30 +117,7 @@ export default class EventHandler {
      * @type {String}
      */
     @property
-    customEventData = '';
-
-    /**
-     * @method emitEvents
-     * @param {Component.EventHandler[]} events
-     * @param {any} ...params
-     * @static
-     */
-    static emitEvents (events) {
-        'use strict';
-        let args;
-        if (arguments.length > 0) {
-            args = new Array(arguments.length - 1);
-            for (let i = 0, l = args.length; i < l; i++) {
-                args[i] = arguments[i+1];
-            }
-        }
-        for (let i = 0, l = events.length; i < l; i++) {
-            var event = events[i];
-            if (!(event instanceof cc.Component.EventHandler)) continue;
-
-            event.emit(args);
-        }
-    }
+    public customEventData = '';
 
     /**
      * !#en Emit event with params
@@ -137,18 +132,18 @@ export default class EventHandler {
      * eventHandler.handler = "OnClick"
      * eventHandler.emit(["param1", "param2", ....]);
      */
-    emit (params) {
-        var target = this.target;
-        if (!cc.isValid(target)) return;
+    public emit (params: any[]) {
+        const target = this.target;
+        if (!cc.isValid(target)) { return; }
 
         this._genCompIdIfNeeded();
-        var compType = cc.js._getClassById(this._componentId);
-        
-        var comp = target.getComponent(compType);
-        if (!cc.isValid(comp)) return;
+        const compType = cc.js._getClassById(this._componentId);
 
-        var handler = comp[this.handler];
-        if (typeof(handler) !== 'function') return;
+        const comp = target!.getComponent(compType);
+        if (!cc.isValid(comp)) { return; }
+
+        const handler = comp![this.handler];
+        if (typeof(handler) !== 'function') { return; }
 
         if (this.customEventData != null && this.customEventData !== '') {
             params = params.slice();
@@ -158,18 +153,18 @@ export default class EventHandler {
         handler.apply(comp, params);
     }
 
-    _compName2Id (compName) {
-        let comp = cc.js.getClassByName(compName);
+    private _compName2Id (compName) {
+        const comp = cc.js.getClassByName(compName);
         return cc.js._getClassId(comp);
     }
 
-    _compId2Name (compId) {
-        let comp = cc.js._getClassById(compId);
+    private _compId2Name (compId) {
+        const comp = cc.js._getClassById(compId);
         return cc.js.getClassName(comp);
     }
 
     // to be deprecated in the future
-    _genCompIdIfNeeded () {
+    private _genCompIdIfNeeded () {
         if (!this._componentId) {
             this._componentName = this.component;
             this.component = '';

@@ -24,8 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
+//
 import { SpriteFrame } from '../../../assets/CCSpriteFrame';
-import ComponentEventHandler from '../../../components/CCComponentEventHandler';
+import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
 import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventMouse, EventTouch } from '../../../core/platform/event-manager';
@@ -156,7 +157,7 @@ export class ButtonComponent extends Component {
         return this._interactable;
     }
 
-    set interactable (value: boolean) {
+    set interactable (value) {
         // if (CC_EDITOR) {
         //     if (value) {
         //         this._previousNormalSprite = this.normalSprite;
@@ -301,7 +302,7 @@ export class ButtonComponent extends Component {
         return this._duration;
     }
 
-    set duration (value: number) {
+    set duration (value) {
         if (this._duration === value) {
             return;
         }
@@ -320,7 +321,7 @@ export class ButtonComponent extends Component {
         return this._zoomScale;
     }
 
-    set zoomScale (value: number) {
+    set zoomScale (value) {
         if (this._zoomScale === value) {
             return;
         }
@@ -449,6 +450,7 @@ export class ButtonComponent extends Component {
         this._applyTarget();
     }
 
+    public static Transition = Transition;
     /**
      * !#en If Button is clicked, it will trigger event's handler
      * !#zh 按钮的点击事件列表。
@@ -457,19 +459,11 @@ export class ButtonComponent extends Component {
     @property({
         type: ComponentEventHandler,
     })
-    get clickEvents () {
-        return this._clickEvents;
-    }
-
-    set clickEvents (value: ComponentEventHandler[]) {
-        this._clickEvents = value;
-    }
-
-    public static Transition = Transition;
+    public clickEvents: ComponentEventHandler[] = [];
     @property
-    private _interactable: boolean = true;
+    private _interactable = true;
     @property
-    private _transition: number = Transition.NONE;
+    private _transition = Transition.NONE;
     @property
     private _normalColor: Color = new Color(214, 214, 214, 255);
     @property
@@ -487,20 +481,17 @@ export class ButtonComponent extends Component {
     @property
     private _disabledSprite: SpriteFrame | null = null;
     @property
-    private _duration: number = 0.1;
+    private _duration = 0.1;
     @property
-    private _zoomScale: number = 1.2;
+    private _zoomScale = 1.2;
     @property
     private _target: Node | null = null;
-    @property
-    private _clickEvents: ComponentEventHandler[] = [];
-
-    private _pressed: boolean = false;
-    private _hovered: boolean = false;
+    private _pressed = false;
+    private _hovered = false;
     private _fromColor: Color = new Color();
     private _toColor: Color = new Color();
-    private _time: number = 0;
-    private _transitionFinished: boolean = true;
+    private _time = 0;
+    private _transitionFinished = true;
     private _fromScale: Vec3 = new Vec3();
     private _toScale: Vec3 = new Vec3();
     private _originalScale: Vec3 = new Vec3();
@@ -587,6 +578,10 @@ export class ButtonComponent extends Component {
         }
 
         const renderComp = target.getComponent(UIRenderComponent);
+        if (!renderComp){
+            return;
+        }
+
         if (this._transition === Transition.COLOR) {
             renderComp.color = this._fromColor.lerp(this._toColor, ratio);
         } else if (this.transition === Transition.SCALE) {
@@ -599,7 +594,7 @@ export class ButtonComponent extends Component {
 
     protected _resizeNodeToTargetNode () {
         if (CC_EDITOR && this._target) {
-            this.node.setContentSize(this.target.getContentSize());
+            this.node.setContentSize(this._target.getContentSize());
         }
     }
 
@@ -608,12 +603,19 @@ export class ButtonComponent extends Component {
         this._hovered = false;
         // Restore button status
         const target = this._target;
+        if (!target){
+            return;
+        }
         const renderComp = target.getComponent(UIRenderComponent);
+        if (!renderComp){
+            return;
+        }
+
         const transition = this._transition;
         if (transition === Transition.COLOR && this._interactable) {
             renderComp.color = this._normalColor;
         } else if (transition === Transition.SCALE) {
-            target.scale = this._originalScale;
+            target.setScale(this._originalScale);
         }
         this._transitionFinished = true;
     }
@@ -629,9 +631,9 @@ export class ButtonComponent extends Component {
     }
 
     private _getTargetSprite (target: Node | null) {
-        let sprite = null;
+        let sprite: SpriteComponent | null = null;
         if (target) {
-            sprite = target.getComponent(cc.SpriteComponent);
+            sprite = target.getComponent(SpriteComponent);
         }
         return sprite;
     }
@@ -639,7 +641,7 @@ export class ButtonComponent extends Component {
     private _applyTarget () {
         this._sprite = this._getTargetSprite(this._target);
         if (this._target) {
-            math.vec3.copy(this._originalScale, this.target._lscale);
+            math.vec3.copy(this._originalScale, this._target.getScale());
         }
     }
 
@@ -702,7 +704,7 @@ export class ButtonComponent extends Component {
         }
 
         if (this._pressed) {
-            ComponentEventHandler.emitEvents(this._clickEvents, event);
+            ComponentEventHandler.emitEvents(this.clickEvents, event);
             this.node.emit('click', this);
         }
         this._pressed = false;
@@ -805,7 +807,11 @@ export class ButtonComponent extends Component {
     }
 
     private _zoomBack () {
-        math.vec3.copy(this._fromScale, this.target._lscale);
+        if (!this._target){
+            return;
+        }
+
+        math.vec3.copy(this._fromScale, this._target.getScale());
         math.vec3.copy(this._toScale, this._originalScale);
         this._time = 0;
         this._transitionFinished = false;

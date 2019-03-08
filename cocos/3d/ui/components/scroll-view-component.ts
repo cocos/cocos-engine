@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import ComponentEventHandler from '../../../components/CCComponentEventHandler';
+import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventTouch } from '../../../core/platform/event-manager';
 import Touch from '../../../core/platform/event-manager/CCTouch';
@@ -312,7 +312,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * !#zh 滚动视图的事件回调函数
      * @property {Component.EventHandler[]} scrollEvents
      */
-    @property
+    @property({
+        type: ComponentEventHandler,
+    })
     public scrollEvents: ComponentEventHandler[] = [];
 
     /**

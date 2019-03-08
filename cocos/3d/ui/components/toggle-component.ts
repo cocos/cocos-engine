@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import ComponentEventHandler from '../../../components/CCComponentEventHandler';
+import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ButtonComponent} from './button-component';
 import { SpriteComponent} from './sprite-component';
@@ -110,22 +110,6 @@ export class ToggleComponent extends ButtonComponent {
         this._checkMark = value;
     }
 
-    /**
-     * !#en If Toggle is clicked, it will trigger event's handler
-     * !#zh Toggle 按钮的点击事件列表。
-     * @property {ComponentEventHandler[]} checkEvents
-     */
-    @property({
-        type: ComponentEventHandler,
-    })
-    get checkEvents () {
-        return this._checkEvents;
-    }
-
-    set checkEvents (value: ComponentEventHandler[]) {
-        this._checkEvents = value;
-    }
-
     set _resizeToTarget (value: boolean) {
         if (value) {
             this._resizeNodeToTargetNode();
@@ -140,14 +124,21 @@ export class ToggleComponent extends ButtonComponent {
         // }
         return null;
     }
+    /**
+     * !#en If Toggle is clicked, it will trigger event's handler
+     * !#zh Toggle 按钮的点击事件列表。
+     * @property {ComponentEventHandler[]} checkEvents
+     */
+    @property({
+        type: ComponentEventHandler,
+    })
+    public checkEvents: ComponentEventHandler[] = [];
     @property
-    public _isChecked: boolean = true;
+    private _isChecked: boolean = true;
     @property
-    public _toggleGroup: ToggleGroupComponent | null = null;
+    private _toggleGroup: ToggleGroupComponent | null = null;
     @property
-    public _checkMark: SpriteComponent | null = null;
-    @property
-    public _checkEvents: ComponentEventHandler[] = [];
+    private _checkMark: SpriteComponent | null = null;
 
     public onEnable () {
         super.onEnable();
@@ -171,7 +162,7 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     public _updateCheckMark () {
-        if (this._checkMark) {
+        if (this._checkMark){
             this._checkMark.node.active = !!this.isChecked;
         }
     }
@@ -197,7 +188,7 @@ export class ToggleComponent extends ButtonComponent {
         this.node.off('click', this.toggle, this);
     }
 
-    public toggle (event) {
+    public toggle () {
         const group = this.toggleGroup || this._toggleContainer;
 
         if (group && group.enabled && this.isChecked) {
@@ -207,9 +198,6 @@ export class ToggleComponent extends ButtonComponent {
         }
 
         this.isChecked = !this.isChecked;
-
-        this._updateCheckMark();
-
         if (group && group.enabled) {
             group.updateToggles(this);
         }
@@ -261,8 +249,8 @@ export class ToggleComponent extends ButtonComponent {
 
     private _emitToggleEvents () {
         this.node.emit('toggle', this);
-        if (this._checkEvents) {
-            ComponentEventHandler.emitEvents(this._checkEvents, this);
+        if (this.checkEvents) {
+            ComponentEventHandler.emitEvents(this.checkEvents, this);
         }
     }
 }
