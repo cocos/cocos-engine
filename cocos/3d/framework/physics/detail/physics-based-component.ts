@@ -1,13 +1,10 @@
-import CANNON from 'cannon';
 import { Component } from '../../../../components/component';
 import { ccclass } from '../../../../core/data/class-decorator';
 import { Quat, Vec3 } from '../../../../core/value-types';
 import { quat, vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
-import { BoxColliderComponent, ColliderComponentBase, SphereColliderComponent } from '../collider-component';
-import { DefaultPhysicsMaterial } from '../default-material';
-import { getWrap, setWrap } from '../util';
-import { PhysicsWorld } from '../world';
+import { AfterStepCallback, BeforeStepCallback, ICollisionCallback, ICollisionEvent, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
+import { createRigidBody } from '../../../physics/instance';
 
 export class PhysicsBasedComponent extends Component {
 
@@ -26,11 +23,6 @@ export class PhysicsBasedComponent extends Component {
 
     public onLoad () {
         this._refSharedBody();
-        this._sharedBody!.syncPhysWithScene();
-    }
-
-    public start () {
-        this._sharedBody!.syncPhysWithScene();
     }
 
     public destroy () {
@@ -42,7 +34,7 @@ export class PhysicsBasedComponent extends Component {
 
     public syncPhysWithScene () {
         if (this.sharedBody) {
-            this.sharedBody.syncPhysWithScene();
+            this.sharedBody.syncPhysWithScene(this.node);
         }
     }
 
@@ -66,77 +58,40 @@ export class PhysicsBasedComponent extends Component {
     }
 }
 
-export enum TransformSource {
-    Scene,
-    Phycis,
-}
-
-type Collider = ColliderComponentBase;
-
-function isBoxCollider (collider: Collider): collider is BoxColliderComponent {
-    return 'size' in collider;
-}
-
-function isSphereCollider (collider: Collider): collider is SphereColliderComponent {
-    return 'radius' in collider;
-}
-
 class SharedRigidBody {
-    private _body: CANNON.Body;
-
-    private _onCollidedListener: (event: CANNON.ICollisionEvent) => any;
-
-    private _cancelGravityListener: (event: CANNON.IEvent) => any;
-
-    private _onWorldBeforeStepListener: (event: CANNON.IEvent) => any;
-
-    private _onWorldPostStepListener: (event: CANNON.IEvent) => any;
+    private _body: RigidBodyBase;
 
     private _refCount = 0;
 
     private _actived = false;
 
-    private _world: PhysicsWorld;
+    private _world: PhysicsWorldBase;
 
     private _node: Node;
 
-    private _transformSource: TransformSource = TransformSource.Scene;
-
-    private _colliders: Map<Collider, number> = new Map();
-
     private _worldScale: Vec3 = new Vec3(1, 1, 1);
 
-    private _useGravity = true;
+    private _beforeStepCallback: BeforeStepCallback;
 
-    constructor (node: Node, world: PhysicsWorld) {
-        this._body = new CANNON.Body({
-            material: DefaultPhysicsMaterial._getImpl(),
-        });
+    private _afterStepCallback: AfterStepCallback;
+
+    private _onCollidedCallback: ICollisionCallback;
+
+    private _transformInitialized: boolean = false;
+
+    constructor (node: Node, world: PhysicsWorldBase) {
+        this._body = createRigidBody();
         this._node = node;
-        setWrap<Node>(this._body, this._node);
         this._world = world;
-
-        this._onCollidedListener = this._onCollided.bind(this);
-        this._onWorldBeforeStepListener = this._onWorldBeforeStep.bind(this);
-        this._onWorldPostStepListener = this._onWorldPostStep.bind(this);
-        this._cancelGravityListener = (event) => {
-            if (!this._useGravity && this._body) {
-                const gravity = this._body.world.gravity;
-                vec3.scaleAndAdd(this._body.force, this._body.force, gravity, this._body.mass * -1);
-            }
-        };
+        this._body.setUserData(this._node);
+        this._beforeStepCallback = this._beforeStep.bind(this);
+        this._afterStepCallback = this._afterStep.bind(this);
+        this._onCollidedCallback = this._onCollided.bind(this);
+        this._body.addCollisionCallback(this._onCollidedCallback);
     }
 
     public get body () {
         return this._body;
-    }
-
-    public get transformSource () {
-        return this._transformSource;
-    }
-
-    public set transformSource (value) {
-        this._transformSource = value;
     }
 
     public ref () {
@@ -161,66 +116,18 @@ class SharedRigidBody {
         this._deactiveBody();
     }
 
-    public addCollider (collider: Collider) {
-        let shape: CANNON.Shape | undefined;
-        if (isBoxCollider(collider)) {
-            shape = new CANNON.Box(new CANNON.Vec3());
-        } else if (isSphereCollider(collider)) {
-            shape = new CANNON.Sphere(0);
-        }
-        if (!shape) {
-            return;
-        }
-        setWrap(shape, collider);
-        const ishape = this.body.shapes.length;
-        this.body.addShape(shape);
-        this._colliders.set(collider, ishape);
-        this.updateCollidier(collider);
-    }
+    public syncPhysWithScene (node: Node) {
+        const p = node.getWorldPosition();
+        const r = node.getWorldRotation();
+        console.log(`Set ${node.name} pos to ${p.x}, ${p.y}, ${p.z}, rot to ${r.x}, ${r.y}, ${r.z}, ${r.w}`);
 
-    public updateCollidier (collider: Collider) {
-        const ishape = this._colliders.get(collider);
-        if (ishape === undefined) {
-            return;
-        }
-        if (isBoxCollider(collider)) {
-            const shape = this.body.shapes[ishape] as CANNON.Box;
-            vec3.scale(shape.halfExtents, collider.size, 0.5);
-            vec3.multiply(shape.halfExtents, shape.halfExtents, this._worldScale);
-            shape.updateConvexPolyhedronRepresentation();
-            shape.updateBoundingSphereRadius();
-        } else if (isSphereCollider(collider)) {
-            const shape = this.body.shapes[ishape] as CANNON.Sphere;
-            shape.radius = collider.radius * maxComponent(this._worldScale);
-            shape.updateBoundingSphereRadius();
-        }
-        const center = this.body.shapeOffsets[ishape];
-        vec3.multiply(center, center, this._worldScale);
-        this.body.updateBoundingRadius();
-    }
-
-    public removeCollider (collider: Collider) {
-        const ishape = this._colliders.get(collider);
-        if (ishape === undefined) {
-            return;
-        }
-        this._colliders.delete(collider);
-        this._removeShape(ishape);
-    }
-
-    public syncPhysWithScene () {
-        vec3.copy(this._body.position, this._node.getWorldPosition());
-        quat.copy(this._body.quaternion, this._node.getWorldRotation());
+        this.body.setPosition(p);
+        this.body.setRotation(r);
 
         // Because we sync the scale, we should update shape parameters.
-        this._node.getWorldScale(this._worldScale);
-        this._colliders.forEach((shape, collider) => {
-            this.updateCollidier(collider);
-        });
-    }
-
-    public setUseGravity (value: boolean) {
-        this._useGravity = value;
+        node.getWorldScale(this._worldScale);
+        this.body.scaleAllShapes(this._worldScale);
+        this.body.commitShapeUpdates();
     }
 
     /**
@@ -231,10 +138,12 @@ class SharedRigidBody {
             return;
         }
 
-        const p = this._body.position;
+        const p = new Vec3();
+        this.body.getPosition(p);
         this._node.setWorldPosition(p.x, p.y, p.z);
-        if (!this._body.fixedRotation) {
-            const q = this._body.quaternion;
+        if (!this._body.getFreezeRotation()) {
+            const q = new Quat();
+            this.body.getRotation(q);
             this._node.setWorldRotation(q.x, q.y, q.z, q.w);
         }
     }
@@ -244,11 +153,9 @@ class SharedRigidBody {
             return;
         }
         this._actived = true;
-        this._world.addBody(this._body);
-        this._body.addEventListener('collide', this._onCollidedListener);
-        this._body.world.addEventListener('beforeStep', this._onWorldBeforeStepListener);
-        this._body.world.addEventListener('postStep', this._onWorldPostStepListener);
-        this._body.world.addEventListener('beforeStep', this._cancelGravityListener);
+        this._body.setWorld(this._world);
+        this._world.addBeforeStep(this._beforeStepCallback);
+        this._world.addAfterStep(this._afterStepCallback);
     }
 
     private _deactiveBody () {
@@ -256,48 +163,31 @@ class SharedRigidBody {
             return;
         }
         this._actived = false;
-        this._body.removeEventListener('collide', this._onCollidedListener);
-        this._body.world.removeEventListener('postStep', this._onWorldPostStepListener);
-        this._body.world.removeEventListener('beforeStep', this._onWorldBeforeStepListener);
-        this._body.world.removeEventListener('beforeStep', this._cancelGravityListener);
-        this._world.removeBody(this._body);
+        this._world.removeAfterStep(this._afterStepCallback);
+        this._world.removeBeforeStep(this._beforeStepCallback);
+        this._body.setWorld(null);
     }
 
-    private _onCollided (event: CANNON.ICollisionEvent) {
+    private _onCollided (event: ICollisionEvent) {
         if (!this._node) {
             return;
         }
         this._node.emit('collided', {
-            source: getWrap<Node>(event.body),
-            target: getWrap<Node>((event as any).target),
+            source: event.source.getUserData() as Node,
+            target: event.target.getUserData() as Node,
         });
     }
 
-    private _onWorldBeforeStep (event: CANNON.IEvent) {
-        // if (this._transformSource === TransformSource.Scene) {
-        //     this.syncPhysWithScene();
-        // }
-    }
-
-    private _onWorldPostStep (event: CANNON.IEvent) {
-        if (this._transformSource === TransformSource.Phycis) {
-            this._syncSceneWithPhys();
+    private _beforeStep () {
+        if (!this._transformInitialized) {
+            this._transformInitialized = true;
+            this.syncPhysWithScene(this._node);
         }
     }
 
-    private _removeShape (iShape: number) {
-        const body = this._body;
-        const shape = body.shapes[iShape];
-        body.shapes.splice(iShape, 1);
-        body.shapeOffsets.splice(iShape, 1);
-        body.shapeOrientations.splice(iShape, 1);
-        body.updateMassProperties();
-        body.updateBoundingRadius();
-        body.aabbNeedsUpdate = true;
-        (shape as any).body = null;
+    private _afterStep () {
+        if (this.body.shouldRender()) {
+            this._syncSceneWithPhys();
+        }
     }
-}
-
-function maxComponent (v: Vec3) {
-    return Math.max(v.x, Math.max(v.y, v.z));
 }
