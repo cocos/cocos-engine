@@ -8,34 +8,27 @@ import { StencilManager } from '../../3d/ui/assembler/mask/stencil-manager';
 import { CanvasComponent } from '../../3d/ui/components/canvas-component';
 import { UIRenderComponent } from '../../3d/ui/components/ui-render-component';
 import { MeshBuffer } from '../../3d/ui/mesh-buffer';
-// import { UIBufferBatch } from '../../3d/ui/UIBufferBatch';
 import { SpriteFrame } from '../../assets/CCSpriteFrame';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
-import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
+import { GFXBuffer } from '../../gfx/buffer';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import {
     GFXBufferUsageBit,
-    GFXClearFlag,
     GFXCommandBufferType,
-    GFXFormat,
     GFXMemoryUsageBit,
-    GFXType,
-    IGFXRect,
 } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
+import { IGFXInputAttribute } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { GFXUniformBlock } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { vfmt } from '../../gfx/vertex-format-sample';
-import { UBOUI } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
-import { IUIMaterialInfo, UIMaterial } from './ui-material';
+import { UIMaterial } from './ui-material';
 
 const _mat4Array = new Float32Array(16);
 export class UIDrawBatch {
@@ -96,8 +89,6 @@ export class UI {
     private _meshBuffers: MeshBuffer[] = [];
     private _meshBufferUseCount = 0;
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
-    private _uboUI: UBOUI = new UBOUI();
-    private _uiUBO: GFXBuffer | null = null;
     private _batches: CachedArray<UIDrawBatch>;
     private _sortChildList: Pool<any[]> = new Pool(() => {
         return [];
@@ -143,22 +134,11 @@ export class UI {
             type: GFXCommandBufferType.PRIMARY,
         });
 
-        this._uiUBO = this.device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOUI.SIZE,
-        });
-
         return true;
     }
 
     public destroy () {
         this._destroyUIMaterials();
-
-        if (this._uiUBO) {
-            this._uiUBO.destroy();
-            this._uiUBO = null;
-        }
 
         for (const batch of this._batches.array) {
             batch.destroy(this);

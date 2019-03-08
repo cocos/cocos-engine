@@ -305,14 +305,14 @@ export class Pass {
             bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
         }
         // bind pipeline builtins
-        const source = cc.director.root.pipeline.builtinBindings;
+        const source = cc.director.root.pipeline.globalBindings;
         const target = this._shaderInfo!.builtins;
         for (const b of target.blocks) {
             const info = source.get(b);
             if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
             bindingLayout.bindBuffer(info.blockInfo!.binding, info.buffer!);
         }
-        for (const s of target.textures) {
+        for (const s of target.samplers) {
             const info = source.get(s);
             if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin texture '${s}' not available!`); continue; }
             if (info.sampler) { bindingLayout.bindSampler(info.samplerInfo!.binding, info.sampler); }

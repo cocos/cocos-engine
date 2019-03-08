@@ -95,7 +95,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected createUBOs (): boolean {
         super.createUBOs();
 
-        if (!this._builtinBindings.get(UBOForwardLights.BLOCK.name)) {
+        if (!this._globalBindings.get(UBOForwardLights.BLOCK.name)) {
             const lightsUBO = this._root.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -106,7 +106,7 @@ export class ForwardPipeline extends RenderPipeline {
                 return false;
             }
 
-            this._builtinBindings.set(UBOForwardLights.BLOCK.name, {
+            this._globalBindings.set(UBOForwardLights.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
                 blockInfo: UBOForwardLights.BLOCK,
                 buffer: lightsUBO,
@@ -119,10 +119,10 @@ export class ForwardPipeline extends RenderPipeline {
     protected destroyUBOs () {
         super.destroyUBOs();
 
-        const lightsUBO = this._builtinBindings.get(UBOForwardLights.BLOCK.name);
+        const lightsUBO = this._globalBindings.get(UBOForwardLights.BLOCK.name);
         if (lightsUBO) {
             lightsUBO.buffer!.destroy();
-            this._builtinBindings.delete(UBOForwardLights.BLOCK.name);
+            this._globalBindings.delete(UBOForwardLights.BLOCK.name);
         }
     }
 
@@ -180,6 +180,6 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         // update ubos
-        this._builtinBindings.get(UBOForwardLights.BLOCK.name)!.buffer!.update(this._uboLights.view);
+        this._globalBindings.get(UBOForwardLights.BLOCK.name)!.buffer!.update(this._uboLights.view);
     }
 }
