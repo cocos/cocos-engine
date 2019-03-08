@@ -25,8 +25,8 @@
  ****************************************************************************/
 
 import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
-import ComponentEventHandler from '../../../../components/CCComponentEventHandler';
 import { Component } from '../../../../components/component';
+import { EventHandler as ComponentEventHandler } from '../../../../components/component-event-handler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../../core/data/class-decorator';
 import macro from '../../../../core/platform/CCMacro';
 import Color from '../../../../core/value-types/color';
@@ -36,6 +36,7 @@ import { UIRenderComponent } from '../ui-render-component';
 import { UITransformComponent } from '../ui-transfrom-component';
 import { EditBoxImpl} from './edit-box-impl';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
+import { Node } from '../../../../scene-graph';
 
 const LEFT_PADDING = 2;
 
@@ -228,7 +229,7 @@ export class EditBoxComponent extends Component {
         return this._fontColor;
     }
 
-    set fontColor (value: Color) {
+    set fontColor (value) {
         if (this._fontColor === value) {
             return;
         }
@@ -301,7 +302,7 @@ export class EditBoxComponent extends Component {
         return this._placeholderFontColor;
     }
 
-    set placeholderFontColor (value: Color) {
+    set placeholderFontColor (value) {
         if (this._placeholderFontColor === value) {
             return;
         }
@@ -379,42 +380,14 @@ export class EditBoxComponent extends Component {
     public static KeyboardReturnType = KeyboardReturnType;
     public static InputFlag = InputFlag;
     public static InputMode = InputMode;
-    @property
-    public _useOriginalSize = true;
-    @property
-    public _string = '';
-    @property
-    public _tabIndex = 0;
-    @property
-    public _backgroundImage: SpriteFrame | null = null;
-    @property
-    public _returnType = KeyboardReturnType.DEFAULT;
-    @property
-    public _inputFlag = InputFlag.DEFAULT;
-    @property
-    public _inputMode = InputMode.SINGLE_LINE;
-    @property
-    public _fontSize = 20;
-    @property
-    public _lineHeight = 40;
-    @property
-    public _maxLength = 20;
-    @property
-    public _fontColor: Color = Color.WHITE;
-    @property
-    public _placeholder = 'Enter text here...';
-    @property
-    public _placeholderFontSize = 20;
-    @property
-    public _placeholderFontColor: Color = Color.GRAY;
-    @property
-    public _stayOnTop = false;
     /**
      * !#en The event handler to be called when EditBox began to edit text.
      * !#zh 开始编辑文本输入框触发的事件回调。
      * @property {Component.EventHandler[]} editingDidBegan
      */
-    @property
+    @property({
+        type: ComponentEventHandler,
+    })
     public editingDidBegan: ComponentEventHandler[] = [];
 
     /**
@@ -422,7 +395,9 @@ export class EditBoxComponent extends Component {
      * !#zh 编辑文本输入框时触发的事件回调。
      * @property {Component.EventHandler[]} textChanged
      */
-    @property
+    @property({
+        type: ComponentEventHandler,
+    })
     public textChanged: ComponentEventHandler[] = [];
 
     /**
@@ -430,7 +405,9 @@ export class EditBoxComponent extends Component {
      * !#zh 结束编辑文本输入框时触发的事件回调。
      * @property {Component.EventHandler[]} editingDidEnded
      */
-    @property
+    @property({
+        type: ComponentEventHandler,
+    })
     public editingDidEnded: ComponentEventHandler[] = [];
 
     /**
@@ -438,24 +415,62 @@ export class EditBoxComponent extends Component {
      * !#zh 当用户按下回车按键时的事件回调，目前不支持 windows 平台
      * @property {Component.EventHandler[]} editingReturn
      */
-    @property
+    @property({
+        type: ComponentEventHandler,
+    })
     public editingReturn: ComponentEventHandler[] = [];
 
     public _impl: EditBoxImpl | null = null;
     public _textLabel: LabelComponent | null = null;
     public _placeholderLabel: LabelComponent | null = null;
     public _background: SpriteComponent | null = null;
+    @property
+    private _returnType = KeyboardReturnType.DEFAULT;
+    @property
+    private _useOriginalSize = true;
+    @property
+    private _string = '';
+    @property
+    private _tabIndex = 0;
+    @property
+    private _backgroundImage: SpriteFrame | null = null;
+    @property
+    private _inputFlag = InputFlag.DEFAULT;
+    @property
+    private _inputMode = InputMode.ANY;
+    @property
+    private _fontSize = 20;
+    @property
+    private _lineHeight = 40;
+    @property
+    private _maxLength = 20;
+    @property
+    private _fontColor: Color = Color.WHITE;
+    @property
+    private _placeholder = 'Enter text here...';
+    @property
+    private _placeholderFontSize = 20;
+    @property
+    private _placeholderFontColor: Color = Color.GRAY;
+    @property
+    private _stayOnTop = false;
 
     public onEnable () {
-        this._impl && this._impl.onEnable();
+        if (this._impl) {
+            this._impl.onEnable();
+        }
     }
 
     public onDisable () {
-        this._impl && this._impl.onDisable();
+        if (this._impl) {
+            this._impl.onDisable();
+        }
     }
 
     public onDestroy () {
-        this._impl && this._impl.clear();
+        if (this._impl) {
+            this._impl.clear();
+        }
     }
 
     public _init () {
@@ -499,17 +514,24 @@ export class EditBoxComponent extends Component {
         } else {
             this._showLabels();
         }
-        this._impl && this._impl.stayOnTop(this.stayOnTop);
+
+        if (this._impl){
+            this._impl.stayOnTop(this.stayOnTop);
+        }
     }
 
     public _syncSize () {
         const size = this.node.getContentSize();
 
-        this._background && this._background.node.setAnchorPoint(this.node.getAnchorPoint());
-        this._background && this._background.node.setContentSize(size);
+        if (this._background){
+            this._background.node.setAnchorPoint(this.node.getAnchorPoint());
+            this._background.node.setContentSize(size);
+        }
 
         this._updateLabelPosition(size);
-        this._impl && this._impl.setSize(size.width, size.height);
+        if (this._impl){
+            this._impl.setSize(size.width, size.height);
+        }
     }
 
     public _updateLabelPosition (size) {
@@ -591,7 +613,7 @@ export class EditBoxComponent extends Component {
         if (!this._placeholderLabel) {
             let node = this.node.getChildByName('PLACEHOLDER_LABEL');
             if (!node) {
-                node = new cc.Node('PLACEHOLDER_LABEL');
+                node = new Node('PLACEHOLDER_LABEL');
             }
             let placeholderLabel = node!.getComponent(LabelComponent);
             if (!placeholderLabel) {

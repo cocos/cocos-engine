@@ -29,7 +29,6 @@ import { SpriteFrame } from '../../../assets/CCSpriteFrame';
 import { Font} from '../../../assets/font';
 import { ImageAsset } from '../../../assets/image-asset';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import macro from '../../../core/platform/CCMacro';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
@@ -37,48 +36,46 @@ import { ISharedLabelData } from '../assembler/label/ttfUtils';
 import { UIRenderComponent } from './ui-render-component';
 
 /**
- * !#en Enum for text alignment.
+ * !#en Enum for vertical text alignment.
  * !#zh 文本横向对齐类型
- * @enum Label.HorizontalAlign
+ * @enum Label.HorizontalTextAlignment
  */
-/**
- * !#en Alignment left for text.
- * !#zh 文本内容左对齐。
- * @property {Number} LEFT
- */
-/**
- * !#en Alignment center for text.
- * !#zh 文本内容居中对齐。
- * @property {Number} CENTER
- */
-/**
- * !#en Alignment right for text.
- * !#zh 文本内容右边对齐。
- * @property {Number} RIGHT
- */
-const HorizontalAlign = macro.TextAlignment;
+export enum HorizontalTextAlignment {
+    /**
+     * @property {Number} LEFT
+     */
+    LEFT = 0,
+    /**
+     * @property {Number} CENTER
+     */
+    CENTER = 1,
+    /**
+     * @property {Number} RIGHT
+     */
+    RIGHT = 2,
+}
+
+ccenum(HorizontalTextAlignment);
 
 /**
  * !#en Enum for vertical text alignment.
  * !#zh 文本垂直对齐类型
- * @enum Label.VerticalAlign
+ * @enum Label.VerticalTextAlignment
  */
-/**
- * !#en Vertical alignment top for text.
- * !#zh 文本顶部对齐。
- * @property {Number} TOP
- */
-/**
- * !#en Vertical alignment center for text.
- * !#zh 文本居中对齐。
- * @property {Number} CENTER
- */
-/**
- * !#en Vertical alignment bottom for text.
- * !#zh 文本底部对齐。
- * @property {Number} BOTTOM
- */
-const VerticalAlign = macro.VerticalTextAlignment;
+export enum VerticalTextAlignment {
+    /**
+     * @property {Number} TOP
+     */
+    TOP = 0,
+    /**
+     * @property {Number} CENTER
+     */
+    CENTER = 1,
+    /**
+     * @property {Number} BOTTOM
+     */
+    BOTTOM = 2,
+}
 
 /**
  * !#en Enum for Overflow.
@@ -170,9 +167,7 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 文本内容的水平对齐方式。
      * @property {Label.HorizontalAlign} horizontalAlign
      */
-    @property({
-        type: HorizontalAlign,
-    })
+    @property()
     get horizontalAlign () {
         return this._horizontalAlign;
     }
@@ -189,11 +184,9 @@ export class LabelComponent extends UIRenderComponent {
     /**
      * !#en Vertical Alignment of label.
      * !#zh 文本内容的垂直对齐方式。
-     * @property {Label.VerticalAlign} verticalAlign
+     * @property {Label.VerticalAlign} VerticalTextAlignment
      */
-    @property({
-        type: VerticalAlign,
-    })
+    @property()
     get verticalAlign () {
         return this._verticalAlign;
     }
@@ -282,14 +275,12 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 文字显示超出范围时的处理方式。
      * @property {Overflow} overflow
      */
-    @property({
-        type: Overflow,
-    })
+    @property()
     get overflow () {
         return this._overflow;
     }
 
-    set overflow (value: Overflow) {
+    set overflow (value) {
         if (this._overflow === value) {
             return;
         }
@@ -496,17 +487,17 @@ export class LabelComponent extends UIRenderComponent {
         this._fontAtlas = value;
     }
 
-    public static HorizontalAlign = HorizontalAlign;
-    public static VerticalAlign = VerticalAlign;
+    public static HorizontalAlign = HorizontalTextAlignment;
+    public static VerticalAlign = VerticalTextAlignment;
     public static Overflow = Overflow;
     @property
     private _useOriginalSize = true;
     @property
     private _string = 'label';
     @property
-    private _horizontalAlign = HorizontalAlign.LEFT;
+    private _horizontalAlign = HorizontalTextAlignment.LEFT;
     @property
-    private _verticalAlign = VerticalAlign.TOP;
+    private _verticalAlign = VerticalTextAlignment.TOP;
     @property
     private _actualFontSize = 0;
     @property

@@ -24,6 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export {Component} from './component';
-export {default as EventHandler} from './CCComponentEventHandler';
+export { Component } from './component';
+export { EventHandler } from './component-event-handler';
 export {default as MissingScript} from './missing-script';

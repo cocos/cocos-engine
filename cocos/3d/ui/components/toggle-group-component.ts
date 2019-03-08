@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 import { Component} from '../../../components/component';
+import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ToggleComponent} from './toggle-component';
 
@@ -41,6 +42,10 @@ import { ToggleComponent} from './toggle-component';
 @menu('UI/ToggleGroup')
 @executeInEditMode
 export class ToggleGroupComponent extends Component {
+    @property({
+        type: ComponentEventHandler,
+    })
+    public checkEvents: ComponentEventHandler[] = [];
     @property
     private _allowSwitchOff: boolean = false;
     private _toggleItems: ToggleComponent[] = [];
@@ -57,7 +62,7 @@ export class ToggleGroupComponent extends Component {
         return this._allowSwitchOff;
     }
 
-    set allowSwitchOff (value: boolean) {
+    set allowSwitchOff (value) {
         this._allowSwitchOff = value;
     }
 
@@ -77,13 +82,17 @@ export class ToggleGroupComponent extends Component {
     public updateToggles (toggle: ToggleComponent) {
         if (!this.enabledInHierarchy) { return; }
 
-        this._toggleItems.forEach((item) => {
-            if (toggle.isChecked) {
+        if (toggle.isChecked) {
+            this.toggleItems.forEach((item) => {
                 if (item !== toggle && item.isChecked && item.enabled) {
                     item.isChecked = false;
                 }
+            });
+
+            if (this.checkEvents) {
+                ComponentEventHandler.emitEvents(this.checkEvents, toggle);
             }
-        });
+        }
     }
 
     public addToggle (toggle: ToggleComponent) {
@@ -102,7 +111,7 @@ export class ToggleGroupComponent extends Component {
         this._makeAtLeastOneToggleChecked();
     }
 
-    public _allowOnlyOneToggleChecked () {
+    private _allowOnlyOneToggleChecked () {
         let isChecked = false;
         this._toggleItems.forEach((item) => {
             if (isChecked && item.enabled) {
@@ -117,7 +126,7 @@ export class ToggleGroupComponent extends Component {
         return isChecked;
     }
 
-    public _makeAtLeastOneToggleChecked () {
+    private _makeAtLeastOneToggleChecked () {
         const isChecked = this._allowOnlyOneToggleChecked();
 
         if (!isChecked && !this._allowSwitchOff) {
