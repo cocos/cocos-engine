@@ -121,12 +121,12 @@ export class UBOForwardLights {
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_FORWARD_LIGHTS, name: 'CCL_ForwardLights', members: [
-            { name: 'ccl_sphereLightPos', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
-            { name: 'ccl_sphereLightSizeRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
-            { name: 'ccl_sphereLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
-            { name: 'ccl_spotLightPosSize', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-            { name: 'ccl_spotLightDirRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-            { name: 'ccl_spotLightColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+            { name: 'ccl_sphereLitPos', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
+            { name: 'ccl_sphereLitSizeRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
+            { name: 'ccl_sphereLitColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
+            { name: 'ccl_spotLitPosSize', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+            { name: 'ccl_spotLitDirRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+            { name: 'ccl_spotLitColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
         ],
     };
 

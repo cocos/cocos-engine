@@ -21,6 +21,7 @@ import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
+import { Model } from '../renderer';
 import { IDefineMap } from '../renderer/core/effect';
 import { UBOGlobal, UBOShadow } from './define';
 import { IInternalBindingInst } from './define';
@@ -121,6 +122,7 @@ export abstract class RenderPipeline {
     protected _fpScale: number = 1.0 / 1024.0;
     protected _fpScaleInv: number = 1024.0;
     protected _macros: IDefineMap = {};
+    protected _visibleModel: Model[] = [];
 
     constructor (root: Root) {
         this._root = root;
@@ -550,6 +552,7 @@ export abstract class RenderPipeline {
         const scene = camera.scene;
 
         this._queue.clear();
+        this._visibleModel.splice(0);
 
         if (scene.skybox.enabled) { this._queue.add(scene.skybox, camera); }
 
@@ -569,6 +572,7 @@ export abstract class RenderPipeline {
             }
 
             model.updateUBOs();
+            this._visibleModel.push(model);
 
             // add model pass to render queue
             this._queue.add(model, camera);
