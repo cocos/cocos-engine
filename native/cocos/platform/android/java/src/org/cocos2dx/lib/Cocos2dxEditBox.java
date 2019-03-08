@@ -193,7 +193,7 @@ public class Cocos2dxEditBox {
             else if (inputType.contentEquals("email"))
                 this.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
             else if (inputType.contentEquals("number"))
-                this.setInputType(InputType.TYPE_CLASS_NUMBER);
+                this.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
             else if (inputType.contentEquals("phone"))
                 this.setInputType(InputType.TYPE_CLASS_PHONE);
             else if (inputType.contentEquals("password"))
