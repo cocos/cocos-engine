@@ -245,7 +245,7 @@ export class SpriteComponent extends UIRenderComponent {
     get fillCenter () {
         return this._fillCenter;
     }
-    set fillCenter (value: Vec2) {
+    set fillCenter (value) {
         this._fillCenter.x = value.x;
         this._fillCenter.y = value.y;
         if (this._type === SpriteType.FILLED && this._renderData) {
@@ -312,13 +312,15 @@ export class SpriteComponent extends UIRenderComponent {
         return this._isTrimmedMode;
     }
 
-    set trim (value: boolean) {
-        if (this._isTrimmedMode !== value) {
-            this._isTrimmedMode = value;
-            if ((this._type === SpriteType.SIMPLE /*|| this._type === SpriteType.MESH*/) &&
-                this._renderData) {
-                this.markForUpdateRenderData(true);
-            }
+    set trim (value) {
+        if (this._isTrimmedMode === value) {
+            return;
+        }
+
+        this._isTrimmedMode = value;
+        if ((this._type === SpriteType.SIMPLE /*|| this._type === SpriteType.MESH*/) &&
+            this._renderData) {
+            this.markForUpdateRenderData(true);
         }
     }
 
@@ -330,13 +332,15 @@ export class SpriteComponent extends UIRenderComponent {
      * @example
      * sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
      */
-    @property({
-        type: SizeMode,
-    })
+    @property()
     get sizeMode () {
         return this._sizeMode;
     }
     set sizeMode (value) {
+        if (this._sizeMode === value){
+            return;
+        }
+
         this._sizeMode = value;
         if (value !== SizeMode.CUSTOM) {
             this._applySpriteSize();

@@ -24,10 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import ComponentEventHandler from '../../../components/CCComponentEventHandler';
+import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
 import { Component } from '../../../components/component';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventTouch } from '../../../core/platform/event-manager/CCEvent';
+import Touch from '../../../core/platform/event-manager/CCTouch';
 import { clamp01 } from '../../../core/utils/misc';
 import { Enum, Vec3 } from '../../../core/value-types/index';
 import { vec3 } from '../../../core/vmath';
@@ -123,7 +124,7 @@ export class SliderComponent extends Component {
         return this._progress;
     }
 
-    set progress (value: number) {
+    set progress (value) {
         if (this._progress === value) {
             return;
         }
@@ -132,6 +133,7 @@ export class SliderComponent extends Component {
         this._updateHandlePosition();
     }
 
+    public static Direction = Direction;
     /**
      * !#en The slider events callback
      * !#zh 滑动器组件事件回调函数
@@ -140,23 +142,13 @@ export class SliderComponent extends Component {
     @property({
         type: ComponentEventHandler,
     })
-    get slideEvents () {
-        return this._slideEvents;
-    }
-
-    set slideEvents (value: ComponentEventHandler[]) {
-        this._slideEvents = value;
-    }
-
-    public static Direction = Direction;
+    public slideEvents: ComponentEventHandler[] = [];
     @property
     private _handle: SpriteComponent | null = null;
     @property
-    private _direction: number = Direction.Horizontal;
+    private _direction = Direction.Horizontal;
     @property
-    private _progress: number = 0.1;
-    @property
-    private _slideEvents: ComponentEventHandler[] = [];
+    private _progress = 0.1;
 
     private _offset: Vec3 = new Vec3();
     private _dragging = false;
@@ -248,7 +240,7 @@ export class SliderComponent extends Component {
         }
     }
 
-    private _handleSliderLogic (touch) {
+    private _handleSliderLogic (touch: Touch | null) {
         this._updateProgress(touch);
         this._emitSlideEvent();
     }
@@ -258,9 +250,12 @@ export class SliderComponent extends Component {
         this.node.emit('slide', this);
     }
 
-    private _updateProgress (touch: EventTouch) {
-        if (!this._handle) { return; }
-        const touchPos = (touch as EventTouch).getLocation();
+    private _updateProgress (touch: Touch | null) {
+        if (!this._handle || !touch) {
+            return;
+        }
+
+        const touchPos = touch.getLocation();
         vec3.set(this._touchPos, touchPos.x, touchPos.y, 0);
         const localTouchPos = this.node.uiTransfromComp!.convertToNodeSpaceAR(_tempPos, this._touchPos);
         if (this.direction === Direction.Horizontal) {
@@ -271,7 +266,9 @@ export class SliderComponent extends Component {
     }
 
     private _updateHandlePosition () {
-        if (!this._handle) { return; }
+        if (!this._handle) {
+            return;
+        }
         this._handlelocalPos.set(this._handle.node.getPosition());
         if (this._direction === Direction.Horizontal) {
             this._handlelocalPos.x = -this.node.width! * this.node.anchorX! + this.progress * this.node.width!;

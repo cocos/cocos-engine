@@ -12,7 +12,6 @@ import './components/scroll-view-component';
 import './components/slider-component';
 import './components/sprite-component';
 import './components/toggle-component';
-import './components/toggle-container-component';
 import './components/toggle-group-component';
 import './components/ui-render-component';
 import './components/ui-transfrom-component';
