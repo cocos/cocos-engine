@@ -40,9 +40,10 @@ function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouc
         event.touch = touch;
         event.bubbles = true;
         node.dispatchEvent(event);
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch) {
