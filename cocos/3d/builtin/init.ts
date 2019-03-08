@@ -146,7 +146,6 @@ class BuiltinResMgr {
         const defaultMtl = new cc.Material();
         defaultMtl._uuid = 'default-material';
         defaultMtl.initialize({
-            defines: { USE_COLOR: true },
             effectName: 'builtin-standard',
         });
         resources[defaultMtl._uuid] = defaultMtl;
