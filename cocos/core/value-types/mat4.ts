@@ -23,11 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Vec3 } from 'cannon';
 import CCClass from '../data/class';
 import { mat4 } from '../vmath';
 import Quat from './quat';
 import { ValueType } from './value-type';
+import Vec3 from './vec3';
 
 /**
  * !#en Representation of 4*4 matrix.

@@ -1,10 +1,11 @@
-import { PhysicsWorld } from './world';
+import { PhysicsWorldBase } from '../../physics/api';
+import { createPhysicsWorld } from '../../physics/instance';
 
 export class PhysicsSystem {
-    private _world: PhysicsWorld;
+    private _world: PhysicsWorldBase;
 
     constructor () {
-        this._world = new PhysicsWorld();
+        this._world = createPhysicsWorld();
     }
 
     public update (deltaTime: number) {
