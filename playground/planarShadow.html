@@ -69,8 +69,7 @@
       const lightNode = new cc.Node('Light');
       lightNode.parent = rt;
       lightNode.setPosition(-10, 10, -10);
-      const lightComp = lightNode.addComponent(cc.LightComponent);
-      lightComp.isMainLight = true;
+      const lightComp = lightNode.addComponent(cc.DirectionalLightComponent);
 
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
       const noShadow = new cc.Material();

@@ -191,12 +191,14 @@ export class UBOShadow {
     };
 }
 
-export interface IGlobalBindingDesc {
+export interface ILocalBindingDesc {
     type: GFXBindingType;
     blockInfo?: GFXUniformBlock;
-    buffer?: GFXBuffer;
-
     samplerInfo?: GFXUniformSampler;
+}
+
+export interface IGlobalBindingDesc extends ILocalBindingDesc {
+    buffer?: GFXBuffer;
     sampler?: GFXSampler;
     textureView?: GFXTextureView;
 }

@@ -69,7 +69,7 @@ class ProgramLib {
      */
     public define (prog: IShaderInfo) {
         const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
-        processSpecialBindingLayout(tmpl);
+        insertLocalBindings(tmpl);
 
         // calculate option mask offset
         let offset = 0;
@@ -124,7 +124,7 @@ class ProgramLib {
         // get template
         const tmpl = this._templates[name];
         const customDef = _generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
-        if (!tmpl.builtinInited) { insertPipelinebuiltinBindings(tmpl, pipeline); }
+        if (!tmpl.builtinInited) { insertGlobalBindings(tmpl, pipeline); }
 
         let vert: string = '';
         let frag: string = '';
@@ -151,7 +151,7 @@ class ProgramLib {
     }
 }
 
-function insertPipelinebuiltinBindings (tmpl: IProgramInfo, pipeline: RenderPipeline) {
+function insertGlobalBindings (tmpl: IProgramInfo, pipeline: RenderPipeline) {
     const source = pipeline.builtinBindings;
     const target = tmpl.builtins;
     for (const b of target.blocks) {
@@ -159,7 +159,7 @@ function insertPipelinebuiltinBindings (tmpl: IProgramInfo, pipeline: RenderPipe
         if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
         tmpl.blocks.push(convertToBlockInfo(info.blockInfo!));
     }
-    for (const s of target.textures) {
+    for (const s of target.samplers) {
         const info = source.get(s);
         if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin texture '${s}' not available!`); continue; }
         tmpl.samplers.push(convertToSamplerInfo(info.samplerInfo!));
@@ -170,12 +170,12 @@ function insertPipelinebuiltinBindings (tmpl: IProgramInfo, pipeline: RenderPipe
 const locals = convertToBlockInfo(UBOLocal.BLOCK);
 const skinning = convertToBlockInfo(UBOSkinning.BLOCK);
 const jointsTexture = convertToSamplerInfo(UNIFORM_JOINTS_TEXTURE);
-function processSpecialBindingLayout (tmpl: IProgramInfo) {
-    let blockIdx = tmpl.builtins.blocks.findIndex((b) => b === 'CCSkinning');
+function insertLocalBindings (tmpl: IProgramInfo) {
+    let blockIdx = tmpl.builtins.blocks.findIndex((b) => b === 'CCLocal_Skinning');
     if (blockIdx >= 0) { tmpl.blocks.push(skinning); tmpl.builtins.blocks.splice(blockIdx, 1); }
-    const samplerIdx = tmpl.builtins.textures.findIndex((t) => t === 'cc_jointsTexture');
-    if (samplerIdx >= 0) { tmpl.samplers.push(jointsTexture); tmpl.builtins.textures.splice(samplerIdx, 1); }
-    blockIdx = tmpl.builtins.blocks.findIndex((t) => t === 'CCLocal');
+    const samplerIdx = tmpl.builtins.samplers.findIndex((t) => t === 'cclocal_jointsTexture');
+    if (samplerIdx >= 0) { tmpl.samplers.push(jointsTexture); tmpl.builtins.samplers.splice(samplerIdx, 1); }
+    blockIdx = tmpl.builtins.blocks.findIndex((t) => t === 'CCLocal_Common');
     if (blockIdx >= 0) { tmpl.blocks.push(locals); tmpl.builtins.blocks.splice(blockIdx, 1); }
 }
 
