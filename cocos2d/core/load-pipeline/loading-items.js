@@ -142,7 +142,7 @@ function checkCircleReference(owner, item, recursiveCall) {
  * !#zh
  * LoadingItems 是一个加载对象队列，可以用来输送加载对象到加载管线中。<br/>
  * 请不要直接使用 new 构造这个类的对象，你可以使用 {{#crossLink "LoadingItems.create"}}cc.LoadingItems.create{{/crossLink}} 来创建一个新的加载队列，这样可以允许我们的内部对象池回收并重利用加载队列。
- * 它有一个 map 属性用来存放加载项，在 map 对象中已 url 为 key 值。<br/>
+ * 它有一个 map 属性用来存放加载项，在 map 对象中以 url 为 key 值。<br/>
  * 每个对象都会包含下列属性：<br/>
  * - id：该对象的标识，通常与 url 相同。<br/>
  * - url：路径 <br/>
