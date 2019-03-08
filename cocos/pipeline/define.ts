@@ -48,22 +48,22 @@ export class UBOGlobal {
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: UniformBinding.UBO_GLOBAL, name: 'CCG_Common', members: [
-            { name: 'ccg_time', type: GFXType.FLOAT4, count: 1 },
-            { name: 'ccg_screenSize', type: GFXType.FLOAT4, count: 1 },
-            { name: 'ccg_screenScale', type: GFXType.FLOAT4, count: 1 },
-            { name: 'ccg_matView', type: GFXType.MAT4, count: 1 },
-            { name: 'ccg_matViewInv', type: GFXType.MAT4, count: 1 },
-            { name: 'ccg_matProj', type: GFXType.MAT4, count: 1 },
-            { name: 'ccg_matProjInv', type: GFXType.MAT4, count: 1 },
-            { name: 'ccg_matViewProj', type: GFXType.MAT4, count: 1 },
-            { name: 'ccg_matViewProjInv', type: GFXType.MAT4, count: 1 },
-            { name: 'ccg_cameraPos', type: GFXType.FLOAT4, count: 1 },
-            { name: 'ccg_exposure', type: GFXType.FLOAT4, count: 1 },
-            { name: 'ccg_mainLitDir', type: GFXType.FLOAT4, count: 1 },
-            { name: 'ccg_mainLitColor', type: GFXType.FLOAT4, count: 1 },
-            { name: 'ccg_ambientSky', type: GFXType.FLOAT4, count: 1 },
-            { name: 'ccg_ambientGround', type: GFXType.FLOAT4, count: 1 },
+        binding: UniformBinding.UBO_GLOBAL, name: 'CCGlobal', members: [
+            { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_screenScale', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_matView', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matViewInv', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matProj', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matProjInv', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matViewProj', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matViewProjInv', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_cameraPos', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_exposure', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_mainLitDir', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_mainLitColor', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_ambientSky', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_ambientGround', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 
@@ -77,9 +77,9 @@ export class UBOShadow {
     public static SIZE: number = UBOShadow.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: UniformBinding.UBO_SHADOW, name: 'CCG_Shadow', members: [
-            { name: 'ccg_matLightPlaneProj', type: GFXType.MAT4, count: 1 },
-            { name: 'ccg_shadowColor', type: GFXType.FLOAT4, count: 1 },
+        binding: UniformBinding.UBO_SHADOW, name: 'CCShadow', members: [
+            { name: 'cc_matLightPlaneProj', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_shadowColor', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 }
@@ -93,9 +93,9 @@ export class UBOLocal {
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: UniformBinding.UBO_LOCAL, name: 'CCL_Common', members: [
-            { name: 'ccl_matWorld', type: GFXType.MAT4, count: 1 },
-            { name: 'ccl_matWorldIT', type: GFXType.MAT4, count: 1 },
+        binding: UniformBinding.UBO_LOCAL, name: 'CCLocal', members: [
+            { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
+            { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
         ],
     };
 
@@ -120,13 +120,13 @@ export class UBOForwardLights {
     public static SIZE: number = UBOForwardLights.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: UniformBinding.UBO_FORWARD_LIGHTS, name: 'CCL_ForwardLights', members: [
-            { name: 'ccl_sphereLitPos', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
-            { name: 'ccl_sphereLitSizeRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
-            { name: 'ccl_sphereLitColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
-            { name: 'ccl_spotLitPosSize', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-            { name: 'ccl_spotLitDirRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-            { name: 'ccl_spotLitColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+        binding: UniformBinding.UBO_FORWARD_LIGHTS, name: 'CCForwardLights', members: [
+            { name: 'cc_sphereLitPos', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
+            { name: 'cc_sphereLitSizeRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
+            { name: 'cc_sphereLitColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
+            { name: 'cc_spotLitPosSize', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLitDirRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLitColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
         ],
     };
 
@@ -144,9 +144,9 @@ export class UBOSkinning {
     public static SIZE: number = UBOSkinning.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: UniformBinding.UBO_SKINNING, name: 'CCL_Skinning', members: [
-            { name: 'ccl_matJoint', type: GFXType.MAT4, count: 128 },
-            { name: 'ccl_jointsTextureSize', type: GFXType.FLOAT4, count: 1 },
+        binding: UniformBinding.UBO_SKINNING, name: 'CCSkinning', members: [
+            { name: 'cc_matJoint', type: GFXType.MAT4, count: 128 },
+            { name: 'cc_jointsTextureSize', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 }
@@ -156,7 +156,7 @@ localBindingsDesc.set(UBOSkinning.BLOCK.name, {
 });
 
 export const UNIFORM_JOINTS_TEXTURE: GFXUniformSampler = {
-    binding: UniformBinding.SAMPLER_JOINTS, name: 'ccl_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
+    binding: UniformBinding.SAMPLER_JOINTS, name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
 };
 localBindingsDesc.set(UNIFORM_JOINTS_TEXTURE.name, {
     type: GFXBindingType.SAMPLER,
