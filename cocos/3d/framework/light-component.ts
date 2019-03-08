@@ -54,9 +54,9 @@ export class LightComponent extends Component {
     set color (val) {
         this._color = val;
         if (this._light) {
-            this._light.color[0] = val.r / 255.0;
-            this._light.color[1] = val.g / 255.0;
-            this._light.color[2] = val.b / 255.0;
+            this._light.color.x = val.r / 255.0;
+            this._light.color.y = val.g / 255.0;
+            this._light.color.z = val.b / 255.0;
         }
     }
 

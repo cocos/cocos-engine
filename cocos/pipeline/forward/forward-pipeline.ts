@@ -1,10 +1,17 @@
+import { frustum, intersect, sphere } from '../../3d/geom-utils';
 import { Root } from '../../core/root';
 import { Vec3 } from '../../core/value-types';
-import { vec3, vec4 } from '../../core/vmath';
+import { v3 } from '../../core/value-types/vec3';
+import { vec3 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXFeature } from '../../gfx/device';
 import { GFXRenderPass } from '../../gfx/render-pass';
+import { Light, Model } from '../../renderer';
+import { DirectionalLight } from '../../renderer/scene/directional-light';
+import { LightType } from '../../renderer/scene/light';
+import { SphereLight } from '../../renderer/scene/sphere-light';
+import { SpotLight } from '../../renderer/scene/spot-light';
 import { RenderPassStage, UBOForwardLights } from '../define';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
@@ -15,14 +22,16 @@ export enum ForwardFlowPriority {
     FORWARD = 0,
 }
 
-const _v3 = new Vec3();
 const _vec4Array = new Float32Array(4);
-const _idVec4Array = Float32Array.from([1, 1, 1, 0]);
+const _sphere = sphere.create();
 
 export class ForwardPipeline extends RenderPipeline {
 
     protected _uboLights: UBOForwardLights = new UBOForwardLights();
     protected _lightsUBO: GFXBuffer | null = null;
+    private _validLights: Light[];
+    private _lightIndexOffset: number[];
+    private _lightIndices: number[];
 
     public get lightsUBO (): GFXBuffer {
         return this._lightsUBO!;
@@ -30,6 +39,9 @@ export class ForwardPipeline extends RenderPipeline {
 
     constructor (root: Root) {
         super(root);
+        this._validLights = [];
+        this._lightIndexOffset = [];
+        this._lightIndices = [];
     }
 
     public initialize (info: IRenderPipelineInfo): boolean {
@@ -95,7 +107,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected createUBOs (): boolean {
         super.createUBOs();
 
-        if (!this._builtinBindings.get(UBOForwardLights.BLOCK.name)) {
+        if (!this._globalBindings.get(UBOForwardLights.BLOCK.name)) {
             const lightsUBO = this._root.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -106,7 +118,7 @@ export class ForwardPipeline extends RenderPipeline {
                 return false;
             }
 
-            this._builtinBindings.set(UBOForwardLights.BLOCK.name, {
+            this._globalBindings.set(UBOForwardLights.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
                 blockInfo: UBOForwardLights.BLOCK,
                 buffer: lightsUBO,
@@ -119,67 +131,142 @@ export class ForwardPipeline extends RenderPipeline {
     protected destroyUBOs () {
         super.destroyUBOs();
 
-        const lightsUBO = this._builtinBindings.get(UBOForwardLights.BLOCK.name);
+        const lightsUBO = this._globalBindings.get(UBOForwardLights.BLOCK.name);
         if (lightsUBO) {
             lightsUBO.buffer!.destroy();
-            this._builtinBindings.delete(UBOForwardLights.BLOCK.name);
+            this._globalBindings.delete(UBOForwardLights.BLOCK.name);
         }
     }
 
     protected updateUBOs (view: RenderView) {
         super.updateUBOs(view);
 
-        const scene = view.camera.scene;
-        const sphereLits = scene.sphereLights;
-
-        for (let i = 0; i < sphereLits.length; i++) {
-            const light = sphereLits[i];
-            if (light.enabled && light.node) {
-
-                light.node.getWorldPosition(_v3);
-                vec3.array(_vec4Array, _v3);
-                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_POS_OFFSET + i * 4);
-
-                _vec4Array[0] = light.size;
-                _vec4Array[1] = light.range;
-                _vec4Array[2] = 0.0;
-                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_SIZE_RANGE_OFFSET + i * 4);
-
-                vec3.array(_vec4Array, light.color);
-                _vec4Array[0] = light.luminance;
-                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_COLOR_OFFSET + i * 4);
-            } else {
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPHERE_LIGHT_POS_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPHERE_LIGHT_SIZE_RANGE_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPHERE_LIGHT_COLOR_OFFSET + i * 4);
+        for (let i = 0; i < this._visibleModel.length; i++) {
+            this._uboLights.view.fill(0);
+            const nextLightIndex = i + 1 < this._visibleModel.length ? this._lightIndexOffset[i + 1] : this._lightIndices.length;
+            if (!this._visibleModel[i].localBindings.get(UBOForwardLights.BLOCK.name)) {
+                continue;
             }
+            const dirNum = 0;
+            let pointNum = 0;
+            let spotNum = 0;
+            for (let l = this._lightIndexOffset[i]; l < nextLightIndex; l++) {
+                const light = this._validLights[this._lightIndices[l]];
+                if (light && light.enabled) {
+                    switch (light.type) {
+                        // case LightType.DIRECTIONAL:
+                        //     this._uboLights.view.set((light as DirectionalLight).directionArray, UBOForwardLights.DIR_LIGHT_DIR_OFFSET + dirNum * 4);
+                        //     this._uboLights.view.set(light.color, UBOForwardLights.DIR_LIGHT_COLOR_OFFSET + dirNum * 4);
+                        //     dirNum++;
+                        //     break;
+                        case LightType.SPHERE:
+                            vec3.array(_vec4Array, (light as SphereLight).position);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_POS_OFFSET + pointNum * 4);
+
+                            _vec4Array[0] = (light as SphereLight).size;
+                            _vec4Array[1] = (light as SphereLight).range;
+                            _vec4Array[2] = 0.0;
+                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_SIZE_RANGE_OFFSET + pointNum * 4);
+
+                            vec3.array(_vec4Array, light.color);
+                            _vec4Array[3] = (light as SphereLight).luminance;
+                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_COLOR_OFFSET + pointNum * 4);
+                            pointNum++;
+                            break;
+                        case LightType.SPOT:
+                            vec3.array(_vec4Array, (light as SpotLight).position);
+                            _vec4Array[3] = (light as SpotLight).size;
+                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_POS_SIZE_OFFSET + spotNum * 4);
+
+                            vec3.array(_vec4Array, (light as SpotLight).direction);
+                            _vec4Array[3] = (light as SpotLight).range;
+                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_DIR_RANGE_OFFSET + spotNum * 4);
+
+                            vec3.array(_vec4Array, light.color);
+                            _vec4Array[3] = (light as SpotLight).luminance;
+                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + spotNum * 4);
+                            spotNum++;
+                            break;
+                    }
+                }
+            }
+            this._visibleModel[i].localBindings.get(UBOForwardLights.BLOCK.name)!.buffer!.update(this._uboLights.view);
         }
 
-        const spotLits = scene.spotLights;
-        for (let i = 0; i < spotLits.length; i++) {
-            const light = spotLits[i];
-            if (light.enabled && light.node) {
-
-                light.node.getWorldPosition(_v3);
-                vec3.array(_vec4Array, _v3);
-                _vec4Array[3] = light.size;
-                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_POS_SIZE_OFFSET + i * 4);
-
-                vec3.array(_vec4Array, light.direction);
-                _vec4Array[3] = light.range;
-                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_DIR_RANGE_OFFSET + i * 4);
-
-                vec3.array(_vec4Array, light.color);
-                _vec4Array[0] = light.luminance;
-                this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + i * 4);
-            } else {
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_POS_SIZE_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_DIR_RANGE_OFFSET + i * 4);
-                this._uboLights.view.set(_idVec4Array, UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + i * 4);
-            }
-        }
-
-        // update ubos
-        this._builtinBindings.get(UBOForwardLights.BLOCK.name)!.buffer!.update(this._uboLights.view);
     }
+
+    protected sceneCulling (view: RenderView) {
+        super.sceneCulling(view);
+        this._validLights.splice(0);
+        // for (const light of view.camera.scene.directionalLights) {
+        //     if (light.enabled) {
+        //         light.update();
+        //         this._validLights.push(light);
+        //     }
+        // }
+        for (const light of view.camera.scene.sphereLights) {
+            if (light.enabled) {
+                light.update();
+                sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+                if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+                    this._validLights.push(light);
+                }
+            }
+        }
+        for (const light of view.camera.scene.spotLights) {
+            if (light.enabled) {
+                light.update();
+                sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+                if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+                    this._validLights.push(light);
+                }
+            }
+        }
+
+        this._lightIndexOffset.splice(0);
+        this._lightIndices.splice(0);
+        for (let i = 0; i < this._visibleModel.length; i++) {
+            this._lightIndexOffset[i] = this._lightIndices.length;
+            if (this._visibleModel[i].localBindings.get(UBOForwardLights.BLOCK.name)) {
+                this.cullLightPerModel(this._visibleModel[i]);
+            }
+        }
+    }
+
+    private cullLightPerModel (model: Model) {
+        for (let i = 0; i < this._validLights.length; i++) {
+            let isCulled = false;
+            switch (this._validLights[i].type) {
+                case LightType.DIRECTIONAL:
+                    isCulled = cullDirectionalLight(this._validLights[i] as DirectionalLight, model);
+                    break;
+                case LightType.SPHERE:
+                    isCulled = cullSphereLight(this._validLights[i] as SphereLight, model);
+                    break;
+                case LightType.SPOT:
+                    isCulled = cullSpotLight(this._validLights[i] as SpotLight, model);
+                    break;
+            }
+            if (!isCulled) {
+                this._lightIndices.push(i);
+            }
+        }
+    }
+}
+
+function cullLight (light: Light, model: Model) {
+    // TODO:to add light mask & lightmapped model check.
+    return false;
+}
+
+function cullDirectionalLight (light: DirectionalLight, model: Model) {
+    return cullLight(light, model);
+}
+
+function cullSphereLight (light: SphereLight, model: Model) {
+    return cullLight(light, model) || !intersect.aabb_aabb(model.worldBounds, light.aabb);
+}
+
+function cullSpotLight (light: SpotLight, model: Model) {
+    return cullLight(light, model) || !intersect.aabb_aabb(model.worldBounds, light.aabb) || !intersect.aabb_frustum(model.worldBounds, light.frustum);
 }

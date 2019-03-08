@@ -34,7 +34,7 @@ export class ToneMapStage extends RenderStage {
         this._pass = this._flow.material.passes[0];
         const binding = this._pass.getBinding('u_texSampler');
 
-        const globalUBO = this._pipeline.builtinBindings.get(UBOGlobal.BLOCK.name);
+        const globalUBO = this._pipeline.globalBindings.get(UBOGlobal.BLOCK.name);
         this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
         this._pass.bindTextureView(binding, this._pipeline.shadingTexView);
         this._pass.update();

@@ -4,7 +4,7 @@ import { IBlockInfo, IBlockMember, IDefineInfo, ISamplerInfo, IShaderInfo } from
 import { GFXBindingType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniform, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
-import { UBOLocal, UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
+import { localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { IDefineMap } from './effect';
 
@@ -69,7 +69,7 @@ class ProgramLib {
      */
     public define (prog: IShaderInfo) {
         const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
-        processSpecialBindingLayout(tmpl);
+        insertLocalBindings(tmpl);
 
         // calculate option mask offset
         let offset = 0;
@@ -124,7 +124,7 @@ class ProgramLib {
         // get template
         const tmpl = this._templates[name];
         const customDef = _generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
-        if (!tmpl.builtinInited) { insertPipelinebuiltinBindings(tmpl, pipeline); }
+        if (!tmpl.builtinInited) { insertGlobalBindings(tmpl, pipeline); }
 
         let vert: string = '';
         let frag: string = '';
@@ -151,32 +151,42 @@ class ProgramLib {
     }
 }
 
-function insertPipelinebuiltinBindings (tmpl: IProgramInfo, pipeline: RenderPipeline) {
-    const source = pipeline.builtinBindings;
+function insertGlobalBindings (tmpl: IProgramInfo, pipeline: RenderPipeline) {
+    const source = pipeline.globalBindings;
     const target = tmpl.builtins;
     for (const b of target.blocks) {
         const info = source.get(b);
-        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
+        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`global UBO '${b}' not available!`); continue; }
         tmpl.blocks.push(convertToBlockInfo(info.blockInfo!));
     }
-    for (const s of target.textures) {
+    for (const s of target.samplers) {
         const info = source.get(s);
-        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin texture '${s}' not available!`); continue; }
+        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`global sampler '${s}' not available!`); continue; }
         tmpl.samplers.push(convertToSamplerInfo(info.samplerInfo!));
     }
     tmpl.builtinInited = true;
 }
 
-const locals = convertToBlockInfo(UBOLocal.BLOCK);
-const skinning = convertToBlockInfo(UBOSkinning.BLOCK);
-const jointsTexture = convertToSamplerInfo(UNIFORM_JOINTS_TEXTURE);
-function processSpecialBindingLayout (tmpl: IProgramInfo) {
-    let blockIdx = tmpl.builtins.blocks.findIndex((b) => b === 'CCSkinning');
-    if (blockIdx >= 0) { tmpl.blocks.push(skinning); tmpl.builtins.blocks.splice(blockIdx, 1); }
-    const samplerIdx = tmpl.builtins.textures.findIndex((t) => t === 'cc_jointsTexture');
-    if (samplerIdx >= 0) { tmpl.samplers.push(jointsTexture); tmpl.builtins.textures.splice(samplerIdx, 1); }
-    blockIdx = tmpl.builtins.blocks.findIndex((t) => t === 'CCLocal');
-    if (blockIdx >= 0) { tmpl.blocks.push(locals); tmpl.builtins.blocks.splice(blockIdx, 1); }
+const localRE = /^ccl/i;
+function insertLocalBindings (tmpl: IProgramInfo) {
+    const source = localBindingsDesc;
+    const target = tmpl.builtins;
+    for (let i = 0; i < target.blocks.length;) {
+        const name = target.blocks[i];
+        if (!localRE.test(name)) { i++; continue; }
+        target.blocks.splice(i, 1);
+        const info = source.get(name);
+        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`local UBO '${name}' not available!`); continue; }
+        tmpl.blocks.push(convertToBlockInfo(info.blockInfo!));
+    }
+    for (let i = 0; i < target.samplers.length;) {
+        const name = target.samplers[i];
+        if (!localRE.test(name)) { i++; continue; }
+        target.samplers.splice(i, 1);
+        const info = source.get(name);
+        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`local sampler '${name}' not available!`); continue; }
+        tmpl.samplers.push(convertToSamplerInfo(info.samplerInfo!));
+    }
 }
 
 function convertToUniformInfo (uniform: GFXUniform): IBlockMember {

@@ -8,6 +8,7 @@ import { IGFXInputAttribute } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
+import { Material } from '../../3d/assets/material';
 
 export default class ParticleBatchModel extends Model {
 
@@ -118,6 +119,11 @@ export default class ParticleBatchModel extends Model {
         };
         this.setSubModelMesh(0, this._subMeshData);
         return vBuffer;
+    }
+
+    public setSubModelMaterial (idx: number, mat: Material | null) {
+        this.initLocalBindings(mat);
+        super.setSubModelMaterial(idx, mat);
     }
 
     public enableStretchedBillboard () {

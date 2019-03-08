@@ -56,12 +56,19 @@ export class DirectionalLightComponent extends LightComponent {
     protected _createLight (scene?: RenderScene) {
         if (!this.node.scene) { return; }
         if (!scene) { scene = this._getRenderScene(); }
+        if (scene.mainLight.node.activeInHierarchy) {
+            console.warn('there can be only one directional(main) light.');
+            return;
+        }
         this._light = scene.mainLight;
         this.intensity = this._intensity;
         super._createLight(scene);
     }
 
     protected _destroyLight (scene?: RenderScene) {
+        if (!this.node.scene || !this._light) { return; }
+        if (!scene) { scene = this._getRenderScene(); }
+        this._light.node = scene.defaultMainLightNode;
         super._destroyLight(scene);
     }
 }

@@ -61,7 +61,7 @@ export interface IDefineInfo {
 }
 export interface IBuiltinInfo {
     blocks: string[];
-    textures: string[];
+    samplers: string[];
 }
 export interface IShaderInfo {
     name: string;
