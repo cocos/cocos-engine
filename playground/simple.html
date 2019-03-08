@@ -61,7 +61,7 @@
 
       const cameraNode = new cc.Node('Camera');
       cameraNode.parent = scene;
-      cameraNode.setPosition(20, 0, 115);
+      cameraNode.setPosition(1, 1, 4);
       cameraNode.setRotationFromEuler(0, 30, 0);
       cameraNode.addComponent(cc.CameraComponent);
       cameraNode.addComponent(FirstPersonCamera);
@@ -88,8 +88,9 @@
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
       const material = new cc.Material();
       material.initialize({
-        effectName: 'builtin-unlit',
-        defines: { USE_COLOR: true },
+        //effectName: 'builtin-unlit',
+        effectName: 'builtin-standard',
+        //defines: { USE_COLOR: true },
       });
 
       const len = 50;
@@ -106,7 +107,8 @@
         // material instance initialized here
         passes.push(modelCom.material.passes[0]);
       }
-      const handle = passes[0].getHandle('color');
+      //const handle = passes[0].getHandle('color');
+      const handle = passes[0].getHandle('albedo');
 
       /*
       {
