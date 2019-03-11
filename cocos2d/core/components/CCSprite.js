@@ -155,7 +155,7 @@ var State = cc.Enum({
 var Sprite = cc.Class({
     name: 'cc.Sprite',
     extends: RenderComponent,
-    mixins: BlendFunc,
+    mixins: [BlendFunc],
 
     ctor () {
         this._graySpriteMaterial = null;

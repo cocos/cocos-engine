@@ -1206,15 +1206,9 @@ sp.Skeleton = cc.Class({
         if (!data) return;
         
         if (!CC_EDITOR) {
-<<<<<<< HEAD
-            if (this._renderMode === RenderMode.SHARED_CACHE) {
-                this._skeletonCache = SkeletonCache.sharedCache;
-            } else if (this._renderMode === RenderMode.PRIVATE_CACHE) {
-=======
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
->>>>>>> 0a270c0f089067dffc40ce8522c79163a05bb44b
                 this._skeletonCache = new SkeletonCache;
             }
         }
@@ -1245,13 +1239,6 @@ sp.Skeleton = cc.Class({
         Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
     },
 
-<<<<<<< HEAD
-    _updateRenderModeEnum: CC_EDITOR && function () {
-        setEnumAttr(this, 'renderMode', RenderMode);
-    },
-
-=======
->>>>>>> 0a270c0f089067dffc40ce8522c79163a05bb44b
     _updateDebugDraw: function () {
         if (this.debugBones || this.debugSlots) {
             if (!this._debugRenderer) {

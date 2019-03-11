@@ -25,7 +25,7 @@
 
 const js = require('../../../../../platform/js');
 const bmfintAssembler = require('./bmfont');
-const ttfUtls = require('../../../../utils/label/ttf');
+const fontUtils = require('../../../../utils/label/letter-font');
 const fillMeshVertices = require('../../utils').fillMeshVertices;
 const WHITE = cc.color(255, 255, 255, 255);
 
@@ -41,4 +41,4 @@ module.exports = js.addon({
     },
 
     appendQuad: bmfintAssembler.appendQuad
-}, ttfUtls);
+}, fontUtils);

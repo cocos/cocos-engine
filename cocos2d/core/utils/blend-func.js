@@ -1,9 +1,9 @@
 
+const RenderComponent = require('../components/CCRenderComponent');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
+const gfx = require('../../renderer/gfx');
 
 let BlendFunc = cc.Class({
-    name: 'cc.BlendFunc',
-
     properties: {
         _srcBlendFactor: BlendFactor.SRC_ALPHA,
         _dstBlendFactor: BlendFactor.ONE_MINUS_SRC_ALPHA,
