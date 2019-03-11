@@ -536,12 +536,16 @@ class Node extends BaseNode {
         this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
     }
 
+    public getWorldPosition<Out extends vec3 = Vec3> (out: Out): Out;
+
+    public getWorldPosition (): Vec3;
+
     /**
      * get world position
      * @param out - the receiving vector
      * @returns the resulting vector
      */
-    public getWorldPosition (out?: Vec3): Vec3 {
+    public getWorldPosition<Out extends vec3 = Vec3> (out?: Out) {
         this.updateWorldTransform();
         if (out) {
             return vec3.copy(out, this._pos);
@@ -611,6 +615,10 @@ class Node extends BaseNode {
         this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
     }
 
+    public getWorldRotation<Out extends quat = Quat> (out: Out): Out;
+
+    public getWorldRotation (): Quat;
+
     /**
      * get world rotation
      * @param out - the receiving quaternion
@@ -662,6 +670,10 @@ class Node extends BaseNode {
         this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
     }
 
+    public getWorldScale<Out extends vec3 = Vec3> (out: Out): Out;
+
+    public getWorldScale (): Vec3;
+
     /**
      * get world scale
      * @param out - the receiving vector
@@ -676,12 +688,16 @@ class Node extends BaseNode {
         }
     }
 
+    public getWorldMatrix<Out extends mat4> (out?: Out): Out;
+
+    public getWorldMatrix (): Mat4;
+
     /**
      * get the matrix that transforms a point from local space into world space
      * @param out - the receiving matrix
      * @returns the - resulting matrix
      */
-    public getWorldMatrix (out?: Mat4): Mat4 {
+    public getWorldMatrix (out?: Mat4) {
         this.updateWorldTransformFull();
         if (out) {
             return mat4.copy(out, this._mat);
