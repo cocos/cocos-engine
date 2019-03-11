@@ -7,6 +7,10 @@ export interface IRaycastOptions {
     queryTriggerInteraction?: boolean;
 }
 
+export interface ICreateBodyOptions {
+    name?: string;
+}
+
 export interface ICollisionEvent {
     source: RigidBodyBase;
 
@@ -52,7 +56,7 @@ export class PhysicsWorldBase {
 }
 
 export class RigidBodyBase {
-    constructor ();
+    constructor (options?: ICreateBodyOptions);
 
     addShape (shape: ShapeBase): void;
 
@@ -105,7 +109,7 @@ export class RigidBodyBase {
 
     commitShapeUpdates (): void;
 
-    shouldRender (): boolean;
+    isPhysicsManagedTransform (): boolean;
 
     getPosition (out: Vec3): void;
 

@@ -39,12 +39,23 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         this.center = this._center;
     }
 
+    public start () {
+        super.start();
+        if (this._enabled) {
+            this.onEnable();
+        }
+    }
+
     public onEnable () {
-        this.sharedBody!.body.addShape(this._shapeBase!);
+        if (this.sharedBody) {
+            this.sharedBody.body.addShape(this._shapeBase!);
+        }
     }
 
     public onDisable () {
-        this.sharedBody!.body.removeShape(this._shapeBase!);
+        if (this.sharedBody) {
+            this.sharedBody.body.removeShape(this._shapeBase!);
+        }
     }
 
     public destroy () {
