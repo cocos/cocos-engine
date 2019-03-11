@@ -23,19 +23,56 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const BufferAsset = require('../assets/CCBufferAsset');
-
 let Model = cc.Class({
     name: 'cc.Model',
     extends: cc.Asset,
 
-    properties: {
-        _buffers: [BufferAsset],
+    ctor () {
+        this._nodeMap = {};
+    },
 
-        _gltf: {
-            default: {}
+    properties: {
+        _nodes: {
+            default: []
+        },
+
+        _precomputeJointMatrix: false,
+
+        nodes: {
+            get () {
+                return this._nodes;
+            }
+        },
+        nodeMap: {
+            get () {
+                return this._nodeMap;
+            }
+        },
+
+        precomputeJointMatrix: {
+            get () {
+                return this._precomputeJointMatrix;
+            }
         }
     },
+
+    onLoad () {
+        let nodes = this._nodes;
+        let map = this._nodeMap;
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes[i];
+            node.position = cc.v3.apply(this, node.position);
+            node.scale = cc.v3.apply(this, node.scale);
+            node.quat = cc.quat.apply(this, node.quat);
+            
+            let pose = node.bindpose;
+            if (pose) {
+                node.bindpose = cc.mat4.apply(this, pose);
+            }
+
+            map[node.path] = node;
+        }
+    }
 });
 
 cc.Model = module.exports = Model;

@@ -157,6 +157,10 @@ let MeshRenderer = cc.Class({
         this._setMesh(null);
     },
 
+    getRenderNode () {
+        return this.node;
+    },
+
     _setMesh (mesh) {
         if (this._mesh) {
             this._mesh.off('init-format', this._updateMeshAttribute, this);

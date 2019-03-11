@@ -499,7 +499,8 @@ export default class Base {
     } else {
       let convertedValue;
       if (param instanceof Float32Array || param instanceof Int32Array) {
-        convertedValue = param;
+        device.setUniformDirectly(prop.name, param);
+        return;
       }
       else if (prop.size !== undefined) {
         let convertArray = _type2uniformArrayValue[prop.type];
