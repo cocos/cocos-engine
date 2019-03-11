@@ -38,6 +38,7 @@ export class DirectionalLight extends Light {
     public update () {
         if (this._node) {
             this._dir = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
+            vec3.normalize(this._dir, this._dir);
         }
     }
 }

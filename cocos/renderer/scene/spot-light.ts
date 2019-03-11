@@ -98,6 +98,7 @@ export class SpotLight extends Light {
         if (this._node) {
             this._node.getWorldPosition(this._pos);
             this._dir = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
+            vec3.normalize(this._dir, this._dir);
             aabb.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
 
             // view matrix
