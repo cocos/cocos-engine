@@ -23,23 +23,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { mat4 } from '../../core/vmath';
 
 let Skeleton = cc.Class({
     name: 'cc.Skeleton',
     extends: cc.Asset,
 
     ctor () {
-        // {[Mat4]}
         this._bindposes = [];
+        this._jointPaths = [];
     },
 
     properties: {
-        _jointPaths: [],
-        /**
-         * Bindposes data stores in one array, it is better for data size.
-         */
-        _bindposesData: [],
+        _model: cc.Model,
+        _jointIndices: [],
 
         jointPaths: {
             get () {
@@ -50,20 +46,24 @@ let Skeleton = cc.Class({
             get () {
                 return this._bindposes;
             }
+        },
+
+        model: {
+            get () {
+                return this._model;
+            }
         }
     },
 
     onLoad () {
-        let data = this._bindposesData;
-        let poses = this._bindposes;
-        for (let i = 0; i < data.length; i++) {
-            let pose = data[i];
-            poses[i] = mat4.create(
-                pose[0], pose[1], pose[2], pose[3],
-                pose[4], pose[5], pose[6], pose[7],
-                pose[8], pose[9], pose[10], pose[11],
-                pose[12], pose[13], pose[14], pose[15],
-            );
+        let nodes = this._model.nodes;
+        let jointIndices = this._jointIndices;
+        let jointPaths = this._jointPaths;
+        let bindposes = this._bindposes;
+        for (let i = 0; i < jointIndices.length; i++) {
+            let node = nodes[jointIndices[i]];
+            jointPaths[i] = node.path;
+            bindposes[i] = node.bindpose;
         }
     }
 });

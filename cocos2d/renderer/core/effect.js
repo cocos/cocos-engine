@@ -97,17 +97,11 @@ class Effect {
 
     extractProperties(out = {}) {
         Object.assign(out, this._properties);
-        if (this._dynamicConfig) {
-            Object.assign(out, this._dynamicConfig._uniforms);
-        }
         return out;
     }
 
     extractDefines(out = {}) {
         Object.assign(out, this._defines);
-        if (this._dynamicConfig) {
-            Object.assign(out, this._dynamicConfig._defines);
-        }
         return out;
     }
 

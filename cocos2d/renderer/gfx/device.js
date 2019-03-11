@@ -1174,7 +1174,25 @@ export default class Device {
    */
   setUniform(name, value) {
     let uniform = this._uniforms[name];
-    if (!uniform || (uniform.isArray && uniform.value.length < value.length)) {
+
+    let sameType = false;
+    do {
+      if (!uniform) {
+        break;
+      }
+
+      if (uniform.isArray !== Array.isArray(value)) {
+        break;
+      }
+
+      if (uniform.isArray && uniform.value.length !== value.length) {
+        break;
+      }
+
+      sameType = true;
+    } while (false);
+
+    if (!sameType) {
       let newValue = value;
       let isArray = false;
       if (value instanceof Float32Array || Array.isArray(value)) {
@@ -1214,6 +1232,15 @@ export default class Device {
       }
     }
     this._uniforms[name] = uniform;
+  }
+
+  setUniformDirectly(name, value) {
+    let uniform = this._uniforms[name];
+    if (!uniform) {
+      this._uniforms[name] = uniform = {};
+    }
+    uniform.dirty = true;
+    uniform.value = value;
   }
 
   /**

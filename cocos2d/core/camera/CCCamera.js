@@ -416,6 +416,10 @@ let Camera = cc.Class({
             let camera = new RendererCamera();
             _debugCamera = camera;
 
+            camera.setStages([
+                'opaque',
+            ]);
+            
             camera.setFov(Math.PI * 60 / 180);
             camera.setNear(0.1);
             camera.setFar(4096);
