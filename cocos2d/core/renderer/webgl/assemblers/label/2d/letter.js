@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const js = require('../../../../../platform/js');
-const bmfintAssembler = require('./bmfont');
+const bmfontAssembler = require('./bmfont');
 const fontUtils = require('../../../../utils/label/letter-font');
 const fillMeshVertices = require('../../utils').fillMeshVertices;
 const WHITE = cc.color(255, 255, 255, 255);
@@ -40,5 +40,5 @@ module.exports = js.addon({
         fillMeshVertices(node, renderer._meshBuffer, comp._renderData, WHITE._val);
     },
 
-    appendQuad: bmfintAssembler.appendQuad
+    appendQuad: bmfontAssembler.appendQuad
 }, fontUtils);
