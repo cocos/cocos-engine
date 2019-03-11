@@ -59,7 +59,8 @@ if (_isUseSpine) {
         },
         set (value) {
             this._timeScale = value;
-        }
+        },
+        configurable: true,
     });
 
     // The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.

@@ -56,7 +56,8 @@ if (_global.dragonBones !== undefined) {
             this._timeScale = value;
             let factory = this.CCFactory.getInstance();
             factory._dragonBones.clock.timeScale = value;
-        }
+        },
+        configurable: true,
     });
 
     dragonBones.DisplayType = {
