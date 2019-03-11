@@ -12,7 +12,7 @@ import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
-import { UBOLocal, IInternalBindingInst, UBOForwardLights, IGlobalBindingDesc } from '../../pipeline/define';
+import { UBOLocal, IInternalBindingInst, UBOForwardLights, IInternalBindingDesc } from '../../pipeline/define';
 import { GFXUniformBlock } from '../../gfx/shader';
 
 const _temp_floatx16 = new Float32Array(16);
@@ -283,24 +283,6 @@ export class Model {
         }
     }
 
-    private allocatePSO (mat: Material) {
-        if (this._matRefCount.get(mat) == null) {
-            this._matRefCount.set(mat, 1);
-            this._matPSORecord.set(mat, this.createPipelineState(mat));
-        } else {
-            this._matRefCount.set(mat, this._matRefCount.get(mat)! + 1);
-        }
-    }
-
-    private releasePSO (mat: Material) {
-        this._matRefCount.set(mat, this._matRefCount.get(mat)! - 1);
-        if (this._matRefCount.get(mat) === 0) {
-            this.destroyPipelineState(mat, this._matPSORecord.get(mat)!);
-            this._matPSORecord.delete(mat);
-            this._matRefCount.delete(mat);
-        }
-    }
-
     protected onSetLocalBindings (mat: Material) {
         this._localBindings.set(UBOLocal.BLOCK.name, {
             type: GFXBindingType.UNIFORM_BUFFER,
@@ -333,6 +315,24 @@ export class Model {
                     size: getUniformBlockSize(localBinding.blockInfo!),
                 });
             }
+        }
+    }
+
+    private allocatePSO (mat: Material) {
+        if (this._matRefCount.get(mat) == null) {
+            this._matRefCount.set(mat, 1);
+            this._matPSORecord.set(mat, this.createPipelineState(mat));
+        } else {
+            this._matRefCount.set(mat, this._matRefCount.get(mat)! + 1);
+        }
+    }
+
+    private releasePSO (mat: Material) {
+        this._matRefCount.set(mat, this._matRefCount.get(mat)! - 1);
+        if (this._matRefCount.get(mat) === 0) {
+            this.destroyPipelineState(mat, this._matPSORecord.get(mat)!);
+            this._matPSORecord.delete(mat);
+            this._matRefCount.delete(mat);
         }
     }
 }

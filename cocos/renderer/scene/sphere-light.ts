@@ -49,7 +49,7 @@ export class SphereLight extends Light {
         return this._aabb;
     }
 
-    protected _size: number = 15.0;
+    protected _size: number = 0.15;
     protected _range: number = 1.0;
     protected _luminance: number = 10000.0;
     protected _luminousPower: number = 0.0;

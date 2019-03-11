@@ -16,8 +16,8 @@ const _matViewProjInv = new Mat4();
 
 export class SpotLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
-    protected _size: number = 15.0;
-    protected _range: number = 500.0;
+    protected _size: number = 0.15;
+    protected _range: number = 5.0;
     protected _luminance: number = 10000.0;
     protected _luminousPower: number = 0.0;
     protected _spotAngle: number = Math.cos(Math.PI / 6);

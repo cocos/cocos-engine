@@ -188,3 +188,27 @@ export function LinearToSRGB (linear: IGFXColor): IGFXColor {
     const b = Math.pow(linear.b, 0.454545);
     return { r, g, b, a: 1.0 };
 }
+
+// Color temperature (in Kelvin) to RGB script.
+// Valid from 1000 to 40000 K (and additionally 0 for pure full white)
+export function ColorTemperatureToRGB (kelvin: number): IGFXColor {
+    const temp = kelvin / 100.0;
+    let r: number;
+    let g: number;
+    let b: number;
+    if (temp <= 66.0) {
+        r = 1.0;
+        g = 0.390081579 * Math.log(temp) - 0.631841444;
+        if (temp <= 19.0) {
+            b = 0.0;
+        } else {
+            b = 0.543206789 * Math.log(temp - 10.0) - 1.19625409;
+        }
+    } else {
+        r = 1.29293619 * Math.pow(temp - 60.0, -0.1332047592);
+        g = 11.3259693 * Math.pow(temp - 60.0, -0.0755148492);
+        b = 1.0;
+    }
+
+    return  { r, g, b, a: 1.0 };
+}
