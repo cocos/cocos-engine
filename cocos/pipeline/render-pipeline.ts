@@ -30,6 +30,7 @@ import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
 
 const _vec4Array = new Float32Array(4);
+const _vec4ArrayZero = [0.0, 0.0, 0.0, 0.0];
 const _mat4Array = new Float32Array(16);
 const _outMat = new Mat4();
 
@@ -527,8 +528,18 @@ export abstract class RenderPipeline {
         vec3.array(_vec4Array, mainLight.direction);
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.MAIN_LIT_DIR_OFFSET);
 
-        vec3.array(_vec4Array, mainLight.color);
-        _vec4Array[3] = mainLight.illuminance;
+        if (mainLight.enabled) {
+            vec3.array(_vec4Array, mainLight.color);
+            if (mainLight.useColorTemperature) {
+                const tempRGB = mainLight.colorTemperatureRGB;
+                _vec4Array[0] *= tempRGB.x;
+                _vec4Array[1] *= tempRGB.y;
+                _vec4Array[2] *= tempRGB.z;
+            }
+            _vec4Array[3] = mainLight.illuminance;
+        } else {
+            _vec4Array.set(_vec4ArrayZero);
+        }
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
 
         _vec4Array.set(ambient.skyColor);

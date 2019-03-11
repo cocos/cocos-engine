@@ -1,4 +1,5 @@
 import { Vec3 } from '../../core/value-types';
+import { ColorTemperatureToRGB } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
 
@@ -36,10 +37,15 @@ export class Light {
 
     set colorTemperature (val: number) {
         this._colorTemp = val;
+        ColorTemperatureToRGB(this._colorTempRGB, this._colorTemp);
     }
 
     get colorTemperature (): number {
         return this._colorTemp;
+    }
+
+    get colorTemperatureRGB (): Vec3 {
+        return this._colorTempRGB;
     }
 
     set node (n) {
@@ -62,6 +68,7 @@ export class Light {
     protected _color: Vec3 = new Vec3(1, 1, 1);
     protected _useColorTemp: boolean = false;
     protected _colorTemp: number = 6550.0;
+    protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
     protected _scene: RenderScene;
     protected _node: Node;
     protected _type: LightType;

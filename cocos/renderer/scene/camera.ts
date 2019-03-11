@@ -405,11 +405,11 @@ export class Camera {
         return this._isoValue;
     }
 
-    set exposureCompensation (val: number) {
+    set ec (val: number) {
         this._ec = val;
     }
 
-    get exposureCompensation (): number {
+    get ec (): number {
         return this._ec;
     }
 

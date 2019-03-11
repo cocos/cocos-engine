@@ -12,7 +12,7 @@ import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
-import { RenderPassStage, UBOForwardLight } from '../define';
+import { RenderPassStage, UBOForwardLight, ColorTemperatureToRGB } from '../define';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
@@ -169,6 +169,12 @@ export class ForwardPipeline extends RenderPipeline {
                             this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_SIZE_RANGE_OFFSET + pointNum * 4);
 
                             vec3.array(_vec4Array, light.color);
+                            if (light.useColorTemperature) {
+                                const tempRGB = light.colorTemperatureRGB;
+                                _vec4Array[0] *= tempRGB.x;
+                                _vec4Array[1] *= tempRGB.y;
+                                _vec4Array[2] *= tempRGB.z;
+                            }
                             _vec4Array[3] = (light as SphereLight).luminance;
                             this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_COLOR_OFFSET + pointNum * 4);
                             pointNum++;
@@ -183,6 +189,12 @@ export class ForwardPipeline extends RenderPipeline {
                             this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_DIR_RANGE_OFFSET + spotNum * 4);
 
                             vec3.array(_vec4Array, light.color);
+                            if (light.useColorTemperature) {
+                                const tempRGB = light.colorTemperatureRGB;
+                                _vec4Array[0] *= tempRGB.x;
+                                _vec4Array[1] *= tempRGB.y;
+                                _vec4Array[2] *= tempRGB.z;
+                            }
                             _vec4Array[3] = (light as SpotLight).luminance;
                             this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_COLOR_OFFSET + spotNum * 4);
                             spotNum++;
