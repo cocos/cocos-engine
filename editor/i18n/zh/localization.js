@@ -100,7 +100,7 @@ module.exports = {
             'wrap': '是否允许自动换行',
             'font': 'Label 使用的字体资源',
             'system_font': '是否使用系统默认字体，选中此项会将 file 属性置空',
-            'batch_as_bitmap': '是否设置为静态文本进行批次合并，选中此项将会把文本加入动态图集进行批次合并，但是不能频繁动态修改文本内容'
+            'cacheMode': '文本缓存模式，包括以下三种：\n 1. NONE : 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容'
         },
         'progress': {
             'bar_sprite': '进度条显示用的 Sprite 节点，可以动态改变尺寸',
@@ -221,6 +221,7 @@ module.exports = {
             "font_size": "输入框文本的字体大小",
             "line_height": "输入框文本的行高",
             "font_color": "输入框文本的颜色",
+            "stay_on_top": "设置为 True 则输入框总是可见，并且永远在游戏视图的上面，该属性会在 v2.1 中移除",
             "tab_index": "修改 DOM 输入元素的 tabIndex，这个属性只有在 Web 上面修改有意义。",
             "placeholder": "输入框占位符的文本内容",
             "placeholder_font_size": "输入框占位符的字体大小",
@@ -261,7 +262,9 @@ module.exports = {
             "debug_slots": "是否显示 slot 的 debug 信息",
             "debug_bones": "是否显示 bone 的 debug 信息",
             "premultipliedAlpha": "是否启用贴图预乘",
-            "use_tint": "是否启用染色效果"
+            "use_tint": "是否启用染色效果",
+            "enabled_batch": "是否开启合批",
+            "animation_cache_mode": "REALTIME 模式，实时运算，支持 Spine 所有的功能。\nSHARED_CACHE 模式，将骨骼动画及贴图数据进行缓存并共享，相当于预烘焙骨骼动画。拥有较高性能，但不支持动作融合、动作叠加，只支持动作开始和结束事件。至于内存方面，当创建 N(N>=3) 个相同骨骼、相同动作的动画时，会呈现内存优势。N 值越大，优势越明显。综上 SHARED_CACHE 模式适用于场景动画，特效，副本怪物，NPC 等，能极大提高帧率和降低内存。\nPRIVATE_CACHE 模式，与 SHARED_CACHE 类似，但不共享动画及贴图数据，所以在内存方面没有优势，仅存在性能优势。当想利用缓存模式的高性能，但又存在换装的需求，因此不能共享贴图数据时，那么 PRIVATE_CACHE 就适合你。",
         },
         "dragon_bones": {
             "dragon_bones_asset": "骨骼信息数据，拖拽 DragonBones 导出的骨骼动画信息 json 资源到这里来开始使用",
@@ -272,7 +275,7 @@ module.exports = {
             "play_times": "播放默认动画的循环次数\n-1 表示使用配置文件中的默认值\n0 表示无限循环\n>0 表示循环次数",
             "debug_bones": "是否显示 bone 的 debug 信息",
             "enabled_batch": "是否开启合批",
-            "render_mode": "当前骨骼动画的渲染模式\nrealtime 表示实时计算，支持动画融合，较耗性能\nsharedCache 表示预计算且共享动画数据，性能较高，占用较少内存\nprivateCache 表示预计算但不共享动画数据，性能较高，占用较多内存\n以上两种缓存模式，不支持骨骼嵌套，不支持fade相关接口",
+            "animation_cache_mode": "REALTIME 模式，实时运算，支持 DragonBones 所有的功能。\nSHARED_CACHE 模式，将骨骼动画及贴图数据进行缓存并共享，相当于预烘焙骨骼动画。拥有较高性能，但不支持动作融合、动作叠加、骨骼嵌套，只支持动作开始和结束事件。至于内存方面，当创建 N(N>=3) 个相同骨骼、相同动作的动画时，会呈现内存优势。N 值越大，优势越明显。综上 SHARED_CACHE 模式适用于场景动画，特效，副本怪物，NPC 等，能极大提高帧率和降低内存。\nPRIVATE_CACHE 模式，与 SHARED_CACHE 类似，但不共享动画及贴图数据，所以在内存方面没有优势，仅存在性能优势。当想利用缓存模式的高性能，但又存在换装的需求，因此不能共享贴图数据时，那么 PRIVATE_CACHE 就适合你。",
         },
         'motionStreak': {
             'fadeTime': "拖尾的渐隐时间,以秒为单位",
@@ -347,7 +350,8 @@ module.exports = {
                 'linearVelocity': '刚体在世界坐标下的线性速度',
                 'angularVelocity': '刚体的角速度',
                 'fixedRotation': '是否禁止此刚体进行旋转',
-                'awake': '是否立刻唤醒此刚体'
+                'awake': '设置刚体的睡眠状态。 睡眠的刚体具有非常低的 CPU 成本。（当刚体被碰撞到时，如果刚体处于睡眠状态，它会立即被唤醒）',
+                'awakeOnLoad': '是否在初始化时唤醒此刚体',
             },
             'physics_collider': {
                 'density': '密度',

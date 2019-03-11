@@ -316,7 +316,7 @@ let armatureAssembler = {
             _handleVal |= NEED_BATCH;
         }
 
-        if (comp.isCachedMode()) {
+        if (comp.isAnimationCached()) {
             // Traverse input assembler.
             this.cacheTraverse(comp._curFrame, worldMat);
         } else {

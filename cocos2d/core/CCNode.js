@@ -1134,7 +1134,7 @@ let NodeDefines = {
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
 
                     if (this._parent) {
-                        this._parent._delaySort();
+                        this._onSiblingIndexChanged();
                     }
                 }
             }
@@ -1190,7 +1190,7 @@ let NodeDefines = {
 
     // OVERRIDES
 
-    _onSiblingIndexChanged (index) {
+    _onSiblingIndexChanged () {
         // update rendering scene graph, sort them by arrivalOrder
         var parent = this._parent;
         var siblings = parent._children;

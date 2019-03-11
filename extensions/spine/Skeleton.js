@@ -29,7 +29,6 @@ const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent
 const spine = require('./lib/spine');
 const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
-const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
 
 let SkeletonCache = require('./skeleton-cache');
 
@@ -40,11 +39,11 @@ let DefaultSkinsEnum = cc.Enum({ 'default': -1 });
 let DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
 
 /**
- * !#en Enum for render mode type.
- * !#zh Spine渲染类型
- * @enum Skeleton.RenderMode
+ * !#en Enum for animation cache mode type.
+ * !#zh Spine动画缓存类型
+ * @enum Skeleton.AnimationCacheMode
  */
-let RenderMode = cc.Enum({
+let AnimationCacheMode = cc.Enum({
     /**
      * !#en The realtime mode.
      * !#zh 实时计算模式。
@@ -99,7 +98,7 @@ sp.Skeleton = cc.Class({
     },
 
     statics: {
-        RenderMode: RenderMode,
+        AnimationCacheMode: AnimationCacheMode,
     },
 
     properties: {
@@ -113,44 +112,6 @@ sp.Skeleton = cc.Class({
          */
         paused: {
             default: false,
-            visible: false
-        },
-
-        /**
-         * !#en don't try to get or set srcBlendFactor,it doesn't affect,if you want to change spine blend mode,please set it in spine editor directly.
-         * !#zh 不要试图去获取或者设置 srcBlendFactor，没有意义，如果你想设置 spine 的 blendMode，直接在 spine 编辑器中设置即可。
-         * @property srcBlendFactor
-         * @type {macro.BlendFactor}
-         */
-        srcBlendFactor: {
-            get: function() {
-                return this._srcBlendFactor;
-            },
-            set: function(value) {
-                // shield set _srcBlendFactor
-            },
-            animatable: false,
-            type:BlendFactor,
-            override: true,
-            visible: false
-        },
-
-        /**
-         * !#en don't try to get or set dstBlendFactor,it doesn't affect,if you want to change spine blend mode,please set it in spine editor directly.
-         * !#zh 不要试图去获取或者设置 dstBlendFactor，没有意义，如果想设置 spine 的 blendMode，直接在 spine 编辑器中设置即可。
-         * @property dstBlendFactor
-         * @type {macro.BlendFactor}
-         */
-        dstBlendFactor: {
-            get: function() {
-                return this._dstBlendFactor;
-            },
-            set: function(value) {
-                // shield set _dstBlendFactor
-            },
-            animatable: false,
-            type: BlendFactor,
-            override: true,
             visible: false
         },
 
@@ -207,7 +168,7 @@ sp.Skeleton = cc.Class({
          */
         animation: {
             get () {
-                if (this.isCachedMode()) {
+                if (this.isAnimationCached()) {
                     return this._animationName;
                 } else {
                     var entry = this.getCurrent(0);
@@ -311,20 +272,20 @@ sp.Skeleton = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.animation'
         },
 
-        // Record pre render mode.
-        _preRenderMode: -1,
-        _renderMode: RenderMode.REALTIME,
-        _defaultRenderMode: {
+        // Record pre cache mode.
+        _preCacheMode: -1,
+        _cacheMode: AnimationCacheMode.REALTIME,
+        _defaultCacheMode: {
             default: 0,
-            type: RenderMode,
+            type: AnimationCacheMode,
             notify () {
-                this.setRenderMode(this._defaultRenderMode);
+                this.setAnimationCacheMode(this._defaultCacheMode);
             },
             editorOnly: true,
             visible: true,
             animatable: false,
-            displayName: "Render Mode",
-            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.render_mode'
+            displayName: "Animation Cache Mode",
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.animation_cache_mode'
         },
 
         /**
@@ -349,7 +310,6 @@ sp.Skeleton = cc.Class({
          */
         premultipliedAlpha: {
             default: true,
-            formerlySerializedAs: "_premultipliedAlpha",
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.premultipliedAlpha'
         },
 
@@ -422,7 +382,7 @@ sp.Skeleton = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.enabled_batch'
         },
 
-        // Below properties will effect when render mode is SHARED_CACHE or PRIVATE_CACHE.
+        // Below properties will effect when cache mode is SHARED_CACHE or PRIVATE_CACHE.
         // accumulate time
         _accTime: 0,
         // Play times counter
@@ -500,7 +460,7 @@ sp.Skeleton = cc.Class({
             this.node.setContentSize(skeletonData.width, skeletonData.height);
         }
 
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             let skeletonInfo = this._skeletonCache.getSkeletonCache(this.skeletonData._uuid, skeletonData);
             this._skeleton = skeletonInfo.skeleton;
             this._clipper = skeletonInfo.clipper;
@@ -519,7 +479,7 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.SkeletonData} skeletonData
      */
     setSlotsRange (startSlotIndex, endSlotIndex) {
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             console.warn("Slots visible range can not be modified in cached mode.");
         } else {
             this._startSlotIndex = startSlotIndex;
@@ -536,7 +496,7 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.AnimationStateData} stateData
      */
     setAnimationStateData (stateData) {
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             console.warn("'setAnimationStateData' interface can not be invoked in cached mode.");
         } else {
             var state = new spine.AnimationState(stateData);
@@ -569,7 +529,7 @@ sp.Skeleton = cc.Class({
         }
 
         if (CC_JSB) {
-            this._renderMode = RenderMode.REALTIME;
+            this._cacheMode = AnimationCacheMode.REALTIME;
         }
 
         var material = Material.getInstantiatedBuiltinMaterial('spine', this);
@@ -584,21 +544,21 @@ sp.Skeleton = cc.Class({
 
     /**
      * !#en
-     * It's best to set render mode before set property 'dragonAsset', or will waste some cpu time.
+     * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
      * If set the mode in editor, then no need to worry about order problem.
      * !#zh 
      * 若想切换渲染模式，最好在设置'dragonAsset'之前，先设置好渲染模式，否则有运行时开销。
      * 若在编辑中设置渲染模式，则无需担心设置次序的问题。
      * 
-     * @method setRenderMode
-     * @param {RenderMode} renderMode
+     * @method setAnimationCacheMode
+     * @param {AnimationCacheMode} cacheMode
      * * @example
-     * armatureDisplay.setRenderMode(sp.Skeleton.RenderMode.SHARED_CACHE);
+     * armatureDisplay.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
      */
-    setRenderMode (renderMode) {
+    setAnimationCacheMode (cacheMode) {
         if (CC_JSB) return;
-        if (this._preRenderMode !== renderMode) {
-            this._renderMode = renderMode;
+        if (this._preCacheMode !== cacheMode) {
+            this._cacheMode = cacheMode;
             this._updateSkeletonData();
         }
     },
@@ -606,18 +566,18 @@ sp.Skeleton = cc.Class({
     /**
      * !#en Whether in cached mode.
      * !#zh 当前是否处于缓存模式。
-     * @method isCachedMode
+     * @method isAnimationCached
      */
-    isCachedMode () {
+    isAnimationCached () {
         if (CC_EDITOR) return false;
-        return this._renderMode !== RenderMode.REALTIME;
+        return this._cacheMode !== AnimationCacheMode.REALTIME;
     },
 
     update (dt) {
         if (CC_EDITOR) return;
         if (this.paused) return;
 
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
 
             // Cache mode and has animation queue.
             if (this._isAniComplete) {
@@ -713,7 +673,7 @@ sp.Skeleton = cc.Class({
      * cc.log(bone.worldX); // return -23.12;
      */
     updateWorldTransform () {
-        if (!this.isCachedMode()) return;
+        if (!this.isAnimationCached()) return;
 
         if (this._skeleton) {
             this._skeleton.updateWorldTransform();
@@ -726,7 +686,7 @@ sp.Skeleton = cc.Class({
      * @method setToSetupPose
      */
     setToSetupPose () {
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             cc.warn("'SetToSetupPose' interface can not be invoked in cached mode.");
         } else {
             if (this._skeleton) {
@@ -745,7 +705,7 @@ sp.Skeleton = cc.Class({
      * @method setBonesToSetupPose
      */
     setBonesToSetupPose () {
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             cc.warn("'setBonesToSetupPose' interface can not be invoked in cached mode.");
         } else {
             if (this._skeleton) {
@@ -764,7 +724,7 @@ sp.Skeleton = cc.Class({
      * @method setSlotsToSetupPose
      */
     setSlotsToSetupPose () {
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             cc.warn("'setSlotsToSetupPose' interface can not be invoked in cached mode.");
         } else {
             if (this._skeleton) {
@@ -782,7 +742,7 @@ sp.Skeleton = cc.Class({
      * @param {String} animName
      */
     updateAnimationCache (animName) {
-        if (!this.isCachedMode()) return;
+        if (!this.isAnimationCached()) return;
         let cache = this._skeletonCache.updateAnimationCache(this.skeletonData._uuid, animName);
         this._frameCache = cache || this._frameCache;
     },
@@ -843,7 +803,7 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.Skin}
      */
     setSkin (skinName) {
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             this._skeletonCache.resetSkeleton();
             this._animationName && (this.animation = this._animationName);
         } else {
@@ -935,7 +895,7 @@ sp.Skeleton = cc.Class({
         this._playTimes = loop ? 0 : 1;
         this._animationName = name;
 
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             if (trackIndex !== 0) {
                 cc.warn("Track index can not greater than 0 in cached mode.");
             }
@@ -978,7 +938,7 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.TrackEntry}
      */
     addAnimation (trackIndex, name, loop, delay) {
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             if (trackIndex !== 0) {
                 cc.warn("Track index can not greater than 0 in cached mode.");
             }
@@ -1021,7 +981,7 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.TrackEntry}
      */
     getCurrent (trackIndex) {
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             console.warn("'getCurrent' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
@@ -1037,7 +997,7 @@ sp.Skeleton = cc.Class({
      * @method clearTracks
      */
     clearTracks () {
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             console.warn("'clearTracks' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
@@ -1053,7 +1013,7 @@ sp.Skeleton = cc.Class({
      * @param {number} trackIndex
      */
     clearTrack (trackIndex) {
-        if (this.isCachedMode()) {
+        if (this.isAnimationCached()) {
             console.warn("'clearTrack' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
@@ -1246,20 +1206,20 @@ sp.Skeleton = cc.Class({
         if (!data) return;
         
         if (!CC_EDITOR) {
-            if (this._renderMode === RenderMode.SHARED_CACHE) {
+            if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
-            } else if (this._renderMode === RenderMode.PRIVATE_CACHE) {
+            } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._skeletonCache = new SkeletonCache;
             }
         }
 
-        if (this.isCachedMode() && (this.debugBones || this.debugSlots)) {
+        if (this.isAnimationCached() && (this.debugBones || this.debugSlots)) {
             cc.warn("Debug bones or slots is invalid in cached mode");
         }
 
         try {
             this.setSkeletonData(data);
-            if (!this.isCachedMode()) {
+            if (!this.isAnimationCached()) {
                 this.setAnimationStateData(new spine.AnimationStateData(this._skeleton.data));
             }
             this.defaultSkin && this.setSkin(this.defaultSkin);
@@ -1268,7 +1228,7 @@ sp.Skeleton = cc.Class({
             cc.warn(e);
         }
         
-        this._preRenderMode = this._renderMode;
+        this._preCacheMode = this._cacheMode;
         this.animation = this.defaultAnimation;
     },
 
@@ -1276,12 +1236,7 @@ sp.Skeleton = cc.Class({
         // update inspector
         this._updateAnimEnum();
         this._updateSkinEnum();
-        this._updateRenderModeEnum();
         Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
-    },
-
-    _updateRenderModeEnum: CC_EDITOR && function () {
-        setEnumAttr(this, 'renderMode', RenderMode);
     },
 
     _updateDebugDraw: function () {
@@ -1297,7 +1252,7 @@ sp.Skeleton = cc.Class({
             }
 
             this._debugRenderer.node.parent = this.node;
-            if (this.isCachedMode()) {
+            if (this.isAnimationCached()) {
                 cc.warn("Debug bones or slots is invalid in cached mode");
             }
         }

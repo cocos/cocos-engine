@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,38 +23,22 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../../components/CCSprite');
-const SpriteType = Sprite.Type;
-const FillType = Sprite.FillType;
-let simple = require('./simple');
-let sliced = require('./sliced');
-let tiled = require('./tiled');
+const js = require('../../../../../platform/js');
+const bmfontAssembler = require('./bmfont');
+const fontUtils = require('../../../../utils/label/letter-font');
+const fillMeshVertices = require('../../utils').fillMeshVertices;
+const WHITE = cc.color(255, 255, 255, 255);
 
-if (CC_TEST) {
-    // 2.x not support test with the canvas simple, in order to test in local test construct.
-    cc._Test._spriteWebGLAssembler = require('../../../webgl/assemblers/sprite/index.js');
-}
-
-module.exports = {
-    getAssembler: function (sprite) {
-        switch (sprite.type) {
-            case SpriteType.SIMPLE:
-                return simple;
-            case SpriteType.SLICED:
-                return sliced;
-            case SpriteType.TILED:
-                return tiled;
-            case SpriteType.FILLED:
-                if (sprite._fillType === FillType.RADIAL) {
-                    return null;
-                }
-                else {
-                    return null;
-                }
-        }
+module.exports = js.addon({
+    createData (comp) {
+        return comp.requestRenderData();
     },
 
-    createData (sprite) {
-        return sprite._assembler.createData(sprite);
-    }
-};
+    fillBuffers (comp, renderer) {
+        let node = comp.node;
+        WHITE._fastSetA(node.color.a);
+        fillMeshVertices(node, renderer._meshBuffer, comp._renderData, WHITE._val);
+    },
+
+    appendQuad: bmfontAssembler.appendQuad
+}, fontUtils);

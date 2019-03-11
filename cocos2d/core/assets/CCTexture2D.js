@@ -644,11 +644,7 @@ var Texture2D = cc.Class({
         this.emit("load");
 
         if (cc.macro.CLEANUP_IMAGE_CACHE && this._image instanceof HTMLImageElement) {
-            // wechat game platform will cache image parsed data, 
-            // so image will consume much more memory than web, releasing it
-            this._image.src = "";
-            // Release image in loader cache
-            cc.loader.removeItem(this._image.id);
+            this._clearImage();
         }
     },
 
@@ -903,6 +899,14 @@ var Texture2D = cc.Class({
 
     _isCompressed () {
         return this._texture && this._texture._compressed;
+    },
+    
+    _clearImage () {
+        // wechat game platform will cache image parsed data, 
+        // so image will consume much more memory than web, releasing it
+        this._image.src = "";
+        // Release image in loader cache
+        cc.loader.removeItem(this._image.id);
     }
 });
 

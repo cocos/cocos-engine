@@ -106,7 +106,7 @@
  * @property {Boolean} CC_TEST - Running in the engine's unit test.
  */
 /**
- * @property {Boolean} CC_WECHATGAME - Running in the Wechat's mini game.
+ * @property {Boolean} CC_WECHATGAME - Running in the WeChat's mini game.
  */
 /**
  * @property {Boolean} CC_QQPLAY - Running in the bricks.

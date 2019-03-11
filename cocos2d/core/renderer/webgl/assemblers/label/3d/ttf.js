@@ -26,10 +26,12 @@
 const js = require('../../../../../platform/js');
 const assembler = require('../2d/ttf');
 const fillMeshVertices3D = require('../../utils').fillMeshVertices3D;
+const WHITE = cc.color(255, 255, 255, 255);
 
 module.exports = js.addon({
     fillBuffers (comp, renderer) {
         let node = comp.node;
-        fillMeshVertices3D(comp.node, renderer._meshBuffer3D, comp._renderData, node.color._val);
+        WHITE._fastSetA(node.color.a);
+        fillMeshVertices3D(comp.node, renderer._meshBuffer3D, comp._renderData, WHITE._val);
     }
 }, assembler);

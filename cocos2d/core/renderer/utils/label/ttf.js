@@ -52,7 +52,7 @@ let _color = null;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
-let _backgroundAlpha = 0.005;
+const _invisibleAlpha = (1 / 255).toFixed(3);
 
 // outline
 let _isOutlined = false;
@@ -70,54 +70,17 @@ let _drawUnderlinePos = cc.v2();
 
 let _sharedLabelData;
 
-//
-let _canvasPool = {
-    pool: [],
-    get () {
-        let data = this.pool.pop();
-
-        if (!data) {
-            let canvas = document.createElement("canvas");
-            let context = canvas.getContext("2d");
-            data = {
-                canvas: canvas,
-                context: context
-            }
-        }
-
-        return data;
-    },
-    put (canvas) {
-        if (this.pool.length >= 32) {
-            return;
-        }
-        this.pool.push(canvas);
-    }
-};
-
-
 module.exports = {
 
     _getAssemblerData () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            _sharedLabelData = _canvasPool.get();
-        }
-        else {
-            if (!_sharedLabelData) {
-                let labelCanvas = document.createElement("canvas");
-                _sharedLabelData = {
-                    canvas: labelCanvas,
-                    context: labelCanvas.getContext("2d")
-                };
-            }
-        }
+        _sharedLabelData = Label._canvasPool.get();
         _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
         return _sharedLabelData;
     },
 
     _resetAssemblerData (assemblerData) {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS && assemblerData) {
-            _canvasPool.put(assemblerData);
+        if (assemblerData) {
+            Label._canvasPool.put(assemblerData);
         }
     },
 
@@ -252,7 +215,7 @@ module.exports = {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         //Add a white background to avoid black edges.
         //TODO: it is best to add alphaTest to filter out the background color.
-        _context.fillStyle = `rgba(${255}, ${255}, ${255}, ${_backgroundAlpha})`;
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
         _context.fillRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
@@ -260,8 +223,9 @@ module.exports = {
         let lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = 'white';
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
 
+        let underlineStartPosition;
         //do real rendering
         for (let i = 0; i < _splitedStrings.length; ++i) {
             _drawTextPos.x = startPosition.x;
@@ -272,8 +236,8 @@ module.exports = {
                 _drawUnderlinePos.y = _drawTextPos.y + _underlineThickness;
                 _context.save();
                 _context.beginPath();
-                _context.lineWidth = _underlineThickness;
-                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
+                _context.lineWidth = _fontSize / 8;
+                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${1})`;
                 _context.moveTo(_drawUnderlinePos.x, _drawUnderlinePos.y);
                 _context.lineTo(_drawUnderlinePos.x + _canvas.width, _drawUnderlinePos.y);
                 _context.stroke();
@@ -293,7 +257,7 @@ module.exports = {
     },
 
     _calDynamicAtlas (comp) {
-        if (!comp.batchAsBitmap) return;
+        if(comp.cacheMode !== Label.CacheMode.BITMAP) return;
 
         let frame = comp._frame;
         if (!frame._original) {
@@ -326,9 +290,14 @@ module.exports = {
                 _canvasSize.width += _drawFontSize * Math.tan(12 * 0.0174532925);
             }
         }
+        
+        if (_canvas.width !== _canvasSize.width || CC_QQPLAY) {
+            _canvas.width = _canvasSize.width;
+        }
 
-        _canvas.width = _canvasSize.width;
-        _canvas.height = _canvasSize.height;
+        if (_canvas.height !== _canvasSize.height) {
+            _canvas.height = _canvasSize.height;
+        }
     },
 
     _calculateTextBaseline () {

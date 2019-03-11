@@ -1,6 +1,13 @@
 largeModule('Sprite');
 
+var originalAssembler = cc.Sprite._assembler;
+var originalCalDynamicAtlas = cc.Sprite.prototype._calDynamicAtlas;
+
 test('basic test', function () {
+    //
+    cc.Sprite._assembler = cc._Test._spriteWebGLAssembler;
+    cc.Sprite.prototype._calDynamicAtlas = function () {};
+
     var url = assetDir + '/button.png';
 
     var node = new cc.Node();
@@ -143,8 +150,8 @@ if (!isPhantomJS) {
             var vertices = sprite._renderData._data;
             var uvs = sprite._spriteFrame.uvSliced;
 
-            strictEqual(uvs.length == 16, true, 'have 16 uvs');
-            strictEqual(vertices.length == 20, true, 'have 20 vertices');
+            strictEqual(uvs.length === 16, true, 'have 16 uvs');
+            strictEqual(vertices.length === 20, true, 'have 20 vertices');
             strictEqual(vertices[4].x, 0, 'x0 test success');
             strictEqual(vertices[4].y, 0, 'y0 test success');
             strictEqual(vertices[9].x, 5, 'x1 test success');
@@ -192,7 +199,7 @@ if (!isPhantomJS) {
             var vertices = sprite._renderData._data;
             var uvs = sprite._spriteFrame.uv;
 
-            strictEqual(vertices.length == 8, true, 'have 8 vertices');
+            strictEqual(vertices.length === 8, true, 'have 8 vertices');
             strictEqual(vertices[0].x, 0, 'x0 test success');
             strictEqual(vertices[1].x, 40, 'x1 test success');
             strictEqual(vertices[2].x, 80, 'x2 test success');
@@ -361,6 +368,10 @@ if (!isPhantomJS) {
             deepClose(vertices[4].y, p1.y, 0.01, 'p1 test success');
             deepClose(vertices[5].x, p2.x, 0.01, 'p2 test success');
             deepClose(vertices[5].y, p2.y, 0.01, 'p2 test success');
+
+            //
+            cc.Sprite._assembler = originalAssembler;
+            cc.Sprite.prototype._calDynamicAtlas = originalCalDynamicAtlas;
         };
         if (spriteFrame.textureLoaded()) {
             testCallBack();
