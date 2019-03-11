@@ -58,11 +58,13 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     }
 
     public onEnable () {
-        this.mass = this._mass;
-        this.linearDamping = this._linearDamping;
-        this.angularDamping = this._angularDamping;
-        this.material = this._material;
-        this.useGravity = this._useGravity;
+        if (this.sharedBody) {
+            this.mass = this._mass;
+            this.linearDamping = this._linearDamping;
+            this.angularDamping = this._angularDamping;
+            this.material = this._material;
+            this.useGravity = this._useGravity;
+        }
         // if (this.sharedBody) {
         //     this.sharedBody.body.wakeUp();
         // }
@@ -72,6 +74,13 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         // if (this.sharedBody) {
         //     this.sharedBody.body.sleep();
         // }
+    }
+
+    public start () {
+        super.start();
+        if (this._enabled) {
+            this.onEnable();
+        }
     }
 
     @property({

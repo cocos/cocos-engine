@@ -5,11 +5,12 @@ import { AfterStepCallback, BeforeStepCallback,
     BoxShapeBase,
     ConstraintBase, DistanceConstraintBase,
     ICollisionCallback, ICollisionEvent,
-    IDistanceConstraintOptions, ILockConstraintOptions,
+    ICreateBodyOptions, IDistanceConstraintOptions,
+    ILockConstraintOptions,
     IPointToPointConstraintOptions,
-    IRaycastOptions,
-    LockConstraintBase, PhysicsWorldBase, PointToPointConstraintBase,
-    RaycastResultBase, RigidBodyBase, ShapeBase, SphereShapeBase } from './api';
+    IRaycastOptions, LockConstraintBase, PhysicsWorldBase,
+    PointToPointConstraintBase, RaycastResultBase, RigidBodyBase, ShapeBase, SphereShapeBase } from './api';
+import { stringfyQuat, stringfyVec3 } from './util';
 
 const defaultCannonMaterial = new CANNON.Material('');
 const defaultCannonContactMaterial = new CANNON.ContactMaterial(
@@ -20,11 +21,10 @@ const defaultCannonContactMaterial = new CANNON.ContactMaterial(
 
 export class CannonWorld implements PhysicsWorldBase {
     private _cannonWorld: CANNON.World;
-    private _beforeStepEvent: CANNON.IEvent = {
-        type: 'beforeStep',
-    };
     private _customBeforeStepListener: BeforeStepCallback[] = [];
     private _customAfterStepListener: AfterStepCallback[] = [];
+    private _onCannonPreStepListener: Function;
+    private _onCannonPostStepListener: Function;
 
     constructor () {
         this._cannonWorld = new CANNON.World();
@@ -33,6 +33,17 @@ export class CannonWorld implements PhysicsWorldBase {
         this._cannonWorld.broadphase = new CANNON.NaiveBroadphase();
         this._cannonWorld.defaultMaterial = defaultCannonMaterial;
         this._cannonWorld.defaultContactMaterial = defaultCannonContactMaterial;
+
+        this._onCannonPreStepListener = this._onCannonPreStep.bind(this);
+        this._onCannonPostStepListener = this._onCannonPostStep.bind(this);
+
+        this._cannonWorld.addEventListener('preStep', this._onCannonPreStepListener);
+        this._cannonWorld.addEventListener('postStep', this._onCannonPostStepListener);
+    }
+
+    public destroy () {
+        this._cannonWorld.removeEventListener('preStep', this._onCannonPreStepListener);
+        this._cannonWorld.removeEventListener('postStep', this._onCannonPostStepListener);
     }
 
     get impl () {
@@ -44,10 +55,10 @@ export class CannonWorld implements PhysicsWorldBase {
     // }
 
     public step (deltaTime: number) {
-        this._customBeforeStepListener.forEach((fx) => fx());
+        this._callCustomBeforeSteps();
         this._cannonWorld.dispatchEvent(this._beforeStepEvent);
         this._cannonWorld.step(deltaTime);
-        this._customAfterStepListener.forEach((fx) => fx());
+        this._callCustomAfterSteps();
     }
 
     public addBeforeStep (cb: BeforeStepCallback) {
@@ -105,6 +116,22 @@ export class CannonWorld implements PhysicsWorldBase {
     public removeConstraint (constraint: CannonConstraint) {
         this._cannonWorld.removeConstraint(constraint.impl);
     }
+
+    private _onCannonPreStep () {
+        // this._callCustomBeforeSteps();
+    }
+
+    private _onCannonPostStep () {
+        // this._callCustomAfterStep();
+    }
+
+    private _callCustomBeforeSteps () {
+        this._customBeforeStepListener.forEach((fx) => fx());
+    }
+
+    private _callCustomAfterSteps () {
+        this._customAfterStepListener.forEach((fx) => fx());
+    }
 }
 enum TransformSource {
     Scene,
@@ -121,15 +148,18 @@ export class CannonRigidBody implements RigidBodyBase {
     private _useGravity = true;
     private _cannonMaterial: CANNON.Material;
     private _onCollidedListener: (event: CANNON.ICollisionEvent) => any;
-    private _cancelGravityListener: (event: CANNON.IEvent) => any;
-    private _onWorldBeforeStepListener: (event: CANNON.IEvent) => any;
-    private _onWorldPostStepListener: (event: CANNON.IEvent) => any;
+    private _onWorldBeforeStepListener: () => any;
+    private _onWorldPostStepListener: (event: CANNON.ICollisionEvent) => any;
     private _collisionCallbacks: ICollisionCallback[] = [];
     private _shapes: CannonShape[] = [];
     private _transformSource: TransformSource = TransformSource.Scene;
     private _userData: any;
+    private _world: CannonWorld | null = null;
+    private _name: string;
 
-    constructor () {
+    constructor (options?: ICreateBodyOptions) {
+        options = options || {};
+        this._name = options.name || '';
         this._cannonMaterial = defaultCannonMaterial;
         this._cannonBody = new CANNON.Body({
             material: this._cannonMaterial,
@@ -139,12 +169,18 @@ export class CannonRigidBody implements RigidBodyBase {
         this._onCollidedListener = this._onCollided.bind(this);
         this._onWorldBeforeStepListener = this._onWorldBeforeStep.bind(this);
         this._onWorldPostStepListener = this._onWorldPostStep.bind(this);
-        this._cancelGravityListener = (event) => {
-            if (!this._useGravity) {
-                const gravity = this._cannonBody.world.gravity;
-                vec3.scaleAndAdd(this._cannonBody.force, this._cannonBody.force, gravity, this._cannonBody.mass * -1);
-            }
+
+        this._cannonBody.preStep = () => {
+            this._onSelfPreStep();
         };
+
+        this._cannonBody.postStep = () => {
+            this._onSelfPostStep();
+        };
+    }
+
+    public name () {
+        return this._name;
     }
 
     public addShape (shape: CannonShape) {
@@ -168,6 +204,7 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public commitShapeUpdates () {
+        this._cannonBody.updateMassProperties();
         this._cannonBody.updateBoundingRadius();
     }
 
@@ -264,37 +301,28 @@ export class CannonRigidBody implements RigidBodyBase {
         this._cannonBody.collisionFilterMask = mask;
     }
 
-    // /**
-    //  * Is this body currently in contact with the specified body?
-    //  * @param {CannonBody} body The body to test against.
-    //  */
-    // public isInContactWith (body: PhysicsBody) {
-    //     if (!this._cannonBody.world) {
-    //         return false;
-    //     }
-
-    //     return this._cannonBody.world.collisionMatrix.get(
-    //         this._cannonBody.id, body._cannonBody.id) > 0;
-    // }
-
     public setWorld (world_: PhysicsWorldBase | null) {
+        if (this._world) {
+            this._cannonBody.world.removeEventListener('postStep', this._onWorldPostStepListener);
+            // this._cannonBody.world.removeEventListener('beforeStep', this._onWorldBeforeStepListener);
+            this._world.removeBeforeStep(this._onWorldBeforeStepListener);
+            this._cannonBody.removeEventListener('collide', this._onCollidedListener);
+            this._cannonBody.world.remove(this._cannonBody);
+            this._world = null;
+        }
+
         const world = world_ as unknown as (CannonWorld | null);
         if (world) {
             world.impl.addBody(this._cannonBody);
             this._cannonBody.addEventListener('collide', this._onCollidedListener);
-            this._cannonBody.world.addEventListener('beforeStep', this._onWorldBeforeStepListener);
+            world.addBeforeStep(this._onWorldBeforeStepListener);
+            // this._cannonBody.world.addEventListener('beforeStep', this._onWorldBeforeStepListener);
             this._cannonBody.world.addEventListener('postStep', this._onWorldPostStepListener);
-            this._cannonBody.world.addEventListener('beforeStep', this._cancelGravityListener);
-        } else {
-            this._cannonBody.world.removeEventListener('beforeStep', this._cancelGravityListener);
-            this._cannonBody.world.removeEventListener('postStep', this._onWorldPostStepListener);
-            this._cannonBody.world.removeEventListener('beforeStep', this._onWorldBeforeStepListener);
-            this._cannonBody.removeEventListener('collide', this._onCollidedListener);
-            this._cannonBody.world.remove(this._cannonBody);
         }
+        this._world = world;
     }
 
-    public shouldRender (): boolean {
+    public isPhysicsManagedTransform (): boolean {
         return this._transformSource === TransformSource.Phycis;
     }
 
@@ -304,6 +332,7 @@ export class CannonRigidBody implements RigidBodyBase {
 
     public setPosition (value: Vec3) {
         vec3.copy(this._cannonBody.position, value);
+        // console.log(`[[CANNON]] Set body position to ${stringfyVec3(value)}.`);
     }
 
     public getRotation (out: Quat) {
@@ -312,6 +341,7 @@ export class CannonRigidBody implements RigidBodyBase {
 
     public setRotation (value: Quat) {
         quat.copy(this._cannonBody.quaternion, value);
+        // console.log(`[[CANNON]] Set body rotation to ${stringfyQuat(value)}.`);
     }
 
     public scaleAllShapes (scale: Vec3) {
@@ -337,6 +367,10 @@ export class CannonRigidBody implements RigidBodyBase {
 
     public setUserData (data: any): void {
         this._userData = data;
+    }
+
+    public _stringfyThis () {
+        return `${this._name.length ? this._name : '<No-name>'}`;
     }
 
     private _resetBodyTypeAccordingMess () {
@@ -367,10 +401,27 @@ export class CannonRigidBody implements RigidBodyBase {
         }
     }
 
-    private _onWorldBeforeStep (event: CANNON.IEvent) {
+    private _onWorldBeforeStep () {
+        // this._useGravity = false;
+        if (!this._useGravity) {
+            const gravity = this._cannonBody.world.gravity;
+            vec3.scaleAndAdd(this._cannonBody.force, this._cannonBody.force, gravity, this._cannonBody.mass * -1);
+        }
     }
 
     private _onWorldPostStep (event: CANNON.IEvent) {
+    }
+
+    private _onSelfPreStep () {
+        // this._useGravity = false;
+        // if (!this._useGravity) {
+        //     const gravity = this._cannonBody.world.gravity;
+        //     vec3.scaleAndAdd(this._cannonBody.force, this._cannonBody.force, gravity, this._cannonBody.mass * -1);
+        // }
+    }
+
+    private _onSelfPostStep () {
+
     }
 
     private _removeShape (iShape: number) {
@@ -396,9 +447,9 @@ export class CannonShape implements ShapeBase {
 
     protected _cannonShape: CANNON.Shape | null = null;
 
-    private _index: number = -1;
+    protected _body: CANNON.Body | null = null;
 
-    private _body: CANNON.Body | null = null;
+    private _index: number = -1;
 
     private _center: Vec3 = new Vec3(0, 0, 0);
 
@@ -437,6 +488,7 @@ export class CannonShape implements ShapeBase {
         const shapeOffset = this._body.shapeOffsets[this._index];
         vec3.copy(shapeOffset, this._center);
         vec3.multiply(shapeOffset, shapeOffset, this._scale);
+        // console.log(`[[CANNON]] Set shape offset to (${shapeOffset.x}, ${shapeOffset.y}, ${shapeOffset.z}).`);
     }
 }
 
@@ -465,6 +517,7 @@ export class CannonSphereShape extends CannonShape implements SphereShapeBase {
 
     private _recalcRadius () {
         this._cannonSphere.radius = this._radius * maxComponent(this._scale);
+        // console.log(`[[CANNON]] Set sphere radius to ${this._cannonSphere.radius}.`);
         this._cannonSphere.updateBoundingSphereRadius();
     }
 }
@@ -491,8 +544,13 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
         this._recalcExtents();
     }
 
+    public _stringfyThis () {
+        return `${this._body ? getWrap<CannonRigidBody>(this._body)._stringfyThis() : '<No-body>'}(Box)`;
+    }
+
     private _recalcExtents () {
         vec3.multiply(this._cannonBox.halfExtents, this._halfExtent, this._scale);
+        // console.log(`[[CANNON]] Set ${this._stringfyThis()} half extents to ${stringfyVec3(this._cannonBox.halfExtents)}.`);
         this._cannonBox.updateConvexPolyhedronRepresentation();
         this._cannonBox.updateBoundingSphereRadius();
     }

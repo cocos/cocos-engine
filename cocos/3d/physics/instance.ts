@@ -1,13 +1,13 @@
 import { Vec3 } from '../../core/value-types';
-import { BoxShapeBase, PhysicsWorldBase, RaycastResultBase, RigidBodyBase } from './api';
+import { BoxShapeBase, ICreateBodyOptions, PhysicsWorldBase, RaycastResultBase, RigidBodyBase } from './api';
 import { BoxShape, PhysicsWorld, RaycastResult, RigidBody, SphereShape } from './impl-selector';
 
 export function createPhysicsWorld (): PhysicsWorldBase {
     return new PhysicsWorld();
 }
 
-export function createRigidBody (): RigidBodyBase {
-    return new RigidBody();
+export function createRigidBody (options?: ICreateBodyOptions): RigidBodyBase {
+    return new RigidBody(options);
 }
 
 export function createBoxShape (size: Vec3): BoxShapeBase {

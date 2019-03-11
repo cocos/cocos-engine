@@ -5,6 +5,7 @@ import { quat, vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 import { AfterStepCallback, BeforeStepCallback, ICollisionCallback, ICollisionEvent, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
 import { createRigidBody } from '../../../physics/instance';
+import { stringfyQuat, stringfyVec3 } from '../../../physics/util';
 
 export class PhysicsBasedComponent extends Component {
 
@@ -22,6 +23,9 @@ export class PhysicsBasedComponent extends Component {
     }
 
     public onLoad () {
+    }
+
+    public start () {
         this._refSharedBody();
     }
 
@@ -80,7 +84,9 @@ class SharedRigidBody {
     private _transformInitialized: boolean = false;
 
     constructor (node: Node, world: PhysicsWorldBase) {
-        this._body = createRigidBody();
+        this._body = createRigidBody({
+            name: node.name,
+        });
         this._node = node;
         this._world = world;
         this._body.setUserData(this._node);
@@ -117,15 +123,15 @@ class SharedRigidBody {
     }
 
     public syncPhysWithScene (node: Node) {
+        this._transformInitialized = true;
         const p = node.getWorldPosition();
         const r = node.getWorldRotation();
-        console.log(`Set ${node.name} pos to ${p.x}, ${p.y}, ${p.z}, rot to ${r.x}, ${r.y}, ${r.z}, ${r.w}`);
 
         this.body.setPosition(p);
         this.body.setRotation(r);
+        node.getWorldScale(this._worldScale);
 
         // Because we sync the scale, we should update shape parameters.
-        node.getWorldScale(this._worldScale);
         this.body.scaleAllShapes(this._worldScale);
         this.body.commitShapeUpdates();
     }
@@ -179,14 +185,23 @@ class SharedRigidBody {
     }
 
     private _beforeStep () {
+        // const d = (reason: string) => {
+        //    console.log(`${reason} physics transform of [[${this._node.name}]] to : ` +
+        //        `Position: ${stringfyVec3(this._node.getWorldPosition())} ` +
+        //        `Rotation: ${stringfyQuat(this._node.getWorldRotation())} `);
+        // };
+
         if (!this._transformInitialized) {
-            this._transformInitialized = true;
+            // d(`Initialize`);
+            this.syncPhysWithScene(this._node);
+        } else if (!this.body.isPhysicsManagedTransform() && this._node.hasChanged) {
+            // d(`Synchronize`);
             this.syncPhysWithScene(this._node);
         }
     }
 
     private _afterStep () {
-        if (this.body.shouldRender()) {
+        if (this.body.isPhysicsManagedTransform()) {
             this._syncSceneWithPhys();
         }
     }
