@@ -24,6 +24,9 @@ export enum ForwardFlowPriority {
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create();
+const _tempLightIndex = [] as number[];
+const _tempLightDist = [] as number[];
+const _tempVec3 = v3();
 
 export class ForwardPipeline extends RenderPipeline {
 
@@ -148,7 +151,7 @@ export class ForwardPipeline extends RenderPipeline {
                 continue;
             }
             const dirNum = 0;
-            let pointNum = 0;
+            let sphereNum = 0;
             let spotNum = 0;
             for (let l = this._lightIndexOffset[i]; l < nextLightIndex; l++) {
                 const light = this._validLights[this._lightIndices[l]];
@@ -160,20 +163,26 @@ export class ForwardPipeline extends RenderPipeline {
                         //     dirNum++;
                         //     break;
                         case LightType.SPHERE:
+                            if (sphereNum >= UBOForwardLight.MAX_SPHERE_LIGHTS) {
+                                continue;
+                            }
                             vec3.array(_vec4Array, (light as SphereLight).position);
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_POS_OFFSET + pointNum * 4);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_POS_OFFSET + sphereNum * 4);
 
                             _vec4Array[0] = (light as SphereLight).size;
                             _vec4Array[1] = (light as SphereLight).range;
                             _vec4Array[2] = 0.0;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_SIZE_RANGE_OFFSET + pointNum * 4);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_SIZE_RANGE_OFFSET + sphereNum * 4);
 
                             vec3.array(_vec4Array, light.color);
                             _vec4Array[3] = (light as SphereLight).luminance;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_COLOR_OFFSET + pointNum * 4);
-                            pointNum++;
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_COLOR_OFFSET + sphereNum * 4);
+                            sphereNum++;
                             break;
                         case LightType.SPOT:
+                            if (spotNum >= UBOForwardLight.MAX_SPOT_LIGHTS) {
+                                continue;
+                            }
                             vec3.array(_vec4Array, (light as SpotLight).position);
                             _vec4Array[3] = (light as SpotLight).size;
                             this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_POS_SIZE_OFFSET + spotNum * 4);
@@ -234,6 +243,7 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     private cullLightPerModel (model: Model) {
+        _tempLightIndex.splice(0);
         for (let i = 0; i < this._validLights.length; i++) {
             let isCulled = false;
             switch (this._validLights[i].type) {
@@ -248,9 +258,20 @@ export class ForwardPipeline extends RenderPipeline {
                     break;
             }
             if (!isCulled) {
-                this._lightIndices.push(i);
+                _tempLightIndex.push(i);
+                if (this._validLights[i].type === LightType.DIRECTIONAL) {
+                    _tempLightDist[i] = 0;
+                } else {
+                    _tempLightDist[i] = vec3.dist((this._validLights[i] as SphereLight | SpotLight).position, model.node.getWorldPosition(_tempVec3));
+                }
             }
         }
+        _tempLightIndex.sort(this.sortLight);
+        this._lightIndices.push(..._tempLightIndex);
+    }
+
+    private sortLight (a, b) {
+        return _tempLightDist[a] - _tempLightDist[b];
     }
 }
 
