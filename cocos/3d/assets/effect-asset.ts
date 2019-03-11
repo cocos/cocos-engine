@@ -67,7 +67,7 @@ export interface IShaderInfo {
     name: string;
     glsl3: { vert: string, frag: string };
     glsl1: { vert: string, frag: string };
-    builtins: IBuiltinInfo;
+    builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo };
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
     samplers: ISamplerInfo[];
