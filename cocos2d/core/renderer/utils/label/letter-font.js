@@ -84,7 +84,7 @@ LetterTexture.prototype = {
         this._context = this._data.context;
         this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
-        this._width = parseFloat(width.toFixed(2)) + 2 * this._labelInfo.margin;
+        this._width = parseFloat(width.toFixed(2));
         this._height = this._labelInfo.lineHeight;
         
         if (this._canvas.width !== this._width || CC_QQPLAY) {
@@ -446,7 +446,7 @@ module.exports = {
             out = labelInfo.out.toHEX("#rrggbb");
         };
         
-        return hashData + labelInfo.fontSize + labelInfo.fontFamily + color + out;
+        return hashData + labelInfo.fontSize + labelInfo.fontFamily + labelInfo.lineHeight + color + out;
     },
 
     _getFontDesc () {
