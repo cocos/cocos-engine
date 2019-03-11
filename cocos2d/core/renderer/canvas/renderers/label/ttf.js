@@ -26,6 +26,7 @@
 const ttfUtils = require('../../../utils/label/ttf')
 const js = require('../../../../platform/js');
 const utils = require('../utils');
+const render = require('../../../../renderer');
 
 module.exports = js.addon({
     createData (sprite) {
@@ -69,7 +70,7 @@ module.exports = js.addon({
         // TODO: handle blend function
 
         // opacity
-        ctx.globalAlpha = node.opacity / 255;
+        render._handle._setGlobalAlpha(node.opacity / 255);
 
         let tex = comp._frame._texture,
             data = comp._renderData._data;

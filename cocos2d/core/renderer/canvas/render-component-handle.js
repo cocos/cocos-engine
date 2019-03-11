@@ -36,6 +36,8 @@ let RenderComponentHandle = function (device, defaultCamera) {
     this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
     this.walking = false;
+    // cache context data
+    this._globalAlpha = -1;
 };
 
 RenderComponentHandle.prototype = {
@@ -51,6 +53,8 @@ RenderComponentHandle.prototype = {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         this._device._stats.drawcalls = 0;
+        //reset cache data
+        this._globalAlpha = -1;
     },
 
     terminate () {
@@ -63,6 +67,16 @@ RenderComponentHandle.prototype = {
         ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
         ctx.scale(1, -1);
         assembler.draw(ctx, comp);
+    },
+
+    _setGlobalAlpha (alpha) {
+        if (this._globalAlpha === alpha) {
+            return 
+        }
+
+        this._globalAlpha = alpha;
+        let ctx = this._device._ctx;
+        ctx.globalAlpha = this._globalAlpha;
     }
 };
 

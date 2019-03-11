@@ -25,6 +25,7 @@
 
 const utils = require('../utils');
 const simple = require('./simple');
+const render = require('../../../../renderer');
 
 let renderer = {
     createData (sprite) {
@@ -50,7 +51,7 @@ let renderer = {
         // TODO: handle blend function
 
         // opacity
-        ctx.globalAlpha = node.opacity / 255;
+        render._handle._setGlobalAlpha(node.opacity / 255);
 
         let frame = sprite.spriteFrame;
         let rect = frame._rect;
