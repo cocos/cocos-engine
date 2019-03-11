@@ -33,6 +33,7 @@ import { ModelComponent } from './model-component';
 import { ParticleSystemComponent } from './particle/particle-system-component';
 import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';
 import { RigidBodyComponent } from './physics/rigid-body-component';
+import { RenderableComponent } from './renderable-component';
 import { SkinningModelComponent } from './skinning-model-component';
 import { SphereLightComponent } from './sphere-light-component';
 import { SpotLightComponent } from './spot-light-component';
@@ -55,6 +56,7 @@ export {
 cc.AnimationComponent = AnimationComponent;
 cc.AudioSourceComponent = AudioSourceComponent;
 cc.CameraComponent = CameraComponent;
+cc.RenderableComponent = RenderableComponent;
 cc.ModelComponent = ModelComponent;
 cc.SkinningModelComponent = SkinningModelComponent;
 
