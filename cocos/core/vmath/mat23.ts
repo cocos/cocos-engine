@@ -1,4 +1,6 @@
+import { IWritableArrayLike } from './fwd-decls';
 import { EPSILON } from './utils';
+import vec2 from './vec2';
 
 /**
  * Mathematical 2x3 matrix.
@@ -16,6 +18,7 @@ import { EPSILON } from './utils';
  * </pre>
  * The last row is ignored so the array is shorter and operations are faster.
  */
+// tslint:disable-next-line:class-name
 class mat23 {
 
     /**
@@ -29,7 +32,7 @@ class mat23 {
      * @param m05 -  Value assigned to element ty.
      * @return The newly created matrix.
      */
-    public static create(m00 = 1, m01 = 0, m02 = 0, m03 = 1, m04 = 0, m05 = 0) {
+    public static create (m00 = 1, m01 = 0, m02 = 0, m03 = 1, m04 = 0, m05 = 0) {
         return new mat23(m00, m01, m02, m03, m04, m05);
     }
 
@@ -39,7 +42,7 @@ class mat23 {
      * @param a - Matrix to clone.
      * @return The newly created matrix.
      */
-    public static clone(a) {
+    public static clone (a: mat23) {
         return new mat23(
             a.m00, a.m01,
             a.m02, a.m03,
@@ -54,7 +57,7 @@ class mat23 {
      * @param a - The specified matrix.
      * @return out.
      */
-    public static copy(out, a) {
+    public static copy<Out extends mat23> (out: Out, a: mat23) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -70,7 +73,7 @@ class mat23 {
      * @param out - Matrix to modified.
      * @return out.
      */
-    public static identity(out) {
+    public static identity<Out extends mat23> (out: Out) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -92,7 +95,7 @@ class mat23 {
      * @param ty - Value assigned to element ty.
      * @return out.
      */
-    public static set(out, a, b, c, d, tx, ty) {
+    public static set<Out extends mat23> (out: Out, a: number, b: number, c: number, d: number, tx: number, ty: number) {
         out.m00 = a;
         out.m01 = b;
         out.m02 = c;
@@ -109,9 +112,8 @@ class mat23 {
      * @param a - Matrix to invert.
      * @return out.
      */
-    public static invert(out, a) {
-        const aa = a.m00, ab = a.m01, ac = a.m02, ad = a.m03,
-            atx = a.m04, aty = a.m05;
+    public static invert<Out extends mat23> (out: Out, a: mat23) {
+        const { m00: aa, m01: ab, m02: ac, m03: ad, m04: atx, m05: aty } = a;
 
         let det = aa * ad - ab * ac;
         if (!det) {
@@ -134,7 +136,7 @@ class mat23 {
      * @param a - Matrix to calculate.
      * @return Determinant of a.
      */
-    public static determinant(a) {
+    public static determinant (a: mat23) {
         return a.m00 * a.m03 - a.m01 * a.m02;
     }
 
@@ -146,9 +148,9 @@ class mat23 {
      * @param b - The second operand.
      * @return out.
      */
-    public static multiply(out, a, b) {
-        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
-            b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05;
+    public static multiply<Out extends mat23> (out: Out, a: mat23, b: mat23) {
+        const { m00: a0, m01: a1, m02: a2, m03: a3, m04: a4, m05: a5 } = a;
+        const { m00: b0, m01: b1, m02: b2, m03: b3, m04: b4, m05: b5 } = b;
         out.m00 = a0 * b0 + a2 * b1;
         out.m01 = a1 * b0 + a3 * b1;
         out.m02 = a0 * b2 + a2 * b3;
@@ -161,7 +163,7 @@ class mat23 {
     /**
      * Alias of {@link mat23.multiply}.
      */
-    public static mul(out, a, b) {
+    public static mul<Out extends mat23> (out: Out, a: mat23, b: mat23) {
         return mat23.multiply(out, a, b);
     }
 
@@ -173,10 +175,10 @@ class mat23 {
      * @param rad - The rotation angle.
      * @return out
      */
-    public static rotate(out, a, rad) {
-        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
-            s = Math.sin(rad),
-            c = Math.cos(rad);
+    public static rotate<Out extends mat23> (out: Out, a: mat23, rad: number) {
+        const { m00: a0, m01: a1, m02: a2, m03: a3, m04: a4, m05: a5 } = a;
+        const s = Math.sin(rad);
+        const c = Math.cos(rad);
         out.m00 = a0 * c + a2 * s;
         out.m01 = a1 * c + a3 * s;
         out.m02 = a0 * -s + a2 * c;
@@ -193,10 +195,11 @@ class mat23 {
      * @param a - Matrix to multiply.
      * @param v - The scale vector.
      * @return out
-     **/
-    public static scale(out, a, v) {
-        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
-            v0 = v.x, v1 = v.y;
+     */
+    public static scale<Out extends mat23> (out: Out, a: mat23, v: vec2) {
+        const { m00: a0, m01: a1, m02: a2, m03: a3, m04: a4, m05: a5 } = a;
+        const v0 = v.x;
+        const v1 = v.y;
         out.m00 = a0 * v0;
         out.m01 = a1 * v0;
         out.m02 = a2 * v1;
@@ -214,9 +217,10 @@ class mat23 {
      * @param v - The translation offset.
      * @return out.
      */
-    public static translate(out, a, v) {
-        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
-            v0 = v.x, v1 = v.y;
+    public static translate<Out extends mat23> (out: Out, a: mat23, v: vec2) {
+        const { m00: a0, m01: a1, m02: a2, m03: a3, m04: a4, m05: a5 } = a;
+        const v0 = v.x;
+        const v1 = v.y;
         out.m00 = a0;
         out.m01 = a1;
         out.m02 = a2;
@@ -237,8 +241,9 @@ class mat23 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    public static fromRotation(out, rad) {
-        const s = Math.sin(rad), c = Math.cos(rad);
+    public static fromRotation<Out extends mat23> (out: Out, rad: number) {
+        const s = Math.sin(rad);
+        const c = Math.cos(rad);
         out.m00 = c;
         out.m01 = s;
         out.m02 = -s;
@@ -259,7 +264,7 @@ class mat23 {
      * @param v - Scale vector.
      * @return out.
      */
-    public static fromScaling(out, v) {
+    public static fromScaling<Out extends mat23> (out: Out, v: mat23) {
         out.m00 = v.m00;
         out.m01 = 0;
         out.m02 = 0;
@@ -280,7 +285,7 @@ class mat23 {
      * @param v - The translation offset.
      * @return out.
      */
-    public static fromTranslation(out, v) {
+    public static fromTranslation<Out extends mat23> (out: Out, v: vec2) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -308,8 +313,9 @@ class mat23 {
      * @param s - Scale vector.
      * @return out.
      */
-    public static fromRTS(out, r, t, s) {
-        const sr = Math.sin(r), cr = Math.cos(r);
+    public static fromRTS<Out extends mat23> (out: Out, r: number, t: vec2, s: vec2) {
+        const sr = Math.sin(r);
+        const cr = Math.cos(r);
         out.m00 = cr * s.x;
         out.m01 = sr * s.x;
         out.m02 = -sr * s.y;
@@ -325,7 +331,7 @@ class mat23 {
      * @param a - The matrix.
      * @return String representation of this matrix.
      */
-    public static str(a) {
+    public static str (a: mat23) {
         return `mat23(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05})`;
     }
 
@@ -336,7 +342,7 @@ class mat23 {
      * @param m - The matrix.
      * @return out.
      */
-    public static array(out, m) {
+    public static array<Out extends IWritableArrayLike<number>> (out: Out, m: mat23) {
         out[0] = m.m00;
         out[1] = m.m01;
         out[2] = m.m02;
@@ -354,7 +360,7 @@ class mat23 {
      * @param m
      * @return
      */
-    public static array4x4(out, m) {
+    public static array4x4<Out extends IWritableArrayLike<number>> (out: Out, m: mat23) {
         out[0] = m.m00;
         out[1] = m.m01;
         out[2] = 0;
@@ -381,7 +387,7 @@ class mat23 {
      * @param a - Matrix to calculate Frobenius norm of.
      * @return - The frobenius norm.
      */
-    public static frob(a) {
+    public static frob (a: mat23) {
         return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + 1));
     }
 
@@ -393,7 +399,7 @@ class mat23 {
      * @param b - The second operand.
      * @return out.
      */
-    public static add(out, a, b) {
+    public static add<Out extends mat23> (out: Out, a: mat23, b: mat23) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -411,7 +417,7 @@ class mat23 {
      * @param b - The second operand.
      * @return out.
      */
-    public static subtract(out, a, b) {
+    public static subtract<Out extends mat23> (out: Out, a: mat23, b: mat23) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -424,7 +430,7 @@ class mat23 {
     /**
      * Alias of {@link mat23.subtract}.
      */
-    public static sub(out, a, b) {
+    public static sub<Out extends mat23> (out: Out, a: mat23, b: mat23) {
         return mat23.subtract(out, a, b);
     }
 
@@ -436,7 +442,7 @@ class mat23 {
      * @param b - The scale number.
      * @return out.
      */
-    public static multiplyScalar(out, a, b) {
+    public static multiplyScalar<Out extends mat23> (out: Out, a: mat23, b: number) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -455,7 +461,7 @@ class mat23 {
      * @param scale - The scale number.
      * @return out.
      */
-    public static multiplyScalarAndAdd(out, a, b, scale) {
+    public static multiplyScalarAndAdd<Out extends mat23> (out: Out, a: mat23, b: mat23, scale: number) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);
@@ -472,7 +478,7 @@ class mat23 {
      * @param b - The second matrix.
      * @return True if the matrices are equal, false otherwise.
      */
-    public static exactEquals(a, b) {
+    public static exactEquals (a: mat23, b: mat23) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05;
     }
 
@@ -483,9 +489,9 @@ class mat23 {
      * @param b - The second matrix.
      * @return True if the matrices are equal, false otherwise.
      */
-    public static equals(a, b) {
-        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05;
-        const b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05;
+    public static equals (a: mat23, b: mat23) {
+        const { m00: a0, m01: a1, m02: a2, m03: a3, m04: a4, m05: a5 } = a;
+        const { m00: b0, m01: b1, m02: b2, m03: b3, m04: b4, m05: b5 } = b;
         return (
             Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
             Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
@@ -495,6 +501,37 @@ class mat23 {
             Math.abs(a5 - b5) <= EPSILON * Math.max(1.0, Math.abs(a5), Math.abs(b5))
         );
     }
+
+    /**
+     * The element a.
+     */
+    public m00: number;
+
+    /**
+     * The element b.
+     */
+    public m01: number;
+
+    /**
+     * The element c.
+     */
+    public m02: number;
+
+    /**
+     * The element d.
+     */
+    public m03: number;
+
+    /**
+     * The element tx.
+     */
+    public m04: number;
+
+    /**
+     * The element ty.
+     */
+    public m05: number;
+
     /**
      * Creates a matrix, with elements specified separately.
      *
@@ -505,41 +542,12 @@ class mat23 {
      * @param m04 -  Value assigned to element tx.
      * @param m05 -  Value assigned to element ty.
      */
-    constructor(m00 = 1, m01 = 0, m02 = 0, m03 = 1, m04 = 0, m05 = 0) {
-        /**
-         * The element a.
-         * @type {number}
-         * */
+    constructor (m00 = 1, m01 = 0, m02 = 0, m03 = 1, m04 = 0, m05 = 0) {
         this.m00 = m00;
-
-        /**
-         * The element b.
-         * @type {number}
-         * */
         this.m01 = m01;
-
-        /**
-         * The element c.
-         * @type {number}
-         * */
         this.m02 = m02;
-
-        /**
-         * The element d.
-         * @type {number}
-         * */
         this.m03 = m03;
-
-        /**
-         * The element tx.
-         * @type {number}
-         * */
         this.m04 = m04;
-
-        /**
-         * The element ty.
-         * @type {number}
-         * */
         this.m05 = m05;
     }
 }

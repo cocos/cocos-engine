@@ -1,9 +1,12 @@
+import { IWritableArrayLike } from './fwd-decls';
 import { EPSILON } from './utils';
+import vec2 from './vec2';
 
 /**
  * Mathematical 2x2 matrix.
  */
-class mat2 {
+// tslint:disable-next-line:class-name
+export default class mat2 {
 
     /**
      * Creates a matrix, with elements specified separately.
@@ -14,7 +17,7 @@ class mat2 {
      * @param m03 - Value assigned to element at column 1 row 1.
      * @return The newly created matrix.
      */
-    public static create(m00 = 1, m01 = 0, m02 = 0, m03 = 1) {
+    public static create (m00 = 1, m01 = 0, m02 = 0, m03 = 1) {
         return new mat2(m00, m01, m02, m03);
     }
 
@@ -24,7 +27,7 @@ class mat2 {
      * @param a - Matrix to clone.
      * @return The newly created matrix.
      */
-    public static clone(a) {
+    public static clone (a: mat2) {
         return new mat2(a.m00, a.m01, a.m02, a.m03);
     }
 
@@ -35,7 +38,7 @@ class mat2 {
      * @param a - The specified matrix.
      * @return out.
      */
-    public static copy(out, a) {
+    public static copy<Out extends mat2> (out: Out, a: mat2) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -49,7 +52,7 @@ class mat2 {
      * @param out - Matrix to modified.
      * @return out.
      */
-    public static identity(out) {
+    public static identity<Out extends mat2> (out: Out) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -67,7 +70,7 @@ class mat2 {
      * @param m11 - Value assigned to element at column 1 row 1.
      * @return out.
      */
-    public static set(out, m00, m01, m10, m11) {
+    public static set<Out extends mat2> (out: Out, m00: number, m01: number, m10: number, m11: number) {
         out.m00 = m00;
         out.m01 = m01;
         out.m02 = m10;
@@ -82,7 +85,7 @@ class mat2 {
      * @param a - Matrix to transpose.
      * @return out.
      */
-    public static transpose(out, a) {
+    public static transpose<Out extends mat2> (out: Out, a: mat2) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
             const a1 = a.m01;
@@ -105,8 +108,8 @@ class mat2 {
      * @param a - Matrix to invert.
      * @return out.
      */
-    public static invert(out, a) {
-        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03;
+    public static invert<Out extends mat2> (out: Out, a: mat2) {
+        const { m00: a0, m01: a1, m02: a2, m03: a3 } = a;
 
         // Calculate the determinant
         let det = a0 * a3 - a2 * a1;
@@ -131,7 +134,7 @@ class mat2 {
      * @param a - Matrix to calculate.
      * @return out.
      */
-    public static adjoint(out, a) {
+    public static adjoint<Out extends mat2> (out: Out, a: mat2) {
         // Caching this value is nessecary if out == a
         const a0 = a.m00;
         out.m00 = a.m03;
@@ -148,7 +151,7 @@ class mat2 {
      * @param a - Matrix to calculate.
      * @return Determinant of a.
      */
-    public static determinant(a) {
+    public static determinant (a: mat2) {
         return a.m00 * a.m03 - a.m02 * a.m01;
     }
 
@@ -160,9 +163,9 @@ class mat2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static multiply(out, a, b) {
-        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03;
-        const b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03;
+    public static multiply<Out extends mat2> (out: Out, a: mat2, b: mat2) {
+        const { m00: a0, m01: a1, m02: a2, m03: a3 } = a;
+        const { m00: b0, m01: b1, m02: b2, m03: b3 } = b;
         out.m00 = a0 * b0 + a2 * b1;
         out.m01 = a1 * b0 + a3 * b1;
         out.m02 = a0 * b2 + a2 * b3;
@@ -173,7 +176,7 @@ class mat2 {
     /**
      * Alias of {@link mat2.multiply}.
      */
-    public static mul(out, a, b) {
+    public static mul<Out extends mat2> (out: Out, a: mat2, b: mat2) {
         return mat2.multiply(out, a, b);
     }
 
@@ -185,10 +188,10 @@ class mat2 {
      * @param rad - The rotation angle.
      * @return out
      */
-    public static rotate(out, a, rad) {
-        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03,
-            s = Math.sin(rad),
-            c = Math.cos(rad);
+    public static rotate<Out extends mat2> (out: Out, a: mat2, rad: number) {
+        const { m00: a0, m01: a1, m02: a2, m03: a3 } = a;
+        const s = Math.sin(rad);
+        const c = Math.cos(rad);
         out.m00 = a0 * c + a2 * s;
         out.m01 = a1 * c + a3 * s;
         out.m02 = a0 * -s + a2 * c;
@@ -203,10 +206,11 @@ class mat2 {
      * @param a - Matrix to scale.
      * @param v - The scale vector.
      * @return out
-     **/
-    public static scale(out, a, v) {
-        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03,
-            v0 = v.x, v1 = v.y;
+     */
+    public static scale<Out extends mat2> (out: Out, a: mat2, v: vec2) {
+        const { m00: a0, m01: a1, m02: a2, m03: a3 } = a;
+        const v0 = v.x;
+        const v1 = v.y;
         out.m00 = a0 * v0;
         out.m01 = a1 * v0;
         out.m02 = a2 * v1;
@@ -225,9 +229,9 @@ class mat2 {
      * @param rad - The rotation angle.
      * @return out.
      */
-    public static fromRotation(out, rad) {
-        const s = Math.sin(rad),
-            c = Math.cos(rad);
+    public static fromRotation<Out extends mat2> (out: Out, rad: number) {
+        const s = Math.sin(rad);
+        const c = Math.cos(rad);
         out.m00 = c;
         out.m01 = s;
         out.m02 = -s;
@@ -246,7 +250,7 @@ class mat2 {
      * @param v - Scale vector.
      * @return out.
      */
-    public static fromScaling(out, v) {
+    public static fromScaling<Out extends mat2> (out: Out, v: vec2) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -260,7 +264,7 @@ class mat2 {
      * @param a - The matrix.
      * @return String representation of this matrix.
      */
-    public static str(a) {
+    public static str (a: mat2) {
         return `mat2(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03})`;
     }
 
@@ -271,7 +275,7 @@ class mat2 {
      * @param m - The matrix.
      * @return out.
      */
-    public static array(out, m, ofs = 0) {
+    public static array<Out extends IWritableArrayLike<number>> (out: Out, m: mat2, ofs = 0) {
         out[ofs + 0] = m.m00;
         out[ofs + 1] = m.m01;
         out[ofs + 2] = m.m02;
@@ -286,7 +290,7 @@ class mat2 {
      * @param a - Matrix to calculate Frobenius norm of.
      * @return - The frobenius norm.
      */
-    public static frob(a) {
+    public static frob (a: mat2) {
         return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2)));
     }
 
@@ -297,7 +301,7 @@ class mat2 {
      * @param U - The upper triangular matrix.
      * @param a - The input matrix to factorize.
      */
-    public static LDU(L, D, U, a) {
+    public static LDU (L: mat2, D: mat2, U: mat2, a: mat2) {
         L.m02 = a.m02 / a.m00;
         U.m00 = a.m00;
         U.m01 = a.m01;
@@ -312,7 +316,7 @@ class mat2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static add(out, a, b) {
+    public static add<Out extends mat2> (out: Out, a: mat2, b: mat2) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -328,7 +332,7 @@ class mat2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static subtract(out, a, b) {
+    public static subtract<Out extends mat2> (out: Out, a: mat2, b: mat2) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -339,7 +343,7 @@ class mat2 {
     /**
      * Alias of {@link mat2.subtract}.
      */
-    public static sub(out, a, b) {
+    public static sub<Out extends mat2> (out: Out, a: mat2, b: mat2) {
         return mat2.subtract(out, a, b);
     }
 
@@ -350,7 +354,7 @@ class mat2 {
      * @param b - The second matrix.
      * @return True if the matrices are equal, false otherwise.
      */
-    public static exactEquals(a, b) {
+    public static exactEquals (a: mat2, b: mat2) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03;
     }
 
@@ -361,9 +365,9 @@ class mat2 {
      * @param b - The second matrix.
      * @return True if the matrices are equal, false otherwise.
      */
-    public static equals(a, b) {
-        const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03;
-        const b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03;
+    public static equals (a: mat2, b: mat2) {
+        const { m00: a0, m01: a1, m02: a2, m03: a3 } = a;
+        const { m00: b0, m01: b1, m02: b2, m03: b3 } = b;
         return (
             Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
             Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
@@ -380,7 +384,7 @@ class mat2 {
      * @param b - The scale number.
      * @return out.
      */
-    public static multiplyScalar(out, a, b) {
+    public static multiplyScalar<Out extends mat2> (out: Out, a: mat2, b: number) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -397,13 +401,34 @@ class mat2 {
      * @param scale - The scale number.
      * @return out.
      */
-    public static multiplyScalarAndAdd(out, a, b, scale) {
+    public static multiplyScalarAndAdd<Out extends mat2> (out: Out, a: mat2, b: mat2, scale: number) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);
         out.m03 = a.m03 + (b.m03 * scale);
         return out;
     }
+
+    /**
+     * The element at column 0 row 0.
+     */
+    public m00: number;
+
+    /**
+     * The element at column 0 row 1.
+     */
+    public m01: number;
+
+    /**
+     * The element at column 1 row 0.
+     */
+    public m02: number;
+
+    /**
+     * The element at column 1 row 1.
+     */
+    public m03: number;
+
     /**
      * Creates a matrix, with elements specified separately.
      *
@@ -412,31 +437,10 @@ class mat2 {
      * @param m02 - Value assigned to element at column 1 row 0.
      * @param m03 - Value assigned to element at column 1 row 1.
      */
-    constructor(m00 = 1, m01 = 0, m02 = 0, m03 = 1) {
-        /**
-         * The element at column 0 row 0.
-         * @type {number}
-         * */
+    constructor (m00 = 1, m01 = 0, m02 = 0, m03 = 1) {
         this.m00 = m00;
-
-        /**
-         * The element at column 0 row 1.
-         * @type {number}
-         * */
         this.m01 = m01;
-
-        /**
-         * The element at column 1 row 0.
-         * @type {number}
-         * */
         this.m02 = m02;
-
-        /**
-         * The element at column 1 row 1.
-         * @type {number}
-         * */
         this.m03 = m03;
     }
 }
-
-export default mat2;

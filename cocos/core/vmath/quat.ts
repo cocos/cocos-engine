@@ -1,5 +1,4 @@
-/// <reference path="./fwd-decls" />
-
+import { IWritableArrayLike } from './fwd-decls';
 import mat3 from './mat3';
 import { toDegree } from './utils';
 import vec3 from './vec3';
@@ -13,6 +12,7 @@ const halfToRad = 0.5 * Math.PI / 180.0;
  * A quaternion is a hypercomplex number represented by w + xi + yj + zk, where
  * x, y, z and w are real numbers(called here its components), and i, j, and k are the fundamental quaternion units.
  */
+// tslint:disable-next-line:class-name
 export default class quat {
     public static IDENTITY = new quat();
 
@@ -25,7 +25,7 @@ export default class quat {
      * @param w - Value assigned to w component.
      * @return The newly created quaternion.
      */
-    public static create(x = 0, y = 0, z = 0, w = 1) {
+    public static create (x = 0, y = 0, z = 0, w = 1) {
         return new quat(x, y, z, w);
     }
 
@@ -35,7 +35,7 @@ export default class quat {
      * @param a - Quaternion to clone.
      * @return The newly created quaternion.
      */
-    public static clone(a: quat) {
+    public static clone (a: quat) {
         return new quat(a.x, a.y, a.z, a.w);
     }
 
@@ -46,7 +46,7 @@ export default class quat {
      * @param a - The specified quaternion.
      * @return out.
      */
-    public static copy<Out extends IQuatLike>(out: Out, a: quat) {
+    public static copy<Out extends quat> (out: Out, a: quat) {
         return vec4.copy(out, a);
     }
 
@@ -60,7 +60,7 @@ export default class quat {
      * @param w - Value set to w component.
      * @return out.
      */
-    public static set<Out extends IQuatLike>(out: Out, x: number, y: number, z: number, w: number) {
+    public static set<Out extends quat> (out: Out, x: number, y: number, z: number, w: number) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -74,7 +74,7 @@ export default class quat {
      * @param out - Quaternion to set.
      * @return out.
      */
-    public static identity<Out extends IQuatLike> (out: Out) {
+    public static identity<Out extends quat> (out: Out) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -93,7 +93,7 @@ export default class quat {
      * @param b - The destination vector.
      * @return out.
      */
-    public static rotationTo<Out extends IQuatLike>(out: Out, a: vec3, b: vec3) {
+    public static rotationTo<Out extends quat> (out: Out, a: vec3, b: vec3) {
         const dot = vec3.dot(a, b);
         if (dot < -0.999999) {
             vec3.cross(tmpVec3, tmpXUnitVec3, a);
@@ -132,7 +132,7 @@ export default class quat {
      * @param  {quat} q - Quaternion to be decomposed.
      * @return - Angle, in radians, of the rotation.
      */
-    public static getAxisAngle<Out extends IVec3Like>(outAxis: Out, q: quat) {
+    public static getAxisAngle<Out extends vec3> (outAxis: Out, q: quat) {
         const rad = Math.acos(q.w) * 2.0;
         const s = Math.sin(rad / 2.0);
         if (s !== 0.0) {
@@ -156,7 +156,7 @@ export default class quat {
      * @param b - The second operand.
      * @return out.
      */
-    public static multiply<Out extends IQuatLike>(out: Out, a: quat, b: quat) {
+    public static multiply<Out extends quat> (out: Out, a: quat, b: quat) {
         const { x: ax, y: ay, z: az, w: aw } = a;
         const { x: bx, y: by, z: bz, w: bw } = b;
 
@@ -170,7 +170,7 @@ export default class quat {
     /**
      * Alias of {@link quat.multiply}.
      */
-    public static mul<Out extends IQuatLike>(out: Out, a: quat, b: quat) {
+    public static mul<Out extends quat> (out: Out, a: quat, b: quat) {
         return quat.multiply(out, a, b);
     }
 
@@ -182,7 +182,7 @@ export default class quat {
      * @param b - The scale number.
      * @return out.
      */
-    public static scale<Out extends IQuatLike>(out: Out, a: quat, b: number) {
+    public static scale<Out extends quat> (out: Out, a: quat, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -198,7 +198,7 @@ export default class quat {
      * @param rad - Angle (in radians) to rotate.
      * @return out.
      */
-    public static rotateX<Out extends IQuatLike>(out: Out, a: quat, rad: number) {
+    public static rotateX<Out extends quat> (out: Out, a: quat, rad: number) {
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -220,7 +220,7 @@ export default class quat {
      * @param rad - Angle (in radians) to rotate.
      * @return out.
      */
-    public static rotateY<Out extends IQuatLike>(out: Out, a: quat, rad: number) {
+    public static rotateY<Out extends quat> (out: Out, a: quat, rad: number) {
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -242,7 +242,7 @@ export default class quat {
      * @param rad - Angle (in radians) to rotate.
      * @return out.
      */
-    public static rotateZ<Out extends IQuatLike>(out: Out, a: quat, rad: number) {
+    public static rotateZ<Out extends quat> (out: Out, a: quat, rad: number) {
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -265,7 +265,7 @@ export default class quat {
      * @param rad - Angle (in radians) to rotate.
      * @return out.
      */
-    public static rotateAround<Out extends IQuatLike>(out: Out, rot: quat, axis: IVec3Like, rad: number) {
+    public static rotateAround<Out extends quat> (out: Out, rot: quat, axis: vec3, rad: number) {
         // get inv-axis (local to rot)
         quat.invert(tmpQuat1, rot);
         vec3.transformQuat(tmpVec3, axis, tmpQuat1);
@@ -284,7 +284,7 @@ export default class quat {
      * @param rad - Angle (in radians) to rotate.
      * @return out.
      */
-    public static rotateAroundLocal<Out extends IQuatLike>(out: Out, rot: quat, axis: IVec3Like, rad: number) {
+    public static rotateAroundLocal<Out extends quat> (out: Out, rot: quat, axis: vec3, rad: number) {
         quat.fromAxisAngle(tmpQuat1, axis, rad);
         quat.mul(out, rot, tmpQuat1);
         return out;
@@ -299,7 +299,7 @@ export default class quat {
      * @param a - Quaternion to calculate W.
      * @return out.
      */
-    public static calculateW<Out extends IQuatLike>(out: Out, a: quat) {
+    public static calculateW<Out extends quat> (out: Out, a: quat) {
         const { x, y, z } = a;
 
         out.x = x;
@@ -316,7 +316,7 @@ export default class quat {
      * @param b - The second operand.
      * @return - The dot product of a and b.
      */
-    public static dot(a: quat, b: quat) {
+    public static dot (a: quat, b: quat) {
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
@@ -329,7 +329,7 @@ export default class quat {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    public static lerp<Out extends IQuatLike>(out: Out, a: quat, b: quat, t: number) {
+    public static lerp<Out extends quat> (out: Out, a: quat, b: quat, t: number) {
         const { x: ax, y: ay, z: az, w: aw } = a;
         out.x = ax + t * (b.x - ax);
         out.y = ay + t * (b.y - ay);
@@ -347,7 +347,7 @@ export default class quat {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    public static slerp<Out extends IQuatLike>(out: Out, a: quat, b: quat, t: number) {
+    public static slerp<Out extends quat> (out: Out, a: quat, b: quat, t: number) {
         // benchmarks:
         //    http://jsperf.com/quaternion-slerp-implementations
 
@@ -400,7 +400,7 @@ export default class quat {
      * @param t - The interpolation coefficient.
      * @return out
      */
-    public static sqlerp<Out extends IQuatLike>(out: Out, a: quat, b: quat, c: quat, d: quat, t: number) {
+    public static sqlerp<Out extends quat> (out: Out, a: quat, b: quat, c: quat, d: quat, t: number) {
         quat.slerp(tmpQuat1, a, d, t);
         quat.slerp(tmpQuat2, b, c, t);
         quat.slerp(out, tmpQuat1, tmpQuat2, 2 * t * (1 - t));
@@ -414,7 +414,7 @@ export default class quat {
      * @param a - Quaternion to calculate inverse of.
      * @return out.
      */
-    public static invert<Out extends IQuatLike>(out: Out, a: quat) {
+    public static invert<Out extends quat> (out: Out, a: quat) {
         const { x: a0, y: a1, z: a2, w: a3 } = a;
         const dot = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
         const invDot = dot ? 1.0 / dot : 0;
@@ -436,7 +436,7 @@ export default class quat {
      * @param a - Quaternion to calculate conjugate of.
      * @return out.
      */
-    public static conjugate<Out extends IQuatLike>(out: Out, a: quat) {
+    public static conjugate<Out extends quat> (out: Out, a: quat) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -450,7 +450,7 @@ export default class quat {
      * @param a - The quaternion.
      * @return Length of the quaternion.
      */
-    public static magnitude(a: quat) {
+    public static magnitude (a: quat) {
         const { x, y, z, w } = a;
         return Math.sqrt(x * x + y * y + z * z + w * w);
     }
@@ -458,7 +458,7 @@ export default class quat {
     /**
      * Alias of {@link quat.magnitude}.
      */
-    public static mag(a: quat) {
+    public static mag (a: quat) {
         return quat.magnitude(a);
     }
 
@@ -468,7 +468,7 @@ export default class quat {
      * @param a - The quaternion.
      * @return Squared length of the quaternion.
      */
-    public static squaredMagnitude(a: quat) {
+    public static squaredMagnitude (a: quat) {
         const { x, y, z, w } = a;
         return x * x + y * y + z * z + w * w;
     }
@@ -476,7 +476,7 @@ export default class quat {
     /**
      * Alias of {@link quat.squaredMagnitude}
      */
-    public static sqrMag(a: quat) {
+    public static sqrMag (a: quat) {
         return quat.squaredMagnitude(a);
     }
 
@@ -488,7 +488,7 @@ export default class quat {
      * @return out.
      * @function
      */
-    public static normalize<Out extends IQuatLike>(out: Out, a: quat) {
+    public static normalize<Out extends quat> (out: Out, a: quat) {
         const { x, y, z, w } = a;
         let len = x * x + y * y + z * z + w * w;
         if (len > 0) {
@@ -512,7 +512,7 @@ export default class quat {
      * @param zAxis - Vector representing the viewing direction.
      * @return out.
      */
-    public static fromAxes<Out extends IQuatLike>(out: Out, xAxis: IVec3Like, yAxis: IVec3Like, zAxis: IVec3Like) {
+    public static fromAxes<Out extends quat> (out: Out, xAxis: vec3, yAxis: vec3, zAxis: vec3) {
         mat3.set(tmpMat3,
             xAxis.x, xAxis.y, xAxis.z,
             yAxis.x, yAxis.y, yAxis.z,
@@ -530,7 +530,7 @@ export default class quat {
      *
      * @return out.
      */
-    public static fromViewUp<Out extends IQuatLike>(out: Out, view: IVec3Like, up: IVec3Like) {
+    public static fromViewUp<Out extends quat> (out: Out, view: vec3, up: vec3) {
         mat3.fromViewUp(tmpMat3, view, up);
         return quat.normalize(out, quat.fromMat3(out, tmpMat3));
     }
@@ -544,7 +544,7 @@ export default class quat {
      * @param rad - The angle in radians.
      * @return out.
      */
-    public static fromAxisAngle<Out extends IQuatLike>(out: Out, axis: IVec3Like, rad: number) {
+    public static fromAxisAngle<Out extends quat> (out: Out, axis: vec3, rad: number) {
         rad = rad * 0.5;
         const s = Math.sin(rad);
         out.x = s * axis.x;
@@ -565,7 +565,7 @@ export default class quat {
      * @return out.
      * @function
      */
-    public static fromMat3<Out extends IQuatLike>(out: Out, m: IMat3Like) {
+    public static fromMat3<Out extends quat> (out: Out, m: mat3) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
         const {
@@ -622,7 +622,7 @@ export default class quat {
      * @return out.
      * @function
      */
-    public static fromEuler<Out extends IQuatLike>(out: Out, x: number, y: number, z: number) {
+    public static fromEuler<Out extends quat> (out: Out, x: number, y: number, z: number) {
         x *= halfToRad;
         y *= halfToRad;
         z *= halfToRad;
@@ -649,9 +649,9 @@ export default class quat {
      * @param q - The quaternion.
      * @function
      */
-    public static toAxisX(out: vec3, q: quat) {
-        let fy = 2.0 * q.y;
-        let fz = 2.0 * q.z;
+    public static toAxisX (out: vec3, q: quat) {
+        const fy = 2.0 * q.y;
+        const fz = 2.0 * q.z;
         out.x = 1.0 - fy * q.y - fz * q.z;
         out.y = fy * q.x + fz * q.w;
         out.z = fz * q.x + fy * q.w;
@@ -664,10 +664,10 @@ export default class quat {
      * @param q - The quaternion.
      * @function
      */
-    public static toAxisY(out: vec3, q: quat) {
-        let fx = 2.0 * q.x;
-        let fy = 2.0 * q.y;
-        let fz = 2.0 * q.z;
+    public static toAxisY (out: vec3, q: quat) {
+        const fx = 2.0 * q.x;
+        const fy = 2.0 * q.y;
+        const fz = 2.0 * q.z;
         out.x = fy * q.x - fz * q.w;
         out.y = 1.0 - fx * q.x - fz * q.z;
         out.z = fz * q.y + fx * q.w;
@@ -680,10 +680,10 @@ export default class quat {
      * @param q - The quaternion.
      * @function
      */
-    public static toAxisZ(out: vec3, q: quat) {
-        let fx = 2.0 * q.x;
-        let fy = 2.0 * q.y;
-        let fz = 2.0 * q.z;
+    public static toAxisZ (out: vec3, q: quat) {
+        const fx = 2.0 * q.x;
+        const fy = 2.0 * q.y;
+        const fz = 2.0 * q.z;
         out.x = fz * q.x - fy * q.w;
         out.y = fz * q.y - fx * q.w;
         out.z = 1.0 - fx * q.x - fy * q.y;
@@ -696,7 +696,7 @@ export default class quat {
      * @param q - the quaternion to be converted
      * @return out.
      */
-    public static toEuler<Out extends IVec3Like>(out: Out, q: quat) {
+    public static toEuler<Out extends vec3> (out: Out, q: quat) {
         const { x, y, z, w } = q;
         let heading: number = NaN;
         let attitude: number = NaN;
@@ -735,7 +735,7 @@ export default class quat {
      * @param a - The quaternion.
      * @return - String representation of this quaternion.
      */
-    public static str(a: quat) {
+    public static str (a: quat) {
         return `quat(${a.x}, ${a.y}, ${a.z}, ${a.w})`;
     }
 
@@ -746,7 +746,7 @@ export default class quat {
      * @param q - The quaternion.
      * @return out.
      */
-    public static array<Out extends IWritableArrayLike<number>>(out: Out, q: quat) {
+    public static array<Out extends IWritableArrayLike<number>> (out: Out, q: quat) {
         out[0] = q.x;
         out[1] = q.y;
         out[2] = q.z;
@@ -762,7 +762,7 @@ export default class quat {
      * @param b - The second quaternion.
      * @return True if the quaternions are equal, false otherwise.
      */
-    public static exactEquals(a: quat, b: quat) {
+    public static exactEquals (a: quat, b: quat) {
         return vec4.exactEquals(a, b);
     }
 
@@ -773,7 +773,7 @@ export default class quat {
      * @param b The second quaternion.
      * @return True if the quaternions are approximately equal, false otherwise.
      */
-    public static equals(a: quat, b: quat) {
+    public static equals (a: quat, b: quat) {
         return vec4.equals(a, b);
     }
 
@@ -805,7 +805,7 @@ export default class quat {
      * @param z - Value assigned to z component.
      * @param w - Value assigned to w component.
      */
-    constructor(x = 0, y = 0, z = 0, w = 1) {
+    constructor (x = 0, y = 0, z = 0, w = 1) {
         this.x = x;
         this.y = y;
         this.z = z;

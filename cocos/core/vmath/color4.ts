@@ -1,3 +1,4 @@
+import { IWritableArrayLike } from './fwd-decls';
 import { EPSILON } from './utils';
 
 // tslint:disable: one-variable-per-declaration
