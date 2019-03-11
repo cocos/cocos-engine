@@ -12,7 +12,7 @@ import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
-import { RenderPassStage, UBOForwardLights } from '../define';
+import { RenderPassStage, UBOForwardLight } from '../define';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
@@ -27,7 +27,7 @@ const _sphere = sphere.create();
 
 export class ForwardPipeline extends RenderPipeline {
 
-    protected _uboLights: UBOForwardLights = new UBOForwardLights();
+    protected _uboLights: UBOForwardLight = new UBOForwardLight();
     protected _lightsUBO: GFXBuffer | null = null;
     private _validLights: Light[];
     private _lightIndexOffset: number[];
@@ -107,20 +107,20 @@ export class ForwardPipeline extends RenderPipeline {
     protected createUBOs (): boolean {
         super.createUBOs();
 
-        if (!this._globalBindings.get(UBOForwardLights.BLOCK.name)) {
+        if (!this._globalBindings.get(UBOForwardLight.BLOCK.name)) {
             const lightsUBO = this._root.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOForwardLights.SIZE,
+                size: UBOForwardLight.SIZE,
             });
 
             if (!lightsUBO) {
                 return false;
             }
 
-            this._globalBindings.set(UBOForwardLights.BLOCK.name, {
+            this._globalBindings.set(UBOForwardLight.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
-                blockInfo: UBOForwardLights.BLOCK,
+                blockInfo: UBOForwardLight.BLOCK,
                 buffer: lightsUBO,
             });
         }
@@ -131,10 +131,10 @@ export class ForwardPipeline extends RenderPipeline {
     protected destroyUBOs () {
         super.destroyUBOs();
 
-        const lightsUBO = this._globalBindings.get(UBOForwardLights.BLOCK.name);
+        const lightsUBO = this._globalBindings.get(UBOForwardLight.BLOCK.name);
         if (lightsUBO) {
             lightsUBO.buffer!.destroy();
-            this._globalBindings.delete(UBOForwardLights.BLOCK.name);
+            this._globalBindings.delete(UBOForwardLight.BLOCK.name);
         }
     }
 
@@ -144,7 +144,7 @@ export class ForwardPipeline extends RenderPipeline {
         for (let i = 0; i < this._visibleModel.length; i++) {
             this._uboLights.view.fill(0);
             const nextLightIndex = i + 1 < this._visibleModel.length ? this._lightIndexOffset[i + 1] : this._lightIndices.length;
-            if (!this._visibleModel[i].localBindings.get(UBOForwardLights.BLOCK.name)) {
+            if (!this._visibleModel[i].localBindings.get(UBOForwardLight.BLOCK.name)) {
                 continue;
             }
             const dirNum = 0;
@@ -155,42 +155,42 @@ export class ForwardPipeline extends RenderPipeline {
                 if (light && light.enabled) {
                     switch (light.type) {
                         // case LightType.DIRECTIONAL:
-                        //     this._uboLights.view.set((light as DirectionalLight).directionArray, UBOForwardLights.DIR_LIGHT_DIR_OFFSET + dirNum * 4);
-                        //     this._uboLights.view.set(light.color, UBOForwardLights.DIR_LIGHT_COLOR_OFFSET + dirNum * 4);
+                        //     this._uboLights.view.set((light as DirectionalLight).directionArray, UBOForwardLight.DIR_LIGHT_DIR_OFFSET + dirNum * 4);
+                        //     this._uboLights.view.set(light.color, UBOForwardLight.DIR_LIGHT_COLOR_OFFSET + dirNum * 4);
                         //     dirNum++;
                         //     break;
                         case LightType.SPHERE:
                             vec3.array(_vec4Array, (light as SphereLight).position);
-                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_POS_OFFSET + pointNum * 4);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_POS_OFFSET + pointNum * 4);
 
                             _vec4Array[0] = (light as SphereLight).size;
                             _vec4Array[1] = (light as SphereLight).range;
                             _vec4Array[2] = 0.0;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_SIZE_RANGE_OFFSET + pointNum * 4);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_SIZE_RANGE_OFFSET + pointNum * 4);
 
                             vec3.array(_vec4Array, light.color);
                             _vec4Array[3] = (light as SphereLight).luminance;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPHERE_LIGHT_COLOR_OFFSET + pointNum * 4);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_COLOR_OFFSET + pointNum * 4);
                             pointNum++;
                             break;
                         case LightType.SPOT:
                             vec3.array(_vec4Array, (light as SpotLight).position);
                             _vec4Array[3] = (light as SpotLight).size;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_POS_SIZE_OFFSET + spotNum * 4);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_POS_SIZE_OFFSET + spotNum * 4);
 
                             vec3.array(_vec4Array, (light as SpotLight).direction);
                             _vec4Array[3] = (light as SpotLight).range;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_DIR_RANGE_OFFSET + spotNum * 4);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_DIR_RANGE_OFFSET + spotNum * 4);
 
                             vec3.array(_vec4Array, light.color);
                             _vec4Array[3] = (light as SpotLight).luminance;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + spotNum * 4);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_COLOR_OFFSET + spotNum * 4);
                             spotNum++;
                             break;
                     }
                 }
             }
-            this._visibleModel[i].localBindings.get(UBOForwardLights.BLOCK.name)!.buffer!.update(this._uboLights.view);
+            this._visibleModel[i].localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!.update(this._uboLights.view);
         }
 
     }
@@ -227,7 +227,7 @@ export class ForwardPipeline extends RenderPipeline {
         this._lightIndices.splice(0);
         for (let i = 0; i < this._visibleModel.length; i++) {
             this._lightIndexOffset[i] = this._lightIndices.length;
-            if (this._visibleModel[i].localBindings.get(UBOForwardLights.BLOCK.name)) {
+            if (this._visibleModel[i].localBindings.get(UBOForwardLight.BLOCK.name)) {
                 this.cullLightPerModel(this._visibleModel[i]);
             }
         }

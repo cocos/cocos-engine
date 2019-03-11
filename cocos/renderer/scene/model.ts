@@ -12,7 +12,7 @@ import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
-import { UBOLocal, IInternalBindingInst, UBOForwardLights, IInternalBindingDesc } from '../../pipeline/define';
+import { UBOLocal, IInternalBindingInst, UBOForwardLight, IInternalBindingDesc } from '../../pipeline/define';
 import { GFXUniformBlock } from '../../gfx/shader';
 
 const _temp_floatx16 = new Float32Array(16);
@@ -278,8 +278,8 @@ export class Model {
 
     protected _onCreatePSO (pso: GFXPipelineState) {
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
-        if (this._localBindings.has(UBOForwardLights.BLOCK.name)) {
-            pso.pipelineLayout.layouts[0].bindBuffer(UBOForwardLights.BLOCK.binding, this._localBindings.get(UBOForwardLights.BLOCK.name)!.buffer!);
+        if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
+            pso.pipelineLayout.layouts[0].bindBuffer(UBOForwardLight.BLOCK.binding, this._localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!);
         }
     }
 
@@ -290,15 +290,15 @@ export class Model {
         });
         let hasForwardLight = false;
         for (const p of mat.passes) {
-            if (p.bindings.find((b) => b.name === UBOForwardLights.BLOCK.name)) {
+            if (p.bindings.find((b) => b.name === UBOForwardLight.BLOCK.name)) {
                 hasForwardLight = true;
                 break;
             }
         }
         if (hasForwardLight && cc.director.root.pipeline.constructor.name === 'ForwardPipeline') {
-            this._localBindings.set(UBOForwardLights.BLOCK.name, {
+            this._localBindings.set(UBOForwardLight.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
-                blockInfo: UBOForwardLights.BLOCK,
+                blockInfo: UBOForwardLight.BLOCK,
             });
         }
     }

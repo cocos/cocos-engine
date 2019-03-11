@@ -106,35 +106,35 @@ localBindingsDesc.set(UBOLocal.BLOCK.name, {
     blockInfo: UBOLocal.BLOCK,
 });
 
-export class UBOForwardLights {
+export class UBOForwardLight {
     public static MAX_SPHERE_LIGHTS = 4;
     public static MAX_SPOT_LIGHTS = 4;
 
     public static SPHERE_LIGHT_POS_OFFSET: number = 0;
-    public static SPHERE_LIGHT_SIZE_RANGE_OFFSET: number = UBOForwardLights.SPHERE_LIGHT_POS_OFFSET + UBOForwardLights.MAX_SPHERE_LIGHTS * 4;
-    public static SPHERE_LIGHT_COLOR_OFFSET: number = UBOForwardLights.SPHERE_LIGHT_SIZE_RANGE_OFFSET + UBOForwardLights.MAX_SPHERE_LIGHTS * 4;
-    public static SPOT_LIGHT_POS_SIZE_OFFSET: number = UBOForwardLights.SPHERE_LIGHT_COLOR_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
-    public static SPOT_LIGHT_DIR_RANGE_OFFSET: number = UBOForwardLights.SPOT_LIGHT_POS_SIZE_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
-    public static SPOT_LIGHT_COLOR_OFFSET: number = UBOForwardLights.SPOT_LIGHT_DIR_RANGE_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
-    public static COUNT: number = UBOForwardLights.SPOT_LIGHT_COLOR_OFFSET + UBOForwardLights.MAX_SPOT_LIGHTS * 4;
-    public static SIZE: number = UBOForwardLights.COUNT * 4;
+    public static SPHERE_LIGHT_SIZE_RANGE_OFFSET: number = UBOForwardLight.SPHERE_LIGHT_POS_OFFSET + UBOForwardLight.MAX_SPHERE_LIGHTS * 4;
+    public static SPHERE_LIGHT_COLOR_OFFSET: number = UBOForwardLight.SPHERE_LIGHT_SIZE_RANGE_OFFSET + UBOForwardLight.MAX_SPHERE_LIGHTS * 4;
+    public static SPOT_LIGHT_POS_SIZE_OFFSET: number = UBOForwardLight.SPHERE_LIGHT_COLOR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static SPOT_LIGHT_DIR_RANGE_OFFSET: number = UBOForwardLight.SPOT_LIGHT_POS_SIZE_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static SPOT_LIGHT_COLOR_OFFSET: number = UBOForwardLight.SPOT_LIGHT_DIR_RANGE_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static COUNT: number = UBOForwardLight.SPOT_LIGHT_COLOR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static SIZE: number = UBOForwardLight.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: UniformBinding.UBO_FORWARD_LIGHTS, name: 'CCForwardLights', members: [
-            { name: 'cc_sphereLitPos', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
-            { name: 'cc_sphereLitSizeRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
-            { name: 'cc_sphereLitColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPHERE_LIGHTS },
-            { name: 'cc_spotLitPosSize', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-            { name: 'cc_spotLitDirRange', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
-            { name: 'cc_spotLitColor', type: GFXType.FLOAT4, count: UBOForwardLights.MAX_SPOT_LIGHTS },
+        binding: UniformBinding.UBO_FORWARD_LIGHTS, name: 'CCForwardLight', members: [
+            { name: 'cc_sphereLitPos', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPHERE_LIGHTS },
+            { name: 'cc_sphereLitSizeRange', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPHERE_LIGHTS },
+            { name: 'cc_sphereLitColor', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPHERE_LIGHTS },
+            { name: 'cc_spotLitPosSize', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLitDirRange', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLitColor', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
         ],
     };
 
-    public view: Float32Array = new Float32Array(UBOForwardLights.COUNT);
+    public view: Float32Array = new Float32Array(UBOForwardLight.COUNT);
 }
-localBindingsDesc.set(UBOForwardLights.BLOCK.name, {
+localBindingsDesc.set(UBOForwardLight.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
-    blockInfo: UBOForwardLights.BLOCK,
+    blockInfo: UBOForwardLight.BLOCK,
 });
 
 export class UBOSkinning {
