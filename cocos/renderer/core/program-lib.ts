@@ -1,10 +1,10 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { IBlockInfo, IBlockMember, IDefineInfo, ISamplerInfo, IShaderInfo } from '../../3d/assets/effect-asset';
-import { GFXBindingType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
+import { IDefineInfo, IShaderInfo } from '../../3d/assets/effect-asset';
+import { GFXBindingType, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
-import { GFXShader, GFXUniform, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
-import { localBindingsDesc } from '../../pipeline/define';
+import { GFXShader, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
+import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { IDefineMap } from './effect';
 
@@ -36,7 +36,8 @@ interface IDefineRecord extends IDefineInfo {
 interface IProgramInfo extends IShaderInfo {
     id: number;
     defines: IDefineRecord[];
-    builtinInited: boolean;
+    globalsInited: boolean;
+    localsInited: boolean;
 }
 
 class ProgramLib {
@@ -69,7 +70,7 @@ class ProgramLib {
      */
     public define (prog: IShaderInfo) {
         const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
-        insertLocalBindings(tmpl);
+        if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
 
         // calculate option mask offset
         let offset = 0;
@@ -124,7 +125,7 @@ class ProgramLib {
         // get template
         const tmpl = this._templates[name];
         const customDef = _generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
-        if (!tmpl.builtinInited) { insertGlobalBindings(tmpl, pipeline); }
+        if (!tmpl.globalsInited) { insertBuiltinBindings(tmpl, pipeline.globalBindings, 'globals'); tmpl.globalsInited = true; }
 
         let vert: string = '';
         let frag: string = '';
@@ -151,76 +152,21 @@ class ProgramLib {
     }
 }
 
-function insertGlobalBindings (tmpl: IProgramInfo, pipeline: RenderPipeline) {
-    const source = pipeline.globalBindings;
-    const target = tmpl.builtins;
+function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) {
+    const target = tmpl.builtins[type];
     for (const b of target.blocks) {
         const info = source.get(b);
-        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`global UBO '${b}' not available!`); continue; }
-        tmpl.blocks.push(convertToBlockInfo(info.blockInfo!));
+        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
+        const blocks = tmpl.blocks as GFXUniformBlock[];
+        blocks.push(info.blockInfo!);
     }
     for (const s of target.samplers) {
         const info = source.get(s);
-        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`global sampler '${s}' not available!`); continue; }
-        tmpl.samplers.push(convertToSamplerInfo(info.samplerInfo!));
-    }
-    tmpl.builtinInited = true;
-}
-
-const localRE = /^cc(skin|loc|_joint|forward)/i;
-function insertLocalBindings (tmpl: IProgramInfo) {
-    const source = localBindingsDesc;
-    const target = tmpl.builtins;
-    for (let i = 0; i < target.blocks.length;) {
-        const name = target.blocks[i];
-        if (!localRE.test(name)) { i++; continue; }
-        target.blocks.splice(i, 1);
-        const info = source.get(name);
-        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`local UBO '${name}' not available!`); continue; }
-        tmpl.blocks.push(convertToBlockInfo(info.blockInfo!));
-    }
-    for (let i = 0; i < target.samplers.length;) {
-        const name = target.samplers[i];
-        if (!localRE.test(name)) { i++; continue; }
-        target.samplers.splice(i, 1);
-        const info = source.get(name);
-        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`local sampler '${name}' not available!`); continue; }
-        tmpl.samplers.push(convertToSamplerInfo(info.samplerInfo!));
+        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s}' not available!`); continue; }
+        const samplers = tmpl.samplers as GFXUniformSampler[];
+        samplers.push(info.samplerInfo!);
     }
 }
 
-function convertToUniformInfo (uniform: GFXUniform): IBlockMember {
-    return {
-        name: uniform.name,
-        type: uniform.type,
-        count: uniform.count,
-        size: GFXGetTypeSize(uniform.type) * uniform.count,
-    };
-}
-function convertToBlockInfo (block: GFXUniformBlock): IBlockInfo {
-    const members: IBlockMember[] = [];
-    let size: number = 0;
-    for (let i = 0; i < block.members.length; i++) {
-        members.push(convertToUniformInfo(block.members[i]));
-        size += members[i].size;
-    }
-    return {
-        binding: block.binding,
-        name: block.name,
-        members,
-        defines: [],
-        size,
-    };
-}
-function convertToSamplerInfo (sampler: GFXUniformSampler): ISamplerInfo {
-    return {
-        binding: sampler.binding,
-        name: sampler.name,
-        type: sampler.type,
-        count: sampler.count,
-        defines: [],
-    };
-}
-
-const programLib = cc.programLib = new ProgramLib();
-export { programLib };
+export const programLib = new ProgramLib();
+cc.programLib = programLib;

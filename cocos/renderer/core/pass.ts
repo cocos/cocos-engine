@@ -306,7 +306,7 @@ export class Pass {
         }
         // bind pipeline builtins
         const source = cc.director.root.pipeline.globalBindings;
-        const target = this._shaderInfo!.builtins;
+        const target = this._shaderInfo!.builtins.globals;
         for (const b of target.blocks) {
             const info = source.get(b);
             if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
