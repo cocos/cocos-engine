@@ -51,7 +51,14 @@ if (CC_JSB && _global.spine === undefined) {
 if (_isUseSpine) {
     _global.sp = {};
 
-    // spine global time scale.
+    /**
+     * !#en
+     * The global time scale of Spine.
+     * !#zh
+     * Spine 全局时间缩放率。
+     * @example
+     * sp.timeScale = 0.8;
+     */
     sp._timeScale = 1.0;
     Object.defineProperty(sp, 'timeScale', {
         get () {
