@@ -27,9 +27,35 @@ const Label = require('../../../../components/CCLabel');
 
 const ttfAssembler = require('./2d/ttf');
 const bmfontAssembler = require('./2d/bmfont');
+const letterAssembler = require('./2d/letter');
 
 const ttfAssembler3D = require('./3d/ttf');
 const bmfontAssembler3D = require('./3d/bmfont');
+const letterAssembler3D = require('./3d/letter');
+
+let canvasPool = {
+    pool: [],
+    get () {
+        let data = this.pool.pop();
+
+        if (!data) {
+            let canvas = document.createElement("canvas");
+            let context = canvas.getContext("2d");
+            data = {
+                canvas: canvas,
+                context: context
+            }
+        }
+
+        return data;
+    },
+    put (canvas) {
+        if (this.pool.length >= 32) {
+            return;
+        }
+        this.pool.push(canvas);
+    }
+};
 
 var labelAssembler = {
     getAssembler (comp) {
@@ -38,6 +64,12 @@ var labelAssembler = {
         
         if (comp.font instanceof cc.BitmapFont) {
             assembler = is3DNode ? bmfontAssembler3D : bmfontAssembler;
+        } else if (comp.cacheMode === Label.CacheMode.CHAR) {
+            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+                cc.warn('sorry, subdomain does not support CHAR mode currently!');
+            } else {
+                assembler = is3DNode ? letterAssembler3D : letterAssembler;
+            }  
         }
 
         return assembler;
@@ -50,5 +82,5 @@ var labelAssembler = {
 };
 
 Label._assembler = labelAssembler;
-
+Label._canvasPool = canvasPool;
 module.exports = labelAssembler;

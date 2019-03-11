@@ -1189,8 +1189,8 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
     if (CC_EDITOR) {
         parseSimpleAttr('notifyFor', 'string');
 
-        if ('animatable' in attrs && !attrs.animatable) {
-            (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = false;
+        if ('animatable' in attrs) {
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = !!attrs.animatable;
         }
     }
 

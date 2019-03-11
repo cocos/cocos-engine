@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,38 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Sprite = require('../../../../components/CCSprite');
-const SpriteType = Sprite.Type;
-const FillType = Sprite.FillType;
-let simple = require('./simple');
-let sliced = require('./sliced');
-let tiled = require('./tiled');
+const js = require('../../../../../platform/js');
+const assembler = require('../2d/letter');
+const fillMeshVertices3D = require('../../utils').fillMeshVertices3D;
+const WHITE = cc.color(255, 255, 255, 255);
 
-if (CC_TEST) {
-    // 2.x not support test with the canvas simple, in order to test in local test construct.
-    cc._Test._spriteWebGLAssembler = require('../../../webgl/assemblers/sprite/index.js');
-}
-
-module.exports = {
-    getAssembler: function (sprite) {
-        switch (sprite.type) {
-            case SpriteType.SIMPLE:
-                return simple;
-            case SpriteType.SLICED:
-                return sliced;
-            case SpriteType.TILED:
-                return tiled;
-            case SpriteType.FILLED:
-                if (sprite._fillType === FillType.RADIAL) {
-                    return null;
-                }
-                else {
-                    return null;
-                }
-        }
-    },
-
-    createData (sprite) {
-        return sprite._assembler.createData(sprite);
+module.exports = js.addon({
+    fillBuffers (comp, renderer) {
+        let node = comp.node;
+        WHITE._fastSetA(node.color.a);
+        fillMeshVertices3D(comp.node, renderer._meshBuffer3D, comp._renderData, WHITE._val);
     }
-};
+}, assembler);

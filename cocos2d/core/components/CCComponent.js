@@ -176,7 +176,8 @@ var Component = cc.Class({
                     }
                 }
             },
-            visible: false
+            visible: false,
+            animatable: true
         },
 
         /**

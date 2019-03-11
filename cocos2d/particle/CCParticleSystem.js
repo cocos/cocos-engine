@@ -34,6 +34,7 @@ const textureUtil = require('../core/utils/texture-util');
 const RenderFlow = require('../core/renderer/render-flow');
 const ParticleSimulator = require('./particle-simulator');
 const Material = require('../core/assets/material/CCMaterial');
+const BlendFunc = require('../core/utils/blend-func');
 
 function getImageFormatByData (imgData) {
     // if it is a png file buffer.
@@ -525,7 +526,7 @@ var properties = {
      * @property {Vec2} sourcePos
      * @default cc.Vec2.ZERO
      */
-    sourcePos: cc.v2(0, 0),
+    sourcePos: cc.Vec2.ZERO,
 
     /**
      * !#en Variation of source position.
@@ -533,7 +534,7 @@ var properties = {
      * @property {Vec2} posVar
      * @default cc.Vec2.ZERO
      */
-    posVar: cc.v2(0, 0),
+    posVar: cc.Vec2.ZERO,
 
     /**
      * !#en Particles movement type.
@@ -565,7 +566,7 @@ var properties = {
      * @property {Vec2} gravity
      * @default cc.Vec2.ZERO
      */
-    gravity: cc.v2(0, 0),
+    gravity: cc.Vec2.ZERO,
     /**
      * !#en Speed of the emitter.
      * !#zh 速度。
@@ -661,6 +662,7 @@ var properties = {
      * @default 0
      */
     rotatePerSVar: 0
+
 };
 
 /**
@@ -709,6 +711,7 @@ var properties = {
 var ParticleSystem = cc.Class({
     name: 'cc.ParticleSystem',
     extends: RenderComponent,
+    mixins: BlendFunc,
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/ParticleSystem',
         inspector: 'packages://inspector/inspectors/comps/particle-system.js',
