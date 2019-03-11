@@ -46,6 +46,19 @@ if (!CC_JSB) {
 
 if (_global.dragonBones !== undefined) {
 
+    // dragonbones global time scale.
+    dragonBones._timeScale = 1.0;
+    Object.defineProperty(dragonBones, 'timeScale', {
+        get () {
+            return this._timeScale;
+        },
+        set (value) {
+            this._timeScale = value;
+            let factory = this.CCFactory.getInstance();
+            factory._dragonBones.clock.timeScale = value;
+        }
+    });
+
     dragonBones.DisplayType = {
         Image : 0,
         Armature : 1,
