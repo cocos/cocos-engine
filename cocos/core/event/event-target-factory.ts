@@ -13,7 +13,7 @@ class Empty { protected constructor () {}; }
 export function EventTargetFactory<Base extends Constructor<{}>> (b?: Base) {
     let base = b;
     if (!base) {
-        base = <Base>Empty;
+        base = Empty as Base;
     }
     class EventTarget extends base {
         private _callbacksInvoker = new CallbacksInvoker();

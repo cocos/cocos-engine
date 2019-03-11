@@ -29,6 +29,7 @@ import vec3 from './vec3';
  * This is not unique to glMatrix, either, as OpenGL developers have long been confused by the
  * apparent lack of consistency between the memory layout and the documentation.
  */
+// tslint:disable-next-line:class-name
 class mat3 {
 
     /**

@@ -1,12 +1,17 @@
-/// <reference path="./fwd-decls" />
-
+import { IWritableArrayLike } from './fwd-decls';
+import mat2 from './mat2';
+import mat23 from './mat23';
+import mat3 from './mat3';
+import mat4 from './mat4';
 import { EPSILON, random } from './utils';
+import vec3 from './vec3';
 
 /**
  * Mathematical 2-dimensional vector.
  *
  * x, y is alias of the first, second component of vector, respectively.
  */
+// tslint:disable-next-line:class-name
 export default class vec2 {
     public static ZERO = new vec2(0, 0);
     public static ONE = new vec2(1, 1);
@@ -28,7 +33,7 @@ export default class vec2 {
      *
      * @return The newly created vector.
      */
-    public static zero<Out extends IVec2Like> (out: Out) {
+    public static zero<Out extends vec2> (out: Out) {
         out.x = 0;
         out.y = 0;
         return out;
@@ -51,7 +56,7 @@ export default class vec2 {
      * @param a - The specified vector.
      * @return out.
      */
-    public static copy<Out extends IVec2Like> (out: Out, a: vec2) {
+    public static copy<Out extends vec2> (out: Out, a: vec2) {
         out.x = a.x;
         out.y = a.y;
         return out;
@@ -65,7 +70,7 @@ export default class vec2 {
      * @param y - Value set to y component.
      * @return out.
      */
-    public static set<Out extends IVec2Like> (out: Out, x: number, y: number) {
+    public static set<Out extends vec2> (out: Out, x: number, y: number) {
         out.x = x;
         out.y = y;
         return out;
@@ -81,7 +86,7 @@ export default class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static add<Out extends IVec2Like> (out: Out, a: vec2, b: vec2) {
+    public static add<Out extends vec2> (out: Out, a: vec2, b: vec2) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         return out;
@@ -97,7 +102,7 @@ export default class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static subtract<Out extends IVec2Like> (out: Out, a: vec2, b: vec2) {
+    public static subtract<Out extends vec2> (out: Out, a: vec2, b: vec2) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         return out;
@@ -106,7 +111,7 @@ export default class vec2 {
     /**
      * Alias of {@link vec2.subtract}.
      */
-    public static sub<Out extends IVec2Like> (out: Out, a: vec2, b: vec2) {
+    public static sub<Out extends vec2> (out: Out, a: vec2, b: vec2) {
         return vec2.subtract(out, a, b);
     }
 
@@ -120,7 +125,7 @@ export default class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static multiply<Out extends IVec2Like> (out: Out, a: vec2, b: vec2) {
+    public static multiply<Out extends vec2> (out: Out, a: vec2, b: vec2) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         return out;
@@ -129,7 +134,7 @@ export default class vec2 {
     /**
      * Alias of {@link vec2.multiply}.
      */
-    public static mul<Out extends IVec2Like> (out: Out, a: vec2, b: vec2) {
+    public static mul<Out extends vec2> (out: Out, a: vec2, b: vec2) {
         return vec2.multiply(out, a, b);
     }
 
@@ -143,7 +148,7 @@ export default class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static divide<Out extends IVec2Like> (out: Out, a: vec2, b: vec2) {
+    public static divide<Out extends vec2> (out: Out, a: vec2, b: vec2) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         return out;
@@ -152,7 +157,7 @@ export default class vec2 {
     /**
      * Alias of {@link vec2.divide}.
      */
-    public static div<Out extends IVec2Like> (out: Out, a: vec2, b: vec2) {
+    public static div<Out extends vec2> (out: Out, a: vec2, b: vec2) {
         return vec2.divide(out, a, b);
     }
 
@@ -165,7 +170,7 @@ export default class vec2 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static ceil<Out extends IVec2Like> (out: Out, a: vec2) {
+    public static ceil<Out extends vec2> (out: Out, a: vec2) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         return out;
@@ -180,7 +185,7 @@ export default class vec2 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static floor<Out extends IVec2Like> (out: Out, a: vec2) {
+    public static floor<Out extends vec2> (out: Out, a: vec2) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         return out;
@@ -196,7 +201,7 @@ export default class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static min<Out extends IVec2Like> (out: Out, a: vec2, b: vec2) {
+    public static min<Out extends vec2> (out: Out, a: vec2, b: vec2) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         return out;
@@ -212,7 +217,7 @@ export default class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static max<Out extends IVec2Like> (out: Out, a: vec2, b: vec2) {
+    public static max<Out extends vec2> (out: Out, a: vec2, b: vec2) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         return out;
@@ -227,7 +232,7 @@ export default class vec2 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static round<Out extends IVec2Like> (out: Out, a: vec2) {
+    public static round<Out extends vec2> (out: Out, a: vec2) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         return out;
@@ -241,7 +246,7 @@ export default class vec2 {
      * @param b - The scale number.
      * @return out.
      */
-    public static scale<Out extends IVec2Like> (out: Out, a: vec2, b: number) {
+    public static scale<Out extends vec2> (out: Out, a: vec2, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         return out;
@@ -256,7 +261,7 @@ export default class vec2 {
      * @param scale - The scale number before adding.
      * @return out.
      */
-    public static scaleAndAdd<Out extends IVec2Like> (out: Out, a: vec2, b: vec2, scale: number) {
+    public static scaleAndAdd<Out extends vec2> (out: Out, a: vec2, b: vec2, scale: number) {
         out.x = a.x + (b.x * scale);
         out.y = a.y + (b.y * scale);
         return out;
@@ -345,7 +350,7 @@ export default class vec2 {
      * @param a - Vector to negate.
      * @return out.
      */
-    public static negate<Out extends IVec2Like> (out: Out, a: vec2) {
+    public static negate<Out extends vec2> (out: Out, a: vec2) {
         out.x = -a.x;
         out.y = -a.y;
         return out;
@@ -358,7 +363,7 @@ export default class vec2 {
      * @param a - Vector to invert.
      * @return out.
      */
-    public static inverse<Out extends IVec2Like> (out: Out, a: vec2) {
+    public static inverse<Out extends vec2> (out: Out, a: vec2) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         return out;
@@ -371,7 +376,7 @@ export default class vec2 {
      * @param a - Vector to invert.
      * @return out.
      */
-    public static inverseSafe<Out extends IVec2Like> (out: Out, a: vec2) {
+    public static inverseSafe<Out extends vec2> (out: Out, a: vec2) {
         const { x, y } = a;
 
         if (Math.abs(x) < EPSILON) {
@@ -396,7 +401,7 @@ export default class vec2 {
      * @param a - Vector to normalize.
      * @return out.
      */
-    public static normalize<Out extends IVec2Like> (out: Out, a: vec2) {
+    public static normalize<Out extends vec2> (out: Out, a: vec2) {
         const { x, y } = a;
         let len = x * x + y * y;
         if (len > 0) {
@@ -428,7 +433,7 @@ export default class vec2 {
      * @param b - The second operand.
      * @return out.
      */
-    public static cross<Out extends IVec3Like> (out: Out, a: vec2, b: vec2) {
+    public static cross<Out extends vec3> (out: Out, a: vec2, b: vec2) {
         const z = a.x * b.y - a.y * b.x;
         out.x = out.y = 0;
         out.z = z;
@@ -444,7 +449,7 @@ export default class vec2 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    public static lerp<Out extends IVec2Like> (out: Out, a: vec2, b: vec2, t: number) {
+    public static lerp<Out extends vec2> (out: Out, a: vec2, b: vec2, t: number) {
         const { x: ax, y: ay } = a;
         out.x = ax + t * (b.x - ax);
         out.y = ay + t * (b.y - ay);
@@ -458,7 +463,7 @@ export default class vec2 {
      * @param [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
      * @return out.
      */
-    public static random<Out extends IVec2Like> (out: Out, scale: number) {
+    public static random<Out extends vec2> (out: Out, scale: number) {
         scale = scale || 1.0;
         const r = random() * 2.0 * Math.PI;
         out.x = Math.cos(r) * scale;
@@ -474,7 +479,7 @@ export default class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    public static transformMat2<Out extends IVec2Like> (out: Out, a: vec2, m: IMat2Like) {
+    public static transformMat2<Out extends vec2> (out: Out, a: vec2, m: mat2) {
         const { x, y } = a;
         out.x = m.m00 * x + m.m02 * y;
         out.y = m.m01 * x + m.m03 * y;
@@ -489,7 +494,7 @@ export default class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    public static transformMat23<Out extends IVec2Like> (out: Out, a: vec2, m: IMat23Like) {
+    public static transformMat23<Out extends vec2> (out: Out, a: vec2, m: mat23) {
         const { x, y } = a;
         out.x = m.m00 * x + m.m02 * y + m.m04;
         out.y = m.m01 * x + m.m03 * y + m.m05;
@@ -504,7 +509,7 @@ export default class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    public static transformMat3<Out extends IVec2Like> (out: Out, a: vec2, m: IMat3Like) {
+    public static transformMat3<Out extends vec2> (out: Out, a: vec2, m: mat3) {
         const { x, y } = a;
         out.x = m.m00 * x + m.m03 * y + m.m06;
         out.y = m.m01 * x + m.m04 * y + m.m07;
@@ -521,7 +526,7 @@ export default class vec2 {
      * @param m - The matrix.
      * @return out.
      */
-    public static transformMat4<Out extends IVec2Like> (out: Out, a: vec2, m: IMat4Like) {
+    public static transformMat4<Out extends vec2> (out: Out, a: vec2, m: mat4) {
         const { x, y } = a;
         out.x = m.m00 * x + m.m04 * y + m.m12;
         out.y = m.m01 * x + m.m05 * y + m.m13;

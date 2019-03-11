@@ -1,5 +1,6 @@
-/// <reference path="./fwd-decls" />
-
+import { IWritableArrayLike } from './fwd-decls';
+import mat4 from './mat4';
+import quat from './quat';
 import { EPSILON, random } from './utils';
 
 /**
@@ -7,6 +8,7 @@ import { EPSILON, random } from './utils';
  *
  * x, y, z, w is alias of the first, second, third, fourth component of vector, respectively.
  */
+// tslint:disable-next-line:class-name
 export default class vec4 {
     public static ZERO = new vec4(0, 0, 0, 0);
     public static ONE = new vec4(1, 1, 1, 1);
@@ -55,7 +57,7 @@ export default class vec4 {
      * @param a - The specified vector.
      * @return out.
      */
-    public static copy<Out extends IVec4Like> (out: Out, a: vec4) {
+    public static copy<Out extends vec4> (out: Out, a: vec4) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -73,7 +75,7 @@ export default class vec4 {
      * @param w - Value set to w component.
      * @return out.
      */
-    public static set<Out extends IVec4Like> (out: Out, x: number, y: number, z: number, w: number) {
+    public static set<Out extends vec4> (out: Out, x: number, y: number, z: number, w: number) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -91,7 +93,7 @@ export default class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    public static add<Out extends IVec4Like> (out: Out, a: vec4, b: vec4) {
+    public static add<Out extends vec4> (out: Out, a: vec4, b: vec4) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
@@ -109,7 +111,7 @@ export default class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    public static subtract<Out extends IVec4Like> (out: Out, a: vec4, b: vec4) {
+    public static subtract<Out extends vec4> (out: Out, a: vec4, b: vec4) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
@@ -120,7 +122,7 @@ export default class vec4 {
     /**
      * Alias of {@link vec4.subtract}.
      */
-    public static sub<Out extends IVec4Like> (out: Out, a: vec4, b: vec4) {
+    public static sub<Out extends vec4> (out: Out, a: vec4, b: vec4) {
         return vec4.subtract(out, a, b);
     }
 
@@ -134,7 +136,7 @@ export default class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    public static multiply<Out extends IVec4Like> (out: Out, a: vec4, b: vec4) {
+    public static multiply<Out extends vec4> (out: Out, a: vec4, b: vec4) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
@@ -145,7 +147,7 @@ export default class vec4 {
     /**
      * Alias of {@link vec4.multiply}.
      */
-    public static mul<Out extends IVec4Like> (out: Out, a: vec4, b: vec4) {
+    public static mul<Out extends vec4> (out: Out, a: vec4, b: vec4) {
         return vec4.multiply(out, a, b);
     }
 
@@ -159,7 +161,7 @@ export default class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    public static divide<Out extends IVec4Like> (out: Out, a: vec4, b: vec4) {
+    public static divide<Out extends vec4> (out: Out, a: vec4, b: vec4) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -170,7 +172,7 @@ export default class vec4 {
     /**
      * Alias of {@link vec4.divide}.
      */
-    public static div<Out extends IVec4Like> (out: Out, a: vec4, b: vec4) {
+    public static div<Out extends vec4> (out: Out, a: vec4, b: vec4) {
         return vec4.divide(out, a, b);
     }
 
@@ -183,7 +185,7 @@ export default class vec4 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static ceil<Out extends IVec4Like> (out: Out, a: vec4) {
+    public static ceil<Out extends vec4> (out: Out, a: vec4) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         out.z = Math.ceil(a.z);
@@ -200,7 +202,7 @@ export default class vec4 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static floor<Out extends IVec4Like> (out: Out, a: vec4) {
+    public static floor<Out extends vec4> (out: Out, a: vec4) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         out.z = Math.floor(a.z);
@@ -218,7 +220,7 @@ export default class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    public static min<Out extends IVec4Like> (out: Out, a: vec4, b: vec4) {
+    public static min<Out extends vec4> (out: Out, a: vec4, b: vec4) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         out.z = Math.min(a.z, b.z);
@@ -236,7 +238,7 @@ export default class vec4 {
      * @param b - The second operand.
      * @return out.
      */
-    public static max<Out extends IVec4Like> (out: Out, a: vec4, b: vec4) {
+    public static max<Out extends vec4> (out: Out, a: vec4, b: vec4) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         out.z = Math.max(a.z, b.z);
@@ -253,7 +255,7 @@ export default class vec4 {
      * @param a - Vector to perform operation.
      * @return out.
      */
-    public static round<Out extends IVec4Like> (out: Out, a: vec4) {
+    public static round<Out extends vec4> (out: Out, a: vec4) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         out.z = Math.round(a.z);
@@ -269,7 +271,7 @@ export default class vec4 {
      * @param b - The scale number.
      * @return out.
      */
-    public static scale<Out extends IVec4Like> (out: Out, a: vec4, b: number) {
+    public static scale<Out extends vec4> (out: Out, a: vec4, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -286,7 +288,7 @@ export default class vec4 {
      * @param scale - The scale number before adding.
      * @return out.
      */
-    public static scaleAndAdd<Out extends IVec4Like> (out: Out, a: vec4, b: vec4, scale: number) {
+    public static scaleAndAdd<Out extends vec4> (out: Out, a: vec4, b: vec4, scale: number) {
         out.x = a.x + (b.x * scale);
         out.y = a.y + (b.y * scale);
         out.z = a.z + (b.z * scale);
@@ -381,7 +383,7 @@ export default class vec4 {
      * @param a - Vector to negate.
      * @return out.
      */
-    public static negate<Out extends IVec4Like> (out: Out, a: vec4) {
+    public static negate<Out extends vec4> (out: Out, a: vec4) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -396,7 +398,7 @@ export default class vec4 {
      * @param a - Vector to invert.
      * @return out.
      */
-    public static inverse<Out extends IVec4Like> (out: Out, a: vec4) {
+    public static inverse<Out extends vec4> (out: Out, a: vec4) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -411,7 +413,7 @@ export default class vec4 {
      * @param a - Vector to invert.
      * @return out.
      */
-    public static inverseSafe<Out extends IVec4Like> (out: Out, a: vec4) {
+    public static inverseSafe<Out extends vec4> (out: Out, a: vec4) {
         const { x, y, z, w } = a;
 
         if (Math.abs(x) < EPSILON) {
@@ -448,7 +450,7 @@ export default class vec4 {
      * @param a - Vector to normalize.
      * @return out.
      */
-    public static normalize<Out extends IVec4Like> (out: Out, a: vec4) {
+    public static normalize<Out extends vec4> (out: Out, a: vec4) {
         const { x, y, z, w } = a;
         let len = x * x + y * y + z * z + w * w;
         if (len > 0) {
@@ -481,7 +483,7 @@ export default class vec4 {
      * @param t - The interpolation coefficient.
      * @return out.
      */
-    public static lerp<Out extends IVec4Like> (out: Out, a: vec4, b: vec4, t: number) {
+    public static lerp<Out extends vec4> (out: Out, a: vec4, b: vec4, t: number) {
         const { x: ax, y: ay, z: az, w: aw } = a;
         out.x = ax + t * (b.x - ax);
         out.y = ay + t * (b.y - ay);
@@ -497,7 +499,7 @@ export default class vec4 {
      * @param [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
      * @return out.
      */
-    public static random<Out extends IVec4Like> (out: Out, scale: number) {
+    public static random<Out extends vec4> (out: Out, scale: number) {
         scale = scale || 1.0;
 
         const phi = random() * 2.0 * Math.PI;
@@ -518,7 +520,7 @@ export default class vec4 {
      * @param m - The matrix.
      * @return out.
      */
-    public static transformMat4<Out extends IVec4Like> (out: Out, a: vec4, m: IMat4Like) {
+    public static transformMat4<Out extends vec4> (out: Out, a: vec4, m: mat4) {
         const { x, y, z, w } = a;
         out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12 * w;
         out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13 * w;
@@ -535,7 +537,7 @@ export default class vec4 {
      * @param q - The quaternion.
      * @return out.
      */
-    public static transformQuat<Out extends IVec4Like> (out: Out, a: vec4, q: IQuatLike) {
+    public static transformQuat<Out extends vec4> (out: Out, a: vec4, q: quat) {
         const { x, y, z } = a;
         const { x: qx, y: qy, z: qz, w: qw } = q;
 

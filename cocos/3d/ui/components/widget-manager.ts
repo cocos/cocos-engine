@@ -349,7 +349,7 @@ function refreshScene () {
     }
 }
 
-function adjustWidgetToAllowMovingInEditor (oldPos: Vec3) {
+function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, oldPos: Vec3) {
     if (!CC_EDITOR) {
         return;
     }
@@ -358,7 +358,7 @@ function adjustWidgetToAllowMovingInEditor (oldPos: Vec3) {
         return;
     }
 
-    const self = this as WidgetComponent;
+    const self = this;
     const newPos = self.node.getPosition();
     const delta = newPos.sub(oldPos);
 
@@ -396,7 +396,7 @@ function adjustWidgetToAllowMovingInEditor (oldPos: Vec3) {
     }
 }
 
-function adjustWidgetToAllowResizingInEditor (oldSize: Size) {
+function adjustWidgetToAllowResizingInEditor (this: WidgetComponent, oldSize: Size) {
     if (!CC_EDITOR) {
         return;
     }
@@ -405,7 +405,7 @@ function adjustWidgetToAllowResizingInEditor (oldSize: Size) {
         return;
     }
 
-    const self = this as WidgetComponent;
+    const self = this;
     const newSize = self.node.getContentSize();
     const delta = new Vec3(newSize.width - oldSize.width, newSize.height - oldSize.height, 0);
 

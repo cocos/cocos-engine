@@ -2,7 +2,6 @@ import { EPSILON } from './utils';
 
 // tslint:disable: one-variable-per-declaration
 // tslint:disable: max-line-length
-// tslint:disable: class-name
 
 /**
  * Mathematical 4x4 matrix.
@@ -30,6 +29,7 @@ import { EPSILON } from './utils';
  * This is not unique to glMatrix, either, as OpenGL developers have long been confused by the
  * apparent lack of consistency between the memory layout and the documentation.
  */
+// tslint:disable-next-line:class-name
 class mat4 {
 
     /**
