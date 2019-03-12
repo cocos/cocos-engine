@@ -18,9 +18,9 @@ import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
-import { programLib } from './program-lib';
+import { programLib, getShaderInstaceName } from './program-lib';
 
-export interface IDefineMap { [name: string]: number | boolean; }
+export interface IDefineMap { [name: string]: number | boolean | string; }
 export interface IPassInfoFull extends IPassInfo {
     // generated part
     idxInTech: number;
@@ -346,7 +346,7 @@ export class Pass {
     }
 
     public serializePipelineStates () {
-        const instanceName = Object.keys(this._defines).reduce((acc, cur) => this._defines[cur] ? `${acc}|${cur}` : acc, this._programName);
+        const instanceName = getShaderInstaceName(this._programName, this._defines);
         let res = `${instanceName},${this._stage},${this._primitive}`;
         res += serializeBlendState(this._bs);
         res += serializeDepthStencilState(this._dss);

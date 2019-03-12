@@ -1,9 +1,8 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import { EffectAsset } from '../../3d/assets/effect-asset';
-import { IPassInfoFull, Pass } from './pass';
+import { IDefineMap, IPassInfoFull, Pass } from './pass';
 
-export interface IDefineMap { [name: string]: number | boolean; }
 export interface IEffectInfo {
     techIdx?: number;
     defines?: IDefineMap[];

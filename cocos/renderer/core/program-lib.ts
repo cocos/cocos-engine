@@ -6,9 +6,17 @@ import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
-import { IDefineMap } from './effect';
+import { IDefineMap } from './pass';
 
-function _generateDefines (
+function mapDefine (def: number | string | boolean) {
+    switch (typeof def) {
+        case 'boolean': return def ? 1 : 0;
+        case 'string': case 'number': return def;
+    }
+    return 0;
+}
+
+function generateDefines (
     device: GFXDevice,
     defs: IDefineMap,
     tDefs: IDefineInfo[],
@@ -17,7 +25,7 @@ function _generateDefines (
     const defines: string[] = [];
     for (const { name } of tDefs) {
         const d = defs[name];
-        let result = (typeof d === 'number') ? d : (d ? 1 : 0);
+        let result = mapDefine(d);
         // fallback if extension dependency not supported
         if (result && deps[name] && !device[deps[name]]) {
             console.warn(`${deps[name]} not supported on this platform, disabled ${name}`);
@@ -77,7 +85,7 @@ class ProgramLib {
         for (const def of tmpl.defines) {
             let cnt = 1;
             if (def.type === 'number') {
-                const range = def.range || [0, 4];
+                const range = def.range || [0, def.options ? def.options.length - 1 : 4];
                 cnt = Math.ceil(Math.log2(range[1] - range[0]));
                 def._map = ((value: number) => (value - range[0]) << def._offset);
             } else { // boolean
@@ -124,7 +132,7 @@ class ProgramLib {
 
         // get template
         const tmpl = this._templates[name];
-        const customDef = _generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
+        const customDef = generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
         if (!tmpl.globalsInited) { insertBuiltinBindings(tmpl, pipeline.globalBindings, 'globals'); tmpl.globalsInited = true; }
 
         let vert: string = '';
@@ -137,7 +145,7 @@ class ProgramLib {
             frag = `#version 100\n${customDef}\n${tmpl.glsl1.frag}`;
         }
 
-        const instanceName = Object.keys(defines).reduce((acc, cur) => defines[cur] ? `${acc}|${cur}` : acc, name);
+        const instanceName = getShaderInstaceName(name, defines);
         program = device.createShader({
             name: instanceName,
             blocks: tmpl.blocks,
@@ -166,6 +174,14 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInterna
         const samplers = tmpl.samplers as GFXUniformSampler[];
         samplers.push(info.samplerInfo!);
     }
+}
+
+export function getShaderInstaceName (name: string, defines: IDefineMap) {
+    return Object.keys(defines).reduce((acc, cur) => {
+        const val = defines[cur];
+        const res = (typeof val === 'boolean' ? '' : val);
+        return val ? `${acc}|${cur}${res}` : acc;
+    }, name);
 }
 
 export const programLib = new ProgramLib();
