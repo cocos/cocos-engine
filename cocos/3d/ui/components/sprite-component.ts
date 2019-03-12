@@ -31,7 +31,7 @@ import { clampf } from '../../../core/utils/misc';
 import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
-import { EventType } from '../../../scene-graph/node-event-enum';
+import { EventType } from '../../../core/platform/event-manager/event-enum';
 import { UIRenderComponent } from './ui-render-component';
 
 /**

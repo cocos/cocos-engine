@@ -31,12 +31,12 @@ import {
     property,
     requireComponent,
 } from '../../../core/data/class-decorator';
+import { EventType} from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
 import { Color } from '../../../core/value-types/index';
 import { GFXBlendFactor } from '../../../gfx/define';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
-import { EventType} from '../../../scene-graph/node-event-enum';
 import { Material } from '../../assets/material';
 import { RenderableComponent } from '../../framework/renderable-component';
 import { IAssembler, IAssemblerManager } from '../assembler/assembler';

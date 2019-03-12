@@ -177,6 +177,7 @@ export function EventTargetFactory<Base extends Constructor<{}>> (b?: Base) {
     return EventTarget;
 }
 
-interface ITargetImpl extends Object {
+export interface ITargetImpl extends Object {
     __eventTargets?: Object[];
+    node?: ITargetImpl;
 }

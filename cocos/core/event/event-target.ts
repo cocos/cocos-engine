@@ -24,7 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { Component } from '../../components/component';
 import * as js from '../utils/js';
+import { ITargetImpl } from './../event/event-target-factory';
 import {CallbacksInvoker} from './callbacks-invoker';
 
 const fastRemove = js.array.fastRemove;
@@ -56,11 +58,8 @@ const fastRemove = js.array.fastRemove;
  * @class EventTarget
  * @extends CallbacksInvoker
  */
-function EventTarget () {
-    CallbacksInvoker.call(this);
-}
-js.extend(EventTarget, CallbacksInvoker);
-js.mixin(EventTarget.prototype, {
+
+export class EventTarget extends CallbacksInvoker {
     /**
      * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
      * !#zh 检查事件目标对象是否有为特定类型的事件注册的回调。
@@ -94,20 +93,26 @@ js.mixin(EventTarget.prototype, {
      *     cc.log("fire in the hole");
      * }, node);
      */
-    on (type, callback, target) {
+    public on (type: string, callback: Function, target?: Object) {
         if (!callback) {
             cc.errorID(6800);
             return;
         }
 
-        if ( !this.hasEventListener(type, callback, target) ) {
+        if (!this.hasEventListener(type, callback, target)) {
             this.add(type, callback, target);
 
-            if (target && target.__eventTargets)
-                target.__eventTargets.push(this);
+            const targetImpl = target as ITargetImpl;
+            if (target) {
+                if (targetImpl.__eventTargets) {
+                    targetImpl.__eventTargets.push(this);
+                } else if (targetImpl.node && targetImpl.node.__eventTargets) {
+                    targetImpl.node.__eventTargets.push(this);
+                }
+            }
         }
         return callback;
-    },
+    }
 
     /**
      * !#en
@@ -130,18 +135,23 @@ js.mixin(EventTarget.prototype, {
      * // remove all fire event listeners
      * eventTarget.off('fire');
      */
-    off (type, callback, target) {
+    public off (type: string, callback?: Function, target?: Object) {
         if (!callback) {
             this.removeAll(type);
         }
         else {
             this.remove(type, callback, target);
 
-            if (target && target.__eventTargets) {
-                fastRemove(target.__eventTargets, this);
+            const targetImpl = target as ITargetImpl;
+            if (target) {
+                if (targetImpl.__eventTargets) {
+                    fastRemove(targetImpl.__eventTargets, this);
+                } else if (targetImpl.node && targetImpl.node.__eventTargets) {
+                    fastRemove(targetImpl.node.__eventTargets, this);
+                }
             }
         }
-    },
+    }
 
     /**
      * !#en Removes all callbacks previously registered with the same target (passed as parameter).
@@ -154,9 +164,9 @@ js.mixin(EventTarget.prototype, {
      * @method targetOff
      * @param {Object} target - The target to be searched for all related listeners
      */
-    targetOff () {
+    public targetOff () {
         this.removeAll();
-    },
+    }
 
     /**
      * !#en
@@ -180,20 +190,20 @@ js.mixin(EventTarget.prototype, {
      *     cc.log("this is the callback and will be invoked only once");
      * }, node);
      */
-    once (type, callback, target) {
-        var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
-        var hasOnceListener = this.hasEventListener(eventType_hasOnceListener, callback, target);
+    public once (type: string, callback: Function, target?: Object) {
+        const eventType_hasOnceListener = '__ONCE_FLAG:' + type;
+        const hasOnceListener = this.hasEventListener(eventType_hasOnceListener, callback, target);
         if (!hasOnceListener) {
-            var self = this;
-            var onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
+            const self = this;
+            const onceWrapper = function (this: any, ...args: any[]) {
                 self.off(type, onceWrapper, target);
                 self.remove(eventType_hasOnceListener, callback, target);
-                callback.call(this, arg1, arg2, arg3, arg4, arg5);
+                callback.call(this, ...args);
             };
             this.on(type, onceWrapper, target);
             this.add(eventType_hasOnceListener, callback, target);
         }
-    },
+    }
 
     /**
      * !#en
@@ -223,10 +233,9 @@ js.mixin(EventTarget.prototype, {
      * @method dispatchEvent
      * @param {Event} event
      */
-    dispatchEvent (event) {
-        this.invoke(event.type, event);
+    public dispatchEvent (event) {
+        this.emit(event.type, event);
     }
-});
+}
 
 cc.EventTarget = EventTarget;
-export default EventTarget;

@@ -54,5 +54,4 @@ export class Component extends CCObject {
     // friend to class BaseNode
     public _id: string;
     public _enabled: boolean;
-    public _eventTargets: Array<Node | EventTarget>;
 }

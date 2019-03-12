@@ -1,12 +1,12 @@
 import { UITransformComponent } from '../3d/ui/components/ui-transfrom-component';
 import { ccclass, property } from '../core/data/class-decorator';
+import { EventType } from '../core/platform/event-manager/event-enum';
 import { Mat4, Quat, Vec3 } from '../core/value-types';
 import Size from '../core/value-types/size';
 import Vec2 from '../core/value-types/vec2';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
-import { EventType } from './node-event-enum';
 
 const v3_a = new Vec3();
 const q_a = new Quat();

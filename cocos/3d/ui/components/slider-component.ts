@@ -32,7 +32,7 @@ import Touch from '../../../core/platform/event-manager/CCTouch';
 import { clamp01 } from '../../../core/utils/misc';
 import { Enum, Vec3 } from '../../../core/value-types/index';
 import { vec3 } from '../../../core/vmath';
-import { EventType } from '../../../scene-graph/node-event-enum';
+import { EventType } from '../../../core/platform/event-manager/event-enum';
 import { SpriteComponent } from './sprite-component';
 
 const _tempPos = new Vec3();

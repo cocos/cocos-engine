@@ -29,7 +29,7 @@ import Vec2, { v2 } from '../../value-types/vec2';
 import macro from '../CCMacro';
 import sys from '../CCSys';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './CCEvent';
-import eventManager from './CCEventManager';
+import eventManager from './event-manager';
 import CCTouch from './CCTouch';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
@@ -493,6 +493,17 @@ class InputManager {
         this._accelCurTime += dt;
     }
 
+    /**
+     * set accelerometer interval value
+     * @method setAccelerometerInterval
+     * @param {Number} interval
+     */
+    public setAccelerometerInterval (interval) {
+        if (this._accelInterval !== interval) {
+            this._accelInterval = interval;
+        }
+    }
+
     private _getUnUsedIndex () {
         let temp = this._indexBitsUsed;
         const now = cc.sys.now();
@@ -527,17 +538,6 @@ class InputManager {
         let temp = 1 << index;
         temp = ~temp;
         this._indexBitsUsed &= temp;
-    }
-
-    /**
-     * set accelerometer interval value
-     * @method setAccelerometerInterval
-     * @param {Number} interval
-     */
-    private setAccelerometerInterval (interval) {
-        if (this._accelInterval !== interval) {
-            this._accelInterval = interval;
-        }
     }
 
     private _registerMouseEvents (element: HTMLElement, prohibition: boolean) {
