@@ -26,7 +26,6 @@
 const bmfontUtils = require('../../../utils/label/bmfont')
 const js = require('../../../../platform/js');
 const utils = require('../utils');
-const render = require('../../../../renderer');
 
 module.exports = js.addon({
     createData (comp) {
@@ -86,7 +85,7 @@ module.exports = js.addon({
         // TODO: handle blend function
 
         // opacity
-        render._handle._setGlobalAlpha(node.opacity / 255);
+        utils.context.setGlobalAlpha(ctx, node.opacity / 255);
 
         let tex = comp._frame._texture,
             data = comp._renderData._data;

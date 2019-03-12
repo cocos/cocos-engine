@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const Impl = require('./impl');
-const render = require('../../../../renderer');
 
 module.exports = {
     createImpl () {
@@ -43,7 +42,7 @@ module.exports = {
         // TODO: handle blend function
 
         // opacity
-        render._handle._setGlobalAlpha(node.opacity / 255);
+        ctx.globalAlpha = node.opacity / 255;
 
         let style = comp._impl.style;
         ctx.strokeStyle = style.strokeStyle;
