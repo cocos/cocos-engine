@@ -669,7 +669,7 @@ export class SpriteFrame extends Texture2D {
         if (uuid && exporting) {
             // @ts-ignore
             // TODO:
-            uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);
+            uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
         }
 
         let vertices;

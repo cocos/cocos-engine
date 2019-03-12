@@ -333,7 +333,7 @@ export class BaseNode extends CCObject {
 
     // TO DO
     // @ts-ignore
-    private _id: string = CC_EDITOR ? Editor.Utils.UuidUtils.uuid() : idGenerator.getNewId();
+    private _id: string = CC_EDITOR ? EditorExtends.UuidUtils.uuid() : idGenerator.getNewId();
 
     /**
      * Register all related EventTargets,
