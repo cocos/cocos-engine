@@ -37,6 +37,19 @@ const _stencilManager = StencilManager.sharedManager!;
 const _worldMatrix = new Mat4();
 const WHITE = Color.WHITE;
 
+function getScreen (comp: MaskComponent){
+    let parent: Node | null = comp.node;
+    while (parent){
+        if (parent.getComponent(cc.CanvasComponent)){
+            return parent;
+        }
+
+        parent = parent.parent;
+    }
+
+    return parent;
+}
+
 export const maskAssembler: IAssembler = {
     createData (mask: MaskComponent) {
         const renderData = mask.requestRenderData();
@@ -95,7 +108,13 @@ export const maskAssembler: IAssembler = {
         const data3 = new Vec3();
         const vec3_temps: Vec3[] = [new Vec3(), new Vec3(), new Vec3(), new Vec3()];
         const v = new vec3();
-        const screen = renderer.getScreen(mask.visibility);
+        let screen: Node | null = null;
+        if (CC_EDITOR){
+            screen = getScreen(mask);
+        }else{
+            const comp = renderer.getScreen(mask.visibility);
+            screen = comp ? comp.node : null;
+        }
         if (!screen) {
             return;
         }
@@ -105,10 +124,10 @@ export const maskAssembler: IAssembler = {
 
         // const clearGeometry = mask.getClearGeometry();
         const clearMaterial = mask.getClearMaterial()!;
-        cw = screen.node.width;
-        ch = screen.node.height;
-        appx = screen.node.anchorX * cw;
-        appy = screen.node.anchorY * ch;
+        cw = screen.width;
+        ch = screen.height;
+        appx = screen.anchorX * cw;
+        appy = screen.anchorY * ch;
         data0.x = -appx;
         data0.y = -appy;
         data3.x = cw - appx;
@@ -119,7 +138,7 @@ export const maskAssembler: IAssembler = {
         vec3.set(vec3_temps[3], data3.x, data3.y, 0);
         // const meshBuffer = createMeshBuffer(ui, clearGeometry);
         // const nVert = Math.floor(clearGeometry.positions.length / 3);
-        screen.node.getWorldMatrix(_worldMatrix);
+        screen.getWorldMatrix(_worldMatrix);
 
         let buffer = renderer.currBufferBatch!;
         let vertexOffset = buffer.byteOffset >> 2;
