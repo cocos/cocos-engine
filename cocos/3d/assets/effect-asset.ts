@@ -57,6 +57,7 @@ export interface IDefineInfo {
     name: string;
     type: string;
     range?: number[];
+    options?: string[];
     defines?: string[];
 }
 export interface IBuiltinInfo {
