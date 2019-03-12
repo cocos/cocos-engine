@@ -526,6 +526,7 @@ let EditBox = cc.Class({
         // handle old data
         if (this._N$backgroundImage !== undefined) {
             background.spriteFrame = this._N$backgroundImage;
+            this._N$backgroundImage = undefined;
         }
     },
 
@@ -563,12 +564,15 @@ let EditBox = cc.Class({
         if (this._N$fontColor !== undefined) {
             textLabel.node.color = this._N$fontColor;
             textLabel.node.opacity = this._N$fontColor.a;
+            this._N$fontColor = undefined;
         }
         if (this._N$fontSize !== undefined) {
             textLabel.fontSize = this._N$fontSize;
+            this._N$fontSize = undefined;
         }
         if (this._N$lineHeight !== undefined) {
             textLabel.lineHeight = this._N$lineHeight;
+            this._N$lineHeight = undefined;
         }
     },
 
@@ -606,9 +610,11 @@ let EditBox = cc.Class({
         if (this._N$placeholderFontColor !== undefined) {
             placeholderLabel.node.color = this._N$placeholderFontColor;
             placeholderLabel.node.opacity = this._N$placeholderFontColor.a;
+            this._N$placeholderFontColor = undefined;
         }
         if (this._N$placeholderFontSize !== undefined) {
             placeholderLabel.fontSize = this._N$placeholderFontSize;
+            this._N$placeholderFontSize = undefined;
         }
     },
 
@@ -623,18 +629,12 @@ let EditBox = cc.Class({
         }
         if (this._N$backgroundImage !== undefined) {
             this._updateBackgroundSprite();
-            this._N$backgroundImage = undefined;
         }
         if (this._N$fontColor !== undefined || this._N$fontSize !== undefined || this._N$lineHeight !== undefined) {
             this._updateTextLabel();
-            this._N$fontColor = undefined;
-            this._N$fontSize = undefined;
-            this._N$lineHeight = undefined;
         }
         if (this._N$placeholderFontColor !== undefined || this._N$placeholderFontSize !== undefined) {
             this._updatePlaceholderLabel();
-            this._N$placeholderFontColor = undefined;
-            this._N$placeholderFontSize = undefined;
         }
         if (this._N$placeholder !== undefined) {
             this.placeholder = this._N$placeholder;
