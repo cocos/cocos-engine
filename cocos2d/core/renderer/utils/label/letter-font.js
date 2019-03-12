@@ -85,7 +85,7 @@ LetterTexture.prototype = {
         this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
         this._width = parseFloat(width.toFixed(2));
-        this._height = this._labelInfo.lineHeight;
+        this._height = this._labelInfo.fontSize;
         
         if (this._canvas.width !== this._width || CC_QQPLAY) {
             this._canvas.width = this._width;
@@ -446,7 +446,7 @@ module.exports = {
             out = labelInfo.out.toHEX("#rrggbb");
         };
         
-        return hashData + labelInfo.fontSize + labelInfo.fontFamily + labelInfo.lineHeight + color + out;
+        return hashData + labelInfo.fontSize + labelInfo.fontFamily + color + out;
     },
 
     _getFontDesc () {
@@ -887,10 +887,10 @@ module.exports = {
                 _letterOffsetY = _contentSize.height;
                 break;
             case macro.VerticalTextAlignment.CENTER:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2;
+                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _fontSize) / 2;
                 break;
             case macro.VerticalTextAlignment.BOTTOM:
-                _letterOffsetY = _textDesiredHeight;
+                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _fontSize);
                 break;
             default:
                 break;
