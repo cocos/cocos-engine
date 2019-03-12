@@ -461,7 +461,18 @@ sp.Skeleton = cc.Class({
             this.node.setContentSize(skeletonData.width, skeletonData.height);
         }
 
+        if (!CC_EDITOR) {
+            if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
+                this._skeletonCache = SkeletonCache.sharedCache;
+            } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
+                this._skeletonCache = new SkeletonCache;
+            }
+        }
+
         if (this.isAnimationCached()) {
+            if (this.debugBones || this.debugSlots) {
+                cc.warn("Debug bones or slots is invalid in cached mode");
+            }
             let skeletonInfo = this._skeletonCache.getSkeletonCache(this.skeletonData._uuid, skeletonData);
             this._skeleton = skeletonInfo.skeleton;
             this._clipper = skeletonInfo.clipper;
@@ -549,8 +560,8 @@ sp.Skeleton = cc.Class({
      * 
      * @method setAnimationCacheMode
      * @param {AnimationCacheMode} cacheMode
-     * * @example
-     * armatureDisplay.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
+     * @example
+     * skeleton.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
      */
     setAnimationCacheMode (cacheMode) {
         if (CC_JSB) return;
@@ -573,6 +584,8 @@ sp.Skeleton = cc.Class({
     update (dt) {
         if (CC_EDITOR) return;
         if (this.paused) return;
+
+        dt *= this.timeScale * sp.timeScale;
 
         if (this.isAnimationCached()) {
 
@@ -609,7 +622,7 @@ sp.Skeleton = cc.Class({
             this._listener && this._listener.start && this._listener.start(this._startEntry);
         }
 
-        this._accTime += dt * this.timeScale;
+        this._accTime += dt;
         let frameIdx = Math.floor(this._accTime / totalTime * frameCount);
         if (frameIdx >= frameCount) {
 
@@ -639,7 +652,6 @@ sp.Skeleton = cc.Class({
         if (skeleton) {
             skeleton.update(dt);
             if (state) {
-                dt *= this.timeScale;
                 state.update(dt);
                 state.apply(skeleton);
             }
@@ -1202,18 +1214,6 @@ sp.Skeleton = cc.Class({
         let data = this.skeletonData.getRuntimeData();
         if (!data) return;
         
-        if (!CC_EDITOR) {
-            if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
-                this._skeletonCache = SkeletonCache.sharedCache;
-            } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
-                this._skeletonCache = new SkeletonCache;
-            }
-        }
-
-        if (this.isAnimationCached() && (this.debugBones || this.debugSlots)) {
-            cc.warn("Debug bones or slots is invalid in cached mode");
-        }
-
         try {
             this.setSkeletonData(data);
             if (!this.isAnimationCached()) {
