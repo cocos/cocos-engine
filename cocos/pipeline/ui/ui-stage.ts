@@ -1,5 +1,5 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType } from '../../gfx/define';
+import { GFXCommandBufferType, GFXClearFlag } from '../../gfx/define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -54,7 +54,7 @@ export class UIStage extends RenderStage {
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer, this._renderArea,
-            [], camera.clearDepth, camera.clearStencil);
+            GFXClearFlag.DEPTH_STENCIL, [], camera.clearDepth, camera.clearStencil);
 
         cmdBuff.execute(queue.cmdBuffs.array, queue.cmdBuffCount);
 

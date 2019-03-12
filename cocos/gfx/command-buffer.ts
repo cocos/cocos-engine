@@ -11,6 +11,7 @@ import {
     IGFXColor,
     IGFXRect,
     IGFXViewport,
+    GFXClearFlag,
 } from './define';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
@@ -66,7 +67,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
 
     public abstract begin ();
     public abstract end ();
-    public abstract beginRenderPass (framebuffer: GFXFramebuffer, renderArea: IGFXRect, clearColors: IGFXColor[], clearDepth: number, clearStencil: number);
+    public abstract beginRenderPass (framebuffer: GFXFramebuffer, renderArea: IGFXRect, clearFlag: GFXClearFlag, clearColors: IGFXColor[], clearDepth: number, clearStencil: number);
     public abstract endRenderPass ();
     public abstract bindPipelineState (pipelineState: GFXPipelineState);
     public abstract bindBindingLayout (bindingLayout: GFXBindingLayout);

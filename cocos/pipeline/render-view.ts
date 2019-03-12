@@ -1,4 +1,9 @@
 import { Root } from '../core/root';
+import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
+import { GFXFramebuffer } from '../gfx/framebuffer';
+import { GFXRenderPass } from '../gfx/render-pass';
+import { GFXTexture } from '../gfx/texture';
+import { GFXTextureView } from '../gfx/texture-view';
 import { GFXWindow } from '../gfx/window';
 import { Camera } from '../renderer/scene/camera';
 
@@ -13,6 +18,11 @@ export interface IRenderViewInfo {
     isUI: boolean;
 }
 
+export interface IRenderTargetInfo {
+    width?: number;
+    height?: number;
+}
+
 export class RenderView {
 
     public get name () {
@@ -25,6 +35,10 @@ export class RenderView {
 
     public set window (val) {
         this._window = val;
+
+        if (!this._isOffscreen) {
+            this._framebuffer = this._window!.framebuffer;
+        }
     }
 
     public get priority () {
@@ -42,7 +56,7 @@ export class RenderView {
         return this._visibility;
     }
 
-    public get camera () {
+    public get camera (): Camera {
         return this._camera!;
     }
 
@@ -52,6 +66,14 @@ export class RenderView {
 
     public get isUI (): boolean {
         return this._isUI;
+    }
+
+    public get isOffscreen (): boolean {
+        return this._isOffscreen;
+    }
+
+    public get framebuffer (): GFXFramebuffer {
+        return this._framebuffer!;
     }
 
     public static registerCreateFunc (root: Root) {
@@ -66,6 +88,15 @@ export class RenderView {
     private _camera: Camera;
     private _isEnable: boolean = true;
     private _isUI: boolean = false;
+    private _isOffscreen: boolean = false;
+
+    // For offscreen
+    private _renderPass: GFXRenderPass | null = null;
+    private _renderTex: GFXTexture | null = null;
+    private _renderTexView: GFXTextureView | null = null;
+    private _depthStencilTex: GFXTexture | null = null;
+    private _depthStencilTexView: GFXTextureView | null = null;
+    private _framebuffer: GFXFramebuffer | null = null;
 
     private constructor (root: Root, camera: Camera) {
         this._root = root;
@@ -76,7 +107,7 @@ export class RenderView {
 
         this._name = info.name;
         this._isUI = info.isUI;
-        this.priority = info.priority;
+        this._priority = info.priority;
 
         return true;
     }
@@ -84,10 +115,93 @@ export class RenderView {
     public destroy () {
         this._window = null;
         this._priority = 0;
+        this.destroyRenderTarget();
     }
 
-    public resize (width, height) {
+    public createRenderTarget (info: IRenderTargetInfo): boolean {
+        this._isOffscreen = true;
+        const device = this._root.device;
+        const colorFmt = GFXFormat.RGBA8;
+        const width = (info.width !== undefined ? info.width : this._camera.width);
+        const height = (info.height !== undefined ? info.height : this._camera.height);
 
+        if (this._renderTex) {
+            this._renderTex.destroy();
+        }
+
+        this._renderTex = device.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+            format: colorFmt,
+            width,
+            height,
+        });
+
+        if (this._renderTexView) {
+            this._renderTexView.destroy();
+        }
+
+        this._renderTexView = device.createTextureView({
+            texture : this._renderTex,
+            type : GFXTextureViewType.TV2D,
+            format : colorFmt,
+        });
+
+        if (this._renderPass) {
+            this._renderPass.destroy();
+        }
+
+        this._renderPass = device.createRenderPass({
+            colorAttachments: [{
+                format: colorFmt,
+                loadOp: GFXLoadOp.CLEAR,
+                storeOp: GFXStoreOp.STORE,
+                sampleCount: 1,
+                beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+                endLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+            }],
+        });
+
+        if (this._framebuffer) {
+            this._framebuffer.destroy();
+        }
+
+        this._framebuffer = device.createFramebuffer({
+            renderPass: this._renderPass,
+            colorViews: [ this._renderTexView ],
+            isOffscreen: true,
+        });
+
+        return true;
+    }
+
+    public destroyRenderTarget () {
+        if (this._renderTex) {
+            this._renderTex.destroy();
+        }
+
+        if (this._renderTexView) {
+            this._renderTexView.destroy();
+        }
+
+        if (this._depthStencilTex) {
+            this._depthStencilTex.destroy();
+        }
+
+        if (this._depthStencilTexView) {
+            this._depthStencilTexView.destroy();
+        }
+
+        if (this._framebuffer && this._isOffscreen) {
+            this._framebuffer.destroy();
+        }
+
+        this._renderTex = null;
+        this._renderTexView = null;
+        this._depthStencilTex = null;
+        this._depthStencilTexView = null;
+        this._framebuffer = null;
+        this._isOffscreen = false;
     }
 
     public enable (isEnable: boolean) {

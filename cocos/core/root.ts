@@ -237,30 +237,39 @@ export class Root {
     public createView (info: IRenderViewInfo): RenderView {
         const view: RenderView = this._createViewFun(this, info.camera);
         view.initialize(info);
-        view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
+        // view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
 
-        const views = view.isUI ? this._uiViews : this._views;
-        views.push(view);
-        views.sort((a: RenderView, b: RenderView) => {
-            return a.priority - b.priority;
-        });
+        if (!view.isUI) {
+            this._views.push(view);
+            this._views.sort((a: RenderView, b: RenderView) => {
+                return a.priority - b.priority;
+            });
+        } else {
+            this._uiViews.push(view);
+            this._uiViews.sort((a: RenderView, b: RenderView) => {
+                return a.priority - b.priority;
+            });
+        }
 
         return view;
     }
 
     public destroyView (view: RenderView) {
-        const views = view.isUI ? this._uiViews : this._views;
-        for (let i = 0; i < views.length; ++i) {
-            if (views[i] === view) {
-                views.splice(i, 1);
-                return;
+        if (!view.isUI) {
+            for (let i = 0; i < this._views.length; ++i) {
+                if (this._views[i] === view) {
+                    this._views.splice(i, 1);
+                    view.destroy();
+                    return;
+                }
             }
-        }
-
-        for (let i = 0; i < this._uiViews.length; ++i) {
-            if (this._uiViews[i] === view) {
-                this._uiViews.splice(i, 1);
-                return;
+        } else {
+            for (let i = 0; i < this._uiViews.length; ++i) {
+                if (this._uiViews[i] === view) {
+                    this._uiViews.splice(i, 1);
+                    view.destroy();
+                    return;
+                }
             }
         }
     }

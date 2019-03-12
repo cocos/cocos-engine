@@ -29,6 +29,7 @@ import { Enum, Rect, Vec3 } from '../../core/value-types';
 import { color4, toRadian } from '../../core/vmath';
 import { GFXClearFlag } from '../../gfx/define';
 import { Camera } from '../../renderer';
+import { IRenderTargetInfo } from '../../pipeline/render-view';
 
 /**
  * !#en The light source type
@@ -108,6 +109,30 @@ export class CameraComponent extends Component {
 
     constructor () {
         super();
+    }
+
+    /**
+     * !#en Create offscreen render target
+     *
+     * !#ch 创建离屏渲染目标
+     */
+    public createRenderTarget (info: IRenderTargetInfo): boolean {
+        if (this._camera) {
+            return this._camera.view.createRenderTarget(info);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * !#en Destroy offscreen render target
+     *
+     * !#ch 销毁离屏渲染目标
+     */
+    public destroyRenderTarget () {
+        if (this._camera) {
+            return this._camera.view.destroyRenderTarget();
+        }
     }
 
     /**
@@ -297,6 +322,7 @@ export class CameraComponent extends Component {
     }
 
     public onEnable () {
+        if (this._camera) { this._camera.enabled = true; return; }
         this._createCamera();
         this._camera!.enabled = true;
     }

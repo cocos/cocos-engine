@@ -1,12 +1,9 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType, IGFXColor } from '../../gfx/define';
-import { GFXFramebuffer } from '../../gfx/framebuffer';
-import { Camera } from '../../renderer/scene/camera';
+import { GFXCommandBufferType, IGFXColor, GFXClearFlag } from '../../gfx/define';
+import { UBOGlobal } from '../define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { UBOGlobal } from '../define';
 
 const colors: IGFXColor[] = [];
 const bufs: GFXCommandBuffer[] = [];
@@ -59,14 +56,15 @@ export class ToneMapStage extends RenderStage {
 
         const camera = view.camera!;
 
-        if (this._cmdBuff && camera.view.window) {
+        if (this._cmdBuff) {
 
             this._renderArea.width = camera.width;
             this._renderArea.height = camera.height;
-            const framebuffer = camera.view.window.framebuffer;
+            const framebuffer = !view.isOffscreen? view.window!.framebuffer : view.framebuffer;
 
             this._cmdBuff.begin();
-            this._cmdBuff.beginRenderPass(framebuffer, this._renderArea, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
+            this._cmdBuff.beginRenderPass(framebuffer, this._renderArea,
+                GFXClearFlag.ALL, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
             this._cmdBuff.bindPipelineState(this._pso!);
             this._cmdBuff.bindBindingLayout(this._pso!.pipelineLayout.layouts[0]);
             this._cmdBuff.bindInputAssembler(this._pipeline.quadIA);

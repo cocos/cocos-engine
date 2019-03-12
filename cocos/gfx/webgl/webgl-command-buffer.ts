@@ -4,6 +4,7 @@ import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
     GFXBufferTextureCopy,
     GFXBufferUsageBit,
+    GFXClearFlag,
     GFXCommandBufferType,
     GFXStatus,
     GFXStencilFace,
@@ -129,13 +130,16 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     public beginRenderPass (
         framebuffer: GFXFramebuffer,
         renderArea: IGFXRect,
+        clearFlag: GFXClearFlag,
         clearColors: IGFXColor[],
         clearDepth: number,
         clearStencil: number) {
         const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
         cmd.gpuFramebuffer = ( framebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
         cmd.renderArea = renderArea;
-        for (let i = 0; i < clearColors.length; i++) {
+        cmd.clearFlag = clearFlag;
+        cmd.clearColors.length = clearColors.length;
+        for (let i = 0; i < clearColors.length; ++i) {
             cmd.clearColors[i] = clearColors[i];
         }
         cmd.clearDepth = clearDepth;

@@ -4,6 +4,7 @@ import {
     GFXBindingType,
     GFXBufferTextureCopy,
     GFXBufferUsageBit,
+    GFXClearFlag,
     GFXColorMask,
     GFXCullMode,
     GFXDynamicState,
@@ -34,13 +35,13 @@ import {
 } from './webgl2-command-buffer';
 import { WebGL2GFXDevice } from './webgl2-device';
 import {
+    IWebGL2GPUInputAssembler,
     IWebGL2GPUUniform,
     WebGL2Attrib,
     WebGL2GPUBindingLayout,
     WebGL2GPUBuffer,
     WebGL2GPUFramebuffer,
     WebGL2GPUInput,
-    IWebGL2GPUInputAssembler,
     WebGL2GPUPipelineState,
     WebGL2GPUSampler,
     WebGL2GPUShader,
@@ -57,7 +58,6 @@ const WebGLWraps: GLenum[] = [
     WebGLRenderingContext.CLAMP_TO_EDGE,
 ];
 
-const _uniformValues = new Array<number>(1024 * 4);
 const _f32v4 = new Float32Array(4);
 
 // tslint:disable: max-line-length
@@ -544,6 +544,7 @@ export class WebGL2CmdBeginRenderPass extends WebGL2CmdObject {
 
     public gpuFramebuffer: WebGL2GPUFramebuffer | null = null;
     public renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    public clearFlag: GFXClearFlag = GFXClearFlag.NONE;
     public clearColors: IGFXColor[] = [];
     public clearDepth: number = 1.0;
     public clearStencil: number = 0;
@@ -1535,23 +1536,23 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             switch (colorAttachment.loadOp) {
                                 case GFXLoadOp.LOAD: break; // GL default behaviour
                                 case GFXLoadOp.CLEAR: {
+                                    if (cmd0.clearFlag & GFXClearFlag.COLOR) {
+                                        if (cache.bs.targets[0].blendColorMask !== GFXColorMask.ALL) {
+                                            gl.colorMask(true, true, true, true);
+                                        }
 
-                                    if (cache.bs.targets[0].blendColorMask !== GFXColorMask.ALL) {
-                                        gl.colorMask(true, true, true, true);
+                                        if (!cmd0.gpuFramebuffer.isOffscreen) {
+                                            const clearColor = cmd0.clearColors[0];
+                                            gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+                                            clears |= WebGL2RenderingContext.COLOR_BUFFER_BIT;
+                                        } else {
+                                            _f32v4[0] = cmd0.clearColors[j].r;
+                                            _f32v4[1] = cmd0.clearColors[j].g;
+                                            _f32v4[2] = cmd0.clearColors[j].b;
+                                            _f32v4[3] = cmd0.clearColors[j].a;
+                                            gl.clearBufferfv(gl.COLOR, j, _f32v4);
+                                        }
                                     }
-
-                                    if (!cmd0.gpuFramebuffer.isOffscreen) {
-                                        const clearColor = cmd0.clearColors[0];
-                                        gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-                                        clears |= WebGL2RenderingContext.COLOR_BUFFER_BIT;
-                                    } else {
-                                        _f32v4[0] = cmd0.clearColors[j].r;
-                                        _f32v4[1] = cmd0.clearColors[j].g;
-                                        _f32v4[2] = cmd0.clearColors[j].b;
-                                        _f32v4[3] = cmd0.clearColors[j].a;
-                                        gl.clearBufferfv(gl.COLOR, j, _f32v4);
-                                    }
-
                                     break;
                                 }
                                 case GFXLoadOp.DISCARD: {
@@ -1570,15 +1571,15 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             switch (curGPURenderPass.depthStencilAttachment.depthLoadOp) {
                                 case GFXLoadOp.LOAD: break; // GL default behaviour
                                 case GFXLoadOp.CLEAR: {
+                                    if (cmd0.clearFlag & GFXClearFlag.DEPTH) {
+                                        if (!cache.dss.depthWrite) {
+                                            gl.depthMask(true);
+                                        }
 
-                                    if (!cache.dss.depthWrite) {
-                                        gl.depthMask(true);
+                                        gl.clearDepth(cmd0.clearDepth);
+
+                                        clears |= WebGL2RenderingContext.DEPTH_BUFFER_BIT;
                                     }
-
-                                    gl.clearDepth(cmd0.clearDepth);
-
-                                    clears |= WebGL2RenderingContext.DEPTH_BUFFER_BIT;
-
                                     break;
                                 }
                                 case GFXLoadOp.DISCARD: {
@@ -1593,18 +1594,18 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                 switch (curGPURenderPass.depthStencilAttachment.stencilLoadOp) {
                                     case GFXLoadOp.LOAD: break; // GL default behaviour
                                     case GFXLoadOp.CLEAR: {
+                                        if (cmd0.clearFlag & GFXClearFlag.STENCIL) {
+                                            if (!cache.dss.stencilWriteMaskFront) {
+                                                gl.stencilMaskSeparate(WebGL2RenderingContext.FRONT, 0xFFFFFFFF);
+                                            }
 
-                                        if (!cache.dss.stencilWriteMaskFront) {
-                                            gl.stencilMaskSeparate(WebGL2RenderingContext.FRONT, 0xFFFFFFFF);
+                                            if (!cache.dss.stencilWriteMaskBack) {
+                                                gl.stencilMaskSeparate(WebGL2RenderingContext.BACK, 0xFFFFFFFF);
+                                            }
+
+                                            gl.clearStencil(cmd0.clearStencil);
+                                            clears |= WebGL2RenderingContext.STENCIL_BUFFER_BIT;
                                         }
-
-                                        if (!cache.dss.stencilWriteMaskBack) {
-                                            gl.stencilMaskSeparate(WebGL2RenderingContext.BACK, 0xFFFFFFFF);
-                                        }
-
-                                        gl.clearStencil(cmd0.clearStencil);
-                                        clears |= WebGL2RenderingContext.STENCIL_BUFFER_BIT;
-
                                         break;
                                     }
                                     case GFXLoadOp.DISCARD: {

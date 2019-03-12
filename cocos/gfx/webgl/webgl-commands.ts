@@ -4,6 +4,7 @@ import {
     GFXBindingType,
     GFXBufferTextureCopy,
     GFXBufferUsageBit,
+    GFXClearFlag,
     GFXColorMask,
     GFXCullMode,
     GFXDynamicState,
@@ -32,13 +33,10 @@ import {
     IWebGLStencilWriteMask,
 } from './webgl-command-buffer';
 import { WebGLGFXDevice } from './webgl-device';
-import { IWebGLGPUUniform, WebGLAttrib, WebGLGPUBindingLayout, WebGLGPUBuffer,
-    WebGLGPUFramebuffer, WebGLGPUInput, WebGLGPUPipelineState,
-    WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniformBlock, WebGLGPUUniformSampler, IWebGLGPUInputAssembler } from './webgl-gpu-objects';
+import { IWebGLGPUInputAssembler, IWebGLGPUUniform, WebGLAttrib, WebGLGPUBindingLayout,
+    WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInput,
+    WebGLGPUPipelineState, WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
 import { IWebGLTexUnit } from './webgl-state-cache';
-
-const _uniformValues = new Array<number>(1024 * 4);
-const _f32v4 = new Float32Array(4);
 
 // tslint:disable: max-line-length
 
@@ -404,6 +402,7 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
 
     public gpuFramebuffer: WebGLGPUFramebuffer | null = null;
     public renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    public clearFlag: GFXClearFlag = GFXClearFlag.NONE;
     public clearColors: IGFXColor[] = [];
     public clearDepth: number = 1.0;
     public clearStencil: number = 0;
@@ -1343,15 +1342,15 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             switch (colorAttachment.loadOp) {
                                 case GFXLoadOp.LOAD: break; // GL default behaviour
                                 case GFXLoadOp.CLEAR: {
+                                    if (cmd0.clearFlag & GFXClearFlag.COLOR) {
+                                        if (cache.bs.targets[0].blendColorMask !== GFXColorMask.ALL) {
+                                            gl.colorMask(true, true, true, true);
+                                        }
 
-                                    if (cache.bs.targets[0].blendColorMask !== GFXColorMask.ALL) {
-                                        gl.colorMask(true, true, true, true);
+                                        const clearColor = cmd0.clearColors[0];
+                                        gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+                                        clears |= WebGLRenderingContext.COLOR_BUFFER_BIT;
                                     }
-
-                                    const clearColor = cmd0.clearColors[0];
-                                    gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-                                    clears |= WebGLRenderingContext.COLOR_BUFFER_BIT;
-
                                     break;
                                 }
                                 case GFXLoadOp.DISCARD: {
@@ -1370,15 +1369,15 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             switch (curGPURenderPass.depthStencilAttachment.depthLoadOp) {
                                 case GFXLoadOp.LOAD: break; // GL default behaviour
                                 case GFXLoadOp.CLEAR: {
+                                    if (cmd0.clearFlag & GFXClearFlag.DEPTH) {
+                                        if (!cache.dss.depthWrite) {
+                                            gl.depthMask(true);
+                                        }
 
-                                    if (!cache.dss.depthWrite) {
-                                        gl.depthMask(true);
+                                        gl.clearDepth(cmd0.clearDepth);
+
+                                        clears |= WebGLRenderingContext.DEPTH_BUFFER_BIT;
                                     }
-
-                                    gl.clearDepth(cmd0.clearDepth);
-
-                                    clears |= WebGLRenderingContext.DEPTH_BUFFER_BIT;
-
                                     break;
                                 }
                                 case GFXLoadOp.DISCARD: {
@@ -1393,18 +1392,18 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                 switch (curGPURenderPass.depthStencilAttachment.stencilLoadOp) {
                                     case GFXLoadOp.LOAD: break; // GL default behaviour
                                     case GFXLoadOp.CLEAR: {
+                                        if (cmd0.clearFlag & GFXClearFlag.DEPTH) {
+                                            if (!cache.dss.stencilWriteMaskFront) {
+                                                gl.stencilMaskSeparate(WebGLRenderingContext.FRONT, 0xFFFFFFFF);
+                                            }
 
-                                        if (!cache.dss.stencilWriteMaskFront) {
-                                            gl.stencilMaskSeparate(WebGLRenderingContext.FRONT, 0xFFFFFFFF);
+                                            if (!cache.dss.stencilWriteMaskBack) {
+                                                gl.stencilMaskSeparate(WebGLRenderingContext.BACK, 0xFFFFFFFF);
+                                            }
+
+                                            gl.clearStencil(cmd0.clearStencil);
+                                            clears |= WebGLRenderingContext.STENCIL_BUFFER_BIT;
                                         }
-
-                                        if (!cache.dss.stencilWriteMaskBack) {
-                                            gl.stencilMaskSeparate(WebGLRenderingContext.BACK, 0xFFFFFFFF);
-                                        }
-
-                                        gl.clearStencil(cmd0.clearStencil);
-                                        clears |= WebGLRenderingContext.STENCIL_BUFFER_BIT;
-
                                         break;
                                     }
                                     case GFXLoadOp.DISCARD: {

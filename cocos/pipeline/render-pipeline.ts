@@ -489,8 +489,13 @@ export abstract class RenderPipeline {
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
 
-        _vec4Array[0] = camera.width / device.nativeWidth;
-        _vec4Array[1] = camera.height / device.nativeHeight;
+        if (!view.isOffscreen) {
+            _vec4Array[0] = camera.width / device.nativeWidth;
+            _vec4Array[1] = camera.height / device.nativeHeight;
+        } else {
+            _vec4Array[0] = 1.0;
+            _vec4Array[1] = 1.0;
+        }
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);

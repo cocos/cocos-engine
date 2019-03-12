@@ -526,6 +526,8 @@ export enum GFXClearFlag {
     COLOR = 1,
     DEPTH = 2,
     STENCIL = 4,
+    DEPTH_STENCIL = DEPTH | STENCIL,
+    ALL = COLOR | DEPTH | STENCIL,
 }
 
 export interface IGFXOffset {

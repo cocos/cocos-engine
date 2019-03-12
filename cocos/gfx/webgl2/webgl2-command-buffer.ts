@@ -11,6 +11,7 @@ import {
     IGFXColor,
     IGFXRect,
     IGFXViewport,
+    GFXClearFlag,
 } from '../define';
 import { GFXDevice } from '../device';
 import { GFXFramebuffer } from '../framebuffer';
@@ -129,13 +130,17 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     public beginRenderPass (
         framebuffer: GFXFramebuffer,
         renderArea: IGFXRect,
+        clearFlag: GFXClearFlag,
         clearColors: IGFXColor[],
         clearDepth: number,
         clearStencil: number) {
         const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGL2CmdBeginRenderPass);
         cmd.gpuFramebuffer = ( framebuffer as WebGL2GFXFramebuffer).gpuFramebuffer;
         cmd.renderArea = renderArea;
-        cmd.clearColors = clearColors.slice();
+        cmd.clearFlag = clearFlag;
+        for (let i = 0; i < clearColors.length; ++i) {
+            cmd.clearColors[i] = clearColors[i];
+        }
         cmd.clearDepth = clearDepth;
         cmd.clearStencil = clearStencil;
         this.cmdPackage.beginRenderPassCmds.push(cmd);

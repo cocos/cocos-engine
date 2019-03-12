@@ -131,11 +131,13 @@ export class Camera {
 
         this._aspect = this._width = this._height = this._screenScale = 1;
 
+        const isUI = (info.isUI !== undefined ? info.isUI : false);
+
         this._view = scene.root.createView({
             camera: this,
             name: this._name,
             priority: this._priority,
-            isUI: (info.isUI !== undefined ? info.isUI : false),
+            isUI,
         });
 
         this.changeTargetDisplay(info.targetDisplay);
