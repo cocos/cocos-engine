@@ -189,6 +189,7 @@ Tween.prototype.then = function (other) {
  * !#zh
  * 设置 tween 的 target
  * @method target
+ * @param {Object} target
  * @return {Tween}
  */
 Tween.prototype.target = function (target) {
@@ -422,6 +423,7 @@ let previousAsInputActions = {
      * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeat
      * @param {Number} repeatTimes 
+     * @param {Action|Tween} [action]
      * @return {Tween}
      */
     repeat: cc.repeat,
@@ -432,6 +434,7 @@ let previousAsInputActions = {
      * !#zh
      * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeatForever
+     * @param {Action|Tween} [action]
      * @return {Tween}
      */
     repeatForever: cc.repeatForever,
@@ -442,6 +445,7 @@ let previousAsInputActions = {
      * !#zh
      * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
      * @method reverseTime
+     * @param {Action|Tween} [action]
      * @return {Tween}
      */
     reverseTime: cc.reverseTime,
@@ -464,8 +468,8 @@ for (let i = 0; i < keys.length; i++) {
     Tween.prototype[key] = function () {
 
         let actions = this._actions;
-        let action = arguments[0];
-        let i = 1;
+        let action = arguments[arguments.length - 1];
+        let length = arguments.length - 1;
 
         if (action instanceof cc.Tween) {
             action = action._union();
@@ -473,11 +477,11 @@ for (let i = 0; i < keys.length; i++) {
         else if (!(action instanceof cc.Action)) {
             action = actions[actions.length - 1];
             actions.length -= 1;
-            i = 0;
+            length += 1;
         }
 
         let args = [action];
-        for (let l = arguments.length; i < l; i++) {
+        for (let i = 0; i < length; i++) {
             args.push(arguments[i]);
         }
 
