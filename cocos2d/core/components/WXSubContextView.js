@@ -67,10 +67,25 @@ else {
             help: 'i18n:COMPONENT.help_url.wx_subcontext_view'
         },
 
+        properties: {
+            _interval: 0,
+
+            interval : {
+                get () {
+                    return this._interval;
+                },
+                set (value) {
+                    this._interval = value;
+                },
+                tooltip: CC_DEV && 'i18n:COMPONENT.wx_subcontext_view.interval'
+            }
+        },
+
         ctor () {
             this._sprite = null;
             this._tex = new cc.Texture2D();
             this._context = null;
+            this._deltaTime = 0;
         },
 
         onLoad () {
@@ -115,10 +130,12 @@ else {
             this.updateSubContextViewport();
         },
 
-        update () {
-            if (!this._tex || !this._context) {
+        update (dt) {
+            this._deltaTime += dt;
+            if (!this._tex || !this._context || this._deltaTime < this._interval) {
                 return;
             }
+            this._deltaTime = 0;
             this._tex.initWithElement(this._context.canvas);
             this._sprite._activateMaterial();
         },
