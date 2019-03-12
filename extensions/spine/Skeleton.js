@@ -662,7 +662,7 @@ sp.Skeleton = cc.Class({
         // Destroyed and restored in Editor
         if (!this._material) {
             this._boundingBox = cc.rect();
-	        this._material = new SpineMaterial();
+            this._material = new SpineMaterial();
             this._materialCache = {};
         }
     },
