@@ -14,7 +14,7 @@ export class RenderableComponent extends Component {
     }
 
     public onLoad () {
-        this.sharedMaterials = this._materials.concat();
+
     }
 
     @property({
