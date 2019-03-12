@@ -899,7 +899,7 @@ var Texture2D = cc.Class({
             premultiplyAlpha = image._premultiplyAlpha;
         }
 
-        this._hash = parseInt(`${minFilter}${magFilter}${pixelFormat}${wrapS}${wrapT}${hasMipmap}${premultiplyAlpha}${flipY}`);
+        this._hash = Number(`${minFilter}${magFilter}${pixelFormat}${wrapS}${wrapT}${hasMipmap}${premultiplyAlpha}${flipY}`);
         this._hashDirty = false;
         return this._hash;
     },
