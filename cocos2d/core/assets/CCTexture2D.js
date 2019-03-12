@@ -35,6 +35,7 @@ const GL_LINEAR = 9729;                 // gl.LINEAR
 const GL_REPEAT = 10497;                // gl.REPEAT
 const GL_CLAMP_TO_EDGE = 33071;         // gl.CLAMP_TO_EDGE
 const GL_MIRRORED_REPEAT = 33648;       // gl.MIRRORED_REPEAT
+const GL_RGBA = 6408;                   // gl.RGBA
 
 const CHAR_CODE_0 = 48;    // '0'
 const CHAR_CODE_1 = 49;    // '1'
@@ -891,6 +892,12 @@ var Texture2D = cc.Class({
         let wrapS = this._wrapS === WrapMode.REPEAT ? 1 : (this._wrapS === WrapMode.CLAMP_TO_EDGE ? 2 : 3);
         let wrapT = this._wrapT === WrapMode.REPEAT ? 1 : (this._wrapT === WrapMode.CLAMP_TO_EDGE ? 2 : 3);
         let pixelFormat = this._format;
+        let image = this._image;
+        if (CC_JSB && image) {
+            if (image._glFormat !== GL_RGBA)
+                pixelFormat = 0;
+            premultiplyAlpha = image._premultiplyAlpha;
+        }
 
         this._hash = parseInt(`${minFilter}${magFilter}${pixelFormat}${wrapS}${wrapT}${hasMipmap}${premultiplyAlpha}${flipY}`);
         this._hashDirty = false;
