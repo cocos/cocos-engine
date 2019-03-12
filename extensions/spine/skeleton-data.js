@@ -59,6 +59,8 @@ var SkeletonData = cc.Class({
             },
             set: function (value) {
                 this._skeletonJson = value;
+                // adapt to old api
+                this.skeletonJsonStr = JSON.stringify(value);
                 this.reset();
             }
         },
