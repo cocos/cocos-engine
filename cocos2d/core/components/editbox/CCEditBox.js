@@ -82,8 +82,8 @@ let EditBox = cc.Class({
         },
 
         /**
-         * !#en The text label of EditBox.
-         * !#zh 输入框输入文本的标签
+         * !#en The Label component attached to the node for EditBox's input text label
+         * !#zh 输入框输入文本节点上挂载的 Label 组件对象
          * @property {Label} textLabel
          */
         textLabel: {
@@ -99,8 +99,8 @@ let EditBox = cc.Class({
         },
 
          /**
-         * !en The placeholder label of EditBox.
-         * !zh 输入框占位符的标签
+         * !en The Label component attached to the node for EditBox's placeholder text label
+         * !zh 输入框占位符节点上挂载的 Label 组件对象
          * @property {Label} placeholderLabel
          */
         placeholderLabel: {
@@ -116,8 +116,8 @@ let EditBox = cc.Class({
         },
 
         /**
-         * !#en The background sprite of EditBox.
-         * !#zh 输入框的背景图片
+         * !#en The Sprite component attached to the node for EditBox's background
+         * !#zh 输入框背景节点上挂载的 Sprite 组件对象
          * @property {Sprite} background
          */
         background: {

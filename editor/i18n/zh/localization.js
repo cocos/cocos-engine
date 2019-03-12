@@ -214,15 +214,15 @@ module.exports = {
         },
         'editbox': {
             "string": "输入框的初始输入内容，如果为空则会显示占位符的文本",
-            "background": "输入框的背景图片",
+            "background": "输入框背景节点上挂载的 Sprite 组件对象",
             "input_flag": "指定输入标识：可以指定输入方式为密码或者单词首字母大写",
             "returnType": "指定移动设备上面回车按钮的样式",
             "input_mode": "指定输入模式: ANY表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式。",
             "tab_index": "修改 DOM 输入元素的 tabIndex，这个属性只有在 Web 上面修改有意义。",
             "placeholder": "输入框占位符的文本内容",
             "max_length": "输入框最大允许输入的字符个数",
-            "textLabel": "输入框输入文本的标签",
-            "placeholderLabel": "输入框占位符的标签"
+            "textLabel": "输入框输入文本节点上挂载的 Label 组件对象",
+            "placeholderLabel": "输入框占位符节点上挂载的 Label 组件对象"
         },
         "videoplayer": {
             "resourceType": "视频来源，支持本地视频 URL 和远程视频 URL",

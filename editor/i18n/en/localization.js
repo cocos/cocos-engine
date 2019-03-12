@@ -210,15 +210,15 @@ module.exports = {
         },
         "editbox": {
             "string": "The initial input text of EditBox.",
-            "background": "The background sprite of EditBox.",
+            "background": "The Sprite component attached to the node for EditBox's background.",
             "returnType": "The keyboard return type of EditBox. This is useful for keyboard of mobile device.",
             "input_flag": "Specify the input flag: password or capitalize word. ",
             "input_mode": "Specify the input mode: multiline or single line.",
             "tab_index": "Set the tabIndex of the DOM input element, only useful on Web.",
             "placeholder": "The content string of placeholder.",
             "max_length": "The maximize input characters.",
-            "textLabel": "The text label of EditBox.",
-            "placeholderLabel": "The placeholder label of EditBox."
+            "textLabel": "The Label component attached to the node for EditBox's input text label.",
+            "placeholderLabel": "The Label component attached to the node for EditBox's placeholder text label."
         },
         "videoplayer": {
             "resourceType": "The resource type of VideoPlayer, currently support remote URL and local videos.",
