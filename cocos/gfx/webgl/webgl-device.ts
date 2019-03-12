@@ -194,9 +194,11 @@ export class WebGLGFXDevice extends GFXDevice {
             };
 
             this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs);
+            /*
             if (this._webGLRC && info.debug) {
                 this._webGLRC = WebGLDeveloperTools.makeDebugContext(this._webGLRC, this._onWebGLError.bind(this));
             }
+            */
         } catch (err) {
             console.error(err);
             return false;

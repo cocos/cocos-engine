@@ -358,7 +358,7 @@ export class CameraComponent extends Component {
         const scene = this._getRenderScene();
         if (this._camera && scene.cameras.find((c) => c === this._camera)) { return; }
         this._camera = scene.createCamera({
-            name: this._name,
+            name: this.node.name,
             node: this.node,
             projection: this._projection,
             targetDisplay: this._targetDisplay,
