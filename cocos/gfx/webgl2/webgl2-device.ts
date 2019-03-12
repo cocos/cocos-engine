@@ -91,6 +91,7 @@ export class WebGL2GFXDevice extends GFXDevice {
     private _WEBGL_compressed_texture_s3tc: WEBGL_compressed_texture_s3tc | null = null;
     private _WEBGL_compressed_texture_s3tc_srgb: WEBGL_compressed_texture_s3tc_srgb | null = null;
     private _WEBGL_debug_renderer_info: WEBGL_debug_renderer_info | null = null;
+    private _WEBGL_texture_storage_multisample: WEBGL_texture_storage_multisample | null = null;
     private _WEBGL_debug_shaders: WEBGL_debug_shaders | null = null;
     private _WEBGL_lose_context: WEBGL_lose_context | null = null;
 
@@ -208,6 +209,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._OES_texture_float_linear = gl.getExtension('OES_texture_float_linear');
         this._WEBGL_compressed_texture_s3tc = gl.getExtension('WEBGL_compressed_texture_s3tc');
         this._WEBGL_compressed_texture_s3tc_srgb = gl.getExtension('WEBGL_compressed_texture_s3tc_srgb');
+        this._WEBGL_texture_storage_multisample = gl.getExtension('WEBGL_texture_storage_multisample');
         this._WEBGL_debug_shaders = gl.getExtension('WEBGL_debug_shaders');
         this._WEBGL_lose_context = gl.getExtension('WEBGL_lose_context');
 

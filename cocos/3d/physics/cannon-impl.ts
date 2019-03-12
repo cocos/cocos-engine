@@ -56,10 +56,6 @@ export class CannonWorld implements PhysicsWorldBase {
 
     public step (deltaTime: number) {
         this._callCustomBeforeSteps();
-<<<<<<< HEAD
-        //this._cannonWorld.dispatchEvent(this._beforeStepEvent);
-=======
->>>>>>> aa273526f6b4e5b017e538b205b8a5c1678b9c63
         this._cannonWorld.step(deltaTime);
         this._callCustomAfterSteps();
     }

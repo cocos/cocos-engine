@@ -92,6 +92,18 @@ declare var EXT_disjoint_timer_query: {
     readonly TIMESTAMP_EXT: number;
     readonly GPU_DISJOINT_EXT: number;
 }
+
+interface WEBGL_texture_storage_multisample {
+    readonly TEXTURE_2D_MULTISAMPLE: number;
+
+    texStorage2DMultisample(
+        target: GLenum,
+        samples: GLsizei,
+        internalformat: GLenum,
+        width: GLsizei,
+        height: GLsizei,
+        fixedsamplelocations: GLboolean);
+}
   
 interface HTMLCanvasElement {
     getContext(contextId: "webgl2" | "experimental-webgl2", contextAttributes?: WebGLContextAttributes): WebGL2RenderingContext | null;
