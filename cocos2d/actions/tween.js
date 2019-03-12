@@ -57,7 +57,7 @@ let TweenAction = cc.Class({
         for (let name in props) {
             let value = target[name];
             let prop = props[name];
-            
+
             if (typeof value === 'number') {
                 prop.start = value;
                 prop.current = value;
@@ -78,7 +78,7 @@ let TweenAction = cc.Class({
 
         let target = this.target;
         if (!target) return;
-            
+
         let props = this._props;
         let progress = this._opts.progress;
         for (let name in props) {
@@ -104,9 +104,9 @@ let SetAction = cc.Class({
     name: 'cc.SetAction',
     extends: cc.ActionInstant,
 
-    ctor (props){
+    ctor (props) {
         this._props = {};
-		props !== undefined && this.init(props);
+        props !== undefined && this.init(props);
     },
 
     init (props) {
@@ -342,7 +342,7 @@ let actions = {
     set (props) {
         return new SetAction(props);
     },
-    
+
     /**
      * !#en
      * Add an delay action
@@ -412,8 +412,8 @@ let actions = {
     parallel: wrapAction(cc.spawn)
 };
 
-// these action should integrate before one action to a sequence action as their parameters
-let repeatActions = {
+// these action will use previous action as their parameters
+let previousAsInputActions = {
     /**
      * !#en
      * Add an repeat action. 
@@ -458,7 +458,7 @@ for (let i = 0; i < keys.length; i++) {
     };
 }
 
-keys = Object.keys(repeatActions);
+keys = Object.keys(previousAsInputActions);
 for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
     Tween.prototype[key] = function () {
@@ -481,9 +481,9 @@ for (let i = 0; i < keys.length; i++) {
             args.push(arguments[i]);
         }
 
-        action = repeatActions[key].apply(this, args);
+        action = previousAsInputActions[key].apply(this, args);
         actions.push(action);
-        
+
         return this;
     };
 }
