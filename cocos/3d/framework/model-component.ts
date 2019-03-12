@@ -161,6 +161,17 @@ export class ModelComponent extends RenderableComponent {
     @property
     private _receiveShadows = false;
 
+    public onLoad () {
+        super.onLoad();
+        let n: any = this.node;
+        while (n) {
+            if (n._persistNode) {
+                n.on(cc.Node.SCENE_CHANGED_FOR_PERSISTS, this.onPersistNodeSceneChanged, this);
+            }
+            n = n.parent;
+        }
+    }
+
     public onEnable () {
         this._updateModels();
         this._updateCastShadow();
@@ -254,6 +265,10 @@ export class ModelComponent extends RenderableComponent {
         for (let i = 0; i < this._model.subModelNum; ++i) {
             this._onMaterialModified(i, null);
         }
+    }
+
+    private onPersistNodeSceneChanged (renderScene) {
+        this._model = null;
     }
 
     private _updateCastShadow () {

@@ -416,7 +416,6 @@ class Director extends EventTarget {
         });
         for (let i = 0; i < persistNodeList.length; i++) {
             let node = persistNodeList[i];
-            node.emit(cc.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
             var existNode = scene.getChildByUuid(node.uuid);
             if (existNode) {
                 // scene also contains the persist node, select the old one
@@ -462,6 +461,11 @@ class Director extends EventTarget {
         CC_BUILD && CC_DEBUG && console.time('Activate');
         scene._activate();
         CC_BUILD && CC_DEBUG && console.timeEnd('Activate');
+
+        for (let i = 0; i < persistNodeList.length; i++) {
+            let node = persistNodeList[i];
+            node.emit(cc.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
+        }
 
         //start scene
         this.startAnimation();
