@@ -13,6 +13,8 @@ let TweenAction = cc.Class({
             opts.easing = cc.easing[opts.easing];
         }
 
+        let relative = this._opts.relative;
+
         for (let name in props) {
             let value = props[name];
 
@@ -25,7 +27,7 @@ let TweenAction = cc.Class({
             }
 
             let isNumber = typeof value === 'number';
-            if (!isNumber && (!value.lerp || (!value.add && !value.mul) || !value.clone)) {
+            if (!isNumber && (!value.lerp || (relative && !value.add && !value.mul) || !value.clone)) {
                 cc.warn(`Can not animate ${name} property, because it do not have [lerp, (add|mul), clone] function.`);
                 continue;
             }
@@ -55,7 +57,7 @@ let TweenAction = cc.Class({
         for (let name in props) {
             let value = target[name];
             let prop = props[name];
-            
+
             if (typeof value === 'number') {
                 prop.start = value;
                 prop.current = value;
@@ -76,7 +78,7 @@ let TweenAction = cc.Class({
 
         let target = this.target;
         if (!target) return;
-            
+
         let props = this._props;
         let progress = this._opts.progress;
         for (let name in props) {
@@ -95,6 +97,37 @@ let TweenAction = cc.Class({
             start.lerp(end, t, current);
         }
         return current;
+    }
+});
+
+let SetAction = cc.Class({
+    name: 'cc.SetAction',
+    extends: cc.ActionInstant,
+
+    ctor (props) {
+        this._props = {};
+        props !== undefined && this.init(props);
+    },
+
+    init (props) {
+        for (let name in props) {
+            this._props[name] = props[name];
+        }
+        return true;
+    },
+
+    update () {
+        let props = this._props;
+        let target = this.target;
+        for (let name in props) {
+            target[name] = props[name];
+        }
+    },
+
+    clone () {
+        var action = new SetAction();
+        action.init(this._props);
+        return action;
     }
 });
 
@@ -137,19 +170,18 @@ function Tween (target) {
  * 插入一个 action 或者 tween 到队列中
  * @method then 
  * @param {Action|Tween} other
+ * @return {Tween}
  */
 Tween.prototype.then = function (other) {
     if (other instanceof cc.Action) {
         this._actions.push(other.clone());
     }
     else {
-        let actions = other._actions;
-        for (let i = 0; i < actions.length; i++) {
-            this._actions.push(actions[i].clone());
-        }
+        this._actions.push(other._union());
     }
     return this;
 };
+
 
 /**
  * !#en
@@ -157,6 +189,7 @@ Tween.prototype.then = function (other) {
  * !#zh
  * 设置 tween 的 target
  * @method target
+ * @return {Tween}
  */
 Tween.prototype.target = function (target) {
     this._target = target;
@@ -169,15 +202,17 @@ Tween.prototype.target = function (target) {
  * !#zh
  * 运行当前 tween
  * @method start
+ * @return {Tween}
  */
 Tween.prototype.start = function () {
     if (!this._target) {
         cc.warn('Please set target to tween first');
         return this;
     }
-    if (!this._finalAction) {
-        this._finalAction = this._get();
+    if (this._finalAction) {
+        cc.director.getActionManager().removeAction(this._finalAction);
     }
+    this._finalAction = this._union();
     cc.director.getActionManager().addAction(this._finalAction, this._target, false);
     return this;
 };
@@ -188,6 +223,7 @@ Tween.prototype.start = function () {
  * !#zh
  * 停止当前 tween
  * @method stop
+ * @return {Tween}
  */
 Tween.prototype.stop = function () {
     if (this._finalAction) {
@@ -205,19 +241,28 @@ Tween.prototype.stop = function () {
  * 克隆当前 tween
  * @method clone
  * @param {Object} [target]
+ * @return {Tween}
  */
 Tween.prototype.clone = function (target) {
-    let action = this._get();
+    let action = this._union();
     return cc.tween(target).then(action.clone());
 };
 
 /**
  * !#en
- * Get an union action from current sequence
+ * Integrate all previous actions to an action.
  * !#zh
- * 从当前队列中获取一个整合的 action
+ * 将之前所有的 action 整合为一个 action。
+ * @return {Tween}
  */
-Tween.prototype._get = function () {
+Tween.prototype.union = function () {
+    let action = this._union();
+    this._actions.length = 0;
+    this._actions.push(action);
+    return this;
+};
+
+Tween.prototype._union = function () {
     let actions = this._actions;
 
     if (actions.length === 1) {
@@ -230,6 +275,21 @@ Tween.prototype._get = function () {
     return actions;
 };
 
+let tmp_args = [];
+
+function wrapAction (action) {
+    return function () {
+        tmp_args.length = 0;
+        for (let l = arguments.length, i = 0; i < l; i++) {
+            let arg = tmp_args[i] = arguments[i];
+            if (arg instanceof Tween) {
+                tmp_args[i] = arg._union();
+            }
+        }
+
+        return action.apply(this, tmp_args);
+    };
+}
 
 let actions = {
     /**
@@ -243,6 +303,7 @@ let actions = {
      * @param {Object} opts 
      * @param {Function} opts.progress
      * @param {Function|String} opts.easing
+     * @return {Tween}
      */
     to (duration, props, opts) {
         opts = opts || Object.create(null);
@@ -261,13 +322,27 @@ let actions = {
      * @param {Object} opts 
      * @param {Function} opts.progress
      * @param {Function|String} opts.easing
+     * @return {Tween}
      */
     by (duration, props, opts) {
         opts = opts || Object.create(null);
         opts.relative = true;
         return new TweenAction(duration, props, opts);
     },
-    
+
+    /**
+     * !#en
+     * Directly set target properties
+     * !#zh
+     * 直接设置 target 的属性
+     * @method set
+     * @param {Object} props
+     * @return {Tween}
+     */
+    set (props) {
+        return new SetAction(props);
+    },
+
     /**
      * !#en
      * Add an delay action
@@ -275,6 +350,7 @@ let actions = {
      * 添加一个延时 action
      * @method delay
      * @param {Number} duration 
+     * @return {Tween}
      */
     delay: cc.delayTime,
     /**
@@ -284,6 +360,7 @@ let actions = {
      * 添加一个回调 action
      * @method call
      * @param {Function} callback
+     * @return {Tween}
      */
     call: cc.callFunc,
     /**
@@ -292,6 +369,7 @@ let actions = {
      * !#zh
      * 添加一个隐藏 action
      * @method hide
+     * @return {Tween}
      */
     hide: cc.hide,
     /**
@@ -300,6 +378,7 @@ let actions = {
      * !#zh
      * 添加一个显示 action
      * @method show
+     * @return {Tween}
      */
     show: cc.show,
     /**
@@ -308,6 +387,7 @@ let actions = {
      * !#zh
      * 添加一个移除自己 action
      * @method removeSelf
+     * @return {Tween}
      */
     removeSelf: cc.removeSelf,
     /**
@@ -316,21 +396,33 @@ let actions = {
      * !#zh
      * 添加一个队列 action
      * @method sequence
-     * @param {[Action]} actions
+     * @param {[Action|Tween]} actions
+     * @return {Tween}
      */
-    sequence: cc.sequence,
+    sequence: wrapAction(cc.sequence),
+    /**
+     * !#en
+     * Add an parallel action
+     * !#zh
+     * 添加一个并行 action
+     * @method sequence
+     * @param {[Action|Tween]} actions
+     * @return {Tween}
+     */
+    parallel: wrapAction(cc.spawn)
 };
 
-// these action should integrate before actions to a sequence action as their parameters
-let otherActions = {
+// these action will use previous action as their parameters
+let previousAsInputActions = {
     /**
      * !#en
      * Add an repeat action. 
      * This action will integrate before actions to a sequence action as their parameters.
      * !#zh
-     * 添加一个重复 action，这个 action 会将之前的 action 整合成一个 sequence action 作为他的参数。
+     * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeat
      * @param {Number} repeatTimes 
+     * @return {Tween}
      */
     repeat: cc.repeat,
     /**
@@ -338,8 +430,9 @@ let otherActions = {
      * Add an repeat forever action
      * This action will integrate before actions to a sequence action as their parameters.
      * !#zh
-     * 添加一个永久重复 action，这个 action 会将之前的 action 整合成一个 sequence action 作为他的参数。
+     * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeatForever
+     * @return {Tween}
      */
     repeatForever: cc.repeatForever,
     /**
@@ -347,11 +440,13 @@ let otherActions = {
      * Add an reverse time action.
      * This action will integrate before actions to a sequence action as their parameters.
      * !#zh
-     * 添加一个倒置时间 action，这个 action 会将之前的 action 整合成一个 sequence action 作为他的参数。
+     * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
      * @method reverseTime
+     * @return {Tween}
      */
     reverseTime: cc.reverseTime,
 };
+
 
 let keys = Object.keys(actions);
 for (let i = 0; i < keys.length; i++) {
@@ -359,28 +454,36 @@ for (let i = 0; i < keys.length; i++) {
     Tween.prototype[key] = function () {
         let action = actions[key].apply(actions, arguments);
         this._actions.push(action);
-        this._finalAction = null;
         return this;
     };
 }
 
-keys = Object.keys(otherActions);
+keys = Object.keys(previousAsInputActions);
 for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
     Tween.prototype[key] = function () {
-        let args = [];
-        for (let l = arguments.length, i = 0; i < l; i++) {
-            args[i] = arguments[i];
+
+        let actions = this._actions;
+        let action = arguments[0];
+        let i = 1;
+
+        if (action instanceof cc.Tween) {
+            action = action._union();
+        }
+        else if (!(action instanceof cc.Action)) {
+            action = actions[actions.length - 1];
+            actions.length -= 1;
+            i = 0;
         }
 
-        let action = arguments[0];
-        if (!(action instanceof cc.Action)) {
-            action = this._get();
+        let args = [action];
+        for (let l = arguments.length; i < l; i++) {
+            args.push(arguments[i]);
         }
-        action = otherActions[key].apply(otherActions, [action].concat(args));
-        this._actions.length = 0;
-        this._actions.push(action);
-        this._finalAction = null;
+
+        action = previousAsInputActions[key].apply(this, args);
+        actions.push(action);
+
         return this;
     };
 }

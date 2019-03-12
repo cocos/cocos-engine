@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 require('./renderers');
+const utils = require('./renderers/utils')
 
 let RenderComponentHandle = function (device, defaultCamera) {
     this._device = device;
@@ -51,6 +52,8 @@ RenderComponentHandle.prototype = {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         this._device._stats.drawcalls = 0;
+        //reset cache data
+        utils.context.reset();
     },
 
     terminate () {

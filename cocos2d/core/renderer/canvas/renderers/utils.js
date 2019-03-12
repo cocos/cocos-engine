@@ -161,3 +161,23 @@ module.exports = {
         canvasMgr.dropImage(key);
     }
 };
+
+// cache context data of device.
+let _globalAlpha = -1;
+
+let context = {
+    setGlobalAlpha (ctx, alpha) {
+        if (_globalAlpha === alpha) {
+            return 
+        }
+
+        _globalAlpha = alpha;
+        ctx.globalAlpha = _globalAlpha;
+    },
+
+    reset () {
+        _globalAlpha = -1;
+    }
+}
+
+module.exports.context = context;

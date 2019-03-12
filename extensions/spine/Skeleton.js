@@ -180,7 +180,7 @@ sp.Skeleton = cc.Class({
                 if (value) {
                     this.setAnimation(0, value, this.loop);
                 }
-                else {
+                else if (!this.isAnimationCached()) {
                     this.clearTrack(0);
                     this.setToSetupPose();
                 }
@@ -950,6 +950,7 @@ sp.Skeleton = cc.Class({
      * @return {sp.spine.TrackEntry}
      */
     addAnimation (trackIndex, name, loop, delay) {
+        delay = delay || 0;
         if (this.isAnimationCached()) {
             if (trackIndex !== 0) {
                 cc.warn("Track index can not greater than 0 in cached mode.");
@@ -957,7 +958,6 @@ sp.Skeleton = cc.Class({
             this._animationQueue.push({animationName : name, loop: loop, delay : delay});
         } else {
             if (this._skeleton) {
-                delay = delay || 0;
                 var animation = this._skeleton.data.findAnimation(name);
                 if (!animation) {
                     cc.logID(7510, name);
