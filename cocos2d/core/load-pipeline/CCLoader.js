@@ -683,7 +683,7 @@ proto.loadResDir = function (url, type, mount, progressCallback, completeCallbac
     completeCallback = args.onComplete;
 
     var urls = [];
-    var uuids = resources.getUuidArray(url, type, urls);
+    var uuids = assetTables[mount].getUuidArray(url, type, urls);
     this._loadResUuids(uuids, progressCallback, completeCallback, urls);
 };
 
