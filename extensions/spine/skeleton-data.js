@@ -59,7 +59,7 @@ var SkeletonData = cc.Class({
             },
             set: function (value) {
                 this._skeletonJson = value;
-                // adapt to old api
+                // If dynamic set skeletonJson field, auto update skeletonJsonStr field.
                 this.skeletonJsonStr = JSON.stringify(value);
                 this.reset();
             }
