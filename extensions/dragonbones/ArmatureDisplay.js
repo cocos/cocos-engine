@@ -515,7 +515,8 @@ let ArmatureDisplay = cc.Class({
             this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.START);
         }
 
-        this._accTime += dt * this.timeScale;
+        let globalTimeScale = dragonBones.timeScale;
+        this._accTime += dt * this.timeScale * globalTimeScale;
         let frameIdx = Math.floor(this._accTime / totalTime * frameCount);
         if (frameIdx >= frameCount) {
 
