@@ -454,6 +454,14 @@ let ArmatureDisplay = cc.Class({
         this._updateDebugDraw();
     },
 
+    onRestore () {
+        // Destroyed and restored in Editor
+        if (!this._material) {
+            this._material = new SpriteMaterial();
+            this._materialCache = {};
+        }
+    },
+
     /**
      * !#en
      * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
@@ -515,7 +523,8 @@ let ArmatureDisplay = cc.Class({
             this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.START);
         }
 
-        this._accTime += dt * this.timeScale;
+        let globalTimeScale = dragonBones.timeScale;
+        this._accTime += dt * this.timeScale * globalTimeScale;
         let frameIdx = Math.floor(this._accTime / totalTime * frameCount);
         if (frameIdx >= frameCount) {
 

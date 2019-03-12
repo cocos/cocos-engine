@@ -228,6 +228,7 @@ var defaultMap = {
     // binary
     'binary' : loadBinary,
     'dbbin' : loadBinary,
+    'bin' : loadBinary,
 
     // Font
     'font' : fontLoader.loadFont,

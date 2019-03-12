@@ -85,27 +85,32 @@ const State = cc.Enum({
  *  User can get the current clicked node with 'event.target' from event object which is passed as parameter in the callback function of click event.
  *
  * !#zh
- * 按钮组件。可以被按下,或者点击。<br/>
+ * 按钮组件。可以被按下，或者点击。
  *
- * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：<br/>
- *   -Button.Transition.NONE   // 不做任何过渡<br/>
- *   -Button.Transition.COLOR  // 进行颜色之间过渡<br/>
- *   -Button.Transition.SPRITE // 进行精灵之间过渡<br/>
- *   -Button.Transition.SCALE // 进行缩放过渡<br/>
+ * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：
+ * 
+ *   - Button.Transition.NONE   // 不做任何过渡
+ *   - Button.Transition.COLOR  // 进行颜色之间过渡
+ *   - Button.Transition.SPRITE // 进行精灵之间过渡
+ *   - Button.Transition.SCALE // 进行缩放过渡
  *
  * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）：<br/>
- *   // 以下事件可以在全平台上都触发<br/>
- *   -cc.Node.EventType.TOUCH_START  // 按下时事件<br/>
- *   -cc.Node.EventType.TOUCH_Move   // 按住移动后事件<br/>
- *   -cc.Node.EventType.TOUCH_END    // 按下后松开后事件<br/>
- *   -cc.Node.EventType.TOUCH_CANCEL // 按下取消事件<br/>
- *   // 以下事件只在 PC 平台上触发<br/>
- *   -cc.Node.EventType.MOUSE_DOWN  // 鼠标按下时事件<br/>
- *   -cc.Node.EventType.MOUSE_MOVE  // 鼠标按住移动后事件<br/>
- *   -cc.Node.EventType.MOUSE_ENTER // 鼠标进入目标事件<br/>
- *   -cc.Node.EventType.MOUSE_LEAVE // 鼠标离开目标事件<br/>
- *   -cc.Node.EventType.MOUSE_UP    // 鼠标松开事件<br/>
- *   -cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件<br/>
+ * 以下事件可以在全平台上都触发：
+ * 
+ *   - cc.Node.EventType.TOUCH_START  // 按下时事件
+ *   - cc.Node.EventType.TOUCH_Move   // 按住移动后事件
+ *   - cc.Node.EventType.TOUCH_END    // 按下后松开后事件
+ *   - cc.Node.EventType.TOUCH_CANCEL // 按下取消事件
+ * 
+ * 以下事件只在 PC 平台上触发：
+ * 
+ *   - cc.Node.EventType.MOUSE_DOWN  // 鼠标按下时事件
+ *   - cc.Node.EventType.MOUSE_MOVE  // 鼠标按住移动后事件
+ *   - cc.Node.EventType.MOUSE_ENTER // 鼠标进入目标事件
+ *   - cc.Node.EventType.MOUSE_LEAVE // 鼠标离开目标事件
+ *   - cc.Node.EventType.MOUSE_UP    // 鼠标松开事件
+ *   - cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件
+ * 
  * 用户可以通过获取 __点击事件__ 回调函数的参数 event 的 target 属性获取当前点击对象。
  * @class Button
  * @extends Component

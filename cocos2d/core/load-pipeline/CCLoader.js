@@ -684,24 +684,7 @@ proto.loadResDir = function (url, type, mount, progressCallback, completeCallbac
 
     var urls = [];
     var uuids = assetTables[mount].getUuidArray(url, type, urls);
-    this._loadResUuids(uuids, progressCallback, function (errors, assetRes, urlRes) {
-        // The spriteFrame url in spriteAtlas will be removed after build project
-        // To show users the exact structure in asset panel, we need to return the spriteFrame assets in spriteAtlas
-        let assetResLength = assetRes.length;
-        for (let i = 0; i < assetResLength; ++i) {
-            if (assetRes[i] instanceof cc.SpriteAtlas) {
-                let spriteFrames = assetRes[i].getSpriteFrames();
-                for (let k in spriteFrames) {
-                    let sf = spriteFrames[k];
-                    assetRes.push(sf);
-                    if (urlRes) {
-                        urlRes.push(`${urlRes[i]}/${sf.name}`);
-                    }
-                }
-            }
-        }
-        completeCallback && completeCallback(errors, assetRes, urlRes);
-    }, urls);
+    this._loadResUuids(uuids, progressCallback, completeCallback, urls);
 };
 
 /**

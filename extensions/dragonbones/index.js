@@ -46,6 +46,27 @@ if (!CC_JSB) {
 
 if (_global.dragonBones !== undefined) {
 
+    /**
+     * !#en
+     * The global time scale of DragonBones.
+     * !#zh
+     * DragonBones 全局时间缩放率。
+     * @example
+     * dragonBones.timeScale = 0.8;
+     */
+    dragonBones._timeScale = 1.0;
+    Object.defineProperty(dragonBones, 'timeScale', {
+        get () {
+            return this._timeScale;
+        },
+        set (value) {
+            this._timeScale = value;
+            let factory = this.CCFactory.getInstance();
+            factory._dragonBones.clock.timeScale = value;
+        },
+        configurable: true,
+    });
+
     dragonBones.DisplayType = {
         Image : 0,
         Armature : 1,

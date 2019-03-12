@@ -51,6 +51,25 @@ if (CC_JSB && _global.spine === undefined) {
 if (_isUseSpine) {
     _global.sp = {};
 
+    /**
+     * !#en
+     * The global time scale of Spine.
+     * !#zh
+     * Spine 全局时间缩放率。
+     * @example
+     * sp.timeScale = 0.8;
+     */
+    sp._timeScale = 1.0;
+    Object.defineProperty(sp, 'timeScale', {
+        get () {
+            return this._timeScale;
+        },
+        set (value) {
+            this._timeScale = value;
+        },
+        configurable: true,
+    });
+
     // The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
     sp.ATTACHMENT_TYPE = {
         REGION: 0,
