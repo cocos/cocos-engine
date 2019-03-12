@@ -490,9 +490,7 @@ let EditBox = cc.Class({
     },
 
     _init () {
-        if (CC_EDITOR) {
-            this._upgradeComp();            
-        }
+        this._upgradeComp();
 
         this._isLabelVisible = true;
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._syncSize, this);
