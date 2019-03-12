@@ -126,6 +126,7 @@ export class RenderScene {
     public destroyCamera (camera: Camera) {
         for (let i = 0; i < this._cameras.length; ++i) {
             if (this._cameras[i] === camera) {
+                camera.destroy();
                 this._cameras.splice(i, 1);
                 return;
             }
@@ -133,7 +134,10 @@ export class RenderScene {
     }
 
     public destroyCameras () {
-        this._cameras = [];
+        for (const camera of this._cameras) {
+            camera.destroy();
+        }
+        this._cameras.splice(0);
     }
 
     public createSphereLight (name: string, node: Node): SphereLight | null {

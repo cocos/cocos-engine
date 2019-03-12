@@ -22,7 +22,7 @@ import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Model } from '../renderer';
-import { IDefineMap } from '../renderer/core/effect';
+import { IDefineMap } from '../renderer/core/pass';
 import { UBOGlobal, UBOShadow } from './define';
 import { IInternalBindingInst } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
