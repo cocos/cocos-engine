@@ -454,7 +454,7 @@ let ArmatureDisplay = cc.Class({
     onRestore () {
         // Destroyed and restored in Editor
         if (!this._material) {
-	        this._material = new SpriteMaterial();
+            this._material = new SpriteMaterial();
             this._materialCache = {};
         }
     },
