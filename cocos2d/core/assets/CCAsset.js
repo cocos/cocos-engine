@@ -119,8 +119,12 @@ cc.Asset = cc.Class({
          * @private
          */
         _nativeAsset: {
-            get () {},
-            set (obj) {}
+            get () {
+                return this._$nativeAsset;
+            },
+            set (obj) {
+                this._$nativeAsset = obj;
+            }
         },
     },
 
