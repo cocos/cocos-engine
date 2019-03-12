@@ -194,7 +194,7 @@ export class SliderComponent extends Component {
 
         this._dragging = true;
         this._touchHandle = true;
-        const touhPos = event.touch!.getLocation();
+        const touhPos = event.touch!.getUILocation();
         vec3.set(this._touchPos, touhPos.x, touhPos.y, 0);
         this._handle.node.uiTransfromComp.convertToNodeSpaceAR(this._offset, this._touchPos);
 
@@ -255,7 +255,7 @@ export class SliderComponent extends Component {
             return;
         }
 
-        const touchPos = touch.getLocation();
+        const touchPos = touch.getUILocation();
         vec3.set(this._touchPos, touchPos.x, touchPos.y, 0);
         const localTouchPos = this.node.uiTransfromComp!.convertToNodeSpaceAR(_tempPos, this._touchPos);
         if (this.direction === Direction.Horizontal) {

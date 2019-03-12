@@ -180,7 +180,7 @@ export class EventMouse extends Event {
 
     /**
      * !#en Returns cursor location.
-     * !#zh 获取鼠标位置对象，对象包含 x 和 y 属性。
+     * !#zh 获取鼠标相对于左下角位置对象，对象包含 x 和 y 属性。
      */
     public getLocation () {
         return v2(this._x, this._y);
@@ -194,6 +194,16 @@ export class EventMouse extends Event {
         return v2(this._x, cc.view._designResolutionSize.height - this._y);
     }
 
+    /**
+     * !#en Returns the current cursor location in ui coordinates.
+     * !#zh 获取当前事件在 UI 窗口内的坐标位置，对象包含 x 和 y 属性。
+     */
+    public getUILocation (){
+        const pos = v2(this._x, this._y);
+        cc.view._convertPointWithScale(pos);
+        return pos;
+    }
+
     public _setPrevCursor (x: number, y: number) {
         this._prevX = x;
         this._prevY = y;
@@ -205,6 +215,16 @@ export class EventMouse extends Event {
      */
     public getPreviousLocation () {
         return v2(this._prevX, this._prevY);
+    }
+
+    /**
+     * !#en Returns the previous touch location.
+     * !#zh 获取鼠标点击在上一次事件时的位置对象，对象包含 x 和 y 属性。
+     */
+    public getUIPreviousLocation () {
+        const pos = v2(this._prevX, this._prevY);
+        cc.view._convertPointWithScale(pos);
+        return pos;
     }
 
     /**
@@ -229,6 +249,30 @@ export class EventMouse extends Event {
      */
     public getDeltaY () {
         return this._y - this._prevY;
+    }
+
+    /**
+     * !#en Returns the delta distance from the previous location to current location.
+     * !#zh 获取鼠标距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
+     */
+    public getUIDelta () {
+        return v2((this._x - this._prevX) / cc.view.getScaleX(), (this._y - this._prevY) / cc.view.getScaleY());
+    }
+
+    /**
+     * !#en Returns the X axis delta distance from the previous location to current location.
+     * !#zh 获取鼠标距离上一次事件移动的 X 轴距离。
+     */
+    public getUIDeltaX () {
+        return (this._x - this._prevX) / cc.view.getScaleX();
+    }
+
+    /**
+     * !#en Returns the Y axis delta distance from the previous location to current location.
+     * !#zh 获取鼠标距离上一次事件移动的 Y 轴距离。
+     */
+    public getUIDeltaY () {
+        return (this._y - this._prevY) / cc.view.getScaleY();
     }
 
     /**
@@ -261,6 +305,24 @@ export class EventMouse extends Event {
      */
     public getLocationY () {
         return this._y;
+    }
+
+    /**
+     * !#en Returns location X axis data.
+     * !#zh 获取鼠标当前位置 X 轴。
+     */
+    public getUILocationX () {
+        const viewport = cc.view.getViewportRect();
+        return (this._x - viewport.x) / cc.view.getScaleX();
+    }
+
+    /**
+     * !#en Returns location Y axis data.
+     * !#zh 获取鼠标当前位置 Y 轴。
+     */
+    public getUILocationY () {
+        const viewport = cc.view.getViewportRect();
+        return (this._y - viewport.y) / cc.view.getScaleY();
     }
 }
 

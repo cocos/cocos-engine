@@ -983,16 +983,32 @@ class View extends EventTarget {
         return result;
     }
 
-    _convertMouseToLocationInView (in_out_point, relatedPos) {
-        var viewport = this._viewportRect, _t = this;
-        in_out_point.x = ((_t._devicePixelRatio * (in_out_point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
-        in_out_point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y) - viewport.y) / _t._scaleY;
+    _convertMouseToLocation(in_out_point, relatedPos){
+        in_out_point.x = this._devicePixelRatio * (in_out_point.x - relatedPos.left);
+        in_out_point.y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y);
     }
+
+    // _convertMouseToLocationInView (in_out_point, relatedPos) {
+    //     var viewport = this._viewportRect, _t = this;
+    //     in_out_point.x = ((_t._devicePixelRatio * (in_out_point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
+    //     in_out_point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y) - viewport.y) / _t._scaleY;
+    // }
 
     _convertPointWithScale (point) {
         var viewport = this._viewportRect;
         point.x = (point.x - viewport.x) / this._scaleX;
         point.y = (point.y - viewport.y) / this._scaleY;
+    }
+
+    _convertTouchWidthScale(selTouch){
+        const viewport = this._viewportRect;
+        const scaleX = this._scaleX;
+        const scaleY = this._scaleY;
+
+        selTouch._point.x = (selTouch._point.x - viewport.x) / scaleX;
+        selTouch._point.y = (selTouch._point.y - viewport.y) / scaleY;
+        selTouch._prevPoint.x = (selTouch._prevPoint.x - viewport.x) / scaleX;
+        selTouch._prevPoint.y = (selTouch._prevPoint.y - viewport.y) / scaleY;
     }
 
     _convertTouchesWithScale (touches) {

@@ -1,5 +1,6 @@
 import { Vec2 } from '../../value-types';
 import { v2 } from '../../value-types/vec2';
+import { vec2 } from '../../vmath';
 
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
@@ -73,11 +74,49 @@ export default class Touch {
     }
 
     /**
+     * !#en Returns the current touch location in OpenGL coordinates.、
+     * !#zh 获取当前触点位置。
+     */
+    public getUILocation () {
+        const pos = v2(this._point.x, this._point.y);
+        cc.view._convertPointWithScale(pos);
+        return pos;
+    }
+
+    /**
+     * !#en Returns X axis location value.
+     * !#zh 获取当前触点 X 轴位置。
+     */
+    public getUILocationX () {
+        const viewport = cc.view.getViewportRect();
+        return (this._point.x - viewport.x) / cc.view.getScaleX();
+    }
+
+    /**
+     * !#en Returns Y axis location value.
+     * !#zh 获取当前触点 Y 轴位置。
+     */
+    public getUILocationY () {
+        const viewport = cc.view.getViewportRect();
+        return (this._point.y - viewport.y) / cc.view.getScaleY();
+    }
+
+    /**
      * !#en Returns the previous touch location in OpenGL coordinates.
      * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
      */
     public getPreviousLocation () {
         return v2(this._prevPoint.x, this._prevPoint.y);
+    }
+
+    /**
+     * !#en Returns the previous touch location in OpenGL coordinates.
+     * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
+     */
+    public getUIPreviousLocation () {
+        const pos = v2(this._prevPoint.x, this._prevPoint.y);
+        cc.view._convertPointWithScale(pos);
+        return pos;
     }
 
     /**
@@ -94,6 +133,16 @@ export default class Touch {
      */
     public getDelta () {
         return this._point.sub(this._prevPoint);
+    }
+
+    /**
+     * !#en Returns the delta distance from the previous touche to the current one in screen coordinates.
+     * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
+     */
+    public getUIDelta () {
+        const scale = v2(cc.view.getScaleX(), cc.view.getScaleY());
+        vec2.divide(scale, this._point.sub(this._prevPoint), scale);
+        return scale;
     }
 
     /**

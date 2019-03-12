@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Component } from '../../components/component';
 import * as js from '../utils/js';
 import { ITargetImpl } from './../event/event-target-factory';
 import {CallbacksInvoker} from './callbacks-invoker';

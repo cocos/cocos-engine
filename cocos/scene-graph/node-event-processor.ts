@@ -6,12 +6,14 @@ import { EventType } from '../core/platform/event-manager/event-enum';
 import { EventListener } from '../core/platform/event-manager/event-listener';
 import { EventMouse, EventTouch} from '../core/platform/event-manager/index';
 import * as js from '../core/utils/js';
+import { Vec2 } from '../core/value-types';
 import { Node } from './node';
 
 const fastRemove = js.array.fastRemove;
 
 const _cachedArray = new Array<Node>(16);
 let _currentHovered: Node | null = null;
+let pos = new Vec2();
 
 const _touchEvents = [
     EventType.TOUCH_START.toString(),
@@ -31,12 +33,12 @@ const _mouseEvents = [
 
 // TODO: rearrange event
 function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    cc.game.emit(event);
-    const pos = touch.getLocation();
     const node = this.owner as Node;
-    if (!node || !node.uiTransfromComp){
+    if (!node || !node.uiTransfromComp) {
         return false;
     }
+
+    pos = touch.getUILocation();
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.TOUCH_START.toString();
@@ -62,11 +64,12 @@ function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch
 }
 
 function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const pos = touch.getLocation();
     const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
+
+    pos = touch.getUILocation();
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.TOUCH_END.toString();
@@ -91,11 +94,12 @@ function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTou
 }
 
 function _mouseDownHandler (this: EventListener, event: EventMouse) {
-    const pos = event.getLocation();
     const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
+
+    pos = event.getUILocation();
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.MOUSE_DOWN.toString();
@@ -105,11 +109,12 @@ function _mouseDownHandler (this: EventListener, event: EventMouse) {
 }
 
 function _mouseMoveHandler (this: EventListener, event: EventMouse) {
-    const pos = event.getLocation();
     const node = this.owner as Node;
-    if (!node || !node.uiTransfromComp){
+    if (!node || !node.uiTransfromComp) {
         return;
     }
+
+    pos = event.getUILocation();
 
     const hit = node.uiTransfromComp.isHit(pos, this);
     if (hit) {
@@ -146,11 +151,12 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
 }
 
 function _mouseUpHandler (this: EventListener, event: EventMouse) {
-    const pos = event.getLocation();
     const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
+
+    pos = event.getUILocation();
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.MOUSE_UP.toString();
@@ -161,12 +167,13 @@ function _mouseUpHandler (this: EventListener, event: EventMouse) {
     }
 }
 
-function _mouseWheelHandler (this: EventListener, event: EventTouch) {
-    const pos = event.getLocation();
+function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
+
+    pos = event.getUILocation();
 
     if (node.uiTransfromComp!.isHit(pos, this)) {
         event.type = EventType.MOUSE_WHEEL.toString();

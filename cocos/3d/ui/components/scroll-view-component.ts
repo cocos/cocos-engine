@@ -1202,7 +1202,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
             return;
         }
 
-        const deltaMove = touch.getLocation().sub(touch.getStartLocation());
+        const deltaMove = touch.getUILocation().sub(touch.getStartLocation());
         // FIXME: touch move delta should be calculated by DPI.
         if (deltaMove.mag() > 7) {
             if (!this._touchMoved && event.target !== this.node) {
@@ -1255,7 +1255,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     private _handleMoveLogic (touch: Touch) {
-        const delta = touch.getDelta();
+        const delta = touch.getUIDelta();
         vec3.set(this._deltaPos, delta.x, delta.y, 0);
         this._processDeltaMove(this._deltaPos);
     }
@@ -1404,7 +1404,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     private _handleReleaseLogic (touch) {
-        const delta = touch.getDelta();
+        const delta = touch.getUIDelta();
         vec3.set(this._deltaPos, delta.x, delta.y, 0);
         this._gatherTouchMove(this._deltaPos);
         this._processInertiaScroll();

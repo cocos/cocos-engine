@@ -24,13 +24,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { Vec2 } from '../../value-types/index';
 import { rect } from '../../value-types/rect';
-import Vec2, { v2 } from '../../value-types/vec2';
 import macro from '../CCMacro';
 import sys from '../CCSys';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './CCEvent';
-import eventManager from './event-manager';
 import CCTouch from './CCTouch';
+import eventManager from './event-manager';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -41,7 +41,7 @@ const LANDSCAPE_RIGHT = 90;
 
 let _didAccelerateFun;
 
-const _vec2 = v2();
+const _vec2 = new Vec2();
 
 interface IHTMLElementPosition {
     left: number;
@@ -53,9 +53,10 @@ interface IHTMLElementPosition {
 interface IView {
     convertToLocationInView (tx: number, ty: number, elementPosition: IHTMLElementPosition, out?: Vec2): Vec2;
 
-    _convertMouseToLocationInView (point: Vec2, elementPosition: IHTMLElementPosition): void;
+    _convertMouseToLocation (point: Vec2, elementPosition: IHTMLElementPosition): void;
+    // _convertMouseToLocationInView (point: Vec2, elementPosition: IHTMLElementPosition): void;
 
-    _convertTouchesWithScale (touches: CCTouch[]): void;
+    // _convertTouchesWithScale (touches: CCTouch[]): void;
 }
 
 /**
@@ -83,8 +84,8 @@ class InputManager {
 
     private _isRegisterEvent = false;
 
-    private _preTouchPoint = v2(0, 0);
-    private _prevMousePoint = v2(0, 0);
+    private _preTouchPoint = new Vec2();
+    private _prevMousePoint = new Vec2();
 
     private _preTouchPool: CCTouch[] = [];
     private  _preTouchPoolPointer = 0;
@@ -132,7 +133,7 @@ class InputManager {
             }
         }
         if (handleTouches.length > 0) {
-            this._glView!._convertTouchesWithScale(handleTouches);
+            // this._glView!._convertTouchesWithScale(handleTouches);
             const touchEvent = new EventTouch(handleTouches);
             touchEvent._eventCode = EventTouch.BEGAN;
             eventManager.dispatchEvent(touchEvent);
@@ -161,7 +162,7 @@ class InputManager {
             }
         }
         if (handleTouches.length > 0) {
-            this._glView!._convertTouchesWithScale(handleTouches);
+            // this._glView!._convertTouchesWithScale(handleTouches);
             const touchEvent = new EventTouch(handleTouches);
             touchEvent._eventCode = EventTouch.MOVED;
             eventManager.dispatchEvent(touchEvent);
@@ -171,7 +172,7 @@ class InputManager {
     public handleTouchesEnd (touches: CCTouch[]) {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
-            this._glView!._convertTouchesWithScale(handleTouches);
+            // this._glView!._convertTouchesWithScale(handleTouches);
             const touchEvent = new EventTouch(handleTouches);
             touchEvent._eventCode = EventTouch.ENDED;
             eventManager.dispatchEvent(touchEvent);
@@ -182,7 +183,7 @@ class InputManager {
     public handleTouchesCancel (touches: CCTouch[]) {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
-            this._glView!._convertTouchesWithScale(handleTouches);
+            // this._glView!._convertTouchesWithScale(handleTouches);
             const touchEvent = new EventTouch(handleTouches);
             touchEvent._eventCode = EventTouch.CANCELLED;
             eventManager.dispatchEvent(touchEvent);
@@ -309,7 +310,8 @@ class InputManager {
         mouseEvent._setPrevCursor(locPreMouse.x, locPreMouse.y);
         locPreMouse.x = location.x;
         locPreMouse.y = location.y;
-        this._glView!._convertMouseToLocationInView(locPreMouse, pos);
+        // this._glView!._convertMouseToLocationInView(locPreMouse, pos);
+        this._glView!._convertMouseToLocation(locPreMouse, pos);
         mouseEvent.setLocation(locPreMouse.x, locPreMouse.y);
         return mouseEvent;
     }
@@ -566,7 +568,7 @@ class InputManager {
             const position = this.getHTMLElementPosition(element);
             const location = this.getPointByEvent(event, position);
             const positionRect = rect(position.left, position.top, position.width, position.height);
-            if (!positionRect.contains(v2(location.x, location.y))) {
+            if (!positionRect.contains(new Vec2(location.x, location.y))) {
                 this.handleTouchesEnd([this.getTouchByXY(location.x, location.y, position)]);
                 const mouseEvent = this.getMouseEvent(location, position, EventMouse.UP);
                 mouseEvent.setButton(event.button);
