@@ -41,77 +41,77 @@ class SpineAnimation: public SpineRenderer
 {
 public:
     static SpineAnimation* create();
-	static SpineAnimation* createWithData (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
-	static SpineAnimation* createWithJsonFile (const std::string& skeletonJsonFile, spAtlas* atlas, float scale = 1);
-	static SpineAnimation* createWithJsonFile (const std::string& skeletonJsonFile, const std::string& atlasFile, float scale = 1);
-	static SpineAnimation* createWithBinaryFile (const std::string& skeletonBinaryFile, spAtlas* atlas, float scale = 1);
-	static SpineAnimation* createWithBinaryFile (const std::string& skeletonBinaryFile, const std::string& atlasFile, float scale = 1);
+    static SpineAnimation* createWithData (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
+    static SpineAnimation* createWithJsonFile (const std::string& skeletonJsonFile, spAtlas* atlas, float scale = 1);
+    static SpineAnimation* createWithJsonFile (const std::string& skeletonJsonFile, const std::string& atlasFile, float scale = 1);
+    static SpineAnimation* createWithBinaryFile (const std::string& skeletonBinaryFile, spAtlas* atlas, float scale = 1);
+    static SpineAnimation* createWithBinaryFile (const std::string& skeletonBinaryFile, const std::string& atlasFile, float scale = 1);
+    static void setGlobalTimeScale(float timeScale);
+    
+    // Use createWithJsonFile instead
+    CC_DEPRECATED_ATTRIBUTE static SpineAnimation* createWithFile (const std::string& skeletonJsonFile, spAtlas* atlas, float scale = 1)
+    {
+        return SpineAnimation::createWithJsonFile(skeletonJsonFile, atlas, scale);
+    }
+    // Use createWithJsonFile instead
+    CC_DEPRECATED_ATTRIBUTE static SpineAnimation* createWithile (const std::string& skeletonJsonFile, const std::string& atlasFile, float scale = 1)
+    {
+        return SpineAnimation::createWithJsonFile(skeletonJsonFile, atlasFile, scale);
+    }
 
-	// Use createWithJsonFile instead
-	CC_DEPRECATED_ATTRIBUTE static SpineAnimation* createWithFile (const std::string& skeletonJsonFile, spAtlas* atlas, float scale = 1)
-	{
-		return SpineAnimation::createWithJsonFile(skeletonJsonFile, atlas, scale);
-	}
-	// Use createWithJsonFile instead
-	CC_DEPRECATED_ATTRIBUTE static SpineAnimation* createWithile (const std::string& skeletonJsonFile, const std::string& atlasFile, float scale = 1)
-	{
-		return SpineAnimation::createWithJsonFile(skeletonJsonFile, atlasFile, scale);
-	}
+    virtual void update (float deltaTime) override;
 
-	virtual void update (float deltaTime) override;
+    void setAnimationStateData (spAnimationStateData* stateData);
+    void setMix (const std::string& fromAnimation, const std::string& toAnimation, float duration);
 
-	void setAnimationStateData (spAnimationStateData* stateData);
-	void setMix (const std::string& fromAnimation, const std::string& toAnimation, float duration);
+    spTrackEntry* setAnimation (int trackIndex, const std::string& name, bool loop);
+    spTrackEntry* addAnimation (int trackIndex, const std::string& name, bool loop, float delay = 0);
+    spTrackEntry* setEmptyAnimation (int trackIndex, float mixDuration);
+    void setEmptyAnimations (float mixDuration);
+    spTrackEntry* addEmptyAnimation (int trackIndex, float mixDuration, float delay = 0);
+    spAnimation* findAnimation(const std::string& name) const;
+    spTrackEntry* getCurrent (int trackIndex = 0);
+    void clearTracks ();
+    void clearTrack (int trackIndex = 0);
 
-	spTrackEntry* setAnimation (int trackIndex, const std::string& name, bool loop);
-	spTrackEntry* addAnimation (int trackIndex, const std::string& name, bool loop, float delay = 0);
-	spTrackEntry* setEmptyAnimation (int trackIndex, float mixDuration);
-	void setEmptyAnimations (float mixDuration);
-	spTrackEntry* addEmptyAnimation (int trackIndex, float mixDuration, float delay = 0);
-	spAnimation* findAnimation(const std::string& name) const;
-	spTrackEntry* getCurrent (int trackIndex = 0);
-	void clearTracks ();
-	void clearTrack (int trackIndex = 0);
-
-	void setStartListener (const StartListener& listener);
+    void setStartListener (const StartListener& listener);
     void setInterruptListener (const InterruptListener& listener);
-	void setEndListener (const EndListener& listener);
+    void setEndListener (const EndListener& listener);
     void setDisposeListener (const DisposeListener& listener);
-	void setCompleteListener (const CompleteListener& listener);
-	void setEventListener (const EventListener& listener);
+    void setCompleteListener (const CompleteListener& listener);
+    void setEventListener (const EventListener& listener);
 
-	void setTrackStartListener (spTrackEntry* entry, const StartListener& listener);
+    void setTrackStartListener (spTrackEntry* entry, const StartListener& listener);
     void setTrackInterruptListener (spTrackEntry* entry, const InterruptListener& listener);
-	void setTrackEndListener (spTrackEntry* entry, const EndListener& listener);
+    void setTrackEndListener (spTrackEntry* entry, const EndListener& listener);
     void setTrackDisposeListener (spTrackEntry* entry, const DisposeListener& listener);
-	void setTrackCompleteListener (spTrackEntry* entry, const CompleteListener& listener);
-	void setTrackEventListener (spTrackEntry* entry, const EventListener& listener);
+    void setTrackCompleteListener (spTrackEntry* entry, const CompleteListener& listener);
+    void setTrackEventListener (spTrackEntry* entry, const EventListener& listener);
 
-	virtual void onAnimationStateEvent (spTrackEntry* entry, spEventType type, spEvent* event);
-	virtual void onTrackEntryEvent (spTrackEntry* entry, spEventType type, spEvent* event);
+    virtual void onAnimationStateEvent (spTrackEntry* entry, spEventType type, spEvent* event);
+    virtual void onTrackEntryEvent (spTrackEntry* entry, spEventType type, spEvent* event);
 
-	spAnimationState* getState() const;
+    spAnimationState* getState() const;
     
 CC_CONSTRUCTOR_ACCESS:
-	SpineAnimation ();
-	SpineAnimation (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
-	SpineAnimation (const std::string&skeletonDataFile, spAtlas* atlas, float scale = 1);
-	SpineAnimation (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
-	virtual ~SpineAnimation ();
-	virtual void initialize () override;
+    SpineAnimation ();
+    SpineAnimation (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
+    SpineAnimation (const std::string&skeletonDataFile, spAtlas* atlas, float scale = 1);
+    SpineAnimation (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
+    virtual ~SpineAnimation ();
+    virtual void initialize () override;
 
 protected:
-	spAnimationState*       _state = nullptr;
-	bool                    _ownsAnimationStateData = false;
-	StartListener           _startListener = nullptr;
+    spAnimationState*       _state = nullptr;
+    bool                    _ownsAnimationStateData = false;
+    StartListener           _startListener = nullptr;
     InterruptListener       _interruptListener = nullptr;
-	EndListener             _endListener = nullptr;
+    EndListener             _endListener = nullptr;
     DisposeListener         _disposeListener = nullptr;
-	CompleteListener        _completeListener = nullptr;
-	EventListener           _eventListener = nullptr;
-
+    CompleteListener        _completeListener = nullptr;
+    EventListener           _eventListener = nullptr;
 private:
-	typedef SpineRenderer super;
+    typedef SpineRenderer super;
 };
 
 }

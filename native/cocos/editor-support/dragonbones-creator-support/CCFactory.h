@@ -230,12 +230,19 @@ public:
         return _dragonBonesInstance->getClock();
     }
     
-    void add(Armature* armature){
+    void add(Armature* armature)
+    {
         _dragonBonesInstance->getClock()->add(armature);
     }
     
-    void remove(Armature* armature){
+    void remove(Armature* armature)
+    {
         _dragonBonesInstance->getClock()->remove(armature);
+    }
+    
+    void setTimeScale(float timeScale)
+    {
+        _dragonBonesInstance->getClock()->timeScale = timeScale;
     }
     
     void removeTextureAtlasDataByIndex(const std::string& name, int textureIndex);

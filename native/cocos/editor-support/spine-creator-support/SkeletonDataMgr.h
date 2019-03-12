@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos2d-x.org
  
@@ -21,29 +21,48 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 #pragma once
-// index buffer init capacity
-#define INIT_INDEX_BUFFER_SIZE 1024000
-// max vertex buffer size
-#define MAX_VERTEX_BUFFER_SIZE 65535
-// render info int capacity
-#define INIT_RENDER_INFO_BUFFER_SIZE 1024000
-// fill debug data max capacity
-#define MAX_DEBUG_BUFFER_SIZE 40960
-// type array pool min size
-#define MIN_TYPE_ARRAY_SIZE 1024
 
-#ifndef MIDDLEWARE_BEGIN
-#define MIDDLEWARE_BEGIN namespace cocos2d { namespace middleware {
-#endif // MIDDLEWARE_BEGIN
+#include <map>
+#include <string>
+#include "spine/SkeletonData.h"
+#include "base/CCRef.h"
+#include "spine/spine.h"
 
-#ifndef MIDDLEWARE_END
-#define MIDDLEWARE_END }}
-#endif // MIDDLEWARE_END
+namespace spine {
 
-#ifndef USING_NS_MW
-#define USING_NS_MW using namespace cocos2d::middleware
-#endif
+/**
+ * Cache skeleton data.
+ */
+class SkeletonDataMgr {
+public:
+    static SkeletonDataMgr* getInstance ()
+    {
+        if (_instance == nullptr)
+        {
+            _instance = new SkeletonDataMgr();
+        }
+        return _instance;
+    }
+    
+    static void destroyInstance ()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+    
+    SkeletonDataMgr () {}
+    virtual ~SkeletonDataMgr () {}
+    bool hasSkeletonData (const std::string& uuid);
+    void setSkeletonData (const std::string& uuid, spSkeletonData* data, spAtlas* atlas, spAttachmentLoader* attachmentLoader);
+    spSkeletonData* retainByUUID (const std::string& uuid);
+    void releaseByUUID (const std::string& uuid);
+private:
+    static SkeletonDataMgr* _instance;
+};
 
-#define VF_XYUVC 5
-#define VF_XYUVCC 6
+}

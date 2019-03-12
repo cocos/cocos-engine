@@ -24,6 +24,7 @@
 #include "MiddlewareManager.h"
 #include "base/CCGLUtils.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
+#include "RenderInfoMgr.h"
 
 MIDDLEWARE_BEGIN
     
@@ -68,6 +69,9 @@ void MiddlewareManager::update(float dt)
             buffer->reset();
         }
     }
+    // reset render info
+    auto renderInfoMgr = RenderInfoMgr::getInstance();
+    renderInfoMgr->reset();
     
     isUpdating = true;
     

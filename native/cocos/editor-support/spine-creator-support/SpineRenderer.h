@@ -42,11 +42,11 @@ namespace spine {
     {
     public:
         static SpineRenderer* create ();
-	    static SpineRenderer* createWithSkeleton(spSkeleton* skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
+        static SpineRenderer* createWithSkeleton(spSkeleton* skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
         static SpineRenderer* createWithData (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
         static SpineRenderer* createWithFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale = 1);
         static SpineRenderer* createWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
-
+        
         virtual void update (float deltaTime);
 
         spSkeleton* getSkeleton() const;
@@ -101,14 +101,14 @@ namespace spine {
         }
         
         /**
-         * @return material data,it's a Uint32Array,
-         * format |material length|index offset|[texture index|blend src|blend dst|indice length|...loop...]
+         * @return render info offset,it's a Uint32Array,
+         * format |render info offset|
          */
-        se_object_ptr getMaterialData() const
+        se_object_ptr getRenderInfoOffset() const
         {
-            if (_materialBuffer)
+            if (_renderInfoOffset)
             {
-                return _materialBuffer->getTypeArray();
+                return _renderInfoOffset->getTypeArray();
             }
             return nullptr;
         }
@@ -134,6 +134,7 @@ namespace spine {
 
         virtual ~SpineRenderer ();
 
+        void initWithUUID(const std::string& uuid);
         void initWithSkeleton(spSkeleton* skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false);
         void initWithData (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
         void initWithJsonFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale = 1);
@@ -162,11 +163,12 @@ namespace spine {
         bool                _premultipliedAlpha = false;
         spSkeletonClipping* _clipper = nullptr;
         bool                _useTint = false;
+        std::string         _uuid = "";
         
         int                 _startSlotIndex = -1;
         int                 _endSlotIndex = -1;
         
-        cocos2d::middleware::IOTypedArray*  _materialBuffer = nullptr;
+        cocos2d::middleware::IOTypedArray*  _renderInfoOffset = nullptr;
         cocos2d::middleware::IOTypedArray*  _debugBuffer = nullptr;
     };
 

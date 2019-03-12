@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos2d-x.org
  
@@ -21,29 +21,45 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#pragma once
-// index buffer init capacity
-#define INIT_INDEX_BUFFER_SIZE 1024000
-// max vertex buffer size
-#define MAX_VERTEX_BUFFER_SIZE 65535
-// render info int capacity
-#define INIT_RENDER_INFO_BUFFER_SIZE 1024000
-// fill debug data max capacity
-#define MAX_DEBUG_BUFFER_SIZE 40960
-// type array pool min size
-#define MIN_TYPE_ARRAY_SIZE 1024
 
-#ifndef MIDDLEWARE_BEGIN
-#define MIDDLEWARE_BEGIN namespace cocos2d { namespace middleware {
-#endif // MIDDLEWARE_BEGIN
+#include "RenderInfoMgr.h"
+MIDDLEWARE_BEGIN
+RenderInfoMgr* RenderInfoMgr::_instance = nullptr;
 
-#ifndef MIDDLEWARE_END
-#define MIDDLEWARE_END }}
-#endif // MIDDLEWARE_END
+RenderInfoMgr::RenderInfoMgr ()
+{
+    init();
+}
 
-#ifndef USING_NS_MW
-#define USING_NS_MW using namespace cocos2d::middleware
-#endif
+RenderInfoMgr::~RenderInfoMgr ()
+{
+    CC_SAFE_DELETE(_buffer);
+}
 
-#define VF_XYUVC 5
-#define VF_XYUVCC 6
+void RenderInfoMgr::afterCleanupHandle()
+{
+    if (_buffer)
+    {
+        delete _buffer;
+        _buffer = nullptr;
+    }
+    se::ScriptEngine::getInstance()->addAfterInitHook(std::bind(&RenderInfoMgr::init,this));
+}
+
+void RenderInfoMgr::init()
+{
+    if (!_buffer)
+    {
+        _buffer = new IOTypedArray(se::Object::TypedArrayType::UINT32, INIT_RENDER_INFO_BUFFER_SIZE);
+        _buffer->setResizeCallback([this]
+        {
+           if (_resizeCallback)
+           {
+               _resizeCallback();
+           }
+        });
+    }
+    se::ScriptEngine::getInstance()->addAfterCleanupHook(std::bind(&RenderInfoMgr::afterCleanupHandle,this));
+}
+
+MIDDLEWARE_END
