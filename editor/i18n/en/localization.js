@@ -393,10 +393,10 @@ module.exports = {
             'layer': 'Specify which TiledLayer the TiledTile belong to.'
         },
         'wx_subcontext_view': {
-            'interval': 'The refresh interval of subcontext'
+            'interval': 'The refresh interval of subcontext',
         },
         'skeleton_animation': {
-            'search_animation_clips': 'Search Animation Clips'
+            'search_animation_clips': 'Search Animation Clips',
         },
     }
 };

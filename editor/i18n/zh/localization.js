@@ -397,10 +397,10 @@ module.exports = {
             'layer': '指定 TiledTile 属于哪一个 TiledLayer'
         },
         'wx_subcontext_view': {
-            'interval': '子域界面的刷新时间间隔'
-        }
+            'interval': '子域界面的刷新时间间隔',
+        },
         'skeleton_animation': {
-            'search_animation_clips': '搜索骨骼动画'
+            'search_animation_clips': '搜索骨骼动画',
         },
     }
 };
