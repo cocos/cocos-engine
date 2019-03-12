@@ -81,11 +81,13 @@
     <ClCompile Include="..\cocos\editor-support\MiddlewareManager.cpp" />
     <ClCompile Include="..\cocos\editor-support\IOBuffer.cpp" />
     <ClCompile Include="..\cocos\editor-support\IOTypedArray.cpp" />
+    <ClCompile Include="..\cocos\editor-support\RenderInfoMgr.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\CreatorAttachmentLoader.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\spine-cocos2dx.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SpineAnimation.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SpineRenderer.cpp" />
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonDataMgr.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine\Animation.c" />
     <ClCompile Include="..\cocos\editor-support\spine\AnimationState.c" />
     <ClCompile Include="..\cocos\editor-support\spine\AnimationStateData.c" />
@@ -329,11 +331,13 @@
     <ClInclude Include="..\cocos\editor-support\MiddlewareMacro.h" />
     <ClInclude Include="..\cocos\editor-support\MiddlewareManager.h" />
     <ClInclude Include="..\cocos\editor-support\IOTypedArray.h" />
+    <ClInclude Include="..\cocos\editor-support\RenderInfoMgr.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\CreatorAttachmentLoader.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\spine-cocos2dx.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SpineAnimation.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SpineRenderer.h" />
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonDataMgr.h" />
     <ClInclude Include="..\cocos\editor-support\spine\Animation.h" />
     <ClInclude Include="..\cocos\editor-support\spine\AnimationState.h" />
     <ClInclude Include="..\cocos\editor-support\spine\AnimationStateData.h" />

@@ -230,20 +230,26 @@ public:
         return _dragonBonesInstance->getClock();
     }
     
-    void add(Armature* armature){
+    void add(Armature* armature)
+    {
         _dragonBonesInstance->getClock()->add(armature);
     }
     
-    void remove(Armature* armature){
+    void remove(Armature* armature)
+    {
         _dragonBonesInstance->getClock()->remove(armature);
     }
     
+    void setTimeScale(float timeScale)
+    {
+        _dragonBonesInstance->getClock()->timeScale = timeScale;
+    }
+    
     void removeTextureAtlasDataByIndex(const std::string& name, int textureIndex);
+    void removeDragonBonesDataByUUID(const std::string& uuid, bool disposeData = true);
     
     CCTextureAtlasData* getTextureAtlasDataByIndex(const std::string& name, int textureIndex) const;
-    
-    DragonBonesData* parseDragonBonesDataOnly(const std::string& filePath, const std::string& name = "", float scale = 1.0f);
-    void handleTextureAtlasData(bool isBinary, const std::string& name = "", float scale = 1.0f);
+    DragonBonesData* parseDragonBonesDataByPath(const std::string& filePath, const std::string& name = "", float scale = 1.0f);
 };
 
 DRAGONBONES_NAMESPACE_END

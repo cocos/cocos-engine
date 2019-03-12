@@ -23,6 +23,7 @@
 #include "dragonbones-creator-support/CCArmatureDisplay.h"
 #include "dragonbones-creator-support/CCSlot.h"
 #include "MiddlewareMacro.h"
+#include "RenderInfoMgr.h"
 
 USING_NS_CC;
 USING_NS_MW;
@@ -45,16 +46,16 @@ CCArmatureDisplay* CCArmatureDisplay::create()
 
 CCArmatureDisplay::CCArmatureDisplay()
 {
-    _materialBuffer = new IOTypedArray(se::Object::TypedArrayType::UINT32, MAX_MATERIAL_BUFFER_SIZE);
+    _renderInfoOffset = new IOTypedArray(se::Object::TypedArrayType::UINT32, sizeof(uint32_t));
 }
 
 CCArmatureDisplay::~CCArmatureDisplay()
 {
     dispose();
-    if (_materialBuffer)
+    if (_renderInfoOffset)
     {
-        delete _materialBuffer;
-        _materialBuffer = nullptr;
+        delete _renderInfoOffset;
+        _renderInfoOffset = nullptr;
     }
 
     if (_debugBuffer)
@@ -92,18 +93,19 @@ void CCArmatureDisplay::dbUpdate()
     auto mgr = MiddlewareManager::getInstance();
     if (!mgr->isUpdating) return;
     
-    MeshBuffer* mb = mgr->getMeshBuffer(VF_XYUVC);
-    IOBuffer& vb = mb->getVB();
-    IOBuffer& ib = mb->getIB();
+    auto renderMgr = RenderInfoMgr::getInstance();
+    auto renderInfo = renderMgr->getBuffer();
+    if (renderInfo == nullptr) return;
     
-    _materialBuffer->reset();
+    _renderInfoOffset->reset();
+    // store renderInfo offset
+    _renderInfoOffset->writeUint32((uint32_t)renderInfo->getCurPos() / sizeof(uint32_t));
     
-    _preBlendSrc = -1;
-    _preBlendDst = -1;
+    _preBlendMode = -1;
     _preTextureIndex = -1;
+    _curTextureIndex = -1;
     _curBlendSrc = -1;
     _curBlendDst = -1;
-    _curTextureIndex = -1;
     
     _preISegWritePos = -1;
     _curISegLen = 0;
@@ -111,41 +113,19 @@ void CCArmatureDisplay::dbUpdate()
     _debugSlotsLen = 0;
     _materialLen = 0;
     
+    // check enough space
+    renderInfo->checkSpace(sizeof(uint32_t), true);
+    _materialLenOffset = renderInfo->getCurPos();
     // Reserved space to save material len
-    _materialBuffer->writeUint32(0);
-    // Reserved space to save index offset
-    _materialBuffer->writeUint32((uint32_t)ib.getCurPos()/sizeof(unsigned short));
+    renderInfo->writeUint32(0);
     
     // Traverse all aramture to fill vertex and index buffer.
     traverseArmature(_armature);
     
-    bool isVBOutRange = vb.isOutRange();
-    bool isIBOutRange = ib.isOutRange();
-    bool isMatOutRange = _materialBuffer->isOutRange();
-    
-    // If vertex buffer or index buffer or material buffer out of range,then discard this time render
-    // next time will enlarge vertex buffer or index buffer to fill the animation data.
-    if (isVBOutRange || isIBOutRange || isMatOutRange)
+    renderInfo->writeUint32(_materialLenOffset, _materialLen);
+    if (_preISegWritePos != -1)
     {
-        _materialBuffer->writeUint32(0, 0);
-    }
-    else
-    {
-        _materialBuffer->writeUint32(0, _materialLen);
-        
-        if (_preISegWritePos != -1)
-        {
-            _materialBuffer->writeUint32(_preISegWritePos, _curISegLen);
-        }
-    }
-    
-    // If material buffer is out of range,it will no enlarge automatically,because the size which is 512 bytes is
-    // enough large,exceed the size means call gl draw function too many times,you better to optimize resource.
-    if (isMatOutRange)
-    {
-        cocos2d::log("Dragonbones material data is too large,buffer has no space to put in it!!!!!!!!!!");
-        cocos2d::log("You can adjust MAX_MATERIAL_BUFFER_SIZE in Macro");
-        cocos2d::log("But It's better to optimize resource to avoid large material.Because it can advance performance");
+        renderInfo->writeUint32(_preISegWritePos, _curISegLen);
     }
     
     if (_debugDraw)
@@ -230,29 +210,23 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
     MeshBuffer* mb = mgr->getMeshBuffer(VF_XYUVC);
     IOBuffer& vb = mb->getVB();
     IOBuffer& ib = mb->getIB();
+    auto renderMgr = RenderInfoMgr::getInstance();
+    auto renderInfo = renderMgr->getBuffer();
+    if (!renderInfo) return;
+    
+    CCSlot* slot = nullptr;
+    middleware::Texture2D* texture = nullptr;
     int isFull = 0;
     
-    for (std::size_t i = 0, len = slots.size(); i < len; i++)
+    auto flush = [&]()
     {
-        // Reset isFull flag.
-        isFull = 0;
-
-        CCSlot* slot = (CCSlot*)slots[i];
-        if (!slot->getVisible())
+        // fill pre segment count field
+        if (_preISegWritePos != -1)
         {
-            continue;
+            renderInfo->writeUint32(_preISegWritePos, _curISegLen);
         }
         
-        slot->updateWorldMatrix();
-        
-        // If slots has child armature,will traverse child first.
-        Armature* childArmature = slot->getChildArmature();
-        if (childArmature != nullptr)
-        {
-            traverseArmature(childArmature);
-            continue;
-        }
-        
+        // prepare to fill new segment field
         switch (slot->_blendMode)
         {
             case BlendMode::Add:
@@ -273,7 +247,58 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
                 break;
         }
         
-        middleware::Texture2D* texture = slot->getTexture();
+        // check enough space
+        renderInfo->checkSpace(sizeof(uint32_t) * 7, true);
+        
+        // fill new texture index
+        renderInfo->writeUint32(_curTextureIndex);
+        // fill new blend src and dst        
+        renderInfo->writeUint32(_curBlendSrc);
+        renderInfo->writeUint32(_curBlendDst);
+        // fill new index and vertex buffer id
+        auto glIB = mb->getGLIB();
+        auto glVB = mb->getGLVB();
+        renderInfo->writeUint32(glIB);
+        renderInfo->writeUint32(glVB);
+        // fill new index offset
+        renderInfo->writeUint32((uint32_t)ib.getCurPos() / sizeof(unsigned short));
+
+        // save new segment count pos field
+        _preISegWritePos = (int)renderInfo->getCurPos();
+        // reserve indice segamentation count        
+        renderInfo->writeUint32(0);
+
+        // reset pre blend mode to current
+        _preBlendMode = (int)slot->_blendMode;  
+        // reset pre texture index to current      
+        _preTextureIndex = _curTextureIndex;
+        
+        // reset index segmentation count
+        _curISegLen = 0;
+        // material length increased
+        _materialLen++;
+    };
+    
+    for (std::size_t i = 0, len = slots.size(); i < len; i++)
+    {
+        isFull = 0;
+        slot = (CCSlot*)slots[i];
+        if (!slot->getVisible())
+        {
+            continue;
+        }
+        
+        slot->updateWorldMatrix();
+        
+        // If slots has child armature,will traverse child first.
+        Armature* childArmature = slot->getChildArmature();
+        if (childArmature != nullptr)
+        {
+            traverseArmature(childArmature);
+            continue;
+        }
+        
+        texture = slot->getTexture();
         if (!texture) continue;
         _curTextureIndex = texture->getRealTextureIndex();
         
@@ -281,33 +306,9 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
         isFull |= vb.checkSpace(vbSize, true);
         
         // If texture or blendMode change,will change material.
-        if (_preTextureIndex != _curTextureIndex || _preBlendDst != _curBlendDst || _preBlendSrc != _curBlendSrc || isFull)
+        if (_preTextureIndex != _curTextureIndex || _preBlendMode != (int)slot->_blendMode || isFull)
         {
-            if (_preISegWritePos != -1)
-            {
-                _materialBuffer->writeUint32(_preISegWritePos,_curISegLen);
-            }
-            
-            _materialBuffer->writeUint32(_curTextureIndex);
-            _materialBuffer->writeUint32(_curBlendSrc);
-            _materialBuffer->writeUint32(_curBlendDst);
-            auto glIB = mb->getGLIB();
-            auto glVB = mb->getGLVB();
-            _materialBuffer->writeUint32(glIB);
-            _materialBuffer->writeUint32(glVB);
-            
-            //Reserve indice segamentation count.
-            _preISegWritePos = (int)_materialBuffer->getCurPos();
-            _materialBuffer->writeUint32(0);
-            
-            _preTextureIndex = _curTextureIndex;
-            _preBlendDst = _curBlendDst;
-            _preBlendSrc = _curBlendSrc;
-            
-            // Clear index segmentation count,prepare to next segmentation.
-            _curISegLen = 0;
-            
-            _materialLen++;
+            flush();
         }
         
         // Calculation vertex color.
@@ -337,8 +338,8 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
         auto vertexOffset = vb.getCurPos() / sizeof(middleware::V2F_T2F_C4B);
         vb.writeBytes((char*)worldTriangles, vbSize);
         
-		auto ibSize = triangles.indexCount * sizeof(unsigned short);
-		ib.checkSpace(ibSize, true);
+        auto ibSize = triangles.indexCount * sizeof(unsigned short);
+        ib.checkSpace(ibSize, true);
         // If vertex buffer current offset is zero,fill it directly or recalculate vertex offset.
         if (vertexOffset > 0)
         {

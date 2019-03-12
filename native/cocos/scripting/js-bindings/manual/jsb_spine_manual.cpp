@@ -43,8 +43,11 @@
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
 
 #include "middleware-adapter.h"
+#include "spine-creator-support/SkeletonDataMgr.h"
 #include "spine-creator-support/SpineRenderer.h"
 #include "spine-creator-support/spine-cocos2dx.h"
+#include "spine-creator-support/CreatorAttachmentLoader.h"
+#include "spine/extension.h"
 
 #include "cocos2d.h"
 #include "cocos/editor-support/spine/spine.h"
@@ -387,9 +390,8 @@ static middleware::Texture2D* _getPreloadedAtlasTexture(const char* path)
     return it != _preloadedAtlasTextures->end() ? it->second : nullptr;
 }
 
-static bool js_register_spine_initSkeletonRenderer(se::State& s)
+static bool js_register_spine_initSkeletonData (se::State& s)
 {
-    // renderer, jsonPath, atlasText, textures, scale
     const auto& args = s.args();
     int argc = (int)args.size();
     if (argc != 5) {
@@ -398,12 +400,16 @@ static bool js_register_spine_initSkeletonRenderer(se::State& s)
     }
     bool ok = false;
     
-    spine::SpineRenderer* node = nullptr;
-    ok = seval_to_native_ptr(args[0], &node);
-    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Converting 'sgNode' failed!");
+    std::string uuid;
+    ok = seval_to_std_string(args[0], &uuid);
+    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
     
-    std::string jsonPath;
-    ok = seval_to_std_string(args[1], &jsonPath);
+    auto mgr = spine::SkeletonDataMgr::getInstance();
+    bool hasSkeletonData = mgr->hasSkeletonData(uuid);
+    if (hasSkeletonData) return true;
+    
+    std::string skeletonDataFile;
+    ok = seval_to_std_string(args[1], &skeletonDataFile);
     SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid json path!");
     
     std::string atlasText;
@@ -429,8 +435,61 @@ static bool js_register_spine_initSkeletonRenderer(se::State& s)
     _preloadedAtlasTextures = nullptr;
     spine::spAtlasPage_setCustomTextureLoader(nullptr);
     
+    spAttachmentLoader* attachmentLoader = SUPER(CreatorAttachmentLoader_create(atlas));
+    spSkeletonJson* json = spSkeletonJson_createWithLoader(attachmentLoader);
+    json->scale = scale;
+    spSkeletonData* skeletonData = spSkeletonJson_readSkeletonData(json, skeletonDataFile.c_str());
+    CCASSERT(skeletonData, json->error ? json->error : "Error reading skeleton data.");
+    spSkeletonJson_dispose(json);
+    
+    mgr->setSkeletonData(uuid, skeletonData, atlas, attachmentLoader);
+    return true;
+}
+SE_BIND_FUNC(js_register_spine_initSkeletonData)
+
+static bool js_register_spine_disposeSkeletonData (se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 5);
+        return false;
+    }
+    bool ok = false;
+    
+    std::string uuid;
+    ok = seval_to_std_string(args[0], &uuid);
+    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
+    
+    auto mgr = spine::SkeletonDataMgr::getInstance();
+    bool hasSkeletonData = mgr->hasSkeletonData(uuid);
+    if (!hasSkeletonData) return true;
+    mgr->releaseByUUID(uuid);
+    return true;
+}
+SE_BIND_FUNC(js_register_spine_disposeSkeletonData)
+
+static bool js_register_spine_initSkeletonRenderer(se::State& s)
+{
+    // renderer, jsonPath, atlasText, textures, scale
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 5);
+        return false;
+    }
+    bool ok = false;
+    
+    spine::SpineRenderer* node = nullptr;
+    ok = seval_to_native_ptr(args[0], &node);
+    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Converting SpineRenderer failed!");
+    
+    std::string uuid;
+    ok = seval_to_std_string(args[1], &uuid);
+    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
+    
     // init node
-    node->initWithJsonFile(jsonPath, atlas, scale);
+    node->initWithUUID(uuid);
     
     return true;
 }
@@ -448,7 +507,9 @@ bool register_all_spine_manual(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
     
-    ns->defineFunction("_initSkeletonRenderer", _SE(js_register_spine_initSkeletonRenderer));
+    ns->defineFunction("initSkeletonRenderer", _SE(js_register_spine_initSkeletonRenderer));
+    ns->defineFunction("initSkeletonData", _SE(js_register_spine_initSkeletonData));
+    ns->defineFunction("disposeSkeletonData", _SE(js_register_spine_disposeSkeletonData));
     js_register_spine_TrackEntry(ns);
     return true;
 }

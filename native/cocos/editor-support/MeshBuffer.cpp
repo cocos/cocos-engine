@@ -28,10 +28,10 @@
 MIDDLEWARE_BEGIN
 
 MeshBuffer::MeshBuffer(int vertexSize)
-: _ib(INIT_IB_BUFFER_SIZE)
-, _vb(65535 * vertexSize)
+: _ib(INIT_INDEX_BUFFER_SIZE)
+, _vb(MAX_VERTEX_BUFFER_SIZE * vertexSize)
 {
-    _vb.setMaxSize(65535 * vertexSize);
+    _vb.setMaxSize(MAX_VERTEX_BUFFER_SIZE * vertexSize);
     _vb.setFullCallback([this]
     {
         uploadVB();

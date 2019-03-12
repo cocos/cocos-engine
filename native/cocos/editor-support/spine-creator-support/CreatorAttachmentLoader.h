@@ -30,8 +30,8 @@ extern "C" {
 
 typedef struct CreatorAttachmentLoader
 {
-	spAttachmentLoader super;
-	spAtlasAttachmentLoader* atlasAttachmentLoader;
+    spAttachmentLoader super;
+    spAtlasAttachmentLoader* atlasAttachmentLoader;
 } CreatorAttachmentLoader;
 
 /* The CreatorAttachmentLoader must not be disposed until after the skeleton data has been disposed. */

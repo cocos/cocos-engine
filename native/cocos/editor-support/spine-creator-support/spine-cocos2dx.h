@@ -32,6 +32,6 @@
 
 namespace spine {
     typedef cocos2d::middleware::Texture2D* (*CustomTextureLoader)(const char* path);
-	// set custom texture loader for _spAtlasPage_createTexture
-	void spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader);
+    // set custom texture loader for _spAtlasPage_createTexture
+    void spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader);
 }

@@ -422,6 +422,9 @@
     <ClCompile Include="..\cocos\editor-support\IOBuffer.cpp">
       <Filter>editor-support</Filter>
     </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\RenderInfoMgr.cpp">
+      <Filter>editor-support</Filter>
+    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.cpp">
       <Filter>editor-support\spine-creator-support</Filter>
     </ClCompile>
@@ -435,6 +438,9 @@
       <Filter>editor-support\spine-creator-support</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SpineRenderer.cpp">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonDataMgr.cpp">
       <Filter>editor-support\spine-creator-support</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\dragonbones\animation\Animation.cpp">
@@ -1229,6 +1235,9 @@
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SpineRenderer.h">
       <Filter>editor-support\spine-creator-support</Filter>
     </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonDataMgr.h">
+      <Filter>editor-support\spine-creator-support</Filter>
+    </ClInclude>
     <ClInclude Include="..\cocos\editor-support\dragonbones\animation\Animation.h">
       <Filter>editor-support\dragonbones\animation</Filter>
     </ClInclude>
@@ -1380,6 +1389,9 @@
       <Filter>editor-support</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\editor-support\IOBuffer.h">
+      <Filter>editor-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\RenderInfoMgr.h">
       <Filter>editor-support</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\editor-support\MiddlewareMacro.h">

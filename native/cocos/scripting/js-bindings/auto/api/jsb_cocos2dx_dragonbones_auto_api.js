@@ -2554,22 +2554,6 @@ CCArmatureDisplay : function (
 dragonBones.CCFactory = {
 
 /**
- * @method parseDragonBonesDataOnly
- * @param {String} arg0
- * @param {String} arg1
- * @param {float} arg2
- * @return {dragonBones::DragonBonesData}
- */
-parseDragonBonesDataOnly : function (
-str, 
-str, 
-float 
-)
-{
-    return dragonBones::DragonBonesData;
-},
-
-/**
  * @method getSoundEventManager
  * @return {dragonBones::CCArmatureDisplay}
  */
@@ -2580,15 +2564,13 @@ getSoundEventManager : function (
 },
 
 /**
- * @method handleTextureAtlasData
- * @param {bool} arg0
- * @param {String} arg1
- * @param {float} arg2
+ * @method removeDragonBonesDataByUUID
+ * @param {String} arg0
+ * @param {bool} arg1
  */
-handleTextureAtlasData : function (
-bool, 
+removeDragonBonesDataByUUID : function (
 str, 
-float 
+bool 
 )
 {
 },
@@ -2625,6 +2607,22 @@ int
 )
 {
     return dragonBones::CCTextureAtlasData;
+},
+
+/**
+ * @method parseDragonBonesDataByPath
+ * @param {String} arg0
+ * @param {String} arg1
+ * @param {float} arg2
+ * @return {dragonBones::DragonBonesData}
+ */
+parseDragonBonesDataByPath : function (
+str, 
+str, 
+float 
+)
+{
+    return dragonBones::DragonBonesData;
 },
 
 /**

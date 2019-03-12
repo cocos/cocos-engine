@@ -122,7 +122,7 @@ DragonBonesData* CCFactory::loadDragonBonesData(const std::string& filePath, con
     return nullptr;
 }
 
-DragonBonesData* CCFactory::parseDragonBonesDataOnly(const std::string& filePath, const std::string& name, float scale)
+DragonBonesData* CCFactory::parseDragonBonesDataByPath(const std::string& filePath, const std::string& name, float scale)
 {
     if (!name.empty())
     {
@@ -143,41 +143,33 @@ DragonBonesData* CCFactory::parseDragonBonesDataOnly(const std::string& filePath
             cocos2d::FileUtils::getInstance()->getContents(fullpath, &cocos2dData);
             const auto binary = (unsigned char*)malloc(sizeof(unsigned char)* cocos2dData.getSize());
             memcpy(binary, cocos2dData.getBytes(), cocos2dData.getSize());
-            return _binaryParser.parseDragonBonesData((char*)binary, scale);
+            
+            return parseDragonBonesData((char*)binary, name, scale);
         }
     }
     else
     {
-        return _dataParser->parseDragonBonesData(filePath.c_str(), scale);
+        return parseDragonBonesData(filePath.c_str(), name, scale);
     }
     
     return nullptr;
 }
 
-void CCFactory::handleTextureAtlasData(bool isBinary, const std::string& name, float scale)
+void CCFactory::removeDragonBonesDataByUUID(const std::string& uuid, bool disposeData)
 {
-    DataParser* dataParser = nullptr;
-    
-    if (isBinary)
+    for (auto it = _dragonBonesDataMap.begin(); it != _dragonBonesDataMap.end(); )
     {
-        dataParser = &_binaryParser;
-    }
-    else
-    {
-        dataParser = _dataParser;
-    }
-    
-    while (true)
-    {
-        const auto textureAtlasData = _buildTextureAtlasData(nullptr, nullptr);
-        if (dataParser->parseTextureAtlasData(nullptr, *textureAtlasData, scale))
+        if (it->first.find(uuid) != std::string::npos)
         {
-            addTextureAtlasData(textureAtlasData, name);
+            if (disposeData)
+            {
+                it->second->returnToPool();
+            }
+            it = _dragonBonesDataMap.erase(it);
         }
         else
         {
-            textureAtlasData->returnToPool();
-            break;
+            it++;
         }
     }
 }
@@ -199,8 +191,6 @@ CCArmatureDisplay* CCFactory::buildArmatureDisplay(const std::string& armatureNa
     const auto armature = buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
     if (armature != nullptr)
     {
-        _dragonBones->getClock()->add(armature);
-
         return static_cast<CCArmatureDisplay*>(armature->getDisplay());
     }
 

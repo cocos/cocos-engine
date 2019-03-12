@@ -10,6 +10,7 @@ LOCAL_ARM_MODE := arm
 LOCAL_SRC_FILES := \
 ../scripting/js-bindings/manual/jsb_helper.cpp \
 IOBuffer.cpp \
+RenderInfoMgr.cpp \
 MeshBuffer.cpp \
 middleware-adapter.cpp \
 TypedArrayPool.cpp \
@@ -63,6 +64,7 @@ spine-creator-support/CreatorAttachmentLoader.cpp \
 spine-creator-support/SpineAnimation.cpp \
 spine-creator-support/SpineRenderer.cpp \
 spine-creator-support/spine-cocos2dx.cpp \
+spine-creator-support/SkeletonDataMgr.cpp \
 ../scripting/js-bindings/manual/jsb_spine_manual.cpp \
 ../scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.cpp
 endif # USE_SPINE
