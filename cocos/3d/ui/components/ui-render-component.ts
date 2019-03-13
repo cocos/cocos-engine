@@ -61,6 +61,8 @@ ccenum(GFXBlendFactor);
 @executeInEditMode
 export class UIRenderComponent extends Component {
 
+    public static BlendState = GFXBlendFactor;
+
     /**
      * !#en specify the source Blend Factor, this will generate a custom material object
      * please pay attention to the memory cost.
