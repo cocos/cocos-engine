@@ -1,6 +1,6 @@
 import { OptimizedKey, evalOptCurve, AnimationCurve } from "../../../geom-utils/curve";
 import { repeat } from "../../../../core/vmath";
-import CurveRange from "./curve-range";
+import CurveRange, { Mode } from "./curve-range";
 
 // tslint:disable: max-line-length
 
@@ -291,16 +291,16 @@ export class CurveUniform {
 
     public uploadUniform (device: any, name: number) {
         switch (this.mode) {
-            case 'constant':
+            case Mode.Constant:
                 device.setUniform('u_' + name + '_curveMode', CURVE_MODE_CONSTANT);
                 device.setUniform('u_' + name + '_minConstant', this.minConstant);
                 break;
-            case 'twoConstants':
+            case Mode.TwoConstants:
                 device.setUniform('u_' + name + '_curveMode', CURVE_MODE_RANDOM_CONSTANT);
                 device.setUniform('u_' + name + '_minConstant', this.minConstant);
                 device.setUniform('u_' + name + '_maxConstant', this.maxConstant);
                 break;
-            case 'curve':
+            case Mode.Curve:
                 if (this.minCurve != null) {
                     device.setUniform('u_' + name + '_curveMode', CURVE_MODE_CURVE);
                     device.setUniform('u_' + name + '_minKeyTime', this.minCurve.timeUniform);
@@ -310,7 +310,7 @@ export class CurveUniform {
                     }
                 }
                 break;
-            case 'twoCurves':
+            case Mode.TwoCurves:
                 if (this.minCurve != null && this.maxCurve != null) {
                     device.setUniform('u_' + name + '_curveMode', CURVE_MODE_RANDOM_CURVE);
                     device.setUniform('u_' + name + '_minKeyTime', this.minCurve.timeUniform);

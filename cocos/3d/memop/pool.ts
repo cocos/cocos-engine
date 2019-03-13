@@ -37,7 +37,7 @@ export default class Pool<T> {
         }
 
         const ret = this._frees[this._idx];
-        this._frees[this._idx] = null;
+        this._frees.splice(this._idx);
         --this._idx;
 
         return ret;
