@@ -99,16 +99,27 @@ var DragonBonesAsset = cc.Class({
             this._factory = factory;
         }
 
-        let armatureKey = this._uuid + "#" + atlasUUID;
-        let dragonBonesData = this._factory.getDragonBonesData(armatureKey);
-        if (dragonBonesData) return armatureKey;
-
         let rawData = null;
         if (this.dragonBonesJson) {
             rawData = JSON.parse(this.dragonBonesJson);
         } else {
             rawData = this._nativeAsset;
         }
+
+        // If create by manual, uuid is empty.
+        if (!this._uuid) {
+            let dbData = this._factory.getDragonBonesDataByRawData(rawData);
+            if (dbData) {
+                this._uuid = dbData.name;
+            } else {
+                cc.warn('dragonbones name is empty');
+            }
+        }
+
+        let armatureKey = this._uuid + "#" + atlasUUID;
+        let dragonBonesData = this._factory.getDragonBonesData(armatureKey);
+        if (dragonBonesData) return armatureKey;
+
         this._factory.parseDragonBonesData(rawData, armatureKey);
         return armatureKey;
     },
