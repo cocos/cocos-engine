@@ -62,7 +62,9 @@ var SkeletonData = cc.Class({
                 // If dynamic set skeletonJson field, auto update skeletonJsonStr field.
                 this.skeletonJsonStr = JSON.stringify(value);
                 // If create by manual, uuid is empty.
-                this._uuid = this._uuid || value.skeleton.hash;
+                if (!this._uuid && value.skeleton) {
+                    this._uuid = value.skeleton.hash;
+                }
                 this.reset();
             }
         },
