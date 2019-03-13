@@ -96,7 +96,7 @@ export class ParticleSystemComponent extends Component {
     set simulationSpace (val) {
         if (val !== this._simulationSpace) {
             this._simulationSpace = val;
-            this.renderer!._updateMaterialParams();
+            (this.renderer as any)._updateMaterialParams();
         }
     }
 

@@ -147,7 +147,7 @@ export default class ShapeModule {
 
     private mat: mat4;
     private quat: quat;
-    private particleSystem: ParticleSystemComponent | null;
+    private particleSystem: any;
     private lastTime: number;
     private totalAngle: number;
 
@@ -162,7 +162,7 @@ export default class ShapeModule {
     public onInit (ps: ParticleSystemComponent) {
         this.constructMat();
         this.particleSystem = ps;
-        this.lastTime = ps._time;
+        this.lastTime = this.particleSystem._time;
         this.totalAngle = 0;
     }
 

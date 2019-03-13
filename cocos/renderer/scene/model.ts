@@ -258,7 +258,7 @@ export class Model {
                 this.allocatePSO(mat);
             }
         }
-        this._subModels[idx]._psos = mat ? this._matPSORecord.get(mat)! : null;
+        (this._subModels[idx] as any)._psos = mat ? this._matPSORecord.get(mat)! : null;
         this._subModels[idx].material = mat;
     }
 
@@ -304,17 +304,19 @@ export class Model {
         }
     }
 
-    protected initLocalBindings (mat: Material) {
-        if (this._localBindings.size === 0) {
-            this.onSetLocalBindings(mat);
-        }
-        for (const localBinding of this._localBindings.values()) {
-            if (!localBinding.buffer) {
-                localBinding.buffer = this._device.createBuffer({
-                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                    size: getUniformBlockSize(localBinding.blockInfo!),
-                });
+    protected initLocalBindings (mat: Material|null) {
+        if (mat) {
+            if (this._localBindings.size === 0) {
+                this.onSetLocalBindings(mat);
+            }
+            for (const localBinding of this._localBindings.values()) {
+                if (!localBinding.buffer) {
+                    localBinding.buffer = this._device.createBuffer({
+                        usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                        memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                        size: getUniformBlockSize(localBinding.blockInfo!),
+                    });
+                }
             }
         }
     }

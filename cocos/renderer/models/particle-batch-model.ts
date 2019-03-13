@@ -23,7 +23,7 @@ export default class ParticleBatchModel extends Model {
     private _iaInfoBuffer: GFXBuffer;
     private _subMeshData: IRenderingSubmesh | null;
 
-    constructor (scene: RenderScene, node: Node) {
+    constructor (scene: RenderScene, node: Node | null) {
         super(scene, node);
 
         this._type = 'particle-batch';

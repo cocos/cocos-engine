@@ -99,7 +99,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     private attrs: any[];
     private _vertAttrs: IGFXInputAttribute[];
     private particleSystem: any;
-    private _particles: RecyclePool;
+    private _particles: RecyclePool | null = null;
     private _defaultMat: Material | null = null;
 
     constructor () {
@@ -155,14 +155,14 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     }
 
     public clear () {
-        this._particles.reset();
+        this._particles!.reset();
     }
 
     public _getFreeParticle (): Particle | null {
-        if (this._particles.length >= this.particleSystem.capacity) {
+        if (this._particles!.length >= this.particleSystem.capacity) {
             return null;
         }
-        return this._particles.add();
+        return this._particles!.add();
     }
 
     public _setNewParticle (p: Particle) {
@@ -177,13 +177,13 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         if (this.particleSystem.forceOvertimeModule.enable) {
             this.particleSystem.forceOvertimeModule.update(this.particleSystem._simulationSpace, _tempWorldTrans);
         }
-        for (let i = 0; i < this._particles.length; ++i) {
-            const p = this._particles.data[i];
+        for (let i = 0; i < this._particles!.length; ++i) {
+            const p = this._particles!.data[i];
             p.remainingLifetime -= dt;
             vec3.set(p.animatedVelocity, 0, 0, 0);
 
             if (p.remainingLifetime < 0.0) {
-                this._particles.removeAt(i);
+                this._particles!.removeAt(i);
                 --i;
                 continue;
             }
@@ -221,8 +221,8 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         // update vertex buffer
         let idx = 0;
         const uploadVel = this._renderMode === RenderMode.StrecthedBillboard;
-        for (let i = 0; i < this._particles.length; ++i) {
-            const p = this._particles.data[i];
+        for (let i = 0; i < this._particles!.length; ++i) {
+            const p = this._particles!.data[i];
             let fi = 0;
             if (this.particleSystem.textureAnimationModule.enable) {
                 fi = p.frameIndex;
@@ -250,7 +250,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         }
 
         // because we use index buffer, per particle index count = 6.
-        this._model!.updateIA(this._particles.length * 6);
+        this._model!.updateIA(this._particles!.length * 6);
     }
 
     public updateShaderUniform () {
@@ -258,7 +258,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     }
 
     public getParticleCount (): number {
-        return this._particles.length;
+        return this._particles!.length;
     }
 
     public _onMaterialModified (index: number, material: Material) {

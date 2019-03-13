@@ -4,7 +4,7 @@ import { AnimationCurve } from '../../../geom-utils';
 import { CCClass } from '../../../../core/data';
 import { property, ccclass } from '../../../../core/data/class-decorator';
 
-const Mode = Enum({
+export const Mode = Enum({
     Constant: 0,
     Curve: 1,
     TwoCurves: 2,
