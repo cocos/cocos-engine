@@ -61,6 +61,7 @@ function error (uuid, packUuid) {
 module.exports = {
     initPacks: function (packs) {
         packIndices = packs;
+        uuidToPack = {};
         for (var packUuid in packs) {
             var uuids = packs[packUuid];
             for (var i = 0; i < uuids.length; i++) {
