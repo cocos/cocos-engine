@@ -200,7 +200,7 @@ export class OptimizedCurve {
 }
 
 export class CurveUniform {
-    private mode: number;
+    private mode: 0 | 'constant' | 'twoConstants' | 'curve' | 'twoCurves';
     private minConstant: number;
     private maxConstant: number;
     private minCurve: OptimizedCurve | null;

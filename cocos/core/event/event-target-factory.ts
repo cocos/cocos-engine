@@ -16,7 +16,10 @@ export function EventTargetFactory<Base extends Constructor<{}>> (b?: Base) {
         base = Empty as Base;
     }
     class EventTarget extends base {
-        private _callbacksInvoker = new CallbacksInvoker();
+        /**
+         * @private
+         */
+        public _callbacksInvoker = new CallbacksInvoker();
 
         /**
          * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.

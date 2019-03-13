@@ -596,7 +596,7 @@ class InputManager {
                 handler(event, mouseEvent, location, pos);
 
                 eventManager.dispatchEvent(mouseEvent);
-                event.propagationStopped = true;
+                event.stopPropagation();
                 event.preventDefault();
             });
         };
@@ -652,7 +652,7 @@ class InputManager {
                 pos.left -= document.documentElement.scrollLeft;
                 pos.top -= document.documentElement.scrollTop;
                 touchEvent.call(this, [this.getTouchByXY(event.clientX, event.clientY, pos)]);
-                event.propagationStopped = true;
+                event.stopPropagation();
             }, false);
         }
     }
@@ -701,7 +701,7 @@ class InputManager {
                 pos.left -= body.scrollLeft || 0;
                 pos.top -= body.scrollTop || 0;
                 touchesHandler(this.getTouchesByEvent(event, pos));
-                event.propagationStopped = true;
+                event.stopPropagation();
                 event.preventDefault();
             };
         };
@@ -730,12 +730,12 @@ class InputManager {
         const canvas = cc.game.canvas as HTMLCanvasElement;
         canvas.addEventListener('keydown', (event: KeyboardEvent) => {
             eventManager.dispatchEvent(new EventKeyboard(event, true));
-            event.propagationStopped = true;
+            event.stopPropagation();
             event.preventDefault();
         }, false);
         canvas.addEventListener('keyup', (event: KeyboardEvent) => {
             eventManager.dispatchEvent(new EventKeyboard(event, false));
-            event.propagationStopped = true;
+            event.stopPropagation();
             event.preventDefault();
         }, false);
     }

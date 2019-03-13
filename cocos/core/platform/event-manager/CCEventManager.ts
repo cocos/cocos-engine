@@ -1110,6 +1110,7 @@ class EventManager {
 
         for (let i = 0, len = listeners.length; i < len; i++) {
             const selListener = listeners[i];
+            // @ts-ignore
             if (selListener._onCustomEvent === callback || selListener.onEvent === callback) {
                 selListener._setRegistered(false);
                 if (selListener._getSceneGraphPriority() != null) {

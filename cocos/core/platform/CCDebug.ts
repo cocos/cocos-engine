@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+ // @ts-ignore
 import * as debugInfos from '../../../DebugInfos';
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
@@ -211,6 +212,7 @@ export function _resetDebugSetting (mode: DebugMode) {
     }
     else if (mode === DebugMode.INFO) {
         if (CC_JSB) {
+            // @ts-ignore
             if (scriptEngineType === 'JavaScriptCore') {
                 // console.log has to use `console` as its context for iOS 8~9. Therefore, apply it.
                 ccLog = (message?: any, ...optionalParams: any[]) => {
