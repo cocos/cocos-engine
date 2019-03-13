@@ -131,7 +131,7 @@ export class Model {
     protected _matRefCount: Map<Material, number>;
     protected _uboLocal: UBOLocal;
     protected _localUBO: GFXBuffer | null;
-    protected _localBindings: Map<string, IGlobalBindingDesc> = new Map<string, IGlobalBindingDesc>();
+    protected _localBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
     protected _inited: boolean;
 
     /**
@@ -195,7 +195,7 @@ export class Model {
         this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
 
         if (this._localBindings.has(UBOLocal.BLOCK.name)) {
-            this._localBindings.get(UBOLocal.BLOCK.name).buffer!.update(this._uboLocal.view);
+            this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!.update(this._uboLocal.view);
         }
 
         for (const mat of this._matPSORecord.keys()) {

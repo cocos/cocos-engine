@@ -321,6 +321,10 @@ export class CameraComponent extends Component {
         if (this._camera) { this._camera.changeTargetDisplay(val); }
     }
 
+    public onLoad () {
+        cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
+    }
+
     public onEnable () {
         if (this._camera) { this._camera.enabled = true; return; }
         this._createCamera();
@@ -373,5 +377,13 @@ export class CameraComponent extends Component {
         this._camera.clearDepth = this._depth;
         this._camera.clearStencil = this._stencil;
         this._camera.clearFlag = this._clearFlags;
+    }
+
+    protected onSceneChanged (scene) {
+        // to handle scene switch of editor camera
+        if (this._camera && this._camera.scene !== scene.renderScene) {
+            this._createCamera();
+            this._camera.enabled = true;
+        }
     }
 }
