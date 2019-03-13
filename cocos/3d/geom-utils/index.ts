@@ -1,5 +1,6 @@
 export { default as enums } from './enums';
-export { default as distance } from './distance';
+import * as distance from './distance';
+export { distance };
 export { default as intersect } from './intersect';
 export { default as line } from './line';
 export { default as plane } from './plane';
