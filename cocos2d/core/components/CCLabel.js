@@ -28,6 +28,7 @@ const macro = require('../platform/CCMacro');
 const RenderComponent = require('./CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
 const LabelFrame = require('../renderer/utils/label/label-frame');
+const RenderFlow = require('../renderer/render-flow');
 
 /**
  * !#en Enum for text alignment.
@@ -525,6 +526,7 @@ let Label = cc.Class({
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this._checkStringEmpty();
         this._updateRenderData(true);
@@ -534,6 +536,7 @@ let Label = cc.Class({
         this._super();
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
+        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
     },
 
     onDestroy () {
