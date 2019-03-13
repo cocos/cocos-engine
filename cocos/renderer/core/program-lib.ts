@@ -8,34 +8,6 @@ import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { IDefineMap } from './pass';
 
-function mapDefine (def: number | string | boolean) {
-    switch (typeof def) {
-        case 'boolean': return def ? 1 : 0;
-        case 'string': case 'number': return def;
-    }
-    return 0;
-}
-
-function generateDefines (
-    device: GFXDevice,
-    defs: IDefineMap,
-    tDefs: IDefineInfo[],
-    deps: Record<string, string>,
-) {
-    const defines: string[] = [];
-    for (const { name } of tDefs) {
-        const d = defs[name];
-        let result = mapDefine(d);
-        // fallback if extension dependency not supported
-        if (result && deps[name] && !device[deps[name]]) {
-            console.warn(`${deps[name]} not supported on this platform, disabled ${name}`);
-            result = 0;
-        }
-        defines.push(`#define ${name} ${result}`);
-    }
-    return defines.join('\n');
-}
-
 let _shdID = 0;
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
@@ -47,10 +19,58 @@ interface IProgramInfo extends IShaderInfo {
     globalsInited: boolean;
     localsInited: boolean;
 }
+export interface IDefineValue {
+    name: string;
+    result: string | number;
+}
+
+const mapDefine = (def: number | string | boolean) => {
+    switch (typeof def) {
+        case 'boolean': return def ? 1 : 0;
+        case 'string': case 'number': return def;
+    }
+    return 0;
+};
+
+const prepareDefines = (defs: IDefineMap, tDefs: IDefineInfo[]) => {
+    const defines: IDefineValue[] = [];
+    for (const { name } of tDefs) {
+        const result = mapDefine(defs[name]);
+        defines.push({ name, result });
+    }
+    return defines;
+};
+
+const validateDefines = (defines: IDefineValue[], device: GFXDevice, deps: Record<string, string>) => {
+    for (const info of defines) {
+        const name = info.name;
+        // fallback if extension dependency not supported
+        if (info.result && deps[name] && !device[deps[name]]) {
+            console.warn(`${deps[name]} not supported on this platform, disabled ${name}`);
+            info.result = 0;
+        }
+    }
+};
+
+const insertBuiltinBindings = (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) => {
+    const target = tmpl.builtins[type];
+    for (const b of target.blocks) {
+        const info = source.get(b);
+        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
+        const blocks = tmpl.blocks as GFXUniformBlock[];
+        blocks.push(info.blockInfo!);
+    }
+    for (const s of target.samplers) {
+        const info = source.get(s);
+        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s}' not available!`); continue; }
+        const samplers = tmpl.samplers as GFXUniformSampler[];
+        samplers.push(info.samplerInfo!);
+    }
+};
 
 class ProgramLib {
     protected _templates: Record<string, IProgramInfo>;
-    protected _cache: Record<string, GFXShader | null>;
+    protected _cache: Record<string, GFXShader>;
 
     constructor () {
         this._templates = {};
@@ -122,6 +142,18 @@ class ProgramLib {
         return key << 8 | (tmpl.id & 0xff);
     }
 
+    public clearCache () {
+        for (const shader of Object.values(this._cache)) {
+            shader.destroy();
+        }
+        this._cache = {};
+    }
+
+    public getShaderInstaceName (name: string, defines: IDefineMap, defs?: IDefineValue[]) {
+        if (!defs) { defs = prepareDefines(defines, this._templates[name].defines); }
+        return name + defs.reduce((acc, cur) => cur.result ? `${acc}|${cur.name}${cur.result}` : acc, '');
+    }
+
     public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap = {}, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
         const key = this.getKey(name, defines);
@@ -132,8 +164,12 @@ class ProgramLib {
 
         // get template
         const tmpl = this._templates[name];
-        const customDef = generateDefines(device, defines, tmpl.defines, tmpl.dependencies) + '\n';
         if (!tmpl.globalsInited) { insertBuiltinBindings(tmpl, pipeline.globalBindings, 'globals'); tmpl.globalsInited = true; }
+
+        const defs = prepareDefines(defines, tmpl.defines);
+        const instanceName = this.getShaderInstaceName(name, defines, defs);
+        validateDefines(defs, device, tmpl.dependencies);
+        const customDef = defs.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.result}\n`, '');
 
         let vert: string = '';
         let frag: string = '';
@@ -145,7 +181,6 @@ class ProgramLib {
             frag = `#version 100\n${customDef}\n${tmpl.glsl1.frag}`;
         }
 
-        const instanceName = getShaderInstaceName(name, defines);
         program = device.createShader({
             name: instanceName,
             blocks: tmpl.blocks,
@@ -158,30 +193,6 @@ class ProgramLib {
         this._cache[key] = program;
         return program;
     }
-}
-
-function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) {
-    const target = tmpl.builtins[type];
-    for (const b of target.blocks) {
-        const info = source.get(b);
-        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
-        const blocks = tmpl.blocks as GFXUniformBlock[];
-        blocks.push(info.blockInfo!);
-    }
-    for (const s of target.samplers) {
-        const info = source.get(s);
-        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s}' not available!`); continue; }
-        const samplers = tmpl.samplers as GFXUniformSampler[];
-        samplers.push(info.samplerInfo!);
-    }
-}
-
-export function getShaderInstaceName (name: string, defines: IDefineMap) {
-    return Object.keys(defines).reduce((acc, cur) => {
-        const val = defines[cur];
-        const res = (typeof val === 'boolean' ? '' : val);
-        return val ? `${acc}|${cur}${res}` : acc;
-    }, name);
 }
 
 export const programLib = new ProgramLib();
