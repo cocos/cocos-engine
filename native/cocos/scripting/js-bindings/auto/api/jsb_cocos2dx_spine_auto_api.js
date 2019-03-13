@@ -69,6 +69,16 @@ setSlotsToSetupPose : function (
 },
 
 /**
+ * @method getRenderInfoOffset
+ * @return {se::Object}
+ */
+getRenderInfoOffset : function (
+)
+{
+    return se::Object;
+},
+
+/**
  * @method stopSchedule
  */
 stopSchedule : function (
@@ -94,16 +104,6 @@ setDebugSlotsEnabled : function (
 bool 
 )
 {
-},
-
-/**
- * @method getMaterialData
- * @return {se::Object}
- */
-getMaterialData : function (
-)
-{
-    return se::Object;
 },
 
 /**
@@ -214,6 +214,16 @@ str
 )
 {
     return spAttachment;
+},
+
+/**
+ * @method initWithUUID
+ * @param {String} arg0
+ */
+initWithUUID : function (
+str 
+)
+{
 },
 
 /**
@@ -596,6 +606,16 @@ float
 )
 {
     return sp.SpineAnimation;
+},
+
+/**
+ * @method setGlobalTimeScale
+ * @param {float} arg0
+ */
+setGlobalTimeScale : function (
+float 
+)
+{
 },
 
 /**

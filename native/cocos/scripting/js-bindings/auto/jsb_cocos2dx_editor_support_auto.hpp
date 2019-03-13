@@ -29,4 +29,15 @@ SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_destroyInstance);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_getInstance);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_MiddlewareManager);
 
+extern se::Object* __jsb_cocos2d_middleware_RenderInfoMgr_proto;
+extern se::Class* __jsb_cocos2d_middleware_RenderInfoMgr_class;
+
+bool js_register_cocos2d_middleware_RenderInfoMgr(se::Object* obj);
+bool register_all_cocos2dx_editor_support(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_setResizeCallback);
+SE_DECLARE_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_getRenderInfo);
+SE_DECLARE_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_destroyInstance);
+SE_DECLARE_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_getInstance);
+SE_DECLARE_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_RenderInfoMgr);
+
 #endif //#if USE_MIDDLEWARE > 0

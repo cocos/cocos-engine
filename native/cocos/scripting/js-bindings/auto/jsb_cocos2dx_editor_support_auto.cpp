@@ -4,6 +4,7 @@
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "editor-support/middleware-adapter.h"
 #include "editor-support/MiddlewareManager.h"
+#include "editor-support/RenderInfoMgr.h"
 
 se::Object* __jsb_cocos2d_middleware_Texture2D_proto = nullptr;
 se::Class* __jsb_cocos2d_middleware_Texture2D_class = nullptr;
@@ -333,6 +334,147 @@ bool js_register_cocos2dx_editor_support_MiddlewareManager(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_middleware_RenderInfoMgr_proto = nullptr;
+se::Class* __jsb_cocos2d_middleware_RenderInfoMgr_class = nullptr;
+
+static bool js_cocos2dx_editor_support_RenderInfoMgr_setResizeCallback(se::State& s)
+{
+    cocos2d::middleware::RenderInfoMgr* cobj = (cocos2d::middleware::RenderInfoMgr*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_editor_support_RenderInfoMgr_setResizeCallback : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::function<void ()> arg0;
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto lambda = [=]() -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(se::EmptyValueArray, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(false)
+        ;
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_editor_support_RenderInfoMgr_setResizeCallback : Error processing arguments");
+        cobj->setResizeCallback(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_setResizeCallback)
+
+static bool js_cocos2dx_editor_support_RenderInfoMgr_getRenderInfo(se::State& s)
+{
+    cocos2d::middleware::RenderInfoMgr* cobj = (cocos2d::middleware::RenderInfoMgr*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_editor_support_RenderInfoMgr_getRenderInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        se_object_ptr result = cobj->getRenderInfo();
+        s.rval().setObject(result);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_editor_support_RenderInfoMgr_getRenderInfo : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_getRenderInfo)
+
+static bool js_cocos2dx_editor_support_RenderInfoMgr_destroyInstance(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cocos2d::middleware::RenderInfoMgr::destroyInstance();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_destroyInstance)
+
+static bool js_cocos2dx_editor_support_RenderInfoMgr_getInstance(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cocos2d::middleware::RenderInfoMgr* result = cocos2d::middleware::RenderInfoMgr::getInstance();
+        ok &= native_ptr_to_seval<cocos2d::middleware::RenderInfoMgr>((cocos2d::middleware::RenderInfoMgr*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_editor_support_RenderInfoMgr_getInstance : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_getInstance)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_middleware_RenderInfoMgr_finalize)
+
+static bool js_cocos2dx_editor_support_RenderInfoMgr_constructor(se::State& s)
+{
+    cocos2d::middleware::RenderInfoMgr* cobj = new (std::nothrow) cocos2d::middleware::RenderInfoMgr();
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_cocos2dx_editor_support_RenderInfoMgr_constructor, __jsb_cocos2d_middleware_RenderInfoMgr_class, js_cocos2d_middleware_RenderInfoMgr_finalize)
+
+
+
+
+static bool js_cocos2d_middleware_RenderInfoMgr_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::middleware::RenderInfoMgr)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::middleware::RenderInfoMgr* cobj = (cocos2d::middleware::RenderInfoMgr*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_middleware_RenderInfoMgr_finalize)
+
+bool js_register_cocos2dx_editor_support_RenderInfoMgr(se::Object* obj)
+{
+    auto cls = se::Class::create("RenderInfoMgr", obj, nullptr, _SE(js_cocos2dx_editor_support_RenderInfoMgr_constructor));
+
+    cls->defineFunction("setResizeCallback", _SE(js_cocos2dx_editor_support_RenderInfoMgr_setResizeCallback));
+    cls->defineFunction("getRenderInfo", _SE(js_cocos2dx_editor_support_RenderInfoMgr_getRenderInfo));
+    cls->defineStaticFunction("destroyInstance", _SE(js_cocos2dx_editor_support_RenderInfoMgr_destroyInstance));
+    cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_editor_support_RenderInfoMgr_getInstance));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_middleware_RenderInfoMgr_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::middleware::RenderInfoMgr>(cls);
+
+    __jsb_cocos2d_middleware_RenderInfoMgr_proto = cls->getProto();
+    __jsb_cocos2d_middleware_RenderInfoMgr_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool register_all_cocos2dx_editor_support(se::Object* obj)
 {
     // Get the ns
@@ -345,6 +487,7 @@ bool register_all_cocos2dx_editor_support(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_cocos2dx_editor_support_RenderInfoMgr(ns);
     js_register_cocos2dx_editor_support_MiddlewareManager(ns);
     js_register_cocos2dx_editor_support_Texture2D(ns);
     return true;

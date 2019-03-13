@@ -142,3 +142,57 @@ MiddlewareManager : function (
 },
 
 };
+
+/**
+ * @class RenderInfoMgr
+ */
+middleware.RenderInfoMgr = {
+
+/**
+ * @method setResizeCallback
+ * @param {function} arg0
+ */
+setResizeCallback : function (
+func 
+)
+{
+},
+
+/**
+ * @method getRenderInfo
+ * @return {se::Object}
+ */
+getRenderInfo : function (
+)
+{
+    return se::Object;
+},
+
+/**
+ * @method destroyInstance
+ */
+destroyInstance : function (
+)
+{
+},
+
+/**
+ * @method getInstance
+ * @return {cc.middleware::RenderInfoMgr}
+ */
+getInstance : function (
+)
+{
+    return cc.middleware::RenderInfoMgr;
+},
+
+/**
+ * @method RenderInfoMgr
+ * @constructor
+ */
+RenderInfoMgr : function (
+)
+{
+},
+
+};
