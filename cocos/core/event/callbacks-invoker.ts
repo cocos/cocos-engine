@@ -150,7 +150,7 @@ export class CallbacksHandler{
      * @method removeAll
      * @param {String|Object} keyOrTarget - The event key to be removed or the target to be removed
      */
-    public removeAll (keyOrTarget?: string | Object | undefined) {
+    public removeAll (keyOrTarget?: string | Object) {
         if (typeof keyOrTarget === 'string') {
             // remove by key
             const list = this._callbackTable[keyOrTarget];

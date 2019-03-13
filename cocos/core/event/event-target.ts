@@ -163,8 +163,8 @@ export class EventTarget extends CallbacksInvoker {
      * @method targetOff
      * @param {Object} target - The target to be searched for all related listeners
      */
-    public targetOff () {
-        this.removeAll();
+    public targetOff (keyOrTarget?: string | Object) {
+        this.removeAll(keyOrTarget);
     }
 
     /**
