@@ -136,6 +136,24 @@ static bool js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose)
 
+static bool js_cocos2dx_spine_SpineRenderer_getRenderInfoOffset(se::State& s)
+{
+    spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_getRenderInfoOffset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        se_object_ptr result = cobj->getRenderInfoOffset();
+        s.rval().setObject(result);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SpineRenderer_getRenderInfoOffset : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_getRenderInfoOffset)
+
 static bool js_cocos2dx_spine_SpineRenderer_stopSchedule(se::State& s)
 {
     spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
@@ -187,24 +205,6 @@ static bool js_cocos2dx_spine_SpineRenderer_setDebugSlotsEnabled(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setDebugSlotsEnabled)
-
-static bool js_cocos2dx_spine_SpineRenderer_getMaterialData(se::State& s)
-{
-    spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_getMaterialData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        se_object_ptr result = cobj->getMaterialData();
-        s.rval().setObject(result);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SpineRenderer_getMaterialData : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_getMaterialData)
 
 static bool js_cocos2dx_spine_SpineRenderer_initWithJsonFile(se::State& s)
 {
@@ -515,6 +515,25 @@ static bool js_cocos2dx_spine_SpineRenderer_getAttachment(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_getAttachment)
+
+static bool js_cocos2dx_spine_SpineRenderer_initWithUUID(se::State& s)
+{
+    spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_initWithUUID : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SpineRenderer_initWithUUID : Error processing arguments");
+        cobj->initWithUUID(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_initWithUUID)
 
 static bool js_cocos2dx_spine_SpineRenderer_initialize(se::State& s)
 {
@@ -902,10 +921,10 @@ bool js_register_cocos2dx_spine_SpineRenderer(se::Object* obj)
     cls->defineFunction("setAttachment", _SE(js_cocos2dx_spine_SpineRenderer_setAttachment));
     cls->defineFunction("setBonesToSetupPose", _SE(js_cocos2dx_spine_SpineRenderer_setBonesToSetupPose));
     cls->defineFunction("setSlotsToSetupPose", _SE(js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose));
+    cls->defineFunction("getRenderInfoOffset", _SE(js_cocos2dx_spine_SpineRenderer_getRenderInfoOffset));
     cls->defineFunction("stopSchedule", _SE(js_cocos2dx_spine_SpineRenderer_stopSchedule));
     cls->defineFunction("isOpacityModifyRGB", _SE(js_cocos2dx_spine_SpineRenderer_isOpacityModifyRGB));
     cls->defineFunction("setDebugSlotsEnabled", _SE(js_cocos2dx_spine_SpineRenderer_setDebugSlotsEnabled));
-    cls->defineFunction("getMaterialData", _SE(js_cocos2dx_spine_SpineRenderer_getMaterialData));
     cls->defineFunction("initWithJsonFile", _SE(js_cocos2dx_spine_SpineRenderer_initWithJsonFile));
     cls->defineFunction("setToSetupPose", _SE(js_cocos2dx_spine_SpineRenderer_setToSetupPose));
     cls->defineFunction("setOpacityModifyRGB", _SE(js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB));
@@ -916,6 +935,7 @@ bool js_register_cocos2dx_spine_SpineRenderer(se::Object* obj)
     cls->defineFunction("initWithSkeleton", _SE(js_cocos2dx_spine_SpineRenderer_initWithSkeleton));
     cls->defineFunction("update", _SE(js_cocos2dx_spine_SpineRenderer_update));
     cls->defineFunction("getAttachment", _SE(js_cocos2dx_spine_SpineRenderer_getAttachment));
+    cls->defineFunction("initWithUUID", _SE(js_cocos2dx_spine_SpineRenderer_initWithUUID));
     cls->defineFunction("initialize", _SE(js_cocos2dx_spine_SpineRenderer_initialize));
     cls->defineFunction("setDebugBonesEnabled", _SE(js_cocos2dx_spine_SpineRenderer_setDebugBonesEnabled));
     cls->defineFunction("getTimeScale", _SE(js_cocos2dx_spine_SpineRenderer_getTimeScale));
@@ -1686,6 +1706,23 @@ static bool js_cocos2dx_spine_SpineAnimation_createWithJsonFile(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SpineAnimation_createWithJsonFile)
 
+static bool js_cocos2dx_spine_SpineAnimation_setGlobalTimeScale(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SpineAnimation_setGlobalTimeScale : Error processing arguments");
+        spine::SpineAnimation::setGlobalTimeScale(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_spine_SpineAnimation_setGlobalTimeScale)
+
 SE_DECLARE_FINALIZE_FUNC(js_spine_SpineAnimation_finalize)
 
 static bool js_cocos2dx_spine_SpineAnimation_constructor(se::State& s)
@@ -1934,6 +1971,7 @@ bool js_register_cocos2dx_spine_SpineAnimation(se::Object* obj)
     cls->defineStaticFunction("createWithBinaryFile", _SE(js_cocos2dx_spine_SpineAnimation_createWithBinaryFile));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_spine_SpineAnimation_create));
     cls->defineStaticFunction("createWithJsonFile", _SE(js_cocos2dx_spine_SpineAnimation_createWithJsonFile));
+    cls->defineStaticFunction("setGlobalTimeScale", _SE(js_cocos2dx_spine_SpineAnimation_setGlobalTimeScale));
     cls->defineFinalizeFunction(_SE(js_spine_SpineAnimation_finalize));
     cls->install();
     JSBClassType::registerClass<spine::SpineAnimation>(cls);

@@ -2398,13 +2398,13 @@ func
 },
 
 /**
- * @method getMaterialData
- * @return {se::Object}
+ * @method getRootDisplay
+ * @return {dragonBones::CCArmatureDisplay}
  */
-getMaterialData : function (
+getRootDisplay : function (
 )
 {
-    return se::Object;
+    return dragonBones::CCArmatureDisplay;
 },
 
 /**
@@ -2436,6 +2436,16 @@ dispose : function (
 },
 
 /**
+ * @method getRenderInfoOffset
+ * @return {se::Object}
+ */
+getRenderInfoOffset : function (
+)
+{
+    return se::Object;
+},
+
+/**
  * @method setOpacityModifyRGB
  * @param {bool} arg0
  */
@@ -2443,16 +2453,6 @@ setOpacityModifyRGB : function (
 bool 
 )
 {
-},
-
-/**
- * @method getRootDisplay
- * @return {dragonBones::CCArmatureDisplay}
- */
-getRootDisplay : function (
-)
-{
-    return dragonBones::CCArmatureDisplay;
 },
 
 /**
@@ -2552,6 +2552,16 @@ CCArmatureDisplay : function (
  * @class CCFactory
  */
 dragonBones.CCFactory = {
+
+/**
+ * @method setTimeScale
+ * @param {float} arg0
+ */
+setTimeScale : function (
+float 
+)
+{
+},
 
 /**
  * @method getSoundEventManager
