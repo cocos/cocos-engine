@@ -25,7 +25,7 @@ let intersect = {};
  * @method rayAabb
  * @param {geomUtils.Ray} ray
  * @param {geomUtils.Aabb} aabb
- * @return Number
+ * @return {Number}
 */
 intersect.rayAabb = (function () {
     let min = vec3.create();
