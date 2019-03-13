@@ -155,17 +155,17 @@
         moveTool.setPosition(vec3.add(moveTool._lpos, moveTool._lpos, vel));
       });
 
-      cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => {
-        const comp = cc.director.getScene().getChildByName('moveTool').getChildByName('borderPlane').getChildByName('plane').getComponent(cc.ModelComponent);
-        const model = comp.model.getSubModel(0);
-        const ia = model.inputAssembler;
-        if (ia && model.subMeshData) {
-            const mesh = model.subMeshData;
-            const points = [0, 1, 2];
-            ia.updateIndexBuffer(mesh.ibuffer, points);
-            model.updateCommandBuffer();
-        }
-      });
+      // cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => {
+      //   const comp = cc.director.getScene().getChildByName('moveTool').getChildByName('borderPlane').getChildByName('plane').getComponent(cc.ModelComponent);
+      //   const model = comp.model.getSubModel(0);
+      //   const ia = model.inputAssembler;
+      //   if (ia && model.subMeshData) {
+      //       const mesh = model.subMeshData;
+      //       const points = [0, 1, 2];
+      //       ia.updateIndexBuffer(mesh.ibuffer, points);
+      //       model.updateCommandBuffer();
+      //   }
+      // });
 
       cc.director.runSceneImmediate(scene);
     }
