@@ -205,7 +205,6 @@ export class UI {
     }
 
     public update (dt: number) {
-        this._reset();
         this._renderScreens();
 
         // update buffers
@@ -217,6 +216,7 @@ export class UI {
         }
 
         this.render();
+        this._reset();
     }
 
     public render () {

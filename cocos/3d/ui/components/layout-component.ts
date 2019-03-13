@@ -26,11 +26,11 @@
 
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Size, Vec3, Rect, Vec2 } from '../../../core/value-types';
+import { Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
+import { vec3 } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { UITransformComponent } from './ui-transfrom-component';
-import { vec3 } from '../../../core/vmath';
 const NodeEvent = Node.EventType;
 /**
  * !#en Enum for Layout type
@@ -161,8 +161,8 @@ enum HorizontalDirection {
 
 ccenum(HorizontalDirection);
 
-let _tempPos = new Vec3();
-let _tempScale = new Vec3();
+const _tempPos = new Vec3();
+const _tempScale = new Vec3();
 
 /**
  * !#en
@@ -192,13 +192,13 @@ export class LayoutComponent extends Component {
      * @default Layout.Type.NONE
      */
     @property({
-        type: Type
+        type: Type,
     })
-    get type() {
+    get type () {
         return this._N$layoutType;
     }
 
-    set type(value: Type) {
+    set type (value: Type) {
         this._N$layoutType = value;
 
         if (CC_EDITOR && this._N$layoutType !== Type.NONE && this._resizeMode === ResizeMode.CONTAINER /*&& !cc.engine.isPlaying*/) {
@@ -220,10 +220,10 @@ export class LayoutComponent extends Component {
     @property({
         type: ResizeMode,
     })
-    get resizeMode() {
+    get resizeMode () {
         return this._resizeMode;
     }
-    set resizeMode(value) {
+    set resizeMode (value) {
         if (this._N$layoutType === Type.NONE && value === ResizeMode.CHILDREN) {
             return;
         }
@@ -245,11 +245,11 @@ export class LayoutComponent extends Component {
      * @default cc.size(40, 40)
      */
     @property
-    get cellSize() {
+    get cellSize () {
         return this._cellSize;
     }
 
-    set cellSize(value: Size) {
+    set cellSize (value: Size) {
         if (this._cellSize === value) {
             return;
         }
@@ -266,13 +266,13 @@ export class LayoutComponent extends Component {
      * @property {Layout.AxisDirection} startAxis
      */
     @property({
-        type: AxisDirection
+        type: AxisDirection,
     })
-    get startAxis() {
+    get startAxis () {
         return this._startAxis;
     }
 
-    set startAxis(value) {
+    set startAxis (value) {
         if (this._startAxis === value) {
             return;
         }
@@ -293,10 +293,10 @@ export class LayoutComponent extends Component {
      * @property {Number} paddingLeft
      */
     @property
-    get paddingLeft() {
+    get paddingLeft () {
         return this._paddingLeft;
     }
-    set paddingLeft(value) {
+    set paddingLeft (value) {
         if (this._paddingLeft === value) {
             return;
         }
@@ -311,10 +311,10 @@ export class LayoutComponent extends Component {
      * @property {Number} paddingRight
      */
     @property
-    get paddingRight() {
+    get paddingRight () {
         return this._paddingRight;
     }
-    set paddingRight(value) {
+    set paddingRight (value) {
         if (this._paddingRight === value) {
             return;
         }
@@ -329,10 +329,10 @@ export class LayoutComponent extends Component {
      * @property {Number} paddingTop
      */
     @property
-    get paddingTop() {
+    get paddingTop () {
         return this._paddingTop;
     }
-    set paddingTop(value) {
+    set paddingTop (value) {
         if (this._paddingTop === value) {
             return;
         }
@@ -347,10 +347,10 @@ export class LayoutComponent extends Component {
      * @property {Number} paddingBottom
      */
     @property
-    get paddingBottom() {
+    get paddingBottom () {
         return this._paddingBottom;
     }
-    set paddingBottom(value) {
+    set paddingBottom (value) {
         if (this._paddingBottom === value) {
             return;
         }
@@ -365,11 +365,11 @@ export class LayoutComponent extends Component {
      * @property {Number} spacingX
      */
     @property
-    get spacingX() {
+    get spacingX () {
         return this._spacingX;
     }
 
-    set spacingX(value) {
+    set spacingX (value) {
         if (this._spacingX === value) {
             return;
         }
@@ -384,11 +384,11 @@ export class LayoutComponent extends Component {
      * @property {Number} spacingY
      */
     @property
-    get spacingY() {
+    get spacingY () {
         return this._spacingY;
     }
 
-    set spacingY(value) {
+    set spacingY (value) {
         if (this._spacingY === value) {
             return;
         }
@@ -407,11 +407,11 @@ export class LayoutComponent extends Component {
     @property({
         type: VerticalDirection,
     })
-    get verticalDirection() {
+    get verticalDirection () {
         return this._verticalDirection;
     }
 
-    set verticalDirection(value: VerticalDirection) {
+    set verticalDirection (value: VerticalDirection) {
         if (this._verticalDirection === value) {
             return;
         }
@@ -430,11 +430,11 @@ export class LayoutComponent extends Component {
     @property({
         type: HorizontalDirection,
     })
-    get horizontalDirection() {
+    get horizontalDirection () {
         return this._horizontalDirection;
     }
 
-    set horizontalDirection(value: HorizontalDirection) {
+    set horizontalDirection (value: HorizontalDirection) {
         if (this._horizontalDirection === value) {
             return;
         }
@@ -449,11 +449,11 @@ export class LayoutComponent extends Component {
      * @property {Number} padding
      */
     @property
-    get padding() {
+    get padding () {
         return this._paddingLeft;
     }
 
-    set padding(value) {
+    set padding (value) {
         this._N$padding = value;
 
         this._migratePaddingData();
@@ -468,11 +468,11 @@ export class LayoutComponent extends Component {
      * @default false
      */
     @property
-    get affectedByScale() {
+    get affectedByScale () {
         return this._affectedByScale;
     }
 
-    set affectedByScale(value) {
+    set affectedByScale (value) {
         this._affectedByScale = value;
         this._doLayoutDirty();
     }
@@ -515,15 +515,27 @@ export class LayoutComponent extends Component {
     @property
     private _affectedByScale = false;
 
-    private _migratePaddingData() {
-        this._paddingLeft = this._N$padding;
-        this._paddingRight = this._N$padding;
-        this._paddingTop = this._N$padding;
-        this._paddingBottom = this._N$padding;
-        this._N$padding = 0;
+    /**
+     * !#en Perform the layout update
+     * !#zh 立即执行更新布局
+     *
+     * @method updateLayout
+     *
+     * @example
+     * layout.type = cc.Layout.HORIZONTAL;
+     * layout.node.addChild(childNode);
+     * cc.log(childNode.x); // not yet changed
+     * layout.updateLayout();
+     * cc.log(childNode.x); // changed
+     */
+    public updateLayout () {
+        if (this._layoutDirty && this.node.children.length > 0) {
+            this._doLayout();
+            this._layoutDirty = false;
+        }
     }
 
-    protected onEnable() {
+    protected onEnable () {
         this._addEventListeners();
 
         if (this.node.getContentSize().equals(cc.size(0, 0))) {
@@ -537,11 +549,19 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
 
-    protected onDisable() {
+    protected onDisable () {
         this._removeEventListeners();
     }
 
-    private _addEventListeners() {
+    private _migratePaddingData () {
+        this._paddingLeft = this._N$padding;
+        this._paddingRight = this._N$padding;
+        this._paddingTop = this._N$padding;
+        this._paddingBottom = this._N$padding;
+        this._N$padding = 0;
+    }
+
+    private _addEventListeners () {
         cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
         this.node.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -551,7 +571,7 @@ export class LayoutComponent extends Component {
         this._addChildrenEventListeners();
     }
 
-    private _removeEventListeners() {
+    private _removeEventListeners () {
         cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.off(NodeEvent.SIZE_CHANGED, this._resized, this);
         this.node.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -561,7 +581,7 @@ export class LayoutComponent extends Component {
         this._removeChildrenEventListeners();
     }
 
-    private _addChildrenEventListeners() {
+    private _addChildrenEventListeners () {
         const children = this.node.children;
         for (const child of children) {
             child.on(NodeEvent.SCALE_PART, this._doScaleDirty, this);
@@ -572,7 +592,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _removeChildrenEventListeners() {
+    private _removeChildrenEventListeners () {
         const children = this.node.children;
         for (const child of children) {
             child.off(NodeEvent.SCALE_PART, this._doScaleDirty, this);
@@ -583,7 +603,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _childAdded(child) {
+    private _childAdded (child) {
         child.on(NodeEvent.SCALE_PART, this._doScaleDirty, this);
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.POSITION_PART, this._doLayoutDirty, this);
@@ -593,7 +613,7 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
 
-    private _childRemoved(child) {
+    private _childRemoved (child) {
         child.off(NodeEvent.SCALE_PART, this._doScaleDirty, this);
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.POSITION_PART, this._doLayoutDirty, this);
@@ -603,12 +623,12 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
 
-    private _resized() {
+    private _resized () {
         this._layoutSize = this.node.getContentSize();
         this._doLayoutDirty();
     }
 
-    private _doLayoutHorizontally(baseWidth, rowBreak, fnPositionY, applyChildren) {
+    private _doLayoutHorizontally (baseWidth, rowBreak, fnPositionY, applyChildren) {
         const layoutAnchor = this.node.getAnchorPoint();
         const children = this.node.children;
 
@@ -639,7 +659,7 @@ export class LayoutComponent extends Component {
         }
 
         let newChildWidth = this._cellSize.width;
-        if (this._N$layoutType!== Type.GRID && this._resizeMode === ResizeMode.CHILDREN) {
+        if (this._N$layoutType !== Type.GRID && this._resizeMode === ResizeMode.CHILDREN) {
             newChildWidth = (baseWidth - (this._paddingLeft + this._paddingRight) - (activeChildCount - 1) * this._spacingX) / activeChildCount;
         }
 
@@ -735,7 +755,7 @@ export class LayoutComponent extends Component {
         return containerResizeBoundary;
     }
 
-    private _doLayoutVertically(baseHeight, columnBreak, fnPositionX, applyChildren) {
+    private _doLayoutVertically (baseHeight, columnBreak, fnPositionX, applyChildren) {
         const layoutAnchor = this.node.getAnchorPoint();
         const children = this.node.children;
 
@@ -764,7 +784,7 @@ export class LayoutComponent extends Component {
         }
 
         let newChildHeight = this._cellSize.height;
-        if (this._N$layoutType!== Type.GRID && this._resizeMode === ResizeMode.CHILDREN) {
+        if (this._N$layoutType !== Type.GRID && this._resizeMode === ResizeMode.CHILDREN) {
             newChildHeight = (baseHeight - (this._paddingTop + this._paddingBottom) - (activeChildCount - 1) * this._spacingY) / activeChildCount;
         }
 
@@ -783,7 +803,7 @@ export class LayoutComponent extends Component {
             // for resizing children
             if (this._resizeMode === ResizeMode.CHILDREN) {
                 child.height = newChildHeight / childScaleY;
-                if (this._N$layoutType=== Type.GRID) {
+                if (this._N$layoutType === Type.GRID) {
                     child.width = this._cellSize.width / childScaleX;
                 }
             }
@@ -865,14 +885,14 @@ export class LayoutComponent extends Component {
         return containerResizeBoundary;
     }
 
-    private _doLayoutBasic() {
+    private _doLayoutBasic () {
         const children = this.node.children;
 
         let allChildrenBoundingBox: Rect|null = null;
 
         for (const child of children) {
             const childTransform = child.getComponent(UITransformComponent);
-            if(!childTransform){
+            if (!childTransform){
                 continue;
             }
 
@@ -887,19 +907,19 @@ export class LayoutComponent extends Component {
 
         if (allChildrenBoundingBox) {
             const parentTransform = this.node.parent!.getComponent(UITransformComponent);
-            if(!parentTransform){
+            if (!parentTransform){
                 return;
             }
 
             vec3.set(_tempPos, allChildrenBoundingBox.x, allChildrenBoundingBox.y, 0);
-            let leftBottomInParentSpace = new Vec3();
+            const leftBottomInParentSpace = new Vec3();
             parentTransform.convertToNodeSpaceAR(leftBottomInParentSpace, _tempPos);
             vec3.set(leftBottomInParentSpace, leftBottomInParentSpace.x - this._paddingLeft, leftBottomInParentSpace.y - this._paddingBottom, leftBottomInParentSpace.z);
 
             vec3.set(_tempPos, allChildrenBoundingBox.x + allChildrenBoundingBox.width, allChildrenBoundingBox.y + allChildrenBoundingBox.height, 0);
-            let rightTopInParentSpace = new Vec3();
+            const rightTopInParentSpace = new Vec3();
             parentTransform.convertToNodeSpaceAR(rightTopInParentSpace, _tempPos);
-            vec3.set(rightTopInParentSpace, rightTopInParentSpace.x + this._paddingRight, rightTopInParentSpace.y + this._paddingTop, rightTopInParentSpace.z)
+            vec3.set(rightTopInParentSpace, rightTopInParentSpace.x + this._paddingRight, rightTopInParentSpace.y + this._paddingTop, rightTopInParentSpace.z);
 
             const newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
                 parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
@@ -917,7 +937,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _doLayoutGridAxisHorizontal(layoutAnchor, layoutSize) {
+    private _doLayoutGridAxisHorizontal (layoutAnchor, layoutSize) {
         const baseWidth = layoutSize.width;
 
         let sign = 1;
@@ -959,7 +979,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _doLayoutGridAxisVertical(layoutAnchor: Vec2, layoutSize: Size) {
+    private _doLayoutGridAxisVertical (layoutAnchor: Vec2, layoutSize: Size) {
         const baseHeight = layoutSize.height;
 
         let sign = 1;
@@ -999,7 +1019,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _doLayoutGrid() {
+    private _doLayoutGrid () {
         const layoutAnchor = this.node.getAnchorPoint();
         const layoutSize = this.node.getContentSize();
 
@@ -1012,7 +1032,7 @@ export class LayoutComponent extends Component {
 
     }
 
-    private _getHorizontalBaseWidth(children: Node[]) {
+    private _getHorizontalBaseWidth (children: Node[]) {
         let newWidth = 0;
         let activeChildCount = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
@@ -1030,7 +1050,7 @@ export class LayoutComponent extends Component {
         return newWidth;
     }
 
-    private _getVerticalBaseHeight(children: Node[]) {
+    private _getVerticalBaseHeight (children: Node[]) {
         let newHeight = 0;
         let activeChildCount = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
@@ -1049,20 +1069,20 @@ export class LayoutComponent extends Component {
         return newHeight;
     }
 
-    private _doLayout() {
+    private _doLayout () {
 
-        if (this._N$layoutType=== Type.HORIZONTAL) {
+        if (this._N$layoutType === Type.HORIZONTAL) {
             const newWidth = this._getHorizontalBaseWidth(this.node.children);
 
             const fnPositionY = (child) => {
-                child.getPosition(_tempPos)
+                child.getPosition(_tempPos);
                 return _tempPos.y;
             };
 
             this._doLayoutHorizontally(newWidth, false, fnPositionY, true);
 
             this.node.width = newWidth;
-        } else if (this._N$layoutType=== Type.VERTICAL) {
+        } else if (this._N$layoutType === Type.VERTICAL) {
             const newHeight = this._getVerticalBaseHeight(this.node.children);
 
             const fnPositionX = (child) => {
@@ -1073,44 +1093,24 @@ export class LayoutComponent extends Component {
             this._doLayoutVertically(newHeight, false, fnPositionX, true);
 
             this.node.height = newHeight;
-        } else if (this._N$layoutType=== Type.NONE) {
+        } else if (this._N$layoutType === Type.NONE) {
             if (this._resizeMode === ResizeMode.CONTAINER) {
                 this._doLayoutBasic();
             }
-        } else if (this._N$layoutType=== Type.GRID) {
+        } else if (this._N$layoutType === Type.GRID) {
             this._doLayoutGrid();
         }
     }
 
-    private _getUsedScaleValue(value) {
+    private _getUsedScaleValue (value) {
         return this._affectedByScale ? Math.abs(value) : 1;
     }
 
-    /**
-     * !#en Perform the layout update
-     * !#zh 立即执行更新布局
-     *
-     * @method updateLayout
-     *
-     * @example
-     * layout.type = cc.Layout.HORIZONTAL;
-     * layout.node.addChild(childNode);
-     * cc.log(childNode.x); // not yet changed
-     * layout.updateLayout();
-     * cc.log(childNode.x); // changed
-     */
-    public updateLayout() {
-        if (this._layoutDirty && this.node.children.length > 0) {
-            this._doLayout();
-            this._layoutDirty = false;
-        }
-    }
-
-    private _doLayoutDirty() {
+    private _doLayoutDirty () {
         this._layoutDirty = true;
     }
 
-    private _doScaleDirty() {
+    private _doScaleDirty () {
         this._layoutDirty = this._layoutDirty || this._affectedByScale;
     }
 
