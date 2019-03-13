@@ -11,44 +11,8 @@ import { AfterStepCallback, BeforeStepCallback,
     ILockConstraintOptions,
     IPointToPointConstraintOptions,
     IRaycastOptions, LockConstraintBase, PhysicsWorldBase,
-    PointToPointConstraintBase, RaycastResultBase, RigidBodyBase, ShapeBase, SphereShapeBase } from './api';
-
-export class AmmoRaycastResult implements RaycastResultBase {
-    get hit () {
-        return true;
-    }
-
-    get hitPoint () {
-        return this._hitPoint;
-    }
-
-    get hitPointNormal () {
-        return this._hitNormal;
-    }
-
-    get distance () {
-        return this._distance;
-    }
-
-    get shape (): ShapeBase {
-        throw new Error(`not impl.`);
-    }
-
-    get body () {
-        return this._rigidBody!;
-    }
-
-    private _hitPoint = new Vec3();
-    private _hitNormal = new Vec3();
-    private _distance = 0;
-    private _rigidBody: AmmoRigidBody | null = null;
-
-    public _fromImpl (ammoCallback: Ammo.ClosestRayResultCallback, rigidBody: AmmoRigidBody, from: Vec3) {
-        vec3AmmoToCreator(this._hitPoint, ammoCallback.get_m_hitPointWorld());
-        vec3AmmoToCreator(this._hitNormal, ammoCallback.get_m_hitNormalWorld());
-        this._distance = vec3.distance(from, this._hitPoint);
-    }
-}
+    PointToPointConstraintBase, RigidBodyBase, ShapeBase, SphereShapeBase } from './api';
+import { RaycastResult } from './raycast-result';
 
 export class CollisionEvent {
     get target () {
@@ -176,6 +140,14 @@ class CollisionStateManager {
 }
 
 export class AmmoWorld implements PhysicsWorldBase {
+
+    get gravity () {
+        return this._gravity;
+    }
+
+    get impl () {
+        return this._ammoWorld;
+    }
     private _ammoWorld: Ammo.btDiscreteDynamicsWorld;
     private _customBeforeStepListener: BeforeStepCallback[] = [];
     private _customAfterStepListener: AfterStepCallback[] = [];
@@ -191,9 +163,8 @@ export class AmmoWorld implements PhysicsWorldBase {
     private _collisionEvent: CollisionEvent = new CollisionEvent();
     private _collisionManager = new CollisionStateManager();
 
-    get gravity () {
-        return this._gravity;
-    }
+    private _hitPoint: Vec3 = new Vec3();
+    private _hitNormal = new Vec3();
 
     constructor (options?: ICreateBodyOptions) {
         const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
@@ -207,10 +178,6 @@ export class AmmoWorld implements PhysicsWorldBase {
 
     public destroy () {
 
-    }
-
-    get impl () {
-        return this._ammoWorld;
     }
 
     public step (deltaTime: number) {
@@ -286,8 +253,7 @@ export class AmmoWorld implements PhysicsWorldBase {
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
      */
-    public raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result_: RaycastResultBase): boolean {
-        const result = result_ as unknown as AmmoRaycastResult;
+    public raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
         const ammoFrom = new Ammo.btVector3();
         const ammoTo = new Ammo.btVector3();
         vec3CreatorToAmmo(ammoFrom, from);
@@ -311,7 +277,12 @@ export class AmmoWorld implements PhysicsWorldBase {
             return false;
         }
 
-        result._fromImpl(closestRayResultCallback, wrappedBody, from);
+        vec3AmmoToCreator(this._hitPoint, closestRayResultCallback.get_m_hitPointWorld());
+        vec3AmmoToCreator(this._hitNormal, closestRayResultCallback.get_m_hitNormalWorld());
+        const distance = vec3.distance(from, this._hitPoint);
+
+        throw new Error(`not impl.`);
+        result._assign(this._hitPoint, distance, null, wrappedBody);
         return true;
     }
 
@@ -319,7 +290,7 @@ export class AmmoWorld implements PhysicsWorldBase {
      * Ray cast, and stop at the first result. Note that the order is random - but the method is fast.
      * @return True if any body was hit.
      */
-    public raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResultBase): boolean {
+    public raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
         return false;
     }
 
@@ -327,7 +298,7 @@ export class AmmoWorld implements PhysicsWorldBase {
      * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
      * @return True if any body was hit.
      */
-    public raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResultBase) => void): boolean {
+    public raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean {
         return false;
     }
 
@@ -770,6 +741,10 @@ export class AmmoShape implements ShapeBase {
         return this._ammoShape!;
     }
 
+    get transform () {
+        return this._transform;
+    }
+
     protected _scale: Vec3 = new Vec3(1, 1, 1);
 
     protected _ammoShape: Ammo.btCollisionShape | null = null;
@@ -782,13 +757,19 @@ export class AmmoShape implements ShapeBase {
 
     private _center: Vec3 = new Vec3(0, 0, 0);
 
-    get transform () {
-        return this._transform;
-    }
+    private _userData: any;
 
     public constructor () {
         this._transform = new Ammo.btTransform();
         this._transform.setIdentity();
+    }
+
+    public getUserData (): any {
+        return this._userData;
+    }
+
+    public setUserData (data: any): void {
+        this._userData = data;
     }
 
     public _setBody (body: AmmoRigidBody | null) {

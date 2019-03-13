@@ -1,6 +1,7 @@
 import { Vec3 } from '../../core/value-types';
-import { BoxShapeBase, ICreateBodyOptions, PhysicsWorldBase, RaycastResultBase, RigidBodyBase } from './api';
-import { BoxShape, PhysicsWorld, RaycastResult, RigidBody, SphereShape } from './impl-selector';
+import { BoxShapeBase, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase } from './api';
+import { BoxShape, PhysicsWorld, RigidBody, SphereShape } from './impl-selector';
+import { RaycastResult } from './raycast-result';
 
 export function createPhysicsWorld (): PhysicsWorldBase {
     return new PhysicsWorld();
@@ -18,7 +19,7 @@ export function createSphereShape (radius: number): SphereShape {
     return new SphereShape(radius);
 }
 
-export function createRaycastResult (): RaycastResultBase {
+export function createRaycastResult (): RaycastResult {
     return new RaycastResult();
 }
 

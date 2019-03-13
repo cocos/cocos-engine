@@ -1,5 +1,6 @@
 import { Vec3, Quat } from '../../core/value-types';
 import { Node } from '../../scene-graph';
+import { RaycastResult } from './raycast-result';
 
 export interface IRaycastOptions {
     collisionFilterMask?: number;
@@ -40,19 +41,19 @@ export class PhysicsWorldBase {
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
      */
-    raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResultBase): boolean;
+    raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean;
 
     /**
      * Ray cast, and stop at the first result. Note that the order is random - but the method is fast.
      * @return True if any body was hit.
      */
-    raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResultBase): boolean;
+    raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean;
 
     /**
      * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
      * @return True if any body was hit.
      */
-    raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResultBase) => void): boolean;
+    raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean;
 }
 
 export class RigidBodyBase {
@@ -136,6 +137,10 @@ export class ShapeBase {
     setScale (scale: Vec3): void;
 
     setRotation (rotation: Quat): void;
+
+    getUserData (): any;
+
+    setUserData(data: any): void;
 }
 
 export class SphereShapeBase extends ShapeBase {
@@ -228,14 +233,6 @@ export class LockConstraintBase extends ConstraintBase {
      * @param options Options.
      */
     constructor (first: RigidBodyBase, second: RigidBodyBase, options?: ILockConstraintOptions);
-}
-
-export class RaycastResultBase {
-    readonly hit: boolean;
-    readonly hitPoint: Vec3;
-    readonly distance: number;
-    readonly shape: ShapeBase;
-    readonly body: RigidBodyBase;
 }
 
 export enum TransformSource {
