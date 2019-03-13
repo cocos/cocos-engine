@@ -194,8 +194,9 @@ export class Model {
         mat4.array(_temp_floatx16, _temp_mat4);
         this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
 
-        if (this._localBindings.has(UBOLocal.BLOCK.name)) {
-            this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!.update(this._uboLocal.view);
+        const commonLocal = this._localBindings.get(UBOLocal.BLOCK.name);
+        if (commonLocal) {
+            commonLocal.buffer!.update(this._uboLocal.view);
         }
 
         for (const mat of this._matPSORecord.keys()) {
