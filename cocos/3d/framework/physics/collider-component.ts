@@ -79,6 +79,7 @@ export class BoxColliderComponent extends ColliderComponentBase {
     constructor () {
         super();
         this._shape = createBoxShape(this._size);
+        this._shape.setUserData(this);
         this._shapeBase = this._shape;
     }
 
@@ -118,6 +119,7 @@ export class SphereColliderComponent extends ColliderComponentBase {
     constructor () {
         super();
         this._shape = createSphereShape(this._radius);
+        this._shape.setUserData(this);
         this._shapeBase = this._shape;
     }
 
