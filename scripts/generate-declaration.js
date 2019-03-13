@@ -15,7 +15,7 @@ tsc.stdout.on('data', (data) => {
 });
 
 tsc.stderr.on('data', (data) => {
-    console.log(data.toString());
+    console.error(data.toString());
 });
 
 tsc.on('exit', (code) => {
