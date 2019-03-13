@@ -764,9 +764,16 @@ var game = {
             }
 
             {
-                // this._gfxDevice = new cc.WebGLGFXDevice();
-
-                if (window.WebGL2RenderingContext) {
+                let useWebGL2 = (window.WebGL2RenderingContext !== null);
+                const userAgent = navigator.userAgent.toLowerCase();
+                if (userAgent.indexOf('safari') !== -1) {
+                    if (userAgent.indexOf('chrome') === -1) {
+                        useWebGL2 = false;
+                    }
+                }
+                
+                // useWebGL2 = false;
+                if (useWebGL2) {
                     this._gfxDevice = new cc.WebGL2GFXDevice();
                 } else {
                     this._gfxDevice = new cc.WebGLGFXDevice();
