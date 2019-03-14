@@ -5,7 +5,7 @@
             "type": "node",
             "request": "launch",
             "name": "Generate declaration",
-            "program": "${workspaceFolder}\\scripts\\generate-declaration.js"
+            "program": "${workspaceFolder}\\scripts\\generate-declaration-cli.js"
         }
     ]
 }

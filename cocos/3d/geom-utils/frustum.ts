@@ -60,7 +60,7 @@ export class frustum {
         this._type = enums.SHAPE_FRUSTUM;
         this.planes = new Array(6);
         for (let i = 0; i < 6; ++i) {
-            this.planes[i] = plane.create();
+            this.planes[i] = plane.create(0, 0, 0, 0);
         }
         this.vertices = new Array(8);
         for (let i = 0; i < 8; ++i) {
