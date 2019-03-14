@@ -83,7 +83,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
 
-        this._macros.USE_HDR = this._isHDR;
+        this._macros.CC_USE_HDR = this._isHDR;
 
         // create flows
         this.createFlow(ForwardFlow, {

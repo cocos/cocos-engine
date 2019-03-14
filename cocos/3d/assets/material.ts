@@ -29,6 +29,7 @@ import { GFXBindingType } from '../../gfx/define';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Effect } from '../../renderer/core/effect';
 import { IDefineMap, Pass, PassOverrides } from '../../renderer/core/pass';
+import { samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from '../framework/renderable-component';
 import { EffectAsset } from './effect-asset';
@@ -189,7 +190,7 @@ export class Material extends Asset {
         } else {
             this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
         }
-        this._onPassChange();
+        this._onPassesChange();
     }
 
     public onLoaded () {
@@ -220,7 +221,7 @@ export class Material extends Asset {
         } else {
             this._props.fill({});
         }
-        this._onPassChange();
+        this._onPassesChange();
     }
 
     protected _uploadProperty (pass: Pass, name: string, val: any) {
@@ -234,15 +235,20 @@ export class Material extends Asset {
                 pass.setUniform(handle, val);
             }
         } else if (bindingType === GFXBindingType.SAMPLER) {
-            const textureView = val instanceof GFXTextureView ? val : val.getGFXTextureView();
-            if (!textureView) { console.warn('texture asset incomplete!'); return false; }
             const binding = Pass.getBindingFromHandle(handle);
-            pass.bindTextureView(binding, textureView);
+            if (val instanceof GFXTextureView) {
+                pass.bindTextureView(binding, val);
+            } else {
+                const textureView = val.getGFXTextureView();
+                if (!textureView) { console.warn('texture asset incomplete!'); return false; }
+                pass.bindTextureView(binding, textureView);
+                pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, val.getGFXSamplerInfo()));
+            }
         }
         return true;
     }
 
-    protected _onPassChange () {
+    protected _onPassesChange () {
         let str = '';
         for (const pass of this._passes) {
             str += pass.serializePipelineStates();

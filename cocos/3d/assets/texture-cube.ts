@@ -110,8 +110,7 @@ export class TextureCube extends TextureBase {
         super();
     }
 
-    onLoaded () {
-        super.onLoaded();
+    public onLoaded () {
         this.mipmaps = this._mipmaps;
     }
 
