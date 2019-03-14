@@ -59,6 +59,7 @@ exports.getUglifyOptions = function (platform, flags) {
                 keep_infinity: true,    // reduce jsc file size
                 typeofs: false,
                 inline: 1,              // workaround mishoo/UglifyJS2#2842
+                reduce_funcs: false,
             },
             output: {
                 beautify: true,         // really preserve_lines
@@ -77,6 +78,7 @@ exports.getUglifyOptions = function (platform, flags) {
                 global_defs: global_defs,
                 negate_iife: false,
                 inline: 1,              // workaround mishoo/UglifyJS2#2842
+                reduce_funcs: false,    // keep single-use functions being cached
             },
             output: {
                 ascii_only: true,
