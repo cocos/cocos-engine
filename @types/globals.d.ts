@@ -37,13 +37,23 @@ declare const CC_QQPLAY: boolean;
 declare const CC_RUNTIME: boolean;
 declare const CC_SUPPORT_JIT: boolean;
 
-declare const cc: any;
+declare const cc : {
+    // polyfills: {
+    //     destroyObject? (object: any): void;
+    // };
+    [x: string]: any;
+};
 
-type RecursivePartial<T> = {
+declare type RecursivePartial<T> = {
     [P in keyof T]?:
         T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
         T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
 };
+
+declare interface IWritableArrayLike<T> {
+    readonly length: number;
+    [index: number]: T;
+}
 
 declare module "webgl-debug" {
     export function makeDebugContext(

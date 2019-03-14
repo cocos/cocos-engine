@@ -54,7 +54,10 @@ export class Scene extends Node {
     @property
     public _globals = new SceneGlobals();
 
-    protected _renderScene: RenderScene | null = null;
+    /**
+     * For internal usage.
+     */
+    public _renderScene: RenderScene | null = null;
 
     protected _inited = !cc.game._isCloning;
     protected _prefabSyncedInLiveReload = false;

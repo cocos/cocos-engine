@@ -31,6 +31,7 @@ import { EventType } from '../core/platform/event-manager/event-enum';
 import IdGenerator from '../core/utils/id-generator';
 import * as js from '../core/utils/js';
 import { baseNodePolyfill } from './base-node-dev';
+import { Scene } from './scene';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -45,6 +46,8 @@ const Deactivating = CCObject.Flags.Deactivating;
 // const CHILD_REMOVED = 'child-removed';
 
 const idGenerator = new IdGenerator('Node');
+
+const NullScene = null as unknown as Scene;
 
 function getConstructor (typeOrClassName: string | Function): Function | null {
     if (!typeOrClassName) {
@@ -219,9 +222,13 @@ export class BaseNode extends CCObject {
         this.setParent(value);
     }
 
+    get scene () {
+        return this._scene;
+    }
+
     public static _setScene (node: BaseNode) {
         if (node instanceof cc.Scene) {
-            node._scene = node;
+            node._scene = node as Scene;
         } else {
             if (node._parent == null) {
                 cc.error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
@@ -330,7 +337,7 @@ export class BaseNode extends CCObject {
      * !#zh 此节点属于哪个场景。
      * @type {cc.Scene}}
      */
-    protected _scene: any = null;
+    protected _scene: Scene = NullScene;
 
     protected _activeInHierarchy = false;
 
@@ -344,10 +351,6 @@ export class BaseNode extends CCObject {
      * protected __eventTargets: EventTarget[] = [];
      */
     protected __eventTargets: any[] = [];
-
-    get scene () {
-        return this._scene;
-    }
 
     /**
      * @method constructor
@@ -1068,6 +1071,26 @@ export class BaseNode extends CCObject {
 
     public emit? (type: string, ...args: any[]): void;
 
+    // Do remove component, only used internally.
+    public _removeComponent (component: Component) {
+        if (!component) {
+            cc.errorID(3814);
+            return;
+        }
+
+        if (!(this._objFlags & Destroying)) {
+            const i = this._components.indexOf(component);
+            if (i !== -1) {
+                this._components.splice(i, 1);
+                if ((CC_EDITOR || CC_TEST) && cc.engine) {
+                    delete cc.engine.attachedObjsForEditor[component._id];
+                }
+            } else if ((component.node as BaseNode) !== this) {
+                cc.errorID(3815);
+            }
+        }
+    }
+
     protected _onSetParent (oldParent: this | null) {
         if (this._parent) {
             if ((oldParent == null || oldParent._scene !== this._parent._scene) && this._parent._scene != null) {
@@ -1229,26 +1252,6 @@ export class BaseNode extends CCObject {
         }
 
         return destroyByParent;
-    }
-
-    // do remove component, only used internally
-    protected _removeComponent (component: Component) {
-        if (!component) {
-            cc.errorID(3814);
-            return;
-        }
-
-        if (!(this._objFlags & Destroying)) {
-            const i = this._components.indexOf(component);
-            if (i !== -1) {
-                this._components.splice(i, 1);
-                if ((CC_EDITOR || CC_TEST) && cc.engine) {
-                    delete cc.engine.attachedObjsForEditor[component._id];
-                }
-            } else if ((component.node as BaseNode) !== this) {
-                cc.errorID(3815);
-            }
-        }
     }
 
     protected _disableChildComps () {

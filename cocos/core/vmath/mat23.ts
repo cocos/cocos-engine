@@ -1,4 +1,3 @@
-import { IWritableArrayLike } from './fwd-decls';
 import { EPSILON } from './utils';
 import vec2 from './vec2';
 
