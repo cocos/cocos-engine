@@ -134,7 +134,7 @@ let EditBox = cc.Class({
         // To be removed in the future
         _N$backgroundImage: {
             default: undefined,
-            type: cc.spriteFrame,
+            type: cc.SpriteFrame,
         },
 
         /**
