@@ -27,7 +27,7 @@
 // tslint:disable:max-line-length
 
 import * as js from '../../utils/js';
-import { EventListener } from './CCEventListener';
+import { EventListener } from './event-listener';
 const ListenerID = EventListener.ListenerID;
 
 // tslint:disable-next-line

@@ -29,14 +29,15 @@ import { Component } from '../../../../components/component';
 import { EventHandler as ComponentEventHandler } from '../../../../components/component-event-handler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../../core/data/class-decorator';
 import macro from '../../../../core/platform/CCMacro';
+import { EventType } from '../../../../core/platform/event-manager/event-enum';
 import Color from '../../../../core/value-types/color';
+import { Node } from '../../../../scene-graph';
 import { LabelComponent } from '../label-component';
 import { SpriteComponent } from '../sprite-component';
 import { UIRenderComponent } from '../ui-render-component';
 import { UITransformComponent } from '../ui-transfrom-component';
 import { EditBoxImpl} from './edit-box-impl';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { Node } from '../../../../scene-graph';
 
 const LEFT_PADDING = 2;
 
@@ -476,7 +477,7 @@ export class EditBoxComponent extends Component {
     public _init () {
         this._createBackgroundSprite();
         this._createLabels();
-        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._resizeChildNodes, this);
+        this.node.on(EventType.SIZE_CHANGED, this._resizeChildNodes, this);
 
         const impl = this._impl = new EditBoxImpl();
 
@@ -504,8 +505,8 @@ export class EditBoxComponent extends Component {
     }
 
     public _registerEvent () {
-        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(EventType.TOUCH_END, this._onTouchEnded, this);
     }
 
     public _updateStayOnTop () {

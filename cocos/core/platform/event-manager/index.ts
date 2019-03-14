@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export * from './CCEventManager';
-export * from './CCInputManager';
+export * from './event-manager';
+export * from './input-manager';
 export * from './system-event';
 export * from './CCEvent';
 export * from './CCTouch';

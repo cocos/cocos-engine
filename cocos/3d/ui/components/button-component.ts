@@ -26,16 +26,16 @@
 // @ts-check
 //
 import { SpriteFrame } from '../../../assets/CCSpriteFrame';
-import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
 import { Component} from '../../../components/component';
+import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventMouse, EventTouch } from '../../../core/platform/event-manager';
+import { EventType } from '../../../core/platform/event-manager/event-enum';
 import { lerp } from '../../../core/utils/misc';
 import { ccenum } from '../../../core/value-types/enum';
 import { Color, Vec3 } from '../../../core/value-types/index';
 import * as math from '../../../core/vmath/index';
 import { Node } from '../../../scene-graph';
-import { EventType } from '../../../scene-graph/node-event-enum';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from './ui-render-component';
 
@@ -669,7 +669,7 @@ export class ButtonComponent extends Component {
             return false;
         }
 
-        const hit = this.node.uiTransfromComp!.isHit(touch.getLocation());
+        const hit = this.node.uiTransfromComp!.isHit(touch.getUILocation());
 
         if (this._transition === Transition.SCALE && this._target) {
             if (hit) {

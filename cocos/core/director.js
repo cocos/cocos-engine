@@ -25,10 +25,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import EventTarget from './event/event-target';
-import eventManager from './platform/event-manager/CCEventManager';
+import { EventTarget } from './event/event-target';
+import eventManager from './platform/event-manager/event-manager';
 import { CCObject } from './data/object';
-import game from './game';
 import Scheduler from './scheduler';
 import { autoRelease } from '../load-pipeline/auto-release-utils';
 import ComponentScheduler from '../scene-graph/component-scheduler';
@@ -38,6 +37,7 @@ import { PhysicsSystem } from '../3d/framework/physics/physics-system';
 import { getClassByName } from './utils/js';
 import { Root } from './root';
 import { widgetManager } from '../3d/ui/components/widget-manager';
+import Game from './game';
 
 // const ComponentScheduler = require('./component-scheduler');
 // const NodeActivator = require('./node-activator');
@@ -151,16 +151,16 @@ class Director extends EventTarget {
         this._systems = [];
 
         var self = this;
-        game.on(game.EVENT_SHOW, function () {
+        cc.game.on(Game.EVENT_SHOW, function () {
             self._lastUpdate = performance.now();
         });
 
-        game.once(game.EVENT_ENGINE_INITED, this.init, this);
+        cc.game.once(Game.EVENT_ENGINE_INITED, this.init, this);
     }
 
     init () {
 
-        this._root = new Root(game._gfxDevice);
+        this._root = new Root(cc.game._gfxDevice);
         let rootInfo = {};
         if(!this._root.initialize(rootInfo)) {
             return false;
@@ -244,7 +244,7 @@ class Director extends EventTarget {
      * @deprecated since v2.0
      */
     convertToGL (uiPoint) {
-        var container = game.container;
+        var container = cc.game.container;
         var view = cc.view;
         var box = container.getBoundingClientRect();
         var left = box.left + window.pageXOffset - container.clientLeft;
@@ -266,7 +266,7 @@ class Director extends EventTarget {
      * @deprecated since v2.0
      */
     convertToUI (glPoint) {
-        var container = game.container;
+        var container = cc.game.container;
         var view = cc.view;
         var box = container.getBoundingClientRect();
         var left = box.left + window.pageXOffset - container.clientLeft;
@@ -411,8 +411,8 @@ class Director extends EventTarget {
 
         // Re-attach or replace persist nodes
         CC_BUILD && CC_DEBUG && console.time('AttachPersist');
-        var persistNodeList = Object.keys(game._persistRootNodes).map(function (x) {
-            return game._persistRootNodes[x];
+        var persistNodeList = Object.keys(cc.game._persistRootNodes).map(function (x) {
+            return cc.game._persistRootNodes[x];
         });
         for (let i = 0; i < persistNodeList.length; i++) {
             let node = persistNodeList[i];
@@ -499,7 +499,7 @@ class Director extends EventTarget {
     //  @Scene loading section
 
     _getSceneUuid (key) {
-        var scenes = game._sceneInfos;
+        var scenes = cc.game._sceneInfos;
         if (typeof key === 'string') {
             if (!key.endsWith('.scene')) {
                 key += '.scene';
@@ -756,7 +756,7 @@ class Director extends EventTarget {
      * @return {Number}
      */
     getAnimationInterval () {
-        return 1000 / game.getFrameRate();
+        return 1000 / cc.game.getFrameRate();
     }
 
     /**
@@ -767,7 +767,7 @@ class Director extends EventTarget {
      * @param {Number} value - The animation interval desired.
      */
     setAnimationInterval (value) {
-        game.setFrameRate(Math.round(1000 / value));
+        cc.game.setFrameRate(Math.round(1000 / value));
     }
 
     /**
@@ -1061,5 +1061,4 @@ Director.EVENT_AFTER_DRAW = "director_after_draw";
  */
 let director = cc.director = new Director();
 cc.Director = Director;
-cc.director = director;
 export default director;

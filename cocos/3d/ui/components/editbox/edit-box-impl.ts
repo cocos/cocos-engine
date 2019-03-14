@@ -29,16 +29,13 @@
 import { ccclass } from '../../../../core/data/class-decorator';
 import macro from '../../../../core/platform/CCMacro';
 import { contains } from '../../../../core/utils/misc';
-import { Color, Size, Mat4, Vec3 } from '../../../../core/value-types';
+import { Color, Mat4, Size, Vec3 } from '../../../../core/value-types';
 import * as math from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 import { UIRenderComponent } from '../ui-render-component';
 import { EditBoxComponent} from './edit-box-component';
 // import { InputMode, InputFlag, KeyboardReturnType } from './types';
-import * as Types from './types';
-const InputMode = Types.InputMode;
-const InputFlag = Types.InputFlag;
-const KeyboardReturnType = Types.KeyboardReturnType;
+import { InputFlag, InputMode, KeyboardReturnType } from './types';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -83,25 +80,25 @@ function getKeyboardReturnType (type) {
 
 @ccclass
 export class EditBoxImpl {
-    private _delegate: EditBoxComponent | null = null;
-    private _inputMode = -1;
-    private _inputFlag = -1;
-    private _returnType = KeyboardReturnType.DEFAULT;
-    private _maxLength = 50;
-    private _text = '';
-    private _placeholderText = '';
-    private _alwaysOnTop = false;
-    private _size: Size = cc.size();
-    private _node: Node | null = null;
-    private _editing = false;
-    private __eventListeners: any = {};
-    private __fullscreen = false;
-    private __autoResize = false;
-    private __rotateScreen = false;
-    private __orientationChanged: any;
-    private _edTxt: HTMLElement | null = null;
-    private _textColor: Color = Color.WHITE;
-    private _edFontSize = 14;
+    public _delegate: EditBoxComponent | null = null;
+    public _inputMode = -1;
+    public _inputFlag = -1;
+    public _returnType = KeyboardReturnType.DEFAULT;
+    public _maxLength = 50;
+    public _text = '';
+    public _placeholderText = '';
+    public _alwaysOnTop = false;
+    public _size: Size = cc.size();
+    public _node: Node | null = null;
+    public _editing = false;
+    public __eventListeners: any = {};
+    public __fullscreen = false;
+    public __autoResize = false;
+    public __rotateScreen = false;
+    public __orientationChanged: any;
+    public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
+    public _textColor: Color = Color.WHITE;
+    public _edFontSize = 14;
 
     get text () {
         return this._text;
@@ -119,7 +116,7 @@ export class EditBoxImpl {
         return this._edFontSize;
     }
 
-    set returnType (value: Types.KeyboardReturnType) {
+    set returnType (value: KeyboardReturnType) {
         this._returnType = value;
     }
 
@@ -212,7 +209,7 @@ export class EditBoxImpl {
         return this._text;
     }
 
-    public setPlaceholderText (text) {
+    public setPlaceholderText (text: string) {
         this._placeholderText = text;
     }
 
@@ -220,11 +217,11 @@ export class EditBoxImpl {
         return this._placeholderText;
     }
 
-    public setDelegate (delegate) {
+    public setDelegate (delegate: EditBoxComponent | null) {
         this._delegate = delegate;
     }
 
-    public setInputMode (inputMode) {
+    public setInputMode (inputMode: InputMode) {
         if (this._inputMode === inputMode) { return; }
 
         this._inputMode = inputMode;
@@ -234,7 +231,7 @@ export class EditBoxImpl {
         this._updateSize(this._size.width, this._size.height);
     }
 
-    public setInputFlag (inputFlag) {
+    public setInputFlag (inputFlag: InputFlag) {
         if (this._inputFlag === inputFlag) { return; }
 
         this._inputFlag = inputFlag;
@@ -254,32 +251,32 @@ export class EditBoxImpl {
         }
     }
 
-    public setReturnType (returnType) {
+    public setReturnType (returnType: KeyboardReturnType) {
         this._returnType = returnType;
         this._updateDomInputType();
     }
 
-    public setFontSize (fontSize) {
+    public setFontSize (fontSize: number) {
         this._edFontSize = fontSize || this._edFontSize;
         if (this._edTxt) {
             this._edTxt.style.fontSize = this._edFontSize + 'px';
         }
     }
 
-    public setFontColor (color) {
+    public setFontColor (color: Color) {
         this._textColor = color;
         if (this._edTxt) {
             this._edTxt.style.color = color.toCSS('rgba');
         }
     }
 
-    public setSize (width, height) {
+    public setSize (width: number, height: number) {
         this._size.width = width;
         this._size.height = height;
         this._updateSize(width, height);
     }
 
-    public setNode (node) {
+    public setNode (node: Node) {
         this._node = node;
     }
 
@@ -634,7 +631,7 @@ export class EditBoxImpl {
     }
 }
 
-function _inputValueHandle (input, editBoxImpl) {
+function _inputValueHandle (input: any, editBoxImpl: EditBoxImpl) {
     if (input.value.length > editBoxImpl._maxLength) {
         input.value = input.value.slice(0, editBoxImpl._maxLength);
     }
@@ -646,7 +643,7 @@ function _inputValueHandle (input, editBoxImpl) {
     }
 }
 
-function registerInputEventListener (tmpEdTxt: HTMLElement, editBoxImpl: EditBoxImpl, isTextarea = false) {
+function registerInputEventListener (tmpEdTxt: HTMLInputElement | HTMLTextAreaElement, editBoxImpl: EditBoxImpl, isTextarea = false) {
     let inputLock = false;
     const cbs = editBoxImpl.eventListeners;
     cbs.compositionstart = () => {

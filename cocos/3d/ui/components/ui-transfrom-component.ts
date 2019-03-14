@@ -1,9 +1,9 @@
 import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventListener } from '../../../core/platform/event-manager/CCEventListener';
+import { EventType } from '../../../core/platform/event-manager/event-enum';
+import { EventListener } from '../../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import * as math from '../../../core/vmath/index';
-import { EventType } from '../../../scene-graph/node-event-enum';
 import { CanvasComponent } from './canvas-component';
 
 const _vec2a = new Vec2();

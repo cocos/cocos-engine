@@ -27,18 +27,16 @@
 import * as js from '../utils/js';
 const fastRemoveAt = js.array.fastRemoveAt;
 
-class CallbackList {
-    constructor () {
-        this.callbacks = [];
-        this.targets = [];      // same length with callbacks, nullable
-        this.isInvoking = false;
-        this.containCanceled = false;
-    }
+export class CallbackList {
+    public callbacks: Array<Function | null> = [];
+    public targets: Array<Object | null> = [];
+    public isInvoking = false;
+    public containCanceled = false;
 
-    removeBy (array, value) {
-        var callbacks = this.callbacks;
-        var targets = this.targets;
-        for (var i = 0; i < array.length; ++i) {
+    public removeBy (array: any[], value: any) {
+        const callbacks = this.callbacks;
+        const targets = this.targets;
+        for (let i = 0; i < array.length; ++i) {
             if (array[i] === value) {
                 fastRemoveAt(callbacks, i);
                 fastRemoveAt(targets, i);
@@ -47,14 +45,14 @@ class CallbackList {
         }
     }
 
-    cancel (index) {
+    public cancel (index: number) {
         this.callbacks[index] = this.targets[index] = null;
         this.containCanceled = true;
     }
 
-    cancelAll () {
-        let callbacks = this.callbacks;
-        let targets = this.targets;
+    public cancelAll () {
+        const callbacks = this.callbacks;
+        const targets = this.targets;
         for (let i = 0; i < callbacks.length; i++) {
             callbacks[i] = targets[i] = null;
         }
@@ -62,14 +60,14 @@ class CallbackList {
     }
 
     // filter all removed callbacks and compact array
-    purgeCanceled () {
+    public purgeCanceled () {
         this.removeBy(this.callbacks, null);
         this.containCanceled = false;
     }
 }
 
 const MAX_SIZE = 16;
-let callbackListPool = new js.Pool(function (list) {
+const callbackListPool = new js.Pool((list: CallbackList) => {
     list.callbacks.length = 0;
     list.targets.length = 0;
     list.isInvoking = false;
@@ -86,25 +84,24 @@ callbackListPool.get = function () {
  *
  * @private
  */
-function CallbacksHandler () {
-    this._callbackTable = js.createMap(true);
-}
-CallbacksHandler.prototype = {
-    constructor: CallbacksHandler,
+
+export class CallbacksHandler{
+    protected _callbackTable: Map<string, CallbackList> = new Map<string, CallbackList>();
+
     /**
      * @method add
      * @param {String} key
      * @param {Function} callback
      * @param {Object} [target] - can be null
      */
-    add (key, callback, target) {
-        var list = this._callbackTable[key];
+    public add (key, callback, target) {
+        let list = this._callbackTable[key];
         if (!list) {
             list = this._callbackTable[key] = callbackListPool.get();
         }
         list.callbacks.push(callback);
         list.targets.push(target || null);
-    },
+    }
 
     /**
      * Check if the specified key has any registered callback. If a callback is also specified,
@@ -115,19 +112,19 @@ CallbacksHandler.prototype = {
      * @param {Object} [target]
      * @return {Boolean}
      */
-    hasEventListener (key, callback, target) {
-        var list = this._callbackTable[key];
+    public hasEventListener (key: string, callback?: Function, target?: Object) {
+        const list = this._callbackTable[key];
         if (!list) {
             return false;
         }
 
         // check any valid callback
-        var callbacks = list.callbacks;
+        const callbacks = list.callbacks;
         if (!callback) {
             // Make sure no cancelled callbacks
             if (list.isInvoking) {
-                for (let i = 0; i < callbacks.length; i++) {
-                    if (callbacks[i]) {
+                for (const func of callbacks) {
+                    if (func) {
                         return true;
                     }
                 }
@@ -138,25 +135,25 @@ CallbacksHandler.prototype = {
             }
         }
 
-        target = target || null;
-        var targets = list.targets;
+        target = target || undefined;
+        const targets = list.targets;
         for (let i = 0; i < callbacks.length; ++i) {
             if (callbacks[i] === callback && targets[i] === target) {
                 return true;
             }
         }
         return false;
-    },
+    }
 
     /**
      * Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
      * @method removeAll
      * @param {String|Object} keyOrTarget - The event key to be removed or the target to be removed
      */
-    removeAll (keyOrTarget) {
+    public removeAll (keyOrTarget?: string | Object) {
         if (typeof keyOrTarget === 'string') {
             // remove by key
-            let list = this._callbackTable[keyOrTarget];
+            const list = this._callbackTable[keyOrTarget];
             if (list) {
                 if (list.isInvoking) {
                     list.cancelAll();
@@ -169,10 +166,10 @@ CallbacksHandler.prototype = {
         }
         else if (keyOrTarget) {
             // remove by target
-            for (let key in this._callbackTable) {
-                let list = this._callbackTable[key];
+            for (const key of Object.keys(this._callbackTable)) {
+                const list = this._callbackTable[key];
                 if (list.isInvoking) {
-                    let targets = list.targets;
+                    const targets = list.targets;
                     for (let i = 0; i < targets.length; ++i) {
                         if (targets[i] === keyOrTarget) {
                             list.cancel(i);
@@ -184,7 +181,7 @@ CallbacksHandler.prototype = {
                 }
             }
         }
-    },
+    }
 
     /**
      * @method remove
@@ -192,13 +189,13 @@ CallbacksHandler.prototype = {
      * @param {Function} callback
      * @param {Object} [target]
      */
-    remove (key, callback, target) {
-        var list = this._callbackTable[key];
+    public remove (key: string, callback?: Function, target?: Object) {
+        const list = this._callbackTable[key];
         if (list) {
-            target = target || null;
-            var callbacks = list.callbacks;
-            var targets = list.targets;
-            for (var i = 0; i < callbacks.length; ++i) {
+            target = target || undefined;
+            const callbacks = list.callbacks;
+            const targets = list.targets;
+            for (let i = 0; i < callbacks.length; ++i) {
                 if (callbacks[i] === callback && targets[i] === target) {
                     if (list.isInvoking) {
                         list.cancel(i);
@@ -212,7 +209,7 @@ CallbacksHandler.prototype = {
             }
         }
     }
-};
+}
 
 /**
  * !#en The callbacks invoker to handle and invoke callbacks by key.
@@ -221,11 +218,8 @@ CallbacksHandler.prototype = {
  *
  * @extends _CallbacksHandler
  */
-function CallbacksInvoker () {
-    CallbacksHandler.call(this);
-}
-js.extend(CallbacksInvoker, CallbacksHandler);
-js.mixin(CallbacksInvoker.prototype, {
+
+export class CallbacksInvoker extends CallbacksHandler{
     /**
      * @method emit
      * @param {String} key
@@ -235,23 +229,23 @@ js.mixin(CallbacksInvoker.prototype, {
      * @param {any} [p4]
      * @param {any} [p5]
      */
-    emit (key, p1, p2, p3, p4, p5) {
-        var list = this._callbackTable[key];
+    public emit (key: string, ...args: any[]) {
+        const list = this._callbackTable[key];
         if (list) {
-            var rootInvoker = !list.isInvoking;
+            const rootInvoker = !list.isInvoking;
             list.isInvoking = true;
 
-            var callbacks = list.callbacks;
-            var targets = list.targets;
-            for (var i = 0, len = callbacks.length; i < len; ++i) {
-                var callback = callbacks[i];
+            const callbacks = list.callbacks;
+            const targets = list.targets;
+            for (let i = 0, len = callbacks.length; i < len; ++i) {
+                const callback = callbacks[i];
                 if (callback) {
-                    var target = targets[i];
+                    const target = targets[i];
                     if (target) {
-                        callback.call(target, p1, p2, p3, p4, p5);
+                        callback.call(target, ...args);
                     }
                     else {
-                        callback(p1, p2, p3, p4, p5);
+                        callback(...args);
                     }
                 }
             }
@@ -264,13 +258,8 @@ js.mixin(CallbacksInvoker.prototype, {
             }
         }
     }
-});
+}
 
 if (CC_TEST) {
     cc._Test.CallbacksInvoker = CallbacksInvoker;
 }
-
-export {
-    CallbacksHandler,
-    CallbacksInvoker
-};

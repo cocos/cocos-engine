@@ -222,4 +222,4 @@ export default class Event {
 }
 
 /* tslint:disable:no-string-literal */
-cc['Event'] = Event;
+cc.Event = Event;
