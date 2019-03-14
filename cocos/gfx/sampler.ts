@@ -22,9 +22,9 @@ export class GFXSamplerState {
     public minFilter: GFXFilter = GFXFilter.LINEAR;
     public magFilter: GFXFilter = GFXFilter.LINEAR;
     public mipFilter: GFXFilter = GFXFilter.NONE;
-    public addressU: GFXAddress = GFXAddress.CLAMP;
-    public addressV: GFXAddress = GFXAddress.CLAMP;
-    public addressW: GFXAddress = GFXAddress.CLAMP;
+    public addressU: GFXAddress = GFXAddress.WRAP;
+    public addressV: GFXAddress = GFXAddress.WRAP;
+    public addressW: GFXAddress = GFXAddress.WRAP;
     public maxAnisotropy: number = 16;
     public cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER;
     public borderColor: IGFXColor = { r: 0, g: 0, b: 0, a: 0 };

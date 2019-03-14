@@ -6,7 +6,7 @@ import { AttributeBaseType, AttributeType,
 import { IGeometry } from '../primitive/define';
 
 const copyAttribute = (attribute: IVertexAttribute) => Object.assign({}, attribute);
-export function createMesh (geometry: IGeometry) {
+export function createMesh (geometry: IGeometry, out?: Mesh) {
     // Collect attributes and calculate length of result vertex buffer.
     const attributes: IVertexAttribute[] = [];
     let stride = 0;
@@ -103,10 +103,10 @@ export function createMesh (geometry: IGeometry) {
     };
 
     // Create mesh.
-    const mesh = new Mesh();
-    mesh.assign(meshStruct, new Uint8Array(bufferBlob.getCombined()));
+    if (!out) { out = new Mesh(); }
+    out.assign(meshStruct, new Uint8Array(bufferBlob.getCombined()));
 
-    return mesh;
+    return out;
 }
 
 /**
