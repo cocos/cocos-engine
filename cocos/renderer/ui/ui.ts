@@ -12,13 +12,8 @@ import { SpriteFrame } from '../../assets/CCSpriteFrame';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
-import { GFXBuffer } from '../../gfx/buffer';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import {
-    GFXBufferUsageBit,
-    GFXCommandBufferType,
-    GFXMemoryUsageBit,
-} from '../../gfx/define';
+import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXInputAttribute } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
@@ -30,7 +25,6 @@ import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
 
-const _mat4Array = new Float32Array(16);
 export class UIDrawBatch {
     public camera: Camera | null = null;
     public bufferBatch: MeshBuffer | null = null;
@@ -84,6 +78,7 @@ export class UI {
         return new UIDrawBatch();
     }, 128);
     private _cmdBuff: GFXCommandBuffer | null = null;
+    // @ts-ignore
     private _scene: RenderScene;
     private _attributes: IGFXInputAttribute[] = [];
     private _meshBuffers: MeshBuffer[] = [];
@@ -195,7 +190,7 @@ export class UI {
             this._screens.splice(idx, 1);
         }
 
-        let camera;
+        let camera: Camera | null;
         for (let i = idx; i < this._screens.length;) {
             camera = this._screens[i].camera;
             if (camera) {
@@ -319,7 +314,7 @@ export class UI {
         this._uiMaterials.clear();
     }
 
-    private _walk (node: Node, fn1, fn2, level = 0, isRenderComp = false) {
+    private _walk (node: Node, fn1: (node: Node) => void, fn2: (node: Node) => void, level = 0) {
         let resortNodeList;
 
         const len = node.childrenCount;

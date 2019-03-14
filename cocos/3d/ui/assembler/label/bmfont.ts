@@ -40,10 +40,8 @@ export const bmfont: IAssembler = {
     },
 
     fillBuffers (comp: LabelComponent, renderer: UI) {
-        const buffer = renderer.currBufferBatch!;
-
         const node = comp.node;
-        fillMeshVertices3D(node, buffer, comp.renderData!, comp.color);
+        fillMeshVertices3D(node, renderer, comp.renderData!, comp.color);
     },
 
     appendQuad (renderData: RenderData, texture: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {

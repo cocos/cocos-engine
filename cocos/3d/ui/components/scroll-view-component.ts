@@ -1210,7 +1210,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
                 const cancelEvent = new EventTouch(event.getTouches(), event.bubbles);
                 cancelEvent.type = NodeEvent.TOUCH_CANCEL;
                 cancelEvent.touch = event.touch;
-                // cancelEvent.simulate = true;
+                cancelEvent.simulate = true;
                 (event.target as Node)!.dispatchEvent(cancelEvent);
                 this._touchMoved = true;
             }

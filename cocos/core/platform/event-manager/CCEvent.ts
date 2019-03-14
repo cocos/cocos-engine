@@ -374,6 +374,8 @@ export class EventTouch extends Event {
 
     public _eventCode: number = 0;
 
+    public simulate = false;
+
     private _touches: Touch[];
 
     /**
