@@ -2009,7 +2009,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                                 if (glAttrib) {
                                     if (cache.glArrayBuffer !== glAttrib.glBuffer) {
-                                        gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, glAttrib.glBuffer);
+                                        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, glAttrib.glBuffer);
                                         cache.glArrayBuffer = glAttrib.glBuffer;
                                     }
 
