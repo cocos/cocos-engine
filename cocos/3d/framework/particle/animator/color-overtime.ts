@@ -11,11 +11,14 @@ const COLOR_OVERTIME_RAND_OFFSET = 91041;
 @ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule {
 
-    @property
+    @property({
+        displayOrder: 0,
+    })
     public enable = false;
 
     @property({
         type: GradientRange,
+        displayOrder: 1,
     })
     public color = new GradientRange();
 

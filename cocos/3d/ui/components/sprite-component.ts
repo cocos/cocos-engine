@@ -151,6 +151,27 @@ ccenum(SizeMode);
 export class SpriteComponent extends UIRenderComponent {
 
     /**
+     * !#en The atlas of the sprite.
+     * !#zh 精灵的图集
+     * @return {SpriteAtlas}
+     */
+    @property({
+        type: SpriteAtlas,
+    })
+    get spriteAtlas () {
+        return this._atlas;
+    }
+
+    set spriteAtlas (value) {
+        if (this._atlas === value) {
+            return;
+        }
+
+        this._atlas = value;
+        this.spriteFrame = null;
+    }
+
+    /**
      * !#en The sprite frame of the sprite.
      * !#zh 精灵的精灵帧
      * @return {SpriteFrame}
@@ -162,7 +183,7 @@ export class SpriteComponent extends UIRenderComponent {
         return this._spriteFrame;
     }
 
-    set spriteFrame (value: SpriteFrame | null) {
+    set spriteFrame (value) {
         if (this._spriteFrame === value) {
             return;
         }
@@ -347,17 +368,6 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
-    get spriteAtlas() {
-        return this._atlas;
-    }
-
-    @property({
-        type: cc.SpriteAtlas,
-    })
-    set spriteAtlas(value) {
-        this._atlas = value;
-    }
-
     public static FillType = FillType;
     public static Type = SpriteType;
     public static SizeMode = SizeMode;
@@ -378,7 +388,6 @@ export class SpriteComponent extends UIRenderComponent {
     @property
     private _isTrimmedMode = true;
     // _state = 0;
-    // TODO:
     @property
     private _atlas: SpriteAtlas | null = null;
     // static State = State;
@@ -563,13 +572,17 @@ export class SpriteComponent extends UIRenderComponent {
             return;
         }
         // Set atlas
-        if (spriteFrame && spriteFrame.atlasUuid) {
-            const self = this;
-            cc.AssetLibrary.loadAsset(spriteFrame.atlasUuid, (err, asset) => {
-                self._atlas = asset;
-            });
-        } else {
-            this._atlas = null;
+        if (spriteFrame) {
+            if (spriteFrame.atlasUuid.length > 0) {
+                if (!this._atlas || this._atlas._uuid !== spriteFrame.atlasUuid) {
+                    const self = this;
+                    cc.AssetLibrary.loadAsset(spriteFrame.atlasUuid, (err, asset) => {
+                        self._atlas = asset;
+                    });
+                }
+            }else{
+                this._atlas = null;
+            }
         }
     }
 

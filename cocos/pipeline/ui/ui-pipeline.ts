@@ -1,9 +1,9 @@
 import { Root } from '../../core/root';
+import { mat4 } from '../../core/vmath';
 import { UBOGlobal } from '../define';
-import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
+import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIFlow } from './ui-flow';
-import { mat4 } from '../../core/vmath';
 
 const _vec4Array = new Float32Array(4);
 const _mat4Array = new Float32Array(16);
@@ -46,6 +46,10 @@ export class UIPipeline extends RenderPipeline {
         _vec4Array[2] = 0.0;
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.EXPOSURE_OFFSET);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 932cada8e62f7fc7f541242899647024c4acf180
         // update ubos
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal!.view.buffer);
     }
