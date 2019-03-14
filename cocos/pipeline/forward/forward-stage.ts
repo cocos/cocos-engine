@@ -55,6 +55,7 @@ export class ForwardStage extends RenderStage {
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
             colors[0] = camera.clearColor;
+            /*
             if (this._pipeline.isHDR) {
                 colors[0] = SRGBToLinear(colors[0]);
                 const scale = 1.0 / (camera.exposure * this._pipeline.fpScaleInv);
@@ -62,6 +63,7 @@ export class ForwardStage extends RenderStage {
                 colors[0].g *= scale;
                 colors[0].b *= scale;
             }
+            */
             colors.length = 1;
         }
 
