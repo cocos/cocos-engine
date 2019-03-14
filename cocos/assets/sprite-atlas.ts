@@ -28,20 +28,22 @@ import { ccclass, property } from '../core/data/class-decorator';
 import { Asset } from './asset';
 import { SpriteFrame } from './CCSpriteFrame';
 
-interface ISpriteAtlas {
-    [key: string]: SpriteFrame | null;
-}
-
 /**
  * !#en Class for sprite atlas handling.
  * !#zh 精灵图集资源类。
  * @class SpriteAtlas
  * @extends Asset
  */
+
+interface ISpriteAtlasSerializeData{
+    name: string;
+    spriteFrames: string[];
+}
+
 @ccclass('cc.SpriteAtlas')
 export class SpriteAtlas extends Asset {
     @property
-    public spriteFrames: ISpriteAtlas = {};
+    public spriteFrames: Map<string, SpriteFrame | null> = new Map<string, SpriteFrame | null>();
 
     /**
      * Returns the texture of the sprite atlas
@@ -49,11 +51,10 @@ export class SpriteAtlas extends Asset {
      * @returns {Texture2D}
      */
     public getTexture () {
-        const keys = Object.keys(this.spriteFrames);
-        if (keys.length > 0) {
-            const spriteFrame = this.spriteFrames[keys[0]];
-            // return spriteFrame ? spriteFrame.getTexture() : null;
-            return spriteFrame;
+        const values = this.spriteFrames.values;
+        if (values.length > 0) {
+            const spriteFrame = values[0];
+            return spriteFrame && spriteFrame.image ? spriteFrame.image : null;
         }
         else {
             return null;
@@ -84,19 +85,36 @@ export class SpriteAtlas extends Asset {
      */
     public getSpriteFrames () {
         const frames: Array<SpriteFrame | null> = [];
-        const spriteFrames = this.spriteFrames;
-
-        for (const key of Object.keys(spriteFrames)) {
-            frames.push(this.getSpriteFrame(key));
+        for (const spriteFrame of this.spriteFrames) {
+            frames.push(spriteFrame[1]);
         }
 
         return frames;
     }
 
     public _serialize () {
+        const frames: string[] = [];
+        for (const spriteFrame of this.spriteFrames) {
+            const id = spriteFrame[1] ? spriteFrame[1]._uuid : '';
+            frames.push(spriteFrame[0]);
+            frames.push(id);
+        }
+
         return {
-            spriteFrames: this.spriteFrames,
+            name: this._name,
+            spriteFrames: frames,
         };
+    }
+
+    public _deserialize (serializeData: any, handle: any){
+        const data = serializeData as ISpriteAtlasSerializeData;
+        this._name = data.name;
+        const frames = data.spriteFrames;
+        this.spriteFrames.clear();
+        for (let i = 0; i < frames.length; i += 2) {
+            this.spriteFrames.set(frames[i], new SpriteFrame());
+            handle.result.push(this.spriteFrames, `${i}`, frames[i + 1]);
+        }
     }
 }
 
