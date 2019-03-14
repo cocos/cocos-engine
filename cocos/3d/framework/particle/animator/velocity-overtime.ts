@@ -11,31 +11,38 @@ const VELOCITY_OVERTIME_RAND_OFFSET = 197866;
 @ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule {
 
-    @property
+    @property({
+        displayOrder: 0,
+    })
     public enable = false;
 
     @property({
         type: CurveRange,
+        displayOrder: 2,
     })
     public x = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 3,
     })
     public y = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 4,
     })
     public z = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 5,
     })
     public speedModifier = new CurveRange();
 
     @property({
         type: Space,
+        displayOrder: 1,
     })
     public space = Space.Local;
 

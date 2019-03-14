@@ -46,6 +46,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
 
     @property({
         type: RenderMode,
+        displayOrder: 0,
     })
     public get renderMode () {
         return this._renderMode;
@@ -60,7 +61,9 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this._updateModel();
     }
 
-    @property
+    @property({
+        displayOrder: 1,
+    })
     public get velocityScale () {
         return this._velocityScale;
     }
@@ -71,7 +74,9 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         // this._updateModel();
     }
 
-    @property
+    @property({
+        displayOrder: 2,
+    })
     public get lengthScale () {
         return this._lengthScale;
     }

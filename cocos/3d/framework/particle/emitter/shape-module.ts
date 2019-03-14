@@ -35,23 +35,29 @@ const ArcMode = Enum({
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
 
-    @property
+    @property({
+        displayOrder: 0,
+    })
     public enable = false;
 
     @property({
         type: ShapeType,
+        displayOrder: 1,
     })
     public shapeType = ShapeType.Box;
 
     @property({
         type: EmitLocation,
+        displayOrder: 2,
     })
     public emitFrom = EmitLocation.Volume;
 
     @property
     private _position = new Vec3(0, 0, 0);
 
-    @property
+    @property({
+        displayOrder: 12,
+    })
     get position () {
         return this._position;
     }
@@ -63,7 +69,9 @@ export default class ShapeModule {
     @property
     private _rotation = new Vec3(0, 0, 0);
 
-    @property
+    @property({
+        displayOrder: 13,
+    })
     get rotation () {
         return this._rotation;
     }
@@ -75,7 +83,9 @@ export default class ShapeModule {
     @property
     private _scale = new Vec3(1, 1, 1);
 
-    @property
+    @property({
+        displayOrder: 14,
+    })
     get scale () {
         return this._scale;
     }
@@ -84,28 +94,42 @@ export default class ShapeModule {
         this.constructMat();
     }
 
-    @property
+    @property({
+        displayOrder: 15,
+    })
     public alignToDirection = false;
 
-    @property
+    @property({
+        displayOrder: 16,
+    })
     public randomDirectionAmount = 0;
 
-    @property
+    @property({
+        displayOrder: 17,
+    })
     public sphericalDirectionAmount = 0;
 
-    @property
+    @property({
+        displayOrder: 18,
+    })
     public randomPositionAmount = 0;
 
-    @property
+    @property({
+        displayOrder: 3,
+    })
     public radius = 1;
 
-    @property
+    @property({
+        displayOrder: 4,
+    })
     public radiusThickness = 1;
 
     @property
     private _arc = toRadian(360);
 
-    @property
+    @property({
+        displayOrder: 6,
+    })
     get arc () {
         return toDegree(this._arc);
     }
@@ -116,21 +140,27 @@ export default class ShapeModule {
 
     @property({
         type: ArcMode,
+        displayOrder: 7,
     })
     public arcMode = ArcMode.Random;
 
-    @property
-    public arcSpread = 0;
+    @property({
+        displayOrder: 0,
+    })
+    public arcSpread = 8;
 
     @property({
         type: CurveRange,
+        displayOrder: 9,
     })
     public arcSpeed = new CurveRange();
 
     @property
     private _angle = toRadian(25);
 
-    @property
+    @property({
+        displayOrder: 5,
+    })
     get angle () {
         return toDegree(this._angle);
     }
@@ -139,10 +169,14 @@ export default class ShapeModule {
         this._angle = toRadian(val);
     }
 
-    @property
+    @property({
+        displayOrder: 10,
+    })
     public length = 0;
 
-    @property
+    @property({
+        displayOrder: 11,
+    })
     public boxThickness = new Vec3(0, 0, 0);
 
     private mat: mat4;

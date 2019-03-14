@@ -11,37 +11,48 @@ const LIMIT_VELOCITY_RAND_OFFSET = 23541;
 @ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule {
 
-    @property
+    @property({
+        displayOrder: 0,
+    })
     public enable = false;
 
     @property({
         type: CurveRange,
+        displayOrder: 4,
     })
     public limitX = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 5,
     })
     public limitY = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 6,
     })
     public limitZ = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 3,
     })
     public limit = new CurveRange();
 
-    @property
-    public dampen = 0;
+    @property({
+        displayOrder: 7,
+    })
+    public dampen = 3;
 
-    @property
+    @property({
+        displayOrder: 2,
+    })
     public separateAxes = false;
 
     @property({
         type: Space,
+        displayOrder: 1,
     })
     public space = Space.Local;
 
