@@ -7,6 +7,9 @@ const tscExecutableName = process.platform === 'win32' ? 'tsc.cmd' : 'tsc';
 const tscExecutablePath = join(__dirname, '..', 'node_modules', '.bin', tscExecutableName);
 const tssConfigDir = join(__dirname, '..');
 const tscConfigPath = join(tssConfigDir, 'tsconfig-gendecls.json');
+const extraDestFiles = [
+    join(__dirname, './embedded-cocos-3d.d.ts'),
+];
 
 function generate () {
     const tscConfig = ts.readConfigFile(tscConfigPath, (path) => readFileSync(path).toString());
@@ -48,7 +51,7 @@ function generate () {
         stdio: [ null, process.stdout, process.stderr ]
     });
 
-    return destFiles;
+    return destFiles.concat(extraDestFiles);
 }
 
 module.exports = { generate };
