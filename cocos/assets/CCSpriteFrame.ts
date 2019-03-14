@@ -436,16 +436,19 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
      * @method clone
      * @return {SpriteFrame}
      */
-    // TODO
-    // clone() {
-    //     let cloneSprite = new SpriteFrame(/*this._texture || this._textureFilename,*/ this._rect, this._rotated, this._offset, this._originalSize);
-    //     cloneSprite.setWrapMode(this._wrapS, this._wrapT);
-    //     cloneSprite.setFilters(this._minFilter, this._magFilter);
-    //     cloneSprite.setPremultiplyAlpha(this._premultiplyAlpha);
-    //     cloneSprite.setAnisotropy(this._anisotropy);
-    //     cloneSprite._mipmaps = this._mipmaps;
-    //     return cloneSprite;
-    // }
+
+    public clone () {
+        const cloneSprite = new SpriteFrame();
+        cloneSprite.name = this.name;
+        cloneSprite.setOriginalSize(this._originalSize);
+        cloneSprite.setRect(this._rect);
+        const cap = this._capInsets;
+        cloneSprite._setBorder(cap[INSET_LEFT], cap[INSET_BOTTOM], cap[INSET_RIGHT], cap[INSET_TOP]);
+        cloneSprite.setOffset(this._offset);
+        cloneSprite._mipmaps = this._mipmaps;
+        cloneSprite.onLoaded();
+        return cloneSprite;
+    }
 
     // /**
     //  * !#en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
@@ -563,17 +566,12 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
             maxX += rect.width;
             maxY += rect.height;
         }
-        // if (maxX > texture.width) {
-        //     cc.errorID(3300, texture.url + '/' + this.name, maxX, texture.width);
-        // }
-        // if (maxY > texture.height) {
-        //     cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
-        // }
+
         if (maxX > texture.width) {
-            cc.errorID(3300, /*this.url*/ + '/' + this.name, maxX, this._originalSize.width);
+            cc.errorID(3300, texture.url + '/' + this.name, maxX, texture.width);
         }
         if (maxY > texture.height) {
-            cc.errorID(3400, /*this.url +*/ '/' + this.name, maxY, this._originalSize.height);
+            cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
         }
     }
 
@@ -684,22 +682,12 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     // SERIALIZATION
 
     // @ts-ignore
-    // TODO:
     public _serialize (exporting) {
         const rect = this._rect;
         const offset = this._offset;
         const size = this._originalSize;
         let uuid = this._uuid;
-        // let texture = this._texture;
-        // if (texture) {
-        //     uuid = texture._uuid;
-        // }
-        // if (!uuid) {
-        //     let url = this._textureFilename;
-        //     if (url) {
-        //         uuid = Editor.Utils.UuidCache.urlToUuid(url);
-        //     }
-        // }
+
         if (uuid && exporting) {
             // @ts-ignore
             // TODO:
@@ -780,18 +768,6 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
 
         this._textureLoadedCallback();
     }
-
-    public copyWithZone (...args: any[]) {
-        // return this.clone(...args);
-    }
-
-    public copy (...args: any[]) {
-        // return this.clone(...args);
-    }
-
-    // public initWithTexture (...args: any[]) {
-    //     return this.setTexture(...args);
-    // }
 }
 
 cc.SpriteFrame = SpriteFrame;

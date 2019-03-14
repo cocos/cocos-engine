@@ -25,4 +25,4 @@
  ****************************************************************************/
 
 export { default as Event } from './event';
-export { default as EventTarget } from './event-target';
+export { EventTarget } from './event-target';

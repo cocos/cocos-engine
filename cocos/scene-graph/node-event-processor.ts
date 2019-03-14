@@ -1,15 +1,19 @@
-import { Component } from '../components/component';
-import EventTarget from '../core/event/event-target';
+import { EventTarget } from '../core/event/event-target';
+import { ITargetImpl } from '../core/event/event-target-factory';
 import { eventManager } from '../core/platform/event-manager';
-import { EventListener } from '../core/platform/event-manager/CCEventListener';
 import Touch from '../core/platform/event-manager/CCTouch';
+import { EventType } from '../core/platform/event-manager/event-enum';
+import { EventListener } from '../core/platform/event-manager/event-listener';
 import { EventMouse, EventTouch} from '../core/platform/event-manager/index';
-import { array } from '../core/utils/js';
+import * as js from '../core/utils/js';
+import { Vec2 } from '../core/value-types';
 import { Node } from './node';
-import { EventType } from './node-event-enum';
 
-const _cachedArray = new Array(16);
+const fastRemove = js.array.fastRemove;
+
+const _cachedArray = new Array<Node>(16);
 let _currentHovered: Node | null = null;
+let pos = new Vec2();
 
 const _touchEvents = [
     EventType.TOUCH_START.toString(),
@@ -29,11 +33,12 @@ const _mouseEvents = [
 
 // TODO: rearrange event
 function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const pos = touch.getLocation();
     const node = this.owner as Node;
-    if (!node || ! node.uiTransfromComp){
+    if (!node || !node.uiTransfromComp) {
         return false;
     }
+
+    pos = touch.getUILocation();
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.TOUCH_START.toString();
@@ -59,11 +64,12 @@ function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch
 }
 
 function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const pos = touch.getLocation();
     const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
+
+    pos = touch.getUILocation();
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.TOUCH_END.toString();
@@ -88,11 +94,12 @@ function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTou
 }
 
 function _mouseDownHandler (this: EventListener, event: EventMouse) {
-    const pos = event.getLocation();
     const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
+
+    pos = event.getUILocation();
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.MOUSE_DOWN.toString();
@@ -102,11 +109,12 @@ function _mouseDownHandler (this: EventListener, event: EventMouse) {
 }
 
 function _mouseMoveHandler (this: EventListener, event: EventMouse) {
-    const pos = event.getLocation();
     const node = this.owner as Node;
-    if (!node || !node.uiTransfromComp){
+    if (!node || !node.uiTransfromComp) {
         return;
     }
+
+    pos = event.getUILocation();
 
     const hit = node.uiTransfromComp.isHit(pos, this);
     if (hit) {
@@ -143,11 +151,12 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
 }
 
 function _mouseUpHandler (this: EventListener, event: EventMouse) {
-    const pos = event.getLocation();
     const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
+
+    pos = event.getUILocation();
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.MOUSE_UP.toString();
@@ -158,12 +167,13 @@ function _mouseUpHandler (this: EventListener, event: EventMouse) {
     }
 }
 
-function _mouseWheelHandler (this: EventListener, event: EventTouch) {
-    const pos = event.getLocation();
+function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
+
+    pos = event.getUILocation();
 
     if (node.uiTransfromComp!.isHit(pos, this)) {
         event.type = EventType.MOUSE_WHEEL.toString();
@@ -175,7 +185,7 @@ function _mouseWheelHandler (this: EventListener, event: EventTouch) {
 }
 
 function _doDispatchEvent (owner: Node, event: EventTouch) {
-    let target;
+    let target: Node;
     let i = 0;
     event.target = owner;
 
@@ -186,10 +196,10 @@ function _doDispatchEvent (owner: Node, event: EventTouch) {
     event.eventPhase = 1;
     for (i = _cachedArray.length - 1; i >= 0; --i) {
         target = _cachedArray[i];
-        if (target._capturingTargets) {
+        if (target.eventProcessor.capturingTargets) {
             event.currentTarget = target;
             // fire event
-            target._capturingTargets.emit(event.type, event, _cachedArray);
+            target.eventProcessor.capturingTargets.emit(event.type, event, _cachedArray);
             // check if propagation stopped
             if (event.propagationStopped) {
                 _cachedArray.length = 0;
@@ -217,10 +227,10 @@ function _doDispatchEvent (owner: Node, event: EventTouch) {
         event.eventPhase = 3;
         for (i = 0; i < _cachedArray.length; ++i) {
             target = _cachedArray[i];
-            if (target._bubblingTargets) {
+            if (target.eventProcessor.bubblingTargets) {
                 event.currentTarget = target;
                 // fire event
-                target._bubblingTargets.emit(event.type, event);
+                target.eventProcessor.bubblingTargets.emit(event.type, event);
                 // check if propagation stopped
                 if (event.propagationStopped) {
                     _cachedArray.length = 0;
@@ -573,8 +583,13 @@ export class NodeEventProcessor {
         if (!listeners.hasEventListener(type, callback, target)) {
             listeners.add(type, callback, target);
 
-            if (target && (target as Component)._eventTargets) {
-                (target as Component)._eventTargets.push(this._node);
+            const targetImpl = target as ITargetImpl;
+            if (target) {
+                if (targetImpl.__eventTargets) {
+                    targetImpl.__eventTargets.push(this);
+                } else if (targetImpl.node && targetImpl.node.__eventTargets) {
+                    targetImpl.node.__eventTargets.push(this);
+                }
             }
         }
 
@@ -600,8 +615,13 @@ export class NodeEventProcessor {
             if (listeners) {
                 listeners.remove(type, callback, target);
 
-                if (target && (target as Component)._eventTargets) {
-                    array.fastRemove((target as Component)._eventTargets, this);
+                const targetImpl = target as ITargetImpl;
+                if (target) {
+                    if (targetImpl.__eventTargets) {
+                        fastRemove(targetImpl.__eventTargets, this);
+                    } else if (targetImpl.node && targetImpl.node.__eventTargets) {
+                        fastRemove(targetImpl.node.__eventTargets, this);
+                    }
                 }
             }
 

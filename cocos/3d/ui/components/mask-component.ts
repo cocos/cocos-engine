@@ -26,10 +26,10 @@
 // import {SpriteFrame} from '../../../assets/CCSpriteFrame';
 import { ccclass/*, executeInEditMode*/, executionOrder,
     menu/*, property*/ } from '../../../core/data/class-decorator';
-import { UI } from '../../../renderer/ui/ui';
 // import { ccenum } from '../../../core/value-types/enum';
 // import { clamp } from '../../../core/vmath';
-import { EventType } from '../../../scene-graph/node-event-enum';
+import { EventType } from '../../../core/platform/event-manager/event-enum';
+import { UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets/material';
 import { RenderableComponent } from '../../framework/renderable-component';
 // import circle from '../../primitive/circle';
@@ -263,6 +263,10 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     protected _canRender () {
+        if (!super._canRender()) {
+            return false;
+        }
+
         return this._maskMaterial !== null && this._clearMaskMaterial !== null && this._renderPermit;
     }
 

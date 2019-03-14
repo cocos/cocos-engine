@@ -24,10 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import EventTarget from './event/event-target';
-import inputManager from './platform/event-manager/CCInputManager';
+import { EventTarget } from './event/event-target';
+import inputManager from './platform/event-manager/input-manager';
 import * as debug from './platform/CCDebug';
-import { addon } from './utils/js';
 
 /**
  * @module cc
@@ -40,118 +39,48 @@ import { addon } from './utils/js';
  * @static
  * @extends EventTarget
  */
-var game = {
-    /**
-     * !#en Event triggered when game hide to background.
-     * Please note that this event is not 100% guaranteed to be fired on Web platform,
-     * on native platforms, it corresponds to enter background event, os status bar or notification center may not trigger this event.
-     * !#zh 游戏进入后台时触发的事件。
-     * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。
-     * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
-     * @property EVENT_HIDE
-     * @type {String}
-     * @example
-     * cc.game.on(cc.game.EVENT_HIDE, function () {
-     *     cc.audioEngine.pauseMusic();
-     *     cc.audioEngine.pauseAllEffects();
-     * });
-     */
-    EVENT_HIDE: "game_on_hide",
 
-    /**
-     * Event triggered when game back to foreground
-     * Please note that this event is not 100% guaranteed to be fired on Web platform,
-     * on native platforms, it corresponds to enter foreground event.
-     * !#zh 游戏进入前台运行时触发的事件。
-     * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。
-     * 在原生平台，它对应的是应用被切换到前台事件。
-     * @property EVENT_SHOW
-     * @constant
-     * @type {String}
-     */
-    EVENT_SHOW: "game_on_show",
-
-    /**
-     * Event triggered after game inited, at this point all engine objects and game scripts are loaded
-     * @property EVENT_GAME_INITED
-     * @constant
-     * @type {String}
-     */
-    EVENT_GAME_INITED: "game_inited",
-
-    /**
-     * Event triggered after engine inited, at this point you will be able to use all engine classes.
-     * It was defined as EVENT_RENDERER_INITED in cocos creator v1.x and renamed in v2.0
-     * @property EVENT_ENGINE_INITED
-     * @constant
-     * @type {String}
-     */
-    EVENT_ENGINE_INITED: "engine_inited",
-    // deprecated
-    EVENT_RENDERER_INITED: "engine_inited",
-
-    /**
-     * Web Canvas 2d API as renderer backend
-     * @property RENDER_TYPE_CANVAS
-     * @constant
-     * @type {Number}
-     */
-    RENDER_TYPE_CANVAS: 0,
-    /**
-     * WebGL API as renderer backend
-     * @property RENDER_TYPE_WEBGL
-     * @constant
-     * @type {Number}
-     */
-    RENDER_TYPE_WEBGL: 1,
-    /**
-     * OpenGL API as renderer backend
-     * @property RENDER_TYPE_OPENGL
-     * @constant
-     * @type {Number}
-     */
-    RENDER_TYPE_OPENGL: 2,
-
-    _persistRootNodes: {},
+class Game extends EventTarget {
+    _persistRootNodes = {};
 
     // states
-    _paused: true,//whether the game is paused
-    _configLoaded: false,//whether config loaded
-    _isCloning: false,    // deserializing or instantiating
-    _prepared: false, //whether the engine has prepared
-    _rendererInitialized: false,
+    _paused = true;//whether the game is paused
+    _configLoaded = false;//whether config loaded
+    _isCloning = false;    // deserializing or instantiating
+    _prepared = false; //whether the engine has prepared
+    _rendererInitialized = false;
 
-    _gfxDevice: null,
+    _gfxDevice = null;
 
-    _intervalId: null,//interval target of main
+    _intervalId = null;//interval target of main
 
-    _lastTime: null,
-    _frameTime: null,
+    _lastTime = null;
+    _frameTime = null;
 
     // Scenes list
-    _sceneInfos: [],
+    _sceneInfos = [];
 
     /**
-     * !#en The outer frame of the game canvas, parent of game container.
+     * !#en The outer frame of the game canvas; parent of game container.
      * !#zh 游戏画布的外框，container 的父容器。
      * @property frame
      * @type {Object}
      */
-    frame: null,
+    frame = null;
     /**
      * !#en The container of game canvas.
      * !#zh 游戏画布的容器。
      * @property container
      * @type {HTMLDivElement}
      */
-    container: null,
+    container = null;
     /**
      * !#en The canvas of the game.
      * !#zh 游戏的画布。
      * @property canvas
      * @type {HTMLCanvasElement}
      */
-    canvas: null,
+    canvas = null;
 
     /**
      * !#en The renderer backend of the game.
@@ -159,7 +88,10 @@ var game = {
      * @property renderType
      * @type {Number}
      */
-    renderType: -1,
+    renderType = -1;
+
+    eventTargetOn = super.on;
+    eventTargetOnce = super.once;
 
     /**
      * !#en
@@ -221,7 +153,7 @@ var game = {
      * @property config
      * @type {Object}
      */
-    config: {},
+    config = {};
 
     /**
      * !#en Callback when the scripts of engine have been load.
@@ -229,9 +161,9 @@ var game = {
      * @method onStart
      * @type {Function}
      */
-    onStart: null,
+    onStart = null;
 
-    //@Public Methods
+    //@Methods
 
     //  @Game play control
     /**
@@ -240,7 +172,7 @@ var game = {
      * @method setFrameRate
      * @param {Number} frameRate
      */
-    setFrameRate: function (frameRate) {
+    setFrameRate(frameRate) {
         var config = this.config;
         config.frameRate = frameRate;
         if (this._intervalId)
@@ -249,7 +181,7 @@ var game = {
         this._paused = true;
         this._setAnimFrame();
         this._runMainLoop();
-    },
+    }
 
     /**
      * !#en Get frame rate set for the game, it doesn't represent the real frame rate.
@@ -257,18 +189,18 @@ var game = {
      * @method getFrameRate
      * @return {Number} frame rate
      */
-    getFrameRate: function () {
+    getFrameRate() {
         return this.config.frameRate;
-    },
+    }
 
     /**
      * !#en Run the game frame by frame.
      * !#zh 执行一帧游戏循环。
      * @method step
      */
-    step: function () {
+    step() {
         cc.director.mainLoop();
-    },
+    }
 
     /**
      * !#en Pause the game main loop. This will pause:
@@ -277,14 +209,14 @@ var game = {
      * !#zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 cc.director.pause 不同。
      * @method pause
      */
-    pause: function () {
+    pause() {
         if (this._paused) return;
         this._paused = true;
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
         this._intervalId = 0;
-    },
+    }
 
     /**
      * !#en Resume the game from pause. This will resume:
@@ -292,12 +224,12 @@ var game = {
      * !#zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
      * @method resume
      */
-    resume: function () {
+    resume() {
         if (!this._paused) return;
         this._paused = false;
         // Resume main loop
         this._runMainLoop();
-    },
+    }
 
     /**
      * !#en Check whether the game is paused.
@@ -305,19 +237,19 @@ var game = {
      * @method isPaused
      * @return {Boolean}
      */
-    isPaused: function () {
+    isPaused() {
         return this._paused;
-    },
+    }
 
     /**
      * !#en Restart game.
      * !#zh 重新开始游戏
      * @method restart
      */
-    restart: function () {
+    restart() {
         cc.director.once(cc.Director.EVENT_AFTER_DRAW, function () {
-            for (var id in game._persistRootNodes) {
-                game.removePersistRootNode(game._persistRootNodes[id]);
+            for (var id in cc.game._persistRootNodes) {
+                cc.game.removePersistRootNode(cc.game._persistRootNodes[id]);
             }
 
             // Clear scene
@@ -327,24 +259,24 @@ var game = {
             cc.director.purgeDirector();
 
             cc.director.reset();
-            game.onStart();
+            cc.game.onStart();
         });
-    },
+    }
 
     /**
      * !#en End game, it will close the game window
      * !#zh 退出游戏
      * @method end
      */
-    end: function () {
+    end() {
 
-        if(this._gfxDevice) {
+        if (this._gfxDevice) {
             this._gfxDevice.destroy();
             this._gfxDevice = null;
         }
 
         close();
-    },
+    }
 
     //  @Game loading
 
@@ -357,8 +289,8 @@ var game = {
             this._initEvents();
         }
 
-        this.emit(this.EVENT_ENGINE_INITED);
-    },
+        this.emit(Game.EVENT_ENGINE_INITED);
+    }
 
     _prepareFinished(cb) {
         this._prepared = true;
@@ -372,13 +304,10 @@ var game = {
         this._setAnimFrame();
         this._runMainLoop();
 
-        this.emit(this.EVENT_GAME_INITED);
+        this.emit(Game.EVENT_GAME_INITED);
 
         if (cb) cb();
-    },
-
-    eventTargetOn: EventTarget.prototype.on,
-    eventTargetOnce: EventTarget.prototype.once,
+    }
 
     /**
      * !#en
@@ -403,13 +332,13 @@ var game = {
      */
     on(type, callback, target) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._prepared && type === this.EVENT_ENGINE_INITED) {
+        if (this._prepared && type === Game.EVENT_ENGINE_INITED) {
             callback.call(target);
         }
         else {
             this.eventTargetOn(type, callback, target);
         }
-    },
+    }
     /**
      * !#en
      * Register an callback of a specific event type on the game object,
@@ -430,13 +359,13 @@ var game = {
      */
     once(type, callback, target) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._prepared && type === this.EVENT_ENGINE_INITED) {
+        if (this._prepared && type === Game.EVENT_ENGINE_INITED) {
             callback.call(target);
         }
         else {
             this.eventTargetOnce(type, callback, target);
         }
-    },
+    }
 
     /**
      * !#en Prepare game.
@@ -463,7 +392,7 @@ var game = {
         else {
             this._prepareFinished(cb);
         }
-    },
+    }
 
     /**
      * !#en Run game with configuration object and onStart function.
@@ -472,11 +401,11 @@ var game = {
      * @param {Object} config - Pass configuration object or onStart function
      * @param {Function} onStart - function to be executed after game initialized
      */
-    run: function (config, onStart) {
+    run(config, onStart) {
         this._initConfig(config);
         this.onStart = onStart;
-        this.prepare(game.onStart && game.onStart.bind(game));
-    },
+        this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
+    }
 
     //  @ Persist root node section
     /**
@@ -489,7 +418,7 @@ var game = {
      * @method addPersistRootNode
      * @param {Node} node - The node to be made persistent
      */
-    addPersistRootNode: function (node) {
+    addPersistRootNode(node) {
         if (!cc.Node.isNode(node) || !node.uuid) {
             cc.warnID(3800);
             return;
@@ -513,7 +442,7 @@ var game = {
             this._persistRootNodes[id] = node;
             node._persistNode = true;
         }
-    },
+    }
 
     /**
      * !#en Remove a persistent root node.
@@ -521,13 +450,13 @@ var game = {
      * @method removePersistRootNode
      * @param {Node} node - The node to be removed from persistent node list
      */
-    removePersistRootNode: function (node) {
+    removePersistRootNode(node) {
         var id = node.uuid || '';
         if (node === this._persistRootNodes[id]) {
             delete this._persistRootNodes[id];
             node._persistNode = false;
         }
-    },
+    }
 
     /**
      * !#en Check whether the node is a persistent root node.
@@ -536,16 +465,16 @@ var game = {
      * @param {Node} node - The node to be checked
      * @return {Boolean}
      */
-    isPersistRootNode: function (node) {
+    isPersistRootNode(node) {
         return node._persistNode;
-    },
+    }
 
-    //@Private Methods
+    //@Methods
 
     //  @Time ticker section
-    _setAnimFrame: function () {
+    _setAnimFrame() {
         this._lastTime = new Date();
-        var frameRate = game.config.frameRate;
+        var frameRate = cc.game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
         if (CC_JSB) {
@@ -578,20 +507,20 @@ var game = {
                     this._ctTime;
             }
         }
-    },
-    _stTime: function (callback) {
+    }
+    _stTime(callback) {
         var currTime = new Date().getTime();
-        var timeToCall = Math.max(0, game._frameTime - (currTime - game._lastTime));
+        var timeToCall = Math.max(0, cc.game._frameTime - (currTime - cc.game._lastTime));
         var id = window.setTimeout(function () { callback(); },
             timeToCall);
-        game._lastTime = currTime + timeToCall;
+        cc.game._lastTime = currTime + timeToCall;
         return id;
-    },
-    _ctTime: function (id) {
+    }
+    _ctTime(id) {
         window.clearTimeout(id);
-    },
+    }
     //Run game.
-    _runMainLoop: function () {
+    _runMainLoop() {
         var self = this, callback, config = self.config,
             director = cc.director,
             skip = true, frameRate = config.frameRate;
@@ -612,7 +541,7 @@ var game = {
 
         self._intervalId = window.requestAnimFrame(callback);
         self._paused = false;
-    },
+    }
 
     //  @Game loading section
     _initConfig(config) {
@@ -644,7 +573,7 @@ var game = {
 
         this.config = config;
         this._configLoaded = true;
-    },
+    }
 
     _determineRenderType() {
         let config = this.config,
@@ -676,7 +605,7 @@ var game = {
         if (!supportRender) {
             throw new Error(debug.getError(3820, userRenderMode));
         }
-    },
+    }
 
     _initRenderer() {
         // Avoid setup to be called twice.
@@ -800,9 +729,9 @@ var game = {
         };
 
         this._rendererInitialized = true;
-    },
+    }
 
-    _initEvents: function () {
+    _initEvents() {
         var win = window, hiddenPropName;
 
         // register system events
@@ -824,13 +753,13 @@ var game = {
         function onHidden() {
             if (!hidden) {
                 hidden = true;
-                game.emit(game.EVENT_HIDE);
+                cc.game.emit(Game.EVENT_HIDE);
             }
         }
         function onShown() {
             if (hidden) {
                 hidden = false;
-                game.emit(game.EVENT_SHOW);
+                cc.game.emit(Game.EVENT_SHOW);
             }
         }
 
@@ -875,17 +804,86 @@ var game = {
             document.addEventListener("pageshow", onShown);
         }
 
-        this.on(game.EVENT_HIDE, function () {
-            game.pause();
+        this.on(Game.EVENT_HIDE, function () {
+            cc.game.pause();
         });
-        this.on(game.EVENT_SHOW, function () {
-            game.resume();
+        this.on(Game.EVENT_SHOW, function () {
+            cc.game.resume();
         });
     }
-};
+}
 
-EventTarget.call(game);
-addon(game, EventTarget.prototype);
+/**
+ * !#en Event triggered when game hide to background.
+ * Please note that this event is not 100% guaranteed to be fired on Web platform,
+ * on native platforms, it corresponds to enter background event, os status bar or notification center may not trigger this event.
+ * !#zh 游戏进入后台时触发的事件。
+ * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。
+ * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
+ * @property EVENT_HIDE
+ * @type {String}
+ * @example
+ * cc.game.on(Game.EVENT_HIDE, function () {
+ *     cc.audioEngine.pauseMusic();
+ *     cc.audioEngine.pauseAllEffects();
+ * });
+ */
+Game.EVENT_HIDE = "game_on_hide";
 
-cc.game = game;
-export default game;
+/**
+ * Event triggered when game back to foreground
+ * Please note that this event is not 100% guaranteed to be fired on Web platform,
+ * on native platforms, it corresponds to enter foreground event.
+ * !#zh 游戏进入前台运行时触发的事件。
+ * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。
+ * 在原生平台，它对应的是应用被切换到前台事件。
+ * @property EVENT_SHOW
+ * @constant
+ * @type {String}
+ */
+Game.EVENT_SHOW = "game_on_show";
+
+/**
+ * Event triggered after game inited, at this point all engine objects and game scripts are loaded
+ * @property EVENT_GAME_INITED
+ * @constant
+ * @type {String}
+ */
+Game.EVENT_GAME_INITED = "game_inited";
+
+/**
+ * Event triggered after engine inited, at this point you will be able to use all engine classes.
+ * It was defined as EVENT_RENDERER_INITED in cocos creator v1.x and renamed in v2.0
+ * @property EVENT_ENGINE_INITED
+ * @constant
+ * @type {String}
+ */
+Game.EVENT_ENGINE_INITED = "engine_inited";
+// deprecated
+Game.EVENT_RENDERER_INITED = "engine_inited";
+
+/**
+ * Web Canvas 2d API as renderer backend
+ * @property RENDER_TYPE_CANVAS
+ * @constant
+ * @type {Number}
+ */
+Game.RENDER_TYPE_CANVAS = 0;
+/**
+ * WebGL API as renderer backend
+ * @property RENDER_TYPE_WEBGL
+ * @constant
+ * @type {Number}
+ */
+Game.RENDER_TYPE_WEBGL = 1;
+/**
+ * OpenGL API as renderer backend
+ * @property RENDER_TYPE_OPENGL
+ * @constant
+ * @type {Number}
+ */
+Game.RENDER_TYPE_OPENGL = 2;
+
+cc.Game = Game;
+cc.game = new Game();
+export default Game;

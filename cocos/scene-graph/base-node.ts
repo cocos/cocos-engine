@@ -27,10 +27,10 @@
 import { Component } from '../components/component';
 import { ccclass, property } from '../core/data/class-decorator';
 import { CCObject } from '../core/data/object';
+import { EventType } from '../core/platform/event-manager/event-enum';
 import IdGenerator from '../core/utils/id-generator';
 import * as js from '../core/utils/js';
 import { baseNodePolyfill } from './base-node-dev';
-import { EventType } from './node-event-enum';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
