@@ -1,6 +1,6 @@
 const { spawnSync } = require('child_process');
 const { join, extname, basename, dirname } = require('path');
-const { readFileSync, existsSync } = require('fs');
+const { readFileSync, existsSync, unlinkSync } = require('fs');
 const ts = require('typescript');
 
 const tscExecutableName = process.platform === 'win32' ? 'tsc.cmd' : 'tsc';
@@ -38,7 +38,9 @@ function generate () {
         const destFile = join(dirName, baseName + destExtension);
         if (existsSync(destFile)) {
             console.log(`Delete old ${destFile}.`);
+            unlinkSync(destFile);
         }
+        
         return destFile;
     });
 
