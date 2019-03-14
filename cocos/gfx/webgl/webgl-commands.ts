@@ -2029,7 +2029,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                             if (gpuBuffer) {
                                 if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                                    gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                                    gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                                     cache.glElementArrayBuffer = gpuBuffer.glBuffer;
                                 }
                             }
