@@ -25,7 +25,9 @@ export default class TextureAnimationModule {
     @property
     private _enable = false;
 
-    @property
+    @property({
+        displayOrder: 0,
+    })
     get enable () {
         return this._enable;
     }
@@ -42,6 +44,7 @@ export default class TextureAnimationModule {
 
     @property({
         type: Mode,
+        displayOrder: 1,
     })
     get mode () {
         return this._mode;
@@ -54,28 +57,37 @@ export default class TextureAnimationModule {
         }
     }
 
-    @property
+    @property({
+        displayOrder: 2,
+    })
     public numTilesX = 0;
 
-    @property
+    @property({
+        displayOrder: 3,
+    })
     public numTilesY = 0;
 
     @property({
         type: Animation,
+        displayOrder: 4,
     })
     public animation = Animation.WholeSheet;
 
     @property({
         type: CurveRange,
+        displayOrder: 7,
     })
     public frameOverTime = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 8,
     })
     public startFrame = new CurveRange();
 
-    @property
+    @property({
+        displayOrder: 9,
+    })
     public cycleCount = 0;
 
     @property
@@ -111,10 +123,14 @@ export default class TextureAnimationModule {
         console.error("particle texture animation's uvChannelMask is not supported!");
     }
 
-    @property
+    @property({
+        displayOrder: 5,
+    })
     public randomRow = false;
 
-    @property
+    @property({
+        displayOrder: 6,
+    })
     public rowIndex = 0;
 
     private ps: ParticleSystemComponent | null = null;

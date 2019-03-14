@@ -29,49 +29,63 @@ const _world_mat = mat4.create();
 @executeInEditMode
 export class ParticleSystemComponent extends Component {
 
-    @property
+    @property({
+        displayOrder: 1,
+    })
     public capacity = 2000;
 
     @property({
         type: GradientRange,
+        displayOrder: 8,
     })
     public startColor = new GradientRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 9,
     })
     public startSize = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 10,
     })
     public startSpeed = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 11,
     })
     public startRotation = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 6,
     })
     public startDelay = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 7,
     })
     public startLifetime = new CurveRange();
 
-    @property
+    @property({
+        displayOrder: 0,
+    })
     public duration = 5.0;
 
-    @property
+    @property({
+        displayOrder: 2,
+    })
     public loop = true;
 
     @property
     private _prewarm = false;
 
-    @property
+    @property({
+        displayOrder: 3,
+    })
     get prewarm () {
         return this._prewarm;
     }
@@ -88,6 +102,7 @@ export class ParticleSystemComponent extends Component {
 
     @property({
         type: Space,
+        displayOrder: 4,
     })
     get simulationSpace () {
         return this._simulationSpace;
@@ -100,30 +115,38 @@ export class ParticleSystemComponent extends Component {
         }
     }
 
-    @property
+    @property({
+        displayOrder: 5,
+    })
     public simulationSpeed = 1.0;
 
-    @property
+    @property({
+        displayOrder: 2,
+    })
     public playOnAwake = true;
 
     @property({
         type: CurveRange,
+        displayOrder: 12,
     })
     public gravityModifier = new CurveRange();
 
     // emission module
     @property({
         type: CurveRange,
+        displayOrder: 13,
     })
     public rateOverTime = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 14,
     })
     public rateOverDistance = new CurveRange();
 
     @property({
         type: [Burst],
+        displayOrder: 15,
     })
     public bursts = new Array();
 

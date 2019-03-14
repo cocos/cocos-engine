@@ -10,26 +10,32 @@ const FORCE_OVERTIME_RAND_OFFSET = 212165;
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule {
 
-    @property
+    @property({
+        displayOrder: 0,
+    })
     public enable = false;
 
     @property({
         type: CurveRange,
+        displayOrder: 2,
     })
     public x = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 3,
     })
     public y = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 4,
     })
     public z = new CurveRange();
 
     @property({
         type: Space,
+        displayOrder: 1,
     })
     public space = Space.Local;
 

@@ -10,29 +10,37 @@ const SIZE_OVERTIME_RAND_OFFSET = 39825;
 @ccclass('cc.SizeOvertimeModule')
 export default class SizeOvertimeModule {
 
-    @property
+    @property({
+        displayOrder: 0,
+    })
     public enable = false;
 
-    @property
+    @property({
+        displayOrder: 1,
+    })
     public separateAxes = false;
 
     @property({
         type: CurveRange,
+        displayOrder: 2,
     })
     public size = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 3,
     })
     public x = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 4,
     })
     public y = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 5,
     })
     public z = new CurveRange();
 

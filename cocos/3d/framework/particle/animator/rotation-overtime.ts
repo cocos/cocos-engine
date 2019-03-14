@@ -10,13 +10,17 @@ const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 @ccclass('cc.RotationOvertimeModule')
 export default class RotationOvertimeModule {
 
-    @property
+    @property({
+        displayOrder: 0,
+    })
     public enable = false;
 
     @property
     private _separateAxes = false;
 
-    @property
+    @property({
+        displayOrder: 1,
+    })
     get separateAxes () {
         return this._separateAxes;
     }
@@ -32,16 +36,19 @@ export default class RotationOvertimeModule {
 
     @property({
         type: CurveRange,
+        displayOrder: 2,
     })
     public x = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 3,
     })
     public y = new CurveRange();
 
     @property({
         type: CurveRange,
+        displayOrder: 4,
     })
     public z = new CurveRange();
 
