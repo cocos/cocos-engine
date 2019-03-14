@@ -1,12 +1,15 @@
 const { spawnSync } = require('child_process');
 const { join, extname, basename, dirname } = require('path');
-const { readFileSync, existsSync } = require('fs');
+const { readFileSync, existsSync, unlinkSync } = require('fs');
 const ts = require('typescript');
 
 const tscExecutableName = process.platform === 'win32' ? 'tsc.cmd' : 'tsc';
 const tscExecutablePath = join(__dirname, '..', 'node_modules', '.bin', tscExecutableName);
 const tssConfigDir = join(__dirname, '..');
 const tscConfigPath = join(tssConfigDir, 'tsconfig-gendecls.json');
+const extraDestFiles = [
+    join(__dirname, './embedded-cocos-3d.d.ts'),
+];
 
 function generate () {
     const tscConfig = ts.readConfigFile(tscConfigPath, (path) => readFileSync(path).toString());
@@ -35,7 +38,9 @@ function generate () {
         const destFile = join(dirName, baseName + destExtension);
         if (existsSync(destFile)) {
             console.log(`Delete old ${destFile}.`);
+            unlinkSync(destFile);
         }
+        
         return destFile;
     });
 
@@ -48,7 +53,7 @@ function generate () {
         stdio: [ null, process.stdout, process.stderr ]
     });
 
-    return destFiles;
+    return destFiles.concat(extraDestFiles);
 }
 
 module.exports = { generate };
