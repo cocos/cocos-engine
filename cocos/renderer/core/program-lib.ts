@@ -24,18 +24,21 @@ export interface IDefineValue {
     result: string | number;
 }
 
-const mapDefine = (def: number | string | boolean) => {
-    switch (typeof def) {
+const mapDefine = (info: IDefineInfo, def: number | string | boolean) => {
+    switch (info.type) {
         case 'boolean': return def ? 1 : 0;
-        case 'string': case 'number': return def;
+        case 'string': return def !== undefined ? def as string : info.options![0];
+        case 'number': return def !== undefined ? def as number : info.range![0];
     }
-    return 0;
+    console.warn(`unknown define type '${info.type}'`);
+    return -1; // should neven happen
 };
 
 const prepareDefines = (defs: IDefineMap, tDefs: IDefineInfo[]) => {
     const defines: IDefineValue[] = [];
-    for (const { name } of tDefs) {
-        const result = mapDefine(defs[name]);
+    for (const tmpl of tDefs) {
+        const name = tmpl.name;
+        const result = mapDefine(tmpl, defs[name]);
         defines.push({ name, result });
     }
     return defines;

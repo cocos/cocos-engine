@@ -27,15 +27,13 @@
 import {ccclass, property} from '../core/data/class-decorator';
 import { EventTargetFactory } from '../core/event/event-target-factory';
 import IDGenerator from '../core/utils/id-generator';
-import { ccenum } from '../core/value-types/enum';
 import { GFXAddress, GFXBufferTextureCopy, GFXFilter, GFXFormat,
     GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
-import { GFXSampler } from '../gfx/sampler';
 import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
 import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
 import { Asset } from './asset';
-import { ImageAsset, ImageSource } from './image-asset';
+import { ImageAsset } from './image-asset';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -101,11 +99,6 @@ export enum PixelFormat {
      */
     RGBA_PVRTC_4BPPV1 = GFXFormat.PVRTC_RGBA4,
 }
-ccenum(PixelFormat);
-
-function toGfxFormat (pixelFormat: PixelFormat) {
-    return pixelFormat as unknown as GFXFormat;
-}
 
 /**
  * The texture wrap mode.
@@ -129,11 +122,6 @@ export enum WrapMode {
      */
     CLAMP_TO_BORDER = GFXAddress.BORDER,
 }
-ccenum(WrapMode);
-
-function toGfxAddressMode (wrapMode: WrapMode) {
-    return wrapMode as unknown as GFXAddress;
-}
 
 /**
  * The texture filter mode
@@ -148,11 +136,6 @@ export enum Filter {
      * Specifies nearest filtering.
      */
     NEAREST = GFXFilter.POINT,
-}
-ccenum(Filter);
-
-function toGfxFilterMode (filter: Filter) {
-    return filter as unknown as GFXFilter;
 }
 
 @ccclass('cc.TextureBase')
@@ -196,6 +179,39 @@ export class TextureBase extends EventTargetFactory(Asset) {
         return texture._format >= PixelFormat.RGB_PVRTC_2BPPV1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
     }
 
+    @property
+    protected _genMipmap = false;
+
+    @property
+    protected _format: number = PixelFormat.RGBA8888;
+
+    @property
+    protected _premultiplyAlpha = false;
+
+    @property
+    protected _flipY = false;
+
+    @property
+    protected _minFilter: number = Filter.LINEAR;
+
+    @property
+    protected _magFilter: number = Filter.LINEAR;
+
+    @property
+    protected _mipFilter: number = Filter.LINEAR;
+
+    @property
+    protected _wrapU: number = WrapMode.REPEAT;
+
+    @property
+    protected _wrapV: number = WrapMode.REPEAT;
+
+    @property
+    protected _wrapW: number = WrapMode.REPEAT;
+
+    @property
+    protected _anisotropy = 16;
+
     protected _texture: GFXTexture | null = null;
 
     protected _textureView: GFXTextureView | null = null;
@@ -206,39 +222,9 @@ export class TextureBase extends EventTargetFactory(Asset) {
 
     private _mipmapLevel: number = 1;
 
-    @property
-    private _genMipmap = false;
-
-    @property
-    private _format: PixelFormat = PixelFormat.RGBA8888;
-
-    @property
-    private _premultiplyAlpha = false;
-
-    @property
-    private _flipY = false;
-
-    @property
-    private _minFilter = Filter.LINEAR;
-
-    @property
-    private _magFilter = Filter.LINEAR;
-
-    @property
-    private _mipFilter = Filter.LINEAR;
-
-    @property
-    private _wrapS: WrapMode = WrapMode.CLAMP_TO_EDGE;
-
-    @property
-    private _wrapT: WrapMode = WrapMode.CLAMP_TO_EDGE;
-
-    @property
-    private _anisotropy = 1;
-
-    private _sampler: GFXSampler | null = null;
-
     private _id: string;
+
+    private _samplerInfo: number[] = [];
 
     protected constructor (flipY: boolean = false) {
         super();
@@ -262,7 +248,6 @@ export class TextureBase extends EventTargetFactory(Asset) {
         this._potientialHeight = height;
         this._format = format;
         this._mipmapLevel = mipmapLevel;
-        this._updateSampler();
         this._recreateTexture();
     }
 
@@ -323,15 +308,14 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * If the texture size is NPOT (non power of 2), then in can only use gl.CLAMP_TO_EDGE in gl.TEXTURE_WRAP_{S,T}.
      * !#zh 设置纹理包装模式。
      * 若纹理贴图尺寸是 NPOT（non power of 2），则只能使用 Texture2D.WrapMode.CLAMP_TO_EDGE。
-     * @param wrapS
-     * @param wrapT
+     * @param wrapU
+     * @param wrapV
      */
-    public setWrapMode (wrapS: WrapMode, wrapT: WrapMode) {
-        if (this._wrapS !== wrapS || this._wrapT !== wrapT) {
-            this._wrapS = wrapS;
-            this._wrapT = wrapT;
-            this._updateSampler();
-        }
+    public setWrapMode (wrapU: WrapMode, wrapV: WrapMode, wrapW?: WrapMode) {
+        if (wrapU !== this._wrapU) { this._wrapU = wrapU; this._samplerInfo[3] = wrapU; }
+        if (wrapV !== this._wrapV) { this._wrapV = wrapV; this._samplerInfo[4] = wrapV; }
+        if (wrapW === undefined) { return; }
+        if (wrapW !== this._wrapW) { this._wrapW = wrapW; this._samplerInfo[5] = wrapW; }
     }
 
     /**
@@ -341,11 +325,8 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param magFilter
      */
     public setFilters (minFilter: Filter, magFilter: Filter) {
-        if (this._minFilter !== minFilter || this._magFilter !== magFilter) {
-            this._minFilter = minFilter;
-            this._magFilter = magFilter;
-            this._updateSampler();
-        }
+        if (minFilter !== this._minFilter) { this._minFilter = minFilter; this._samplerInfo[0] = minFilter; }
+        if (magFilter !== this._magFilter) { this._magFilter = magFilter; this._samplerInfo[1] = magFilter; }
     }
 
     /**
@@ -354,10 +335,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param mipFilter
      */
     public setMipFilter (mipFilter: Filter) {
-        if (this._mipFilter !== mipFilter) {
-            this._mipFilter = mipFilter;
-            this._updateSampler();
-        }
+        if (mipFilter !== this._mipFilter) { this._mipFilter = mipFilter; this._samplerInfo[2] = mipFilter; }
     }
 
     /**
@@ -367,10 +345,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param flipY
      */
     public setFlipY (flipY: boolean) {
-        if (this._flipY !== flipY) {
-            this._flipY = flipY;
-            this._updateSampler();
-        }
+        this._flipY = flipY;
     }
 
     /**
@@ -380,10 +355,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param premultiply
      */
     public setPremultiplyAlpha (premultiply: boolean) {
-        if (this._premultiplyAlpha !== premultiply) {
-            this._premultiplyAlpha = premultiply;
-            this._updateSampler();
-        }
+        this._premultiplyAlpha = premultiply;
     }
 
     /**
@@ -392,10 +364,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param anisotropy
      */
     public setAnisotropy (anisotropy: number) {
-        if (this._anisotropy !== anisotropy) {
-            this._anisotropy = anisotropy;
-            this._updateSampler();
-        }
+        if (anisotropy !== this._anisotropy) { this._anisotropy = anisotropy; this._samplerInfo[6] = anisotropy; }
     }
 
     /**
@@ -415,10 +384,6 @@ export class TextureBase extends EventTargetFactory(Asset) {
     public destroy () {
         this._destroyTexture();
 
-        if (this._sampler) {
-            this._sampler.destroy();
-        }
-
         return true;
     }
 
@@ -430,8 +395,8 @@ export class TextureBase extends EventTargetFactory(Asset) {
         return this._textureView;
     }
 
-    public getGFXSampler () {
-        return this._sampler;
+    public getGFXSamplerInfo () {
+        return this._samplerInfo;
     }
 
     // SERIALIZATION
@@ -441,7 +406,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      */
     public _serialize (): any {
         return this._minFilter + ',' + this._magFilter + ',' +
-            this._wrapS + ',' + this._wrapT + ',' +
+            this._wrapU + ',' + this._wrapV + ',' +
             (this._premultiplyAlpha ? 1 : 0) + ',' +
             this._mipFilter + ',' + this._anisotropy + ',' +
             (this._flipY ? 1 : 0) + ',' +
@@ -458,26 +423,20 @@ export class TextureBase extends EventTargetFactory(Asset) {
         fields.unshift('');
         if (fields.length >= 6) {
             // decode filters
-            this._minFilter = parseInt(fields[1], undefined);
-            this._magFilter = parseInt(fields[2], undefined);
+            this.setFilters(parseInt(fields[1]), parseInt(fields[2]));
             // decode wraps
-            this._wrapS = parseInt(fields[3], undefined);
-            this._wrapT = parseInt(fields[4], undefined);
+            this.setWrapMode(parseInt(fields[3]), parseInt(fields[4]));
             // decode premultiply alpha
             this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
         }
         if (fields.length >= 8) {
-            this._mipFilter = parseInt(fields[6], undefined);
-            this._anisotropy = parseInt(fields[7], undefined);
+            this.setMipFilter(parseInt(fields[6]));
+            this.setAnisotropy(parseInt(fields[7]));
         }
         if (fields.length >= 10) {
             this._flipY = fields[8].charCodeAt(0) === CHAR_CODE_1;
             this._genMipmap = fields[9].charCodeAt(0) === CHAR_CODE_1;
         }
-    }
-
-    public onLoaded () {
-        this._updateSampler();
     }
 
     /**
@@ -506,10 +465,6 @@ export class TextureBase extends EventTargetFactory(Asset) {
         } else {
             return null;
         }
-    }
-
-    protected _getGfxFormat () {
-        return toGfxFormat(this._format);
     }
 
     protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number) {
@@ -582,7 +537,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
         return {
             type: GFXTextureType.TEX2D,
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            format: toGfxFormat(this._format),
+            format: this._format,
             width: this._potientialWidth,
             height: this._potientialHeight,
             mipLevel: this._mipmapLevel,
@@ -594,7 +549,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
         return {
             texture: this._texture!,
             type: GFXTextureViewType.TV2D,
-            format: this._getGfxFormat(),
+            format: this._format,
         };
     }
 
@@ -622,27 +577,6 @@ export class TextureBase extends EventTargetFactory(Asset) {
             this._texture = null;
         }
     }
-
-    private _updateSampler () {
-        if (this._sampler) {
-            this._sampler.destroy();
-        }
-
-        const gfxDevice = this._getGlobalDevice();
-        if (!gfxDevice) {
-            return;
-        }
-
-        this._sampler = gfxDevice.createSampler({
-            name: `Sampler of ${this.name}`,
-            minFilter: toGfxFilterMode(this._minFilter),
-            magFilter: toGfxFilterMode(this._magFilter),
-            addressU: toGfxAddressMode(this._wrapS),
-            addressV: toGfxAddressMode(this._wrapT),
-            maxAnisotropy: this._anisotropy,
-        });
-    }
 }
 
-/* tslint:disable:no-string-literal */
-cc['TextureBase'] = TextureBase;
+cc.TextureBase = TextureBase;

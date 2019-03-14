@@ -13,12 +13,13 @@ import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
     GFXInputState, GFXPipelineState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXRenderPass } from '../../gfx/render-pass';
-import { GFXSampler, IGFXSamplerInfo } from '../../gfx/sampler';
+import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { programLib } from './program-lib';
+import { samplerLib } from './sampler-lib';
 
 export interface IDefineMap { [name: string]: number | boolean | string; }
 export interface IPassInfoFull extends IPassInfo {
@@ -170,13 +171,12 @@ export class Pass {
         for (const u of shaderInfo.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
             const inf = info.properties && info.properties[u.name];
-            const samplerInfo = Object.assign({}, inf && inf.sampler);
-            const sampler = getSampler(device, samplerInfo);
-            if (sampler) { this._samplers[u.binding] = sampler; }
-            else { console.error('create sampler failed.'); }
             const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
             const texture = builtinResMgr.get<TextureBase>(texName);
-            if (texture) { this._textureViews[u.binding] = texture.getGFXTextureView()!; }
+            if (texture) {
+                this._textureViews[u.binding] = texture.getGFXTextureView()!;
+                this._samplers[u.binding] = samplerLib.getSampler(device, texture.getGFXSamplerInfo());
+            }
             else { console.warn('illegal texture default value ' + texName); }
         }
 
@@ -408,21 +408,3 @@ const serializeDepthStencilState = (dss: GFXDepthStencilState) => {
     res += `,${dss.stencilFailOpBack},${dss.stencilZFailOpBack},${dss.stencilPassOpBack},${dss.stencilWriteMaskBack}`;
     return res;
 };
-
-const samplerLib = new Map<string, GFXSampler>();
-const getSampler = (() => {
-    const serializeObject = (info: Object) => {
-        let res = '';
-        for (const key of Object.keys(info).sort()) {
-            const value = info[key];
-            res += `${key}:${typeof value === 'object' ? serializeObject(value) : value},`;
-        }
-        return res;
-    };
-    return (device: GFXDevice, info: IGFXSamplerInfo) => {
-        const s = serializeObject(info);
-        let res = samplerLib.get(s);
-        if (!res) { res = device.createSampler(info); samplerLib.set(s, res); }
-        return res;
-    };
-})();
