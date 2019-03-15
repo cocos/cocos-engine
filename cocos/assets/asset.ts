@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 import { ccclass, property } from '../core/data/class-decorator';
+import { Node } from '../scene-graph';
 import { RawAsset } from './raw-asset';
 
 /**
@@ -50,20 +51,6 @@ import { RawAsset } from './raw-asset';
  */
 @ccclass('cc.Asset')
 export class Asset extends RawAsset {
-    constructor () {
-        super();
-        /**
-         * !#en
-         * Whether the asset is loaded or not
-         * !#zh
-         * 该资源是否已经成功加载
-         *
-         * @property loaded
-         * @type {Boolean}
-         */
-        this.loaded = true;
-    }
-
     /**
      * !#en
      * Returns the url of this asset's native object, if none it will returns an empty string.
@@ -74,18 +61,18 @@ export class Asset extends RawAsset {
      * @readOnly
      */
     @property({
-        visible: false
+        visible: false,
     })
     get nativeUrl () {
         if (this._native) {
-            var name = this._native;
+            const name = this._native;
             if (name.charCodeAt(0) === 47) {    // '/'
                 // remove library tag
                 // not imported in library, just created on-the-fly
                 return name.slice(1);
             }
             if (cc.AssetLibrary) {
-                var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
+                const base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
                 if (name.charCodeAt(0) === 46) {  // '.'
                     // imported in dir where json exist
                     return base + name;
@@ -103,15 +90,6 @@ export class Asset extends RawAsset {
     }
 
     /**
-     * Serializable url for native asset.
-     * @property {String} _native
-     * @default ""
-     * @private
-     */
-    @property
-    _native = ""
-
-    /**
      * The underlying native asset of this asset if one is available.
      * This property can be used to access additional details or functionality releated to the asset.
      * This property will be initialized by the loader if `_native` is available.
@@ -121,22 +99,10 @@ export class Asset extends RawAsset {
      * @type {any}
      */
     @property
-    get _nativeAsset () {
+    get _nativeAsset (): any {
+        return null;
     }
     set _nativeAsset (obj) {
-    }
-
-    /**
-     * 应 AssetDB 要求提供这个方法
-     *
-     * @method deserialize
-     * @param {String} data
-     * @return {Asset}
-     * @static
-     * @private
-     */
-    static deserialize (data) {
-        return cc.deserialize(data);
     }
 
     /**
@@ -147,7 +113,7 @@ export class Asset extends RawAsset {
      * @default false
      * @static
      */
-    static preventDeferredLoadDependents = false;
+    public static preventDeferredLoadDependents = false;
 
     /**
      * !#en Indicates whether its native object should be preloaded from native url.
@@ -157,13 +123,45 @@ export class Asset extends RawAsset {
      * @default false
      * @static
      */
-    static preventPreloadNativeObject = false;
+    public static preventPreloadNativeObject = false;
+
+    /**
+     * 应 AssetDB 要求提供这个方法
+     *
+     * @method deserialize
+     * @param {String} data
+     * @return {Asset}
+     * @static
+     * @private
+     */
+    public static deserialize (data) {
+        return cc.deserialize(data);
+    }
+    /**
+     * !#en
+     * Whether the asset is loaded or not
+     * !#zh
+     * 该资源是否已经成功加载
+     */
+    public loaded = true;
+
+    /**
+     * Serializable url for native asset. For internal usage.
+     * @default ""
+     */
+    @property
+    public _native: string | undefined = '';
+
+    constructor () {
+        super();
+    }
 
     /**
      * Returns the string representation of the object.
      *
      * The `Asset` object overrides the `toString()` method of the `Object` object.
-     * JavaScript calls the toString() method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
+     * JavaScript calls the toString() method automatically when an asset is to
+     * be represented as a text value or when a texture is referred to in a string concatenation.
      *
      * For assets of the native type, it will return `this.nativeUrl`.
      * Otherwise, an empty string is returned.
@@ -172,7 +170,7 @@ export class Asset extends RawAsset {
      * @method toString
      * @return {String}
      */
-    toString () {
+    public toString () {
         return this.nativeUrl;
     }
 
@@ -183,20 +181,19 @@ export class Asset extends RawAsset {
      * @return {String}
      * @private
      */
-    serialize () {
-        return Editor.serialize(this);
-    }
+    // public serialize () {
+    //     return Editor.serialize(this);
+    // }
 
     /**
      * Set native file name for this asset.
      * @seealso nativeUrl
      *
-     * @method _setRawAsset
-     * @param {String} filename
-     * @param {Boolean} [inLibrary=true]
+     * @param filename
+     * @param [inLibrary=true]
      * @private
      */
-    _setRawAsset (filename, inLibrary) {
+    public _setRawAsset (filename: string, inLibrary?: boolean) {
         if (inLibrary !== false) {
             this._native = filename || undefined;
         }
@@ -204,21 +201,25 @@ export class Asset extends RawAsset {
             this._native = '/' + filename;  // simply use '/' to tag location where is not in the library
         }
     }
+
+    /**
+     * !#en
+     * Create a new node using this asset in the scene.<br/>
+     * If this type of asset dont have its corresponding node type, this method should be null.
+     * !#zh
+     * 使用该资源在场景中创建一个新节点。<br/>
+     * 如果这类资源没有相应的节点类型，该方法应该是空的。
+     */
+    public createNode? (callback: CreateNodeCallback): void;
 }
 
 /**
- * !#en
- * Create a new node using this asset in the scene.<br/>
- * If this type of asset dont have its corresponding node type, this method should be null.
- * !#zh
- * 使用该资源在场景中创建一个新节点。<br/>
- * 如果这类资源没有相应的节点类型，该方法应该是空的。
- *
- * @method createNode
- * @param {Function} callback
- * @param {String} callback.error - null or the error info
- * @param {Object} callback.node - the created node or null
+ * @param error - null or the error info
+ * @param node - the created node or null
  */
+type CreateNodeCallback = (error: Error | null, node: Node) => void;
+
+// @ts-ignore
 Asset.prototype.createNode = null;
 
 cc.Asset = Asset;

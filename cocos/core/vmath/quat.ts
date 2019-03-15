@@ -1,4 +1,3 @@
-import { IWritableArrayLike } from './fwd-decls';
 import mat3 from './mat3';
 import { toDegree } from './utils';
 import vec3 from './vec3';

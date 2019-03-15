@@ -238,10 +238,10 @@ export class ParticleSystemComponent extends Component {
         this.renderer = null;
     }
 
-    private onLoad () {
+    protected onLoad () {
         // HACK, TODO
         this.renderer = this.getComponent(ParticleSystemRenderer);
-        this.renderer.onInit();
+        this.renderer!.onInit();
         this.shapeModule.onInit(this);
         this.textureAnimationModule.onInit(this);
 
@@ -251,17 +251,17 @@ export class ParticleSystemComponent extends Component {
         // this._system.add(this);
     }
 
-    private onDestroy () {
+    protected onDestroy () {
         // this._system.remove(this);
     }
 
-    private onEnable () {
+    protected onEnable () {
         if (this.playOnAwake) {
             this.play();
         }
     }
 
-    private onDisable () {
+    protected onDisable () {
 
     }
 
@@ -434,7 +434,7 @@ export class ParticleSystemComponent extends Component {
         }
     }
 
-    private update (dt) {
+    protected update (dt) {
         const scaledDeltaTime = dt * this.simulationSpeed;
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
