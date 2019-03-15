@@ -639,7 +639,7 @@ let Label = cc.Class({
         if (font instanceof cc.BitmapFont) {
             this._super();
         }
-        else {
+        else if (!(this.node._renderFlag & RenderFlow.FLAG_OPACITY)) {
             this._updateRenderData();
             this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
