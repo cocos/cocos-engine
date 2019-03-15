@@ -85,7 +85,7 @@ export class Scene extends Node {
         return this._globals;
     }
 
-    protected _onHierarchyChanged () { }
+    public _onHierarchyChanged () { }
     protected _instantiate () { }
 
     protected _load () {
