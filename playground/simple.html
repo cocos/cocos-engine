@@ -162,6 +162,17 @@
         });
       });
 
+      const n0 = new cc.Node();
+      n0.parent = scene;
+      n0.setWorldPosition(0, 0, 10);
+      const n1 = new cc.Node();
+      n1.parent = n0;
+      console.log(n1.getPosition());
+      console.log(n1.getWorldPosition());
+      n1.parent = scene;
+      console.log(n1.getPosition());
+      console.log(n1.getWorldPosition());
+
       cc.director.runSceneImmediate(scene);
     }
     cc.game.run({ id: 'canvas' }, onStart);
