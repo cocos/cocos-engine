@@ -34,7 +34,7 @@ import { LightComponent } from './light-component';
 export class DirectionalLightComponent extends LightComponent {
 
     @property
-    protected _intensity = 10000;
+    protected _illuminance = 65000;
 
     protected _type = LightType.DIRECTIONAL;
     protected _light: DirectionalLight | null = null;
@@ -45,12 +45,12 @@ export class DirectionalLightComponent extends LightComponent {
      * !#ch 光源强度
      */
     @property
-    get intensity () {
-        return this._intensity;
+    get illuminance () {
+        return this._illuminance;
     }
-    set intensity (val) {
-        this._intensity = val;
-        if (this._light) { this._light.illuminance = this._intensity; }
+    set illuminance (val) {
+        this._illuminance = val;
+        if (this._light) { this._light.illuminance = this._illuminance; }
     }
 
     protected _createLight (scene?: RenderScene) {
@@ -61,7 +61,7 @@ export class DirectionalLightComponent extends LightComponent {
             return;
         }
         this._light = scene.mainLight;
-        this.intensity = this._intensity;
+        this.illuminance = this._illuminance;
         super._createLight(scene);
     }
 

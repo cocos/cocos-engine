@@ -201,13 +201,13 @@ export class TextureBase extends EventTargetFactory(Asset) {
     protected _mipFilter: number = Filter.LINEAR;
 
     @property
-    protected _wrapU: number = WrapMode.REPEAT;
+    protected _wrapS: number = WrapMode.REPEAT;
 
     @property
-    protected _wrapV: number = WrapMode.REPEAT;
+    protected _wrapT: number = WrapMode.REPEAT;
 
     @property
-    protected _wrapW: number = WrapMode.REPEAT;
+    protected _wrapR: number = WrapMode.REPEAT;
 
     @property
     protected _anisotropy = 16;
@@ -308,14 +308,15 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * If the texture size is NPOT (non power of 2), then in can only use gl.CLAMP_TO_EDGE in gl.TEXTURE_WRAP_{S,T}.
      * !#zh 设置纹理包装模式。
      * 若纹理贴图尺寸是 NPOT（non power of 2），则只能使用 Texture2D.WrapMode.CLAMP_TO_EDGE。
-     * @param wrapU
-     * @param wrapV
+     * @param wrapS
+     * @param wrapT
+     * @param wrapR
      */
-    public setWrapMode (wrapU: WrapMode, wrapV: WrapMode, wrapW?: WrapMode) {
-        if (wrapU !== this._wrapU) { this._wrapU = wrapU; this._samplerInfo[3] = wrapU; }
-        if (wrapV !== this._wrapV) { this._wrapV = wrapV; this._samplerInfo[4] = wrapV; }
-        if (wrapW === undefined) { return; }
-        if (wrapW !== this._wrapW) { this._wrapW = wrapW; this._samplerInfo[5] = wrapW; }
+    public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
+        if (wrapS !== this._wrapS) { this._wrapS = wrapS; this._samplerInfo[3] = wrapS; }
+        if (wrapT !== this._wrapT) { this._wrapT = wrapT; this._samplerInfo[4] = wrapT; }
+        if (wrapR === undefined) { return; }
+        if (wrapR !== this._wrapR) { this._wrapR = wrapR; this._samplerInfo[5] = wrapR; }
     }
 
     /**
@@ -406,7 +407,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      */
     public _serialize (): any {
         return this._minFilter + ',' + this._magFilter + ',' +
-            this._wrapU + ',' + this._wrapV + ',' +
+            this._wrapS + ',' + this._wrapT + ',' +
             (this._premultiplyAlpha ? 1 : 0) + ',' +
             this._mipFilter + ',' + this._anisotropy + ',' +
             (this._flipY ? 1 : 0) + ',' +

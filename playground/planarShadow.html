@@ -104,6 +104,7 @@
       models.plane.node.setRotation(qt);
 
       scene.globals.planarShadow.setPlaneFromNode(models.plane.node);
+      scene.globals.planarShadow.shadowColor = cc.color('#2a4e90');
 
       // material.setProperty('matLightPlaneProj', getLightPlaneProj(cc.v3(-10, altitude + 10, -10), // light
       //   cc.geometry.plane.create(nm.x, nm.y, nm.z, cc.vmath.vec3.dot(nm, models.plane.node.getWorldPosition()))));
