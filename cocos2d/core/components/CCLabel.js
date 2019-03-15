@@ -638,10 +638,13 @@ let Label = cc.Class({
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             this._super();
-        }
-        else if (!(this.node._renderFlag & RenderFlow.FLAG_OPACITY)) {
-            this._updateRenderData();
-            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
+        } else {
+            if (this.node._renderFlag & (RenderFlow.FLAG_COLOR | RenderFlow.FLAG_OPACITY)) {
+                this.node._renderFlag &= ~(RenderFlow.FLAG_COLOR | RenderFlow.FLAG_OPACITY);
+            } else {
+                this._updateRenderData();
+                this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
+            }
         }
     },
 
