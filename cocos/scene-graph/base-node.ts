@@ -386,7 +386,8 @@ export class BaseNode extends CCObject {
         if (CC_DEBUG && oldParent && (oldParent._objFlags & Deactivating)) {
             cc.errorID(3821);
         }
-        this._parent = value || null;
+
+        this._parent = value;
 
         this._onSetParent(oldParent);
 

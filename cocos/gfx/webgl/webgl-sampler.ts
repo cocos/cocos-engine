@@ -81,9 +81,9 @@ export class WebGLGFXSampler extends GFXSampler {
         let glMinFilter = WebGLRenderingContext.NONE;
         let glMagFilter = WebGLRenderingContext.NONE;
 
-        const minFilter = (info.minFilter !== undefined ? info.minFilter : GFXFilter.LINEAR);
-        const magFilter = (info.magFilter !== undefined ? info.magFilter : GFXFilter.LINEAR);
-        const mipFilter = (info.mipFilter !== undefined ? info.mipFilter : GFXFilter.NONE);
+        const minFilter = this._state.minFilter;
+        const magFilter = this._state.magFilter;
+        const mipFilter = this._state.mipFilter;
 
         if (minFilter === GFXFilter.LINEAR || minFilter === GFXFilter.ANISOTROPIC) {
             if (mipFilter === GFXFilter.LINEAR || mipFilter === GFXFilter.ANISOTROPIC) {
@@ -109,9 +109,9 @@ export class WebGLGFXSampler extends GFXSampler {
             glMagFilter = WebGLRenderingContext.NEAREST;
         }
 
-        const glWrapS = (info.addressU !== undefined ? WebGLWraps[info.addressU] : WebGLRenderingContext.CLAMP_TO_EDGE);
-        const glWrapT = (info.addressV !== undefined ? WebGLWraps[info.addressV] : WebGLRenderingContext.CLAMP_TO_EDGE);
-        const glWrapR = (info.addressW !== undefined ? WebGLWraps[info.addressW] : WebGLRenderingContext.CLAMP_TO_EDGE);
+        const glWrapS = WebGLWraps[this._state.addressU];
+        const glWrapT = WebGLWraps[this._state.addressV];
+        const glWrapR = WebGLWraps[this._state.addressW];
 
         this._gpuSampler = {
             glMinFilter,
