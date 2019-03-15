@@ -24,9 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { isChildClassOf } from '../core/utils/js';
-import { CCObject } from '../core/data/object';
 import { ccclass } from '../core/data/class-decorator';
+import { CCObject } from '../core/data/object';
+import { isChildClassOf } from '../core/utils/js';
 
 /**
  * !#en
@@ -39,29 +39,27 @@ import { ccclass } from '../core/data/class-decorator';
  */
 @ccclass('cc.RawAsset')
 export class RawAsset extends CCObject {
+    /**
+     * For internal usage.
+     */
+    public static isRawAssetType (ctor: Function) {
+        return isChildClassOf(ctor, cc.RawAsset) && !isChildClassOf(ctor, cc.Asset);
+    }
+
+    /**
+     * For internal usage.
+     */
+    // @ts-ignore
+    public _uuid: string;
+
     constructor () {
         super();
-        /**
-         * @property _uuid
-         * @type {String}
-         * @private
-         */
+
         Object.defineProperty(this, '_uuid', {
             value: '',
             writable: true,
             // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
         });
-    }
-
-    /**
-     * @method isRawAssetType
-     * @param {Function} ctor
-     * @returns {Boolean}
-     * @static
-     * @private
-     */
-    static isRawAssetType (ctor) {
-        return isChildClassOf(ctor, cc.RawAsset) && !isChildClassOf(ctor, cc.Asset);
     }
 }
 
