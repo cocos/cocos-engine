@@ -8,10 +8,11 @@ import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXFeature } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
+import { samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
-import { UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 
 const textureSizeBuffer = new Float32Array(4);
 
@@ -94,7 +95,7 @@ export class SkinningModel extends Model {
         if (this._jointStorage && isTextureStorage(this._jointStorage)) {
             const jointTexture = this._jointStorage.texture;
             const view = jointTexture.getGFXTextureView();
-            const sampler = jointTexture.getGFXSampler();
+            const sampler = samplerLib.getSampler(this._device, jointTexture.getGFXSamplerInfo());
             if (view && sampler) {
                 pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, view);
                 pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);
