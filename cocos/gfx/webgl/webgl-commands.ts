@@ -793,14 +793,20 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                     }
                 }
 
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, WebGLRenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, WebGLRenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
-                gpuTexture.glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
-                gpuTexture.glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
+                if (gpuTexture.isPowerOf2) {
+                    gpuTexture.glWrapS = WebGLRenderingContext.REPEAT;
+                    gpuTexture.glWrapT = WebGLRenderingContext.REPEAT;
+                } else {
+                    gpuTexture.glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
+                    gpuTexture.glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
+                }
                 gpuTexture.glMinFilter = WebGLRenderingContext.LINEAR;
                 gpuTexture.glMagFilter = WebGLRenderingContext.LINEAR;
+
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, gpuTexture.glWrapS);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, gpuTexture.glWrapT);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, gpuTexture.glMinFilter);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, gpuTexture.glMagFilter);
             }
 
             break;
@@ -844,14 +850,20 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                     }
                 }
 
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, WebGLRenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, WebGLRenderingContext.CLAMP_TO_EDGE);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);
-                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
-                gpuTexture.glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
-                gpuTexture.glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
+                if (gpuTexture.isPowerOf2) {
+                    gpuTexture.glWrapS = WebGLRenderingContext.REPEAT;
+                    gpuTexture.glWrapT = WebGLRenderingContext.REPEAT;
+                } else {
+                    gpuTexture.glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
+                    gpuTexture.glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
+                }
                 gpuTexture.glMinFilter = WebGLRenderingContext.LINEAR;
                 gpuTexture.glMagFilter = WebGLRenderingContext.LINEAR;
+
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, gpuTexture.glWrapS);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, gpuTexture.glWrapT);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, gpuTexture.glMinFilter);
+                gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MAG_FILTER, gpuTexture.glMagFilter);
             }
 
             break;
@@ -1283,6 +1295,8 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
     let gpuShader: WebGLGPUShader | null = null;
     let gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
     let glPrimitive = WebGLRenderingContext.TRIANGLES;
+    let glWrapS;
+    let glWrapT;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];
@@ -1935,15 +1949,22 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                                                 if (glTexUnit) {
                                                     const gpuSampler = gpuBinding.gpuSampler;
-
-                                                    if (gpuTexture.glWrapS !== gpuSampler.glWrapS) {
-                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, gpuSampler.glWrapS);
-                                                        gpuTexture.glWrapS = gpuSampler.glWrapS;
+                                                    if (gpuTexture.isPowerOf2) {
+                                                        glWrapS = gpuSampler.glWrapS;
+                                                        glWrapT = gpuSampler.glWrapT;
+                                                    } else {
+                                                        glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
+                                                        glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
                                                     }
 
-                                                    if (gpuTexture.glWrapT !== gpuSampler.glWrapT) {
-                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, gpuSampler.glWrapT);
-                                                        gpuTexture.glWrapT = gpuSampler.glWrapT;
+                                                    if (gpuTexture.glWrapS !== glWrapS) {
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_S, glWrapS);
+                                                        gpuTexture.glWrapS = glWrapS;
+                                                    }
+
+                                                    if (gpuTexture.glWrapT !== glWrapT) {
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_WRAP_T, glWrapT);
+                                                        gpuTexture.glWrapT = glWrapT;
                                                     }
 
                                                     if (gpuTexture.glMinFilter !== gpuSampler.glMinFilter) {
