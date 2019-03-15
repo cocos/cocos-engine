@@ -1091,7 +1091,7 @@ export class BaseNode extends CCObject {
         }
     }
 
-    protected _onSetParent (oldParent: this | null, , keepWorldTransform: boolean) {
+    protected _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
         if (this._parent) {
             if ((oldParent == null || oldParent._scene !== this._parent._scene) && this._parent._scene != null) {
                 this.walk((node) => {
