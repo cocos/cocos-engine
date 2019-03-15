@@ -29,7 +29,7 @@ export class SphereLight extends Light {
 
     set luminance (lum: number) {
         this._luminance = lum;
-        this._luminousPower = this._luminance * 4.0 * Math.PI;
+        this._luminousPower = this._luminance * (4.0 * this._size * this._size * Math.PI * Math.PI);
     }
 
     get luminance (): number {
@@ -38,7 +38,7 @@ export class SphereLight extends Light {
 
     set luminousPower (lm: number) {
         this._luminousPower = lm;
-        this._luminance = this._luminousPower / 4.0 / Math.PI;
+        this._luminance = this._luminousPower / (4.0 * this._size * this._size * Math.PI * Math.PI);
     }
 
     get luminousPower (): number {
@@ -51,7 +51,7 @@ export class SphereLight extends Light {
 
     protected _size: number = 0.15;
     protected _range: number = 1.0;
-    protected _luminance: number = 10000.0;
+    protected _luminance: number = 0.0;
     protected _luminousPower: number = 0.0;
     protected _pos: Vec3;
     protected _aabb: aabb;
@@ -59,7 +59,7 @@ export class SphereLight extends Light {
     constructor (scene: RenderScene, name: string, node: Node) {
         super(scene, name, node);
         this._type = LightType.SPHERE;
-        this._luminousPower = this._luminance * 4.0 * Math.PI;
+        this.luminousPower = 1700.0;
         this._aabb = aabb.create();
         this._pos = v3();
     }
