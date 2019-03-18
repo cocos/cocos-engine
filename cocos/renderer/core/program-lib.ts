@@ -157,7 +157,7 @@ class ProgramLib {
         return name + defs.reduce((acc, cur) => cur.result ? `${acc}|${cur.name}${cur.result}` : acc, '');
     }
 
-    public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap = {}, pipeline: RenderPipeline) {
+    public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
         const key = this.getKey(name, defines);
         let program = this._cache[key];

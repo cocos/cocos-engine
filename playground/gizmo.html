@@ -43,7 +43,6 @@
 
     const { vec3, quat } = cc.vmath;
 
-
     function onStart() {
       const root = cc.director.root;
       const scene = new cc.Scene('scene');
@@ -59,6 +58,18 @@
       material.initialize({
         effectName: 'builtin-unlit',
         defines: { USE_COLOR: true },
+      });
+      const material2 = new cc.Material();
+      material2.initialize({
+        effectName: 'builtin-unlit',
+        defines: { USE_COLOR: true },
+        states: {
+          depthStencilState: { depthTest: false, depthWrite: false },
+          rasterizerState: { cullMode: cc.GFXCullMode.NONE },
+          blendState: { targets: [
+            { blend: true, blendDst: cc.GFXBlendFactor.ONE_MINUS_SRC_ALPHA, blendDstAlpha: cc.GFXBlendFactor.ONE_MINUS_SRC_ALPHA }
+          ] }
+        }
       });
 
       const createArrow = (color, rotation) => {
@@ -80,10 +91,9 @@
           primitiveMode: cc.GFXPrimitiveMode.LINE_LIST,
         });
 
-
         bodyModel.material = material;
-        bodyModel.material.setProperty('color', color);
         bodyModel.material.overridePipelineStates({ primitive: cc.GFXPrimitiveMode.LINE_LIST });
+        bodyModel.material.setProperty('color', color);
         return arrow;
       };
       const createBorderPlane = (color, position, rotation) => {
@@ -101,15 +111,8 @@
         const ibInfo = mesh.struct.primitives[0].indices.range;
         submesh.ibuffer = mesh.data.buffer.slice(ibInfo.offset, ibInfo.offset + ibInfo.length);
 
-        planeModel.material = material;
+        planeModel.material = material2;
         planeModel.material.setProperty('color', color.lerp(cc.color(0, 0, 0, 0), 0.5));
-        planeModel.material.overridePipelineStates({
-          depthStencilState: { depthTest: false, depthWrite: false },
-          rasterizerState: { cullMode: cc.GFXCullMode.NONE },
-          blendState: { targets: [
-            { blend: true, blendDst: cc.GFXBlendFactor.ONE_MINUS_SRC_ALPHA, blendDstAlpha: cc.GFXBlendFactor.ONE_MINUS_SRC_ALPHA }
-          ] }
-        });
         const border = new cc.Node('border');
         border.parent = borderPlane;
         const borderModel = border.addComponent(cc.ModelComponent);
@@ -119,8 +122,8 @@
           primitiveMode: cc.GFXPrimitiveMode.LINE_LIST,
         });
         borderModel.material = material;
-        borderModel.material.setProperty('color', color);
         borderModel.material.overridePipelineStates({ primitive: cc.GFXPrimitiveMode.LINE_LIST });
+        borderModel.material.setProperty('color', color);
         return borderPlane;
       };
 
