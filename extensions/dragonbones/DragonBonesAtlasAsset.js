@@ -95,11 +95,17 @@ var DragonBonesAtlasAsset = cc.Class({
 
     init (factory) {
         this._factory = factory;
+
+        let atlasJsonObj = JSON.parse(this.atlasJson);
+
+        // If create by manual, uuid is empty.
+        this._uuid = this._uuid || atlasJsonObj.name;
+
         if (this._textureAtlasData) {
             factory.addTextureAtlasData(this._textureAtlasData, this._uuid);
         }
         else {
-            this._textureAtlasData = factory.parseTextureAtlasData(this.atlasJson, this.texture, this._uuid);
+            this._textureAtlasData = factory.parseTextureAtlasData(atlasJsonObj, this.texture, this._uuid);
         }
     },
 
