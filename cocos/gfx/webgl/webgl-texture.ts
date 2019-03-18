@@ -5,7 +5,7 @@ import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture } from './webgl-c
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUTexture } from './webgl-gpu-objects';
 
-function IsPowerOf2(x: number): boolean{
+function IsPowerOf2 (x: number): boolean{
     return x > 0 && (x & (x - 1)) === 0;
 }
 

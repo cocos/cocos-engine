@@ -528,9 +528,9 @@ export class TextureBase extends EventTargetFactory(Asset) {
         };
 
         if (source instanceof HTMLElement) {
-            gfxDevice.copyImageSourceToTexture([source], this._texture, [region]);
+            gfxDevice.copyTexImagesToTexture([source], this._texture, [region]);
         } else {
-            gfxDevice.copyBufferToTexture(source, this._texture, [region]);
+            gfxDevice.copyBuffersToTexture([source], this._texture, [region]);
         }
     }
 

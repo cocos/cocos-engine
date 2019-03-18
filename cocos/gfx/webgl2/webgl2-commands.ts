@@ -956,6 +956,23 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                         h = Math.max(1, h >> 1);
                     }
                 }
+
+                /*
+                if (gpuTexture.isPowerOf2) {
+                    gpuTexture.glWrapS = WebGL2RenderingContext.REPEAT;
+                    gpuTexture.glWrapT = WebGL2RenderingContext.REPEAT;
+                } else {
+                    gpuTexture.glWrapS = WebGL2RenderingContext.CLAMP_TO_EDGE;
+                    gpuTexture.glWrapT = WebGL2RenderingContext.CLAMP_TO_EDGE;
+                }
+                gpuTexture.glMinFilter = WebGL2RenderingContext.LINEAR;
+                gpuTexture.glMagFilter = WebGL2RenderingContext.LINEAR;
+
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_S, gpuTexture.glWrapS);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_T, gpuTexture.glWrapT);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MIN_FILTER, gpuTexture.glMinFilter);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MAG_FILTER, gpuTexture.glMagFilter);
+                */
             }
             break;
         }
@@ -996,6 +1013,23 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                         }
                     }
                 }
+
+                /*
+                if (gpuTexture.isPowerOf2) {
+                    gpuTexture.glWrapS = WebGL2RenderingContext.REPEAT;
+                    gpuTexture.glWrapT = WebGL2RenderingContext.REPEAT;
+                } else {
+                    gpuTexture.glWrapS = WebGL2RenderingContext.CLAMP_TO_EDGE;
+                    gpuTexture.glWrapT = WebGL2RenderingContext.CLAMP_TO_EDGE;
+                }
+                gpuTexture.glMinFilter = WebGL2RenderingContext.LINEAR;
+                gpuTexture.glMagFilter = WebGL2RenderingContext.LINEAR;
+
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_S, gpuTexture.glWrapS);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_WRAP_T, gpuTexture.glWrapT);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MIN_FILTER, gpuTexture.glMinFilter);
+                gl.texParameteri(gpuTexture.glTarget, WebGL2RenderingContext.TEXTURE_MAG_FILTER, gpuTexture.glMagFilter);
+                */
             }
             break;
         }
@@ -1482,6 +1516,8 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
     let gpuShader: WebGL2GPUShader | null = null;
     let gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
     let glPrimitive = WebGL2RenderingContext.TRIANGLES;
+    let glWrapS;
+    let glWrapT;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];
@@ -1979,6 +2015,15 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     }
                                                 }
 
+                                                const gpuSampler = gpuBinding.gpuSampler;
+                                                if (gpuTexture.isPowerOf2) {
+                                                    glWrapS = gpuSampler.glWrapS;
+                                                    glWrapT = gpuSampler.glWrapT;
+                                                } else {
+                                                    glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
+                                                    glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
+                                                }
+
                                                 if (cache.glSamplerUnits[texUnit] !== gpuBinding.gpuSampler.glSampler) {
                                                     gl.bindSampler(texUnit, gpuBinding.gpuSampler.glSampler);
                                                     cache.glSamplerUnits[texUnit] = gpuBinding.gpuSampler.glSampler;
@@ -2313,9 +2358,9 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
             }
             case WebGL2Cmd.COPY_BUFFER_TO_TEXTURE: {
                 const cmd5 = cmdPackage.copyBufferToTextureCmds.array[cmdId];
-                WebGL2CmdFuncCopyBufferToTexture(
+                WebGL2CmdFuncCopyBuffersToTexture(
                     device,
-                    (cmd5.gpuBuffer as WebGL2GPUBuffer).buffer as GFXBufferSource,
+                    [(cmd5.gpuBuffer as WebGL2GPUBuffer).buffer!],
                     cmd5.gpuTexture as WebGL2GPUTexture,
                     cmd5.regions);
 
@@ -2325,22 +2370,16 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
     } // for
 }
 
-export function WebGL2CmdFuncCopyBufferToTexture (
+export function WebGL2CmdFuncCopyTexImagesToTexture (
     device: WebGL2GFXDevice,
-    buffer: GFXBufferSource,
+    texImages: TexImageSource[],
     gpuTexture: WebGL2GPUTexture,
     regions: GFXBufferTextureCopy[]) {
 
     const gl = device.gl;
-
-    const buff = buffer as ArrayBuffer;
-    const fmtInfo: IGFXFormatInfo = GFXFormatInfos[gpuTexture.format];
     let m = 0;
-    let w = 1;
-    let h = 1;
+    let n = 0;
     let f = 0;
-    let buffOffset = 0;
-
     switch (gpuTexture.glTarget) {
         case WebGL2RenderingContext.TEXTURE_2D: {
             const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
@@ -2349,48 +2388,12 @@ export function WebGL2CmdFuncCopyBufferToTexture (
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
-            const isCompressed = GFXFormatInfos[gpuTexture.format].isCompressed;
-            if (!isCompressed) {
-                for (const region of regions) {
-                    buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
-
-                    w = region.texExtent.width;
-                    h = region.texExtent.height;
-
-                    for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                        const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                        const data = buff.slice(buffOffset, buffOffset + memSize);
-                        const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
-
-                        gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, m,
-                            region.texOffset.x, region.texOffset.y, w, h,
-                            gpuTexture.glFormat, gpuTexture.glType, pixels);
-
-                        buffOffset += memSize;
-                        w = Math.max(1, w >> 1);
-                        h = Math.max(1, w >> 1);
-                    }
-                }
-            } else {
-                for (const region of regions) {
-                    buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
-
-                    w = region.texExtent.width;
-                    h = region.texExtent.height;
-
-                    for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                        const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                        const data = buff.slice(buffOffset, buffOffset + memSize);
-                        const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
-
-                        gl.compressedTexSubImage2D(WebGL2RenderingContext.TEXTURE_2D, m,
-                            region.texOffset.x, region.texOffset.y, w, h,
-                            gpuTexture.glFormat, pixels);
-
-                        buffOffset += memSize;
-                        w = Math.max(1, w >> 1);
-                        h = Math.max(1, w >> 1);
-                    }
+            for (const region of regions) {
+                n = 0;
+                for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
+                    gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, m,
+                        region.texOffset.x, region.texOffset.y,
+                        gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
                 }
             }
             break;
@@ -2402,53 +2405,106 @@ export function WebGL2CmdFuncCopyBufferToTexture (
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
-            const isCompressed = GFXFormatInfos[gpuTexture.format].isCompressed;
-            if (!isCompressed) {
-                for (const region of regions) {
-                    buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
-                    const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
-                    for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
-                        w = region.texExtent.width;
-                        h = region.texExtent.height;
+            for (const region of regions) {
+                n = 0;
+                const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
+                for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
+                    const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
+                    for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
+                        gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                            region.texOffset.x, region.texOffset.y,
+                            gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
+                    }
+                }
+            }
+            break;
+        }
+        default: {
+            console.error('Unsupported GL texture type, copy buffer to texture failed.');
+        }
+    }
 
-                        const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
-                        for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
-                            const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                            const data = buff.slice(buffOffset, buffOffset + memSize);
-                            const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
+    if (gpuTexture.flags & GFXTextureFlagBit.GEN_MIPMAP) {
+        gl.generateMipmap(gpuTexture.glTarget);
+    }
+}
 
+export function WebGL2CmdFuncCopyBuffersToTexture (
+    device: WebGL2GFXDevice,
+    buffers: ArrayBuffer[],
+    gpuTexture: WebGL2GPUTexture,
+    regions: GFXBufferTextureCopy[]) {
+
+    const gl = device.gl;
+    let m = 0;
+    let n = 0;
+    let w = 1;
+    let h = 1;
+    let f = 0;
+    const fmtInfo: IGFXFormatInfo = GFXFormatInfos[gpuTexture.format];
+    const isCompressed = fmtInfo.isCompressed;
+    switch (gpuTexture.glTarget) {
+        case WebGL2RenderingContext.TEXTURE_2D: {
+            const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
+            if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                gl.bindTexture(WebGL2RenderingContext.TEXTURE_2D, gpuTexture.glTexture);
+                glTexUnit.glTexture = gpuTexture.glTexture;
+            }
+
+            for (const region of regions) {
+
+                n = 0;
+                w = region.texExtent.width;
+                h = region.texExtent.height;
+
+                for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
+                    const pixels = !fmtInfo.isFloating ? new Uint8Array(buffers[n++]) : new Float32Array(buffers[n++]);
+
+                    if (!isCompressed) {
+                        gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, m,
+                            region.texOffset.x, region.texOffset.y, w, h,
+                            gpuTexture.glFormat, gpuTexture.glType, pixels);
+                    } else {
+                        gl.compressedTexSubImage2D(WebGL2RenderingContext.TEXTURE_2D, m,
+                            region.texOffset.x, region.texOffset.y, w, h,
+                            gpuTexture.glFormat, pixels);
+                    }
+                    w = Math.max(1, w >> 1);
+                    h = Math.max(1, w >> 1);
+                }
+            }
+            break;
+        }
+        case WebGL2RenderingContext.TEXTURE_CUBE_MAP: {
+            const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
+            if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                gl.bindTexture(WebGL2RenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
+                glTexUnit.glTexture = gpuTexture.glTexture;
+            }
+
+            for (const region of regions) {
+                n = 0;
+                const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
+                for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
+                    w = region.texExtent.width;
+                    h = region.texExtent.height;
+
+                    const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
+                    for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
+                        const pixels = !fmtInfo.isFloating ? new Uint8Array(buffers[n++]) : new Float32Array(buffers[n++]);
+
+                        if (!isCompressed) {
                             gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, gpuTexture.glType, pixels);
-
-                            buffOffset += memSize;
-                            w = Math.max(1, w >> 1);
-                            h = Math.max(1, w >> 1);
-                        }
-                    }
-                }
-            } else {
-                for (const region of regions) {
-                    buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
-                    const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
-                    for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
-                        w = region.texExtent.width;
-                        h = region.texExtent.height;
-
-                        const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
-                        for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
-                            const memSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                            const data = buff.slice(buffOffset, buffOffset + memSize);
-                            const pixels = !fmtInfo.isFloating ? new Uint8Array(data) : new Float32Array(data);
-
+                        } else {
                             gl.compressedTexSubImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, pixels);
-
-                            buffOffset += memSize;
-                            w = Math.max(1, w >> 1);
-                            h = Math.max(1, w >> 1);
                         }
+
+                        w = Math.max(1, w >> 1);
+                        h = Math.max(1, w >> 1);
                     }
                 }
             }

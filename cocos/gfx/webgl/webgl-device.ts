@@ -25,9 +25,7 @@ import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { WebGLGFXCommandBuffer } from './webgl-command-buffer';
-import {
-    WebGLCmdFuncCopyBufferToTexture,
-} from './webgl-commands';
+import { WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
@@ -194,9 +192,11 @@ export class WebGLGFXDevice extends GFXDevice {
             };
 
             this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs);
+            /*
             if (this._webGLRC && info.debug) {
                 this._webGLRC = WebGLDeveloperTools.makeDebugContext(this._webGLRC, this._onWebGLError.bind(this));
             }
+            */
         } catch (err) {
             console.error(err);
             return false;
@@ -461,49 +461,22 @@ export class WebGLGFXDevice extends GFXDevice {
         (this._cmdAllocator as WebGLGFXCommandAllocator).releaseCmds();
     }
 
-    public copyBufferToTexture (buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
-        WebGLCmdFuncCopyBufferToTexture(
+    public copyBuffersToTexture (buffers: ArrayBuffer[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
+        WebGLCmdFuncCopyBuffersToTexture(
             this,
-            buffer,
+            buffers,
             (texture as WebGLGFXTexture).gpuTexture,
             regions);
     }
 
-    public copyImageSourceToTexture (
-        source: CanvasImageSource[],
+    public copyTexImagesToTexture (
+        texImages: TexImageSource[],
         texture: GFXTexture,
         regions: GFXBufferTextureCopy[]) {
 
-        if (!this._canvas2D) { return; }
-        const context = this._canvas2D.getContext('2d');
-        if (!context) { return; }
-
-        const data: Uint8ClampedArray[] = [];
-        const faces = source.length / regions.length;
-        let imgSrc: CanvasImageSource;
-
-        for (let j = 0; j < regions.length; j++) {
-            for (let i = 0; i < faces; i++) {
-                const level = regions[j].texSubres.baseMipLevel;
-                this._canvas2D.width = texture.width >> level;
-                this._canvas2D.height = texture.height >> level;
-                imgSrc = source[j * faces + i];
-
-                if (imgSrc.width <= 0 || imgSrc.height <= 0) {
-                    return ;
-                }
-
-                context.drawImage(imgSrc, 0, 0);
-                data.push(context.getImageData(0, 0, this._canvas2D.width, this._canvas2D.height).data);
-            }
-        }
-
-        const buffer = new Uint8ClampedArray(data.reduce((acc, cur) => acc + cur.length, 0));
-        data.reduce((acc, cur) => { buffer.set(cur, acc); return acc + cur.length; }, 0);
-
-        WebGLCmdFuncCopyBufferToTexture(
+        WebGLCmdFuncCopyTexImagesToTexture(
             this,
-            buffer,
+            texImages,
             (texture as WebGLGFXTexture).gpuTexture,
             regions);
     }

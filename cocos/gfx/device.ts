@@ -191,8 +191,8 @@ export abstract class GFXDevice {
     public abstract createWindow (info: IGFXWindowInfo): GFXWindow;
     public abstract present ();
 
-    public abstract copyBufferToTexture (buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]);
-    public abstract copyImageSourceToTexture (source: CanvasImageSource[], texture: GFXTexture, regions: GFXBufferTextureCopy[]);
+    public abstract copyBuffersToTexture (buffers: ArrayBuffer[], texture: GFXTexture, regions: GFXBufferTextureCopy[]);
+    public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: GFXTexture, regions: GFXBufferTextureCopy[]);
     public abstract copyFramebufferToBuffer (srcFramebuffer: GFXFramebuffer, dstBuffer: ArrayBuffer, regions: GFXBufferTextureCopy[]);
 
     public hasFeature (feature: GFXFeature): boolean {
