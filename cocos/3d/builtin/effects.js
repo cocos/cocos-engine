@@ -99,6 +99,30 @@ export default [
     ]
   },
   {
+    "name": "builtin-base",
+    "techniques": [
+      { "passes": [{ "depthStencilState": { "depthTest": true, "depthWrite": false }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "builtin-base|base-vs:vert|base-fs:frag", "priority": 244 }] }
+    ],
+    "shaders": [
+      {
+        "name": "builtin-base|base-vs:vert|base-fs:frag",
+        "glsl3": {
+          "vert": `\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time; \n  vec4 cc_screenSize; \n  vec4 cc_screenScale; \n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos; \n  vec4 cc_exposure; \n  vec4 cc_mainLitDir; \n  vec4 cc_mainLitColor; \n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nin vec3 a_position;\nin vec4 a_color;\nout vec4 color;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * pos;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "frag": `\nprecision mediump float;\nin vec4 color;\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  o *= color;\n  return o;\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`
+        },
+        "glsl1": {
+          "vert": `\nprecision mediump float;\nuniform vec4 cc_time;\nuniform vec4 cc_screenSize;\nuniform vec4 cc_screenScale;\nuniform mat4 cc_matView;\nuniform mat4 cc_matViewInv;\nuniform mat4 cc_matProj;\nuniform mat4 cc_matProjInv;\nuniform mat4 cc_matViewProj;\nuniform mat4 cc_matViewProjInv;\nuniform vec4 cc_cameraPos;\nuniform vec4 cc_exposure;\nuniform vec4 cc_mainLitDir;\nuniform vec4 cc_mainLitColor;\nuniform vec4 cc_ambientSky;\nuniform vec4 cc_ambientGround;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying vec4 color;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * pos;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "frag": `\nprecision mediump float;\nvarying vec4 color;\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  o *= color;\n  return o;\n}\nvoid main() { gl_FragColor = frag(); }\n`
+        },
+        "builtins": { "globals": { "blocks": ["CCGlobal"], "samplers": [] }, "locals": { "blocks": [], "samplers": [] } },
+        "defines": [],
+        "blocks": [],
+        "samplers": [],
+        "dependencies": {}
+      }
+    ]
+  },
+  {
     "name": "builtin-standard",
     "techniques": [
       {"name":"opaque", "passes":[{"program":"builtin-standard|standard-vs:vert|standard-fs:frag", "properties":{"tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "albedo":{"type":17, "value":[1, 1, 1, 1]}, "albedoScale":{"type":16, "value":[1, 1, 1, 0]}, "pbrParams":{"type":16, "value":[0.2, 0.6, 1, 1]}, "pbrScale":{"type":16, "value":[1, 1, 1, 1]}, "emissive":{"type":17, "value":[1, 1, 1, 1]}, "emissiveScale":{"type":16, "value":[1, 1, 1, 1]}, "albedoMap":{"type":29, "value":"grey"}, "normalMap":{"type":29, "value":"normal"}, "pbrMap":{"type":29, "value":"grey"}, "emissiveMap":{"type":29, "value":"grey"}, "envMap":{"type":32, "value":"default-cube"}}}, {"depthStencilState":{"depthTest":true, "depthWrite":false}, "program":"builtin-standard|planar-shadow-vs:vert|planar-shadow-fs:frag", "switch":"USE_PLANAR_SHADOW"}]}
