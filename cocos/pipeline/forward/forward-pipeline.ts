@@ -191,11 +191,15 @@ export class ForwardPipeline extends RenderPipeline {
                             }
                             vec3.array(_vec4Array, (light as SpotLight).position);
                             _vec4Array[3] = (light as SpotLight).size;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_POS_SIZE_OFFSET + spotNum * 4);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_POS_OFFSET + spotNum * 4);
+
+                            _vec4Array[0] = (light as SpotLight).size;
+                            _vec4Array[1] = (light as SpotLight).range;
+                            _vec4Array[2] = (light as SpotLight).spotAngle;
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_SIZE_RANGE_ANGLE_OFFSET + spotNum * 4);
 
                             vec3.array(_vec4Array, (light as SpotLight).direction);
-                            _vec4Array[3] = (light as SpotLight).range;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_DIR_RANGE_OFFSET + spotNum * 4);
+                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_DIR_OFFSET + spotNum * 4);
 
                             vec3.array(_vec4Array, light.color);
                             if (light.useColorTemperature) {
