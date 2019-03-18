@@ -56,6 +56,7 @@ export class WebGL2GPUTexture {
     public arrayLayer: number = 1;
     public mipLevel: number = 1;
     public flags: GFXTextureFlags = GFXTextureFlagBit.NONE;
+    public isPowerOf2: boolean = false;
 
     public glTarget: GLenum = 0;
     public glInternelFmt: GLenum = 0;

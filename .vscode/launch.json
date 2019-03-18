@@ -2,10 +2,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "type": "chrome",
             "request": "launch",
-            "name": "Generate declaration",
-            "program": "${workspaceFolder}\\scripts\\generate-declaration-cli.js"
+            "name": "Launch Chrome",
+            "url": "http://localhost:8002/playground/simple.html",
+            "webRoot": "${workspaceFolder}"
         }
     ]
 }

@@ -5,6 +5,10 @@ import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture } from './webgl
 import { WebGL2GFXDevice } from './webgl2-device';
 import { WebGL2GPUTexture } from './webgl2-gpu-objects';
 
+function IsPowerOf2 (x: number): boolean{
+    return x > 0 && (x & (x - 1)) === 0;
+}
+
 export class WebGL2GFXTexture extends GFXTexture {
 
     public get gpuTexture (): WebGL2GPUTexture {
@@ -40,6 +44,8 @@ export class WebGL2GFXTexture extends GFXTexture {
         if (info.flags !== undefined) {
             this._flags = info.flags;
         }
+
+        this._isPowerOf2 = IsPowerOf2(this._width) && IsPowerOf2(this._height);
 
         this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
             this.depth, this.mipLevel) * this._arrayLayer;
@@ -101,6 +107,7 @@ export class WebGL2GFXTexture extends GFXTexture {
             arrayLayer: Math.max(info.arrayLayer || 1, 1),
             mipLevel: Math.max(info.mipLevel || 1, 1),
             flags: info.flags || GFXTextureFlagBit.NONE,
+            isPowerOf2: this._isPowerOf2,
 
             glTarget: 0,
             glInternelFmt: 0,

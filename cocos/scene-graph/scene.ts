@@ -54,7 +54,10 @@ export class Scene extends Node {
     @property
     public _globals = new SceneGlobals();
 
-    protected _renderScene: RenderScene | null = null;
+    /**
+     * For internal usage.
+     */
+    public _renderScene: RenderScene | null = null;
 
     protected _inited = !cc.game._isCloning;
     protected _prefabSyncedInLiveReload = false;
@@ -82,7 +85,7 @@ export class Scene extends Node {
         return this._globals;
     }
 
-    protected _onHierarchyChanged () { }
+    public _onHierarchyChanged () { }
     protected _instantiate () { }
 
     protected _load () {

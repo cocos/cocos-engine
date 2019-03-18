@@ -141,10 +141,37 @@ class Node extends BaseNode {
     // ===============================
 
     /**
-     * invalidate all children after relevant events
+     * hierarchical events
      */
-    public _onSetParent (oldParent: this) {
-        super._onSetParent(oldParent);
+    public setParent (value: this | null, keepWorldTransform: boolean = false) {
+        if (keepWorldTransform) { this.updateWorldTransform(); }
+        super.setParent(value, keepWorldTransform);
+    }
+
+    public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
+        super._onSetParent(oldParent, keepWorldTransform);
+        if (keepWorldTransform) {
+            const parent = this._parent;
+            const local = this._lpos;
+            if (parent) {
+                parent.updateWorldTransform();
+                vec3.sub(local, this._pos, parent._pos);
+                vec3.transformQuat(local, local, quat.conjugate(q_a, parent._rot));
+                vec3.div(local, local, parent._scale);
+                quat.mul(this._lrot, quat.conjugate(q_a, parent._rot), this._rot);
+                vec3.div(this._lscale, this._scale, parent._scale);
+            } else {
+                vec3.copy(this._lpos, this._pos);
+                quat.copy(this._lrot, this._rot);
+                vec3.copy(this._lscale, this._scale);
+            }
+            this._eulerDirty = true;
+        } else {
+            vec3.copy(this._pos, this._lpos);
+            quat.copy(this._rot, this._lrot);
+            vec3.copy(this._scale, this._lscale);
+        }
+
         this.invalidateChildren();
     }
 

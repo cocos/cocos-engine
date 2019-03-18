@@ -1,4 +1,3 @@
-import { IWritableArrayLike } from './fwd-decls';
 import mat3 from './mat3';
 import mat4 from './mat4';
 import quat from './quat';

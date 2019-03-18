@@ -78,6 +78,7 @@ export abstract class GFXTexture extends GFXObject {
     protected _arrayLayer: number = 1;
     protected _mipLevel: number = 1;
     protected _flags: GFXTextureFlags = GFXTextureFlagBit.NONE;
+    protected _isPowerOf2: boolean = false;
     protected _size: number = 0;
     protected _buffer: ArrayBuffer | null = null;
 

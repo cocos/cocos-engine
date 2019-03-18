@@ -20,7 +20,7 @@ import { WebGL2GFXBindingLayout } from './webgl2-binding-layout';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
 import { WebGL2GFXCommandBuffer } from './webgl2-command-buffer';
-import { WebGL2CmdFuncCopyBufferToTexture } from './webgl2-commands';
+import { WebGL2CmdFuncCopyTexImagesToTexture, WebGL2CmdFuncCopyBuffersToTexture } from './webgl2-commands';
 import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
 import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
 import { WebGL2GFXPipelineLayout } from './webgl2-pipeline-layout';
@@ -382,49 +382,22 @@ export class WebGL2GFXDevice extends GFXDevice {
         (this._cmdAllocator as WebGL2GFXCommandAllocator).releaseCmds();
     }
 
-    public copyBufferToTexture (buffer: ArrayBuffer, texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
-        WebGL2CmdFuncCopyBufferToTexture(
+    public copyBuffersToTexture (buffers: ArrayBuffer[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
+        WebGL2CmdFuncCopyBuffersToTexture(
             this,
-            buffer,
+            buffers,
             (texture as WebGL2GFXTexture).gpuTexture,
             regions);
     }
 
-    public copyImageSourceToTexture (
-        source: CanvasImageSource[],
+    public copyTexImagesToTexture (
+        texImages: TexImageSource[],
         texture: GFXTexture,
         regions: GFXBufferTextureCopy[]) {
 
-        if (!this._canvas2D) { return; }
-        const context = this._canvas2D.getContext('2d');
-        if (!context) { return; }
-
-        const data: Uint8ClampedArray[] = [];
-        const faces = source.length / regions.length;
-        let imgSrc: CanvasImageSource;
-
-        for (let j = 0; j < regions.length; j++) {
-            for (let i = 0; i < faces; i++) {
-                const level = regions[j].texSubres.baseMipLevel;
-                this._canvas2D.width = texture.width >> level;
-                this._canvas2D.height = texture.height >> level;
-                imgSrc = source[j * faces + i];
-
-                if (imgSrc.width <= 0 || imgSrc.height <= 0) {
-                    return ;
-                }
-
-                context.drawImage(imgSrc, 0, 0);
-                data.push(context.getImageData(0, 0, this._canvas2D.width, this._canvas2D.height).data);
-            }
-        }
-
-        const buffer = new Uint8ClampedArray(data.reduce((acc, cur) => acc + cur.length, 0));
-        data.reduce((acc, cur) => { buffer.set(cur, acc); return acc + cur.length; }, 0);
-
-        WebGL2CmdFuncCopyBufferToTexture(
+        WebGL2CmdFuncCopyTexImagesToTexture(
             this,
-            buffer,
+            texImages,
             (texture as WebGL2GFXTexture).gpuTexture,
             regions);
     }
