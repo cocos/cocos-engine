@@ -31,6 +31,8 @@ import { ImageAsset } from '../../../assets/image-asset';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
+import { Material } from '../../assets';
+import { RenderableComponent } from '../../framework/renderable-component';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { ISharedLabelData } from '../assembler/label/ttfUtils';
 import { UIRenderComponent } from './ui-render-component';
@@ -616,6 +618,22 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         return result;
+    }
+
+    protected _instanceMaterial () {
+        if (this._sharedMaterial) {
+            this._updateMaterial(
+                Material.getInstantiatedMaterial(this._sharedMaterial,
+                    new RenderableComponent(),
+                    CC_EDITOR ? true : false,
+                ));
+        } else {
+            this._updateMaterial(
+                Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'),
+                    new RenderableComponent(),
+                    CC_EDITOR ? true : false,
+                ));
+        }
     }
 
     private _checkStringEmpty () {
