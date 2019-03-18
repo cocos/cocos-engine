@@ -270,6 +270,22 @@ export class MaskComponent extends UIRenderComponent {
         return this._maskMaterial !== null && this._clearMaskMaterial !== null && this._renderPermit;
     }
 
+    protected _instanceMaterial () {
+        if (this._sharedMaterial) {
+            this._updateMaterial(
+                Material.getInstantiatedMaterial(this._sharedMaterial,
+                    new RenderableComponent(),
+                    CC_EDITOR ? true : false,
+                ));
+        } else {
+            this._updateMaterial(
+                Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-base'),
+                    new RenderableComponent(),
+                    CC_EDITOR ? true : false,
+                ));
+        }
+    }
+
     // _resizeNodeToTargetNode: CC_EDITOR && function () {
     //     if (this.spriteFrame) {
     //         const rect = this.spriteFrame.getRect();

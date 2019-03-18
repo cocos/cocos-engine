@@ -32,6 +32,8 @@ import { clampf } from '../../../core/utils/misc';
 import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
+import { Material } from '../../assets';
+import { RenderableComponent } from '../../framework/renderable-component';
 import { UIRenderComponent } from './ui-render-component';
 
 /**
@@ -353,7 +355,9 @@ export class SpriteComponent extends UIRenderComponent {
      * @example
      * sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
      */
-    @property()
+    @property({
+        type: SizeMode,
+    })
     get sizeMode () {
         return this._sizeMode;
     }
@@ -512,6 +516,22 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         return canRender;
+    }
+
+    protected _instanceMaterial () {
+        if (this._sharedMaterial) {
+            this._updateMaterial(
+                Material.getInstantiatedMaterial(this._sharedMaterial,
+                    new RenderableComponent(),
+                    CC_EDITOR ? true : false,
+                ));
+        } else {
+            this._updateMaterial(
+                Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'),
+                    new RenderableComponent(),
+                    CC_EDITOR ? true : false,
+                ));
+        }
     }
 
     private _flushAssembler () {

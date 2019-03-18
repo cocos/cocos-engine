@@ -38,7 +38,6 @@ import { GFXBlendFactor } from '../../../gfx/define';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets/material';
-import { RenderableComponent } from '../../framework/renderable-component';
 import { IAssembler, IAssemblerManager } from '../assembler/assembler';
 import { CanvasComponent } from './canvas-component';
 import { UITransformComponent } from './ui-transfrom-component';
@@ -120,6 +119,10 @@ export class UIRenderComponent extends Component {
     }
 
     set priority (value) {
+        if (this._priority === value) {
+            return;
+        }
+
         this._priority = value;
     }
 
@@ -160,7 +163,9 @@ export class UIRenderComponent extends Component {
         }
 
         this._sharedMaterial = value;
-        this._instanceMaterial();
+        if (this._instanceMaterial) {
+            this._instanceMaterial();
+        }
     }
 
     get material () {
@@ -226,7 +231,9 @@ export class UIRenderComponent extends Component {
     }
 
     public __preload (){
-        this._instanceMaterial();
+        if (this._instanceMaterial) {
+            this._instanceMaterial();
+        }
     }
 
     public onEnable () {
@@ -271,6 +278,10 @@ export class UIRenderComponent extends Component {
         // }
         // this._allocedDatas.length = 0;
         this.destroyRenderData();
+        if (this._material){
+            this._material.destroy();
+        }
+
         this._updateMaterial(null);
         this._renderData = null;
     }
@@ -381,11 +392,7 @@ export class UIRenderComponent extends Component {
         }
     }
 
-    private _instanceMaterial (){
-        if (this._sharedMaterial) {
-            this._updateMaterial(Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false));
-        }
-    }
+    protected _instanceMaterial? (): void;
 }
 
 cc.UIRenderComponent = UIRenderComponent;
