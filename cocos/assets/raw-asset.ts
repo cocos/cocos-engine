@@ -24,43 +24,43 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-declare const CC_BUILD: boolean;
-declare const CC_TEST: boolean;
-declare const CC_EDITOR: boolean;
-declare const CC_PREVIEW: boolean;
-declare const CC_DEV: boolean;
-declare const CC_DEBUG: boolean;
-declare const CC_JSB: boolean;
-declare const CC_WECHATGAME_SUB: boolean;
-declare const CC_WECHATGAME: boolean;
-declare const CC_QQPLAY: boolean;
-declare const CC_RUNTIME: boolean;
-declare const CC_SUPPORT_JIT: boolean;
+import { ccclass } from '../core/data/class-decorator';
+import { CCObject } from '../core/data/object';
+import { isChildClassOf } from '../core/utils/js';
 
-declare const cc: any;
+/**
+ * !#en
+ * The base class for registering asset types.
+ * !#zh
+ * 注册用的资源基类。
+ *
+ * @class RawAsset
+ * @extends Object
+ */
+@ccclass('cc.RawAsset')
+export class RawAsset extends CCObject {
+    /**
+     * For internal usage.
+     */
+    public static isRawAssetType (ctor: Function) {
+        return isChildClassOf(ctor, cc.RawAsset) && !isChildClassOf(ctor, cc.Asset);
+    }
 
-type RecursivePartial<T> = {
-    [P in keyof T]?:
-        T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
-        T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
-};
+    /**
+     * For internal usage.
+     */
+    // @ts-ignore
+    public _uuid: string;
 
-declare module "webgl-debug" {
-    export function makeDebugContext(
-        webGLRenderingContext: WebGLRenderingContext,
-        throwOnGLError: (err: GLenum, funcName: string, ...args: any[]) => void
-    ): WebGLRenderingContext;
+    constructor () {
+        super();
 
-    export function makeDebugContext(
-        webGL2RenderingContext: WebGL2RenderingContext,
-        throwOnGLError: (err: GLenum, funcName: string, ...args: any[]) => void
-    ): WebGL2RenderingContext;
-
-    export function glEnumToString(glEnum: GLenum): string;
+        Object.defineProperty(this, '_uuid', {
+            value: '',
+            writable: true,
+            // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
+        });
+    }
 }
 
-declare namespace Editor {
-    function log (message?: any, ...optionalParams: any[]): void;
-    function error (message?: any, ...optionalParams: any[]): void;
-    function warn (message?: any, ...optionalParams: any[]): void;
-}
+cc.RawAsset = RawAsset;
