@@ -62,14 +62,14 @@ export class Debugger implements Ammo.btIDebugDraw {
                 defines: {
                     USE_COLOR: true,
                 },
+                states: {
+                    primitive: cc.GFXPrimitiveMode.LINE_LIST,
+                    // depthStencilState: {
+                    //     depthFunc: GFXComparisonFunc.LESS_EQUAL,
+                    // },
+                }
             });
             material.setProperty('color', new Color(0, 255, 0, 255));
-            material.overridePipelineStates({
-                primitive: cc.GFXPrimitiveMode.LINE_LIST,
-                // depthStencilState: {
-                //     depthFunc: GFXComparisonFunc.LESS_EQUAL,
-                // },
-            });
             this._modelComponent.sharedMaterials = [ material ];
         }
     }

@@ -37,6 +37,7 @@ import { EffectAsset } from './effect-asset';
 export interface IMaterialInfo {
     technique?: number;
     defines?: IDefineMap | IDefineMap[];
+    states?: PassOverrides | PassOverrides[];
     effectAsset?: EffectAsset | null;
     effectName?: string;
 }
@@ -64,6 +65,8 @@ export class Material extends Asset {
     protected _techIdx = 0;
     @property
     protected _defines: IDefineMap[] = [];
+    @property
+    protected _states: PassOverrides[] = [];
     @property
     protected _props: Array<Record<string, any>> = [];
 
@@ -95,27 +98,20 @@ export class Material extends Asset {
         if (info.technique) { this._techIdx = info.technique; }
         if (info.effectAsset) { this._effectAsset = info.effectAsset; }
         else if (info.effectName) { this._effectAsset = EffectAsset.get(info.effectName); }
-        if (info.defines) {
-            const cur = this._defines;
-            let patch = info.defines;
-            if (!Array.isArray(patch) && this._effectAsset) { // fill all the passes if not specified
-                const len = Effect.getPassesInfo(this._effectAsset, this._techIdx).length;
-                patch = Array(len).fill(info.defines);
-            }
-            for (let i = 0; i < patch.length; i++) {
-                Object.assign(cur[i] || (cur[i] = {}), patch[i]);
-            }
-        }
+        if (info.defines) { this._prepareInfo(info.defines, this._defines); }
+        if (info.states) { this._prepareInfo(info.states, this._states); }
         this._update();
     }
 
     public destroy () {
+        if (!this._effectAsset) { return; }
         if (this._passes) {
             for (const pass of this._passes) {
                 pass.destroy();
             }
             this._passes.length = 0;
         }
+        this._effectAsset = null;
     }
 
     /**
@@ -177,7 +173,9 @@ export class Material extends Asset {
             Object.assign(this._props[i], mat._props[i]);
         }
         Object.assign(this._defines, mat._defines);
-        this._update(mat._effectAsset);
+        Object.assign(this._states, mat._states);
+        this._effectAsset = mat._effectAsset;
+        this._update();
     }
 
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
@@ -197,14 +195,24 @@ export class Material extends Asset {
         this._update();
     }
 
-    protected _update (asset: EffectAsset | null = this._effectAsset, keepProps: boolean = true) {
-        // get effect asset
-        this._effectAsset = asset;
-        asset = asset || builtinResMgr.get<Material>('default-material').effectAsset!;
+    protected _prepareInfo (patch: object | object[], cur: object[]) {
+        if (!Array.isArray(patch)) { // fill all the passes if not specified
+            const len = this._effectAsset ? Effect.getPassesInfo(this._effectAsset, this._techIdx).length : 1;
+            patch = Array(len).fill(patch);
+        }
+        for (let i = 0; i < (patch as object[]).length; i++) {
+            Object.assign(cur[i] || (cur[i] = {}), patch[i]);
+        }
+    }
+
+    protected _update (keepProps: boolean = true) {
+        const asset = this._effectAsset;
+        if (!asset) { this._passes = builtinResMgr.get<Material>('default-material')._passes.slice(); return; }
         // create passes
         this._passes = Effect.parseEffect(asset, {
             techIdx: this._techIdx,
             defines: this._defines,
+            states: this._states,
         });
         // handle property values
         this._props.length = this._passes.length;

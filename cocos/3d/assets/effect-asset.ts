@@ -12,10 +12,7 @@ export interface IPropertyInfo {
     displayName?: string;
     sampler?: IGFXSamplerInfo;
 }
-export interface IPassInfo {
-    program: string;
-    // effect-writer part
-    switch?: string;
+export interface IPassStates {
     priority?: number;
     primitive?: GFXPrimitiveMode;
     stage?: RenderPassStage;
@@ -23,6 +20,10 @@ export interface IPassInfo {
     depthStencilState?: GFXDepthStencilState;
     blendState?: GFXBlendState;
     dynamics?: GFXDynamicState[];
+}
+export interface IPassInfo extends IPassStates {
+    program: string; // auto-generated
+    switch?: string;
     properties?: Record<string, IPropertyInfo>;
 }
 export interface ITechniqueInfo {
