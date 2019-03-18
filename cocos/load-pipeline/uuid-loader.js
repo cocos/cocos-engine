@@ -290,7 +290,13 @@ export function loadUuid (item, callback) {
     cc.deserialize.Details.pool.put(tdInfo);
 
     var wrappedCallback = function(err, asset) {
-        if (!err && asset.onLoaded) asset.onLoaded();
+        if (!err && asset.onLoaded) {
+            try {
+                asset.onLoaded();
+            } catch(error) {
+                err = error;
+            }
+        }
         callback(err, asset);
     };
 
