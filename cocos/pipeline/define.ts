@@ -4,6 +4,7 @@ import { GFXSampler } from '../gfx/sampler';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Vec3 } from '../core/value-types';
+import { vmath } from '../core';
 
 export enum RenderPassStage {
     DEFAULT = 100,
@@ -192,21 +193,24 @@ export function LinearToSRGB (linear: IGFXColor): IGFXColor {
     return { r, g, b, a: 1.0 };
 }
 
-// Color temperature (in Kelvin) to RGB script.
-// Valid from 1000 to 40000 K (and additionally 0 for pure full white)
+// Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
-    const temp = kelvin / 100.0;
-    if (temp <= 66.0) {
-        rgb.x = 1.0;
-        rgb.y = 0.390081579 * Math.log(temp) - 0.631841444;
-        if (temp <= 19.0) {
-            rgb.z = 0.0;
-        } else {
-            rgb.z = 0.543206789 * Math.log(temp - 10.0) - 1.19625409;
-        }
-    } else {
-        rgb.x = 1.29293619 * Math.pow(temp - 60.0, -0.1332047592);
-        rgb.y = 11.3259693 * Math.pow(temp - 60.0, -0.0755148492);
-        rgb.z = 1.0;
-    }
+    const temp = vmath.clamp(kelvin, 1000.0, 15000.0);
+
+    // Approximate Planckian locus in CIE 1960 UCS
+    const u = (0.860117757 + 1.54118254e-4 * temp + 1.28641212e-7 * temp * temp) / ( 1.0 + 8.42420235e-4 * temp + 7.08145163e-7 * temp * temp);
+    const v = (0.317398726 + 4.22806245e-5 * temp + 4.20481691e-8 * temp * temp) / ( 1.0 - 2.89741816e-5 * temp + 1.61456053e-7 * temp * temp);
+
+    const x = 3.0 * u / (2.0 * u - 8.0 * v + 4.0);
+    const y = 2.0 * v / (2.0 * u - 8.0 * v + 4.0);
+    const z = 1.0 - x - y;
+
+    const Y = 1.0;
+    const X = Y/y * x;
+    const Z = Y/y * z;
+
+    // XYZ to RGB with BT.709 primaries
+    rgb.x =  3.2404542 * X + -1.5371385 * Y + -0.4985314 * Z;
+    rgb.y = -0.9692660 * X +  1.8760108 * Y +  0.0415560 * Z;
+    rgb.z =  0.0556434 * X + -0.2040259 * Y +  1.0572252 * Z;
 }
