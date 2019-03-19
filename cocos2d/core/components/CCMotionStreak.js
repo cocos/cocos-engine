@@ -240,18 +240,24 @@ var MotionStreak = cc.Class({
     },
 
     _activateMaterial () {
+        if (!this._texture || !this._texture.loaded) {
+            this.disableRender();
+            return;
+        }
+
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             material.define('USE_TEXTURE', true);
         }
-        
-        if (this._texture && this._texture.loaded) {
-            material.setProperty('texture', this._texture);
-            this.setMaterial(0, material);
-            this.markForRender(true);
-            this.markForUpdateRenderData(true);
+        else {
+            material = Material.getInstantiatedMaterial(material, this);
         }
+
+        material.setProperty('texture', this._texture);
+        this.sharedMaterials[0] = material;
+        this.markForRender(true);
+        this.markForUpdateRenderData(true);
     },
 
     onFocusInEditor: CC_EDITOR && function () {

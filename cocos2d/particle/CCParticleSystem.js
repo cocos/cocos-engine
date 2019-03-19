@@ -1191,25 +1191,30 @@ var ParticleSystem = cc.Class({
     },
 
     _activateMaterial: function () {
+        if (!this._texture || !this._texture.loaded) {
+            this.markForCustomIARender(false);
+            if (this._renderSpriteFrame) {
+                this._applySpriteFrame();
+            }
+
+            return;
+        }
+            
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             material.define('USE_TEXTURE', true);
             material.define('_USE_MODEL', true);
         }
-
-        if (!this._texture || !this._texture.loaded) {
-            this.markForCustomIARender(false);
-            if (this._renderSpriteFrame) {
-                this._applySpriteFrame();
-            }
-        }
         else {
-            this.markForUpdateRenderData(true);
-            this.markForCustomIARender(true);
-            material.setProperty('texture', this._texture);
-            this.setMaterial(0, material);
+            material = Material.getInstantiatedMaterial(material, this);
         }
+
+        material.setProperty('texture', this._texture);
+        this.sharedMaterials[0] = material;
+
+        this.markForUpdateRenderData(true);
+        this.markForCustomIARender(true);
     },
     
     _finishedSimulation: function () {

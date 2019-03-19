@@ -595,6 +595,10 @@ let ArmatureDisplay = cc.Class({
 
     _activateMaterial () {
         let texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
+        if (!texture) {
+            this.disableRender();
+            return;
+        }
 
         // Get material
         let material = this.sharedMaterials[0];
@@ -603,17 +607,15 @@ let ArmatureDisplay = cc.Class({
             material.define('_USE_MODEL', true);
             material.define('USE_TEXTURE', true);
         }
-
-        if (texture) {
-            material.setProperty('texture', texture);
-            this.markForUpdateRenderData(true);
-            this.markForRender(true);
-        }
         else {
-            this.disableRender();
+            material = Material.getInstantiatedMaterial(material, this);
         }
 
-        this.setMaterial(0, material);
+        material.setProperty('texture', texture);
+        this.sharedMaterials[0] = material;
+
+        this.markForUpdateRenderData(true);
+        this.markForRender(true);
     },
 
     _buildArmature () {

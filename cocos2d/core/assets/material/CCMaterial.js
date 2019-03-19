@@ -40,6 +40,7 @@ let Material = cc.Class({
     ctor () {
         this._dirty = true;
         this._effect = null;
+        this._owner = null;
     },
 
     properties: {
@@ -88,6 +89,12 @@ let Material = cc.Class({
             get () {
                 return this._effect;
             }
+        },
+
+        owner: {
+            get () {
+                return this._owner;
+            }
         }
     },
 
@@ -107,6 +114,7 @@ let Material = cc.Class({
                 let instance = new Material();
                 instance.copy(mat);
                 instance._name = mat._name + ' (Instance)';
+                instance._uuid = mat._uuid;
                 instance._owner = renderComponent;
                 instance._objFlags |= cc.Object.Flags.DontSave;
                 return instance;
