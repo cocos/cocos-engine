@@ -100,7 +100,7 @@ class ProgramLib {
      *   programLib.define(program);
      */
     public define (prog: IShaderInfo) {
-        const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
+        const tmpl = Object.assign(this._templates[prog.name] || { id: ++_shdID }, prog) as IProgramInfo;
         if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
 
         // calculate option mask offset
