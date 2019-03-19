@@ -4,7 +4,6 @@ import { ImageAsset } from '../../assets/image-asset';
 import { Texture2D } from '../../assets/texture-2d';
 import { Rect } from '../../core/value-types';
 import { GFXDevice } from '../../gfx/device';
-import { EffectAsset } from '../assets/effect-asset';
 import { TextureCube } from '../assets/texture-cube';
 import effects from './effects';
 
@@ -122,7 +121,7 @@ class BuiltinResMgr {
 
         // builtin effects
         effects.forEach((e: any) => {
-            const effect = Object.assign(new EffectAsset(), e);
+            const effect = Object.assign(new cc.EffectAsset(), e);
             effect.onLoaded();
         });
 
@@ -146,8 +145,10 @@ class BuiltinResMgr {
         const defaultMtl = new cc.Material();
         defaultMtl._uuid = 'default-material';
         defaultMtl.initialize({
-            effectName: 'builtin-standard',
+            effectName: 'builtin-unlit',
+            defines: { USE_COLOR: true },
         });
+        defaultMtl.setProperty('color', cc.color('#ff00ff'));
         resources[defaultMtl._uuid] = defaultMtl;
 
         // sprite material
