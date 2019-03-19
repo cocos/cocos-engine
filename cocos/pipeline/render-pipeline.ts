@@ -64,16 +64,24 @@ export abstract class RenderPipeline {
         return this._isHDR;
     }
 
-    public get shadingTexView (): GFXTextureView {
-        return this._shadingTexView!;
-    }
-
-    public get shadingFBO (): GFXFramebuffer {
-        return this._shadingFBO!;
-    }
-
     public get depthStencilTexView (): GFXTextureView {
         return this._depthStencilTexView!;
+    }
+
+    public get curShadingTexView (): GFXTextureView {
+        return this._shadingTexViews[this._curIdx];
+    }
+
+    public get prevShadingTexView (): GFXTextureView {
+        return this._shadingTexViews[this._prevIdx];
+    }
+
+    public get curShadingFBO (): GFXFramebuffer {
+        return this._shadingFBOs[this._curIdx];
+    }
+
+    public get prevShadingFBO (): GFXFramebuffer {
+        return this._shadingFBOs[this._prevIdx];
     }
 
     public get quadIA (): GFXInputAssembler {
@@ -108,11 +116,16 @@ export abstract class RenderPipeline {
     protected _isHDRSupported: boolean = false;
     protected _isHDR: boolean = false;
     protected _shadingPass: GFXRenderPass | null = null;
-    protected _shadingTex: GFXTexture | null = null;
-    protected _shadingTexView: GFXTextureView | null = null;
+    protected _fboCount: number = 1;
+    protected _shadingTextures: GFXTexture[] = [];
+    protected _shadingTexViews: GFXTextureView[] = [];
     protected _depthStencilTex: GFXTexture | null = null;
     protected _depthStencilTexView: GFXTextureView | null = null;
-    protected _shadingFBO: GFXFramebuffer | null = null;
+    protected _shadingFBOs: GFXFramebuffer[] = [];
+    protected _shadingTexWidth: number = 0.0;
+    protected _shadingTexHeight: number = 0.0;
+    protected _curIdx: number = 0;
+    protected _prevIdx: number = 1;
     protected _quadVB: GFXBuffer | null = null;
     protected _quadIB: GFXBuffer | null = null;
     protected _quadIA: GFXInputAssembler | null = null;
@@ -150,6 +163,12 @@ export abstract class RenderPipeline {
         for (const flow of this._flows) {
             flow.render(view);
         }
+    }
+
+    public swapFBOs () {
+        const temp = this._curIdx;
+        this._curIdx = this._prevIdx;
+        this._prevIdx = temp;
     }
 
     public addRenderPass (stage: number, renderPass: GFXRenderPass) {
@@ -200,6 +219,12 @@ export abstract class RenderPipeline {
     }
 
     protected createShadingTarget (info: IRenderPipelineInfo): boolean {
+
+        this._fboCount = 1;
+        this._shadingTextures = new Array<GFXTexture>(this._fboCount);
+        this._shadingTexViews = new Array<GFXTextureView>(this._fboCount);
+        this._shadingFBOs = new Array<GFXFramebuffer>(this._fboCount);
+
         let colorFmt: GFXFormat;
         let depthStencilFmt: GFXFormat;
 
@@ -232,38 +257,20 @@ export abstract class RenderPipeline {
         }
 
         // colorFmt = GFXFormat.RGBA16F;
+        const scale = 1.0;
+        const texWidth = Math.min(this._device.width * scale, 2048);
+        const texHeight = Math.min(this._device.height * scale, 2048);
+        let screenScale = Math.min(texWidth / this._device.width, texHeight / this._device.height);
+        screenScale = Math.min(scale, screenScale);
+
+        this._shadingTexWidth = Math.floor(this._device.width * screenScale);
+        this._shadingTexHeight = Math.floor(this._device.height * screenScale);
 
         console.info('CC_USE_HDR: ' + this._isHDR);
-        console.info('Shading Color Format: ' + GFXFormatInfos[colorFmt].name);
-        console.info('Shading Depth Format: ' + GFXFormatInfos[depthStencilFmt].name);
-
-        this._shadingTex = this._device.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-            format: colorFmt,
-            width: this._device.nativeWidth,
-            height: this._device.nativeHeight,
-        });
-
-        this._shadingTexView = this._device.createTextureView({
-            texture : this._shadingTex,
-            type : GFXTextureViewType.TV2D,
-            format : colorFmt,
-        });
-
-        this._depthStencilTex = this._device.createTexture({
-            type : GFXTextureType.TEX2D,
-            usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-            format : depthStencilFmt,
-            width : this._device.nativeWidth,
-            height : this._device.nativeHeight,
-        });
-
-        this._depthStencilTexView = this._device.createTextureView({
-            texture : this._depthStencilTex,
-            type : GFXTextureViewType.TV2D,
-            format : depthStencilFmt,
-        });
+        console.info('SHADING_SIZE: ' + this._shadingTexWidth + ' x ' + this._shadingTexHeight);
+        console.info('SCREEN_SCALE: ' + screenScale);
+        console.info('SHADING_COLOR_FORMAT: ' + GFXFormatInfos[colorFmt].name);
+        console.info('SHADING_DEPTH_FORMAT: ' + GFXFormatInfos[depthStencilFmt].name);
 
         this._shadingPass = this._device.createRenderPass({
             colorAttachments: [{
@@ -286,25 +293,64 @@ export abstract class RenderPipeline {
             },
         });
 
-        this._shadingFBO = this._device.createFramebuffer({
-            renderPass: this._shadingPass,
-            colorViews: [ this._shadingTexView ],
-            depthStencilView: this._depthStencilTexView!,
+        this._depthStencilTex = this._device.createTexture({
+            type : GFXTextureType.TEX2D,
+            usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+            format : depthStencilFmt,
+            width : this._shadingTexWidth,
+            height : this._shadingTexHeight,
         });
+
+        this._depthStencilTexView = this._device.createTextureView({
+            texture : this._depthStencilTex,
+            type : GFXTextureViewType.TV2D,
+            format : depthStencilFmt,
+        });
+
+        for (let i = 0; i < this._fboCount; ++i) {
+            this._shadingTextures[i] = this._device.createTexture({
+                type: GFXTextureType.TEX2D,
+                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                format: colorFmt,
+                width: this._shadingTexWidth,
+                height: this._shadingTexHeight,
+            });
+
+            this._shadingTexViews[i] = this._device.createTextureView({
+                texture : this._shadingTextures[i],
+                type : GFXTextureViewType.TV2D,
+                format : colorFmt,
+            });
+
+            this._shadingFBOs[i] = this._device.createFramebuffer({
+                renderPass: this._shadingPass,
+                colorViews: [ this._shadingTexViews[i] ],
+                depthStencilView: this._depthStencilTexView!,
+            });
+        }
 
         return true;
     }
 
     protected destroyShadingTarget () {
-        if (this._shadingTexView) {
-            this._shadingTexView.destroy();
-            this._shadingTexView = null;
+
+        for (let i = 0; i < this._fboCount; ++i) {
+            if (this._shadingTexViews[i]) {
+                this._shadingTexViews[i].destroy();
+            }
+
+            if (this._shadingTextures[i]) {
+                this._shadingTextures[i].destroy();
+            }
+
+            if (this._shadingFBOs[i]) {
+                this._shadingFBOs[i].destroy();
+            }
         }
 
-        if (this._shadingTex) {
-            this._shadingTex.destroy();
-            this._shadingTex = null;
-        }
+        this._shadingTexViews.splice(0);
+        this._shadingTextures.splice(0);
+        this._shadingFBOs.splice(0);
 
         if (this._depthStencilTexView) {
             this._depthStencilTexView.destroy();
@@ -314,11 +360,6 @@ export abstract class RenderPipeline {
         if (this._depthStencilTex) {
             this._depthStencilTex.destroy();
             this._depthStencilTex = null;
-        }
-
-        if (this._shadingFBO) {
-            this._shadingFBO.destroy();
-            this._shadingFBO = null;
         }
 
         if (this._shadingPass) {
@@ -490,8 +531,8 @@ export abstract class RenderPipeline {
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
 
         if (!view.isOffscreen) {
-            _vec4Array[0] = camera.width / device.nativeWidth;
-            _vec4Array[1] = camera.height / device.nativeHeight;
+            _vec4Array[0] = camera.width / this._shadingTexWidth;
+            _vec4Array[1] = camera.height / this._shadingTexHeight;
         } else {
             _vec4Array[0] = 1.0;
             _vec4Array[1] = 1.0;
@@ -499,6 +540,12 @@ export abstract class RenderPipeline {
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
+
+        _vec4Array[0] = device.nativeWidth;
+        _vec4Array[1] = device.nativeHeight;
+        _vec4Array[2] = 1.0 / _vec4Array[0];
+        _vec4Array[3] = 1.0 / _vec4Array[1];
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.NATIVE_SIZE_OFFSET);
 
         mat4.array(_mat4Array, camera.matView);
         this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_OFFSET);

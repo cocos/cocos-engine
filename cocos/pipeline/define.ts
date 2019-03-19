@@ -1,10 +1,8 @@
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXBindingType, GFXType, IGFXColor } from '../gfx/define';
+import { GFXBindingType, GFXType } from '../gfx/define';
 import { GFXSampler } from '../gfx/sampler';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { GFXTextureView } from '../gfx/texture-view';
-import { Vec3 } from '../core/value-types';
-import { vmath } from '../core';
 
 export enum RenderPassStage {
     DEFAULT = 100,
@@ -34,7 +32,8 @@ export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
     public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
     public static SCREEN_SCALE_OFFSET: number = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
-    public static MAT_VIEW_OFFSET: number = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
+    public static NATIVE_SIZE_OFFSET: number = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
+    public static MAT_VIEW_OFFSET: number = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
     public static MAT_VIEW_INV_OFFSET: number = UBOGlobal.MAT_VIEW_OFFSET + 16;
     public static MAT_PROJ_OFFSET: number = UBOGlobal.MAT_VIEW_INV_OFFSET + 16;
     public static MAT_PROJ_INV_OFFSET: number = UBOGlobal.MAT_PROJ_OFFSET + 16;
@@ -54,6 +53,7 @@ export class UBOGlobal {
             { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenScale', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_nativeSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_matView', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matViewInv', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matProj', type: GFXType.MAT4, count: 1 },
@@ -177,40 +177,4 @@ export interface IInternalBindingInst extends IInternalBindingDesc {
     buffer?: GFXBuffer;
     sampler?: GFXSampler;
     textureView?: GFXTextureView;
-}
-
-export function SRGBToLinear (gamma: IGFXColor): IGFXColor {
-    const r = Math.pow(gamma.r, 2.2);
-    const g = Math.pow(gamma.g, 2.2);
-    const b = Math.pow(gamma.b, 2.2);
-    return { r, g, b, a: 1.0 };
-}
-
-export function LinearToSRGB (linear: IGFXColor): IGFXColor {
-    const r = Math.pow(linear.r, 0.454545);
-    const g = Math.pow(linear.g, 0.454545);
-    const b = Math.pow(linear.b, 0.454545);
-    return { r, g, b, a: 1.0 };
-}
-
-// Color temperature (in Kelvin) to RGB
-export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
-    const temp = vmath.clamp(kelvin, 1000.0, 15000.0);
-
-    // Approximate Planckian locus in CIE 1960 UCS
-    const u = (0.860117757 + 1.54118254e-4 * temp + 1.28641212e-7 * temp * temp) / ( 1.0 + 8.42420235e-4 * temp + 7.08145163e-7 * temp * temp);
-    const v = (0.317398726 + 4.22806245e-5 * temp + 4.20481691e-8 * temp * temp) / ( 1.0 - 2.89741816e-5 * temp + 1.61456053e-7 * temp * temp);
-
-    const x = 3.0 * u / (2.0 * u - 8.0 * v + 4.0);
-    const y = 2.0 * v / (2.0 * u - 8.0 * v + 4.0);
-    const z = 1.0 - x - y;
-
-    const Y = 1.0;
-    const X = Y/y * x;
-    const Z = Y/y * z;
-
-    // XYZ to RGB with BT.709 primaries
-    rgb.x =  3.2404542 * X + -1.5371385 * Y + -0.4985314 * Z;
-    rgb.y = -0.9692660 * X +  1.8760108 * Y +  0.0415560 * Z;
-    rgb.z =  0.0556434 * X + -0.2040259 * Y +  1.0572252 * Z;
 }

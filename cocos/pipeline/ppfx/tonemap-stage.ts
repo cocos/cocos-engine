@@ -4,11 +4,15 @@ import { UBOGlobal } from '../define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
+import { GFXBindingLayout } from '../../gfx/binding-layout';
 
 const colors: IGFXColor[] = [];
 const bufs: GFXCommandBuffer[] = [];
 
 export class ToneMapStage extends RenderStage {
+
+    private _hTexSampler: number = 0;
+    private _bindingLayout: GFXBindingLayout | null = null;
 
     constructor (flow: RenderFlow) {
         super(flow);
@@ -21,7 +25,10 @@ export class ToneMapStage extends RenderStage {
         }
 
         this._priority = info.priority;
-        this._framebuffer = info.framebuffer;
+
+        if (info.framebuffer !== undefined) {
+            this._framebuffer = info.framebuffer ;
+        }
 
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,
@@ -29,15 +36,17 @@ export class ToneMapStage extends RenderStage {
         });
 
         this._pass = this._flow.material.passes[0];
-        const binding = this._pass.getBinding('u_texSampler');
+        this._hTexSampler = this._pass.getBinding('u_texSampler');
 
         const globalUBO = this._pipeline.globalBindings.get(UBOGlobal.BLOCK.name);
-        this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
-        this._pass.bindTextureView(binding, this._pipeline.shadingTexView);
-        this._pass.update();
 
         this._pso = this._pass.createPipelineState();
-        this._pso!.pipelineLayout.layouts[0].update();
+        this._bindingLayout =  this._pso!.pipelineLayout.layouts[0];
+
+        this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
+        this._pass.bindTextureView(this._hTexSampler, this._pipeline.curShadingTexView);
+        this._pass.update();
+        this._bindingLayout.update();
 
         return true;
     }
@@ -60,7 +69,7 @@ export class ToneMapStage extends RenderStage {
 
             this._renderArea.width = camera.width;
             this._renderArea.height = camera.height;
-            const framebuffer = !view.isOffscreen? view.window!.framebuffer : view.framebuffer;
+            const framebuffer = !view.isOffscreen ? view.window!.framebuffer : view.framebuffer;
 
             this._cmdBuff.begin();
             this._cmdBuff.beginRenderPass(framebuffer, this._renderArea,
@@ -74,5 +83,7 @@ export class ToneMapStage extends RenderStage {
         }
 
         this._device.queue.submit([this._cmdBuff!]);
+
+        // this._pipeline.swapFBOs();
     }
 }
