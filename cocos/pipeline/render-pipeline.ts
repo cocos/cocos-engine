@@ -263,8 +263,10 @@ export abstract class RenderPipeline {
         let screenScale = Math.min(texWidth / this._device.width, texHeight / this._device.height);
         screenScale = Math.min(scale, screenScale);
 
-        this._shadingTexWidth = Math.floor(this._device.width * screenScale);
-        this._shadingTexHeight = Math.floor(this._device.height * screenScale);
+        // this._shadingTexWidth = Math.floor(this._device.width * screenScale);
+        // this._shadingTexHeight = Math.floor(this._device.height * screenScale);
+        this._shadingTexWidth = this._device.nativeWidth;
+        this._shadingTexHeight = this._device.nativeHeight;
 
         console.info('CC_USE_HDR: ' + this._isHDR);
         console.info('SHADING_SIZE: ' + this._shadingTexWidth + ' x ' + this._shadingTexHeight);
@@ -540,12 +542,6 @@ export abstract class RenderPipeline {
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
-
-        _vec4Array[0] = device.nativeWidth;
-        _vec4Array[1] = device.nativeHeight;
-        _vec4Array[2] = 1.0 / _vec4Array[0];
-        _vec4Array[3] = 1.0 / _vec4Array[1];
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.NATIVE_SIZE_OFFSET);
 
         mat4.array(_mat4Array, camera.matView);
         this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_OFFSET);

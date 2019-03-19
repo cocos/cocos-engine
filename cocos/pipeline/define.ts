@@ -32,8 +32,7 @@ export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
     public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
     public static SCREEN_SCALE_OFFSET: number = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
-    public static NATIVE_SIZE_OFFSET: number = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
-    public static MAT_VIEW_OFFSET: number = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
+    public static MAT_VIEW_OFFSET: number = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
     public static MAT_VIEW_INV_OFFSET: number = UBOGlobal.MAT_VIEW_OFFSET + 16;
     public static MAT_PROJ_OFFSET: number = UBOGlobal.MAT_VIEW_INV_OFFSET + 16;
     public static MAT_PROJ_INV_OFFSET: number = UBOGlobal.MAT_PROJ_OFFSET + 16;
@@ -53,7 +52,6 @@ export class UBOGlobal {
             { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenScale', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_nativeSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_matView', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matViewInv', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matProj', type: GFXType.MAT4, count: 1 },
