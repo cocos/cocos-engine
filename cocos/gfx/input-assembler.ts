@@ -138,6 +138,19 @@ export abstract class GFXInputAssembler extends GFXObject {
         drawInfo.firstInstance = this._firstInstance;
     }
 
+    /**
+     * update VB data on the fly.
+     * @param vbuffer - an ArrayBuffer containing the full VB
+     * @param attr - name of the attribute to update (default names are specified in GFXAttributeName)
+     * @param data - the new VB attribute data to be uploaded
+     * @example
+     * // get VB array buffer from mesh, better to cache this somewhere convenient
+     * const vbInfo = mesh.struct.vertexBundles[0].data;
+     * const vbuffer = mesh.data.buffer.slice(vbInfo.offset, vbInfo.offset + vbInfo.length);
+     * const submodel = someModelComponent.model.getSubModel(0);
+     * // say the new positions is stored in 'data' as a plain array
+     * submodel.inputAssembler.updateVertexBuffer(vbuffer, cc.GFXAttributeName.ATTR_POSITION, data);
+     */
     public updateVertexAttr (vbuffer: GFXBufferSource, attr: string, data: number[]) {
         let offset = 0;
         let count = 0;
@@ -166,6 +179,19 @@ export abstract class GFXInputAssembler extends GFXObject {
         vb.update(vbuffer);
     }
 
+    /**
+     * update IB data on the fly.
+     * need to call submodel.updateCommandBuffer after this if index count changed
+     * @param ibuffer - an ArrayBuffer containing the full IB
+     * @param data - the new IB data to be uploaded
+     * @example
+     * // get IB array buffer from mesh, better to cache this somewhere convenient
+     * const ibInfo = mesh.struct.primitives[0].indices.range;
+     * submesh.ibuffer = mesh.data.buffer.slice(ibInfo.offset, ibInfo.offset + ibInfo.length);
+     * const submodel = someModelComponent.model.getSubModel(0);
+     * submodel.inputAssembler.updateIndexBuffer(ibuffer, [0, 1, 2]);
+     * submodel.updateCommandBuffer(); // index count changed
+     */
     public updateIndexBuffer (ibuffer: GFXBufferSource, data: number[]) {
         const count = this._indexCount;
         const ib = this._indexBuffer;
