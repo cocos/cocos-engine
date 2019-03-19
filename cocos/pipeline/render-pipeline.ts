@@ -601,7 +601,7 @@ export abstract class RenderPipeline {
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal!.view.buffer);
 
         const planarShadow = scene.planarShadow;
-        planarShadow.update(scene.mainLight);
+        planarShadow.updateDirLight(scene.mainLight);
         this._globalBindings.get(UBOShadow.BLOCK.name)!.buffer!.update(planarShadow.data);
     }
 
