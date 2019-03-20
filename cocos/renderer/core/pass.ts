@@ -172,11 +172,13 @@ export class Pass {
         for (const u of shaderInfo.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
             const inf = info.properties && info.properties[u.name];
+            if (inf && inf.sampler) { this._samplers[u.binding] = samplerLib.getSampler(device, inf.sampler); }
             const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
             const texture = builtinResMgr.get<TextureBase>(texName);
             if (texture) {
                 this._textureViews[u.binding] = texture.getGFXTextureView()!;
-                this._samplers[u.binding] = samplerLib.getSampler(device, texture.getGFXSamplerInfo());
+                const samplerInfo = texture.getGFXSamplerInfo();
+                if (!this._samplers[u.binding] || samplerInfo.length) { this._samplers[u.binding] = samplerLib.getSampler(device, samplerInfo); }
             }
             else { console.warn('illegal texture default value ' + texName); }
         }

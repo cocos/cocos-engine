@@ -10,7 +10,7 @@ export interface IPropertyInfo {
     type: number; // auto-extracted if not specified
     value?: number[] | string;
     displayName?: string;
-    sampler?: IGFXSamplerInfo;
+    sampler?: number[];
 }
 export interface IPassStates {
     priority?: number;
