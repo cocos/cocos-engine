@@ -158,7 +158,7 @@ let VideoPlayerImpl = cc.Class({
         video.style.height = height + 'px';
     },
 
-    _createDom () {
+    _createDom (mute, volume) {
         let video = document.createElement('video');
         video.style.position = "absolute";
         video.style.bottom = "0px";
@@ -166,15 +166,16 @@ let VideoPlayerImpl = cc.Class({
         video.className = "cocosVideo";
         video.setAttribute('preload', 'auto');
         video.setAttribute('webkit-playsinline', '');
-        // This x5-playsinline tag must be added, otherwise the play, pause events will only fire once, in the qq browser.
-        video.setAttribute("x5-playsinline", '');
         video.setAttribute('playsinline', '');
+        if (mute || volume === 0) {
+            video.setAttribute('muted', '');
+        }
 
         this._video = video;
         cc.game.container.appendChild(video);
     },
 
-    createDomElementIfNeeded: function () {
+    createDomElementIfNeeded: function (mute, volume) {
         if (!this._video) {
             this._createDom();
         }
@@ -208,7 +209,7 @@ let VideoPlayerImpl = cc.Class({
         this._url = "";
     },
 
-    setURL (path) {
+    setURL (path, mute, volume) {
         let source, extname;
 
         if (this._url === path) {
@@ -217,7 +218,7 @@ let VideoPlayerImpl = cc.Class({
 
         this._url = path;
         this.removeDom();
-        this.createDomElementIfNeeded();
+        this.createDomElementIfNeeded(mute, volume);
         this._bindEvent();
 
         let video = this._video;
