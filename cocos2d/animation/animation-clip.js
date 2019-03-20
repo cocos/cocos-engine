@@ -155,6 +155,13 @@ var AnimationClip = cc.Class({
         }
     },
 
+    onLoad () {
+        this.duration = Number.parseFloat(this.duration);
+        this.speed = Number.parseFloat(this.speed);
+        this.wrapMode = Number.parseInt(this.wrapMode);
+        this.frameRate = Number.parseFloat(this.sample);
+    },
+
     createPropCurve (target, propPath, keyframes) {
         let motionPaths = [];
         let isMotionPathProp = target instanceof cc.Node && propPath === 'position';
@@ -168,7 +175,7 @@ var AnimationClip = cc.Class({
         // for each keyframes
         for (let i = 0, l = keyframes.length; i < l; i++) {
             let keyframe = keyframes[i];
-            let ratio = keyframe.frame / state.duration;
+            let ratio = keyframe.frame / this.duration;
             curve.ratios.push(ratio);
 
             if (isMotionPathProp) {
@@ -199,7 +206,7 @@ var AnimationClip = cc.Class({
         }
         
         if (isMotionPathProp) {
-            sampleMotionPaths(motionPaths, curve, clip.duration, clip.sample, target);
+            sampleMotionPaths(motionPaths, curve, this.duration, this.sample, target);
         }
 
         // if every piece of ratios are the same, we can use the quick function to find frame index.

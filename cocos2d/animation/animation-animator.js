@@ -213,10 +213,10 @@ if (CC_TEST) {
 function initClipData (root, state) {
     let clip = state.clip;
 
-    state.duration = Number.parseFloat(clip.duration);
-    state.speed = Number.parseFloat(clip.speed);
-    state.wrapMode = Number.parseInt(clip.wrapMode);
-    state.frameRate = Number.parseFloat(clip.sample);
+    state.duration = clip.duration;
+    state.speed = clip.speed;
+    state.wrapMode = clip.wrapMode;
+    state.frameRate = clip.sample;
 
     if ((state.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
         state.repeatCount = Infinity;

@@ -233,11 +233,6 @@ let SkeletonAnimationClip = cc.Class({
                     mat4.mul(bindWorldMatrix, matrix, node.bindpose);
                 }
 
-                // props._jointMatrix.push({
-                //     frame: time,
-                //     value: maxtrixToArray(bindWorldMatrix || matrix)
-                // });
-
                 if (!jointMatrixMap[node.path]) {
                     jointMatrixMap[node.path] = [];
                 }
@@ -262,14 +257,6 @@ let SkeletonAnimationClip = cc.Class({
         }
 
         this._curveData = newCurveData;
-
-        // // do not need position, quat, scale property curve any more.
-        // for (let path in paths) {
-        //     let props = paths[path].props;
-        //     delete props.position;
-        //     delete props.quat;
-        //     delete props.scale;
-        // }
     },
 
     _createJointMatrixCurve (state, root) {
