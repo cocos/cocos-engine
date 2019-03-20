@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const AnimationClip = require('../../../animation/animation-clip');
+const JointMatrixCurve = require('./CCJointMatrixCurve');
 import mat4 from '../../vmath/mat4';
 
 function maxtrixToArray (matrix) {
@@ -95,7 +96,7 @@ let SkeletonAnimationClip = cc.Class({
         }
     },
 
-    _init (model) {
+    _init () {
         if (this._curveData) {
             return this._curveData;
         }
@@ -104,7 +105,6 @@ let SkeletonAnimationClip = cc.Class({
         
         this._generateCommonCurve();
 
-        this._model = model;
         if (this._model.precomputeJointMatrix) {
             this._generateJointMatrixCurve();
         }
@@ -188,6 +188,9 @@ let SkeletonAnimationClip = cc.Class({
             }
         }
 
+        let newCurveData = { ratios: [], jointMatrixMap: {} };
+        let jointMatrixMap = newCurveData.jointMatrixMap;
+
         // walk through node tree to calculate node's joint matrix at time.
         function walk (node, time, pm) {
             let matrix;
@@ -230,10 +233,15 @@ let SkeletonAnimationClip = cc.Class({
                     mat4.mul(bindWorldMatrix, matrix, node.bindpose);
                 }
 
-                props._jointMatrix.push({
-                    frame: time,
-                    value: maxtrixToArray(bindWorldMatrix || matrix)
-                });
+                // props._jointMatrix.push({
+                //     frame: time,
+                //     value: maxtrixToArray(bindWorldMatrix || matrix)
+                // });
+
+                if (!jointMatrixMap[node.path]) {
+                    jointMatrixMap[node.path] = [];
+                }
+                jointMatrixMap[node.path].push(maxtrixToArray(bindWorldMatrix || matrix))
             }
 
             let children = node.children;
@@ -248,16 +256,55 @@ let SkeletonAnimationClip = cc.Class({
         let step = 1 / this.sample;
 
         while (time < duration) {
+            newCurveData.ratios.push(time);
             walk(root, time);
             time += step;
         }
 
-        // do not need position, quat, scale property curve any more.
-        for (let path in paths) {
-            let props = paths[path].props;
-            delete props.position;
-            delete props.quat;
-            delete props.scale;
+        this._curveData = newCurveData;
+
+        // // do not need position, quat, scale property curve any more.
+        // for (let path in paths) {
+        //     let props = paths[path].props;
+        //     delete props.position;
+        //     delete props.quat;
+        //     delete props.scale;
+        // }
+    },
+
+    _createJointMatrixCurve (state, root) {
+        let curve = new JointMatrixCurve();
+        curve.ratios = this.curveData.ratios;
+
+        curve.pairs = [];
+
+        let jointMatrixMap = this.curveData.jointMatrixMap;
+        for (let path in jointMatrixMap) {
+            let target = cc.find(path, root);
+            if (!target) continue;
+
+            curve.pairs.push({
+                target: target,
+                values: jointMatrixMap[path]
+            });
+        }
+
+        return [curve];
+    },
+
+    createCurves (state, root) {
+        if (!this._model) {
+            cc.warn(`Skeleton Animation Clip [${this.name}] Can not find model`);
+            return [];
+        }
+
+        this._init();
+
+        if (this._model.precomputeJointMatrix) {
+            return this._createJointMatrixCurve(state, root);
+        }
+        else {
+            return AnimationClip.prototype.createCurves.call(this, state, root);
         }
     }
 });

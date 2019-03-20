@@ -81,16 +81,21 @@ let SkeletonAnimation = cc.Class({
             },
             set (val) {
                 this._model = val;
+                this._updateClipModel();
             },
             type: Model,
         },
     },
 
-    getAnimationState (name) {
-        let state = this._super(name);	
-        let clip = state.clip;
-        clip._init(this._model);
-        return state;	
+    __preload () {
+        this._updateClipModel();
+    },
+
+    _updateClipModel () {
+        let clips = this._clips;
+        for (let i = 0; i < clips.length; i++) {
+            clips[i]._model = this._model;
+        }
     },
 
     searchClips: CC_EDITOR && function () {

@@ -1176,12 +1176,16 @@ export default class Device {
     let uniform = this._uniforms[name];
 
     let sameType = false;
+    let isArray = false, isFloat32Array = false, isInt32Array = false;
     do {
       if (!uniform) {
         break;
       }
 
-      if (uniform.isArray !== Array.isArray(value)) {
+      isFloat32Array = Array.isArray(value) || value instanceof Float32Array;
+      isInt32Array = value instanceof Int32Array;
+      isArray = isFloat32Array || isInt32Array;
+      if (uniform.isArray !== isArray) {
         break;
       }
 
@@ -1194,14 +1198,11 @@ export default class Device {
 
     if (!sameType) {
       let newValue = value;
-      let isArray = false;
-      if (value instanceof Float32Array || Array.isArray(value)) {
+      if (isFloat32Array) {
         newValue = new Float32Array(value);
-        isArray = true;
       }
-      else if (value instanceof Int32Array) {
+      else if (isInt32Array) {
         newValue = new Int32Array(value);
-        isArray = true;
       }
 
       uniform = {
