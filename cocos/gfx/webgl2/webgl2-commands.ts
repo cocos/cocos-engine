@@ -1516,8 +1516,6 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
     let gpuShader: WebGL2GPUShader | null = null;
     let gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
     let glPrimitive = WebGL2RenderingContext.TRIANGLES;
-    let glWrapS;
-    let glWrapT;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];
@@ -2013,15 +2011,6 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     default: {
                                                         console.error('Unsupported GL Texture type.');
                                                     }
-                                                }
-
-                                                const gpuSampler = gpuBinding.gpuSampler;
-                                                if (gpuTexture.isPowerOf2) {
-                                                    glWrapS = gpuSampler.glWrapS;
-                                                    glWrapT = gpuSampler.glWrapT;
-                                                } else {
-                                                    glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
-                                                    glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
                                                 }
 
                                                 if (cache.glSamplerUnits[texUnit] !== gpuBinding.gpuSampler.glSampler) {

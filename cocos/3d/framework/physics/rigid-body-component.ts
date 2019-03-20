@@ -64,6 +64,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
             this.angularDamping = this._angularDamping;
             this.material = this._material;
             this.useGravity = this._useGravity;
+            this.velocity = this._velocity;
         }
         // if (this.sharedBody) {
         //     this.sharedBody.body.wakeUp();

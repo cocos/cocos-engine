@@ -25,8 +25,6 @@ export class ForwardFlow extends RenderFlow {
         this.createStage(ForwardStage, {
             name: 'ForwardStage',
             priority: ForwardStagePriority.FORWARD,
-            framebuffer:  this._pipeline.shadingFBO,
-            // framebuffer,
         });
 
         return true;

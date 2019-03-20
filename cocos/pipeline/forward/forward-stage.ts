@@ -1,6 +1,6 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType, IGFXColor, GFXClearFlag } from '../../gfx/define';
-import { SRGBToLinear } from '../define';
+import { GFXClearFlag, GFXCommandBufferType, IGFXColor } from '../../gfx/define';
+import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -21,7 +21,6 @@ export class ForwardStage extends RenderStage {
         }
 
         this._priority = info.priority;
-        this._framebuffer = info.framebuffer;
 
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,
@@ -64,6 +63,8 @@ export class ForwardStage extends RenderStage {
             }
             colors.length = 1;
         }
+
+        this._framebuffer = this._pipeline.curShadingFBO;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea,

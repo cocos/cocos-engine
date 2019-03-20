@@ -1,15 +1,13 @@
 import { GFXBindingLayout } from '../../gfx/binding-layout';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXCommandBufferType, IGFXColor } from '../../gfx/define';
+import { GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
 import { UBOGlobal } from '../define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 
-export class ToneMapStage extends RenderStage {
+export class SMAAEdgeStage extends RenderStage {
 
     private _hTexSampler: number = 0;
-    private _hBlendTexSampler: number = 0;
     private _bindingLayout: GFXBindingLayout | null = null;
 
     constructor (flow: RenderFlow) {
@@ -35,7 +33,6 @@ export class ToneMapStage extends RenderStage {
 
         this._pass = this._flow.material.passes[0];
         this._hTexSampler = this._pass.getBinding('u_texSampler');
-        this._hBlendTexSampler = this._pass.getBinding('u_blendTexSampler');
 
         const globalUBO = this._pipeline.globalBindings.get(UBOGlobal.BLOCK.name);
 
@@ -44,7 +41,6 @@ export class ToneMapStage extends RenderStage {
 
         this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
         this._pass.bindTextureView(this._hTexSampler, this._pipeline.curShadingTexView);
-        // this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline.smaaBlendTexView);
         this._pass.update();
         this._bindingLayout.update();
 
@@ -69,13 +65,12 @@ export class ToneMapStage extends RenderStage {
 
             this._renderArea.width = camera.width;
             this._renderArea.height = camera.height;
-            const framebuffer = !view.isOffscreen ? view.window!.framebuffer : view.framebuffer;
 
             this._cmdBuff.begin();
-            this._cmdBuff.beginRenderPass(framebuffer, this._renderArea,
+            this._cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea,
                 GFXClearFlag.ALL, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
             this._cmdBuff.bindPipelineState(this._pso!);
-            this._cmdBuff.bindBindingLayout(this._pso!.pipelineLayout.layouts[0]);
+            this._cmdBuff.bindBindingLayout(this._bindingLayout!);
             this._cmdBuff.bindInputAssembler(this._pipeline.quadIA);
             this._cmdBuff.draw(this._pipeline.quadIA);
             this._cmdBuff.endRenderPass();
@@ -83,7 +78,5 @@ export class ToneMapStage extends RenderStage {
         }
 
         this._device.queue.submit([this._cmdBuff!]);
-
-        // this._pipeline.swapFBOs();
     }
 }

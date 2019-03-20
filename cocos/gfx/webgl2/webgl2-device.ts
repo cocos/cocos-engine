@@ -3,7 +3,7 @@ import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXQueueType } from '../define';
+import { GFXBufferTextureCopy, GFXFormat, GFXFormatSize, GFXQueueType } from '../define';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
@@ -20,7 +20,7 @@ import { WebGL2GFXBindingLayout } from './webgl2-binding-layout';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
 import { WebGL2GFXCommandBuffer } from './webgl2-command-buffer';
-import { WebGL2CmdFuncCopyTexImagesToTexture, WebGL2CmdFuncCopyBuffersToTexture } from './webgl2-commands';
+import { WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
 import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
 import { WebGL2GFXPipelineLayout } from './webgl2-pipeline-layout';
@@ -229,7 +229,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
         console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
         console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
-        console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
+        // console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
         // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
         console.info('MAX_UNIFORM_BUFFER_BINDINGS: ' + this._maxUniformBufferBindings);
         // console.info('MAX_UNIFORM_BLOCK_SIZE: ' + this._maxUniformBlockSize);
@@ -237,6 +237,9 @@ export class WebGL2GFXDevice extends GFXDevice {
         console.info('DEPTH_BITS: ' + this._depthBits);
         console.info('STENCIL_BITS: ' + this._stencilBits);
         // console.info('UNIFORM_BUFFER_OFFSET_ALIGNMENT: ' + uboOffsetAlignment);
+        if (this._EXT_texture_filter_anisotropic) {
+            console.info('MAX_TEXTURE_MAX_ANISOTROPY_EXT: ' + this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+        }
         console.info('USE_VAO: ' + this._useVAO);
 
         // init states

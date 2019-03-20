@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { IPassInfo, IShaderInfo } from '../../3d/assets/effect-asset';
+import { IPassInfo, IPassStates, IShaderInfo } from '../../3d/assets/effect-asset';
 import { builtinResMgr } from '../../3d/builtin';
 import { TextureBase } from '../../assets/texture-base';
 import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
@@ -26,9 +26,9 @@ export interface IPassInfoFull extends IPassInfo {
     // generated part
     idxInTech: number;
     curDefs: IDefineMap;
+    states: PassOverrides;
 }
-
-export type PassOverrides = RecursivePartial<IPassInfo>;
+export type PassOverrides = RecursivePartial<IPassStates>;
 
 const _type2fn = {
   [GFXType.INT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
@@ -135,6 +135,7 @@ export class Pass {
         // pipeline state
         const device = this._device;
         this._fillinPipelineInfo(info);
+        this._fillinPipelineInfo(info.states);
 
         for (const u of shaderInfo.blocks) {
             if (u.name.startsWith('CC')) { continue; }
@@ -171,11 +172,13 @@ export class Pass {
         for (const u of shaderInfo.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
             const inf = info.properties && info.properties[u.name];
+            if (inf && inf.sampler) { this._samplers[u.binding] = samplerLib.getSampler(device, inf.sampler); }
             const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
             const texture = builtinResMgr.get<TextureBase>(texName);
             if (texture) {
                 this._textureViews[u.binding] = texture.getGFXTextureView()!;
-                this._samplers[u.binding] = samplerLib.getSampler(device, texture.getGFXSamplerInfo());
+                const samplerInfo = texture.getGFXSamplerInfo();
+                if (!this._samplers[u.binding] || samplerInfo.length) { this._samplers[u.binding] = samplerLib.getSampler(device, samplerInfo); }
             }
             else { console.warn('illegal texture default value ' + texName); }
         }

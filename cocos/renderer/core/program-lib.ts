@@ -100,6 +100,8 @@ class ProgramLib {
      *   programLib.define(program);
      */
     public define (prog: IShaderInfo) {
+        const cur = this._templates[prog.name];
+        if (cur && cur.hash === prog.hash) { return; }
         const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
         if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
 
@@ -157,7 +159,7 @@ class ProgramLib {
         return name + defs.reduce((acc, cur) => cur.result ? `${acc}|${cur.name}${cur.result}` : acc, '');
     }
 
-    public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap = {}, pipeline: RenderPipeline) {
+    public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
         const key = this.getKey(name, defines);
         let program = this._cache[key];

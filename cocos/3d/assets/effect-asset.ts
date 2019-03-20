@@ -10,12 +10,9 @@ export interface IPropertyInfo {
     type: number; // auto-extracted if not specified
     value?: number[] | string;
     displayName?: string;
-    sampler?: IGFXSamplerInfo;
+    sampler?: number[];
 }
-export interface IPassInfo {
-    program: string;
-    // effect-writer part
-    switch?: string;
+export interface IPassStates {
     priority?: number;
     primitive?: GFXPrimitiveMode;
     stage?: RenderPassStage;
@@ -23,6 +20,10 @@ export interface IPassInfo {
     depthStencilState?: GFXDepthStencilState;
     blendState?: GFXBlendState;
     dynamics?: GFXDynamicState[];
+}
+export interface IPassInfo extends IPassStates {
+    program: string; // auto-generated
+    switch?: string;
     properties?: Record<string, IPropertyInfo>;
 }
 export interface ITechniqueInfo {
@@ -66,6 +67,7 @@ export interface IBuiltinInfo {
 }
 export interface IShaderInfo {
     name: string;
+    hash: number;
     glsl3: { vert: string, frag: string };
     glsl1: { vert: string, frag: string };
     builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo };

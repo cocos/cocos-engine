@@ -2,17 +2,16 @@ import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { IGFXColor, IGFXRect } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
-import { Camera } from '../renderer/scene/camera';
+import { GFXPipelineState } from '../gfx/pipeline-state';
+import { Pass } from '../renderer';
 import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
 import { RenderView } from './render-view';
-import { GFXPipelineState } from '../gfx/pipeline-state';
-import { Pass } from '../renderer';
 
 export interface IRenderStageInfo {
     name?: string;
     priority: number;
-    framebuffer: GFXFramebuffer;
+    framebuffer?: GFXFramebuffer;
 }
 
 export abstract class RenderStage {

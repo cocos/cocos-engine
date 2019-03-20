@@ -32,6 +32,7 @@ import { GFXAddress, GFXBufferTextureCopy, GFXFilter, GFXFormat,
 import { GFXDevice } from '../gfx/device';
 import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
 import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
+import { SamplerInfoIndex } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
 import { ImageAsset } from './image-asset';
 
@@ -313,10 +314,10 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param wrapR
      */
     public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
-        if (wrapS !== this._wrapS) { this._wrapS = wrapS; this._samplerInfo[3] = wrapS; }
-        if (wrapT !== this._wrapT) { this._wrapT = wrapT; this._samplerInfo[4] = wrapT; }
+        if (wrapS !== this._wrapS) { this._wrapS = wrapS; this._samplerInfo[SamplerInfoIndex.addressU] = wrapS; }
+        if (wrapT !== this._wrapT) { this._wrapT = wrapT; this._samplerInfo[SamplerInfoIndex.addressV] = wrapT; }
         if (wrapR === undefined) { return; }
-        if (wrapR !== this._wrapR) { this._wrapR = wrapR; this._samplerInfo[5] = wrapR; }
+        if (wrapR !== this._wrapR) { this._wrapR = wrapR; this._samplerInfo[SamplerInfoIndex.addressW] = wrapR; }
     }
 
     /**
@@ -326,8 +327,8 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param magFilter
      */
     public setFilters (minFilter: Filter, magFilter: Filter) {
-        if (minFilter !== this._minFilter) { this._minFilter = minFilter; this._samplerInfo[0] = minFilter; }
-        if (magFilter !== this._magFilter) { this._magFilter = magFilter; this._samplerInfo[1] = magFilter; }
+        if (minFilter !== this._minFilter) { this._minFilter = minFilter; this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter; }
+        if (magFilter !== this._magFilter) { this._magFilter = magFilter; this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter; }
     }
 
     /**
@@ -336,7 +337,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param mipFilter
      */
     public setMipFilter (mipFilter: Filter) {
-        if (mipFilter !== this._mipFilter) { this._mipFilter = mipFilter; this._samplerInfo[2] = mipFilter; }
+        if (mipFilter !== this._mipFilter) { this._mipFilter = mipFilter; this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter; }
     }
 
     /**
@@ -365,7 +366,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param anisotropy
      */
     public setAnisotropy (anisotropy: number) {
-        if (anisotropy !== this._anisotropy) { this._anisotropy = anisotropy; this._samplerInfo[6] = anisotropy; }
+        if (anisotropy !== this._anisotropy) { this._anisotropy = anisotropy; this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy; }
     }
 
     /**

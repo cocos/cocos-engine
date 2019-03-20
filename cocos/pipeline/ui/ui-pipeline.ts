@@ -30,10 +30,7 @@ export class UIPipeline extends RenderPipeline {
     }
 
     public destroy () {
-        this.destroyFlows();
-        this.clearRenderPasses();
-        this.destroyUBOs();
-        this.destroyQuadInputAssembler();
+        this._destroy();
     }
 
     protected updateUBOs (view: RenderView) {

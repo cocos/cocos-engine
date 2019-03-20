@@ -1,9 +1,12 @@
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXBindingType, GFXType, IGFXColor } from '../gfx/define';
+import { GFXBindingType, GFXType } from '../gfx/define';
 import { GFXSampler } from '../gfx/sampler';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { GFXTextureView } from '../gfx/texture-view';
-import { Vec3 } from '../core/value-types';
+
+export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
+export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
+export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
 
 export enum RenderPassStage {
     DEFAULT = 100,
@@ -33,7 +36,8 @@ export class UBOGlobal {
     public static TIME_OFFSET: number = 0;
     public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
     public static SCREEN_SCALE_OFFSET: number = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
-    public static MAT_VIEW_OFFSET: number = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
+    public static NATIVE_SIZE_OFFSET: number = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
+    public static MAT_VIEW_OFFSET: number = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
     public static MAT_VIEW_INV_OFFSET: number = UBOGlobal.MAT_VIEW_OFFSET + 16;
     public static MAT_PROJ_OFFSET: number = UBOGlobal.MAT_VIEW_INV_OFFSET + 16;
     public static MAT_PROJ_INV_OFFSET: number = UBOGlobal.MAT_PROJ_OFFSET + 16;
@@ -53,6 +57,7 @@ export class UBOGlobal {
             { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_screenScale', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_nativeSize', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_matView', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matViewInv', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matProj', type: GFXType.MAT4, count: 1 },
@@ -114,9 +119,10 @@ export class UBOForwardLight {
     public static SPHERE_LIGHT_POS_OFFSET: number = 0;
     public static SPHERE_LIGHT_SIZE_RANGE_OFFSET: number = UBOForwardLight.SPHERE_LIGHT_POS_OFFSET + UBOForwardLight.MAX_SPHERE_LIGHTS * 4;
     public static SPHERE_LIGHT_COLOR_OFFSET: number = UBOForwardLight.SPHERE_LIGHT_SIZE_RANGE_OFFSET + UBOForwardLight.MAX_SPHERE_LIGHTS * 4;
-    public static SPOT_LIGHT_POS_SIZE_OFFSET: number = UBOForwardLight.SPHERE_LIGHT_COLOR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
-    public static SPOT_LIGHT_DIR_RANGE_OFFSET: number = UBOForwardLight.SPOT_LIGHT_POS_SIZE_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
-    public static SPOT_LIGHT_COLOR_OFFSET: number = UBOForwardLight.SPOT_LIGHT_DIR_RANGE_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static SPOT_LIGHT_POS_OFFSET: number = UBOForwardLight.SPHERE_LIGHT_COLOR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static SPOT_LIGHT_SIZE_RANGE_ANGLE_OFFSET: number = UBOForwardLight.SPOT_LIGHT_POS_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static SPOT_LIGHT_DIR_OFFSET: number = UBOForwardLight.SPOT_LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
+    public static SPOT_LIGHT_COLOR_OFFSET: number = UBOForwardLight.SPOT_LIGHT_DIR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
     public static COUNT: number = UBOForwardLight.SPOT_LIGHT_COLOR_OFFSET + UBOForwardLight.MAX_SPOT_LIGHTS * 4;
     public static SIZE: number = UBOForwardLight.COUNT * 4;
 
@@ -125,8 +131,9 @@ export class UBOForwardLight {
             { name: 'cc_sphereLitPos', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPHERE_LIGHTS },
             { name: 'cc_sphereLitSizeRange', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPHERE_LIGHTS },
             { name: 'cc_sphereLitColor', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPHERE_LIGHTS },
-            { name: 'cc_spotLitPosSize', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
-            { name: 'cc_spotLitDirRange', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLitPos', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLitSizeRangeAngle', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
+            { name: 'cc_spotLitDir', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
             { name: 'cc_spotLitColor', type: GFXType.FLOAT4, count: UBOForwardLight.MAX_SPOT_LIGHTS },
         ],
     };
@@ -174,37 +181,4 @@ export interface IInternalBindingInst extends IInternalBindingDesc {
     buffer?: GFXBuffer;
     sampler?: GFXSampler;
     textureView?: GFXTextureView;
-}
-
-export function SRGBToLinear (gamma: IGFXColor): IGFXColor {
-    const r = Math.pow(gamma.r, 2.2);
-    const g = Math.pow(gamma.g, 2.2);
-    const b = Math.pow(gamma.b, 2.2);
-    return { r, g, b, a: 1.0 };
-}
-
-export function LinearToSRGB (linear: IGFXColor): IGFXColor {
-    const r = Math.pow(linear.r, 0.454545);
-    const g = Math.pow(linear.g, 0.454545);
-    const b = Math.pow(linear.b, 0.454545);
-    return { r, g, b, a: 1.0 };
-}
-
-// Color temperature (in Kelvin) to RGB script.
-// Valid from 1000 to 40000 K (and additionally 0 for pure full white)
-export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
-    const temp = kelvin / 100.0;
-    if (temp <= 66.0) {
-        rgb.x = 1.0;
-        rgb.y = 0.390081579 * Math.log(temp) - 0.631841444;
-        if (temp <= 19.0) {
-            rgb.z = 0.0;
-        } else {
-            rgb.z = 0.543206789 * Math.log(temp - 10.0) - 1.19625409;
-        }
-    } else {
-        rgb.x = 1.29293619 * Math.pow(temp - 60.0, -0.1332047592);
-        rgb.y = 11.3259693 * Math.pow(temp - 60.0, -0.0755148492);
-        rgb.z = 1.0;
-    }
 }

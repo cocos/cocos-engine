@@ -3,6 +3,22 @@
 import { GFXDevice } from '../../gfx/device';
 import { GFXSampler, IGFXSamplerInfo } from '../../gfx/sampler';
 
+export enum SamplerInfoIndex {
+    minFilter,
+    magFilter,
+    mipFilter,
+    addressU,
+    addressV,
+    addressW,
+    maxAnisotropy,
+    cmpFunc,
+    minLOD,
+    maxLOD,
+    mipLODBias,
+    borderColor,
+    total = borderColor + 4,
+}
+
 const gfxInfo: IGFXSamplerInfo = {};
 
 class SamplerLib {
@@ -12,19 +28,22 @@ class SamplerLib {
         const hash = info.toString();
         const cache = this._cache[hash];
         if (cache) { return cache; }
-        gfxInfo.minFilter     = info[0];
-        gfxInfo.magFilter     = info[1];
-        gfxInfo.mipFilter     = info[2];
-        gfxInfo.addressU      = info[3];
-        gfxInfo.addressV      = info[4];
-        gfxInfo.addressW      = info[5];
-        gfxInfo.maxAnisotropy = info[6];
-        if (info.length > 7) {
-            gfxInfo.cmpFunc     = info[7];
-            gfxInfo.borderColor = { r: info[8], g: info[9], b: info[10], a: info[11] };
-            gfxInfo.minLOD      = info[12];
-            gfxInfo.maxLOD      = info[13];
-            gfxInfo.mipLODBias  = info[14];
+        gfxInfo.minFilter     = info[SamplerInfoIndex.minFilter];
+        gfxInfo.magFilter     = info[SamplerInfoIndex.magFilter];
+        gfxInfo.mipFilter     = info[SamplerInfoIndex.mipFilter];
+        gfxInfo.addressU      = info[SamplerInfoIndex.addressU];
+        gfxInfo.addressV      = info[SamplerInfoIndex.addressV];
+        gfxInfo.addressW      = info[SamplerInfoIndex.addressW];
+        gfxInfo.maxAnisotropy = info[SamplerInfoIndex.maxAnisotropy];
+        if (info.length > SamplerInfoIndex.cmpFunc) {
+            gfxInfo.cmpFunc     = info[SamplerInfoIndex.cmpFunc];
+            gfxInfo.minLOD      = info[SamplerInfoIndex.minLOD];
+            gfxInfo.maxLOD      = info[SamplerInfoIndex.maxLOD];
+            gfxInfo.mipLODBias  = info[SamplerInfoIndex.mipLODBias];
+            if (info.length >= SamplerInfoIndex.total) {
+                const ofs = SamplerInfoIndex.borderColor;
+                gfxInfo.borderColor = { r: info[ofs], g: info[ofs + 1], b: info[ofs + 2], a: info[ofs + 3] };
+            }
         }
         const sampler = this._cache[hash] = device.createSampler(gfxInfo);
         return sampler;
@@ -32,4 +51,3 @@ class SamplerLib {
 }
 
 export const samplerLib = new SamplerLib();
-cc.samplerLib = samplerLib;
