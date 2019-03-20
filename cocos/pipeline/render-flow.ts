@@ -35,6 +35,10 @@ export abstract class RenderFlow {
         return this._material!;
     }
 
+    public get name (): string {
+        return this._name;
+    }
+
     protected _device: GFXDevice;
     protected _pipeline: RenderPipeline;
     protected _name: string = '';

@@ -37,6 +37,7 @@ import { RenderableComponent } from './renderable-component';
 import { SkinningModelComponent } from './skinning-model-component';
 import { SphereLightComponent } from './sphere-light-component';
 import { SpotLightComponent } from './spot-light-component';
+import { EditorCameraComponent } from './editor-camera-component';
 export * from './physics';
 
 export {
@@ -56,6 +57,7 @@ export {
 cc.AnimationComponent = AnimationComponent;
 cc.AudioSourceComponent = AudioSourceComponent;
 cc.CameraComponent = CameraComponent;
+cc.EditorComponent = EditorCameraComponent;
 cc.RenderableComponent = RenderableComponent;
 cc.ModelComponent = ModelComponent;
 cc.SkinningModelComponent = SkinningModelComponent;
