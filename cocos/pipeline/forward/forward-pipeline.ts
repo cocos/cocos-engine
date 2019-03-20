@@ -11,19 +11,19 @@ import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
-import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight, PIPELINE_FLOW_SMAA } from '../define';
+import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_SMAA, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
+import { SMAAEdgeFlow } from '../ppfx/smaa-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { ForwardFlow } from './forward-flow';
-import { SMAAEdgeFlow } from '../ppfx/smaa-flow';
 
 export enum ForwardFlowPriority {
     FORWARD = 0,
 }
 
 const _vec4Array = new Float32Array(4);
-const _sphere = sphere.create();
+const _sphere = sphere.create(0, 0, 0, 1);
 const _tempLightIndex = [] as number[];
 const _tempLightDist = [] as number[];
 const _tempVec3 = v3();
@@ -93,12 +93,10 @@ export class ForwardPipeline extends RenderPipeline {
             priority: ForwardFlowPriority.FORWARD,
         });
 
-        /*
         this.createFlow(SMAAEdgeFlow, {
             name: PIPELINE_FLOW_SMAA,
             priority: 0,
         });
-        */
 
         this.createFlow(ToneMapFlow, {
             name: PIPELINE_FLOW_TONEMAP,

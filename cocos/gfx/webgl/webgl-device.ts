@@ -182,7 +182,8 @@ export class WebGLGFXDevice extends GFXDevice {
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {
                 alpha: true,
-                antialias: this._isAntialias,
+                antialias: false,
+                // antialias: this._isAntialias,
                 depth: true,
                 stencil: true,
                 premultipliedAlpha: this._isPremultipliedAlpha,
