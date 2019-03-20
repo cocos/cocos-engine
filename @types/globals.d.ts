@@ -44,6 +44,8 @@ declare const cc : {
     [x: string]: any;
 };
 
+declare type CompareFunction<T> = (a: T, b: T) => number;
+
 declare type RecursivePartial<T> = {
     [P in keyof T]?:
         T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
