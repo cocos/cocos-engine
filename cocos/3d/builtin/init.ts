@@ -127,6 +127,14 @@ class BuiltinResMgr {
         });
 
         // tonemap material
+        const smaaMtl = new cc.Material();
+        smaaMtl._uuid = 'smaa-material';
+        smaaMtl.initialize({
+            effectName: 'builtin-smaa',
+        });
+        resources[smaaMtl._uuid] = smaaMtl;
+
+        // tonemap material
         const tonemapMtl = new cc.Material();
         tonemapMtl._uuid = 'tonemap-material';
         tonemapMtl.initialize({

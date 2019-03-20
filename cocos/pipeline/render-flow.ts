@@ -19,8 +19,16 @@ export abstract class RenderFlow {
         return this._pipeline;
     }
 
+    public get name (): string {
+        return this._name;
+    }
+
     public get priority (): number {
         return this._priority;
+    }
+
+    public get stages (): RenderStage[] {
+        return this._stages!;
     }
 
     public get material (): Material {

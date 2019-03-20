@@ -84,6 +84,22 @@ export abstract class RenderPipeline {
         return this._shadingFBOs[this._prevIdx];
     }
 
+    public get smaaEdgeTexView (): GFXTextureView {
+        return this._smaaEdgeTexView!;
+    }
+
+    public get smaaEdgeFBO (): GFXFramebuffer {
+        return this._smaaEdgeFBO!;
+    }
+
+    public get smaaBlendTexView (): GFXTextureView {
+        return this._smaaBlendTexView!;
+    }
+
+    public get smaaBlendFBO (): GFXFramebuffer {
+        return this._smaaBlendFBO!;
+    }
+
     public get quadIA (): GFXInputAssembler {
         return this._quadIA!;
     }
@@ -126,6 +142,14 @@ export abstract class RenderPipeline {
     protected _shadingTexHeight: number = 0.0;
     protected _curIdx: number = 0;
     protected _prevIdx: number = 1;
+    protected _useSMAA: boolean = false;
+    protected _smaaPass: GFXRenderPass | null = null;
+    protected _smaaEdgeFBO: GFXFramebuffer | null = null;
+    protected _smaaEdgeTex: GFXTexture | null = null;
+    protected _smaaEdgeTexView: GFXTextureView | null = null;
+    protected _smaaBlendFBO: GFXFramebuffer | null = null;
+    protected _smaaBlendTex: GFXTexture | null = null;
+    protected _smaaBlendTexView: GFXTextureView | null = null;
     protected _quadVB: GFXBuffer | null = null;
     protected _quadIB: GFXBuffer | null = null;
     protected _quadIA: GFXInputAssembler | null = null;
@@ -218,7 +242,25 @@ export abstract class RenderPipeline {
         this._flows = [];
     }
 
-    protected createShadingTarget (info: IRenderPipelineInfo): boolean {
+    public getFlow (name: string): RenderFlow | null {
+        for (const flow of this._flows) {
+            if (flow.name === name) {
+                return flow;
+            }
+        }
+
+        return null;
+    }
+
+    protected _initialize (info: IRenderPipelineInfo): boolean {
+
+        if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
+            this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
+            this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+            this._isHDRSupported = true;
+        }
+
+        // this._isHDRSupported = false;
 
         this._fboCount = 1;
         this._shadingTextures = new Array<GFXTexture>(this._fboCount);
@@ -257,6 +299,7 @@ export abstract class RenderPipeline {
         }
 
         // colorFmt = GFXFormat.RGBA16F;
+
         const scale = 1.0;
         const texWidth = Math.min(this._device.width * scale, 2048);
         const texHeight = Math.min(this._device.height * scale, 2048);
@@ -331,12 +374,107 @@ export abstract class RenderPipeline {
             });
         }
 
+        // create smaa framebuffer
+        const smaaColorFmt = GFXFormat.RGBA8;
+
+        this._smaaPass = this._device.createRenderPass({
+            colorAttachments: [{
+                format: smaaColorFmt,
+                loadOp: GFXLoadOp.CLEAR,
+                storeOp: GFXStoreOp.STORE,
+                sampleCount: 1,
+                beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+                endLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+            }],
+        });
+
+        this._smaaEdgeTex =  this._device.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+            format: smaaColorFmt,
+            width: this._shadingTexWidth,
+            height: this._shadingTexHeight,
+        });
+
+        this._smaaEdgeTexView = this._device.createTextureView({
+            texture : this._smaaEdgeTex,
+            type : GFXTextureViewType.TV2D,
+            format : smaaColorFmt,
+        });
+
+        this._smaaEdgeFBO = this._device.createFramebuffer({
+            renderPass: this._smaaPass,
+            colorViews: [ this._smaaEdgeTexView ],
+        });
+
+        this._smaaBlendTex =  this._device.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+            format: smaaColorFmt,
+            width: this._shadingTexWidth,
+            height: this._shadingTexHeight,
+        });
+
+        this._smaaBlendTexView = this._device.createTextureView({
+            texture : this._smaaBlendTex,
+            type : GFXTextureViewType.TV2D,
+            format : smaaColorFmt,
+        });
+
+        this._smaaBlendFBO = this._device.createFramebuffer({
+            renderPass: this._smaaPass,
+            colorViews: [ this._smaaBlendTexView ],
+        });
+
+        if (!this.createQuadInputAssembler()) {
+            return false;
+        }
+
+        if (!this.createUBOs()) {
+            return false;
+        }
+
         return true;
     }
 
-    protected destroyShadingTarget () {
+    protected _destroy () {
 
-        for (let i = 0; i < this._fboCount; ++i) {
+        this.destroyFlows();
+        this.clearRenderPasses();
+        this.destroyQuadInputAssembler();
+        this.destroyUBOs();
+
+        if (this._smaaEdgeTexView) {
+            this._smaaEdgeTexView.destroy();
+            this._smaaEdgeTexView = null;
+        }
+
+        if (this._smaaEdgeTex) {
+            this._smaaEdgeTex.destroy();
+            this._smaaEdgeTex = null;
+        }
+
+        if (this._smaaEdgeFBO) {
+            this._smaaEdgeFBO.destroy();
+            this._smaaEdgeFBO = null;
+        }
+
+        if (this._smaaBlendTexView) {
+            this._smaaBlendTexView.destroy();
+            this._smaaBlendTexView = null;
+        }
+
+        if (this._smaaBlendTex) {
+            this._smaaBlendTex.destroy();
+            this._smaaBlendTex = null;
+        }
+
+        if (this._smaaBlendFBO) {
+            this._smaaBlendFBO.destroy();
+            this._smaaBlendFBO = null;
+        }
+
+        for (let i = 0; i < this._shadingTexViews.length; ++i) {
             if (this._shadingTexViews[i]) {
                 this._shadingTexViews[i].destroy();
             }
@@ -542,6 +680,12 @@ export abstract class RenderPipeline {
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
+
+        _vec4Array[0] = this._shadingTexWidth;
+        _vec4Array[1] = this._shadingTexHeight;
+        _vec4Array[2] = 1.0 / _vec4Array[0];
+        _vec4Array[3] = 1.0 / _vec4Array[1];
+        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.NATIVE_SIZE_OFFSET);
 
         mat4.array(_mat4Array, camera.matView);
         this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_OFFSET);

@@ -312,10 +312,13 @@ export class WebGLGFXDevice extends GFXDevice {
         // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
         console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
         console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
-        console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
+        // console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
         // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
         console.info('DEPTH_BITS: ' + this._depthBits);
         console.info('STENCIL_BITS: ' + this._stencilBits);
+        if (this._EXT_texture_filter_anisotropic) {
+            console.info('MAX_TEXTURE_MAX_ANISOTROPY_EXT: ' + this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+        }
         console.info('USE_VAO: ' + this._useVAO);
 
         // init states
