@@ -44,7 +44,7 @@ export class ToneMapStage extends RenderStage {
 
         this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
         this._pass.bindTextureView(this._hTexSampler, this._pipeline.curShadingTexView);
-        // this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline.smaaBlendTexView);
+        this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline.smaaBlendTexView);
         this._pass.update();
         this._bindingLayout.update();
 

@@ -1,7 +1,7 @@
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
-import { SMAAEdgeStage } from './smaa-edge-stage';
 import { SMAABlendStage } from './smaa-blend-stage';
+import { SMAAEdgeStage } from './smaa-edge-stage';
 
 export class SMAAEdgeFlow extends RenderFlow {
 
