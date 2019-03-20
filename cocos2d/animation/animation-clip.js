@@ -156,7 +156,7 @@ var AnimationClip = cc.Class({
     },
 
     onLoad () {
-        this.duration = Number.parseFloat(this.duration);
+        this._duration = Number.parseFloat(this.duration);
         this.speed = Number.parseFloat(this.speed);
         this.wrapMode = Number.parseInt(this.wrapMode);
         this.frameRate = Number.parseFloat(this.sample);
