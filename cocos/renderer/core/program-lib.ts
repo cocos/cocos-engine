@@ -100,6 +100,8 @@ class ProgramLib {
      *   programLib.define(program);
      */
     public define (prog: IShaderInfo) {
+        const cur = this._templates[prog.name];
+        if (cur && cur.hash === prog.hash) { return; }
         const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
         if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
 

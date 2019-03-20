@@ -1,10 +1,13 @@
-import { Color, Vec3 } from '../../core/value-types';
+import { Color, Quat, Vec3 } from '../../core/value-types';
 import { color4, vec3 } from '../../core/vmath';
 import { UBOShadow } from '../../pipeline/define';
-import { Light } from './light';
+import { DirectionalLight } from './directional-light';
 import { RenderScene } from './render-scene';
+import { SphereLight } from './sphere-light';
 
+const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
+const _qt = new Quat();
 
 export class PlanarShadow {
 
@@ -51,12 +54,12 @@ export class PlanarShadow {
     }
 
     // tslint:disable: one-variable-per-declaration
-    public update (light: Light) {
+    public updateSphereLight (light: SphereLight) {
         light.node.getWorldPosition(_v3);
         const n = this._normal, d = this._distance + this._offset;
+        const NdL = vec3.dot(n, _v3);
         const lx = _v3.x, ly = _v3.y, lz = _v3.z;
         const nx = n.x, ny = n.y, nz = n.z;
-        const NdL = vec3.dot(n, _v3);
         const m = this._data;
         m[0]  = NdL - d - lx * nx;
         m[1]  = -ly * nx;
@@ -74,6 +77,32 @@ export class PlanarShadow {
         m[13] = ly * d;
         m[14] = lz * d;
         m[15] = NdL;
+    }
+
+    public updateDirLight (light: DirectionalLight) {
+        light.node.getWorldRotation(_qt);
+        vec3.transformQuat(_v3, _forward, _qt);
+        const n = this._normal, d = this._distance + this._offset;
+        const NdL = vec3.dot(n, _v3), scale = 1 / NdL;
+        const lx = _v3.x * scale, ly = _v3.y * scale, lz = _v3.z * scale;
+        const nx = n.x, ny = n.y, nz = n.z;
+        const m = this._data;
+        m[0]  = 1 - nx * lx;
+        m[1]  = -nx * ly;
+        m[2]  = -nx * lz;
+        m[3]  = 0;
+        m[4]  = -ny * lx;
+        m[5]  = 1 - ny * ly;
+        m[6]  = -ny * lz;
+        m[7]  = 0;
+        m[8]  = -nz * lx;
+        m[9]  = -nz * ly;
+        m[10] = 1 - nz * lz;
+        m[11] = 0;
+        m[12] = lx * d;
+        m[13] = ly * d;
+        m[14] = lz * d;
+        m[15] = 1;
     }
     // tslint:enable: one-variable-per-declaration
 }
