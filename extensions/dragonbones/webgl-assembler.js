@@ -36,7 +36,7 @@ let _boneColor = cc.color(255, 0, 0, 255);
 let _slotColor = cc.color(0, 0, 255, 255);
 
 let _nodeR, _nodeG, _nodeB, _nodeA,
-    _premultipliedAlpha,
+    _premultipliedAlpha, _multiply,
     _mustFlush, _buffer, _node,
     _renderer, _comp,
     _vfOffset, _indexOffset, _vertexOffset,
@@ -110,10 +110,12 @@ function _getSlotMaterial (tex, blendMode) {
 }
 
 function _handleColor (color, parentOpacity) {
-    _r = color.r * _nodeR;
-    _g = color.g * _nodeG;
-    _b = color.b * _nodeB;
-    _a = color.a * _nodeA * parentOpacity;
+    _a = color.a * parentOpacity;
+    _multiply = _premultipliedAlpha? _a / 255.0 : 1.0;
+    _r = color.r * _nodeR * _multiply;
+    _g = color.g * _nodeG * _multiply;
+    _b = color.b * _nodeB * _multiply;
+    _a *= _nodeA;
     _c = ((_a<<24) >>> 0) + (_b<<16) + (_g<<8) + _r;
 }
 
