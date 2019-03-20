@@ -145,8 +145,7 @@ let armatureAssembler = {
             }
 
             if (slot.childArmature) {
-                parentOpacity *= slotColor.a / 255;
-                this.realTimeTraverse(slot.childArmature, slot._worldMatrix, parentOpacity);
+                this.realTimeTraverse(slot.childArmature, slot._worldMatrix, parentOpacity * slotColor.a / 255);
                 continue;
             }
 
