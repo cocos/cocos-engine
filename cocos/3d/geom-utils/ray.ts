@@ -14,7 +14,7 @@ export default class ray {
      * @param {number} dz dir Z component
      * @return {ray}
      */
-    public static create (ox, oy, oz, dx, dy, dz) {
+    public static create (ox = 0, oy = 0, oz = 0, dx = 0, dy = 0, dz = 1) {
         return new ray(ox, oy, oz, dx, dy, dz);
     }
 
