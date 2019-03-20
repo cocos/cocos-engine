@@ -17,7 +17,7 @@ export default class triangle {
      * @param {number} cz
      * @return {triangle}
      */
-    public static create (ax, ay, az, bx, by, bz, cx, cy, cz) {
+    public static create (ax = 1, ay = 0, az = 0, bx = 0, by = 0, bz = 0, cx = 0, cy = 0, cz = 1) {
         return new triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
     }
 

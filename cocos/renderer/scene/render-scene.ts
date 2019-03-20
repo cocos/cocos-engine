@@ -247,8 +247,8 @@ const v3 = new Vec3();
 const m4 = new Mat4();
 let distance = Infinity;
 const tri = triangle.create();
-const pool = new RecyclePool(() => {
-    return { node: null, distance: Infinity };
+const pool = new RecyclePool<IRaycastResult>(() => {
+    return { node: null!, distance: Infinity };
 }, 8);
 const results: IRaycastResult[] = [];
 
