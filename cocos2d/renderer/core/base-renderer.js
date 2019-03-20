@@ -553,9 +553,11 @@ export default class Base {
     }
     // }
 
-    for (let name in uniforms) {
-      let uniform = uniforms[name];
-      this._setProperty(uniform);
+    for (let i = 0; i < uniforms.length; i++) {
+      let typeUniforms = uniforms[i];
+      for (let key in typeUniforms) {
+        this._setProperty(typeUniforms[key]);
+      }
     }
 
     // for each pass

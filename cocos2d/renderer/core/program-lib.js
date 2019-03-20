@@ -4,11 +4,30 @@ import gfx from '../gfx';
 
 let _shdID = 0;
 
-function _generateDefines(defs) {
+function _getValueFromDefineList (name, defineList) {
+  let value;
+  for (let i = defineList.length - 1; i >= 0; i--) {
+    value = defineList[i][name];
+    if (value !== undefined) {
+      return value;
+    }
+  }
+}
+
+function _generateDefines(defineList) {
   let defines = [];
-  for (let def in defs) {
-    let result = defs[def] ? 1 : 0;
-    defines.push(`#define ${def} ${result}`);
+  let map = {}
+  for (let i = defineList.length - 1; i >= 0; i--) {
+    let defs = defineList[i];
+    for (let def in defs) {
+      if (map[def] !== undefined) continue;
+      let result = defs[def];
+      if (typeof result !== 'number') {
+        result = result ? 1 : 0;
+      }
+      map[def] = result;
+      defines.push(`#define ${def} ${result}`);
+    }
   }
   return defines.join('\n') + '\n';
 }
@@ -152,16 +171,18 @@ export default class ProgramLib {
     return this._templates[name] !== undefined;
   }
 
+
   /**
    * @param {string} name
-   * @param {Object} defines
+   * @param {Array} defineList
    */
-  getKey(name, defines) {
+  getKey(name, defineList) {
     let tmpl = this._templates[name];
     let key = 0;
     for (let i = 0; i < tmpl.defines.length; ++i) {
       let tmplDefs = tmpl.defines[i];
-      let value = defines[tmplDefs.name];
+      
+      let value = _getValueFromDefineList(name, defineList);
       if (value === undefined) {
         continue;
       }

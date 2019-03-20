@@ -14,14 +14,14 @@ export default class Model {
     this._node = null;
     this._inputAssembler = null;
     this._effect = null;
-    this._defines = {};
-    this._dependencies = {};
     this._viewID = -1;
     this._cameraID = -1;
     this._userKey = -1;
     this._castShadow = false;
     this._boundingShape = null;
-    this._uniforms = null;
+
+    this._defines = [];
+    this._uniforms = [];
   }
 
   _updateTransform() {
@@ -63,20 +63,22 @@ export default class Model {
    * @param {?Effect} effect the effect to use
    */
   setEffect(effect, customProperties) {
-    this._defines = Object.create(null);
-    this._dependencies = Object.create(null);
-    this._uniforms = Object.create(null);
     this._effect = effect;
 
+    let defines = this._defines;
+    let uniforms = this._uniforms;
+    
+    defines.length = 0;
+    uniforms.length = 0;
+    
     if (effect) {
-      effect.extractDefines(this._defines);
-      effect.extractProperties(this._uniforms);
-      effect.extractDependencies(this._dependencies);
+      defines.push(effect._defines);
+      uniforms.push(effect._properties);
     }
 
     if (customProperties) {
-      customProperties.extractDefines(this._defines);
-      customProperties.extractProperties(this._uniforms);
+      defines.push(customProperties._defines);
+      uniforms.push(customProperties._properties);
     }
   }
 

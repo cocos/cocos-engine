@@ -39,8 +39,11 @@ export default class CustomProperties {
         return this._defines[name];
     }
 
-    extractProperties(out = {}) {
-        Object.assign(out, this._properties);
+    extractProperties(out = []) {
+        let properties = this._properties;
+        for (let name in properties) {
+            out.push(properties[name]);
+        }
         return out;
     }
 
