@@ -121,9 +121,9 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
 
     set insetTop (value) {
         this._capInsets[INSET_TOP] = value;
-        // if (this._texture) {
-        this._calculateSlicedUV();
-        // }
+        if (this.image) {
+            this._calculateSlicedUV();
+        }
     }
 
     /**
@@ -139,9 +139,9 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
 
     set insetBottom (value) {
         this._capInsets[INSET_BOTTOM] = value;
-        // if (this._texture) {
-        this._calculateSlicedUV();
-        // }
+        if (this.image) {
+            this._calculateSlicedUV();
+        }
     }
 
     /**
@@ -157,9 +157,9 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
 
     set insetLeft (value) {
         this._capInsets[INSET_LEFT] = value;
-        // if (this._texture) {
-        this._calculateSlicedUV();
-        // }
+        if (this.image) {
+            this._calculateSlicedUV();
+        }
     }
 
     /**
@@ -175,9 +175,9 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
 
     set insetRight (value) {
         this._capInsets[INSET_RIGHT] = value;
-        // if (this._texture) {
-        this._calculateSlicedUV();
-        // }
+        if (this.image) {
+            this._calculateSlicedUV();
+        }
     }
 
     get atlasUuid () {
@@ -186,14 +186,6 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
 
     set atlasUuid (value: string) {
         this._atlasUuid = value;
-    }
-
-    get atlasSize () {
-        return this._atlasSize;
-    }
-
-    set atlasSize (value: Size) {
-        this._atlasSize = value;
     }
 
     public vertices: IVertices | null = null;
@@ -216,11 +208,9 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     private _capInsets = [0, 0, 0, 0];
 
     // store original info before packed to dynamic atlas
-    private _original = null;
+    // private _original = null;
 
     private _atlasUuid: string = '';
-
-    private _atlasSize = new Size();
 
     /**
      * !#en
@@ -436,10 +426,10 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
      * @method clone
      * @return {SpriteFrame}
      */
-
     public clone () {
         const cloneSprite = new SpriteFrame();
         cloneSprite.name = this.name;
+        cloneSprite.atlasUuid = this.atlasUuid;
         cloneSprite.setOriginalSize(this._originalSize);
         cloneSprite.setRect(this._rect);
         const cap = this._capInsets;
