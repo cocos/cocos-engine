@@ -103,7 +103,7 @@ export class CameraComponent extends Component {
     @property
     protected _screenScale = 1;
     @property
-    protected _targetDisplay = -1;
+    protected _targetDisplay = 0;
 
     protected _camera: Camera | null = null;
 

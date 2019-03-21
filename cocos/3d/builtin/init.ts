@@ -35,7 +35,7 @@ class BuiltinResMgr {
         // black texture
         const blackCubeTexture = new TextureCube();
         blackCubeTexture._uuid = 'black-cube-texture';
-        blackCubeTexture.setGenMipmap(true);
+        blackCubeTexture.setMipFilter(TextureCube.Filter.LINEAR);
         blackCubeTexture.image = {
             front: new ImageAsset(canvas),
             back: new ImageAsset(canvas),
@@ -65,7 +65,7 @@ class BuiltinResMgr {
         // white cube texture
         const whiteCubeTexture = new TextureCube();
         whiteCubeTexture._uuid = 'white-cube-texture';
-        whiteCubeTexture.setGenMipmap(true);
+        whiteCubeTexture.setMipFilter(TextureCube.Filter.LINEAR);
         whiteCubeTexture.image = {
             front: new ImageAsset(canvas),
             back: new ImageAsset(canvas),
@@ -99,7 +99,7 @@ class BuiltinResMgr {
 
         // default cube texture
         const defaultCubeTexture = new TextureCube();
-        defaultCubeTexture.setGenMipmap(true);
+        defaultCubeTexture.setMipFilter(TextureCube.Filter.LINEAR);
         defaultCubeTexture._uuid = 'default-cube-texture';
         defaultCubeTexture.image = {
             front: new ImageAsset(canvas),
