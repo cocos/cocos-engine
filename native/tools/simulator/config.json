@@ -23,9 +23,9 @@
             "height": 1334
         },
         {
-            "title": "Apple iPhone 6Plus (1242x2208)",
-            "width": 1242,
-            "height": 2208
+            "title": "Apple iPhone 6Plus (1080x1920)",
+            "width": 1080,
+            "height": 1920
         },
         {
             "title": "Apple iPhone 7 (750x1334)",
@@ -33,13 +33,13 @@
             "height": 1334
         },
         {
-            "title": "Apple iPhone 7Plus (1242x2208)",
-            "width": 1242,
-            "height": 2208
+            "title": "Apple iPhone 7Plus (1080x1920)",
+            "width": 1080,
+            "height": 1920
         },
         {
-            "title": "Apple iPhone X (750x2436)",
-            "width": 750,
+            "title": "Apple iPhone X (1125x2436)",
+            "width": 1125,
             "height": 2436
         },
         {
@@ -59,7 +59,7 @@
         },
         {
             "title": "Apple iPad Pro 12.9-inch (2048x2732)",
-            "width": 1280,
+            "width": 2048,
             "height": 2732
         },
         {
