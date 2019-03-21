@@ -17,9 +17,11 @@ import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { ForwardFlow } from './forward-flow';
+import { UIFlow } from '../ui/ui-flow';
 
 export enum ForwardFlowPriority {
     FORWARD = 0,
+    UI = 10,
 }
 
 const _vec4Array = new Float32Array(4);
@@ -101,6 +103,11 @@ export class ForwardPipeline extends RenderPipeline {
         this.createFlow(ToneMapFlow, {
             name: PIPELINE_FLOW_TONEMAP,
             priority: 0,
+        });
+
+        this.createFlow(UIFlow, {
+            name: 'UIFlow',
+            priority: ForwardFlowPriority.UI,
         });
 
         return true;
