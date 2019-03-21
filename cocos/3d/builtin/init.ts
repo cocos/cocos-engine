@@ -133,15 +133,25 @@ class BuiltinResMgr {
         });
         resources[standardMtl._uuid] = standardMtl;
 
-        // default material
-        const defaultMtl = new cc.Material();
-        defaultMtl._uuid = 'default-material';
-        defaultMtl.initialize({
+        // material indicating missing material (purple)
+        const missingMtl = new cc.Material();
+        missingMtl._uuid = 'missing-material';
+        missingMtl.initialize({
             effectName: 'builtin-unlit',
             defines: { USE_COLOR: true },
         });
-        defaultMtl.setProperty('color', cc.color('#ff00ff'));
-        resources[defaultMtl._uuid] = defaultMtl;
+        missingMtl.setProperty('color', cc.color('#ff00ff'));
+        resources[missingMtl._uuid] = missingMtl;
+
+        // material indicating missing effect (yellow)
+        const missingEfxMtl = new cc.Material();
+        missingEfxMtl._uuid = 'missing-effect-material';
+        missingEfxMtl.initialize({
+            effectName: 'builtin-unlit',
+            defines: { USE_COLOR: true },
+        });
+        missingEfxMtl.setProperty('color', cc.color('#ffff00'));
+        resources[missingEfxMtl._uuid] = missingEfxMtl;
 
         // sprite material
         const spriteMtl = new cc.Material();
