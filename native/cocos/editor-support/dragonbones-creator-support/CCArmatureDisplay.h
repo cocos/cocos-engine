@@ -50,7 +50,7 @@ public:
     static CCArmatureDisplay* create();
     
 private:
-    void traverseArmature(Armature* armature);
+    void traverseArmature(Armature* armature, float parentOpacity = 1.0f);
     
 protected:
     bool _debugDraw = false;
@@ -135,7 +135,10 @@ public:
     
     void setColor(cocos2d::Color4B& color)
     {
-        _nodeColor = color;
+        _nodeColor.r = color.r / 255.0f;
+        _nodeColor.g = color.g / 255.0f;
+        _nodeColor.b = color.b / 255.0f;
+        _nodeColor.a = color.a / 255.0f;
     }
     
     void setDebugBonesEnabled(bool enabled)
@@ -170,7 +173,7 @@ private:
     std::map<std::string,bool> _listenerIDMap;
     cocos2d::middleware::IOTypedArray* _renderInfoOffset = nullptr;
     cocos2d::middleware::IOTypedArray* _debugBuffer = nullptr;
-    cocos2d::Color4B _nodeColor = cocos2d::Color4B::WHITE;
+    cocos2d::Color4F _nodeColor = cocos2d::Color4F::WHITE;
     
     int _preBlendMode = -1;
     int _preTextureIndex = -1;
@@ -186,7 +189,6 @@ private:
     std::size_t _materialLenOffset = -1;
     
     bool _premultipliedAlpha = false;
-    cocos2d::Color4B _finalColor = cocos2d::Color4B::WHITE;
     dbEventCallback _dbEventCallback = nullptr;
 };
 

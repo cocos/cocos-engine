@@ -165,7 +165,7 @@ namespace spine {
         
         bool                _debugSlots = false;
         bool                _debugBones = false;
-        cocos2d::Color4B    _nodeColor = cocos2d::Color4B::WHITE;
+        cocos2d::Color4F    _nodeColor = cocos2d::Color4F::WHITE;
         bool                _premultipliedAlpha = false;
         spSkeletonClipping* _clipper = nullptr;
         bool                _useTint = false;
