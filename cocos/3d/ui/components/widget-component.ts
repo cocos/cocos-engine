@@ -512,7 +512,6 @@ export class WidgetComponent extends Component {
 
     @property
     private _alignFlags = 0;
-    private _wasAlignOnce = false;
     @property
     private _target: Node | null = null;
     @property
@@ -568,16 +567,6 @@ export class WidgetComponent extends Component {
     }
 
     protected onLoad () {
-        // TODO:
-        // if (this._wasAlignOnce) {
-        //     // migrate for old version
-        //     this.alignMode = this._wasAlignOnce ? AlignMode.ONCE : AlignMode.ALWAYS;
-        //     this._wasAlignOnce = false;
-        // }
-
-        if (this._alignMode === AlignMode.ONCE){
-            this._wasAlignOnce = true;
-        }
     }
 
     protected onEnable () {
@@ -604,6 +593,7 @@ export class WidgetComponent extends Component {
                     this._originalWidth = this.node.width!;
                     // test check conflict
                     if (CC_EDITOR /*&& !cc.engine.isPlaying*/) {
+                        // TODO:
                         // _Scene.DetectConflict.checkConflict_Widget(this);
                     }
                 }
@@ -613,13 +603,14 @@ export class WidgetComponent extends Component {
                     // become stretch
                     this._originalHeight = this.node.height!;
                     // test check conflict
-                    if (CC_EDITOR && !cc.engine.isPlaying) {
+                    if (CC_EDITOR /*&& !cc.engine.isPlaying*/) {
+                        // TODO:
                         // _Scene.DetectConflict.checkConflict_Widget(this);
                     }
                 }
             }
 
-            if (CC_EDITOR && !cc.engine._isPlaying && this.node.parent) {
+            if (CC_EDITOR && this.node.parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment chagned
                 cc._widgetManager.updateOffsetsToStayPut(this, flag);
             }
@@ -640,6 +631,8 @@ export class WidgetComponent extends Component {
         }
     }
 }
+
+cc.WidgetComponent = WidgetComponent;
 
 /**
  * !#en

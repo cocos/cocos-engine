@@ -37,11 +37,11 @@ import { ToggleComponent} from './toggle-component';
  * @extends Component
  */
 
-@ccclass('cc.ToggleGroupComponent')
+@ccclass('cc.ToggleContainerComponent')
 @executionOrder(100)
 @menu('UI/ToggleGroup')
 @executeInEditMode
-export class ToggleGroupComponent extends Component {
+export class ToggleContainerComponent extends Component {
     @property({
         type: ComponentEventHandler,
     })
@@ -137,4 +137,4 @@ export class ToggleGroupComponent extends Component {
     }
 }
 
-cc.ToggleGroupComponent = ToggleGroupComponent;
+cc.ToggleContainerComponent = ToggleContainerComponent;

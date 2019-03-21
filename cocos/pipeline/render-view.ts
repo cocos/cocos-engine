@@ -126,6 +126,7 @@ export class RenderView {
         } else {
             this._stages.push('ForwardFlow');
             this._stages.push('ToneMapFlow');
+            this._stages.push('SMAAFlow');
         }
 
         return true;

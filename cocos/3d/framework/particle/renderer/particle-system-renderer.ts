@@ -144,19 +144,24 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         }
         if (this._model == null) {
             this._model = this._getRenderScene().createModel(ParticleBatchModel, this.node) as ParticleBatchModel;
+        }
+        if (!this._model.inited) {
             this._model.setCapacity(this.particleSystem.capacity);
             this._model.setVertexAttributes(this._vertAttrs);
             this._model.node = this.node;
+        }
+        this._model.enabled = this.enabledInHierarchy;
+    }
+
+    public onDisable () {
+        if (this._model) {
             this._model.enabled = this.enabledInHierarchy;
         }
     }
 
-    public onDisable () {
-        this._getRenderScene().destroyModel(this._model!);
-    }
-
     public onDestroy () {
-        this._model!.destroy();
+        this._getRenderScene().destroyModel(this._model!);
+        this._model = null;
     }
 
     public clear () {
@@ -316,8 +321,12 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         } else {
             console.warn(`particle system renderMode ${this._renderMode} not support.`);
         }
+        const ea = mat!.effectAsset;
         mat!.destroy();
-        mat!.initialize({ defines: this._defines });
+        mat!.initialize({
+            defines: this._defines,
+            effectAsset: ea,
+        });
 
         if (this.particleSystem.textureAnimationModule.enable) {
             mat!.setProperty('frameTile_velLenScale', vec2.set(this.frameTile_velLenScale, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));

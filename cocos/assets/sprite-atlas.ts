@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 import { ccclass, property } from '../core/data/class-decorator';
+import * as js from '../core/utils/js';
 import { Asset } from './asset';
 import { SpriteFrame } from './CCSpriteFrame';
 
@@ -40,10 +41,14 @@ interface ISpriteAtlasSerializeData{
     spriteFrames: string[];
 }
 
+interface ISpriteFrameList {
+    [key: string]: SpriteFrame | null;
+}
+
 @ccclass('cc.SpriteAtlas')
 export class SpriteAtlas extends Asset {
     @property
-    public spriteFrames: Map<string, SpriteFrame | null> = new Map<string, SpriteFrame | null>();
+    public spriteFrames: ISpriteFrameList = js.createMap();
 
     /**
      * Returns the texture of the sprite atlas
@@ -51,10 +56,10 @@ export class SpriteAtlas extends Asset {
      * @returns {Texture2D}
      */
     public getTexture () {
-        const values = this.spriteFrames.values;
-        if (values.length > 0) {
-            const spriteFrame = values[0];
-            return spriteFrame && spriteFrame.image ? spriteFrame.image : null;
+        const keys = Object.keys(this.spriteFrames);
+        if (keys.length > 0) {
+            const spriteFrame = this.spriteFrames[keys[0]];
+            return spriteFrame ? spriteFrame.image : null;
         }
         else {
             return null;
@@ -85,8 +90,10 @@ export class SpriteAtlas extends Asset {
      */
     public getSpriteFrames () {
         const frames: Array<SpriteFrame | null> = [];
-        for (const spriteFrame of this.spriteFrames) {
-            frames.push(spriteFrame[1]);
+        const spriteFrames = this.spriteFrames;
+
+        for (const key of Object.keys(spriteFrames)) {
+            frames.push(spriteFrames[key]);
         }
 
         return frames;
@@ -94,9 +101,9 @@ export class SpriteAtlas extends Asset {
 
     public _serialize () {
         const frames: string[] = [];
-        for (const spriteFrame of this.spriteFrames) {
-            const id = spriteFrame[1] ? spriteFrame[1]._uuid : '';
-            frames.push(spriteFrame[0]);
+        for (const key of Object.keys(this.spriteFrames)) {
+            const spriteFrame = this.spriteFrames[key];
+            const id = spriteFrame ? spriteFrame._uuid : '';
             frames.push(id);
         }
 
@@ -110,10 +117,9 @@ export class SpriteAtlas extends Asset {
         const data = serializeData as ISpriteAtlasSerializeData;
         this._name = data.name;
         const frames = data.spriteFrames;
-        this.spriteFrames.clear();
+        this.spriteFrames = js.createMap();
         for (let i = 0; i < frames.length; i += 2) {
-            this.spriteFrames.set(frames[i], new SpriteFrame());
-            handle.result.push(this.spriteFrames, `${i}`, frames[i + 1]);
+            handle.result.push(this.spriteFrames, frames[i], frames[i + 1]);
         }
     }
 }
