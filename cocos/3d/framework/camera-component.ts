@@ -74,7 +74,7 @@ const CameraClearFlag = Enum({
  */
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')
-// @executeInEditMode
+@executeInEditMode
 export class CameraComponent extends Component {
     public static ProjectionType = ProjectionType;
 
