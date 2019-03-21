@@ -649,6 +649,11 @@ let TiledLayer = cc.Class({
         
         this._updateMaterial(material);
     },
+
+    onEnable () {
+        this._super();
+        this._activateMaterial();
+    }
 });
 
 cc.TiledLayer = module.exports = TiledLayer;
