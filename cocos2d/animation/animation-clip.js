@@ -26,6 +26,7 @@
 const WrapMode = require('./types').WrapMode;
 const { DynamicAnimCurve, quickFindIndex } = require('./animation-curves');
 const sampleMotionPaths = require('./motion-path-helper').sampleMotionPaths;
+const binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
 
 /**
  * !#en Class for animation data handling.

@@ -25,8 +25,7 @@
 
 const js = cc.js;
 const Playable = require('./playable');
-const { DynamicAnimCurve, EventAnimCurve, EventInfo, quickFindIndex } = require('./animation-curves');
-const sampleMotionPaths = require('./motion-path-helper').sampleMotionPaths;
+const { EventAnimCurve, EventInfo } = require('./animation-curves');
 const WrapModeMask = require('./types').WrapModeMask;
 const binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
 

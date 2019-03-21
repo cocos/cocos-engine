@@ -251,7 +251,7 @@ let SkeletonAnimationClip = cc.Class({
         let step = 1 / this.sample;
 
         while (time < duration) {
-            newCurveData.ratios.push(time);
+            newCurveData.ratios.push(time / duration);
             walk(root, time);
             time += step;
         }

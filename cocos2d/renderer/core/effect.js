@@ -95,11 +95,8 @@ class Effect {
         this._defines[name] = value;
     }
 
-    extractProperties(out = []) {
-        let properties = this._properties;
-        for (let name in properties) {
-            out.push(properties[name]);
-        }
+    extractProperties(out = {}) {
+        Object.assign(out, this._properties);
         return out;
     }
 

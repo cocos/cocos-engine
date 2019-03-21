@@ -11,6 +11,7 @@ let JointMatrixCurve = cc.Class({
         if (index < -1) {
             index = ~index - 1;
         }
+
         let pairs = this.pairs;
         for (let i = 0; i < pairs.length; i++) {
             let pair = pairs[i];

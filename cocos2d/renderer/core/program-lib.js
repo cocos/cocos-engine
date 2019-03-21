@@ -182,7 +182,7 @@ export default class ProgramLib {
     for (let i = 0; i < tmpl.defines.length; ++i) {
       let tmplDefs = tmpl.defines[i];
       
-      let value = _getValueFromDefineList(name, defineList);
+      let value = _getValueFromDefineList(tmplDefs.name, defineList);
       if (value === undefined) {
         continue;
       }
