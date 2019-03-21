@@ -190,7 +190,9 @@ export default class ProgramLib {
       key |= tmplDefs._map(value);
     }
 
-    return key << 8 | tmpl.id;
+    // return key << 8 | tmpl.id;
+    // key number maybe bigger than 32 bit, need use string to store value.
+    return tmpl.id + ':' + key;
   }
 
   /**
