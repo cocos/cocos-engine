@@ -67,9 +67,9 @@ export default class ParticleBatchModel extends Model {
         // rebuid
         this._vBuffer = this._createSubMeshData();
         this._vertAttrsFloatCount = this._vertSize / 4; // number of float
-        this._vBuffer = new ArrayBuffer(this._capacity * this._vertSize * 4);
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
+        this._inited = true;
     }
 
     public _createSubMeshData (): ArrayBuffer {
@@ -156,8 +156,8 @@ export default class ParticleBatchModel extends Model {
                 offset += 2;
             } else if (curAttr.format === GFXFormat.RGB32F) {
                 this._vdataF32![offset] = pvdata[i].x;
-                this._vdataF32![offset + 1] = pvdata[i].y;
                 this._vdataF32![offset + 2] = pvdata[i].z;
+                this._vdataF32![offset + 1] = pvdata[i].y;
                 offset += 3;
             } else if (curAttr.format === GFXFormat.RGBA8) {
                 this._vdataUint32![offset] = pvdata[i];
@@ -181,9 +181,13 @@ export default class ParticleBatchModel extends Model {
 
     public destroy () {
         super.destroy();
+        this._vBuffer = null;
         this._vdataF32 = null;
-        this.destroySubMeshData();
+        if (this._subMeshData) {
+            this.destroySubMeshData();
+        }
         this._iaInfoBuffer.destroy();
+        this._subMeshData = null;
     }
 
     private destroySubMeshData () {
