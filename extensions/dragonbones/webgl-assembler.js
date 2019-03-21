@@ -110,12 +110,11 @@ function _getSlotMaterial (tex, blendMode) {
 }
 
 function _handleColor (color, parentOpacity) {
-    _a = color.a * parentOpacity;
+    _a = color.a * parentOpacity * _nodeA;
     _multiply = _premultipliedAlpha? _a / 255.0 : 1.0;
     _r = color.r * _nodeR * _multiply;
     _g = color.g * _nodeG * _multiply;
     _b = color.b * _nodeB * _multiply;
-    _a *= _nodeA;
     _c = ((_a<<24) >>> 0) + (_b<<16) + (_g<<8) + _r;
 }
 
