@@ -70,7 +70,7 @@ let _perVertexSize;
 let _perClipVertexSize;
 let _vertexFloatCount = 0, _vertexCount = 0, _vertexFloatOffset = 0, _vertexOffset = 0,
     _indexCount = 0, _indexOffset = 0, _vfOffset = 0;
-let _tempr, _tempg, _tempb, _tempa;
+let _tempr, _tempg, _tempb;
 let _inRange;
 let _mustFlush;
 let _x, _y, _m00, _m04, _m12, _m01, _m05, _m13;
@@ -141,7 +141,8 @@ function _getSlotMaterial (tex, blendMode) {
 
 function _handleColor (color) {
     // temp rgb has multiply 255, so need divide 255;
-    _multiplier = _premultipliedAlpha ? color.fa / 255 : 1;
+    _fa = color.fa * _nodeA;
+    _multiplier = _premultipliedAlpha ? _fa / 255 : 1;
     _r = _nodeR * _multiplier;
     _g = _nodeG * _multiplier;
     _b = _nodeB * _multiplier;
@@ -149,7 +150,6 @@ function _handleColor (color) {
     _fr = color.fr * _r;
     _fg = color.fg * _g;
     _fb = color.fb * _b;
-    _fa = color.fa * _nodeA;
     _finalColor32 = ((_fa<<24) >>> 0) + (_fb<<16) + (_fg<<8) + _fr;
 
     _dr = color.dr * _r;
@@ -175,8 +175,8 @@ var spineAssembler = {
             uintVData = _buffer._uintVData;
         let offsetInfo;
 
-        _tempa = slotColor.a * attachmentColor.a * skeletonColor.a * 255;
-        _multiplier = _premultipliedAlpha? _tempa : 255;
+        _finalColor.a = slotColor.a * attachmentColor.a * skeletonColor.a * _nodeA * 255;
+        _multiplier = _premultipliedAlpha? _finalColor.a : 255;
         _tempr = _nodeR * attachmentColor.r * skeletonColor.r * _multiplier;
         _tempg = _nodeG * attachmentColor.g * skeletonColor.g * _multiplier;
         _tempb = _nodeB * attachmentColor.b * skeletonColor.b * _multiplier;
@@ -184,7 +184,6 @@ var spineAssembler = {
         _finalColor.r = _tempr * slotColor.r;
         _finalColor.g = _tempg * slotColor.g;
         _finalColor.b = _tempb * slotColor.b;
-        _finalColor.a = _tempa * _nodeA;
 
         if (slot.darkColor == null) {
             _darkColor.set(0.0, 0, 0, 1.0);
