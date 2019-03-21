@@ -1,11 +1,10 @@
-import { CameraComponent } from "./camera-component";
-import { ccclass, executeInEditMode } from "../../core/data/class-decorator";
-import { RenderView } from "../../pipeline/render-view";
-import { Camera } from "../../renderer";
-import { color4, toRadian } from "../../core/vmath";
+import { ccclass, executeInEditMode } from '../../core/data/class-decorator';
+import { color4, toRadian } from '../../core/vmath';
+import { RenderView } from '../../pipeline/render-view';
+import { Camera } from '../../renderer';
+import { CameraComponent } from './camera-component';
 
 @ccclass('cc.EditorCameraComponent')
-@executeInEditMode
 export class EditorCameraComponent extends CameraComponent {
 
     private _uiEditorCamera: Camera | null = null;
