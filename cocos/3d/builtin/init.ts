@@ -125,22 +125,6 @@ class BuiltinResMgr {
             effect.onLoaded();
         });
 
-        // tonemap material
-        const smaaMtl = new cc.Material();
-        smaaMtl._uuid = 'smaa-material';
-        smaaMtl.initialize({
-            effectName: 'builtin-smaa',
-        });
-        resources[smaaMtl._uuid] = smaaMtl;
-
-        // tonemap material
-        const tonemapMtl = new cc.Material();
-        tonemapMtl._uuid = 'tonemap-material';
-        tonemapMtl.initialize({
-            effectName: 'builtin-tonemap',
-        });
-        resources[tonemapMtl._uuid] = tonemapMtl;
-
         // standard material
         const standardMtl = new cc.Material();
         standardMtl._uuid = 'standard-material';

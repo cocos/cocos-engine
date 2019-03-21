@@ -33,6 +33,9 @@ export class UIPipeline extends RenderPipeline {
         this._destroy();
     }
 
+    public rebuild () {
+    }
+
     protected updateUBOs (view: RenderView) {
         const camera = view.camera;
         mat4.array(_mat4Array, camera.matViewProj);

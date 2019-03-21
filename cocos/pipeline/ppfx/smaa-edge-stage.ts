@@ -57,6 +57,9 @@ export class SMAAEdgeStage extends RenderStage {
     public resize (width: number, height: number) {
     }
 
+    public rebuild () {
+    }
+
     public render (view: RenderView) {
 
         const camera = view.camera!;

@@ -1,6 +1,5 @@
 import { GFXBindingLayout } from '../../gfx/binding-layout';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXCommandBufferType, IGFXColor } from '../../gfx/define';
+import { GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
 import { UBOGlobal } from '../define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
@@ -33,20 +32,7 @@ export class ToneMapStage extends RenderStage {
             type: GFXCommandBufferType.PRIMARY,
         });
 
-        this._pass = this._flow.material.passes[0];
-        this._hTexSampler = this._pass.getBinding('u_texSampler');
-        this._hBlendTexSampler = this._pass.getBinding('u_blendTexSampler');
-
-        const globalUBO = this._pipeline.globalBindings.get(UBOGlobal.BLOCK.name);
-
-        this._pso = this._pass.createPipelineState();
-        this._bindingLayout =  this._pso!.pipelineLayout.layouts[0];
-
-        this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
-        this._pass.bindTextureView(this._hTexSampler, this._pipeline.curShadingTexView);
-        this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline.smaaBlendTexView);
-        this._pass.update();
-        this._bindingLayout.update();
+        this.rebuild();
 
         return true;
     }
@@ -59,6 +45,27 @@ export class ToneMapStage extends RenderStage {
     }
 
     public resize (width: number, height: number) {
+    }
+
+    public rebuild () {
+        this._pass = this._flow.material.passes[0];
+        this._hTexSampler = this._pass.getBinding('u_texSampler');
+
+        const globalUBO = this._pipeline.globalBindings.get(UBOGlobal.BLOCK.name);
+
+        this._pso = this._pass.createPipelineState();
+        this._bindingLayout =  this._pso!.pipelineLayout.layouts[0];
+
+        this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
+        this._pass.bindTextureView(this._hTexSampler, this._pipeline.curShadingTexView);
+
+        if (this._pipeline.useSMAA) {
+            this._hBlendTexSampler = this._pass.getBinding('u_blendTexSampler');
+            this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline.smaaBlendTexView);
+        }
+
+        this._pass.update();
+        this._bindingLayout.update();
     }
 
     public render (view: RenderView) {

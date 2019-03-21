@@ -88,6 +88,9 @@ export class SMAABlendStage extends RenderStage {
     public resize (width: number, height: number) {
     }
 
+    public rebuild () {
+    }
+
     public render (view: RenderView) {
         if (this._isLoaded) {
             const camera = view.camera!;
