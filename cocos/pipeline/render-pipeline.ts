@@ -190,10 +190,8 @@ export abstract class RenderPipeline {
 
         this.updateUBOs(view);
 
-        for (const flow of this._flows) {
-            if (view.stages.indexOf(flow.name) !== -1) {
-                flow.render(view);
-            }
+        for (const flow of view.flows) {
+            flow.render(view);
         }
     }
 
