@@ -417,7 +417,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         const curFBO = this.stateCache.glFramebuffer;
 
         if (this.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
-            gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
+            gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             this.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
@@ -433,11 +433,11 @@ export class WebGL2GFXDevice extends GFXDevice {
             const data = view.subarray(buffOffset, buffOffset + memSize);
 
             gl.readPixels(region.texOffset.x, region.texOffset.y, w, h,
-                WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, data);
+                WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, data);
         }
 
         if (this.stateCache.glFramebuffer !== curFBO) {
-            gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, curFBO);
+            gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, curFBO);
             this.stateCache.glFramebuffer = curFBO;
         }
     }

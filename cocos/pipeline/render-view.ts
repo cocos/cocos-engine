@@ -68,6 +68,10 @@ export class RenderView {
         return this._isUI;
     }
 
+    public set isOffscreen (isOffscreen: boolean) {
+        this._isOffscreen = isOffscreen;
+    }
+
     public get isOffscreen (): boolean {
         return this._isOffscreen;
     }
