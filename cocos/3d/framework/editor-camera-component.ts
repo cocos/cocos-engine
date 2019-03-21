@@ -129,7 +129,7 @@ export class EditorCameraComponent extends CameraComponent {
                 targetDisplay: this._targetDisplay,
                 priority: this._priority,
                 isUI: true,
-                stages: ['UIFlow'],
+                flows: ['UIFlow'],
             });
             this._uiEditorCamera!.viewport = this._camera.viewport;
             this._uiEditorCamera!.fov = this._camera.fov;

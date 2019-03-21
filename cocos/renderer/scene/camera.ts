@@ -73,7 +73,7 @@ export interface ICameraInfo {
     priority: number;
     pipeline?: string;
     isUI?: boolean;
-    stages?: string[];
+    flows?: string[];
 }
 
 const v_a = cc.v3();
@@ -139,7 +139,7 @@ export class Camera {
             name: this._name,
             priority: this._priority,
             isUI,
-            stages: info.stages,
+            flows: info.flows,
         });
 
         this.changeTargetDisplay(info.targetDisplay);
