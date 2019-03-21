@@ -4,42 +4,38 @@ import gfx from '../gfx';
 
 let _shdID = 0;
 
-function _getValueFromDefineList (name, defineList) {
-  let value;
-  for (let i = defineList.length - 1; i >= 0; i--) {
-    value = defineList[i][name];
-    if (value !== undefined) {
-      return value;
-    }
-  }
-}
-
 function _generateDefines(defineList) {
   let defines = [];
-  let map = {}
+  let cache = {}
   for (let i = defineList.length - 1; i >= 0; i--) {
     let defs = defineList[i];
     for (let def in defs) {
-      if (map[def] !== undefined) continue;
+      if (cache[def] !== undefined) continue;
       let result = defs[def];
       if (typeof result !== 'number') {
         result = result ? 1 : 0;
       }
-      map[def] = result;
+      cache[def] = result;
       defines.push(`#define ${def} ${result}`);
     }
   }
   return defines.join('\n') + '\n';
 }
 
-function _replaceMacroNums(string, defs) {
+function _replaceMacroNums(string, defineList) {
   let cache = {};
   let tmp = string;
-  for (let def in defs) {
-    if (Number.isInteger(defs[def])) {
-      cache[def] = defs[def];
+
+  for (let i = defineList.length - 1; i >= 0; i--) {
+    let defs = defineList[i];
+    for (let def in defs) {
+      if (cache[def] !== undefined) continue;
+      if (Number.isInteger(defs[def])) {
+        cache[def] = defs[def];
+      }
     }
   }
+
   for (let def in cache) {
     let reg = new RegExp(def, 'g');
     tmp = tmp.replace(reg, cache[def]);
@@ -182,7 +178,7 @@ export default class ProgramLib {
     for (let i = 0; i < tmpl.defines.length; ++i) {
       let tmplDefs = tmpl.defines[i];
       
-      let value = _getValueFromDefineList(tmplDefs.name, defineList);
+      let value = this._getValueFromDefineList(tmplDefs.name, defineList);
       if (value === undefined) {
         continue;
       }
@@ -197,11 +193,11 @@ export default class ProgramLib {
 
   /**
    * @param {string} name
-   * @param {Object} defines
+   * @param {[Object]} defineList
    * @param {String} errPrefix
    */
-  getProgram(name, defines, errPrefix) {
-    let key = this.getKey(name, defines);
+  getProgram(name, defineList, errPrefix) {
+    let key = this.getKey(name, defineList);
     let program = this._cache[key];
     if (program) {
       return program;
@@ -209,10 +205,10 @@ export default class ProgramLib {
 
     // get template
     let tmpl = this._templates[name];
-    let customDef = _generateDefines(defines);
-    let vert = _replaceMacroNums(tmpl.vert, defines);
+    let customDef = _generateDefines(defineList);
+    let vert = _replaceMacroNums(tmpl.vert, defineList);
     vert = customDef + _unrollLoops(vert);
-    let frag = _replaceMacroNums(tmpl.frag, defines);
+    let frag = _replaceMacroNums(tmpl.frag, defineList);
     frag = customDef + _unrollLoops(frag);
 
     program = new gfx.Program(this._device, {
@@ -239,5 +235,15 @@ export default class ProgramLib {
     this._cache[key] = program;
 
     return program;
+  }
+
+  _getValueFromDefineList (name, defineList) {
+    let value;
+    for (let i = defineList.length - 1; i >= 0; i--) {
+      value = defineList[i][name];
+      if (value !== undefined) {
+        return value;
+      }
+    }
   }
 }
