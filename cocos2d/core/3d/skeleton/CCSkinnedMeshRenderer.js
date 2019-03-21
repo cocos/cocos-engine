@@ -155,7 +155,7 @@ let SkinnedMeshRenderer = cc.Class({
         let jointCount = this._joints.length;
         let customProperties = this._customProperties;
 
-        let ALLOW_FLOAT_TEXTURE = false;//!!cc.sys.glExtension('OES_texture_float');
+        let ALLOW_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
         if (ALLOW_FLOAT_TEXTURE) {
             // set jointsTexture
             let size;
