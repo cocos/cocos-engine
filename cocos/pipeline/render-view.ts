@@ -16,6 +16,7 @@ export interface IRenderViewInfo {
     name: string;
     priority: number;
     isUI: boolean;
+    stages?: string[];
 }
 
 export interface IRenderTargetInfo {
@@ -47,6 +48,9 @@ export class RenderView {
 
     public set priority (val: number) {
         this._priority = val;
+        if (this.isUI) {
+            this._priority |= 1 << 30;
+        }
     }
 
     public set visibility (vis) {
@@ -66,6 +70,10 @@ export class RenderView {
 
     public get isUI (): boolean {
         return this._isUI;
+    }
+
+    public get stages (): string[] {
+        return this._stages;
     }
 
     public set isOffscreen (isOffscreen: boolean) {
@@ -92,6 +100,7 @@ export class RenderView {
     private _camera: Camera;
     private _isEnable: boolean = true;
     private _isUI: boolean = false;
+    private _stages: string[] = [];
     private _isOffscreen: boolean = false;
 
     // For offscreen
@@ -111,7 +120,13 @@ export class RenderView {
 
         this._name = info.name;
         this._isUI = info.isUI;
-        this._priority = info.priority;
+        this.priority = info.priority;
+        if (info.stages) {
+            this._stages.push(...info.stages);
+        } else {
+            this._stages.push('ForwardFlow');
+            this._stages.push('ToneMapFlow');
+        }
 
         return true;
     }

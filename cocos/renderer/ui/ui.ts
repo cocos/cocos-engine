@@ -24,6 +24,7 @@ import { Camera } from '../scene/camera';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
+import { CameraComponent } from '../../3d';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -99,19 +100,10 @@ export class UI {
 
     constructor (private _root: Root) {
         this.device = _root.device;
-        if (CC_EDITOR) {
-            cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, (scene) => {
-                this._scene = scene.renderScene;
-                // the models will be destroyed in renderScene
-                this._modelInUse.clear();
-                this._uiModelPool = new Pool(() => this._scene.createModel<UIBatchModel>(UIBatchModel, null), 2);
-            });
-        } else {
-            this._scene = this._root.createScene({
-                name: 'GUIScene',
-            });
-            this._uiModelPool = new Pool(() => this._scene.createModel<UIBatchModel>(UIBatchModel, null), 2);
-        }
+        this._scene = this._root.createScene({
+            name: 'GUIScene',
+        });
+        this._uiModelPool = new Pool(() => this._scene.createModel<UIBatchModel>(UIBatchModel, null), 2);
         this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);
 
@@ -152,6 +144,10 @@ export class UI {
             this._cmdBuff.destroy();
             this._cmdBuff = null;
         }
+    }
+
+    public getRenderSceneGetter () {
+        return Object.getOwnPropertyDescriptor(Object.getPrototypeOf(this), 'renderScene')!.get!.bind(this);
     }
 
     public _getUIMaterial (mat: Material): UIMaterial {
