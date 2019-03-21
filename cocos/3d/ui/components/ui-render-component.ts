@@ -280,6 +280,7 @@ export class UIRenderComponent extends Component {
         this.destroyRenderData();
         if (this._material){
             this._material.destroy();
+            cc.director.root.ui._removeUIMaterial(this._material.hash);
         }
 
         this._updateMaterial(null);
