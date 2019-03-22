@@ -930,7 +930,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
             gpuTexture.glTarget = WebGL2RenderingContext.TEXTURE_2D;
 
             const glTexture = gl.createTexture();
-            if (glTexture) {
+            if (glTexture && gpuTexture.size > 0) {
                 gpuTexture.glTexture = glTexture;
                 const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
 
@@ -981,7 +981,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
             gpuTexture.glTarget = WebGL2RenderingContext.TEXTURE_CUBE_MAP;
 
             const glTexture = gl.createTexture();
-            if (glTexture) {
+            if (glTexture && gpuTexture.size > 0) {
                 gpuTexture.glTexture = glTexture;
                 const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
 
@@ -1988,7 +1988,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                                             let glTexUnit: IWebGL2TexUnit | null = null;
 
-                                            if (gpuBinding.gpuTexView) {
+                                            if (gpuBinding.gpuTexView && gpuBinding.gpuTexView.gpuTexture.size > 0) {
                                                 const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
                                                 switch (glSampler.glType) {
                                                     case WebGL2RenderingContext.SAMPLER_2D: {
@@ -2017,8 +2017,6 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                     gl.bindSampler(texUnit, gpuBinding.gpuSampler.glSampler);
                                                     cache.glSamplerUnits[texUnit] = gpuBinding.gpuSampler.glSampler;
                                                 }
-                                            } else {
-                                                console.error('Not found texture view on binding unit ' + gpuBinding.binding);
                                             }
                                         }
                                     } // if

@@ -766,7 +766,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
             gpuTexture.glTarget = WebGLRenderingContext.TEXTURE_2D;
 
             const glTexture = gl.createTexture();
-            if (glTexture) {
+            if (glTexture && gpuTexture.size > 0) {
                 gpuTexture.glTexture = glTexture;
                 const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
 
@@ -817,7 +817,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
             gpuTexture.glTarget = WebGLRenderingContext.TEXTURE_CUBE_MAP;
 
             const glTexture = gl.createTexture();
-            if (glTexture) {
+            if (glTexture && gpuTexture.size > 0) {
                 gpuTexture.glTexture = glTexture;
                 const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
 
@@ -1922,7 +1922,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                                             let glTexUnit: IWebGLTexUnit | null = null;
 
-                                            if (gpuBinding.gpuTexView) {
+                                            if (gpuBinding.gpuTexView && gpuBinding.gpuTexView.gpuTexture.size > 0) {
                                                 const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
                                                 switch (glSampler.glType) {
                                                     case WebGLRenderingContext.SAMPLER_2D: {
@@ -1977,8 +1977,6 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                         gpuTexture.glMagFilter = gpuSampler.glMagFilter;
                                                     }
                                                 }
-                                            } else {
-                                                console.error('Not found texture view on binding unit ' + gpuBinding.binding);
                                             }
                                         }
                                     } // if
@@ -2330,6 +2328,7 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
     let m = 0;
     let n = 0;
     let f = 0;
+
     switch (gpuTexture.glTarget) {
         case WebGLRenderingContext.TEXTURE_2D: {
             const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
@@ -2391,6 +2390,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
     let w = 1;
     let h = 1;
     let f = 0;
+
     const fmtInfo: IGFXFormatInfo = GFXFormatInfos[gpuTexture.format];
     const isCompressed = fmtInfo.isCompressed;
     switch (gpuTexture.glTarget) {

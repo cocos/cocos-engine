@@ -97,16 +97,17 @@ export class WebGLGFXTexture extends GFXTexture {
         }
 
         this._gpuTexture = {
-            type: info.type,
+            type: this._type,
             viewType,
-            format: info.format,
-            usage: info.usage,
-            width: info.width,
-            height: info.height,
-            depth: Math.max(info.depth || 1, 1),
-            arrayLayer: Math.max(info.arrayLayer || 1, 1),
-            mipLevel: Math.max(info.mipLevel || 1, 1),
-            flags: info.flags || GFXTextureFlagBit.NONE,
+            format: this._format,
+            usage: this._usage,
+            width: this._width,
+            height: this._height,
+            depth: this._depth,
+            size: this._size,
+            arrayLayer: this._arrayLayer,
+            mipLevel: this._mipLevel,
+            flags: this._flags,
             isPowerOf2: this._isPowerOf2,
 
             glTarget: 0,

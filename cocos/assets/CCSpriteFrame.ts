@@ -30,7 +30,7 @@ import { EventTargetFactory } from '../core/event/event-target-factory';
 import { Rect, Size, Vec2 } from '../core/value-types';
 import { vec2 } from '../core/vmath';
 import { ImageAsset } from './image-asset';
-import { Texture2D } from './texture-2d';
+import { ITexture2DSerializeData, Texture2D } from './texture-2d';
 import textureUtil from './texture-util';
 
 const INSET_LEFT = 0;
@@ -51,6 +51,18 @@ interface IVertices {
     u: number[];
     nv: number[];
     v: number[];
+}
+
+interface ISpriteFramesSerializeData extends ITexture2DSerializeData{
+    name: string;
+    texture: string | undefined;
+    atlas: string | undefined;
+    rect: number[] | undefined;
+    offset: number[] | undefined;
+    originalSize: number[] | undefined;
+    rotated: boolean | undefined;
+    capInsets: number[];
+    vertices: IVertices;
 }
 
 const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }];
@@ -703,13 +715,14 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
             rect: rect ? [rect.x, rect.y, rect.width, rect.height] : undefined,
             offset: offset ? [offset.x, offset.y] : undefined,
             originalSize: size ? [size.width, size.height] : undefined,
-            rotated: this._rotated ? 1 : undefined,
+            rotated: this._rotated ? this._rotated : undefined,
             capInsets: this._capInsets,
             vertices,
         };
     }
 
-    public _deserialize (data, handle) {
+    public _deserialize (serializeData: any, handle: any) {
+        const data = serializeData as ISpriteFramesSerializeData;
         super._deserialize(data.base, handle);
         const rect = data.rect;
         if (rect) {
@@ -721,7 +734,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
         if (data.originalSize) {
             this.setOriginalSize(new cc.Size(data.originalSize[0], data.originalSize[1]));
         }
-        this._rotated = data.rotated === 1;
+        this._rotated = !!data.rotated;
         this._name = data.name;
 
         const capInsets = data.capInsets;
@@ -733,7 +746,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
         }
 
         if (CC_EDITOR) {
-            this._atlasUuid = data.atlas;
+            this._atlasUuid = data.atlas ? data.atlas : '';
         }
 
         this.vertices = data.vertices;

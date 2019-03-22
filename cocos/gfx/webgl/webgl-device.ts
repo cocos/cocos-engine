@@ -1,4 +1,3 @@
-import * as WebGLDeveloperTools from 'webgl-debug';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
@@ -193,11 +192,6 @@ export class WebGLGFXDevice extends GFXDevice {
             };
 
             this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs);
-            /*
-            if (this._webGLRC && info.debug) {
-                this._webGLRC = WebGLDeveloperTools.makeDebugContext(this._webGLRC, this._onWebGLError.bind(this));
-            }
-            */
         } catch (err) {
             console.error(err);
             return false;
@@ -557,9 +551,5 @@ export class WebGLGFXDevice extends GFXDevice {
         gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
         gl.colorMask(true, true, true, true);
         gl.blendColor(0.0, 0.0, 0.0, 0.0);
-    }
-
-    private _onWebGLError (error: GLenum, functionName: string, ...args: any[]) {
-        throw new Error(`${WebGLDeveloperTools.glEnumToString(error)} was caused by call to ${functionName}`);
     }
 }
