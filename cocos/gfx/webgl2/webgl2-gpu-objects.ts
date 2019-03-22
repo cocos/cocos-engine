@@ -53,6 +53,7 @@ export class WebGL2GPUTexture {
     public width: number = 0;
     public height: number = 0;
     public depth: number = 1;
+    public size: number = 0;
     public arrayLayer: number = 1;
     public mipLevel: number = 1;
     public flags: GFXTextureFlags = GFXTextureFlagBit.NONE;
