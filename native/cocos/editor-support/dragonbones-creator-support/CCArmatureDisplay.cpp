@@ -203,7 +203,7 @@ CCArmatureDisplay* CCArmatureDisplay::getRootDisplay()
     return (CCArmatureDisplay*)slot->_armature->getDisplay();
 }
 
-void CCArmatureDisplay::traverseArmature(Armature* armature)
+void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity)
 {
     auto& slots = armature->getSlots();
     auto mgr = MiddlewareManager::getInstance();
@@ -214,6 +214,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
     auto renderInfo = renderMgr->getBuffer();
     if (!renderInfo) return;
     
+    float r, g, b, a;
     CCSlot* slot = nullptr;
     middleware::Texture2D* texture = nullptr;
     int isFull = 0;
@@ -294,7 +295,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
         Armature* childArmature = slot->getChildArmature();
         if (childArmature != nullptr)
         {
-            traverseArmature(childArmature);
+            traverseArmature(childArmature, parentOpacity * slot->color.a / 255.0f);
             continue;
         }
         
@@ -312,11 +313,11 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
         }
         
         // Calculation vertex color.
-        _finalColor.a = _nodeColor.a * slot->color.a * 255;
-        float multiplier = _premultipliedAlpha ? slot->color.a : 255;
-        _finalColor.r = _nodeColor.r * slot->color.r * multiplier;
-        _finalColor.g = _nodeColor.g * slot->color.g * multiplier;
-        _finalColor.b = _nodeColor.b * slot->color.b * multiplier;
+        a = _nodeColor.a * slot->color.a * parentOpacity;
+        float multiplier = _premultipliedAlpha ? a / 255.0f : 1.0f;
+        r = _nodeColor.r * slot->color.r * multiplier;
+        g = _nodeColor.g * slot->color.g * multiplier;
+        b = _nodeColor.b * slot->color.b * multiplier;
         
         // Transform component matrix to global matrix
         middleware::Triangles& triangles = slot->triangles;
@@ -328,10 +329,10 @@ void CCArmatureDisplay::traverseArmature(Armature* armature)
             middleware::V2F_T2F_C4B* worldVertex = worldTriangles + v;
             worldVertex->vertex.x = vertex->vertex.x * worldMatrix.m[0] + vertex->vertex.y * worldMatrix.m[4] + worldMatrix.m[12];
             worldVertex->vertex.y = vertex->vertex.x * worldMatrix.m[1] + vertex->vertex.y * worldMatrix.m[5] + worldMatrix.m[13];
-            worldVertex->color.r = (GLubyte)_finalColor.r;
-            worldVertex->color.g = (GLubyte)_finalColor.g;
-            worldVertex->color.b = (GLubyte)_finalColor.b;
-            worldVertex->color.a = (GLubyte)_finalColor.a;
+            worldVertex->color.r = (GLubyte)r;
+            worldVertex->color.g = (GLubyte)g;
+            worldVertex->color.b = (GLubyte)b;
+            worldVertex->color.a = (GLubyte)a;
         }
         
         // Fill MiddlewareManager vertex buffer
