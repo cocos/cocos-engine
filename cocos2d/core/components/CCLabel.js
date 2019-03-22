@@ -446,6 +446,12 @@ let Label = cc.Class({
         },
 
         _spacingX: 0,
+
+        /**
+         * !#en The spacing of the x axis between the labels.
+         * !#zh 文字之间的 x 轴的间距。
+         * @property {Number} spacingX
+         */
         spacingX: {
             get () {
                 return this._spacingX;
@@ -453,7 +459,8 @@ let Label = cc.Class({
             set (value) {
                 this._spacingX = value;
                 this._updateRenderData();
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.spacingX',
         },
 
         //For compatibility with v2.0.x temporary reservation.
