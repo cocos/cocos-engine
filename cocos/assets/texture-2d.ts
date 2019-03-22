@@ -184,7 +184,7 @@ export class Texture2D extends TextureBase {
 
 cc.Texture2D = Texture2D;
 
-interface ITexture2DSerializeData {
+export interface ITexture2DSerializeData {
     base: string;
     mipmaps: string[];
 }
