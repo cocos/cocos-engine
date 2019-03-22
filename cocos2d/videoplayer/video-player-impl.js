@@ -166,8 +166,9 @@ let VideoPlayerImpl = cc.Class({
         video.className = "cocosVideo";
         video.setAttribute('preload', 'auto');
         video.setAttribute('webkit-playsinline', '');
-        video.setAttribute('playsinline', '');
+        // This x5-playsinline tag must be added, otherwise the play, pause events will only fire once, in the qq browser.	
         video.setAttribute("x5-playsinline", '');
+        video.setAttribute('playsinline', '');
         if (muted) {
             video.setAttribute('muted', '');
         }
