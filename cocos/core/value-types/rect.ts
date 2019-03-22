@@ -398,7 +398,7 @@ cc.Rect = Rect;
  * @example
  * var a = cc.rect(new Rect(0, 0, 10, 0));
  */
-function rect (rect: Rect): Rect;
+export function rect (rect: Rect): Rect;
 
 /**
  * !#en
@@ -414,12 +414,10 @@ function rect (rect: Rect): Rect;
  * @example
  * var a = cc.rect(0, 0, 10, 0);
  */
-function rect (x?: number, y?: number, width?: number, height?: number): Rect;
+export function rect (x?: number, y?: number, width?: number, height?: number): Rect;
 
-function rect (x: Rect | number = 0, y: number = 0, width: number = 0, height: number = 0): Rect {
+export function rect (x: Rect | number = 0, y: number = 0, width: number = 0, height: number = 0): Rect {
     return new Rect(x as any, y, width, height);
 }
-
-export { rect };
 
 cc.rect = rect;

@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import CCClass from '../data/class';
-import { mat4 } from '../vmath';
+import { mat4 as xmat4 } from '../vmath';
 import Quat from './quat';
 import { ValueType } from './value-type';
 import Vec3 from './vec3';
@@ -163,7 +163,7 @@ export default class Mat4 extends ValueType {
      * @return
      */
     public equals (other: Mat4) {
-        return mat4.exactEquals(this, other);
+        return xmat4.exactEquals(this, other);
     }
 
     /**
@@ -176,7 +176,7 @@ export default class Mat4 extends ValueType {
      * @return
      */
     public fuzzyEquals (other: Mat4) {
-        return mat4.equals(this, other);
+        return xmat4.equals(this, other);
     }
 
     /**
@@ -203,7 +203,7 @@ export default class Mat4 extends ValueType {
      * @chainable
      */
     public identity () {
-        return mat4.identity(this);
+        return xmat4.identity(this);
     }
 
     /**
@@ -214,7 +214,7 @@ export default class Mat4 extends ValueType {
      */
     public transpose (out?: Mat4) {
         out = out || new cc.Mat4();
-        return mat4.transpose(out, this);
+        return xmat4.transpose(out, this);
     }
 
     /**
@@ -225,7 +225,7 @@ export default class Mat4 extends ValueType {
      */
     public invert (out?: Mat4) {
         out = out || new cc.Mat4();
-        return mat4.invert(out, this);
+        return xmat4.invert(out, this);
     }
 
     /**
@@ -236,7 +236,7 @@ export default class Mat4 extends ValueType {
      */
     public adjoint (out?: Mat4) {
         out = out || new cc.Mat4();
-        return mat4.adjoint(out, this);
+        return xmat4.adjoint(out, this);
     }
 
     /**
@@ -245,7 +245,7 @@ export default class Mat4 extends ValueType {
      * @return determinant of a
      */
     public determinant () {
-        return mat4.determinant(this);
+        return xmat4.determinant(this);
     }
 
     /**
@@ -257,7 +257,7 @@ export default class Mat4 extends ValueType {
      */
     public add (other: Mat4, out?: Mat4) {
         out = out || new cc.Mat4();
-        return mat4.add(out, this, other);
+        return xmat4.add(out, this, other);
     }
 
     /**
@@ -269,7 +269,7 @@ export default class Mat4 extends ValueType {
      */
     public sub (other: Mat4, out?: Mat4) {
         out = out || new cc.Mat4();
-        return mat4.subtract(out, this, other);
+        return xmat4.subtract(out, this, other);
     }
 
     /**
@@ -281,7 +281,7 @@ export default class Mat4 extends ValueType {
      */
     public mul (other: Mat4, out?: Mat4) {
         out = out || new cc.Mat4();
-        return mat4.multiply(out, this, other);
+        return xmat4.multiply(out, this, other);
     }
 
     /**
@@ -293,7 +293,7 @@ export default class Mat4 extends ValueType {
      */
     public mulScalar (num: number, out?: Mat4) {
         out = out || new cc.Mat4();
-        return mat4.scale(out, this, num);
+        return xmat4.scale(out, this, num);
     }
 
     /**
@@ -305,7 +305,7 @@ export default class Mat4 extends ValueType {
      */
     public translate (v: Vec3, out?: Mat4) {
         out = out || new cc.Mat4();
-        return mat4.translate(out, this, v);
+        return xmat4.translate(out, this, v);
     }
 
     /**
@@ -317,7 +317,7 @@ export default class Mat4 extends ValueType {
      */
     public scale (v: Vec3, out?: Mat4) {
         out = out || new cc.Mat4();
-        return mat4.scale(out, this, v);
+        return xmat4.scale(out, this, v);
     }
 
     /**
@@ -330,7 +330,7 @@ export default class Mat4 extends ValueType {
      */
     public rotate (rad: number, axis: Vec3, out?: Mat4) {
         out = out || new cc.Mat4();
-        return mat4.rotate(out, this, rad, axis);
+        return xmat4.rotate(out, this, rad, axis);
     }
 
     /**
@@ -341,7 +341,7 @@ export default class Mat4 extends ValueType {
      */
     public getTranslation (out?: Mat4) {
         out = out || new cc.Vec3();
-        return mat4.getTranslation(out, this);
+        return xmat4.getTranslation(out, this);
     }
 
     /**
@@ -352,7 +352,7 @@ export default class Mat4 extends ValueType {
      */
     public getScale (out: Vec3) {
         out = out || new cc.Vec3();
-        return mat4.getScaling(out, this);
+        return xmat4.getScaling(out, this);
     }
 
     /**
@@ -363,7 +363,7 @@ export default class Mat4 extends ValueType {
      */
     public getRotation (out: Quat) {
         out = out || new Quat();
-        return mat4.getRotation(out, this);
+        return xmat4.getRotation(out, this);
     }
 
     /**
@@ -376,7 +376,7 @@ export default class Mat4 extends ValueType {
      * @chainable
      */
     public fromRTS (q: Quat, v: Vec3, s: Vec3) {
-        return mat4.fromRTS(this, q, v, s);
+        return xmat4.fromRTS(this, q, v, s);
     }
 
     /**
@@ -387,7 +387,7 @@ export default class Mat4 extends ValueType {
      * @chainable
      */
     public fromQuat (quat: Quat) {
-        return mat4.fromQuat(this, quat);
+        return xmat4.fromQuat(this, quat);
     }
 }
 
@@ -406,7 +406,7 @@ cc.Mat4 = Mat4;
  * @param other
  * @return
  */
-function m4 (other: Mat4): Mat4;
+export function mat4 (other: Mat4): Mat4;
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Mat4"}}cc.Mat4{{/crossLink}}.
@@ -430,13 +430,13 @@ function m4 (other: Mat4): Mat4;
  * @param m33 Component in column 3, row 3 position (index 15)
  * @return
  */
-function m4 (
+export function mat4 (
     m00?: number, m01?: number, m02?: number, m03?: number,
     m10?: number, m11?: number, m12?: number, m13?: number,
     m20?: number, m21?: number, m22?: number, m23?: number,
     m30?: number, m31?: number, m32?: number, m33?: number): Mat4;
 
-function m4 (
+export function mat4 (
     m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
     m10 = 0, m11 = 1, m12 = 0, m13 = 0,
     m20 = 0, m21 = 0, m22 = 1, m23 = 0,
@@ -444,6 +444,4 @@ function m4 (
     return new Mat4(m00 as any, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
 }
 
-export { m4 as mat4 };
-
-cc.mat4 = m4;
+cc.mat4 = mat4;
