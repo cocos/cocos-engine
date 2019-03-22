@@ -394,7 +394,7 @@ sp.Skeleton = cc.Class({
         // Skeleton cache
         _skeletonCache : null,
         // Aimation name
-        _animationName : null,
+        _animationName : "",
         // Animation queue
         _animationQueue : [],
         // Head animation info of 
@@ -814,6 +814,7 @@ sp.Skeleton = cc.Class({
     setSkin (skinName) {
         if (this.isAnimationCached()) {
             this._skeletonCache.resetSkeleton();
+            this._skeletonCache.updateSkeletonSkin(this.skeletonData._uuid, skinName);
             this._animationName && (this.animation = this._animationName);
         } else {
             if (this._skeleton) {
