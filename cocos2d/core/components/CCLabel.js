@@ -448,8 +448,8 @@ let Label = cc.Class({
         _spacingX: 0,
 
         /**
-         * !#en The spacing of the x axis between the labels.
-         * !#zh 文字之间的 x 轴的间距。
+         * !#en The spacing of the x axis between characters.
+         * !#zh 文字之间 x 轴的间距。
          * @property {Number} spacingX
          */
         spacingX: {
