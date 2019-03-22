@@ -121,7 +121,7 @@ export class Model {
     protected _node: Node | null;
     protected _id: number;
     protected _enabled: boolean = false;
-    protected _viewID: number = -1;
+    protected _viewID: number = 1;
     protected _cameraID: number = -1;
     protected _userKey: number = -1;
     protected _worldBounds: aabb | null = null;

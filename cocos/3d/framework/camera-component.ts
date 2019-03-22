@@ -103,7 +103,7 @@ export class CameraComponent extends Component {
     @property
     protected _screenScale = 1;
     @property
-    protected _targetDisplay = -1;
+    protected _targetDisplay = 0;
 
     protected _camera: Camera | null = null;
 
@@ -370,7 +370,7 @@ export class CameraComponent extends Component {
         });
 
         this._camera.viewport = this._rect;
-        this._camera.fov = this._fov;
+        this._camera.fov = toRadian(this._fov);
         this._camera.nearClip = this._near;
         this._camera.farClip = this._far;
         this._camera.clearColor = color4.create(this._color.r / 255, this._color.g / 255, this._color.b / 255, this._color.a / 255)

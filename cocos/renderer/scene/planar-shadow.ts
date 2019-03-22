@@ -25,13 +25,6 @@ export class PlanarShadow {
         return this._distance;
     }
 
-    set offset (val: number) {
-        this._offset = val;
-    }
-    get offset () {
-        return this._offset;
-    }
-
     set shadowColor (color: Color) {
         color4.array(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
     }
@@ -43,7 +36,6 @@ export class PlanarShadow {
     protected _scene: RenderScene;
     protected _normal = new Vec3(0, 1, 0);
     protected _distance = 0;
-    protected _offset = 0.01;
     protected _data = Float32Array.from([
         1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, // matLightPlaneProj
         0.3, 0.3, 0.3, 1.0, // shadowColor
@@ -56,7 +48,7 @@ export class PlanarShadow {
     // tslint:disable: one-variable-per-declaration
     public updateSphereLight (light: SphereLight) {
         light.node.getWorldPosition(_v3);
-        const n = this._normal, d = this._distance + this._offset;
+        const n = this._normal, d = this._distance;
         const NdL = vec3.dot(n, _v3);
         const lx = _v3.x, ly = _v3.y, lz = _v3.z;
         const nx = n.x, ny = n.y, nz = n.z;
@@ -82,7 +74,7 @@ export class PlanarShadow {
     public updateDirLight (light: DirectionalLight) {
         light.node.getWorldRotation(_qt);
         vec3.transformQuat(_v3, _forward, _qt);
-        const n = this._normal, d = this._distance + this._offset;
+        const n = this._normal, d = this._distance;
         const NdL = vec3.dot(n, _v3), scale = 1 / NdL;
         const lx = _v3.x * scale, ly = _v3.y * scale, lz = _v3.z * scale;
         const nx = n.x, ny = n.y, nz = n.z;

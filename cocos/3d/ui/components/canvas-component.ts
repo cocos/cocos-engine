@@ -178,7 +178,7 @@ export class CanvasComponent extends Component {
                 targetDisplay: 0,
                 priority: this._priority,
                 isUI: true,
-                pipeline: 'ui',
+                stages: ['UIFlow'],
             });
 
             this._camera!.fov = 45;

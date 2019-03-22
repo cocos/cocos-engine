@@ -49,6 +49,7 @@ export abstract class RenderFlow {
 
     public abstract initialize (info: IRenderFlowInfo): boolean;
     public abstract destroy ();
+    public abstract rebuild ();
 
     public resize (width: number, height: number) {
         for (const stage of this._stages) {

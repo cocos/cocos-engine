@@ -73,6 +73,7 @@ export interface ICameraInfo {
     priority: number;
     pipeline?: string;
     isUI?: boolean;
+    flows?: string[];
 }
 
 const v_a = cc.v3();
@@ -96,7 +97,7 @@ export class Camera {
     private _clearStencil: number = 0;
     private _clearDepth: number = 1.0;
     private _clearFlag: GFXClearFlag = GFXClearFlag.NONE;
-    private _clearColor: IGFXColor = {r: 0, g: 0, b: 0, a: 0};
+    private _clearColor: IGFXColor = { r: 0, g: 0, b: 0, a: 0 };
     private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _matView: Mat4 = new Mat4();
     private _matProj: Mat4 = new Mat4();
@@ -138,6 +139,7 @@ export class Camera {
             name: this._name,
             priority: this._priority,
             isUI,
+            flows: info.flows,
         });
 
         this.changeTargetDisplay(info.targetDisplay);
@@ -358,6 +360,7 @@ export class Camera {
 
     set visibility (vis) {
         this._visibility = vis;
+        this._view.visibility = vis;
     }
     get visibility () {
         return this._visibility;

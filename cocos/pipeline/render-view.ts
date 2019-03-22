@@ -6,6 +6,7 @@ import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { GFXWindow } from '../gfx/window';
 import { Camera } from '../renderer/scene/camera';
+import { RenderFlow } from './render-flow';
 
 export enum RenderViewPriority {
     GENERAL = 100,
@@ -16,6 +17,7 @@ export interface IRenderViewInfo {
     name: string;
     priority: number;
     isUI: boolean;
+    flows?: string[];
 }
 
 export interface IRenderTargetInfo {
@@ -47,6 +49,9 @@ export class RenderView {
 
     public set priority (val: number) {
         this._priority = val;
+        if (this.isUI) {
+            this._priority |= 1 << 30;
+        }
     }
 
     public set visibility (vis) {
@@ -66,6 +71,14 @@ export class RenderView {
 
     public get isUI (): boolean {
         return this._isUI;
+    }
+
+    public get flows (): RenderFlow[] {
+        return this._flows;
+    }
+
+    public set isOffscreen (isOffscreen: boolean) {
+        this._isOffscreen = isOffscreen;
     }
 
     public get isOffscreen (): boolean {
@@ -88,6 +101,7 @@ export class RenderView {
     private _camera: Camera;
     private _isEnable: boolean = true;
     private _isUI: boolean = false;
+    private _flows: RenderFlow[] = [];
     private _isOffscreen: boolean = false;
 
     // For offscreen
@@ -107,7 +121,16 @@ export class RenderView {
 
         this._name = info.name;
         this._isUI = info.isUI;
-        this._priority = info.priority;
+        this.priority = info.priority;
+        if (!info.flows) {
+            info.flows = ['ForwardFlow', 'ToneMapFlow', 'SMAAFlow'];
+        }
+        const pipelineFlows = cc.director.root.pipeline.flows;
+        for (const f of pipelineFlows) {
+            if (info.flows.indexOf(f.name) !== -1) {
+                this.flows.push(f);
+            }
+        }
 
         return true;
     }

@@ -1,5 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+import { GFXAddress, GFXComparisonFunc, GFXFilter } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXSampler, IGFXSamplerInfo } from '../../gfx/sampler';
 
@@ -19,13 +20,29 @@ export enum SamplerInfoIndex {
     total = borderColor + 4,
 }
 
+const defaultInfo = [
+  GFXFilter.LINEAR,
+  GFXFilter.LINEAR,
+  GFXFilter.NONE,
+  GFXAddress.WRAP,
+  GFXAddress.WRAP,
+  GFXAddress.WRAP,
+  16,
+  GFXComparisonFunc.NEVER,
+  0, 1000, 0,
+  0, 0, 0, 0,
+];
+
 const gfxInfo: IGFXSamplerInfo = {};
 
 class SamplerLib {
     protected _cache: Record<string, GFXSampler> = {};
 
     public getSampler (device: GFXDevice, info: number[]) {
-        const hash = info.toString();
+        let hash = '';
+        for (let i = 0; i < defaultInfo.length; i++) {
+            hash += (info[i] || defaultInfo[i]) + ',';
+        }
         const cache = this._cache[hash];
         if (cache) { return cache; }
         gfxInfo.minFilter     = info[SamplerInfoIndex.minFilter];

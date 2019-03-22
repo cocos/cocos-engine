@@ -19,7 +19,10 @@ export class UIStage extends RenderStage {
         }
 
         this._priority = info.priority;
-        this._framebuffer = info.framebuffer;
+
+        if (info.framebuffer !== undefined) {
+            this._framebuffer = info.framebuffer;
+        }
 
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,
@@ -38,6 +41,9 @@ export class UIStage extends RenderStage {
     }
 
     public resize (width: number, height: number) {
+    }
+
+    public rebuild () {
     }
 
     public render (view: RenderView) {

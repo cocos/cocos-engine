@@ -129,6 +129,7 @@ export enum WrapMode {
  * @enum {number}
  */
 export enum Filter {
+    NONE = GFXFilter.NONE,
     /**
      * Specifies linear filtering.
      */
@@ -181,9 +182,6 @@ export class TextureBase extends EventTargetFactory(Asset) {
     }
 
     @property
-    protected _genMipmap = false;
-
-    @property
     protected _format: number = PixelFormat.RGBA8888;
 
     @property
@@ -199,7 +197,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
     protected _magFilter: number = Filter.LINEAR;
 
     @property
-    protected _mipFilter: number = Filter.LINEAR;
+    protected _mipFilter: number = Filter.NONE;
 
     @property
     protected _wrapS: number = WrapMode.REPEAT;
@@ -295,16 +293,6 @@ export class TextureBase extends EventTargetFactory(Asset) {
     }
 
     /**
-     * !#en
-     * Whether or not to generate mipmap.
-     * !#zh 检查纹理在上传 GPU 时是否生成 mipmap。
-     * @return
-     */
-    public genMipmap () {
-        return this._genMipmap || false;
-    }
-
-    /**
      * !#en Sets the wrap s and wrap t options. <br/>
      * If the texture size is NPOT (non power of 2), then in can only use gl.CLAMP_TO_EDGE in gl.TEXTURE_WRAP_{S,T}.
      * !#zh 设置纹理包装模式。
@@ -314,10 +302,10 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param wrapR
      */
     public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
-        if (wrapS !== this._wrapS) { this._wrapS = wrapS; this._samplerInfo[SamplerInfoIndex.addressU] = wrapS; }
-        if (wrapT !== this._wrapT) { this._wrapT = wrapT; this._samplerInfo[SamplerInfoIndex.addressV] = wrapT; }
+        this._wrapS = wrapS; this._samplerInfo[SamplerInfoIndex.addressU] = wrapS;
+        this._wrapT = wrapT; this._samplerInfo[SamplerInfoIndex.addressV] = wrapT;
         if (wrapR === undefined) { return; }
-        if (wrapR !== this._wrapR) { this._wrapR = wrapR; this._samplerInfo[SamplerInfoIndex.addressW] = wrapR; }
+        this._wrapR = wrapR; this._samplerInfo[SamplerInfoIndex.addressW] = wrapR;
     }
 
     /**
@@ -327,8 +315,8 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param magFilter
      */
     public setFilters (minFilter: Filter, magFilter: Filter) {
-        if (minFilter !== this._minFilter) { this._minFilter = minFilter; this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter; }
-        if (magFilter !== this._magFilter) { this._magFilter = magFilter; this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter; }
+        this._minFilter = minFilter; this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter;
+        this._magFilter = magFilter; this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter;
     }
 
     /**
@@ -337,7 +325,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param mipFilter
      */
     public setMipFilter (mipFilter: Filter) {
-        if (mipFilter !== this._mipFilter) { this._mipFilter = mipFilter; this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter; }
+        this._mipFilter = mipFilter; this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
     }
 
     /**
@@ -366,21 +354,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param anisotropy
      */
     public setAnisotropy (anisotropy: number) {
-        if (anisotropy !== this._anisotropy) { this._anisotropy = anisotropy; this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy; }
-    }
-
-    /**
-     * !#en
-     * Sets whether generate mipmaps for the texture
-     * !#zh 是否为纹理设置生成 mipmaps。
-     * @param mipmap
-     */
-    public setGenMipmap (mipmap: boolean) {
-        if (this._genMipmap !== mipmap) {
-            this._genMipmap = mipmap;
-            this._recreateTexture();
-            this.updateImage();
-        }
+        this._anisotropy = anisotropy; this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy;
     }
 
     public destroy () {
@@ -411,8 +385,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
             this._wrapS + ',' + this._wrapT + ',' +
             (this._premultiplyAlpha ? 1 : 0) + ',' +
             this._mipFilter + ',' + this._anisotropy + ',' +
-            (this._flipY ? 1 : 0) + ',' +
-            (this._genMipmap ? 1 : 0);
+            (this._flipY ? 1 : 0);
     }
 
     /**
@@ -435,9 +408,8 @@ export class TextureBase extends EventTargetFactory(Asset) {
             this.setMipFilter(parseInt(fields[6]));
             this.setAnisotropy(parseInt(fields[7]));
         }
-        if (fields.length >= 10) {
+        if (fields.length >= 9) {
             this._flipY = fields[8].charCodeAt(0) === CHAR_CODE_1;
-            this._genMipmap = fields[9].charCodeAt(0) === CHAR_CODE_1;
         }
     }
 
@@ -543,7 +515,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
             width: this._potientialWidth,
             height: this._potientialHeight,
             mipLevel: this._mipmapLevel,
-            flags: this._genMipmap ? GFXTextureFlagBit.GEN_MIPMAP : GFXTextureFlagBit.NONE,
+            flags: this._mipFilter !== Filter.NONE ? GFXTextureFlagBit.GEN_MIPMAP : GFXTextureFlagBit.NONE,
         };
     }
 

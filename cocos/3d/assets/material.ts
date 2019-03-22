@@ -207,7 +207,8 @@ export class Material extends Asset {
 
     protected _update (keepProps: boolean = true) {
         const asset = this._effectAsset;
-        if (!asset) { this._passes = builtinResMgr.get<Material>('default-material')._passes.slice(); return; }
+        // ugly yellow indicating missing effect
+        if (!asset) { this._passes = builtinResMgr.get<Material>('missing-effect-material')._passes.slice(); return; }
         // create passes
         this._passes = Effect.parseEffect(asset, {
             techIdx: this._techIdx,

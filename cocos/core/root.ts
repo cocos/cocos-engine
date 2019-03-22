@@ -4,7 +4,6 @@ import { GFXWindow, IGFXWindowInfo } from '../gfx/window';
 import { ForwardPipeline } from '../pipeline/forward/forward-pipeline';
 import { RenderPipeline } from '../pipeline/render-pipeline';
 import { IRenderViewInfo, RenderView } from '../pipeline/render-view';
-import { UIPipeline } from '../pipeline/ui/ui-pipeline';
 import { IRenderSceneInfo, RenderScene } from '../renderer/scene/render-scene';
 import { UI } from '../renderer/ui/ui';
 
@@ -41,10 +40,6 @@ export class Root {
         return this._pipeline!;
     }
 
-    public get uiPipeline (): UIPipeline {
-        return this._uiPipeline!;
-    }
-
     public get ui (): UI {
         return this._ui as UI;
     }
@@ -69,11 +64,9 @@ export class Root {
     private _mainWindow: GFXWindow | null = null;
     private _curWindow: GFXWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
-    private _uiPipeline: UIPipeline | null = null;
     private _ui: UI | null = null;
     private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
-    private _uiViews: RenderView[] = [];
     private _frameTime: number = 0;
 
     constructor (device: GFXDevice) {
@@ -96,12 +89,6 @@ export class Root {
 
         this._pipeline = new ForwardPipeline(this);
         if (!this._pipeline.initialize(info)) {
-            this.destroy();
-            return false;
-        }
-
-        this._uiPipeline = new UIPipeline(this);
-        if (!this._uiPipeline.initialize(info)) {
             this.destroy();
             return false;
         }
@@ -172,12 +159,6 @@ export class Root {
             }
         }
 
-        for (const view of this._uiViews) {
-            if (view.isEnable && view.window === this._mainWindow) {
-                this._uiPipeline!.render(view);
-            }
-        }
-
         this._device.present();
     }
 
@@ -239,37 +220,20 @@ export class Root {
         view.initialize(info);
         // view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
 
-        if (!view.isUI) {
-            this._views.push(view);
-            this._views.sort((a: RenderView, b: RenderView) => {
-                return a.priority - b.priority;
-            });
-        } else {
-            this._uiViews.push(view);
-            this._uiViews.sort((a: RenderView, b: RenderView) => {
-                return a.priority - b.priority;
-            });
-        }
+        this._views.push(view);
+        this._views.sort((a: RenderView, b: RenderView) => {
+            return a.priority - b.priority;
+        });
 
         return view;
     }
 
     public destroyView (view: RenderView) {
-        if (!view.isUI) {
-            for (let i = 0; i < this._views.length; ++i) {
-                if (this._views[i] === view) {
-                    this._views.splice(i, 1);
-                    view.destroy();
-                    return;
-                }
-            }
-        } else {
-            for (let i = 0; i < this._uiViews.length; ++i) {
-                if (this._uiViews[i] === view) {
-                    this._uiViews.splice(i, 1);
-                    view.destroy();
-                    return;
-                }
+        for (let i = 0; i < this._views.length; ++i) {
+            if (this._views[i] === view) {
+                this._views.splice(i, 1);
+                view.destroy();
+                return;
             }
         }
     }
@@ -279,10 +243,5 @@ export class Root {
             view.destroy();
         }
         this._views = [];
-
-        for (const view of this._uiViews) {
-            view.destroy();
-        }
-        this._uiViews = [];
     }
 }

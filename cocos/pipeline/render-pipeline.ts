@@ -36,6 +36,7 @@ const _outMat = new Mat4();
 
 export interface IRenderPipelineInfo {
     enableHDR?: boolean;
+    enableSMAA?: boolean;
 }
 
 export abstract class RenderPipeline {
@@ -82,6 +83,10 @@ export abstract class RenderPipeline {
 
     public get prevShadingFBO (): GFXFramebuffer {
         return this._shadingFBOs[this._prevIdx];
+    }
+
+    public get useSMAA (): boolean {
+        return this._useSMAA;
     }
 
     public get smaaEdgeTexView (): GFXTextureView {
@@ -169,6 +174,7 @@ export abstract class RenderPipeline {
 
     public abstract initialize (info: IRenderPipelineInfo): boolean;
     public abstract destroy ();
+    public abstract rebuild ();
 
     public resize (width: number, height: number) {
         for (const flow of this._flows) {
@@ -184,7 +190,7 @@ export abstract class RenderPipeline {
 
         this.updateUBOs(view);
 
-        for (const flow of this._flows) {
+        for (const flow of view.flows) {
             flow.render(view);
         }
     }
@@ -253,6 +259,8 @@ export abstract class RenderPipeline {
     }
 
     protected _initialize (info: IRenderPipelineInfo): boolean {
+
+        this._useSMAA = (info.enableSMAA !== undefined ? info.enableSMAA : true);
 
         if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
             this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
@@ -670,13 +678,8 @@ export abstract class RenderPipeline {
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
 
-        if (!view.isOffscreen) {
-            _vec4Array[0] = camera.width / this._shadingTexWidth;
-            _vec4Array[1] = camera.height / this._shadingTexHeight;
-        } else {
-            _vec4Array[0] = 1.0;
-            _vec4Array[1] = 1.0;
-        }
+        _vec4Array[0] = camera.width / this._shadingTexWidth;
+        _vec4Array[1] = camera.height / this._shadingTexHeight;
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);

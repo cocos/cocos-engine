@@ -35,7 +35,7 @@ class BuiltinResMgr {
         // black texture
         const blackCubeTexture = new TextureCube();
         blackCubeTexture._uuid = 'black-cube-texture';
-        blackCubeTexture.setGenMipmap(true);
+        blackCubeTexture.setMipFilter(TextureCube.Filter.LINEAR);
         blackCubeTexture.image = {
             front: new ImageAsset(canvas),
             back: new ImageAsset(canvas),
@@ -65,7 +65,7 @@ class BuiltinResMgr {
         // white cube texture
         const whiteCubeTexture = new TextureCube();
         whiteCubeTexture._uuid = 'white-cube-texture';
-        whiteCubeTexture.setGenMipmap(true);
+        whiteCubeTexture.setMipFilter(TextureCube.Filter.LINEAR);
         whiteCubeTexture.image = {
             front: new ImageAsset(canvas),
             back: new ImageAsset(canvas),
@@ -99,7 +99,7 @@ class BuiltinResMgr {
 
         // default cube texture
         const defaultCubeTexture = new TextureCube();
-        defaultCubeTexture.setGenMipmap(true);
+        defaultCubeTexture.setMipFilter(TextureCube.Filter.LINEAR);
         defaultCubeTexture._uuid = 'default-cube-texture';
         defaultCubeTexture.image = {
             front: new ImageAsset(canvas),
@@ -125,22 +125,6 @@ class BuiltinResMgr {
             effect.onLoaded();
         });
 
-        // tonemap material
-        const smaaMtl = new cc.Material();
-        smaaMtl._uuid = 'smaa-material';
-        smaaMtl.initialize({
-            effectName: 'builtin-smaa',
-        });
-        resources[smaaMtl._uuid] = smaaMtl;
-
-        // tonemap material
-        const tonemapMtl = new cc.Material();
-        tonemapMtl._uuid = 'tonemap-material';
-        tonemapMtl.initialize({
-            effectName: 'builtin-tonemap',
-        });
-        resources[tonemapMtl._uuid] = tonemapMtl;
-
         // standard material
         const standardMtl = new cc.Material();
         standardMtl._uuid = 'standard-material';
@@ -149,15 +133,25 @@ class BuiltinResMgr {
         });
         resources[standardMtl._uuid] = standardMtl;
 
-        // default material
-        const defaultMtl = new cc.Material();
-        defaultMtl._uuid = 'default-material';
-        defaultMtl.initialize({
+        // material indicating missing material (purple)
+        const missingMtl = new cc.Material();
+        missingMtl._uuid = 'missing-material';
+        missingMtl.initialize({
             effectName: 'builtin-unlit',
             defines: { USE_COLOR: true },
         });
-        defaultMtl.setProperty('color', cc.color('#ff00ff'));
-        resources[defaultMtl._uuid] = defaultMtl;
+        missingMtl.setProperty('color', cc.color('#ff00ff'));
+        resources[missingMtl._uuid] = missingMtl;
+
+        // material indicating missing effect (yellow)
+        const missingEfxMtl = new cc.Material();
+        missingEfxMtl._uuid = 'missing-effect-material';
+        missingEfxMtl.initialize({
+            effectName: 'builtin-unlit',
+            defines: { USE_COLOR: true },
+        });
+        missingEfxMtl.setProperty('color', cc.color('#ffff00'));
+        resources[missingEfxMtl._uuid] = missingEfxMtl;
 
         // sprite material
         const spriteMtl = new cc.Material();

@@ -40,6 +40,9 @@ export class ForwardStage extends RenderStage {
     public resize (width: number, height: number) {
     }
 
+    public rebuild () {
+    }
+
     public render (view: RenderView) {
 
         const cmdBuff = this._cmdBuff!;

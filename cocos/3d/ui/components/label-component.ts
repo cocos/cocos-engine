@@ -79,6 +79,8 @@ export enum VerticalTextAlignment {
     BOTTOM = 2,
 }
 
+ccenum(VerticalTextAlignment);
+
 /**
  * !#en Enum for Overflow.
  * !#zh Overflow 类型
@@ -169,7 +171,9 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 文本内容的水平对齐方式。
      * @property {Label.HorizontalAlign} horizontalAlign
      */
-    @property()
+    @property({
+        type: HorizontalTextAlignment,
+    })
     get horizontalAlign () {
         return this._horizontalAlign;
     }
@@ -188,7 +192,9 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 文本内容的垂直对齐方式。
      * @property {Label.VerticalAlign} VerticalTextAlignment
      */
-    @property()
+    @property({
+        type: VerticalTextAlignment,
+    })
     get verticalAlign () {
         return this._verticalAlign;
     }
@@ -277,7 +283,9 @@ export class LabelComponent extends UIRenderComponent {
      * !#zh 文字显示超出范围时的处理方式。
      * @property {Overflow} overflow
      */
-    @property()
+    @property({
+        type: Overflow,
+    })
     get overflow () {
         return this._overflow;
     }

@@ -64,6 +64,7 @@ export abstract class RenderStage {
     public abstract destroy ();
     public abstract render (view: RenderView);
     public abstract resize (width: number, height: number);
+    public abstract rebuild ();
 
     public setClearColor (color: IGFXColor) {
         if (this._clearColors.length > 0) {

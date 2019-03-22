@@ -30,7 +30,11 @@ export class UIFlow extends RenderFlow {
         return true;
     }
 
-    public destroy (): void {
+    public destroy () {
         this.destroyStages();
     }
+
+    public rebuild () {
+    }
+
 }
