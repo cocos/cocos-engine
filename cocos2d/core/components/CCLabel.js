@@ -252,7 +252,8 @@ let Label = cc.Class({
             readonly: true,
             get () {
                 return this._actualFontSize;
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.actualFontSize',
         },
 
         _fontSize: 40,
