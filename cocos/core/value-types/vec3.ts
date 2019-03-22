@@ -466,7 +466,7 @@ cc.Vec3 = Vec3;
  * var v3 = cc.v3(v2);
  * var v4 = cc.v3({x: 100, y: 100, z: 0});
  */
-function v3 (v: Vec3): Vec3;
+export function v3 (v: Vec3): Vec3;
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Vec3"}}cc.Vec3{{/crossLink}}.
@@ -481,12 +481,10 @@ function v3 (v: Vec3): Vec3;
  * var v3 = cc.v3(v2);
  * var v4 = cc.v3({x: 100, y: 100, z: 0});
  */
-function v3 (x?: number, y?: number, z?: number): Vec3;
+export function v3 (x?: number, y?: number, z?: number): Vec3;
 
-function v3 (x?: number | Vec3, y?: number, z?: number) {
+export function v3 (x?: number | Vec3, y?: number, z?: number) {
     return new Vec3(x as any, y, z);
 }
-
-export { v3 };
 
 cc.v3 = v3;

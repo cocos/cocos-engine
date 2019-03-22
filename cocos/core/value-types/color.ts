@@ -539,7 +539,7 @@ CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
  * @return
  * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/color.js}
  */
-function color (other: Color | string): Color;
+export function color (other: Color | string): Color;
 
 /**
  * !#en
@@ -558,9 +558,9 @@ function color (other: Color | string): Color;
  * @return
  * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/color.js}
  */
-function color (r?: number, g?: number, b?: number, a?: number): Color;
+export function color (r?: number, g?: number, b?: number, a?: number): Color;
 
-function color (r?: number | Color | string, g?: number, b?: number, a?: number) {
+export function color (r?: number | Color | string, g?: number, b?: number, a?: number) {
     if (typeof r === 'string') {
         const result = new Color();
         return result.fromHEX(r);
@@ -570,8 +570,6 @@ function color (r?: number | Color | string, g?: number, b?: number, a?: number)
     }
     return  new Color(r, g, b, a);
 }
-
-export { color };
 
 cc.color = color;
 

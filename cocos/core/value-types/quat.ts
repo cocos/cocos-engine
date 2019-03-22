@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import CCClass from '../data/class';
-import quat from '../vmath/quat';
+import xquat from '../vmath/quat';
 import { ValueType } from './value-type';
 import Vec3 from './vec3';
 
@@ -120,12 +120,12 @@ export default class Quat extends ValueType {
 
     public getEulerAngles (out?: Vec3) {
         out = out || new Vec3();
-        return quat.toEuler(out, this);
+        return xquat.toEuler(out, this);
     }
 
     public lerp (to: Quat, ratio: number, out?: Quat) {
         out = out || new Quat();
-        cc.vmath.quat.slerp(out, this, to, ratio);
+        xquat.slerp(out, this, to, ratio);
         return out;
     }
 }
@@ -139,7 +139,7 @@ CCClass.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
  * @param other
  * @return
  */
-function q (other: Quat): Quat;
+export function quat (other: Quat): Quat;
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Quat"}}cc.Quat{{/crossLink}}.
@@ -151,14 +151,12 @@ function q (other: Quat): Quat;
  * @param [w=1]
  * @return
  */
-function q (x?: number, y?: number, z?: number, w?: number): Quat;
+export function quat (x?: number, y?: number, z?: number, w?: number): Quat;
 
-function q (x: number | Quat = 0, y: number = 0, z: number = 0, w: number = 1) {
+export function quat (x: number | Quat = 0, y: number = 0, z: number = 0, w: number = 1) {
     return new Quat(x as any, y, z, w);
 }
 
-export {q as quat};
-
-cc.quat = q;
+cc.quat = quat;
 
 cc.Quat = Quat;
