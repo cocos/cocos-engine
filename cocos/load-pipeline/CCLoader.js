@@ -270,13 +270,6 @@ class CCLoader extends Pipeline {
                     completeCallback = null;
                 }
 
-                if (CC_EDITOR) {
-                    for (let id in self._cache) {
-                        if (self._cache[id].complete) {
-                            self.removeItem(id);
-                        }
-                    }
-                }
                 items.destroy();
             });
         });

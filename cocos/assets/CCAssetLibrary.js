@@ -120,7 +120,7 @@ let AssetLibrary = {
                         asset.scene.dependAssets = getDependsRecursively(key);
                     }
                 }
-                if (CC_EDITOR || isScene(asset)) {
+                if (isScene(asset)) {
                     var id = cc.loader._getReferenceKey(uuid);
                     cc.loader.removeItem(id);
                 }
