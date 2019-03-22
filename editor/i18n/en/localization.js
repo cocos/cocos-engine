@@ -97,7 +97,8 @@ module.exports = {
             "wrap": "Wrap text?",
             "font": "What font to use",
             "system_font": "Whether to use the system default font",
-            'cacheMode': 'The text cache mode includes the following three types: \n 1. NONE : Do not do any caching, text content is drawn once. \n 2. BITMAP: Add text as a static image to the dynamic atlas for batch merging, but not frequently dynamically Text content \n 3. CHAR: Splits text into characters and caches characters into character atlas, suitable for text content with repeated and frequently updated character content'
+            'cacheMode': 'The text cache mode includes the following three types: \n 1. NONE : Do not do any caching, text content is drawn once. \n 2. BITMAP: Add text as a static image to the dynamic atlas for batch merging, but not frequently dynamically Text content \n 3. CHAR: Splits text into characters and caches characters into character atlas, suitable for text content with repeated and frequently updated character content',
+            'actualFontSize': 'The actual rendering font size in shrink mode',
         },
         "progress": {
             "bar_sprite": "A progress bar is displayed with the Sprite node that can dynamically change the size",
