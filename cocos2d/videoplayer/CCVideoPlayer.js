@@ -297,13 +297,13 @@ let VideoPlayer = cc.Class({
         if (url && cc.loader.md5Pipe) {
             url = cc.loader.md5Pipe.transformURL(url);
         }
-        this._impl.setURL(url, this._mute, this._volume);
+        this._impl.setURL(url, this._mute || this._volume === 0);
     },
 
     onLoad () {
         let impl = this._impl;
         if (impl) {
-            impl.createDomElementIfNeeded(this._mute, this._volume);
+            impl.createDomElementIfNeeded(this._mute || this._volume === 0);
             this._updateVideoSource();
 
             impl.seekTo(this.currentTime);

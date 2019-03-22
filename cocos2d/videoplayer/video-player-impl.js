@@ -158,7 +158,7 @@ let VideoPlayerImpl = cc.Class({
         video.style.height = height + 'px';
     },
 
-    _createDom (mute, volume) {
+    _createDom (muted) {
         let video = document.createElement('video');
         video.style.position = "absolute";
         video.style.bottom = "0px";
@@ -167,7 +167,8 @@ let VideoPlayerImpl = cc.Class({
         video.setAttribute('preload', 'auto');
         video.setAttribute('webkit-playsinline', '');
         video.setAttribute('playsinline', '');
-        if (mute || volume === 0) {
+        video.setAttribute("x5-playsinline", '');
+        if (muted) {
             video.setAttribute('muted', '');
         }
 
@@ -175,9 +176,9 @@ let VideoPlayerImpl = cc.Class({
         cc.game.container.appendChild(video);
     },
 
-    createDomElementIfNeeded: function (mute, volume) {
+    createDomElementIfNeeded: function (muted) {
         if (!this._video) {
-            this._createDom();
+            this._createDom(muted);
         }
     },
 
@@ -209,7 +210,7 @@ let VideoPlayerImpl = cc.Class({
         this._url = "";
     },
 
-    setURL (path, mute, volume) {
+    setURL (path, muted) {
         let source, extname;
 
         if (this._url === path) {
@@ -218,7 +219,7 @@ let VideoPlayerImpl = cc.Class({
 
         this._url = path;
         this.removeDom();
-        this.createDomElementIfNeeded(mute, volume);
+        this.createDomElementIfNeeded(muted);
         this._bindEvent();
 
         let video = this._video;
