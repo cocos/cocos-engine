@@ -161,6 +161,12 @@ export class UI {
         }
     }
 
+    public _removeUIMaterial (hash: number){
+        if (this._uiMaterials.has(hash)){
+            this._uiMaterials.delete(hash);
+        }
+    }
+
     public addScreen (comp) {
         this._screens.push(comp);
         if (comp.camera) {
