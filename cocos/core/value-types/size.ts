@@ -149,7 +149,7 @@ CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0 });
  * @return
  * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCSize/size.js}
  */
-function size (size: Size): Size;
+export function size (size: Size): Size;
 
 /**
  * !#en
@@ -164,13 +164,11 @@ function size (size: Size): Size;
  * @return
  * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCSize/size.js}
  */
-function size (width?: number, height?: number): Size;
+export function size (width?: number, height?: number): Size;
 
-function size (width: Size | number = 0, height: number = 0) {
+export function size (width: Size | number = 0, height: number = 0) {
     return new Size(width as any, height);
 }
-
-export { size };
 
 cc.size = size;
 
