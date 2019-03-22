@@ -57,20 +57,6 @@ declare interface IWritableArrayLike<T> {
     [index: number]: T;
 }
 
-declare module "webgl-debug" {
-    export function makeDebugContext(
-        webGLRenderingContext: WebGLRenderingContext,
-        throwOnGLError: (err: GLenum, funcName: string, ...args: any[]) => void
-    ): WebGLRenderingContext;
-
-    export function makeDebugContext(
-        webGL2RenderingContext: WebGL2RenderingContext,
-        throwOnGLError: (err: GLenum, funcName: string, ...args: any[]) => void
-    ): WebGL2RenderingContext;
-
-    export function glEnumToString(glEnum: GLenum): string;
-}
-
 declare namespace Editor {
     function log (message?: any, ...optionalParams: any[]): void;
     function error (message?: any, ...optionalParams: any[]): void;
