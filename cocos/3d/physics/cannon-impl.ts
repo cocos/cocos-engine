@@ -322,10 +322,12 @@ export class CannonRigidBody implements RigidBodyBase {
             position = new Vec3();
             vec3.copy(position, this._cannonBody.position);
         }
+        this._cannonBody.wakeUp();
         this._cannonBody.applyForce(toCannonVec3(force), toCannonVec3(position));
     }
 
     public applyImpulse (impulse: Vec3) {
+        this._cannonBody.wakeUp();
         this._cannonBody.applyImpulse(toCannonVec3(impulse), this._cannonBody.position);
     }
 
