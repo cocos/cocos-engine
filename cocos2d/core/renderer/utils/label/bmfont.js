@@ -556,7 +556,7 @@ module.exports = {
             if (letterInfo._valid) {
                 let letterDef = letterDefinitions[letterInfo._char];
 
-                let px = letterInfo._positionX + letterDef._width / 2 * _bmfontScale;
+                let px = letterInfo._positionX + letterDef._width * _bmfontScale;
                 let lineIndex = letterInfo._lineIndex;
                 if (_labelWidth > 0) {
                     if (!_isWrapText) {

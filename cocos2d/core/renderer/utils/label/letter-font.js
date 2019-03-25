@@ -758,7 +758,7 @@ module.exports = {
             if (letterInfo.valid) {
                 let letterDef = _fontAtlas.getLetter(letterInfo.hash);
 
-                let px = letterInfo.x + letterDef.w / 2 * _bmfontScale;
+                let px = letterInfo.x + letterDef.w * _bmfontScale;
                 let lineIndex = letterInfo.line;
                 if (_labelWidth > 0) {
                     if (!_isWrapText) {
