@@ -167,7 +167,7 @@ export abstract class RenderPipeline {
     protected _quadVB: GFXBuffer | null = null;
     protected _quadIB: GFXBuffer | null = null;
     protected _quadIA: GFXInputAssembler | null = null;
-    protected _defaultUboGlobal: UBOGlobal | null = null;
+    protected _defaultUboGlobal: UBOGlobal = new UBOGlobal();
     protected _globalBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
     protected _defaultTex: GFXTexture | null = null;
     protected _defaultTexView: GFXTextureView | null = null;
@@ -195,9 +195,10 @@ export abstract class RenderPipeline {
 
         view.camera.update();
 
-        this.sceneCulling(view);
-
+        // update UBO first for culling may depend on some of them
         this.updateUBOs(view);
+
+        this.sceneCulling(view);
 
         for (const flow of view.flows) {
             flow.render(view);
@@ -618,8 +619,6 @@ export abstract class RenderPipeline {
                 return false;
             }
 
-            this._defaultUboGlobal = new UBOGlobal();
-
             this._globalBindings.set(UBOGlobal.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
                 blockInfo: UBOGlobal.BLOCK,
@@ -679,58 +678,58 @@ export abstract class RenderPipeline {
         _vec4Array[1] = 0.0;
         _vec4Array[2] = 0.0;
         _vec4Array[3] = 0.0;
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.TIME_OFFSET);
+        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.TIME_OFFSET);
 
         _vec4Array[0] = device.width;
         _vec4Array[1] = device.height;
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
+        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
 
         _vec4Array[0] = camera.width / this._shadingTexWidth;
         _vec4Array[1] = camera.height / this._shadingTexHeight;
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
+        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
 
         _vec4Array[0] = this._shadingTexWidth;
         _vec4Array[1] = this._shadingTexHeight;
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.NATIVE_SIZE_OFFSET);
+        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.NATIVE_SIZE_OFFSET);
 
         mat4.array(_mat4Array, camera.matView);
-        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_OFFSET);
+        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_OFFSET);
 
         mat4.invert(_outMat, camera.matView);
         mat4.array(_mat4Array, _outMat);
-        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_INV_OFFSET);
+        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_INV_OFFSET);
 
         mat4.array(_mat4Array, camera.matProj);
-        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_PROJ_OFFSET);
+        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_PROJ_OFFSET);
 
         mat4.invert(_outMat, camera.matProj);
         mat4.array(_mat4Array, _outMat);
-        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_PROJ_INV_OFFSET);
+        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_PROJ_INV_OFFSET);
 
         mat4.array(_mat4Array, camera.matViewProj);
-        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
+        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
 
         mat4.array(_mat4Array, camera.matViewProjInv);
-        this._defaultUboGlobal!.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
+        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
 
         vec3.array(_vec4Array, camera.position);
         _vec4Array[3] = 1.0;
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
+        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 
         _vec4Array[0] = camera.exposure;
         _vec4Array[1] = _vec4Array[0] * this._fpScaleInv;
         _vec4Array[2] = this._isHDR ? 1.0 : 0.0;
         _vec4Array[3] = 1.0 / _vec4Array[1];
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.EXPOSURE_OFFSET);
+        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.EXPOSURE_OFFSET);
 
         vec3.array(_vec4Array, mainLight.direction);
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.MAIN_LIT_DIR_OFFSET);
+        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.MAIN_LIT_DIR_OFFSET);
 
         if (mainLight.enabled) {
             vec3.array(_vec4Array, mainLight.color);
@@ -744,17 +743,17 @@ export abstract class RenderPipeline {
         } else {
             _vec4Array.set(_vec4ArrayZero);
         }
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
 
         _vec4Array.set(ambient.skyColor);
         _vec4Array[3] = ambient.skyIllum;
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.AMBIENT_SKY_OFFSET);
+        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.AMBIENT_SKY_OFFSET);
 
         _vec4Array.set(ambient.groundAlbedo);
-        this._defaultUboGlobal!.view.set(_vec4Array, UBOGlobal.AMBIENT_GROUND_OFFSET);
+        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.AMBIENT_GROUND_OFFSET);
 
         // update ubos
-        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal!.view.buffer);
+        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal.view.buffer);
 
         const planarShadow = scene.planarShadow;
         planarShadow.updateDirLight(scene.mainLight);
@@ -778,11 +777,10 @@ export abstract class RenderPipeline {
                 continue;
             }
 
-            model._updateTransform();
+            model.updateTransform();
 
             // frustum culling
             if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
-                // console.log('model is not in view frustum.');
                 continue;
             }
 

@@ -6,14 +6,16 @@ import Pool from '../../3d/memop/pool';
 import { Vec3 } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXBindingType, GFXGetTypeSize } from '../../gfx/define';
+import { GFXBindingType, GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { GFXUniformBlock } from '../../gfx/shader';
+import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
+import { Pass } from '../core/pass';
+import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
-import { UBOLocal, IInternalBindingInst, UBOForwardLight, IInternalBindingDesc } from '../../pipeline/define';
-import { GFXUniformBlock } from '../../gfx/shader';
 
 const _temp_floatx16 = new Float32Array(16);
 const _temp_mat4 = mat4.create();
@@ -173,14 +175,14 @@ export class Model {
         return this._subModels[idx];
     }
 
-    public _updateTransform () {
+    public updateTransform () {
         if (this._node && this._node.hasChanged) {
             this._node.updateWorldTransformFull();
             if (this._modelBounds) {
                 this._modelBounds.transform(
                     // @ts-ignore
                     this._node._mat, this._node._pos, this._node._rot, this._node._scale,
-                    this._worldBounds);
+                    this._worldBounds!);
             }
         }
     }
@@ -265,23 +267,27 @@ export class Model {
     protected createPipelineState (mat: Material): GFXPipelineState[] {
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
-            ret[i] = mat.passes[i].createPipelineState()!;
-            this._onCreatePSO(ret[i]);
+            ret[i] = this._doCreatePSO(mat.passes[i]);
         }
         return ret;
     }
 
     protected destroyPipelineState (mat: Material, pso: GFXPipelineState[]) {
         for (let i = 0; i < mat.passes.length; i++) {
-            mat.passes[i].destroyPipelineState(pso[i]);
+            const pass = mat.passes[i];
+            pass.destroyPipelineState(pso[i]);
+            for (const cus of pass.customizations) { customizationManager.detach(cus, this); }
         }
     }
 
-    protected _onCreatePSO (pso: GFXPipelineState) {
+    protected _doCreatePSO (pass: Pass) {
+        for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
+        const pso = pass.createPipelineState()!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
             pso.pipelineLayout.layouts[0].bindBuffer(UBOForwardLight.BLOCK.binding, this._localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!);
         }
+        return pso;
     }
 
     protected onSetLocalBindings (mat: Material) {

@@ -110,7 +110,7 @@ export class SphereLightComponent extends LightComponent {
             console.warn('we don\'t support this many lights in forward pipeline.');
             return;
         }
-        this.luminance = this._luminance;
+        this._light.luminance = this._luminance;
         this.size = this._size;
         this.range = this._range;
         super._createLight(scene);

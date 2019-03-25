@@ -3,6 +3,8 @@ import enums from './enums';
 
 const _v3_tmp = vec3.create();
 const _v3_tmp2 = vec3.create();
+const _v3_tmp3 = vec3.create();
+const _v3_tmp4 = vec3.create();
 const _m3_tmp = mat3.create();
 
 // https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
@@ -88,6 +90,16 @@ export default class aabb {
     return out;
   }
 
+  public static merge (out: aabb, a: aabb, b: aabb) {
+    vec3.sub(_v3_tmp,  a.center, a.halfExtents);
+    vec3.sub(_v3_tmp2, b.center, b.halfExtents);
+    vec3.add(_v3_tmp3, a.center, a.halfExtents);
+    vec3.add(_v3_tmp4, b.center, b.halfExtents);
+    vec3.max(_v3_tmp4, _v3_tmp3, _v3_tmp4);
+    vec3.min(_v3_tmp3, _v3_tmp,  _v3_tmp2);
+    return aabb.fromPoints(out, _v3_tmp3, _v3_tmp4);
+  }
+
   public center: vec3;
   public halfExtents: vec3;
   protected _type: number = enums.SHAPE_AABB;
@@ -109,16 +121,24 @@ export default class aabb {
 
   /**
    * Transform this shape
-   * @param {mat4} m the transform matrix
-   * @param {vec3} pos the position part of the transform
-   * @param {quat} rot the rotation part of the transform
-   * @param {vec3} scale the scale part of the transform
-   * @param {aabb} [out] the target shape
+   * @param m - the transform matrix
+   * @param pos - the position part of the transform
+   * @param rot - the rotation part of the transform
+   * @param scale - the scale part of the transform
+   * @param out - the target shape
    */
-  public transform (m, pos, rot, scale, out) {
+  public transform (m, pos, rot, scale, out?: aabb) {
     if (!out) { out = this; }
     vec3.transformMat4(out.center, this.center, m);
     transform_extent_m4(out.halfExtents, this.halfExtents, m);
+  }
+
+  public clone () {
+    return aabb.clone(this);
+  }
+
+  public copy (a: aabb) {
+    return aabb.copy(this, a);
   }
 
   get type (){
