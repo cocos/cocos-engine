@@ -640,12 +640,8 @@ let Label = cc.Class({
         if (font instanceof cc.BitmapFont) {
             this._super();
         } else {
-            if (this.node._renderFlag & opacityFlag) {
-                this.node._renderFlag &= ~opacityFlag;
-            } else {
-                this._updateRenderData();
-                this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
-            }
+            this._updateRenderData();
+            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
     },
 
