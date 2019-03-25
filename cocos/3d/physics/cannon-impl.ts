@@ -27,6 +27,7 @@ export class CannonWorld implements PhysicsWorldBase {
     private _onCannonPreStepListener: Function;
     private _onCannonPostStepListener: Function;
     private _cannonRaycastResult = new CANNON.RaycastResult();
+    // private _initedBodys = new Set<CannonRigidBody>();
 
     constructor () {
         this._cannonWorld = new CANNON.World();
@@ -59,6 +60,19 @@ export class CannonWorld implements PhysicsWorldBase {
 
     public step (deltaTime: number) {
         this._callCustomBeforeSteps();
+
+        // const initBodys: CannonRigidBody[] = [];
+        // this._cannonWorld.bodies.forEach((b) => {
+        //     const body = getWrap<CannonRigidBody>(b);
+        //     if (!this._initedBodys.has(body)) {
+        //         this._initedBodys.add(body);
+        //         initBodys.push(body);
+        //     }
+        // });
+        // if (initBodys.length !== 0) {
+        //     console.log(`Frame ${this._cannonWorld.stepnumber} add bodys:\n${initBodys.map((b) => b._devStrinfy()).join('\n')}`);
+        // }
+
         this._cannonWorld.step(deltaTime);
         this._callCustomAfterSteps();
     }
@@ -223,8 +237,8 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public commitShapeUpdates () {
-        this._cannonBody.updateMassProperties();
         this._cannonBody.updateBoundingRadius();
+        this._cannonBody.updateMassProperties();
     }
 
     public getMass () {
@@ -312,7 +326,7 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public applyImpulse (impulse: Vec3) {
-        this._cannonBody.applyImpulse(toCannonVec3(impulse), toCannonVec3(new Vec3()));
+        this._cannonBody.applyImpulse(toCannonVec3(impulse), this._cannonBody.position);
     }
 
     public setCollisionFilter (group: number, mask: number) {
@@ -390,6 +404,11 @@ export class CannonRigidBody implements RigidBodyBase {
 
     public _stringfyThis () {
         return `${this._name.length ? this._name : '<No-name>'}`;
+    }
+
+    public _devStrinfy () {
+        const shapes = this._cannonBody.shapes.map((s) => getWrap<CannonShape>(s)._devStrinfy()).join('; ');
+        return `Name: [[${this._name.length ? this._name : '<No-name>'}]], position: ${stringfyVec3(this._cannonBody.position)}, shapes: [${shapes}]`;
     }
 
     private _resetBodyTypeAccordingMess () {
@@ -510,6 +529,13 @@ export class CannonShape implements ShapeBase {
 
     }
 
+    public _devStrinfy () {
+        if (!this._body) {
+            return `<NotAttached>`;
+        }
+        return `centerOffset: ${stringfyVec3(this._body.shapeOffsets[this._index])}`;
+    }
+
     private _recalcCenter () {
         if (!this._body) {
             return;
@@ -544,6 +570,10 @@ export class CannonSphereShape extends CannonShape implements SphereShapeBase {
         this._recalcRadius();
     }
 
+    public _devStrinfy () {
+        return `Sphere(${super._devStrinfy()}, radius: ${this._cannonSphere.radius})`;
+    }
+
     private _recalcRadius () {
         this._cannonSphere.radius = this._radius * maxComponent(this._scale);
         // console.log(`[[CANNON]] Set sphere radius to ${this._cannonSphere.radius}.`);
@@ -576,6 +606,10 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
 
     public _stringfyThis () {
         return `${this._body ? getWrap<CannonRigidBody>(this._body)._stringfyThis() : '<No-body>'}(Box)`;
+    }
+
+    public _devStrinfy () {
+        return `Box(${super._devStrinfy()}, halfExtents: ${stringfyVec3(this._cannonBox.halfExtents)})`;
     }
 
     private _recalcExtents () {

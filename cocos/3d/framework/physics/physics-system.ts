@@ -5,6 +5,7 @@ export class PhysicsSystem {
     private _world: PhysicsWorldBase;
     private _paused = false;
     private _singleStep = false;
+    private _deltaTime = 1.0 / 60.0;
 
     constructor () {
         this._world = createPhysicsWorld();
@@ -29,7 +30,7 @@ export class PhysicsSystem {
         if (this._paused) {
             return;
         }
-        this._world.step(deltaTime);
+        this._world.step(this._deltaTime);
         if (this._singleStep) {
             this._paused = true;
         }
