@@ -453,7 +453,7 @@ let ArmatureDisplay = cc.Class({
 
     /**
      * !#en
-     * The key of dragonbones cache data, which is used to be 'dragonbonesName', when you want to change dragonbones cloth.
+     * The key of dragonbones cache data, which is regard as 'dragonbonesName', when you want to change dragonbones cloth.
      * !#zh 
      * 缓存龙骨数据的key值，换装的时会使用到该值，作为dragonbonesName使用
      * @method getArmatureKey
