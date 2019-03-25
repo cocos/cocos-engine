@@ -12,6 +12,7 @@ export class WebGLStateCache {
     public texUnit: number = 0;
     public glTex2DUnits: IWebGLTexUnit[];
     public glTexCubeUnits: IWebGLTexUnit[];
+    public glRenderbuffer: WebGLRenderbuffer = 0;
     public glFramebuffer: WebGLFramebuffer = 0;
     public viewport: IGFXViewport;
     public scissorRect: IGFXRect;

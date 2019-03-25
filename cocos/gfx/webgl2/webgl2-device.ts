@@ -2,7 +2,7 @@ import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXFormat, GFXFormatSize, GFXQueueType } from '../define';
+import { GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXQueueType, IGFXRect } from '../define';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
@@ -19,7 +19,7 @@ import { WebGL2GFXBindingLayout } from './webgl2-binding-layout';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
 import { WebGL2GFXCommandBuffer } from './webgl2-command-buffer';
-import { WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
+import { WebGL2CmdFuncBlitFramebuffer, WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
 import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
 import { WebGL2GFXPipelineLayout } from './webgl2-pipeline-layout';
@@ -213,6 +213,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
         this._features[GFXFeature.FORMAT_R11G11B10F] = true;
         this._features[GFXFeature.FORMAT_D24S8] = true;
+        this._features[GFXFeature.MSAA] = true;
 
         console.info('RENDERER: ' + this._renderer);
         console.info('VENDOR: ' + this._vendor);
@@ -434,6 +435,20 @@ export class WebGL2GFXDevice extends GFXDevice {
             gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, curFBO);
             this.stateCache.glFramebuffer = curFBO;
         }
+    }
+
+    public blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter) {
+        const srcFBO = (src as WebGL2GFXFramebuffer).gpuFramebuffer;
+        const dstFBO = (dst as WebGL2GFXFramebuffer).gpuFramebuffer;
+
+        WebGL2CmdFuncBlitFramebuffer(
+            this,
+            srcFBO,
+            dstFBO,
+            srcRect,
+            dstRect,
+            filter,
+        );
     }
 
     private initStates (gl: WebGL2RenderingContext) {

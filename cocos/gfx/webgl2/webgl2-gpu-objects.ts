@@ -17,6 +17,7 @@ import {
     GFXTextureUsageBit,
     GFXTextureViewType,
     GFXType,
+    GFXSampleCount,
 } from '../define';
 import { IGFXInputAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
@@ -56,6 +57,7 @@ export class WebGL2GPUTexture {
     public size: number = 0;
     public arrayLayer: number = 1;
     public mipLevel: number = 1;
+    public samples: GFXSampleCount = GFXSampleCount.X1;
     public flags: GFXTextureFlags = GFXTextureFlagBit.NONE;
     public isPowerOf2: boolean = false;
 
@@ -65,6 +67,7 @@ export class WebGL2GPUTexture {
     public glType: GLenum = 0;
     public glUsage: GLenum = 0;
     public glTexture: WebGLTexture = 0;
+    public glRenderbuffer: WebGLRenderbuffer = 0;
     public glWrapS: GLenum = 0;
     public glWrapT: GLenum = 0;
     public glMinFilter: GLenum = 0;

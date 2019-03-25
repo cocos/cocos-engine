@@ -1,5 +1,5 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXCommandBufferType, IGFXColor } from '../../gfx/define';
+import { GFXClearFlag, GFXCommandBufferType, IGFXColor, GFXFilter } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
@@ -67,7 +67,11 @@ export class ForwardStage extends RenderStage {
             colors.length = 1;
         }
 
-        this._framebuffer = this._pipeline.curShadingFBO;
+        if (!this._pipeline.useMSAA) {
+            this._framebuffer = this._pipeline.curShadingFBO;
+        } else {
+            this._framebuffer = this._pipeline.msaaShadingFBO;
+        }
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea,
@@ -80,5 +84,14 @@ export class ForwardStage extends RenderStage {
 
         bufs[0] = cmdBuff;
         this._device.queue.submit(bufs);
+
+        if (this._pipeline.useMSAA) {
+            this._device.blitFramebuffer(
+                this._framebuffer,
+                this._pipeline.curShadingFBO,
+                this._renderArea,
+                this._renderArea,
+                GFXFilter.POINT);
+        }
     }
 }

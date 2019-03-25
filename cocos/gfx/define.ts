@@ -401,6 +401,16 @@ export enum GFXTextureUsageBit {
 
 export type GFXTextureUsage = GFXTextureUsageBit;
 
+export enum GFXSampleCount {
+    X1,
+    X2,
+    X4,
+    X8,
+    X16,
+    X32,
+    X64,
+}
+
 export enum GFXTextureFlagBit {
     NONE = 0,
     GEN_MIPMAP = 0x1,

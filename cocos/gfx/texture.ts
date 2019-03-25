@@ -2,6 +2,7 @@ import {
     GFXFormat,
     GFXObject,
     GFXObjectType,
+    GFXSampleCount,
     GFXTextureFlagBit,
     GFXTextureFlags,
     GFXTextureType,
@@ -19,6 +20,7 @@ export interface IGFXTextureInfo {
     depth?: number;
     arrayLayer?: number;
     mipLevel?: number;
+    samples?: GFXSampleCount;
     flags?: GFXTextureFlags;
 }
 
@@ -56,6 +58,10 @@ export abstract class GFXTexture extends GFXObject {
         return this._mipLevel;
     }
 
+    public get samples (): GFXSampleCount {
+        return this._samples;
+    }
+
     public get flags (): GFXTextureFlags {
         return this._flags;
     }
@@ -77,6 +83,7 @@ export abstract class GFXTexture extends GFXObject {
     protected _depth: number = 1;
     protected _arrayLayer: number = 1;
     protected _mipLevel: number = 1;
+    protected _samples: GFXSampleCount = GFXSampleCount.X1;
     protected _flags: GFXTextureFlags = GFXTextureFlagBit.NONE;
     protected _isPowerOf2: boolean = false;
     protected _size: number = 0;

@@ -41,6 +41,10 @@ export class WebGL2GFXTexture extends GFXTexture {
             this._mipLevel = info.mipLevel;
         }
 
+        if (info.samples !== undefined) {
+            this._samples = info.samples;
+        }
+
         if (info.flags !== undefined) {
             this._flags = info.flags;
         }
@@ -107,6 +111,7 @@ export class WebGL2GFXTexture extends GFXTexture {
             size: this._size,
             arrayLayer: this._arrayLayer,
             mipLevel: this._mipLevel,
+            samples: this._samples,
             flags: this._flags,
             isPowerOf2: this._isPowerOf2,
 
@@ -116,6 +121,7 @@ export class WebGL2GFXTexture extends GFXTexture {
             glType: 0,
             glUsage: 0,
             glTexture: 0,
+            glRenderbuffer: 0,
             glWrapS: 0,
             glWrapT: 0,
             glMinFilter: 0,

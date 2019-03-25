@@ -95,10 +95,12 @@ export class ForwardPipeline extends RenderPipeline {
             priority: ForwardFlowPriority.FORWARD,
         });
 
-        this.createFlow(SMAAEdgeFlow, {
-            name: PIPELINE_FLOW_SMAA,
-            priority: 0,
-        });
+        if (this._useSMAA) {
+            this.createFlow(SMAAEdgeFlow, {
+                name: PIPELINE_FLOW_SMAA,
+                priority: 0,
+            });
+        }
 
         this.createFlow(ToneMapFlow, {
             name: PIPELINE_FLOW_TONEMAP,

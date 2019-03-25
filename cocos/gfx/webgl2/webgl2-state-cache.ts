@@ -15,7 +15,9 @@ export class WebGL2StateCache {
     public glTex2DUnits: IWebGL2TexUnit[];
     public glTexCubeUnits: IWebGL2TexUnit[];
     public glSamplerUnits: WebGLSampler[];
+    public glRenderbuffer: WebGLRenderbuffer = 0;
     public glFramebuffer: WebGLFramebuffer = 0;
+    public glReadFramebuffer: WebGLFramebuffer = 0;
     public viewport: IGFXViewport;
     public scissorRect: IGFXRect;
     public rs: GFXRasterizerState;

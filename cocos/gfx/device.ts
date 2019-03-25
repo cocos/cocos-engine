@@ -2,7 +2,7 @@ import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
-import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFormat } from './define';
+import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFormat, IGFXRect, GFXFilter } from './define';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from './pipeline-layout';
@@ -26,6 +26,7 @@ export enum GFXFeature {
     TEXTURE_HALF_FLOAT,
     FORMAT_R11G11B10F,
     FORMAT_D24S8,
+    MSAA,
     COUNT,
 }
 
@@ -194,6 +195,7 @@ export abstract class GFXDevice {
     public abstract copyBuffersToTexture (buffers: ArrayBuffer[], texture: GFXTexture, regions: GFXBufferTextureCopy[]);
     public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: GFXTexture, regions: GFXBufferTextureCopy[]);
     public abstract copyFramebufferToBuffer (srcFramebuffer: GFXFramebuffer, dstBuffer: ArrayBuffer, regions: GFXBufferTextureCopy[]);
+    public abstract blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter);
 
     public hasFeature (feature: GFXFeature): boolean {
         return this._features[feature];

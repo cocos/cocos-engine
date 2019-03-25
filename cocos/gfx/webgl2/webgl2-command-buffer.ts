@@ -12,6 +12,7 @@ import {
     IGFXRect,
     IGFXViewport,
     GFXClearFlag,
+    GFXFilter,
 } from '../define';
 import { GFXDevice } from '../device';
 import { GFXFramebuffer } from '../framebuffer';

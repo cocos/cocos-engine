@@ -14,7 +14,8 @@ import {
     GFXTextureLayout,
     GFXTextureType,
     GFXTextureUsageBit,
-    GFXTextureViewType} from '../gfx/define';
+    GFXTextureViewType,
+    GFXSampleCount} from '../gfx/define';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
@@ -36,7 +37,7 @@ const _outMat = new Mat4();
 
 export interface IRenderPipelineInfo {
     enableHDR?: boolean;
-    enableSMAA?: boolean;
+    enableAA?: boolean;
 }
 
 export abstract class RenderPipeline {
@@ -93,6 +94,14 @@ export abstract class RenderPipeline {
         return this._shadingFBOs[this._prevIdx];
     }
 
+    public get msaaShadingFBO (): GFXFramebuffer {
+        return this._msaaShadingFBO!;
+    }
+
+    public get useMSAA (): boolean {
+        return this._useMSAA;
+    }
+
     public get useSMAA (): boolean {
         return this._useSMAA;
     }
@@ -147,6 +156,12 @@ export abstract class RenderPipeline {
     protected _lightMeterScale: number = 10000.0;
     protected _shadingPass: GFXRenderPass | null = null;
     protected _fboCount: number = 1;
+    protected _msaaShadingTex: GFXTexture | null = null;
+    protected _msaaShadingTexView: GFXTextureView | null = null;
+    protected _msaaDepthStencilTex: GFXTexture | null = null;
+    protected _msaaDepthStencilTexView: GFXTextureView | null = null;
+    protected _msaaShadingFBO: GFXFramebuffer | null = null;
+
     protected _shadingTextures: GFXTexture[] = [];
     protected _shadingTexViews: GFXTextureView[] = [];
     protected _depthStencilTex: GFXTexture | null = null;
@@ -156,6 +171,8 @@ export abstract class RenderPipeline {
     protected _shadingTexHeight: number = 0.0;
     protected _curIdx: number = 0;
     protected _prevIdx: number = 1;
+    protected _useMSAA: boolean = false;
+    protected _msaaSampers: GFXSampleCount = GFXSampleCount.X4;
     protected _useSMAA: boolean = false;
     protected _smaaPass: GFXRenderPass | null = null;
     protected _smaaEdgeFBO: GFXFramebuffer | null = null;
@@ -269,8 +286,6 @@ export abstract class RenderPipeline {
 
     protected _initialize (info: IRenderPipelineInfo): boolean {
 
-        this._useSMAA = (info.enableSMAA !== undefined ? info.enableSMAA : true);
-
         if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
             this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
             this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
@@ -307,6 +322,26 @@ export abstract class RenderPipeline {
         } else { // Fallback to LDR
             colorFmt = GFXFormat.RGBA8;
             this._isHDR = false;
+            if (this._useSMAA && this._device.hasFeature(GFXFeature.MSAA)) {
+                this._useMSAA = true;
+                this._useSMAA = false;
+            }
+        }
+
+        // Config Anti-Aliasing
+        if (info.enableAA === false) {
+            this._useMSAA = false;
+            this._useSMAA = false;
+        } else {
+            if (this._isHDR) {
+                this._useSMAA = true;
+            } else {
+                if (this._device.hasFeature(GFXFeature.MSAA)){
+                    this._useMSAA = true;
+                } else {
+                    this._useSMAA = true;
+                }
+            }
         }
 
         if (this._device.hasFeature(GFXFeature.FORMAT_D24S8)) {
@@ -328,6 +363,8 @@ export abstract class RenderPipeline {
         this._shadingTexWidth = this._device.nativeWidth;
         this._shadingTexHeight = this._device.nativeHeight;
 
+        console.info('USE_MSAA: ' + this._useMSAA);
+        console.info('USE_SMAA: ' + this._useSMAA);
         console.info('CC_USE_HDR: ' + this._isHDR);
         console.info('SHADING_SIZE: ' + this._shadingTexWidth + ' x ' + this._shadingTexHeight);
         console.info('SCREEN_SCALE: ' + screenScale);
@@ -354,6 +391,40 @@ export abstract class RenderPipeline {
                 endLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
             },
         });
+
+        if (this._useMSAA) {
+            this._msaaShadingTex  = this._device.createTexture({
+                type: GFXTextureType.TEX2D,
+                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                format: colorFmt,
+                width: this._shadingTexWidth,
+                height: this._shadingTexHeight,
+                samples: this._msaaSampers,
+            });
+            this._msaaShadingTexView = this._device.createTextureView({
+                texture : this._msaaShadingTex,
+                type : GFXTextureViewType.TV2D,
+                format : colorFmt,
+            });
+            this._msaaDepthStencilTex = this._device.createTexture({
+                type : GFXTextureType.TEX2D,
+                usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                format : depthStencilFmt,
+                width : this._shadingTexWidth,
+                height : this._shadingTexHeight,
+                samples: this._msaaSampers,
+            });
+            this._msaaDepthStencilTexView = this._device.createTextureView({
+                texture : this._msaaDepthStencilTex,
+                type : GFXTextureViewType.TV2D,
+                format : depthStencilFmt,
+            });
+            this._msaaShadingFBO = this._device.createFramebuffer({
+                renderPass: this._shadingPass,
+                colorViews: [ this._msaaShadingTexView ],
+                depthStencilView: this._msaaDepthStencilTexView!,
+            });
+        }
 
         this._depthStencilTex = this._device.createTexture({
             type : GFXTextureType.TEX2D,
@@ -491,6 +562,27 @@ export abstract class RenderPipeline {
             this._smaaBlendFBO = null;
         }
 
+        if (this._msaaShadingTexView) {
+            this._msaaShadingTexView.destroy();
+            this._msaaShadingTexView = null;
+        }
+        if (this._msaaShadingTex) {
+            this._msaaShadingTex.destroy();
+            this._msaaShadingTex = null;
+        }
+        if (this._msaaDepthStencilTexView) {
+            this._msaaDepthStencilTexView.destroy();
+            this._msaaDepthStencilTexView = null;
+        }
+        if (this._msaaDepthStencilTex) {
+            this._msaaDepthStencilTex.destroy();
+            this._msaaDepthStencilTex = null;
+        }
+        if (this._msaaShadingFBO) {
+            this._msaaShadingFBO.destroy();
+            this._msaaShadingFBO = null;
+        }
+
         for (let i = 0; i < this._shadingTexViews.length; ++i) {
             if (this._shadingTexViews[i]) {
                 this._shadingTexViews[i].destroy();
@@ -513,7 +605,6 @@ export abstract class RenderPipeline {
             this._depthStencilTexView.destroy();
             this._depthStencilTexView = null;
         }
-
         if (this._depthStencilTex) {
             this._depthStencilTex.destroy();
             this._depthStencilTex = null;

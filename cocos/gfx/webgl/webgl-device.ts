@@ -7,6 +7,8 @@ import {
     GFXFormat,
     GFXFormatSize,
     GFXQueueType,
+    IGFXRect,
+    GFXFilter,
 } from '../define';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
@@ -293,6 +295,8 @@ export class WebGLGFXDevice extends GFXDevice {
             this._features[GFXFeature.FORMAT_D24S8] = true;
         }
 
+        this._features[GFXFeature.MSAA] = false;
+
         if (this._OES_vertex_array_object) {
             this._useVAO = true;
         }
@@ -513,6 +517,9 @@ export class WebGLGFXDevice extends GFXDevice {
             gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, curFBO);
             this.stateCache.glFramebuffer = curFBO;
         }
+    }
+
+    public blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter) {
     }
 
     private initStates (gl: WebGLRenderingContext) {
