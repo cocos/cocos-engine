@@ -65,6 +65,14 @@ export abstract class RenderPipeline {
         return this._isHDR;
     }
 
+    public set lightMeterScale (scale: number) {
+        this._lightMeterScale = scale;
+    }
+
+    public get lightMeterScale (): number {
+        return this._lightMeterScale;
+    }
+
     public get depthStencilTexView (): GFXTextureView {
         return this._depthStencilTexView!;
     }
@@ -136,6 +144,7 @@ export abstract class RenderPipeline {
     protected _flows: RenderFlow[] = [];
     protected _isHDRSupported: boolean = false;
     protected _isHDR: boolean = false;
+    protected _lightMeterScale: number = 10000.0;
     protected _shadingPass: GFXRenderPass | null = null;
     protected _fboCount: number = 1;
     protected _shadingTextures: GFXTexture[] = [];

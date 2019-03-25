@@ -171,7 +171,7 @@ export class ForwardPipeline extends RenderPipeline {
                                 _vec4Array[1] *= tempRGB.y;
                                 _vec4Array[2] *= tempRGB.z;
                             }
-                            _vec4Array[3] = sphereLit.luminance * 10000.0;
+                            _vec4Array[3] = sphereLit.luminance * this._lightMeterScale;
                             this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_COLOR_OFFSET + sphereNum * 4);
                             sphereNum++;
                             break;
@@ -201,7 +201,7 @@ export class ForwardPipeline extends RenderPipeline {
                                 _vec4Array[1] *= tempRGB.y;
                                 _vec4Array[2] *= tempRGB.z;
                             }
-                            _vec4Array[3] = spotLit.luminance * 10000.0;
+                            _vec4Array[3] = spotLit.luminance * this._lightMeterScale;
                             this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_COLOR_OFFSET + spotNum * 4);
                             spotNum++;
                             break;
