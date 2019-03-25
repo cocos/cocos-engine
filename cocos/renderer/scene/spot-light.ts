@@ -3,7 +3,7 @@ import { Mat4, Quat, Vec3 } from '../../core/value-types';
 import { v3 } from '../../core/value-types/vec3';
 import { mat4, vec3 } from '../../core/vmath';
 import { Node } from '../../scene-graph/node';
-import { Light, LightType } from './light';
+import { Light, LightType, nt2lm } from './light';
 import { RenderScene } from './render-scene';
 
 const _forward = new Vec3(0, 0, -1);
@@ -18,8 +18,7 @@ export class SpotLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _size: number = 0.15;
     protected _range: number = 5.0;
-    protected _luminance: number = 10000.0;
-    protected _luminousPower: number = 0.0;
+    protected _luminance: number = 1700 / nt2lm(this._size);
     protected _spotAngle: number = Math.cos(Math.PI / 6);
     protected _pos: Vec3;
     protected _aabb: aabb;
@@ -46,22 +45,13 @@ export class SpotLight extends Light {
         return this._range;
     }
 
+    // in Nit(nt)
     set luminance (lum: number) {
         this._luminance = lum;
-        this._luminousPower = this._luminance * (4.0 * this._size * this._size * Math.PI * Math.PI);
     }
 
     get luminance (): number {
         return this._luminance;
-    }
-
-    set luminousPower (lm: number) {
-        this._luminousPower = lm;
-        this._luminance = this._luminousPower / (4.0 * this._size * this._size * Math.PI * Math.PI);
-    }
-
-    get luminousPower (): number {
-        return this._luminousPower;
     }
 
     get direction (): Vec3 {
@@ -73,7 +63,7 @@ export class SpotLight extends Light {
     }
 
     set spotAngle (val: number) {
-        this._angle = val / 2;
+        this._angle = val * 0.5;
         this._spotAngle = Math.cos(val * 0.5);
     }
 
@@ -88,10 +78,19 @@ export class SpotLight extends Light {
     constructor (scene: RenderScene, name: string, node: Node) {
         super(scene, name, node);
         this._type = LightType.SPOT;
-        this.luminousPower = 1700.0;
         this._aabb = aabb.create();
         this._frustum = frustum.create();
         this._pos = v3();
+    }
+
+    // in Lumen(lm)
+    public setLuminousPower (power: number, size: number) {
+        this._size = size;
+        this._luminance = power / nt2lm(size);
+    }
+
+    public getLuminousPower (): number {
+        return this._luminance * nt2lm(this._size);
     }
 
     public update () {

@@ -79,7 +79,10 @@ export class LightComponent extends Component {
      *
      * !#ch 光源色温
      */
-    @property
+    @property({
+        slide: true,
+        range: [1000, 15000, 1],
+    })
     get colorTemperature () {
         return this._colorTemperature;
     }
