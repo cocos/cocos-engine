@@ -27,25 +27,25 @@ class Node extends BaseNode {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
 
+    // world transform, don't access this directly
+    public _pos = new Vec3();
+    public _rot = new Quat();
+    public _scale = new Vec3(1, 1, 1);
+    public _mat = new Mat4();
+
     // local transform
     @property
-    protected _lpos = new Vec3();
+    public _lpos = new Vec3();
     @property
-    protected _lrot = new Quat();
+    public _lrot = new Quat();
     @property
-    protected _lscale = new Vec3(1, 1, 1);
+    public _lscale = new Vec3(1, 1, 1);
     @property
     protected _layer = Layers.Default; // the layer this node belongs to
 
     // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
     @property
     protected _euler = new Vec3();
-
-    // world transform
-    protected _pos = new Vec3();
-    protected _rot = new Quat();
-    protected _scale = new Vec3(1, 1, 1);
-    protected _mat = new Mat4();
 
     protected _dirty = false; // does the world transform need to update?
     protected _hasChanged = false; // has the transform changed in this frame?
@@ -56,9 +56,7 @@ class Node extends BaseNode {
     protected _eventProcessor;
     private _uiTransfromComp: UITransformComponent | null = null;
 
-    @property({
-        type: Vec3,
-    })
+    @property({ type: Vec3 })
     set eulerAngles (val) {
         this.setRotationFromEuler(val.x, val.y, val.z);
     }
@@ -70,16 +68,16 @@ class Node extends BaseNode {
         return this._euler;
     }
 
-    get hasChanged () {
-        return this._hasChanged;
-    }
-
+    @property
     set layer (l) {
         this._layer = l;
     }
-
     get layer () {
         return this._layer;
+    }
+
+    get hasChanged () {
+        return this._hasChanged;
     }
 
     get uiTransfromComp () {

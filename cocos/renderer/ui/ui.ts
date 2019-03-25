@@ -79,7 +79,6 @@ export class UI {
         return new UIDrawBatch();
     }, 128);
     private _cmdBuff: GFXCommandBuffer | null = null;
-    // @ts-ignore
     private _scene: RenderScene;
     private _attributes: IGFXInputAttribute[] = [];
     private _meshBuffers: MeshBuffer[] = [];

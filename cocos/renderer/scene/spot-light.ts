@@ -45,7 +45,6 @@ export class SpotLight extends Light {
         return this._range;
     }
 
-    // in Nit(nt)
     set luminance (lum: number) {
         this._luminance = lum;
     }
@@ -81,16 +80,6 @@ export class SpotLight extends Light {
         this._aabb = aabb.create();
         this._frustum = frustum.create();
         this._pos = v3();
-    }
-
-    // in Lumen(lm)
-    public setLuminousPower (power: number, size: number) {
-        this._size = size;
-        this._luminance = power / nt2lm(size);
-    }
-
-    public getLuminousPower (): number {
-        return this._luminance * nt2lm(this._size);
     }
 
     public update () {

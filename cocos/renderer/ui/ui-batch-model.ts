@@ -11,7 +11,7 @@ export class UIBatchModel extends Model {
     private _subModel: UISubModel;
 
     constructor (scene: RenderScene) {
-        super(scene, null);
+        super(scene, null!);
         this._subModel = new UISubModel();
     }
 

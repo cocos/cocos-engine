@@ -17,13 +17,11 @@ export class SMAAEdgeFlow extends RenderFlow {
 
         this._priority = info.priority;
 
-        const smaaMtl = new cc.Material();
+        const smaaMtl = this._material;
         smaaMtl._uuid = 'smaa-material';
         smaaMtl.initialize({
             effectName: 'builtin-smaa',
         });
-
-        this._material = smaaMtl;
 
         this.createStage(SMAAEdgeStage, {
             name: 'SMAAEdgeStage',
@@ -44,7 +42,6 @@ export class SMAAEdgeFlow extends RenderFlow {
 
         if (this._material) {
             this._material.destroy();
-            this._material = null;
         }
 
         this.destroyStages();

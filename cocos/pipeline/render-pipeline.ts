@@ -24,6 +24,7 @@ import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Model } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass';
+import { programLib } from '../renderer/core/program-lib';
 import { UBOGlobal, UBOShadow } from './define';
 import { IInternalBindingInst } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
@@ -351,6 +352,8 @@ export abstract class RenderPipeline {
             depthStencilFmt = GFXFormat.D16;
         }
 
+        this.updateMacros();
+
         // colorFmt = GFXFormat.RGBA16F;
 
         const scale = 1.0;
@@ -615,6 +618,19 @@ export abstract class RenderPipeline {
             this._shadingPass.destroy();
             this._shadingPass = null;
         }
+    }
+
+    protected updateMacros (keepShaders: boolean = false) {
+        if (!keepShaders) { programLib.destroyShaderByDefines(this._macros); }
+        this._doUpdateMacros();
+        for (const scene of this._root.scenes) {
+            scene.onPipelineChange();
+        }
+        this.rebuild();
+    }
+
+    protected _doUpdateMacros () {
+        this._macros.CC_USE_HDR = this._isHDR;
     }
 
     protected createQuadInputAssembler (): boolean {

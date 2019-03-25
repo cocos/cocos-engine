@@ -24,13 +24,19 @@
  ****************************************************************************/
 import { Component } from '../../components/component';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { Color } from '../../core/value-types';
+import { Color, Enum } from '../../core/value-types';
 import { Light, LightType } from '../../renderer/scene/light';
 import { RenderScene } from '../../renderer/scene/render-scene';
+
+export const PhotometricTerm = Enum({
+    LUMINOUS_POWER: 0,
+    LUMINANCE: 1,
+});
 
 @ccclass('cc.LightComponent')
 export class LightComponent extends Component {
     public static Type = LightType;
+    public static PhotometricTerm = PhotometricTerm;
 
     @property
     protected _color = Color.WHITE;

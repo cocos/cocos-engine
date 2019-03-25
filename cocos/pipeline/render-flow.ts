@@ -32,7 +32,7 @@ export abstract class RenderFlow {
     }
 
     public get material (): Material {
-        return this._material!;
+        return this._material;
     }
 
     protected _device: GFXDevice;
@@ -40,7 +40,7 @@ export abstract class RenderFlow {
     protected _name: string = '';
     protected _priority: number = 0;
     protected _stages: RenderStage[] = [];
-    protected _material: Material | null = null;
+    protected _material: Material = new Material();
 
     constructor (pipeline: RenderPipeline) {
         this._device = pipeline.device;

@@ -71,7 +71,7 @@ export class Model {
      * @returns the hosting node
      */
     get node () {
-        return this._node!;
+        return this._node;
     }
 
     /**
@@ -120,7 +120,7 @@ export class Model {
     protected _type: string = 'default';
     protected _device: GFXDevice;
     protected _scene: RenderScene;
-    protected _node: Node | null;
+    protected _node: Node;
     protected _id: number;
     protected _enabled: boolean = false;
     protected _viewID: number = 1;
@@ -139,7 +139,7 @@ export class Model {
     /**
      * Setup a default empty model
      */
-    constructor (scene: RenderScene, node: Node | null) {
+    constructor (scene: RenderScene, node: Node) {
         this._device = cc.director.root.device;
         this._scene = scene;
         this._node = node;
@@ -176,22 +176,16 @@ export class Model {
     }
 
     public updateTransform () {
-        if (this._node && this._node.hasChanged) {
-            this._node.updateWorldTransformFull();
-            if (this._modelBounds) {
-                this._modelBounds.transform(
-                    // @ts-ignore
-                    this._node._mat, this._node._pos, this._node._rot, this._node._scale,
-                    this._worldBounds!);
-            }
-        }
+        if (!this._node.hasChanged) { return; }
+        this._node.updateWorldTransformFull();
+        if (!this._modelBounds) { return; }
+        this._modelBounds.transform(this._node._mat, this._node._pos,
+            this._node._rot, this._node._scale, this._worldBounds!);
     }
 
     public updateUBOs () {
-        // @ts-ignore
         mat4.array(_temp_floatx16, this._node._mat);
         this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
-        // @ts-ignore
         mat4.normalMatrix(_temp_mat4, this._node._mat);
         mat4.array(_temp_floatx16, _temp_mat4);
         this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
@@ -264,10 +258,25 @@ export class Model {
         this._subModels[idx].material = mat;
     }
 
+    public onPipelineChange () {
+        for (const m of this._subModels) {
+            const mat = m.material!;
+            const pso = this._matPSORecord.get(mat)!;
+            for (let i = 0; i < mat.passes.length; i++) {
+                const pass = mat.passes[i];
+                pass.destroyPipelineState(pso[i]);
+                pass.tryCompile();
+                pso[i] = this._doCreatePSO(pass);
+            }
+        }
+    }
+
     protected createPipelineState (mat: Material): GFXPipelineState[] {
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
-            ret[i] = this._doCreatePSO(mat.passes[i]);
+            const pass = mat.passes[i];
+            for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
+            ret[i] = this._doCreatePSO(pass);
         }
         return ret;
     }
@@ -281,7 +290,6 @@ export class Model {
     }
 
     protected _doCreatePSO (pass: Pass) {
-        for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
         const pso = pass.createPipelineState()!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {

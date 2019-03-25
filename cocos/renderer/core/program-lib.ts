@@ -147,11 +147,15 @@ class ProgramLib {
         return key << 8 | (tmpl.id & 0xff);
     }
 
-    public clearCache () {
-        for (const shader of Object.values(this._cache)) {
-            shader.destroy();
+    public destroyShaderByDefines (defines: IDefineMap) {
+        const defs = Object.keys(defines); if (!defs.length) { return; }
+        const re = new RegExp(defs.reduce((acc, cur) => `${cur}|${acc}`, '').slice(0, -1));
+        const keys = Object.keys(this._cache).filter((k) => re.test(this._cache[k].name));
+        for (const k of keys) {
+            console.log(`destroyed shader ${this._cache[k].name}`);
+            this._cache[k].destroy();
+            delete this._cache[k];
         }
-        this._cache = {};
     }
 
     public getShaderInstaceName (name: string, defines: IDefineMap, defs?: IDefineValue[]) {

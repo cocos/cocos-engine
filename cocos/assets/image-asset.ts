@@ -195,7 +195,6 @@ export class ImageAsset extends EventTargetFactory(Asset) {
         }
 
         if (ext) {
-            // @ts-ignore
             this._setRawAsset(ext);
             this._format = format;
         }

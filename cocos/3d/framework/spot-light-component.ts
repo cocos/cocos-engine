@@ -27,7 +27,7 @@ import { toRadian } from '../../core/vmath';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { SpotLight } from '../../renderer/scene/spot-light';
-import { LightComponent } from './light-component';
+import { LightComponent, PhotometricTerm } from './light-component';
 
 @ccclass('cc.SpotLightComponent')
 @menu('Components/SpotLightComponent')
@@ -39,7 +39,7 @@ export class SpotLightComponent extends LightComponent {
     @property
     protected _luminance = 1700 / nt2lm(this._size);
     @property
-    protected _useLuminance = false;
+    protected _term = PhotometricTerm.LUMINOUS_POWER;
     @property
     protected _range = 1;
     @property
@@ -48,32 +48,30 @@ export class SpotLightComponent extends LightComponent {
     protected _type = LightType.SPOT;
     protected _light: SpotLight | null = null;
 
-    @property
+    @property({ unit: 'lm' })
     get luminousPower () {
         return this._luminance * nt2lm(this._size);
     }
     set luminousPower (val) {
-        if (this._useLuminance) { return; }
         this._luminance = val / nt2lm(this._size);
-        if (this._light) { this._light.setLuminousPower(val, this._size); }
+        if (this._light) { this._light.luminance = this._luminance; }
     }
 
-    @property
+    @property({ unit: 'cd/m²' })
     get luminance () {
         return this._luminance;
     }
     set luminance (val) {
-        if (!this._useLuminance) { return; }
         this._luminance = val;
         if (this._light) { this._light.luminance = val; }
     }
 
-    @property
-    get useLuminance () {
-        return this._useLuminance;
+    @property({ type: PhotometricTerm })
+    get term () {
+        return this._term;
     }
-    set useLuminance (val) {
-        this._useLuminance = val;
+    set term (val) {
+        this._term = val;
     }
 
     /**
