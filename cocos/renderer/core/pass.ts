@@ -114,6 +114,7 @@ export class Pass {
     protected _rs: GFXRasterizerState = new GFXRasterizerState();
     protected _dynamicStates: GFXDynamicState[] = [];
     protected _dynamics: IPassDynamics = {};
+    protected _customizations: string[] = [];
     protected _handleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
     protected _shaderInfo: IShaderInfo | null = null;
@@ -294,6 +295,7 @@ export class Pass {
 
     public createPipelineState (): GFXPipelineState | null {
         if ((!this._renderPass || !this._shader || !this._bindings.length) && !this.tryCompile()) {
+            console.warn(`pass resources not complete, create PSO failed`);
             return null;
         }
         // bind resources
@@ -362,6 +364,7 @@ export class Pass {
         if (info.primitive !== undefined) { this._primitive = info.primitive; }
         if (info.stage !== undefined) { this._stage = info.stage; }
         if (info.dynamics !== undefined) { this._dynamicStates = info.dynamics; }
+        if (info.customizations) { this._customizations = info.customizations; }
 
         const bs = this._bs;
         if (info.blendState) {
@@ -387,6 +390,7 @@ export class Pass {
     get depthStencilState () { return this._dss; }
     get rasterizerState () { return this._rs; }
     get dynamics () { return this._dynamics; }
+    get customizations () { return this._customizations; }
 }
 
 const serializeBlendState = (bs: GFXBlendState) => {

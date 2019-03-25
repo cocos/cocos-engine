@@ -2,7 +2,6 @@ import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { GFXDynamicState, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { IGFXSamplerInfo } from '../../gfx/sampler';
 import { RenderPassStage } from '../../pipeline/define';
 import { programLib } from '../../renderer/core/program-lib';
 
@@ -20,6 +19,7 @@ export interface IPassStates {
     depthStencilState?: GFXDepthStencilState;
     blendState?: GFXBlendState;
     dynamics?: GFXDynamicState[];
+    customizations?: string[];
 }
 export interface IPassInfo extends IPassStates {
     program: string; // auto-generated

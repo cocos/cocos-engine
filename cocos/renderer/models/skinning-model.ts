@@ -7,9 +7,9 @@ import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXFeature } from '../../gfx/device';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
+import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
@@ -89,8 +89,8 @@ export class SkinningModel extends Model {
         }
     }
 
-    protected _onCreatePSO (pso: GFXPipelineState) {
-        super._onCreatePSO(pso);
+    protected _doCreatePSO (pass: Pass) {
+        const pso = super._doCreatePSO(pass);
         pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinning.BLOCK.binding, this._skinningUBO);
         if (this._jointStorage && isTextureStorage(this._jointStorage)) {
             const jointTexture = this._jointStorage.texture;
@@ -101,6 +101,7 @@ export class SkinningModel extends Model {
                 pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);
             }
         }
+        return pso;
     }
 
     private _destroyJointStorage () {
