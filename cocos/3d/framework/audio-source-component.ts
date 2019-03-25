@@ -142,7 +142,8 @@ export class AudioSourceComponent extends Component {
         if (!this._clip) { return; }
         this._clip.setCurrentTime(this._cachedCurrentTime);
         this._clip.setLoop(this._loop);
-        this.volume = this._volume;
+        this._clip.setVolume(this._volume, true);
+        this._volume = this._clip.getVolume();
     }
 
     /**

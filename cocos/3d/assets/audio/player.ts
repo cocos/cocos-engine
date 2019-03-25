@@ -52,7 +52,7 @@ export abstract class AudioPlayer {
     public abstract setCurrentTime (val: number): void;
     public abstract getCurrentTime (): number;
     public abstract getDuration (): number;
-    public abstract setVolume (val: number): void;
+    public abstract setVolume (val: number, immediate: boolean): void;
     public abstract getVolume (): number;
     public abstract setLoop (val: boolean): void;
     public abstract getLoop (): boolean;

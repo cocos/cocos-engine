@@ -1,8 +1,7 @@
 import { aabb } from '../../3d/geom-utils';
 import { Vec3 } from '../../core/value-types';
-import { v3 } from '../../core/value-types/vec3';
 import { Node } from '../../scene-graph';
-import { Light, LightType } from './light';
+import { Light, LightType, nt2lm } from './light';
 import { RenderScene } from './render-scene';
 
 export class SphereLight extends Light {
@@ -27,22 +26,13 @@ export class SphereLight extends Light {
         return this._range;
     }
 
+    // in Nit(nt)
     set luminance (lum: number) {
         this._luminance = lum;
-        this._luminousPower = this._luminance * (4.0 * this._size * this._size * Math.PI * Math.PI);
     }
 
     get luminance (): number {
         return this._luminance;
-    }
-
-    set luminousPower (lm: number) {
-        this._luminousPower = lm;
-        this._luminance = this._luminousPower / (4.0 * this._size * this._size * Math.PI * Math.PI);
-    }
-
-    get luminousPower (): number {
-        return this._luminousPower;
     }
 
     get aabb () {
@@ -51,17 +41,25 @@ export class SphereLight extends Light {
 
     protected _size: number = 0.15;
     protected _range: number = 1.0;
-    protected _luminance: number = 0.0;
-    protected _luminousPower: number = 0.0;
+    protected _luminance: number = 1700 / nt2lm(this._size);
     protected _pos: Vec3;
     protected _aabb: aabb;
 
     constructor (scene: RenderScene, name: string, node: Node) {
         super(scene, name, node);
         this._type = LightType.SPHERE;
-        this.luminousPower = 1700.0;
         this._aabb = aabb.create();
-        this._pos = v3();
+        this._pos = new Vec3();
+    }
+
+    // in Lumen(lm)
+    public setLuminousPower (power: number, size: number) {
+        this._size = size;
+        this._luminance = power / nt2lm(size);
+    }
+
+    public getLuminousPower (): number {
+        return this._luminance * nt2lm(this._size);
     }
 
     public update () {

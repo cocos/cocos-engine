@@ -22,6 +22,7 @@ export class DirectionalLight extends Light {
         return this._dir;
     }
 
+    // in Lux(lx)
     set illuminance (illum: number) {
         this._illum = illum;
     }

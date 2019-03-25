@@ -136,7 +136,7 @@ export class AudioPlayerDOM extends AudioPlayer {
         return isNaN(this._audio.duration) ? this._duration : this._audio.duration;
     }
 
-    public setVolume (val: number) {
+    public setVolume (val: number, immediate: boolean) {
         this._volume = val;
         /* note this won't work for ios devices, for there
            is just no way to set HTMLMediaElement's volume */

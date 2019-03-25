@@ -36,6 +36,8 @@ export enum LightType {
     UNKNOWN,
 }
 
+export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
+
 export class Light {
 
     set enabled (val) {

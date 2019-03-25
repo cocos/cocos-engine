@@ -91,7 +91,7 @@ export class AudioClip extends EventTargetFactory(Asset) {
     public setCurrentTime (val: number) { if (this._player) { this._player.setCurrentTime(val); } }
     public getCurrentTime () { if (this._player) { return this._player.getCurrentTime(); } return 0; }
     public getDuration () { if (this._player) { return this._player.getDuration(); } return this._duration; }
-    public setVolume (val: number) { if (this._player) { this._player.setVolume(val); } }
+    public setVolume (val: number, immediate?: boolean) { if (this._player) { this._player.setVolume(val, immediate || false); } }
     public getVolume () { if (this._player) { return this._player.getVolume(); } return 1; }
     public setLoop (val: boolean) { if (this._player) { this._player.setLoop(val); } }
     public getLoop () { if (this._player) { return this._player.getLoop(); } return false; }

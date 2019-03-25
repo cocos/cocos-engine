@@ -24,7 +24,7 @@
  ****************************************************************************/
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
 import { toRadian } from '../../core/vmath';
-import { LightType } from '../../renderer/scene/light';
+import { LightType, nt2lm } from '../../renderer/scene/light';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { LightComponent } from './light-component';
@@ -35,29 +35,45 @@ import { LightComponent } from './light-component';
 export class SpotLightComponent extends LightComponent {
 
     @property
-    protected _intensity = 10000;
+    protected _size = 0.15;
     @property
-    protected _size = 15;
+    protected _luminance = 1700 / nt2lm(this._size);
+    @property
+    protected _useLuminance = false;
     @property
     protected _range = 1;
     @property
-    protected _spotAngle = Math.PI  / 3;
+    protected _spotAngle = 60;
 
     protected _type = LightType.SPOT;
     protected _light: SpotLight | null = null;
 
-    /**
-     * !#en The light source intensity
-     *
-     * !#ch 光源强度
-     */
     @property
-    get intensity () {
-        return this._intensity;
+    get luminousPower () {
+        return this._luminance * nt2lm(this._size);
     }
-    set intensity (val) {
-        this._intensity = val;
-        if (this._light) { this._light.luminousPower = this.intensity; }
+    set luminousPower (val) {
+        if (this._useLuminance) { return; }
+        this._luminance = val / nt2lm(this._size);
+        if (this._light) { this._light.setLuminousPower(val, this._size); }
+    }
+
+    @property
+    get luminance () {
+        return this._luminance;
+    }
+    set luminance (val) {
+        if (!this._useLuminance) { return; }
+        this._luminance = val;
+        if (this._light) { this._light.luminance = val; }
+    }
+
+    @property
+    get useLuminance () {
+        return this._useLuminance;
+    }
+    set useLuminance (val) {
+        this._useLuminance = val;
     }
 
     /**
@@ -93,7 +109,10 @@ export class SpotLightComponent extends LightComponent {
      *
      * !#ch 聚光灯锥角
      */
-    @property
+    @property({
+        slide: true,
+        range: [2, 180, 1],
+    })
     get spotAngle () {
         return this._spotAngle;
     }
@@ -112,8 +131,8 @@ export class SpotLightComponent extends LightComponent {
             console.warn('we don\'t support this many lights in forward pipeline.');
             return;
         }
-        this.intensity = this._intensity;
         this.size = this._size;
+        this.luminance = this._luminance;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
         super._createLight(scene);

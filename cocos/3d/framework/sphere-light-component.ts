@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { LightType } from '../../renderer/scene/light';
+import { LightType, nt2lm } from '../../renderer/scene/light';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { LightComponent } from './light-component';
@@ -34,27 +34,43 @@ import { LightComponent } from './light-component';
 export class SphereLightComponent extends LightComponent {
 
     @property
-    protected _intensity = 10000;
+    protected _size = 0.15;
     @property
-    protected _size = 15;
+    protected _luminance = 1700 / nt2lm(this._size);
+    @property
+    protected _useLuminance = false;
     @property
     protected _range = 1;
 
     protected _type = LightType.SPHERE;
     protected _light: SphereLight | null = null;
 
-    /**
-     * !#en The light source intensity
-     *
-     * !#ch 光源强度
-     */
     @property
-    get intensity () {
-        return this._intensity;
+    get luminousPower () {
+        return this._luminance * nt2lm(this._size);
     }
-    set intensity (val) {
-        this._intensity = val;
-        if (this._light) { this._light.luminousPower = this.intensity; }
+    set luminousPower (val) {
+        if (this._useLuminance) { return; }
+        this._luminance = val / nt2lm(this._size);
+        if (this._light) { this._light.setLuminousPower(val, this._size); }
+    }
+
+    @property
+    get luminance () {
+        return this._luminance;
+    }
+    set luminance (val) {
+        if (!this._useLuminance) { return; }
+        this._luminance = val;
+        if (this._light) { this._light.luminance = val; }
+    }
+
+    @property
+    get useLuminance () {
+        return this._useLuminance;
+    }
+    set useLuminance (val) {
+        this._useLuminance = val;
     }
 
     /**
@@ -94,7 +110,7 @@ export class SphereLightComponent extends LightComponent {
             console.warn('we don\'t support this many lights in forward pipeline.');
             return;
         }
-        this.intensity = this._intensity;
+        this.luminance = this._luminance;
         this.size = this._size;
         this.range = this._range;
         super._createLight(scene);
