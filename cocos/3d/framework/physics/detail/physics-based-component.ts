@@ -94,6 +94,7 @@ class SharedRigidBody {
         this._afterStepCallback = this._afterStep.bind(this);
         this._onCollidedCallback = this._onCollided.bind(this);
         this._body.addCollisionCallback(this._onCollidedCallback);
+        this._world.addBeforeStep(this._beforeStepCallback);
     }
 
     public get body () {
@@ -155,12 +156,14 @@ class SharedRigidBody {
     }
 
     private _activeBody () {
+        if (!this._transformInitialized) {
+            return;
+        }
         if (this._actived) {
             return;
         }
         this._actived = true;
         this._body.setWorld(this._world);
-        this._world.addBeforeStep(this._beforeStepCallback);
         this._world.addAfterStep(this._afterStepCallback);
     }
 
@@ -194,9 +197,11 @@ class SharedRigidBody {
         if (!this._transformInitialized) {
             // d(`Initialize`);
             this.syncPhysWithScene(this._node);
+            this._activeBody();
         } else if (!this.body.isPhysicsManagedTransform() && this._node.hasChanged) {
             // d(`Synchronize`);
             this.syncPhysWithScene(this._node);
+            this._activeBody();
         }
     }
 
