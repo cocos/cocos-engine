@@ -647,7 +647,7 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
 }
 
 export function WebGLCmdFuncDestroyBuffer (device: WebGLGFXDevice, gpuBuffer: WebGLGPUBuffer) {
-    if (gpuBuffer.glBuffer > 0) {
+    if (gpuBuffer.glBuffer !== 0) {
         device.gl.deleteBuffer(gpuBuffer.glBuffer);
         gpuBuffer.glBuffer = 0;
     }
@@ -890,12 +890,12 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
 }
 
 export function WebGLCmdFuncDestroyTexture (device: WebGLGFXDevice, gpuTexture: WebGLGPUTexture) {
-    if (gpuTexture.glTexture > 0) {
+    if (gpuTexture.glTexture !== 0) {
         device.gl.deleteTexture(gpuTexture.glTexture);
         gpuTexture.glTexture = 0;
     }
 
-    if (gpuTexture.glRenderbuffer > 0) {
+    if (gpuTexture.glRenderbuffer !== 0) {
         device.gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
         gpuTexture.glRenderbuffer = 0;
     }
@@ -921,7 +921,7 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
 
                 const cv = gpuFramebuffer.gpuColorViews[i];
                 if (cv) {
-                    if (cv.gpuTexture.glTexture > 0) {
+                    if (cv.gpuTexture.glTexture !== 0) {
                         gl.framebufferTexture2D(
                             gl.FRAMEBUFFER,
                             gl.COLOR_ATTACHMENT0 + i,
@@ -944,7 +944,7 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
             const dsv = gpuFramebuffer.gpuDepthStencilView;
             if (dsv) {
                 const glAttachment = GFXFormatInfos[dsv.format].hasStencil ? gl.DEPTH_STENCIL_ATTACHMENT : gl.DEPTH_ATTACHMENT;
-                if (dsv.gpuTexture.glTexture > 0) {
+                if (dsv.gpuTexture.glTexture !== 0) {
                     gl.framebufferTexture2D(
                         gl.FRAMEBUFFER,
                         glAttachment,
@@ -992,7 +992,7 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFrameb
 }
 
 export function WebGLCmdFuncDestroyFramebuffer (device: WebGLGFXDevice, gpuFramebuffer: WebGLGPUFramebuffer) {
-    if (gpuFramebuffer.glFramebuffer > 0) {
+    if (gpuFramebuffer.glFramebuffer !== 0) {
         device.gl.deleteFramebuffer(gpuFramebuffer.glFramebuffer);
         gpuFramebuffer.glFramebuffer = 0;
     }
@@ -1060,7 +1060,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
 
         for (const gpuStage of gpuShader.gpuStages) {
-            if (gpuStage.glShader > 0) {
+            if (gpuStage.glShader !== 0) {
                 gl.deleteShader(gpuStage.glShader);
                 gpuStage.glShader = 0;
             }
@@ -1267,13 +1267,13 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
 export function WebGLCmdFuncDestroyShader (device: WebGLGFXDevice, gpuShader: WebGLGPUShader) {
 
     for (const gpuStage of gpuShader.gpuStages) {
-        if (gpuStage.glShader > 0) {
+        if (gpuStage.glShader !== 0) {
             device.gl.deleteShader(gpuStage.glShader);
             gpuStage.glShader = 0;
         }
     }
 
-    if (gpuShader.glProgram > 0) {
+    if (gpuShader.glProgram !== 0) {
         device.gl.deleteProgram(gpuShader.glProgram);
         gpuShader.glProgram = 0;
     }
@@ -1316,6 +1316,7 @@ export function WebGLCmdFuncDestroyInputAssembler (device: WebGLGFXDevice, gpuIn
     for (const vao of gpuInputAssembler.glVAOs) {
         device.OES_vertex_array_object!.deleteVertexArrayOES(vao[1]);
     }
+    gpuInputAssembler.glVAOs.clear();
 }
 
 const cmdIds = new Array<number>(WebGLCmd.COUNT);

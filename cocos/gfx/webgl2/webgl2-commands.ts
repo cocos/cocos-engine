@@ -795,7 +795,7 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
 }
 
 export function WebGL2CmdFuncDestroyBuffer (device: WebGL2GFXDevice, gpuBuffer: WebGL2GPUBuffer) {
-    if (gpuBuffer.glBuffer) {
+    if (gpuBuffer.glBuffer !== 0) {
         device.gl.deleteBuffer(gpuBuffer.glBuffer);
         gpuBuffer.glBuffer = 0;
     }
@@ -1063,12 +1063,12 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
 }
 
 export function WebGL2CmdFuncDestroyTexture (device: WebGL2GFXDevice, gpuTexture: WebGL2GPUTexture) {
-    if (gpuTexture.glTexture) {
+    if (gpuTexture.glTexture !== 0) {
         device.gl.deleteTexture(gpuTexture.glTexture);
         gpuTexture.glTexture = 0;
     }
 
-    if (gpuTexture.glRenderbuffer) {
+    if (gpuTexture.glRenderbuffer !== 0) {
         device.gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
         gpuTexture.glRenderbuffer = 0;
     }
@@ -1119,7 +1119,7 @@ export function WebGL2CmdFuncCreateSampler (device: WebGL2GFXDevice, gpuSampler:
 }
 
 export function WebGL2CmdFuncDestroySampler (device: WebGL2GFXDevice, gpuSampler: WebGL2GPUSampler) {
-    if (gpuSampler.glSampler) {
+    if (gpuSampler.glSampler !== 0) {
         device.gl.deleteSampler(gpuSampler.glSampler);
         gpuSampler.glSampler = 0;
     }
@@ -1145,7 +1145,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFram
 
                 const cv = gpuFramebuffer.gpuColorViews[i];
                 if (cv) {
-                    if (cv.gpuTexture.glTexture) {
+                    if (cv.gpuTexture.glTexture !== 0) {
                         gl.framebufferTexture2D(
                             gl.FRAMEBUFFER,
                             gl.COLOR_ATTACHMENT0 + i,
@@ -1168,7 +1168,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFram
             const dsv = gpuFramebuffer.gpuDepthStencilView;
             if (dsv) {
                 const glAttachment = GFXFormatInfos[dsv.format].hasStencil ? gl.DEPTH_STENCIL_ATTACHMENT : gl.DEPTH_ATTACHMENT;
-                if (dsv.gpuTexture.glTexture) {
+                if (dsv.gpuTexture.glTexture !== 0) {
                     gl.framebufferTexture2D(
                         gl.FRAMEBUFFER,
                         glAttachment,
@@ -1214,7 +1214,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2GFXDevice, gpuFram
 }
 
 export function WebGL2CmdFuncDestroyFramebuffer (device: WebGL2GFXDevice, gpuFramebuffer: WebGL2GPUFramebuffer) {
-    if (gpuFramebuffer.glFramebuffer) {
+    if (gpuFramebuffer.glFramebuffer !== 0) {
         device.gl.deleteFramebuffer(gpuFramebuffer.glFramebuffer);
         gpuFramebuffer.glFramebuffer = 0;
     }
@@ -1282,7 +1282,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
 
         for (const gpuStage of gpuShader.gpuStages) {
-            if (gpuStage.glShader) {
+            if (gpuStage.glShader !== 0) {
                 gl.deleteShader(gpuStage.glShader);
                 gpuStage.glShader = 0;
             }
@@ -1495,13 +1495,13 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
 export function WebGL2CmdFuncDestroyShader (device: WebGL2GFXDevice, gpuShader: WebGL2GPUShader) {
 
     for (const gpuStage of gpuShader.gpuStages) {
-        if (gpuStage.glShader) {
+        if (gpuStage.glShader !== 0) {
             device.gl.deleteShader(gpuStage.glShader);
             gpuStage.glShader = 0;
         }
     }
 
-    if (gpuShader.glProgram) {
+    if (gpuShader.glProgram !== 0) {
         device.gl.deleteProgram(gpuShader.glProgram);
         gpuShader.glProgram = 0;
     }
@@ -1545,6 +1545,7 @@ export function WebGL2CmdFuncDestroyInputAssembler (device: WebGL2GFXDevice, gpu
     for (const vao of gpuInputAssembler.glVAOs) {
         device.gl.deleteVertexArray(vao[1]);
     }
+    gpuInputAssembler.glVAOs.clear();
 }
 
 const cmdIds = new Array<number>(WebGL2Cmd.COUNT);
