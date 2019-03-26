@@ -16,8 +16,8 @@ import { SMAAEdgeFlow } from '../ppfx/smaa-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
-import { ForwardFlow } from './forward-flow';
 import { UIFlow } from '../ui/ui-flow';
+import { ForwardFlow } from './forward-flow';
 
 export enum ForwardFlowPriority {
     FORWARD = 0,

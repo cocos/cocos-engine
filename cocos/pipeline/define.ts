@@ -88,6 +88,8 @@ export class UBOShadow {
             { name: 'cc_shadowColor', type: GFXType.FLOAT4, count: 1 },
         ],
     };
+
+    public view: Float32Array = new Float32Array(UBOShadow.COUNT);
 }
 
 export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<string, IInternalBindingDesc>();

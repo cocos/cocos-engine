@@ -15,7 +15,7 @@ export class UIBatchModel extends Model {
         this._subModel = new UISubModel();
     }
 
-    public _updateTransform () {
+    public updateTransform () {
     }
 
     public updateUBOs () {

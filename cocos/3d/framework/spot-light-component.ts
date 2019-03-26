@@ -131,8 +131,8 @@ export class SpotLightComponent extends LightComponent {
             console.warn('we don\'t support this many lights in forward pipeline.');
             return;
         }
+        this._light.luminance = this._luminance;
         this.size = this._size;
-        this.luminance = this._luminance;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
         super._createLight(scene);

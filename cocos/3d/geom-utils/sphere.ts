@@ -84,6 +84,14 @@ export default class sphere {
         this.r = r;
     }
 
+    public clone () {
+        return sphere.clone(this);
+    }
+
+    public copy (a: sphere) {
+        return sphere.copy(this, a);
+    }
+
     /**
      * Get the bounding points of this shape
      * @param {vec3} minPos

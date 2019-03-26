@@ -45,7 +45,9 @@ export class SphereLightComponent extends LightComponent {
     protected _type = LightType.SPHERE;
     protected _light: SphereLight | null = null;
 
-    @property
+    @property({
+        unit: 'lm',
+    })
     get luminousPower () {
         return this._luminance * nt2lm(this._size);
     }
@@ -55,7 +57,9 @@ export class SphereLightComponent extends LightComponent {
         if (this._light) { this._light.setLuminousPower(val, this._size); }
     }
 
-    @property
+    @property({
+        unit: 'cd',
+    })
     get luminance () {
         return this._luminance;
     }
@@ -110,7 +114,7 @@ export class SphereLightComponent extends LightComponent {
             console.warn('we don\'t support this many lights in forward pipeline.');
             return;
         }
-        this.luminance = this._luminance;
+        this._light.luminance = this._luminance;
         this.size = this._size;
         this.range = this._range;
         super._createLight(scene);
