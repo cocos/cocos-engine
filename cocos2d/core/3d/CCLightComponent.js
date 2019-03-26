@@ -24,7 +24,7 @@
  ****************************************************************************/
 // @ts-check
 import enums from '../../renderer/enums';
-import Light from '../../renderer/scene/light';
+import RendererLight from '../../renderer/scene/light';
 import { Color } from '../value-types';
 import { toRadian } from '../vmath';
 
@@ -38,7 +38,7 @@ const { ccclass, menu, inspector, property, executeInEditMode } = require('../pl
  *
  * !#zh 光源类型
  * @static
- * @enum LightComponent.Type
+ * @enum Light.Type
  */
 const LightType = Enum({
     /**
@@ -75,7 +75,7 @@ const LightType = Enum({
  *
  * !#zh 阴影类型
  * @static
- * @enum LightComponent.ShadowType
+ * @enum Light.ShadowType
  */
 const LightShadowType = Enum({
     /**
@@ -111,14 +111,14 @@ const LightShadowType = Enum({
  * !#en The Light Component
  *
  * !#zh 光源组件
- * @class LightComponent
+ * @class Light
  * @extends CCComponent
  */
-@ccclass('cc.LightComponent')
-@menu('i18n:MAIN_MENU.component.renderers/LightComponent')
+@ccclass('cc.Light')
+@menu('i18n:MAIN_MENU.component.renderers/Light')
 @executeInEditMode
 @inspector('packages://inspector/inspectors/comps/light.js')
-export default class LightComponent extends CCComponent {
+export default class Light extends CCComponent {
     @property
     _type = LightType.DIRECTIONAL;
 
@@ -415,7 +415,7 @@ export default class LightComponent extends CCComponent {
     constructor() {
         super();
 
-        this._light = new Light();
+        this._light = new RendererLight();
     }
 
     onLoad() {
@@ -444,4 +444,4 @@ export default class LightComponent extends CCComponent {
     }
 }
 
-cc.LightComponent = LightComponent;
+cc.Light = Light;
