@@ -1160,12 +1160,14 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
     //parseSimpleAttr('preventDeferredLoad', 'boolean');
     if (CC_DEV) {
         parseSimpleAttr('displayName', 'string');
+        parseSimpleAttr('displayOrder', 'number');
         parseSimpleAttr('multiline', 'boolean');
         if (attrs.readonly) {
             (attrsProto || getAttrsProto())[attrsProtoKey + 'readonly'] = true;
         }
         parseSimpleAttr('tooltip', 'string');
         parseSimpleAttr('slide', 'boolean');
+        parseSimpleAttr('unit', 'string');
     }
 
     if (attrs.url) {
