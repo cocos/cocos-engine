@@ -202,10 +202,10 @@ module.exports = {
             firstLinelabelY = lineHeight + _margin;
         }
         else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
-            firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _drawFontSize * textUtils.MIDDLE_RATIO;
+            firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _fontSize * textUtils.MIDDLE_RATIO;
         }
         else {
-            firstLinelabelY = _canvasSize.height - drawStartY - _drawFontSize * textUtils.BASELINE_RATIO - _margin;
+            firstLinelabelY = _canvasSize.height - drawStartY - _fontSize * textUtils.BASELINE_RATIO - _margin;
         }
 
         return cc.v2(labelX, firstLinelabelY);
