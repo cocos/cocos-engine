@@ -124,6 +124,7 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public rebuild () {
+        super.rebuild();
         for (const flow of this._flows) {
             flow.rebuild();
         }
