@@ -6,13 +6,10 @@ if (!Array.isArray) {
 
 if (!Array.prototype.find) {
     Array.prototype.find = function (callback) {
-        var list = Object(this);
-        // Make sure length is always an positive integer.
-        var length = list.length >>> 0;
-        var thisArg = arguments[1];
+        var length = this.length;
         for (var i = 0; i < length; i++) {
-            var element = list[i];
-            if (callback.call(thisArg, element, i, list)) {
+            var element = this[i];
+            if (callback.call(this, element, i, this)) {
                 return element;
             }
         }
