@@ -476,6 +476,13 @@ let SkeletonCache = cc.Class({
         return animationsCache[animationName];
     },
 
+    updateSkeletonSkin (uuid, skinName) {
+        let skeletonInfo = this._skeletonCache[uuid];
+        let skeleton = skeletonInfo && skeletonInfo.skeleton;
+        if (!skeleton) return;
+        skeleton.setSkinByName(skinName);
+    },
+
     updateAnimationCache (uuid, animationName) {
         let skeletonInfo = this._skeletonCache[uuid];
         let skeleton = skeletonInfo && skeletonInfo.skeleton;

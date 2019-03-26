@@ -434,7 +434,7 @@ var game = {
     on (type, callback, target) {
         // Make sure EVENT_ENGINE_INITED and EVENT_GAME_INITED callbacks to be invoked
         if ((this._prepared && type === this.EVENT_ENGINE_INITED) ||
-            (!this._pause && type === this.EVENT_GAME_INITED)) {
+            (!this._paused && type === this.EVENT_GAME_INITED)) {
             callback.call(target);
         }
         else {
@@ -462,7 +462,7 @@ var game = {
     once (type, callback, target) {
         // Make sure EVENT_ENGINE_INITED and EVENT_GAME_INITED callbacks to be invoked
         if ((this._prepared && type === this.EVENT_ENGINE_INITED) ||
-            (!this._pause && type === this.EVENT_GAME_INITED)) {
+            (!this._paused && type === this.EVENT_GAME_INITED)) {
             callback.call(target);
         }
         else {

@@ -839,9 +839,12 @@ var ParticleSystem = cc.Class({
             this._convertTextureToSpriteFrame();
         }
 
-        if (this._file) { 
-            if (this._custom) { 
-                var missCustomTexture = !this._texture; 
+        if (this._custom && this.spriteFrame && !this._renderSpriteFrame) {
+            this._applySpriteFrame(this.spriteFrame);
+        }
+        else if (this._file) {
+            if (this._custom) {
+                let missCustomTexture = !this._texture;
                 if (missCustomTexture) { 
                     this._applyFile();
                 }
@@ -849,9 +852,6 @@ var ParticleSystem = cc.Class({
             else {
                 this._applyFile();
             }
-        }
-        else if (this._custom && this.spriteFrame && !this._renderSpriteFrame) {
-            this._applySpriteFrame(this.spriteFrame);
         }
         // auto play
         if (!CC_EDITOR || cc.engine.isPlaying) {
@@ -961,9 +961,9 @@ var ParticleSystem = cc.Class({
     // PRIVATE METHODS
 
     _applyFile: function () {
-        var file = this._file;
+        let file = this._file;
         if (file) {
-            var self = this;
+            let self = this;
             cc.loader.load(file.nativeUrl, function (err, content) {
                 if (err || !content) {
                     cc.errorID(6029);
@@ -994,7 +994,7 @@ var ParticleSystem = cc.Class({
     },
 
     _initTextureWithDictionary: function (dict) {
-        var imgPath = cc.path.changeBasename(this._plistFile, dict["textureFileName"] || '');
+        let imgPath = cc.path.changeBasename(this._plistFile, dict["textureFileName"] || '');
         // texture
         if (dict["textureFileName"]) {
             // Try to get the texture from the cache
@@ -1008,27 +1008,27 @@ var ParticleSystem = cc.Class({
                 }
             }, this);
         } else if (dict["textureImageData"]) {
-            var textureData = dict["textureImageData"];
+            let textureData = dict["textureImageData"];
 
             if (textureData && textureData.length > 0) {
                 let tex = cc.loader.getRes(imgPath);
                 
                 if (!tex) {
-                    var buffer = codec.unzipBase64AsArray(textureData, 1);
+                    let buffer = codec.unzipBase64AsArray(textureData, 1);
                     if (!buffer) {
                         cc.logID(6030);
                         return false;
                     }
 
-                    var imageFormat = getImageFormatByData(buffer);
+                    let imageFormat = getImageFormatByData(buffer);
                     if (imageFormat !== macro.ImageFormat.TIFF && imageFormat !== macro.ImageFormat.PNG) {
                         cc.logID(6031);
                         return false;
                     }
 
-                    var canvasObj = document.createElement("canvas");
+                    let canvasObj = document.createElement("canvas");
                     if(imageFormat === macro.ImageFormat.PNG){
-                        var myPngObj = new PNGReader(buffer);
+                        let myPngObj = new PNGReader(buffer);
                         myPngObj.render(canvasObj);
                     } else {
                         tiffReader.parseTIFF(buffer,canvasObj);
@@ -1057,7 +1057,7 @@ var ParticleSystem = cc.Class({
         this.lifeVar = parseFloat(dict["particleLifespanVariance"] || 0);
 
         // emission Rate
-        var _tempEmissionRate = dict["emissionRate"];
+        let _tempEmissionRate = dict["emissionRate"];
         if (_tempEmissionRate) {
             this.emissionRate = _tempEmissionRate;
         }
@@ -1073,25 +1073,25 @@ var ParticleSystem = cc.Class({
         this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || macro.ONE_MINUS_SRC_ALPHA);
 
         // color
-        var locStartColor = this._startColor;
+        let locStartColor = this._startColor;
         locStartColor.r = parseFloat(dict["startColorRed"] || 0) * 255;
         locStartColor.g = parseFloat(dict["startColorGreen"] || 0) * 255;
         locStartColor.b = parseFloat(dict["startColorBlue"] || 0) * 255;
         locStartColor.a = parseFloat(dict["startColorAlpha"] || 0) * 255;
 
-        var locStartColorVar = this._startColorVar;
+        let locStartColorVar = this._startColorVar;
         locStartColorVar.r = parseFloat(dict["startColorVarianceRed"] || 0) * 255;
         locStartColorVar.g = parseFloat(dict["startColorVarianceGreen"] || 0) * 255;
         locStartColorVar.b = parseFloat(dict["startColorVarianceBlue"] || 0) * 255;
         locStartColorVar.a = parseFloat(dict["startColorVarianceAlpha"] || 0) * 255;
 
-        var locEndColor = this._endColor;
+        let locEndColor = this._endColor;
         locEndColor.r = parseFloat(dict["finishColorRed"] || 0) * 255;
         locEndColor.g = parseFloat(dict["finishColorGreen"] || 0) * 255;
         locEndColor.b = parseFloat(dict["finishColorBlue"] || 0) * 255;
         locEndColor.a = parseFloat(dict["finishColorAlpha"] || 0) * 255;
 
-        var locEndColorVar = this._endColorVar;
+        let locEndColorVar = this._endColorVar;
         locEndColorVar.r = parseFloat(dict["finishColorVarianceRed"] || 0) * 255;
         locEndColorVar.g = parseFloat(dict["finishColorVarianceGreen"] || 0) * 255;
         locEndColorVar.b = parseFloat(dict["finishColorVarianceBlue"] || 0) * 255;
@@ -1141,7 +1141,7 @@ var ParticleSystem = cc.Class({
             this.tangentialAccelVar = parseFloat(dict["tangentialAccelVariance"] || 0);
 
             // rotation is dir
-            var locRotationIsDir = dict["rotationIsDir"] || "";
+            let locRotationIsDir = dict["rotationIsDir"] || "";
             if (locRotationIsDir !== null) {
                 locRotationIsDir = locRotationIsDir.toString().toLowerCase();
                 this.rotationIsDir = (locRotationIsDir === "true" || locRotationIsDir === "1");
@@ -1178,7 +1178,7 @@ var ParticleSystem = cc.Class({
             oldFrame.off('load', this._onTextureLoaded, this);
         }
 
-        var spriteFrame = this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
+        let spriteFrame = this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (spriteFrame) {
             if (spriteFrame.textureLoaded()) {
                 this._onTextureLoaded(null);

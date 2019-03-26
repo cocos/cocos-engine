@@ -37,7 +37,7 @@ let _boneColor = cc.color(255, 0, 0, 255);
 let _slotColor = cc.color(0, 0, 255, 255);
 
 let _nodeR, _nodeG, _nodeB, _nodeA,
-    _premultipliedAlpha,
+    _premultipliedAlpha, _multiply,
     _mustFlush, _buffer, _node,
     _renderer, _comp,
     _vfOffset, _indexOffset, _vertexOffset,
@@ -107,11 +107,12 @@ function _getSlotMaterial (tex, blendMode) {
     return material;
 }
 
-function _handleColor (color) {
-    _r = color.r * _nodeR;
-    _g = color.g * _nodeG;
-    _b = color.b * _nodeB;
-    _a = color.a * _nodeA;
+function _handleColor (color, parentOpacity) {
+    _a = color.a * parentOpacity * _nodeA;
+    _multiply = _premultipliedAlpha? _a / 255.0 : 1.0;
+    _r = color.r * _nodeR * _multiply;
+    _g = color.g * _nodeG * _multiply;
+    _b = color.b * _nodeB * _multiply;
     _c = ((_a<<24) >>> 0) + (_b<<16) + (_g<<8) + _r;
 }
 
@@ -119,7 +120,7 @@ let armatureAssembler = {
 
     updateRenderData (comp, batchData) {},
 
-    realTimeTraverse (armature, parentMat) {
+    realTimeTraverse (armature, parentMat, parentOpacity) {
         let slots = armature._slots;
         let vbuf, ibuf, uintbuf;
         let material;
@@ -131,6 +132,8 @@ let armatureAssembler = {
 
         for (let i = 0, l = slots.length; i < l; i++) {
             slot = slots[i];
+            slotColor = slot._color;
+
             if (!slot._visible || !slot._displayData) continue;
 
             if (parentMat) {
@@ -140,7 +143,7 @@ let armatureAssembler = {
             }
 
             if (slot.childArmature) {
-                this.realTimeTraverse(slot.childArmature, slot._worldMatrix);
+                this.realTimeTraverse(slot.childArmature, slot._worldMatrix, parentOpacity * slotColor.a / 255);
                 continue;
             }
 
@@ -156,8 +159,7 @@ let armatureAssembler = {
                 _renderer.material = material;
             }
 
-            slotColor = slot._color;
-            _handleColor(slotColor);
+            _handleColor(slotColor, parentOpacity);
             slotMat = slot._worldMatrix;
 
             vertices = slot._localVertices;
@@ -225,7 +227,7 @@ let armatureAssembler = {
         let colors = frame.colors;
         let nowColor = colors[colorOffset++];
         let maxVFOffset = nowColor.vfOffset;
-        _handleColor(nowColor);
+        _handleColor(nowColor, 1.0);
 
         for (let i = 0, n = segments.length; i < n; i++) {
             let segInfo = segments[i];
@@ -280,7 +282,7 @@ let armatureAssembler = {
             for (let ii = _vfOffset + 4, il = _vfOffset + 4 + segVFCount; ii < il; ii+=5, frameColorOffset += 5) {
                 if (frameColorOffset >= maxVFOffset) {
                     nowColor = colors[colorOffset++];
-                    _handleColor(nowColor);
+                    _handleColor(nowColor, 1.0);
                     maxVFOffset = nowColor.vfOffset;
                 }
                 uintbuf[ii] = _c;
@@ -324,7 +326,7 @@ let armatureAssembler = {
             let armature = comp._armature;
             if (!armature) return;
 
-            this.realTimeTraverse(armature, worldMat);
+            this.realTimeTraverse(armature, worldMat, 1.0);
 
             let graphics = comp._debugDraw;
             if (comp.debugBones && graphics) {
