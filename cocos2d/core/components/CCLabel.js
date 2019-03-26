@@ -31,6 +31,7 @@ const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
 const LabelFrame = require('../renderer/utils/label/label-frame');
+const opacityFlag = RenderFlow.FLAG_COLOR | RenderFlow.FLAG_OPACITY;
 /**
  * !#en Enum for text alignment.
  * !#zh 文本横向对齐类型
@@ -646,8 +647,7 @@ let Label = cc.Class({
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             this._super();
-        }
-        else {
+        } else {
             this._updateRenderData();
             this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
