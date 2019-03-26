@@ -14,8 +14,7 @@ import {
     GFXTextureLayout,
     GFXTextureType,
     GFXTextureUsageBit,
-    GFXTextureViewType,
-    GFXSampleCount} from '../gfx/define';
+    GFXTextureViewType} from '../gfx/define';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
@@ -173,7 +172,6 @@ export abstract class RenderPipeline {
     protected _curIdx: number = 0;
     protected _prevIdx: number = 1;
     protected _useMSAA: boolean = false;
-    protected _msaaSampers: GFXSampleCount = GFXSampleCount.X4;
     protected _useSMAA: boolean = false;
     protected _smaaPass: GFXRenderPass | null = null;
     protected _smaaEdgeFBO: GFXFramebuffer | null = null;
@@ -201,7 +199,7 @@ export abstract class RenderPipeline {
 
     public abstract initialize (info: IRenderPipelineInfo): boolean;
     public abstract destroy ();
-    public abstract rebuild ();
+    public rebuild () { this.updateMacros(); }
 
     public resize (width: number, height: number) {
         for (const flow of this._flows) {
@@ -403,7 +401,6 @@ export abstract class RenderPipeline {
                 format: colorFmt,
                 width: this._shadingTexWidth,
                 height: this._shadingTexHeight,
-                samples: this._msaaSampers,
             });
             this._msaaShadingTexView = this._device.createTextureView({
                 texture : this._msaaShadingTex,
@@ -416,7 +413,6 @@ export abstract class RenderPipeline {
                 format : depthStencilFmt,
                 width : this._shadingTexWidth,
                 height : this._shadingTexHeight,
-                samples: this._msaaSampers,
             });
             this._msaaDepthStencilTexView = this._device.createTextureView({
                 texture : this._msaaDepthStencilTex,
@@ -620,17 +616,12 @@ export abstract class RenderPipeline {
         }
     }
 
-    protected updateMacros (keepShaders: boolean = false) {
-        if (!keepShaders) { programLib.destroyShaderByDefines(this._macros); }
-        this._doUpdateMacros();
+    protected updateMacros () {
+        this._macros.CC_USE_HDR = this._isHDR;
+        programLib.destroyShaderByDefines(this._macros);
         for (const scene of this._root.scenes) {
             scene.onPipelineChange();
         }
-        this.rebuild();
-    }
-
-    protected _doUpdateMacros () {
-        this._macros.CC_USE_HDR = this._isHDR;
     }
 
     protected createQuadInputAssembler (): boolean {
