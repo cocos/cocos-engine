@@ -4,8 +4,8 @@ import { ImageAsset } from '../../assets/image-asset';
 import { Texture2D } from '../../assets/texture-2d';
 import { Rect } from '../../core/value-types';
 import { GFXDevice } from '../../gfx/device';
-import { Model } from '../../renderer';
 import { customizationManager } from '../../renderer/scene/customization-manager';
+import { Model } from '../../renderer/scene/model';
 import { TextureCube } from '../assets/texture-cube';
 import { aabb } from '../geom-utils';
 import effects from './effects';
@@ -173,13 +173,14 @@ class BuiltinResMgr {
         const tmp = aabb.create();
         customizationManager.register('bounds-merge-shadow', {
             onAttach: (m: Model) => {
-                const update = Model.prototype.updateTransform.bind(m);
                 const light = m.scene.mainLight;
                 const shadow = m.scene.planarShadow;
                 m.updateTransform = () => {
-                    update();
                     const bounds = m.worldBounds;
-                    if (!m.node.hasChanged && !light.node.hasChanged || !bounds) { return; }
+                    if (!m.node.hasChanged && !light.node.hasChanged) { return; }
+                    m.node.updateWorldTransformFull();
+                    if (!bounds) { return; }
+                    m.modelBounds!.transform(m.node._mat, null, null, null, bounds);
                     bounds.transform(shadow.matLight, null, null, null, tmp);
                     aabb.merge(bounds, bounds, tmp);
                 };

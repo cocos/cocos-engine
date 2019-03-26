@@ -16,13 +16,11 @@ export class ToneMapFlow extends RenderFlow {
 
         this._priority = info.priority;
 
-        const material = new cc.Material();
+        const material = this._material;
         material.initialize({
             effectName: 'builtin-tonemap',
             defines: { CC_USE_SMAA: this._pipeline.useSMAA },
         });
-
-        this._material = material;
 
         const framebuffer = this._pipeline.root.mainWindow!.framebuffer!;
 
@@ -36,6 +34,9 @@ export class ToneMapFlow extends RenderFlow {
     }
 
     public destroy (): void {
+        if (this._material) {
+            this._material.destroy();
+        }
         this.destroyStages();
     }
 

@@ -36,7 +36,7 @@ export class Skybox extends Model {
     protected _material = new Material();
 
     constructor (scene: RenderScene) {
-        super(scene, null);
+        super(scene, null!);
         this._scene = scene;
         this._initMaterial();
 

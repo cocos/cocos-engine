@@ -44,7 +44,7 @@ export class DirectionalLightComponent extends LightComponent {
      *
      * !#ch 光源强度
      */
-    @property
+    @property({ unit: 'lx' })
     get illuminance () {
         return this._illuminance;
     }

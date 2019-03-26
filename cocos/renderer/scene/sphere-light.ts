@@ -26,7 +26,6 @@ export class SphereLight extends Light {
         return this._range;
     }
 
-    // in Nit(nt)
     set luminance (lum: number) {
         this._luminance = lum;
     }
@@ -50,16 +49,6 @@ export class SphereLight extends Light {
         this._type = LightType.SPHERE;
         this._aabb = aabb.create();
         this._pos = new Vec3();
-    }
-
-    // in Lumen(lm)
-    public setLuminousPower (power: number, size: number) {
-        this._size = size;
-        this._luminance = power / nt2lm(size);
-    }
-
-    public getLuminousPower (): number {
-        return this._luminance * nt2lm(this._size);
     }
 
     public update () {

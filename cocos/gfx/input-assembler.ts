@@ -187,7 +187,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @example
      * // get IB array buffer from mesh, better to cache this somewhere convenient
      * const ibInfo = mesh.struct.primitives[0].indices.range;
-     * submesh.ibuffer = mesh.data.buffer.slice(ibInfo.offset, ibInfo.offset + ibInfo.length);
+     * const ibuffer = mesh.data.buffer.slice(ibInfo.offset, ibInfo.offset + ibInfo.length);
      * const submodel = someModelComponent.model.getSubModel(0);
      * submodel.inputAssembler.updateIndexBuffer(ibuffer, [0, 1, 2]);
      * submodel.updateCommandBuffer(); // index count changed

@@ -1,5 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+import { Material } from '../../3d/assets/material';
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos,
@@ -8,7 +9,6 @@ import { IGFXInputAttribute } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
-import { Material } from '../../3d/assets/material';
 
 export default class ParticleBatchModel extends Model {
 
@@ -23,7 +23,7 @@ export default class ParticleBatchModel extends Model {
     private _iaInfoBuffer: GFXBuffer;
     private _subMeshData: IRenderingSubmesh | null;
 
-    constructor (scene: RenderScene, node: Node | null) {
+    constructor (scene: RenderScene, node: Node) {
         super(scene, node);
 
         this._type = 'particle-batch';

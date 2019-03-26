@@ -178,7 +178,7 @@ export class RenderScene {
         this._spotLights = [];
     }
 
-    public createModel<T extends Model> (clazz: new (scene: RenderScene, node: Node | null) => T, node: Node | null): T {
+    public createModel<T extends Model> (clazz: new (scene: RenderScene, node: Node) => T, node: Node): T {
         const model = new clazz(this, node);
         this._models.push(model);
         return model;
@@ -198,6 +198,13 @@ export class RenderScene {
             m.destroy();
         }
         this._models = [];
+    }
+
+    public onPipelineChange () {
+        for (const m of this._models) {
+            m.onPipelineChange();
+        }
+        this._skybox.onPipelineChange();
     }
 
     public generateModelId (): number {
@@ -231,7 +238,6 @@ export class RenderScene {
                 if (distance < Infinity) {
                     const r = pool.add();
                     r.node = node;
-                    // @ts-ignore
                     r.distance = distance * vec3.magnitude(vec3.mul(v3, modelRay.d, node._scale));
                     results[pool.length - 1] = r;
                 }
