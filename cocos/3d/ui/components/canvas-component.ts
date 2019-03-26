@@ -178,11 +178,11 @@ export class CanvasComponent extends Component {
                 targetDisplay: 0,
                 priority: this._priority,
                 isUI: true,
-                stages: ['UIFlow'],
+                flows: ['UIFlow'],
             });
 
             this._camera!.fov = 45;
-            this._camera!.clearFlag = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
+            this._camera!.clearFlag = GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
 
             const device = cc.director.root.device;
             this._camera!.resize(device.width, device.height);
