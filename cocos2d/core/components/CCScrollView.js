@@ -1281,7 +1281,7 @@ let ScrollView = cc.Class({
 
         let targetDelta = deltaMove.normalize();
         let contentSize = this.content.getContentSize();
-        let scrollviewSize = this.node.getContentSize();
+        let scrollviewSize = this._view.getContentSize();
 
         let totalMoveWidth = (contentSize.width - scrollviewSize.width);
         let totalMoveHeight = (contentSize.height - scrollviewSize.height);
