@@ -1185,7 +1185,6 @@ var Node = cc.Class({
         for (; i < len; i++) {
             sibling = siblings[i];
             sibling._updateOrderOfArrival();
-            eventManager._setDirtyForNode(sibling);
         }
         parent._delaySort();
     },
@@ -3011,6 +3010,10 @@ var Node = cc.Class({
      */
     sortAllChildren () {
         if (this._reorderChildDirty) {
+            // Optimize reordering event code to fix problems with setting zindex
+            // https://github.com/cocos-creator/2d-tasks/issues/1186
+            eventManager._setDirtyForNode(this);
+
             this._reorderChildDirty = false;
             var _children = this._children;
             if (_children.length > 1) {
