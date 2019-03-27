@@ -20,7 +20,7 @@ export class SMAAEdgeFlow extends RenderFlow {
         const smaaMtl = this._material;
         smaaMtl._uuid = 'smaa-material';
         smaaMtl.initialize({
-            effectName: 'builtin-smaa',
+            effectName: 'pipeline/smaa',
         });
 
         this.createStage(SMAAEdgeStage, {

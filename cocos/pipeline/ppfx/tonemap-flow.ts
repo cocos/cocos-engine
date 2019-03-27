@@ -18,7 +18,7 @@ export class ToneMapFlow extends RenderFlow {
 
         const material = this._material;
         material.initialize({
-            effectName: 'builtin-tonemap',
+            effectName: 'pipeline/tonemap',
             defines: { CC_USE_SMAA: this._pipeline.useSMAA },
         });
 
@@ -44,7 +44,7 @@ export class ToneMapFlow extends RenderFlow {
         if (this._material) {
             this._material.destroy();
             this._material.initialize({
-                effectName: 'builtin-tonemap',
+                effectName: 'pipeline/tonemap',
                 defines: { CC_USE_SMAA: this._pipeline.useSMAA },
             });
         }
