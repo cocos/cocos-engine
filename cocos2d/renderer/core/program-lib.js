@@ -219,7 +219,7 @@ export default class ProgramLib {
     if (errors) {
       let vertLines = vert.split('\n');
       let fragLines = frag.split('\n');
-      let defineLength = Object.keys(defines).length;
+      let defineLength = Object.keys(defineList).length;
       errors.forEach(err => {
         let line = err.line - 1;
         let originLine = err.line - defineLength;
