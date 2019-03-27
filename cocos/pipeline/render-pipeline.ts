@@ -146,6 +146,10 @@ export abstract class RenderPipeline {
         return this._macros;
     }
 
+    public get defaultGlobalUBOData (): Float32Array {
+        return this._defaultUboGlobal!.view;
+    }
+
     protected _root: Root;
     protected _device: GFXDevice;
     protected _queue: RenderQueue = new RenderQueue();

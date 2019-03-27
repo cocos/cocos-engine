@@ -40,6 +40,7 @@ import { UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets/material';
 import { IAssembler, IAssemblerManager } from '../assembler/assembler';
 import { CanvasComponent } from './canvas-component';
+import { UIComponent } from './ui-component';
 import { UITransformComponent } from './ui-transfrom-component';
 
 // hack
@@ -58,7 +59,7 @@ ccenum(GFXBlendFactor);
 @executionOrder(100)
 @requireComponent(UITransformComponent)
 @executeInEditMode
-export class UIRenderComponent extends Component {
+export class UIRenderComponent extends UIComponent {
 
     public static BlendState = GFXBlendFactor;
 
@@ -110,23 +111,6 @@ export class UIRenderComponent extends Component {
     }
 
     /**
-     * !#en render order, render order according to width, and arrange once under the same level node.
-     * !#zh 渲染先后顺序，按照广度渲染排列，同级节点下进行一次排列
-     */
-    @property
-    get priority () {
-        return this._priority;
-    }
-
-    set priority (value) {
-        if (this._priority === value) {
-            return;
-        }
-
-        this._priority = value;
-    }
-
-    /**
      * !#en render color
      * !#zh 渲染颜色
      * @property color
@@ -172,14 +156,6 @@ export class UIRenderComponent extends Component {
         return this._material;
     }
 
-    /**
-     * !#en find the rendered camera
-     * !#zh 查找被渲染相机
-     */
-    get visibility () {
-        return this._visibility;
-    }
-
     get renderData () {
         return this._renderData;
     }
@@ -194,14 +170,11 @@ export class UIRenderComponent extends Component {
     @property
     protected _color: Color = Color.WHITE;
     @property
-    protected _priority = 0;
-    @property
     protected _sharedMaterial: Material | null = null;
 
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
     protected _renderDataPoolID = -1;
-    protected _visibility = -1;
     protected _renderData: RenderData | null = null;
     protected _renderDataDirty = false;
     // 特殊渲染标记，在可渲染情况下，因为自身某个原因不给予渲染

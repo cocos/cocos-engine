@@ -178,7 +178,7 @@ export class CanvasComponent extends Component {
                 targetDisplay: 0,
                 priority: this._priority,
                 isUI: true,
-                stages: ['UIFlow'],
+                flows: ['UIFlow'],
             });
 
             this._camera!.fov = 45;
@@ -223,8 +223,8 @@ export class CanvasComponent extends Component {
     public onDisable () {
         if (this._camera) {
             this._getRenderScene().destroyCamera(this._camera);
-            cc.director.root.ui.removeScreen(this);
         }
+        cc.director.root.ui.removeScreen(this);
     }
 
     public onDestroy () {
