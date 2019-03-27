@@ -386,7 +386,7 @@ module.exports = {
             }
         },
         'block_input_events': {
-            'brief_help': 'This component will block all input events, preventing the input from penetrating into the underlying node, typically for the background of the top UI.'
+            'brief_help': 'This component will block all input events, preventing the input from penetrating to other nodes below the screen, typically for the background of the top-level UI of the screen.'
         },
         'tiledtile': {
             'row': 'Specify the TiledTile horizontal coordinate，use map tile as the unit.',

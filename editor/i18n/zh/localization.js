@@ -390,7 +390,7 @@ module.exports = {
             }
         },
         'block_input_events': {
-            'brief_help': '该组件将拦截所有输入事件，防止输入穿透到下层节点，一般用于上层 UI 的背景。'
+            'brief_help': '该组件将拦截所有输入事件，防止输入穿透到屏幕下方的其它节点，一般用于屏幕上层 UI 的背景。'
         },
         'tiledtile': {
             'row': '指定 TiledTile 的横向坐标，以地图块为单位',

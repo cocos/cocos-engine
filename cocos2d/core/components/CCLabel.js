@@ -29,6 +29,7 @@ const RenderComponent = require('./CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
 const LabelFrame = require('../renderer/utils/label/label-frame');
 const RenderFlow = require('../renderer/render-flow');
+const opacityFlag = RenderFlow.FLAG_COLOR | RenderFlow.FLAG_OPACITY;
 
 /**
  * !#en Enum for text alignment.
