@@ -2000,6 +2000,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                                 gl.bindBufferBase(WebGL2RenderingContext.UNIFORM_BUFFER, glBlock.binding, gpuBinding.gpuBuffer.glBuffer);
                                                 // gl.bindBufferRange(WebGL2RenderingContext.UNIFORM_BUFFER, glBlock.binding, gpuBinding.gpuBuffer.glBuffer, 0, gpuBinding.gpuBuffer.size);
                                                 cache.glBindUBOs[glBlock.binding] = gpuBinding.gpuBuffer.glBuffer;
+                                                cache.glUniformBuffer = gpuBinding.gpuBuffer.glBuffer;
                                             }
 
                                             break;

@@ -669,7 +669,7 @@ class Game extends EventTarget {
                 this.container = localContainer = document.createElement("DIV");
                 element.appendChild(localContainer);
             }
-            localContainer.setAttribute('id', 'Cocos2dGameContainer');
+            localContainer.setAttribute('id', 'Cocos3dGameContainer');
             localContainer.appendChild(localCanvas);
             this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
