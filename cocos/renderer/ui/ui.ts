@@ -6,6 +6,7 @@ import RecyclePool from '../../3d/memop/recycle-pool';
 import { IAssembler } from '../../3d/ui/assembler/assembler';
 import { StencilManager } from '../../3d/ui/assembler/mask/stencil-manager';
 import { CanvasComponent } from '../../3d/ui/components/canvas-component';
+import { UIComponent } from '../../3d/ui/components/ui-component';
 import { UIRenderComponent } from '../../3d/ui/components/ui-render-component';
 import { MeshBuffer } from '../../3d/ui/mesh-buffer';
 import { SpriteFrame } from '../../assets/CCSpriteFrame';
@@ -21,12 +22,10 @@ import { GFXTextureView } from '../../gfx/texture-view';
 import { vfmt } from '../../gfx/vertex-format-sample';
 import { Node } from '../../scene-graph/node';
 import { Camera } from '../scene/camera';
+import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
-import { CameraComponent } from '../../3d';
-import { Model } from '../scene/model';
-import { UIComponent } from '../../3d/ui/components/ui-component';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -106,7 +105,7 @@ export class UI {
         this._scene = this._root.createScene({
             name: 'GUIScene',
         });
-        this._uiModelPool = new Pool(() => this._scene.createModel<UIBatchModel>(UIBatchModel, null), 2);
+        this._uiModelPool = new Pool(() => this._scene.createModel<UIBatchModel>(UIBatchModel, null!), 2);
         this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);
 
