@@ -13,6 +13,7 @@ import './components/slider-component';
 import './components/sprite-component';
 import './components/toggle-component';
 import './components/toggle-group-component';
+import './components/ui-model-component';
 import './components/ui-render-component';
 import './components/ui-transfrom-component';
 import './components/ui-transfrom-component';

@@ -25,10 +25,13 @@ import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
 import { CameraComponent } from '../../3d';
+import { Model } from '../scene/model';
+import { UIComponent } from '../../3d/ui/components/ui-component';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
     public bufferBatch: MeshBuffer | null = null;
+    public model: Model | null = null;
     public material: Material | null = null;
     public texView: GFXTextureView | null = null;
     public firstIdx: number = 0;
@@ -58,6 +61,7 @@ export class UIDrawBatch {
         this.texView = null;
         this.firstIdx = 0;
         this.idxCount = 0;
+        this.model = null;
     }
 }
 
@@ -230,39 +234,75 @@ export class UI {
             for (let i = 0; i < this._batches.length; ++i) {
                 const batch = this._batches.array[i];
 
-                const bindingLayout = batch.bindingLayout!;
-                bindingLayout.bindTextureView(0, batch.texView!);
-                bindingLayout.update();
+                if (batch.model) {
+                    if (batch.camera) {
+                        batch.model.viewID = batch.camera.view.visibility;
+                    }
+                    for (let j = 0; j < batch.model.subModelNum; j++) {
+                        batch.model.getSubModel(j).priority = batchPriority++;
+                    }
+                } else {
+                    const bindingLayout = batch.bindingLayout!;
+                    bindingLayout.bindTextureView(0, batch.texView!);
+                    bindingLayout.update();
 
-                const ia = batch.bufferBatch!.ia!;
-                ia.firstIndex = batch.firstIdx;
-                ia.indexCount = batch.idxCount;
+                    const ia = batch.bufferBatch!.ia!;
+                    ia.firstIndex = batch.firstIdx;
+                    ia.indexCount = batch.idxCount;
 
-                const uiModel = this._uiModelPool!.alloc();
-                uiModel.initialize(ia, batch);
-                uiModel.enabled = true;
-                uiModel.getSubModel(0).priority = batchPriority++;
-                if (batch.camera) {
-                    uiModel.viewID = batch.camera.view.visibility;
+                    const uiModel = this._uiModelPool!.alloc();
+                    uiModel.initialize(ia, batch);
+                    uiModel.enabled = true;
+                    uiModel.getSubModel(0).priority = batchPriority++;
+                    if (batch.camera) {
+                        uiModel.viewID = batch.camera.view.visibility;
+                    }
+                    this._modelInUse.push(uiModel);
                 }
-                this._modelInUse.push(uiModel);
             }
         }
     }
 
-    public commitComp (comp: UIRenderComponent, frame: SpriteFrame | null, assembler: IAssembler) {
-        const texView = frame && frame.getGFXTextureView();
-        if (this._currMaterial.hash !== comp.material!.hash ||
-            this._currTexView !== texView ||
-            this._currCanvas !== comp.visibility
-        ) {
-            this.autoMergeBatches();
-            this._currMaterial  = comp.material!;
-            this._currTexView = texView;
-            this._currCanvas = comp.visibility;
-        }
+    public commitComp (comp: UIComponent, frame: SpriteFrame | null, assembler: IAssembler) {
+        if (comp instanceof UIRenderComponent) {
+            const renderComp = comp as UIRenderComponent;
+            const texView = frame && frame.getGFXTextureView();
+            if (this._currMaterial.hash !== renderComp.material!.hash ||
+                this._currTexView !== texView ||
+                this._currCanvas !== renderComp.visibility
+            ) {
+                this.autoMergeBatches();
+                this._currMaterial = renderComp.material!;
+                this._currTexView = texView;
+                this._currCanvas = renderComp.visibility;
+            }
 
-        assembler.fillBuffers(comp, this);
+            assembler.fillBuffers(renderComp, this);
+        } else {
+            // if the last comp is spriteComp, previous comps should be batched.
+            if (this._currMaterial !== this._emptyMaterial) {
+                this.autoMergeBatches();
+            }
+            const uiCanvas = this.getScreen(comp.visibility);
+            const curDrawBatch = this._drawBatchPool.alloc();
+            curDrawBatch.camera = uiCanvas && uiCanvas.camera;
+            curDrawBatch.model = (comp as any).modelComponent._model;
+            curDrawBatch.bufferBatch = null;
+            curDrawBatch.material = null;
+            curDrawBatch.texView = null;
+            curDrawBatch.firstIdx = 0;
+            curDrawBatch.idxCount = 0;
+
+            curDrawBatch.pipelineState = null;
+            curDrawBatch.bindingLayout = null;
+
+            // reset current render state to null
+            this._currMaterial = this._emptyMaterial;
+            this._currTexView = null;
+            this._currCanvas = comp.visibility;
+
+            this._batches.push(curDrawBatch);
+        }
     }
 
     public autoMergeBatches (){
@@ -339,8 +379,8 @@ export class UI {
         sortList = node.children.slice();
 
         sortList.sort((a, b) => {
-            const ca = a.getComponent(UIRenderComponent);
-            const cb = b.getComponent(UIRenderComponent);
+            const ca = a.getComponent(UIComponent);
+            const cb = b.getComponent(UIComponent);
             if (ca && cb) {
                 return -(ca.priority - cb.priority);
             }
@@ -361,12 +401,12 @@ export class UI {
             }
 
             this._walk(screen.node, (c: Node) => {
-                const render = c.getComponent(UIRenderComponent);
+                const render = c.getComponent(UIComponent);
                 if (render && render.enabledInHierarchy) {
                     render.updateAssembler(this);
                 }
             }, (c: Node) => {
-                const render = c.getComponent(UIRenderComponent);
+                const render = c.getComponent(UIComponent);
                 if (render && render.enabledInHierarchy) {
                     render.postUpdateAssembler(this);
                 }

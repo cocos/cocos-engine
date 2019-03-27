@@ -1,6 +1,8 @@
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
 import { UIStage } from './ui-stage';
+import { RenderView } from '../render-view';
+import { UBOGlobal } from '../define';
 
 export class UIFlow extends RenderFlow {
 
@@ -35,6 +37,16 @@ export class UIFlow extends RenderFlow {
     }
 
     public rebuild () {
+    }
+
+    public render (view: RenderView) {
+        const isHDR = this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2];
+        this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2] = 0;
+        const globalUBOBuffer = this.pipeline.globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!;
+        globalUBOBuffer.update(this.pipeline.defaultGlobalUBOData.buffer);
+        super.render(view);
+        this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2] = isHDR;
+        this.pipeline.globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this.pipeline.defaultGlobalUBOData.buffer);
     }
 
 }

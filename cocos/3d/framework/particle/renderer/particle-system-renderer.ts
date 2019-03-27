@@ -133,9 +133,6 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this._particles = new RecyclePool(() => {
             return new Particle(this);
         }, 16);
-        this.onEnable();
-        this._updateMaterialParams();
-        this._updateModel();
     }
 
     public onEnable () {
@@ -151,6 +148,8 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             this._model.node = this.node;
         }
         this._model.enabled = this.enabledInHierarchy;
+        this._updateMaterialParams();
+        this._updateModel();
     }
 
     public onDisable () {
