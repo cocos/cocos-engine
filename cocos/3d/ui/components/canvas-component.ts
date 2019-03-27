@@ -182,7 +182,7 @@ export class CanvasComponent extends Component {
             });
 
             this._camera!.fov = 45;
-            this._camera!.clearFlag = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
+            this._camera!.clearFlag = GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
 
             const device = cc.director.root.device;
             this._camera!.resize(device.width, device.height);
