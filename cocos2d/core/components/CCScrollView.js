@@ -1106,7 +1106,7 @@ let ScrollView = cc.Class({
 
     _clampDelta (delta) {
         let contentSize = this.content.getContentSize();
-        let scrollViewSize = this.node.getContentSize();
+        let scrollViewSize = this._view.getContentSize();
         if (contentSize.width < scrollViewSize.width) {
             delta.x = 0;
         }
