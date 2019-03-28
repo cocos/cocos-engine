@@ -913,6 +913,7 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
 
                 if (size === buf.byteLength) {
                     gl.bufferSubData(gpuBuffer.glTarget, offset, buf);
+                    // if (gl.getBufferParameter(gl.UNIFORM_BUFFER, gl.BUFFER_SIZE) !== buff.length * 4) { debugger; }
                 } else {
                     gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buff, 0, size / 4));
                 }

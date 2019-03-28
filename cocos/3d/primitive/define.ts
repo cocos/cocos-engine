@@ -1,4 +1,5 @@
 import { GFXPrimitiveMode } from '../../gfx/define';
+import { IVertexAttribute } from '../assets/mesh';
 
 export interface IGeometryOptions {
     /**
@@ -82,4 +83,9 @@ export interface IGeometry {
      * whether rays casting from the back face of this geometry could collide with it
      */
     doubleSided?: boolean;
+
+    /**
+     * specify vertex attributes, use (positions|normals|uvs|colors) as keys
+     */
+    attributes?: Record<string, IVertexAttribute>;
 }
