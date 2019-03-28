@@ -431,6 +431,16 @@ bool AudioPlayerProvider::isSmallFile(const AudioFileInfo &info)
     return info.length < __audioFileIndicator[0].smallSizeIndicator;
 }
 
+float AudioPlayerProvider::getDurationFromFile(const std::string &filePath)
+{
+    std::lock_guard<std::mutex> lk(_pcmCacheMutex);
+    auto iter = _pcmCache.find(filePath);
+    if (iter != _pcmCache.end()){
+        return iter->second.duration;
+    }
+    return 0;
+}
+
 void AudioPlayerProvider::clearPcmCache(const std::string &audioFilePath)
 {
     std::lock_guard<std::mutex> lk(_pcmCacheMutex);

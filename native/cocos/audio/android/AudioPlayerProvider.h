@@ -58,6 +58,7 @@ public:
     typedef std::function<void(bool/* succeed */, PcmData /* data */)> PreloadCallback;
     void preloadEffect(const std::string &audioFilePath, const PreloadCallback& cb);
 
+    float getDurationFromFile(const std::string &filePath);
     void clearPcmCache(const std::string &audioFilePath);
 
     void clearAllPcmCaches();
