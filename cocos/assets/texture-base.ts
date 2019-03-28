@@ -326,6 +326,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      */
     public setMipFilter (mipFilter: Filter) {
         this._mipFilter = mipFilter; this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
+        this._samplerInfo[SamplerInfoIndex.maxLOD] = mipFilter === Filter.NONE ? 0 : 1000;
     }
 
     /**
