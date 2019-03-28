@@ -50,6 +50,7 @@ var MotionStreak = cc.Class({
     //   2.Need to update the position in each frame by itself because we don't know
     //     whether the global position have changed
     extends: RenderComponent,
+    mixins: [RenderComponent.BlendFunction],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/MotionStreak',
@@ -252,6 +253,12 @@ var MotionStreak = cc.Class({
             this.markForRender(true);
             this.markForUpdateRenderData(true);
         }
+    },
+
+    _updateMaterial (material) {
+        this._material = material;
+        this._updateBlendFunc();
+        material.updateHash();
     },
 
     onFocusInEditor: CC_EDITOR && function () {
