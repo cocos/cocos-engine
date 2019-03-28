@@ -29,7 +29,7 @@ export class GFXSamplerState {
     public cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER;
     public borderColor: IGFXColor = { r: 0, g: 0, b: 0, a: 0 };
     public minLOD: number = 0;
-    public maxLOD: number = 1000;
+    public maxLOD: number = 0;
     public mipLODBias: number = 0.0;
 
     public compare (state: GFXSamplerState): boolean {

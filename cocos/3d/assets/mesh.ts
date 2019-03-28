@@ -332,6 +332,9 @@ export class RenderingMesh {
 @ccclass('cc.Mesh')
 export class Mesh extends Asset {
 
+    public static AttributeBaseType = AttributeBaseType;
+    public static AttributeType = AttributeType;
+
     get _nativeAsset () {
         return this._data;
     }
