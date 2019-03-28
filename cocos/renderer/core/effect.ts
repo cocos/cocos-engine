@@ -15,7 +15,7 @@ export class Effect {
     }
 
     public static parseEffect (effect: EffectAsset, info: IEffectInfo) {
-        if (!effect.techniques) { return; }
+        if (!effect.techniques) { return []; }
         const { techIdx, defines, states } = info;
         const tech = effect.techniques[techIdx || 0];
         const passNum = tech.passes.length;

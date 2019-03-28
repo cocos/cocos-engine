@@ -5,14 +5,50 @@ import { AttributeBaseType, AttributeType,
     IMeshStruct, IndexUnit, IPrimitive, IVertexAttribute, IVertexBundle, Mesh } from '../assets/mesh';
 import { IGeometry } from '../primitive/define';
 
-const copyAttribute = (attribute: IVertexAttribute) => Object.assign({}, attribute);
+/**
+ * save a color buffer to a PPM file
+ */
+export function toPPM (buffer: Uint8Array, w: number, h: number) {
+    return `P3 ${w} ${h} 255\n${buffer.filter((e, i) => i % 4 < 3).toString()}\n`;
+}
+
+const defaultAttributes: Record<string, IVertexAttribute> = {
+    positions: {
+        name: GFXAttributeName.ATTR_POSITION,
+        baseType: AttributeBaseType.FLOAT32,
+        type: AttributeType.VEC3,
+        normalize: false,
+    },
+    normals: {
+        name: GFXAttributeName.ATTR_NORMAL,
+        baseType: AttributeBaseType.FLOAT32,
+        type: AttributeType.VEC3,
+        normalize: false,
+    },
+    uvs: {
+        name: GFXAttributeName.ATTR_TEX_COORD,
+        baseType: AttributeBaseType.FLOAT32,
+        type: AttributeType.VEC2,
+        normalize: false,
+    },
+    colors: {
+        name: GFXAttributeName.ATTR_COLOR,
+        baseType: AttributeBaseType.FLOAT32,
+        type: AttributeType.VEC4,
+        normalize: false,
+    },
+};
+
 export function createMesh (geometry: IGeometry, out?: Mesh) {
     // Collect attributes and calculate length of result vertex buffer.
     const attributes: IVertexAttribute[] = [];
     let stride = 0;
     const channels: Array<{ offset: number; data: number[]; attribute: IVertexAttribute; }> = [];
     let verticesCount = 0;
-    const addAttribute = (attribute: IVertexAttribute, data: number[]) => {
+    const addAttribute = (name: string) => {
+        const data = geometry[name]; if (!data) { return; }
+        let attribute = geometry.attributes && geometry.attributes[name];
+        if (!attribute) { attribute = Object.assign({}, defaultAttributes[name]); }
         const componentCount = _getComponentCount(attribute);
         const componentBytesLength = _getComponentByteLength(attribute);
         const bytesLength = componentBytesLength * componentCount;
@@ -21,16 +57,10 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
         stride += bytesLength;
         verticesCount = Math.max(verticesCount, Math.floor(data.length / componentCount));
     };
-    addAttribute(copyAttribute(predefinedAttributes.positions), geometry.positions);
-    if (geometry.normals) {
-        addAttribute(copyAttribute(predefinedAttributes.normals), geometry.normals);
-    }
-    if (geometry.uvs) {
-        addAttribute(copyAttribute(predefinedAttributes.uvs), geometry.uvs);
-    }
-    if (geometry.colors) {
-        addAttribute(copyAttribute(predefinedAttributes.colors), geometry.colors);
-    }
+    addAttribute('positions');
+    addAttribute('normals');
+    addAttribute('uvs');
+    addAttribute('colors');
 
     // Use this to generate final merged buffer.
     const bufferBlob = new BufferBlob();
@@ -108,40 +138,6 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
 
     return out;
 }
-
-/**
- *
- */
-export function toPPM (buffer: Uint8Array, w: number, h: number) {
-    return `P3 ${w} ${h} 255\n${buffer.filter((e, i) => i % 4 < 3).toString()}\n`;
-}
-
-const predefinedAttributes = {
-    positions: {
-        name: GFXAttributeName.ATTR_POSITION,
-        baseType: AttributeBaseType.FLOAT32,
-        type: AttributeType.VEC3,
-        normalize: false,
-    },
-    normals: {
-        name: GFXAttributeName.ATTR_NORMAL,
-        baseType: AttributeBaseType.FLOAT32,
-        type: AttributeType.VEC3,
-        normalize: false,
-    },
-    uvs: {
-        name: GFXAttributeName.ATTR_TEX_COORD,
-        baseType: AttributeBaseType.FLOAT32,
-        type: AttributeType.VEC2,
-        normalize: false,
-    },
-    colors: {
-        name: GFXAttributeName.ATTR_COLOR,
-        baseType: AttributeBaseType.FLOAT32,
-        type: AttributeType.VEC4,
-        normalize: false,
-    },
-};
 
 class BufferBlob {
     private _arrayBufferOrPaddings: Array<ArrayBuffer | number> = [];
