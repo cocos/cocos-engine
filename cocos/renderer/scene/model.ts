@@ -241,6 +241,7 @@ export class Model {
         if (this._subModels[idx] == null) {
             return;
         }
+        this.initLocalBindings(mat);
         if (this._subModels[idx].material === mat) {
             if (mat) {
                 this.destroyPipelineState(mat!, this._matPSORecord.get(mat!)!);
@@ -299,10 +300,12 @@ export class Model {
     }
 
     protected onSetLocalBindings (mat: Material) {
-        this._localBindings.set(UBOLocal.BLOCK.name, {
-            type: GFXBindingType.UNIFORM_BUFFER,
-            blockInfo: UBOLocal.BLOCK,
-        });
+        if (!this._localBindings.has(UBOLocal.BLOCK.name)) {
+            this._localBindings.set(UBOLocal.BLOCK.name, {
+                type: GFXBindingType.UNIFORM_BUFFER,
+                blockInfo: UBOLocal.BLOCK,
+            });
+        }
         let hasForwardLight = false;
         for (const p of mat.passes) {
             if (p.bindings.find((b) => b.name === UBOForwardLight.BLOCK.name)) {
@@ -311,18 +314,18 @@ export class Model {
             }
         }
         if (hasForwardLight && cc.director.root.pipeline.constructor.name === 'ForwardPipeline') {
-            this._localBindings.set(UBOForwardLight.BLOCK.name, {
-                type: GFXBindingType.UNIFORM_BUFFER,
-                blockInfo: UBOForwardLight.BLOCK,
-            });
+            if (!this._localBindings.has(UBOForwardLight.BLOCK.name)) {
+                this._localBindings.set(UBOForwardLight.BLOCK.name, {
+                    type: GFXBindingType.UNIFORM_BUFFER,
+                    blockInfo: UBOForwardLight.BLOCK,
+                });
+            }
         }
     }
 
     protected initLocalBindings (mat: Material|null) {
         if (mat) {
-            if (this._localBindings.size === 0) {
-                this.onSetLocalBindings(mat);
-            }
+            this.onSetLocalBindings(mat);
             for (const localBinding of this._localBindings.values()) {
                 if (!localBinding.buffer) {
                     localBinding.buffer = this._device.createBuffer({
