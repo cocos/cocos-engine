@@ -38,9 +38,6 @@ for (let i = 0; i < 4; i++) {
 }
 
 export const simple: IAssembler = {
-
-    useModel: false,
-
     createData (sprite: SpriteComponent) {
         const renderData = sprite.requestRenderData();
         renderData!.dataLength = 4;

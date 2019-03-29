@@ -122,7 +122,6 @@ export const maskAssembler: IAssembler = {
         // commit last data
         renderer.autoMergeBatches();
 
-        // const clearGeometry = mask.getClearGeometry();
         const clearMaterial = mask.getClearMaterial()!;
         cw = screen.width;
         ch = screen.height;
@@ -136,8 +135,6 @@ export const maskAssembler: IAssembler = {
         vec3.set(vec3_temps[1], data3.x, data0.y, 0);
         vec3.set(vec3_temps[2], data0.x, data3.y, 0);
         vec3.set(vec3_temps[3], data3.x, data3.y, 0);
-        // const meshBuffer = createMeshBuffer(ui, clearGeometry);
-        // const nVert = Math.floor(clearGeometry.positions.length / 3);
         screen.getWorldMatrix(_worldMatrix);
 
         let buffer = renderer.currBufferBatch!;
@@ -155,10 +152,6 @@ export const maskAssembler: IAssembler = {
         let vbuf = buffer.vData;
         let iData = buffer.iData!;
         for (let i = 0; i < 4; ++i) {
-            // vec3.set(v,
-            //     clearGeometry.positions[3 * i + 0],
-            //     clearGeometry.positions[3 * i + 1],
-            //     clearGeometry.positions[3 * i + 2]);
             vec3.copy(v, vec3_temps[i]);
             vec3.transformMat4(v, v, _worldMatrix);
             vbuf![vertexOffset++] = v.x;
@@ -178,7 +171,7 @@ export const maskAssembler: IAssembler = {
         iData[indiceOffset++] = vertexId + 2;
 
         _stencilManager.clear();
-        renderer.forceMergeBatches(clearMaterial, cc.builtinResMgr._resources['default-spriteframe']);
+        renderer.forceMergeBatches(clearMaterial, null);
 
         const maskMaterial = mask.getMaskMaterial()!;
         const datas = mask.renderData!.datas;
@@ -196,10 +189,6 @@ export const maskAssembler: IAssembler = {
         iData = buffer.iData!;
         mask.node.getWorldMatrix(_worldMatrix);
         for (let i = 0; i < 4; ++i) {
-            // vec3.set(v,
-            //     clearGeometry.positions[3 * i + 0],
-            //     clearGeometry.positions[3 * i + 1],
-            //     clearGeometry.positions[3 * i + 2]);
             vec3.copy(v, vec3_temps[i]);
             vec3.transformMat4(v, v, _worldMatrix);
             vbuf![vertexOffset++] = v.x;
@@ -219,60 +208,17 @@ export const maskAssembler: IAssembler = {
         iData[indiceOffset++] = vertexId + 2;
 
         _stencilManager.enterLevel();
-        renderer.forceMergeBatches(maskMaterial, cc.builtinResMgr._resources['default-spriteframe']);
+        renderer.forceMergeBatches(maskMaterial, null);
 
         _stencilManager.enableMask();
-
-        // const maskGeometry = mask.getMaskGeometry();
-        // const maskMaterial = mask.getMaskMaterial();
-        // if (maskGeometry && maskMaterial) {
-        //     const meshBuffer = createMeshBuffer(ui, maskGeometry);
-        //     const nVert = Math.floor(maskGeometry.positions.length / 3);
-        //     const v = new vec3();
-        //     const worldMatrix = mask.node.getWorldMatrix();
-        //     for (let i = 0; i < nVert; ++i) {
-        //         vec3.set(v,
-        //             maskGeometry.positions[3 * i + 0],
-        //             maskGeometry.positions[3 * i + 1],
-        //             maskGeometry.positions[3 * i + 2]);
-        //         vec3.transformMat4(v, v, worldMatrix);
-        //         meshBuffer.vData![3 * i + 0] = v.x;
-        //         meshBuffer.vData![3 * i + 1] = v.y;
-        //         meshBuffer.vData![3 * i + 2] = v.z;
-        //     }
-        //     const maskRenderData = ui.createUIRenderData() as IUIRenderData;
-        //     maskRenderData.meshBuffer = meshBuffer;
-        //     maskRenderData.material = maskMaterial;
-        //     ui.flushBatches(maskRenderData);
-        // }
     },
 };
 
 export const maskEndAssembler: IAssembler = {
     fillBuffers (mask: MaskComponent, ui: UI) {
         _stencilManager.exitMask();
-
-        // const clearGeometry = mask.getClearGeometry();
-        // const clearMaterial = mask.getClearMaterial();
-        // if (clearGeometry && clearMaterial) {
-        //     const meshBuffer = createMeshBuffer(ui, clearGeometry);
-        //     meshBuffer.vData!.set(clearGeometry.positions);
-        //     const clearMaskRenderData = ui.createUIRenderData() as IUIRenderData;
-        //     clearMaskRenderData.meshBuffer = meshBuffer;
-        //     clearMaskRenderData.material = clearMaterial;
-        // }
     },
 };
-
-// function createMeshBuffer (ui: UI, geometry: IGeometry) {
-//     const nVert = Math.floor(geometry.positions.length / 3);
-//     const meshBuffer =  ui.createBuffer(nVert, geometry.indices ? geometry.indices.length : 0);
-//     if (geometry.indices) {
-//         meshBuffer.iData!.set(geometry.indices);
-//     }
-//     // geometry.primitiveMode === undefined ? GFXPrimitiveMode.TRIANGLE_LIST : geometry.primitiveMode;
-//     return meshBuffer;
-// }
 
 const StartAssembler: IAssemblerManager = {
     getAssembler () {

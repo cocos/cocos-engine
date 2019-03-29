@@ -23,25 +23,38 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const PointFlags = require('./types').PointFlags;
+import { PointFlags } from './types';
+import { Impl } from './webgl/impl';
 
-var PI      = Math.PI;
-var min     = Math.min;
-var max     = Math.max;
-var cos     = Math.cos;
-var sin     = Math.sin;
-var abs     = Math.abs;
-var sign    = Math.sign;
+const PI = Math.PI;
+const min = Math.min;
+const max = Math.max;
+const cos = Math.cos;
+const sin = Math.sin;
+const abs = Math.abs;
+const sign = Math.sign;
 
-var KAPPA90 = 0.5522847493;
+const KAPPA90 = 0.5522847493;
 
-function arc (ctx, cx, cy, r, startAngle, endAngle, counterclockwise) {
+export function arc (ctx: Impl, cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean) {
     counterclockwise = counterclockwise || false;
 
-    var a = 0, da = 0, hda = 0, kappa = 0;
-    var dx = 0, dy = 0, x = 0, y = 0, tanx = 0, tany = 0;
-    var px = 0, py = 0, ptanx = 0, ptany = 0;
-    var i, ndivs;
+    let a = 0;
+    let da = 0;
+    let hda = 0;
+    let kappa = 0;
+    let dx = 0;
+    let dy = 0;
+    let x = 0;
+    let y = 0;
+    let tanx = 0;
+    let tany = 0;
+    let px = 0;
+    let py = 0;
+    let ptanx = 0;
+    let ptany = 0;
+    let i = 0;
+    let ndivs = 0;
 
     // Clamp angles
     da = endAngle - startAngle;
@@ -49,13 +62,13 @@ function arc (ctx, cx, cy, r, startAngle, endAngle, counterclockwise) {
         if (abs(da) >= PI * 2) {
             da = PI * 2;
         } else {
-            while (da < 0) da += PI * 2;
+            while (da < 0) { da += PI * 2; }
         }
     } else {
         if (abs(da) >= PI * 2) {
             da = -PI * 2;
         } else {
-            while (da > 0) da -= PI * 2;
+            while (da > 0) { da -= PI * 2; }
         }
     }
 
@@ -64,7 +77,7 @@ function arc (ctx, cx, cy, r, startAngle, endAngle, counterclockwise) {
     hda = da / ndivs / 2.0;
     kappa = abs(4.0 / 3.0 * (1 - cos(hda)) / sin(hda));
 
-    if (!counterclockwise) kappa = -kappa;
+    if (!counterclockwise) { kappa = -kappa; }
 
     for (i = 0; i <= ndivs; i++) {
         a = startAngle + da * (i / ndivs);
@@ -87,7 +100,7 @@ function arc (ctx, cx, cy, r, startAngle, endAngle, counterclockwise) {
     }
 }
 
-function ellipse (ctx, cx, cy, rx, ry) {
+export function ellipse (ctx: Impl, cx: number, cy: number, rx: number, ry: number) {
     ctx.moveTo(cx - rx, cy);
     ctx.bezierCurveTo(cx - rx, cy + ry * KAPPA90, cx - rx * KAPPA90, cy + ry, cx, cy + ry);
     ctx.bezierCurveTo(cx + rx * KAPPA90, cy + ry, cx + rx, cy + ry * KAPPA90, cx + rx, cy);
@@ -96,13 +109,13 @@ function ellipse (ctx, cx, cy, rx, ry) {
     ctx.close();
 }
 
-function roundRect (ctx, x, y, w, h, r) {
+export function roundRect (ctx: Impl, x: number, y: number, w: number, h: number, r: number) {
     if (r < 0.1) {
         ctx.rect(x, y, w, h);
         return;
     } else {
-        var rx = min(r, abs(w) * 0.5) * sign(w),
-            ry = min(r, abs(h) * 0.5) * sign(h);
+        const rx = min(r, abs(w) * 0.5) * sign(w);
+        const ry = min(r, abs(h) * 0.5) * sign(h);
 
         ctx.moveTo(x, y + ry);
         ctx.lineTo(x, y + h - ry);
@@ -117,11 +130,33 @@ function roundRect (ctx, x, y, w, h, r) {
     }
 }
 
-function tesselateBezier (ctx, x1, y1, x2, y2, x3, y3, x4, y4, level, type) {
-    var x12, y12, x23, y23, x34, y34, x123, y123, x234, y234, x1234, y1234;
-    var dx, dy, d2, d3;
+export function tesselateBezier (
+    ctx: Impl, x1: number, y1: number,
+    x2: number, y2: number,
+    x3: number, y3: number,
+    x4: number, y4: number,
+    level: number, type: number,
+) {
+    let x12 = 0;
+    let y12 = 0;
+    let x23 = 0;
+    let y23 = 0;
+    let x34 = 0;
+    let y34 = 0;
+    let x123 = 0;
+    let y123 = 0;
+    let x234 = 0;
+    let y234 = 0;
+    let x1234 = 0;
+    let y1234 = 0;
+    let dx = 0;
+    let dy = 0;
+    let d2 = 0;
+    let d3 = 0;
 
-    if (level > 10) return;
+    if (level > 10) {
+        return;
+    }
 
     x12 = (x1 + x2) * 0.5;
     y12 = (y1 + y2) * 0.5;
@@ -137,8 +172,8 @@ function tesselateBezier (ctx, x1, y1, x2, y2, x3, y3, x4, y4, level, type) {
     d2 = abs((x2 - x4) * dy - (y2 - y4) * dx);
     d3 = abs((x3 - x4) * dy - (y3 - y4) * dx);
 
-    if ((d2 + d3) * (d2 + d3) < ctx._tessTol * (dx * dx + dy * dy)) {
-        ctx._addPoint(x4, y4, type === 0 ? type | PointFlags.PT_BEVEL : type);
+    if ((d2 + d3) * (d2 + d3) < ctx.tessTol * (dx * dx + dy * dy)) {
+        ctx.addPoint(x4, y4, type === 0 ? type | PointFlags.PT_BEVEL : type);
         return;
     }
 
@@ -150,10 +185,3 @@ function tesselateBezier (ctx, x1, y1, x2, y2, x3, y3, x4, y4, level, type) {
     tesselateBezier(ctx, x1, y1, x12, y12, x123, y123, x1234, y1234, level + 1, 0);
     tesselateBezier(ctx, x1234, y1234, x234, y234, x34, y34, x4, y4, level + 1, type);
 }
-
-module.exports =  {
-    arc: arc,
-    ellipse: ellipse,
-    roundRect: roundRect,
-    tesselateBezier: tesselateBezier
-};

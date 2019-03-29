@@ -332,6 +332,7 @@ export class UI {
 
         buffer.vertexStart = buffer.vertexOffset;
         buffer.indiceStart = buffer.indiceOffset;
+        buffer.byteStart = buffer.byteOffset;
     }
 
     public forceMergeBatches (material: Material, sprite: SpriteFrame | null) {
@@ -433,7 +434,7 @@ export class UI {
 
     private _createMeshBuffer (): MeshBuffer {
         const batch = this._bufferBatchPool.add();
-        batch.initialize(this._attributes, this._requireBufferBatch);
+        batch.initialize(this._attributes, this._requireBufferBatch.bind(this));
         this._meshBuffers.push(batch);
         return batch;
     }

@@ -271,19 +271,17 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     protected _instanceMaterial () {
+        let useMat: Material | null = null;
         if (this._sharedMaterial) {
-            this._updateMaterial(
-                Material.getInstantiatedMaterial(this._sharedMaterial,
-                    new RenderableComponent(),
-                    CC_EDITOR ? true : false,
-                ));
+            useMat = this._sharedMaterial;
+            this._updateMaterial(Material.getInstantiatedMaterial(useMat, new RenderableComponent(), CC_EDITOR ? true : false));
         } else {
-            this._updateMaterial(
-                Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-base'),
-                    new RenderableComponent(),
-                    CC_EDITOR ? true : false,
-                ));
+            useMat = cc.builtinResMgr.get('ui-base-material');
+            this._updateMaterial(Material.getInstantiatedMaterial(useMat!, new RenderableComponent(), CC_EDITOR ? true : false));
         }
+
+        this._clearMaskMaterial = Material.getInstantiatedMaterial(useMat!, new RenderableComponent(), CC_EDITOR ? true : false);
+        this._maskMaterial = Material.getInstantiatedMaterial(useMat!, new RenderableComponent(), CC_EDITOR ? true : false);
     }
 
     // _resizeNodeToTargetNode: CC_EDITOR && function () {
@@ -347,6 +345,18 @@ export class MaskComponent extends UIRenderComponent {
                 this._clearMaskMaterial = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
                 // setupClearMaskMaterial(this._maskMaterial);
             }
+        }else{
+            if (!this._maskMaterial) {
+                this._maskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-base-material'),
+                new RenderableComponent(), CC_EDITOR ? true : false);
+                // setupMaskMaterial(this._maskMaterial);
+            }
+
+            if (!this._clearMaskMaterial) {
+                this._clearMaskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-base-material'),
+                 new RenderableComponent(), CC_EDITOR ? true : false);
+                // setupClearMaskMaterial(this._maskMaterial);
+            }
         }
     }
 
@@ -404,7 +414,7 @@ export class MaskComponent extends UIRenderComponent {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData.material = this.sharedMaterial;
+                this._renderData!.material = this.sharedMaterial;
                 this.markForUpdateRenderData();
             }
         }

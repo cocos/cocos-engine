@@ -23,20 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// import { SpriteFrame } from '../../../assets/CCSpriteFrame';
-// import { Rect } from '../../../core/value-types';
-// import { IARenderData, RenderData } from '../../../renderer/ui/renderData';
-// import { UI } from '../../../renderer/ui/ui';
-// import { GraphicsComponent } from '../components/graphics-component';
-import { UIRenderComponent } from '../components/ui-render-component';
-// import { LineJoin } from './graphics/types';
-// import { Impl, Point } from './graphics/webgl/impl';
-// import { ISharedLabelData } from './label/ttfUtils';
+import { GraphicsComponent } from '../../../components/graphics-component';
+import { UIRenderComponent } from '../../../components/ui-render-component';
+import { IAssemblerManager } from '../../assembler';
+import { graphicsAssembler } from './graphics-assembler';
 
-export interface IAssembler {
-    [key: string]: any;
-}
+const graphicsAssemblerManager: IAssemblerManager = {
+    getAssembler (sprite: UIRenderComponent) {
+        return graphicsAssembler;
+    },
+};
 
-export interface IAssemblerManager {
-    getAssembler (component: UIRenderComponent): IAssembler;
-}
+GraphicsComponent.Assembler = graphicsAssemblerManager;

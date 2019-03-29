@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 // require('./graphics');
+import './graphics/webgl/index';
 import './label/index';
 import './mask/index';
 import './sprite/index';
