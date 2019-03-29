@@ -31,46 +31,56 @@ const LAST_ENGLISH_REG = /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌ
 const FIRST_ENGLISH_REG = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/;
 const WRAP_INSPECTION = true;
 
-export function isUnicodeCJK (ch) {
-    var __CHINESE_REG = /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/;
-    var __JAPANESE_REG = /[\u3000-\u303F]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\uFF00-\uFFEF]|[\u4E00-\u9FAF]|[\u2605-\u2606]|[\u2190-\u2195]|\u203B/g;
-    var __KOREAN_REG = /^[\u1100-\u11FF]|[\u3130-\u318F]|[\uA960-\uA97F]|[\uAC00-\uD7AF]|[\uD7B0-\uD7FF]+$/;
+export function isUnicodeCJK (ch: string) {
+    const __CHINESE_REG = /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/;
+    const __JAPANESE_REG = /[\u3000-\u303F]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\uFF00-\uFFEF]|[\u4E00-\u9FAF]|[\u2605-\u2606]|[\u2190-\u2195]|\u203B/g;
+    const __KOREAN_REG = /^[\u1100-\u11FF]|[\u3130-\u318F]|[\uA960-\uA97F]|[\uAC00-\uD7AF]|[\uD7B0-\uD7FF]+$/;
     return __CHINESE_REG.test(ch) || __JAPANESE_REG.test(ch) || __KOREAN_REG.test(ch);
 }
 
-//Checking whether the character is a whitespace
-export function isUnicodeSpace (ch) {
-    ch = ch.charCodeAt(0);
-    return ((ch >= 9 && ch <= 13) || ch === 32 || ch === 133 || ch === 160 || ch === 5760 || (ch >= 8192 && ch <= 8202) || ch === 8232 || ch === 8233 || ch === 8239 || ch === 8287 || ch === 12288);
+// Checking whether the character is a whitespace
+export function isUnicodeSpace (ch: string) {
+    const chCode = ch.charCodeAt(0);
+    return ((chCode >= 9 && chCode <= 13) ||
+    chCode === 32 ||
+    chCode === 133 ||
+    chCode === 160 ||
+    chCode === 5760 ||
+    (chCode >= 8192 && chCode <= 8202) ||
+    chCode === 8232 ||
+    chCode === 8233 ||
+    chCode === 8239 ||
+    chCode === 8287 ||
+    chCode === 12288);
 }
 
-export function safeMeasureText (ctx, string) {
-    var metric = ctx.measureText(string);
+export function safeMeasureText (ctx: CanvasRenderingContext2D, string: string) {
+    const metric = ctx.measureText(string);
     return metric && metric.width || 0;
 }
 
-export function fragmentText (stringToken, allWidth, maxWidth, measureText) {
-    //check the first character
-    var wrappedWords = [];
-    //fast return if strArr is empty
-    if(stringToken.length === 0 || maxWidth < 0) {
+export function fragmentText (stringToken: string, allWidth: number, maxWidth: number, measureText: (string: string) => number) {
+    // check the first character
+    const wrappedWords: string[] = [];
+    // fast return if strArr is empty
+    if (stringToken.length === 0 || maxWidth < 0) {
         wrappedWords.push('');
         return wrappedWords;
     }
 
-    var text = stringToken;
+    let text = stringToken;
     while (allWidth > maxWidth && text.length > 1) {
 
-        var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
-        var tmpText = text.substr(fuzzyLen);
-        var width = allWidth - measureText(tmpText);
-        var sLine = tmpText;
-        var pushNum = 0;
+        let fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
+        let tmpText = text.substr(fuzzyLen);
+        let width = allWidth - measureText(tmpText);
+        let sLine = tmpText;
+        let pushNum = 0;
 
-        var checkWhile = 0;
-        var checkCount = 10;
+        let checkWhile = 0;
+        const checkCount = 10;
 
-        //Exceeded the size
+        // Exceeded the size
         while (width > maxWidth && checkWhile++ < checkCount) {
             fuzzyLen *= maxWidth / width;
             fuzzyLen = fuzzyLen | 0;
@@ -80,10 +90,10 @@ export function fragmentText (stringToken, allWidth, maxWidth, measureText) {
 
         checkWhile = 0;
 
-        //Find the truncation point
+        // Find the truncation point
         while (width <= maxWidth && checkWhile++ < checkCount) {
             if (tmpText) {
-                var exec = WORD_REG.exec(tmpText);
+                const exec = WORD_REG.exec(tmpText);
                 pushNum = exec ? exec[0].length : 1;
                 sLine = tmpText;
             }
@@ -99,21 +109,22 @@ export function fragmentText (stringToken, allWidth, maxWidth, measureText) {
             sLine = sLine.substr(1);
         }
 
-        var sText = text.substr(0, fuzzyLen), result;
+        let sText = text.substr(0, fuzzyLen);
+        let result;
 
-        //symbol in the first
+        // symbol in the first
         if (WRAP_INSPECTION) {
             if (SYMBOL_REG.test(sLine || tmpText)) {
                 result = LAST_WORD_REG.exec(sText);
                 fuzzyLen -= result ? result[0].length : 0;
-                if (fuzzyLen === 0) fuzzyLen = 1;
+                if (fuzzyLen === 0) { fuzzyLen = 1; }
 
                 sLine = text.substr(fuzzyLen);
                 sText = text.substr(0, fuzzyLen);
             }
         }
 
-        //To judge whether a English words are truncated
+        // To judge whether a English words are truncated
         if (FIRST_ENGLISH_REG.test(sLine)) {
             result = LAST_ENGLISH_REG.exec(sText);
             if (result && sText !== result[0]) {

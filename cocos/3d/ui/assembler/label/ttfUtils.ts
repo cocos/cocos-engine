@@ -26,10 +26,9 @@
 import { LabelOutline } from '../../../../2d/label/label-outline';
 import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
 import { Component } from '../../../../components/component';
-import macro from '../../../../core/platform/CCMacro';
-import * as textUtils from '../../../../core/utils/text-utils';
+import { fragmentText, safeMeasureText } from '../../../../core/utils/text-utils';
 import { Color, Size } from '../../../../core/value-types';
-import { LabelComponent } from '../../components/label-component';
+import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from '../../components/label-component';
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = Color.WHITE;
@@ -228,20 +227,20 @@ export const ttfUtils =  {
         let labelX;
         let firstLinelabelY;
 
-        if (_hAlign === macro.TextAlignment.RIGHT) {
+        if (_hAlign === HorizontalTextAlignment.RIGHT) {
             labelX = _canvasSize.width - _margin;
         }
-        else if (_hAlign === macro.TextAlignment.CENTER) {
+        else if (_hAlign === HorizontalTextAlignment.CENTER) {
             labelX = _canvasSize.width / 2;
         }
         else {
             labelX = 0 + _margin;
         }
 
-        if (_vAlign === macro.VerticalTextAlignment.TOP) {
+        if (_vAlign === VerticalTextAlignment.TOP) {
             firstLinelabelY = 0;
         }
-        else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
+        else if (_vAlign === VerticalTextAlignment.CENTER) {
             firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
         }
         else {
@@ -303,10 +302,10 @@ export const ttfUtils =  {
 
         labelX = 0 + _margin;
 
-        if (_vAlign === macro.VerticalTextAlignment.TOP) {
+        if (_vAlign === VerticalTextAlignment.TOP) {
             firstLinelabelY = _fontSize;
         }
-        else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
+        else if (_vAlign === VerticalTextAlignment.CENTER) {
             firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + _fontSize / 2;
         }
         else {
@@ -317,6 +316,10 @@ export const ttfUtils =  {
     },
 
     _updateLabelDimensions () {
+        if (!_context){
+            return;
+        }
+
         const paragraphedStrings = _string.split('\n');
 
         if (_overflow === Overflow.RESIZE_HEIGHT) {
@@ -327,7 +330,7 @@ export const ttfUtils =  {
             let canvasSizeX = 0;
             let canvasSizeY = 0;
             for (const para of paragraphedStrings) {
-                const paraLength = textUtils.safeMeasureText(_context, para);
+                const paraLength = safeMeasureText(_context, para);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
             canvasSizeY = _splitedStrings.length * this._getLineHeight();
@@ -353,20 +356,20 @@ export const ttfUtils =  {
         let hAlign;
         let vAlign;
 
-        if (_hAlign === macro.TextAlignment.RIGHT) {
+        if (_hAlign === HorizontalTextAlignment.RIGHT) {
             hAlign = 'right';
         }
-        else if (_hAlign === macro.TextAlignment.CENTER) {
+        else if (_hAlign === HorizontalTextAlignment.CENTER) {
             hAlign = 'center';
         }
         else {
             hAlign = 'left';
         }
 
-        if (_vAlign === macro.VerticalTextAlignment.TOP) {
+        if (_vAlign === VerticalTextAlignment.TOP) {
             vAlign = 'top';
         }
-        else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
+        else if (_vAlign === VerticalTextAlignment.CENTER) {
             vAlign = 'middle';
         }
         else {
@@ -380,17 +383,17 @@ export const ttfUtils =  {
     },
 
     _calculateSplitedStrings () {
+        if (!_context){
+            return;
+        }
         const paragraphedStrings = _string.split('\n');
 
         if (_isWrapText) {
             _splitedStrings = [];
             const canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
             for (const para of paragraphedStrings) {
-                const allWidth = textUtils.safeMeasureText(_context, para);
-                const textFragment = textUtils.fragmentText(para,
-                    allWidth,
-                    canvasWidthNoMargin,
-                    this._measureText(_context!));
+                const allWidth = safeMeasureText(_context, para);
+                const textFragment = fragmentText(para, allWidth, canvasWidthNoMargin, this._measureText(_context!));
                 _splitedStrings = _splitedStrings.concat(textFragment);
             }
         }
@@ -429,7 +432,7 @@ export const ttfUtils =  {
         const paragraphLength: number[] = [];
 
         for (const para of paragraphedStrings) {
-            const width: number = textUtils.safeMeasureText(ctx, para);
+            const width: number = safeMeasureText(ctx, para);
             paragraphLength.push(width);
         }
 
@@ -437,8 +440,8 @@ export const ttfUtils =  {
     },
 
     _measureText (ctx: CanvasRenderingContext2D) {
-        return (string) => {
-            return textUtils.safeMeasureText(ctx, string);
+        return (string: string) => {
+            return safeMeasureText(ctx, string);
         };
     },
 
@@ -470,7 +473,7 @@ export const ttfUtils =  {
                 totalHeight = canvasHeightNoMargin + 1;
                 maxLength = canvasWidthNoMargin + 1;
                 let actualFontSize = _fontSize + 1;
-                let textFragment = '';
+                let textFragment: string[] = [];
                 let tryDivideByTwo = true;
                 let startShrinkFontSize = actualFontSize | 0;
 
@@ -493,13 +496,13 @@ export const ttfUtils =  {
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         let j = 0;
-                        const allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
-                        textFragment = textUtils.fragmentText(paragraphedStrings[i],
+                        const allWidth = safeMeasureText(_context, paragraphedStrings[i]);
+                        textFragment = fragmentText(paragraphedStrings[i],
                             allWidth,
                             canvasWidthNoMargin,
                             this._measureText(_context));
                         while (j < textFragment.length) {
-                            const measureWidth = textUtils.safeMeasureText(_context, textFragment[j]);
+                            const measureWidth = safeMeasureText(_context, textFragment[j]);
                             maxLength = measureWidth;
                             totalHeight += this._getLineHeight();
                             ++j;
