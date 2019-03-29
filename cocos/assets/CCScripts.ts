@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -23,30 +24,42 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import {ccclass} from '../core/data/class-decorator';
 import { Asset } from './asset';
-import {ccclass, property} from '../core/data/class-decorator';
 
 /**
- * !#en
- * Class for JSON file. When the JSON file is loaded, this object is returned.
- * The parsed JSON object can be accessed through the `json` attribute in it.<br>
- * If you want to get the original JSON text, you should modify the extname to `.txt`
- * so that it is loaded as a `TextAsset` instead of a `JsonAsset`.
- *
- * !#zh
- * JSON 资源类。JSON 文件加载后，将会返回该对象。可以通过其中的 `json` 属性访问解析后的 JSON 对象。<br>
- * 如果你想要获得 JSON 的原始文本，那么应该修改源文件的后缀为 `.txt`，这样就会加载为一个 `TextAsset` 而不是 `JsonAsset`。
- *
- * @class JsonAsset
+ * !#en Class for script handling.
+ * !#zh Script 资源类。
+ * @class _Script
  * @extends Asset
+ *
+ * @private
  */
-@ccclass('cc.JsonAsset')
-export default class JsonAsset extends Asset {
-    /**
-     * @property {Object} json - The loaded JSON object.
-     */
-    @property()
-    json = null;
+@ccclass('cc.Script')
+export class Script extends Asset {
 }
+cc._Script = Script;
 
-cc.JsonAsset = JsonAsset;
+/**
+ * !#en Class for JavaScript handling.
+ * !#zh JavaScript 资源类。
+ * @class _JavaScript
+ * @extends Asset
+ *
+ */
+@ccclass('cc.JavaScript')
+export class JavaScript extends Script {
+}
+cc._JavaScript = JavaScript;
+
+/**
+ * !#en Class for TypeScript handling.
+ * !#zh TypeScript 资源类。
+ * @class TypeScript
+ * @extends Asset
+ *
+ */
+@ccclass('cc.TypeScript')
+export class TypeScript extends Script {
+}
+cc._TypeScript = TypeScript;

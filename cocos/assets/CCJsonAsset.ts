@@ -1,5 +1,4 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -24,40 +23,30 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Asset } from './asset';
 import {ccclass, property} from '../core/data/class-decorator';
+import { Asset } from './asset';
 
 /**
- * !#en Class for scene handling.
- * !#zh 场景资源类。
- * @class SceneAsset
- * @extends Asset
+ * !#en
+ * Class for JSON file. When the JSON file is loaded, this object is returned.
+ * The parsed JSON object can be accessed through the `json` attribute in it.<br>
+ * If you want to get the original JSON text, you should modify the extname to `.txt`
+ * so that it is loaded as a `TextAsset` instead of a `JsonAsset`.
  *
+ * !#zh
+ * JSON 资源类。JSON 文件加载后，将会返回该对象。可以通过其中的 `json` 属性访问解析后的 JSON 对象。<br>
+ * 如果你想要获得 JSON 的原始文本，那么应该修改源文件的后缀为 `.txt`，这样就会加载为一个 `TextAsset` 而不是 `JsonAsset`。
+ *
+ * @class JsonAsset
+ * @extends Asset
  */
-@ccclass('cc.SceneAsset')
-export default class SceneAsset extends Asset {
+@ccclass('cc.JsonAsset')
+export default class JsonAsset extends Asset {
     /**
-     * @property {Scene} scene
-     * @default null
+     * @property json - The loaded JSON object.
      */
-    @property
-    scene = null;
-
-    /**
-     * !#en Indicates the raw assets of this scene can be load after scene launched.
-     * !#zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
-     * @property {Boolean} asyncLoadAssets
-     * @default false
-     */
-    @property
-    asyncLoadAssets = false;
-
-    //// backup prefab assets in editor
-    //// {string} assetUuid: {cc.Node} rootInPrefab
-    //_prefabDatas: {
-    //    default: null,
-    //    editorOnly: true
-    //}
+    @property()
+    public json: object | null = null;
 }
 
-cc.SceneAsset = SceneAsset;
+cc.JsonAsset = JsonAsset;
