@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -22,28 +23,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
-import { ccclass, property } from "../../core/data/class-decorator";
-import { Texture2D } from '../../assets/texture-2d';
-import Sprite from "./sprite";
 
-@ccclass('cc.TextureSprite')
-export default class TextureSprite extends Texture2D {
-  /**
-   * @type {Sprite[]}
-   */
-  @property([Sprite])
-  _sprites = [];
-
-  get sprites() {
-    return this._sprites;
-  }
-
-  destroy() {
-    for (let name in this._sprites) {
-      this._sprites[name].destroy();
-    }
-    return super.destroy();
-  }
-}
-cc.TextureSprite = TextureSprite;
+export { RawAsset } from './raw-asset';
+export { Asset } from './asset';
+export {default as Prefab} from './CCPrefab';
+export * from './CCScripts';
+export {default as SceneAsset} from './CCSceneAsset';
+export { SpriteFrame } from './CCSpriteFrame';
+export { SpriteAtlas } from './sprite-atlas';
+export {default as TextAsset} from './CCTextAsset';
+export {default as JsonAsset} from './CCJsonAsset';
+export {default as AssetLibrary} from './CCAssetLibrary';
+export { ImageAsset } from './image-asset';
+export { Texture2D } from './texture-2d';
+export { RenderTexture } from './render-texture';
+export { TTFFont } from './ttf-font';

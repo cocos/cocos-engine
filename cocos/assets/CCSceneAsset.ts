@@ -24,34 +24,41 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Asset } from './asset';
 import {ccclass, property} from '../core/data/class-decorator';
+import { Scene } from '../scene-graph';
+import { Asset } from './asset';
 
 /**
- * !#en Class for text file.
- * !#zh 文本资源类。
- * @class TextAsset
+ * !#en Class for scene handling.
+ * !#zh 场景资源类。
+ * @class SceneAsset
  * @extends Asset
+ *
  */
-@ccclass('cc.TextAsset')
-export default class TextAsset extends Asset {
+@ccclass('cc.SceneAsset')
+export default class SceneAsset extends Asset {
     /**
-     * @property {String} text - The text contents of the resource.
+     * @property {Scene} scene
+     * @default null
      */
     @property
-    text = "";
+    public scene: Scene | null = null;
 
     /**
-     * Returns the text content of the asset.
-     *
-     * JavaScript calls the toString() method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
-     *
-     * @method toString
-     * @return {String}
+     * !#en Indicates the raw assets of this scene can be load after scene launched.
+     * !#zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
+     * @property {Boolean} asyncLoadAssets
+     * @default false
      */
-    toString () {
-        return this.text;
-    }
+    @property
+    public asyncLoadAssets = false;
+
+    //// backup prefab assets in editor
+    //// {string} assetUuid: {cc.Node} rootInPrefab
+    // _prefabDatas: {
+    //    default: null,
+    //    editorOnly: true
+    // }
 }
 
-cc.TextAsset = TextAsset;
+cc.SceneAsset = SceneAsset;

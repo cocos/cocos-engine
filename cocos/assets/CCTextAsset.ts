@@ -24,42 +24,34 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import {ccclass, property} from '../core/data/class-decorator';
 import { Asset } from './asset';
-import {ccclass} from '../core/data/class-decorator';
 
 /**
- * !#en Class for script handling.
- * !#zh Script 资源类。
- * @class _Script
+ * !#en Class for text file.
+ * !#zh 文本资源类。
+ * @class TextAsset
  * @extends Asset
- *
- * @private
  */
-@ccclass('cc.Script')
-export class Script extends Asset {
-}
-cc._Script = Script;
+@ccclass('cc.TextAsset')
+export default class TextAsset extends Asset {
+    /**
+     * @property {String} text - The text contents of the resource.
+     */
+    @property
+    public text = '';
 
-/**
- * !#en Class for JavaScript handling.
- * !#zh JavaScript 资源类。
- * @class _JavaScript
- * @extends Asset
- *
- */
-@ccclass('cc.JavaScript')
-export class JavaScript extends Script {
+    /**
+     * Returns the text content of the asset.
+     *
+     * JavaScript calls the toString() method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
+     *
+     * @method toString
+     * @return {String}
+     */
+    public toString () {
+        return this.text;
+    }
 }
-cc._JavaScript = JavaScript;
 
-/**
- * !#en Class for TypeScript handling.
- * !#zh TypeScript 资源类。
- * @class TypeScript
- * @extends Asset
- *
- */
-@ccclass('cc.TypeScript')
-export class TypeScript extends Script {
-}
-cc._TypeScript = TypeScript;
+cc.TextAsset = TextAsset;
