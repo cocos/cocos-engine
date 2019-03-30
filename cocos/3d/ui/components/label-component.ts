@@ -637,7 +637,7 @@ export class LabelComponent extends UIRenderComponent {
                 ));
         } else {
             this._updateMaterial(
-                Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'),
+                Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'),
                     new RenderableComponent(),
                     CC_EDITOR ? true : false,
                 ));

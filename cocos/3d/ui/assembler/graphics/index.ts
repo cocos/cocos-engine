@@ -26,4 +26,4 @@
 
 'use strict';
 
-require('./graphics');
+// import './graphics-component';

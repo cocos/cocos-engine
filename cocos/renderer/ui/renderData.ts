@@ -12,7 +12,7 @@ export class IRenderData {
     public color: Color = Color.WHITE;
 }
 
-class BaseRenderData {
+export class BaseRenderData {
     public material: Material | null = null;
     public vertexCount: number = 0;
     public indiceCount: number = 0;
@@ -91,6 +91,61 @@ export class RenderData extends BaseRenderData {
         this.material = null;
         this.vertexCount = 0;
         this.indiceCount = 0;
+    }
+}
+
+export class IARenderData extends BaseRenderData {
+    public vData: Float32Array = new Float32Array(256 * 9 * 4);
+    public iData: Uint16Array = new Uint16Array(256 * 6);
+    public vertexStart = 0;
+    public indiceStart = 0;
+    public byteStart = 0;
+    public byteCount = 0;
+    private _formatByte = 9 * 4;
+
+    public request (vertexCount: number, indiceCount: number) {
+        const byteOffset = this.byteCount + vertexCount * this._formatByte;
+        const indiceOffset = this.indiceCount + indiceCount;
+
+        if (vertexCount + this.vertexCount > 65535) {
+            return false;
+        }
+
+        let byteLength = this.vData!.byteLength;
+        let indiceLength = this.iData!.length;
+        let vCount = this.vData.length;
+        let iCount = this.iData.length;
+        if (byteOffset > byteLength || indiceOffset > indiceLength) {
+            while (byteLength < byteOffset || indiceLength < indiceOffset) {
+                vCount *= 2;
+                iCount *= 2;
+
+                byteLength = vCount * 4;
+                indiceLength = iCount;
+            }
+            // copy old data
+            const oldvData = new Float32Array(this.vData.buffer);
+            this.vData = new Float32Array(vCount);
+            this.vData.set(oldvData, 0);
+            const oldiData = new Uint16Array(this.iData.buffer);
+            this.iData = new Uint16Array(iCount);
+            this.iData.set(oldiData, 0);
+
+        }
+
+        this.vertexCount += vertexCount; // vertexOffset
+        this.indiceCount += indiceCount; // indiceOffset
+        this.byteCount = byteOffset; // byteOffset
+        return true;
+    }
+
+    public reset () {
+        this.vertexCount = 0;
+        this.indiceCount = 0;
+        this.byteCount = 0;
+        this.vertexStart = 0;
+        this.indiceStart = 0;
+        this.byteStart = 0;
     }
 }
 
