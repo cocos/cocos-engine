@@ -542,7 +542,8 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
 
     // /**
     //  * !#en
-    //  * If you do not need to use the SpriteFrame temporarily, you can call this method so that its texture could be garbage collected. Then when you need to render the SpriteFrame, you should call `ensureLoadTexture` manually to reload texture.
+    //  * If you do not need to use the SpriteFrame temporarily, you can call this method so that its texture could be garbage collected.
+    //  * Then when you need to render the SpriteFrame, you should call `ensureLoadTexture` manually to reload texture.
     //  * !#zh
     //  * 当你暂时不再使用这个 SpriteFrame 时，可以调用这个方法来保证引用的贴图对象能被 GC。然后当你要渲染 SpriteFrame 时，你需要手动调用 `ensureLoadTexture` 来重新加载贴图。
     //  *

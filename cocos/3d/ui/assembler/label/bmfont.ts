@@ -29,7 +29,6 @@ import { Rect } from '../../../../core/value-types';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
-import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler } from '../assembler';
 import { fillMeshVertices3D } from '../utils';
 import { bmfontUtils } from './bmfontUtils';

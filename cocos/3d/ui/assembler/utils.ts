@@ -2,9 +2,9 @@
 import { Color, Mat4 } from '../../../core/value-types';
 import { color4, vec3 } from '../../../core/vmath/index';
 import { RenderData } from '../../../renderer/ui/renderData';
+import { UI } from '../../../renderer/ui/ui';
 import { Node } from '../../../scene-graph/node';
 import { MeshBuffer } from '../mesh-buffer';
-import { UI } from '../../../renderer/ui/ui';
 
 const vec3_temp = vec3.create();
 const _worldMatrix = new Mat4();
