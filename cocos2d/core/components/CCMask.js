@@ -475,7 +475,7 @@ let Mask = cc.Class({
         else if (this.type === MaskType.ELLIPSE) {
             let rx = w / 2, ry = h / 2;
             let px = testPt.x - 0.5 * w, py = testPt.y - 0.5 * h;
-            reult = px * px / (rx * rx) + py * py / (ry * ry) < 1;
+            result = px * px / (rx * rx) + py * py / (ry * ry) < 1;
         }
         if (this.inverted) {
             result = !result;

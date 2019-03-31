@@ -22,7 +22,8 @@ let builtins = /^(_|cc_)\w+$/;
 const vertHeader = '#define _IS_VERT_SHADER 1\n';
 const fragHeader = '#define _IS_FRAG_SHADER 1\n';
 
-let ignoreDefines = {};
+// if #define a value, then program should not redefine this value
+let definesInShader = {};
 
 function convertType(t) { let tp = mappings.typeParams[t.toUpperCase()]; return tp === undefined ? t : tp; }
 
@@ -38,14 +39,15 @@ function unwindIncludes(str, chunks) {
 }
 
 function glslStrip(code, cache) {
-  // strip tag lines
+  // strip tag and extension lines
   let result = '';
   let codes = code.split('\n');
-  for (let i = 1; i <= codes.length; i++) {
-    if (cache.tagLines.indexOf(i) === -1) {
-      result += codes[i-1] + '\n';
+  for (let i = 0; i < codes.length; i++) {
+    if (cache.tagLines.indexOf(i+1) === -1) {
+      result += codes[i] + '\n';
     }
   }
+  
 
   // strip comment
   let tokens = tokenizer(result);
@@ -59,6 +61,24 @@ function glslStrip(code, cache) {
 
   // strip multiple line break
   result = result.replace(/\n\n+/g, '\n\n');
+
+  return result;
+}
+
+function glslExtractExtensions (code) {
+  let extensions = [];
+  let result = '';
+  let codes = code.split('\n');
+  for (let i = 0; i < codes.length; i++) {
+    if (codes[i].indexOf('#extension') === -1) {
+      result += codes[i] + '\n';
+    }
+    else {
+      extensions.push(codes[i]);
+    }
+  }
+
+  result = extensions.join('\n') + '\n' + result;
 
   return result;
 }
@@ -99,7 +119,7 @@ function extractDefines(tokens, defines, cache) {
   for (let i = 0; i < tokens.length; ) {
     let t = tokens[i], str = t.data, id, df;
     if (str.startsWith('#define')) {
-      ignoreDefines[str.split(whitespaces)[1]] = true;
+      definesInShader[str.split(whitespaces)[1]] = true; 
       i++; continue;
     }
     if (t.type !== 'preprocessor' || str.startsWith('#extension')) { i++; continue; }
@@ -134,7 +154,7 @@ function extractDefines(tokens, defines, cache) {
     str.splice(1).some(s => {
       id = s.match(ident);
       if (id) { // is identifier
-        if (ignoreDefines[id[0]]) return;
+        if (definesInShader[id[0]] || id[0].startsWith('GL_')) return;
         let d = curDefs.reduce((acc, val) => acc.concat(val), defs.slice());
         df = defines.find(d => d.name === id[0]);
         if (df) { if (d.length < df.defines.length) df.defines = d; }
@@ -161,10 +181,8 @@ function extractParams(tokens, cache, uniforms, attributes, extensions) {
     let defines = getDefs(t.line), param = {};
     if (dest === uniforms && builtins.test(tokens[i+4].data)) continue;
     if (dest === extensions) {
-      if (defines.length !== 1) console.warn('extensions must be under controll of exactly 1 define');
-      param.name = extensionRE.exec(str.split(whitespaces)[1])[1];
-      param.define = defines[0];
-      dest.push(param);
+      let name = extensionRE.exec(str.split(whitespaces)[1])[1];
+      if (dest.indexOf(name) === -1) dest.push(name);
       continue;
     } else { // uniforms and attributes
       let offset = precision.exec(tokens[i+2].data) ? 4 : 2;
@@ -319,6 +337,7 @@ let buildShader = function(vertName, fragName, cache) {
     vert = wrapEntry(vert, vertName, vEntry, ast, true);
   } catch (e) { Editor.error(`parse ${vertName} failed: ${e}`); }
   vert = glslStrip(vert, defCache);
+  vert = glslExtractExtensions(vert);
 
   defCache = { lines: [], tagLines: [] };
   frag = fragHeader + frag;
@@ -332,6 +351,7 @@ let buildShader = function(vertName, fragName, cache) {
     frag = wrapEntry(frag, fragName, fEntry, ast);
   } catch (e) { Editor.error(`parse ${fragName} failed: ${e}`); }
   frag = glslStrip(frag, defCache);
+  frag = glslExtractExtensions(frag);
 
   return { vert, frag, defines, uniforms, attributes, extensions };
 };
@@ -432,7 +452,7 @@ let addChunksCache = function(chunksDir) {
 };
 
 let buildEffect = function (name, content) {
-  ignoreDefines = {};
+  definesInShader = {};
   let { effect, templates } = parseEffect(content);
   effect = buildEffectJSON(effect); effect.name = name;
   Object.assign(templates, chunksCache);

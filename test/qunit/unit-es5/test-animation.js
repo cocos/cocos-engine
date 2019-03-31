@@ -31,7 +31,7 @@ test('curve types', function () {
     state.update(0);
 
     state.update(0.2);
-    strictEqual(entity.x, cc.Easing.cubicInOut(0.2) * 100, 'should wrap time by cc.Easing.cubicInOut');
+    strictEqual(entity.x, cc.easing.cubicInOut(0.2) * 100, 'should wrap time by cc.easing.cubicInOut');
 
     state.update(1.2);
     close(entity.x, bezierByTime([0, 0.5, 0.5, 1], 0.4) * 100 + 100, 0.0001, 'should wrap time by bezierByTime');
@@ -44,11 +44,7 @@ test('DynamicAnimCurve', function () {
     var DynamicAnimCurve = cc._Test.DynamicAnimCurve;
     var anim = new DynamicAnimCurve();
     var target = {
-        height: 1,
-        position: v2(123, 456),
-        foo: {
-            bar: color(128, 128, 128, 128),
-        }
+        height: 1
     };
     anim.target = target;
     anim.prop = 'height';
@@ -57,23 +53,6 @@ test('DynamicAnimCurve', function () {
     anim.sample(null, 0.1, null);
 
     strictEqual(target.height, 10, 'The keyframe value whose ratio is out of ranges should just clamped');
-
-    anim.prop = 'position';
-    anim.subProps = ['x'];
-    anim.values = [50, 100];
-    anim.ratios = [0.0, 1.0];
-    anim.sample(null, 0.1, null);
-
-    deepEqual(target.position, v2(55, 456, 0), 'The composed position should animated');
-
-    anim.target = target;
-    anim.prop = 'foo';
-    anim.subProps = ['bar', 'a'];
-    anim.values = [128, 256];
-    anim.ratios = [0.0, 1.0];
-    anim.sample(null, 0.1, null);
-
-    deepEqual(target.foo, { bar: color(128, 128, 128, 140) }, 'The composed color should animated');
 });
 
 test('AnimationState.getWrappedInfo', function () {
@@ -201,23 +180,14 @@ test('initClipData', function () {
                 { frame: 0, value: v2(50, 100) },
                 { frame: 5, value: v2(100, 75) },
                 { frame: 10, value: v2(100, 50) }
-            ],
-            'scale.x': [
-                { frame: 0, value: 10 },
-                { frame: 10, value: 20 }
-            ],
-            'scale.y': [
-                { frame: 0, value: 10 },
-                { frame: 5, value: 12 },
-                { frame: 10, value: 20 }
             ]
         },
 
         comps: {
             'cc.Sprite': {
-                'testColor.a': [
-                    { frame: 0, value: 1 },
-                    { frame: 10, value: 0 }
+                'testColor': [
+                    { frame: 0, value: Color.BLACK },
+                    { frame: 10, value: Color.WHITE }
                 ]
             }
         },
@@ -234,9 +204,9 @@ test('initClipData', function () {
 
                 comps: {
                     'cc.Sprite': {
-                        'testColor.a': [
-                            { frame: 0, value: 1 },
-                            { frame: 10, value: 0 }
+                        'testColor': [
+                            { frame: 0, value: Color.BLACK },
+                            { frame: 10, value: Color.WHITE }
                         ]
                     }
                 }
@@ -248,23 +218,17 @@ test('initClipData', function () {
     initClipData(entity, state);
 
     var posCurve = state.curves[0];
-    var scaleCurveX = state.curves[1];
-    var scaleCurveY = state.curves[2];
-    var colorCurve = state.curves[3];
+    var colorCurve = state.curves[1];
 
-    strictEqual(state.curves.length, 6, 'should create 6 curve');
+    strictEqual(state.curves.length, 4, 'should create 6 curve');
     strictEqual(posCurve.target, entity, 'target of posCurve should be transform');
     strictEqual(posCurve.prop, 'pos', 'propName of posCurve should be pos');
-    strictEqual(scaleCurveX.target, entity, 'target of scaleCurve should be transform');
-    strictEqual(scaleCurveX.prop, 'scale', 'propName of scaleCurve should be scale');
     strictEqual(colorCurve.target, renderer, 'target of colorCurve should be sprite renderer');
     strictEqual(colorCurve.prop, 'testColor', 'propName of colorCurve should be testColor');
 
     deepEqual(posCurve.values, [v2(50, 100), v2(100, 75), v2(100, 50)], 'values of posCurve should equals keyFrames');
 
-    deepEqual(scaleCurveY.values, [10, 12, 20], 'values of scaleCurve should equals keyFrames');
-
-    deepEqual(colorCurve.values, [1, 0], 'values of colorCurve should equals keyFrames');
+    deepEqual(colorCurve.values, [Color.BLACK, Color.WHITE], 'values of colorCurve should equals keyFrames');
 
     deepEqual(posCurve.ratios, [0, 0.5, 1], 'ratios of posCurve should equals keyFrames');
     deepEqual(colorCurve.ratios, [0, 1], 'ratios of colorCurve should equals keyFrames');

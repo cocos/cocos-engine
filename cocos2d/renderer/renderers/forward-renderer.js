@@ -31,6 +31,8 @@ export default class ForwardRenderer extends BaseRenderer {
 
     this._numLights = 0;
 
+    this._defines = {};
+
     this._registerStage('shadowcast', this._shadowStage.bind(this));
     this._registerStage('opaque', this._opaqueStage.bind(this));
     this._registerStage('transparent', this._transparentStage.bind(this));
@@ -75,6 +77,20 @@ export default class ForwardRenderer extends BaseRenderer {
     }
   }
 
+  // direct render a single camera
+  renderCamera (camera, scene) {
+    this._reset();
+    
+    const canvas = this._device._gl.canvas;
+    let width = canvas.width;
+    let height = canvas.height;
+
+    let view = this._requestView();
+    camera.extractView(view, width, height);
+    
+    this._render(view, scene);
+  }
+
   _updateLights (scene) {
     this._directionalLights.length = 0;
     this._pointLights.length = 0;
@@ -99,7 +115,18 @@ export default class ForwardRenderer extends BaseRenderer {
       }
     }
 
+    this._updateDefines();
+
     this._numLights = lights._count;
+  }
+
+  _updateDefines () {
+    let defines = this._defines;
+    defines._NUM_DIR_LIGHTS = Math.min(4, this._directionalLights.length);
+    defines._NUM_POINT_LIGHTS = Math.min(4, this._pointLights.length);
+    defines._NUM_SPOT_LIGHTS = Math.min(4, this._spotLights.length);
+
+    defines._NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
   }
 
   _submitLightsUniforms () {
@@ -184,13 +211,7 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
   _updateShaderDefines (item) {
-    let defines = item.defines;
-
-    defines._NUM_DIR_LIGHTS = Math.min(4, this._directionalLights.length);
-    defines._NUM_POINT_LIGHTS = Math.min(4, this._pointLights.length);
-    defines._NUM_SPOT_LIGHTS = Math.min(4, this._spotLights.length);
-
-    defines._NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
+    item.defines.push(this._defines);
   }
 
   _sortItems (items) {
@@ -222,7 +243,7 @@ export default class ForwardRenderer extends BaseRenderer {
     // draw it
     for (let i = 0; i < items.length; ++i) {
       let item = items.data[i];
-      if (item.defines._SHADOW_CASTING) {
+      if (this._programLib._getValueFromDefineList('_SHADOW_CASTING', item.defines)) {
         this._updateShaderDefines(item);
         this._draw(item);
       }

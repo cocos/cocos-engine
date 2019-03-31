@@ -26,8 +26,7 @@
 const js = require('../../../../../platform/js');
 const assembler = require('../2d/ttf');
 const fillMeshVertices3D = require('../../utils').fillMeshVertices3D;
-
-const WHITE = cc.Color.WHITE;
+const WHITE = cc.color(255, 255, 255, 255);
 
 module.exports = js.addon({
     fillBuffers (comp, renderer) {

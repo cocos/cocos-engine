@@ -23,15 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var js = cc.js;
-var Playable = require('./playable');
-var DynamicAnimCurve = require('./animation-curves').DynamicAnimCurve;
-var quickFindIndex = require('./animation-curves').quickFindIndex;
-var sampleMotionPaths = require('./motion-path-helper').sampleMotionPaths;
-var EventAnimCurve = require('./animation-curves').EventAnimCurve;
-var EventInfo = require('./animation-curves').EventInfo;
-var WrapModeMask = require('./types').WrapModeMask;
-var binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
+const js = cc.js;
+const Playable = require('./playable');
+const { EventAnimCurve, EventInfo } = require('./animation-curves');
+const WrapModeMask = require('./types').WrapModeMask;
+const binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
 
 // The actual animator for Animation Component
 
@@ -43,7 +39,7 @@ function AnimationAnimator (target, animation) {
     this._anims = new js.array.MutableForwardIterator([]);
 }
 js.extend(AnimationAnimator, Playable);
-var p = AnimationAnimator.prototype;
+let p = AnimationAnimator.prototype;
 
 p.playState = function (state, startTime) {
     if (!state.clip) {
@@ -65,10 +61,10 @@ p.playState = function (state, startTime) {
 };
 
 p.stopStatesExcept = function (state) {
-    var iterator = this._anims;
-    var array = iterator.array;
+    let iterator = this._anims;
+    let array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-        var anim = array[iterator.i];
+        let anim = array[iterator.i];
         if (anim === state) {
             continue;
         }
@@ -78,7 +74,7 @@ p.stopStatesExcept = function (state) {
 };
 
 p.addAnimation = function (anim) {
-    var index = this._anims.array.indexOf(anim);
+    let index = this._anims.array.indexOf(anim);
     if (index === -1) {
         this._anims.push(anim);
     }
@@ -87,7 +83,7 @@ p.addAnimation = function (anim) {
 };
 
 p.removeAnimation = function (anim) {
-    var index = this._anims.array.indexOf(anim);
+    let index = this._anims.array.indexOf(anim);
     if (index >= 0) {
         this._anims.fastRemoveAt(index);
 
@@ -103,10 +99,10 @@ p.removeAnimation = function (anim) {
 };
 
 p.sample = function () {
-    var iterator = this._anims;
-    var array = iterator.array;
+    let iterator = this._anims;
+    let array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-        var anim = array[iterator.i];
+        let anim = array[iterator.i];
         anim.sample();
     }
 };
@@ -143,9 +139,9 @@ p.setStateTime = function (state, time) {
     else {
         time = state;
 
-        var array = this._anims.array;
-        for (var i = 0; i < array.length; ++i) {
-            var anim = array[i];
+        let array = this._anims.array;
+        for (let i = 0; i < array.length; ++i) {
+            let anim = array[i];
             anim.setTime(time);
             anim.sample();
         }
@@ -153,18 +149,18 @@ p.setStateTime = function (state, time) {
 };
 
 p.onStop = function () {
-    var iterator = this._anims;
-    var array = iterator.array;
+    let iterator = this._anims;
+    let array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-        var anim = array[iterator.i];
+        let anim = array[iterator.i];
         anim.stop();
     }
 };
 
 p.onPause = function () {
-    var array = this._anims.array;
-    for (var i = 0; i < array.length; ++i) {
-        var anim = array[i];
+    let array = this._anims.array;
+    for (let i = 0; i < array.length; ++i) {
+        let anim = array[i];
         anim.pause();
 
         // need to unbind animator to anim, or it maybe cannot be gc.
@@ -173,9 +169,9 @@ p.onPause = function () {
 };
 
 p.onResume = function () {
-    var array = this._anims.array;
-    for (var i = 0; i < array.length; ++i) {
-        var anim = array[i];
+    let array = this._anims.array;
+    for (let i = 0; i < array.length; ++i) {
+        let anim = array[i];
         
         // rebind animator to anim
         anim.animator = this;
@@ -191,18 +187,18 @@ p._reloadClip = function (state) {
 // 这个方法应该是 SampledAnimCurve 才能用
 function createBatchedProperty (propPath, firstDotIndex, mainValue, animValue) {
     mainValue = mainValue.clone();
-    var nextValue = mainValue;
-    var leftIndex = firstDotIndex + 1;
-    var rightIndex = propPath.indexOf('.', leftIndex);
+    let nextValue = mainValue;
+    let leftIndex = firstDotIndex + 1;
+    let rightIndex = propPath.indexOf('.', leftIndex);
 
     // scan property path
     while (rightIndex !== -1) {
-        var nextName = propPath.slice(leftIndex, rightIndex);
+        let nextName = propPath.slice(leftIndex, rightIndex);
         nextValue = nextValue[nextName];
         leftIndex = rightIndex + 1;
         rightIndex = propPath.indexOf('.', leftIndex);
     }
-    var lastPropName = propPath.slice(leftIndex);
+    let lastPropName = propPath.slice(leftIndex);
     nextValue[lastPropName] = animValue;
 
     return mainValue;
@@ -212,24 +208,14 @@ if (CC_TEST) {
     cc._Test.createBatchedProperty = createBatchedProperty;
 }
 
-function splitPropPath (propPath) {
-    var array = propPath.split('.');
-    array.shift();
-    //array = array.filter(function (item) { return !!item; });
-    return array.length > 0 ? array : null;
-}
-
 
 function initClipData (root, state) {
-    var clip = state.clip;
+    let clip = state.clip;
 
-    var curves = state.curves;
-    curves.length = 0;
-
-    state.duration = Number.parseFloat(clip.duration);
-    state.speed = Number.parseFloat(clip.speed);
-    state.wrapMode = Number.parseInt(clip.wrapMode);
-    state.frameRate = Number.parseFloat(clip.sample);
+    state.duration = clip.duration;
+    state.speed = clip.speed;
+    state.wrapMode = clip.wrapMode;
+    state.frameRate = clip.sample;
 
     if ((state.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
         state.repeatCount = Infinity;
@@ -238,175 +224,14 @@ function initClipData (root, state) {
         state.repeatCount = 1;
     }
 
-    // create curves
-
-    function checkMotionPath(motionPath) {
-        if (!Array.isArray(motionPath)) return false;
-
-        for (let i = 0, l = motionPath.length; i < l; i++) {
-            var controls = motionPath[i];
-
-            if (!Array.isArray(controls) || controls.length !== 6) return false;
-        }
-
-        return true;
-    }
-
-    function createPropCurve (target, propPath, keyframes) {
-        var isMotionPathProp = (target instanceof cc.Node) 
-            && (propPath === 'position') 
-            && (keyframes[0] && Array.isArray(keyframes[0].value));
-        var motionPaths = [];
-        
-        var curve = new DynamicAnimCurve();
-
-        // 缓存目标对象，所以 Component 必须一开始都创建好并且不能运行时动态替换……
-        curve.target = target;
-
-        var propName, propValue;
-        var dotIndex = propPath.indexOf('.');
-        var hasSubProp = dotIndex !== -1;
-        if (hasSubProp) {
-            propName = propPath.slice(0, dotIndex);
-            propValue = target[propName];
-
-            // if (!(propValue instanceof cc.ValueType)) {
-            //     cc.error('Only support sub animation property which is type cc.ValueType');
-            //     continue;
-            // }
-        }
-        else {
-            propName = propPath;
-        }
-
-        curve.prop = propName;
-
-        curve.subProps = splitPropPath(propPath);
-
-        // for each keyframes
-        for (let i = 0, l = keyframes.length; i < l; i++) {
-            var keyframe = keyframes[i];
-            var ratio = keyframe.frame / state.duration;
-            curve.ratios.push(ratio);
-
-            if (isMotionPathProp) {
-                var motionPath = keyframe.motionPath;
-
-                if (motionPath && !checkMotionPath(motionPath)) {
-                    cc.errorID(3904, target.name, propPath, i);
-                    motionPath = null;
-                }
-
-                motionPaths.push(motionPath);
-            }
-
-            var curveValue = keyframe.value;
-            //if (hasSubProp) {
-            //    curveValue = createBatchedProperty(propPath, dotIndex, propValue, curveValue);
-            //}
-            curve.values.push(curveValue);
-
-            var curveTypes = keyframe.curve;
-            if (curveTypes) {
-                if (typeof curveTypes === 'string') {
-                    curve.types.push(curveTypes);
-                    continue;
-                }
-                else if (Array.isArray(curveTypes)) {
-                    if (curveTypes[0] === curveTypes[1] &&
-                        curveTypes[2] === curveTypes[3]) {
-                        curve.types.push(DynamicAnimCurve.Linear);
-                    }
-                    else {
-                        curve.types.push(DynamicAnimCurve.Bezier(curveTypes));
-                    }
-                    continue;
-                }
-            }
-            curve.types.push(DynamicAnimCurve.Linear);
-        }
-
-        if (isMotionPathProp) {
-            sampleMotionPaths(motionPaths, curve, clip.duration, clip.sample);
-        }
-
-        // if every piece of ratios are the same, we can use the quick function to find frame index.
-        var ratios = curve.ratios;
-        var currRatioDif, lastRatioDif;
-        var canOptimize = true;
-        var EPSILON = 1e-6;
-        for (let i = 1, l = ratios.length; i < l; i++) {
-            currRatioDif = ratios[i] - ratios[i-1];
-            if (i === 1) {
-                lastRatioDif = currRatioDif;
-            }
-            else if (Math.abs(currRatioDif - lastRatioDif) > EPSILON) {
-                canOptimize = false;                
-                break;
-            }
-        }
-
-        curve._findFrameIndex = canOptimize ? quickFindIndex : binarySearch;
-
-        return curve;
-    }
-
-    function createTargetCurves (target, curveData) {
-        var propsData = curveData.props;
-        var compsData = curveData.comps;
-
-        if (propsData) {
-            for (var propPath in propsData) {
-                var data = propsData[propPath];
-                var curve = createPropCurve(target, propPath, data);
-
-                curves.push(curve);
-            }
-        }
-
-        if (compsData) {
-            for (var compName in compsData) {
-                var comp = target.getComponent(compName);
-
-                if (!comp) {
-                    continue;
-                }
-
-                var compData = compsData[compName];
-                for (var propPath in compData) {
-                    var data = compData[propPath];
-                    var curve = createPropCurve(comp, propPath, data);
-
-                    curves.push(curve);
-                }
-            }
-        }
-    }
-
-    // property curves
-
-    var curveData = clip.curveData;
-    var childrenCurveDatas = curveData.paths;
-
-    createTargetCurves(root, curveData);
-
-    for (var namePath in childrenCurveDatas) {
-        var target = cc.find(namePath, root);
-
-        if (!target) {
-            continue;
-        }
-
-        var childCurveDatas = childrenCurveDatas[namePath];
-        createTargetCurves(target, childCurveDatas);
-    }
+    let curves = state.curves = clip.createCurves(state, root);
 
     // events curve
 
-    var events = clip.events;
+    let events = clip.events;
 
     if (!CC_EDITOR && events) {
-        var curve;
+        let curve;
 
         for (let i = 0, l = events.length; i < l; i++) {
             if (!curve) {
@@ -415,11 +240,11 @@ function initClipData (root, state) {
                 curves.push(curve);
             }
 
-            var eventData = events[i];
-            var ratio = eventData.frame / state.duration;
+            let eventData = events[i];
+            let ratio = eventData.frame / state.duration;
 
-            var eventInfo;
-            var index = binarySearch(curve.ratios, ratio);
+            let eventInfo;
+            let index = binarySearch(curve.ratios, ratio);
             if (index >= 0) {
                 eventInfo = curve.events[index];
             }

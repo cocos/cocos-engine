@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Animation = require('../components/CCAnimation');
-const Model = require('./CCModel');
+const Animation = require('../../components/CCAnimation');
+const Model = require('../CCModel');
 const SkeletonAnimationClip = require('./CCSkeletonAnimationClip');
 
 /**
@@ -46,7 +46,10 @@ let SkeletonAnimation = cc.Class({
     },
 
     properties: {
-        _model: Model,
+        _model: {
+            default: null,
+            type: Model
+        },
 
         _defaultClip: {
             override: true,
@@ -78,16 +81,21 @@ let SkeletonAnimation = cc.Class({
             },
             set (val) {
                 this._model = val;
+                this._updateClipModel();
             },
-            type: Model
+            type: Model,
         },
     },
 
-    getAnimationState (name) {
-        let state = this._super(name);
-        let clip = state.clip;
-        clip.init();
-        return state;
+    __preload () {
+        this._updateClipModel();
+    },
+
+    _updateClipModel () {
+        let clips = this._clips;
+        for (let i = 0; i < clips.length; i++) {
+            clips[i]._model = this._model;
+        }
     },
 
     searchClips: CC_EDITOR && function () {

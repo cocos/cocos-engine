@@ -623,6 +623,7 @@ export default class Device {
       'OES_texture_half_float_linear',
       'OES_vertex_array_object',
       'WEBGL_compressed_texture_atc',
+      'WEBGL_compressed_texture_etc',
       'WEBGL_compressed_texture_etc1',
       'WEBGL_compressed_texture_pvrtc',
       'WEBGL_compressed_texture_s3tc',
@@ -859,6 +860,9 @@ export default class Device {
    * @param {Number} opts.stencil
    */
   clear(opts) {
+    if (opts.color === undefined && opts.depth === undefined && opts.stencil === undefined) {
+        return;
+    }
     const gl = this._gl;
     let flags = 0;
 
@@ -1170,16 +1174,35 @@ export default class Device {
    */
   setUniform(name, value) {
     let uniform = this._uniforms[name];
-    if (!uniform || (uniform.isArray && uniform.value.length < value.length)) {
-      let newValue = value;
-      let isArray = false;
-      if (value instanceof Float32Array || Array.isArray(value)) {
-        newValue = new Float32Array(value);
-        isArray = true;
+
+    let sameType = false;
+    let isArray = false, isFloat32Array = false, isInt32Array = false;
+    do {
+      if (!uniform) {
+        break;
       }
-      else if (value instanceof Int32Array) {
+
+      isFloat32Array = Array.isArray(value) || value instanceof Float32Array;
+      isInt32Array = value instanceof Int32Array;
+      isArray = isFloat32Array || isInt32Array;
+      if (uniform.isArray !== isArray) {
+        break;
+      }
+
+      if (uniform.isArray && uniform.value.length !== value.length) {
+        break;
+      }
+
+      sameType = true;
+    } while (false);
+
+    if (!sameType) {
+      let newValue = value;
+      if (isFloat32Array) {
+        newValue = new Float32Array(value);
+      }
+      else if (isInt32Array) {
         newValue = new Int32Array(value);
-        isArray = true;
       }
 
       uniform = {
@@ -1210,6 +1233,15 @@ export default class Device {
       }
     }
     this._uniforms[name] = uniform;
+  }
+
+  setUniformDirectly(name, value) {
+    let uniform = this._uniforms[name];
+    if (!uniform) {
+      this._uniforms[name] = uniform = {};
+    }
+    uniform.dirty = true;
+    uniform.value = value;
   }
 
   /**

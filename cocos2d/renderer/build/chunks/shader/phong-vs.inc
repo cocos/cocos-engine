@@ -1,3 +1,6 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+precision highp float;
 
 #include <cc-local>
 #include <cc-global>

@@ -1,5 +1,8 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-#if USE_NORMAL_TEXTURE
+#if USE_NORMAL_TEXTURE && GL_OES_standard_derivatives
+  #extension GL_OES_standard_derivatives : enable
+
   #property
   uniform sampler2D normalTexture;
 
@@ -21,7 +24,7 @@
 void CALC_NORMAL (inout vec3 normal, in vec3 worldPos, in vec3 worldNormal) {
   normal = normalize(worldNormal);
   
-  #if USE_NORMAL_TEXTURE
+  #if USE_NORMAL_TEXTURE && GL_OES_standard_derivatives
     normal = getNormal(worldPos, normal);
   #endif
 }

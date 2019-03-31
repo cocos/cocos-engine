@@ -27,6 +27,7 @@
 /**
  * @module dragonBones
  */
+let ArmatureCache = !CC_JSB && require('./ArmatureCache').sharedCache;
 
 /**
  * !#en The skeleton atlas data of dragonBones.
@@ -39,7 +40,7 @@ var DragonBonesAtlasAsset = cc.Class({
     extends: cc.Asset,
 
     ctor () {
-        this.reset();
+        this._clear();
     },
 
     properties: {
@@ -54,7 +55,7 @@ var DragonBonesAtlasAsset = cc.Class({
             },
             set: function (value) {
                 this._atlasJson = value;
-                this.reset();
+                this._clear();
             }
         },
 
@@ -73,17 +74,15 @@ var DragonBonesAtlasAsset = cc.Class({
             },
             set (value) {
                 this._texture = value;
-                this.reset();
+                this._clear();
             }
         },
+
+        _textureAtlasData: null,
     },
 
     statics: {
         preventDeferredLoadDependents: true
-    },
-
-    reset () {
-        this._textureAtlasData = null;  // instance of CCTextureAtlasData
     },
 
     createNode: CC_EDITOR &&  function (callback) {
@@ -95,38 +94,33 @@ var DragonBonesAtlasAsset = cc.Class({
     },
 
     init (factory) {
+        this._factory = factory;
+
+        let atlasJsonObj = JSON.parse(this.atlasJson);
+
+        // If create by manual, uuid is empty.
+        this._uuid = this._uuid || atlasJsonObj.name;
+
         if (this._textureAtlasData) {
-            factory.addTextureAtlasData(this._textureAtlasData);
+            factory.addTextureAtlasData(this._textureAtlasData, this._uuid);
         }
         else {
-            this._textureAtlasData = factory.parseTextureAtlasData(this.atlasJson, this.texture);
+            this._textureAtlasData = factory.parseTextureAtlasData(atlasJsonObj, this.texture, this._uuid);
         }
-        //// solve the error effect of DragonBones when re-enter an auto-released scene (#5053)
-        // var atlasName = atlasJsonObj.name;
-        // var atlasDataList = factory.getTextureAtlasData(atlasName);
-        // if (atlasDataList && atlasDataList.length > 0) {
-        //     var texturePath = this.texture && this.texture.url;
-        //     for (var idx in atlasDataList) {
-        //         var data = atlasDataList[idx];
-        //         if (data && data.texture && data.texture.url === texturePath) {
-        //             // found same named atlas, renew texture
-        //             data.texture = this.texture;
-        //             return;
-        //         }
-        //     }
-        // }
+    },
+
+    _clear () {
+        if (CC_JSB) return;
+        if (this._factory) {
+            ArmatureCache.resetArmature(this._uuid);
+            this._factory.removeTextureAtlasData(this._uuid, true);
+            this._factory.removeDragonBonesDataByUUID(this._uuid, true);
+        }
+        this._textureAtlasData = null;
     },
 
     destroy () {
-        var useGlobalFactory = !CC_JSB;
-        if (useGlobalFactory && this._textureAtlasData) {
-            var factory = dragonBones.CCFactory.getInstance();
-            // If the texture still referenced by any DragonBonesData in the factory,
-            // remember to remove them at the same time!
-            var name = this._textureAtlasData.name;
-            factory.removeTextureAtlasData(name, true);
-            factory.removeDragonBonesData(name, true);
-        }
+        this._clear();
         this._super();
     },
 });

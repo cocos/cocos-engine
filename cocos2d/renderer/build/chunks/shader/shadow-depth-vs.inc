@@ -1,5 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+precision highp float;
+
 attribute vec3 a_position;
 
 uniform mat4 cc_matWorld;

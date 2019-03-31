@@ -98,7 +98,7 @@ let meshRendererAssembler = {
         let tmpMaterial = renderer.material;
 
         let tmpNode = renderer.node;
-        renderer.node = comp instanceof cc.SkinnedMeshRenderer ? renderer._dummyNode : comp.node;
+        renderer.node = comp.getRenderNode();
 
         renderer.customProperties = comp._customProperties;
         let tmpCustomProperties = renderer.customProperties;

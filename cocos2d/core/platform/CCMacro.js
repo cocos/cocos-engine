@@ -331,8 +331,8 @@ cc.macro = {
      * Whether or not clear dom Image object cache after uploading to gl texture.
      * Concretely, we are setting image.src to empty string to release the cache.
      * Normally you don't need to enable this option, because on web the Image object doesn't consume too much memory.
-     * But on Wechat Game platform, the current version cache decoded data in Image object, which has high memory usage.
-     * So we enabled this option by default on Wechat, so that we can release Image cache immediately after uploaded to GPU.
+     * But on WeChat Game platform, the current version cache decoded data in Image object, which has high memory usage.
+     * So we enabled this option by default on WeChat, so that we can release Image cache immediately after uploaded to GPU.
      * !#zh
      * 是否在将贴图上传至 GPU 之后删除 DOM Image 缓存。
      * 具体来说，我们通过设置 image.src 为空字符串来释放这部分内存。
@@ -356,15 +356,7 @@ cc.macro = {
 };
 
 
-let SUPPORT_TEXTURE_FORMATS = ['.webp', '.jpg', '.jpeg', '.bmp', '.png'];
-if (cc.sys.isMobile) {
-    if (cc.sys.os === cc.sys.OS_IOS) {
-        SUPPORT_TEXTURE_FORMATS = ['.pvr'].concat(SUPPORT_TEXTURE_FORMATS);
-    }
-    else if (cc.sys.os === cc.sys.OS_ANDROID) {
-        SUPPORT_TEXTURE_FORMATS = ['.pkm'].concat(SUPPORT_TEXTURE_FORMATS);
-    }
-}
+let SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
 /**
  * !en

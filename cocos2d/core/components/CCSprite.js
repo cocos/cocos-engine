@@ -28,7 +28,7 @@ const misc = require('../utils/misc');
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
-const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
+const BlendFunc = require('../utils/blend-func');
 
 const Material = require('../assets/material/CCMaterial');
 
@@ -155,6 +155,7 @@ var State = cc.Enum({
 var Sprite = cc.Class({
     name: 'cc.Sprite',
     extends: RenderComponent,
+    mixins: [BlendFunc],
 
     ctor () {
         this._graySpriteMaterial = null;

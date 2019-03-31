@@ -499,7 +499,8 @@ export default class Base {
     } else {
       let convertedValue;
       if (param instanceof Float32Array || param instanceof Int32Array) {
-        convertedValue = param;
+        device.setUniformDirectly(prop.name, param);
+        return;
       }
       else if (prop.size !== undefined) {
         let convertArray = _type2uniformArrayValue[prop.type];
@@ -552,9 +553,11 @@ export default class Base {
     }
     // }
 
-    for (let name in uniforms) {
-      let uniform = uniforms[name];
-      this._setProperty(uniform);
+    for (let i = 0; i < uniforms.length; i++) {
+      let typeUniforms = uniforms[i];
+      for (let key in typeUniforms) {
+        this._setProperty(typeUniforms[key]);
+      }
     }
 
     // for each pass
@@ -574,7 +577,7 @@ export default class Base {
       device.setPrimitiveType(ia._primitiveType);
 
       // set program
-      let program = programLib.getProgram(pass._programName, defines, null, effect._name);
+      let program = programLib.getProgram(pass._programName, defines, effect._name);
       device.setProgram(program);
 
       // cull mode

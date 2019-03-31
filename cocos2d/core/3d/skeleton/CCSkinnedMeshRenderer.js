@@ -24,10 +24,13 @@
  ****************************************************************************/
 
 const Skeleton = require('./CCSkeleton');
-const MeshRenderer = require('../mesh/CCMeshRenderer');
+const MeshRenderer = require('../../mesh/CCMeshRenderer');
+const RenderFlow = require('../../renderer/render-flow');
 const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();
+
+const dummyNode = new cc.Node();
 
 let SkinnedMeshRenderer = cc.Class({
     name: 'cc.SkinnedMeshRenderer',
@@ -38,10 +41,9 @@ let SkinnedMeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._jointsTextureData = null;
+        this._jointsData = null;
         this._jointsTexture = null;
         this._joints = [];
-        this._matrices = [];
 
         this._assembler = MeshRenderer._assembler;
     },
@@ -56,8 +58,7 @@ let SkinnedMeshRenderer = cc.Class({
             },
             set (val) {
                 this._skeleton = val;
-                this._initJoints();
-                this._initJointsTexture();
+                this._init();
                 this._activateMaterial(true);
             },
             type: Skeleton
@@ -69,14 +70,14 @@ let SkinnedMeshRenderer = cc.Class({
             },
             set (val) {
                 this._rootBone = val;
-                this._initJoints();
+                this._init();
             },
             type: cc.Node
         }
     },
 
     _activateMaterial (force) {
-        if (!this._jointsTextureData) {
+        if (!this._jointsData) {
             this.disableRender();
             return;
         }
@@ -85,8 +86,33 @@ let SkinnedMeshRenderer = cc.Class({
     },
 
     __preload () {
+        this._init();
+    },
+
+    _init () {
+        this._model = this._skeleton && this._skeleton.model;
+
         this._initJoints();
         this._initJointsTexture();
+    },
+
+    _calcWorldMatrixToRoot (joint) {
+        let worldMatrixToRoot = joint._worldMatrixToRoot;
+        if (!worldMatrixToRoot) {
+            joint._worldMatrixToRoot = worldMatrixToRoot = cc.mat4();
+            joint.getLocalMatrix(worldMatrixToRoot);
+        }
+        else {
+            return;
+        }
+
+        let parent = joint.parent;
+        if (parent !== this.rootBone) {
+            if (!parent._worldMatrixToRoot) {
+                this._calcWorldMatrixToRoot(parent);
+            }
+            mat4.mul(worldMatrixToRoot, parent._worldMatrixToRoot, worldMatrixToRoot);
+        }
     },
 
     _initJoints () {
@@ -95,20 +121,32 @@ let SkinnedMeshRenderer = cc.Class({
 
         if (!this.skeleton || !this.rootBone) return;
 
+        let useJointMatrix = this._useJointMatrix();
+
         let jointPaths = this.skeleton.jointPaths;
         let rootBone = this.rootBone;
-        let matrices = this._matrices;
-        matrices.length = 0;
         for (let i = 0; i < jointPaths.length; i++) {
-            let bone = cc.find(jointPaths[i], rootBone);
-            if (!bone) {
+            let joint = cc.find(jointPaths[i], rootBone);
+            if (!joint) {
                 cc.warn('Can not find joint in root bone [%s] with path [%s]', rootBone.name, jointPaths[i]);
             }
-            joints.push(bone);
-            matrices.push(mat4.create());
+
+            if (useJointMatrix) {
+                joint._renderFlag &= ~RenderFlow.FLAG_CHILDREN;
+                this._calcWorldMatrixToRoot(joint);
+            }
+            
+            joints.push(joint);
         }
 
-        this.updateMatrices();
+        if (useJointMatrix) {
+            const bindposes = this.skeleton.bindposes;
+            for (let i = 0; i < jointPaths.length; i++) {
+                let joint = joints[i];
+                mat4.mul(_m4_tmp, joint._worldMatrixToRoot, bindposes[i]);
+                joint._jointMatrix = mat4.array([], _m4_tmp);
+            }
+        }
     },
 
     _initJointsTexture () {
@@ -117,7 +155,7 @@ let SkinnedMeshRenderer = cc.Class({
         let jointCount = this._joints.length;
         let customProperties = this._customProperties;
 
-        let ALLOW_FLOAT_TEXTURE = !!cc.renderer.device.ext('OES_texture_float');
+        let ALLOW_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
         if (ALLOW_FLOAT_TEXTURE) {
             // set jointsTexture
             let size;
@@ -131,10 +169,10 @@ let SkinnedMeshRenderer = cc.Class({
                 size = 8;
             }
 
-            this._jointsTextureData = new Float32Array(size * size * 4);
+            this._jointsData = new Float32Array(size * size * 4);
 
             let texture = this._jointsTexture || new cc.Texture2D();
-            texture.initWithData(this._jointsTextureData, cc.Texture2D.PixelFormat.RGBA32F, size, size);
+            texture.initWithData(this._jointsData, cc.Texture2D.PixelFormat.RGBA32F, size, size);
 
             this._jointsTexture = texture;
             
@@ -142,61 +180,75 @@ let SkinnedMeshRenderer = cc.Class({
             customProperties.setProperty('_jointsTextureSize', this._jointsTexture.width);
         }
         else {
-            this._jointsTextureData = new Float32Array(jointCount * 16);
-            customProperties.setProperty('_jointMatrices', this._jointsTextureData);
+            this._jointsData = new Float32Array(jointCount * 16);
+            customProperties.setProperty('_jointMatrices', this._jointsData);
         }
 
         customProperties.define('_USE_SKINNING', true);
         customProperties.define('_USE_JOINTS_TEXTRUE', ALLOW_FLOAT_TEXTURE);
     },
 
-    _setJointsTextureData (iMatrix, matrix) {
-        let arr = this._jointsTextureData;
-        arr[16 * iMatrix + 0] = matrix.m00;
-        arr[16 * iMatrix + 1] = matrix.m01;
-        arr[16 * iMatrix + 2] = matrix.m02;
-        arr[16 * iMatrix + 3] = matrix.m03;
-        arr[16 * iMatrix + 4] = matrix.m04;
-        arr[16 * iMatrix + 5] = matrix.m05;
-        arr[16 * iMatrix + 6] = matrix.m06;
-        arr[16 * iMatrix + 7] = matrix.m07;
-        arr[16 * iMatrix + 8] = matrix.m08;
-        arr[16 * iMatrix + 9] = matrix.m09;
-        arr[16 * iMatrix + 10] = matrix.m10;
-        arr[16 * iMatrix + 11] = matrix.m11;
-        arr[16 * iMatrix + 12] = matrix.m12;
-        arr[16 * iMatrix + 13] = matrix.m13;
-        arr[16 * iMatrix + 14] = matrix.m14;
-        arr[16 * iMatrix + 15] = matrix.m15;
+    _setJointsDataWithArray (iMatrix, matrixArray) {
+        let data = this._jointsData;
+        data.set(matrixArray, iMatrix * 16);
+    },
+
+    _setJointsDataWithMatrix (iMatrix, matrix) {
+        let data = this._jointsData;
+
+        data[16 * iMatrix + 0] = matrix.m00;
+        data[16 * iMatrix + 1] = matrix.m01;
+        data[16 * iMatrix + 2] = matrix.m02;
+        data[16 * iMatrix + 3] = matrix.m03;
+        data[16 * iMatrix + 4] = matrix.m04;
+        data[16 * iMatrix + 5] = matrix.m05;
+        data[16 * iMatrix + 6] = matrix.m06;
+        data[16 * iMatrix + 7] = matrix.m07;
+        data[16 * iMatrix + 8] = matrix.m08;
+        data[16 * iMatrix + 9] = matrix.m09;
+        data[16 * iMatrix + 10] = matrix.m10;
+        data[16 * iMatrix + 11] = matrix.m11;
+        data[16 * iMatrix + 12] = matrix.m12;
+        data[16 * iMatrix + 13] = matrix.m13;
+        data[16 * iMatrix + 14] = matrix.m14;
+        data[16 * iMatrix + 15] = matrix.m15;
     },
 
     _commitJointsData () {
         if (this._jointsTexture) {
-            this._jointsTexture.update({ image: this._jointsTextureData });
+            this._jointsTexture.update({ image: this._jointsData });
         }
     },
 
-    updateMatrices () {
-        for (let i = 0; i < this._joints.length; ++i) {
-            let joint = this._joints[i];
-            if (!joint || !joint.activeInHierarchy) continue;
-            joint.getWorldMatrix(this._matrices[i]);
-        }
+    _useJointMatrix () {
+        return this._model && this._model.precomputeJointMatrix;
+    },
+
+    getRenderNode () {
+        return this._useJointMatrix() ? this.rootBone : dummyNode;
     },
 
     update () {
         if (!this.skeleton || !this.rootBone) return;
-        const bindposes = this.skeleton.bindposes;
-        const matrices = this._matrices;
+        const joints = this._joints;
 
-        this.updateMatrices();
-
-        for (let i = 0; i < bindposes.length; ++i) {
-            let bindpose = bindposes[i];
-            let worldMatrix = matrices[i];
-
-            mat4.multiply(_m4_tmp, worldMatrix, bindpose);
-            this._setJointsTextureData(i, _m4_tmp);
+        if (this._useJointMatrix()) {
+            for (let i = 0; i < joints.length; ++i) {
+                let joint = joints[i];
+                let jointMatrix = joint._jointMatrix;
+    
+                this._setJointsDataWithArray(i, jointMatrix);
+            }
+        }
+        else {
+            const bindposes = this.skeleton.bindposes;
+            for (let i = 0; i < joints.length; ++i) {
+                let joint = joints[i];
+    
+                joint._updateWorldMatrix();
+                mat4.multiply(_m4_tmp, joint._worldMatrix, bindposes[i]);
+                this._setJointsDataWithMatrix(i, _m4_tmp);
+            }
         }
 
         this._commitJointsData();

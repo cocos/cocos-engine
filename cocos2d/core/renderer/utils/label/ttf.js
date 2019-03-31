@@ -34,6 +34,7 @@ const packToDynamicAtlas = require('../utils').packToDynamicAtlas;
 
 const WHITE = cc.Color.WHITE;
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
+const MAX_SIZE = 2048;
 
 let _context = null;
 let _canvas = null;
@@ -52,6 +53,7 @@ let _color = null;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
+const _invisibleAlpha = (1 / 255).toFixed(3);
 
 // outline
 let _isOutlined = false;
@@ -69,54 +71,17 @@ let _drawUnderlinePos = cc.v2();
 
 let _sharedLabelData;
 
-//
-let _canvasPool = {
-    pool: [],
-    get () {
-        let data = this.pool.pop();
-
-        if (!data) {
-            let canvas = document.createElement("canvas");
-            let context = canvas.getContext("2d");
-            data = {
-                canvas: canvas,
-                context: context
-            }
-        }
-
-        return data;
-    },
-    put (canvas) {
-        if (this.pool.length >= 32) {
-            return;
-        }
-        this.pool.push(canvas);
-    }
-};
-
-
 module.exports = {
 
     _getAssemblerData () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            _sharedLabelData = _canvasPool.get();
-        }
-        else {
-            if (!_sharedLabelData) {
-                let labelCanvas = document.createElement("canvas");
-                _sharedLabelData = {
-                    canvas: labelCanvas,
-                    context: labelCanvas.getContext("2d")
-                };
-            }
-        }
+        _sharedLabelData = Label._canvasPool.get();
         _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
         return _sharedLabelData;
     },
 
     _resetAssemblerData (assemblerData) {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS && assemblerData) {
-            _canvasPool.put(assemblerData);
+        if (assemblerData) {
+            Label._canvasPool.put(assemblerData);
         }
     },
 
@@ -238,10 +203,10 @@ module.exports = {
             firstLinelabelY = lineHeight + _margin;
         }
         else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
-            firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _drawFontSize * textUtils.MIDDLE_RATIO;
+            firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _fontSize * textUtils.MIDDLE_RATIO;
         }
         else {
-            firstLinelabelY = _canvasSize.height - drawStartY - _drawFontSize * textUtils.BASELINE_RATIO - _margin;
+            firstLinelabelY = _canvasSize.height - drawStartY - _fontSize * textUtils.BASELINE_RATIO - _margin;
         }
 
         return cc.v2(labelX, firstLinelabelY);
@@ -249,6 +214,10 @@ module.exports = {
 
     _updateTexture (comp) {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
+        //Add a white background to avoid black edges.
+        //TODO: it is best to add alphaTest to filter out the background color.
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
+        _context.fillRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
         let startPosition = this._calculateFillTextStartPosition();
@@ -257,6 +226,7 @@ module.exports = {
         _context.lineJoin = 'round';
         _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
 
+        let underlineStartPosition;
         //do real rendering
         for (let i = 0; i < _splitedStrings.length; ++i) {
             _drawTextPos.x = startPosition.x;
@@ -267,8 +237,8 @@ module.exports = {
                 _drawUnderlinePos.y = _drawTextPos.y + _underlineThickness;
                 _context.save();
                 _context.beginPath();
-                _context.lineWidth = _underlineThickness;
-                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
+                _context.lineWidth = _fontSize / 8;
+                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${1})`;
                 _context.moveTo(_drawUnderlinePos.x, _drawUnderlinePos.y);
                 _context.lineTo(_drawUnderlinePos.x + _canvas.width, _drawUnderlinePos.y);
                 _context.stroke();
@@ -288,7 +258,7 @@ module.exports = {
     },
 
     _calDynamicAtlas (comp) {
-        if (!comp.batchAsBitmap) return;
+        if(comp.cacheMode !== Label.CacheMode.BITMAP) return;
 
         let frame = comp._frame;
         if (!frame._original) {
@@ -320,10 +290,18 @@ module.exports = {
                 //0.0174532925 = 3.141592653 / 180
                 _canvasSize.width += _drawFontSize * Math.tan(12 * 0.0174532925);
             }
+
+            _canvasSize.width = Math.min(_canvasSize.width, MAX_SIZE);
+            _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
+        }
+        
+        if (_canvas.width !== _canvasSize.width || CC_QQPLAY) {
+            _canvas.width = _canvasSize.width;
         }
 
-        _canvas.width = _canvasSize.width;
-        _canvas.height = _canvasSize.height;
+        if (_canvas.height !== _canvasSize.height) {
+            _canvas.height = _canvasSize.height;
+        }
     },
 
     _calculateTextBaseline () {

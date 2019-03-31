@@ -26,6 +26,7 @@
 /**
  * @module sp
  */
+let SkeletonCache = !CC_JSB && require('./skeleton-cache').sharedCache;
 
 /**
  * !#en The skeleton data of spine.
@@ -43,6 +44,8 @@ var SkeletonData = cc.Class({
 
     properties: {
 
+        // store skeleton json string for jsb
+        skeletonJsonStr: "",
         _skeletonJson: null,
 
         /**
@@ -56,6 +59,12 @@ var SkeletonData = cc.Class({
             },
             set: function (value) {
                 this._skeletonJson = value;
+                // If dynamic set skeletonJson field, auto update skeletonJsonStr field.
+                this.skeletonJsonStr = JSON.stringify(value);
+                // If create by manual, uuid is empty.
+                if (!this._uuid && value.skeleton) {
+                    this._uuid = value.skeleton.hash;
+                }
                 this.reset();
             }
         },
@@ -246,7 +255,14 @@ var SkeletonData = cc.Class({
         }
 
         return this._atlasCache = new sp.spine.TextureAtlas(this.atlasText, this._getTexture.bind(this));
-    }
+    },
+
+    destroy () {
+        if (!CC_JSB) {
+            SkeletonCache.removeSkeleton(this._uuid);
+        }
+        this._super();
+    },
 });
 
 sp.SkeletonData = module.exports = SkeletonData;

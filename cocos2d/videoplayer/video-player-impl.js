@@ -34,7 +34,7 @@ const READY_STATE = {
     HAVE_CURRENT_DATA: 2,
     HAVE_FUTURE_DATA: 3,
     HAVE_ENOUGH_DATA: 4
-}
+};
 
 let _mat4_temp = mat4.create();
 
@@ -101,10 +101,7 @@ let VideoPlayerImpl = cc.Class({
                 return;
             }
             self._playing = false;
-            if (self._ignorePause) {
-                return;
-            }
-            else {
+            if (!self._ignorePause) {
                 self._dispatchEvent(VideoPlayerImpl.EventType.PAUSED);
             }
         };
@@ -119,10 +116,11 @@ let VideoPlayerImpl = cc.Class({
         video.addEventListener("click", cbs.click);
 
         function onCanPlay () {
-            if (self._loaded || self._loadedmeta || self._playing)
+            if (self._loaded || self._playing)
                 return;
             let video = self._video;
-            if (video.readyState === READY_STATE.HAVE_ENOUGH_DATA) {
+            if (video.readyState === READY_STATE.HAVE_ENOUGH_DATA ||
+                video.readyState === READY_STATE.HAVE_METADATA) {
                 video.currentTime = 0;
                 self._loaded = true;
                 self._dispatchEvent(VideoPlayerImpl.EventType.READY_TO_PLAY);
@@ -160,7 +158,7 @@ let VideoPlayerImpl = cc.Class({
         video.style.height = height + 'px';
     },
 
-    _createDom () {
+    _createDom (muted) {
         let video = document.createElement('video');
         video.style.position = "absolute";
         video.style.bottom = "0px";
@@ -168,15 +166,20 @@ let VideoPlayerImpl = cc.Class({
         video.className = "cocosVideo";
         video.setAttribute('preload', 'auto');
         video.setAttribute('webkit-playsinline', '');
+        // This x5-playsinline tag must be added, otherwise the play, pause events will only fire once, in the qq browser.
+        video.setAttribute("x5-playsinline", '');
         video.setAttribute('playsinline', '');
+        if (muted) {
+            video.setAttribute('muted', '');
+        }
 
         this._video = video;
         cc.game.container.appendChild(video);
     },
 
-    createDomElementIfNeeded: function () {
+    createDomElementIfNeeded: function (muted) {
         if (!this._video) {
-            this._createDom();
+            this._createDom(muted);
         }
     },
 
@@ -208,7 +211,7 @@ let VideoPlayerImpl = cc.Class({
         this._url = "";
     },
 
-    setURL (path) {
+    setURL (path, muted) {
         let source, extname;
 
         if (this._url === path) {
@@ -217,7 +220,7 @@ let VideoPlayerImpl = cc.Class({
 
         this._url = path;
         this.removeDom();
-        this.createDomElementIfNeeded();
+        this.createDomElementIfNeeded(muted);
         this._bindEvent();
 
         let video = this._video;

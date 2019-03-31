@@ -416,6 +416,12 @@ var PageView = cc.Class({
 
     // 刷新页面视图
     _updatePageView: function () {
+        // 当页面数组变化时修改 content 大小
+        var layout = this.content.getComponent(cc.Layout);
+        if (layout && layout.enabled) {
+            layout.updateLayout();
+        }
+
         var pageCount = this._pages.length;
 
         if (this._curPageIdx >= pageCount) {
@@ -433,12 +439,6 @@ var PageView = cc.Class({
             }
         }
 
-        // 当页面数组变化时修改 content 大小
-        var layout = this.content.getComponent(cc.Layout);
-        if (layout && layout.enabled) {
-            layout.updateLayout();
-        }
-        
         // 刷新 indicator 信息与状态
         if (this.indicator) {
             this.indicator._refresh();

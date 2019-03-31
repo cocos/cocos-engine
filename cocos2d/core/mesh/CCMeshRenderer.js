@@ -157,6 +157,10 @@ let MeshRenderer = cc.Class({
         this._setMesh(null);
     },
 
+    getRenderNode () {
+        return this.node;
+    },
+
     _setMesh (mesh) {
         if (this._mesh) {
             this._mesh.off('init-format', this._updateMeshAttribute, this);
@@ -173,10 +177,6 @@ let MeshRenderer = cc.Class({
 
     _activateMaterial (force) {
         let mesh = this._mesh;
-        // TODO: should init mesh when mesh loaded, need asset load event support
-        if (mesh) {
-            mesh._initResource();
-        }
 
         if (!mesh || mesh.subMeshes.length === 0) {
             this.disableRender();

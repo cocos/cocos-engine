@@ -26,8 +26,7 @@
 const js = require('../../../../../platform/js');
 const ttfUtls = require('../../../../utils/label/ttf');
 const fillMeshVertices = require('../../utils').fillMeshVertices;
-
-const WHITE = cc.Color.WHITE;
+const WHITE = cc.color(255, 255, 255, 255);
 
 module.exports = js.addon({
     createData (comp) {

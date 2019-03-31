@@ -396,4 +396,42 @@ if (TestEditorExtends) {
 
         cc.js.unregisterClass(Asset);
     });
+
+    test('eliminated default property for unknown value type', function () {
+        function Vec3 (x, y, z) {
+            this.x = x || 1;
+            this.y = y || 0;
+            this.z = z || 0;
+        }
+        cc.js.extend(Vec3, cc.ValueType);
+        cc.Class.fastDefine('Vector3', Vec3, { x: 1, y: 0, z: 0 });
+        Vec3.prototype.clone = function () {
+            return new Vec3(this.x, this.y, this.z);
+        };
+        window.Vector3 = Vec3;
+
+        var MyAsset = cc.Class({
+            name: 'MyAsset',
+            properties: {
+                scale1: new Vec3(1, 0, 0),
+                scale10: new Vec3(1, 99, 0),
+            }
+        });
+        var asset = new MyAsset();
+        asset.scale10.y = 0;
+
+        var json = {
+            __type__: 'MyAsset',
+            scale10: {
+                __type__: 'Vector3',
+            },
+        };
+
+        var result = cc.deserialize(json);
+        deepEqual(result.scale1, asset.scale1, 'should load eliminated entire property');
+        deepEqual(result.scale10, asset.scale10, 'should load eliminated sub property');
+
+        cc.js.unregisterClass(Vec3, MyAsset);
+        delete window.Vector3;
+    });
 }

@@ -24,7 +24,7 @@
  ****************************************************************************/
 // @ts-check
 import enums from '../../renderer/enums';
-import Light from '../../renderer/scene/light';
+import RendererLight from '../../renderer/scene/light';
 import { Color } from '../value-types';
 import { toRadian } from '../vmath';
 
@@ -36,15 +36,15 @@ const { ccclass, menu, inspector, property, executeInEditMode } = require('../pl
 /**
  * !#en The light source type
  *
- * !#ch 光源类型
+ * !#zh 光源类型
  * @static
- * @enum LightComponent.Type
+ * @enum Light.Type
  */
 const LightType = Enum({
     /**
      * !#en The direction of light
      *
-     * !#ch 平行光
+     * !#zh 平行光
      * @property DIRECTIONAL
      * @readonly
      * @type {Number}
@@ -53,7 +53,7 @@ const LightType = Enum({
     /**
      * !#en The point of light
      *
-     * !#ch 点光源
+     * !#zh 点光源
      * @property POINT
      * @readonly
      * @type {Number}
@@ -62,7 +62,7 @@ const LightType = Enum({
     /**
      * !#en The spot of light
      *
-     * !#ch 聚光灯
+     * !#zh 聚光灯
      * @property SPOT
      * @readonly
      * @type {Number}
@@ -73,33 +73,33 @@ const LightType = Enum({
 /**
  * !#en The shadow type
  *
- * !#ch 阴影类型
+ * !#zh 阴影类型
  * @static
- * @enum LightComponent.ShadowType
+ * @enum Light.ShadowType
  */
 const LightShadowType = Enum({
     /**
      * !#en No shadows
      *
-     * !#ch 阴影关闭
+     * !#zh 阴影关闭
      * @property NONE
      * @readonly
      * @type {Number}
      */
     NONE: 0,
-    /**
-     * !#en Soft shadows
-     *
-     * !#ch 软阴影
-     * @property SOFT
-     * @readonly
-     * @type {Number}
-     */
-    SOFT: 1,
+    // /**
+    //  * !#en Soft shadows
+    //  *
+    //  * !#zh 软阴影
+    //  * @property SOFT
+    //  * @readonly
+    //  * @type {Number}
+    //  */
+    // SOFT: 1,
     /**
      * !#en Hard shadows
      *
-     * !#ch 阴硬影
+     * !#zh 阴硬影
      * @property HARD
      * @readonly
      * @type {Number}
@@ -110,15 +110,15 @@ const LightShadowType = Enum({
 /**
  * !#en The Light Component
  *
- * !#ch 光源组件
- * @class LightComponent
+ * !#zh 光源组件
+ * @class Light
  * @extends CCComponent
  */
-@ccclass('cc.LightComponent')
-@menu('i18n:MAIN_MENU.component.renderers/LightComponent')
+@ccclass('cc.Light')
+@menu('i18n:MAIN_MENU.component.renderers/Light')
 @executeInEditMode
 @inspector('packages://inspector/inspectors/comps/light.js')
-export default class LightComponent extends CCComponent {
+export default class Light extends CCComponent {
     @property
     _type = LightType.DIRECTIONAL;
 
@@ -150,23 +150,21 @@ export default class LightComponent extends CCComponent {
     _shadowMinDepth = 1;
 
     @property
-    _shadowMaxDepth = 1000;
+    _shadowMaxDepth = 4096;
 
     @property
     _shadowDepthScale = 250;
 
     @property
-    _shadowFrustumSize = 50;
+    _shadowFrustumSize = 1024;
 
     @property
     _shadowBias = 0.0005;
 
     /**
-     * !#en The light source type
-     *
-     * !#ch 光源类型
-     *
-     * @type {Number}
+     * !#en The light source type，currently we have directional, point, spot three type.
+     * !#zh 光源类型，目前有 平行光，聚光灯，点光源 三种类型
+     * @type {LightType}
      */
     @property({
         type: LightType
@@ -189,8 +187,7 @@ export default class LightComponent extends CCComponent {
 
     /**
      * !#en The light source color
-     *
-     * !#ch 光源颜色
+     * !#zh 光源颜色
      * @type {Color}
      */
     @property
@@ -206,7 +203,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The light source intensity
      *
-     * !#ch 光源强度
+     * !#zh 光源强度
      * @type {Number}
      */
     @property
@@ -222,7 +219,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The light range, used for spot and point light
      *
-     * !#ch 针对聚光灯和点光源设置光源范围
+     * !#zh 针对聚光灯和点光源设置光源范围
      * @type {Number}
      */
     @property
@@ -238,7 +235,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The spot light cone angle
      *
-     * !#ch 聚光灯锥角
+     * !#zh 聚光灯锥角
      * @type {Number}
      */
     @property
@@ -254,7 +251,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The spot light exponential
      *
-     * !#ch 聚光灯指数
+     * !#zh 聚光灯指数
      * @type {Number}
      */
     @property
@@ -270,7 +267,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The shadow type
      *
-     * !#ch 阴影类型
+     * !#zh 阴影类型
      * @type {Number} shadowType
      */
     @property({
@@ -295,7 +292,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The shadow resolution
      *
-     * !#ch 阴影分辨率
+     * !#zh 阴影分辨率
      *
      * @type {Number}
      */
@@ -312,7 +309,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The shadow darkness
      *
-     * !#ch 阴影灰度值
+     * !#zh 阴影灰度值
      *
      * @type {Number}
      */
@@ -329,7 +326,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The shadow min depth
      *
-     * !#ch 阴影最小深度
+     * !#zh 阴影最小深度
      *
      * @type {Number}
      */
@@ -346,7 +343,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The shadow max depth
      *
-     * !#ch 阴影最大深度
+     * !#zh 阴影最大深度
      *
      * @type {Number}
      */
@@ -363,7 +360,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The shadow depth scale
      *
-     * !#ch 阴影深度比例
+     * !#zh 阴影深度比例
      *
      * @type {Number}
      */
@@ -380,7 +377,7 @@ export default class LightComponent extends CCComponent {
     /**
      * !#en The shadow frustum size
      *
-     * !#ch 阴影截锥体大小
+     * !#zh 阴影截锥体大小
      *
      * @type {Number}
      */
@@ -394,22 +391,22 @@ export default class LightComponent extends CCComponent {
         this._light.setShadowFrustumSize(val);
     }
 
-    /**
-     * !#en The shadow bias
-     *
-     * !#ch 阴影偏移量
-     *
-     * @type {Number}
-     */
-    @property
-    get shadowBias() {
-        return this._shadowBias;
-    }
+    // /**
+    //  * !#en The shadow bias
+    //  *
+    //  * !#zh 阴影偏移量
+    //  *
+    //  * @type {Number}
+    //  */
+    // @property
+    // get shadowBias() {
+    //     return this._shadowBias;
+    // }
 
-    set shadowBias(val) {
-        this._shadowBias = val;
-        this._light.setShadowBias(val);
-    }
+    // set shadowBias(val) {
+    //     this._shadowBias = val;
+    //     this._light.setShadowBias(val);
+    // }
 
     static Type = LightType;
 
@@ -418,7 +415,7 @@ export default class LightComponent extends CCComponent {
     constructor() {
         super();
 
-        this._light = new Light();
+        this._light = new RendererLight();
     }
 
     onLoad() {
@@ -447,4 +444,4 @@ export default class LightComponent extends CCComponent {
     }
 }
 
-cc.LightComponent = LightComponent;
+cc.Light = Light;

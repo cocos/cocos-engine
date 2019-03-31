@@ -1,15 +1,15 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
@@ -23,12 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-let MeshResource = cc.Class({
-    name: 'cc.MeshResource',
-    
-    flush (mesh) {
+const js = require('../../../../../platform/js');
+const assembler = require('../2d/letter');
+const fillMeshVertices3D = require('../../utils').fillMeshVertices3D;
+const WHITE = cc.color(255, 255, 255, 255);
 
+module.exports = js.addon({
+    fillBuffers (comp, renderer) {
+        let node = comp.node;
+        WHITE._fastSetA(node.color.a);
+        fillMeshVertices3D(comp.node, renderer._meshBuffer3D, comp._renderData, WHITE._val);
     }
-});
-
-module.exports = MeshResource;
+}, assembler);

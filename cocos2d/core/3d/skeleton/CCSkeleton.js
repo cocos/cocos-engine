@@ -23,72 +23,49 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Model = require('./CCModel');
-const AnimationClip = require('../../animation/animation-clip');
 
- /**
- * @module cc
- */
-/**
- * !#en SkeletonAnimationClip Asset.
- * !#zh 骨骼动画剪辑。
- * @class SkeletonAnimationClip
- * @extends AnimationClip
- */
-var SkeletonAnimationClip = cc.Class({
-    name: 'cc.SkeletonAnimationClip',
-    extends: AnimationClip,
+let Skeleton = cc.Class({
+    name: 'cc.Skeleton',
+    extends: cc.Asset,
+
+    ctor () {
+        this._bindposes = [];
+        this._jointPaths = [];
+    },
 
     properties: {
-        _modelSetter: {
-            set: function (model) {
-                this._model = model;
+        _model: cc.Model,
+        _jointIndices: [],
+
+        jointPaths: {
+            get () {
+                return this._jointPaths;
+            }
+        },
+        bindposes: {
+            get () {
+                return this._bindposes;
             }
         },
 
         model: {
             get () {
                 return this._model;
-            },
-
-            type: Model
+            }
         }
     },
 
-    ctor () {
-        this._modelUuid = '';
-        this._animationID = -1;
-        this._model = null;
-        this._inited = false;
-    },
-
-    init () {
-        if (this._inited) return;
-        this._inited = true;
-        this._model.initAnimationClip(this);
-    },
-
-    _serialize: CC_EDITOR && function (exporting) {
-        let modelUuid = this._modelUuid;
-        if (exporting) {
-            modelUuid = Editor.Utils.UuidUtils.compressUuid(modelUuid, true);
-        }
-        return {
-            modelUuid: modelUuid,
-            animationID: this._animationID,
-            name: this._name,
-        }
-    },
-
-    _deserialize (data, handle) {
-        this._modelUuid = data.modelUuid;
-        this._animationID = data.animationID;
-        this._name = data.name;
-
-        if (this._modelUuid) {
-            handle.result.push(this, '_modelSetter', this._modelUuid);
+    onLoad () {
+        let nodes = this._model.nodes;
+        let jointIndices = this._jointIndices;
+        let jointPaths = this._jointPaths;
+        let bindposes = this._bindposes;
+        for (let i = 0; i < jointIndices.length; i++) {
+            let node = nodes[jointIndices[i]];
+            jointPaths[i] = node.path;
+            bindposes[i] = node.bindpose;
         }
     }
 });
 
-cc.SkeletonAnimationClip = module.exports = SkeletonAnimationClip;
+cc.Skeleton = module.exports = Skeleton;

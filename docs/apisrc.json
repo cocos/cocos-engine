@@ -25,6 +25,7 @@
     "./cocos2d/core/CCScheduler.js",
 
     "./cocos2d/core/assets/**/*",
+    "./cocos2d/core/3d/**/*",
 
     "./cocos2d/core/camera/CCCamera.js",
 

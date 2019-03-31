@@ -3,19 +3,19 @@ const vec3 = cc.vmath.vec3;
 let vec3_temp = vec3.create();
 
 function fillVertices (node, buffer, renderData, color) {
-    let data = renderData._data,
-        vertexOffset = buffer.byteOffset >> 2;
-
     let vertexCount = renderData.vertexCount;
-    buffer.request(vertexCount, renderData.indiceCount);
+    let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    let vbuf = buffer._vData,
+    let vertexOffset = offsetInfo.byteOffset >> 2,
+        vbuf = buffer._vData,
         uintbuf = buffer._uintVData;
 
     let matrix = node._worldMatrix;
     let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
         tx = matrix.m12, ty = matrix.m13;
+    
+    let data = renderData._data;
     for (let i = 0; i < vertexCount; i++) {
         let vert = data[i];
         vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
@@ -24,26 +24,26 @@ function fillVertices (node, buffer, renderData, color) {
         vbuf[vertexOffset++] = vert.v;
         uintbuf[vertexOffset++] = color;
     }
+    return offsetInfo;
 }
 
 function fillMeshVertices (node, buffer, renderData, color) {
-    let data = renderData._data,
-        vertexOffset = buffer.byteOffset >> 2;
-
-    let vertexCount = renderData.vertexCount,
-        indiceOffset = buffer.indiceOffset,
-        vertexId = buffer.vertexOffset;
-    
-    buffer.request(vertexCount, renderData.indiceCount);
+    let vertexCount = renderData.vertexCount;
+    let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    let vbuf = buffer._vData,
+    let indiceOffset = offsetInfo.indiceOffset,
+        vertexOffset = offsetInfo.byteOffset >> 2,
+        vertexId = offsetInfo.vertexOffset,
+        vbuf = buffer._vData,
         uintbuf = buffer._uintVData,
         ibuf = buffer._iData;
 
     let matrix = node._worldMatrix;
     let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
         tx = matrix.m12, ty = matrix.m13;
+
+    let data = renderData._data;
     for (let i = 0; i < vertexCount; i++) {
         let vert = data[i];
         vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
@@ -63,21 +63,22 @@ function fillMeshVertices (node, buffer, renderData, color) {
         ibuf[indiceOffset++] = start + 3;
         ibuf[indiceOffset++] = start + 2;
     }
+
+    return offsetInfo;
 }
 
 function fillVertices3D (node, buffer, renderData, color) {
-    let data = renderData._data,
-        vertexOffset = buffer.byteOffset >> 2;
-
     let vertexCount = renderData.vertexCount;
-    buffer.request(vertexCount, renderData.indiceCount);
+    let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    let vbuf = buffer._vData,
+    let vertexOffset = offsetInfo.byteOffset >> 2,
+        vbuf = buffer._vData,
         uintbuf = buffer._uintVData;
 
     let matrix = node._worldMatrix;
 
+    let data = renderData._data;
     for (let i = 0; i < vertexCount; i++) {
         let vert = data[i];
         vec3.set(vec3_temp, vert.x, vert.y, 0);
@@ -89,25 +90,25 @@ function fillVertices3D (node, buffer, renderData, color) {
         vbuf[vertexOffset++] = vert.v;
         uintbuf[vertexOffset++] = color;
     }
+    
+    return offsetInfo;
 }
 
 function fillMeshVertices3D (node, buffer, renderData, color) {
-    let data = renderData._data,
-        vertexOffset = buffer.byteOffset >> 2;
-
-    let vertexCount = renderData.vertexCount,
-        indiceOffset = buffer.indiceOffset,
-        vertexId = buffer.vertexOffset;
-    
-    buffer.request(vertexCount, renderData.indiceCount);
+    let vertexCount = renderData.vertexCount;
+    let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    let vbuf = buffer._vData,
+    let indiceOffset = offsetInfo.indiceOffset,
+        vertexId = offsetInfo.vertexOffset,
+        vertexOffset = offsetInfo.byteOffset >> 2,
+        vbuf = buffer._vData,
         uintbuf = buffer._uintVData,
         ibuf = buffer._iData;
 
     let matrix = node._worldMatrix;
 
+    let data = renderData._data;
     for (let i = 0; i < vertexCount; i++) {
         let vert = data[i];
         vec3.set(vec3_temp, vert.x, vert.y, 0);
@@ -130,19 +131,20 @@ function fillMeshVertices3D (node, buffer, renderData, color) {
         ibuf[indiceOffset++] = start + 3;
         ibuf[indiceOffset++] = start + 2;
     }
+
+    return offsetInfo;
 }
 
 function fillVerticesWithoutCalc (node, buffer, renderData, color) {
-    let data = renderData._data,
-        vertexOffset = buffer.byteOffset >> 2;
-
     let vertexCount = renderData.vertexCount;
-    buffer.request(vertexCount, renderData.indiceCount);
+    let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    let vbuf = buffer._vData,
+    let vertexOffset = offsetInfo.byteOffset >> 2,
+        vbuf = buffer._vData,
         uintbuf = buffer._uintVData;
 
+    let data = renderData._data;
     for (let i = 0; i < vertexCount; i++) {
         let vert = data[i];
         vbuf[vertexOffset++] = vert.x;
@@ -151,19 +153,20 @@ function fillVerticesWithoutCalc (node, buffer, renderData, color) {
         vbuf[vertexOffset++] = vert.v;
         uintbuf[vertexOffset++] = color;
     }
+
+    return offsetInfo;
 }
 
 function fillVerticesWithoutCalc3D (node, buffer, renderData, color) {
-    let data = renderData._data,
-        vertexOffset = buffer.byteOffset >> 2;
-
     let vertexCount = renderData.vertexCount;
-    buffer.request(vertexCount, renderData.indiceCount);
+    let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
     // buffer data may be realloc, need get reference after request.
-    let vbuf = buffer._vData,
+    let vertexOffset = offsetInfo.byteOffset >> 2,
+        vbuf = buffer._vData,
         uintbuf = buffer._uintVData;
 
+    let data = renderData._data;
     for (let i = 0; i < vertexCount; i++) {
         let vert = data[i];
         vbuf[vertexOffset++] = vert.x;

@@ -4,25 +4,38 @@ import gfx from '../gfx';
 
 let _shdID = 0;
 
-function _generateDefines(device, defs, deps) {
+function _generateDefines(defineList) {
   let defines = [];
-  for (let def in defs) {
-    let result = defs[def] ? 1 : 0;
-    // fallback if extension dependency not supported
-    if (deps && deps[def] && !device.ext(deps[def])) result = 0;
-    defines.push(`#define ${def} ${result}`);
-  }
-  return defines.join('\n');
-}
-
-function _replaceMacroNums(string, defs) {
-  let cache = {};
-  let tmp = string;
-  for (let def in defs) {
-    if (Number.isInteger(defs[def])) {
-      cache[def] = defs[def];
+  let cache = {}
+  for (let i = defineList.length - 1; i >= 0; i--) {
+    let defs = defineList[i];
+    for (let def in defs) {
+      if (cache[def] !== undefined) continue;
+      let result = defs[def];
+      if (typeof result !== 'number') {
+        result = result ? 1 : 0;
+      }
+      cache[def] = result;
+      defines.push(`#define ${def} ${result}`);
     }
   }
+  return defines.join('\n') + '\n';
+}
+
+function _replaceMacroNums(string, defineList) {
+  let cache = {};
+  let tmp = string;
+
+  for (let i = defineList.length - 1; i >= 0; i--) {
+    let defs = defineList[i];
+    for (let def in defs) {
+      if (cache[def] !== undefined) continue;
+      if (Number.isInteger(defs[def])) {
+        cache[def] = defs[def];
+      }
+    }
+  }
+
   for (let def in cache) {
     let reg = new RegExp(def, 'g');
     tmp = tmp.replace(reg, cache[def]);
@@ -55,7 +68,6 @@ export default class ProgramLib {
    */
   constructor(device, templates = [], chunks = {}) {
     this._device = device;
-    this._precision = `precision highp float;\n`;
 
     // register templates
     this._templates = {};
@@ -88,12 +100,12 @@ export default class ProgramLib {
    *     ],
    *     attributes: [{ name: 'a_position', type: 'vec3' }],
    *     uniforms: [{ name: 'color', type: 'vec4' }],
-   *     extensions: [{ name: 'GL_OES_standard_derivatives', defines: ['USE_NORMAL_TEXTURE'] }],
+   *     extensions: ['GL_OES_standard_derivatives'],
    *   };
    *   programLib.define(program);
    */
   define(prog) {
-    let name = prog.name, vert = prog.vert, frag = prog.frag, defines = prog.defines;
+    let { name, vert, frag, defines, extensions } = prog;
     if (this._templates[name]) {
       console.warn(`Failed to define shader ${name}: already exists.`);
       return;
@@ -129,9 +141,6 @@ export default class ProgramLib {
       def._offset = offset;
     }
 
-    vert = this._precision + vert;
-    frag = this._precision + frag;
-
     // store it
     this._templates[name] = {
       id,
@@ -158,16 +167,18 @@ export default class ProgramLib {
     return this._templates[name] !== undefined;
   }
 
+
   /**
    * @param {string} name
-   * @param {Object} defines
+   * @param {Array} defineList
    */
-  getKey(name, defines) {
+  getKey(name, defineList) {
     let tmpl = this._templates[name];
     let key = 0;
     for (let i = 0; i < tmpl.defines.length; ++i) {
       let tmplDefs = tmpl.defines[i];
-      let value = defines[tmplDefs.name];
+      
+      let value = this._getValueFromDefineList(tmplDefs.name, defineList);
       if (value === undefined) {
         continue;
       }
@@ -175,17 +186,18 @@ export default class ProgramLib {
       key |= tmplDefs._map(value);
     }
 
-    return key << 8 | tmpl.id;
+    // return key << 8 | tmpl.id;
+    // key number maybe bigger than 32 bit, need use string to store value.
+    return tmpl.id + ':' + key;
   }
 
   /**
    * @param {string} name
-   * @param {Object} defines
-   * @param {Object} extensions
+   * @param {[Object]} defineList
    * @param {String} errPrefix
    */
-  getProgram(name, defines, extensions, errPrefix) {
-    let key = this.getKey(name, defines);
+  getProgram(name, defineList, errPrefix) {
+    let key = this.getKey(name, defineList);
     let program = this._cache[key];
     if (program) {
       return program;
@@ -193,10 +205,10 @@ export default class ProgramLib {
 
     // get template
     let tmpl = this._templates[name];
-    let customDef = _generateDefines(this._device, defines, extensions) + '\n';
-    let vert = _replaceMacroNums(tmpl.vert, defines);
+    let customDef = _generateDefines(defineList);
+    let vert = _replaceMacroNums(tmpl.vert, defineList);
     vert = customDef + _unrollLoops(vert);
-    let frag = _replaceMacroNums(tmpl.frag, defines);
+    let frag = _replaceMacroNums(tmpl.frag, defineList);
     frag = customDef + _unrollLoops(frag);
 
     program = new gfx.Program(this._device, {
@@ -207,7 +219,7 @@ export default class ProgramLib {
     if (errors) {
       let vertLines = vert.split('\n');
       let fragLines = frag.split('\n');
-      let defineLength = Object.keys(defines).length;
+      let defineLength = Object.keys(defineList).length;
       errors.forEach(err => {
         let line = err.line - 1;
         let originLine = err.line - defineLength;
@@ -223,5 +235,15 @@ export default class ProgramLib {
     this._cache[key] = program;
 
     return program;
+  }
+
+  _getValueFromDefineList (name, defineList) {
+    let value;
+    for (let i = defineList.length - 1; i >= 0; i--) {
+      value = defineList[i][name];
+      if (value !== undefined) {
+        return value;
+      }
+    }
   }
 }
