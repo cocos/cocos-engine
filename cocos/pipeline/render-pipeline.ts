@@ -348,6 +348,8 @@ export abstract class RenderPipeline {
             }
         }
 
+        // this._useSMAA = false;
+
         if (this._device.hasFeature(GFXFeature.FORMAT_D24S8)) {
             depthStencilFmt = GFXFormat.D24S8;
         } else {
@@ -825,7 +827,7 @@ export abstract class RenderPipeline {
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 
         _vec4Array[0] = camera.exposure;
-        _vec4Array[1] = _vec4Array[0] * this._fpScaleInv;
+        _vec4Array[1] = 1.0 / camera.exposure;
         _vec4Array[2] = this._isHDR ? 1.0 : 0.0;
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.EXPOSURE_OFFSET);
