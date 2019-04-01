@@ -281,6 +281,7 @@ export class WebGL2GFXDevice extends GFXDevice {
     }
 
     public resize (width: number, height: number) {
+        console.log('Device resize: ' + width + 'x' + height);
         this._canvas!.width = width;
         this._canvas!.height = height;
         this._width = width;
