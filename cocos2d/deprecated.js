@@ -181,6 +181,10 @@ if (CC_DEBUG) {
     markAsRemoved(cc.SpriteFrame, [
         'addLoadedEventListener'
     ]);
+    markFunctionWarning(cc.Sprite.prototype, {
+        setState: 'cc.Sprite.setMaterial',
+        getState: 'cc.Sprite.getMaterial'
+    }, 'cc.Sprite');
 
     // cc.textureCache
     js.get(cc, 'textureCache', function () {

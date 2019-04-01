@@ -173,10 +173,10 @@ let RenderComponent = cc.Class({
     },
     
     setMaterial (index, material) {
-        this._materials[index] = material;
         if (material) {
             this.markForUpdateRenderData(true);
         }
+        this._materials[index] = material;
     },
 
     _activateMaterial (force) {

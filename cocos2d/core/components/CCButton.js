@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 const Component = require('./CCComponent');
+const GraySpriteState = require('../utils/gray-sprite-state');
 
 /**
  * !#en Enum for transition type.
@@ -131,6 +132,7 @@ const State = cc.Enum({
 let Button = cc.Class({
     name: 'cc.Button',
     extends: Component,
+    mixins: [GraySpriteState],
 
     ctor () {
         this._pressed = false;
@@ -143,6 +145,9 @@ let Button = cc.Class({
         this._fromScale = cc.Vec2.ZERO;
         this._toScale = cc.Vec2.ZERO;
         this._originalScale = null;
+
+        this._graySpriteMaterial = null;
+        this._spriteMaterial = null;
 
         this._sprite = null;
     },
@@ -839,15 +844,17 @@ let Button = cc.Class({
 
     _updateDisabledState () {
         if (this._sprite) {
+            let useGrayMaterial = false;
+
             if (this.enableAutoGrayEffect) {
                 if (!(this.transition === Transition.SPRITE && this.disabledSprite)) {
                     if (!this.interactable) {
-                        this._sprite.setState(cc.Sprite.State.GRAY);
-                        return;
+                        useGrayMaterial = true;
                     }
                 }
             }
-            this._sprite.setState(cc.Sprite.State.NORMAL);
+
+            this._switchGrayMaterial(useGrayMaterial, this._sprite);
         }
     }
 });

@@ -125,6 +125,7 @@ var SizeMode = cc.Enum({
  * !#en Sprite state can choice the normal or grayscale.
  * !#zh 精灵颜色通道模式。
  * @enum Sprite.State
+ * @deprecated
  */
 var State = cc.Enum({
     /**
@@ -157,11 +158,6 @@ var Sprite = cc.Class({
     extends: RenderComponent,
     mixins: [BlendFunc],
 
-    ctor () {
-        this._graySpriteMaterial = null;
-        this._spriteMaterial = null;
-    },
-
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
         help: 'i18n:COMPONENT.help_url.sprite',
@@ -180,7 +176,6 @@ var Sprite = cc.Class({
         _fillStart: 0,
         _fillRange: 0,
         _isTrimmedMode: true,
-        _state: 0,
         _atlas: {
             default: null,
             type: cc.SpriteAtlas,
@@ -418,22 +413,18 @@ var Sprite = cc.Class({
      * @method setState
      * @see `Sprite.State`
      * @param state {Sprite.State} NORMAL or GRAY State.
+     * @deprecated
      */
-    setState: function (state) {
-        if (this._state === state) return;
-        this._state = state;
-        this._activateMaterial();
-    },
+    setState () {},
 
     /**
      * Gets the current state.
      * @method getState
      * @see `Sprite.State`
      * @return {Sprite.State}
+     * @deprecated
      */
-    getState: function () {
-        return this._state;
-    },
+    getState () {},
 
     onEnable: function () {
         this._super();
@@ -480,64 +471,41 @@ var Sprite = cc.Class({
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
-            this._renderData.material = this.sharedMaterials[0];
             this.markForUpdateRenderData(true);
         }
     },
 
     _activateMaterial: function () {
-        let spriteFrame = this._spriteFrame;
-
-        // WebGL
-        if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
-            let material = this.sharedMaterials[0];
-            // if material is not internal material, then need do nothing
-            if (material && material!== this._graySpriteMaterial && material !== this._spriteMaterial) {
-                this.markForUpdateRenderData(true);
-                this.markForRender(true);
-                return;
-            }
-
-            if (this._state === State.GRAY) {
-                material = this._graySpriteMaterial;
-                if (!material) {
-                    material = this._graySpriteMaterial = Material.getInstantiatedBuiltinMaterial('gray-sprite', this);
-                }
-            }
-            else {
-                material = this._spriteMaterial;
-                if (!material) {
-                    material = this._spriteMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
-                    material.define('USE_TEXTURE', true);
-                }
-            }
-            
-            // Set texture
-            if (spriteFrame && spriteFrame.textureLoaded()) {
-                let texture = spriteFrame.getTexture();
-                if (material.getProperty('texture') !== texture) {
-                    material.setProperty('texture', texture);
-                    this.setMaterial(0, material);
-                }
-                else if (material !== this.sharedMaterials[0]) {
-                    this.setMaterial(0, material);
-                }
-
-                if (this._renderData) {
-                    this._renderData.material = material;
-                }
-
-                this.markForUpdateRenderData(true);
-                this.markForRender(true);
-            }
-            else {
-                this.disableRender();
-            }
-        }
-        else {
+        // If render type is canvas, just return.
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             this.markForUpdateRenderData(true);
             this.markForRender(true);
+            return;
         }
+
+        let spriteFrame = this._spriteFrame;
+        // If spriteframe not loaded, disable render and return.
+        if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            this.disableRender();
+            return;
+        }
+        
+        // make sure material is belong to self.
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            material.define('USE_TEXTURE', true);
+        }
+        else {
+            material = Material.getInstantiatedMaterial(material, this);
+        }
+        
+        let texture = spriteFrame.getTexture();
+        material.setProperty('texture', texture);
+
+        this.sharedMaterials[0] = material;
+        this.markForUpdateRenderData(true);
+        this.markForRender(true);
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
