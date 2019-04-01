@@ -33,7 +33,7 @@ export class ToneMapFlow extends RenderFlow {
         return true;
     }
 
-    public destroy (): void {
+    public destroy () {
         if (this._material) {
             this._material.destroy();
         }

@@ -165,7 +165,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._width = this._canvas.width;
         this._height = this._canvas.height;
         this._nativeWidth = Math.max(info.nativeWidth || this._width, 0);
-        this._nativeHeight = Math.max(info.nativeHeight || this._width, 0);
+        this._nativeHeight = Math.max(info.nativeHeight || this._height, 0);
 
         this._colorFmt = GFXFormat.RGBA8;
 

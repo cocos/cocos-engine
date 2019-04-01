@@ -214,9 +214,13 @@ class View extends EventTarget {
         // Frame size changed, do resize works
         var width = view._originalDesignResolutionSize.width;
         var height = view._originalDesignResolutionSize.height;
+
         view._resizing = true;
         if (width > 0)
             view.setDesignResolutionSize(width, height, view._resolutionPolicy);
+
+        // cc.director.root.resize(cc.winSize.width, cc.winSize.height);
+
         view._resizing = false;
 
         view.emit('canvas-resize');

@@ -665,6 +665,7 @@ class Game extends EventTarget {
                 }
                 width = element.clientWidth;
                 height = element.clientHeight;
+
                 this.canvas = localCanvas = document.createElement("CANVAS");
                 this.container = localContainer = document.createElement("DIV");
                 element.appendChild(localContainer);
@@ -682,39 +683,27 @@ class Game extends EventTarget {
         this._determineRenderType();
         // WebGL context created successfully
         if (this.renderType === this.RENDER_TYPE_WEBGL) {
-            var opts = {
-                'stencil': true,
-                // MSAA is causing serious performance dropdown on some browsers.
-                'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS,
-                'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
-            };
-            if (isWeChatGame || isQQPlay) {
-                opts['preserveDrawingBuffer'] = true;
+            let useWebGL2 = (window.WebGL2RenderingContext !== null);
+            const userAgent = navigator.userAgent.toLowerCase();
+            if (userAgent.indexOf('safari') !== -1) {
+                if (userAgent.indexOf('chrome') === -1) {
+                    useWebGL2 = false;
+                }
+            }
+            
+            // useWebGL2 = false;
+            if (useWebGL2) {
+                this._gfxDevice = new cc.WebGL2GFXDevice();
+            } else {
+                this._gfxDevice = new cc.WebGLGFXDevice();
             }
 
-            {
-                let useWebGL2 = (window.WebGL2RenderingContext !== null);
-                const userAgent = navigator.userAgent.toLowerCase();
-                if (userAgent.indexOf('safari') !== -1) {
-                    if (userAgent.indexOf('chrome') === -1) {
-                        useWebGL2 = false;
-                    }
-                }
-                
-                // useWebGL2 = false;
-                if (useWebGL2) {
-                    this._gfxDevice = new cc.WebGL2GFXDevice();
-                } else {
-                    this._gfxDevice = new cc.WebGLGFXDevice();
-                }
-
-                this._gfxDevice.initialize({
-                    canvasElm: localCanvas,
-                    debug: true,
-                    nativeWidth: screen.width,
-                    nativeHeight: screen.height,
-                });
-            }
+            this._gfxDevice.initialize({
+                canvasElm: localCanvas,
+                debug: true,
+                nativeWidth: screen.width,
+                nativeHeight: screen.height,
+            });
         }
 
         if (!this._gfxDevice) {
