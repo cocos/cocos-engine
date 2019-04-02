@@ -83,19 +83,19 @@ async function _doBundle (options: IBuildOptions) {
 
     code = generated.code;
 
-    console.log(`Doing uglify...`);
-
-    const minifyOutput = minify(code, {
-        compress: {
-            global_defs: options.globalDefines,
-        },
-    });
-    if (minifyOutput.error) {
-        console.error(minifyOutput.error.stack);
-        return null;
-    } else {
-        code = minifyOutput.code;
-    }
+    // console.log(`Doing uglify...`);
+    
+    // const minifyOutput = minify(code, {
+    //     compress: {
+    //         global_defs: options.globalDefines,
+    //     },
+    // });
+    // if (minifyOutput.error) {
+    //     console.error(minifyOutput.error.stack);
+    //     return null;
+    // } else {
+    //     code = minifyOutput.code;
+    // }
 
     return {
         code,
