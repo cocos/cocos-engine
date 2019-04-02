@@ -827,9 +827,9 @@ export abstract class RenderPipeline {
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 
         _vec4Array[0] = camera.exposure;
-        _vec4Array[1] = 1.0 / camera.exposure;
+        _vec4Array[1] = 1.0 / _vec4Array[0];
         _vec4Array[2] = this._isHDR ? 1.0 : 0.0;
-        _vec4Array[3] = this._fpScale / camera.exposure;
+        _vec4Array[3] = _vec4Array[1] * this._fpScale;
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.EXPOSURE_OFFSET);
 
         vec3.array(_vec4Array, mainLight.direction);

@@ -36,7 +36,7 @@ export class WebGLGFXShader extends GFXShader {
             samplers: (info.samplers !== undefined ? info.samplers : []),
 
             gpuStages: new Array<WebGLGPUShaderStage>(info.stages.length),
-            glProgram: 0,
+            glProgram: null,
             glInputs: [],
             glUniforms: [],
             glBlocks: [],
@@ -49,7 +49,7 @@ export class WebGLGFXShader extends GFXShader {
                 type: stage.type,
                 source: stage.source,
                 macros: stage.macros ? stage.macros : [],
-                glShader: 0,
+                glShader: null,
             };
         }
 

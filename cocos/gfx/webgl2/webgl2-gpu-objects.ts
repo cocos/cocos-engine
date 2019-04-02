@@ -9,6 +9,7 @@ import {
     GFXFormat,
     GFXMemoryUsage,
     GFXMemoryUsageBit,
+    GFXSampleCount,
     GFXShaderType,
     GFXTextureFlagBit,
     GFXTextureFlags,
@@ -17,7 +18,6 @@ import {
     GFXTextureUsageBit,
     GFXTextureViewType,
     GFXType,
-    GFXSampleCount,
 } from '../define';
 import { IGFXInputAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
@@ -40,7 +40,7 @@ export class WebGL2GPUBuffer {
     public stride: number = 0;
 
     public glTarget: GLenum = 0;
-    public glBuffer: WebGLBuffer = 0;
+    public glBuffer: WebGLBuffer | null = null;
     public buffer: ArrayBuffer | null = null;
     public vf32: Float32Array | null = null;
     public indirects: IGFXDrawInfo[] = [];
@@ -67,7 +67,7 @@ export class WebGL2GPUTexture {
     public glType: GLenum = 0;
     public glUsage: GLenum = 0;
     public glTexture: WebGLTexture | null = null;
-    public glRenderbuffer: WebGLRenderbuffer = 0;
+    public glRenderbuffer: WebGLRenderbuffer | null = null;
     public glWrapS: GLenum = 0;
     public glWrapT: GLenum = 0;
     public glMinFilter: GLenum = 0;
@@ -100,7 +100,7 @@ export class WebGL2GPUFramebuffer {
     public gpuDepthStencilView: WebGL2GPUTextureView | null = null;
     public isOffscreen?: boolean = false;
 
-    public glFramebuffer: WebGLFramebuffer = 0;
+    public glFramebuffer: WebGLFramebuffer | null = null;
 
     constructor (gpuRenderPass: WebGL2GPURenderPass) {
         this.gpuRenderPass = gpuRenderPass;
@@ -108,7 +108,7 @@ export class WebGL2GPUFramebuffer {
 }
 
 export class WebGL2GPUSampler {
-    public glSampler: WebGLSampler = 0;
+    public glSampler: WebGLSampler | null = null;
     public minFilter: GFXFilter = GFXFilter.NONE;
     public magFilter: GFXFilter = GFXFilter.NONE;
     public mipFilter: GFXFilter = GFXFilter.NONE;
@@ -178,7 +178,7 @@ export class WebGL2GPUShaderStage {
     public type: GFXShaderType = GFXShaderType.VERTEX;
     public source: string = '';
     public macros: IGFXShaderMacro[] = [];
-    public glShader: WebGLShader = 0;
+    public glShader: WebGLShader | null = null;
 }
 
 export class WebGL2GPUShader {
@@ -187,7 +187,7 @@ export class WebGL2GPUShader {
     public samplers: GFXUniformSampler[] = [];
 
     public gpuStages: WebGL2GPUShaderStage[] = [];
-    public glProgram: WebGLProgram = 0;
+    public glProgram: WebGLProgram | null = null;
     public glInputs: WebGL2GPUInput[] = [];
     public glUniforms: IWebGL2GPUUniform[] = [];
     public glBlocks: WebGL2GPUUniformBlock[] = [];
@@ -226,7 +226,7 @@ export class WebGL2GPUBindingLayout {
 
 export class WebGL2Attrib {
     public name: string = '';
-    public glBuffer: WebGLBuffer = 0;
+    public glBuffer: WebGLBuffer | null = null;
     public glType: GLenum = 0;
     public size: number = 0;
     public count: number = 0;

@@ -2,24 +2,24 @@ import { GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUTES, IGFXRect, IGFXViewpor
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 
 export interface IWebGLTexUnit {
-    glTexture: WebGLTexture;
+    glTexture: WebGLTexture | null;
 }
 
 export class WebGLStateCache {
-    public glArrayBuffer: WebGLBuffer = 0;
-    public glElementArrayBuffer: WebGLBuffer = 0;
-    public glVAO: WebGLVertexArrayObjectOES = 0;
+    public glArrayBuffer: WebGLBuffer | null = null;
+    public glElementArrayBuffer: WebGLBuffer | null = null;
+    public glVAO: WebGLVertexArrayObjectOES | null = null;
     public texUnit: number = 0;
     public glTex2DUnits: IWebGLTexUnit[];
     public glTexCubeUnits: IWebGLTexUnit[];
-    public glRenderbuffer: WebGLRenderbuffer = 0;
-    public glFramebuffer: WebGLFramebuffer = 0;
+    public glRenderbuffer: WebGLRenderbuffer | null = null;
+    public glFramebuffer: WebGLFramebuffer | null = null;
     public viewport: IGFXViewport;
     public scissorRect: IGFXRect;
     public rs: GFXRasterizerState;
     public dss: GFXDepthStencilState;
     public bs: GFXBlendState;
-    public glProgram: WebGLProgram = 0;
+    public glProgram: WebGLProgram | null = null;
     public glEnabledAttribLocs: boolean[];
     public glCurrentAttribLocs: boolean[];
 
@@ -33,19 +33,16 @@ export class WebGLStateCache {
         this.bs = new GFXBlendState();
         this.glEnabledAttribLocs = new Array<boolean>(GFX_MAX_VERTEX_ATTRIBUTES);
         this.glCurrentAttribLocs = new Array<boolean>(GFX_MAX_VERTEX_ATTRIBUTES);
+        this.glEnabledAttribLocs.fill(false);
+        this.glCurrentAttribLocs.fill(false);
 
         for (let i = 0; i < GFX_MAX_TEXTURE_UNITS; ++i) {
             this.glTex2DUnits[i] = {
-                glTexture: 0,
+                glTexture: null,
             };
             this.glTexCubeUnits[i] = {
-                glTexture: 0,
+                glTexture: null,
             };
-        }
-
-        for (let i = 0; i < GFX_MAX_VERTEX_ATTRIBUTES; ++i) {
-            this.glEnabledAttribLocs[i] = false;
-            this.glCurrentAttribLocs[i] = false;
         }
     }
 }

@@ -7,6 +7,7 @@ import {
     GFXFormat,
     GFXMemoryUsage,
     GFXMemoryUsageBit,
+    GFXSampleCount,
     GFXShaderType,
     GFXTextureFlagBit,
     GFXTextureFlags,
@@ -15,7 +16,6 @@ import {
     GFXTextureUsageBit,
     GFXTextureViewType,
     GFXType,
-    GFXSampleCount,
 } from '../define';
 import { IGFXInputAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
@@ -38,7 +38,7 @@ export class WebGLGPUBuffer {
     public stride: number = 0;
 
     public glTarget: GLenum = 0;
-    public glBuffer: WebGLBuffer = 0;
+    public glBuffer: WebGLBuffer | null = null;
     public buffer: ArrayBuffer | null = null;
     public vf32: Float32Array | null = null;
     public indirects: IGFXDrawInfo[] = [];
@@ -64,8 +64,8 @@ export class WebGLGPUTexture {
     public glFormat: GLenum = 0;
     public glType: GLenum = 0;
     public glUsage: GLenum = 0;
-    public glTexture: WebGLTexture = 0;
-    public glRenderbuffer: WebGLRenderbuffer = 0;
+    public glTexture: WebGLTexture | null = null;
+    public glRenderbuffer: WebGLRenderbuffer | null = null;
     public glWrapS: GLenum = 0;
     public glWrapT: GLenum = 0;
     public glMinFilter: GLenum = 0;
@@ -98,7 +98,7 @@ export class WebGLGPUFramebuffer {
     public gpuDepthStencilView: WebGLGPUTextureView | null = null;
     public isOffscreen?: boolean = false;
 
-    public glFramebuffer: WebGLFramebuffer = 0;
+    public glFramebuffer: WebGLFramebuffer | null = null;
 
     constructor (gpuRenderPass: WebGLGPURenderPass) {
         this.gpuRenderPass = gpuRenderPass;
@@ -165,7 +165,7 @@ export class WebGLGPUShaderStage {
     public type: GFXShaderType = GFXShaderType.VERTEX;
     public source: string = '';
     public macros: IGFXShaderMacro[] = [];
-    public glShader: WebGLShader = 0;
+    public glShader: WebGLShader | null = null;
 }
 
 export class WebGLGPUShader {
@@ -174,7 +174,7 @@ export class WebGLGPUShader {
     public samplers: GFXUniformSampler[] = [];
 
     public gpuStages: WebGLGPUShaderStage[] = [];
-    public glProgram: WebGLProgram = 0;
+    public glProgram: WebGLProgram | null = null;
     public glInputs: WebGLGPUInput[] = [];
     public glUniforms: IWebGLGPUUniform[] = [];
     public glBlocks: WebGLGPUUniformBlock[] = [];
@@ -213,7 +213,7 @@ export class WebGLGPUBindingLayout {
 
 export class WebGLAttrib {
     public name: string = '';
-    public glBuffer: WebGLBuffer = 0;
+    public glBuffer: WebGLBuffer | null = null;
     public glType: GLenum = 0;
     public size: number = 0;
     public count: number = 0;

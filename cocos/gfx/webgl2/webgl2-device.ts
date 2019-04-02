@@ -2,7 +2,17 @@ import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXQueueType, IGFXRect, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit, GFXTextureViewType } from '../define';
+import {
+    GFXBufferTextureCopy,
+    GFXFilter,
+    GFXFormat,
+    GFXFormatSize,
+    GFXQueueType,
+    GFXTextureFlagBit,
+    GFXTextureType,
+    GFXTextureUsageBit,
+    IGFXRect,
+} from '../define';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
@@ -259,6 +269,7 @@ export class WebGL2GFXDevice extends GFXDevice {
 
         this._cmdAllocator = this.createCommandAllocator({});
 
+        // create default null texture
         this.nullTex2D = new WebGL2GFXTexture(this);
         this.nullTex2D.initialize({
             type: GFXTextureType.TEX2D,
@@ -266,6 +277,7 @@ export class WebGL2GFXDevice extends GFXDevice {
             format: GFXFormat.RGBA8,
             width: 2,
             height: 2,
+            flags: GFXTextureFlagBit.GEN_MIPMAP,
         });
 
         this.nullTexCube = new WebGL2GFXTexture(this);
@@ -276,8 +288,39 @@ export class WebGL2GFXDevice extends GFXDevice {
             width: 2,
             height: 2,
             arrayLayer: 6,
-            flags: GFXTextureFlagBit.CUBEMAP,
+            flags: GFXTextureFlagBit.CUBEMAP |  GFXTextureFlagBit.GEN_MIPMAP,
         });
+
+        const nullTexRegion: GFXBufferTextureCopy = {
+            buffOffset: 0,
+            buffStride: 0,
+            buffTexHeight: 0,
+            texOffset: {
+                x: 0,
+                y: 0,
+                z: 0,
+            },
+            texExtent: {
+                width: 2,
+                height: 2,
+                depth: 1,
+            },
+            texSubres: {
+                baseMipLevel: 0,
+                levelCount: 1,
+                baseArrayLayer: 0,
+                layerCount: 1,
+            },
+        };
+
+        const nullTexBuff = new Uint8Array(this.nullTex2D.size);
+        nullTexBuff.fill(0);
+        this.copyBuffersToTexture([nullTexBuff], this.nullTex2D, [nullTexRegion]);
+
+        nullTexRegion.texSubres.layerCount = 6;
+        this.copyBuffersToTexture(
+            [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
+            this.nullTexCube, [nullTexRegion]);
 
         return true;
     }

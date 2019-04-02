@@ -74,7 +74,7 @@ export class WebGL2GFXSampler extends GFXSampler {
         }
 
         this._gpuSampler = {
-            glSampler: 0,
+            glSampler: null,
             minFilter: this._state.minFilter,
             magFilter: this._state.magFilter,
             mipFilter: this._state.mipFilter,

@@ -45,7 +45,7 @@ export class WebGL2GFXFramebuffer extends GFXFramebuffer {
                 gpuColorViews,
                 gpuDepthStencilView,
                 isOffscreen: this._isOffscreen,
-                glFramebuffer: 0,
+                glFramebuffer: null,
             };
 
             WebGL2CmdFuncCreateFramebuffer(this._device as WebGL2GFXDevice, this._gpuFramebuffer);
@@ -55,7 +55,7 @@ export class WebGL2GFXFramebuffer extends GFXFramebuffer {
                 gpuColorViews: [],
                 gpuDepthStencilView: null,
                 isOffscreen: info.isOffscreen,
-                glFramebuffer: 0,
+                glFramebuffer: null,
             };
         }
 

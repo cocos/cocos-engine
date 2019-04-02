@@ -2,7 +2,7 @@ import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
-import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFormat, IGFXRect, GFXFilter } from './define';
+import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXRect } from './define';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from './pipeline-layout';
@@ -206,7 +206,7 @@ export abstract class GFXDevice {
     }
 
     public defineMacro (macro: string, value?: string) {
-        const val = (value !== undefined? value : '');
+        const val = (value !== undefined ? value : '');
         this._macros.set(macro, val);
     }
 }

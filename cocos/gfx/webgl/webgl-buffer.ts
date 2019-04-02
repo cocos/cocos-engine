@@ -47,7 +47,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
             vf32: null,
             indirects: [],
             glTarget: 0,
-            glBuffer: 0,
+            glBuffer: null,
         };
 
         if (info.usage & GFXBufferUsageBit.INDIRECT) {

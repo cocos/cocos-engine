@@ -4,11 +4,14 @@ import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-alloca
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
     GFXBufferTextureCopy,
+    GFXFilter,
     GFXFormat,
     GFXFormatSize,
     GFXQueueType,
+    GFXTextureFlagBit,
+    GFXTextureType,
+    GFXTextureUsageBit,
     IGFXRect,
-    GFXFilter,
 } from '../define';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
@@ -143,6 +146,8 @@ export class WebGLGFXDevice extends GFXDevice {
     }
 
     public stateCache: WebGLStateCache = new WebGLStateCache();
+    public nullTex2D: WebGLGFXTexture | null = null;
+    public nullTexCube: WebGLGFXTexture | null = null;
 
     private _webGLRC: WebGLRenderingContext | null = null;
     private _isAntialias: boolean = true;
@@ -339,10 +344,73 @@ export class WebGLGFXDevice extends GFXDevice {
 
         this._cmdAllocator = this.createCommandAllocator({});
 
+        // create default null texture
+        this.nullTex2D = new WebGLGFXTexture(this);
+        this.nullTex2D.initialize({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED,
+            format: GFXFormat.RGBA8,
+            width: 2,
+            height: 2,
+            flags: GFXTextureFlagBit.GEN_MIPMAP,
+        });
+
+        this.nullTexCube = new WebGLGFXTexture(this);
+        this.nullTexCube.initialize({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED,
+            format: GFXFormat.RGBA8,
+            width: 2,
+            height: 2,
+            arrayLayer: 6,
+            flags: GFXTextureFlagBit.CUBEMAP |  GFXTextureFlagBit.GEN_MIPMAP,
+        });
+
+        const nullTexRegion: GFXBufferTextureCopy = {
+            buffOffset: 0,
+            buffStride: 0,
+            buffTexHeight: 0,
+            texOffset: {
+                x: 0,
+                y: 0,
+                z: 0,
+            },
+            texExtent: {
+                width: 2,
+                height: 2,
+                depth: 1,
+            },
+            texSubres: {
+                baseMipLevel: 0,
+                levelCount: 1,
+                baseArrayLayer: 0,
+                layerCount: 1,
+            },
+        };
+
+        const nullTexBuff = new Uint8Array(this.nullTex2D.size);
+        nullTexBuff.fill(0);
+        this.copyBuffersToTexture([nullTexBuff], this.nullTex2D, [nullTexRegion]);
+
+        nullTexRegion.texSubres.layerCount = 6;
+        this.copyBuffersToTexture(
+            [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
+            this.nullTexCube, [nullTexRegion]);
+
         return true;
     }
 
     public destroy (): void {
+
+        if (this.nullTex2D) {
+            this.nullTex2D.destroy();
+            this.nullTex2D = null;
+        }
+
+        if (this.nullTexCube) {
+            this.nullTexCube.destroy();
+            this.nullTexCube = null;
+        }
 
         if (this._mainWindow) {
             this._mainWindow.destroy();

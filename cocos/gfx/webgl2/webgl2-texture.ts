@@ -121,7 +121,7 @@ export class WebGL2GFXTexture extends GFXTexture {
             glType: 0,
             glUsage: 0,
             glTexture: null,
-            glRenderbuffer: 0,
+            glRenderbuffer: null,
             glWrapS: 0,
             glWrapT: 0,
             glMinFilter: 0,
