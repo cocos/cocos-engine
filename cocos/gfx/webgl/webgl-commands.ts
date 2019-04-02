@@ -1441,7 +1441,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                 switch (curGPURenderPass.depthStencilAttachment.stencilLoadOp) {
                                     case GFXLoadOp.LOAD: break; // GL default behaviour
                                     case GFXLoadOp.CLEAR: {
-                                        if (cmd0.clearFlag & GFXClearFlag.DEPTH) {
+                                        if (cmd0.clearFlag & GFXClearFlag.STENCIL) {
                                             if (!cache.dss.stencilWriteMaskFront) {
                                                 gl.stencilMaskSeparate(WebGLRenderingContext.FRONT, 0xFFFFFFFF);
                                             }

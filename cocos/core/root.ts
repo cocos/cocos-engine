@@ -56,6 +56,14 @@ export class Root {
         return this._frameTime;
     }
 
+    public get frameCount (): number {
+        return this._frameCount;
+    }
+
+    public get fps (): number {
+        return this._fps;
+    }
+
     public _createSceneFun;
     public _createViewFun;
 
@@ -68,6 +76,9 @@ export class Root {
     private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
     private _frameTime: number = 0;
+    private _fpsTime: number = 0;
+    private _frameCount: number = 0;
+    private _fps: number = 0;
 
     constructor (device: GFXDevice) {
         this._device = device;
@@ -152,6 +163,13 @@ export class Root {
     public frameMove (deltaTime: number) {
 
         this._frameTime = deltaTime;
+        ++this._frameCount;
+        this._fpsTime += this._frameTime;
+        if (this._fpsTime > 1.0) {
+            this._fps = this._frameCount;
+            this._frameCount = 0;
+            this._fpsTime = 0.0;
+        }
 
         for (const view of this._views) {
             if (view.isEnable && view.window === this._mainWindow) {
