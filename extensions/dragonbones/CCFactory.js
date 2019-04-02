@@ -159,7 +159,6 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
 
     _buildSlot (dataPackage, slotData, displays) {
         let slot = BaseObject.borrowObject(dragonBones.CCSlot);
-        slot.name = slotData.name;
         let display = slot;
         slot.init(slotData, displays, display, display);
         return slot;
