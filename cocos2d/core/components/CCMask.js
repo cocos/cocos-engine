@@ -411,7 +411,13 @@ let Mask = cc.Class({
             this._clearGraphics.node = new Node();
             this._clearGraphics._activateMaterial();
             this._clearGraphics.lineWidth = 0;
-            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            if (CC_EDITOR) {
+                let size = cc.engine.getDesignResolutionSize();
+                this._clearGraphics.rect(0, 0, size.width, size.height);
+            }
+            else {
+                this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            }
             this._clearGraphics.fill();
         }
     },
