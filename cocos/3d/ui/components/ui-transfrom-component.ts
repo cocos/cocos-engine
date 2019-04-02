@@ -3,7 +3,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { EventType } from '../../../core/platform/event-manager/event-enum';
 import { EventListener } from '../../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
-import * as math from '../../../core/vmath/index';
+import * as vmath from '../../../core/vmath';
 import { CanvasComponent } from './canvas-component';
 
 const _vec2a = new Vec2();
@@ -222,12 +222,12 @@ export class UITransformComponent extends Component {
         const center = cc.visibleRect.center;
         _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
         _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
-        math.mat4.invert(_mat4_temp, _mat4_temp);
-        math.vec2.transformMat4(cameraPt, point, _mat4_temp);
+        vmath.mat4.invert(_mat4_temp, _mat4_temp);
+        vmath.vec2.transformMat4(cameraPt, point, _mat4_temp);
 
         this.node.getWorldMatrix(_worldMatrix);
-        math.mat4.invert(_mat4_temp, _worldMatrix);
-        math.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        vmath.mat4.invert(_mat4_temp, _worldMatrix);
+        vmath.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
 
@@ -252,89 +252,47 @@ export class UITransformComponent extends Component {
     }
 
     /**
-     * !#en Converts a Point to node (local) space coordinates then add the anchor point position.
-     * So the return position will be related to the left bottom corner of the node's bounding box.
-     * This equals to the API behavior of cocos2d-x, you probably want to use convertToNodeSpaceAR instead
-     * !#zh 将一个点转换到节点 (局部) 坐标系，并加上锚点的坐标。<br/>
-     * 也就是说返回的坐标是相对于节点包围盒左下角的坐标。<br/>
-     * 这个 API 的设计是为了和 cocos2d-x 中行为一致，更多情况下你可能需要使用 convertToNodeSpaceAR。
-     * @method convertToNodeSpace
-     * @param {Vec3} worldPoint
-     * @return {Vec3}
-     * @example
-     * var newVec2 = node.convertToNodeSpace(cc.v3(100, 100));
-     */
-    public convertToNodeSpace (worldPoint: Vec3) {
-        this.node.getWorldMatrix(_worldMatrix);
-        math.mat4.invert(_mat4_temp, _worldMatrix);
-        const out = new Vec3();
-        math.vec3.transformMat4(out, worldPoint, _mat4_temp);
-        out.x += this._anchorPoint.x * this._contentSize.width;
-        out.y += this._anchorPoint.y * this._contentSize.height;
-        return out;
-    }
-
-    /**
-     * !#en Converts a Point related to the left bottom corner of the node's bounding box to world space coordinates.
-     * This equals to the API behavior of cocos2d-x, you probably want to use convertToWorldSpaceAR instead
-     * !#zh 将一个相对于节点左下角的坐标位置转换到世界空间坐标系。
-     * 这个 API 的设计是为了和 cocos2d-x 中行为一致，更多情况下你可能需要使用 convertToWorldSpaceAR
-     * @method convertToWorldSpace
-     * @param {Vec3} nodePoint
-     * @return {Vec3}
-     * @example
-     * var newVec3 = node.convertToWorldSpace(cc.v3(100, 100));
-     */
-    public convertToWorldSpace (nodePoint: Vec3) {
-        this.node.getWorldMatrix(_worldMatrix);
-        const out = new Vec3(
-            nodePoint.x - this._anchorPoint.x * this._contentSize.width,
-            nodePoint.y - this._anchorPoint.y * this._contentSize.height,
-            0,
-        );
-        return math.vec3.transformMat4(out, out, _worldMatrix);
-    }
-
-    /**
      * !#en
-     * Converts a Point to node (local) space coordinates in which the anchor point is the origin position.
+     * Converts a UI Point to UI Node (Local) Space coordinates in which the anchor point is the origin position.
+     * Conversion of non-UI nodes to UI Node (Local) Space coordinate system, please go cc.pipelineUtils.ConvertWorldToUISpaceAR.
      * !#zh
-     * 将一个点转换到节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
+     * 将一个 UI 节点转换到另一个 UI 节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
+     * 非 UI 节点转换到 UI 节点(局部) 空间坐标系，请走 cc.pipelineUtils.ConvertWorldToUISpaceAR
      * @method convertToNodeSpaceAR
      * @param {Vec3} worldPoint
+     * @param {Vec3} out
      * @return {Vec3}
      * @example
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
-    public convertToNodeSpaceAR (out: Vec3, worldPoint: Vec3) {
-        const matrix = new Mat4();
-        this.node.getWorldMatrix(matrix);
-        math.mat4.invert(_mat4_temp, matrix);
+    public convertToNodeSpaceAR (worldPoint: Vec3, out?: Vec3) {
+        this.node.getWorldMatrix(_worldMatrix);
+        vmath.mat4.invert(_mat4_temp, _worldMatrix);
         if (!out) {
             out = new Vec3();
         }
 
-        return math.vec2.transformMat4(out, worldPoint, _mat4_temp);
+        return vmath.vec3.transformMat4(out, worldPoint, _mat4_temp);
     }
 
     /**
      * !#en
      * Converts a Point in node coordinates to world space coordinates.
      * !#zh
-     * 将节点坐标系下的一个点转换到世界空间坐标系。
+     * 将当前节点坐标系下的一个点转换到世界坐标系。
      * @method convertToWorldSpaceAR
      * @param {Vec2} nodePoint
      * @return {Vec2}
      * @example
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      */
-    public convertToWorldSpaceAR (out: Vec3, nodePoint: Vec3) {
+    public convertToWorldSpaceAR (nodePoint: Vec3, out?: Vec3) {
         this.node.getWorldMatrix(_worldMatrix);
         if (!out) {
             out = new Vec3();
         }
 
-        return math.vec2.transformMat4(out, nodePoint, _worldMatrix);
+        return vmath.vec3.transformMat4(out, nodePoint, _worldMatrix);
     }
 
     /**
@@ -348,7 +306,7 @@ export class UITransformComponent extends Component {
      * var boundingBox = node.getBoundingBox();
      */
     public getBoundingBox () {
-        math.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
+        vmath.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
         const width = this._contentSize.width;
         const height = this._contentSize.height;
         const rect = new Rect(
@@ -381,7 +339,7 @@ export class UITransformComponent extends Component {
     }
 
     public getBoundingBoxTo (parentMat: Mat4) {
-        math.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
+        vmath.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
         const width = this._contentSize.width;
         const height = this._contentSize.height;
         const rect = new Rect(
@@ -390,7 +348,7 @@ export class UITransformComponent extends Component {
             width,
             height);
 
-        math.mat4.mul(_worldMatrix, parentMat, _matrix);
+        vmath.mat4.mul(_worldMatrix, parentMat, _matrix);
         rect.transformMat4(rect, _worldMatrix);
 
         // query child's BoundingBox
