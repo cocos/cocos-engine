@@ -506,32 +506,34 @@ export class SpriteComponent extends UIRenderComponent {
         //     return false;
         // }
         // return true;
-        let canRender = super._canRender();
-        if (canRender) {
-            const spriteFrame = this._spriteFrame;
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
-                canRender = false;
-            }
-            canRender = true;
+        if (!super._canRender()){
+            return false;
         }
 
-        return canRender;
+        const spriteFrame = this._spriteFrame;
+        if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            return false;
+        }
+
+        return true;
     }
 
     protected _instanceMaterial () {
+        let mat: Material | null = null;
         if (this._sharedMaterial) {
-            this._updateMaterial(
-                Material.getInstantiatedMaterial(this._sharedMaterial,
-                    new RenderableComponent(),
-                    CC_EDITOR ? true : false,
-                ));
+            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
         } else {
-            this._updateMaterial(
-                Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'),
-                    new RenderableComponent(),
-                    CC_EDITOR ? true : false,
-                ));
+            if (UIRenderComponent.addTextureMat) {
+                mat = new Material();
+                mat.copy(UIRenderComponent.addTextureMat);
+            } else {
+                mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+                mat.initialize({ defines: { USE_TEXTURE: true}});
+                UIRenderComponent.addTextureMat = mat;
+            }
         }
+
+        this._updateMaterial(mat);
     }
 
     private _flushAssembler () {
@@ -545,7 +547,7 @@ export class SpriteComponent extends UIRenderComponent {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData.material = this._material;
+                this._renderData!.material = this._material;
                 this.markForUpdateRenderData();
             }
         }

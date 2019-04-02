@@ -159,15 +159,8 @@ class BuiltinResMgr {
         // sprite material
         const spriteMtl = new cc.Material();
         spriteMtl._uuid = 'ui-sprite-material';
-        spriteMtl.initialize({ effectName: 'builtin-sprite' });
-        spriteMtl.setProperty('mainTexture', defaultTexture);
+        spriteMtl.initialize({ defines: { USE_TEXTURE: true }, effectName: 'builtin-sprite' });
         resources[spriteMtl._uuid] = spriteMtl;
-
-        // ui base material
-        const baseMtl = new cc.Material();
-        baseMtl._uuid = 'ui-base-material';
-        baseMtl.initialize({ effectName: 'builtin-base' });
-        resources[baseMtl._uuid] = baseMtl;
 
         // default particle material
         const defaultParticleMtl = new cc.Material();
