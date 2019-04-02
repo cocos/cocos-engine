@@ -146,7 +146,7 @@ export class SkinningModelComponent extends ModelComponent {
 
         const device = _getGlobalDevice();
         const useJointTexture = !__FORCE_USE_UNIFORM_STORAGE__ && device !== null && device.hasFeature(GFXFeature.TEXTURE_FLOAT);
-        const mat = this.getMaterial(0, CC_EDITOR)!;
+        const mat = this.getMaterial(index, CC_EDITOR)!;
         const effectAsset = mat.effectAsset;
         mat.destroy();
         mat.initialize({ effectAsset, defines: { CC_USE_SKINNING: true, CC_USE_JOINTS_TEXTURE: useJointTexture } });
