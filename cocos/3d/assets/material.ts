@@ -249,7 +249,9 @@ export class Material extends Asset {
                 pass.bindTextureView(binding, val);
             } else {
                 const textureView = val.getGFXTextureView();
-                if (!textureView) { console.warn('texture asset incomplete!'); return false; }
+                if (!textureView || !textureView.texture.width || !textureView.texture.height) {
+                    console.warn('texture asset incomplete!'); return false;
+                }
                 pass.bindTextureView(binding, textureView);
                 pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, val.getGFXSamplerInfo()));
             }
