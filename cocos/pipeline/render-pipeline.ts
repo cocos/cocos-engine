@@ -37,7 +37,8 @@ const _outMat = new Mat4();
 
 export interface IRenderPipelineInfo {
     enableHDR?: boolean;
-    enableAA?: boolean;
+    enableMSAA?: boolean;
+    enableSMAA?: boolean;
 }
 
 export abstract class RenderPipeline {
@@ -64,6 +65,10 @@ export abstract class RenderPipeline {
 
     public get isHDR (): boolean {
         return this._isHDR;
+    }
+
+    public get shadingScale (): number {
+        return this._shadingScale;
     }
 
     public set lightMeterScale (scale: number) {
@@ -166,6 +171,8 @@ export abstract class RenderPipeline {
     protected _msaaDepthStencilTexView: GFXTextureView | null = null;
     protected _msaaShadingFBO: GFXFramebuffer | null = null;
 
+    protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
+    protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _shadingTextures: GFXTexture[] = [];
     protected _shadingTexViews: GFXTextureView[] = [];
     protected _depthStencilTex: GFXTexture | null = null;
@@ -173,6 +180,7 @@ export abstract class RenderPipeline {
     protected _shadingFBOs: GFXFramebuffer[] = [];
     protected _shadingTexWidth: number = 0.0;
     protected _shadingTexHeight: number = 0.0;
+    protected _shadingScale: number = 1.0;
     protected _curIdx: number = 0;
     protected _prevIdx: number = 1;
     protected _useMSAA: boolean = false;
@@ -303,71 +311,46 @@ export abstract class RenderPipeline {
         this._shadingTexViews = new Array<GFXTextureView>(this._fboCount);
         this._shadingFBOs = new Array<GFXFramebuffer>(this._fboCount);
 
-        let colorFmt: GFXFormat;
-        let depthStencilFmt: GFXFormat;
-
         const enableHDR = (info.enableHDR !== undefined ? info.enableHDR : true);
         if (enableHDR && this._isHDRSupported) {
             // Try to use HDR format
             if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
-                colorFmt = GFXFormat.R11G11B10F;
+                this._colorFmt = GFXFormat.R11G11B10F;
                 this._isHDR = true;
             } else if (this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
-                colorFmt = GFXFormat.RGBA16F;
+                this._colorFmt = GFXFormat.RGBA16F;
                 this._isHDR = true;
             } else if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-                colorFmt = GFXFormat.RGBA32F;
+                this._colorFmt = GFXFormat.RGBA32F;
                 this._isHDR = true;
             } else {
-                colorFmt = GFXFormat.RGBA8;
+                this._colorFmt = GFXFormat.RGBA8;
                 this._isHDR = false;
                 console.error('RenderPipeline doesn\'t support HDR.');
             }
         } else { // Fallback to LDR
-            colorFmt = GFXFormat.RGBA8;
+            this._colorFmt = GFXFormat.RGBA8;
             this._isHDR = false;
-            if (this._useSMAA && this._device.hasFeature(GFXFeature.MSAA)) {
-                this._useMSAA = true;
-                this._useSMAA = false;
-            }
         }
 
         // Config Anti-Aliasing
-        if (info.enableAA === false) {
-            this._useMSAA = false;
-            this._useSMAA = false;
-        } else {
-            if (this._isHDR) {
-                this._useSMAA = true;
-            } else {
-                if (this._device.hasFeature(GFXFeature.MSAA)){
-                    this._useMSAA = true;
-                } else {
-                    this._useSMAA = true;
-                }
-            }
+        this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
+        this._useMSAA = info.enableMSAA !== undefined ? info.enableMSAA : false;
+        if (this._useMSAA) {
+            this._useMSAA = this.device.hasFeature(GFXFeature.MSAA);
         }
 
-        // this._useSMAA = false;
-
         if (this._device.hasFeature(GFXFeature.FORMAT_D24S8)) {
-            depthStencilFmt = GFXFormat.D24S8;
+            this._depthStencilFmt = GFXFormat.D24S8;
         } else {
-            depthStencilFmt = GFXFormat.D16;
+            this._depthStencilFmt = GFXFormat.D16;
         }
 
         this.updateMacros();
 
         // colorFmt = GFXFormat.RGBA16F;
 
-        const scale = 1.0;
-        const texWidth = Math.min(this._device.width * scale, 2048);
-        const texHeight = Math.min(this._device.height * scale, 2048);
-        let screenScale = Math.min(texWidth / this._device.width, texHeight / this._device.height);
-        screenScale = Math.min(scale, screenScale);
-
-        // this._shadingTexWidth = Math.floor(this._device.width * screenScale);
-        // this._shadingTexHeight = Math.floor(this._device.height * screenScale);
+        this._shadingScale = this._device.devicePixelRatio;
         this._shadingTexWidth = this._device.nativeWidth;
         this._shadingTexHeight = this._device.nativeHeight;
 
@@ -375,13 +358,13 @@ export abstract class RenderPipeline {
         console.info('USE_SMAA: ' + this._useSMAA);
         console.info('CC_USE_HDR: ' + this._isHDR);
         console.info('SHADING_SIZE: ' + this._shadingTexWidth + ' x ' + this._shadingTexHeight);
-        console.info('SCREEN_SCALE: ' + screenScale);
-        console.info('SHADING_COLOR_FORMAT: ' + GFXFormatInfos[colorFmt].name);
-        console.info('SHADING_DEPTH_FORMAT: ' + GFXFormatInfos[depthStencilFmt].name);
+        console.info('SCREEN_SCALE: ' + this._shadingScale.toFixed(2));
+        console.info('SHADING_COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
+        console.info('SHADING_DEPTH_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
 
         this._shadingPass = this._device.createRenderPass({
             colorAttachments: [{
-                format: colorFmt,
+                format: this._colorFmt,
                 loadOp: GFXLoadOp.CLEAR,
                 storeOp: GFXStoreOp.STORE,
                 sampleCount: 1,
@@ -389,7 +372,7 @@ export abstract class RenderPipeline {
                 endLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
             }],
             depthStencilAttachment: {
-                format : depthStencilFmt,
+                format : this._depthStencilFmt,
                 depthLoadOp : GFXLoadOp.CLEAR,
                 depthStoreOp : GFXStoreOp.STORE,
                 stencilLoadOp : GFXLoadOp.CLEAR,
@@ -404,26 +387,26 @@ export abstract class RenderPipeline {
             this._msaaShadingTex  = this._device.createTexture({
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: colorFmt,
+                format: this._colorFmt,
                 width: this._shadingTexWidth,
                 height: this._shadingTexHeight,
             });
             this._msaaShadingTexView = this._device.createTextureView({
                 texture : this._msaaShadingTex,
                 type : GFXTextureViewType.TV2D,
-                format : colorFmt,
+                format : this._colorFmt,
             });
             this._msaaDepthStencilTex = this._device.createTexture({
                 type : GFXTextureType.TEX2D,
                 usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format : depthStencilFmt,
+                format : this._depthStencilFmt,
                 width : this._shadingTexWidth,
                 height : this._shadingTexHeight,
             });
             this._msaaDepthStencilTexView = this._device.createTextureView({
                 texture : this._msaaDepthStencilTex,
                 type : GFXTextureViewType.TV2D,
-                format : depthStencilFmt,
+                format : this._depthStencilFmt,
             });
             this._msaaShadingFBO = this._device.createFramebuffer({
                 renderPass: this._shadingPass,
@@ -435,7 +418,7 @@ export abstract class RenderPipeline {
         this._depthStencilTex = this._device.createTexture({
             type : GFXTextureType.TEX2D,
             usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-            format : depthStencilFmt,
+            format : this._depthStencilFmt,
             width : this._shadingTexWidth,
             height : this._shadingTexHeight,
         });
@@ -443,14 +426,14 @@ export abstract class RenderPipeline {
         this._depthStencilTexView = this._device.createTextureView({
             texture : this._depthStencilTex,
             type : GFXTextureViewType.TV2D,
-            format : depthStencilFmt,
+            format : this._depthStencilFmt,
         });
 
         for (let i = 0; i < this._fboCount; ++i) {
             this._shadingTextures[i] = this._device.createTexture({
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: colorFmt,
+                format: this._colorFmt,
                 width: this._shadingTexWidth,
                 height: this._shadingTexHeight,
             });
@@ -458,7 +441,7 @@ export abstract class RenderPipeline {
             this._shadingTexViews[i] = this._device.createTextureView({
                 texture : this._shadingTextures[i],
                 type : GFXTextureViewType.TV2D,
-                format : colorFmt,
+                format : this._colorFmt,
             });
 
             this._shadingFBOs[i] = this._device.createFramebuffer({
@@ -790,8 +773,8 @@ export abstract class RenderPipeline {
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
 
-        _vec4Array[0] = camera.width / this._shadingTexWidth;
-        _vec4Array[1] = camera.height / this._shadingTexHeight;
+        _vec4Array[0] = camera.width / this._shadingTexWidth * this._shadingScale;
+        _vec4Array[1] = camera.height / this._shadingTexHeight * this._shadingScale;
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);

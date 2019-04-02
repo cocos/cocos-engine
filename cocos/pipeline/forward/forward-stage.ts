@@ -52,8 +52,8 @@ export class ForwardStage extends RenderStage {
         const vp = camera.viewport;
         this._renderArea.x = vp.x * camera.width;
         this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width;
-        this._renderArea.height = vp.height * camera.height;
+        this._renderArea.width = vp.width * camera.width * this.pipeline.shadingScale;
+        this._renderArea.height = vp.height * camera.height * this.pipeline.shadingScale;
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
             colors[0] = camera.clearColor;

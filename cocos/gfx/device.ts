@@ -35,6 +35,7 @@ export interface IGFXDeviceInfo {
     isAntialias?: boolean;
     isPremultipliedAlpha?: boolean;
     debug?: boolean;
+    devicePixelRatio?: number;
     nativeWidth?: number;
     nativeHeight?: number;
 }
@@ -56,6 +57,10 @@ export abstract class GFXDevice {
 
     public get queue (): GFXQueue {
         return this._queue as GFXQueue;
+    }
+
+    public get devicePixelRatio (): number {
+        return this._devicePixelRatio;
     }
 
     public get width (): number {
@@ -151,6 +156,7 @@ export abstract class GFXDevice {
     protected _version: string = '';
     protected _features: boolean[] = new Array<boolean>(GFXFeature.COUNT);
     protected _queue: GFXQueue | null = null;
+    protected _devicePixelRatio: number = 1.0;
     protected _width: number = 0;
     protected _height: number = 0;
     protected _nativeWidth: number = 0;

@@ -237,6 +237,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._depthBits = gl.getParameter(WebGLRenderingContext.DEPTH_BITS);
         this._stencilBits = gl.getParameter(WebGLRenderingContext.STENCIL_BITS);
 
+        this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
         this._height = this._canvas.height;
         this._nativeWidth = Math.max(info.nativeWidth || this._width, 0);
@@ -309,13 +310,14 @@ export class WebGLGFXDevice extends GFXDevice {
         console.info('RENDERER: ' + this._renderer);
         console.info('VENDOR: ' + this._vendor);
         console.info('VERSION: ' + this._version);
+        console.info('DPR: ' + this._devicePixelRatio);
         console.info('SCREEN_SIZE: ' + this._width + ' x ' + this._height);
         console.info('NATIVE_SIZE: ' + this._nativeWidth + ' x ' + this._nativeHeight);
         // console.info('COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
         // console.info('DEPTH_STENCIL_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
         // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
         console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
-        console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
+        // console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
         // console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
         // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
         console.info('DEPTH_BITS: ' + this._depthBits);

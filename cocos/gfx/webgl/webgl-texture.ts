@@ -1,7 +1,7 @@
 import { GFXFormatSurfaceSize, GFXStatus, GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../define';
 import { GFXDevice } from '../device';
 import { GFXTexture, IGFXTextureInfo } from '../texture';
-import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture } from './webgl-commands';
+import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture, WebGLCmdFuncResizeTexture } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUTexture } from './webgl-gpu-objects';
 
@@ -138,6 +138,22 @@ export class WebGLGFXTexture extends GFXTexture {
     public destroy () {
         if (this._gpuTexture) {
             WebGLCmdFuncDestroyTexture(this._device as WebGLGFXDevice, this._gpuTexture);
+            this._gpuTexture = null;
+        }
+        this._status = GFXStatus.UNREADY;
+    }
+
+    public resize (width: number, height: number) {
+        this._width = width;
+        this._height = height;
+        this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
+            this.depth, this.mipLevel) * this._arrayLayer;
+
+        if (this._gpuTexture) {
+            this._gpuTexture.width = this._width;
+            this._gpuTexture.height = this._height;
+            this._gpuTexture.size = this._size;
+            WebGLCmdFuncResizeTexture(this._device as WebGLGFXDevice, this._gpuTexture);
             this._gpuTexture = null;
         }
         this._status = GFXStatus.UNREADY;

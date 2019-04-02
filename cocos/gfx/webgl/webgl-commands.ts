@@ -901,6 +901,91 @@ export function WebGLCmdFuncDestroyTexture (device: WebGLGFXDevice, gpuTexture: 
     }
 }
 
+export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: WebGLGPUTexture) {
+
+    const gl = device.gl;
+
+    gpuTexture.glInternelFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format);
+    gpuTexture.glFormat = GFXFormatToWebGLFormat(gpuTexture.format);
+    gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format, device);
+
+    switch (gpuTexture.viewType) {
+        case GFXTextureViewType.TV2D: {
+            gpuTexture.viewType = GFXTextureViewType.TV2D;
+            gpuTexture.glTarget = gl.TEXTURE_2D;
+
+            if (gpuTexture.samples === GFXSampleCount.X1) {
+                const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
+
+                if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                    gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
+                    glTexUnit.glTexture = gpuTexture.glTexture;
+                }
+
+                let w = gpuTexture.width;
+                let h = gpuTexture.height;
+
+                if (!GFXFormatInfos[gpuTexture.format].isCompressed) {
+                    for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                        gl.texImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                        w = Math.max(1, w >> 1);
+                        h = Math.max(1, h >> 1);
+                    }
+                } else {
+                    const view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
+                    for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                        gl.compressedTexImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
+                        w = Math.max(1, w >> 1);
+                        h = Math.max(1, h >> 1);
+                    }
+                }
+            }
+            break;
+        }
+        case GFXTextureViewType.CUBE: {
+            gpuTexture.viewType = GFXTextureViewType.CUBE;
+            gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
+
+            const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
+
+            if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
+                glTexUnit.glTexture = gpuTexture.glTexture;
+            }
+
+            if (!GFXFormatInfos[gpuTexture.format].isCompressed) {
+                for (let f = 0; f < 6; ++f) {
+                    let w = gpuTexture.width;
+                    let h = gpuTexture.height;
+                    for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                        w = Math.max(1, w >> 1);
+                        h = Math.max(1, h >> 1);
+                    }
+                }
+            } else {
+                const view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
+
+                for (let f = 0; f < 6; ++f) {
+                    let w = gpuTexture.width;
+                    let h = gpuTexture.height;
+                    for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                        gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
+                        w = Math.max(1, w >> 1);
+                        h = Math.max(1, h >> 1);
+                    }
+                }
+            }
+            break;
+        }
+        default: {
+            console.error('Unsupported GFXTextureType, create texture failed.');
+            gpuTexture.viewType = GFXTextureViewType.TV2D;
+            gpuTexture.glTarget = gl.TEXTURE_2D;
+        }
+    }
+}
+
 export function WebGLCmdFuncCreateFramebuffer (device: WebGLGFXDevice, gpuFramebuffer: WebGLGPUFramebuffer) {
 
     if (gpuFramebuffer.isOffscreen) {

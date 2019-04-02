@@ -701,8 +701,9 @@ class Game extends EventTarget {
             this._gfxDevice.initialize({
                 canvasElm: localCanvas,
                 debug: true,
-                nativeWidth: screen.width,
-                nativeHeight: screen.height,
+                devicePixelRatio: window.devicePixelRatio,
+                nativeWidth: screen.width * window.devicePixelRatio,
+                nativeHeight: screen.height * window.devicePixelRatio,
             });
         }
 

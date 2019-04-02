@@ -95,5 +95,6 @@ export abstract class GFXTexture extends GFXObject {
     }
 
     public abstract initialize (info: IGFXTextureInfo): boolean;
-    public abstract destroy (): void;
+    public abstract destroy ();
+    public abstract resize (width: number, height: number);
 }
