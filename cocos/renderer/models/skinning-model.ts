@@ -134,30 +134,38 @@ function _setJointMatrix (out: Float32Array, iMatrix: number, matrix: mat4) {
     out[16 * iMatrix + 15] = matrix.m15;
 }
 
+const jointTextureCapacityTable = ((maxCapacity: number) => {
+    const pixelsPerJoint = 4;
+    const result: Array<{ textureExtent: number; capacity: number;  }> = [];
+    for (let i = 0; ; ++i) {
+        const textureExtent = 1 << i;
+        const capacity = (textureExtent * textureExtent) / pixelsPerJoint;
+        if (capacity < 1) {
+            continue;
+        }
+        result.push({ textureExtent, capacity });
+        if (capacity >= maxCapacity) {
+            break;
+        }
+    }
+    return result;
+})(1024);
+
 function _createJointsTexture (skinning: { joints: any[]; }) {
     const jointCount = skinning.joints.length;
-
-    // Set jointsTexture.
-    // A squared texture with side length N(N > 1) multiples of 2 can store
-    // 2 ^ (2 * N - 2) matrices.
-    // We support most 1024 joints.
-    let size = 0;
-    if (jointCount > 1024) {
-        throw new Error('To many joints(more than 1024).');
-    } else if (jointCount > 256) {
-        size = 64;
-    } else if (jointCount > 64) {
-        size = 32;
-    } else if (jointCount > 16) {
-        size = 16;
-    } else if (jointCount > 4) {
-        size = 8;
-    } else {
-        size = 4;
+    let textureExtent = -1;
+    for (const item of jointTextureCapacityTable) {
+        if (item.capacity >= jointCount) {
+            textureExtent = item.textureExtent;
+            break;
+        }
+    }
+    if (textureExtent < 0) {
+        throw new Error('To many joints.');
     }
 
     const texture = new Texture2D();
-    texture.create(size, size, PixelFormat.RGBA32F);
+    texture.create(textureExtent, textureExtent, PixelFormat.RGBA32F);
     texture.setFilters(Filter.NEAREST, Filter.NEAREST);
     texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
     return texture;
