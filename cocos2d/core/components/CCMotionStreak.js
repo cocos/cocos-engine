@@ -50,7 +50,7 @@ var MotionStreak = cc.Class({
     //   2.Need to update the position in each frame by itself because we don't know
     //     whether the global position have changed
     extends: RenderComponent,
-    mixins: [RenderComponent.BlendFunction],
+    mixins: [RenderComponent.BlendFactorPolyfill],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/MotionStreak',

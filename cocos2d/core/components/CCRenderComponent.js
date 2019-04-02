@@ -30,8 +30,8 @@ const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const RenderData = renderEngine.RenderData;
 const gfx = renderEngine.gfx;
 
-let BlendFunction = cc.Class({
-    name: 'BlendFunction',
+let BlendFactorPolyfill = cc.Class({
+    name: 'BlendFactorPolyfill',
 
     properties: {
         _srcBlendFactor: BlendFactor.SRC_ALPHA,
@@ -227,6 +227,6 @@ let RenderComponent = cc.Class({
 });
 RenderComponent._assembler = null;
 RenderComponent._postAssembler = null;
-RenderComponent.BlendFunction = BlendFunction;
+RenderComponent.BlendFactorPolyfill = BlendFactorPolyfill;
 
 cc.RenderComponent = module.exports = RenderComponent;
