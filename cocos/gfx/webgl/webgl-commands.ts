@@ -1332,6 +1332,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
     let glPrimitive = WebGLRenderingContext.TRIANGLES;
     let glWrapS;
     let glWrapT;
+    let glMinFilter;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];
@@ -1988,8 +1989,19 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                         glWrapS = gpuSampler.glWrapS;
                                                         glWrapT = gpuSampler.glWrapT;
                                                     } else {
-                                                        glWrapS = WebGLRenderingContext.CLAMP_TO_EDGE;
-                                                        glWrapT = WebGLRenderingContext.CLAMP_TO_EDGE;
+                                                        glWrapS = gl.CLAMP_TO_EDGE;
+                                                        glWrapT = gl.CLAMP_TO_EDGE;
+                                                    }
+
+                                                    if (gpuTexture.isPowerOf2 && gpuTexture.mipLevel > 1) {
+                                                        glMinFilter = gpuSampler.glMinFilter;
+                                                    } else {
+                                                        if (gpuSampler.glMinFilter === gl.LINEAR_MIPMAP_NEAREST ||
+                                                            gpuSampler.glMinFilter === gl.LINEAR_MIPMAP_LINEAR) {
+                                                            glMinFilter = gl.LINEAR;
+                                                        } else {
+                                                            glMinFilter = gl.NEAREST;
+                                                        }
                                                     }
 
                                                     if (gpuTexture.glWrapS !== glWrapS) {
@@ -2002,9 +2014,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                         gpuTexture.glWrapT = glWrapT;
                                                     }
 
-                                                    if (gpuTexture.glMinFilter !== gpuSampler.glMinFilter) {
-                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, gpuSampler.glMinFilter);
-                                                        gpuTexture.glMinFilter = gpuSampler.glMinFilter;
+                                                    if (gpuTexture.glMinFilter !== glMinFilter) {
+                                                        gl.texParameteri(gpuTexture.glTarget, WebGLRenderingContext.TEXTURE_MIN_FILTER, glMinFilter);
+                                                        gpuTexture.glMinFilter = glMinFilter;
                                                     }
 
                                                     if (gpuTexture.glMagFilter !== gpuSampler.glMagFilter) {
@@ -2408,7 +2420,8 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
         }
     }
 
-    if (gpuTexture.flags & GFXTextureFlagBit.GEN_MIPMAP) {
+    if ((gpuTexture.flags & GFXTextureFlagBit.GEN_MIPMAP) &&
+        gpuTexture.isPowerOf2) {
         gl.generateMipmap(gpuTexture.glTarget);
     }
 }
