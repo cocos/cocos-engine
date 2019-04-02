@@ -2,7 +2,7 @@ import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXQueueType, IGFXRect } from '../define';
+import { GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXFormatInfos, GFXFormatSize, GFXQueueType, IGFXRect, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit, GFXTextureViewType } from '../define';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
@@ -76,6 +76,8 @@ export class WebGL2GFXDevice extends GFXDevice {
     }
 
     public stateCache: WebGL2StateCache = new WebGL2StateCache();
+    public nullTex2D: WebGL2GFXTexture | null = null;
+    public nullTexCube: WebGL2GFXTexture | null = null;
 
     private _webGL2RC: WebGL2RenderingContext | null = null;
     private _isAntialias: boolean = true;
@@ -257,10 +259,40 @@ export class WebGL2GFXDevice extends GFXDevice {
 
         this._cmdAllocator = this.createCommandAllocator({});
 
+        this.nullTex2D = new WebGL2GFXTexture(this);
+        this.nullTex2D.initialize({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED,
+            format: GFXFormat.RGBA8,
+            width: 2,
+            height: 2,
+        });
+
+        this.nullTexCube = new WebGL2GFXTexture(this);
+        this.nullTexCube.initialize({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED,
+            format: GFXFormat.RGBA8,
+            width: 2,
+            height: 2,
+            arrayLayer: 6,
+            flags: GFXTextureFlagBit.CUBEMAP,
+        });
+
         return true;
     }
 
     public destroy (): void {
+
+        if (this.nullTex2D) {
+            this.nullTex2D.destroy();
+            this.nullTex2D = null;
+        }
+
+        if (this.nullTexCube) {
+            this.nullTexCube.destroy();
+            this.nullTexCube = null;
+        }
 
         if (this._mainWindow) {
             this._mainWindow.destroy();
@@ -281,7 +313,7 @@ export class WebGL2GFXDevice extends GFXDevice {
     }
 
     public resize (width: number, height: number) {
-        if (this._width !== width && this._height !== height) {
+        if (this._width !== width || this._height !== height) {
             console.log('RESIZING DEVICE: ' + width + 'x' + height);
             this._canvas!.width = width;
             this._canvas!.height = height;

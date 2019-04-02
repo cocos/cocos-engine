@@ -1998,7 +1998,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                     for (const glBlock of gpuShader.glBlocks) {
                                         if (glBlock.binding === gpuBinding.binding) {
                                             if (cache.glBindUBOs[glBlock.binding] !== gpuBinding.gpuBuffer.glBuffer) {
-                                                gl.bindBufferBase(WebGL2RenderingContext.UNIFORM_BUFFER, glBlock.binding, gpuBinding.gpuBuffer.glBuffer);
+                                                gl.bindBufferBase(gl.UNIFORM_BUFFER, glBlock.binding, gpuBinding.gpuBuffer.glBuffer);
                                                 // gl.bindBufferRange(WebGL2RenderingContext.UNIFORM_BUFFER, glBlock.binding, gpuBinding.gpuBuffer.glBuffer, 0, gpuBinding.gpuBuffer.size);
                                                 cache.glBindUBOs[glBlock.binding] = gpuBinding.gpuBuffer.glBuffer;
                                                 cache.glUniformBuffer = gpuBinding.gpuBuffer.glBuffer;
@@ -2026,29 +2026,36 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                     if (glSampler) {
                                         for (const texUnit of glSampler.units) {
 
-                                            if (cache.texUnit !== texUnit) {
-                                                gl.activeTexture(WebGL2RenderingContext.TEXTURE0 + texUnit);
-                                                cache.texUnit = texUnit;
-                                            }
-
                                             let glTexUnit: IWebGL2TexUnit | null = null;
 
-                                            if (gpuBinding.gpuTexView && gpuBinding.gpuTexView.gpuTexture.size > 0) {
+                                            if (gpuBinding.gpuTexView &&
+                                                gpuBinding.gpuTexView.gpuTexture.size > 0) {
+
+                                                if (cache.texUnit !== texUnit) {
+                                                    gl.activeTexture(gl.TEXTURE0 + texUnit);
+                                                    cache.texUnit = texUnit;
+                                                }
+
                                                 const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
                                                 switch (glSampler.glType) {
-                                                    case WebGL2RenderingContext.SAMPLER_2D: {
+                                                    case gl.SAMPLER_2D: {
                                                         glTexUnit = cache.glTex2DUnits[texUnit];
+
                                                         if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                                                            gl.bindTexture(WebGL2RenderingContext.TEXTURE_2D, gpuTexture.glTexture);
+                                                            if (gpuTexture.glTexture) {
+                                                                gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
+                                                            } else {
+                                                                gl.bindTexture(gl.TEXTURE_2D, device.nullTex2D!.gpuTexture.glTexture);
+                                                            }
                                                             glTexUnit.glTexture = gpuTexture.glTexture;
                                                         }
                                                         break;
                                                     }
-                                                    case WebGL2RenderingContext.SAMPLER_CUBE: {
+                                                    case gl.SAMPLER_CUBE: {
                                                         glTexUnit = cache.glTexCubeUnits[texUnit];
 
                                                         if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                                                            gl.bindTexture(WebGL2RenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
+                                                            gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                                                             glTexUnit.glTexture = gpuTexture.glTexture;
                                                         }
                                                         break;
@@ -2092,8 +2099,8 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                         gl.bindVertexArray(_glVAO);
                         cache.glVAO = _glVAO;
 
-                        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, null);
-                        gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, null);
+                        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
                         cache.glArrayBuffer = 0;
                         cache.glElementArrayBuffer = 0;
 
@@ -2110,7 +2117,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                             if (glAttrib) {
                                 if (cache.glArrayBuffer !== glAttrib.glBuffer) {
-                                    gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, glAttrib.glBuffer);
+                                    gl.bindBuffer(gl.ARRAY_BUFFER, glAttrib.glBuffer);
                                     cache.glArrayBuffer = glAttrib.glBuffer;
                                 }
 
@@ -2130,7 +2137,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                         const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                         if (gpuBuffer) {
                             if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                                gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                                 cache.glElementArrayBuffer = gpuBuffer.glBuffer;
                             }
                         }

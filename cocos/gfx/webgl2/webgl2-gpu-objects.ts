@@ -66,7 +66,7 @@ export class WebGL2GPUTexture {
     public glFormat: GLenum = 0;
     public glType: GLenum = 0;
     public glUsage: GLenum = 0;
-    public glTexture: WebGLTexture = 0;
+    public glTexture: WebGLTexture | null = null;
     public glRenderbuffer: WebGLRenderbuffer = 0;
     public glWrapS: GLenum = 0;
     public glWrapT: GLenum = 0;

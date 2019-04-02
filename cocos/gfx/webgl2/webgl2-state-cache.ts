@@ -2,7 +2,7 @@ import { GFX_MAX_BUFFER_BINDINGS, GFX_MAX_TEXTURE_UNITS, GFX_MAX_VERTEX_ATTRIBUT
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 
 export interface IWebGL2TexUnit {
-    glTexture: WebGLTexture;
+    glTexture: WebGLTexture | null;
 }
 
 export class WebGL2StateCache {
@@ -44,10 +44,10 @@ export class WebGL2StateCache {
 
         for (let i = 0; i < GFX_MAX_TEXTURE_UNITS; ++i) {
             this.glTex2DUnits[i] = {
-                glTexture: 0,
+                glTexture: null,
             };
             this.glTexCubeUnits[i] = {
-                glTexture: 0,
+                glTexture: null,
             };
             this.glSamplerUnits[i] = 0;
         }

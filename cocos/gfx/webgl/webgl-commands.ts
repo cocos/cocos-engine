@@ -1958,7 +1958,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                                             let glTexUnit: IWebGLTexUnit | null = null;
 
-                                            if (gpuBinding.gpuTexView && gpuBinding.gpuTexView.gpuTexture.size > 0) {
+                                            if (gpuBinding.gpuTexView &&
+                                                gpuBinding.gpuTexView.gpuTexture.glTexture !== 0 &&
+                                                gpuBinding.gpuTexView.gpuTexture.size > 0) {
                                                 const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
                                                 switch (glSampler.glType) {
                                                     case WebGLRenderingContext.SAMPLER_2D: {
