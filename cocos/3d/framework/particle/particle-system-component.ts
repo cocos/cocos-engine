@@ -364,7 +364,6 @@ export class ParticleSystemComponent extends Component {
 
             // apply startColor.
             particle.startColor.set(this.startColor.evaluate(this._time / this.duration, rand));
-            particle.startColor.to01(particle.startColor01);
             particle.color.set(particle.startColor);
 
             // apply startLifetime.

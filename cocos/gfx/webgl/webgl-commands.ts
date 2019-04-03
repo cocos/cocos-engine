@@ -262,7 +262,6 @@ function GFXTypeToWebGLType (type: GFXType): GLenum {
         case GFXType.FLOAT2: return WebGLRenderingContext.FLOAT_VEC2;
         case GFXType.FLOAT3: return WebGLRenderingContext.FLOAT_VEC3;
         case GFXType.FLOAT4: return WebGLRenderingContext.FLOAT_VEC4;
-        case GFXType.COLOR4: return WebGLRenderingContext.FLOAT_VEC4;
         case GFXType.MAT2: return WebGLRenderingContext.FLOAT_MAT2;
         case GFXType.MAT3: return WebGLRenderingContext.FLOAT_MAT3;
         case GFXType.MAT4: return WebGLRenderingContext.FLOAT_MAT4;

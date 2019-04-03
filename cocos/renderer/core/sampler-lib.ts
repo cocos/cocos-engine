@@ -29,7 +29,7 @@ const defaultInfo = [
   GFXAddress.WRAP,
   16,
   GFXComparisonFunc.NEVER,
-  0, 1000, 0,
+  0, 0, 0,
   0, 0, 0, 0,
 ];
 

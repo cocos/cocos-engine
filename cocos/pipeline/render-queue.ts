@@ -33,7 +33,7 @@ export class RenderQueue {
                     return a.depth - b.depth;
                 }
             } else {
-                return b.hash - a.hash; // the bigger the priority, the earlier
+                return a.hash - b.hash;
             }
         };
 
@@ -46,7 +46,7 @@ export class RenderQueue {
                     return b.depth - a.depth;
                 }
             } else {
-                return b.hash - a.hash; // the bigger the priority, the earlier
+                return a.hash - b.hash;
             }
         };
 
@@ -79,13 +79,13 @@ export class RenderQueue {
                 const isTransparent = pso.blendState.targets[0].blend;
 
                 if (!isTransparent) {
-                    const hash = (0 << 30) | (pass.priority << 16) | (subModel.priority << 8) | (len - p);
+                    const hash = (0 << 30) | (pass.priority << 16) | (subModel.priority << 8) | p;
 
                     this.opaques.push({
                         hash, depth, shaderId: pso.shader.id,
                         subModel, cmdBuff: subModel.commandBuffers[p]});
                 } else {
-                    const hash = (1 << 30) | (pass.priority << 16) | (subModel.priority << 8) | (len - p);
+                    const hash = (1 << 30) | (pass.priority << 16) | (subModel.priority << 8) | p;
 
                     this.transparents.push({
                         hash, depth, shaderId: pso.shader.id,

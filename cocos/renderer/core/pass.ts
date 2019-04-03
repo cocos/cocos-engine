@@ -3,7 +3,7 @@
 import { IPassInfo, IPassStates, IShaderInfo } from '../../3d/assets/effect-asset';
 import { builtinResMgr } from '../../3d/builtin';
 import { TextureBase } from '../../assets/texture-base';
-import { color4, mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
+import { mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
 import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
@@ -39,7 +39,6 @@ const _type2fn = {
   [GFXType.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => vec2.array(a, v, idx * 2),
   [GFXType.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => vec3.array(a, v, idx * 3),
   [GFXType.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => vec4.array(a, v, idx * 4),
-  [GFXType.COLOR4]: (a: Float32Array, v: any, idx: number = 0) => color4.array(a, v, idx * 4),
   [GFXType.MAT2]: (a: Float32Array, v: any, idx: number = 0) => mat2.array(a, v, idx * 4),
   [GFXType.MAT3]: (a: Float32Array, v: any, idx: number = 0) => mat3.array(a, v, idx * 9),
   [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => mat4.array(a, v, idx * 16),
@@ -54,7 +53,6 @@ const _type2default = {
   [GFXType.FLOAT2]: [0, 0],
   [GFXType.FLOAT3]: [0, 0, 0],
   [GFXType.FLOAT4]: [0, 0, 0, 0],
-  [GFXType.COLOR4]: [0, 0, 0, 1],
   [GFXType.MAT2]: [1, 0, 0, 1],
   [GFXType.MAT3]: [1, 0, 0, 0, 1, 0, 0, 0, 1],
   [GFXType.MAT4]: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],

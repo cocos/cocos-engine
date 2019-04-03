@@ -43,7 +43,7 @@ class OctreeBlock {
             if (this.entries.length >= this.capacity && this.depth < this.maxDepth) {
                 this.blocks = Octree.createBlocks(this.minPos, this.maxPos, this.entries,
                     this.capacity, this.depth, this.maxDepth, this._getBoundingShape);
-                this.entries = null;
+                this.entries.reset();
             }
         }
     }
