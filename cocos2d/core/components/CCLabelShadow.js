@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -25,42 +25,43 @@
  ****************************************************************************/
 
 /**
- * !#en Outline effect used to change the display, only for system fonts or TTF fonts
- * !#zh 描边效果组件,用于字体描边,只能用于系统字体
- * @class LabelOutline
+ * !#en Shadow effect for Label component, only for system fonts or TTF fonts
+ * !#zh 用于给 Label 组件添加阴影效果，只能用于系统字体或 ttf 字体
+ * @class LabelShadow
  * @extends Component
  * @example
  *  // Create a new node and add label components.
  *  var node = new cc.Node("New Label");
  *  var label = node.addComponent(cc.Label);
  *  label.string = "hello world";
- *  var outline = node.addComponent(cc.LabelOutline);
+ *  var labelShadow = node.addComponent(cc.LabelShadow);
  *  node.parent = this.node;
  */
 
-let LabelOutline = cc.Class({
-    name: 'cc.LabelOutline',
+let LabelShadow = cc.Class({
+    name: 'cc.LabelShadow',
     extends: require('./CCComponent'),
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.renderers/LabelOutline',
+        menu: 'i18n:MAIN_MENU.component.renderers/LabelShadow',
         executeInEditMode: true,
         requireComponent: cc.Label,
     },
 
     properties: {
         _color: cc.Color.WHITE,
-        _width: 1,
+        _offset: cc.v2(2, 2),
+        _blur: 2,
 
         /**
-         * !#en outline color
-         * !#zh 改变描边的颜色
+         * !#en The shadow color
+         * !#zh 阴影的颜色
          * @property color
          * @type {Color}
          * @example
-         * outline.color = cc.Color.BLACK;
+         * labelShadow.color = cc.Color.YELLOW;
          */
         color: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.outline.color',
+            tooltip: CC_DEV && 'i18n:COMPONENT.shadow.color',
             get: function () {
                 return this._color;
             },
@@ -71,24 +72,43 @@ let LabelOutline = cc.Class({
         },
 
         /**
-         * !#en Change the outline width
-         * !#zh 改变描边的宽度
-         * @property width
-         * @type {Number}
+         * !#en Offset between font and shadow
+         * !#zh 字体与阴影的偏移
+         * @property offset
+         * @type {Vec2}
          * @example
-         * outline.width = 3;
+         * labelShadow.offset = new cc.Vec2(2, 2);
          */
-        width: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.outline.width',
+        offset: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.shadow.offset',
             get: function () {
-                return this._width;
+                return this._offset;
             },
             set: function (value) {
-                this._width = value;
+                this._offset = value;
+                this._updateRenderData();
+            }
+        },
+
+        /**
+         * !#en A non-negative float specifying the level of shadow blur
+         * !#zh 阴影的模糊程度
+         * @property blur
+         * @type {Number}
+         * @example
+         * labelShadow.blur = 2;
+         */
+        blur: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.shadow.blur',
+            get: function () {
+                return this._blur;
+            },
+            set: function (value) {
+                this._blur = value;
                 this._updateRenderData();
             },
-            range: [0, 512],
-        }
+            range: [0, 1024],
+        },
     },
 
     onEnable () {
@@ -108,4 +128,4 @@ let LabelOutline = cc.Class({
 
 });
 
-cc.LabelOutline = module.exports = LabelOutline;
+cc.LabelShadow = module.exports = LabelShadow;

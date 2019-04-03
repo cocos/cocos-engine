@@ -54,9 +54,10 @@
     "dependencies": ["WebGL Renderer", "Renderer Texture"]
   },
   {
-    "name": "LabelOutline",
+    "name": "Label Effect",
     "entries": [
-      "./cocos2d/core/components/CCLabelOutline.js"
+      "./cocos2d/core/components/CCLabelOutline.js",
+      "./cocos2d/core/components/CCLabelShadow.js"
     ],
     "dependencies": ["Label"]
   },

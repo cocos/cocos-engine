@@ -46,6 +46,7 @@ var components = [
     require('./CCLayout'),
     require('./editbox/CCEditBox'),
     require('./CCLabelOutline'),
+    require('./CCLabelShadow'),
     require('./CCRichText'),
     require('./CCToggleContainer'),
     require('./CCToggleGroup'),
