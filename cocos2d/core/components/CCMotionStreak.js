@@ -27,6 +27,7 @@
 const RenderComponent = require('../components/CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
 const textureUtil = require('../utils/texture-util');
+const BlendFunc = require('../../core/utils/blend-func');
 
 /**
  * !#en
@@ -50,6 +51,7 @@ var MotionStreak = cc.Class({
     //   2.Need to update the position in each frame by itself because we don't know
     //     whether the global position have changed
     extends: RenderComponent,
+    mixins: [BlendFunc],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/MotionStreak',
