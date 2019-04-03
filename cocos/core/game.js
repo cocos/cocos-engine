@@ -681,6 +681,7 @@ class Game extends EventTarget {
         }
 
         this._determineRenderType();
+
         // WebGL context created successfully
         if (this.renderType === this.RENDER_TYPE_WEBGL) {
             let useWebGL2 = (window.WebGL2RenderingContext !== null);
@@ -691,15 +692,15 @@ class Game extends EventTarget {
                 }
             }
             
-            useWebGL2 = false;
+            // useWebGL2 = false;
             if (useWebGL2) {
                 this._gfxDevice = new cc.WebGL2GFXDevice();
             } else {
                 this._gfxDevice = new cc.WebGLGFXDevice();
             }
 
-            const nativeWidth = parseInt(screen.width * window.devicePixelRatio);
-            const nativeHeight = parseInt(screen.height * window.devicePixelRatio);
+            const nativeWidth = Math.floor(screen.width * window.devicePixelRatio);
+            const nativeHeight = Math.floor(screen.height * window.devicePixelRatio);
 
             this._gfxDevice.initialize({
                 canvasElm: localCanvas,

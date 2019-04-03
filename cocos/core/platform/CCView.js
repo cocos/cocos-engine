@@ -1101,8 +1101,12 @@ class ContainerStrategy {
         if (view.isRetinaEnabled())
             devicePixelRatio = view._devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
         // Setup canvas
-        locCanvas.width = w * devicePixelRatio;
-        locCanvas.height = h * devicePixelRatio;
+        // locCanvas.width = w * devicePixelRatio;
+        // locCanvas.height = h * devicePixelRatio;
+
+        locCanvas.width = w;
+        locCanvas.height = h;
+
         view.emit('canvas-resize');
     }
 

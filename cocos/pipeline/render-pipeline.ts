@@ -215,10 +215,14 @@ export abstract class RenderPipeline {
 
     public resize (width: number, height: number) {
 
-        if (width * this._shadingScale > this._shadingWidth ||
-            height * this._shadingScale > this._shadingHeight) {
-            this._shadingScale = Math.min(this._shadingWidth / width, this._shadingHeight / height);
-            console.info('SHADING_SCALE: ' + this._shadingScale.toFixed(4));
+        const w = Math.floor(width * this._shadingScale);
+        const h = Math.floor(height * this._shadingScale);
+        if (w > this._shadingWidth ||
+            h > this._shadingHeight) {
+            // this._shadingScale = Math.min(this._shadingWidth / width, this._shadingHeight / height);
+            console.info('Resizing shading scale: ' + this._shadingScale);
+
+            this.resizeFBOs(w, h);
         }
 
         for (const flow of this._flows) {
@@ -459,56 +463,58 @@ export abstract class RenderPipeline {
         }
 
         // create smaa framebuffer
-        const smaaColorFmt = GFXFormat.RGBA8;
+        if (this._useSMAA) {
+            const smaaColorFmt = GFXFormat.RGBA8;
 
-        this._smaaPass = this._device.createRenderPass({
-            colorAttachments: [{
+            this._smaaPass = this._device.createRenderPass({
+                colorAttachments: [{
+                    format: smaaColorFmt,
+                    loadOp: GFXLoadOp.CLEAR,
+                    storeOp: GFXStoreOp.STORE,
+                    sampleCount: 1,
+                    beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+                    endLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
+                }],
+            });
+
+            this._smaaEdgeTex =  this._device.createTexture({
+                type: GFXTextureType.TEX2D,
+                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                 format: smaaColorFmt,
-                loadOp: GFXLoadOp.CLEAR,
-                storeOp: GFXStoreOp.STORE,
-                sampleCount: 1,
-                beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
-                endLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
-            }],
-        });
+                width: this._shadingWidth,
+                height: this._shadingHeight,
+            });
 
-        this._smaaEdgeTex =  this._device.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-            format: smaaColorFmt,
-            width: this._shadingWidth,
-            height: this._shadingHeight,
-        });
+            this._smaaEdgeTexView = this._device.createTextureView({
+                texture : this._smaaEdgeTex,
+                type : GFXTextureViewType.TV2D,
+                format : smaaColorFmt,
+            });
 
-        this._smaaEdgeTexView = this._device.createTextureView({
-            texture : this._smaaEdgeTex,
-            type : GFXTextureViewType.TV2D,
-            format : smaaColorFmt,
-        });
+            this._smaaEdgeFBO = this._device.createFramebuffer({
+                renderPass: this._smaaPass,
+                colorViews: [ this._smaaEdgeTexView ],
+            });
 
-        this._smaaEdgeFBO = this._device.createFramebuffer({
-            renderPass: this._smaaPass,
-            colorViews: [ this._smaaEdgeTexView ],
-        });
+            this._smaaBlendTex =  this._device.createTexture({
+                type: GFXTextureType.TEX2D,
+                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                format: smaaColorFmt,
+                width: this._shadingWidth,
+                height: this._shadingHeight,
+            });
 
-        this._smaaBlendTex =  this._device.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-            format: smaaColorFmt,
-            width: this._shadingWidth,
-            height: this._shadingHeight,
-        });
+            this._smaaBlendTexView = this._device.createTextureView({
+                texture : this._smaaBlendTex,
+                type : GFXTextureViewType.TV2D,
+                format : smaaColorFmt,
+            });
 
-        this._smaaBlendTexView = this._device.createTextureView({
-            texture : this._smaaBlendTex,
-            type : GFXTextureViewType.TV2D,
-            format : smaaColorFmt,
-        });
-
-        this._smaaBlendFBO = this._device.createFramebuffer({
-            renderPass: this._smaaPass,
-            colorViews: [ this._smaaBlendTexView ],
-        });
+            this._smaaBlendFBO = this._device.createFramebuffer({
+                renderPass: this._smaaPass,
+                colorViews: [ this._smaaBlendTexView ],
+            });
+        }
 
         if (!this.createQuadInputAssembler()) {
             return false;
@@ -610,6 +616,93 @@ export abstract class RenderPipeline {
             this._shadingPass.destroy();
             this._shadingPass = null;
         }
+    }
+
+    protected resizeFBOs (width: number, height: number) {
+
+        this._shadingWidth = width;
+        this._shadingHeight = height;
+
+        if (this._depthStencilTex) {
+            this._depthStencilTex.resize(width, height);
+            this._depthStencilTexView!.destroy();
+            this._depthStencilTexView!.initialize({
+                texture : this._depthStencilTex,
+                type : GFXTextureViewType.TV2D,
+                format : this._depthStencilFmt,
+            });
+        }
+
+        for (let i = 0; i < this._fboCount; ++i) {
+            this._shadingTextures[i].resize(width, height);
+            this._shadingTexViews[i].destroy();
+            this._shadingTexViews[i].initialize({
+                texture : this._shadingTextures[i],
+                type : GFXTextureViewType.TV2D,
+                format : this._colorFmt,
+            });
+
+            this._shadingFBOs[i].destroy();
+            this._shadingFBOs[i].initialize({
+                renderPass: this._shadingPass!,
+                colorViews: [ this._shadingTexViews[i] ],
+                depthStencilView: this._depthStencilTexView!,
+            });
+        }
+
+        if (this._useMSAA) {
+            this._msaaShadingTex!.resize(width, height);
+            this._msaaShadingTexView!.destroy();
+            this._msaaShadingTexView!.initialize({
+                texture : this._msaaShadingTex!,
+                type : GFXTextureViewType.TV2D,
+                format : this._colorFmt,
+            });
+            this._msaaDepthStencilTex!.resize(width, height);
+            this._msaaDepthStencilTexView!.destroy();
+            this._msaaDepthStencilTexView!.initialize({
+                texture : this._msaaDepthStencilTex!,
+                type : GFXTextureViewType.TV2D,
+                format : this._depthStencilFmt,
+            });
+            this._msaaShadingFBO!.destroy();
+            this._msaaShadingFBO!.initialize({
+                renderPass: this._shadingPass!,
+                colorViews: [ this._msaaShadingTexView! ],
+                depthStencilView: this._msaaDepthStencilTexView!,
+            });
+        }
+
+        if (this._useSMAA) {
+            const smaaColorFmt = this._smaaEdgeTex!.format;
+            this._smaaEdgeTex!.resize(width, height);
+            this._smaaEdgeTexView!.destroy();
+            this._smaaEdgeTexView!.initialize({
+                texture : this._smaaEdgeTex!,
+                type : GFXTextureViewType.TV2D,
+                format : smaaColorFmt,
+            });
+
+            this._smaaEdgeFBO!.destroy();
+            this._smaaEdgeFBO!.initialize({
+                renderPass: this._smaaPass!,
+                colorViews: [ this._smaaEdgeTexView! ],
+            });
+            this._smaaBlendTex!.resize(width, height);
+            this._smaaBlendTexView!.destroy();
+            this._smaaBlendTexView!.initialize({
+                texture : this._smaaBlendTex!,
+                type : GFXTextureViewType.TV2D,
+                format : smaaColorFmt,
+            });
+            this._smaaBlendFBO!.destroy();
+            this._smaaBlendFBO!.initialize({
+                renderPass: this._smaaPass!,
+                colorViews: [ this._smaaBlendTexView! ],
+            });
+        }
+
+        console.info('Resizing shading fbos: ' + this._shadingWidth + 'x' + this._shadingHeight);
     }
 
     protected updateMacros () {

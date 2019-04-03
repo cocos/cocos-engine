@@ -154,7 +154,6 @@ export class WebGLGFXTexture extends GFXTexture {
             this._gpuTexture.height = this._height;
             this._gpuTexture.size = this._size;
             WebGLCmdFuncResizeTexture(this._device as WebGLGFXDevice, this._gpuTexture);
-            this._gpuTexture = null;
         }
         this._status = GFXStatus.UNREADY;
     }
