@@ -24,7 +24,7 @@ export class RenderQueue {
 
     constructor () {
 
-        // Opaque objects are sorted by depth front to back -> pass priority -> shader id.
+        // Opaque objects are sorted by pass priority -> depth front to back -> shader id.
         const opaqueCompareFn = (a: IRenderItem, b: IRenderItem) => {
             if (a.hash === b.hash) {
                 if (a.depth === b.depth) {
@@ -33,11 +33,11 @@ export class RenderQueue {
                     return a.depth - b.depth;
                 }
             } else {
-                return a.hash - b.hash;
+                return b.hash - a.hash; // the bigger the priority, the earlier
             }
         };
 
-        // Transparent objects are sorted by depth back to front -> pass priority -> shader id.
+        // Transparent objects are sorted by pass priority -> depth back to front -> shader id.
         const transparentCompareFn = (a: IRenderItem, b: IRenderItem) => {
             if (a.hash === b.hash) {
                 if (a.depth === b.depth) {
@@ -46,7 +46,7 @@ export class RenderQueue {
                     return b.depth - a.depth;
                 }
             } else {
-                return a.hash - b.hash;
+                return b.hash - a.hash; // the bigger the priority, the earlier
             }
         };
 
@@ -71,22 +71,21 @@ export class RenderQueue {
 
         for (let i = 0; i < model.subModelNum; ++i) {
             const subModel = model.getSubModel(i);
-            for (let p = 0; p < subModel.passes.length; ++p) {
+            const len = subModel.passes.length;
+            for (let p = 0; p < len; ++p) {
 
                 const pass = subModel.passes[p];
                 const pso = subModel.psos[p];
                 const isTransparent = pso.blendState.targets[0].blend;
 
-                // TODO: model priority
-
                 if (!isTransparent) {
-                    const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | p;
+                    const hash = (0 << 30) | (pass.priority << 16) | (subModel.priority << 8) | (len - p);
 
                     this.opaques.push({
                         hash, depth, shaderId: pso.shader.id,
                         subModel, cmdBuff: subModel.commandBuffers[p]});
                 } else {
-                    const hash = (1 << 30) | pass.priority << 16 | subModel.priority << 8 | p;
+                    const hash = (1 << 30) | (pass.priority << 16) | (subModel.priority << 8) | (len - p);
 
                     this.transparents.push({
                         hash, depth, shaderId: pso.shader.id,
