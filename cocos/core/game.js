@@ -699,8 +699,20 @@ class Game extends EventTarget {
                 this._gfxDevice = new cc.WebGLGFXDevice();
             }
 
-            const nativeWidth = Math.floor(screen.width * window.devicePixelRatio);
-            const nativeHeight = Math.floor(screen.height * window.devicePixelRatio);
+            cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
+            cc.view._initFrameSize();
+            let nativeWidth = Math.floor(screen.width * window.devicePixelRatio);
+            let nativeHeight = Math.floor(screen.height * window.devicePixelRatio);
+            
+            if (nativeHeight > nativeWidth) {
+                let temp = localCanvas.width;
+                localCanvas.width = localCanvas.height;
+                localCanvas.height = temp;
+
+                temp = nativeWidth;
+                nativeWidth = nativeHeight;
+                nativeHeight = temp;
+            }
 
             this._gfxDevice.initialize({
                 canvasElm: localCanvas,
