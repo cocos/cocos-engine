@@ -27,14 +27,12 @@
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/value-types';
 import { UI } from '../../../renderer/ui/ui';
-// import { IGraphicAssembler } from '../assembler/assembler';
-// const SpriteMaterial = require('../renderer/render-engine').SpriteMaterial;
+import { Material } from '../../assets';
+import { RenderableComponent } from '../../framework/renderable-component';
+import { IAssembler } from '../assembler/assembler';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { UIRenderComponent } from '../components/ui-render-component';
-import { IAssembler } from '../assembler/assembler';
-import { Material } from '../../assets';
-import { RenderableComponent } from '../../framework/renderable-component';
 
 /**
  * @class Graphics
@@ -197,11 +195,8 @@ export class GraphicsComponent extends UIRenderComponent {
     @property
     private _miterLimit = 10;
 
-    public __preload (){
-        if (super.__preload){
-            super.__preload();
-        }
-
+    constructor (){
+        super();
         this._flushAssembler();
     }
 
@@ -306,7 +301,8 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Adds an arc to the path which is centered at (cx, cy) position with radius r starting at startAngle and ending at endAngle going in the given direction by counterclockwise (defaulting to false).
+     * !#en Adds an arc to the path which is centered at (cx, cy) position with radius r starting at startAngle
+     * and ending at endAngle going in the given direction by counterclockwise (defaulting to false).
      * !#zh 绘制圆弧路径。圆弧路径的圆心在 (cx, cy) 位置，半径为 r ，根据 counterclockwise （默认为false）指定的方向从 startAngle 开始绘制，到 endAngle 结束。
      * @method arc
      * @param {Number} [cx] The x axis of the coordinate for the center point.
@@ -314,7 +310,8 @@ export class GraphicsComponent extends UIRenderComponent {
      * @param {Number} [r] The arc's radius.
      * @param {Number} [startAngle] The angle at which the arc starts, measured clockwise from the positive x axis and expressed in radians.
      * @param {Number} [endAngle] The angle at which the arc ends, measured clockwise from the positive x axis and expressed in radians.
-     * @param {Boolean} [counterclockwise] An optional Boolean which, if true, causes the arc to be drawn counter-clockwise between the two angles. By default it is drawn clockwise.
+     * @param {Boolean} [counterclockwise] An optional Boolean which, if true, causes the arc to be drawn counter-clockwise between the two angles.
+     * By default it is drawn clockwise.
      */
     public arc (cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean) {
         if (!this.impl) {
@@ -461,19 +458,21 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     protected _instanceMaterial () {
+        let mat: Material | null = null;
         if (this._sharedMaterial) {
-            this._updateMaterial(
-                Material.getInstantiatedMaterial(this._sharedMaterial,
-                    new RenderableComponent(),
-                    CC_EDITOR ? true : false,
-                ));
+            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
         } else {
-            this._updateMaterial(
-                Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-base-material'),
-                    new RenderableComponent(),
-                    CC_EDITOR ? true : false,
-                ));
+            if (UIRenderComponent.addColorMat) {
+                mat = new Material();
+                mat.copy(UIRenderComponent.addColorMat);
+            } else {
+                mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+                mat.initialize({ defines: { USE_TEXTURE: false } });
+                UIRenderComponent.addColorMat = mat;
+            }
         }
+
+        this._updateMaterial(mat);
     }
 
     private _flushAssembler (){

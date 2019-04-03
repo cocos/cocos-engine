@@ -323,15 +323,18 @@ export class NodeEventProcessor {
      * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器<br/>
      * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
      * @method on
-     * @param {String|Node.EventType} type - A string representing the event type to listen for.<br>See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
-     * @param {Function} callback - The callback that will be invoked when the event is dispatched. The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {String|Node.EventType} type - A string representing the event type to listen for.
+     * <br>See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+     * The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event|any} [callback.event] event or first argument when emit
      * @param {any} [callback.arg2] arg2
      * @param {any} [callback.arg3] arg3
      * @param {any} [callback.arg4] arg4
      * @param {any} [callback.arg5] arg5
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
-     * @param {Boolean} [useCapture=false] - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
+     * @param {Boolean} [useCapture=false] - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit,
+     * otherwise it will be triggered during bubbling phase.
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
      * @typescript
      * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
@@ -425,7 +428,8 @@ export class NodeEventProcessor {
      * @param {String} type - A string representing the event type being removed.
      * @param {Function} [callback] - The callback to remove.
      * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
-     * @param {Boolean} [useCapture=false] - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
+     * @param {Boolean} [useCapture=false] - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit,
+     *  otherwise it will be triggered during bubbling phase.
      * @example
      * this.node.off(cc.Node.EventType.TOUCH_START, this.memberFunction, this);
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);

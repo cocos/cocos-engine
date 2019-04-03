@@ -1,7 +1,7 @@
 import { Component} from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventType } from '../../../core/platform/event-manager/event-enum';
-import { EventListener } from '../../../core/platform/event-manager/event-listener';
+import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import * as vmath from '../../../core/vmath';
 import { CanvasComponent } from './canvas-component';
@@ -233,12 +233,14 @@ export class UITransformComponent extends Component {
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
             if (listener && listener.mask) {
-                const mask = listener.mask;
-                const parent = this.node;
+                const mask = listener.mask as ILinstenerMask;
+                let parent: any = this.node;
                 // find mask parent, should hit test it
+                for (let i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
+                }
                 if (parent === mask.node) {
                     const comp = parent.getComponent(cc.MaskComponent);
-                    return (comp && comp.enabledInHierarchy) ? comp.node.uiTransfromComp!.isHit(cameraPt) : true;
+                    return (comp && comp.enabledInHierarchy) ? comp.isHit(cameraPt) : true;
                 } else {
                     listener.mask = null;
                     return true;

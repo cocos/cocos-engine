@@ -613,35 +613,38 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _canRender () {
-        let result = super._canRender();
-        if (result) {
-            const font = this._font;
-            if (font && font instanceof BitmapFont) {
-                const spriteFrame = font.spriteFrame;
-                // cannot be activated if texture not loaded yet
-                if (!spriteFrame || !spriteFrame.textureLoaded()) {
-                    result = false;
-                }
+        if (!super._canRender){
+            return false;
+        }
+
+        const font = this._font;
+        if (font && font instanceof BitmapFont) {
+            const spriteFrame = font.spriteFrame;
+            // cannot be activated if texture not loaded yet
+            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+                return false;
             }
         }
 
-        return result;
+        return true;
     }
 
     protected _instanceMaterial () {
+        let mat: Material | null = null;
         if (this._sharedMaterial) {
-            this._updateMaterial(
-                Material.getInstantiatedMaterial(this._sharedMaterial,
-                    new RenderableComponent(),
-                    CC_EDITOR ? true : false,
-                ));
+            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
         } else {
-            this._updateMaterial(
-                Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'),
-                    new RenderableComponent(),
-                    CC_EDITOR ? true : false,
-                ));
+            if (UIRenderComponent.addColorMat) {
+                mat = new Material();
+                mat.copy(UIRenderComponent.addColorMat);
+            } else {
+                mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+                mat.initialize({ defines: { USE_TEXTURE: false } });
+                UIRenderComponent.addColorMat = mat;
+            }
         }
+
+        this._updateMaterial(mat);
     }
 
     private _checkStringEmpty () {

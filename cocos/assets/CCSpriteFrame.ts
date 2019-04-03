@@ -31,7 +31,7 @@ import { Rect, Size, Vec2 } from '../core/value-types';
 import { vec2 } from '../core/vmath';
 import { ImageAsset } from './image-asset';
 import { ITexture2DSerializeData, Texture2D } from './texture-2d';
-import textureUtil from './texture-util';
+import * as textureUtil from './texture-util';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;

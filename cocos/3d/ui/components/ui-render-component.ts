@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Component } from '../../../components/component';
 import {
     ccclass,
     executeInEditMode,
@@ -60,8 +59,6 @@ ccenum(GFXBlendFactor);
 @requireComponent(UITransformComponent)
 @executeInEditMode
 export class UIRenderComponent extends UIComponent {
-
-    public static BlendState = GFXBlendFactor;
 
     /**
      * !#en specify the source Blend Factor, this will generate a custom material object
@@ -153,6 +150,12 @@ export class UIRenderComponent extends UIComponent {
     }
 
     get material () {
+        if (!this._material){
+            if (this._instanceMaterial) {
+                this._instanceMaterial();
+            }
+        }
+
         return this._material;
     }
 
@@ -160,8 +163,14 @@ export class UIRenderComponent extends UIComponent {
         return this._renderData;
     }
 
+    public static BlendState = GFXBlendFactor;
+
     public static Assembler: IAssemblerManager | null = null;
     public static PostAssembler: IAssemblerManager | null = null;
+
+    // 预先定制两份 UI 常用材质，也许之后需要修改
+    public static addColorMat: Material | null = null;
+    public static addTextureMat: Material | null = null;
 
     @property
     protected _srcBlendFactor = GFXBlendFactor.SRC_ALPHA;
@@ -192,16 +201,6 @@ export class UIRenderComponent extends UIComponent {
         depthStencilState: {},
         rasterizerState: {},
     };
-
-    // _allocedDatas = [];
-    // _vertexFormat = null;
-    // _toPostHandle = false;
-
-    constructor () {
-        super();
-        // this._assembler = this.constructor._assembler;
-        // this._postAssembler = this.constructor._postAssembler;
-    }
 
     public __preload (){
         if (this._instanceMaterial) {
@@ -306,13 +305,6 @@ export class UIRenderComponent extends UIComponent {
         return true;
     }
 
-    public postUpdateAssembler (render: UI) {
-    }
-
-    public updateRenderData (force = false) {
-
-    }
-
     protected _checkAndUpdateRenderData (){
         if (this._renderDataDirty) {
             this._assembler!.updateRenderData!(this);
@@ -321,7 +313,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     protected _canRender () {
-        return this._material !== null && this._renderPermit;
+        return this.material !== null && this._renderPermit;
     }
 
     protected _updateColor () {
@@ -361,7 +353,7 @@ export class UIRenderComponent extends UIComponent {
         for (const child of this.node.children) {
             const renderComp = child.getComponent(UIRenderComponent);
             if (renderComp) {
-                renderComp.updateRenderData();
+                renderComp.markForUpdateRenderData();
             }
         }
     }

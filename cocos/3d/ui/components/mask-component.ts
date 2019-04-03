@@ -23,47 +23,59 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// import {SpriteFrame} from '../../../assets/CCSpriteFrame';
-import { ccclass/*, executeInEditMode*/, executionOrder,
-    menu/*, property*/ } from '../../../core/data/class-decorator';
-// import { ccenum } from '../../../core/value-types/enum';
-// import { clamp } from '../../../core/vmath';
+import { SpriteFrame } from '../../../assets/CCSpriteFrame';
+import { Mat4, Vec2, Vec3 } from '../../../core';
+import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
 import { EventType } from '../../../core/platform/event-manager/event-enum';
+import { ccenum } from '../../../core/value-types/enum';
+import * as vmath from '../../../core/vmath';
 import { UI } from '../../../renderer/ui/ui';
+import { Node } from '../../../scene-graph';
 import { Material } from '../../assets/material';
 import { RenderableComponent } from '../../framework/renderable-component';
-// import circle from '../../primitive/circle';
-import { IGeometry } from '../../primitive/define';
-import quad from '../../primitive/quad';
-import { scale, translate } from '../../primitive/transform';
+import { GraphicsComponent } from './graphics-component';
 import { UIRenderComponent } from './ui-render-component';
-import { UITransformComponent } from './ui-transfrom-component';
 
-// /**
-//  * !#en the type for mask.
-//  * !#zh 遮罩组件类型
-//  */
-// export enum MaskType {
-//     /**
-//      * !#en Rect mask.
-//      * !#zh 使用矩形作为遮罩
-//      */
-//     RECT = 0,
+const _worldMatrix = new Mat4();
+const _vec2_temp = new Vec2();
+const _mat4_temp = new Mat4();
 
-//     /**
-//      * !#en Ellipse Mask.
-//      * !#zh 使用椭圆作为遮罩
-//      */
-//     ELLIPSE = 1,
+const _circlepoints: Vec3[] = [];
+function _calculateCircle (center: Vec3, radius: Vec3, segements: number) {
+    _circlepoints.length = 0;
+    const anglePerStep = Math.PI * 2 / segements;
+    for (let step = 0; step < segements; ++step) {
+        _circlepoints.push(cc.v3(radius.x * Math.cos(anglePerStep * step) + center.x,
+            radius.y * Math.sin(anglePerStep * step) + center.y, 0));
+    }
 
-//     /**
-//      * !#en Image Stencil Mask.
-//      * !#zh 使用图像模版作为遮罩
-//      */
-//     IMAGE_STENCIL = 2,
-// }
+    return _circlepoints;
+}
+/**
+ * !#en the type for mask.
+ * !#zh 遮罩组件类型
+ */
+export enum MaskType {
+    /**
+     * !#en Rect mask.
+     * !#zh 使用矩形作为遮罩
+     */
+    RECT = 0,
 
-// ccenum(MaskType);
+    /**
+     * !#en Ellipse Mask.
+     * !#zh 使用椭圆作为遮罩
+     */
+    ELLIPSE = 1,
+
+    /**
+     * !#en Image Stencil Mask.
+     * !#zh 使用图像模版作为遮罩
+     */
+    // IMAGE_STENCIL = 2,
+}
+
+ccenum(MaskType);
 
 const SEGEMENTS_MIN = 3;
 const SEGEMENTS_MAX = 10000;
@@ -76,39 +88,41 @@ const SEGEMENTS_MAX = 10000;
 @executionOrder(100)
 @menu('UI/Mask')
 export class MaskComponent extends UIRenderComponent {
-    // public static Type = MaskType;
+    /**
+     * !#en The mask type.
+     * !#zh 遮罩类型。
+     */
+    @property({
+        type: MaskType,
+    })
+    get type () {
+        return this._type;
+    }
 
-    // /**
-    //  * !#en The mask type.
-    //  * !#zh 遮罩类型。
-    //  */
+    set type (value: MaskType) {
+        if (this._type === value){
+            return;
+        }
+
+        this._type = value;
+        // if (this._type !== MaskType.IMAGE_STENCIL) {
+        //     this.spriteFrame = null;
+        //     this.alphaThreshold = 0;
+        this._updateGraphics();
+        // }
+        if (this._renderData) {
+            this.destroyRenderData();
+            this._renderData = null;
+        }
+        this._activateMaterial();
+    }
+
+    /**
+     * !#en The mask image
+     * !#zh 遮罩所需要的贴图
+     */
     // @property({
-    //     type: MaskType
-    // })
-    // get type () {
-    //     return this._type;
-    // }
-
-    // set type(value: MaskType) {
-    //     this._type = value;
-    //     if (this._type !== MaskType.IMAGE_STENCIL) {
-    //         this.spriteFrame = null;
-    //         this.alphaThreshold = 0;
-    //         this._updateGraphics();
-    //     }
-    //     if (this._renderData) {
-    //         this.destroyRenderData();
-    //         this._renderData = null;
-    //     }
-    //     this._activateMaterial();
-    // }
-
-    // /**
-    //  * !#en The mask image
-    //  * !#zh 遮罩所需要的贴图
-    //  */
-    // @property({
-    //     type: SpriteFrame
+    //     type: SpriteFrame,
     // })
     // get spriteFrame () {
     //     return this._spriteFrame;
@@ -118,6 +132,8 @@ export class MaskComponent extends UIRenderComponent {
     //     if (this._spriteFrame === value) {
     //         return;
     //     }
+
+    //     this._spriteFrame = value;
     //     this._applySpriteFrame(value);
     // }
 
@@ -135,11 +151,9 @@ export class MaskComponent extends UIRenderComponent {
      * 该数值 0 ~ 1 之间的浮点数，默认值为 0（因此禁用 alpha 测试）
      * 当被设置为 1 时，会丢弃所有蒙版像素，所以不会显示任何内容，在之前的版本中，设置为 1 等同于 0，这种效果其实是不正确的
      */
-    // // @range: [0, 1, 0.1],
-    // // slide: true,
     // @property({
     //     slide: true,
-    //     range:[0, 1, 0.1]
+    //     range: [0, 1, 0.1],
     // })
     // get alphaThreshold () {
     //     return this._alphaThreshold;
@@ -149,10 +163,10 @@ export class MaskComponent extends UIRenderComponent {
     //     this._alphaThreshold = value;
     // }
 
-    // /**
-    //  * !#en Reverse mask(Not supported in Canvas Mode).
-    //  * !#zh 反向遮罩（不支持 Canvas 模式）。
-    //  */
+    /**
+     * !#en Reverse mask(Not supported in Canvas Mode).
+     * !#zh 反向遮罩（不支持 Canvas 模式）。
+     */
     // @property()
     // get inverted () {
     //     return this._inverted;
@@ -166,25 +180,60 @@ export class MaskComponent extends UIRenderComponent {
     //     }
     // }
 
-    // /**
-    //  * TODO: remove segments, not supported by graphics
-    //  * !#en The segements for ellipse mask.
-    //  * !#zh 椭圆遮罩的曲线细分数
-    //  */
-    // @property
-    // get segments () {
-    //     return this._segments;
-    // }
+    /**
+     * TODO: remove segments, not supported by graphics
+     * !#en The segements for ellipse mask.
+     * !#zh 椭圆遮罩的曲线细分数
+     */
+    @property
+    get segments () {
+        return this._segments;
+    }
 
-    // set segments (value) {
-    //     this._segments = clamp(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
-    // }
+    set segments (value) {
+        this._segments = vmath.clamp(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
+        this._updateGraphics();
+    }
+
+    get graphics (){
+        return this._graphics;
+    }
+
+    get clearGraphics (){
+        return this._clearGraphics;
+    }
+
+    @property({
+        visible: false,
+        override: true,
+    })
+    get dstBlendFactor (){
+        return this._dstBlendFactor;
+    }
+
+    @property({
+        visible: false,
+        override: true,
+    })
+    get srcBlendFactor () {
+        return this._srcBlendFactor;
+    }
+
+    @property({
+        visible: false,
+        override: true,
+    })
+    get color () {
+        return super.color;
+    }
+
+    public static Type = MaskType;
 
     // @property
     // private _spriteFrame: SpriteFrame | null = null;
 
-    // @property
-    // private _type = MaskType.RECT;
+    @property
+    private _type = MaskType.RECT;
 
     // @property
     // private _alphaThreshold = 0;
@@ -192,22 +241,47 @@ export class MaskComponent extends UIRenderComponent {
     // @property
     // private _inverted = false;
 
-    // @property
-    // private _segments = 64;
+    @property
+    private _segments = 64;
 
-    private _maskMaterial: Material | null = null;
+    private _graphics: GraphicsComponent | null = null;
+    private _clearGraphics: GraphicsComponent | null = null;
 
-    private _clearMaskMaterial: Material | null = null;
+    constructor (){
+        super();
+        this._flushAssembler();
+    }
 
-    private _maskGeometry: IGeometry | null = null;
+    public onLoad (){
+        this._createGraphics();
+    }
 
-    private _clearGeometry: IGeometry | null = null;
+    public onRestore () {
+        this._createGraphics();
+        // if (this._type !== MaskType.IMAGE_STENCIL) {
+        this._updateGraphics();
+        // }
+        // else {
+        //     this._applySpriteFrame(null);
+        // }
+    }
 
     public onEnable () {
         super.onEnable();
-        this._flushAssembler();
+        // if (this._type === MaskType.IMAGE_STENCIL) {
+        //     if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
+        //         if (this._spriteFrame) {
+        //             this.markForUpdateRenderData(false);
+        //             this._spriteFrame.once('load', this._onTextureLoaded, this);
+        //             this._spriteFrame.ensureLoadTexture();
+        //         }
+        //     }
+        // }
+        // else {
+        this._updateGraphics();
+        // }
+
         this._activateMaterial();
-        this._updateGeometry();
 
         this.node.on(EventType.ROTATION_PART, this._nodeStateChange, this);
         this.node.on(EventType.SCALE_PART, this._nodeStateChange, this);
@@ -222,22 +296,7 @@ export class MaskComponent extends UIRenderComponent {
 
     public onDestroy () {
         super.onDestroy();
-    }
-
-    public getMaskGeometry () {
-        return this._maskGeometry;
-    }
-
-    public getClearGeometry () {
-        return this._clearGeometry;
-    }
-
-    public getMaskMaterial (): Material | null {
-        return this._maskMaterial;
-    }
-
-    public getClearMaterial (): Material | null {
-        return this._clearMaskMaterial;
+        this._removeGraphics();
     }
 
     public updateAssembler (render: UI) {
@@ -251,15 +310,55 @@ export class MaskComponent extends UIRenderComponent {
 
     public postUpdateAssembler (render: UI) {
         if (!this._canRender() || !this._postAssembler) {
-            return null;
+            return;
         }
 
         render.commitComp(this, null, this._postAssembler!);
     }
 
+    public isHit (cameraPt: Vec2){
+        const node = this.node;
+        const size = node.getContentSize();
+        const w = size.width;
+        const h = size.height;
+        const testPt = _vec2_temp;
+
+        this.node.getWorldMatrix(_worldMatrix);
+        vmath.mat4.invert(_mat4_temp, _worldMatrix);
+        vmath.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        const ap = node.getAnchorPoint();
+        testPt.x += ap.x * w;
+        testPt.y += ap.y * h;
+
+        let result = false;
+        if (this.type === MaskType.RECT /*|| this.type === MaskType.IMAGE_STENCIL*/) {
+            result = testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
+        }
+        else if (this.type === MaskType.ELLIPSE) {
+            const rx = w / 2;
+            const ry = h / 2;
+            const px = testPt.x - 0.5 * w;
+            const py = testPt.y - 0.5 * h;
+            result = px * px / (rx * rx) + py * py / (ry * ry) < 1;
+        }
+        if (this.inverted) {
+            result = !result;
+        }
+        return result;
+    }
+
+    public _resizeNodeToTargetNode () {
+        // if (!CC_EDITOR){
+        //     return;
+        // }
+        // if (this.spriteFrame) {
+        //     const rect = this.spriteFrame.getRect();
+        //     this.node.setContentSize(rect.width, rect.height);
+        // }
+    }
+
     protected _nodeStateChange () {
         super._nodeStateChange();
-        this._updateGeometry();
     }
 
     protected _canRender () {
@@ -267,138 +366,39 @@ export class MaskComponent extends UIRenderComponent {
             return false;
         }
 
-        return this._maskMaterial !== null && this._clearMaskMaterial !== null && this._renderPermit;
+        return this._clearGraphics !== null && this._graphics !== null && this._renderPermit;
     }
 
     protected _instanceMaterial () {
-        let useMat: Material | null = null;
+        let mat: Material | null = null;
         if (this._sharedMaterial) {
-            useMat = this._sharedMaterial;
-            this._updateMaterial(Material.getInstantiatedMaterial(useMat, new RenderableComponent(), CC_EDITOR ? true : false));
+            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
         } else {
-            useMat = cc.builtinResMgr.get('ui-base-material');
-            this._updateMaterial(Material.getInstantiatedMaterial(useMat!, new RenderableComponent(), CC_EDITOR ? true : false));
+            // if (this._type === MaskType.IMAGE_STENCIL) {
+            //     if (UIRenderComponent.addTextureMat) {
+            //         mat = new Material();
+            //         mat.copy(UIRenderComponent.addTextureMat);
+            //     } else {
+            //         mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+            //         mat.initialize({ defines: { USE_TEXTURE: true } });
+            //         UIRenderComponent.addTextureMat = mat;
+            //     }
+            // } else {
+                if (UIRenderComponent.addColorMat) {
+                    mat = new Material();
+                    mat.copy(UIRenderComponent.addColorMat);
+                } else {
+                    mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+                    mat.initialize({ defines: { USE_TEXTURE: false } });
+                    UIRenderComponent.addColorMat = mat;
+                }
+            // }
         }
 
-        this._clearMaskMaterial = Material.getInstantiatedMaterial(useMat!, new RenderableComponent(), CC_EDITOR ? true : false);
-        this._maskMaterial = Material.getInstantiatedMaterial(useMat!, new RenderableComponent(), CC_EDITOR ? true : false);
+        this._updateMaterial(mat);
     }
 
-    // _resizeNodeToTargetNode: CC_EDITOR && function () {
-    //     if (this.spriteFrame) {
-    //         const rect = this.spriteFrame.getRect();
-    //         this.node.setContentSize(rect.width, rect.height);
-    //     }
-    // }
-
-    // private _onTextureLoaded () {
-    //     // Mark render data dirty
-    //     if (this._renderData) {
-    //         this._renderData.uvDirty = true;
-    //         this._renderData.vertDirty = true;
-    //     }
-    //     // Reactivate material
-    //     if (this.enabledInHierarchy) {
-    //         this._activateMaterial();
-    //     }
-    // }
-
-    // private _applySpriteFrame (oldFrame) {
-    //     if (oldFrame && oldFrame.off) {
-    //         oldFrame.off('load', this._onTextureLoaded, this);
-    //     }
-    //     const spriteFrame = this._spriteFrame;
-    //     if (spriteFrame) {
-    //         if (spriteFrame.textureLoaded()) {
-    //             this._onTextureLoaded();
-    //         } else {
-    //             spriteFrame.once('load', this._onTextureLoaded, this);
-    //             spriteFrame.ensureLoadTexture();
-    //         }
-    //     }
-    // }
-
-    private _updateGeometry (){
-        this._maskGeometry = this._getGraphics();
-        this._clearGeometry = this._drawRect(
-            0, 0, cc.visibleRect.width, cc.visibleRect.height);
-    }
-
-    private _activateMaterial () {
-        // if (!this._maskMaterial) {
-        //     this._maskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'), this, CC_EDITOR ? true : false);
-        //     setupMaskMaterial(this._maskMaterial);
-        // }
-
-        // if (!this._clearMaskMaterial) {
-        //     this._clearMaskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('sprite-material'), this, CC_EDITOR ? true : false);
-        //     setupClearMaskMaterial(this._clearMaskMaterial);
-        // }
-
-        if (this._sharedMaterial) {
-            if (!this._maskMaterial) {
-                this._maskMaterial = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
-                // setupMaskMaterial(this._maskMaterial);
-            }
-
-            if (!this._clearMaskMaterial) {
-                this._clearMaskMaterial = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
-                // setupClearMaskMaterial(this._maskMaterial);
-            }
-        }else{
-            if (!this._maskMaterial) {
-                this._maskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-base-material'),
-                new RenderableComponent(), CC_EDITOR ? true : false);
-                // setupMaskMaterial(this._maskMaterial);
-            }
-
-            if (!this._clearMaskMaterial) {
-                this._clearMaskMaterial = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-base-material'),
-                 new RenderableComponent(), CC_EDITOR ? true : false);
-                // setupClearMaskMaterial(this._maskMaterial);
-            }
-        }
-    }
-
-    private _getGraphics () {
-        const uiTransform = this.node.getComponent(UITransformComponent);
-        if (!uiTransform) {
-            return null;
-        }
-        const width = uiTransform.width;
-        const height = uiTransform.height;
-        const x = -width * uiTransform.anchorPoint.x;
-        const y = -height * uiTransform.anchorPoint.y;
-        return this._drawRect(x, y, width, height);
-        // switch (this._type) {
-        //     case MaskType.RECT:
-        //     case MaskType.IMAGE_STENCIL:
-        //         return this._drawRect(x, y, width, height);
-        //     case MaskType.ELLIPSE:
-        //         const cx = x + width / 2;
-        //         const cy = y + height / 2;
-        //         const rx = width / 2;
-        //         const ry = height / 2;
-        //         return this._drawEllipse(cx, cy, rx, ry);
-        // }
-        // return null;
-    }
-
-    private _drawRect (x: number, y: number, width: number, height: number) {
-        const geometry = quad({ includeNormal: false, includeUV: false });
-        scale(geometry, { x: width, y: height });
-        translate(geometry, { x: x + width / 2, y: y + height / 2 });
-        return geometry;
-    }
-
-    // private _drawEllipse (cx, cy, rx, ry) {
-    //     const geometry = circle({ includeNormal: false, includeUV: false });
-    //     scale(geometry, { x: rx, y: ry });
-    //     translate(geometry, { x: cx, y: cy });
-    //     return geometry;
-    // }
-
-    private _flushAssembler (){
+    protected _flushAssembler (){
         const assembler = MaskComponent.Assembler!.getAssembler(this);
         const posAssembler = MaskComponent.PostAssembler!.getAssembler(this);
 
@@ -418,6 +418,110 @@ export class MaskComponent extends UIRenderComponent {
                 this.markForUpdateRenderData();
             }
         }
+    }
+
+    private _onTextureLoaded () {
+        // Mark render data dirty
+        if (this._renderData) {
+            this._renderData.uvDirty = true;
+            this._renderData.vertDirty = true;
+        }
+        // Reactivate material
+        if (this.enabledInHierarchy) {
+            this._activateMaterial();
+        }
+    }
+
+    private _applySpriteFrame (oldFrame: SpriteFrame | null) {
+        // if (oldFrame && oldFrame.off) {
+        //     oldFrame.off('load', this._onTextureLoaded, this);
+        // }
+        // const spriteFrame = this._spriteFrame;
+        // if (spriteFrame) {
+        //     if (spriteFrame.textureLoaded()) {
+        //         this._onTextureLoaded();
+        //     } else {
+        //         spriteFrame.once('load', this._onTextureLoaded, this);
+        //         spriteFrame.ensureLoadTexture();
+        //     }
+        // }
+    }
+
+    private _createGraphics () {
+        if (!this._clearGraphics) {
+            this._clearGraphics = new GraphicsComponent();
+            this._clearGraphics.node = new Node('clear-graphics');
+            this._clearGraphics._activateMaterial();
+            this._clearGraphics.lineWidth = 0;
+            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            this._clearGraphics.fill();
+        }
+
+        if (!this._graphics) {
+            this._graphics = new GraphicsComponent();
+            this._graphics.node = this.node;
+            this._graphics.lineWidth = 0;
+            this._graphics.strokeColor = cc.color(0, 0, 0, 0);
+        }
+    }
+
+    private _updateGraphics () {
+        if (!this._graphics){
+            return;
+        }
+
+        const node = this.node;
+        const graphics = this._graphics;
+        // Share render data with graphics content
+        graphics.clear();
+        const size = node.getContentSize();
+        const width = size.width;
+        const height = size.height;
+        const ap = node.getAnchorPoint();
+        const x = -width * ap.x;
+        const y = -height * ap.y;
+        if (this._type === MaskType.RECT) {
+            graphics.rect(x, y, width, height);
+        } else if (this._type === MaskType.ELLIPSE) {
+            const center = cc.v3(x + width / 2, y + height / 2, 0);
+            const radius = cc.v3(width / 2, height / 2, 0,
+            );
+            const points = _calculateCircle(center, radius, this._segments);
+            for (let i = 0; i < points.length; ++i) {
+                const point = points[i];
+                if (i === 0) {
+                    graphics.moveTo(point.x, point.y);
+                } else {
+                    graphics.lineTo(point.x, point.y);
+                }
+            }
+            graphics.close();
+        }
+
+        graphics.fill();
+    }
+
+    private _removeGraphics () {
+        if (this._graphics) {
+            this._graphics.destroy();
+        }
+
+        if (this._clearGraphics) {
+            this._clearGraphics.destroy();
+        }
+    }
+
+    private _activateMaterial () {
+        // if (this._type === MaskType.IMAGE_STENCIL && (!this.spriteFrame || !this.spriteFrame.textureLoaded())) {
+        //     this._renderPermit = false;
+        //     return;
+        // }
+
+        // if (this._sharedMaterial){
+        //     return;
+        // }
+
+        // this._instanceMaterial();
     }
 }
 
