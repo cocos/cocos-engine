@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const math = require('../../cocos2d/core/renderer/render-engine').math;
-const BlendFactor = require('../../cocos2d/core/platform/CCMacro');
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;
 
@@ -119,9 +118,7 @@ dragonBones.CCSlot = cc.Class({
         this._indices.length = 0;
         let indices = this._indices,
             localVertices = this._localVertices;
-
-        indices.length = 0;
-        localVertices.length = 0;
+        let indexOffset = 0, vfOffset = 0;
 
         let currentTextureData = this._textureData;
 
@@ -162,18 +159,19 @@ dragonBones.CCSlot = cc.Class({
             const uvOffset = vertexOffset + vertexCount * 2;
 
             for (let i = 0, l = vertexCount; i < l; i++) {
-                let x = floatArray[vertexOffset + i*2] * scale;
-                let y = -floatArray[vertexOffset + i*2 + 1] * scale;  
+                localVertices[vfOffset++] = floatArray[vertexOffset + i*2] * scale;
+                localVertices[vfOffset++] = -floatArray[vertexOffset + i*2 + 1] * scale;  
 
-                let u = (region.x + floatArray[uvOffset + i*2] * region.width) / textureAtlasWidth;
-                let v = (region.y + floatArray[uvOffset + i*2 + 1] * region.height) / textureAtlasHeight;
-
-                localVertices.push({ x, y, u, v});
+                localVertices[vfOffset++] = (region.x + floatArray[uvOffset + i*2] * region.width) / textureAtlasWidth;
+                localVertices[vfOffset++] = (region.y + floatArray[uvOffset + i*2 + 1] * region.height) / textureAtlasHeight;
             }
 
             for (let i = 0; i < triangleCount * 3; ++i) {
-                indices.push(intArray[meshData.offset + BinaryOffset.MeshVertexIndices + i]);
+                indices[indexOffset++] = intArray[meshData.offset + BinaryOffset.MeshVertexIndices + i];
             }
+
+            localVertices.length = vfOffset;
+            indices.length = indexOffset;
 
             this._pivotX = 0;
             this._pivotY = 0;
@@ -200,24 +198,31 @@ dragonBones.CCSlot = cc.Class({
             }
 
             this._pivotY -= region.height * scale;
-            
-            for (let i = 0; i < 4; i++) {
-                localVertices.push({});
-            }
 
             let l = region.x / textureAtlasWidth;
             let b = (region.y + region.height) / textureAtlasHeight;
             let r = (region.x + region.width) / textureAtlasWidth;
             let t = region.y / textureAtlasHeight;
-            localVertices[0].u = l; localVertices[0].v = b;
-            localVertices[1].u = r; localVertices[1].v = b;
-            localVertices[2].u = l; localVertices[2].v = t;
-            localVertices[3].u = r; localVertices[3].v = t;
 
-            localVertices[0].x = localVertices[2].x = 0;
-            localVertices[1].x = localVertices[3].x = region.width;
-            localVertices[0].y = localVertices[1].y = 0;
-            localVertices[2].y = localVertices[3].y = region.height;
+            localVertices[vfOffset++] = 0; // 0x
+            localVertices[vfOffset++] = 0; // 0y
+            localVertices[vfOffset++] = l; // 0u
+            localVertices[vfOffset++] = b; // 0v
+
+            localVertices[vfOffset++] = region.width; // 1x
+            localVertices[vfOffset++] = 0; // 1y
+            localVertices[vfOffset++] = r; // 1u
+            localVertices[vfOffset++] = b; // 1v
+
+            localVertices[vfOffset++] = 0; // 2x
+            localVertices[vfOffset++] = region.height;; // 2y
+            localVertices[vfOffset++] = l; // 2u
+            localVertices[vfOffset++] = t; // 2v
+
+            localVertices[vfOffset++] = region.width; // 3x
+            localVertices[vfOffset++] = region.height;; // 3y
+            localVertices[vfOffset++] = r; // 3u
+            localVertices[vfOffset++] = t; // 3v
 
             indices[0] = 0;
             indices[1] = 1;
@@ -225,6 +230,9 @@ dragonBones.CCSlot = cc.Class({
             indices[3] = 1;
             indices[4] = 3;
             indices[5] = 2;
+
+            localVertices.length = vfOffset;
+            indices.length = 6;
 
             this._blendModeDirty = true;
         }
@@ -249,9 +257,9 @@ dragonBones.CCSlot = cc.Class({
             }
 
             for (
-                let i = 0, iB = weight.offset + BinaryOffset.WeigthBoneIndices + weight.bones.length, iV = weightFloatOffset, iF = 0;
+                let i = 0, iB = weight.offset + BinaryOffset.WeigthBoneIndices + weight.bones.length, iV = weightFloatOffset, iF = 0, lvi = 0;
                 i < vertexCount;
-                ++i
+                i++, lvi+=4
             ) {
                 const boneCount = intArray[iB++];
                 let xG = 0.0, yG = 0.0;
@@ -276,8 +284,8 @@ dragonBones.CCSlot = cc.Class({
                     }
                 }
 
-                localVertices[i].x = xG;
-                localVertices[i].y = -yG;
+                localVertices[lvi] = xG;
+                localVertices[lvi + 1] = -yG;
             }
         }
         else if (hasDeform) {
@@ -293,18 +301,18 @@ dragonBones.CCSlot = cc.Class({
                 vertexOffset += 65536; // Fixed out of bouds bug. 
             }
 
-            for (let i = 0, l = vertexCount; i < l; i ++) {
+            for (let i = 0, l = vertexCount, lvi = 0; i < l; i ++, lvi += 4) {
                 const x = floatArray[vertexOffset + i*2] * scale + this._deformVertices[i*2];
                 const y = floatArray[vertexOffset + i*2 + 1] * scale + this._deformVertices[i*2 + 1];
 
                 if (isSurface) {
                     const matrix = this._parent._getGlobalTransformMatrix(x, y);
-                    localVertices[i].x = matrix.a * x + matrix.c * y + matrix.tx;
-                    localVertices[i].y = -matrix.b * x + matrix.d * y + matrix.ty;
+                    localVertices[lvi] = matrix.a * x + matrix.c * y + matrix.tx;
+                    localVertices[lvi + 1] = -matrix.b * x + matrix.d * y + matrix.ty;
                 }
                 else {
-                    localVertices[i].x = x;
-                    localVertices[i].y = -y;
+                    localVertices[lvi] = x;
+                    localVertices[lvi + 1] = -y;
                 }
             }
         }

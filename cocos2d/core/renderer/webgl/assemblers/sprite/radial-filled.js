@@ -330,16 +330,16 @@ module.exports = {
             tx = matrix.m12, ty = matrix.m13;
 
         // buffer
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
+        let buffer = renderer._meshBuffer;
+        
+        let offsetInfo = buffer.request(renderData.vertexCount, renderData.indiceCount);
+
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            ibuf = buffer._iData,
             vbuf = buffer._vData,
             uintbuf = buffer._uintVData;
-        
-        let ibuf = buffer._iData,
-            indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
-            
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
 
         let count = data.length;
         for (let i = 0; i < count; i++) {

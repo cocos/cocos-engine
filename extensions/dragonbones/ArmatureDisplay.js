@@ -31,7 +31,8 @@ let EventTarget = require('../../cocos2d/core/event/event-target');
 
 const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
-const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
+
+let ArmatureCache = require('./ArmatureCache');
 
 /**
  * @module dragonBones
@@ -39,6 +40,33 @@ const BlendFactor = require('../../cocos2d/core/platform/CCMacro').BlendFactor;
 
 let DefaultArmaturesEnum = cc.Enum({ 'default': -1 });
 let DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
+let DefaultCacheMode = cc.Enum({ 'REALTIME': 0 });
+
+/**
+ * !#en Enum for cache mode type.
+ * !#zh Dragonbones渲染类型
+ * @enum ArmatureDisplay.AnimationCacheMode
+ */
+let AnimationCacheMode = cc.Enum({
+    /**
+     * !#en The realtime mode.
+     * !#zh 实时计算模式。
+     * @property {Number} REALTIME
+     */
+    REALTIME: 0,
+    /**
+     * !#en The shared cache mode.
+     * !#zh 共享缓存模式。
+     * @property {Number} SHARED_CACHE
+     */
+    SHARED_CACHE: 1,
+    /**
+     * !#en The private cache mode.
+     * !#zh 私有缓存模式。
+     * @property {Number} PRIVATE_CACHE
+     */
+    PRIVATE_CACHE: 2 
+});
 
 function setEnumAttr (obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
@@ -67,11 +95,14 @@ function setEnumAttr (obj, propName, enumDef) {
 let ArmatureDisplay = cc.Class({
     name: 'dragonBones.ArmatureDisplay',
     extends: RenderComponent,
-    mixins: [EventTarget],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
         //help: 'app://docs/html/components/dragonbones.html', // TODO help document of dragonBones
+    },
+    
+    statics: {
+        AnimationCacheMode: AnimationCacheMode,
     },
     
     properties: {
@@ -79,44 +110,6 @@ let ArmatureDisplay = cc.Class({
             default: null,
             type: dragonBones.CCFactory,
             serializable: false,
-        },
-
-        /**
-         * !#en don't try to get or set srcBlendFactor,it doesn't affect,if you want to change dragonbones blend mode,please set it in dragonbones editor directly.
-         * !#zh 不要试图去获取或者设置 srcBlendFactor，没有意义，如果你想设置 dragonbones 的 blendMode，直接在 dragonbones 编辑器中设置即可。
-         * @property srcBlendFactor
-         * @type {macro.BlendFactor}
-         */
-        srcBlendFactor: {
-            get: function() {
-                return this._srcBlendFactor;
-            },
-            set: function(value) {
-                // shield set _srcBlendFactor
-            },
-            animatable: false,
-            type:BlendFactor,
-            override: true,
-            visible: false
-        },
-
-        /**
-         * !#en don't try to get or set dstBlendFactor,it doesn't affect,if you want to change dragonbones blend mode,please set it in dragonbones editor directly.
-         * !#zh 不要试图去获取或者设置 dstBlendFactor，没有意义，如果想设置 dragonbones 的 blendMode，直接在 dragonbones 编辑器中设置即可。
-         * @property dstBlendFactor
-         * @type {macro.BlendFactor}
-         */
-        dstBlendFactor: {
-            get: function() {
-                return this._dstBlendFactor;
-            },
-            set: function(value) {
-                // shield set _dstBlendFactor
-            },
-            animatable: false,
-            type: BlendFactor,
-            override: true,
-            visible: false
         },
 
         /**
@@ -134,8 +127,6 @@ let ArmatureDisplay = cc.Class({
             default: null,
             type: dragonBones.DragonBonesAsset,
             notify () {
-                // parse the asset data
-                this._parseDragonAsset();
                 this._refresh();
                 if (CC_EDITOR) {
                     this._defaultArmatureIndex = 0;
@@ -187,11 +178,13 @@ let ArmatureDisplay = cc.Class({
                     }
                 }
 
-                if (this._armature) {
+                if (this._armature && !this.isAnimationCached()) {
                     this._factory._dragonBones.clock.remove(this._armature);
                 }
+
                 this._refresh();
-                if (this._armature) {
+
+                if (this._armature && !this.isAnimationCached()) {
                     this._factory._dragonBones.clock.add(this._armature);
                 }
                 
@@ -269,7 +262,7 @@ let ArmatureDisplay = cc.Class({
 
                 let animName = animsEnum[this._animationIndex];
                 if (animName !== undefined) {
-                    this.animationName = animName;
+                    this.playAnimation(animName, this.playTimes);
                 }
                 else {
                     cc.errorID(7402, this.name);
@@ -280,6 +273,22 @@ let ArmatureDisplay = cc.Class({
             editorOnly: true,
             displayName: 'Animation',
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.animation_name'
+        },
+
+        // Record pre cache mode.
+        _preCacheMode: -1,
+        _cacheMode: AnimationCacheMode.REALTIME,
+        _defaultCacheMode: {
+            default: 0,
+            type: AnimationCacheMode,
+            notify () {
+                this.setAnimationCacheMode(this._defaultCacheMode);
+            },
+            editorOnly: true,
+            visible: true,
+            animatable: false,
+            displayName: "Animation Cache Mode",
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.animation_cache_mode'
         },
 
         /**
@@ -338,20 +347,51 @@ let ArmatureDisplay = cc.Class({
         debugBones: {
             default: false,
             notify () {
-                this._initDebugDraw();
+                this._updateDebugDraw();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.debug_bones'
         },
+
+        /**
+         * !#en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
+         * !#zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
+         * @property {Boolean} enableBatch
+         * @default false
+         */
+        enableBatch: {
+            default: false,
+            notify () {
+                this._updateBatch();
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.enabled_batch'
+        },
+
+        // DragonBones data store key.
+        _armatureKey: "",
+
+        // Below properties will effect when cache mode is SHARED_CACHE or PRIVATE_CACHE.
+        // accumulate time
+        _accTime: 0,
+        // Play times counter
+        _playCount: 0,
+        // Frame cache
+        _frameCache: null,
+        // Cur frame
+        _curFrame: null,
+        // Playing flag
+        _playing: false,
+        // Armature cache
+        _armatureCache: null,
     },
 
     ctor () {
-        this._renderDatas = [];
         this._material = new SpriteMaterial;
         // Property _materialCache Use to cache material,since dragonBones may use multiple texture,
         // it will clone from the '_material' property,if the dragonbones only have one texture,
         // it will just use the _material,won't clone it.
         // So if invoke getMaterial,it only return _material,if you want to change all materialCache,
         // you can change materialCache directly.
+        this._eventTarget = null;
         this._materialCache = {};
         this._inited = false;
         this._factory = dragonBones.CCFactory.getInstance();
@@ -360,12 +400,22 @@ let ArmatureDisplay = cc.Class({
     onLoad () {
         // Adapt to old code,remove unuse child which is created by old code.
         // This logic can be remove after 2.2 or later.
-        var children = this.node.children;
-        for (var i = 0, n = children.length; i < n; i++) {
-            var child = children[i];
-            var pos = child._name && child._name.search('CHILD_ARMATURE-');
+        let children = this.node.children;
+        for (let i = 0, n = children.length; i < n; i++) {
+            let child = children[i];
+            let pos = child._name && child._name.search('CHILD_ARMATURE-');
             if (pos === 0) {
                 child.destroy();
+            }
+        }
+    },
+
+    _updateBatch () {
+        let cache = this._materialCache;
+        for (let mKey in cache) {
+            let material = cache[mKey];
+            if (material) {
+                material.useModel = !this.enableBatch;
             }
         }
     },
@@ -384,36 +434,159 @@ let ArmatureDisplay = cc.Class({
         if (this._inited) return;
         this._inited = true;
 
-        this._parseDragonAsset();
+        if (CC_JSB) {
+            this._cacheMode = AnimationCacheMode.REALTIME;
+        }
+        
         this._parseDragonAtlasAsset();
         this._refresh();
+
+        let children = this.node.children;
+        for (let i = 0, n = children.length; i < n; i++) {
+            let child = children[i];
+            if (child && child._name === "DEBUG_DRAW_NODE") {
+                child.destroy();
+            }
+        }
+        this._updateDebugDraw();
+    },
+
+    /**
+     * !#en
+     * The key of dragonbones cache data, which is regard as 'dragonbonesName', when you want to change dragonbones cloth.
+     * !#zh 
+     * 缓存龙骨数据的key值，换装的时会使用到该值，作为dragonbonesName使用
+     * @method getArmatureKey
+     * @example
+     * let factory = dragonBones.CCFactory.getInstance();
+     * let needChangeSlot = needChangeArmature.armature().getSlot("changeSlotName");
+     * factory.replaceSlotDisplay(toChangeArmature.getArmatureKey(), "armatureName", "slotName", "displayName", needChangeSlot);
+     */
+    getArmatureKey () {
+        return this._armatureKey;
+    },
+
+    onRestore () {
+        // Destroyed and restored in Editor
+        if (!this._material) {
+            this._material = new SpriteMaterial();
+            this._materialCache = {};
+        }
+    },
+
+    /**
+     * !#en
+     * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
+     * If set the mode in editor, then no need to worry about order problem.
+     * !#zh 
+     * 若想切换渲染模式，最好在设置'dragonAsset'之前，先设置好渲染模式，否则有运行时开销。
+     * 若在编辑中设置渲染模式，则无需担心设置次序的问题。
+     * 
+     * @method setAnimationCacheMode
+     * @param {AnimationCacheMode} cacheMode
+     * @example
+     * armatureDisplay.setAnimationCacheMode(dragonBones.ArmatureDisplay.AnimationCacheMode.SHARED_CACHE);
+     */
+    setAnimationCacheMode (cacheMode) {
+        if (CC_JSB) return;
+        if (this._preCacheMode !== cacheMode) {
+            this._cacheMode = cacheMode;
+            this._buildArmature();
+        }
+    },
+    
+    /**
+     * !#en Whether in cached mode.
+     * !#zh 当前是否处于缓存模式。
+     * @method isAnimationCached
+     */
+    isAnimationCached () {
+        if (CC_EDITOR) return false;
+        return this._cacheMode !== AnimationCacheMode.REALTIME;
     },
 
     onEnable () {
         this._super();
-        if (this._armature) {
+        // If cache mode is cache, no need to update by dragonbones library.
+        if (this._armature && !this.isAnimationCached()) {
             this._factory._dragonBones.clock.add(this._armature);
         }
     },
 
     onDisable () {
         this._super();
-        if (this._armature) {
+        // If cache mode is cache, no need to update by dragonbones library.
+        if (this._armature && !this.isAnimationCached()) {
             this._factory._dragonBones.clock.remove(this._armature);
         }
+    },
+
+    update (dt) {
+        if (!this.isAnimationCached()) return;
+        if (!this._playing) return;
+
+        let frames = this._frameCache.frames;
+        let totalTime = this._frameCache.totalTime;
+        let frameCount = frames.length;
+
+        // Animation Start, the event diffrent from dragonbones inner event,
+        // It has no event object.
+        if (this._accTime == 0 && this._playCount == 0) {
+            this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.START);
+        }
+
+        let globalTimeScale = dragonBones.timeScale;
+        this._accTime += dt * this.timeScale * globalTimeScale;
+        let frameIdx = Math.floor(this._accTime / totalTime * frameCount);
+        if (frameIdx >= frameCount) {
+
+            // Animation loop complete, the event diffrent from dragonbones inner event,
+            // It has no event object.
+            this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.LOOP_COMPLETE);
+
+            // Animation complete the event diffrent from dragonbones inner event,
+            // It has no event object.
+            this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.COMPLETE);
+
+            this._playCount ++;
+            if (this.playTimes === -1 || (this.playTimes > 0 && this._playCount >= this.playTimes)) {
+                this._accTime = 0;
+                this._playing = false;
+                this._playCount = 0;
+                return;
+            }
+            this._accTime = 0;
+            frameIdx = 0;
+        }
+
+        this._curFrame = frames[frameIdx];
     },
 
     onDestroy () {
         this._super();
         this._inited = false;
-        if (this._armature) {
-            this._armature.dispose();
-            this._armature = null;
+
+        if (!CC_EDITOR) {
+            if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
+                this._armatureCache.dispose();
+                this._armatureCache = null;
+                this._armature = null;
+            } else if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
+                this._armatureCache = null;
+                this._armature = null;
+            } else if (this._armature) {
+                this._armature.dispose();
+                this._armature = null;
+            }
+        } else {
+            if (this._armature) {
+                this._armature.dispose();
+                this._armature = null;
+            }
         }
-        this._renderDatas.length = 0;
     },
 
-    _initDebugDraw () {
+    _updateDebugDraw () {
         if (this.debugBones) {
             if (!this._debugDraw) {
                 let debugDrawNode = new cc.PrivateNode();
@@ -435,24 +608,66 @@ let ArmatureDisplay = cc.Class({
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
-        var atlasName = this.dragonAtlasAsset._textureAtlasData.name;
-        var displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, "", atlasName);
-        if (!displayProxy) return;
+        // Switch Asset or Atlas or cacheMode will rebuild armature.
+        if (this._armature) {
+            // dispose pre build armature
+            if (!CC_EDITOR) {
+                if (this._preCacheMode === AnimationCacheMode.PRIVATE_CACHE) {
+                    this._armatureCache.dispose();
+                } else if (this._preCacheMode === AnimationCacheMode.REALTIME) {
+                    this._armature.dispose();
+                }
+            } else {
+                this._armature.dispose();
+            }
 
-        this._displayProxy = displayProxy;
-        this._displayProxy._ccNode = this.node;
+            this._armatureCache = null;
+            this._armature = null;
+            this._displayProxy = null;
+            this._frameCache = null;
+            this._curFrame = null;
+            this._playing = false;
+            this._preCacheMode = null;
+            this._eventTarget = null;
+        }
 
-        this._armature = this._displayProxy._armature;
-        this._armature.animation.timeScale = this.timeScale;
+        if (!CC_EDITOR) {
+            if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
+                this._armatureCache = ArmatureCache.sharedCache;
+                this._eventTarget = new EventTarget;
+            } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
+                this._armatureCache = new ArmatureCache;
+                this._eventTarget = new EventTarget;
+            }
+        }
 
+        let atlasUUID = this.dragonAtlasAsset._uuid;
+        this._armatureKey = this.dragonAsset.init(this._factory, atlasUUID);
+
+        if (this.isAnimationCached()) {
+            this._armature = this._armatureCache.getArmatureCache(this.armatureName, this._armatureKey, atlasUUID);
+            if (!this._armature) {
+                // Cache fail,swith to REALTIME cache mode.
+                this._cacheMode = AnimationCacheMode.REALTIME;
+            } 
+        } 
+        
+        this._preCacheMode = this._cacheMode;
+        if (CC_EDITOR || this._cacheMode === AnimationCacheMode.REALTIME) {
+            this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, "", atlasUUID);
+            if (!this._displayProxy) return;
+            this._displayProxy._ccNode = this.node;
+            this._armature = this._displayProxy._armature;
+            this._armature.animation.timeScale = this.timeScale;
+        }
+
+        if (this._cacheMode !== AnimationCacheMode.REALTIME && this.debugBones) {
+            cc.warn("Debug bones is invalid in cached mode");
+        }
+
+        this._updateBatch();
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
-        }
-    },
-
-    _parseDragonAsset () {
-        if (this.dragonAsset) {
-            this.dragonAsset.init(this._factory);
         }
     },
 
@@ -469,7 +684,16 @@ let ArmatureDisplay = cc.Class({
             // update inspector
             this._updateArmatureEnum();
             this._updateAnimEnum();
+            this._updateCacheModeEnum();
             Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
+        }
+    },
+
+    _updateCacheModeEnum: CC_EDITOR && function () {
+        if (this._armature && ArmatureCache.canCache(this._armature)) {
+            setEnumAttr(this, '_defaultCacheMode', AnimationCacheMode);
+        } else {
+            setEnumAttr(this, '_defaultCacheMode', DefaultCacheMode);
         }
     },
 
@@ -501,7 +725,7 @@ let ArmatureDisplay = cc.Class({
      * -1 means use the value of the config file.
      * 0 means play the animation for ever.
      * >0 means repeat times.
-     * !#zh
+     * !#zh 
      * 播放指定的动画.
      * animName 指定播放动画的名称。
      * playTimes 指定播放动画的次数。
@@ -514,13 +738,41 @@ let ArmatureDisplay = cc.Class({
      * @return {dragonBones.AnimationState}
      */
     playAnimation (animName, playTimes) {
-        if (this._armature) {
-            this.playTimes = (playTimes === undefined) ? -1 : playTimes;
-            this.animationName = animName;
-            return this._armature.animation.play(animName, this.playTimes);
-        }
+        
+        this.playTimes = (playTimes === undefined) ? -1 : playTimes;
+        this.animationName = animName;
 
-        return null;
+        if (this.isAnimationCached()) {
+            let cache = this._armatureCache.getAnimationCache(this._armatureKey, animName);
+            if (!cache) {
+                cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
+            }
+            if (cache) {
+                this._accTime = 0;
+                this._playCount = 0;
+                this._frameCache = cache;
+                this._playing = true;
+                this._curFrame = this._frameCache.frames[0];
+            }
+        } else {
+            if (this._armature) {
+                return this._armature.animation.play(animName, this.playTimes);
+            }
+        }
+    },
+
+    /**
+     * !#en
+     * Update an animation cache.
+     * !#zh
+     * 更新某个动画缓存。
+     * @method updateAnimationCache
+     * @param {String} animName
+     */
+    updateAnimationCache (animName) {
+        if (!this.isAnimationCached()) return;
+        let cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
+        this._frameCache = cache || this._frameCache;
     },
 
     /**
@@ -532,7 +784,7 @@ let ArmatureDisplay = cc.Class({
      * @returns {Array}
      */
     getArmatureNames () {
-        var dragonBonesData = this.dragonAsset && this.dragonAsset._dragonBonesData;
+        let dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
         return (dragonBonesData && dragonBonesData.armatureNames) || [];
     },
 
@@ -547,8 +799,9 @@ let ArmatureDisplay = cc.Class({
      */
     getAnimationNames (armatureName) {
         let ret = [];
-        if (this.dragonAsset && this.dragonAsset._dragonBonesData) {
-            let armatureData = this.dragonAsset._dragonBonesData.getArmature(armatureName);
+        let dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
+        if (dragonBonesData) {
+            let armatureData = dragonBonesData.getArmature(armatureName);
             if (armatureData) {
                 for (let animName in armatureData.animations) {
                     if (armatureData.animations.hasOwnProperty(animName)) {
@@ -557,8 +810,55 @@ let ArmatureDisplay = cc.Class({
                 }
             }
         }
-
         return ret;
+    },
+
+    /**
+     * !#en
+     * Add event listener for the DragonBones Event, the same to addEventListener.
+     * !#zh
+     * 添加 DragonBones 事件监听器，与 addEventListener 作用相同。
+     * @method on
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} listener - The callback that will be invoked when the event is dispatched.
+     * @param {Event} listener.event event
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     */
+    on (eventType, listener, target) {
+        this.addEventListener(eventType, listener, target);
+    },
+
+    /**
+     * !#en
+     * Remove the event listener for the DragonBones Event, the same to removeEventListener.
+     * !#zh
+     * 移除 DragonBones 事件监听器，与 removeEventListener 作用相同。
+     * @method off
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} [listener]
+     * @param {Object} [target]
+     */
+    off (eventType, listener, target) {
+        this.removeEventListener(eventType, listener, target);
+    },
+
+    /**
+     * !#en
+     * Add event listener for the DragonBones Event, the same to addEventListener.
+     * !#zh
+     * 添加 DragonBones 一次性事件监听器，回调会在第一时间被触发后删除自身。。
+     * @method on
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} listener - The callback that will be invoked when the event is dispatched.
+     * @param {Event} listener.event event
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     */
+    once (eventType, listener, target) {
+        if (this._displayProxy) {
+            this._displayProxy.once(eventType, listener, target);
+        } else if (this._eventTarget) {
+            this._eventTarget.once(eventType, listener, target);
+        }
     },
 
     /**
@@ -574,7 +874,9 @@ let ArmatureDisplay = cc.Class({
      */
     addEventListener (eventType, listener, target) {
         if (this._displayProxy) {
-            this._displayProxy.addDBEventListener(eventType, listener, target);
+            this._displayProxy.on(eventType, listener, target);
+        } else if (this._eventTarget) {
+            this._eventTarget.on(eventType, listener, target);
         }
     },
 
@@ -590,7 +892,9 @@ let ArmatureDisplay = cc.Class({
      */
     removeEventListener (eventType, listener, target) {
         if (this._displayProxy) {
-            this._displayProxy.removeDBEventListener(eventType, listener, target);
+            this._displayProxy.off(eventType, listener, target);
+        } else if (this._eventTarget) {
+            this._eventTarget.off(eventType, listener, target);
         }
     },
 
@@ -620,5 +924,155 @@ let ArmatureDisplay = cc.Class({
         return this._armature;
     },
 });
+
+/**
+ * !#en
+ * Animation start play.
+ * !#zh
+ * 动画开始播放。
+ *
+ * @event dragonBones.EventObject.START
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation loop play complete once.
+ * !#zh
+ * 动画循环播放完成一次。
+ *
+ * @event dragonBones.EventObject.LOOP_COMPLETE
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation play complete.
+ * !#zh
+ * 动画播放完成。
+ *
+ * @event dragonBones.EventObject.COMPLETE
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation fade in start.
+ * !#zh
+ * 动画淡入开始。
+ *
+ * @event dragonBones.EventObject.FADE_IN
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation fade in complete.
+ * !#zh
+ * 动画淡入完成。
+ *
+ * @event dragonBones.EventObject.FADE_IN_COMPLETE
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation fade out start.
+ * !#zh
+ * 动画淡出开始。
+ *
+ * @event dragonBones.EventObject.FADE_OUT
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation fade out complete.
+ * !#zh
+ * 动画淡出完成。
+ *
+ * @event dragonBones.EventObject.FADE_OUT_COMPLETE
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ */
+
+/**
+ * !#en
+ * Animation frame event.
+ * !#zh
+ * 动画帧事件。
+ *
+ * @event dragonBones.EventObject.FRAME_EVENT
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {String} [callback.event.name]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ * @param {dragonBones.Bone} [callback.event.bone]
+ * @param {dragonBones.Slot} [callback.event.slot]
+ */
+
+/**
+ * !#en
+ * Animation frame sound event.
+ * !#zh
+ * 动画帧声音事件。
+ *
+ * @event dragonBones.EventObject.SOUND_EVENT
+ * @param {String} type - A string representing the event type to listen for.
+ * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+ *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+ * @param {dragonBones.EventObject} [callback.event]
+ * @param {String} [callback.event.type]
+ * @param {String} [callback.event.name]
+ * @param {dragonBones.Armature} [callback.event.armature]
+ * @param {dragonBones.AnimationState} [callback.event.animationState]
+ * @param {dragonBones.Bone} [callback.event.bone]
+ * @param {dragonBones.Slot} [callback.event.slot]
+ */
 
 module.exports = dragonBones.ArmatureDisplay = ArmatureDisplay;

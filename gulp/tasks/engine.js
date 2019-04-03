@@ -28,6 +28,7 @@
 const Utils = require('../util/utils');
 const createBundler = require('../util/create-bundler');
 const Path = require('path');
+const Fs = require('fs-extra');
 
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');
@@ -40,8 +41,10 @@ const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
     // modules need to skip in jsb
+    '../../extensions/spine/skeleton-cache.js',
     '../../extensions/spine/lib/spine.js',
     '../../extensions/dragonbones/lib/dragonBones.js',
+    '../../extensions/dragonbones/ArmatureCache.js',
     '../../extensions/dragonbones/CCArmatureDisplay.js',
     '../../extensions/dragonbones/CCFactory.js',
     '../../extensions/dragonbones/CCSlot.js',
@@ -50,12 +53,6 @@ var jsbSkipModules = [
 var jsbAliasify = {
     replacements: {
         '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.jsb')
-    },
-    verbose: false
-};
-var canvasAliasify = {
-    replacements: {
-        '(.*)render-engine(.js)?': require.resolve('../../cocos2d/core/renderer/render-engine.canvas')
     },
     verbose: false
 };
@@ -71,9 +68,6 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     var opts = {
         sourcemaps: createMap !== false
     };
-    if (opt_macroFlags && (opt_macroFlags.wechatgameSub || opt_macroFlags.baidugameSub)) {
-        opts.aliasifyConfig = canvasAliasify;
-    }
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
@@ -116,9 +110,6 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     var opts = {
         sourcemaps: createMap !== false
     };
-    if (opt_macroFlags && (opt_macroFlags.wechatgameSub || opt_macroFlags.baidugameSub)) {
-        opts.aliasifyConfig = canvasAliasify;
-    }
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
@@ -384,6 +375,51 @@ exports.buildRuntimeMin = function (sourceFile, outputFile, excludes, opt_macroF
         }))
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
+};
+
+exports.excludeAllDepends = function (excludedModules) {
+    let modules = Fs.readJsonSync(Path.join(__dirname, '../../modules.json'));
+    if (modules && modules.length > 0) {
+        function _excludeMudules (muduleName) {
+            if (excMudules[muduleName]) {
+                return;
+            }
+            for (let module of modules) {
+                if (module.name === muduleName) {
+                    excMudules[muduleName] = module;
+                    break;
+                }
+            }
+
+            modules.forEach(module => {
+                if (module.dependencies && module.dependencies.indexOf(muduleName) !== -1) {
+                    _excludeMudules(module.name);
+                }
+            });
+        }
+
+        // exclude all mudules
+        let excMudules = Object.create(null);
+
+        excludedModules.forEach(_excludeMudules);
+
+        let excludes = [];
+        for (let key in excMudules) {
+            let module = excMudules[key];
+            if (module.entries) {
+                module.entries.forEach(function (file) {
+                    let path = Path.join(__dirname, '..', '..', file);
+                    if (excludes.indexOf(path) === -1) {
+                        excludes.push(path);
+                    }
+                });
+            }
+        }
+        return excludes;
+    }
+    else {
+        return [];
+    }
 };
 
 exports.jsbSkipModules = jsbSkipModules;

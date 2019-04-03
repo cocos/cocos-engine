@@ -13674,12 +13674,15 @@ var dragonBones;
             switch (displayData.type) {
                 case 0 /* Image */: {
                     var imageDisplayData = displayData;
+
+                    if (dataPackage !== null && dataPackage.textureAtlasName.length > 0) {
+                        imageDisplayData.texture = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
+                    }
+
                     if (imageDisplayData.texture === null) {
                         imageDisplayData.texture = this._getTextureData(dataName, displayData.path);
                     }
-                    else if (dataPackage !== null && dataPackage.textureAtlasName.length > 0) {
-                        imageDisplayData.texture = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
-                    }
+
                     if (rawDisplayData !== null && rawDisplayData.type === 2 /* Mesh */ && this._isSupportMesh()) {
                         display = slot.meshDisplay;
                     }
@@ -13690,12 +13693,15 @@ var dragonBones;
                 }
                 case 2 /* Mesh */: {
                     var meshDisplayData = displayData;
+
+                    if (dataPackage !== null && dataPackage.textureAtlasName.length > 0) {
+                        meshDisplayData.texture = this._getTextureData(dataPackage.textureAtlasName, meshDisplayData.path);
+                    }
+
                     if (meshDisplayData.texture === null) {
                         meshDisplayData.texture = this._getTextureData(dataName, meshDisplayData.path);
                     }
-                    else if (dataPackage !== null && dataPackage.textureAtlasName.length > 0) {
-                        meshDisplayData.texture = this._getTextureData(dataPackage.textureAtlasName, meshDisplayData.path);
-                    }
+
                     if (this._isSupportMesh()) {
                         display = slot.meshDisplay;
                     }

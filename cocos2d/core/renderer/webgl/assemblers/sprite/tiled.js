@@ -84,16 +84,15 @@ module.exports = {
             data = renderData._data;
 
         // buffer
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
-        
-        let indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
+        let buffer = renderer._meshBuffer;
             
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
+        let offsetInfo = buffer.request(renderData.vertexCount, renderData.indiceCount);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            vbuf = buffer._vData,
             uintbuf = buffer._uintVData,
             ibuf = buffer._iData;
 

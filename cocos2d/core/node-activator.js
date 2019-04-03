@@ -333,6 +333,7 @@ var NodeActivator = cc.Class({
         if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
             if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
                 callOnDestroyInTryCatch(comp);
+                comp._objFlags &= ~IsOnLoadCalled;  // In case call onDestroy twice in undo operation
             }
         }
     } : function (comp) {

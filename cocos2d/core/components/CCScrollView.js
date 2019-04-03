@@ -902,22 +902,17 @@ let ScrollView = cc.Class({
             }
             let viewSize = this._view.getContentSize();
 
-            let leftBottomPosition = this._convertToContentParentSpace(cc.v2(0, 0));
-            this._leftBoundary = leftBottomPosition.x;
-            this._bottomBoundary = leftBottomPosition.y;
+            let anchorX = viewSize.width * this._view.anchorX;
+            let anchorY = viewSize.height * this._view.anchorY;
 
-            let topRightPosition = this._convertToContentParentSpace(cc.v2(viewSize.width, viewSize.height));
-            this._rightBoundary = topRightPosition.x;
-            this._topBoundary = topRightPosition.y;
+            this._leftBoundary = -anchorX;
+            this._bottomBoundary = -anchorY;
+
+            this._rightBoundary = this._leftBoundary + viewSize.width;
+            this._topBoundary = this._bottomBoundary + viewSize.height;
 
             this._moveContentToTopLeft(viewSize);
         }
-    },
-
-    _convertToContentParentSpace (position) {
-        let contentParent = this._view;
-        let viewPositionInWorldSpace = contentParent.convertToWorldSpace(position);
-        return contentParent.convertToNodeSpaceAR(viewPositionInWorldSpace);
     },
 
     //this is for nested scrollview
@@ -1111,7 +1106,7 @@ let ScrollView = cc.Class({
 
     _clampDelta (delta) {
         let contentSize = this.content.getContentSize();
-        let scrollViewSize = this.node.getContentSize();
+        let scrollViewSize = this._view.getContentSize();
         if (contentSize.width < scrollViewSize.width) {
             delta.x = 0;
         }
@@ -1286,7 +1281,7 @@ let ScrollView = cc.Class({
 
         let targetDelta = deltaMove.normalize();
         let contentSize = this.content.getContentSize();
-        let scrollviewSize = this.node.getContentSize();
+        let scrollviewSize = this._view.getContentSize();
 
         let totalMoveWidth = (contentSize.width - scrollviewSize.width);
         let totalMoveHeight = (contentSize.height - scrollviewSize.height);
@@ -1524,8 +1519,6 @@ let ScrollView = cc.Class({
     onDisable () {
         if (!CC_EDITOR) {
             this._unregisterEvent();
-            this.node.off(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
-            this.node.off(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
             if (this.content) {
                 this.content.off(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
                 this.content.off(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
@@ -1543,8 +1536,6 @@ let ScrollView = cc.Class({
     onEnable () {
         if (!CC_EDITOR) {
             this._registerEvent();
-            this.node.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
-            this.node.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);
             if (this.content) {
                 this.content.on(NodeEvent.SIZE_CHANGED, this._calculateBoundary, this);
                 this.content.on(NodeEvent.SCALE_CHANGED, this._calculateBoundary, this);

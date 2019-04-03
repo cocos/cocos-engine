@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -24,7 +24,8 @@
  ****************************************************************************/
 
 const js = require('../../../../platform/js');
-const bmfontUtls = require('../../../utils/label/bmfont');
+const fontUtils = require('../../../utils/label/letter-font');
+const WHITE = cc.color(255, 255, 255, 255);
 
 module.exports = js.addon({
     createData (comp) {
@@ -34,13 +35,14 @@ module.exports = js.addon({
     fillBuffers (comp, renderer) {
         let node = comp.node,
             renderData = comp._renderData,
-            data = renderData._data,
-            color = node.color._val;
+            data = renderData._data;
         
         let matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05, 
             tx = matrix.m12, ty = matrix.m13;
-    
+        
+        WHITE._fastSetA(node.color.a);
+        let color = WHITE._val;
         let buffer = renderer._meshBuffer;
         let vertexCount = renderData.vertexCount;
         let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
@@ -130,4 +132,4 @@ module.exports = js.addon({
         data[dataOffset+3].x = x + rectWidth * scale;
         data[dataOffset+3].y = y;
     },
-}, bmfontUtls);
+}, fontUtils);

@@ -156,6 +156,7 @@ var State = cc.Enum({
 var Sprite = cc.Class({
     name: 'cc.Sprite',
     extends: RenderComponent,
+    mixins: [RenderComponent.BlendFactorPolyfill],
 
     ctor () {
         this._assembler = null;
@@ -529,6 +530,12 @@ var Sprite = cc.Class({
             this.markForUpdateRenderData(true);
             this.markForRender(true);
         }
+    },
+
+    _updateMaterial (material) {
+        this._material = material;
+        this._updateBlendFunc();
+        material.updateHash();
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {

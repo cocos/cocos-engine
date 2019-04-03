@@ -34,7 +34,7 @@
   {
     "name": "WebGL Renderer",
     "entries": [
-      "./cocos2d/core/renderer/webgl/render-component-walker.js",
+      "./cocos2d/core/renderer/webgl/model-batcher.js",
       "./cocos2d/core/renderer/webgl/assemblers/index.js",
       "./extensions/dragonbones/webgl-assembler.js"
     ]
@@ -261,6 +261,6 @@
     ]
   },
   {
-    "name": "Native NetWork"
+    "name": "Native Socket"
   }
 ]

@@ -72,7 +72,7 @@ module.exports = {
             "hover_color": "Button color when the mouse hovers over it",
             "disabled_color": "Button color when disabled",
             "duration": "How long until the button color/scale transitions to a new color?",
-            "zoom_scale": "When user press the button, the button will zoom to a scale.The final scale of the button  equals (button original scale * zoomScale). Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling.",
+            "zoom_scale": "When user press the button, the button will zoom to a scale.The final scale of the button  equals (button original scale * zoomScale).",
             "auto_gray_effect": "When this flag is true, Button target sprite will turn gray when interactable is false.",
             "normal_sprite": "The Sprite that is used when the button is in a normal sate.",
             "pressed_sprite": "The Sprite that is used when the button is in a pressed sate.",
@@ -97,7 +97,9 @@ module.exports = {
             "wrap": "Wrap text?",
             "font": "What font to use",
             "system_font": "Whether to use the system default font",
-            'batch_as_bitmap': 'Whether to set to static text for batch merging, select this will add text to the dynamic atlas for batch merging, but can not dynamically modify text content frequently'
+            'cacheMode': 'The text cache mode includes the following three types: \n 1. NONE : Do not do any caching, text content is drawn once. \n 2. BITMAP: Add text as a static image to the dynamic atlas for batch merging, but not frequently dynamically Text content \n 3. CHAR: Splits text into characters and caches characters into character atlas, suitable for text content with repeated and frequently updated character content',
+            'actualFontSize': 'The actual rendering font size in shrink mode',
+            'spacingX': 'The spacing of the x axis between characters',
         },
         "progress": {
             "bar_sprite": "A progress bar is displayed with the Sprite node that can dynamically change the size",
@@ -216,7 +218,7 @@ module.exports = {
             "input_mode": "Specify the input mode: multiline or single line.",
             "font_size": "The font size of input label.",
             "line_height": "The line height of input label.",
-            "stay_on_top": "Set to true and the input is always visible and be on top of the game view",
+            "stay_on_top": "Set to true and the input is always visible and be on top of the game view, this property will be removed on v2.1",
             "tab_index": "Set the tabIndex of the DOM input element, only useful on Web.",
             "font_color": "The font color of input label.",
             "placeholder": "The content string of placeholder.",
@@ -258,6 +260,9 @@ module.exports = {
             "debug_slots": "Indicates whether show debug slots.",
             "debug_bones": "Indicates whether show debug bones.",
             "premultipliedAlpha": "Indicates whether to enable premultiplied alpha.",
+            "use_tint": "Indicates whether to use tint effect.",
+            "enabled_batch": "Indicates whether enabled batch model",
+            "animation_cache_mode": "REALTIME model, the animation data is calculated while running, all features supported. SHARED_CACHE mode, the animation data is pre-calculated and cached globally, the data is shared between skeleton animation instances. Shared cache mode has great performance advantage, but it has some limitation. It doesn't support action blending and addition and it only supports the start and end events. In the memory usage aspect, as same skeleton animation instances are sharing the same animation data, this mode can save a lot of memory. More instances are sharing, more memory saved. In conclusion SHARED_CACHE mode is suitable for the skeletons which could be replicated, such as effects animation, monster, NPC and so on.\nPRIVATE_CACHE mode, similar to SHARED_CACHE, but the animation data and texture data are not shared between skeleton instances. So there is no advantage in memory compare to REALTIME mode. The PRIVATE_CACHE is suitable when there is no animation blending or addition needed, but the skeleton could change textures of sub bone (e.g. weapon).",
         },
         "dragon_bones": {
             "dragon_bones_asset": "The json data contains the DragonBones information, drag the json file exported from DragonBones to get started.",
@@ -266,7 +271,9 @@ module.exports = {
             "animation_name": "The name of current playing animation.",
             "time_scale": "The time scale of this armature.",
             "play_times": "The play times of the default animation.\n-1 means using the value of config file\n0 means repeat for ever\n>0 means repeat times",
-            "debug_bones": "Indicates whether open debug bones"
+            "debug_bones": "Indicates whether open debug bones",
+            "enabled_batch": "Indicates whether enabled batch model",
+            "animation_cache_mode": "REALTIME model, the animation data is calculated while running, all features supported. SHARED_CACHE mode, the animation data is pre-calculated and cached globally, the data is shared between skeleton animation instances. Shared cache mode has great performance advantage, but it has some limitation. It doesn't support action blending and addition and it only supports the start and end events. In the memory usage aspect, as same skeleton animation instances are sharing the same animation data, this mode can save a lot of memory. More instances are sharing, more memory saved. In conclusion SHARED_CACHE mode is suitable for the skeletons which could be replicated, such as effects animation, monster, NPC and so on.\nPRIVATE_CACHE mode, similar to SHARED_CACHE, but the animation data and texture data are not shared between skeleton instances. So there is no advantage in memory compare to REALTIME mode. The PRIVATE_CACHE is suitable when there is no animation blending or addition needed, but the skeleton could change textures of sub bone (e.g. weapon).",
         },
         'motionStreak': {
             'fadeTime': "Trail fragment fade time, in seconds",
@@ -341,7 +348,8 @@ module.exports = {
                 'linearVelocity': 'The linear velocity of the body\'s origin in world co-ordinates',
                 'angularVelocity': 'The angular velocity of the body.',
                 'fixedRotation': 'Should this body be prevented from rotating?',
-                'awake': 'Is this body initially awake or sleeping?'
+                'awake': 'Set the sleep state of the body. A sleeping body has very low CPU cost.(When the rigid body is hit, if the rigid body is in sleep state, it will be immediately awakened.)',
+                'awakeOnLoad': 'Whether to wake up this rigid body during initialization',
             },
             'physics_collider': {
                 'density': 'The density',
@@ -382,13 +390,16 @@ module.exports = {
             }
         },
         'block_input_events': {
-            'brief_help': 'This component will block all input events, preventing the input from penetrating into the underlying node, typically for the background of the top UI.'
+            'brief_help': 'This component will block all input events, preventing the input from penetrating to other nodes below the screen, typically for the background of the top-level UI of the screen.'
         },
         'tiledtile': {
             'row': 'Specify the TiledTile horizontal coordinate，use map tile as the unit.',
             'column': 'Specify the TiledTile vertical coordinate，use map tile as the unit.',
             'gid': 'Specify the TiledTile gid.',
             'layer': 'Specify which TiledLayer the TiledTile belong to.'
-        }
+        },
+        'wx_subcontext_view': {
+            'interval': 'The refresh interval of subcontext'
+        },
     }
 };

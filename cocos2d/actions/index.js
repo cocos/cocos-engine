@@ -29,3 +29,4 @@ require('./CCActionInterval');
 require('./CCActionInstant');
 require('./CCActionEase');
 require('./CCActionCatmullRom');
+require('./tween');

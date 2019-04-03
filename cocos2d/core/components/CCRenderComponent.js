@@ -30,23 +30,8 @@ const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const RenderData = renderEngine.RenderData;
 const gfx = renderEngine.gfx;
 
-/**
- * !#en
- * Base class for components which supports rendering features.
- * !#zh
- * 所有支持渲染的组件的基类
- *
- * @class RenderComponent
- * @extends Component
- */
-let RenderComponent = cc.Class({
-    name: 'RenderComponent',
-    extends: Component,
-
-    editor: CC_EDITOR && {
-        executeInEditMode: true,
-        disallowMultiple: true
-    },
+let BlendFactorPolyfill = cc.Class({
+    name: 'BlendFactorPolyfill',
 
     properties: {
         _srcBlendFactor: BlendFactor.SRC_ALPHA,
@@ -95,6 +80,44 @@ let RenderComponent = cc.Class({
             type: BlendFactor,
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor'
         },
+    },
+
+    _updateBlendFunc: function (updateHash) {
+        let material = this.getMaterial();
+        if (material) {
+            var pass = material._mainTech.passes[0];
+            pass.setBlend(
+                gfx.BLEND_FUNC_ADD,
+                this._srcBlendFactor, this._dstBlendFactor,
+                gfx.BLEND_FUNC_ADD,
+                this._srcBlendFactor, this._dstBlendFactor
+            );
+            if (updateHash) {
+                material.updateHash();
+            }
+        }
+    },
+})
+
+/**
+ * !#en
+ * Base class for components which supports rendering features.
+ * !#zh
+ * 所有支持渲染的组件的基类
+ *
+ * @class RenderComponent
+ * @extends Component
+ */
+let RenderComponent = cc.Class({
+    name: 'RenderComponent',
+    extends: Component,
+
+    editor: CC_EDITOR && {
+        executeInEditMode: true,
+        disallowMultiple: true
+    },
+
+    properties: {
     },
     
     ctor () {
@@ -199,30 +222,11 @@ let RenderComponent = cc.Class({
 
     _updateMaterial (material) {
         this._material = material;
-
-        this._updateBlendFunc();
         material.updateHash();
-    },
-        
-    _updateBlendFunc: function (updateHash) {
-        if (!this._material) {
-            return;
-        }
-
-        var pass = this._material._mainTech.passes[0];
-        pass.setBlend(
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor,
-            gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor
-        );
-
-        if (updateHash) {
-            this._material.updateHash();
-        }
     },
 });
 RenderComponent._assembler = null;
 RenderComponent._postAssembler = null;
+RenderComponent.BlendFactorPolyfill = BlendFactorPolyfill;
 
 cc.RenderComponent = module.exports = RenderComponent;
