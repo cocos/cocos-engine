@@ -81,7 +81,7 @@ function exitMask (mask, renderer) {
     }
 }
 
-function applyScreenMask (mask, renderer) {
+function applyClearMask (mask, renderer) {
     let func = gfx.DS_FUNC_NEVER;
     let ref = getWriteMask();
     let stencilMask = ref;
@@ -168,7 +168,7 @@ let maskFrontAssembler = {
             // HACK: Must push mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
             pushMask(mask);
 
-            applyScreenMask(mask, renderer);
+            applyClearMask(mask, renderer);
             applyAreaMask(mask, renderer);
 
             enableMask(renderer);

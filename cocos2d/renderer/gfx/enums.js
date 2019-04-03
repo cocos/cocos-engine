@@ -268,9 +268,9 @@ export const enums = {
   BLEND_SRC_ALPHA_SATURATE: 776,          // gl.SRC_ALPHA_SATURATE
 
   // stencil operation
-  STENCIL_INHERIT: 0,             // inherit stencil states
+  STENCIL_DISABLE: 0,             // disable stencil
   STENCIL_ENABLE: 1,              // enable stencil
-  STENCIL_DISABLE: 2,             // disable stencil
+  STENCIL_INHERIT: 2,             // inherit stencil states
 
   STENCIL_OP_KEEP: 7680,          // gl.KEEP
   STENCIL_OP_ZERO: 0,             // gl.ZERO
