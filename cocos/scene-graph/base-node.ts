@@ -494,6 +494,9 @@ export class BaseNode extends CCObject {
      * var child = node.getChildByPath("Test Node");
      */
     public getChildByPath (path: string) {
+        if (path.length === 0) {
+            return this;
+        }
         const segments = path.split('/');
         let lastNode: this = this;
         for (const segment of segments) {
