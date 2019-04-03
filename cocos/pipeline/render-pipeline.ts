@@ -365,7 +365,7 @@ export abstract class RenderPipeline {
         console.info('USE_SMAA: ' + this._useSMAA);
         console.info('CC_USE_HDR: ' + this._isHDR);
         console.info('SHADING_SIZE: ' + this._shadingWidth + ' x ' + this._shadingHeight);
-        console.info('SCREEN_SCALE: ' + this._shadingScale.toFixed(2));
+        console.info('SHADING_SCALE: ' + this._shadingScale.toFixed(2));
         console.info('SHADING_COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
         console.info('SHADING_DEPTH_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
 

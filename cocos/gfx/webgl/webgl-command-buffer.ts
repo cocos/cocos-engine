@@ -117,6 +117,8 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         this._curDepthBounds = null;
         this._curStencilWriteMask = null;
         this._curStencilCompareMask = null;
+        this._numDrawCalls = 0;
+        this._numTris = 0;
     }
 
     public end () {
@@ -341,11 +343,25 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
             const cmd = ( this._allocator as WebGLGFXCommandAllocator).
                         drawCmdPool.alloc(WebGLCmdDraw);
-            if (cmd) {
-                (inputAssembler as WebGLGFXInputAssembler).extractCmdDraw(cmd);
-                this.cmdPackage.drawCmds.push(cmd);
+            (inputAssembler as WebGLGFXInputAssembler).extractCmdDraw(cmd);
+            this.cmdPackage.drawCmds.push(cmd);
 
-                this.cmdPackage.cmds.push(WebGLCmd.DRAW);
+            this.cmdPackage.cmds.push(WebGLCmd.DRAW);
+
+            ++this._numDrawCalls;
+            if (this._curGPUPipelineState) {
+                const glPrimitive = this._curGPUPipelineState.glPrimitive;
+                switch (glPrimitive) {
+                    case WebGL2RenderingContext.TRIANGLES: {
+                        this._numTris += inputAssembler.indexCount / 3 * inputAssembler.instanceCount;
+                        break;
+                    }
+                    case WebGL2RenderingContext.TRIANGLE_STRIP:
+                    case WebGL2RenderingContext.TRIANGLE_FAN: {
+                        this._numTris += (inputAssembler.indexCount - 2) * inputAssembler.instanceCount;
+                        break;
+                    }
+                }
             }
         } else {
             console.error('Command \'draw\' must be recorded inside a render pass.');
@@ -449,6 +465,9 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
             }
 
             this.cmdPackage.cmds.concat(webGLCmdBuff.cmdPackage.cmds);
+
+            this._numDrawCalls += webGLCmdBuff._numDrawCalls;
+            this._numTris += webGLCmdBuff._numTris;
         }
     }
 
