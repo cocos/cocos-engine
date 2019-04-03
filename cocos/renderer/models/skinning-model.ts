@@ -7,7 +7,7 @@ import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXFeature } from '../../gfx/device';
-import { UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
+import { UBOSkinning, UNIFORM_JOINTS_TEXTURE, JointUniformCapacity } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
@@ -65,6 +65,11 @@ export class SkinningModel extends Model {
                 nativeData: new Float32Array(jointsTexture.width * jointsTexture.height * 4),
             } as IJointTextureStorage;
         } else {
+            if (skeleton.joints.length > JointUniformCapacity) {
+                console.error(
+                    `Skeleton ${skeleton.name} has ${skeleton.joints.length} joints ` +
+                    `which exceeds Cocos's max allowed joint count(${JointUniformCapacity}).`);
+            }
             this._jointStorage = {
                 nativeData: new Float32Array(skeleton.joints.length * 12),
             } as IJointUniformsStorage;
