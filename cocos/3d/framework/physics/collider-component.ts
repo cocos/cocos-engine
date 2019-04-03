@@ -8,21 +8,34 @@ import {
 import Vec3 from '../../../core/value-types/vec3';
 import { vec3 } from '../../../core/vmath';
 import { BoxShapeBase, ShapeBase, SphereShapeBase } from '../../physics/api';
-import { createBoxShape, createSphereShape } from '../../physics/instance';
+import { createBoxShape, createSphereShape, ERigidBodyType } from '../../physics/instance';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 export class ColliderComponentBase extends PhysicsBasedComponent {
     protected _shapeBase: ShapeBase | null = null;
 
+    @property
+    private _triggered: boolean = false;
+    @property
+    get isTrigger() { return this._triggered; }
+    set isTrigger(value) {
+        this._triggered = value;
+        if (this._body) {
+            let type = this._triggered ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
+            this._body.setType(type);
+            this._body.setIsTrigger(value);
+        }
+    }
+
     /**
      * The center of the collider, in local space.
      */
-    @property({type: Vec3})
-    get center () {
+    @property({ type: Vec3 })
+    get center() {
         return this._center;
     }
 
-    set center (value: Vec3) {
+    set center(value: Vec3) {
         vec3.copy(this._center, value);
         this._shapeBase!.setCenter(this._center);
     }
@@ -30,35 +43,36 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     @property
     private _center: Vec3 = new cc.Vec3(0, 0, 0);
 
-    constructor () {
+    constructor() {
         super();
     }
 
-    public onLoad () {
+    public onLoad() {
         super.onLoad();
         this.center = this._center;
     }
 
-    public start () {
+    public start() {
         super.start();
         if (this._enabled) {
             this.onEnable();
         }
+        this.isTrigger = this._triggered;
     }
 
-    public onEnable () {
+    public onEnable() {
         if (this.sharedBody) {
             this.sharedBody.body.addShape(this._shapeBase!);
         }
     }
 
-    public onDisable () {
+    public onDisable() {
         if (this.sharedBody) {
             this.sharedBody.body.removeShape(this._shapeBase!);
         }
     }
 
-    public destroy () {
+    public destroy() {
         if (this.sharedBody) {
             this.sharedBody.body.removeShape(this._shapeBase!);
         }
@@ -76,14 +90,14 @@ export class BoxColliderComponent extends ColliderComponentBase {
 
     private _shape: BoxShapeBase;
 
-    constructor () {
+    constructor() {
         super();
         this._shape = createBoxShape(this._size);
         this._shape.setUserData(this);
         this._shapeBase = this._shape;
     }
 
-    public onLoad () {
+    public onLoad() {
         super.onLoad();
         this.size = this._size;
     }
@@ -92,12 +106,12 @@ export class BoxColliderComponent extends ColliderComponentBase {
      * The size of the box, in local space.
      * @note Shall not specify size with component 0.
      */
-    @property({type: Vec3})
-    get size () {
+    @property({ type: Vec3 })
+    get size() {
         return this._size;
     }
 
-    set size (value) {
+    set size(value) {
         vec3.copy(this._size, value);
         this._shape.setSize(this._size);
         if (this.sharedBody) {
@@ -116,14 +130,14 @@ export class SphereColliderComponent extends ColliderComponentBase {
 
     private _shape: SphereShapeBase;
 
-    constructor () {
+    constructor() {
         super();
         this._shape = createSphereShape(this._radius);
         this._shape.setUserData(this);
         this._shapeBase = this._shape;
     }
 
-    public onLoad () {
+    public onLoad() {
         super.onLoad();
         this.radius = this._radius;
     }
@@ -132,11 +146,11 @@ export class SphereColliderComponent extends ColliderComponentBase {
      * The radius of the sphere.
      */
     @property
-    get radius () {
+    get radius() {
         return this._radius;
     }
 
-    set radius (value) {
+    set radius(value) {
         this._radius = value;
         this._shape.setRadius(value);
         if (this.sharedBody) {

@@ -3,23 +3,29 @@ import { BoxShapeBase, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase, Sphe
 import { BoxShape, PhysicsWorld, RigidBody, SphereShape } from './impl-selector';
 import { RaycastResult } from './raycast-result';
 
-export function createPhysicsWorld (): PhysicsWorldBase {
+export enum ERigidBodyType {
+    DYNAMIC = 1,
+    STATIC = 2,
+    KINEMATIC = 4
+}
+
+export function createPhysicsWorld(): PhysicsWorldBase {
     return new PhysicsWorld();
 }
 
-export function createRigidBody (options?: ICreateBodyOptions): RigidBodyBase {
+export function createRigidBody(options?: ICreateBodyOptions): RigidBodyBase {
     return new RigidBody(options);
 }
 
-export function createBoxShape (size: Vec3): BoxShapeBase {
+export function createBoxShape(size: Vec3): BoxShapeBase {
     return new BoxShape(size);
 }
 
-export function createSphereShape (radius: number): SphereShapeBase {
+export function createSphereShape(radius: number): SphereShapeBase {
     return new SphereShape(radius);
 }
 
-export function createRaycastResult (): RaycastResult {
+export function createRaycastResult(): RaycastResult {
     return new RaycastResult();
 }
 
