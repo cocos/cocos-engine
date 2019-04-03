@@ -67,6 +67,10 @@ function parseNotify (val, propName, notify, properties) {
             notify.call(this, oldValue);
         };
 
+        if (CC_EDITOR) {
+            val.notifyFor = newKey;
+        }
+
         var newValue = {};
         properties[newKey] = newValue;
         // 将不能用于get方法中的属性移动到newValue中
@@ -159,7 +163,7 @@ function checkUrl (val, className, propName, url) {
 
 function parseType (val, type, className, propName) {
     if (Array.isArray(type)) {
-        if (CC_EDITOR) {
+        if (CC_EDITOR && 'default' in val) {
             var isArray = require('./CCClass').isArray;   // require lazily to avoid circular require() calls
             if (!isArray(val.default)) {
                 cc.warnID(5507, className, propName);
@@ -228,11 +232,16 @@ exports.getFullFormOfProperty = function (options, propname_dev, classname_dev) 
                         'Please use the complete form.\n' +
                         'For example, if property is Texture2D\'s url array, the previous definition is:\n' +
                         '    %s: [cc.Texture2D],\n' +
-                        'Now it should be changed to:\n' +
+                        'If you use JS, it should be changed to:\n' +
                         '    %s: {\n' +
                         '      type: cc.Texture2D, // use \'type:\' to define an array of Texture2D objects\n' +
                         '      default: []\n' +
                         '    },\n' +
+                        'If you use TS, it should be changed to:\n' +
+                        '    %s: {\n' +
+                        '      type: cc.Texture2D, // use \'type:\' to define an array of Texture2D objects\n' +
+                        '    }\n' +
+                        '   %s: cc.Texture2D[] = [];\n'+
                         '(This helps us to successfully refactor all RawAssets at v2.0, ' +
                         'sorry for the inconvenience. \uD83D\uDE30 )',
                         propname_dev, classname_dev, propname_dev, propname_dev);
@@ -259,11 +268,16 @@ exports.getFullFormOfProperty = function (options, propname_dev, classname_dev) 
                                 'Please use the complete form.\n' +
                                 'For example, if the type is Texture2D, the previous definition is:\n' +
                                 '    %s: cc.Texture2D,\n' +
-                                'Now it should be changed to:\n' +
+                                'If you use JS, it should be changed to:\n' +
                                 '    %s: {\n' +
                                 '      type: cc.Texture2D // use \'type:\' to define Texture2D object directly\n' +
                                 '      default: null,     // object\'s default value is null\n' +
                                 '    },\n' +
+                                'If you use TS, it should be changed to:\n' +
+                                '    %s: {\n' +
+                                '      type: cc.Texture2D // use \'type:\' to define Texture2D object directly\n' +
+                                '    }\n' +
+                                '    %s: cc.Texture2D = null;\n'+
                                 '(This helps us to successfully refactor all RawAssets at v2.0, ' +
                                 'sorry for the inconvenience. \uD83D\uDE30 )',
                                 propname_dev, classname_dev, propname_dev, propname_dev);

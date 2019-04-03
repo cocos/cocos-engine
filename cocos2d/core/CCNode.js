@@ -51,7 +51,6 @@ var _vec2b = cc.v2();
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
 var _quat_temp = math.quat.create();
-var _globalOrderOfArrival = 1;
 var _cachedArray = new Array(16);
 _cachedArray.length = 0;
 
@@ -60,6 +59,7 @@ const SCALE_ON = 1 << 1;
 const ROTATION_ON = 1 << 2;
 const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
+const COLOR_ON = 1 << 5;
 
 
 let BuiltinGroupIndex = cc.Enum({
@@ -250,6 +250,16 @@ var EventType = cc.Enum({
      * @static
      */
     ANCHOR_CHANGED: 'anchor-changed',
+    /**
+     * !#en The event type for color change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     * !#zh 当节点颜色改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @property {String} COLOR_CHANGED
+     * @static
+     */
+    COLOR_CHANGED: 'color-changed',
     /**
      * !#en The event type for new child added events.
      * !#zh 当新的子节点被添加时触发的事件。
@@ -502,7 +512,24 @@ function _doDispatchEvent (owner, event) {
         }
     }
     _cachedArray.length = 0;
-};
+}
+
+// traversal the node tree, child cullingMask must keep the same with the parent.
+function _getActualGroupIndex (node) {
+    let groupIndex = node.groupIndex;
+    if (groupIndex === 0 && node.parent) {
+        groupIndex = _getActualGroupIndex(node.parent);
+    }
+    return groupIndex;
+}
+
+function _updateCullingMask (node) {
+    let index = _getActualGroupIndex(node);
+    node._cullingMask = 1 << index;
+    for (let i = 0; i < node._children.length; i++) {
+        _updateCullingMask(node._children[i]);
+    }
+}
 
 /**
  * !#en
@@ -539,11 +566,15 @@ var Node = cc.Class({
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
+        _zIndex: {
+            default: undefined,
+            type: cc.Integer
+        },
         _localZOrder: {
             default: 0,
             serializable: false
         },
-        _zIndex: 0,
+    
 
         // internal properties
 
@@ -579,7 +610,9 @@ var Node = cc.Class({
             },
 
             set (value) {
+                // update the groupIndex
                 this.groupIndex = cc.game.groupList.indexOf(value);
+                _updateCullingMask(this);
                 this.emit(EventType.GROUP_CHANGED, this);
             }
         },
@@ -913,7 +946,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._opacity !== value) {
                     this._opacity = value;
-                    this._renderFlag |= RenderFlow.FLAG_OPACITY | RenderFlow.FLAG_COLOR;
+                    this._renderFlag |= RenderFlow.FLAG_OPACITY;
                 }
             },
             range: [0, 255]
@@ -940,6 +973,10 @@ var Node = cc.Class({
                     
                     if (this._renderComponent) {
                         this._renderFlag |= RenderFlow.FLAG_COLOR;
+                    }
+
+                    if (this._eventMask & COLOR_ON) {
+                        this.emit(EventType.COLOR_CHANGED, value);
                     }
                 }
             },
@@ -1070,7 +1107,7 @@ var Node = cc.Class({
          */
         zIndex: {
             get () {
-                return this._zIndex;
+                return this._localZOrder >> 16;
             },
             set (value) {
                 if (value > macro.MAX_ZINDEX) {
@@ -1082,12 +1119,11 @@ var Node = cc.Class({
                     value = macro.MIN_ZINDEX;
                 }
 
-                if (this._zIndex !== value) {
-                    this._zIndex = value;
+                if (this.zIndex !== value) {
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
 
                     if (this._parent) {
-                        this._parent._delaySort();
+                        this._onSiblingIndexChanged();
                     }
                 }
             }
@@ -1100,7 +1136,7 @@ var Node = cc.Class({
      */
     ctor () {
         this._reorderChildDirty = false;
-        
+
         // cache component
         this._widget = null;
         // fast render component access
@@ -1124,7 +1160,8 @@ var Node = cc.Class({
         this._worldMatDirty = true;
 
         this._eventMask = 0;
-        this._cullingMask = 1 << this.groupIndex;
+        this._cullingMask = 1;
+        this._childArrivalOrder = 1;
     },
 
     statics: {
@@ -1140,7 +1177,7 @@ var Node = cc.Class({
 
     // OVERRIDES
 
-    _onSiblingIndexChanged (index) {
+    _onSiblingIndexChanged () {
         // update rendering scene graph, sort them by arrivalOrder
         var parent = this._parent;
         var siblings = parent._children;
@@ -1148,7 +1185,6 @@ var Node = cc.Class({
         for (; i < len; i++) {
             sibling = siblings[i];
             sibling._updateOrderOfArrival();
-            eventManager._setDirtyForNode(sibling);
         }
         parent._delaySort();
     },
@@ -1226,6 +1262,7 @@ var Node = cc.Class({
 
     _onHierarchyChanged (oldParent) {
         this._updateOrderOfArrival();
+        _updateCullingMask(this);
         if (this._parent) {
             this._parent._delaySort();
         }
@@ -1249,9 +1286,9 @@ var Node = cc.Class({
             this._scale.y = this._scaleY;
             this._scaleY = undefined;
         }
-
-        if (this._localZOrder !== 0) {
-            this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
+        if (this._zIndex !== undefined) {
+            this._localZOrder = this._zIndex << 16;
+            this._zIndex = undefined;
         }
 
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
@@ -1294,6 +1331,9 @@ var Node = cc.Class({
 
         this._updateOrderOfArrival();
 
+        // synchronize _cullingMask
+        this._cullingMask = 1 << _getActualGroupIndex(this);
+
         let prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
             if (CC_DEV) {
@@ -1324,6 +1364,8 @@ var Node = cc.Class({
     // the same as _onBatchCreated but untouch prefab
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
+
+        this._cullingMask = 1 << _getActualGroupIndex(this);
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1411,7 +1453,7 @@ var Node = cc.Class({
      * 鼠标或触摸事件会被系统调用 dispatchEvent 方法触发，触发的过程包含三个阶段：<br/>
      * 1. 捕获阶段：派发事件给捕获目标（通过 `_getCapturingTargets` 获取），比如，节点树中注册了捕获阶段的父节点，从根节点开始派发直到目标节点。<br/>
      * 2. 目标阶段：派发给目标节点的监听器。<br/>
-     * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发知道根节点。<br/>
+     * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发直到根节点。<br/>
      * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。<br/>
      * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。<br/>
      * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器<br/>
@@ -1436,6 +1478,7 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.TOUCH_END, callback, this);
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this);
      * node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     * node.on(cc.Node.EventType.COLOR_CHANGED, callback);
      */
     on (type, callback, target, useCapture) {
         let forDispatch = this._checknSetupSysEvent(type);
@@ -1458,6 +1501,9 @@ var Node = cc.Class({
                 break;
                 case EventType.ANCHOR_CHANGED:
                 this._eventMask |= ANCHOR_ON;
+                break;
+                case EventType.COLOR_CHANGED:
+                this._eventMask |= COLOR_ON;
                 break;
             }
             if (!this._bubblingListeners) {
@@ -1600,6 +1646,9 @@ var Node = cc.Class({
                     case EventType.ANCHOR_CHANGED:
                     this._eventMask &= ~ANCHOR_ON;
                     break;
+                    case EventType.COLOR_CHANGED:
+                    this._eventMask &= ~COLOR_ON;
+                    break;
                 }
             }
         }
@@ -1620,12 +1669,12 @@ var Node = cc.Class({
             var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
             if (listeners) {
                 listeners.remove(type, callback, target);
-    
+
                 if (target && target.__eventTargets) {
                     js.array.fastRemove(target.__eventTargets, this);
                 }
             }
-            
+
         }
     },
 
@@ -1657,6 +1706,9 @@ var Node = cc.Class({
             }
             if ((this._eventMask & ANCHOR_ON) && !listeners.hasEventListener(EventType.ANCHOR_CHANGED)) {
                 this._eventMask &= ~ANCHOR_ON;
+            }
+            if ((this._eventMask & COLOR_ON) && !listeners.hasEventListener(EventType.COLOR_CHANGED)) {
+                this._eventMask &= ~COLOR_ON;
             }
         }
         if (this._capturingListeners) {
@@ -1828,7 +1880,7 @@ var Node = cc.Class({
             parent = parent.parent;
         }
     },
-    
+
     /**
      * Get all the targets listening to the supplied type of event in the target's bubbling phase.
      * The bubbling phase comprises any SUBSEQUENT nodes encountered on the return trip to the root of the tree.
@@ -2883,8 +2935,18 @@ var Node = cc.Class({
     },
 
     _updateOrderOfArrival () {
-        var arrivalOrder = ++_globalOrderOfArrival;
+        var arrivalOrder = this._parent ? ++this._parent._childArrivalOrder : 0;
         this._localZOrder = (this._localZOrder & 0xffff0000) | arrivalOrder;
+        // redistribute
+        if (arrivalOrder === 0x0000ffff) {
+            var siblings = this._parent._children;
+
+            siblings.forEach(function (node, index) {
+                node._localZOrder = (node._localZOrder & 0xffff0000) | (index + 1);
+            });
+
+            this._parent._childArrivalOrder = siblings.length;
+        }
     },
 
     /**
@@ -2948,6 +3010,10 @@ var Node = cc.Class({
      */
     sortAllChildren () {
         if (this._reorderChildDirty) {
+            // Optimize reordering event code to fix problems with setting zindex
+            // https://github.com/cocos-creator/2d-tasks/issues/1186
+            eventManager._setDirtyForNode(this);
+
             this._reorderChildDirty = false;
             var _children = this._children;
             if (_children.length > 1) {
@@ -3027,33 +3093,61 @@ var Node = cc.Class({
             actionManager && actionManager.pauseTarget(this);
             eventManager.pauseTarget(this);
         }
-    },
+    }
 });
 
 /**
+ * !#en
+ * The position changing event, you can listen to this event through the statement this.node.on(cc.Node.EventType.POSITION_CHANGED, callback, this);
+ * !#zh
+ * 位置变动监听事件, 通过 this.node.on(cc.Node.EventType.POSITION_CHANGED, callback, this); 进行监听。
  * @event position-changed
  * @param {Vec2} oldPos - The old position, but this parameter is only available in editor!
  */
 /**
+ * !#en
+ * The size changing event, you can listen to this event through the statement this.node.on(cc.Node.EventType.SIZE_CHANGED, callback, this);
+ * !#zh
+ * 尺寸变动监听事件，通过 this.node.on(cc.Node.EventType.SIZE_CHANGED, callback, this); 进行监听。
  * @event size-changed
  * @param {Size} oldSize - The old size, but this parameter is only available in editor!
  */
 /**
+ * !#en
+ * The anchor changing event, you can listen to this event through the statement this.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
+ * !#zh
+ * 锚点变动监听事件，通过 this.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback, this); 进行监听。
  * @event anchor-changed
  */
 /**
+ * !#en
+ * The adding child event, you can listen to this event through the statement this.node.on(cc.Node.EventType.CHILD_ADDED, callback, this);
+ * !#zh
+ * 增加子节点监听事件，通过 this.node.on(cc.Node.EventType.CHILD_ADDED, callback, this); 进行监听。
  * @event child-added
  * @param {Node} child - child which have been added
  */
 /**
+ * !#en
+ * The removing child event, you can listen to this event through the statement this.node.on(cc.Node.EventType.CHILD_REMOVED, callback, this);
+ * !#zh
+ * 删除子节点监听事件，通过 this.node.on(cc.Node.EventType.CHILD_REMOVED, callback, this); 进行监听。
  * @event child-removed
  * @param {Node} child - child which have been removed
  */
 /**
+ * !#en
+ * The reordering child event, you can listen to this event through the statement this.node.on(cc.Node.EventType.CHILD_REORDER, callback, this);
+ * !#zh
+ * 子节点顺序变动监听事件，通过 this.node.on(cc.Node.EventType.CHILD_REORDER, callback, this); 进行监听。
  * @event child-reorder
  * @param {Node} node - node whose children have been reordered
  */
 /**
+ * !#en
+ * The group changing event, you can listen to this event through the statement this.node.on(cc.Node.EventType.GROUP_CHANGED, callback, this);
+ * !#zh
+ * 节点分组变动监听事件，通过 this.node.on(cc.Node.EventType.GROUP_CHANGED, callback, this); 进行监听。
  * @event group-changed
  * @param {Node} node - node whose group has changed
  */

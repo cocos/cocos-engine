@@ -28,7 +28,6 @@ const TiledMap = require('./CCTiledMap');
 
 const renderEngine = require('../core/renderer/render-engine');
 const RenderFlow = require('../core/renderer/render-flow');
-const vfmtPosUvColor = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosUvColor;
 
 const Orientation = TiledMap.Orientation;
 const TileFlag = TiledMap.TileFlag;
@@ -63,17 +62,16 @@ let tmxAssembler = {
         let renderData = comp._renderData;
         let data = renderData._data;
 
-        let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
-            vertexOffset = buffer.byteOffset >> 2,
+        let buffer = renderer._meshBuffer,
             vertexCount = renderData.vertexCount;
-        
-        let indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
             
-        buffer.request(vertexCount, renderData.indiceCount);
+        let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            vbuf = buffer._vData,
             ibuf = buffer._iData,
             uintbuf = buffer._uintVData;
         

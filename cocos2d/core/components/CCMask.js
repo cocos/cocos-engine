@@ -32,6 +32,7 @@ const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Graphics = require('../graphics/graphics');
 const Node = require('../CCNode');
+const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
 
 let _vec2_temp = cc.v2();
 let _mat4_temp = math.mat4.create();
@@ -264,6 +265,9 @@ let Mask = cc.Class({
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._updateGraphics();
         }
+        else {
+            this._applySpriteFrame();
+        }
     },
 
     onEnable () {
@@ -273,6 +277,7 @@ let Mask = cc.Class({
                 // Do not render when sprite frame is not ready
                 this.markForRender(false);
                 if (this._spriteFrame) {
+                    this.markForUpdateRenderData(false);
                     this._spriteFrame.once('load', this._onTextureLoaded, this);
                     this._spriteFrame.ensureLoadTexture();
                 }
@@ -342,6 +347,9 @@ let Mask = cc.Class({
                 spriteFrame.once('load', this._onTextureLoaded, this);
                 spriteFrame.ensureLoadTexture();
             }
+        }
+        else {
+            this.disableRender();
         }
     },
 
@@ -457,14 +465,19 @@ let Mask = cc.Class({
         testPt.x += node._anchorPoint.x * w;
         testPt.y += node._anchorPoint.y * h;
 
+        let result = false;
         if (this.type === MaskType.RECT || this.type === MaskType.IMAGE_STENCIL) {
-            return testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
+            result = testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
         }
         else if (this.type === MaskType.ELLIPSE) {
             let rx = w / 2, ry = h / 2;
             let px = testPt.x - 0.5 * w, py = testPt.y - 0.5 * h;
-            return px * px / (rx * rx) + py * py / (ry * ry) < 1;
+            result = px * px / (rx * rx) + py * py / (ry * ry) < 1;
         }
+        if (this.inverted) {
+            result = !result;
+        }
+        return result;
     },
 
     markForUpdateRenderData (enable) {
@@ -490,6 +503,21 @@ let Mask = cc.Class({
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
                                    RenderFlow.FLAG_POST_RENDER);
     },
+
+    _calDynamicAtlas ()
+    {
+        if (!this._spriteFrame) return;
+        
+        if (!this._spriteFrame._original && dynamicAtlasManager) {
+            let frame = dynamicAtlasManager.insertSpriteFrame(this._spriteFrame);
+            if (frame) {
+                this._spriteFrame._setDynamicAtlasFrame(frame);
+            }
+        }
+        if (this._material._texture !== this._spriteFrame._texture) {
+            this._activateMaterial();
+        }
+    }
 });
 
 cc.Mask = module.exports = Mask;

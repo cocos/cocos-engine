@@ -30,7 +30,7 @@ test('curve types', function () {
     state.update(0);
 
     state.update(0.2);
-    strictEqual(entity.x, cc.Easing.cubicInOut(0.2) * 100, 'should wrap time by cc.Easing.cubicInOut');
+    strictEqual(entity.x, cc.easing.cubicInOut(0.2) * 100, 'should wrap time by cc.easing.cubicInOut');
 
     state.update(1.2);
     close(entity.x, bezierByTime([0, 0.5, 0.5, 1], 0.4) * 100 + 100, 0.0001, 'should wrap time by bezierByTime');

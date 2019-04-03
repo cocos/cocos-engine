@@ -1,6 +1,6 @@
 
 const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
-const FLAGS = ['jsb', 'runtime', 'wechatgame', 'wechatgameSub', 'qqplay', 'debug', 'nativeRenderer'];
+const FLAGS = ['jsb', 'runtime', 'wechatgame', 'wechatgameSub','baidugame', 'qqplay', 'debug', 'nativeRenderer'];
 
 // generate macros for uglify's global_defs
 // available platforms: 'editor' | 'preview' | 'build' | 'test'
@@ -36,7 +36,7 @@ exports.getMacros = function (platform, flags) {
     // debug macros
     res['CC_DEV'] = res['CC_EDITOR'] || res['CC_PREVIEW'] || res['CC_TEST'];
     res['CC_DEBUG'] = res['CC_DEBUG'] || res['CC_DEV'];
-    res['CC_SUPPORT_JIT'] = !(res['CC_WECHATGAME'] || res['CC_QQPLAY'] || res['CC_RUNTIME']);
+    res['CC_SUPPORT_JIT'] = !(res['CC_BAIDUGAME'] || res['CC_WECHATGAME'] || res['CC_QQPLAY'] || res['CC_RUNTIME']);
     return res;
 };
 
@@ -59,6 +59,7 @@ exports.getUglifyOptions = function (platform, flags) {
                 keep_infinity: true,    // reduce jsc file size
                 typeofs: false,
                 inline: 1,              // workaround mishoo/UglifyJS2#2842
+                reduce_funcs: false,
             },
             output: {
                 beautify: true,         // really preserve_lines
@@ -77,6 +78,7 @@ exports.getUglifyOptions = function (platform, flags) {
                 global_defs: global_defs,
                 negate_iife: false,
                 inline: 1,              // workaround mishoo/UglifyJS2#2842
+                reduce_funcs: false,    // keep single-use functions being cached
             },
             output: {
                 ascii_only: true,

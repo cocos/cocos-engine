@@ -27,9 +27,6 @@ const WHITE = (255<<16) + (255<<8) + 255;
 const MAX_CANVAS_COUNT = 32;
 
 function colorizedFrame (canvas, texture, color, sx, sy, sw, sh) {
-    if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-        return canvas;
-    }
     let image = texture._image;
 
     let ctx = canvas.getContext("2d");
@@ -164,3 +161,23 @@ module.exports = {
         canvasMgr.dropImage(key);
     }
 };
+
+// cache context data of device.
+let _globalAlpha = -1;
+
+let context = {
+    setGlobalAlpha (ctx, alpha) {
+        if (_globalAlpha === alpha) {
+            return 
+        }
+
+        _globalAlpha = alpha;
+        ctx.globalAlpha = _globalAlpha;
+    },
+
+    reset () {
+        _globalAlpha = -1;
+    }
+}
+
+module.exports.context = context;

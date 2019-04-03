@@ -97,15 +97,15 @@ gulp.task('build-jsb', ['build-jsb-preview', 'build-jsb-dev', 'build-jsb-min']);
 // test //
 /////////
 
-gulp.task('clean-test', ['clean-test-cases'], function (done) {
-    Del([
+gulp.task('clean-test', ['clean-test-cases'], function () {
+    return Del([
         './bin/cocos2d-js-extends-for-test.js',
         './bin/cocos2d-js-for-test.js',
-    ], done);
+    ]);
 });
 
-gulp.task('clean-test-cases', function (done) {
-    Del('./bin/test/**/*', done);
+gulp.task('clean-test-cases', function () {
+    return Del('./bin/test/**/*');
 });
 
 gulp.task('build-test-cases', ['clean-test-cases'], function (done) {
@@ -145,13 +145,13 @@ gulp.task('test-no-build', function (done) {
 // global //
 ////////////
 
-gulp.task('clean-cache', function (done) {
-    Del(['./bin/.cache/*', '!./bin/.cache/dev/**'], done);
+gulp.task('clean-cache', function () {
+    return Del(['./bin/.cache/*', '!./bin/.cache/dev/**']);
 });
 
 // fast build, only for develop
-gulp.task('build-dev', ['clean-cache', 'build-html5-preview', 'build-jsb-preview'], function (done) {
-    Del(['./bin/cocos2d-jsb-min.js', './bin/cocos2d-jsb.js'], done);
+gulp.task('build-dev', ['clean-cache', 'build-html5-preview', 'build-jsb-preview'], function () {
+    return Del(['./bin/cocos2d-jsb-min.js', './bin/cocos2d-jsb.js']);
 });
 
 // only build preview for html5 since it will built by editor
@@ -160,8 +160,8 @@ gulp.task('build', ['clean-cache', 'build-html5-preview', 'build-jsb']);
 // default task
 gulp.task('default', ['build']);
 
-gulp.task('clean', function (done) {
-    Del('./bin/**/*', done);
+gulp.task('clean', function () {
+    return Del('./bin/**/*');
 });
 
 ////////////

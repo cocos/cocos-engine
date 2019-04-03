@@ -29,7 +29,9 @@ const RenderComponent = require('./CCRenderComponent');
 const renderEngine = require('../renderer/render-engine');
 const RenderFlow = require('../renderer/render-flow');
 const SpriteMaterial = renderEngine.SpriteMaterial;
-
+const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
+const LabelFrame = require('../renderer/utils/label/label-frame');
+const opacityFlag = RenderFlow.FLAG_COLOR | RenderFlow.FLAG_OPACITY;
 /**
  * !#en Enum for text alignment.
  * !#zh 文本横向对齐类型
@@ -127,6 +129,27 @@ const Overflow = cc.Enum({
  * @property {Number} SystemFont
  */
 
+ /**
+ * !#en Do not do any caching.
+ * !#zh 不做任何缓存。
+ * @property {Number} NONE
+ */
+/**
+ * !#en In BITMAP mode, cache the label as a static image and add it to the dynamic atlas for batch rendering, and can batching with Sprites using broken images.
+ * !#zh BITMAP 模式，将 label 缓存成静态图像并加入到动态图集，以便进行批次合并，可与使用碎图的 Sprite 进行合批（注：动态图集在 Chrome 以及微信小游戏暂时关闭，该功能无效）。
+ * @property {Number} BITMAP
+ */
+/**
+ * !#en In CHAR mode, split text into characters and cache characters into a dynamic atlas which the size of 2048*2048. 
+ * !#zh CHAR 模式，将文本拆分为字符，并将字符缓存到一张单独的大小为 2048*2048 的图集中进行重复使用，不再使用动态图集（注：当图集满时将不再进行缓存，暂时不支持 SHRINK 自适应文本尺寸（后续完善））。
+ * @property {Number} CHAR
+ */
+const CacheMode = cc.Enum({
+    NONE: 0,
+    BITMAP: 1,
+    CHAR: 2,
+});
+
 /**
  * !#en The Label Component.
  * !#zh 文字标签组件
@@ -145,7 +168,9 @@ let Label = cc.Class({
         this._actualFontSize = 0;
         this._assemblerData = null;
 
+        this._frame = null;
         this._ttfTexture = null;
+        this._letterTexture = null;
     },
 
     editor: CC_EDITOR && {
@@ -228,7 +253,8 @@ let Label = cc.Class({
             readonly: true,
             get () {
                 return this._actualFontSize;
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.actualFontSize',
         },
 
         _fontSize: 40,
@@ -247,6 +273,7 @@ let Label = cc.Class({
                 this._fontSize = value;
                 this._updateRenderData();
             },
+            range: [0, 512],
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_size',
         },
 
@@ -356,7 +383,7 @@ let Label = cc.Class({
                 }
                 this._fontAtlas = null;
                 this._updateAssembler();
-                this._activateMaterial(true);
+                this._applyFontTexture(true);
                 this._updateRenderData();
             },
             type: cc.Font,
@@ -369,7 +396,7 @@ let Label = cc.Class({
         /**
          * !#en Whether use system font name or not.
          * !#zh 是否使用系统字体。
-         * @property {Boolean} isSystemFontUsed
+         * @property {Boolean} useSystemFont
          */
         useSystemFont: {
             get () {
@@ -420,6 +447,12 @@ let Label = cc.Class({
         },
 
         _spacingX: 0,
+
+        /**
+         * !#en The spacing of the x axis between characters.
+         * !#zh 文字之间 x 轴的间距。
+         * @property {Number} spacingX
+         */
         spacingX: {
             get () {
                 return this._spacingX;
@@ -427,7 +460,36 @@ let Label = cc.Class({
             set (value) {
                 this._spacingX = value;
                 this._updateRenderData();
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.spacingX',
+        },
+
+        //For compatibility with v2.0.x temporary reservation.
+        _batchAsBitmap: false,
+
+        /**
+         * !#en The cache mode of label. This mode only supports system fonts.
+         * !#zh 文本缓存模式, 该模式只支持系统字体。
+         * @property {Label.CacheMode} cacheMode
+         */
+        cacheMode: {
+            default: CacheMode.NONE,
+            type: CacheMode,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.cacheMode',
+            notify (oldValue) {
+                if (this.cacheMode === oldValue) return;
+                
+                if (oldValue === CacheMode.BITMAP && !(this.font instanceof cc.BitmapFont)) {
+                    this._frame._resetDynamicAtlasFrame();
+                }
+
+                if (oldValue === CacheMode.CHAR) {
+                    this._ttfTexture = null;
+                }
+
+                this._updateRenderData(true);
+            },
+            animatable: false
         },
 
         _isBold: {
@@ -448,6 +510,15 @@ let Label = cc.Class({
         HorizontalAlign: HorizontalAlign,
         VerticalAlign: VerticalAlign,
         Overflow: Overflow,
+        CacheMode: CacheMode,
+    },
+
+    onLoad () {
+        // For compatibility with v2.0.x temporary reservation.
+        if (this._batchAsBitmap && this.cacheMode === CacheMode.NONE) {
+            this.cacheMode = CacheMode.BITMAP;
+            this._batchAsBitmap = false;
+        }
     },
 
     onEnable () {
@@ -467,8 +538,7 @@ let Label = cc.Class({
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
 
         this._checkStringEmpty();
-        this._updateAssembler();
-        this._activateMaterial();
+        this._updateRenderData(true);
     },
 
     onDisable () {
@@ -478,15 +548,16 @@ let Label = cc.Class({
     },
 
     onDestroy () {
-        this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
+        this._assembler && this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
         this._assemblerData = null;
+        this._letterTexture = null;
         if (this._ttfTexture) {
             this._ttfTexture.destroy();
             this._ttfTexture = null;
         }
         this._super();
     },
-
+    
     _canRender () {
         let result = this._super();
         let font = this.font;
@@ -510,10 +581,75 @@ let Label = cc.Class({
         if (this._assembler !== assembler) {
             this._assembler = assembler;
             this._renderData = null;
+            this._frame = null;
         }
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
+        }
+    },
+
+    _applyFontTexture (force) {
+        let font = this.font;
+        if (font instanceof cc.BitmapFont) {
+            let spriteFrame = font.spriteFrame;
+            this._frame = spriteFrame;
+            let self = this;
+            let onBMFontTextureLoaded = function () {
+                // TODO: old texture in material have been released by loader
+                self._frame._texture = spriteFrame._texture;
+                self._activateMaterial(force);
+                if (force) {
+                    self._assembler && self._assembler.updateRenderData(self);
+                }
+            };
+            // cannot be activated if texture not loaded yet
+            if (spriteFrame && spriteFrame.textureLoaded()) {
+                onBMFontTextureLoaded();
+            }
+            else {
+                this.disableRender();
+
+                if (spriteFrame) {
+                    spriteFrame.once('load', onBMFontTextureLoaded, this);
+                    spriteFrame.ensureLoadTexture();
+                }
+            }
+        }
+        else {
+
+            if (!this._frame) {
+                this._frame = new LabelFrame();
+            }
+ 
+            if (this.cacheMode === CacheMode.CHAR && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+                this._letterTexture = this._assembler._getAssemblerData();
+                this._frame._refreshTexture(this._letterTexture);
+            } else if (!this._ttfTexture) {
+                this._ttfTexture = new cc.Texture2D();
+                this._assemblerData = this._assembler._getAssemblerData();
+                this._ttfTexture.initWithElement(this._assemblerData.canvas);
+            } 
+
+            if (this.cacheMode !== CacheMode.CHAR) {
+                this._frame._refreshTexture(this._ttfTexture);
+            }
+            
+            this._activateMaterial(force);
+
+            if (force) {
+                this._assembler && this._assembler.updateRenderData(this);
+            }
+        }
+    },
+
+    _updateColor () {
+        let font = this.font;
+        if (font instanceof cc.BitmapFont) {
+            this._super();
+        } else {
+            this._updateRenderData();
+            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
     },
 
@@ -522,70 +658,24 @@ let Label = cc.Class({
         if (material && !force) {
             return;
         }
-        
-        let font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            let spriteFrame = font.spriteFrame;
-            // cannot be activated if texture not loaded yet
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
-                this.disableRender();
-
-                if (spriteFrame) {
-                    spriteFrame.once('load', this._activateMaterial, this);
-                    spriteFrame.ensureLoadTexture();
-                }
-                return;
-            }
-            
-            // TODO: old texture in material have been released by loader
-            this._texture = spriteFrame._texture;
-        }
-        else {
-            if (!this._ttfTexture) {
-                this._ttfTexture = new cc.Texture2D();
-                // TTF texture in web will blend with canvas or body background color
-                if (!CC_JSB) {
-                    this._ttfTexture.setPremultiplyAlpha(true);
-                }
-                this._assemblerData = this._assembler._getAssemblerData();
-                this._ttfTexture.initWithElement(this._assemblerData.canvas);
-            }
-            this._texture = this._ttfTexture;
-        }
 
         // Canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this._texture.url = this.uuid + '_texture';
+            this._frame._texture.url = this.uuid + '_texture';
         }
         // WebGL
         else {
             if (!material) {
                 material = new SpriteMaterial();
             }
-            // Setup blend function for premultiplied ttf label texture
-            if (this._texture === this._ttfTexture) {
-                this._srcBlendFactor = cc.macro.BlendFactor.ONE;
-            }
-            else {
-                this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
-            }
-            material.texture = this._texture;
+            material.texture = this._frame._texture;
+            // For batch rendering, do not use uniform color.
+            material.useColor = false;
             this._updateMaterial(material);
         }
 
         this.markForUpdateRenderData(true);
         this.markForRender(true);
-    },
-
-    _updateColor () {
-        let font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            this._super();
-        }
-        else {
-            this._updateRenderData();
-            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
-        }
     },
 
     _updateRenderData (force) {
@@ -596,10 +686,23 @@ let Label = cc.Class({
             this.markForUpdateRenderData(true);
         }
 
-        if (CC_EDITOR || force) {
+        if (force) {
             this._updateAssembler();
-            this._activateMaterial(force);
-            this._assembler.updateRenderData(this);
+            this._applyFontTexture(force);
+        }
+    },
+
+    _calDynamicAtlas () {
+        if (!dynamicAtlasManager) return;
+
+        if (!this._frame._original) {
+            let frame = dynamicAtlasManager.insertSpriteFrame(this._frame);
+            if (frame) {
+                this._frame._setDynamicAtlasFrame(frame);
+            }
+        }
+        if (this._material._texture !== this._frame._texture) {
+            this._activateMaterial(true);
         }
     },
 

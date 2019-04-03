@@ -41,8 +41,8 @@ let FOCUS_DELAY_UC = 400;
 let FOCUS_DELAY_FIREFOX = 0;
 
 let math = cc.vmath;
-let _matrix = math.mat4.create();
-let _matrix_temp = math.mat4.create();
+let _worldMat = math.mat4.create();
+let _cameraMat = math.mat4.create();
 let _vec3 = cc.v3();
 
 let _currentEditBoxImpl = null;
@@ -94,6 +94,16 @@ let EditBoxImpl = cc.Class({
         this.__autoResize = false;
         this.__rotateScreen = false;
         this.__orientationChanged = null;
+
+        // matrix cache
+        this._m00 = 0;
+        this._m01 = 0;
+        this._m04 = 0;
+        this._m05 = 0;
+        this._m12 = 0;
+        this._m13 = 0;
+        this._w = 0;
+        this._h = 0;
     },
 
     onEnable () {
@@ -245,6 +255,7 @@ let EditBoxImpl = cc.Class({
         this._node = null;
         this.setDelegate(null);
         this.removeDom();
+        this.removeOrientationchangeEvent();
     },
 
     _onTouchBegan (touch) {
@@ -257,8 +268,8 @@ let EditBoxImpl = cc.Class({
 
     _beginEditing () {
         if (cc.sys.isMobile && !this._editing) {
-            // Pre adaptation
-            this._beginEditingOnMobile();
+            // Pre adaptation add orientationchange event
+            this.addOrientationchangeEvent();
         }
 
         if (this._edTxt) {
@@ -350,41 +361,58 @@ let EditBoxImpl = cc.Class({
     _updateMatrix () {
         if (!this._edTxt) return;
     
-        let node = this._node, 
-            scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
+        let node = this._node;    
+        node.getWorldMatrix(_worldMat);
+
+        // check whether need to update
+        if (this._m00 === _worldMat.m00 && this._m01 === _worldMat.m01 &&
+            this._m04 === _worldMat.m04 && this._m05 === _worldMat.m05 &&
+            this._m12 === _worldMat.m12 && this._m13 === _worldMat.m13 &&
+            this._w === node._contentSize.width && this._h === node._contentSize.height) {
+            return;
+        }
+
+        // update matrix cache
+        this._m00 = _worldMat.m00;
+        this._m01 = _worldMat.m01;
+        this._m04 = _worldMat.m04;
+        this._m05 = _worldMat.m05;
+        this._m12 = _worldMat.m12;
+        this._m13 = _worldMat.m13;
+        this._w = node._contentSize.width;
+        this._h = node._contentSize.height;
+
+        let scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
             viewport = cc.view._viewportRect,
             dpr = cc.view._devicePixelRatio;
-    
-        node.getWorldMatrix(_matrix);
-        let contentSize = node._contentSize;
-        _vec3.x = -node._anchorPoint.x * contentSize.width;
-        _vec3.y = -node._anchorPoint.y * contentSize.height;
-    
-        math.mat4.translate(_matrix, _matrix, _vec3);
 
-        let camera;
+        _vec3.x = -node._anchorPoint.x * this._w;
+        _vec3.y = -node._anchorPoint.y * this._h;
+    
+        math.mat4.translate(_worldMat, _worldMat, _vec3);
+
         // can't find camera in editor
         if (CC_EDITOR) {
-            camera = cc.Camera.main;
+            _cameraMat = _worldMat;
         }
         else {
-            camera = cc.Camera.findCamera(node);
+            let camera = cc.Camera.findCamera(node);
+            camera.getWorldToCameraMatrix(_cameraMat);
+            math.mat4.mul(_cameraMat, _cameraMat, _worldMat);
         }
         
-        camera.getWorldToCameraMatrix(_matrix_temp);
-        math.mat4.mul(_matrix_temp, _matrix_temp, _matrix);
     
         scaleX /= dpr;
         scaleY /= dpr;
     
         let container = cc.game.container;
-        let a = _matrix_temp.m00 * scaleX, b = _matrix.m01, c = _matrix.m04, d = _matrix_temp.m05 * scaleY;
+        let a = _cameraMat.m00 * scaleX, b = _cameraMat.m01, c = _cameraMat.m04, d = _cameraMat.m05 * scaleY;
     
         let offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
         offsetX += viewport.x / dpr;
         let offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
         offsetY += viewport.y / dpr;
-        let tx = _matrix_temp.m12 * scaleX + offsetX, ty = _matrix_temp.m13 * scaleY + offsetY;
+        let tx = _cameraMat.m12 * scaleX + offsetX, ty = _cameraMat.m13 * scaleY + offsetY;
     
         if (polyfill.zoomInvalid) {
             this._updateSize(this._size.width * a, this._size.height * d);
@@ -400,8 +428,8 @@ let EditBoxImpl = cc.Class({
     },
 
     _adjustEditBoxPosition () {
-        this._node.getWorldMatrix(_matrix);
-        let y = _matrix.m13;
+        this._node.getWorldMatrix(_worldMat);
+        let y = _worldMat.m13;
         let windowHeight = cc.visibleRect.height;
         let windowWidth = cc.visibleRect.width;
         let factor = 0.5;
@@ -432,11 +460,8 @@ _p.createInput = function() {
 
 // Called before editbox focus to register cc.view status
 _p._beginEditingOnMobile = function () {
-    let self = this;
-    this.__orientationChanged = function () {
-        self._adjustEditBoxPosition();
-    };
-    window.addEventListener('orientationchange', this.__orientationChanged);
+    // add orientationchange event
+    this.addOrientationchangeEvent();
 
     if (cc.view.isAutoFullScreenEnabled()) {
         this.__fullscreen = true;
@@ -465,7 +490,8 @@ _p._endEditingOnMobile = function () {
         this.__rotateScreen = false;
     }
 
-    window.removeEventListener('orientationchange', this.__orientationChanged);
+    // remove orientationchange event
+    this.removeOrientationchangeEvent();
 
     if(this.__fullscreen) {
         cc.view.enableAutoFullScreen(true);
@@ -494,6 +520,7 @@ function _inputValueHandle (input, editBoxImpl) {
 
 function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     let inputLock = false;
+    let blurWhenComposition = false;
     let cbs = editBoxImpl.__eventListeners;
     cbs.compositionstart = function () {
         inputLock = true;
@@ -502,6 +529,11 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
 
     cbs.compositionend = function () {
         inputLock = false;
+        if (blurWhenComposition) {
+            // restore input value when composition not complete and blur input
+            this.value = editBoxImpl._text;
+            blurWhenComposition = false;
+        }
         _inputValueHandle(this, editBoxImpl);
     };
     tmpEdTxt.addEventListener('compositionend', cbs.compositionend);
@@ -550,7 +582,12 @@ function registerInputEventListener (tmpEdTxt, editBoxImpl, isTextarea) {
     tmpEdTxt.addEventListener('keypress', cbs.keypress);
 
     cbs.blur = function () {
-        editBoxImpl._text = this.value;
+        if (inputLock) {
+            blurWhenComposition = true;
+        }
+        else {
+            editBoxImpl._text = this.value;
+        }
         editBoxImpl._endEditing();
     };
     tmpEdTxt.addEventListener('blur', cbs.blur);
@@ -578,8 +615,8 @@ _p._createDomInput = function () {
     tmpEdTxt.style.bottom = "0px";
     tmpEdTxt.style.left = LEFT_PADDING + "px";
     tmpEdTxt.style['-moz-appearance'] = 'textfield';
-    tmpEdTxt.style.className = "cocosEditBox";
     tmpEdTxt.style.fontFamily = 'Arial';
+    tmpEdTxt.className = "cocosEditBox";
 
     registerInputEventListener(tmpEdTxt, this);
 
@@ -590,7 +627,6 @@ _p._createDomTextArea = function () {
     this.removeDom();
 
     let tmpEdTxt = this._edTxt = document.createElement('textarea');
-    tmpEdTxt.type = 'text';
     tmpEdTxt.style.fontSize = this._edFontSize + 'px';
     tmpEdTxt.style.color = '#000000';
     tmpEdTxt.style.border = 0;
@@ -607,8 +643,8 @@ _p._createDomTextArea = function () {
     tmpEdTxt.style.position = "absolute";
     tmpEdTxt.style.bottom = "0px";
     tmpEdTxt.style.left = LEFT_PADDING + "px";
-    tmpEdTxt.style.className = "cocosEditBox";
     tmpEdTxt.style.fontFamily = 'Arial';
+    tmpEdTxt.className = "cocosEditBox";
 
     registerInputEventListener(tmpEdTxt, this, true);
 
@@ -643,6 +679,23 @@ _p.removeDom = function () {
         }
     }
     this._edTxt = null;
+};
+
+_p.addOrientationchangeEvent = function () {
+    let self = this;
+    if (!self.__orientationChanged) {
+        self.__orientationChanged = function () {
+            self._adjustEditBoxPosition();
+        };
+    }
+    window.addEventListener('orientationchange', self.__orientationChanged);
+};
+
+_p.removeOrientationchangeEvent = function () {
+    if (this.__orientationChanged) {
+        window.removeEventListener('orientationchange', this.__orientationChanged);
+        this.__orientationChanged = null;
+    }
 };
 
 module.exports = EditBoxImpl;

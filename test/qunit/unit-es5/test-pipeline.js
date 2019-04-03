@@ -99,8 +99,7 @@ test('pipeline flow', function () {
     ]);
 
     var onComplete = new Callback(function (error, items) {
-        ok(error instanceof Array, 'should return error array in onComplete when error happened');
-        strictEqual(error[0], 'res/role', 'should contains correct errored url in error array');
+        strictEqual('res/role' in error, true, 'should contains correct errored url in error object');
         ok(items.getError('res/role') !== null, 'should set error property in errored item.');
     }).enable();
     var onProgress = new Callback().enable();

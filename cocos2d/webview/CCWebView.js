@@ -107,16 +107,17 @@ let WebView = cc.Class({
 
     statics: {
         EventType: EventType,
+        // Impl will be overrided in the different platform.
+        Impl: WebViewImpl
     },
 
-
     ctor () {
-        this._impl = new WebViewImpl();
+        this._impl = new WebView.Impl();
     },
 
     onRestore () {
         if (!this._impl) {
-            this._impl = new WebViewImpl();
+            this._impl = new WebView.Impl();
         }
     },
 

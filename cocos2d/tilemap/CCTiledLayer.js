@@ -630,6 +630,11 @@ let TiledLayer = cc.Class({
         }
     },
 
+    onEnable () {
+        this._super();
+        this._activateMaterial();
+    },
+
     _activateMaterial () {
         let material = this._material;
         if (!material) {

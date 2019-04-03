@@ -174,7 +174,7 @@ loadScene: Unknown name type to load: '%s'
 
 ### 1208
 
-loadScene: Failed to load scene '%s' because '%s' is already loading
+loadScene: Failed to load scene '%s' because '%s' is already being loaded.
 
 ### 1209
 
@@ -276,7 +276,7 @@ warning: you CANNOT change update priority in scheduled function
 
 ### 1507
 
-CCScheduler#scheduleSelector. Selector already scheduled. Updating interval from: %.4f to %.4f
+CCScheduler#scheduleSelector. Selector already scheduled. Updating interval from: %s to %s"
 
 ### 1508
 

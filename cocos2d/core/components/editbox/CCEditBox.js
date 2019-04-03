@@ -279,10 +279,11 @@ let EditBox = cc.Class({
         },
 
         /**
-         * !#en The input is always visible and be on top of the game view (only useful on Web).
-         * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
+         * !#en The input is always visible and be on top of the game view (only useful on Web), this property will be removed on v2.1
+         * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义），该属性会在 v2.1 中移除
          * Note: only available on Web at the moment.
          * @property {Boolean} stayOnTop
+         * @deprecated since 2.0.8
          */
         stayOnTop: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.stay_on_top',
@@ -499,17 +500,17 @@ let EditBox = cc.Class({
         let textLabelNode = this._textLabel.node,
             placeholderLabelNode = this._placeholderLabel.node,
             backgroundNode = this._background.node;
-            
+
         textLabelNode.x = -this.node.width/2;
         textLabelNode.y = this.node.height/2;
         textLabelNode.width = this.node.width;
         textLabelNode.height = this.node.height;
-        
+
         placeholderLabelNode.x = -this.node.width/2;
         placeholderLabelNode.y = this.node.height/2;
         placeholderLabelNode.width = this.node.width;
-        placeholderLabelNode.height = this.node.height;            
-        
+        placeholderLabelNode.height = this.node.height;
+
         backgroundNode.width = this.node.width;
         backgroundNode.height = this.node.height;
     },
@@ -639,9 +640,10 @@ let EditBox = cc.Class({
     },
 
     /**
-     * !#en Let the EditBox get focus
-     * !#zh 让当前 EditBox 获得焦点
+     * !#en Let the EditBox get focus, this method will be removed on v2.1
+     * !#zh 让当前 EditBox 获得焦点, 这个方法会在 v2.1 中移除
      * @method setFocus
+     * @deprecated since 2.0.8
      */
     setFocus () {
         if(this._impl) {

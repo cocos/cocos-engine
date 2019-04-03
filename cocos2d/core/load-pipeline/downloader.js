@@ -49,6 +49,11 @@ function downloadScript (item, callback, isAsync) {
     var url = item.url,
         d = document,
         s = document.createElement('script');
+
+    if (window.location.protocol !== 'file:') {
+        s.crossOrigin = 'anonymous';
+    }
+
     s.async = isAsync;
     s.src = urlAppendTimestamp(url);
     function loadHandler () {
@@ -179,6 +184,8 @@ var defaultMap = {
 
     // Binary
     'binary' : downloadBinary,
+    'bin': downloadBinary,
+    'dbbin' : downloadBinary,
 
     'default' : downloadText
 };
@@ -296,7 +303,7 @@ Downloader.prototype.loadSubpackage = function (name, completeCallback) {
             if (completeCallback) completeCallback();
         }
         else {
-            downloadScript({url: pac.path}, function (err) {
+            downloadScript({url: pac.path + 'index.js'}, function (err) {
                 if (!err) {
                     pac.loaded = true;
                 }

@@ -41,14 +41,18 @@ module.exports = js.addon({
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05, 
             tx = matrix.m12, ty = matrix.m13;
     
-        let buffer = renderer._quadBuffer,
-            vertexOffset = buffer.byteOffset >> 2;
-        
+        let buffer = renderer._meshBuffer;
         let vertexCount = renderData.vertexCount;
-        buffer.request(vertexCount, renderData.indiceCount);
+        let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData;
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
+            ibuf = buffer._iData;
+
 
         for (let i = 0; i < vertexCount; i++) {
             let vert = data[i];
@@ -56,6 +60,19 @@ module.exports = js.addon({
             vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
             vbuf[vertexOffset++] = vert.u;
             vbuf[vertexOffset++] = vert.v;
+            uintbuf[vertexOffset++] = color;
+        }
+        
+        // fill indice data
+        for (let i = 0, count = vertexCount / 4; i < count; i++)
+        {
+            let start = vertexId + i * 4;
+            ibuf[indiceOffset++] = start;
+            ibuf[indiceOffset++] = start + 1;
+            ibuf[indiceOffset++] = start + 2;
+            ibuf[indiceOffset++] = start + 1;
+            ibuf[indiceOffset++] = start + 3;
+            ibuf[indiceOffset++] = start + 2;
         }
     },
 

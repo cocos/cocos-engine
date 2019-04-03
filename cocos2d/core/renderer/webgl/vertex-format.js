@@ -32,6 +32,7 @@ var vfmt3D = new gfx.VertexFormat([
     { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
 ]);
 vfmt3D.name = 'vfmt3D';
+gfx.VertexFormat.XYZ_UV_Color = vfmt3D;
 
 var vfmtPosUvColor = new gfx.VertexFormat([
     { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
@@ -39,22 +40,35 @@ var vfmtPosUvColor = new gfx.VertexFormat([
     { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
 ]);
 vfmtPosUvColor.name = 'vfmtPosUvColor';
+gfx.VertexFormat.XY_UV_Color = vfmtPosUvColor;
+
+var vfmtPosUvTwoColor = new gfx.VertexFormat([
+    { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
+    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
+    { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
+    { name: gfx.ATTR_COLOR0, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
+]);
+vfmtPosUvTwoColor.name = 'vfmtPosUvTwoColor';
+gfx.VertexFormat.XY_UV_Two_Color = vfmtPosUvTwoColor;
 
 var vfmtPosUv = new gfx.VertexFormat([
     { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
     { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
 ]);
 vfmtPosUv.name = 'vfmtPosUv';
+gfx.VertexFormat.XY_UV = vfmtPosUv;
 
 var vfmtPosColor = new gfx.VertexFormat([
     { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
     { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
 ]);
 vfmtPosColor.name = 'vfmtPosColor';
+gfx.VertexFormat.XY_Color = vfmtPosColor;
 
 module.exports = {
     vfmt3D,
     vfmtPosUvColor,
+    vfmtPosUvTwoColor,
     vfmtPosUv,
     vfmtPosColor
 };

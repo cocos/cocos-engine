@@ -365,13 +365,14 @@ var RigidBody = cc.Class({
 
         /**
          * !#en
-         * Is this body initially awake or sleeping?
+         * Set the sleep state of the body. A sleeping body has very low CPU cost.(When the rigid body is hit, if the rigid body is in sleep state, it will be immediately awakened.)
          * !#zh
-         * 是否立刻唤醒此刚体
+         * 设置刚体的睡眠状态。 睡眠的刚体具有非常低的 CPU 成本。（当刚体被碰撞到时，如果刚体处于睡眠状态，它会立即被唤醒）
          * @property {Boolean} awake
          * @default false
          */
         awake: {
+            visible: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.awake',
             get: function () {
                 return this._b2Body ? this._b2Body.IsAwake() : false;
@@ -381,6 +382,20 @@ var RigidBody = cc.Class({
                     this._b2Body.SetAwake( value );
                 }
             }
+        },
+
+        /**
+         * !#en
+         * Whether to wake up this rigid body during initialization
+         * !#zh
+         * 是否在初始化时唤醒此刚体
+         * @property {Boolean} awakeOnLoad
+         * @default true
+         */
+        awakeOnLoad: {
+            default: true,
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.rigidbody.awakeOnLoad',
+            animatable: false,
         },
 
         /**
@@ -894,6 +909,8 @@ var RigidBody = cc.Class({
         var pos = node.convertToWorldSpaceAR(VEC2_ZERO);
         bodyDef.position = new b2.Vec2(pos.x / PTM_RATIO, pos.y / PTM_RATIO);
         bodyDef.angle = -(Math.PI / 180) * getWorldRotation(node);
+
+        bodyDef.awake = this.awakeOnLoad;
 
         cc.director.getPhysicsManager()._addBody(this, bodyDef);
 

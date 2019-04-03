@@ -33,6 +33,7 @@ const Overflow = Label.Overflow;
 
 const WHITE = cc.Color.WHITE;
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
+const MAX_SIZE = 2048;
 
 let _context = null;
 let _canvas = null;
@@ -51,6 +52,7 @@ let _color = null;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
+const _invisibleAlpha = (1 / 255).toFixed(3);
 
 // outline
 let _isOutlined = false;
@@ -64,67 +66,31 @@ let _isUnderline = false;
 
 let _sharedLabelData;
 
-//
-let _canvasPool = {
-    pool: [],
-    get () {
-        let data = this.pool.pop();
-
-        if (!data) {
-            let canvas = document.createElement("canvas");
-            let context = canvas.getContext("2d");
-            data = {
-                canvas: canvas,
-                context: context
-            }
-        }
-
-        return data;
-    },
-    put (canvas) {
-        if (this.pool.length >= 32) {
-            return;
-        }
-        this.pool.push(canvas);
-    }
-};
-
-
 module.exports = {
 
     _getAssemblerData () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            _sharedLabelData = _canvasPool.get();
-        }
-        else {
-            if (!_sharedLabelData) {
-                let labelCanvas = document.createElement("canvas");
-                _sharedLabelData = {
-                    canvas: labelCanvas,
-                    context: labelCanvas.getContext("2d")
-                };
-            }
-        }
+        _sharedLabelData = Label._canvasPool.get();
         _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
         return _sharedLabelData;
     },
 
     _resetAssemblerData (assemblerData) {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS && assemblerData) {
-            _canvasPool.put(assemblerData);
+        if (assemblerData) {
+            Label._canvasPool.put(assemblerData);
         }
     },
 
     updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
 
-        this._updateFontFamly(comp);
+        this._updateFontFamily(comp);
         this._updateProperties(comp);
         this._calculateLabelFont();
         this._calculateSplitedStrings();
         this._updateLabelDimensions();
         this._calculateTextBaseline();
         this._updateTexture(comp);
+        this._calDynamicAtlas(comp);
 
         comp._actualFontSize = _fontSize;
         comp.node.setContentSize(_canvasSize);
@@ -141,17 +107,21 @@ module.exports = {
     _updateVerts () {
     },
 
-    _updateFontFamly (comp) {
+    _updateFontFamily (comp) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
-                        _fontFamily = fontFamily || 'Arial';
-                        comp._updateRenderData(true);
-                    });
+                    _fontFamily = cc.loader.getRes(comp.font.nativeUrl);
+                    if (!_fontFamily) {
+                        cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
+                            _fontFamily = fontFamily || 'Arial';
+                            comp.font._nativeAsset = fontFamily;
+                            comp._updateRenderData(true);
+                        });
+                    }
                 }
             }
             else {
@@ -167,7 +137,7 @@ module.exports = {
         let assemblerData = comp._assemblerData;
         _context = assemblerData.context;
         _canvas = assemblerData.canvas;
-        _texture = comp._texture;
+        _texture = comp._frame._original ? comp._frame._original._texture : comp._frame._texture;
         
         _string = comp.string.toString();
         _fontSize = comp._fontSize;
@@ -237,17 +207,21 @@ module.exports = {
         return cc.v2(labelX, firstLinelabelY);
     },
 
-    _updateTexture () {
+    _updateTexture (comp) {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
+        //Add a white background to avoid black edges.
+        //TODO: it is best to add alphaTest to filter out the background color.
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
+        _context.fillRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
         let startPosition = this._calculateFillTextStartPosition();
         let lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
-        let underlineStartPosition;
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
 
+        let underlineStartPosition;
         //do real rendering
         for (let i = 0; i < _splitedStrings.length; ++i) {
             if (_isOutlined) {
@@ -263,7 +237,7 @@ module.exports = {
                 _context.save();
                 _context.beginPath();
                 _context.lineWidth = _fontSize / 8;
-                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
+                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${1})`;
                 _context.moveTo(underlineStartPosition.x, underlineStartPosition.y + i * lineHeight - 1);
                 _context.lineTo(underlineStartPosition.x + _canvas.width, underlineStartPosition.y + i * lineHeight - 1);
                 _context.stroke();
@@ -272,6 +246,16 @@ module.exports = {
         }
 
         _texture.handleLoadedTexture();
+    },
+
+    _calDynamicAtlas (comp) {
+        if(comp.cacheMode !== Label.CacheMode.BITMAP) return;
+        
+        if (!comp._frame._original) {
+            comp._frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
+        }
+        // Add font images to the dynamic atlas for batch rendering.
+        comp._calDynamicAtlas();
     },
 
     _calculateUnderlineStartPosition () {
@@ -317,10 +301,18 @@ module.exports = {
                 //0.0174532925 = 3.141592653 / 180
                 _canvasSize.width += _drawFontsize * Math.tan(12 * 0.0174532925);
             }
+
+            _canvasSize.width = Math.min(_canvasSize.width, MAX_SIZE);
+            _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
+        }
+        
+        if (_canvas.width !== _canvasSize.width || CC_QQPLAY) {
+            _canvas.width = _canvasSize.width;
         }
 
-        _canvas.width = _canvasSize.width;
-        _canvas.height = _canvasSize.height;
+        if (_canvas.height !== _canvasSize.height) {
+            _canvas.height = _canvasSize.height;
+        }
     },
 
     _calculateTextBaseline () {
@@ -418,7 +410,6 @@ module.exports = {
             let paragraphedStrings = _string.split('\n');
             let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
         
-            _splitedStrings = paragraphedStrings;
             let i = 0;
             let totalHeight = 0;
             let maxLength = 0;
@@ -453,7 +444,6 @@ module.exports = {
                     _fontDesc = this._getFontDesc();
                     _context.font = _fontDesc;
 
-                    _splitedStrings = [];
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         let j = 0;
@@ -468,7 +458,6 @@ module.exports = {
                             totalHeight += this._getLineHeight();
                             ++j;
                         }
-                        _splitedStrings = _splitedStrings.concat(textFragment);
                     }
 
                     if (tryDivideByTwo) {
@@ -497,5 +486,5 @@ module.exports = {
                 _context.font = _fontDesc;
             }
         }
-    }
+    },
 };

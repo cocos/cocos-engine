@@ -30,9 +30,11 @@ const js = require('../platform/js');
 const renderer = require('../renderer');
 require('../platform/CCClass');
 
+const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
+
 var __BrowserGetter = {
     init: function(){
-        if (!CC_WECHATGAME && !CC_QQPLAY) {
+        if (!CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
             this.html = document.getElementsByTagName("html")[0];
         }
     },
@@ -56,6 +58,15 @@ var __BrowserGetter = {
 
 if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_SAFARI;
+
+if (isBaiduGame) {
+    if (cc.sys.browserType === cc.sys.BROWSER_TYPE_BAIDU_GAME_SUB) {
+        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_BAIDU_GAME_SUB;
+    }
+    else {
+        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_BAIDU_GAME;
+    }
+}
 
 if (CC_WECHATGAME) {
     if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
@@ -140,6 +151,7 @@ var View = function () {
     _t._autoFullScreen = false;
     // The device's pixel ratio (for retina displays)
     _t._devicePixelRatio = 1;
+    _t._maxPixelRatio = 2;
     // Retina disabled by default
     _t._retinaEnabled = false;
     // Custom callback for resize event
@@ -187,7 +199,7 @@ cc.js.mixin(View.prototype, {
     },
 
     // Resize helper functions
-    _resizeEvent: function () {
+    _resizeEvent: function (forceOrEvent) {
         var view;
         if (this.setDesignResolutionSize) {
             view = this;
@@ -209,7 +221,7 @@ cc.js.mixin(View.prototype, {
         else {
             view._initFrameSize();
         }
-        if (view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
+        if (forceOrEvent !== true && view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
             return;
 
         // Frame size changed, do resize works
@@ -296,6 +308,7 @@ cc.js.mixin(View.prototype, {
      * @param {Function|Null} callback - The callback function
      */
     setResizeCallback: function (callback) {
+        if (CC_EDITOR) return;
         if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
@@ -348,15 +361,6 @@ cc.js.mixin(View.prototype, {
             cc.game.container.style['-webkit-transform-origin'] = '0px 0px 0px';
             cc.game.container.style.transformOrigin = '0px 0px 0px';
             this._isRotated = true;
-
-            // Fix for issue: https://github.com/cocos-creator/fireball/issues/8365
-            // Reference: https://www.douban.com/note/343402554/
-            // For Chrome, z-index not working after container transform rotate 90deg.
-            // Because 'transform' style adds canvas (the top-element of container) to a new stack context.
-            // That causes the DOM Input was hidden under canvas.
-            // This should be done after container rotated, instead of in style-mobile.css.
-            cc.game.canvas.style['-webkit-transform'] = 'translateZ(0px)';
-            cc.game.canvas.style.transform = 'translateZ(0px)';
         }
         if (this._orientationChanging) {
             setTimeout(function () {
@@ -410,7 +414,7 @@ cc.js.mixin(View.prototype, {
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewport && !CC_JSB && !CC_WECHATGAME && !CC_QQPLAY) {
+        if (this._isAdjustViewport && !CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
@@ -610,7 +614,7 @@ cc.js.mixin(View.prototype, {
         this._frameSize.height = height;
         cc.game.frame.style.width = width + "px";
         cc.game.frame.style.height = height + "px";
-        this._resizeEvent();
+        this._resizeEvent(true);
     },
 
     /**
@@ -811,7 +815,7 @@ cc.js.mixin(View.prototype, {
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (!CC_JSB && !CC_WECHATGAME && !CC_QQPLAY) {
+        if (!CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
             // Set viewport's width
             this._setViewportMeta({"width": width}, true);
 
@@ -1069,7 +1073,7 @@ cc.ContainerStrategy = cc.Class({
     _setupContainer: function (view, w, h) {
         var locCanvas = cc.game.canvas, locContainer = cc.game.container;
 
-        if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
+        if (!CC_WECHATGAME && !isBaiduGame) {
             if (cc.sys.os === cc.sys.OS_ANDROID) {
                 document.body.style.width = (view._isRotated ? h : w) + 'px';
                 document.body.style.height = (view._isRotated ? w : h) + 'px';
@@ -1081,7 +1085,7 @@ cc.ContainerStrategy = cc.Class({
         // Setup pixel ratio for retina display
         var devicePixelRatio = view._devicePixelRatio = 1;
         if (view.isRetinaEnabled())
-            devicePixelRatio = view._devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
+            devicePixelRatio = view._devicePixelRatio = Math.min(view._maxPixelRatio, window.devicePixelRatio || 1);
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
         locCanvas.height = h * devicePixelRatio;
@@ -1125,9 +1129,7 @@ cc.ContentStrategy = cc.Class({
         Math.abs(containerW - contentW) < 2 && (contentW = containerW);
         Math.abs(containerH - contentH) < 2 && (contentH = containerH);
 
-        var viewport = cc.rect(Math.round((containerW - contentW) / 2),
-                               Math.round((containerH - contentH) / 2),
-                               contentW, contentH);
+        var viewport = cc.rect((containerW - contentW) / 2, (containerH - contentH) / 2, contentW, contentH);
 
         // Translate the content
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS){

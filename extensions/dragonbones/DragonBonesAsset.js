@@ -27,6 +27,7 @@
 /**
  * @module dragonBones
  */
+let ArmatureCache = !CC_JSB && require('./ArmatureCache').sharedCache;
 
 /**
  * !#en The skeleton data of dragonBones.
@@ -58,7 +59,18 @@ var DragonBonesAsset = cc.Class({
                 this._dragonBonesJson = value;
                 this.reset();
             }
-        }
+        },
+
+        _nativeAsset: {
+            get () {
+                return this._buffer;
+            },
+            set (bin) {
+                this._buffer = bin.buffer || bin;
+                this.reset();
+            },
+            override: true
+        },
     },
 
     statics: {
@@ -74,55 +86,42 @@ var DragonBonesAsset = cc.Class({
     },
 
     reset () {
-        this._dragonBonesData = null;
+        this._clear();
         if (CC_EDITOR) {
             this._armaturesEnum = null;
         }
     },
 
-    init: function (factory) {
+    init (factory, atlasUUID) {
         if (CC_EDITOR) {
-            factory = factory || new dragonBones.CCFactory();
+            this._factory = factory || new dragonBones.CCFactory();
+        } else {
+            this._factory = factory;
         }
-        if (this._dragonBonesData) {
-            let sameNamedDragonBonesData = factory.getDragonBonesData(this._dragonBonesData.name);
-            if (sameNamedDragonBonesData) {
-                // already added asset, see #2002
-                for (let i = 0; i < this._dragonBonesData.armatureNames.length; i++) {
-                    let armatureName = this._dragonBonesData.armatureNames[i];
-                    if (!sameNamedDragonBonesData.armatures[armatureName]) {
-                        // merge with new armature
-                        sameNamedDragonBonesData.addArmature(this._dragonBonesData.armatures[armatureName]);
-                    }
-                }
-                this._dragonBonesData = sameNamedDragonBonesData;
-            }
-            else {
-                factory.addDragonBonesData(this._dragonBonesData);
-            }
+
+        let rawData = null;
+        if (this.dragonBonesJson) {
+            rawData = JSON.parse(this.dragonBonesJson);
+        } else {
+            rawData = this._nativeAsset;
         }
-        else {
-            let _dragonBonesJson = JSON.parse(this.dragonBonesJson);
-            let sameNamedDragonBonesData = factory.getDragonBonesData(_dragonBonesJson.name);
-            if (sameNamedDragonBonesData) {
-                // already added asset, see #2002
-                let dragonBonesData;
-                for (let i = 0; i < _dragonBonesJson.armature.length; i++) {
-                    let armatureName = _dragonBonesJson.armature[i].name;
-                    if (!sameNamedDragonBonesData.armatures[armatureName]) {
-                        // add new armature
-                        if (!dragonBonesData) {
-                            dragonBonesData = factory._dataParser.parseDragonBonesData(_dragonBonesJson);
-                        }
-                        sameNamedDragonBonesData.addArmature(dragonBonesData.armatures[armatureName]);
-                    }
-                }
-                this._dragonBonesData = sameNamedDragonBonesData;
-            }
-            else {
-                this._dragonBonesData = factory.parseDragonBonesData(_dragonBonesJson);
+
+        // If create by manual, uuid is empty.
+        if (!this._uuid) {
+            let dbData = this._factory.getDragonBonesDataByRawData(rawData);
+            if (dbData) {
+                this._uuid = dbData.name;
+            } else {
+                cc.warn('dragonbones name is empty');
             }
         }
+
+        let armatureKey = this._uuid + "#" + atlasUUID;
+        let dragonBonesData = this._factory.getDragonBonesData(armatureKey);
+        if (dragonBonesData) return armatureKey;
+
+        this._factory.parseDragonBonesData(rawData, armatureKey);
+        return armatureKey;
     },
 
     // EDITOR
@@ -132,8 +131,9 @@ var DragonBonesAsset = cc.Class({
             return this._armaturesEnum;
         }
         this.init();
-        if (this._dragonBonesData) {
-            var armatureNames = this._dragonBonesData.armatureNames;
+        let dragonBonesData = this._factory.getDragonBonesDataByUUID(this._uuid);
+        if (dragonBonesData) {
+            var armatureNames = dragonBonesData.armatureNames;
             var enumDef = {};
             for (var i = 0; i < armatureNames.length; i++) {
                 var name = armatureNames[i];
@@ -146,8 +146,10 @@ var DragonBonesAsset = cc.Class({
 
     getAnimsEnum: CC_EDITOR && function (armatureName) {
         this.init();
-        if (this._dragonBonesData) {
-            var armature = this._dragonBonesData.getArmature(armatureName);
+
+        let dragonBonesData = this._factory.getDragonBonesDataByUUID(this._uuid);
+        if (dragonBonesData) {
+            var armature = dragonBonesData.getArmature(armatureName);
             if (!armature) {
                 return null;
             }
@@ -166,12 +168,16 @@ var DragonBonesAsset = cc.Class({
         return null;
     },
 
-    destroy () {
-        var useGlobalFactory = !CC_JSB;
-        if (useGlobalFactory && this._dragonBonesData) {
-            var factory = dragonBones.CCFactory.getInstance();
-            factory.removeDragonBonesData(this._dragonBonesData.name, true);
+    _clear () {
+        if (CC_JSB) return;
+        if (this._factory) {
+            ArmatureCache.resetArmature(this._uuid);
+            this._factory.removeDragonBonesDataByUUID(this._uuid, true);
         }
+    },
+
+    destroy () {
+        this._clear();
         this._super();
     },
 });

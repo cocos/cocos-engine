@@ -217,7 +217,7 @@ cc.js.mixin(Impl.prototype, {
 
     requestRenderData () {
         let renderData = new IARenderData();
-        let meshbuffer = new MeshBuffer(renderer._walker, vfmtPosColor);
+        let meshbuffer = new MeshBuffer(renderer._handle, vfmtPosColor);
         renderData.meshbuffer = meshbuffer;
         this._renderDatas.push(renderData);
 

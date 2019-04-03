@@ -87,6 +87,14 @@ let LabelOutline = cc.Class({
         }
     },
 
+    onEnable () {
+        this._updateRenderData();
+    },
+
+    onDisable () {
+        this._updateRenderData();
+    },
+
     _updateRenderData () {
         let label = this.node.getComponent(cc.Label);
         if (label) {

@@ -102,11 +102,13 @@ cc.screen = /** @lends cc.screen# */{
      * @returns {Boolean}
      */
     fullScreen: function () {
-        if(!this._supportsFullScreen) return false;
-        else if( document[this._fn.fullscreenElement] === undefined || document[this._fn.fullscreenElement] === null )
+        if (!this._supportsFullScreen) return false;
+        else if (!document[this._fn.fullscreenElement] && !document[this._fn.webkitFullscreenElement] && !document[this._fn.mozFullScreenElement]) {
             return false;
-        else
+        }
+        else {
             return true;
+        }
     },
     
     /**
@@ -116,6 +118,16 @@ cc.screen = /** @lends cc.screen# */{
      * @param {Function} onFullScreenChange
      */
     requestFullScreen: function (element, onFullScreenChange) {
+        if (element && element.tagName.toLowerCase() === "video") {
+            if (cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser && element.readyState > 0) {
+                element.webkitEnterFullscreen && element.webkitEnterFullscreen();
+                return;
+            }
+            else {
+                element.setAttribute("x5-video-player-fullscreen", "true");
+            }
+        }
+
         if (!this._supportsFullScreen) {
             return;
         }
@@ -139,7 +151,16 @@ cc.screen = /** @lends cc.screen# */{
      * @method exitFullScreen
      * @return {Boolean}
      */
-    exitFullScreen: function () {
+    exitFullScreen: function (element) {
+        if (element && element.tagName.toLowerCase() === "video") {
+            if (cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser) {
+                element.webkitExitFullscreen && element.webkitExitFullscreen();
+                return;
+            }
+            else {
+                element.setAttribute("x5-video-player-fullscreen", "false");
+            }
+        }
         return this._supportsFullScreen ? document[this._fn.exitFullscreen]() : true;
     },
     

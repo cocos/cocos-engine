@@ -248,7 +248,7 @@ var NodeActivator = cc.Class({
 
     activateComp: CC_EDITOR ? function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
         if (!cc.isValid(comp, true)) {
-            // destroied before activating
+            // destroyed before activating
             return;
         }
         if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
@@ -288,7 +288,7 @@ var NodeActivator = cc.Class({
         }
     } : function (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
         if (!cc.isValid(comp, true)) {
-            // destroied before activating
+            // destroyed before activating
             return;
         }
         if (!(comp._objFlags & IsPreloadStarted)) {
@@ -333,6 +333,7 @@ var NodeActivator = cc.Class({
         if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
             if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
                 callOnDestroyInTryCatch(comp);
+                comp._objFlags &= ~IsOnLoadCalled;  // In case call onDestroy twice in undo operation
             }
         }
     } : function (comp) {

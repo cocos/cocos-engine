@@ -167,7 +167,7 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
 
     this._pipeline = pipeline;
 
-    this._errorUrls = [];
+    this._errorUrls = js.createMap(true);
 
     this._appending = false;
 
@@ -523,7 +523,8 @@ proto._childOnProgress = function (item) {
  * @method allComplete
  */
 proto.allComplete = function () {
-    var errors = this._errorUrls.length === 0 ? null : this._errorUrls;
+    var errors = js.isEmptyObject(this._errorUrls) ? null : this._errorUrls;
+
     if (this.onComplete) {
         this.onComplete(errors, this);
     }
@@ -690,12 +691,16 @@ proto.itemComplete = function (id) {
     }
 
     // Register or unregister errors
-    var errorListId = this._errorUrls.indexOf(id);
-    if (item.error && errorListId === -1) {
-        this._errorUrls.push(id);
+    
+    var errorListId = id in this._errorUrls;
+    if (item.error instanceof Error || js.isString(item.error)) {
+        this._errorUrls[id] = item.error;
     }
-    else if (!item.error && errorListId !== -1) {
-        this._errorUrls.splice(errorListId, 1);
+    else if (item.error) {
+        js.mixin(this._errorUrls, item.error);
+    }
+    else if (!item.error && errorListId) {
+        delete this._errorUrls[id] 
     }
 
     this.completed[id] = item;
@@ -727,7 +732,7 @@ proto.destroy = function () {
     this._appending = false;
     this._pipeline = null;
     this._ownerQueue = null;
-    this._errorUrls.length = 0;
+    js.clear(this._errorUrls);
     this.onProgress = null;
     this.onComplete = null;
 

@@ -40,3 +40,4 @@ require('./CCBitmapFont');
 require('./CCLabelAtlas');
 require('./CCTextAsset');
 require('./CCJsonAsset');
+require('./CCBufferAsset');

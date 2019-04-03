@@ -176,7 +176,8 @@ var Component = cc.Class({
                     }
                 }
             },
-            visible: false
+            visible: false,
+            animatable: true
         },
 
         /**
@@ -190,7 +191,7 @@ var Component = cc.Class({
          */
         enabledInHierarchy: {
             get () {
-                return (this._objFlags & IsOnEnableCalled) > 0;
+                return this._enabled && this.node._activeInHierarchy;
             },
             visible: false
         },

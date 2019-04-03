@@ -222,6 +222,18 @@ var js = {
     },
 
     /**
+     * Checks whether obj is an empty object
+     * @method isEmptyObject
+     * @param {any} obj 
+     */
+    isEmptyObject: function (obj) {
+        for (var key in obj) {
+            return false;
+        }
+        return true;
+    },
+
+    /**
      * Get property descriptor in object and all its ancestors
      * @method getPropertyDescriptor
      * @param {Object} obj
@@ -380,7 +392,16 @@ function isTempClassId (id) {
     var _idToClass = {};
     var _nameToClass = {};
 
-    function getRegister (key, table) {
+    function setup (key, publicName, table) {
+        js.getset(js, publicName,
+            function () {
+                return Object.assign({}, table);
+            },
+            function (value) {
+                js.clear(table);
+                Object.assign(table, value);
+            }
+        );
         return function (id, constructor) {
             // deregister old
             if (constructor.prototype.hasOwnProperty(key)) {
@@ -416,9 +437,37 @@ cc.js.unregisterClass to remove the id of unused class';
      * @param {Function} constructor
      * @private
      */
-    js._setClassId = getRegister('__cid__', _idToClass);
+    /**
+     * !#en All classes registered in the engine, indexed by ID.
+     * !#zh 引擎中已注册的所有类型，通过 ID 进行索引。
+     * @property _registeredClassIds
+     * @example
+     * // save all registered classes before loading scripts
+     * let builtinClassIds = cc.js._registeredClassIds;
+     * let builtinClassNames = cc.js._registeredClassNames;
+     * // load some scripts that contain CCClass
+     * ...
+     * // clear all loaded classes
+     * cc.js._registeredClassIds = builtinClassIds;
+     * cc.js._registeredClassNames = builtinClassNames;
+     */
+    js._setClassId = setup('__cid__', '_registeredClassIds', _idToClass);
 
-    var doSetClassName = getRegister('__classname__', _nameToClass);
+    /**
+     * !#en All classes registered in the engine, indexed by name.
+     * !#zh 引擎中已注册的所有类型，通过名称进行索引。
+     * @property _registeredClassNames
+     * @example
+     * // save all registered classes before loading scripts
+     * let builtinClassIds = cc.js._registeredClassIds;
+     * let builtinClassNames = cc.js._registeredClassNames;
+     * // load some scripts that contain CCClass
+     * ...
+     * // clear all loaded classes
+     * cc.js._registeredClassIds = builtinClassIds;
+     * cc.js._registeredClassNames = builtinClassNames;
+     */
+    var doSetClassName = setup('__classname__', '_registeredClassNames', _nameToClass);
 
     /**
      * Register the class by specified name manually
@@ -512,40 +561,6 @@ cc.js.unregisterClass to remove the id of unused class';
         }
         return '';
     };
-
-    if (CC_DEV) {
-        js.getset(js, '_registeredClassIds',
-            function () {
-                var dump = {};
-                for (var id in _idToClass) {
-                    dump[id] = _idToClass[id];
-                }
-                return dump;
-            },
-            function (value) {
-                js.clear(_idToClass);
-                for (var id in value) {
-                    _idToClass[id] = value[id];
-                }
-            }
-        );
-        js.getset(js, '_registeredClassNames', 
-            function () {
-                var dump = {};
-                for (var id in _nameToClass) {
-                    dump[id] = _nameToClass[id];
-                }
-                return dump;
-            },
-            function (value) {
-                js.clear(_nameToClass);
-                for (var id in value) {
-                    _nameToClass[id] = value[id];
-                }
-            }
-        );
-    }
-
 })();
 
 /**

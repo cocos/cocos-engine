@@ -395,6 +395,23 @@ var Layout = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.layout.horizontal_direction',
             animatable: false
         },
+
+        /**
+         * !#en Adjust the layout if the children scaled.
+         * !#zh 子节点缩放比例是否影响布局。
+         * @property affectedByScale
+         * @type {Boolean}
+         * @default false
+         */
+        affectedByScale: {
+            default: false,
+            notify: function () {
+                // every time you switch this state, the layout will be calculated.
+                this._doLayoutDirty();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.affected_by_scale'
+        }
     },
 
     statics: {
@@ -435,6 +452,10 @@ var Layout = cc.Class({
         this._layoutDirty = true;
     },
 
+    _doScaleDirty: function () {
+        this._layoutDirty = this._layoutDirty || this.affectedByScale;
+    },
+
     _addEventListeners: function () {
         cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
@@ -459,6 +480,7 @@ var Layout = cc.Class({
         var children = this.node.children;
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
+            child.on(NodeEvent.SCALE_CHANGED, this._doScaleDirty, this);
             child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -470,6 +492,7 @@ var Layout = cc.Class({
         var children = this.node.children;
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
+            child.off(NodeEvent.SCALE_CHANGED, this._doScaleDirty, this);
             child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -478,6 +501,7 @@ var Layout = cc.Class({
     },
 
     _childAdded: function (child) {
+        child.on(NodeEvent.SCALE_CHANGED, this._doScaleDirty, this);
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -487,6 +511,7 @@ var Layout = cc.Class({
     },
 
     _childRemoved: function (child) {
+        child.off(NodeEvent.SCALE_CHANGED, this._doScaleDirty, this);
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.POSITION_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -537,8 +562,8 @@ var Layout = cc.Class({
 
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
-            let childScaleX = Math.abs(child.scaleX);
-            let childScaleY = Math.abs(child.scaleY);
+            let childScaleX = this._getUsedScaleValue(child.scaleX);
+            let childScaleY = this._getUsedScaleValue(child.scaleY);
             if (!child.activeInHierarchy) {
                 continue;
             }
@@ -635,7 +660,7 @@ var Layout = cc.Class({
                 var child = children[i];
                 if (child.activeInHierarchy) {
                     activeChildCount++;
-                    newHeight += child.height * Math.abs(child.scaleY);
+                    newHeight += child.height * this._getUsedScaleValue(child.scaleY);
                 }
             }
 
@@ -683,8 +708,8 @@ var Layout = cc.Class({
 
         for (var i = 0; i < children.length; ++i) {
             var child = children[i];
-            let childScaleX = Math.abs(child.scaleX);
-            let childScaleY = Math.abs(child.scaleY);
+            let childScaleX = this._getUsedScaleValue(child.scaleX);
+            let childScaleY = this._getUsedScaleValue(child.scaleY);
             if (!child.activeInHierarchy) {
                 continue;
             }
@@ -803,11 +828,14 @@ var Layout = cc.Class({
                                   parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
 
             var layoutPosition = this.node.getPosition();
-            var newAnchorX = (layoutPosition.x - leftBottomInParentSpace.x) / newSize.width;
-            var newAnchorY = (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height;
-            var newAnchor = cc.v2(parseFloat(newAnchorX.toFixed(2)), parseFloat(newAnchorY.toFixed(2)));
-
-            this.node.setAnchorPoint(newAnchor);
+            if (newSize.width !== 0) {
+                var newAnchorX = (layoutPosition.x - leftBottomInParentSpace.x) / newSize.width;
+                this.node.anchorX = parseFloat(newAnchorX.toFixed(2));
+            }
+            if (newSize.height !== 0) {
+                var newAnchorY = (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height;
+                this.node.anchorY = parseFloat(newAnchorY.toFixed(2));
+            }
             this.node.setContentSize(newSize);
         }
     },
@@ -825,7 +853,7 @@ var Layout = cc.Class({
         }
 
         var fnPositionY = function (child, topOffset, row) {
-            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height * Math.abs(child.scaleY) + paddingY + row * this.spacingY);
+            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height * this._getUsedScaleValue(child.scaleY) + paddingY + row * this.spacingY);
         }.bind(this);
 
 
@@ -866,7 +894,7 @@ var Layout = cc.Class({
         }
 
         var fnPositionX = function (child, leftOffset, column) {
-            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width * Math.abs(child.scaleX) + paddingX + column * this.spacingX);
+            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width * this._getUsedScaleValue(child.scaleX) + paddingX + column * this.spacingX);
         }.bind(this);
 
         var newWidth = 0;
@@ -914,7 +942,7 @@ var Layout = cc.Class({
                 var child = children[i];
                 if (child.activeInHierarchy) {
                     activeChildCount++;
-                    newWidth += child.width * Math.abs(child.scaleX);
+                    newWidth += child.width * this._getUsedScaleValue(child.scaleX);
                 }
             }
             newWidth += (activeChildCount - 1) * this.spacingX + this.paddingLeft + this.paddingRight;
@@ -959,6 +987,10 @@ var Layout = cc.Class({
         }
     },
 
+    _getUsedScaleValue (value) {
+        return this.affectedByScale ? Math.abs(value) : 1;
+    },
+
     /**
      * !#en Perform the layout update
      * !#zh 立即执行更新布局
@@ -978,7 +1010,6 @@ var Layout = cc.Class({
             this._layoutDirty = false;
         }
     }
-
 });
 
 /**

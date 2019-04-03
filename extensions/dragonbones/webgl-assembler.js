@@ -22,157 +22,342 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 const Armature = require('./ArmatureDisplay');
-
 const renderEngine = require('../../cocos2d/core/renderer/render-engine');
-const math = renderEngine.math;
-
-const js = require('../../cocos2d/core/platform/js');
-
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const vfmtPosUvColor = require('../../cocos2d/core/renderer/webgl/vertex-format').vfmtPosUvColor;
+const gfx = renderEngine.gfx;
+const math = require('../../cocos2d/core/renderer/render-engine').math;
+const NEED_NONE = 0x00;
+const NEED_COLOR = 0x01;
+const NEED_BATCH = 0x10;
+const NEED_COLOR_BATCH = 0x11;
 
-let _matrix = math.mat4.create();
-let _v3 = cc.v3();
+let _boneColor = cc.color(255, 0, 0, 255);
+let _slotColor = cc.color(0, 0, 255, 255);
 
-let _vbuf, _uintbuf, 
-    _vertexId, _ibuf,
-    _vertexOffset, _indiceOffset,
-    _a, _b, _c, _d, _tx, _ty,
-    _nodeR, _nodeG, _nodeB, _nodeA,
-    _renderData,
-    _worldMatrix;
+let _nodeR, _nodeG, _nodeB, _nodeA,
+    _premultipliedAlpha, _multiply,
+    _mustFlush, _buffer, _node,
+    _renderer, _comp,
+    _vfOffset, _indexOffset, _vertexOffset,
+    _vertexCount, _indexCount,
+    _x, _y, _c, _r, _g, _b, _a, _handleVal,
+    _m00, _m04, _m12,
+    _m01, _m05, _m13;
+
+function _getSlotMaterial (tex, blendMode) {
+    if(!tex)return null;
+
+    let src, dst;
+    switch (blendMode) {
+        case 1://additive
+            src = _premultipliedAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA;
+            dst = cc.macro.ONE;
+            break;
+        case 10://multiply
+            src = cc.macro.DST_COLOR;
+            dst = cc.macro.ONE_MINUS_SRC_ALPHA;
+            break;
+        case 12://screen
+            src = cc.macro.ONE;
+            dst = cc.macro.ONE_MINUS_SRC_COLOR;
+            break;
+        case 0://normal
+        default:
+            src = _premultipliedAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA;
+            dst = cc.macro.ONE_MINUS_SRC_ALPHA;
+            break;
+    }
+
+    let useModel = !_comp.enableBatch;
+    // Add useModel flag due to if pre same db useModel but next db no useModel,
+    // then next db will multiply model matrix more than once.
+    let key = tex.url + src + dst + useModel;
+    let baseMaterial = _comp._material;
+    if (!baseMaterial) return null;
+    let materialCache = _comp._materialCache;
+    let material = materialCache[key];
+    if (!material) {
+
+        var baseKey = baseMaterial._hash;
+        if (!materialCache[baseKey]) {
+            material = baseMaterial;
+        } else {
+            material = baseMaterial.clone();
+        }
+
+        material.useModel = useModel;
+        // update texture
+        material.texture = tex;
+        material.useColor = false;
+
+        // update blend function
+        let pass = material._mainTech.passes[0];
+        pass.setBlend(
+            gfx.BLEND_FUNC_ADD,
+            src, dst,
+            gfx.BLEND_FUNC_ADD,
+            src, dst
+        );
+        materialCache[key] = material;
+        material.updateHash(key);
+    }
+    else if (material.texture !== tex) {
+        material.texture = tex;
+        material.updateHash(key);
+    }
+    return material;
+}
+
+function _handleColor (color, parentOpacity) {
+    _a = color.a * parentOpacity * _nodeA;
+    _multiply = _premultipliedAlpha? _a / 255.0 : 1.0;
+    _r = color.r * _nodeR * _multiply;
+    _g = color.g * _nodeG * _multiply;
+    _b = color.b * _nodeB * _multiply;
+    _c = ((_a<<24) >>> 0) + (_b<<16) + (_g<<8) + _r;
+}
 
 let armatureAssembler = {
-    updateRenderData (comp) {
-        let armature = comp._armature;
-        if (!armature || comp._isChildArmature) {
-            return;
-        }
-        
-        let renderData = comp._renderData;
-        if (!renderData) {
-            renderData = comp._renderData = comp.requestRenderData();
-        }
+    updateRenderData (comp, batchData) {},
 
-        let size = comp.node._contentSize;
-        let anchor = comp.node._anchorPoint;
-        renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-        renderData.material = comp.getMaterial();
-
-        renderData.vertexCount = 0;
-        renderData.indiceCount = 0;
-
-        this.calcBufferCount(renderData, armature);
-    },
-
-    calcBufferCount (renderData, armature) {
+    realTimeTraverse (armature, parentMat, parentOpacity) {
         let slots = armature._slots;
+        let vbuf, ibuf, uintbuf;
+        let material;
+        let vertices, indices;
+        let slotColor;
+        let slot;
+        let slotMat;
+        let offsetInfo;
+
         for (let i = 0, l = slots.length; i < l; i++) {
-            let slot = slots[i];
+            slot = slots[i];
+            slotColor = slot._color;
+
             if (!slot._visible || !slot._displayData) continue;
 
+            if (parentMat) {
+                slot._mulMat(slot._worldMatrix, parentMat, slot._matrix);
+            } else {
+                math.mat4.copy(slot._worldMatrix, slot._matrix);
+            }
+
             if (slot.childArmature) {
-                this.calcBufferCount(renderData, slot.childArmature);
+                this.realTimeTraverse(slot.childArmature, slot._worldMatrix, parentOpacity * slotColor.a / 255);
                 continue;
             }
-            renderData.vertexCount += slot._vertices.length;
-            renderData.indiceCount += slot._indices.length;
+
+            material = _getSlotMaterial(slot.getTexture(), slot._blendMode);
+            if (!material) {
+                continue;
+            }
+
+            if (_mustFlush || material._hash !== _renderer.material._hash) {
+                _mustFlush = false;
+                _renderer._flush();
+                _renderer.node = _node;
+                _renderer.material = material;
+            }
+
+            _handleColor(slotColor, parentOpacity);
+            slotMat = slot._worldMatrix;
+
+            vertices = slot._localVertices;
+            _vertexCount = vertices.length >> 2;
+
+            indices = slot._indices;
+            _indexCount = indices.length;
+            
+            offsetInfo = _buffer.request(_vertexCount, _indexCount);
+            _indexOffset = offsetInfo.indiceOffset;
+            _vfOffset = offsetInfo.byteOffset >> 2;
+            _vertexOffset = offsetInfo.vertexOffset;
+            vbuf = _buffer._vData;
+            ibuf = _buffer._iData;
+            uintbuf = _buffer._uintVData;
+
+            _m00 = slotMat.m00;
+            _m04 = slotMat.m04;
+            _m12 = slotMat.m12;
+            _m01 = slotMat.m01;
+            _m05 = slotMat.m05;
+            _m13 = slotMat.m13;
+
+            for (let vi = 0, vl = vertices.length; vi < vl;) {
+                _x = vertices[vi++]; 
+                _y = vertices[vi++];
+
+                vbuf[_vfOffset++] = _x * _m00 + _y * _m04 + _m12; // x
+                vbuf[_vfOffset++] = _x * _m01 + _y * _m05 + _m13; // y
+
+                vbuf[_vfOffset++] = vertices[vi++]; // u
+                vbuf[_vfOffset++] = vertices[vi++]; // v
+                uintbuf[_vfOffset++] = _c; // color
+            }
+
+            for (let ii = 0, il = indices.length; ii < il; ii ++) {
+                ibuf[_indexOffset++] = _vertexOffset + indices[ii];
+            }
+        }
+    },
+
+    cacheTraverse (frame, parentMat) {
+        if (!frame) return;
+        let segments = frame.segments;
+        if (segments.length == 0) return;
+
+        let vbuf, ibuf, uintbuf;
+        let material;
+        let offsetInfo;
+        let vertices = frame.vertices;
+        let indices = frame.indices;
+        let uintVert = frame.uintVert;
+        
+        let frameVFOffset = 0, frameIndexOffset = 0, segVFCount = 0;
+        if (parentMat) {
+            _m00 = parentMat.m00;
+            _m04 = parentMat.m04;
+            _m12 = parentMat.m12;
+            _m01 = parentMat.m01;
+            _m05 = parentMat.m05;
+            _m13 = parentMat.m13;
+        }
+
+        let colorOffset = 0;
+        let colors = frame.colors;
+        let nowColor = colors[colorOffset++];
+        let maxVFOffset = nowColor.vfOffset;
+        _handleColor(nowColor, 1.0);
+
+        for (let i = 0, n = segments.length; i < n; i++) {
+            let segInfo = segments[i];
+            material = _getSlotMaterial(segInfo.tex, segInfo.blendMode);
+            if (_mustFlush || material._hash !== _renderer.material._hash) {
+                _mustFlush = false;
+                _renderer._flush();
+                _renderer.node = _node;
+                _renderer.material = material;
+            }
+
+            _vertexCount = segInfo.vertexCount;
+            _indexCount = segInfo.indexCount;
+            
+            offsetInfo = _buffer.request(_vertexCount, _indexCount);
+            _indexOffset = offsetInfo.indiceOffset;
+            _vertexOffset = offsetInfo.vertexOffset;
+            _vfOffset = offsetInfo.byteOffset >> 2;
+            vbuf = _buffer._vData;
+            ibuf = _buffer._iData;
+            uintbuf = _buffer._uintVData;
+
+            for (let ii = _indexOffset, il = _indexOffset + _indexCount; ii < il; ii++) {
+                ibuf[ii] = _vertexOffset + indices[frameIndexOffset++];
+            }
+
+            segVFCount = segInfo.vfCount;
+            switch (_handleVal) {
+                case NEED_COLOR:
+                case NEED_NONE:
+                    vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), _vfOffset);
+                    frameVFOffset += segVFCount;
+                break;
+                case NEED_BATCH:
+                case NEED_COLOR_BATCH:
+                    for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il;) {
+                        _x = vertices[frameVFOffset++];
+                        _y = vertices[frameVFOffset++];
+                        vbuf[ii++] = _x * _m00 + _y * _m04 + _m12; // x
+                        vbuf[ii++] = _x * _m01 + _y * _m05 + _m13; // y
+                        vbuf[ii++] = vertices[frameVFOffset++]; // u
+                        vbuf[ii++] = vertices[frameVFOffset++]; // v
+                        uintbuf[ii++] = uintVert[frameVFOffset++];
+                    }
+                break;
+            }
+
+            if ( !(_handleVal & NEED_COLOR) ) continue;
+
+            // handle color
+            let frameColorOffset = frameVFOffset - segVFCount;
+            for (let ii = _vfOffset + 4, il = _vfOffset + 4 + segVFCount; ii < il; ii+=5, frameColorOffset += 5) {
+                if (frameColorOffset >= maxVFOffset) {
+                    nowColor = colors[colorOffset++];
+                    _handleColor(nowColor, 1.0);
+                    maxVFOffset = nowColor.vfOffset;
+                }
+                uintbuf[ii] = _c;
+            }
         }
     },
 
     fillBuffers (comp, renderer) {
-        let armature = comp._armature;
-        if (!armature || comp._isChildArmature) return;
+        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        
+        // Init temp var.
+        _mustFlush = true;
+        _premultipliedAlpha = comp.premultipliedAlpha;
+        _node = comp.node;
+        _buffer = renderer._meshBuffer;
+        _renderer = renderer;
+        _comp = comp;
+        _handleVal = 0;
 
-        let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
-            renderData = comp._renderData;
-
-        _vertexOffset = buffer.byteOffset >> 2;
-        _indiceOffset = buffer.indiceOffset;
-        _vertexId = buffer.vertexOffset;
-
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
-
-        // buffer data may be realloc, need get reference after request.
-        _vbuf = buffer._vData;
-        _uintbuf = buffer._uintVData;
-        _ibuf = buffer._iData;
-
-        let node = comp.node;
-
-        let nodeColor = node.color;
+        let nodeColor = _node._color;
         _nodeR = nodeColor.r / 255;
         _nodeG = nodeColor.g / 255;
         _nodeB = nodeColor.b / 255;
         _nodeA = nodeColor.a / 255;
+        if (nodeColor._val !== 0xffffffff) {
+            _handleVal |= NEED_COLOR;
+        }
 
-        _worldMatrix = node._worldMatrix;
-        _a = _worldMatrix.m00; _b = _worldMatrix.m01; _c = _worldMatrix.m04; _d = _worldMatrix.m05;
-        _tx = _worldMatrix.m12; _ty = _worldMatrix.m13;
+        let worldMat = undefined;
+        if (_comp.enableBatch) {
+            worldMat = _node._worldMatrix;
+            _mustFlush = false;
+            _handleVal |= NEED_BATCH;
+        }
 
-        this.fillIndexBufferWithArmature(armature);
-        this.fillVertexBufferWithArmature(armature);
+        if (comp.isAnimationCached()) {
+            // Traverse input assembler.
+            this.cacheTraverse(comp._curFrame, worldMat);
+        } else {
+            // Traverse all armature.
+            let armature = comp._armature;
+            if (!armature) return;
 
-        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
+            this.realTimeTraverse(armature, worldMat, 1.0);
 
-        _worldMatrix = _ibuf = _vbuf = _uintbuf = null;
-    },
+            let graphics = comp._debugDraw;
+            if (comp.debugBones && graphics) {
+                graphics.clear();
 
-    fillVertexBufferWithArmature (armature) {
-        let slots = armature._slots;
-        for (let i = 0, l = slots.length; i < l; i++) {
-            let slot = slots[i];
-            if (!slot._visible || !slot._displayData) continue;
+                graphics.lineWidth = 5;
+                graphics.strokeColor = _boneColor;
+                graphics.fillColor = _slotColor; // Root bone color is same as slot color.
 
-            if (slot.childArmature) {
-                math.mat4.mul(_matrix, _worldMatrix, slot._matrix);
-                _a = _matrix.m00; _b = _matrix.m01; _c = _matrix.m04; _d = _matrix.m05;
-                _tx = _matrix.m12; _ty = _matrix.m13;
-                this.fillVertexBufferWithArmature(slot.childArmature);
-                _a = _worldMatrix.m00; _b = _worldMatrix.m01; _c = _worldMatrix.m04; _d = _worldMatrix.m05;
-                _tx = _worldMatrix.m12; _ty = _worldMatrix.m13;
-                continue;
-            }
+                let bones = armature.getBones();
+                for (let i = 0, l = bones.length; i < l; i++) {
+                    let bone =  bones[i];
+                    let boneLength = Math.max(bone.boneData.length, 5);
+                    let startX = bone.globalTransformMatrix.tx;
+                    let startY = -bone.globalTransformMatrix.ty;
+                    let endX = startX + bone.globalTransformMatrix.a * boneLength;
+                    let endY = startY - bone.globalTransformMatrix.b * boneLength;
 
-            let vertices = slot._vertices;
-            let slotColor = slot._color;
-            let cr = slotColor.r * _nodeR;
-            let cg = slotColor.g * _nodeG;
-            let cb = slotColor.b * _nodeB;
-            let ca = slotColor.a * _nodeA;
-            let color = ((ca<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
-
-            for (let j = 0, vl = vertices.length; j < vl; j++) {
-                let vertex = vertices[j];
-                _vbuf[_vertexOffset++] = vertex.x * _a + vertex.y * _c + _tx;
-                _vbuf[_vertexOffset++] = vertex.x * _b + vertex.y * _d + _ty;
-                _vbuf[_vertexOffset++] = vertex.u;
-                _vbuf[_vertexOffset++] = vertex.v;
-                _uintbuf[_vertexOffset++] = color;
+                    graphics.moveTo(startX, startY);
+                    graphics.lineTo(endX, endY);
+                    graphics.stroke();
+                }
             }
         }
-    },
-
-    fillIndexBufferWithArmature (armature) {
-        let slots = armature._slots;
-        for (let i = 0, l = slots.length; i < l; i++) {
-            let slot = slots[i];
-            if (!slot._visible || !slot._displayData) continue;
-
-            if (slot.childArmature) {
-                this.fillIndexBufferWithArmature(slot.childArmature);
-                continue;
-            }
-
-            let indices = slot._indices;
-            for (let j = 0, il = indices.length; j < il; j++) {
-                _ibuf[_indiceOffset++] = _vertexId + indices[j];
-            }
-
-            _vertexId += slot._vertices.length;
-        }
+        
+        // Clear temp var.
+        _node = undefined;
+        _buffer = undefined;
+        _renderer = undefined;
+        _comp = undefined;
     }
 };
 

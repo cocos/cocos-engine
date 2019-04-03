@@ -60,7 +60,7 @@ let Particle = function () {
 let pool = new js.Pool(function (par) {
     par.pos.set(ZERO_VEC2);
     par.startPos.set(ZERO_VEC2);
-    par.color._val = ((255<<24) >>> 0);
+    par.color._val = 0xFF000000;
     par.deltaColor.r = par.deltaColor.g = par.deltaColor.b = 0;
     par.deltaColor.a = 255;
     par.size = 0;
@@ -193,10 +193,10 @@ Simulator.prototype.emitParticle = function (pos) {
 
 Simulator.prototype.updateUVs = function (force) {
     let particleCount = this.particles.length;
-    if (this.sys._buffer && this.sys._spriteFrame) {
+    if (this.sys._buffer && this.sys._renderSpriteFrame) {
         const FLOAT_PER_PARTICLE = 4 * this.sys._vertexFormat._bytes / 4;
         let vbuf = this.sys._buffer._vData;
-        let uv = this.sys._spriteFrame.uv;
+        let uv = this.sys._renderSpriteFrame.uv;
 
         let start = force ? 0 : this._uvFilled;
         for (let i = start; i < particleCount; i++) {

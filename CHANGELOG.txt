@@ -323,7 +323,7 @@ Cocos2d-JS v3.2 @ Dec.29, 2014
 * Replaced `transform` function with `setTransform` function under canvas render mode for better performance.
 * Added a timer in `cc.audioEngine` to check audio element loading event, prevent the loading process being stucked when load audio file failed.
 * Added some new browser types to `cc.sys`.
-* Added some audio resource loading codes to ensure compatibility with Wechat browser.
+* Added some audio resource loading codes to ensure compatibility with WeChat browser.
 * Added check for WebAudio support to ensure compatibility.
 
 * Bug fixes:

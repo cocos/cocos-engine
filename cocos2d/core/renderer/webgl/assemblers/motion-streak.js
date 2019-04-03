@@ -25,7 +25,6 @@
 
 const MotionStreak = require('../../../components/CCMotionStreak');
 const RenderFlow = require('../../render-flow');
-const vfmtPosUvColor = require('../vertex-format').vfmtPosUvColor;
 
 function Point (point, dir) {
     this.point = point || cc.v2();
@@ -187,7 +186,7 @@ var motionStreakAssembler = {
         }
 
         renderData.vertexCount = renderData.dataLength;
-        renderData.indiceCount = (renderData.vertexCount - 2)*3;
+        renderData.indiceCount = renderData.vertexCount < 2 ? 0 : (renderData.vertexCount - 2)*3;
     },
 
     fillBuffers (comp, renderer) {
@@ -195,19 +194,18 @@ var motionStreakAssembler = {
             renderData = comp._renderData,
             data = renderData._data;
 
-        let buffer = renderer.getBuffer('mesh', vfmtPosUvColor),
-            vertexOffset = buffer.byteOffset >> 2,
+        let buffer = renderer._meshBuffer,
             vertexCount = renderData.vertexCount;
         
-        let indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
-        
-        buffer.request(vertexCount, renderData.indiceCount);
+        let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
 
         // buffer data may be realloc, need get reference after request.
-        let vbuf = buffer._vData,
-            ibuf = buffer._iData,
-            uintbuf = buffer._uintVData;
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData,
+            ibuf = buffer._iData;
     
         // vertex buffer
         let vert;

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-
 const PI_2 = Math.PI * 2;
 
 module.exports = {
@@ -47,14 +45,7 @@ module.exports = {
         
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
-        if (frame) {
-            if (!frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.insertSpriteFrame(frame);
-            }
-            if (sprite._material._texture !== frame._texture) {
-                sprite._activateMaterial();
-            }
-        }
+        sprite._calDynamicAtlas();
 
         let renderData = sprite._renderData;
         if (renderData && frame) {
@@ -331,22 +322,24 @@ module.exports = {
     fillBuffers (sprite, renderer) {
         let renderData = sprite._renderData,
             data = renderData._data,
-            node = sprite.node;
+            node = sprite.node,
+            color = node._color._val;
     
         let matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
 
         // buffer
-        let buffer = renderer._meshBuffer,
-            vertexOffset = buffer.byteOffset >> 2,
-            vbuf = buffer._vData;
+        let buffer = renderer._meshBuffer;
         
-        let ibuf = buffer._iData,
-            indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
-            
-        buffer.request(renderData.vertexCount, renderData.indiceCount);
+        let offsetInfo = buffer.request(renderData.vertexCount, renderData.indiceCount);
+
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            ibuf = buffer._iData,
+            vbuf = buffer._vData,
+            uintbuf = buffer._uintVData;
 
         let count = data.length;
         for (let i = 0; i < count; i++) {
@@ -355,6 +348,7 @@ module.exports = {
             vbuf[vertexOffset ++] = vert.x * b + vert.y * d + ty;
             vbuf[vertexOffset ++] = vert.u;
             vbuf[vertexOffset ++] = vert.v;
+            uintbuf[vertexOffset ++] = color;
         }
 
         for (let i = 0; i < count; i++) {

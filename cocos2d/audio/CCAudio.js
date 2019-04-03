@@ -48,6 +48,7 @@ let Audio = function (src) {
     this._state = Audio.State.INITIALZING;
 
     this._onended = function () {
+        this._state = Audio.State.STOPPED;
         this.emit('ended');
     }.bind(this);
 };
@@ -168,7 +169,7 @@ Audio.State = {
     };
 
     proto.destroy = function () {
-        if (CC_WECHATGAME) {
+        if (CC_WECHATGAME || CC_QQPLAY) {
             this._element && this._element.destroy();
         }
         this._element = null;
@@ -235,8 +236,10 @@ Audio.State = {
             return;
         }
 
-        this._unbindEnded();
         if (!(CC_QQPLAY || CC_WECHATGAME)) {
+            // setCurrentTime would fire 'ended' event
+            // so we need to change the callback to rebind ended callback after setCurrentTime
+            this._unbindEnded();
             this._bindEnded(function () {
                 this._bindEnded();
             }.bind(this));
@@ -264,10 +267,15 @@ Audio.State = {
     };
 
     proto.getState = function () {
-        if (!CC_WECHATGAME) {
-            let elem = this._element;
-            if (elem && Audio.State.PLAYING === this._state && elem.paused) {
-                this._state = Audio.State.PAUSED;
+        let elem = this._element;
+        if (!CC_WECHATGAME && !CC_QQPLAY && elem) {
+            // HACK: in some browser, audio may not fire 'ended' event
+            // so we need to force updating the Audio state
+            if (Audio.State.PLAYING === this._state && elem.paused) {
+                this._state = Audio.State.STOPPED;
+            }
+            else if (Audio.State.STOPPED === this._state && !elem.paused) {
+                this._state = Audio.State.PLAYING;
             }
         }
         return this._state;

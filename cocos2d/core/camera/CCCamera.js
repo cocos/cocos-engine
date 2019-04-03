@@ -27,6 +27,7 @@
 const AffineTrans = require('../utils/affine-transform');
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer/index');
+const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
 
 const mat4 = cc.vmath.mat4;
@@ -202,7 +203,7 @@ let Camera = cc.Class({
             set (value) {
                 this._depth = value;
                 if (this._camera) {
-                    this._camera.setDepth(value);
+                    this._camera._priority = value;
                 }
             }
         },
@@ -290,7 +291,7 @@ let Camera = cc.Class({
             camera.dirty = true;
 
             camera._cullingMask = camera.view._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
-            camera.setDepth(cc.macro.MAX_ZINDEX);
+            camera._priority = cc.macro.MAX_ZINDEX;
             camera.setClearFlags(0);
             camera.setColor(0,0,0,0);
 
@@ -342,7 +343,7 @@ let Camera = cc.Class({
         if (this._camera) {
             this._camera.setNode(this.node);
             this._camera.setClearFlags(this._clearFlags);
-            this._camera.setDepth(this._depth);
+            this._camera._priority = this._depth;
             this._updateBackgroundColor();
             this._updateCameraMask();
             this._updateTargetTexture();
@@ -499,7 +500,7 @@ let Camera = cc.Class({
         // force update node world matrix
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
-        renderer._walker.visit(root);
+        RenderFlow.visit(root);
         renderer._forward.renderCamera(this._camera, renderer.scene);
     },
 

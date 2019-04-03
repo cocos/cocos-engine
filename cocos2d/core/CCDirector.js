@@ -579,6 +579,7 @@ cc.Director.prototype = {
      * @param {Object} onProgress.item - The latest item which flow out the pipeline
      * @param {Function} [onLoaded] - callback, will be called after scene loaded.
      * @param {Error} onLoaded.error - null or the error object.
+     * @param {cc.SceneAsset} onLoaded.asset - The scene asset itself.
      */
     preloadScene: function (sceneName, onProgress, onLoaded) {
         if (onLoaded === undefined) {

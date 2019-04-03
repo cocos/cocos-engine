@@ -75,7 +75,7 @@ module.exports = {
             'hover_color': '悬停状态的按钮背景颜色',
             'disabled_color': '禁用状态的按钮背景颜色',
             'duration': '按钮颜色变化或者缩放变化的过渡时间',
-            'zoom_scale': '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale, zoomScale 可以为负数',
+            'zoom_scale': '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。',
             'auto_gray_effect': "如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰",
             'normal_sprite': '普通状态的按钮背景图资源',
             'pressed_sprite': '按下状态的按钮背景图资源',
@@ -100,6 +100,9 @@ module.exports = {
             'wrap': '是否允许自动换行',
             'font': 'Label 使用的字体资源',
             'system_font': '是否使用系统默认字体，选中此项会将 file 属性置空',
+            'cacheMode': '文本缓存模式，包括以下三种：\n 1. NONE : 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
+            'actualFontSize': 'SHRINK 模式下面文本实际渲染的字体大小',
+            'spacingX': '文字之间 x 轴的间距',
         },
         'progress': {
             'bar_sprite': '进度条显示用的 Sprite 节点，可以动态改变尺寸',
@@ -201,7 +204,8 @@ module.exports = {
             'vertical_direction': '垂直排列子节点的方向，包括：\n 1. TOP_TO_BOTTOM, 从上到下排列 \n 2. BOTTOM_TO_TOP, 从下到上排列',
             'horizontal_direction': '水平排列子节点的方向，包括：\n 1. LEFT_TO_RIGHT, 从左到右排列 \n 2. RIGHT_TO_LEFT, 从右到左排列',
             'cell_size': '网格布局中，规定每一个网格的大小',
-            'start_axis': '网格布局中，子物体排版时的起始方向轴，支持水平和垂直两个方向。',
+            'start_axis': '网格布局中，子物体排版时的起始方向轴，支持水平和垂直两个方向',
+            "affected_by_scale": "子节点的缩放是否影响布局"
         },
         'particle': {
             'export_title': "将自定义的粒子数据导出成 plist 文件",
@@ -219,7 +223,7 @@ module.exports = {
             "font_size": "输入框文本的字体大小",
             "line_height": "输入框文本的行高",
             "font_color": "输入框文本的颜色",
-            "stay_on_top": "设置为 True 则输入框总是可见，并且永远在游戏视图的上面",
+            "stay_on_top": "设置为 True 则输入框总是可见，并且永远在游戏视图的上面，该属性会在 v2.1 中移除",
             "tab_index": "修改 DOM 输入元素的 tabIndex，这个属性只有在 Web 上面修改有意义。",
             "placeholder": "输入框占位符的文本内容",
             "placeholder_font_size": "输入框占位符的字体大小",
@@ -244,6 +248,8 @@ module.exports = {
             "horizontal_align": "水平对齐方式",
             "font_size": "字体大小, 单位是 point",
             "font": "富文本定制字体",
+            "font_family": "富文本定制系统字体",
+            'system_font': "是否使用系统默认字体",
             "line_height": "字体行高, 单位是 point",
             "max_width": "富文本的最大宽度, 传 0 的话意味着必须手动换行.",
             "image_atlas": "对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。",
@@ -258,6 +264,9 @@ module.exports = {
             "debug_slots": "是否显示 slot 的 debug 信息",
             "debug_bones": "是否显示 bone 的 debug 信息",
             "premultipliedAlpha": "是否启用贴图预乘",
+            "use_tint": "是否启用染色效果",
+            "enabled_batch": "是否开启合批",
+            "animation_cache_mode": "REALTIME 模式，实时运算，支持 Spine 所有的功能。\nSHARED_CACHE 模式，将骨骼动画及贴图数据进行缓存并共享，相当于预烘焙骨骼动画。拥有较高性能，但不支持动作融合、动作叠加，只支持动作开始和结束事件。至于内存方面，当创建 N(N>=3) 个相同骨骼、相同动作的动画时，会呈现内存优势。N 值越大，优势越明显。综上 SHARED_CACHE 模式适用于场景动画，特效，副本怪物，NPC 等，能极大提高帧率和降低内存。\nPRIVATE_CACHE 模式，与 SHARED_CACHE 类似，但不共享动画及贴图数据，所以在内存方面没有优势，仅存在性能优势。当想利用缓存模式的高性能，但又存在换装的需求，因此不能共享贴图数据时，那么 PRIVATE_CACHE 就适合你。",
         },
         "dragon_bones": {
             "dragon_bones_asset": "骨骼信息数据，拖拽 DragonBones 导出的骨骼动画信息 json 资源到这里来开始使用",
@@ -266,7 +275,9 @@ module.exports = {
             "animation_name": "当前播放的动画名称",
             "time_scale": "当前骨骼中所有动画的时间缩放率",
             "play_times": "播放默认动画的循环次数\n-1 表示使用配置文件中的默认值\n0 表示无限循环\n>0 表示循环次数",
-            "debug_bones": "是否显示 bone 的 debug 信息"
+            "debug_bones": "是否显示 bone 的 debug 信息",
+            "enabled_batch": "是否开启合批",
+            "animation_cache_mode": "REALTIME 模式，实时运算，支持 DragonBones 所有的功能。\nSHARED_CACHE 模式，将骨骼动画及贴图数据进行缓存并共享，相当于预烘焙骨骼动画。拥有较高性能，但不支持动作融合、动作叠加、骨骼嵌套，只支持动作开始和结束事件。至于内存方面，当创建 N(N>=3) 个相同骨骼、相同动作的动画时，会呈现内存优势。N 值越大，优势越明显。综上 SHARED_CACHE 模式适用于场景动画，特效，副本怪物，NPC 等，能极大提高帧率和降低内存。\nPRIVATE_CACHE 模式，与 SHARED_CACHE 类似，但不共享动画及贴图数据，所以在内存方面没有优势，仅存在性能优势。当想利用缓存模式的高性能，但又存在换装的需求，因此不能共享贴图数据时，那么 PRIVATE_CACHE 就适合你。",
         },
         'motionStreak': {
             'fadeTime': "拖尾的渐隐时间,以秒为单位",
@@ -341,7 +352,8 @@ module.exports = {
                 'linearVelocity': '刚体在世界坐标下的线性速度',
                 'angularVelocity': '刚体的角速度',
                 'fixedRotation': '是否禁止此刚体进行旋转',
-                'awake': '是否立刻唤醒此刚体'
+                'awake': '设置刚体的睡眠状态。 睡眠的刚体具有非常低的 CPU 成本。（当刚体被碰撞到时，如果刚体处于睡眠状态，它会立即被唤醒）',
+                'awakeOnLoad': '是否在初始化时唤醒此刚体',
             },
             'physics_collider': {
                 'density': '密度',
@@ -382,13 +394,16 @@ module.exports = {
             }
         },
         'block_input_events': {
-            'brief_help': '该组件将拦截所有输入事件，防止输入穿透到下层节点，一般用于上层 UI 的背景。'
+            'brief_help': '该组件将拦截所有输入事件，防止输入穿透到屏幕下方的其它节点，一般用于屏幕上层 UI 的背景。'
         },
         'tiledtile': {
             'row': '指定 TiledTile 的横向坐标，以地图块为单位',
             'column': '指定 TiledTile 的纵向坐标，以地图块为单位',
             'gid': '指定 TiledTile 的 gid 值',
             'layer': '指定 TiledTile 属于哪一个 TiledLayer'
+        },
+        'wx_subcontext_view': {
+            'interval': '子域界面的刷新时间间隔'
         }
     }
 };

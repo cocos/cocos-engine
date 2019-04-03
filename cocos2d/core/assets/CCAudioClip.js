@@ -61,8 +61,15 @@ var AudioClip = cc.Class({
                 return this._audio;
             },
             set (value) {
-                this._audio = value;
-                if (value) {
+                // HACK: fix load mp3 as audioClip, _nativeAsset is set as audioClip.
+                // Should load mp3 as audioBuffer indeed.
+                if (value instanceof cc.AudioClip) {
+                    this._audio = value._nativeAsset;
+                }
+                else {
+                    this._audio = value;
+                }
+                if (this._audio) {
                     this.loaded = true;
                     this.emit('load');
                 }

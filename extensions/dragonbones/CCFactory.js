@@ -23,12 +23,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-let BaseObject = dragonBones.BaseObject;
+let BaseObject = dragonBones.BaseObject,
+    BaseFactory = dragonBones.BaseFactory;
 
+/**
+ * @module dragonBones
+*/
+
+/**
+ * @class CCFactory
+ * @extends BaseFactory
+*/
 var CCFactory = dragonBones.CCFactory = cc.Class({
     name: 'dragonBones.CCFactory',
-    extends: dragonBones.BaseFactory,
-
+    extends: BaseFactory,
+    /**
+     * @method getInstance
+     * @return {CCFactory}
+     * @static
+     * @example
+     * let factory = dragonBones.CCFactory.getInstance();
+    */
     statics: {
         _factory: null,
         getInstance () {
@@ -40,30 +55,38 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
     },
 
     ctor () {
-        this._dragonBones = new dragonBones.DragonBones();
+        let eventManager = new dragonBones.CCArmatureDisplay();
+        this._dragonBones = new dragonBones.DragonBones(eventManager);
 
-        if (!CC_EDITOR && cc.director._scheduler) {
-            cc.director._scheduler.enableForTarget(this);
-            cc.director._scheduler.scheduleUpdate(this, cc.Scheduler.PRIORITY_SYSTEM, false);
+        if (!CC_JSB && !CC_EDITOR && cc.director._scheduler) {
+            cc.game.on(cc.game.EVENT_RESTART, this.initUpdate, this);
+            this.initUpdate();
         }
+    },
+
+    initUpdate (dt) {
+        cc.director._scheduler.enableForTarget(this);
+        cc.director._scheduler.scheduleUpdate(this, cc.Scheduler.PRIORITY_SYSTEM, false);
     },
 
     update (dt) {
         this._dragonBones.advanceTime(dt);
     },
 
-    buildArmatureDisplay (armatureName, dragonBonesName, comp) {
-        this._display = comp;
-        let armature = this.buildArmature(armatureName, dragonBonesName, comp);
-        this._display = null;
-        return armature;
+    getDragonBonesDataByRawData (rawData) {
+        var dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser;
+        return dataParser.parseDragonBonesData(rawData, 1.0);
     },
 
-    parseTextureAtlasData (jsonString, texture) {
-        var atlasJsonObj = JSON.parse(jsonString);
-        return this._super(atlasJsonObj, texture);
+    // Build new aramture with a new display.
+    buildArmatureDisplay (armatureName, dragonBonesName, skinName, textureAtlasName) {
+        let armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+        return armature && armature._display;
     },
 
+    // Build sub armature from an exist armature component.
+    // It will share dragonAsset and dragonAtlasAsset.
+    // But node can not share,or will cause render error.
     createArmatureNode (comp, armatureName, node) {
         node = node || new cc.Node();
         let display = node.getComponent(dragonBones.ArmatureDisplay);
@@ -80,23 +103,7 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
 
         return display;
     },
-
-    _buildChildArmature (dataPackage, slot, displayData) {
-        let temp = this._display;
-        
-        let name = 'CHILD_ARMATURE-' + displayData.path;
-        let node = this._display.node.getChildByName(name);
-        if (!node) {
-            node = new cc.Node();
-        }
-        let display = this.createArmatureNode(temp, displayData.path, node);
-        node.name = name;
-
-        this._display = temp;
-        return display._armature;
-    },
     
-
     _buildTextureAtlasData (textureAtlasData, textureAtlas) {
         if (textureAtlasData) {
             textureAtlasData.renderTexture = textureAtlas;
@@ -141,8 +148,10 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
         // fixed dragonbones sort issue
         // armature._sortSlots = this._sortSlots;
 
+        var display = new dragonBones.CCArmatureDisplay();
+
         armature.init(dataPackage.armature,
-            this._display, this._display, this._dragonBones
+            display, display, this._dragonBones
         );
         
         return armature;
@@ -150,17 +159,29 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
 
     _buildSlot (dataPackage, slotData, displays) {
         let slot = BaseObject.borrowObject(dragonBones.CCSlot);
-        let displayList = [];
-
         slot.name = slotData.name;
-        slot.reset();
-
-        // let display = new cc.Node();
-        // display.name = slot.name;
-
         let display = slot;
         slot.init(slotData, displays, display, display);
-
         return slot;
+    },
+
+    getDragonBonesDataByUUID (uuid) {
+        for (var name in this._dragonBonesDataMap) {
+            if (name.indexOf(uuid) != -1) {
+                return this._dragonBonesDataMap[name];
+            }
+        }
+        return null;
+    },
+
+    removeDragonBonesDataByUUID (uuid, disposeData) {
+        if (disposeData === void 0) { disposeData = true; }
+        for (var name in this._dragonBonesDataMap) {
+            if (name.indexOf(uuid) === -1) continue;
+            if (disposeData) {
+                this._dragonBones.bufferObject(this._dragonBonesDataMap[name]);
+            }
+            delete this._dragonBonesDataMap[name];
+        }
     }
 });
