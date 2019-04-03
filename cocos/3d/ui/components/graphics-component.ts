@@ -174,6 +174,7 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     @property({
+        override: true,
         visible: false,
     })
     get color (){
