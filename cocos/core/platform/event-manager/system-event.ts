@@ -140,7 +140,7 @@ export class SystemEvent extends EventTarget {
                     event: EventListener.TOUCH_ONE_BY_ONE,
                     onTouchBegan (event) {
                         event.type = EventType.TOUCH_START;
-                        cc.systemEvent.dispatchEvent(event);
+                        return cc.systemEvent.dispatchEvent(event);
                     },
                     onTouchMoved (event) {
                         event.type = EventType.TOUCH_MOVE;
