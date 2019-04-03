@@ -314,8 +314,13 @@ function _commitDepthStates(gl, cur, next) {
  * _commitStencilStates
  */
 function _commitStencilStates(gl, cur, next) {
+  // inherit stencil states
+  if (next.stencilTest === enums.STENCIL_INHERIT) {
+    return;
+  }
+
   if (next.stencilTest !== cur.stencilTest) {
-    if (!next.stencilTest) {
+    if (next.stencilTest === enums.STENCIL_DISABLE) {
       gl.disable(gl.STENCIL_TEST);
       return;
     }
@@ -339,7 +344,7 @@ function _commitStencilStates(gl, cur, next) {
   }
 
   // fast return
-  if (!next.stencilTest) {
+  if (next.stencilTest === enums.STENCIL_DISABLE) {
     return;
   }
 
@@ -444,7 +449,6 @@ function _commitVertexBuffers(device, gl, cur, next) {
 
   // nothing changed for vertex buffer
   if (next.maxStream === -1) {
-    console.warn('VertexBuffer not assigned, please call setVertexBuffer before every draw.');
     return;
   }
 
@@ -929,9 +933,10 @@ export default class Device {
 
   /**
    * @method enableStencilTest
+   * @param {Number} stencilTest
    */
-  enableStencilTest() {
-    this._next.stencilTest = true;
+  setStencilTest(stencilTest) {
+    this._next.stencilTest = stencilTest;
   }
 
   /**
@@ -1322,20 +1327,22 @@ export default class Device {
       commitFunc(gl, uniformInfo.location, uniform.value);
     }
 
-    // drawPrimitives
-    if (next.indexBuffer) {
-      gl.drawElements(
-        this._next.primitiveType,
-        count,
-        next.indexBuffer._format,
-        base * next.indexBuffer._bytesPerIndex
-      );
-    } else {
-      gl.drawArrays(
-        this._next.primitiveType,
-        base,
-        count
-      );
+    if (count) {
+      // drawPrimitives
+      if (next.indexBuffer) {
+        gl.drawElements(
+          this._next.primitiveType,
+          count,
+          next.indexBuffer._format,
+          base * next.indexBuffer._bytesPerIndex
+        );
+      } else {
+        gl.drawArrays(
+          this._next.primitiveType,
+          base,
+          count
+        );
+      }
     }
 
     // TODO: autogen mipmap for color buffer

@@ -26,7 +26,6 @@
 const vertexFormat = require('./vertex-format');
 const defaultVertexFormat = vertexFormat.vfmtPosUvColor;
 const vfmt3D = vertexFormat.vfmt3D;
-const StencilManager = require('./stencil-manager');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');
 const SpineBuffer = require('./spine-buffer');
@@ -41,11 +40,12 @@ import Model from '../../../renderer/scene/model';
 let _buffers = {};
 
 const empty_material = new Material();
+const empty_ia = new InputAssembler();
+empty_ia._count = 0;
 
 var ModelBatcher = function (device, renderScene) {
     this._renderScene = renderScene;
     this._device = device;
-    this._stencilMgr = StencilManager.sharedManager;
 
     this.walking = false;
     this.material = empty_material;
@@ -113,10 +113,24 @@ ModelBatcher.prototype = {
         this.parentOpacityDirty = 0;
         this.worldMatDirty = 0;
 
-        // reset stencil manager's cache
-        this._stencilMgr.reset();
-
         this.customProperties = null;
+    },
+
+    _flushMaterial (material) {
+        this.material = material;
+        let effect = material.effect;
+        if (!effect) return;
+        
+        // Generate model
+        let model = this._modelPool.add();
+        this._batchedModels.push(model);
+        model.sortKey = this._sortKey++;
+        model._cullingMask = this.cullingMask;
+        model.setNode(this.node);
+        model.setEffect(effect, null);
+        model.setInputAssembler(empty_ia);
+        
+        this._renderScene.addModel(model);
     },
 
     _flush () {
@@ -138,9 +152,6 @@ ModelBatcher.prototype = {
         ia._indexBuffer = buffer._ib;
         ia._start = indiceStart;
         ia._count = indiceCount;
-
-        // Check stencil state and modify pass
-        this._stencilMgr.handleEffect(effect);
         
         // Generate model
         let model = this._modelPool.add();
@@ -168,9 +179,6 @@ ModelBatcher.prototype = {
         this.material = material;
         let effect = material.effect;
         if (!effect) return;
-
-        // Check stencil state and modify pass
-        effect = this._stencilMgr.handleEffect(effect);
         
         // Generate model
         let model = this._modelPool.add();

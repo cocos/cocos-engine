@@ -189,6 +189,7 @@ let Graphics = cc.Class({
     _activateMaterial () {
         // Ignore material in canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            this.disableRender();
             return;
         }
         

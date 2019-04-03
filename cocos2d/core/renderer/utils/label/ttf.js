@@ -29,12 +29,12 @@ const textUtils = require('../../../utils/text-utils');
 const Component = require('../../../components/CCComponent');
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
+const LabelShadow = require('../../../components/CCLabelShadow');
 const Overflow = Label.Overflow;
 const packToDynamicAtlas = require('../utils').packToDynamicAtlas;
 
-const WHITE = cc.Color.WHITE;
-const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
 const MAX_SIZE = 2048;
+const _invisibleAlpha = (1 / 255).toFixed(3);
 
 let _context = null;
 let _canvas = null;
@@ -45,7 +45,7 @@ let _string = '';
 let _fontSize = 0;
 let _drawFontSize = 0;
 let _splitedStrings = [];
-let _canvasSize = cc.size();
+let _canvasSize = cc.Size.ZERO;
 let _lineHeight = 0;
 let _hAlign = 0;
 let _vAlign = 0;
@@ -53,21 +53,26 @@ let _color = null;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
-const _invisibleAlpha = (1 / 255).toFixed(3);
 
 // outline
-let _isOutlined = false;
-let _outlineColor = null;
-let _outlineWidth = 0;
-let _margin = 0;
+let _outlineComp = null;
+let _outlineColor = cc.Color.WHITE;
 
-let _isBold = false;
-let _isItalic = false;
-let _isUnderline = false;
+// shadow
+let _shadowComp = null;
+let _shadowColor = cc.Color.BLACK;
+
+let _canvasPadding = cc.rect();
+let _contentSizeExtend = cc.Size.ZERO;
+let _nodeContentSize = cc.Size.ZERO;
+
+let _enableBold = false;
+let _enableItalic = false;
+let _enableUnderline = false;
 let _underlineThickness = 0;
 
-let _drawTextPos = cc.v2();
-let _drawUnderlinePos = cc.v2();
+let _drawUnderlinePos = cc.Vec2.ZERO;
+let _drawUnderlineWidth = 0;
 
 let _sharedLabelData;
 
@@ -98,7 +103,7 @@ module.exports = {
         this._calDynamicAtlas(comp);
 
         comp._actualFontSize = _fontSize;
-        comp.node.setContentSize(_canvasSize);
+        comp.node.setContentSize(_nodeContentSize);
 
         this._updateVerts(comp);
 
@@ -138,6 +143,34 @@ module.exports = {
         }
     },
 
+    _updatePaddingRect () {
+        let top = 0, bottom = 0, left = 0, right = 0;
+        let outlineWidth = 0;
+        _contentSizeExtend.width = _contentSizeExtend.height = 0;
+        if (_outlineComp) {
+            outlineWidth = _outlineComp.width;
+            top = bottom = left = right = outlineWidth;
+            _contentSizeExtend.width = _contentSizeExtend.height = outlineWidth * 2;
+        }
+        if (_shadowComp) {
+            let shadowWidth = _shadowComp.blur + outlineWidth;
+            left = Math.max(left, -_shadowComp._offset.x + shadowWidth);
+            right = Math.max(right, _shadowComp._offset.x + shadowWidth);
+            top = Math.max(top, _shadowComp._offset.y + shadowWidth);
+            bottom = Math.max(bottom, -_shadowComp._offset.y + shadowWidth);
+        }
+        if (_enableItalic) {
+            //0.0174532925 = 3.141592653 / 180
+            let offset = _drawFontSize * Math.tan(12 * 0.0174532925);
+            right += offset;
+            _contentSizeExtend.width += offset;
+        }
+        _canvasPadding.x = left;
+        _canvasPadding.y = top;
+        _canvasPadding.width = left + right;
+        _canvasPadding.height = top + bottom;
+    },
+
     _updateProperties (comp) {
         let assemblerData = comp._assemblerData;
         _context = assemblerData.context;
@@ -151,13 +184,14 @@ module.exports = {
         _overflow = comp.overflow;
         _canvasSize.width = comp.node.width;
         _canvasSize.height = comp.node.height;
+        _nodeContentSize = comp.node.getContentSize();
         _lineHeight = comp._lineHeight;
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
         _color = comp.node.color;
-        _isBold = comp._isBold;
-        _isItalic = comp._isItalic;
-        _isUnderline = comp._isUnderline;
+        _enableBold = comp._isBold;
+        _enableItalic = comp._isItalic;
+        _enableUnderline = comp._isUnderline;
 
         if (_overflow === Overflow.NONE) {
             _isWrapText = false;
@@ -170,53 +204,79 @@ module.exports = {
         }
 
         // outline
-        let outline = OUTLINE_SUPPORTED && comp.getComponent(LabelOutline);
-        if (outline && outline.enabled) {
-            _isOutlined = true;
-            _margin = _outlineWidth = outline.width;
-            _outlineColor = cc.color(outline.color);
+        _outlineComp = LabelOutline && comp.getComponent(LabelOutline);
+        _outlineComp = (_outlineComp && _outlineComp.enabled && _outlineComp.width > 0) ? _outlineComp : null;
+        if (_outlineComp) {
+            _outlineColor.set(_outlineComp.color);
             // TODO: temporary solution, cascade opacity for outline color
             _outlineColor.a = _outlineColor.a * comp.node.color.a / 255.0;
         }
-        else {
-            _isOutlined = false;
-            _margin = 0;
+
+        // shadow
+        _shadowComp = LabelShadow && comp.getComponent(LabelShadow);
+        _shadowComp = (_shadowComp && _shadowComp.enabled) ? _shadowComp : null;
+        if (_shadowComp) {
+            _shadowColor.set(_shadowComp.color);
+            // TODO: temporary solution, cascade opacity for outline color
+            _shadowColor.a = _shadowColor.a * comp.node.color.a / 255.0;
         }
+
+        this._updatePaddingRect();
     },
 
     _calculateFillTextStartPosition () {
         let labelX = 0;
         if (_hAlign === macro.TextAlignment.RIGHT) {
-            labelX = _canvasSize.width - _margin;
+            labelX = _canvasSize.width - _canvasPadding.width;
         }
         else if (_hAlign === macro.TextAlignment.CENTER) {
-            labelX = _canvasSize.width / 2;
-        }
-        else {
-            labelX = 0 + _margin;
+            labelX = (_canvasSize.width - _canvasPadding.width) / 2;
         }
 
         let firstLinelabelY = 0;
         let lineHeight = this._getLineHeight();
         let drawStartY = lineHeight * (_splitedStrings.length - 1);
         if (_vAlign === macro.VerticalTextAlignment.TOP) {
-            firstLinelabelY = lineHeight + _margin;
+            firstLinelabelY = lineHeight;
         }
         else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
-            firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _fontSize * textUtils.MIDDLE_RATIO;
+            firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _fontSize * textUtils.MIDDLE_RATIO - _canvasPadding.height / 2;
         }
         else {
-            firstLinelabelY = _canvasSize.height - drawStartY - _fontSize * textUtils.BASELINE_RATIO - _margin;
+            firstLinelabelY = _canvasSize.height - drawStartY - _fontSize * textUtils.BASELINE_RATIO - _canvasPadding.height;
         }
 
-        return cc.v2(labelX, firstLinelabelY);
+        return cc.v2(labelX + _canvasPadding.x, firstLinelabelY + _canvasPadding.y);
     },
 
-    _updateTexture (comp) {
+    _setupOutline () {
+        _context.strokeStyle = `rgba(${_outlineColor.r}, ${_outlineColor.g}, ${_outlineColor.b}, ${_outlineColor.a / 255})`;
+        _context.lineWidth = _outlineComp.width * 2;
+    },
+
+    _setupShadow: function () {
+        _context.shadowColor = `rgba(${_shadowColor.r}, ${_shadowColor.g}, ${_shadowColor.b}, ${_shadowColor.a / 255})`;
+        _context.shadowBlur = _shadowComp.blur;
+        _context.shadowOffsetX = _shadowComp.offset.x;
+        _context.shadowOffsetY = -_shadowComp.offset.y;
+    },
+
+    _drawUnderline: function (underlinewidth) {
+        if (_outlineComp) {
+            this._setupOutline();
+            _context.strokeRect(_drawUnderlinePos.x, _drawUnderlinePos.y, underlinewidth, _underlineThickness);
+        }
+        _context.lineWidth = _underlineThickness;
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
+        _context.fillRect(_drawUnderlinePos.x, _drawUnderlinePos.y, underlinewidth, _underlineThickness);
+    },
+
+    _updateTexture () {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         //Add a white background to avoid black edges.
         //TODO: it is best to add alphaTest to filter out the background color.
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
+        let _fillColor = _outlineComp ? _outlineColor : _color;
+        _context.fillStyle = `rgba(${_fillColor.r}, ${_fillColor.g}, ${_fillColor.b}, ${_invisibleAlpha})`;
         _context.fillRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
@@ -226,32 +286,66 @@ module.exports = {
         _context.lineJoin = 'round';
         _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
 
-        let underlineStartPosition;
+        let isMultiple = _splitedStrings.length > 1;
+
         //do real rendering
+        let measureText = this._measureText(_context);
+
+        let drawTextPosX = 0, drawTextPosY = 0;
+
+        // only one set shadow and outline
+        if (_shadowComp) {
+            this._setupShadow();
+        }
+        if (_outlineComp) {
+            this._setupOutline();
+        }
+
+        // draw shadow and (outline or text)
         for (let i = 0; i < _splitedStrings.length; ++i) {
-            _drawTextPos.x = startPosition.x;
-            _drawTextPos.y = startPosition.y + i * lineHeight;
-
-            if (_isUnderline) {
-                _drawUnderlinePos.x = 0 + _margin;
-                _drawUnderlinePos.y = _drawTextPos.y + _underlineThickness;
-                _context.save();
-                _context.beginPath();
-                _context.lineWidth = _fontSize / 8;
-                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${1})`;
-                _context.moveTo(_drawUnderlinePos.x, _drawUnderlinePos.y);
-                _context.lineTo(_drawUnderlinePos.x + _canvas.width, _drawUnderlinePos.y);
-                _context.stroke();
-                _context.restore();
+            drawTextPosX = startPosition.x;
+            drawTextPosY = startPosition.y + i * lineHeight;
+            if (_shadowComp) {
+                // multiple lines need to be drawn outline and fill text
+                if (isMultiple) {
+                    if (_outlineComp) {
+                        _context.strokeText(_splitedStrings[i], drawTextPosX, drawTextPosY);
+                    }
+                    _context.fillText(_splitedStrings[i], drawTextPosX, drawTextPosY);
+                }
             }
 
-            if (_isOutlined) {
-                let strokeColor = _outlineColor || WHITE;
-                _context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
-                _context.lineWidth = _outlineWidth * 2;
-                _context.strokeText(_splitedStrings[i], _drawTextPos.x, _drawTextPos.y);
+            // draw underline
+            if (_enableUnderline) {
+                _drawUnderlineWidth = measureText(_splitedStrings[i]);
+                if (_hAlign === macro.TextAlignment.RIGHT) {
+                    _drawUnderlinePos.x = startPosition.x - _drawUnderlineWidth;
+                } else if (_hAlign === macro.TextAlignment.CENTER) {
+                    _drawUnderlinePos.x = startPosition.x - (_drawUnderlineWidth / 2);
+                } else {
+                    _drawUnderlinePos.x = startPosition.x;
+                }
+                _drawUnderlinePos.y = drawTextPosY;
+                this._drawUnderline(_drawUnderlineWidth);
             }
-            _context.fillText(_splitedStrings[i], _drawTextPos.x, _drawTextPos.y);
+        }
+
+        if (_shadowComp && isMultiple) {
+            _context.shadowColor = 'transparent';
+        }
+
+        // draw text and outline
+        for (let i = 0; i < _splitedStrings.length; ++i) {
+            drawTextPosX = startPosition.x;
+            drawTextPosY = startPosition.y + i * lineHeight;
+            if (_outlineComp) {
+                _context.strokeText(_splitedStrings[i], drawTextPosX, drawTextPosY);
+            }
+            _context.fillText(_splitedStrings[i], drawTextPosX, drawTextPosY);
+        }
+
+        if (_shadowComp) {
+            _context.shadowColor = 'transparent';
         }
 
         _texture.handleLoadedTexture();
@@ -272,7 +366,10 @@ module.exports = {
         let paragraphedStrings = _string.split('\n');
 
         if (_overflow === Overflow.RESIZE_HEIGHT) {
-            _canvasSize.height = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight() + 2 * _margin;
+            let rawHeight = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
+            _canvasSize.height = rawHeight + _canvasPadding.height;
+            // set node height
+            _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
         }
         else if (_overflow === Overflow.NONE) {
             _splitedStrings = paragraphedStrings;
@@ -283,18 +380,17 @@ module.exports = {
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
             canvasSizeY = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
-
-            _canvasSize.width = parseFloat(canvasSizeX.toFixed(2)) + 2 * _margin;
-            _canvasSize.height = parseFloat(canvasSizeY.toFixed(2)) + 2 * _margin;
-            if (_isItalic) {
-                //0.0174532925 = 3.141592653 / 180
-                _canvasSize.width += _drawFontSize * Math.tan(12 * 0.0174532925);
-            }
-
-            _canvasSize.width = Math.min(_canvasSize.width, MAX_SIZE);
-            _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
+            let rawWidth = parseFloat(canvasSizeX.toFixed(2));
+            let rawHeight = parseFloat(canvasSizeY.toFixed(2));
+            _canvasSize.width = rawWidth + _canvasPadding.width;
+            _canvasSize.height = rawHeight + _canvasPadding.height;
+            _nodeContentSize.width = rawWidth + _contentSizeExtend.width;
+            _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
         }
-        
+
+        _canvasSize.width = Math.min(_canvasSize.width, MAX_SIZE);
+        _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
+
         if (_canvas.width !== _canvasSize.width || CC_QQPLAY) {
             _canvas.width = _canvasSize.width;
         }
@@ -307,7 +403,6 @@ module.exports = {
     _calculateTextBaseline () {
         let node = this._node;
         let hAlign;
-        let vAlign;
 
         if (_hAlign === macro.TextAlignment.RIGHT) {
             hAlign = 'right';
@@ -327,7 +422,7 @@ module.exports = {
 
         if (_isWrapText) {
             _splitedStrings = [];
-            let canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
+            let canvasWidthNoMargin = _nodeContentSize.width;
             for (let i = 0; i < paragraphedStrings.length; ++i) {
                 let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
                 let textFragment = textUtils.fragmentText(paragraphedStrings[i],
@@ -346,10 +441,12 @@ module.exports = {
     _getFontDesc () {
         let fontDesc = _fontSize.toString() + 'px ';
         fontDesc = fontDesc + _fontFamily;
-        if (_isBold) {
+        if (_enableBold) {
             fontDesc = "bold " + fontDesc;
         }
-
+        if (_enableItalic) {
+            fontDesc = "italic " + fontDesc;
+        }
         return fontDesc;
     },
 
@@ -394,8 +491,8 @@ module.exports = {
             let maxLength = 0;
 
             if (_isWrapText) {
-                let canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
-                let canvasHeightNoMargin = _canvasSize.height - 2 * _margin;
+                let canvasWidthNoMargin = _nodeContentSize.width;
+                let canvasHeightNoMargin = _nodeContentSize.height;
                 if (canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
                     _fontDesc = this._getFontDesc();
                     _context.font = _fontDesc;
@@ -432,8 +529,7 @@ module.exports = {
                                                             canvasWidthNoMargin,
                                                             this._measureText(_context));
                         while (j < textFragment.length) {
-                            let measureWidth = textUtils.safeMeasureText(_context, textFragment[j]);
-                            maxLength = measureWidth;
+                            maxLength = textUtils.safeMeasureText(_context, textFragment[j]);
                             totalHeight += this._getLineHeight();
                             ++j;
                         }
@@ -457,7 +553,7 @@ module.exports = {
                         maxLength = paragraphLength[i];
                     }
                 }
-                let scaleX = (_canvasSize.width - 2 * _margin) / maxLength;
+                let scaleX = (_canvasSize.width - _canvasPadding.width) / maxLength;
                 let scaleY = _canvasSize.height / totalHeight;
 
                 _fontSize = (_drawFontSize * Math.min(1, scaleX, scaleY)) | 0;

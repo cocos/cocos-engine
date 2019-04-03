@@ -101,6 +101,15 @@ module.exports = {
             'actualFontSize': 'The actual rendering font size in shrink mode',
             'spacingX': 'The spacing of the x axis between characters',
         },
+        "outline": {
+            "color": "The outline color",
+            "width": "The outline width",
+        },
+        "shadow": {
+            "color": "The shadow color",
+            "offset": "Offset between font and shadow",
+            "blur": "A non-negative float specifying the level of shadow blur"
+        },
         "progress": {
             "bar_sprite": "A progress bar is displayed with the Sprite node that can dynamically change the size",
             "mode": "Horizontal or Vertical progress bar?",
