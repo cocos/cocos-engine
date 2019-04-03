@@ -207,7 +207,7 @@ module.exports = {
         _outlineComp = LabelOutline && comp.getComponent(LabelOutline);
         _outlineComp = (_outlineComp && _outlineComp.enabled && _outlineComp.width > 0) ? _outlineComp : null;
         if (_outlineComp) {
-            _outlineColor = _outlineComp.color.clone();
+            _outlineColor.set(_outlineComp.color);
             // TODO: temporary solution, cascade opacity for outline color
             _outlineColor.a = _outlineColor.a * comp.node.color.a / 255.0;
         }
@@ -216,7 +216,7 @@ module.exports = {
         _shadowComp = LabelShadow && comp.getComponent(LabelShadow);
         _shadowComp = (_shadowComp && _shadowComp.enabled) ? _shadowComp : null;
         if (_shadowComp) {
-            _shadowColor = _shadowComp.color.clone();
+            _shadowColor.set(_shadowComp.color);
             // TODO: temporary solution, cascade opacity for outline color
             _shadowColor.a = _shadowColor.a * comp.node.color.a / 255.0;
         }
@@ -344,6 +344,10 @@ module.exports = {
             _context.fillText(_splitedStrings[i], drawTextPosX, drawTextPosY);
         }
 
+        if (_shadowComp) {
+            _context.shadowColor = 'transparent';
+        }
+
         _texture.handleLoadedTexture();
     },
 
@@ -399,7 +403,6 @@ module.exports = {
     _calculateTextBaseline () {
         let node = this._node;
         let hAlign;
-        let vAlign;
 
         if (_hAlign === macro.TextAlignment.RIGHT) {
             hAlign = 'right';
