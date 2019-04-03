@@ -24,15 +24,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const WebViewImpl = require('./webview-impl');
+import { EventHandler } from '../../../../components/component-event-handler';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../../core/data/class-decorator';
+import { UIComponent } from '../ui-component';
+import { WebViewEventType, WebViewImpl } from './webview-impl';
 
 /**
  * !#en WebView event type
  * !#zh 网页视图事件类型
  * @enum WebView.EventType
  */
-const EventType = WebViewImpl.EventType;
-
+const EventType = WebViewEventType;
 
 /**
  * !#en Web page Load completed.
@@ -61,115 +63,105 @@ function emptyCallback () { }
  * @class WebView
  * @extends Component
  */
-let WebView = cc.Class({
-    name: 'cc.WebView',
-    extends: cc.Component,
 
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.ui/WebView',
-        executeInEditMode: true
-    },
+@ccclass('cc.WebviewComponent')
+@menu('UI/WebView')
+@executionOrder(100)
+// @executeInEditMode
+export class WebviewComponent extends UIComponent {
+    /**
+     * !#en A given URL to be loaded by the WebView, it should have a http or https prefix.
+     * !#zh 指定 WebView 加载的网址，它应该是一个 http 或者 https 开头的字符串
+     * @property {String} url
+     */
+    @property
+    get url () {
+        return this._url;
+    }
 
-    properties: {
-        _useOriginalSize: true,
+    set url (url: string) {
+        this._url = url;
+        const impl = this._impl;
+        if (impl) {
+            impl.loadURL(url);
+        }
+    }
+    public static EventType = EventType;
 
-        _url: '',
-        /**
-         * !#en A given URL to be loaded by the WebView, it should have a http or https prefix.
-         * !#zh 指定 WebView 加载的网址，它应该是一个 http 或者 https 开头的字符串
-         * @property {String} url
-         */
-        url: {
-            type: String,
-            tooltip: CC_DEV && 'i18n:COMPONENT.webview.url',
-            get: function () {
-                return this._url;
-            },
-            set: function (url) {
-                this._url = url;
-                let impl = this._impl;
-                if (impl) {
-                    impl.loadURL(url);
-                }
-            }
-        },
+    /**
+     * !#en The webview's event callback , it will be triggered when certain webview event occurs.
+     * !#zh WebView 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数
+     * @property {Component.EventHandler[]} webviewLoadedEvents
+     */
+    @property({
+        type: EventHandler,
+    })
+    public webviewEvents: EventHandler[] = [];
 
-        /**
-         * !#en The webview's event callback , it will be triggered when certain webview event occurs.
-         * !#zh WebView 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数
-         * @property {Component.EventHandler[]} webviewLoadedEvents
-         */
-        webviewEvents: {
-            default: [],
-            type: cc.Component.EventHandler,
-        },
-    },
+    @property
+    private _url = '';
+    private _impl: WebViewImpl | null = null;
 
-    statics: {
-        EventType: EventType,
-    },
+    constructor (){
+        super();
+        //  TODO: finished in CC_EDITOR
+        if (!CC_EDITOR){
+            this._impl = new WebViewImpl();
+        }
+    }
 
-
-    ctor () {
-        this._impl = new WebViewImpl();
-    },
-
-    onRestore () {
+    public onRestore () {
         if (!this._impl) {
             this._impl = new WebViewImpl();
         }
-    },
+    }
 
-    onEnable () {
-        let impl = this._impl;
+    public onEnable () {
+        if (!this._impl){
+            return;
+        }
+
+        const impl = this._impl;
         impl.createDomElementIfNeeded(this.node.width, this.node.height);
         impl.loadURL(this._url);
         impl.setVisible(true);
-        if (!CC_EDITOR) {
-            impl.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
-            impl.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
-            impl.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
-        }
-    },
+        // if (!CC_EDITOR) {
+        impl.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
+        impl.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
+        impl.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
+        // }
+    }
 
-    onDisable () {
-        let impl = this._impl;
+    public onDisable () {
+        if (!this._impl) {
+            return;
+        }
+
+        const impl = this._impl;
         impl.setVisible(false);
-        if (!CC_EDITOR) {
-            impl.setEventListener(EventType.LOADED, emptyCallback);
-            impl.setEventListener(EventType.LOADING, emptyCallback);
-            impl.setEventListener(EventType.ERROR, emptyCallback);
-        }
-    },
+        // if (!CC_EDITOR) {
+        impl.setEventListener(EventType.LOADED, emptyCallback);
+        impl.setEventListener(EventType.LOADING, emptyCallback);
+        impl.setEventListener(EventType.ERROR, emptyCallback);
+        // }
+    }
 
-    onDestroy () {
+    public onDestroy () {
         if (this._impl) {
             this._impl.destroy();
             this._impl = null;
         }
-    },
+    }
 
-    update (dt) {
+    public update (dt) {
+        if (CC_EDITOR){
+            return;
+        }
+
         if (this._impl) {
             this._impl.updateMatrix(this.node);
         }
-    },
-
-    _onWebViewLoaded () {
-        cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
-        this.node.emit('loaded', this);
-    },
-
-    _onWebViewLoading () {
-        cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
-        this.node.emit('loading', this);
-        return true;
-    },
-
-    _onWebViewLoadError () {
-        cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
-        this.node.emit('error', this);
-    },
+    }
 
     /**
      * !#en
@@ -183,11 +175,11 @@ let WebView = cc.Class({
      * @method setJavascriptInterfaceScheme
      * @param {String} scheme
      */
-    setJavascriptInterfaceScheme (scheme) {
+    public setJavascriptInterfaceScheme (scheme: string) {
         if (this._impl) {
             this._impl.setJavascriptInterfaceScheme(scheme);
         }
-    },
+    }
 
     /**
      * !#en
@@ -202,11 +194,11 @@ let WebView = cc.Class({
      * @method setOnJSCallback
      * @param {Function} callback
      */
-    setOnJSCallback (callback) {
+    public setOnJSCallback (callback: Function) {
         if (this._impl) {
             this._impl.setOnJSCallback(callback);
         }
-    },
+    }
 
     /**
      * !#en
@@ -219,15 +211,30 @@ let WebView = cc.Class({
      * @method evaluateJS
      * @param {String} str
      */
-    evaluateJS (str) {
+    public evaluateJS (str: string) {
         if (this._impl) {
             this._impl.evaluateJS(str);
         }
-    },
+    }
 
-});
+    private _onWebViewLoaded () {
+        EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
+        this.node.emit('loaded', this);
+    }
 
-cc.WebView = module.exports = WebView;
+    private _onWebViewLoading () {
+        EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
+        this.node.emit('loading', this);
+        return true;
+    }
+
+    private _onWebViewLoadError () {
+        EventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
+        this.node.emit('error', this);
+    }
+}
+
+cc.WebviewComponent = WebviewComponent;
 /**
  * !#en
  * Note: This event is emitted from the node to which the component belongs.
