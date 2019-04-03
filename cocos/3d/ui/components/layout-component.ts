@@ -932,14 +932,14 @@ export class LayoutComponent extends Component {
 
             vec3.set(_tempPos, allChildrenBoundingBox.x, allChildrenBoundingBox.y, 0);
             const leftBottomInParentSpace = new Vec3();
-            parentTransform.convertToNodeSpaceAR(leftBottomInParentSpace, _tempPos);
+            parentTransform.convertToNodeSpaceAR(_tempPos, leftBottomInParentSpace);
             vec3.set(leftBottomInParentSpace,
                 leftBottomInParentSpace.x - this._paddingLeft, leftBottomInParentSpace.y - this._paddingBottom,
                 leftBottomInParentSpace.z);
 
             vec3.set(_tempPos, allChildrenBoundingBox.x + allChildrenBoundingBox.width, allChildrenBoundingBox.y + allChildrenBoundingBox.height, 0);
             const rightTopInParentSpace = new Vec3();
-            parentTransform.convertToNodeSpaceAR(rightTopInParentSpace, _tempPos);
+            parentTransform.convertToNodeSpaceAR(_tempPos, rightTopInParentSpace);
             vec3.set(rightTopInParentSpace, rightTopInParentSpace.x + this._paddingRight, rightTopInParentSpace.y + this._paddingTop, rightTopInParentSpace.z);
 
             const newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
