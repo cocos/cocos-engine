@@ -434,7 +434,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public resize (width: number, height: number) {
         if (this._width !== width || this._height !== height) {
-            console.log('RESIZING DEVICE: ' + width + 'x' + height);
+            console.info('RESIZING DEVICE: ' + width + 'x' + height);
             this._canvas!.width = width;
             this._canvas!.height = height;
             this._width = width;

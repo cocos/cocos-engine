@@ -49,13 +49,23 @@ export interface IGFXStencilCompareMask {
 // tslint:disable: max-line-length
 export abstract class GFXCommandBuffer extends GFXObject {
 
-    public get type (): number {
+    public get type (): GFXCommandBufferType {
         return this._type;
+    }
+
+    public get numDrawCalls (): number {
+        return this._numDrawCalls;
+    }
+
+    public get numTris (): number {
+        return this._numTris;
     }
 
     protected _device: GFXDevice;
     protected _allocator: GFXCommandAllocator | null = null;
     protected _type: GFXCommandBufferType = GFXCommandBufferType.PRIMARY;
+    protected _numDrawCalls: number = 0;
+    protected _numTris: number = 0;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.COMMAND_BUFFER);

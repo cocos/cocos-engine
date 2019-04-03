@@ -178,8 +178,8 @@ export abstract class RenderPipeline {
     protected _depthStencilTex: GFXTexture | null = null;
     protected _depthStencilTexView: GFXTextureView | null = null;
     protected _shadingFBOs: GFXFramebuffer[] = [];
-    protected _shadingTexWidth: number = 0.0;
-    protected _shadingTexHeight: number = 0.0;
+    protected _shadingWidth: number = 0.0;
+    protected _shadingHeight: number = 0.0;
     protected _shadingScale: number = 1.0;
     protected _curIdx: number = 0;
     protected _prevIdx: number = 1;
@@ -214,6 +214,13 @@ export abstract class RenderPipeline {
     public rebuild () { this.updateMacros(); }
 
     public resize (width: number, height: number) {
+
+        if (width * this._shadingScale > this._shadingWidth ||
+            height * this._shadingScale > this._shadingHeight) {
+            this._shadingScale = Math.min(this._shadingWidth / width, this._shadingHeight / height);
+            console.info('SHADING_SCALE: ' + this._shadingScale);
+        }
+
         for (const flow of this._flows) {
             flow.resize(width, height);
         }
@@ -351,13 +358,13 @@ export abstract class RenderPipeline {
         // colorFmt = GFXFormat.RGBA16F;
 
         this._shadingScale = this._device.devicePixelRatio;
-        this._shadingTexWidth = this._device.nativeWidth;
-        this._shadingTexHeight = this._device.nativeHeight;
+        this._shadingWidth = this._device.nativeWidth;
+        this._shadingHeight = this._device.nativeHeight;
 
         console.info('USE_MSAA: ' + this._useMSAA);
         console.info('USE_SMAA: ' + this._useSMAA);
         console.info('CC_USE_HDR: ' + this._isHDR);
-        console.info('SHADING_SIZE: ' + this._shadingTexWidth + ' x ' + this._shadingTexHeight);
+        console.info('SHADING_SIZE: ' + this._shadingWidth + ' x ' + this._shadingHeight);
         console.info('SCREEN_SCALE: ' + this._shadingScale.toFixed(2));
         console.info('SHADING_COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
         console.info('SHADING_DEPTH_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
@@ -388,8 +395,8 @@ export abstract class RenderPipeline {
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                 format: this._colorFmt,
-                width: this._shadingTexWidth,
-                height: this._shadingTexHeight,
+                width: this._shadingWidth,
+                height: this._shadingHeight,
             });
             this._msaaShadingTexView = this._device.createTextureView({
                 texture : this._msaaShadingTex,
@@ -400,8 +407,8 @@ export abstract class RenderPipeline {
                 type : GFXTextureType.TEX2D,
                 usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                 format : this._depthStencilFmt,
-                width : this._shadingTexWidth,
-                height : this._shadingTexHeight,
+                width : this._shadingWidth,
+                height : this._shadingHeight,
             });
             this._msaaDepthStencilTexView = this._device.createTextureView({
                 texture : this._msaaDepthStencilTex,
@@ -419,8 +426,8 @@ export abstract class RenderPipeline {
             type : GFXTextureType.TEX2D,
             usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
             format : this._depthStencilFmt,
-            width : this._shadingTexWidth,
-            height : this._shadingTexHeight,
+            width : this._shadingWidth,
+            height : this._shadingHeight,
         });
 
         this._depthStencilTexView = this._device.createTextureView({
@@ -434,8 +441,8 @@ export abstract class RenderPipeline {
                 type: GFXTextureType.TEX2D,
                 usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                 format: this._colorFmt,
-                width: this._shadingTexWidth,
-                height: this._shadingTexHeight,
+                width: this._shadingWidth,
+                height: this._shadingHeight,
             });
 
             this._shadingTexViews[i] = this._device.createTextureView({
@@ -469,8 +476,8 @@ export abstract class RenderPipeline {
             type: GFXTextureType.TEX2D,
             usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
             format: smaaColorFmt,
-            width: this._shadingTexWidth,
-            height: this._shadingTexHeight,
+            width: this._shadingWidth,
+            height: this._shadingHeight,
         });
 
         this._smaaEdgeTexView = this._device.createTextureView({
@@ -488,8 +495,8 @@ export abstract class RenderPipeline {
             type: GFXTextureType.TEX2D,
             usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
             format: smaaColorFmt,
-            width: this._shadingTexWidth,
-            height: this._shadingTexHeight,
+            width: this._shadingWidth,
+            height: this._shadingHeight,
         });
 
         this._smaaBlendTexView = this._device.createTextureView({
@@ -773,14 +780,14 @@ export abstract class RenderPipeline {
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
 
-        _vec4Array[0] = camera.width / this._shadingTexWidth * this._shadingScale;
-        _vec4Array[1] = camera.height / this._shadingTexHeight * this._shadingScale;
+        _vec4Array[0] = camera.width / this._shadingWidth * this._shadingScale;
+        _vec4Array[1] = camera.height / this._shadingHeight * this._shadingScale;
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
 
-        _vec4Array[0] = this._shadingTexWidth;
-        _vec4Array[1] = this._shadingTexHeight;
+        _vec4Array[0] = this._shadingWidth;
+        _vec4Array[1] = this._shadingHeight;
         _vec4Array[2] = 1.0 / _vec4Array[0];
         _vec4Array[3] = 1.0 / _vec4Array[1];
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.NATIVE_SIZE_OFFSET);
