@@ -383,6 +383,15 @@ export default class Pipeline {
         var removed = this._cache[id];
         if (removed && removed.complete) {
             delete this._cache[id];
+            if (CC_EDITOR) {
+                var references = removed.references;
+                if (references) {
+                    for (var uuid in references) {
+                        cc.AssetLibrary.dependListener.remove(uuid, references[uuid]);
+                    }
+                    removed.references = null;
+                }
+            }
         }
         return removed;
     }

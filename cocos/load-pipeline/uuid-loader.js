@@ -297,12 +297,27 @@ export function loadUuid (item, callback) {
                 err = error;
             }
         }
+        if (CC_EDITOR && !isScene) {
+            item.references = {};
+            for (var i = 0, l = depends.length; i < l; i++) {
+                var dep = depends[i];
+                var dependSrc = dep.uuid;
+                if (dependSrc) {
+                    var dependObj = dep._owner;
+                    var dependProp = dep._ownerProp;
+                    var onDirty = cc.AssetLibrary.propSetter.bind(null, asset, dependObj, dependProp);
+                    cc.AssetLibrary.dependListener.add(dependSrc, onDirty);
+                    item.references[dependSrc] = onDirty;
+                }
+            }
+        }
         callback(err, asset);
     };
 
     if (depends.length === 0) {
         return wrappedCallback(null, asset);
     }
+
     loadDepends(this.pipeline, item, asset, depends, wrappedCallback);
 }
 
