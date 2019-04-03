@@ -147,15 +147,17 @@ localBindingsDesc.set(UBOForwardLight.BLOCK.name, {
     blockInfo: UBOForwardLight.BLOCK,
 });
 
+export const JointUniformCapacity = 65;
+
 export class UBOSkinning {
     public static MAT_JOINT_OFFSET: number = 0;
-    public static JOINTS_TEXTURE_SIZE_OFFSET: number = UBOSkinning.MAT_JOINT_OFFSET + 128 * 12;
+    public static JOINTS_TEXTURE_SIZE_OFFSET: number = UBOSkinning.MAT_JOINT_OFFSET + JointUniformCapacity * 12;
     public static COUNT: number = UBOSkinning.JOINTS_TEXTURE_SIZE_OFFSET + 4;
     public static SIZE: number = UBOSkinning.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_SKINNING, name: 'CCSkinning', members: [
-            { name: 'cc_matJoint', type: GFXType.FLOAT4, count: 128 * 3 }, // mat 4 * 3
+            { name: 'cc_matJoint', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 }, // mat 4 * 3
             { name: 'cc_jointsTextureSize', type: GFXType.FLOAT4, count: 1 },
         ],
     };
