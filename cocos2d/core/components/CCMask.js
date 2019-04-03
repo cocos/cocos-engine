@@ -106,6 +106,8 @@ let Mask = cc.Class({
         for (let i = 0; i < passes.length; i++) {
             passes[i].setStencilEnabled(gfx.STENCIL_DISABLE);
         }
+
+        this._clearMaterial = Material.getInstantiatedBuiltinMaterial('clear-stencil', this);
     },
 
     properties: {
@@ -404,21 +406,6 @@ let Mask = cc.Class({
             this._graphics.node = this.node;
             this._graphics.lineWidth = 0;
             this._graphics.strokeColor = cc.color(0, 0, 0, 0);
-        }
-
-        if (!this._clearGraphics) {
-            this._clearGraphics = new Graphics();
-            this._clearGraphics.node = new Node();
-            this._clearGraphics._activateMaterial();
-            this._clearGraphics.lineWidth = 0;
-            if (CC_EDITOR) {
-                let size = cc.engine.getDesignResolutionSize();
-                this._clearGraphics.rect(0, 0, size.width, size.height);
-            }
-            else {
-                this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
-            }
-            this._clearGraphics.fill();
         }
     },
 
