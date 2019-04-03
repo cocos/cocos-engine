@@ -697,7 +697,7 @@ let Button = cc.Class({
         if (!this.interactable || !this.enabledInHierarchy) return;
 
         if (this._pressed) {
-            cc.Component.EventHandler.emitEvents(this.clickEvents, event, this);
+            cc.Component.EventHandler.emitEvents(this.clickEvents, event);
             this.node.emit('click', this);
         }
         this._pressed = false;
