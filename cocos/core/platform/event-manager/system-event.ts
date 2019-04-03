@@ -138,21 +138,22 @@ export class SystemEvent extends EventTarget {
             if (!touchListener) {
                 touchListener = EventListener.create({
                     event: EventListener.TOUCH_ONE_BY_ONE,
-                    onTouchBegan (event) {
+                    onTouchBegan (touch, event) {
                         event.type = EventType.TOUCH_START;
-                        return cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, touch, event);
+                        return true;
                     },
-                    onTouchMoved (event) {
+                    onTouchMoved (touch, event) {
                         event.type = EventType.TOUCH_MOVE;
-                        cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, touch, event);
                     },
-                    onTouchEnded (event) {
+                    onTouchEnded (touch, event) {
                         event.type = EventType.TOUCH_END;
-                        cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, touch, event);
                     },
-                    onTouchCancelled (event) {
+                    onTouchCancelled (touch, event) {
                         event.type = EventType.TOUCH_CANCEL;
-                        cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, touch, event);
                     },
                 });
             }
