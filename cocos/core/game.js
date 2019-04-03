@@ -699,11 +699,13 @@ class Game extends EventTarget {
                 this._gfxDevice = new cc.WebGLGFXDevice();
             }
 
+		    cc.view.enableRetina(true)
             cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
             cc.view._initFrameSize();
-            let nativeWidth = Math.floor(screen.width * window.devicePixelRatio);
-            let nativeHeight = Math.floor(screen.height * window.devicePixelRatio);
+            let nativeWidth = Math.floor(screen.width);
+            let nativeHeight = Math.floor(screen.height);
             
+            /*
             if (nativeHeight > nativeWidth) {
                 let temp = localCanvas.width;
                 localCanvas.width = localCanvas.height;
@@ -713,6 +715,7 @@ class Game extends EventTarget {
                 nativeWidth = nativeHeight;
                 nativeHeight = temp;
             }
+            */
 
             this._gfxDevice.initialize({
                 canvasElm: localCanvas,

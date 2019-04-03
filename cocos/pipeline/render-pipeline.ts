@@ -220,7 +220,7 @@ export abstract class RenderPipeline {
         if (w > this._shadingWidth ||
             h > this._shadingHeight) {
             // this._shadingScale = Math.min(this._shadingWidth / width, this._shadingHeight / height);
-            console.info('Resizing shading scale: ' + this._shadingScale);
+            // console.info('Resizing shading scale: ' + this._shadingScale);
 
             this.resizeFBOs(w, h);
         }
@@ -362,8 +362,8 @@ export abstract class RenderPipeline {
         // colorFmt = GFXFormat.RGBA16F;
 
         this._shadingScale = this._device.devicePixelRatio;
-        this._shadingWidth = this._device.nativeWidth;
-        this._shadingHeight = this._device.nativeHeight;
+        this._shadingWidth = this._device.nativeWidth * this._shadingScale;
+        this._shadingHeight = this._device.nativeHeight * this._shadingScale;
 
         console.info('USE_MSAA: ' + this._useMSAA);
         console.info('USE_SMAA: ' + this._useSMAA);
