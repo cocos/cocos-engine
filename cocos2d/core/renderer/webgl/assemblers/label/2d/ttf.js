@@ -25,6 +25,7 @@
 
 const js = require('../../../../../platform/js');
 const ttfUtls = require('../../../../utils/label/ttf');
+const LabelShadow = require('../../../../../components/CCLabelShadow');
 const fillMeshVertices = require('../../utils').fillMeshVertices;
 const WHITE = cc.color(255, 255, 255, 255);
 
@@ -48,21 +49,54 @@ module.exports = js.addon({
     _updateVerts (comp) {
         let renderData = comp._renderData;
         let uv = comp._frame.uv;
+
         let node = comp.node,
-            width = node.width,
-            height = node.height,
-            appx = node.anchorX * width,
-            appy = node.anchorY * height;
+            canvasWidth = comp._ttfTexture.width,
+            canvasHeight = comp._ttfTexture.height,
+            appx = node.anchorX * node.width,
+            appy = node.anchorY * node.height;
+
+        let shadow = LabelShadow && comp.getComponent(LabelShadow);
+        if (shadow && shadow._enabled) {
+            // adapt size changed caused by shadow
+            let offsetX = (canvasWidth - node.width) / 2;
+            let offsetY = (canvasHeight - node.height) / 2;
+
+            let shadowOffset = shadow.offset;
+            if (-shadowOffset.x > offsetX) {
+                // expand to left
+                appx += (canvasWidth - node.width);
+            }
+            else if (offsetX > shadowOffset.x) {
+                // expand to left and right
+                appx += (offsetX - shadowOffset.x);
+            }
+            else {
+                // expand to right, no need to change render position
+            }
+
+            if (-shadowOffset.y > offsetY) {
+                // expand to top
+                appy += (canvasHeight - node.height);
+            }
+            else if (offsetY > shadowOffset.y) {
+                // expand to top and bottom
+                appy += (offsetY - shadowOffset.y);
+            }
+            else {
+                // expand to bottom, no need to change render position
+            }
+        }
 
         let data = renderData._data;
         data[0].x = -appx;
         data[0].y = -appy;
-        data[1].x = width - appx;
+        data[1].x = canvasWidth - appx;
         data[1].y = -appy;
         data[2].x = -appx;
-        data[2].y = height - appy;
-        data[3].x = width - appx;
-        data[3].y = height - appy;
+        data[2].y = canvasHeight - appy;
+        data[3].x = canvasWidth - appx;
+        data[3].y = canvasHeight - appy;
 
         data[0].u = uv[0];
         data[0].v = uv[1];

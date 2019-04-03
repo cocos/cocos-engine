@@ -104,6 +104,15 @@ module.exports = {
             'actualFontSize': 'SHRINK 模式下面文本实际渲染的字体大小',
             'spacingX': '文字之间 x 轴的间距',
         },
+        "outline": {
+            "color": "描边的颜色",
+            "width": "描边的宽度",
+        },
+        "shadow": {
+            "color": "阴影的颜色",
+            "offset": "字体与阴影的偏移",
+            "blur": "阴影的模糊程度"
+        },
         'progress': {
             'bar_sprite': '进度条显示用的 Sprite 节点，可以动态改变尺寸',
             'mode': '进度条显示模式，目前支持水平和垂直两种',
