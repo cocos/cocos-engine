@@ -352,12 +352,12 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
                 switch (glPrimitive) {
-                    case WebGL2RenderingContext.TRIANGLES: {
+                    case WebGLRenderingContext.TRIANGLES: {
                         this._numTris += inputAssembler.indexCount / 3 * inputAssembler.instanceCount;
                         break;
                     }
-                    case WebGL2RenderingContext.TRIANGLE_STRIP:
-                    case WebGL2RenderingContext.TRIANGLE_FAN: {
+                    case WebGLRenderingContext.TRIANGLE_STRIP:
+                    case WebGLRenderingContext.TRIANGLE_FAN: {
                         this._numTris += (inputAssembler.indexCount - 2) * inputAssembler.instanceCount;
                         break;
                     }
