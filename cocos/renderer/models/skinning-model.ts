@@ -66,7 +66,7 @@ export class SkinningModel extends Model {
             } as IJointTextureStorage;
         } else {
             this._jointStorage = {
-                nativeData: new Float32Array(skeleton.joints.length * 16),
+                nativeData: new Float32Array(skeleton.joints.length * 12),
             } as IJointUniformsStorage;
         }
     }
@@ -75,7 +75,7 @@ export class SkinningModel extends Model {
         if (!this._jointStorage) {
             return;
         }
-        _setJointMatrix(this._jointStorage.nativeData, iMatrix, matrix);
+        _setJointMatrix(this._jointStorage.nativeData, iMatrix, matrix, isUniformStorage(this._jointStorage));
     }
 
     public commitJointMatrices () {
@@ -115,23 +115,25 @@ export class SkinningModel extends Model {
     }
 }
 
-function _setJointMatrix (out: Float32Array, iMatrix: number, matrix: mat4) {
-    out[16 * iMatrix + 0] = matrix.m00;
-    out[16 * iMatrix + 1] = matrix.m01;
-    out[16 * iMatrix + 2] = matrix.m02;
-    out[16 * iMatrix + 3] = matrix.m03;
-    out[16 * iMatrix + 4] = matrix.m04;
-    out[16 * iMatrix + 5] = matrix.m05;
-    out[16 * iMatrix + 6] = matrix.m06;
-    out[16 * iMatrix + 7] = matrix.m07;
-    out[16 * iMatrix + 8] = matrix.m08;
-    out[16 * iMatrix + 9] = matrix.m09;
-    out[16 * iMatrix + 10] = matrix.m10;
-    out[16 * iMatrix + 11] = matrix.m11;
-    out[16 * iMatrix + 12] = matrix.m12;
-    out[16 * iMatrix + 13] = matrix.m13;
-    out[16 * iMatrix + 14] = matrix.m14;
-    out[16 * iMatrix + 15] = matrix.m15;
+function _setJointMatrix (out: Float32Array, iMatrix: number, matrix: mat4, isUniform: boolean) {
+    const base = 12 * iMatrix;
+    if (isUniform) {
+        // Discard the last row
+        out[base + 0] = matrix.m00;
+        out[base + 1] = matrix.m01;
+        out[base + 2] = matrix.m02;
+        out[base + 3] = matrix.m04;
+        out[base + 4] = matrix.m05;
+        out[base + 5] = matrix.m06;
+        out[base + 6] = matrix.m08;
+        out[base + 7] = matrix.m09;
+        out[base + 8] = matrix.m10;
+        out[base + 9] = matrix.m12;
+        out[base + 10] = matrix.m13;
+        out[base + 11] = matrix.m14;
+    } else {
+        mat4.array(out, matrix, base);
+    }
 }
 
 const jointTextureCapacityTable = ((maxCapacity: number) => {

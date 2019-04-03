@@ -27,6 +27,7 @@ import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { ccenum } from '../../core/value-types/enum';
 import AnimationClip, { AnimationSampler, AnimationTarget } from '../assets/animation-clip';
+import { clamp01 } from '../../core/vmath';
 
 enum BlendMode {
     /**
@@ -144,6 +145,12 @@ class AnimationState {
     }
 }
 
+interface IBlendedAnimationState {
+    state: AnimationState | null;
+    blendTime: number;
+    blendDuration: number;
+}
+
 /**
  * !#en Animation Controller
  *
@@ -152,10 +159,7 @@ class AnimationState {
 class AnimationCtrl {
     private _animationTarget: AnimationTarget | null = null;
     private _animationSampler: AnimationSampler | null = null;
-    private _current: AnimationState | null = null;
-    private _next: AnimationState | null = null;
-    private _blendTime = 0.0;
-    private _blendDuration = 0.3;
+    private _animations: IBlendedAnimationState[] = [];
 
     /**
      * !#en Set up the animation target
@@ -177,17 +181,11 @@ class AnimationCtrl {
      * @param duration
      */
     public crossFade (to: AnimationState | null, duration: number) {
-        if (this._current === to) {
-            return;
-        }
-        if (this._current && duration > 0.0) {
-            this._next = to;
-            this._blendTime = 0.0;
-            this._blendDuration = duration;
-        } else {
-            this._current = to;
-            this._next = null;
-        }
+        this._animations.unshift({
+            state: to,
+            blendDuration: duration,
+            blendTime: 0.0,
+        });
     }
 
     public tick (deltaTime: number) {
@@ -195,34 +193,28 @@ class AnimationCtrl {
             return;
         }
 
-        this._animationSampler.reset();
-
-        // handle blend
-        if (this._current && this._next) {
-            const t0 = this._getTime(this._current);
-            const t1 = this._getTime(this._next);
-
-            const alpha = this._blendTime / this._blendDuration;
-
-            this._current.time += deltaTime;
-            this._next.time += deltaTime;
-            this._blendTime += deltaTime;
-
-            if (alpha > 1.0) {
-                this._current = this._next;
-                this._next = null;
-                this._animationSampler.sample(this._current.clip, t1, 1.0);
-            } else {
-                this._animationSampler.sample(this._current.clip, t0, alpha);
-                this._animationSampler.sample(this._next.clip, t1, 1.0 - alpha);
-            }
+        if (this._animations.length === 0) {
+            return;
         }
 
-        // handle playing
-        else if (this._current) {
-            const t0 = this._getTime(this._current);
-            this._animationSampler.sample(this._current.clip, t0, 1.0);
-            this._current.time += deltaTime;
+        this._animationSampler.reset();
+
+        let absoluteWeight = 1.0;
+        for (let i = 0; i < this._animations.length; ++i) {
+            if (absoluteWeight === 0) {
+                this._animations.splice(i);
+                break;
+            }
+            const ba = this._animations[i];
+            ba.blendTime += deltaTime;
+            const relativeWeight = clamp01(ba.blendTime / ba.blendDuration);
+            const weight = relativeWeight * absoluteWeight;
+            absoluteWeight = absoluteWeight * (1.0 - relativeWeight);
+            if (ba.state) {
+                ba.state.time += deltaTime;
+                const t = this._getTime(ba.state);
+                this._animationSampler.sample(ba.state.clip, t, weight);
+            }
         }
 
         this._animationSampler.apply();
