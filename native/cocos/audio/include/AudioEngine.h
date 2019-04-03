@@ -219,6 +219,14 @@ public:
     static float getDuration(int audioID);
 
     /** 
+    * Gets the duration of an audio file.
+    *
+    * @param filePath The path of an audio file.
+    * @return The duration of an audio file.
+    */
+    static float getDurationFromFile(const std::string& filePath);
+
+    /** 
      * Returns the state of an audio instance.
      *
      * @param audioID An audioID returned by the play2d function.

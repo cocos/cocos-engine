@@ -97,7 +97,7 @@ static int fdGetter(const std::string& url, off_t* start, off_t* length)
     {
         fd = getObbAssetFileDescriptorJNI(url.c_str(), start, length);
     } 
-    else
+    if (fd <= 0)
     {
         auto asset = AAssetManager_open(cocos2d::FileUtilsAndroid::getAssetManager(), url.c_str(), AASSET_MODE_UNKNOWN);
         // open asset as file descriptor
@@ -398,6 +398,16 @@ float AudioEngineImpl::getDuration(int audioID)
         return player->getDuration();
     }
     return 0.0f;
+}
+
+float AudioEngineImpl::getDurationFromFile(const std::string &filePath)
+{
+    if (_audioPlayerProvider != nullptr)
+    {
+        auto fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
+        return _audioPlayerProvider->getDurationFromFile(fullPath);
+    }
+    return 0;
 }
 
 float AudioEngineImpl::getCurrentTime(int audioID)

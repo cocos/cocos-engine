@@ -39,6 +39,7 @@ SE_DECLARE_FUNC(js_audioengine_AudioEngine_getState);
 SE_DECLARE_FUNC(js_audioengine_AudioEngine_resume);
 SE_DECLARE_FUNC(js_audioengine_AudioEngine_stop);
 SE_DECLARE_FUNC(js_audioengine_AudioEngine_getDuration);
+SE_DECLARE_FUNC(js_audioengine_AudioEngine_getDurationFromFile);
 SE_DECLARE_FUNC(js_audioengine_AudioEngine_setLoop);
 SE_DECLARE_FUNC(js_audioengine_AudioEngine_getDefaultProfile);
 SE_DECLARE_FUNC(js_audioengine_AudioEngine_setFinishCallback);
