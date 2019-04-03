@@ -28,6 +28,7 @@ const RenderFlow = require('../../render-flow');
 const spriteAssembler = require('./sprite/2d/simple');
 const graphicsAssembler = require('./graphics');
 const gfx = require('../../../../renderer/gfx');
+const vfmtPos = require('../vertex-format').vfmtPos;
 
 // todo: 8 is least Stencil depth supported by webGL device, it could be adjusted to vendor implementation value
 let _maxLevel = 8;
@@ -88,8 +89,35 @@ function applyClearMask (mask, renderer) {
     let writeMask = ref;
     let failOp = mask.inverted ? gfx.STENCIL_OP_REPLACE : gfx.STENCIL_OP_ZERO;
 
-    applyStencil(mask._clearGraphics.sharedMaterials[0], func, failOp, ref, stencilMask, writeMask);
-    graphicsAssembler.fillBuffers(mask._clearGraphics, renderer);
+    applyStencil(mask._clearMaterial, func, failOp, ref, stencilMask, writeMask);
+
+    let buffer = renderer.getBuffer('mesh', vfmtPos);
+    let offsetInfo = buffer.request(4, 6);
+    let indiceOffset = offsetInfo.indiceOffset,
+        vertexOffset = offsetInfo.byteOffset >> 2,
+        vertexId = offsetInfo.vertexOffset,
+        vbuf = buffer._vData,
+        ibuf = buffer._iData;
+    
+    vbuf[vertexOffset++] = -1;
+    vbuf[vertexOffset++] = -1;
+    vbuf[vertexOffset++] = -1;
+    vbuf[vertexOffset++] = 1;
+    vbuf[vertexOffset++] = 1;
+    vbuf[vertexOffset++] = 1;
+    vbuf[vertexOffset++] = 1;
+    vbuf[vertexOffset++] = -1;
+
+    ibuf[indiceOffset++] = vertexId;
+    ibuf[indiceOffset++] = vertexId + 3;
+    ibuf[indiceOffset++] = vertexId + 1;
+    ibuf[indiceOffset++] = vertexId + 1;
+    ibuf[indiceOffset++] = vertexId + 3;
+    ibuf[indiceOffset++] = vertexId + 2;
+
+    renderer.node = renderer._dummyNode;
+    renderer.material = mask._clearMaterial;
+    renderer._flush();
 }
 
 function applyAreaMask (mask, renderer) {
@@ -130,9 +158,6 @@ function enableMask (renderer) {
 let maskFrontAssembler = {
     updateRenderData (mask) {
         if (!mask._renderData) {
-            // Update clear graphics material
-            graphicsAssembler.updateRenderData(mask._clearGraphics);
-
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
                 mask._renderData = spriteAssembler.createData(mask);
             }
