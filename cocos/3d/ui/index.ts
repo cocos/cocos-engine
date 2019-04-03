@@ -18,4 +18,5 @@ import './components/ui-render-component';
 import './components/ui-transfrom-component';
 import './components/ui-transfrom-component';
 import './components/view-group-component';
+import './components/webview/webView-component';
 import './components/widget-component';
