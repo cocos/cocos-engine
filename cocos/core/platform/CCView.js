@@ -219,8 +219,6 @@ class View extends EventTarget {
         if (width > 0)
             view.setDesignResolutionSize(width, height, view._resolutionPolicy);
 
-        // cc.director.root.resize(cc.winSize.width, cc.winSize.height);
-
         view._resizing = false;
 
         view.emit('canvas-resize');
@@ -558,6 +556,9 @@ class View extends EventTarget {
 
         // canvas.width = width * this._devicePixelRatio;
         // canvas.height = height * this._devicePixelRatio;
+
+        canvas.width = width;
+        canvas.height = height;
 
         canvas.style.width = width + 'px';
         canvas.style.height = height + 'px';

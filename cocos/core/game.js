@@ -698,12 +698,15 @@ class Game extends EventTarget {
                 this._gfxDevice = new cc.WebGLGFXDevice();
             }
 
+            const nativeWidth = parseInt(screen.width * window.devicePixelRatio);
+            const nativeHeight = parseInt(screen.height * window.devicePixelRatio);
+
             this._gfxDevice.initialize({
                 canvasElm: localCanvas,
                 debug: true,
                 devicePixelRatio: window.devicePixelRatio,
-                nativeWidth: screen.width * window.devicePixelRatio,
-                nativeHeight: screen.height * window.devicePixelRatio,
+                nativeWidth,
+                nativeHeight,
             });
         }
 
