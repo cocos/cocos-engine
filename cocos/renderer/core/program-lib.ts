@@ -110,11 +110,15 @@ class ProgramLib {
         for (const def of tmpl.defines) {
             let cnt = 1;
             if (def.type === 'number') {
-                const range = def.range || [0, def.options ? def.options.length - 1 : 4];
+                const range = def.range || [0, 4];
                 cnt = Math.ceil(Math.log2(range[1] - range[0]));
-                def._map = ((value: number) => (value - range[0]) << def._offset);
+                def._map = (value: number) => (value - range[0]) << def._offset;
+            } else if (def.type === 'string') {
+                const range = [0, def.options!.length - 1];
+                cnt = Math.ceil(Math.log2(range[1] - range[0]));
+                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value)) << def._offset;
             } else { // boolean
-                def._map = ((value: any) => (value ? (1 << def._offset) : 0));
+                def._map = (value: any) => value ? (1 << def._offset) : 0;
             }
             offset += cnt;
             def._offset = offset;

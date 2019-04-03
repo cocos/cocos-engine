@@ -28,8 +28,9 @@ import { ccclass, executeInEditMode, menu, property } from '../../core/data/clas
 import { Enum, Rect, Vec3 } from '../../core/value-types';
 import { color4, toRadian } from '../../core/vmath';
 import { GFXClearFlag } from '../../gfx/define';
-import { Camera } from '../../renderer';
 import { IRenderTargetInfo } from '../../pipeline/render-view';
+import { Camera } from '../../renderer';
+import { Scene } from '../../scene-graph';
 
 /**
  * !#en The light source type
@@ -60,8 +61,8 @@ const ProjectionType = Enum({
 });
 
 const CameraClearFlag = Enum({
-    SOLID_COLOR: GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
-    DEPTH_ONLY: GFXClearFlag.DEPTH | GFXClearFlag.STENCIL,
+    SOLID_COLOR: GFXClearFlag.ALL,
+    DEPTH_ONLY: GFXClearFlag.DEPTH_STENCIL,
     DONT_CLEAR: GFXClearFlag.NONE,
 });
 
@@ -371,15 +372,16 @@ export class CameraComponent extends Component {
 
         this._camera.viewport = this._rect;
         this._camera.fov = toRadian(this._fov);
+        this._camera.orthoHeight = this._orthoHeight;
         this._camera.nearClip = this._near;
         this._camera.farClip = this._far;
-        this._camera.clearColor = color4.create(this._color.r / 255, this._color.g / 255, this._color.b / 255, this._color.a / 255)
+        this._camera.clearColor = color4.create(this._color.r / 255, this._color.g / 255, this._color.b / 255, this._color.a / 255);
         this._camera.clearDepth = this._depth;
         this._camera.clearStencil = this._stencil;
         this._camera.clearFlag = this._clearFlags;
     }
 
-    protected onSceneChanged (scene) {
+    protected onSceneChanged (scene: Scene) {
         // to handle scene switch of editor camera
         if (this._camera && this._camera.scene !== scene.renderScene) {
             this._createCamera();
