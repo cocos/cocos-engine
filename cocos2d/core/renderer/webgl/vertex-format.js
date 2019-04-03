@@ -64,10 +64,17 @@ var vfmtPosColor = new gfx.VertexFormat([
 vfmtPosColor.name = 'vfmtPosColor';
 gfx.VertexFormat.XY_Color = vfmtPosColor;
 
+var vfmtPos = new gfx.VertexFormat([
+    { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
+]);
+vfmtPos.name = 'vfmtPos';
+gfx.VertexFormat.XY = vfmtPos;
+
 module.exports = {
     vfmt3D,
     vfmtPosUvColor,
     vfmtPosUvTwoColor,
     vfmtPosUv,
-    vfmtPosColor
+    vfmtPosColor,
+    vfmtPos
 };

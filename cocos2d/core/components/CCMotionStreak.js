@@ -27,6 +27,7 @@
 const RenderComponent = require('../components/CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
 const textureUtil = require('../utils/texture-util');
+const BlendFunc = require('../../core/utils/blend-func');
 
 /**
  * !#en
@@ -50,6 +51,7 @@ var MotionStreak = cc.Class({
     //   2.Need to update the position in each frame by itself because we don't know
     //     whether the global position have changed
     extends: RenderComponent,
+    mixins: [BlendFunc],
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/MotionStreak',
@@ -240,18 +242,24 @@ var MotionStreak = cc.Class({
     },
 
     _activateMaterial () {
+        if (!this._texture || !this._texture.loaded) {
+            this.disableRender();
+            return;
+        }
+
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             material.define('USE_TEXTURE', true);
         }
-        
-        if (this._texture && this._texture.loaded) {
-            material.setProperty('texture', this._texture);
-            this.setMaterial(0, material);
-            this.markForRender(true);
-            this.markForUpdateRenderData(true);
+        else {
+            material = Material.getInstantiatedMaterial(material, this);
         }
+
+        material.setProperty('texture', this._texture);
+        this.sharedMaterials[0] = material;
+        this.markForRender(true);
+        this.markForUpdateRenderData(true);
     },
 
     onFocusInEditor: CC_EDITOR && function () {

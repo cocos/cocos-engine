@@ -25,7 +25,7 @@ export default class Pass {
     this._depthFunc = gfx.DS_FUNC_LESS,
 
     // stencil
-    this._stencilTest = false;
+    this._stencilTest = gfx.STENCIL_INHERIT;
     // front
     this._stencilFuncFront = gfx.DS_FUNC_ALWAYS;
     this._stencilRefFront = 0;
@@ -79,7 +79,7 @@ export default class Pass {
   }
 
   setStencilFront(
-    enabled = false,
+    enabled = gfx.STENCIL_INHERIT,
     stencilFunc = gfx.DS_FUNC_ALWAYS,
     stencilRef = 0,
     stencilMask = 0xff,
@@ -98,8 +98,12 @@ export default class Pass {
     this._stencilWriteMaskFront = stencilWriteMask;
   }
 
+  setStencilEnabled (enabled = gfx.STENCIL_INHERIT) {
+    this._stencilTest = enabled;
+  }
+
   setStencilBack(
-    enabled = false,
+    enabled = gfx.STENCIL_INHERIT,
     stencilFunc = gfx.DS_FUNC_ALWAYS,
     stencilRef = 0,
     stencilMask = 0xff,

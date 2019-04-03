@@ -5,7 +5,7 @@ import enums from '../enums';
 import { vec2, vec3, vec4, mat2, mat3, mat4, color3, color4 } from '../../core/vmath';
 import ProgramLib from './program-lib';
 import View from './view';
-import Texture2D from '../gfx/texture-2d';
+import gfx from '../gfx';
 
 let _m3_tmp = mat3.create();
 let _m4_tmp = mat4.create();
@@ -566,7 +566,9 @@ export default class Base {
       let count = ia.count;
 
       // set vertex buffer
-      device.setVertexBuffer(0, ia._vertexBuffer);
+      if (ia._vertexBuffer) {
+        device.setVertexBuffer(0, ia._vertexBuffer);
+      }
 
       // set index buffer
       if (ia._indexBuffer) {
@@ -609,9 +611,8 @@ export default class Base {
       }
 
       // stencil
-      if (pass._stencilTest) {
-        device.enableStencilTest();
-
+      device.setStencilTest(pass._stencilTest);
+      if (pass._stencilTest === gfx.STENCIL_ENABLE) {
         // front
         device.setStencilFuncFront(
           pass._stencilFuncFront,

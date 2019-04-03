@@ -659,10 +659,7 @@ let Label = cc.Class({
     },
 
     _activateMaterial (force) {
-        let material = this.sharedMaterials[0];
-        if (material && !force) {
-            return;
-        }
+        if (!force) return;
 
         // Canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
@@ -670,16 +667,20 @@ let Label = cc.Class({
         }
         // WebGL
         else {
+            // Label's texture is generated dynamically,
+            // we should always get a material instance for this label.
+            let material = this.sharedMaterials[0];
+
             if (!material) {
                 material = Material.getInstantiatedBuiltinMaterial('sprite', this);
                 material.define('USE_TEXTURE', true);
             }
-
-            this._srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
-            this._dstBlendFactor = cc.macro.BlendFactor.ONE_MINUS_SRC_ALPHA;
+            else {
+                material = Material.getInstantiatedMaterial(material, this);
+            }
             
             material.setProperty('texture', this._frame._texture);
-            this.setMaterial(0, material);
+            this.sharedMaterials[0] = material;
         }
 
         this.markForUpdateRenderData(true);
