@@ -24,13 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import gfx from '../../renderer/gfx';
+
 const misc = require('../utils/misc');
 const Material = require('../assets/material/CCMaterial');
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Graphics = require('../graphics/graphics');
 const Node = require('../CCNode');
-const dynamicAtlasManager = require('../renderer/utils/dynamic-atlas/manager');
 
 import { mat4, vec2 } from '../vmath';
 
@@ -97,6 +98,14 @@ let Mask = cc.Class({
     ctor () {
         this._graphics = null;
         this._clearGraphics = null;
+
+        this._enableMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
+        
+        this._exitMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
+        let passes = this._exitMaterial.effect.getDefaultTechnique().passes;
+        for (let i = 0; i < passes.length; i++) {
+            passes[i].setStencilEnabled(gfx.STENCIL_DISABLE);
+        }
     },
 
     properties: {
@@ -402,7 +411,13 @@ let Mask = cc.Class({
             this._clearGraphics.node = new Node();
             this._clearGraphics._activateMaterial();
             this._clearGraphics.lineWidth = 0;
-            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            if (CC_EDITOR) {
+                let size = cc.engine.getDesignResolutionSize();
+                this._clearGraphics.rect(0, 0, size.width, size.height);
+            }
+            else {
+                this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            }
             this._clearGraphics.fill();
         }
     },
