@@ -630,7 +630,7 @@ var game = {
 
         debug.setDisplayStats(config.showFPS);
 
-        callback = function () {
+        callback = function (now) {
             if (!self._paused) {
                 self._intervalId = window.requestAnimFrame(callback);
                 if (!CC_JSB && !CC_RUNTIME && frameRate === 30) {
@@ -638,7 +638,7 @@ var game = {
                         return;
                     }
                 }
-                director.mainLoop();
+                director.mainLoop(now);
             }
         };
 
