@@ -27,7 +27,7 @@
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { mat4 } from '../../core/vmath';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { __FORCE_USE_UNIFORM_STORAGE__, SkinningModel } from '../../renderer/models/skinning-model';
+import { __FORCE_USE_UNIFORM_STORAGE__, SkinningModel, useJointsTexture } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Material } from '../assets/material';
 import Skeleton from '../assets/skeleton';
@@ -145,7 +145,7 @@ export class SkinningModelComponent extends ModelComponent {
         super._onMaterialModified(index, material);
 
         const device = _getGlobalDevice();
-        const useJointTexture = !__FORCE_USE_UNIFORM_STORAGE__ && device !== null && device.hasFeature(GFXFeature.TEXTURE_FLOAT);
+        const useJointTexture = device !== null && useJointsTexture(device);
         const mat = this.getMaterial(index, CC_EDITOR)!;
         const effectAsset = mat.effectAsset;
         mat.destroy();

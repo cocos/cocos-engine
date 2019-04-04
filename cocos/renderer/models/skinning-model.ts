@@ -6,8 +6,8 @@ import { Filter, PixelFormat, WrapMode } from '../../assets/texture-base';
 import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXFeature } from '../../gfx/device';
-import { UBOSkinning, UNIFORM_JOINTS_TEXTURE, JointUniformCapacity } from '../../pipeline/define';
+import { GFXAPI, GFXDevice, GFXFeature } from '../../gfx/device';
+import { JointUniformCapacity, UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
@@ -55,7 +55,7 @@ export class SkinningModel extends Model {
     public bindSkeleton (skeleton: Skeleton) {
         this._destroyJointStorage();
 
-        if (!__FORCE_USE_UNIFORM_STORAGE__ && this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+        if (useJointsTexture(this._device)) {
             const jointsTexture = _createJointsTexture(skeleton);
             textureSizeBuffer[0] = jointsTexture.width;
             this._skinningUBO.update(
@@ -176,4 +176,10 @@ function _createJointsTexture (skinning: { joints: any[]; }) {
     texture.setFilters(Filter.NEAREST, Filter.NEAREST);
     texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
     return texture;
+}
+
+export function useJointsTexture (device: GFXDevice) {
+    return !__FORCE_USE_UNIFORM_STORAGE__ &&
+        device.gfxAPI === GFXAPI.WEBGL &&
+        device.hasFeature(GFXFeature.TEXTURE_FLOAT);
 }
