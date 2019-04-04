@@ -176,7 +176,7 @@ export class Root {
         }
 
         for (const view of this._views) {
-            if (view.isEnable && view.window === this._mainWindow) {
+            if (view.isEnable && view.window === this._curWindow) {
                 this._pipeline!.render(view);
             }
         }
