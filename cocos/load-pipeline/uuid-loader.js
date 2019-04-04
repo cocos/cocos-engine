@@ -298,16 +298,35 @@ export function loadUuid (item, callback) {
             }
         }
         if (CC_EDITOR && !isScene) {
-            item.references = {};
-            for (var i = 0, l = depends.length; i < l; i++) {
-                var dep = depends[i];
-                var dependSrc = dep.uuid;
-                if (dependSrc) {
-                    var dependObj = dep._owner;
-                    var dependProp = dep._ownerProp;
-                    var onDirty = cc.AssetLibrary.propSetter.bind(null, asset, dependObj, dependProp);
-                    cc.AssetLibrary.dependListener.add(dependSrc, onDirty);
-                    item.references[dependSrc] = onDirty;
+            function propSetter (asset, obj, propName, oldAsset, newAsset) {
+                if (oldAsset === newAsset || obj[propName] === newAsset) {
+                    return;
+                }
+                if (asset instanceof cc.Material && newAsset instanceof cc.Texture2D) {
+                    for (let i = 0, l = asset.passes.length; i < l; i++) {
+                        if (asset.getProperty(propName, i) === oldAsset) {
+                            asset.setProperty(propName, newAsset, i);
+                        }
+                    }
+                } else {
+                    obj[propName] = newAsset;
+                    asset.onLoaded && asset.onLoaded();
+                }
+            };
+            
+            var dependListener = cc.AssetLibrary.dependListener;
+            if (dependListener) {
+                item.references = {};
+                for (var i = 0, l = depends.length; i < l; i++) {
+                    var dep = depends[i];
+                    var dependSrc = dep.uuid;
+                    if (dependSrc) {
+                        var dependObj = dep._owner;
+                        var dependProp = dep._ownerProp;
+                        var onDirty = propSetter.bind(null, asset, dependObj, dependProp);
+                        dependListener.add(dependSrc, onDirty);
+                        item.references[dependSrc] = onDirty;
+                    }
                 }
             }
         }
