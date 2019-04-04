@@ -121,7 +121,8 @@ export class ImageAsset extends EventTargetFactory(Asset) {
 
     public reset (data: ImageSource) {
         if (!(data instanceof HTMLElement)) {
-            this._nativeData = Object.create(data);
+            // this._nativeData = Object.create(data);
+            this._nativeData = data;
             this._onDataComplete();
         } else {
             this._nativeData = data;
