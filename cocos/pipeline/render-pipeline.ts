@@ -361,9 +361,10 @@ export abstract class RenderPipeline {
 
         // colorFmt = GFXFormat.RGBA16F;
 
-        this._shadingScale = this._device.devicePixelRatio;
-        this._shadingWidth = this._device.nativeWidth * this._shadingScale;
-        this._shadingHeight = this._device.nativeHeight * this._shadingScale;
+        // this._shadingScale = this._device.devicePixelRatio;
+        this._shadingScale = 1.0;
+        this._shadingWidth = Math.floor(this._device.nativeWidth);
+        this._shadingHeight = Math.floor(this._device.nativeHeight);
 
         console.info('USE_MSAA: ' + this._useMSAA);
         console.info('USE_SMAA: ' + this._useSMAA);

@@ -143,6 +143,8 @@ export class Camera {
         });
 
         this.changeTargetDisplay(info.targetDisplay);
+
+        console.log('Create Camera: ' + this._name + ' ' + this._width + ' x ' + this._height);
     }
 
     public destroy () {

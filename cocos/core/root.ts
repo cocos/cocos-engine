@@ -111,7 +111,9 @@ export class Root {
         }
 
         cc.view.on('canvas-resize', () => {
-            this.resize(cc.game.canvas.width, cc.game.canvas.height);
+            const width = cc.game.canvas.width;
+            const height = cc.game.canvas.height;
+            this.resize(width, height);
         }, this);
 
         return true;
@@ -136,6 +138,8 @@ export class Root {
     }
 
     public resize (width: number, height: number) {
+        // const w = width / cc.view._devicePixelRatio;
+        // const h = height / cc.view._devicePixelRatio;
 
         this._device.resize(width, height);
 

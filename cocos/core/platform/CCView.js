@@ -554,11 +554,11 @@ class View extends EventTarget {
         var canvas = cc.game.canvas;
         var container = cc.game.container;
 
-        // canvas.width = width * this._devicePixelRatio;
-        // canvas.height = height * this._devicePixelRatio;
+        canvas.width = width * this._devicePixelRatio;
+        canvas.height = height * this._devicePixelRatio;
 
-        canvas.width = width;
-        canvas.height = height;
+        // canvas.width = width;
+        // canvas.height = height;
 
         canvas.style.width = width + 'px';
         canvas.style.height = height + 'px';
@@ -1097,17 +1097,15 @@ class ContainerStrategy {
             locContainer.style.height = locCanvas.style.height = h + 'px';
         }
         // Setup pixel ratio for retina display
-        /*
         var devicePixelRatio = view._devicePixelRatio = 1;
         if (view.isRetinaEnabled())
             devicePixelRatio = view._devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
         locCanvas.height = h * devicePixelRatio;
-        */
 
-        locCanvas.width = w;
-        locCanvas.height = h;
+        // locCanvas.width = w;
+        // locCanvas.height = h;
         
         view.emit('canvas-resize');
     }
