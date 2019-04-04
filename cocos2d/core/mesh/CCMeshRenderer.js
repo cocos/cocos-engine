@@ -134,7 +134,7 @@ let MeshRenderer = cc.Class({
          * Whether the mesh should receive shadows.
          * !#zh
          * 网格是否接受光源投射的阴影
-         * @property {boolean} receiveShadows
+         * @property {Boolean} receiveShadows
          */
         receiveShadows: {
             get () {
