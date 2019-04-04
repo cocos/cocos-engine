@@ -27,10 +27,11 @@
 
 import { EventTarget } from '../event/event-target';
 import '../data/class';
-import macro from '../platform/CCMacro';
 import Game from '../game';
 import Size from '../value-types/size';
 import Rect from '../value-types/rect';
+
+let _currentFrame = 0;
 
 var __BrowserGetter = {
     init(){
@@ -39,13 +40,13 @@ var __BrowserGetter = {
         }
     },
     availWidth(frame){
-        if (!frame || frame === this.html)
+        if (cc.sys.isMobile || !frame || frame === this.html)
             return window.innerWidth;
         else
             return frame.clientWidth;
     },
     availHeight(frame){
-        if (!frame || frame === this.html)
+        if (cc.sys.isMobile || !frame || frame === this.html)
             return window.innerHeight;
         else
             return frame.clientHeight;
@@ -76,14 +77,6 @@ switch (__BrowserGetter.adaptationType) {
     case cc.sys.BROWSER_TYPE_SAFARI:
         __BrowserGetter.meta["minimal-ui"] = "true";
     case cc.sys.BROWSER_TYPE_SOUGOU:
-    case cc.sys.BROWSER_TYPE_UC:
-        __BrowserGetter.availWidth = function(frame){
-            return frame.clientWidth;
-        };
-        __BrowserGetter.availHeight = function(frame){
-            return frame.clientHeight;
-        };
-        break;
     case cc.sys.BROWSER_TYPE_WECHAT_GAME:
         __BrowserGetter.availWidth = function(){
             return window.innerWidth;
@@ -149,7 +142,7 @@ class View extends EventTarget {
         _t._resizeWithBrowserSize = false;
         _t._orientationChanging = true;
         _t._isRotated = false;
-        _t._orientation = macro.ORIENTATION_AUTO;
+        _t._orientation = cc.macro.ORIENTATION_AUTO;
         _t._isAdjustViewport = true;
         _t._antiAliasEnabled = false;
 
@@ -187,6 +180,14 @@ class View extends EventTarget {
 
     // Resize helper functions
     _resizeEvent () {
+        let frameId = cc.director.getTotalFrames();
+        if (_currentFrame !== frameId) {
+            _currentFrame = frameId;
+        }
+        else {
+            // Avoid adapte multiple times in a frame
+            return;
+        }
         var view;
         if (this.setDesignResolutionSize) {
             view = this;
@@ -208,7 +209,7 @@ class View extends EventTarget {
         else {
             view._initFrameSize();
         }
-        if (view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
+        if (!view._orientationChanging && view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
             return;
 
         // Frame size changed, do resize works
@@ -221,7 +222,6 @@ class View extends EventTarget {
 
         view._resizing = false;
 
-        view.emit('canvas-resize');
         if (view._resizeCallback) {
             view._resizeCallback.call();
         }
@@ -317,7 +317,7 @@ class View extends EventTarget {
      * @param {Number} orientation - Possible values: macro.ORIENTATION_LANDSCAPE | macro.ORIENTATION_PORTRAIT | macro.ORIENTATION_AUTO
      */
     setOrientation (orientation) {
-        orientation = orientation & macro.ORIENTATION_AUTO;
+        orientation = orientation & cc.macro.ORIENTATION_AUTO;
         if (orientation && this._orientation !== orientation) {
             this._orientation = orientation;
             var designWidth = this._originalDesignResolutionSize.width;
@@ -333,8 +333,8 @@ class View extends EventTarget {
         var isLandscape = w >= h;
 
         if (CC_EDITOR || !cc.sys.isMobile ||
-            (isLandscape && this._orientation & macro.ORIENTATION_LANDSCAPE) ||
-            (!isLandscape && this._orientation & macro.ORIENTATION_PORTRAIT)) {
+            (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) ||
+            (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
             locFrameSize.height = h;
             cc.game.container.style['-webkit-transform'] = 'rotate(0deg)';
@@ -613,7 +613,7 @@ class View extends EventTarget {
         this._frameSize.width = width;
         this._frameSize.height = height;
         cc.frame.style.width = width + "px";
-        cc.game.frame.style.height = height + "px";
+        cc.frame.style.height = height + "px";
         this._resizeEvent();
     }
 
@@ -1035,14 +1035,6 @@ class View extends EventTarget {
  * !zh
  * 当设计分辨率改变时发送。
  * @event design-resolution-changed
- */
- /**
- * !en
- * Emit when canvas resize.
- * !zh
- * 当画布大小改变时发送。
- * @event canvas-resize
- */
 
 
 /**
@@ -1103,11 +1095,6 @@ class ContainerStrategy {
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
         locCanvas.height = h * devicePixelRatio;
-
-        // locCanvas.width = w;
-        // locCanvas.height = h;
-        
-        view.emit('canvas-resize');
     }
 
     _fixContainer () {

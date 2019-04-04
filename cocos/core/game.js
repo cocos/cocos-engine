@@ -699,12 +699,8 @@ class Game extends EventTarget {
                 this._gfxDevice = new cc.WebGLGFXDevice();
             }
 
-		    cc.view.enableRetina(true)
-            cc.view.setOrientation(cc.macro.ORIENTATION_LANDSCAPE);
-            cc.view._initFrameSize();
             let nativeWidth = Math.floor(screen.width * cc.view._devicePixelRatio);
-            let nativeHeight = Math.floor(screen.height * cc.view._devicePixelRatio);
-            
+            let nativeHeight = Math.floor(screen.height * cc.view._devicePixelRatio);            
             this._gfxDevice.initialize({
                 canvasElm: localCanvas,
                 debug: true,

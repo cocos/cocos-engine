@@ -478,7 +478,7 @@ export const widgetManager = cc._widgetManager = {
             if (cc.sys.isMobile) {
                 window.addEventListener('resize', this.onResized.bind(this));
             } else {
-                cc.view.on('canvas-resize', this.onResized, this);
+                cc.view.on('design-resolution-changed', this.onResized, this);
             }
         }
     },
