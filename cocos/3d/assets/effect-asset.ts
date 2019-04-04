@@ -8,7 +8,6 @@ import { programLib } from '../../renderer/core/program-lib';
 export interface IPropertyInfo {
     type: number; // auto-extracted if not specified
     value?: number[] | string;
-    displayName?: string;
     sampler?: number[];
 }
 export interface IPassStates {

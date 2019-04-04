@@ -28,6 +28,8 @@ import CCClass from '../data/class';
 import { color4 } from '../vmath';
 import { ValueType } from './value-type';
 
+const to_float = 1 / 255;
+
 /**
  * !#en
  * Representation of RGBA colors.
@@ -300,7 +302,7 @@ export default class Color extends ValueType {
                 (this.r | 0 ) + ',' +
                 (this.g | 0 ) + ',' +
                 (this.b | 0 ) + ',' +
-                (this.a / 255).toFixed(2) + ')'
+                (this.a * to_float).toFixed(2) + ')'
             ;
         } else if ( opt === 'rgb' ) {
             return 'rgb(' +
@@ -478,9 +480,9 @@ export default class Color extends ValueType {
      * color.toHSV(); // Object {h: 0.1533864541832669, s: 0.9843137254901961, v: 1};
      */
     public toHSV () {
-        const r = this.r / 255;
-        const g = this.g / 255;
-        const b = this.b / 255;
+        const r = this.r * to_float;
+        const g = this.g * to_float;
+        const b = this.b * to_float;
         const hsv = { h: 0, s: 0, v: 0 };
         const max = Math.max(r, g, b);
         const min = Math.min(r, g, b);
@@ -502,25 +504,41 @@ export default class Color extends ValueType {
         return hsv;
     }
 
-    public set (color: Color) {
-        if (color._val) {
-            this._val = color._val;
+    public set (c: Color) {
+        if (c._val) {
+            this._val = c._val;
         } else {
-            this.r = color.r;
-            this.g = color.g;
-            this.b = color.b;
-            this.a = color.a;
+            this._val = ((c.a << 24) >>> 0) + (c.b << 16) + (c.g << 8) + c.r;
         }
     }
 
-    public to01 (out?: color4) {
-      out = out || color4.create();
-      out.r = this.r / 255;
-      out.g = this.g / 255;
-      out.b = this.b / 255;
-      out.a = this.a / 255;
-      return out;
+    public mulSelf (c: Color) {
+        const r = ((this._val & 0x000000ff) * c.r) >> 8;
+        const g = ((this._val & 0x0000ff00) * c.g) >> 8;
+        const b = ((this._val & 0x00ff0000) * c.b) >> 8;
+        const a = ((this._val & 0xff000000) >> 8) * c.a;
+        this._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
+        return this;
     }
+
+    public mul (c: Color, out?: Color) {
+        out = out || new Color();
+        const r = ((out._val & 0x000000ff) * c.r) >> 8;
+        const g = ((out._val & 0x0000ff00) * c.g) >> 8;
+        const b = ((out._val & 0x00ff0000) * c.b) >> 8;
+        const a = ((out._val & 0xff000000) >> 8) * c.a;
+        out._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
+        return out;
+    }
+
+    get x () { return this.r * to_float; }
+    set x (val) { this.r = val * 255; }
+    get y () { return this.g * to_float; }
+    set y (val) { this.g = val * 255; }
+    get z () { return this.b * to_float; }
+    set z (val) { this.b = val * 255; }
+    get w () { return this.a * to_float; }
+    set w (val) { this.a = val * 255; }
 }
 
 CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});

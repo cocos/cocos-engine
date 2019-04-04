@@ -8,7 +8,6 @@ import { MeshBuffer } from '../mesh-buffer';
 
 const vec3_temp = vec3.create();
 const _worldMatrix = new Mat4();
-const _tempColor = new Color();
 
 export function fillVertices (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const data = renderData.datas;
@@ -88,7 +87,6 @@ export function fillVertices3D (node: Node, renderer: UI, renderData: RenderData
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
-    color.to01(_tempColor);
 
     let vertexCount = renderData.vertexCount;
     let indiceOffset = buffer!.indiceOffset;
@@ -200,7 +198,6 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: UI, renderData:
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
-    color.to01(_tempColor);
 
     // buffer
     let vertexCount = renderData.vertexCount;

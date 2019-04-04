@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 import { Asset } from '../../assets/asset';
+import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { GFXBindingType } from '../../gfx/define';
@@ -247,10 +248,10 @@ export class Material extends Asset {
             const binding = Pass.getBindingFromHandle(handle);
             if (val instanceof GFXTextureView) {
                 pass.bindTextureView(binding, val);
-            } else {
-                const textureView = val.getGFXTextureView();
+            } else if (val instanceof TextureBase) {
+                const textureView: GFXTextureView | null = val.getGFXTextureView();
                 if (!textureView || !textureView.texture.width || !textureView.texture.height) {
-                    console.warn('texture asset incomplete!'); return false;
+                    console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`); return false;
                 }
                 pass.bindTextureView(binding, textureView);
                 pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, val.getGFXSamplerInfo()));

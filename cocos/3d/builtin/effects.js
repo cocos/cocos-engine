@@ -3,7 +3,7 @@ export default [
   {
     "name": "builtin-particle",
     "techniques": [
-      {"name":"add", "passes":[{"rasterizerState":{"cullMode":0}, "depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":1, "blendSrcAlpha":2, "blendDstAlpha":1}]}, "program":"builtin-particle|particle-vs-legacy:lpvs_main|tinted-fs:add", "properties":{"mainTexture":{"type":29, "value":"grey"}, "mainTiling_Offset":{"type":16, "value":[1, 1, 0, 0]}, "frameTile_velLenScale":{"type":16, "value":[1, 1, 0, 0]}, "tintColor":{"type":17, "value":[0.5, 0.5, 0.5, 0.5]}}}]}
+      {"name":"add", "passes":[{"rasterizerState":{"cullMode":0}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":1, "blendSrcAlpha":2, "blendDstAlpha":1}]}, "program":"builtin-particle|particle-vs-legacy:lpvs_main|tinted-fs:add", "depthStencilState":{"depthTest":true, "depthWrite":false}, "properties":{"mainTexture":{"type":28, "value":"grey"}, "mainTiling_Offset":{"type":16, "value":[1, 1, 0, 0]}, "frameTile_velLenScale":{"type":16, "value":[1, 1, 0, 0]}, "tintColor":{"type":16, "value":[0.5, 0.5, 0.5, 0.5], "inspector":{"picker":"color"}}}}]}
     ],
     "shaders": [
       {
@@ -36,7 +36,7 @@ export default [
           ]}
         ],
         "samplers": [
-          {"name":"mainTexture", "type":29, "count":1, "defines":[], "binding":2}
+          {"name":"mainTexture", "type":28, "count":1, "defines":[], "binding":2}
         ],
         "dependencies": {}
       }
@@ -45,7 +45,7 @@ export default [
   {
     "name": "builtin-skybox",
     "techniques": [
-      {"passes":[{"rasterizerState":{"cullMode":0}, "depthStencilState":{"depthTest":true, "depthWrite":false}, "program":"builtin-skybox|sky-vs:vert|sky-fs:frag", "properties":{"cubeMap":{"type":32, "value":"default-cube"}}, "priority":10}]}
+      {"passes":[{"rasterizerState":{"cullMode":0}, "program":"builtin-skybox|sky-vs:vert|sky-fs:frag", "priority":245, "depthStencilState":{"depthTest":true, "depthWrite":false}, "properties":{"cubeMap":{"type":31, "value":"default-cube"}}}]}
     ],
     "shaders": [
       {
@@ -66,7 +66,7 @@ export default [
         ],
         "blocks": [],
         "samplers": [
-          {"name":"cubeMap", "type":32, "count":1, "defines":[], "binding":0}
+          {"name":"cubeMap", "type":31, "count":1, "defines":[], "binding":0}
         ],
         "dependencies": {}
       }
@@ -75,7 +75,7 @@ export default [
   {
     "name": "builtin-sprite",
     "techniques": [
-      {"passes":[{"depthStencilState":{"depthTest":true, "depthWrite":false}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "rasterizerState":{"cullMode":0}, "program":"builtin-sprite|sprite-vs:vert|sprite-fs:frag", "properties":{"mainTexture":{"type":29, "value":"white"}}, "priority":244}]}
+      {"passes":[{"blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "rasterizerState":{"cullMode":0}, "program":"builtin-sprite|sprite-vs:vert|sprite-fs:frag", "priority":244, "depthStencilState":{"depthTest":true, "depthWrite":false}, "properties":{"mainTexture":{"type":28, "value":"white"}}}]}
     ],
     "shaders": [
       {
@@ -96,7 +96,7 @@ export default [
         ],
         "blocks": [],
         "samplers": [
-          {"name":"mainTexture", "type":29, "count":1, "defines":["USE_TEXTURE"], "binding":0}
+          {"name":"mainTexture", "type":28, "count":1, "defines":["USE_TEXTURE"], "binding":0}
         ],
         "dependencies": {}
       }
@@ -105,7 +105,7 @@ export default [
   {
     "name": "builtin-standard",
     "techniques": [
-      {"name":"opaque", "passes":[{"program":"builtin-standard|standard-vs:vert|standard-fs:frag", "properties":{"tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "albedo":{"type":17, "value":[1, 1, 1, 1]}, "albedoScale":{"type":16, "value":[1, 1, 1, 0]}, "pbrParams":{"type":16, "value":[0.8, 0.6, 0, 1]}, "pbrScale":{"type":16, "value":[1, 1, 1, 1]}, "emissive":{"type":17, "value":[1, 1, 1, 1]}, "emissiveScale":{"type":16, "value":[1, 1, 1, 1]}, "albedoMap":{"type":29, "value":"grey"}, "normalMap":{"type":29, "value":"normal"}, "pbrMap":{"type":29, "value":"grey"}, "emissiveMap":{"type":29, "value":"grey"}, "envMap":{"type":32, "value":"default-cube"}}}, {"customizations":["bounds-merge-shadow"], "depthStencilState":{"depthTest":true, "depthWrite":false, "stencilTestFront":true, "stencilFuncFront":4, "stencilPassOpFront":3}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"builtin-standard|planar-shadow-vs:vert|planar-shadow-fs:frag", "switch":"USE_PLANAR_SHADOW"}]}
+      {"name":"opaque", "passes":[{"program":"builtin-standard|standard-vs:vert|standard-fs:frag", "properties":{"tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "albedo":{"type":16, "value":[1, 1, 1, 1], "inspector":{"picker":"color"}}, "albedoScale":{"type":16, "value":[1, 1, 1, 0]}, "pbrParams":{"type":16, "value":[0.8, 0.6, 0, 1]}, "pbrScale":{"type":16, "value":[1, 1, 1, 1]}, "emissive":{"type":16, "value":[1, 1, 1, 1], "inspector":{"picker":"color"}}, "emissiveScale":{"type":16, "value":[1, 1, 1, 1]}, "albedoMap":{"type":28, "value":"grey"}, "normalMap":{"type":28, "value":"normal"}, "pbrMap":{"type":28, "value":"grey"}, "emissiveMap":{"type":28, "value":"grey"}, "envMap":{"type":31, "value":"default-cube"}}}, {"customizations":["bounds-merge-shadow"], "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"builtin-standard|planar-shadow-vs:vert|planar-shadow-fs:frag", "depthStencilState":{"depthTest":true, "depthWrite":false, "stencilTestFront":true, "stencilFuncFront":5, "stencilPassOpFront":2, "stencilWriteMaskBack":128, "stencilWriteMaskFront":128, "stencilReadMaskBack":128, "stencilReadMaskFront":128, "stencilRefBack":128, "stencilRefFront":128}, "switch":"USE_PLANAR_SHADOW"}]}
     ],
     "shaders": [
       {
@@ -146,11 +146,11 @@ export default [
           ]}
         ],
         "samplers": [
-          {"name":"albedoMap", "type":29, "count":1, "defines":["USE_ALBEDO_MAP"], "binding":1},
-          {"name":"normalMap", "type":29, "count":1, "defines":["USE_NORMAL_MAP"], "binding":2},
-          {"name":"pbrMap", "type":29, "count":1, "defines":["USE_PBR_MAP"], "binding":3},
-          {"name":"emissiveMap", "type":29, "count":1, "defines":["USE_EMISSIVE_MAP"], "binding":4},
-          {"name":"envMap", "type":32, "count":1, "defines":["USE_IBL"], "binding":5}
+          {"name":"albedoMap", "type":28, "count":1, "defines":["USE_ALBEDO_MAP"], "binding":1},
+          {"name":"normalMap", "type":28, "count":1, "defines":["USE_NORMAL_MAP"], "binding":2},
+          {"name":"pbrMap", "type":28, "count":1, "defines":["USE_PBR_MAP"], "binding":3},
+          {"name":"emissiveMap", "type":28, "count":1, "defines":["USE_EMISSIVE_MAP"], "binding":4},
+          {"name":"envMap", "type":31, "count":1, "defines":["USE_IBL"], "binding":5}
         ],
         "dependencies": {}
       },
@@ -180,7 +180,7 @@ export default [
   {
     "name": "builtin-unlit",
     "techniques": [
-      {"name":"opaque", "passes":[{"program":"builtin-unlit|unlit-vs:vert|unlit-fs:frag", "properties":{"color":{"type":17, "value":[1, 1, 1, 1]}, "tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "mainTexture":{"type":29, "value":"grey"}}}]}
+      {"name":"opaque", "passes":[{"program":"builtin-unlit|unlit-vs:vert|unlit-fs:frag", "properties":{"color":{"type":16, "value":[1, 1, 1, 1], "inspector":{"picker":"color"}}, "tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "mainTexture":{"type":28, "value":"grey"}}}]}
     ],
     "shaders": [
       {
@@ -211,7 +211,7 @@ export default [
           ]}
         ],
         "samplers": [
-          {"name":"mainTexture", "type":29, "count":1, "defines":["USE_TEXTURE"], "binding":2}
+          {"name":"mainTexture", "type":28, "count":1, "defines":["USE_TEXTURE"], "binding":2}
         ],
         "dependencies": {}
       }
@@ -220,7 +220,7 @@ export default [
   {
     "name": "pipeline/smaa",
     "techniques": [
-      {"name":"smaa", "passes":[{"depthStencilState":{"depthTest":false, "depthWrite":false}, "program":"pipeline/smaa|smaa-edge-vs:vert|smaa-edge-fs:frag", "properties":{"u_texSampler":{"type":29, "sampler":[2, 2, null, 2, 2]}}}, {"depthStencilState":{"depthTest":false, "depthWrite":false}, "program":"pipeline/smaa|smaa-blend-vs:vert|smaa-blend-fs:frag", "properties":{"u_edgeTexSampler":{"type":29, "sampler":[2, 2, null, 2, 2]}, "u_areaTexSampler":{"type":29, "sampler":[2, 2, null, 2, 2]}, "u_searchTexSampler":{"type":29, "sampler":[1, 1, null, 2, 2]}}}]}
+      {"name":"smaa", "passes":[{"program":"pipeline/smaa|smaa-edge-vs:vert|smaa-edge-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_texSampler":{"type":28, "sampler":[2, 2, null, 2, 2]}}}, {"program":"pipeline/smaa|smaa-blend-vs:vert|smaa-blend-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_edgeTexSampler":{"type":28, "sampler":[2, 2, null, 2, 2]}, "u_areaTexSampler":{"type":28, "sampler":[2, 2, null, 2, 2]}, "u_searchTexSampler":{"type":28, "sampler":[1, 1, null, 2, 2]}}}]}
     ],
     "shaders": [
       {
@@ -240,7 +240,7 @@ export default [
         ],
         "blocks": [],
         "samplers": [
-          {"name":"u_texSampler", "type":29, "count":1, "defines":[], "binding":0}
+          {"name":"u_texSampler", "type":28, "count":1, "defines":[], "binding":0}
         ],
         "dependencies": {}
       },
@@ -259,9 +259,9 @@ export default [
         "defines": [],
         "blocks": [],
         "samplers": [
-          {"name":"u_edgeTexSampler", "type":29, "count":1, "defines":[], "binding":0},
-          {"name":"u_areaTexSampler", "type":29, "count":1, "defines":[], "binding":1},
-          {"name":"u_searchTexSampler", "type":29, "count":1, "defines":[], "binding":2}
+          {"name":"u_edgeTexSampler", "type":28, "count":1, "defines":[], "binding":0},
+          {"name":"u_areaTexSampler", "type":28, "count":1, "defines":[], "binding":1},
+          {"name":"u_searchTexSampler", "type":28, "count":1, "defines":[], "binding":2}
         ],
         "dependencies": {}
       }
@@ -270,7 +270,7 @@ export default [
   {
     "name": "pipeline/tonemap",
     "techniques": [
-      {"name":"tonemap", "passes":[{"depthStencilState":{"depthTest":false, "depthWrite":false}, "program":"pipeline/tonemap|tonemap-vs:vert|tonemap-fs:frag", "properties":{"u_texSampler":{"type":29, "sampler":[2, 2, null, 2, 2]}, "u_blendTexSampler":{"type":29, "sampler":[2, 2, null, 2, 2]}}}]}
+      {"name":"tonemap", "passes":[{"program":"pipeline/tonemap|tonemap-vs:vert|tonemap-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_texSampler":{"type":28, "sampler":[2, 2, null, 2, 2]}, "u_blendTexSampler":{"type":28, "sampler":[2, 2, null, 2, 2]}}}]}
     ],
     "shaders": [
       {
@@ -291,8 +291,8 @@ export default [
         ],
         "blocks": [],
         "samplers": [
-          {"name":"u_texSampler", "type":29, "count":1, "defines":[], "binding":0},
-          {"name":"u_blendTexSampler", "type":29, "count":1, "defines":[], "binding":1}
+          {"name":"u_texSampler", "type":28, "count":1, "defines":[], "binding":0},
+          {"name":"u_blendTexSampler", "type":28, "count":1, "defines":[], "binding":1}
         ],
         "dependencies": {}
       }
