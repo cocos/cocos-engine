@@ -97,17 +97,10 @@ let Mask = cc.Class({
 
     ctor () {
         this._graphics = null;
-        this._clearGraphics = null;
 
-        this._enableMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
-        
-        this._exitMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
-        let passes = this._exitMaterial.effect.getDefaultTechnique().passes;
-        for (let i = 0; i < passes.length; i++) {
-            passes[i].setStencilEnabled(gfx.STENCIL_DISABLE);
-        }
-
-        this._clearMaterial = Material.getInstantiatedBuiltinMaterial('clear-stencil', this);
+        this._enableMaterial = null;
+        this._exitMaterial = null;
+        this._clearMaterial = null;
     },
 
     properties: {
@@ -394,6 +387,22 @@ let Mask = cc.Class({
                 material.define('USE_TEXTURE', false);
             }
 
+            if (!this._enableMaterial) {
+                this._enableMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            }
+        
+            if (!this._exitMaterial) {
+                this._exitMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
+                let passes = this._exitMaterial.effect.getDefaultTechnique().passes;
+                for (let i = 0; i < passes.length; i++) {
+                    passes[i].setStencilEnabled(gfx.STENCIL_DISABLE);
+                }
+            }
+
+            if (!this._clearMaterial) {
+                this._clearMaterial = Material.getInstantiatedBuiltinMaterial('clear-stencil', this);
+            }
+
             this.setMaterial(0, material);
         }
 
@@ -450,10 +459,6 @@ let Mask = cc.Class({
     _removeGraphics () {
         if (this._graphics) {
             this._graphics.destroy();
-        }
-
-        if (this._clearGraphics) {
-            this._clearGraphics.destroy();
         }
     },
 
