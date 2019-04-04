@@ -64,12 +64,12 @@ export class TextureUnpacker {
      * @param {Object[]} packedJson
      */
     load (indices, packedJson) {
-        var datas = packedJson.data.split('|');
+        var datas = packedJson.data;
         if (datas.length !== indices.length) {
             cc.errorID(4915);
         }
         for (var i = 0; i < indices.length; i++) {
-            this.contents[indices[i]] = datas[i];
+            this.contents[indices[i]] = {base: datas[i][0], mipmaps: datas[i][1]};
         }
     }
 
