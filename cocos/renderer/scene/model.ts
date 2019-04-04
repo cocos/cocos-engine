@@ -135,6 +135,7 @@ export class Model {
     protected _localUBO: GFXBuffer | null;
     protected _localBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
     protected _inited: boolean;
+    protected _uboUpdated: boolean;
 
     /**
      * Setup a default empty model
@@ -150,6 +151,7 @@ export class Model {
         this._uboLocal = new UBOLocal();
         this._localUBO = null;
         this._inited = false;
+        this._uboUpdated = false;
     }
 
     public destroy () {
@@ -183,7 +185,15 @@ export class Model {
             this._node._rot, this._node._scale, this._worldBounds!);
     }
 
+    public _resetUBOUpdateFlag () {
+        this._uboUpdated = false;
+    }
+
     public updateUBOs () {
+        if (this._uboUpdated) {
+            return;
+        }
+        this._uboUpdated = true;
         mat4.array(_temp_floatx16, this._node._mat);
         this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
         mat4.normalMatrix(_temp_mat4, this._node._mat);
@@ -276,7 +286,7 @@ export class Model {
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
             const pass = mat.passes[i];
-            for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
+            // for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
             ret[i] = this._doCreatePSO(pass);
         }
         return ret;
@@ -286,7 +296,7 @@ export class Model {
         for (let i = 0; i < mat.passes.length; i++) {
             const pass = mat.passes[i];
             pass.destroyPipelineState(pso[i]);
-            for (const cus of pass.customizations) { customizationManager.detach(cus, this); }
+            // for (const cus of pass.customizations) { customizationManager.detach(cus, this); }
         }
     }
 

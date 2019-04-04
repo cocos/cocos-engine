@@ -20,6 +20,7 @@ import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
+import { getPhaseID } from '../../pipeline/pass-phase';
 
 export interface IDefineMap { [name: string]: number | boolean | string; }
 export interface IPassInfoFull extends IPassInfo {
@@ -117,6 +118,7 @@ export class Pass {
     protected _blocks: IBlock[] = [];
     protected _shaderInfo: IShaderInfo | null = null;
     protected _defines: IDefineMap = {};
+    protected _phase: number = 0;
     // external references
     protected _device: GFXDevice;
     protected _renderPass: GFXRenderPass | null = null;
@@ -363,6 +365,10 @@ export class Pass {
         if (info.stage !== undefined) { this._stage = info.stage; }
         if (info.dynamics !== undefined) { this._dynamicStates = info.dynamics; }
         if (info.customizations) { this._customizations = info.customizations; }
+        if (this._phase === 0) {
+            const phaseName = info.phase || 'default';
+            this._phase = getPhaseID(phaseName);
+        }
 
         const bs = this._bs;
         if (info.blendState) {
@@ -383,6 +389,7 @@ export class Pass {
     get priority () { return this._priority; }
     get primitive () { return this._primitive; }
     get stage () { return this._stage; }
+    get phase () { return this._phase; }
     get bindings () { return this._bindings; }
     get blendState () { return this._bs; }
     get depthStencilState () { return this._dss; }

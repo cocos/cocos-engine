@@ -1,6 +1,6 @@
 import { intersect } from '../3d/geom-utils';
 import { Root } from '../core/root';
-import { Mat4 } from '../core/value-types';
+import { Mat4, Vec3 } from '../core/value-types';
 import { mat4, vec3 } from '../core/vmath';
 import { GFXBuffer } from '../gfx/buffer';
 import {
@@ -21,19 +21,19 @@ import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
-import { Model } from '../renderer';
+import { Camera, Model } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass';
 import { programLib } from '../renderer/core/program-lib';
-import { UBOGlobal, UBOShadow } from './define';
+import { IRenderObject, UBOGlobal, UBOShadow } from './define';
 import { IInternalBindingInst } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
-import { RenderQueue } from './render-queue';
 import { RenderView } from './render-view';
 
 const _vec4Array = new Float32Array(4);
 const _vec4ArrayZero = [0.0, 0.0, 0.0, 0.0];
 const _mat4Array = new Float32Array(16);
 const _outMat = new Mat4();
+const _v3tmp = new Vec3();
 
 export interface IRenderPipelineInfo {
     enableHDR?: boolean;
@@ -51,8 +51,8 @@ export abstract class RenderPipeline {
         return this._device;
     }
 
-    public get queue (): RenderQueue {
-        return this._queue;
+    public get renderObjects (): IRenderObject[] {
+        return this._renderObjects;
     }
 
     public get flows (): RenderFlow[] {
@@ -157,7 +157,7 @@ export abstract class RenderPipeline {
 
     protected _root: Root;
     protected _device: GFXDevice;
-    protected _queue: RenderQueue = new RenderQueue();
+    protected _renderObjects: IRenderObject[] = [];
     protected _renderPasses: Map<number, GFXRenderPass> = new Map();
     protected _flows: RenderFlow[] = [];
     protected _isHDRSupported: boolean = false;
@@ -202,7 +202,6 @@ export abstract class RenderPipeline {
     protected _fpScale: number = 1.0 / 1024.0;
     protected _fpScaleInv: number = 1024.0;
     protected _macros: IDefineMap = {};
-    protected _visibleModel: Model[] = [];
 
     constructor (root: Root) {
         this._root = root;
@@ -234,10 +233,9 @@ export abstract class RenderPipeline {
 
         view.camera.update();
 
-        // update UBO first for culling may depend on some of them
-        this.updateUBOs(view);
-
         this.sceneCulling(view);
+
+        this.updateUBOs(view);
 
         for (const flow of view.flows) {
             flow.render(view);
@@ -855,9 +853,6 @@ export abstract class RenderPipeline {
         const device = this._root.device;
 
         const mainLight = scene.mainLight;
-        if (mainLight && mainLight.enabled) {
-            mainLight.update();
-        }
 
         const ambient = scene.ambient;
 
@@ -953,13 +948,20 @@ export abstract class RenderPipeline {
         const camera = view.camera;
         const scene = camera.scene;
 
-        this._queue.clear();
-        this._visibleModel.splice(0);
+        this._renderObjects.splice(0);
 
-        if (scene.skybox.enabled) { this._queue.add(scene.skybox, camera); }
+        const mainLight = scene.mainLight;
+        if (mainLight && mainLight.enabled) {
+            mainLight.update();
+        }
+
+        if (scene.skybox.enabled) {
+            this.addVisibleModel(scene.skybox, camera);
+        }
 
         for (const model of scene.models) {
 
+            model._resetUBOUpdateFlag();
             // filter model by view visibility
             if (view.visibility > 0 && model.viewID !== view.visibility || !model.enabled) {
                 continue;
@@ -973,12 +975,20 @@ export abstract class RenderPipeline {
             }
 
             model.updateUBOs();
-            this._visibleModel.push(model);
-
-            // add model pass to render queue
-            this._queue.add(model, camera);
+            this.addVisibleModel(model, camera);
         }
+    }
 
-        this._queue.sort();
+    protected addVisibleModel (model: Model, camera: Camera) {
+        let depth = 0;
+        if (model.node) {
+            model.node.getWorldPosition(_v3tmp);
+            vec3.sub(_v3tmp, _v3tmp, camera.position);
+            depth = vec3.dot(_v3tmp, camera.forward);
+        }
+        this._renderObjects.push({
+            model,
+            depth,
+        });
     }
 }

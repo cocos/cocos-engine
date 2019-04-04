@@ -113,4 +113,13 @@ export class frustum {
             vec3.transformMat4(this.vertices[i], _v[i], inv);
         }
     }
+
+    public transform (mat: mat4) {
+        for (let i = 0; i < 6; i++) {
+            this.planes[i].transform(mat);
+        }
+        for (let i = 0; i < 8; i++) {
+            vec3.transformMat4(this.vertices[i], this.vertices[i], mat);
+        }
+    }
 }

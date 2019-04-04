@@ -1,8 +1,11 @@
 import { GFXBuffer } from '../gfx/buffer';
+import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { GFXBindingType, GFXType } from '../gfx/define';
 import { GFXSampler } from '../gfx/sampler';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { GFXTextureView } from '../gfx/texture-view';
+import { Model } from '../renderer';
+import { SubModel } from '../renderer/scene/submodel';
 
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
 export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
@@ -16,6 +19,25 @@ export enum RenderPriority {
     MIN = 0,
     MAX = 0xff,
     DEFAULT = 0x80,
+}
+
+export interface IRenderObject {
+    model: Model;
+    depth: number;
+}
+
+export interface IRenderPass {
+    hash: number;
+    depth: number;
+    shaderId: number;
+    subModel: SubModel;
+    cmdBuff: GFXCommandBuffer;
+}
+
+export interface IRenderQueueDesc {
+    isTransparent: boolean;
+    phases: number;
+    sortFunc: (a: IRenderPass, b: IRenderPass) => number;
 }
 
 const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec

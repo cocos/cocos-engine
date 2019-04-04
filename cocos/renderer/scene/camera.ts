@@ -5,6 +5,7 @@ import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
+import { max, min } from '../../core/vmath/bits';
 
 export enum CameraProjection {
     ORTHO,
@@ -78,6 +79,8 @@ export interface ICameraInfo {
 
 const v_a = cc.v3();
 const v_b = cc.v3();
+const _tempMat1 = cc.mat4();
+const _tempMat2 = cc.mat4();
 
 export class Camera {
 
@@ -198,6 +201,33 @@ export class Camera {
 
         const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
         this._exposure = 0.833333 / Math.pow(2.0, ev100);
+    }
+
+    public getSplitFrustum (out: frustum, nearClip: number, farClip: number) {
+        if (!this._node) {
+            return;
+        }
+
+        nearClip = Math.max(nearClip, this._nearClip);
+        farClip = Math.min(farClip, this._farClip);
+
+        // view matrix
+        this.node.getWorldRT(this._matView);
+        mat4.invert(this._matView, this._matView);
+
+        // projection matrix
+        if (this._proj === CameraProjection.PERSPECTIVE) {
+            mat4.perspective(_tempMat1, this._fov, this._aspect, nearClip, farClip);
+        } else {
+            const x = this._orthoHeight * this._aspect;
+            const y = this._orthoHeight;
+            mat4.ortho(_tempMat1, -x, x, -y, y, nearClip, farClip);
+        }
+
+        // view-projection
+        mat4.mul(_tempMat2, _tempMat1, this._matView);
+        mat4.invert(_tempMat1, _tempMat2);
+        out.update(_tempMat2, _tempMat1);
     }
 
     set screenScale (val) {

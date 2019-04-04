@@ -19,6 +19,7 @@ export interface IPassStates {
     blendState?: GFXBlendState;
     dynamics?: GFXDynamicState[];
     customizations?: string[];
+    phase?: string;
 }
 export interface IPassInfo extends IPassStates {
     program: string; // auto-generated
