@@ -1,7 +1,7 @@
 
 import { ccenum } from '../core/value-types/enum';
 
-enum WrapModeMask {
+export enum WrapModeMask {
     Loop = 1 << 1,
     ShouldWrap = 1 << 2,
     // Reserved: 1 << 3,
@@ -62,3 +62,30 @@ export enum WrapMode {
 
 ccenum(WrapMode);
 cc.WrapMode = WrapMode;
+
+/**
+ * For internal
+ */
+export class WrappedInfo {
+    public ratio = 0;
+    public time = 0;
+    public direction = 1;
+    public stopped = true;
+    public iterations = 0;
+    public frameIndex: number = NaN;
+
+    constructor (info?: WrappedInfo) {
+        if (info) {
+            this.set(info);
+        }
+    }
+
+    public set (info: WrappedInfo) {
+        this.ratio = info.ratio;
+        this.time = info.time;
+        this.direction = info.direction;
+        this.stopped = info.stopped;
+        this.iterations = info.iterations;
+        this.frameIndex = info.frameIndex;
+    }
+}

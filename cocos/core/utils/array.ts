@@ -48,7 +48,7 @@ export function removeAt (array, index) {
  * @param {Number} index
  */
 export function fastRemoveAt (array, index) {
-    var length = array.length;
+    const length = array.length;
     if (index < 0 || index >= length) {
         return;
     }
@@ -64,7 +64,7 @@ export function fastRemoveAt (array, index) {
  * @return {Boolean}
  */
 export function remove (array, value) {
-    var index = array.indexOf(value);
+    const index = array.indexOf(value);
     if (index >= 0) {
         removeAt(array, index);
         return true;
@@ -82,7 +82,7 @@ export function remove (array, value) {
  * @param {Number} value
  */
 export function fastRemove (array, value) {
-    var index = array.indexOf(value);
+    const index = array.indexOf(value);
     if (index >= 0) {
         array[index] = array[array.length - 1];
         --array.length;
@@ -98,8 +98,8 @@ export function fastRemove (array, value) {
  */
 export function verifyType (array, type) {
     if (array && array.length > 0) {
-        for (var i = 0; i < array.length; i++) {
-            if (!(array[i] instanceof type)) {
+        for (const item of array) {
+            if (!(item instanceof type)) {
                 cc.logID(1300);
                 return false;
             }
@@ -115,7 +115,7 @@ export function verifyType (array, type) {
  * @param {Array} minusArr minus Array
  */
 export function removeArray (array, minusArr) {
-    for (var i = 0, l = minusArr.length; i < l; i++) {
+    for (let i = 0, l = minusArr.length; i < l; i++) {
         remove(array, minusArr[i]);
     }
 }
@@ -135,8 +135,12 @@ export function appendObjectsAt (array, addObjs, index) {
 
 /**
  * Exact same function as Array.prototype.indexOf.<br>
- * HACK: ugliy hack for Baidu mobile browser compatibility, stupid Baidu guys modify Array.prototype.indexOf for all pages loaded, their version changes strict comparison to non-strict comparison, it also ignores the second parameter of the original API, and this will cause event handler enter infinite loop.<br>
- * Baidu developers, if you ever see this documentation, here is the standard: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf, Seriously!
+ * HACK: ugliy hack for Baidu mobile browser compatibility,
+ * stupid Baidu guys modify Array.prototype.indexOf for all pages loaded,
+ * their version changes strict comparison to non-strict comparison,
+ * it also ignores the second parameter of the original API, and this will cause event handler enter infinite loop.<br>
+ * Baidu developers, if you ever see this documentation,
+ * here is the standard: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf, Seriously!
  *
  * @method indexOf
  * @param {any} searchElement - Element to locate in the array.
@@ -163,8 +167,10 @@ export function contains (array, value) {
  * @return {Array}
  */
 export function copy (array) {
-    var i, len = array.length, arr_clone = new Array(len);
-    for (i = 0; i < len; i += 1)
+    const len = array.length;
+    const arr_clone = new Array(len);
+    for (let i = 0; i < len; i += 1) {
         arr_clone[i] = array[i];
+    }
     return arr_clone;
 }

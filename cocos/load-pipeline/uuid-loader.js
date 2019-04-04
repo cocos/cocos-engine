@@ -275,7 +275,8 @@ export function loadUuid (item, callback) {
     catch (e) {
         cc.deserialize.Details.pool.put(tdInfo);
         var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
-        return new Error(debug.getError(4925, item.id, err));
+        return new Error(`Failed to load asset ${item.id}, exception occurs during serialization: ${err}.`);
+        // return new Error(debug.getError(4925, item.id, err));
     }
 
     asset._uuid = item.uuid;

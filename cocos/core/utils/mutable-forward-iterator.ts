@@ -34,33 +34,48 @@
  *     ...
  * }
  */
-export default class MutableForwardIterator {
-    constructor (array) {
-        this.i = 0;
+export default class MutableForwardIterator<T> {
+    public i = 0;
+
+    constructor (public array: T[]) {
         this.array = array;
     }
 
-    remove (value) {
-        var index = this.array.indexOf(value);
+    get length () {
+        return this.array.length;
+    }
+
+    set length (value: number) {
+        this.array.length = value;
+        if (this.i >= value) {
+            this.i = value - 1;
+        }
+    }
+
+    public remove (value: T) {
+        const index = this.array.indexOf(value);
         if (index >= 0) {
             this.removeAt(index);
         }
     }
-    removeAt (i) {
+
+    public removeAt (i: number) {
         this.array.splice(i, 1);
 
         if (i <= this.i) {
             --this.i;
         }
     }
-    fastRemove (value) {
-        var index = this.array.indexOf(value);
+
+    public fastRemove (value: T) {
+        const index = this.array.indexOf(value);
         if (index >= 0) {
             this.fastRemoveAt(index);
         }
     }
-    fastRemoveAt (i) {
-        var array = this.array;
+
+    public fastRemoveAt (i: number) {
+        const array = this.array;
         array[i] = array[array.length - 1];
         --array.length;
 
@@ -68,19 +83,8 @@ export default class MutableForwardIterator {
             --this.i;
         }
     }
-    push (item) {
+
+    public push (item: T) {
         this.array.push(item);
     }
 }
-
-//js.getset(proto, 'length',
-//    function () {
-//        return this.array.length;
-//    },
-//    function (len) {
-//        this.array.length = len;
-//        if (this.i >= len) {
-//            this.i = len - 1;
-//        }
-//    }
-//);
