@@ -270,7 +270,6 @@ easing.sineOutIn = _makeOutIn(easing.sineIn, easing.sineOut);
 easing.expoOutIn = _makeOutIn(easing.expoIn, easing.expoOut);
 easing.circOutIn = _makeOutIn(easing.circIn, easing.circOut);
 easing.backOutIn = _makeOutIn(easing.backIn, easing.backOut);
-easing.backOutIn = _makeOutIn(easing.backIn, easing.backOut);
 easing.bounceIn = function (k) { return 1 - easing.bounceOut(1 - k); };
 easing.bounceInOut = function (k) {
     if (k < 0.5) {
