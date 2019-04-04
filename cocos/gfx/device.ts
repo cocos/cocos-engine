@@ -147,6 +147,14 @@ export abstract class GFXDevice {
         return this._macros;
     }
 
+    public get numDrawCalls (): number {
+        return this._numDrawCalls;
+    }
+
+    public get numTris (): number {
+        return this._numTris;
+    }
+
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
     protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
@@ -177,6 +185,8 @@ export abstract class GFXDevice {
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _shaderIdGen: number = 0;
     protected _macros: Map<string, string> = new Map();
+    protected _numDrawCalls: number = 0;
+    protected _numTris: number = 0;
 
     public abstract initialize (info: IGFXDeviceInfo): boolean;
     public abstract destroy (): void;

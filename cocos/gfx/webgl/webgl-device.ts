@@ -533,6 +533,10 @@ export class WebGLGFXDevice extends GFXDevice {
 
     public present () {
         (this._cmdAllocator as WebGLGFXCommandAllocator).releaseCmds();
+        const queue = (this._queue as WebGLGFXQueue);
+        this._numDrawCalls = queue.numDrawCalls;
+        this._numTris = queue.numTris;
+        queue.clear();
     }
 
     public copyBuffersToTexture (buffers: ArrayBuffer[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {

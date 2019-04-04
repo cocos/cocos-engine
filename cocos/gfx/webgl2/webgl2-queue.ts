@@ -8,6 +8,9 @@ import { WebGL2GFXDevice } from './webgl2-device';
 
 export class WebGL2GFXQueue extends GFXQueue {
 
+    public numDrawCalls: number = 0;
+    public numTris: number = 0;
+
     private _isAsync: boolean = false;
 
     constructor (device: GFXDevice) {
@@ -31,9 +34,15 @@ export class WebGL2GFXQueue extends GFXQueue {
         // TODO: Async
         if (!this._isAsync) {
             for (const cmdBuff of cmdBuffs) {
-                WebGL2CmdFuncExecuteCmds(this._device as WebGL2GFXDevice,
-                    (cmdBuff as WebGL2GFXCommandBuffer).cmdPackage);
+                WebGL2CmdFuncExecuteCmds(this._device as WebGL2GFXDevice, (cmdBuff as WebGL2GFXCommandBuffer).cmdPackage);
+                this.numDrawCalls += cmdBuff.numDrawCalls;
+                this.numTris += cmdBuff.numTris;
             }
         }
+    }
+
+    public clear () {
+        this.numDrawCalls = 0;
+        this.numTris = 0;
     }
 }
