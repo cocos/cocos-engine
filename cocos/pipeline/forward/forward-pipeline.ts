@@ -11,6 +11,7 @@ import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
+import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
 import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_SMAA, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
 import { SMAAEdgeFlow } from '../ppfx/smaa-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
@@ -133,10 +134,10 @@ export class ForwardPipeline extends RenderPipeline {
     protected updateUBOs (view: RenderView) {
         super.updateUBOs(view);
 
-        for (let i = 0; i < this._visibleModel.length; i++) {
+        for (let i = 0; i < this._renderObjects.length; i++) {
             this._uboLights.view.fill(0);
-            const nextLightIndex = i + 1 < this._visibleModel.length ? this._lightIndexOffset[i + 1] : this._lightIndices.length;
-            if (!this._visibleModel[i].localBindings.get(UBOForwardLight.BLOCK.name)) {
+            const nextLightIndex = i + 1 < this._renderObjects.length ? this._lightIndexOffset[i + 1] : this._lightIndices.length;
+            if (!this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)) {
                 continue;
             }
             const dirNum = 0;
@@ -209,7 +210,7 @@ export class ForwardPipeline extends RenderPipeline {
                     }
                 }
             }
-            this._visibleModel[i].localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!.update(this._uboLights.view);
+            this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!.update(this._uboLights.view);
         }
 
     }
@@ -244,10 +245,10 @@ export class ForwardPipeline extends RenderPipeline {
 
         this._lightIndexOffset.splice(0);
         this._lightIndices.splice(0);
-        for (let i = 0; i < this._visibleModel.length; i++) {
+        for (let i = 0; i < this._renderObjects.length; i++) {
             this._lightIndexOffset[i] = this._lightIndices.length;
-            if (this._visibleModel[i].localBindings.get(UBOForwardLight.BLOCK.name)) {
-                this.cullLightPerModel(this._visibleModel[i]);
+            if (this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)) {
+                this.cullLightPerModel(this._renderObjects[i].model);
             }
         }
     }
@@ -283,21 +284,4 @@ export class ForwardPipeline extends RenderPipeline {
     private sortLight (a, b) {
         return _tempLightDist[a] - _tempLightDist[b];
     }
-}
-
-function cullLight (light: Light, model: Model) {
-    // TODO:to add light mask & lightmapped model check.
-    return false;
-}
-
-function cullDirectionalLight (light: DirectionalLight, model: Model) {
-    return cullLight(light, model);
-}
-
-function cullSphereLight (light: SphereLight, model: Model) {
-    return cullLight(light, model) || !intersect.aabb_aabb(model.worldBounds, light.aabb);
-}
-
-function cullSpotLight (light: SpotLight, model: Model) {
-    return cullLight(light, model) || !intersect.aabb_aabb(model.worldBounds, light.aabb) || !intersect.aabb_frustum(model.worldBounds, light.frustum);
 }

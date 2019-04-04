@@ -1,17 +1,43 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXCommandBufferType, IGFXColor, GFXFilter } from '../../gfx/define';
+import { GFXClearFlag, GFXCommandBufferType, GFXFilter, IGFXColor } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderFlow } from '../render-flow';
+import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
+import { IRenderObject } from '../define';
+import { cullSceneWithDirectionalLight } from '../culling';
+import { Model } from '../../renderer';
+import { getPhaseID } from '../pass-phase';
 
 const colors: IGFXColor[] = [];
 const bufs: GFXCommandBuffer[] = [];
 
 export class ForwardStage extends RenderStage {
 
+    private _opaqueQueue: RenderQueue;
+    private _transparentQueue: RenderQueue;
+    private _shadowQueue: RenderQueue;
+    private _castShadowObjects: Model[] = [];
+
     constructor (flow: RenderFlow) {
         super(flow);
+
+        this._opaqueQueue = new RenderQueue({
+            isTransparent: false,
+            phases: getPhaseID('default'),
+            sortFunc: opaqueCompareFn,
+        });
+        this._transparentQueue = new RenderQueue({
+            isTransparent: true,
+            phases: getPhaseID('default'),
+            sortFunc: transparentCompareFn,
+        });
+        this._shadowQueue = new RenderQueue({
+            isTransparent: true,
+            phases: getPhaseID('planarShadow'),
+            sortFunc: transparentCompareFn,
+        });
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -45,10 +71,36 @@ export class ForwardStage extends RenderStage {
 
     public render (view: RenderView) {
 
-        const cmdBuff = this._cmdBuff!;
-        const queue = this._pipeline.queue;
+        this._opaqueQueue.clear();
+        this._transparentQueue.clear();
+        this._shadowQueue.clear();
 
-        const camera = view.camera!;
+        for (const ro of this._pipeline.renderObjects) {
+            for (let i = 0; i < ro.model.subModelNum; i++) {
+                for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
+                    this._opaqueQueue.insertRenderPass(ro, i, j);
+                    this._transparentQueue.insertRenderPass(ro, i, j);
+                }
+            }
+        }
+        this._opaqueQueue.sort();
+        this._transparentQueue.sort();
+
+        this._castShadowObjects.splice(0);
+        const camera = view.camera;
+        const scene = camera.scene;
+        cullSceneWithDirectionalLight(this._castShadowObjects, scene.models, camera, scene.mainLight, camera.nearClip, camera.farClip);
+        for (const m of this._castShadowObjects) {
+            for (let i = 0; i < m.subModelNum; i++) {
+                for (let j = 0; j < m.getSubModel(i).passes.length; j++) {
+                    this._shadowQueue.insertRenderPass({ model: m, depth: 0 }, i, j);
+                }
+            }
+        }
+        this._shadowQueue.sort();
+
+        const cmdBuff = this._cmdBuff!;
+
         const vp = camera.viewport;
         this._renderArea.x = vp.x * camera.width;
         this._renderArea.y = vp.y * camera.height;
@@ -77,7 +129,9 @@ export class ForwardStage extends RenderStage {
         cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.execute(queue.cmdBuffs.array, queue.cmdBuffCount);
+        cmdBuff.execute(this._opaqueQueue.cmdBuffs.array, this._opaqueQueue.cmdBuffCount);
+        cmdBuff.execute(this._shadowQueue.cmdBuffs.array, this._shadowQueue.cmdBuffCount);
+        cmdBuff.execute(this._transparentQueue.cmdBuffs.array, this._transparentQueue.cmdBuffCount);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();

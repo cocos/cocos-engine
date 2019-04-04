@@ -3,7 +3,7 @@ export default [
   {
     "name": "builtin-particle",
     "techniques": [
-      {"name":"add", "passes":[{"rasterizerState":{"cullMode":0}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":1, "blendSrcAlpha":2, "blendDstAlpha":1}]}, "program":"builtin-particle|particle-vs-legacy:lpvs_main|tinted-fs:add", "depthStencilState":{"depthTest":true, "depthWrite":false}, "properties":{"mainTexture":{"type":28, "value":"grey"}, "mainTiling_Offset":{"type":16, "value":[1, 1, 0, 0]}, "frameTile_velLenScale":{"type":16, "value":[1, 1, 0, 0]}, "tintColor":{"type":16, "value":[0.5, 0.5, 0.5, 0.5], "inspector":{"picker":"color"}}}}]}
+      {"name":"add", "passes":[{"rasterizerState":{"cullMode":0}, "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":1, "blendSrcAlpha":2, "blendDstAlpha":1}]}, "program":"builtin-particle|particle-vs-legacy:lpvs_main|tinted-fs:add", "depthStencilState":{"depthTest":true, "depthWrite":false}, "properties":{"mainTexture":{"type":28, "value":"grey"}, "mainTiling_Offset":{"type":16, "value":[1, 1, 0, 0]}, "frameTile_velLenScale":{"type":16, "value":[1, 1, 0, 0]}, "tintColor":{"type":16, "value":[0.5, 0.5, 0.5, 0.5], "inspector":{"type":"color"}}}}]}
     ],
     "shaders": [
       {
@@ -105,7 +105,7 @@ export default [
   {
     "name": "builtin-standard",
     "techniques": [
-      {"name":"opaque", "passes":[{"program":"builtin-standard|standard-vs:vert|standard-fs:frag", "properties":{"tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "albedo":{"type":16, "value":[1, 1, 1, 1], "inspector":{"picker":"color"}}, "albedoScale":{"type":16, "value":[1, 1, 1, 0]}, "pbrParams":{"type":16, "value":[0.8, 0.6, 0, 1]}, "pbrScale":{"type":16, "value":[1, 1, 1, 1]}, "emissive":{"type":16, "value":[1, 1, 1, 1], "inspector":{"picker":"color"}}, "emissiveScale":{"type":16, "value":[1, 1, 1, 1]}, "albedoMap":{"type":28, "value":"grey"}, "normalMap":{"type":28, "value":"normal"}, "pbrMap":{"type":28, "value":"grey"}, "emissiveMap":{"type":28, "value":"grey"}, "envMap":{"type":31, "value":"default-cube"}}}, {"customizations":["bounds-merge-shadow"], "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"builtin-standard|planar-shadow-vs:vert|planar-shadow-fs:frag", "depthStencilState":{"depthTest":true, "depthWrite":false, "stencilTestFront":true, "stencilFuncFront":5, "stencilPassOpFront":2, "stencilWriteMaskBack":128, "stencilWriteMaskFront":128, "stencilReadMaskBack":128, "stencilReadMaskFront":128, "stencilRefBack":128, "stencilRefFront":128}, "switch":"USE_PLANAR_SHADOW"}]}
+      {"name":"opaque", "passes":[{"program":"builtin-standard|standard-vs:vert|standard-fs:frag", "properties":{"tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "albedo":{"type":16, "value":[1, 1, 1, 1], "inspector":{"type":"color"}}, "albedoScale":{"type":16, "value":[1, 1, 1, 0]}, "pbrParams":{"type":16, "value":[0.8, 0.6, 0, 1]}, "pbrScale":{"type":16, "value":[1, 1, 1, 1]}, "emissive":{"type":16, "value":[1, 1, 1, 1], "inspector":{"type":"color"}}, "emissiveScale":{"type":16, "value":[1, 1, 1, 1]}, "albedoMap":{"type":28, "value":"grey"}, "normalMap":{"type":28, "value":"normal"}, "pbrMap":{"type":28, "value":"grey"}, "emissiveMap":{"type":28, "value":"grey"}, "envMap":{"type":31, "value":"default-cube"}}}, {"customizations":["bounds-merge-shadow"], "blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "phase":"planarShadow", "program":"builtin-standard|planar-shadow-vs:vert|planar-shadow-fs:frag", "depthStencilState":{"depthTest":true, "depthWrite":false, "stencilTestFront":true, "stencilFuncFront":5, "stencilPassOpFront":2, "stencilWriteMaskBack":128, "stencilWriteMaskFront":128, "stencilReadMaskBack":128, "stencilReadMaskFront":128, "stencilRefBack":128, "stencilRefFront":128}, "switch":"USE_PLANAR_SHADOW"}]}
     ],
     "shaders": [
       {
@@ -180,7 +180,7 @@ export default [
   {
     "name": "builtin-unlit",
     "techniques": [
-      {"name":"opaque", "passes":[{"program":"builtin-unlit|unlit-vs:vert|unlit-fs:frag", "properties":{"color":{"type":16, "value":[1, 1, 1, 1], "inspector":{"picker":"color"}}, "tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "mainTexture":{"type":28, "value":"grey"}}}]}
+      {"name":"opaque", "passes":[{"program":"builtin-unlit|unlit-vs:vert|unlit-fs:frag", "properties":{"color":{"type":16, "value":[1, 1, 1, 1], "inspector":{"type":"color"}}, "tilingOffset":{"type":16, "value":[1, 1, 0, 0]}, "mainTexture":{"type":28, "value":"grey"}}}]}
     ],
     "shaders": [
       {

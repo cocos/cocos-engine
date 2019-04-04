@@ -1,4 +1,4 @@
-import { vec3 } from '../../core/vmath';
+import { vec3, mat4, vec4 } from '../../core/vmath';
 import enums from './enums';
 
 const v1 = vec3.create(0, 0, 0);
@@ -111,6 +111,19 @@ export default class plane {
         }
         return out;
     }
+
+    public transform = (() => {
+        const temp_mat = cc.mat4();
+        const temp_vec4 = cc.v4();
+        return (mat: mat4) => {
+            mat4.invert(temp_mat, mat);
+            mat4.transpose(temp_mat, temp_mat);
+            vec4.set(temp_vec4, this.n.x, this.n.y, this.n.z, this.d);
+            vec4.transformMat4(temp_vec4, temp_vec4, temp_mat);
+            vec3.set(this.n, temp_vec4.x, temp_vec4.y, temp_vec4.z);
+            this.d = temp_vec4.w;
+        };
+    })();
 
     public n: vec3;
     public d: number;
