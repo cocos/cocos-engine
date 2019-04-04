@@ -323,7 +323,7 @@ export class Model {
                 break;
             }
         }
-        if (hasForwardLight && cc.director.root.pipeline.constructor.name === 'ForwardPipeline') {
+        if (hasForwardLight && cc.director.root.pipeline.name === 'ForwardPipeline') {
             if (!this._localBindings.has(UBOForwardLight.BLOCK.name)) {
                 this._localBindings.set(UBOForwardLight.BLOCK.name, {
                     type: GFXBindingType.UNIFORM_BUFFER,
