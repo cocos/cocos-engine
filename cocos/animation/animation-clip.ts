@@ -136,10 +136,10 @@ export class LegacyAnimationClip extends Asset {
     private frameRate = 0;
 
     public onLoad () {
-        this._duration = Number.parseFloat(this.duration);
-        this.speed = Number.parseFloat(this.speed);
-        this.wrapMode = Number.parseInt(this.wrapMode);
-        this.frameRate = Number.parseFloat(this.sample);
+        this._duration = this.duration;
+        this.speed = this.speed;
+        this.wrapMode = this.wrapMode;
+        this.frameRate = this.sample;
     }
 
     public createPropCurve (target: ICurveTarget, propPath: string, keyframes: IKeyframe[]) {

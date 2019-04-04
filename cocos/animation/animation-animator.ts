@@ -1,4 +1,6 @@
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
+import { MutableForwardIterator } from '../core/utils/array';
+import { Node } from '../scene-graph';
 import { LegacyAnimationClip } from './animation-clip';
 import { EventAnimCurve, EventInfo } from './animation-curve';
 import { LegacyAnimationState } from './animation-state';
@@ -9,9 +11,9 @@ import { WrapModeMask } from './types';
  * The actual animator for Animation Component.
  */
 export class AnimationAnimator extends Playable {
-    private _anims = new cc.js.array.MutableForwardIterator([]);
+    private _anims = new MutableForwardIterator<LegacyAnimationState>([]);
 
-    constructor (public target, public animation: LegacyAnimationClip) {
+    constructor (public target: Node, public animation: LegacyAnimationClip) {
         super();
     }
 
@@ -103,18 +105,18 @@ export class AnimationAnimator extends Playable {
         }
     }
 
-    public setStateTime (state: LegacyAnimationState, time: number) {
+    public setStateTime (state: LegacyAnimationState, time: number): void;
+
+    public setStateTime (time: number): void;
+
+    public setStateTime (state: LegacyAnimationState | number, time?: number) {
         if (time !== undefined) {
-            if (state) {
-                state.setTime(time);
-                state.sample();
-            }
+            (state as LegacyAnimationState).setTime(time);
+            (state as LegacyAnimationState).sample();
         }
         else {
-            time = state;
-
             for (const anim of this._anims.array) {
-                anim.setTime(time);
+                anim.setTime(state as number);
                 anim.sample();
             }
         }

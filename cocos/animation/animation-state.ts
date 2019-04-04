@@ -1,3 +1,4 @@
+import { Node } from '../scene-graph';
 import { AnimationAnimator } from './animation-animator';
 import { LegacyAnimationClip } from './animation-clip';
 import { AnimCurve } from './animation-curve';
@@ -173,7 +174,7 @@ export class LegacyAnimationState extends Playable {
     private _wrappedInfo = new WrappedInfo();
     private _lastWrappedInfo: WrappedInfo | null = null;
     private _process = this.process;
-    private _target = null;
+    private _target: Node | null = null;
     private _lastframeEventOn = false;
     private _clip: LegacyAnimationClip;
     private _name: string;

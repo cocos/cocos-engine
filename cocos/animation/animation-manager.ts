@@ -1,11 +1,12 @@
 import { ccclass } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
+import { Node } from '../scene-graph';
 import { LegacyAnimationState } from './animation-state';
 
 @ccclass
 export class AnimationManager {
     private _anims = new cc.js.array.MutableForwardIterator([]);
-    private _delayEvents = [];
+    private _delayEvents: Array<{target: Node; func: string; args: any[]; }> = [];
 
     constructor () {
         if (cc.director._scheduler) {
@@ -51,7 +52,7 @@ export class AnimationManager {
         }
     }
 
-    public pushDelayEvent (target, func, args) {
+    public pushDelayEvent (target: Node, func: string, args: any[]) {
         this._delayEvents.push({
             target,
             func,

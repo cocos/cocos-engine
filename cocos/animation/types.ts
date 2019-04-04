@@ -72,7 +72,7 @@ export class WrappedInfo {
     public direction = 1;
     public stopped = true;
     public iterations = 0;
-    public frameIndex: number | undefined = undefined;
+    public frameIndex: number = NaN;
 
     constructor (info?: WrappedInfo) {
         if (info) {
