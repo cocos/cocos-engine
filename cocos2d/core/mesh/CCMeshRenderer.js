@@ -78,6 +78,13 @@ let ShadowCastingMode = cc.Enum({
     // SHADOWS_ONLY: 3,
 });
 
+/**
+ * !#en
+ * Mesh Renderer Component
+ * !#zh
+ * 网格渲染组件
+ * @class MeshRenderer
+ */
 let MeshRenderer = cc.Class({
     name: 'cc.MeshRenderer',
     extends: RenderComponent,
@@ -95,6 +102,13 @@ let MeshRenderer = cc.Class({
         _receiveShadows: false,
         _shadowCastingMode: ShadowCastingMode.OFF,
 
+        /**
+         * !#en
+         * The mesh which the renderer uses.
+         * !#zh
+         * 设置使用的网格
+         * @property {Mesh} mesh
+         */
         mesh: {
             get () {
                 return this._mesh;
@@ -115,6 +129,13 @@ let MeshRenderer = cc.Class({
             visible: false
         },
 
+        /**
+         * !#en
+         * Whether the mesh should receive shadows.
+         * !#zh
+         * 网格是否接受光源投射的阴影
+         * @property {boolean} receiveShadows
+         */
         receiveShadows: {
             get () {
                 return this._receiveShadows;
@@ -125,6 +146,13 @@ let MeshRenderer = cc.Class({
             }
         },
 
+        /**
+         * !#en
+         * Shadow Casting Mode
+         * !#zh
+         * 网格投射阴影的模式
+         * @property {ShadowCastingMode} shadowCastingMode
+         */
         shadowCastingMode: {
             get () {
                 return this._shadowCastingMode;

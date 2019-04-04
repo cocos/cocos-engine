@@ -32,6 +32,13 @@ let _m4_tmp = mat4.create();
 
 const dummyNode = new cc.Node();
 
+/**
+ * !#en
+ * Skinned Mesh Renderer
+ * !#zh
+ * 蒙皮渲染组件
+ * @class SkinnedMeshRenderer
+ */
 let SkinnedMeshRenderer = cc.Class({
     name: 'cc.SkinnedMeshRenderer',
     extends: MeshRenderer,
@@ -52,6 +59,13 @@ let SkinnedMeshRenderer = cc.Class({
         _skeleton: Skeleton,
         _rootBone: cc.Node,
 
+        /**
+         * !#en
+         * Skeleton Asset
+         * !#zh
+         * 骨骼资源
+         * @property {Skeleton} skeleton
+         */
         skeleton: {
             get () {
                 return this._skeleton;
@@ -64,6 +78,13 @@ let SkinnedMeshRenderer = cc.Class({
             type: Skeleton
         },
 
+        /**
+         * !#en
+         * Root Bone
+         * !#zh
+         * 骨骼根节点
+         * @property {Node} rootBone
+         */
         rootBone: {
             get () {
                 return this._rootBone;
