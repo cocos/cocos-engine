@@ -206,8 +206,6 @@ function _resetGame (w, h) {
 
         var size = view.getDesignResolutionSize();
         view.setDesignResolutionSize(size.width, size.height, cc.ResolutionPolicy.SHOW_ALL);
-
-        cc.view.emit('canvas-resize');
     }
     // Forbid render in test
     cc.renderer.render = function () {};

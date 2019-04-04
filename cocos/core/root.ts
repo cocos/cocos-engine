@@ -110,7 +110,7 @@ export class Root {
             return false;
         }
 
-        cc.view.on('canvas-resize', () => {
+        cc.view.on('design-resolution-changed', () => {
             const width = cc.game.canvas.width;
             const height = cc.game.canvas.height;
             this.resize(width, height);

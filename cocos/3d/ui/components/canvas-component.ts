@@ -203,7 +203,6 @@ export class CanvasComponent extends Component {
 
         if (CC_EDITOR) {
             cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-            // cc.view.on('canvas-resize', this._thisOnResized);
             // cc.engine.on('design-resolution-changed', this._thisOnResized);
         }
         else {
@@ -211,10 +210,10 @@ export class CanvasComponent extends Component {
             //     window.addEventListener('resize', this._thisOnResized);
             // }
             // else {
-            //     cc.view.on('canvas-resize', this._thisOnResized);
+            //     cc.view.on('design-resolution-changed', this._thisOnResized);
             // }
         }
-        cc.view.on('canvas-resize', this._thisOnResized);
+        cc.view.on('design-resolution-changed', this._thisOnResized);
 
         this.applySettings();
         this.alignWithScreen();
@@ -230,18 +229,16 @@ export class CanvasComponent extends Component {
     public onDestroy () {
         if (CC_EDITOR) {
             cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-            // cc.view.off('canvas-resize', this._thisOnResized);
             // cc.engine.off('design-resolution-changed', this._thisOnResized);
         }
         // else {
             // if (cc.sys.isMobile) {
             //     window.removeEventListener('resize', this._thisOnResized);
             // } else {
-            //     cc.view.off('canvas-resize', this._thisOnResized);
+            //     cc.view.off('design-resolution-changed', this._thisOnResized);
             // }
         // }
-        cc.view.off('canvas-resize', this._thisOnResized);
-        // cc.view.off('design-resolution-changed', this._thisOnResized);
+        cc.view.off('design-resolution-changed', this._thisOnResized);
 
         if (CanvasComponent.instance === this) {
             CanvasComponent.instance = null;
