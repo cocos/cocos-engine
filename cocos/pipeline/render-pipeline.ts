@@ -51,6 +51,10 @@ export abstract class RenderPipeline {
         return this._device;
     }
 
+    public get name (): string {
+        return this._name;
+    }
+
     public get renderObjects (): IRenderObject[] {
         return this._renderObjects;
     }
@@ -157,6 +161,7 @@ export abstract class RenderPipeline {
 
     protected _root: Root;
     protected _device: GFXDevice;
+    protected _name: string = 'BasePipeline';
     protected _renderObjects: IRenderObject[] = [];
     protected _renderPasses: Map<number, GFXRenderPass> = new Map();
     protected _flows: RenderFlow[] = [];
