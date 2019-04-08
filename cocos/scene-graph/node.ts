@@ -783,7 +783,7 @@ class Node extends BaseNode {
         this._eventProcessor.off(type, callback, target, useCapture);
     }
 
-    public once (type, callback, target, useCapture) {
+    public once (type, callback, target?, useCapture?) {
         this._eventProcessor.once(type, callback, target, useCapture);
     }
 
