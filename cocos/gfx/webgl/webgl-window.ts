@@ -1,5 +1,16 @@
-import { GFXLoadOp, GFXStatus, GFXStoreOp, GFXTextureLayout } from '../define';
+import {
+    GFXFormat,
+    GFXLoadOp,
+    GFXStatus,
+    GFXStoreOp,
+    GFXTextureFlagBit,
+    GFXTextureLayout,
+    GFXTextureType,
+    GFXTextureUsageBit,
+    GFXTextureViewType,
+} from '../define';
 import { GFXDevice } from '../device';
+import { GFXTextureView } from '../texture-view';
 import { GFXWindow, IGFXWindowInfo } from '../window';
 
 export class WebGLGFXWindow extends GFXWindow {
@@ -20,6 +31,10 @@ export class WebGLGFXWindow extends GFXWindow {
 
         if (info.top !== undefined) {
             this._top = info.top;
+        }
+
+        if (info.isOffscreen !== undefined) {
+            this._isOffscreen = info.isOffscreen;
         }
 
         this._width = info.width;
@@ -48,115 +63,90 @@ export class WebGLGFXWindow extends GFXWindow {
             },
         });
 
-        if (!this._renderPass) {
-            this.destroy();
-            return false;
+        const colorViews: GFXTextureView[] = [];
+
+        if (this._isOffscreen) {
+            if (this._colorFmt !== GFXFormat.UNKNOWN) {
+                this._colorTex = this._device.createTexture({
+                    type : GFXTextureType.TEX2D,
+                    usage : GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                    format : this._colorFmt,
+                    width : this._width,
+                    height : this._height,
+                    depth : 1,
+                    arrayLayer : 1,
+                    mipLevel : 1,
+                    flags : GFXTextureFlagBit.NONE,
+                });
+                this._colorTexView = this._device.createTextureView({
+                    texture : this._colorTex,
+                    type : GFXTextureViewType.TV2D,
+                    format : this._colorFmt,
+                    baseLevel : 0,
+                    levelCount : 1,
+                    baseLayer : 0,
+                    layerCount : 1,
+                });
+                colorViews.push(this._colorTexView);
+            }
+
+            if (this._depthStencilFmt !== GFXFormat.UNKNOWN) {
+                this._depthStencilTex = this._device.createTexture({
+                    type : GFXTextureType.TEX2D,
+                    usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+                    format : this._depthStencilFmt,
+                    width : this._width,
+                    height : this._height,
+                    depth : 1,
+                    arrayLayer : 1,
+                    mipLevel : 1,
+                    flags : GFXTextureFlagBit.NONE,
+                });
+
+                this._depthStencilTexView = this._device.createTextureView({
+                    texture : this._depthStencilTex,
+                    type : GFXTextureViewType.TV2D,
+                    format : this._depthStencilFmt,
+                    baseLevel : 0,
+                    levelCount : 1,
+                    baseLayer : 0,
+                    layerCount : 1,
+                });
+            }
         }
-
-        /*
-        this._colorTex = this._device.createTexture({
-            type : GFXTextureType.TEX2D,
-            usage : GFXTextureUsageBit.COLOR_ATTACHMENT,
-            format : this._colorFmt,
-            width : this._width,
-            height : this._height,
-            depth : 1,
-            arrayLayer : 1,
-            mipLevel : 1,
-            flags : GFXTextureFlagBit.NONE,
-        });
-
-        if(!this._colorTex) {
-            this.destroy();
-            return false;
-        }
-
-        this._colorTexView = this._device.createTextureView({
-            texture : this._colorTex,
-            type : GFXTextureViewType.TV2D,
-            format : this._colorFmt,
-            baseLevel : 0,
-            levelCount : 1,
-            baseLayer : 0,
-            layerCount : 1,
-        });
-
-        if(!this._colorTexView) {
-            this.destroy();
-            return false;
-        }
-
-        this._depthStencilTex = this._device.createTexture({
-            type : GFXTextureType.TEX2D,
-            usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-            format : this._depthStencilFmt,
-            width : this._width,
-            height : this._height,
-            depth : 1,
-            arrayLayer : 1,
-            mipLevel : 1,
-            flags : GFXTextureFlagBit.NONE,
-        });
-
-        if(!this._depthStencilTex) {
-            this.destroy();
-            return false;
-        }
-
-        this._depthStencilTexView = this._device.createTextureView({
-            texture : this._depthStencilTex,
-            type : GFXTextureViewType.TV2D,
-            format : this._depthStencilFmt,
-            baseLevel : 0,
-            levelCount : 1,
-            baseLayer : 0,
-            layerCount : 1,
-        });
-
-        if(!this._depthStencilTexView) {
-            this.destroy();
-            return false;
-        }
-        */
 
         this._framebuffer = this._device.createFramebuffer({
             renderPass: this._renderPass,
-            // colorViews: [this._colorTexView],
-            // depthStencilView: this._depthStencilTexView,
-            isOffscreen: false,
+            colorViews,
+            depthStencilView: this._depthStencilTexView,
+            isOffscreen: this._isOffscreen,
         });
 
-        if (!this._framebuffer) {
-            this.destroy();
-            return false;
-        }
         this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
     public destroy () {
-        /*
-        if(this._depthStencilTexView) {
+        if (this._depthStencilTexView) {
             this._depthStencilTexView.destroy();
             this._depthStencilTexView = null;
         }
 
-        if(this._depthStencilTex) {
+        if (this._depthStencilTex) {
             this._depthStencilTex.destroy();
             this._depthStencilTex = null;
         }
 
-        if(this._colorTexView) {
+        if (this._colorTexView) {
             this._colorTexView.destroy();
             this._colorTexView = null;
         }
 
-        if(this._colorTex) {
+        if (this._colorTex) {
             this._colorTex.destroy();
             this._colorTex = null;
         }
-        */
 
         if (this._framebuffer) {
             this._framebuffer.destroy();

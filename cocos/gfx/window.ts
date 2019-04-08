@@ -2,6 +2,8 @@ import { GFXFormat, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXRenderPass } from './render-pass';
+import { GFXTexture } from './texture';
+import { GFXTextureView } from './texture-view';
 
 export interface IGFXWindowInfo {
     title?: string;
@@ -11,6 +13,7 @@ export interface IGFXWindowInfo {
     height: number;
     colorFmt: GFXFormat;
     depthStencilFmt: GFXFormat;
+    isOffscreen?: boolean;
 }
 
 export abstract class GFXWindow extends GFXObject {
@@ -35,6 +38,14 @@ export abstract class GFXWindow extends GFXObject {
         return this._renderPass!;
     }
 
+    public get colorTexView (): GFXTextureView | null {
+        return this._colorTexView;
+    }
+
+    public get depthStencilTexView (): GFXTextureView | null {
+        return this._depthStencilTexView;
+    }
+
     public get framebuffer (): GFXFramebuffer {
         return this._framebuffer!;
     }
@@ -47,11 +58,12 @@ export abstract class GFXWindow extends GFXObject {
     protected _height: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
+    protected _isOffscreen: boolean = false;
     protected _renderPass: GFXRenderPass | null = null;
-    // protected _colorTex: GFXTexture | null = null;
-    // protected _colorTexView: GFXTextureView | null = null;
-    // protected _depthStencilTex: GFXTexture | null = null;
-    // protected _depthStencilTexView: GFXTextureView | null = null;
+    protected _colorTex: GFXTexture | null = null;
+    protected _colorTexView: GFXTextureView | null = null;
+    protected _depthStencilTex: GFXTexture | null = null;
+    protected _depthStencilTexView: GFXTextureView | null = null;
     protected _framebuffer: GFXFramebuffer | null = null;
 
     constructor (device: GFXDevice) {

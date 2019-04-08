@@ -113,30 +113,6 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en Create offscreen render target
-     *
-     * !#ch 创建离屏渲染目标
-     */
-    public createRenderTarget (info: IRenderTargetInfo): boolean {
-        if (this._camera) {
-            return this._camera.view.createRenderTarget(info);
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * !#en Destroy offscreen render target
-     *
-     * !#ch 销毁离屏渲染目标
-     */
-    public destroyRenderTarget () {
-        if (this._camera) {
-            return this._camera.view.destroyRenderTarget();
-        }
-    }
-
-    /**
      * !#en The projection type of the camera
      *
      * !#ch 相机的投影类型

@@ -5,8 +5,8 @@ import { GFXTextureView } from './texture-view';
 
 export interface IGFXFramebufferInfo {
     renderPass: GFXRenderPass;
-    colorViews?: GFXTextureView[];
-    depthStencilView?: GFXTextureView;
+    colorViews: GFXTextureView[];
+    depthStencilView: GFXTextureView | null;
     isOffscreen?: boolean;
 }
 
