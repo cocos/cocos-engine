@@ -39,6 +39,8 @@ export class WebGL2GFXWindow extends GFXWindow {
 
         this._width = info.width;
         this._height = info.height;
+        this._nativeWidth = this._width;
+        this._nativeHeight = this._height;
         this._colorFmt = info.colorFmt;
         this._depthStencilFmt = info.depthStencilFmt;
 
@@ -164,5 +166,39 @@ export class WebGL2GFXWindow extends GFXWindow {
     public resize (width: number, height: number) {
         this._width = width;
         this._height = height;
+        if (width > this._nativeWidth ||
+            height > this._nativeHeight) {
+            this._nativeWidth = width;
+            this._nativeHeight = height;
+
+            if (this._depthStencilTex) {
+                this._depthStencilTex.resize(width, height);
+                this._depthStencilTexView!.destroy();
+                this._depthStencilTexView!.initialize({
+                    texture : this._depthStencilTex,
+                    type : GFXTextureViewType.TV2D,
+                    format : this._depthStencilFmt,
+                });
+            }
+
+            if (this._colorTex) {
+                this._colorTex.resize(width, height);
+                this._colorTexView!.destroy();
+                this._colorTexView!.initialize({
+                    texture : this._colorTex,
+                    type : GFXTextureViewType.TV2D,
+                    format : this._colorFmt,
+                });
+            }
+
+            if (this._framebuffer && this._framebuffer.isOffscreen) {
+                this._framebuffer.destroy();
+                this._framebuffer.initialize({
+                    renderPass: this._renderPass!,
+                    colorViews: [ this._colorTexView! ],
+                    depthStencilView: this._depthStencilTexView!,
+                });
+            }
+        }
     }
 }

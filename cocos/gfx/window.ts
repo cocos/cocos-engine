@@ -56,6 +56,8 @@ export abstract class GFXWindow extends GFXObject {
     protected _top: number = 0;
     protected _width: number = 0;
     protected _height: number = 0;
+    protected _nativeWidth: number = 0;
+    protected _nativeHeight: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _isOffscreen: boolean = false;
