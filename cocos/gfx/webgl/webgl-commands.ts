@@ -2088,7 +2088,8 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     if (gpuTexture.isPowerOf2 && gpuTexture.mipLevel > 1) {
                                                         glMinFilter = gpuSampler.glMinFilter;
                                                     } else {
-                                                        if (gpuSampler.glMinFilter === gl.LINEAR_MIPMAP_NEAREST ||
+                                                        if (gpuSampler.glMinFilter === gl.LINEAR ||
+                                                            gpuSampler.glMinFilter === gl.LINEAR_MIPMAP_NEAREST ||
                                                             gpuSampler.glMinFilter === gl.LINEAR_MIPMAP_LINEAR) {
                                                             glMinFilter = gl.LINEAR;
                                                         } else {
