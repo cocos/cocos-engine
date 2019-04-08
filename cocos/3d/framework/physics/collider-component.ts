@@ -8,16 +8,29 @@ import {
 import Vec3 from '../../../core/value-types/vec3';
 import { vec3 } from '../../../core/vmath';
 import { BoxShapeBase, ShapeBase, SphereShapeBase } from '../../physics/api';
-import { createBoxShape, createSphereShape } from '../../physics/instance';
+import { createBoxShape, createSphereShape, ERigidBodyType } from '../../physics/instance';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 export class ColliderComponentBase extends PhysicsBasedComponent {
     protected _shapeBase: ShapeBase | null = null;
 
+    @property
+    private _triggered: boolean = false;
+    @property
+    get isTrigger () { return this._triggered; }
+    set isTrigger (value) {
+        this._triggered = value;
+        if (this._body) {
+            let type = this._triggered ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
+            this._body.setType(type);
+            this._body.setIsTrigger(value);
+        }
+    }
+
     /**
      * The center of the collider, in local space.
      */
-    @property({type: Vec3})
+    @property({ type: Vec3 })
     get center () {
         return this._center;
     }
@@ -44,6 +57,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         if (this._enabled) {
             this.onEnable();
         }
+        this.isTrigger = this._triggered;
     }
 
     public onEnable () {
@@ -92,7 +106,7 @@ export class BoxColliderComponent extends ColliderComponentBase {
      * The size of the box, in local space.
      * @note Shall not specify size with component 0.
      */
-    @property({type: Vec3})
+    @property({ type: Vec3 })
     get size () {
         return this._size;
     }
