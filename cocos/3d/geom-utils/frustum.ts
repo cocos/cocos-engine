@@ -115,11 +115,17 @@ export class frustum {
     }
 
     public transform (mat: mat4) {
-        for (let i = 0; i < 6; i++) {
-            this.planes[i].transform(mat);
+        if (this._type !== enums.SHAPE_FRUSTUM_ACCURATE) {
+            return;
         }
         for (let i = 0; i < 8; i++) {
             vec3.transformMat4(this.vertices[i], this.vertices[i], mat);
         }
+        plane.fromPoints(this.planes[0], this.vertices[1], this.vertices[5], this.vertices[6]);
+        plane.fromPoints(this.planes[1], this.vertices[3], this.vertices[7], this.vertices[4]);
+        plane.fromPoints(this.planes[2], this.vertices[6], this.vertices[7], this.vertices[3]);
+        plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
+        plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
+        plane.fromPoints(this.planes[0], this.vertices[7], this.vertices[6], this.vertices[5]);
     }
 }

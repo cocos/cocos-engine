@@ -43,8 +43,8 @@ export const cullSceneWithDirectionalLight = (() => {
 
 export const calcDirectionalLightCullFrustum = (() => {
     const lightPos = cc.v3();
+    const lightPosOffset = cc.v3();
     const lightRot = cc.quat();
-    const defaultLightOri = cc.v3(0, 0, -1);
     const camFrustum = new frustum();
     camFrustum.accurate = true;
     const lightViewMat = cc.mat4();
@@ -54,9 +54,7 @@ export const calcDirectionalLightCullFrustum = (() => {
     const minBoxCorner = cc.v3();
     const maxBoxCorner = cc.v3();
     return (out: frustum, sceneCamera: Camera, light: DirectionalLight, near: number, far: number) => {
-        quat.rotationTo(lightRot, defaultLightOri, light.direction);
-        mat4.fromQuat(lightViewMat, lightRot);
-        mat4.invert(lightViewMat, lightViewMat);
+        mat4.invert(lightViewMat, light.node.getWorldMatrix(lightViewMat));
         sceneCamera.getSplitFrustum(camFrustum, near, far);
         // transform camera frustum to light space
         camFrustum.transform(lightViewMat);
@@ -71,10 +69,14 @@ export const calcDirectionalLightCullFrustum = (() => {
             maxBoxCorner.y = Math.max(maxBoxCorner.y, camFrustum.vertices[i].y);
             maxBoxCorner.z = Math.max(maxBoxCorner.z, camFrustum.vertices[i].z);
         }
-        mat4.ortho(lightProjMat, minBoxCorner.x, maxBoxCorner.x, minBoxCorner.y, maxBoxCorner.y, -maxBoxCorner.z, -minBoxCorner.z);
         // move light to frustum near plane center
-        vec3.set(lightPos, (minBoxCorner.x + maxBoxCorner.x) / 2, (minBoxCorner.y + maxBoxCorner.y) / 2, maxBoxCorner.z);
-        mat4.fromRT(lightViewMat, lightRot, lightPos);
+        vec3.set(lightPosOffset, (minBoxCorner.x + maxBoxCorner.x) / 2, (minBoxCorner.y + maxBoxCorner.y) / 2, maxBoxCorner.z);
+        vec3.add(minBoxCorner, minBoxCorner, lightPosOffset);
+        vec3.add(maxBoxCorner, maxBoxCorner, lightPosOffset);
+        mat4.ortho(lightProjMat, minBoxCorner.x, maxBoxCorner.x, minBoxCorner.y, maxBoxCorner.y, -maxBoxCorner.z, -minBoxCorner.z);
+        light.node.getPosition(lightPos);
+        vec3.add(lightPos, lightPos, lightPosOffset);
+        mat4.fromRT(lightViewMat, light.node.getRotation(lightRot), lightPos);
 
         mat4.mul(lightVPMat, lightProjMat, lightViewMat);
         mat4.invert(lightVPMatInv, lightVPMat);
