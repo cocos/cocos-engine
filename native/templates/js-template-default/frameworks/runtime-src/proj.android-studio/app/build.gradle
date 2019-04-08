@@ -110,6 +110,11 @@ android.applicationVariants.all { variant ->
         }
 
         copy {
+            from "${sourceDir}/subpackages"
+            into "${outputDir}/subpackages"
+        }
+
+        copy {
             from "${sourceDir}/src"
             into "${outputDir}/src"
         }
