@@ -33,10 +33,6 @@ export class RenderView {
 
     public set window (val) {
         this._window = val;
-
-        if (!this._isOffscreen) {
-            this._framebuffer = this._window!.framebuffer;
-        }
     }
 
     public get priority () {
@@ -73,18 +69,6 @@ export class RenderView {
         return this._flows;
     }
 
-    public set isOffscreen (isOffscreen: boolean) {
-        this._isOffscreen = isOffscreen;
-    }
-
-    public get isOffscreen (): boolean {
-        return this._isOffscreen;
-    }
-
-    public get framebuffer (): GFXFramebuffer {
-        return this._framebuffer!;
-    }
-
     public static registerCreateFunc (root: Root) {
         root._createViewFun = (_root: Root, _camera: Camera): RenderView => new RenderView(_root, _camera);
     }
@@ -98,8 +82,6 @@ export class RenderView {
     private _isEnable: boolean = true;
     private _isUI: boolean = false;
     private _flows: RenderFlow[] = [];
-    private _isOffscreen: boolean = false;
-    private _framebuffer: GFXFramebuffer | null = null;
 
     private constructor (root: Root, camera: Camera) {
         this._root = root;

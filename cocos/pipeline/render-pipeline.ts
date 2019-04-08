@@ -498,6 +498,7 @@ export abstract class RenderPipeline {
             this._smaaEdgeFBO = this._device.createFramebuffer({
                 renderPass: this._smaaPass,
                 colorViews: [ this._smaaEdgeTexView ],
+                depthStencilView: null,
             });
 
             this._smaaBlendTex =  this._device.createTexture({
@@ -517,6 +518,7 @@ export abstract class RenderPipeline {
             this._smaaBlendFBO = this._device.createFramebuffer({
                 renderPass: this._smaaPass,
                 colorViews: [ this._smaaBlendTexView ],
+                depthStencilView: null,
             });
         }
 
@@ -691,6 +693,7 @@ export abstract class RenderPipeline {
             this._smaaEdgeFBO!.initialize({
                 renderPass: this._smaaPass!,
                 colorViews: [ this._smaaEdgeTexView! ],
+                depthStencilView: null,
             });
             this._smaaBlendTex!.resize(width, height);
             this._smaaBlendTexView!.destroy();
@@ -703,6 +706,7 @@ export abstract class RenderPipeline {
             this._smaaBlendFBO!.initialize({
                 renderPass: this._smaaPass!,
                 colorViews: [ this._smaaBlendTexView! ],
+                depthStencilView: null,
             });
         }
 
