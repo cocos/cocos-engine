@@ -8,7 +8,7 @@ type Constructor<T = {}> = new(...args: any[]) => T;
 
 export type IEventTargetCallback = (...args: any[]) => void;
 
-class Empty { protected constructor () {}; }
+class Empty { protected constructor () {} }
 
 export function EventTargetFactory<Base extends Constructor<{}>> (b?: Base) {
     let base = b;
