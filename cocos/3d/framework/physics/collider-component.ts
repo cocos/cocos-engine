@@ -21,7 +21,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     set isTrigger (value) {
         this._triggered = value;
         if (this._body) {
-            let type = this._triggered ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
+            const type = this._triggered ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
             this._body.setType(type);
             this._body.setIsTrigger(value);
         }
