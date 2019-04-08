@@ -53,6 +53,13 @@ export class DirectionalLightComponent extends LightComponent {
         if (this._light) { this._light.illuminance = this._illuminance; }
     }
 
+    public onLoad () {
+        if (!this._enabled) {
+            if (!this.node.scene) { return; }
+            this._getRenderScene().mainLight.enabled = false;
+        }
+    }
+
     protected _createLight (scene?: RenderScene) {
         if (!this.node.scene) { return; }
         if (!scene) { scene = this._getRenderScene(); }

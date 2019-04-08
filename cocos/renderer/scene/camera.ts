@@ -240,6 +240,7 @@ export class Camera {
 
     set enabled (val) {
         this._enabled = val;
+        this._view.enable(val);
     }
 
     get enabled () {
