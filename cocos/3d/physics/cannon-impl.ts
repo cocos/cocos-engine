@@ -1,7 +1,8 @@
 import CANNON from 'cannon';
 import { Quat, Vec3 } from '../../core/value-types';
 import { quat, vec3 } from '../../core/vmath';
-import { AfterStepCallback, BeforeStepCallback,
+import {
+    AfterStepCallback, BeforeStepCallback,
     BoxShapeBase,
     ConstraintBase, DistanceConstraintBase,
     ICollisionCallback, ICollisionEvent,
@@ -9,9 +10,11 @@ import { AfterStepCallback, BeforeStepCallback,
     ILockConstraintOptions,
     IPointToPointConstraintOptions,
     IRaycastOptions, LockConstraintBase, PhysicsWorldBase,
-    PointToPointConstraintBase, RigidBodyBase, ShapeBase, SphereShapeBase } from './api';
+    PointToPointConstraintBase, RigidBodyBase, ShapeBase, SphereShapeBase
+} from './api';
 import { RaycastResult } from './raycast-result';
 import { stringfyQuat, stringfyVec3 } from './util';
+import { ERigidBodyType } from './instance';
 
 const defaultCannonMaterial = new CANNON.Material('');
 const defaultCannonContactMaterial = new CANNON.ContactMaterial(
@@ -32,7 +35,7 @@ export class CannonWorld implements PhysicsWorldBase {
     constructor () {
         this._cannonWorld = new CANNON.World();
         setWrap<PhysicsWorldBase>(this._cannonWorld, this);
-        this._cannonWorld.allowSleep = true;
+        // this._cannonWorld.allowSleep = true;
         this._cannonWorld.gravity.set(0, -9.81, 0);
         this._cannonWorld.broadphase = new CANNON.NaiveBroadphase();
         this._cannonWorld.defaultMaterial = defaultCannonMaterial;
@@ -216,6 +219,14 @@ export class CannonRigidBody implements RigidBodyBase {
         return this._name;
     }
 
+    public getType (): ERigidBodyType {
+        return this._cannonBody.type;
+    }
+
+    public setType (v: ERigidBodyType): void {
+        this._cannonBody.type = v;
+    }
+
     public addShape (shape: CannonShape) {
         const index = this._shapes.length;
         this._shapes.push(shape);
@@ -296,7 +307,7 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public setIsTrigger (value: boolean): void {
-        this._cannonBody.collisionResponse = value;
+        this._cannonBody.collisionResponse = !value;
     }
 
     public getVelocity (): Vec3 {

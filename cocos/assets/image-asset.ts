@@ -24,7 +24,7 @@
  ****************************************************************************/
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
-import {addon} from '../core/utils/js';
+// import {addon} from '../core/utils/js';
 import { Asset } from './asset';
 import { EventTargetFactory } from '../core/event/event-target-factory';
 
@@ -121,7 +121,8 @@ export class ImageAsset extends EventTargetFactory(Asset) {
 
     public reset (data: ImageSource) {
         if (!(data instanceof HTMLElement)) {
-            this._nativeData = Object.create(data);
+            // this._nativeData = Object.create(data);
+            this._nativeData = data;
             this._onDataComplete();
         } else {
             this._nativeData = data;
@@ -220,8 +221,8 @@ export class ImageAsset extends EventTargetFactory(Asset) {
  * !#en
  * This event is emitted when the asset is loaded
  *
- * @event load
+ * @event loads
  */
-addon(ImageAsset.prototype, EventTarget.prototype);
+// addon(ImageAsset.prototype, EventTarget.prototype);
 
 cc.ImageAsset = ImageAsset;
