@@ -669,9 +669,7 @@ sp.Skeleton = cc.Class({
             material = Material.getInstantiatedMaterial(material, this);
         }
 
-        this.sharedMaterials[0] = material;
-
-        this.markForUpdateRenderData(true);
+        this.setMaterial(0, material);
         this.markForRender(true);
     },
 

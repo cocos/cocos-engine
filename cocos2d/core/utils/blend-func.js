@@ -28,7 +28,7 @@ let BlendFunc = cc.Class({
             animatable: false,
             type:BlendFactor,
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor',
-            visible: false
+            visible: true
         },
 
         /**
@@ -51,7 +51,7 @@ let BlendFunc = cc.Class({
             animatable: false,
             type: BlendFactor,
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.dst_blend_factor',
-            visible: false
+            visible: true
         },
     },
 
