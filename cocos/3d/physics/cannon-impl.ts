@@ -453,22 +453,15 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     private _onWorldBeforeStep () {
-        // this._useGravity = false;
-        if (!this._useGravity) {
-            const gravity = this._cannonBody.world.gravity;
-            vec3.scaleAndAdd(this._cannonBody.force, this._cannonBody.force, gravity, this._cannonBody.mass * -1);
-        }
     }
 
     private _onWorldPostStep (event: CANNON.IEvent) {
     }
 
     private _onSelfPreStep () {
-        // this._useGravity = false;
-        // if (!this._useGravity) {
-        //     const gravity = this._cannonBody.world.gravity;
-        //     vec3.scaleAndAdd(this._cannonBody.force, this._cannonBody.force, gravity, this._cannonBody.mass * -1);
-        // }
+        if (!this._useGravity) {
+            this._cannonBody.force.y -= this._cannonBody.mass * this._cannonBody.world.gravity.y;
+        }
     }
 
     private _onSelfPostStep () {
