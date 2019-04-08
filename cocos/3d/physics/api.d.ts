@@ -1,6 +1,7 @@
 import { Vec3, Quat } from '../../core/value-types';
 import { Node } from '../../scene-graph';
 import { RaycastResult } from './raycast-result';
+import { ERigidBodyType } from './instance';
 
 export interface IRaycastOptions {
     collisionFilterMask?: number;
@@ -58,6 +59,10 @@ export class PhysicsWorldBase {
 
 export class RigidBodyBase {
     constructor (options?: ICreateBodyOptions);
+
+    /**获取/设置刚体类型 : ERigidBodyType*/
+    getType (): ERigidBodyType;
+    setType (v: ERigidBodyType): void;
 
     addShape (shape: ShapeBase): void;
 
@@ -128,7 +133,7 @@ export class RigidBodyBase {
 
     getUserData (): any;
 
-    setUserData(data: any): void;
+    setUserData (data: any): void;
 }
 
 export class ShapeBase {
@@ -140,7 +145,7 @@ export class ShapeBase {
 
     getUserData (): any;
 
-    setUserData(data: any): void;
+    setUserData (data: any): void;
 }
 
 export class SphereShapeBase extends ShapeBase {
