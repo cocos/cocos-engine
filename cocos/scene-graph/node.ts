@@ -1,5 +1,7 @@
 import { UITransformComponent } from '../3d/ui/components/ui-transfrom-component';
 import { ccclass, property } from '../core/data/class-decorator';
+import Event from '../core/event/event';
+import { eventManager } from '../core/platform/event-manager';
 import { EventType } from '../core/platform/event-manager/event-enum';
 import { Mat4, Quat, Vec3 } from '../core/value-types';
 import Size from '../core/value-types/size';
@@ -773,7 +775,7 @@ class Node extends BaseNode {
         this.uiTransfromComp!.setContentSize(size, height);
     }
 
-    // Event
+    // Event: maybe remove
 
     public on (type: string | EventType, callback: Function, target?: Object, useCapture?: any) {
         this._eventProcessor.on(type, callback, target, useCapture);
@@ -783,16 +785,32 @@ class Node extends BaseNode {
         this._eventProcessor.off(type, callback, target, useCapture);
     }
 
-    public once (type, callback, target?, useCapture?) {
+    public once (type: string, callback: Function, target?: Object, useCapture?: any) {
         this._eventProcessor.once(type, callback, target, useCapture);
     }
 
-    public emit (type, ...args: any[]) {
+    public emit (type: string, ...args: any[]) {
         this._eventProcessor.emit(type, ...args);
     }
 
-    public dispatchEvent (event) {
+    public dispatchEvent (event: Event) {
        this._eventProcessor.dispatchEvent(event);
+    }
+
+    public hasEventListener (type: string){
+        return this._eventProcessor.hasEventListener(type);
+    }
+
+    public targetOff (target: string | Object) {
+        this._eventProcessor.targetOff(target);
+    }
+
+    public pauseSystemEvents (recursive: boolean) {
+        eventManager.pauseTarget(this, recursive);
+    }
+
+    public resumeSystemEvents (recursive: boolean) {
+        eventManager.resumeTarget(this, recursive);
     }
 }
 

@@ -517,6 +517,32 @@ export class NodeEventProcessor {
         _cachedArray.length = 0;
     }
 
+    public hasEventListener (type: string) {
+        let has = false;
+        if (this.bubblingTargets) {
+            has = this.bubblingTargets.hasEventListener(type);
+        }
+        if (!has && this.capturingTargets) {
+            has = this.capturingTargets.hasEventListener(type);
+        }
+        return has;
+    }
+
+    public targetOff (target: string | Object) {
+        if (this.capturingTargets) {
+            this.capturingTargets.targetOff(target);
+        }
+
+        if (this.touchListener && !_checkListeners(this.node, _touchEvents)) {
+            eventManager.removeListener(this.touchListener);
+            this.touchListener = null;
+        }
+        if (this.mouseListener && !_checkListeners(this.node, _mouseEvents)) {
+            eventManager.removeListener(this.mouseListener);
+            this.mouseListener = null;
+        }
+    }
+
     // EVENT TARGET
 
     private _checknSetupSysEvent (type: string) {
