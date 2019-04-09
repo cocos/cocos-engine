@@ -136,6 +136,18 @@ class Node extends BaseNode {
         this._eventProcessor = new cc.NodeEventProcessor(this);
     }
 
+    set position (value: vec3) {
+        this.setPosition(value.x, value.y, value.z);
+    }
+
+    set scale (value: vec3) {
+        this.setScale(value.x, value.y, value.z);
+    }
+
+    set rotation (value: quat) {
+        this.setRotation(value.x, value.y, value.z, value.w);
+    }
+
     // ===============================
     // hierarchy
     // ===============================

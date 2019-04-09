@@ -196,6 +196,15 @@ class Director extends EventTarget {
             eventManager.setEnabled(true);
         }
 
+        // Animation manager
+        if (cc.AnimationManager) {
+            this._animationManager = new cc.AnimationManager();
+            this._scheduler.scheduleUpdate(this._animationManager, Scheduler.PRIORITY_SYSTEM, false);
+        }
+        else {
+            this._animationManager = null;
+        }
+
         // widgetManager
         widgetManager.init(this);
 
@@ -384,6 +393,11 @@ class Director extends EventTarget {
 
         if (eventManager)
             eventManager.setEnabled(true);
+
+        // Animation manager
+        if (this._animationManager) {
+            this._scheduler.scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
 
         this._systems.forEach((sys) => {
             this._scheduler.scheduleUpdate(sys, sys._priority, false);
@@ -880,6 +894,15 @@ class Director extends EventTarget {
             this._actionManager = actionManager;
             this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
+    }
+
+    /**
+     * !#en Returns the cc.AnimationManager associated with this director.
+     * !#zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。
+     * @method getAnimationManager
+     */
+    getAnimationManager () {
+        return this._animationManager;
     }
 
     // Loop management

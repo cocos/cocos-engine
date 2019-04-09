@@ -54,7 +54,7 @@ export class LegacyAnimationState extends Playable {
      * @default: WrapMode.Normal
      */
     get wrapMode () {
-        return this.wrapMode;
+        return this._wrapMode;
     }
 
     set wrapMode (value: WrapMode) {
