@@ -188,8 +188,6 @@ export class CanvasComponent extends Component {
             this._camera!.resize(device.width, device.height);
         }
 
-        cc.director.root.ui.addScreen(this);
-
         // if (CC_DEV) {
         //     var Flags = cc.Object.Flags;
         //     this._objFlags |= (Flags.IsPositionLocked | Flags.IsAnchorLocked | Flags.IsSizeLocked);
@@ -219,14 +217,19 @@ export class CanvasComponent extends Component {
         this.alignWithScreen();
     }
 
+    public onEnable (){
+        cc.director.root.ui.addScreen(this);
+    }
+
     public onDisable () {
-        if (this._camera) {
-            this._getRenderScene().destroyCamera(this._camera);
-        }
         cc.director.root.ui.removeScreen(this);
     }
 
     public onDestroy () {
+        if (this._camera) {
+            this._getRenderScene().destroyCamera(this._camera);
+        }
+
         if (CC_EDITOR) {
             cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
             // cc.engine.off('design-resolution-changed', this._thisOnResized);
@@ -238,6 +241,7 @@ export class CanvasComponent extends Component {
             //     cc.view.off('design-resolution-changed', this._thisOnResized);
             // }
         // }
+
         cc.view.off('design-resolution-changed', this._thisOnResized);
 
         if (CanvasComponent.instance === this) {
