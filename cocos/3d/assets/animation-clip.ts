@@ -255,9 +255,9 @@ export class AnimationSampler {
                     propertyAnimation.values[index * 3 + 1],
                     propertyAnimation.values[index * 3 + 2]);
                 const getRotationAt = (index: number, out: Quat) => quat.set(out,
-                    propertyAnimation.values[index * 4 + 0], 
-                    propertyAnimation.values[index * 4 + 1], 
-                    propertyAnimation.values[index * 4 + 2], 
+                    propertyAnimation.values[index * 4 + 0],
+                    propertyAnimation.values[index * 4 + 1],
+                    propertyAnimation.values[index * 4 + 2],
                     propertyAnimation.values[index * 4 + 3]);
                 const getScaleAt = getPositionAt;
                 const keys = clip.keysList[propertyAnimation.indexOfKeys];
@@ -296,7 +296,6 @@ export class AnimationSampler {
                     }
                 }
             });
-            
         });
     }
 }
