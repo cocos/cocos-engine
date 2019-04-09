@@ -780,8 +780,12 @@ var Texture2D = cc.Class({
 
     // SERIALIZATION
 
-    _setRawAsset (extname) {
-        this._native = 'texture' + extname;
+    _setRawAsset (filename, inLibrary) {
+        if (inLibrary !== false) {
+            this._native = 'texture' + filename;
+        } else {
+            this._native = '/' + filename;
+        }
     },
 
     _serialize: (CC_EDITOR || CC_TEST) && function () {
