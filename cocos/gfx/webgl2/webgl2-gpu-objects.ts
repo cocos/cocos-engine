@@ -19,7 +19,7 @@ import {
     GFXTextureViewType,
     GFXType,
 } from '../define';
-import { IGFXInputAttribute } from '../input-assembler';
+import { IGFXAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 import { GFXColorAttachment, GFXDepthStencilAttachment } from '../render-pass';
 import { GFXUniformBlock, GFXUniformSampler, IGFXShaderMacro } from '../shader';
@@ -238,7 +238,7 @@ export class WebGL2Attrib {
 }
 
 export interface IWebGL2GPUInputAssembler {
-    attributes: IGFXInputAttribute[];
+    attributes: IGFXAttribute[];
     gpuVertexBuffers: WebGL2GPUBuffer[];
     gpuIndexBuffer: WebGL2GPUBuffer | null;
     gpuIndirectBuffer: WebGL2GPUBuffer | null;

@@ -5,7 +5,7 @@ import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
-import { IGFXInputAttribute } from '../../gfx/input-assembler';
+import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
@@ -13,7 +13,7 @@ import { RenderScene } from '../scene/render-scene';
 export default class ParticleBatchModel extends Model {
 
     private _capacity: number;
-    private _vertAttrs: IGFXInputAttribute[] | null;
+    private _vertAttrs: IGFXAttribute[] | null;
     private _vertSize: number;
     private _vBuffer: ArrayBuffer | null;
     private _vertAttrsFloatCount: number;
@@ -58,7 +58,7 @@ export default class ParticleBatchModel extends Model {
         this._capacity = capacity;
     }
 
-    public setVertexAttributes (attrs: IGFXInputAttribute[]) {
+    public setVertexAttributes (attrs: IGFXAttribute[]) {
         this._vertAttrs = attrs;
         this._vertSize = 0;
         for (const a of this._vertAttrs) {
@@ -146,7 +146,7 @@ export default class ParticleBatchModel extends Model {
         // }
         let offset: number = index * this._vertAttrsFloatCount;
         for (let i = 0; i < this._vertAttrs!.length; ++i) {
-            const curAttr: IGFXInputAttribute = this._vertAttrs![i];
+            const curAttr: IGFXAttribute = this._vertAttrs![i];
             if (curAttr.format === GFXFormat.R32F) {
                 this._vdataF32![offset] = pvdata[i]; // if not a single float?
                 offset++;
@@ -194,6 +194,6 @@ export default class ParticleBatchModel extends Model {
         for (const vb of this._subMeshData!.vertexBuffers) {
             vb.destroy();
         }
-        this._subMeshData!.indexBuffer.destroy();
+        this._subMeshData!.indexBuffer!.destroy();
     }
 }

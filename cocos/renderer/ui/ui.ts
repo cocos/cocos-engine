@@ -16,7 +16,7 @@ import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { IGFXInputAttribute } from '../../gfx/input-assembler';
+import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { vfmt } from '../../gfx/vertex-format-sample';
@@ -83,7 +83,7 @@ export class UI {
     }, 128);
     private _cmdBuff: GFXCommandBuffer | null = null;
     private _scene: RenderScene;
-    private _attributes: IGFXInputAttribute[] = [];
+    private _attributes: IGFXAttribute[] = [];
     private _meshBuffers: MeshBuffer[] = [];
     private _meshBufferUseCount = 0;
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();

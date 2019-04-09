@@ -1,8 +1,8 @@
-import { GFXAttributeName, GFXPrimitiveMode } from '../../gfx/define';
+import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
 import { Vec3 } from '../../core/value-types';
-import { AttributeBaseType, AttributeType,
-    IMeshStruct, IndexUnit, IPrimitive, IVertexAttribute, IVertexBundle, Mesh } from '../assets/mesh';
+import { IGFXAttribute } from '../../gfx/input-assembler';
+import { IMeshStruct, IndexUnit, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';
 import { IGeometry } from '../primitive/define';
 
 /**
@@ -12,55 +12,45 @@ export function toPPM (buffer: Uint8Array, w: number, h: number) {
     return `P3 ${w} ${h} 255\n${buffer.filter((e, i) => i % 4 < 3).toString()}\n`;
 }
 
-const defaultAttributes: Record<string, IVertexAttribute> = {
-    positions: {
-        name: GFXAttributeName.ATTR_POSITION,
-        baseType: AttributeBaseType.FLOAT32,
-        type: AttributeType.VEC3,
-        normalize: false,
-    },
-    normals: {
-        name: GFXAttributeName.ATTR_NORMAL,
-        baseType: AttributeBaseType.FLOAT32,
-        type: AttributeType.VEC3,
-        normalize: false,
-    },
-    uvs: {
-        name: GFXAttributeName.ATTR_TEX_COORD,
-        baseType: AttributeBaseType.FLOAT32,
-        type: AttributeType.VEC2,
-        normalize: false,
-    },
-    colors: {
-        name: GFXAttributeName.ATTR_COLOR,
-        baseType: AttributeBaseType.FLOAT32,
-        type: AttributeType.VEC4,
-        normalize: false,
-    },
-};
-
 export function createMesh (geometry: IGeometry, out?: Mesh) {
     // Collect attributes and calculate length of result vertex buffer.
-    const attributes: IVertexAttribute[] = [];
+    const attributes: IGFXAttribute[] = [];
     let stride = 0;
-    const channels: Array<{ offset: number; data: number[]; attribute: IVertexAttribute; }> = [];
+    const channels: Array<{ offset: number; data: number[]; attribute: IGFXAttribute; }> = [];
     let verticesCount = 0;
-    const addAttribute = (name: string) => {
-        const data = geometry[name]; if (!data) { return; }
-        let attribute = geometry.attributes && geometry.attributes[name];
-        if (!attribute) { attribute = Object.assign({}, defaultAttributes[name]); }
-        const componentCount = _getComponentCount(attribute);
-        const componentBytesLength = _getComponentByteLength(attribute);
-        const bytesLength = componentBytesLength * componentCount;
-        attributes.push(attribute);
-        channels.push({ offset: stride, data, attribute });
-        stride += bytesLength;
-        verticesCount = Math.max(verticesCount, Math.floor(data.length / componentCount));
-    };
-    addAttribute('positions');
-    addAttribute('normals');
-    addAttribute('uvs');
-    addAttribute('colors');
+
+    if (geometry.positions.length > 0) {
+        const attr: IGFXAttribute = { name: 'a_position', format: GFXFormat.RGB32F };
+        attributes.push(attr);
+        verticesCount = Math.max(verticesCount, Math.floor(geometry.positions.length / 3));
+        channels.push({ offset: stride, data: geometry.positions, attribute: attr });
+        stride += 12;
+    }
+
+    if (geometry.normals && geometry.normals.length > 0) {
+        const attr: IGFXAttribute = { name: 'a_normal', format: GFXFormat.RGB32F };
+
+        attributes.push(attr);
+        verticesCount = Math.max(verticesCount, Math.floor(geometry.normals.length / 3));
+        channels.push({ offset: stride, data: geometry.normals, attribute: attr });
+        stride += 12;
+    }
+
+    if (geometry.uvs && geometry.uvs.length > 0) {
+        const attr: IGFXAttribute = { name: 'a_texCoord', format: GFXFormat.RG32F };
+        attributes.push(attr);
+        verticesCount = Math.max(verticesCount, Math.floor(geometry.uvs.length / 2));
+        channels.push({ offset: stride, data: geometry.uvs, attribute: attr });
+        stride += 8;
+    }
+
+    if (geometry.colors && geometry.colors.length > 0) {
+        const attr: IGFXAttribute = { name: 'a_color', format: GFXFormat.RGBA32F };
+        attributes.push(attr);
+        verticesCount = Math.max(verticesCount, Math.floor(geometry.colors.length / 4));
+        channels.push({ offset: stride, data: geometry.colors, attribute: attr });
+        stride += 16;
+    }
 
     // Use this to generate final merged buffer.
     const bufferBlob = new BufferBlob();
@@ -69,7 +59,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
     const vertexBuffer = new ArrayBuffer(verticesCount * stride);
     const vertexBufferView = new DataView(vertexBuffer);
     for (const channel of channels) {
-        _writeVertices(vertexBufferView, channel.offset, stride, channel.attribute, channel.data);
+        _writeVertices(vertexBufferView, channel.offset, stride, channel.attribute.format, channel.data);
     }
     bufferBlob.setNextAlignment(0);
     const vertexBundle: IVertexBundle = {
@@ -181,66 +171,66 @@ class BufferBlob {
 }
 
 function _writeVertices (
-    target: DataView, offset: number, stride: number, attribute: IVertexAttribute, data: number[]) {
-    const writer = _getVerticesWriter(target, attribute.baseType);
-    const componentCount = _getComponentCount(attribute);
-    const componentBytesLength = _getComponentByteLength(attribute);
-    const nVertices = Math.floor(data.length / componentCount);
+    target: DataView, offset: number, stride: number, format: GFXFormat, data: number[]) {
+    const writer = _getVerticesWriter(target, format);
+    const info = GFXFormatInfos[format];
+    const componentBytesLength = info.size / info.count;
+    const nVertices = Math.floor(data.length / info.count);
 
     for (let iVertex = 0; iVertex < nVertices; ++iVertex) {
         const x = offset + stride * iVertex;
-        for (let iComponent = 0; iComponent < componentCount; ++iComponent) {
+        for (let iComponent = 0; iComponent < info.count; ++iComponent) {
             const y = x + componentBytesLength * iComponent;
-            writer(y, data[componentCount * iVertex + iComponent]);
+            writer(y, data[info.count * iVertex + iComponent]);
         }
     }
 }
 
-function _getComponentByteLength (vertexAttribute: IVertexAttribute) {
-    switch (vertexAttribute.baseType) {
-        case AttributeBaseType.INT8:
-        case AttributeBaseType.UINT8:
-            return 1;
-        case AttributeBaseType.INT16:
-        case AttributeBaseType.UINT16:
-            return 2;
-        case AttributeBaseType.INT32:
-        case AttributeBaseType.UINT32:
-        case AttributeBaseType.FLOAT32:
-            return 4;
-    }
-    return 1;
-}
-
-function _getComponentCount (vertexAttribute: IVertexAttribute) {
-    switch (vertexAttribute.type) {
-        case AttributeType.SCALAR: return 1;
-        case AttributeType.VEC2: return 2;
-        case AttributeType.VEC3: return 3;
-        case AttributeType.VEC4: return 4;
-    }
-    return 1;
-}
-
 const isLittleEndian = cc.sys.isLittleEndian;
 
-function _getVerticesWriter (dataView: DataView, baseType: AttributeBaseType) {
-    switch (baseType) {
-        case AttributeBaseType.INT8:
-            return (offset: number, value: number) => dataView.setInt8(offset, value);
-        case AttributeBaseType.UINT8:
-            return (offset: number, value: number) => dataView.setUint8(offset, value);
-        case AttributeBaseType.INT16:
-            return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
-        case AttributeBaseType.UINT16:
-            return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
-        case AttributeBaseType.INT32:
-            return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
-        case AttributeBaseType.UINT32:
-            return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
-        case AttributeBaseType.FLOAT32:
+function _getVerticesWriter (dataView: DataView, format: GFXFormat) {
+
+    const info = GFXFormatInfos[format];
+    const stride = info.size / info.count;
+
+    switch (info.type) {
+        case GFXFormatType.UNORM: {
+            switch (stride) {
+                case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
+                case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
+                case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.SNORM: {
+            switch (stride) {
+                case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
+                case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
+                case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.INT: {
+            switch (stride) {
+                case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
+                case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
+                case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.UINT: {
+            switch (stride) {
+                case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
+                case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
+                case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.FLOAT: {
             return (offset: number, value: number) => dataView.setFloat32(offset, value, isLittleEndian);
+        }
     }
+
     return (offset: number, value: number) => dataView.setUint8(offset, value);
 }
 

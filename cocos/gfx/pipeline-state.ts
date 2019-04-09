@@ -13,7 +13,7 @@ import {
     GFXStencilOp,
 } from './define';
 import { GFXDevice } from './device';
-import { IGFXInputAttribute } from './input-assembler';
+import { IGFXAttribute } from './input-assembler';
 import { GFXPipelineLayout } from './pipeline-layout';
 import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';
@@ -120,7 +120,7 @@ export class GFXBlendState {
 }
 
 export class GFXInputState {
-    public attributes: IGFXInputAttribute[] = [];
+    public attributes: IGFXAttribute[] = [];
 }
 
 export interface IGFXPipelineStateInfo {

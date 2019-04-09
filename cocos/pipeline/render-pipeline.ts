@@ -17,7 +17,7 @@ import {
     GFXTextureViewType} from '../gfx/define';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
-import { GFXInputAssembler, IGFXInputAttribute } from '../gfx/input-assembler';
+import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
@@ -771,7 +771,7 @@ export abstract class RenderPipeline {
 
         // create input assembler
 
-        const attributes: IGFXInputAttribute[] = [
+        const attributes: IGFXAttribute[] = [
             { name: 'a_position', format: GFXFormat.RG32F },
             { name: 'a_texCoord', format: GFXFormat.RG32F },
         ];

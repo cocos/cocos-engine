@@ -1,6 +1,6 @@
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXInputAssembler, IGFXInputAttribute } from '../../gfx/input-assembler';
+import { GFXInputAssembler, IGFXAttribute } from '../../gfx/input-assembler';
 import { UI } from '../../renderer/ui/ui';
 
 export class MeshBuffer {
@@ -37,7 +37,7 @@ export class MeshBuffer {
         this.batcher = batcher;
     }
 
-    public initialize (attrs: IGFXInputAttribute[], outofCallback: ((...args: number[]) => void) | null) {
+    public initialize (attrs: IGFXAttribute[], outofCallback: ((...args: number[]) => void) | null) {
         this._outofCallback = outofCallback;
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
 

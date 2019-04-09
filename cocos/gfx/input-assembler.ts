@@ -1,8 +1,8 @@
 import { GFXBuffer, GFXBufferSource, IGFXDrawInfo } from './buffer';
-import { GFXFormat, GFXFormatInfos, GFXObject, GFXObjectType } from './define';
+import { GFXFormat, GFXFormatInfos, GFXObject, GFXObjectType, GFXFormatType } from './define';
 import { GFXDevice } from './device';
 
-export interface IGFXInputAttribute {
+export interface IGFXAttribute {
     binding?: number;
     name: string;
     format: GFXFormat;
@@ -12,7 +12,7 @@ export interface IGFXInputAttribute {
 }
 
 export interface IGFXInputAssemblerInfo {
-    attributes: IGFXInputAttribute[];
+    attributes: IGFXAttribute[];
     vertexBuffers: GFXBuffer[];
     indexBuffer?: GFXBuffer;
     indirectBuffer?: GFXBuffer;
@@ -30,7 +30,7 @@ export abstract class GFXInputAssembler extends GFXObject {
         return this._indexBuffer;
     }
 
-    public get attributes (): IGFXInputAttribute[] {
+    public get attributes (): IGFXAttribute[] {
         return this._attributes;
     }
 
@@ -99,7 +99,7 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     protected _device: GFXDevice;
-    protected _attributes: IGFXInputAttribute[] = [];
+    protected _attributes: IGFXAttribute[] = [];
     protected _vertexBuffers: GFXBuffer[] = [];
     protected _indexBuffer: GFXBuffer | null = null;
     protected _vertexCount: number = 0;
@@ -161,7 +161,7 @@ export abstract class GFXInputAssembler extends GFXObject {
             if (a.name === attr) {
                 count = info.count;
                 size = info.size / count;
-                fn = `set${info.isFloating ? 'Float' : 'Int'}${size * 8}`;
+                fn = `set${info.type === GFXFormatType.FLOAT ? 'Float' : 'Int'}${size * 8}`;
                 break;
             }
             offset += info.size;

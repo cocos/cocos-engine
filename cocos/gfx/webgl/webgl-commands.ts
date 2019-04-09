@@ -25,6 +25,7 @@ import {
     IGFXRect,
     IGFXViewport,
     WebGLEXT,
+    GFXFormatType,
 } from '../define';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import {
@@ -2548,7 +2549,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 h = region.texExtent.height;
 
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                    const pixels = !fmtInfo.isFloating ? new Uint8Array(buffers[n++]) : new Float32Array(buffers[n++]);
+                    const pixels = (fmtInfo.type !== GFXFormatType.FLOAT ? new Uint8Array(buffers[n++]) : new Float32Array(buffers[n++]));
 
                     if (!isCompressed) {
                         gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
@@ -2582,7 +2583,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
 
                     const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
                     for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
-                        const pixels = !fmtInfo.isFloating ? new Uint8Array(buffers[n++]) : new Float32Array(buffers[n++]);
+                        const pixels = (fmtInfo.type !== GFXFormatType.FLOAT ? new Uint8Array(buffers[n++]) : new Float32Array(buffers[n++]));
 
                         gl.texSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                             region.texOffset.x, region.texOffset.y, w, h,

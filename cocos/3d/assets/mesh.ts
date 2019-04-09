@@ -30,71 +30,8 @@ import { ccenum } from '../../core/value-types/enum';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXInputAssembler, IGFXInputAssemblerInfo, IGFXInputAttribute } from '../../gfx/input-assembler';
+import { IGFXAttribute } from '../../gfx/input-assembler';
 import { IBufferRange } from './utils/buffer-range';
-
-export enum AttributeBaseType {
-    /**
-     * 8 bits signed integer.
-     */
-    INT8,
-
-    /**
-     * 8 bits unsigned integer.
-     */
-    UINT8,
-
-    /**
-     * 16 bits signed integer.
-     */
-    INT16,
-
-    /**
-     * 16 bits unsigned integer.
-     */
-    UINT16,
-
-    /**
-     * 32 bits signed integer.
-     */
-    INT32,
-
-    /**
-     * 32 bits unsigned integer.
-     */
-    UINT32,
-
-    /**
-     * 32 bits floating number.
-     */
-    FLOAT32,
-}
-
-ccenum(AttributeBaseType);
-
-export enum AttributeType {
-    /**
-     * Scalar.
-     */
-    SCALAR,
-
-    /**
-     * 2 components vector.
-     */
-    VEC2,
-
-    /**
-     * 3 components vector.
-     */
-    VEC3,
-
-    /**
-     * 4 components vector.
-     */
-    VEC4,
-}
-
-ccenum(AttributeType);
 
 export enum IndexUnit {
     /**
@@ -133,76 +70,6 @@ function getIndexUnitCtor (indexUnit: IndexUnit) {
     return Uint8Array;
 }
 
-export interface IVertexAttribute {
-    /**
-     * Attribute Name.
-     */
-    name: string;
-
-    /**
-     * Attribute base type.
-     */
-    baseType: AttributeBaseType;
-
-    /**
-     * Attribute type.
-     */
-    type: AttributeType;
-
-    /**
-     * Whether normalize.
-     */
-    normalize: boolean;
-}
-
-function toGFXAttributeType (vertexAttribute: IVertexAttribute) {
-    let formatName = '';
-    switch (vertexAttribute.type) {
-        case AttributeType.SCALAR:
-            formatName = 'R';
-            break;
-        case AttributeType.VEC2:
-            formatName = 'RG';
-            break;
-        case AttributeType.VEC3:
-            formatName = 'RGB';
-            break;
-        case AttributeType.VEC4:
-            formatName = 'RGBA';
-            break;
-    }
-    switch (vertexAttribute.baseType) {
-        case AttributeBaseType.INT8:
-            formatName += '8I';
-            break;
-        case AttributeBaseType.UINT8:
-            formatName += '8UI';
-            break;
-        case AttributeBaseType.INT16:
-            formatName += '16I';
-            break;
-        case AttributeBaseType.UINT16:
-            formatName += '16UI';
-            break;
-        case AttributeBaseType.INT32:
-            formatName += '32I';
-            break;
-        case AttributeBaseType.UINT32:
-            formatName += '32UI';
-            break;
-        case AttributeBaseType.FLOAT32:
-            formatName += '32F';
-            break;
-    }
-
-    const resultFormat = GFXFormat[formatName];
-    if (resultFormat !== undefined) {
-        return resultFormat;
-    }
-
-    return GFXFormat.R8UI;
-}
-
 export interface IVertexBundle {
     /**
      * The data range of this bundle.
@@ -218,7 +85,7 @@ export interface IVertexBundle {
     /**
      * Attributes.
      */
-    attributes: IVertexAttribute[];
+    attributes: IGFXAttribute[];
 }
 
 /**
@@ -292,16 +159,16 @@ export interface IGeometricInfo {
 
 export interface IRenderingSubmesh {
     vertexBuffers: GFXBuffer[];
-    indexBuffer: GFXBuffer;
+    indexBuffer: GFXBuffer | null;
     indirectBuffer?: GFXBuffer;
-    attributes: IGFXInputAttribute[];
+    attributes: IGFXAttribute[];
     primitiveMode: GFXPrimitiveMode;
     geometricInfo?: IGeometricInfo;
 }
 
 export class RenderingMesh {
     public constructor (
-        private _subMeshes: Array<IRenderingSubmesh | null>,
+        private _subMeshes: IRenderingSubmesh[],
         private _vertexBuffers: GFXBuffer[],
         private _indexBuffers: GFXBuffer[]) {
 
@@ -331,9 +198,6 @@ export class RenderingMesh {
 
 @ccclass('cc.Mesh')
 export class Mesh extends Asset {
-
-    public static AttributeBaseType = AttributeBaseType;
-    public static AttributeType = AttributeType;
 
     get _nativeAsset () {
         return this._data;
@@ -442,22 +306,20 @@ export class Mesh extends Asset {
         }
 
         const buffer = this._data.buffer;
-
         const gfxDevice = cc.director.root.device as GFXDevice;
-
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
-
         const indexBuffers: GFXBuffer[] = [];
+        const submeshes: IRenderingSubmesh[] = [];
 
-        const renderingSubmeshes = this._struct.primitives.map((primitive) => {
-            if (primitive.vertexBundelIndices.length === 0) {
-                return null;
+        for (const prim of this._struct.primitives) {
+            if (prim.vertexBundelIndices.length === 0) {
+                continue;
             }
 
             let indexBuffer: GFXBuffer | null = null;
             let ib: any = null;
-            if (primitive.indices) {
-                const indices = primitive.indices;
+            if (prim.indices) {
+                const indices = prim.indices;
 
                 indexBuffer = gfxDevice.createBuffer({
                     usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
@@ -472,43 +334,33 @@ export class Mesh extends Asset {
                 indexBuffer.update(ib);
             }
 
-            const vbReference = primitive.vertexBundelIndices.map(
-                (i) => vertexBuffers[i]);
+            const vbReference = prim.vertexBundelIndices.map((i) => vertexBuffers[i]);
 
-            const gfxAttributes: IGFXInputAttribute[] = [];
-            primitive.vertexBundelIndices.forEach((iVertexBundle) => {
-                // const istream = iVertexBundle;
-                const istream = vbReference.indexOf(vertexBuffers[iVertexBundle]);
-                const vertexBundle = this._struct.vertexBundles[iVertexBundle];
-                vertexBundle.attributes.forEach((attribute) => {
-                    const gfxAttribute: IGFXInputAttribute = {
-                        name: attribute.name,
-                        format: toGFXAttributeType(attribute),
-                        stream: istream,
-                    };
-                    if ('normalize' in attribute) {
-                        gfxAttribute.isNormalized = attribute.normalize;
-                    }
-                    gfxAttributes.push(gfxAttribute);
-                });
-            });
+            let gfxAttributes: IGFXAttribute[] = [];
+            if (prim.vertexBundelIndices.length > 0) {
+                const idx = prim.vertexBundelIndices[0];
+                const vertexBundle = this._struct.vertexBundles[idx];
+                gfxAttributes = vertexBundle.attributes;
+            }
 
-            const geomInfo: any = primitive.geometricInfo;
+            const geomInfo: any = prim.geometricInfo;
             if (geomInfo) {
                 geomInfo.indices = ib;
                 geomInfo.positions = new Float32Array(buffer, geomInfo.range.offset, geomInfo.range.length / 4);
             }
 
-            return {
-                primitiveMode: primitive.primitiveMode,
+            const subMesh: IRenderingSubmesh = {
+                primitiveMode: prim.primitiveMode,
                 vertexBuffers: vbReference,
                 indexBuffer,
                 attributes: gfxAttributes,
                 geometricInfo: geomInfo,
-            } as IRenderingSubmesh;
-        });
+            };
 
-        this._renderingMesh = new RenderingMesh(renderingSubmeshes, vertexBuffers, indexBuffers);
+            submeshes.push(subMesh);
+        }
+
+        this._renderingMesh = new RenderingMesh(submeshes, vertexBuffers, indexBuffers);
     }
 
     private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {

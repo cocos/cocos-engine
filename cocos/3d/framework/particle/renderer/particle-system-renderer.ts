@@ -2,7 +2,7 @@ import { ccclass, executeInEditMode, property } from '../../../../core/data/clas
 import { Enum, Vec2, Vec4 } from '../../../../core/value-types';
 import { mat4, vec2, vec3, vec4 } from '../../../../core/vmath';
 import { GFXAttributeName, GFXFormat } from '../../../../gfx/define';
-import { IGFXInputAttribute } from '../../../../gfx/input-assembler';
+import { IGFXAttribute } from '../../../../gfx/input-assembler';
 import * as renderer from '../../../../renderer';
 import ParticleBatchModel from '../../../../renderer/models/particle-batch-model';
 import { Material } from '../../../assets/material';
@@ -102,7 +102,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     private _model: ParticleBatchModel | null;
     private frameTile_velLenScale: Vec4;
     private attrs: any[];
-    private _vertAttrs: IGFXInputAttribute[];
+    private _vertAttrs: IGFXAttribute[];
     private particleSystem: any;
     private _particles: RecyclePool | null = null;
     private _defaultMat: Material | null = null;
