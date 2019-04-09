@@ -32,11 +32,15 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.RequestHandle;
 
 import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.conn.DnsResolver;
+import cz.msebera.android.httpclient.impl.conn.SystemDefaultDnsResolver;
 import cz.msebera.android.httpclient.message.BasicHeader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -248,6 +252,39 @@ public class Cocos2dxDownloader {
     private Queue<Runnable> _taskQueue = new LinkedList<Runnable>();
     private int _runningTaskCount = 0;
     private static HashMap<String, Boolean> _resumingSupport = new HashMap<String, Boolean>();
+
+    static {
+        //To disable IP list sorting, just comment code below.
+        resortDnsResult();
+    }
+
+    /**
+     * Enable sorting IP list, move Inet6Address to the end of the list.
+     */
+    static void resortDnsResult() {
+        DnsResolver resolver = SystemDefaultDnsResolver.INSTANCE;
+        Comparator<InetAddress> comparator = new Comparator<InetAddress>() {
+            @Override
+            public int compare(InetAddress o1, InetAddress o2) {
+                boolean o1IsIpV6 = o1 instanceof Inet6Address;
+                boolean o2IsIpv6 = o2 instanceof Inet6Address;
+                if(o1IsIpV6 == o2IsIpv6)
+                    return 0;
+                else if(o1IsIpV6)
+                    return 1;
+                else
+                    return -1;
+            }
+        };
+        resolver.setTransform(new DnsResolver.AddressesTransform() {
+            @Override
+            public InetAddress[] transform(InetAddress[] addresses) {
+                List<InetAddress> addressList = Arrays.asList(addresses);
+                Collections.sort(addressList, comparator);
+                return (InetAddress[])addressList.toArray();
+            }
+        });
+    }
 
     void onProgress(final int id, final long downloadBytes, final long downloadNow, final long downloadTotal) {
         DownloadTask task = (DownloadTask)_taskMap.get(id);
