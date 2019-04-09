@@ -82,6 +82,8 @@ let BlendFunc = cc.Class({
                 this._srcBlendFactor, this._dstBlendFactor
             );
         }
+
+        material.setDirty(true);
     },
 });
 
