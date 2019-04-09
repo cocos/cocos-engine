@@ -780,12 +780,13 @@ var Texture2D = cc.Class({
 
     // SERIALIZATION
 
+    _setRawAsset (extname) {
+        this._native = 'texture' + extname;
+    },
+
     _serialize: (CC_EDITOR || CC_TEST) && function () {
         let extId = "";
         let exportedExts = this._exportedExts;
-        if (!exportedExts && this._native) {
-            exportedExts = [this._native];
-        }
         if (exportedExts) {
             let exts = [];
             for (let i = 0; i < exportedExts.length; i++) {
