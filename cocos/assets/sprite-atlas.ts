@@ -104,6 +104,8 @@ export class SpriteAtlas extends Asset {
         for (const key of Object.keys(this.spriteFrames)) {
             const spriteFrame = this.spriteFrames[key];
             const id = spriteFrame ? spriteFrame._uuid : '';
+            const name = id.split('@')[1];
+            frames.push(name);
             frames.push(id);
         }
 
@@ -119,7 +121,7 @@ export class SpriteAtlas extends Asset {
         const frames = data.spriteFrames;
         this.spriteFrames = js.createMap();
         for (let i = 0; i < frames.length; i += 2) {
-            handle.result.push(this.spriteFrames, i, frames[i]);
+            handle.result.push(this.spriteFrames, frames[i], frames[i + 1]);
         }
     }
 }

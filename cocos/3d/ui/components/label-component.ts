@@ -634,12 +634,12 @@ export class LabelComponent extends UIRenderComponent {
         if (this._sharedMaterial) {
             mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
         } else {
-            if (UIRenderComponent.addColorMat) {
+            if (UIRenderComponent.addTextureMat) {
                 mat = new Material();
-                mat.copy(UIRenderComponent.addColorMat);
+                mat.copy(UIRenderComponent.addTextureMat);
             } else {
                 mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
-                mat.initialize({ defines: { USE_TEXTURE: false } });
+                mat.initialize({ defines: { USE_TEXTURE: true } });
                 UIRenderComponent.addColorMat = mat;
             }
         }
@@ -647,11 +647,7 @@ export class LabelComponent extends UIRenderComponent {
         this._updateMaterial(mat);
     }
 
-    private _checkStringEmpty () {
-        this._renderPermit = !!this.string;
-    }
-
-    private _flushAssembler () {
+    protected _flushAssembler () {
         const assembler = LabelComponent.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -662,9 +658,13 @@ export class LabelComponent extends UIRenderComponent {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData){
                 this._renderData = this._assembler.createData(this);
-                this._renderData.material = this._material;
+                this._renderData!.material = this._material;
             }
         }
+    }
+
+    private _checkStringEmpty () {
+        this._renderPermit = !!this.string;
     }
 
     private _flushMaterial () {

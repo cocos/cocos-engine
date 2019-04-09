@@ -86,7 +86,7 @@ const SEGEMENTS_MAX = 10000;
  */
 @ccclass('cc.MaskComponent')
 @executionOrder(100)
-@menu('UI/Mask')
+@menu('UI/Render/Mask')
 export class MaskComponent extends UIRenderComponent {
     /**
      * !#en The mask type.
@@ -247,11 +247,6 @@ export class MaskComponent extends UIRenderComponent {
     private _graphics: GraphicsComponent | null = null;
     private _clearGraphics: GraphicsComponent | null = null;
 
-    constructor (){
-        super();
-        this._flushAssembler();
-    }
-
     public onLoad (){
         this._createGraphics();
     }
@@ -341,9 +336,9 @@ export class MaskComponent extends UIRenderComponent {
             const py = testPt.y - 0.5 * h;
             result = px * px / (rx * rx) + py * py / (ry * ry) < 1;
         }
-        if (this.inverted) {
-            result = !result;
-        }
+        // if (this.inverted) {
+        //     result = !result;
+        // }
         return result;
     }
 
