@@ -119,7 +119,7 @@ export class SpriteAtlas extends Asset {
         const frames = data.spriteFrames;
         this.spriteFrames = js.createMap();
         for (let i = 0; i < frames.length; i += 2) {
-            handle.result.push(this.spriteFrames, frames[i], frames[i + 1]);
+            handle.result.push(this.spriteFrames, i, frames[i]);
         }
     }
 }
