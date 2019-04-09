@@ -40,6 +40,8 @@ const GL_RGBA = 6408;                   // gl.RGBA
 const CHAR_CODE_0 = 48;    // '0'
 const CHAR_CODE_1 = 49;    // '1'
 
+const IMPORT_TEXTURE_NAME = 'texture';
+
 var idGenerater = new (require('../platform/id-generater'))('Tex');
 
 /**
@@ -782,7 +784,7 @@ var Texture2D = cc.Class({
 
     _setRawAsset (filename, inLibrary) {
         if (inLibrary !== false) {
-            this._native = 'texture' + filename;
+            this._native = IMPORT_TEXTURE_NAME + filename;
         } else {
             this._native = '/' + filename;
         }
