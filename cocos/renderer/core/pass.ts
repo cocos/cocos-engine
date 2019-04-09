@@ -17,10 +17,10 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
+import { getPhaseID } from '../../pipeline/pass-phase';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
-import { getPhaseID } from '../../pipeline/pass-phase';
 
 export interface IDefineMap { [name: string]: number | boolean | string; }
 export interface IPassInfoFull extends IPassInfo {
@@ -276,7 +276,8 @@ export class Pass {
         }
     }
 
-    public tryCompile () {
+    public tryCompile (defines?: IDefineMap) {
+        if (defines) { Object.assign(this._defines, defines); }
         const pipeline = cc.director.root.pipeline as RenderPipeline | null;
         if (!pipeline) { return false; }
         this._renderPass = pipeline.getRenderPass(this._stage);
@@ -363,8 +364,8 @@ export class Pass {
         if (info.priority !== undefined) { this._priority = info.priority; }
         if (info.primitive !== undefined) { this._primitive = info.primitive; }
         if (info.stage !== undefined) { this._stage = info.stage; }
-        if (info.dynamics !== undefined) { this._dynamicStates = info.dynamics; }
-        if (info.customizations) { this._customizations = info.customizations; }
+        if (info.dynamics !== undefined) { this._dynamicStates = info.dynamics as GFXDynamicState[]; }
+        if (info.customizations) { this._customizations = info.customizations as string[]; }
         if (this._phase === 0) {
             const phaseName = info.phase || 'default';
             this._phase = getPhaseID(phaseName);

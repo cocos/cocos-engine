@@ -25,15 +25,17 @@
 
 // @ts-check
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { Mat4 } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
-import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { __FORCE_USE_UNIFORM_STORAGE__, SkinningModel, useJointsTexture } from '../../renderer/models/skinning-model';
+import { GFXDevice } from '../../gfx/device';
+import { SkinningModel, useJointsTexture } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Material } from '../assets/material';
 import Skeleton from '../assets/skeleton';
 import { ModelComponent } from './model-component';
 
-const _m4_tmp = mat4.create();
+const _m4_tmp = new Mat4();
+const _m4_tmp2 = new Mat4();
 
 type SkinningTarget = Map<string, Node>;
 
@@ -110,7 +112,7 @@ export class SkinningModelComponent extends ModelComponent {
         const skeleton = this._skeleton;
         const skinningTarget = this._skinningTarget;
 
-        const cancelThisNodeTransform = this.node.getWorldMatrix();
+        const cancelThisNodeTransform = this.node.getWorldMatrix(_m4_tmp2);
         mat4.invert(cancelThisNodeTransform, cancelThisNodeTransform);
         this._skeleton.joints.forEach((joint, index) => {
             // If target joint doesn't exists in scene graph, skip it.
@@ -123,7 +125,7 @@ export class SkinningModelComponent extends ModelComponent {
             // 3. because it has been in world space, just cancel this mesh's original local-world transform
             const bindpose = skeleton.bindposes[index];
             const jointMatrix = _m4_tmp;
-            mat4.multiply(jointMatrix, cancelThisNodeTransform, targetNode.getWorldMatrix());
+            mat4.multiply(jointMatrix, cancelThisNodeTransform, targetNode.getWorldMatrix(_m4_tmp));
             mat4.multiply(jointMatrix, jointMatrix, bindpose);
             skinningModel.updateJointMatrix(index, jointMatrix);
         });
@@ -142,14 +144,12 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     protected _onMaterialModified (index: number, material: Material) {
-        super._onMaterialModified(index, material);
-
         const device = _getGlobalDevice();
         const useJointTexture = device !== null && useJointsTexture(device);
         const mat = this.getMaterial(index, CC_EDITOR)!;
-        const effectAsset = mat.effectAsset;
-        mat.destroy();
-        mat.initialize({ effectAsset, defines: { CC_USE_SKINNING: true, CC_USE_JOINTS_TEXTURE: useJointTexture } });
+        const defines = { CC_USE_SKINNING: true, CC_USE_JOINTS_TEXTURE: useJointTexture };
+        for (const pass of mat.passes) { pass.tryCompile(defines); }
+        super._onMaterialModified(index, mat);
     }
 
     private _bindSkeleton () {

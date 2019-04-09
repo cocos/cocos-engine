@@ -35,7 +35,7 @@ function isUniformStorage (storage: JointStorage): storage is IJointUniformsStor
     return !('texture' in storage);
 }
 
-export const __FORCE_USE_UNIFORM_STORAGE__ = true;
+export const __FORCE_USE_UNIFORM_STORAGE__ = false;
 
 export class SkinningModel extends Model {
     private _jointStorage: JointStorage | null = null;
@@ -168,7 +168,7 @@ function _createJointsTexture (skinning: { joints: any[]; }) {
         }
     }
     if (textureExtent < 0) {
-        throw new Error('To many joints.');
+        throw new Error('Too many joints.');
     }
 
     const texture = new Texture2D();
