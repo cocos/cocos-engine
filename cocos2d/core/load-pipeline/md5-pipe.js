@@ -49,28 +49,24 @@ var MD5Pipe = function (md5AssetsMap, md5NativeAssetsMap, libraryBase) {
 MD5Pipe.ID = ID;
 
 MD5Pipe.prototype.handle = function(item) {
-    let hashPatchInFolder = false;
-    // HACK: explicitly use folder md5 for ttf files
-    if (item.type === 'ttf') {
-        hashPatchInFolder = true;
-    }
-    item.url = this.transformURL(item.url, hashPatchInFolder);
+    item.url = this.transformURL(item.url);
     return null;
 };
 
-MD5Pipe.prototype.transformURL = function (url, hashPatchInFolder) {
-    var uuid = getUuidFromURL(url);
+MD5Pipe.prototype.transformURL = function (url) {
+    let uuid = getUuidFromURL(url);
     if (uuid) {
-        var isNativeAsset = !url.startsWith(this.libraryBase);
-        var map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
+        let isNativeAsset = !url.startsWith(this.libraryBase);
+        let map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
         let hashValue = map[uuid];
         if (hashValue) {
-            if (hashPatchInFolder) {
-                var dirname = cc.path.dirname(url);
-                var basename = cc.path.basename(url);
+            let dirname = cc.path.dirname(url);
+            let dirIsUuid = !!getUuidFromURL(dirname);
+            if (dirIsUuid) {
+                let basename = cc.path.basename(url);
                 url = `${dirname}.${hashValue}/${basename}`;
             } else {
-                var matched = false;
+                let matched = false;
                 url = url.replace(ExtnameRegex, (function(match, p1) {
                     matched = true;
                     return "." + hashValue + p1;
