@@ -73,6 +73,22 @@ ccenum(EventType);
 @menu('Components/AnimationComponent')
 export class LegacyAnimationComponent extends EventTargetFactory(Component) {
 
+    @property({ type: Boolean })
+    get preview () {
+        return this._preview;
+    }
+
+    set preview (value) {
+        this._preview = value;
+        if (value) {
+            cc.engine.animatingInEditMode = true;
+            this.play();
+        } else {
+            cc.engine.animatingInEditMode = false;
+            this.stop();
+        }
+    }
+
     /**
      * !#en Animation will play the default clip when start game.
      * !#zh 在勾选自动播放或调用 play() 时默认播放的动画剪辑。
@@ -115,6 +131,11 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
     set currentClip (value) {
         this._currentClip = value;
     }
+
+    @property({ type: [LegacyAnimationClip] })
+    get clips () {
+        return this._clips;
+    }
     public static EventType = EventType;
 
     /**
@@ -123,6 +144,7 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
      */
     @property
     public playOnLoad = false;
+    private _preview = false;
 
     private _animator: AnimationAnimator | null = null;
     private _nameToState = createMap(true);
