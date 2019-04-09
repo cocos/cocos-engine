@@ -10,11 +10,11 @@ import {
     ILockConstraintOptions,
     IPointToPointConstraintOptions,
     IRaycastOptions, LockConstraintBase, PhysicsWorldBase,
-    PointToPointConstraintBase, RigidBodyBase, ShapeBase, SphereShapeBase
+    PointToPointConstraintBase, RigidBodyBase, ShapeBase, SphereShapeBase,
 } from './api';
+import { ERigidBodyType } from './instance';
 import { RaycastResult } from './raycast-result';
 import { stringfyQuat, stringfyVec3 } from './util';
-import { ERigidBodyType } from './instance';
 
 const defaultCannonMaterial = new CANNON.Material('');
 const defaultCannonContactMaterial = new CANNON.ContactMaterial(
