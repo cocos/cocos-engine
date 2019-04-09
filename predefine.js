@@ -179,10 +179,6 @@ else {
     defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));
 }
 
-//#begin test code for wechat
-// _global['CC_SUPPORT_JIT'] = false;
-//#end
-
 //
 
 if (CC_DEV) {

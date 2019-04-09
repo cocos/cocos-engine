@@ -63,6 +63,7 @@ interface IGlobaldefines {
     CC_SUPPORT_JIT?: boolean;
 }
 
+// tslint:disable-next-line: no-shadowed-variable
 function getGlobalDefs (platform: Platform, flags?: IFlags): object {
     const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
 
