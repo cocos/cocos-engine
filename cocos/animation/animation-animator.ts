@@ -1,4 +1,4 @@
-import { LegacyAnimationComponent } from '../components/lagacy-animation-component';
+import { LegacyAnimationComponent } from '../components/legacy-animation-component';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { MutableForwardIterator } from '../core/utils/array';
 import { Node } from '../scene-graph';

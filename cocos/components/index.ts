@@ -27,3 +27,4 @@
 export { Component } from './component';
 export { EventHandler } from './component-event-handler';
 export {default as MissingScript} from './missing-script';
+export { LegacyAnimationComponent } from './legacy-animation-component';
