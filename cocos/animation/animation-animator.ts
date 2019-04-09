@@ -1,3 +1,4 @@
+import { LegacyAnimationComponent } from '../components/lagacy-animation-component';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { MutableForwardIterator } from '../core/utils/array';
 import { Node } from '../scene-graph';
@@ -11,13 +12,13 @@ import { WrapModeMask } from './types';
  * The actual animator for Animation Component.
  */
 export class AnimationAnimator extends Playable {
-    private _anims = new MutableForwardIterator<LegacyAnimationState>([]);
+    public _anims = new MutableForwardIterator<LegacyAnimationState>([]);
 
-    constructor (public target: Node, public animation: LegacyAnimationClip) {
+    constructor (public target: Node, public animation: LegacyAnimationComponent) {
         super();
     }
 
-    public playState (state: LegacyAnimationState, startTime: number) {
+    public playState (state: LegacyAnimationState, startTime?: number) {
         if (!state.clip) {
             return;
         }
@@ -148,7 +149,7 @@ export class AnimationAnimator extends Playable {
         }
     }
 
-    private _reloadClip (state: LegacyAnimationState) {
+    public _reloadClip (state: LegacyAnimationState) {
         initClipData(this.target, state);
     }
 }

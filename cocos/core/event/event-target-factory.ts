@@ -88,7 +88,7 @@ export function EventTargetFactory<Base extends Constructor<{}>> (b?: Base) {
          * // remove all fire event listeners
          * eventTarget.off('fire');
          */
-        public off (type: string, callback: IEventTargetCallback, target: Object | null = null) {
+        public off (type: string, callback: IEventTargetCallback, target: Object | null = null, useCapture?: boolean) {
             if (!callback) {
                 this._callbacksInvoker.removeAll(type);
             } else {

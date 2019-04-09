@@ -147,6 +147,7 @@ export class LegacyAnimationState extends Playable {
      * @default 0
      */
     public time = 0;
+    public _lastframeEventOn = false;
 
     private _wrapMode = WrapMode.Normal;
 
@@ -175,7 +176,6 @@ export class LegacyAnimationState extends Playable {
     private _lastWrappedInfo: WrappedInfo | null = null;
     private _process = this.process;
     private _target: Node | null = null;
-    private _lastframeEventOn = false;
     private _clip: LegacyAnimationClip;
     private _name: string;
     private _lastIterations?: number;

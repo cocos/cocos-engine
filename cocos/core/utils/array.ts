@@ -26,28 +26,17 @@
 export {default as MutableForwardIterator} from './mutable-forward-iterator';
 
 /**
- * @class js.array
- * @static
- */
-
-/**
  * Removes the array item at the specified index.
- * @method removeAt
- * @param {any[]} array
- * @param {Number} index
  */
-export function removeAt (array, index) {
+export function removeAt<T> (array: T[], index: number) {
     array.splice(index, 1);
 }
 
 /**
  * Removes the array item at the specified index.
  * It's faster but the order of the array will be changed.
- * @method fastRemoveAt
- * @param {any[]} array
- * @param {Number} index
  */
-export function fastRemoveAt (array, index) {
+export function fastRemoveAt<T> (array: T[], index: number) {
     const length = array.length;
     if (index < 0 || index >= length) {
         return;
@@ -58,18 +47,13 @@ export function fastRemoveAt (array, index) {
 
 /**
  * Removes the first occurrence of a specific object from the array.
- * @method remove
- * @param {any[]} array
- * @param {any} value
- * @return {Boolean}
  */
-export function remove (array, value) {
+export function remove<T> (array: T[], value: T) {
     const index = array.indexOf(value);
     if (index >= 0) {
         removeAt(array, index);
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -77,11 +61,8 @@ export function remove (array, value) {
 /**
  * Removes the first occurrence of a specific object from the array.
  * It's faster but the order of the array will be changed.
- * @method fastRemove
- * @param {any[]} array
- * @param {Number} value
  */
-export function fastRemove (array, value) {
+export function fastRemove<T> (array: T[], value: T) {
     const index = array.indexOf(value);
     if (index >= 0) {
         array[index] = array[array.length - 1];
@@ -90,13 +71,9 @@ export function fastRemove (array, value) {
 }
 
 /**
- * Verify array's Type
- * @method verifyType
- * @param {array} array
- * @param {Function} type
- * @return {Boolean}
+ * Verify array's Type.
  */
-export function verifyType (array, type) {
+export function verifyType<T> (array: T[], type: Function) {
     if (array && array.length > 0) {
         for (const item of array) {
             if (!(item instanceof type)) {
@@ -110,26 +87,20 @@ export function verifyType (array, type) {
 
 /**
  * Removes from array all values in minusArr. For each Value in minusArr, the first matching instance in array will be removed.
- * @method removeArray
- * @param {Array} array Source Array
- * @param {Array} minusArr minus Array
+ * @param array Source Array
+ * @param minusArr minus Array
  */
-export function removeArray (array, minusArr) {
+export function removeArray<T> (array: T[], minusArr: T[]) {
     for (let i = 0, l = minusArr.length; i < l; i++) {
         remove(array, minusArr[i]);
     }
 }
 
 /**
- * Inserts some objects at index
- * @method appendObjectsAt
- * @param {Array} array
- * @param {Array} addObjs
- * @param {Number} index
- * @return {Array}
+ * Inserts some objects at index.
  */
-export function appendObjectsAt (array, addObjs, index) {
-    array.splice.apply(array, [index, 0].concat(addObjs));
+export function appendObjectsAt<T> (array: T[], addObjs: T[], index: number) {
+    array.splice.apply(array, [index, 0, ...addObjs]);
     return array;
 }
 
@@ -143,30 +114,25 @@ export function appendObjectsAt (array, addObjs, index) {
  * here is the standard: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf, Seriously!
  *
  * @method indexOf
- * @param {any} searchElement - Element to locate in the array.
- * @param {Number} [fromIndex=0] - The index to start the search at
- * @return {Number} - the first index at which a given element can be found in the array, or -1 if it is not present.
+ * @param searchElement - Element to locate in the array.
+ * @param [fromIndex=0] - The index to start the search at
+ * @return the first index at which a given element can be found in the array, or -1 if it is not present.
  */
-// Array.prototype.indexOf;
+export function indexOf<T> (array: T[], searchElement: T, fromIndex?: number) {
+    return Array.prototype.indexOf.call(array, [searchElement, fromIndex]);
+}
 
 /**
  * Determines whether the array contains a specific value.
- * @method contains
- * @param {any[]} array
- * @param {any} value
- * @return {Boolean}
  */
-export function contains (array, value) {
+export function contains<T> (array: T[], value: T) {
     return array.indexOf(value) >= 0;
 }
 
 /**
  * Copy an array's item to a new array (its performance is better than Array.slice)
- * @method copy
- * @param {Array} array
- * @return {Array}
  */
-export function copy (array) {
+export function copy<T> (array: T[]) {
     const len = array.length;
     const arr_clone = new Array(len);
     for (let i = 0; i < len; i += 1) {
