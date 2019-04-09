@@ -584,6 +584,8 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
     }
 }
 
+cc.LegacyAnimationComponent = LegacyAnimationComponent;
+
 function equalClips (clip1: LegacyAnimationClip | null, clip2: LegacyAnimationClip | null) {
     if (clip1 === clip2) {
         return true;
