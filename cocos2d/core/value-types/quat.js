@@ -52,8 +52,8 @@ function Quat (x, y, z, w) {
     if (x && typeof x === 'object') {
         z = x.z;
         y = x.y;
-        x = x.x;
         w = x.w;
+        x = x.x;
     }
     this.x = x || 0;
     this.y = y || 0;
