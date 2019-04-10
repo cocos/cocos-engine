@@ -27,16 +27,7 @@
 var Pipeline = require('./pipeline');
 
 const ID = 'MD5Pipe';
-const ExtnameRegex = /(\.[^.\n\\/]*)$/;
 const UuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/;
-
-function getUuidFromURL (url) {
-    var matches = url.match(UuidRegex);
-    if (matches) {
-        return matches[1];
-    }
-    return "";
-}
 
 var MD5Pipe = function (md5AssetsMap, md5NativeAssetsMap, libraryBase) {
     this.id = ID;
@@ -54,29 +45,12 @@ MD5Pipe.prototype.handle = function(item) {
 };
 
 MD5Pipe.prototype.transformURL = function (url) {
-    let uuid = getUuidFromURL(url);
-    if (uuid) {
-        let isNativeAsset = !url.startsWith(this.libraryBase);
-        let map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
+    let isNativeAsset = !url.startsWith(this.libraryBase);
+    let map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
+    url = url.replace(UuidRegex, (match, uuid) => {
         let hashValue = map[uuid];
-        if (hashValue) {
-            let dirname = cc.path.dirname(url);
-            let dirIsUuid = !!getUuidFromURL(dirname);
-            if (dirIsUuid) {
-                let basename = cc.path.basename(url);
-                url = `${dirname}.${hashValue}/${basename}`;
-            } else {
-                let matched = false;
-                url = url.replace(ExtnameRegex, (function(match, p1) {
-                    matched = true;
-                    return "." + hashValue + p1;
-                }));
-                if (!matched) {
-                    url = url + "." + hashValue;
-                }
-            }
-        }
-    }
+        return hashValue ? match + '.' + hashValue : match;
+    });
     return url;
 };
 
