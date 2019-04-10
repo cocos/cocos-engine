@@ -19,7 +19,7 @@ const NonRigidBodyProperties = {
 };
 
 @ccclass('cc.RigidBodyComponent')
-@executionOrder(100)
+@executionOrder(101)
 @menu('Components/RigidBodyComponent')
 @executeInEditMode
 export class RigidBodyComponent extends PhysicsBasedComponent {
