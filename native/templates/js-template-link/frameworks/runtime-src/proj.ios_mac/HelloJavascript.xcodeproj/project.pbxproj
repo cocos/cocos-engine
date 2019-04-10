@@ -21,6 +21,7 @@
 		1AFFCD7E1F7A5D5400628F2C /* LaunchScreenBackground.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AFFCD7B1F7A5D4F00628F2C /* LaunchScreenBackground.png */; };
 		1AFFCD7F1F7A5D5400628F2C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1ABC56911F7A005D00826282 /* Images.xcassets */; };
 		22CC757121BA5B5C00FBF2F7 /* SDKWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 22CC756D21BA5B5C00FBF2F7 /* SDKWrapper.m */; };
+		28A34C10225B462E00926306 /* subpackages in Resources */ = {isa = PBXBuildFile; fileRef = 28A34C0F225B462E00926306 /* subpackages */; };
 		294D7D801D0D668F002CE7B7 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 294D7D7F1D0D668F002CE7B7 /* CoreText.framework */; };
 		4011F9CF212BD6750091CC5B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4011F9D1212BD6750091CC5B /* LaunchScreen.storyboard */; };
 		4011F9D5212BD7050091CC5B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4011F9D7212BD7050091CC5B /* Localizable.strings */; };
@@ -125,6 +126,7 @@
 		22CC756D21BA5B5C00FBF2F7 /* SDKWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SDKWrapper.m; path = ios/SDKWrapper.m; sourceTree = "<group>"; };
 		22CC756F21BA5B5C00FBF2F7 /* SDKDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDKDelegate.h; sourceTree = "<group>"; };
 		22CC757021BA5B5C00FBF2F7 /* SDKWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDKWrapper.h; path = ios/SDKWrapper.h; sourceTree = "<group>"; };
+		28A34C0F225B462E00926306 /* subpackages */ = {isa = PBXFileReference; lastKnownFileType = folder; name = subpackages; path = ../../../subpackages; sourceTree = "<group>"; };
 		294D7D7F1D0D668F002CE7B7 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/CoreText.framework; sourceTree = DEVELOPER_DIR; };
 		4011F9D2212BD6810091CC5B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4011F9D8212BD7150091CC5B /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -283,6 +285,7 @@
 		A92275321517C094001B78AA = {
 			isa = PBXGroup;
 			children = (
+				28A34C0F225B462E00926306 /* subpackages */,
 				1AC6FB34180E9ACB004C840B /* cocos2d_libs.xcodeproj */,
 				D4545214156E28EF00887EB5 /* Classes */,
 				A92275401517C094001B78AA /* Frameworks */,
@@ -485,6 +488,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				28A34C10225B462E00926306 /* subpackages in Resources */,
 				4033CDBC20E4935100DAA37B /* jsb-adapter in Resources */,
 				1AFFCD7F1F7A5D5400628F2C /* Images.xcassets in Resources */,
 				1AFFCD7E1F7A5D5400628F2C /* LaunchScreenBackground.png in Resources */,
