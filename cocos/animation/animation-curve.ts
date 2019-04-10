@@ -1,6 +1,7 @@
 import { Quat, ValueType, Vec3 } from '../core';
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
+import { errorID } from '../core/platform/CCDebug';
 import { quat } from '../core/value-types/quat';
 import { v3 } from '../core/value-types/vec3';
 import { bezierByTime } from './bezier';
@@ -319,15 +320,13 @@ export class EventAnimCurve extends AnimCurve {
  */
 export function computeRatioByType (ratio: number, type: CurveType) {
     if (typeof type === 'string') {
-        const func = cc.easing[type];
+        const func = easing[type];
         if (func) {
             ratio = func(ratio);
+        } else {
+            errorID(3906, type);
         }
-        else {
-            cc.errorID(3906, type);
-        }
-    }
-    else if (Array.isArray(type)) {
+    } else if (Array.isArray(type)) {
         // bezier curve
         ratio = bezierByTime(type, ratio);
     }

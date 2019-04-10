@@ -1,11 +1,12 @@
 import { ccclass } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
+import { MutableForwardIterator } from '../core/utils/array';
 import { Node } from '../scene-graph';
 import { AnimationState } from './animation-state';
 
 @ccclass
 export class AnimationManager {
-    private _anims = new cc.js.array.MutableForwardIterator([]);
+    private _anims = new MutableForwardIterator<AnimationState>([]);
     private _delayEvents: Array<{target: Node; func: string; args: any[]; }> = [];
 
     constructor () {
@@ -19,7 +20,7 @@ export class AnimationManager {
         const array = iterator.array;
         for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
             const anim = array[iterator.i];
-            if (anim._isPlaying && !anim._isPaused) {
+            if (anim.isPlaying && !anim.isPaused) {
                 anim.update(dt);
             }
         }

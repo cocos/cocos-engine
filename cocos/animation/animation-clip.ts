@@ -1,5 +1,7 @@
 import { Asset, SpriteFrame } from '../assets';
+import { Vec2 } from '../core';
 import { ccclass, property } from '../core/data/class-decorator';
+import { errorID } from '../core/platform/CCDebug';
 import Quat, { quat } from '../core/value-types/quat';
 import Vec3, { v3 } from '../core/value-types/vec3';
 import { lerp } from '../core/vmath';
@@ -63,7 +65,7 @@ export class AnimationClip extends Asset {
      */
     public static createWithSpriteFrames (spriteFrames: SpriteFrame[], sample: number) {
         if (!Array.isArray(spriteFrames)) {
-            cc.errorID(3905);
+            errorID(3905);
             return null;
         }
 
@@ -144,7 +146,7 @@ export class AnimationClip extends Asset {
 
     public createPropCurve (target: ICurveTarget, propPath: string, keyframes: IKeyframe[]) {
         const motionPaths: Array<(MotionPath | undefined)> = [];
-        const isMotionPathProp = target instanceof cc.Node && propPath === 'position';
+        const isMotionPathProp = target instanceof Node && propPath === 'position';
 
         const curve = new DynamicAnimCurve();
 
@@ -212,9 +214,9 @@ export class AnimationClip extends Asset {
         if (!curve._lerp && firstValue !== undefined) {
             if (typeof firstValue === 'number') {
                 curve._lerp = lerpNumber;
-            } else if (firstValue instanceof cc.Quat) {
+            } else if (firstValue instanceof Quat) {
                 curve._lerp = lerpQuat;
-            } else if (firstValue instanceof cc.Vec2 || firstValue instanceof cc.Vec3) {
+            } else if (firstValue instanceof Vec2 || firstValue instanceof Vec3) {
                 curve._lerp = lerpVector;
             } else if (isLerpable(firstValue)) {
                 curve._lerp = lerpObject;

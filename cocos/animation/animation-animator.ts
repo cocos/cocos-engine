@@ -1,5 +1,6 @@
 import { AnimationComponent } from '../components/animation-component';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
+import { errorID } from '../core/platform/CCDebug';
 import { MutableForwardIterator } from '../core/utils/array';
 import { Node } from '../scene-graph';
 import { EventAnimCurve, EventInfo } from './animation-curve';
@@ -68,7 +69,7 @@ export class AnimationAnimator extends Playable {
             }
         }
         else {
-            cc.errorID(3908);
+            errorID(3908);
         }
 
         anim.animator = null;
