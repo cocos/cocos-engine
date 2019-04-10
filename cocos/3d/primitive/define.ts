@@ -1,5 +1,5 @@
 import { GFXPrimitiveMode } from '../../gfx/define';
-import { IVertexAttribute } from '../assets/mesh';
+import { IGFXAttribute } from '../../gfx/input-assembler';
 
 export interface IGeometryOptions {
     /**
@@ -87,5 +87,5 @@ export interface IGeometry {
     /**
      * specify vertex attributes, use (positions|normals|uvs|colors) as keys
      */
-    attributes?: Record<string, IVertexAttribute>;
+    attributes?: IGFXAttribute[];
 }

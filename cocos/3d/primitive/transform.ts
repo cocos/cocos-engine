@@ -1,5 +1,5 @@
-import { IGeometry } from './define';
 import { GFXPrimitiveMode } from '../../gfx/define';
+import { IGeometry } from './define';
 
 export function translate (geometry: IGeometry, offset: { x?: number; y?: number; z?: number; }) {
     const x = offset.x || 0;

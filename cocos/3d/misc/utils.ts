@@ -12,6 +12,13 @@ export function toPPM (buffer: Uint8Array, w: number, h: number) {
     return `P3 ${w} ${h} 255\n${buffer.filter((e, i) => i % 4 < 3).toString()}\n`;
 }
 
+const _defAttrs: IGFXAttribute[] = [
+    { name: 'a_position', format: GFXFormat.RGB32F },
+    { name: 'a_normal', format: GFXFormat.RGB32F },
+    { name: 'a_texCoord', format: GFXFormat.RG32F },
+    { name: 'a_color', format: GFXFormat.RGBA32F },
+];
+
 export function createMesh (geometry: IGeometry, out?: Mesh) {
     // Collect attributes and calculate length of result vertex buffer.
     const attributes: IGFXAttribute[] = [];
@@ -19,37 +26,94 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
     const channels: Array<{ offset: number; data: number[]; attribute: IGFXAttribute; }> = [];
     let verticesCount = 0;
 
+    let attr: IGFXAttribute | null;
+
     if (geometry.positions.length > 0) {
-        const attr: IGFXAttribute = { name: 'a_position', format: GFXFormat.RGB32F };
+        attr = null;
+        if (geometry.attributes) {
+            for (const att of geometry.attributes) {
+                if (att.name === 'a_position') {
+                    attr = att;
+                    break;
+                }
+            }
+        }
+
+        if (!attr) {
+            attr = _defAttrs[0];
+        }
+
+        const info = GFXFormatInfos[attr.format];
         attributes.push(attr);
-        verticesCount = Math.max(verticesCount, Math.floor(geometry.positions.length / 3));
+        verticesCount = Math.max(verticesCount, Math.floor(geometry.positions.length / info.count));
         channels.push({ offset: stride, data: geometry.positions, attribute: attr });
-        stride += 12;
+        stride += info.size;
     }
 
     if (geometry.normals && geometry.normals.length > 0) {
-        const attr: IGFXAttribute = { name: 'a_normal', format: GFXFormat.RGB32F };
+        attr = null;
+        if (geometry.attributes) {
+            for (const att of geometry.attributes) {
+                if (att.name === 'a_normal') {
+                    attr = att;
+                    break;
+                }
+            }
+        }
 
+        if (!attr) {
+            attr = _defAttrs[1];
+        }
+
+        const info = GFXFormatInfos[attr.format];
         attributes.push(attr);
-        verticesCount = Math.max(verticesCount, Math.floor(geometry.normals.length / 3));
+        verticesCount = Math.max(verticesCount, Math.floor(geometry.normals.length / info.count));
         channels.push({ offset: stride, data: geometry.normals, attribute: attr });
-        stride += 12;
+        stride += info.size;
     }
 
     if (geometry.uvs && geometry.uvs.length > 0) {
-        const attr: IGFXAttribute = { name: 'a_texCoord', format: GFXFormat.RG32F };
+        attr = null;
+        if (geometry.attributes) {
+            for (const att of geometry.attributes) {
+                if (att.name === 'a_texCoord') {
+                    attr = att;
+                    break;
+                }
+            }
+        }
+
+        if (!attr) {
+            attr = _defAttrs[2];
+        }
+
+        const info = GFXFormatInfos[attr.format];
         attributes.push(attr);
-        verticesCount = Math.max(verticesCount, Math.floor(geometry.uvs.length / 2));
+        verticesCount = Math.max(verticesCount, Math.floor(geometry.uvs.length / info.count));
         channels.push({ offset: stride, data: geometry.uvs, attribute: attr });
-        stride += 8;
+        stride += info.size;
     }
 
     if (geometry.colors && geometry.colors.length > 0) {
-        const attr: IGFXAttribute = { name: 'a_color', format: GFXFormat.RGBA32F };
+        attr = null;
+        if (geometry.attributes) {
+            for (const att of geometry.attributes) {
+                if (att.name === 'a_color') {
+                    attr = att;
+                    break;
+                }
+            }
+        }
+
+        if (!attr) {
+            attr = _defAttrs[3];
+        }
+
+        const info = GFXFormatInfos[attr.format];
         attributes.push(attr);
-        verticesCount = Math.max(verticesCount, Math.floor(geometry.colors.length / 4));
+        verticesCount = Math.max(verticesCount, Math.floor(geometry.colors.length / info.count));
         channels.push({ offset: stride, data: geometry.colors, attribute: attr });
-        stride += 16;
+        stride += info.size;
     }
 
     // Use this to generate final merged buffer.

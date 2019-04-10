@@ -1,5 +1,5 @@
 import { GFXBuffer, GFXBufferSource, IGFXDrawInfo } from './buffer';
-import { GFXFormat, GFXFormatInfos, GFXObject, GFXObjectType, GFXFormatType } from './define';
+import { GFXFormat, GFXFormatInfos, GFXFormatType, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXAttribute {
