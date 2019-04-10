@@ -1,10 +1,9 @@
-import { LegacyAnimationComponent } from '../components/legacy-animation-component';
+import { AnimationComponent } from '../components/animation-component';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { MutableForwardIterator } from '../core/utils/array';
 import { Node } from '../scene-graph';
-import { LegacyAnimationClip } from './animation-clip';
 import { EventAnimCurve, EventInfo } from './animation-curve';
-import { LegacyAnimationState } from './animation-state';
+import { AnimationState } from './animation-state';
 import { Playable } from './playable';
 import { WrapModeMask } from './types';
 
@@ -12,13 +11,13 @@ import { WrapModeMask } from './types';
  * The actual animator for Animation Component.
  */
 export class AnimationAnimator extends Playable {
-    public _anims = new MutableForwardIterator<LegacyAnimationState>([]);
+    public _anims = new MutableForwardIterator<AnimationState>([]);
 
-    constructor (public target: Node, public animation: LegacyAnimationComponent) {
+    constructor (public target: Node, public animation: AnimationComponent) {
         super();
     }
 
-    public playState (state: LegacyAnimationState, startTime?: number) {
+    public playState (state: AnimationState, startTime?: number) {
         if (!state.clip) {
             return;
         }
@@ -37,7 +36,7 @@ export class AnimationAnimator extends Playable {
         this.play();
     }
 
-    public stopStatesExcept (state: LegacyAnimationState) {
+    public stopStatesExcept (state: AnimationState) {
         const iterator = this._anims;
         const array = iterator.array;
         for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
@@ -84,19 +83,19 @@ export class AnimationAnimator extends Playable {
         }
     }
 
-    public stopState (state: LegacyAnimationState) {
+    public stopState (state: AnimationState) {
         if (state) {
             state.stop();
         }
     }
 
-    public pauseState (state: LegacyAnimationState) {
+    public pauseState (state: AnimationState) {
         if (state) {
             state.pause();
         }
     }
 
-    public resumeState (state: LegacyAnimationState) {
+    public resumeState (state: AnimationState) {
         if (state) {
             state.resume();
         }
@@ -106,14 +105,14 @@ export class AnimationAnimator extends Playable {
         }
     }
 
-    public setStateTime (state: LegacyAnimationState, time: number): void;
+    public setStateTime (state: AnimationState, time: number): void;
 
     public setStateTime (time: number): void;
 
-    public setStateTime (state: LegacyAnimationState | number, time?: number) {
+    public setStateTime (state: AnimationState | number, time?: number) {
         if (time !== undefined) {
-            (state as LegacyAnimationState).setTime(time);
-            (state as LegacyAnimationState).sample();
+            (state as AnimationState).setTime(time);
+            (state as AnimationState).sample();
         }
         else {
             for (const anim of this._anims.array) {
@@ -149,7 +148,7 @@ export class AnimationAnimator extends Playable {
         }
     }
 
-    public _reloadClip (state: LegacyAnimationState) {
+    public _reloadClip (state: AnimationState) {
         initClipData(this.target, state);
     }
 }

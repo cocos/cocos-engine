@@ -1,5 +1,5 @@
 
-import { AnimationAnimator, LegacyAnimationClip, LegacyAnimationState } from '../animation';
+import { AnimationAnimator, AnimationClip, AnimationState } from '../animation';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
 import { EventTargetFactory, IEventTargetCallback } from '../core/event/event-target-factory';
 import { warnID } from '../core/platform/CCDebug';
@@ -67,11 +67,11 @@ ccenum(EventType);
  *  - lastframe : 假如动画循环次数大于 1，当动画播放到最后一帧时
  *  - finished : 动画播放完成时
  */
-@ccclass('cc.LegacyAnimationComponent')
+@ccclass('cc.AnimationComponent')
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/AnimationComponent')
-export class LegacyAnimationComponent extends EventTargetFactory(Component) {
+export class AnimationComponent extends EventTargetFactory(Component) {
 
     @property({ type: Boolean })
     get preview () {
@@ -93,7 +93,7 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
      * !#en Animation will play the default clip when start game.
      * !#zh 在勾选自动播放或调用 play() 时默认播放的动画剪辑。
      */
-    @property({ type: LegacyAnimationClip })
+    @property({ type: AnimationClip })
     get defaultClip () {
         return this._defaultClip;
     }
@@ -132,7 +132,7 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
         this._currentClip = value;
     }
 
-    @property({ type: [LegacyAnimationClip] })
+    @property({ type: [AnimationClip] })
     get clips () {
         return this._clips;
     }
@@ -149,17 +149,17 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
     private _animator: AnimationAnimator | null = null;
     private _nameToState = createMap(true);
     private _didInit = false;
-    private _currentClip: LegacyAnimationClip | null = null;
+    private _currentClip: AnimationClip | null = null;
 
     /**
      * !#en All the clips used in this animation.
      * !#zh 通过脚本可以访问并播放的 AnimationClip 列表。
      */
-    @property({ type: [LegacyAnimationClip] })
-    private _clips: LegacyAnimationClip[] = [];
+    @property({ type: [AnimationClip] })
+    private _clips: AnimationClip[] = [];
 
     @property
-    private _defaultClip: LegacyAnimationClip | null = null;
+    private _defaultClip: AnimationClip | null = null;
 
     constructor () {
         super();
@@ -378,7 +378,7 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
      * @param clip the clip to add
      * @return The AnimationState which gives full control over the animation clip.
      */
-    public addClip (clip: LegacyAnimationClip, newName?: string): LegacyAnimationState | undefined {
+    public addClip (clip: AnimationClip, newName?: string): AnimationState | undefined {
         if (!clip) {
             warnID(3900);
             return;
@@ -406,7 +406,7 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
         }
 
         // replace state
-        const newState = new LegacyAnimationState(clip, newName);
+        const newState = new AnimationState(clip, newName);
         this._nameToState[newName] = newState;
         return newState;
     }
@@ -422,7 +422,7 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
      * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。
      * @param {Boolean} [force=false] - If force is true, then will always remove the clip and any animation states based on it.
      */
-    public removeClip (clip: LegacyAnimationClip, force?: boolean) {
+    public removeClip (clip: AnimationClip, force?: boolean) {
         if (!clip) {
             warnID(3901);
             return;
@@ -512,7 +512,7 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
      * // register event to all animation
      * animation.on('play', this.onPlay, this);
      */
-    public on (type: string, callback: (state: LegacyAnimationState) => void, target?: Object | null, useCapture?: boolean) {
+    public on (type: string, callback: (state: AnimationState) => void, target?: Object | null, useCapture?: boolean) {
         this._init();
 
         const ret = super.on(type, callback, target, useCapture);
@@ -578,11 +578,11 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
         this._nameToState = createMap(true);
 
         // create animation states
-        let state: LegacyAnimationState | null = null;
-        let defaultClipState: LegacyAnimationState | undefined;
+        let state: AnimationState | null = null;
+        let defaultClipState: AnimationState | undefined;
         for (const clip of this._clips) {
             if (clip) {
-                state = new LegacyAnimationState(clip);
+                state = new AnimationState(clip);
 
                 if (CC_EDITOR) {
                     this._animator!._reloadClip(state);
@@ -595,7 +595,7 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
             }
         }
         if (this._defaultClip && !defaultClipState) {
-            state = new LegacyAnimationState(this._defaultClip);
+            state = new AnimationState(this._defaultClip);
 
             if (CC_EDITOR) {
                 this._animator!._reloadClip(state);
@@ -606,9 +606,9 @@ export class LegacyAnimationComponent extends EventTargetFactory(Component) {
     }
 }
 
-cc.LegacyAnimationComponent = LegacyAnimationComponent;
+cc.AnimationComponent = AnimationComponent;
 
-function equalClips (clip1: LegacyAnimationClip | null, clip2: LegacyAnimationClip | null) {
+function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
     if (clip1 === clip2) {
         return true;
     }
