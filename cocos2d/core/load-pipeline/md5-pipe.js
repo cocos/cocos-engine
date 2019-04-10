@@ -47,7 +47,7 @@ MD5Pipe.prototype.handle = function(item) {
 MD5Pipe.prototype.transformURL = function (url) {
     let isNativeAsset = !url.startsWith(this.libraryBase);
     let map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
-    url = url.replace(UuidRegex, (match, uuid) => {
+    url = url.replace(UuidRegex, function (match, uuid) {
         let hashValue = map[uuid];
         return hashValue ? match + '.' + hashValue : match;
     });
