@@ -77,6 +77,18 @@ export class WebGL2GFXDevice extends GFXDevice {
         return this._EXT_disjoint_timer_query_webgl2;
     }
 
+    public get WEBGL_compressed_texture_etc1 (): WEBGL_compressed_texture_etc1 | null {
+        return this._WEBGL_compressed_texture_etc1;
+    }
+
+    public get WEBGL_compressed_texture_etc (): WEBGL_compressed_texture_etc | null {
+        return this._WEBGL_compressed_texture_etc;
+    }
+
+    public get WEBGL_compressed_texture_pvrtc (): WEBGL_compressed_texture_pvrtc | null {
+        return this._WEBGL_compressed_texture_pvrtc;
+    }
+
     public get WEBGL_compressed_texture_s3tc (): WEBGL_compressed_texture_s3tc | null {
         return this._WEBGL_compressed_texture_s3tc;
     }
@@ -99,6 +111,9 @@ export class WebGL2GFXDevice extends GFXDevice {
     private _OES_texture_float_linear: OES_texture_float_linear | null = null;
     private _EXT_color_buffer_float: EXT_color_buffer_float | null = null;
     private _EXT_disjoint_timer_query_webgl2: EXT_disjoint_timer_query_webgl2 | null = null;
+    private _WEBGL_compressed_texture_etc1: WEBGL_compressed_texture_etc1 | null = null;
+    private _WEBGL_compressed_texture_etc: WEBGL_compressed_texture_etc | null = null;
+    private _WEBGL_compressed_texture_pvrtc: WEBGL_compressed_texture_pvrtc | null = null;
     private _WEBGL_compressed_texture_s3tc: WEBGL_compressed_texture_s3tc | null = null;
     private _WEBGL_compressed_texture_s3tc_srgb: WEBGL_compressed_texture_s3tc_srgb | null = null;
     private _WEBGL_debug_renderer_info: WEBGL_debug_renderer_info | null = null;
@@ -214,6 +229,9 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._EXT_color_buffer_float = gl.getExtension('EXT_color_buffer_float');
         this._EXT_disjoint_timer_query_webgl2 = gl.getExtension('EXT_disjoint_timer_query_webgl2');
         this._OES_texture_float_linear = gl.getExtension('OES_texture_float_linear');
+        this._WEBGL_compressed_texture_etc1 = gl.getExtension('WEBGL_compressed_texture_etc1');
+        this._WEBGL_compressed_texture_etc = gl.getExtension('WEBGL_compressed_texture_etc');
+        this._WEBGL_compressed_texture_pvrtc = gl.getExtension('WEBGL_compressed_texture_pvrtc');
         this._WEBGL_compressed_texture_s3tc = gl.getExtension('WEBGL_compressed_texture_s3tc');
         this._WEBGL_compressed_texture_s3tc_srgb = gl.getExtension('WEBGL_compressed_texture_s3tc_srgb');
         this._WEBGL_texture_storage_multisample = gl.getExtension('WEBGL_texture_storage_multisample');
@@ -225,7 +243,30 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
         this._features[GFXFeature.FORMAT_R11G11B10F] = true;
         this._features[GFXFeature.FORMAT_D24S8] = true;
+        this._features[GFXFeature.FORMAT_ETC2] = true;
         this._features[GFXFeature.MSAA] = true;
+
+        let compressedFormat: string = '';
+
+        if (this._WEBGL_compressed_texture_etc1) {
+            this._features[GFXFeature.FORMAT_ETC1] = true;
+            compressedFormat += 'etc1 ';
+        }
+
+        if (this._WEBGL_compressed_texture_etc) {
+            this._features[GFXFeature.FORMAT_ETC2] = true;
+            compressedFormat += 'etc2 ';
+        }
+
+        if (this._WEBGL_compressed_texture_s3tc) {
+            this._features[GFXFeature.FORMAT_DXT] = true;
+            compressedFormat += 'dxt ';
+        }
+
+        if (this._WEBGL_compressed_texture_pvrtc) {
+            this._features[GFXFeature.FORMAT_PVRTC] = true;
+            compressedFormat += 'pvrtc ';
+        }
 
         console.info('RENDERER: ' + this._renderer);
         console.info('VENDOR: ' + this._vendor);
@@ -250,6 +291,7 @@ export class WebGL2GFXDevice extends GFXDevice {
             console.info('MAX_TEXTURE_MAX_ANISOTROPY_EXT: ' + this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
         }
         console.info('USE_VAO: ' + this._useVAO);
+        console.info('COMPRESSED_FORMAT: ' + compressedFormat);
 
         // init states
         this.initStates(gl);

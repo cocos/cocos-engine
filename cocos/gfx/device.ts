@@ -26,6 +26,10 @@ export enum GFXFeature {
     TEXTURE_HALF_FLOAT,
     FORMAT_R11G11B10F,
     FORMAT_D24S8,
+    FORMAT_ETC1,
+    FORMAT_ETC2,
+    FORMAT_DXT,
+    FORMAT_PVRTC,
     MSAA,
     COUNT,
 }

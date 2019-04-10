@@ -34,11 +34,11 @@ const RenderMode = Enum({
     Mesh: 4,
 });
 
-const USE_WORLD_SPACE = 'USE_WORLD_SPACE';
-const USE_BILLBOARD = 'USE_BILLBOARD';
-const USE_STRETCHED_BILLBOARD = 'USE_STRETCHED_BILLBOARD';
-const USE_HORIZONTAL_BILLBOARD = 'USE_HORIZONTAL_BILLBOARD';
-const USE_VERTICAL_BILLBOARD = 'USE_VERTICAL_BILLBOARD';
+const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
+const CC_USE_BILLBOARD = 'CC_USE_BILLBOARD';
+const CC_USE_STRETCHED_BILLBOARD = 'CC_USE_STRETCHED_BILLBOARD';
+const CC_USE_HORIZONTAL_BILLBOARD = 'CC_USE_HORIZONTAL_BILLBOARD';
+const CC_USE_VERTICAL_BILLBOARD = 'CC_USE_VERTICAL_BILLBOARD';
 
 @ccclass('cc.ParticleSystemRenderer')
 @executeInEditMode
@@ -120,11 +120,11 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
         ];
         this._defines = {
-            USE_WORLD_SPACE: true,
-            USE_BILLBOARD: true,
-            USE_STRETCHED_BILLBOARD: false,
-            USE_HORIZONTAL_BILLBOARD: false,
-            USE_VERTICAL_BILLBOARD: false,
+            CC_USE_WORLD_SPACE: true,
+            CC_USE_BILLBOARD: true,
+            CC_USE_STRETCHED_BILLBOARD: false,
+            CC_USE_HORIZONTAL_BILLBOARD: false,
+            CC_USE_VERTICAL_BILLBOARD: false,
         };
     }
 
@@ -290,33 +290,33 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         }
         const mat: Material | null = this.sharedMaterial ? this.getMaterial(0, CC_EDITOR)! : this._defaultMat;
         if (this.particleSystem._simulationSpace === Space.World) {
-            this._defines[USE_WORLD_SPACE] = true;
+            this._defines[CC_USE_WORLD_SPACE] = true;
         } else {
-            this._defines[USE_WORLD_SPACE] = false;
+            this._defines[CC_USE_WORLD_SPACE] = false;
         }
 
         if (this._renderMode === RenderMode.Billboard) {
-            this._defines[USE_BILLBOARD] = true;
-            this._defines[USE_STRETCHED_BILLBOARD] = false;
-            this._defines[USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[USE_VERTICAL_BILLBOARD] = false;
+            this._defines[CC_USE_BILLBOARD] = true;
+            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
+            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
+            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
         } else if (this._renderMode === RenderMode.StrecthedBillboard) {
-            this._defines[USE_BILLBOARD] = false;
-            this._defines[USE_STRETCHED_BILLBOARD] = true;
-            this._defines[USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[USE_VERTICAL_BILLBOARD] = false;
+            this._defines[CC_USE_BILLBOARD] = false;
+            this._defines[CC_USE_STRETCHED_BILLBOARD] = true;
+            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
+            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
             this.frameTile_velLenScale.z = this._velocityScale;
             this.frameTile_velLenScale.w = this._lengthScale;
         } else if (this._renderMode === RenderMode.HorizontalBillboard) {
-            this._defines[USE_BILLBOARD] = false;
-            this._defines[USE_STRETCHED_BILLBOARD] = false;
-            this._defines[USE_HORIZONTAL_BILLBOARD] = true;
-            this._defines[USE_VERTICAL_BILLBOARD] = false;
+            this._defines[CC_USE_BILLBOARD] = false;
+            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
+            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = true;
+            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
         } else if (this._renderMode === RenderMode.VerticalBillboard) {
-            this._defines[USE_BILLBOARD] = false;
-            this._defines[USE_STRETCHED_BILLBOARD] = false;
-            this._defines[USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[USE_VERTICAL_BILLBOARD] = true;
+            this._defines[CC_USE_BILLBOARD] = false;
+            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
+            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
+            this._defines[CC_USE_VERTICAL_BILLBOARD] = true;
         } else {
             console.warn(`particle system renderMode ${this._renderMode} not support.`);
         }

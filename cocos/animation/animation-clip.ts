@@ -43,8 +43,8 @@ function isLerpable (object: any): object is ILerpable {
     return object.lerp;
 }
 
-@ccclass('cc.LegacyAnimationClip')
-export class LegacyAnimationClip extends Asset {
+@ccclass('cc.AnimationClip')
+export class AnimationClip extends Asset {
 
     /**
      * !#en Duration of this animation.
@@ -67,7 +67,7 @@ export class LegacyAnimationClip extends Asset {
             return null;
         }
 
-        const clip = new LegacyAnimationClip();
+        const clip = new AnimationClip();
         clip.sample = sample || clip.sample;
 
         clip._duration = spriteFrames.length / clip.sample;
@@ -289,4 +289,4 @@ function lerpObject (from: ILerpable, to: ILerpable, t: number): ILerpable {
     return from.lerp(to, t);
 }
 
-cc.LegacyAnimationClip = LegacyAnimationClip;
+cc.AnimationClip = AnimationClip;

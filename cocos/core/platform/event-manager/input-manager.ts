@@ -338,7 +338,8 @@ class InputManager {
 
         const length = event.changedTouches.length;
         for (let i = 0; i < length; i++) {
-            const changedTouch = event.changedTouches.item(i);
+            // const changedTouch = event.changedTouches.item(i);
+            const changedTouch = event.changedTouches[i];
             if (!changedTouch) {
                 continue;
             }

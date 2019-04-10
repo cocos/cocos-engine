@@ -40,7 +40,7 @@ import { UIRenderComponent } from '../components/ui-render-component';
  */
 @ccclass('cc.GraphicsComponent')
 @executionOrder(100)
-@menu('UI/Graphics')
+@menu('UI/Render/Graphics')
 export class GraphicsComponent extends UIRenderComponent {
 
     /**
@@ -197,7 +197,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     constructor (){
         super();
-        this._flushAssembler();
+        this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
     }
 
     public onRestore () {
@@ -475,12 +475,11 @@ export class GraphicsComponent extends UIRenderComponent {
         this._updateMaterial(mat);
     }
 
-    private _flushAssembler (){
+    protected _flushAssembler (){
         const assembler = GraphicsComponent.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this._assembler = assembler;
-            this.impl = (assembler as IAssembler).createImpl!(this);
         }
     }
 

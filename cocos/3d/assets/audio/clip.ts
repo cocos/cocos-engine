@@ -81,7 +81,7 @@ export class AudioClip extends EventTargetFactory(Asset) {
     @property(AudioType)
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 
-    private _audio: any = null;
+    protected _audio: any = null;
     private _player: AudioPlayer | null = null;
 
     public play () { if (this._player) { this._player.play(); } }

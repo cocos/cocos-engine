@@ -202,10 +202,19 @@ export class UIRenderComponent extends UIComponent {
         rasterizerState: {},
     };
 
-    public __preload (){
+    constructor (){
+        super();
         if (this._instanceMaterial) {
             this._instanceMaterial();
         }
+
+        if (this._flushAssembler) {
+            this._flushAssembler();
+        }
+    }
+
+    public __preload (){
+
     }
 
     public onEnable () {
@@ -359,6 +368,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     protected _instanceMaterial? (): void;
+    protected _flushAssembler? (): void;
 }
 
 cc.UIRenderComponent = UIRenderComponent;

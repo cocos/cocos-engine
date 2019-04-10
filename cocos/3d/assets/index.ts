@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export { default as AnimationClip } from './animation-clip';
 export { AudioClip } from './audio/clip';
 export { EffectAsset } from './effect-asset';
 export { Material } from './material';
