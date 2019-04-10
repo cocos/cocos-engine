@@ -37,7 +37,7 @@ export class SpotLightComponent extends LightComponent {
     @property
     protected _size = 0.15;
     @property
-    protected _luminance = 1700 / nt2lm(this._size);
+    protected _luminance = 1700 / nt2lm(0.15);
     @property
     protected _term = PhotometricTerm.LUMINOUS_POWER;
     @property
