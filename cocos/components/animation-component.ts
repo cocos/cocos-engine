@@ -1,5 +1,5 @@
 
-import { AnimationAnimator, AnimationClip, AnimationState } from '../animation';
+import { AnimationClip, AnimationState } from '../animation';
 import { CrossFade } from '../animation/cross-fade';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
 import { EventTargetFactory, IEventTargetCallback } from '../core/event/event-target-factory';
@@ -81,12 +81,15 @@ export class AnimationComponent extends EventTargetFactory(Component) {
 
     set preview (value) {
         this._preview = value;
+        if (!this._defaultClip) {
+            return;
+        }
         if (value) {
             cc.engine.animatingInEditMode = true;
-            this.play();
+            this.crossFade(this._defaultClip.name);
         } else {
             cc.engine.animatingInEditMode = false;
-            this.stop();
+            this.crossFade();
         }
     }
 
@@ -152,9 +155,8 @@ export class AnimationComponent extends EventTargetFactory(Component) {
     public playOnLoad = false;
     private _preview = false;
 
-    private _animator: AnimationAnimator | null = null;
     private _crossFade: CrossFade | null = null;
-    private _nameToState: Partial<{ [name: string]: AnimationState; }> = createMap(true);
+    private _nameToState: { [name: string]: AnimationState; } = createMap(true);
     private _didInit = false;
     private _currentClip: AnimationClip | null = null;
 
@@ -163,7 +165,7 @@ export class AnimationComponent extends EventTargetFactory(Component) {
      * !#zh 通过脚本可以访问并播放的 AnimationClip 列表。
      */
     @property({ type: [AnimationClip] })
-    private _clips: AnimationClip[] = [];
+    private _clips: Array<(AnimationClip | null)> = [];
 
     @property
     private _defaultClip: AnimationClip | null = null;
@@ -172,37 +174,33 @@ export class AnimationComponent extends EventTargetFactory(Component) {
         super();
     }
 
-    public update (deltaTime: number) {
-        if (this._animator) {
-            this._animator.update(deltaTime);
-        }
-    }
-
     public start () {
+        this._init();
+        this._startCrossFade();
         if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
-            const isPlaying = this._animator && this._animator.isPlaying;
-            if (!isPlaying) {
-                const state = this.getAnimationState(this._defaultClip.name);
-                // this._animator!.playState(state);
-                this._crossFade.crossFade(state, 0);
-            }
+            this.crossFade(this._defaultClip.name, 0);
         }
     }
 
     public onEnable () {
-        if (this._animator) {
-            this._animator.resume();
+        if (this._crossFade) {
+            this._crossFade.resume();
         }
     }
 
     public onDisable () {
-        if (this._animator) {
-            this._animator.pause();
+        if (this._crossFade) {
+            this._crossFade.pause();
         }
     }
 
     public onDestroy () {
-        this.stop();
+        if (this._crossFade) {
+            this._crossFade.stop();
+            cc.director.getAnimationManager().removeCrossFade(this._crossFade);
+            this._crossFade.stop();
+            this._crossFade = null;
+        }
     }
 
     /**
@@ -224,146 +222,18 @@ export class AnimationComponent extends EventTargetFactory(Component) {
      * var animCtrl = this.node.getComponent(cc.Animation);
      * animCtrl.play("linear");
      */
-    public play (name?: string, startTime?: number) {
-        const state = this.playAdditive(name, startTime);
-        this._animator!.stopStatesExcept(state);
-        return state;
-    }
-
-    public crossFade (name: string, duration = 0.3) {
-        const state = this.getAnimationState(name || (this._defaultClip && this._defaultClip.name) || '');
-        this._crossFade.crossFade(state, duration);
-        return state;
-    }
-
-    /**
-     * !#en
-     * Plays an additive animation, it will not stop other animations.
-     * If there are other animations playing, then will play several animations at the same time.
-     * !#zh 播放指定的动画（将不会停止当前播放的动画）。如果没有指定动画，则播放默认动画。
-     * @param [name] - The name of animation to play. If no name is supplied then the default animation will be played.
-     * @param [startTime] - play an animation from startTime
-     * @return The AnimationState of playing animation. In cases where the animation can't be played
-     * (ie, there is no default animation or no animation with the specified name), the function will return null.
-     * @example
-     * // linear_1 and linear_2 at the same time playing.
-     * var animCtrl = this.node.getComponent(cc.Animation);
-     * animCtrl.playAdditive("linear_1");
-     * animCtrl.playAdditive("linear_2");
-     */
-    public playAdditive (name?: string, startTime?: number) {
-        this._init();
-        const state = this.getAnimationState(name || (this._defaultClip && this._defaultClip.name) || '');
-
+    public play (name?: string, startTime = 0) {
+        const state = this.crossFade(name);
         if (state) {
-            this.enabled = true;
-
-            const animator = this._animator;
-            if (animator!.isPlaying && state.isPlaying) {
-                if (state.isPaused) {
-                    animator!.resumeState(state);
-                }
-                else {
-                    animator!.stopState(state);
-                    animator!.playState(state, startTime);
-                }
-            }
-            else {
-                animator!.playState(state, startTime);
-            }
-
-            // Animation cannot be played when the component is not enabledInHierarchy.
-            // That would cause an error for the animation lost the reference after destroying the node.
-            // If users play the animation when the component is not enabledInHierarchy,
-            // we pause the animator here so that it will automatically resume the animation when users enable the component.
-            if (!this.enabledInHierarchy) {
-                animator!.pause();
-            }
-
-            this.currentClip = state.clip;
+            state.time = startTime;
         }
         return state;
     }
 
-    /**
-     * !#en Stops an animation named name. If no name is supplied then stops all playing animations that were started with this Animation. <br/>
-     * Stopping an animation also Rewinds it to the Start.
-     * !#zh 停止指定的动画。如果没有指定名字，则停止当前正在播放的动画。
-     * @param [name] - The animation to stop, if not supplied then stops all playing animations.
-     */
-    public stop (name?: string) {
-        if (!this._didInit) {
-            return;
-        }
-        if (name) {
-            const state = this._nameToState[name];
-            if (state) {
-                this._animator!.stopState(state);
-            }
-        }
-        else {
-            this._animator!.stop();
-        }
-    }
-
-    /**
-     * !#en Pauses an animation named name. If no name is supplied then pauses all playing animations that were started with this Animation.
-     * !#zh 暂停当前或者指定的动画。如果没有指定名字，则暂停当前正在播放的动画。
-     * @param [name] - The animation to pauses, if not supplied then pauses all playing animations.
-     */
-    public pause (name?: string) {
-        if (!this._didInit) {
-            return;
-        }
-        if (name) {
-            const state = this._nameToState[name];
-            if (state) {
-                this._animator!.pauseState(state);
-            }
-        }
-        else {
-            this.enabled = false;
-        }
-    }
-
-    /**
-     * !#en Resumes an animation named name. If no name is supplied then resumes all paused animations that were started with this Animation.
-     * !#zh 重新播放指定的动画，如果没有指定名字，则重新播放当前正在播放的动画。
-     * @method resume
-     * @param {String} [name] - The animation to resumes, if not supplied then resumes all paused animations.
-     */
-    public resume (name?: string) {
-        if (!this._didInit) {
-            return;
-        }
-        if (name) {
-            const state = this._nameToState[name];
-            if (state) {
-                this._animator!.resumeState(state);
-            }
-        }
-        else {
-            this.enabled = true;
-        }
-    }
-
-    /**
-     * !#en Make an animation named name go to the specified time. If no name is supplied then make all animations go to the specified time.
-     * !#zh 设置指定动画的播放时间。如果没有指定名字，则设置当前播放动画的播放时间。
-     * @param [time] - The time to go to
-     * @param [name] - Specified animation name, if not supplied then make all animations go to the time.
-     */
-    public setCurrentTime (time: number, name?: string) {
-        this._init();
-        if (name) {
-            const state = this._nameToState[name];
-            if (state) {
-                this._animator!.setStateTime(state, time);
-            }
-        }
-        else {
-            this._animator!.setStateTime(time);
-        }
+    public crossFade (name?: string, duration = 0.3) {
+        const state = this.getAnimationState(name || (this._defaultClip && this._defaultClip.name) || '');
+        this._crossFade!.crossFade(state, duration);
+        return state;
     }
 
     /**
@@ -372,23 +242,10 @@ export class AnimationComponent extends EventTargetFactory(Component) {
      */
     public getAnimationState (name: string) {
         this._init();
-        let state = this._nameToState[name];
-
-        if (CC_EDITOR && (!state || !ArrayUtils.contains(this._clips, state.clip))) {
-            this._didInit = false;
-
-            if (this._animator) {
-                this._animator!.stop();
-            }
-
-            this._init();
-            state = this._nameToState[name];
-        }
-
+        const state = this._nameToState[name];
         if (state && !state.curveLoaded) {
-            this._animator!._reloadClip(state);
+            state.initialize(this.node);
         }
-
         return state || null;
     }
 
@@ -449,7 +306,7 @@ export class AnimationComponent extends EventTargetFactory(Component) {
         }
         this._init();
 
-        let state;
+        let state: AnimationState | undefined;
         for (const name of Object.keys(this._nameToState)) {
             state = this._nameToState[name];
             const stateClip = state.clip;
@@ -467,7 +324,7 @@ export class AnimationComponent extends EventTargetFactory(Component) {
         }
 
         if (state && state.isPlaying) {
-            if (force) { this.stop(state.name); }
+            if (force) { state.stop(); }
             else {
                 if (!CC_TEST) { warnID(3903); }
                 return;
@@ -478,26 +335,6 @@ export class AnimationComponent extends EventTargetFactory(Component) {
 
         if (state) {
             delete this._nameToState[state.name];
-        }
-    }
-
-    /**
-     * !#en
-     * Samples animations at the current state.<br/>
-     * This is useful when you explicitly want to set up some animation state, and sample it once.
-     * !#zh 对指定或当前动画进行采样。你可以手动将动画设置到某一个状态，然后采样一次。
-     */
-    public sample (name: string) {
-        this._init();
-
-        if (name) {
-            const state = this._nameToState[name];
-            if (state) {
-                state.sample();
-            }
-        }
-        else {
-            this._animator!.sample();
         }
     }
 
@@ -534,15 +371,12 @@ export class AnimationComponent extends EventTargetFactory(Component) {
      */
     public on (type: string, callback: (state: AnimationState) => void, target?: Object | null, useCapture?: boolean) {
         this._init();
-
         const ret = super.on(type, callback, target, useCapture);
-
         if (type === 'lastframe') {
-            for (const state of this._animator!._anims.array) {
-                state._lastframeEventOn = true;
+            for (const stateName of Object.keys(this._nameToState)) {
+                this._nameToState[stateName]!._lastframeEventOn = true;
             }
         }
-
         return ret;
     }
 
@@ -590,41 +424,40 @@ export class AnimationComponent extends EventTargetFactory(Component) {
             return;
         }
         this._didInit = true;
-        this._animator = new AnimationAnimator(this.node, this);
-        this._createStates();
         this._crossFade = new CrossFade(this.node);
-        cc.director.getAnimationManager().addCrossFade(this._crossFade);
+        this._createStates();
+    }
+
+    private _startCrossFade () {
+        cc.director.getAnimationManager().addCrossFade(this._crossFade!);
+        this._crossFade!.play();
     }
 
     private _createStates () {
         this._nameToState = createMap(true);
-
-        // create animation states
-        let state: AnimationState | null = null;
-        let defaultClipState: AnimationState | undefined;
+        // Create animation states.
         for (const clip of this._clips) {
             if (clip) {
-                state = new AnimationState(clip);
-
+                const state = this._createState(clip);
                 if (CC_EDITOR) {
-                    this._animator!._reloadClip(state);
-                }
-
-                this._nameToState[state.name] = state;
-                if (equalClips(this._defaultClip, clip)) {
-                    defaultClipState = state;
+                    state.initialize(this.node);
                 }
             }
         }
-        if (this._defaultClip && !defaultClipState) {
-            state = new AnimationState(this._defaultClip);
-
+        const isDefaultClipBounded = this._clips.findIndex((clip) => equalClips(clip, this._defaultClip)) >= 0;
+        if (this._defaultClip && !isDefaultClipBounded) {
+            const state = this._createState(this._defaultClip);
             if (CC_EDITOR) {
-                this._animator!._reloadClip(state);
+                state.initialize(this.node);
             }
-
-            this._nameToState[state.name] = state;
         }
+    }
+
+    private _createState (clip: AnimationClip, name?: string) {
+        const state = new AnimationState(clip, name);
+        state._setEventTarget(this);
+        this._nameToState[state.name] = state;
+        return state;
     }
 }
 
@@ -634,6 +467,5 @@ function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
     if (clip1 === clip2) {
         return true;
     }
-
-    return clip1 && clip2 && (clip1.name === clip2.name || clip1._uuid === clip2._uuid);
+    return !!clip1 && !!clip2 && (clip1.name === clip2.name || clip1._uuid === clip2._uuid);
 }

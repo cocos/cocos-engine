@@ -1,6 +1,5 @@
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { Node } from '../scene-graph';
-import { AnimationAnimator } from './animation-animator';
 import { AnimationBlendState } from './animation-blend-state';
 import { AnimationClip } from './animation-clip';
 import { AnimCurve, EventAnimCurve, EventInfo } from './animation-curve';
@@ -120,7 +119,7 @@ export class AnimationState extends Playable {
     set delay (value: number) {
         this._delayTime = this._delay = value;
     }
-    public animator: AnimationAnimator | null = null;
+
     /**
      * !#en The curves list.
      * !#zh 曲线列表。
@@ -487,20 +486,12 @@ export class AnimationState extends Playable {
 
         cc.director.getAnimationManager().addAnimation(this);
 
-        if (this.animator) {
-            this.animator.addAnimation(this);
-        }
-
         this.emit('play', this);
     }
 
     protected onStop () {
         if (!this.isPaused) {
             cc.director.getAnimationManager().removeAnimation(this);
-        }
-
-        if (this.animator) {
-            this.animator.removeAnimation(this);
         }
 
         this.emit('stop', this);
