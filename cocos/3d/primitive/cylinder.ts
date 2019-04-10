@@ -1,26 +1,22 @@
-'use strict';
-
 import { vec3 } from '../../core/vmath';
+import { IGeometry, IGeometryOptions } from './define';
 
-let temp1 = vec3.create(0, 0, 0);
-let temp2 = vec3.create(0, 0, 0);
+export interface ICylinderOptions extends IGeometryOptions {
+    radialSegments: number;
+    heightSegments: number;
+    capped: boolean;
+    arc: number;
+}
 
-/**
- * @param {Number} radiusTop
- * @param {Number} radiusBottom
- * @param {Number} height
- * @param {Object} opts
- * @param {Number} opts.radialSegments
- * @param {Number} opts.heightSegments
- * @param {Boolean} opts.capped
- * @param {Number} opts.arc
- */
-export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts = {}) {
-  let halfHeight = height * 0.5;
-  let radialSegments = opts.radialSegments || 32;
-  let heightSegments = opts.heightSegments || 1;
-  let capped = opts.capped !== undefined ? opts.capped : true;
-  let arc = opts.arc || 2.0 * Math.PI;
+const temp1 = vec3.create(0, 0, 0);
+const temp2 = vec3.create(0, 0, 0);
+
+export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: RecursivePartial<ICylinderOptions> = {}): IGeometry {
+  const halfHeight = height * 0.5;
+  const radialSegments = opts.radialSegments || 32;
+  const heightSegments = opts.heightSegments || 1;
+  const capped = opts.capped !== undefined ? opts.capped : true;
+  const arc = opts.arc || 2.0 * Math.PI;
 
   let cntCap = 0;
   if (!capped) {
@@ -45,14 +41,14 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     indexCount += radialSegments * cntCap * 3;
   }
 
-  let indices = new Array(indexCount);
-  let positions = new Array(vertCount * 3);
-  let normals = new Array(vertCount * 3);
-  let uvs = new Array(vertCount * 2);
-  let maxRadius = Math.max(radiusTop, radiusBottom);
-  let minPos = vec3.create(-maxRadius, -halfHeight, -maxRadius);
-  let maxPos = vec3.create(maxRadius, halfHeight, maxRadius);
-  let boundingRadius = Math.sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
+  const indices = new Array(indexCount);
+  const positions = new Array(vertCount * 3);
+  const normals = new Array(vertCount * 3);
+  const uvs = new Array(vertCount * 2);
+  const maxRadius = Math.max(radiusTop, radiusBottom);
+  const minPos = vec3.create(-maxRadius, -halfHeight, -maxRadius);
+  const maxPos = vec3.create(maxRadius, halfHeight, maxRadius);
+  const boundingRadius = Math.sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
 
   let index = 0;
   let indexOffset = 0;
@@ -76,34 +72,34 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     indices,
     minPos,
     maxPos,
-    boundingRadius
+    boundingRadius,
   };
 
   // =======================
   // internal fucntions
   // =======================
 
-  function generateTorso() {
-    let indexArray = [];
+  function generateTorso () {
+    const indexArray: number[][] = [];
 
     // this will be used to calculate the normal
-    let r = radiusTop - radiusBottom;
-    let slope = r * r / height * Math.sign(r);
+    const r = radiusTop - radiusBottom;
+    const slope = r * r / height * Math.sign(r);
 
     // generate positions, normals and uvs
     for (let y = 0; y <= heightSegments; y++) {
-      let indexRow = [];
-      let v = y / heightSegments;
+      const indexRow: number[] = [];
+      const v = y / heightSegments;
 
       // calculate the radius of the current row
-      let radius = v * r + radiusBottom;
+      const radius = v * r + radiusBottom;
 
       for (let x = 0; x <= radialSegments; ++x) {
-        let u = x / radialSegments;
-        let theta = u * arc;
+        const u = x / radialSegments;
+        const theta = u * arc;
 
-        let sinTheta = Math.sin(theta);
-        let cosTheta = Math.cos(theta);
+        const sinTheta = Math.sin(theta);
+        const cosTheta = Math.cos(theta);
 
         // vertex
         positions[3 * index] = radius * sinTheta;
@@ -135,10 +131,10 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     for (let y = 0; y < heightSegments; ++y) {
       for (let x = 0; x < radialSegments; ++x) {
         // we use the index array to access the correct indices
-        let i1 = indexArray[y][x];
-        let i2 = indexArray[y + 1][x];
-        let i3 = indexArray[y + 1][x + 1];
-        let i4 = indexArray[y][x + 1];
+        const i1 = indexArray[y][x];
+        const i2 = indexArray[y + 1][x];
+        const i3 = indexArray[y + 1][x + 1];
+        const i4 = indexArray[y][x + 1];
 
         // face one
         indices[indexOffset] = i1; ++indexOffset;
@@ -153,14 +149,12 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     }
   }
 
-  function generateCap(top) {
-    let centerIndexStart, centerIndexEnd;
-
-    let radius = top ? radiusTop : radiusBottom;
-    let sign = top ? 1 : - 1;
+  function generateCap (top) {
+    const radius = top ? radiusTop : radiusBottom;
+    const sign = top ? 1 : - 1;
 
     // save the index of the first center vertex
-    centerIndexStart = index;
+    const centerIndexStart = index;
 
     // first we generate the center vertex data of the cap.
     // because the geometry needs one set of uvs per face,
@@ -186,16 +180,16 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     }
 
     // save the index of the last center vertex
-    centerIndexEnd = index;
+    const centerIndexEnd = index;
 
     // now we generate the surrounding positions, normals and uvs
 
     for (let x = 0; x <= radialSegments; ++x) {
-      let u = x / radialSegments;
-      let theta = u * arc;
+      const u = x / radialSegments;
+      const theta = u * arc;
 
-      let cosTheta = Math.cos(theta);
-      let sinTheta = Math.sin(theta);
+      const cosTheta = Math.cos(theta);
+      const sinTheta = Math.sin(theta);
 
       // vertex
       positions[3 * index] = radius * sinTheta;
@@ -218,8 +212,8 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     // generate indices
 
     for (let x = 0; x < radialSegments; ++x) {
-      let c = centerIndexStart + x;
-      let i = centerIndexEnd + x;
+      const c = centerIndexStart + x;
+      const i = centerIndexEnd + x;
 
       if (top) {
         // face top
