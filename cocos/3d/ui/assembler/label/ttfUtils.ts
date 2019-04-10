@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { LabelOutline } from '../../../../2d/label/label-outline';
+import { LabelOutlineComponent } from '../../../../2d/label/label-outline';
 import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
 import { Component } from '../../../../components/component';
 import { fragmentText, safeMeasureText } from '../../../../core/utils/text-utils';
@@ -32,7 +32,7 @@ import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from '
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = Color.WHITE;
-const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, Component);
+const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, Component);
 
 let _context: CanvasRenderingContext2D | null = null;
 let _canvas: HTMLCanvasElement | null = null;
@@ -207,7 +207,7 @@ export const ttfUtils =  {
         }
 
         // outline
-        const outline = OUTLINE_SUPPORTED && comp.getComponent(LabelOutline);
+        const outline = OUTLINE_SUPPORTED && comp.getComponent(LabelOutlineComponent);
         if (outline && outline.enabled) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;

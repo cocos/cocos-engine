@@ -25,11 +25,14 @@
 
 'use strict';
 
+import { CCObject } from '../core';
+import { ccclass } from '../core/data/class-decorator';
 import { Node } from './node';
-import { ccclass, property } from '../core/data/class-decorator';
 
-const LocalDirtyFlag = Node._LocalDirtyFlag;
-const POSITION_ON = 1 << 0;
+// const LocalDirtyFlag = Node._LocalDirtyFlag;
+// const POSITION_ON = 1 << 0;
+// @ts-ignore
+const HideInHierarchy = CCObject.Flags.HideInHierarchy;
 
 /**
  * !#en
@@ -55,113 +58,115 @@ const POSITION_ON = 1 << 0;
  * @param {String} name
  * @extends Node
  */
- @ccclass("cc.PrivateNode")
-export default class PrivateNode extends Node {
-    @property({
-        override: true
-    })
-    get x() {
-        return this._originPos.x;
-    }
-    set x(value) {
-        var localPosition = this._originPos;
-        if (value !== localPosition.x) {
-            localPosition.x = value;
-            this._posDirty(true);
-        }
-    }
+@ccclass('cc.PrivateNode')
+export class PrivateNode extends Node {
+    // @property({
+    //     override: true
+    // })
+    // get x() {
+    //     return this._originPos.x;
+    // }
+    // set x(value) {
+    //     var localPosition = this._originPos;
+    //     if (value !== localPosition.x) {
+    //         localPosition.x = value;
+    //         this._posDirty(true);
+    //     }
+    // }
 
-    @property({
-        override: true
-    })
-    get y() {
-        return this._originPos.y;
-    }
-    set y(value) {
-        var localPosition = this._originPos;
-        if (value !== localPosition.y) {
-            localPosition.y = value;
-            this._posDirty(true);
-        }
-    }
+    // @property({
+    //     override: true
+    // })
+    // get y() {
+    //     return this._originPos.y;
+    // }
+    // set y(value) {
+    //     var localPosition = this._originPos;
+    //     if (value !== localPosition.y) {
+    //         localPosition.y = value;
+    //         this._posDirty(true);
+    //     }
+    // }
 
-    @property({
-        override: true
-    })
-    get zIndex() {
-        return cc.macro.MIN_ZINDEX;
-    }
-    set zIndex(val) {
-        cc.warnID(1638);
-    }
+    // @property({
+    //     override: true
+    // })
+    // get zIndex() {
+    //     return cc.macro.MIN_ZINDEX;
+    // }
+    // set zIndex(val) {
+    //     cc.warnID(1638);
+    // }
 
     /**
      * @method constructor
      * @param {String} [name]
      */
-    constructor (name) {
+    constructor (name: string) {
         super(name);
-        this._localZOrder = cc.macro.MIN_ZINDEX << 16;
-        this._originPos = cc.v2();
+        // this._localZOrder = cc.macro.MIN_ZINDEX << 16;
+        // this._originPos = cc.v2();
+        this._objFlags |= HideInHierarchy;
+
     }
 
-    _posDirty (sendEvent) {
-        this.setLocalDirty(LocalDirtyFlag.POSITION);
-        if (sendEvent === true && (this._eventMask & POSITION_ON)) {
-            this.emit(Node.EventType.POSITION_CHANGED);
-        }
-    }
+    // _posDirty (sendEvent) {
+    //     this.setLocalDirty(LocalDirtyFlag.POSITION);
+    //     if (sendEvent === true && (this._eventMask & POSITION_ON)) {
+    //         this.emit(Node.EventType.POSITION_CHANGED);
+    //     }
+    // }
 
-    _updateLocalMatrix() {
-        if (!this._localMatDirty) return;
+    // _updateLocalMatrix() {
+    //     if (!this._localMatDirty) return;
 
-        let parent = this.parent;
-        if (parent) {
-            // Position correction for transform calculation
-            this._position.x = this._originPos.x - (parent._anchorPoint.x - 0.5) * parent._contentSize.width;
-            this._position.y = this._originPos.y - (parent._anchorPoint.y - 0.5) * parent._contentSize.height;
-        }
+    //     let parent = this.parent;
+    //     if (parent) {
+    //         // Position correction for transform calculation
+    //         this._position.x = this._originPos.x - (parent._anchorPoint.x - 0.5) * parent._contentSize.width;
+    //         this._position.y = this._originPos.y - (parent._anchorPoint.y - 0.5) * parent._contentSize.height;
+    //     }
 
-        super._updateLocalMatrix();
-    }
+    //     super._updateLocalMatrix();
+    // }
 
-    getPosition () {
-        return new cc.Vec2(this._originPos);
-    }
+    // getPosition () {
+    //     return new cc.Vec2(this._originPos);
+    // }
 
-    setPosition (x, y) {
-        if (y === undefined) {
-            x = x.x;
-            y = x.y;
-        }
+    // setPosition (x, y) {
+    //     if (y === undefined) {
+    //         x = x.x;
+    //         y = x.y;
+    //     }
 
-        let pos = this._originPos;
-        if (pos.x === x && pos.y === y) {
-            return;
-        }
-        pos.x = x;
-        pos.y = y;
-        this._posDirty(true);
-    }
+    //     let pos = this._originPos;
+    //     if (pos.x === x && pos.y === y) {
+    //         return;
+    //     }
+    //     pos.x = x;
+    //     pos.y = y;
+    //     this._posDirty(true);
+    // }
 
-    setParent(value) {
-        let oldParent = this._parent;
-        super.setParent(value);
-        if (oldParent !== value) {
-            if (oldParent) {
-                oldParent.off(Node.EventType.ANCHOR_CHANGED, this._posDirty, this);
-            }
-            if (value) {
-                value.on(Node.EventType.ANCHOR_CHANGED, this._posDirty, this);
-            }
-        }
-    }
+    // setParent(value) {
+    //     let oldParent = this._parent;
+    //     super.setParent(value);
+    //     if (oldParent !== value) {
+    //         if (oldParent) {
+    //             oldParent.off(Node.EventType.ANCHOR_CHANGED, this._posDirty, this);
+    //         }
+    //         if (value) {
+    //             value.on(Node.EventType.ANCHOR_CHANGED, this._posDirty, this);
+    //         }
+    //     }
+    // }
 
     // do not update order of arrival
-    _updateOrderOfArrival() {}
+    // public _updateOrderOfArrival () {}
 }
 
-cc.js.getset(PrivateNode.prototype, "parent", PrivateNode.prototype.getParent, PrivateNode.prototype.setParent);
-cc.js.getset(PrivateNode.prototype, "position", PrivateNode.prototype.getPosition, PrivateNode.prototype.setPosition);
+// cc.js.getset(PrivateNode.prototype, 'parent', PrivateNode.prototype.getParent, PrivateNode.prototype.setParent);
+// cc.js.getset(PrivateNode.prototype, 'position', PrivateNode.prototype.getPosition, PrivateNode.prototype.setPosition);
 
 cc.PrivateNode = PrivateNode;

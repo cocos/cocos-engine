@@ -7,6 +7,7 @@ import './components/label-component';
 import './components/layout-component';
 import './components/mask-component';
 import './components/progress-bar-component';
+import './components/rich-text';
 import './components/scroll-bar-component';
 import './components/scroll-view-component';
 import './components/slider-component';

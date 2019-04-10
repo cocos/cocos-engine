@@ -149,7 +149,7 @@ ccenum(SizeMode);
 
 @ccclass('cc.SpriteComponent')
 @executionOrder(100)
-@menu('UI/Sprite')
+@menu('UI/Render/Sprite')
 export class SpriteComponent extends UIRenderComponent {
 
     /**
@@ -536,7 +536,7 @@ export class SpriteComponent extends UIRenderComponent {
         this._updateMaterial(mat);
     }
 
-    private _flushAssembler () {
+    protected _flushAssembler () {
         const assembler = SpriteComponent.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {

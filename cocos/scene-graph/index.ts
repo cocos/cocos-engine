@@ -30,5 +30,5 @@ export { Node } from './node';
 export { Scene } from './scene';
 export { Layers } from './layers';
 export { find } from './find';
-export { default as PrivateNode } from './private-node';
+export { PrivateNode } from './private-node';
 export { default as NodeActivator } from './node-activator';
