@@ -1,6 +1,6 @@
 import { Node } from '../scene-graph';
 import { AnimationAnimator } from './animation-animator';
-import { LegacyAnimationClip } from './animation-clip';
+import { AnimationClip } from './animation-clip';
 import { AnimCurve } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
@@ -14,7 +14,7 @@ import { WrapMode, WrapModeMask, WrappedInfo } from './types';
  * 大多数情况下 动画组件 是足够和易于使用的。如果您需要更多的动画控制接口，请使用 AnimationState。
  *
  */
-export class LegacyAnimationState extends Playable {
+export class AnimationState extends Playable {
 
     /**
      * !#en The clip that is being played by this animation state.
@@ -176,11 +176,11 @@ export class LegacyAnimationState extends Playable {
     private _lastWrappedInfo: WrappedInfo | null = null;
     private _process = this.process;
     private _target: Node | null = null;
-    private _clip: LegacyAnimationClip;
+    private _clip: AnimationClip;
     private _name: string;
     private _lastIterations?: number;
 
-    constructor (clip: LegacyAnimationClip, name?: string) {
+    constructor (clip: AnimationClip, name?: string) {
         super();
         this._clip = clip;
         this._name = name || (clip && clip.name);
@@ -460,4 +460,4 @@ export class LegacyAnimationState extends Playable {
     }
 }
 
-cc.LegacyAnimationState = LegacyAnimationState;
+cc.AnimationState = AnimationState;

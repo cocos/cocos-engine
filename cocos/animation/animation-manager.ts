@@ -1,7 +1,7 @@
 import { ccclass } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
 import { Node } from '../scene-graph';
-import { LegacyAnimationState } from './animation-state';
+import { AnimationState } from './animation-state';
 
 @ccclass
 export class AnimationManager {
@@ -36,14 +36,14 @@ export class AnimationManager {
 
     }
 
-    public addAnimation (anim: LegacyAnimationState) {
+    public addAnimation (anim: AnimationState) {
         const index = this._anims.array.indexOf(anim);
         if (index === -1) {
             this._anims.push(anim);
         }
     }
 
-    public removeAnimation (anim: LegacyAnimationState) {
+    public removeAnimation (anim: AnimationState) {
         const index = this._anims.array.indexOf(anim);
         if (index >= 0) {
             this._anims.fastRemoveAt(index);
