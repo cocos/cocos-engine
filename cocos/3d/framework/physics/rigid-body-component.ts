@@ -198,8 +198,8 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         this._body!.applyForce(force, position);
     }
 
-    public applyImpulse (impulse: Vec3) {
-        this._body!.applyImpulse(impulse);
+    public applyImpulse (impulse: Vec3, position?: Vec3) {
+        this._body!.applyImpulse(impulse, position);
     }
 
     public setCollisionFilter (group: number, mask: number) {

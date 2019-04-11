@@ -74,7 +74,7 @@ export class RigidBodyBase {
 
     applyForce (force: Vec3, position?: Vec3): void;
 
-    applyImpulse (impulse: Vec3): void;
+    applyImpulse (impulse: Vec3, position?: Vec3): void;
 
     getIsKinematic (): boolean;
 

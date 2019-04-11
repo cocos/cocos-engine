@@ -22,11 +22,14 @@ export class PhysicsBasedComponent extends Component {
         super();
     }
 
+    public __preload () {
+        this._refSharedBody();
+    }
+
     public onLoad () {
     }
 
     public start () {
-        this._refSharedBody();
     }
 
     public destroy () {

@@ -6,7 +6,7 @@ import { RaycastResult } from './raycast-result';
 export enum ERigidBodyType {
     DYNAMIC = 1,
     STATIC = 2,
-    KINEMATIC = 4
+    KINEMATIC = 4,
 }
 
 export function createPhysicsWorld (): PhysicsWorldBase {
