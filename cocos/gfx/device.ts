@@ -1,3 +1,4 @@
+import { ccenum } from '../core/value-types/enum';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
@@ -14,6 +15,8 @@ import { GFXShader, IGFXShaderInfo } from './shader';
 import { GFXTexture, IGFXTextureInfo } from './texture';
 import { GFXTextureView, IGFXTextureViewInfo } from './texture-view';
 import { GFXWindow, IGFXWindowInfo } from './window';
+
+ccenum(GFXFormat);
 
 export enum GFXAPI {
     UNKNOWN,

@@ -3,7 +3,6 @@ import { GFXFormat, GFXFormatInfos, GFXFormatType, GFXObject, GFXObjectType } fr
 import { GFXDevice } from './device';
 
 export interface IGFXAttribute {
-    binding?: number;
     name: string;
     format: GFXFormat;
     isNormalized?: boolean;

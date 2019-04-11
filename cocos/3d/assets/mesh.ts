@@ -32,6 +32,7 @@ import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } fro
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { IBufferRange } from './utils/buffer-range';
+import { vec3 } from '../../core/vmath';
 
 export enum IndexUnit {
     /**
@@ -174,6 +175,10 @@ export class RenderingMesh {
 
     }
 
+    public get subMeshes (): IRenderingSubmesh[] {
+        return this._subMeshes;
+    }
+
     public get subMeshCount () {
         return this._subMeshes.length;
     }
@@ -278,9 +283,9 @@ export class Mesh extends Asset {
     /**
      * Gets the rendering mesh.
      */
-    public get renderingMesh () {
+    public get renderingMesh (): RenderingMesh {
         this._deferredInit();
-        return this._renderingMesh;
+        return this._renderingMesh!;
     }
 
     /**
@@ -289,9 +294,96 @@ export class Mesh extends Asset {
      * @param index Index of the specified submesh.
      * @deprecated Use this.renderingMesh.getSubmesh(index).inputAssembler instead.
      */
-    public getSubMesh (index: number) {
-        const renderingSubmesh = this.renderingMesh ? this.renderingMesh.getSubmesh(index) : null;
-        return renderingSubmesh;
+    public getSubMesh (index: number): IRenderingSubmesh {
+        return this.renderingMesh.getSubmesh(index);
+    }
+
+    public merge (mesh: Mesh, validate?: boolean): boolean {
+        if (validate !== undefined && validate) {
+            if (!this.validateMergingMesh(mesh)) {
+                return false;
+            }
+        } // if
+
+        // merge vertex bundles
+        for (let i = 0; i < this._struct.vertexBundles.length; ++i) {
+            const bundle = this._struct.vertexBundles[i];
+            const dstBundle = mesh._struct.vertexBundles[i];
+            bundle.data.length += dstBundle.data.length;
+            bundle.verticesCount += dstBundle.verticesCount;
+        }
+
+        // merge primitives
+        for (let i = 0; i < this._struct.primitives.length; ++i) {
+            const prim = this._struct.primitives[i];
+            const dstPrim = mesh._struct.primitives[i];
+
+            if (prim.indices && dstPrim.indices) {
+                prim.indices.range.length += dstPrim.indices.range.length;
+            }
+        }
+
+        // merget bounding box
+        if (this._struct.maxPosition && mesh._struct.maxPosition) {
+            this._struct.maxPosition.x = Math.max(this._struct.maxPosition.x, mesh._struct.maxPosition.x);
+            this._struct.maxPosition.y = Math.max(this._struct.maxPosition.y, mesh._struct.maxPosition.y);
+            this._struct.maxPosition.z = Math.max(this._struct.maxPosition.z, mesh._struct.maxPosition.z);
+        }
+        if (this._struct.minPosition && mesh._struct.minPosition) {
+            this._struct.minPosition.x = Math.min(this._struct.minPosition.x, mesh._struct.minPosition.x);
+            this._struct.minPosition.y = Math.min(this._struct.minPosition.y, mesh._struct.minPosition.y);
+            this._struct.minPosition.z = Math.min(this._struct.minPosition.z, mesh._struct.minPosition.z);
+        }
+
+        return true;
+    }
+
+    public validateMergingMesh (mesh: Mesh) {
+        // validate vertex bundles
+        if (this._struct.vertexBundles.length !== mesh._struct.vertexBundles.length) {
+            return false;
+        }
+
+        for (let i = 0; i < this._struct.vertexBundles.length; ++i) {
+            const bundle = this._struct.vertexBundles[i];
+            const dstBundle = mesh._struct.vertexBundles[i];
+
+            if (bundle.attributes.length !== dstBundle.attributes.length) {
+                return false;
+            }
+            for (let j = 0; j < bundle.attributes.length; ++j) {
+                if (bundle.attributes[j].format !== dstBundle.attributes[j].format) {
+                    return false;
+                }
+            }
+        }
+
+        // validate primitives
+        if (this._struct.primitives.length !== mesh._struct.primitives.length) {
+            return false;
+        }
+        for (let i = 0; i < this._struct.primitives.length; ++i) {
+            const prim = this._struct.primitives[i];
+            const dstPrim = mesh._struct.primitives[i];
+            if (prim.vertexBundelIndices.length !== dstPrim.vertexBundelIndices.length) {
+                return false;
+            }
+            for (let j = 0; j < prim.vertexBundelIndices.length; ++j) {
+                if (prim.vertexBundelIndices[j] !== dstPrim.vertexBundelIndices[j]) {
+                    return false;
+                }
+            }
+            if (prim.primitiveMode !== dstPrim.primitiveMode) {
+                return false;
+            }
+            if (prim.indices && dstPrim.indices) {
+                if (prim.indices.indexUnit !== dstPrim.indices.indexUnit) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private _deferredInit () {
@@ -306,7 +398,7 @@ export class Mesh extends Asset {
         }
 
         const buffer = this._data.buffer;
-        const gfxDevice = cc.director.root.device as GFXDevice;
+        const gfxDevice: GFXDevice = cc.director.root.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
         const submeshes: IRenderingSubmesh[] = [];

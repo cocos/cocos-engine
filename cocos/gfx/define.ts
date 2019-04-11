@@ -1,5 +1,3 @@
-import { ccenum } from '../core/value-types/enum';
-
 // Extensions
 export enum WebGLEXT {
     COMPRESSED_RGB_S3TC_DXT1_EXT = 0x83F0,
@@ -257,8 +255,6 @@ export enum GFXFormat {
     PVRTC2_2BPP,
     PVRTC2_4BPP,
 }
-
-ccenum(GFXFormat);
 
 export enum GFXBufferUsageBit {
     NONE = 0,
