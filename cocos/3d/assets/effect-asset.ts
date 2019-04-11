@@ -6,7 +6,7 @@ import { RenderPassStage } from '../../pipeline/define';
 import { programLib } from '../../renderer/core/program-lib';
 
 export interface IPropertyInfo {
-    type: number; // auto-extracted if not specified
+    type: number; // auto-extracted
     value?: number[] | string;
     sampler?: number[];
 }

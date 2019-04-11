@@ -211,12 +211,14 @@ export class SkinningModelComponent extends ModelComponent {
     protected _onMaterialModified (index: number, material: Material) {
         const device = _getGlobalDevice()!;
         const kind = selectStorageKind(device);
-        const mat = this.getMaterial(index, CC_EDITOR)!;
-        mat.recompileShaders({
-            CC_USE_SKINNING: true,
-            CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.textureRGBA32F || kind === JointStorageKind.textureRGBA8,
-            CC_USE_JOINTS_TEXTURE_RGBA8888: kind === JointStorageKind.textureRGBA8,
-        });
+        const mat = this.getMaterial(index, CC_EDITOR);
+        if (mat) {
+            mat.recompileShaders({
+                CC_USE_SKINNING: true,
+                CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.textureRGBA32F || kind === JointStorageKind.textureRGBA8,
+                CC_USE_JOINTS_TEXTURE_RGBA8888: kind === JointStorageKind.textureRGBA8,
+            });
+        }
         super._onMaterialModified(index, mat);
     }
 

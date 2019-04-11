@@ -191,7 +191,7 @@ class Node extends BaseNode {
         vec3.copy(this._pos, this._lpos);
         quat.copy(this._rot, this._lrot);
         vec3.copy(this._scale, this._lscale);
-        this._dirty = this._hasChanged = true;
+        this._eulerDirty = this._dirty = this._hasChanged = true;
         for (const child of this._children) {
             child._onBatchCreated();
         }

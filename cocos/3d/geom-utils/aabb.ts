@@ -15,6 +15,7 @@ const transform_extent_m4 = (out: vec3, extent: vec3, m4: mat4) => {
     vec3.transformMat3(out, extent, _m3_tmp);
 };
 
+// tslint:disable-next-line: class-name
 export default class aabb {
 
     get type () {
@@ -123,7 +124,7 @@ export default class aabb {
      * @param {vec3} minPos
      * @param {vec3} maxPos
      */
-    public getBoundary (minPos, maxPos) {
+    public getBoundary (minPos: vec3, maxPos: vec3) {
         vec3.sub(minPos, this.center, this.halfExtents);
         vec3.add(maxPos, this.center, this.halfExtents);
     }
@@ -133,7 +134,7 @@ export default class aabb {
      * @param m - the transform matrix
      * @param out - the target shape
      */
-    public transform (m, out?: aabb) {
+    public transform (m, pos, rot, scale, out) {
         if (!out) { out = this; }
         vec3.transformMat4(out.center, this.center, m);
         transform_extent_m4(out.halfExtents, this.halfExtents, m);
