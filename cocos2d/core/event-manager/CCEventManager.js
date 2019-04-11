@@ -119,7 +119,7 @@ var eventManager = {
     _globalZOrderNodeMap: [],
     _toAddedListeners: [],
     _toRemovedListeners: [],
-    _dirtyNodes: [],
+    _dirtyListeners: {},
     _inDispatch: 0,
     _isEnabled: false,
     _nodePriorityIndex: 0,
@@ -128,8 +128,15 @@ var eventManager = {
 
     _setDirtyForNode: function (node) {
         // Mark the node dirty only when there is an event listener associated with it.
-        if (this._nodeListenersMap[node._id] !== undefined) {
-            this._dirtyNodes.push(node);
+        let selListeners = this._nodeListenersMap[node._id];
+        if (selListeners !== undefined) {
+            for (var j = 0, len = selListeners.length; j < len; j++) {
+                let selListener = selListeners[j];
+                let listenerID = selListener._getListenerID();
+                if (this._dirtyListeners[listenerID] == null)
+                    this._dirtyListeners[listenerID] = true;
+            }
+
         }
         if (node.getChildren) {
             var _children = node.getChildren();
@@ -222,21 +229,11 @@ var eventManager = {
     },
 
     _updateDirtyFlagForSceneGraph: function () {
-        if (this._dirtyNodes.length === 0)
-            return;
-
-        var locDirtyNodes = this._dirtyNodes, selListeners, selListener, locNodeListenersMap = this._nodeListenersMap;
-        for (var i = 0, len = locDirtyNodes.length; i < len; i++) {
-            selListeners = locNodeListenersMap[locDirtyNodes[i]._id];
-            if (selListeners) {
-                for (var j = 0, listenersLen = selListeners.length; j < listenersLen; j++) {
-                    selListener = selListeners[j];
-                    if (selListener)
-                        this._setDirty(selListener._getListenerID(), this.DIRTY_SCENE_GRAPH_PRIORITY);
-                }
-            }
+        var locDirtyListeners = this._dirtyListeners
+        for (var selKey in locDirtyListeners) {
+            this._setDirty(selKey, this.DIRTY_SCENE_GRAPH_PRIORITY);
         }
-        this._dirtyNodes.length = 0;
+        this._dirtyListeners = {};
     },
 
     _removeAllListenersInVector: function (listenerVector) {
@@ -903,7 +900,6 @@ var eventManager = {
             // Ensure the node is removed from these immediately also.
             // Don't want any dangling pointers or the possibility of dealing with deleted objects..
             delete _t._nodePriorityMap[listenerType._id];
-            cc.js.array.remove(_t._dirtyNodes, listenerType);
             var listeners = _t._nodeListenersMap[listenerType._id], i;
             if (listeners) {
                 var listenersCopy = cc.js.array.copy(listeners);
