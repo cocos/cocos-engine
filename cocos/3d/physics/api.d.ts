@@ -146,6 +146,10 @@ export class ShapeBase {
     getUserData (): any;
 
     setUserData (data: any): void;
+
+    getCollisionResponse():boolean;
+
+    setCollisionResponse(value:boolean):void;
 }
 
 export class SphereShapeBase extends ShapeBase {

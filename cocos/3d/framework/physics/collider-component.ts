@@ -12,19 +12,22 @@ import { createBoxShape, createSphereShape, ERigidBodyType } from '../../physics
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 export class ColliderComponentBase extends PhysicsBasedComponent {
-    protected _shapeBase: ShapeBase | null = null;
+    protected _shapeBase!: ShapeBase;
 
     @property
     private _triggered: boolean = false;
+
     @property
     get isTrigger () { return this._triggered; }
+
     set isTrigger (value) {
         this._triggered = value;
+
+        const type = this._triggered ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
         if (this._body) {
-            const type = this._triggered ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
             this._body.setType(type);
-            this._body.setIsTrigger(value);
         }
+        this._shapeBase.setCollisionResponse(!this._triggered);
     }
 
     /**
@@ -37,7 +40,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
 
     set center (value: Vec3) {
         vec3.copy(this._center, value);
-        this._shapeBase!.setCenter(this._center);
+        this._shapeBase.setCenter(this._center);
     }
 
     @property
@@ -47,17 +50,29 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         super();
     }
 
+    public __preload () {
+        super.__preload();
+
+        this.center = this._center;
+        this.isTrigger = this._triggered;
+
+        if (this._enabled) {
+            this.onEnable();
+        }
+    }
+
     public onLoad () {
         super.onLoad();
-        this.center = this._center;
     }
 
     public start () {
         super.start();
-        if (this._enabled) {
-            this.onEnable();
+    }
+
+    public lateUpdate () {
+        if (this.node.hasChanged) {
+            this._shapeBase.setScale(this.node._scale);
         }
-        this.isTrigger = this._triggered;
     }
 
     public onEnable () {
@@ -88,18 +103,25 @@ export class BoxColliderComponent extends ColliderComponentBase {
     @property
     private _size: Vec3 = new Vec3(0, 0, 0);
 
-    private _shape: BoxShapeBase;
+    private _shape: BoxShapeBase | undefined;
 
     constructor () {
         super();
+    }
+
+    public __preload () {
+        // 父类在__preload要对_shapeBase进行操作，需要保证其已经构造完成
         this._shape = createBoxShape(this._size);
         this._shape.setUserData(this);
         this._shapeBase = this._shape;
+
+        super.__preload();
+
+        this._shape.setScale(this.node._scale);
     }
 
     public onLoad () {
         super.onLoad();
-        this.size = this._size;
     }
 
     /**
@@ -113,7 +135,7 @@ export class BoxColliderComponent extends ColliderComponentBase {
 
     set size (value) {
         vec3.copy(this._size, value);
-        this._shape.setSize(this._size);
+        this._shape!.setSize(this._size);
         if (this.sharedBody) {
             this.sharedBody.body.commitShapeUpdates();
         }
@@ -128,18 +150,27 @@ export class SphereColliderComponent extends ColliderComponentBase {
     @property
     private _radius: number = 0;
 
-    private _shape: SphereShapeBase;
+    private _shape!: SphereShapeBase;
 
     constructor () {
         super();
+    }
+
+    public __preload () {
+
+        // const scale = this.node._scale;
+        // const max = Math.abs(Math.max(scale.x, Math.max(scale.y, scale.z)));
         this._shape = createSphereShape(this._radius);
         this._shape.setUserData(this);
         this._shapeBase = this._shape;
+
+        super.__preload();
+
+        this._shape.setScale(this.node._scale);
     }
 
     public onLoad () {
         super.onLoad();
-        this.radius = this._radius;
     }
 
     /**
