@@ -680,7 +680,7 @@ let Label = cc.Class({
             }
             
             material.setProperty('texture', this._frame._texture);
-            this.sharedMaterials[0] = material;
+            this.setMaterial(0, material);
         }
 
         this.markForUpdateRenderData(true);
