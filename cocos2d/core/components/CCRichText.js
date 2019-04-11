@@ -685,6 +685,12 @@ let RichText = cc.Class({
                 if (richTextElement.style.event.param) {
                     spriteNode._clickParam = richTextElement.style.event.param;
                 }
+                else {
+                    spriteNode._clickParam = '';
+                }
+            }
+            else {
+                spriteNode._clickHandler = null;
             }
         }
         else {
@@ -909,6 +915,12 @@ let RichText = cc.Class({
             if (textStyle.event.param) {
                 labelNode._clickParam = textStyle.event.param;
             }
+            else {
+                spriteNode._clickParam = '';
+            }
+        }
+        else {
+            labelNode._clickHandler = null;
         }
     },
 
