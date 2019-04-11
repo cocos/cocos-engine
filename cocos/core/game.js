@@ -699,15 +699,18 @@ class Game extends EventTarget {
                 this._gfxDevice = new cc.WebGLGFXDevice();
             }
 
-            let nativeWidth = Math.floor(screen.width * cc.view._devicePixelRatio);
-            let nativeHeight = Math.floor(screen.height * cc.view._devicePixelRatio);            
-            this._gfxDevice.initialize({
+            const opts = {
                 canvasElm: localCanvas,
                 debug: true,
                 devicePixelRatio: window.devicePixelRatio,
-                nativeWidth,
-                nativeHeight,
-            });
+                nativeWidth: Math.floor(screen.width * cc.view._devicePixelRatio),
+                nativeHeight: Math.floor(screen.height * cc.view._devicePixelRatio),
+            };
+            // fallback if WebGL2 is actually unavailable
+            if (!this._gfxDevice.initialize(opts) && useWebGL2) {
+                this._gfxDevice = new cc.WebGLGFXDevice();
+                this._gfxDevice.initialize(opts);
+            }
         }
 
         if (!this._gfxDevice) {
