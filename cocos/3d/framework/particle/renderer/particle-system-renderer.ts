@@ -320,7 +320,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         } else {
             console.warn(`particle system renderMode ${this._renderMode} not support.`);
         }
-        for (const pass of mat!.passes) { pass.tryCompile(this._defines); }
+        mat!.recompileShaders(this._defines);
 
         if (this.particleSystem.textureAnimationModule.enable) {
             mat!.setProperty('frameTile_velLenScale', vec2.set(this.frameTile_velLenScale, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));

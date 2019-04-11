@@ -147,8 +147,7 @@ export class SkinningModelComponent extends ModelComponent {
         const device = _getGlobalDevice();
         const useJointTexture = device !== null && useJointsTexture(device);
         const mat = this.getMaterial(index, CC_EDITOR)!;
-        const defines = { CC_USE_SKINNING: true, CC_USE_JOINTS_TEXTURE: useJointTexture };
-        for (const pass of mat.passes) { pass.tryCompile(defines); }
+        mat.recompileShaders({ CC_USE_SKINNING: true, CC_USE_JOINTS_TEXTURE: useJointTexture });
         super._onMaterialModified(index, mat);
     }
 
