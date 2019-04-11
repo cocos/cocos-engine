@@ -243,7 +243,7 @@ var eventManager = {
         if (!listenerVector)
             return;
         var selListener;
-        for (var i = 0; i < listenerVector.length;) {
+        for (var i = listenerVector.length - 1; i >= 0; i--) {
             selListener = listenerVector[i];
             selListener._setRegistered(false);
             if (selListener._getSceneGraphPriority() != null) {
@@ -252,9 +252,7 @@ var eventManager = {
             }
 
             if (this._inDispatch === 0)
-                cc.js.array.remove(listenerVector, selListener);
-            else
-                ++i;
+                cc.js.array.removeAt(listenerVector, i);
         }
     },
 
@@ -278,12 +276,10 @@ var eventManager = {
         }
 
         var locToAddedListeners = this._toAddedListeners, listener;
-        for (i = 0; i < locToAddedListeners.length;) {
+        for (i = locToAddedListeners.length - 1; i >= 0; i--) {
             listener = locToAddedListeners[i];
             if (listener && listener._getListenerID() === listenerID)
-                cc.js.array.remove(locToAddedListeners, listener);
-            else
-                ++i;
+                cc.js.array.removeAt(locToAddedListeners, i);
         }
     },
 
@@ -368,31 +364,28 @@ var eventManager = {
         var i, selListener, idx, toRemovedListeners = this._toRemovedListeners;
 
         if (sceneGraphPriorityListeners) {
-            for (i = 0; i < sceneGraphPriorityListeners.length;) {
+            for (i = sceneGraphPriorityListeners.length - 1; i >= 0; i--) {
                 selListener = sceneGraphPriorityListeners[i];
                 if (!selListener._isRegistered()) {
-                    cc.js.array.remove(sceneGraphPriorityListeners, selListener);
-                    // if item in toRemove list, remove it from the list
-                    idx = toRemovedListeners.indexOf(selListener);
-                    if(idx !== -1)
-                        toRemovedListeners.splice(idx, 1);
-                } else
-                    ++i;
-            }
-        }
-
-        if (fixedPriorityListeners) {
-            for (i = 0; i < fixedPriorityListeners.length;) {
-                selListener = fixedPriorityListeners[i];
-                if (!selListener._isRegistered()) {
-                    cc.js.array.remove(fixedPriorityListeners, selListener);
+                    cc.js.array.removeAt(sceneGraphPriorityListeners, i);
                     // if item in toRemove list, remove it from the list
                     idx = toRemovedListeners.indexOf(selListener);
                     if(idx !== -1)
                         toRemovedListeners.splice(idx, 1);
                 }
-                else
-                    ++i;
+            }
+        }
+
+        if (fixedPriorityListeners) {
+            for (i = fixedPriorityListeners.length - 1; i >= 0; i--) {
+                selListener = fixedPriorityListeners[i];
+                if (!selListener._isRegistered()) {
+                    cc.js.array.removeAt(fixedPriorityListeners, i);
+                    // if item in toRemove list, remove it from the list
+                    idx = toRemovedListeners.indexOf(selListener);
+                    if(idx !== -1)
+                        toRemovedListeners.splice(idx, 1);
+                }
             }
         }
 
@@ -825,10 +818,10 @@ var eventManager = {
 
         if (!isFound) {
             var locToAddedListeners = this._toAddedListeners;
-            for (var i = 0, len = locToAddedListeners.length; i < len; i++) {
+            for (var i = locToAddedListeners.length - 1; i >= 0; i--) {
                 var selListener = locToAddedListeners[i];
                 if (selListener === listener) {
-                    cc.js.array.remove(locToAddedListeners, selListener);
+                    cc.js.array.removeAt(locToAddedListeners, i);
                     selListener._setRegistered(false);
                     break;
                 }
@@ -840,7 +833,7 @@ var eventManager = {
         if (listeners == null)
             return false;
 
-        for (var i = 0, len = listeners.length; i < len; i++) {
+        for (var i = listeners.length - 1; i >= 0; i--) {
             var selListener = listeners[i];
             if (selListener._onCustomEvent === callback || selListener._onEvent === callback) {
                 selListener._setRegistered(false);
@@ -850,7 +843,7 @@ var eventManager = {
                 }
 
                 if (this._inDispatch === 0)
-                    cc.js.array.remove(listeners, selListener);
+                    cc.js.array.removeAt(listeners, i);
                 else
                     this._toRemovedListeners.push(selListener);
                 return true;
@@ -863,7 +856,7 @@ var eventManager = {
         if (listeners == null)
             return false;
 
-        for (var i = 0, len = listeners.length; i < len; i++) {
+        for (var i = listeners.length - 1; i >= 0; i--) {
             var selListener = listeners[i];
             if (selListener === listener) {
                 selListener._setRegistered(false);
@@ -873,7 +866,7 @@ var eventManager = {
                 }
 
                 if (this._inDispatch === 0)
-                    cc.js.array.remove(listeners, selListener);
+                    cc.js.array.removeAt(listeners, i);
                 else
                     this._toRemovedListeners.push(selListener);
                 return true;
