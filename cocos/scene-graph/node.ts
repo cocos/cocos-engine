@@ -136,12 +136,24 @@ class Node extends BaseNode {
         this._eventProcessor = new cc.NodeEventProcessor(this);
     }
 
+    get position () {
+        return this.getPosition();
+    }
+
     set position (value: vec3) {
         this.setPosition(value.x, value.y, value.z);
     }
 
+    get scale () {
+        return this.getScale();
+    }
+
     set scale (value: vec3) {
         this.setScale(value.x, value.y, value.z);
+    }
+
+    get rotation () {
+        return this.getRotation();
     }
 
     set rotation (value: quat) {
