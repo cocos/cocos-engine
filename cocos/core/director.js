@@ -160,12 +160,6 @@ class Director extends EventTarget {
 
     init () {
 
-        this._root = new Root(cc.game._gfxDevice);
-        let rootInfo = {};
-        if(!this._root.initialize(rootInfo)) {
-            return false;
-        }
-
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
         this._paused = false;
@@ -180,6 +174,13 @@ class Director extends EventTarget {
         }
 
         this.sharedInit();
+
+        this._root = new Root(cc.game._gfxDevice);
+        let rootInfo = {};
+        if(!this._root.initialize(rootInfo)) {
+            return false;
+        }
+
         return true;
     }
 
