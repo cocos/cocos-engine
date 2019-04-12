@@ -173,10 +173,29 @@ export class Material extends Asset {
         for (let i = 0; i < mat._props.length; i++) {
             Object.assign(this._props[i], mat._props[i]);
         }
-        Object.assign(this._defines, mat._defines);
+        this._defines.length = mat._defines.length;
+        this._defines.fill({});
+        for (let i = 0; i < mat._defines.length; i++) {
+            Object.assign(this._defines[i], mat._defines[i]);
+        }
         Object.assign(this._states, mat._states);
         this._effectAsset = mat._effectAsset;
         this._update();
+    }
+
+    public recompileShaders (defineOverrides: IDefineMap | IDefineMap[]) {
+        const passes = this._passes;
+        const len = passes.length;
+        if (Array.isArray(defineOverrides)) {
+            for (let i = 0; i < len; i++) {
+                passes[i].tryCompile(defineOverrides[i]);
+            }
+        } else {
+            for (let i = 0; i < len; i++) {
+                passes[i].tryCompile(defineOverrides);
+            }
+        }
+        this._onPassesChange();
     }
 
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
@@ -208,28 +227,30 @@ export class Material extends Asset {
 
     protected _update (keepProps: boolean = true) {
         const asset = this._effectAsset;
-        // ugly yellow indicating missing effect
-        if (!asset) { this._passes = builtinResMgr.get<Material>('missing-effect-material')._passes.slice(); return; }
-        // create passes
-        this._passes = Effect.parseEffect(asset, {
-            techIdx: this._techIdx,
-            defines: this._defines,
-            states: this._states,
-        });
-        // handle property values
-        this._props.length = this._passes.length;
-        if (keepProps) {
-            this._passes.forEach((pass, i) => {
-                let props = this._props[i];
-                if (!props) { props = this._props[i] = {}; }
-                for (const p of Object.keys(props)) {
-                    const val = props[p];
-                    if (!val) { continue; }
-                    this._uploadProperty(pass, p, props[p]);
-                }
+        if (asset) {
+            // create passes
+            this._passes = Effect.parseEffect(asset, {
+                techIdx: this._techIdx,
+                defines: this._defines,
+                states: this._states,
             });
-        } else {
-            this._props.fill({});
+            // handle property values
+            this._props.length = this._passes.length;
+            if (keepProps) {
+                this._passes.forEach((pass, i) => {
+                    let props = this._props[i];
+                    if (!props) { props = this._props[i] = {}; }
+                    for (const p of Object.keys(props)) {
+                        const val = props[p];
+                        if (!val) { continue; }
+                        this._uploadProperty(pass, p, props[p]);
+                    }
+                });
+            } else {
+                this._props.fill({});
+            }
+        } else { // ugly yellow indicating missing effect
+            this._passes = builtinResMgr.get<Material>('missing-effect-material')._passes.slice();
         }
         this._onPassesChange();
     }

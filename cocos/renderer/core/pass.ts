@@ -116,7 +116,7 @@ export class Pass {
     protected _customizations: string[] = [];
     protected _handleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
-    protected _shaderInfo: IShaderInfo | null = null;
+    protected _shaderInfo: IShaderInfo = null!;
     protected _defines: IDefineMap = {};
     protected _phase: number = 0;
     // external references
@@ -276,8 +276,8 @@ export class Pass {
         }
     }
 
-    public tryCompile (defines?: IDefineMap) {
-        if (defines) { Object.assign(this._defines, defines); }
+    public tryCompile (defineOverrides?: IDefineMap) {
+        if (defineOverrides) { Object.assign(this._defines, defineOverrides); }
         const pipeline = cc.director.root.pipeline as RenderPipeline | null;
         if (!pipeline) { return false; }
         this._renderPass = pipeline.getRenderPass(this._stage);
@@ -285,9 +285,9 @@ export class Pass {
         this._shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._shader) { console.warn(`create shader ${this._programName} failed`); return false; }
         if (!this._bindings.length) {
-            this._bindings = this._shaderInfo!.blocks.map((u) =>
+            this._bindings = this._shaderInfo.blocks.map((u) =>
                 ({ name: u.name, binding: u.binding, type: GFXBindingType.UNIFORM_BUFFER }),
-            ).concat(this._shaderInfo!.samplers.map((u) =>
+            ).concat(this._shaderInfo.samplers.map((u) =>
                 ({ name: u.name, binding: u.binding, type: GFXBindingType.SAMPLER }),
             ));
         }
@@ -312,7 +312,7 @@ export class Pass {
         }
         // bind pipeline builtins
         const source = cc.director.root.pipeline.globalBindings;
-        const target = this._shaderInfo!.builtins.globals;
+        const target = this._shaderInfo.builtins.globals;
         for (const b of target.blocks) {
             const info = source.get(b);
             if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
@@ -352,8 +352,8 @@ export class Pass {
     }
 
     public serializePipelineStates () {
-        const instanceName = programLib.getShaderInstaceName(this._programName, this._defines);
-        let res = `${instanceName},${this._stage},${this._primitive}`;
+        const shaderKey = programLib.getKey(this._programName, this._defines);
+        let res = `${shaderKey},${this._stage},${this._primitive}`;
         res += serializeBlendState(this._bs);
         res += serializeDepthStencilState(this._dss);
         res += serializeRasterizerState(this._rs);

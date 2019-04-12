@@ -72,7 +72,7 @@ class OctreeBlock {
     }
 
     public frustumSelect (out, frustum) {
-        if (!intersect.box_frustum(this.boundingBox, frustum)) { return; }
+        if (!intersect.aabb_frustum(this.boundingBox, frustum)) { return; }
         if (this.blocks) {
             for (const block of this.blocks) {
                 block.frustumSelect(out, frustum);

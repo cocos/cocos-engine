@@ -276,7 +276,6 @@ export class Model {
             for (let i = 0; i < mat.passes.length; i++) {
                 const pass = mat.passes[i];
                 pass.destroyPipelineState(pso[i]);
-                pass.tryCompile();
                 pso[i] = this._doCreatePSO(pass);
             }
         }
