@@ -135,7 +135,7 @@ var defaultMap = {
     'webp' : downloadWebp,
     'image' : downloadImage,
     'pvr': downloadBinary,
-    'etc': downloadBinary,
+    'pkm': downloadBinary,
 
     // Audio
     'mp3' : downloadAudio,
