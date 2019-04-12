@@ -56,6 +56,11 @@ import {
 } from './js-typed';
 import Pool from './pool';
 
+import {
+    _idToClass,
+    _nameToClass,
+} from './js-typed';
+
 export * from './js-typed';
 export {default as IDGenerator} from './id-generator';
 export {default as Pool} from './pool';
@@ -96,35 +101,46 @@ cc.js = {
     createMap,
 };
 
-// if (CC_DEV) {
-//     cc.js.getset(cc.js, '_registeredClassIds',
-//         function () {
-//             var dump = {};
-//             for (var id in _idToClass) {
-//                 dump[id] = _idToClass[id];
-//             }
-//             return dump;
-//         },
-//         function (value) {
-//             clear(_idToClass);
-//             for (var id in value) {
-//                 _idToClass[id] = value[id];
-//             }
-//         }
-//     );
-//     cc.js.getset(cc.js, '_registeredClassNames',
-//         function () {
-//             var dump = {};
-//             for (var id in _nameToClass) {
-//                 dump[id] = _nameToClass[id];
-//             }
-//             return dump;
-//         },
-//         function (value) {
-//             clear(_nameToClass);
-//             for (var id in value) {
-//                 _nameToClass[id] = value[id];
-//             }
-//         }
-//     );
-// }
+if (CC_EDITOR) {
+    cc.js.getset(cc.js, '_registeredClassIds', () => {
+            const dump = {};
+            for (const id in _idToClass) {
+                if (!(id in _idToClass)) {
+                    continue;
+                }
+                dump[id] = _idToClass[id];
+            }
+            return dump;
+        },
+        (item) => {
+            clear(_idToClass);
+            for (const id in item) {
+                if (!(id in item)) {
+                    continue;
+                }
+                _idToClass[id] = item[id];
+            }
+        },
+    );
+    cc.js.getset(cc.js, '_registeredClassNames',
+        () => {
+            const dump = {};
+            for (const id in _nameToClass) {
+                if (!(id in _nameToClass)) {
+                    continue;
+                }
+                dump[id] = _nameToClass[id];
+            }
+            return dump;
+        },
+        (item) => {
+            clear(_nameToClass);
+            for (const id in item) {
+                if (!(id in item)) {
+                    continue;
+                }
+                _nameToClass[id] = item[id];
+            }
+        },
+    );
+}

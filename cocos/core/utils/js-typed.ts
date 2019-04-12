@@ -427,8 +427,8 @@ function isTempClassId (id) {
 }
 
 // id 注册
-const _idToClass = {};
-const _nameToClass = {};
+export const _idToClass = {};
+export const _nameToClass = {};
 
 /**
  * Register the class by specified id, if its classname is not defined, the class name will also be set.
