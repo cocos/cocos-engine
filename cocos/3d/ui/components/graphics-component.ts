@@ -27,12 +27,10 @@
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/value-types';
 import { UI } from '../../../renderer/ui/ui';
-import { Material } from '../../assets';
-import { RenderableComponent } from '../../framework/renderable-component';
 import { IAssembler } from '../assembler/assembler';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { UIRenderComponent } from '../components/ui-render-component';
+import { InstanceMaterialType, UIRenderComponent } from '../components/ui-render-component';
 
 /**
  * @class Graphics
@@ -197,7 +195,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     constructor (){
         super();
-        this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
+        this._instanceMaterialType = InstanceMaterialType.ADDCOLOR;
     }
 
     public onRestore () {
@@ -206,10 +204,20 @@ export class GraphicsComponent extends UIRenderComponent {
         }
     }
 
+    public __preload (){
+        if (super.__preload){
+            super.__preload();
+        }
+
+        this._flushAssembler();
+        this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
+    }
+
     public onEnable () {
         if (super.onEnable) {
             super.onEnable();
         }
+
         this._activateMaterial();
     }
 
@@ -457,22 +465,12 @@ export class GraphicsComponent extends UIRenderComponent {
         return false;
     }
 
-    protected _instanceMaterial () {
-        let mat: Material | null = null;
-        if (this._sharedMaterial) {
-            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
-        } else {
-            if (UIRenderComponent.addColorMat) {
-                mat = new Material();
-                mat.copy(UIRenderComponent.addColorMat);
-            } else {
-                mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
-                mat.initialize({ defines: { USE_TEXTURE: false } });
-                UIRenderComponent.addColorMat = mat;
-            }
+    public helpInstanceMaterial () {
+        this._instanceMaterial();
+        if (!this.impl){
+            this._flushAssembler();
+            this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
         }
-
-        this._updateMaterial(mat);
     }
 
     protected _flushAssembler (){

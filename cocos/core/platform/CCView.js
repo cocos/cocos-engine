@@ -320,9 +320,6 @@ class View extends EventTarget {
         orientation = orientation & cc.macro.ORIENTATION_AUTO;
         if (orientation && this._orientation !== orientation) {
             this._orientation = orientation;
-            var designWidth = this._originalDesignResolutionSize.width;
-            var designHeight = this._originalDesignResolutionSize.height;
-            this.setDesignResolutionSize(designWidth, designHeight, this._resolutionPolicy);
         }
     }
 
