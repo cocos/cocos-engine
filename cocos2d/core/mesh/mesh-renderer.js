@@ -76,8 +76,6 @@ let meshRendererAssembler = {
     },
 
     fillBuffers (comp, renderer) {
-        if (!comp.mesh) return;
-
         renderer._flush();
 
         let renderDatas = comp._renderDatas;

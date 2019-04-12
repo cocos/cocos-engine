@@ -116,6 +116,11 @@ let MeshRenderer = cc.Class({
             set (v) {
                 if (this._mesh === v) return;
                 this._setMesh(v);
+                if (!v) {
+                    this.markForRender(false);
+                    return;
+                }
+                this.markForRender(true);
                 this._activateMaterial(true);
                 this.markForUpdateRenderData(true);
                 this.node._renderFlag |= RenderFlow.FLAG_TRANSFORM;

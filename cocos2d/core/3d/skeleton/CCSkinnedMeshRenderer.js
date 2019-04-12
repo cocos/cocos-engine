@@ -51,8 +51,6 @@ let SkinnedMeshRenderer = cc.Class({
         this._jointsData = null;
         this._jointsTexture = null;
         this._joints = [];
-
-        this._assembler = MeshRenderer._assembler;
     },
 
     properties: {
@@ -249,7 +247,7 @@ let SkinnedMeshRenderer = cc.Class({
         return this._useJointMatrix() ? this.rootBone : dummyNode;
     },
 
-    update () {
+    calcJointMatrix () {
         if (!this.skeleton || !this.rootBone) return;
         const joints = this._joints;
 
