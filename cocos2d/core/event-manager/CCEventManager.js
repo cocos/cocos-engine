@@ -115,7 +115,6 @@ var eventManager = {
     _listenersMap: {},
     _priorityDirtyFlagMap: {},
     _nodeListenersMap: {},
-    _globalZOrderNodeMap: [],
     _toAddedListeners: [],
     _toRemovedListeners: [],
     _dirtyListeners: {},
