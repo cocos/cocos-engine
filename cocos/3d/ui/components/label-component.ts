@@ -154,7 +154,6 @@ export class LabelComponent extends UIRenderComponent {
         return this._string;
     }
     set string (value) {
-        value = value.toString();
         if (this._string === value) {
             return;
         }

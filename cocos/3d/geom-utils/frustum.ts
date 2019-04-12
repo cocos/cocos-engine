@@ -1,3 +1,4 @@
+import { Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import enums from './enums';
 import plane from './plane';
@@ -32,7 +33,7 @@ export class frustum {
     }
 
     public static createOrtho = (() => {
-        const _temp_v3 = cc.v3();
+        const _temp_v3 = new Vec3();
         return (out: frustum, width: number, height: number, near: number, far: number, transform: mat4) => {
             const halfWidth = width / 2;
             const halfHeight = height / 2;
