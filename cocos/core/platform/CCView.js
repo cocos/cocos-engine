@@ -1077,7 +1077,7 @@ class ContainerStrategy {
         var locCanvas = cc.game.canvas, locContainer = cc.game.container;
 
         if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
-            if (cc.sys.os !== cc.sys.OS_IOS) {
+            if (cc.sys.os === cc.sys.OS_ANDROID) {
                 document.body.style.width = (view._isRotated ? h : w) + 'px';
                 document.body.style.height = (view._isRotated ? w : h) + 'px';
             }
