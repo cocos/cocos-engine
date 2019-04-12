@@ -30,7 +30,7 @@ const vfmtPosUvColor = require('../core/renderer/webgl/vertex-format').vfmtPosUv
 const QuadBuffer = require('../core/renderer/webgl/quad-buffer');
 
 var particleSystemAssembler = {
-    useModel: true,
+    useModel: false,
 
     createIA (comp) {
         let device = renderer.device;

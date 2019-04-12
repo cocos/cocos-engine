@@ -541,9 +541,20 @@ var properties = {
      * @property {ParticleSystem.PositionType} positionType
      * @default ParticleSystem.PositionType.FREE
      */
+    _positionType: {
+        default: PositionType.RELATIVE,
+        formerlySerializedAs: "positionType"
+    },
+
     positionType: {
-        default: PositionType.FREE,
-        type: PositionType
+        type: PositionType,
+        get () {
+            return this._positionType;
+        },
+        set (val) {
+            this._assembler.useModel = val !== PositionType.FREE;
+            this._positionType = val;
+        }
     },
 
     /**
@@ -864,6 +875,9 @@ var ParticleSystem = cc.Class({
             this._startColorVar = cc.color(this._startColorVar);
             this._endColor = cc.color(this._endColor);
             this._endColorVar = cc.color(this._endColorVar);
+        }
+        if (this._assembler) {
+            this._assembler.useModel = this._positionType !== PositionType.FREE;
         }
     },
 
