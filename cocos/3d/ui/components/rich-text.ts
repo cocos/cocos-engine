@@ -27,12 +27,12 @@
 import { LabelOutlineComponent } from '../../../2d/label/label-outline';
 import { SpriteAtlas, TTFFont } from '../../../assets';
 import { Font } from '../../../assets/font';
-import { Color, Vec2 } from '../../../core';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventTouch } from '../../../core/platform/event-manager';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../../../core/utils/html-text-parser';
 import Pool from '../../../core/utils/pool';
 import { fragmentText, isUnicodeCJK, isUnicodeSpace } from '../../../core/utils/text-utils';
+import { Color, Vec2 } from '../../../core/value-types';
 import { Node, PrivateNode } from '../../../scene-graph';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
 import { SpriteComponent } from './sprite-component';
