@@ -19,7 +19,7 @@ export class CrossFade extends Playable {
     }
 
     public update (deltaTime: number) {
-        if (!this.isPlaying) {
+        if (!this.isPlaying || this.isPaused) {
             return;
         }
         let absoluteWeight = 1.0;
@@ -60,6 +60,24 @@ export class CrossFade extends Playable {
         this._fadings.unshift(es);
         if (state) {
             this._directPlayState(state);
+        }
+    }
+
+    public onPause () {
+        super.onPause();
+        for (const fading of this._fadings) {
+            if (fading.state) {
+                fading.state.pause();
+            }
+        }
+    }
+
+    public onResume () {
+        super.onResume();
+        for (const fading of this._fadings) {
+            if (fading.state) {
+                fading.state.resume();
+            }
         }
     }
 

@@ -87,9 +87,10 @@ export class AnimationComponent extends EventTargetFactory(Component) {
         if (value) {
             cc.engine.animatingInEditMode = true;
             this.crossFade(this._defaultClip.name);
+            this._crossFade!.resume();
         } else {
             cc.engine.animatingInEditMode = false;
-            this.crossFade();
+            this._crossFade!.pause();
         }
     }
 
