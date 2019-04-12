@@ -535,6 +535,14 @@ export class CannonShape implements ShapeBase {
 
     }
 
+    public getCollisionResponse (): boolean {
+        return this.impl.collisionResponse;
+    }
+
+    public setCollisionResponse (v: boolean): void {
+        this.impl.collisionResponse = v;
+    }
+
     public _devStrinfy () {
         if (!this._body) {
             return `<NotAttached>`;
@@ -594,7 +602,8 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
     constructor (size: Vec3) {
         super();
         vec3.scale(this._halfExtent, size, 0.5);
-        this._cannonBox = new CANNON.Box(this._halfExtent);
+        // attention : here should use clone
+        this._cannonBox = new CANNON.Box(this._halfExtent.clone());
         setWrap<ShapeBase>(this._cannonBox, this);
         setWrap<ShapeBase>(this._cannonBox.convexPolyhedronRepresentation, this);
         this._cannonShape = this._cannonBox;
@@ -603,6 +612,25 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
     public setScale (scale: Vec3): void {
         super.setScale(scale);
         this._recalcExtents();
+
+        // Another implementation method
+        // see https://github.com/schteppe/cannon.js/issues/270
+        // if (this._body) {
+        //     const body = this._body;
+        //     const shape = this._cannonBox;
+        //     const iShape = body.shapes.indexOf(shape);
+        //     if (iShape >= 0) {
+        //         body.shapes.splice(iShape, 1);
+        //         body.shapeOffsets.splice(iShape, 1);
+        //         body.shapeOrientations.splice(iShape, 1);
+        //         body.updateMassProperties();
+        //         body.updateBoundingRadius();
+        //         body.aabbNeedsUpdate = true;
+        //         (shape as any).body = null;
+        //     }
+        // }
+        // vec3.multiply(this._cannonBox.halfExtents, this._cannonBox.halfExtents, scale);
+        // if (this._body) { this._body.addShape(this._cannonBox); }
     }
 
     public setSize (size: Vec3) {

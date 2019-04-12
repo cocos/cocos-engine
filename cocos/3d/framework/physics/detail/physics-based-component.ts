@@ -10,23 +10,26 @@ import { stringfyQuat, stringfyVec3 } from '../../../physics/util';
 export class PhysicsBasedComponent extends Component {
 
     protected get _body () {
-        return this._sharedBody ? this._sharedBody.body : null;
+        return this._sharedBody!.body;
     }
 
     protected get sharedBody () {
         return this._sharedBody;
     }
-    private _sharedBody: SharedRigidBody | null = null;
+    private _sharedBody!: SharedRigidBody | null;
 
     constructor () {
         super();
+    }
+
+    public __preload () {
+        this._refSharedBody();
     }
 
     public onLoad () {
     }
 
     public start () {
-        this._refSharedBody();
     }
 
     public destroy () {
@@ -36,11 +39,11 @@ export class PhysicsBasedComponent extends Component {
         }
     }
 
-    public syncPhysWithScene () {
-        if (this.sharedBody) {
-            this.sharedBody.syncPhysWithScene(this.node);
-        }
-    }
+    // public syncPhysWithScene () {
+    //     if (this.sharedBody) {
+    //         this.sharedBody.syncPhysWithScene(this.node);
+    //     }
+    // }
 
     private _refSharedBody () {
         if (this._sharedBody) {
@@ -124,17 +127,18 @@ class SharedRigidBody {
     }
 
     public syncPhysWithScene (node: Node) {
-        this._transformInitialized = true;
+        // sync position rotation
         const p = node.getWorldPosition();
         const r = node.getWorldRotation();
 
         this.body.setPosition(p);
         this.body.setRotation(r);
-        node.getWorldScale(this._worldScale);
 
-        // Because we sync the scale, we should update shape parameters.
-        this.body.scaleAllShapes(this._worldScale);
-        this.body.commitShapeUpdates();
+        // remove to shape, scale belong to shape
+        // node.getWorldScale(this._worldScale);
+        // // Because we sync the scale, we should update shape parameters.
+        // this.body.scaleAllShapes(this._worldScale);
+        // this.body.commitShapeUpdates();
     }
 
     /**
@@ -196,9 +200,12 @@ class SharedRigidBody {
 
         if (!this._transformInitialized) {
             // d(`Initialize`);
+            this._transformInitialized = true;
             this.syncPhysWithScene(this._node);
             this._activeBody();
-        } else if (!this.body.isPhysicsManagedTransform() && this._node.hasChanged) {
+        }
+
+        if (!this.body.isPhysicsManagedTransform() && this._node.hasChanged) {
             // d(`Synchronize`);
             this.syncPhysWithScene(this._node);
             this._activeBody();

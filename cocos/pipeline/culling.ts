@@ -43,21 +43,20 @@ export const cullSceneWithDirectionalLight = (() => {
 
 export const calcDirectionalLightCullFrustum = (() => {
     const lightPos = cc.v3();
-    const lightPosOffset = cc.v3();
+    const lightViewCenter = cc.v3();
     const lightRot = cc.quat();
     const camFrustum = new frustum();
     camFrustum.accurate = true;
     const lightViewMat = cc.mat4();
-    const lightProjMat = cc.mat4();
-    const lightVPMat = cc.mat4();
-    const lightVPMatInv = cc.mat4();
+    const lightVeiwMatInv = cc.mat4();
     const minBoxCorner = cc.v3();
     const maxBoxCorner = cc.v3();
     return (out: frustum, sceneCamera: Camera, light: DirectionalLight, near: number, far: number) => {
-        mat4.invert(lightViewMat, light.node.getWorldMatrix(lightViewMat));
+        mat4.fromRT(lightViewMat, light.node.getWorldRotation(lightRot), sceneCamera.node.getWorldPosition(lightPos));
+        mat4.invert(lightVeiwMatInv, lightViewMat);
         sceneCamera.getSplitFrustum(camFrustum, near, far);
         // transform camera frustum to light space
-        camFrustum.transform(lightViewMat);
+        camFrustum.transform(lightVeiwMatInv);
         vec3.set(minBoxCorner, camFrustum.vertices[0].x, camFrustum.vertices[0].y, camFrustum.vertices[0].z);
         vec3.copy(maxBoxCorner, minBoxCorner);
         // calculate the light frustum corner
@@ -69,17 +68,11 @@ export const calcDirectionalLightCullFrustum = (() => {
             maxBoxCorner.y = Math.max(maxBoxCorner.y, camFrustum.vertices[i].y);
             maxBoxCorner.z = Math.max(maxBoxCorner.z, camFrustum.vertices[i].z);
         }
-        // move light to frustum near plane center
-        vec3.set(lightPosOffset, (minBoxCorner.x + maxBoxCorner.x) / 2, (minBoxCorner.y + maxBoxCorner.y) / 2, maxBoxCorner.z);
-        vec3.add(minBoxCorner, minBoxCorner, lightPosOffset);
-        vec3.add(maxBoxCorner, maxBoxCorner, lightPosOffset);
-        mat4.ortho(lightProjMat, minBoxCorner.x, maxBoxCorner.x, minBoxCorner.y, maxBoxCorner.y, -maxBoxCorner.z, -minBoxCorner.z);
-        light.node.getPosition(lightPos);
-        vec3.add(lightPos, lightPos, lightPosOffset);
-        mat4.fromRT(lightViewMat, light.node.getRotation(lightRot), lightPos);
-
-        mat4.mul(lightVPMat, lightProjMat, lightViewMat);
-        mat4.invert(lightVPMatInv, lightVPMat);
-        out.update(lightVPMat, lightVPMatInv);
+        // calc the light world transform ,suppose that the light's position is at the camera's location.
+        vec3.set(lightViewCenter, (minBoxCorner.x + maxBoxCorner.x) / 2, (minBoxCorner.y + maxBoxCorner.y) / 2, maxBoxCorner.z);
+        vec3.transformMat4(lightPos, lightViewCenter, lightViewMat);
+        mat4.fromRT(lightViewMat, light.node.getWorldRotation(lightRot), lightPos);
+        // calc the light's frustum
+        frustum.createOrtho(out, maxBoxCorner.x - minBoxCorner.x, maxBoxCorner.y - minBoxCorner.y, 0, minBoxCorner.z - maxBoxCorner.z, lightViewMat);
     };
 })();

@@ -1,3 +1,4 @@
+import { Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import enums from './enums';
 import plane from './plane';
@@ -30,6 +31,37 @@ export class frustum {
     public static create () {
         return new frustum();
     }
+
+    public static createOrtho = (() => {
+        const _temp_v3 = new Vec3();
+        return (out: frustum, width: number, height: number, near: number, far: number, transform: mat4) => {
+            const halfWidth = width / 2;
+            const halfHeight = height / 2;
+            vec3.set(_temp_v3, halfWidth, halfHeight, near);
+            vec3.transformMat4(out.vertices[0], _temp_v3, transform);
+            vec3.set(_temp_v3, -halfWidth, halfHeight, near);
+            vec3.transformMat4(out.vertices[1], _temp_v3, transform);
+            vec3.set(_temp_v3, -halfWidth, -halfHeight, near);
+            vec3.transformMat4(out.vertices[2], _temp_v3, transform);
+            vec3.set(_temp_v3, halfWidth, -halfHeight, near);
+            vec3.transformMat4(out.vertices[3], _temp_v3, transform);
+            vec3.set(_temp_v3, halfWidth, halfHeight, far);
+            vec3.transformMat4(out.vertices[4], _temp_v3, transform);
+            vec3.set(_temp_v3, -halfWidth, halfHeight, far);
+            vec3.transformMat4(out.vertices[5], _temp_v3, transform);
+            vec3.set(_temp_v3, -halfWidth, -halfHeight, far);
+            vec3.transformMat4(out.vertices[6], _temp_v3, transform);
+            vec3.set(_temp_v3, halfWidth, -halfHeight, far);
+            vec3.transformMat4(out.vertices[7], _temp_v3, transform);
+
+            plane.fromPoints(out.planes[0], out.vertices[1], out.vertices[6], out.vertices[5]);
+            plane.fromPoints(out.planes[1], out.vertices[3], out.vertices[4], out.vertices[7]);
+            plane.fromPoints(out.planes[2], out.vertices[6], out.vertices[3], out.vertices[7]);
+            plane.fromPoints(out.planes[3], out.vertices[0], out.vertices[5], out.vertices[4]);
+            plane.fromPoints(out.planes[4], out.vertices[2], out.vertices[0], out.vertices[3]);
+            plane.fromPoints(out.planes[0], out.vertices[7], out.vertices[5], out.vertices[6]);
+        };
+    })();
 
     /**
      * Clone a frustum

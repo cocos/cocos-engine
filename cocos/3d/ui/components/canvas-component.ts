@@ -122,6 +122,12 @@ export class CanvasComponent extends Component {
         return this._camera;
     }
 
+    /**
+     * !#en Current active canvas, the scene should only have one active canvas at the same time.
+     * !#zh 当前激活的画布组件，场景同一时间只能有一个激活的画布。
+     * @property {CanvasComponent} instance
+     * @static
+     */
     public static instance: CanvasComponent | null = null;
     public static views = [];
     /**
@@ -138,33 +144,18 @@ export class CanvasComponent extends Component {
     private _fitHeight = true;
     @property
     private _priority = 0;
-    // @property
-    // private _priority = 0;
 
     private _thisOnResized: () => void;
 
     private _camera: Camera | null = null;
 
-    // /**
-    // * !#en Current active canvas, the scene should only have one active canvas at the same time.
-    // * !#zh 当前激活的画布组件，场景同一时间只能有一个激活的画布。
-    // * @property {CanvasComponent} instance
-    // * @static
-    // */
-    // static instance = null;
-
     constructor () {
         super();
         this._thisOnResized = this.alignWithScreen.bind(this);
+        // TODO:maybe remove when multiple scene
         if (!CanvasComponent.instance){
             CanvasComponent.instance = this;
         }
-    }
-
-    // public onLoad () {}
-
-    public resetInEditor () {
-        // _Scene._applyCanvasPreferences(this);
     }
 
     public __preload () {
@@ -188,29 +179,10 @@ export class CanvasComponent extends Component {
             this._camera!.resize(device.width, device.height);
         }
 
-        // if (CC_DEV) {
-        //     var Flags = cc.Object.Flags;
-        //     this._objFlags |= (Flags.IsPositionLocked | Flags.IsAnchorLocked | Flags.IsSizeLocked);
-        // }
-
-        // if (CanvasComponent.instance) {
-        //     return cc.errorID(6700,
-        //         this.node.name, CanvasComponent.instance.node.name);
-        // }
-        // CanvasComponent.instance = this;
-
         if (CC_EDITOR) {
             cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-            // cc.engine.on('design-resolution-changed', this._thisOnResized);
         }
-        else {
-            // if (cc.sys.isMobile) {
-            //     window.addEventListener('resize', this._thisOnResized);
-            // }
-            // else {
-            //     cc.view.on('design-resolution-changed', this._thisOnResized);
-            // }
-        }
+
         cc.view.on('design-resolution-changed', this._thisOnResized);
 
         this.applySettings();
@@ -232,15 +204,7 @@ export class CanvasComponent extends Component {
 
         if (CC_EDITOR) {
             cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-            // cc.engine.off('design-resolution-changed', this._thisOnResized);
         }
-        // else {
-            // if (cc.sys.isMobile) {
-            //     window.removeEventListener('resize', this._thisOnResized);
-            // } else {
-            //     cc.view.off('design-resolution-changed', this._thisOnResized);
-            // }
-        // }
 
         cc.view.off('design-resolution-changed', this._thisOnResized);
 

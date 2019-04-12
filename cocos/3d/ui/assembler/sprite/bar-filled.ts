@@ -32,7 +32,6 @@ import { color4, vec3 } from '../../../../core/vmath/index';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
-import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler } from '../assembler';
 import { fillVerticesWithoutCalc3D } from '../utils';
 

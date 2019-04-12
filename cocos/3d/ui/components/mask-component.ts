@@ -24,17 +24,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 import { SpriteFrame } from '../../../assets/CCSpriteFrame';
-import { Mat4, Vec2, Vec3 } from '../../../core';
 import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
 import { EventType } from '../../../core/platform/event-manager/event-enum';
+import { Mat4, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import * as vmath from '../../../core/vmath';
 import { UI } from '../../../renderer/ui/ui';
 import { Node } from '../../../scene-graph';
-import { Material } from '../../assets/material';
-import { RenderableComponent } from '../../framework/renderable-component';
 import { GraphicsComponent } from './graphics-component';
-import { UIRenderComponent } from './ui-render-component';
+import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -247,7 +245,13 @@ export class MaskComponent extends UIRenderComponent {
     private _graphics: GraphicsComponent | null = null;
     private _clearGraphics: GraphicsComponent | null = null;
 
+    constructor (){
+        super();
+        this._instanceMaterialType = InstanceMaterialType.ADDCOLOR;
+    }
+
     public onLoad (){
+        this._flushAssembler();
         this._createGraphics();
     }
 
@@ -364,35 +368,6 @@ export class MaskComponent extends UIRenderComponent {
         return this._clearGraphics !== null && this._graphics !== null && this._renderPermit;
     }
 
-    protected _instanceMaterial () {
-        let mat: Material | null = null;
-        if (this._sharedMaterial) {
-            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
-        } else {
-            // if (this._type === MaskType.IMAGE_STENCIL) {
-            //     if (UIRenderComponent.addTextureMat) {
-            //         mat = new Material();
-            //         mat.copy(UIRenderComponent.addTextureMat);
-            //     } else {
-            //         mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
-            //         mat.initialize({ defines: { USE_TEXTURE: true } });
-            //         UIRenderComponent.addTextureMat = mat;
-            //     }
-            // } else {
-                if (UIRenderComponent.addColorMat) {
-                    mat = new Material();
-                    mat.copy(UIRenderComponent.addColorMat);
-                } else {
-                    mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
-                    mat.initialize({ defines: { USE_TEXTURE: false } });
-                    UIRenderComponent.addColorMat = mat;
-                }
-            // }
-        }
-
-        this._updateMaterial(mat);
-    }
-
     protected _flushAssembler (){
         const assembler = MaskComponent.Assembler!.getAssembler(this);
         const posAssembler = MaskComponent.PostAssembler!.getAssembler(this);
@@ -446,6 +421,7 @@ export class MaskComponent extends UIRenderComponent {
         if (!this._clearGraphics) {
             this._clearGraphics = new GraphicsComponent();
             this._clearGraphics.node = new Node('clear-graphics');
+            this._clearGraphics.helpInstanceMaterial();
             this._clearGraphics._activateMaterial();
             this._clearGraphics.lineWidth = 0;
             this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
@@ -455,6 +431,7 @@ export class MaskComponent extends UIRenderComponent {
         if (!this._graphics) {
             this._graphics = new GraphicsComponent();
             this._graphics.node = this.node;
+            this._graphics.helpInstanceMaterial();
             this._graphics.lineWidth = 0;
             this._graphics.strokeColor = cc.color(0, 0, 0, 0);
         }

@@ -37,6 +37,7 @@ import { GFXBlendFactor } from '../../../gfx/define';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets/material';
+import { RenderableComponent } from '../../framework/renderable-component';
 import { IAssembler, IAssemblerManager } from '../assembler/assembler';
 import { CanvasComponent } from './canvas-component';
 import { UIComponent } from './ui-component';
@@ -44,6 +45,11 @@ import { UITransformComponent } from './ui-transfrom-component';
 
 // hack
 ccenum(GFXBlendFactor);
+
+export enum InstanceMaterialType {
+    ADDCOLOR = 0,
+    ADDCOLORANDTEXTURE = 1,
+}
 
 /**
  * !#en
@@ -168,10 +174,6 @@ export class UIRenderComponent extends UIComponent {
     public static Assembler: IAssemblerManager | null = null;
     public static PostAssembler: IAssemblerManager | null = null;
 
-    // 预先定制两份 UI 常用材质，也许之后需要修改
-    public static addColorMat: Material | null = null;
-    public static addTextureMat: Material | null = null;
-
     @property
     protected _srcBlendFactor = GFXBlendFactor.SRC_ALPHA;
     @property
@@ -189,6 +191,7 @@ export class UIRenderComponent extends UIComponent {
     // 特殊渲染标记，在可渲染情况下，因为自身某个原因不给予渲染
     protected _renderPermit = true;
     protected _material: Material | null = null;
+    protected _instanceMaterialType = InstanceMaterialType.ADDCOLORANDTEXTURE;
     protected _blendTemplate = {
         blendState: {
             targets: [
@@ -202,19 +205,8 @@ export class UIRenderComponent extends UIComponent {
         rasterizerState: {},
     };
 
-    constructor (){
-        super();
-        if (this._instanceMaterial) {
-            this._instanceMaterial();
-        }
-
-        if (this._flushAssembler) {
-            this._flushAssembler();
-        }
-    }
-
     public __preload (){
-
+        this._instanceMaterial();
     }
 
     public onEnable () {
@@ -367,7 +359,24 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    protected _instanceMaterial? (): void;
+    protected _instanceMaterial () {
+        let mat: Material | null = null;
+        if (this._sharedMaterial) {
+            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
+        } else {
+            switch (this._instanceMaterialType){
+                case InstanceMaterialType.ADDCOLOR:
+                    mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-base-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+                    break;
+                case InstanceMaterialType.ADDCOLORANDTEXTURE:
+                    mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+                    break;
+            }
+        }
+
+        this._updateMaterial(mat);
+    }
+
     protected _flushAssembler? (): void;
 }
 

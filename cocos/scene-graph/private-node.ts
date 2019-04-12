@@ -25,8 +25,8 @@
 
 'use strict';
 
-import { CCObject } from '../core';
 import { ccclass } from '../core/data/class-decorator';
+import { CCObject } from '../core/data/object';
 import { Node } from './node';
 
 // const LocalDirtyFlag = Node._LocalDirtyFlag;

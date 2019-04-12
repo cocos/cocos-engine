@@ -74,7 +74,7 @@ export class RigidBodyBase {
 
     applyForce (force: Vec3, position?: Vec3): void;
 
-    applyImpulse (impulse: Vec3): void;
+    applyImpulse (impulse: Vec3, position?: Vec3): void;
 
     getIsKinematic (): boolean;
 
@@ -146,6 +146,10 @@ export class ShapeBase {
     getUserData (): any;
 
     setUserData (data: any): void;
+
+    getCollisionResponse():boolean;
+
+    setCollisionResponse(value:boolean):void;
 }
 
 export class SphereShapeBase extends ShapeBase {

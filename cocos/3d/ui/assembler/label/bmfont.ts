@@ -34,7 +34,7 @@ import { fillMeshVertices3D } from '../utils';
 import { bmfontUtils } from './bmfontUtils';
 
 export const bmfont: IAssembler = {
-    createData (comp) {
+    createData (comp: LabelComponent) {
         return comp.requestRenderData();
     },
 

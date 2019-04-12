@@ -180,7 +180,6 @@ class ProgramLib {
         if (!tmpl.globalsInited) { insertBuiltinBindings(tmpl, pipeline.globalBindings, 'globals'); tmpl.globalsInited = true; }
 
         const defs = prepareDefines(defines, tmpl.defines);
-        const instanceName = this.getShaderInstaceName(name, defines, defs);
         validateDefines(defs, device, tmpl.dependencies);
         const customDef = defs.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.result}\n`, '');
 
@@ -195,7 +194,7 @@ class ProgramLib {
         }
 
         program = device.createShader({
-            name: instanceName,
+            name: this.getShaderInstaceName(name, defines, defs),
             blocks: tmpl.blocks,
             samplers: tmpl.samplers,
             stages: [

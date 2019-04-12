@@ -99,6 +99,18 @@ export enum PixelFormat {
      * rgba 4 bpp pvrtc
      */
     RGBA_PVRTC_4BPPV1 = GFXFormat.PVRTC_RGBA4,
+    /**
+     * rgb etc1
+     */
+    RGB_ETC1 = GFXFormat.ETC_RGB8,
+    /**
+     * rgb etc2
+     */
+    RGB_ETC2 = GFXFormat.ETC2_RGB8,
+    /**
+     * rgba etc2
+     */
+    RGBA_ETC2 = GFXFormat.ETC2_RGBA8,
 }
 
 /**
@@ -178,7 +190,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
      * @param texture
      */
     public static _isCompressed (texture: TextureBase) {
-        return texture._format >= PixelFormat.RGB_PVRTC_2BPPV1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
+        return texture._format >= PixelFormat.RGB_ETC1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
     }
 
     @property

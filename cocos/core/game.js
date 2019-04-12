@@ -174,6 +174,12 @@ class Game extends EventTarget {
      */
     setFrameRate(frameRate) {
         var config = this.config;
+        if (typeof frameRate !== 'number') {
+            frameRate = parseInt(frameRate);
+            if (isNaN(frameRate)) {
+                frameRate = 60;
+            }
+        }
         config.frameRate = frameRate;
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
