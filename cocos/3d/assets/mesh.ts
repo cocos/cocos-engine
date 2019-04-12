@@ -26,62 +26,28 @@
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Vec3 } from '../../core/value-types';
-import { ccenum } from '../../core/value-types/enum';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { IBufferRange } from './utils/buffer-range';
-import { vec3 } from '../../core/vmath';
+import { BufferBlob } from '../misc/buffer-blob';
+import { IBufferView } from './utils/buffer-view';
 
-export enum IndexUnit {
-    /**
-     * 8 bits unsigned integer.
-     */
-    UINT8,
-
-    /**
-     * 8 bits unsigned integer.
-     */
-    UINT16,
-
-    /**
-     * 8 bits unsigned integer.
-     */
-    UINT32,
-}
-
-ccenum(IndexUnit);
-
-function getIndexUnitStride (indexUnit: IndexUnit) {
-    switch (indexUnit) {
-        case IndexUnit.UINT8: return 1;
-        case IndexUnit.UINT16: return 2;
-        case IndexUnit.UINT32: return 4;
-    }
-    return 1;
-}
-
-function getIndexUnitCtor (indexUnit: IndexUnit) {
-    switch (indexUnit) {
-        case IndexUnit.UINT8: return Uint8Array;
-        case IndexUnit.UINT16: return Uint16Array;
-        case IndexUnit.UINT32: return Uint32Array;
+function getIndexStrideCtor (stride: number) {
+    switch (stride) {
+        case 1: return Uint8Array;
+        case 2: return Uint16Array;
+        case 4: return Uint32Array;
     }
     return Uint8Array;
 }
 
 export interface IVertexBundle {
     /**
-     * The data range of this bundle.
+     * The data view of this bundle.
      * This range of data is essentially mapped to a GPU vertex buffer.
      */
-    data: IBufferRange;
-
-    /**
-     * This bundle's vertices count.
-     */
-    verticesCount: number;
+    view: IBufferView;
 
     /**
      * Attributes.
@@ -104,24 +70,14 @@ export interface IPrimitive {
      */
     primitiveMode: GFXPrimitiveMode;
 
-    indices?: {
-        /**
-         * The indices data range of this primitive.
-         */
-        range: IBufferRange;
-
-        /**
-         * The type of this primitive's indices.
-         */
-        indexUnit: IndexUnit;
-    };
+    indexView?: IBufferView;
 
     /**
      * Geometric info for raycast purposes.
      */
     geometricInfo?: {
         doubleSided?: boolean;
-        range: IBufferRange;
+        view: IBufferView;
     };
 }
 
@@ -284,7 +240,7 @@ export class Mesh extends Asset {
      * Gets the rendering mesh.
      */
     public get renderingMesh (): RenderingMesh {
-        this._deferredInit();
+        this._init();
         return this._renderingMesh!;
     }
 
@@ -305,35 +261,186 @@ export class Mesh extends Asset {
             }
         } // if
 
-        // merge vertex bundles
+        // merge buffer
+        const bufferBlob = new BufferBlob();
+
+        // merge vertex buffer
+        let vertCount = 0;
+        let vertStride = 0;
+        let srcOffset = 0;
+        let dstOffset = 0;
+        let vb: ArrayBuffer;
+        let vbView: Uint8Array;
+        let srcVBView: Uint8Array;
+        let dstVBView: Uint8Array;
+
+        const vertexBundles = new Array<IVertexBundle>(this._struct.vertexBundles.length);
         for (let i = 0; i < this._struct.vertexBundles.length; ++i) {
             const bundle = this._struct.vertexBundles[i];
             const dstBundle = mesh._struct.vertexBundles[i];
-            bundle.data.length += dstBundle.data.length;
-            bundle.verticesCount += dstBundle.verticesCount;
+
+            srcOffset = bundle.view.offset;
+            dstOffset = dstBundle.view.offset;
+            vertStride = bundle.view.stride;
+            vertCount = bundle.view.count + dstBundle.view.count;
+
+            vb = new ArrayBuffer(vertCount * vertStride);
+            vbView = new Uint8Array(vb);
+
+            srcVBView = this._data!.subarray(srcOffset, srcOffset + bundle.view.length);
+            srcOffset += srcVBView.length;
+            dstVBView = mesh._data!.subarray(dstOffset, dstOffset + dstBundle.view.length);
+            dstOffset += dstVBView.length;
+
+            vbView.set(srcVBView);
+            vbView.set(dstVBView, bundle.view.length);
+
+            vertexBundles[i] = {
+                attributes: bundle.attributes,
+                view: {
+                    offset: bufferBlob.getLength(),
+                    length: vb.byteLength,
+                    count: vertCount,
+                    stride: vertStride,
+                },
+            };
+
+            bufferBlob.addBuffer(vb);
         }
 
-        // merge primitives
+        // merge index buffer
+        let idxCount = 0;
+        let idxStride = 2;
+        let vertBatchCount = 0;
+        let ibView: Uint8Array | Uint16Array | Uint32Array;
+        let srcIBView: Uint8Array | Uint16Array | Uint32Array;
+        let dstIBView: Uint8Array | Uint16Array | Uint32Array;
+
+        const primitives: IPrimitive[] = new Array<IPrimitive>(this._struct.primitives.length);
         for (let i = 0; i < this._struct.primitives.length; ++i) {
             const prim = this._struct.primitives[i];
             const dstPrim = mesh._struct.primitives[i];
 
-            if (prim.indices && dstPrim.indices) {
-                prim.indices.range.length += dstPrim.indices.range.length;
+            primitives[i] = {
+                primitiveMode: prim.primitiveMode,
+                vertexBundelIndices: prim.vertexBundelIndices,
+            };
+
+            for (const bundleIdx of prim.vertexBundelIndices) {
+                vertBatchCount = Math.max(vertBatchCount, this._struct.vertexBundles[bundleIdx].view.count);
+            }
+
+            if (prim.indexView && dstPrim.indexView) {
+                idxCount = prim.indexView.count;
+                idxCount += dstPrim.indexView.count;
+
+                srcOffset = prim.indexView.offset;
+                dstOffset = dstPrim.indexView.offset;
+
+                if (idxCount < 256) {
+                    idxStride = 1;
+                } else if (idxCount < 65536) {
+                    idxStride = 2;
+                } else {
+                    idxStride = 4;
+                }
+
+                const ib = new ArrayBuffer(idxCount * idxStride);
+                if (idxStride === 2) {
+                    ibView = new Uint16Array(ib);
+                } else if (idxStride === 1) {
+                    ibView = new Uint8Array(ib);
+                } else { // Uint32
+                    ibView = new Uint32Array(ib);
+                }
+
+                // merge src indices
+                if (prim.indexView.stride === 2) {
+                    srcIBView = new Uint16Array(this._data!.buffer, srcOffset, prim.indexView.count);
+                } else if (prim.indexView.stride === 1) {
+                    srcIBView = new Uint8Array(this._data!.buffer, srcOffset, prim.indexView.count);
+                } else { // Uint32
+                    srcIBView = new Uint32Array(this._data!.buffer, srcOffset, prim.indexView.count);
+                }
+
+                if (idxStride === prim.indexView.stride) {
+                    ibView.set(srcIBView);
+                } else {
+                    for (let n = 0; n < prim.indexView.count; ++n) {
+                        ibView[n] = srcIBView[n];
+                    }
+                }
+                srcOffset += prim.indexView.length;
+
+                // merge dst indices
+                if (dstPrim.indexView.stride === 2) {
+                    dstIBView = new Uint16Array(mesh._data!.buffer, dstOffset, dstPrim.indexView.count);
+                } else if (dstPrim.indexView.stride === 1) {
+                    dstIBView = new Uint8Array(mesh._data!.buffer, dstOffset, dstPrim.indexView.count);
+                } else { // Uint32
+                    dstIBView = new Uint32Array(mesh._data!.buffer, dstOffset, dstPrim.indexView.count);
+                }
+                for (let n = 0; n < dstPrim.indexView.count; ++n) {
+                    ibView[prim.indexView.count + n] = vertBatchCount + dstIBView[n];
+                }
+                dstOffset += dstPrim.indexView.length;
+
+                primitives[i].indexView = {
+                    offset: bufferBlob.getLength(),
+                    length: ib.byteLength,
+                    count: idxCount,
+                    stride: idxStride,
+                };
+
+                bufferBlob.setNextAlignment(idxStride);
+                bufferBlob.addBuffer(ib);
+            }
+
+            if (prim.geometricInfo && dstPrim.geometricInfo) {
+                const geomBuffSize = prim.geometricInfo.view.length + dstPrim.geometricInfo.view.length;
+                const geomBuff = new ArrayBuffer(geomBuffSize);
+                const geomBuffView = new Uint8Array(geomBuff);
+                const srcView = new Uint8Array(this._data!.buffer, prim.geometricInfo.view.offset, prim.geometricInfo.view.length);
+                const dstView = new Uint8Array(mesh._data!.buffer, dstPrim.geometricInfo.view.offset, dstPrim.geometricInfo.view.length);
+                geomBuffView.set(srcView);
+                geomBuffView.set(dstView, srcView.length);
+
+                bufferBlob.setNextAlignment(4);
+                primitives[i].geometricInfo = {
+                    doubleSided: prim.geometricInfo.doubleSided,
+                    view: {
+                        offset: bufferBlob.getLength(),
+                        length: geomBuffView.length,
+                        count: prim.geometricInfo.view.count,
+                        stride: prim.geometricInfo.view.stride,
+                    },
+                };
+                bufferBlob.addBuffer(geomBuff);
             }
         }
 
-        // merget bounding box
-        if (this._struct.maxPosition && mesh._struct.maxPosition) {
-            this._struct.maxPosition.x = Math.max(this._struct.maxPosition.x, mesh._struct.maxPosition.x);
-            this._struct.maxPosition.y = Math.max(this._struct.maxPosition.y, mesh._struct.maxPosition.y);
-            this._struct.maxPosition.z = Math.max(this._struct.maxPosition.z, mesh._struct.maxPosition.z);
+        // Create mesh struct.
+        const meshStruct: IMeshStruct = {
+            vertexBundles,
+            primitives,
+            minPosition: this._struct.minPosition,
+            maxPosition: this._struct.maxPosition,
+        };
+
+        if (meshStruct.minPosition && mesh._struct.minPosition) {
+            meshStruct.minPosition.x = Math.min(meshStruct.minPosition.x, mesh._struct.minPosition.x);
+            meshStruct.minPosition.y = Math.min(meshStruct.minPosition.y, mesh._struct.minPosition.y);
+            meshStruct.minPosition.z = Math.min(meshStruct.minPosition.z, mesh._struct.minPosition.z);
         }
-        if (this._struct.minPosition && mesh._struct.minPosition) {
-            this._struct.minPosition.x = Math.min(this._struct.minPosition.x, mesh._struct.minPosition.x);
-            this._struct.minPosition.y = Math.min(this._struct.minPosition.y, mesh._struct.minPosition.y);
-            this._struct.minPosition.z = Math.min(this._struct.minPosition.z, mesh._struct.minPosition.z);
+        if (meshStruct.maxPosition && mesh._struct.maxPosition) {
+            meshStruct.maxPosition.x = Math.max(meshStruct.maxPosition.x, mesh._struct.maxPosition.x);
+            meshStruct.maxPosition.y = Math.max(meshStruct.maxPosition.y, mesh._struct.maxPosition.y);
+            meshStruct.maxPosition.z = Math.max(meshStruct.maxPosition.z, mesh._struct.maxPosition.z);
         }
+
+        // Create mesh.
+        this.assign(meshStruct, new Uint8Array(bufferBlob.getCombined()));
+        this._init ();
 
         return true;
     }
@@ -376,8 +483,13 @@ export class Mesh extends Asset {
             if (prim.primitiveMode !== dstPrim.primitiveMode) {
                 return false;
             }
-            if (prim.indices && dstPrim.indices) {
-                if (prim.indices.indexUnit !== dstPrim.indices.indexUnit) {
+
+            if (prim.indexView) {
+                if (dstPrim.indexView === undefined) {
+                    return false;
+                }
+            } else {
+                if (dstPrim.indexView) {
                     return false;
                 }
             }
@@ -386,7 +498,7 @@ export class Mesh extends Asset {
         return true;
     }
 
-    private _deferredInit () {
+    private _init () {
         if (this._initialized) {
             return;
         }
@@ -410,19 +522,18 @@ export class Mesh extends Asset {
 
             let indexBuffer: GFXBuffer | null = null;
             let ib: any = null;
-            if (prim.indices) {
-                const indices = prim.indices;
+            if (prim.indexView) {
+                const idxView = prim.indexView;
 
                 indexBuffer = gfxDevice.createBuffer({
                     usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
                     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                    size: indices.range.length,
-                    stride: getIndexUnitStride(indices.indexUnit),
+                    size: idxView.length,
+                    stride: idxView.stride,
                 });
                 indexBuffers.push(indexBuffer);
 
-                ib = new (getIndexUnitCtor(indices.indexUnit))(buffer, indices.range.offset,
-                    indices.range.length / getIndexUnitStride(indices.indexUnit));
+                ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
                 indexBuffer.update(ib);
             }
 
@@ -435,19 +546,20 @@ export class Mesh extends Asset {
                 gfxAttributes = vertexBundle.attributes;
             }
 
-            const geomInfo: any = prim.geometricInfo;
-            if (geomInfo) {
-                geomInfo.indices = ib;
-                geomInfo.positions = new Float32Array(buffer, geomInfo.range.offset, geomInfo.range.length / 4);
-            }
-
             const subMesh: IRenderingSubmesh = {
                 primitiveMode: prim.primitiveMode,
                 vertexBuffers: vbReference,
                 indexBuffer,
                 attributes: gfxAttributes,
-                geometricInfo: geomInfo,
             };
+
+            if (prim.geometricInfo) {
+                const info = prim.geometricInfo;
+                subMesh.geometricInfo = {
+                    indices: ib,
+                    positions: new Float32Array(buffer, info.view.offset, info.view.length / 4),
+                };
+            }
 
             submeshes.push(subMesh);
         }
@@ -460,10 +572,10 @@ export class Mesh extends Asset {
             const vertexBuffer = gfxDevice.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: vertexBundle.data.length,
-                stride: vertexBundle.data.length / vertexBundle.verticesCount,
+                size: vertexBundle.view.length,
+                stride: vertexBundle.view.stride,
             });
-            vertexBuffer.update(new Uint8Array(data, vertexBundle.data.offset, vertexBundle.data.length));
+            vertexBuffer.update(new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length));
             return vertexBuffer;
         });
     }

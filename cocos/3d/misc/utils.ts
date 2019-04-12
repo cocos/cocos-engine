@@ -1,9 +1,10 @@
-import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode } from '../../gfx/define';
+import { GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
 import { Vec3 } from '../../core/value-types';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { IMeshStruct, IndexUnit, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';
+import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';
 import { IGeometry } from '../primitive/define';
+import { BufferBlob } from './buffer-blob';
 
 /**
  * save a color buffer to a PPM file
@@ -24,7 +25,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
     const attributes: IGFXAttribute[] = [];
     let stride = 0;
     const channels: Array<{ offset: number; data: number[]; attribute: IGFXAttribute; }> = [];
-    let verticesCount = 0;
+    let vertCount = 0;
 
     let attr: IGFXAttribute | null;
 
@@ -45,7 +46,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
 
         const info = GFXFormatInfos[attr.format];
         attributes.push(attr);
-        verticesCount = Math.max(verticesCount, Math.floor(geometry.positions.length / info.count));
+        vertCount = Math.max(vertCount, Math.floor(geometry.positions.length / info.count));
         channels.push({ offset: stride, data: geometry.positions, attribute: attr });
         stride += info.size;
     }
@@ -67,7 +68,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
 
         const info = GFXFormatInfos[attr.format];
         attributes.push(attr);
-        verticesCount = Math.max(verticesCount, Math.floor(geometry.normals.length / info.count));
+        vertCount = Math.max(vertCount, Math.floor(geometry.normals.length / info.count));
         channels.push({ offset: stride, data: geometry.normals, attribute: attr });
         stride += info.size;
     }
@@ -89,7 +90,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
 
         const info = GFXFormatInfos[attr.format];
         attributes.push(attr);
-        verticesCount = Math.max(verticesCount, Math.floor(geometry.uvs.length / info.count));
+        vertCount = Math.max(vertCount, Math.floor(geometry.uvs.length / info.count));
         channels.push({ offset: stride, data: geometry.uvs, attribute: attr });
         stride += info.size;
     }
@@ -111,7 +112,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
 
         const info = GFXFormatInfos[attr.format];
         attributes.push(attr);
-        verticesCount = Math.max(verticesCount, Math.floor(geometry.colors.length / info.count));
+        vertCount = Math.max(vertCount, Math.floor(geometry.colors.length / info.count));
         channels.push({ offset: stride, data: geometry.colors, attribute: attr });
         stride += info.size;
     }
@@ -120,33 +121,35 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
     const bufferBlob = new BufferBlob();
 
     // Fill vertex buffer.
-    const vertexBuffer = new ArrayBuffer(verticesCount * stride);
+    const vertexBuffer = new ArrayBuffer(vertCount * stride);
     const vertexBufferView = new DataView(vertexBuffer);
     for (const channel of channels) {
         _writeVertices(vertexBufferView, channel.offset, stride, channel.attribute.format, channel.data);
     }
     bufferBlob.setNextAlignment(0);
     const vertexBundle: IVertexBundle = {
-        verticesCount,
         attributes,
-        data: {
+        view: {
             offset: bufferBlob.getLength(),
             length: vertexBuffer.byteLength,
+            count: vertCount,
+            stride,
         },
     };
     bufferBlob.addBuffer(vertexBuffer);
 
     // Fill index buffer.
     let indexBuffer: ArrayBuffer | null = null;
-    const targetIndexUnit = IndexUnit.UINT16;
-    const indexUnitBytesLength = 2;
+    let idxCount = 0;
+    const idxStride = 2;
     if (geometry.indices) {
         const { indices } = geometry;
-        indexBuffer = new ArrayBuffer(indexUnitBytesLength * indices.length);
+        idxCount = indices.length;
+        indexBuffer = new ArrayBuffer(idxStride * idxCount);
         const indexBufferView = new DataView(indexBuffer);
-        const writer = _getIndicesWriter(indexBufferView, targetIndexUnit);
-        for (let i = 0; i < indices.length; ++i) {
-            writer(indexUnitBytesLength * i, indices[i]);
+        const writer = _getIndicesWriter(indexBufferView, idxStride);
+        for (let i = 0; i < idxCount; ++i) {
+            writer(idxStride * i, indices[i]);
         }
     }
 
@@ -161,19 +164,23 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
         bufferBlob.setNextAlignment(4);
         primitive.geometricInfo = {
             doubleSided: geometry.doubleSided,
-            range: { offset: bufferBlob.getLength(), length: geomInfo.byteLength },
+            view: {
+                offset: bufferBlob.getLength(),
+                length: geomInfo.byteLength,
+                count: geometry.positions.length / 4,
+                stride: 4,
+            },
         };
         bufferBlob.addBuffer(geomInfo.buffer);
     }
 
     if (indexBuffer) {
-        bufferBlob.setNextAlignment(indexUnitBytesLength);
-        primitive.indices = {
-            indexUnit: targetIndexUnit,
-            range: {
-                offset: bufferBlob.getLength(),
-                length: indexBuffer.byteLength,
-            },
+        bufferBlob.setNextAlignment(idxStride);
+        primitive.indexView = {
+            offset: bufferBlob.getLength(),
+            length: indexBuffer.byteLength,
+            count: idxCount,
+            stride: idxStride,
         };
         bufferBlob.addBuffer(indexBuffer);
     }
@@ -191,47 +198,6 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
     out.assign(meshStruct, new Uint8Array(bufferBlob.getCombined()));
 
     return out;
-}
-
-class BufferBlob {
-    private _arrayBufferOrPaddings: Array<ArrayBuffer | number> = [];
-    private _length = 0;
-
-    public setNextAlignment (align: number) {
-        if (align !== 0) {
-            const remainder = this._length % align;
-            if (remainder !== 0) {
-                const padding = align - remainder;
-                this._arrayBufferOrPaddings.push(padding);
-                this._length += padding;
-            }
-        }
-    }
-
-    public addBuffer (arrayBuffer: ArrayBuffer) {
-        const result = this._length;
-        this._arrayBufferOrPaddings.push(arrayBuffer);
-        this._length += arrayBuffer.byteLength;
-        return result;
-    }
-
-    public getLength () {
-        return this._length;
-    }
-
-    public getCombined () {
-        const result = new Uint8Array(this._length);
-        let counter = 0;
-        this._arrayBufferOrPaddings.forEach((arrayBufferOrPadding) => {
-            if (typeof arrayBufferOrPadding === 'number') {
-                counter += arrayBufferOrPadding;
-            } else {
-                result.set(new Uint8Array(arrayBufferOrPadding), counter);
-                counter += arrayBufferOrPadding.byteLength;
-            }
-        });
-        return result.buffer;
-    }
 }
 
 function _writeVertices (
@@ -298,13 +264,13 @@ function _getVerticesWriter (dataView: DataView, format: GFXFormat) {
     return (offset: number, value: number) => dataView.setUint8(offset, value);
 }
 
-function _getIndicesWriter (dataView: DataView, indexUnit: IndexUnit) {
-    switch (indexUnit) {
-        case IndexUnit.UINT8:
+function _getIndicesWriter (dataView: DataView, idxStride: number) {
+    switch (idxStride) {
+        case 1:
             return (offset: number, value: number) => dataView.setUint8(offset, value);
-        case IndexUnit.UINT16:
+        case 2:
             return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
-        case IndexUnit.UINT32:
+        case 4:
             return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
     }
     return (offset: number, value: number) => dataView.setUint8(offset, value);

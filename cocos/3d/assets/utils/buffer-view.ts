@@ -23,7 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export interface IBufferRange {
+export interface IBufferView {
     offset: number;
     length: number;
+    count: number;
+    stride: number;
 }
