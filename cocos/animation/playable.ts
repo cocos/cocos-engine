@@ -89,6 +89,10 @@ export class Playable {
         }
     }
 
+    public update (deltaTime: number) {
+
+    }
+
     protected onPlay () {
 
     }

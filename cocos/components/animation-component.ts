@@ -1,5 +1,6 @@
 
 import { AnimationAnimator, AnimationClip, AnimationState } from '../animation';
+import { CrossFade } from '../animation/cross-fade';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
 import { EventTargetFactory, IEventTargetCallback } from '../core/event/event-target-factory';
 import { warnID } from '../core/platform/CCDebug';
@@ -136,6 +137,11 @@ export class AnimationComponent extends EventTargetFactory(Component) {
     get clips () {
         return this._clips;
     }
+
+    set clips (value) {
+        this._clips = value;
+    }
+
     public static EventType = EventType;
 
     /**
@@ -147,7 +153,8 @@ export class AnimationComponent extends EventTargetFactory(Component) {
     private _preview = false;
 
     private _animator: AnimationAnimator | null = null;
-    private _nameToState = createMap(true);
+    private _crossFade: CrossFade | null = null;
+    private _nameToState: Partial<{ [name: string]: AnimationState; }> = createMap(true);
     private _didInit = false;
     private _currentClip: AnimationClip | null = null;
 
@@ -165,12 +172,19 @@ export class AnimationComponent extends EventTargetFactory(Component) {
         super();
     }
 
+    public update (deltaTime: number) {
+        if (this._animator) {
+            this._animator.update(deltaTime);
+        }
+    }
+
     public start () {
         if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
             const isPlaying = this._animator && this._animator.isPlaying;
             if (!isPlaying) {
                 const state = this.getAnimationState(this._defaultClip.name);
-                this._animator!.playState(state);
+                // this._animator!.playState(state);
+                this._crossFade.crossFade(state, 0);
             }
         }
     }
@@ -213,6 +227,12 @@ export class AnimationComponent extends EventTargetFactory(Component) {
     public play (name?: string, startTime?: number) {
         const state = this.playAdditive(name, startTime);
         this._animator!.stopStatesExcept(state);
+        return state;
+    }
+
+    public crossFade (name: string, duration = 0.3) {
+        const state = this.getAnimationState(name || (this._defaultClip && this._defaultClip.name) || '');
+        this._crossFade.crossFade(state, duration);
         return state;
     }
 
@@ -550,7 +570,7 @@ export class AnimationComponent extends EventTargetFactory(Component) {
         if (type === 'lastframe') {
             const nameToState = this._nameToState;
             for (const name of Object.keys(nameToState)) {
-                const state = nameToState[name];
+                const state = nameToState[name]!;
                 state._lastframeEventOn = false;
             }
         }
@@ -572,6 +592,8 @@ export class AnimationComponent extends EventTargetFactory(Component) {
         this._didInit = true;
         this._animator = new AnimationAnimator(this.node, this);
         this._createStates();
+        this._crossFade = new CrossFade(this.node);
+        cc.director.getAnimationManager().addCrossFade(this._crossFade);
     }
 
     private _createStates () {

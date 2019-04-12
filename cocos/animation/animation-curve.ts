@@ -4,6 +4,8 @@ import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-s
 import { errorID } from '../core/platform/CCDebug';
 import { quat } from '../core/value-types/quat';
 import { v3 } from '../core/value-types/vec3';
+import { PropertyBlendState } from './animation-blend-state';
+import { AnimationState } from './animation-state';
 import { bezierByTime } from './bezier';
 // import { easing } from './easing';
 import * as easing from './easing';
@@ -22,7 +24,7 @@ export class AnimCurve {
      * @param ratio The normalized time specified as a number between 0.0 and 1.0 inclusive.
      * @param state
      */
-    public sample (time: number, ratio: number, state) {
+    public sample (time: number, ratio: number, state: AnimationState) {
 
     }
 }
@@ -33,7 +35,13 @@ export interface ICurveTarget {
     [x: string]: any;
 }
 
-export type LerpFunction = (from: CurveValue, to: CurveValue, t: number) => CurveValue;
+export type LerpFunction<T = any> = (from: T, to: T, t: number) => T;
+
+/**
+ * If propertyBlendState.weight equals to zero, the propertyBlendState.value is dirty.
+ * You shall handle this situation correctly.
+ */
+export type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendState) => T;
 
 export type FrameFinder = (framevalues: number[], value: number) => number;
 
@@ -51,22 +59,6 @@ export class DynamicAnimCurve extends AnimCurve {
 
     public static Bezier (controlPoints: number[]) {
         return controlPoints as BezierType;
-    }
-
-    public static _lerpNumber (from: number, to: number, t: number) {
-        return from + (to - from) * t;
-    }
-
-    public static _lerpObject (from: ValueType, to: ValueType, t: number) {
-        return from.lerp(to, t);
-    }
-
-    public static _lerpQuat (from: Quat, to: Quat, t: number) {
-        return from.lerp(to, t, _lerpQuatResult);
-    }
-
-    public static _lerpVector (from: Vec3, to: Vec3, t: number) {
-        return from.lerp(to, t, _lerpVec3Result);
     }
 
     /**
@@ -103,7 +95,9 @@ export class DynamicAnimCurve extends AnimCurve {
 
     public _findFrameIndex: FrameFinder = binarySearch;
 
-    public sample (time: number, ratio: number, state) {
+    public _blendFunction: BlendFunction<any> | undefined = undefined;
+
+    public sample (time: number, ratio: number, state: AnimationState) {
         const values = this.values;
         const ratios = this.ratios;
         const frameCount = ratios.length;
@@ -142,13 +136,16 @@ export class DynamicAnimCurve extends AnimCurve {
         }
 
         if (this.target) {
-            this.target[this.prop] = value;
+            if (!this._blendFunction || !state.blendState) {
+                this.target[this.prop] = value;
+            } else {
+                const propertyBlendState = state.blendState.getPropertyState(this.target, this.prop);
+                propertyBlendState.value = this._blendFunction(value, state.weight, propertyBlendState);
+                propertyBlendState.weight += state.weight;
+            }
         }
     }
 }
-
-const _lerpQuatResult = quat();
-const _lerpVec3Result = v3();
 
 export class EventInfo {
     public events: any[] = [];
@@ -185,7 +182,7 @@ export class EventAnimCurve extends AnimCurve {
     @property
     private _ignoreIndex: number = NaN;
 
-    public sample (time: number, ratio: number, state) {
+    public sample (time: number, ratio: number, state: AnimationState) {
         const length = this.ratios.length;
 
         const currentWrappedInfo = state.getWrappedInfo(state.time, this._wrappedInfo);

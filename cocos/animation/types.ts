@@ -89,3 +89,11 @@ export class WrappedInfo {
         this.frameIndex = info.frameIndex;
     }
 }
+
+export interface ILerpable {
+    lerp (to: this, t: number): this;
+}
+
+export function isLerpable (object: any): object is ILerpable {
+    return object.lerp;
+}

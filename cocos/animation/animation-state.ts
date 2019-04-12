@@ -1,7 +1,9 @@
+import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { Node } from '../scene-graph';
 import { AnimationAnimator } from './animation-animator';
+import { AnimationBlendState } from './animation-blend-state';
 import { AnimationClip } from './animation-clip';
-import { AnimCurve } from './animation-curve';
+import { AnimCurve, EventAnimCurve, EventInfo } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 
@@ -147,22 +149,18 @@ export class AnimationState extends Playable {
      * @default 0
      */
     public time = 0;
+
+    /**
+     * The weight.
+     */
+    public weight = 0;
+
+    public frameRate = 0;
+
     public _lastframeEventOn = false;
 
     private _wrapMode = WrapMode.Normal;
 
-    /**
-     * !#en The animation's iteration count property.
-     *
-     * A real number greater than or equal to zero (including positive infinity) representing the number of times
-     * to repeat the animation node.
-     *
-     * Values less than zero and NaN values are treated as the value 1.0 for the purpose of timing model
-     * calculations.
-     *
-     * !#zh 迭代次数，指动画播放多少次后结束, normalize time。 如 2.5（2次半）
-     * @default 1
-     */
     private _repeatCount = 1;
 
     /**
@@ -179,11 +177,70 @@ export class AnimationState extends Playable {
     private _clip: AnimationClip;
     private _name: string;
     private _lastIterations?: number;
+    private _blendState: AnimationBlendState | null = null;
 
     constructor (clip: AnimationClip, name?: string) {
         super();
         this._clip = clip;
         this._name = name || (clip && clip.name);
+    }
+
+    get blendState () {
+        return this._blendState;
+    }
+
+    set blendState (blendState: AnimationBlendState | null) {
+        this._blendState = blendState;
+    }
+
+    public initialize (root: Node) {
+        const clip = this._clip;
+
+        this.duration = clip.duration;
+        this.speed = clip.speed;
+        this.wrapMode = clip.wrapMode;
+        this.frameRate = clip.sample;
+
+        if ((this.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
+            this.repeatCount = Infinity;
+        }
+        else {
+            this.repeatCount = 1;
+        }
+
+        const curves: EventAnimCurve[] = this.curves = clip.createCurves(this, root);
+
+        // events curve
+
+        const events = clip.events;
+
+        if (!CC_EDITOR && events) {
+            let curve: EventAnimCurve | undefined;
+
+            for (let i = 0, l = events.length; i < l; i++) {
+                if (!curve) {
+                    curve = new EventAnimCurve();
+                    curve.target = root;
+                    curves.push(curve);
+                }
+
+                const eventData = events[i];
+                const ratio = eventData.frame / this.duration;
+
+                let eventInfo;
+                const index = binarySearch(curve.ratios, ratio);
+                if (index >= 0) {
+                    eventInfo = curve.events[index];
+                }
+                else {
+                    eventInfo = new EventInfo();
+                    curve.ratios.push(ratio);
+                    curve.events.push(eventInfo);
+                }
+
+                eventInfo.add(eventData.func, eventData.params);
+            }
+        }
     }
 
     public _emit (type, state) {
