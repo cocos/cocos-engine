@@ -1,15 +1,16 @@
 
 import { Material } from '../../3d/assets/material';
+import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
 import { Color } from '../../core/value-types';
 
-export class IRenderData {
-    public x: number = 0;
-    public y: number = 0;
-    public z: number = 0;
-    public u: number = 0;
-    public v: number = 0;
-    public color: Color = Color.WHITE;
+export interface IRenderData {
+    x: number;
+    y: number;
+    z: number;
+    u: number;
+    v: number;
+    color: Color;
 }
 
 export class BaseRenderData {
@@ -30,13 +31,15 @@ export class RenderData extends BaseRenderData {
             // // Free extra data
             const value = data.length;
             let i = 0;
+            for (i = length; i < value; i++) {
+                _dataPool.free(data[i]);
+            }
+
             for (i = value; i < length; i++) {
-                data[i] = _dataPool.add();
+                data[i] = _dataPool.alloc();
             }
-            for (i = value; i > length; i--) {
-                _dataPool.removeAt(i);
-                data.splice(i, 1);
-            }
+
+            data.length = length;
         }
     }
 
@@ -149,10 +152,17 @@ export class IARenderData extends BaseRenderData {
     }
 }
 
-const _dataPool = new RecyclePool(() => {
-    return new IRenderData();
+const _dataPool = new Pool(() => {
+    return {
+        x: 0,
+        y: 0,
+        z: 0,
+        u: 0,
+        v: 0,
+        color: Color.WHITE,
+    } as IRenderData;
 }, 128);
 
-const _pool = new RecyclePool( () => {
+const _pool = new RecyclePool(() => {
     return new RenderData();
 }, 32);

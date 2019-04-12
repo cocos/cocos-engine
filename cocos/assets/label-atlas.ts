@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { ccclass } from '../core/data/class-decorator';
+import { BitmapFont } from './bitmap-font';
 /**
  * @module cc
  */
@@ -34,10 +36,8 @@
  * @extends BitmapFont
  *
  */
-var LabelAtlas = cc.Class({
-    name: 'cc.LabelAtlas',
-    extends: cc.BitmapFont
-});
+@ccclass('cc.LabelAtlas')
+export class LabelAtlas extends BitmapFont{
+}
 
 cc.LabelAtlas = LabelAtlas;
-module.exports = LabelAtlas;

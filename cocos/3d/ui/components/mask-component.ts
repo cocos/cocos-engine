@@ -24,9 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 import { SpriteFrame } from '../../../assets/CCSpriteFrame';
-import { Mat4, Vec2, Vec3 } from '../../../core';
 import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
 import { EventType } from '../../../core/platform/event-manager/event-enum';
+import { Mat4, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import * as vmath from '../../../core/vmath';
 import { UI } from '../../../renderer/ui/ui';

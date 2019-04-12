@@ -73,8 +73,24 @@ export class UI {
     get currBufferBatch () {
         return this._currMeshBuffer;
     }
+
+    get debugScreen (){
+        return this._debugScreen;
+    }
+
+    set debugScreen (value){
+        this._debugScreen = value;
+        if (this._debugScreen){
+            const screen = this.getScreen(this._debugScreen.visibility);
+            if (screen) {
+                this.removeScreen(screen.visibility);
+            }
+        }
+    }
+
     public device: GFXDevice;
     private _screens: CanvasComponent[] = [];
+    private _debugScreen: CanvasComponent | null = null;
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => {
         return new MeshBuffer(this);
     }, 128);
@@ -400,20 +416,28 @@ export class UI {
                 continue;
             }
 
-            this._walk(screen.node, (c: Node) => {
-                const render = c.getComponent(UIComponent);
-                if (render && render.enabledInHierarchy) {
-                    render.updateAssembler(this);
-                }
-            }, (c: Node) => {
-                const render = c.getComponent(UIComponent);
-                if (render && render.enabledInHierarchy) {
-                    render.postUpdateAssembler(this);
-                }
-            });
-
+            this._recursiveScreenNode(screen.node);
             this.autoMergeBatches();
         }
+
+        if (!CC_EDITOR && this._debugScreen && this._debugScreen.enabledInHierarchy) {
+            this._recursiveScreenNode(this._debugScreen.node);
+            this.autoMergeBatches();
+        }
+    }
+
+    private _recursiveScreenNode (screen: Node) {
+        this._walk(screen, (c: Node) => {
+            const render = c.getComponent(UIComponent);
+            if (render && render.enabledInHierarchy) {
+                render.updateAssembler(this);
+            }
+        }, (c: Node) => {
+            const render = c.getComponent(UIComponent);
+            if (render && render.enabledInHierarchy) {
+                render.postUpdateAssembler(this);
+            }
+        });
     }
 
     private _reset () {

@@ -31,6 +31,7 @@ import * as js from './js';
  * !#zh 用于处理文件与目录的路径的模块
  */
 import * as path from './path';
+export * from './profiler/profiler';
 
 export * from './prefab-helper';
 export {

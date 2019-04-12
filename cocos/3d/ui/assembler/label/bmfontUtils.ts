@@ -273,7 +273,7 @@ export const bmfontUtils = {
         }
     },
 
-    _multilineTextWrap (nextTokenFunc) {
+    _multilineTextWrap (nextTokenFunc: Function) {
         const textLen = _string.length;
 
         let lineIndex = 0;
