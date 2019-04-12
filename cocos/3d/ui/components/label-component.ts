@@ -31,11 +31,9 @@ import { ImageAsset } from '../../../assets/image-asset';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
-import { Material } from '../../assets';
-import { RenderableComponent } from '../../framework/renderable-component';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { ISharedLabelData } from '../assembler/label/ttfUtils';
-import { UIRenderComponent } from './ui-render-component';
+import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';
 
 /**
  * !#en Enum for vertical text alignment.
@@ -627,24 +625,6 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         return true;
-    }
-
-    protected _instanceMaterial () {
-        let mat: Material | null = null;
-        if (this._sharedMaterial) {
-            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
-        } else {
-            if (UIRenderComponent.addTextureMat) {
-                mat = new Material();
-                mat.copy(UIRenderComponent.addTextureMat);
-            } else {
-                mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
-                mat.initialize({ defines: { USE_TEXTURE: true } });
-                UIRenderComponent.addColorMat = mat;
-            }
-        }
-
-        this._updateMaterial(mat);
     }
 
     protected _flushAssembler () {

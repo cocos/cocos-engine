@@ -139,9 +139,9 @@ export class StencilManager {
             }
         }
 
-        const state = this._stencilPattern;
         const pass = mat.passes[0];
         if (this._changed(pass)){
+            const state = this._stencilPattern;
             this._defaultPipelineState.depthStencilState = {
                 stencilTestFront: state.stencilTest,
                 stencilFuncFront: state.func,
