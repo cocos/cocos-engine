@@ -1,7 +1,9 @@
 import { AnimationComponent } from '../components/animation-component';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
+import { errorID } from '../core/platform/CCDebug';
 import { MutableForwardIterator } from '../core/utils/array';
 import { Node } from '../scene-graph';
+import { AnimationBlendState } from './animation-blend-state';
 import { EventAnimCurve, EventInfo } from './animation-curve';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';
@@ -23,7 +25,7 @@ export class AnimationAnimator extends Playable {
         }
 
         if (!state.curveLoaded) {
-            initClipData(this.target, state);
+            state.initialize(this.target);
         }
 
         state.animator = this;
@@ -49,7 +51,7 @@ export class AnimationAnimator extends Playable {
         }
     }
 
-    public addAnimation (anim) {
+    public addAnimation (anim: AnimationState) {
         const index = this._anims.array.indexOf(anim);
         if (index === -1) {
             this._anims.push(anim);
@@ -58,7 +60,7 @@ export class AnimationAnimator extends Playable {
         anim._setEventTarget(this.animation);
     }
 
-    public removeAnimation (anim) {
+    public removeAnimation (anim: AnimationState) {
         const index = this._anims.array.indexOf(anim);
         if (index >= 0) {
             this._anims.fastRemoveAt(index);
@@ -68,7 +70,7 @@ export class AnimationAnimator extends Playable {
             }
         }
         else {
-            cc.errorID(3908);
+            errorID(3908);
         }
 
         anim.animator = null;
@@ -83,19 +85,19 @@ export class AnimationAnimator extends Playable {
         }
     }
 
-    public stopState (state: AnimationState) {
+    public stopState (state?: AnimationState) {
         if (state) {
             state.stop();
         }
     }
 
-    public pauseState (state: AnimationState) {
+    public pauseState (state?: AnimationState) {
         if (state) {
             state.pause();
         }
     }
 
-    public resumeState (state: AnimationState) {
+    public resumeState (state?: AnimationState) {
         if (state) {
             state.resume();
         }
@@ -149,7 +151,7 @@ export class AnimationAnimator extends Playable {
     }
 
     public _reloadClip (state: AnimationState) {
-        initClipData(this.target, state);
+        state.initialize(this.target);
     }
 }
 
@@ -175,54 +177,4 @@ function createBatchedProperty (propPath, firstDotIndex, mainValue, animValue) {
 
 if (CC_TEST) {
     cc._Test.createBatchedProperty = createBatchedProperty;
-}
-
-function initClipData (root, state) {
-    const clip = state.clip;
-
-    state.duration = clip.duration;
-    state.speed = clip.speed;
-    state.wrapMode = clip.wrapMode;
-    state.frameRate = clip.sample;
-
-    if ((state.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
-        state.repeatCount = Infinity;
-    }
-    else {
-        state.repeatCount = 1;
-    }
-
-    const curves = state.curves = clip.createCurves(state, root);
-
-    // events curve
-
-    const events = clip.events;
-
-    if (!CC_EDITOR && events) {
-        let curve;
-
-        for (let i = 0, l = events.length; i < l; i++) {
-            if (!curve) {
-                curve = new EventAnimCurve();
-                curve.target = root;
-                curves.push(curve);
-            }
-
-            const eventData = events[i];
-            const ratio = eventData.frame / state.duration;
-
-            let eventInfo;
-            const index = binarySearch(curve.ratios, ratio);
-            if (index >= 0) {
-                eventInfo = curve.events[index];
-            }
-            else {
-                eventInfo = new EventInfo();
-                curve.ratios.push(ratio);
-                curve.events.push(eventInfo);
-            }
-
-            eventInfo.add(eventData.func, eventData.params);
-        }
-    }
 }

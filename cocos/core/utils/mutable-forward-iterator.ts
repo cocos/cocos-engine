@@ -38,7 +38,6 @@ export default class MutableForwardIterator<T> {
     public i = 0;
 
     constructor (public array: T[]) {
-        this.array = array;
     }
 
     get length () {

@@ -70,6 +70,15 @@ export function fastRemove<T> (array: T[], value: T) {
     }
 }
 
+export function removeIf<T> (array: T[], predicate: (value: T) => boolean) {
+    const index = array.findIndex(predicate);
+    if (index >= 0) {
+        const value = array[index];
+        removeAt(array, index);
+        return value;
+    }
+}
+
 /**
  * Verify array's Type.
  */

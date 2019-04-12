@@ -1,5 +1,6 @@
 import { Vec2 } from '../core';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
+import { errorID } from '../core/platform/CCDebug';
 import { computeRatioByType, CurveType, CurveValue, DynamicAnimCurve, ICurveTarget } from './animation-curve';
 import { bezier } from './bezier';
 
@@ -257,7 +258,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
     for (let i = 0; i < motionPaths.length; i++) {
         let motionPath = motionPaths[i];
         if (motionPath && !checkMotionPath(motionPath)) {
-            cc.errorID(3904, target ? target.name : '', 'position', i);
+            errorID(3904, target ? target.name : '', 'position', i);
             motionPath = undefined;
         }
         if (motionPath && motionPath.length > 0) {

@@ -1,12 +1,16 @@
 import { Asset, SpriteFrame } from '../assets';
+import { Vec2 } from '../core';
 import { ccclass, property } from '../core/data/class-decorator';
-import Quat, { quat } from '../core/value-types/quat';
+import { errorID } from '../core/platform/CCDebug';
+import Quat from '../core/value-types/quat';
 import Vec3, { v3 } from '../core/value-types/vec3';
-import { lerp } from '../core/vmath';
+import { lerp, quat, vec3 } from '../core/vmath';
 import { find, Node } from '../scene-graph';
+import { PropertyBlendState } from './animation-blend-state';
 import { CurveValue, DynamicAnimCurve, EasingMethodName, ICurveTarget, LerpFunction, quickFindIndex } from './animation-curve';
+import * as blending from './blending';
 import { MotionPath, sampleMotionPaths } from './motion-path-helper';
-import { WrapMode } from './types';
+import { ILerpable, isLerpable, WrapMode } from './types';
 
 interface IAnimationEvent {
     frame: number;
@@ -21,26 +25,25 @@ interface IKeyframe {
     motionPath?: MotionPath;
 }
 
+interface IPropertyCurveDataDetail {
+    keyframes: IKeyframe[];
+    blending: keyof(typeof blending) | null;
+}
+
+type PropertyCurveData = IKeyframe[] | IPropertyCurveDataDetail;
+
 interface ICurveData {
     props?: {
-        [propertyName: string]: IKeyframe[];
+        [propertyName: string]: PropertyCurveData;
     };
     comps?: {
         [componentName: string]: {
-            [propertyName: string]: IKeyframe[];
+            [propertyName: string]: PropertyCurveData;
         };
     };
     paths?: {
         [path: string]: ICurveData;
     };
-}
-
-interface ILerpable {
-    lerp (to: this, t: number): this;
-}
-
-function isLerpable (object: any): object is ILerpable {
-    return object.lerp;
 }
 
 @ccclass('cc.AnimationClip')
@@ -63,7 +66,7 @@ export class AnimationClip extends Asset {
      */
     public static createWithSpriteFrames (spriteFrames: SpriteFrame[], sample: number) {
         if (!Array.isArray(spriteFrames)) {
-            cc.errorID(3905);
+            errorID(3905);
             return null;
         }
 
@@ -142,9 +145,9 @@ export class AnimationClip extends Asset {
         this.frameRate = this.sample;
     }
 
-    public createPropCurve (target: ICurveTarget, propPath: string, keyframes: IKeyframe[]) {
+    public createPropCurve (target: ICurveTarget, propPath: string, propertyCurveData: PropertyCurveData) {
         const motionPaths: Array<(MotionPath | undefined)> = [];
-        const isMotionPathProp = target instanceof cc.Node && propPath === 'position';
+        const isMotionPathProp = target instanceof Node && propPath === 'position';
 
         const curve = new DynamicAnimCurve();
 
@@ -153,6 +156,7 @@ export class AnimationClip extends Asset {
         curve.prop = propPath;
 
         // For each keyframe.
+        const keyframes = Array.isArray(propertyCurveData) ? propertyCurveData : propertyCurveData.keyframes;
         for (const keyframe of keyframes) {
             const ratio = keyframe.frame / this.duration;
             curve.ratios.push(ratio);
@@ -212,13 +216,19 @@ export class AnimationClip extends Asset {
         if (!curve._lerp && firstValue !== undefined) {
             if (typeof firstValue === 'number') {
                 curve._lerp = lerpNumber;
-            } else if (firstValue instanceof cc.Quat) {
+            } else if (firstValue instanceof Quat) {
                 curve._lerp = lerpQuat;
-            } else if (firstValue instanceof cc.Vec2 || firstValue instanceof cc.Vec3) {
+            } else if (firstValue instanceof Vec2 || firstValue instanceof Vec3) {
                 curve._lerp = lerpVector;
             } else if (isLerpable(firstValue)) {
                 curve._lerp = lerpObject;
             }
+        }
+
+        // Setup the blend function.
+        const blendFunctionName = Array.isArray(propertyCurveData) ? null : propertyCurveData.blending;
+        if (blendFunctionName) {
+            curve._blendFunction = blending[blendFunctionName];
         }
 
         return curve;
@@ -274,7 +284,7 @@ export class AnimationClip extends Asset {
 
 const lerpNumber = lerp;
 const lerpQuat = (() => {
-    const out = quat();
+    const out = new Quat();
     return (from: Quat, to: Quat, t: number) => {
         return from.lerp(to, t, out);
     };
