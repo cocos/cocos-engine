@@ -574,6 +574,7 @@ var Node = cc.Class({
             default: 0,
             serializable: false
         },
+        _renderQueue: 0,
     
 
         // internal properties

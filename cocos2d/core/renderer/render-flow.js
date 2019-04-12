@@ -14,6 +14,7 @@ const FINAL = 1 << 10;
 
 let _batcher;
 let _cullingMask = 0;
+let _renderQueueIndex = 0;
 
 function RenderFlow () {
     this._func = init;
@@ -119,6 +120,7 @@ _proto._children = function (node) {
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
+        c._renderQueue = _renderQueueIndex++;
         // Advance the modification of the flag to avoid node attribute modification is invalid when opacity === 0.
         c._renderFlag |= worldDirtyFlag;
         if (!c._activeInHierarchy || c._opacity === 0) continue;
@@ -222,6 +224,7 @@ RenderFlow.visit = function (scene) {
     _batcher.walking = true;
 
     _cullingMask = 1 << scene.groupIndex;
+    _renderQueueIndex = 0;
 
     if (scene._renderFlag & WORLD_TRANSFORM) {
         _batcher.worldMatDirty ++;
