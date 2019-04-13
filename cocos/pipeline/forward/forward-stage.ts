@@ -89,7 +89,7 @@ export class ForwardStage extends RenderStage {
         this._castShadowObjects.splice(0);
         const camera = view.camera;
         const scene = camera.scene;
-        cullSceneWithDirectionalLight(this._castShadowObjects, scene.models, camera, scene.mainLight, camera.nearClip, camera.farClip);
+        cullSceneWithDirectionalLight(this._castShadowObjects, scene.models, camera, scene.mainLight, camera.nearClip, camera.farClip, 10);
         for (const m of this._castShadowObjects) {
             for (let i = 0; i < m.subModelNum; i++) {
                 for (let j = 0; j < m.getSubModel(i).passes.length; j++) {
