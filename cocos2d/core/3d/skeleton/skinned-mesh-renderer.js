@@ -1,8 +1,7 @@
 /****************************************************************************
- Copyright (c) 2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,35 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Pipeline = require('./pipeline');
+const SkinnedMeshRenderer = require('./CCSkinnedMeshRenderer');
+const MeshRendererAssembler = require('../../mesh/mesh-renderer');
 
-const ID = 'MD5Pipe';
-const UuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/;
+let assembler = cc.js.addon({
+    fillBuffers (comp, renderer) {
+        comp.calcJointMatrix();
 
-var MD5Pipe = function (md5AssetsMap, md5NativeAssetsMap, libraryBase) {
-    this.id = ID;
-    this.async = false;
-    this.pipeline = null;
-    this.md5AssetsMap = md5AssetsMap;
-    this.md5NativeAssetsMap = md5NativeAssetsMap;
-    this.libraryBase = libraryBase;
-};
-MD5Pipe.ID = ID;
+        MeshRendererAssembler.fillBuffers(comp, renderer);
+    }
+}, MeshRendererAssembler);
 
-MD5Pipe.prototype.handle = function(item) {
-    item.url = this.transformURL(item.url);
-    return null;
-};
+module.exports = SkinnedMeshRenderer._assembler = assembler;
 
-MD5Pipe.prototype.transformURL = function (url) {
-    let isNativeAsset = !url.startsWith(this.libraryBase);
-    let map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
-    url = url.replace(UuidRegex, function (match, uuid) {
-        let hashValue = map[uuid];
-        return hashValue ? match + '.' + hashValue : match;
-    });
-    return url;
-};
-
-
-Pipeline.MD5Pipe = module.exports = MD5Pipe;

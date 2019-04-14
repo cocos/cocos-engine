@@ -13,5 +13,6 @@ require('./actions');
 if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./skeleton/CCSkeletonAnimation');
     require('./skeleton/CCSkinnedMeshRenderer');
+    require('./skeleton/skinned-mesh-renderer');
     require('./CCLightComponent');
 }

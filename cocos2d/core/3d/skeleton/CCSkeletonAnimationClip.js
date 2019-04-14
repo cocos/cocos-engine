@@ -151,6 +151,44 @@ let SkeletonAnimationClip = cc.Class({
                 curves[property] = frames;
             }
         }
+
+        this._makeSureJointHasCurves(paths, this._model.nodeMap);
+    },
+
+    // make sure every joint has quat, scale, position curve
+    _makeSureJointHasCurves (paths, joints) {
+        for (let path in joints) {
+            if (path === '') continue;
+
+            let joint = joints[path];
+            if (!paths[joint.path]) {
+                paths[joint.path] = { props: {} };
+            }
+
+            let curves = paths[joint.path].props;
+
+            if (!curves.quat) {
+                curves.quat = [{
+                    frame: 0,
+                    value: cc.quat(joint.quat)
+                }];
+            }
+
+            if (!curves.scale) {
+                curves.scale = [{
+                    frame: 0,
+                    value: cc.v3(joint.scale)
+                }];
+            }
+
+            if (!curves.position) {
+                curves.position = [{
+                    frame: 0,
+                    value: cc.v3(joint.position)
+                }];
+            }
+        }
+
     },
 
     _generateJointMatrixCurve () {

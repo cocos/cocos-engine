@@ -127,7 +127,14 @@ else {
         },
 
         onEnable () {
+            this._runSubContextMainLoop();
+            this._registerNodeEvent();
             this.updateSubContextViewport();
+        },
+
+        onDisable () {
+            this._unregisterNodeEvent();
+            this._stopSubContextMainLoop();
         },
 
         update (dt) {
@@ -159,7 +166,39 @@ else {
                     height: box.height * sy
                 });
             }
-        }
+        },
+
+        _registerNodeEvent () {
+            this.node.on('position-changed', this.updateSubContextViewport, this);
+            this.node.on('scale-changed', this.updateSubContextViewport, this);
+            this.node.on('size-changed', this.updateSubContextViewport, this);
+        },
+
+        _unregisterNodeEvent () {
+            this.node.off('position-changed', this.updateSubContextViewport, this);
+            this.node.off('scale-changed', this.updateSubContextViewport, this);
+            this.node.off('size-changed', this.updateSubContextViewport, this);
+        },
+
+        _runSubContextMainLoop () {
+            if (this._context) {
+                this._context.postMessage({
+                    fromEngine: true,
+                    event: 'mainLoop',
+                    value: true,
+                });
+            }
+        },
+
+        _stopSubContextMainLoop () {
+            if (this._context) {
+                this._context.postMessage({
+                    fromEngine: true,
+                    event: 'mainLoop',
+                    value: false,
+                });
+            }
+        },
     });
 
 }

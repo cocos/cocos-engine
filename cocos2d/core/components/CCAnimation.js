@@ -431,8 +431,8 @@ let Animation = cc.Class({
         if (CC_EDITOR && (!state || !cc.js.array.contains(this._clips, state.clip))) {
             this._didInit = false;
 
-            if (this.animator) {
-                this.animator.stop();
+            if (this._animator) {
+                this._animator.stop();
             }
 
             this._init();
