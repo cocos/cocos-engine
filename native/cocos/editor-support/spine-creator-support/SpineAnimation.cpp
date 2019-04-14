@@ -161,7 +161,6 @@ SpineAnimation::SpineAnimation (const std::string& skeletonDataFile, const std::
 
 SpineAnimation::~SpineAnimation ()
 {
-    clearTracks();
     _startListener = nullptr;
     _interruptListener = nullptr;
     _endListener = nullptr;
@@ -171,6 +170,7 @@ SpineAnimation::~SpineAnimation ()
 
     if (_state)
     {
+        clearTracks();
         if (_ownsAnimationStateData) spAnimationStateData_dispose(_state->data);
         spAnimationState_dispose(_state);
     }

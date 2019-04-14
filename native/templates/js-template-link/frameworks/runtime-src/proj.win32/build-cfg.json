@@ -9,6 +9,10 @@
             "to": "res"
         },
         {
+            "from": "../../../subpackages",
+            "to": "subpackages"
+        },
+        {
             "from": "../../../main.js",
             "to": ""
         },
