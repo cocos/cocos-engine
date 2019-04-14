@@ -257,9 +257,8 @@ var MotionStreak = cc.Class({
         }
 
         material.setProperty('texture', this._texture);
-        this.sharedMaterials[0] = material;
+        this.setMaterial(0, material);
         this.markForRender(true);
-        this.markForUpdateRenderData(true);
     },
 
     onFocusInEditor: CC_EDITOR && function () {

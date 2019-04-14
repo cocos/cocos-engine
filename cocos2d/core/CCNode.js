@@ -958,6 +958,7 @@ let NodeDefines = {
                 return this._opacity;
             },
             set (value) {
+                value = cc.misc.clampf(value, 0, 255);
                 if (this._opacity !== value) {
                     this._opacity = value;
                     this._renderFlag |= RenderFlow.FLAG_OPACITY;

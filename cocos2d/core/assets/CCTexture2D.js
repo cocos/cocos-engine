@@ -746,7 +746,7 @@ var Texture2D = cc.Class({
     setMipmap (mipmap) {
         if (this._hasMipmap !== mipmap) {
             var opts = _getSharedOptions();
-            opts.hasMipmap = mipmap;
+            opts.mipmap = mipmap;
             this.update(opts);
         }
     },

@@ -386,7 +386,6 @@ let ArmatureDisplay = cc.Class({
     },
 
     ctor () {
-        this._renderDatas = [];
         // Property _materialCache Use to cache material,since dragonBones may use multiple texture,
         // it will clone from the '_material' property,if the dragonbones only have one texture,
         // it will just use the _material,won't clone it.
@@ -422,8 +421,8 @@ let ArmatureDisplay = cc.Class({
     },
 
     // override
-    _updateMaterial (material) {
-        this.setMaterial(0, material);
+    setMaterial (index, material) {
+        this._super(index, material);
         this._materialCache = {};
     },
 
@@ -469,14 +468,6 @@ let ArmatureDisplay = cc.Class({
         return this._armatureKey;
     },
 
-    onRestore () {
-        // Destroyed and restored in Editor
-        if (!this._material) {
-            this._material = new SpriteMaterial();
-            this._materialCache = {};
-        }
-    },
-
     /**
      * !#en
      * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
@@ -514,6 +505,7 @@ let ArmatureDisplay = cc.Class({
         if (this._armature && !this.isAnimationCached()) {
             this._factory._dragonBones.clock.add(this._armature);
         }
+        this._activateMaterial();
     },
 
     onDisable () {
@@ -627,9 +619,7 @@ let ArmatureDisplay = cc.Class({
         }
 
         material.setProperty('texture', texture);
-        this.sharedMaterials[0] = material;
-
-        this.markForUpdateRenderData(true);
+        this.setMaterial(0, material);
         this.markForRender(true);
     },
 

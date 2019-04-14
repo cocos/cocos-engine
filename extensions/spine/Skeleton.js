@@ -420,8 +420,8 @@ sp.Skeleton = cc.Class({
     },
 
     // override
-    _updateMaterial (material) {
-        this.setMaterial(0, material);
+    setMaterial (index, material) {
+        this._super(index, material);
         this._materialCache = {};
     },
 
@@ -543,9 +543,7 @@ sp.Skeleton = cc.Class({
             this._cacheMode = AnimationCacheMode.REALTIME;
         }
 
-        var material = Material.getInstantiatedBuiltinMaterial('spine', this);
-        material.define('_USE_MODEL', true);
-        this.setMaterial(0, material);
+        this._activateMaterial();
 
         this._updateSkeletonData();
         this._updateDebugDraw();
@@ -661,13 +659,28 @@ sp.Skeleton = cc.Class({
         }
     },
 
+    _activateMaterial () {
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('spine', this);
+            material.define('_USE_MODEL', true);
+        }
+        else {
+            material = Material.getInstantiatedMaterial(material, this);
+        }
+
+        this.setMaterial(0, material);
+        this.markForRender(true);
+    },
+
+    onEnable () {
+        this._super();
+        this._activateMaterial();
+    },
+
     onRestore () {
         // Destroyed and restored in Editor
-        if (!this._material) {
-            this._boundingBox = cc.rect();
-            this._material = Material.getInstantiatedBuiltinMaterial('spine', this);
-            this._materialCache = {};
-        }
+        this._boundingBox = cc.rect();
     },
 
     // RENDERER

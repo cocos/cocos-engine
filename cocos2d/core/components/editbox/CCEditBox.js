@@ -413,7 +413,6 @@ let EditBox = cc.Class({
          * @deprecated since 2.0.8
          */
         stayOnTop: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.stay_on_top',
             default: false,
             notify () {
                 cc.warn('editBox.stayOnTop is removed since v2.1.');

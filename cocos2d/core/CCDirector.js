@@ -214,9 +214,8 @@ cc.Director.prototype = {
     /**
      * calculates delta time since last time it was called
      */
-    calculateDeltaTime: function () {
-        var now = performance.now();
-
+    calculateDeltaTime: function (now) {
+        if (!now) now = performance.now();
         this._deltaTime = (now - this._lastUpdate) / 1000;
         if (CC_DEBUG && (this._deltaTime > 1))
             this._deltaTime = 1 / 60.0;
@@ -925,14 +924,14 @@ cc.Director.prototype = {
 
         this._totalFrames++;
 
-    } : function () {
+    } : function (now) {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
         }
         else if (!this.invalid) {
             // calculate "global" dt
-            this.calculateDeltaTime();
+            this.calculateDeltaTime(now);
 
             // Update
             if (!this._paused) {
