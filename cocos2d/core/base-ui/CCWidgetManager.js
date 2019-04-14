@@ -270,7 +270,9 @@ function refreshScene () {
                     let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
                     if (component) {
                         let animation = component.getAnimationState(AnimUtils.Cache.animation);
-                        animationState.time = animation.time;
+                        if (animation) {
+                            animationState.time = animation.time;
+                        }
                     }
                 }
                 else {
@@ -281,7 +283,7 @@ function refreshScene () {
                 let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
                 if (component) {
                     let animation = component.getAnimationState(AnimUtils.Cache.animation);
-                    if (animationState.time !== animation.time) {
+                    if (animation && animationState.time !== animation.time) {
                         animationState.animatedSinceLastFrame = true;
                         animationState.time = AnimUtils.Cache.animation.time;
                     }
