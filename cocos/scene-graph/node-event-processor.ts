@@ -409,10 +409,10 @@ export class NodeEventProcessor {
         const hasOnceListener = listeners!.hasEventListener(eventType_hasOnceListener, callback, target);
         if (!hasOnceListener) {
             const self = this;
-            const onceWrapper = (...args) => {
+            const onceWrapper = function (this: Object, ...args: any[]) {
                 self.off(type, onceWrapper, target);
                 listeners.remove(eventType_hasOnceListener, callback, target);
-                callback.call(self._node, ...args);
+                callback.call(this, ...args);
             };
             this.on(type, onceWrapper, target);
             listeners.add(eventType_hasOnceListener, callback, target);
@@ -497,7 +497,7 @@ export class NodeEventProcessor {
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      */
-    public emit (type, ...args: any[]) {
+    public emit (type: string, ...args: any[]) {
         if (this.bubblingTargets) {
             this.bubblingTargets.emit(type, ...args);
         }
