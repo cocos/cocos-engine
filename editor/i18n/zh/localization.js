@@ -403,7 +403,10 @@ module.exports = {
             'layer': '指定 TiledTile 属于哪一个 TiledLayer'
         },
         'wx_subcontext_view': {
-            'interval': '子域界面的刷新时间间隔'
+            'fps': '开放数据域的 FPS, 该属性会覆盖开放域的帧率设置'
+        },
+        'swan_subcontext_view': {
+            'fps': '开放数据域的 FPS, 该属性会覆盖开放域的帧率设置'
         }
     }
 };

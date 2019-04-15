@@ -399,7 +399,10 @@ module.exports = {
             'layer': 'Specify which TiledLayer the TiledTile belong to.'
         },
         'wx_subcontext_view': {
-            'interval': 'The refresh interval of subcontext'
+            'interval': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context'
         },
+        'swan_subcontext_view': {
+            'interval': 'The FPS of open data context, this property will overwrite the frame rate setting in open data context'
+        }
     }
 };
