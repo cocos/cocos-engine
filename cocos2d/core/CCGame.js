@@ -731,7 +731,7 @@ var game = {
             this.canvas = localCanvas;
         }
         else if (CC_QQPLAY) {
-            this.container = cc.container = document.createElement("DIV");
+            this.container = document.createElement("DIV");
             this.frame = document.documentElement;
             this.canvas = localCanvas = canvas;
         }
