@@ -47,6 +47,7 @@
         "./@types/globals",
         "./@types/ammo.js",
         "./@types/wx",
+        "./cocos/gfx/webgl/WebGL",
         "./cocos/gfx/webgl2/WebGL2",
       ],                           /* Type declaration files to be included in compilation. */
       // "allowSyntheticDefaultImports": true,  /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */

@@ -16,3 +16,4 @@ DebugInfos.json
 /rollup/out
 /package-lock.json
 playground/library
+/declarations
