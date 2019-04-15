@@ -70,8 +70,12 @@ let Skeleton = cc.Class({
         for (let i = 0; i < jointIndices.length; i++) {
             let node = nodes[jointIndices[i]];
             jointPaths[i] = node.path;
-            uniqueBindPoses[i] = node.uniqueBindPose;
-            bindposes[i] = node.bindpose[this._skinIndex];
+            if (node.uniqueBindPose) {
+                bindposes[i] = uniqueBindPoses[i] = node.uniqueBindPose;
+            }
+            else {
+                bindposes[i] = node.bindpose[this._skinIndex];
+            }
         }
     }
 });
