@@ -30,12 +30,14 @@ let Skeleton = cc.Class({
 
     ctor () {
         this._bindposes = [];
+        this._uniqueBindPoses = [];
         this._jointPaths = [];
     },
 
     properties: {
         _model: cc.Model,
         _jointIndices: [],
+        _skinIndex: -1,
 
         jointPaths: {
             get () {
@@ -47,7 +49,11 @@ let Skeleton = cc.Class({
                 return this._bindposes;
             }
         },
-
+        uniqueBindPoses: {
+            get () {
+                return this._uniqueBindPoses;
+            }
+        },
         model: {
             get () {
                 return this._model;
@@ -60,10 +66,16 @@ let Skeleton = cc.Class({
         let jointIndices = this._jointIndices;
         let jointPaths = this._jointPaths;
         let bindposes = this._bindposes;
+        let uniqueBindPoses = this._uniqueBindPoses;
         for (let i = 0; i < jointIndices.length; i++) {
             let node = nodes[jointIndices[i]];
             jointPaths[i] = node.path;
-            bindposes[i] = node.bindpose;
+            if (node.uniqueBindPose) {
+                bindposes[i] = uniqueBindPoses[i] = node.uniqueBindPose;
+            }
+            else {
+                bindposes[i] = node.bindpose[this._skinIndex];
+            }
         }
     }
 });
