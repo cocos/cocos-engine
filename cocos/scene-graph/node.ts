@@ -137,15 +137,11 @@ class Node extends BaseNode {
     }
 
     get position () {
-        return this.getPosition();
+        return this.getPosition(v3_a);
     }
 
     set position (value: vec3) {
         this.setPosition(value.x, value.y, value.z);
-    }
-
-    get scale () {
-        return this.getScale();
     }
 
     set scale (value: vec3) {
@@ -153,7 +149,7 @@ class Node extends BaseNode {
     }
 
     get rotation () {
-        return this.getRotation();
+        return this.getRotation(q_a);
     }
 
     set rotation (value: quat) {
@@ -857,6 +853,10 @@ if (CC_EDITOR) {
         },
     });
 }
+
+Object.defineProperty(Node.prototype, 'scale', {
+    get: Node.prototype.getScale,
+});
 
 cc.Node = Node;
 export { Node };
