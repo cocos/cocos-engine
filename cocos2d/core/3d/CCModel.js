@@ -65,15 +65,14 @@ let Model = cc.Class({
             node.scale = cc.v3.apply(this, node.scale);
             node.quat = cc.quat.apply(this, node.quat);
             
+            if (node.uniqueBindPose) {
+                node.uniqueBindPose = cc.mat4.apply(this, node.uniqueBindPose);
+            }
+
             let pose = node.bindpose;
             if (pose) {
-                if (Array.isArray(pose)) {
-                    node.bindpose = node.uniqueBindPose = cc.mat4.apply(this, pose);
-                }
-                else {
-                    for (let i in pose) {
-                        pose[i] = cc.mat4.apply(this, pose[i]);
-                    }
+                for (let i in pose) {
+                    pose[i] = cc.mat4.apply(this, pose[i]);
                 }
             }
 
