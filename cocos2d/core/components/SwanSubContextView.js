@@ -70,7 +70,6 @@ else {
 
         properties: {
             _fps: 60,
-            _updateInterval: 0.0167,  // 1 / fps
 
             fps: {
                 get () {
@@ -93,11 +92,13 @@ else {
             this._tex = new cc.Texture2D();
             this._context = null;
             this._previousUpdateTime = performance.now();
+            this._updateInterval = null;
         },
 
         onLoad () {
             // Setup subcontext canvas size
             if (swan.getOpenDataContext) {
+                this._updateInterval = 1000 / this._fps;
                 this._context = swan.getOpenDataContext();
                 let sharedCanvas = this._context.canvas;
                 if (sharedCanvas) {
@@ -133,7 +134,7 @@ else {
 
         update () {
             let now = performance.now();
-            let deltaTime = (now - this._previousUpdateTime) * 0.001;
+            let deltaTime = (now - this._previousUpdateTime);
             if (!this._tex || !this._context || deltaTime < this._updateInterval) {
                 return;
             }
