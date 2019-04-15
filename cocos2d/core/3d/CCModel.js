@@ -28,7 +28,7 @@ let Model = cc.Class({
     extends: cc.Asset,
 
     ctor () {
-        this._nodeMap = {};
+        this._rootNode = null;
     },
 
     properties: {
@@ -43,9 +43,9 @@ let Model = cc.Class({
                 return this._nodes;
             }
         },
-        nodeMap: {
+        rootNode: {
             get () {
-                return this._nodeMap;
+                return this._rootNode;
             }
         },
 
@@ -58,19 +58,30 @@ let Model = cc.Class({
 
     onLoad () {
         let nodes = this._nodes;
-        let map = this._nodeMap;
+        this._rootNode = nodes[0];
         for (let i = 0; i < nodes.length; i++) {
             let node = nodes[i];
             node.position = cc.v3.apply(this, node.position);
             node.scale = cc.v3.apply(this, node.scale);
             node.quat = cc.quat.apply(this, node.quat);
             
-            let pose = node.bindpose;
-            if (pose) {
-                node.bindpose = cc.mat4.apply(this, pose);
+            if (node.uniqueBindPose) {
+                node.uniqueBindPose = cc.mat4.apply(this, node.uniqueBindPose);
             }
 
-            map[node.path] = node;
+            let pose = node.bindpose;
+            if (pose) {
+                for (let i in pose) {
+                    pose[i] = cc.mat4.apply(this, pose[i]);
+                }
+            }
+
+            let children = node.children;
+            if (children) {
+                for (let i = 0; i < children.length; i++) {
+                    children[i] = nodes[children[i]];
+                }
+            }
         }
     }
 });

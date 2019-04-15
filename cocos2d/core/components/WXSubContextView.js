@@ -68,16 +68,21 @@ else {
         },
 
         properties: {
-            _interval: 0,
+            _fps: 60,
 
-            interval : {
+            fps: {
                 get () {
-                    return this._interval;
+                    return this._fps;
                 },
                 set (value) {
-                    this._interval = value;
+                    if (this._fps === value) {
+                        return;
+                    }
+                    this._fps = value;
+                    this._updateInterval = 1 / value;
+                    this._updateSubContextFrameRate();
                 },
-                tooltip: CC_DEV && 'i18n:COMPONENT.wx_subcontext_view.interval'
+                tooltip: CC_DEV && 'i18n:COMPONENT.wx_subcontext_view.fps'
             }
         },
 
@@ -85,12 +90,14 @@ else {
             this._sprite = null;
             this._tex = new cc.Texture2D();
             this._context = null;
-            this._deltaTime = 0;
+            this._previousUpdateTime = performance.now();
+            this._updateInterval = 0;
         },
 
         onLoad () {
             // Setup subcontext canvas size
             if (wx.getOpenDataContext) {
+                this._updateInterval = 1000 / this._fps;
                 this._context = wx.getOpenDataContext();
                 // reset sharedCanvas width and height
                 this.reset();
@@ -129,6 +136,7 @@ else {
         onEnable () {
             this._runSubContextMainLoop();
             this._registerNodeEvent();
+            this._updateSubContextFrameRate();
             this.updateSubContextViewport();
         },
 
@@ -137,11 +145,13 @@ else {
             this._stopSubContextMainLoop();
         },
 
-        update (dt) {
-            this._deltaTime += dt;
-            if (!this._tex || !this._context || this._deltaTime < this._interval) {
+        update () {
+            let now = performance.now();
+            let deltaTime = (now - this._previousUpdateTime);
+            if (!this._tex || !this._context || deltaTime < this._updateInterval) {
                 return;
             }
+            this._previousUpdateTime = now;
             this._deltaTime = 0;
             this._tex.initWithElement(this._context.canvas);
             this._sprite._activateMaterial();
@@ -196,6 +206,16 @@ else {
                     fromEngine: true,
                     event: 'mainLoop',
                     value: false,
+                });
+            }
+        },
+
+        _updateSubContextFrameRate () {
+            if (this._context) {
+                this._context.postMessage({
+                    fromEngine: true,
+                    event: 'frameRate',
+                    value: this._fps,
                 });
             }
         },
