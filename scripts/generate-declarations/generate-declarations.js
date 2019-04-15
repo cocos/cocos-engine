@@ -1,5 +1,5 @@
 const { spawnSync } = require('child_process');
-const { join, extname, basename, dirname } = require('path');
+const { join, extname, basename, dirname, isAbsolute } = require('path');
 const { copyFileSync, existsSync, readFileSync, unlinkSync, writeFileSync, ensureDirSync } = require('fs-extra');
 const ts = require('typescript');
 
@@ -71,7 +71,9 @@ function generate (options) {
 
     const types = tsConfig.config.compilerOptions.types.map((typeFile) => `${typeFile}.d.ts`);
     (types.concat(extraDestFiles)).forEach((file) => {
-        copyFileSync(file, join(outDir, basename(file)));
+        const destPath = join(outDir, isAbsolute(file) ? basename(file) : file);
+        ensureDirSync(dirname(destPath));
+        copyFileSync(file, destPath);
     });
     return true;
 }
