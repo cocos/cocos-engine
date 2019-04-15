@@ -166,9 +166,9 @@ function fillRaycastResult (result: RaycastResult, cannonResult: CANNON.RaycastR
     );
 }
 
-enum TransformSource {
+enum ETransformSource {
     Scene,
-    Phycis,
+    Physics,
 }
 
 export class CannonRigidBody implements RigidBodyBase {
@@ -185,7 +185,7 @@ export class CannonRigidBody implements RigidBodyBase {
     private _onWorldPostStepListener: (event: CANNON.ICollisionEvent) => any;
     private _collisionCallbacks: ICollisionCallback[] = [];
     private _shapes: CannonShape[] = [];
-    private _transformSource: TransformSource = TransformSource.Scene;
+    private _transformSource: ETransformSource = ETransformSource.Scene;
     private _userData: any;
     private _world: CannonWorld | null = null;
     private _name: string;
@@ -196,6 +196,7 @@ export class CannonRigidBody implements RigidBodyBase {
         this._cannonMaterial = defaultCannonMaterial;
         this._cannonBody = new CANNON.Body({
             material: this._cannonMaterial,
+            type: ERigidBodyType.DYNAMIC,
         });
         setWrap<RigidBodyBase>(this._cannonBody, this);
         this._cannonBody.allowSleep = true;
@@ -259,10 +260,10 @@ export class CannonRigidBody implements RigidBodyBase {
     public setMass (value: number) {
         this._cannonBody.mass = value;
         this._cannonBody.updateMassProperties();
-        if (this._cannonBody.type !== CANNON.Body.KINEMATIC) {
-            this._resetBodyTypeAccordingMess();
-            this._onBodyTypeUpdated();
-        }
+        // if (this._cannonBody.type !== CANNON.Body.KINEMATIC) {
+        //     // this._resetBodyTypeAccordingMess();
+        //     // this._onBodyTypeUpdated();
+        // }
     }
 
     public getIsKinematic () {
@@ -273,9 +274,10 @@ export class CannonRigidBody implements RigidBodyBase {
         if (value) {
             this._cannonBody.type = CANNON.Body.KINEMATIC;
         } else {
-            this._resetBodyTypeAccordingMess();
+            this._cannonBody.type = CANNON.Body.DYNAMIC;
+            // this._resetBodyTypeAccordingMess();
         }
-        this._onBodyTypeUpdated();
+        // this._onBodyTypeUpdated();
     }
 
     public getLinearDamping () {
@@ -369,7 +371,7 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public isPhysicsManagedTransform (): boolean {
-        return this._transformSource === TransformSource.Phycis;
+        return this._transformSource === ETransformSource.Physics;
     }
 
     public getPosition (out: Vec3) {
@@ -435,9 +437,9 @@ export class CannonRigidBody implements RigidBodyBase {
     private _onBodyTypeUpdated () {
         if (this._cannonBody) {
             if (this._cannonBody.type === CANNON.Body.STATIC) {
-                this._transformSource = TransformSource.Scene;
+                this._transformSource = ETransformSource.Scene;
             } else {
-                this._transformSource = TransformSource.Phycis;
+                this._transformSource = ETransformSource.Physics;
             }
         }
     }

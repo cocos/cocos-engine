@@ -8,7 +8,7 @@ import {
 import Vec3 from '../../../core/value-types/vec3';
 import { vec3 } from '../../../core/vmath';
 import { BoxShapeBase, ShapeBase, SphereShapeBase } from '../../physics/api';
-import { createBoxShape, createSphereShape, ERigidBodyType } from '../../physics/instance';
+import { createBoxShape, createSphereShape, ERigidBodyType, ETransformSource } from '../../physics/instance';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 export class ColliderComponentBase extends PhysicsBasedComponent {
@@ -23,12 +23,17 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     set isTrigger (value) {
         this._triggered = value;
 
-        const type = this._triggered ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
-        if (this._body) {
-            this._body.setType(type);
+        const type = this._triggered ? ERigidBodyType.DYNAMIC : ERigidBodyType.KINEMATIC;
+        if (this.sharedBody) {
+            this.sharedBody.body.setType(type);
         }
-        this._shapeBase.setCollisionResponse(!this._triggered);
+        if (this._shapeBase) {
+            this._shapeBase.setCollisionResponse(!this._triggered);
+        }
     }
+
+    @property
+    private _center: Vec3 = new cc.Vec3(0, 0, 0);
 
     /**
      * The center of the collider, in local space.
@@ -40,11 +45,10 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
 
     set center (value: Vec3) {
         vec3.copy(this._center, value);
-        this._shapeBase.setCenter(this._center);
+        if (this._shapeBase) {
+            this._shapeBase.setCenter(this._center);
+        }
     }
-
-    @property
-    private _center: Vec3 = new cc.Vec3(0, 0, 0);
 
     constructor () {
         super();
@@ -52,7 +56,10 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
 
     public __preload () {
         super.__preload();
-
+        if (this.sharedBody) {
+            this.sharedBody.transfromSource = ETransformSource.SCENE;
+            this.sharedBody.body.setUseGravity(false);
+        }
         this.center = this._center;
         this.isTrigger = this._triggered;
 
@@ -61,19 +68,12 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         }
     }
 
-    public onLoad () {
-        super.onLoad();
-    }
-
-    public start () {
-        super.start();
-    }
-
-    public lateUpdate () {
-        if (this.node.hasChanged) {
-            this._shapeBase.setScale(this.node._scale);
-        }
-    }
+    // public lateUpdate () {
+    // TODO : 根据node的scale dirty标记去缩放shape
+    // if (this.node.hasChanged) {
+    //     this._shapeBase.setScale(this.node._scale);
+    // }
+    // }
 
     public onEnable () {
         if (this.sharedBody) {
@@ -120,10 +120,6 @@ export class BoxColliderComponent extends ColliderComponentBase {
         this._shape.setScale(this.node._scale);
     }
 
-    public onLoad () {
-        super.onLoad();
-    }
-
     /**
      * The size of the box, in local space.
      * @note Shall not specify size with component 0.
@@ -135,7 +131,9 @@ export class BoxColliderComponent extends ColliderComponentBase {
 
     set size (value) {
         vec3.copy(this._size, value);
-        this._shape!.setSize(this._size);
+        if (this._shape) {
+            this._shape.setSize(this._size);
+        }
         if (this.sharedBody) {
             this.sharedBody.body.commitShapeUpdates();
         }
@@ -157,7 +155,6 @@ export class SphereColliderComponent extends ColliderComponentBase {
     }
 
     public __preload () {
-
         // const scale = this.node._scale;
         // const max = Math.abs(Math.max(scale.x, Math.max(scale.y, scale.z)));
         this._shape = createSphereShape(this._radius);
@@ -167,10 +164,6 @@ export class SphereColliderComponent extends ColliderComponentBase {
         super.__preload();
 
         this._shape.setScale(this.node._scale);
-    }
-
-    public onLoad () {
-        super.onLoad();
     }
 
     /**
@@ -183,7 +176,9 @@ export class SphereColliderComponent extends ColliderComponentBase {
 
     set radius (value) {
         this._radius = value;
-        this._shape.setRadius(value);
+        if (this._shape) {
+            this._shape.setRadius(value);
+        }
         if (this.sharedBody) {
             this.sharedBody.body.commitShapeUpdates();
         }
