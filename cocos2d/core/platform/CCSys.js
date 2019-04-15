@@ -383,7 +383,7 @@ function initSys () {
     /**
      * @property {Number} HUAWEI_GAME
      * @readOnly
-     * @default 109
+     * @default 110
      */
     sys.HUAWEI_GAME = 110;
     /**
