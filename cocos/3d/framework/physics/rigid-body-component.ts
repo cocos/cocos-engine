@@ -9,11 +9,12 @@ import {
 import { Quat, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { PhysicsMaterial } from '../../assets/physics/material';
+import { ETransformSource } from '../../physics/instance';
 import { DefaultPhysicsMaterial as DefaultPhysicsMaterial } from './default-material';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 const NonRigidBodyProperties = {
-    mass: 0,
+    mass: 10,
     linearDamping: 0,
     angularDamping: 0,
 };
@@ -36,10 +37,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     private _angularDamping: number = NonRigidBodyProperties.angularDamping;
 
     @property
-    private _fixedRotation: boolean = true;
+    private _fixedRotation: boolean = false;
 
     @property
-    private _triggered: boolean = true;
+    private _triggered: boolean = false;
 
     @property
     private _isKinematic: boolean = false;
@@ -53,11 +54,9 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         super();
     }
 
-    public onLoad () {
-        super.onLoad();
-    }
-
-    public onEnable () {
+    public __preload () {
+        super.__preload();
+        this.sharedBody!.transfromSource = ETransformSource.PHYSIC;
         if (this.sharedBody) {
             this.mass = this._mass;
             this.linearDamping = this._linearDamping;
@@ -65,7 +64,12 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
             this.material = this._material;
             this.useGravity = this._useGravity;
             this.velocity = this._velocity;
+            this.isKinematic = this._isKinematic;
+            this.fixedRotation = this._fixedRotation;
         }
+    }
+
+    public onEnable () {
         // if (this.sharedBody) {
         //     this.sharedBody.body.wakeUp();
         // }
@@ -75,13 +79,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         // if (this.sharedBody) {
         //     this.sharedBody.body.sleep();
         // }
-    }
-
-    public start () {
-        super.start();
-        if (this._enabled) {
-            this.onEnable();
-        }
     }
 
     @property({
@@ -158,6 +155,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    @property
     get fixedRotation () {
         return this._fixedRotation;
     }
@@ -165,7 +163,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     set fixedRotation (value) {
         this._fixedRotation = value;
         if (this._body) {
-            this._body.setFreezeRotation(!value);
+            this._body.setFreezeRotation(value);
         }
     }
 

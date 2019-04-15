@@ -4,13 +4,13 @@ import { Quat, Vec3 } from '../../../../core/value-types';
 import { quat, vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 import { AfterStepCallback, BeforeStepCallback, ICollisionCallback, ICollisionEvent, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
-import { createRigidBody } from '../../../physics/instance';
+import { createRigidBody, ERigidBodyType, ETransformSource } from '../../../physics/instance';
 import { stringfyQuat, stringfyVec3 } from '../../../physics/util';
 
 export class PhysicsBasedComponent extends Component {
 
     protected get _body () {
-        return this._sharedBody!.body;
+        return this._sharedBody ? this._sharedBody.body : null;
     }
 
     protected get sharedBody () {
@@ -26,24 +26,12 @@ export class PhysicsBasedComponent extends Component {
         this._refSharedBody();
     }
 
-    public onLoad () {
-    }
-
-    public start () {
-    }
-
     public destroy () {
         if (this._sharedBody) {
             this._sharedBody.deref();
             this._sharedBody = null;
         }
     }
-
-    // public syncPhysWithScene () {
-    //     if (this.sharedBody) {
-    //         this.sharedBody.syncPhysWithScene(this.node);
-    //     }
-    // }
 
     private _refSharedBody () {
         if (this._sharedBody) {
@@ -86,6 +74,8 @@ class SharedRigidBody {
 
     private _transformInitialized: boolean = false;
 
+    private _isShapeOnly: boolean = true;
+
     constructor (node: Node, world: PhysicsWorldBase) {
         this._body = createRigidBody({
             name: node.name,
@@ -102,6 +92,15 @@ class SharedRigidBody {
 
     public get body () {
         return this._body;
+    }
+
+    /** 设置场景与物理之间的同步关系 */
+    public set transfromSource (v: ETransformSource) {
+        if (v === ETransformSource.SCENE) {
+            this._isShapeOnly = true;
+        } else {
+            this._isShapeOnly = false;
+        }
     }
 
     public ref () {
@@ -134,7 +133,7 @@ class SharedRigidBody {
         this.body.setPosition(p);
         this.body.setRotation(r);
 
-        // remove to shape, scale belong to shape
+        // scale property should handle by shape, scale belong to shape
         // node.getWorldScale(this._worldScale);
         // // Because we sync the scale, we should update shape parameters.
         // this.body.scaleAllShapes(this._worldScale);
@@ -203,18 +202,34 @@ class SharedRigidBody {
             this._transformInitialized = true;
             this.syncPhysWithScene(this._node);
             this._activeBody();
+        } else {
+            // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
+            if (this._node.hasChanged) {
+                this.syncPhysWithScene(this._node);
+            }
         }
 
-        if (!this.body.isPhysicsManagedTransform() && this._node.hasChanged) {
-            // d(`Synchronize`);
-            this.syncPhysWithScene(this._node);
-            this._activeBody();
-        }
+        // if (!this.body.isPhysicsManagedTransform() && this._node.hasChanged) {
+        //     // d(`Synchronize`);
+        //     this.syncPhysWithScene(this._node);
+        //     this._activeBody();
+        // }
     }
 
     private _afterStep () {
-        if (this.body.isPhysicsManagedTransform()) {
+        // if (this.body.isPhysicsManagedTransform()) {
+        //     this._syncSceneWithPhys();
+        // }
+
+        // 物理计算之后，除了只有形状组件的节点，其它有刚体组件的节点，并且刚体类型为DYNAMIC的，需要将计算结果同步到Scene中
+        if (!this._isShapeOnly && this.body.getType() === ERigidBodyType.DYNAMIC) {
             this._syncSceneWithPhys();
+        } else {
+            // 对于只有形状组件的节点，需要将Scene中节点的Transform同步到Phyisc。
+            // 这是因为物理计算后可能会改变一些节点，这会导致这些子节点的Transform也发生改变。
+            if (this._node.hasChanged) {
+                this.syncPhysWithScene(this._node);
+            }
         }
     }
 }
