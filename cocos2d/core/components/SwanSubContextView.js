@@ -92,7 +92,7 @@ else {
             this._tex = new cc.Texture2D();
             this._context = null;
             this._previousUpdateTime = performance.now();
-            this._updateInterval = null;
+            this._updateInterval = 0;
         },
 
         onLoad () {
