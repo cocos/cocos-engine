@@ -142,7 +142,7 @@ ccenum(Overflow);
  */
 @ccclass('cc.LabelComponent')
 @executionOrder(100)
-@menu('UI/Label')
+@menu('UI/Render/Label')
 export class LabelComponent extends UIRenderComponent {
     /**
      * !#en Content string of label.

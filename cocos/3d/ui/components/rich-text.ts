@@ -147,7 +147,7 @@ interface ILabelSegment{
  */
 @ccclass('cc.RichTextComponent')
 @executionOrder(100)
-@menu('UI/RichText')
+@menu('UI/Render/RichText')
 @executeInEditMode
 export class RichTextComponent extends UIComponent {
 
