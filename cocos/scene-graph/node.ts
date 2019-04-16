@@ -846,5 +846,17 @@ if (CC_EDITOR) {
     });
 }
 
+Object.defineProperty(Node.prototype, 'position', {
+    get: Node.prototype.getPosition,
+});
+
+Object.defineProperty(Node.prototype, 'rotation', {
+    get: Node.prototype.getRotation,
+});
+
+Object.defineProperty(Node.prototype, 'scale', {
+    get: Node.prototype.getScale,
+});
+
 cc.Node = Node;
 export { Node };
