@@ -208,6 +208,13 @@ export class WebGLGFXDevice extends GFXDevice {
                 failIfMajorPerformanceCaveat: false,
             };
 
+            /*
+            if (cc.sys.platform === cc.sys.WECHAT_GAME ||
+                cc.sys.platform === cc.sys.QQ_PLAY) {
+                webGLCtxAttribs.preserveDrawingBuffer = true;
+            }
+            */
+
             this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs);
         } catch (err) {
             console.error(err);
@@ -222,7 +229,6 @@ export class WebGLGFXDevice extends GFXDevice {
         }
 
         this._canvas2D = document.createElement('canvas');
-
         console.info('WebGL device initialized.');
 
         this._gfxAPI = GFXAPI.WEBGL;
@@ -339,7 +345,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._features[GFXFeature.MSAA] = false;
 
         if (this._OES_vertex_array_object) {
-            this._useVAO = true;
+            this._useVAO = false;
         }
 
         console.info('RENDERER: ' + this._renderer);
@@ -645,15 +651,18 @@ export class WebGLGFXDevice extends GFXDevice {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         // rasteriazer state
+        gl.disable(gl.SCISSOR_TEST);
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
         gl.frontFace(gl.CCW);
+        gl.disable(gl.POLYGON_OFFSET_FILL);
         gl.polygonOffset(0.0, 0.0);
 
         // depth stencil state
         gl.enable(gl.DEPTH_TEST);
         gl.depthMask(true);
         gl.depthFunc(gl.LESS);
+        gl.depthRange(0.0, 1.0);
 
         gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 1, 0xffffffff);
         gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.KEEP);

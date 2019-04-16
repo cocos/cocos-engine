@@ -33,8 +33,8 @@ export default function downloadBinary (item, callback) {
     xhr.onload = function () {
         var arrayBuffer = xhr.response;
         if (arrayBuffer) {
-            var result = new Uint8Array(arrayBuffer);
-            callback(null, result);
+            // var result = new Uint8Array(arrayBuffer);
+            callback(null, arrayBuffer);
         }
         else {
             callback({status:xhr.status, errorMessage:errInfo + '(no response)'});

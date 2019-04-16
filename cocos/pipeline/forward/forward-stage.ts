@@ -1,14 +1,13 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType, GFXFilter, IGFXColor } from '../../gfx/define';
+import { Model } from '../../renderer';
+import { cullSceneWithDirectionalLight } from '../culling';
+import { getPhaseID } from '../pass-phase';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderFlow } from '../render-flow';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
-import { IRenderObject } from '../define';
-import { cullSceneWithDirectionalLight } from '../culling';
-import { Model } from '../../renderer';
-import { getPhaseID } from '../pass-phase';
 
 const colors: IGFXColor[] = [];
 const bufs: GFXCommandBuffer[] = [];
@@ -119,10 +118,14 @@ export class ForwardStage extends RenderStage {
             colors.length = 1;
         }
 
-        if (!this._pipeline.useMSAA) {
-            this._framebuffer = this._pipeline.curShadingFBO;
+        if (this._pipeline.usePostProcess) {
+            if (!this._pipeline.useMSAA) {
+                this._framebuffer = this._pipeline.curShadingFBO;
+            } else {
+                this._framebuffer = this._pipeline.msaaShadingFBO;
+            }
         } else {
-            this._framebuffer = this._pipeline.msaaShadingFBO;
+            this._framebuffer = view.window!.framebuffer;
         }
 
         cmdBuff.begin();

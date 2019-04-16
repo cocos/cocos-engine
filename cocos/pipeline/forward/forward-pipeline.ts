@@ -1,6 +1,5 @@
-import { frustum, intersect, sphere } from '../../3d/geom-utils';
+import { intersect, sphere } from '../../3d/geom-utils';
 import { Root } from '../../core/root';
-import { Vec3 } from '../../core/value-types';
 import { v3 } from '../../core/value-types/vec3';
 import { vec3 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -96,17 +95,18 @@ export class ForwardPipeline extends RenderPipeline {
             priority: ForwardFlowPriority.FORWARD,
         });
 
-        if (this._useSMAA) {
-            this.createFlow(SMAAEdgeFlow, {
-                name: PIPELINE_FLOW_SMAA,
+        if (this._usePostProcess) {
+            if (this._useSMAA) {
+                this.createFlow(SMAAEdgeFlow, {
+                    name: PIPELINE_FLOW_SMAA,
+                    priority: 0,
+                });
+            }
+            this.createFlow(ToneMapFlow, {
+                name: PIPELINE_FLOW_TONEMAP,
                 priority: 0,
             });
         }
-
-        this.createFlow(ToneMapFlow, {
-            name: PIPELINE_FLOW_TONEMAP,
-            priority: 0,
-        });
 
         this.createFlow(UIFlow, {
             name: 'UIFlow',

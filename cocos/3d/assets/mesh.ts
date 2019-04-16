@@ -160,12 +160,12 @@ export class RenderingMesh {
 @ccclass('cc.Mesh')
 export class Mesh extends Asset {
 
-    get _nativeAsset () {
-        return this._data;
+    get _nativeAsset (): ArrayBuffer {
+        return this._data!.buffer;
     }
 
-    set _nativeAsset (value) {
-        this._data = value;
+    set _nativeAsset (value: ArrayBuffer) {
+        this._data = new Uint8Array(value);
     }
 
     /**
@@ -575,6 +575,7 @@ export class Mesh extends Asset {
                 size: vertexBundle.view.length,
                 stride: vertexBundle.view.stride,
             });
+
             vertexBuffer.update(new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length));
             return vertexBuffer;
         });

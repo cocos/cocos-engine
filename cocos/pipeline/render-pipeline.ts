@@ -36,6 +36,7 @@ const _outMat = new Mat4();
 const _v3tmp = new Vec3();
 
 export interface IRenderPipelineInfo {
+    enablePostProcess?: boolean;
     enableHDR?: boolean;
     enableMSAA?: boolean;
     enableSMAA?: boolean;
@@ -61,6 +62,10 @@ export abstract class RenderPipeline {
 
     public get flows (): RenderFlow[] {
         return this._flows;
+    }
+
+    public get usePostProcess (): boolean {
+        return this._usePostProcess;
     }
 
     public get isHDRSupported (): boolean {
@@ -188,6 +193,7 @@ export abstract class RenderPipeline {
     protected _shadingScale: number = 1.0;
     protected _curIdx: number = 0;
     protected _prevIdx: number = 1;
+    protected _usePostProcess: boolean = false;
     protected _useMSAA: boolean = false;
     protected _useSMAA: boolean = false;
     protected _smaaPass: GFXRenderPass | null = null;
@@ -312,21 +318,40 @@ export abstract class RenderPipeline {
 
     protected _initialize (info: IRenderPipelineInfo): boolean {
 
-        if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
-            this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
-            this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-            this._isHDRSupported = true;
+        if (info.enablePostProcess !== undefined) {
+            this._usePostProcess = info.enablePostProcess;
+        } else {
+            if (cc.sys.platform === cc.sys.WECHAT_GAME) {
+                this._usePostProcess = true;
+            } else {
+                this._usePostProcess = true;
+            }
         }
 
-        // this._isHDRSupported = false;
+        if (this._usePostProcess) {
+            if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
+                this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
+                this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+                this._isHDRSupported = true;
+            }
 
-        this._fboCount = 1;
-        this._shadingTextures = new Array<GFXTexture>(this._fboCount);
-        this._shadingTexViews = new Array<GFXTextureView>(this._fboCount);
-        this._shadingFBOs = new Array<GFXFramebuffer>(this._fboCount);
+            // this._isHDRSupported = false;
+            this._fboCount = 1;
+            this._shadingTextures = new Array<GFXTexture>(this._fboCount);
+            this._shadingTexViews = new Array<GFXTextureView>(this._fboCount);
+            this._shadingFBOs = new Array<GFXFramebuffer>(this._fboCount);
 
-        const enableHDR = (info.enableHDR !== undefined ? info.enableHDR : true);
-        if (enableHDR && this._isHDRSupported) {
+            this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : true);
+
+            // Config Anti-Aliasing
+            this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
+            this._useMSAA = info.enableMSAA !== undefined ? info.enableMSAA : false;
+            if (this._useMSAA) {
+                this._useMSAA = this.device.hasFeature(GFXFeature.MSAA);
+            }
+        }
+
+        if (this._isHDR && this._isHDRSupported) {
             // Try to use HDR format
             if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
                 this._colorFmt = GFXFormat.R11G11B10F;
@@ -347,13 +372,6 @@ export abstract class RenderPipeline {
             this._isHDR = false;
         }
 
-        // Config Anti-Aliasing
-        this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
-        this._useMSAA = info.enableMSAA !== undefined ? info.enableMSAA : false;
-        if (this._useMSAA) {
-            this._useMSAA = this.device.hasFeature(GFXFeature.MSAA);
-        }
-
         if (this._device.hasFeature(GFXFeature.FORMAT_D24S8)) {
             this._depthStencilFmt = GFXFormat.D24S8;
         } else {
@@ -369,9 +387,12 @@ export abstract class RenderPipeline {
         this._shadingWidth = Math.floor(this._device.nativeWidth);
         this._shadingHeight = Math.floor(this._device.nativeHeight);
 
-        console.info('USE_MSAA: ' + this._useMSAA);
-        console.info('USE_SMAA: ' + this._useSMAA);
-        console.info('CC_USE_HDR: ' + this._isHDR);
+        console.info('USE_POST_PROCESS: ' + this._usePostProcess);
+        if (this._usePostProcess) {
+            console.info('USE_MSAA: ' + this._useMSAA);
+            console.info('USE_SMAA: ' + this._useSMAA);
+            console.info('USE_HDR: ' + this._isHDR);
+        }
         console.info('SHADING_SIZE: ' + this._shadingWidth + ' x ' + this._shadingHeight);
         console.info('SHADING_SCALE: ' + this._shadingScale.toFixed(4));
         console.info('SHADING_COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);

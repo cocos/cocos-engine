@@ -397,6 +397,7 @@ export class Pass {
     get rasterizerState () { return this._rs; }
     get dynamics () { return this._dynamics; }
     get customizations () { return this._customizations; }
+    get shader (): GFXShader { return this._shader!; }
 }
 
 const serializeBlendState = (bs: GFXBlendState) => {
