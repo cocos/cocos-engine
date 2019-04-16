@@ -27,11 +27,11 @@ build({
         console.log(`Build successful.`);
     },
     (reason: any) => {
-        console.error(`Build failed, reason:\n ${reason}`);
+        console.error(`Build failed, reason:\n ${reason.stack}`);
     },
 );
 
-type Platform = 'editor' | 'preview' | 'build' | 'test';
+type Platform = 'any' | 'editor' | 'preview' | 'build' | 'test';
 
 interface IFlags {
     jsb?: boolean;
@@ -70,7 +70,7 @@ function getGlobalDefs (platform: Platform, flags?: IFlags): object {
     const FLAGS = ['jsb', 'runtime', 'wechatgame', 'wechatgameSub', 'qqplay', 'debug', 'nativeRenderer'];
 
     const platformMacro = 'CC_' + platform.toUpperCase();
-    if (PLATFORM_MACROS.indexOf(platformMacro) === -1) {
+    if (PLATFORM_MACROS.indexOf(platformMacro) === -1 && platform !== 'any') {
         throw new Error(`Unknown platform ${platform}.`);
     }
     const result: IGlobaldefines = {};
