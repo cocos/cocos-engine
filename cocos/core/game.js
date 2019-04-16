@@ -182,7 +182,7 @@ class Game extends EventTarget {
         }
         config.frameRate = frameRate;
         if (this._intervalId)
-            window.cancelAnimFrame(this._intervalId);
+            window.cancelAnimationFrame(this._intervalId);
         this._intervalId = 0;
         this._paused = true;
         this._setAnimFrame();
@@ -220,7 +220,7 @@ class Game extends EventTarget {
         this._paused = true;
         // Pause main loop
         if (this._intervalId)
-            window.cancelAnimFrame(this._intervalId);
+            window.cancelAnimationFrame(this._intervalId);
         this._intervalId = 0;
     }
 
@@ -485,22 +485,20 @@ class Game extends EventTarget {
 
         if (CC_JSB) {
             jsb.setPreferredFramesPerSecond(frameRate);
-            window.requestAnimFrame = window.requestAnimationFrame;
-            window.cancelAnimFrame = window.cancelAnimationFrame;
         }
         else {
             if (frameRate !== 60 && frameRate !== 30) {
-                window.requestAnimFrame = this._stTime;
-                window.cancelAnimFrame = this._ctTime;
+                window.requestAnimationFrame = this._stTime;
+                window.cancelAnimationFrame = this._ctTime;
             }
             else {
-                window.requestAnimFrame = window.requestAnimationFrame ||
+                window.requestAnimationFrame = window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
                     window.mozRequestAnimationFrame ||
                     window.oRequestAnimationFrame ||
                     window.msRequestAnimationFrame ||
                     this._stTime;
-                window.cancelAnimFrame = window.cancelAnimationFrame ||
+                window.cancelAnimationFrame = window.cancelAnimationFrame ||
                     window.cancelRequestAnimationFrame ||
                     window.msCancelRequestAnimationFrame ||
                     window.mozCancelRequestAnimationFrame ||
@@ -535,7 +533,7 @@ class Game extends EventTarget {
 
         callback = function () {
             if (!self._paused) {
-                self._intervalId = window.requestAnimFrame(callback);
+                self._intervalId = window.requestAnimationFrame(callback);
                 if (!CC_JSB && frameRate === 30) {
                     if (skip = !skip) {
                         return;
@@ -545,7 +543,7 @@ class Game extends EventTarget {
             }
         };
 
-        self._intervalId = window.requestAnimFrame(callback);
+        self._intervalId = window.requestAnimationFrame(callback);
         self._paused = false;
     }
 

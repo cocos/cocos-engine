@@ -94,7 +94,7 @@ export class CallbacksHandler{
      * @param {Function} callback
      * @param {Object} [target] - can be null
      */
-    public add (key, callback, target) {
+    public add (key: string, callback: Function, target?: Object) {
         let list = this._callbackTable[key];
         if (!list) {
             list = this._callbackTable[key] = callbackListPool.get();
@@ -230,7 +230,7 @@ export class CallbacksInvoker extends CallbacksHandler{
      * @param {any} [p5]
      */
     public emit (key: string, ...args: any[]) {
-        const list = this._callbackTable[key];
+        const list: CallbackList = this._callbackTable[key];
         if (list) {
             const rootInvoker = !list.isInvoking;
             list.isInvoking = true;

@@ -15,22 +15,20 @@ export class CrossFade extends Playable {
 
     constructor (public target: Node) {
         super();
-        this._fadings.push({
-            state: null,
-            easeDuration: Number.POSITIVE_INFINITY,
-            easeTime: 0,
-        });
+        this._unshiftDefault();
     }
 
     public update (deltaTime: number) {
+        if (!this.isPlaying || this.isPaused) {
+            return;
+        }
         let absoluteWeight = 1.0;
         for (let i = 0; i < this._fadings.length; ++i) {
             if (absoluteWeight === 0) {
                 for (let j = i; j < this._fadings.length; ++j) {
                     const fading = this._fadings[j];
                     if (fading.state) {
-                        fading.state.weight = 0;
-                        fading.state.stop();
+                        this._directStopState(fading.state);
                     }
                 }
                 this._fadings.splice(i);
@@ -63,6 +61,48 @@ export class CrossFade extends Playable {
         if (state) {
             this._directPlayState(state);
         }
+    }
+
+    public onPause () {
+        super.onPause();
+        for (const fading of this._fadings) {
+            if (fading.state) {
+                fading.state.pause();
+            }
+        }
+    }
+
+    public onResume () {
+        super.onResume();
+        for (const fading of this._fadings) {
+            if (fading.state) {
+                fading.state.resume();
+            }
+        }
+    }
+
+    public onStop () {
+        super.onStop();
+        for (const fading of this._fadings) {
+            if (fading.state) {
+                this._directStopState(fading.state);
+            }
+        }
+        this._fadings.length = 0;
+        this._unshiftDefault();
+    }
+
+    private _unshiftDefault () {
+        this._fadings.unshift({
+            state: null,
+            easeDuration: Number.POSITIVE_INFINITY,
+            easeTime: 0,
+        });
+    }
+
+    private _directStopState (state: AnimationState) {
+        state.weight = 0;
+        state.stop();
     }
 
     private _directPlayState (state: AnimationState) {

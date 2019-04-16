@@ -1,6 +1,6 @@
 import { ccclass } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
-import { MutableForwardIterator } from '../core/utils/array';
+import { MutableForwardIterator, remove } from '../core/utils/array';
 import { Node } from '../scene-graph';
 import { AnimationBlendState } from './animation-blend-state';
 import { AnimationState } from './animation-state';
@@ -25,6 +25,10 @@ export class AnimationManager {
 
     public addCrossFade (crossFade: CrossFade) {
         this._crossFades.push(crossFade);
+    }
+
+    public removeCrossFade (crossFade: CrossFade) {
+        remove(this._crossFades, crossFade);
     }
 
     public update (dt: number) {

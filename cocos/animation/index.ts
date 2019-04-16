@@ -7,4 +7,3 @@ export * from './animation-curve';
 export * from './animation-clip';
 export * from './animation-manager';
 export * from './animation-state';
-export * from './animation-animator';
