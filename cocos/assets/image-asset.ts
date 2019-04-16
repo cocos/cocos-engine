@@ -39,6 +39,10 @@ export interface IMemoryImageSource {
 
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource;
 
+function fetchImageSource (imageSource: ImageSource) {
+    return '_data' in imageSource ? imageSource._data : imageSource;
+}
+
 /**
  * Class ImageAsset.
  */
@@ -56,7 +60,7 @@ export class ImageAsset extends EventTargetFactory(Asset) {
     }
 
     get data () {
-        return this._nativeData instanceof HTMLElement ? this._nativeData : this._nativeData._data;
+        return '_data' in this._nativeData ? this._nativeData._data : this._nativeData;
     }
 
     get width () {

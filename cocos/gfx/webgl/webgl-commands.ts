@@ -2489,6 +2489,8 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
             }
 
             for (const region of regions) {
+                // console.debug('Copying image to texture 2D: ' + region.texExtent.width + ' x ' + region.texExtent.height);
+
                 n = 0;
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                     gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
@@ -2506,6 +2508,8 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
             }
 
             for (const region of regions) {
+                // console.debug('Copying image to texture cube: ' + region.texExtent.width + ' x ' + region.texExtent.height);
+
                 n = 0;
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
@@ -2557,6 +2561,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 n = 0;
                 w = region.texExtent.width;
                 h = region.texExtent.height;
+                // console.debug('Copying buffer to texture 2D: ' + w + ' x ' + h);
 
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                     const pixels = (fmtInfo.type !== GFXFormatType.FLOAT ? new Uint8Array(buffers[n++]) : new Float32Array(buffers[n++]));
@@ -2575,6 +2580,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                     h = Math.max(1, w >> 1);
                 }
             }
+
             break;
         }
         case WebGLRenderingContext.TEXTURE_CUBE_MAP: {
@@ -2590,6 +2596,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                     w = region.texExtent.width;
                     h = region.texExtent.height;
+                    // console.debug('Copying buffer to texture cube: ' + w + ' x ' + h);
 
                     const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
                     for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {

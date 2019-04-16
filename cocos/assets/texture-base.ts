@@ -455,14 +455,15 @@ export class TextureBase extends EventTargetFactory(Asset) {
 
     protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number) {
         const upload = () => {
-            if (!image.data) {
+            const data = image.data;
+            if (!data) {
                 return;
             }
             let source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer;
-            if (image.data instanceof HTMLElement) {
-                source = image.data;
+            if (ArrayBuffer.isView(data)) {
+                source = data.buffer;
             } else {
-                source = image.data.buffer;
+                source = data;
             }
             this._uploadData(source, level, arrayIndex);
         };
@@ -512,10 +513,10 @@ export class TextureBase extends EventTargetFactory(Asset) {
             },
         };
 
-        if (source instanceof HTMLElement) {
-            gfxDevice.copyTexImagesToTexture([source], this._texture, [region]);
-        } else {
+        if (source instanceof ArrayBuffer) {
             gfxDevice.copyBuffersToTexture([source], this._texture, [region]);
+        } else {
+            gfxDevice.copyTexImagesToTexture([source], this._texture, [region]);
         }
     }
 
