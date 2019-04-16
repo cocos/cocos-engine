@@ -322,7 +322,7 @@ export abstract class RenderPipeline {
             this._usePostProcess = info.enablePostProcess;
         } else {
             if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-                this._usePostProcess = true;
+                this._usePostProcess = false;
             } else {
                 this._usePostProcess = true;
             }
@@ -372,8 +372,12 @@ export abstract class RenderPipeline {
             this._isHDR = false;
         }
 
-        if (this._device.hasFeature(GFXFeature.FORMAT_D24S8)) {
-            this._depthStencilFmt = GFXFormat.D24S8;
+        if (this._device.depthBits === 24) {
+            if (this._device.stencilBits === 8) {
+               this._depthStencilFmt = GFXFormat.D24S8;
+            } else {
+               this._depthStencilFmt = GFXFormat.D24;
+            }
         } else {
             this._depthStencilFmt = GFXFormat.D16;
         }

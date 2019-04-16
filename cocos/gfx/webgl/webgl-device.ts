@@ -308,12 +308,15 @@ export class WebGLGFXDevice extends GFXDevice {
         this._ANGLE_instanced_arrays = gl.getExtension('ANGLE_instanced_arrays');
 
         this._features.fill(false);
-        if (this._OES_texture_float) {
-            this._features[GFXFeature.TEXTURE_FLOAT] = true;
-        }
 
-        if (this._OES_texture_half_float) {
-            this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
+        if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
+            if (this._OES_texture_float) {
+                this._features[GFXFeature.TEXTURE_FLOAT] = true;
+            }
+
+            if (this._OES_texture_half_float) {
+                this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
+            }
         }
 
         if (this._WEBGL_depth_texture) {
