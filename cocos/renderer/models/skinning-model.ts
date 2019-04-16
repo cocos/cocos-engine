@@ -17,19 +17,19 @@ import { RenderScene } from '../scene/render-scene';
 const textureSizeBuffer = new Float32Array(4);
 
 export enum JointStorageKind {
-    byteTexture,
-    floatingPointTexture,
+    textureRGBA8,
+    textureRGBA32F,
     uniform,
 }
 
 interface IFJointTextureStorage {
-    kind: JointStorageKind.floatingPointTexture;
+    kind: JointStorageKind.textureRGBA32F;
     nativeData: Float32Array;
     texture: Texture2D;
 }
 
 interface IBJointTextureStorage {
-    kind: JointStorageKind.byteTexture;
+    kind: JointStorageKind.textureRGBA8;
     nativeData: Uint8Array;
     texture: Texture2D;
 }
@@ -42,7 +42,7 @@ interface IJointUniformsStorage {
 type JointStorage = IFJointTextureStorage | IBJointTextureStorage | IJointUniformsStorage;
 
 function isTextureStorage (storage: JointStorage): storage is (IFJointTextureStorage | IBJointTextureStorage) {
-    return storage.kind === JointStorageKind.byteTexture || storage.kind === JointStorageKind.floatingPointTexture;
+    return storage.kind === JointStorageKind.textureRGBA8 || storage.kind === JointStorageKind.textureRGBA32F;
 }
 
 const pixelsPerJointOfFJointTexture = 4;
@@ -73,21 +73,21 @@ export class SkinningModel extends Model {
         this._destroyJointStorage();
         const storageKind = this._selectStorageKind();
 
-        if (storageKind === JointStorageKind.floatingPointTexture ||
-            storageKind === JointStorageKind.byteTexture) {
+        if (storageKind === JointStorageKind.textureRGBA32F ||
+            storageKind === JointStorageKind.textureRGBA8) {
             const jointsTexture = _createJointsTexture(skeleton, storageKind);
             textureSizeBuffer[0] = jointsTexture.width;
             this._skinningUBO.update(
                 textureSizeBuffer, UBOSkinning.JOINTS_TEXTURE_SIZE_OFFSET, textureSizeBuffer.byteLength);
-            if (storageKind === JointStorageKind.floatingPointTexture) {
+            if (storageKind === JointStorageKind.textureRGBA32F) {
                 this._jointStorage = {
-                    kind: JointStorageKind.floatingPointTexture,
+                    kind: JointStorageKind.textureRGBA32F,
                     texture: jointsTexture,
                     nativeData: new Float32Array(jointsTexture.width * jointsTexture.height * pixelsPerJointOfFJointTexture * 4),
                 };
             } else {
                 this._jointStorage = {
-                    kind: JointStorageKind.byteTexture,
+                    kind: JointStorageKind.textureRGBA8,
                     texture: jointsTexture,
                     nativeData: new Uint8Array(jointsTexture.width * jointsTexture.height * pixelsPerJointOfBJointTexture * 4),
                 };
@@ -159,9 +159,9 @@ export function selectStorageKind (device: GFXDevice): JointStorageKind {
     } else if (device.gfxAPI === GFXAPI.WEBGL2) {
         return JointStorageKind.uniform; // BUG Now
     } else if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-        return JointStorageKind.byteTexture;
+        return JointStorageKind.textureRGBA8;
     } else {
-        return JointStorageKind.byteTexture;
+        return JointStorageKind.textureRGBA8;
     }
 }
 
@@ -181,7 +181,7 @@ function _setJointMatrix (out: Float32Array | Uint8Array, iMatrix: number, matri
         out[base + 9] = matrix.m12;
         out[base + 10] = matrix.m13;
         out[base + 11] = matrix.m14;
-    } else if (kind === JointStorageKind.floatingPointTexture) {
+    } else if (kind === JointStorageKind.textureRGBA32F) {
         mat4.array(out, matrix, iMatrix * pixelsPerJointOfFJointTexture * 4);
     } else {
         const base = iMatrix * 16 * 4;
@@ -224,8 +224,8 @@ function createTointTextureCapacityTable (maxCapacity: number, pixelsPerJoint: n
 const fJointTextureCapacityTable = createTointTextureCapacityTable(1024, pixelsPerJointOfFJointTexture);
 const bJointTextureCapacityTable = createTointTextureCapacityTable(1024, pixelsPerJointOfBJointTexture);
 
-function _createJointsTexture (skinning: { joints: any[]; }, kind: JointStorageKind.byteTexture | JointStorageKind.floatingPointTexture) {
-    const flt = (kind === JointStorageKind.floatingPointTexture);
+function _createJointsTexture (skinning: { joints: any[]; }, kind: JointStorageKind.textureRGBA8 | JointStorageKind.textureRGBA32F) {
+    const flt = (kind === JointStorageKind.textureRGBA32F);
     const jointCount = skinning.joints.length;
     let textureExtent = -1;
     for (const item of (flt ? fJointTextureCapacityTable : bJointTextureCapacityTable)) {
@@ -245,7 +245,14 @@ function _createJointsTexture (skinning: { joints: any[]; }, kind: JointStorageK
     return texture;
 }
 
-function encode32 (f: number, output: Uint8Array, offset: number) {
+const encode32 = (() => {
+    const EXP2_XX_1 = exp2(-1.0);
+    const EXP2_XX_2 = exp2(23.0 - 8.0);
+    const EXP2_XX_3 = exp2(8.0);
+    const EXP2_XX_4 = exp2(23.0);
+    const EXP2_XX_5 = exp2(-15.0);
+
+    return (f: number, output: Uint8Array, offset: number) => {
     // https://stackoverflow.com/questions/7059962/how-do-i-convert-a-vec4-rgba-value-to-a-float
     // http://www.shaderific.com/glsl-functions/
     const e = 5.0;
@@ -274,21 +281,23 @@ function encode32 (f: number, output: Uint8Array, offset: number) {
     }
     Exponent += 127;
 
-    const r = 128.0 * Sign  + Math.floor(Exponent * exp2(-1.0));
+    const r = 128.0 * Sign  + Math.floor(Exponent * EXP2_XX_1);
     const g = 128.0 * mod(Exponent, 2.0) + mod(Math.floor(Mantissa * 128.0), 128.0);
-    const b = Math.floor(mod(Math.floor(Mantissa * exp2(23.0 - 8.0)), exp2(8.0)));
-    const a = Math.floor(exp2(23.0) * mod(Mantissa, exp2(-15.0)));
+    const b = Math.floor(mod(Math.floor(Mantissa * EXP2_XX_2), EXP2_XX_3));
+    const a = Math.floor(EXP2_XX_4 * mod(Mantissa, EXP2_XX_5));
 
-    const ff = decode32(r, g, b, a);
-    if (Math.abs(ff - f) > 0.00001) {
-        f = ff;
-    }
+    // Verification.
+    // const g = decode32(r, g, b, a);
+    // if (Math.abs(g - f) > 0.00001) {
+    //     f = g;
+    // }
 
     output[offset + 0] = r;
     output[offset + 1] = g;
     output[offset + 2] = b;
     output[offset + 3] = a;
-}
+    };
+})();
 
 function decode32 (r: number, g: number, b: number, a: number) {
     const Sign = 1.0 - step(128.0, r) * 2.0;
