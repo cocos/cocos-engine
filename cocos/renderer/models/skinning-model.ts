@@ -279,10 +279,12 @@ function encode32 (f: number, output: Uint8Array, offset: number) {
     const b = Math.floor(mod(Math.floor(Mantissa * exp2(23.0 - 8.0)), exp2(8.0)));
     const a = Math.floor(exp2(23.0) * mod(Mantissa, exp2(-15.0)));
 
+    /*
     const ff = decode32(r, g, b, a);
     if (Math.abs(ff - f) > 0.00001) {
         f = ff;
     }
+    */
 
     output[offset + 0] = r;
     output[offset + 1] = g;
