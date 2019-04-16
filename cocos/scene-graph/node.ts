@@ -136,20 +136,12 @@ class Node extends BaseNode {
         this._eventProcessor = new cc.NodeEventProcessor(this);
     }
 
-    get position () {
-        return this.getPosition(v3_a);
-    }
-
     set position (value: vec3) {
         this.setPosition(value.x, value.y, value.z);
     }
 
     set scale (value: vec3) {
         this.setScale(value.x, value.y, value.z);
-    }
-
-    get rotation () {
-        return this.getRotation(q_a);
     }
 
     set rotation (value: quat) {
@@ -853,6 +845,14 @@ if (CC_EDITOR) {
         },
     });
 }
+
+Object.defineProperty(Node.prototype, 'position', {
+    get: Node.prototype.getPosition,
+});
+
+Object.defineProperty(Node.prototype, 'rotation', {
+    get: Node.prototype.getRotation,
+});
 
 Object.defineProperty(Node.prototype, 'scale', {
     get: Node.prototype.getScale,
