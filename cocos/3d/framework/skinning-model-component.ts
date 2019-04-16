@@ -28,7 +28,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { Mat4 } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
 import { GFXDevice } from '../../gfx/device';
-import { SkinningModel, useJointsTexture } from '../../renderer/models/skinning-model';
+import { SkinningModel, JointStorageKind, selectStorageKind } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Material } from '../assets/material';
 import Skeleton from '../assets/skeleton';
@@ -144,10 +144,14 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     protected _onMaterialModified (index: number, material: Material) {
-        const device = _getGlobalDevice();
-        const useJointTexture = device !== null && useJointsTexture(device);
+        const device = _getGlobalDevice()!;
+        const kind = selectStorageKind(device);
         const mat = this.getMaterial(index, CC_EDITOR)!;
-        mat.recompileShaders({ CC_USE_SKINNING: true, CC_USE_JOINTS_TEXTURE: useJointTexture });
+        mat.recompileShaders({
+            CC_USE_SKINNING: true,
+            CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.floatingPointTexture || kind === JointStorageKind.byteTexture,
+            CC_USE_JOINTS_TEXTURE_RGBA8888: kind === JointStorageKind.byteTexture,
+        });
         super._onMaterialModified(index, mat);
     }
 
