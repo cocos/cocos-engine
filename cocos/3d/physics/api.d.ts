@@ -1,7 +1,7 @@
-import { Vec3, Quat } from '../../core/value-types';
+import { Quat, Vec3 } from '../../core/value-types';
 import { Node } from '../../scene-graph';
+import { ERigidBodyType } from './physic-enum';
 import { RaycastResult } from './raycast-result';
-import { ERigidBodyType } from './instance';
 
 export interface IRaycastOptions {
     collisionFilterMask?: number;
@@ -28,151 +28,155 @@ export type AfterStepCallback = () => void;
 export class PhysicsWorldBase {
     constructor ();
 
-    step (deltaTime: number): void;
+    public step (deltaTime: number): void;
 
-    addBeforeStep (cb: BeforeStepCallback): void;
+    public addBeforeStep (cb: BeforeStepCallback): void;
 
-    removeBeforeStep (cb: BeforeStepCallback): void;
+    public removeBeforeStep (cb: BeforeStepCallback): void;
 
-    addAfterStep (cb: AfterStepCallback): void;
+    public addAfterStep (cb: AfterStepCallback): void;
 
-    removeAfterStep (cb: AfterStepCallback): void;
+    public removeAfterStep (cb: AfterStepCallback): void;
 
     /**
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
      */
-    raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean;
+    public raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean;
 
     /**
      * Ray cast, and stop at the first result. Note that the order is random - but the method is fast.
      * @return True if any body was hit.
      */
-    raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean;
+    public raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean;
 
     /**
      * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
      * @return True if any body was hit.
      */
-    raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean;
+    public raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean;
 }
 
 export class RigidBodyBase {
     constructor (options?: ICreateBodyOptions);
 
-    /**获取/设置刚体类型 : ERigidBodyType*/
-    getType (): ERigidBodyType;
-    setType (v: ERigidBodyType): void;
+    /** 获取/设置刚体类型 : ERigidBodyType */
+    public getType (): ERigidBodyType;
+    public setType (v: ERigidBodyType): void;
 
-    addShape (shape: ShapeBase): void;
+    /** 唤醒/睡眠刚体 */
+    public wakeUp (): void;
+    public sleep (): void;
 
-    removeShape (shape: ShapeBase): void;
+    public addShape (shape: ShapeBase): void;
 
-    getMass (): number;
+    public removeShape (shape: ShapeBase): void;
 
-    setMass (value: number): void;
+    public getMass (): number;
 
-    applyForce (force: Vec3, position?: Vec3): void;
+    public setMass (value: number): void;
 
-    applyImpulse (impulse: Vec3, position?: Vec3): void;
+    public applyForce (force: Vec3, position?: Vec3): void;
 
-    getIsKinematic (): boolean;
+    public applyImpulse (impulse: Vec3, position?: Vec3): void;
 
-    setIsKinematic (value: boolean): void;
+    public getIsKinematic (): boolean;
 
-    getLinearDamping (): number;
+    public setIsKinematic (value: boolean): void;
 
-    setLinearDamping (value: number): void;
+    public getLinearDamping (): number;
 
-    getAngularDamping (): number;
+    public setLinearDamping (value: number): void;
 
-    setAngularDamping (value: number): void;
+    public getAngularDamping (): number;
 
-    getUseGravity (): boolean;
+    public setAngularDamping (value: number): void;
 
-    setUseGravity (value: boolean): void;
+    public getUseGravity (): boolean;
 
-    getIsTrigger (): boolean;
+    public setUseGravity (value: boolean): void;
 
-    setIsTrigger (value: boolean): void;
+    public getIsTrigger (): boolean;
 
-    getVelocity (): Vec3;
+    public setIsTrigger (value: boolean): void;
 
-    setVelocity (value: Vec3): void;
+    public getVelocity (): Vec3;
 
-    getFreezeRotation (): boolean;
+    public setVelocity (value: Vec3): void;
 
-    setFreezeRotation (value: boolean): void;
+    public getFreezeRotation (): boolean;
+
+    public setFreezeRotation (value: boolean): void;
 
     /**
      * Set the collision filter of this body, remember that they are tested bitwise.
      * @param group The group which this body will be put into.
      * @param mask The groups which this body can collide with.
      */
-    setCollisionFilter (group: number, mask: number): void;
+    public setCollisionFilter (group: number, mask: number): void;
 
-    setWorld (world: PhysicsWorldBase | null): void;
+    public setWorld (world: PhysicsWorldBase | null): void;
 
-    commitShapeUpdates (): void;
+    public commitShapeUpdates (): void;
 
-    isPhysicsManagedTransform (): boolean;
+    public isPhysicsManagedTransform (): boolean;
 
-    getPosition (out: Vec3): void;
+    public getPosition (out: Vec3): void;
 
-    setPosition (value: Vec3): void;
+    public setPosition (value: Vec3): void;
 
-    getRotation (out: Quat): void;
+    public getRotation (out: Quat): void;
 
-    setRotation (out: Quat): void;
+    public setRotation (out: Quat): void;
 
-    scaleAllShapes (scale: Vec3): void;
+    public scaleAllShapes (scale: Vec3): void;
 
-    addCollisionCallback (callback: ICollisionCallback): void;
+    public addCollisionCallback (callback: ICollisionCallback): void;
 
-    removeCollisionCllback (callback: ICollisionCallback): void;
+    public removeCollisionCllback (callback: ICollisionCallback): void;
 
-    getUserData (): any;
+    public getUserData (): any;
 
-    setUserData (data: any): void;
+    public setUserData (data: any): void;
 }
 
 export class ShapeBase {
-    setCenter (center: Vec3): void;
+    public setCenter (center: Vec3): void;
 
-    setScale (scale: Vec3): void;
+    public setScale (scale: Vec3): void;
 
-    setRotation (rotation: Quat): void;
+    public setRotation (rotation: Quat): void;
 
-    getUserData (): any;
+    public getUserData (): any;
 
-    setUserData (data: any): void;
+    public setUserData (data: any): void;
 
-    getCollisionResponse():boolean;
+    public getCollisionResponse (): boolean;
 
-    setCollisionResponse(value:boolean):void;
+    public setCollisionResponse (value: boolean): void;
 }
 
 export class SphereShapeBase extends ShapeBase {
     constructor (radius: number);
 
-    setRadius (radius: number): void;
+    public setRadius (radius: number): void;
 }
 
 export class BoxShapeBase extends ShapeBase {
     constructor (size: Vec3);
 
-    setSize (size: Vec3): void;
+    public setSize (size: Vec3): void;
 }
 
 /**
  * Base class for Constraint classes.
  */
 export class ConstraintBase {
-    first: RigidBodyBase;
-    second: RigidBodyBase;
-    enable (): void;
-    disable (): void;
-    update (): void;
+    public first: RigidBodyBase;
+    public second: RigidBodyBase;
+    public enable (): void;
+    public disable (): void;
+    public update (): void;
 }
 
 /**

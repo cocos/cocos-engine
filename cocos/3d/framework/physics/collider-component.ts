@@ -8,7 +8,8 @@ import {
 import Vec3 from '../../../core/value-types/vec3';
 import { vec3 } from '../../../core/vmath';
 import { BoxShapeBase, ShapeBase, SphereShapeBase } from '../../physics/api';
-import { createBoxShape, createSphereShape, ERigidBodyType, ETransformSource } from '../../physics/instance';
+import { createBoxShape, createSphereShape } from '../../physics/instance';
+import { ERigidBodyType, ETransformSource } from '../../physics/physic-enum';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 export class ColliderComponentBase extends PhysicsBasedComponent {
@@ -62,10 +63,6 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         }
         this.center = this._center;
         this.isTrigger = this._triggered;
-
-        if (this._enabled) {
-            this.onEnable();
-        }
     }
 
     // public lateUpdate () {

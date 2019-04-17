@@ -12,7 +12,7 @@ import {
     IRaycastOptions, LockConstraintBase, PhysicsWorldBase,
     PointToPointConstraintBase, RigidBodyBase, ShapeBase, SphereShapeBase,
 } from './api';
-import { ERigidBodyType } from './instance';
+import { ERigidBodyType } from './physic-enum';
 import { RaycastResult } from './raycast-result';
 import { stringfyQuat, stringfyVec3 } from './util';
 
@@ -214,6 +214,12 @@ export class CannonRigidBody implements RigidBodyBase {
         this._cannonBody.postStep = () => {
             this._onSelfPostStep();
         };
+    }
+    public wakeUp (): void {
+        return this._cannonBody.wakeUp();
+    }
+    public sleep (): void {
+        return this._cannonBody.sleep();
     }
 
     public name () {
