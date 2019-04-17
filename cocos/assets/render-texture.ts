@@ -1,19 +1,19 @@
 import { ccclass } from '../core/data/class-decorator';
-import { IRect2D, normalizeRect2D } from '../core/vmath/rect';
-import { GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
+// import { IRect2D, normalizeRect2D } from '../core/vmath/rect';
+import { GFXBufferTextureCopy, GFXFormat } from '../gfx/define';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
-import { RenderPassStage } from '../pipeline/define';
-import { ImageAsset } from './image-asset';
+// import { RenderPassStage } from '../pipeline/define';
+import { SpriteFrame } from './sprite-frame';
 import { Texture2D } from './texture-2d';
 
-type DSFormat = 'D24S8' | 'S8' | 'D16';
-const _formatMap = {
-    D24S8: GFXFormat.D24S8,
-    S8: GFXFormat.R8UI,
-    D16: GFXFormat.D16,
-};
+// type DSFormat = 'D24S8' | 'S8' | 'D16';
+// const _formatMap = {
+//     D24S8: GFXFormat.D24S8,
+//     S8: GFXFormat.R8UI,
+//     D16: GFXFormat.D16,
+// };
 
 /**
  * Render textures are textures that can be rendered to.
@@ -22,7 +22,7 @@ const _formatMap = {
  */
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends Texture2D {
-    private _framebuffer: GFXFramebuffer | null = null;
+    private _frameBuffer: GFXFramebuffer | null = null;
 
     private _depthStencilTexture: GFXTexture | null = null;
 
@@ -42,67 +42,105 @@ export class RenderTexture extends Texture2D {
      * @param [string]
      * @method initWithSize
      */
-    public initWithSize (width: number, height: number, format: DSFormat = 'D24S8') {
+    public initWithSize (width: number, height: number, format: GFXFormat = GFXFormat.RGBA8) {
         this.destroy();
 
         const gfxDevice = this._getGlobalDevice();
         if (!gfxDevice) {
+            console.warn('Unable to get device');
             return;
         }
 
-        const image = new ImageAsset({
-            width,
-            height,
-            format: GFXFormat.RGBA8UI,
-            _data: new Uint8Array(width * height * 4),
-            _compressed: false,
-        });
+        const texInfo = this._getTextureCreateInfo();
+        texInfo.width = width;
+        texInfo.height = height;
+        texInfo.format = format;
+        this._texture = gfxDevice.createTexture(texInfo);
+        this._textureView = gfxDevice.createTextureView(this._getTextureViewCreateInfo());
 
-        this.image = image;
+        // TOOD:
+        // if (format !== undefined) {
+        //     this._depthStencilTexture = gfxDevice.createTexture({
+        //         type: GFXTextureType.TEX2D,
+        //         usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+        //         format: _formatMap[format],
+        //         width,
+        //         height,
+        //     });
+        //     this._depthStencilTextureView = gfxDevice.createTextureView({
+        //         texture: this._depthStencilTexture,
+        //         type: GFXTextureViewType.TV2D,
+        //         format: _formatMap[format],
+        //     });
+        // }
 
-        if (!this._textureView) {
-            return;
-        }
-
-        if (format !== undefined) {
-            this._depthStencilTexture = gfxDevice.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-                format: _formatMap[format],
-                width,
-                height,
-            });
-            this._depthStencilTextureView = gfxDevice.createTextureView({
-                texture: this._depthStencilTexture,
-                type: GFXTextureViewType.TV2D,
-                format: _formatMap[format],
-            });
-        }
-
-        this._framebuffer = gfxDevice.createFramebuffer({
-            renderPass: cc.director.root.pipeline.getRenderPass(RenderPassStage.DEFAULT),
-            colorViews: [ this._textureView ],
-            depthStencilView: this._depthStencilTextureView!,
-            isOffscreen: true,
-        });
+        // this._frameBuffer = gfxDevice.createFramebuffer({
+        //     renderPass: cc.director.root.pipeline.getRenderPass(RenderPassStage.DEFAULT),
+        //     colorViews: [ this._textureView ],
+        //     depthStencilView: this._depthStencilTextureView,
+        //     isOffscreen: true,
+        // });
 
         this.loaded = true;
         this.emit('load');
     }
 
+    /**
+     * !#en Draw a texture to the specified position
+     * !#zh 将指定的图片渲染到指定的位置上
+     * @param {Texture2D} texture
+     * @param {Number} x
+     * @param {Number} y
+     */
+    public drawTextureAt (texture: SpriteFrame, x: number, y: number) {
+        if (!texture.image || !this._texture) {
+            return;
+        }
+
+        const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) {
+            console.warn('Unable to get device');
+            return;
+        }
+
+        const region: GFXBufferTextureCopy = {
+            buffOffset: 0,
+            buffStride: 0,
+            buffTexHeight: 0,
+            texOffset: {
+                x,
+                y,
+                z: 0,
+            },
+            texExtent: {
+                width: texture.image.width,
+                height: texture.image.height,
+                depth: 1,
+            },
+            texSubres: {
+                baseMipLevel: 0,
+                levelCount: 1,
+                baseArrayLayer: 0,
+                layerCount: 1,
+            },
+        };
+
+        gfxDevice.copyTexImagesToTexture([texture.image.data as HTMLCanvasElement], this._texture, [region]);
+    }
+
     public destroy () {
-        if (this._framebuffer) {
-            this._framebuffer.destroy();
-            this._framebuffer = null;
-        }
-        if (this._depthStencilTextureView) {
-            this._depthStencilTextureView.destroy();
-            this._depthStencilTextureView = null;
-        }
-        if (this._depthStencilTexture) {
-            this._depthStencilTexture.destroy();
-            this._depthStencilTexture = null;
-        }
+        // if (this._frameBuffer) {
+        //     this._frameBuffer.destroy();
+        //     this._frameBuffer = null;
+        // }
+        // if (this._depthStencilTextureView) {
+        //     this._depthStencilTextureView.destroy();
+        //     this._depthStencilTextureView = null;
+        // }
+        // if (this._depthStencilTexture) {
+        //     this._depthStencilTexture.destroy();
+        //     this._depthStencilTexture = null;
+        // }
         return super.destroy();
     }
 
@@ -131,44 +169,45 @@ export class RenderTexture extends Texture2D {
      * @param [data]
      * @param [rect]
      */
-    public readPixels (data?: Uint8Array, rect: IRect2D = {}) {
-        if (!this._framebuffer || !this._texture) {
-            return undefined;
-        }
+    // TODO:
+    // public readPixels (data?: Uint8Array, rect: IRect2D = {}) {
+    //     if (!this._frameBuffer || !this._texture) {
+    //         return undefined;
+    //     }
 
-        const gfxDevice = this._getGlobalDevice();
-        if (!gfxDevice) {
-            return;
-        }
+    //     const gfxDevice = this._getGlobalDevice();
+    //     if (!gfxDevice) {
+    //         return;
+    //     }
 
-        const normalizedRect = normalizeRect2D(rect, this.width, this.height);
+    //     const normalizedRect = normalizeRect2D(rect, this.width, this.height);
 
-        data = data || new Uint8Array(normalizedRect.width * normalizedRect.height * 4);
+    //     data = data || new Uint8Array(normalizedRect.width * normalizedRect.height * 4);
 
-        gfxDevice.copyFramebufferToBuffer(this._framebuffer, data.buffer, [{
-            buffOffset: 0,
-            buffStride: 0,
-            buffTexHeight: 0,
-            texOffset: {
-                x: normalizedRect.x,
-                y: normalizedRect.y,
-                z: 0,
-            },
-            texExtent: {
-                width: normalizedRect.width,
-                height: normalizedRect.height,
-                depth: 1,
-            },
-            texSubres: {
-                baseMipLevel: 0,
-                levelCount: 1,
-                baseArrayLayer: 0,
-                layerCount: 1,
-            },
-        }]);
+    //     gfxDevice.copyFramebufferToBuffer(this._frameBuffer, data.buffer, [{
+    //         buffOffset: 0,
+    //         buffStride: 0,
+    //         buffTexHeight: 0,
+    //         texOffset: {
+    //             x: normalizedRect.x,
+    //             y: normalizedRect.y,
+    //             z: 0,
+    //         },
+    //         texExtent: {
+    //             width: normalizedRect.width,
+    //             height: normalizedRect.height,
+    //             depth: 1,
+    //         },
+    //         texSubres: {
+    //             baseMipLevel: 0,
+    //             levelCount: 1,
+    //             baseArrayLayer: 0,
+    //             layerCount: 1,
+    //         },
+    //     }]);
 
-        return data;
-    }
+    //     return data;
+    // }
 }
 
 cc.RenderTexture = RenderTexture;

@@ -24,10 +24,10 @@
  ****************************************************************************/
 
 import { BitmapFont, IConfig } from '../../../../assets/bitmap-font';
-import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
-import macro from '../../../../core/platform/CCMacro';
-import * as textUtils from '../../../../core/utils/text-utils';
+import { SpriteFrame } from '../../../../assets/sprite-frame';
+import { isUnicodeCJK, isUnicodeSpace } from '../../../../core/utils/text-utils';
 import { Rect, Size, Vec2 } from '../../../../core/value-types';
+import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label-component';
 import { LabelComponent, Overflow } from '../../components/label-component';
 
 class FontLetterDefinition {
@@ -332,7 +332,7 @@ export const bmfontUtils = {
                     && _maxLineWidth > 0
                     && nextTokenX > 0
                     && letterX + letterDef.width * _bmfontScale > _maxLineWidth
-                    && !textUtils.isUnicodeSpace(character)) {
+                    && !isUnicodeSpace(character)) {
                     _linesWidth.push(letterRight);
                     letterRight = 0;
                     lineIndex++;
@@ -418,9 +418,9 @@ export const bmfontUtils = {
 
     _getFirstWordLen (text: string, startIndex: number, textLen: number) {
         let character = text.charAt(startIndex);
-        if (textUtils.isUnicodeCJK(character)
+        if (isUnicodeCJK(character)
             || character === '\n'
-            || textUtils.isUnicodeSpace(character)) {
+            || isUnicodeSpace(character)) {
             return 1;
         }
 
@@ -441,14 +441,14 @@ export const bmfontUtils = {
             letterX = nextLetterX + letterDef._offsetX * _bmfontScale;
 
             if (letterX + letterDef._width * _bmfontScale > _maxLineWidth
-                && !textUtils.isUnicodeSpace(character)
+                && !isUnicodeSpace(character)
                 && _maxLineWidth > 0) {
                 return len;
             }
             nextLetterX += letterDef._xAdvance * _bmfontScale + _spacingX;
             if (character === '\n'
-                || textUtils.isUnicodeSpace(character)
-                || textUtils.isUnicodeCJK(character)) {
+                || isUnicodeSpace(character)
+                || isUnicodeCJK(character)) {
                 break;
             }
             len++;
@@ -727,17 +727,17 @@ export const bmfontUtils = {
         _linesOffsetX.length = 0;
 
         switch (_hAlign) {
-            case macro.TextAlignment.LEFT:
+            case HorizontalTextAlignment.LEFT:
                 for (let i = 0; i < _numberOfLines; ++i) {
                     _linesOffsetX.push(0);
                 }
                 break;
-            case macro.TextAlignment.CENTER:
+            case HorizontalTextAlignment.CENTER:
                 for (let i = 0, l = _linesWidth.length; i < l; i++) {
                     _linesOffsetX.push((_contentSize.width - _linesWidth[i]) / 2);
                 }
                 break;
-            case macro.TextAlignment.RIGHT:
+            case HorizontalTextAlignment.RIGHT:
                 for (let i = 0, l = _linesWidth.length; i < l; i++) {
                     _linesOffsetX.push(_contentSize.width - _linesWidth[i]);
                 }
@@ -747,13 +747,13 @@ export const bmfontUtils = {
         }
 
         switch (_vAlign) {
-            case macro.VerticalTextAlignment.TOP:
+            case VerticalTextAlignment.TOP:
                 _letterOffsetY = _contentSize.height;
                 break;
-            case macro.VerticalTextAlignment.CENTER:
+            case VerticalTextAlignment.CENTER:
                 _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2;
                 break;
-            case macro.VerticalTextAlignment.BOTTOM:
+            case VerticalTextAlignment.BOTTOM:
                 _letterOffsetY = _textDesiredHeight;
                 break;
             default:

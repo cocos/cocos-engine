@@ -20,3 +20,4 @@ export { UITransformComponent } from './components/ui-transfrom-component';
 export { ViewGroupComponent } from './components/view-group-component';
 export { WebviewComponent } from './components/webview/webView-component';
 export { WidgetComponent } from './components/widget-component';
+export { LabelOutlineComponent } from './components/label-outline-component';

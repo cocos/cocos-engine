@@ -24,7 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { CanvasComponent, LabelComponent, UITransformComponent, WidgetComponent} from '../../../3d/ui';
+import { CanvasComponent} from '../../../3d/ui/components/canvas-component';
+import { LabelComponent } from '../../../3d/ui/components/label-component';
+import { UITransformComponent } from '../../../3d/ui/components/ui-transfrom-component';
+import { WidgetComponent } from '../../../3d/ui/components/widget-component';
 import { ImageAsset, SpriteFrame } from '../../../assets';
 import { LabelAtlas } from '../../../assets/label-atlas';
 import { GFXDevice } from '../../../gfx/device';

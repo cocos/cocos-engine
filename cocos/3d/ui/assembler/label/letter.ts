@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -23,34 +23,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { BitmapFont } from '../../../../assets/bitmap-font';
-import { LabelComponent} from '../../components/label-component';
-import { IAssemblerManager } from '../assembler';
+import { addon } from '../../../../core/utils/js';
+import { UI } from '../../../../renderer/ui/ui';
+import { LabelComponent } from '../../components/label-component';
+import { fillMeshVertices3D } from '../utils';
 import { bmfont } from './bmfont';
-import { letter } from './letter';
-import { ttf } from './ttf';
+import { letterFont} from './letter-font';
 
-export const labelAssembler: IAssemblerManager = {
-    getAssembler (comp: LabelComponent) {
-        let assembler = ttf;
+const WHITE = cc.color(255, 255, 255, 255);
 
-        if (comp.font instanceof BitmapFont) {
-            assembler = bmfont;
-        }else if (comp.cacheMode === LabelComponent.CacheMode.CHAR){
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB){
-                cc.warn('sorry, subdomain does not support CHAR mode currently!');
-            } else {
-                assembler = letter;
-            }
-        }
-
-        return assembler;
+export const letter = {
+    createData (comp: LabelComponent) {
+        return comp.requestRenderData();
     },
 
-    // Skip invalid labels (without own _assembler)
-    // updateRenderData(label) {
-    //     return label.__allocedDatas;
-    // }
+    fillBuffers (comp: LabelComponent, renderer: UI) {
+        if (!comp.renderData){
+            return;
+        }
+
+        const node = comp.node;
+        WHITE.a = comp.color.a;
+        fillMeshVertices3D(node, renderer, comp.renderData, WHITE);
+    },
+
+    appendQuad: bmfont.appendQuad,
 };
 
-LabelComponent.Assembler = labelAssembler;
+addon(letter, letterFont);

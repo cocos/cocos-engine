@@ -25,8 +25,8 @@
  ****************************************************************************/
 
 import { ccclass, property } from '../core/data/class-decorator';
-import { SpriteFrame } from './CCSpriteFrame';
 import { Font } from './font';
+import { SpriteFrame } from './sprite-frame';
 
 export interface IConfig {
     [key: string]: any;

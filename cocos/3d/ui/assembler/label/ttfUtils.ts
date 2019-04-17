@@ -23,12 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { LabelOutlineComponent } from '../../../../2d/label/label-outline';
-import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
+import { SpriteFrame } from '../../../../assets/sprite-frame';
 import { Component } from '../../../../components/component';
 import { fragmentText, safeMeasureText } from '../../../../core/utils/text-utils';
 import { Color, Size } from '../../../../core/value-types';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from '../../components/label-component';
+import { LabelOutlineComponent } from '../../components/label-outline-component';
+import { CanvasPool, ISharedLabelData } from './font-utils';
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = Color.WHITE;
@@ -62,43 +63,9 @@ let _isBold = false;
 let _isItalic = false;
 let _isUnderline = false;
 
+const _canvasPool = new CanvasPool();
+
 // let _sharedLabelData;
-
-//
-interface ICanvasPool {
-    pool: ISharedLabelData[];
-    get (): ISharedLabelData;
-    put (canvas: ISharedLabelData): void;
-}
-
-const _canvasPool: ICanvasPool = {
-    pool: [],
-    get () {
-        let data = this.pool.pop();
-
-        if (!data) {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            data = {
-                canvas,
-                context,
-            };
-        }
-
-        return data;
-    },
-    put (canvas: ISharedLabelData) {
-        if (this.pool.length >= 32) {
-            return;
-        }
-        this.pool.push(canvas);
-    },
-};
-
-export interface ISharedLabelData {
-    canvas: HTMLCanvasElement;
-    context: CanvasRenderingContext2D | null;
-}
 
 export const ttfUtils =  {
     getAssemblerData () {
@@ -111,7 +78,7 @@ export const ttfUtils =  {
         const sharedLabelData = {
             canvas: labelCanvas,
             context: labelCanvas.getContext('2d'),
-        };
+        } as ISharedLabelData;
         // }
         // }
         sharedLabelData.canvas.width = sharedLabelData.canvas.height = 1;

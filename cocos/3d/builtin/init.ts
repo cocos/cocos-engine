@@ -1,6 +1,6 @@
 import { Asset } from '../../assets/asset';
-import { SpriteFrame } from '../../assets/CCSpriteFrame';
 import { ImageAsset } from '../../assets/image-asset';
+import { SpriteFrame } from '../../assets/sprite-frame';
 import { Texture2D } from '../../assets/texture-2d';
 import { Rect } from '../../core/value-types';
 import { GFXDevice } from '../../gfx/device';

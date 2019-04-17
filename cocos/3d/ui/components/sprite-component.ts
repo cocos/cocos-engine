@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 // @ts-check
-import { SpriteFrame } from '../../../assets/CCSpriteFrame';
 import { SpriteAtlas } from '../../../assets/sprite-atlas';
+import { SpriteFrame } from '../../../assets/sprite-frame';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventType } from '../../../core/platform/event-manager/event-enum';
 import { clampf } from '../../../core/utils/misc';
@@ -437,7 +437,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     public updateAssembler (render: UI) {
         if (super.updateAssembler(render) && this._spriteFrame) {
-            render.commitComp(this, this._spriteFrame, this._assembler!);
+            render.commitComp(this, this._spriteFrame.getGFXTextureView(), this._assembler!);
             return true;
         }
 

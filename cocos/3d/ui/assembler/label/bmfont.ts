@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { SpriteFrame } from '../../../../assets/CCSpriteFrame';
+import { SpriteFrame } from '../../../../assets/sprite-frame';
 import * as js from '../../../../core/utils/js';
 import { Rect } from '../../../../core/value-types';
 import { RenderData } from '../../../../renderer/ui/renderData';
