@@ -113,7 +113,13 @@ export function baseNodePolyfill (BaseNode) {
             const attachedObjsForEditor = cc.engine.attachedObjsForEditor;
             if (register) {
                 attachedObjsForEditor[this._id] = this;
-                for (const comp of this._components) {
+                for (let i = this._components.length - 1; i >= 0; i--) {
+                    let comp = this._components[i];
+                    if (!comp) {
+                        this._components.splice(i, 1);
+                        console.error('component attached to node:' + this.name + ' is invalid for some reason');
+                        continue;
+                    }
                     attachedObjsForEditor[comp._id] = comp;
                 }
                 cc.engine.emit('node-attach-to-scene', this);
