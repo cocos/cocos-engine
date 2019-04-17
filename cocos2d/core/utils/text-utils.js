@@ -25,12 +25,12 @@
  ****************************************************************************/
 
 // Draw text the textBaseline ratio (Can adjust the appropriate baseline ratio based on the platform)
-let _BASELINE_RATIO = 0.25;
+let _BASELINE_RATIO = 0.26;
 if (CC_JSB) {
     _BASELINE_RATIO = -0.05;
 }
 else if (CC_RUNTIME) {
-    _BASELINE_RATIO = -0.25;
+    _BASELINE_RATIO = -0.2;
 }
 
 var textUtils = {
