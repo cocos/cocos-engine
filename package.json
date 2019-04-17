@@ -11,7 +11,7 @@
   "scripts": {
     "server": "http-server . -p 8002",
     "build": "npm run build:dev && npm run build:min",
-    "build:dev": "rollup -c ./rollup/config.js",
+    "build:dev": "node ./rollup/out/build-engine-cli.js --sourcemap --platform=any --destination=./bin/cocos-3d.dev.js",
     "build:min": "uglifyjs ./bin/cocos-3d.dev.js --mangle --source-map -o ./bin/cocos-3d.min.js",
     "build-rollup": "tsc --build rollup/tsconfig.json",
     "dev": "rollup -w -c ./rollup/config.js",
