@@ -189,8 +189,8 @@ export function getClassName (objOrCtor: Object | Function): string {
  */
 export function obsolete (object: any, obsoleted: string, newExpr: string, writable?: boolean) {
     const extractPropName = /([^.]+)$/;
-    const oldProp = extractPropName.exec(obsoleted)[0];
-    const newProp = extractPropName.exec(newExpr)[0];
+    const oldProp = extractPropName.exec(obsoleted)![0];
+    const newProp = extractPropName.exec(newExpr)![0];
     function getter (this: any) {
         if (CC_DEV) {
             warnID(5400, obsoleted, newExpr);
