@@ -149,8 +149,8 @@ export class SkinningModelComponent extends ModelComponent {
         const mat = this.getMaterial(index, CC_EDITOR)!;
         mat.recompileShaders({
             CC_USE_SKINNING: true,
-            CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.floatingPointTexture || kind === JointStorageKind.byteTexture,
-            CC_USE_JOINTS_TEXTURE_RGBA8888: kind === JointStorageKind.byteTexture,
+            CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.textureRGBA32F || kind === JointStorageKind.textureRGBA8,
+            CC_USE_JOINTS_TEXTURE_RGBA8888: kind === JointStorageKind.textureRGBA8,
         });
         super._onMaterialModified(index, mat);
     }
