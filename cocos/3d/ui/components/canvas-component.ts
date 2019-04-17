@@ -26,10 +26,11 @@
 
 import { CameraComponent } from '../../../3d/framework/camera-component';
 import { Component } from '../../../components/component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { Size, Vec3 } from '../../../core/value-types';
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer/scene/camera';
+import { UITransformComponent } from './ui-transfrom-component';
 
 const _tempPos = new Vec3();
 const _worldPos = new Vec3();
@@ -43,6 +44,7 @@ const _worldPos = new Vec3();
  */
 @ccclass('cc.CanvasComponent')
 @executionOrder(100)
+@requireComponent(UITransformComponent)
 @menu('UI/Canvas')
 @executeInEditMode
 // @disallowMultiple
