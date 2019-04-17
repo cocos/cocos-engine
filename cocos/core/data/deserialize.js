@@ -546,27 +546,36 @@ class _Deserializer {
                 return null;
             }
 
-            if ((CC_EDITOR || CC_TEST) && target) {
-                // use target
-                if ( !(target instanceof klass) ) {
-                    cc.warnID(5300, js.getClassName(target), klass);
+            try {
+                if ((CC_EDITOR || CC_TEST) && target) {
+                    // use target
+                    if ( !(target instanceof klass) ) {
+                        cc.warnID(5300, js.getClassName(target), klass);
+                    }
+                    obj = target;
                 }
-                obj = target;
-            }
-            else {
-                // instantiate a new object
-                obj = new klass();
-            }
-
-            if (obj._deserialize) {
-                obj._deserialize(serialized.content, this);
-                return obj;
-            }
-            if (cc.Class._isCCClass(klass)) {
-                _deserializeFireClass(this, obj, serialized, klass, target);
-            }
-            else {
-                this._deserializeTypedObject(obj, serialized, klass);
+                else {
+                    // instantiate a new object
+                    obj = new klass();
+                }
+    
+                if (obj._deserialize) {
+                    obj._deserialize(serialized.content, this);
+                    return obj;
+                }
+                if (cc.Class._isCCClass(klass)) {
+                    _deserializeFireClass(this, obj, serialized, klass, target);
+                }
+                else {
+                    this._deserializeTypedObject(obj, serialized, klass);
+                }
+            } 
+            catch (e) {
+                if (CC_EDITOR && cc.js.isChildClassOf(klass, cc.Component)) {
+                    console.error('deserialize ' + klass.name + ' failed, ' + e.stack);
+                    return null;
+                }
+                throw e;
             }
         }
         else if ( !Array.isArray(serialized) ) {
