@@ -110,7 +110,7 @@ export class ForwardStage extends RenderStage {
             colors[0] = camera.clearColor;
             if (this._pipeline.isHDR) {
                 colors[0] = SRGBToLinear(colors[0]);
-                const scale = 1.0 / (camera.exposure * this._pipeline.fpScaleInv);
+                const scale = this._pipeline.fpScale / camera.exposure;
                 colors[0].r *= scale;
                 colors[0].g *= scale;
                 colors[0].b *= scale;

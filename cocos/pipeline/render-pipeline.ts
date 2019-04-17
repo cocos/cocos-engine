@@ -322,7 +322,7 @@ export abstract class RenderPipeline {
             this._usePostProcess = info.enablePostProcess;
         } else {
             if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-                this._usePostProcess = false;
+                this._usePostProcess = true;
             } else {
                 this._usePostProcess = true;
             }
@@ -739,7 +739,7 @@ export abstract class RenderPipeline {
     }
 
     protected updateMacros () {
-        this._macros.CC_USE_HDR = this._isHDR;
+        this._macros.CC_USE_HDR = (this._isHDR);
         programLib.destroyShaderByDefines(this._macros);
         for (const scene of this._root.scenes) {
             scene.onPipelineChange();
@@ -939,10 +939,11 @@ export abstract class RenderPipeline {
         _vec4Array[3] = 1.0;
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
 
-        _vec4Array[0] = camera.exposure;
-        _vec4Array[1] = 1.0 / _vec4Array[0];
+        const exposure = camera.exposure;
+        _vec4Array[0] = exposure;
+        _vec4Array[1] = 1.0 / exposure;
         _vec4Array[2] = this._isHDR ? 1.0 : 0.0;
-        _vec4Array[3] = _vec4Array[1] * this._fpScale;
+        _vec4Array[3] = this._fpScale / exposure;
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.EXPOSURE_OFFSET);
 
         vec3.array(_vec4Array, mainLight.direction);
@@ -951,19 +952,28 @@ export abstract class RenderPipeline {
         if (mainLight.enabled) {
             vec3.array(_vec4Array, mainLight.color);
             if (mainLight.useColorTemperature) {
-                const tempRGB = mainLight.colorTemperatureRGB;
-                _vec4Array[0] *= tempRGB.x;
-                _vec4Array[1] *= tempRGB.y;
-                _vec4Array[2] *= tempRGB.z;
+                const colorTempRGB = mainLight.colorTemperatureRGB;
+                _vec4Array[0] *= colorTempRGB.x;
+                _vec4Array[1] *= colorTempRGB.y;
+                _vec4Array[2] *= colorTempRGB.z;
             }
-            _vec4Array[3] = mainLight.illuminance;
+
+            if (this._isHDR) {
+                _vec4Array[3] = mainLight.illuminance * this._fpScale;
+            } else {
+                _vec4Array[3] = mainLight.illuminance * exposure;
+            }
         } else {
             _vec4Array.set(_vec4ArrayZero);
         }
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
 
         _vec4Array.set(ambient.skyColor);
-        _vec4Array[3] = ambient.skyIllum;
+        if (this._isHDR) {
+            _vec4Array[3] = ambient.skyIllum * this._fpScale;
+        } else {
+            _vec4Array[3] = ambient.skyIllum * exposure;
+        }
         this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.AMBIENT_SKY_OFFSET);
 
         _vec4Array.set(ambient.groundAlbedo);
