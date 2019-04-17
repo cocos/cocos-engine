@@ -92,6 +92,10 @@ let SkeletonAnimation = cc.Class({
     },
 
     _updateClipModel () {
+        if (this._defaultClip) {
+            this._defaultClip._model = this._model;
+        }
+        
         let clips = this._clips;
         for (let i = 0; i < clips.length; i++) {
             clips[i]._model = this._model;
