@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { LabelOutlineComponent } from '../../../2d/label/label-outline';
 import { SpriteAtlas, TTFFont } from '../../../assets';
 import { Font } from '../../../assets/font';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
@@ -35,6 +34,7 @@ import { fragmentText, isUnicodeCJK, isUnicodeSpace } from '../../../core/utils/
 import { Color, Vec2 } from '../../../core/value-types';
 import { Node, PrivateNode } from '../../../scene-graph';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
+import { LabelOutlineComponent } from './label-outline-component';
 import { SpriteComponent } from './sprite-component';
 import { UIComponent } from './ui-component';
 import { UIRenderComponent } from './ui-render-component';

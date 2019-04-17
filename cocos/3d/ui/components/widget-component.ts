@@ -82,7 +82,8 @@ const LEFT_RIGHT = AlignFlags.LEFT | AlignFlags.RIGHT;
  * !#en
  * Stores and manipulate the anchoring based on its parent.
  * Widget are used for GUI but can also be used for other things.
- * Widget will adjust current node's position and size automatically, but the results after adjustment can not be obtained until the next frame unless you call {{#crossLink "Widget/updateAlignment:method"}}{{/crossLink}} manually.
+ * Widget will adjust current node's position and size automatically, but the results after adjustment can not be obtained until the next frame
+ * unless you call {{#crossLink "Widget/updateAlignment:method"}}{{/crossLink}} manually.
  * !#zh
  * Widget 组件，用于设置和适配其相对于父节点的边距，Widget 通常被用于 UI 界面，也可以用于其他地方。
  * Widget 会自动调整当前节点的坐标和宽高，不过目前调整后的结果要到下一帧才能在脚本里获取到，除非你先手动调用 {{#crossLink "Widget/updateAlignment:method"}}{{/crossLink}}。

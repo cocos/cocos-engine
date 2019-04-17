@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { SpriteFrame } from '../../../assets/CCSpriteFrame';
+import { SpriteFrame } from '../../../assets/sprite-frame';
 import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
 import { EventType } from '../../../core/platform/event-manager/event-enum';
 import { Mat4, Vec2, Vec3 } from '../../../core/value-types';

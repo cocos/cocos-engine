@@ -25,7 +25,7 @@
  ****************************************************************************/
 // @ts-check
 //
-import { SpriteFrame } from '../../../assets/CCSpriteFrame';
+import { SpriteFrame } from '../../../assets/sprite-frame';
 import { Component} from '../../../components/component';
 import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';

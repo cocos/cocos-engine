@@ -24,16 +24,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { RenderTexture } from '../../../assets';
 import { BitmapFont } from '../../../assets/bitmap-font';
-import { SpriteFrame } from '../../../assets/CCSpriteFrame';
 import { Font} from '../../../assets/font';
 import { ImageAsset } from '../../../assets/image-asset';
+import { SpriteFrame } from '../../../assets/sprite-frame';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
-import { ISharedLabelData } from '../assembler/label/ttfUtils';
-import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';
+import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
+import { UIRenderComponent } from './ui-render-component';
 
 /**
  * !#en Enum for vertical text alignment.
@@ -112,6 +113,30 @@ export enum Overflow {
 }
 
 ccenum(Overflow);
+
+/**
+ * !#en Do not do any caching.
+ * !#zh 不做任何缓存。
+ * @property {Number} NONE
+ */
+/**
+ * !#en In BITMAP mode, cache the label as a static image and add it to the dynamic atlas for batch rendering,
+ * and can batching with Sprites using broken images.
+ * !#zh BITMAP 模式，将 label 缓存成静态图像并加入到动态图集，以便进行批次合并，可与使用碎图的 Sprite 进行合批（注：动态图集在 Chrome 以及微信小游戏暂时关闭，该功能无效）。
+ * @property {Number} BITMAP
+ */
+/**
+ * !#en In CHAR mode, split text into characters and cache characters into a dynamic atlas which the size of 2048*2048.
+ * !#zh CHAR 模式，将文本拆分为字符，并将字符缓存到一张单独的大小为 2048*2048 的图集中进行重复使用，不再使用动态图集（注：当图集满时将不再进行缓存，暂时不支持 SHRINK 自适应文本尺寸（后续完善））。
+ * @property {Number} CHAR
+ */
+enum CacheMode {
+    NONE = 0,
+    BITMAP = 1,
+    CHAR = 2,
+}
+
+ccenum(CacheMode);
 
 /**
  * !#en Enum for font type.
@@ -327,7 +352,7 @@ export class LabelComponent extends UIRenderComponent {
         return this._font;
     }
 
-    set font (value: Font | null) {
+    set font (value) {
         if (this._font === value) {
             return;
         }
@@ -341,16 +366,11 @@ export class LabelComponent extends UIRenderComponent {
 
         // this._N$file = value;
         this._font = value;
-        this._bmFontOriginalSize = -1;
         // if (value && this._isSystemFontUsed)
         //     this._isSystemFontUsed = false;
 
         if (typeof value === 'string') {
             cc.warnID(4000);
-        }
-
-        if (value instanceof BitmapFont) {
-            this._bmFontOriginalSize = value.fontSize;
         }
 
         if (this._renderData) {
@@ -402,17 +422,37 @@ export class LabelComponent extends UIRenderComponent {
 
     }
 
-    get spacingX () {
-        return this._spacingX;
+    /**
+     * !#en The cache mode of label. This mode only supports system fonts.
+     * !#zh 文本缓存模式, 该模式只支持系统字体。
+     * @property {Label.CacheMode} cacheMode
+     */
+    @property({
+        type: CacheMode,
+    })
+    get cacheMode () {
+        return this._cacheMode;
     }
 
-    set spacingX (value) {
-        if (this._spacingX === value) {
+    set cacheMode (value) {
+        if (this._cacheMode === value) {
             return;
         }
 
-        this._spacingX = value;
-        this.updateRenderData();
+        // if (this._cacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._frame) {
+        //     this._frame._resetDynamicAtlasFrame();
+        // }
+
+        if (this._cacheMode === CacheMode.CHAR) {
+            this._ttfTexture = null;
+        }
+
+        this._cacheMode = value;
+        this.updateRenderData(true);
+    }
+
+    get spriteFrame () {
+        return this._texture;
     }
 
     /**
@@ -478,10 +518,6 @@ export class LabelComponent extends UIRenderComponent {
         this.updateRenderData();
     }
 
-    get spriteFrame (){
-        return this._texture;
-    }
-
     get assemblerData (){
         return this._assemblerData;
     }
@@ -494,9 +530,34 @@ export class LabelComponent extends UIRenderComponent {
         this._fontAtlas = value;
     }
 
+    get spacingX () {
+        return this._spacingX;
+    }
+
+    set spacingX (value) {
+        if (this._spacingX === value) {
+            return;
+        }
+
+        this._spacingX = value;
+        this.updateRenderData();
+    }
+
+    get _bmFontOriginalSize (){
+        if (this._font instanceof BitmapFont) {
+            return this._font.fontSize;
+        }
+        else {
+            return -1;
+        }
+    }
+
     public static HorizontalAlign = HorizontalTextAlignment;
     public static VerticalAlign = VerticalTextAlignment;
     public static Overflow = Overflow;
+    public static CacheMode = CacheMode;
+    public static CanvasPool = new CanvasPool();
+
     @property
     private _useOriginalSize = true;
     @property
@@ -517,14 +578,10 @@ export class LabelComponent extends UIRenderComponent {
     private _overflow: Overflow = Overflow.NONE;
     @property
     private _enableWrapText = true;
-    // // 这个保存了旧项目的 file 数据
-    // _N$file = null;
     @property
     private _font: Font | null = null;
     @property
     private _isSystemFontUsed = true;
-    @property
-    private _bmFontOriginalSize = -1;
     private _spacingX = 0;
     @property
     private _isItalic = false;
@@ -532,13 +589,18 @@ export class LabelComponent extends UIRenderComponent {
     private _isBold = false;
     @property
     private _isUnderline = false;
+    @property
+    private _cacheMode = CacheMode.NONE;
 
     // don't need serialize
-    private _texture: SpriteFrame | null = null;
+    // 这个保存了旧项目的 file 数据
+    private _N$file: Font | null = null;
+    private _texture: SpriteFrame | RenderTexture | null = null;
     private _ttfTexture: SpriteFrame | null = null;
     private _userDefinedFont: Font | null = null;
     private _assemblerData: ISharedLabelData | null = null;
     private _fontAtlas: FontAtlas | null = null;
+    private _letterTexture: RenderTexture | null = null;
 
     constructor () {
         super();
@@ -594,7 +656,7 @@ export class LabelComponent extends UIRenderComponent {
 
     public updateAssembler (render: UI) {
         if (super.updateAssembler(render) && this._texture) {
-            render.commitComp(this, this._texture, this._assembler!);
+            render.commitComp(this, this._texture.getGFXTextureView(), this._assembler!);
             return true;
         }
 
@@ -662,7 +724,7 @@ export class LabelComponent extends UIRenderComponent {
         this._updateMaterial(material);
     }
 
-    private _applyFontTexture (force) {
+    private _applyFontTexture (force: boolean) {
         const font = this._font;
         if (font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;
@@ -671,10 +733,6 @@ export class LabelComponent extends UIRenderComponent {
                 // TODO: old texture in material have been released by loader
                 self._texture = spriteFrame;
                 self._flushMaterial();
-
-                if (force && self._assembler && self._assembler.updateRenderData) {
-                    self._assembler.updateRenderData(self);
-                }
             };
             // cannot be activated if texture not loaded yet
             if (spriteFrame && spriteFrame.textureLoaded()) {
@@ -688,30 +746,27 @@ export class LabelComponent extends UIRenderComponent {
                 }
             }
         } else {
-            if (!this._ttfTexture) {
+            if (this.cacheMode === CacheMode.CHAR && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+                this._letterTexture = this._assembler!.getAssemblerData();
+                this._texture = this._letterTexture;
+            } else if (!this._ttfTexture) {
                 this._ttfTexture = new SpriteFrame();
-                // this._ttfTexture.setFilters(cc.Texture2D.Filter.LINEAR, cc.Texture2D.Filter.LINEAR);
-                // this._ttfTexture.setWrapMode(cc.Texture2D.WrapMode.CLAMP_TO_EDGE, cc.Texture2D.WrapMode.CLAMP_TO_EDGE);
-                // TTF texture in web will blend with canvas or body background color
-                if (!CC_JSB) {
-                    // this._ttfTexture.setPremultiplyAlpha(true);
-                }
-
-                if (this._assembler && this._assembler.getAssemblerData) {
-                    this._assemblerData = this._assembler.getAssemblerData();
-                }
-
-                if (this._assemblerData) {
-                    this._ttfTexture!.image = new ImageAsset(this._assemblerData.canvas);
-                }
+                this._assemblerData = this._assembler!.getAssemblerData();
                 // this._ttfTexture.initWithElement(this._assemblerData.canvas);
+                const image = new ImageAsset(this._assemblerData!.canvas);
+                this._ttfTexture.image = image;
             }
-            this._texture = this._ttfTexture;
-            this._flushMaterial();
 
-            if (force && this._assembler && this._assembler.updateRenderData) {
-                this._assembler.updateRenderData(this);
+            if (this.cacheMode !== CacheMode.CHAR) {
+                // this._frame._refreshTexture(this._texture);
+                this._texture = this._ttfTexture;
             }
+
+            this._flushMaterial();
+        }
+
+        if (force && this._assembler && this._assembler.updateRenderData) {
+            this._assembler.updateRenderData(this);
         }
     }
 }

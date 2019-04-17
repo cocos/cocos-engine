@@ -9,7 +9,7 @@ import { CanvasComponent } from '../../3d/ui/components/canvas-component';
 import { UIComponent } from '../../3d/ui/components/ui-component';
 import { UIRenderComponent } from '../../3d/ui/components/ui-render-component';
 import { MeshBuffer } from '../../3d/ui/mesh-buffer';
-import { SpriteFrame } from '../../assets/CCSpriteFrame';
+import { SpriteFrame } from '../../assets/sprite-frame';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
@@ -278,10 +278,10 @@ export class UI {
         }
     }
 
-    public commitComp (comp: UIComponent, frame: SpriteFrame | null, assembler: IAssembler) {
+    public commitComp (comp: UIComponent, frame: GFXTextureView | null, assembler: IAssembler) {
         if (comp instanceof UIRenderComponent) {
             const renderComp = comp as UIRenderComponent;
-            const texView = frame && frame.getGFXTextureView();
+            const texView = frame;
             if (this._currMaterial.hash !== renderComp.material!.hash ||
                 this._currTexView !== texView ||
                 this._currCanvas !== renderComp.visibility

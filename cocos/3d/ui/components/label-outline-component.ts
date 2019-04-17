@@ -37,9 +37,9 @@
  *  node.parent = this.node;
  */
 
-import { LabelComponent } from '../../3d/ui/components/label-component';
-import { UIComponent } from '../../3d/ui/components/ui-component';
-import { Color } from '../../core/value-types';
+import { Color } from '../../../core/value-types';
+import { LabelComponent } from './label-component';
+import { UIComponent } from './ui-component';
 
 export class LabelOutlineComponent extends UIComponent {
     private _color = new Color(255, 255, 255, 255);

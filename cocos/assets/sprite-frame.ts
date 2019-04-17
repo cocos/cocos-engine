@@ -65,6 +65,12 @@ interface ISpriteFramesSerializeData extends ITexture2DSerializeData{
     vertices: IVertices;
 }
 
+interface ISpriteFrameOriginal{
+    texture: Texture2D;
+    x: number;
+    y: number;
+}
+
 const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }];
 
 /**
@@ -200,6 +206,10 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
         this._atlasUuid = value;
     }
 
+    get original (){
+        return this._original;
+    }
+
     public vertices: IVertices | null = null;
 
     public uv: number[] = [];
@@ -220,7 +230,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     private _capInsets = [0, 0, 0, 0];
 
     // store original info before packed to dynamic atlas
-    // private _original = null;
+    private _original: ISpriteFrameOriginal | null = null;
 
     private _atlasUuid: string = '';
 
@@ -531,7 +541,8 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
         if (!this.loaded) {
             // load exists texture
             // this._refreshTexture(/*this._texture*/);
-            textureUtil.postLoadTexture(/*this._texture*/this);
+            // @ts-ignore
+            textureUtil.postLoadTexture(this, null);
         }
         // }
         // else if (this._textureFilename) {
@@ -632,6 +643,34 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
                 }
             }
         }
+    }
+
+    public setDynamicAtlasFrame (frame: SpriteFrame) {
+        if (!frame) { return; }
+
+        // @ts-ignore
+        this._original = {
+            texture: this,
+            x: this._rect.x,
+            y: this._rect.y,
+        };
+
+        // this._texture = frame.texture;
+        this._rect.x = frame._rect.x;
+        this._rect.y = frame._rect.y;
+        this._calculateUV();
+    }
+
+    public resetDynamicAtlasFrame () {
+        if (!this._original) {
+            return;
+        }
+
+        this._rect.x = this._original.x;
+        this._rect.y = this._original.y;
+        // this._texture = this._original.texture;
+        this._original = null;
+        this._calculateUV();
     }
 
     public _calculateUV () {

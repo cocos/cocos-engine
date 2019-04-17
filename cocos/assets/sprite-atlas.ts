@@ -27,7 +27,7 @@
 import { ccclass, property } from '../core/data/class-decorator';
 import * as js from '../core/utils/js';
 import { Asset } from './asset';
-import { SpriteFrame } from './CCSpriteFrame';
+import { SpriteFrame } from './sprite-frame';
 
 /**
  * !#en Class for sprite atlas handling.

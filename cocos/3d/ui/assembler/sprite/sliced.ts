@@ -24,15 +24,15 @@
  ****************************************************************************/
 
 // const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-import { IUV, SpriteFrame } from '../../../../assets/CCSpriteFrame';
+import { IUV, SpriteFrame } from '../../../../assets/sprite-frame';
 import { Mat4 } from '../../../../core/value-types';
 import { color4, vec3 } from '../../../../core/vmath/index';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
+import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components/sprite-component';
 import { MeshBuffer } from '../../mesh-buffer';
 import { IAssembler } from '../assembler';
-import { UI } from '../../../../renderer/ui/ui';
 
 const vec3_temp = vec3.create();
 const matrix = new Mat4();
