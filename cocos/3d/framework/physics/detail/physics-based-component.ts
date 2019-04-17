@@ -4,7 +4,8 @@ import { Quat, Vec3 } from '../../../../core/value-types';
 import { quat, vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 import { AfterStepCallback, BeforeStepCallback, ICollisionCallback, ICollisionEvent, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
-import { createRigidBody, ERigidBodyType, ETransformSource } from '../../../physics/instance';
+import { createRigidBody} from '../../../physics/instance';
+import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
 import { stringfyQuat, stringfyVec3 } from '../../../physics/util';
 
 export class PhysicsBasedComponent extends Component {

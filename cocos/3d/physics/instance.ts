@@ -3,17 +3,6 @@ import { BoxShapeBase, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase, Sphe
 import { BoxShape, PhysicsWorld, RigidBody, SphereShape } from './impl-selector';
 import { RaycastResult } from './raycast-result';
 
-export enum ERigidBodyType {
-    DYNAMIC = 1,
-    STATIC = 2,
-    KINEMATIC = 4,
-}
-
-export enum ETransformSource {
-    SCENE = 0,
-    PHYSIC = 1,
-}
-
 export function createPhysicsWorld (): PhysicsWorldBase {
     return new PhysicsWorld();
 }

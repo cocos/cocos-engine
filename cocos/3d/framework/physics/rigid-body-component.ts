@@ -9,7 +9,7 @@ import {
 import { Quat, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { PhysicsMaterial } from '../../assets/physics/material';
-import { ETransformSource } from '../../physics/instance';
+import { ETransformSource } from '../../physics/physic-enum';
 import { DefaultPhysicsMaterial as DefaultPhysicsMaterial } from './default-material';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
@@ -70,15 +70,15 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     }
 
     public onEnable () {
-        // if (this.sharedBody) {
-        //     this.sharedBody.body.wakeUp();
-        // }
+        if (this.sharedBody) {
+            this.sharedBody.body.wakeUp();
+        }
     }
 
     public onDisable () {
-        // if (this.sharedBody) {
-        //     this.sharedBody.body.sleep();
-        // }
+        if (this.sharedBody) {
+            this.sharedBody.body.sleep();
+        }
     }
 
     @property({
