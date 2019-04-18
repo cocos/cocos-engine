@@ -402,6 +402,10 @@ Simulator.prototype.step = function (dt) {
             }
             pool.put(deadParticle);
             particles.length--;
+
+            if (particles.length <= 0) {
+                psys._ia._count = 0;
+            }
         }
     }
 
