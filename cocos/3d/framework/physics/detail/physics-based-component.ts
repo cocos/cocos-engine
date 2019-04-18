@@ -4,7 +4,7 @@ import { Quat, Vec3 } from '../../../../core/value-types';
 import { quat, vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 import { AfterStepCallback, BeforeStepCallback, ICollisionCallback, ICollisionEvent, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
-import { createRigidBody} from '../../../physics/instance';
+import { createRigidBody } from '../../../physics/instance';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
 import { stringfyQuat, stringfyVec3 } from '../../../physics/util';
 
@@ -25,6 +25,15 @@ export class PhysicsBasedComponent extends Component {
 
     public __preload () {
         this._refSharedBody();
+    }
+
+    public onEnable () {
+        // collider和rigidbody都需要激活刚体
+        this.sharedBody!.enable();
+    }
+
+    public onDisable () {
+        this.sharedBody!.disable();
     }
 
     public destroy () {
@@ -105,16 +114,18 @@ class SharedRigidBody {
     }
 
     public ref () {
-        if (!this._refCount) {
-            this._activeBody();
-        }
+        // if (!this._refCount) {
+        //     this._activeBody();
+        // }
         ++this._refCount;
     }
 
     public deref () {
         --this._refCount;
         if (!this._refCount) {
-            this._deactiveBody();
+            // this._deactiveBody();
+            // TODO : destroy this body
+            // this.destroy();
         }
     }
 
@@ -160,15 +171,21 @@ class SharedRigidBody {
     }
 
     private _activeBody () {
+        // 是否为第一次激活
         if (!this._transformInitialized) {
-            return;
+            this._transformInitialized = true;
+            this.syncPhysWithScene(this._node);
         }
+
         if (this._actived) {
             return;
         }
+
         this._actived = true;
         this._body.setWorld(this._world);
+        // this._world.addBeforeStep(this._beforeStepCallback);
         this._world.addAfterStep(this._afterStepCallback);
+        this._body.wakeUp();
     }
 
     private _deactiveBody () {
@@ -176,8 +193,9 @@ class SharedRigidBody {
             return;
         }
         this._actived = false;
-        this._world.removeAfterStep(this._afterStepCallback);
         this._world.removeBeforeStep(this._beforeStepCallback);
+        this._world.removeAfterStep(this._afterStepCallback);
+        this._body.sleep();
         this._body.setWorld(null);
     }
 
@@ -198,16 +216,17 @@ class SharedRigidBody {
         //        `Rotation: ${stringfyQuat(this._node.getWorldRotation())} `);
         // };
 
-        if (!this._transformInitialized) {
-            // d(`Initialize`);
-            this._transformInitialized = true;
+        // if (!this._transformInitialized) {
+        //     // d(`Initialize`);
+        //     this._transformInitialized = true;
+        //     this.syncPhysWithScene(this._node);
+        //     this._activeBody();
+        // } else {
+        // }
+
+        // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
+        if (this._node.hasChanged) {
             this.syncPhysWithScene(this._node);
-            this._activeBody();
-        } else {
-            // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
-            if (this._node.hasChanged) {
-                this.syncPhysWithScene(this._node);
-            }
         }
 
         // if (!this.body.isPhysicsManagedTransform() && this._node.hasChanged) {

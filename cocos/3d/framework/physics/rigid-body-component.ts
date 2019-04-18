@@ -69,18 +69,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
-    public onEnable () {
-        if (this.sharedBody) {
-            this.sharedBody.body.wakeUp();
-        }
-    }
-
-    public onDisable () {
-        if (this.sharedBody) {
-            this.sharedBody.body.sleep();
-        }
-    }
-
     @property({
         type: PhysicsMaterial,
     })
@@ -198,6 +186,14 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public applyImpulse (impulse: Vec3, position?: Vec3) {
         this._body!.applyImpulse(impulse, position);
+    }
+
+    public wakeUp () {
+        this._body!.wakeUp();
+    }
+
+    public sleep () {
+        this._body!.sleep();
     }
 
     public setCollisionFilter (group: number, mask: number) {
