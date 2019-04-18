@@ -44,11 +44,12 @@ let TiledLayer = cc.Class({
     // because TiledLayer not create or maintains the sgNode by itself.
     extends: RenderComponent,
 
-    // editor: {
-    //     inspector: 'packages://inspector/inspectors/comps/tiled-layer.js',
-    // },
+    editor: {
+        inspector: 'packages://inspector/inspectors/comps/tiled-layer.js',
+    },
 
     properties: {
+        // use to test map clip, default visible false
         _debugClip:{
             default: false,
             notify () {
@@ -60,7 +61,7 @@ let TiledLayer = cc.Class({
             },
             serializable: false,
             editorOnly: true,
-            visible: true,
+            visible: false,
             animatable: false,
             displayName: "Debug Clip Rect",
         },
