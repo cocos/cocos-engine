@@ -587,9 +587,29 @@ function initSys () {
      * Is web browser ?
      * @property {Boolean} isBrowser
      */
-    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !CC_RUNTIME && !isBaiduGame && !isXiaomiGame;
+    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !CC_RUNTIME && !isBaiduGame;
     
-    if (CC_EDITOR && Editor.isMainProcess) {
+    if (window.__device && isXiaomiGame) {
+        let env = window.__device.getSystemInfo();
+        sys.isNative = env.isNative;
+        sys.isBrowser = env.isBrowser;
+        sys.platform = env.platform;
+        sys.browserType = env.browserType;
+        sys.isMobile = env.isMobile;
+        sys.language = env.language;
+        sys.languageCode = env.language.toLowerCase();
+        sys.os = env.os;
+        sys.osVersion = env.osVersion;
+        sys.osMainVersion = env.osMainVersion;
+        sys.browserVersion = env.browserVersion;
+        sys.windowPixelResolution = env.windowPixelResolution;
+        sys.localStorage = env.localStorage;
+        sys.capabilities = env.capabilities;
+        sys.__audioSupport = env.audioSupport;
+
+        window.__device = undefined;
+    }
+    else if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_CORE;
         sys.language = sys.LANGUAGE_UNKNOWN;
@@ -801,69 +821,6 @@ function initSys () {
         sys.localStorage = env.localStorage;
         sys.capabilities = env.capabilities;
         sys.__audioSupport = env.audioSupport;
-    }
-    else if (isXiaomiGame) {
-        var env = qg.getSystemInfoSync();
-        sys.isMobile = true;
-        sys.platform = sys.XIAOMI_GAME;
-        sys.language = env.language.substr(0, 2);
-        sys.languageCode = env.language.toLowerCase();
-        var system = env.system.toLowerCase();
-        if (env.platform === "android") {
-            sys.os = sys.OS_ANDROID;
-        }
-        else if (env.platform === "ios") {
-            sys.os = sys.OS_IOS;
-        }
-        else if (env.platform === 'devtools') {
-            sys.isMobile = false;
-            if (system.indexOf('android') > -1) {
-                sys.os = sys.OS_ANDROID;
-            }
-            else if (system.indexOf('ios') > -1) {
-                sys.os = sys.OS_IOS;
-            }
-        }
-        // Adaptation to Android P
-        if (system === 'android p') {
-            system = 'android p 9.0';
-        }
-
-        var version = /[\d\.]+/.exec(system);
-        sys.osVersion = version ? version[0] : system;
-        sys.osMainVersion = parseInt(sys.osVersion);
-        sys.browserType = sys.BROWSER_TYPE_XIAOMI_GAME;
-        sys.browserVersion = env.version;
-
-        var w = env.windowWidth;
-        var h = env.windowHeight;
-        var ratio = env.pixelRatio || 1;
-        sys.windowPixelResolution = {
-            width: ratio * w,
-            height: ratio * h
-        };
-
-        sys.localStorage = window.localStorage;
-
-        var _supportWebGL = _supportWebp = false;
-        try {
-            var _canvas = document.createElement("canvas");
-            _supportWebGL = _canvas.getContext("webgl");
-            _supportWebp = _canvas.toDataURL('image/webp').startsWith('data:image/webp');
-        }
-        catch (err) { }
-
-        sys.capabilities = {
-            "canvas": true,
-            "opengl": !!_supportWebGL,
-            "webp": _supportWebp
-        };
-        sys.__audioSupport = {
-            ONLY_ONE: false,
-            WEB_AUDIO: false,
-            DELAY_CREATE_CTX: false,
-            format: ['.mp3']
-        };
     }
     else {
         // browser or runtime
