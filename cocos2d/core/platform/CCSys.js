@@ -31,7 +31,8 @@ let settingPlatform;
 const isBaiduGame = (settingPlatform === 'baidugame' || settingPlatform === 'baidugame-subcontext');
 const isVivoGame = (settingPlatform === 'qgame');
 const isOppoGame = (settingPlatform === 'quickgame');
-const isXiaomiGame = (settingPlatform === 'xiaomigame');
+
+var _global = typeof window === 'undefined' ? global : window;
  
 function initSys () {
     /**
@@ -589,8 +590,8 @@ function initSys () {
      */
     sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !CC_RUNTIME && !isBaiduGame;
     
-    if (window.__platform && isXiaomiGame) {
-        let env = window.__platform.getSystemInfo();
+    if (_global.__platform && _global.__platform.getSystemInfo) {
+        let env = _global.__platform.getSystemInfo();
         sys.isNative = env.isNative;
         sys.isBrowser = env.isBrowser;
         sys.platform = env.platform;
@@ -607,7 +608,7 @@ function initSys () {
         sys.capabilities = env.capabilities;
         sys.__audioSupport = env.audioSupport;
 
-        window.__platform = undefined;
+        _global.__platform = undefined;
     }
     else if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
