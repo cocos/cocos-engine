@@ -27,7 +27,7 @@ import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Vec3 } from '../../core/value-types';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
+import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXFormatType, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { BufferBlob } from '../misc/buffer-blob';
@@ -498,6 +498,63 @@ export class Mesh extends Asset {
         return true;
     }
 
+    public readAttribute (primitiveIndex: number, attributeName: GFXAttributeName) {
+        if (!this._data ||
+            primitiveIndex >= this._struct.primitives.length) {
+            return null;
+        }
+        const primitive = this._struct.primitives[primitiveIndex];
+        for (const vertexBundleIndex of primitive.vertexBundelIndices) {
+            const vertexBundle = this._struct.vertexBundles[vertexBundleIndex];
+            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === attributeName);
+            if (iAttribute < 0) {
+                continue;
+            }
+            const format = vertexBundle.attributes[iAttribute].format;
+
+            const offset = getOffset(vertexBundle.attributes, iAttribute);
+            const dataOffset = vertexBundle.view.offset + offset;
+            const view = new DataView(this._data.buffer, dataOffset);
+
+            const formatInfo = GFXFormatInfos[format];
+            const storageConstructor = getStorageConstructor(format);
+            const reader = getReader(view, format);
+            if (!storageConstructor || !reader) {
+                return null;
+            }
+            const vertexCount = vertexBundle.view.count;
+            const componentCount = formatInfo.count;
+            const storage = new storageConstructor(vertexCount * componentCount);
+            const inputStride = vertexBundle.view.stride;
+            for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
+                for (let iComponent = 0; iComponent < componentCount; ++iComponent) {
+                    storage[componentCount * iVertex + iComponent] = reader(inputStride * iVertex + storage.BYTES_PER_ELEMENT * iComponent);
+                }
+            }
+            return storage;
+        }
+        return null;
+    }
+
+    public readIndices (primitiveIndex: number) {
+        if (!this._data ||
+            primitiveIndex >= this._struct.primitives.length) {
+            return null;
+        }
+        const primitive = this._struct.primitives[primitiveIndex];
+        if (!primitive.indexView) {
+            return null;
+        }
+        const indexCount = primitive.indexView.count;
+        const indexFormat = indexCount < 256 ? GFXFormat.R8UI : (indexCount < 65536 ? GFXFormat.R16UI : GFXFormat.R32UI);
+        const storage = new (getStorageConstructor(indexFormat)!)(indexCount);
+        const reader = getReader(new DataView(this._data.buffer), indexFormat)!;
+        for (let i = 0; i < indexCount; ++i) {
+            storage[i] = reader(primitive.indexView.offset + storage.BYTES_PER_ELEMENT * i);
+        }
+        return storage;
+    }
+
     private _init () {
         if (this._initialized) {
             return;
@@ -590,3 +647,90 @@ export class Mesh extends Asset {
     }
 }
 cc.Mesh = Mesh;
+
+function getOffset (attributes: IGFXAttribute[], attributeIndex: number) {
+    let result = 0;
+    for (let i = 0; i < attributeIndex; ++i) {
+        const attribute = attributes[i];
+        result += GFXFormatInfos[attribute.format].size;
+    }
+    return result;
+}
+
+type StorageConstructor = Constructor<(Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array)>;
+
+function getStorageConstructor (format: GFXFormat): StorageConstructor | null {
+    const info = GFXFormatInfos[format];
+    const stride = info.size / info.count;
+    switch (info.type) {
+        case GFXFormatType.UNORM:
+        case GFXFormatType.UINT: {
+            switch (stride) {
+                case 1: return Uint8Array;
+                case 2: return Uint16Array;
+                case 4: return Uint32Array;
+            }
+            break;
+        }
+        case GFXFormatType.SNORM:
+        case GFXFormatType.INT: {
+            switch (stride) {
+                case 1: return Int8Array;
+                case 2: return Int16Array;
+                case 4: return Int32Array;
+            }
+            break;
+        }
+        case GFXFormatType.FLOAT: {
+            return Float32Array;
+        }
+    }
+    return null;
+}
+
+const isLittleEndian = cc.sys.isLittleEndian;
+
+function getReader (dataView: DataView, format: GFXFormat) {
+    const info = GFXFormatInfos[format];
+    const stride = info.size / info.count;
+
+    switch (info.type) {
+        case GFXFormatType.UNORM: {
+            switch (stride) {
+                case 1: return (offset: number) => dataView.getUint8(offset);
+                case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
+                case 4: return (offset: number) => dataView.getUint32(offset, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.SNORM: {
+            switch (stride) {
+                case 1: return (offset: number) => dataView.getInt8(offset);
+                case 2: return (offset: number) => dataView.getInt16(offset, isLittleEndian);
+                case 4: return (offset: number) => dataView.getInt32(offset, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.INT: {
+            switch (stride) {
+                case 1: return (offset: number) => dataView.getInt8(offset);
+                case 2: return (offset: number) => dataView.getInt16(offset, isLittleEndian);
+                case 4: return (offset: number) => dataView.getInt32(offset, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.UINT: {
+            switch (stride) {
+                case 1: return (offset: number) => dataView.getUint8(offset);
+                case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
+                case 4: return (offset: number) => dataView.getUint32(offset, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.FLOAT: {
+            return (offset: number) => dataView.getFloat32(offset, isLittleEndian);
+        }
+    }
+
+    return null;
+}

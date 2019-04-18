@@ -34,7 +34,7 @@ export interface IGeometry {
     /**
      * Min position.
      */
-    minPos: {
+    minPos?: {
         x: number;
         y: number;
         z: number;
@@ -43,7 +43,7 @@ export interface IGeometry {
     /**
      * Max position.
      */
-    maxPos: {
+    maxPos?: {
         x: number;
         y: number;
         z: number;
@@ -52,7 +52,7 @@ export interface IGeometry {
     /**
      * Bounding sphere radius.
      */
-    boundingRadius: number;
+    boundingRadius?: number;
 
     /**
      * Gemetry indices, if one needs indexed-draw.

@@ -181,8 +181,7 @@ export class Model {
         if (!this._node.hasChanged) { return; }
         this._node.updateWorldTransformFull();
         if (!this._modelBounds) { return; }
-        this._modelBounds.transform(this._node._mat, this._node._pos,
-            this._node._rot, this._node._scale, this._worldBounds!);
+        this._modelBounds.transform(this._node._mat, this._worldBounds!);
     }
 
     public _resetUBOUpdateFlag () {

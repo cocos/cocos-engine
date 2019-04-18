@@ -23,15 +23,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// @ts-check
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Mat4 } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
 import { GFXDevice } from '../../gfx/device';
-import { SkinningModel, JointStorageKind, selectStorageKind } from '../../renderer/models/skinning-model';
+import { JointStorageKind, selectStorageKind, SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
+import { Mesh } from '../assets';
 import { Material } from '../assets/material';
 import Skeleton from '../assets/skeleton';
+import { aabb } from '../geom-utils';
+import { calculateBoneSpaceBounds } from '../misc/utils';
 import { ModelComponent } from './model-component';
 
 const _m4_tmp = new Mat4();
@@ -60,7 +62,9 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     set skeleton (val) {
+        const old = this._skeleton;
         this._skeleton = val;
+        this._onSkeletonChanged(old);
         this._resetSkinningTarget();
         this._bindSkeleton();
     }
@@ -82,6 +86,8 @@ export class SkinningModelComponent extends ModelComponent {
 
     private _skinningTarget: SkinningTarget | null = null;
 
+    private _boneSpaceBounds: null | Array<aabb | null> = null;
+
     constructor () {
         super();
     }
@@ -94,6 +100,9 @@ export class SkinningModelComponent extends ModelComponent {
             }
         });
         this._resetSkinningTarget();
+        if (this.mesh && this._skeleton) {
+            this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton);
+        }
     }
 
     public update (dt) {
@@ -101,6 +110,39 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     public onDestroy () {
+    }
+
+    public calculateSkinnedBounds (out?: aabb): boolean {
+        if (!this._skeleton ||
+            !this._boneSpaceBounds ||
+            !this._skinningTarget) {
+            return false;
+        }
+        out = out || new aabb();
+        let outInitialized = false;
+        const tmpAABB = new aabb();
+        for (let iJoint = 0; iJoint < this._skeleton.joints.length; ++iJoint) {
+            const bounds = this._boneSpaceBounds[iJoint];
+            if (!bounds) {
+                continue;
+            }
+            const joint = this._skeleton.joints[iJoint];
+            const targetNode = this._skinningTarget.get(joint);
+            if (!targetNode) {
+                continue;
+            }
+            const jointWorldTransform = _m4_tmp;
+            const transformedBoneBounds = tmpAABB;
+            targetNode.getWorldMatrix(jointWorldTransform);
+            aabb.transform(transformedBoneBounds, bounds, jointWorldTransform);
+            if (outInitialized) {
+                aabb.merge(out, out, transformedBoneBounds);
+            } else {
+                outInitialized = true;
+                aabb.copy(out, transformedBoneBounds);
+            }
+        }
+        return outInitialized;
     }
 
     public _tryUpdateMatrices () {
@@ -137,6 +179,29 @@ export class SkinningModelComponent extends ModelComponent {
         // Should bind skeleton before super create pso
         this._bindSkeleton();
         super._updateModelParams();
+    }
+
+    protected _onMeshChanged (old: Mesh | null) {
+        super._onMeshChanged(old);
+        if (this._skeleton) {
+            if (old) {
+                boneSpaceBoundsManager.unuse(old, this._skeleton);
+            }
+            if (this.mesh) {
+                this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton);
+            }
+        }
+    }
+
+    protected _onSkeletonChanged (old: Skeleton | null) {
+        if (this.mesh) {
+            if (old) {
+                boneSpaceBoundsManager.unuse(this.mesh, old);
+            }
+            if (this._skeleton) {
+                this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton);
+            }
+        }
     }
 
     protected _getModelConstructor () {
@@ -188,3 +253,49 @@ function _getGlobalDevice (): GFXDevice | null {
         return null;
     }
 }
+
+interface ICachedBoneSpaceBounds {
+    bounds: Array<aabb | null>;
+    referenceCount: number;
+}
+
+class BoneSpaceBoundsManager {
+    private _cached = new Map<Mesh, Map<Skeleton, ICachedBoneSpaceBounds>>();
+
+    public use (mesh: Mesh, skeleton: Skeleton) {
+        let bucket = this._cached.get(mesh);
+        if (!bucket) {
+            bucket = new Map();
+            this._cached.set(mesh, bucket);
+        }
+
+        let cached = bucket.get(skeleton);
+        if (!cached) {
+            cached = {
+                bounds: calculateBoneSpaceBounds(mesh, skeleton),
+                referenceCount: 0,
+            };
+            bucket.set(skeleton, cached);
+        }
+        ++cached.referenceCount;
+        return cached.bounds;
+    }
+
+    public unuse (mesh: Mesh, skeleton: Skeleton) {
+        const bucket = this._cached.get(mesh);
+        if (bucket) {
+            const cached = bucket.get(skeleton);
+            if (cached) {
+                --cached.referenceCount;
+                if (cached.referenceCount === 0) {
+                    bucket.delete(skeleton);
+                }
+            }
+            if (bucket.size === 0) {
+                this._cached.delete(mesh);
+            }
+        }
+    }
+}
+
+const boneSpaceBoundsManager = new BoneSpaceBoundsManager();
