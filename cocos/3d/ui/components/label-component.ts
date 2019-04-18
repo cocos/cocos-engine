@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { RenderTexture } from '../../../assets';
 import { BitmapFont } from '../../../assets/bitmap-font';
 import { Font} from '../../../assets/font';
 import { ImageAsset } from '../../../assets/image-asset';
@@ -34,6 +33,7 @@ import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
+import { LetterRenderTexture } from '../assembler/label/letter-font';
 import { UIRenderComponent } from './ui-render-component';
 
 /**
@@ -595,12 +595,12 @@ export class LabelComponent extends UIRenderComponent {
     // don't need serialize
     // 这个保存了旧项目的 file 数据
     private _N$file: Font | null = null;
-    private _texture: SpriteFrame | RenderTexture | null = null;
+    private _texture: SpriteFrame | LetterRenderTexture | null = null;
     private _ttfTexture: SpriteFrame | null = null;
     private _userDefinedFont: Font | null = null;
     private _assemblerData: ISharedLabelData | null = null;
     private _fontAtlas: FontAtlas | null = null;
-    private _letterTexture: RenderTexture | null = null;
+    private _letterTexture: LetterRenderTexture | null = null;
 
     constructor () {
         super();
