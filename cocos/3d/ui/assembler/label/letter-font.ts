@@ -23,11 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ImageAsset, RenderTexture, SpriteFrame } from '../../../../assets';
+import { ImageAsset, SpriteFrame, Texture2D } from '../../../../assets';
 import { Color, Rect, Size, Vec2 } from '../../../../core';
 import { mixin } from '../../../../core/utils/js';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../../core/utils/text-utils';
-import { GFXBufferTextureCopy } from '../../../../gfx/define';
+import { GFXBufferTextureCopy, GFXFormat, GFXTextureType } from '../../../../gfx/define';
 import { LabelComponent } from '../../components/label-component';
 import { LabelOutlineComponent } from '../../components/label-outline-component';
 // import { UIComponent } from '../../components/ui-component';
@@ -68,7 +68,7 @@ class FontLetterDefinition {
     public v = 0;
     public w = 0;
     public h = 0;
-    public texture: RenderTexture | null = null;
+    public texture: LetterRenderTexture | null = null;
     public offsetX = 0;
     public offsetY = 0;
     public valid = false;
@@ -166,6 +166,81 @@ class LetterTexture {
     }
 }
 
+export class LetterRenderTexture extends Texture2D {
+    /**
+     * !#en
+     * Init the render texture with size.
+     * !#zh
+     * 初始化 render texture
+     * @param [width]
+     * @param [height]
+     * @param [string]
+     * @method initWithSize
+     */
+    public initWithSize (width: number, height: number, format: GFXFormat = GFXFormat.RGBA8) {
+        this.destroy();
+
+        const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) {
+            console.warn('Unable to get device');
+            return;
+        }
+
+        const texInfo = this._getTextureCreateInfo();
+        texInfo.width = width;
+        texInfo.height = height;
+        texInfo.format = format;
+        this._texture = gfxDevice.createTexture(texInfo);
+        this._textureView = gfxDevice.createTextureView(this._getTextureViewCreateInfo());
+
+        this.loaded = true;
+        this.emit('load');
+    }
+
+    /**
+     * !#en Draw a texture to the specified position
+     * !#zh 将指定的图片渲染到指定的位置上
+     * @param {Texture2D} texture
+     * @param {Number} x
+     * @param {Number} y
+     */
+    public drawTextureAt (texture: SpriteFrame, x: number, y: number) {
+        if (!texture.image || !this._texture) {
+            return;
+        }
+
+        const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) {
+            console.warn('Unable to get device');
+            return;
+        }
+
+        const region: GFXBufferTextureCopy = {
+            buffOffset: 0,
+            buffStride: 0,
+            buffTexHeight: 0,
+            texOffset: {
+                x,
+                y,
+                z: 0,
+            },
+            texExtent: {
+                width: texture.image.width,
+                height: texture.image.height,
+                depth: 1,
+            },
+            texSubres: {
+                baseMipLevel: 0,
+                levelCount: 1,
+                baseArrayLayer: 0,
+                layerCount: 1,
+            },
+        };
+
+        gfxDevice.copyTexImagesToTexture([texture.image.data as HTMLCanvasElement], this._texture, [region]);
+    }
+}
+
 export class LetterAtlas {
     get width () {
         return this._width;
@@ -175,7 +250,7 @@ export class LetterAtlas {
         return this._height;
     }
 
-    public texture: RenderTexture;
+    public texture: LetterRenderTexture;
     private _x = space;
     private _y = space;
     private _nexty = space;
@@ -186,7 +261,7 @@ export class LetterAtlas {
     private _dirty = false;
 
     constructor (width: number, height: number) {
-        this.texture = new RenderTexture();
+        this.texture = new LetterRenderTexture();
         this.texture.initWithSize(width, height);
 
         this._width = width;
@@ -217,7 +292,6 @@ export class LetterAtlas {
             return null;
         }
 
-        console.log('drawtexture   ' + this._x + '   ' + this._y);
         this.texture.drawTextureAt(texture, this._x, this._y);
 
         this._dirty = true;
@@ -280,7 +354,7 @@ export class LetterAtlas {
     public beforeSceneLoad () {
         this.destroy();
 
-        const texture = new RenderTexture();
+        const texture = new LetterRenderTexture();
         texture.initWithSize(this._width, this._height);
         // texture.update();
 
@@ -335,24 +409,6 @@ export class LetterAtlas {
 
         return letterDefinition;
     }
-
-    private _makeFrameBuffer (){
-        if (!cc.director.root || !cc.director.root.device){
-            return null;
-        }
-
-        return cc.director.root.device.createFramebuffer({});
-    }
-
-    private _makeContainer (width: number, height: number){
-        const texture =  new SpriteFrame();
-        const canvas = document.createElement('canvas') as HTMLCanvasElement;
-        canvas.width = width;
-        canvas.height = height;
-        const image = new ImageAsset(canvas);
-        texture.image = image;
-        return texture;
-    }
 }
 
 const _tmpRect = new Rect();
@@ -388,8 +444,8 @@ let _isWrapText = false;
 let _labelWidth = 0;
 let _labelHeight = 0;
 let _maxLineWidth = 0;
-const _atlasWidth = 256;
-const _atlasHeight = 256;
+const _atlasWidth = 1024;
+const _atlasHeight = 1024;
 let _fontFamily = '';
 let _isBold = false;
 const _labelInfo: ILabelInfo = {
