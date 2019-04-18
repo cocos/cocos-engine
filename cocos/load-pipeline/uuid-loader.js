@@ -299,6 +299,9 @@ export function loadUuid (item, callback) {
             }
         }
         if (CC_EDITOR && !isScene) {
+            var dependListener = cc.AssetLibrary.dependListener;
+            var assetListener = cc.AssetLibrary.assetListener;
+
             function propSetter (asset, obj, propName, oldAsset, newAsset) {
                 if (oldAsset === newAsset || obj[propName] === newAsset) {
                     return;
@@ -313,9 +316,11 @@ export function loadUuid (item, callback) {
                     obj[propName] = newAsset;
                     asset.onLoaded && asset.onLoaded();
                 }
+
+                dependListener.invoke(asset._uuid, asset);
+                assetListener.invoke(asset._uuid, asset);
             };
-            
-            var dependListener = cc.AssetLibrary.dependListener;
+
             if (dependListener) {
                 item.references = {};
                 for (var i = 0, l = depends.length; i < l; i++) {
