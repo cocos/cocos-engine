@@ -16,8 +16,6 @@ export class ForwardStage extends RenderStage {
 
     private _opaqueQueue: RenderQueue;
     private _transparentQueue: RenderQueue;
-    private _shadowQueue: RenderQueue;
-    private _castShadowObjects: Model[] = [];
 
     constructor (flow: RenderFlow) {
         super(flow);
@@ -29,12 +27,7 @@ export class ForwardStage extends RenderStage {
         });
         this._transparentQueue = new RenderQueue({
             isTransparent: true,
-            phases: getPhaseID('default'),
-            sortFunc: transparentCompareFn,
-        });
-        this._shadowQueue = new RenderQueue({
-            isTransparent: true,
-            phases: getPhaseID('planarShadow'),
+            phases: getPhaseID('default') | getPhaseID('planarShadow'),
             sortFunc: transparentCompareFn,
         });
     }
@@ -72,7 +65,6 @@ export class ForwardStage extends RenderStage {
 
         this._opaqueQueue.clear();
         this._transparentQueue.clear();
-        this._shadowQueue.clear();
 
         for (const ro of this._pipeline.renderObjects) {
             for (let i = 0; i < ro.model.subModelNum; i++) {
@@ -85,18 +77,7 @@ export class ForwardStage extends RenderStage {
         this._opaqueQueue.sort();
         this._transparentQueue.sort();
 
-        this._castShadowObjects.splice(0);
         const camera = view.camera;
-        const scene = camera.scene;
-        cullSceneWithDirectionalLight(this._castShadowObjects, scene.models, camera, scene.mainLight, camera.nearClip, camera.farClip, 10);
-        for (const m of this._castShadowObjects) {
-            for (let i = 0; i < m.subModelNum; i++) {
-                for (let j = 0; j < m.getSubModel(i).passes.length; j++) {
-                    this._shadowQueue.insertRenderPass({ model: m, depth: 0 }, i, j);
-                }
-            }
-        }
-        this._shadowQueue.sort();
 
         const cmdBuff = this._cmdBuff!;
 
@@ -133,7 +114,6 @@ export class ForwardStage extends RenderStage {
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.execute(this._opaqueQueue.cmdBuffs.array, this._opaqueQueue.cmdBuffCount);
-        cmdBuff.execute(this._shadowQueue.cmdBuffs.array, this._shadowQueue.cmdBuffCount);
         cmdBuff.execute(this._transparentQueue.cmdBuffs.array, this._transparentQueue.cmdBuffCount);
 
         cmdBuff.endRenderPass();
