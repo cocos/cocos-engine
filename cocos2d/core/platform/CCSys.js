@@ -31,6 +31,8 @@ let settingPlatform;
 const isBaiduGame = (settingPlatform === 'baidugame' || settingPlatform === 'baidugame-subcontext');
 const isVivoGame = (settingPlatform === 'qgame');
 const isOppoGame = (settingPlatform === 'quickgame');
+
+var _global = typeof window === 'undefined' ? global : window;
  
 function initSys () {
     /**
@@ -380,6 +382,12 @@ function initSys () {
      */
     sys.OPPO_GAME = 109;
     /**
+     * @property {Number} XIAOMI_GAME
+     * @readOnly
+     * @default 110
+     */
+    sys.XIAOMI_GAME = 110;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
@@ -414,6 +422,13 @@ function initSys () {
      * @default "baidugamesub"
      */
     sys.BROWSER_TYPE_BAIDU_GAME_SUB = "baidugamesub";
+    /**
+     * BROWSER_TYPE_XIAOMI_GAME
+     * @property {String} BROWSER_TYPE_XIAOMI_GAME
+     * @readOnly
+     * @default "xiaomigame"
+     */
+    sys.BROWSER_TYPE_XIAOMI_GAME = "xiaomigame";
     /**
      * BROWSER_TYPE_QQ_PLAY
      * @property {String} BROWSER_TYPE_QQ_PLAY
@@ -575,7 +590,27 @@ function initSys () {
      */
     sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !CC_RUNTIME && !isBaiduGame;
     
-    if (CC_EDITOR && Editor.isMainProcess) {
+    if (_global.__platform && _global.__platform.getSystemInfo) {
+        let env = _global.__platform.getSystemInfo();
+        sys.isNative = env.isNative;
+        sys.isBrowser = env.isBrowser;
+        sys.platform = env.platform;
+        sys.browserType = env.browserType;
+        sys.isMobile = env.isMobile;
+        sys.language = env.language;
+        sys.languageCode = env.language.toLowerCase();
+        sys.os = env.os;
+        sys.osVersion = env.osVersion;
+        sys.osMainVersion = env.osMainVersion;
+        sys.browserVersion = env.browserVersion;
+        sys.windowPixelResolution = env.windowPixelResolution;
+        sys.localStorage = env.localStorage;
+        sys.capabilities = env.capabilities;
+        sys.__audioSupport = env.audioSupport;
+
+        _global.__platform = undefined;
+    }
+    else if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_CORE;
         sys.language = sys.LANGUAGE_UNKNOWN;
