@@ -48,7 +48,6 @@ let TiledObjectGroup = cc.Class({
         return this._positionOffset;
     },
 
-
     /**
      * !#en List of properties stored in a dictionary.
      * !#zh 以映射的形式获取属性列表。
@@ -116,17 +115,25 @@ let TiledObjectGroup = cc.Class({
         return this._objects;
     },
 
-    _init (groupInfo, mapInfo) {
+    _init (groupInfo, mapInfo, texGrids) {
+        const TiledMap = cc.TiledMap;
+        const TMXObjectType = TiledMap.TMXObjectType;
+        const Orientation = TiledMap.Orientation;
+        const StaggerAxis = TiledMap.StaggerAxis;
+        const TileFlag = TiledMap.TileFlag;
+        const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+
         this._groupName = groupInfo.name;
         this._positionOffset = groupInfo.offset;
         this._mapInfo = mapInfo;
         this._properties = groupInfo.getProperties();
+        this._offset = cc.v2(groupInfo.offset.x, -groupInfo.offset.y);
 
         let mapSize = mapInfo._mapSize;
         let tileSize = mapInfo._tileSize;
         let width = 0, height = 0;
-        if (mapInfo.orientation === cc.TiledMap.Orientation.HEX) {
-            if (mapInfo.getStaggerAxis() === cc.TiledMap.StaggerAxis.STAGGERAXIS_X) {
+        if (mapInfo.orientation === Orientation.HEX) {
+            if (mapInfo.getStaggerAxis() === StaggerAxis.STAGGERAXIS_X) {
                 height = tileSize.height * (mapSize.height + 0.5);
                 width = (tileSize.width + mapInfo.getHexSideLength()) * Math.floor(mapSize.width / 2) + tileSize.width * (mapSize.width % 2);
             } else {
@@ -139,11 +146,15 @@ let TiledObjectGroup = cc.Class({
         }
         this.node.setContentSize(width, height);
 
+        let leftTopX = width * this.node.anchorX;
+        let leftTopY = height * (1 - this.node.anchorY);
+
         let objects = groupInfo._objects;
         for (let i = 0, l = objects.length; i < l; i++) {
             let object = objects[i];
+            let objType = object.type;
             object.offset = cc.v2(object.x, object.y);
-
+            
             let points = object.points || object.polylinePoints;
             if (points) {
                 for (let pi = 0; pi < points.length; pi++) {
@@ -151,7 +162,7 @@ let TiledObjectGroup = cc.Class({
                 }
             }
 
-            if (cc.TiledMap.Orientation.ISO !== mapInfo.orientation) {
+            if (Orientation.ISO !== mapInfo.orientation) {
                 object.y = height - object.y;
             } else {
                 let posIdxX = object.x / tileSize.width * 2;
@@ -160,6 +171,65 @@ let TiledObjectGroup = cc.Class({
                 object.y = tileSize.height / 2 * (mapSize.height * 2 - posIdxX - posIdxY);
             }
 
+            if (objType === TMXObjectType.TEXT) {
+                let textName = "text" + object.id;
+                let textNode = this.node.getChildByName(textName);
+                if (!textNode) {
+                    textNode = new cc.Node();
+                }
+
+                textNode.anchorX = 0;
+                textNode.anchorY = 1;
+                textNode.angle = -object.rotation;
+                textNode.x = object.offset.x - leftTopX;
+                textNode.y = -object.offset.y + leftTopY;
+                textNode.name = textName;
+                textNode.parent = this.node;
+                textNode.color = object.color;
+
+                let label = textNode.getComponent(cc.Label);
+                if (!label) {
+                    label = textNode.addComponent(cc.Label);
+                }
+                
+                //label.enableWrapText = object.wrap;
+                label.overflow = cc.Label.Overflow.SHRINK;
+                label.lineHeight = object.height;
+                label.string = object.text;
+                label.horizontalAlign = object.halign;
+                label.verticalAlign = object.valign;
+                label.fontSize = object.pixelsize;
+
+                textNode.width = object.width;
+                textNode.height = object.height;
+            }
+
+            if (objType === TMXObjectType.IMAGE) {
+                let grid = texGrids[(object.gid & FLIPPED_MASK) >>> 0];
+                if (!grid) continue;
+                let imgName = "img" + object.id;
+                let imgNode = this.node.getChildByName(imgName);
+                if (!imgNode) {
+                    imgNode = new cc.PrivateNode();
+                }
+                imgNode.anchorX = 0;
+                imgNode.anchorY = 0;
+                imgNode.angle = -object.rotation;
+                imgNode.x = object.offset.x - leftTopX;
+                imgNode.y = -object.offset.y + leftTopY;
+                imgNode.name = imgName;
+                imgNode.parent = this.node;
+                
+                let sp = imgNode.getComponent(cc.Sprite);
+                if (!sp) {
+                    sp = imgNode.addComponent(cc.Sprite);
+                }
+                sp.spriteFrame = new cc.SpriteFrame();
+                sp.spriteFrame.setTexture(grid.tileset.sourceImage, grid);
+
+                imgNode.width = object.width;
+                imgNode.height = object.height;
+            }
         }
         this._objects = objects;
     }

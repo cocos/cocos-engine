@@ -205,7 +205,8 @@ let TMXObjectType = cc.Enum({
     ELLIPSE : 1,
     POLYGON : 2,
     POLYLINE : 3,
-    IMAGE : 4
+    IMAGE : 4,
+    TEXT: 5,
 });
 
 /**
@@ -224,8 +225,17 @@ let TiledMap = cc.Class({
     },
 
     ctor () {
+        // store all layer gid corresponding texture info, index is gid, format likes '[gid0]=tex-info,[gid1]=tex-info, ...'
+        this._texGrids = [];
+        // store all tileset texture, index is tileset index, format likes '[0]=texture0, [1]=texture1, ...'
+        this._textures = [];
+        this._tilesets = [];
+
+        this._animations = [];
+        this._imageLayers = [];
         this._layers = [];
         this._groups = [];
+        this._images = [];
         this._properties = [];
         this._tileProperties = [];
         
@@ -391,8 +401,18 @@ let TiledMap = cc.Class({
                 return layer;
             }
         }
-
         return null;
+    },
+
+    _changeLayer (layerName, replaceLayer) {
+        let layers = this._layers;
+        for (let i = 0, l = layers.length; i < l; i++) {
+            let layer = layers[i];
+            if (layer && layer.getLayerName() === layerName) {
+                layers[i] = replaceLayer;
+                return;
+            }
+        }
     },
 
     /**
@@ -447,7 +467,14 @@ let TiledMap = cc.Class({
             for (let i = 0; i < texValues.length; ++i) {
                 textures[texKeys[i]] = texValues[i];
             }
-            
+
+            let imageLayerTextures = {};
+            texValues = file.imageLayerTextures;
+            texKeys = file.imageLayerTextureNames;
+            for (let i = 0; i < texValues.length; ++i) {
+                imageLayerTextures[texKeys[i]] = texValues[i];
+            }
+
             let tsxFileNames = file.tsxFileNames;
             let tsxFiles = file.tsxFiles;
             let tsxMap = {};
@@ -457,7 +484,7 @@ let TiledMap = cc.Class({
                 }
             }
 
-            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures);
+            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures, imageLayerTextures);
             let tilesets = mapInfo.getTilesets();
             if(!tilesets || tilesets.length === 0)
                 cc.logID(7241);
@@ -465,7 +492,7 @@ let TiledMap = cc.Class({
             this._buildWithMapInfo(mapInfo);
         }
         else {
-            this._releaseMapInfo()
+            this._releaseMapInfo();
         }
     },
 
@@ -473,115 +500,347 @@ let TiledMap = cc.Class({
         // remove the layers & object groups added before
         let layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
-            layers[i].node.removeFromParent();
+            layers[i].node.removeFromParent(true);
+            layers[i].node.destroy();
         }
         layers.length = 0;
 
         let groups = this._groups;
         for (let i = 0, l = groups.length; i < l; i++) {
-            groups[i].node.removeFromParent();
+            groups[i].node.removeFromParent(true);
+            groups[i].node.destroy();
         }
         groups.length = 0;
+
+        let images = this._images;
+        for (let i = 0, l = images.length; i < l; i++) {
+            images[i].removeFromParent(true);
+        }
+        images.length = 0;
     },
 
     _syncAnchorPoint () {
         let anchor = this.node.getAnchorPoint();
-        for (let i = 0, l = this._layers.length; i < l; i++) {
-            this._layers[i].node.setAnchorPoint(anchor);
+        let leftTopX = this.node.width * anchor.x;
+        let leftTopY = this.node.height * (1 - anchor.y);
+        let i, l;
+        for (i = 0, l = this._layers.length; i < l; i++) {
+            let layerInfo = this._layers[i];
+            let layerNode = layerInfo.node;
+            // Tiled layer sync anchor to map because it's old behavior,
+            // do not change the behavior avoid influence user's existing logic.
+            layerNode.setAnchorPoint(anchor);
+        }
+
+        for (i = 0, l = this._groups.length; i < l; i++) {
+            let groupInfo = this._groups[i];
+            let groupNode = groupInfo.node;
+            // Group layer not sync anchor to map because it's old behavior,
+            // do not change the behavior avoid influence user's existing logic.
+            groupNode.anchorX = 0.5;
+            groupNode.anchorY = 0.5;
+            groupNode.x = groupInfo._offset.x - leftTopX + groupNode.width * groupNode.anchorX;
+            groupNode.y = groupInfo._offset.y + leftTopY - groupNode.height * groupNode.anchorY;
+        }
+
+        for (i = 0, l = this._images.length; i < l; i++) {
+            let image = this._images[i];
+            image.anchorX = 0.5;
+            image.anchorY = 0.5;
+            image.x = image._offset.x - leftTopX + image.width * image.anchorX;
+            image.y = image._offset.y + leftTopY - image.height * image.anchorY;
         }
     },
-    
-    _buildWithMapInfo (mapInfo) {
-        this._mapSize = mapInfo.getMapSize();
-        this._tileSize = mapInfo.getTileSize();
-        this._mapOrientation = mapInfo.orientation;
-        this._properties = mapInfo.properties;
-        this._tileProperties = mapInfo.getTileProperties();
 
-        this._releaseMapInfo();
+    _buildLayerAndGroup () {
+        let tilesets = this._tilesets;
+        let texGrids = this._texGrids;
+        let animations = this._animations;
+        texGrids.length = 0;
+        for (let i = 0, l = tilesets.length; i < l; ++i) {
+            let tilesetInfo = tilesets[i];
+            if (!tilesetInfo) continue;
+            cc.TiledMap.fillTextureGrids(tilesetInfo, texGrids, i);
+        }
+        cc.TiledMap.fillAniGrids(texGrids, animations);
 
+        let mapInfo = this._mapInfo;
         let layers = this._layers;
         let groups = this._groups;
+        let images = this._images;
         let node = this.node;
         let layerInfos = mapInfo.getAllChildren();
+        let textures = this._textures;
         if (layerInfos && layerInfos.length > 0) {
             for (let i = 0, len = layerInfos.length; i < len; i++) {
                 let layerInfo = layerInfos[i];
                 let name = layerInfo.name;
 
                 let child = this.node.getChildByName(name);
+
                 if (!child) {
                     child = new cc.Node();
                     child.name = name;
-                    
                     node.addChild(child);
                 }
 
-                if (layerInfo instanceof cc.TMXLayerInfo && layerInfo.visible) {
+                child.active = layerInfo.visible;
+
+                if (layerInfo instanceof cc.TMXLayerInfo) {
                     let layer = child.getComponent(cc.TiledLayer);
                     if (!layer) {
                         layer = child.addComponent(cc.TiledLayer);
                     }
-
-                    let tileset = this._tilesetForLayer(layerInfo, mapInfo);
-                    layer._init(tileset, layerInfo, mapInfo);
+                    
+                    layer._init(layerInfo, mapInfo, tilesets, textures, texGrids);
 
                     // tell the layerinfo to release the ownership of the tiles map.
                     layerInfo.ownTiles = false;
-
-                    // update content size with the max size
-                    this.node.width = Math.max(this.node.width, child.width);
-                    this.node.height = Math.max(this.node.height, child.height);
-
                     layers.push(layer);
                 }
-                else if (layerInfo instanceof  cc.TMXObjectGroupInfo) {
+                else if (layerInfo instanceof cc.TMXObjectGroupInfo) {
                     let group = child.getComponent(cc.TiledObjectGroup);
                     if (!group) {
                         group = child.addComponent(cc.TiledObjectGroup);
                     }
-
-                    group._init(layerInfo, mapInfo);
+                    group._init(layerInfo, mapInfo, texGrids);
                     groups.push(group);
+                }
+                else if (layerInfo instanceof cc.TMXImageLayerInfo) {
+                    let texture = layerInfo.sourceImage;
+                    child.opacity = layerInfo.opacity;
+                    child.layerInfo = layerInfo;
+                    child._offset = cc.v2(layerInfo.offset.x, -layerInfo.offset.y);
+
+                    let image = child.getComponent(cc.Sprite);
+                    if (!image) {
+                        image = child.addComponent(cc.Sprite);
+                    }
+                    image.spriteFrame = new cc.SpriteFrame();
+                    image.spriteFrame.setTexture(texture);
+
+                    child.width = texture.width;
+                    child.height = texture.height;
+                    images.push(child);
                 }
             }
         }
 
+        this.node.width = this._mapSize.width * this._tileSize.width;
+        this.node.height = this._mapSize.height * this._tileSize.height;
         this._syncAnchorPoint();
     },
 
-    _tilesetForLayer (layerInfo, mapInfo) {
-        let size = layerInfo._layerSize;
-        let tilesets = mapInfo.getTilesets();
-        if (tilesets) {
-            for (let i = tilesets.length - 1; i >= 0; i--) {
-                let tileset = tilesets[i];
-                if (tileset) {
-                    for (let y = 0; y < size.height; y++) {
-                        for (let x = 0; x < size.width; x++) {
-                            let pos = x + size.width * y;
-                            let gid = layerInfo._tiles[pos];
-                            if (gid !== 0) {
-                                // Optimization: quick return
-                                // if the layer is invalid (more than 1 tileset per layer) an cc.assert will be thrown later
-                                if (((gid & cc.TiledMap.TileFlag.FLIPPED_MASK)>>>0) >= tileset.firstGid) {
-                                    return tileset;
-                                }
-                            }
+    _buildWithMapInfo (mapInfo) {
+        this._releaseMapInfo();
 
-                        }
-                    }
-                }
-            }
+        this._mapInfo = mapInfo;
+        this._mapSize = mapInfo.getMapSize();
+        this._tileSize = mapInfo.getTileSize();
+        this._mapOrientation = mapInfo.orientation;
+        this._properties = mapInfo.properties;
+        this._tileProperties = mapInfo.getTileProperties();
+        this._imageLayers = mapInfo.getImageLayers();
+        this._animations = mapInfo.getTileAnimations();
+        this._tilesets = mapInfo.getTilesets();
+
+        let tilesets = this._tilesets;
+        this._textures.length = 0;
+
+        let totalTextures = [];
+        for (let i = 0, l = tilesets.length; i < l; ++i) {
+            let tilesetInfo = tilesets[i];
+            if (!tilesetInfo || !tilesetInfo.sourceImage) continue;
+            this._textures[i] = tilesetInfo.sourceImage;
+            totalTextures.push(tilesetInfo.sourceImage);
         }
 
-        // If all the tiles are 0, return empty tileset
-        cc.logID(7215, layerInfo.name);
-        return null;
-    }
+        for (let i = 0; i < this._imageLayers.length; i++) {
+            let imageLayer = this._imageLayers[i];
+            if (!imageLayer || !imageLayer.sourceImage) continue;
+            totalTextures.push(imageLayer.sourceImage);
+        }
+
+        cc.TiledMap.loadAllTextures (totalTextures, function () {
+            this._buildLayerAndGroup();
+        }.bind(this));
+    },
+
+    update (dt) {
+        let animations = this._animations;
+        let texGrids = this._texGrids;
+        for (let aniGID in animations) {
+            let animation = animations[aniGID];
+            let frames = animation.frames;
+            let frame = frames[animation.frameIdx];
+            animation.dt += dt;
+            if (frame.duration < animation.dt) {
+                animation.dt = 0;
+                animation.frameIdx++;
+                if (animation.frameIdx >= frames.length) {
+                    animation.frameIdx = 0;
+                }
+                frame = frames[animation.frameIdx];
+            }
+            texGrids[aniGID] = frame.grid;
+        }
+    },
 });
 
 cc.TiledMap = module.exports = TiledMap;
+
+cc.TiledMap.calculateLayerOffset = function (pos, mapInfo) {
+    let ret = cc.v2(0,0);
+    let layerOrientation = mapInfo.orientation;
+    let mapTileSize = mapInfo.getTileSize();
+    let staggerAxis = mapInfo.getStaggerAxis();
+    let staggerIndex = mapInfo.getStaggerIndex();
+    let hexSideLength = mapInfo.getHexSideLength();
+
+    switch (layerOrientation) {
+        case cc.TiledMap.Orientation.ORTHO:
+            ret = cc.v2(pos.x * mapTileSize.width, -pos.y * mapTileSize.height);
+            break;
+        case cc.TiledMap.Orientation.ISO:
+            ret = cc.v2((mapTileSize.width / 2) * (pos.x - pos.y),
+                (mapTileSize.height / 2 ) * (-pos.x - pos.y));
+            break;
+        case cc.TiledMap.Orientation.HEX:
+            if(staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_Y)
+            {
+                let diffX = (staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_EVEN) ? mapTileSize.width/2 : 0;
+                ret = cc.v2(pos.x * mapTileSize.width + diffX,
+                           -pos.y * (mapTileSize.height - (mapTileSize.width - hexSideLength) / 2));
+            }
+            else if(staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_X)
+            {
+                let diffY = (staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? mapTileSize.height/2 : 0;
+                ret = cc.v2(pos.x * (mapTileSize.width - (mapTileSize.width - hexSideLength) / 2),
+                           -pos.y * mapTileSize.height + diffY);
+            }
+            break;
+    }
+    return ret;
+};
+
+cc.TiledMap.loadAllTextures = function (textures, loadedCallback) {
+    let totalNum = textures.length;
+    if (totalNum === 0) {
+        loadedCallback();
+        return;
+    }
+
+    let curNum = 0;
+    let itemCallback = function () {
+        curNum ++;
+        if (curNum >= totalNum) {
+            loadedCallback();
+        }
+    };
+
+    for (let i = 0; i < totalNum; i++) {
+        let tex = textures[i];
+        if (!tex.loaded) {
+            tex.once('load', function () {
+                itemCallback();
+            });
+        } else {
+            itemCallback();
+        }
+    }
+};
+
+cc.TiledMap.fillAniGrids = function (texGrids, animations) {
+    for (let i in animations) {
+        let animation = animations[i];
+        if (!animation) continue;
+        let frames = animation.frames;
+        for (let j = 0; j < frames.length; j++) {
+            let frame = frames[j];
+            frame.grid = texGrids[frame.tileid];
+        }
+    }
+};
+
+cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId) {
+    let tex = tileset.sourceImage;
+
+    if (!tileset.imageSize.width || !tileset.imageSize.height) {
+        tileset.imageSize.width = tex.width;
+        tileset.imageSize.height = tex.height;
+    }
+
+    let tw = tileset._tileSize.width,
+        th = tileset._tileSize.height,
+        imageW = tex.width,
+        imageH = tex.height,
+        spacing = tileset.spacing,
+        margin = tileset.margin,
+
+        cols = Math.floor((imageW - margin*2 + spacing) / (tw + spacing)),
+        rows = Math.floor((imageH - margin*2 + spacing) / (th + spacing)),
+        count = rows * cols,
+
+        gid = tileset.firstGid,
+        maxGid = tileset.firstGid + count,
+        grid = null,
+        override = texGrids[gid] ? true : false,
+        texelCorrect = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX ? 0.5 : 0;
+
+    for (; gid < maxGid; ++gid) {
+        // Avoid overlapping
+        if (override && !texGrids[gid]) {
+            override = false;
+        }
+        if (!override && texGrids[gid]) {
+            break;
+        }
+
+        grid = {
+            // record texture id
+            texId: texId, 
+            // record belong to which tileset
+            tileset: tileset,
+            x: 0, y: 0, width: tw, height: th,
+            t: 0, l: 0, r: 0, b: 0,
+            gid: gid,
+        };
+        tileset.rectForGID(gid, grid);
+        grid.x += texelCorrect;
+        grid.y += texelCorrect;
+        grid.width -= texelCorrect*2;
+        grid.height -= texelCorrect*2;
+        grid.t = (grid.y) / imageH;
+        grid.l = (grid.x) / imageW;
+        grid.r = (grid.x + grid.width) / imageW;
+        grid.b = (grid.y + grid.height) / imageH;
+        texGrids[gid] = grid;
+    }
+};
+
+cc.TiledMap.flipTexture = function (outGrid, inGrid, gid) {
+    outGrid.r = inGrid.r;
+    outGrid.l = inGrid.l;
+    outGrid.b = inGrid.b;
+    outGrid.t = inGrid.t;
+
+    let tempVal = 0;
+
+    // flip x
+    if ((gid & TileFlag.HORIZONTAL) >>> 0) {
+        tempVal = inGrid.r;
+        outGrid.r = inGrid.l;
+        outGrid.l = tempVal;
+    }
+
+    // flip y
+    if ((gid & TileFlag.HORIZONTAL) >>> 0) {
+        tempVal = inGrid.b;
+        outGrid.b = inGrid.t;
+        outGrid.t = tempVal;
+    }
+};
+
 cc.js.obsolete(cc.TiledMap.prototype, 'cc.TiledMap.tmxFile', 'tmxAsset', true);
 cc.js.get(cc.TiledMap.prototype, 'mapLoaded', function () {
     cc.errorID(7203);

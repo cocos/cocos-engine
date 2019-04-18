@@ -50,6 +50,19 @@ let TiledMapAsset = cc.Class({
          */
         textureNames: [cc.String],
 
+        /**
+         * @property {Texture2D[]} imageLayerTextures
+         */
+        imageLayerTextures: {
+            default: [],
+            type: [cc.Texture2D]
+        },
+
+        /**
+         * @property {String[]} imageLayerTextureNames
+         */
+        imageLayerTextureNames: [cc.String],
+
         tsxFiles: [cc.TextAsset],
         tsxFileNames: [cc.String],
     },

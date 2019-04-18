@@ -94,44 +94,48 @@ let MeshBuffer = cc.Class({
         this._dirty = false;
     },
 
+    switchBuffer () {
+        let offset = ++this._arrOffset;
+
+        this.byteStart = 0;
+        this.byteOffset = 0;
+        this.vertexStart = 0;
+        this.vertexOffset = 0;
+        this.indiceStart = 0;
+        this.indiceOffset = 0;
+
+        if (offset < this._vbArr.length) {
+            this._vb = this._vbArr[offset];
+            this._ib = this._ibArr[offset];
+        } else {
+
+            this._vb = new gfx.VertexBuffer(
+                this._batcher._device,
+                this._vertexFormat,
+                gfx.USAGE_DYNAMIC,
+                new ArrayBuffer(),
+                0
+            );
+            this._vbArr[offset] = this._vb;
+            this._vb._bytes = this._vData.byteLength;
+
+            this._ib = new gfx.IndexBuffer(
+                this._batcher._device,
+                gfx.INDEX_FMT_UINT16,
+                gfx.USAGE_STATIC,
+                new ArrayBuffer(),
+                0
+            );
+            this._ibArr[offset] = this._ib;
+            this._ib._bytes = this._iData.byteLength;
+        }
+    },
+
     checkAndSwitchBuffer (vertexCount) {
         if (this.vertexOffset + vertexCount > 65535) {
             this.uploadData();
             this._batcher._flush();
-            let offset = ++this._arrOffset;
-
-            this.byteStart = 0;
-            this.byteOffset = 0;
-            this.vertexStart = 0;
-            this.vertexOffset = 0;
-            this.indiceStart = 0;
-            this.indiceOffset = 0;
-
-            if (offset < this._vbArr.length) {
-                this._vb = this._vbArr[offset];
-                this._ib = this._ibArr[offset];
-            } else {
-
-                this._vb = new gfx.VertexBuffer(
-                    this._batcher._device,
-                    this._vertexFormat,
-                    gfx.USAGE_DYNAMIC,
-                    new ArrayBuffer(),
-                    0
-                );
-                this._vbArr[offset] = this._vb;
-                this._vb._bytes = this._vData.byteLength;
-
-                this._ib = new gfx.IndexBuffer(
-                    this._batcher._device,
-                    gfx.INDEX_FMT_UINT16,
-                    gfx.USAGE_STATIC,
-                    new ArrayBuffer(),
-                    0
-                );
-                this._ibArr[offset] = this._ib;
-                this._ib._bytes = this._iData.byteLength;
-            }
+            this.switchBuffer();
         }
     },
 
@@ -235,14 +239,16 @@ let MeshBuffer = cc.Class({
     },
 
     destroy () {
-        for (let key in this._vbArr) {
-            let vb = this._vbArr[key];
+        this.reset();
+        
+        for (let i = 0; i <  this._vbArr.length; i++) {
+            let vb = this._vbArr[i];
             vb.destroy();
         }
         this._vbArr = undefined;
 
-        for (let key in this._ibArr) {
-            let ib = this._ibArr[key];
+        for (let i = 0; i < this._ibArr.length; i++) {
+            let ib = this._ibArr[i];
             ib.destroy();
         }
         this._ibArr = undefined;
