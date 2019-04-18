@@ -102,6 +102,11 @@ let SkeletonAnimation = cc.Class({
         }
     },
 
+    addClip (clip, newName) {
+        clip._model = this._model;
+        return Animation.prototype.addClip.call(this, clip, newName);
+    },
+
     searchClips: CC_EDITOR && function () {
         this._clips.length = 0;
         let self = this;
