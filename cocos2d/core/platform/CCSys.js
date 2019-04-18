@@ -589,8 +589,8 @@ function initSys () {
      */
     sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !CC_RUNTIME && !isBaiduGame;
     
-    if (window.__device && isXiaomiGame) {
-        let env = window.__device.getSystemInfo();
+    if (window.__platform && isXiaomiGame) {
+        let env = window.__platform.getSystemInfo();
         sys.isNative = env.isNative;
         sys.isBrowser = env.isBrowser;
         sys.platform = env.platform;
@@ -607,7 +607,7 @@ function initSys () {
         sys.capabilities = env.capabilities;
         sys.__audioSupport = env.audioSupport;
 
-        window.__device = undefined;
+        window.__platform = undefined;
     }
     else if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
