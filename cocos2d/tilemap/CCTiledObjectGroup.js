@@ -192,7 +192,6 @@ let TiledObjectGroup = cc.Class({
                     label = textNode.addComponent(cc.Label);
                 }
                 
-                //label.enableWrapText = object.wrap;
                 label.overflow = cc.Label.Overflow.SHRINK;
                 label.lineHeight = object.height;
                 label.string = object.text;
