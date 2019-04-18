@@ -103,7 +103,9 @@ export class ModelComponent extends RenderableComponent {
     }
 
     set mesh (val) {
+        const old = this._mesh;
         this._mesh = val;
+        this._onMeshChanged(old);
         this._updateModels();
     }
 
@@ -240,6 +242,9 @@ export class ModelComponent extends RenderableComponent {
         if (this._model) {
             this._model.setSubModelMaterial(idx, material);
         }
+    }
+
+    protected _onMeshChanged (old: Mesh | null) {
     }
 
     protected _clearMaterials () {

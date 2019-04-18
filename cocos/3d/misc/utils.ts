@@ -1,8 +1,11 @@
-import { GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode } from '../../gfx/define';
+import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
 import { Vec3 } from '../../core/value-types';
+import { vec3 } from '../../core/vmath';
 import { IGFXAttribute } from '../../gfx/input-assembler';
+import { Skeleton } from '../assets';
 import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';
+import { aabb } from '../geom-utils';
 import { IGeometry } from '../primitive/define';
 import { BufferBlob } from './buffer-blob';
 
@@ -185,12 +188,29 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
         bufferBlob.addBuffer(indexBuffer);
     }
 
+    let minPosition = geometry.minPos;
+    if (!minPosition) {
+        minPosition = vec3.set(new vec3(), Infinity, Infinity, Infinity);
+        for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
+            vec3.set(tmpVec3, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
+            vec3.min(minPosition, minPosition, tmpVec3);
+        }
+    }
+    let maxPosition = geometry.maxPos;
+    if (!maxPosition) {
+        maxPosition = vec3.set(new vec3(), -Infinity, -Infinity, -Infinity);
+        for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
+            vec3.set(tmpVec3, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
+            vec3.max(maxPosition, maxPosition, tmpVec3);
+        }
+    }
+
     // Create mesh struct.
     const meshStruct: IMeshStruct = {
         vertexBundles: [vertexBundle],
         primitives: [primitive],
-        minPosition: geometry.minPos && new Vec3(geometry.minPos.x, geometry.minPos.y, geometry.minPos.z),
-        maxPosition: geometry.maxPos && new Vec3(geometry.maxPos.x, geometry.maxPos.y, geometry.maxPos.z),
+        minPosition: new Vec3(minPosition.x, minPosition.y, minPosition.z),
+        maxPosition: new Vec3(maxPosition.x, maxPosition.y, maxPosition.z),
     };
 
     // Create mesh.
@@ -274,4 +294,65 @@ function _getIndicesWriter (dataView: DataView, idxStride: number) {
             return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
     }
     return (offset: number, value: number) => dataView.setUint8(offset, value);
+}
+
+const tmpVec3 = new vec3();
+export function calculateBoneSpaceBounds (mesh: Mesh, skeleton: Skeleton) {
+    // https://gamedev.stackexchange.com/questions/43986/calculate-an-aabb-for-bone-animated-model/44135
+    const result = new Array<{max: vec3, min: vec3, hasValue: boolean}>(skeleton.joints.length);
+    for (let i = 0; i < result.length; ++i) {
+        result[i] = {
+            hasValue: false,
+            min: new vec3(Infinity, Infinity, Infinity),
+            max: new vec3(-Infinity, -Infinity, -Infinity),
+        };
+    }
+
+    const pos = new Vec3();
+    const transformedPos = new Vec3();
+
+    for (let iPrimitive = 0; iPrimitive < mesh.struct.primitives.length; ++iPrimitive) {
+        const joints = mesh.readAttribute(iPrimitive, GFXAttributeName.ATTR_JOINTS);
+        if (!joints) {
+            continue;
+        }
+        const weights = mesh.readAttribute(iPrimitive, GFXAttributeName.ATTR_WEIGHTS);
+        if (!weights) {
+            continue;
+        }
+        const positions = mesh.readAttribute(iPrimitive, GFXAttributeName.ATTR_POSITION);
+        if (!positions) {
+            continue;
+        }
+        const vertexCount = Math.min(joints.length / 4, weights.length / 4, positions.length / 3);
+        for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
+            vec3.set(pos, positions[3 * iVertex + 0], positions[3 * iVertex + 1], positions[3 * iVertex + 2]);
+            for (let i = 0; i < 4; ++i) {
+                const weight = weights[4 * iVertex + i];
+                if (weight === 0) {
+                    continue;
+                }
+                const refJointIndex = joints[4 * iVertex + i];
+                if (refJointIndex >= skeleton.joints.length) {
+                    // TODO debugger
+                    continue;
+                }
+
+                const bindpose = skeleton.bindposes[refJointIndex];
+                const jointBounds = result[refJointIndex];
+
+                vec3.transformMat4(transformedPos, pos, bindpose);
+                jointBounds.hasValue = true;
+                vec3.min(jointBounds.min, jointBounds.min, transformedPos);
+                vec3.max(jointBounds.max, jointBounds.max, transformedPos);
+            }
+        }
+    }
+
+    return result.map((bounds) => {
+        if (bounds.hasValue) {
+            return aabb.fromPoints(new aabb(), bounds.min, bounds.max);
+        }
+        return null;
+    });
 }
