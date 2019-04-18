@@ -28,7 +28,7 @@
     return mat4(v1, v2, v3, v4);
   }
   #else
-  uniform mat4 _jointMatrices[64];
+  uniform mat4 _jointMatrices[_JOINT_MATRICES_SIZE];
 
   mat4 getBoneMatrix(const in float i) {
     return _jointMatrices[int(i)];
