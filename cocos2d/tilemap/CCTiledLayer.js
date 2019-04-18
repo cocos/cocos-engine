@@ -666,12 +666,12 @@ let TiledLayer = cc.Class({
     // 'x, y' is the position of viewPort, which's anchor point is at the center of rect.
     // 'width, height' is the size of viewPort.
     _updateViewPort (x, y, width, height) {
-        // if (this._viewPort.width === width && 
-        //     this._viewPort.height === height &&
-        //     this._viewPort.x === x &&
-        //     this._viewPort.y === y) {
-        //     return;
-        // }
+        if (this._viewPort.width === width && 
+            this._viewPort.height === height &&
+            this._viewPort.x === x &&
+            this._viewPort.y === y) {
+            return;
+        }
         this._viewPort.x = x;
         this._viewPort.y = y;
         this._viewPort.width = width;
@@ -791,10 +791,14 @@ let TiledLayer = cc.Class({
             this.node._updateWorldMatrix();
             mat4.invert(_mat4_temp, this.node._worldMatrix);
             let rect = cc.visibleRect;
-            _vec2_temp.x = 0;
-            _vec2_temp.y = 0;
-            vec2.transformMat4(_vec2_temp, _vec2_temp, _mat4_temp);
-            this._updateViewPort(_vec2_temp.x, _vec2_temp.y, rect.width, rect.height);
+            let camera = cc.Camera.findCamera(this.node);
+            if (camera) {
+                _vec2_temp.x = 0;
+                _vec2_temp.y = 0;
+                camera.getCameraToWorldPoint(_vec2_temp, _vec2_temp);
+                vec2.transformMat4(_vec2_temp, _vec2_temp, _mat4_temp);
+                this._updateViewPort(_vec2_temp.x, _vec2_temp.y, rect.width, rect.height);
+            }
         }
     },
 
