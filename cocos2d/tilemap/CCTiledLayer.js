@@ -141,7 +141,7 @@ let TiledLayer = cc.Class({
      * !#en Adds user's node into layer.
      * !#zh 添加用户节点。
      * @method addUserNode
-     * @param node
+     * @param {cc.Node} node
      */
     addUserNode (node) {
         let dataComp = node.getComponent(TiledUserNodeData);
@@ -176,7 +176,7 @@ let TiledLayer = cc.Class({
      * !#en Removes user's node.
      * !#zh 移除用户节点。
      * @method removeUserNode
-     * @param node
+     * @param {cc.Node} node
      */
     removeUserNode (node) {
         let dataComp = node.getComponent(TiledUserNodeData);
@@ -197,7 +197,7 @@ let TiledLayer = cc.Class({
      * !#en Destroy user's node.
      * !#zh 销毁用户节点。
      * @method destroyUserNode
-     * @param node
+     * @param {cc.Node} node
      */
     destroyUserNode (node) {
         this.removeUserNode(node);
