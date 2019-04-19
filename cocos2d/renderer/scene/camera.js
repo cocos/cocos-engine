@@ -371,6 +371,8 @@ export default class Camera {
    * @returns {Ray} the resulting ray
    */
   screenPointToRay(x, y, width, height, out) {
+    if (!ray) return out;
+    
     out = out || ray.create();
     this._calcMatrices(width, height);
 
