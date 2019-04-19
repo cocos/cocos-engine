@@ -35,7 +35,7 @@ let _tempRowCol = {row:0, col:0};
 let TiledUserNodeData = cc.Class({
     name: 'cc.TiledUserNodeData',
     extends: cc.Component,
-    
+
     ctor () {
         this._index = -1;
         this._row = -1;
@@ -59,54 +59,8 @@ let TiledLayer = cc.Class({
     // because TiledLayer not create or maintains the sgNode by itself.
     extends: RenderComponent,
 
-    // editor: {
-    //     inspector: 'packages://inspector/inspectors/comps/tiled-layer.js',
-    // },
-
-    properties: {
-        // use to test map clip, default visible false
-        _debugClip:{
-            default: false,
-            notify () {
-                if (this._debugClip) {
-                    this._enableCullingNode();
-                } else {
-                    this._disableCullingNode();
-                }
-            },
-            serializable: false,
-            editorOnly: true,
-            visible: true,
-            animatable: false,
-            displayName: "Debug Clip Rect",
-        },
-    },
-
-    __preload () {
-        this._disableCullingNode();
-    },
-
-    // just for enable test clip
-    _enableCullingNode () {
-        this._clipHandleNode = this.node.getChildByName("TESTCLIP");
-        if (!this._clipHandleNode) {
-            this._clipHandleNode = new cc.Node();
-            this._clipHandleNode.name = 'TESTCLIP';
-            this._clipHandleNode.parent = this.node;
-            this._clipHandleNode.anchorX = 0;
-            this._clipHandleNode.anchorY = 0;
-            this._clipHandleNode.width = 300;
-            this._clipHandleNode.height = 300;
-        }
-    },
-
-    // just for disable test clip
-    _disableCullingNode () {
-        this._clipHandleNode = this.node.getChildByName("TESTCLIP");
-        if (this._clipHandleNode) {
-            this._clipHandleNode.destroy();
-            this._clipHandleNode = null;
-        }
+    editor: {
+        inspector: 'packages://inspector/inspectors/comps/tiled-layer.js',
     },
 
     ctor () {
@@ -783,12 +737,7 @@ let TiledLayer = cc.Class({
 
     update () {
         if (CC_EDITOR) {
-            if (this._clipHandleNode) {
-                this._updateViewPort(this._clipHandleNode.x, this._clipHandleNode.y, this._clipHandleNode.width, this._clipHandleNode.height);
-                this.enableCulling(true);
-            } else {
-                this.enableCulling(false);
-            }
+            this.enableCulling(false);
         } else if (this._enableCulling) {
             this.node._updateWorldMatrix();
             mat4.invert(_mat4_temp, this.node._worldMatrix);
