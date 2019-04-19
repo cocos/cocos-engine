@@ -30,6 +30,21 @@ const RenderFlow = require('../core/renderer/render-flow');
 import { mat4, vec2 } from '../core/vmath';
 let _mat4_temp = mat4.create();
 let _vec2_temp = vec2.create();
+let _tempRowCol = {row:0, col:0};
+
+let TiledUserNodeData = cc.Class({
+    name: 'cc.TiledUserNodeData',
+    extends: cc.Component,
+    
+    ctor () {
+        this._index = -1;
+        this._row = -1;
+        this._col = -1;
+        this._dataId = -1;
+        this._tiledLayer = null;
+    }
+
+});
 
 /**
  * !#en Render the TMX layer.
@@ -44,9 +59,9 @@ let TiledLayer = cc.Class({
     // because TiledLayer not create or maintains the sgNode by itself.
     extends: RenderComponent,
 
-    editor: {
-        inspector: 'packages://inspector/inspectors/comps/tiled-layer.js',
-    },
+    // editor: {
+    //     inspector: 'packages://inspector/inspectors/comps/tiled-layer.js',
+    // },
 
     properties: {
         // use to test map clip, default visible false
@@ -54,23 +69,50 @@ let TiledLayer = cc.Class({
             default: false,
             notify () {
                 if (this._debugClip) {
-                    this._enableClipNode();
+                    this._enableCullingNode();
                 } else {
-                    this._disableClipNode();
+                    this._disableCullingNode();
                 }
             },
             serializable: false,
             editorOnly: true,
-            visible: false,
+            visible: true,
             animatable: false,
             displayName: "Debug Clip Rect",
         },
     },
 
+    __preload () {
+        this._disableCullingNode();
+    },
+
+    // just for enable test clip
+    _enableCullingNode () {
+        this._clipHandleNode = this.node.getChildByName("TESTCLIP");
+        if (!this._clipHandleNode) {
+            this._clipHandleNode = new cc.Node();
+            this._clipHandleNode.name = 'TESTCLIP';
+            this._clipHandleNode.parent = this.node;
+            this._clipHandleNode.anchorX = 0;
+            this._clipHandleNode.anchorY = 0;
+            this._clipHandleNode.width = 300;
+            this._clipHandleNode.height = 300;
+        }
+    },
+
+    // just for disable test clip
+    _disableCullingNode () {
+        this._clipHandleNode = this.node.getChildByName("TESTCLIP");
+        if (this._clipHandleNode) {
+            this._clipHandleNode.destroy();
+            this._clipHandleNode = null;
+        }
+    },
+
     ctor () {
         this._userNodeGrid = {};// [row][col] = {count: 0, nodesList: []};
         this._userNodeMap = {};// [id] = node;
-        this._userNodeId = 1;
+        this._userDataId = 1;
         this._userNodeDirty = false;
 
         // store the layer tiles node, index is caculated by 'x + width * y', format likes '[0]=tileNode0,[1]=tileNode1, ...'
@@ -82,24 +124,22 @@ let TiledLayer = cc.Class({
         this._texIdToMatIndex = {};
 
         this._viewPort = {x:-1, y:-1, width:-1, height:-1};
-        this._clipRect = {
+        this._cullingRect = {
             leftDown:{row:-1, col:-1},
             rightTop:{row:-1, col:-1}
         };
-        this._clipDirty = true;
+        this._cullingDirty = true;
         this._rightTop = {row:-1, col:-1};
 
         this._layerInfo = null;
         this._mapInfo = null;
 
         // record max or min tile texture offset, 
-        // it will make clip rect more large, which insure clip rect correct.
+        // it will make culling rect more large, which insure culling rect correct.
         this._topOffset = 0;
         this._downOffset = 0;
         this._leftOffset = 0;
         this._rightOffset = 0;
-
-        this._tempRowCol = {row:0, col:0};
 
         // store the layer tiles, index is caculated by 'x + width * y', format likes '[0]=gid0,[1]=gid1, ...'
         this._tiles = [];
@@ -116,17 +156,14 @@ let TiledLayer = cc.Class({
         this._textures = null;
         this._tilesets = null;
 
-        // use to debug layer clip range
-        this._clipHandleNode = null;
-
         this._leftDownToCenterX = 0;
         this._leftDownToCenterY = 0;
 
         this._hasAniGrid = false;
         this._animations = null;
 
-        // switch of clip
-        this._enableClip = cc.macro.ENABLE_TILEDMAP_CULLING;
+        // switch of culling
+        this._enableCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
     },
 
     _hasAnimation () {
@@ -134,15 +171,15 @@ let TiledLayer = cc.Class({
     },
 
     /**
-     * !#en enable or disable clip
+     * !#en enable or disable culling
      * !#zh 开启或关闭裁剪。
-     * @method enableClip
+     * @method enableCulling
      * @param value
      */
-    enableClip (value) {
-        if (this._enableClip != value) {
-            this._enableClip = value;
-            this._clipDirty = true;
+    enableCulling (value) {
+        if (this._enableCulling != value) {
+            this._enableCulling = value;
+            this._cullingDirty = true;
         }
     },
 
@@ -153,30 +190,30 @@ let TiledLayer = cc.Class({
      * @param node
      */
     addUserNode (node) {
-        let nodeId = node._nodeId_;
-        if (nodeId) {
+        let dataComp = node.getComponent(TiledUserNodeData);
+        if (dataComp) {
             cc.warn("CCTiledLayer:insertUserNode node has insert");
             return;
         }
 
-        node._nodeId_ = this._userNodeId;
-        node._row_ = -1;
-        node._col_ = -1;
-        node._tiledLayer_ = this;
+        dataComp = node.addComponent(TiledUserNodeData);
         node.parent = this.node;
         node._renderFlag |= RenderFlow.FLAG_BREAK_FLOW;
+        this._userNodeMap[this._userDataId] = dataComp;
 
-        this._userNodeMap[node._nodeId_] = node;
-
-        let tempRowCol = this._tempRowCol;
-        this._positionToRowCol(node.x, node.y, tempRowCol);
-        this._addUserNodeToGrid(node, tempRowCol);
-        this._updateClipOffsetByUserNode(node);
-        node.on(cc.Node.EventType.POSITION_CHANGED, this._userNodePosChange, node);
-        node.on(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, node);
-        this._userNodeId++;
-        // nodeId is too large
-        if (this._userNodeId >= Number.MAX_SAFE_INTEGER) {
+        dataComp._dataId = this._userDataId;
+        dataComp._row = -1;
+        dataComp._col = -1;
+        dataComp._tiledLayer = this;
+        
+        this._positionToRowCol(node.x, node.y, _tempRowCol);
+        this._addUserNodeToGrid(dataComp, _tempRowCol);
+        this._updateCullingOffsetByUserNode(node);
+        node.on(cc.Node.EventType.POSITION_CHANGED, this._userNodePosChange, dataComp);
+        node.on(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
+        this._userDataId++;
+        // user data Id is too large
+        if (this._userDataId >= Number.MAX_SAFE_INTEGER) {
             this._updateAllUserNode();
         }
     },
@@ -188,21 +225,16 @@ let TiledLayer = cc.Class({
      * @param node
      */
     removeUserNode (node) {
-        let nodeId = node._nodeId_;
-        if (!nodeId) {
+        let dataComp = node.getComponent(TiledUserNodeData);
+        if (!dataComp) {
             cc.warn("CCTiledLayer:removeUserNode node is not exist");
             return;
         }
-        node.off(cc.Node.EventType.POSITION_CHANGED, this._userNodePosChange, node);
-        node.off(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, node);
-        this._removeUserNodeFromGrid(node);
-        if (nodeId) {
-            delete this._userNodeMap[nodeId];
-        }
-        node._index_ = null;
-        node._row_ = null;
-        node._col_ = null;
-        node._nodeId_ = null;
+        node.off(cc.Node.EventType.POSITION_CHANGED, this._userNodePosChange, dataComp);
+        node.off(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
+        this._removeUserNodeFromGrid(dataComp);
+        delete this._userNodeMap[dataComp._dataId];
+        node.removeComponent(dataComp);
         node.removeFromParent(true);
         node._renderFlag &= ~RenderFlow.FLAG_BREAK_FLOW;
     },
@@ -234,21 +266,20 @@ let TiledLayer = cc.Class({
         let oldUserNodeMap = this._userNodeMap;
         this._userNodeGrid = {};
         let newUserNodeMap = this._userNodeMap = {};
-        this._userNodeId = 1;
-        for (let nodeId in oldUserNodeMap) {
-            let node = oldUserNodeMap[nodeId];
-            node._nodeId_ = this._userNodeId;
-            this._userNodeId ++;
-            newUserNodeMap[node._nodeId_] = node;
+        this._userDataId = 1;
+        for (let dataId in oldUserNodeMap) {
+            let dataComp = oldUserNodeMap[dataId];
+            dataComp._dataId = this._userDataId;
+            this._userDataId ++;
+            newUserNodeMap[dataComp._dataId] = dataComp;
 
-            let tempRowCol = this._tempRowCol;
-            this._positionToRowCol(node.x, node.y, tempRowCol);
-            this._addUserNodeToGrid(node, tempRowCol);
-            this._updateClipOffsetByUserNode(node);
+            this._positionToRowCol(dataComp.node.x, dataComp.node.y, _tempRowCol);
+            this._addUserNodeToGrid(dataComp, _tempRowCol);
+            this._updateCullingOffsetByUserNode(dataComp.node);
         }
     },
 
-    _updateClipOffsetByUserNode (node) {
+    _updateCullingOffsetByUserNode (node) {
         if (this._topOffset < node.height) {
             this._topOffset = node.height;
         }
@@ -264,29 +295,28 @@ let TiledLayer = cc.Class({
     },
 
     _userNodeSizeChange () {
-        let node = this;
-        let self = node._tiledLayer_;
-        self._updateClipOffsetByUserNode(node);
+        let dataComp = this;
+        let node = dataComp.node;
+        let self = dataComp._tiledLayer;
+        self._updateCullingOffsetByUserNode(node);
     },
 
     _userNodePosChange () {
-        let node = this;
-        let self = node._tiledLayer_;
-        let tempRowCol = self._tempRowCol;
-        self._positionToRowCol(node.x, node.y, tempRowCol);
+        let dataComp = this;
+        let node = dataComp.node;
+        let self = dataComp._tiledLayer;
+        self._positionToRowCol(node.x, node.y, _tempRowCol);
         // users pos not change
-        if (tempRowCol.row === node._row_ && tempRowCol.col === node._col_) return;
+        if (_tempRowCol.row === dataComp._row && _tempRowCol.col === dataComp._col) return;
 
-        self._removeUserNodeFromGrid(node);
-        self._addUserNodeToGrid(node, tempRowCol);
+        self._removeUserNodeFromGrid(dataComp);
+        self._addUserNodeToGrid(dataComp, _tempRowCol);
     },
 
-    _removeUserNodeFromGrid (node) {
-        let nodeId = node._nodeId_;
-        if (!nodeId) return;
-        let row = node._row_;
-        let col = node._col_;
-        let index = node._index_;
+    _removeUserNodeFromGrid (dataComp) {
+        let row = dataComp._row;
+        let col = dataComp._col;
+        let index = dataComp._index;
 
         let rowData = this._userNodeGrid[row];
         let colData = rowData && rowData[col];
@@ -300,9 +330,9 @@ let TiledLayer = cc.Class({
             }
         }
 
-        node._row_ = -1;
-        node._col_ = -1;
-        node._index_ = -1;
+        dataComp._row = -1;
+        dataComp._col = -1;
+        dataComp._index = -1;
         this._userNodeDirty = true;
     },
 
@@ -310,22 +340,22 @@ let TiledLayer = cc.Class({
         return row >= 0 && col >= 0 && row <= this._rightTop.row && col <= this._rightTop.col;
     },
 
-    _addUserNodeToGrid (node, tempRowCol) {
+    _addUserNodeToGrid (dataComp, tempRowCol) {
         let row = tempRowCol.row;
         let col = tempRowCol.col;
         if (this._isInLayer(row, col)) {
             let rowData = this._userNodeGrid[row] = this._userNodeGrid[row] || {count : 0};
             let colData = rowData[col] = rowData[col] || {count : 0, list: []};
-            node._row_ = row;
-            node._col_ = col;
-            node._index_ = colData.list.length;
+            dataComp._row = row;
+            dataComp._col = col;
+            dataComp._index = colData.list.length;
             rowData.count++;
             colData.count++;
-            colData.list.push(node);
+            colData.list.push(dataComp);
         } else {
-            node._row_ = -1;
-            node._col_ = -1;
-            node._index_ = -1;
+            dataComp._row = -1;
+            dataComp._col = -1;
+            dataComp._index = -1;
         }
         this._userNodeDirty = true;
     },
@@ -359,10 +389,6 @@ let TiledLayer = cc.Class({
             this._buffer.destroy();
             this._buffer = null;
         }
-    },
-
-    __preload () {
-        this._disableClipNode();
     },
 
     /**
@@ -632,35 +658,12 @@ let TiledLayer = cc.Class({
         return (tile & cc.TiledMap.TileFlag.FLIPPED_ALL) >>> 0;
     },
 
-    // just for enable test clip
-    _enableClipNode () {
-        this._clipHandleNode = this.node.getChildByName("TESTCLIP");
-        if (!this._clipHandleNode) {
-            this._clipHandleNode = new cc.Node();
-            this._clipHandleNode.name = 'TESTCLIP';
-            this._clipHandleNode.parent = this.node;
-            this._clipHandleNode.anchorX = 0;
-            this._clipHandleNode.anchorY = 0;
-            this._clipHandleNode.width = 300;
-            this._clipHandleNode.height = 300;
-        }
+    _setCullingDirty (value) {
+        this._cullingDirty = value;
     },
 
-    // just for disable test clip
-    _disableClipNode () {
-        this._clipHandleNode = this.node.getChildByName("TESTCLIP");
-        if (this._clipHandleNode) {
-            this._clipHandleNode.destroy();
-            this._clipHandleNode = null;
-        }
-    },
-
-    _setClipDirty (value) {
-        this._clipDirty = value;
-    },
-
-    _isClipDirty () {
-        return this._clipDirty;
+    _isCullingDirty () {
+        return this._cullingDirty;
     },
 
     // 'x, y' is the position of viewPort, which's anchor point is at the center of rect.
@@ -691,48 +694,47 @@ let TiledLayer = cc.Class({
         let rightTopX = vpx + width + this._rightOffset;
         let rightTopY = vpy + height + this._topOffset;
 
-        let leftDown = this._clipRect.leftDown;
-        let rightTop = this._clipRect.rightTop;
-        let tempRowCol = this._tempRowCol;
+        let leftDown = this._cullingRect.leftDown;
+        let rightTop = this._cullingRect.rightTop;
 
         if (leftDownX < 0) leftDownX = 0;
         if (leftDownY < 0) leftDownY = 0;
 
         // calc left down
-        this._positionToRowCol(leftDownX, leftDownY, tempRowCol);
+        this._positionToRowCol(leftDownX, leftDownY, _tempRowCol);
         // make range large
-        tempRowCol.row-=reserveLine;
-        tempRowCol.col-=reserveLine;
+        _tempRowCol.row-=reserveLine;
+        _tempRowCol.col-=reserveLine;
         // insure left down row col greater than 0
-        tempRowCol.row = tempRowCol.row > 0 ? tempRowCol.row : 0;
-        tempRowCol.col = tempRowCol.col > 0 ? tempRowCol.col : 0;        
+        _tempRowCol.row = _tempRowCol.row > 0 ? _tempRowCol.row : 0;
+        _tempRowCol.col = _tempRowCol.col > 0 ? _tempRowCol.col : 0;        
 
-        if (tempRowCol.row !== leftDown.row || tempRowCol.col !== leftDown.col) {
-            leftDown.row = tempRowCol.row;
-            leftDown.col = tempRowCol.col;
-            this._clipDirty = true;
+        if (_tempRowCol.row !== leftDown.row || _tempRowCol.col !== leftDown.col) {
+            leftDown.row = _tempRowCol.row;
+            leftDown.col = _tempRowCol.col;
+            this._cullingDirty = true;
         }
 
         // show nothing
         if (rightTopX < 0 || rightTopY < 0) {
-            tempRowCol.row = -1;
-            tempRowCol.col = -1;
+            _tempRowCol.row = -1;
+            _tempRowCol.col = -1;
         } else {
             // calc right top
-            this._positionToRowCol(rightTopX, rightTopY, tempRowCol);
+            this._positionToRowCol(rightTopX, rightTopY, _tempRowCol);
             // make range large
-            tempRowCol.row++;
-            tempRowCol.col++;
+            _tempRowCol.row++;
+            _tempRowCol.col++;
         }
 
         // avoid range out of max rect
-        if (tempRowCol.row > this._rightTop.row) tempRowCol.row = this._rightTop.row;
-        if (tempRowCol.col > this._rightTop.col) tempRowCol.col = this._rightTop.col;
+        if (_tempRowCol.row > this._rightTop.row) _tempRowCol.row = this._rightTop.row;
+        if (_tempRowCol.col > this._rightTop.col) _tempRowCol.col = this._rightTop.col;
 
-        if (tempRowCol.row !== rightTop.row || tempRowCol.col !== rightTop.col) {
-            rightTop.row = tempRowCol.row;
-            rightTop.col = tempRowCol.col;
-            this._clipDirty = true;
+        if (_tempRowCol.row !== rightTop.row || _tempRowCol.col !== rightTop.col) {
+            rightTop.row = _tempRowCol.row;
+            rightTop.col = _tempRowCol.col;
+            this._cullingDirty = true;
         }
     },
 
@@ -783,11 +785,11 @@ let TiledLayer = cc.Class({
         if (CC_EDITOR) {
             if (this._clipHandleNode) {
                 this._updateViewPort(this._clipHandleNode.x, this._clipHandleNode.y, this._clipHandleNode.width, this._clipHandleNode.height);
-                this.enableClip(true);
+                this.enableCulling(true);
             } else {
-                this.enableClip(false);
+                this.enableCulling(false);
             }
-        } else if (this._enableClip) {
+        } else if (this._enableCulling) {
             this.node._updateWorldMatrix();
             mat4.invert(_mat4_temp, this.node._worldMatrix);
             let rect = cc.visibleRect;
@@ -867,7 +869,7 @@ let TiledLayer = cc.Class({
             odd_even = this._odd_even;
         }
 
-        let clipCol = 0, clipRow = 0;
+        let cullingCol = 0, cullingRow = 0;
         let tileOffset = null, gridGID = 0;
 
         this._topOffset = 0;
@@ -895,10 +897,10 @@ let TiledLayer = cc.Class({
                 switch (layerOrientation) {
                     // left top to right dowm
                     case Orientation.ORTHO:
-                        clipCol = col;
-                        clipRow = rows - row - 1;
-                        left = clipCol * maptw;
-                        bottom = clipRow * mapth;
+                        cullingCol = col;
+                        cullingRow = rows - row - 1;
+                        left = cullingCol * maptw;
+                        bottom = cullingRow * mapth;
                         break;
                     // right top to left down
                     case Orientation.ISO:
@@ -906,14 +908,14 @@ let TiledLayer = cc.Class({
                         // if consider about col then left must add 'w/2 * col'
                         // so left is 'w/2 * (rows - row - 1) + w/2 * col'
                         // combine expression is 'w/2 * (rows - row + col -1)'
-                        clipCol = rows + col - row - 1;
+                        cullingCol = rows + col - row - 1;
                         // if not consider about row, then bottom 'h/2 * (cols - col -1)'
                         // if consider about row then bottom must add 'h/2 * (rows - row - 1)'
                         // so bottom is 'h/2 * (cols - col -1) + h/2 * (rows - row - 1)'
                         // combine expressionn is 'h/2 * (rows + cols - col - row - 2)'
-                        clipRow = rows + cols - col - row - 2;
-                        left = maptw2 * clipCol;
-                        bottom = mapth2 * clipRow;
+                        cullingRow = rows + cols - col - row - 2;
+                        left = maptw2 * cullingCol;
+                        bottom = mapth2 * cullingRow;
                         break;
                     // left top to right dowm
                     case Orientation.HEX:
@@ -922,30 +924,30 @@ let TiledLayer = cc.Class({
 
                         left = col * (maptw - diffX1) + diffX2;
                         bottom = (rows - row - 1) * (mapth - diffY1) + diffY2;
-                        clipCol = col;
-                        clipRow = rows - row - 1;
+                        cullingCol = col;
+                        cullingRow = rows - row - 1;
                         break;
                 }
 
-                let rowData = vertices[clipRow] = vertices[clipRow] || {minCol:0, maxCol:0};
-                let colData = rowData[clipCol] = rowData[clipCol] || {};
+                let rowData = vertices[cullingRow] = vertices[cullingRow] || {minCol:0, maxCol:0};
+                let colData = rowData[cullingCol] = rowData[cullingCol] || {};
                 
-                // record each row range, it will faster when clip grid
-                if (rowData.minCol > clipCol) {
-                    rowData.minCol = clipCol;
+                // record each row range, it will faster when culling grid
+                if (rowData.minCol > cullingCol) {
+                    rowData.minCol = cullingCol;
                 }
 
-                if (rowData.maxCol < clipCol) {
-                    rowData.maxCol = clipCol;
+                if (rowData.maxCol < cullingCol) {
+                    rowData.maxCol = cullingCol;
                 }
 
                 // record max rect, when viewPort is bigger than layer, can make it smaller
-                if (rightTop.row < clipRow) {
-                    rightTop.row = clipRow;
+                if (rightTop.row < cullingRow) {
+                    rightTop.row = cullingRow;
                 }
 
-                if (rightTop.col < clipCol) {
-                    rightTop.col = clipCol;
+                if (rightTop.col < cullingCol) {
+                    rightTop.col = cullingCol;
                 }
 
                 // _offset is whole layer offset

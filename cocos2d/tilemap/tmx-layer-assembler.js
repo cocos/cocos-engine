@@ -106,14 +106,14 @@ let tmxAssembler = {
         if (vertices.length === 0 ) return;
 
         let buffer = comp._buffer;
-        if (comp._isClipDirty() || comp._isUserNodeDirty() || comp._hasAnimation()) {
+        if (comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation()) {
             buffer.reset();
 
             let leftDown, rightTop;
-            if (comp._enableClip) {
-               let clipRect = comp._clipRect;
-               leftDown = clipRect.leftDown;
-               rightTop = clipRect.rightTop;
+            if (comp._enableCulling) {
+               let cullingRect = comp._cullingRect;
+               leftDown = cullingRect.leftDown;
+               rightTop = cullingRect.rightTop;
             } else {
                 leftDown = _leftDown;
                 rightTop = comp._rightTop;
@@ -142,7 +142,7 @@ let tmxAssembler = {
                     this.traverseGrids(comp, renderer, leftDown, rightTop, -1, 1);
                     break;
             }
-            comp._setClipDirty(false);
+            comp._setCullingDirty(false);
             comp._setUserNodeDirty(false);
 
         } else {
@@ -158,24 +158,25 @@ let tmxAssembler = {
 
             for (let i = 0; i < renderDataList._offset; i++) {
                 renderData = renderDataList._dataList[i];
+                nodesRenderList = renderData.nodesRenderList;
+                if (nodesRenderList.length > 0) {
+                    renderer.worldMatDirty++;
+                    for (let j = 0; j < nodesRenderList.length; j++) {
+                        nodesList = nodesRenderList[j];
+                        if (!nodesList) continue;
+                        for (let idx = 0; idx < nodesList.length; idx++) {
+                            let dataComp = nodesList[idx];
+                            if (!dataComp) continue;
+                            _visitUserNode(dataComp.node, layerMat, moveX, moveY);
+                        }
+                    }
+                    renderer.worldMatDirty--;
+                    renderer._flush();
+                    renderer.node = layerNode;
+                }
                 if (renderData.ia._count > 0) {
                     renderer._flushIA(renderData);
                 }
-                nodesRenderList = renderData.nodesRenderList;
-                if (nodesRenderList.length === 0) continue;
-                renderer.worldMatDirty++;
-                for (let j = 0; j < nodesRenderList.length; j++) {
-                    nodesList = nodesRenderList[j];
-                    if (!nodesList) continue;
-                    for (let idx = 0; idx < nodesList.length; idx++) {
-                        node = nodesList[idx];
-                        if (!node) continue;
-                        _visitUserNode(node, layerMat, moveX, moveY);
-                    }
-                }
-                renderer.worldMatDirty++;
-                renderer._flush();
-                renderer.node = layerNode;
             }
         }
     },
@@ -244,20 +245,20 @@ let tmxAssembler = {
             if (!nodesInfo || nodesInfo.count == 0) return;
             let nodesList = nodesInfo.list;
             let newIdx = 0, oldIdx = 0;
-            renderData.nodesRenderList.push(nodesList);
             // flush map render data
             flush();
-            
+            renderData.nodesRenderList.push(nodesList);
+
             renderer.worldMatDirty++;
             // begin to render nodes
             for (; newIdx < nodesInfo.count; ) {
-                node = nodesList[oldIdx];
+                let dataComp = nodesList[oldIdx];
                 oldIdx++;
-                if (!node) continue;
-                _visitUserNode(node, layerMat, moveX, moveY);
+                if (!dataComp) continue;
+                _visitUserNode(dataComp.node, layerMat, moveX, moveY);
                 if (newIdx !== oldIdx) {
-                    nodesList[newIdx] = node;
-                    node._index_ = newIdx;
+                    nodesList[newIdx] = dataComp;
+                    dataComp._index = newIdx;
                 }
                 newIdx++;
             }

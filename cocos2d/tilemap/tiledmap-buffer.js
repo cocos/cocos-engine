@@ -53,24 +53,6 @@ let TiledMapBuffer = cc.Class({
         offsetInfo.byteOffset = this.byteOffset;
     },
 
-    uploadData () {
-        if (this.byteOffset === 0 || !this._dirty) {
-            return;
-        }
-    
-        // update vertext data
-        let vertexsData = new Float32Array(this._vData.buffer, 0, this.byteOffset >> 2);
-        let indicesData = new Uint16Array(this._iData.buffer, 0, this.indiceOffset);
-    
-        let vb = this._vb;
-        vb.update(0, vertexsData);
-    
-        let ib = this._ib;
-        ib.update(0, indicesData);
-    
-        this._dirty = false;
-    },
-
     adjust (vertexCount, indiceCount) {
         this.vertexOffset += vertexCount;
         this.indiceOffset += indiceCount;
