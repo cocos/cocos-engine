@@ -883,6 +883,10 @@ var ParticleSystem = cc.Class({
         if (this.autoRemoveOnFinish) {
             this.autoRemoveOnFinish = false;    // already removed
         }
+        if (this._buffer) {
+            this._buffer.destroy();
+            this._buffer = null;
+        }
         this._super();
     },
     
