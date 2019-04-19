@@ -65,6 +65,13 @@ public:
     {
         CCLOG("JSB SocketIO::SIODelegate->onClose method called from native");
         this->fireEventToScript(client, "disconnect", "");
+
+        auto iter = se::NativePtrToObjectMap::find(client);
+        if (iter != se::NativePtrToObjectMap::end())
+        {
+            iter->second->unroot();
+        }
+
         if (getReferenceCount() == 1)
         {
             autorelease();
@@ -79,6 +86,12 @@ public:
     {
         CCLOG("JSB SocketIO::SIODelegate->onError method called from native with data: %s", data.c_str());
         this->fireEventToScript(client, "error", data);
+
+        auto iter = se::NativePtrToObjectMap::find(client);
+        if (iter != se::NativePtrToObjectMap::end())
+        {
+            iter->second->unroot();
+        }
     }
 
     virtual void fireEventToScript(SIOClient* client, const std::string& eventName, const std::string& data) override
@@ -332,6 +345,7 @@ static bool SocketIO_connect(se::State& s)
             obj->setPrivateData(ret);
 
             s.rval().setObject(obj);
+            obj->root();
 
             return true;
         }

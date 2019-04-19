@@ -125,6 +125,18 @@ isEnabled : function (
 },
 
 /**
+ * @method getDurationFromFile
+ * @param {String} arg0
+ * @return {float}
+ */
+getDurationFromFile : function (
+str 
+)
+{
+    return 0;
+},
+
+/**
  * @method getCurrentTime
  * @param {int} arg0
  * @return {float}

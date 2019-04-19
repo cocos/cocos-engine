@@ -7,57 +7,6 @@
 se::Object* __jsb_cocos2d_network_Downloader_proto = nullptr;
 se::Class* __jsb_cocos2d_network_Downloader_class = nullptr;
 
-static bool js_network_Downloader_setOnTaskError(se::State& s)
-{
-    cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnTaskError : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::function<void (const cocos2d::network::DownloadTask &, int, int, const std::string&)> arg0;
-        do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
-                se::Value jsThis(s.thisObject());
-                se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](const cocos2d::network::DownloadTask & larg0, int larg1, int larg2, const std::string& larg3) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
-                    se::AutoHandleScope hs;
-        
-                    CC_UNUSED bool ok = true;
-                    se::ValueArray args;
-                    args.resize(4);
-                    ok &= DownloadTask_to_seval(larg0, &args[0]);
-                    ok &= int32_to_seval(larg1, &args[1]);
-                    ok &= int32_to_seval(larg2, &args[2]);
-                    ok &= std_string_to_seval(larg3, &args[3]);
-                    se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
-                    se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
-                    if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
-                    }
-                };
-                arg0 = lambda;
-            }
-            else
-            {
-                arg0 = nullptr;
-            }
-        } while(false)
-        ;
-        SE_PRECONDITION2(ok, false, "js_network_Downloader_setOnTaskError : Error processing arguments");
-        cobj->setOnTaskError(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_network_Downloader_setOnTaskError)
-
 static bool js_network_Downloader_setOnTaskProgress(se::State& s)
 {
     cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader*)s.nativeThisObject();
@@ -108,54 +57,6 @@ static bool js_network_Downloader_setOnTaskProgress(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_network_Downloader_setOnTaskProgress)
-
-static bool js_network_Downloader_setOnFileTaskSuccess(se::State& s)
-{
-    cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnFileTaskSuccess : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::function<void (const cocos2d::network::DownloadTask &)> arg0;
-        do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
-                se::Value jsThis(s.thisObject());
-                se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](const cocos2d::network::DownloadTask & larg0) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
-                    se::AutoHandleScope hs;
-        
-                    CC_UNUSED bool ok = true;
-                    se::ValueArray args;
-                    args.resize(1);
-                    ok &= DownloadTask_to_seval(larg0, &args[0]);
-                    se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
-                    se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(args, thisObj, &rval);
-                    if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
-                    }
-                };
-                arg0 = lambda;
-            }
-            else
-            {
-                arg0 = nullptr;
-            }
-        } while(false)
-        ;
-        SE_PRECONDITION2(ok, false, "js_network_Downloader_setOnFileTaskSuccess : Error processing arguments");
-        cobj->setOnFileTaskSuccess(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_network_Downloader_setOnFileTaskSuccess)
 
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_network_Downloader_finalize)
 
@@ -209,9 +110,7 @@ bool js_register_network_Downloader(se::Object* obj)
 {
     auto cls = se::Class::create("Downloader", obj, nullptr, _SE(js_network_Downloader_constructor));
 
-    cls->defineFunction("setOnTaskError", _SE(js_network_Downloader_setOnTaskError));
     cls->defineFunction("setOnTaskProgress", _SE(js_network_Downloader_setOnTaskProgress));
-    cls->defineFunction("setOnFileTaskSuccess", _SE(js_network_Downloader_setOnFileTaskSuccess));
     cls->defineFinalizeFunction(_SE(js_cocos2d_network_Downloader_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::network::Downloader>(cls);

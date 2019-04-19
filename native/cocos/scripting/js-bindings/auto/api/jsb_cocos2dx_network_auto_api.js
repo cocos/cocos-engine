@@ -9,30 +9,10 @@ var jsb = jsb || {};
 jsb.Downloader = {
 
 /**
- * @method setOnTaskError
- * @param {function} arg0
- */
-setOnTaskError : function (
-func 
-)
-{
-},
-
-/**
  * @method setOnTaskProgress
  * @param {function} arg0
  */
 setOnTaskProgress : function (
-func 
-)
-{
-},
-
-/**
- * @method setOnFileTaskSuccess
- * @param {function} arg0
- */
-setOnFileTaskSuccess : function (
 func 
 )
 {

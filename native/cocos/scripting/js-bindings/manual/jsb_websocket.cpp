@@ -206,6 +206,9 @@ void JSB_WebSocketDelegate::onClose(WebSocket* ws)
             SE_REPORT_ERROR("Can't get onclose function!");
         }
 
+        //JS Websocket object now can be GC, since the connection is closed. 
+        wsObj->unroot();
+
         // Websocket instance is attached to global object in 'WebSocket_close'
         // It's safe to detach it here since JS 'onclose' method has been already invoked.
         se::ScriptEngine::getInstance()->getGlobalObject()->detachObject(wsObj);
@@ -247,6 +250,8 @@ void JSB_WebSocketDelegate::onError(WebSocket* ws, const WebSocket::ErrorCode& e
     {
         SE_REPORT_ERROR("Can't get onerror function!");
     }
+
+    wsObj->unroot();
 }
 
 void JSB_WebSocketDelegate::setJSDelegate(const se::Value& jsDelegate)
@@ -372,6 +377,8 @@ static bool WebSocket_constructor(se::State& s)
         obj->setProperty("protocol", se::Value(""));
 
         obj->setPrivateData(cobj);
+
+        obj->root();
 
         return true;
     }
