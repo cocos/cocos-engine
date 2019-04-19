@@ -32,9 +32,9 @@ import { Node } from '../../scene-graph/node';
 import { Mesh } from '../assets';
 import { Material } from '../assets/material';
 import Skeleton from '../assets/skeleton';
+import { builtinResMgr } from '../builtin';
 import { aabb } from '../geom-utils';
 import { calculateBoneSpaceBounds } from '../misc/utils';
-import { ModelComponent } from './model-component';
 
 const _m4_tmp = new Mat4();
 const _m4_tmp2 = new Mat4();
@@ -209,6 +209,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     protected _onMaterialModified (index: number, material: Material) {
+<<<<<<< HEAD
         const device = _getGlobalDevice()!;
         const kind = selectStorageKind(device);
         const mat = this.getMaterial(index, CC_EDITOR)!;
@@ -217,6 +218,13 @@ export class SkinningModelComponent extends ModelComponent {
             CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.textureRGBA32F || kind === JointStorageKind.textureRGBA8,
             CC_USE_JOINTS_TEXTURE_RGBA8888: kind === JointStorageKind.textureRGBA8,
         });
+=======
+        const device = _getGlobalDevice();
+        const useJointTexture = device !== null && useJointsTexture(device);
+        let mat = this.getMaterial(index, CC_EDITOR);
+        if (mat) { mat.recompileShaders({ CC_USE_SKINNING: true, CC_USE_JOINTS_TEXTURE: useJointTexture }); }
+        else { mat = this._getDefaultMaterial(useJointTexture); }
+>>>>>>> fix skinning model material modify
         super._onMaterialModified(index, mat);
     }
 
@@ -242,6 +250,11 @@ export class SkinningModelComponent extends ModelComponent {
             }
             this._skinningTarget!.set(joint, targetNode);
         });
+    }
+
+    private _getDefaultMaterial (useJointTexture: Boolean) {
+        // classic ugly pink indicating missing material
+        return builtinResMgr.get<Material>(useJointTexture ? 'missing-material-skinning' : 'missing-material-skinning-texture');
     }
 }
 
