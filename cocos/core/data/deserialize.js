@@ -546,7 +546,7 @@ class _Deserializer {
                 return null;
             }
 
-            try {
+            function deserializeByType () {
                 if ((CC_EDITOR || CC_TEST) && target) {
                     // use target
                     if ( !(target instanceof klass) ) {
@@ -561,7 +561,7 @@ class _Deserializer {
     
                 if (obj._deserialize) {
                     obj._deserialize(serialized.content, this);
-                    return obj;
+                    return;
                 }
                 if (cc.Class._isCCClass(klass)) {
                     _deserializeFireClass(this, obj, serialized, klass, target);
@@ -569,13 +569,23 @@ class _Deserializer {
                 else {
                     this._deserializeTypedObject(obj, serialized, klass);
                 }
-            } 
-            catch (e) {
-                if (CC_EDITOR && cc.js.isChildClassOf(klass, cc.Component)) {
+            }
+
+            function checkDeserializeByType () {
+                try {
+                    deserializeByType();
+                } 
+                catch (e) {
                     console.error('deserialize ' + klass.name + ' failed, ' + e.stack);
-                    return null;
+                    obj = null;
                 }
-                throw e;
+            }
+            
+            if (CC_EDITOR && cc.js.isChildClassOf(klass, cc.Component)) {
+                checkDeserializeByType();
+            }
+            else {
+                deserializeByType();
             }
         }
         else if ( !Array.isArray(serialized) ) {
