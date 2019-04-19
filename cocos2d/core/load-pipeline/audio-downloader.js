@@ -35,8 +35,10 @@ function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
     dom.src = item.url;
 
+    // TODO: move into adapter
+    const isXiaomiGame = (cc.sys.platform === cc.sys.XIAOMI_GAME);
     const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
-    if (CC_WECHATGAME || isBaiduGame) {
+    if (CC_WECHATGAME || isBaiduGame || isXiaomiGame) {
         callback(null, dom);
         return;
     }
