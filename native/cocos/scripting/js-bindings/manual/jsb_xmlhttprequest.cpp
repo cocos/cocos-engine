@@ -241,7 +241,8 @@ XMLHttpRequest::XMLHttpRequest()
 XMLHttpRequest::~XMLHttpRequest()
 {
     Application::getInstance()->getScheduler()->unscheduleAllForTarget(this);
-
+    // Avoid HttpClient response call a released object!
+    _httpRequest->setResponseCallback(nullptr);
     CC_SAFE_RELEASE(_httpRequest);
 }
 
