@@ -28,8 +28,8 @@ const AffineTrans = require('../utils/affine-transform');
 const renderer = require('../renderer/index');
 const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
-const ray = require('../3d/geom-utils/ray');
 
+import { ray } from '../3d/geom-utils';
 import RendererCamera from '../../renderer/scene/camera';
 import View from '../../renderer/core/view';
 
