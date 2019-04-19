@@ -26,6 +26,12 @@
 
 // const FIX_BABEL6 = true;
 
+// tslint:disable:only-arrow-functions
+// tslint:disable:prefer-for-of
+// tslint:disable:no-shadowed-variable
+// tslint:disable:max-line-length
+// tslint:disable:no-empty-interface
+
 /**
  * !#en Some JavaScript decorators which can be accessed with "cc._decorator".
  * !#zh 一些 JavaScript 装饰器，目前可以通过 "cc._decorator" 来访问。
@@ -39,7 +45,9 @@
 // inspired by toddlxt (https://github.com/toddlxt/Creator-TypeScript-Boilerplate)
 
 import * as js from '../utils/js';
+import { ValueType } from '../value-types';
 import './class';
+import { IExposedAttributes } from './utils/attibute-defines';
 import { doValidateMethodWithProps_DEV, getFullFormOfProperty } from './utils/preprocess-class';
 
 // caches for class construction
@@ -101,7 +109,7 @@ const checkStringArgument = _argumentChecker('string');
 const checkNumberArgument = _argumentChecker('number');
 // var checkBooleanArgument = _argumentChecker('boolean');
 
-function getClassCache (ctor, decoratorName) {
+function getClassCache (ctor, decoratorName?) {
     if (CC_DEV && cc.Class._isCCClass(ctor)) {
         cc.error('`@%s` should be used after @ccclass for class "%s"', decoratorName, js.getClassName(ctor));
         return null;
@@ -254,7 +262,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
  * ccclass(name?: string): Function
  * ccclass(_class?: Function): void
  */
-const ccclass = checkCtorArgument(function (ctor, name) {
+export const ccclass = checkCtorArgument(function (ctor, name) {
     // if (FIX_BABEL6) {
     //     eval('if(typeof _classCallCheck==="function"){_classCallCheck=function(){};}');
     // }
@@ -300,119 +308,31 @@ const ccclass = checkCtorArgument(function (ctor, name) {
 });
 
 /**
- * !#en
- * Declare property for [CCClass](/docs/editors_and_tools/creator-chapters/scripting/class/).
- * !#zh
- * 定义 [CCClass](/docs/creator/scripting/class/) 所用的属性。
- *
- * @method property
- * @param {Object | Function} [ctorProtoOrOptions] - an object with some property attributes
- * @param {Any} [ctorProtoOrOptions.type]
- * @param {Boolean|Function} [ctorProtoOrOptions.visible]
- * @param {String} [ctorProtoOrOptions.displayName]
- * @param {String} [ctorProtoOrOptions.tooltip]
- * @param {Boolean} [ctorProtoOrOptions.multiline]
- * @param {Boolean} [ctorProtoOrOptions.readonly]
- * @param {Number} [ctorProtoOrOptions.min]
- * @param {Number} [ctorProtoOrOptions.max]
- * @param {Number} [ctorProtoOrOptions.step]
- * @param {Number[]} [ctorProtoOrOptions.range]
- * @param {Boolean} [ctorProtoOrOptions.slide]
- * @param {Boolean} [ctorProtoOrOptions.serializable]
- * @param {Boolean} [ctorProtoOrOptions.editorOnly]
- * @param {Boolean} [ctorProtoOrOptions.override]
- * @param {Boolean} [ctorProtoOrOptions.animatable]
- * @param {String} [ctorProtoOrOptions.formerlySerializedAs]
- * @param {*} [propName]
- * @param {*} [desc]
- * @return {*}
- * @example
- * const {ccclass, property} = cc._decorator;
- *
- * &#64;ccclass
- * class NewScript extends cc.Component {
- *     &#64;property({
- *         type: cc.Node
- *     })
- *     targetNode1 = null;
- *
- *     &#64;property(cc.Node)
- *     targetNode2 = null;
- *
- *     &#64;property(cc.Button)
- *     targetButton = null;
- *
- *     &#64;property
- *     _width = 100;
- *
- *     &#64;property
- *     get width () {
- *         return this._width;
- *     }
- *
- *     &#64;property
- *     set width (value) {
- *         this._width = value;
- *     }
- *
- *     &#64;property
- *     offset = new cc.Vec2(100, 100);
- *
- *     &#64;property(cc.Vec2)
- *     offsets = [];
- *
- *     &#64;property(cc.SpriteFrame)
- *     frame = null;
- * }
- *
- * // above is equivalent to (上面的代码相当于):
- *
- * var NewScript = cc.Class({
- *     properties: {
- *         targetNode1: {
- *             default: null,
- *             type: cc.Node
- *         },
- *
- *         targetNode2: {
- *             default: null,
- *             type: cc.Node
- *         },
- *
- *         targetButton: {
- *             default: null,
- *             type: cc.Button
- *         },
- *
- *         _width: 100,
- *
- *         width: {
- *             get () {
- *                 return this._width;
- *             },
- *             set (value) {
- *                 this._width = value;
- *             }
- *         },
- *
- *         offset: new cc.Vec2(100, 100)
- *
- *         offsets: {
- *             default: [],
- *             type: cc.Vec2
- *         }
- *
- *         frame: {
- *             default: null,
- *             type: cc.SpriteFrame
- *         },
- *     }
- * });
- * @typescript
- * property(options?: {type?: any; visible?: boolean|(() => boolean); displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; formerlySerializedAs?: string; editorOnly?: boolean; override?: boolean; animatable?: boolean} | any[]|Function|cc.ValueType|number|string|boolean): Function
- * property(_target: Object, _key: any, _desc?: any): void
+ * cc 属性选项。
  */
-function property (ctorProtoOrOptions, propName, desc) {
+export interface IPropertyOptions extends IExposedAttributes {
+}
+
+/**
+ * 标注属性为 cc 属性。
+ * @param options 选项。
+ */
+export function property (options?: IPropertyOptions): PropertyDecorator;
+
+/**
+ * 标注属性为 cc 属性。
+ * 等价于`@property({type})`。
+ * @param type cc 属性的类型。
+ */
+export function property (type: Function | any[] | number | string | boolean): PropertyDecorator;
+
+/**
+ * 标注属性为 cc 属性。
+ * 等价于`@property()`。
+ */
+export function property (target: Object, propertyKey: string | symbol): void;
+
+export function property (ctorProtoOrOptions?, propName?, desc?) {
     let options = null;
     function normalized (ctorProto, propName, desc) {
         const cache = getClassCache(ctorProto.constructor);
@@ -433,7 +353,7 @@ function property (ctorProtoOrOptions, propName, desc) {
 
 // Editor Decorators
 
-function createEditorDecorator (argCheckFunc, editorPropName, staticValue) {
+function createEditorDecorator (argCheckFunc, editorPropName, staticValue?) {
     return argCheckFunc(function (ctor, decoratedValue) {
         const cache = getClassCache(ctor, editorPropName);
         if (cache) {
@@ -470,7 +390,7 @@ function createDummyDecorator (argCheckFunc) {
  * executeInEditMode(): Function
  * executeInEditMode(_class: Function): void
  */
-const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'executeInEditMode', true);
+export const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'executeInEditMode', true);
 
 /**
  * !#en
@@ -491,7 +411,7 @@ const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator
  * @typescript
  * requireComponent(requiredComponent: typeof cc.Component): Function
  */
-const requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
+export const requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
 
 /**
  * !#en
@@ -513,7 +433,7 @@ const requireComponent = createEditorDecorator(checkCompArgument, 'requireCompon
  * @typescript
  * menu(path: string): Function
  */
-const menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
+export const menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
 
 /**
  * !#en
@@ -536,7 +456,7 @@ const menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkString
  * @typescript
  * executionOrder(order: number): Function
  */
-const executionOrder = createEditorDecorator(checkNumberArgument, 'executionOrder');
+export const executionOrder = createEditorDecorator(checkNumberArgument, 'executionOrder');
 
 /**
  * !#en
@@ -557,7 +477,7 @@ const executionOrder = createEditorDecorator(checkNumberArgument, 'executionOrde
  * disallowMultiple(): Function
  * disallowMultiple(_class: Function): void
  */
-const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'disallowMultiple');
+export const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'disallowMultiple');
 
 /**
  * !#en
@@ -580,7 +500,7 @@ const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)
  * playOnFocus(): Function
  * playOnFocus(_class: Function): void
  */
-const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
+export const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
 
 /**
  * !#en
@@ -601,7 +521,7 @@ const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(chec
  * @typescript
  * inspector(path: string): Function
  */
-const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
+export const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
 
 /**
  * !#en
@@ -623,7 +543,7 @@ const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkS
  * @typescript
  * icon(path: string): Function
  */
-const icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
+export const icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
 
 /**
  * !#en
@@ -644,7 +564,7 @@ const icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkString
  * @typescript
  * help(path: string): Function
  */
-const help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
+export const help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
 
 // Other Decorators
 
@@ -688,10 +608,10 @@ const help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkString
  * @typescript
  * mixins(ctor: Function, ...rest: Function[]): Function
  */
-function mixins () {
-    const mixins = [];
-    for (let i = 0; i < arguments.length; i++) {
-        mixins[i] = arguments[i];
+export function mixins (...constructors: Function[]) {
+    const mixins: Function[] = [];
+    for (let i = 0; i < constructors.length; i++) {
+        mixins[i] = constructors[i];
     }
     return function (ctor) {
         const cache = getClassCache(ctor, 'mixins');
@@ -700,18 +620,3 @@ function mixins () {
         }
     };
 }
-
-export {
-    ccclass,
-    property,
-    executeInEditMode,
-    requireComponent,
-    menu,
-    executionOrder,
-    disallowMultiple,
-    playOnFocus,
-    inspector,
-    icon,
-    help,
-    mixins,
-};

@@ -24,16 +24,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+// tslint:disable:only-arrow-functions
+// tslint:disable:one-variable-per-declaration
+
+import { errorID, log, warnID } from '../../platform/CCDebug';
 import * as js from '../../utils/js';
+import { formatStr } from '../../utils/js';
 import { isPlainEmptyObj_DEV } from '../../utils/misc';
 
 export const DELIMETER = '$_$';
 
-export function createAttrsSingle (owner, ownerCtor, superAttrs) {
+export function createAttrsSingle (owner: Object, ownerConstructor: Function, superAttrs?: any) {
     let AttrsCtor;
     if (CC_DEV && CC_SUPPORT_JIT) {
-        let ctorName = ownerCtor.name;
-        if (owner === ownerCtor) {
+        let ctorName = ownerConstructor.name;
+        if (owner === ownerConstructor) {
             ctorName += '_ATTRS';
         }
         else {
@@ -52,10 +57,12 @@ export function createAttrsSingle (owner, ownerCtor, superAttrs) {
     return attrs;
 }
 
-// subclass should not have __attrs__
-export function createAttrs (subclass) {
-    let superClass;
-    const chains = cc.Class.getInheritanceChain(subclass);
+/**
+ * @param subclass Should not have '__attrs__'.
+ */
+export function createAttrs (subclass: any) {
+    let superClass: any;
+    const chains: any[] = cc.Class.getInheritanceChain(subclass);
     for (let i = chains.length - 1; i >= 0; i--) {
         const cls = chains[i];
         const attrs = cls.hasOwnProperty('__attrs__') && cls.__attrs__;
@@ -72,70 +79,74 @@ export function createAttrs (subclass) {
 // /**
 //  * @class Class
 //  */
+/**
+ * Tag the class with any meta attributes, then return all current attributes assigned to it.
+ * This function holds only the attributes, not their implementations.
+ * @param constructor The class or instance. If instance, the attribute will be dynamic and only available for the specified instance.
+ * @param propertyName The name of property or function, used to retrieve the attributes.
+ * @param [newAttributes] The attribute table to mark, new attributes will merged with existed attributes.
+ * Attribute whose key starts with '_' will be ignored.
+ * @private
+ */
+export function attr (constructor: any, propertyName: string): { [propertyName: string]: any; };
 
-//  *
-//  * Tag the class with any meta attributes, then return all current attributes assigned to it.
-//  * This function holds only the attributes, not their implementations.
-//  *
-//  * @method attr
-//  * @param {Function|Object} ctor - the class or instance. If instance, the attribute will be dynamic and only available for the specified instance.
-//  * @param {String} propName - the name of property or function, used to retrieve the attributes
-//  * @param {Object} [newAttrs] - the attribute table to mark, new attributes will merged with existed attributes. Attribute whose key starts with '_' will be ignored.
-//  * @static
-//  * @private
-export function attr (ctor, propName, newAttrs) {
-    let attrs, setter, key;
-    if (typeof ctor === 'function') {
-        // attributes shared between instances
-        attrs = getClassAttrs(ctor);
+export function attr (constructor: any, propertyName: string, newAttributes: Object): void;
+
+export function attr (constructor: any, propertyName: string, newAttributes?: Object) {
+    let attrs: any, setter: any;
+    if (typeof constructor === 'function') {
+        // Attributes shared between instances.
+        attrs = getClassAttrs(constructor);
         setter = attrs.constructor.prototype;
-    }
-    else {
-        // attributes in instance
-        const instance = ctor;
+    } else {
+        // Attributes in instance.
+        const instance = constructor;
         attrs = instance.__attrs__;
         if (!attrs) {
-            ctor = instance.constructor;
-            const clsAttrs = getClassAttrs(ctor);
-            attrs = createAttrsSingle(instance, ctor, clsAttrs);
+            constructor = instance.constructor;
+            const clsAttrs = getClassAttrs(constructor);
+            attrs = createAttrsSingle(instance, constructor, clsAttrs);
         }
         setter = attrs;
     }
 
-    if (typeof newAttrs === 'undefined') {
-        // get
-        const prefix = propName + DELIMETER;
+    if (typeof newAttributes === 'undefined') {
+        // Get.
+        const prefix = propertyName + DELIMETER;
         const ret = {};
-        for (key in attrs) {
+        for (const key in attrs) {
             if (key.startsWith(prefix)) {
                 ret[key.slice(prefix.length)] = attrs[key];
             }
         }
         return ret;
-    }
-    else {
-        // set
-        if (typeof newAttrs === 'object') {
-            for (key in newAttrs) {
+    } else {
+        // Set.
+        if (typeof newAttributes === 'object') {
+            for (const key in newAttributes) {
                 if (key.charCodeAt(0) !== 95 /* _ */) {
-                    setter[propName + DELIMETER + key] = newAttrs[key];
+                    setter[propertyName + DELIMETER + key] = newAttributes[key];
                 }
             }
         }
         else if (CC_DEV) {
-            cc.errorID(3629);
+            errorID(3629);
         }
     }
 }
 
-// returns a readonly meta object
-export function getClassAttrs (ctor) {
-    return (ctor.hasOwnProperty('__attrs__') && ctor.__attrs__) || createAttrs(ctor);
+/**
+ * Returns a readonly meta object.
+ */
+export function getClassAttrs (constructor: any) {
+    return (constructor.hasOwnProperty('__attrs__') && constructor.__attrs__) || createAttrs(constructor);
 }
 
-// returns a writable meta object, used to set multi attributes
-export function getClassAttrsProto (ctor) {
-    return getClassAttrs(ctor).constructor.prototype;
+/**
+ * Returns a writable meta object, used to set multi attributes.
+ */
+export function getClassAttrsProto (constructor: Function) {
+    return getClassAttrs(constructor).constructor.prototype;
 }
 
 export function setClassAttr (ctor, propName, key, value) {
@@ -144,14 +155,8 @@ export function setClassAttr (ctor, propName, key, value) {
 }
 
 /**
- * @module cc
- */
-
-/**
  * Specify that the input value must be integer in Inspector.
  * Also used to indicates that the elements in array should be type integer.
- * @property {string} Integer
- * @readonly
  * @example
  * // in cc.Class
  * member: {
@@ -164,12 +169,11 @@ export function setClassAttr (ctor, propName, key, value) {
  * })
  * member = [];
  */
-cc.Integer = 'Integer';
+export const CCInteger = 'Integer';
+cc.Integer = CCInteger;
 
 /**
  * Indicates that the elements in array should be type double.
- * @property {string} Float
- * @readonly
  * @example
  * // in cc.Class
  * member: {
@@ -182,19 +186,18 @@ cc.Integer = 'Integer';
  * })
  * member = [];
  */
-cc.Float = 'Float';
+export const CCFloat = 'Float';
+cc.Float = CCFloat;
 
 if (CC_EDITOR) {
     js.get(cc, 'Number', function () {
-        cc.warnID(3603);
-        return cc.Float;
+        warnID(3603);
+        return CCFloat;
     });
 }
 
 /**
  * Indicates that the elements in array should be type boolean.
- * @property {string} Boolean
- * @readonly
  * @example
  * // in cc.Class
  * member: {
@@ -207,12 +210,11 @@ if (CC_EDITOR) {
  * })
  * member = [];
  */
-cc.Boolean = 'Boolean';
+export const CCBoolean = 'Boolean';
+cc.Boolean = CCBoolean;
 
 /**
  * Indicates that the elements in array should be type string.
- * @property {string} String
- * @readonly
  * @example
  * // in cc.Class
  * member: {
@@ -225,7 +227,8 @@ cc.Boolean = 'Boolean';
  * })
  * member = [];
  */
-cc.String = 'String';
+export const CCString = 'String';
+cc.String = CCString;
 
 /*
 BuiltinAttributes: {
@@ -243,97 +246,95 @@ Callbacks: {
 }
  */
 
-export function getTypeChecker (type, attrName) {
-    if (CC_DEV) {
-        return function (constructor, mainPropName) {
-            const propInfo = '"' + js.getClassName(constructor) + '.' + mainPropName + '"';
-            const mainPropAttrs = attr(constructor, mainPropName);
+export function getTypeChecker (type: string, attributeName: string) {
+    return function (constructor: Function, mainPropertyName: string) {
+        const propInfo = '"' + js.getClassName(constructor) + '.' + mainPropertyName + '"';
+        const mainPropAttrs = attr(constructor, mainPropertyName);
+        if (!mainPropAttrs.saveUrlAsAsset) {
+            let mainPropAttrsType = mainPropAttrs.type;
+            if (mainPropAttrsType === CCInteger || mainPropAttrsType === CCFloat) {
+                mainPropAttrsType = 'Number';
+            }
+            if (mainPropAttrsType !== type) {
+                warnID(3604, propInfo);
+                return;
+            }
+        }
+        if (!mainPropAttrs.hasOwnProperty('default')) {
+            return;
+        }
+        const defaultVal = mainPropAttrs.default;
+        if (typeof defaultVal === 'undefined') {
+            return;
+        }
+        const isContainer = Array.isArray(defaultVal) || isPlainEmptyObj_DEV(defaultVal);
+        if (isContainer) {
+            return;
+        }
+        const defaultType = typeof defaultVal;
+        const type_lowerCase = type.toLowerCase();
+        if (defaultType === type_lowerCase) {
             if (!mainPropAttrs.saveUrlAsAsset) {
-                let mainPropAttrsType = mainPropAttrs.type;
-                if (mainPropAttrsType === cc.Integer || mainPropAttrsType === cc.Float) {
-                    mainPropAttrsType = 'Number';
-                }
-                if (mainPropAttrsType !== type) {
-                    cc.warnID(3604, propInfo);
-                    return;
-                }
-            }
-            if (!mainPropAttrs.hasOwnProperty('default')) {
-                return;
-            }
-            const defaultVal = mainPropAttrs.default;
-            if (typeof defaultVal === 'undefined') {
-                return;
-            }
-            const isContainer = Array.isArray(defaultVal) || isPlainEmptyObj_DEV(defaultVal);
-            if (isContainer) {
-                return;
-            }
-            const defaultType = typeof defaultVal;
-            const type_lowerCase = type.toLowerCase();
-            if (defaultType === type_lowerCase) {
-                if (!mainPropAttrs.saveUrlAsAsset) {
-                    if (type_lowerCase === 'object') {
-                        if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
-                            cc.warnID(3605, propInfo, js.getClassName(mainPropAttrs.ctor));
-                        }
-                        else {
-                            return;
-                        }
+                if (type_lowerCase === 'object') {
+                    if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
+                        warnID(3605, propInfo, js.getClassName(mainPropAttrs.ctor));
                     }
-                    else if (type !== 'Number') {
-                        cc.warnID(3606, attrName, propInfo, type);
+                    else {
+                        return;
                     }
                 }
+                else if (type !== 'Number') {
+                    warnID(3606, attributeName, propInfo, type);
+                }
             }
-            else if (defaultType !== 'function') {
-                if (type === cc.String && defaultVal == null) {
-                    if (!js.isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
-                        cc.warnID(3607, propInfo);
-                    }
+        }
+        else if (defaultType !== 'function') {
+            if (type === CCString && defaultVal == null) {
+                if (!js.isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
+                    warnID(3607, propInfo);
                 }
-                else if (mainPropAttrs.ctor === String && (defaultType === 'string' || defaultVal == null)) {
-                    mainPropAttrs.type = cc.String;
-                    cc.warnID(3608, propInfo);
-                }
-                else if (mainPropAttrs.ctor === Boolean && defaultType === 'boolean') {
-                    mainPropAttrs.type = cc.Boolean;
-                    cc.warnID(3609, propInfo);
-                }
-                else if (mainPropAttrs.ctor === Number && defaultType === 'number') {
-                    mainPropAttrs.type = cc.Float;
-                    cc.warnID(3610, propInfo);
-                }
-                else {
-                    cc.warnID(3611, attrName, propInfo, defaultType);
-                }
+            }
+            else if (mainPropAttrs.ctor === String && (defaultType === 'string' || defaultVal == null)) {
+                mainPropAttrs.type = CCString;
+                warnID(3608, propInfo);
+            }
+            else if (mainPropAttrs.ctor === Boolean && defaultType === 'boolean') {
+                mainPropAttrs.type = CCBoolean;
+                warnID(3609, propInfo);
+            }
+            else if (mainPropAttrs.ctor === Number && defaultType === 'number') {
+                mainPropAttrs.type = CCFloat;
+                warnID(3610, propInfo);
             }
             else {
-                return;
+                warnID(3611, attributeName, propInfo, defaultType);
             }
-            delete mainPropAttrs.type;
-        };
-    }
+        }
+        else {
+            return;
+        }
+        delete mainPropAttrs.type;
+    };
 }
 
 export function ObjectType (typeCtor) {
     return {
         type: 'Object',
         ctor: typeCtor,
-        _onAfterProp: CC_DEV && function (classCtor, mainPropName) {
+        _onAfterProp: !CC_DEV ? undefined : function (classCtor, mainPropName) {
             getTypeChecker('Object', 'type')(classCtor, mainPropName);
             // check ValueType
             const defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
             const defaultVal = cc.Class.getDefault(defaultDef);
             if (!Array.isArray(defaultVal) && js.isChildClassOf(typeCtor, cc.ValueType)) {
                 const typename = js.getClassName(typeCtor);
-                const info = cc.js.formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
+                const info = formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
                     js.getClassName(classCtor), mainPropName, typename);
                 if (defaultDef) {
-                    cc.log(info);
+                    log(info);
                 }
                 else {
-                    cc.warnID(3612, info, typename, js.getClassName(classCtor), mainPropName, typename);
+                    warnID(3612, info, typename, js.getClassName(classCtor), mainPropName, typename);
                 }
             }
         },
