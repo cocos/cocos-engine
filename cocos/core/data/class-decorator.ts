@@ -38,9 +38,9 @@
 
 // inspired by toddlxt (https://github.com/toddlxt/Creator-TypeScript-Boilerplate)
 
+import * as js from '../utils/js';
 import './class';
-import {getFullFormOfProperty, doValidateMethodWithProps_DEV} from './utils/preprocess-class';
-import * as js from'../utils/js';
+import { doValidateMethodWithProps_DEV, getFullFormOfProperty } from './utils/preprocess-class';
 
 // caches for class construction
 const CACHE_KEY = '__ccclassCache__';
@@ -78,7 +78,7 @@ function _checkNormalArgument (validator_DEV, decorate, decoratorName) {
     };
 }
 
-var checkCompArgument = _checkNormalArgument.bind(null, CC_DEV && function (arg, decoratorName) {
+const checkCompArgument = _checkNormalArgument.bind(null, CC_DEV && function (arg, decoratorName) {
     if (!cc.Class._isCCClass(arg)) {
         cc.error('The parameter for %s is missing.', decoratorName);
         return false;
@@ -97,10 +97,9 @@ function _argumentChecker (type) {
         }
     });
 }
-var checkStringArgument = _argumentChecker('string');
-var checkNumberArgument = _argumentChecker('number');
+const checkStringArgument = _argumentChecker('string');
+const checkNumberArgument = _argumentChecker('number');
 // var checkBooleanArgument = _argumentChecker('boolean');
-
 
 function getClassCache (ctor, decoratorName) {
     if (CC_DEV && cc.Class._isCCClass(ctor)) {
@@ -111,7 +110,7 @@ function getClassCache (ctor, decoratorName) {
 }
 
 function getDefaultFromInitializer (initializer) {
-    var value;
+    let value;
     try {
         value = initializer();
     }
@@ -130,9 +129,8 @@ function getDefaultFromInitializer (initializer) {
     }
 }
 
-
 function extractActualDefaultValues (ctor) {
-    var dummyObj;
+    let dummyObj;
     try {
         dummyObj = new ctor();
     }
@@ -146,20 +144,20 @@ function extractActualDefaultValues (ctor) {
 }
 
 function genProperty (ctor, properties, propName, options, desc, cache) {
-    var fullOptions;
+    let fullOptions;
     if (options) {
         fullOptions = CC_DEV ? getFullFormOfProperty(options, propName, js.getClassName(ctor)) :
-                               getFullFormOfProperty(options);
+            getFullFormOfProperty(options);
         fullOptions = fullOptions || options;
     }
-    var existsProperty = properties[propName];
-    var prop = js.mixin(existsProperty || {}, fullOptions || {});
+    const existsProperty = properties[propName];
+    const prop = js.mixin(existsProperty || {}, fullOptions || {});
 
-    var isGetset = desc && (desc.get || desc.set);
+    const isGetset = desc && (desc.get || desc.set);
     if (isGetset) {
         // typescript or babel
         if (CC_DEV && options && (options.get || options.set)) {
-            var errorProps = getSubDict(cache, 'errorProps');
+            const errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propName]) {
                 errorProps[propName] = true;
                 cc.warnID(3655, propName, js.getClassName(ctor), propName, propName);
@@ -183,8 +181,8 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             return;
         }
         // member variables
-        var defaultValue = undefined;
-        var isDefaultValueSpecified = false;
+        let defaultValue;
+        let isDefaultValueSpecified = false;
         if (desc) {
             // babel
             if (desc.initializer) {
@@ -200,7 +198,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
         }
         else {
             // typescript
-            var actualDefaultValues = cache.default || (cache.default = extractActualDefaultValues(ctor));
+            const actualDefaultValues = cache.default || (cache.default = extractActualDefaultValues(ctor));
             if (actualDefaultValues.hasOwnProperty(propName)) {
                 // @property(...)
                 // value = null;
@@ -256,24 +254,24 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
  * ccclass(name?: string): Function
  * ccclass(_class?: Function): void
  */
-var ccclass = checkCtorArgument(function (ctor, name) {
+const ccclass = checkCtorArgument(function (ctor, name) {
     // if (FIX_BABEL6) {
     //     eval('if(typeof _classCallCheck==="function"){_classCallCheck=function(){};}');
     // }
-    var base = js.getSuper(ctor);
+    let base = js.getSuper(ctor);
     if (base === Object) {
         base = null;
     }
 
-    var proto = {
+    const proto = {
         name,
         extends: base,
         ctor,
         __ES6__: true,
     };
-    var cache = ctor[CACHE_KEY];
+    const cache = ctor[CACHE_KEY];
     if (cache) {
-        var decoratedProto = cache.proto;
+        const decoratedProto = cache.proto;
         if (decoratedProto) {
             // decoratedProto.properties = createProperties(ctor, decoratedProto.properties);
             js.mixin(proto, decoratedProto);
@@ -281,16 +279,16 @@ var ccclass = checkCtorArgument(function (ctor, name) {
         ctor[CACHE_KEY] = undefined;
     }
 
-    var res = cc.Class(proto);
+    const res = cc.Class(proto);
 
     // validate methods
     if (CC_DEV) {
-        var propNames = Object.getOwnPropertyNames(ctor.prototype);
-        for (var i = 0; i < propNames.length; ++i) {
-            var prop = propNames[i];
+        const propNames = Object.getOwnPropertyNames(ctor.prototype);
+        for (let i = 0; i < propNames.length; ++i) {
+            const prop = propNames[i];
             if (prop !== 'constructor') {
-                var desc = Object.getOwnPropertyDescriptor(ctor.prototype, prop);
-                var func = desc && desc.value;
+                const desc = Object.getOwnPropertyDescriptor(ctor.prototype, prop);
+                const func = desc && desc.value;
                 if (typeof func === 'function') {
                     doValidateMethodWithProps_DEV(func, prop, js.getClassName(ctor), ctor, base);
                 }
@@ -415,12 +413,12 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  * property(_target: Object, _key: any, _desc?: any): void
  */
 function property (ctorProtoOrOptions, propName, desc) {
-    var options = null;
+    let options = null;
     function normalized (ctorProto, propName, desc) {
-        var cache = getClassCache(ctorProto.constructor);
+        const cache = getClassCache(ctorProto.constructor);
         if (cache) {
-            var ccclassProto = getSubDict(cache, 'proto');
-            var properties = getSubDict(ccclassProto, 'properties');
+            const ccclassProto = getSubDict(cache, 'proto');
+            const properties = getSubDict(ccclassProto, 'properties');
             genProperty(ctorProto.constructor, properties, propName, options, desc, cache);
         }
     }
@@ -437,10 +435,10 @@ function property (ctorProtoOrOptions, propName, desc) {
 
 function createEditorDecorator (argCheckFunc, editorPropName, staticValue) {
     return argCheckFunc(function (ctor, decoratedValue) {
-        var cache = getClassCache(ctor, editorPropName);
+        const cache = getClassCache(ctor, editorPropName);
         if (cache) {
-            var value = (staticValue !== undefined) ? staticValue : decoratedValue;
-            var proto = getSubDict(cache, 'proto');
+            const value = (staticValue !== undefined) ? staticValue : decoratedValue;
+            const proto = getSubDict(cache, 'proto');
             getSubDict(proto, 'editor')[editorPropName] = value;
         }
     }, editorPropName);
@@ -472,7 +470,7 @@ function createDummyDecorator (argCheckFunc) {
  * executeInEditMode(): Function
  * executeInEditMode(_class: Function): void
  */
-var executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'executeInEditMode', true);
+const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'executeInEditMode', true);
 
 /**
  * !#en
@@ -493,7 +491,7 @@ var executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(
  * @typescript
  * requireComponent(requiredComponent: typeof cc.Component): Function
  */
-var requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
+const requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
 
 /**
  * !#en
@@ -515,7 +513,7 @@ var requireComponent = createEditorDecorator(checkCompArgument, 'requireComponen
  * @typescript
  * menu(path: string): Function
  */
-var menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
+const menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
 
 /**
  * !#en
@@ -538,7 +536,7 @@ var menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringAr
  * @typescript
  * executionOrder(order: number): Function
  */
-var executionOrder = createEditorDecorator(checkNumberArgument, 'executionOrder');
+const executionOrder = createEditorDecorator(checkNumberArgument, 'executionOrder');
 
 /**
  * !#en
@@ -559,7 +557,7 @@ var executionOrder = createEditorDecorator(checkNumberArgument, 'executionOrder'
  * disallowMultiple(): Function
  * disallowMultiple(_class: Function): void
  */
-var disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'disallowMultiple');
+const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'disallowMultiple');
 
 /**
  * !#en
@@ -582,7 +580,7 @@ var disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)(c
  * playOnFocus(): Function
  * playOnFocus(_class: Function): void
  */
-var playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
+const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
 
 /**
  * !#en
@@ -603,7 +601,7 @@ var playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkC
  * @typescript
  * inspector(path: string): Function
  */
-var inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
+const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
 
 /**
  * !#en
@@ -625,7 +623,7 @@ var inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStr
  * @typescript
  * icon(path: string): Function
  */
-var icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
+const icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
 
 /**
  * !#en
@@ -646,7 +644,7 @@ var icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringAr
  * @typescript
  * help(path: string): Function
  */
-var help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
+const help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
 
 // Other Decorators
 
@@ -691,12 +689,12 @@ var help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringAr
  * mixins(ctor: Function, ...rest: Function[]): Function
  */
 function mixins () {
-    var mixins = [];
-    for (var i = 0; i < arguments.length; i++) {
+    const mixins = [];
+    for (let i = 0; i < arguments.length; i++) {
         mixins[i] = arguments[i];
     }
     return function (ctor) {
-        var cache = getClassCache(ctor, 'mixins');
+        const cache = getClassCache(ctor, 'mixins');
         if (cache) {
             getSubDict(cache, 'proto').mixins = mixins;
         }
@@ -715,5 +713,5 @@ export {
     inspector,
     icon,
     help,
-    mixins
+    mixins,
 };
