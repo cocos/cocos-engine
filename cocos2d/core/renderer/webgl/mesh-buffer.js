@@ -211,14 +211,14 @@ let MeshBuffer = cc.Class({
     },
 
     destroy () {
-        for (let key in this._vbArr) {
-            let vb = this._vbArr[key];
+        for (let i = 0; i <  this._vbArr.length; i++) {
+            let vb = this._vbArr[i];
             vb.destroy();
         }
         this._vbArr = undefined;
 
-        for (let key in this._ibArr) {
-            let ib = this._ibArr[key];
+        for (let i = 0; i < this._ibArr.length; i++) {
+            let ib = this._ibArr[i];
             ib.destroy();
         }
         this._ibArr = undefined;
