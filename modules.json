@@ -3,53 +3,36 @@
     "id": "base",
     "name": "base",
     "locked": true,
-    "entries": [],
     "dependencies": []
   },
   {
     "id": "ui",
     "name": "ui",
-    "entries": [
-      "ui"
-    ],
     "dependencies": []
   },
   {
     "id": "physics",
     "name": "physics",
-    "entries": [
-      "physics"
-    ],
     "dependencies": []
   },
   {
     "id": "particle",
     "name": "particle",
-    "entries": [
-      "particle"
-    ],
     "dependencies": []
   },
   {
     "id": "primitive",
     "name": "primitive",
-    "entries": [],
     "dependencies": []
   },
   {
     "id": "animation",
     "name": "animation",
-    "entries": [
-      "animation"
-    ],
     "dependencies": []
   },
   {
     "id": "wechat",
     "name": "wechat",
-    "entries": [
-      "wechat"
-    ],
     "dependencies": []
   }
 ]
