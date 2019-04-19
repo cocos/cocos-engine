@@ -144,7 +144,9 @@ const PixelFormat = cc.Enum({
      */
     RGBA_PVRTC_2BPPV1: gfx.TEXTURE_FMT_RGBA_PVRTC_2BPPV1,
     /**
-     * rgb a 2 bpp pvrtc
+     * rgb separate a 2 bpp pvrtc
+     * RGB_A_PVRTC_2BPPV1 texture is a 2x height RGB_PVRTC_2BPPV1 format texture.
+     * It separate the origin alpha channel to the bottom half atlas, the origin rgb channel to the top half atlas
      * @property RGB_A_PVRTC_2BPPV1
      * @readonly
      * @type {Number}
@@ -166,6 +168,8 @@ const PixelFormat = cc.Enum({
     RGBA_PVRTC_4BPPV1: gfx.TEXTURE_FMT_RGBA_PVRTC_4BPPV1,
     /**
      * rgb a 4 bpp pvrtc
+     * RGB_A_PVRTC_4BPPV1 texture is a 2x height RGB_PVRTC_4BPPV1 format texture.
+     * It separate the origin alpha channel to the bottom half atlas, the origin rgb channel to the top half atlas
      * @property RGB_A_PVRTC_4BPPV1
      * @readonly
      * @type {Number}
