@@ -268,8 +268,7 @@
     "name": "3D",
     "entries": [
       "./cocos2d/core/3d/index.js",
-      "./cocos2d/core/3d/geom-utils/aabb.js",
-      "./cocos2d/core/3d/geom-utils/ray.js"
+      "./cocos2d/core/3d/geom-utils/index.js"
     ],
     "dependencies": ["Mesh", "WebGL Renderer"]
   },

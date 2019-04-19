@@ -26,9 +26,9 @@
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
 const RenderFlow = require('../renderer/render-flow');
-const aabb = require('../3d/geom-utils/aabb');
 const Material = require('../assets/material/CCMaterial');
 
+import { aabb } from '../3d/geom-utils';
 import gfx from '../../renderer/gfx';
 import CustomProperties from '../assets/material/custom-properties';
 
