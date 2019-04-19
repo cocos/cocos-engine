@@ -151,8 +151,11 @@ let Material = cc.Class({
         if (this._effect) {
             if (val instanceof Texture) {
                 this._effect.setProperty(name, val.getImpl());
-                if (val.getPixelFormat() === PixelFormat.RGBA_ETC1) {
-                    this.define('_USE_ETC1_' + name.toUpperCase(), true);
+                let format = val.getPixelFormat();
+                if (format === PixelFormat.RGBA_ETC1 ||
+                    format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
+                    format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+                    this.define('_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
                 }
             }
             else {
