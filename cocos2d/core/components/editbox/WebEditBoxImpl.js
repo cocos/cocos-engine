@@ -224,11 +224,11 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     _enableDom () {
-        this._elem.style.disaplay = '';
+        this._elem.style.display = '';
     },
 
     _disableDom () {
-        this._elem.style.disaplay = 'none';
+        this._elem.style.display = 'none';
     },
 
     _showDom () {
