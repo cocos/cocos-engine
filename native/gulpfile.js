@@ -249,17 +249,3 @@ gulp.task('bump-version', function (cb) {
 
     cb();
 });
-
-gulp.task('push-tag', function () {
-    if (process.platform === 'darwin') {
-        if (process.env.COCOS_WORKFLOW_ROOT) {
-            execSync('npm run tag -- --path ' + process.cwd(), process.env.COCOS_WORKFLOW_ROOT);
-        }
-        else {
-            console.warn(Chalk.cyan('COCOS_WORKFLOW_ROOT is undefined in the environment, skip push-tag'));
-        }
-    }
-    else {
-        console.log('skip push-tag on Windows');
-    }
-});
