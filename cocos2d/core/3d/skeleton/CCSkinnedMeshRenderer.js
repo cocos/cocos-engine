@@ -206,6 +206,7 @@ let SkinnedMeshRenderer = cc.Class({
         }
         else {
             this._jointsData = new Float32Array(jointCount * 16);
+            customProperties.define('_JOINT_MATRICES_SIZE', jointCount);
             customProperties.setProperty('_jointMatrices', this._jointsData);
         }
 

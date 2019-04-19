@@ -916,7 +916,7 @@ let RichText = cc.Class({
                 labelNode._clickParam = textStyle.event.param;
             }
             else {
-                spriteNode._clickParam = '';
+                labelNode._clickParam = '';
             }
         }
         else {
