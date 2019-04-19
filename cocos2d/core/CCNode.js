@@ -574,7 +574,6 @@ var Node = cc.Class({
             default: 0,
             serializable: false
         },
-        _renderQueue: 0,
     
 
         // internal properties
@@ -1164,6 +1163,7 @@ var Node = cc.Class({
         this._eventMask = 0;
         this._cullingMask = 1;
         this._childArrivalOrder = 1;
+        this._renderQueue = 0;
     },
 
     statics: {
