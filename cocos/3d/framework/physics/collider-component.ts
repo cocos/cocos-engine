@@ -74,6 +74,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
 
     public onEnable () {
         if (this.sharedBody) {
+            super.onEnable();
             this.sharedBody.body.addShape(this._shapeBase!);
         }
     }
@@ -81,6 +82,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     public onDisable () {
         if (this.sharedBody) {
             this.sharedBody.body.removeShape(this._shapeBase!);
+            // collider只需要从刚体中移除shape即可, 因为可能存在有rigidBody组件
         }
     }
 
