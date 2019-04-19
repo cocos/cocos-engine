@@ -19,6 +19,7 @@ import Burst from './burst';
 import { particleEmitZAxis, Space } from './particle-general-function';
 import { INT_MAX } from '../../../core/vmath/bits';
 import { ccclass, executionOrder, executeInEditMode, property, requireComponent, menu } from '../../../core/data/class-decorator';
+import TrailModule from './renderer/trail';
 
 const _world_mat = mat4.create();
 
@@ -193,6 +194,11 @@ export class ParticleSystemComponent extends Component {
     })
     public textureAnimationModule = new TextureAnimationModule();
 
+    // @property({
+    //     type: TrailModule,
+    // })
+    public trailModule = new TrailModule();
+
     // particle system renderer
     private renderer: ParticleSystemRenderer | null;
     private _isPlaying: boolean;
@@ -243,6 +249,7 @@ export class ParticleSystemComponent extends Component {
         this.renderer = this.getComponent(ParticleSystemRenderer);
         this.renderer!.onInit();
         this.shapeModule.onInit(this);
+        this.trailModule.init(this);
         this.textureAnimationModule.onInit(this);
 
         this.node.getWorldPosition(this._oldWPos);
@@ -446,6 +453,11 @@ export class ParticleSystemComponent extends Component {
 
             // update render data
             this.renderer!._updateRenderData();
+
+            // update trail
+            if (this.trailModule.enable) {
+                this.trailModule.updateRenderData();
+            }
         }
     }
 

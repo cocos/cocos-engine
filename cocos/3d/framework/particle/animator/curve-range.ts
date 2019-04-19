@@ -62,6 +62,20 @@ export default class CurveRange {
                 return lerp(this.constantMin, this.constantMax, rndRatio);
         }
     }
+
+    public getMax (): number {
+        switch (this.mode) {
+            case Mode.Constant:
+                return this.constant;
+            case Mode.Curve:
+                return this.multiplier;
+            case Mode.TwoConstants:
+                return this.constantMax;
+            case Mode.TwoCurves:
+                return this.multiplier;
+        }
+        return 0;
+    }
 }
 
 // CCClass.fastDefine('cc.CurveRange', CurveRange, {
