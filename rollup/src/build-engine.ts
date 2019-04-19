@@ -11,6 +11,8 @@ import json from 'rollup-plugin-json';
 import resolve from 'rollup-plugin-node-resolve';
 import { minify } from 'uglify-js';
 
+const { excludes } = require('../plugin/rollup-plugin-excludes');
+
 export interface IBuildOptions {
     inputPath: string;
     outputPath: string;
@@ -31,8 +33,11 @@ export async function build (options: IBuildOptions) {
 
 async function _doBundle (options: IBuildOptions) {
     let code = '';
-
     const rollupPlugins = [
+        excludes({
+            modules: options.excludes
+        }),
+
         resolve({
             extensions: ['.js', '.ts', '.json'],
             jsnext: true,

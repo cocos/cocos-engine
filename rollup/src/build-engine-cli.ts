@@ -5,6 +5,7 @@ import { build } from './build-engine';
 yargs.option('platform', { type: 'string', alias: 'p' });
 yargs.option('flags', { type: 'array', alias: 'f' });
 yargs.option('destination', { type: 'string', alias: 'd' });
+yargs.option('excludes', { type: 'array', alias: 'e' });
 yargs.boolean('sourcemap');
 yargs.boolean('compress');
 
@@ -21,6 +22,7 @@ build({
     globalDefines: globalDefs,
     inputPath: './index.ts',
     outputPath: yargs.argv.destination as string,
+    excludes: yargs.argv.excludes as string[],
     sourcemap: yargs.argv.sourcemap as (boolean | undefined),
 }).then(
     () => {
