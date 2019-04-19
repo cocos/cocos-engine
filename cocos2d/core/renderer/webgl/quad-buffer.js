@@ -16,21 +16,6 @@ let QuadBuffer = cc.Class({
             buffer[idx++] = vertextID+3;
             buffer[idx++] = vertextID+2;
         }
-
-        let indicesData = new Uint16Array(this._iData.buffer, 0, count * 6 );
-        this._ib.update(0, indicesData);
-    },
-
-    uploadData () {
-        if (this.byteOffset === 0 || !this._dirty) {
-            return;
-        }
-
-        // update vertext data
-        let vertexsData = new Float32Array(this._vData.buffer, 0, this.byteOffset >> 2);
-        this._vb.update(0, vertexsData);
-
-        this._dirty = false;
     },
 
     _reallocBuffer () {
