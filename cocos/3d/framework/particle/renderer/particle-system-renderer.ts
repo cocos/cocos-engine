@@ -99,6 +99,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     private _lengthScale = 1;
 
     private _defines: { [index: string]: boolean };
+    private _trailDefines: { [index: string]: boolean };
     private _model: ParticleBatchModel | null;
     private frameTile_velLenScale: Vec4;
     private attrs: any[];
@@ -126,6 +127,9 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             CC_USE_HORIZONTAL_BILLBOARD: false,
             CC_USE_VERTICAL_BILLBOARD: false,
         };
+        this._trailDefines = {
+            CC_USE_WORLD_SPACE: true,
+        };
     }
 
     public onInit () {
@@ -133,6 +137,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this._particles = new RecyclePool(() => {
             return new Particle(this);
         }, 16);
+        this.onEnable();
     }
 
     public onEnable () {
@@ -186,12 +191,18 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         if (this.particleSystem.forceOvertimeModule.enable) {
             this.particleSystem.forceOvertimeModule.update(this.particleSystem._simulationSpace, _tempWorldTrans);
         }
+        if (this.particleSystem.trailModule.enable) {
+            this.particleSystem.trailModule.update();
+        }
         for (let i = 0; i < this._particles!.length; ++i) {
             const p = this._particles!.data[i];
             p.remainingLifetime -= dt;
             vec3.set(p.animatedVelocity, 0, 0, 0);
 
             if (p.remainingLifetime < 0.0) {
+                if (this.particleSystem.trailModule.enable) {
+                    this.particleSystem.trailModule.removeParticle(p);
+                }
                 this._particles!.removeAt(i);
                 --i;
                 continue;
@@ -222,6 +233,9 @@ export default class ParticleSystemRenderer extends RenderableComponent {
                 this.particleSystem.textureAnimationModule.animate(p);
             }
             vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
+            if (this.particleSystem.trailModule.enable) {
+                this.particleSystem.trailModule.animate(p, dt);
+            }
         }
     }
 
@@ -276,8 +290,11 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     }
 
     public _onRebuildPSO (index: number, material: Material) {
-        if (this._model) {
+        if (this._model && index === 0) {
             this._model.setSubModelMaterial(0, material);
+        }
+        if (this.particleSystem.trailModule._trailModel && index === 1) {
+            this.particleSystem.trailModule._trailModel.setSubModelMaterial(0, material);
         }
     }
 
@@ -288,11 +305,13 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         if (this.sharedMaterial == null && this._defaultMat == null) {
             this._defaultMat = Material.getInstantiatedMaterial(builtinResMgr.get<Material>('default-particle-material'), this, true);
         }
-        const mat: Material | null = this.sharedMaterial ? this.getMaterial(0, CC_EDITOR)! : this._defaultMat;
+        let mat: Material | null = this.sharedMaterial ? this.getMaterial(0, CC_EDITOR)! : this._defaultMat;
         if (this.particleSystem._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
+            this._trailDefines[CC_USE_WORLD_SPACE] = true;
         } else {
             this._defines[CC_USE_WORLD_SPACE] = false;
+            this._trailDefines[CC_USE_WORLD_SPACE] = false;
         }
 
         if (this._renderMode === RenderMode.Billboard) {
@@ -326,6 +345,11 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             mat!.setProperty('frameTile_velLenScale', vec2.set(this.frameTile_velLenScale, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
         } else {
             mat!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
+        }
+
+        if (this.particleSystem.trailModule.enable) {
+            mat = this.getMaterial(1, CC_EDITOR)!;
+            mat!.recompileShaders(this._trailDefines);
         }
     }
 
