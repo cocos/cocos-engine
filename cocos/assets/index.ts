@@ -36,5 +36,4 @@ export {default as JsonAsset} from './CCJsonAsset';
 export {default as AssetLibrary} from './CCAssetLibrary';
 export { ImageAsset } from './image-asset';
 export { Texture2D } from './texture-2d';
-export { RenderTexture } from './render-texture';
 export { TTFFont } from './ttf-font';
