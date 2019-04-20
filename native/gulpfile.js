@@ -43,7 +43,7 @@ gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-simulator', gulpSequence('gen-simulator', 'sign-simulator', 'update-simulator-config', 'update-simulator-dll', 'archive-simulator', 'upload-simulator'));
 
 if (process.platform === 'darwin') {
-    gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-cocos2d-x', 'make-simulator', 'push-tag'));
+    gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-cocos2d-x', 'make-simulator'));
 }
 else {
     gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-simulator'));
