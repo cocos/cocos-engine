@@ -38,7 +38,7 @@ function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouc
         return false;
     }
 
-    pos = touch.getUILocation();
+    touch.getUILocation(pos);
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.TOUCH_START.toString();
@@ -69,7 +69,7 @@ function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch)
         return;
     }
 
-    pos = touch.getUILocation();
+    touch.getUILocation(pos);
 
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = EventType.TOUCH_END.toString();

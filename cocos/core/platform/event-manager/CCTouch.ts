@@ -1,7 +1,3 @@
-import { Vec2 } from '../../value-types';
-import { v2 } from '../../value-types/vec2';
-import { vec2 } from '../../vmath';
-
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
@@ -28,6 +24,10 @@ import { vec2 } from '../../vmath';
  THE SOFTWARE.
  ****************************************************************************/
 
+import { Vec2 } from '../../value-types';
+import { vec2 } from '../../vmath';
+
+const _vec2 = new Vec2();
 /**
  * !#en The touch event class
  * !#zh 封装了触摸相关的信息。
@@ -38,11 +38,11 @@ import { vec2 } from '../../vmath';
  * @param {Number} id
  */
 export default class Touch {
-    public _point: Vec2 = v2();
-    public _prevPoint: Vec2 = v2();
+    public _point: Vec2 = new Vec2();
+    public _prevPoint: Vec2 = new Vec2();
     public _lastModified = 0;
     private _id: number | null = null;
-    private _startPoint: Vec2 = v2();
+    private _startPoint: Vec2 = new Vec2();
     private _startPointCaptured: boolean = false;
 
     constructor (x: number, y: number, id: number | null = null) {
@@ -53,8 +53,13 @@ export default class Touch {
      * !#en Returns the current touch location in OpenGL coordinates.、
      * !#zh 获取当前触点位置。
      */
-    public getLocation () {
-        return v2(this._point.x, this._point.y);
+    public getLocation (out?: Vec2) {
+        if (!out){
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._point.x, this._point.y);
+        return out;
     }
 
     /**
@@ -77,10 +82,14 @@ export default class Touch {
      * !#en Returns the current touch location in OpenGL coordinates.、
      * !#zh 获取当前触点位置。
      */
-    public getUILocation () {
-        const pos = v2(this._point.x, this._point.y);
-        cc.view._convertPointWithScale(pos);
-        return pos;
+    public getUILocation (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._point.x, this._point.y);
+        cc.view._convertPointWithScale(out);
+        return out;
     }
 
     /**
@@ -105,68 +114,107 @@ export default class Touch {
      * !#en Returns the previous touch location in OpenGL coordinates.
      * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
      */
-    public getPreviousLocation () {
-        return v2(this._prevPoint.x, this._prevPoint.y);
+    public getPreviousLocation (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._prevPoint.x, this._prevPoint.y);
+        return out;
     }
 
     /**
      * !#en Returns the previous touch location in OpenGL coordinates.
      * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
      */
-    public getUIPreviousLocation () {
-        const pos = v2(this._prevPoint.x, this._prevPoint.y);
-        cc.view._convertPointWithScale(pos);
-        return pos;
+    public getUIPreviousLocation (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._prevPoint.x, this._prevPoint.y);
+        cc.view._convertPointWithScale(out);
+        return out;
     }
 
     /**
      * !#en Returns the start touch location in OpenGL coordinates.
      * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
      */
-    public getStartLocation () {
-        return v2(this._startPoint.x, this._startPoint.y);
+    public getStartLocation (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._startPoint.x, this._startPoint.y);
+        return out;
     }
 
     /**
      * !#en Returns the delta distance from the previous touche to the current one in screen coordinates.
      * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      */
-    public getDelta () {
-        return this._point.sub(this._prevPoint);
+    public getDelta (out?: Vec2) {
+        if (!out){
+            out = new Vec2();
+        }
+
+        this._point.sub(this._prevPoint, out);
+        return out;
     }
 
     /**
      * !#en Returns the delta distance from the previous touche to the current one in screen coordinates.
      * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      */
-    public getUIDelta () {
-        const scale = v2(cc.view.getScaleX(), cc.view.getScaleY());
-        vec2.divide(scale, this._point.sub(this._prevPoint), scale);
-        return scale;
+    public getUIDelta (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        this._point.sub(this._prevPoint, _vec2);
+        vec2.set(out, cc.view.getScaleX(), cc.view.getScaleY());
+        vec2.divide(out, _vec2, out);
+        return out;
     }
 
     /**
      * !#en Returns the current touch location in screen coordinates.
      * !#zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
      */
-    public getLocationInView () {
-        return v2(this._point.x, cc.view._designResolutionSize.height - this._point.y);
+    public getLocationInView (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._point.x, cc.view._designResolutionSize.height - this._point.y);
+        return out;
     }
 
     /**
      * !#en Returns the previous touch location in screen coordinates.
      * !#zh 获取触点在上一次事件时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
      */
-    public getPreviousLocationInView () {
-        return v2(this._prevPoint.x, cc.view._designResolutionSize.height - this._prevPoint.y);
+    public getPreviousLocationInView (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._prevPoint.x, cc.view._designResolutionSize.height - this._prevPoint.y);
+        return out;
     }
 
     /**
      * !#en Returns the start touch location in screen coordinates.
      * !#zh 获取触点落下时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
      */
-    public getStartLocationInView () {
-        return v2(this._startPoint.x, cc.view._designResolutionSize.height - this._startPoint.y);
+    public getStartLocationInView (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._startPoint.x, cc.view._designResolutionSize.height - this._startPoint.y);
+        return out;
     }
 
     /**
@@ -183,10 +231,10 @@ export default class Touch {
      */
     public setTouchInfo (id: number | null = null, x?: number, y?: number) {
         this._prevPoint = this._point;
-        this._point = v2(x || 0, y || 0);
+        this._point = new Vec2(x || 0, y || 0);
         this._id = id;
         if (!this._startPointCaptured) {
-            this._startPoint = v2(this._point);
+            this._startPoint = new Vec2(this._point);
             cc.view._convertPointWithScale(this._startPoint);
             this._startPointCaptured = true;
         }
@@ -212,9 +260,9 @@ export default class Touch {
 
     public _setPrevPoint (x: number | Vec2, y?: number) {
         if (typeof x === 'object') {
-            this._prevPoint = v2(x.x, x.y);
+            this._prevPoint = new Vec2(x.x, x.y);
         } else {
-            this._prevPoint = v2(x || 0, y || 0);
+            this._prevPoint = new Vec2(x || 0, y || 0);
         }
     }
 }

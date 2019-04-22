@@ -25,7 +25,8 @@
  ****************************************************************************/
 
 import Event from '../../event/event';
-import { v2 } from '../../value-types/vec2';
+import { Vec2 } from '../../value-types';
+import { vec2 } from '../../vmath';
 import Touch from './CCTouch';
 
 /**
@@ -182,26 +183,40 @@ export class EventMouse extends Event {
      * !#en Returns cursor location.
      * !#zh 获取鼠标相对于左下角位置对象，对象包含 x 和 y 属性。
      */
-    public getLocation () {
-        return v2(this._x, this._y);
+    public getLocation (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._x, this._y);
+        return out;
     }
 
     /**
      * !#en Returns the current cursor location in screen coordinates.
      * !#zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
      */
-    public getLocationInView () {
-        return v2(this._x, cc.view._designResolutionSize.height - this._y);
+    public getLocationInView (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._x, cc.view._designResolutionSize.height - this._y);
+        return out;
     }
 
     /**
      * !#en Returns the current cursor location in ui coordinates.
      * !#zh 获取当前事件在 UI 窗口内的坐标位置，对象包含 x 和 y 属性。
      */
-    public getUILocation (){
-        const pos = v2(this._x, this._y);
-        cc.view._convertPointWithScale(pos);
-        return pos;
+    public getUILocation (out?: Vec2){
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._x, this._y);
+        cc.view._convertPointWithScale(out);
+        return out;
     }
 
     public _setPrevCursor (x: number, y: number) {
@@ -213,26 +228,40 @@ export class EventMouse extends Event {
      * !#en Returns the previous touch location.
      * !#zh 获取鼠标点击在上一次事件时的位置对象，对象包含 x 和 y 属性。
      */
-    public getPreviousLocation () {
-        return v2(this._prevX, this._prevY);
+    public getPreviousLocation (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._prevX, this._prevY);
+        return out;
     }
 
     /**
      * !#en Returns the previous touch location.
      * !#zh 获取鼠标点击在上一次事件时的位置对象，对象包含 x 和 y 属性。
      */
-    public getUIPreviousLocation () {
-        const pos = v2(this._prevX, this._prevY);
-        cc.view._convertPointWithScale(pos);
-        return pos;
+    public getUIPreviousLocation (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._prevX, this._prevY);
+        cc.view._convertPointWithScale(out);
+        return out;
     }
 
     /**
      * !#en Returns the delta distance from the previous location to current location.
      * !#zh 获取鼠标距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      */
-    public getDelta () {
-        return v2(this._x - this._prevX, this._y - this._prevY);
+    public getDelta (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._x - this._prevX, this._y - this._prevY);
+        return out;
     }
 
     /**
@@ -255,8 +284,13 @@ export class EventMouse extends Event {
      * !#en Returns the delta distance from the previous location to current location.
      * !#zh 获取鼠标距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      */
-    public getUIDelta () {
-        return v2((this._x - this._prevX) / cc.view.getScaleX(), (this._y - this._prevY) / cc.view.getScaleY());
+    public getUIDelta (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, (this._x - this._prevX) / cc.view.getScaleX(), (this._y - this._prevY) / cc.view.getScaleY());
+        return out;
     }
 
     /**
@@ -426,32 +460,32 @@ export class EventTouch extends Event {
      * !#en Returns touch location.
      * !#zh 获取触点位置。
      */
-    public getLocation () {
-        return this.touch ? this.touch.getLocation() : v2();
+    public getLocation (out?: Vec2) {
+        return this.touch ? this.touch.getLocation(out) : new Vec2();
     }
 
     /**
      * !#en Returns the current touch location in screen coordinates.
      * !#zh 获取当前触点在游戏窗口中的位置。
      */
-    public getLocationInView () {
-        return this.touch ? this.touch.getLocationInView() : v2();
+    public getLocationInView (out?: Vec2) {
+        return this.touch ? this.touch.getLocationInView(out) : new Vec2();
     }
 
     /**
      * !#en Returns the previous touch location.
      * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
      */
-    public getPreviousLocation () {
-        return this.touch ? this.touch.getPreviousLocation() : v2();
+    public getPreviousLocation (out?: Vec2) {
+        return this.touch ? this.touch.getPreviousLocation(out) : new Vec2();
     }
 
     /**
      * !#en Returns the start touch location.
      * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
      */
-    public getStartLocation () {
-        return this.touch ? this.touch.getStartLocation() : v2();
+    public getStartLocation (out?: Vec2) {
+        return this.touch ? this.touch.getStartLocation(out) : new Vec2();
     }
 
     /**
@@ -466,24 +500,24 @@ export class EventTouch extends Event {
      * !#en Returns the delta distance from the previous location to current location.
      * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      */
-    public getDelta () {
-        return this.touch ? this.touch.getDelta() : v2();
+    public getDelta (out?: Vec2) {
+        return this.touch ? this.touch.getDelta(out) : new Vec2();
     }
 
     /**
      * !#en Returns the X axis delta distance from the previous location to current location.
      * !#zh 获取触点距离上一次事件移动的 x 轴距离。
      */
-    public getDeltaX () {
-        return this.touch ? this.touch.getDelta().x : 0;
+    public getDeltaX (out?: Vec2) {
+        return this.touch ? this.touch.getDelta(out).x : 0;
     }
 
     /**
      * !#en Returns the Y axis delta distance from the previous location to current location.
      * !#zh 获取触点距离上一次事件移动的 y 轴距离。
      */
-    public getDeltaY () {
-        return this.touch ? this.touch.getDelta().y : 0;
+    public getDeltaY (out?: Vec2) {
+        return this.touch ? this.touch.getDelta(out).y : 0;
     }
 
     /**
