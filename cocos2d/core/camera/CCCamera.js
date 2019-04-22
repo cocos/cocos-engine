@@ -29,7 +29,7 @@ const renderer = require('../renderer/index');
 const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
 
-import { ray } from '../3d/geom-utils';
+import geomUtils from '../geom-utils';
 import RendererCamera from '../../renderer/scene/camera';
 import View from '../../renderer/core/view';
 
@@ -644,7 +644,7 @@ let Camera = cc.Class({
      * @return {Ray}
      */
     getRay (screenPos) {
-        if (!ray) return screenPos;
+        if (!geomUtils) return screenPos;
         
         vec3.set(_v3_temp_3, screenPos.x, screenPos.y, 1);
         this._camera.screenToWorld(_v3_temp_2, _v3_temp_3, cc.visibleRect.width, cc.visibleRect.height);
@@ -657,7 +657,7 @@ let Camera = cc.Class({
             this.node.getWorldPosition(_v3_temp_1);
         }
 
-        return ray.fromPoints(ray.create(), _v3_temp_1, _v3_temp_2);
+        return geomUtils.Ray.fromPoints(geomUtils.Ray.create(), _v3_temp_1, _v3_temp_2);
     },
 
     /**

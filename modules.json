@@ -265,12 +265,17 @@
     "name": "Native Socket"
   },
   {
+    "name": "Geom Utils",
+    "entries": [
+      "./cocos2d/core/geom-utils/index.js"
+    ]
+  },
+  {
     "name": "3D",
     "entries": [
-      "./cocos2d/core/3d/index.js",
-      "./cocos2d/core/3d/geom-utils/index.js"
+      "./cocos2d/core/3d/index.js"
     ],
-    "dependencies": ["Mesh", "WebGL Renderer"]
+    "dependencies": ["Mesh", "WebGL Renderer", "Geom Utils"]
   },
   {
     "name": "3D Primitive",
