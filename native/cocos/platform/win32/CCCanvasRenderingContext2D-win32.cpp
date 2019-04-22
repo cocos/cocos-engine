@@ -23,7 +23,7 @@ enum class CanvasTextBaseline {
 };
 
 namespace {
-    void fillRectWithColor(uint8_t* buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b)
+    void fillRectWithColor(uint8_t* buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
     {
         assert(x + width <= totalWidth);
         assert(y + height <= totalHeight);
@@ -35,10 +35,11 @@ namespace {
         {
             for (uint32_t offsetX = x; offsetX < (x + width); ++offsetX)
             {
-                p = buf + (totalWidth * offsetY + offsetX) * 3;
+                p = buf + (totalWidth * offsetY + offsetX) * 4;
                 *p++ = r;
                 *p++ = g;
                 *p++ = b;
+                *p++ = a;
             }
         }
     }
@@ -158,7 +159,8 @@ public:
             uint8_t r = _fillStyle.r * 255.0f;
             uint8_t g = _fillStyle.g * 255.0f;
             uint8_t b = _fillStyle.b * 255.0f;
-            fillRectWithColor(buffer, (uint32_t)_bufferWidth, (uint32_t)_bufferHeight, (uint32_t)x, (uint32_t)y, (uint32_t)w, (uint32_t)h, r, g, b);
+            uint8_t a = _fillStyle.a;
+            fillRectWithColor(buffer, (uint32_t)_bufferWidth, (uint32_t)_bufferHeight, (uint32_t)x, (uint32_t)y, (uint32_t)w, (uint32_t)h, r, g, b, a);
         }
     }
 
