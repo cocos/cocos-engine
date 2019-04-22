@@ -1,10 +1,10 @@
 
-const aabb = require('./aabb');
-const ray = require('./ray');
-const triangle = require('./triangle');
+const Aabb = require('./aabb');
+const Ray = require('./ray');
+const Triangle = require('./triangle');
 
-import gfx from '../../../renderer/gfx';
-import RecyclePool from '../../../renderer/memop/recycle-pool';
+import gfx from '../../renderer/gfx';
+import RecyclePool from '../../renderer/memop/recycle-pool';
 
 const mat4 = cc.vmath.mat4;
 const vec3 = cc.vmath.vec3;
@@ -95,7 +95,7 @@ intersect.rayTriangle = (function () {
 
 
 intersect.rayMesh = (function () {
-    let tri = triangle.create();
+    let tri = Triangle.create();
     let minDist = Infinity;
 
     const _compType2fn = {
@@ -198,11 +198,11 @@ intersect.raycast = (function () {
     let results = [];
 
     // temp variable
-    let nodeAabb = aabb.create();
+    let nodeAabb = Aabb.create();
     let minPos = vec3.create();
     let maxPos = vec3.create();
 
-    let modelRay = ray.create();
+    let modelRay = Ray.create();
     let m4_1 = mat4.create();
     let m4_2 = mat4.create();
     let d = vec3.create();
@@ -233,7 +233,7 @@ intersect.raycast = (function () {
             else if (node.width && node.height) {
                 vec3.set(minPos, -node.width * node.anchorX, -node.height * node.anchorY, node.z);
                 vec3.set(maxPos, node.width * (1 - node.anchorX), node.height * (1 - node.anchorY), node.z);
-                aabb.fromPoints(nodeAabb, minPos, maxPos);
+                Aabb.fromPoints(nodeAabb, minPos, maxPos);
                 distance = intersect.rayAabb(modelRay, nodeAabb);
             }
 

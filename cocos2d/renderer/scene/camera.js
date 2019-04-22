@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import { color4, vec3, mat4, lerp } from '../../core/vmath';
-import { ray } from '../../core/3d/geom-utils';
+import geomUtils from '../../core/geom-utils';
 import enums from '../enums';
 
 let _matView = mat4.create();
@@ -367,13 +367,13 @@ export default class Camera {
    * @param {number} y the screen y position to be transformed
    * @param {number} width framebuffer width
    * @param {number} height framebuffer height
-   * @param {ray} out the resulting ray
+   * @param {Ray} out the resulting ray
    * @returns {Ray} the resulting ray
    */
   screenPointToRay(x, y, width, height, out) {
-    if (!ray) return out;
+    if (!geomUtils) return out;
     
-    out = out || ray.create();
+    out = out || geomUtils.Ray.create();
     this._calcMatrices(width, height);
 
     let cx = this._rect.x * width;
@@ -394,7 +394,7 @@ export default class Camera {
       vec3.transformMat4(_tmp_v3, _tmp_v3, _matInvViewProj);
     }
 
-    return ray.fromPoints(out, _tmp_v3, _tmp2_v3);
+    return geomUtils.Ray.fromPoints(out, _tmp_v3, _tmp2_v3);
   }
 
   /**
