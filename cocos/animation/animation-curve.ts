@@ -53,6 +53,44 @@ export type EasingMethodName = keyof (typeof easing);
 
 export type CurveType = LinearType | BezierType | EasingMethodName;
 
+export class RatioSampler {
+    public ratios: number[];
+
+    private _lastSampleRatio: number = -1;
+
+    private _lastSampleResult: number = 0;
+
+    private _findRatio: (ratios: number[], ratio: number) => number;
+
+    constructor (ratios: number[]) {
+        this.ratios = ratios;
+        // If every piece of ratios are the same, we can use the quick function to find frame index.
+        let currRatioDif;
+        let lastRatioDif;
+        let canOptimize = true;
+        const EPSILON = 1e-6;
+        for (let i = 1, l = ratios.length; i < l; i++) {
+            currRatioDif = ratios[i] - ratios[i - 1];
+            if (i === 1) {
+                lastRatioDif = currRatioDif;
+            }
+            else if (Math.abs(currRatioDif - lastRatioDif) > EPSILON) {
+                canOptimize = false;
+                break;
+            }
+        }
+        this._findRatio = canOptimize ? quickFindIndex : binarySearch;
+    }
+
+    public sample (ratio: number) {
+        if (this._lastSampleRatio !== ratio) {
+            this._lastSampleRatio = ratio;
+            this._lastSampleResult = this._findRatio(this.ratios, ratio);
+        }
+        return this._lastSampleResult;
+    }
+}
+
 @ccclass('cc.DynamicAnimCurve')
 export class DynamicAnimCurve extends AnimCurve {
     public static Linear = null;
@@ -81,56 +119,62 @@ export class DynamicAnimCurve extends AnimCurve {
 
     /**
      * The keyframe ratio of the keyframe specified as a number between 0.0 and 1.0 inclusive. (x)
+     * A null ratio indicates a zero or single frame curve.
      */
-    @property
-    public ratios: number[] = [];
+    public ratioSampler: RatioSampler | null = null;
 
     @property
-    public types: CurveType[] = [];
+    public types?: CurveType[] = undefined;
+
+    @property
+    public type?: CurveType = null;
 
     /**
      * Lerp function used. If undefined, no lerp is performed.
      */
     public _lerp: LerpFunction | undefined = undefined;
 
-    public _findFrameIndex: FrameFinder = binarySearch;
-
     public _blendFunction: BlendFunction<any> | undefined = undefined;
 
     public sample (time: number, ratio: number, state: AnimationState) {
         const values = this.values;
-        const ratios = this.ratios;
-        const frameCount = ratios.length;
+        const frameCount = this.ratioSampler ?
+            this.ratioSampler.ratios.length :
+            this.values.length;
         if (frameCount === 0) {
             return;
         }
 
         // evaluate value
         let value: CurveValue;
-        let index = this._findFrameIndex(ratios, ratio);
-        if (index >= 0) {
-            value = values[index];
+        if (this.ratioSampler === null) {
+            value = this.values[0];
         } else {
-            index = ~index;
-            if (index <= 0) {
-                value = values[0];
-            } else if (index >= frameCount) {
-                value = values[frameCount - 1];
+            let index = this.ratioSampler.sample(ratio);
+            if (index >= 0) {
+                value = values[index];
             } else {
-                const fromVal = values[index - 1];
-                if (!this._lerp) {
-                    value = fromVal;
+                index = ~index;
+                if (index <= 0) {
+                    value = values[0];
+                } else if (index >= frameCount) {
+                    value = values[frameCount - 1];
                 } else {
-                    const fromRatio = ratios[index - 1];
-                    const toRatio = ratios[index];
-                    const type = this.types[index - 1];
-                    let ratioBetweenFrames = (ratio - fromRatio) / (toRatio - fromRatio);
-                    if (type) {
-                        ratioBetweenFrames = computeRatioByType(ratioBetweenFrames, type);
+                    const fromVal = values[index - 1];
+                    if (!this._lerp) {
+                        value = fromVal;
+                    } else {
+                        const fromRatio = this.ratioSampler.ratios[index - 1];
+                        const toRatio = this.ratioSampler.ratios[index];
+                        const type = this.types ? this.types[index - 1] : this.type;
+                        let ratioBetweenFrames = (ratio - fromRatio) / (toRatio - fromRatio);
+                        if (type) {
+                            ratioBetweenFrames = computeRatioByType(ratioBetweenFrames, type);
+                        }
+                        // calculate value
+                        const toVal = values[index];
+                        value = this._lerp(fromVal, toVal, ratioBetweenFrames);
                     }
-                    // calculate value
-                    const toVal = values[index];
-                    value = this._lerp(fromVal, toVal, ratioBetweenFrames);
                 }
             }
         }
@@ -334,7 +378,7 @@ export function computeRatioByType (ratio: number, type: CurveType) {
 /**
  * 当每两帧之前的间隔都一样的时候可以使用此函数快速查找 index
  */
-export function quickFindIndex (ratios: number[], ratio: number) {
+function quickFindIndex (ratios: number[], ratio: number) {
     const length = ratios.length - 1;
 
     if (length === 0) { return 0; }
