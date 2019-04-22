@@ -42,6 +42,7 @@ const LANDSCAPE_RIGHT = 90;
 let _didAccelerateFun;
 
 const _vec2 = new Vec2();
+const _preLocation = new Vec2();
 
 interface IHTMLElementPosition {
     left: number;
@@ -361,8 +362,8 @@ class InputManager {
             if (changedTouch.identifier != null) {
                 touch = new CCTouch(location.x, location.y, changedTouch.identifier);
                 // use Touch Pool
-                const preLocation = this.getPreTouch(touch).getLocation();
-                touch._setPrevPoint(preLocation.x, preLocation.y);
+                this.getPreTouch(touch).getLocation(_preLocation);
+                touch._setPrevPoint(_preLocation.x, _preLocation.y);
                 this.setPreTouch(touch);
             } else {
                 touch = new CCTouch(location.x, location.y);
