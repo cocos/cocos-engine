@@ -4,10 +4,9 @@ import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
 import Quat from '../core/value-types/quat';
 import Vec3, { v3 } from '../core/value-types/vec3';
-import { lerp, quat, vec3 } from '../core/vmath';
+import { lerp } from '../core/vmath';
 import { find, Node } from '../scene-graph';
-import { PropertyBlendState } from './animation-blend-state';
-import { CurveValue, DynamicAnimCurve, EasingMethodName, ICurveTarget, LerpFunction, quickFindIndex } from './animation-curve';
+import { CurveValue, DynamicAnimCurve, EasingMethodName, ICurveTarget, RatioSampler } from './animation-curve';
 import * as blending from './blending';
 import { MotionPath, sampleMotionPaths } from './motion-path-helper';
 import { ILerpable, isLerpable, WrapMode } from './types';
@@ -18,19 +17,18 @@ interface IAnimationEvent {
     params: string[];
 }
 
-interface IKeyframe {
-    frame: number;
-    value: CurveValue;
-    curve?: EasingMethodName | number[];
-    motionPath?: MotionPath;
-}
+type EasingMethod = EasingMethodName | number[];
 
 interface IPropertyCurveDataDetail {
-    keyframes: IKeyframe[];
-    blending: keyof(typeof blending) | null;
+    blending?: keyof(typeof blending) | null;
+    keys: number;
+    values: CurveValue[];
+    easingMethod?: EasingMethod;
+    easingMethods?: EasingMethod[];
+    motionPaths?: MotionPath | MotionPath[];
 }
 
-type PropertyCurveData = IKeyframe[] | IPropertyCurveDataDetail;
+type PropertyCurveData = IPropertyCurveDataDetail;
 
 interface ICurveData {
     props?: {
@@ -74,20 +72,23 @@ export class AnimationClip extends Asset {
         clip.sample = sample || clip.sample;
 
         clip._duration = spriteFrames.length / clip.sample;
-
-        const frames: IKeyframe[] = [];
         const step = 1 / clip.sample;
-
-        for (let i = 0, l = spriteFrames.length; i < l; i++) {
-            frames[i] = { frame: (i * step), value: spriteFrames[i] };
+        const keys = new Array<number>(spriteFrames.length);
+        const values = new Array<SpriteFrame>(keys.length);
+        for (let i = 0; i < spriteFrames.length; i++) {
+            keys[i] = i * step;
+            values[i] = spriteFrames[i];
         }
-
+        clip._keys = [keys];
         clip.curveData = {
             comps: {
                 // component
                 'cc.Sprite': {
                     // component properties
-                    spriteFrame: frames,
+                    spriteFrame: {
+                        keys: 0,
+                        values,
+                    },
                 },
             },
         };
@@ -136,6 +137,11 @@ export class AnimationClip extends Asset {
     @property
     private _duration = 0;
 
+    @property
+    private _keys: number[][] = [];
+
+    private _ratioSamplers: RatioSampler[] = [];
+
     private frameRate = 0;
 
     public onLoad () {
@@ -155,60 +161,37 @@ export class AnimationClip extends Asset {
         curve.target = target;
         curve.prop = propPath;
 
-        // For each keyframe.
-        const keyframes = Array.isArray(propertyCurveData) ? propertyCurveData : propertyCurveData.keyframes;
-        for (const keyframe of keyframes) {
-            const ratio = keyframe.frame / this.duration;
-            curve.ratios.push(ratio);
+        if (propertyCurveData.keys >= 0) {
+            curve.ratioSampler = this._ratioSamplers[propertyCurveData.keys];
+        } else {
+            curve.ratioSampler = null;
+        }
+        curve.values = propertyCurveData.values;
 
-            if (isMotionPathProp) {
-                motionPaths.push(keyframe.motionPath);
-            }
-
-            const curveValue = keyframe.value;
-            curve.values.push(curveValue);
-
-            const curveTypes = keyframe.curve;
-            if (curveTypes) {
-                if (typeof curveTypes === 'string') {
-                    curve.types.push(curveTypes);
-                    continue;
-                } else if (Array.isArray(curveTypes)) {
-                    if (curveTypes[0] === curveTypes[1] &&
-                        curveTypes[2] === curveTypes[3]) {
-                        curve.types.push(DynamicAnimCurve.Linear);
-                    } else {
-                        curve.types.push(DynamicAnimCurve.Bezier(curveTypes));
-                    }
-                    continue;
+        const getCurveType = (easingMethod: EasingMethod) => {
+            if (typeof easingMethod === 'string') {
+                return easingMethod;
+            } else if (Array.isArray(easingMethod)) {
+                if (easingMethod[0] === easingMethod[1] &&
+                    easingMethod[2] === easingMethod[3]) {
+                    return DynamicAnimCurve.Linear;
+                } else {
+                    return DynamicAnimCurve.Bezier(easingMethod);
                 }
+            } else {
+                return DynamicAnimCurve.Linear;
             }
-            curve.types.push(DynamicAnimCurve.Linear);
+        };
+        if (propertyCurveData.easingMethod !== undefined) {
+            curve.type = getCurveType(propertyCurveData.easingMethod);
+        } else if (propertyCurveData.easingMethods !== undefined) {
+            curve.types = propertyCurveData.easingMethods.map(getCurveType);
+        } else {
+            curve.type = null;
         }
 
         if (isMotionPathProp) {
             sampleMotionPaths(motionPaths, curve, this.duration, this.sample, target);
-        }
-
-        // if every piece of ratios are the same, we can use the quick function to find frame index.
-        const ratios = curve.ratios;
-        let currRatioDif;
-        let lastRatioDif;
-        let canOptimize = true;
-        const EPSILON = 1e-6;
-        for (let i = 1, l = ratios.length; i < l; i++) {
-            currRatioDif = ratios[i] - ratios[i - 1];
-            if (i === 1) {
-                lastRatioDif = currRatioDif;
-            }
-            else if (Math.abs(currRatioDif - lastRatioDif) > EPSILON) {
-                canOptimize = false;
-                break;
-            }
-        }
-
-        if (canOptimize) {
-            curve._findFrameIndex = quickFindIndex;
         }
 
         // Setup the lerp function.
@@ -226,9 +209,8 @@ export class AnimationClip extends Asset {
         }
 
         // Setup the blend function.
-        const blendFunctionName = Array.isArray(propertyCurveData) ? null : propertyCurveData.blending;
-        if (blendFunctionName) {
-            curve._blendFunction = blending[blendFunctionName];
+        if (typeof propertyCurveData.blending === 'string') {
+            curve._blendFunction = blending[propertyCurveData.blending];
         }
 
         return curve;
@@ -261,7 +243,11 @@ export class AnimationClip extends Asset {
         }
     }
 
-    public createCurves (state, root: Node) {
+    public createCurves (state: any, root: Node) {
+        this._ratioSamplers = this._keys.map(
+            (keys) => new RatioSampler(
+                keys.map(
+                    (key) => key / this._duration)));
         const curveData = this.curveData;
         const childrenCurveDatas = curveData.paths;
         const curves = [];
