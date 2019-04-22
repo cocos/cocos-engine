@@ -102,6 +102,7 @@ export class Camera {
     private _clearFlag: GFXClearFlag = GFXClearFlag.NONE;
     private _clearColor: IGFXColor = { r: 0, g: 0, b: 0, a: 0 };
     private _viewport: Rect = new Rect(0, 0, 1, 1);
+    private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
     private _matProj: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
@@ -132,6 +133,7 @@ export class Camera {
         this._apertureValue = FSTOPS[this._aperture];
         this._shutterValue = SHUTERS[this._shutter];
         this._isoValue = ISOS[this._iso];
+        this.updateExposure();
 
         this._aspect = this._width = this._height = this._screenScale = 1;
 
@@ -158,6 +160,7 @@ export class Camera {
         this._width = width;
         this._height = height;
         this._aspect = this._width / this._height;
+        this._isProjDirty = true;
     }
 
     public setFixedSize (width: number, height: number) {
@@ -168,39 +171,38 @@ export class Camera {
     }
 
     public update () {
-        if (!this._node) {
-            return;
+        if (this._node) {
+            // view matrix
+            if (this._node.hasChanged) {
+                this.node.getWorldRT(this._matView);
+                mat4.invert(this._matView, this._matView);
+
+                this._forward.x = -this._matView.m02;
+                this._forward.y = -this._matView.m06;
+                this._forward.z = -this._matView.m10;
+                this._node.getWorldPosition(this._position);
+            }
+
+            // projection matrix
+            if (this._isProjDirty) {
+                if (this._proj === CameraProjection.PERSPECTIVE) {
+                    mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip);
+                } else {
+                    const x = this._orthoHeight * this._aspect;
+                    const y = this._orthoHeight;
+                    mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip);
+                }
+            }
+
+            // view-projection
+            if (this._node.hasChanged || this._isProjDirty) {
+                mat4.multiply(this._matViewProj, this._matProj, this._matView);
+                mat4.invert(this._matViewProjInv, this._matViewProj);
+                this._frustum.update(this._matViewProj, this._matViewProjInv);
+            }
+
+            this._isProjDirty = false;
         }
-
-        // view matrix
-        this.node.getWorldRT(this._matView);
-        mat4.invert(this._matView, this._matView);
-
-        // projection matrix
-        if (this._proj === CameraProjection.PERSPECTIVE) {
-            mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip);
-        } else {
-            const x = this._orthoHeight * this._aspect;
-            const y = this._orthoHeight;
-            mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip);
-        }
-
-        // view-projection
-        mat4.mul(this._matViewProj, this._matProj, this._matView);
-        mat4.invert(this._matViewProjInv, this._matViewProj);
-
-        vec3.set(
-            this._forward,
-            -this._matView.m02,
-            -this._matView.m06,
-            -this._matView.m10,
-        );
-        this._node.getWorldPosition(this._position);
-
-        this._frustum.update(this._matViewProj, this._matViewProjInv);
-
-        const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
-        this._exposure = 0.833333 / Math.pow(2.0, ev100);
     }
 
     public getSplitFrustum (out: frustum, nearClip: number, farClip: number) {
@@ -225,7 +227,7 @@ export class Camera {
         }
 
         // view-projection
-        mat4.mul(_tempMat2, _tempMat1, this._matView);
+        mat4.multiply(_tempMat2, _tempMat1, this._matView);
         mat4.invert(_tempMat1, _tempMat2);
         out.update(_tempMat2, _tempMat1);
     }
@@ -265,6 +267,7 @@ export class Camera {
 
     set orthoHeight (val) {
         this._orthoHeight = val;
+        this._isProjDirty = true;
     }
 
     get orthoHeight () {
@@ -273,6 +276,7 @@ export class Camera {
 
     set projectionType (val) {
         this._proj = val;
+        this._isProjDirty = true;
     }
 
     get projectionType () {
@@ -289,6 +293,7 @@ export class Camera {
 
     set fov (fov) {
         this._fov = fov;
+        this._isProjDirty = true;
     }
 
     get fov () {
@@ -297,6 +302,7 @@ export class Camera {
 
     set nearClip (nearClip) {
         this._nearClip = nearClip;
+        this._isProjDirty = true;
     }
 
     get nearClip () {
@@ -305,6 +311,7 @@ export class Camera {
 
     set farClip (farClip) {
         this._farClip = farClip;
+        this._isProjDirty = true;
     }
 
     get farClip () {
@@ -411,6 +418,7 @@ export class Camera {
     set aperture (val: CameraAperture) {
         this._aperture = val;
         this._apertureValue = FSTOPS[this._aperture];
+        this.updateExposure();
     }
 
     get aperture (): CameraAperture {
@@ -424,6 +432,7 @@ export class Camera {
     set shutter (val: CameraShutter) {
         this._shutter = val;
         this._shutterValue = SHUTERS[this._shutter];
+        this.updateExposure();
     }
 
     get shutter (): CameraShutter {
@@ -437,6 +446,7 @@ export class Camera {
     set iso (val: CameraISO) {
         this._iso = val;
         this._isoValue = ISOS[this._iso];
+        this.updateExposure();
     }
 
     get iso (): CameraISO {
@@ -548,5 +558,10 @@ export class Camera {
         out.z = out.z * 0.5 + 0.5;
 
         return out;
+    }
+
+    private updateExposure () {
+        const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
+        this._exposure = 0.833333 / Math.pow(2.0, ev100);
     }
 }
