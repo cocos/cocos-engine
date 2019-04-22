@@ -57,12 +57,16 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
 
     public __preload () {
         super.__preload();
+    }
+
+    public onLoad () {
         if (this.sharedBody) {
             this.sharedBody.transfromSource = ETransformSource.SCENE;
+            // useGravity属性默认是为true的
             this.sharedBody.body.setUseGravity(false);
+            this.center = this._center;
+            this.isTrigger = this._triggered;
         }
-        this.center = this._center;
-        this.isTrigger = this._triggered;
     }
 
     // public lateUpdate () {
@@ -95,7 +99,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
 }
 
 @ccclass('cc.BoxColliderComponent')
-@executionOrder(100)
+@executionOrder(98)
 @menu('Components/BoxColliderComponent')
 @executeInEditMode
 export class BoxColliderComponent extends ColliderComponentBase {
@@ -140,7 +144,7 @@ export class BoxColliderComponent extends ColliderComponentBase {
 }
 
 @ccclass('cc.SphereColliderComponent')
-@executionOrder(100)
+@executionOrder(98)
 @menu('Components/SphereColliderComponent')
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponentBase {
