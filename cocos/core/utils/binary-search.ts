@@ -24,7 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EPSILON = 1e-6;
+// tslint:disable
+
+const EPSILON = 1e-6;
 
 /**
  * Searches the entire sorted Array for an element and returns the index of the element.
@@ -84,11 +86,12 @@ var EPSILON = 1e-6;
 // }
 
 export default function binarySearchEpsilon (array, value) {
-    for (var l = 0, h = array.length - 1, m = h >>> 1;
-         l <= h;
-         m = (l + h) >>> 1
+    let l = 0;
+    for (let h = array.length - 1, m = h >>> 1;
+        l <= h;
+        m = (l + h) >>> 1
     ) {
-        var test = array[m];
+        const test = array[m];
         if (test > value + EPSILON) {
             h = m - 1;
         }

@@ -24,31 +24,23 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {BASE64_VALUES} from './misc';
-
-var HexChars = '0123456789abcdef'.split('');
-
-var _t = ['', '', '', ''];
-var UuidTemplate = _t.concat(_t, '-', _t, '-', _t, '-', _t, '-', _t, _t, _t);
-var Indices = UuidTemplate.map(function (x, i) { return x === '-' ? NaN : i; }).filter(isFinite);
-
-// fcmR3XADNLgJ1ByKhqcC5Z -> fc991dd7-0033-4b80-9d41-c8a86a702e59
-export default function decodeUuid (base64) {
-    if (base64.length !== 22) {
-        return base64;
+function deepFlatten (strList, array) {
+    for (const item of array) {
+        if (Array.isArray(item)) {
+            deepFlatten(strList, item);
+        }
+        // else if (item instanceof Declaration) {
+        //     strList.push(item.toString());
+        // }
+        else {
+            strList.push(item);
+        }
     }
-    UuidTemplate[0] = base64[0];
-    UuidTemplate[1] = base64[1];
-    for (var i = 2, j = 2; i < 22; i += 2) {
-        var lhs = BASE64_VALUES[base64.charCodeAt(i)];
-        var rhs = BASE64_VALUES[base64.charCodeAt(i + 1)];
-        UuidTemplate[Indices[j++]] = HexChars[lhs >> 2];
-        UuidTemplate[Indices[j++]] = HexChars[((lhs & 3) << 2) | rhs >> 4];
-        UuidTemplate[Indices[j++]] = HexChars[rhs & 0xF];
-    }
-    return UuidTemplate.join('');
-};
+}
 
-if (CC_TEST) {
-    cc._Test.decodeUuid = decodeUuid;
+export function flattenCodeArray (array) {
+    const separator = CC_DEV ? '\n' : '';
+    const strList = [];
+    deepFlatten(strList, array);
+    return strList.join(separator);
 }

@@ -24,209 +24,211 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+// tslint:disable
+
 /**
  * System variables
  * @class sys
  * @main
  * @static
  */
-var sys = {};
+const sys: { [x: string]: any; } = {};
 
 /**
  * English language code
  * @property {String} LANGUAGE_ENGLISH
  * @readOnly
  */
-sys.LANGUAGE_ENGLISH = "en";
+sys.LANGUAGE_ENGLISH = 'en';
 
 /**
  * Chinese language code
  * @property {String} LANGUAGE_CHINESE
  * @readOnly
  */
-sys.LANGUAGE_CHINESE = "zh";
+sys.LANGUAGE_CHINESE = 'zh';
 
 /**
  * French language code
  * @property {String} LANGUAGE_FRENCH
  * @readOnly
  */
-sys.LANGUAGE_FRENCH = "fr";
+sys.LANGUAGE_FRENCH = 'fr';
 
 /**
  * Italian language code
  * @property {String} LANGUAGE_ITALIAN
  * @readOnly
  */
-sys.LANGUAGE_ITALIAN = "it";
+sys.LANGUAGE_ITALIAN = 'it';
 
 /**
  * German language code
  * @property {String} LANGUAGE_GERMAN
  * @readOnly
  */
-sys.LANGUAGE_GERMAN = "de";
+sys.LANGUAGE_GERMAN = 'de';
 
 /**
  * Spanish language code
  * @property {String} LANGUAGE_SPANISH
  * @readOnly
  */
-sys.LANGUAGE_SPANISH = "es";
+sys.LANGUAGE_SPANISH = 'es';
 
 /**
  * Spanish language code
  * @property {String} LANGUAGE_DUTCH
  * @readOnly
  */
-sys.LANGUAGE_DUTCH = "du";
+sys.LANGUAGE_DUTCH = 'du';
 
 /**
  * Russian language code
  * @property {String} LANGUAGE_RUSSIAN
  * @readOnly
  */
-sys.LANGUAGE_RUSSIAN = "ru";
+sys.LANGUAGE_RUSSIAN = 'ru';
 
 /**
  * Korean language code
  * @property {String} LANGUAGE_KOREAN
  * @readOnly
  */
-sys.LANGUAGE_KOREAN = "ko";
+sys.LANGUAGE_KOREAN = 'ko';
 
 /**
  * Japanese language code
  * @property {String} LANGUAGE_JAPANESE
  * @readOnly
  */
-sys.LANGUAGE_JAPANESE = "ja";
+sys.LANGUAGE_JAPANESE = 'ja';
 
 /**
  * Hungarian language code
  * @property {String} LANGUAGE_HUNGARIAN
  * @readonly
  */
-sys.LANGUAGE_HUNGARIAN = "hu";
+sys.LANGUAGE_HUNGARIAN = 'hu';
 
 /**
  * Portuguese language code
  * @property {String} LANGUAGE_PORTUGUESE
  * @readOnly
  */
-sys.LANGUAGE_PORTUGUESE = "pt";
+sys.LANGUAGE_PORTUGUESE = 'pt';
 
 /**
  * Arabic language code
  * @property {String} LANGUAGE_ARABIC
  * @readOnly
  */
-sys.LANGUAGE_ARABIC = "ar";
+sys.LANGUAGE_ARABIC = 'ar';
 
 /**
  * Norwegian language code
  * @property {String} LANGUAGE_NORWEGIAN
  * @readOnly
  */
-sys.LANGUAGE_NORWEGIAN = "no";
+sys.LANGUAGE_NORWEGIAN = 'no';
 
 /**
  * Polish language code
  * @property {String} LANGUAGE_POLISH
  * @readOnly
  */
-sys.LANGUAGE_POLISH = "pl";
+sys.LANGUAGE_POLISH = 'pl';
 
 /**
  * Turkish language code
  * @property {String} LANGUAGE_TURKISH
  * @readOnly
  */
-sys.LANGUAGE_TURKISH = "tr";
+sys.LANGUAGE_TURKISH = 'tr';
 
 /**
  * Ukrainian language code
  * @property {String} LANGUAGE_UKRAINIAN
  * @readOnly
  */
-sys.LANGUAGE_UKRAINIAN = "uk";
+sys.LANGUAGE_UKRAINIAN = 'uk';
 
 /**
  * Romanian language code
  * @property {String} LANGUAGE_ROMANIAN
  * @readOnly
  */
-sys.LANGUAGE_ROMANIAN = "ro";
+sys.LANGUAGE_ROMANIAN = 'ro';
 
 /**
  * Bulgarian language code
  * @property {String} LANGUAGE_BULGARIAN
  * @readOnly
  */
-sys.LANGUAGE_BULGARIAN = "bg";
+sys.LANGUAGE_BULGARIAN = 'bg';
 
 /**
  * Unknown language code
  * @property {String} LANGUAGE_UNKNOWN
  * @readOnly
  */
-sys.LANGUAGE_UNKNOWN = "unknown";
+sys.LANGUAGE_UNKNOWN = 'unknown';
 
 /**
  * @property {String} OS_IOS
  * @readOnly
  */
-sys.OS_IOS = "iOS";
+sys.OS_IOS = 'iOS';
 /**
  * @property {String} OS_ANDROID
  * @readOnly
  */
-sys.OS_ANDROID = "Android";
+sys.OS_ANDROID = 'Android';
 /**
  * @property {String} OS_WINDOWS
  * @readOnly
  */
-sys.OS_WINDOWS = "Windows";
+sys.OS_WINDOWS = 'Windows';
 /**
  * @property {String} OS_MARMALADE
  * @readOnly
  */
-sys.OS_MARMALADE = "Marmalade";
+sys.OS_MARMALADE = 'Marmalade';
 /**
  * @property {String} OS_LINUX
  * @readOnly
  */
-sys.OS_LINUX = "Linux";
+sys.OS_LINUX = 'Linux';
 /**
  * @property {String} OS_BADA
  * @readOnly
  */
-sys.OS_BADA = "Bada";
+sys.OS_BADA = 'Bada';
 /**
  * @property {String} OS_BLACKBERRY
  * @readOnly
  */
-sys.OS_BLACKBERRY = "Blackberry";
+sys.OS_BLACKBERRY = 'Blackberry';
 /**
  * @property {String} OS_OSX
  * @readOnly
  */
-sys.OS_OSX = "OS X";
+sys.OS_OSX = 'OS X';
 /**
  * @property {String} OS_WP8
  * @readOnly
  */
-sys.OS_WP8 = "WP8";
+sys.OS_WP8 = 'WP8';
 /**
  * @property {String} OS_WINRT
  * @readOnly
  */
-sys.OS_WINRT = "WINRT";
+sys.OS_WINRT = 'WINRT';
 /**
  * @property {String} OS_UNKNOWN
  * @readOnly
  */
-sys.OS_UNKNOWN = "Unknown";
+sys.OS_UNKNOWN = 'Unknown';
 
 /**
  * @property {Number} UNKNOWN
@@ -351,175 +353,174 @@ sys.QQ_PLAY = 105;
  * @readOnly
  * @default "wechat"
  */
-sys.BROWSER_TYPE_WECHAT = "wechat";
+sys.BROWSER_TYPE_WECHAT = 'wechat';
 /**
  * BROWSER_TYPE_WECHAT_GAME
  * @property {String} BROWSER_TYPE_WECHAT_GAME
  * @readOnly
  * @default "wechatgame"
  */
-sys.BROWSER_TYPE_WECHAT_GAME = "wechatgame";
+sys.BROWSER_TYPE_WECHAT_GAME = 'wechatgame';
 /**
  * BROWSER_TYPE_WECHAT_GAME_SUB
  * @property {String} BROWSER_TYPE_WECHAT_GAME_SUB
  * @readOnly
  * @default "wechatgamesub"
  */
-sys.BROWSER_TYPE_WECHAT_GAME_SUB = "wechatgamesub";
+sys.BROWSER_TYPE_WECHAT_GAME_SUB = 'wechatgamesub';
 /**
  * BROWSER_TYPE_QQ_PLAY
  * @property {String} BROWSER_TYPE_QQ_PLAY
  * @readOnly
  * @default "qqplay"
  */
-sys.BROWSER_TYPE_QQ_PLAY = "qqplay";
+sys.BROWSER_TYPE_QQ_PLAY = 'qqplay';
 /**
  *
  * @property {String} BROWSER_TYPE_ANDROID
  * @readOnly
  * @default "androidbrowser"
  */
-sys.BROWSER_TYPE_ANDROID = "androidbrowser";
+sys.BROWSER_TYPE_ANDROID = 'androidbrowser';
 /**
  *
  * @property {String} BROWSER_TYPE_IE
  * @readOnly
  * @default "ie"
  */
-sys.BROWSER_TYPE_IE = "ie";
+sys.BROWSER_TYPE_IE = 'ie';
 /**
  *
  * @property {String} BROWSER_TYPE_QQ
  * @readOnly
  * @default "qqbrowser"
  */
-sys.BROWSER_TYPE_QQ = "qqbrowser";
+sys.BROWSER_TYPE_QQ = 'qqbrowser';
 /**
  *
  * @property {String} BROWSER_TYPE_MOBILE_QQ
  * @readOnly
  * @default "mqqbrowser"
  */
-sys.BROWSER_TYPE_MOBILE_QQ = "mqqbrowser";
+sys.BROWSER_TYPE_MOBILE_QQ = 'mqqbrowser';
 /**
  *
  * @property {String} BROWSER_TYPE_UC
  * @readOnly
  * @default "ucbrowser"
  */
-sys.BROWSER_TYPE_UC = "ucbrowser";
+sys.BROWSER_TYPE_UC = 'ucbrowser';
 /**
  * uc third party integration.
  * @property {String} BROWSER_TYPE_UCBS
  * @readOnly
  * @default "ucbs"
  */
-sys.BROWSER_TYPE_UCBS = "ucbs";
+sys.BROWSER_TYPE_UCBS = 'ucbs';
 /**
  *
  * @property {String} BROWSER_TYPE_360
  * @readOnly
  * @default "360browser"
  */
-sys.BROWSER_TYPE_360 = "360browser";
+sys.BROWSER_TYPE_360 = '360browser';
 /**
  *
  * @property {String} BROWSER_TYPE_BAIDU_APP
  * @readOnly
  * @default "baiduboxapp"
  */
-sys.BROWSER_TYPE_BAIDU_APP = "baiduboxapp";
+sys.BROWSER_TYPE_BAIDU_APP = 'baiduboxapp';
 /**
  *
  * @property {String} BROWSER_TYPE_BAIDU
  * @readOnly
  * @default "baidubrowser"
  */
-sys.BROWSER_TYPE_BAIDU = "baidubrowser";
+sys.BROWSER_TYPE_BAIDU = 'baidubrowser';
 /**
  *
  * @property {String} BROWSER_TYPE_MAXTHON
  * @readOnly
  * @default "maxthon"
  */
-sys.BROWSER_TYPE_MAXTHON = "maxthon";
+sys.BROWSER_TYPE_MAXTHON = 'maxthon';
 /**
  *
  * @property {String} BROWSER_TYPE_OPERA
  * @readOnly
  * @default "opera"
  */
-sys.BROWSER_TYPE_OPERA = "opera";
+sys.BROWSER_TYPE_OPERA = 'opera';
 /**
  *
  * @property {String} BROWSER_TYPE_OUPENG
  * @readOnly
  * @default "oupeng"
  */
-sys.BROWSER_TYPE_OUPENG = "oupeng";
+sys.BROWSER_TYPE_OUPENG = 'oupeng';
 /**
  *
  * @property {String} BROWSER_TYPE_MIUI
  * @readOnly
  * @default "miuibrowser"
  */
-sys.BROWSER_TYPE_MIUI = "miuibrowser";
+sys.BROWSER_TYPE_MIUI = 'miuibrowser';
 /**
  *
  * @property {String} BROWSER_TYPE_FIREFOX
  * @readOnly
  * @default "firefox"
  */
-sys.BROWSER_TYPE_FIREFOX = "firefox";
+sys.BROWSER_TYPE_FIREFOX = 'firefox';
 /**
  *
  * @property {String} BROWSER_TYPE_SAFARI
  * @readOnly
  * @default "safari"
  */
-sys.BROWSER_TYPE_SAFARI = "safari";
+sys.BROWSER_TYPE_SAFARI = 'safari';
 /**
  *
  * @property {String} BROWSER_TYPE_CHROME
  * @readOnly
  * @default "chrome"
  */
-sys.BROWSER_TYPE_CHROME = "chrome";
+sys.BROWSER_TYPE_CHROME = 'chrome';
 /**
  *
  * @property {String} BROWSER_TYPE_LIEBAO
  * @readOnly
  * @default "liebao"
  */
-sys.BROWSER_TYPE_LIEBAO = "liebao";
+sys.BROWSER_TYPE_LIEBAO = 'liebao';
 /**
  *
  * @property {String} BROWSER_TYPE_QZONE
  * @readOnly
  * @default "qzone"
  */
-sys.BROWSER_TYPE_QZONE = "qzone";
+sys.BROWSER_TYPE_QZONE = 'qzone';
 /**
  *
  * @property {String} BROWSER_TYPE_SOUGOU
  * @readOnly
  * @default "sogou"
  */
-sys.BROWSER_TYPE_SOUGOU = "sogou";
+sys.BROWSER_TYPE_SOUGOU = 'sogou';
 /**
  *
  * @property {String} BROWSER_TYPE_UNKNOWN
  * @readOnly
  * @default "unknown"
  */
-sys.BROWSER_TYPE_UNKNOWN = "unknown";
+sys.BROWSER_TYPE_UNKNOWN = 'unknown';
 
 /**
  * Is native ? This is set to be true in jsb auto.
  * @property {Boolean} isNative
  */
 sys.isNative = CC_JSB;
-
 
 /**
  * Is web browser ?
@@ -545,76 +546,81 @@ if (CC_EDITOR && Editor.isMainProcess) {
     sys.os = ({
         darwin: sys.OS_OSX,
         win32: sys.OS_WINDOWS,
-        linux: sys.OS_LINUX
+        linux: sys.OS_LINUX,
+    // @ts-ignore
     })[process.platform] || sys.OS_UNKNOWN;
     sys.browserType = null;
     sys.browserVersion = null;
     sys.windowPixelResolution = {
         width: 0,
-        height: 0
+        height: 0,
     };
     sys.__audioSupport = {};
 }
 else if (CC_JSB) {
-    var platform = sys.platform = __getPlatform();
+    // @ts-ignore
+    const platform = sys.platform = __getPlatform();
     sys.isMobile = (platform === sys.ANDROID ||
-                    platform === sys.IPAD ||
-                    platform === sys.IPHONE ||
-                    platform === sys.WP8 ||
-                    platform === sys.TIZEN ||
-                    platform === sys.BLACKBERRY);
+        platform === sys.IPAD ||
+        platform === sys.IPHONE ||
+        platform === sys.WP8 ||
+        platform === sys.TIZEN ||
+        platform === sys.BLACKBERRY);
 
+    // @ts-ignore
     sys.os = __getOS();
+    // @ts-ignore
     sys.language = __getCurrentLanguage();
+    // @ts-ignore
     sys.osVersion = __getOSVersion();
     sys.osMainVersion = parseInt(sys.osVersion);
     sys.browserType = null;
     sys.browserVersion = null;
 
-    var w = window.innerWidth;
-    var h = window.innerHeight;
-    var ratio = window.devicePixelRatio || 1;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const ratio = window.devicePixelRatio || 1;
     sys.windowPixelResolution = {
         width: ratio * w,
-        height: ratio * h
+        height: ratio * h,
     };
 
     sys.localStorage = window.localStorage;
 
-    var capabilities;
+    let capabilities;
     capabilities = sys.capabilities = {
-        "canvas": false,
-        "opengl": true,
-        "webp": true,
+        canvas: false,
+        opengl: true,
+        webp: true,
     };
 
     if (sys.isMobile) {
-        capabilities["accelerometer"] = true;
-        capabilities["touches"] = true;
+        capabilities.accelerometer = true;
+        capabilities.touches = true;
     } else {
         // desktop
-        capabilities["keyboard"] = true;
-        capabilities["mouse"] = true;
-        capabilities["touches"] = false;
+        capabilities.keyboard = true;
+        capabilities.mouse = true;
+        capabilities.touches = false;
     }
 
     sys.__audioSupport = {
         ONLY_ONE: false,
         WEB_AUDIO: false,
         DELAY_CREATE_CTX: false,
-        format: ['.mp3']
+        format: ['.mp3'],
     };
 }
 else if (CC_WECHATGAME) {
-    var env = wx.getSystemInfoSync();
+    const env = wx.getSystemInfoSync();
     sys.isMobile = true;
     sys.platform = sys.WECHAT_GAME;
     sys.language = env.language.substr(0, 2);
-    var system = env.system.toLowerCase();
-    if (env.platform === "android") {
+    let system = env.system.toLowerCase();
+    if (env.platform === 'android') {
         sys.os = sys.OS_ANDROID;
     }
-    else if (env.platform === "ios") {
+    else if (env.platform === 'ios') {
         sys.os = sys.OS_IOS;
     }
     else if (env.platform === 'devtools') {
@@ -631,7 +637,7 @@ else if (CC_WECHATGAME) {
         system = 'android p 9.0';
     }
 
-    var version = /[\d\.]+/.exec(system);
+    const version = /[\d\.]+/.exec(system);
     sys.osVersion = version ? version[0] : system;
     sys.osMainVersion = parseInt(sys.osVersion);
     // wechagame subdomain
@@ -643,37 +649,38 @@ else if (CC_WECHATGAME) {
     }
     sys.browserVersion = env.version;
 
-    var w = env.windowWidth;
-    var h = env.windowHeight;
-    var ratio = env.pixelRatio || 1;
+    const w = env.windowWidth;
+    const h = env.windowHeight;
+    const ratio = env.pixelRatio || 1;
     sys.windowPixelResolution = {
         width: ratio * w,
-        height: ratio * h
+        height: ratio * h,
     };
 
     sys.localStorage = window.localStorage;
 
     sys.capabilities = {
-        "canvas": true,
-        "opengl": (sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME_SUB),
-        "webp": false
+        canvas: true,
+        opengl: (sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME_SUB),
+        webp: false,
     };
     sys.__audioSupport = {
         ONLY_ONE: false,
         WEB_AUDIO: false,
         DELAY_CREATE_CTX: false,
-        format: ['.mp3']
+        format: ['.mp3'],
     };
 }
 else if (CC_QQPLAY) {
-    var env = window["BK"]["Director"]["queryDeviceInfo"]();
+    // @ts-ignore
+    const env = window.BK.Director.queryDeviceInfo();
     sys.isMobile = true;
     sys.platform = sys.QQ_PLAY;
     sys.language = sys.LANGUAGE_UNKNOWN;
-    if (env.platform === "android") {
+    if (env.platform === 'android') {
         sys.os = sys.OS_ANDROID;
     }
-    else if (env.platform === "ios") {
+    else if (env.platform === 'ios') {
         sys.os = sys.OS_IOS;
     }
     else {
@@ -684,33 +691,33 @@ else if (CC_QQPLAY) {
     sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
     sys.browserVersion = 0;
 
-    var w = env.screenWidth;
-    var h = env.screenHeight;
-    var ratio = env.pixelRatio || 1;
+    const w = env.screenWidth;
+    const h = env.screenHeight;
+    const ratio = env.pixelRatio || 1;
 
     sys.windowPixelResolution = {
         width: ratio * w,
-        height: ratio * h
+        height: ratio * h,
     };
 
     sys.localStorage = window.localStorage;
 
     sys.capabilities = {
-        "canvas": false,
-        "opengl": true,
-        "webp": false
+        canvas: false,
+        opengl: true,
+        webp: false,
     };
     sys.__audioSupport = {
         ONLY_ONE: false,
         WEB_AUDIO: false,
         DELAY_CREATE_CTX: false,
-        format: ['.mp3']
+        format: ['.mp3'],
     };
 }
 else {
     // browser or runtime
-    var win = window, nav = win.navigator, doc = document, docEle = doc.documentElement;
-    var ua = nav.userAgent.toLowerCase();
+    const win = window, nav = win.navigator, doc = document, docEle = doc.documentElement;
+    const ua = nav.userAgent.toLowerCase();
 
     if (CC_EDITOR) {
         sys.isMobile = false;
@@ -730,9 +737,10 @@ else {
         sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
     }
 
-    var currLanguage = nav.language;
+    let currLanguage = nav.language;
+    // @ts-ignore
     currLanguage = currLanguage ? currLanguage : nav.browserLanguage;
-    currLanguage = currLanguage ? currLanguage.split("-")[0] : sys.LANGUAGE_ENGLISH;
+    currLanguage = currLanguage ? currLanguage.split('-')[0] : sys.LANGUAGE_ENGLISH;
 
     /**
      * Indicate the current language of the running system
@@ -741,8 +749,8 @@ else {
     sys.language = currLanguage;
 
     // Get the os of system
-    var isAndroid = false, iOS = false, osVersion = '', osMainVersion = 0;
-    var uaResult = /android (\d+(?:\.\d+)+)/i.exec(ua) || /android (\d+(?:\.\d+)+)/i.exec(nav.platform);
+    let isAndroid = false, iOS = false, osVersion = '', osMainVersion = 0;
+    let uaResult = /android (\d+(?:\.\d+)+)/i.exec(ua) || /android (\d+(?:\.\d+)+)/i.exec(nav.platform);
     if (uaResult) {
         isAndroid = true;
         osVersion = uaResult[1] || '';
@@ -760,13 +768,13 @@ else {
         osMainVersion = 0;
     }
 
-    var osName = sys.OS_UNKNOWN;
-    if (nav.appVersion.indexOf("Win") !== -1) osName = sys.OS_WINDOWS;
-    else if (iOS) osName = sys.OS_IOS;
-    else if (nav.appVersion.indexOf("Mac") !== -1) osName = sys.OS_OSX;
-    else if (nav.appVersion.indexOf("X11") !== -1 && nav.appVersion.indexOf("Linux") === -1) osName = sys.OS_UNIX;
-    else if (isAndroid) osName = sys.OS_ANDROID;
-    else if (nav.appVersion.indexOf("Linux") !== -1 || ua.indexOf("ubuntu") !== -1) osName = sys.OS_LINUX;
+    let osName = sys.OS_UNKNOWN;
+    if (nav.appVersion.indexOf('Win') !== -1) { osName = sys.OS_WINDOWS; }
+    else if (iOS) { osName = sys.OS_IOS; }
+    else if (nav.appVersion.indexOf('Mac') !== -1) { osName = sys.OS_OSX; }
+    else if (nav.appVersion.indexOf('X11') !== -1 && nav.appVersion.indexOf('Linux') === -1) { osName = sys.OS_UNIX; }
+    else if (isAndroid) { osName = sys.OS_ANDROID; }
+    else if (nav.appVersion.indexOf('Linux') !== -1 || ua.indexOf('ubuntu') !== -1) { osName = sys.OS_LINUX; }
 
     /**
      * Indicate the running os name
@@ -790,33 +798,42 @@ else {
      */
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
-    (function(){
-        var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        var typeReg2 = /qqbrowser|ucbrowser/i;
-        var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
-        var browserTypes = typeReg1.exec(ua);
-        if(!browserTypes) browserTypes = typeReg2.exec(ua);
-        if(!browserTypes) browserTypes = typeReg3.exec(ua);
+    (function () {
+        const typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
+        const typeReg2 = /qqbrowser|ucbrowser/i;
+        const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
+        let browserTypes = typeReg1.exec(ua);
+        if (!browserTypes) { browserTypes = typeReg2.exec(ua); }
+        if (!browserTypes) { browserTypes = typeReg3.exec(ua); }
 
-        var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (CC_WECHATGAME)
+        let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
+        if (CC_WECHATGAME) {
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
-        else if (CC_QQPLAY)
+        }
+        else if (CC_QQPLAY) {
             browserType = sys.BROWSER_TYPE_QQ_PLAY;
-        else if (browserType === 'micromessenger')
+ }
+        else if (browserType === 'micromessenger') {
             browserType = sys.BROWSER_TYPE_WECHAT;
-        else if (browserType === "safari" && isAndroid)
+ }
+        else if (browserType === 'safari' && isAndroid) {
             browserType = sys.BROWSER_TYPE_ANDROID;
-        else if (browserType === "qq" && ua.match(/android.*applewebkit/i))
+ }
+        else if (browserType === 'qq' && ua.match(/android.*applewebkit/i)) {
             browserType = sys.BROWSER_TYPE_ANDROID;
-        else if (browserType === "trident")
+ }
+        else if (browserType === 'trident') {
             browserType = sys.BROWSER_TYPE_IE;
-        else if (browserType === "360 aphone")
+ }
+        else if (browserType === '360 aphone') {
             browserType = sys.BROWSER_TYPE_360;
-        else if (browserType === "mxbrowser")
+ }
+        else if (browserType === 'mxbrowser') {
             browserType = sys.BROWSER_TYPE_MAXTHON;
-        else if (browserType === "opr/")
+ }
+        else if (browserType === 'opr/') {
             browserType = sys.BROWSER_TYPE_OPERA;
+ }
 
         sys.browserType = browserType;
     })();
@@ -825,19 +842,19 @@ else {
      * Indicate the running browser version
      * @property {String} browserVersion
      */
-    sys.browserVersion = "";
+    sys.browserVersion = '';
     /* Determine the browser version number */
-    (function(){
-        var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
-        var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
-        var tmp = ua.match(versionReg1);
-        if(!tmp) tmp = ua.match(versionReg2);
-        sys.browserVersion = tmp ? tmp[4] : "";
+    (function () {
+        const versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+        const versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
+        let tmp = ua.match(versionReg1);
+        if (!tmp) { tmp = ua.match(versionReg2); }
+        sys.browserVersion = tmp ? tmp[4] : '';
     })();
 
-    var w = window.innerWidth || document.documentElement.clientWidth;
-    var h = window.innerHeight || document.documentElement.clientHeight;
-    var ratio = window.devicePixelRatio || 1;
+    const w = window.innerWidth || document.documentElement.clientWidth;
+    const h = window.innerHeight || document.documentElement.clientHeight;
+    const ratio = window.devicePixelRatio || 1;
 
     /**
      * Indicate the real pixel resolution of the whole game window
@@ -845,17 +862,18 @@ else {
      */
     sys.windowPixelResolution = {
         width: ratio * w,
-        height: ratio * h
+        height: ratio * h,
     };
 
     sys._checkWebGLRenderMode = function () {
-        if (cc.game.renderType !== cc.game.RENDER_TYPE_WEBGL)
-            throw new Error("This feature supports WebGL render mode only.");
+        if (cc.game.renderType !== cc.game.RENDER_TYPE_WEBGL) {
+            throw new Error('This feature supports WebGL render mode only.');
+        }
     };
 
-    var _tmpCanvas1 = document.createElement("canvas");
+    const _tmpCanvas1 = document.createElement('canvas');
 
-    var create3DContext = function (canvas, opt_attribs, opt_contextType) {
+    const create3DContext = function (canvas, opt_attribs, opt_contextType) {
         if (opt_contextType) {
             try {
                 return canvas.getContext(opt_contextType, opt_attribs);
@@ -864,10 +882,10 @@ else {
             }
         }
         else {
-            return create3DContext(canvas, opt_attribs, "webgl") ||
-                create3DContext(canvas, opt_attribs, "experimental-webgl") ||
-                create3DContext(canvas, opt_attribs, "webkit-3d") ||
-                create3DContext(canvas, opt_attribs, "moz-webgl") ||
+            return create3DContext(canvas, opt_attribs, 'webgl') ||
+                create3DContext(canvas, opt_attribs, 'experimental-webgl') ||
+                create3DContext(canvas, opt_attribs, 'webkit-3d') ||
+                create3DContext(canvas, opt_attribs, 'moz-webgl') ||
                 null;
         }
     };
@@ -877,70 +895,72 @@ else {
      * @property {Object} localStorage
      */
     try {
-        var localStorage = sys.localStorage = win.localStorage;
-        localStorage.setItem("storage", "");
-        localStorage.removeItem("storage");
+        let localStorage: Storage | null = sys.localStorage = win.localStorage;
+        localStorage.setItem('storage', '');
+        localStorage.removeItem('storage');
         localStorage = null;
     } catch (e) {
-        var warn = function () {
+        const warn = function () {
             cc.warnID(5200);
         };
         sys.localStorage = {
-            getItem : warn,
-            setItem : warn,
-            removeItem : warn,
-            clear : warn
+            getItem: warn,
+            setItem: warn,
+            removeItem: warn,
+            clear: warn,
         };
     }
 
-    var _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
-    var _supportCanvas = !!_tmpCanvas1.getContext("2d");
-    var _supportWebGL = false;
+    const _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    const _supportCanvas = !!_tmpCanvas1.getContext('2d');
+    let _supportWebGL = false;
     if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
         _supportWebGL = true;
     }
+    // @ts-ignore
     else if (win.WebGLRenderingContext) {
-        if (create3DContext(document.createElement("CANVAS"))) {
+        // @ts-ignore
+        if (create3DContext(document.createElement('CANVAS'))) {
             _supportWebGL = true;
         }
         if (_supportWebGL && sys.os === sys.OS_ANDROID) {
-            var browserVer = parseFloat(sys.browserVersion);
+            const browserVer = parseFloat(sys.browserVersion);
             switch (sys.browserType) {
-            case sys.BROWSER_TYPE_MOBILE_QQ:
-            case sys.BROWSER_TYPE_BAIDU:
-            case sys.BROWSER_TYPE_BAIDU_APP:
-                // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                if (browserVer >= 6.2) {
-                    _supportWebGL = true;
-                }
-                else {
+                case sys.BROWSER_TYPE_MOBILE_QQ:
+                case sys.BROWSER_TYPE_BAIDU:
+                case sys.BROWSER_TYPE_BAIDU_APP:
+                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
+                    if (browserVer >= 6.2) {
+                        _supportWebGL = true;
+                    }
+                    else {
+                        _supportWebGL = false;
+                    }
+                    break;
+                case sys.BROWSER_TYPE_ANDROID:
+                    // Android 5+ default browser
+                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
+                        _supportWebGL = true;
+                    }
+                    break;
+                case sys.BROWSER_TYPE_CHROME:
+                    // Chrome on android supports WebGL from v. 30
+                    if (browserVer >= 30.0) {
+                        _supportWebGL = true;
+                    } else {
+                        _supportWebGL = false;
+                    }
+                    break;
+                case sys.BROWSER_TYPE_UC:
+                    if (browserVer > 11.0) {
+                        _supportWebGL = true;
+                    } else {
+                        _supportWebGL = false;
+                    }
+                    break;
+                case sys.BROWSER_TYPE_360:
                     _supportWebGL = false;
-                }
-                break;
-            case sys.BROWSER_TYPE_ANDROID:
-                // Android 5+ default browser
-                if (sys.osMainVersion && sys.osMainVersion >= 5) {
-                    _supportWebGL = true;
-                }
-                break;
-            case sys.BROWSER_TYPE_CHROME:
-                // Chrome on android supports WebGL from v. 30
-                if (browserVer >= 30.0) {
-                    _supportWebGL = true;
-                } else {
-                    _supportWebGL = false;
-                }
-                break;
-            case sys.BROWSER_TYPE_UC:
-                if (browserVer > 11.0) {
-                    _supportWebGL = true;
-                } else {
-                    _supportWebGL = false;
-                }
-                break;
-            case sys.BROWSER_TYPE_360:
-                _supportWebGL = false;
-                break;
+                    break;
             }
         }
     }
@@ -949,21 +969,26 @@ else {
      * The capabilities of the current platform
      * @property {Object} capabilities
      */
-    var capabilities = sys.capabilities = {
-        "canvas": _supportCanvas,
-        "opengl": _supportWebGL,
-        "webp": _supportWebp,
-    };
-    if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled)
-        capabilities["touches"] = true;
-    if (docEle['onmouseup'] !== undefined)
-        capabilities["mouse"] = true;
-    if (docEle['onkeyup'] !== undefined)
-        capabilities["keyboard"] = true;
-    if (win.DeviceMotionEvent || win.DeviceOrientationEvent)
-        capabilities["accelerometer"] = true;
+    const capabilities = sys.capabilities = {
+        canvas: _supportCanvas,
+        opengl: _supportWebGL,
+        webp: _supportWebp,
+    } as { [x: string]: any; };
+    if (docEle.ontouchstart !== undefined || doc.ontouchstart !== undefined || nav.msPointerEnabled) {
+        capabilities.touches = true;
+    }
+    if (docEle.onmouseup !== undefined) {
+        capabilities.mouse = true;
+    }
+    if (docEle.onkeyup !== undefined) {
+        capabilities.keyboard = true;
+    }
+    // @ts-ignore
+    if (win.DeviceMotionEvent || win.DeviceOrientationEvent) {
+        capabilities.accelerometer = true;
+    }
 
-    var __audioSupport;
+    let __audioSupport;
 
     /**
      * Audio support in the browser
@@ -978,16 +1003,17 @@ else {
      *
      * May be modifications for a few browser version
      */
-    (function(){
+    (function () {
 
-        var DEBUG = false;
+        const DEBUG = false;
 
-        var version = sys.browserVersion;
+        const version = sys.browserVersion;
 
         // check if browser supports Web Audio
         // check Web Audio's context
-        var supportWebAudio = sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME &&
-                            !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+        const supportWebAudio = sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME &&
+            // @ts-ignore
+            !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
         __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
 
@@ -1009,8 +1035,8 @@ else {
             }
         }
 
-        if(DEBUG){
-            setTimeout(function(){
+        if (DEBUG) {
+            setTimeout(function () {
                 cc.log('browse type: ' + sys.browserType);
                 cc.log('browse version: ' + version);
                 cc.log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
@@ -1025,31 +1051,32 @@ else {
             __audioSupport._context = null;
             Object.defineProperty(__audioSupport, 'context', {
                 get () {
-                    if (this._context) return this._context;
+                    if (this._context) { return this._context; }
+                    // @ts-ignore
                     return this._context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
-                }
+                },
             });
         }
-    } catch(error) {
+    } catch (error) {
         __audioSupport.WEB_AUDIO = false;
         cc.logID(5201);
     }
 
-    var formatSupport = [];
+    const formatSupport: string[] = [];
 
-    (function(){
-        var audio = document.createElement('audio');
-        if(audio.canPlayType) {
-            var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
-            if (ogg) formatSupport.push('.ogg');
-            var mp3 = audio.canPlayType('audio/mpeg');
-            if (mp3) formatSupport.push('.mp3');
-            var wav = audio.canPlayType('audio/wav; codecs="1"');
-            if (wav) formatSupport.push('.wav');
-            var mp4 = audio.canPlayType('audio/mp4');
-            if (mp4) formatSupport.push('.mp4');
-            var m4a = audio.canPlayType('audio/x-m4a');
-            if (m4a) formatSupport.push('.m4a');
+    (function () {
+        const audio = document.createElement('audio');
+        if (audio.canPlayType) {
+            const ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
+            if (ogg) { formatSupport.push('.ogg'); }
+            const mp3 = audio.canPlayType('audio/mpeg');
+            if (mp3) { formatSupport.push('.mp3'); }
+            const wav = audio.canPlayType('audio/wav; codecs="1"');
+            if (wav) { formatSupport.push('.wav'); }
+            const mp4 = audio.canPlayType('audio/mp4');
+            if (mp4) { formatSupport.push('.mp4'); }
+            const m4a = audio.canPlayType('audio/x-m4a');
+            if (m4a) { formatSupport.push('.m4a'); }
         }
     })();
     __audioSupport.format = formatSupport;
@@ -1092,7 +1119,7 @@ sys.NetworkType = {
      *
      * @property {Number} WWAN
      */
-    WWAN: 2
+    WWAN: 2,
 };
 
 /**
@@ -1108,7 +1135,7 @@ sys.NetworkType = {
  * @method getNetworkType
  * @return {NetworkType}
  */
-sys.getNetworkType = function() {
+sys.getNetworkType = function () {
     // TODO: need to implement this for mobile phones.
     return sys.NetworkType.LAN;
 };
@@ -1122,7 +1149,7 @@ sys.getNetworkType = function() {
  * @method getBatteryLevel
  * @return {Number} - 0.0 ~ 1.0
  */
-sys.getBatteryLevel = function() {
+sys.getBatteryLevel = function () {
     // TODO: need to implement this for mobile phones.
     return 1.0;
 };
@@ -1180,17 +1207,17 @@ sys.isObjectValid = function (obj) {
  * @method dump
  */
 sys.dump = function () {
-    var self = this;
-    var str = "";
-    str += "isMobile : " + self.isMobile + "\r\n";
-    str += "language : " + self.language + "\r\n";
-    str += "browserType : " + self.browserType + "\r\n";
-    str += "browserVersion : " + self.browserVersion + "\r\n";
-    str += "capabilities : " + JSON.stringify(self.capabilities) + "\r\n";
-    str += "os : " + self.os + "\r\n";
-    str += "osVersion : " + self.osVersion + "\r\n";
-    str += "platform : " + self.platform + "\r\n";
-    str += "Using " + (cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? "WEBGL" : "CANVAS") + " renderer." + "\r\n";
+    const self = this;
+    let str = '';
+    str += 'isMobile : ' + self.isMobile + '\r\n';
+    str += 'language : ' + self.language + '\r\n';
+    str += 'browserType : ' + self.browserType + '\r\n';
+    str += 'browserVersion : ' + self.browserVersion + '\r\n';
+    str += 'capabilities : ' + JSON.stringify(self.capabilities) + '\r\n';
+    str += 'os : ' + self.os + '\r\n';
+    str += 'osVersion : ' + self.osVersion + '\r\n';
+    str += 'platform : ' + self.platform + '\r\n';
+    str += 'Using ' + (cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS') + ' renderer.' + '\r\n';
     cc.log(str);
 };
 
@@ -1201,6 +1228,7 @@ sys.dump = function () {
  */
 sys.openURL = function (url) {
     if (CC_JSB) {
+        // @ts-ignore
         jsb.openURL(url);
     }
     else {

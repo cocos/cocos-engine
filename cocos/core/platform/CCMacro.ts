@@ -33,8 +33,7 @@ import Vec2 from '../value-types/vec2';
  * @static
  */
 
-let SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
-
+const SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
 /**
  * !#en Key map for keyboard event
@@ -42,7 +41,7 @@ let SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp',
  * @enum macro.KEY
  * @example {@link cocos2d/core/platform/CCCommon/KEY.js}
  */
-let KEY = {
+const KEY = {
     /**
      * !#en None
      * !#zh 没有分配
@@ -50,7 +49,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    none:0,
+    'none': 0,
 
     // android
     /**
@@ -60,7 +59,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    back:6,
+    'back': 6,
     /**
      * !#en The menu key
      * !#zh 菜单键
@@ -68,7 +67,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    menu:18,
+    'menu': 18,
 
     /**
      * !#en The backspace key
@@ -77,7 +76,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    backspace:8,
+    'backspace': 8,
 
     /**
      * !#en The tab key
@@ -86,7 +85,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    tab:9,
+    'tab': 9,
 
     /**
      * !#en The enter key
@@ -95,7 +94,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    enter:13,
+    'enter': 13,
 
     /**
      * !#en The shift key
@@ -104,7 +103,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    shift:16, //should use shiftkey instead
+    'shift': 16, // should use shiftkey instead
 
     /**
      * !#en The ctrl key
@@ -113,7 +112,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    ctrl:17, //should use ctrlkey
+    'ctrl': 17, // should use ctrlkey
 
     /**
      * !#en The alt key
@@ -122,7 +121,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    alt:18, //should use altkey
+    'alt': 18, // should use altkey
 
     /**
      * !#en The pause key
@@ -131,7 +130,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    pause:19,
+    'pause': 19,
 
     /**
      * !#en The caps lock key
@@ -140,7 +139,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    capslock:20,
+    'capslock': 20,
 
     /**
      * !#en The esc key
@@ -149,7 +148,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    escape:27,
+    'escape': 27,
 
     /**
      * !#en The space key
@@ -158,7 +157,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    space:32,
+    'space': 32,
 
     /**
      * !#en The page up key
@@ -167,7 +166,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    pageup:33,
+    'pageup': 33,
 
     /**
      * !#en The page down key
@@ -176,7 +175,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    pagedown:34,
+    'pagedown': 34,
 
     /**
      * !#en The end key
@@ -185,7 +184,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    end:35,
+    'end': 35,
 
     /**
      * !#en The home key
@@ -194,7 +193,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    home:36,
+    'home': 36,
 
     /**
      * !#en The left key
@@ -203,7 +202,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    left:37,
+    'left': 37,
 
     /**
      * !#en The up key
@@ -212,7 +211,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    up:38,
+    'up': 38,
 
     /**
      * !#en The right key
@@ -221,7 +220,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    right:39,
+    'right': 39,
 
     /**
      * !#en The down key
@@ -230,7 +229,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    down:40,
+    'down': 40,
 
     /**
      * !#en The select key
@@ -239,7 +238,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    select:41,
+    'select': 41,
 
     /**
      * !#en The insert key
@@ -248,7 +247,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    insert:45,
+    'insert': 45,
 
     /**
      * !#en The Delete key
@@ -257,7 +256,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    Delete:46,
+    'Delete': 46,
 
     /**
      * !#en The '0' key on the top of the alphanumeric keyboard.
@@ -266,7 +265,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    0:48,
+    '0': 48,
 
     /**
      * !#en The '1' key on the top of the alphanumeric keyboard.
@@ -275,7 +274,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    1:49,
+    '1': 49,
 
     /**
      * !#en The '2' key on the top of the alphanumeric keyboard.
@@ -284,7 +283,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    2:50,
+    '2': 50,
 
     /**
      * !#en The '3' key on the top of the alphanumeric keyboard.
@@ -293,7 +292,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    3:51,
+    '3': 51,
 
     /**
      * !#en The '4' key on the top of the alphanumeric keyboard.
@@ -302,7 +301,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    4:52,
+    '4': 52,
 
     /**
      * !#en The '5' key on the top of the alphanumeric keyboard.
@@ -311,7 +310,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    5:53,
+    '5': 53,
 
     /**
      * !#en The '6' key on the top of the alphanumeric keyboard.
@@ -320,7 +319,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    6:54,
+    '6': 54,
 
     /**
      * !#en The '7' key on the top of the alphanumeric keyboard.
@@ -329,7 +328,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    7:55,
+    '7': 55,
 
     /**
      * !#en The '8' key on the top of the alphanumeric keyboard.
@@ -338,7 +337,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    8:56,
+    '8': 56,
 
     /**
      * !#en The '9' key on the top of the alphanumeric keyboard.
@@ -347,7 +346,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    9:57,
+    '9': 57,
 
     /**
      * !#en The a key
@@ -356,7 +355,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    a:65,
+    'a': 65,
 
     /**
      * !#en The b key
@@ -365,7 +364,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    b:66,
+    'b': 66,
 
     /**
      * !#en The c key
@@ -374,7 +373,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    c:67,
+    'c': 67,
 
     /**
      * !#en The d key
@@ -383,7 +382,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    d:68,
+    'd': 68,
 
     /**
      * !#en The e key
@@ -392,7 +391,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    e:69,
+    'e': 69,
 
     /**
      * !#en The f key
@@ -401,7 +400,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f:70,
+    'f': 70,
 
     /**
      * !#en The g key
@@ -410,7 +409,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    g:71,
+    'g': 71,
 
     /**
      * !#en The h key
@@ -419,7 +418,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    h:72,
+    'h': 72,
 
     /**
      * !#en The i key
@@ -428,7 +427,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    i:73,
+    'i': 73,
 
     /**
      * !#en The j key
@@ -437,7 +436,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    j:74,
+    'j': 74,
 
     /**
      * !#en The k key
@@ -446,7 +445,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    k:75,
+    'k': 75,
 
     /**
      * !#en The l key
@@ -455,7 +454,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    l:76,
+    'l': 76,
 
     /**
      * !#en The m key
@@ -464,7 +463,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    m:77,
+    'm': 77,
 
     /**
      * !#en The n key
@@ -473,7 +472,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    n:78,
+    'n': 78,
 
     /**
      * !#en The o key
@@ -482,7 +481,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    o:79,
+    'o': 79,
 
     /**
      * !#en The p key
@@ -491,7 +490,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    p:80,
+    'p': 80,
 
     /**
      * !#en The q key
@@ -500,7 +499,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    q:81,
+    'q': 81,
 
     /**
      * !#en The r key
@@ -509,7 +508,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    r:82,
+    'r': 82,
 
     /**
      * !#en The s key
@@ -518,7 +517,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    s:83,
+    's': 83,
 
     /**
      * !#en The t key
@@ -527,7 +526,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    t:84,
+    't': 84,
 
     /**
      * !#en The u key
@@ -536,7 +535,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    u:85,
+    'u': 85,
 
     /**
      * !#en The v key
@@ -545,7 +544,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    v:86,
+    'v': 86,
 
     /**
      * !#en The w key
@@ -554,7 +553,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    w:87,
+    'w': 87,
 
     /**
      * !#en The x key
@@ -563,7 +562,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    x:88,
+    'x': 88,
 
     /**
      * !#en The y key
@@ -572,7 +571,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    y:89,
+    'y': 89,
 
     /**
      * !#en The z key
@@ -581,7 +580,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    z:90,
+    'z': 90,
 
     /**
      * !#en The numeric keypad 0
@@ -590,7 +589,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    num0:96,
+    'num0': 96,
 
     /**
      * !#en The numeric keypad 1
@@ -599,7 +598,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    num1:97,
+    'num1': 97,
 
     /**
      * !#en The numeric keypad 2
@@ -608,7 +607,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    num2:98,
+    'num2': 98,
 
     /**
      * !#en The numeric keypad 3
@@ -617,7 +616,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    num3:99,
+    'num3': 99,
 
     /**
      * !#en The numeric keypad 4
@@ -626,7 +625,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    num4:100,
+    'num4': 100,
 
     /**
      * !#en The numeric keypad 5
@@ -635,7 +634,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    num5:101,
+    'num5': 101,
 
     /**
      * !#en The numeric keypad 6
@@ -644,7 +643,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    num6:102,
+    'num6': 102,
 
     /**
      * !#en The numeric keypad 7
@@ -653,7 +652,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    num7:103,
+    'num7': 103,
 
     /**
      * !#en The numeric keypad 8
@@ -662,7 +661,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    num8:104,
+    'num8': 104,
 
     /**
      * !#en The numeric keypad 9
@@ -671,7 +670,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    num9:105,
+    'num9': 105,
 
     /**
      * !#en The numeric keypad '*'
@@ -680,7 +679,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    '*':106,
+    '*': 106,
 
     /**
      * !#en The numeric keypad '+'
@@ -689,7 +688,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    '+':107,
+    '+': 107,
 
     /**
      * !#en The numeric keypad '-'
@@ -698,7 +697,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    '-':109,
+    '-': 109,
 
     /**
      * !#en The numeric keypad 'delete'
@@ -707,7 +706,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    'numdel':110,
+    'numdel': 110,
 
     /**
      * !#en The numeric keypad '/'
@@ -716,7 +715,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    '/':111,
+    '/': 111,
 
     /**
      * !#en The F1 function key
@@ -725,7 +724,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f1:112, //f1-f12 dont work on ie
+    'f1': 112, // f1-f12 dont work on ie
 
     /**
      * !#en The F2 function key
@@ -734,7 +733,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f2:113,
+    'f2': 113,
 
     /**
      * !#en The F3 function key
@@ -743,7 +742,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f3:114,
+    'f3': 114,
 
     /**
      * !#en The F4 function key
@@ -752,7 +751,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f4:115,
+    'f4': 115,
 
     /**
      * !#en The F5 function key
@@ -761,7 +760,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f5:116,
+    'f5': 116,
 
     /**
      * !#en The F6 function key
@@ -770,7 +769,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f6:117,
+    'f6': 117,
 
     /**
      * !#en The F7 function key
@@ -779,7 +778,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f7:118,
+    'f7': 118,
 
     /**
      * !#en The F8 function key
@@ -788,7 +787,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f8:119,
+    'f8': 119,
 
     /**
      * !#en The F9 function key
@@ -797,7 +796,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f9:120,
+    'f9': 120,
 
     /**
      * !#en The F10 function key
@@ -806,7 +805,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f10:121,
+    'f10': 121,
 
     /**
      * !#en The F11 function key
@@ -815,7 +814,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f11:122,
+    'f11': 122,
 
     /**
      * !#en The F12 function key
@@ -824,7 +823,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    f12:123,
+    'f12': 123,
 
     /**
      * !#en The numlock key
@@ -833,7 +832,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    numlock:144,
+    'numlock': 144,
 
     /**
      * !#en The scroll lock key
@@ -842,7 +841,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    scrolllock:145,
+    'scrolllock': 145,
 
     /**
      * !#en The ';' key.
@@ -851,7 +850,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    ';':186,
+    ';': 186,
 
     /**
      * !#en The ';' key.
@@ -860,7 +859,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    semicolon:186,
+    'semicolon': 186,
 
     /**
      * !#en The '=' key.
@@ -869,7 +868,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    equal:187,
+    'equal': 187,
 
     /**
      * !#en The '=' key.
@@ -878,7 +877,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    '=':187,
+    '=': 187,
 
     /**
      * !#en The ',' key.
@@ -887,7 +886,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    ',':188,
+    ',': 188,
 
     /**
      * !#en The ',' key.
@@ -896,7 +895,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    comma:188,
+    'comma': 188,
 
     /**
      * !#en The dash '-' key.
@@ -905,7 +904,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    dash:189,
+    'dash': 189,
 
     /**
      * !#en The '.' key.
@@ -914,7 +913,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    '.':190,
+    '.': 190,
 
     /**
      * !#en The '.' key
@@ -923,7 +922,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    period:190,
+    'period': 190,
 
     /**
      * !#en The forward slash key
@@ -932,7 +931,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    forwardslash:191,
+    'forwardslash': 191,
 
     /**
      * !#en The grave key
@@ -941,7 +940,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    grave:192,
+    'grave': 192,
 
     /**
      * !#en The '[' key
@@ -950,7 +949,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    '[':219,
+    '[': 219,
 
     /**
      * !#en The '[' key
@@ -959,7 +958,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    openbracket:219,
+    'openbracket': 219,
 
     /**
      * !#en The '\' key
@@ -968,7 +967,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    backslash:220,
+    'backslash': 220,
 
     /**
      * !#en The ']' key
@@ -977,7 +976,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    ']':221,
+    ']': 221,
 
     /**
      * !#en The ']' key
@@ -986,7 +985,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    closebracket:221,
+    'closebracket': 221,
 
     /**
      * !#en The quote key
@@ -995,7 +994,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    quote:222,
+    'quote': 222,
 
     // gamepad controll
 
@@ -1006,7 +1005,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    dpadLeft:1000,
+    'dpadLeft': 1000,
 
     /**
      * !#en The dpad right key
@@ -1015,7 +1014,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    dpadRight:1001,
+    'dpadRight': 1001,
 
     /**
      * !#en The dpad up key
@@ -1024,7 +1023,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    dpadUp:1003,
+    'dpadUp': 1003,
 
     /**
      * !#en The dpad down key
@@ -1033,7 +1032,7 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    dpadDown:1004,
+    'dpadDown': 1004,
 
     /**
      * !#en The dpad center key
@@ -1042,14 +1041,14 @@ let KEY = {
      * @type {Number}
      * @readonly
      */
-    dpadCenter:1005
+    'dpadCenter': 1005,
 };
 
 /**
  * Image formats
  * @enum macro.ImageFormat
  */
-let ImageFormat = cc.Enum({
+const ImageFormat = cc.Enum({
     /**
      * Image Format:JPG
      * @property JPG
@@ -1115,7 +1114,7 @@ let ImageFormat = cc.Enum({
      * @property UNKNOWN
      * @type {Number}
      */
-    UNKNOWN: 10
+    UNKNOWN: 10,
 });
 
 /**
@@ -1127,73 +1126,73 @@ let ImageFormat = cc.Enum({
  * 可参考: http://www.andersriggelsen.dk/glblendfunc.php
  * @enum macro.BlendFactor
  */
-let BlendFactor = cc.Enum({
+const BlendFactor = cc.Enum({
     /**
      * !#en All use
      * !#zh 全部使用
      * @property {Number} ONE
      */
-    ONE:                    1,  //cc.macro.ONE
+    ONE: 1,  // cc.macro.ONE
     /**
      * !#en Not all
      * !#zh 全部不用
      * @property {Number} ZERO
      */
-    ZERO:                   0,      //cc.ZERO
+    ZERO: 0,      // cc.ZERO
     /**
      * !#en Using the source alpha
      * !#zh 使用源颜色的透明度
      * @property {Number} SRC_ALPHA
      */
-    SRC_ALPHA:              0x302,  //cc.SRC_ALPHA
+    SRC_ALPHA: 0x302,  // cc.SRC_ALPHA
     /**
      * !#en Using the source color
      * !#zh 使用源颜色
      * @property {Number} SRC_COLOR
      */
-    SRC_COLOR:              0x300,  //cc.SRC_COLOR
+    SRC_COLOR: 0x300,  // cc.SRC_COLOR
     /**
      * !#en Using the target alpha
      * !#zh 使用目标颜色的透明度
      * @property {Number} DST_ALPHA
      */
-    DST_ALPHA:              0x304,  //cc.DST_ALPHA
+    DST_ALPHA: 0x304,  // cc.DST_ALPHA
     /**
      * !#en Using the target color
      * !#zh 使用目标颜色
      * @property {Number} DST_COLOR
      */
-    DST_COLOR:              0x306,  //cc.DST_COLOR
+    DST_COLOR: 0x306,  // cc.DST_COLOR
     /**
      * !#en Minus the source alpha
      * !#zh 减去源颜色的透明度
      * @property {Number} ONE_MINUS_SRC_ALPHA
      */
-    ONE_MINUS_SRC_ALPHA:    0x303,  //cc.ONE_MINUS_SRC_ALPHA
+    ONE_MINUS_SRC_ALPHA: 0x303,  // cc.ONE_MINUS_SRC_ALPHA
     /**
      * !#en Minus the source color
      * !#zh 减去源颜色
      * @property {Number} ONE_MINUS_SRC_COLOR
      */
-    ONE_MINUS_SRC_COLOR:    0x301,  //cc.ONE_MINUS_SRC_COLOR
+    ONE_MINUS_SRC_COLOR: 0x301,  // cc.ONE_MINUS_SRC_COLOR
     /**
      * !#en Minus the target alpha
      * !#zh 减去目标颜色的透明度
      * @property {Number} ONE_MINUS_DST_ALPHA
      */
-    ONE_MINUS_DST_ALPHA:    0x305,  //cc.ONE_MINUS_DST_ALPHA
+    ONE_MINUS_DST_ALPHA: 0x305,  // cc.ONE_MINUS_DST_ALPHA
     /**
      * !#en Minus the target color
      * !#zh 减去目标颜色
      * @property {Number} ONE_MINUS_DST_COLOR
      */
-    ONE_MINUS_DST_COLOR:    0x307,  //cc.ONE_MINUS_DST_COLOR
+    ONE_MINUS_DST_COLOR: 0x307,  // cc.ONE_MINUS_DST_COLOR
 });
 
 /**
  * @enum macro.TextAlignment
  */
-let TextAlignment = cc.Enum({
+const TextAlignment = cc.Enum({
     /**
      * @property {Number} LEFT
      */
@@ -1205,13 +1204,13 @@ let TextAlignment = cc.Enum({
     /**
      * @property {Number} RIGHT
      */
-    RIGHT: 2
+    RIGHT: 2,
 });
 
 /**
  * @enum VerticalTextAlignment
  */
-let VerticalTextAlignment = cc.Enum({
+const VerticalTextAlignment = cc.Enum({
     /**
      * @property {Number} TOP
      */
@@ -1223,18 +1222,18 @@ let VerticalTextAlignment = cc.Enum({
     /**
      * @property {Number} BOTTOM
      */
-    BOTTOM: 2
+    BOTTOM: 2,
 });
 
 /**
  * @module macro
  */
 
-var macro = {
+const macro = {
     /**
      * !en
      * The image format supported by the engine defaults, and the supported formats may differ in different build platforms and device types.
-     * Currently all platform and device support ['.webp', '.jpg', '.jpeg', '.bmp', '.png'], ios mobile platform 
+     * Currently all platform and device support ['.webp', '.jpg', '.jpeg', '.bmp', '.png'], ios mobile platform
      * !zh
      * 引擎默认支持的图片格式，支持的格式可能在不同的构建平台和设备类型上有所差别。
      * 目前所有平台和设备支持的格式有 ['.webp', '.jpg', '.jpeg', '.bmp', '.png']. The iOS mobile platform also supports the PVR format。
@@ -1245,7 +1244,7 @@ var macro = {
     KEY,
 
     ImageFormat,
-    
+
     BlendFactor,
 
     TextAlignment,
@@ -1292,7 +1291,7 @@ var macro = {
      */
     MAX_ZINDEX: Math.pow(2, 15) - 1,
 
-    //Possible device orientations
+    // Possible device orientations
     /**
      * Oriented vertically
      * @property ORIENTATION_PORTRAIT
@@ -1361,11 +1360,11 @@ var macro = {
     ENABLE_STACKABLE_ACTIONS: true,
 
     /**
-     * !#en 
+     * !#en
      * The timeout to determine whether a touch is no longer active and should be removed.
-     * The reason to add this timeout is due to an issue in X5 browser core, 
+     * The reason to add this timeout is due to an issue in X5 browser core,
      * when X5 is presented in wechat on Android, if a touch is glissed from the bottom up, and leave the page area,
-     * no touch cancel event is triggered, and the touch will be considered active forever. 
+     * no touch cancel event is triggered, and the touch will be considered active forever.
      * After multiple times of this action, our maximum touches number will be reached and all new touches will be ignored.
      * So this new mechanism can remove the touch that should be inactive if it's not updated during the last 5000 milliseconds.
      * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
@@ -1383,7 +1382,7 @@ var macro = {
     TOUCH_TIMEOUT: 5000,
 
     /**
-     * !#en 
+     * !#en
      * The maximum vertex count for a single batched draw call.
      * !#zh
      * 最大可以被单次批处理渲染的顶点数量。
@@ -1392,8 +1391,9 @@ var macro = {
     BATCH_VERTEX_COUNT: 20000,
 
     /**
-     * !#en 
-     * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
+     * !#en
+     * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation,
+     * then need to manually disable this, otherwise, the rendering will be wrong.
      * !#zh
      * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 的话，需要手动关闭，否则渲染会出错。
      * @property {Boolean} ENABLE_TILEDMAP_CULLING
@@ -1402,7 +1402,7 @@ var macro = {
     ENABLE_TILEDMAP_CULLING: true,
 
     /**
-     * !#en 
+     * !#en
      * The max concurrent task number for the downloader
      * !#zh
      * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
@@ -1412,9 +1412,9 @@ var macro = {
     DOWNLOAD_MAX_CONCURRENT: 64,
 
     /**
-     * !#en 
+     * !#en
      * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
-     * Though if you want to make your canvas background transparent and show other dom elements at the background, 
+     * Though if you want to make your canvas background transparent and show other dom elements at the background,
      * you can set it to true before `cc.game.run`.
      * Web only.
      * !#zh
@@ -1430,8 +1430,8 @@ var macro = {
      * !#en
      * Boolean that indicates if the WebGL context is created with `antialias` option turned on, default value is false.
      * Set it to true could make your game graphics slightly smoother, like texture hard edges when rotated.
-     * Whether to use this really depend on your game design and targeted platform, 
-     * device with retina display usually have good detail on graphics with or without this option, 
+     * Whether to use this really depend on your game design and targeted platform,
+     * device with retina display usually have good detail on graphics with or without this option,
      * you probably don't want antialias if your game style is pixel art based.
      * Also, it could have great performance impact with some browser / device using software MSAA.
      * You can set it to true before `cc.game.run`.
@@ -1493,7 +1493,7 @@ var macro = {
      * @default false
      */
     SHOW_MESH_WIREFRAME: false,
-}
+};
 
 cc.macro = macro;
 
