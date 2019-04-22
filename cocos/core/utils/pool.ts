@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+type CleanUpFunction<T> = (value: T) => boolean | void;
+
 /**
  * !#en
  * A fixed-length object pool designed for general type.<br>
@@ -34,46 +36,68 @@
  * @class js.Pool
  * @example
  *
- *Example 1:
+ * Example 1:
  *
- *function Details () {
- *    this.uuidList = [];
- *};
- *Details.prototype.reset = function () {
- *    this.uuidList.length = 0;
- *};
- *Details.pool = new js.Pool(function (obj) {
- *    obj.reset();
- *}, 5);
- *Details.pool.get = function () {
- *    return this._get() || new Details();
- *};
+ * function Details () {
+ *     this.uuidList = [];
+ * };
+ * Details.prototype.reset = function () {
+ *     this.uuidList.length = 0;
+ * };
+ * Details.pool = new js.Pool(function (obj) {
+ *     obj.reset();
+ * }, 5);
+ * Details.pool.get = function () {
+ *     return this._get() || new Details();
+ * };
  *
- *var detail = Details.pool.get();
- *...
- *Details.pool.put(detail);
+ * var detail = Details.pool.get();
+ * ...
+ * Details.pool.put(detail);
  *
- *Example 2:
+ * Example 2:
  *
- *function Details (buffer) {
+ * function Details (buffer) {
  *    this.uuidList = buffer;
- *};
- *...
- *Details.pool.get = function (buffer) {
- *    var cached = this._get();
- *    if (cached) {
- *        cached.uuidList = buffer;
- *        return cached;
- *    }
- *    else {
- *        return new Details(buffer);
- *    }
- *};
+ * };
+ * ...
+ * Details.pool.get = function (buffer) {
+ *     var cached = this._get();
+ *     if (cached) {
+ *         cached.uuidList = buffer;
+ *         return cached;
+ *     }
+ *     else {
+ *         return new Details(buffer);
+ *     }
+ * };
  *
- *var detail = Details.pool.get( [] );
- *...
+ * var detail = Details.pool.get( [] );
+ * ...
  */
-export default class Pool {
+export default class Pool<T> {
+    /**
+     * !#en
+     * The current number of available objects, the default is 0, it will gradually increase with the recycle of the object,
+     * the maximum will not exceed the size specified when the constructor is called.
+     * !#zh
+     * 当前可用对象数量，一开始默认是 0，随着对象的回收会逐渐增大，最大不会超过调用构造函数时指定的 size。
+     * @default 0
+     */
+    public count: number;
+
+    /**
+     * !#en
+     * Get and initialize an object from pool. This method defaults to null and requires the user to implement it.
+     * !#zh
+     * 获取并初始化对象池中的对象。这个方法默认为空，需要用户自己实现。
+     * @param args - parameters to used to initialize the object
+     */
+    public get: null | ((...args: any[]) => T);
+
+    private _pool: Array<T | null>;
+    private _cleanup: CleanUpFunction<T> | null;
+
     /**
      * !#en
      * Constructor for creating an object pool for the specific object type.
@@ -84,15 +108,25 @@ export default class Pool {
      * @param {Function} [cleanupFunc] - the callback method used to process the cleanup logic when the object is recycled.
      * @param {Object} cleanupFunc.obj
      * @param {Number} size - initializes the length of the array
-     * @typescript
-     * constructor(cleanupFunc: (obj: any) => void, size: number)
-     * constructor(size: number)
      */
-    constructor (cleanupFunc, size) {
-        if (size === undefined) {
-            size = cleanupFunc;
-            cleanupFunc = null;
-        }
+    constructor (cleanup: CleanUpFunction<T>, size: number);
+
+    /**
+     * !#en
+     * Constructor for creating an object pool for the specific object type.
+     * You can pass a callback argument for process the cleanup logic when the object is recycled.
+     * !#zh
+     * 使用构造函数来创建一个指定对象类型的对象池，您可以传递一个回调函数，用于处理对象回收时的清理逻辑。
+     * @method constructor
+     * @param {Function} [cleanupFunc] - the callback method used to process the cleanup logic when the object is recycled.
+     * @param {Object} cleanupFunc.obj
+     * @param {Number} size - initializes the length of the array
+     */
+    constructor (size: number);
+
+    constructor (_0: CleanUpFunction<T> | number, _1?: number) {
+        const size = (_1 === undefined) ? (_0 as number) : _1;
+        const cleanupFunc = (_1 === undefined) ? null : (_0 as CleanUpFunction<T>);
         this.get = null;
         this.count = 0;
         this._pool = new Array(size);
@@ -104,13 +138,11 @@ export default class Pool {
      * Get an object from pool, if no available object in the pool, null will be returned.
      * !#zh
      * 获取对象池中的对象，如果对象池没有可用对象，则返回空。
-     * @method _get
-     * @returns {Object|null}
      */
-    _get () {
+    public _get () {
         if (this.count > 0) {
             --this.count;
-            var cache = this._pool[this.count];
+            const cache = this._pool[this.count];
             this._pool[this.count] = null;
             return cache;
         }
@@ -120,10 +152,9 @@ export default class Pool {
     /**
      * !#en Put an object into the pool.
      * !#zh 向对象池返还一个不再需要的对象。
-     * @method put
      */
-    put (obj) {
-        var pool = this._pool;
+    public put (obj: T) {
+        const pool = this._pool;
         if (this.count < pool.length) {
             if (this._cleanup && this._cleanup(obj) === false) {
                 return;
@@ -136,9 +167,8 @@ export default class Pool {
     /**
      * !#en Resize the pool.
      * !#zh 设置对象池容量。
-     * @method resize
      */
-    resize (length) {
+    public resize (length: number) {
         if (length >= 0) {
             this._pool.length = length;
             if (this.count > length) {
@@ -147,23 +177,3 @@ export default class Pool {
         }
     }
 }
-
-/**
- * !#en
- * Get and initialize an object from pool. This method defaults to null and requires the user to implement it.
- * !#zh
- * 获取并初始化对象池中的对象。这个方法默认为空，需要用户自己实现。
- * @method get
- * @param {any} ...params - parameters to used to initialize the object
- * @returns {Object}
- */
-
-/**
- * !#en
- * The current number of available objects, the default is 0, it will gradually increase with the recycle of the object,
- * the maximum will not exceed the size specified when the constructor is called.
- * !#zh
- * 当前可用对象数量，一开始默认是 0，随着对象的回收会逐渐增大，最大不会超过调用构造函数时指定的 size。
- * @property {Number} count
- * @default 0
- */

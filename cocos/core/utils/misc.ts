@@ -24,14 +24,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {getset, getClassName} from './js';
+ // tslint:disable
+
+import { getClassName, getset } from './js';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
-var BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-var values = new Array(123); // max char code in base64Keys
-for (let i = 0; i < 123; ++i) values[i] = 64; // fill with placeholder('=') index
-for (let i = 0; i < 64; ++i) values[BASE64_KEYS.charCodeAt(i)] = i;
+const BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+const values = new Array(123); // max char code in base64Keys
+for (let i = 0; i < 123; ++i) { values[i] = 64; } // fill with placeholder('=') index
+for (let i = 0; i < 64; ++i) { values[BASE64_KEYS.charCodeAt(i)] = i; }
 
 // decoded value indexed by base64 char code
 export const BASE64_VALUES = values;
@@ -50,17 +52,17 @@ export const BASE64_VALUES = values;
  */
 export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
     function define (np, propName, getter, setter) {
-        var pd = Object.getOwnPropertyDescriptor(np, propName);
+        const pd = Object.getOwnPropertyDescriptor(np, propName);
         if (pd) {
-            if (pd.get) np[getter] = pd.get;
-            if (pd.set && setter) np[setter] = pd.set;
+            if (pd.get) { np[getter] = pd.get; }
+            if (pd.set && setter) { np[setter] = pd.set; }
         }
         else {
-            var getterFunc = np[getter];
+            const getterFunc = np[getter];
             if (CC_DEV && !getterFunc) {
-                var clsName = (cc.Class._isCCClass(ctor) && getClassName(ctor)) ||
-                                ctor.name ||
-                                '(anonymous class)';
+                const clsName = (cc.Class._isCCClass(ctor) && getClassName(ctor)) ||
+                    ctor.name ||
+                    '(anonymous class)';
                 cc.warnID(5700, propName, getter, clsName);
             }
             else {
@@ -68,14 +70,14 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
             }
         }
     }
-    var propName, np = ctor.prototype;
-    for (var i = 0; i < sameNameGetSets.length; i++) {
+    let propName, np = ctor.prototype;
+    for (let i = 0; i < sameNameGetSets.length; i++) {
         propName = sameNameGetSets[i];
-        var suffix = propName[0].toUpperCase() + propName.slice(1);
+        const suffix = propName[0].toUpperCase() + propName.slice(1);
         define(np, propName, 'get' + suffix, 'set' + suffix);
     }
     for (propName in diffNameGetSets) {
-        var gs = diffNameGetSets[propName];
+        const gs = diffNameGetSets[propName];
         define(np, propName, gs[0], gs[1]);
     }
 }
@@ -93,11 +95,11 @@ export function nextPOT (x) {
     x = x | (x >> 8);
     x = x | (x >> 16);
     return x + 1;
-};
+}
 
 // set value to map, if key exists, push to array
 export function pushToMap (map, key, value, pushFront) {
-    var exists = map[key];
+    const exists = map[key];
     if (exists) {
         if (Array.isArray(exists)) {
             if (pushFront) {
@@ -115,7 +117,7 @@ export function pushToMap (map, key, value, pushFront) {
     else {
         map[key] = value;
     }
-};
+}
 
 /**
  * !#en Clamp a value between from and to.
@@ -136,12 +138,12 @@ export function pushToMap (map, key, value, pushFront) {
  */
 export function clampf (value, min_inclusive, max_inclusive) {
     if (min_inclusive > max_inclusive) {
-        var temp = min_inclusive;
+        const temp = min_inclusive;
         min_inclusive = max_inclusive;
         max_inclusive = temp;
     }
     return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
-};
+}
 
 /**
  * !#en Clamp a value between 0 and 1.
@@ -156,7 +158,7 @@ export function clampf (value, min_inclusive, max_inclusive) {
  */
 export function clamp01 (value) {
     return value < 0 ? 0 : value < 1 ? value : 1;
-};
+}
 
 /**
  * Linear interpolation between 2 numbers, the ratio sets how much it is biased to each end
@@ -169,7 +171,7 @@ export function clamp01 (value) {
  */
 export function lerp (a, b, r) {
     return a + (b - a) * r;
-};
+}
 
 /**
  * converts degrees to radians
@@ -179,7 +181,7 @@ export function lerp (a, b, r) {
  */
 export function degreesToRadians (angle) {
     return angle * cc.macro.RAD;
-};
+}
 
 /**
  * converts radians to degrees
@@ -189,15 +191,15 @@ export function degreesToRadians (angle) {
  */
 export function radiansToDegrees (angle) {
     return angle * cc.macro.DEG;
-};
+}
 
 export function contains (refNode, otherNode) {
-    if(typeof refNode.contains == 'function'){
+    if (typeof refNode.contains === 'function') {
         return refNode.contains(otherNode);
-    }else if(typeof refNode.compareDocumentPosition == 'function' ) {
+    } else if (typeof refNode.compareDocumentPosition === 'function') {
         return !!(refNode.compareDocumentPosition(otherNode) & 16);
-    }else {
-        var node = otherNode.parentNode;
+    } else {
+        let node = otherNode.parentNode;
         if (node) {
             do {
                 if (node === refNode) {
@@ -205,7 +207,7 @@ export function contains (refNode, otherNode) {
                 } else {
                     node = node.parentNode;
                 }
-            } while (node !==null);
+            } while (node !== null);
         }
         return false;
     }
@@ -219,15 +221,16 @@ export function isDomNode (obj) {
     }
     else {
         return obj &&
-               typeof obj === 'object' &&
-               typeof obj.nodeType === 'number' &&
-               typeof obj.nodeName === 'string';
+            typeof obj === 'object' &&
+            typeof obj.nodeType === 'number' &&
+            typeof obj.nodeName === 'string';
     }
 }
 
 export function callInNextTick (callback, p1, p2) {
     if (CC_EDITOR) {
         if (callback) {
+            // @ts-ignore
             process.nextTick(function () {
                 callback(p1, p2);
             });
@@ -244,22 +247,25 @@ export function callInNextTick (callback, p1, p2) {
 
 // use anonymous function here to ensure it will not being hoisted without CC_EDITOR
 export function tryCatchFunctor_EDITOR (funcName, forwardArgs, afterCall, bindArg) {
+    // @ts-ignore
     function call_FUNC_InTryCatch (_R_ARGS_) {
         try {
+            // @ts-ignore
             target._FUNC_(_U_ARGS_);
         }
         catch (e) {
             cc._throw(e);
         }
-        _AFTER_CALL_
+        // @ts-ignore
+        _AFTER_CALL_;
     }
     // use evaled code to generate named function
     return Function('arg', 'return ' + call_FUNC_InTryCatch
-                .toString()
-                .replace(/_FUNC_/g, funcName)
-                .replace('_R_ARGS_', 'target' + (forwardArgs ? ', ' + forwardArgs : ''))
-                .replace('_U_ARGS_', forwardArgs || '')
-                .replace('_AFTER_CALL_', afterCall || ''))(bindArg);
+        .toString()
+        .replace(/_FUNC_/g, funcName)
+        .replace('_R_ARGS_', 'target' + (forwardArgs ? ', ' + forwardArgs : ''))
+        .replace('_U_ARGS_', forwardArgs || '')
+        .replace('_AFTER_CALL_', afterCall || ''))(bindArg);
 }
 
 export function isPlainEmptyObj_DEV (obj) {
@@ -267,7 +273,7 @@ export function isPlainEmptyObj_DEV (obj) {
         return false;
     }
     // jshint ignore: start
-    for (var k in obj) {
+    for (const k in obj) {
         return false;
     }
     // jshint ignore: end
@@ -276,23 +282,23 @@ export function isPlainEmptyObj_DEV (obj) {
 
 export function cloneable_DEV (obj) {
     return obj &&
-            typeof obj.clone === 'function' &&
-            ( (obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone') );
+        typeof obj.clone === 'function' &&
+        ((obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone'));
 }
 
-if (CC_TEST) {
-    // editor mocks using in unit tests
-    if (typeof Editor === 'undefined') {
-        window.Editor = {
-            UuidUtils: {
-                NonUuidMark: '.',
-                uuid: function () {
-                    return '' + ((new Date()).getTime() + Math.random());
-                }
-            }
-        };
-    }
-}
+// if (CC_TEST) {
+//     // editor mocks using in unit tests
+//     if (typeof Editor === 'undefined') {
+//         window.Editor = {
+//             UuidUtils: {
+//                 NonUuidMark: '.',
+//                 uuid () {
+//                     return '' + ((new Date()).getTime() + Math.random());
+//                 },
+//             },
+//         };
+//     }
+// }
 
 cc.misc = {
     BUILTIN_CLASSID_RE,
@@ -310,5 +316,5 @@ cc.misc = {
     callInNextTick,
     tryCatchFunctor_EDITOR,
     isPlainEmptyObj_DEV,
-    cloneable_DEV
+    cloneable_DEV,
 };

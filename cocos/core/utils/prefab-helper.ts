@@ -24,34 +24,34 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { _decorator } from "../data/index";
+import { _decorator } from '../data/index';
 const { ccclass, property } = _decorator;
 import * as math from '../vmath';
 
-@ccclass("cc.PrefabInfo")
+@ccclass('cc.PrefabInfo')
 export class PrefabInfo {
     // the most top node of this prefab in the scene
     @property
-    root = null;
+    public root = null;
 
     // 所属的 prefab 资源对象 (cc.Prefab)
     // In Editor, only asset._uuid is usable because asset will be changed.
     @property
-    asset = null;
+    public asset = null;
 
     // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
     @property
-    fileId = '';
+    public fileId = '';
 
     // Indicates whether this node should always synchronize with the prefab asset, only available in the root node
     @property
-    sync = false;
+    public sync = false;
 
     // Indicates whether this node is synchronized, only available in the root node
     @property
-    _synced = {
+    public _synced = {
         default: false,
-        serializable: false
+        serializable: false,
     };
 
     // _instantiate (cloned) {
@@ -71,15 +71,18 @@ cc._PrefabInfo = PrefabInfo;
 
 // update node to make it sync with prefab
 export default function syncWithPrefab (node) {
-    var _prefab = node._prefab;
+    const _prefab = node._prefab;
     // non-reentrant
     _prefab._synced = true;
     //
     if (!_prefab.asset) {
         if (CC_EDITOR) {
-            var NodeUtils = Editor.require('scene://utils/node');
-            var PrefabUtils = Editor.require('scene://utils/prefab');
+            // @ts-ignore
+            const NodeUtils = Editor.require('scene://utils/node');
+            // @ts-ignore
+            const PrefabUtils = Editor.require('scene://utils/prefab');
 
+            // @ts-ignore
             cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: NodeUtils.getNodePath(node) }));
             node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
         }
@@ -91,16 +94,16 @@ export default function syncWithPrefab (node) {
     }
 
     // save root's preserved props to avoid overwritten by prefab
-    var _objFlags = node._objFlags;
-    var _parent = node._parent;
-    var _id = node._id;
-    var _name = node._name;
-    var _active = node._active;
-    var x = node._position.x;
-    var y = node._position.y;
-    var _quat = node._quat;
-    var _localZOrder = node._localZOrder;
-    var _globalZOrder = node._globalZOrder;
+    const _objFlags = node._objFlags;
+    const _parent = node._parent;
+    const _id = node._id;
+    const _name = node._name;
+    const _active = node._active;
+    const x = node._position.x;
+    const y = node._position.y;
+    const _quat = node._quat;
+    const _localZOrder = node._localZOrder;
+    const _globalZOrder = node._globalZOrder;
 
     // instantiate prefab
     cc.game._isCloning = true;
@@ -109,7 +112,7 @@ export default function syncWithPrefab (node) {
     }
     else {
         // root in prefab asset is always synced
-        var prefabRoot = _prefab.asset.data;
+        const prefabRoot = _prefab.asset.data;
         prefabRoot._prefab._synced = true;
 
         // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node

@@ -8,4 +8,10 @@ declare namespace wx {
     const onTouchMove: IWXEventManager<TouchEvent>;
     const onTouchEnd: IWXEventManager<TouchEvent>;
     const onTouchCancel: IWXEventManager<TouchEvent>;
+    function getSystemInfoSync(): any;
+
+    class FileSystemManager {
+
+    }
+    function getFileSystemManager(): FileSystemManager;
 }
