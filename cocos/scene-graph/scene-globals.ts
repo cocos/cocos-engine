@@ -134,6 +134,8 @@ cc.SkyboxInfo = SkyboxInfo;
 @ccclass('cc.PlanarShadowInfo')
 export class PlanarShadowInfo {
     @property
+    protected _enabled = false;
+    @property
     protected _normal = new Vec3(0, 1, 0);
     @property
     protected _distance = 0;
@@ -141,6 +143,15 @@ export class PlanarShadowInfo {
     protected _shadowColor = new Color(76, 76, 76, 255);
 
     protected _resource: PlanarShadow | null = null;
+
+    @property({ type: Boolean })
+    set enabled (val: boolean) {
+        this._enabled = val;
+        if (this._resource) { this._resource.enabled = val; }
+    }
+    get enabled () {
+        return this._enabled;
+    }
 
     @property({ type: Vec3 })
     set normal (val: Vec3) {

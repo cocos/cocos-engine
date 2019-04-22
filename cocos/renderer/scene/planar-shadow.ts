@@ -11,6 +11,14 @@ const _qt = new Quat();
 
 export class PlanarShadow {
 
+    set enabled (enable: boolean) {
+        this._enabled = enable;
+    }
+
+    get enabled (): boolean {
+        return this._enabled;
+    }
+
     set normal (val: Vec3) {
         vec3.copy(this._normal, val);
     }
@@ -38,6 +46,7 @@ export class PlanarShadow {
     }
 
     protected _scene: RenderScene;
+    protected _enabled: boolean = false;
     protected _normal = new Vec3(0, 1, 0);
     protected _distance = 0;
     protected _matLight = new Mat4();
