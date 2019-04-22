@@ -185,7 +185,7 @@ export class UI {
         }
     }
 
-    public addScreen (comp) {
+    public addScreen (comp: CanvasComponent) {
         this._screens.push(comp);
         if (comp.camera) {
             comp.camera.view.visibility = this._screens.length;
@@ -204,11 +204,13 @@ export class UI {
         return null;
     }
 
-    public removeScreen (comp) {
+    public removeScreen (comp: CanvasComponent) {
         const idx = this._screens.indexOf(comp);
-        if (idx !== -1) {
-            this._screens.splice(idx, 1);
+        if (idx === -1) {
+            return;
         }
+
+        this._screens.splice(idx, 1);
 
         let camera: Camera | null;
         for (let i = idx; i < this._screens.length;) {
