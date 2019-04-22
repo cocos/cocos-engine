@@ -88,7 +88,7 @@ class InputManager {
     private _prevMousePoint = new Vec2();
 
     private _preTouchPool: CCTouch[] = [];
-    private  _preTouchPoolPointer = 0;
+    private _preTouchPoolPointer = 0;
 
     private _touches: CCTouch[] = [];
     private _touchesIntegerDict: { [index: number]: number | undefined; } = { };
@@ -99,13 +99,15 @@ class InputManager {
     private _accelEnabled = false;
     private _accelInterval = 1 / 5;
     private _accelMinus = 1;
-    private  _accelCurTime = 0;
+    private _accelCurTime = 0;
     private _acceleration: Acceleration | null = null;
     private _accelDeviceEvent = null;
 
     private _glView: IView | null = null;
 
     private _minus = 0;
+
+    private _pointLocked = false;
 
     public handleTouchesBegin (touches: CCTouch[]) {
         const handleTouches: CCTouch[] = [];
@@ -293,9 +295,13 @@ class InputManager {
         }
     }
 
-    public getTouchByXY (tx: number, ty: number, pos: IHTMLElementPosition) {
+    public getTouchByXY (event: MouseEvent, tx: number, ty: number, pos: IHTMLElementPosition) {
         const locPreTouch = this._preTouchPoint;
-        const location = this._glView!.convertToLocationInView(tx, ty, pos);
+        let location = this._glView!.convertToLocationInView(tx, ty, pos);
+        if (this._pointLocked) {
+            location.x = locPreTouch.x + event.movementX;
+            location.y = locPreTouch.y - event.movementY;
+        }
         const touch = new CCTouch(location.x,  location.y, 0);
         touch._setPrevPoint(locPreTouch.x, locPreTouch.y);
         locPreTouch.x = location.x;
@@ -551,10 +557,28 @@ class InputManager {
         //  liebiao
         //  miui
         //  WECHAT
+        this._registerPointerLockEvent();
         if (!prohibition) {
             this._registerWindowMouseEvents(element);
         }
         this._registerElementMouseEvents(element, prohibition);
+    }
+
+    private _registerPointerLockEvent () {
+        const lockChangeAlert = () => {
+            let canvas = cc.game.canvas;
+            if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas){
+                this._pointLocked = true;
+            }
+            else {
+                this._pointLocked = false;
+            }
+        };
+        if ("onpointerlockchange" in document) {
+            document.addEventListener('pointerlockchange', lockChangeAlert, false);
+        } else if ("onmozpointerlockchange" in document) {
+            document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+        }
     }
 
     private _registerWindowMouseEvents (element: HTMLElement) {
@@ -570,7 +594,7 @@ class InputManager {
             const location = this.getPointByEvent(event, position);
             const positionRect = rect(position.left, position.top, position.width, position.height);
             if (!positionRect.contains(new Vec2(location.x, location.y))) {
-                this.handleTouchesEnd([this.getTouchByXY(location.x, location.y, position)]);
+                this.handleTouchesEnd([this.getTouchByXY(event, location.x, location.y, position)]);
                 const mouseEvent = this.getMouseEvent(location, position, EventMouse.UP);
                 mouseEvent.setButton(event.button);
                 eventManager.dispatchEvent(mouseEvent);
@@ -607,17 +631,17 @@ class InputManager {
         if (!prohibition) {
             listenDOMMouseEvent('mousedown', EventMouse.DOWN, (event, mouseEvent, location, pos) => {
                 this._mousePressed = true;
-                this.handleTouchesBegin([this.getTouchByXY(location.x, location.y, pos)]);
+                this.handleTouchesBegin([this.getTouchByXY(event, location.x, location.y, pos)]);
                 element.focus();
             });
 
             listenDOMMouseEvent('mouseup', EventMouse.UP, (event, mouseEvent, location, pos) => {
                 this._mousePressed = false;
-                this.handleTouchesEnd([this.getTouchByXY(location.x, location.y, pos)]);
+                this.handleTouchesEnd([this.getTouchByXY(event, location.x, location.y, pos)]);
             });
 
             listenDOMMouseEvent('mousemove', EventMouse.MOVE, (event, mouseEvent, location, pos) => {
-                this.handleTouchesMove([this.getTouchByXY(location.x, location.y, pos)]);
+                this.handleTouchesMove([this.getTouchByXY(event, location.x, location.y, pos)]);
                 if (!this._mousePressed) {
                     mouseEvent.setButton(null);
                 }
@@ -654,7 +678,7 @@ class InputManager {
                 const pos = this.getHTMLElementPosition(element);
                 pos.left -= document.documentElement.scrollLeft;
                 pos.top -= document.documentElement.scrollTop;
-                touchEvent.call(this, [this.getTouchByXY(event.clientX, event.clientY, pos)]);
+                touchEvent.call(this, [this.getTouchByXY(event, event.clientX, event.clientY, pos)]);
                 event.stopPropagation();
             }, false);
         }
