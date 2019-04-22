@@ -17,7 +17,7 @@ let QuadBuffer = cc.Class({
             buffer[idx++] = vertextID+2;
         }
 
-        let indicesData = new Uint16Array(this._iData.buffer, 0, count * 6 );
+        let indicesData = new Uint16Array(this._iData.buffer, 0, count * 6);
         this._ib.update(0, indicesData);
     },
 
