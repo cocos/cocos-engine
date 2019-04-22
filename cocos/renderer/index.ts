@@ -16,7 +16,5 @@ export { Light } from './scene/light';
 export { Camera } from './scene/camera';
 export { Model } from './scene/model';
 
-export { default as LineBatchModel } from './models/line-batch-model';
-export { default as SpriteBatchModel } from './models/sprite-batch-model';
 export { default as ParticleBatchModel } from './models/particle-batch-model';
 export { SkinningModel } from './models/skinning-model';

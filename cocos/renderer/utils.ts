@@ -1,15 +1,15 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXFormat, GFXAttributeName } from '../gfx/define';
+import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../gfx/define';
 
-export function createIA(device, data) {
+export function createIA (device, data) {
     if (!data.positions) {
         console.error('The data must have positions field');
         return null;
     }
 
-    let verts = [];
-    let vcount = data.positions.length / 3;
+    const verts: number[] = [];
+    const vcount = data.positions.length / 3;
 
     for (let i = 0; i < vcount; ++i) {
         verts.push(data.positions[3 * i], data.positions[3 * i + 1], data.positions[3 * i + 2]);
@@ -25,7 +25,7 @@ export function createIA(device, data) {
         }
     }
 
-    let vfmt = [];
+    const vfmt: Array<{ name: GFXAttributeName; format: GFXFormat; }> = [];
     vfmt.push({ name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F });
     if (data.normals) {
         vfmt.push({ name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F });
@@ -37,7 +37,7 @@ export function createIA(device, data) {
         vfmt.push({ name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGB32F });
     }
 
-    let vb = device.createBuffer({
+    const vb = device.createBuffer({
         usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
         memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
         size: verts.length * 4,
@@ -46,7 +46,7 @@ export function createIA(device, data) {
 
     vb.update(new Float32Array(verts));
 
-    let ib = device.createBuffer({
+    const ib = device.createBuffer({
         usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
         memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
         size: data.indices.length * 2,
