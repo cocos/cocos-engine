@@ -63,6 +63,13 @@ export class CrossFade extends Playable {
         }
     }
 
+    public sample () {
+        const currentFading = this._fadings[0];
+        if (currentFading.state) {
+            currentFading.state.sample();
+        }
+    }
+
     public onPause () {
         super.onPause();
         for (const fading of this._fadings) {
@@ -83,13 +90,18 @@ export class CrossFade extends Playable {
 
     public onStop () {
         super.onStop();
+        const currentFading = this._fadings[0];
+        if (currentFading.state) {
+            currentFading.state.weight = 1;
+        }
         for (const fading of this._fadings) {
             if (fading.state) {
                 this._directStopState(fading.state);
             }
         }
-        this._fadings.length = 0;
-        this._unshiftDefault();
+        this._fadings.splice(1, this._fadings.length - 1);
+        // this._fadings.length = 0;
+        // this._unshiftDefault();
     }
 
     private _unshiftDefault () {
@@ -101,7 +113,7 @@ export class CrossFade extends Playable {
     }
 
     private _directStopState (state: AnimationState) {
-        state.weight = 0;
+        // state.weight = 0;
         state.stop();
     }
 
