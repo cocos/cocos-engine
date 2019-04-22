@@ -542,9 +542,21 @@ var properties = {
      * @property {ParticleSystem.PositionType} positionType
      * @default ParticleSystem.PositionType.FREE
      */
-    positionType: {
+    _positionType: {
         default: PositionType.FREE,
-        type: PositionType
+        formerlySerializedAs: "positionType"
+    },
+
+    positionType: {
+        type: PositionType,
+        get () {
+            return this._positionType;
+        },
+        set (val) {
+            if (this.sharedMaterials[0])
+                this.sharedMaterials[0].define('_USE_MODEL', val !== PositionType.FREE);
+            this._positionType = val;
+        }
     },
 
     /**
@@ -1108,6 +1120,8 @@ var ParticleSystem = cc.Class({
         this.endSizeVar = parseFloat(dict["finishParticleSizeVariance"] || 0);
 
         // position
+        // Make empty positionType value and old version compatible
+        this.positionType = parseFloat(dict['positionType'] || PositionType.RELATIVE);
         // for 
         this.sourcePos.x = 0;
         this.sourcePos.y = 0;
@@ -1208,7 +1222,8 @@ var ParticleSystem = cc.Class({
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             material.define('USE_TEXTURE', true);
-            material.define('_USE_MODEL', true);
+            // In case the plist lost positionType
+            material.define('_USE_MODEL', this._positionType !== PositionType.FREE);
         }
         else {
             material = Material.getInstantiatedMaterial(material, this);
