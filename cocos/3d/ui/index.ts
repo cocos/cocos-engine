@@ -13,7 +13,7 @@ export { ScrollViewComponent } from './components/scroll-view-component';
 export { SliderComponent } from './components/slider-component';
 export { SpriteComponent } from './components/sprite-component';
 export { ToggleComponent } from './components/toggle-component';
-export { ToggleContainerComponent } from './components/toggle-group-component';
+export { ToggleContainerComponent } from './components/toggle-container-component';
 export { UIModelComponent } from './components/ui-model-component';
 export { UIRenderComponent } from './components/ui-render-component';
 export { UITransformComponent } from './components/ui-transfrom-component';

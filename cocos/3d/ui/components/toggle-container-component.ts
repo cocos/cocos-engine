@@ -39,7 +39,7 @@ import { ToggleComponent} from './toggle-component';
 
 @ccclass('cc.ToggleContainerComponent')
 @executionOrder(100)
-@menu('UI/ToggleGroup')
+@menu('UI/ToggleContainer')
 @executeInEditMode
 export class ToggleContainerComponent extends Component {
     @property({

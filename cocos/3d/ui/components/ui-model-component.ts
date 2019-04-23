@@ -12,11 +12,11 @@ import { UIComponent } from './ui-component';
 @menu('UI/Model')
 export class UIModelComponent extends UIComponent {
 
-    private _modelComponent: RenderableComponent | null = null;
-
     public get modelComponent () {
         return this._modelComponent;
     }
+
+    private _modelComponent: RenderableComponent | null = null;
 
     public onLoad () {
         this._modelComponent = this.getComponent(cc.RenderableComponent) as RenderableComponent;
@@ -24,6 +24,19 @@ export class UIModelComponent extends UIComponent {
     }
 
     public onEnable () {
+        this._fitUIRenderQueue();
+    }
+
+    public updateAssembler (render: UI) {
+        if (this._modelComponent) {
+            render.commitComp.call(render, this);
+            return true;
+        }
+
+        return false;
+    }
+
+    public update () {
         this._fitUIRenderQueue();
     }
 
@@ -57,18 +70,5 @@ export class UIModelComponent extends UIComponent {
                 p._priority = RenderPriority.MAX - 11;
             }
         }
-    }
-
-    public updateAssembler (render: UI) {
-        if (this._modelComponent) {
-            render.commitComp.call(render, this);
-            return true;
-        }
-
-        return false;
-    }
-
-    public update () {
-        this._fitUIRenderQueue();
     }
 }
