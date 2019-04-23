@@ -20,7 +20,7 @@ const NonRigidBodyProperties = {
 };
 
 @ccclass('cc.RigidBodyComponent')
-@executionOrder(101)
+@executionOrder(99)
 @menu('Components/RigidBodyComponent')
 @executeInEditMode
 export class RigidBodyComponent extends PhysicsBasedComponent {
@@ -56,8 +56,15 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public __preload () {
         super.__preload();
-        this.sharedBody!.transfromSource = ETransformSource.PHYSIC;
+    }
+
+    public onLoad () {
+        /**
+         * 此处设置刚体属性是因为__preload不受executionOrder的顺序影响，
+         * 从而导致ColliderComponent后添加会导致刚体的某些属性被重写
+         */
         if (this.sharedBody) {
+            this.sharedBody.transfromSource = ETransformSource.PHYSIC;
             this.mass = this._mass;
             this.linearDamping = this._linearDamping;
             this.angularDamping = this._angularDamping;
