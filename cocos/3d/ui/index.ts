@@ -21,3 +21,4 @@ export { ViewGroupComponent } from './components/view-group-component';
 export { WebviewComponent } from './components/webview/webView-component';
 export { WidgetComponent } from './components/widget-component';
 export { LabelOutlineComponent } from './components/label-outline-component';
+export { DebugCanvasComponent } from './components/debug-canvas-component';

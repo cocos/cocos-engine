@@ -139,17 +139,17 @@ export class CanvasComponent extends Component {
      * @default new cc.Size(960, 640)
      */
     @property
-    private _designResolution = cc.size(960, 640);
+    protected _designResolution = cc.size(960, 640);
     @property
-    private _fitWidth = false;
+    protected _fitWidth = false;
     @property
-    private _fitHeight = true;
+    protected _fitHeight = true;
     @property
-    private _priority = 0;
+    protected _priority = 0;
 
-    private _thisOnResized: () => void;
+    protected _thisOnResized: () => void;
 
-    private _camera: Camera | null = null;
+    protected _camera: Camera | null = null;
 
     constructor () {
         super();
@@ -275,6 +275,11 @@ export class CanvasComponent extends Component {
             // cc.engine.setDesignResolutionSize(designRes.width, designRes.height);
         }
         else {
+            const root = cc.director.root;
+            if (root && root.ui && root.ui.debugScreen && root.ui.debugScreen === this ){
+                return;
+            }
+
             cc.view.setDesignResolutionSize(designRes.width, designRes.height, policy);
         }
     }
