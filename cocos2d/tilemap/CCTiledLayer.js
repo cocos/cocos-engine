@@ -735,7 +735,7 @@ let TiledLayer = cc.Class({
         return result;
     },
 
-    update () {
+    _updateCulling () {
         if (CC_EDITOR) {
             this.enableCulling(false);
         } else if (this._enableCulling) {
@@ -1012,11 +1012,13 @@ let TiledLayer = cc.Class({
      * !#en Return texture.
      * !#zh 获取纹理。
      * @method getTexture
+     * @param index The index of textures
      * @return {Texture2D}
      */
-    getTexture () {
-        if (this._textures && this._textures.length > 0) {
-            return this._textures[0];
+    getTexture (index) {
+        index = index || 0;
+        if (this._textures && index >= 0 && this._textures.length > index) {
+            return this._textures[index];
         }
         return null;
     },
@@ -1082,11 +1084,13 @@ let TiledLayer = cc.Class({
      * !#en Gets Tile set first information for the layer.
      * !#zh 获取 layer 索引位置为0的 Tileset 信息。
      * @method getTileSet
+     * @param index The index of tilesets
      * @return {TMXTilesetInfo}
      */
-    getTileSet () {
-        if (this._tilesets && this._tilesets.length > 0) {
-            return this._tilesets[0];
+    getTileSet (index) {
+        index = index || 0;
+        if (this._tilesets && index >= 0 && this._tilesets.length > index) {
+            return this._tilesets[index];
         }
         return null;
     },

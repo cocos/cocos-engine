@@ -135,25 +135,32 @@ let TileFlag = cc.Enum({
     VERTICAL: 0x40000000,
 
     /**
-     * @property DIAGONAL
+     * @property VICE DIAGONAL
      * @type {Number}
      * @static
      */
-    DIAGONAL: 0x20000000,
+    VICE_DIAGONAL: 0x20000000,
+
+    /**
+     * @property MAIN DIAGONAL
+     * @type {Number}
+     * @static
+     */
+    MAIN_DIAGONAL: 0x10000000,
 
     /**
      * @property FLIPPED_ALL
      * @type {Number}
      * @static
      */
-    FLIPPED_ALL: (0x80000000 | 0x40000000 | 0x20000000) >>> 0,
+    FLIPPED_ALL: (0x80000000 | 0x40000000 | 0x20000000 | 0x10000000) >>> 0,
 
     /**
      * @property FLIPPED_MASK
      * @type {Number}
      * @static
      */
-    FLIPPED_MASK: (~(0x80000000 | 0x40000000 | 0x20000000)) >>> 0
+    FLIPPED_MASK: (~(0x80000000 | 0x40000000 | 0x20000000 | 0x10000000)) >>> 0
 });
 
 /*
@@ -534,6 +541,7 @@ let TiledMap = cc.Class({
         let images = this._images;
         for (let i = 0, l = images.length; i < l; i++) {
             images[i].removeFromParent(true);
+            images[i].destroy();
         }
         images.length = 0;
     },
@@ -571,6 +579,18 @@ let TiledMap = cc.Class({
         }
     },
 
+    _fillAniGrids (texGrids, animations) {
+        for (let i in animations) {
+            let animation = animations[i];
+            if (!animation) continue;
+            let frames = animation.frames;
+            for (let j = 0; j < frames.length; j++) {
+                let frame = frames[j];
+                frame.grid = texGrids[frame.tileid];
+            }
+        }
+    },
+
     _buildLayerAndGroup () {
         let tilesets = this._tilesets;
         let texGrids = this._texGrids;
@@ -581,7 +601,7 @@ let TiledMap = cc.Class({
             if (!tilesetInfo) continue;
             cc.TiledMap.fillTextureGrids(tilesetInfo, texGrids, i);
         }
-        cc.TiledMap.fillAniGrids(texGrids, animations);
+        this._fillAniGrids(texGrids, animations);
 
         let mapInfo = this._mapInfo;
         let layers = this._layers;
@@ -708,40 +728,6 @@ let TiledMap = cc.Class({
 
 cc.TiledMap = module.exports = TiledMap;
 
-cc.TiledMap.calculateLayerOffset = function (pos, mapInfo) {
-    let ret = cc.v2(0,0);
-    let layerOrientation = mapInfo.orientation;
-    let mapTileSize = mapInfo.getTileSize();
-    let staggerAxis = mapInfo.getStaggerAxis();
-    let staggerIndex = mapInfo.getStaggerIndex();
-    let hexSideLength = mapInfo.getHexSideLength();
-
-    switch (layerOrientation) {
-        case cc.TiledMap.Orientation.ORTHO:
-            ret = cc.v2(pos.x * mapTileSize.width, -pos.y * mapTileSize.height);
-            break;
-        case cc.TiledMap.Orientation.ISO:
-            ret = cc.v2((mapTileSize.width / 2) * (pos.x - pos.y),
-                (mapTileSize.height / 2 ) * (-pos.x - pos.y));
-            break;
-        case cc.TiledMap.Orientation.HEX:
-            if(staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_Y)
-            {
-                let diffX = (staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_EVEN) ? mapTileSize.width/2 : 0;
-                ret = cc.v2(pos.x * mapTileSize.width + diffX,
-                           -pos.y * (mapTileSize.height - (mapTileSize.width - hexSideLength) / 2));
-            }
-            else if(staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_X)
-            {
-                let diffY = (staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? mapTileSize.height/2 : 0;
-                ret = cc.v2(pos.x * (mapTileSize.width - (mapTileSize.width - hexSideLength) / 2),
-                           -pos.y * mapTileSize.height + diffY);
-            }
-            break;
-    }
-    return ret;
-};
-
 cc.TiledMap.loadAllTextures = function (textures, loadedCallback) {
     let totalNum = textures.length;
     if (totalNum === 0) {
@@ -765,18 +751,6 @@ cc.TiledMap.loadAllTextures = function (textures, loadedCallback) {
             });
         } else {
             itemCallback();
-        }
-    }
-};
-
-cc.TiledMap.fillAniGrids = function (texGrids, animations) {
-    for (let i in animations) {
-        let animation = animations[i];
-        if (!animation) continue;
-        let frames = animation.frames;
-        for (let j = 0; j < frames.length; j++) {
-            let frame = frames[j];
-            frame.grid = texGrids[frame.tileid];
         }
     }
 };
@@ -834,29 +808,6 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId) {
         grid.r = (grid.x + grid.width) / imageW;
         grid.b = (grid.y + grid.height) / imageH;
         texGrids[gid] = grid;
-    }
-};
-
-cc.TiledMap.flipTexture = function (outGrid, inGrid, gid) {
-    outGrid.r = inGrid.r;
-    outGrid.l = inGrid.l;
-    outGrid.b = inGrid.b;
-    outGrid.t = inGrid.t;
-
-    let tempVal = 0;
-
-    // flip x
-    if ((gid & TileFlag.HORIZONTAL) >>> 0) {
-        tempVal = inGrid.r;
-        outGrid.r = inGrid.l;
-        outGrid.l = tempVal;
-    }
-
-    // flip y
-    if ((gid & TileFlag.HORIZONTAL) >>> 0) {
-        tempVal = inGrid.b;
-        outGrid.b = inGrid.t;
-        outGrid.t = tempVal;
     }
 };
 
