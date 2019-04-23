@@ -23,6 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import { warnID } from '../core/platform/CCDebug';
 import { Node } from './node';
 
 /**
@@ -32,51 +33,23 @@ import { Node } from './node';
  * It is recommended to not use this function every frame instead cache the result at startup.
  */
 export function find (path: string, referenceNode?: Node): Node | null {
-    if (path == null) {
-        cc.errorID(5600);
-        return null;
-    }
     if (!referenceNode) {
         const scene = cc.director.getScene();
         if (!scene) {
             if (CC_DEV) {
-                cc.warnID(5601);
+                warnID(5601);
             }
             return null;
-        }
-        else if (CC_DEV && !scene.isValid) {
-            cc.warnID(5602);
+        } else if (CC_DEV && !scene.isValid) {
+            warnID(5602);
             return null;
         }
         referenceNode = scene;
     } else if (CC_DEV && !referenceNode.isValid) {
-        cc.warnID(5603);
+        warnID(5603);
         return null;
     }
-
-    let match = referenceNode!;
-    const startIndex = (path[0] !== '/') ? 0 : 1; // skip first '/'
-    const nameList = path.split('/');
-
-    // parse path
-    for (let n = startIndex; n < nameList.length; n++) {
-        const name = nameList[n];
-        const children = match.children;
-        let found = false;
-        for (let t = 0, len = children.length; t < len; ++t) {
-            const subChild = children[t];
-            if (subChild.name === name) {
-                match = subChild;
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            return null;
-        }
-    }
-
-    return match;
+    return referenceNode!.getChildByPath(path);
 }
 
 cc.find = find;

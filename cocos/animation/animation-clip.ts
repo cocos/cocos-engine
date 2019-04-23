@@ -7,6 +7,7 @@ import Vec3, { v3 } from '../core/value-types/vec3';
 import { lerp } from '../core/vmath';
 import { find, Node } from '../scene-graph';
 import { CurveValue, DynamicAnimCurve, EasingMethodName, ICurveTarget, RatioSampler } from './animation-curve';
+import { AnimationState } from './animation-state';
 import * as blending from './blending';
 import { MotionPath, sampleMotionPaths } from './motion-path-helper';
 import { ILerpable, isLerpable, WrapMode } from './types';
@@ -20,7 +21,6 @@ interface IAnimationEvent {
 type EasingMethod = EasingMethodName | number[];
 
 interface IPropertyCurveDataDetail {
-    blending?: keyof(typeof blending) | null;
     keys: number;
     values: CurveValue[];
     easingMethod?: EasingMethod;
@@ -38,9 +38,6 @@ interface ICurveData {
         [componentName: string]: {
             [propertyName: string]: PropertyCurveData;
         };
-    };
-    paths?: {
-        [path: string]: ICurveData;
     };
 }
 
@@ -80,14 +77,16 @@ export class AnimationClip extends Asset {
             values[i] = spriteFrames[i];
         }
         clip._keys = [keys];
-        clip.curveData = {
-            comps: {
-                // component
-                'cc.Sprite': {
-                    // component properties
-                    spriteFrame: {
-                        keys: 0,
-                        values,
+        clip.curveDatas = {
+            '/': {
+                comps: {
+                    // component
+                    'cc.Sprite': {
+                        // component properties
+                        spriteFrame: {
+                            keys: 0,
+                            values,
+                        },
                     },
                 },
             },
@@ -123,7 +122,7 @@ export class AnimationClip extends Asset {
      * @example {@link cocos2d/core/animation-clip/curve-data.js}
      */
     @property({visible: false})
-    public curveData: ICurveData = {};
+    public curveDatas: { [path: string]: ICurveData; } = {};
 
     /**
      * !#en Event data.
@@ -209,8 +208,18 @@ export class AnimationClip extends Asset {
         }
 
         // Setup the blend function.
-        if (typeof propertyCurveData.blending === 'string') {
-            curve._blendFunction = blending[propertyCurveData.blending];
+        if (target instanceof Node) {
+            switch (propPath) {
+                case 'position':
+                    curve._blendFunction = blending.additive3D;
+                    break;
+                case 'scale':
+                    curve._blendFunction = blending.additive3D;
+                    break;
+                case 'rotation':
+                    curve._blendFunction = blending.additiveQuat;
+                    break;
+            }
         }
 
         return curve;
@@ -243,25 +252,19 @@ export class AnimationClip extends Asset {
         }
     }
 
-    public createCurves (state: any, root: Node) {
+    public createCurves (state: AnimationState, root: Node) {
         this._ratioSamplers = this._keys.map(
             (keys) => new RatioSampler(
                 keys.map(
                     (key) => key / this._duration)));
-        const curveData = this.curveData;
-        const childrenCurveDatas = curveData.paths;
-        const curves = [];
-
-        this.createTargetCurves(root, curveData, curves);
-        if (childrenCurveDatas) {
-            for (const namePath of Object.keys(childrenCurveDatas)) {
-                const target = find(namePath, root);
-                if (!target) {
-                    continue;
-                }
-                const childCurveDatas = childrenCurveDatas[namePath];
-                this.createTargetCurves(target, childCurveDatas, curves);
+        const curves: DynamicAnimCurve[] = [];
+        for (const path of Object.keys(this.curveDatas)) {
+            const target = find(path, root);
+            if (!target) {
+                continue;
             }
+            const curveData = this.curveDatas[path];
+            this.createTargetCurves(target, curveData, curves);
         }
 
         return curves;

@@ -498,6 +498,12 @@ export class BaseNode extends CCObject {
             return this;
         }
         const segments = path.split('/');
+
+        // Starts with /
+        if (segments.length !== 0 && segments[0].length === 0) {
+            segments.shift();
+        }
+
         let lastNode: this = this;
         for (const segment of segments) {
             const next = lastNode.children.find((childNode) => childNode.name === segment);
