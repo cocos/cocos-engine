@@ -432,6 +432,10 @@ class Node extends BaseNode {
         }
     }
 
+    public get localPosition (): Readonly<Vec3> {
+        return this._lpos;
+    }
+
     /**
      * Sets local rotation.
      * @param rotation - The new local rotation.
@@ -489,6 +493,10 @@ class Node extends BaseNode {
         }
     }
 
+    public get localRotation (): Readonly<Quat> {
+        return this._lrot;
+    }
+
     /**
      * Sets local scale.
      * @param scale - The new local scale.
@@ -532,6 +540,10 @@ class Node extends BaseNode {
         } else {
             return vec3.copy(new Vec3(), this._lscale);
         }
+    }
+
+    public get localScale (): Readonly<Vec3> {
+        return this._lscale;
     }
 
     /**
@@ -591,6 +603,11 @@ class Node extends BaseNode {
         } else {
             return vec3.copy(new Vec3(), this._pos);
         }
+    }
+
+    public get worldPosition (): Readonly<Vec3> {
+        this.updateWorldTransform();
+        return this._pos;
     }
 
     /**
@@ -672,6 +689,11 @@ class Node extends BaseNode {
         }
     }
 
+    public get worldRotation (): Readonly<Quat> {
+        this.updateWorldTransform();
+        return this._rot;
+    }
+
     /**
      * Sets world scale.
      * @param scale - The new world scale.
@@ -725,6 +747,11 @@ class Node extends BaseNode {
         } else {
             return vec3.copy(new Vec3(), this._scale);
         }
+    }
+
+    public get worldScale (): Readonly<Vec3> {
+        this.updateWorldTransform();
+        return this._scale;
     }
 
     public getWorldMatrix<Out extends mat4> (out?: Out): Out;
