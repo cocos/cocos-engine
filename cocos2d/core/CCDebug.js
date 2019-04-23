@@ -371,4 +371,38 @@ module.exports = cc.debug = {
             cc.game.config.showFPS = !!displayStats;
         }
     },
+};
+
+if (CC_WECHATGAME) {
+    if (typeof wx !== 'undefined') {
+        wx.onError(onError);
+    }
+
+    let once = true;
+    function onError (info) {
+        if (!once) {
+            return;
+        }
+        once = false;
+        let root = cc.find('Canvas');
+        let node = new cc.Node();
+        node.color = cc.Color.BLACK;
+        node.parent = root;
+
+        let label = node.addComponent(cc.Label);
+        node.height = root.height;
+        node.width = root.width;
+        label.horizontalAlign = cc.Label.HorizontalAlign.LEFT;
+        label.verticalAlign = cc.Label.VerticalAlign.TOP;
+        label.fontSize = 22;
+        label.overflow = cc.Label.Overflow.SHRINK;
+        let env = wx.getSystemInfoSync();
+        label.string = `\n Device: ${env.brand} ${env.model} \n System: ${env.system} \n Platform: ${env.platform} \n Version: Cocos Creator ${window.CocosEngine} \n Error message: \n ${info.message}`;
+
+        cc.director.pause();
+
+        node.once('touchend', () => {
+            node.destroy();
+        })
+    }
 }
