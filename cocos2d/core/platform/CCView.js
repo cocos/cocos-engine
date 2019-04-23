@@ -34,7 +34,7 @@ const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
 
 var __BrowserGetter = {
     init: function(){
-        if (!CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
+        if (!CC_QQPLAY && !isBaiduGame) {
             this.html = document.getElementsByTagName("html")[0];
         }
     },
@@ -68,15 +68,6 @@ if (isBaiduGame) {
     }
 }
 
-if (CC_WECHATGAME) {
-    if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB;
-    }
-    else {
-        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
-    }
-}
-
 if (CC_QQPLAY) {
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_QQ_PLAY;
 }
@@ -91,23 +82,6 @@ switch (__BrowserGetter.adaptationType) {
         };
         __BrowserGetter.availHeight = function(frame){
             return frame.clientHeight;
-        };
-        break;
-    case cc.sys.BROWSER_TYPE_WECHAT_GAME:
-        __BrowserGetter.availWidth = function(){
-            return window.innerWidth;
-        };
-        __BrowserGetter.availHeight = function(){
-            return window.innerHeight;
-        };
-        break;
-    case cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB:
-        var sharedCanvas = window.sharedCanvas || wx.getSharedCanvas();
-        __BrowserGetter.availWidth = function(){
-            return sharedCanvas.width;
-        };
-        __BrowserGetter.availHeight = function(){
-            return sharedCanvas.height;
         };
         break;
 }
@@ -414,7 +388,7 @@ cc.js.mixin(View.prototype, {
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewport && !CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
+        if (this._isAdjustViewport && !CC_JSB && !CC_RUNTIME && !CC_QQPLAY && !isBaiduGame) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
@@ -521,8 +495,7 @@ cc.js.mixin(View.prototype, {
     enableAutoFullScreen: function(enabled) {
         if (enabled && 
             enabled !== this._autoFullScreen && 
-            cc.sys.isMobile && 
-            cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT) {
+            cc.sys.isMobile) {
             // Automatically full screen when user touches on mobile version
             this._autoFullScreen = true;
             cc.screen.autoFullScreen(cc.game.frame);
@@ -815,7 +788,7 @@ cc.js.mixin(View.prototype, {
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (!CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
+        if (!CC_JSB && !CC_RUNTIME && !CC_QQPLAY && !isBaiduGame) {
             // Set viewport's width
             this._setViewportMeta({"width": width}, true);
 
@@ -1073,7 +1046,7 @@ cc.ContainerStrategy = cc.Class({
     _setupContainer: function (view, w, h) {
         var locCanvas = cc.game.canvas, locContainer = cc.game.container;
 
-        if (!CC_WECHATGAME && !isBaiduGame) {
+        if (!isBaiduGame) {
             if (cc.sys.os === cc.sys.OS_ANDROID) {
                 document.body.style.width = (view._isRotated ? h : w) + 'px';
                 document.body.style.height = (view._isRotated ? w : h) + 'px';
@@ -1547,5 +1520,14 @@ cc.view = new View();
  * @type Size
  */
 cc.winSize = cc.v2();
+
+let _global = typeof window === 'undefined' ? global : window;
+// __preAdapt is a global var defined in adapter
+if (_global.__preAdapter) {
+    let preAdapter = _global.__preAdapter;
+    __BrowserGetter = preAdapter.browserGetter;
+    Object.assign(cc.view, preAdapter.view);
+    Object.assign(cc.ContentStrategy.prototype, preAdapter.contentStrategyProto);
+}
 
 module.exports = cc.view;

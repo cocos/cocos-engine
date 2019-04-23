@@ -149,7 +149,7 @@ Audio.State = {
         this._bindEnded();
         this._element.play();
 
-        if (!CC_QQPLAY && !CC_WECHATGAME) {
+        if (!CC_QQPLAY) {
             if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
                 this._element.paused) {
                 touchPlayList.push({ instance: this, offset: 0, audio: this._element });
@@ -169,7 +169,7 @@ Audio.State = {
     };
 
     proto.destroy = function () {
-        if (CC_WECHATGAME || CC_QQPLAY) {
+        if (CC_QQPLAY) {
             this._element && this._element.destroy();
         }
         this._element = null;
@@ -236,7 +236,7 @@ Audio.State = {
             return;
         }
 
-        if (!(CC_QQPLAY || CC_WECHATGAME)) {
+        if (!CC_QQPLAY) {
             // setCurrentTime would fire 'ended' event
             // so we need to change the callback to rebind ended callback after setCurrentTime
             this._unbindEnded();
@@ -268,7 +268,7 @@ Audio.State = {
 
     proto.getState = function () {
         let elem = this._element;
-        if (!CC_WECHATGAME && !CC_QQPLAY && elem) {
+        if (!CC_QQPLAY && elem) {
             // HACK: in some browser, audio may not fire 'ended' event
             // so we need to force updating the Audio state
             if (Audio.State.PLAYING === this._state && elem.paused) {
@@ -418,7 +418,7 @@ let WebAudioElement = function (buffer, audio) {
             let self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
-                if (!(CC_QQPLAY || CC_WECHATGAME) && self._context.currentTime === 0) {
+                if (!CC_QQPLAY && self._context.currentTime === 0) {
                     touchPlayList.push({
                         instance: self._audio,
                         offset: offset,
