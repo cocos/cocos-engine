@@ -59,7 +59,7 @@ class Node extends BaseNode {
     private _uiTransfromComp: UITransformComponent | null = null;
 
     @property({ type: Vec3 })
-    set eulerAngles (val) {
+    set eulerAngles (val: Readonly<Vec3>) {
         this.setRotationFromEuler(val.x, val.y, val.z);
     }
     get eulerAngles () {
@@ -195,6 +195,10 @@ class Node extends BaseNode {
         for (const child of this._children) {
             child._onBatchCreated();
         }
+    }
+
+    public _onBatchRestored () {
+        this._onBatchCreated();
     }
 
     // ===============================
@@ -580,7 +584,7 @@ class Node extends BaseNode {
             vec3.transformQuat(local, local, quat.conjugate(q_a, parent._rot));
             vec3.div(local, local, parent._scale);
         } else {
-            vec3.copy(this._lpos, this._pos);
+            vec3.copy(local, this._pos);
         }
 
         this.invalidateChildren();
@@ -657,8 +661,6 @@ class Node extends BaseNode {
      * @param z - Angle to rotate around Z axis in degrees.
      */
     public setWorldRotationFromEuler (x: number, y: number, z: number) {
-        vec3.set(this._euler, x, y, z);
-        this._eulerDirty = false;
         quat.fromEuler(this._rot, x, y, z);
         if (this._parent) {
             this._parent.getWorldRotation(q_a);
@@ -666,6 +668,7 @@ class Node extends BaseNode {
         } else {
             quat.copy(this._lrot, this._rot);
         }
+        this._eulerDirty = true;
 
         this.invalidateChildren();
         this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
