@@ -32,7 +32,7 @@ import { clampf } from '../../../core/utils/misc';
 import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
-import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';
+import { UIRenderComponent } from './ui-render-component';
 
 /**
  * !#en Enum for sprite type.
@@ -431,7 +431,7 @@ export class SpriteComponent extends UIRenderComponent {
             }
         }
 
-        this._flushAssembler();
+        // this._flushAssembler();
         this._activateMaterial();
     }
 

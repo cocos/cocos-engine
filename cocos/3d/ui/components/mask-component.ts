@@ -251,7 +251,7 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     public onLoad (){
-        this._flushAssembler();
+        // this._flushAssembler();
         this._createGraphics();
     }
 
