@@ -19,6 +19,11 @@ export function additive3D (value: Vec3, weight: number, propertyBlendState: Pro
     if (propertyBlendState.weight === 0) {
         vec3.zero(propertyBlendState.value);
     }
+    if (weight === 0) {
+        return propertyBlendState.value;
+    } else if (weight === 1) {
+        return vec3.copy(propertyBlendState.value, value);
+    }
     return vec3.scaleAndAdd(propertyBlendState.value, propertyBlendState.value, value, weight);
 }
 
@@ -31,6 +36,8 @@ export function additiveQuat (value: Quat, weight: number, propertyBlendState: P
     }
     if (weight === 0) {
         return propertyBlendState.value;
+    } else if (weight === 1) {
+        return quat.copy(propertyBlendState.value, value);
     }
     const t = weight / (propertyBlendState.weight + weight);
     return quat.slerp(propertyBlendState.value, propertyBlendState.value, value, t);

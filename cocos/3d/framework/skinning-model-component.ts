@@ -167,7 +167,7 @@ export class SkinningModelComponent extends ModelComponent {
             // 3. because it has been in world space, just cancel this mesh's original local-world transform
             const bindpose = skeleton.bindposes[index];
             const jointMatrix = _m4_tmp;
-            mat4.multiply(jointMatrix, cancelThisNodeTransform, targetNode.getWorldMatrix(_m4_tmp));
+            mat4.multiply(jointMatrix, cancelThisNodeTransform, targetNode.worldMatrix);
             mat4.multiply(jointMatrix, jointMatrix, bindpose);
             skinningModel.updateJointMatrix(index, jointMatrix);
         });
