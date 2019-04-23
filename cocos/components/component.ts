@@ -97,7 +97,7 @@ class Component extends CCObject {
     @property({
         displayName: 'Script',
         type: Script,
-        tooltip: CC_DEV && 'i18n:INSPECTOR.component.script',
+        tooltip: CC_DEV ? 'i18n:INSPECTOR.component.script' : undefined,
     })
     get __scriptAsset () { return null; }
 

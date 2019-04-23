@@ -307,6 +307,10 @@ export const ccclass = checkCtorArgument(function (ctor, name) {
     return res;
 });
 
+export type SimplePropertyType = Function | string;
+
+export type PropertyType = SimplePropertyType | SimplePropertyType[];
+
 /**
  * cc 属性选项。
  */
@@ -324,7 +328,7 @@ export function property (options?: IPropertyOptions): PropertyDecorator;
  * 等价于`@property({type})`。
  * @param type cc 属性的类型。
  */
-export function property (type: Function | any[] | number | string | boolean): PropertyDecorator;
+export function property (type: PropertyType): PropertyDecorator;
 
 /**
  * 标注属性为 cc 属性。

@@ -14,12 +14,16 @@ export function translate (geometry: IGeometry, offset: { x?: number; y?: number
         geometry.positions[iY] = geometry.positions[iY] + y;
         geometry.positions[iZ] = geometry.positions[iZ] + z;
     }
-    geometry.minPos.x += x;
-    geometry.minPos.y += y;
-    geometry.minPos.z += z;
-    geometry.maxPos.x += x;
-    geometry.maxPos.y += y;
-    geometry.maxPos.z += z;
+    if (geometry.minPos) {
+        geometry.minPos.x += x;
+        geometry.minPos.y += y;
+        geometry.minPos.z += z;
+    }
+    if (geometry.maxPos) {
+        geometry.maxPos.x += x;
+        geometry.maxPos.y += y;
+        geometry.maxPos.z += z;
+    }
     return geometry;
 }
 
@@ -36,12 +40,16 @@ export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?:
         geometry.positions[iY] *= y;
         geometry.positions[iZ] *= z;
     }
-    geometry.minPos.x *= x;
-    geometry.minPos.y *= y;
-    geometry.minPos.z *= z;
-    geometry.maxPos.x *= x;
-    geometry.maxPos.y *= y;
-    geometry.maxPos.z *= z;
+    if (geometry.minPos) {
+        geometry.minPos.x *= x;
+        geometry.minPos.y *= y;
+        geometry.minPos.z *= z;
+    }
+    if (geometry.maxPos) {
+        geometry.maxPos.x *= x;
+        geometry.maxPos.y *= y;
+        geometry.maxPos.z *= z;
+    }
     geometry.boundingRadius = Math.max(Math.max(x, y), z);
     return geometry;
 }

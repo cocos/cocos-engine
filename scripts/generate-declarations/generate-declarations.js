@@ -1,4 +1,4 @@
-const { spawnSync } = require('child_process');
+const { spawn } = require('child_process');
 const { join, extname, basename, dirname, isAbsolute } = require('path');
 const { copyFileSync, existsSync, readFileSync, unlinkSync, writeFileSync, ensureDirSync } = require('fs-extra');
 const ts = require('typescript');
@@ -12,7 +12,7 @@ const extraDestFiles = [
     join(__dirname, 'embedded-cocos-3d.d.ts'),
 ];
 
-function generate (options) {
+async function generate (options) {
     const tsConfig = ts.readConfigFile(tsConfigPath, (path) => readFileSync(path).toString());
     if (tsConfig.error) {
         console.error(`Bad tsconfig.json: ${tsConfig.error.messageText}`);
@@ -27,7 +27,7 @@ function generate (options) {
     tsConfig.config.compilerOptions.outFile = join(outDir, `index.js`);
 
     const outputJSPath = join(tsConfigDir, tsConfig.config.compilerOptions.outFile);
-    console.log(outputJSPath);
+    // console.log(outputJSPath);
 
     const extName = extname(outputJSPath);
     if (extName !== '.js') {
@@ -54,20 +54,33 @@ function generate (options) {
 
     console.log(`Generating...`);
 
-    const tscResult = spawnSync(tscExecutablePath, [
-        '-p',
-        tempTsConfigPath,
-    ], {
-        stdio: [process.stdin, process.stdout, process.stderr],
+    const tscExitCode = await new Promise((resolve) => {
+        const tscProcess = spawn(tscExecutablePath, [
+            '-p',
+            tempTsConfigPath,
+        ], {
+            cwd: process.cwd(),
+            env: process.env,
+        });
+        tscProcess.on('exit', (code) => {
+            resolve(code);
+        });
+        tscProcess.stdout.on('data', (data) => {
+            console.log(data.toString());
+        });
+        tscProcess.stderr.on('data', (data) => {
+            console.error(data.toString());
+        });
     });
-    if (tscResult.error) {
-        console.error(`Failed to compile engine: \n${tscResult.error}.`);
-        return false;
-    }
 
     console.log(`Delete temp config file ${tempTsConfigPath}.`);
 
     unlinkSync(tempTsConfigPath);
+
+    if (tscExitCode !== 0) {
+        console.error(`tsc exited with non-zero status code ${tscExitCode}.`);
+        // return true;
+    }
 
     const types = tsConfig.config.compilerOptions.types.map((typeFile) => `${typeFile}.d.ts`);
     (types.concat(extraDestFiles)).forEach((file) => {
