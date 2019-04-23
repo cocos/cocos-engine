@@ -806,7 +806,8 @@ let TiledLayer = cc.Class({
             mapth2 = mapth * 0.5,
             rows = this._layerSize.height,
             cols = this._layerSize.width,
-            grids = this._texGrids;
+            grids = this._texGrids,
+            tileSize = null;
         
         let colOffset = 0, gid, grid, left, bottom,
             axis, diffX1, diffY1, odd_even, diffX2, diffY2;
@@ -1179,6 +1180,7 @@ let TiledLayer = cc.Class({
         this._minGID = layerInfo._minGID;
         this._maxGID = layerInfo._maxGID;
         this._opacity = layerInfo._opacity;
+        this._renderOrder = mapInfo.renderOrder;
         this._staggerAxis = mapInfo.getStaggerAxis();
         this._staggerIndex = mapInfo.getStaggerIndex();
         this._hexSideLength = mapInfo.getHexSideLength();

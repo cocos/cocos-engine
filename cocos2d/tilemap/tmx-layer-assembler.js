@@ -37,6 +37,7 @@ import InputAssembler from '../renderer/core/input-assembler';
 
 const Orientation = TiledMap.Orientation;
 const maxGridsLimit = parseInt(65535 / 6);
+const RenderOrder = TiledMap.RenderOrder;
 
 import { mat4, vec3 } from '../core/vmath';
 
@@ -128,18 +129,22 @@ let tmxAssembler = {
 
             buffer.request(maxGrids * 4, maxGrids * 6);
 
-            switch (comp._layerOrientation) {
-                // left top to right down
-                case Orientation.ORTHO:
+            switch (comp._renderOrder) {
+                // left top to right down, col add, row sub, 
+                case RenderOrder.RightDown:
                     this.traverseGrids(comp, renderer, leftDown, rightTop, -1, 1);
                     break;
-                // right top to left down
-                case Orientation.ISO:
+                // right top to left down, col sub, row sub
+                case RenderOrder.LeftDown:
                     this.traverseGrids(comp, renderer, leftDown, rightTop, -1, -1);
                     break;
-                // left top to right down
-                case Orientation.HEX:
-                    this.traverseGrids(comp, renderer, leftDown, rightTop, -1, 1);
+                // left down to right up, col add, row add
+                case RenderOrder.RightUp:
+                    this.traverseGrids(comp, renderer, leftDown, rightTop, 1, 1);
+                    break;
+                // right down to left up, col sub, row add
+                case RenderOrder.LeftUp:
+                    this.traverseGrids(comp, renderer, leftDown, rightTop, 1, -1);
                     break;
             }
             comp._setCullingDirty(false);

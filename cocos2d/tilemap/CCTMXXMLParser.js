@@ -339,6 +339,7 @@ cc.TMXMapInfo = function (tmxFile, tsxMap, textures, imageLayerTextures) {
     this.layerAttrs = 0;
     this.storingCharacters = false;
     this.currentString = null;
+    this.renderOrder = cc.TiledMap.RenderOrder.RightDown;
 
     this._supportVersion = [1, 2, 0];
     this._parser = new cc.SAXParser();
@@ -690,6 +691,7 @@ cc.TMXMapInfo.prototype = {
         let staggerAxisStr = map.getAttribute('staggeraxis');
         let staggerIndexStr = map.getAttribute('staggerindex');
         let hexSideLengthStr = map.getAttribute('hexsidelength');
+        let renderorderStr = map.getAttribute('renderorder');
         let version = map.getAttribute('version') || '1.0.0';
 
         if (map.nodeName === "map") {
@@ -712,6 +714,16 @@ cc.TMXMapInfo.prototype = {
                 this.orientation = cc.TiledMap.Orientation.HEX;
             else if (orientationStr !== null)
                 cc.logID(7217, orientationStr);
+
+            if (renderorderStr === 'right-up') {
+                this.renderOrder = cc.TiledMap.RenderOrder.RightUp;
+            } else if (renderorderStr === 'left-up') {
+                this.renderOrder = cc.TiledMap.RenderOrder.LeftUp;
+            } else if (renderorderStr === 'left-down') {
+                this.renderOrder = cc.TiledMap.RenderOrder.LeftDown;
+            } else {
+                this.renderOrder = cc.TiledMap.RenderOrder.RightDown;
+            }
 
             if (staggerAxisStr === 'x') {
                 this.setStaggerAxis(cc.TiledMap.StaggerAxis.STAGGERAXIS_X);

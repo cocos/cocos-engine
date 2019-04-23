@@ -181,7 +181,7 @@ let StaggerAxis = cc.Enum({
 /*
  * !#en The stagger index of Hex tiled map.
  * !#zh 六边形地图的 stagger index 值
- * @enum TiledMap.StaggerIndex
+ * @enum TiledMap.RenderOrder
  * @static
  */
 let StaggerIndex = cc.Enum({
@@ -198,6 +198,24 @@ let StaggerIndex = cc.Enum({
      * @static
      */
     STAGGERINDEX_EVEN : 1
+});
+
+/*
+ * !#en The render order of tiled map.
+ * !#zh 地图的渲染顺序
+ * @enum TiledMap.RenderOrder
+ * @static
+ */
+let RenderOrder = cc.Enum({
+    /**
+     * @property STAGGERINDEX_ODD
+     * @type {Number}
+     * @static
+     */
+    RightDown : 0,
+    RightUp : 1,
+    LeftDown: 2,
+    LeftUp: 3,
 });
 
 let TMXObjectType = cc.Enum({
@@ -249,7 +267,8 @@ let TiledMap = cc.Class({
         TileFlag: TileFlag,
         StaggerAxis: StaggerAxis,
         StaggerIndex: StaggerIndex,
-        TMXObjectType: TMXObjectType
+        TMXObjectType: TMXObjectType,
+        RenderOrder: RenderOrder
     },
 
     properties: {
