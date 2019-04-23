@@ -26,7 +26,7 @@
 
 // PREDEFINE
 
-import cc from './predefine';
+import './predefine';
 
 import './cocos/legacy';
 

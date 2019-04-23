@@ -66,6 +66,10 @@
     },
     "exclude": [
         "bin",
+        "docs",
+        "editor",
+        "extensions",
+        "external",
         "scripts",
         "declarations",
         "rollup"
