@@ -745,6 +745,11 @@ class Node extends BaseNode {
         }
     }
 
+    public get worldMatrix (): Readonly<Mat4> {
+        this.updateWorldTransformFull();
+        return this._mat;
+    }
+
     /**
      * get world transform matrix (with only rotation and scale)
      * @param out - the receiving matrix

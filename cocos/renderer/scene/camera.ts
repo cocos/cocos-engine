@@ -174,8 +174,7 @@ export class Camera {
         if (this._node) {
             // view matrix
             if (this._node.hasChanged) {
-                this.node.getWorldRT(this._matView);
-                mat4.invert(this._matView, this._matView);
+                mat4.invert(this._matView, this.node.worldMatrix);
 
                 this._forward.x = -this._matView.m02;
                 this._forward.y = -this._matView.m06;
@@ -214,8 +213,7 @@ export class Camera {
         farClip = Math.min(farClip, this._farClip);
 
         // view matrix
-        this.node.getWorldRT(this._matView);
-        mat4.invert(this._matView, this._matView);
+        mat4.invert(this._matView,  this.node.worldMatrix);
 
         // projection matrix
         if (this._proj === CameraProjection.PERSPECTIVE) {
