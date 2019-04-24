@@ -172,7 +172,6 @@ function generateNode () {
     _rootNode = new Node('PROFILER-NODE');
     _rootNode.addComponent(UITransformComponent);
     const screen =  _rootNode.addComponent(DebugCanvasComponent);
-    cc.director.root.ui.debugScreen = screen;
     cc.game.addPersistRootNode(_rootNode);
     // const camera = cc.director.root.
 
