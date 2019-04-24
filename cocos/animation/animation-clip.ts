@@ -10,7 +10,7 @@ import { CurveValue, DynamicAnimCurve, EasingMethodName, ICurveTarget, RatioSamp
 import { AnimationState } from './animation-state';
 import * as blending from './blending';
 import { MotionPath, sampleMotionPaths } from './motion-path-helper';
-import { ILerpable, isLerpable, WrapMode } from './types';
+import { ILerpable, isLerpable, WrapMode as AnimationWrapMode } from './types';
 
 interface IAnimationEvent {
     frame: number;
@@ -43,6 +43,7 @@ interface ICurveData {
 
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
+    public static WrapMode = AnimationWrapMode;
 
     /**
      * !#en Duration of this animation.
@@ -114,7 +115,7 @@ export class AnimationClip extends Asset {
      * !#zh 动画的循环模式。
      */
     @property
-    public wrapMode = WrapMode.Normal;
+    public wrapMode = AnimationWrapMode.Normal;
 
     /**
      * !#en Curve data.
@@ -259,8 +260,9 @@ export class AnimationClip extends Asset {
                     (key) => key / this._duration)));
         const curves: DynamicAnimCurve[] = [];
         for (const path of Object.keys(this.curveDatas)) {
-            const target = find(path, root);
+            const target = root.getChildByPath(path);
             if (!target) {
+                console.warn(`Target animation node referenced by path ${path} is not found(from ${root.name}).`);
                 continue;
             }
             const curveData = this.curveDatas[path];
