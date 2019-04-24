@@ -494,18 +494,12 @@ export class BaseNode extends CCObject {
      * var child = node.getChildByPath("Test Node");
      */
     public getChildByPath (path: string) {
-        if (path.length === 0) {
-            return this;
-        }
         const segments = path.split('/');
-
-        // Starts with /
-        if (segments.length !== 0 && segments[0].length === 0) {
-            segments.shift();
-        }
-
         let lastNode: this = this;
         for (const segment of segments) {
+            if (segment.length === 0) {
+                continue;
+            }
             const next = lastNode.children.find((childNode) => childNode.name === segment);
             if (!next) {
                 return null;
