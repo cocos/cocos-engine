@@ -181,14 +181,10 @@ let Toggle = cc.Class({
     _updateDisabledState: function () {
         this._super();
 
-        let useGrayMaterial = false;
-        if (this.enableAutoGrayEffect) {
-            if (this.checkMark && !this.interactable) {
-                useGrayMaterial = true;
-            }
+        if (this.enableAutoGrayEffect && this.checkMark) {
+            let useGrayMaterial = !this.interactable;
+            this._switchGrayMaterial(useGrayMaterial, this.checkMark);
         }
-
-        this._switchGrayMaterial(useGrayMaterial, this.checkMark);
     },
 
     _registerToggleEvent: function () {
