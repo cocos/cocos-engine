@@ -61,7 +61,6 @@ export enum WrapMode {
 }
 
 ccenum(WrapMode);
-cc.WrapMode = WrapMode;
 
 /**
  * For internal
