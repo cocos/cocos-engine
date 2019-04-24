@@ -80,6 +80,9 @@ export class UI {
 
     set debugScreen (value){
         this._debugScreen = value;
+        if (this._debugScreen && this._debugScreen.camera ) {
+            this._debugScreen.camera.view.visibility = this._screens.length + 1;
+        }
     }
 
     public device: GFXDevice;
@@ -186,6 +189,10 @@ export class UI {
             comp.camera.view.visibility = this._screens.length;
         }
 
+        if (this._debugScreen && this._debugScreen.camera) {
+            this._debugScreen.camera.view.visibility = this._screens.length + 1;
+        }
+
     }
 
     public getScreen (visibility: number) {
@@ -195,6 +202,10 @@ export class UI {
                     return screen;
                 }
             }
+        }
+
+        if (this._debugScreen && this._debugScreen.camera && this._debugScreen.camera.visibility === visibility) {
+            return this._debugScreen;
         }
 
         return null;
@@ -207,6 +218,9 @@ export class UI {
         }
 
         this._screens.splice(idx, 1);
+        if (this._debugScreen && this._debugScreen.camera ) {
+            this._debugScreen.camera.view.visibility = this._screens.length + 1;
+        }
 
         let camera: Camera | null;
         for (let i = idx; i < this._screens.length;) {
