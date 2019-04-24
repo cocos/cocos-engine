@@ -461,6 +461,11 @@ let Mask = cc.Class({
             this._graphics.destroy();
             this._graphics = null;
         }
+
+        if (this._clearGraphics) {
+            this._clearGraphics.destroy();
+            this._clearGraphics = null;
+        }
     },
 
     _hitTest (cameraPt) {
