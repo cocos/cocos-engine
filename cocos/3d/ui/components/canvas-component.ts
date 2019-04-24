@@ -28,11 +28,11 @@ import { CameraComponent } from '../../../3d/framework/camera-component';
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { Size, Vec3 } from '../../../core/value-types';
+import { vec3 } from '../../../core/vmath';
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer/scene/camera';
 import { UITransformComponent } from './ui-transfrom-component';
 
-const _tempPos = new Vec3();
 const _worldPos = new Vec3();
 
 /**
@@ -223,10 +223,7 @@ export class CanvasComponent extends Component {
         if (CC_EDITOR) {
             // nodeSize = designSize = cc.engine.getDesignResolutionSize();
             nodeSize = designSize = this._designResolution;
-            _tempPos.x = designSize.width * 0.5;
-            _tempPos.y = designSize.height * 0.5;
-            _tempPos.z = 0;
-
+            vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);
         }
         else {
             const canvasSize = cc.visibleRect;
@@ -241,13 +238,11 @@ export class CanvasComponent extends Component {
                 offsetY = (designSize.height - canvasSize.height) * 0.5;
             }
 
-            _tempPos.x = canvasSize.width * 0.5 + offsetX;
-            _tempPos.y = canvasSize.height * 0.5 + offsetY;
-            _tempPos.z = 0;
+            vec3.set(_worldPos, canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 1);
         }
 
-        if (this._pos.equals(_tempPos)) {
-            this.node.setPosition(_tempPos);
+        if (!this._pos.equals(_worldPos)){
+            this.node.setPosition(_worldPos);
         }
 
         if (this.node.width !== nodeSize.width) {
