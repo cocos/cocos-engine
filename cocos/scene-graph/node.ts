@@ -18,6 +18,7 @@ enum NodeSpace {
     LOCAL,
     WORLD,
 }
+const TRANFORM_ON = 1 << 0;
 
 @ccclass('cc.Node')
 class Node extends BaseNode {
@@ -56,6 +57,7 @@ class Node extends BaseNode {
     protected _eulerDirty = false;
 
     protected _eventProcessor;
+    protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
 
     @property({ type: Vec3 })
@@ -192,6 +194,7 @@ class Node extends BaseNode {
         quat.copy(this._rot, this._lrot);
         vec3.copy(this._scale, this._lscale);
         this._eulerDirty = this._dirty = this._hasChanged = true;
+        this._eventMask = 0;
         for (const child of this._children) {
             child._onBatchCreated();
         }
@@ -221,7 +224,9 @@ class Node extends BaseNode {
 
         vec3.copy(this._pos, this._lpos);
         this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+        }
     }
 
     /**
@@ -420,7 +425,9 @@ class Node extends BaseNode {
         vec3.copy(this._pos, this._lpos);
 
         this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+        }
     }
 
     /**
@@ -465,7 +472,9 @@ class Node extends BaseNode {
         this._eulerDirty = true;
 
         this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+        }
     }
 
     /**
@@ -481,7 +490,9 @@ class Node extends BaseNode {
         quat.copy(this._rot, this._lrot);
 
         this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+        }
     }
 
     /**
@@ -530,7 +541,9 @@ class Node extends BaseNode {
         vec3.copy(this._scale, this._lscale);
 
         this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
+        }
     }
 
     /**
@@ -588,7 +601,9 @@ class Node extends BaseNode {
         }
 
         this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+        }
     }
 
     public getWorldPosition<Out extends vec3 = Vec3> (out: Out): Out;
@@ -651,7 +666,9 @@ class Node extends BaseNode {
         this._eulerDirty = true;
 
         this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+        }
     }
 
     /**
@@ -671,7 +688,9 @@ class Node extends BaseNode {
         this._eulerDirty = true;
 
         this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+        }
     }
 
     public getWorldRotation<Out extends quat = Quat> (out: Out): Out;
@@ -731,7 +750,9 @@ class Node extends BaseNode {
         }
 
         this.invalidateChildren();
-        this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
+        }
     }
 
     public getWorldScale<Out extends vec3 = Vec3> (out: Out): Out;
@@ -825,11 +846,26 @@ class Node extends BaseNode {
     // Event: maybe remove
 
     public on (type: string | EventType, callback: Function, target?: Object, useCapture?: any) {
+        switch (type) {
+            case EventType.TRANSFORM_CHANGED:
+            this._eventMask |= TRANFORM_ON;
+            break;
+        }
         this._eventProcessor.on(type, callback, target, useCapture);
     }
 
     public off (type: string, callback: Function, target?: Object, useCapture?: any) {
         this._eventProcessor.off(type, callback, target, useCapture);
+
+        var hasListeners = this._eventProcessor.hasEventListener(type);
+        // All listener removed
+        if (!hasListeners) {
+            switch (type) {
+                case EventType.TRANSFORM_CHANGED:
+                this._eventMask &= ~TRANFORM_ON;
+                break;
+            }
+        }
     }
 
     public once (type: string, callback: Function, target?: Object, useCapture?: any) {
@@ -850,6 +886,10 @@ class Node extends BaseNode {
 
     public targetOff (target: string | Object) {
         this._eventProcessor.targetOff(target);
+        // Check for event mask reset
+        if ((this._eventMask & TRANFORM_ON) && !this._eventProcessor.hasEventListener(EventType.TRANSFORM_CHANGED)) {
+            this._eventMask &= ~TRANFORM_ON;
+        }
     }
 
     public pauseSystemEvents (recursive: boolean) {
