@@ -7,7 +7,7 @@ import { mat4, vec3, vec4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXAPI, GFXDevice, GFXFeature } from '../../gfx/device';
-import { JointUniformCapacity, UBOSkinning, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
+import { JointUniformCapacity, UBOSkinning, UBOSkinningTextureCase, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
@@ -41,26 +41,19 @@ function isTextureStorage (storage: JointStorage): storage is ITextureStorage {
 export const __FORCE_USE_UNIFORM_STORAGE__ = false;
 
 export class SkinningModel extends Model {
-    private _jointStorage: JointStorage | null = null;
-    private _skinningUBO: GFXBuffer;
+    private _binded: null | {
+        jointStorage: JointStorage,
+        skinningUBO: GFXBuffer,
+        skinningUBOBinding: number,
+    } = null;
 
     constructor (scene: RenderScene, node: Node) {
         super(scene, node);
         this._type = 'skinning';
-        this._skinningUBO = this._device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOSkinning.SIZE,
-            stride: UBOSkinning.SIZE,
-        });
-    }
-
-    get storageKind () {
-        return this._jointStorage ? this._jointStorage.kind : null;
     }
 
     public isTextureStorage () {
-        return this._jointStorage && isTextureStorage(this._jointStorage);
+        return this._binded && isTextureStorage(this._binded.jointStorage);
     }
 
     public bindSkeleton (skeleton: Skeleton) {
@@ -71,74 +64,102 @@ export class SkinningModel extends Model {
             storageKind === JointStorageKind.textureRGBA8) {
             const mat4TextureKind = storageKind === JointStorageKind.textureRGBA32F ? Mat4TextureKind.rgba32f : Mat4TextureKind.rgba8888;
             const mat4Texture = new MatrixTexture(skeleton.joints.length  * 2, mat4TextureKind);
-            textureSizeBuffer[0] = mat4Texture.texture.width;
-            this._skinningUBO.update(
-                textureSizeBuffer, UBOSkinning.JOINTS_TEXTURE_SIZE_OFFSET, textureSizeBuffer.byteLength);
+
             for (let iJoint = 0; iJoint < skeleton.bindposes.length; ++iJoint) {
                 mat4Texture.set(iJoint * 2 + 0, skeleton.bindposes[iJoint]);
             }
-            this._jointStorage = {
-                kind: storageKind,
-                texture: mat4Texture,
+
+            this._binded = {
+                skinningUBOBinding: UBOSkinningTextureCase.BLOCK.binding,
+                skinningUBO: this._device.createBuffer({
+                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    size: UBOSkinningTextureCase.SIZE,
+                    stride: UBOSkinningTextureCase.SIZE,
+                }),
+                jointStorage: {
+                    kind: storageKind,
+                    texture: mat4Texture,
+                },
             };
+
+            textureSizeBuffer[0] = mat4Texture.texture.width;
+            this._binded.skinningUBO.update(
+                textureSizeBuffer, UBOSkinningTextureCase.JOINTS_TEXTURE_SIZE_OFFSET, textureSizeBuffer.byteLength);
         } else {
             if (skeleton.joints.length > JointUniformCapacity) {
                 console.error(
                     `Skeleton ${skeleton.name} has ${skeleton.joints.length} joints ` +
                     `which exceeds Cocos's max allowed joint count(${JointUniformCapacity}).`);
             }
-            this._jointStorage = {
-                kind: JointStorageKind.uniform,
-                nativeData: new Float32Array(skeleton.joints.length * 12),
+
+            this._binded = {
+                skinningUBOBinding: UBOSkinning.BLOCK.binding,
+                skinningUBO: this._device.createBuffer({
+                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    size: UBOSkinning.SIZE,
+                    stride: UBOSkinning.SIZE,
+                }),
+                jointStorage: {
+                    kind: JointStorageKind.uniform,
+                    nativeData: new Float32Array(skeleton.joints.length * 12),
+                },
             };
         }
     }
 
     public updateJointMatrix (iMatrix: number, matrix: mat4) {
-        if (!this._jointStorage) {
+        if (!this._binded) {
             return;
         }
-        if (isTextureStorage(this._jointStorage)) {
-            this._jointStorage.texture.set(iMatrix * 2 + 1, matrix);
+        const { jointStorage, skinningUBO } = this._binded;
+        if (isTextureStorage(jointStorage)) {
+            jointStorage.texture.set(iMatrix * 2 + 1, matrix);
         } else {
-            setMat4InUniform(this._jointStorage.nativeData, iMatrix, matrix);
+            setMat4InUniform(jointStorage.nativeData, iMatrix, matrix);
         }
     }
 
     public commitJointMatrices () {
-        if (!this._jointStorage) {
+        if (!this._binded) {
             return;
         }
-        if (isTextureStorage(this._jointStorage)) {
-            this._jointStorage.texture.commit();
+        const { jointStorage, skinningUBO } = this._binded;
+        if (isTextureStorage(jointStorage)) {
+            jointStorage.texture.commit();
         } else {
-            this._skinningUBO.update(this._jointStorage.nativeData, UBOSkinning.MAT_JOINT_OFFSET);
+            skinningUBO.update(jointStorage.nativeData, UBOSkinning.MAT_JOINT_OFFSET);
         }
     }
 
     protected _doCreatePSO (pass: Pass) {
         const pso = super._doCreatePSO(pass);
-        pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinning.BLOCK.binding, this._skinningUBO);
-        if (this._jointStorage && isTextureStorage(this._jointStorage)) {
-            const jointTexture = this._jointStorage.texture.texture;
-            const view = jointTexture.getGFXTextureView();
-            const sampler = samplerLib.getSampler(this._device, jointTexture.getGFXSamplerInfo());
-            if (view && sampler) {
-                pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, view);
-                pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);
+        if (this._binded) {
+            const { jointStorage, skinningUBO, skinningUBOBinding } = this._binded;
+            pso.pipelineLayout.layouts[0].bindBuffer(skinningUBOBinding, skinningUBO);
+            if (isTextureStorage(jointStorage)) {
+                const jointTexture = jointStorage.texture.texture;
+                const view = jointTexture.getGFXTextureView();
+                const sampler = samplerLib.getSampler(this._device, jointTexture.getGFXSamplerInfo());
+                if (view && sampler) {
+                    pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, view);
+                    pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);
+                }
             }
         }
         return pso;
     }
 
     private _destroyJointStorage () {
-        if (!this._jointStorage) {
-            return;
+        if (this._binded) {
+            const { jointStorage, skinningUBO } = this._binded;
+            if (isTextureStorage(jointStorage)) {
+                jointStorage.texture.destroy();
+            }
+            skinningUBO.destroy();
+            this._binded = null;
         }
-        if (isTextureStorage(this._jointStorage)) {
-            this._jointStorage.texture.destroy();
-        }
-        this._jointStorage = null;
     }
 
     private _selectStorageKind (): JointStorageKind {

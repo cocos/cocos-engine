@@ -49,7 +49,8 @@ export enum UniformBinding {
     UBO_LOCAL = MAX_BINDING_SUPPORTED - 3,
     UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
     UBO_SKINNING = MAX_BINDING_SUPPORTED - 5,
-    UBO_UI = MAX_BINDING_SUPPORTED - 6,
+    UBO_SKINNING_TEXTURE_CASE = MAX_BINDING_SUPPORTED - 6,
+    UBO_UI = MAX_BINDING_SUPPORTED - 7,
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
 }
@@ -173,20 +174,34 @@ export const JointUniformCapacity = 65;
 
 export class UBOSkinning {
     public static MAT_JOINT_OFFSET: number = 0;
-    public static JOINTS_TEXTURE_SIZE_OFFSET: number = UBOSkinning.MAT_JOINT_OFFSET + JointUniformCapacity * 12;
-    public static COUNT: number = UBOSkinning.JOINTS_TEXTURE_SIZE_OFFSET + 4;
+    public static COUNT: number = JointUniformCapacity * 12;
     public static SIZE: number = UBOSkinning.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_SKINNING, name: 'CCSkinning', members: [
             { name: 'cc_matJoint', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 }, // mat 4 * 3
-            { name: 'cc_jointsTextureSize', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 }
 localBindingsDesc.set(UBOSkinning.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOSkinning.BLOCK,
+});
+
+export class UBOSkinningTextureCase {
+    public static JOINTS_TEXTURE_SIZE_OFFSET: number = 0;
+    public static COUNT: number = 4;
+    public static SIZE: number = UBOSkinningTextureCase.COUNT * 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        binding: UniformBinding.UBO_SKINNING_TEXTURE_CASE, name: 'CCSkinningTextureCase', members: [
+            { name: 'cc_jointsTextureSize', type: GFXType.FLOAT4, count: 1 },
+        ],
+    };
+}
+localBindingsDesc.set(UBOSkinningTextureCase.BLOCK.name, {
+    type: GFXBindingType.UNIFORM_BUFFER,
+    blockInfo: UBOSkinningTextureCase.BLOCK,
 });
 
 export const UNIFORM_JOINTS_TEXTURE: GFXUniformSampler = {
