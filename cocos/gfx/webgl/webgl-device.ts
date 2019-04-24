@@ -276,13 +276,14 @@ export class WebGLGFXDevice extends GFXDevice {
         }
 
         this._extensions = gl.getSupportedExtensions();
-        /*
+        let extensions = '';
         if (this._extensions) {
-            for (let i = 0; i < this._extensions.length; ++i) {
-                console.info(this._extensions[i]);
+            for (const ext of this._extensions) {
+                extensions += ext + ' ';
             }
+
+            console.debug('EXTENSIONS: ' + extensions);
         }
-        */
 
         this._EXT_texture_filter_anisotropic = gl.getExtension('EXT_texture_filter_anisotropic');
         this._EXT_frag_depth = gl.getExtension('EXT_frag_depth');

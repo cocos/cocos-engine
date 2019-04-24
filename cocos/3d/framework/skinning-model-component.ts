@@ -154,8 +154,7 @@ export class SkinningModelComponent extends ModelComponent {
         const skeleton = this._skeleton;
         const skinningTarget = this._skinningTarget;
 
-        const cancelThisNodeTransform = this.node.getWorldMatrix(_m4_tmp2);
-        mat4.invert(cancelThisNodeTransform, cancelThisNodeTransform);
+        mat4.invert(_m4_tmp2, this.node.worldMatrix);
         this._skeleton.joints.forEach((joint, index) => {
             // If target joint doesn't exists in scene graph, skip it.
             const targetNode = skinningTarget.get(joint);
@@ -167,7 +166,7 @@ export class SkinningModelComponent extends ModelComponent {
             // 3. because it has been in world space, just cancel this mesh's original local-world transform
             const bindpose = skeleton.bindposes[index];
             const jointMatrix = _m4_tmp;
-            mat4.multiply(jointMatrix, cancelThisNodeTransform, targetNode.worldMatrix);
+            mat4.multiply(jointMatrix, _m4_tmp2, targetNode.worldMatrix);
             mat4.multiply(jointMatrix, jointMatrix, bindpose);
             skinningModel.updateJointMatrix(index, jointMatrix);
         });

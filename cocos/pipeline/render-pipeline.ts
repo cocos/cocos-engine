@@ -322,7 +322,7 @@ export abstract class RenderPipeline {
             this._usePostProcess = info.enablePostProcess;
         } else {
             if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-                this._usePostProcess = true;
+                this._usePostProcess = false;
             } else {
                 this._usePostProcess = true;
             }
