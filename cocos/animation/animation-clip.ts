@@ -260,8 +260,9 @@ export class AnimationClip extends Asset {
                     (key) => key / this._duration)));
         const curves: DynamicAnimCurve[] = [];
         for (const path of Object.keys(this.curveDatas)) {
-            const target = find(path, root);
+            const target = root.getChildByPath(path);
             if (!target) {
+                console.warn(`Target animation node referenced by path ${path} is not found(from ${root.name}).`);
                 continue;
             }
             const curveData = this.curveDatas[path];
