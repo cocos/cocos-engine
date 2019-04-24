@@ -151,6 +151,20 @@ export default class Touch {
     }
 
     /**
+     * !#en Returns the start touch location in OpenGL coordinates.
+     * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
+     */
+    public getUIStartLocation (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        vec2.set(out, this._startPoint.x, this._startPoint.y);
+        cc.view._convertPointWithScale(out);
+        return out;
+    }
+
+    /**
      * !#en Returns the delta distance from the previous touche to the current one in screen coordinates.
      * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      */
@@ -235,7 +249,7 @@ export default class Touch {
         this._id = id;
         if (!this._startPointCaptured) {
             this._startPoint = new Vec2(this._point);
-            cc.view._convertPointWithScale(this._startPoint);
+            // cc.view._convertPointWithScale(this._startPoint);
             this._startPointCaptured = true;
         }
     }

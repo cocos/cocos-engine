@@ -80,12 +80,6 @@ export class UI {
 
     set debugScreen (value){
         this._debugScreen = value;
-        if (this._debugScreen){
-            const screen = this.getScreen(this._debugScreen.visibility);
-            if (screen) {
-                this.removeScreen(screen.visibility);
-            }
-        }
     }
 
     public device: GFXDevice;
