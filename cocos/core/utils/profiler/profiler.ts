@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { CanvasComponent} from '../../../3d/ui/components/canvas-component';
+import { DebugCanvasComponent } from '../../../3d/ui/components/debug-canvas-component';
 import { LabelComponent } from '../../../3d/ui/components/label-component';
 import { UITransformComponent } from '../../../3d/ui/components/ui-transfrom-component';
 import { WidgetComponent } from '../../../3d/ui/components/widget-component';
@@ -171,8 +171,8 @@ function generateNode () {
 
     _rootNode = new Node('PROFILER-NODE');
     _rootNode.addComponent(UITransformComponent);
-    _rootNode.addComponent(CanvasComponent);
-    cc.director.root.ui.debugScreen = _rootNode;
+    const screen =  _rootNode.addComponent(DebugCanvasComponent);
+    cc.director.root.ui.debugScreen = screen;
     cc.game.addPersistRootNode(_rootNode);
     // const camera = cc.director.root.
 
@@ -214,7 +214,7 @@ function generateNode () {
         rightLabel.horizontalAlign = cc.LabelComponent.HorizontalAlign.RIGHT;
         rightLabel.font = _atlas;
         rightLabel.fontSize = _fontSize;
-        rightLabel.lineHeight = _fontSize;
+        rightLabel.lineHeight = _fontSize + 1;
     }
 
     _label[stringLeft] = leftLabel;

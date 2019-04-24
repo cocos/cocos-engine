@@ -238,10 +238,13 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         readonly: true,
         displayName: 'Actual Font Size',
-        visible: false,
     })
     get actualFontSize () {
         return this._actualFontSize;
+    }
+
+    set actualFontSize (value) {
+        this._actualFontSize = value;
     }
 
     /**
@@ -672,7 +675,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _canRender () {
-        if (!super._canRender){
+        if (!super._canRender()){
             return false;
         }
 

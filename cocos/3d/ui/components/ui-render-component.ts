@@ -207,6 +207,9 @@ export class UIRenderComponent extends UIComponent {
 
     public __preload (){
         this._instanceMaterial();
+        if (this._flushAssembler){
+            this._flushAssembler();
+        }
     }
 
     public onEnable () {

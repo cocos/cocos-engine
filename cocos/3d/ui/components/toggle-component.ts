@@ -27,7 +27,7 @@ import { EventHandler as ComponentEventHandler } from '../../../components/compo
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ButtonComponent} from './button-component';
 import { SpriteComponent} from './sprite-component';
-import { ToggleContainerComponent} from './toggle-group-component';
+import { ToggleContainerComponent} from './toggle-container-component';
 
 /**
  * !#en The toggle component is a CheckBox, when it used together with a ToggleGroup, it

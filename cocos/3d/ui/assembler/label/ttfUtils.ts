@@ -30,6 +30,7 @@ import { Color, Size } from '../../../../core/value-types';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from '../../components/label-component';
 import { LabelOutlineComponent } from '../../components/label-outline-component';
 import { CanvasPool, ISharedLabelData } from './font-utils';
+import { LetterRenderTexture } from './letter-font';
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = Color.WHITE;
@@ -37,7 +38,7 @@ const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, Component)
 
 let _context: CanvasRenderingContext2D | null = null;
 let _canvas: HTMLCanvasElement | null = null;
-let _texture: SpriteFrame | null = null;
+let _texture: SpriteFrame | LetterRenderTexture | null = null;
 
 let _fontDesc = '';
 let _string = '';
@@ -102,7 +103,7 @@ export const ttfUtils =  {
         this._calculateTextBaseline();
         this._updateTexture();
 
-        // comp._actualFontSize = _fontSize;
+        comp.actualFontSize = _fontSize;
         comp.node.setContentSize(_canvasSize);
 
         this.updateVerts(comp);

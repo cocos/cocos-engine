@@ -154,22 +154,21 @@ export class SkinningModelComponent extends ModelComponent {
         const skeleton = this._skeleton;
         const skinningTarget = this._skinningTarget;
 
-        mat4.invert(_m4_tmp2, this.node.worldMatrix);
-        this._skeleton.joints.forEach((joint, index) => {
-            // If target joint doesn't exists in scene graph, skip it.
-            const targetNode = skinningTarget.get(joint);
+        const isTextureStorage = skinningModel.isTextureStorage();
+        for (let iJoint = 0; iJoint < this._skeleton.joints.length; ++iJoint) {
+            const targetNode = skinningTarget.get(this._skeleton.joints[iJoint]);
             if (!targetNode) {
-                return;
+                continue;
             }
-            // 1. transform mesh to joint's local space
-            // 2. transform from joint' local space to world space
-            // 3. because it has been in world space, just cancel this mesh's original local-world transform
-            const bindpose = skeleton.bindposes[index];
-            const jointMatrix = _m4_tmp;
-            mat4.multiply(jointMatrix, _m4_tmp2, targetNode.worldMatrix);
-            mat4.multiply(jointMatrix, jointMatrix, bindpose);
-            skinningModel.updateJointMatrix(index, jointMatrix);
-        });
+            if (isTextureStorage) {
+                skinningModel.updateJointMatrix(iJoint, targetNode.worldMatrix);
+            } else {
+                const bindpose = skeleton.bindposes[iJoint];
+                const jointMatrix = _m4_tmp;
+                mat4.multiply(jointMatrix, targetNode.worldMatrix, bindpose);
+                skinningModel.updateJointMatrix(iJoint, jointMatrix);
+            }
+        }
 
         skinningModel.commitJointMatrices();
     }
