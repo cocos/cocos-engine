@@ -150,6 +150,7 @@ export class CanvasComponent extends Component {
     protected _thisOnResized: () => void;
 
     protected _camera: Camera | null = null;
+    private _pos = new Vec3();
 
     constructor () {
         super();
@@ -218,10 +219,14 @@ export class CanvasComponent extends Component {
     public alignWithScreen () {
         let nodeSize;
         let designSize;
+        this.node.getPosition(this._pos);
         if (CC_EDITOR) {
             // nodeSize = designSize = cc.engine.getDesignResolutionSize();
             nodeSize = designSize = this._designResolution;
-            this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5, 1);
+            _tempPos.x = designSize.width * 0.5;
+            _tempPos.y = designSize.height * 0.5;
+            _tempPos.z = 0;
+
         }
         else {
             const canvasSize = cc.visibleRect;
@@ -235,7 +240,14 @@ export class CanvasComponent extends Component {
                 offsetX = (designSize.width - canvasSize.width) * 0.5;
                 offsetY = (designSize.height - canvasSize.height) * 0.5;
             }
-            this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 1);
+
+            _tempPos.x = canvasSize.width * 0.5 + offsetX;
+            _tempPos.y = canvasSize.height * 0.5 + offsetY;
+            _tempPos.z = 0;
+        }
+
+        if (this._pos.equals(_tempPos)) {
+            this.node.setPosition(_tempPos);
         }
 
         if (this.node.width !== nodeSize.width) {

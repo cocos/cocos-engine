@@ -4,6 +4,7 @@ import { EventType } from '../../../core/platform/event-manager/event-enum';
 import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import * as vmath from '../../../core/vmath';
+import { CanvasComponent } from './canvas-component';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -379,7 +380,7 @@ export class UITransformComponent extends Component {
         // 获取被渲染相机的 visibility
         while (parent) {
             if (parent) {
-                const canvasComp = parent.getComponent(cc.CanvasComponent);
+                const canvasComp = parent.getComponent('cc.CanvasComponent') as CanvasComponent;
                 if (canvasComp) {
                     visibility = canvasComp.visibility;
                     break;
