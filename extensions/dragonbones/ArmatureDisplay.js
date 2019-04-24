@@ -395,6 +395,7 @@ let ArmatureDisplay = cc.Class({
         this._materialCache = {};
         this._inited = false;
         this._factory = dragonBones.CCFactory.getInstance();
+        this._eventRecord = [];
     },
 
     onLoad () {
@@ -661,6 +662,8 @@ let ArmatureDisplay = cc.Class({
             this._armature.animation.timeScale = this.timeScale;
         }
 
+        this._recoverRegisterEvent();
+
         if (this._cacheMode !== AnimationCacheMode.REALTIME && this.debugBones) {
             cc.warn("Debug bones is invalid in cached mode");
         }
@@ -813,6 +816,33 @@ let ArmatureDisplay = cc.Class({
         return ret;
     },
 
+    _recoverRegisterEvent () {
+        if (this._eventRecord.length === 0) return;
+        let eventRecord = this._eventRecord;
+        this._eventRecord = null;
+        for (let i = 0; i < eventRecord.length; i++) {
+            let event = eventRecord[i];
+            event.func.call(this, event.eventType, event.listener, event.target);
+        }
+        this._eventRecord = eventRecord;
+    },
+
+    _removeFromEventRecord (eventType, listener, target) {
+        if (!this._eventRecord) return;
+        for (let i = this._eventRecord.length - 1; i >= 0 ; i--) {
+            let event = this._eventRecord[i];
+            if (event.eventType === eventType && event.listener === listener && event.target === target) {
+                this._eventRecord.splice(i, 1);
+            }
+        }
+    },
+
+    _addEventRecord (func, eventType, listener, target) {
+        if (!this._eventRecord) return;
+        this._removeFromEventRecord(eventType, listener, target);
+        this._eventRecord.push({func:func, eventType: eventType, listener: listener, target: target});
+    },
+
     /**
      * !#en
      * Add event listener for the DragonBones Event, the same to addEventListener.
@@ -859,6 +889,7 @@ let ArmatureDisplay = cc.Class({
         } else if (this._eventTarget) {
             this._eventTarget.once(eventType, listener, target);
         }
+        this._addEventRecord(this.once, eventType, listener, target);
     },
 
     /**
@@ -878,6 +909,7 @@ let ArmatureDisplay = cc.Class({
         } else if (this._eventTarget) {
             this._eventTarget.on(eventType, listener, target);
         }
+        this._addEventRecord(this.addEventListener, eventType, listener, target);
     },
 
     /**
@@ -896,6 +928,7 @@ let ArmatureDisplay = cc.Class({
         } else if (this._eventTarget) {
             this._eventTarget.off(eventType, listener, target);
         }
+        this._removeFromEventRecord(eventType, listener, target);
     },
 
     /**
