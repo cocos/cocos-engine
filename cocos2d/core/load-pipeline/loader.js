@@ -57,7 +57,7 @@ function loadImage (item) {
     }
 
     var image = item.content;
-    if (!CC_WECHATGAME && !CC_QQPLAY && cc.sys.platform !== cc.sys.FB_PLAYABLE_ADS && !(image instanceof Image)) {
+    if (!CC_QQPLAY && cc.sys.platform !== cc.sys.FB_PLAYABLE_ADS && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     } 
 

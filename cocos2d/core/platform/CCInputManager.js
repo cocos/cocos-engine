@@ -223,15 +223,6 @@ let inputManager = {
      * @return {Object}
      */
     getHTMLElementPosition (element) {
-        if (CC_WECHATGAME) {
-            return {
-                left: 0,
-                top: 0,
-                width: window.innerWidth,
-                height: window.innerHeight
-            };
-        }
-
         let docElem = document.documentElement;
         let leftOffset = window.pageXOffset - docElem.clientLeft;
         let topOffset = window.pageYOffset - docElem.clientTop;
@@ -354,14 +345,9 @@ let inputManager = {
         if (event.pageX != null)  //not avalable in <= IE8
             return {x: event.pageX, y: event.pageY};
 
-        if (CC_WECHATGAME) {
-            pos.left = 0;
-            pos.top = 0;
-        }
-        else {
-            pos.left -= document.body.scrollLeft;
-            pos.top -= document.body.scrollTop;
-        }
+        pos.left -= document.body.scrollLeft;
+        pos.top -= document.body.scrollTop;
+
         return {x: event.clientX, y: event.clientY};
     },
 
@@ -416,12 +402,6 @@ let inputManager = {
         let prohibition = sys.isMobile;
         let supportMouse = ('mouse' in sys.capabilities);
         let supportTouches = ('touches' in sys.capabilities);
-
-        if (CC_WECHATGAME) {
-            prohibition = false;
-            supportTouches = true;
-            supportMouse = false;
-        }
 
         if (supportMouse) {
             //HACK
@@ -527,9 +507,7 @@ let inputManager = {
             let _touchEventsMap = {
                 "touchstart": function (touchesToHandle) {
                     selfPointer.handleTouchesBegin(touchesToHandle);
-                    if (!CC_WECHATGAME) {
-                        element.focus();
-                    }
+                    element.focus();
                 },
                 "touchmove": function (touchesToHandle) {
                     selfPointer.handleTouchesMove(touchesToHandle);
@@ -542,50 +520,25 @@ let inputManager = {
                 }
             };
 
-            let registerTouchEvent;
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                _touchEventsMap = {
-                    onTouchStart: _touchEventsMap.touchstart,
-                    onTouchMove: _touchEventsMap.touchmove,
-                    onTouchEnd: _touchEventsMap.touchend,
-                    onTouchCancel: _touchEventsMap.touchcancel,
-                };
-                registerTouchEvent = function(eventName) {
-                    let handler = _touchEventsMap[eventName];
-                    wx[eventName](function(event) {
-                        if (!event.changedTouches) return;
-                        let pos = selfPointer.getHTMLElementPosition(element);
-                        let body = document.body;
-                        pos.left -= body.scrollLeft || 0;
-                        pos.top -= body.scrollTop || 0;
-                        handler(selfPointer.getTouchesByEvent(event, pos));
-                    });
-                };
-            }
-            else {
-                registerTouchEvent = function(eventName) {
-                    let handler = _touchEventsMap[eventName];
-                    element.addEventListener(eventName, (function(event) {
-                        if (!event.changedTouches) return;
-                        let pos = selfPointer.getHTMLElementPosition(element);
-                        let body = document.body;
-                        pos.left -= body.scrollLeft || 0;
-                        pos.top -= body.scrollTop || 0;
-                        handler(selfPointer.getTouchesByEvent(event, pos));
-                        event.stopPropagation();
-                        event.preventDefault();
-                    }), false);
-                };
-            }
+            let registerTouchEvent = function (eventName) {
+                let handler = _touchEventsMap[eventName];
+                element.addEventListener(eventName, (function(event) {
+                    if (!event.changedTouches) return;
+                    let pos = selfPointer.getHTMLElementPosition(element);
+                    let body = document.body;
+                    pos.left -= body.scrollLeft || 0;
+                    pos.top -= body.scrollTop || 0;
+                    handler(selfPointer.getTouchesByEvent(event, pos));
+                    event.stopPropagation();
+                    event.preventDefault();
+                }), false);
+            };
             for (let eventName in _touchEventsMap) {
                 registerTouchEvent(eventName);
             }
         }
 
-        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            //register keyboard event
-            this._registerKeyboardEvent();
-        }
+        this._registerKeyboardEvent();
 
         this._isRegisterEvent = true;
     },

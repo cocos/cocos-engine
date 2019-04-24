@@ -532,19 +532,21 @@ VideoPlayerImpl._polyfill = {
  * But native does not support this encode,
  * so it is best to provide mp4 and webm or ogv file
  */
-// TODO: move into adapter
-const isXiaomiGame = (cc.sys.platform === cc.sys.XIAOMI_GAME);
-const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
+
+ // TODO: adapt wx video player
+ // issue: https://github.com/cocos-creator/2d-tasks/issues/1364
 let dom = document.createElement("video");
-if (!CC_WECHATGAME && !isBaiduGame && !isXiaomiGame) {
+if (dom.canPlayType) {
     if (dom.canPlayType("video/ogg")) {
         VideoPlayerImpl._polyfill.canPlayType.push(".ogg");
         VideoPlayerImpl._polyfill.canPlayType.push(".ogv");
     }
-    if (dom.canPlayType("video/mp4"))
+    if (dom.canPlayType("video/mp4")) {
         VideoPlayerImpl._polyfill.canPlayType.push(".mp4");
-    if (dom.canPlayType("video/webm"))
+    }
+    if (dom.canPlayType("video/webm")) {
         VideoPlayerImpl._polyfill.canPlayType.push(".webm");
+    }
 }
 
 if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
