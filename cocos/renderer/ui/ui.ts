@@ -181,9 +181,11 @@ export class UI {
 
     public addScreen (comp: CanvasComponent) {
         this._screens.push(comp);
+
         if (comp.camera) {
             comp.camera.view.visibility = this._screens.length;
         }
+
     }
 
     public getScreen (visibility: number) {
@@ -274,7 +276,7 @@ export class UI {
         }
     }
 
-    public commitComp (comp: UIComponent, frame: GFXTextureView | null, assembler: IAssembler) {
+    public commitComp (comp: UIComponent, frame: GFXTextureView | null = null, assembler?: IAssembler) {
         if (comp instanceof UIRenderComponent) {
             const renderComp = comp as UIRenderComponent;
             const texView = frame;
@@ -288,7 +290,9 @@ export class UI {
                 this._currCanvas = renderComp.visibility;
             }
 
-            assembler.fillBuffers(renderComp, this);
+            if (assembler) {
+                assembler.fillBuffers(renderComp, this);
+            }
         } else {
             // if the last comp is spriteComp, previous comps should be batched.
             if (this._currMaterial !== this._emptyMaterial) {

@@ -214,7 +214,7 @@ function generateNode () {
         rightLabel.horizontalAlign = cc.LabelComponent.HorizontalAlign.RIGHT;
         rightLabel.font = _atlas;
         rightLabel.fontSize = _fontSize;
-        rightLabel.lineHeight = _fontSize;
+        rightLabel.lineHeight = _fontSize + 1;
     }
 
     _label[stringLeft] = leftLabel;

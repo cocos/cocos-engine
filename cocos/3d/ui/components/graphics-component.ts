@@ -209,7 +209,7 @@ export class GraphicsComponent extends UIRenderComponent {
             super.__preload();
         }
 
-        this._flushAssembler();
+        // this._flushAssembler();
         this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
     }
 

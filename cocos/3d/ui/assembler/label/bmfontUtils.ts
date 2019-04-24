@@ -160,7 +160,7 @@ export const bmfontUtils = {
         this._updateProperties();
         this._updateContent();
 
-        // _comp._actualFontSize = _fontSize;
+        _comp.actualFontSize = _fontSize;
         _comp.node.setContentSize(_contentSize);
 
         _comp.renderData!.vertDirty = _comp.renderData!.uvDirty = false;
