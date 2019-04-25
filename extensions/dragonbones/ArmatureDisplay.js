@@ -607,6 +607,12 @@ let ArmatureDisplay = cc.Class({
             return;
         }
 
+        if (!texture.loaded) {
+            this.disableRender();
+            texture.once('load', this._activateMaterial, this);
+            return;
+        }
+
         // Get material
         let material = this.sharedMaterials[0];
         if (!material) {
