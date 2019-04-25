@@ -481,6 +481,8 @@ sp.Skeleton = cc.Class({
             this._clipper = new spine.SkeletonClipping();
             this._rootBone = this._skeleton.getRootBone();
         }
+
+        this._activateMaterial();
     },
 
     /**
@@ -542,8 +544,6 @@ sp.Skeleton = cc.Class({
         if (CC_JSB) {
             this._cacheMode = AnimationCacheMode.REALTIME;
         }
-
-        this._activateMaterial();
 
         this._updateSkeletonData();
         this._updateDebugDraw();
@@ -660,17 +660,29 @@ sp.Skeleton = cc.Class({
     },
 
     _activateMaterial () {
-        let material = this.sharedMaterials[0];
-        if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('spine', this);
-            material.define('_USE_MODEL', true);
+        if (!this.skeletonData) {
+            this.disableRender();
+            return;
         }
-        else {
-            material = Material.getInstantiatedMaterial(material, this);
-        }
+        
+        this.skeletonData.ensureTexturesLoaded(function (result) {
+            if (!result) {
+                this.disableRender();
+                return;
+            }
+            
+            let material = this.sharedMaterials[0];
+            if (!material) {
+                material = Material.getInstantiatedBuiltinMaterial('spine', this);
+                material.define('_USE_MODEL', true);
+            }
+            else {
+                material = Material.getInstantiatedMaterial(material, this);
+            }
 
-        this.setMaterial(0, material);
-        this.markForRender(true);
+            this.setMaterial(0, material);
+            this.markForRender(true);
+        }, this);
     },
 
     onEnable () {
