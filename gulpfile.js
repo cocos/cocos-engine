@@ -34,6 +34,7 @@ const Shell = require('gulp-shell');
 const Engine = require('./gulp/tasks/engine');
 const Test = require('./gulp/tasks/test');
 const Watch = require('./gulp/tasks/watch');
+const DocsBuilder = require('./gulp/util/docs-build');
 
 /////////////
 // engine //
@@ -193,4 +194,16 @@ gulp.task('test-in-ci', function () {
             process.exit();
         }
     });
+});
+
+////////////
+// docs //
+////////////
+
+gulp.task('build-3d-json-file', function () {
+    DocsBuilder.tempJsonGenerate();
+});
+
+gulp.task('build-3d-docs', ['build-3d-json-file'], function () {
+    DocsBuilder.docsGeneratorDefault();
 });
