@@ -73,10 +73,7 @@ export class ImageAsset extends EventTargetFactory(Asset) {
     }
 
     get format () {
-        if (this._nativeData instanceof HTMLElement) {
-            return undefined;
-        }
-        return this._nativeData.format;
+        return this._format;
     }
 
     /**
@@ -98,7 +95,7 @@ export class ImageAsset extends EventTargetFactory(Asset) {
 
     private _exportedExts: string[] | null | undefined = undefined;
 
-    private _format: string = '';
+    private _format: PixelFormat = PixelFormat.RGBA8888;
 
     /**
      * @param nativeAsset
@@ -129,6 +126,7 @@ export class ImageAsset extends EventTargetFactory(Asset) {
         if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
+            this._nativeData.format = this._format;
             this._onDataComplete();
         } else {
             this._nativeData = data;
@@ -188,7 +186,6 @@ export class ImageAsset extends EventTargetFactory(Asset) {
         let format = this._format;
         let ext = '';
         const SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS as string[];
-        // const PixelFormat = cc.TextureBase.PixelFormat;
         for (const extensionID of extensionIDs) {
             const extFormat = extensionID.split('@');
 
@@ -197,14 +194,13 @@ export class ImageAsset extends EventTargetFactory(Asset) {
 
             const index = SupportTextureFormats.indexOf(tmpExt);
             if (index !== -1 && index < preferedExtensionIndex) {
-                const formatStr = extFormat[1] ? extFormat[1] : this._format;
-                const tmpForVal = parseInt(formatStr);
+                const fmt = extFormat[1] ? parseInt(extFormat[1]) : this._format;
                 // check whether or not support compressed texture
                 if ( tmpExt === '.pvr' && (!device || !device.hasFeature(GFXFeature.FORMAT_PVRTC))) {
                     continue;
-                } else if (tmpForVal === PixelFormat.RGB_ETC1 && (!device || !device.hasFeature(GFXFeature.FORMAT_ETC1))) {
+                } else if (fmt === PixelFormat.RGB_ETC1 && (!device || !device.hasFeature(GFXFeature.FORMAT_ETC1))) {
                     continue;
-                } else if ((tmpForVal === PixelFormat.RGB_ETC2 || tmpForVal === PixelFormat.RGBA_ETC2) &&
+                } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2) &&
                     (!device || !device.hasFeature(GFXFeature.FORMAT_ETC2))) {
                     continue;
                 } else if (tmpExt === '.webp' && !cc.sys.capabilities.webp) {
@@ -212,7 +208,7 @@ export class ImageAsset extends EventTargetFactory(Asset) {
                 }
                 preferedExtensionIndex = index;
                 ext = tmpExt;
-                format = extFormat[1] ? extFormat[1] : this._format;
+                format = fmt;
             }
         }
 
