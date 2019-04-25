@@ -322,19 +322,17 @@ export abstract class RenderPipeline {
             this._usePostProcess = info.enablePostProcess;
         } else {
             if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-                this._usePostProcess = false;
+                this._usePostProcess = true;
             } else {
                 this._usePostProcess = true;
             }
         }
 
         if (this._usePostProcess) {
-            if (this.device.gfxAPI !== GFXAPI.WEBGL) {
-                if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
-                    this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
-                    this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-                    this._isHDRSupported = true;
-                }
+            if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
+                this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
+                this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+                this._isHDRSupported = true;
             }
 
             // this._isHDRSupported = false;
@@ -355,23 +353,29 @@ export abstract class RenderPipeline {
 
         if (this._isHDR && this._isHDRSupported) {
             // Try to use HDR format
-            if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
-                this._colorFmt = GFXFormat.R11G11B10F;
-                this._isHDR = true;
-            } else if (this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
-                this._colorFmt = GFXFormat.RGBA16F;
-                this._isHDR = true;
-            } else if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-                this._colorFmt = GFXFormat.RGBA32F;
-                this._isHDR = true;
-            } else {
-                this._colorFmt = GFXFormat.RGBA8;
-                this._isHDR = false;
-                console.error('RenderPipeline doesn\'t support HDR.');
+            if (this._device.hasFeature(GFXFeature.COLOR_HALF_FLOAT) &&
+                this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT_LINEAR)) {
+                if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
+                    this._colorFmt = GFXFormat.R11G11B10F;
+                    this._isHDR = true;
+                } else if (this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
+                    this._colorFmt = GFXFormat.RGBA16F;
+                    this._isHDR = true;
+                }
+            } else if (this._device.hasFeature(GFXFeature.COLOR_FLOAT) &&
+                this._device.hasFeature(GFXFeature.TEXTURE_FLOAT_LINEAR)) {
+                if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+                    this._colorFmt = GFXFormat.RGBA32F;
+                    this._isHDR = true;
+                }
             }
-        } else { // Fallback to LDR
-            this._colorFmt = GFXFormat.RGBA8;
+
             this._isHDR = false;
+        }
+
+        if (!this._isHDR) {
+            this._colorFmt = GFXFormat.RGBA8;
+            console.error('RenderPipeline doesn\'t support HDR.');
         }
 
         if (this._device.depthBits === 24) {

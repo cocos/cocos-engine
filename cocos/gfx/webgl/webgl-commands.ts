@@ -24,7 +24,6 @@ import {
     IGFXFormatInfo,
     IGFXRect,
     IGFXViewport,
-    WebGLEXT,
 } from '../define';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import {
@@ -33,23 +32,12 @@ import {
     IWebGLStencilCompareMask,
     IWebGLStencilWriteMask,
 } from './webgl-command-buffer';
+import { WebGLEXT } from './webgl-define';
 import { WebGLGFXDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUUniform, WebGLAttrib, WebGLGPUBindingLayout,
     WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInput,
     WebGLGPUPipelineState, WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
 import { IWebGLTexUnit } from './webgl-state-cache';
-
-const SAMPLES: number[] = [
-    1,
-    2,
-    4,
-    8,
-    16,
-    32,
-    64,
-];
-
-// tslint:disable: max-line-length
 
 function CmpF32NotEuqal (a: number, b: number): boolean {
     const c = a - b;

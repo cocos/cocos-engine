@@ -1,3 +1,9 @@
+interface EXT_color_buffer_half_float {
+    readonly RGBA16F_EXT: GLenum;
+    readonly RGB16F_EXT: GLenum;
+    readonly FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT: GLenum;
+    readonly UNSIGNED_NORMALIZED_EXT: GLenum;
+}
 
 // note that ETC1 is not supported with the compressedTexSubImage2D() method
 interface WEBGL_compressed_texture_etc1 {

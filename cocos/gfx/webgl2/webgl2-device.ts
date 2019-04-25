@@ -109,6 +109,7 @@ export class WebGL2GFXDevice extends GFXDevice {
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
     private _OES_texture_float_linear: OES_texture_float_linear | null = null;
+    private _OES_texture_half_float_linear: OES_texture_half_float_linear | null = null;
     private _EXT_color_buffer_float: EXT_color_buffer_float | null = null;
     private _EXT_disjoint_timer_query_webgl2: EXT_disjoint_timer_query_webgl2 | null = null;
     private _WEBGL_compressed_texture_etc1: WEBGL_compressed_texture_etc1 | null = null;
@@ -217,18 +218,20 @@ export class WebGL2GFXDevice extends GFXDevice {
         }
 
         this._extensions = gl.getSupportedExtensions();
-        /*
+        let extensions = '';
         if (this._extensions) {
-            for (let i = 0; i < this._extensions.length; ++i) {
-                console.info(this._extensions[i]);
+            for (const ext of this._extensions) {
+                extensions += ext + ' ';
             }
+
+            console.debug('EXTENSIONS: ' + extensions);
         }
-        */
 
         this._EXT_texture_filter_anisotropic = gl.getExtension('EXT_texture_filter_anisotropic');
         this._EXT_color_buffer_float = gl.getExtension('EXT_color_buffer_float');
         this._EXT_disjoint_timer_query_webgl2 = gl.getExtension('EXT_disjoint_timer_query_webgl2');
         this._OES_texture_float_linear = gl.getExtension('OES_texture_float_linear');
+        this._OES_texture_half_float_linear = gl.getExtension('OES_texture_half_float_linear');
         this._WEBGL_compressed_texture_etc1 = gl.getExtension('WEBGL_compressed_texture_etc1');
         this._WEBGL_compressed_texture_etc = gl.getExtension('WEBGL_compressed_texture_etc');
         this._WEBGL_compressed_texture_pvrtc = gl.getExtension('WEBGL_compressed_texture_pvrtc');
@@ -245,6 +248,19 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._features[GFXFeature.FORMAT_D24S8] = true;
         this._features[GFXFeature.FORMAT_ETC2] = true;
         this._features[GFXFeature.MSAA] = true;
+
+        if (this._EXT_color_buffer_float) {
+            this._features[GFXFeature.COLOR_FLOAT] = true;
+            this._features[GFXFeature.COLOR_HALF_FLOAT] = true;
+        }
+
+        if (this._OES_texture_float_linear) {
+            this._features[GFXFeature.TEXTURE_FLOAT_LINEAR] = true;
+        }
+
+        if (this._OES_texture_half_float_linear) {
+            this._features[GFXFeature.TEXTURE_HALF_FLOAT_LINEAR] = true;
+        }
 
         let compressedFormat: string = '';
 

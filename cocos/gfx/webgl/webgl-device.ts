@@ -167,6 +167,7 @@ export class WebGLGFXDevice extends GFXDevice {
     private _EXT_shader_texture_lod: EXT_shader_texture_lod | null = null;
     private _EXT_sRGB: EXT_sRGB | null = null;
     private _OES_vertex_array_object: OES_vertex_array_object | null = null;
+    private _EXT_color_buffer_half_float: EXT_color_buffer_half_float | null = null;
     private _WEBGL_color_buffer_float: WEBGL_color_buffer_float | null = null;
     private _WEBGL_compressed_texture_etc1: WEBGL_compressed_texture_etc1 | null = null;
     private _WEBGL_compressed_texture_etc: WEBGL_compressed_texture_etc | null = null;
@@ -182,6 +183,7 @@ export class WebGLGFXDevice extends GFXDevice {
     private _OES_texture_half_float: OES_texture_half_float | null = null;
     private _OES_texture_half_float_linear: OES_texture_half_float_linear | null = null;
     private _OES_texture_float: OES_texture_float | null = null;
+    private _OES_texture_float_linear: OES_texture_float_linear | null = null;
     private _OES_standard_derivatives: OES_standard_derivatives | null = null;
     private _OES_element_index_uint: OES_element_index_uint | null = null;
     private _ANGLE_instanced_arrays: ANGLE_instanced_arrays | null = null;
@@ -290,6 +292,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._EXT_shader_texture_lod = gl.getExtension('EXT_shader_texture_lod');
         this._EXT_sRGB = gl.getExtension('EXT_sRGB');
         this._OES_vertex_array_object = gl.getExtension('OES_vertex_array_object');
+        this._EXT_color_buffer_half_float = gl.getExtension('EXT_color_buffer_half_float');
         this._WEBGL_color_buffer_float = gl.getExtension('WEBGL_color_buffer_float');
         this._WEBGL_compressed_texture_etc1 = gl.getExtension('WEBGL_compressed_texture_etc1');
         this._WEBGL_compressed_texture_etc = gl.getExtension('WEBGL_compressed_texture_etc');
@@ -304,20 +307,36 @@ export class WebGLGFXDevice extends GFXDevice {
         this._OES_texture_half_float = gl.getExtension('OES_texture_half_float');
         this._OES_texture_half_float_linear = gl.getExtension('OES_texture_half_float_linear');
         this._OES_texture_float = gl.getExtension('OES_texture_float');
+        this._OES_texture_float_linear = gl.getExtension('OES_texture_float_linear');
         this._OES_standard_derivatives = gl.getExtension('OES_standard_derivatives');
         this._OES_element_index_uint = gl.getExtension('OES_element_index_uint');
         this._ANGLE_instanced_arrays = gl.getExtension('ANGLE_instanced_arrays');
 
         this._features.fill(false);
 
-        if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
-            if (this._OES_texture_float) {
-                this._features[GFXFeature.TEXTURE_FLOAT] = true;
-            }
+        // if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
+        if (this._WEBGL_color_buffer_float) {
+            this._features[GFXFeature.COLOR_FLOAT] = true;
+        }
 
-            if (this._OES_texture_half_float) {
-                this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
-            }
+        if (this._EXT_color_buffer_half_float) {
+            this._features[GFXFeature.COLOR_HALF_FLOAT] = true;
+        }
+
+        if (this._OES_texture_float) {
+            this._features[GFXFeature.TEXTURE_FLOAT] = true;
+        }
+
+        if (this._OES_texture_half_float) {
+            this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
+        }
+
+        if (this._OES_texture_float_linear) {
+            this._features[GFXFeature.TEXTURE_FLOAT_LINEAR] = true;
+        }
+
+        if (this._OES_texture_half_float_linear) {
+            this._features[GFXFeature.TEXTURE_HALF_FLOAT_LINEAR] = true;
         }
 
         if (this._WEBGL_depth_texture) {
