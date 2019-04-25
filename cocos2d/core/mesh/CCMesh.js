@@ -356,7 +356,7 @@ let Mesh = cc.Class({
 
             if (vb.dirty) {
                 let buffer = vb.buffer, data = vb.data;
-                buffer._numVertices = data.length;
+                buffer._numVertices = data.byteLength / buffer._format._bytes;
                 buffer._bytes = data.byteLength;
                 buffer.update(0, data);
                 vb.dirty = false;
