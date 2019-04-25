@@ -220,8 +220,10 @@ export default class TrailModule {
         this._particleSystem = ps;
         this.lifeTime.constant = 1;
         this._trailNum = ps.startLifetime.getMax() * this.lifeTime.getMax() * 60 * ps.rateOverTime.getMax() * ps.duration;
-        this._trailSegments = new Pool(() => new TrailSegment(ps.startLifetime.getMax() * this.lifeTime.getMax() * 60), ps.rateOverTime.getMax() * ps.duration);
-        this._updateMaterial();
+        this._trailSegments = new Pool(() => new TrailSegment(ps.startLifetime.getMax() * this.lifeTime.getMax() * 60), Math.ceil(ps.rateOverTime.getMax() * ps.duration));
+        if (this._enable) {
+            this._updateMaterial();
+        }
     }
 
     private _createModel () {

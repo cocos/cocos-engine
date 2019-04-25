@@ -30,10 +30,22 @@ const _world_mat = mat4.create();
 @executeInEditMode
 export class ParticleSystemComponent extends Component {
 
+    @property
+    private _capacity = 100;
+
     @property({
         displayOrder: 1,
     })
-    public capacity = 2000;
+    public get capacity () {
+        return this._capacity;
+    }
+
+    public set capacity (val) {
+        this._capacity = val;
+        if (this.renderer && this.renderer._model) {
+            this.renderer._model.setCapacity(this._capacity);
+        }
+    }
 
     @property({
         type: GradientRange,
@@ -194,9 +206,9 @@ export class ParticleSystemComponent extends Component {
     })
     public textureAnimationModule = new TextureAnimationModule();
 
-    // @property({
-    //     type: TrailModule,
-    // })
+    @property({
+        type: TrailModule,
+    })
     public trailModule = new TrailModule();
 
     // particle system renderer
