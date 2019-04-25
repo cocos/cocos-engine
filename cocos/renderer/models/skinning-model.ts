@@ -173,7 +173,7 @@ export function selectStorageKind (device: GFXDevice): JointStorageKind {
     } else if (device.gfxAPI === GFXAPI.WEBGL2) {
         return JointStorageKind.uniform; // BUG Now
     } else if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-        return JointStorageKind.textureRGBA8;
+        return JointStorageKind.textureRGBA32F;
     } else {
         return JointStorageKind.textureRGBA8;
     }

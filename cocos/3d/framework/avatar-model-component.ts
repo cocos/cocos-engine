@@ -22,9 +22,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass, executeInEditMode, executionOrder, menu } from '../../core/data/class-decorator';
+import { Texture2D } from '../../assets';
+import { Filter, PixelFormat } from '../../assets/texture-base';
+import { Rect } from '../../core';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { GFXDevice } from '../../gfx/device';
+import { Mesh } from '../assets';
 import { SkinningModelComponent } from './skinning-model-component';
+import { GFXTextureCopy } from '../../gfx/define';
+
+export interface IAvatarUnit {
+    mesh: Mesh;
+    region: Rect;
+    albedoMap: Texture2D | null;
+    alphaMap: Texture2D | null;
+}
 
 /**
  * !#en The Avatar Model Component
@@ -36,6 +48,22 @@ import { SkinningModelComponent } from './skinning-model-component';
 @menu('Components/AvatarModelComponent')
 export class AvatarModelComponent extends SkinningModelComponent {
 
+    @property
+    private _combinedTexSize: number = 1024;
+
+    private _combinedTex: Texture2D | null = null;
+
+    private _units: Array<IAvatarUnit | null> = [];
+
+    @property({ visible: false })
+    get mesh (): Mesh | null {
+        return this._mesh;
+    }
+
+    get parts (): Array<IAvatarUnit | null> {
+        return this._units;
+    }
+
     constructor () {
         super();
     }
@@ -43,7 +71,9 @@ export class AvatarModelComponent extends SkinningModelComponent {
     public onLoad () {
         super.onLoad();
 
-        
+        this._combinedTex = new Texture2D();
+        this._combinedTex.setFilters(Filter.LINEAR, Filter.LINEAR);
+        this.resizeCombiendTexture();
     }
 
     public update (dt) {
@@ -51,14 +81,54 @@ export class AvatarModelComponent extends SkinningModelComponent {
     }
 
     public onDestroy () {
+        if (this._combinedTex) {
+            this._combinedTex.destroy();
+            this._combinedTex = null;
+        }
     }
-}
 
-function _getGlobalDevice (): GFXDevice | null {
-    // @ts-ignore
-    if (cc.director && cc.director.root) {
-        return cc.director.root.device;
-    } else {
-        return null;
+    public combine () {
+
+        const texImages: TexImageSource[] = [];
+        const texImageRegions: GFXTextureCopy[] = [];
+        const texBuffers: ArrayBuffer[] = [];
+        const texBufferRegions: GFXTextureCopy[] = [];
+
+        for (const unit of this._units) {
+            if (unit) {
+                const isValid = (unit.region.x > 0 && unit.region.y > 0) &&
+                    (unit.region.width > 0 && unit.region.height > 0) &&
+                    (unit.region.x + unit.region.width) <= this._combinedTexSize &&
+                    (unit.region.y + unit.region.height) <= this._combinedTexSize;
+
+                if (isValid && unit.albedoMap && unit.albedoMap.image && unit.albedoMap.image.data) {
+
+                    const region = new GFXTextureCopy();
+
+                    const data = unit.albedoMap.image.data;
+                    if (data instanceof HTMLCanvasElement || data instanceof HTMLImageElement) {
+                        texImages.push(data);
+                        texImageRegions.push(region);
+                    } else {
+                        texBuffers.push(data.buffer);
+                        texBufferRegions.push(region);
+                    }
+                }
+            }
+        }
+
+        const gfxTex = this._combinedTex!.getGFXTexture();
+        const device: GFXDevice = cc.director.root.device;
+        for (const buff of texBuffers) {
+            // device.copyBuffersToTexture(texBuffers, gfxTex!, );
+        }
+        // device.copyTexImagesToTexture();
+    }
+
+    private resizeCombiendTexture () {
+        if (this._combinedTex) {
+            this._combinedTex.destroy();
+            this._combinedTex.create(this._combinedTexSize, this._combinedTexSize, PixelFormat.RGBA8888);
+        }
     }
 }

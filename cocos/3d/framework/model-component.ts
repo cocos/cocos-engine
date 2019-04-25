@@ -152,7 +152,7 @@ export class ModelComponent extends RenderableComponent {
     protected _model: Model | null = null;
 
     @property
-    private _mesh: Mesh | null = null;
+    protected _mesh: Mesh | null = null;
 
     @property
     private _shadowCastingMode = ModelShadowCastingMode.Off;
