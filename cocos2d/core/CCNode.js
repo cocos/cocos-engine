@@ -123,7 +123,7 @@ var LocalDirtyFlag = cc.Enum({
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
- * @class Node.EventType
+ * @enum Node.EventType
  * @static
  * @namespace Node
  */

@@ -26,7 +26,6 @@ let EventTarget = require('../../cocos2d/core/event/event-target');
 
 dragonBones.CCArmatureDisplay = cc.Class({
     name: 'dragonBones.CCArmatureDisplay',
-    mixins: [EventTarget],
 
     properties: {
         // adapt old api
@@ -34,7 +33,15 @@ dragonBones.CCArmatureDisplay = cc.Class({
             get () {
                 return this;
             }
-        }
+        },
+    },
+
+    ctor () {
+        this._eventTarget = new EventTarget();
+    },
+
+    setEventTarget (eventTarget) {
+        this._eventTarget = eventTarget;
     },
 
     getRootDisplay () {
@@ -98,19 +105,19 @@ dragonBones.CCArmatureDisplay = cc.Class({
     },
 
     hasDBEventListener (type) {
-        return this.hasEventListener(type);
+        return this._eventTarget.hasEventListener(type);
     },
 
     addDBEventListener (type, listener, target) {
-        this.on(type, listener, target);
+        this._eventTarget.on(type, listener, target);
     },
 
     removeDBEventListener (type, listener, target) {
-        this.off(type, listener, target);
+        this._eventTarget.off(type, listener, target);
     },
 
     dispatchDBEvent  (type, eventObject) {
-        this.emit(type, eventObject);
+        this._eventTarget.emit(type, eventObject);
     }
     ////////////////////////////////////
 
