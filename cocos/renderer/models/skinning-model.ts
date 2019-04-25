@@ -1,8 +1,8 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import Skeleton from '../../3d/assets/skeleton';
+import { Filter, PixelFormat, WrapMode } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
-import { Filter, PixelFormat, WrapMode } from '../../assets/texture-base';
 import { mat4, vec3, vec4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
