@@ -186,6 +186,11 @@ if (CC_DEBUG) {
         getState: 'cc.Sprite.getMaterial'
     }, 'cc.Sprite');
 
+    js.get(cc.SpriteFrame.prototype, 'clearTexture', function () {
+        cc.warnID(1406, 'cc.SpriteFrame', 'clearTexture');
+        return function () {};
+    });
+
     // cc.textureCache
     js.get(cc, 'textureCache', function () {
         cc.errorID(1406, 'cc', 'textureCache');
