@@ -536,6 +536,45 @@ export class Mesh extends Asset {
         return null;
     }
 
+    public  copyAttribute (primitiveIndex: number, attributeName: GFXAttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
+        if (!this._data ||
+            primitiveIndex >= this._struct.primitives.length) {
+            return null;
+        }
+        const primitive = this._struct.primitives[primitiveIndex];
+        for (const vertexBundleIndex of primitive.vertexBundelIndices) {
+            const vertexBundle = this._struct.vertexBundles[vertexBundleIndex];
+            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === attributeName);
+            if (iAttribute < 0) {
+                continue;
+            }
+            const format = vertexBundle.attributes[iAttribute].format;
+
+            const dataOffset = vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute);
+            const view = new DataView(this._data.buffer, dataOffset);
+
+            const formatInfo = GFXFormatInfos[format];
+            const storageConstructor = getStorageConstructor(format);
+            const reader = getReader(view, format);
+            if (!storageConstructor || !reader) {
+                return null;
+            }
+            const vertexCount = vertexBundle.view.count;
+            const componentCount = formatInfo.count;
+            const storage = new storageConstructor(buffer);
+            const componentStride = stride / storage.BYTES_PER_ELEMENT;
+            offset /= storage.BYTES_PER_ELEMENT;
+            const inputStride = vertexBundle.view.stride;
+            for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
+                for (let iComponent = 0; iComponent < componentCount; ++iComponent) {
+                    storage[componentStride * iVertex + iComponent + offset] = reader(inputStride * iVertex + storage.BYTES_PER_ELEMENT * iComponent);
+                }
+            }
+            return storage;
+        }
+        return null;
+    }
+
     public readIndices (primitiveIndex: number) {
         if (!this._data ||
             primitiveIndex >= this._struct.primitives.length) {
@@ -553,6 +592,23 @@ export class Mesh extends Asset {
             storage[i] = reader(primitive.indexView.offset + storage.BYTES_PER_ELEMENT * i);
         }
         return storage;
+    }
+
+    public copyIndices (primitiveIndex: number, typedArray: any) {
+        if (!this._data ||
+            primitiveIndex >= this._struct.primitives.length) {
+            return null;
+        }
+        const primitive = this._struct.primitives[primitiveIndex];
+        if (!primitive.indexView) {
+            return null;
+        }
+        const indexCount = primitive.indexView.count;
+        const indexFormat = primitive.indexView.stride === 1 ? GFXFormat.R8UI : (primitive.indexView.stride === 2 ? GFXFormat.R16UI : GFXFormat.R32UI);
+        const reader = getReader(new DataView(this._data.buffer), indexFormat)!;
+        for (let i = 0; i < indexCount; ++i) {
+            typedArray[i] = reader(primitive.indexView.offset + GFXFormatInfos[indexFormat].size * i);
+        }
     }
 
     private _init () {
