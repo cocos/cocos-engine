@@ -24,7 +24,6 @@ import {
     IGFXFormatInfo,
     IGFXRect,
     IGFXViewport,
-    WebGLEXT,
     GFXFormatType,
 } from '../define';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
@@ -51,6 +50,7 @@ import {
     WebGL2GPUUniformSampler,
 } from './webgl2-gpu-objects';
 import { IWebGL2TexUnit } from './webgl2-state-cache';
+import { WebGLEXT } from '../webgl/webgl-define';
 
 const WebGLWraps: GLenum[] = [
     WebGLRenderingContext.REPEAT,
