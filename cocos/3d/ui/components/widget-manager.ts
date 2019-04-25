@@ -558,7 +558,7 @@ export const widgetManager = cc._widgetManager = {
                 l += zero.x;
                 l *= one.x;
                 temp = pos.x - myAP.x * widgetNode.width! * widgetNodeScale.x - l;
-                if (widget.isAbsoluteLeft) {
+                if (!widget.isAbsoluteLeft) {
                     temp /= matchSize.width;
                 }
 
@@ -570,7 +570,7 @@ export const widgetManager = cc._widgetManager = {
                 let r = (1 - parentAP.x) * matchSize.width;
                 r += zero.x;
                 temp = (r *= one.x) - (pos.x + (1 - myAP.x) * widgetNode.width! * widgetNodeScale.x);
-                if (widget.isAbsoluteRight) {
+                if (!widget.isAbsoluteRight) {
                     temp /= matchSize.width;
                 }
 
