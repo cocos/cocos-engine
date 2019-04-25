@@ -297,6 +297,33 @@ static bool js_cocos2dx_dragonbones_Slot_getDisplay(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_Slot_getDisplay)
 
+static bool js_cocos2dx_dragonbones_Slot_set_displayIndex(se::State& s)
+{
+    const auto& args = s.args();
+    dragonBones::Slot* cobj = (dragonBones::Slot*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Slot_set_displayIndex : Invalid Native Object");
+    
+    CC_UNUSED bool ok = true;
+    int32_t arg0;
+    ok &= seval_to_int32(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Slot_set_displayIndex : Error processing new value");
+    cobj->setDisplayIndex(arg0);
+    return true;
+}
+SE_BIND_PROP_SET(js_cocos2dx_dragonbones_Slot_set_displayIndex)
+
+static bool js_cocos2dx_dragonbones_Slot_get_displayIndex(se::State& s)
+{
+    dragonBones::Slot* cobj = (dragonBones::Slot*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Slot_get_displayIndex : Invalid Native Object");
+    
+    const int32_t ret = cobj->getDisplayIndex();
+    bool ok = int32_to_seval(ret, &s.rval());
+    SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Slot_get_displayIndex to se::Value failed!");
+    return true;
+}
+SE_BIND_PROP_GET(js_cocos2dx_dragonbones_Slot_get_displayIndex)
+
 static bool js_cocos2dx_dragonbones_Slot_setDisplay(se::State& s)
 {
     const auto& args = s.args();
@@ -382,7 +409,7 @@ bool register_all_dragonbones_manual(se::Object* obj)
     __jsb_dragonBones_Armature_proto->defineFunction("getSlotByDisplay", _SE(js_cocos2dx_dragonbones_Armature_getSlotByDisplay));
     __jsb_dragonBones_Armature_proto->defineFunction("setReplacedTexture", _SE(js_cocos2dx_dragonbones_Armature_setReplacedTexture));
     __jsb_dragonBones_Armature_proto->defineFunction("getReplacedTexture", _SE(js_cocos2dx_dragonbones_Armature_getReplacedTexture));
-    
+
     __jsb_dragonBones_ArmatureData_proto->defineProperty("animations", _SE(js_cocos2dx_dragonbones_ArmatureData_get_animations), nullptr);
     __jsb_dragonBones_ArmatureData_proto->defineProperty("bones", _SE(js_cocos2dx_dragonbones_ArmatureData_get_bones), nullptr);
     __jsb_dragonBones_ArmatureData_proto->defineProperty("skins", _SE(js_cocos2dx_dragonbones_ArmatureData_get_skins), nullptr);
@@ -390,6 +417,7 @@ bool register_all_dragonbones_manual(se::Object* obj)
 
     __jsb_dragonBones_DragonBonesData_proto->defineProperty("armatureNames", _SE(js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames), nullptr);
 
+    __jsb_dragonBones_Slot_proto->defineProperty("displayIndex", _SE(js_cocos2dx_dragonbones_Slot_get_displayIndex), _SE(js_cocos2dx_dragonbones_Slot_set_displayIndex));
     __jsb_dragonBones_Slot_proto->defineFunction("getDisplay", _SE(js_cocos2dx_dragonbones_Slot_getDisplay));
     __jsb_dragonBones_Slot_proto->defineFunction("setDisplay", _SE(js_cocos2dx_dragonbones_Slot_setDisplay));
 
