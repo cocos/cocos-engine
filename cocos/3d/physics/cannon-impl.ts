@@ -12,7 +12,7 @@ import {
     IRaycastOptions, LockConstraintBase, PhysicsWorldBase,
     PointToPointConstraintBase, RigidBodyBase, ShapeBase, SphereShapeBase,
 } from './api';
-import { ERigidBodyType } from './physic-enum';
+import { ERigidBodyType, ETransformSource } from './physic-enum';
 import { RaycastResult } from './raycast-result';
 import { stringfyQuat, stringfyVec3 } from './util';
 
@@ -166,11 +166,6 @@ function fillRaycastResult (result: RaycastResult, cannonResult: CANNON.RaycastR
     );
 }
 
-enum ETransformSource {
-    Scene,
-    Physics,
-}
-
 export class CannonRigidBody implements RigidBodyBase {
 
     get impl (): CANNON.Body {
@@ -185,7 +180,7 @@ export class CannonRigidBody implements RigidBodyBase {
     private _onWorldPostStepListener: (event: CANNON.ICollisionEvent) => any;
     private _collisionCallbacks: ICollisionCallback[] = [];
     private _shapes: CannonShape[] = [];
-    private _transformSource: ETransformSource = ETransformSource.Scene;
+    private _transformSource: ETransformSource = ETransformSource.SCENE;
     private _userData: any;
     private _world: CannonWorld | null = null;
     private _name: string;
@@ -377,7 +372,7 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public isPhysicsManagedTransform (): boolean {
-        return this._transformSource === ETransformSource.Physics;
+        return this._transformSource === ETransformSource.PHYSIC;
     }
 
     public getPosition (out: Vec3) {
@@ -443,9 +438,9 @@ export class CannonRigidBody implements RigidBodyBase {
     private _onBodyTypeUpdated () {
         if (this._cannonBody) {
             if (this._cannonBody.type === CANNON.Body.STATIC) {
-                this._transformSource = ETransformSource.Scene;
+                this._transformSource = ETransformSource.SCENE;
             } else {
-                this._transformSource = ETransformSource.Physics;
+                this._transformSource = ETransformSource.PHYSIC;
             }
         }
     }

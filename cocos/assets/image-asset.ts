@@ -24,10 +24,11 @@
  ****************************************************************************/
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
-// import {addon} from '../core/utils/js';
-import { Asset } from './asset';
 import { EventTargetFactory } from '../core/event/event-target-factory';
 import { GFXDevice, GFXFeature } from '../gfx/device';
+// import {addon} from '../core/utils/js';
+import { Asset } from './asset';
+import { PixelFormat } from './asset-enum';
 
 export interface IMemoryImageSource {
     _data: ArrayBufferView | null;
@@ -187,7 +188,7 @@ export class ImageAsset extends EventTargetFactory(Asset) {
         let format = this._format;
         let ext = '';
         const SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS as string[];
-        const PixelFormat = cc.TextureBase.PixelFormat;
+        // const PixelFormat = cc.TextureBase.PixelFormat;
         for (const extensionID of extensionIDs) {
             const extFormat = extensionID.split('@');
 
