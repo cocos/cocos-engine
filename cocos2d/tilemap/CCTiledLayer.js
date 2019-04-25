@@ -806,8 +806,7 @@ let TiledLayer = cc.Class({
             mapth2 = mapth * 0.5,
             rows = this._layerSize.height,
             cols = this._layerSize.width,
-            grids = this._texGrids,
-            tileSize = null;
+            grids = this._texGrids;
         
         let colOffset = 0, gid, grid, left, bottom,
             axis, diffX1, diffY1, odd_even, diffX2, diffY2;
@@ -859,7 +858,7 @@ let TiledLayer = cc.Class({
                         // so left is 'w/2 * (rows - row - 1) + w/2 * col'
                         // combine expression is 'w/2 * (rows - row + col -1)'
                         cullingCol = rows + col - row - 1;
-                        // if not consider about row, then bottom 'h/2 * (cols - col -1)'
+                        // if not consider about row, then bottom is 'h/2 * (cols - col -1)'
                         // if consider about row then bottom must add 'h/2 * (rows - row - 1)'
                         // so bottom is 'h/2 * (cols - col -1) + h/2 * (rows - row - 1)'
                         // combine expressionn is 'h/2 * (rows + cols - col - row - 2)'
