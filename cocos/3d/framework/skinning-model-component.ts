@@ -27,7 +27,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { Mat4 } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
 import { GFXDevice } from '../../gfx/device';
-import { JointStorageKind, selectStorageKind, SkinningModel } from '../../renderer/models/skinning-model';
+import { __DEFER_BINDPOSE_COMPUTATION__, JointStorageKind, selectStorageKind, SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Mesh } from '../assets';
 import { Material } from '../assets/material';
@@ -160,7 +160,7 @@ export class SkinningModelComponent extends ModelComponent {
             if (!targetNode) {
                 continue;
             }
-            if (isTextureStorage) {
+            if (isTextureStorage && __DEFER_BINDPOSE_COMPUTATION__) {
                 skinningModel.updateJointMatrix(iJoint, targetNode.worldMatrix);
             } else {
                 const bindpose = skeleton.bindposes[iJoint];
@@ -212,6 +212,7 @@ export class SkinningModelComponent extends ModelComponent {
         const mat = this.getMaterial(index, CC_EDITOR);
         if (mat) {
             mat.recompileShaders({
+                CC_BINDPOSE_COMPUTATION_DEFERED: __DEFER_BINDPOSE_COMPUTATION__,
                 CC_USE_SKINNING: true,
                 CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.textureRGBA32F || kind === JointStorageKind.textureRGBA8,
                 CC_USE_JOINTS_TEXTURE_RGBA8888: kind === JointStorageKind.textureRGBA8,

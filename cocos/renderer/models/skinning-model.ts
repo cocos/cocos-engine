@@ -38,7 +38,8 @@ function isTextureStorage (storage: JointStorage): storage is ITextureStorage {
     return storage.kind === JointStorageKind.textureRGBA8 || storage.kind === JointStorageKind.textureRGBA32F;
 }
 
-export const __FORCE_USE_UNIFORM_STORAGE__ = false;
+export const __FORCE_USE_UNIFORM_STORAGE__ = true;
+export const __DEFER_BINDPOSE_COMPUTATION__ = true;
 
 export class SkinningModel extends Model {
     private _binded: null | {
@@ -63,10 +64,14 @@ export class SkinningModel extends Model {
         if (storageKind === JointStorageKind.textureRGBA32F ||
             storageKind === JointStorageKind.textureRGBA8) {
             const mat4TextureKind = storageKind === JointStorageKind.textureRGBA32F ? Mat4TextureKind.rgba32f : Mat4TextureKind.rgba8888;
-            const mat4Texture = new MatrixTexture(skeleton.joints.length  * 2, mat4TextureKind);
+            const mat4Texture = new MatrixTexture(
+                __DEFER_BINDPOSE_COMPUTATION__ ? skeleton.joints.length * 2 : skeleton.joints.length,
+                mat4TextureKind);
 
-            for (let iJoint = 0; iJoint < skeleton.bindposes.length; ++iJoint) {
-                mat4Texture.set(iJoint * 2 + 0, skeleton.bindposes[iJoint]);
+            if (__DEFER_BINDPOSE_COMPUTATION__) {
+                for (let iJoint = 0; iJoint < skeleton.bindposes.length; ++iJoint) {
+                    mat4Texture.set(iJoint * 2 + 0, skeleton.bindposes[iJoint]);
+                }
             }
 
             this._binded = {
@@ -115,7 +120,11 @@ export class SkinningModel extends Model {
         }
         const { jointStorage, skinningUBO } = this._binded;
         if (isTextureStorage(jointStorage)) {
-            jointStorage.texture.set(iMatrix * 2 + 1, matrix);
+            if (__DEFER_BINDPOSE_COMPUTATION__) {
+                jointStorage.texture.set(iMatrix * 2 + 1, matrix);
+            } else {
+                jointStorage.texture.set(iMatrix, matrix);
+            }
         } else {
             setMat4InUniform(jointStorage.nativeData, iMatrix, matrix);
         }
