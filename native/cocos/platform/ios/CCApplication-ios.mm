@@ -72,7 +72,7 @@ namespace
     float _systemVersion;
     BOOL _isAppActive;
     cocos2d::Application* _application;
-    cocos2d::Scheduler* _scheduler;
+    std::shared_ptr<cocos2d::Scheduler> _scheduler;
 }
 -(void) startMainLoop;
 -(void) stopMainLoop;

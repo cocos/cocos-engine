@@ -86,7 +86,7 @@ private:
     bool _lazyInitLoop;
 
     int _currentAudioID;
-    Scheduler* _scheduler;
+    std::weak_ptr<Scheduler> _scheduler;
 };
 NS_CC_END
 #endif // __AUDIO_ENGINE_INL_H_

@@ -729,16 +729,22 @@ namespace cocos2d { namespace network {
         sprintf(key, "DownloaderCURL(%p)", this);
         _schedulerKey = key;
 
-        _scheduler->schedule(bind(&DownloaderCURL::_onSchedule, this, placeholders::_1),
+        if(auto sche = _scheduler.lock())
+        {
+            sche->schedule(bind(&DownloaderCURL::_onSchedule, this, placeholders::_1),
                              this,
                              0.1f,
                              true,
                              _schedulerKey);
+        }
     }
 
     DownloaderCURL::~DownloaderCURL()
     {
-        _scheduler->unschedule(_schedulerKey, this);
+        if(auto sche = _scheduler.lock())
+        {
+            sche->unschedule(_schedulerKey, this);
+        }
 
         _impl->stop();
         DLLOG("Destruct DownloaderCURL %p", this);
@@ -753,7 +759,11 @@ namespace cocos2d { namespace network {
 
         _impl->addTask(task, coTask);
         _impl->run();
-        _scheduler->resumeTarget(this);
+        
+        if(auto sche = _scheduler.lock())
+        {
+            sche->resumeTarget(this);
+        }
         return coTask;
     }
 
@@ -793,7 +803,10 @@ namespace cocos2d { namespace network {
         _impl->getFinishedTasks(tasks);
         if (_impl->stoped())
         {
-            _scheduler->pauseTarget(this);
+            if (auto sche = _scheduler.lock())
+            {
+                sche->pauseTarget(this);
+            }
         }
 
         for (auto& wrapper : tasks)

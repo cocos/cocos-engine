@@ -109,7 +109,7 @@ public:
     virtual void applicationWillEnterForeground();
     
     inline void* getView() const { return _view; }
-    inline Scheduler* getScheduler() const { return _scheduler.get(); }
+    inline std::shared_ptr<Scheduler> getScheduler() const { return _scheduler; }
     inline RenderTexture* getRenderTexture() const { return _renderTexture; }
     
     void runOnMainThread();
