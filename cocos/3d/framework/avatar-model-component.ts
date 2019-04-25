@@ -23,13 +23,13 @@
  ****************************************************************************/
 
 import { Texture2D } from '../../assets';
-import { Filter, PixelFormat } from '../../assets/texture-base';
 import { Rect } from '../../core';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { GFXDevice } from '../../gfx/device';
 import { Mesh } from '../assets';
 import { SkinningModelComponent } from './skinning-model-component';
 import { GFXTextureCopy } from '../../gfx/define';
+import { Filter, PixelFormat } from '../../assets/asset-enum';
 
 export interface IAvatarUnit {
     mesh: Mesh;
