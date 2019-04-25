@@ -49,7 +49,7 @@ export class Texture2D extends TextureBase {
         this.create(
             value.length === 0 ? 0 : value[0].width,
             value.length === 0 ? 0 : value[0].height,
-            undefined,
+            value.length === 0 ? undefined : value[0].format,
             this._mipmaps.length);
         this._mipmaps.forEach((mipmap, level) => {
             this._assignImage(mipmap, level);
