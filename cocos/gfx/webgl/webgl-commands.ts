@@ -10,7 +10,7 @@ import {
     GFXDynamicState,
     GFXFormat,
     GFXFormatInfos,
-    GFXFormatSize,
+    GFXFormatType,
     GFXLoadOp,
     GFXMemoryUsageBit,
     GFXSampleCount,
@@ -25,7 +25,6 @@ import {
     IGFXRect,
     IGFXViewport,
     WebGLEXT,
-    GFXFormatType,
 } from '../define';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import {
@@ -57,13 +56,13 @@ function CmpF32NotEuqal (a: number, b: number): boolean {
     return (c > 0.000001 || c < -0.000001);
 }
 
-function GFXFormatToWebGLType (format: GFXFormat, device: WebGLGFXDevice): GLenum {
+function GFXFormatToWebGLType (format: GFXFormat): GLenum {
     switch (format) {
         case GFXFormat.R8: return WebGLRenderingContext.UNSIGNED_BYTE;
         case GFXFormat.R8SN: return WebGLRenderingContext.BYTE;
         case GFXFormat.R8UI: return WebGLRenderingContext.UNSIGNED_BYTE;
         case GFXFormat.R8I: return WebGLRenderingContext.BYTE;
-        case GFXFormat.R16F: return device.OES_texture_half_float ? device.OES_texture_half_float.HALF_FLOAT_OES : WebGLRenderingContext.FLOAT;
+        case GFXFormat.R16F: return WebGLEXT.HALF_FLOAT_OES;
         case GFXFormat.R16UI: return WebGLRenderingContext.UNSIGNED_SHORT;
         case GFXFormat.R16I: return WebGLRenderingContext.SHORT;
         case GFXFormat.R32F: return WebGLRenderingContext.FLOAT;
@@ -74,7 +73,7 @@ function GFXFormatToWebGLType (format: GFXFormat, device: WebGLGFXDevice): GLenu
         case GFXFormat.RG8SN: return WebGLRenderingContext.BYTE;
         case GFXFormat.RG8UI: return WebGLRenderingContext.UNSIGNED_BYTE;
         case GFXFormat.RG8I: return WebGLRenderingContext.BYTE;
-        case GFXFormat.RG16F: return device.OES_texture_half_float ? device.OES_texture_half_float.HALF_FLOAT_OES : WebGLRenderingContext.FLOAT;
+        case GFXFormat.RG16F: return WebGLEXT.HALF_FLOAT_OES;
         case GFXFormat.RG16UI: return WebGLRenderingContext.UNSIGNED_SHORT;
         case GFXFormat.RG16I: return WebGLRenderingContext.SHORT;
         case GFXFormat.RG32F: return WebGLRenderingContext.FLOAT;
@@ -86,7 +85,7 @@ function GFXFormatToWebGLType (format: GFXFormat, device: WebGLGFXDevice): GLenu
         case GFXFormat.RGB8SN: return WebGLRenderingContext.BYTE;
         case GFXFormat.RGB8UI: return WebGLRenderingContext.UNSIGNED_BYTE;
         case GFXFormat.RGB8I: return WebGLRenderingContext.BYTE;
-        case GFXFormat.RGB16F: return device.OES_texture_half_float ? device.OES_texture_half_float.HALF_FLOAT_OES : WebGLRenderingContext.FLOAT;
+        case GFXFormat.RGB16F: return WebGLEXT.HALF_FLOAT_OES;
         case GFXFormat.RGB16UI: return WebGLRenderingContext.UNSIGNED_SHORT;
         case GFXFormat.RGB16I: return WebGLRenderingContext.SHORT;
         case GFXFormat.RGB32F: return WebGLRenderingContext.FLOAT;
@@ -98,7 +97,7 @@ function GFXFormatToWebGLType (format: GFXFormat, device: WebGLGFXDevice): GLenu
         case GFXFormat.RGBA8SN: return WebGLRenderingContext.BYTE;
         case GFXFormat.RGBA8UI: return WebGLRenderingContext.UNSIGNED_BYTE;
         case GFXFormat.RGBA8I: return WebGLRenderingContext.BYTE;
-        case GFXFormat.RGBA16F: return device.OES_texture_half_float ? device.OES_texture_half_float.HALF_FLOAT_OES : WebGLRenderingContext.FLOAT;
+        case GFXFormat.RGBA16F: return WebGLEXT.HALF_FLOAT_OES;
         case GFXFormat.RGBA16UI: return WebGLRenderingContext.UNSIGNED_SHORT;
         case GFXFormat.RGBA16I: return WebGLRenderingContext.SHORT;
         case GFXFormat.RGBA32F: return WebGLRenderingContext.FLOAT;
@@ -116,7 +115,7 @@ function GFXFormatToWebGLType (format: GFXFormat, device: WebGLGFXDevice): GLenu
         case GFXFormat.D16: return WebGLRenderingContext.UNSIGNED_SHORT;
         case GFXFormat.D16S8: return WebGLRenderingContext.UNSIGNED_SHORT;
         case GFXFormat.D24: return WebGLRenderingContext.UNSIGNED_INT;
-        case GFXFormat.D24S8: return device.WEBGL_depth_texture ? device.WEBGL_depth_texture.UNSIGNED_INT_24_8_WEBGL : WebGLRenderingContext.UNSIGNED_INT;
+        case GFXFormat.D24S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL;
         case GFXFormat.D32F: return WebGLRenderingContext.FLOAT;
         case GFXFormat.D32F_S8: return WebGLRenderingContext.FLOAT;
 
@@ -778,7 +777,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
 
     gpuTexture.glInternelFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format);
     gpuTexture.glFormat = GFXFormatToWebGLFormat(gpuTexture.format);
-    gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format, device);
+    gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format);
 
     switch (gpuTexture.viewType) {
         case GFXTextureViewType.TV2D: {
@@ -917,7 +916,7 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
 
     gpuTexture.glInternelFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format);
     gpuTexture.glFormat = GFXFormatToWebGLFormat(gpuTexture.format);
-    gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format, device);
+    gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format);
 
     switch (gpuTexture.viewType) {
         case GFXTextureViewType.TV2D: {
@@ -1387,7 +1386,7 @@ export function WebGLCmdFuncCreateInputAssember (device: WebGLGFXDevice, gpuInpu
 
         const gpuBuffer = gpuInputAssembler.gpuVertexBuffers[stream];
 
-        const glType = GFXFormatToWebGLType(attrib.format, device);
+        const glType = GFXFormatToWebGLType(attrib.format);
         const size = GFXFormatInfos[attrib.format].size;
 
         gpuInputAssembler.glAttribs[i] = {

@@ -15,7 +15,7 @@ import {
     GFXTextureType,
     GFXTextureUsageBit,
     GFXTextureViewType} from '../gfx/define';
-import { GFXDevice, GFXFeature } from '../gfx/device';
+import { GFXDevice, GFXFeature, GFXAPI } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
@@ -329,10 +329,12 @@ export abstract class RenderPipeline {
         }
 
         if (this._usePostProcess) {
-            if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
-                this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
-                this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-                this._isHDRSupported = true;
+            if (this.device.gfxAPI !== GFXAPI.WEBGL) {
+                if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
+                    this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
+                    this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+                    this._isHDRSupported = true;
+                }
             }
 
             // this._isHDRSupported = false;
