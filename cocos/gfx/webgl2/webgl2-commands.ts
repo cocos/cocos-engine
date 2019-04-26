@@ -973,7 +973,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                     } else {
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                             const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                            const view: ArrayBufferView = { buffer: new ArrayBuffer(imgSize), byteLength: imgSize, byteOffset: 0 };
+                            const view: Uint8Array = new Uint8Array(imgSize);
                             gl.compressedTexImage2D(WebGL2RenderingContext.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
                             w = Math.max(1, w >> 1);
                             h = Math.max(1, h >> 1);
@@ -1039,7 +1039,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                         let h = gpuTexture.height;
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                             const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                            const view: ArrayBufferView = { buffer: new ArrayBuffer(imgSize), byteLength: imgSize, byteOffset: 0 };
+                            const view: Uint8Array = new Uint8Array(imgSize);
                             gl.compressedTexImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
                             w = Math.max(1, w >> 1);
                             h = Math.max(1, h >> 1);
@@ -1119,7 +1119,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2GFXDevice, gpuTexture:
                 } else {
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                         const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                        const view: ArrayBufferView = { buffer: new ArrayBuffer(imgSize), byteLength: imgSize, byteOffset: 0 };
+                        const view: Uint8Array = new Uint8Array(imgSize);
                         gl.compressedTexImage2D(WebGL2RenderingContext.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);
@@ -1166,7 +1166,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2GFXDevice, gpuTexture:
                     let h = gpuTexture.height;
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                         const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                        const view: ArrayBufferView = { buffer: new ArrayBuffer(imgSize), byteLength: imgSize, byteOffset: 0 };
+                        const view: Uint8Array = new Uint8Array(imgSize);
                         gl.compressedTexImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);
