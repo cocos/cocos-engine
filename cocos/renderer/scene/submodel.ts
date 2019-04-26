@@ -45,6 +45,7 @@ export class SubModel {
             cmdBuffer.destroy();
         }
         this._cmdBuffers.splice(0);
+        this._material = null;
     }
 
     set priority (val: RenderPriority) {
@@ -114,6 +115,9 @@ export class SubModel {
     }
 
     public updateCommandBuffer () {
+        if (!this._material) {
+            return;
+        }
         for (let i = 0; i < this._material!.passes.length; i++) {
             if (this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
                 cc.error(`the model(%d)'s primitive type doesn't match its pass's`, i);
