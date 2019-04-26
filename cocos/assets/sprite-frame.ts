@@ -724,7 +724,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     // SERIALIZATION
 
     // @ts-ignore
-    public _serialize (exporting) {
+    public _serialize (exporting?: any): any {
         const rect = this._rect;
         const offset = this._offset;
         const size = this._originalSize;
@@ -748,7 +748,7 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
         }
 
         return {
-            base: super._serialize(),
+            base: super._serialize(exporting),
             name: this._name,
             texture: uuid || undefined,
             atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting

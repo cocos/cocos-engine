@@ -161,9 +161,9 @@ export class Texture2D extends TextureBase {
         this.mipmaps = [];
     }
 
-    public _serialize () {
+    public _serialize (exporting?: any): any {
         return {
-            base: super._serialize(),
+            base: super._serialize(exporting),
             mipmaps: this._mipmaps.map((mipmap) => mipmap._uuid),
         };
     }
