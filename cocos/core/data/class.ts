@@ -936,7 +936,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6?:
  obj.url = 'sprite.png';
  obj.load();
  */
-export default function CCClass (options) {
+function CCClass (options) {
     options = options || {};
 
     let name = options.name;
@@ -1254,5 +1254,7 @@ CCClass.getDefault = getDefault;
 CCClass.escapeForJS = escapeForJS;
 CCClass.IDENTIFIER_RE = IDENTIFIER_RE;
 CCClass.getNewValueTypeCode = CC_SUPPORT_JIT && getNewValueTypeCodeJit;
+
+export default CCClass;
 
 cc.Class = CCClass;

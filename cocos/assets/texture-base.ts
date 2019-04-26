@@ -281,7 +281,7 @@ export class TextureBase extends EventTargetFactory(Asset) {
     /**
      * @return
      */
-    public _serialize (): any {
+    public _serialize (exporting?: any): any {
         return this._minFilter + ',' + this._magFilter + ',' +
             this._wrapS + ',' + this._wrapT + ',' +
             (this._premultiplyAlpha ? 1 : 0) + ',' +

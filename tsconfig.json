@@ -72,7 +72,8 @@
         "external",
         "scripts",
         "declarations",
-        "rollup"
+        "rollup",
+        "cocos/3d/physics/ammo-impl.ts"
     ]
     //"include" : ["./source"]
     //"exclude" : ["js"]

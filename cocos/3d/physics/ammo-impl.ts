@@ -282,8 +282,8 @@ export class AmmoWorld implements PhysicsWorldBase {
         const distance = vec3.distance(from, this._hitPoint);
 
         throw new Error(`not impl.`);
-        result._assign(this._hitPoint, distance, null, wrappedBody);
-        return true;
+        // result._assign(this._hitPoint, distance, null, wrappedBody);
+        // return true;
     }
 
     /**
