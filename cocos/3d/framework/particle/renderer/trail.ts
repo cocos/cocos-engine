@@ -1,5 +1,5 @@
 import { Color, Vec3 } from '../../../../core';
-import { property } from '../../../../core/data/class-decorator';
+import { property, ccclass } from '../../../../core/data/class-decorator';
 import Enum from '../../../../core/value-types/enum';
 import { vec3 } from '../../../../core/vmath';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../../../gfx/buffer';
@@ -99,6 +99,7 @@ class TrailSegment {
     }
 }
 
+@ccclass('cc.TrailModule')
 export default class TrailModule {
 
     public get enable () {
