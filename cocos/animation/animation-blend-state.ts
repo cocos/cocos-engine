@@ -9,26 +9,22 @@ export type PropertyBlendState<T = any> = {
     refCount: number;
 };
 
-type PropertyStates = Array<PropertyBlendState<any>>;
-
-const __animationBlendState = '__animationBlendState';
-
-type InjectedCurveTarget = ICurveTarget & Record<typeof __animationBlendState, PropertyStates>;
+interface ITargetState {
+    target: ICurveTarget;
+    properties: Array<PropertyBlendState<any>>;
+}
 
 export class AnimationBlendState {
-    private _blendTargets = new Set<InjectedCurveTarget>();
+    private _blendTargets: ITargetState[] = [];
 
-    public refPropertyBlendTarget (target_: ICurveTarget, propertyName: string) {
-        const target = target_ as InjectedCurveTarget;
+    public refPropertyBlendTarget (target: ICurveTarget, propertyName: string) {
+        let targetState = this._blendTargets.find((x) => x.target === target);
+        if (!targetState) {
+            targetState = { target, properties: [] };
+            this._blendTargets.push(targetState);
+        }
+        const propertyStates = targetState.properties;
 
-        if (!this._blendTargets.has(target)) {
-            this._blendTargets.add(target);
-        }
-        let propertyStates = target[__animationBlendState];
-        if (propertyStates === undefined) {
-            propertyStates = [];
-            Object.defineProperty(target, __animationBlendState, { value: propertyStates, enumerable: false });
-        }
         let propertyState = propertyStates.find((p) => p.name === propertyName);
         if (!propertyState) {
             propertyState = { name: propertyName, weight: 0, value: undefined, refCount: 0 };
@@ -38,14 +34,14 @@ export class AnimationBlendState {
         return propertyState;
     }
 
-    public derefPropertyBlendTarget (target_: ICurveTarget, propertyName: string) {
-        const target = target_ as InjectedCurveTarget;
-
-        if (!this._blendTargets.has(target)) {
+    public derefPropertyBlendTarget (target: ICurveTarget, propertyName: string) {
+        const iTargetState = this._blendTargets.findIndex((x) => x.target === target);
+        if (iTargetState < 0) {
             return;
         }
+        const targetState = this._blendTargets[iTargetState];
 
-        const propertyStates = target[__animationBlendState];
+        const propertyStates = targetState.properties;
         const iPropertyState = propertyStates.findIndex((p) => p.name === propertyName);
         if (iPropertyState < 0) {
             return;
@@ -60,28 +56,28 @@ export class AnimationBlendState {
         if (propertyStates.length >= 2) {
             propertyStates.splice(iPropertyState, 1);
         } else {
-            delete target.__animationBlendState;
-            this._blendTargets.delete(target);
+            this._blendTargets.splice(iTargetState, 1);
         }
     }
 
     public apply () {
-        this._blendTargets.forEach((target) => {
-            const propertyStates = target.__animationBlendState;
+        for (const targetState of this._blendTargets) {
+            const target = targetState.target;
+            const propertyStates = targetState.properties;
             for (const p of propertyStates) {
                 if (p.weight !== 0) {
                     target[p.name] = p.value;
                 }
             }
-        });
+        }
     }
 
     public clear () {
-        this._blendTargets.forEach((target) => {
-            const propertyStates = target.__animationBlendState;
+        for (const targetState of this._blendTargets) {
+            const propertyStates = targetState.properties;
             for (const p of propertyStates) {
                 p.weight = 0;
             }
-        });
+        }
     }
 }
