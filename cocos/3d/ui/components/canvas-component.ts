@@ -43,7 +43,7 @@ const _worldPos = new Vec3();
  * @extends Component
  */
 @ccclass('cc.CanvasComponent')
-@executionOrder(110)
+@executionOrder(99)
 @requireComponent(UITransformComponent)
 @menu('UI/Canvas')
 @executeInEditMode

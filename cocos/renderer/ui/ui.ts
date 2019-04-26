@@ -338,7 +338,7 @@ export class UI {
         const mat = this._currMaterial;
         const buffer = this._currMeshBuffer!;
         const indicsStart = buffer.indiceStart;
-        const vCount = this._currMeshBuffer!.indiceOffset - indicsStart;
+        const vCount = buffer.indiceOffset - indicsStart;
         if (!vCount || !mat){
             return;
         }
@@ -431,12 +431,10 @@ export class UI {
             }
 
             this._recursiveScreenNode(screen.node);
-            this.autoMergeBatches();
         }
 
         if (!CC_EDITOR && this._debugScreen && this._debugScreen.enabledInHierarchy) {
             this._recursiveScreenNode(this._debugScreen.node);
-            this.autoMergeBatches();
         }
     }
 
@@ -452,6 +450,8 @@ export class UI {
                 render.postUpdateAssembler(this);
             }
         });
+
+        this.autoMergeBatches();
     }
 
     private _reset () {
