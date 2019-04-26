@@ -795,12 +795,14 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                             h = Math.max(1, h >> 1);
                         }
                     } else {
-                        for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                            const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                            const view: Uint8Array = new Uint8Array(imgSize);
-                            gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
-                            w = Math.max(1, w >> 1);
-                            h = Math.max(1, h >> 1);
+                        if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                            for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                                const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                                const view: Uint8Array = new Uint8Array(imgSize);
+                                gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
+                                w = Math.max(1, w >> 1);
+                                h = Math.max(1, h >> 1);
+                            }
                         }
                     }
 
@@ -849,15 +851,17 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         }
                     }
                 } else {
-                    for (let f = 0; f < 6; ++f) {
-                        let w = gpuTexture.width;
-                        let h = gpuTexture.height;
-                        for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                            const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                            const view: Uint8Array = new Uint8Array(imgSize);
-                            gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
-                            w = Math.max(1, w >> 1);
-                            h = Math.max(1, h >> 1);
+                    if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                        for (let f = 0; f < 6; ++f) {
+                            let w = gpuTexture.width;
+                            let h = gpuTexture.height;
+                            for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                                const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                                const view: Uint8Array = new Uint8Array(imgSize);
+                                gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
+                                w = Math.max(1, w >> 1);
+                                h = Math.max(1, h >> 1);
+                            }
                         }
                     }
                 }
@@ -931,12 +935,14 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
                         h = Math.max(1, h >> 1);
                     }
                 } else {
-                    for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                        const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                        const view: Uint8Array = new Uint8Array(imgSize);
-                        gl.compressedTexImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
-                        w = Math.max(1, w >> 1);
-                        h = Math.max(1, h >> 1);
+                    if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                        for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                            const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                            const view: Uint8Array = new Uint8Array(imgSize);
+                            gl.compressedTexImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
+                            w = Math.max(1, w >> 1);
+                            h = Math.max(1, h >> 1);
+                        }
                     }
                 }
             }
@@ -964,15 +970,17 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
                     }
                 }
             } else {
-                for (let f = 0; f < 6; ++f) {
-                    let w = gpuTexture.width;
-                    let h = gpuTexture.height;
-                    for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                        const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
-                        const view: Uint8Array = new Uint8Array(imgSize);
-                        gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
-                        w = Math.max(1, w >> 1);
-                        h = Math.max(1, h >> 1);
+                if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                    for (let f = 0; f < 6; ++f) {
+                        let w = gpuTexture.width;
+                        let h = gpuTexture.height;
+                        for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                            const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                            const view: Uint8Array = new Uint8Array(imgSize);
+                            gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
+                            w = Math.max(1, w >> 1);
+                            h = Math.max(1, h >> 1);
+                        }
                     }
                 }
             }
@@ -2540,10 +2548,10 @@ export function WebGLCmdFuncCopyBuffersToTexture (
     const fmtInfo: IGFXFormatInfo = GFXFormatInfos[gpuTexture.format];
     const isCompressed = fmtInfo.isCompressed;
     switch (gpuTexture.glTarget) {
-        case WebGLRenderingContext.TEXTURE_2D: {
+        case gl.TEXTURE_2D: {
             const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, gpuTexture.glTexture);
+                gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
@@ -2554,16 +2562,21 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 // console.debug('Copying buffer to texture 2D: ' + w + ' x ' + h);
 
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                    const pixels = (fmtInfo.type !== GFXFormatType.FLOAT ? new Uint8Array(buffers[n++]) : new Float32Array(buffers[n++]));
+                    const pixels = (fmtInfo.type === GFXFormatType.FLOAT && !isCompressed ? new Float32Array(buffers[n++]) : new Uint8Array(buffers[n++]));
 
                     if (!isCompressed) {
-                        gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
+                        gl.texSubImage2D(gl.TEXTURE_2D, m,
                             region.texOffset.x, region.texOffset.y, w, h,
                             gpuTexture.glFormat, gpuTexture.glType, pixels);
                     } else {
-                        gl.compressedTexSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
-                            region.texOffset.x, region.texOffset.y, w, h,
-                            gpuTexture.glFormat, pixels);
+                        if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                            gl.compressedTexSubImage2D(gl.TEXTURE_2D, m,
+                                region.texOffset.x, region.texOffset.y, w, h,
+                                gpuTexture.glFormat, pixels);
+                        } else {
+                            gl.compressedTexImage2D(gl.TEXTURE_2D, m, 
+                                gpuTexture.glInternelFmt, w, h, 0, pixels);
+                        }
                     }
 
                     w = Math.max(1, w >> 1);
@@ -2573,10 +2586,10 @@ export function WebGLCmdFuncCopyBuffersToTexture (
 
             break;
         }
-        case WebGLRenderingContext.TEXTURE_CUBE_MAP: {
+        case gl.TEXTURE_CUBE_MAP: {
             const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(WebGLRenderingContext.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
+                gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
@@ -2590,12 +2603,21 @@ export function WebGLCmdFuncCopyBuffersToTexture (
 
                     const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
                     for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
-                        const pixels = (fmtInfo.type !== GFXFormatType.FLOAT ? new Uint8Array(buffers[n++]) : new Float32Array(buffers[n++]));
-
-                        gl.texSubImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
-                            region.texOffset.x, region.texOffset.y, w, h,
-                            gpuTexture.glFormat, gpuTexture.glType, pixels);
-
+                        const pixels = (fmtInfo.type === GFXFormatType.FLOAT && !isCompressed ? new Float32Array(buffers[n++]) : new Uint8Array(buffers[n++]));
+                        if (!isCompressed) {
+                            gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                                region.texOffset.x, region.texOffset.y, w, h,
+                                gpuTexture.glFormat, gpuTexture.glType, pixels);
+                        } else {
+                            if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                                gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                                    region.texOffset.x, region.texOffset.y, w, h,
+                                    gpuTexture.glFormat, pixels);
+                            } else {
+                                gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
+                                    gpuTexture.glInternelFmt, w, h, 0, pixels);
+                            }
+                        }
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, w >> 1);
                     }

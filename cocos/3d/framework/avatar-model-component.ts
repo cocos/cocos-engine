@@ -96,17 +96,8 @@ export class AvatarModelComponent extends SkinningModelComponent {
         const texBuffers: ArrayBuffer[] = [];
         const texBufferRegions: GFXBufferTextureCopy[] = [];
 
-        this._mesh
-
         for (const unit of this._units) {
             if (unit) {
-
-                // merge mesh
-                if (unit.mesh) {
-                    for (let i = 0; i < unit.mesh.subMeshCount; ++i) {
-                        const subMesh = unit.mesh.getSubMesh(i);
-                    }
-                }
 
                 // merge textures
                 const isValid = (unit.region.x > 0 && unit.region.y > 0) &&

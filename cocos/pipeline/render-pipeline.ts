@@ -375,7 +375,6 @@ export abstract class RenderPipeline {
 
         if (!this._isHDR) {
             this._colorFmt = GFXFormat.RGBA8;
-            console.error('RenderPipeline doesn\'t support HDR.');
         }
 
         if (this._device.depthBits === 24) {
