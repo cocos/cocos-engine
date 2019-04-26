@@ -23,16 +23,16 @@
  ****************************************************************************/
 
 import { Texture2D } from '../../assets';
+import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Rect } from '../../core';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { GFXBufferTextureCopy } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { Mesh } from '../assets';
 import { SkinningModelComponent } from './skinning-model-component';
-import { GFXTextureCopy } from '../../gfx/define';
-import { Filter, PixelFormat } from '../../assets/asset-enum';
 
 export interface IAvatarUnit {
-    mesh: Mesh;
+    mesh: Mesh | null;
     region: Rect;
     albedoMap: Texture2D | null;
     alphaMap: Texture2D | null;
@@ -71,6 +71,8 @@ export class AvatarModelComponent extends SkinningModelComponent {
     public onLoad () {
         super.onLoad();
 
+        this._mesh = new Mesh();
+
         this._combinedTex = new Texture2D();
         this._combinedTex.setFilters(Filter.LINEAR, Filter.LINEAR);
         this.resizeCombiendTexture();
@@ -90,20 +92,33 @@ export class AvatarModelComponent extends SkinningModelComponent {
     public combine () {
 
         const texImages: TexImageSource[] = [];
-        const texImageRegions: GFXTextureCopy[] = [];
+        const texImageRegions: GFXBufferTextureCopy[] = [];
         const texBuffers: ArrayBuffer[] = [];
-        const texBufferRegions: GFXTextureCopy[] = [];
+        const texBufferRegions: GFXBufferTextureCopy[] = [];
+
+        this._mesh
 
         for (const unit of this._units) {
             if (unit) {
+
+                // merge mesh
+                if (unit.mesh) {
+                    for (let i = 0; i < unit.mesh.subMeshCount; ++i) {
+                        const subMesh = unit.mesh.getSubMesh(i);
+                    }
+                }
+
+                // merge textures
                 const isValid = (unit.region.x > 0 && unit.region.y > 0) &&
                     (unit.region.width > 0 && unit.region.height > 0) &&
                     (unit.region.x + unit.region.width) <= this._combinedTexSize &&
                     (unit.region.y + unit.region.height) <= this._combinedTexSize;
-
                 if (isValid && unit.albedoMap && unit.albedoMap.image && unit.albedoMap.image.data) {
-
-                    const region = new GFXTextureCopy();
+                    const region = new GFXBufferTextureCopy();
+                    region.texOffset.x = unit.region.x;
+                    region.texOffset.y = unit.region.y;
+                    region.texExtent.width = unit.region.width;
+                    region.texExtent.height = unit.region.height;
 
                     const data = unit.albedoMap.image.data;
                     if (data instanceof HTMLCanvasElement || data instanceof HTMLImageElement) {
@@ -119,10 +134,14 @@ export class AvatarModelComponent extends SkinningModelComponent {
 
         const gfxTex = this._combinedTex!.getGFXTexture();
         const device: GFXDevice = cc.director.root.device;
-        for (const buff of texBuffers) {
-            // device.copyBuffersToTexture(texBuffers, gfxTex!, );
+
+        if (texBuffers.length > 0) {
+            device.copyTexImagesToTexture(texImages, gfxTex!, texImageRegions);
         }
-        // device.copyTexImagesToTexture();
+
+        if (texBuffers.length > 0) {
+            device.copyBuffersToTexture(texBuffers, gfxTex!, texBufferRegions);
+        }
     }
 
     private resizeCombiendTexture () {

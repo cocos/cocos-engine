@@ -24,6 +24,7 @@ import {
     IGFXFormatInfo,
     IGFXRect,
     IGFXViewport,
+    GFXFormatSize,
 } from '../define';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import {
@@ -794,8 +795,9 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                             h = Math.max(1, h >> 1);
                         }
                     } else {
-                        const view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                            const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                            const view: ArrayBufferView = { buffer: new ArrayBuffer(imgSize), byteLength: imgSize, byteOffset: 0 };
                             gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
                             w = Math.max(1, w >> 1);
                             h = Math.max(1, h >> 1);
@@ -847,12 +849,12 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         }
                     }
                 } else {
-                    const view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
-
                     for (let f = 0; f < 6; ++f) {
                         let w = gpuTexture.width;
                         let h = gpuTexture.height;
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                            const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                            const view: ArrayBufferView = { buffer: new ArrayBuffer(imgSize), byteLength: imgSize, byteOffset: 0 };
                             gl.compressedTexImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
                             w = Math.max(1, w >> 1);
                             h = Math.max(1, h >> 1);
@@ -929,8 +931,9 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
                         h = Math.max(1, h >> 1);
                     }
                 } else {
-                    const view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                        const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                        const view: ArrayBufferView = { buffer: new ArrayBuffer(imgSize), byteLength: imgSize, byteOffset: 0 };
                         gl.compressedTexImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternelFmt, w, h, 0, view);
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);
@@ -961,12 +964,12 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
                     }
                 }
             } else {
-                const view: ArrayBufferView = { buffer: new ArrayBuffer(0), byteLength: 0, byteOffset: 0 };
-
                 for (let f = 0; f < 6; ++f) {
                     let w = gpuTexture.width;
                     let h = gpuTexture.height;
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                        const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
+                        const view: ArrayBufferView = { buffer: new ArrayBuffer(imgSize), byteLength: imgSize, byteOffset: 0 };
                         gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, view);
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);

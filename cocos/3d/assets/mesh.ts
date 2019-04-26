@@ -281,7 +281,7 @@ export class Mesh extends Asset {
 
             srcOffset = bundle.view.offset;
             dstOffset = dstBundle.view.offset;
-            vertStride = bundle.view.stride;
+            vertStride = bundle.view.stride + 4;
             vertCount = bundle.view.count + dstBundle.view.count;
 
             vb = new ArrayBuffer(vertCount * vertStride);

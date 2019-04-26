@@ -309,11 +309,13 @@ export class LetterAtlas {
 
         this._letterDefinitions.set(letterTexture.hash, letterDefinition);
 
+        /*
         const region = new GFXBufferTextureCopy();
         region.texOffset.x = letterDefinition.offsetX;
         region.texOffset.y = letterDefinition.offsetY;
         region.texExtent.width = letterDefinition.w;
         region.texExtent.height = letterDefinition.h;
+        */
 
         return letterDefinition;
     }
