@@ -61,7 +61,7 @@ export class AnimationManager {
     public addAnimation (anim: AnimationState) {
         const index = this._anims.array.indexOf(anim);
         if (index === -1) {
-            anim.blendState = this.blendState;
+            anim.attachToBlendState(this._blendState);
             this._anims.push(anim);
         }
     }
@@ -69,7 +69,7 @@ export class AnimationManager {
     public removeAnimation (anim: AnimationState) {
         const index = this._anims.array.indexOf(anim);
         if (index >= 0) {
-            anim.blendState = null;
+            anim.detachFromBlendState(this._blendState);
             this._anims.fastRemoveAt(index);
         } else {
             errorID(3907);

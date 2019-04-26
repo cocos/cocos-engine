@@ -31,6 +31,7 @@
 // tslint:disable:jsdoc-format
 // tslint:disable:forin
 
+import { errorID, warnID } from '../platform/CCDebug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
 import { cloneable_DEV, isPlainEmptyObj_DEV } from '../utils/misc';
@@ -89,7 +90,7 @@ const deferredInitializer: any = {
                     declareProperties(cls, name, properties, cls.$super, data.mixins);
                 }
                 else {
-                    cc.errorID(3633, name);
+                    errorID(3633, name);
                 }
             }
             this.datas = null;
@@ -105,7 +106,7 @@ function appendProp (cls, name) {
         //    return;
         // }
         if (name.indexOf('.') !== -1) {
-            cc.errorID(3634);
+            errorID(3634);
             return;
         }
     }
@@ -123,14 +124,14 @@ function defineProp (cls, className, propName, val, es6) {
                 if (Array.isArray(defaultValue)) {
                     // check array empty
                     if (defaultValue.length > 0) {
-                        cc.errorID(3635, className, propName, propName);
+                        errorID(3635, className, propName, propName);
                         return;
                     }
                 }
                 else if (!isPlainEmptyObj_DEV(defaultValue)) {
                     // check cloneable
                     if (!cloneable_DEV(defaultValue)) {
-                        cc.errorID(3636, className, propName, propName);
+                        errorID(3636, className, propName, propName);
                         return;
                     }
                 }
@@ -140,7 +141,7 @@ function defineProp (cls, className, propName, val, es6) {
         // check base prototype to avoid name collision
         if (CCClass.getInheritanceChain(cls)
             .some(function (x) { return x.prototype.hasOwnProperty(propName); })) {
-            cc.errorID(3637, className, propName, className);
+            errorID(3637, className, propName, className);
             return;
         }
     }
@@ -183,7 +184,7 @@ function defineGetSet (cls, name, propName, val, es6) {
 
     if (getter) {
         if (CC_DEV && !es6 && d && d.get) {
-            cc.errorID(3638, name, propName);
+            errorID(3638, name, propName);
             return;
         }
 
@@ -212,7 +213,7 @@ function defineGetSet (cls, name, propName, val, es6) {
     if (setter) {
         if (!es6) {
             if (CC_DEV && d && d.set) {
-                return cc.errorID(3640, name, propName);
+                return errorID(3640, name, propName);
             }
             js.set(proto, propName, setter, setterUndefined, setterUndefined);
         }
@@ -259,25 +260,25 @@ function doDefine (className, baseClass, mixins, options) {
         const ctorToUse = __ctor__ || ctor;
         if (ctorToUse) {
             if (CCClass._isCCClass(ctorToUse)) {
-                cc.errorID(3618, className);
+                errorID(3618, className);
             }
             else if (typeof ctorToUse !== 'function') {
-                cc.errorID(3619, className);
+                errorID(3619, className);
             }
             else {
                 if (baseClass && /\bprototype.ctor\b/.test(ctorToUse)) {
                     if (__es6__) {
-                        cc.errorID(3651, className || '');
+                        errorID(3651, className || '');
                     }
                     else {
-                        cc.warnID(3600, className || '');
+                        warnID(3600, className || '');
                         shouldAddProtoCtor = true;
                     }
                 }
             }
             if (ctor) {
                 if (__ctor__) {
-                    cc.errorID(3649, className);
+                    errorID(3649, className);
                 }
                 else {
                     ctor = options.ctor = _validateCtor_DEV(ctor, baseClass, className, options);
@@ -353,11 +354,11 @@ function define (className, baseClass, mixins, options) {
     if (frame && js.isChildClassOf(baseClass, Component)) {
         // project component
         if (js.isChildClassOf(frame.cls, Component)) {
-            cc.errorID(3615);
+            errorID(3615);
             return null;
         }
         if (CC_DEV && frame.uuid && className) {
-            cc.warnID(3616, className);
+            // warnID(3616, className);
         }
         className = className || frame.script;
     }
@@ -407,7 +408,7 @@ function getNewValueTypeCodeJit (value) {
         const prop = type.__props__[i];
         const propVal = value[prop];
         if (CC_DEV && typeof propVal === 'object') {
-            cc.errorID(3641, clsName);
+            errorID(3641, clsName);
             return 'new ' + clsName + '()';
         }
         res += propVal;
@@ -681,10 +682,10 @@ function _validateCtor_DEV (ctor, baseClass, className, options) {
         const originCtor = ctor;
         if (SuperCallReg.test(ctor)) {
             if (options.__ES6__) {
-                cc.errorID(3651, className);
+                errorID(3651, className);
             }
             else {
-                cc.warnID(3600, className);
+                warnID(3600, className);
                 // suppresss super call
                 ctor = function (this: any) {
                     this._super = function () { };
@@ -701,7 +702,7 @@ function _validateCtor_DEV (ctor, baseClass, className, options) {
         // To make a unified CCClass serialization process,
         // we don't allow parameters for constructor when creating instances of CCClass.
         // For advanced user, construct arguments can still get from 'arguments'.
-        cc.warnID(3617, className);
+        warnID(3617, className);
     }
 
     return ctor;
@@ -798,7 +799,7 @@ function boundSuperCalls (baseClass, options, className) {
             }
         }
         if (CC_DEV && SuperCallRegStrict.test(func)) {
-            cc.warnID(3620, className, funcName);
+            warnID(3620, className, funcName);
         }
     }
     return hasSuperCall;
@@ -981,7 +982,7 @@ export default function CCClass (options) {
         if (CC_DEV) {
             for (staticPropName in statics) {
                 if (INVALID_STATICS_DEV.indexOf(staticPropName) !== -1) {
-                    cc.errorID(3642, name, staticPropName,
+                    errorID(3642, name, staticPropName,
                         staticPropName);
                 }
             }
@@ -1010,7 +1011,7 @@ export default function CCClass (options) {
             cc.Component._registerEditorProps(cls, editor);
         }
         else if (CC_DEV) {
-            cc.warnID(3623, name);
+            warnID(3623, name);
         }
     }
 
@@ -1115,7 +1116,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         }
         else if (type === 'Object') {
             if (CC_DEV) {
-                cc.errorID(3644, className, propertyName);
+                errorID(3644, className, propertyName);
             }
         }
         else {
@@ -1127,7 +1128,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
                     });
                 }
                 else if (CC_DEV) {
-                    cc.errorID(3645, className, propertyName, type);
+                    errorID(3645, className, propertyName, type);
                 }
             }
             else if (typeof type === 'function') {
@@ -1146,7 +1147,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
                 }
             }
             else if (CC_DEV) {
-                cc.errorID(3646, className, propertyName, type);
+                errorID(3646, className, propertyName, type);
             }
         }
     }
@@ -1164,7 +1165,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
 
     if (attributes.editorOnly) {
         if (CC_DEV && usedInGetter) {
-            cc.errorID(3613, 'editorOnly', name, propertyName);
+            errorID(3613, 'editorOnly', name, propertyName);
         }
         else {
             (attrsProto || getAttrsProto())[attrsProtoKey + 'editorOnly'] = true;
@@ -1188,7 +1189,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     }
     if (attributes.serializable === false) {
         if (CC_DEV && usedInGetter) {
-            cc.errorID(3613, 'serializable', name, propertyName);
+            errorID(3613, 'serializable', name, propertyName);
         }
         else {
             (attrsProto || getAttrsProto())[attrsProtoKey + 'serializable'] = false;
@@ -1231,7 +1232,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
                 }
             }
             else if (CC_DEV) {
-                cc.errorID(3647);
+                errorID(3647);
             }
         }
         else if (CC_DEV) {

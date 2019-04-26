@@ -74,27 +74,6 @@ ccenum(EventType);
 @menu('Components/AnimationComponent')
 export class AnimationComponent extends EventTargetFactory(Component) {
 
-    @property({ type: Boolean })
-    get preview () {
-        return this._preview;
-    }
-
-    set preview (value) {
-        this._preview = value;
-        if (!this._defaultClip) {
-            return;
-        }
-        if (value) {
-            cc.engine.animatingInEditMode = true;
-            this.crossFade(this._defaultClip.name);
-            this._crossFade!.play();
-        } else {
-            cc.engine.animatingInEditMode = false;
-            this._crossFade!.stop();
-            this._crossFade!.sample();
-        }
-    }
-
     /**
      * !#en Animation will play the default clip when start game.
      * !#zh 在勾选自动播放或调用 play() 时默认播放的动画剪辑。
@@ -155,7 +134,6 @@ export class AnimationComponent extends EventTargetFactory(Component) {
      */
     @property
     public playOnLoad = false;
-    private _preview = false;
 
     private _crossFade: CrossFade | null = null;
     private _nameToState: { [name: string]: AnimationState; } = createMap(true);
