@@ -2,7 +2,7 @@ import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-s
 import { Node } from '../scene-graph';
 import { AnimationBlendState } from './animation-blend-state';
 import { AnimationClip } from './animation-clip';
-import { AnimCurve, EventAnimCurve, EventInfo } from './animation-curve';
+import { AnimCurve, DynamicAnimCurve, EventAnimCurve, EventInfo } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 
@@ -176,20 +176,11 @@ export class AnimationState extends Playable {
     private _clip: AnimationClip;
     private _name: string;
     private _lastIterations?: number;
-    private _blendState: AnimationBlendState | null = null;
 
     constructor (clip: AnimationClip, name?: string) {
         super();
         this._clip = clip;
         this._name = name || (clip && clip.name);
-    }
-
-    get blendState () {
-        return this._blendState;
-    }
-
-    set blendState (blendState: AnimationBlendState | null) {
-        this._blendState = blendState;
     }
 
     public initialize (root: Node) {
@@ -476,6 +467,30 @@ export class AnimationState extends Playable {
             }
 
             this._lastIterations = ratio;
+        }
+    }
+
+    public attachToBlendState (blendState: AnimationBlendState) {
+        for (const curve of this.curves) {
+            if (curve instanceof DynamicAnimCurve) {
+                if (!curve.target) {
+                    continue;
+                }
+                curve.setPropertyBlendTarget(
+                    blendState.refPropertyBlendTarget(curve.target, curve.prop));
+            }
+        }
+    }
+
+    public detachFromBlendState (blendState: AnimationBlendState) {
+        for (const curve of this.curves) {
+            if (curve instanceof DynamicAnimCurve) {
+                if (!curve.target) {
+                    continue;
+                }
+                blendState.derefPropertyBlendTarget(curve.target, curve.prop);
+                curve.setPropertyBlendTarget(null);
+            }
         }
     }
 

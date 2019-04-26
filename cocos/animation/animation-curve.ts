@@ -1,10 +1,7 @@
-import { Quat, ValueType, Vec3 } from '../core';
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
-import { quat } from '../core/value-types/quat';
-import { v3 } from '../core/value-types/vec3';
-import { PropertyBlendState } from './animation-blend-state';
+import { PropertyBlendState as PropertyBlendTarget } from './animation-blend-state';
 import { AnimationState } from './animation-state';
 import { bezierByTime } from './bezier';
 // import { easing } from './easing';
@@ -41,7 +38,7 @@ export type LerpFunction<T = any> = (from: T, to: T, t: number) => T;
  * If propertyBlendState.weight equals to zero, the propertyBlendState.value is dirty.
  * You shall handle this situation correctly.
  */
-export type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendState) => T;
+export type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendTarget) => T;
 
 export type FrameFinder = (framevalues: number[], value: number) => number;
 
@@ -136,6 +133,12 @@ export class DynamicAnimCurve extends AnimCurve {
 
     public _blendFunction: BlendFunction<any> | undefined = undefined;
 
+    private _propertyBlendTarget: PropertyBlendTarget<any> | null = null;
+
+    public setPropertyBlendTarget (value: PropertyBlendTarget<any> | null) {
+        this._propertyBlendTarget = value;
+    }
+
     public sample (time: number, ratio: number, state: AnimationState) {
         const values = this.values;
         const frameCount = this.ratioSampler ?
@@ -180,10 +183,10 @@ export class DynamicAnimCurve extends AnimCurve {
         }
 
         if (this.target) {
-            if (!this._blendFunction || !state.blendState) {
+            if (!this._blendFunction || !this._propertyBlendTarget || this._propertyBlendTarget.refCount <= 1) {
                 this.target[this.prop] = value;
             } else {
-                const propertyBlendState = state.blendState.getPropertyState(this.target, this.prop);
+                const propertyBlendState = this._propertyBlendTarget;
                 propertyBlendState.value = this._blendFunction(value, state.weight, propertyBlendState);
                 propertyBlendState.weight += state.weight;
             }
