@@ -83,8 +83,10 @@ class SharedRigidBody {
     private _onCollidedCallback: ICollisionCallback;
 
     private _transformInitialized: boolean = false;
-
+    /** 是否只有Collider组件 */
     private _isShapeOnly: boolean = true;
+    /** 上一次的缩放 */
+    private _prevScale: Vec3 = new Vec3();
 
     constructor (node: Node, world: PhysicsWorldBase) {
         this._body = createRigidBody({
@@ -210,37 +212,19 @@ class SharedRigidBody {
     }
 
     private _beforeStep () {
-        // const d = (reason: string) => {
-        //    console.log(`${reason} physics transform of [[${this._node.name}]] to : ` +
-        //        `Position: ${stringfyVec3(this._node.getWorldPosition())} ` +
-        //        `Rotation: ${stringfyQuat(this._node.getWorldRotation())} `);
-        // };
-
-        // if (!this._transformInitialized) {
-        //     // d(`Initialize`);
-        //     this._transformInitialized = true;
-        //     this.syncPhysWithScene(this._node);
-        //     this._activeBody();
-        // } else {
-        // }
 
         // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
         if (this._node.hasChanged) {
+            // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
+            if (!vec3.equals(this._prevScale, this._node._scale)) {
+                this.body.scaleAllShapes(this._node._scale);
+                vec3.copy(this._prevScale, this._node._scale);
+            }
             this.syncPhysWithScene(this._node);
         }
-
-        // if (!this.body.isPhysicsManagedTransform() && this._node.hasChanged) {
-        //     // d(`Synchronize`);
-        //     this.syncPhysWithScene(this._node);
-        //     this._activeBody();
-        // }
     }
 
     private _afterStep () {
-        // if (this.body.isPhysicsManagedTransform()) {
-        //     this._syncSceneWithPhys();
-        // }
-
         // 物理计算之后，除了只有形状组件的节点，其它有刚体组件的节点，并且刚体类型为DYNAMIC的，需要将计算结果同步到Scene中
         if (!this._isShapeOnly && this.body.getType() === ERigidBodyType.DYNAMIC) {
             this._syncSceneWithPhys();
