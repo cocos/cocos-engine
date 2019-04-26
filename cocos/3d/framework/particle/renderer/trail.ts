@@ -102,6 +102,9 @@ class TrailSegment {
 @ccclass('cc.TrailModule')
 export default class TrailModule {
 
+    @property({
+        displayOrder: 0,
+    })
     public get enable () {
         return this._enable;
     }
@@ -114,24 +117,24 @@ export default class TrailModule {
     }
 
     @property({
-        displayOrder: 0,
+        displayOrder: 1,
     })
     public _enable = false;
 
     @property({
         type: TrailMode,
-        displayOrder: 1,
+        displayOrder: 2,
     })
     public mode = TrailMode.Particles;
 
     @property({
-        displayOrder: 2,
+        displayOrder: 3,
     })
     public ratio = 1;
 
     @property({
         type: CurveRange,
-        displayOrder: 3,
+        displayOrder: 4,
     })
     public lifeTime = new CurveRange();
 
@@ -145,30 +148,30 @@ export default class TrailModule {
     }
 
     @property({
-        displayOrder: 4,
+        displayOrder: 5,
     })
     public _minParticleDistance = 0.1;
 
     @property({
         type: Space,
-        displayOrder: 5,
+        displayOrder: 6,
     })
     public space = Space.World;
 
     @property({
-        displayOrder: 6,
+        displayOrder: 7,
     })
     public existWithParticles = true;
 
     @property({
         type: TextureMode,
-        displayOrder: 7,
+        displayOrder: 8,
     })
     public textureMode = TextureMode.Stretch;
 
     @property({
         type: CurveRange,
-        displayOrder: 8,
+        displayOrder: 9,
     })
     public widthRatio = new CurveRange();
 
