@@ -135,7 +135,9 @@ function loadPVRTex (item) {
         let width = header[PVR_HEADER_WIDTH];
         let height = header[PVR_HEADER_HEIGHT];
         let dataOffset = header[PVR_HEADER_METADATA] + 52;
-        let pvrtcData = new Uint8Array(buffer, dataOffset);
+        // todo: use new Uint8Array(buffer, dataOffset) instead
+        buffer = buffer.slice(dataOffset, buffer.byteLength);
+        let pvrtcData = new Uint8Array(buffer);
         let pvrAsset = {
             _data: pvrtcData,
             _compressed: true,
@@ -148,7 +150,9 @@ function loadPVRTex (item) {
         var headerLength = header[0],
 		height = header[1],
         width = header[2]
-        let pvrtcData = new Uint8Array(buffer, headerLength);
+        // todo: use new Uint8Array(buffer, headerLength) instead
+        buffer = buffer.slice(headerLength, buffer.byteLength);
+        let pvrtcData = new Uint8Array(buffer);
         let pvrAsset = {
             _data: pvrtcData,
             _compressed: true,
@@ -193,7 +197,10 @@ function loadPKMTex(item) {
     let height = readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
     let encodedWidth = readBEUint16(header, ETC_PKM_ENCODED_WIDTH_OFFSET);
     let encodedHeight = readBEUint16(header, ETC_PKM_ENCODED_HEIGHT_OFFSET);
-    let etcData = new Uint8Array(buffer, ETC_PKM_HEADER_SIZE);
+    // todo: use new Uint8Array(buffer, ETC_PKM_HEADER_SIZE) instead
+    buffer = buffer.slice(ETC_PKM_HEADER_SIZE, buffer.byteLength);
+    let etcData = new Uint8Array(buffer);
+    
     let etcAsset = {
         _data: etcData,
         _compressed: true,
