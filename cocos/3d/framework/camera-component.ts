@@ -33,26 +33,29 @@ import { Camera } from '../../renderer';
 import { Scene } from '../../scene-graph';
 
 /**
- * !#en The light source type
- *
- * !#ch 光源类型
+ * @en
+ * The projection type
+ * @zh
+ * 投影类型
  * @static
  * @enum CameraComponent.Projection
  */
 const ProjectionType = Enum({
     /**
-     * !#en The orthogonal camera
-     *
-     * !#ch 正交相机
+     * @en
+     * The orthogonal camera
+     * @zh
+     * 正交相机
      * @property Ortho
      * @readonly
      * @type {Number}
      */
     ORTHO: 0,
     /**
-     * !#en The perspective camera
-     *
-     * !#ch 透视相机
+     * @en
+     * The perspective camera
+     * @zh
+     * 透视相机
      * @property Perspective
      * @readonly
      * @type {Number}
@@ -67,9 +70,8 @@ const CameraClearFlag = Enum({
 });
 
 /**
- * !#en The Camera Component
- *
- * !#ch 相机组件
+ * @en The Camera Component
+ * @zh 相机组件
  * @class CameraComponent
  * @extends Component
  */
@@ -113,9 +115,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The projection type of the camera
-     *
-     * !#ch 相机的投影类型
+     * @en The projection type of the camera
+     * @zh 相机的投影类型
      */
     @property({
         type: ProjectionType,
@@ -130,9 +131,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The camera field of view
-     *
-     * !#ch 相机的视角高度
+     * @en The camera field of view
+     * @zh 相机的视角大小
      */
     @property
     get fov () {
@@ -145,9 +145,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The camera height when in orthogonal mode
-     *
-     * !#ch 正交模式下的相机高度
+     * @en The camera height when in orthogonal mode
+     * @zh 正交模式下的相机视角大小
      */
     @property
     get orthoHeight () {
@@ -160,9 +159,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The near clipping distance of the camera
-     *
-     * !#ch 相机的近平面
+     * @en The near clipping distance of the camera
+     * @zh 相机的近平面
      */
     @property
     get near () {
@@ -175,9 +173,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The far clipping distance of the camera
-     *
-     * !#ch 相机的远平面
+     * @en The far clipping distance of the camera
+     * @zh 相机的远平面
      */
     @property
     get far () {
@@ -190,9 +187,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The color clearing value of the camera
-     *
-     * !#ch 相机的颜色缓冲默认值
+     * @en The color clearing value of the camera
+     * @zh 相机的颜色缓冲默认值
      */
     @property
     get color () {
@@ -201,15 +197,15 @@ export class CameraComponent extends Component {
 
     set color (val) {
         this._color = val;
-        if (this._camera) { this._camera.clearColor =
-            color4.create(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
+        if (this._camera) {
+            this._camera.clearColor =
+                color4.create(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
         }
     }
 
     /**
-     * !#en The depth clearing value of the camera
-     *
-     * !#ch 相机的深度缓冲默认值
+     * @en The depth clearing value of the camera
+     * @zh 相机的深度缓冲默认值
      */
     @property
     get depth () {
@@ -222,9 +218,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The stencil clearing value of the camera
-     *
-     * !#ch 相机的模板缓冲默认值
+     * @en The stencil clearing value of the camera
+     * @zh 相机的模板缓冲默认值
      */
     @property
     get stencil () {
@@ -237,9 +232,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The clearing flags of this camera
-     *
-     * !#ch 相机的缓冲清除标志位
+     * @en The clearing flags of this camera
+     * @zh 相机的缓冲清除标志位
      */
     @property({
         type: CameraClearFlag,
@@ -254,9 +248,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The screen viewport of the camera wrt. sceen size
-     *
-     * !#ch 相机相对屏幕的 viewport
+     * @en The screen viewport of the camera wrt. sceen size
+     * @zh 相机相对屏幕的 viewport
      */
     @property
     get rect () {
@@ -269,10 +262,9 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The scale of the interal buffer size,
+     * @en The scale of the interal buffer size,
      * set to 1 to keep the same with the canvas size
-     *
-     * !#ch 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同
+     * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同
      */
     @property
     get screenScale () {
@@ -285,9 +277,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * !#en The target display for this Camera.
-     *
-     * !#ch 相机的目标屏幕序号
+     * @en The target display for this Camera.
+     * @zh 相机的目标屏幕序号
      */
     @property
     get targetDisplay () {
