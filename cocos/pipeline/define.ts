@@ -170,7 +170,7 @@ localBindingsDesc.set(UBOForwardLight.BLOCK.name, {
     blockInfo: UBOForwardLight.BLOCK,
 });
 
-export const JointUniformCapacity = 65;
+export const JointUniformCapacity = 30;
 
 export class UBOSkinning {
     public static MAT_JOINT_OFFSET: number = 0;

@@ -326,9 +326,9 @@ export class AnimationState extends Playable {
         this._process();
     }
 
-    public _needRevers (currentIterations: number) {
+    public _needReverse (currentIterations: number) {
         const wrapMode = this.wrapMode;
-        let needRevers = false;
+        let needReverse = false;
 
         if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
             const isEnd = currentIterations - (currentIterations | 0) === 0;
@@ -338,13 +338,13 @@ export class AnimationState extends Playable {
 
             const isOddIteration = currentIterations & 1;
             if (isOddIteration) {
-                needRevers = !needRevers;
+                needReverse = !needReverse;
             }
         }
         if ((wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
-            needRevers = !needRevers;
+            needReverse = !needReverse;
         }
-        return needRevers;
+        return needReverse;
     }
 
     public getWrappedInfo (time: number, info?: WrappedInfo) {
@@ -375,19 +375,19 @@ export class AnimationState extends Playable {
             if (time !== 0) { time += duration; }
         }
 
-        let needRevers = false;
+        let needReverse = false;
         const shouldWrap = this._wrapMode & WrapModeMask.ShouldWrap;
         if (shouldWrap) {
-            needRevers = this._needRevers(currentIterations);
+            needReverse = this._needReverse(currentIterations);
         }
 
-        let direction = needRevers ? -1 : 1;
+        let direction = needReverse ? -1 : 1;
         if (this.speed < 0) {
             direction *= -1;
         }
 
         // calculate wrapped time
-        if (shouldWrap && needRevers) {
+        if (shouldWrap && needReverse) {
             time = duration - time;
         }
 
