@@ -27,7 +27,7 @@ export default class ForwardRenderer extends BaseRenderer {
     this._pointLights = [];
     this._spotLights = [];
     this._shadowLights = [];
-    this._sceneAmbient = new Float32Array([0, 0, 0]);
+    this._ambientLights = [];
 
     this._numLights = 0;
 
@@ -36,16 +36,6 @@ export default class ForwardRenderer extends BaseRenderer {
     this._registerStage('shadowcast', this._shadowStage.bind(this));
     this._registerStage('opaque', this._opaqueStage.bind(this));
     this._registerStage('transparent', this._transparentStage.bind(this));
-  }
-
-  get sceneAmbient () {
-    let ambient = this._sceneAmbient;
-    return cc.color(ambient.r * 255, ambient.g * 255, ambient.b * 255, 255);
-  }
-  set sceneAmbient (val) {
-    this._sceneAmbient[0] = val.r /255;
-    this._sceneAmbient[1] = val.g /255;
-    this._sceneAmbient[2] = val.b /255;
   }
 
   reset () {
@@ -96,6 +86,7 @@ export default class ForwardRenderer extends BaseRenderer {
     this._pointLights.length = 0;
     this._spotLights.length = 0;
     this._shadowLights.length = 0;
+    this._ambientLights.length = 0;
 
     let lights = scene._lights;
     for (let i = 0; i < lights.length; ++i) {
@@ -108,10 +99,15 @@ export default class ForwardRenderer extends BaseRenderer {
       }
       if (light._type === enums.LIGHT_DIRECTIONAL) {
         this._directionalLights.push(light);
-      } else if (light._type === enums.LIGHT_POINT) {
+      }
+      else if (light._type === enums.LIGHT_POINT) {
         this._pointLights.push(light);
-      } else {
+      }
+      else if (light._type === enums.LIGHT_SPOT) {
         this._spotLights.push(light);
+      }
+      else {
+        this._ambientLights.push(light);
       }
     }
 
@@ -125,13 +121,13 @@ export default class ForwardRenderer extends BaseRenderer {
     defines._NUM_DIR_LIGHTS = Math.min(4, this._directionalLights.length);
     defines._NUM_POINT_LIGHTS = Math.min(4, this._pointLights.length);
     defines._NUM_SPOT_LIGHTS = Math.min(4, this._spotLights.length);
+    defines._NUM_AMBIENT_LIGHTS = Math.min(4, this._ambientLights.length);
 
     defines._NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
   }
 
   _submitLightsUniforms () {
     let device = this._device;
-    device.setUniform('cc_sceneAmbient', this._sceneAmbient);
 
     _float16_pool.reset();
 
@@ -186,6 +182,18 @@ export default class ForwardRenderer extends BaseRenderer {
       device.setUniform('cc_spotLightPositionAndRange', positionAndRanges);
       device.setUniform('cc_spotLightDirection', directions);
       device.setUniform('cc_spotLightColor', colors);
+    }
+
+    if (this._ambientLights.length > 0) {
+      let colors = _float16_pool.add();
+
+      for (let i = 0; i < this._ambientLights.length; ++i) {
+        let light = this._ambientLights[i];
+        let index = i * 4;
+        colors.set(light._colorUniform, index);
+      }
+
+      device.setUniform('cc_ambientColor', colors);
     }
   }
 
