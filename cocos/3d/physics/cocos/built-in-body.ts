@@ -1,7 +1,6 @@
-import { Quat, Vec3 } from '../../../core';
-import { Node } from '../../../scene-graph';
+import { Quat, Vec3 } from '../../../core/value-types';
 import { intersect } from '../../geom-utils';
-import { ICollisionCallback, ICollisionEvent, PhysicsWorldBase, RigidBodyBase, ShapeBase } from '../api';
+import { ICollisionCallback, ICollisionEvent, PhysicsWorldBase, RigidBodyBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
 import { BuiltInShape } from './built-in-shape';
 import { BuiltInWorld } from './built-in-world';
