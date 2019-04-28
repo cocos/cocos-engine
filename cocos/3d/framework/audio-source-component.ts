@@ -45,19 +45,25 @@ export class AudioSourceComponent extends Component {
     private _cachedCurrentTime = 0;
 
     /**
+     * @en
      * The default AudioClip to play
+     * @zh
+     * 设定要播放的音频
      */
     @property({ type: AudioClip })
     set clip (val) {
-      this._clip = val;
-      this._syncStates();
+        this._clip = val;
+        this._syncStates();
     }
     get clip () {
         return this._clip;
     }
 
     /**
+     * @en
      * Is the audio clip looping?
+     * @zh
+     * 是否循环播放音频
      */
     @property({ type: Boolean })
     set loop (val) {
@@ -69,10 +75,15 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
-     * Is the autoplay enabled?
-     * Note that for the most time now the autoplay will only starts
-     * after a user gesture is received, according to the latest autoplay policy:
+     * @en
+     * Is the autoplay enabled? <br>
+     * Note that for the most time now the autoplay will only starts <br>
+     * after a user gesture is received, according to the latest autoplay policy: <br>
      * https://www.chromium.org/audio-video/autoplay
+     * @zh
+     * 是否启用自动播放 <br>
+     * 请注意，根据最新的自动播放策略，大部分自动播放仅在收到用户指令后生效 <br>
+     * 参看：https://www.chromium.org/audio-video/autoplay
      */
     @property({ type: Boolean })
     set playOnAwake (val) {
@@ -83,7 +94,13 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
+     * @en
      * The volume of this audio source (0.0 to 1.0).
+     * @zh
+     * 音频的音量（大小范围为 0.0 到 1.0 ）
+     *
+     * 请注意,在某些平台上，音量控制可能不起效<br>
+     * 请注意,在 ios 平台的 dom 模式下控制音量将无法生效
      */
     @property({ type: Number })
     set volume (val) {
@@ -105,7 +122,13 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
+     * @en
      * Plays the clip
+     * @zh
+     * 开始播放音频
+     *
+     * 如果音频处于正在播放状态，将会重新开始播放音频 <br>
+     * 如果音频处于暂停状态，则会继续播放音频
      */
     public play () {
         if (!this._clip) { return; }
@@ -114,7 +137,10 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
+     * @en
      * Pause the clip
+     * @zh
+     * 暂停播放
      */
     public pause () {
         if (!this._clip) { return; }
@@ -122,7 +148,10 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
+     * @en
      * Stop the clip
+     * @zh
+     * 停止播放
      */
     public stop () {
         if (!this._clip) { return; }
@@ -130,7 +159,12 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
-     * Plays an AudioClip, and scales volume by volumeScale.
+     * @en Plays an AudioClip, and scales volume by volumeScale.
+     * @zh 以指定音量播放一个音频一次
+     *
+     * 请注意，视平台不同同时重复播放的音频效果存在差异 <br>
+     * 在 dom 模式下，不支持同时进行多重播放，所以在多重播放时将会产生重新播放的效果 <br>
+     * 在微信模式下，不支持同时进行多重播放，所以在多重播放时将会产生重新播放的效果
      * @param clip - the clip being played
      * @param volumeScale - the scale of the volume (0-1).
      */
@@ -147,7 +181,10 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
+     * @en
      * set current playback time, in seconds
+     * @zh
+     * 以秒为单位设置当前播放时间
      * @param num the playback time you want to jump to
      */
     set currentTime (num: number) {
@@ -157,7 +194,10 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
+     * @en
      * get the current playback time, in seconds
+     * @zh
+     * 以秒为单位获取当前播放时间
      * @returns time current playback time
      */
     get currentTime () {
@@ -166,7 +206,10 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
+     * @en
      * get the audio duration, in seconds
+     * @zh
+     * 以秒为单位获取音频持续时间
      * @returns audio duration
      */
     get duration () {
@@ -175,7 +218,10 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
+     * @en
      * get current audio state
+     * @zh
+     * 获取当前音频状态
      * @returns current audio state
      */
     get state () {
@@ -184,7 +230,10 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
+     * @en
      * is the audio currently playing?
+     * @zh
+     * 当前音频是否正在播放
      */
     get playing () {
         return this.state === AudioClip.PlayingState.PLAYING;

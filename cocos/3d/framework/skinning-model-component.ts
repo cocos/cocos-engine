@@ -42,8 +42,8 @@ const _m4_tmp2 = new Mat4();
 type SkinningTarget = Map<string, Node>;
 
 /**
- * !#en The Skinning Model Component
- * !#ch 皮肤模型组件
+ * @en The Skinning Model Component
+ * @zh 蒙皮模型组件
  */
 @ccclass('cc.SkinningModelComponent')
 @executionOrder(100)
@@ -52,11 +52,10 @@ type SkinningTarget = Map<string, Node>;
 export class SkinningModelComponent extends ModelComponent {
 
     /**
-     * !#en The bone nodes
-     *
-     * !#ch 骨骼节点
+     * @en The bone nodes
+     * @zh 骨骼节点
      */
-    @property({type: Skeleton})
+    @property({ type: Skeleton })
     get skeleton () {
         return this._skeleton;
     }
@@ -69,7 +68,10 @@ export class SkinningModelComponent extends ModelComponent {
         this._bindSkeleton();
     }
 
-    @property({type: Node})
+    /**
+     * 骨骼根节点的引用
+     */
+    @property({ type: Node })
     get skinningRoot () {
         return this._skinningRoot;
     }
