@@ -2094,7 +2094,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                         glWrapT = gl.CLAMP_TO_EDGE;
                                                     }
 
-                                                    if (gpuTexture.isPowerOf2 && gpuTexture.mipLevel > 1) {
+                                                    if (gpuTexture.isPowerOf2
+                                                        // && gpuTexture.mipLevel > 1
+                                                        ) {
                                                         glMinFilter = gpuSampler.glMinFilter;
                                                     } else {
                                                         if (gpuSampler.glMinFilter === gl.LINEAR ||
@@ -2574,7 +2576,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, pixels);
                         } else {
-                            gl.compressedTexImage2D(gl.TEXTURE_2D, m, 
+                            gl.compressedTexImage2D(gl.TEXTURE_2D, m,
                                 gpuTexture.glInternelFmt, w, h, 0, pixels);
                         }
                     }
