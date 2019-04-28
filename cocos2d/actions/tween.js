@@ -406,7 +406,7 @@ let actions = {
      * Add an parallel action
      * !#zh
      * 添加一个并行 action
-     * @method sequence
+     * @method parallel
      * @param {[Action|Tween]} actions
      * @return {Tween}
      */
