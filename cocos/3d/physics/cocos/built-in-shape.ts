@@ -1,5 +1,4 @@
-import { Quat, Vec3 } from '../../../core';
-import { vec3 } from '../../../core/vmath';
+import { Quat, Vec3 } from '../../../core/value-types';
 import { ShapeBase } from '../api';
 import { EShapeType } from '../physic-enum';
 import { BuiltInBody } from './built-in-body';
