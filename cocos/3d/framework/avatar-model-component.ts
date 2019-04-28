@@ -55,7 +55,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
 
     private _units: Array<IAvatarUnit | null> = [];
 
-    @property({ visible: false })
+    @property({ override: true, visible: false })
     get mesh (): Mesh | null {
         return this._mesh;
     }
