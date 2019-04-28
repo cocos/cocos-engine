@@ -200,10 +200,14 @@ gulp.task('test-in-ci', function () {
 // docs //
 ////////////
 
+gulp.task('build-3d-docs-default', function () {
+    DocsBuilder.docsGeneratorDefault();
+});
+
 gulp.task('build-3d-json-file', function () {
     DocsBuilder.tempJsonGenerate();
 });
 
 gulp.task('build-3d-docs', ['build-3d-json-file'], function () {
-    DocsBuilder.docsGeneratorDefault();
+    DocsBuilder.docsGeneratorWithLocalization();
 });
