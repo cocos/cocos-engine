@@ -28,8 +28,18 @@ export class UITransformComponent extends Component {
             return;
         }
 
+        let clone: Size;
+        if (CC_EDITOR){
+            clone = new Size(this._contentSize);
+        }
+
         this._contentSize.set(value);
-        this.node.emit(EventType.SIZE_CHANGED, this._contentSize);
+        if (CC_EDITOR) {
+            // @ts-ignore
+            this.node.emit(EventType.SIZE_CHANGED, clone);
+        } else {
+            this.node.emit(EventType.SIZE_CHANGED);
+        }
 
     }
 
@@ -42,8 +52,18 @@ export class UITransformComponent extends Component {
             return;
         }
 
+        let clone: Size;
+        if (CC_EDITOR) {
+            clone = new Size(this._contentSize);
+        }
+
         this._contentSize.width = value;
-        this.node.emit(EventType.SIZE_CHANGED, this._contentSize);
+        if (CC_EDITOR) {
+            // @ts-ignore
+            this.node.emit(EventType.SIZE_CHANGED, clone);
+        } else {
+            this.node.emit(EventType.SIZE_CHANGED);
+        }
     }
 
     get height () {
@@ -55,8 +75,18 @@ export class UITransformComponent extends Component {
             return;
         }
 
+        let clone: Size;
+        if (CC_EDITOR) {
+            clone = new Size(this._contentSize);
+        }
+
         this._contentSize.height = value;
-        this.node.emit(EventType.SIZE_CHANGED, this._contentSize);
+        if (CC_EDITOR) {
+            // @ts-ignore
+            this.node.emit(EventType.SIZE_CHANGED, clone);
+        } else {
+            this.node.emit(EventType.SIZE_CHANGED);
+        }
     }
 
     @property
@@ -128,10 +158,15 @@ export class UITransformComponent extends Component {
      */
     public setContentSize (size: Size|number, height?: number) {
         const locContentSize = this._contentSize;
+        let clone: Size;
         if (height === undefined) {
             size = size as Size;
             if ((size.width === locContentSize.width) && (size.height === locContentSize.height)) {
                 return;
+            }
+
+            if (CC_EDITOR){
+                clone = new Size(this._contentSize);
             }
 
             locContentSize.width = size.width;
@@ -141,11 +176,20 @@ export class UITransformComponent extends Component {
                 return;
             }
 
+            if (CC_EDITOR) {
+                clone = new Size(this._contentSize);
+            }
+
             locContentSize.width = size as number;
             locContentSize.height = height;
         }
 
-        this.node.emit(EventType.SIZE_CHANGED, this._contentSize);
+        if (CC_EDITOR){
+            // @ts-ignore
+            this.node.emit(EventType.SIZE_CHANGED, clone);
+        }else{
+            this.node.emit(EventType.SIZE_CHANGED);
+        }
     }
 
     /**
