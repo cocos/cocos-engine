@@ -12,6 +12,7 @@ import { createBoxShape, createSphereShape } from '../../physics/instance';
 import { ERigidBodyType, ETransformSource } from '../../physics/physic-enum';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
+@ccclass('cc.ColliderComponentBase')
 export class ColliderComponentBase extends PhysicsBasedComponent {
     protected _shapeBase!: ShapeBase;
 
