@@ -185,6 +185,11 @@ export default class ParticleBatchModel extends Model {
             this._vdataF32![offset++] = pvdata[2].x;
             this._vdataF32![offset++] = pvdata[2].y;
             this._vdataUint32![offset++] = pvdata[3];
+            if (pvdata[4]) {
+                this._vdataF32![offset++] = pvdata[4].x;
+                this._vdataF32![offset++] = pvdata[4].y;
+                this._vdataF32![offset++] = pvdata[4].z;
+            }
         } else {
             for (let i = 0; i < this._vertCount; i++) {
                 let offset: number = (index * this._vertCount + i) * this._vertAttrsFloatCount;

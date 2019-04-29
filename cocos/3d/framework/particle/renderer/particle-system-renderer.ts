@@ -319,6 +319,8 @@ export default class ParticleSystemRenderer extends RenderableComponent {
 
                     if (uploadVel) {
                         this.attrs[attrNum++] = p.ultimateVelocity;
+                    } else {
+                        this.attrs[attrNum++] = null;
                     }
 
                     this._model!.addParticleVertexData(idx++, this.attrs);
