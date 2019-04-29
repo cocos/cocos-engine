@@ -38,7 +38,7 @@ function isTextureStorage (storage: JointStorage): storage is ITextureStorage {
     return storage.kind === JointStorageKind.textureRGBA8 || storage.kind === JointStorageKind.textureRGBA32F;
 }
 
-export const __FORCE_USE_UNIFORM_STORAGE__ = true;
+export const __FORCE_USE_UNIFORM_STORAGE__ = false;
 export const __DEFER_BINDPOSE_COMPUTATION__ = true;
 
 export class SkinningModel extends Model {
@@ -181,9 +181,9 @@ export function selectStorageKind (device: GFXDevice): JointStorageKind {
     if (__FORCE_USE_UNIFORM_STORAGE__) {
         return JointStorageKind.uniform;
     } else if (device.gfxAPI === GFXAPI.WEBGL2) {
-        return JointStorageKind.uniform; // BUG Now
+        return JointStorageKind.textureRGBA32F;
     } else if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-        return JointStorageKind.textureRGBA8;
+        return JointStorageKind.textureRGBA32F;
     } else {
         return JointStorageKind.textureRGBA8;
     }
@@ -342,14 +342,6 @@ const encodeIEEE754Single = (() => {
         return Math.pow(2, x);
     }
 
-    const numberToFloat32 = (() => {
-        const f32storage = new Float32Array(1);
-        return (x: number) => {
-            f32storage[0] = x;
-            return f32storage[0];
-        };
-    })();
-
     function decode (r: number, g: number, b: number, a: number) {
         // http://class.ece.iastate.edu/arun/Cpre305/ieee754/ie4.html
         // http://class.ece.iastate.edu/arun/Cpre305/ieee754/ie5.html
@@ -382,7 +374,7 @@ const encodeIEEE754Single = (() => {
     interface IColor { r: number; g: number; b: number; a: number; }
 
     function encode1 (f: number, out: IColor) {
-        f = numberToFloat32(f);
+        f = Math.fround(f);
 
         // https://stackoverflow.com/questions/7059962/how-do-i-convert-a-vec4-rgba-value-to-a-float
         // http://www.shaderific.com/glsl-functions/
@@ -430,6 +422,9 @@ const encodeIEEE754Single = (() => {
     const encode2 = (() => {
         const f32storage = new Float32Array(1);
         const uints = new Uint8Array(f32storage.buffer);
+        function isNegativeZero (f: number) {
+            return f === 0 && 1 / f === -Infinity;
+        }
         if (cc.sys.isLittleEndian) {
             return (f: number, out: IColor) => {
                 f32storage[0] = f;
@@ -437,6 +432,9 @@ const encodeIEEE754Single = (() => {
                 out.g = uints[2];
                 out.b = uints[1];
                 out.a = uints[0];
+                if (isNegativeZero(f)) {
+                    out.r = 0;
+                }
             };
         } else {
             return (f: number, out: IColor) => {
@@ -445,6 +443,9 @@ const encodeIEEE754Single = (() => {
                 out.g = uints[1];
                 out.b = uints[2];
                 out.a = uints[3];
+                if (isNegativeZero(f)) {
+                    out.r = 0;
+                }
             };
         }
     })();
