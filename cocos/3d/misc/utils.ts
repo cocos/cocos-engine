@@ -23,7 +23,12 @@ const _defAttrs: IGFXAttribute[] = [
     { name: 'a_color', format: GFXFormat.RGBA32F },
 ];
 
-export function createMesh (geometry: IGeometry, out?: Mesh) {
+export interface ICreateMeshOptions {
+    calculateBounds?: boolean;
+}
+
+export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
+    options = options || {};
     // Collect attributes and calculate length of result vertex buffer.
     const attributes: IGFXAttribute[] = [];
     let stride = 0;
@@ -189,7 +194,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
     }
 
     let minPosition = geometry.minPos;
-    if (!minPosition) {
+    if (!minPosition && options.calculateBounds) {
         minPosition = vec3.set(new vec3(), Infinity, Infinity, Infinity);
         for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
             vec3.set(tmpVec3, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
@@ -197,7 +202,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
         }
     }
     let maxPosition = geometry.maxPos;
-    if (!maxPosition) {
+    if (!maxPosition && options.calculateBounds) {
         maxPosition = vec3.set(new vec3(), -Infinity, -Infinity, -Infinity);
         for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
             vec3.set(tmpVec3, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
@@ -209,9 +214,13 @@ export function createMesh (geometry: IGeometry, out?: Mesh) {
     const meshStruct: IMeshStruct = {
         vertexBundles: [vertexBundle],
         primitives: [primitive],
-        minPosition: new Vec3(minPosition.x, minPosition.y, minPosition.z),
-        maxPosition: new Vec3(maxPosition.x, maxPosition.y, maxPosition.z),
     };
+    if (minPosition) {
+        meshStruct.minPosition = new Vec3(minPosition.x, minPosition.y, minPosition.z);
+    }
+    if (maxPosition) {
+        meshStruct.maxPosition = new Vec3(maxPosition.x, maxPosition.y, maxPosition.z);
+    }
 
     // Create mesh.
     if (!out) { out = new Mesh(); }
