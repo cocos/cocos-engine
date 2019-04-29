@@ -50,8 +50,8 @@ var particleSystemAssembler = {
     updateRenderData (comp) {
         if (!comp._renderData) {
             comp._renderData = new renderEngine.IARenderData();
-            comp._renderData.ia = comp._ia;
         }
+        comp._renderData.ia = comp._ia;
         comp._renderData.material = comp._material;
     },
 

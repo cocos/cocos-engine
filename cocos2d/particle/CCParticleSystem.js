@@ -867,12 +867,6 @@ var ParticleSystem = cc.Class({
         }
     },
 
-    onLoad () {
-        if (!this._ia) {
-            ParticleSystem._assembler.createIA(this);
-        }
-    },
-
     onEnable () {
         this._super();
         this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
@@ -887,6 +881,9 @@ var ParticleSystem = cc.Class({
             this._buffer.destroy();
             this._buffer = null;
         }
+        this._ia = null;
+        // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
+        this._simulator._uvFilled = 0;
         this._super();
     },
     
@@ -1205,6 +1202,10 @@ var ParticleSystem = cc.Class({
             this._material.useTexture = true;
             this._material.useModel = true;
             this._material.useColor = false;
+        }
+
+        if (!this._ia) {
+            ParticleSystem._assembler.createIA(this);
         }
 
         if (!this._texture || !this._texture.loaded) {

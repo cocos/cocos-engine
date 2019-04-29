@@ -9366,7 +9366,7 @@ function _commitVertexBuffers(device, gl, cur, next) {
     for (var i$2 = 0; i$2 < next.maxStream + 1; ++i$2) {
       var vb = next.vertexBuffers[i$2];
       var vbOffset = next.vertexBufferOffsets[i$2];
-      if (!vb) {
+      if (!vb || vb._glID === -1) {
         continue;
       }
 
@@ -10164,7 +10164,7 @@ Device.prototype.draw = function draw (base, count) {
 
   // commit index-buffer
   if (cur.indexBuffer !== next.indexBuffer) {
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, next.indexBuffer ? next.indexBuffer._glID : null);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, next.indexBuffer && next.indexBuffer._glID !== -1 ? next.indexBuffer._glID : null);
   }
 
   // commit program
