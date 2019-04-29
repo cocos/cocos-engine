@@ -13,7 +13,11 @@ export class BuiltInBody implements RigidBodyBase {
     set collisionFilterGroup (v: number) { this._collisionFilterGroup = v; }
     get collisionFilterMask () { return this._collisionFilterMask; }
     set collisionFilterMask (v: number) { this._collisionFilterMask = v; }
-
+    /** id生成器 */
+    private static idCounter: number = 0;
+    /** 刚体id */
+    private readonly _id: number;
+    public get id () { return this._id; }
     /** 刚体类型 */
     private type: ERigidBodyType = ERigidBodyType.DYNAMIC;
     /** 属于的组 */
@@ -29,9 +33,11 @@ export class BuiltInBody implements RigidBodyBase {
     /** Body对应的场景对象 */
     private userData: any;
 
-    constructor (options) { }
+    constructor (options) {
+        this._id = BuiltInBody.idCounter++;
+    }
 
-    public intersects (body: BuiltInBody) {
+    public intersects (body: BuiltInBody): boolean {
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < this._shapes.length; i++) {
             const shapeA = this._shapes[i];
@@ -39,19 +45,31 @@ export class BuiltInBody implements RigidBodyBase {
             for (let j = 0; j < body._shapes.length; j++) {
                 const shapeB = body._shapes[j];
                 if (intersect.resolve(shapeA.shape, shapeB.shape)) {
-                    const event: ICollisionEvent = {
-                        source: this,
-                        target: body,
-                    };
-                    for (const callback of this._collisionCallbacks) {
-                        callback(event);
-                    }
-                    for (const callback of body._collisionCallbacks) {
-                        callback(event);
-                    }
+                    return true;
                 }
             }
         }
+        return false;
+    }
+    public onCollisionEnter (event: ICollisionEvent) {
+        // TODO : Enter事件
+    }
+    public onCollisionStay (event: ICollisionEvent) {
+        // TODO : Stay事件
+    }
+    public onCollisionExit (event: ICollisionEvent) {
+        // TODO : Exit事件
+    }
+    public onTriggerEnter (event: ICollisionEvent) {
+        for (const callback of this._collisionCallbacks) {
+            callback(event);
+        }
+    }
+    public onTriggerStay (event: ICollisionEvent) {
+        // TODO : Stay事件
+    }
+    public onTriggerExit (event: ICollisionEvent) {
+        // TODO : Exit事件
     }
     public getType (): ERigidBodyType {
         return this.type;

@@ -1,7 +1,8 @@
 import { Vec3 } from '../../../core';
-import { AfterStepCallback, BeforeStepCallback, IRaycastOptions, PhysicsWorldBase, RigidBodyBase } from '../api';
+import { AfterStepCallback, BeforeStepCallback, ICollisionEvent, IRaycastOptions, PhysicsWorldBase, RigidBodyBase } from '../api';
 import { RaycastResult } from '../raycast-result';
 import { BuiltInBody } from './built-in-body';
+import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
 
 /**
  * Built-in collision system, intended for use as a
@@ -12,6 +13,12 @@ export class BuiltInWorld implements PhysicsWorldBase {
   private _bodies: RigidBodyBase[] = [];
   private _customBeforeStepListener: BeforeStepCallback[] = [];
   private _customAfterStepListener: AfterStepCallback[] = [];
+
+  /** 碰撞矩阵 */
+  private _collisionMatrix: ArrayCollisionMatrix = new ArrayCollisionMatrix();
+  /** 上一次的碰撞矩阵 */
+  // private _preCollisionMatrix: ArrayCollisionMatrix = new ArrayCollisionMatrix();
+
   constructor () {
   }
   public step (deltaTime: number): void {
@@ -32,7 +39,35 @@ export class BuiltInWorld implements PhysicsWorldBase {
           continue;
         }
 
-        bodyA.intersects(bodyB);
+        if (bodyA.intersects(bodyB)) {
+          const event: ICollisionEvent = {
+            source: bodyA,
+            target: bodyB,
+          };
+          if (this._collisionMatrix.get(bodyA.id, bodyB.id)) {
+            // TODO: 触发Stay
+            bodyA.onTriggerStay(event);
+            bodyB.onTriggerStay(event);
+          } else {
+            this._collisionMatrix.set(bodyA.id, bodyB.id, true);
+            /** 是第一次 */ // TODO: 触发Enter
+            bodyA.onTriggerEnter(event);
+            bodyB.onTriggerEnter(event);
+          }
+        } else {
+          if (this._collisionMatrix.get(bodyA.id, bodyB.id)) {
+            // TODO: 触发Exiter
+            const event: ICollisionEvent = {
+              source: bodyA,
+              target: bodyB,
+            };
+            bodyA.onTriggerExit(event);
+            bodyB.onTriggerExit(event);
+          }
+
+          this._collisionMatrix.set(bodyA.id, bodyB.id, false);
+        }
+
       }
 
       this._customAfterStepListener.forEach((fx) => fx());

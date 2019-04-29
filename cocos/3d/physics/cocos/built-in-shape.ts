@@ -3,8 +3,8 @@ import { ShapeBase } from '../api';
 import { EShapeType } from '../physic-enum';
 import { BuiltInBody } from './built-in-body';
 import { IShapeTransform } from './built-in-interface';
-import { BoxShape } from './built-in-shape/BoxShape';
-import { SphereShape } from './built-in-shape/SphereShape';
+import { BoxShape } from './shapes/BoxShape';
+import { SphereShape } from './shapes/SphereShape';
 
 export class BuiltInShape implements ShapeBase {
     get shape () { return this._shape; }
