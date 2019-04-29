@@ -15,7 +15,8 @@
     "build:min": "uglifyjs ./bin/cocos-3d.dev.js --mangle --source-map -o ./bin/cocos-3d.min.js",
     "build-rollup": "tsc --build rollup/tsconfig.json",
     "postinstall": "npm run build-rollup",
-    "buildDocs": "gulp build-3d-docs"
+    "build-Docs": "gulp build-3d-docs",
+    "build-Docs-Default": "gulp build-3d-docs-default"
   },
   "repository": {
     "type": "git",

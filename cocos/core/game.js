@@ -710,7 +710,7 @@ class Game extends EventTarget {
                 nativeWidth: Math.floor(screen.width * cc.view._devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * cc.view._devicePixelRatio),
             };
-            // fallback if WebGL2 is actually unavailable
+            // fallback if WebGL2 is actually unavailable (usually due to driver issues)
             if (!this._gfxDevice.initialize(opts) && useWebGL2) {
                 this._gfxDevice = new cc.WebGLGFXDevice();
                 this._gfxDevice.initialize(opts);

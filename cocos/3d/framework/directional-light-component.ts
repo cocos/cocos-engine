@@ -40,9 +40,10 @@ export class DirectionalLightComponent extends LightComponent {
     protected _light: DirectionalLight | null = null;
 
     /**
-     * !#en The light source intensity
-     *
-     * !#ch 光源强度
+     * @en
+     * The light source intensity
+     * @zh
+     * 光源强度
      */
     @property({ unit: 'lx' })
     get illuminance () {

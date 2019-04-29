@@ -13,7 +13,8 @@ const indexPath = `${process.cwd()}/index.ts`;
 const outputPath = {
     json: `${process.cwd()}/docs-3d/tempJson`,
     zh: `${process.cwd()}/docs-3d/zh`,
-    en: `${process.cwd()}/docs-3d/en`
+    en: `${process.cwd()}/docs-3d/en`,
+    default: `${process.cwd()}/docs-3d/default`
 }
 exports.tempJsonGenerate = function () {
     // typedoc command
@@ -87,6 +88,26 @@ exports.docsGeneratorEN = function (done) {
 }
 
 exports.docsGeneratorDefault = function () {
+        // typedoc command
+        let command = [
+            indexPath,
+            '--mode',
+            mode,
+            '--out',
+            outputPath.default,
+            '--name',
+            docsName,
+            '--disableOutputCheck',
+            '--ignoreCompilerErrors',
+        ];
+        let child = spawn('typedoc', command, {
+            shell: true,
+            env: process.env,
+        });
+        executeTypeDocCommand(child);
+}
+
+exports.docsGeneratorWithLocalization = function () {
     this.docsGeneratorZH();
     this.docsGeneratorEN();
 }
@@ -96,7 +117,7 @@ function checkJsonFileExists () {
     try {
         existsSync(outputPath.json)
     }
-    catch {
+    catch (e) {
         console.warn(`Rendering is short of the relied file`);
         return false;
     }

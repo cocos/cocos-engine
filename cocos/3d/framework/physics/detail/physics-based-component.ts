@@ -33,7 +33,9 @@ export class PhysicsBasedComponent extends Component {
     }
 
     public onDisable () {
-        this.sharedBody!.disable();
+        if (this.sharedBody) {
+            this.sharedBody!.disable();
+        }
     }
 
     public destroy () {
@@ -41,6 +43,7 @@ export class PhysicsBasedComponent extends Component {
             this._sharedBody.deref();
             this._sharedBody = null;
         }
+        super.destroy();
     }
 
     private _refSharedBody () {
