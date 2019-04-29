@@ -272,16 +272,18 @@ export class ParticleSystemComponent extends Component {
 
     protected onDestroy () {
         // this._system.remove(this);
+        this.trailModule.destroy();
     }
 
     protected onEnable () {
         if (this.playOnAwake) {
             this.play();
         }
+        this.trailModule.onEnable();
     }
 
     protected onDisable () {
-
+        this.trailModule.onDisable();
     }
 
     // TODO: fastforward current particle system by simulating particles over given period of time, then pause it.
