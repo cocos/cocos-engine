@@ -40,7 +40,7 @@ export interface IRenderQueueDesc {
     sortFunc: (a: IRenderPass, b: IRenderPass) => number;
 }
 
-const MAX_BINDING_SUPPORTED = 30; // from WebGL 2 spec
+const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
 export enum UniformBinding {
     // UBOs
     UBO_GLOBAL = MAX_BINDING_SUPPORTED - 1,
@@ -170,7 +170,7 @@ localBindingsDesc.set(UBOForwardLight.BLOCK.name, {
     blockInfo: UBOForwardLight.BLOCK,
 });
 
-export const JointUniformCapacity = 30;
+export const JointUniformCapacity = 24;
 
 export class UBOSkinning {
     public static MAT_JOINT_OFFSET: number = 0;
