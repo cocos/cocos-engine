@@ -24,16 +24,16 @@
 
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
-import { Rect } from '../../core';
+import { Vec2 } from '../../core';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { GFXBufferTextureCopy } from '../../gfx/define';
+import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { Mesh } from '../assets';
 import { SkinningModelComponent } from './skinning-model-component';
 
 export interface IAvatarUnit {
     mesh: Mesh | null;
-    region: Rect;
+    offset: Vec2;
     albedoMap: Texture2D | null;
     alphaMap: Texture2D | null;
 }
@@ -60,7 +60,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
         return this._mesh;
     }
 
-    get parts (): Array<IAvatarUnit | null> {
+    get units (): Array<IAvatarUnit | null> {
         return this._units;
     }
 
@@ -87,29 +87,70 @@ export class AvatarModelComponent extends SkinningModelComponent {
             this._combinedTex.destroy();
             this._combinedTex = null;
         }
+
+        if (this._mesh) {
+            this._mesh.destroy();
+            this._mesh = null;
+        }
+    }
+
+    public addUnit (unit: IAvatarUnit) {
+        this._units.push(unit);
+    }
+
+    public clear () {
+        if (this._mesh) {
+            this._mesh.destroy();
+        }
     }
 
     public combine () {
-
         const texImages: TexImageSource[] = [];
         const texImageRegions: GFXBufferTextureCopy[] = [];
         const texBuffers: ArrayBuffer[] = [];
         const texBufferRegions: GFXBufferTextureCopy[] = [];
+        let uvOffset = 0;
+        let dataView: DataView;
+        let uv_x: number;
+        let uv_y: number;
+        const isLittleEndian = cc.sys.isLittleEndian;
 
         for (const unit of this._units) {
             if (unit) {
-
-                // merge textures
-                const isValid = (unit.region.x > 0 && unit.region.y > 0) &&
-                    (unit.region.width > 0 && unit.region.height > 0) &&
-                    (unit.region.x + unit.region.width) <= this._combinedTexSize &&
-                    (unit.region.y + unit.region.height) <= this._combinedTexSize;
+                const offset = unit.offset;
+                const isValid = (offset.x >= 0 && offset.y >= 0);
                 if (isValid && unit.albedoMap && unit.albedoMap.image && unit.albedoMap.image.data) {
+
+                    // merge textures
+                    if (unit.mesh && unit.mesh.data) {
+                        dataView = new DataView(unit.mesh.data);
+                        const struct = unit.mesh.struct;
+                        for (const bundle of struct.vertexBundles) {
+                            uvOffset = bundle.view.offset;
+                            for (const attr of bundle.attributes) {
+                                if (attr.name.indexOf(GFXAttributeName.ATTR_TEX_COORD) >= 0) {
+                                    break;
+                                }
+                                uvOffset += GFXFormatInfos[attr.format].size;
+                            }
+                            for (let v = 0; v < bundle.view.count; ++v) {
+                                uv_x = dataView.getFloat32(uvOffset, isLittleEndian) + offset.x;
+                                uv_y = dataView.getFloat32(uvOffset + 4, isLittleEndian) + offset.y;
+                                dataView.setFloat32(uvOffset, uv_x, isLittleEndian);
+                                dataView.setFloat32(uvOffset + 4, uv_y, isLittleEndian);
+                                uvOffset += bundle.view.stride;
+                            }
+                        }
+
+                        this._mesh!.merge(unit.mesh);
+                    }
+
+                    // merge textures
                     const region = new GFXBufferTextureCopy();
-                    region.texOffset.x = unit.region.x;
-                    region.texOffset.y = unit.region.y;
-                    region.texExtent.width = unit.region.width;
-                    region.texExtent.height = unit.region.height;
+                    region.texOffset.x = offset.x;
+                    region.texOffset.y = offset.y;
+                    region.texExtent.width = unit.albedoMap.image.width;
+                    region.texExtent.height = unit.albedoMap.image.height;
 
                     const data = unit.albedoMap.image.data;
                     if (data instanceof HTMLCanvasElement || data instanceof HTMLImageElement) {

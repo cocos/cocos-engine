@@ -261,6 +261,83 @@ export class Mesh extends Asset {
             }
         } // if
 
+        if (!this._data && mesh._data) {
+            this._struct.vertexBundles = new Array<IVertexBundle>(mesh._struct.vertexBundles.length);
+            for (let i = 0; i < mesh._struct.vertexBundles.length; ++i) {
+                const bundle = mesh._struct.vertexBundles[i];
+
+                const attributes = new Array<IGFXAttribute>(bundle.attributes.length);
+                for (let a = 0; a < bundle.attributes.length; ++a) {
+                    const attr = bundle.attributes[a];
+                    attributes[a] = {
+                        name: attr.name,
+                        format: attr.format,
+                        isNormalized: attr.isNormalized,
+                        stream: attr.stream,
+                        isInstanced: attr.isInstanced,
+                    };
+                }
+                this._struct.vertexBundles[i] = {
+                    view: {
+                        offset: bundle.view.offset,
+                        length: bundle.view.length,
+                        count: bundle.view.count,
+                        stride: bundle.view.stride,
+                    },
+                    attributes,
+                };
+            }
+
+            this._struct.primitives = new Array<IPrimitive>(mesh._struct.primitives.length);
+            for (let p = 0; p < mesh._struct.primitives.length; ++p) {
+                const prim = mesh._struct.primitives[p];
+                this._struct.primitives[p] = {
+                    vertexBundelIndices: prim.vertexBundelIndices.slice(),
+                    primitiveMode: prim.primitiveMode,
+                };
+
+                const srcPrim = this._struct.primitives[p];
+
+                if (prim.indexView) {
+                    srcPrim.indexView = {
+                        offset: prim.indexView.offset,
+                        length: prim.indexView.length,
+                        count: prim.indexView.count,
+                        stride: prim.indexView.stride,
+                    };
+                }
+
+                if (prim.geometricInfo) {
+                    srcPrim.geometricInfo = {
+                        doubleSided: prim.geometricInfo.doubleSided,
+                        view: {
+                            offset: prim.geometricInfo.view.offset,
+                            length: prim.geometricInfo.view.length,
+                            count: prim.geometricInfo.view.count,
+                            stride: prim.geometricInfo.view.stride,
+                        },
+                    };
+                }
+            }
+
+            if (mesh._struct.minPosition) {
+                this._struct.minPosition = new Vec3();
+                this._struct.minPosition.x = mesh._struct.minPosition.x;
+                this._struct.minPosition.y = mesh._struct.minPosition.y;
+                this._struct.minPosition.z = mesh._struct.minPosition.z;
+            }
+            if (mesh._struct.maxPosition) {
+                this._struct.maxPosition = new Vec3();
+                this._struct.maxPosition.x = mesh._struct.maxPosition.x;
+                this._struct.maxPosition.y = mesh._struct.maxPosition.y;
+                this._struct.maxPosition.z = mesh._struct.maxPosition.z;
+            }
+
+            this._data = mesh._data.slice();
+            this._init ();
+            return true;
+        }
+
         // merge buffer
         const bufferBlob = new BufferBlob();
 
@@ -281,7 +358,7 @@ export class Mesh extends Asset {
 
             srcOffset = bundle.view.offset;
             dstOffset = dstBundle.view.offset;
-            vertStride = bundle.view.stride + 4;
+            vertStride = bundle.view.stride;
             vertCount = bundle.view.count + dstBundle.view.count;
 
             vb = new ArrayBuffer(vertCount * vertStride);
@@ -446,6 +523,10 @@ export class Mesh extends Asset {
     }
 
     public validateMergingMesh (mesh: Mesh) {
+        if (!this._data && mesh._data) {
+            return true;
+        }
+
         // validate vertex bundles
         if (this._struct.vertexBundles.length !== mesh._struct.vertexBundles.length) {
             return false;
