@@ -114,6 +114,9 @@ export default class TrailModule {
         if (this._enable) {
             this._createModel();
         }
+        if (this._trailModel) {
+            this._trailModel.enabled = val;
+        }
     }
 
     @property({
@@ -228,6 +231,25 @@ export default class TrailModule {
         if (this._enable) {
             this.enable = this._enable;
             this._updateMaterial();
+        }
+    }
+
+    public onEnable () {
+        if (this._enable && this._trailModel) {
+            this._trailModel.enabled = true;
+        }
+    }
+
+    public onDisable () {
+        if (this._enable && this._trailModel) {
+            this._trailModel.enabled = false;
+        }
+    }
+
+    public destroy () {
+        if (this._trailModel) {
+            this._particleSystem._getRenderScene().destroyModel(this._trailModel!);
+            this._trailModel = null;
         }
     }
 
