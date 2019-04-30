@@ -1,5 +1,4 @@
-import { CameraComponent } from '../3d';
-import { UITransformComponent } from '../3d/ui/components/ui-transfrom-component';
+import { CameraComponent, UITransformComponent } from '../3d';
 import { Vec3 } from '../core';
 import { Node } from '../scene-graph';
 

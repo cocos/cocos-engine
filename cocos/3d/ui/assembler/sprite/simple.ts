@@ -24,11 +24,11 @@
  ****************************************************************************/
 
 import { Vec3 } from '../../../../core/value-types';
-import { color4, vec3 } from '../../../../core/vmath/index';
+import { color4, vec3 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
-import { SpriteComponent } from '../../components/sprite-component';
+import { SpriteComponent } from '../../components';
 import { IAssembler } from '../assembler';
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 const matrix = cc.mat4();

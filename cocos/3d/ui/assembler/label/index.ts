@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { BitmapFont } from '../../../../assets/bitmap-font';
-import { LabelComponent} from '../../components/label-component';
+import { BitmapFont } from '../../../../assets';
+import { LabelComponent} from '../../components';
 import { IAssemblerManager } from '../assembler';
 import { bmfont } from './bmfont';
 import { letter } from './letter';

@@ -22,19 +22,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
-import { SpriteComponent } from '../../components/sprite-component';
-const FillType = SpriteComponent.FillType;
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 import { Mat4 } from '../../../../core/value-types';
-import { color4, vec3 } from '../../../../core/vmath/index';
+import { color4, vec3 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
+import { SpriteComponent } from '../../components';
 import { IAssembler } from '../assembler';
 import { fillVerticesWithoutCalc3D } from '../utils';
 
+const FillType = SpriteComponent.FillType;
 const matrix = new Mat4();
 const color_temp = color4.create();
 

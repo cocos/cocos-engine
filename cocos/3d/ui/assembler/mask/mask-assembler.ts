@@ -26,7 +26,7 @@
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
-import { MaskComponent } from '../../components/mask-component';
+import { MaskComponent } from '../../components';
 import { IAssembler, IAssemblerManager } from '../assembler';
 import { StencilManager } from './stencil-manager';
 

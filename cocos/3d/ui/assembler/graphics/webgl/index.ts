@@ -23,12 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { GraphicsComponent } from '../../../components/graphics-component';
-import { UIRenderComponent } from '../../../components/ui-render-component';
+import { GraphicsComponent, UIRenderComponent } from '../../../components';
 import { IAssemblerManager } from '../../assembler';
 import { graphicsAssembler } from './graphics-assembler';
 
-const graphicsAssemblerManager: IAssemblerManager = {
+export const graphicsAssemblerManager: IAssemblerManager = {
     getAssembler (sprite: UIRenderComponent) {
         return graphicsAssembler;
     },

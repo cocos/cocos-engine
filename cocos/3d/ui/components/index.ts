@@ -3,7 +3,7 @@ export { DebugCanvasComponent } from './debug-canvas-component';
 export { UIComponent } from './ui-component';
 export { ButtonComponent } from './button-component';
 export { EditBoxComponent } from './editbox/edit-box-component';
-export { LabelComponent } from './label-component';
+export * from './label-component';
 export { LayoutComponent } from './layout-component';
 export { MaskComponent } from './mask-component';
 export { ProgressBarComponent } from './progress-bar-component';
@@ -21,3 +21,6 @@ export { ViewGroupComponent } from './view-group-component';
 export { WebviewComponent } from './webview/webView-component';
 export { WidgetComponent } from './widget-component';
 export { LabelOutlineComponent } from './label-outline-component';
+export { GraphicsComponent } from './graphics-component';
+
+export { widgetManager } from './widget-manager';

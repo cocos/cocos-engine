@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { UIRenderComponent } from '../components/ui-render-component';
+import { UIRenderComponent } from '../components';
 
 export interface IAssembler {
     [key: string]: any;

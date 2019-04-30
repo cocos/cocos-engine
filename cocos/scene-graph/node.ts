@@ -1,4 +1,4 @@
-import { UITransformComponent } from '../3d/ui';
+import { UITransformComponent } from '../3d';
 import { ccclass, property } from '../core/data/class-decorator';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';

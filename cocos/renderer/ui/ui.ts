@@ -1,10 +1,8 @@
 
-import { CanvasComponent } from '../../3d';
+import { CanvasComponent, IAssembler, MeshBuffer, StencilManager, UIComponent, UIRenderComponent } from '../../3d';
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
-import { IAssembler, MeshBuffer, UIComponent, UIRenderComponent } from '../../3d/ui';
-import { StencilManager } from '../../3d/ui/assembler/mask/stencil-manager';
 import { SpriteFrame } from '../../assets';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
