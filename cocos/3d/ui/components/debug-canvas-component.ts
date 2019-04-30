@@ -1,10 +1,9 @@
 import { Vec3 } from '../../../core/value-types';
 import { GFXClearFlag } from '../../../gfx/define';
-import { CameraComponent } from '../../framework';
 import { CanvasComponent } from './canvas-component';
 
 const _worldPos = new Vec3();
-export class DebugCanvasComponent extends CanvasComponent{
+export class DebugCanvasComponent extends CanvasComponent {
     constructor (){
         super();
         this._thisOnResized = this.alignWithScreen.bind(this);
@@ -16,7 +15,7 @@ export class DebugCanvasComponent extends CanvasComponent{
         this._camera = cc.director.root.ui.renderScene.createCamera({
             name: 'ui',
             node: cameraNode,
-            projection: CameraComponent.ProjectionType.ORTHO,
+            projection: cc.CameraComponent.ProjectionType.ORTHO,
             targetDisplay: 0,
             priority: this._priority,
             isUI: true,
@@ -94,3 +93,5 @@ export class DebugCanvasComponent extends CanvasComponent{
     }
 
 }
+
+cc.DebugCanvasComponent = DebugCanvasComponent;

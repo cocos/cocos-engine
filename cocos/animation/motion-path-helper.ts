@@ -1,6 +1,6 @@
-import { Vec2 } from '../core';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
+import { Vec2 } from '../core/value-types';
 import { computeRatioByType, CurveType, CurveValue, DynamicAnimCurve, ICurveTarget } from './animation-curve';
 import { bezier } from './bezier';
 

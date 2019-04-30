@@ -1,4 +1,4 @@
-import { UITransformComponent } from '../3d/ui/components/ui-transfrom-component';
+import { UITransformComponent } from '../3d/ui';
 import { ccclass, property } from '../core/data/class-decorator';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
@@ -86,7 +86,7 @@ class Node extends BaseNode {
 
     get uiTransfromComp () {
         if (!this._uiTransfromComp){
-            this._uiTransfromComp = this.getComponent(UITransformComponent);
+            this._uiTransfromComp = this.getComponent('cc.UITransformComponent') as UITransformComponent;
         }
 
         return this._uiTransfromComp;
@@ -857,7 +857,7 @@ class Node extends BaseNode {
     public off (type: string, callback: Function, target?: Object, useCapture?: any) {
         this._eventProcessor.off(type, callback, target, useCapture);
 
-        var hasListeners = this._eventProcessor.hasEventListener(type);
+        const hasListeners = this._eventProcessor.hasEventListener(type);
         // All listener removed
         if (!hasListeners) {
             switch (type) {

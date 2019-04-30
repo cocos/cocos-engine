@@ -23,8 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { Component} from '../../../components/component';
-import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
+import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ToggleComponent} from './toggle-component';
 

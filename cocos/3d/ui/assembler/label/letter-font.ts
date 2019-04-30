@@ -24,9 +24,9 @@
  ****************************************************************************/
 
 import { ImageAsset, SpriteFrame, Texture2D } from '../../../../assets';
-import { Color, Rect, Size, Vec2 } from '../../../../core';
 import { mixin } from '../../../../core/utils/js';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../../core/utils/text-utils';
+import { Color, Rect, Size, Vec2 } from '../../../../core/value-types';
 import { GFXBufferTextureCopy, GFXFormat, GFXTextureType } from '../../../../gfx/define';
 import { LabelComponent } from '../../components/label-component';
 import { LabelOutlineComponent } from '../../components/label-outline-component';

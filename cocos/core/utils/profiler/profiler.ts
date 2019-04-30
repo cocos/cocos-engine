@@ -24,12 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { DebugCanvasComponent } from '../../../3d/ui/components/debug-canvas-component';
-import { LabelComponent } from '../../../3d/ui/components/label-component';
-import { UITransformComponent } from '../../../3d/ui/components/ui-transfrom-component';
-import { WidgetComponent } from '../../../3d/ui/components/widget-component';
+import { DebugCanvasComponent, LabelComponent, WidgetComponent } from '../../../3d';
 import { ImageAsset, SpriteFrame } from '../../../assets';
-import { LabelAtlas } from '../../../assets/label-atlas';
+import { LabelAtlas } from '../../../assets';
 import { GFXDevice } from '../../../gfx/device';
 import { Node } from '../../../scene-graph/node';
 import { ICounterOption } from './counter';
@@ -170,16 +167,16 @@ function generateNode () {
     }
 
     _rootNode = new Node('PROFILER-NODE');
-    _rootNode.addComponent(UITransformComponent);
-    const screen =  _rootNode.addComponent(DebugCanvasComponent);
+    _rootNode.addComponent('cc.UITransformComponent');
+    const screen = _rootNode.addComponent('DebugCanvasComponent') as DebugCanvasComponent;
     cc.game.addPersistRootNode(_rootNode);
     // const camera = cc.director.root.
 
     const managerNode = new Node('ROOT');
-    managerNode.addComponent(UITransformComponent);
+    managerNode.addComponent('cc.UITransformComponent');
     managerNode.parent = _rootNode;
     managerNode.anchorX = managerNode.anchorY = 0;
-    const widgetComp = managerNode.addComponent(WidgetComponent);
+    const widgetComp = managerNode.addComponent('cc.WidgetComponent') as WidgetComponent;
     if (widgetComp) {
         widgetComp.isAlignBottom = true;
         widgetComp.isAlignLeft = true;
@@ -194,7 +191,7 @@ function generateNode () {
 
     const left = new Node('LEFT-PANEL');
     left.parent = managerNode;
-    const leftLabel = left.addComponent(LabelComponent);
+    const leftLabel = left.addComponent('cc.LabelComponent') as LabelComponent;
     left.anchorX = left.anchorY = 0;
     if (leftLabel){
         leftLabel.font = _atlas;
@@ -204,7 +201,7 @@ function generateNode () {
 
     const right = new Node('RIGHT-PANEL');
     right.parent = managerNode;
-    const rightLabel = right.addComponent(LabelComponent);
+    const rightLabel = right.addComponent('cc.LabelComponent') as LabelComponent;
     right.anchorX = 1;
     right.anchorY = 0;
     const pos = right.getPosition();

@@ -23,18 +23,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
-//
-import { SpriteFrame } from '../../../assets/sprite-frame';
-import { Component} from '../../../components/component';
-import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
+
+import { SpriteFrame } from '../../../assets';
+import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventMouse, EventTouch } from '../../../core/platform/event-manager';
-import { EventType } from '../../../core/platform/event-manager/event-enum';
-import { lerp } from '../../../core/utils/misc';
+import { EventMouse, EventTouch, EventType } from '../../../core/platform';
+import { lerp } from '../../../core/utils';
+import { Color, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
-import { Color, Vec3 } from '../../../core/value-types/index';
-import * as math from '../../../core/vmath/index';
+import * as math from '../../../core/vmath';
 import { Node } from '../../../scene-graph';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from './ui-render-component';

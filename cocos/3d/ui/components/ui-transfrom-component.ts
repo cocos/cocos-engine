@@ -1,4 +1,4 @@
-import { Component} from '../../../components/component';
+import { Component } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventType } from '../../../core/platform/event-manager/event-enum';
 import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';

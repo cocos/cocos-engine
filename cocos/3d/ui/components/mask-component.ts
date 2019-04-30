@@ -23,9 +23,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { SpriteFrame } from '../../../assets/sprite-frame';
+import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
-import { EventType } from '../../../core/platform/event-manager/event-enum';
+import { EventType } from '../../../core/platform';
 import { Mat4, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import * as vmath from '../../../core/vmath';

@@ -25,7 +25,7 @@
 
 import { ccclass} from '../../../../core/data/class-decorator';
 import sys from '../../../../core/platform/CCSys';
-import * as utils from '../../../../core/utils/misc';
+import * as utils from '../../../../core/utils';
 import * as vmath from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph';
 import { UIRenderComponent } from '../ui-render-component';

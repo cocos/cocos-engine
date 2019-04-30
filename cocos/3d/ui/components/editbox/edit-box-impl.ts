@@ -28,13 +28,12 @@
 
 import { ccclass } from '../../../../core/data/class-decorator';
 import macro from '../../../../core/platform/CCMacro';
-import { contains } from '../../../../core/utils/misc';
+import { contains } from '../../../../core/utils';
 import { Color, Mat4, Size, Vec3 } from '../../../../core/value-types';
 import * as math from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 import { UIRenderComponent } from '../ui-render-component';
 import { EditBoxComponent} from './edit-box-component';
-// import { InputMode, InputFlag, KeyboardReturnType } from './types';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 
 // https://segmentfault.com/q/1010000002914610

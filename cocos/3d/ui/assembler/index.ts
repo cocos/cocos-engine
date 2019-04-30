@@ -28,4 +28,6 @@ import './graphics/webgl/index';
 import './label/index';
 import './mask/index';
 import './sprite/index';
+
+export * from './assembler';
 // require('./motion-streak');

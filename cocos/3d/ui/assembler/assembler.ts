@@ -23,15 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// import { SpriteFrame } from '../../../assets/CCSpriteFrame';
-// import { Rect } from '../../../core/value-types';
-// import { IARenderData, RenderData } from '../../../renderer/ui/renderData';
-// import { UI } from '../../../renderer/ui/ui';
-// import { GraphicsComponent } from '../components/graphics-component';
 import { UIRenderComponent } from '../components/ui-render-component';
-// import { LineJoin } from './graphics/types';
-// import { Impl, Point } from './graphics/webgl/impl';
-// import { ISharedLabelData } from './label/ttfUtils';
 
 export interface IAssembler {
     [key: string]: any;

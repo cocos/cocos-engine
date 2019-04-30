@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
+import { EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ButtonComponent} from './button-component';
 import { SpriteComponent} from './sprite-component';

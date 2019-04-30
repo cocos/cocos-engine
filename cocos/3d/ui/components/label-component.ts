@@ -24,10 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { BitmapFont } from '../../../assets/bitmap-font';
-import { Font} from '../../../assets/font';
-import { ImageAsset } from '../../../assets/image-asset';
-import { SpriteFrame } from '../../../assets/sprite-frame';
+import { BitmapFont, Font, ImageAsset, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';

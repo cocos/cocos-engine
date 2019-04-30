@@ -24,13 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { CameraComponent } from '../../../3d/framework/camera-component';
-import { Component } from '../../../components/component';
+import { Component } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { Size, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { GFXClearFlag } from '../../../gfx/define';
-import { Camera } from '../../../renderer/scene/camera';
+import { Camera } from '../../../renderer';
 import { UITransformComponent } from './ui-transfrom-component';
 
 const _worldPos = new Vec3();
@@ -168,7 +167,7 @@ export class CanvasComponent extends Component {
             this._camera = cc.director.root.ui.renderScene.createCamera({
                 name: 'ui',
                 node: cameraNode,
-                projection: CameraComponent.ProjectionType.ORTHO,
+                projection: cc.CameraComponent.ProjectionType.ORTHO,
                 targetDisplay: 0,
                 priority: this._priority,
                 isUI: true,

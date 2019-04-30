@@ -23,9 +23,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
+import { EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventTouch } from '../../../core/platform/event-manager';
+import { EventTouch } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
 import { Enum, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';

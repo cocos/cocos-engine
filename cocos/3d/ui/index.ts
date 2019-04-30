@@ -1,24 +1,4 @@
 
-import './assembler/index';
-export { ButtonComponent } from './components/button-component';
-export { CanvasComponent } from './components/canvas-component';
-export { EditBoxComponent } from './components/editbox/edit-box-component';
-export { LabelComponent } from './components/label-component';
-export { LayoutComponent } from './components/layout-component';
-export { MaskComponent } from './components/mask-component';
-export { ProgressBarComponent } from './components/progress-bar-component';
-export { RichTextComponent } from './components/rich-text';
-export { ScrollBarComponent } from './components/scroll-bar-component';
-export { ScrollViewComponent } from './components/scroll-view-component';
-export { SliderComponent } from './components/slider-component';
-export { SpriteComponent } from './components/sprite-component';
-export { ToggleComponent } from './components/toggle-component';
-export { ToggleContainerComponent } from './components/toggle-container-component';
-export { UIModelComponent } from './components/ui-model-component';
-export { UIRenderComponent } from './components/ui-render-component';
-export { UITransformComponent } from './components/ui-transfrom-component';
-export { ViewGroupComponent } from './components/view-group-component';
-export { WebviewComponent } from './components/webview/webView-component';
-export { WidgetComponent } from './components/widget-component';
-export { LabelOutlineComponent } from './components/label-outline-component';
-export { DebugCanvasComponent } from './components/debug-canvas-component';
+export * from './assembler';
+export * from './components';
+export { MeshBuffer } from './mesh-buffer';

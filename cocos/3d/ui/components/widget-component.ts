@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Component} from '../../../components/component';
+import { Component} from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { ccenum } from '../../../core/value-types/enum';
 import { Node } from '../../../scene-graph/node';
