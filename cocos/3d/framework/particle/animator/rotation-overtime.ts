@@ -10,6 +10,9 @@ const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 @ccclass('cc.RotationOvertimeModule')
 export default class RotationOvertimeModule {
 
+    /**
+     * 是否启用
+     */
     @property({
         displayOrder: 0,
     })
@@ -18,6 +21,9 @@ export default class RotationOvertimeModule {
     @property
     private _separateAxes = false;
 
+    /**
+     * 是否三个轴分开设定旋转（暂不支持）
+     */
     @property({
         displayOrder: 1,
     })
@@ -34,18 +40,27 @@ export default class RotationOvertimeModule {
         }
     }
 
+    /**
+     * 绕 X 轴设定旋转
+     */
     @property({
         type: CurveRange,
         displayOrder: 2,
     })
     public x = new CurveRange();
 
+    /**
+     * 绕 Y 轴设定旋转
+     */
     @property({
         type: CurveRange,
         displayOrder: 3,
     })
     public y = new CurveRange();
 
+    /**
+     * 绕 X 轴设定旋转
+     */
     @property({
         type: CurveRange,
         displayOrder: 4,

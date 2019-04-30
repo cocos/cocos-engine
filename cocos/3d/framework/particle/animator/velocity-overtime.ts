@@ -11,35 +11,53 @@ const VELOCITY_OVERTIME_RAND_OFFSET = 197866;
 @ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule {
 
+    /**
+     * 是否启用
+     */
     @property({
         displayOrder: 0,
     })
     public enable = false;
 
+    /**
+     * X 轴方向上的速度分量
+     */
     @property({
         type: CurveRange,
         displayOrder: 2,
     })
     public x = new CurveRange();
 
+    /**
+     * Y 轴方向上的速度分量
+     */
     @property({
         type: CurveRange,
         displayOrder: 3,
     })
     public y = new CurveRange();
 
+    /**
+     * Z 轴方向上的速度分量
+     */
     @property({
         type: CurveRange,
         displayOrder: 4,
     })
     public z = new CurveRange();
 
+    /**
+     * 速度修正系数（只支持 CPU 粒子）
+     */
     @property({
         type: CurveRange,
         displayOrder: 5,
     })
     public speedModifier = new CurveRange();
 
+    /**
+     * 速度计算时采用的坐标系
+     */
     @property({
         type: Space,
         displayOrder: 1,

@@ -11,11 +11,17 @@ const COLOR_OVERTIME_RAND_OFFSET = 91041;
 @ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule {
 
+    /**
+     * 是否启用
+     */
     @property({
         displayOrder: 0,
     })
     public enable = false;
 
+    /**
+     * 颜色随时间变化的参数，各个 key 之间线性差值变化
+     */
     @property({
         type: GradientRange,
         displayOrder: 1,

@@ -11,45 +11,69 @@ const LIMIT_VELOCITY_RAND_OFFSET = 23541;
 @ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule {
 
+    /**
+     * 是否启用
+     */
     @property({
         displayOrder: 0,
     })
     public enable = false;
 
+    /**
+     * X 轴方向上的速度下限
+     */
     @property({
         type: CurveRange,
         displayOrder: 4,
     })
     public limitX = new CurveRange();
 
+    /**
+     * Y 轴方向上的速度下限
+     */
     @property({
         type: CurveRange,
         displayOrder: 5,
     })
     public limitY = new CurveRange();
 
+    /**
+     * Z 轴方向上的速度下限
+     */
     @property({
         type: CurveRange,
         displayOrder: 6,
     })
     public limitZ = new CurveRange();
 
+    /**
+     * 速度下限
+     */
     @property({
         type: CurveRange,
         displayOrder: 3,
     })
     public limit = new CurveRange();
 
+    /**
+     * 当前速度与速度下限的插值
+     */
     @property({
         displayOrder: 7,
     })
     public dampen = 3;
 
+    /**
+     * 是否三个轴分开限制
+     */
     @property({
         displayOrder: 2,
     })
     public separateAxes = false;
 
+    /**
+     * 计算速度下限时采用的坐标系
+     */
     @property({
         type: Space,
         displayOrder: 1,
