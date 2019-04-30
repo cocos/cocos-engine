@@ -523,10 +523,10 @@ export default class Color extends ValueType {
 
     public mul (c: Color, out?: Color) {
         out = out || new Color();
-        const r = ((out._val & 0x000000ff) * c.r) >> 8;
-        const g = ((out._val & 0x0000ff00) * c.g) >> 8;
-        const b = ((out._val & 0x00ff0000) * c.b) >> 8;
-        const a = ((out._val & 0xff000000) >> 8) * c.a;
+        const r = ((this._val & 0x000000ff) * c.r) >> 8;
+        const g = ((this._val & 0x0000ff00) * c.g) >> 8;
+        const b = ((this._val & 0x00ff0000) * c.b) >> 8;
+        const a = ((this._val & 0xff000000) >> 8) * c.a;
         out._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
         return out;
     }
