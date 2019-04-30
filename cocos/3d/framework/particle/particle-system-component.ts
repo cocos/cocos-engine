@@ -360,10 +360,12 @@ export class ParticleSystemComponent extends Component {
         if (this.playOnAwake) {
             this.play();
         }
+        this.renderer!.enabled = this.enabledInHierarchy;
         this.trailModule.onEnable();
     }
 
     protected onDisable () {
+        this.renderer!.enabled = this.enabledInHierarchy;
         this.trailModule.onDisable();
     }
 
