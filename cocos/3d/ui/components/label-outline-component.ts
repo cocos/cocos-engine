@@ -37,12 +37,18 @@
  *  node.parent = this.node;
  */
 
+import { Component } from '../../../components';
+import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/value-types';
 import { LabelComponent } from './label-component';
-import { UIComponent } from './ui-component';
 
-export class LabelOutlineComponent extends UIComponent {
+@ccclass('cc.LabelOutlineComponent')
+@executionOrder(100)
+@menu('UI/Render/LabelOutline')
+export class LabelOutlineComponent extends Component {
+    @property
     private _color = new Color(255, 255, 255, 255);
+    @property
     private _width = 1;
 
     /**
@@ -53,9 +59,11 @@ export class LabelOutlineComponent extends UIComponent {
      * @example
      * outline.color = new cc.Color(0.5, 0.3, 0.7, 1.0);;
      */
+    @property
     get color () {
         return this._color;
     }
+
     set color (value) {
         if (this._color === value){
             return;
@@ -73,6 +81,7 @@ export class LabelOutlineComponent extends UIComponent {
      * @example
      * outline.width = 3;
      */
+    @property
     get width () {
         return this._width;
     }
