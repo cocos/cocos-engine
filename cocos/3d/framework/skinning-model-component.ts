@@ -26,7 +26,7 @@
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Mat4 } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
-import { GFXDevice, GFXAPI } from '../../gfx/device';
+import { GFXDevice } from '../../gfx/device';
 import { __DEFER_BINDPOSE_COMPUTATION__, JointStorageKind, selectStorageKind, SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Mesh } from '../assets';
@@ -217,8 +217,7 @@ export class SkinningModelComponent extends ModelComponent {
                 CC_BINDPOSE_COMPUTATION_DEFERED: __DEFER_BINDPOSE_COMPUTATION__,
                 CC_USE_SKINNING: true,
                 CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.textureRGBA32F || kind === JointStorageKind.textureRGBA8,
-                CC_USE_JOINTS_TEXTURE_RGBA8888: kind === JointStorageKind.textureRGBA8,
-                CC_SUPPORT_TEXEL_FETCH: device.gfxAPI === GFXAPI.WEBGL2,
+                CC_JOINTS_TEXTURE_RGBA8: kind === JointStorageKind.textureRGBA8,
             });
         }
         super._onMaterialModified(index, mat);
