@@ -33,6 +33,9 @@ export class ParticleSystemComponent extends Component {
     @property
     private _capacity = 100;
 
+    /**
+     * 粒子系统能生成的最大粒子数量
+     */
     @property({
         displayOrder: 1,
     })
@@ -47,47 +50,71 @@ export class ParticleSystemComponent extends Component {
         }
     }
 
+    /**
+     * 粒子初始颜色
+     */
     @property({
         type: GradientRange,
         displayOrder: 8,
     })
     public startColor = new GradientRange();
 
+    /**
+     * 粒子初始大小
+     */
     @property({
         type: CurveRange,
         displayOrder: 9,
     })
     public startSize = new CurveRange();
 
+    /**
+     * 粒子初始速度
+     */
     @property({
         type: CurveRange,
         displayOrder: 10,
     })
     public startSpeed = new CurveRange();
 
+    /**
+     * 粒子初始旋转角度
+     */
     @property({
         type: CurveRange,
         displayOrder: 11,
     })
     public startRotation = new CurveRange();
 
+    /**
+     * 粒子系统开始运行后，延迟粒子发射的时间
+     */
     @property({
         type: CurveRange,
         displayOrder: 6,
     })
     public startDelay = new CurveRange();
 
+    /**
+     * 粒子生命周期
+     */
     @property({
         type: CurveRange,
         displayOrder: 7,
     })
     public startLifetime = new CurveRange();
 
+    /**
+     * 粒子系统运行时间
+     */
     @property({
         displayOrder: 0,
     })
     public duration = 5.0;
 
+    /**
+     * 粒子系统是否循环播放
+     */
     @property({
         displayOrder: 2,
     })
@@ -96,6 +123,9 @@ export class ParticleSystemComponent extends Component {
     @property
     private _prewarm = false;
 
+    /**
+     * 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）
+     */
     @property({
         displayOrder: 3,
     })
@@ -113,6 +143,12 @@ export class ParticleSystemComponent extends Component {
     @property
     private _simulationSpace = Space.Local;
 
+    /**
+     * 选择粒子系统所在的坐标系<br>
+     * 世界坐标（不随其他物体位置改变而变换）<br>
+     * 局部坐标（跟随父节点位置改变而移动）<br>
+     * 自定坐标（跟随自定义节点的位置改变而移动）
+     */
     @property({
         type: Space,
         displayOrder: 4,
@@ -128,16 +164,25 @@ export class ParticleSystemComponent extends Component {
         }
     }
 
+    /**
+     * 控制整个粒子系统的更新速度
+     */
     @property({
         displayOrder: 5,
     })
     public simulationSpeed = 1.0;
 
+    /**
+     * 粒子系统加载后是否自动开始播放
+     */
     @property({
         displayOrder: 2,
     })
     public playOnAwake = true;
 
+    /**
+     * 粒子受重力影响的重力系数
+     */
     @property({
         type: CurveRange,
         displayOrder: 12,
@@ -145,18 +190,27 @@ export class ParticleSystemComponent extends Component {
     public gravityModifier = new CurveRange();
 
     // emission module
+    /**
+     * 每秒发射的粒子数
+     */
     @property({
         type: CurveRange,
         displayOrder: 13,
     })
     public rateOverTime = new CurveRange();
 
+    /**
+     * 每移动单位距离发射的粒子数
+     */
     @property({
         type: CurveRange,
         displayOrder: 14,
     })
     public rateOverDistance = new CurveRange();
 
+    /**
+     * 设定在指定时间发射指定数量的粒子的 Brust 的数量
+     */
     @property({
         type: [Burst],
         displayOrder: 15,
@@ -164,48 +218,75 @@ export class ParticleSystemComponent extends Component {
     public bursts = new Array();
 
     // color over lifetime module
+    /**
+     * 颜色控制模块
+     */
     @property({
         type: ColorOverLifetimeModule,
     })
     public colorOverLifetimeModule = new ColorOverLifetimeModule();
 
     // shpae module
+    /**
+     * 粒子发射器模块
+     */
     @property({
         type: ShapeModule,
     })
     public shapeModule = new ShapeModule();
 
     // size over lifetime module
+    /**
+     * 粒子大小模块
+     */
     @property({
         type: SizeOvertimeModule,
     })
     public sizeOvertimeModule = new SizeOvertimeModule();
 
+    /**
+     * 粒子速度模块
+     */
     @property({
         type: VelocityOvertimeModule,
     })
     public velocityOvertimeModule = new VelocityOvertimeModule();
 
+    /**
+     * 粒子加速度模块
+     */
     @property({
         type: ForceOvertimeModule,
     })
     public forceOvertimeModule = new ForceOvertimeModule();
 
+    /**
+     * 粒子限制速度模块（只支持 CPU 粒子）
+     */
     @property({
         type: LimitVelocityOvertimeModule,
     })
     public limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
 
+    /**
+     * 粒子旋转模块
+     */
     @property({
         type: RotationOvertimeModule,
     })
     public rotationOvertimeModule = new RotationOvertimeModule();
 
+    /**
+     * 贴图动画模块
+     */
     @property({
         type: TextureAnimationModule,
     })
     public textureAnimationModule = new TextureAnimationModule();
 
+    /**
+     * 粒子轨迹模块
+     */
     @property({
         type: TrailModule,
     })
@@ -291,6 +372,9 @@ export class ParticleSystemComponent extends Component {
 
     // }
 
+    /**
+     * 播放粒子效果
+     */
     public play () {
         if (this._isPaused) {
             this._isPaused = false;
@@ -307,6 +391,9 @@ export class ParticleSystemComponent extends Component {
         }
     }
 
+    /**
+     * 暂停播放粒子效果
+     */
     public pause () {
         if (this._isStopped) {
             console.warn('pause(): particle system is already stopped.');
@@ -319,6 +406,9 @@ export class ParticleSystemComponent extends Component {
         this._isPaused = true;
     }
 
+    /**
+     * 停止播放粒子
+     */
     public stop () {
         if (this._isPlaying) {
             this._isPlaying = false;
@@ -336,6 +426,9 @@ export class ParticleSystemComponent extends Component {
     }
 
     // remove all particles from current particle system.
+    /**
+     * 将所有粒子从粒子系统中清除
+     */
     public clear () {
         this.renderer!.clear();
     }

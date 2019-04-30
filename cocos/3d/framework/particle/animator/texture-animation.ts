@@ -9,13 +9,35 @@ import Particle from "../particle";
 // tslint:disable: max-line-length
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
 
+/**
+ * 粒子贴图动画类型
+ * @enum textureAnimationModule.Mode
+ */
 const Mode = Enum({
+    /**
+     * 网格类型
+     */
     Grid: 0,
+
+    /**
+     * 精灵类型（暂未支持）
+     */
     Sprites: 1,
 });
 
+/**
+ * 贴图动画的播放方式
+ * @enum textureAnimationModule.Animation
+ */
 const Animation = Enum({
+    /**
+     * 播放贴图中的所有帧
+     */
     WholeSheet: 0,
+
+    /**
+     * 播放贴图中的其中一行动画
+     */
     SingleRow: 1,
 });
 
@@ -25,6 +47,9 @@ export default class TextureAnimationModule {
     @property
     private _enable = false;
 
+    /**
+     * 是否启用
+     */
     @property({
         displayOrder: 0,
     })
@@ -42,6 +67,9 @@ export default class TextureAnimationModule {
     })
     private _mode = Mode.Grid;
 
+    /**
+     * 设定粒子贴图动画的类型（暂只支持 Grid 模式）
+     */
     @property({
         type: Mode,
         displayOrder: 1,
@@ -57,34 +85,53 @@ export default class TextureAnimationModule {
         }
     }
 
+    /**
+     * X 方向动画帧数
+     */
     @property({
         displayOrder: 2,
     })
     public numTilesX = 0;
 
+    /**
+     * Y 方向动画帧数
+     */
     @property({
         displayOrder: 3,
     })
     public numTilesY = 0;
 
+
+    /**
+     * 动画播放方式
+     */
     @property({
         type: Animation,
         displayOrder: 4,
     })
     public animation = Animation.WholeSheet;
 
+    /**
+     * 一个周期内动画播放的帧与时间变化曲线
+     */
     @property({
         type: CurveRange,
         displayOrder: 7,
     })
     public frameOverTime = new CurveRange();
 
+    /**
+     * 从第几帧开始播放，时间为整个粒子系统的生命周期
+     */
     @property({
         type: CurveRange,
         displayOrder: 8,
     })
     public startFrame = new CurveRange();
 
+    /**
+     * 一个生命周期内播放循环的次数
+     */
     @property({
         displayOrder: 9,
     })
@@ -123,11 +170,19 @@ export default class TextureAnimationModule {
         console.error("particle texture animation's uvChannelMask is not supported!");
     }
 
+    /**
+     * 随机从动画贴图中选择一行以生成动画
+     * 此选项仅在动画播放方式为 SingleRow 时生效
+     */
     @property({
         displayOrder: 5,
     })
     public randomRow = false;
 
+    /**
+     * 从动画贴图中选择特定行以生成动画
+     * 此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用
+     */
     @property({
         displayOrder: 6,
     })

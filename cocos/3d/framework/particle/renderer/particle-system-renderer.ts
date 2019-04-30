@@ -27,11 +27,35 @@ const _uvs = [
     1, 1, // top-right
 ];
 
+/**
+ * 粒子的生成模式
+ * @enum ParticleSystemRenderer.RenderMode
+ */
 const RenderMode = Enum({
+
+    /**
+     * 粒子始终面向摄像机
+     */
     Billboard: 0,
+
+    /**
+     * 粒子始终面向摄像机但会根据参数进行拉伸
+     */
     StrecthedBillboard: 1,
+
+    /**
+     * 粒子始终与 XZ 平面平行
+     */
     HorizontalBillboard: 2,
+
+    /**
+     * 粒子始终与 Y 轴平行且朝向摄像机
+     */
     VerticalBillboard: 3,
+
+    /**
+     * 粒子保持模型本身状态
+     */
     Mesh: 4,
 });
 
@@ -71,6 +95,9 @@ const _vertex_attrs_mesh = [
 @executeInEditMode
 export default class ParticleSystemRenderer extends RenderableComponent {
 
+    /**
+     * 设定粒子生成模式
+     */
     @property({
         type: RenderMode,
         displayOrder: 0,
@@ -89,6 +116,9 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this._updateModel();
     }
 
+    /**
+     * 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸
+     */
     @property({
         displayOrder: 1,
     })
@@ -102,6 +132,9 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         // this._updateModel();
     }
 
+    /**
+     * 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸
+     */
     @property({
         displayOrder: 2,
     })
@@ -129,6 +162,9 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     @property
     private _mesh: Mesh | null = null;
 
+    /**
+     * 粒子模型
+     */
     @property({
         type: Mesh,
     })

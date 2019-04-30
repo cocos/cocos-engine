@@ -10,29 +10,44 @@ const FORCE_OVERTIME_RAND_OFFSET = 212165;
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule {
 
+    /**
+     * 是否启用
+     */
     @property({
         displayOrder: 0,
     })
     public enable = false;
 
+    /**
+     * X 轴方向上的加速度分量
+     */
     @property({
         type: CurveRange,
         displayOrder: 2,
     })
     public x = new CurveRange();
 
+    /**
+     * Y 轴方向上的加速度分量
+     */
     @property({
         type: CurveRange,
         displayOrder: 3,
     })
     public y = new CurveRange();
 
+    /**
+     * Z 轴方向上的加速度分量
+     */
     @property({
         type: CurveRange,
         displayOrder: 4,
     })
     public z = new CurveRange();
 
+    /**
+     * 加速度计算时采用的坐标系
+     */
     @property({
         type: Space,
         displayOrder: 1,

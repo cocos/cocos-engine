@@ -18,13 +18,37 @@ const NEXT_TRIANGLE_INDEX = 1 << 2;
 
 const _temp_trailEle = {} as ITrailElement;
 
+/**
+ * 选择如何为粒子系统生成轨迹
+ * @enum trailModule.TrailMode
+ */
 const TrailMode = Enum({
+    /**
+     * 粒子模式<bg>
+     * 创建一种效果，其中每个粒子在其路径中留下固定的轨迹
+     */
     Particles: 0,
+
+    /**
+     * 带模式<bg>
+     * 根据其生命周期创建连接每个粒子的轨迹带
+     */
     Ribbon: 1,
 });
 
+/**
+ * 纹理填充模式
+ * @enum trailModule.TextureMode
+ */
 const TextureMode = Enum({
+    /**
+     * 拉伸填充纹理
+     */
     Stretch: 0,
+
+    /**
+     * 重复填充纹理
+     */
     Repeat: 1,
 });
 
@@ -102,6 +126,9 @@ class TrailSegment {
 @ccclass('cc.TrailModule')
 export default class TrailModule {
 
+    /**
+     * 是否启用
+     */
     @property({
         displayOrder: 0,
     })
@@ -124,23 +151,35 @@ export default class TrailModule {
     })
     public _enable = false;
 
+    /**
+     * 设定粒子生成轨迹的方式
+     */
     @property({
         type: TrailMode,
         displayOrder: 2,
     })
     public mode = TrailMode.Particles;
 
+    /**
+     * 设定粒子中生成轨迹的比例
+     */
     @property({
         displayOrder: 3,
     })
     public ratio = 1;
 
+    /**
+     * 轨迹存在的生命周期
+     */
     @property({
         type: CurveRange,
         displayOrder: 4,
     })
     public lifeTime = new CurveRange();
 
+    /**
+     * 每个轨迹粒子之间的最小间距
+     */
     public get minParticleDistance () {
         return this._minParticleDistance;
     }
@@ -155,23 +194,35 @@ export default class TrailModule {
     })
     public _minParticleDistance = 0.1;
 
+    /**
+     * 轨迹设定时的坐标系
+     */
     @property({
         type: Space,
         displayOrder: 6,
     })
     public space = Space.World;
 
+    /**
+     * 粒子本身是否存在
+     */
     @property({
         displayOrder: 7,
     })
     public existWithParticles = true;
 
+    /**
+     * 设定纹理填充方式
+     */
     @property({
         type: TextureMode,
         displayOrder: 8,
     })
     public textureMode = TextureMode.Stretch;
 
+    /**
+     * 控制轨迹长度的曲线
+     */
     @property({
         type: CurveRange,
         displayOrder: 9,

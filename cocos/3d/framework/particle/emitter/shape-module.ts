@@ -11,41 +11,119 @@ const _intermediVec = vec3.create(0, 0, 0);
 const _intermediArr = new Array();
 const _unitBoxExtent = vec3.create(0.5, 0.5, 0.5);
 
+/**
+ * 粒子发射器类型
+ * @enum shapeModule.ShapeType
+ */
 const ShapeType = Enum({
+    /**
+     * 立方体类型粒子发射器
+     * @property {Number} Box
+     */
     Box: 0,
+
+    /**
+     * 圆形粒子发射器
+     * @property {Number} Circle
+     */
     Circle: 1,
+
+    /**
+     * 圆锥体粒子发射器
+     * @property {Number} Cone
+     */
     Cone: 2,
+
+    /**
+     * 球体粒子发射器
+     * @property {Number} Sphere
+     */
     Sphere: 3,
+
+    /**
+     * 半球体粒子发射器
+     * @property {Number} Hemisphere
+     */
     Hemisphere: 4,
 });
 
+/**
+ * 粒子从发射器的哪个部位发射
+ * @enum shapeModule.EmitLocation
+ */
 const EmitLocation = Enum({
+    /**
+     * 基础位置发射（仅对 Circle 类型及 Cone 类型的粒子发射器适用）
+     * @property {Number} Base
+     */
     Base: 0,
+
+    /**
+     * 边框位置发射（仅对 Box 类型及 Circle 类型的粒子发射器适用）
+     * @property {Number} Edge
+     */
     Edge: 1,
+
+    /**
+     * 表面位置发射（对所有类型的粒子发射器都适用）
+     * @property {Number} Shell
+     */
     Shell: 2,
+
+    /**
+     * 内部位置发射（对所有类型的粒子发射器都适用）
+     * @property {Number} Volume
+     */
     Volume: 3,
 });
 
+/**
+ * 粒子在扇形区域的发射方式
+ * @enum shapeModule.ArcMode
+ */
 const ArcMode = Enum({
+    /**
+     * 随机位置发射
+     * @property {Number} Random
+     */
     Random: 0,
+
+    /**
+     * 沿某一方向循环发射，每次循环方向相同
+     * @property {Number} Loop
+     */
     Loop: 1,
+
+    /**
+     * 循环发射，每次循环方向相反
+     * @property {Number} PingPong
+     */
     PingPong: 2,
 });
 
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
 
+    /**
+     * 是否启用
+     */
     @property({
         displayOrder: 0,
     })
     public enable = false;
 
+    /**
+     * 粒子发射器类型
+     */
     @property({
         type: ShapeType,
         displayOrder: 1,
     })
     public shapeType = ShapeType.Box;
 
+    /**
+     * 粒子从发射器哪个部位发射
+     */
     @property({
         type: EmitLocation,
         displayOrder: 2,
@@ -55,6 +133,9 @@ export default class ShapeModule {
     @property
     private _position = new Vec3(0, 0, 0);
 
+    /**
+     * 粒子发射器位置
+     */
     @property({
         displayOrder: 12,
     })
@@ -69,6 +150,9 @@ export default class ShapeModule {
     @property
     private _rotation = new Vec3(0, 0, 0);
 
+    /**
+     * 粒子发射器旋转角度
+     */
     @property({
         displayOrder: 13,
     })
@@ -83,6 +167,9 @@ export default class ShapeModule {
     @property
     private _scale = new Vec3(1, 1, 1);
 
+    /**
+     * 粒子发射器缩放比例
+     */
     @property({
         displayOrder: 14,
     })
@@ -94,31 +181,52 @@ export default class ShapeModule {
         this.constructMat();
     }
 
+    /**
+     * 根据粒子的初始方向决定粒子的移动方向
+     */
     @property({
         displayOrder: 15,
     })
     public alignToDirection = false;
 
+    /**
+     * 粒子生成方向随机设定
+     */
     @property({
         displayOrder: 16,
     })
     public randomDirectionAmount = 0;
 
+    /**
+     * 表示当前发射方向与当前位置到结点中心连线方向的插值
+     */
     @property({
         displayOrder: 17,
     })
     public sphericalDirectionAmount = 0;
 
+    /**
+     * 粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）
+     */
     @property({
         displayOrder: 18,
     })
     public randomPositionAmount = 0;
 
+    /**
+     * 粒子发射器半径
+     */
     @property({
         displayOrder: 3,
     })
     public radius = 1;
 
+    /**
+     * 粒子发射器发射位置（对 Box 类型的发射器无效）<bg>
+     * 0 表示从表面发射
+     * 1 表示从中心发射
+     * 0 ~ 1 之间表示在中心到表面之间发射
+     */
     @property({
         displayOrder: 4,
     })
@@ -127,6 +235,9 @@ export default class ShapeModule {
     @property
     private _arc = toRadian(360);
 
+    /**
+     * 粒子发射器在一个扇形范围内发射
+     */
     @property({
         displayOrder: 6,
     })
@@ -138,17 +249,26 @@ export default class ShapeModule {
         this._arc = toRadian(val);
     }
 
+    /**
+     * 粒子在扇形范围内的发射方式
+     */
     @property({
         type: ArcMode,
         displayOrder: 7,
     })
     public arcMode = ArcMode.Random;
 
+    /**
+     * 控制可能产生粒子的弧周围的离散间隔。
+     */
     @property({
         displayOrder: 0,
     })
     public arcSpread = 8;
 
+    /**
+     * 粒子沿圆周发射的速度
+     */
     @property({
         type: CurveRange,
         displayOrder: 9,
@@ -158,6 +278,10 @@ export default class ShapeModule {
     @property
     private _angle = toRadian(25);
 
+    /**
+     * 圆锥的轴与母线的夹角<bg>
+     * 决定圆锥发射器的开合程度
+     */
     @property({
         displayOrder: 5,
     })
@@ -169,11 +293,18 @@ export default class ShapeModule {
         this._angle = toRadian(val);
     }
 
+    /**
+     * 圆锥顶部截面距离底部的轴长<bg>
+     * 决定圆锥发射器的高度
+     */
     @property({
         displayOrder: 10,
     })
     public length = 0;
 
+    /**
+     * 粒子发射器发射位置（针对 Box 类型的粒子发射器）
+     */
     @property({
         displayOrder: 11,
     })
