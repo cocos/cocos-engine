@@ -34,7 +34,7 @@ const Shell = require('gulp-shell');
 const Engine = require('./gulp/tasks/engine');
 const Test = require('./gulp/tasks/test');
 const Watch = require('./gulp/tasks/watch');
-const DocsBuilder = require('./gulp/util/docs-build');
+const APIBuilder = require('./gulp/util/api-docs-build');
 
 /////////////
 // engine //
@@ -197,17 +197,17 @@ gulp.task('test-in-ci', function () {
 });
 
 ////////////
-// docs //
+// API //
 ////////////
 
-gulp.task('build-3d-docs-default', function () {
-    DocsBuilder.docsGeneratorDefault();
+gulp.task('build-3d-api-default', function () {
+    APIBuilder.generateHTML();
 });
 
-gulp.task('build-3d-json-file', function () {
-    DocsBuilder.tempJsonGenerate();
+gulp.task('build-api-json', function () {
+    APIBuilder.generateJson();
 });
 
-gulp.task('build-3d-docs', ['build-3d-json-file'], function () {
-    DocsBuilder.docsGeneratorWithLocalization();
+gulp.task('build-3d-api', function () {
+    APIBuilder.generateHTMLWithLocalization();
 });
