@@ -263,6 +263,7 @@ module.exports = {
             "time_scale": "当前骨骼中所有动画的时间缩放率",
             "debug_slots": "是否显示 slot 的 debug 信息",
             "debug_bones": "是否显示 bone 的 debug 信息",
+            "debug_mesh": "是否显示 mesh 的 debug 信息",
             "premultipliedAlpha": "是否启用贴图预乘",
             "use_tint": "是否启用染色效果",
             "enabled_batch": "是否开启合批",
