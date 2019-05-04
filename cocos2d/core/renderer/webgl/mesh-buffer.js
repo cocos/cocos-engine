@@ -240,7 +240,6 @@ let MeshBuffer = cc.Class({
 
     destroy () {
         this.reset();
-        
         for (let i = 0; i <  this._vbArr.length; i++) {
             let vb = this._vbArr[i];
             vb.destroy();
