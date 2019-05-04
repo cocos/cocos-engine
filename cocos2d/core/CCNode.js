@@ -123,7 +123,7 @@ var LocalDirtyFlag = cc.Enum({
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
- * @class Node.EventType
+ * @enum Node.EventType
  * @static
  * @namespace Node
  */
@@ -552,7 +552,7 @@ let NodeDefines = {
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: cc.Vec3,
-        _scale: cc.Vec3,
+        _scale: cc.v3(1, 1, 1),
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
@@ -565,7 +565,6 @@ let NodeDefines = {
             serializable: false
         },
     
-
         _is3DNode: false,
 
         // internal properties
@@ -1160,11 +1159,6 @@ let NodeDefines = {
         this._touchListener = null;
         // Mouse event listener
         this._mouseListener = null;
-
-        // default scale
-        this._scale.x = 1;
-        this._scale.y = 1;
-        this._scale.z = 1;
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();

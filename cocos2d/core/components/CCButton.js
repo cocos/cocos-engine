@@ -399,7 +399,7 @@ let Button = cc.Class({
             tooltip: CC_DEV && "i18n:COMPONENT.button.target",
             notify (oldValue) {
                 this._applyTarget();
-                if (this.target !== oldValue) {
+                if (oldValue && this.target !== oldValue) {
                     this._unregisterTargetEvent(oldValue);
                 }
             }

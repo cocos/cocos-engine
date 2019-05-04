@@ -1061,7 +1061,7 @@ let ScrollView = cc.Class({
                 scrollEventType = 'scroll-to-top';
             }
         }
-        else if (realMove.x < 0) { //left
+        if (realMove.x < 0) { //left
             let icRightPos = this.content.x - this.content.anchorX * this.content.width + this.content.width;
             if (icRightPos + realMove.x <= this._rightBoundary) {
                 scrollEventType = 'scroll-to-right';

@@ -26,11 +26,12 @@
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
 const RenderFlow = require('../renderer/render-flow');
-const aabb = require('../3d/geom-utils/aabb');
 const Material = require('../assets/material/CCMaterial');
 
+import geomUtils from '../geom-utils';
 import gfx from '../../renderer/gfx';
 import CustomProperties from '../assets/material/custom-properties';
+
 
 /**
  * !#en Shadow projection mode
@@ -216,8 +217,8 @@ let MeshRenderer = cc.Class({
             return;
         }
 
-        if (aabb) {
-            this._boundingBox = aabb.fromPoints(aabb.create(), mesh._minPos, mesh._maxPos);
+        if (geomUtils) {
+            this._boundingBox = geomUtils.Aabb.fromPoints(geomUtils.Aabb.create(), mesh._minPos, mesh._maxPos);
         }
 
         // TODO: used to upgrade from 2.1, should be removed

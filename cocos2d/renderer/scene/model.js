@@ -1,5 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-import { aabb } from '../../core/3d/geom-utils';
+import geomUtils from '../../core/geom-utils';
 
 /**
  * A representation of a model
@@ -40,9 +40,10 @@ export default class Model {
    * @param {vec3} maxPos the max position of the model
    */
   createBoundingShape(minPos, maxPos) {
+    if (!geomUtils) return
     if (!minPos || !maxPos) return;
-    this._bsModelSpace = aabb.fromPoints(aabb.create(), minPos, maxPos);
-    this._boundingShape = aabb.clone(this._bsModelSpace);
+    this._bsModelSpace = geomUtils.Aabb.fromPoints(geomUtils.Aabb.create(), minPos, maxPos);
+    this._boundingShape = geomUtils.Aabb.clone(this._bsModelSpace);
   }
 
   /**

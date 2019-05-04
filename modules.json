@@ -25,6 +25,42 @@
       "./cocos2d/core/components/CCLabel.js"
     ]
   },
+
+  {
+    "name": "Audio",
+    "entries": [
+      "./cocos2d/audio/CCAudioEngine.js"
+    ]
+  },
+  {
+    "name": "AudioSource",
+    "entries": [
+      "./cocos2d/core/components/CCAudioSource.js"
+    ],
+    "dependencies": ["Audio"]
+  },
+  {
+    "name": "Action",
+    "entries": [
+      "./cocos2d/actions/index.js"
+    ]
+  },
+  {
+    "name": "Animation",
+    "entries": [
+      "./cocos2d/core/components/CCAnimation.js",
+      "./cocos2d/animation/index.js"
+    ]
+  },
+
+
+  {
+    "name": "Button",
+    "entries": [
+      "./cocos2d/core/components/CCButton.js"
+    ]
+  },
+
   {
     "name": "Canvas Renderer",
     "entries": [
@@ -32,26 +68,63 @@
     ]
   },
   {
-    "name": "WebGL Renderer",
+    "name": "Collider",
     "entries": [
-      "./cocos2d/core/renderer/webgl/model-batcher.js",
-      "./cocos2d/core/renderer/webgl/assemblers/index.js",
-      "./extensions/dragonbones/webgl-assembler.js"
+      "./cocos2d/core/collider/index.js"
     ]
   },
-  {
-    "name": "Renderer Texture",
-    "entries": [
-      "./cocos2d/core/assets/CCRenderTexture.js"
-    ],
-    "dependencies": ["WebGL Renderer"]
-  },
+
   {
     "name": "Dynamic Atlas",
     "entries": [
       "./cocos2d/core/renderer/utils/dynamic-atlas/manager.js"
     ],
     "dependencies": ["WebGL Renderer", "Renderer Texture"]
+  },
+  {
+    "name": "DragonBones",
+    "entries": [
+      "./extensions/dragonbones/index.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+
+  {
+    "name": "EditBox",
+    "entries": [
+      "./cocos2d/core/components/editbox/CCEditBox.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+
+  {
+    "name": "Graphics",
+    "entries": [
+      "./cocos2d/core/graphics/graphics.js",
+      "./cocos2d/core/renderer/webgl/assemblers/graphics/index.js",
+      "./cocos2d/core/renderer/canvas/renderers/graphics/index.js"
+    ]
+  },
+
+  {
+    "name": "Geom Utils",
+    "entries": [
+      "./cocos2d/core/geom-utils/index.js"
+    ]
+  },
+
+  {
+    "name": "Intersection",
+    "entries": [
+      "./cocos2d/core/collider/CCIntersection.js"
+    ]
+  },
+
+  {
+    "name": "Layout",
+    "entries": [
+      "./cocos2d/core/components/CCLayout.js"
+    ]
   },
   {
     "name": "Label Effect",
@@ -61,6 +134,7 @@
     ],
     "dependencies": ["Label"]
   },
+
   {
     "name": "Mask",
     "entries": [
@@ -71,47 +145,10 @@
     "dependencies": ["Graphics"]
   },
   {
-    "name": "Graphics",
+    "name": "Mesh",
     "entries": [
-      "./cocos2d/core/graphics/graphics.js",
-      "./cocos2d/core/renderer/webgl/assemblers/graphics/index.js",
-      "./cocos2d/core/renderer/canvas/renderers/graphics/index.js"
+      "./cocos2d/core/mesh/index.js"
     ]
-  },
-  {
-    "name": "ParticleSystem",
-    "entries": [
-      "./cocos2d/particle/index.js"
-    ],
-    "dependencies": ["WebGL Renderer"]
-  },
-  {
-    "name": "TiledMap",
-    "entries": [
-      "./cocos2d/tilemap/index.js"
-    ],
-    "dependencies": ["WebGL Renderer"]
-  },
-  {
-    "name": "Spine Skeleton",
-    "entries": [
-      "./extensions/spine/index.js"
-    ],
-    "dependencies": ["WebGL Renderer"]
-  },
-  {
-    "name": "DragonBones",
-    "entries": [
-      "./extensions/dragonbones/index.js"
-    ],
-    "dependencies": ["WebGL Renderer"]
-  },
-  {
-    "name": "RichText",
-    "entries": [
-      "./cocos2d/core/components/CCRichText.js"
-    ],
-    "dependencies": ["WebGL Renderer"]
   },
   {
     "name": "MotionStreak",
@@ -121,23 +158,69 @@
     ],
     "dependencies": ["WebGL Renderer"]
   },
+
   {
-    "name": "Widget",
+    "name": "NodePool",
     "entries": [
-      "./cocos2d/core/components/CCWidget.js",
-      "./cocos2d/core/base-ui/CCWidgetManager.js"
+      "./extensions/ccpool/CCNodePool.js"
     ]
   },
   {
-    "name": "Button",
+    "name": "Native Socket"
+  },
+
+  {
+    "name": "Physics",
     "entries": [
-      "./cocos2d/core/components/CCButton.js"
+      "./cocos2d/core/physics/index.js"
+    ],
+    "dependencies": ["Collider"]
+  },
+  {
+    "name": "PageView",
+    "entries": [
+      "./cocos2d/core/components/CCPageView.js"
+    ]
+  },
+  {
+    "name": "PageViewIndicator",
+    "entries": [
+      "./cocos2d/core/components/CCPageViewIndicator.js"
     ]
   },
   {
     "name": "ProgressBar",
     "entries": [
       "./cocos2d/core/components/CCProgressBar.js"
+    ]
+  },
+  {
+    "name": "ParticleSystem",
+    "entries": [
+      "./cocos2d/particle/index.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+
+  {
+    "name": "RichText",
+    "entries": [
+      "./cocos2d/core/components/CCRichText.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "Renderer Texture",
+    "entries": [
+      "./cocos2d/core/assets/CCRenderTexture.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+
+  {
+    "name": "Slider",
+    "entries": [
+      "./cocos2d/core/components/CCSlider.js"
     ]
   },
   {
@@ -154,6 +237,20 @@
     "dependencies": ["Layout"]
   },
   {
+    "name": "Spine Skeleton",
+    "entries": [
+      "./extensions/spine/index.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "StudioComponent",
+    "entries": [
+      "./cocos2d/core/components/CCStudioComponent.js"
+    ]
+  },
+
+  {
     "name": "Toggle",
     "entries": [
       "./cocos2d/core/components/CCToggle.js",
@@ -162,40 +259,25 @@
     ]
   },
   {
-    "name": "PageView",
+    "name": "TiledMap",
     "entries": [
-      "./cocos2d/core/components/CCPageView.js"
-    ]
-  },
-  {
-    "name": "PageViewIndicator",
-    "entries": [
-      "./cocos2d/core/components/CCPageViewIndicator.js"
-    ]
-  },
-  {
-    "name": "Slider",
-    "entries": [
-      "./cocos2d/core/components/CCSlider.js"
-    ]
-  },
-  {
-    "name": "Layout",
-    "entries": [
-      "./cocos2d/core/components/CCLayout.js"
-    ]
-  },
-  {
-    "name": "EditBox",
-    "entries": [
-      "./cocos2d/core/components/editbox/CCEditBox.js"
+      "./cocos2d/tilemap/index.js"
     ],
     "dependencies": ["WebGL Renderer"]
   },
+
   {
     "name": "VideoPlayer",
     "entries": [
       "./cocos2d/videoplayer/CCVideoPlayer.js"
+    ]
+  },
+
+  {
+    "name": "Widget",
+    "entries": [
+      "./cocos2d/core/components/CCWidget.js",
+      "./cocos2d/core/base-ui/CCWidgetManager.js"
     ]
   },
   {
@@ -205,73 +287,21 @@
     ]
   },
   {
-    "name": "Audio",
+    "name": "WebGL Renderer",
     "entries": [
-      "./cocos2d/audio/CCAudioEngine.js"
+      "./cocos2d/core/renderer/webgl/model-batcher.js",
+      "./cocos2d/core/renderer/webgl/assemblers/index.js",
+      "./extensions/dragonbones/webgl-assembler.js"
     ]
   },
-  {
-    "name": "AudioSource",
-    "entries": [
-      "./cocos2d/core/components/CCAudioSource.js"
-    ],
-    "dependencies": ["Audio"]
-  },
-  {
-    "name": "Animation",
-    "entries": [
-      "./cocos2d/core/components/CCAnimation.js",
-      "./cocos2d/animation/index.js"
-    ]
-  },
-  {
-    "name": "Collider",
-    "entries": [
-      "./cocos2d/core/collider/index.js"
-    ]
-  },
-  {
-    "name": "Action",
-    "entries": [
-      "./cocos2d/actions/index.js"
-    ]
-  },
-  {
-    "name": "Physics",
-    "entries": [
-      "./cocos2d/core/physics/index.js"
-    ],
-    "dependencies": ["Collider"]
-  },
-  {
-    "name": "NodePool",
-    "entries": [
-      "./extensions/ccpool/CCNodePool.js"
-    ]
-  },
-  {
-    "name": "StudioComponent",
-    "entries": [
-      "./cocos2d/core/components/CCStudioComponent.js"
-    ]
-  },
-  {
-    "name": "Intersection",
-    "entries": [
-      "./cocos2d/core/collider/CCIntersection.js"
-    ]
-  },
-  {
-    "name": "Native Socket"
-  },
+
+
   {
     "name": "3D",
     "entries": [
-      "./cocos2d/core/3d/index.js",
-      "./cocos2d/core/3d/geom-utils/aabb.js",
-      "./cocos2d/core/3d/geom-utils/ray.js"
+      "./cocos2d/core/3d/index.js"
     ],
-    "dependencies": ["Mesh", "WebGL Renderer"]
+    "dependencies": ["Mesh", "WebGL Renderer", "Geom Utils"]
   },
   {
     "name": "3D Primitive",
@@ -279,11 +309,6 @@
       "./cocos2d/core/3d/primitive/index.js"
     ],
     "dependencies": ["3D"]
-  },
-  {
-    "name": "Mesh",
-    "entries": [
-      "./cocos2d/core/mesh/index.js"
-    ]
   }
+
 ]

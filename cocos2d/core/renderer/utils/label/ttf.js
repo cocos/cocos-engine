@@ -237,7 +237,7 @@ module.exports = {
         let lineHeight = this._getLineHeight();
         let drawStartY = lineHeight * (_splitedStrings.length - 1);
         if (_vAlign === macro.VerticalTextAlignment.TOP) {
-            firstLinelabelY = lineHeight;
+            firstLinelabelY = _fontSize;
         }
         else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
             firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _fontSize * textUtils.MIDDLE_RATIO - _canvasPadding.height / 2;

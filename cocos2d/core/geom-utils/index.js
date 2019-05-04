@@ -5,3 +5,5 @@ cc.geomUtils = {
     Ray: require('./ray'),
     intersect: require('./intersect')
 };
+
+export default cc.geomUtils

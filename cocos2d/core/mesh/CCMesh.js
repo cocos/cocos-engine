@@ -159,7 +159,7 @@ let Mesh = cc.Class({
         let vb = new gfx.VertexBuffer(
             renderer.device,
             vertexFormat,
-            dynamic ? gfx.USAGE_STATIC : gfx.USAGE_DYNAMIC,
+            dynamic ? gfx.USAGE_DYNAMIC : gfx.USAGE_STATIC,
             data,
             vertexCount
         );
@@ -260,18 +260,20 @@ let Mesh = cc.Class({
      * @method setIndices
      * @param {[Number]} indices - the sub mesh indices.
      * @param {Number} index - sub mesh index.
+     * @param {Boolean} dynamic - whether or not to use dynamic buffer.
      */
-    setIndices (indices, index) {
+    setIndices (indices, index, dynamic) {
         index = index || 0;
 
         let data = new Uint16Array(indices);
+        let usage = dynamic ? gfx.USAGE_DYNAMIC : gfx.USAGE_STATIC;
 
         let ib = this._ibs[index];
         if (!ib) {
             let buffer = new gfx.IndexBuffer(
                 renderer.device,
                 gfx.INDEX_FMT_UINT16,
-                gfx.USAGE_STATIC,
+                usage,
                 data,
                 data.length
             );
@@ -286,6 +288,7 @@ let Mesh = cc.Class({
             this._subMeshes[index] = new InputAssembler(vb.buffer, buffer);
         }
         else {
+            ib.buffer._usage = usage;
             ib.data = data;
             ib.dirty = true
         }
@@ -356,7 +359,7 @@ let Mesh = cc.Class({
 
             if (vb.dirty) {
                 let buffer = vb.buffer, data = vb.data;
-                buffer._numVertices = data.length;
+                buffer._numVertices = data.byteLength / buffer._format._bytes;
                 buffer._bytes = data.byteLength;
                 buffer.update(0, data);
                 vb.dirty = false;

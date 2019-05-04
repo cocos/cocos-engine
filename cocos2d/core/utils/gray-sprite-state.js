@@ -27,7 +27,7 @@ GraySpriteState.prototype._switchGrayMaterial = function (useGrayMaterial, rende
         material.define('USE_TEXTURE', true);
     }
 
-    material = Material.getInstantiatedMaterial(material, renderComp);
+    renderComp.setMaterial(0, material);
 };
 
 module.exports = GraySpriteState;

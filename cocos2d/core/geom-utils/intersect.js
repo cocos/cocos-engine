@@ -1,10 +1,10 @@
 
-const aabb = require('./aabb');
-const ray = require('./ray');
-const triangle = require('./triangle');
+const Aabb = require('./aabb');
+const Ray = require('./ray');
+const Triangle = require('./triangle');
 
-import gfx from '../../../renderer/gfx';
-import RecyclePool from '../../../renderer/memop/recycle-pool';
+import gfx from '../../renderer/gfx';
+import RecyclePool from '../../renderer/memop/recycle-pool';
 
 const mat4 = cc.vmath.mat4;
 const vec3 = cc.vmath.vec3;
@@ -95,7 +95,7 @@ intersect.rayTriangle = (function () {
 
 
 intersect.rayMesh = (function () {
-    let tri = triangle.create();
+    let tri = Triangle.create();
     let minDist = Infinity;
 
     const _compType2fn = {
@@ -116,9 +116,14 @@ intersect.rayMesh = (function () {
         return new Int16Array(buffer)[0] === 256;
     })();
 
+    function getVec3 (out, dv, fn, step, idx) {
+        vec3.set(out, dv[fn](idx, littleEndian), dv[fn](idx += step, littleEndian), dv[fn](idx += step, littleEndian));
+    }
+    
     return function (ray, mesh) {
         minDist = Infinity;
         let subMeshes = mesh._subMeshes;
+
         for (let i = 0; i < subMeshes.length; i++) {
             if (subMeshes[i]._primitiveType !== gfx.PT_TRIANGLES) continue;
 
@@ -132,12 +137,9 @@ intersect.rayMesh = (function () {
             let offset = fmt.offset, stride = fmt.stride;
             let fn = _compType2fn[fmt.type];
             for (let i = 0; i < ib.length; i += 3) {
-                let idx = ib[i] * stride + offset;
-                vec3.set(tri.a, dv[fn]([idx], littleEndian), dv[fn]([idx + 4], littleEndian), dv[fn]([idx + 8], littleEndian));
-                idx = ib[i + 1] * stride + offset;
-                vec3.set(tri.b, dv[fn]([idx], littleEndian), dv[fn]([idx + 4], littleEndian), dv[fn]([idx + 8], littleEndian));
-                idx = ib[i + 2] * stride + offset;
-                vec3.set(tri.c, dv[fn]([idx], littleEndian), dv[fn]([idx + 4], littleEndian), dv[fn]([idx + 8], littleEndian));
+                getVec3(tri.a, dv, fn, 4, ib[i]   * stride + offset);
+                getVec3(tri.b, dv, fn, 4, ib[i+1] * stride + offset);
+                getVec3(tri.c, dv, fn, 4, ib[i+2] * stride + offset);
 
                 let dist = intersect.rayTriangle(ray, tri);
                 if (dist > 0 && dist < minDist) {
@@ -198,11 +200,11 @@ intersect.raycast = (function () {
     let results = [];
 
     // temp variable
-    let nodeAabb = aabb.create();
+    let nodeAabb = Aabb.create();
     let minPos = vec3.create();
     let maxPos = vec3.create();
 
-    let modelRay = ray.create();
+    let modelRay = Ray.create();
     let m4_1 = mat4.create();
     let m4_2 = mat4.create();
     let d = vec3.create();
@@ -233,7 +235,7 @@ intersect.raycast = (function () {
             else if (node.width && node.height) {
                 vec3.set(minPos, -node.width * node.anchorX, -node.height * node.anchorY, node.z);
                 vec3.set(maxPos, node.width * (1 - node.anchorX), node.height * (1 - node.anchorY), node.z);
-                aabb.fromPoints(nodeAabb, minPos, maxPos);
+                Aabb.fromPoints(nodeAabb, minPos, maxPos);
                 distance = intersect.rayAabb(modelRay, nodeAabb);
             }
 

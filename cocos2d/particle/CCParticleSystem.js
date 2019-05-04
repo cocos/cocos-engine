@@ -542,9 +542,21 @@ var properties = {
      * @property {ParticleSystem.PositionType} positionType
      * @default ParticleSystem.PositionType.FREE
      */
-    positionType: {
+    _positionType: {
         default: PositionType.FREE,
-        type: PositionType
+        formerlySerializedAs: "positionType"
+    },
+
+    positionType: {
+        type: PositionType,
+        get () {
+            return this._positionType;
+        },
+        set (val) {
+            if (this.sharedMaterials[0])
+                this.sharedMaterials[0].define('_USE_MODEL', val !== PositionType.FREE);
+            this._positionType = val;
+        }
     },
 
     /**
@@ -868,12 +880,6 @@ var ParticleSystem = cc.Class({
         }
     },
 
-    onLoad () {
-        if (!this._ia) {
-            ParticleSystem._assembler.createIA(this);
-        }
-    },
-
     onEnable () {
         this._super();
         this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
@@ -888,6 +894,9 @@ var ParticleSystem = cc.Class({
             this._buffer.destroy();
             this._buffer = null;
         }
+        this._ia = null;
+        // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
+        this._simulator._uvFilled = 0;
         this._super();
     },
     
@@ -1108,6 +1117,8 @@ var ParticleSystem = cc.Class({
         this.endSizeVar = parseFloat(dict["finishParticleSizeVariance"] || 0);
 
         // position
+        // Make empty positionType value and old version compatible
+        this.positionType = parseFloat(dict['positionType'] || PositionType.RELATIVE);
         // for 
         this.sourcePos.x = 0;
         this.sourcePos.y = 0;
@@ -1203,12 +1214,17 @@ var ParticleSystem = cc.Class({
 
             return;
         }
-            
+        
+        if (!this._ia) {
+            ParticleSystem._assembler.createIA(this);
+        }
+
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             material.define('USE_TEXTURE', true);
-            material.define('_USE_MODEL', true);
+            // In case the plist lost positionType
+            material.define('_USE_MODEL', this._positionType !== PositionType.FREE);
         }
         else {
             material = Material.getInstantiatedMaterial(material, this);
@@ -1227,6 +1243,8 @@ var ParticleSystem = cc.Class({
             }
             return;
         }
+        this.resetSystem();
+        this.stopSystem();
         this.disableRender();
         if (this.autoRemoveOnFinish && this._stopped) {
             this.node.destroy();

@@ -53,7 +53,8 @@ var vec2_tmp = cc.v2();
  * 物理系统将 box2d 作为内部物理系统，并且隐藏了大部分 box2d 实现细节（比如创建刚体，同步刚体信息到节点中等）。
  * 你可以通过物理系统访问一些 box2d 常用的功能，比如点击测试，射线测试，设置测试信息等。
  * 物理系统还管理碰撞信息的分发，她会在产生碰撞时，将碰撞信息分发到各个碰撞回调中。
- * 注意：你需要先在刚体中开启碰撞接听才会产生相应的碰撞回调。
+ * 注意：你需要先在刚体中开启碰撞接听才会产生相应的碰撞回调。<br>
+ * 支持的物理系统指定绘制信息事件，请参阅 {{#crossLink "PhysicsManager.DrawBits"}}{{/crossLink}}
  * @class PhysicsManager
  * @uses EventTarget
  */
@@ -61,22 +62,6 @@ var PhysicsManager = cc.Class({
     mixins: [cc.EventTarget],
 
     statics: {
-        /**
-         * !#en
-         * The draw bits for drawing physics debug information.
-         * !#zh
-         * 指定物理系统需要绘制哪些调试信息。
-         * @property {DrawBits} DrawBits
-         * @static
-         * @example
-         * 
-         * cc.director.getPhysicsManager().debugDrawFlags = 
-            // cc.PhysicsManager.DrawBits.e_aabbBit |
-            // cc.PhysicsManager.DrawBits.e_pairBit |
-            // cc.PhysicsManager.DrawBits.e_centerOfMassBit |
-            cc.PhysicsManager.DrawBits.e_jointBit |
-            cc.PhysicsManager.DrawBits.e_shapeBit;
-        */
         DrawBits: DrawBits,
 
         /**
@@ -646,14 +631,40 @@ cc.js.getset(PhysicsManager.prototype, 'gravity',
 cc.PhysicsManager = module.exports = PhysicsManager;
 
 /**
- * @enum DrawBits
+ * !#en
+ * The draw bits for drawing physics debug information.<br>
+ * example:<br>
+ * ```js
+ * cc.director.getPhysicsManager().debugDrawFlags = 
+ *  // cc.PhysicsManager.DrawBits.e_aabbBit |
+ *  // cc.PhysicsManager.DrawBits.e_pairBit |
+ *  // cc.PhysicsManager.DrawBits.e_centerOfMassBit |
+ *  cc.PhysicsManager.DrawBits.e_jointBit |
+ *  cc.PhysicsManager.DrawBits.e_shapeBit;
+ * ```
+ * !#zh
+ * 指定物理系统需要绘制哪些调试信息。<br>
+ * example:<br>
+ * ```js
+ * cc.director.getPhysicsManager().debugDrawFlags = 
+ *  // cc.PhysicsManager.DrawBits.e_aabbBit |
+ *  // cc.PhysicsManager.DrawBits.e_pairBit |
+ *  // cc.PhysicsManager.DrawBits.e_centerOfMassBit |
+ *  cc.PhysicsManager.DrawBits.e_jointBit |
+ *  cc.PhysicsManager.DrawBits.e_shapeBit;
+ * ```
+ * @enum PhysicsManager.DrawBits
+ * @static
+
  */
+
 /**
  * !#en
  * Draw bounding boxes
  * !#zh
  * 绘制包围盒
  * @property {Number} e_aabbBit
+ * @static
  */
 /**
  * !#en
@@ -661,6 +672,7 @@ cc.PhysicsManager = module.exports = PhysicsManager;
  * !#zh
  * 绘制关节链接信息
  * @property {Number} e_jointBit
+ * @static
  */
 /**
  * !#en
@@ -668,6 +680,7 @@ cc.PhysicsManager = module.exports = PhysicsManager;
  * !#zh
  * 绘制形状
  * @property {Number} e_shapeBit
+ * @static
  */
 
 /**

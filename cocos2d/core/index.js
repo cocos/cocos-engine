@@ -39,6 +39,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./collider/CCIntersection');
     require('./physics');
     require('./camera/CCCamera');
+    require('./geom-utils');
 }
 
 require('./mesh');

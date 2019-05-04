@@ -70,7 +70,7 @@ CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
 var proto = Vec2.prototype;
 
 // compatible with vec3
-js.value(proto, 'z', 0);
+js.value(proto, 'z', 0, true);
 
 /**
  * !#en clone a Vec2 object
@@ -332,7 +332,7 @@ proto.scale = function (vector, out) {
  * !#en Divides by a number. If you want to save result to another vector, use div() instead.
  * !#zh 向量除法。如果你想结果保存到另一个向量，可使用 div() 代替。
  * @method divSelf
- * @param {Vec2} divisor
+ * @param {number} divisor
  * @return {Vec2} returns this
  * @chainable
  * @example
