@@ -2,20 +2,29 @@
 declare const CC_PHYISCS_CANNON: boolean;
 declare const CC_PHYISCS_AMMO: boolean;
 declare const CC_PHYISCS_BUILT_IN: boolean;
+
 declare const global: any;
 const _global = typeof window === 'undefined' ? global : window;
 
 // tslint:disable: no-string-literal
-if (typeof _global['CC_PHYISCS_CANNON'] === 'undefined') {
+/** 如果这些宏都没有定义，才启用默认的值 */
+if (typeof _global['CC_PHYISCS'] === 'undefined' &&
+    typeof _global['CC_PHYISCS_AMMO'] === 'undefined' &&
+    typeof _global['CC_PHYISCS_BUILT_IN'] === 'undefined') {
+    /** 启用默认情况 */
     _global['CC_PHYISCS_CANNON'] = false;
-}
-
-if (typeof _global['CC_PHYISCS_AMMO'] === 'undefined') {
     _global['CC_PHYISCS_AMMO'] = false;
-}
-
-if (typeof _global['CC_PHYISCS_BUILT_IN'] === 'undefined') {
     _global['CC_PHYISCS_BUILT_IN'] = true;
+} else {
+    /** 如果这些宏都没有启用的情况，则将BUTIL_IN启用 */
+    if (_global['CC_PHYISCS_CANNON'] === false ||
+        _global['CC_PHYISCS_AMMO'] === false ||
+        _global['CC_PHYISCS_BUILT_IN'] === false) {
+        /** 启用BUTIL_IN */
+        _global['CC_PHYISCS_CANNON'] = false;
+        _global['CC_PHYISCS_AMMO'] = false;
+        _global['CC_PHYISCS_BUILT_IN'] = true;
+    }
 }
 
 // Cannon
