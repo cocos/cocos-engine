@@ -3,36 +3,45 @@
     "id": "base",
     "name": "base",
     "locked": true,
+    "entries":[],
     "dependencies": []
   },
   {
     "id": "ui",
     "name": "ui",
+    "entries":[
+      "/resources/3d/engine/cocos/3d/ui/index.ts"
+    ],
     "dependencies": []
   },
   {
     "id": "physics",
     "name": "physics",
+    "entries":[],
     "dependencies": []
   },
   {
     "id": "particle",
     "name": "particle",
+    "entries":[],
     "dependencies": []
   },
   {
     "id": "primitive",
     "name": "primitive",
+    "entries":[],
     "dependencies": []
   },
   {
     "id": "animation",
     "name": "animation",
+    "entries":[],
     "dependencies": []
   },
   {
     "id": "wechat",
     "name": "wechat",
+    "entries":[],
     "dependencies": []
   }
 ]
