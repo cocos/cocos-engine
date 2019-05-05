@@ -91,11 +91,11 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         }
     }
 
-    public destroy () {
+    public onDestroy () {
         if (this.sharedBody) {
             this.sharedBody.body.removeShape(this._shapeBase!);
         }
-        super.destroy();
+        super.onDestroy();
     }
 }
 

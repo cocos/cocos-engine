@@ -38,12 +38,11 @@ export class PhysicsBasedComponent extends Component {
         }
     }
 
-    public destroy () {
+    public onDestroy () {
         if (this._sharedBody) {
             this._sharedBody.deref();
             this._sharedBody = null;
         }
-        super.destroy();
     }
 
     private _refSharedBody () {
