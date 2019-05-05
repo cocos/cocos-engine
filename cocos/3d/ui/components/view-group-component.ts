@@ -40,9 +40,9 @@
  * @extends Component
  */
 
-import { Component } from "../../../components/component";
+import { Component } from '../../../components';
 
-export class ViewGroupComponent extends Component{
+export class ViewGroupComponent extends Component {
 
 }
 

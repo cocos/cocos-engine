@@ -29,6 +29,7 @@ export * from './input-manager';
 export * from './system-event';
 export * from './CCEvent';
 export * from './CCTouch';
+export * from './event-enum';
 
 if (CC_TEST) {
     // cc._Test.eventManager = eventManager;

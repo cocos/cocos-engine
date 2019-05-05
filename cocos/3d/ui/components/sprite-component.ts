@@ -23,12 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
-import { SpriteAtlas } from '../../../assets/sprite-atlas';
-import { SpriteFrame } from '../../../assets/sprite-frame';
+
+import { SpriteAtlas, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventType } from '../../../core/platform/event-manager/event-enum';
-import { clampf } from '../../../core/utils/misc';
+import { EventType } from '../../../core/platform';
+import { clampf } from '../../../core/utils';
 import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
@@ -314,7 +313,6 @@ export class SpriteComponent extends UIRenderComponent {
     }
     set fillRange (value) {
         // ??? -1 ~ 1
-        // this._fillRange = cc.misc.clampf(value, -1, 1);
         this._fillRange = clampf(value, 0, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();

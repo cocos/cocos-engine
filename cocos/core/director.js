@@ -36,7 +36,7 @@ import NodeActivator from '../scene-graph/node-activator';
 import { PhysicsSystem } from '../3d/framework/physics/physics-system';
 import { getClassByName } from './utils/js';
 import { Root } from './root';
-import { widgetManager } from '../3d/ui/components/widget-manager';
+import { widgetManager } from '../3d';
 import Game from './game';
 
 // const ComponentScheduler = require('./component-scheduler');
@@ -207,7 +207,9 @@ class Director extends EventTarget {
         }
 
         // widgetManager
-        widgetManager.init(this);
+        if (widgetManager) {
+            widgetManager.init(this);
+        }
 
         // this.registerSystem('animation', AnimationSystem, ['AnimationComponent'], 200);
         // this.registerSystem('skinning-model', SkinningModelSystem, ['SkinningModelComponent'], 100);

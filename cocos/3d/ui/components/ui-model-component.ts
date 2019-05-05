@@ -1,10 +1,8 @@
 import { ccclass, executionOrder, menu } from '../../../core/data/class-decorator';
-import { UIRenderComponent } from './ui-render-component';
-import { Component } from '../../../components/component';
-import { RenderableComponent } from '../../framework/renderable-component';
-import { UI } from '../../../renderer/ui/ui';
-import { Effect } from '../../../renderer';
 import { RenderPriority } from '../../../pipeline/define';
+import { Effect } from '../../../renderer';
+import { UI } from '../../../renderer/ui/ui';
+import { RenderableComponent } from '../../framework/renderable-component';
 import { UIComponent } from './ui-component';
 
 @ccclass('cc.UIModelComponent')

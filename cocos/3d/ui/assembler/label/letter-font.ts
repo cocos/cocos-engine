@@ -24,12 +24,11 @@
  ****************************************************************************/
 
 import { ImageAsset, SpriteFrame, Texture2D } from '../../../../assets';
-import { Color, Rect, Size, Vec2 } from '../../../../core';
+import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../../core/utils';
 import { mixin } from '../../../../core/utils/js';
-import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../../core/utils/text-utils';
-import { GFXBufferTextureCopy, GFXFormat, GFXTextureType } from '../../../../gfx/define';
-import { LabelComponent } from '../../components/label-component';
-import { LabelOutlineComponent } from '../../components/label-outline-component';
+import { Color, Rect, Size, Vec2 } from '../../../../core/value-types';
+import { GFXBufferTextureCopy, GFXFormat } from '../../../../gfx/define';
+import { LabelComponent, LabelOutlineComponent } from '../../components';
 // import { UIComponent } from '../../components/ui-component';
 import { ISharedLabelData } from './font-utils';
 

@@ -23,9 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// require('./graphics');
-import './graphics/webgl/index';
-import './label/index';
-import './mask/index';
-import './sprite/index';
+import './graphics/webgl';
+import './label';
+export * from './mask';
+import './sprite';
+
+export * from './assembler';
 // require('./motion-streak');

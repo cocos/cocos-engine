@@ -1,4 +1,4 @@
-import { Component } from '../../../components/component';
+import { Component } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
 import { UI } from '../../../renderer/ui/ui';
 

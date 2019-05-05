@@ -24,13 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { SpriteAtlas, TTFFont } from '../../../assets';
-import { Font } from '../../../assets/font';
+import { Font, SpriteAtlas, TTFFont } from '../../../assets';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventTouch } from '../../../core/platform/event-manager';
-import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../../../core/utils/html-text-parser';
+import { EventTouch } from '../../../core/platform';
+import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../../core/utils';
 import Pool from '../../../core/utils/pool';
-import { fragmentText, isUnicodeCJK, isUnicodeSpace } from '../../../core/utils/text-utils';
 import { Color, Vec2 } from '../../../core/value-types';
 import { Node, PrivateNode } from '../../../scene-graph';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';

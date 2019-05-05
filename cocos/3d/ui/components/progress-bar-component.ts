@@ -24,9 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Component} from '../../../components/component';
+import { Component} from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { clamp01 } from '../../../core/utils/misc';
+import { clamp01 } from '../../../core/utils';
 import { Enum, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { SpriteComponent } from './sprite-component';
 

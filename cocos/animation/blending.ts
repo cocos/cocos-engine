@@ -1,4 +1,4 @@
-import { Quat, Vec3 } from '../core';
+import { Quat, Vec3 } from '../core/value-types';
 import { quat, vec3 } from '../core/vmath';
 import { PropertyBlendState } from './animation-blend-state';
 

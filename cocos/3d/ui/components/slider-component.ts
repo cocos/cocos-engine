@@ -24,14 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Component } from '../../../components/component';
-import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
+import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventTouch } from '../../../core/platform/event-manager/CCEvent';
+import { EventTouch, EventType } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
-import { EventType } from '../../../core/platform/event-manager/event-enum';
-import { clamp01 } from '../../../core/utils/misc';
-import { Enum, Vec3 } from '../../../core/value-types/index';
+import { clamp01 } from '../../../core/utils';
+import { Enum, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { SpriteComponent } from './sprite-component';
 

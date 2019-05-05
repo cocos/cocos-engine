@@ -30,7 +30,7 @@ export * from './memop';
 import * as geometry from './geom-utils';
 import * as utils from './misc/utils';
 import * as primitives from './primitive';
-import './ui';
+export * from './ui';
 export { createRaycastResult } from './physics/instance';
 
 export {

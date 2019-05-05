@@ -52,6 +52,8 @@ export {
     ParticleSystemComponent,
     RigidBodyComponent,
     SphereColliderComponent,
+
+    RenderableComponent,
 };
 
 // cc.AnimationComponent = AnimationComponent;

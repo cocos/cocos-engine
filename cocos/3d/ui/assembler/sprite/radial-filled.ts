@@ -24,12 +24,12 @@
  ****************************************************************************/
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-import { SpriteFrame } from '../../../../assets/sprite-frame';
+import { SpriteFrame } from '../../../../assets';
 import { Vec2 } from '../../../../core/value-types';
 import { color4, vec2 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
-import { SpriteComponent } from '../../components/sprite-component';
+import { SpriteComponent } from '../../components';
 import { IAssembler } from '../assembler';
 import { fillVertices3D } from '../utils';
 

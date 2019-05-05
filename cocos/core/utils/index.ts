@@ -32,6 +32,9 @@ import * as js from './js';
  */
 import * as path from './path';
 export * from './profiler/profiler';
+export * from './misc';
+export * from './text-utils';
+export * from './html-text-parser';
 
 export * from './prefab-helper';
 export {

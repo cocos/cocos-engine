@@ -23,20 +23,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// const Sprite = require('../../../../components/CCSprite');
-import { SpriteComponent } from '../../components/sprite-component';
-
-const SpriteType = SpriteComponent.Type;
-const FillType = SpriteComponent.FillType;
-
-import { UIRenderComponent } from '../../components/ui-render-component';
+import { SpriteComponent, UIRenderComponent } from '../../components';
 import { IAssemblerManager } from '../assembler';
 import { barFilled } from './bar-filled';
 import { radialFilled } from './radial-filled';
 import { simple } from './simple';
 import { sliced } from './sliced';
-import { tilled } from './tiled';
+// import { tilled } from './tiled';
 // import meshRenderUtil from './mesh';
+
+const SpriteType = SpriteComponent.Type;
+const FillType = SpriteComponent.FillType;
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 

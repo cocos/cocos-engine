@@ -1,15 +1,9 @@
 
+import { CanvasComponent, IAssembler, MeshBuffer, StencilManager, UIComponent, UIRenderComponent } from '../../3d';
 import { Material } from '../../3d/assets/material';
-import { RenderableComponent } from '../../3d/framework/renderable-component';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
-import { IAssembler } from '../../3d/ui/assembler/assembler';
-import { StencilManager } from '../../3d/ui/assembler/mask/stencil-manager';
-import { CanvasComponent } from '../../3d/ui/components/canvas-component';
-import { UIComponent } from '../../3d/ui/components/ui-component';
-import { UIRenderComponent } from '../../3d/ui/components/ui-render-component';
-import { MeshBuffer } from '../../3d/ui/mesh-buffer';
-import { SpriteFrame } from '../../assets/sprite-frame';
+import { SpriteFrame } from '../../assets';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
@@ -107,7 +101,7 @@ export class UI {
     private _uiModelPool: Pool<UIBatchModel> | null = null;
     private _modelInUse: CachedArray<UIBatchModel>;
     // batcher
-    private _emptyMaterial = Material.getInstantiatedMaterial(new Material(), new RenderableComponent(), CC_EDITOR ? true : false);
+    private _emptyMaterial = Material.getInstantiatedMaterial(new Material(), new cc.RenderableComponent(), CC_EDITOR ? true : false);
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexView: GFXTextureView | null = null;

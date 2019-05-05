@@ -27,7 +27,7 @@ import { Color, Mat4, Vec3 } from '../../../../../core/value-types';
 import { color4, vec3 } from '../../../../../core/vmath';
 import { IARenderData } from '../../../../../renderer/ui/renderData';
 import { UI } from '../../../../../renderer/ui/ui';
-import { GraphicsComponent } from '../../../components/graphics-component';
+import { GraphicsComponent } from '../../../components';
 import { IAssembler } from '../../assembler';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';

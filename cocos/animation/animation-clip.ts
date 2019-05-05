@@ -1,7 +1,7 @@
 import { Asset, SpriteFrame } from '../assets';
-import { Vec2 } from '../core';
 import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
+import { Vec2 } from '../core/value-types';
 import Quat from '../core/value-types/quat';
 import Vec3, { v3 } from '../core/value-types/vec3';
 import { lerp } from '../core/vmath';
