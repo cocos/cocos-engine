@@ -113,11 +113,16 @@ let TiledLayer = cc.Class({
         this._leftDownToCenterX = 0;
         this._leftDownToCenterY = 0;
 
+        this._hasTiledNodeGrid = false;
         this._hasAniGrid = false;
         this._animations = null;
 
         // switch of culling
         this._enableCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
+    },
+
+    _hasTiledNode () {
+        return this._hasTiledNodeGrid;
     },
 
     _hasAnimation () {
@@ -237,11 +242,11 @@ let TiledLayer = cc.Class({
         if (this._topOffset < node.height) {
             this._topOffset = node.height;
         }
-        if (this._downOffset > -node.height) {
-            this._downOffset = -node.height;
+        if (this._downOffset < node.height) {
+            this._downOffset = node.height;
         }
-        if (this._leftOffset > -node.width) {
-            this._leftOffset = -node.width;
+        if (this._leftOffset < node.width) {
+            this._leftOffset = node.width;
         }
         if (this._rightOffset < node.width) {
             this._rightOffset = node.width;
@@ -335,6 +340,7 @@ let TiledLayer = cc.Class({
     _syncAnchorPoint () {
         this._leftDownToCenterX = this.node.width * this.node.anchorX;
         this._leftDownToCenterY = this.node.height * this.node.anchorY;
+        this._cullingDirty = true;
     },
 
     onDestroy () {
@@ -343,6 +349,7 @@ let TiledLayer = cc.Class({
             this._buffer.destroy();
             this._buffer = null;
         }
+        this._renderDataList = null;
     },
 
     /**
@@ -643,8 +650,8 @@ let TiledLayer = cc.Class({
         let vpx = this._viewPort.x - this._offset.x + this._leftDownToCenterX;
         let vpy = this._viewPort.y - this._offset.y + this._leftDownToCenterY;
 
-        let leftDownX = vpx + this._leftOffset;
-        let leftDownY = vpy + this._downOffset;
+        let leftDownX = vpx - this._leftOffset;
+        let leftDownY = vpy - this._downOffset;
         let rightTopX = vpx + width + this._rightOffset;
         let rightTopY = vpy + height + this._topOffset;
 
@@ -827,6 +834,9 @@ let TiledLayer = cc.Class({
         this._rightOffset = 0;
         this._hasAniGrid = false;
 
+        // grid border
+        let topBorder = 0, downBorder = 0, leftBorder = 0, rightBorder = 0;
+
         for (let row = 0; row < rows; ++row) {
             for (let col = 0; col < cols; ++col) {
                 let index = colOffset + col;
@@ -905,29 +915,28 @@ let TiledLayer = cc.Class({
                 tileOffset = grid.tileset.tileOffset;
                 left += this._offset.x + tileOffset.x;
                 bottom += this._offset.y - tileOffset.y;
+                
+                topBorder = -tileOffset.y + grid.tileset._tileSize.height - mapth;
+                topBorder = topBorder < 0 ? 0 : topBorder;
+                downBorder = tileOffset.y < 0 ? 0 : tileOffset.y;
+                leftBorder = -tileOffset.x < 0 ? 0 : -tileOffset.x;
+                rightBorder = tileOffset.x + grid.tileset._tileSize.width - maptw;
+                rightBorder = rightBorder < 0 ? 0 : rightBorder;
 
-                // record the far left, handle the offset like the shape '←' which is negative number, 
-                // so must get negation
-                if (this._leftOffset < -tileOffset.x) {
-                    this._leftOffset = -tileOffset.x;
+                if (this._rightOffset < leftBorder) {
+                    this._rightOffset = leftBorder;
                 }
 
-                // record the far right, handle the offset like the shape '→' which is positive number, 
-                // so must get negation
-                if (this._rightOffset > -tileOffset.x) {
-                    this._rightOffset = -tileOffset.x;
+                if (this._leftOffset < rightBorder) {
+                    this._leftOffset = rightBorder;
                 }
 
-                // record the far top, handle the offset like the shape '↓' which is positive number,
-                // so need not get negation
-                if (this._topOffset < tileOffset.y) {
-                    this._topOffset = tileOffset.y;
+                if (this._topOffset < downBorder) {
+                    this._topOffset = downBorder;
                 }
 
-                // record the far down, handle the offset like the shape '↑' which is negative number,
-                // so need not get negation
-                if (this._downOffset > tileOffset.y) {
-                    this._downOffset = tileOffset.y;
+                if (this._downOffset < topBorder) {
+                    this._downOffset = topBorder;
                 }
 
                 colData.left = left;
@@ -1004,7 +1013,17 @@ let TiledLayer = cc.Class({
         }
 
         let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
-        return this._tiledTiles[index] = tiledTile;
+        this._tiledTiles[index] = tiledTile;
+
+        if (tiledTile) {
+            this._hasTiledNodeGrid = true;
+        } else {
+            this._hasTiledNodeGrid = this._tiledTiles.some(function (tiledNode, index) {
+                return !!tiledNode;
+            });
+        }
+
+        return tiledTile;
     },
 
     /**

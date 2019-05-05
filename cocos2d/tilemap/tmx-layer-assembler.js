@@ -196,7 +196,7 @@ let tmxAssembler = {
         _renderDataList = comp._renderDataList;
         _buffer = comp._buffer;
 
-        if (comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation()) {
+        if (comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
             _buffer.reset();
 
             let leftDown, rightTop;
@@ -465,9 +465,8 @@ let tmxAssembler = {
     fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom) {
         tiledNode._updateLocalMatrix();
         mat4.copy(_mat4_temp, tiledNode._matrix);
-        vec3.set(_vec3_temp, -left, -bottom, 0);
+        vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
         mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-        mat4.mul(_mat4_temp, _layerMat, _mat4_temp);
         let a = _mat4_temp.m00;
         let b = _mat4_temp.m01;
         let c = _mat4_temp.m04;
