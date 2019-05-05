@@ -25,6 +25,7 @@
 import { Asset } from '../../assets/asset';
 import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
+import { EventTargetFactory, IEventTargetCallback } from '../../core/event/event-target-factory';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { GFXBindingType } from '../../gfx/define';
 import { GFXTextureView } from '../../gfx/texture-view';
@@ -44,7 +45,7 @@ export interface IMaterialInfo {
 }
 
 @ccclass('cc.Material')
-export class Material extends Asset {
+export class Material extends EventTargetFactory(Asset) {
     public static getInstantiatedMaterial (mat: Material, rndCom: RenderableComponent, inEditor: boolean) {
         if (mat._owner === rndCom) {
             return mat;
@@ -75,6 +76,9 @@ export class Material extends Asset {
     protected _owner: RenderableComponent | null = null;
     protected _hash = 0;
 
+    private _unfinished = 0;
+    private _unfinishedProp: Record<string, TextureBase> = {};
+
     get effectAsset () {
         return this._effectAsset;
     }
@@ -93,6 +97,11 @@ export class Material extends Asset {
 
     get hash () {
         return this._hash;
+    }
+
+    constructor () {
+        super();
+        this.loaded = false;
     }
 
     public initialize (info: IMaterialInfo) {
@@ -125,19 +134,70 @@ export class Material extends Asset {
         if (passIdx === undefined) { // try set property for all applicable passes
             const passes = this._passes;
             const len = passes.length;
-            for (let i = 0; i < len; i++) {
-                const pass = passes[i];
-                if (this._uploadProperty(pass, name, val)) {
-                    this._props[i][name] = val;
-                    success = true;
+            if (val instanceof TextureBase && !val.loaded) { // deferred loading
+                val.once('load', () => {
+                    for (let i = 0; i < len; i++) {
+                        const pass = passes[i];
+                        if (this._uploadProperty(pass, name, val)) {
+                            const oldTexture = this._props[i][name] as TextureBase;
+                            this._props[i][name] = val;
+                            if (oldTexture && !oldTexture.loaded) {
+                                this._unfinished--;
+                                delete this._unfinishedProp[`${i}-${name}`];
+                                oldTexture.off('load', this._onTextureLoaded, this);
+                                if (this._unfinished === 0) {
+                                    this._assetReady();
+                                    this.loaded = true;
+                                    this.emit('load');
+                                }
+                            }
+                        }
+                        else {
+                            console.warn(`illegal property name: ${name}.`);
+                        }
+                    }
+                });
+                val.ensureLoadImage();
+                success = true;
+            } else {
+                for (let i = 0; i < len; i++) {
+                    const pass = passes[i];
+                    if (this._uploadProperty(pass, name, val)) {
+                        this._props[i][name] = val;
+                        success = true;
+                    }
                 }
             }
         } else {
             if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
             const pass = this._passes[passIdx];
-            if (this._uploadProperty(pass, name, val)) {
-                this._props[passIdx][name] = val;
+            if (val instanceof TextureBase && !val.loaded) { // deferred loading
+                val.once('load', () => {
+                    if (this._uploadProperty(pass, name, val)) {
+                        const oldTexture = this._props[passIdx][name] as TextureBase;
+                        this._props[passIdx][name] = val;
+                        if (oldTexture && !oldTexture.loaded) {
+                            this._unfinished--;
+                            oldTexture.off('load', this._onTextureLoaded, this);
+                            delete this._unfinishedProp[`${passIdx}-${name}`];
+                            if (this._unfinished === 0) {
+                                this._assetReady();
+                                this.loaded = true;
+                                this.emit('load', this);
+                            }
+                        }
+                    }
+                    else {
+                        console.warn(`illegal property name: ${name}.`);
+                    }
+                });
+                val.ensureLoadImage();
                 success = true;
+            } else {
+                if (this._uploadProperty(pass, name, val)) {
+                    this._props[passIdx][name] = val;
+                    success = true;
+                }
             }
         }
         if (!success) {
@@ -215,6 +275,17 @@ export class Material extends Asset {
         this._update();
     }
 
+    public ensureLoadTexture () {
+        this._props.forEach((props) => {
+            for (const p of Object.keys(props)) {
+                const val = props[p];
+                if (val && val instanceof TextureBase && !val.loaded) {
+                    val.ensureLoadImage();
+                }
+            }
+        });
+    }
+
     protected _prepareInfo (patch: object | object[], cur: object[]) {
         if (!Array.isArray(patch)) { // fill all the passes if not specified
             const len = this._effectAsset ? Effect.getPassesInfo(this._effectAsset, this._techIdx).length : 1;
@@ -243,7 +314,13 @@ export class Material extends Asset {
                     for (const p of Object.keys(props)) {
                         const val = props[p];
                         if (!val) { continue; }
-                        this._uploadProperty(pass, p, props[p]);
+                        if (val instanceof TextureBase && !val.loaded) {
+                            this._unfinished++;
+                            this._unfinishedProp[`${i}-${p}`] = val;
+                            val.once('load', this._onTextureLoaded, this);
+                        } else {
+                            this._uploadProperty(pass, p, props[p]);
+                        }
                     }
                 });
             } else {
@@ -253,6 +330,10 @@ export class Material extends Asset {
             this._passes = builtinResMgr.get<Material>('missing-effect-material')._passes.slice();
         }
         this._onPassesChange();
+        if (this._unfinished === 0) {
+            this.loaded = true;
+            this.emit('load');
+        }
     }
 
     protected _uploadProperty (pass: Pass, name: string, val: any) {
@@ -279,6 +360,23 @@ export class Material extends Asset {
             }
         }
         return true;
+    }
+
+    protected _assetReady () {
+        for (const p of Object.keys(this._unfinishedProp)) {
+            const prop = p.split('-');
+            this._uploadProperty(this._passes[prop[0]], prop[1], this._unfinishedProp[p]);
+        }
+        this._unfinishedProp = {};
+    }
+
+    protected _onTextureLoaded () {
+        this._unfinished--;
+        if (this._unfinished === 0) {
+            this._assetReady();
+            this.loaded = true;
+            this.emit('load');
+        }
     }
 
     protected _onPassesChange () {

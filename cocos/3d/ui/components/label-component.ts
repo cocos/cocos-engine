@@ -743,7 +743,7 @@ export class LabelComponent extends UIRenderComponent {
 
                 if (spriteFrame) {
                     spriteFrame.once('load', onBMFontTextureLoaded, this);
-                    spriteFrame.ensureLoadTexture();
+                    spriteFrame.ensureLoadImage();
                 }
             }
         } else {

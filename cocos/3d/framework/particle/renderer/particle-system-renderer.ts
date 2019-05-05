@@ -12,6 +12,7 @@ import { RenderableComponent } from '../../renderable-component';
 import { Space } from '../particle-general-function';
 import { builtinResMgr } from '../../../builtin';
 import { Mesh } from '../../../assets';
+import { postLoadMesh } from '../../../assets/utils/mesh-utils';
 // import ParticleSystemComponent from '../particle-system-component';
 
 // tslint:disable: max-line-length
@@ -173,9 +174,25 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     }
 
     public set mesh (val) {
-        this._mesh = val;
-        if (this._model) {
-            this._model.setVertexAttributes(this._renderMode === RenderMode.Mesh ? this._mesh : null, this._vertAttrs);
+        const replaceMesh = () => {
+            const old = this._mesh;
+            this._mesh = val;
+            if (this._model) {
+                this._model.setVertexAttributes(this._renderMode === RenderMode.Mesh ? this._mesh : null, this._vertAttrs);
+            }
+            if (old && !old.loaded) {
+                this._unfinished--;
+                old.off('load', this._onMeshLoaded, this);
+                if (this._unfinished === 0) {
+                    this._assetReady();
+                }
+            }
+        };
+        if (val && !val.loaded) {
+            val.once('load', replaceMesh);
+            postLoadMesh(val);
+        } else {
+            replaceMesh();
         }
     }
 
@@ -188,6 +205,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     private particleSystem: any;
     private _particles: RecyclePool | null = null;
     private _defaultMat: Material | null = null;
+    private _isAssetReady = false;
 
     constructor () {
         super();
@@ -216,20 +234,20 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this.onEnable();
     }
 
+    public onLoad () {
+        super.onLoad();
+        if (this._mesh && !this._mesh.loaded) {
+            this._unfinished++;
+            this._mesh.once('load', this._onMeshLoaded, this);
+        }
+    }
+
     public onEnable () {
         if (!this.particleSystem) {
             return;
         }
-        if (this._model == null) {
-            this._model = this._getRenderScene().createModel(ParticleBatchModel, this.node) as ParticleBatchModel;
-        }
-        if (!this._model.inited) {
-            this._model.setCapacity(this.particleSystem.capacity);
-            this._model.node = this.node;
-        }
-        this._model.enabled = this.enabledInHierarchy;
-        this._updateMaterialParams();
-        this._updateModel();
+        super.onEnable();
+        this._ensureLoadMesh();
     }
 
     public onDisable () {
@@ -245,19 +263,6 @@ export default class ParticleSystemRenderer extends RenderableComponent {
 
     public clear () {
         this._particles!.reset();
-    }
-
-    private _setVertexAttrib () {
-        switch (this._renderMode) {
-            case RenderMode.StrecthedBillboard:
-                this._vertAttrs = _vertex_attrs_stretch.slice();
-                break;
-            case RenderMode.Mesh:
-                this._vertAttrs = _vertex_attrs_mesh.slice();
-                break;
-            default:
-                this._vertAttrs = _vertex_attrs.slice();
-        }
     }
 
     public _getFreeParticle (): Particle | null {
@@ -330,6 +335,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     // internal function
     public _updateRenderData () {
         // update vertex buffer
+        if (!this._isAssetReady) { return; }
         let idx = 0;
         const uploadVel = this._renderMode === RenderMode.StrecthedBillboard;
         for (let i = 0; i < this._particles!.length; ++i) {
@@ -406,6 +412,47 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         }
         if (this.particleSystem.trailModule._trailModel && index === 1) {
             this.particleSystem.trailModule._trailModel.setSubModelMaterial(0, material);
+        }
+    }
+
+    protected _ensureLoadMesh () {
+        if (this._mesh && !this._mesh.loaded) {
+            postLoadMesh(this._mesh);
+        }
+    }
+
+    protected _assetReady () {
+        super._assetReady();
+        if (this._model == null) {
+            this._model = this._getRenderScene().createModel(ParticleBatchModel, this.node) as ParticleBatchModel;
+        }
+        if (!this._model.inited) {
+            this._model.setCapacity(this.particleSystem.capacity);
+            this._model.node = this.node;
+        }
+        this._model.enabled = this.enabledInHierarchy;
+        this._updateMaterialParams();
+        this._updateModel();
+        this._isAssetReady = true;
+    }
+
+    protected _onMeshLoaded () {
+        this._unfinished--;
+        if (this._unfinished === 0) {
+            this._assetReady();
+        }
+    }
+
+    private _setVertexAttrib () {
+        switch (this._renderMode) {
+            case RenderMode.StrecthedBillboard:
+                this._vertAttrs = _vertex_attrs_stretch.slice();
+                break;
+            case RenderMode.Mesh:
+                this._vertAttrs = _vertex_attrs_mesh.slice();
+                break;
+            default:
+                this._vertAttrs = _vertex_attrs.slice();
         }
     }
 

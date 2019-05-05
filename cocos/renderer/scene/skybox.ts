@@ -9,9 +9,18 @@ import { RenderScene } from './render-scene';
 export class Skybox extends Model {
 
     set cubemap (val: TextureCube | null) {
-        this._cubemap = val || this._default;
-        this._material.setProperty('cubeMap', this._cubemap);
-        this._updateBindingLayout();
+        const replaceCubemap = () => {
+            this._cubemap = newCubemap;
+            this._material.setProperty('cubeMap', this._cubemap);
+            this._updateBindingLayout();
+        };
+        const newCubemap = val || this._default;
+        if (newCubemap.loaded) {
+            replaceCubemap();
+        } else {
+            newCubemap.once('load', replaceCubemap);
+            newCubemap.ensureLoadImage();
+        }
     }
     get cubemap () {
         return this._cubemap;

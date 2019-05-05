@@ -360,49 +360,6 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     //     return this._texture;
     // }
 
-    public _textureLoadedCallback () {
-        const self = this;
-        // let texture = this._texture;
-        // if (!texture) {
-        //     // clearTexture called while loading texture...
-        //     return;
-        // }
-        // let w = texture.width, h = texture.height;
-        const w = self.width;
-        const h = self.height;
-
-        // if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-        //     // TODO: rotate texture for canvas
-        //     // self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
-        //     self._rotated = false;
-        //     // w = self._texture.width;
-        //     // h = self._texture.height;
-        //     w = self.width;
-        //     h = self.height;
-        //     self.setRect(cc.rect(0, 0, w, h));
-        // }
-
-        if (self._rect) {
-            self.checkRect(this.image!);
-        } else {
-            self.setRect(new Rect(0, 0, w, h));
-        }
-
-        if (!self._originalSize) {
-            self.setOriginalSize(new Size(w, h));
-        }
-
-        if (!self._offset) {
-            self.setOffset(new Vec2(0, 0));
-        }
-
-        self._calculateUV();
-
-        // dispatch 'load' event of cc.SpriteFrame
-        // @ts-ignore
-        self.emit('load');
-    }
-
     /*
      * !#en Sets the texture of the frame.
      * !#zh 设置使用的纹理实例。
@@ -517,39 +474,39 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
     //     }
     // }
 
-    /**
-     * !#en If a loading scene (or prefab) is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
-     * associated by user's custom Components in the scene, will not preload automatically.
-     * These textures will be load when Sprite component is going to render the SpriteFrames.
-     * You can call this method if you want to load the texture early.
-     * !#zh 当加载中的场景或 Prefab 被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
-     * 只有当 Sprite 组件要渲染这些 SpriteFrame 时，才会检查贴图是否加载。如果你希望加载过程提前，你可以手工调用这个方法。
-     *
-     * @method ensureLoadTexture
-     * @example
-     * if (spriteFrame.textureLoaded()) {
-     *     this._onSpriteFrameLoaded();
-     * }
-     * else {
-     *     spriteFrame.once('load', this._onSpriteFrameLoaded, this);
-     *     spriteFrame.ensureLoadTexture();
-     * }
-     */
-    public ensureLoadTexture () {
-        // if (this._texture) {
-        // if (!this._texture.loaded) {
-        if (!this.loaded) {
-            // load exists texture
-            // this._refreshTexture(/*this._texture*/);
-            // @ts-ignore
-            textureUtil.postLoadTexture(this, null);
-        }
-        // }
-        // else if (this._textureFilename) {
-        //     // load new texture
-        //     this._loadTexture();
-        // }
-    }
+    // /**
+    //  * !#en If a loading scene (or prefab) is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
+    //  * associated by user's custom Components in the scene, will not preload automatically.
+    //  * These textures will be load when Sprite component is going to render the SpriteFrames.
+    //  * You can call this method if you want to load the texture early.
+    //  * !#zh 当加载中的场景或 Prefab 被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
+    //  * 只有当 Sprite 组件要渲染这些 SpriteFrame 时，才会检查贴图是否加载。如果你希望加载过程提前，你可以手工调用这个方法。
+    //  *
+    //  * @method ensureLoadTexture
+    //  * @example
+    //  * if (spriteFrame.textureLoaded()) {
+    //  *     this._onSpriteFrameLoaded();
+    //  * }
+    //  * else {
+    //  *     spriteFrame.once('load', this._onSpriteFrameLoaded, this);
+    //  *     spriteFrame.ensureLoadTexture();
+    //  * }
+    //  */
+    // public ensureLoadTexture () {
+    //     // if (this._texture) {
+    //     // if (!this._texture.loaded) {
+    //     if (!this.loaded) {
+    //         // load exists texture
+    //         // this._refreshTexture(/*this._texture*/);
+    //         // @ts-ignore
+    //         textureUtil.postLoadTexture(this, null);
+    //     }
+    //     // }
+    //     // else if (this._textureFilename) {
+    //     //     // load new texture
+    //     //     this._loadTexture();
+    //     // }
+    // }
 
     // /**
     //  * !#en
@@ -803,14 +760,58 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
         // }
     }
 
-    public onLoaded () {
-        this.loaded = true;
-        if (super.onLoaded) {
-            super.onLoaded();
+    protected _assetReady () {
+        super._assetReady();
+        const self = this;
+        // let texture = this._texture;
+        // if (!texture) {
+        //     // clearTexture called while loading texture...
+        //     return;
+        // }
+        // let w = texture.width, h = texture.height;
+        const w = self.width;
+        const h = self.height;
+
+        // if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+        //     // TODO: rotate texture for canvas
+        //     // self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
+        //     self._rotated = false;
+        //     // w = self._texture.width;
+        //     // h = self._texture.height;
+        //     w = self.width;
+        //     h = self.height;
+        //     self.setRect(cc.rect(0, 0, w, h));
+        // }
+
+        if (self._rect) {
+            self.checkRect(this.image!);
+        } else {
+            self.setRect(new Rect(0, 0, w, h));
         }
 
-        this._textureLoadedCallback();
+        if (!self._originalSize) {
+            self.setOriginalSize(new Size(w, h));
+        }
+
+        if (!self._offset) {
+            self.setOffset(new Vec2(0, 0));
+        }
+
+        self._calculateUV();
+
+        // dispatch 'load' event of cc.SpriteFrame
+        // @ts-ignore
+        // self.emit('load');
     }
+
+    // public onLoaded () {
+    //     this.loaded = true;
+    //     if (super.onLoaded) {
+    //         super.onLoaded();
+    //     }
+
+    //     this._textureLoadedCallback();
+    // }
 }
 
 cc.SpriteFrame = SpriteFrame;
