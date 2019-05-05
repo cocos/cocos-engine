@@ -137,18 +137,19 @@ export default class TrailModule {
     }
 
     public set enable (val) {
-        this._enable = val;
-        if (this._enable) {
+        if (val && !this._trailModel) {
             this._createModel();
         }
+        if (val && !this._enable) {
+            this._updateMaterial();
+        }
+        this._enable = val;
         if (this._trailModel) {
             this._trailModel.enabled = val;
         }
     }
 
-    @property({
-        displayOrder: 1,
-    })
+    @property
     public _enable = false;
 
     /**
@@ -156,7 +157,7 @@ export default class TrailModule {
      */
     @property({
         type: TrailMode,
-        displayOrder: 2,
+        displayOrder: 1,
     })
     public mode = TrailMode.Particles;
 
@@ -164,7 +165,7 @@ export default class TrailModule {
      * 设定粒子中生成轨迹的比例
      */
     @property({
-        displayOrder: 3,
+        displayOrder: 2,
     })
     public ratio = 1;
 
@@ -173,13 +174,16 @@ export default class TrailModule {
      */
     @property({
         type: CurveRange,
-        displayOrder: 4,
+        displayOrder: 3,
     })
     public lifeTime = new CurveRange();
 
     /**
      * 每个轨迹粒子之间的最小间距
      */
+    @property({
+        displayOrder: 5,
+    })
     public get minParticleDistance () {
         return this._minParticleDistance;
     }
@@ -189,19 +193,17 @@ export default class TrailModule {
         this._minSquaredDistance = val * val;
     }
 
-    @property({
-        displayOrder: 5,
-    })
+    @property
     public _minParticleDistance = 0.1;
 
-    /**
-     * 轨迹设定时的坐标系
-     */
-    @property({
-        type: Space,
-        displayOrder: 6,
-    })
-    public space = Space.World;
+    // /**
+    //  * 轨迹设定时的坐标系
+    //  */
+    // @property({
+    //     type: Space,
+    //     displayOrder: 6,
+    // })
+    // public space = Space.World;
 
     /**
      * 粒子本身是否存在
@@ -353,9 +355,11 @@ export default class TrailModule {
     }
 
     public _updateMaterial () {
-        const mat = this._particleSystem.renderer.getMaterial(1, CC_EDITOR)!;
-        if (mat) {
-            this._trailModel!.setSubModelMaterial(0, mat);
+        if (this._particleSystem) {
+            const mat = this._particleSystem.renderer.getMaterial(1, CC_EDITOR)!;
+            if (mat) {
+                this._trailModel!.setSubModelMaterial(0, mat);
+            }
         }
     }
 
