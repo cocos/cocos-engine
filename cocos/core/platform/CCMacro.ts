@@ -1117,113 +1117,77 @@ const ImageFormat = cc.Enum({
     UNKNOWN: 10,
 });
 
-/**
- * !#en
- * Enum for blend factor
- * Refer to: http://www.andersriggelsen.dk/glblendfunc.php
- * !#zh
- * 混合因子
- * 可参考: http://www.andersriggelsen.dk/glblendfunc.php
- * @enum macro.BlendFactor
- */
-const BlendFactor = cc.Enum({
-    /**
-     * !#en All use
-     * !#zh 全部使用
-     * @property {Number} ONE
-     */
-    ONE: 1,  // cc.macro.ONE
-    /**
-     * !#en Not all
-     * !#zh 全部不用
-     * @property {Number} ZERO
-     */
-    ZERO: 0,      // cc.ZERO
-    /**
-     * !#en Using the source alpha
-     * !#zh 使用源颜色的透明度
-     * @property {Number} SRC_ALPHA
-     */
-    SRC_ALPHA: 0x302,  // cc.SRC_ALPHA
-    /**
-     * !#en Using the source color
-     * !#zh 使用源颜色
-     * @property {Number} SRC_COLOR
-     */
-    SRC_COLOR: 0x300,  // cc.SRC_COLOR
-    /**
-     * !#en Using the target alpha
-     * !#zh 使用目标颜色的透明度
-     * @property {Number} DST_ALPHA
-     */
-    DST_ALPHA: 0x304,  // cc.DST_ALPHA
-    /**
-     * !#en Using the target color
-     * !#zh 使用目标颜色
-     * @property {Number} DST_COLOR
-     */
-    DST_COLOR: 0x306,  // cc.DST_COLOR
-    /**
-     * !#en Minus the source alpha
-     * !#zh 减去源颜色的透明度
-     * @property {Number} ONE_MINUS_SRC_ALPHA
-     */
-    ONE_MINUS_SRC_ALPHA: 0x303,  // cc.ONE_MINUS_SRC_ALPHA
-    /**
-     * !#en Minus the source color
-     * !#zh 减去源颜色
-     * @property {Number} ONE_MINUS_SRC_COLOR
-     */
-    ONE_MINUS_SRC_COLOR: 0x301,  // cc.ONE_MINUS_SRC_COLOR
-    /**
-     * !#en Minus the target alpha
-     * !#zh 减去目标颜色的透明度
-     * @property {Number} ONE_MINUS_DST_ALPHA
-     */
-    ONE_MINUS_DST_ALPHA: 0x305,  // cc.ONE_MINUS_DST_ALPHA
-    /**
-     * !#en Minus the target color
-     * !#zh 减去目标颜色
-     * @property {Number} ONE_MINUS_DST_COLOR
-     */
-    ONE_MINUS_DST_COLOR: 0x307,  // cc.ONE_MINUS_DST_COLOR
-});
-
-/**
- * @enum macro.TextAlignment
- */
-const TextAlignment = cc.Enum({
-    /**
-     * @property {Number} LEFT
-     */
-    LEFT: 0,
-    /**
-     * @property {Number} CENTER
-     */
-    CENTER: 1,
-    /**
-     * @property {Number} RIGHT
-     */
-    RIGHT: 2,
-});
-
-/**
- * @enum VerticalTextAlignment
- */
-const VerticalTextAlignment = cc.Enum({
-    /**
-     * @property {Number} TOP
-     */
-    TOP: 0,
-    /**
-     * @property {Number} CENTER
-     */
-    CENTER: 1,
-    /**
-     * @property {Number} BOTTOM
-     */
-    BOTTOM: 2,
-});
+// /**
+//  * !#en
+//  * Enum for blend factor
+//  * Refer to: http://www.andersriggelsen.dk/glblendfunc.php
+//  * !#zh
+//  * 混合因子
+//  * 可参考: http://www.andersriggelsen.dk/glblendfunc.php
+//  * @enum macro.BlendFactor
+//  */
+// const BlendFactor = cc.Enum({
+//     /**
+//      * !#en All use
+//      * !#zh 全部使用
+//      * @property {Number} ONE
+//      */
+//     ONE: 1,  // cc.macro.ONE
+//     /**
+//      * !#en Not all
+//      * !#zh 全部不用
+//      * @property {Number} ZERO
+//      */
+//     ZERO: 0,      // cc.ZERO
+//     /**
+//      * !#en Using the source alpha
+//      * !#zh 使用源颜色的透明度
+//      * @property {Number} SRC_ALPHA
+//      */
+//     SRC_ALPHA: 0x302,  // cc.SRC_ALPHA
+//     /**
+//      * !#en Using the source color
+//      * !#zh 使用源颜色
+//      * @property {Number} SRC_COLOR
+//      */
+//     SRC_COLOR: 0x300,  // cc.SRC_COLOR
+//     /**
+//      * !#en Using the target alpha
+//      * !#zh 使用目标颜色的透明度
+//      * @property {Number} DST_ALPHA
+//      */
+//     DST_ALPHA: 0x304,  // cc.DST_ALPHA
+//     /**
+//      * !#en Using the target color
+//      * !#zh 使用目标颜色
+//      * @property {Number} DST_COLOR
+//      */
+//     DST_COLOR: 0x306,  // cc.DST_COLOR
+//     /**
+//      * !#en Minus the source alpha
+//      * !#zh 减去源颜色的透明度
+//      * @property {Number} ONE_MINUS_SRC_ALPHA
+//      */
+//     ONE_MINUS_SRC_ALPHA: 0x303,  // cc.ONE_MINUS_SRC_ALPHA
+//     /**
+//      * !#en Minus the source color
+//      * !#zh 减去源颜色
+//      * @property {Number} ONE_MINUS_SRC_COLOR
+//      */
+//     ONE_MINUS_SRC_COLOR: 0x301,  // cc.ONE_MINUS_SRC_COLOR
+//     /**
+//      * !#en Minus the target alpha
+//      * !#zh 减去目标颜色的透明度
+//      * @property {Number} ONE_MINUS_DST_ALPHA
+//      */
+//     ONE_MINUS_DST_ALPHA: 0x305,  // cc.ONE_MINUS_DST_ALPHA
+//     /**
+//      * !#en Minus the target color
+//      * !#zh 减去目标颜色
+//      * @property {Number} ONE_MINUS_DST_COLOR
+//      */
+//     ONE_MINUS_DST_COLOR: 0x307,  // cc.ONE_MINUS_DST_COLOR
+// });
 
 /**
  * @module macro
@@ -1244,12 +1208,6 @@ const macro = {
     KEY,
 
     ImageFormat,
-
-    BlendFactor,
-
-    TextAlignment,
-
-    VerticalTextAlignment,
 
     /**
      * PI / 180
