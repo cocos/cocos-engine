@@ -30,7 +30,7 @@ import { EventTouch } from '../../../core/platform';
 import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../../core/utils';
 import Pool from '../../../core/utils/pool';
 import { Color, Vec2 } from '../../../core/value-types';
-import { Node, PrivateNode } from '../../../scene-graph';
+import { PrivateNode } from '../../../scene-graph';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
 import { LabelOutlineComponent } from './label-outline-component';
 import { SpriteComponent } from './sprite-component';
@@ -39,8 +39,6 @@ import { UIRenderComponent } from './ui-render-component';
 import { UITransformComponent } from './ui-transfrom-component';
 
 const _htmlTextParser = new HtmlTextParser();
-const HorizontalAlign = HorizontalTextAlignment;
-const VerticalAlign = VerticalTextAlignment;
 const RichTextChildName = 'RICHTEXT_CHILD';
 const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
 
@@ -66,35 +64,47 @@ function debounce (func: Function, wait: number, immediate?: boolean) {
 /**
  * RichText pool
  */
-const pool = new Pool((node: Node) => {
+const pool = new Pool((labelSeg: ILabelSegment) => {
     if (CC_EDITOR) {
         return false;
     }
     if (CC_DEV) {
-        cc.assert(!node.parent, 'Recycling node\'s parent should be null!');
+        cc.assert(!labelSeg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    if (!cc.isValid(node)) {
+    if (!cc.isValid(labelSeg.node)) {
         return false;
     }
-    else if (node.getComponent(cc.LabelOutline)) {
+    else if (labelSeg.node.getComponent(cc.LabelOutlineComponent)) {
         return false;
     }
     return true;
 }, 20);
 
 pool.get = function (string: string, richtext: RichTextComponent) {
-    let labelNode = this._get();
+    let labelSeg = this._get();
+    if (!labelSeg){
+        labelSeg = {
+            node: new PrivateNode(RichTextChildName),
+            comp: null,
+            lineCount: 0,
+            styleIndex: 0,
+            clickHandler: '',
+        };
+    }
+
+    let labelNode = labelSeg.node;
     if (!labelNode) {
         labelNode = new PrivateNode(RichTextChildName);
     }
 
-    let labelComponent: LabelComponent = labelNode.getComponent(LabelComponent);
+    let labelComponent = labelNode.getComponent(LabelComponent);
     if (!labelComponent) {
         labelComponent = labelNode.addComponent(LabelComponent);
     }
 
+    labelComponent = labelComponent!;
     labelNode.setPosition(0, 0, 0);
-    // labelNode.setAnchorPoint(0.5, 0.5);
+    labelNode.setAnchorPoint(0.5, 0.5);
     labelNode.setContentSize(128, 128);
     // labelNode.skewX = 0;
 
@@ -107,9 +117,10 @@ pool.get = function (string: string, richtext: RichTextComponent) {
     } else {
         labelComponent.fontFamily = 'Arial';
     }
+
     labelComponent.string = string;
-    labelComponent.horizontalAlign = HorizontalAlign.LEFT;
-    labelComponent.verticalAlign = VerticalAlign.TOP;
+    labelComponent.horizontalAlign = HorizontalTextAlignment.LEFT;
+    labelComponent.verticalAlign = VerticalTextAlignment.TOP;
     labelComponent.fontSize = richtext.fontSize || 40;
     labelComponent.overflow = 0;
     labelComponent.enableWrapText = true;
@@ -175,7 +186,7 @@ export class RichTextComponent extends UIComponent {
      * @property {macro.TextAlignment} horizontalAlign
      */
     @property({
-        type: HorizontalAlign,
+        type: HorizontalTextAlignment,
     })
     get horizontalAlign () {
         return this._horizontalAlign;
@@ -321,8 +332,8 @@ export class RichTextComponent extends UIComponent {
             this.handleTouchEvent ? this._addEventListeners() : this._removeEventListeners();
         }
     }
-    public static HorizontalAlign = HorizontalAlign;
-    public static VerticalAlign = VerticalAlign;
+    public static HorizontalAlign = HorizontalTextAlignment;
+    public static VerticalAlign = VerticalTextAlignment;
 
     @property
     private _lineHeight = 40;
@@ -330,7 +341,7 @@ export class RichTextComponent extends UIComponent {
     private _string = '<color=#00ff00>Rich</c><color=#0fffff>Text</color>';
     // private _updateRichTextStatus =
     @property
-    private _horizontalAlign = HorizontalAlign.LEFT;
+    private _horizontalAlign = HorizontalTextAlignment.LEFT;
     @property
     private _fontSize = 40;
     @property
@@ -422,7 +433,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     private _createFontLabel (string: string) {
-        return pool.get(string, this);
+        return pool.get!(string, this);
     }
 
     private _onTTFLoaded () {
@@ -500,18 +511,26 @@ export class RichTextComponent extends UIComponent {
 
     private _resetState () {
         const children = this.node.children;
-        for (let i = children.length - 1; i >= 0; i--) {
+
+        for (let i = children.length - 1; i >= 0; i--){
             const child = children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
                 if (child.parent === this.node) {
                     child.parent = null;
-                }
-                else {
+                } else {
                     // In case child.parent !== this.node, child cannot be removed from children
+
                     children.splice(i, 1);
                 }
+
                 if (child.name === RichTextChildName) {
-                    pool.put(child);
+                    const index = this._labelSegments.findIndex((seg) => {
+                        return seg.node === child;
+                    });
+
+                    if (index !== -1){
+                        pool.put(this._labelSegments[index]);
+                    }
                 }
             }
         }
@@ -868,13 +887,13 @@ export class RichTextComponent extends UIComponent {
             let lineOffsetX = 0;
             // let nodeAnchorXOffset = (0.5 - this.node.anchorX) * this._labelWidth;
             switch (this.horizontalAlign) {
-                case HorizontalAlign.LEFT:
+                case HorizontalTextAlignment.LEFT:
                     lineOffsetX = - this._labelWidth / 2;
                     break;
-                case HorizontalAlign.CENTER:
+                case HorizontalTextAlignment.CENTER:
                     lineOffsetX = - this._linesWidth[lineCount - 1] / 2;
                     break;
-                case HorizontalAlign.RIGHT:
+                case HorizontalTextAlignment.RIGHT:
                     lineOffsetX = this._labelWidth / 2 - this._linesWidth[lineCount - 1];
                     break;
                 default:
@@ -914,8 +933,8 @@ export class RichTextComponent extends UIComponent {
 
         const index = labelSeg.styleIndex;
         labelComponent.lineHeight = this.lineHeight;
-        labelComponent.horizontalAlign = HorizontalAlign.LEFT;
-        labelComponent.verticalAlign = VerticalAlign.CENTER;
+        labelComponent.horizontalAlign = HorizontalTextAlignment.LEFT;
+        labelComponent.verticalAlign = VerticalTextAlignment.CENTER;
 
         let textStyle: IHtmlTextParserStack | undefined;
         if (this._textArray[index]) {

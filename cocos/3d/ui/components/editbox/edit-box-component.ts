@@ -28,11 +28,10 @@ import { SpriteFrame } from '../../../../assets/sprite-frame';
 import { Component } from '../../../../components/component';
 import { EventHandler as ComponentEventHandler } from '../../../../components/component-event-handler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../../core/data/class-decorator';
-import macro from '../../../../core/platform/CCMacro';
 import { EventType } from '../../../../core/platform/event-manager/event-enum';
 import Color from '../../../../core/value-types/color';
 import { Node } from '../../../../scene-graph';
-import { LabelComponent } from '../label-component';
+import { LabelComponent, VerticalTextAlignment } from '../label-component';
 import { SpriteComponent } from '../sprite-component';
 import { UIRenderComponent } from '../ui-render-component';
 import { UITransformComponent } from '../ui-transfrom-component';
@@ -545,7 +544,7 @@ export class EditBoxComponent extends Component {
         if (textLabel) {
             textLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
             textLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height, textLabel.node.getPosition().z);
-            textLabel.verticalAlign = this._inputMode === InputMode.ANY ? macro.VerticalTextAlignment.TOP : macro.VerticalTextAlignment.CENTER;
+            textLabel.verticalAlign = this._inputMode === InputMode.ANY ? VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
             textLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
         }
 
@@ -554,7 +553,7 @@ export class EditBoxComponent extends Component {
             placeholderLabel.lineHeight = size.height;
             placeholderLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height, placeholderLabel.node.getPosition().z);
             placeholderLabel.verticalAlign = this._inputMode === InputMode.ANY ?
-                macro.VerticalTextAlignment.TOP : macro.VerticalTextAlignment.CENTER;
+                VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
             placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
         }
     }

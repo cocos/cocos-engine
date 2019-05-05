@@ -38,6 +38,12 @@ export function approx (a: number, b: number, maxDiff: number) {
  * @param max
  */
 export function clamp (val: number, min: number, max: number) {
+    if (min > max) {
+        const temp = min;
+        min = max;
+        max = temp;
+    }
+
     return val < min ? min : val > max ? max : val;
 }
 
