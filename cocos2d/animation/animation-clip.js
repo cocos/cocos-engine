@@ -227,10 +227,10 @@ var AnimationClip = cc.Class({
         }
 
         curve._findFrameIndex = canOptimize ? quickFindIndex : binarySearch;
-        
+
         // find the lerp function
         let firstValue = curve.values[0];
-        if (!curve._lerp && firstValue !== undefined) {
+        if (firstValue !== undefined && firstValue !== null && !curve._lerp) {
             if (typeof firstValue === 'number') {
                 curve._lerp = DynamicAnimCurve.prototype._lerpNumber;
             }
