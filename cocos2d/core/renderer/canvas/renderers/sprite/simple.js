@@ -58,13 +58,13 @@ let renderer = {
         
         if (frame._rotated) {
             let l = rect.x;
-            let r = rect.height;
+            let r = rect.width;
             let b = rect.y;
-            let t = rect.width;
+            let t = rect.height;
             data[0].u = l;
-            data[0].v = t;
-            data[1].u = r;
-            data[1].v = b;
+            data[0].v = b;
+            data[1].u = t;
+            data[1].v = r;
         }
         else {
             let l = rect.x;
@@ -83,6 +83,7 @@ let renderer = {
     updateVerts (sprite) {
         let renderData = sprite._renderData,
             node = sprite.node,
+            frame = sprite.spriteFrame,
             data = renderData._data,
             cw = node.width, ch = node.height,
             appx = node.anchorX * cw, appy = node.anchorY * ch,
@@ -94,8 +95,7 @@ let renderer = {
             t = ch;
         }
         else {
-            let frame = sprite.spriteFrame,
-                ow = frame._originalSize.width, oh = frame._originalSize.height,
+            let ow = frame._originalSize.width, oh = frame._originalSize.height,
                 rw = frame._rect.width, rh = frame._rect.height,
                 offset = frame._offset,
                 scaleX = cw / ow, scaleY = ch / oh;
@@ -109,29 +109,40 @@ let renderer = {
             t = ch;
         }
         
-        data[0].x = l;
-        data[0].y = b;
-        data[1].x = r;
-        data[1].y = t;
-
+        if (frame._rotated) {
+            data[0].y = l;
+            data[0].x = b;
+            data[1].y = r;
+            data[1].x = t;
+        } else {
+            data[0].x = l;
+            data[0].y = b;
+            data[1].x = r;
+            data[1].y = t;
+        }
+        
         renderData.vertDirty = false;
     },
 
     draw (ctx, comp) {
         let node = comp.node;
+        let frame = comp._spriteFrame;
         // Transform
         let matrix = node._worldMatrix;
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
         ctx.transform(a, b, c, d, tx, ty);
         ctx.scale(1, -1);
+        if (frame._rotated) {
+            ctx.rotate(- Math.PI / 2);
+        }
 
         // TODO: handle blend function
 
         // opacity
         utils.context.setGlobalAlpha(ctx, node.opacity / 255);
 
-        let tex = comp._spriteFrame._texture,
+        let tex = frame._texture,
             data = comp._renderData._data;
 
         let image = utils.getColorizedImage(tex, node._color);
