@@ -57,7 +57,11 @@ Lighting getPhongLighting (vec3 normal, vec3 worldPos, vec3 viewDirection, float
   }
   #endif
 
-  result.diffuse += cc_sceneAmbient;
+  #if _NUM_AMBIENT_LIGHTS > 0
+  for (int i = 0; i < _NUM_AMBIENT_LIGHTS; i++) {
+    result.diffuse += cc_ambientColor[i].rgb;
+  }
+  #endif
 
   return result;
 }

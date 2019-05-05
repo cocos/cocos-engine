@@ -424,7 +424,8 @@ export default class Light {
       case enums.LIGHT_POINT:
         _computePointLightViewProjMatrix(this, out._matView, out._matProj);
         break;
-
+      case enums.LIGHT_AMBIENT:
+        break;
       default:
         console.warn('shadow of this light type is not supported');
     }

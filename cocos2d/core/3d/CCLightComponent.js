@@ -45,29 +45,34 @@ const LightType = Enum({
      * !#en The direction of light
      *
      * !#zh 平行光
-     * @property DIRECTIONAL
+     * @property {Number} DIRECTIONAL
      * @readonly
-     * @type {Number}
      */
     DIRECTIONAL: 0,
     /**
      * !#en The point of light
      *
      * !#zh 点光源
-     * @property POINT
+     * @property {Number} POINT
      * @readonly
-     * @type {Number}
      */
     POINT: 1,
     /**
      * !#en The spot of light
      *
      * !#zh 聚光灯
-     * @property SPOT
+     * @property {Number} SPOT
      * @readonly
-     * @type {Number}
      */
     SPOT: 2,
+
+    /**
+     * !#en The ambient light
+     * !#zh 环境光
+     * @property {Number} AMBIENT
+     * @readonly
+     */
+    AMBIENT: 3
 });
 
 /**
@@ -129,7 +134,7 @@ export default class Light extends CCComponent {
     _intensity = 1;
 
     @property
-    _range = 1;
+    _range = 1000;
 
     @property
     _spotAngle = 60;
@@ -177,10 +182,13 @@ export default class Light extends CCComponent {
         this._type = val;
 
         let type = enums.LIGHT_DIRECTIONAL;
-        if (this._type === LightType.POINT) {
+        if (val === LightType.POINT) {
             type = enums.LIGHT_POINT;
-        } else if (this._type === LightType.SPOT) {
+        } else if (val === LightType.SPOT) {
             type = enums.LIGHT_SPOT;
+        }
+        else if (val === LightType.AMBIENT) {
+            type = enums.LIGHT_AMBIENT;
         }
         this._light.setType(type);
     }
