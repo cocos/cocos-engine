@@ -387,7 +387,16 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     }
 
     public _onMaterialModified (index: number, material: Material) {
-        this._updateMaterialParams();
+        if (index === 0) {
+            this._updateMaterialParams();
+
+        } else {
+            if (this.particleSystem.trailModule.enable) {
+                this.particleSystem.trailModule._updateMaterial();
+                const mat = this.getMaterial(1, CC_EDITOR)!;
+                mat!.recompileShaders(this._trailDefines);
+            }
+        }
         this._updateModel();
     }
 
@@ -407,7 +416,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         if (this.sharedMaterial == null && this._defaultMat == null) {
             this._defaultMat = Material.getInstantiatedMaterial(builtinResMgr.get<Material>('default-particle-material'), this, true);
         }
-        let mat: Material | null = this.sharedMaterial ? this.getMaterial(0, CC_EDITOR)! : this._defaultMat;
+        const mat: Material | null = this.sharedMaterial ? this.getMaterial(0, CC_EDITOR)! : this._defaultMat;
         if (this.particleSystem._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
             this._trailDefines[CC_USE_WORLD_SPACE] = true;
@@ -457,11 +466,6 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             mat!.setProperty('frameTile_velLenScale', vec2.set(this.frameTile_velLenScale, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
         } else {
             mat!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
-        }
-
-        if (this.particleSystem.trailModule.enable) {
-            mat = this.getMaterial(1, CC_EDITOR)!;
-            mat!.recompileShaders(this._trailDefines);
         }
     }
 
