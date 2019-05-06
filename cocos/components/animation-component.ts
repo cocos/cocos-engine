@@ -117,13 +117,32 @@ export class AnimationComponent extends EventTargetFactory(Component) {
         this._currentClip = value;
     }
 
+    /**
+     * Get or (re)set all the clips can be used in this animation.
+     * Once clips are (re)set, old animation states will be stoped.
+     * You shall no longer operate on them.
+     */
     @property({ type: [AnimationClip] })
     get clips () {
         return this._clips;
     }
 
     set clips (value) {
+        if (this._crossFade) {
+            this._crossFade.clear();
+        }
+        for (const key of Object.keys(this._nameToState)) {
+            const state = this._nameToState[key];
+            state.stop();
+        }
+        this._nameToState = {};
+        this._currentClip = null;
+        const newDefaultClip = value.find((clip) => equalClips(clip, this._defaultClip));
+        if (newDefaultClip !== undefined) {
+            this._defaultClip = newDefaultClip;
+        }
         this._clips = value;
+        this._createStates();
     }
 
     public static EventType = EventType;
@@ -181,14 +200,6 @@ export class AnimationComponent extends EventTargetFactory(Component) {
             this._crossFade.stop();
             this._crossFade = null;
         }
-    }
-
-    /**
-     * !#en Get all the clips used in this animation.
-     * !#zh 获取动画组件上的所有动画剪辑。
-     */
-    public getClips () {
-        return this._clips;
     }
 
     /**
