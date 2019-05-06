@@ -104,6 +104,12 @@ export class CrossFade extends Playable {
         // this._unshiftDefault();
     }
 
+    public clear () {
+        this.stop();
+        this._fadings.length = 0;
+        this._unshiftDefault();
+    }
+
     private _unshiftDefault () {
         this._fadings.unshift({
             state: null,
