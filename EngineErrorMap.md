@@ -131,6 +131,10 @@ cc.ReverseTime.initWithAction(): the action was already passed in.
 
 cc.Animate.initWithAnimation(): animation must be non-NULL
 
+### 1031
+
+Illegal parameter get passed in cc.tween: %s.
+
 ### 1100
 
 Expected 'data' dict, but not found. Config file: %s
