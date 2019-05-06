@@ -31,7 +31,7 @@ exports.generateJson = function () {
     let child = spawnSync('typedoc', commands, {
         shell: process.platform === 'win32'
     });
-    debugOutput(child);
+    outputDebug(child);
 }
 
 exports.generateAPIZH = function (indexPath, jsonFiles, outputPath) {
@@ -56,7 +56,7 @@ exports.generateAPIZH = function (indexPath, jsonFiles, outputPath) {
     let child = spawn('typedoc', commands, {
         shell: process.platform === 'win32'
     });
-    debugOutput(child);
+    outputDebug(child);
 }
 
 exports.generateAPIEN = function (indexPath, jsonFiles, outputPath) {
@@ -81,7 +81,7 @@ exports.generateAPIEN = function (indexPath, jsonFiles, outputPath) {
     let child = spawn('typedoc', commands, {
         shell: process.platform === 'win32'
     });
-    debugOutput(child);
+    outputDebug(child);
 }
 
 exports.generateHTML = function () {
@@ -102,7 +102,7 @@ exports.generateHTML = function () {
     let child = spawn('typedoc', commands, {
         shell: process.platform === 'win32'
     });
-    debugOutput(child);
+    outputDebug(child);
 }
 
 exports.generateHTMLWithLocalization = function () {
