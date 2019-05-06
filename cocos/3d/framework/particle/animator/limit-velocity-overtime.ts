@@ -24,6 +24,7 @@ export default class LimitVelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 4,
     })
     public limitX = new CurveRange();
@@ -33,6 +34,7 @@ export default class LimitVelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 5,
     })
     public limitY = new CurveRange();
@@ -42,6 +44,7 @@ export default class LimitVelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 6,
     })
     public limitZ = new CurveRange();
@@ -51,6 +54,7 @@ export default class LimitVelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 3,
     })
     public limit = new CurveRange();

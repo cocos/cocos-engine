@@ -23,6 +23,7 @@ export default class ForceOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 2,
     })
     public x = new CurveRange();
@@ -32,6 +33,7 @@ export default class ForceOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 3,
     })
     public y = new CurveRange();
@@ -41,6 +43,7 @@ export default class ForceOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 4,
     })
     public z = new CurveRange();

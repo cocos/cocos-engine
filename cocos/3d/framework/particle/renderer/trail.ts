@@ -356,7 +356,7 @@ export default class TrailModule {
 
     public _updateMaterial () {
         if (this._particleSystem) {
-            const mat = this._particleSystem.renderer.getMaterial(1, CC_EDITOR)!;
+            const mat = this._particleSystem.renderer.trailMaterial;
             if (mat) {
                 this._trailModel!.setSubModelMaterial(0, mat);
             }
