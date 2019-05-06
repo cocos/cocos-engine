@@ -72,7 +72,6 @@ export class SubModel {
         }
         if (this._inputAssembler) {
             this._inputAssembler.initialize(iaInfo);
-            this.updateCommandBuffer();
         } else {
             this._inputAssembler = (cc.director.root.device as GFXDevice).createInputAssembler(iaInfo);
         }

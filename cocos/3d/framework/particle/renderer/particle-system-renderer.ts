@@ -230,6 +230,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         this._model.enabled = this.enabledInHierarchy;
         this._updateMaterialParams();
         this._updateModel();
+        this._updateTrailMaterial();
     }
 
     public onDisable () {
@@ -389,15 +390,10 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     public _onMaterialModified (index: number, material: Material) {
         if (index === 0) {
             this._updateMaterialParams();
-
+            this._updateModel();
         } else {
-            if (this.particleSystem.trailModule.enable) {
-                this.particleSystem.trailModule._updateMaterial();
-                const mat = this.getMaterial(1, CC_EDITOR)!;
-                mat!.recompileShaders(this._trailDefines);
-            }
+            this._updateTrailMaterial();
         }
-        this._updateModel();
     }
 
     public _onRebuildPSO (index: number, material: Material) {
@@ -467,6 +463,22 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         } else {
             mat!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
         }
+        if (this._model) {
+            this._model.setSubModelMaterial(0, this.sharedMaterial || this._defaultMat);
+        }
+    }
+
+    private _updateTrailMaterial () {
+        if (this.particleSystem.trailModule.enable) {
+            if (this.particleSystem._simulationSpace === Space.World) {
+                this._trailDefines[CC_USE_WORLD_SPACE] = true;
+            } else {
+                this._trailDefines[CC_USE_WORLD_SPACE] = false;
+            }
+            const mat = this.getMaterial(1, CC_EDITOR)!;
+            mat!.recompileShaders(this._trailDefines);
+            this.particleSystem.trailModule._updateMaterial();
+        }
     }
 
     private _updateModel () {
@@ -474,7 +486,6 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             return;
         }
         this._model.setVertexAttributes(this._renderMode === RenderMode.Mesh ? this._mesh : null, this._vertAttrs);
-        this._model.setSubModelMaterial(0, this.sharedMaterial || this._defaultMat);
         // if (Object.getPrototypeOf(this).constructor.name === 'ParticleSystemGpuRenderer') {
         //     return;
         // }
