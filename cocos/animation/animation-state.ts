@@ -505,7 +505,6 @@ export class AnimationState extends Playable {
     }
 
     protected onStop () {
-        this.setTime(0);
         if (!this.isPaused) {
             cc.director.getAnimationManager().removeAnimation(this);
         }
