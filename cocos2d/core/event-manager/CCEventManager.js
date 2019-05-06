@@ -111,7 +111,7 @@ var eventManager = {
     DIRTY_FIXED_PRIORITY: 1 << 0,
     DIRTY_SCENE_GRAPH_PRIORITY: 1 << 1,
     DIRTY_ALL: 3,
-
+    
     _listenersMap: {},
     _priorityDirtyFlagMap: {},
     _nodeListenersMap: {},
@@ -120,6 +120,7 @@ var eventManager = {
     _dirtyListeners: {},
     _inDispatch: 0,
     _isEnabled: false,
+    _renderOrderMap: {},
 
     _internalCustomListenerIDs:[],
 
@@ -310,13 +311,18 @@ var eventManager = {
     },
 
     _sortEventListenersOfSceneGraphPriorityDes: function (l1, l2) {
+        var orders = eventManager._renderOrderMap;
         var node1 = l1._getSceneGraphPriority(),
-            node2 = l2._getSceneGraphPriority();
-        if (!l2 || !node2)
+            node2 = l2._getSceneGraphPriority(),
+            order1 = orders[node1._id],
+            order2 = orders[node2._id];
+
+        if (!l2 || !node2 || !order2)
             return -1;
-        else if (!l1 || !node1)
+        else if (!l1 || !node1 || !order1)
             return 1;
-        return node2._renderQueue - node1._renderQueue;
+
+        return order2 - order1;
     },
 
     _sortListenersOfFixedPriority: function (listenerID) {
@@ -584,6 +590,7 @@ var eventManager = {
             cc.js.array.remove(listeners, listener);
             if (listeners.length === 0)
                 delete this._nodeListenersMap[node._id];
+                delete this._renderOrderMap[node._id];
         }
     },
 
@@ -636,6 +643,13 @@ var eventManager = {
 
     _sortNumberAsc: function (a, b) {
         return a - b;
+    },
+
+    _updateRenderOrder: function (node, order) {
+        let selListeners = this._nodeListenersMap[node._id];
+        if (selListeners !== undefined) {
+            this._renderOrderMap[node._id] = order;
+        }   
     },
 
     /**
@@ -857,6 +871,7 @@ var eventManager = {
                 for (i = 0; i < listenersCopy.length; i++)
                     _t.removeListener(listenersCopy[i]);
                 delete _t._nodeListenersMap[listenerType._id];
+                delete _t._renderOrderMap[listenerType._id];
             }
 
             // Bug fix: ensure there are no references to the node in the list of listeners to be added.

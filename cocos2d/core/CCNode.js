@@ -1163,7 +1163,6 @@ var Node = cc.Class({
         this._eventMask = 0;
         this._cullingMask = 1;
         this._childArrivalOrder = 1;
-        this._renderQueue = 0;
     },
 
     statics: {
