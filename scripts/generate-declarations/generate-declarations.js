@@ -2,6 +2,7 @@ const { spawn } = require('child_process');
 const { join, extname, basename, dirname, isAbsolute } = require('path');
 const { copyFileSync, existsSync, readFileSync, unlinkSync, writeFileSync, ensureDirSync } = require('fs-extra');
 const ts = require('typescript');
+const gift = require('tfig');
 
 const tscExecutableName = process.platform === 'win32' ? 'tsc.cmd' : 'tsc';
 const tscExecutablePath = join(__dirname, '..', '..', 'node_modules', '.bin', tscExecutableName);
@@ -83,11 +84,28 @@ async function generate (options) {
     }
 
     const types = tsConfig.config.compilerOptions.types.map((typeFile) => `${typeFile}.d.ts`);
-    (types.concat(extraDestFiles)).forEach((file) => {
+    types.forEach((file) => {
         const destPath = join(outDir, isAbsolute(file) ? basename(file) : file);
         ensureDirSync(dirname(destPath));
         copyFileSync(file, destPath);
     });
+
+    console.log(`Bundling...`);
+    const giftInputPath = join(dirName, baseName + '.d.ts');
+    const giftOutputPath = join(dirName,'Cocos3D.d.ts' );
+    const giftResult = gift.bundle({
+        input: giftInputPath,
+        output: giftOutputPath,
+        name: 'Cocos3D',
+        rootModule: 'index',
+    });
+    if (giftResult.error !== gift.GiftErrors.Ok) {
+        console.error(`Failed to bundle declaration files because of gift error: ${gift.GiftErrors[giftResult.error]}.`);
+        return false;
+    }
+    writeFileSync(giftOutputPath, giftResult.code);
+    unlinkSync(giftInputPath);
+
     return true;
 }
 
