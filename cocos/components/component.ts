@@ -214,7 +214,7 @@ class Component extends CCObject {
      */
     private _eventTargets: any[] = [];
 
-    private __scriptUuid = '';
+    // private __scriptUuid = '';
 
     constructor () {
         super();
