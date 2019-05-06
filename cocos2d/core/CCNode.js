@@ -1346,13 +1346,6 @@ let NodeDefines = {
      * The initializer for Node which will be called before all components onLoad
      */
     _onBatchCreated () {
-        this._upgrade_1x_to_2x();
-
-        this._updateOrderOfArrival();
-
-        // synchronize _cullingMask
-        this._cullingMask = 1 << _getActualGroupIndex(this);
-
         let prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
             if (CC_DEV) {
@@ -1361,6 +1354,13 @@ let NodeDefines = {
             }
             PrefabHelper.syncWithPrefab(this);
         }
+
+        this._upgrade_1x_to_2x();
+
+        this._updateOrderOfArrival();
+
+        // synchronize _cullingMask
+        this._cullingMask = 1 << _getActualGroupIndex(this);
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
