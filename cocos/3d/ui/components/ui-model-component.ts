@@ -5,8 +5,12 @@ import { UI } from '../../../renderer/ui/ui';
 import { RenderableComponent } from '../../framework/renderable-component';
 import { UIComponent } from './ui-component';
 
+/**
+ * @zh
+ * UI 模型基础类
+ */
 @ccclass('cc.UIModelComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Model')
 export class UIModelComponent extends UIComponent {
 

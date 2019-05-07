@@ -25,28 +25,23 @@
  ****************************************************************************/
 import { EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { ButtonComponent} from './button-component';
-import { SpriteComponent} from './sprite-component';
-import { ToggleContainerComponent} from './toggle-container-component';
+import { ButtonComponent } from './button-component';
+import { SpriteComponent } from './sprite-component';
+import { ToggleContainerComponent } from './toggle-container-component';
 
 /**
- * !#en The toggle component is a CheckBox, when it used together with a ToggleGroup, it
- * could be treated as a RadioButton.
- * !#zh Toggle 是一个 CheckBox，当它和 ToggleGroup 一起使用的时候，可以变成 RadioButton。
- * @class Toggle
- * @extends Button
+ * @zh
+ * Toggle 是一个 CheckBox，当它和 ToggleGroup 一起使用的时候，可以变成 RadioButton。
  */
 @ccclass('cc.ToggleComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Toggle')
 @executeInEditMode
 export class ToggleComponent extends ButtonComponent {
 
     /**
-     * !#en When this value is true, the check mark component will be enabled, otherwise
-     * the check mark component will be disabled.
-     * !#zh 如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。
-     * @property {Boolean} isChecked
+     * @zh
+     * 如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。
      */
     @property
     get isChecked () {
@@ -63,11 +58,8 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     /**
-     * !#en The toggle group which the toggle belongs to, when it is null, the toggle is a CheckBox.
-     * Otherwise, the toggle is a RadioButton.
-     * !#zh Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，
-     * 否则，Toggle 是一个 RadioButton。
-     * @property {ToggleGroup} toggleGroup
+     * @zh
+     * Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 RadioButton。
      */
     @property({
         type: ToggleContainerComponent,
@@ -91,9 +83,8 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     /**
-     * !#en The image used for the checkmark.
-     * !#zh Toggle 处于选中状态时显示的图片
-     * @property {Sprite} checkMark
+     * @zh
+     * Toggle 处于选中状态时显示的图片
      */
     @property({
         type: SpriteComponent,
@@ -125,9 +116,8 @@ export class ToggleComponent extends ButtonComponent {
         return null;
     }
     /**
-     * !#en If Toggle is clicked, it will trigger event's handler
-     * !#zh Toggle 按钮的点击事件列表。
-     * @property {ComponentEventHandler[]} checkEvents
+     * @zh
+     * Toggle 按钮的点击事件列表。
      */
     @property({
         type: ComponentEventHandler,
@@ -161,33 +151,10 @@ export class ToggleComponent extends ButtonComponent {
         }
     }
 
-    public _updateCheckMark () {
-        if (this._checkMark){
-            this._checkMark.node.active = !!this.isChecked;
-        }
-    }
-
-    // _updateDisabledState() {
-    //     this._super();
-
-    //     if (this._checkMark) {
-    //         this._checkMark.setState(0);
-    //     }
-    //     if (this.enableAutoGrayEffect) {
-    //         if (this._checkMark && !this.interactable) {
-    //             this._checkMark.setState(1);
-    //         }
-    //     }
-    // }
-
-    public _registerToggleEvent () {
-        this.node.on('click', this.toggle, this);
-    }
-
-    public _unregisterToggleEvent () {
-        this.node.off('click', this.toggle, this);
-    }
-
+    /**
+     * @zh
+     * toggle 按钮切换。
+     */
     public toggle () {
         const group = this.toggleGroup || this._toggleContainer;
 
@@ -206,9 +173,8 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     /**
-     * !#en Make the toggle button checked.
-     * !#zh 使 toggle 按钮处于选中状态
-     * @method check
+     * @zh
+     * 使 toggle 按钮处于选中状态。
      */
     public check () {
         const group = this.toggleGroup || this._toggleContainer;
@@ -229,9 +195,8 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     /**
-     * !#en Make the toggle button unchecked.
-     * !#zh 使 toggle 按钮处于未选中状态
-     * @method uncheck
+     * @zh
+     * 取消 toggle 按钮选中状态。
      */
     public uncheck () {
         const group = this.toggleGroup || this._toggleContainer;
@@ -245,6 +210,33 @@ export class ToggleComponent extends ButtonComponent {
         this.isChecked = false;
 
         this._emitToggleEvents();
+    }
+
+    private _updateCheckMark () {
+        if (this._checkMark){
+            this._checkMark.node.active = !!this.isChecked;
+        }
+    }
+
+    // _updateDisabledState() {
+    //     this._super();
+
+    //     if (this._checkMark) {
+    //         this._checkMark.setState(0);
+    //     }
+    //     if (this.enableAutoGrayEffect) {
+    //         if (this._checkMark && !this.interactable) {
+    //             this._checkMark.setState(1);
+    //         }
+    //     }
+    // }
+
+    private _registerToggleEvent () {
+        this.node.on('click', this.toggle, this);
+    }
+
+    private _unregisterToggleEvent () {
+        this.node.off('click', this.toggle, this);
     }
 
     private _emitToggleEvents () {
@@ -270,9 +262,7 @@ cc.ToggleComponent = ToggleComponent;
 // );
 
 /**
- * !#en
- * Note: This event is emitted from the node to which the component belongs.
- * !#zh
+ * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event toggle
  * @param {Event.EventCustom} event

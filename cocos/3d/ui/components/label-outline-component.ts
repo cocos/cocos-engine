@@ -24,26 +24,26 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * !#en Outline effect used to change the display, only used for TTF font
- * !#zh 描边效果组件,用于字体描边,只能用于系统字体
- * @class LabelOutline
- * @extends Component
- * @example
- *  // Create a new node and add label components.
- *  var node = new cc.Node("New Label");
- *  var label = node.addComponent(cc.Label);
- *  var outline = node.addComponent(cc.LabelOutline);
- *  node.parent = this.node;
- */
-
 import { Component } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/value-types';
 import { LabelComponent } from './label-component';
 
+/**
+ * @zh
+ * 描边效果组件,用于字体描边,只能用于系统字体
+ *
+ * @example
+ * ```ts
+ *  // Create a new node and add label components.
+ *  var node = new cc.Node("New Label");
+ *  var label = node.addComponent(cc.Label);
+ *  var outline = node.addComponent(cc.LabelOutline);
+ *  node.parent = this.node;
+ * ```
+ */
 @ccclass('cc.LabelOutlineComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Render/LabelOutline')
 export class LabelOutlineComponent extends Component {
     @property
@@ -52,12 +52,13 @@ export class LabelOutlineComponent extends Component {
     private _width = 1;
 
     /**
-     * !#en Change the outline color
-     * !#zh 改变描边的颜色
-     * @property color
-     * @type {Color}
+     * @zh
+     * 改变描边的颜色。
+     *
      * @example
-     * outline.color = new cc.Color(0.5, 0.3, 0.7, 1.0);;
+     * ```ts
+     * outline.color = new cc.Color(0.5, 0.3, 0.7, 1.0);
+     * ```
      */
     @property
     get color () {
@@ -74,12 +75,13 @@ export class LabelOutlineComponent extends Component {
     }
 
     /**
-     * !#en Change the outline width
-     * !#zh 改变描边的宽度
-     * @property width
-     * @type {Number}
+     * @zh
+     * 改变描边的宽度。
+     *
      * @example
+     * ```ts
      * outline.width = 3;
+     * ```
      */
     @property
     get width () {

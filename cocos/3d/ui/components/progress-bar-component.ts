@@ -31,28 +31,24 @@ import { Enum, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { SpriteComponent } from './sprite-component';
 
 /**
- * !#en Enum for ProgressBar mode
- * !#zh 进度条模式
- * @enum ProgressBar.Mode
+ * @zh
+ * 进度条模式
  */
 enum Mode {
     /**
-     * !#en TODO
-     * !#zh 水平方向模式
-     * @property {Number} HORIZONTAL
+     * @zh
+     * 水平方向模式。
      */
     HORIZONTAL = 0,
 
     /**
-     * !#en TODO
-     * !#zh 垂直方向模式
-     * @property {Number} VERTICAL
+     * @zh
+     *  垂直方向模式。
      */
     VERTICAL = 1,
     /**
-     * !#en TODO
-     * !#zh 填充模式
-     * @property {Number} FILLED
+     * @zh
+     * 填充模式。
      */
     FILLED = 2,
 }
@@ -60,14 +56,10 @@ enum Mode {
 Enum(Mode);
 
 /**
- * !#en
- * Visual indicator of progress in some operation.
- * Displays a bar to the user representing how far the operation has progressed.
- * !#zh
+ * @zh
  * 进度条组件，可用于显示加载资源时的进度。
- * @class ProgressBar
- * @extends Component
  * @example
+ * ```ts
  * // update progressBar
  * update(dt) {
  *     var progress = progressBar.progress;
@@ -79,18 +71,17 @@ Enum(Mode);
  *     }
  *     progressBar.progress = progress;
  * }
- *
+ * ```
  */
 @ccclass('cc.ProgressBarComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/ProgressBar')
 // @executeInEditMode
 export class ProgressBarComponent extends Component {
 
     /**
-     * !#en The targeted Sprite which will be changed progressively.
-     * !#zh 用来显示进度条比例的 Sprite 对象。
-     * @property {Sprite} barSprite
+     * @zh
+     * 用来显示进度条比例的 Sprite 对象。
      */
     @property({
         type: SpriteComponent,
@@ -109,9 +100,8 @@ export class ProgressBarComponent extends Component {
     }
 
     /**
-     * !#en The progress mode, there are two modes supported now: horizontal and vertical.
-     * !#zh 进度条的模式
-     * @property {ProgressBar.Mode} mode
+     * @zh
+     * 进度条的模式。
      */
     @property({
         type: Mode,
@@ -142,9 +132,8 @@ export class ProgressBarComponent extends Component {
     }
 
     /**
-     * !#en The total width or height of the bar sprite.
-     * !#zh 进度条实际的总长度
-     * @property {Number} totalLength - range[[0, Number.MAX_VALUE]]
+     * @zh
+     * 进度条实际的总长度
      */
     @property
     get totalLength () {
@@ -160,9 +149,8 @@ export class ProgressBarComponent extends Component {
     }
 
     /**
-     * !#en The current progress of the bar sprite. The valid value is between 0-1.
-     * !#zh 当前进度值，该数值的区间是 0-1 之间。
-     * @property {Number} progress
+     * @zh
+     * 当前进度值，该数值的区间是 0-1 之间。
      */
     @property({
         range: [0, 1, 0.1],
@@ -182,9 +170,8 @@ export class ProgressBarComponent extends Component {
     }
 
     /**
-     * !#en Whether reverse the progress direction of the bar sprite.
-     * !#zh 进度条是否进行反方向变化。
-     * @property {Boolean} reverse
+     * @zh
+     * 进度条是否进行反方向变化。
      */
     @property
     get reverse () {

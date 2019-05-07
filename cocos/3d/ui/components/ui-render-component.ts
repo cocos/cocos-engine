@@ -46,35 +46,47 @@ import { UITransformComponent } from './ui-transfrom-component';
 // hack
 ccenum(GFXBlendFactor);
 
+/**
+ * @zh
+ * 实例后的材质的着色器属性类型
+ */
 export enum InstanceMaterialType {
+    /**
+     * @zh
+     * 着色器只带颜色属性。
+     */
     ADDCOLOR = 0,
+
+    /**
+     * @zh
+     * 着色器带颜色和贴图属性。
+     */
     ADDCOLORANDTEXTURE = 1,
 }
 
 /**
- * !#en
- * Base class for components which supports rendering features.
- * !#zh
- * 所有支持渲染的组件的基类
- *
- * @class UIRenderComponent
- * @extends Component
+ * @zh
+ * 所有支持渲染的 UI 组件的基类
  */
 @ccclass('cc.UIRenderComponent')
-@executionOrder(100)
+@executionOrder(110)
 @requireComponent(UITransformComponent)
 @executeInEditMode
 export class UIRenderComponent extends UIComponent {
 
     /**
-     * !#en specify the source Blend Factor, this will generate a custom material object
-     * please pay attention to the memory cost.
-     * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的
-     * @property srcBlendFactor
+     * @zh
+     * 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的。
+     *
+     * @param value 原图混合模式。
+     * @example
+     * ```ts
      * sprite.srcBlendFactor = macro.BlendFactor.ONE;
+     * ```
      */
     @property({
         type: GFXBlendFactor,
+        displayOrder: 0,
     })
     get srcBlendFactor () {
         return this._srcBlendFactor;
@@ -90,15 +102,18 @@ export class UIRenderComponent extends UIComponent {
     }
 
     /**
-     * !#en specify the destination Blend Factor.
-     * !#zh 指定目标的混合模式
-     * @property dstBlendFactor
-     * @type {macro.BlendFactor}
+     * @zh
+     * 指定目标的混合模式。
+     *
+     * @param value 目标混合模式。
      * @example
+     * ```ts
      * sprite.dstBlendFactor = GFXBlendFactor.ONE;
+     * ```
      */
     @property({
         type: GFXBlendFactor,
+        displayOrder: 1,
     })
     get dstBlendFactor () {
         return this._dstBlendFactor;
@@ -114,11 +129,14 @@ export class UIRenderComponent extends UIComponent {
     }
 
     /**
-     * !#en render color
-     * !#zh 渲染颜色
-     * @property color
+     * @zh
+     * 渲染颜色。
+     *
+     * @param value 渲染颜色。
      */
-    @property
+    @property({
+        displayOrder: 2,
+    })
     get color () {
         return this._color;
     }
@@ -133,12 +151,14 @@ export class UIRenderComponent extends UIComponent {
     }
 
     /**
-     * !#en render material
-     * !#zh 渲染共用材质
-     * @property material
+     * @zh
+     * 渲染使用材质，实际使用材质是实例后材质。
+     *
+     * @param value 源材质。
      */
     @property({
         type: Material,
+        displayOrder: 3,
     })
     get sharedMaterial () {
         return this._sharedMaterial;
@@ -170,7 +190,6 @@ export class UIRenderComponent extends UIComponent {
     }
 
     public static BlendState = GFXBlendFactor;
-
     public static Assembler: IAssemblerManager | null = null;
     public static PostAssembler: IAssemblerManager | null = null;
 
@@ -263,6 +282,12 @@ export class UIRenderComponent extends UIComponent {
         this._renderData = null;
     }
 
+    /**
+     * @zh
+     * 标记当前组件的渲染数据为已修改状态，这样渲染数据才会重新计算。
+     *
+     * @param enable 是否标记为已修改。
+     */
     public markForUpdateRenderData (enable: boolean = true) {
         if (enable && this._canRender()) {
             const renderData = this._renderData;
@@ -278,6 +303,12 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
+    /**
+     * @zh
+     * 请求渲染数据。
+     *
+     * @return 渲染数据 RenderData。
+     */
     public requestRenderData () {
         const data = RenderData.add();
         // this._allocedDatas.push(data);
@@ -286,6 +317,10 @@ export class UIRenderComponent extends UIComponent {
         return this._renderData;
     }
 
+    /**
+     * @zh
+     * 渲染数据销毁。
+     */
     public destroyRenderData () {
         if (this._renderDataPoolID === -1) {
             return;
@@ -296,6 +331,12 @@ export class UIRenderComponent extends UIComponent {
         this._renderData = null;
     }
 
+    /**
+     * @zh
+     * 每个渲染组件都由此接口决定是否渲染以及渲染状态的更新。
+     *
+     * @param render 数据处理中转站。
+     */
     public updateAssembler (render: UI) {
         if (!this._canRender()) {
             return false;

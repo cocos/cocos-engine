@@ -13,12 +13,18 @@ const _matrix = new Mat4();
 const _worldMatrix = new Mat4();
 
 @ccclass('cc.UITransformComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/UITransform')
 @executeInEditMode
 export class UITransformComponent extends Component {
 
-    @property
+    /**
+     * @zh
+     * 内容尺寸
+     */
+    @property({
+        displayOrder: 0,
+    })
     get contentSize () {
         return this._contentSize;
     }
@@ -89,7 +95,13 @@ export class UITransformComponent extends Component {
         }
     }
 
-    @property
+    /**
+     * @zh
+     * 锚点位置
+     */
+    @property({
+        displayOrder: 1,
+    })
     get anchorPoint () {
         return this._anchorPoint;
     }
@@ -144,14 +156,11 @@ export class UITransformComponent extends Component {
     }
 
     /**
-     * !#en
-     * Sets the untransformed size of the node.<br/>
-     * The contentSize remains the same no matter the node is scaled or rotated.<br/>
-     * All nodes has a size. Layer and Scene has the same size of the screen.
-     * !#zh 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。
-     * @method setContentSize
-     * @param {Size|Number} size - The untransformed size of the node or The untransformed size's width of the node.
-     * @param {Number} [height] - The untransformed size's height of the node.
+     * @zh
+     * 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。
+     *
+     * @typeparam size - 节点内容变换的尺寸或者宽度.
+     * @param height - 节点内容未变换的高度.
      * @example
      * node.setContentSize(cc.size(100, 100));
      * node.setContentSize(100, 100);
@@ -193,23 +202,16 @@ export class UITransformComponent extends Component {
     }
 
     /**
-     * !#en
-     * Sets the anchor point in percent. <br/>
-     * anchor point is the point around which all transformations and positioning manipulations take place. <br/>
-     * It's like a pin in the node where it is "attached" to its parent. <br/>
-     * The anchorPoint is normalized, like a percentage. (0,0) means the bottom-left corner and (1,1) means the top-right corner.<br/>
-     * But you can use values higher than (1,1) and lower than (0,0) too.<br/>
-     * The default anchor point is (0.5,0.5), so it starts at the center of the node.
-     * !#zh
-     * 设置锚点的百分比。<br/>
-     * 锚点应用于所有变换和坐标点的操作，它就像在节点上连接其父节点的大头针。<br/>
-     * 锚点是标准化的，就像百分比一样。(0，0) 表示左下角，(1，1) 表示右上角。<br/>
-     * 但是你可以使用比（1，1）更高的值或者比（0，0）更低的值。<br/>
-     * 默认的锚点是（0.5，0.5），因此它开始于节点的中心位置。<br/>
+     * @zh
+     * 设置锚点的百分比。
+     * 锚点应用于所有变换和坐标点的操作，它就像在节点上连接其父节点的大头针。
+     * 锚点是标准化的，就像百分比一样。(0，0) 表示左下角，(1，1) 表示右上角。
+     * 但是你可以使用比（1，1）更高的值或者比（0，0）更低的值。
+     * 默认的锚点是（0.5，0.5），因此它开始于节点的中心位置。
      * 注意：Creator 中的锚点仅用于定位所在的节点，子节点的定位不受影响。
-     * @method setAnchorPoint
-     * @param {Vec2|Number} point - The anchor point of node or The x axis anchor of node.
-     * @param {Number} [y] - The y axis anchor of node.
+     *
+     * @typeparam point - 节点锚点或节点 x 轴锚.
+     * @param y - 节点 y 轴锚
      * @example
      * node.setAnchorPoint(cc.v2(1, 1));
      * node.setAnchorPoint(1, 1);
@@ -238,6 +240,13 @@ export class UITransformComponent extends Component {
         // }
     }
 
+    /**
+     * @zh
+     * 当前节点的点击计算
+     *
+     * @typeparam point - 屏幕点
+     * @typeparam listener - 事件监听器
+     */
     public isHit (point: Vec2, listener?: EventListener) {
         // console.log('click point  ' + point.toString());
         const w = this._contentSize.width;
@@ -298,16 +307,13 @@ export class UITransformComponent extends Component {
     }
 
     /**
-     * !#en
-     * Converts a UI Point to UI Node (Local) Space coordinates in which the anchor point is the origin position.
-     * Conversion of non-UI nodes to UI Node (Local) Space coordinate system, please go cc.pipelineUtils.ConvertWorldToUISpaceAR.
-     * !#zh
-     * 将一个 UI 节点转换到另一个 UI 节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
+     * @zh
+     * 将一个 UI 节点世界坐标系下点转换到另一个 UI 节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
      * 非 UI 节点转换到 UI 节点(局部) 空间坐标系，请走 cc.pipelineUtils.ConvertWorldToUISpaceAR
-     * @method convertToNodeSpaceAR
-     * @param {Vec3} worldPoint
-     * @param {Vec3} out
-     * @return {Vec3}
+     *
+     * @typeparam worldPoint - 世界坐标点
+     * @typeparam out - 转换后坐标
+     * @return
      * @example
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
@@ -322,13 +328,12 @@ export class UITransformComponent extends Component {
     }
 
     /**
-     * !#en
-     * Converts a Point in node coordinates to world space coordinates.
-     * !#zh
+     * @zh
      * 将当前节点坐标系下的一个点转换到世界坐标系。
-     * @method convertToWorldSpaceAR
-     * @param {Vec2} nodePoint
-     * @return {Vec2}
+     *
+     * @param nodePoint - 节点坐标
+     * @param out - 转换后坐标
+     * @return
      * @example
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      */
@@ -342,12 +347,10 @@ export class UITransformComponent extends Component {
     }
 
     /**
-     * !#en
-     * Returns a "local" axis aligned bounding box of the node. <br/>
-     * The returned box is relative only to its parent.
-     * !#zh 返回父节坐标系下的轴向对齐的包围盒。
-     * @method getBoundingBox
-     * @return {Rect} The calculated bounding box of the node
+     * @zh
+     * 返回父节坐标系下的轴向对齐的包围盒。
+     *
+     * @return - 节点大小的包围盒
      * @example
      * var boundingBox = node.getBoundingBox();
      */
@@ -364,14 +367,11 @@ export class UITransformComponent extends Component {
     }
 
     /**
-     * !#en
-     * Returns a "world" axis aligned bounding box of the node.<br/>
-     * The bounding box contains self and active children's world bounding box.
-     * !#zh
-     * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。<br/>
+     * @zh
+     * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。
      * 该边框包含自身和已激活的子节点的世界边框。
-     * @method getBoundingBoxToWorld
-     * @return {Rect}
+     *
+     * @return
      * @example
      * var newRect = node.getBoundingBoxToWorld();
      */
@@ -384,6 +384,13 @@ export class UITransformComponent extends Component {
         }
     }
 
+    /**
+     * @zh
+     * 返回包含当前包围盒及其子节点包围盒的最小包围盒
+     *
+     * @param parentMat
+     * @return
+     */
     public getBoundingBoxTo (parentMat: Mat4) {
         vmath.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
         const width = this._contentSize.width;

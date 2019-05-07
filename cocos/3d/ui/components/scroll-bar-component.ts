@@ -41,17 +41,19 @@ const _tempPos_2 = new Vec3();
 const defaultAnchor = new Vec2();
 
 /**
- * Enum for Scrollbar direction
- * @enum Scrollbar.Direction
+ * @zh
+ * 滚动条方向。
  */
 enum Direction {
     /**
-     * @property {Number} HORIZONTAL
+     * @zh
+     * 横向滚动。
      */
     HORIZONTAL = 0,
 
     /**
-     * @property {Number} VERTICAL
+     * @zh
+     * 纵向滚动。
      */
     VERTICAL = 1,
 }
@@ -59,21 +61,17 @@ enum Direction {
 ccenum(Direction);
 
 /**
- * !#en
- * The Scrollbar control allows the user to scroll an image or other view that is too large to see completely
- * !#zh 滚动条组件
- * @class Scrollbar
- * @extends Component
+ * @zh
+ * 滚动条组件。
  */
 @ccclass('cc.ScrollBarComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/ScrollBar')
 export class ScrollBarComponent extends Component {
 
     /**
-     * !#en The "handle" part of the scrollbar.
-     * !#zh 作为当前滚动区域位置显示的滑块 Sprite。
-     * @property {Sprite} handle
+     * @zh
+     * 作为当前滚动区域位置显示的滑块 Sprite。
      */
     @property({
         type: SpriteComponent,
@@ -91,9 +89,8 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
-     * !#en The direction of scrollbar.
-     * !#zh ScrollBar 的滚动方向。
-     * @property {Scrollbar.Direction} direction
+     * @zh
+     * ScrollBar 的滚动方向。
      */
     @property({
         type: Direction,
@@ -112,9 +109,8 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
-     * !#en Whether enable auto hide or not.
-     * !#zh 是否在没有滚动动作时自动隐藏 ScrollBar。
-     * @property {Boolean} enableAutoHide
+     * @zh
+     * 是否在没有滚动动作时自动隐藏 ScrollBar。
      */
     @property
     get enableAutoHide () {
@@ -133,13 +129,9 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
-     * !#en
-     * The time to hide scrollbar when scroll finished.
-     * Note: This value is only useful when enableAutoHide is true.
-     * !#zh
-     * 没有滚动动作后经过多久会自动隐藏。
+     * @zh
+     * 没有滚动动作后经过多久会自动隐藏。<br/>
      * 注意：只要当 “enableAutoHide” 为 true 时，才有效。
-     * @property {Number} autoHideTime
      */
     @property
     get autoHideTime () {
@@ -170,16 +162,30 @@ export class ScrollBarComponent extends Component {
     private _opacity = 255;
     private _autoHideRemainingTime = 0;
 
+    /**
+     * @zh
+     * 滚动条隐藏。
+     */
     public hide () {
         this._autoHideRemainingTime = 0;
         this._setOpacity(0);
     }
 
+    /**
+     * @zh
+     * 滚动条显示。
+     */
     public show () {
         this._autoHideRemainingTime = this._autoHideTime;
         this._setOpacity(this._opacity);
     }
 
+    /**
+     * @zh
+     * 重置滚动条位置
+     *
+     * @param outOfBoundary - 滚动位移
+     */
     public onScroll (outOfBoundary: Vec3) {
         if (!this._scrollView) {
             return;
@@ -233,6 +239,12 @@ export class ScrollBarComponent extends Component {
 
     }
 
+    /**
+     * @zh
+     * 滚动视窗设置
+     *
+     * @param scrollView - 滚动视窗
+     */
     public setScrollView (scrollView: ScrollViewComponent) {
         this._scrollView = scrollView;
     }

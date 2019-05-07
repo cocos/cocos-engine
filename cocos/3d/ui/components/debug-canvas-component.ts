@@ -1,13 +1,24 @@
+import { ccclass, executionOrder, requireComponent } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/value-types';
 import { GFXClearFlag } from '../../../gfx/define';
 import { CanvasComponent } from './canvas-component';
+import { UITransformComponent } from './ui-transfrom-component';
 
 const _worldPos = new Vec3();
+
+/**
+ * @zh
+ * 性能显示面板类
+ */
+@ccclass('cc.DebugCanvasComponent')
+@executionOrder(100)
+@requireComponent(UITransformComponent)
 export class DebugCanvasComponent extends CanvasComponent {
     constructor (){
         super();
         this._thisOnResized = this.alignWithScreen.bind(this);
     }
+
     public __preload (){
         const cameraNode = new cc.Node('UICamera');
         cameraNode.setPosition(0, 0, 1000);

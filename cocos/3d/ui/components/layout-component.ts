@@ -33,33 +33,29 @@ import { Node } from '../../../scene-graph/node';
 import { UITransformComponent } from './ui-transfrom-component';
 const NodeEvent = Node.EventType;
 /**
- * !#en Enum for Layout type
- * !#zh 布局类型
- * @enum Layout.Type
+ * @zh
+ * 布局类型。
  */
 enum Type {
     /**
-     * !#en None Layout
-     * !#zh 取消布局
+     * @zh
+     * 取消布局。
      */
     NONE = 0,
     /**
-     * !#en Horizontal Layout
-     * !#zh 水平布局
-     * @property {Number} HORIZONTAL
+     * @zh
+     * 水平布局。
      */
     HORIZONTAL = 1,
 
     /**
-     * !#en Vertical Layout
-     * !#zh 垂直布局
-     * @property {Number} VERTICAL
+     * @zh
+     * 垂直布局。
      */
     VERTICAL = 2,
     /**
-     * !#en Grid Layout
-     * !#zh 网格布局
-     * @property {Number} GRID
+     * @zh
+     * 网格布局。
      */
     GRID = 3,
 }
@@ -67,27 +63,23 @@ enum Type {
 ccenum(Type);
 
 /**
- * !#en Enum for Layout Resize Mode
- * !#zh 缩放模式
- * @enum Layout.ResizeMode
+ * @zh
+ * 缩放模式
  */
 enum ResizeMode {
     /**
-     * !#en Don't do any scale.
-     * !#zh 不做任何缩放
-     * @property {Number} NONE
+     * @zh
+     * 不做任何缩放。
      */
     NONE = 0,
     /**
-     * !#en The container size will be expanded with its children's size.
-     * !#zh 容器的大小会根据子节点的大小自动缩放。
-     * @property {Number} CONTAINER
+     * @zh
+     * 容器的大小会根据子节点的大小自动缩放。
      */
     CONTAINER = 1,
     /**
-     * !#en Child item size will be adjusted with the container's size.
-     * !#zh 子节点的大小会随着容器的大小自动缩放。
-     * @property {Number} CHILDREN
+     * @zh
+     * 子节点的大小会随着容器的大小自动缩放。
      */
     CHILDREN = 2,
 }
@@ -95,22 +87,18 @@ enum ResizeMode {
 ccenum(ResizeMode);
 
 /**
- * !#en Enum for Grid Layout start axis direction.
- * The items in grid layout will be arranged in each axis at first.;
- * !#zh 布局轴向，只用于 GRID 布局。
- * @enum Layout.AxisDirection
+ * @zh
+ * 布局轴向，只用于 GRID 布局。
  */
 enum AxisDirection {
     /**
-     * !#en The horizontal axis.
-     * !#zh 进行水平方向布局
-     * @property {Number} HORIZONTAL
+     * @zh
+     * 进行水平方向布局。
      */
     HORIZONTAL = 0,
     /**
-     * !#en The vertical axis.
-     * !#zh 进行垂直方向布局
-     * @property {Number} VERTICAL
+     * @zh
+     * 进行垂直方向布局。
      */
     VERTICAL = 1,
 }
@@ -118,22 +106,18 @@ enum AxisDirection {
 ccenum(AxisDirection);
 
 /**
- * !#en Enum for vertical layout direction.
- *  Used in Grid Layout together with AxisDirection is VERTICAL
- * !#zh 垂直方向布局方式
- * @enum Layout.VerticalDirection
+ * @zh
+ * 垂直方向布局方式。
  */
 enum VerticalDirection {
     /**
-     * !#en Items arranged from bottom to top.
-     * !#zh 从下到上排列
-     * @property {Number} BOTTOM_TO_TOP
+     * @zh
+     * 从下到上排列。
      */
     BOTTOM_TO_TOP = 0,
     /**
-     * !#en Items arranged from top to bottom.
-     * !#zh 从上到下排列
-     * @property {Number} TOP_TO_BOTTOM
+     * @zh
+     * 从上到下排列。
      */
     TOP_TO_BOTTOM = 1,
 }
@@ -141,20 +125,18 @@ enum VerticalDirection {
 ccenum(VerticalDirection);
 
 /**
- * !#en Enum for horizontal layout direction.
- *  Used in Grid Layout together with AxisDirection is HORIZONTAL
- * !#zh 水平方向布局方式
- * @enum Layout.HorizontalDirection
+ * @zh
+ * 水平方向布局方式。
  */
 enum HorizontalDirection {
     /**
-     * !#en Items arranged from left to right.
-     * !#zh 从左往右排列
+     * @zh
+     * 从左往右排列。
      */
     LEFT_TO_RIGHT = 0,
     /**
-     * !#en Items arranged from right to left.
-     * !#zh 从右往左排列
+     * @zh
+     * 从右往左排列。
      */
     RIGHT_TO_LEFT = 1,
 }
@@ -165,31 +147,21 @@ const _tempPos = new Vec3();
 const _tempScale = new Vec3();
 
 /**
- * !#en
- * The Layout is a container component, use it to arrange child elements easily.<br>
- * Note：<br>
- * 1.Scaling and rotation of child nodes are not considered.<br>
- * 2.After setting the Layout, the results need to be updated until the next frame,
- * unless you manually call {{#crossLink "Layout/updateLayout:method"}}{{/crossLink}}。
- * !#zh
+ * @zh
  * Layout 组件相当于一个容器，能自动对它的所有子节点进行统一排版。<br>
  * 注意：<br>
  * 1.不会考虑子节点的缩放和旋转。<br>
- * 2.对 Layout 设置后结果需要到下一帧才会更新，除非你设置完以后手动调用 {{#crossLink "Layout/updateLayout:method"}}{{/crossLink}}。
- * @class Layout
- * @extends Component
+ * 2.对 Layout 设置后结果需要到下一帧才会更新，除非你设置完以后手动调用 [[updateLayout]]
  */
 @ccclass('cc.LayoutComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Layout')
 @executeInEditMode
 export class LayoutComponent extends Component {
 
     /**
-     * !#en The layout type.
-     * !#zh 布局类型
-     * @property {Layout.Type} type
-     * @default Layout.Type.NONE
+     * @zh
+     * 布局类型。
      */
     @property({
         type: Type,
@@ -210,12 +182,8 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
     /**
-     * !#en
-     * The are three resize modes for Layout.
-     * None, resize Container and resize children.
-     * !#zh 缩放模式
-     * @property {Layout.ResizeMode} resizeMode
-     * @default ResizeMode.NONE
+     * @zh
+     * 缩放模式。
      */
     @property({
         type: ResizeMode,
@@ -239,10 +207,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en The cell size for grid layout.
-     * !#zh 每个格子的大小，只有布局类型为 GRID 的时候才有效。
-     * @property {Size} cellSize
-     * @default cc.size(40, 40)
+     * @zh
+     * 每个格子的大小，只有布局类型为 GRID 的时候才有效。
      */
     @property
     get cellSize () {
@@ -259,11 +225,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en
-     * The start axis for grid layout. If you choose horizontal, then children will layout horizontally at first,
-     * and then break line on demand. Choose vertical if you want to layout vertically at first .
-     * !#zh 起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效。
-     * @property {Layout.AxisDirection} startAxis
+     * @zh
+     * 起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效。
      */
     @property({
         type: AxisDirection,
@@ -288,9 +251,8 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
     /**
-     * !#en The left padding of layout, it only effect the layout in one direction.
-     * !#zh 容器内左边距，只会在一个布局方向上生效。
-     * @property {Number} paddingLeft
+     * @zh
+     * 容器内左边距，只会在一个布局方向上生效。
      */
     @property
     get paddingLeft () {
@@ -306,9 +268,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en The right padding of layout, it only effect the layout in one direction.
-     * !#zh 容器内右边距，只会在一个布局方向上生效。
-     * @property {Number} paddingRight
+     * @zh
+     * 容器内右边距，只会在一个布局方向上生效。
      */
     @property
     get paddingRight () {
@@ -324,9 +285,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en The top padding of layout, it only effect the layout in one direction.
-     * !#zh 容器内上边距，只会在一个布局方向上生效。
-     * @property {Number} paddingTop
+     * @zh
+     * 容器内上边距，只会在一个布局方向上生效。
      */
     @property
     get paddingTop () {
@@ -342,9 +302,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en The bottom padding of layout, it only effect the layout in one direction.
-     * !#zh 容器内下边距，只会在一个布局方向上生效。
-     * @property {Number} paddingBottom
+     * @zh
+     * 容器内下边距，只会在一个布局方向上生效。
      */
     @property
     get paddingBottom () {
@@ -360,9 +319,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en The distance in x-axis between each element in layout.
-     * !#zh 子节点之间的水平间距。
-     * @property {Number} spacingX
+     * @zh
+     * 子节点之间的水平间距。
      */
     @property
     get spacingX () {
@@ -379,9 +337,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en The distance in y-axis between each element in layout.
-     * !#zh 子节点之间的垂直间距。
-     * @property {Number} spacingY
+     * @zh
+     * 子节点之间的垂直间距。
      */
     @property
     get spacingY () {
@@ -398,11 +355,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en
-     * Only take effect in Vertical layout mode.
-     * This option changes the start element's positioning.
-     * !#zh 垂直排列子节点的方向。
-     * @property {VerticalDirection} verticalDirection
+     * @zh
+     * 垂直排列子节点的方向。
      */
     @property({
         type: VerticalDirection,
@@ -421,11 +375,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en
-     * Only take effect in Horizontal layout mode.
-     * This option changes the start element's positioning.
-     * !#zh 水平排列子节点的方向。
-     * @property {Layout.HorizontalDirection} horizontalDirection
+     * @zh
+     * 水平排列子节点的方向。
      */
     @property({
         type: HorizontalDirection,
@@ -444,9 +395,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en The padding of layout, it effects the layout in four direction.
-     * !#zh 容器内边距，该属性会在四个布局方向上生效。
-     * @property {Number} padding
+     * @zh
+     * 容器内边距，该属性会在四个布局方向上生效。
      */
     @property
     get padding () {
@@ -461,11 +411,8 @@ export class LayoutComponent extends Component {
     }
 
     /**
-     * !#en Adjust the layout if the children scaled.
-     * !#zh 子节点缩放比例是否影响布局。
-     * @property affectedByScale
-     * @type {Boolean}
-     * @default false
+     * @zh
+     * 子节点缩放比例是否影响布局。
      */
     @property
     get affectedByScale () {
@@ -516,17 +463,17 @@ export class LayoutComponent extends Component {
     private _affectedByScale = false;
 
     /**
-     * !#en Perform the layout update
-     * !#zh 立即执行更新布局
-     *
-     * @method updateLayout
+     * @zh
+     * 立即执行更新布局
      *
      * @example
+     * ```ts
      * layout.type = cc.Layout.HORIZONTAL;
      * layout.node.addChild(childNode);
      * cc.log(childNode.x); // not yet changed
      * layout.updateLayout();
      * cc.log(childNode.x); // changed
+     * ```
      */
     public updateLayout () {
         if (this._layoutDirty && this.node.children.length > 0) {
