@@ -370,8 +370,12 @@ let Mask = cc.Class({
             let material = this.sharedMaterials[0];
             if (!material) {
                 material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-                material.define('USE_ALPHA_TEST', true);
             }
+            else {
+                material = Material.getInstantiatedMaterial(material, this);
+            }
+
+            material.define('USE_ALPHA_TEST', true);
 
             // Reset material
             if (this._type === MaskType.IMAGE_STENCIL) {
