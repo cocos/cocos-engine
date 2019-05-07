@@ -29,48 +29,43 @@ import { ccclass, executionOrder, menu, property } from '../../../core/data/clas
 import { EventTouch, EventType } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
 import { clamp01 } from '../../../core/utils';
-import { Enum, Vec3 } from '../../../core/value-types';
+import { Vec3 } from '../../../core/value-types';
+import { ccenum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
 import { SpriteComponent } from './sprite-component';
 
 const _tempPos = new Vec3();
 /**
- * !#en The Slider Direction
- * !#zh 滑动器方向
- * @enum Slider.Direction
+ * @zh
+ * 滑动器方向
  */
 enum Direction {
     /**
-     * !#en The horizontal direction.
-     * !#zh 水平方向
-     * @property {Number} Horizontal
+     * @zh
+     * 水平方向。
      */
     Horizontal = 0,
     /**
-     * !#en The vertical direction.
-     * !#zh 垂直方向
-     * @property {Number} Vertical
+     * @zh
+     * 垂直方向。
      */
     Vertical = 1,
 }
 
-Enum(Direction);
+ccenum(Direction);
 
 /**
- * !#en The Slider Control
- * !#zh 滑动器组件
- * @class Slider
- * @extends Component
+ * @zh
+ * 滑动器组件。
  */
 @ccclass('cc.SliderComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Slider')
 export class SliderComponent extends Component {
 
     /**
-     * !#en The "handle" part of the slider
-     * !#zh 滑动器滑块按钮部件
-     * @property {Button} handle
+     * @zh
+     * 滑动器滑块按钮部件。
      */
     @property({
         type: SpriteComponent,
@@ -91,9 +86,8 @@ export class SliderComponent extends Component {
     }
 
     /**
-     * !#en The slider direction
-     * !#zh 滑动器方向
-     * @property {Slider.Direction} direction
+     * @zh
+     * 滑动器方向。
      */
     @property({
         type: Direction,
@@ -109,10 +103,10 @@ export class SliderComponent extends Component {
 
         this._direction = value;
     }
+
     /**
-     * !#en The current progress of the slider. The valid value is between 0-1
-     * !#zh 当前进度值，该数值的区间是 0-1 之间
-     * @property {Number} progress
+     * @zh
+     * 当前进度值，该数值的区间是 0-1 之间。
      */
     @property({
         slide: true,
@@ -132,10 +126,10 @@ export class SliderComponent extends Component {
     }
 
     public static Direction = Direction;
+
     /**
-     * !#en The slider events callback
-     * !#zh 滑动器组件事件回调函数
-     * @property {ComponentEventHandler[]} slideEvents
+     * @zh
+     * 滑动器组件事件回调函数。
      */
     @property({
         type: ComponentEventHandler,
@@ -281,9 +275,7 @@ export class SliderComponent extends Component {
 cc.SliderComponent = SliderComponent;
 
 /**
- * !#en
- * Note: This event is emitted from the node to which the component belongs.
- * !#zh
+ * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event slide
  * @param {Event.EventCustom} event

@@ -37,17 +37,13 @@ import { InstanceMaterialType, UIRenderComponent } from '../components/ui-render
  * @extends Component
  */
 @ccclass('cc.GraphicsComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Render/Graphics')
 export class GraphicsComponent extends UIRenderComponent {
 
     /**
-     * !#en
-     * Current line width.
-     * !#zh
-     * 当前线条宽度
-     * @property {Number} lineWidth
-     * @default 1
+     * @zh
+     * 当前线条宽度。
      */
     get lineWidth () {
         return this._lineWidth;
@@ -62,12 +58,8 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en
-     * lineJoin determines how two connecting segments (of lines, arcs or curves) with non-zero lengths in a shape are joined together.
-     * !#zh
+     * @zh
      * lineJoin 用来设置2个长度不为0的相连部分（线段，圆弧，曲线）如何连接在一起的属性。
-     * @property {Graphics.LineJoin} lineJoin
-     * @default LineJoin.MITER
      */
     @property({
         type: LineJoin,
@@ -86,12 +78,8 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en
-     * lineCap determines how the end points of every line are drawn.
-     * !#zh
+     * @zh
      * lineCap 指定如何绘制每一条线段末端。
-     * @property {Graphics.LineCap} lineCap
-     * @default LineCap.BUTT
      */
     @property({
         type: LineCap,
@@ -110,12 +98,8 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en
-     * stroke color
-     * !#zh
-     * 线段颜色
-     * @property {Color} strokeColor
-     * @default Color.BLACK
+     * @zh
+     * 线段颜色。
      */
     @property
     get strokeColor () {
@@ -131,12 +115,8 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en
-     * fill color
-     * !#zh
-     * 填充颜色
-     * @property {Color} fillColor
-     * @default Color.WHITE
+     * @zh
+     * 填充颜色。
      */
     @property
     get fillColor () {
@@ -152,12 +132,8 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en
-     * Sets the miter limit ratio
-     * !#zh
-     * 设置斜接面限制比例
-     * @property {Number} miterLimit
-     * @default 10
+     * @zh
+     * 设置斜接面限制比例。
      */
     @property
     get miterLimit () {
@@ -243,11 +219,11 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Move path start point to (x,y).
-     * !#zh 移动路径起点到坐标(x, y)
-     * @method moveTo
-     * @param {Number} [x] The x axis of the coordinate for the end point.
-     * @param {Number} [y] The y axis of the coordinate for the end point.
+     * @zh
+     * 移动路径起点到坐标(x, y)
+     *
+     * @param x - 移动坐标 x 轴。
+     * @param y - 移动坐标 y 轴。
      */
     public moveTo (x: number, y: number) {
         if (!this.impl) {
@@ -258,11 +234,11 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Adds a straight line to the path
-     * !#zh 绘制直线路径
-     * @method lineTo
-     * @param {Number} [x] The x axis of the coordinate for the end point.
-     * @param {Number} [y] The y axis of the coordinate for the end point.
+     * @zh
+     * 绘制直线路径
+     *
+     * @param x - 绘制路径坐标 x 轴。
+     * @param y - 绘制路径坐标 y 轴。
      */
     public lineTo (x: number, y: number) {
         if (!this.impl) {
@@ -273,15 +249,15 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Adds a cubic Bézier curve to the path
-     * !#zh 绘制三次贝赛尔曲线路径
-     * @method bezierCurveTo
-     * @param {Number} [c1x] The x axis of the coordinate for the first control point.
-     * @param {Number} [c1y] The y axis of the coordinate for first control point.
-     * @param {Number} [c2x] The x axis of the coordinate for the second control point.
-     * @param {Number} [c2y] The y axis of the coordinate for the second control point.
-     * @param {Number} [x] The x axis of the coordinate for the end point.
-     * @param {Number} [y] The y axis of the coordinate for the end point.
+     * @zh
+     * 绘制三次贝赛尔曲线路径
+     *
+     * @param c1x - 第一个控制点的坐标 x 轴。
+     * @param c1y - 第一个控制点的坐标 y 轴。
+     * @param c2x - 第二个控制点的坐标 x 轴。
+     * @param c2y - 第二个控制点的坐标 y 轴。
+     * @param x - 最后一个控制点的坐标 x 轴。
+     * @param y - 最后一个控制点的坐标 y 轴。
      */
     public bezierCurveTo (c1x: number, c1y: number, c2x: number, c2y: number, x: number, y: number) {
         if (!this.impl) {
@@ -292,13 +268,13 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Adds a quadratic Bézier curve to the path
-     * !#zh 绘制二次贝赛尔曲线路径
-     * @method quadraticCurveTo
-     * @param {Number} [cx] The x axis of the coordinate for the control point.
-     * @param {Number} [cy] The y axis of the coordinate for the control point.
-     * @param {Number} [x] The x axis of the coordinate for the end point.
-     * @param {Number} [y] The y axis of the coordinate for the end point.
+     * @zh
+     * 绘制二次贝赛尔曲线路径
+     *
+     * @param cx - 起始控制点的坐标 x 轴。
+     * @param cy - 起始控制点的坐标 y 轴。
+     * @param x - 终点控制点的坐标 x 轴。
+     * @param y - 终点控制点的坐标 x 轴。
      */
     public quadraticCurveTo (cx: number, cy: number, x: number, y: number) {
         if (!this.impl) {
@@ -309,17 +285,15 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Adds an arc to the path which is centered at (cx, cy) position with radius r starting at startAngle
-     * and ending at endAngle going in the given direction by counterclockwise (defaulting to false).
-     * !#zh 绘制圆弧路径。圆弧路径的圆心在 (cx, cy) 位置，半径为 r ，根据 counterclockwise （默认为false）指定的方向从 startAngle 开始绘制，到 endAngle 结束。
-     * @method arc
-     * @param {Number} [cx] The x axis of the coordinate for the center point.
-     * @param {Number} [cy] The y axis of the coordinate for the center point.
-     * @param {Number} [r] The arc's radius.
-     * @param {Number} [startAngle] The angle at which the arc starts, measured clockwise from the positive x axis and expressed in radians.
-     * @param {Number} [endAngle] The angle at which the arc ends, measured clockwise from the positive x axis and expressed in radians.
-     * @param {Boolean} [counterclockwise] An optional Boolean which, if true, causes the arc to be drawn counter-clockwise between the two angles.
-     * By default it is drawn clockwise.
+     * @zh
+     * 绘制圆弧路径。圆弧路径的圆心在 (cx, cy) 位置，半径为 r ，根据 counterclockwise （默认为false）指定的方向从 startAngle 开始绘制，到 endAngle 结束。
+     *
+     * @param cx - 中心控制点的坐标 x 轴。
+     * @param cy - 中心控制点的坐标 y 轴。
+     * @param r - 圆弧弧度。
+     * @param startAngle - 开始弧度，从正 x 轴顺时针方向测量。
+     * @param endAngle - 结束弧度，从正 x 轴顺时针方向测量。
+     * @param counterclockwise 如果为真，在两个角度之间逆时针绘制。默认顺时针。
      */
     public arc (cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean) {
         if (!this.impl) {
@@ -330,13 +304,13 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Adds an ellipse to the path.
-     * !#zh 绘制椭圆路径。
-     * @method ellipse
-     * @param {Number} [cx] The x axis of the coordinate for the center point.
-     * @param {Number} [cy] The y axis of the coordinate for the center point.
-     * @param {Number} [rx] The ellipse's x-axis radius.
-     * @param {Number} [ry] The ellipse's y-axis radius.
+     * @zh
+     * 绘制椭圆路径。
+     *
+     * @param cx - 中心点的坐标 x 轴。
+     * @param cy - 中心点的坐标 y 轴。
+     * @param rx - 椭圆 x 轴半径。
+     * @param ry - 椭圆 y 轴半径。
      */
     public ellipse (cx: number, cy: number, rx: number, ry: number) {
         if (!this.impl) {
@@ -347,12 +321,12 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Adds an circle to the path.
-     * !#zh 绘制圆形路径。
-     * @method circle
-     * @param {Number} [cx] The x axis of the coordinate for the center point.
-     * @param {Number} [cy] The y axis of the coordinate for the center point.
-     * @param {Number} [r] The circle's radius.
+     * @zh
+     * 绘制圆形路径。
+     *
+     * @param cx - 中心点的坐标 x 轴。
+     * @param cy - 中心点的坐标 y 轴。
+     * @param r - 圆半径
      */
     public circle (cx: number, cy: number, r: number) {
         if (!this.impl) {
@@ -363,13 +337,13 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Adds an rectangle to the path.
-     * !#zh 绘制矩形路径。
-     * @method rect
-     * @param {Number} [x] The x axis of the coordinate for the rectangle starting point.
-     * @param {Number} [y] The y axis of the coordinate for the rectangle starting point.
-     * @param {Number} [w] The rectangle's width.
-     * @param {Number} [h] The rectangle's height.
+     * @zh
+     * 绘制矩形路径。
+     *
+     * @param x - 矩形起始坐标 x 轴。
+     * @param y - 矩形起始坐标 y 轴。
+     * @param w - 矩形宽度。
+     * @param h - 矩形高度。
      */
     public rect (x: number, y: number, w: number, h: number) {
         if (!this.impl) {
@@ -380,14 +354,14 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Adds an round corner rectangle to the path.
-     * !#zh 绘制圆角矩形路径。
-     * @method roundRect
-     * @param {Number} [x] The x axis of the coordinate for the rectangle starting point.
-     * @param {Number} [y] The y axis of the coordinate for the rectangle starting point.
-     * @param {Number} [w] The rectangles width.
-     * @param {Number} [h] The rectangle's height.
-     * @param {Number} [r] The radius of the rectangle.
+     * @zh
+     * 绘制圆角矩形路径。
+     *
+     * @param x - 矩形起始坐标 x 轴。
+     * @param y - 矩形起始坐标 y 轴。
+     * @param w - 矩形宽度。
+     * @param h - 矩形高度。
+     * @param r - 矩形圆角半径。
      */
     public roundRect (x: number, y: number, w: number, h: number, r: number) {
         if (!this.impl) {
@@ -398,13 +372,13 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Draws a filled rectangle.
-     * !#zh 绘制填充矩形。
-     * @method fillRect
-     * @param {Number} [x] The x axis of the coordinate for the rectangle starting point.
-     * @param {Number} [y] The y axis of the coordinate for the rectangle starting point.
-     * @param {Number} [w] The rectangle's width.
-     * @param {Number} [h] The rectangle's height.
+     * @zh
+     * 绘制填充矩形。
+     *
+     * @param x - 矩形起始坐标 x 轴。
+     * @param y - 矩形起始坐标 y 轴。
+     * @param w - 矩形宽度。
+     * @param h - 矩形高度。
      */
     public fillRect (x, y, w, h) {
         this.rect(x, y, w, h);
@@ -412,10 +386,8 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Erasing any previously drawn content.
-     * !#zh 擦除之前绘制的所有内容的方法。
-     * @method clear
-     * @param {Boolean} [clean] Whether to clean the graphics inner cache.
+     * @zh
+     * 擦除之前绘制的所有内容的方法。
      */
     public clear (/*clean: boolean*/) {
         if (!this.impl) {
@@ -426,9 +398,8 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Causes the point of the pen to move back to the start of the current path. It tries to add a straight line from the current point to the start.
-     * !#zh 将笔点返回到当前路径起始点的。它尝试从当前点到起始点绘制一条直线。
-     * @method close
+     * @zh
+     * 将笔点返回到当前路径起始点的。它尝试从当前点到起始点绘制一条直线。
      */
     public close () {
         if (!this.impl) {
@@ -439,18 +410,16 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Strokes the current or given path with the current stroke style.
-     * !#zh 根据当前的画线样式，绘制当前或已经存在的路径。
-     * @method stroke
+     * @zh
+     * 根据当前的画线样式，绘制当前或已经存在的路径。
      */
     public stroke () {
         (this._assembler as IAssembler).stroke!(this);
     }
 
     /**
-     * !#en Fills the current or given path with the current fill style.
-     * !#zh 根据当前的画线样式，填充当前或已经存在的路径。
-     * @method fill
+     * @zh
+     * 根据当前的画线样式，填充当前或已经存在的路径。
      */
     public fill () {
         (this._assembler as IAssembler).fill!(this);
@@ -465,6 +434,10 @@ export class GraphicsComponent extends UIRenderComponent {
         return false;
     }
 
+    /**
+     * @zh
+     * 辅助材质实例化。可用于只取数据而无实体情况下渲染使用。特殊情况可参考：[[_instanceMaterial]]
+     */
     public helpInstanceMaterial () {
         this._instanceMaterial();
         if (!this.impl){

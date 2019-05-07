@@ -42,10 +42,14 @@ const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
 const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
 
-// Returns a function, that, as long as it continues to be invoked, will not
-// be triggered. The function will be called after it stops being called for
-// N milliseconds. If `immediate` is passed, trigger the function on the
-// leading edge, instead of the trailing.
+/**
+ * @zh
+ * 返回一个可延时调用函数。只要不被调用就不会触发。选择 ‘immediate’ 则在触发时不会延迟而是立马回调。
+ *
+ * @param func - 延时调用函数。
+ * @param wait - 延时时间。
+ * @param immediate - 是否立马执行回调。
+ */
 function debounce (func: Function, wait: number, immediate?: boolean) {
     let timeout;
     return function (this: any) {
@@ -62,7 +66,8 @@ function debounce (func: Function, wait: number, immediate?: boolean) {
 }
 
 /**
- * RichText pool
+ * @zh
+ * 富文本池。
  */
 const pool = new Pool((labelSeg: ILabelSegment) => {
     if (CC_EDITOR) {
@@ -149,21 +154,18 @@ interface ILabelSegment{
 }
 
 /**
- * !#en The RichText Component.
- * !#zh 富文本组件
- * @class RichText
- * @extends Component
+ * @zh
+ * 富文本组件
  */
 @ccclass('cc.RichTextComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Render/RichText')
 @executeInEditMode
 export class RichTextComponent extends UIComponent {
 
     /**
-     * !#en Content string of RichText.
-     * !#zh 富文本显示的文本内容。
-     * @property {String} string
+     * @zh
+     * 富文本显示的文本内容。
      */
     @property({
         multiline: true,
@@ -181,9 +183,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en Horizontal Alignment of each line in RichText.
-     * !#zh 文本内容的水平对齐方式。
-     * @property {macro.TextAlignment} horizontalAlign
+     * @zh
+     * 文本内容的水平对齐方式。
      */
     @property({
         type: HorizontalTextAlignment,
@@ -203,9 +204,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en Font size of RichText.
-     * !#zh 富文本字体大小。
-     * @property {Number} fontSize
+     * @zh
+     * 富文本字体大小。
      */
     @property
     get fontSize () {
@@ -223,9 +223,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en Custom TTF font of RichText
-     * !#zh  富文本定制字体
-     * @property {cc.TTFFont} font
+     * @zh
+     * 富文本定制字体
      */
     @property({
         type: TTFFont,
@@ -247,9 +246,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en The maximize width of the RichText
-     * !#zh 富文本的最大宽度
-     * @property {Number} maxWidth
+     * @zh
+     * 富文本的最大宽度
      */
     @property
     get maxWidth () {
@@ -267,9 +265,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en Line Height of RichText.
-     * !#zh 富文本行高。
-     * @property {Number} lineHeight
+     * @zh
+     * 富文本行高。
      */
     @property
     get lineHeight () {
@@ -287,9 +284,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.
-     * !#zh 对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。
-     * @property {SpriteAtlas} imageAtlas
+     * @zh
+     * 对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。
      */
     @property({
         type: SpriteAtlas,
@@ -309,13 +305,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en
-     * Once checked, the RichText will block all input events (mouse and touch) within
-     * the bounding box of the node, preventing the input from penetrating into the underlying node.
-     * !#zh
+     * @zh
      * 选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。
-     * @property {Boolean} handleTouchEvent
-     * @default true
      */
     @property
     get handleTouchEvent (){

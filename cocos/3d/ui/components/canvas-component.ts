@@ -35,26 +35,32 @@ import { UITransformComponent } from './ui-transfrom-component';
 const _worldPos = new Vec3();
 
 /**
- * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
+ * @zh
+ * 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
  * 注：由于本节点的尺寸会跟随屏幕拉伸，所以 anchorPoint 只支持 (0.5, 0.5)，否则适配不同屏幕时坐标会有偏差。
- *
- * @class Canvas
- * @extends Component
  */
 @ccclass('cc.CanvasComponent')
-@executionOrder(99)
+@executionOrder(100)
 @requireComponent(UITransformComponent)
 @menu('UI/Canvas')
 @executeInEditMode
 // @disallowMultiple
 export class CanvasComponent extends Component {
 
+    /**
+     * @zh
+     * 设计分辨率
+     *
+     * @param value - 设计分辨率尺寸。
+     */
     @property({
         type: Size,
+        displayOrder: 0,
     })
     get designResolution () {
         return this._designResolution;
     }
+
     set designResolution (value: Size) {
         this._designResolution.width = value.width;
         this._designResolution.height = value.height;
@@ -64,15 +70,18 @@ export class CanvasComponent extends Component {
     }
 
     /**
-     * !#en TODO
-     * !#zh: 是否优先将设计分辨率高度撑满视图高度。
-     * @property {Boolean} fitHeight
-     * @default false
+     * @zh
+     * 是否优先将设计分辨率高度撑满视图高度。
+     *
+     * @param value - 是否撑满高度。
      */
-    @property()
+    @property({
+        displayOrder: 1,
+    })
     get fitHeight () {
         return this._fitHeight;
     }
+
     set fitHeight (value: boolean) {
         if (this._fitHeight !== value) {
             this._fitHeight = value;
@@ -82,15 +91,18 @@ export class CanvasComponent extends Component {
     }
 
     /**
-     * !#en TODO
-     * !#zh: 是否优先将设计分辨率宽度撑满视图宽度。
-     * @property {Boolean} fitWidth
-     * @default false
+     * @zh
+     * 是否优先将设计分辨率宽度撑满视图宽度。
+     *
+     * @param value - 是否撑满宽度。
      */
-    @property()
+    @property({
+        displayOrder: 2,
+    })
     get fitWidth () {
         return this._fitWidth;
     }
+
     set fitWidth (value: boolean) {
         if (this._fitWidth !== value) {
             this._fitWidth = value;
@@ -99,6 +111,12 @@ export class CanvasComponent extends Component {
         }
     }
 
+    /**
+     * @zh
+     * 渲染优先级。
+     *
+     * @param value - 渲染优先级。
+     */
     @property()
     get priority () {
         return this._priority;
@@ -124,19 +142,12 @@ export class CanvasComponent extends Component {
     }
 
     /**
-     * !#en Current active canvas, the scene should only have one active canvas at the same time.
-     * !#zh 当前激活的画布组件，场景同一时间只能有一个激活的画布。
-     * @property {CanvasComponent} instance
-     * @static
+     * @zh
+     * 当前激活的画布组件，场景同一时间只能有一个激活的画布。
      */
     public static instance: CanvasComponent | null = null;
     public static views = [];
-    /**
-     * !#en The desigin resolution for current scene.
-     * !#zh 当前场景设计分辨率。
-     * @property {Size} designResolution
-     * @default new cc.Size(960, 640)
-     */
+
     @property
     protected _designResolution = cc.size(960, 640);
     @property
@@ -215,6 +226,10 @@ export class CanvasComponent extends Component {
         }
     }
 
+    /**
+     * @zh
+     * 屏幕对齐。
+     */
     public alignWithScreen () {
         let nodeSize;
         let designSize;
@@ -262,6 +277,10 @@ export class CanvasComponent extends Component {
         }
     }
 
+    /**
+     * @zh
+     * 应用适配策略。
+     */
     public applySettings () {
         const ResolutionPolicy = cc.ResolutionPolicy;
         let policy;

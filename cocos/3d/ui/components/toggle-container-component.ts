@@ -28,16 +28,13 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { ToggleComponent} from './toggle-component';
 
 /**
- * !#en ToggleGroup is not a visiable UI component but a way to modify the behavior of a set of Toggles.
- * Toggles that belong to the same group could only have one of them to be switched on at a time.
- * !#zh ToggleGroup 不是一个可见的 UI 组件，它可以用来修改一组 Toggle  组件的行为。当一组 Toggle 属于同一个 ToggleGroup 的时候，
+ * @zh
+ * ToggleGroup 不是一个可见的 UI 组件，它可以用来修改一组 Toggle  组件的行为。当一组 Toggle 属于同一个 ToggleGroup 的时候，<br/>
  * 任何时候只能有一个 Toggle 处于选中状态。
- * @class ToggleGroup
- * @extends Component
  */
 
 @ccclass('cc.ToggleContainerComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/ToggleContainer')
 @executeInEditMode
 export class ToggleContainerComponent extends Component {
@@ -50,11 +47,8 @@ export class ToggleContainerComponent extends Component {
     private _toggleItems: ToggleComponent[] = [];
 
     /**
-     * !#en If this setting is true, a toggle could be switched off and on when pressed.
-     * If it is false, it will make sure there is always only one toggle could be switched on
-     * and the already switched on toggle can't be switched off.
-     * !#zh 如果这个设置为 true， 那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。
-     * @property {Boolean} allowSwitchOff
+     * @zh
+     * 如果这个设置为 true，那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。
      */
     @property
     get allowSwitchOff () {
@@ -66,9 +60,8 @@ export class ToggleContainerComponent extends Component {
     }
 
     /**
-     * !#en Read only property, return the toggle items array reference managed by toggleGroup.
-     * !#zh 只读属性，返回 toggleGroup 管理的 toggle 数组引用
-     * @property {Array} toggleItems
+     * @zh
+     * 只读属性，返回 toggleGroup 管理的 toggle 数组引用。
      */
     get toggleItems () {
         return this._toggleItems;
@@ -78,6 +71,12 @@ export class ToggleContainerComponent extends Component {
         this._makeAtLeastOneToggleChecked();
     }
 
+    /**
+     * @zh
+     * 刷新管理的 toggle 状态。
+     *
+     * @param toggle - 需要被更新的 toggle。
+     */
     public updateToggles (toggle: ToggleComponent) {
         if (!this.enabledInHierarchy) { return; }
 
@@ -94,6 +93,12 @@ export class ToggleContainerComponent extends Component {
         }
     }
 
+    /**
+     * @zh
+     * 添加需要被控制的 toggle。
+     *
+     * @param toggle - 被控制的 toggle。
+     */
     public addToggle (toggle: ToggleComponent) {
         const index = this._toggleItems.indexOf(toggle);
         if (index === -1) {
@@ -102,6 +107,12 @@ export class ToggleContainerComponent extends Component {
         this._allowOnlyOneToggleChecked();
     }
 
+    /**
+     * @zh
+     * 移除 toggle。
+     *
+     * @param toggle - 被移除控制的 toggle。
+     */
     public removeToggle (toggle: ToggleComponent) {
         const index = this._toggleItems.indexOf(toggle);
         if (index > -1) {
