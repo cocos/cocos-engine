@@ -1,8 +1,8 @@
-import { pseudoRandom } from "../../../../core/vmath";
-import { CCClass } from "../../../../core/data";
-import CurveRange from "./curve-range";
-import { property, ccclass } from "../../../../core/data/class-decorator";
-import Particle from "../particle";
+import { CCClass } from '../../../../core/data';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { pseudoRandom } from '../../../../core/vmath';
+import Particle from '../particle';
+import CurveRange from './curve-range';
 
 // tslint:disable: max-line-length
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
@@ -45,6 +45,8 @@ export default class RotationOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
+        radian: true,
         displayOrder: 2,
     })
     public x = new CurveRange();
@@ -54,6 +56,8 @@ export default class RotationOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
+        radian: true,
         displayOrder: 3,
     })
     public y = new CurveRange();
@@ -63,6 +67,8 @@ export default class RotationOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
+        radian: true,
         displayOrder: 4,
     })
     public z = new CurveRange();

@@ -1,6 +1,6 @@
-import { OptimizedKey, evalOptCurve, AnimationCurve } from "../../../geom-utils/curve";
-import { repeat } from "../../../../core/vmath";
-import CurveRange, { Mode } from "./curve-range";
+import { repeat } from '../../../../core/vmath';
+import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../../geom-utils/curve';
+import CurveRange, { Mode } from './curve-range';
 
 // tslint:disable: max-line-length
 

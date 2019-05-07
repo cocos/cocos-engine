@@ -1176,6 +1176,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         parseSimpleAttribute('displayName', 'string');
         parseSimpleAttribute('displayOrder', 'number');
         parseSimpleAttribute('multiline', 'boolean');
+        parseSimpleAttribute('radian', 'boolean');
         if (attributes.readonly) {
             (attrsProto || getAttrsProto())[attrsProtoKey + 'readonly'] = true;
         }

@@ -1,9 +1,9 @@
-import { vec3, quat, pseudoRandom, mat4 } from '../../../../core/vmath';
+import { CCClass } from '../../../../core/data';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { mat4, pseudoRandom, quat, vec3 } from '../../../../core/vmath';
+import Particle from '../particle';
 import { calculateTransform, Space } from '../particle-general-function';
 import CurveRange from './curve-range';
-import { CCClass } from '../../../../core/data';
-import { property, ccclass } from '../../../../core/data/class-decorator';
-import Particle from '../particle';
 
 // tslint:disable: max-line-length
 const VELOCITY_OVERTIME_RAND_OFFSET = 197866;
@@ -24,6 +24,7 @@ export default class VelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 2,
     })
     public x = new CurveRange();
@@ -33,6 +34,7 @@ export default class VelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 3,
     })
     public y = new CurveRange();
@@ -42,6 +44,7 @@ export default class VelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 4,
     })
     public z = new CurveRange();
@@ -51,6 +54,7 @@ export default class VelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 5,
     })
     public speedModifier = new CurveRange();

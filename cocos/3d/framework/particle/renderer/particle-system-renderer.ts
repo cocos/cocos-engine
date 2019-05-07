@@ -93,7 +93,7 @@ const _vertex_attrs_mesh = [
 
 @ccclass('cc.ParticleSystemRenderer')
 @executeInEditMode
-export default class ParticleSystemRenderer extends RenderableComponent {
+export default class ParticleSystemRenderer {
 
     /**
      * 设定粒子生成模式
@@ -112,8 +112,8 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         }
         this._renderMode = val;
         this._setVertexAttrib();
-        this._updateMaterialParams();
         this._updateModel();
+        this._updateMaterialParams();
     }
 
     /**
@@ -150,16 +150,23 @@ export default class ParticleSystemRenderer extends RenderableComponent {
 
     @property({
         type: RenderMode,
+        displayOrder: 3,
     })
     private _renderMode = RenderMode.Billboard;
 
-    @property
+    @property({
+        displayOrder: 4,
+    })
     private _velocityScale = 1;
 
-    @property
+    @property({
+        displayOrder: 5,
+    })
     private _lengthScale = 1;
 
-    @property
+    @property({
+        displayOrder: 6,
+    })
     private _mesh: Mesh | null = null;
 
     /**
@@ -167,6 +174,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
      */
     @property({
         type: Mesh,
+        displayOrder: 7,
     })
     public get mesh () {
         return this._mesh;
@@ -177,6 +185,30 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         if (this._model) {
             this._model.setVertexAttributes(this._renderMode === RenderMode.Mesh ? this._mesh : null, this._vertAttrs);
         }
+    }
+
+    @property({
+        type: Material,
+        displayOrder: 8,
+    })
+    public get particleMaterial () {
+        return this.particleSystem.getMaterial(0, CC_EDITOR)!;
+    }
+
+    public set particleMaterial (val) {
+        this.particleSystem.setMaterial(val, 0);
+    }
+
+    @property({
+        type: Material,
+        displayOrder: 9,
+    })
+    public get trailMaterial () {
+        return this.particleSystem.getMaterial(1, CC_EDITOR)!;
+    }
+
+    public set trailMaterial (val) {
+        this.particleSystem.setMaterial(val, 1);
     }
 
     private _defines: { [index: string]: boolean };
@@ -190,7 +222,6 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     private _defaultMat: Material | null = null;
 
     constructor () {
-        super();
         this._model = null;
 
         this.frameTile_velLenScale = cc.v4(1, 1, 0, 0);
@@ -207,8 +238,8 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         };
     }
 
-    public onInit () {
-        this.particleSystem = this.node.getComponent('cc.ParticleSystemComponent');
+    public onInit (ps) {
+        this.particleSystem = ps.node.getComponent('cc.ParticleSystemComponent');
         this._particles = new RecyclePool(() => {
             return new Particle(this);
         }, 16);
@@ -221,26 +252,26 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             return;
         }
         if (this._model == null) {
-            this._model = this._getRenderScene().createModel(ParticleBatchModel, this.node) as ParticleBatchModel;
+            this._model = this.particleSystem._getRenderScene().createModel(ParticleBatchModel, this.node) as ParticleBatchModel;
         }
         if (!this._model.inited) {
             this._model.setCapacity(this.particleSystem.capacity);
-            this._model.node = this.node;
+            this._model.node = this.particleSystem.node;
         }
-        this._model.enabled = this.enabledInHierarchy;
-        this._updateMaterialParams();
+        this._model.enabled = this.particleSystem.enabledInHierarchy;
         this._updateModel();
+        this._updateMaterialParams();
         this._updateTrailMaterial();
     }
 
     public onDisable () {
         if (this._model) {
-            this._model.enabled = this.enabledInHierarchy;
+            this._model.enabled = this.particleSystem.enabledInHierarchy;
         }
     }
 
     public onDestroy () {
-        this._getRenderScene().destroyModel(this._model!);
+        this.particleSystem._getRenderScene().destroyModel(this._model!);
         this._model = null;
     }
 
@@ -273,7 +304,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
     }
 
     public _updateParticles (dt: number) {
-        this.node.getWorldMatrix(_tempWorldTrans);
+        this.particleSystem.node.getWorldMatrix(_tempWorldTrans);
         if (this.particleSystem.velocityOvertimeModule.enable) {
             this.particleSystem.velocityOvertimeModule.update(this.particleSystem._simulationSpace, _tempWorldTrans);
         }
@@ -409,10 +440,10 @@ export default class ParticleSystemRenderer extends RenderableComponent {
         if (!this.particleSystem) {
             return;
         }
-        if (this.sharedMaterial == null && this._defaultMat == null) {
-            this._defaultMat = Material.getInstantiatedMaterial(builtinResMgr.get<Material>('default-particle-material'), this, true);
+        if (this.particleSystem.sharedMaterial == null && this._defaultMat == null) {
+            this._defaultMat = Material.getInstantiatedMaterial(builtinResMgr.get<Material>('default-particle-material'), this.particleSystem, true);
         }
-        const mat: Material | null = this.sharedMaterial ? this.getMaterial(0, CC_EDITOR)! : this._defaultMat;
+        const mat: Material | null = this.particleSystem.sharedMaterial ? this.particleMaterial : this._defaultMat;
         if (this.particleSystem._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
             this._trailDefines[CC_USE_WORLD_SPACE] = true;
@@ -464,7 +495,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             mat!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
         }
         if (this._model) {
-            this._model.setSubModelMaterial(0, this.sharedMaterial || this._defaultMat);
+            this._model.setSubModelMaterial(0, this.particleSystem.sharedMaterial || this._defaultMat);
         }
     }
 
@@ -475,7 +506,7 @@ export default class ParticleSystemRenderer extends RenderableComponent {
             } else {
                 this._trailDefines[CC_USE_WORLD_SPACE] = false;
             }
-            const mat = this.getMaterial(1, CC_EDITOR)!;
+            const mat = this.trailMaterial;
             mat!.recompileShaders(this._trailDefines);
             this.particleSystem.trailModule._updateMaterial();
         }

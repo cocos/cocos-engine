@@ -94,6 +94,11 @@ export interface IExposedAttributes {
      * ???
      */
     unit?: string;
+
+    /**
+     * 转换为弧度
+     */
+    radian?: boolean;
 }
 
 export interface IAcceptableAttributes extends IExposedAttributes {

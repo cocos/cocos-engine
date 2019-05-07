@@ -1,10 +1,10 @@
-import { repeat, lerp, pseudoRandom } from "../../../../core/vmath";
-import { Enum } from "../../../../core/value-types";
-import CurveRange from "./curve-range";
-import { CCClass } from "../../../../core/data";
-import { property, ccclass } from "../../../../core/data/class-decorator";
-import { ParticleSystemComponent } from "../particle-system-component";
-import Particle from "../particle";
+import { CCClass } from '../../../../core/data';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { Enum } from '../../../../core/value-types';
+import { lerp, pseudoRandom, repeat } from '../../../../core/vmath';
+import Particle from '../particle';
+import { ParticleSystemComponent } from '../particle-system-component';
+import CurveRange from './curve-range';
 
 // tslint:disable: max-line-length
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
@@ -80,7 +80,7 @@ export default class TextureAnimationModule {
 
     set mode (val) {
         if (val === Mode.Sprites) {
-            console.error("particle texture animation's sprites is not supported!");
+            console.error('particle texture animation\'s sprites is not supported!');
             return;
         }
     }
@@ -100,7 +100,6 @@ export default class TextureAnimationModule {
         displayOrder: 3,
     })
     public numTilesY = 0;
-
 
     /**
      * 动画播放方式
@@ -145,7 +144,7 @@ export default class TextureAnimationModule {
     }
 
     set flipU (val) {
-        console.error("particle texture animation's flipU is not supported!");
+        console.error('particle texture animation\'s flipU is not supported!');
     }
 
     @property
@@ -156,7 +155,7 @@ export default class TextureAnimationModule {
     }
 
     set flipV (val) {
-        console.error("particle texture animation's flipV is not supported!");
+        console.error('particle texture animation\'s flipV is not supported!');
     }
 
     @property
@@ -167,7 +166,7 @@ export default class TextureAnimationModule {
     }
 
     set uvChannelMask (val) {
-        console.error("particle texture animation's uvChannelMask is not supported!");
+        console.error('particle texture animation\'s uvChannelMask is not supported!');
     }
 
     /**
