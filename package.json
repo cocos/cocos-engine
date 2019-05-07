@@ -73,7 +73,7 @@
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-watch": "^4.3.1",
-    "tfig": "^1.0.4",
+    "tfig": "^1.0.5",
     "tslint": "^5.12.0",
     "typedoc": "github:cocos-creator/typedoc#master",
     "typedoc-plugin-localization": "github:cocos-creator/typedoc-plugin-localization#master",
