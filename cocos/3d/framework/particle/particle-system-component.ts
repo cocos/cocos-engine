@@ -3,35 +3,33 @@
 // tslint:disable: max-line-length
 
 import { Component } from '../../../components/component';
-import { vec3, vec2, mat4, quat, randomRangeInt, pseudoRandom } from '../../../core/vmath';
-import CurveRange from './animator/curve-range';
-import GradientRange from './animator/gradient-range';
-import ParticleSystemRenderer from './renderer/particle-system-renderer';
-import SizeOvertimeModule from './animator/size-overtime';
+import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
+import { mat4, pseudoRandom, quat, randomRangeInt, vec2, vec3 } from '../../../core/vmath';
+import { INT_MAX } from '../../../core/vmath/bits';
+import { Material } from '../../assets';
+import { RenderableComponent } from '../renderable-component';
 import ColorOverLifetimeModule from './animator/color-overtime';
-import VelocityOvertimeModule from './animator/velocity-overtime';
+import CurveRange from './animator/curve-range';
 import ForceOvertimeModule from './animator/force-overtime';
+import GradientRange from './animator/gradient-range';
 import LimitVelocityOvertimeModule from './animator/limit-velocity-overtime';
 import RotationOvertimeModule from './animator/rotation-overtime';
+import SizeOvertimeModule from './animator/size-overtime';
 import TextureAnimationModule from './animator/texture-animation';
-import ShapeModule from './emitter/shape-module';
+import VelocityOvertimeModule from './animator/velocity-overtime';
 import Burst from './burst';
+import ShapeModule from './emitter/shape-module';
 import { particleEmitZAxis, Space } from './particle-general-function';
-import { INT_MAX } from '../../../core/vmath/bits';
-import { ccclass, executionOrder, executeInEditMode, property, requireComponent, menu } from '../../../core/data/class-decorator';
+import ParticleSystemRenderer from './renderer/particle-system-renderer';
 import TrailModule from './renderer/trail';
 
 const _world_mat = mat4.create();
 
 @ccclass('cc.ParticleSystemComponent')
 @menu('Components/ParticleSystemComponent')
-@requireComponent(ParticleSystemRenderer)
 @executionOrder(99)
 @executeInEditMode
-export class ParticleSystemComponent extends Component {
-
-    @property
-    private _capacity = 100;
+export class ParticleSystemComponent extends RenderableComponent {
 
     /**
      * 粒子系统能生成的最大粒子数量
@@ -73,6 +71,7 @@ export class ParticleSystemComponent extends Component {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 10,
     })
     public startSpeed = new CurveRange();
@@ -82,6 +81,8 @@ export class ParticleSystemComponent extends Component {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
+        radian: true,
         displayOrder: 11,
     })
     public startRotation = new CurveRange();
@@ -120,9 +121,6 @@ export class ParticleSystemComponent extends Component {
     })
     public loop = true;
 
-    @property
-    private _prewarm = false;
-
     /**
      * 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）
      */
@@ -139,9 +137,6 @@ export class ParticleSystemComponent extends Component {
         }
         this._prewarm = val;
     }
-
-    @property
-    private _simulationSpace = Space.Local;
 
     /**
      * 选择粒子系统所在的坐标系<br>
@@ -161,6 +156,7 @@ export class ParticleSystemComponent extends Component {
         if (val !== this._simulationSpace) {
             this._simulationSpace = val;
             (this.renderer as any)._updateMaterialParams();
+            (this.renderer as any)._updateTrailMaterial();
         }
     }
 
@@ -185,6 +181,7 @@ export class ParticleSystemComponent extends Component {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 12,
     })
     public gravityModifier = new CurveRange();
@@ -216,6 +213,20 @@ export class ParticleSystemComponent extends Component {
         displayOrder: 15,
     })
     public bursts = new Array();
+
+    @property({
+        type: Material,
+        displayName: 'Materials',
+        visible: false,
+    })
+    get sharedMaterials () {
+        // if we don't create an array copy, the editor will modify the original array directly.
+        return super.sharedMaterials;
+    }
+
+    set sharedMaterials (val) {
+        super.sharedMaterials = val;
+    }
 
     // color over lifetime module
     /**
@@ -293,7 +304,11 @@ export class ParticleSystemComponent extends Component {
     public trailModule = new TrailModule();
 
     // particle system renderer
-    private renderer: ParticleSystemRenderer | null;
+    @property({
+        type: ParticleSystemRenderer,
+    })
+    private renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
+
     private _isPlaying: boolean;
     private _isPaused: boolean;
     private _isStopped: boolean;
@@ -309,6 +324,15 @@ export class ParticleSystemComponent extends Component {
     private _customData2: vec2;
 
     private _subEmitters: any[]; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
+
+    @property
+    private _prewarm = false;
+
+    @property
+    private _capacity = 100;
+
+    @property
+    private _simulationSpace = Space.Local;
 
     constructor () {
         super();
@@ -334,13 +358,12 @@ export class ParticleSystemComponent extends Component {
         this._customData2 = vec2.create(0, 0);
 
         this._subEmitters = []; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
-        this.renderer = null;
     }
 
-    protected onLoad () {
+    public onLoad () {
         // HACK, TODO
-        this.renderer = this.getComponent(ParticleSystemRenderer);
-        this.renderer!.onInit();
+        super.onLoad();
+        this.renderer!.onInit(this);
         this.shapeModule.onInit(this);
         this.trailModule.init(this);
         this.textureAnimationModule.onInit(this);
@@ -351,22 +374,12 @@ export class ParticleSystemComponent extends Component {
         // this._system.add(this);
     }
 
-    protected onDestroy () {
-        // this._system.remove(this);
-        this.trailModule.destroy();
+    public _onMaterialModified (index: number, material: Material) {
+        this.renderer._onMaterialModified(index, material);
     }
 
-    protected onEnable () {
-        if (this.playOnAwake) {
-            this.play();
-        }
-        this.renderer!.enabled = this.enabledInHierarchy;
-        this.trailModule.onEnable();
-    }
-
-    protected onDisable () {
-        this.renderer!.enabled = this.enabledInHierarchy;
-        this.trailModule.onDisable();
+    public _onRebuildPSO (index: number, material: Material) {
+        this.renderer._onRebuildPSO(index, material);
     }
 
     // TODO: fastforward current particle system by simulating particles over given period of time, then pause it.
@@ -433,6 +446,59 @@ export class ParticleSystemComponent extends Component {
      */
     public clear () {
         this.renderer!.clear();
+    }
+
+    public getParticleCount () {
+        return this.renderer!.getParticleCount();
+    }
+
+    public setCustomData1 (x, y) {
+        vec2.set(this._customData1, x, y);
+    }
+
+    public setCustomData2 (x, y) {
+        vec2.set(this._customData2, x, y);
+    }
+
+    protected onDestroy () {
+        // this._system.remove(this);
+        this.renderer.onDestroy();
+        this.trailModule.destroy();
+    }
+
+    protected onEnable () {
+        super.onEnable();
+        if (this.playOnAwake) {
+            this.play();
+        }
+        this.renderer.onEnable();
+        this.trailModule.onEnable();
+    }
+
+    protected onDisable () {
+        this.renderer!.onDisable();
+        this.trailModule.onDisable();
+    }
+
+    protected update (dt) {
+        const scaledDeltaTime = dt * this.simulationSpeed;
+        if (this._isPlaying) {
+            this._time += scaledDeltaTime;
+
+            // excute emission
+            this._emit(scaledDeltaTime);
+
+            // simulation, update particles.
+            this.renderer!._updateParticles(scaledDeltaTime);
+
+            // update render data
+            this.renderer!._updateRenderData();
+
+            // update trail
+            if (this.trailModule.enable) {
+                this.trailModule.updateRenderData();
+            }
+        }
     }
 
     private emit (count, emitParams = null) {
@@ -549,27 +615,6 @@ export class ParticleSystemComponent extends Component {
         }
     }
 
-    protected update (dt) {
-        const scaledDeltaTime = dt * this.simulationSpeed;
-        if (this._isPlaying) {
-            this._time += scaledDeltaTime;
-
-            // excute emission
-            this._emit(scaledDeltaTime);
-
-            // simulation, update particles.
-            this.renderer!._updateParticles(scaledDeltaTime);
-
-            // update render data
-            this.renderer!._updateRenderData();
-
-            // update trail
-            if (this.trailModule.enable) {
-                this.trailModule.updateRenderData();
-            }
-        }
-    }
-
     private addSubEmitter (subEmitter) {
         this._subEmitters.push(subEmitter);
     }
@@ -584,18 +629,6 @@ export class ParticleSystemComponent extends Component {
 
     private removeBurst (idx) {
         this.bursts.splice(this.bursts.indexOf(idx), 1);
-    }
-
-    public getParticleCount () {
-        return this.renderer!.getParticleCount();
-    }
-
-    public setCustomData1 (x, y) {
-        vec2.set(this._customData1, x, y);
-    }
-
-    public setCustomData2 (x, y) {
-        vec2.set(this._customData2, x, y);
     }
 
     get isPlaying () {

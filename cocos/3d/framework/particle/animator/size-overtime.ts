@@ -1,8 +1,8 @@
-import { vec3, pseudoRandom } from '../../../../core/vmath';
-import CurveRange from './curve-range';
 import { CCClass } from '../../../../core/data';
-import { property, ccclass } from '../../../../core/data/class-decorator';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { pseudoRandom, vec3 } from '../../../../core/vmath';
 import Particle from '../particle';
+import CurveRange from './curve-range';
 
 // tslint:disable: max-line-length
 const SIZE_OVERTIME_RAND_OFFSET = 39825;

@@ -16,22 +16,6 @@ export class RenderableComponent extends Component {
         super();
     }
 
-    public onLoad () {
-        this._materials.forEach((mat, index) => {
-            if (mat && !mat.loaded) {
-                this._unfinished++;
-                mat.once('load', this._onMaterialLoaded, this);
-            }
-        });
-    }
-
-    public onEnable () {
-        if (this._unfinished === 0) {
-            this._assetReady();
-        }
-        this._ensureLoadMaterial();
-    }
-
     @property({
         type: Material,
         displayName: 'Materials',
@@ -168,5 +152,21 @@ export class RenderableComponent extends Component {
 
     protected _assetReady () {
 
+    }
+
+    protected onLoad () {
+        this._materials.forEach((mat, index) => {
+            if (mat && !mat.loaded) {
+                this._unfinished++;
+                mat.once('load', this._onMaterialLoaded, this);
+            }
+        });
+    }
+
+    protected onEnable () {
+        if (this._unfinished === 0) {
+            this._assetReady();
+        }
+        this._ensureLoadMaterial();
     }
 }

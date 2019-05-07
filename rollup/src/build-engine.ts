@@ -10,6 +10,7 @@ import json from 'rollup-plugin-json';
 // @ts-ignore
 import resolve from 'rollup-plugin-node-resolve';
 import { minify } from 'uglify-js';
+import * as Path from 'path';
 
 const { excludes } = require('../plugin/rollup-plugin-excludes');
 
@@ -28,6 +29,7 @@ export async function build (options: IBuildOptions) {
     if (!result) {
         return;
     }
+    fs.ensureDirSync(Path.dirname(options.outputPath));
     fs.writeFileSync(options.outputPath, result.code);
 }
 

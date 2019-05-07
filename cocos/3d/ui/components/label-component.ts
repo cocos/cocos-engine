@@ -34,21 +34,23 @@ import { LetterRenderTexture } from '../assembler/label/letter-font';
 import { UIRenderComponent } from './ui-render-component';
 
 /**
- * !#en Enum for vertical text alignment.
- * !#zh 文本横向对齐类型
- * @enum Label.HorizontalTextAlignment
+ * @zh
+ * 文本横向对齐类型
  */
 export enum HorizontalTextAlignment {
     /**
-     * @property {Number} LEFT
+     * @zh
+     * 左对齐
      */
     LEFT = 0,
     /**
-     * @property {Number} CENTER
+     * @zh
+     * 中心对齐
      */
     CENTER = 1,
     /**
-     * @property {Number} RIGHT
+     * @zh
+     * 右对齐
      */
     RIGHT = 2,
 }
@@ -56,21 +58,23 @@ export enum HorizontalTextAlignment {
 ccenum(HorizontalTextAlignment);
 
 /**
- * !#en Enum for vertical text alignment.
- * !#zh 文本垂直对齐类型
- * @enum Label.VerticalTextAlignment
+ * @zh
+ * 文本垂直对齐类型
  */
 export enum VerticalTextAlignment {
     /**
-     * @property {Number} TOP
+     * @zh
+     * 上对齐
      */
     TOP = 0,
     /**
-     * @property {Number} CENTER
+     * @zh
+     * 中心对齐
      */
     CENTER = 1,
     /**
-     * @property {Number} BOTTOM
+     * @zh
+     * 下对齐
      */
     BOTTOM = 2,
 }
@@ -78,100 +82,92 @@ export enum VerticalTextAlignment {
 ccenum(VerticalTextAlignment);
 
 /**
- * !#en Enum for Overflow.
- * !#zh Overflow 类型
- * @enum Label.Overflow
- */
-/**
- * !#en NONE.
- * !#zh 不做任何限制。
- * @property {Number} NONE
- */
-/**
- * !#en In CLAMP mode, when label content goes out of the bounding box, it will be clipped.
- * !#zh CLAMP 模式中，当文本内容超出边界框时，多余的会被截断。
- * @property {Number} CLAMP
- */
-/**
- * !#en In SHRINK mode, the font size will change dynamically to adapt the content size.
- * !#zh SHRINK 模式，字体大小会动态变化，以适应内容大小。
- * @property {Number} SHRINK
- */
-/**
- * !#en In RESIZE_HEIGHT mode, you can only change the width of label and the height is changed automatically.
- * !#zh 在 RESIZE_HEIGHT 模式下，只能更改文本的宽度，高度是自动改变的。
- * @property {Number} RESIZE_HEIGHT
+ * @zh
+ * 文本超载类型
  */
 export enum Overflow {
+    /**
+     * @zh
+     * 不做任何限制。
+     */
     NONE = 0,
+    /**
+     * @zh
+     * CLAMP 模式中，当文本内容超出边界框时，多余的会被截断。
+     */
     CLAMP = 1,
+    /**
+     * @zh
+     * SHRINK 模式，字体大小会动态变化，以适应内容大小。
+     */
     SHRINK = 2,
+    /**
+     * @zh
+     * 在 RESIZE_HEIGHT 模式下，只能更改文本的宽度，高度是自动改变的。
+     */
     RESIZE_HEIGHT = 3,
 }
 
 ccenum(Overflow);
 
 /**
- * !#en Do not do any caching.
- * !#zh 不做任何缓存。
- * @property {Number} NONE
- */
-/**
- * !#en In BITMAP mode, cache the label as a static image and add it to the dynamic atlas for batch rendering,
- * and can batching with Sprites using broken images.
- * !#zh BITMAP 模式，将 label 缓存成静态图像并加入到动态图集，以便进行批次合并，可与使用碎图的 Sprite 进行合批（注：动态图集在 Chrome 以及微信小游戏暂时关闭，该功能无效）。
- * @property {Number} BITMAP
- */
-/**
- * !#en In CHAR mode, split text into characters and cache characters into a dynamic atlas which the size of 2048*2048.
- * !#zh CHAR 模式，将文本拆分为字符，并将字符缓存到一张单独的大小为 2048*2048 的图集中进行重复使用，不再使用动态图集（注：当图集满时将不再进行缓存，暂时不支持 SHRINK 自适应文本尺寸（后续完善））。
- * @property {Number} CHAR
+ * @zh
+ * 文本图集缓存类型
  */
 enum CacheMode {
+    /**
+     * @zh
+     * 不做任何缓存。
+     */
     NONE = 0,
+    /**
+     * @zh
+     * BITMAP 模式，将 label 缓存成静态图像并加入到动态图集，以便进行批次合并，可与使用碎图的 Sprite 进行合批。
+     * （注：动态图集在 Chrome 以及微信小游戏暂时关闭，该功能无效）。
+     */
     BITMAP = 1,
+    /**
+     * @zh
+     *  CHAR 模式，将文本拆分为字符，并将字符缓存到一张单独的大小为 1024 * 1024 的图集中进行重复使用，不再使用动态图集。
+     * （注：当图集满时将不再进行缓存，暂时不支持 SHRINK 自适应文本尺寸（后续完善））。
+     */
     CHAR = 2,
 }
 
 ccenum(CacheMode);
 
 /**
- * !#en Enum for font type.
- * !#zh Type 类型
- * @enum Label.Type
+ * @zh
+ * Type 类型
  */
 /**
- * !#en The TTF font type.
- * !#zh TTF字体
- * @property {Number} TTF
+ * @zh
+ * TTF字体
  */
 /**
- * !#en The bitmap font type.
- * !#zh 位图字体
- * @property {Number} BMFont
+ * @zh
+ * 位图字体
  */
 /**
- * !#en The system font type.
- * !#zh 系统字体
- * @property {Number} SystemFont
+ * @zh
+ * 系统字体
  */
 
 /**
- * !#en The Label Component.
- * !#zh 文字标签组件
- * @class Label
- * @extends UIRenderComponent
+ * @zh
+ * 文字标签组件
  */
 @ccclass('cc.LabelComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Render/Label')
 export class LabelComponent extends UIRenderComponent {
     /**
-     * !#en Content string of label.
-     * !#zh 标签显示的文本内容。
-     * @property {String} string
+     * @zh
+     * 标签显示的文本内容。
      */
-    @property
+    @property({
+        displayOrder: 4,
+    })
     get string () {
         return this._string;
     }
@@ -187,12 +183,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Horizontal Alignment of label.
-     * !#zh 文本内容的水平对齐方式。
-     * @property {Label.HorizontalAlign} horizontalAlign
+     * @zh
+     * 文本内容的水平对齐方式。
      */
     @property({
         type: HorizontalTextAlignment,
+        displayOrder: 5,
     })
     get horizontalAlign () {
         return this._horizontalAlign;
@@ -208,12 +204,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Vertical Alignment of label.
-     * !#zh 文本内容的垂直对齐方式。
-     * @property {Label.VerticalAlign} VerticalTextAlignment
+     * @zh
+     * 文本内容的垂直对齐方式。
      */
     @property({
         type: VerticalTextAlignment,
+        displayOrder: 6,
     })
     get verticalAlign () {
         return this._verticalAlign;
@@ -229,13 +225,13 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en The actual rendering font size in shrink mode
-     * !#zh SHRINK 模式下面文本实际渲染的字体大小
-     * @property {Number} actualFontSize
+     * @zh
+     * SHRINK 模式下面文本实际渲染的字体大小
      */
     @property({
         readonly: true,
         displayName: 'Actual Font Size',
+        visible: false,
     })
     get actualFontSize () {
         return this._actualFontSize;
@@ -246,11 +242,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Font size of label.
-     * !#zh 文本字体大小。
-     * @property {Number} fontSize
+     * @zh
+     * 文本字体大小。
      */
-    @property
+    @property({
+        displayOrder: 7,
+    })
     get fontSize () {
         return this._fontSize;
     }
@@ -265,11 +262,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Font family of label, only take effect when useSystemFont property is true.
-     * !#zh 文本字体名称, 只在 useSystemFont 属性为 true 的时候生效。
-     * @property {String} fontFamily
+     * @zh
+     * 文本字体名称, 只在 useSystemFont 属性为 true 的时候生效。
      */
-    @property
+    @property({
+        displayOrder: 8,
+    })
     get fontFamily () {
         return this._fontFamily;
     }
@@ -284,11 +282,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Line Height of label.
-     * !#zh 文本行高。
-     * @property {Number} lineHeight
+     * @zh
+     * 文本行高。
      */
-    @property
+    @property({
+        displayOrder: 8,
+    })
     get lineHeight () {
         return this._lineHeight;
     }
@@ -302,12 +301,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Overflow of label.
-     * !#zh 文字显示超出范围时的处理方式。
-     * @property {Overflow} overflow
+     * @zh
+     * 文字显示超出范围时的处理方式。
      */
     @property({
         type: Overflow,
+        displayOrder: 9,
     })
     get overflow () {
         return this._overflow;
@@ -323,11 +322,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Whether auto wrap label when string width is large than label width.
-     * !#zh 是否自动换行。
-     * @property {Boolean} enableWrapText
+     * @zh
+     * 是否自动换行。
      */
-    @property()
+    @property({
+        displayOrder: 10,
+    })
     get enableWrapText () {
         return this._enableWrapText;
     }
@@ -341,12 +341,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en The font of label.
-     * !#zh 文本字体。
-     * @property {Font} font
+     * @zh
+     * 文本字体。
      */
     @property({
         type: Font,
+        displayOrder: 11,
     })
     get font () {
         // return this._N$file;
@@ -385,11 +385,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Whether use system font name or not.
-     * !#zh 是否使用系统字体。
-     * @property {Boolean} isSystemFontUsed
+     * @zh
+     * 是否使用系统字体。
      */
-    @property
+    @property({
+        displayOrder: 12,
+    })
     get useSystemFont () {
         return this._isSystemFontUsed;
     }
@@ -424,12 +425,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en The cache mode of label. This mode only supports system fonts.
-     * !#zh 文本缓存模式, 该模式只支持系统字体。
-     * @property {Label.CacheMode} cacheMode
+     * @zh
+     * 文本缓存模式, 该模式只支持系统字体。
      */
     @property({
         type: CacheMode,
+        displayOrder: 13,
     })
     get cacheMode () {
         return this._cacheMode;
@@ -457,12 +458,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Whether the font is bold or not.
-     * !#zh 字体是否加粗。
-     * @property {Boolean} isBold
+     * @zh
+     * 字体是否加粗。
      */
     @property({
         // visible: false,
+        displayOrder: 15,
     })
     get isBold () {
         return this._isBold;
@@ -478,12 +479,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Whether the font is tilted or not.
-     * !#zh 字体是否倾斜。
-     * @property {Boolean} isItalic
+     * @zh
+     * 字体是否倾斜。
      */
     @property({
         // visible: false,
+        displayOrder: 16,
     })
     get isItalic () {
         return this._isItalic;
@@ -499,12 +500,12 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en Whether the font is underlined.
-     * !#zh 字体是否加下划线。
-     * @property {Boolean} isUnderline
+     * @zh
+     * 字体是否加下划线。
      */
     @property({
         // visible: false,
+        displayOrder: 17,
     })
     get isUnderline () {
         return this._isUnderline;
@@ -705,6 +706,10 @@ export class LabelComponent extends UIRenderComponent {
         }
     }
 
+    /**
+     * @zh
+     * 检查是否空字符串，空字符串不渲染
+     */
     private _checkStringEmpty () {
         this._renderPermit = !!this.string;
     }

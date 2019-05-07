@@ -1,5 +1,3 @@
-import { CCClass } from '../core/data';
-
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
@@ -30,22 +28,17 @@ import {ccclass, property} from '../core/data/class-decorator';
 import { Node } from '../scene-graph';
 
 /**
- * !#en
- * Component will register a event to target component's handler.
- * And it will trigger the handler when a certain event occurs.
+ * @zh
+ * “EventHandler” 类用来设置场景中的事件回调，该类允许用户设置回调目标节点，目标组件名，组件方法名，并可通过 emit 方法调用目标函数。
  *
- * !@zh
- * “EventHandler” 类用来设置场景中的事件回调，
- * 该类允许用户设置回调目标节点，目标组件名，组件方法名，
- * 并可通过 emit 方法调用目标函数。
- * @class Component.EventHandler
  * @example
- * // Create new EventHandler
+ * ```ts
  * var eventHandler = new cc.Component.EventHandler();
  * eventHandler.target = newTarget;
  * eventHandler.component = "MainMenu";
  * eventHandler.handler = "OnClick";
  * eventHandler.customEventData = "my data";
+ * ```
  */
 @ccclass('cc.ClickEvent')
 export class EventHandler {
@@ -61,10 +54,11 @@ export class EventHandler {
     }
 
     /**
-     * @method emitEvents
-     * @param {Component.EventHandler[]} events
-     * @param {any} ...params
-     * @static
+     * @zh
+     * 组件事件派发。
+     *
+     * @param events - 需要派发的组件事件列表。
+     * @param args - 派发参数数组。
      */
     public static emitEvents (events: EventHandler[], ...args: any[]) {
         for (let i = 0, l = events.length; i < l; i++) {
@@ -77,20 +71,14 @@ export class EventHandler {
         }
     }
     /**
-     * !#en Event target
-     * !#zh 目标节点
-     * @property target
-     * @type {Node}
-     * @default null
+     * @zh
+     * 目标节点
      */
     @property(cc.Node)
     public target: Node | null = null;
     /**
-     * !#en Component name
-     * !#zh 目标组件名
-     * @property component
-     * @type {String}
-     * @default ''
+     * @zh
+     * 目标组件名
      */
     // only for deserializing old project component field
     @property
@@ -100,37 +88,32 @@ export class EventHandler {
     public _componentId = '';
 
     /**
-     * !#en Event handler
-     * !#zh 响应事件函数名
-     * @property handler
-     * @type {String}
-     * @default ''
+     * @zh
+     * 响应事件函数名
      */
     @property
     public handler = '';
 
     /**
-     * !#en Custom Event Data
-     * !#zh 自定义事件数据
-     * @property customEventData
-     * @default ''
-     * @type {String}
+     * @zh
+     * 自定义事件数据
      */
     @property
     public customEventData = '';
 
     /**
-     * !#en Emit event with params
-     * !#zh 触发目标组件上的指定 handler 函数，该参数是回调函数的参数值（可不填）。
-     * @method emit
-     * @param {Array} params
+     * @zh
+     * 触发目标组件上的指定 handler 函数，该参数是回调函数的参数值（可不填）。
+     *
+     * @param params - 派发参数数组
      * @example
-     * // Call Function
+     * ```ts
      * var eventHandler = new cc.Component.EventHandler();
      * eventHandler.target = newTarget;
      * eventHandler.component = "MainMenu";
      * eventHandler.handler = "OnClick"
      * eventHandler.emit(["param1", "param2", ....]);
+     * ```
      */
     public emit (params: any[]) {
         const target = this.target;

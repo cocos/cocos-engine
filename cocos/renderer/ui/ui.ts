@@ -3,7 +3,6 @@ import { CanvasComponent, IAssembler, MeshBuffer, StencilManager, UIComponent, U
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
-import { SpriteFrame } from '../../assets';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
@@ -58,6 +57,10 @@ export class UIDrawBatch {
     }
 }
 
+/**
+ * @zh
+ * UI 渲染流程
+ */
 export class UI {
 
     get renderScene (): RenderScene {
@@ -176,6 +179,12 @@ export class UI {
         }
     }
 
+    /**
+     * @zh
+     * 添加屏幕组件管理。
+     *
+     * @param comp - 屏幕组件。
+     */
     public addScreen (comp: CanvasComponent) {
         this._screens.push(comp);
 
@@ -186,9 +195,14 @@ export class UI {
         if (this._debugScreen && this._debugScreen.camera) {
             this._debugScreen.camera.view.visibility = this._screens.length + 1;
         }
-
     }
 
+    /**
+     * @zh
+     * 通过屏幕编号获得屏幕组件。
+     *
+     * @param visibility - 屏幕编号。
+     */
     public getScreen (visibility: number) {
         for (const screen of this._screens) {
             if (screen.camera) {
@@ -205,6 +219,12 @@ export class UI {
         return null;
     }
 
+    /**
+     * @zh
+     * 移除屏幕组件管理。
+     *
+     * @param comp - 被移除的屏幕。
+     */
     public removeScreen (comp: CanvasComponent) {
         const idx = this._screens.indexOf(comp);
         if (idx === -1) {
@@ -284,6 +304,14 @@ export class UI {
         }
     }
 
+    /**
+     * @zh
+     * UI 渲染组件数据提交流程。
+     *
+     * @param comp - 当前执行组件。
+     * @param frame - 当前执行组件贴图。
+     * @param assembler - 当前组件渲染数据组装器。
+     */
     public commitComp (comp: UIComponent, frame: GFXTextureView | null = null, assembler?: IAssembler) {
         if (comp instanceof UIRenderComponent) {
             const renderComp = comp as UIRenderComponent;
@@ -328,6 +356,10 @@ export class UI {
         }
     }
 
+    /**
+     * @zh
+     * UI 渲染数据合批
+     */
     public autoMergeBatches (){
         const mat = this._currMaterial;
         const buffer = this._currMeshBuffer!;
@@ -359,9 +391,16 @@ export class UI {
         buffer.byteStart = buffer.byteOffset;
     }
 
-    public forceMergeBatches (material: Material, sprite: SpriteFrame | null) {
+    /**
+     * @zh
+     * 跳过默认合批操作，执行强制合批。
+     *
+     * @param material - 当前批次的材质。
+     * @param sprite - 当前批次的精灵帧。
+     */
+    public forceMergeBatches (material: Material, sprite: GFXTextureView | null) {
         this._currMaterial = material;
-        this._currTexView = sprite && sprite.getGFXTextureView();
+        this._currTexView = sprite;
         this.autoMergeBatches();
     }
 

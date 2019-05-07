@@ -17,7 +17,7 @@
     "postinstall": "npm run build-rollup",
     "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",
     "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
-    "build-api-default": "gulp build-3d-api-default -i ./index.ts -o ./3d-api-docs"
+    "build-api-default": "gulp build-3d-api-default -i ./index.ts -o ./3d-api-docs/default"
   },
   "repository": {
     "type": "git",
@@ -73,6 +73,7 @@
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-watch": "^4.3.1",
+    "tfig": "^1.0.5",
     "tslint": "^5.12.0",
     "typedoc": "github:cocos-creator/typedoc#master",
     "typedoc-plugin-localization": "github:cocos-creator/typedoc-plugin-localization#master",

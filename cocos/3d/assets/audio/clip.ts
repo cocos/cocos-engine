@@ -79,7 +79,9 @@ export class AudioClip extends EventTargetFactory(Asset) {
     public static preventDeferredLoadDependents = true;
     @property // we serialize this because it's unavailable at runtime on some platforms
     protected _duration = 0;
-    @property(AudioType)
+    @property({
+        type: AudioType,
+    })
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 
     protected _audio: any = null;

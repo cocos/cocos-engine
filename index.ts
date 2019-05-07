@@ -38,6 +38,7 @@ export { renderer };
 cc.renderer = renderer;
 
 export * from './cocos/assets';
+export * from './cocos/animation';
 export * from './cocos/load-pipeline';
 export * from './cocos/components';
 export * from './cocos/3d';

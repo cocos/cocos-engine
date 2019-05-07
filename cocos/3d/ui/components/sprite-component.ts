@@ -34,38 +34,33 @@ import { UI } from '../../../renderer/ui/ui';
 import { UIRenderComponent } from './ui-render-component';
 
 /**
- * !#en Enum for sprite type.
- * !#zh Sprite 类型
- * @enum Sprite.Type
+ * @zh
+ * Sprite 类型
  */
 enum SpriteType {
     /**
-     * !#en The simple type.
-     * !#zh 普通类型
-     * @property {Number} SIMPLE
+     * @zh
+     * 普通类型
      */
     SIMPLE = 0,
     /**
-     * !#en The sliced type.
-     * !#zh 切片（九宫格）类型
-     * @property {Number} SLICED
+     * @zh
+     * 切片（九宫格）类型
      */
     SLICED = 1,
     // /**
-    //  * !#en The tiled type.
-    //  * !#zh 平铺类型
+    //  * @zh  平铺类型
     //  * @property {Number} TILED
     //  */
     // TILED =  2,
     /**
-     * !#en The filled type.
-     * !#zh 填充类型
-     * @property {Number} FILLED
+     * @zh
+     * 填充类型
      */
     FILLED = 3,
     // /**
     //  * !#en The mesh type.
-    //  * !#zh 以 Mesh 三角形组成的类型
+    //  * @zh  以 Mesh 三角形组成的类型
     //  * @property {Number} MESH
     //  */
     // MESH: 4
@@ -74,26 +69,23 @@ enum SpriteType {
 ccenum(SpriteType);
 
 /**
- * !#en Enum for fill type.
- * !#zh 填充类型
- * @enum Sprite.FillType
+ * @zh
+ * 填充类型
  */
 enum FillType {
     /**
-     * !#en The horizontal fill.
-     * !#zh 水平方向填充
-     * @property {Number} HORIZONTAL
+     * @zh
+     * 水平方向填充
      */
     HORIZONTAL = 0,
     /**
-     * !#en The vertical fill.
-     * !#zh 垂直方向填充
-     * @property {Number} VERTICAL
+     * @zh
+     * 垂直方向填充
      */
     VERTICAL = 1,
     // /**
     //  * !#en The radial fill.
-    //  * !#zh 径向填充
+    //  * @zh  径向填充
     //  * @property {Number} RADIAL
     //  */
     RADIAL = 2,
@@ -102,27 +94,23 @@ enum FillType {
 ccenum(FillType);
 
 /**
- * !#en Sprite Size can track trimmed size, raw size or none.
- * !#zh 精灵尺寸调整模式
- * @enum Sprite.SizeMode
+ * @zh
+ * 精灵尺寸调整模式
  */
 enum SizeMode {
     /**
-     * !#en Use the customized node size.
-     * !#zh 使用节点预设的尺寸
-     * @property {Number} CUSTOM
+     * @zh
+     * 使用节点预设的尺寸
      */
     CUSTOM = 0,
     /**
-     * !#en Match the trimmed size of the sprite frame automatically.
-     * !#zh 自动适配为精灵裁剪后的尺寸
-     * @property {Number} TRIMMED
+     * @zh
+     * 自动适配为精灵裁剪后的尺寸
      */
     TRIMMED = 1,
     /**
-     * !#en Match the raw size of the sprite frame automatically.
-     * !#zh 自动适配为精灵原图尺寸
-     * @property {Number} RAW
+     * @zh
+     * 自动适配为精灵原图尺寸
      */
     RAW = 2,
 }
@@ -132,30 +120,30 @@ ccenum(SizeMode);
 // var State = cc.Enum({
 //     /**
 //      * !#en The normal state
-//      * !#zh 正常状态
+//      * @zh  正常状态
 //      * @property {Number} NORMAL
 //      */
 //     NORMAL: 0,
 //     /**
 //      * !#en The gray state, all color will be modified to grayscale value.
-//      * !#zh 灰色状态，所有颜色会被转换成灰度值
+//      * @zh  灰色状态，所有颜色会被转换成灰度值
 //      * @property {Number} GRAY
 //      */
 //     GRAY: 1
 // });
 
 @ccclass('cc.SpriteComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Render/Sprite')
 export class SpriteComponent extends UIRenderComponent {
 
     /**
-     * !#en The atlas of the sprite.
-     * !#zh 精灵的图集
-     * @return {SpriteAtlas}
+     * @zh
+     * 精灵的图集
      */
     @property({
         type: SpriteAtlas,
+        displayOrder: 4,
     })
     get spriteAtlas () {
         return this._atlas;
@@ -171,12 +159,12 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en The sprite frame of the sprite.
-     * !#zh 精灵的精灵帧
-     * @return {SpriteFrame}
+     * @zh
+     * 精灵的精灵帧
      */
     @property({
         type: SpriteFrame,
+        displayOrder: 5,
     })
     get spriteFrame () {
         return this._spriteFrame;
@@ -199,15 +187,17 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en The sprite render type.
-     * !#zh 精灵渲染类型
-     * @property type
-     * @type {SpriteType}
+     * @zh
+     * 精灵渲染类型
+     *
      * @example
-     * sprite.type = cc.Sprite.Type.SIMPLE;
+     * ```ts
+     * sprite.type = cc.SpriteComponent.Type.SIMPLE;
+     * ```
      */
     @property({
         type: SpriteType,
+        displayOrder: 6,
     })
     get type () {
         return this._type;
@@ -220,14 +210,13 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en
-     * The fill type, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
-     * !#zh
-     * 精灵填充类型，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
-     * @property fillType
-     * @type {FillType}
+     * @zh
+     * 精灵填充类型，仅渲染类型设置为 cc.SpriteComponent.Type.FILLED 时有效。
+     *
      * @example
+     * ```ts
      * sprite.fillType = SpriteComponent.FillType.HORIZONTAL;
+     * ```
      */
     @property({
         type: FillType,
@@ -252,14 +241,13 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en
-     * The fill Center, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
-     * !#zh
-     * 填充中心点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
-     * @property fillCenter
-     * @type {Vec2}
+     * @zh
+     * 填充中心点，仅渲染类型设置为 cc.SpriteComponent.Type.FILLED 时有效。
+     *
      * @example
-     * sprite.fillCenter = new cc.v2(0, 0);
+     * ```ts
+     * sprite.fillCenter = cc.v2(0, 0);
+     * ```
      */
     @property
     get fillCenter () {
@@ -274,15 +262,14 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en
-     * The fill Start, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
-     * !#zh
+     * @zh
      * 填充起始点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
-     * @property fillStart
-     * @type {Number}
+     *
      * @example
+     * ```ts
      * // -1 To 1 between the numbers
      * sprite.fillStart = 0.5;
+     * ```
      */
     @property
     get fillStart () {
@@ -297,15 +284,14 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en
-     * The fill Range, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
-     * !#zh
+     * @zh
      * 填充范围，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
-     * @property fillRange
-     * @type {Number}
+     *
      * @example
+     * ```ts
      * // -1 To 1 between the numbers
      * sprite.fillRange = 1;
+     * ```
      */
     @property
     get fillRange () {
@@ -319,14 +305,16 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
     /**
-     * !#en specify the frame is trimmed or not.
-     * !#zh 是否使用裁剪模式
-     * @property trim
-     * @type {Boolean}
+     * @zh  是否使用裁剪模式
+     *
      * @example
+     * ```ts
      * sprite.trim = true;
+     * ```
      */
-    @property
+    @property({
+        displayOrder: 8,
+    })
     get trim () {
         return this._isTrimmedMode;
     }
@@ -344,15 +332,16 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en specify the size tracing mode.
-     * !#zh 精灵尺寸调整模式
-     * @property sizeMode
-     * @type {Sprite.SizeMode}
+     * @zh  精灵尺寸调整模式
+     *
      * @example
+     * ```ts
      * sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
+     * ```
      */
     @property({
         type: SizeMode,
+        displayOrder: 7,
     })
     get sizeMode () {
         return this._sizeMode;
@@ -450,46 +439,6 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
-    public _applySpriteSize () {
-        if (this._spriteFrame) {
-            if (SizeMode.RAW === this._sizeMode) {
-                const size = this._spriteFrame.getOriginalSize();
-                this.node.setContentSize(size);
-            } else if (SizeMode.TRIMMED === this._sizeMode) {
-                const rect = this._spriteFrame.getRect();
-                this.node.setContentSize(rect.width, rect.height);
-            }
-
-            this._activateMaterial();
-        }
-    }
-
-    public _resized () {
-        if (!CC_EDITOR) {
-            return;
-        }
-
-        if (this._spriteFrame) {
-            const actualSize = this.node.getContentSize();
-            let expectedW = actualSize.width;
-            let expectedH = actualSize.height;
-            if (this._sizeMode === SizeMode.RAW) {
-                const size = this._spriteFrame.getOriginalSize();
-                expectedW = size.width;
-                expectedH = size.height;
-            } else if (this._sizeMode === SizeMode.TRIMMED) {
-                const rect = this._spriteFrame.getRect();
-                expectedW = rect.width;
-                expectedH = rect.height;
-
-            }
-
-            if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
-                this._sizeMode = SizeMode.CUSTOM;
-            }
-        }
-    }
-
     protected _canRender () {
         // if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
         //     if (!this._enabled) { return false; }
@@ -527,6 +476,46 @@ export class SpriteComponent extends UIRenderComponent {
                 this._renderData = this._assembler.createData(this);
                 this._renderData!.material = this._material;
                 this.markForUpdateRenderData();
+            }
+        }
+    }
+
+    private _applySpriteSize () {
+        if (this._spriteFrame) {
+            if (SizeMode.RAW === this._sizeMode) {
+                const size = this._spriteFrame.getOriginalSize();
+                this.node.setContentSize(size);
+            } else if (SizeMode.TRIMMED === this._sizeMode) {
+                const rect = this._spriteFrame.getRect();
+                this.node.setContentSize(rect.width, rect.height);
+            }
+
+            this._activateMaterial();
+        }
+    }
+
+    private _resized () {
+        if (!CC_EDITOR) {
+            return;
+        }
+
+        if (this._spriteFrame) {
+            const actualSize = this.node.getContentSize();
+            let expectedW = actualSize.width;
+            let expectedH = actualSize.height;
+            if (this._sizeMode === SizeMode.RAW) {
+                const size = this._spriteFrame.getOriginalSize();
+                expectedW = size.width;
+                expectedH = size.height;
+            } else if (this._sizeMode === SizeMode.TRIMMED) {
+                const rect = this._spriteFrame.getRect();
+                expectedW = rect.width;
+                expectedH = rect.height;
+
+            }
+
+            if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
+                this._sizeMode = SizeMode.CUSTOM;
             }
         }
     }

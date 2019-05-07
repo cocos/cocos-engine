@@ -50,25 +50,24 @@ function _calculateCircle (center: Vec3, radius: Vec3, segements: number) {
     return _circlepoints;
 }
 /**
- * !#en the type for mask.
- * !#zh 遮罩组件类型
+ * @zh 遮罩组件类型
  */
 export enum MaskType {
     /**
-     * !#en Rect mask.
-     * !#zh 使用矩形作为遮罩
+     * @zh
+     * 使用矩形作为遮罩
      */
     RECT = 0,
 
     /**
-     * !#en Ellipse Mask.
-     * !#zh 使用椭圆作为遮罩
+     * @zh
+     * 使用椭圆作为遮罩
      */
     ELLIPSE = 1,
 
     /**
-     * !#en Image Stencil Mask.
-     * !#zh 使用图像模版作为遮罩
+     * @zh
+     * 使用图像模版作为遮罩
      */
     // IMAGE_STENCIL = 2,
 }
@@ -79,19 +78,20 @@ const SEGEMENTS_MIN = 3;
 const SEGEMENTS_MAX = 10000;
 
 /**
- * !#en The Mask Component.
- * !#zh 遮罩组件。
+ * @zh
+ * 遮罩组件。
  */
 @ccclass('cc.MaskComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Render/Mask')
 export class MaskComponent extends UIRenderComponent {
     /**
-     * !#en The mask type.
-     * !#zh 遮罩类型。
+     * @zh
+     * 遮罩类型。
      */
     @property({
         type: MaskType,
+        displayOrder: 4,
     })
     get type () {
         return this._type;
@@ -116,8 +116,7 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     /**
-     * !#en The mask image
-     * !#zh 遮罩所需要的贴图
+     * @zh 遮罩所需要的贴图
      */
     // @property({
     //     type: SpriteFrame,
@@ -136,18 +135,11 @@ export class MaskComponent extends UIRenderComponent {
     // }
 
     /**
-     * !#en
-     * The alpha threshold.(Not supported in Canvas Mode) <br/>
-     * The content is drawn only where the stencil have pixel with alpha greater than the alphaThreshold. <br/>
-     * Should be a float between 0 and 1. <br/>
-     * This default to 0 (so alpha test is disabled).
-     * When it's set to 1, the stencil will discard all pixels, nothing will be shown,
-     * In previous version, it act as if the alpha test is disabled, which is incorrect.
-     * !#zh
+     * @zh
      * Alpha 阈值（不支持 Canvas 模式）<br/>
      * 只有当模板的像素的 alpha 大于 alphaThreshold 时，才会绘制内容。<br/>
-     * 该数值 0 ~ 1 之间的浮点数，默认值为 0（因此禁用 alpha 测试）
-     * 当被设置为 1 时，会丢弃所有蒙版像素，所以不会显示任何内容，在之前的版本中，设置为 1 等同于 0，这种效果其实是不正确的
+     * 该数值 0 ~ 1 之间的浮点数，默认值为 0（因此禁用 alpha 测试）<br/>
+     * 当被设置为 1 时，会丢弃所有蒙版像素，所以不会显示任何内容，在之前的版本中，设置为 1 等同于 0，这种效果其实是不正确的。<br/>
      */
     // @property({
     //     slide: true,
@@ -162,8 +154,8 @@ export class MaskComponent extends UIRenderComponent {
     // }
 
     /**
-     * !#en Reverse mask(Not supported in Canvas Mode).
-     * !#zh 反向遮罩（不支持 Canvas 模式）。
+     * @zh
+     * 反向遮罩（不支持 Canvas 模式）。
      */
     // @property()
     // get inverted () {
@@ -180,8 +172,8 @@ export class MaskComponent extends UIRenderComponent {
 
     /**
      * TODO: remove segments, not supported by graphics
-     * !#en The segements for ellipse mask.
-     * !#zh 椭圆遮罩的曲线细分数
+     * @zh
+     * 椭圆遮罩的曲线细分数。
      */
     @property
     get segments () {
@@ -255,6 +247,10 @@ export class MaskComponent extends UIRenderComponent {
         this._createGraphics();
     }
 
+    /**
+     * @zh
+     * 图形内容重塑
+     */
     public onRestore () {
         this._createGraphics();
         // if (this._type !== MaskType.IMAGE_STENCIL) {
@@ -315,6 +311,12 @@ export class MaskComponent extends UIRenderComponent {
         render.commitComp(this, null, this._postAssembler!);
     }
 
+    /**
+     * @zh
+     * 根据屏幕坐标计算点击事件
+     *
+     * @param cameraPt  屏幕点转换到相机坐标系下的点
+     */
     public isHit (cameraPt: Vec2){
         const node = this.node;
         const size = node.getContentSize();

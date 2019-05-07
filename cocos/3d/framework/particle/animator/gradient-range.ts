@@ -1,8 +1,8 @@
-import { color4 } from '../../../../core/vmath';
-import { Enum } from '../../../../core/value-types';
-import Gradient, { ColorKey, AlphaKey } from './gradient';
 import { CCClass } from '../../../../core/data';
-import { property, ccclass } from '../../../../core/data/class-decorator';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { Enum } from '../../../../core/value-types';
+import { color4 } from '../../../../core/vmath';
+import Gradient, { AlphaKey, ColorKey } from './gradient';
 
 // tslint:disable: max-line-length
 

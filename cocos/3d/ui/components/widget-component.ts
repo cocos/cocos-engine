@@ -29,49 +29,76 @@ import { ccclass, executeInEditMode, executionOrder, menu, property, requireComp
 import { ccenum } from '../../../core/value-types/enum';
 import { Node } from '../../../scene-graph/node';
 import { UITransformComponent } from './ui-transfrom-component';
-/**
- * !#en Enum for Widget's alignment mode, indicating when the widget should refresh.
- * !#zh Widget 的对齐模式，表示 Widget 应该何时刷新。
- * @enum Widget.AlignMode
- */
-/**
- * !#en
- * Only align once when the Widget is enabled for the first time.
- * This will allow the script or animation to continue controlling the current node.
- * It will only be aligned once before the end of frame when onEnable is called,
- * then immediately disables the Widget.
- * !#zh
- * 仅在 Widget 第一次激活时对齐一次，便于脚本或动画继续控制当前节点。
- * 开启后会在 onEnable 时所在的那一帧结束前对齐一次，然后立刻禁用该 Widget。
- * @property {Number} ONCE
- */
-/**
- * !#en Align first from the beginning as ONCE, and then realign it every time the window is resized.
- * !#zh 一开始会像 ONCE 一样对齐一次，之后每当窗口大小改变时还会重新对齐。
- * @property {Number} ON_WINDOW_RESIZE
- */
-/**
- * !#en Keep aligning all the way.
- * !#zh 始终保持对齐。
- * @property {Number} ALWAYS
- */
 
+/**
+ * @zh
+ * Widget 的对齐模式，表示 Widget 应该何时刷新。
+ */
 export enum AlignMode {
+    /**
+     * @zh
+     * 仅在 Widget 第一次激活时对齐一次，便于脚本或动画继续控制当前节点。<br/>
+     * 开启后会在 onEnable 时所在的那一帧结束前对齐一次，然后立刻禁用该 Widget。
+     */
     ONCE = 0,
+    /**
+     * @zh
+     * 一开始会像 ONCE 一样对齐一次，之后每当窗口大小改变时还会重新对齐。
+     */
     ON_WINDOW_RESIZE = 1,
+    /**
+     * @zh
+     * 始终保持对齐。
+     */
     ALWAYS = 2,
 }
 
 ccenum(AlignMode);
 
+/**
+ * @zh
+ * Widget 的对齐标志，表示 Widget 选择对齐状态。
+ */
 export enum AlignFlags {
+    /**
+     * @zh
+     * 上边对齐。
+     */
     TOP = 1 << 0,
+    /**
+     * @zh
+     * 垂直中心对齐。
+     */
     MID = 1 << 1,
+    /**
+     * @zh
+     * 下边对齐。
+     */
     BOT = 1 << 2,
+    /**
+     * @zh
+     * 左边对齐。
+     */
     LEFT = 1 << 3,
+    /**
+     * @zh
+     * 横向中心对齐。
+     */
     CENTER = 1 << 4,
+    /**
+     * @zh
+     * 右边对齐。
+     */
     RIGHT = 1 << 5,
+    /**
+     * @zh
+     * 横向对齐。
+     */
     HORIZONTAL = LEFT | CENTER | RIGHT,
+    /**
+     * @zh
+     * 纵向对齐。
+     */
     VERTICAL = TOP | MID | BOT,
 }
 
@@ -79,29 +106,19 @@ const TOP_BOT = AlignFlags.TOP | AlignFlags.BOT;
 const LEFT_RIGHT = AlignFlags.LEFT | AlignFlags.RIGHT;
 
 /**
- * !#en
- * Stores and manipulate the anchoring based on its parent.
- * Widget are used for GUI but can also be used for other things.
- * Widget will adjust current node's position and size automatically, but the results after adjustment can not be obtained until the next frame
- * unless you call {{#crossLink "Widget/updateAlignment:method"}}{{/crossLink}} manually.
- * !#zh
- * Widget 组件，用于设置和适配其相对于父节点的边距，Widget 通常被用于 UI 界面，也可以用于其他地方。
- * Widget 会自动调整当前节点的坐标和宽高，不过目前调整后的结果要到下一帧才能在脚本里获取到，除非你先手动调用 {{#crossLink "Widget/updateAlignment:method"}}{{/crossLink}}。
- *
- * @class Widget
- * @extends Component
+ * @zh
+ * Widget 组件，用于设置和适配其相对于父节点的边距，Widget 通常被用于 UI 界面，也可以用于其他地方。<br/>
+ * Widget 会自动调整当前节点的坐标和宽高，不过目前调整后的结果要到下一帧才能在脚本里获取到，除非你先手动调用 [[updateAlignment]]
  */
 @ccclass('cc.WidgetComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Widget')
 @requireComponent(UITransformComponent)
 @executeInEditMode
 export class WidgetComponent extends Component {
     /**
-     * !#en Specifies an alignment target that can only be one of the parent nodes of the current node.
-     * The default value is null, and when null, indicates the current parent.
-     * !#zh 指定一个对齐目标，只能是当前节点的其中一个父节点，默认为空，为空时表示当前父节点。
-     * @property {Node} target
+     * @zh
+     * 指定一个对齐目标，只能是当前节点的其中一个父节点，默认为空，为空时表示当前父节点。
      */
     @property({
         type: Node,
@@ -123,11 +140,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en Whether to align the top.
-     * !#zh 是否对齐上边。
-     * @property isAlignTop
-     * @type {Boolean}
-     * @default false
+     * @zh
+     * 是否对齐上边。
      */
     @property
     get isAlignTop () {
@@ -138,11 +152,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en Whether to align the bottom.
-     * !#zh 是否对齐下边。
-     * @property isAlignBottom
-     * @type {Boolean}
-     * @default false
+     * @zh
+     * 是否对齐下边。
      */
     @property
     get isAlignBottom () {
@@ -153,11 +164,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en Whether to align the left.
-     * !#zh 是否对齐左边
-     * @property isAlignLeft
-     * @type {Boolean}
-     * @default false
+     * @zh
+     * 是否对齐左边。
      */
     @property
     get isAlignLeft () {
@@ -168,11 +176,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en Whether to align the right.
-     * !#zh 是否对齐右边。
-     * @property isAlignRight
-     * @type {Boolean}
-     * @default false
+     * @zh
+     * 是否对齐右边。
      */
     @property
     get isAlignRight () {
@@ -183,13 +188,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * Vertically aligns the midpoint, This will open the other vertical alignment options cancel.
-     * !#zh
+     * @zh
      * 是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消。
-     * @property isAlignVerticalCenter
-     * @type {Boolean}
-     * @default false
      */
     @property
     get isAlignVerticalCenter () {
@@ -206,13 +206,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * Horizontal aligns the midpoint. This will open the other horizontal alignment options canceled.
-     * !#zh
+     * @zh
      * 是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消。
-     * @property isAlignHorizontalCenter
-     * @type {Boolean}
-     * @default false
      */
     @property
     get isAlignHorizontalCenter () {
@@ -229,15 +224,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * Whether the stretched horizontally, when enable the left and right alignment will be stretched horizontally,
-     * the width setting is invalid (read only).
-     * !#zh
-     * 当前是否水平拉伸。当同时启用左右对齐时，节点将会被水平拉伸，此时节点的宽度只读。
-     * @property isStretchWidth
-     * @type {Boolean}
-     * @default false
-     * @readOnly
+     * @zh
+     * 当前是否水平拉伸。当同时启用左右对齐时，节点将会被水平拉伸。此时节点的宽度（只读）。
      */
     @property({
         visible: false,
@@ -247,15 +235,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * Whether the stretched vertically, when enable the left and right alignment will be stretched vertically,
-     * then height setting is invalid (read only)
-     * !#zh
-     * 当前是否垂直拉伸。当同时启用上下对齐时，节点将会被垂直拉伸，此时节点的高度只读。
-     * @property isStretchHeight
-     * @type {Boolean}
-     * @default false
-     * @readOnly
+     * @zh
+     * 当前是否垂直拉伸。当同时启用上下对齐时，节点将会被垂直拉伸，此时节点的高度（只读）。
      */
     @property({
         visible: false,
@@ -267,14 +248,8 @@ export class WidgetComponent extends Component {
     // ALIGN MARGINS
 
     /**
-     * !#en
-     * The margins between the top of this node and the top of parent node,
-     * the value can be negative, Only available in 'isAlignTop' open.
-     * !#zh
+     * @zh
      * 本节点顶边和父节点顶边的距离，可填写负值，只有在 isAlignTop 开启时才有作用。
-     * @property top
-     * @type {Number}
-     * @default 0
      */
     @property
     get top () {
@@ -285,14 +260,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * The margins between the bottom of this node and the bottom of parent node,
-     * the value can be negative, Only available in 'isAlignBottom' open.
-     * !#zh
+     * @zh
      * 本节点底边和父节点底边的距离，可填写负值，只有在 isAlignBottom 开启时才有作用。
-     * @property bottom
-     * @type {Number}
-     * @default 0
      */
     @property
     get bottom () {
@@ -303,14 +272,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * The margins between the left of this node and the left of parent node,
-     * the value can be negative, Only available in 'isAlignLeft' open.
-     * !#zh
+     * @zh
      * 本节点左边和父节点左边的距离，可填写负值，只有在 isAlignLeft 开启时才有作用。
-     * @property left
-     * @type {Number}
-     * @default 0
      */
     @property
     get left () {
@@ -321,14 +284,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * The margins between the right of this node and the right of parent node,
-     * the value can be negative, Only available in 'isAlignRight' open.
-     * !#zh
+     * @zh
      * 本节点右边和父节点右边的距离，可填写负值，只有在 isAlignRight 开启时才有作用。
-     * @property right
-     * @type {Number}
-     * @default 0
      */
     @property
     get right () {
@@ -339,13 +296,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * Horizontal aligns the midpoint offset value,
-     * the value can be negative, Only available in 'isAlignHorizontalCenter' open.
-     * !#zh 水平居中的偏移值，可填写负值，只有在 isAlignHorizontalCenter 开启时才有作用。
-     * @property horizontalCenter
-     * @type {Number}
-     * @default 0
+     * @zh
+     * 水平居中的偏移值，可填写负值，只有在 isAlignHorizontalCenter 开启时才有作用。
      */
     @property
     get horizontalCenter () {
@@ -356,13 +308,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * Vertical aligns the midpoint offset value,
-     * the value can be negative, Only available in 'isAlignVerticalCenter' open.
-     * !#zh 垂直居中的偏移值，可填写负值，只有在 isAlignVerticalCenter 开启时才有作用。
-     * @property verticalCenter
-     * @type {Number}
-     * @default 0
+     * @zh
+     * 垂直居中的偏移值，可填写负值，只有在 isAlignVerticalCenter 开启时才有作用。
      */
     @property
     get verticalCenter () {
@@ -373,13 +320,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * If true, top is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's height.
-     * !#zh
+     * @zh
      * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 1）作为边距。
-     * @property isAbsoluteTop
-     * @type {Boolean}
-     * @default true
      */
     @property
     get isAbsoluteTop () {
@@ -390,13 +332,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * If true, bottom is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's height.
-     * !#zh
+     * @zh
      * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 1）作为边距。
-     * @property isAbsoluteBottom
-     * @type {Boolean}
-     * @default true
      */
     @property
     get isAbsoluteBottom () {
@@ -407,13 +344,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * If true, left is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's width.
-     * !#zh
+     * @zh
      * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 1）作为边距。
-     * @property isAbsoluteLeft
-     * @type {Boolean}
-     * @default true
      */
     @property
     get isAbsoluteLeft () {
@@ -424,13 +356,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en
-     * If true, right is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's width.
-     * !#zh
+     * @zh
      * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 1）作为边距。
-     * @property isAbsoluteRight
-     * @type {Boolean}
-     * @default true
      */
     @property
     get isAbsoluteRight () {
@@ -441,9 +368,9 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en Specifies the alignment mode of the Widget, which determines when the widget should refresh.
-     * !#zh 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
-     * @property {Widget.AlignMode} alignMode
+     * @zh
+     * 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
+     *
      * @example
      * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
      */
@@ -459,11 +386,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en If true, horizontalCenter is pixel margin, otherwise is percentage (0 - 1) margin.
-     * !#zh 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
-     * @property isAbsoluteHorizontalCenter
-     * @type {Boolean}
-     * @default true
+     * @zh
+     * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
      */
     @property
     get isAbsoluteHorizontalCenter () {
@@ -475,11 +399,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#en If true, verticalCenter is pixel margin, otherwise is percentage (0 - 1) margin.
-     * !#zh 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
-     * @property isAbsoluteVerticalCenter
-     * @type {Boolean}
-     * @default true
+     * @zh
+     * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
      */
     @property
     get isAbsoluteVerticalCenter () {
@@ -490,11 +411,8 @@ export class WidgetComponent extends Component {
     }
 
     /**
-     * !#zh: 对齐开关，由 AlignFlags 组成
-     * @property _alignFlags
-     * @type {Number}
-     * @default 0
-     * @private
+     * @zh
+     * 对齐开关，由 AlignFlags 组成
      */
     @property
     get alignFlags () {
@@ -548,20 +466,17 @@ export class WidgetComponent extends Component {
     private _alignMode = AlignMode.ON_WINDOW_RESIZE;
 
     /**
-     * !#en
-     * Immediately perform the widget alignment. You need to manually call this method only if
-     * you need to get the latest results after the alignment before the end of current frame.
-     * !#zh
+     * @zh
      * 立刻执行 widget 对齐操作。这个接口一般不需要手工调用。
      * 只有当你需要在当前帧结束前获得 widget 对齐后的最新结果时才需要手动调用这个方法。
      *
-     * @method updateAlignment
-     *
      * @example
+     * ```ts
      * widget.top = 10;       // change top margin
      * cc.log(widget.node.y); // not yet changed
      * widget.updateAlignment();
      * cc.log(widget.node.y); // changed
+     * ```
      */
     public updateAlignment () {
         cc._widgetManager.updateAlignment(this.node);
@@ -636,12 +551,7 @@ export class WidgetComponent extends Component {
 cc.WidgetComponent = WidgetComponent;
 
 /**
- * !#en
- * When turned on, it will only be aligned once at the end of the onEnable frame,
- * then immediately disables the current component.
- * This will allow the script or animation to continue controlling the current node.
- * Note: It will still be aligned at the frame when onEnable is called.
- * !#zh
+ * @zh
  * 开启后仅会在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
  * 这样便于脚本或动画继续控制当前节点。
  * 注意：onEnable 时所在的那一帧仍然会进行对齐。

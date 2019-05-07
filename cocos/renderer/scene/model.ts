@@ -201,7 +201,7 @@ export class Model {
         this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
 
         const commonLocal = this._localBindings.get(UBOLocal.BLOCK.name);
-        if (commonLocal) {
+        if (commonLocal && commonLocal.buffer) {
             commonLocal.buffer!.update(this._uboLocal.view);
         }
 

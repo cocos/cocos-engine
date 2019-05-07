@@ -1,8 +1,8 @@
-import { lerp } from '../../../../core/vmath';
-import { Enum } from '../../../../core/value-types';
-import { AnimationCurve } from '../../../geom-utils';
 import { CCClass } from '../../../../core/data';
-import { property, ccclass } from '../../../../core/data/class-decorator';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { Enum } from '../../../../core/value-types';
+import { lerp } from '../../../../core/vmath';
+import { AnimationCurve } from '../../../geom-utils';
 
 export const Mode = Enum({
     Constant: 0,

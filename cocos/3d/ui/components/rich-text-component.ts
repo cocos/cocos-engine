@@ -30,7 +30,7 @@ import { EventTouch } from '../../../core/platform';
 import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../../core/utils';
 import Pool from '../../../core/utils/pool';
 import { Color, Vec2 } from '../../../core/value-types';
-import { Node, PrivateNode } from '../../../scene-graph';
+import { PrivateNode } from '../../../scene-graph';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
 import { LabelOutlineComponent } from './label-outline-component';
 import { SpriteComponent } from './sprite-component';
@@ -39,15 +39,17 @@ import { UIRenderComponent } from './ui-render-component';
 import { UITransformComponent } from './ui-transfrom-component';
 
 const _htmlTextParser = new HtmlTextParser();
-const HorizontalAlign = HorizontalTextAlignment;
-const VerticalAlign = VerticalTextAlignment;
 const RichTextChildName = 'RICHTEXT_CHILD';
 const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
 
-// Returns a function, that, as long as it continues to be invoked, will not
-// be triggered. The function will be called after it stops being called for
-// N milliseconds. If `immediate` is passed, trigger the function on the
-// leading edge, instead of the trailing.
+/**
+ * @zh
+ * 返回一个可延时调用函数。只要不被调用就不会触发。选择 ‘immediate’ 则在触发时不会延迟而是立马回调。
+ *
+ * @param func - 延时调用函数。
+ * @param wait - 延时时间。
+ * @param immediate - 是否立马执行回调。
+ */
 function debounce (func: Function, wait: number, immediate?: boolean) {
     let timeout;
     return function (this: any) {
@@ -64,37 +66,50 @@ function debounce (func: Function, wait: number, immediate?: boolean) {
 }
 
 /**
- * RichText pool
+ * @zh
+ * 富文本池。
  */
-const pool = new Pool((node: Node) => {
+const pool = new Pool((labelSeg: ILabelSegment) => {
     if (CC_EDITOR) {
         return false;
     }
     if (CC_DEV) {
-        cc.assert(!node.parent, 'Recycling node\'s parent should be null!');
+        cc.assert(!labelSeg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    if (!cc.isValid(node)) {
+    if (!cc.isValid(labelSeg.node)) {
         return false;
     }
-    else if (node.getComponent(cc.LabelOutline)) {
+    else if (labelSeg.node.getComponent(cc.LabelOutlineComponent)) {
         return false;
     }
     return true;
 }, 20);
 
 pool.get = function (string: string, richtext: RichTextComponent) {
-    let labelNode = this._get();
+    let labelSeg = this._get();
+    if (!labelSeg){
+        labelSeg = {
+            node: new PrivateNode(RichTextChildName),
+            comp: null,
+            lineCount: 0,
+            styleIndex: 0,
+            clickHandler: '',
+        };
+    }
+
+    let labelNode = labelSeg.node;
     if (!labelNode) {
         labelNode = new PrivateNode(RichTextChildName);
     }
 
-    let labelComponent: LabelComponent = labelNode.getComponent(LabelComponent);
+    let labelComponent = labelNode.getComponent(LabelComponent);
     if (!labelComponent) {
         labelComponent = labelNode.addComponent(LabelComponent);
     }
 
+    labelComponent = labelComponent!;
     labelNode.setPosition(0, 0, 0);
-    // labelNode.setAnchorPoint(0.5, 0.5);
+    labelNode.setAnchorPoint(0.5, 0.5);
     labelNode.setContentSize(128, 128);
     // labelNode.skewX = 0;
 
@@ -107,9 +122,10 @@ pool.get = function (string: string, richtext: RichTextComponent) {
     } else {
         labelComponent.fontFamily = 'Arial';
     }
+
     labelComponent.string = string;
-    labelComponent.horizontalAlign = HorizontalAlign.LEFT;
-    labelComponent.verticalAlign = VerticalAlign.TOP;
+    labelComponent.horizontalAlign = HorizontalTextAlignment.LEFT;
+    labelComponent.verticalAlign = VerticalTextAlignment.TOP;
     labelComponent.fontSize = richtext.fontSize || 40;
     labelComponent.overflow = 0;
     labelComponent.enableWrapText = true;
@@ -138,21 +154,18 @@ interface ILabelSegment{
 }
 
 /**
- * !#en The RichText Component.
- * !#zh 富文本组件
- * @class RichText
- * @extends Component
+ * @zh
+ * 富文本组件
  */
 @ccclass('cc.RichTextComponent')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/Render/RichText')
 @executeInEditMode
 export class RichTextComponent extends UIComponent {
 
     /**
-     * !#en Content string of RichText.
-     * !#zh 富文本显示的文本内容。
-     * @property {String} string
+     * @zh
+     * 富文本显示的文本内容。
      */
     @property({
         multiline: true,
@@ -170,12 +183,11 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en Horizontal Alignment of each line in RichText.
-     * !#zh 文本内容的水平对齐方式。
-     * @property {macro.TextAlignment} horizontalAlign
+     * @zh
+     * 文本内容的水平对齐方式。
      */
     @property({
-        type: HorizontalAlign,
+        type: HorizontalTextAlignment,
     })
     get horizontalAlign () {
         return this._horizontalAlign;
@@ -192,9 +204,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en Font size of RichText.
-     * !#zh 富文本字体大小。
-     * @property {Number} fontSize
+     * @zh
+     * 富文本字体大小。
      */
     @property
     get fontSize () {
@@ -212,9 +223,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en Custom TTF font of RichText
-     * !#zh  富文本定制字体
-     * @property {cc.TTFFont} font
+     * @zh
+     * 富文本定制字体
      */
     @property({
         type: TTFFont,
@@ -236,9 +246,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en The maximize width of the RichText
-     * !#zh 富文本的最大宽度
-     * @property {Number} maxWidth
+     * @zh
+     * 富文本的最大宽度
      */
     @property
     get maxWidth () {
@@ -256,9 +265,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en Line Height of RichText.
-     * !#zh 富文本行高。
-     * @property {Number} lineHeight
+     * @zh
+     * 富文本行高。
      */
     @property
     get lineHeight () {
@@ -276,9 +284,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.
-     * !#zh 对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。
-     * @property {SpriteAtlas} imageAtlas
+     * @zh
+     * 对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。
      */
     @property({
         type: SpriteAtlas,
@@ -298,13 +305,8 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
-     * !#en
-     * Once checked, the RichText will block all input events (mouse and touch) within
-     * the bounding box of the node, preventing the input from penetrating into the underlying node.
-     * !#zh
+     * @zh
      * 选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。
-     * @property {Boolean} handleTouchEvent
-     * @default true
      */
     @property
     get handleTouchEvent (){
@@ -321,8 +323,8 @@ export class RichTextComponent extends UIComponent {
             this.handleTouchEvent ? this._addEventListeners() : this._removeEventListeners();
         }
     }
-    public static HorizontalAlign = HorizontalAlign;
-    public static VerticalAlign = VerticalAlign;
+    public static HorizontalAlign = HorizontalTextAlignment;
+    public static VerticalAlign = VerticalTextAlignment;
 
     @property
     private _lineHeight = 40;
@@ -330,7 +332,7 @@ export class RichTextComponent extends UIComponent {
     private _string = '<color=#00ff00>Rich</c><color=#0fffff>Text</color>';
     // private _updateRichTextStatus =
     @property
-    private _horizontalAlign = HorizontalAlign.LEFT;
+    private _horizontalAlign = HorizontalTextAlignment.LEFT;
     @property
     private _fontSize = 40;
     @property
@@ -422,7 +424,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     private _createFontLabel (string: string) {
-        return pool.get(string, this);
+        return pool.get!(string, this);
     }
 
     private _onTTFLoaded () {
@@ -500,18 +502,26 @@ export class RichTextComponent extends UIComponent {
 
     private _resetState () {
         const children = this.node.children;
-        for (let i = children.length - 1; i >= 0; i--) {
+
+        for (let i = children.length - 1; i >= 0; i--){
             const child = children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
                 if (child.parent === this.node) {
                     child.parent = null;
-                }
-                else {
+                } else {
                     // In case child.parent !== this.node, child cannot be removed from children
+
                     children.splice(i, 1);
                 }
+
                 if (child.name === RichTextChildName) {
-                    pool.put(child);
+                    const index = this._labelSegments.findIndex((seg) => {
+                        return seg.node === child;
+                    });
+
+                    if (index !== -1){
+                        pool.put(this._labelSegments[index]);
+                    }
                 }
             }
         }
@@ -868,13 +878,13 @@ export class RichTextComponent extends UIComponent {
             let lineOffsetX = 0;
             // let nodeAnchorXOffset = (0.5 - this.node.anchorX) * this._labelWidth;
             switch (this.horizontalAlign) {
-                case HorizontalAlign.LEFT:
+                case HorizontalTextAlignment.LEFT:
                     lineOffsetX = - this._labelWidth / 2;
                     break;
-                case HorizontalAlign.CENTER:
+                case HorizontalTextAlignment.CENTER:
                     lineOffsetX = - this._linesWidth[lineCount - 1] / 2;
                     break;
-                case HorizontalAlign.RIGHT:
+                case HorizontalTextAlignment.RIGHT:
                     lineOffsetX = this._labelWidth / 2 - this._linesWidth[lineCount - 1];
                     break;
                 default:
@@ -914,8 +924,8 @@ export class RichTextComponent extends UIComponent {
 
         const index = labelSeg.styleIndex;
         labelComponent.lineHeight = this.lineHeight;
-        labelComponent.horizontalAlign = HorizontalAlign.LEFT;
-        labelComponent.verticalAlign = VerticalAlign.CENTER;
+        labelComponent.horizontalAlign = HorizontalTextAlignment.LEFT;
+        labelComponent.verticalAlign = VerticalTextAlignment.CENTER;
 
         let textStyle: IHtmlTextParserStack | undefined;
         if (this._textArray[index]) {

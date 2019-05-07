@@ -33,6 +33,13 @@ export class CallbackList {
     public isInvoking = false;
     public containCanceled = false;
 
+    /**
+     * @zh
+     * 从指定数组中移除与指定目标相同编号的事件。
+     *
+     * @param array - 指定数组
+     * @param value - 指定目标
+     */
     public removeBy (array: any[], value: any) {
         const callbacks = this.callbacks;
         const targets = this.targets;
@@ -45,11 +52,21 @@ export class CallbackList {
         }
     }
 
+    /**
+     * @zh
+     * 移除指定编号事件。
+     *
+     * @param index - 指定编号。
+     */
     public cancel (index: number) {
         this.callbacks[index] = this.targets[index] = null;
         this.containCanceled = true;
     }
 
+    /**
+     * @zh
+     * 注销所有事件。
+     */
     public cancelAll () {
         const callbacks = this.callbacks;
         const targets = this.targets;
@@ -89,28 +106,30 @@ export class CallbacksHandler{
     protected _callbackTable: Map<string, CallbackList> = new Map<string, CallbackList>();
 
     /**
-     * @method add
-     * @param {String} key
-     * @param {Function} callback
-     * @param {Object} [target] - can be null
+     * @zh
+     * 事件添加管理
+     * @param key - 一个监听事件类型的字符串。
+     * @param callback - 事件分派时将被调用的回调函数。
+     * @param arget - 调用回调的目标。可以为空。
      */
     public add (key: string, callback: Function, target?: Object) {
         let list = this._callbackTable[key];
         if (!list) {
-            list = this._callbackTable[key] = callbackListPool.get();
+            list = this._callbackTable[key] = callbackListPool.get!();
         }
+
         list.callbacks.push(callback);
         list.targets.push(target || null);
     }
 
     /**
-     * Check if the specified key has any registered callback. If a callback is also specified,
-     * it will only return true if the callback is registered.
-     * @method hasEventListener
-     * @param {String} key
-     * @param {Function} [callback]
-     * @param {Object} [target]
-     * @return {Boolean}
+     * @zh
+     * 检查指定事件是否已注册回调。
+     *
+     * @param key - 一个监听事件类型的字符串。
+     * @param callback - 事件分派时将被调用的回调函数。
+     * @param target - 调用回调的目标。
+     * @return - 指定事件是否已注册回调。
      */
     public hasEventListener (key: string, callback?: Function, target?: Object) {
         const list = this._callbackTable[key];
@@ -146,9 +165,10 @@ export class CallbacksHandler{
     }
 
     /**
-     * Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
-     * @method removeAll
-     * @param {String|Object} keyOrTarget - The event key to be removed or the target to be removed
+     * @zh
+     * 移除在特定事件类型中注册的所有回调或在某个目标中注册的所有回调。
+     *
+     * @param keyOrTarget - 要删除的事件键或要删除的目标。
      */
     public removeAll (keyOrTarget?: string | Object) {
         if (typeof keyOrTarget === 'string') {
@@ -184,10 +204,12 @@ export class CallbacksHandler{
     }
 
     /**
-     * @method remove
-     * @param {String} key
-     * @param {Function} callback
-     * @param {Object} [target]
+     * @zh
+     * 删除之前与同类型，回调，目标注册的回调。
+     *
+     * @param key - 一个监听事件类型的字符串。
+     * @param callback - 移除指定注册回调。如果没有给，则删除全部同事件类型的监听。
+     * @param target - 调用回调的目标。
      */
     public remove (key: string, callback?: Function, target?: Object) {
         const list = this._callbackTable[key];
@@ -212,22 +234,21 @@ export class CallbacksHandler{
 }
 
 /**
- * !#en The callbacks invoker to handle and invoke callbacks by key.
- * !#zh CallbacksInvoker 用来根据 Key 管理并调用回调方法。
- * @class CallbacksInvoker
- *
- * @extends _CallbacksHandler
+ * @zh
+ * CallbacksInvoker 用来根据 Key 管理并调用回调方法。
  */
 
 export class CallbacksInvoker extends CallbacksHandler{
     /**
-     * @method emit
-     * @param {String} key
-     * @param {any} [p1]
-     * @param {any} [p2]
-     * @param {any} [p3]
-     * @param {any} [p4]
-     * @param {any} [p5]
+     * @zh
+     * 事件派发
+     *
+     * @param key - 一个监听事件类型的字符串
+     * @param p1 - 派发的第一个参数。
+     * @param p2 - 派发的第二个参数。
+     * @param p3 - 派发的第三个参数。
+     * @param p4 - 派发的第四个参数。
+     * @param p5 - 派发的第五个参数。
      */
     public emit (key: string, ...args: any[]) {
         const list: CallbackList = this._callbackTable[key];

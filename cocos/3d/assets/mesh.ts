@@ -126,10 +126,7 @@ export interface IRenderingSubmesh {
 
 export class RenderingMesh {
     public constructor (
-        private _subMeshes: IRenderingSubmesh[],
-        private _vertexBuffers: GFXBuffer[],
-        private _indexBuffers: GFXBuffer[]) {
-
+        private _subMeshes: IRenderingSubmesh[]) {
     }
 
     public get subMeshes (): IRenderingSubmesh[] {
@@ -144,16 +141,20 @@ export class RenderingMesh {
         return this._subMeshes[index];
     }
 
-    public destroy () {
-        this._vertexBuffers.forEach((vertexBuffer) => {
-            vertexBuffer.destroy();
-        });
-        this._vertexBuffers.length = 0;
+    public clearSubMeshes () {
+        for (const subMesh of this._subMeshes) {
+            for (const vb of subMesh.vertexBuffers) {
+                vb.destroy();
+            }
+            if (subMesh.indexBuffer) {
+                subMesh.indexBuffer.destroy();
+            }
+        }
+        this._subMeshes.splice(0);
+    }
 
-        this._indexBuffers.forEach((indexBuffer) => {
-            indexBuffer.destroy();
-        });
-        this._indexBuffers.length = 0;
+    public destroy () {
+        this.clearSubMeshes();
         this._subMeshes.length = 0;
     }
 }
@@ -221,12 +222,90 @@ export class Mesh extends EventTargetFactory(Asset) {
         this.loaded = false;
     }
 
+    public initialize () {
+        if (this._initialized) {
+            return;
+        }
+
+        this._initialized = true;
+
+        if (this._data === null) {
+            return;
+        }
+
+        const buffer = this._data.buffer;
+        const gfxDevice: GFXDevice = cc.director.root.device;
+        const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
+        const indexBuffers: GFXBuffer[] = [];
+        const submeshes: IRenderingSubmesh[] = [];
+
+        for (const prim of this._struct.primitives) {
+            if (prim.vertexBundelIndices.length === 0) {
+                continue;
+            }
+
+            let indexBuffer: GFXBuffer | null = null;
+            let ib: any = null;
+            if (prim.indexView) {
+                const idxView = prim.indexView;
+
+                indexBuffer = gfxDevice.createBuffer({
+                    usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    size: idxView.length,
+                    stride: idxView.stride,
+                });
+                indexBuffers.push(indexBuffer);
+
+                ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
+                indexBuffer.update(ib);
+            }
+
+            const vbReference = prim.vertexBundelIndices.map((i) => vertexBuffers[i]);
+
+            let gfxAttributes: IGFXAttribute[] = [];
+            if (prim.vertexBundelIndices.length > 0) {
+                const idx = prim.vertexBundelIndices[0];
+                const vertexBundle = this._struct.vertexBundles[idx];
+                gfxAttributes = vertexBundle.attributes;
+            }
+
+            const subMesh: IRenderingSubmesh = {
+                primitiveMode: prim.primitiveMode,
+                vertexBuffers: vbReference,
+                indexBuffer,
+                attributes: gfxAttributes,
+            };
+
+            if (prim.geometricInfo) {
+                const info = prim.geometricInfo;
+                subMesh.geometricInfo = {
+                    indices: ib,
+                    positions: new Float32Array(buffer, info.view.offset, info.view.length / 4),
+                };
+            }
+
+            submeshes.push(subMesh);
+        }
+
+        this._renderingMesh = new RenderingMesh(submeshes);
+    }
+
     /**
      * Destory this mesh and immediately release its GPU resources.
      */
     public destroy () {
-        this._tryDestroyRenderingMesh();
+        this.destroyRenderingMesh();
         return super.destroy();
+    }
+
+    public destroyRenderingMesh () {
+        if (this._renderingMesh) {
+            this._renderingMesh.destroy();
+            this._renderingMesh = null;
+            this._data = null;
+            this._initialized = false;
+        }
     }
 
     /**
@@ -235,9 +314,9 @@ export class Mesh extends EventTargetFactory(Asset) {
      * @param data The new mesh's data.
      */
     public assign (struct: IMeshStruct, data: Uint8Array) {
+        this.destroyRenderingMesh();
         this._struct = struct;
         this._data = data;
-        this._tryDestroyRenderingMesh();
         this.loaded = true;
         this.emit('load');
     }
@@ -246,7 +325,7 @@ export class Mesh extends EventTargetFactory(Asset) {
      * Gets the rendering mesh.
      */
     public get renderingMesh (): RenderingMesh {
-        this._init();
+        this.initialize();
         return this._renderingMesh!;
     }
 
@@ -267,7 +346,7 @@ export class Mesh extends EventTargetFactory(Asset) {
             }
         } // if
 
-        if (!this._data && mesh._data) {
+        if (this.subMeshCount === 0 && mesh._data) {
             this._struct.vertexBundles = new Array<IVertexBundle>(mesh._struct.vertexBundles.length);
             for (let i = 0; i < mesh._struct.vertexBundles.length; ++i) {
                 const bundle = mesh._struct.vertexBundles[i];
@@ -340,7 +419,8 @@ export class Mesh extends EventTargetFactory(Asset) {
             }
 
             this._data = mesh._data.slice();
-            this._init ();
+            this._initialized = false;
+            this.initialize ();
             return true;
         }
 
@@ -356,6 +436,12 @@ export class Mesh extends EventTargetFactory(Asset) {
         let vbView: Uint8Array;
         let srcVBView: Uint8Array;
         let dstVBView: Uint8Array;
+        let srcAttrOffset = 0;
+        let srcVBOffset = 0;
+        let dstVBOffset = 0;
+        let attrSize = 0;
+        let dstAttrView: Uint8Array;
+        let hasAttr = false;
 
         const vertexBundles = new Array<IVertexBundle>(this._struct.vertexBundles.length);
         for (let i = 0; i < this._struct.vertexBundles.length; ++i) {
@@ -376,7 +462,33 @@ export class Mesh extends EventTargetFactory(Asset) {
             dstOffset += dstVBView.length;
 
             vbView.set(srcVBView);
-            vbView.set(dstVBView, bundle.view.length);
+
+            if (bundle.view.stride === dstBundle.view.stride) {
+                vbView.set(dstVBView, bundle.view.length);
+            } else {
+                srcAttrOffset = 0;
+                for (const attr of bundle.attributes) {
+                    dstVBOffset = 0;
+                    for (const dstAttr of dstBundle.attributes) {
+                        if (attr.name === dstAttr.name && attr.format === dstAttr.format) {
+                            hasAttr = true;
+                            break;
+                        }
+                        dstVBOffset += GFXFormatInfos[dstAttr.format].size;
+                    }
+                    if (hasAttr) {
+                        attrSize = GFXFormatInfos[attr.format].size;
+                        srcVBOffset = bundle.view.length + srcAttrOffset;
+                        for (let v = 0; v < dstBundle.view.count; ++v) {
+                            dstAttrView = dstVBView.subarray(dstVBOffset, attrSize);
+                            vbView.set(dstAttrView, srcVBOffset);
+                            srcVBOffset += bundle.view.stride;
+                            dstVBOffset += dstBundle.view.stride;
+                        }
+                    }
+                    srcAttrOffset += GFXFormatInfos[attr.format].size;
+                }
+            }
 
             vertexBundles[i] = {
                 attributes: bundle.attributes,
@@ -523,7 +635,7 @@ export class Mesh extends EventTargetFactory(Asset) {
 
         // Create mesh.
         this.assign(meshStruct, new Uint8Array(bufferBlob.getCombined()));
-        this._init ();
+        this.initialize ();
 
         return true;
     }
@@ -623,7 +735,7 @@ export class Mesh extends EventTargetFactory(Asset) {
         return null;
     }
 
-    public  copyAttribute (primitiveIndex: number, attributeName: GFXAttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
+    public copyAttribute (primitiveIndex: number, attributeName: GFXAttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
         if (!this._data ||
             primitiveIndex >= this._struct.primitives.length) {
             return null;
@@ -698,75 +810,6 @@ export class Mesh extends EventTargetFactory(Asset) {
         }
     }
 
-    private _init () {
-        if (this._initialized) {
-            return;
-        }
-
-        this._initialized = true;
-
-        if (this._data === null) {
-            return;
-        }
-
-        const buffer = this._data.buffer;
-        const gfxDevice: GFXDevice = cc.director.root.device;
-        const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
-        const indexBuffers: GFXBuffer[] = [];
-        const submeshes: IRenderingSubmesh[] = [];
-
-        for (const prim of this._struct.primitives) {
-            if (prim.vertexBundelIndices.length === 0) {
-                continue;
-            }
-
-            let indexBuffer: GFXBuffer | null = null;
-            let ib: any = null;
-            if (prim.indexView) {
-                const idxView = prim.indexView;
-
-                indexBuffer = gfxDevice.createBuffer({
-                    usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                    size: idxView.length,
-                    stride: idxView.stride,
-                });
-                indexBuffers.push(indexBuffer);
-
-                ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
-                indexBuffer.update(ib);
-            }
-
-            const vbReference = prim.vertexBundelIndices.map((i) => vertexBuffers[i]);
-
-            let gfxAttributes: IGFXAttribute[] = [];
-            if (prim.vertexBundelIndices.length > 0) {
-                const idx = prim.vertexBundelIndices[0];
-                const vertexBundle = this._struct.vertexBundles[idx];
-                gfxAttributes = vertexBundle.attributes;
-            }
-
-            const subMesh: IRenderingSubmesh = {
-                primitiveMode: prim.primitiveMode,
-                vertexBuffers: vbReference,
-                indexBuffer,
-                attributes: gfxAttributes,
-            };
-
-            if (prim.geometricInfo) {
-                const info = prim.geometricInfo;
-                subMesh.geometricInfo = {
-                    indices: ib,
-                    positions: new Float32Array(buffer, info.view.offset, info.view.length / 4),
-                };
-            }
-
-            submeshes.push(subMesh);
-        }
-
-        this._renderingMesh = new RenderingMesh(submeshes, vertexBuffers, indexBuffers);
-    }
-
     private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
         return this._struct.vertexBundles.map((vertexBundle) => {
             const vertexBuffer = gfxDevice.createBuffer({
@@ -779,14 +822,6 @@ export class Mesh extends EventTargetFactory(Asset) {
             vertexBuffer.update(new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length));
             return vertexBuffer;
         });
-    }
-
-    private _tryDestroyRenderingMesh () {
-        if (this._renderingMesh) {
-            this._renderingMesh.destroy();
-            this._renderingMesh = null;
-            this._initialized = false;
-        }
     }
 }
 cc.Mesh = Mesh;
