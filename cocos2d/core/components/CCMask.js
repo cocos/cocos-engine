@@ -445,10 +445,12 @@ let Mask = cc.Class({
     _removeGraphics () {
         if (this._graphics) {
             this._graphics.destroy();
+            this._graphics = null;
         }
 
         if (this._clearGraphics) {
             this._clearGraphics.destroy();
+            this._clearGraphics = null;
         }
     },
 

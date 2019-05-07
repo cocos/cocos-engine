@@ -1229,6 +1229,8 @@ var ParticleSystem = cc.Class({
             }
             return;
         }
+        this.resetSystem();
+        this.stopSystem();
         this.disableRender();
         if (this.autoRemoveOnFinish && this._stopped) {
             this.node.destroy();
