@@ -21,7 +21,9 @@ export interface ICollisionEvent {
     target: RigidBodyBase;
 }
 
-export type ICollisionCallback = (event: ICollisionEvent) => void;
+export type ICollisionType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
+
+export type ICollisionCallback = (type: ICollisionType, event: ICollisionEvent) => void;
 
 export type BeforeStepCallback = () => void;
 
@@ -248,9 +250,4 @@ export interface LockConstraintBase extends ConstraintBase {
      * @param options Options.
      */
     // constructor (first: RigidBodyBase, second: RigidBodyBase, options?: ILockConstraintOptions);
-}
-
-export enum TransformSource {
-    Scene,
-    Phycis,
 }

@@ -46,13 +46,13 @@ export class BuiltInWorld implements PhysicsWorldBase {
           };
           if (this._collisionMatrix.get(bodyA.id, bodyB.id)) {
             // TODO: 触发Stay
-            bodyA.onTriggerStay(event);
-            bodyB.onTriggerStay(event);
+            bodyA.onTrigger('onCollisionStay', event);
+            bodyB.onTrigger('onCollisionStay', event);
           } else {
             this._collisionMatrix.set(bodyA.id, bodyB.id, true);
             /** 是第一次 */ // TODO: 触发Enter
-            bodyA.onTriggerEnter(event);
-            bodyB.onTriggerEnter(event);
+            bodyA.onTrigger('onCollisionEnter', event);
+            bodyB.onTrigger('onCollisionEnter', event);
           }
         } else {
           if (this._collisionMatrix.get(bodyA.id, bodyB.id)) {
@@ -61,8 +61,8 @@ export class BuiltInWorld implements PhysicsWorldBase {
               source: bodyA,
               target: bodyB,
             };
-            bodyA.onTriggerExit(event);
-            bodyB.onTriggerExit(event);
+            bodyA.onTrigger('onCollisionExit', event);
+            bodyB.onTrigger('onCollisionExit', event);
           }
 
           this._collisionMatrix.set(bodyA.id, bodyB.id, false);

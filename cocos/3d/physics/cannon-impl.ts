@@ -451,7 +451,8 @@ export class CannonRigidBody implements RigidBodyBase {
             target: getWrap<RigidBodyBase>((event as any).target),
         };
         for (const callback of this._collisionCallbacks) {
-            callback(evt);
+            // TODO : 目前的Canon无法支持Enter\Stay\Exit，目前碰撞仅触发两次Stay
+            callback('onCollisionStay', evt);
         }
     }
 
