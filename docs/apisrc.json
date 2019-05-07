@@ -13,6 +13,7 @@
     "./cocos2d/animation/animation-state.js",
     "./cocos2d/animation/animation-animator.js",
     "./cocos2d/animation/playable.js",
+    "./cocos2d/animation/easing.js",
 
     "./cocos2d/audio/**/*",
 
