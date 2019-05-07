@@ -269,7 +269,7 @@ export default class ParticleSystemRenderer {
         if (!this.particleSystem) {
             return;
         }
-        if (this._mesh && this._mesh.loaded) { this._assetReady(); }
+        if (!this._mesh || this._mesh.loaded) { this._assetReady(); }
         this._ensureLoadMesh();
     }
 
