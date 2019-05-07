@@ -99,7 +99,7 @@ let AnimationCache = cc.Class({
 
     begin () {
         let skeletonInfo = this._skeletonInfo;
-        // If pre animation not fnished, play it to the end.
+        // If pre animation not finished, play it to the end.
         if (skeletonInfo.curAnimationCache) {
             skeletonInfo.curAnimationCache.updateToFrame();
         }
