@@ -3,22 +3,22 @@
 import Skeleton from '../../3d/assets/skeleton';
 import { Filter, PixelFormat, WrapMode } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
-import { mat4, vec3, vec4 } from '../../core/vmath';
+import { mat4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXAPI, GFXDevice, GFXFeature } from '../../gfx/device';
+import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { JointUniformCapacity, UBOSkinning, UBOSkinningTextureCase, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
+import { Mat4 } from '../../core';
 
 const textureSizeBuffer = new Float32Array(4);
 const skinningVectors = JointUniformCapacity * 3; // both Mat3x4 and DQ
 
 const vertexVectorLeeway = 30; // the minimum number of free vectors guaranteed in vertex shader when using uniform joint storage
-export const __DEFER_BINDPOSE_COMPUTATION__ = true;
 
 export enum JointStorageKind {
     textureRGBA8,
@@ -65,16 +65,7 @@ export class SkinningModel extends Model {
         if (storageKind === JointStorageKind.textureRGBA32F ||
             storageKind === JointStorageKind.textureRGBA8) {
             const mat4TextureKind = storageKind === JointStorageKind.textureRGBA32F ? Mat4TextureKind.rgba32f : Mat4TextureKind.rgba8888;
-            const mat4Texture = new MatrixTexture(
-                __DEFER_BINDPOSE_COMPUTATION__ ? skeleton.joints.length * 2 : skeleton.joints.length,
-                mat4TextureKind,
-                this._device);
-
-            if (__DEFER_BINDPOSE_COMPUTATION__) {
-                for (let iJoint = 0; iJoint < skeleton.bindposes.length; ++iJoint) {
-                    mat4Texture.set(iJoint * 2 + 0, skeleton.bindposes[iJoint]);
-                }
-            }
+            const mat4Texture = new MatrixTexture(skeleton.joints.length, mat4TextureKind, this._device);
 
             this._binded = {
                 skinningUBOBinding: UBOSkinningTextureCase.BLOCK.binding,
@@ -95,9 +86,7 @@ export class SkinningModel extends Model {
                 textureSizeBuffer, UBOSkinningTextureCase.JOINTS_TEXTURE_SIZE_OFFSET, textureSizeBuffer.byteLength);
         } else {
             if (skeleton.joints.length > JointUniformCapacity) {
-                console.error(
-                    `Skeleton ${skeleton.name} has ${skeleton.joints.length} joints ` +
-                    `which exceeds Cocos's max allowed joint count(${JointUniformCapacity}).`);
+                console.error(`Joints count exceeds the default limits: ${skeleton.joints.length}/${JointUniformCapacity} in ${skeleton.name}`);
             }
 
             this._binded = {
@@ -116,17 +105,13 @@ export class SkinningModel extends Model {
         }
     }
 
-    public updateJointMatrix (iMatrix: number, matrix: mat4) {
+    public updateJointMatrix (iMatrix: number, matrix: Mat4) {
         if (!this._binded) {
             return;
         }
-        const { jointStorage, skinningUBO } = this._binded;
+        const { jointStorage } = this._binded;
         if (isTextureStorage(jointStorage)) {
-            if (__DEFER_BINDPOSE_COMPUTATION__) {
-                jointStorage.texture.set(iMatrix * 2 + 1, matrix);
-            } else {
-                jointStorage.texture.set(iMatrix, matrix);
-            }
+            jointStorage.texture.set(iMatrix, matrix);
         } else {
             setMat4InUniform(jointStorage.nativeData, iMatrix, matrix);
         }
@@ -286,7 +271,7 @@ class MatrixTexture {
     }
 
     public set (iMatrix: number, matrix: mat4) {
-        // use identical memory layout for all texture formats
+        // just use identical memory layout for all texture formats
         mat4.array(this._nativeData, matrix, iMatrix * 4 * 4);
     }
 

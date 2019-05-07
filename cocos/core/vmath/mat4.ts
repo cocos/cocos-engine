@@ -1,7 +1,13 @@
+import mat3 from './mat3';
+import quat from './quat';
 import { EPSILON } from './utils';
+import vec3 from './vec3';
 
 // tslint:disable: one-variable-per-declaration
 // tslint:disable: max-line-length
+
+const v3_1 = new vec3();
+const m3_1 = new mat3();
 
 /**
  * Mathematical 4x4 matrix.
@@ -1019,6 +1025,31 @@ class mat4 {
         }
 
         return out;
+    }
+
+    /**
+     * Decompose an affine matrix to a quaternion rotation, a translation offset and a scale vector.
+     * Assumes the transformation is combined in the order of Scale -> Rotate -> Translate.
+     * @param m - Matrix to decompose.
+     * @param q - Resulting rotation quaternion.
+     * @param v - Resulting translation offset.
+     * @param s - Resulting scale vector.
+     */
+    public static toRTS (m: mat4, q: quat, v: vec3, s: vec3) {
+        s.x = vec3.mag(vec3.set(v3_1, m.m00, m.m01, m.m02));
+        m3_1.m00 = m.m00 / s.x;
+        m3_1.m01 = m.m01 / s.x;
+        m3_1.m02 = m.m02 / s.x;
+        s.y = vec3.mag(vec3.set(v3_1, m.m04, m.m05, m.m06));
+        m3_1.m03 = m.m04 / s.y;
+        m3_1.m04 = m.m05 / s.y;
+        m3_1.m05 = m.m06 / s.y;
+        s.z = vec3.mag(vec3.set(v3_1, m.m08, m.m09, m.m10));
+        m3_1.m06 = m.m08 / s.z;
+        m3_1.m07 = m.m09 / s.z;
+        m3_1.m08 = m.m10 / s.z;
+        quat.normalize(q, quat.fromMat3(q, m3_1));
+        vec3.set(v, m.m12, m.m13, m.m14);
     }
 
     /**
