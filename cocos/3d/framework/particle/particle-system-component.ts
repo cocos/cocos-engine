@@ -3,25 +3,26 @@
 // tslint:disable: max-line-length
 
 import { Component } from '../../../components/component';
-import { vec3, vec2, mat4, quat, randomRangeInt, pseudoRandom } from '../../../core/vmath';
-import CurveRange from './animator/curve-range';
-import GradientRange from './animator/gradient-range';
-import ParticleSystemRenderer from './renderer/particle-system-renderer';
-import SizeOvertimeModule from './animator/size-overtime';
+import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
+import { mat4, pseudoRandom, quat, randomRangeInt, vec2, vec3 } from '../../../core/vmath';
+import { INT_MAX } from '../../../core/vmath/bits';
+import { Material } from '../../assets';
+import { RenderableComponent } from '../renderable-component';
 import ColorOverLifetimeModule from './animator/color-overtime';
-import VelocityOvertimeModule from './animator/velocity-overtime';
+import CurveRange from './animator/curve-range';
 import ForceOvertimeModule from './animator/force-overtime';
+import GradientRange from './animator/gradient-range';
 import LimitVelocityOvertimeModule from './animator/limit-velocity-overtime';
 import RotationOvertimeModule from './animator/rotation-overtime';
+import SizeOvertimeModule from './animator/size-overtime';
 import TextureAnimationModule from './animator/texture-animation';
-import ShapeModule from './emitter/shape-module';
+import VelocityOvertimeModule from './animator/velocity-overtime';
 import Burst from './burst';
-import { particleEmitZAxis, Space } from './particle-general-function';
-import { INT_MAX } from '../../../core/vmath/bits';
-import { ccclass, executionOrder, executeInEditMode, property, requireComponent, menu } from '../../../core/data/class-decorator';
+import ShapeModule from './emitter/shape-module';
+import { Space } from './enum';
+import { particleEmitZAxis } from './particle-general-function';
+import ParticleSystemRenderer from './renderer/particle-system-renderer';
 import TrailModule from './renderer/trail';
-import { RenderableComponent } from '../renderable-component';
-import { Material } from '../../assets';
 
 const _world_mat = mat4.create();
 

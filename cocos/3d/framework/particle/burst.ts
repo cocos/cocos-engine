@@ -88,6 +88,10 @@ export default class Burst {
             }
         }
     }
+
+    public getMaxCount (psys) {
+        return this.count.getMax() * Math.min(Math.floor(psys.duration / this.repeatInterval), this.repeatCount);
+    }
 }
 
 // CCClass.fastDefine('cc.Burst', Burst, {
