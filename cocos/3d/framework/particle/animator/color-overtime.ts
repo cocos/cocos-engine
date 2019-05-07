@@ -1,8 +1,8 @@
-import { color4, pseudoRandom } from '../../../../core/vmath';
 import { CCClass } from '../../../../core/data';
-import GradientRange from './gradient-range';
-import { property, ccclass } from '../../../../core/data/class-decorator';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { color4, pseudoRandom } from '../../../../core/vmath';
 import Particle from '../particle';
+import GradientRange from './gradient-range';
 
 // tslint:disable: max-line-length
 

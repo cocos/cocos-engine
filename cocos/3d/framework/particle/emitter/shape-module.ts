@@ -286,7 +286,7 @@ export default class ShapeModule {
         displayOrder: 5,
     })
     get angle () {
-        return toDegree(this._angle);
+        return Math.round(toDegree(this._angle) * 100) / 100;
     }
 
     set angle (val) {

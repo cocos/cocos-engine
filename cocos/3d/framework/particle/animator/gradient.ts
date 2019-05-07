@@ -1,7 +1,7 @@
-import { repeat, lerp } from '../../../../core/vmath';
-import { Enum, ValueType, Color } from '../../../../core/value-types';
 import { CCClass } from '../../../../core/data';
-import { property, ccclass } from '../../../../core/data/class-decorator';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { Color, Enum, ValueType } from '../../../../core/value-types';
+import { lerp, repeat } from '../../../../core/vmath';
 
 // tslint:disable: max-line-length
 

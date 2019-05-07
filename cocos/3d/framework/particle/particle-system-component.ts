@@ -20,15 +20,16 @@ import { particleEmitZAxis, Space } from './particle-general-function';
 import { INT_MAX } from '../../../core/vmath/bits';
 import { ccclass, executionOrder, executeInEditMode, property, requireComponent, menu } from '../../../core/data/class-decorator';
 import TrailModule from './renderer/trail';
+import { RenderableComponent } from '../renderable-component';
+import { Material } from '../../assets';
 
 const _world_mat = mat4.create();
 
 @ccclass('cc.ParticleSystemComponent')
 @menu('Components/ParticleSystemComponent')
-@requireComponent(ParticleSystemRenderer)
 @executionOrder(99)
 @executeInEditMode
-export class ParticleSystemComponent extends Component {
+export class ParticleSystemComponent extends RenderableComponent {
 
     @property
     private _capacity = 100;
@@ -73,6 +74,7 @@ export class ParticleSystemComponent extends Component {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 10,
     })
     public startSpeed = new CurveRange();
@@ -82,6 +84,8 @@ export class ParticleSystemComponent extends Component {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
+        radian: true,
         displayOrder: 11,
     })
     public startRotation = new CurveRange();
@@ -186,6 +190,7 @@ export class ParticleSystemComponent extends Component {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 12,
     })
     public gravityModifier = new CurveRange();
@@ -217,6 +222,20 @@ export class ParticleSystemComponent extends Component {
         displayOrder: 15,
     })
     public bursts = new Array();
+
+    @property({
+        type: Material,
+        displayName: 'Materials',
+        visible: false,
+    })
+    get sharedMaterials () {
+        // if we don't create an array copy, the editor will modify the original array directly.
+        return super.sharedMaterials;
+    }
+
+    set sharedMaterials (val) {
+        super.sharedMaterials = val;
+    }
 
     // color over lifetime module
     /**
@@ -294,7 +313,11 @@ export class ParticleSystemComponent extends Component {
     public trailModule = new TrailModule();
 
     // particle system renderer
-    private renderer: ParticleSystemRenderer | null;
+    @property({
+        type: ParticleSystemRenderer,
+    })
+    private renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
+
     private _isPlaying: boolean;
     private _isPaused: boolean;
     private _isStopped: boolean;
@@ -335,13 +358,11 @@ export class ParticleSystemComponent extends Component {
         this._customData2 = vec2.create(0, 0);
 
         this._subEmitters = []; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
-        this.renderer = null;
     }
 
-    protected onLoad () {
+    public onLoad () {
         // HACK, TODO
-        this.renderer = this.getComponent(ParticleSystemRenderer);
-        this.renderer!.onInit();
+        this.renderer!.onInit(this);
         this.shapeModule.onInit(this);
         this.trailModule.init(this);
         this.textureAnimationModule.onInit(this);
@@ -354,6 +375,7 @@ export class ParticleSystemComponent extends Component {
 
     protected onDestroy () {
         // this._system.remove(this);
+        this.renderer.onDestroy();
         this.trailModule.destroy();
     }
 
@@ -361,13 +383,21 @@ export class ParticleSystemComponent extends Component {
         if (this.playOnAwake) {
             this.play();
         }
-        this.renderer!.enabled = this.enabledInHierarchy;
+        this.renderer.onEnable();
         this.trailModule.onEnable();
     }
 
     protected onDisable () {
-        this.renderer!.enabled = this.enabledInHierarchy;
+        this.renderer!.onDisable();
         this.trailModule.onDisable();
+    }
+
+    public _onMaterialModified (index: number, material: Material) {
+        this.renderer._onMaterialModified(index, material);
+    }
+
+    public _onRebuildPSO (index: number, material: Material) {
+        this.renderer._onRebuildPSO(index, material);
     }
 
     // TODO: fastforward current particle system by simulating particles over given period of time, then pause it.

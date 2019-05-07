@@ -1,9 +1,9 @@
-import { vec3, lerp, pseudoRandom } from '../../../../core/vmath';
 import { CCClass } from '../../../../core/data';
-import { Space } from '../particle-general-function';
-import { property, ccclass } from '../../../../core/data/class-decorator';
-import CurveRange from './curve-range';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { lerp, pseudoRandom, vec3 } from '../../../../core/vmath';
 import Particle from '../particle';
+import { Space } from '../particle-general-function';
+import CurveRange from './curve-range';
 
 // tslint:disable: max-line-length
 const LIMIT_VELOCITY_RAND_OFFSET = 23541;
@@ -24,6 +24,7 @@ export default class LimitVelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 4,
     })
     public limitX = new CurveRange();
@@ -33,6 +34,7 @@ export default class LimitVelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 5,
     })
     public limitY = new CurveRange();
@@ -42,6 +44,7 @@ export default class LimitVelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 6,
     })
     public limitZ = new CurveRange();
@@ -51,6 +54,7 @@ export default class LimitVelocityOvertimeModule {
      */
     @property({
         type: CurveRange,
+        range: [-1, 1],
         displayOrder: 3,
     })
     public limit = new CurveRange();
