@@ -632,6 +632,7 @@ let Label = cc.Class({
             } 
 
             if (this.cacheMode !== CacheMode.CHAR) {
+                this._frame._resetDynamicAtlasFrame();
                 this._frame._refreshTexture(this._ttfTexture);
             }
             
