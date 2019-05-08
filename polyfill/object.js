@@ -2,7 +2,7 @@
 // for IE11
 if (!Object.assign) {
     Object.assign = function (target, source) {
-        cc.js.mixin(target, source);
+        return cc.js.mixin(target, source);
     }
 }
 

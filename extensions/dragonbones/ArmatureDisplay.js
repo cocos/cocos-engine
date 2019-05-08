@@ -391,7 +391,7 @@ let ArmatureDisplay = cc.Class({
         // it will just use the _material,won't clone it.
         // So if invoke getMaterial,it only return _material,if you want to change all materialCache,
         // you can change materialCache directly.
-        this._eventTarget = null;
+        this._eventTarget = new EventTarget();
         this._materialCache = {};
         this._inited = false;
         this._factory = dragonBones.CCFactory.getInstance();
@@ -628,16 +628,13 @@ let ArmatureDisplay = cc.Class({
             this._curFrame = null;
             this._playing = false;
             this._preCacheMode = null;
-            this._eventTarget = null;
         }
 
         if (!CC_EDITOR) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._armatureCache = ArmatureCache.sharedCache;
-                this._eventTarget = new EventTarget;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._armatureCache = new ArmatureCache;
-                this._eventTarget = new EventTarget;
             }
         }
 
@@ -657,6 +654,7 @@ let ArmatureDisplay = cc.Class({
             this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, "", atlasUUID);
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
+            this._displayProxy.setEventTarget(this._eventTarget);
             this._armature = this._displayProxy._armature;
             this._armature.animation.timeScale = this.timeScale;
         }
@@ -854,11 +852,7 @@ let ArmatureDisplay = cc.Class({
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     once (eventType, listener, target) {
-        if (this._displayProxy) {
-            this._displayProxy.once(eventType, listener, target);
-        } else if (this._eventTarget) {
-            this._eventTarget.once(eventType, listener, target);
-        }
+        this._eventTarget.once(eventType, listener, target);
     },
 
     /**
@@ -873,11 +867,7 @@ let ArmatureDisplay = cc.Class({
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     addEventListener (eventType, listener, target) {
-        if (this._displayProxy) {
-            this._displayProxy.on(eventType, listener, target);
-        } else if (this._eventTarget) {
-            this._eventTarget.on(eventType, listener, target);
-        }
+        this._eventTarget.on(eventType, listener, target);
     },
 
     /**
@@ -891,11 +881,7 @@ let ArmatureDisplay = cc.Class({
      * @param {Object} [target]
      */
     removeEventListener (eventType, listener, target) {
-        if (this._displayProxy) {
-            this._displayProxy.off(eventType, listener, target);
-        } else if (this._eventTarget) {
-            this._eventTarget.off(eventType, listener, target);
-        }
+        this._eventTarget.off(eventType, listener, target);
     },
 
     /**

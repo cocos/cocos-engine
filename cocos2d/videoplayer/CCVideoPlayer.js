@@ -91,8 +91,8 @@ const ResourceType = cc.Enum({
 
 
 /**
- * !#en cc.VideoPlayer is a component for playing videos, you can use it for showing videos in your game.
- * !#zh Video 组件，用于在游戏中播放视频
+ * !#en cc.VideoPlayer is a component for playing videos, you can use it for showing videos in your game. Because different platforms have different authorization, API and control methods for VideoPlayer component. And have not yet formed a unified standard, only Web, iOS, and Android platforms are currently supported.
+ * !#zh Video 组件，用于在游戏中播放视频。由于不同平台对于 VideoPlayer 组件的授权、API、控制方式都不同，还没有形成统一的标准，所以目前只支持 Web、iOS 和 Android 平台。
  * @class VideoPlayer
  * @extends Component
  */
@@ -297,13 +297,13 @@ let VideoPlayer = cc.Class({
         if (url && cc.loader.md5Pipe) {
             url = cc.loader.md5Pipe.transformURL(url);
         }
-        this._impl.setURL(url);
+        this._impl.setURL(url, this._mute || this._volume === 0);
     },
 
     onLoad () {
         let impl = this._impl;
         if (impl) {
-            impl.createDomElementIfNeeded();
+            impl.createDomElementIfNeeded(this._mute || this._volume === 0);
             this._updateVideoSource();
 
             impl.seekTo(this.currentTime);

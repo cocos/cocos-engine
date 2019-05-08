@@ -31,6 +31,7 @@ let settingPlatform;
 const isBaiduGame = (settingPlatform === 'baidugame' || settingPlatform === 'baidugame-subcontext');
 const isVivoGame = (settingPlatform === 'qgame');
 const isOppoGame = (settingPlatform === 'quickgame');
+const isHuaweiGame = (settingPlatform === 'huawei');
 
 var _global = typeof window === 'undefined' ? global : window;
  
@@ -382,11 +383,17 @@ function initSys () {
      */
     sys.OPPO_GAME = 109;
     /**
-     * @property {Number} XIAOMI_GAME
+     * @property {Number} HUAWEI_GAME
      * @readOnly
      * @default 110
      */
-    sys.XIAOMI_GAME = 110;
+    sys.HUAWEI_GAME = 110;
+    /**
+     * @property {Number} XIAOMI_GAME
+     * @readOnly
+     * @default 111
+     */
+    sys.XIAOMI_GAME = 111;
     /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
@@ -635,6 +642,8 @@ function initSys () {
         }
         else if (isOppoGame) {
             platform = sys.OPPO_GAME;
+        } else if (isHuaweiGame) {
+            platform = sys.HUAWEI_GAME;
         }
         else {
             platform = __getPlatform();

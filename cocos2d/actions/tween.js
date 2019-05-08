@@ -10,7 +10,9 @@ let TweenAction = cc.Class({
         // global easing or progress used for this action
         opts.progress = opts.progress || this.progress;
         if (opts.easing && typeof opts.easing === 'string') {
-            opts.easing = cc.easing[opts.easing];
+            let easingName = opts.easing;
+            opts.easing = cc.easing[easingName];
+            !opts.easing && cc.warnID(1031, easingName);
         }
 
         let relative = this._opts.relative;
@@ -21,7 +23,13 @@ let TweenAction = cc.Class({
             // property may have custom easing or progress function
             let easing, progress;
             if (value.value && (value.easing || value.progress)) {
-                easing = typeof value.easing === 'string' ? cc.easing[value.easing] : value.easing;
+                if (typeof value.easing === 'string') {
+                    easing = cc.easing[value.easing];
+                    !easing && cc.warnID(1031, value.easing);
+                }
+                else {
+                    easing = value.easing;
+                }
                 progress = value.progress;
                 value = value.value;
             }
@@ -141,14 +149,14 @@ let SetAction = cc.Class({
  *  - Support animate any objects' any properties, not limited to node's properties.
  *    By contrast, cc.Action needs to create a new action class to support new node property.
  *  - Support working with cc.Action,
- *  - Support easing and progress function,
+ *  - Support easing and progress function.
  * !#zh
  * Tween 提供了一个简单灵活的方法来创建 action。
  * 相对于 Cocos 传统的 cc.Action，cc.Tween 在创建动画上要灵活非常多：
  *  - 支持以链式结构的方式创建一个动画序列。
  *  - 支持对任意对象的任意属性进行缓动，不再局限于节点上的属性，而 cc.Action 添加一个属性的支持时还需要添加一个新的 action 类型。
  *  - 支持与 cc.Action 混用
- *  - 支持设置 easing 或者 progress 函数
+ *  - 支持设置 {{#crossLink "Easing"}}{{/crossLink}} 或者 progress 函数
  * @class Tween
  * @example
  * cc.tween(node)
@@ -406,7 +414,7 @@ let actions = {
      * Add an parallel action
      * !#zh
      * 添加一个并行 action
-     * @method sequence
+     * @method parallel
      * @param {[Action|Tween]} actions
      * @return {Tween}
      */

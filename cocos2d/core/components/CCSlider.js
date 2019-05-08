@@ -203,12 +203,12 @@ var Slider = cc.Class({
 
     _updateProgress: function (touch) {
         if (!this.handle) { return; }
-        var localTouchPos = this.node.convertToNodeSpaceAR(touch.getLocation());
+        var localTouchPos = this.node.convertToNodeSpace(touch.getLocation());
         if (this.direction === Direction.Horizontal) {
-            this.progress = misc.clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width);
+            this.progress = misc.clamp01((localTouchPos.x - this._offset.x) / this.node.width);
         }
         else {
-            this.progress = misc.clamp01(0.5 + (localTouchPos.y - this._offset.y) / this.node.height);
+            this.progress = misc.clamp01((localTouchPos.y - this._offset.y) / this.node.height);
         }
     },
 
