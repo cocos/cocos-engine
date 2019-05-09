@@ -410,6 +410,16 @@ let Camera = cc.Class({
             return null;
         },
 
+        _findRendererCamera (node) {
+            let cameras = renderer.scene._cameras;
+            for (let i = 0; i < cameras._count; i++) {
+                if (cameras._data[i]._cullingMask & node._cullingMask) {
+                    return cameras._data[i];
+                }
+            }
+            return null;
+        },
+
         _setupDebugCamera () {
             if (_debugCamera) return;
             if (game.renderType === game.RENDER_TYPE_CANVAS) return;
