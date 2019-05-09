@@ -316,7 +316,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: ParticleSystemRenderer,
     })
-    private renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
+    public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
     private _isPlaying: boolean;
     private _isPaused: boolean;
@@ -487,6 +487,7 @@ export class ParticleSystemComponent extends RenderableComponent {
             }
 
             vec3.scale(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand)!);
+            vec3.copy(particle.ultimateVelocity, particle.velocity);
 
             switch (this._simulationSpace) {
                 case Space.Local:
