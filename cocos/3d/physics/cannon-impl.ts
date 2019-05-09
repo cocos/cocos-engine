@@ -1,6 +1,6 @@
 import CANNON from 'cannon';
 import { Quat, Vec3 } from '../../core/value-types';
-import { quat, vec3 } from '../../core/vmath';
+import { clamp, quat, vec3 } from '../../core/vmath';
 import {
     AfterStepCallback, BeforeStepCallback,
     BoxShapeBase,
@@ -168,6 +168,9 @@ function fillRaycastResult (result: RaycastResult, cannonResult: CANNON.RaycastR
 
 export class CannonRigidBody implements RigidBodyBase {
 
+    private _group: number = 0;
+    private _mask: number = 0;
+
     get impl (): CANNON.Body {
         return this._cannonBody;
     }
@@ -210,6 +213,25 @@ export class CannonRigidBody implements RigidBodyBase {
             this._onSelfPostStep();
         };
     }
+
+    public getGroup (): number {
+        return this._group;
+    }
+
+    public setGroup (v: number): void {
+        this._group = clamp(v, 0, 31);
+        this._cannonBody.collisionFilterGroup = 1 << v;
+    }
+
+    public getMask (): number {
+        return this._mask;
+    }
+
+    public setMask (v: number): void {
+        this._mask = clamp(v, 0, 31);
+        this._cannonBody.collisionFilterMask = 1 << v;
+    }
+
     public wakeUp (): void {
         return this._cannonBody.wakeUp();
     }
