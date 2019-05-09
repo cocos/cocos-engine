@@ -211,7 +211,7 @@ let tmxAssembler = {
         for (let row = startRow; row < maxRow; ++row) {
             for (let col = startCol; col < maxCol; ++col) {
                 let index = colOffset + col;
-                let flippedX = false, flippedY = false;
+                let flippedX = false, flippedY = false, swapXY = false;
 
                 let tiledTile = tiledTiles[index];
                 if (tiledTile) {
@@ -287,10 +287,48 @@ let tmxAssembler = {
                     }
                 }
 
+                /**
+                 * V0(tl)---------V3(tr)
+                 * |             / |
+                 * |           /   |
+                 * |         /     |
+                 * |       /       |
+                 * |     /         |
+                 * |   /           |
+                 * | /             |
+                 * V1(bl)---------V2(br)
+                 * */
                 // Rotation and Flip
-                if (gid > TileFlag.DIAGONAL) {
-                    flippedX = (gid & TileFlag.HORIZONTAL) >>> 0;
-                    flippedY = (gid & TileFlag.VERTICAL) >>> 0;
+                flippedX = (gid & TileFlag.HORIZONTAL) >>> 0;
+                flippedY = (gid & TileFlag.VERTICAL) >>> 0;
+                swapXY = (gid & TileFlag.DIAGONAL) >>> 0;
+
+                var v0 = {u:grid.l, v:grid.t},
+                v1 = {u:grid.l, v:grid.b},
+                v2 = {u:grid.r, v:grid.b},
+                v3 = {u:grid.r, v:grid.t};
+                //Diagonal Flip
+                if(swapXY){
+
+                    [v1.u, v3.u] = [v3.u, v1.u];
+                    [v1.y, v3.v] = [v3.v, v1.y];
+                }
+                //Horizontal Flip
+                if(flippedX){
+
+                    [v0.u, v3.u] = [v3.u, v0.u];
+                    [v0.v, v3.v] = [v3.v, v0.v];
+
+                    [v1.u, v2.u] = [v2.u, v1.u];
+                    [v1.y, v2.v] = [v2.v, v1.y];
+                }
+                //Vertical Flip
+                if(flippedY){
+                    [v0.u, v1.u] = [v1.u, v0.u];
+                    [v0.v, v1.y] = [v1.y, v0.v];
+
+                    [v2.u, v3.u] = [v3.u, v2.u];
+                    [v2.v, v3.v] = [v3.v, v2.v];
                 }
 
                 renderData.vertexCount += 4;
@@ -300,32 +338,32 @@ let tmxAssembler = {
                 // tl
                 data[dataOffset].x = left * a + top * c + tx;
                 data[dataOffset].y = left * b + top * d + ty;
-                data[dataOffset].u = flippedX ? grid.r : grid.l;
-                data[dataOffset].v = flippedY ? grid.b : grid.t;
+                data[dataOffset].u = v0.u;
+                data[dataOffset].v = v0.v;
                 data[dataOffset].color = color;
                 dataOffset++;
-
+                
                 // bl
                 data[dataOffset].x = left * a + bottom * c + tx;
                 data[dataOffset].y = left * b + bottom * d + ty;
-                data[dataOffset].u = flippedX ? grid.r : grid.l;
-                data[dataOffset].v = flippedY ? grid.t : grid.b;
+                data[dataOffset].u = v1.u;
+                data[dataOffset].v = v1.y;
                 data[dataOffset].color = color;
                 dataOffset++;
 
                 // tr
                 data[dataOffset].x = right * a + top * c + tx;
                 data[dataOffset].y = right * b + top * d + ty;
-                data[dataOffset].u = flippedX ? grid.l : grid.r;
-                data[dataOffset].v = flippedY ? grid.b : grid.t;
+                data[dataOffset].u = v3.u;
+                data[dataOffset].v = v3.v;
                 data[dataOffset].color = color;
                 dataOffset++;
 
                 // br
                 data[dataOffset].x = right * a + bottom * c + tx;
                 data[dataOffset].y = right * b + bottom * d + ty;
-                data[dataOffset].u = flippedX ? grid.l : grid.r;
-                data[dataOffset].v = flippedY ? grid.t : grid.b;
+                data[dataOffset].u = v2.u;
+                data[dataOffset].v = v2.v;
                 data[dataOffset].color = color;
                 dataOffset++;
 
