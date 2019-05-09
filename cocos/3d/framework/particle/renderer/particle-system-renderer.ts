@@ -340,8 +340,6 @@ export default class ParticleSystemRenderer {
             }
             if (this.particleSystem.velocityOvertimeModule.enable) {
                 this.particleSystem.velocityOvertimeModule.animate(p);
-            } else {
-                vec3.copy(p.ultimateVelocity, p.velocity);
             }
             if (this.particleSystem.limitVelocityOvertimeModule.enable) {
                 this.particleSystem.limitVelocityOvertimeModule.animate(p);
