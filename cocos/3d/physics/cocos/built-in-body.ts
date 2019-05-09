@@ -1,6 +1,6 @@
 import { Quat, Vec3 } from '../../../core/value-types';
 import { intersect } from '../../geom-utils';
-import { ICollisionCallback, ICollisionEvent, PhysicsWorldBase, RigidBodyBase } from '../api';
+import { ICollisionCallback, ICollisionEvent, ICollisionType as ICollisionEventType, PhysicsWorldBase, RigidBodyBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
 import { BuiltInShape } from './built-in-shape';
 import { BuiltInWorld } from './built-in-world';
@@ -25,7 +25,12 @@ export class BuiltInBody implements RigidBodyBase {
     /** 检测的组 */
     private _collisionFilterMask: number = 1;
     /** 碰撞回调 */
-    private _collisionCallbacks: ICollisionCallback[] = [];
+    /** Enter */
+    private _collisionEnterCB: ICollisionCallback[] = [];
+    /** Stay */
+    private _collisionStayCB: ICollisionCallback[] = [];
+    /** Exit */
+    private _collisionExitCB: ICollisionCallback[] = [];
     /** 物理世界 */
     private _world!: BuiltInWorld | null;
     /** Body拥有的现状 */
@@ -51,25 +56,15 @@ export class BuiltInBody implements RigidBodyBase {
         }
         return false;
     }
-    public onCollisionEnter (event: ICollisionEvent) {
-        // TODO : Enter事件
-    }
-    public onCollisionStay (event: ICollisionEvent) {
-        // TODO : Stay事件
-    }
-    public onCollisionExit (event: ICollisionEvent) {
-        // TODO : Exit事件
-    }
-    public onTriggerEnter (event: ICollisionEvent) {
-        for (const callback of this._collisionCallbacks) {
-            callback(event);
+    public onCollision (type: ICollisionEventType, event: ICollisionEvent) {
+        for (const callback of this._collisionStayCB) {
+            callback(type, event);
         }
     }
-    public onTriggerStay (event: ICollisionEvent) {
-        // TODO : Stay事件
-    }
-    public onTriggerExit (event: ICollisionEvent) {
-        // TODO : Exit事件
+    public onTrigger (type: ICollisionEventType, event: ICollisionEvent) {
+        for (const callback of this._collisionStayCB) {
+            callback(type, event);
+        }
     }
     public getType (): ERigidBodyType {
         return this.type;
@@ -190,12 +185,12 @@ export class BuiltInBody implements RigidBodyBase {
         }
     }
     public addCollisionCallback (callback: ICollisionCallback): void {
-        this._collisionCallbacks.push(callback);
+        this._collisionStayCB.push(callback);
     }
     public removeCollisionCllback (callback: ICollisionCallback): void {
-        const i = this._collisionCallbacks.indexOf(callback);
+        const i = this._collisionStayCB.indexOf(callback);
         if (i >= 0) {
-            this._collisionCallbacks.splice(i, 1);
+            this._collisionStayCB.splice(i, 1);
         }
     }
     public getUserData () {
