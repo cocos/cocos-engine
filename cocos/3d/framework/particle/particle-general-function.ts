@@ -1,14 +1,9 @@
-import { mat4, quat, randomRange, vec3, random, vec2, randomRangeInt } from '../../../core/vmath';
-import { sign } from '../../../core/vmath/bits';
 import { Enum } from '../../../core/value-types';
+import { mat4, quat, random, randomRange, randomRangeInt, vec2, vec3 } from '../../../core/vmath';
+import { sign } from '../../../core/vmath/bits';
+import { Space } from './enum';
 
 export const particleEmitZAxis = vec3.create(0, 0, -1);
-
-export const Space = Enum({
-    World: 0,
-    Local: 1,
-    Custom: 2,
-});
 
 export function calculateTransform (systemSpace: number, moduleSpace: number, worldTransform: mat4, outQuat: quat) {
     if (moduleSpace !== systemSpace) {

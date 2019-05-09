@@ -1,5 +1,5 @@
 import { Color, Vec3 } from '../../../../core';
-import { property, ccclass } from '../../../../core/data/class-decorator';
+import { ccclass, property } from '../../../../core/data/class-decorator';
 import Enum from '../../../../core/value-types/enum';
 import { vec3 } from '../../../../core/vmath';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../../../gfx/buffer';
@@ -10,47 +10,18 @@ import { Model } from '../../../../renderer';
 import { IRenderingSubmesh } from '../../../assets/mesh';
 import { Pool } from '../../../memop';
 import CurveRange from '../animator/curve-range';
+import { Space, TrailMode, TextureMode } from '../enum';
 import Particle from '../particle';
-import { Space } from '../particle-general-function';
+import { Material } from '../../../assets';
+import { builtinResMgr } from '../../../builtin';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
 
 const _temp_trailEle = {} as ITrailElement;
-
-/**
- * 选择如何为粒子系统生成轨迹
- * @enum trailModule.TrailMode
- */
-const TrailMode = Enum({
-    /**
-     * 粒子模式<bg>
-     * 创建一种效果，其中每个粒子在其路径中留下固定的轨迹
-     */
-    Particles: 0,
-
-    /**
-     * 带模式<bg>
-     * 根据其生命周期创建连接每个粒子的轨迹带
-     */
-    Ribbon: 1,
-});
-
-/**
- * 纹理填充模式
- * @enum trailModule.TextureMode
- */
-const TextureMode = Enum({
-    /**
-     * 拉伸填充纹理
-     */
-    Stretch: 0,
-
-    /**
-     * 重复填充纹理
-     */
-    Repeat: 1,
-});
+const _temp_quat = cc.quat();
+const _temp_xform = cc.mat4();
+const _temp_vec3 = cc.v3();
 
 interface ITrailElement {
     position: Vec3;
@@ -141,7 +112,7 @@ export default class TrailModule {
             this._createModel();
         }
         if (val && !this._enable) {
-            this._updateMaterial();
+            this._particleSystem.renderer._updateTrailMaterial();
         }
         this._enable = val;
         if (this._trailModel) {
@@ -196,14 +167,14 @@ export default class TrailModule {
     @property
     public _minParticleDistance = 0.1;
 
-    // /**
-    //  * 轨迹设定时的坐标系
-    //  */
-    // @property({
-    //     type: Space,
-    //     displayOrder: 6,
-    // })
-    // public space = Space.World;
+    /**
+     * 轨迹设定时的坐标系
+     */
+    @property({
+        type: Space,
+        displayOrder: 6,
+    })
+    public space = Space.World;
 
     /**
      * 粒子本身是否存在
@@ -248,6 +219,8 @@ export default class TrailModule {
     private _vbF32: Float32Array;
     private _vbUint32: Uint32Array;
     private _iBuffer: Uint16Array;
+    private _needTransform: boolean;
+    private _defaultMat: Material | null = null;
 
     constructor () {
         this._iaInfo = {
@@ -279,7 +252,11 @@ export default class TrailModule {
     public init (ps) {
         this._particleSystem = ps;
         this.lifeTime.constant = 1;
-        this._trailNum = ps.startLifetime.getMax() * this.lifeTime.getMax() * 60 * ps.rateOverTime.getMax() * ps.duration;
+        let burstCount = 0;
+        for (const b of ps.bursts) {
+            burstCount += b.getMaxCount(ps);
+        }
+        this._trailNum = ps.startLifetime.getMax() * this.lifeTime.getMax() * 60 * (ps.rateOverTime.getMax() * ps.duration + burstCount);
         this._trailSegments = new Pool(() => new TrailSegment(ps.startLifetime.getMax() * this.lifeTime.getMax() * 60), Math.ceil(ps.rateOverTime.getMax() * ps.duration));
         if (this._enable) {
             this.enable = this._enable;
@@ -359,12 +336,21 @@ export default class TrailModule {
             const mat = this._particleSystem.renderer.trailMaterial;
             if (mat) {
                 this._trailModel!.setSubModelMaterial(0, mat);
+            } else {
+                this._trailModel!.setSubModelMaterial(0, this._particleSystem.renderer._defaultTrailMat);
             }
         }
     }
 
     public update () {
         this._trailLifetime = this.lifeTime.evaluate(this._particleSystem._time, 1)!;
+        if (this.space === Space.World && this._particleSystem._simulationSpace === Space.Local) {
+            this._needTransform = true;
+            this._particleSystem.node.getWorldMatrix(_temp_xform);
+            this._particleSystem.node.getWorldRotation(_temp_quat);
+        } else {
+            this._needTransform = false;
+        }
     }
 
     public animate (p: Particle, scaledDt: number) {
@@ -374,17 +360,26 @@ export default class TrailModule {
             this._particleTrail.set(p, trail);
         }
         let lastSeg = trail.getTailElement();
+        if (this._needTransform) {
+            vec3.transformMat4(_temp_vec3, p.position, _temp_xform);
+        } else {
+            vec3.copy(_temp_vec3, p.position);
+        }
         if (lastSeg) {
             trail.iterateElement(this, this._updateTrailElement, scaledDt);
-            if (vec3.squaredDistance(lastSeg.position, p.position) < this._minSquaredDistance) {
+            if (vec3.squaredDistance(lastSeg.position, _temp_vec3) < this._minSquaredDistance) {
                 return;
             }
         }
         lastSeg = trail.addElement();
-        vec3.copy(lastSeg.position, p.position);
+        vec3.copy(lastSeg.position, _temp_vec3);
         lastSeg.lifetime = 0;
         lastSeg.width = p.size.x;
-        vec3.copy(lastSeg.velocity, p.ultimateVelocity);
+        if (this._needTransform) {
+            vec3.transformQuat(lastSeg.velocity, p.ultimateVelocity, _temp_quat);
+        } else {
+            vec3.copy(lastSeg.velocity, p.ultimateVelocity);
+        }
         lastSeg.color.set(p.color);
     }
 

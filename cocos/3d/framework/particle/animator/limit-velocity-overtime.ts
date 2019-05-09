@@ -1,8 +1,8 @@
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { lerp, pseudoRandom, vec3 } from '../../../../core/vmath';
+import { Space } from '../enum';
 import Particle from '../particle';
-import { Space } from '../particle-general-function';
 import CurveRange from './curve-range';
 
 // tslint:disable: max-line-length

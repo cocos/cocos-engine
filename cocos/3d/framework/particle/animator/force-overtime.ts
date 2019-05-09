@@ -1,7 +1,8 @@
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { pseudoRandom, quat, vec3 } from '../../../../core/vmath';
-import { calculateTransform, Space } from '../particle-general-function';
+import { Space } from '../enum';
+import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
 
 // tslint:disable: max-line-length
