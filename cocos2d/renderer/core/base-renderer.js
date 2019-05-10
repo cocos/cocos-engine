@@ -498,7 +498,7 @@ export default class Base {
       }
     } else {
       let convertedValue;
-      if (param instanceof Float32Array || param instanceof Int32Array) {
+      if (Array.isArray(param) || param instanceof Float32Array || param instanceof Int32Array) {
         device.setUniformDirectly(prop.name, param);
         return;
       }
@@ -549,7 +549,7 @@ export default class Base {
     let inverse = mat3.invert(_m3_tmp, mat3.fromMat4(_m3_tmp, _m4_tmp));
     if (inverse) {
       mat3.transpose(_m3_tmp, inverse);
-      device.setUniform('cc_matWorldIT', mat3.array(_float9_pool.add(), _m3_tmp));
+      device.setUniform('cc_mat3WorldIT', mat3.array(_float9_pool.add(), _m3_tmp));
     }
     // }
 

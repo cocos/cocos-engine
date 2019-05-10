@@ -158,6 +158,12 @@ let Material = cc.Class({
                     this.define('_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
                 }
             }
+            else if (val instanceof cc.Color) {
+                let out = this._effect._properties[name];
+                out = Array.isArray(out) ? out : new Array(4);
+                cc.vmath.color4.array(out, val);
+                this._effect.setProperty(name, out);
+            }
             else {
                 this._effect.setProperty(name, val);
             }

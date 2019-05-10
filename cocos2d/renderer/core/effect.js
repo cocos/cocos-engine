@@ -146,8 +146,16 @@ let parseProperties = (function() {
                 props[prop.name] = genPropInfo(prop.displayName, prop.type, prop.value);
             });
         });
-        for (let prop in json.properties) {
-            let propInfo = json.properties[prop], uniformInfo;
+
+        let properties = {};
+        json.techniques.forEach(tech => {
+            tech.passes.forEach(pass => {
+                Object.assign(properties, pass.properties);
+            })
+        });
+
+        for (let prop in properties) {
+            let propInfo = properties[prop], uniformInfo;
             // always try getting the type from shaders first
             if (propInfo.tech !== undefined && propInfo.pass !== undefined) {
                 let pname = json.techniques[propInfo.tech].passes[propInfo.pass].program;
@@ -180,19 +188,30 @@ Effect.parseEffect = function(effect) {
     let techniques = new Array(techNum);
     for (let j = 0; j < techNum; ++j) {
         let tech = effect.techniques[j];
+        if (!tech.stages) {
+            tech.stages = ['opaque']
+        }
         let passNum = tech.passes.length;
         let passes = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
             let pass = tech.passes[k];
             passes[k] = new Pass(pass.program);
-            passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
-            passes[k].setCullMode(pass.cullMode);
-            passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
-                pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
-            passes[k].setStencilFront(pass.stencilTest, pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
-                pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
-            passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
-                pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
+            passes[k].setCullMode(pass.rasterizerState.cullMode);
+
+            let blendState = pass.blendState.targets[0];
+            if (blendState) {
+                passes[k].setBlend(blendState.blend, blendState.blendEq, blendState.blendSrc,
+                    blendState.blendDst, blendState.blendAlphaEq, blendState.blendSrcAlpha, blendState.blendDstAlpha, blendState.blendColor);
+            }
+
+            let depthStencilState = pass.depthStencilState;
+            if (depthStencilState) {
+                passes[k].setDepth(depthStencilState.depthTest, depthStencilState.depthWrite, depthStencilState.depthFunc);
+            passes[k].setStencilFront(depthStencilState.stencilTest, depthStencilState.stencilFuncFront, depthStencilState.stencilRefFront, depthStencilState.stencilMaskFront,
+                depthStencilState.stencilFailOpFront, depthStencilState.stencilZFailOpFront, depthStencilState.stencilZPassOpFront, depthStencilState.stencilWriteMaskFront);
+            passes[k].setStencilBack(depthStencilState.stencilTest, depthStencilState.stencilFuncBack, depthStencilState.stencilRefBack, depthStencilState.stencilMaskBack,
+                depthStencilState.stencilFailOpBack, depthStencilState.stencilZFailOpBack, depthStencilState.stencilZPassOpBack, depthStencilState.stencilWriteMaskBack);
+            }
         }
         techniques[j] = new Technique(tech.stages, passes, tech.layer);
     }

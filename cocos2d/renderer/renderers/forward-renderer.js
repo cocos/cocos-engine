@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
 
-import { vec3, mat4 } from '../../core/vmath';
+import { vec3, vec4, mat4 } from '../../core/vmath';
 import BaseRenderer from '../core/base-renderer';
 import enums from '../enums';
 import { RecyclePool } from '../memop';
@@ -8,10 +8,10 @@ import { RecyclePool } from '../memop';
 let _a16_view = new Float32Array(16);
 let _a16_proj = new Float32Array(16);
 let _a16_viewProj = new Float32Array(16);
-let _a3_camPos = new Float32Array(3);
+let _a4_camPos = new Float32Array(4);
 let _a16_lightViewProj = new Float32Array(16);
 
-let _camPos = vec3.create(0, 0, 0);
+let _camPos = vec4.create(0, 0, 0, 0);
 let _camFwd = vec3.create(0, 0, 0);
 let _v3_tmp1 = vec3.create(0, 0, 0);
 
@@ -288,7 +288,7 @@ export default class ForwardRenderer extends BaseRenderer {
     this._device.setUniform('cc_matView', mat4.array(_a16_view, view._matView));
     this._device.setUniform('cc_matpProj', mat4.array(_a16_proj, view._matProj));
     this._device.setUniform('cc_matViewProj', mat4.array(_a16_viewProj, view._matViewProj));
-    this._device.setUniform('cc_cameraPos', vec3.array(_a3_camPos, _camPos));
+    this._device.setUniform('cc_cameraPos', vec4.array(_a4_camPos, _camPos));
 
     // update rendering
     this._submitLightsUniforms();
@@ -305,7 +305,7 @@ export default class ForwardRenderer extends BaseRenderer {
     this._device.setUniform('cc_matView', mat4.array(_a16_view, view._matView));
     this._device.setUniform('cc_matpProj', mat4.array(_a16_proj, view._matProj));
     this._device.setUniform('cc_matViewProj', mat4.array(_a16_viewProj, view._matViewProj));
-    this._device.setUniform('cc_cameraPos', vec3.array(_a3_camPos, _camPos));
+    this._device.setUniform('cc_cameraPos', vec4.array(_a4_camPos, _camPos));
 
     this._submitLightsUniforms();
     this._submitOtherStagesUniforms();

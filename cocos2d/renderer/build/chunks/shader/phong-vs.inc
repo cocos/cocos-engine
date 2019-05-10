@@ -20,7 +20,7 @@ void main () {
   SKIN_VERTEX(position, normal);
 
   v_worldPos = (cc_matWorld * position).xyz;
-  v_worldNormal = cc_matWorldIT * normal.xyz;
+  v_worldNormal = cc_mat3WorldIT * normal.xyz;
 
   CLAC_SHADOW();
   ATTRIBUTE_TO_VARYING();

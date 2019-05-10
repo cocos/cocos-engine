@@ -1,10 +1,10 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-#property #color4
-uniform lowp vec4 diffuseColor;
+uniform DIFFUSE_COLOR {
+  lowp vec4 diffuseColor;
+}
 
 #if USE_DIFFUSE_TEXTURE
-  #property
   uniform sampler2D diffuseTexture;
 #endif
 

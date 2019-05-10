@@ -6,33 +6,44 @@
   attribute vec4 a_joints;
 
   #if _USE_JOINTS_TEXTRUE
-  uniform sampler2D _jointsTexture;
-  uniform float _jointsTextureSize;
 
-  mat4 getBoneMatrix(const in float i) {
-    float size = _jointsTextureSize;
-    float j = i * 4.0;
-    float x = mod(j, size);
-    float y = floor(j / size);
+    #pragma builtin(local)
+    uniform SKINNING {
+      float _jointsTextureSize;
+    }
+    #pragma builtin(local)
+    uniform sampler2D _jointsTexture;
 
-    float dx = 1.0 / size;
-    float dy = 1.0 / size;
+    mat4 getBoneMatrix(const in float i) {
+      float size = _jointsTextureSize;
+      float j = i * 4.0;
+      float x = mod(j, size);
+      float y = floor(j / size);
 
-    y = dy * (y + 0.5);
+      float dx = 1.0 / size;
+      float dy = 1.0 / size;
 
-    vec4 v1 = texture2D(_jointsTexture, vec2(dx * (x + 0.5), y));
-    vec4 v2 = texture2D(_jointsTexture, vec2(dx * (x + 1.5), y));
-    vec4 v3 = texture2D(_jointsTexture, vec2(dx * (x + 2.5), y));
-    vec4 v4 = texture2D(_jointsTexture, vec2(dx * (x + 3.5), y));
+      y = dy * (y + 0.5);
 
-    return mat4(v1, v2, v3, v4);
-  }
+      vec4 v1 = texture2D(_jointsTexture, vec2(dx * (x + 0.5), y));
+      vec4 v2 = texture2D(_jointsTexture, vec2(dx * (x + 1.5), y));
+      vec4 v3 = texture2D(_jointsTexture, vec2(dx * (x + 2.5), y));
+      vec4 v4 = texture2D(_jointsTexture, vec2(dx * (x + 3.5), y));
+
+      return mat4(v1, v2, v3, v4);
+    }
   #else
-  uniform mat4 _jointMatrices[_JOINT_MATRICES_SIZE];
+  
+    #define CC_JOINT_MATRICES_SIZE 1
 
-  mat4 getBoneMatrix(const in float i) {
-    return _jointMatrices[int(i)];
-  }
+    #pragma builtin(local)
+    uniform JOINT_MATRIX {
+      mat4 _jointMatrices[1];
+    }
+
+    mat4 getBoneMatrix(const in float i) {
+      return _jointMatrices[int(i)];
+    }
   #endif
 
   mat4 skinMatrix() {
