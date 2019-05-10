@@ -295,8 +295,8 @@ export default class LoadingItems extends CallbacksInvoker {
      * @static
      * @param {Pipeline} pipeline The pipeline to process the queue.
      * @param {Array} urlList The items array.
-     * @param {Function} onProgress The progression callback, refer to {{#crossLink "LoadingItems.onProgress"}}{{/crossLink}}
-     * @param {Function} onComplete The completion callback, refer to {{#crossLink "LoadingItems.onComplete"}}{{/crossLink}}
+     * @param {Function} [onProgress] The progression callback, refer to {{#crossLink "LoadingItems.onProgress"}}{{/crossLink}}
+     * @param {Function} [onComplete] The completion callback, refer to {{#crossLink "LoadingItems.onComplete"}}{{/crossLink}}
      * @return {LoadingItems} The LoadingItems queue object
      * @example
      *  cc.LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
@@ -435,6 +435,7 @@ export default class LoadingItems extends CallbacksInvoker {
      * !#zh 向一个 LoadingItems 队列添加加载项。
      * @method append
      * @param {Array} urlList The url list to be appended, the url can be object or string
+     * @param {any} [owner]
      * @return {Array} The accepted url list, some invalid items could be refused.
      */
     append (urlList, owner) {
@@ -609,20 +610,20 @@ export default class LoadingItems extends CallbacksInvoker {
     removeItem (url) {
         var item = this.map[url];
         if (!item) return;
-    
+
         if (!this.completed[item.alias || url]) return;
-    
+
         delete this.completed[url];
         delete this.map[url];
         if (item.alias) {
             delete this.completed[item.alias.id];
             delete this.map[item.alias.id];
         }
-    
+
         this.completedCount--;
         this.totalCount--;
     }
-    
+
     /**
      * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
      * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
@@ -634,7 +635,7 @@ export default class LoadingItems extends CallbacksInvoker {
         if (!item) {
             return;
         }
-    
+
         // Register or unregister errors
         var errorListId = this._errorUrls.indexOf(id);
         if (item.error && errorListId === -1) {
@@ -643,26 +644,26 @@ export default class LoadingItems extends CallbacksInvoker {
         else if (!item.error && errorListId !== -1) {
             this._errorUrls.splice(errorListId, 1);
         }
-    
+
         this.completed[id] = item;
         this.completedCount++;
-    
+
         LoadingItems.finishDep(item.id);
         if (this.onProgress) {
             var dep = _queueDeps[this._id];
             this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
         }
-    
+
         this.emit(id, item);
         this.removeAll(id);
-    
+
         // All completed
         if (!this._appending && this.completedCount >= this.totalCount) {
             // console.log('===== All Completed ');
             this.allComplete();
         }
     }
-    
+
     /**
      * !#en Destroy the LoadingItems queue, the queue object won't be garbage collected, it will be recycled, so every after destroy is not reliable.
      * !#zh 销毁一个 LoadingItems 队列，这个队列对象会被内部缓冲池回收，所以销毁后的所有内部信息都是不可依赖的。
@@ -676,16 +677,16 @@ export default class LoadingItems extends CallbacksInvoker {
         this._errorUrls.length = 0;
         this.onProgress = null;
         this.onComplete = null;
-    
+
         this.map = createMap(true);
         this.completed = {};
-    
+
         this.totalCount = 0;
         this.completedCount = 0;
-    
+
         // Reinitialize CallbacksInvoker, generate three new objects, could be improved
         CallbacksInvoker.call(this);
-    
+
         _queues[this._id] = null;
         if (_queueDeps[this._id]) {
             _queueDeps[this._id].completed.length = 0;
@@ -712,7 +713,7 @@ proto.addListener = CallbacksInvoker.prototype.add;
 
 /**
  * !#en
- * Check if the specified key has any registered callback. 
+ * Check if the specified key has any registered callback.
  * If a callback is also specified, it will only return true if the callback is registered.
  * !#zh
  * 检查指定的加载项是否有完成事件监听器。
@@ -727,7 +728,7 @@ proto.hasListener = CallbacksInvoker.prototype.has;
 
 /**
  * !#en
- * Removes a listener. 
+ * Removes a listener.
  * It will only remove when key, callback, target all match correctly.
  * !#zh
  * 移除指定加载项已经注册的完成事件监听器。
