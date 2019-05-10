@@ -52,6 +52,10 @@ export class Root {
         return this._views;
     }
 
+    public get cumulativeTime (): number {
+        return this._time;
+    }
+
     public get frameTime (): number {
         return this._frameTime;
     }
@@ -75,6 +79,7 @@ export class Root {
     private _ui: UI | null = null;
     private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
+    private _time: number = 0;
     private _frameTime: number = 0;
     private _fpsTime: number = 0;
     private _frameCount: number = 0;
@@ -164,10 +169,15 @@ export class Root {
         this._curWindow = window;
     }
 
+    public resetCumulativeTime () {
+        this._time = 0;
+    }
+
     public frameMove (deltaTime: number) {
 
         this._frameTime = deltaTime;
         ++this._frameCount;
+        this._time += this._frameTime;
         this._fpsTime += this._frameTime;
         if (this._fpsTime > 1.0) {
             this._fps = this._frameCount;

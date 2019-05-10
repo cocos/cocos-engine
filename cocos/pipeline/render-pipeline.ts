@@ -896,7 +896,7 @@ export abstract class RenderPipeline {
         const ambient = scene.ambient;
 
         // update UBOGlobal
-        _vec4Array[0] = this._root.frameTime;
+        _vec4Array[0] = this._root.cumulativeTime;
         _vec4Array[1] = 0.0;
         _vec4Array[2] = 0.0;
         _vec4Array[3] = 0.0;

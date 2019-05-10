@@ -481,6 +481,7 @@ class Director extends EventTarget {
         CC_BUILD && CC_DEBUG && console.timeEnd('Activate');
 
         //start scene
+        this._root.resetCumulativeTime();
         this.startAnimation();
 
         if (onLaunched) {
