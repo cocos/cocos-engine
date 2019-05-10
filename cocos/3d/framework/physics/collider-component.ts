@@ -97,23 +97,6 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         }
         super.onDestroy();
     }
-
-    public getGroup () {
-        return this._body!.getGroup();
-    }
-
-    public setGroup (v: number) {
-        return this._body!.setGroup(v);
-    }
-
-    public getMask () {
-        return this._body!.getMask();
-    }
-
-    public setMask (v: number) {
-        return this._body!.setMask(v);
-    }
-
 }
 
 @ccclass('cc.BoxColliderComponent')

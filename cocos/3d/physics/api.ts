@@ -64,15 +64,23 @@ export interface PhysicsWorldBase {
 export interface RigidBodyBase {
     // constructor (options?: ICreateBodyOptions);
 
-    /** group ∈ [0, 31] */
+    /** @return group ∈ [0, 31] (int) */
     getGroup (): number;
-    /** group ∈ [0, 31] */
+    /** @param v ∈ [0, 31] (int) */
     setGroup (v: number): void;
 
-    /** Mask ∈ [0, 31] */
+    /** @return (int) */
     getMask (): number;
-    /** Mask ∈ [0, 31] */
+    /**
+     *  this will reset the mask
+     * @param v ∈ [0, 31] (int)
+     */
     setMask (v: number): void;
+    /**
+     * this will add a mask
+     * @param v ∈ [0, 31] (int)
+     */
+    addMask (v: number): void;
 
     /** the body type */
     getType (): ERigidBodyType;

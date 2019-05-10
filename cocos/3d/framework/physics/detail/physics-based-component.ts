@@ -46,6 +46,43 @@ export class PhysicsBasedComponent extends Component {
         }
     }
 
+    /**
+     *  @return group ∈ [0, 31] (int)
+     */
+    public getGroup (): number {
+        return this._body!.getGroup();
+    }
+
+    /**
+     * @param v ∈ [0, 31] (int)
+     */
+    public setGroup (v: number) {
+        return this._body!.setGroup(v);
+    }
+
+    /**
+     * @return (int)
+     */
+    public getMask (): number {
+        return this._body!.getMask();
+    }
+
+    /**
+     *  this will reset the mask
+     * @param v ∈ [0, 31] (int)
+     */
+    public setMask (v: number) {
+        return this._body!.setMask(v);
+    }
+
+    /**
+     * this will add a mask
+     * @param v ∈ [0, 31] (int)
+     */
+    public addMask (v: number) {
+        return this._body!.addMask(v);
+    }
+
     private _refSharedBody () {
         if (this._sharedBody) {
             return;

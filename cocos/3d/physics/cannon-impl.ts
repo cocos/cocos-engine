@@ -168,12 +168,12 @@ function fillRaycastResult (result: RaycastResult, cannonResult: CANNON.RaycastR
 
 export class CannonRigidBody implements RigidBodyBase {
 
-    private _group: number = 0;
-    private _mask: number = 0;
-
     get impl (): CANNON.Body {
         return this._cannonBody;
     }
+
+    private _group: number = 0;
+    private _mask: number = 0;
     private _cannonBody: CANNON.Body;
     private _velocityResult: Vec3 = new Vec3();
     private _useGravity = true;
@@ -224,14 +224,17 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public getMask (): number {
-        return this._mask;
+        return this._cannonBody.collisionFilterMask;
     }
 
     public setMask (v: number): void {
-        this._mask = clamp(v, 0, 31);
+        v = clamp(Math.floor(v), 0, 31);
         this._cannonBody.collisionFilterMask = 1 << v;
     }
-
+    public addMask (v: number): void {
+        v = Math.floor(v);
+        this._cannonBody.collisionFilterMask += 1 << v;
+    }
     public wakeUp (): void {
         return this._cannonBody.wakeUp();
     }
