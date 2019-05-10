@@ -22,10 +22,9 @@ export class BuiltInWorld implements PhysicsWorldBase {
   constructor () {
   }
   public step (deltaTime: number): void {
-    /** 执行 before step */
     this._customBeforeStepListener.forEach((fx) => fx());
 
-    /** 进行物理检测 */
+    /** collision detection */
     // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < this._bodies.length; i++) {
       const bodyA = this._bodies[i] as BuiltInBody;
@@ -33,7 +32,7 @@ export class BuiltInWorld implements PhysicsWorldBase {
       for (let j = i + 1; j < this._bodies.length; j++) {
         const bodyB = this._bodies[j] as BuiltInBody;
 
-        // TODO: 判断是否碰撞
+        // first, Check collision filter masks
         if ((bodyA.collisionFilterGroup & bodyB.collisionFilterMask) === 0 ||
           (bodyB.collisionFilterGroup & bodyA.collisionFilterMask) === 0) {
           continue;

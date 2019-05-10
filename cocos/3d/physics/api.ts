@@ -64,11 +64,20 @@ export interface PhysicsWorldBase {
 export interface RigidBodyBase {
     // constructor (options?: ICreateBodyOptions);
 
-    /** 获取/设置刚体类型 : ERigidBodyType */
+    /** group ∈ [0, 31] */
+    getGroup (): number;
+    /** group ∈ [0, 31] */
+    setGroup (v: number): void;
+
+    /** Mask ∈ [0, 31] */
+    getMask (): number;
+    /** Mask ∈ [0, 31] */
+    setMask (v: number): void;
+
+    /** the body type */
     getType (): ERigidBodyType;
     setType (v: ERigidBodyType): void;
 
-    /** 唤醒/睡眠刚体 */
     wakeUp (): void;
     sleep (): void;
 

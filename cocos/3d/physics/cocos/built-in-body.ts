@@ -1,4 +1,5 @@
 import { Quat, Vec3 } from '../../../core/value-types';
+import { clamp } from '../../../core/vmath';
 import { intersect } from '../../geom-utils';
 import { ICollisionCallback, ICollisionEvent, ICollisionType as ICollisionEventType, PhysicsWorldBase, RigidBodyBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
@@ -9,28 +10,29 @@ import { BuiltInWorld } from './built-in-world';
  * Built-in static collider, no physical forces involved
  */
 export class BuiltInBody implements RigidBodyBase {
-    get collisionFilterGroup () { return this._collisionFilterGroup; }
-    set collisionFilterGroup (v: number) { this._collisionFilterGroup = v; }
-    get collisionFilterMask () { return this._collisionFilterMask; }
-    set collisionFilterMask (v: number) { this._collisionFilterMask = v; }
-    /** id生成器 */
+    /** id generator */
     private static idCounter: number = 0;
-    /** 刚体id */
-    private readonly _id: number;
+    /** id unique */
     public get id () { return this._id; }
-    /** 刚体类型 */
-    private type: ERigidBodyType = ERigidBodyType.DYNAMIC;
-    /** 属于的组 */
-    private _collisionFilterGroup: number = 1;
-    /** 检测的组 */
-    private _collisionFilterMask: number = 1;
-    /** 碰撞回调 */
-    /** Enter */
-    private _collisionEnterCB: ICollisionCallback[] = [];
-    /** Stay */
-    private _collisionStayCB: ICollisionCallback[] = [];
-    /** Exit */
-    private _collisionExitCB: ICollisionCallback[] = [];
+    private readonly _id: number;
+
+    private _type: ERigidBodyType = ERigidBodyType.DYNAMIC;
+
+    private _group: number = 0;
+    private _mask: number = 0;
+
+    public get collisionFilterGroup () { return this._collisionFilterGroup; }
+    private _collisionFilterGroup: number = 1 << 0;
+
+    public get collisionFilterMask () { return this._collisionFilterMask; }
+    private _collisionFilterMask: number = 1 << 0;
+
+    private _collisionCB: ICollisionCallback[] = [];
+
+    // private _collisionEnterCB: ICollisionCallback[] = [];
+    // private _collisionStayCB: ICollisionCallback[] = [];
+    // private _collisionExitCB: ICollisionCallback[] = [];
+
     /** 物理世界 */
     private _world!: BuiltInWorld | null;
     /** Body拥有的现状 */
@@ -41,7 +43,20 @@ export class BuiltInBody implements RigidBodyBase {
     constructor (options) {
         this._id = BuiltInBody.idCounter++;
     }
-
+    public getGroup (): number {
+        return this._group;
+    }
+    public setGroup (v: number): void {
+        this._group = clamp(v, 0, 31);
+        this._collisionFilterGroup = 1 << v;
+    }
+    public getMask (): number {
+        return this._mask;
+    }
+    public setMask (v: number): void {
+        this._mask = clamp(v, 0, 31);
+        this._collisionFilterMask = 1 << v;
+    }
     public intersects (body: BuiltInBody): boolean {
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < this._shapes.length; i++) {
@@ -57,20 +72,20 @@ export class BuiltInBody implements RigidBodyBase {
         return false;
     }
     public onCollision (type: ICollisionEventType, event: ICollisionEvent) {
-        for (const callback of this._collisionStayCB) {
+        for (const callback of this._collisionCB) {
             callback(type, event);
         }
     }
     public onTrigger (type: ICollisionEventType, event: ICollisionEvent) {
-        for (const callback of this._collisionStayCB) {
+        for (const callback of this._collisionCB) {
             callback(type, event);
         }
     }
     public getType (): ERigidBodyType {
-        return this.type;
+        return this._type;
     }
     public setType (v: ERigidBodyType): void {
-        this.type = v;
+        this._type = v;
     }
     public wakeUp (): void {
 
@@ -185,12 +200,12 @@ export class BuiltInBody implements RigidBodyBase {
         }
     }
     public addCollisionCallback (callback: ICollisionCallback): void {
-        this._collisionStayCB.push(callback);
+        this._collisionCB.push(callback);
     }
     public removeCollisionCllback (callback: ICollisionCallback): void {
-        const i = this._collisionStayCB.indexOf(callback);
+        const i = this._collisionCB.indexOf(callback);
         if (i >= 0) {
-            this._collisionStayCB.splice(i, 1);
+            this._collisionCB.splice(i, 1);
         }
     }
     public getUserData () {
