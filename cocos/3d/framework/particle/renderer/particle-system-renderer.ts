@@ -10,9 +10,8 @@ import { Material } from '../../../assets/material';
 import { postLoadMesh } from '../../../assets/utils/mesh-utils';
 import { builtinResMgr } from '../../../builtin';
 import RecyclePool from '../../../memop/recycle-pool';
+import { RenderMode, Space } from '../enum';
 import Particle from '../particle';
-import { Space } from '../particle-general-function';
-
 // import ParticleSystemComponent from '../particle-system-component';
 
 // tslint:disable: max-line-length
@@ -27,38 +26,6 @@ const _uvs = [
     0, 1, // top-left
     1, 1, // top-right
 ];
-
-/**
- * 粒子的生成模式
- * @enum ParticleSystemRenderer.RenderMode
- */
-const RenderMode = Enum({
-
-    /**
-     * 粒子始终面向摄像机
-     */
-    Billboard: 0,
-
-    /**
-     * 粒子始终面向摄像机但会根据参数进行拉伸
-     */
-    StrecthedBillboard: 1,
-
-    /**
-     * 粒子始终与 XZ 平面平行
-     */
-    HorizontalBillboard: 2,
-
-    /**
-     * 粒子始终与 Y 轴平行且朝向摄像机
-     */
-    VerticalBillboard: 3,
-
-    /**
-     * 粒子保持模型本身状态
-     */
-    Mesh: 4,
-});
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 const CC_USE_BILLBOARD = 'CC_USE_BILLBOARD';
@@ -235,6 +202,7 @@ export default class ParticleSystemRenderer {
     private _particles: RecyclePool | null = null;
     private _defaultMat: Material | null = null;
     private _isAssetReady = false;
+    private _defaultTrailMat: Material | null = null;
 
     constructor () {
         this._model = null;
@@ -336,8 +304,6 @@ export default class ParticleSystemRenderer {
             }
             if (this.particleSystem.velocityOvertimeModule.enable) {
                 this.particleSystem.velocityOvertimeModule.animate(p);
-            } else {
-                vec3.copy(p.ultimateVelocity, p.velocity);
             }
             if (this.particleSystem.limitVelocityOvertimeModule.enable) {
                 this.particleSystem.limitVelocityOvertimeModule.animate(p);
@@ -441,7 +407,7 @@ export default class ParticleSystemRenderer {
 
     protected _assetReady () {
         if (this._model == null) {
-            this._model = this.particleSystem._getRenderScene().createModel(ParticleBatchModel, this.node) as ParticleBatchModel;
+            this._model = this.particleSystem._getRenderScene().createModel(ParticleBatchModel, this.particleSystem.node) as ParticleBatchModel;
         }
         if (!this._model.inited) {
             this._model.setCapacity(this.particleSystem.capacity);
@@ -477,10 +443,8 @@ export default class ParticleSystemRenderer {
         const mat: Material | null = this.particleSystem.sharedMaterial ? this.particleMaterial : this._defaultMat;
         if (this.particleSystem._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
-            this._trailDefines[CC_USE_WORLD_SPACE] = true;
         } else {
             this._defines[CC_USE_WORLD_SPACE] = false;
-            this._trailDefines[CC_USE_WORLD_SPACE] = false;
         }
 
         if (this._renderMode === RenderMode.Billboard) {
@@ -532,12 +496,18 @@ export default class ParticleSystemRenderer {
 
     private _updateTrailMaterial () {
         if (this.particleSystem.trailModule.enable) {
-            if (this.particleSystem._simulationSpace === Space.World) {
+            if (this.particleSystem._simulationSpace === Space.World || this.particleSystem.trailModule.space === Space.World) {
                 this._trailDefines[CC_USE_WORLD_SPACE] = true;
             } else {
                 this._trailDefines[CC_USE_WORLD_SPACE] = false;
             }
-            const mat = this.trailMaterial;
+            let mat = this.trailMaterial;
+            if (mat === null && this._defaultTrailMat === null) {
+                this._defaultTrailMat = Material.getInstantiatedMaterial(builtinResMgr.get<Material>('default-trail-material'), this.particleSystem, true);
+            }
+            if (mat === null) {
+                mat = this._defaultTrailMat;
+            }
             mat!.recompileShaders(this._trailDefines);
             this.particleSystem.trailModule._updateMaterial();
         }

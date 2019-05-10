@@ -21,7 +21,9 @@ export interface ICollisionEvent {
     target: RigidBodyBase;
 }
 
-export type ICollisionCallback = (event: ICollisionEvent) => void;
+export type ICollisionType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
+
+export type ICollisionCallback = (type: ICollisionType, event: ICollisionEvent) => void;
 
 export type BeforeStepCallback = () => void;
 
@@ -62,11 +64,20 @@ export interface PhysicsWorldBase {
 export interface RigidBodyBase {
     // constructor (options?: ICreateBodyOptions);
 
-    /** 获取/设置刚体类型 : ERigidBodyType */
+    /** group ∈ [0, 31] */
+    getGroup (): number;
+    /** group ∈ [0, 31] */
+    setGroup (v: number): void;
+
+    /** Mask ∈ [0, 31] */
+    getMask (): number;
+    /** Mask ∈ [0, 31] */
+    setMask (v: number): void;
+
+    /** the body type */
     getType (): ERigidBodyType;
     setType (v: ERigidBodyType): void;
 
-    /** 唤醒/睡眠刚体 */
     wakeUp (): void;
     sleep (): void;
 
@@ -248,9 +259,4 @@ export interface LockConstraintBase extends ConstraintBase {
      * @param options Options.
      */
     // constructor (first: RigidBodyBase, second: RigidBodyBase, options?: ILockConstraintOptions);
-}
-
-export enum TransformSource {
-    Scene,
-    Phycis,
 }

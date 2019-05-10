@@ -10,9 +10,10 @@
   "module": "index.js",
   "scripts": {
     "server": "http-server . -p 8002",
-    "build": "npm run build:dev && npm run build:min",
+    "build": "npm run build:dev && npm run build:min && npm run build-declaration",
     "build:dev": "node ./rollup/out/build-engine-cli.js --sourcemap --platform=any --destination=./bin/cocos-3d.dev.js",
     "build:min": "uglifyjs ./bin/cocos-3d.dev.js --mangle --source-map -o ./bin/cocos-3d.min.js",
+    "build-declaration": "node ./scripts/generate-declarations/generate-declarations-cli.js",
     "build-rollup": "tsc --build rollup/tsconfig.json",
     "postinstall": "npm run build-rollup",
     "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",

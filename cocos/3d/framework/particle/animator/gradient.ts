@@ -43,6 +43,8 @@ export class AlphaKey {
 @ccclass('cc.Gradient')
 export default class Gradient {
 
+    public static Mode = Mode;
+
     @property
     public colorKeys = new Array<ColorKey>();
 

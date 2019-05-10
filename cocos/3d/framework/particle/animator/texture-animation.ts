@@ -59,7 +59,7 @@ export default class TextureAnimationModule {
 
     set enable (val) {
         this._enable = val;
-        (this.ps!.getComponent(cc.ParticleSystemRenderer) as any)._updateMaterialParams();
+        (this.ps!.renderer as any)._updateMaterialParams();
     }
 
     @property({

@@ -19,7 +19,8 @@ import TextureAnimationModule from './animator/texture-animation';
 import VelocityOvertimeModule from './animator/velocity-overtime';
 import Burst from './burst';
 import ShapeModule from './emitter/shape-module';
-import { particleEmitZAxis, Space } from './particle-general-function';
+import { Space } from './enum';
+import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer';
 import TrailModule from './renderer/trail';
 
@@ -307,7 +308,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: ParticleSystemRenderer,
     })
-    private renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
+    public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
     private _isPlaying: boolean;
     private _isPaused: boolean;
@@ -522,6 +523,7 @@ export class ParticleSystemComponent extends RenderableComponent {
             }
 
             vec3.scale(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand)!);
+            vec3.copy(particle.ultimateVelocity, particle.velocity);
 
             switch (this._simulationSpace) {
                 case Space.Local:

@@ -3,7 +3,8 @@ import { ccclass } from '../../../../core/data/class-decorator';
 import { Quat, Vec3 } from '../../../../core/value-types';
 import { quat, vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
-import { AfterStepCallback, BeforeStepCallback, ICollisionCallback, ICollisionEvent, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
+// tslint:disable-next-line:max-line-length
+import { AfterStepCallback, BeforeStepCallback, ICollisionCallback, ICollisionEvent, ICollisionType, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
 import { createRigidBody } from '../../../physics/instance';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
 import { stringfyQuat, stringfyVec3 } from '../../../physics/util';
@@ -203,11 +204,11 @@ class SharedRigidBody {
         this._body.setWorld(null);
     }
 
-    private _onCollided (event: ICollisionEvent) {
+    private _onCollided (type: ICollisionType, event: ICollisionEvent) {
         if (!this._node) {
             return;
         }
-        this._node.emit('collided', {
+        this._node.emit(type, {
             source: event.source.getUserData() as Node,
             target: event.target.getUserData() as Node,
         });

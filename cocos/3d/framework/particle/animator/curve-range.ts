@@ -14,6 +14,8 @@ export const Mode = Enum({
 @ccclass('cc.CurveRange')
 export default class CurveRange {
 
+    public static Mode = Mode;
+
     @property({
         type: Mode,
     })

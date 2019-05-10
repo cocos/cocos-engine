@@ -24,7 +24,7 @@
 
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
-import { Vec2 } from '../../core';
+import { Vec2 } from '../../core/value-types';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos, GFXFormatSize, GFXFormat } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';

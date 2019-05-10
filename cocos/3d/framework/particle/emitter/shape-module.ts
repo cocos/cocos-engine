@@ -1,105 +1,16 @@
-import { randomUnitVector, particleEmitZAxis, randomSortArray, randomSign, randomPointBetweenSphere, randomPointInCube, randomPointBetweenCircleAtFixedAngle, fixedAngleUnitVector2 } from '../particle-general-function';
-import { vec3, vec2, random, randomRange, mat4, quat, clamp, repeat, pingPong, toRadian, toDegree } from '../../../../core/vmath';
-import { Enum, Vec3 } from '../../../../core/value-types';
-import CurveRange from '../animator/curve-range';
 import { CCClass } from '../../../../core/data';
-import { property, ccclass } from '../../../../core/data/class-decorator';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { Enum, Vec3 } from '../../../../core/value-types';
+import { clamp, mat4, pingPong, quat, random, randomRange, repeat, toDegree, toRadian, vec2, vec3 } from '../../../../core/vmath';
+import CurveRange from '../animator/curve-range';
+import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere, randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
 import { ParticleSystemComponent } from '../particle-system-component';
+import { ShapeType, EmitLocation, ArcMode } from '../enum';
 
 // tslint:disable: max-line-length
 const _intermediVec = vec3.create(0, 0, 0);
 const _intermediArr = new Array();
 const _unitBoxExtent = vec3.create(0.5, 0.5, 0.5);
-
-/**
- * 粒子发射器类型
- * @enum shapeModule.ShapeType
- */
-const ShapeType = Enum({
-    /**
-     * 立方体类型粒子发射器
-     * @property {Number} Box
-     */
-    Box: 0,
-
-    /**
-     * 圆形粒子发射器
-     * @property {Number} Circle
-     */
-    Circle: 1,
-
-    /**
-     * 圆锥体粒子发射器
-     * @property {Number} Cone
-     */
-    Cone: 2,
-
-    /**
-     * 球体粒子发射器
-     * @property {Number} Sphere
-     */
-    Sphere: 3,
-
-    /**
-     * 半球体粒子发射器
-     * @property {Number} Hemisphere
-     */
-    Hemisphere: 4,
-});
-
-/**
- * 粒子从发射器的哪个部位发射
- * @enum shapeModule.EmitLocation
- */
-const EmitLocation = Enum({
-    /**
-     * 基础位置发射（仅对 Circle 类型及 Cone 类型的粒子发射器适用）
-     * @property {Number} Base
-     */
-    Base: 0,
-
-    /**
-     * 边框位置发射（仅对 Box 类型及 Circle 类型的粒子发射器适用）
-     * @property {Number} Edge
-     */
-    Edge: 1,
-
-    /**
-     * 表面位置发射（对所有类型的粒子发射器都适用）
-     * @property {Number} Shell
-     */
-    Shell: 2,
-
-    /**
-     * 内部位置发射（对所有类型的粒子发射器都适用）
-     * @property {Number} Volume
-     */
-    Volume: 3,
-});
-
-/**
- * 粒子在扇形区域的发射方式
- * @enum shapeModule.ArcMode
- */
-const ArcMode = Enum({
-    /**
-     * 随机位置发射
-     * @property {Number} Random
-     */
-    Random: 0,
-
-    /**
-     * 沿某一方向循环发射，每次循环方向相同
-     * @property {Number} Loop
-     */
-    Loop: 1,
-
-    /**
-     * 循环发射，每次循环方向相反
-     * @property {Number} PingPong
-     */
-    PingPong: 2,
-});
 
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
