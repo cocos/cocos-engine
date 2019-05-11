@@ -10,21 +10,20 @@ import { BuiltInWorld } from './built-in-world';
  * Built-in static collider, no physical forces involved
  */
 export class BuiltInBody implements RigidBodyBase {
-    /** id generator */
-    private static idCounter: number = 0;
     /** id unique */
     public get id () { return this._id; }
+
+    public get collisionFilterGroup () { return this._collisionFilterGroup; }
+
+    public get collisionFilterMask () { return this._collisionFilterMask; }
+    /** id generator */
+    private static idCounter: number = 0;
     private readonly _id: number;
 
     private _type: ERigidBodyType = ERigidBodyType.DYNAMIC;
 
     private _group: number = 0;
-    private _mask: number = 0;
-
-    public get collisionFilterGroup () { return this._collisionFilterGroup; }
     private _collisionFilterGroup: number = 1 << 0;
-
-    public get collisionFilterMask () { return this._collisionFilterMask; }
     private _collisionFilterMask: number = 1 << 0;
 
     private _collisionCB: ICollisionCallback[] = [];
@@ -47,15 +46,19 @@ export class BuiltInBody implements RigidBodyBase {
         return this._group;
     }
     public setGroup (v: number): void {
-        this._group = clamp(v, 0, 31);
+        this._group = clamp(Math.floor(v), 0, 31);
         this._collisionFilterGroup = 1 << v;
     }
     public getMask (): number {
-        return this._mask;
+        return this._collisionFilterMask;
     }
     public setMask (v: number): void {
-        this._mask = clamp(v, 0, 31);
+        v = clamp(Math.floor(v), 0, 31);
         this._collisionFilterMask = 1 << v;
+    }
+    public addMask (v: number): void {
+        v = clamp(Math.floor(v), 0, 31);
+        this._collisionFilterMask += 1 << v;
     }
     public intersects (body: BuiltInBody): boolean {
         // tslint:disable-next-line: prefer-for-of
