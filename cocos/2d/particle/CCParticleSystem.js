@@ -1120,7 +1120,7 @@ var ParticleSystem = cc.Class({
             }
             else {
                 spriteFrame.once('load', this._onTextureLoaded, this);
-                spriteFrame.ensureLoadTexture();
+                spriteFrame.ensureLoadImage();
             }
         }
     },

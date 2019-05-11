@@ -32,9 +32,6 @@ const _world_mat = mat4.create();
 @executeInEditMode
 export class ParticleSystemComponent extends RenderableComponent {
 
-    @property
-    private _capacity = 100;
-
     /**
      * 粒子系统能生成的最大粒子数量
      */
@@ -125,9 +122,6 @@ export class ParticleSystemComponent extends RenderableComponent {
     })
     public loop = true;
 
-    @property
-    private _prewarm = false;
-
     /**
      * 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）
      */
@@ -144,9 +138,6 @@ export class ParticleSystemComponent extends RenderableComponent {
         }
         this._prewarm = val;
     }
-
-    @property
-    private _simulationSpace = Space.Local;
 
     /**
      * 选择粒子系统所在的坐标系<br>
@@ -335,6 +326,15 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     private _subEmitters: any[]; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
 
+    @property
+    private _prewarm = false;
+
+    @property
+    private _capacity = 100;
+
+    @property
+    private _simulationSpace = Space.Local;
+
     constructor () {
         super();
 
@@ -363,6 +363,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     public onLoad () {
         // HACK, TODO
+        super.onLoad();
         this.renderer!.onInit(this);
         this.shapeModule.onInit(this);
         this.trailModule.init(this);
@@ -372,25 +373,6 @@ export class ParticleSystemComponent extends RenderableComponent {
         vec3.copy(this._curWPos, this._oldWPos);
 
         // this._system.add(this);
-    }
-
-    protected onDestroy () {
-        // this._system.remove(this);
-        this.renderer.onDestroy();
-        this.trailModule.destroy();
-    }
-
-    protected onEnable () {
-        if (this.playOnAwake) {
-            this.play();
-        }
-        this.renderer.onEnable();
-        this.trailModule.onEnable();
-    }
-
-    protected onDisable () {
-        this.renderer!.onDisable();
-        this.trailModule.onDisable();
     }
 
     public _onMaterialModified (index: number, material: Material) {
@@ -465,6 +447,59 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     public clear () {
         this.renderer!.clear();
+    }
+
+    public getParticleCount () {
+        return this.renderer!.getParticleCount();
+    }
+
+    public setCustomData1 (x, y) {
+        vec2.set(this._customData1, x, y);
+    }
+
+    public setCustomData2 (x, y) {
+        vec2.set(this._customData2, x, y);
+    }
+
+    protected onDestroy () {
+        // this._system.remove(this);
+        this.renderer.onDestroy();
+        this.trailModule.destroy();
+    }
+
+    protected onEnable () {
+        super.onEnable();
+        if (this.playOnAwake) {
+            this.play();
+        }
+        this.renderer.onEnable();
+        this.trailModule.onEnable();
+    }
+
+    protected onDisable () {
+        this.renderer!.onDisable();
+        this.trailModule.onDisable();
+    }
+
+    protected update (dt) {
+        const scaledDeltaTime = dt * this.simulationSpeed;
+        if (this._isPlaying) {
+            this._time += scaledDeltaTime;
+
+            // excute emission
+            this._emit(scaledDeltaTime);
+
+            // simulation, update particles.
+            this.renderer!._updateParticles(scaledDeltaTime);
+
+            // update render data
+            this.renderer!._updateRenderData();
+
+            // update trail
+            if (this.trailModule.enable) {
+                this.trailModule.updateRenderData();
+            }
+        }
     }
 
     private emit (count, emitParams = null) {
@@ -582,27 +617,6 @@ export class ParticleSystemComponent extends RenderableComponent {
         }
     }
 
-    protected update (dt) {
-        const scaledDeltaTime = dt * this.simulationSpeed;
-        if (this._isPlaying) {
-            this._time += scaledDeltaTime;
-
-            // excute emission
-            this._emit(scaledDeltaTime);
-
-            // simulation, update particles.
-            this.renderer!._updateParticles(scaledDeltaTime);
-
-            // update render data
-            this.renderer!._updateRenderData();
-
-            // update trail
-            if (this.trailModule.enable) {
-                this.trailModule.updateRenderData();
-            }
-        }
-    }
-
     private addSubEmitter (subEmitter) {
         this._subEmitters.push(subEmitter);
     }
@@ -617,18 +631,6 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     private removeBurst (idx) {
         this.bursts.splice(this.bursts.indexOf(idx), 1);
-    }
-
-    public getParticleCount () {
-        return this.renderer!.getParticleCount();
-    }
-
-    public setCustomData1 (x, y) {
-        vec2.set(this._customData1, x, y);
-    }
-
-    public setCustomData2 (x, y) {
-        vec2.set(this._customData2, x, y);
     }
 
     get isPlaying () {

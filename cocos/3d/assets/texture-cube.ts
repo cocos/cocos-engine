@@ -26,7 +26,9 @@
 import { Texture2D } from '../../assets';
 import { ImageAsset } from '../../assets/image-asset';
 import { TextureBase } from '../../assets/texture-base';
+import { postLoadImage } from '../../assets/texture-util';
 import { ccclass, property } from '../../core/data/class-decorator';
+import { IEventTargetCallback } from '../../core/event/event-target-factory';
 import { GFXTextureFlagBit, GFXTextureViewType } from '../../gfx/define';
 
 interface ITextureCubeMipmap {
@@ -52,17 +54,41 @@ export class TextureCube extends TextureBase {
      * Sets the mipmaps images.
      */
     set mipmaps (value) {
-        this._mipmaps = value;
-        this.create(
-            value.length === 0 ? 0 : value[0].front.width,
-            value.length === 0 ? 0 : value[0].front.height,
-            undefined,
-            this._mipmaps.length);
-        this._mipmaps.forEach((mipmap, level) => {
+        const replaceMipmaps = () => {
+            const oldMipmaps = this._mipmaps;
+            this._mipmaps = value;
+            this._assetReady();
+            oldMipmaps.forEach((mipmap, index) => {
+                _forEachFace(mipmap, (face, faceIndex) => {
+                    if (!face.loaded) {
+                        this._unfinished--;
+                        face.off('load', this._onImageLoaded, this);
+                        if (this._unfinished === 0) {
+                            this.loaded = true;
+                            this.emit('load');
+                        }
+                    }
+                });
+            });
+        };
+        let unfinished = 0;
+        value.forEach((mipmap) => {
             _forEachFace(mipmap, (face, faceIndex) => {
-                this._assignImage(face, level, faceIndex);
+                if (!face.loaded) {
+                    unfinished++;
+                    face.once('load', () => {
+                        unfinished--;
+                        if (unfinished === 0) {
+                            replaceMipmaps();
+                        }
+                    });
+                    postLoadImage(face);
+                }
             });
         });
+        if (unfinished === 0) {
+            replaceMipmaps();
+        }
     }
 
     /**
@@ -106,12 +132,26 @@ export class TextureCube extends TextureBase {
     @property
     public _mipmaps: ITextureCubeMipmap[] = [];
 
+    private _unfinished = 0;
+
     constructor () {
         super();
     }
 
     public onLoaded () {
-        this.mipmaps = this._mipmaps;
+        this._mipmaps.forEach((mipmap, index) => {
+            _forEachFace(mipmap, (face, faceIndex) => {
+                if (!face.loaded) {
+                    this._unfinished++;
+                    face.once('load', this._onImageLoaded, this);
+                }
+            });
+        });
+        if (this._unfinished === 0) {
+            this._assetReady();
+            this.loaded = true;
+            this.emit('load');
+        }
     }
 
     /**
@@ -202,6 +242,17 @@ export class TextureCube extends TextureBase {
         }
     }
 
+    public ensureLoadImage () {
+        super.ensureLoadImage();
+        this._mipmaps.forEach((mipmap) => {
+            _forEachFace(mipmap, (face, faceIndex) => {
+                if (!face.loaded) {
+                    postLoadImage(face);
+                }
+            });
+        });
+    }
+
     protected _getTextureCreateInfo () {
         const result =  super._getTextureCreateInfo();
         result.arrayLayer = 6;
@@ -214,6 +265,29 @@ export class TextureCube extends TextureBase {
         result.type = GFXTextureViewType.CUBE;
         result.layerCount = 6;
         return result;
+    }
+
+    protected _onImageLoaded () {
+        this._unfinished--;
+        if (this._unfinished === 0) {
+            this._assetReady();
+            this.loaded = true;
+            this.emit('load');
+        }
+    }
+
+    protected _assetReady () {
+        if (this._mipmaps.length > 0) {
+            const imageAsset: ImageAsset = this._mipmaps[0].front;
+            this.create(imageAsset.width, imageAsset.height, imageAsset.format, this._mipmaps.length);
+            this._mipmaps.forEach((mipmap, level) => {
+                _forEachFace(mipmap, (face, faceIndex) => {
+                    this._assignImage(face, level, faceIndex);
+                });
+            });
+        } else {
+            this.create(0, 0, undefined, this._mipmaps.length);
+        }
     }
 }
 

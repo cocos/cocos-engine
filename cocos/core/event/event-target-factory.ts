@@ -136,11 +136,14 @@ export function EventTargetFactory<Base extends Constructor<{}>> (b?: Base) {
             const hasOnceListener = this._callbacksInvoker.hasEventListener(
                 eventType_hasOnceListener, callback, target);
             if (!hasOnceListener) {
-                const self = this;
-                const onceWrapper = function (this: any, ...args: any[]) {
-                    self.off(type, onceWrapper, target);
-                    self._callbacksInvoker.remove(eventType_hasOnceListener, callback, target);
-                    callback(this, ...args);
+                const onceWrapper = (...args: any[]) => {
+                    this.off(type, onceWrapper, target);
+                    this._callbacksInvoker.remove(eventType_hasOnceListener, callback, target);
+                    if (target) {
+                        callback.call(target, ...args);
+                    } else {
+                        callback(...args);
+                    }
                 };
                 this.on(type, onceWrapper, target);
                 this._callbacksInvoker.add(eventType_hasOnceListener, callback, target);

@@ -25,7 +25,6 @@
  ****************************************************************************/
 
 import { ImageAsset, ImageSource } from './image-asset';
-import { Texture2D } from './texture-2d';
 
 /**
  * cc.textureUtil is a singleton object, it can load cc.Texture2D asynchronously
@@ -36,64 +35,62 @@ import { Texture2D } from './texture-2d';
 export function loadImage (url: string, cb, target) {
     cc.assertID(url, 3103);
 
-    let tex = cc.loader.getRes(url);
-    if (tex) {
-        if (tex.loaded) {
+    let imageAsset = cc.loader.getRes(url);
+    if (imageAsset) {
+        if (imageAsset.loaded) {
             if (cb){
-                cb.call(target, tex);
+                cb.call(target, imageAsset);
             }
 
-            return tex;
+            return imageAsset;
         }
         else {
-            tex.once('load', () => {
+            imageAsset.once('load', () => {
                 if (cb) {
-                    cb.call(target, tex);
+                    cb.call(target, imageAsset);
                 }
             }, target);
-            return tex;
+            return imageAsset;
         }
     }
     else {
-        tex = new Texture2D();
-        tex.url = url;
-        cc.loader.load({ url, texture: tex }, (err, texture) => {
+        imageAsset = new ImageAsset();
+        imageAsset.url = url;
+        cc.loader.load({ url, imageAsset }, (err, asset) => {
             if (err) {
                 return cb && cb.call(target, err || new Error('Unknown error'));
             }
-            texture.handleLoadedTexture();
             if (cb) {
-                cb.call(target, null, texture);
+                cb.call(target, null, asset);
             }
         });
-        return tex;
+        return imageAsset;
     }
 }
 
 export function cacheImage (url: string, image: ImageSource) {
     if (url && image) {
-        const tex = new Texture2D();
-        tex.image = new ImageAsset(image);
+        const imageAsset = new ImageAsset(image);
         const item = {
             id: url,
             url, // real download url, maybe changed
             error: null,
-            content: tex,
+            content: imageAsset,
             complete: false,
         };
         cc.loader.flowOut(item);
-        return tex;
+        return imageAsset;
     }
 }
 // TODO:
-export function postLoadTexture (texture: Texture2D, callback: Function) {
-    if (texture.loaded) {
-        if (callback){
+export function postLoadImage (imageAsset: ImageAsset, callback?: Function) {
+    if (imageAsset.loaded) {
+        if (callback) {
             callback();
         }
         return;
     }
-    if (!texture.nativeUrl) {
+    if (!imageAsset.nativeUrl) {
         if (callback) {
             callback();
         }
@@ -101,16 +98,16 @@ export function postLoadTexture (texture: Texture2D, callback: Function) {
     }
     // load image
     cc.loader.load({
-        url: texture.nativeUrl,
-        // For image, we should skip loader otherwise it will load a new texture
+        url: imageAsset.nativeUrl,
+        // For image, we should skip loader otherwise it will load a new ImageAsset
         skips: ['Loader'],
     }, (err, image) => {
         if (image) {
-            if (CC_DEBUG && image instanceof cc.Texture2D) {
+            if (CC_DEBUG && image instanceof cc.ImageAsset) {
                 return cc.error('internal error: loader handle pipe must be skipped');
             }
-            if (!texture.loaded) {
-                texture._nativeAsset = image;
+            if (!imageAsset.loaded) {
+                imageAsset._nativeAsset = image;
             }
         }
         if (callback) {
@@ -122,5 +119,5 @@ export function postLoadTexture (texture: Texture2D, callback: Function) {
 cc.textureUtil = {
     loadImage,
     cacheImage,
-    postLoadTexture,
+    postLoadImage,
 };

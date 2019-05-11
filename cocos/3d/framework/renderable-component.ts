@@ -1,6 +1,7 @@
 // @ts-check
 import { Component } from '../../components/component';
 import { _decorator } from '../../core/data/index';
+import { IEventTargetCallback } from '../../core/event/event-target-factory';
 import { Material } from '../assets/material';
 const { ccclass, property } = _decorator;
 
@@ -9,12 +10,10 @@ export class RenderableComponent extends Component {
     @property({ type: [Material] })
     protected _materials: Array<Material | null> = [];
 
+    protected _unfinished = 0;
+
     constructor () {
         super();
-    }
-
-    public onLoad () {
-
     }
 
     @property({
@@ -102,9 +101,26 @@ export class RenderableComponent extends Component {
     }
 
     public setMaterial (material: Material | null, index: number, notify: boolean = true) {
-        this._materials[index] = material;
-        if (notify) {
-            this._onMaterialModified(index, material);
+        const replaceMat = () => {
+            const oldMat = this._materials[index];
+            this._materials[index] = material;
+            if (notify) {
+                this._onMaterialModified(index, material);
+            }
+            if (oldMat && !oldMat.loaded) {
+                oldMat.off('load', this._onMaterialLoaded, this);
+                this._unfinished--;
+                if (this._unfinished === 0) {
+                    this._assetReady();
+                }
+            }
+        };
+
+        if (material && !material.loaded) {
+            material.once('load', replaceMat);
+            material.ensureLoadTexture();
+        } else {
+            replaceMat();
         }
     }
 
@@ -117,5 +133,40 @@ export class RenderableComponent extends Component {
 
     protected _clearMaterials () {
 
+    }
+
+    protected _ensureLoadMaterial () {
+        this._materials.forEach((mat, index) => {
+            if (mat && !mat.loaded) {
+                mat.ensureLoadTexture();
+            }
+        });
+    }
+
+    protected _onMaterialLoaded () {
+        this._unfinished--;
+        if (this._unfinished === 0) {
+            this._assetReady();
+        }
+    }
+
+    protected _assetReady () {
+
+    }
+
+    protected onLoad () {
+        this._materials.forEach((mat, index) => {
+            if (mat && !mat.loaded) {
+                this._unfinished++;
+                mat.once('load', this._onMaterialLoaded, this);
+            }
+        });
+    }
+
+    protected onEnable () {
+        if (this._unfinished === 0) {
+            this._assetReady();
+        }
+        this._ensureLoadMaterial();
     }
 }

@@ -104,6 +104,7 @@ export class ImageAsset extends EventTargetFactory(Asset) {
         super();
 
         this._url = '';
+        this.loaded = false;
 
         this._nativeData = {
             _data: null,

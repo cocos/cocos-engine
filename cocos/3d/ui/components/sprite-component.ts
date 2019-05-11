@@ -414,7 +414,7 @@ export class SpriteComponent extends UIRenderComponent {
         if (this._spriteFrame) {
             if (!this._spriteFrame.textureLoaded()) {
                 // this._spriteFrame.once('load', this._onTextureLoaded, this);
-                this._spriteFrame.ensureLoadTexture();
+                this._spriteFrame.ensureLoadImage();
             }
         }
 
@@ -602,7 +602,7 @@ export class SpriteComponent extends UIRenderComponent {
                     this._activateMaterial();
                 } else {
                     // spriteFrame.once('load', this._onTextureLoaded, this);
-                    spriteFrame.ensureLoadTexture();
+                    spriteFrame.ensureLoadImage();
                 }
             }
             // else {

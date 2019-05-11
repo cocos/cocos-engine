@@ -25,8 +25,10 @@
  ****************************************************************************/
 // @ts-check
 import { ccclass, property } from '../core/data/class-decorator';
+import { IEventTargetCallback } from '../core/event/event-target-factory';
 import { ImageAsset, ImageSource } from './image-asset';
 import { TextureBase } from './texture-base';
+import { postLoadImage } from './texture-util';
 
 /**
  * Represents a 2-dimension texture.
@@ -45,15 +47,37 @@ export class Texture2D extends TextureBase {
      * Sets the mipmaps images.
      */
     set mipmaps (value) {
-        this._mipmaps = value;
-        this.create(
-            value.length === 0 ? 0 : value[0].width,
-            value.length === 0 ? 0 : value[0].height,
-            value.length === 0 ? undefined : value[0].format,
-            this._mipmaps.length);
-        this._mipmaps.forEach((mipmap, level) => {
-            this._assignImage(mipmap, level);
+        const replaceMipmaps = () => {
+            const oldMipmaps = this._mipmaps;
+            this._mipmaps = value;
+            this._assetReady();
+            oldMipmaps.forEach((mipmap) => {
+                if (!mipmap.loaded) {
+                    this._unfinished--;
+                    mipmap.off('load', this._onImageLoaded, this);
+                    if (this._unfinished === 0) {
+                        this.loaded = true;
+                        this.emit('load');
+                    }
+                }
+            });
+        };
+        let unfinished = 0;
+        value.forEach((mipmap) => {
+            if (!mipmap.loaded) {
+                unfinished++;
+                mipmap.once('load', () => {
+                    unfinished--;
+                    if (unfinished === 0) {
+                        replaceMipmaps();
+                    }
+                });
+                postLoadImage(mipmap);
+            }
         });
+        if (unfinished === 0) {
+            replaceMipmaps();
+        }
     }
 
     /**
@@ -73,12 +97,24 @@ export class Texture2D extends TextureBase {
     @property([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
 
+    private _unfinished = 0;
+
     constructor () {
         super(true);
     }
 
     public onLoaded () {
-        this.mipmaps = this._mipmaps;
+        this._mipmaps.forEach((mipmap, index) => {
+            if (!mipmap.loaded) {
+                this._unfinished++;
+                mipmap.once('load', this._onImageLoaded, this);
+            }
+        });
+        if (this._unfinished === 0) {
+            this._assetReady();
+            this.loaded = true;
+            this.emit('load');
+        }
     }
 
     /**
@@ -178,6 +214,54 @@ export class Texture2D extends TextureBase {
             this._mipmaps[i] = new ImageAsset();
             const mipmapUUID = data.mipmaps[i];
             handle.result.push(this._mipmaps, `${i}`, mipmapUUID);
+        }
+    }
+
+    /**
+     * !#en If a loading scene (or prefab) is marked as `asyncLoadAssets`, all the image asset of the Texture2D which
+     * associated by user's custom Components in the scene, will not preload automatically.
+     * These image asset will be load when render component is going to render the Texture2D.
+     * You can call this method if you want to load the texture early.
+     * !#zh 当加载中的场景或 Prefab 被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 Texture2D 的贴图都不会被提前加载。
+     * 只有当 渲染 组件要渲染这些 Texture2D 时，才会检查贴图是否加载。如果你希望加载过程提前，你可以手工调用这个方法。
+     *
+     * @method ensureLoadImage
+     * @example
+     * if (texture.loaded) {
+     *     this._onTextureLoaded();
+     * }
+     * else {
+     *     texture.once('load', this._onTextureLoaded, this);
+     *     texture.ensureLoadImage();
+     * }
+     */
+    public ensureLoadImage () {
+        super.ensureLoadImage();
+        this._mipmaps.forEach((mipmap) => {
+            if (!mipmap.loaded) {
+                postLoadImage(mipmap);
+            }
+        });
+    }
+
+    protected _onImageLoaded () {
+        this._unfinished--;
+        if (this._unfinished === 0) {
+            this._assetReady();
+            this.loaded = true;
+            this.emit('load');
+        }
+    }
+
+    protected _assetReady () {
+        if (this._mipmaps.length > 0) {
+            const imageAsset: ImageAsset = this._mipmaps[0];
+            this.create(imageAsset.width, imageAsset.height, imageAsset.format, this._mipmaps.length);
+            this._mipmaps.forEach((mipmap, level) => {
+                this._assignImage(mipmap, level);
+            });
+        } else {
+            this.create(0, 0, undefined, this._mipmaps.length);
         }
     }
 }

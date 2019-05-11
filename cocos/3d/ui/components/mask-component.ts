@@ -268,7 +268,7 @@ export class MaskComponent extends UIRenderComponent {
         //         if (this._spriteFrame) {
         //             this.markForUpdateRenderData(false);
         //             this._spriteFrame.once('load', this._onTextureLoaded, this);
-        //             this._spriteFrame.ensureLoadTexture();
+        //             this._spriteFrame.ensureLoadImage();
         //         }
         //     }
         // }
@@ -414,7 +414,7 @@ export class MaskComponent extends UIRenderComponent {
         //         this._onTextureLoaded();
         //     } else {
         //         spriteFrame.once('load', this._onTextureLoaded, this);
-        //         spriteFrame.ensureLoadTexture();
+        //         spriteFrame.ensureLoadImage();
         //     }
         // }
     }

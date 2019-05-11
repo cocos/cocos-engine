@@ -333,6 +333,10 @@ export class TextureBase extends EventTargetFactory(Asset) {
 
     }
 
+    public ensureLoadImage () {
+
+    }
+
     protected _getGlobalDevice (): GFXDevice | null {
         if (cc.director && cc.director.root) {
             return cc.director.root.device;

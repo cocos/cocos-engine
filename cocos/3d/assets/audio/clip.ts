@@ -76,6 +76,7 @@ export class AudioClip extends EventTargetFactory(Asset) {
 
     public static PlayingState = PlayingState;
     public static AudioType = AudioType;
+    public static preventDeferredLoadDependents = true;
     @property // we serialize this because it's unavailable at runtime on some platforms
     protected _duration = 0;
     @property({
@@ -85,6 +86,11 @@ export class AudioClip extends EventTargetFactory(Asset) {
 
     protected _audio: any = null;
     private _player: AudioPlayer | null = null;
+
+    public constructor () {
+        super();
+        this.loaded = false;
+    }
 
     public play () { if (this._player) { this._player.play(); } }
     public pause () { if (this._player) { this._player.pause(); } }

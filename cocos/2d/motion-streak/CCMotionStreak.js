@@ -232,10 +232,8 @@ var MotionStreak = cc.Class({
     _ensureLoadTexture: function () {
         if (this._texture && !this._texture.loaded) {
             // load exists texture
-            let self = this;
-            textureUtil.postLoadTexture(this._texture, function () {
-                self._activateMaterial();
-            });
+            this._texture.once('load', this._activateMaterial.bind(this));
+            this._texture.ensureLoadImage();
         }
     },
 

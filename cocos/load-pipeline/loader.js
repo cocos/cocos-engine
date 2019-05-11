@@ -63,7 +63,7 @@ function loadImage (item) {
 
     // load cc.ImageAsset
     var rawUrl = item.rawUrl;
-    var imageAsset = item.texture || new ImageAsset();
+    var imageAsset = item.imageAsset || new ImageAsset();
     imageAsset._uuid = item.uuid;
     imageAsset.url = rawUrl;
     imageAsset._setRawAsset(rawUrl, false);
