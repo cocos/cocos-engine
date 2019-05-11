@@ -25,27 +25,28 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { EventTarget } from './event/event-target';
-import eventManager from './platform/event-manager/event-manager';
-import { CCObject } from './data/object';
-import Scheduler from './scheduler';
-import { autoRelease } from '../load-pipeline/auto-release-utils';
-import ComponentScheduler from '../scene-graph/component-scheduler';
-import NodeActivator from '../scene-graph/node-activator';
+import { widgetManager } from '../3d';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
 import { PhysicsSystem } from '../3d/framework/physics/physics-system';
-import { getClassByName } from './utils/js';
-import { Root } from './root';
-import { widgetManager } from '../3d';
+import { autoRelease } from '../load-pipeline/auto-release-utils';
+import { Scene } from '../scene-graph';
+import ComponentScheduler from '../scene-graph/component-scheduler';
+import NodeActivator from '../scene-graph/node-activator';
+import { CCObject } from './data/object';
+import { EventTarget } from './event/event-target';
 import Game from './game';
+import eventManager from './platform/event-manager/event-manager';
+import { Root } from './root';
+import Scheduler from './scheduler';
+import { getClassByName } from './utils/js';
 
 // const ComponentScheduler = require('./component-scheduler');
 // const NodeActivator = require('./node-activator');
 
-//----------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------
 
 /**
- * !#en
+ * @en
  * <p>
  *    ATTENTION: USE cc.director INSTEAD OF cc.Director.<br/>
  *    cc.director is a singleton object which manage your game's logic flow.<br/>
@@ -77,7 +78,7 @@ import Game from './game';
  *      - Only supports animation intervals of 1/60 1/30 & 1/15<br/>
  * </p>
  *
- * !#zh
+ * @zh
  * <p>
  *     注意：用 cc.director 代替 cc.Director。<br/>
  *     cc.director 一个管理你的游戏的逻辑流程的单例对象。<br/>
@@ -113,6 +114,118 @@ import Game from './game';
  * @extends EventTarget
  */
 class Director extends EventTarget {
+
+    /**
+     * @en The event which will be triggered before loading a new scene.
+     * @zh 加载新场景之前所触发的事件。
+     * @event cc.Director.EVENT_BEFORE_SCENE_LOADING
+     * @param {String} sceneName - The loading scene name
+     */
+    /**
+     * @en The event which will be triggered before loading a new scene.
+     * @zh 加载新场景之前所触发的事件。
+     * @property {String} EVENT_BEFORE_SCENE_LOADING
+     * @readonly
+     */
+    public static EVENT_BEFORE_SCENE_LOADING = 'director_before_scene_loading';
+
+    /*
+    * @en The event which will be triggered before launching a new scene.
+    * @zh 运行新场景之前所触发的事件。
+    * @event cc.Director.EVENT_BEFORE_SCENE_LAUNCH
+    * @param {String} sceneName - New scene which will be launched
+    */
+    /**
+     * @en The event which will be triggered before launching a new scene.
+     * @zh 运行新场景之前所触发的事件。
+     * @property {String} EVENT_BEFORE_SCENE_LAUNCH
+     * @readonly
+     */
+    public static EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
+
+    /**
+     * @en The event which will be triggered after launching a new scene.
+     * @zh 运行新场景之后所触发的事件。
+     * @event cc.Director.EVENT_AFTER_SCENE_LAUNCH
+     * @param {String} sceneName - New scene which is launched
+     */
+    /**
+     * @en The event which will be triggered after launching a new scene.
+     * @zh 运行新场景之后所触发的事件。
+     * @property {String} EVENT_AFTER_SCENE_LAUNCH
+     * @readonly
+     */
+    public static EVENT_AFTER_SCENE_LAUNCH = 'director_after_scene_launch';
+
+    /**
+     * @en The event which will be triggered at the beginning of every frame.
+     * @zh 每个帧的开始时所触发的事件。
+     * @event cc.Director.EVENT_BEFORE_UPDATE
+     */
+    /**
+     * @en The event which will be triggered at the beginning of every frame.
+     * @zh 每个帧的开始时所触发的事件。
+     * @property {String} EVENT_BEFORE_UPDATE
+     * @readonly
+     */
+    public static EVENT_BEFORE_UPDATE = 'director_before_update';
+
+    /**
+     * @en The event which will be triggered after engine and components update logic.
+     * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
+     * @event cc.Director.EVENT_AFTER_UPDATE
+     */
+    /**
+     * @en The event which will be triggered after engine and components update logic.
+     * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
+     * @property {String} EVENT_AFTER_UPDATE
+     * @readonly
+     */
+    public static EVENT_AFTER_UPDATE = 'director_after_update';
+
+    /**
+     * @en The event which will be triggered before the rendering process.
+     * @zh 渲染过程之前所触发的事件。
+     * @event cc.Director.EVENT_BEFORE_DRAW
+     */
+    /**
+     * @en The event which will be triggered before the rendering process.
+     * @zh 渲染过程之前所触发的事件。
+     * @property {String} EVENT_BEFORE_DRAW
+     * @readonly
+     */
+    public static EVENT_BEFORE_DRAW = 'director_before_draw';
+
+    /**
+     * @en The event which will be triggered after the rendering process.
+     * @zh 渲染过程之后所触发的事件。
+     * @event cc.Director.EVENT_AFTER_DRAW
+     */
+    /**
+     * @en The event which will be triggered after the rendering process.
+     * @zh 渲染过程之后所触发的事件。
+     * @property {String} EVENT_AFTER_DRAW
+     * @readonly
+     */
+    public static EVENT_AFTER_DRAW = 'director_after_draw';
+
+    private invalid: boolean;
+    private _paused: boolean;
+    private _purgeDirectorInNextLoop: boolean;
+    private _root: Root | null;
+    private _loadingScene: string;
+    private _scene: Scene | null;
+    private _totalFrames: number;
+    private _lastUpdate: number;
+    private _deltaTime: number;
+    private _scheduler: Scheduler;
+    private _compScheduler: ComponentScheduler;
+    private _nodeActivator: NodeActivator;
+    private _actionManager: cc.ActionManager | null;
+    private _physicsSystem: PhysicsSystem | null;
+    private _systems: any[];
+    private _animationManager: any;
+
     constructor () {
         super();
 
@@ -135,11 +248,11 @@ class Director extends EventTarget {
         this._deltaTime = 0.0;
 
         // Scheduler for user registration update
-        this._scheduler = null;
+        this._scheduler = new Scheduler();
         // Scheduler for life-cycle methods in component
-        this._compScheduler = null;
+        this._compScheduler = new ComponentScheduler();
         // Node activator
-        this._nodeActivator = null;
+        this._nodeActivator = new NodeActivator();
         // Action manager
         this._actionManager = null;
 
@@ -150,21 +263,20 @@ class Director extends EventTarget {
 
         this._systems = [];
 
-        var self = this;
-        cc.game.on(Game.EVENT_SHOW, function () {
+        const self = this;
+        cc.game.on (Game.EVENT_SHOW, () => {
             self._lastUpdate = performance.now();
         });
 
-        cc.game.once(Game.EVENT_ENGINE_INITED, this.init, this);
+        cc.game.once (Game.EVENT_ENGINE_INITED, this.init, this);
     }
 
-    init () {
+    public init () {
 
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
-        this._scheduler = new Scheduler();
 
         if (cc.ActionManager) {
             this._actionManager = new cc.ActionManager();
@@ -176,8 +288,8 @@ class Director extends EventTarget {
         this.sharedInit();
 
         this._root = new Root(cc.game._gfxDevice);
-        let rootInfo = {};
-        if(!this._root.initialize(rootInfo)) {
+        const rootInfo = {};
+        if (!this._root.initialize(rootInfo)) {
             return false;
         }
 
@@ -188,9 +300,7 @@ class Director extends EventTarget {
      * Manage all init process shared between the web engine and jsb engine.
      * All platform independent init process should be occupied here.
      */
-    sharedInit () {
-        this._compScheduler = new ComponentScheduler();
-        this._nodeActivator = new NodeActivator();
+    public sharedInit () {
 
         // Event manager
         if (eventManager) {
@@ -234,56 +344,57 @@ class Director extends EventTarget {
     /**
      * calculates delta time since last time it was called
      */
-    calculateDeltaTime () {
-        var now = performance.now();
+    public calculateDeltaTime () {
+        const now = performance.now();
 
         this._deltaTime = (now - this._lastUpdate) / 1000;
-        if (CC_DEBUG && (this._deltaTime > 1))
+        if (CC_DEBUG && (this._deltaTime > 1)) {
             this._deltaTime = 1 / 60.0;
+        }
 
         this._lastUpdate = now;
     }
 
     /**
-     * !#en
+     * @en
      * Converts a view coordinate to an WebGL coordinate<br/>
      * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
      * Implementation can be found in directorWebGL.
-     * !#zh 将触摸点的屏幕坐标转换为 WebGL View 下的坐标。
+     * @zh 将触摸点的屏幕坐标转换为 WebGL View 下的坐标。
      * @method convertToGL
      * @param {Vec2} uiPoint
      * @return {Vec2}
      * @deprecated since v2.0
      */
-    convertToGL (uiPoint) {
-        var container = cc.game.container;
-        var view = cc.view;
-        var box = container.getBoundingClientRect();
-        var left = box.left + window.pageXOffset - container.clientLeft;
-        var top = box.top + window.pageYOffset - container.clientTop;
-        var x = view._devicePixelRatio * (uiPoint.x - left);
-        var y = view._devicePixelRatio * (top + box.height - uiPoint.y);
+    public convertToGL (uiPoint) {
+        const container = cc.game.container;
+        const view = cc.view;
+        const box = container.getBoundingClientRect();
+        const left = box.left + window.pageXOffset - container.clientLeft;
+        const top = box.top + window.pageYOffset - container.clientTop;
+        const x = view._devicePixelRatio * (uiPoint.x - left);
+        const y = view._devicePixelRatio * (top + box.height - uiPoint.y);
         return view._isRotated ? cc.v2(view._viewportRect.width - y, x) : cc.v2(x, y);
     }
 
     /**
-     * !#en
+     * @en
      * Converts an OpenGL coordinate to a view coordinate<br/>
      * Useful to convert node points to window points for calls such as glScissor<br/>
      * Implementation can be found in directorWebGL.
-     * !#zh 将触摸点的 WebGL View 坐标转换为屏幕坐标。
+     * @zh 将触摸点的 WebGL View 坐标转换为屏幕坐标。
      * @method convertToUI
      * @param {Vec2} glPoint
      * @return {Vec2}
      * @deprecated since v2.0
      */
-    convertToUI (glPoint) {
-        var container = cc.game.container;
-        var view = cc.view;
-        var box = container.getBoundingClientRect();
-        var left = box.left + window.pageXOffset - container.clientLeft;
-        var top = box.top + window.pageYOffset - container.clientTop;
-        var uiPoint = cc.v2(0, 0);
+    public convertToUI (glPoint) {
+        const container = cc.game.container;
+        const view = cc.view;
+        const box = container.getBoundingClientRect();
+        const left = box.left + window.pageXOffset - container.clientLeft;
+        const top = box.top + window.pageYOffset - container.clientTop;
+        const uiPoint = cc.v2(0, 0);
         if (view._isRotated) {
             uiPoint.x = left + glPoint.y / view._devicePixelRatio;
             uiPoint.y = top + box.height - (view._viewportRect.width - glPoint.x) / view._devicePixelRatio;
@@ -299,89 +410,97 @@ class Director extends EventTarget {
      * End the life of director in the next frame
      * @method end
      */
-    end () {
+    public end () {
         this._purgeDirectorInNextLoop = true;
     }
 
     /**
-     * !#en
+     * @en
      * Returns the size of the WebGL view in points.<br/>
      * It takes into account any possible rotation (device orientation) of the window.
-     * !#zh 获取视图的大小，以点为单位。
+     * @zh 获取视图的大小，以点为单位。
      * @method getWinSize
      * @return {Size}
      * @deprecated since v2.0
      */
-    getWinSize () {
+    public getWinSize () {
         return cc.size(cc.winSize);
     }
 
     /**
-     * !#en
+     * @en
      * Returns the size of the OpenGL view in pixels.<br/>
      * It takes into account any possible rotation (device orientation) of the window.<br/>
      * On Mac winSize and winSizeInPixels return the same value.
      * (The pixel here refers to the resource resolution. If you want to get the physics resolution of device, you need to use cc.view.getFrameSize())
-     * !#zh
+     * @zh
      * 获取视图大小，以像素为单位（这里的像素指的是资源分辨率。
      * 如果要获取屏幕物理分辨率，需要用 cc.view.getFrameSize()）
      * @method getWinSizeInPixels
      * @return {Size}
      * @deprecated since v2.0
      */
-    getWinSizeInPixels () {
+    public getWinSizeInPixels () {
         return cc.size(cc.winSize);
     }
 
     /**
-     * !#en Pause the director's ticker, only involve the game logic execution.
-     * It won't pause the rendering process nor the event manager.
-     * If you want to pause the entier game including rendering, audio and event,
-     * please use {{#crossLink "Game.pause"}}cc.game.pause{{/crossLink}}
-     * !#zh 暂停正在运行的场景，该暂停只会停止游戏逻辑执行，但是不会停止渲染和 UI 响应。
-     * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 {{#crossLink "Game.pause"}}cc.game.pause{{/crossLink}}。
+     * @en Pause the director's ticker, only involve the game logic execution.<br>
+     * It won't pause the rendering process nor the event manager.<br>
+     * If you want to pause the entier game including rendering, audio and event,<br>
+     * please use cc.game.pause
+     * @zh 暂停正在运行的场景，该暂停只会停止游戏逻辑执行，但是不会停止渲染和 UI 响应。<br>
+     * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 cc.game.pause 。
      * @method pause
      */
-    pause () {
-        if (this._paused)
+    public pause () {
+        if (this._paused) {
             return;
+        }
         this._paused = true;
     }
 
     /**
-     * Removes cached all cocos2d cached data.
+     * @en Removes cached all cocos2d cached data.
+     * @zh 删除cocos2d所有的缓存数据
      * @deprecated since v2.0
      */
-    purgeCachedData () {
+    public purgeCachedData () {
         cc.loader.releaseAll();
     }
 
     /**
-     * Purge the cc.director itself, including unschedule all schedule, remove all event listeners, clean up and exit the running scene, stops all animations, clear cached data.
+     * @en Purge the cc.director itself, including unschedule all schedule,<br>
+     * remove all event listeners, clean up and exit the running scene, stops all animations, clear cached data.
+     * @zh 清除 cc.director 本身，包括停止所有的计时器，<br>
+     * 移除所有的事件监听器，清理并退出当前运行的场景，停止所有动画，清理缓存数据。
      */
-    purgeDirector () {
-        //cleanup scheduler
+    public purgeDirector () {
+        // cleanup scheduler
         this._scheduler.unscheduleAll();
         this._compScheduler.unscheduleAll();
 
         this._nodeActivator.reset();
 
         // Disable event dispatching
-        if (eventManager)
+        if (eventManager) {
             eventManager.setEnabled(false);
+        }
 
         // cc.renderer.clear();
 
         if (!CC_EDITOR) {
             if (cc.isValid(this._scene)) {
-                this._scene.destroy();
+                this._scene!.destroy();
             }
             this._scene = null;
         }
 
         this.stopAnimation();
 
-        this._root.destroy();
+        if (this._root != null) {
+            this._root.destroy();
+        }
         this._root = null;
 
         // Clear all caches
@@ -389,13 +508,15 @@ class Director extends EventTarget {
     }
 
     /**
-     * Reset the cc.director, can be used to restart the director after purge
+     * @en Reset the cc.director, can be used to restart the director after purge
+     * @zh 重置 cc.director，可用于在清除后重启 director
      */
-    reset () {
+    public reset () {
         this.purgeDirector();
 
-        if (eventManager)
+        if (eventManager) {
             eventManager.setEnabled(true);
+        }
 
         // Animation manager
         if (this._animationManager) {
@@ -410,34 +531,38 @@ class Director extends EventTarget {
     }
 
     /**
-     * !#en
-     * Run a scene. Replaces the running scene with a new one or enter the first scene.<br/>
+     * @en
+     * Run a scene. Replaces the running scene with a new one or enter the first scene.<br>
      * The new scene will be launched immediately.
-     * !#zh 立刻切换指定场景。
+     * @zh 立刻切换指定场景。
      * @method runSceneImmediate
      * @param {Scene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
-    runSceneImmediate (scene, onBeforeLoadScene, onLaunched) {
+    public runSceneImmediate (scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene instanceof cc.Scene, 1216);
 
-        CC_BUILD && CC_DEBUG && console.time('InitScene');
+        if ( CC_BUILD && CC_DEBUG ) {
+            console.time('InitScene');
+        }
         scene._load();  // ensure scene initialized
-        CC_BUILD && CC_DEBUG && console.timeEnd('InitScene');
-
+        if ( CC_BUILD && CC_DEBUG ) {
+            console.timeEnd('InitScene');
+        }
         // Re-attach or replace persist nodes
-        CC_BUILD && CC_DEBUG && console.time('AttachPersist');
-        var persistNodeList = Object.keys(cc.game._persistRootNodes).map(function (x) {
+        if ( CC_BUILD && CC_DEBUG ) {
+            console.time('AttachPersist');
+        }
+        const persistNodeList = Object.keys(cc.game._persistRootNodes).map( (x) => {
             return cc.game._persistRootNodes[x];
         });
-        for (let i = 0; i < persistNodeList.length; i++) {
-            let node = persistNodeList[i];
+        for (const node of persistNodeList) {
             node.emit(cc.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
-            var existNode = scene.getChildByUuid(node.uuid);
+            const existNode = scene.getChildByUuid(node.uuid);
             if (existNode) {
                 // scene also contains the persist node, select the old one
-                var index = existNode.getSiblingIndex();
+                const index = existNode.getSiblingIndex();
                 existNode._destroyImmediate();
                 scene.insertChild(node, index);
             }
@@ -445,28 +570,35 @@ class Director extends EventTarget {
                 node.parent = scene;
             }
         }
-        CC_BUILD && CC_DEBUG && console.timeEnd('AttachPersist');
-
-        var oldScene = this._scene;
+        if ( CC_BUILD && CC_DEBUG ) {
+            console.timeEnd('AttachPersist');
+        }
+        const oldScene = this._scene;
         if (!CC_EDITOR) {
             // auto release assets
-            CC_BUILD && CC_DEBUG && console.time('AutoRelease');
-            var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
+            if ( CC_BUILD && CC_DEBUG ) {
+                console.time('AutoRelease');
+            }
+            const autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
             autoRelease(autoReleaseAssets, scene.dependAssets, persistNodeList);
-            CC_BUILD && CC_DEBUG && console.timeEnd('AutoRelease');
+            if ( CC_BUILD && CC_DEBUG ){
+                console.timeEnd('AutoRelease');
+            }
         }
 
         // unload scene
-        CC_BUILD && CC_DEBUG && console.time('Destroy');
+        if ( CC_BUILD && CC_DEBUG ) {
+            console.time('Destroy');
+        }
         if (cc.isValid(oldScene)) {
-            oldScene.destroy();
+            oldScene!.destroy();
         }
 
         this._scene = null;
 
         // purge destroyed nodes belongs to old scene
         CCObject._deferredDestroy();
-        CC_BUILD && CC_DEBUG && console.timeEnd('Destroy');
+        if (CC_BUILD && CC_DEBUG) { console.timeEnd('Destroy'); }
 
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
@@ -476,12 +608,17 @@ class Director extends EventTarget {
         // Run an Entity Scene
         this._scene = scene;
 
-        CC_BUILD && CC_DEBUG && console.time('Activate');
+        if ( CC_BUILD && CC_DEBUG ) {
+            console.time('Activate');
+        }
         scene._activate();
-        CC_BUILD && CC_DEBUG && console.timeEnd('Activate');
-
-        //start scene
-        this._root.resetCumulativeTime();
+        if ( CC_BUILD && CC_DEBUG ) {
+            console.timeEnd('Activate');
+        }
+        // start scene
+        if (this._root) {
+            this._root.resetCumulativeTime();
+        }
         this.startAnimation();
 
         if (onLaunched) {
@@ -491,17 +628,17 @@ class Director extends EventTarget {
     }
 
     /**
-     * !#en
-     * Run a scene. Replaces the running scene with a new one or enter the first scene.
-     * The new scene will be launched at the end of the current frame.
-     * !#zh 运行指定场景。
+     * @en
+     * Run a scene. Replaces the running scene with a new one or enter the first scene.<br>
+     * The new scene will be launched at the end of the current frame.<br>
+     * @zh 运行指定场景。
      * @method runScene
      * @param {Scene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      * @private
      */
-    runScene (scene, onBeforeLoadScene, onLaunched) {
+    public runScene (scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene, 1205);
         cc.assertID(scene instanceof cc.Scene, 1216);
 
@@ -509,15 +646,15 @@ class Director extends EventTarget {
         scene._load();
 
         // Delay run / replace scene to the end of the frame
-        this.once(cc.Director.EVENT_AFTER_UPDATE, function () {
+        this.once(cc.Director.EVENT_AFTER_UPDATE, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         }, this);
     }
 
     //  @Scene loading section
 
-    _getSceneUuid (key) {
-        var scenes = cc.game._sceneInfos;
+    public _getSceneUuid (key) {
+        const scenes = cc.game._sceneInfos;
         if (typeof key === 'string') {
             if (!key.endsWith('.scene')) {
                 key += '.scene';
@@ -526,8 +663,7 @@ class Director extends EventTarget {
                 key = '/' + key;    // 使用全名匹配
             }
             // search scene
-            for (var i = 0; i < scenes.length; i++) {
-                var info = scenes[i];
+            for (const info of scenes) {
                 if (info.url.endsWith(key)) {
                     return info;
                 }
@@ -548,22 +684,22 @@ class Director extends EventTarget {
     }
 
     /**
-     * !#en Loads the scene by its name.
-     * !#zh 通过场景名称进行加载场景。
+     * @en Loads the scene by its name.
+     * @zh 通过场景名称进行加载场景。
      *
      * @method loadScene
      * @param {String} sceneName - The name of the scene to load.
      * @param {Function} [onLaunched] - callback, will be called after scene launched.
      * @return {Boolean} if error, return false
      */
-    loadScene (sceneName, onLaunched, _onUnloaded) {
+    public loadScene (sceneName, onLaunched, _onUnloaded) {
         if (this._loadingScene) {
             cc.errorID(1208, sceneName, this._loadingScene);
             return false;
         }
-        var info = this._getSceneUuid(sceneName);
+        const info = this._getSceneUuid(sceneName);
         if (info) {
-            var uuid = info.uuid;
+            const uuid = info.uuid;
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
             this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
@@ -576,15 +712,15 @@ class Director extends EventTarget {
     }
 
     /**
-     * !#en
-     * Preloads the scene to reduces loading time. You can call this method at any time you want.
-     * After calling this method, you still need to launch the scene by `cc.director.loadScene`.
-     * It will be totally fine to call `cc.director.loadScene` at any time even if the preloading is not
+     * @en
+     * Preloads the scene to reduces loading time. You can call this method at any time you want.<br>
+     * After calling this method, you still need to launch the scene by `cc.director.loadScene`.<br>
+     * It will be totally fine to call `cc.director.loadScene` at any time even if the preloading is not<br>
      * yet finished, the scene will be launched after loaded automatically.
-     * !#zh 预加载场景，你可以在任何时候调用这个方法。
-     * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。
+     * @zh 预加载场景，你可以在任何时候调用这个方法。
+     * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
      * 就算预加载还没完成，你也可以直接调用 `cc.director.loadScene`，加载完成后场景就会启动。
-     *
+     * <br>
      * @method preloadScene
      * @param {String} sceneName - The name of the scene to preload.
      * @param {Function} [onProgress] - callback, will be called when the load progression change.
@@ -594,18 +730,18 @@ class Director extends EventTarget {
      * @param {Function} [onLoaded] - callback, will be called after scene loaded.
      * @param {Error} onLoaded.error - null or the error object.
      */
-    preloadScene (sceneName, onProgress, onLoaded) {
+    public preloadScene (sceneName, onProgress, onLoaded) {
         if (onLoaded === undefined) {
             onLoaded = onProgress;
             onProgress = null;
         }
 
-        var info = this._getSceneUuid(sceneName);
+        const info = this._getSceneUuid(sceneName);
         if (info) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             cc.loader.load({ uuid: info.uuid, type: 'uuid' },
                 onProgress,
-                function (error, asset) {
+                (error, asset) => {
                     if (error) {
                         cc.errorID(1210, sceneName, error.message);
                     }
@@ -615,14 +751,15 @@ class Director extends EventTarget {
                 });
         }
         else {
-            var error = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
+            const error = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
             onLoaded(new Error(error));
             cc.error('preloadScene: ' + error);
         }
     }
 
     /**
-     * Loads the scene by its uuid.
+     * @en Loads the scene by its uuid.
+     * @zh 通过uuid加载场景
      * @method _loadSceneByUuid
      * @param {String} uuid - the uuid of the scene asset to load
      * @param {Function} [onLaunched]
@@ -631,7 +768,7 @@ class Director extends EventTarget {
      *                                   only take effect in the Editor.
      * @private
      */
-    _loadSceneByUuid (uuid, onLaunched, onUnloaded, dontRunScene) {
+    public _loadSceneByUuid (uuid: String, onLaunched: Function | null = null, onUnloaded: Function | null = null, dontRunScene?: Boolean) {
         if (CC_EDITOR) {
             if (typeof onLaunched === 'boolean') {
                 dontRunScene = onLaunched;
@@ -642,11 +779,11 @@ class Director extends EventTarget {
                 onUnloaded = null;
             }
         }
-        //cc.AssetLibrary.unloadAsset(uuid);     // force reload
+        // cc.AssetLibrary.unloadAsset(uuid);     // force reload
         console.time('LoadScene ' + uuid);
-        cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
+        cc.AssetLibrary.loadAsset(uuid, (error, sceneAsset) => {
             console.timeEnd('LoadScene ' + uuid);
-            var self = cc.director;
+            const self = cc.director;
             self._loadingScene = '';
             if (error) {
                 error = 'Failed to load scene: ' + error;
@@ -654,7 +791,7 @@ class Director extends EventTarget {
             }
             else {
                 if (sceneAsset instanceof cc.SceneAsset) {
-                    var scene = sceneAsset.scene;
+                    const scene = sceneAsset.scene;
                     scene._id = sceneAsset._uuid;
                     scene._name = sceneAsset._name;
                     if (CC_EDITOR) {
@@ -685,11 +822,11 @@ class Director extends EventTarget {
     }
 
     /**
-     * !#en Resume game logic execution after pause, if the current scene is not paused, nothing will happen.
-     * !#zh 恢复暂停场景的游戏逻辑，如果当前场景没有暂停将没任何事情发生。
+     * @en Resume game logic execution after pause, if the current scene is not paused, nothing will happen.
+     * @zh 恢复暂停场景的游戏逻辑，如果当前场景没有暂停将没任何事情发生。
      * @method resume
      */
-    resume () {
+    public resume () {
         if (!this._paused) {
             return;
         }
@@ -704,15 +841,15 @@ class Director extends EventTarget {
     }
 
     /**
-     * !#en
-     * Enables or disables WebGL depth test.<br/>
+     * @en
+     * Enables or disables WebGL depth test.<br>
      * Implementation can be found in directorCanvas.js/directorWebGL.js
-     * !#zh 启用/禁用深度测试（在 Canvas 渲染模式下不会生效）。
+     * @zh 启用/禁用深度测试（在 Canvas 渲染模式下不会生效）。
      * @method setDepthTest
      * @param {Boolean} on
      * @deprecated since v2.0
      */
-    setDepthTest (value) {
+    public setDepthTest (value) {
         if (!cc.Camera.main) {
             return;
         }
@@ -720,129 +857,130 @@ class Director extends EventTarget {
     }
 
     /**
-     * !#en
-     * Set color for clear screen.<br/>
+     * @en
+     * Set color for clear screen.<br>
      * (Implementation can be found in directorCanvas.js/directorWebGL.js)
-     * !#zh
-     * 设置场景的默认擦除颜色。<br/>
+     * @zh
+     * 设置场景的默认擦除颜色。<br>
      * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 cc.macro.ENABLE_TRANSPARENT_CANVAS。
      * @method setClearColor
      * @param {Color} clearColor
      * @deprecated since v2.0
      */
-    setClearColor (clearColor) {
+    public setClearColor (clearColor) {
         if (!cc.Camera.main) {
             return;
         }
         cc.Camera.main.backgroundColor = clearColor;
     }
 
-    get root() {
+    get root () {
         return this._root;
     }
 
     /**
-     * !#en Returns current logic Scene.
-     * !#zh 获取当前逻辑场景。
+     * @en Returns current logic Scene.
+     * @zh 获取当前逻辑场景。
      * @method getRunningScene
-     * @private
      * @return {Scene}
      * @deprecated since v2.0
      */
-    getRunningScene () {
+    public getRunningScene () {
         return this._scene;
     }
 
     /**
-     * !#en Returns current logic Scene.
-     * !#zh 获取当前逻辑场景。
+     * @en Returns current logic Scene.
+     * @zh 获取当前逻辑场景。
      * @method getScene
      * @return {Scene}
      * @example
      *  // This will help you to get the Canvas node in scene
      *  cc.director.getScene().getChildByName('Canvas');
      */
-    getScene () {
+    public getScene () {
         return this._scene;
     }
 
     /**
-     * !#en Returns the FPS value. Please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} to control animation interval.
-     * !#zh 获取单位帧执行时间。请使用 {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} 来控制游戏帧率。
+     * @en Returns the FPS value. Please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} to control animation interval.
+     * @zh 获取单位帧执行时间。请使用 {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} 来控制游戏帧率。
      * @method getAnimationInterval
      * @deprecated since v2.0
      * @return {Number}
      */
-    getAnimationInterval () {
+    public getAnimationInterval () {
         return 1000 / cc.game.getFrameRate();
     }
 
     /**
-     * Sets animation interval, this doesn't control the main loop.
-     * To control the game's frame rate overall, please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}}
+     * @en Sets animation interval, this doesn't control the main loop.<br>
+     * To control the game's frame rate overall, please use cc.game.setFrameRate
+     * @zh 设置动画间隔，这不控制主循环。<br>
+     * 要控制游戏的帧速率，请使用 cc.game.setFrameRate
      * @method setAnimationInterval
      * @deprecated since v2.0
      * @param {Number} value - The animation interval desired.
      */
-    setAnimationInterval (value) {
+    public setAnimationInterval (value) {
         cc.game.setFrameRate(Math.round(1000 / value));
     }
 
     /**
-     * !#en Returns the delta time since last frame.
-     * !#zh 获取上一帧的增量时间。
+     * @en Returns the delta time since last frame.
+     * @zh 获取上一帧的增量时间。
      * @method getDeltaTime
      * @return {Number}
      */
-    getDeltaTime () {
+    public getDeltaTime () {
         return this._deltaTime;
     }
 
     /**
-     * !#en Returns how many frames were called since the director started.
-     * !#zh 获取 director 启动以来游戏运行的总帧数。
+     * @en Returns how many frames were called since the director started.
+     * @zh 获取 director 启动以来游戏运行的总帧数。
      * @method getTotalFrames
      * @return {Number}
      */
-    getTotalFrames () {
+    public getTotalFrames () {
         return this._totalFrames;
     }
 
     /**
-     * !#en Returns whether or not the Director is paused.
-     * !#zh 是否处于暂停状态。
+     * @en Returns whether or not the Director is paused.
+     * @zh 是否处于暂停状态。
      * @method isPaused
      * @return {Boolean}
      */
-    isPaused () {
+    public isPaused () {
         return this._paused;
     }
 
     /**
-     * !#en Returns the cc.Scheduler associated with this director.
-     * !#zh 获取和 director 相关联的 cc.Scheduler。
+     * @en Returns the cc.Scheduler associated with this director.
+     * @zh 获取和 director 相关联的 cc.Scheduler。
      * @method getScheduler
      * @return {Scheduler}
      */
-    getScheduler () {
+    public getScheduler () {
         return this._scheduler;
     }
 
     /**
-     * !#en Sets the cc.Scheduler associated with this director.
-     * !#zh 设置和 director 相关联的 cc.Scheduler。
+     * @en Sets the cc.Scheduler associated with this director.
+     * @zh 设置和 director 相关联的 cc.Scheduler。
      * @method setScheduler
      * @param {Scheduler} scheduler
      */
-    setScheduler (scheduler) {
+    public setScheduler (scheduler) {
         if (this._scheduler !== scheduler) {
             this._scheduler = scheduler;
         }
     }
 
     /**
-     * !#en register a system.
-     * !#zh 注册一个system。
+     * @en register a system.
+     * @zh 注册一个 system。
      * @method registerSystem
      * @param {string} name
      * @param {function} cls
@@ -850,8 +988,8 @@ class Director extends EventTarget {
      * @param {number} priority
      * @return {System}
      */
-    registerSystem (name, cls, compClsNames, priority) {
-        let sys = new cls();
+    public registerSystem (name, cls, compClsNames, priority) {
+        const sys = new cls();
         sys._id = name;
         sys._priority = priority;
         compClsNames.forEach((compName) => {
@@ -864,33 +1002,33 @@ class Director extends EventTarget {
     }
 
     /**
-     * !#en get a system.
-     * !#zh 获取一个system。
+     * @en get a system.
+     * @zh 获取一个 system。
      * @param {string} name
      * @return {System}
      */
-    getSystem (name) {
+    public getSystem (name) {
         return this._systems.find((sys) => {
             return sys._id === name;
         });
     }
 
     /**
-     * !#en Returns the cc.ActionManager associated with this director.
-     * !#zh 获取和 director 相关联的 cc.ActionManager（动作管理器）。
+     * @en Returns the cc.ActionManager associated with this director.
+     * @zh 获取和 director 相关联的 cc.ActionManager（动作管理器）。
      * @method getActionManager
      * @return {ActionManager}
      */
-    getActionManager () {
+    public getActionManager () {
         return this._actionManager;
     }
     /**
-     * !#en Sets the cc.ActionManager associated with this director.
-     * !#zh 设置和 director 相关联的 cc.ActionManager（动作管理器）。
+     * @en Sets the cc.ActionManager associated with this director.
+     * @zh 设置和 director 相关联的 cc.ActionManager（动作管理器）。
      * @method setActionManager
      * @param {ActionManager} actionManager
      */
-    setActionManager (actionManager) {
+    public setActionManager (actionManager) {
         if (this._actionManager !== actionManager) {
             if (this._actionManager) {
                 this._scheduler.unscheduleUpdate(this._actionManager);
@@ -901,34 +1039,37 @@ class Director extends EventTarget {
     }
 
     /**
-     * !#en Returns the cc.AnimationManager associated with this director.
-     * !#zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。
+     * @en Returns the cc.AnimationManager associated with this director.
+     * @zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。
      * @method getAnimationManager
      */
-    getAnimationManager () {
+    public getAnimationManager () {
         return this._animationManager;
     }
 
     // Loop management
-    /*
-     * Starts Animation
+    /**
+     * @en Starts Animation
+     * @zh 开始动画
      */
-    startAnimation () {
+    public startAnimation () {
         this.invalid = false;
         this._lastUpdate = performance.now();
     }
 
-    /*
-     * Stops animation
+    /**
+     * @en Stops animation
+     * @zh 停止动画
      */
-    stopAnimation () {
+    public stopAnimation () {
         this.invalid = true;
     }
 
-    /*
-     * Run main loop of director
+    /**
+     * @en Run main loop of director
+     * @zh 运行主循环
      */
-    mainLoop () {
+    public mainLoop () {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
@@ -954,10 +1095,10 @@ class Director extends EventTarget {
                 CCObject._deferredDestroy();
             }
 
-            this._physicsSystem.update(this._deltaTime);
+            this._physicsSystem!.update(this._deltaTime);
 
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
-            this._root.frameMove(this._deltaTime); // Render
+            this._root!.frameMove(this._deltaTime); // Render
             this.emit(cc.Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
@@ -966,126 +1107,25 @@ class Director extends EventTarget {
         }
     }
 
-    __fastOn (type, callback, target) {
+    public __fastOn (type, callback, target) {
         this.add(type, callback, target);
     }
 
-    __fastOff (type, callback, target) {
+    public __fastOff (type, callback, target) {
         this.remove(type, callback, target);
     }
 }
-
-/**
- * !#en The event which will be triggered before loading a new scene.
- * !#zh 加载新场景之前所触发的事件。
- * @event cc.Director.EVENT_BEFORE_SCENE_LOADING
- * @param {String} sceneName - The loading scene name
- */
-/**
- * !#en The event which will be triggered before loading a new scene.
- * !#zh 加载新场景之前所触发的事件。
- * @property {String} EVENT_BEFORE_SCENE_LOADING
- * @readonly
- * @static
- */
-Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
-
-/*
- * !#en The event which will be triggered before launching a new scene.
- * !#zh 运行新场景之前所触发的事件。
- * @event cc.Director.EVENT_BEFORE_SCENE_LAUNCH
- * @param {String} sceneName - New scene which will be launched
- */
-/**
- * !#en The event which will be triggered before launching a new scene.
- * !#zh 运行新场景之前所触发的事件。
- * @property {String} EVENT_BEFORE_SCENE_LAUNCH
- * @readonly
- * @static
- */
-Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
-
-/**
- * !#en The event which will be triggered after launching a new scene.
- * !#zh 运行新场景之后所触发的事件。
- * @event cc.Director.EVENT_AFTER_SCENE_LAUNCH
- * @param {String} sceneName - New scene which is launched
- */
-/**
- * !#en The event which will be triggered after launching a new scene.
- * !#zh 运行新场景之后所触发的事件。
- * @property {String} EVENT_AFTER_SCENE_LAUNCH
- * @readonly
- * @static
- */
-Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
-
-/**
- * !#en The event which will be triggered at the beginning of every frame.
- * !#zh 每个帧的开始时所触发的事件。
- * @event cc.Director.EVENT_BEFORE_UPDATE
- */
-/**
- * !#en The event which will be triggered at the beginning of every frame.
- * !#zh 每个帧的开始时所触发的事件。
- * @property {String} EVENT_BEFORE_UPDATE
- * @readonly
- * @static
- */
-Director.EVENT_BEFORE_UPDATE = "director_before_update";
-
-/**
- * !#en The event which will be triggered after engine and components update logic.
- * !#zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
- * @event cc.Director.EVENT_AFTER_UPDATE
- */
-/**
- * !#en The event which will be triggered after engine and components update logic.
- * !#zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
- * @property {String} EVENT_AFTER_UPDATE
- * @readonly
- * @static
- */
-Director.EVENT_AFTER_UPDATE = "director_after_update";
-
-/**
- * !#en The event which will be triggered before the rendering process.
- * !#zh 渲染过程之前所触发的事件。
- * @event cc.Director.EVENT_BEFORE_DRAW
- */
-/**
- * !#en The event which will be triggered before the rendering process.
- * !#zh 渲染过程之前所触发的事件。
- * @property {String} EVENT_BEFORE_DRAW
- * @readonly
- * @static
- */
-Director.EVENT_BEFORE_DRAW = "director_before_draw";
-
-/**
- * !#en The event which will be triggered after the rendering process.
- * !#zh 渲染过程之后所触发的事件。
- * @event cc.Director.EVENT_AFTER_DRAW
- */
-/**
- * !#en The event which will be triggered after the rendering process.
- * !#zh 渲染过程之后所触发的事件。
- * @property {String} EVENT_AFTER_DRAW
- * @readonly
- * @static
- */
-Director.EVENT_AFTER_DRAW = "director_after_draw";
 
 /**
  * @module cc
  */
 
 /**
- * !#en Director
- * !#zh 导演类。
+ * @en Director
+ * @zh 导演类。
  * @property director
  * @type {Director}
  */
-let director = cc.director = new Director();
+const director: Director = cc.director = new Director();
 cc.Director = Director;
 export default director;

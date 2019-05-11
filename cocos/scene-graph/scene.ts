@@ -41,6 +41,14 @@ import { SceneGlobals } from './scene-globals';
  */
 @ccclass('cc.Scene')
 export class Scene extends Node {
+
+    get renderScene () {
+        return this._renderScene;
+    }
+
+    get globals () {
+        return this._globals;
+    }
     /**
      * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
      * !#zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
@@ -58,10 +66,10 @@ export class Scene extends Node {
      * For internal usage.
      */
     public _renderScene: RenderScene | null = null;
+    public dependAssets = null; // cache all depend assets for auto release
 
     protected _inited = !cc.game._isCloning;
     protected _prefabSyncedInLiveReload = false;
-    protected dependAssets = null; // cache all depend assets for auto release
 
     constructor (name: string) {
         super(name);
@@ -75,14 +83,6 @@ export class Scene extends Node {
         super.destroy();
         cc.director.root.destroyScene(this._renderScene);
         this._activeInHierarchy = false;
-    }
-
-    get renderScene () {
-        return this._renderScene;
-    }
-
-    get globals () {
-        return this._globals;
     }
 
     public _onHierarchyChanged () { }

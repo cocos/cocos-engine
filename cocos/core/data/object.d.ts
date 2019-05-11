@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 export class CCObject {
-    protected static _deferredDestroy(): void;
+    public static _deferredDestroy(): void;
     protected _name: string;
     protected _objFlags: number;
 
