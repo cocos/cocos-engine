@@ -402,7 +402,7 @@ let WebAudioElement = function (buffer, audio) {
             endTime = duration - offset;
             if (audio.start)
                 audio.start(0, startTime, endTime);
-            else if (audio["notoGrainOn"])
+            else if (audio["noteGrainOn"])
                 audio["noteGrainOn"](0, startTime, endTime);
             else
                 audio["noteOn"](0, startTime, endTime);
