@@ -18,7 +18,7 @@ import { builtinResMgr } from '../../../builtin';
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
 
-const _temp_trailEle = {} as ITrailElement;
+const _temp_trailEle = { position: cc.v3(), velocity: cc.v3() } as ITrailElement;
 const _temp_quat = cc.quat();
 const _temp_xform = cc.mat4();
 const _temp_vec3 = cc.v3();
@@ -172,9 +172,21 @@ export default class TrailModule {
      */
     @property({
         type: Space,
+    })
+    private _space = Space.World;
+
+    @property({
+        type: Space,
         displayOrder: 6,
     })
-    public space = Space.World;
+    public get space () {
+        return this._space;
+    }
+
+    public set space (val) {
+        this._space = val;
+        this._particleSystem.renderer._updateTrailMaterial();
+    }
 
     /**
      * 粒子本身是否存在
@@ -417,9 +429,14 @@ export default class TrailModule {
                 const j = i - trailSeg.start;
                 this._fillVertexBuffer(segEle, indexOffset, j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
             }
-            _temp_trailEle.position = p.position as Vec3;
+            if (this._needTransform) {
+                vec3.transformMat4(_temp_trailEle.position, p.position, _temp_xform);
+                vec3.transformQuat(_temp_trailEle.velocity, p.ultimateVelocity, _temp_quat);
+            } else {
+                vec3.copy(_temp_trailEle.position, p.position);
+                vec3.copy(_temp_trailEle.velocity, p.ultimateVelocity);
+            }
             _temp_trailEle.width = p.size.x;
-            _temp_trailEle.velocity = p.ultimateVelocity as Vec3;
             _temp_trailEle.color = p.color;
             this._fillVertexBuffer(_temp_trailEle, indexOffset, 1, trailNum, PRE_TRIANGLE_INDEX);
         }

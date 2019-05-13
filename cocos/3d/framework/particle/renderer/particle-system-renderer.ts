@@ -60,7 +60,6 @@ const _vertex_attrs_mesh = [
 ];
 
 @ccclass('cc.ParticleSystemRenderer')
-@executeInEditMode
 export default class ParticleSystemRenderer {
 
     /**
