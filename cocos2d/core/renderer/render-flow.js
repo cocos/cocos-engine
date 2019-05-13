@@ -38,6 +38,7 @@ _proto._worldTransform = function (node) {
     let position = node._position;
     t.m12 = position.x;
     t.m13 = position.y;
+    t.m14 = position.z;
 
     node._mulMat(node._worldMatrix, node._parent._worldMatrix, t);
     node._renderFlag &= ~WORLD_TRANSFORM;
