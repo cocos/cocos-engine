@@ -112,7 +112,7 @@ export class CallbacksHandler{
      * @param callback - 事件分派时将被调用的回调函数。
      * @param arget - 调用回调的目标。可以为空。
      */
-    public add (key: string, callback: Function, target?: Object) {
+    public add (key: string, callback: Function, target: Object | null = null) {
         let list = this._callbackTable[key];
         if (!list) {
             list = this._callbackTable[key] = callbackListPool.get!();
@@ -131,7 +131,7 @@ export class CallbacksHandler{
      * @param target - 调用回调的目标。
      * @return - 指定事件是否已注册回调。
      */
-    public hasEventListener (key: string, callback?: Function, target?: Object) {
+    public hasEventListener (key: string, callback?: Function, target: Object | null = null) {
         const list = this._callbackTable[key];
         if (!list) {
             return false;
@@ -154,7 +154,7 @@ export class CallbacksHandler{
             }
         }
 
-        target = target || undefined;
+        target = target || null;
         const targets = list.targets;
         for (let i = 0; i < callbacks.length; ++i) {
             if (callbacks[i] === callback && targets[i] === target) {
@@ -211,10 +211,10 @@ export class CallbacksHandler{
      * @param callback - 移除指定注册回调。如果没有给，则删除全部同事件类型的监听。
      * @param target - 调用回调的目标。
      */
-    public remove (key: string, callback?: Function, target?: Object) {
+    public remove (key: string, callback?: Function, target: Object | null = null) {
         const list = this._callbackTable[key];
         if (list) {
-            target = target || undefined;
+            target = target || null;
             const callbacks = list.callbacks;
             const targets = list.targets;
             for (let i = 0; i < callbacks.length; ++i) {

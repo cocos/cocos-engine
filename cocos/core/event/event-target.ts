@@ -58,7 +58,7 @@ export class EventTarget extends CallbacksInvoker {
      * }, node);
      * ```
      */
-    public on (type: string, callback: Function, target?: Object) {
+    public on (type: string, callback: Function, target: Object | null = null) {
         if (!callback) {
             cc.errorID(6800);
             return;
