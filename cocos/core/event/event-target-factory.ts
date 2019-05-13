@@ -1,5 +1,5 @@
 import * as js from '../utils/js';
-import { CallbacksInvoker } from './callbacks-invoker-base';
+import { CallbacksInvoker } from './callbacks-invoker';
 import Event from './event';
 
 const fastRemove = js.array.fastRemove;
@@ -163,7 +163,7 @@ export function EventTargetFactory<Base extends Constructor<{}>> (b?: Base) {
          * eventTarget.emit('fire', message, emitter);
          */
         public emit (type: string, ...args: any[]) {
-            return this._callbacksInvoker.invoke(type, ...args);
+            return this._callbacksInvoker.emit(type, ...args);
         }
 
         /**
@@ -175,7 +175,7 @@ export function EventTargetFactory<Base extends Constructor<{}>> (b?: Base) {
          * @param event
          */
         public dispatchEvent (event: Event) {
-            return this._callbacksInvoker.invoke(event.type, event);
+            return this._callbacksInvoker.emit(event.type, event);
         }
     }
     return EventTarget;
