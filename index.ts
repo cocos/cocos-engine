@@ -46,4 +46,6 @@ export * from './cocos/gfx';
 export * from './cocos/pipeline';
 export * from './extensions/ccpool/node-pool';
 
+export { cc as cclegacy };
+
 // export default cc;

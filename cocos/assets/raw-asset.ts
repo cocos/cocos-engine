@@ -52,8 +52,8 @@ export class RawAsset extends CCObject {
     // @ts-ignore
     public _uuid: string;
 
-    constructor () {
-        super();
+    constructor (...args: ConstructorParameters<typeof CCObject>) {
+        super(...args);
 
         Object.defineProperty(this, '_uuid', {
             value: '',
