@@ -15,6 +15,8 @@ import { GFXTextureView } from './texture-view';
 import { WebGLGFXDevice } from './webgl/webgl-device';
 import { WebGL2GFXDevice } from './webgl2/webgl2-device';
 
+export { GFXAttributeName, GFXFormat, GFXPrimitiveMode } from './define';
+
 cc.GFXDevice = GFXDevice;
 cc.GFXBuffer = GFXBuffer;
 cc.GFXTexture = GFXTexture;

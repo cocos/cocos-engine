@@ -1,4 +1,5 @@
 export * from './utils';
+export * from './define';
 export { default as box } from './box';
 export { default as cone } from './cone';
 export { default as cylinder } from './cylinder';

@@ -152,8 +152,8 @@ export class Asset extends RawAsset {
     @property
     public _native: string | undefined = '';
 
-    constructor () {
-        super();
+    constructor (...args: ConstructorParameters<typeof RawAsset>) {
+        super(...args);
     }
 
     /**
