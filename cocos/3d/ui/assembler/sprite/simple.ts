@@ -36,6 +36,7 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
+const _temp_vec3 = new Vec3();
 
 export const simple: IAssembler = {
     createData (sprite: SpriteComponent) {
@@ -83,8 +84,6 @@ export const simple: IAssembler = {
         const datas: IRenderData[] = sprite!.renderData!.datas;
         const node: Node = sprite.node;
 
-        node.getWorldMatrix(matrix);
-
         let buffer = renderer.currBufferBatch!;
         let vertexOffset = buffer.byteOffset >> 2;
         let indiceOffset = buffer.indiceOffset;
@@ -116,7 +115,7 @@ export const simple: IAssembler = {
         for (let i = 0; i < 4; i++) {
             // vertex
             const vertex = vec3_temps[i];
-            vec3.transformMat4(vertex, vertex, matrix);
+            // vec3.transformMat4(vertex, vertex, matrix);
 
             vbuf![vertexOffset++] = vertex.x;
             vbuf![vertexOffset++] = vertex.y;
@@ -185,14 +184,24 @@ export const simple: IAssembler = {
             t = ch + trimTop * scaleY - appy;
         }
 
-        datas[0].x = l;
-        datas[0].y = b;
+        node.getWorldMatrix(matrix);
+        vec3.set(_temp_vec3, l, b, 0);
+        vec3.transformMat4(_temp_vec3, _temp_vec3, matrix);
+        const spriteRect = sprite.renderData!.rect;
+        spriteRect.origin = _temp_vec3;
+        const hw = r - l;
+        const vw = t - b;
+        spriteRect.width = hw;
+        spriteRect.height = vw;
+
+        datas[0].x = _temp_vec3.x;
+        datas[0].y = _temp_vec3.y;
         // datas[1].x = r;
         // datas[1].y = b;
         // datas[2].x = l;
         // datas[2].y = t;
-        datas[3].x = r;
-        datas[3].y = t;
+        datas[3].x = _temp_vec3.x + hw;
+        datas[3].y = _temp_vec3.y + vw;
 
         renderData.vertDirty = false;
     },

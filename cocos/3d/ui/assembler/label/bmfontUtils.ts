@@ -713,14 +713,14 @@ export const bmfontUtils = {
                 }
 
                 const letterPositionX = letterInfo.positionX + _linesOffsetX[letterInfo.lineIndex];
-                this.appendQuad(renderData, texture, _tmpRect, isRotated, letterPositionX - appx, py - appy, _bmfontScale);
+                this.appendQuad(_comp, texture, _tmpRect, isRotated, letterPositionX - appx, py - appy, _bmfontScale);
             }
         }
 
         return ret;
     },
 
-    appendQuad (renderData, texture, rect, rotated, x, y, scale) {
+    appendQuad (comp, texture, rect, rotated, x, y, scale) {
     },
 
     _computeAlignmentOffset () {
