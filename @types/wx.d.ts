@@ -16,6 +16,7 @@ declare namespace wx {
     function getFileSystemManager(): FileSystemManager;
 
     function getSharedCanvas(): any;
+    function getOpenDataContext(): any;
 
     const onShow: any;
     const onHide: any;

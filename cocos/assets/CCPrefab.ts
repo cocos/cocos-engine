@@ -24,11 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {compile} from '../core/data/instantiate-jit';
-import Enum from '../core/value-types/enum';
-import {obsolete} from '../core/utils/js';
-import { Asset } from './asset';
 import {ccclass, property} from '../core/data/class-decorator';
+import {compile} from '../core/data/instantiate-jit';
+import {obsolete} from '../core/utils/js';
+import Enum from '../core/value-types/enum';
+import { Asset } from './asset';
 
 /**
  * !#zh
@@ -40,7 +40,7 @@ import {ccclass, property} from '../core/data/class-decorator';
  * @enum Prefab.OptimizationPolicy
  * @since 1.10.0
  */
-var OptimizationPolicy = Enum({
+const OptimizationPolicy = Enum({
     /**
      * !#zh
      * 根据创建次数自动调整优化策略。初次创建实例时，行为等同 SINGLE_INSTANCE，多次创建后将自动采用 MULTI_INSTANCE。
@@ -83,23 +83,15 @@ var OptimizationPolicy = Enum({
  */
 @ccclass('cc.Prefab')
 export default class Prefab extends Asset {
-    constructor () {
-        super();
-        /**
-         * Cache function to optimize instance creaton.
-         * @property {Function} _createFunction
-         * @private
-         */
-        this._createFunction = null;
 
-        this._instantiatedTimes = 0;
-    }
+    public static OptimizationPolicy = OptimizationPolicy;
 
+    public static OptimizationPolicyThreshold = 3;
     /**
      * @property {Node} data - the main cc.Node in the prefab
      */
     @property
-    data = null;
+    public data: any = null;
 
     /**
      * !#zh
@@ -115,7 +107,7 @@ export default class Prefab extends Asset {
      * prefab.optimizationPolicy = cc.Prefab.OptimizationPolicy.MULTI_INSTANCE;
      */
     @property
-    optimizationPolicy = OptimizationPolicy.AUTO;
+    public optimizationPolicy = OptimizationPolicy.AUTO;
 
     /**
      * !#en Indicates the raw assets of this prefab can be load after prefab loaded.
@@ -124,14 +116,24 @@ export default class Prefab extends Asset {
      * @default false
      */
     @property
-    asyncLoadAssets = false;
+    public asyncLoadAssets = false;
 
-    static OptimizationPolicy = OptimizationPolicy;
+    private _createFunction: Function | null;
+    private _instantiatedTimes: number;
+    constructor () {
+        super();
+        /**
+         * Cache function to optimize instance creaton.
+         * @property {Function} _createFunction
+         * @private
+         */
+        this._createFunction = null;
 
-    static OptimizationPolicyThreshold = 3;
+        this._instantiatedTimes = 0;
+    }
 
-    createNode (cb) {
-        var node = cc.instantiate(this);
+    public createNode (cb: Function): void {
+        const node = cc.instantiate(this);
         node.name = this.name;
         cb(null, node);
     }
@@ -142,14 +144,14 @@ export default class Prefab extends Asset {
      * but you can re-call to refresh the create function once you modified the original prefab data in script.
      * @method compileCreateFunction
      */
-    compileCreateFunction () {
+    public compileCreateFunction (): void {
         this._createFunction = compile(this.data);
     }
 
     // just instantiate, will not initialize the Node, this will be called during Node's initialization.
     // @param {Node} [rootToRedirect] - specify an instantiated prefabRoot that all references to prefabRoot in prefab
     //                                  will redirect to
-    _doInstantiate (rootToRedirect) {
+    private _doInstantiate (rootToRedirect?: any) {
         if (this.data._prefab) {
             // prefab asset is always synced
             this.data._prefab._synced = true;
@@ -161,11 +163,12 @@ export default class Prefab extends Asset {
         if (!this._createFunction) {
             this.compileCreateFunction();
         }
-        return this._createFunction(rootToRedirect);  // this.data._instantiate();
+        return this._createFunction!(rootToRedirect);  // this.data._instantiate();
     }
 
-    _instantiate () {
-        var node, useJit = false;
+    private _instantiate () {
+        let node;
+        let useJit: Boolean = false;
         if (CC_SUPPORT_JIT) {
             if (this.optimizationPolicy === OptimizationPolicy.SINGLE_INSTANCE) {
                 useJit = false;
@@ -194,7 +197,7 @@ export default class Prefab extends Asset {
 
         // link prefab in editor
         if (CC_EDITOR || CC_TEST) {
-            var PrefabUtils = Editor.require('scene://utils/prefab');
+            const PrefabUtils = Editor.require('scene://utils/prefab');
             // This operation is not necessary, but some old prefab asset may not contain complete data.
             PrefabUtils.linkPrefab(this, node);
         }
