@@ -389,7 +389,7 @@ export default class Pipeline {
                     var dependListener = cc.AssetLibrary.dependListener;
                     if (dependListener) {
                         for (var uuid in references) {
-                            dependListener.remove(uuid, references[uuid]);
+                            dependListener.off(uuid, references[uuid]);
                         }
                     }
                     removed.references = null;

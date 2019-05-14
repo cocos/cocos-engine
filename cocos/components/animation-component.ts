@@ -2,14 +2,14 @@
 import { AnimationClip, AnimationState } from '../animation';
 import { CrossFade } from '../animation/cross-fade';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
-import { IEventTarget, applyMixins } from '../core/event/event-target-factory';
 import { warnID } from '../core/platform/CCDebug';
 import * as ArrayUtils from '../core/utils/array';
 import { createMap } from '../core/utils/js-typed';
 import { ccenum } from '../core/value-types/enum';
 import { Component } from './component';
-import { EventTarget } from '../core';
-import { ICallbackTable } from '../core/event/callbacks-invoker';
+import { IEventTarget, applyMixins } from '../core/event/event-target-factory';
+import { EventTarget } from '../core/event/event-target';
+import { ICallbackTable, CallbacksInvoker } from '../core/event/callbacks-invoker';
 
 /**
  * !#en The event type supported by Animation
@@ -461,7 +461,7 @@ export class AnimationComponent extends Component implements IEventTarget {
 
 // for restore on and off
 const {on, off} = AnimationComponent.prototype;
-applyMixins(AnimationComponent, [EventTarget]);
+applyMixins(AnimationComponent, [CallbacksInvoker, EventTarget]);
 // restore
 AnimationComponent.prototype.on = on;
 AnimationComponent.prototype.off = off;

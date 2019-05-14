@@ -3,8 +3,8 @@
 import Skeleton from '../../3d/assets/skeleton';
 import { Filter, PixelFormat, WrapMode } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
-import { Mat4 } from '../../core';
-import { mat4, vec2, vec3, quat } from '../../core/vmath';
+import { Mat4 } from '../../core/value-types';
+import { mat4, vec3, quat } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';

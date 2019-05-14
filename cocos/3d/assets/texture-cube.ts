@@ -28,7 +28,6 @@ import { ImageAsset } from '../../assets/image-asset';
 import { TextureBase } from '../../assets/texture-base';
 import { postLoadImage } from '../../assets/texture-util';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { IEventTargetCallback } from '../../core/event/event-target-factory';
 import { GFXTextureFlagBit, GFXTextureViewType } from '../../gfx/define';
 
 interface ITextureCubeMipmap {

@@ -62,7 +62,7 @@ export class EventTarget extends CallbacksInvoker {
      * }, node);
      * ```
      */
-    public on (type: string, callback: Function, target: Object | null = null) {
+    public on (type: string, callback: Function, target?: Object) {
         if (!callback) {
             cc.errorID(6800);
             return;
@@ -172,16 +172,6 @@ export class EventTarget extends CallbacksInvoker {
             }
         }
         return callback;
-    }
-
-    /**
-     * @zh
-     * 通过事件对象派发事件
-     *
-     * @param event - 事件对象。
-     */
-    public dispatchEvent (event: Event) {
-        this.emit(event.type, event);
     }
 }
 

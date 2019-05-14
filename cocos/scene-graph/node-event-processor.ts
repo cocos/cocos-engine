@@ -1,4 +1,5 @@
-import { EventTarget, ITargetImpl } from '../core/event/event-target';
+import { ITargetImpl } from '../core/event/event-target';
+import { EventTarget, Event } from '../core/event';
 import { eventManager } from '../core/platform/event-manager';
 import Touch from '../core/platform/event-manager/CCTouch';
 import { EventType } from '../core/platform/event-manager/event-enum';
@@ -689,3 +690,5 @@ export class NodeEventProcessor {
         }
     }
 }
+
+cc.NodeEventProcessor = NodeEventProcessor;

@@ -9,7 +9,6 @@ import Vec2 from '../core/value-types/vec2';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
-import { NodeEventProcessor } from './node-event-processor';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -136,7 +135,7 @@ class Node extends BaseNode {
 
     constructor (name: string) {
         super(name);
-        this._eventProcessor = new NodeEventProcessor(this);
+        this._eventProcessor = new cc.NodeEventProcessor(this);
     }
 
     set position (value: vec3) {

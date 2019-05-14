@@ -28,8 +28,9 @@ import { ccclass, property } from '../core/data/class-decorator';
 import { Node } from '../scene-graph';
 import { RawAsset } from './raw-asset';
 import { IEventTarget, applyMixins } from '../core/event/event-target-factory';
-import { EventTarget } from 'cannon';
+import { EventTarget } from '../core/event/event-target';
 import { createMap } from '../core/utils/js-typed';
+import { CallbacksInvoker } from '../core/event/callbacks-invoker';
 
 /**
  * !#en
@@ -235,7 +236,7 @@ export class Asset extends RawAsset implements IEventTarget {
     public createNode? (callback: CreateNodeCallback): void;
 }
 
-applyMixins(Asset, [EventTarget]);
+applyMixins(Asset, [CallbacksInvoker, EventTarget]);
 
 /**
  * @param error - null or the error info
