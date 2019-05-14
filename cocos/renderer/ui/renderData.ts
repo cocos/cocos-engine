@@ -2,7 +2,7 @@
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
-import { Color } from '../../core/value-types';
+import { Color, Rect } from '../../core/value-types';
 
 export interface IRenderData {
     x: number;
@@ -62,6 +62,8 @@ export class RenderData extends BaseRenderData {
 
     public uvDirty: boolean = true;
     public vertDirty: boolean = true;
+    // for UI gizmos
+    public rect: Rect = new Rect();
     private _datas: IRenderData[] = [];
     private _indices: number[] = [];
     private _pivotX: number = 0;

@@ -34,7 +34,6 @@ import { IAssembler } from '../assembler';
 
 const vec3_temp = vec3.create();
 const matrix = new Mat4();
-const color_temp = color4.create();
 
 export const sliced: IAssembler = {
     useModel: false,
@@ -173,6 +172,14 @@ export const sliced: IAssembler = {
         const datas: IRenderData[] = sprite!.renderData!.datas;
 
         node.getWorldMatrix(matrix);
+        const rect = sprite.renderData!.rect;
+        const lb = datas[0];
+        const rt = datas[3];
+        vec3.set(vec3_temp, lb.x, lb.y, 0);
+        vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+        rect.origin = vec3_temp;
+        rect.width = rt.x - lb.x;
+        rect.height = rt.y - lb.y;
         for (let row = 0; row < 4; ++row) {
             const rowD = datas[row];
             for (let col = 0; col < 4; ++col) {

@@ -243,6 +243,11 @@ export const barFilled: IAssembler = {
             const world = datas[i];
             vec3.transformMat4(world, local, matrix);
         }
+
+        const rect = sprite.renderData!.rect;
+        rect.origin = datas[0];
+        rect.width = datas[3].x - datas[0].x;
+        rect.height = datas[3].y - datas[0].y;
     },
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
