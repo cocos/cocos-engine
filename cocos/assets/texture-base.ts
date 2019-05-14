@@ -25,7 +25,6 @@
  ****************************************************************************/
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
-import { EventTargetFactory } from '../core/event/event-target-factory';
 import IDGenerator from '../core/utils/id-generator';
 import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
@@ -41,7 +40,7 @@ const CHAR_CODE_1 = 49;    // '1'
 const idGenerator = new IDGenerator('Tex');
 
 @ccclass('cc.TextureBase')
-export class TextureBase extends EventTargetFactory(Asset) {
+export class TextureBase extends Asset {
 
     /**
      * !#en

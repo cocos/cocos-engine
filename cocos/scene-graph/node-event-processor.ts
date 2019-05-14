@@ -1,5 +1,4 @@
-import { EventTarget } from '../core/event/event-target';
-import { ITargetImpl } from '../core/event/event-target-factory';
+import { EventTarget, ITargetImpl } from '../core/event/event-target';
 import { eventManager } from '../core/platform/event-manager';
 import Touch from '../core/platform/event-manager/CCTouch';
 import { EventType } from '../core/platform/event-manager/event-enum';
@@ -393,7 +392,6 @@ export class NodeEventProcessor {
      */
     public once (type: string, callback: Function, target?: Object, useCapture?: Object) {
         const forDispatch = this._checknSetupSysEvent(type);
-        const eventType_hasOnceListener = '__ONCE_FLAG:' + type;
 
         let listeners: EventTarget;
         if (forDispatch && useCapture) {
@@ -403,17 +401,7 @@ export class NodeEventProcessor {
             listeners = this.bubblingTargets = this.bubblingTargets || new EventTarget();
         }
 
-        const hasOnceListener = listeners!.hasEventListener(eventType_hasOnceListener, callback, target);
-        if (!hasOnceListener) {
-            const self = this;
-            const onceWrapper = function (this: Object, ...args: any[]) {
-                self.off(type, onceWrapper, target);
-                listeners.remove(eventType_hasOnceListener, callback, target);
-                callback.call(this, ...args);
-            };
-            this.on(type, onceWrapper, target);
-            listeners.add(eventType_hasOnceListener, callback, target);
-        }
+        listeners.once(type, callback, target);
     }
 
     /**
@@ -654,7 +642,7 @@ export class NodeEventProcessor {
         }
 
         if (!listeners.hasEventListener(type, callback, target)) {
-            listeners.add(type, callback, target);
+            listeners.on(type, callback, target);
 
             const targetImpl = target as ITargetImpl;
             if (target) {
@@ -686,7 +674,7 @@ export class NodeEventProcessor {
         } else {
             const listeners = useCapture ? this.capturingTargets : this.bubblingTargets;
             if (listeners) {
-                listeners.remove(type, callback, target);
+                listeners.off(type, callback, target);
 
                 const targetImpl = target as ITargetImpl;
                 if (target) {
@@ -701,5 +689,3 @@ export class NodeEventProcessor {
         }
     }
 }
-
-cc.NodeEventProcessor = NodeEventProcessor;

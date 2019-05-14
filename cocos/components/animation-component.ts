@@ -2,12 +2,14 @@
 import { AnimationClip, AnimationState } from '../animation';
 import { CrossFade } from '../animation/cross-fade';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
-import { EventTargetFactory, IEventTargetCallback } from '../core/event/event-target-factory';
+import { IEventTarget, applyMixins } from '../core/event/event-target-factory';
 import { warnID } from '../core/platform/CCDebug';
 import * as ArrayUtils from '../core/utils/array';
 import { createMap } from '../core/utils/js-typed';
 import { ccenum } from '../core/value-types/enum';
 import { Component } from './component';
+import { EventTarget } from '../core';
+import { ICallbackTable } from '../core/event/callbacks-invoker';
 
 /**
  * !#en The event type supported by Animation
@@ -72,7 +74,8 @@ ccenum(EventType);
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/AnimationComponent')
-export class AnimationComponent extends EventTargetFactory(Component) {
+export class AnimationComponent extends Component implements IEventTarget {
+    public _callbackTable: ICallbackTable = createMap(true)
 
     /**
      * !#en Animation will play the default clip when start game.
@@ -343,11 +346,6 @@ export class AnimationComponent extends EventTargetFactory(Component) {
      * @param callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param [target] - The target (this object) to invoke the callback, can be null
-     * @param [useCapture=false] - When set to true, the capture argument prevents callback
-     *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
-     *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
-     *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
-     *
      * @return Just returns the incoming callback so you can save the anonymous function easier.
      * @typescript
      * on(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
@@ -360,9 +358,9 @@ export class AnimationComponent extends EventTargetFactory(Component) {
      * // register event to all animation
      * animation.on('play', this.onPlay, this);
      */
-    public on (type: string, callback: (state: AnimationState) => void, target?: Object | null, useCapture?: boolean) {
+    public on (type: string, callback: (state: AnimationState) => void, target?: Object) {
         this._init();
-        const ret = super.on(type, callback, target, useCapture);
+        const ret = EventTarget.prototype.on.call(this, type, callback, target);
         if (type === 'lastframe') {
             for (const stateName of Object.keys(this._nameToState)) {
                 this._nameToState[stateName]!._lastframeEventOn = true;
@@ -380,16 +378,11 @@ export class AnimationComponent extends EventTargetFactory(Component) {
      * @param {String} type - A string representing the event type being removed.
      * @param {Function} [callback] - The callback to remove.
      * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
-     * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
-     *                              If not specified, useCapture defaults to false. If a callback was registered twice,
-     *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
-     *                              does not affect a non-capturing version of the same listener, and vice versa.
-     *
      * @example
      * // unregister event to all animation
      * animation.off('play', this.onPlay, this);
      */
-    public off (type: string, callback: IEventTargetCallback, target?: Object | null, useCapture?: boolean) {
+    public off (type: string, callback: Function, target?: Object) {
         this._init();
 
         if (type === 'lastframe') {
@@ -400,8 +393,22 @@ export class AnimationComponent extends EventTargetFactory(Component) {
             }
         }
 
-        super.off(type, callback, target, useCapture);
+        EventTarget.prototype.off.call(this, type, callback, target);
     }
+
+    /**
+     * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
+     */
+    public targetOff(keyOrTarget?: string | Object | undefined): void {}
+    public once(type: string, callback: Function, target?: Object | undefined): Function | undefined {
+        return;
+    }
+    public dispatchEvent(event: import("../core").Event): void {}
+    public hasEventListener(key: string, callback?: Function | undefined, target?: Object | undefined): boolean {
+        return false;
+    }
+    public removeAll(keyOrTarget?: string | Object | undefined): void {}
+    public emit(key: string, ...args: any[]): void {}
 
     ///////////////////////////////////////////////////////////////////////////////
     // Internal Methods
@@ -451,6 +458,13 @@ export class AnimationComponent extends EventTargetFactory(Component) {
         return state;
     }
 }
+
+// for restore on and off
+const {on, off} = AnimationComponent.prototype;
+applyMixins(AnimationComponent, [EventTarget]);
+// restore
+AnimationComponent.prototype.on = on;
+AnimationComponent.prototype.off = off;
 
 cc.AnimationComponent = AnimationComponent;
 

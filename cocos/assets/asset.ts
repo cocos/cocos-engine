@@ -27,6 +27,9 @@
 import { ccclass, property } from '../core/data/class-decorator';
 import { Node } from '../scene-graph';
 import { RawAsset } from './raw-asset';
+import { IEventTarget, applyMixins } from '../core/event/event-target-factory';
+import { EventTarget } from 'cannon';
+import { createMap } from '../core/utils/js-typed';
 
 /**
  * !#en
@@ -50,7 +53,26 @@ import { RawAsset } from './raw-asset';
  * @extends RawAsset
  */
 @ccclass('cc.Asset')
-export class Asset extends RawAsset {
+export class Asset extends RawAsset implements IEventTarget {
+    /**
+     * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
+     */
+    public _callbackTable = createMap(true);
+    public on(type: string, callback: Function, target?: Object | undefined): Function | undefined {
+        return;
+    }
+    public off(type: string, callback?: Function | undefined, target?: Object | undefined): void {}
+    public targetOff(keyOrTarget?: string | Object | undefined): void {}
+    public once(type: string, callback: Function, target?: Object | undefined): Function | undefined {
+        return;
+    }
+    public dispatchEvent(event: import("../core").Event): void {}
+    public hasEventListener(key: string, callback?: Function | undefined, target?: Object | undefined): boolean {
+        return false;
+    }
+    public removeAll(keyOrTarget?: string | Object | undefined): void {}
+    public emit(key: string, ...args: any[]): void {}
+
     /**
      * !#en
      * Returns the url of this asset's native object, if none it will returns an empty string.
@@ -212,6 +234,8 @@ export class Asset extends RawAsset {
      */
     public createNode? (callback: CreateNodeCallback): void;
 }
+
+applyMixins(Asset, [EventTarget]);
 
 /**
  * @param error - null or the error info

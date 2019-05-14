@@ -93,7 +93,9 @@ export default class Pool<T> {
      * 获取并初始化对象池中的对象。这个方法默认为空，需要用户自己实现。
      * @param args - parameters to used to initialize the object
      */
-    public get: null | ((...args: any[]) => T);
+    public get () {
+        return this._get();
+    };
 
     private _pool: Array<T | null>;
     private _cleanup: CleanUpFunction<T> | null;
@@ -127,7 +129,6 @@ export default class Pool<T> {
     constructor (_0: CleanUpFunction<T> | number, _1?: number) {
         const size = (_1 === undefined) ? (_0 as number) : _1;
         const cleanupFunc = (_1 === undefined) ? null : (_0 as CleanUpFunction<T>);
-        this.get = null;
         this.count = 0;
         this._pool = new Array(size);
         this._cleanup = cleanupFunc;

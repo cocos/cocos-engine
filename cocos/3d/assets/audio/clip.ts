@@ -25,8 +25,6 @@
 
 import { Asset } from '../../../assets/asset';
 import { ccclass, property } from '../../../core/data/class-decorator';
-import { EventTargetFactory } from '../../../core/event/event-target-factory';
-import { Enum } from '../../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
@@ -41,7 +39,7 @@ export enum AudioType {
 ccenum(AudioType);
 
 @ccclass('cc.AudioClip')
-export class AudioClip extends EventTargetFactory(Asset) {
+export class AudioClip extends Asset {
 
     public set _nativeAsset (clip: any) {
         this._audio = clip;

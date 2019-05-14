@@ -26,10 +26,14 @@
 
 import { Event } from '.';
 import * as js from '../utils/js';
-import { ITargetImpl } from './../event/event-target-factory';
-import {CallbacksInvoker} from './callbacks-invoker';
+import { CallbacksInvoker } from './callbacks-invoker';
 
 const fastRemove = js.array.fastRemove;
+
+export interface ITargetImpl extends Object {
+    __eventTargets?: Object[];
+    node?: ITargetImpl;
+}
 
 /**
  * @zh
@@ -65,7 +69,7 @@ export class EventTarget extends CallbacksInvoker {
         }
 
         if (!this.hasEventListener(type, callback, target)) {
-            this.add(type, callback, target);
+            super.on(type, callback, target);
 
             const targetImpl = target as ITargetImpl;
             if (target) {
@@ -104,7 +108,7 @@ export class EventTarget extends CallbacksInvoker {
             this.removeAll(type);
         }
         else {
-            this.remove(type, callback, target);
+            super.off(type, callback, target);
 
             const targetImpl = target as ITargetImpl;
             if (target) {
@@ -150,18 +154,24 @@ export class EventTarget extends CallbacksInvoker {
      * ```
      */
     public once (type: string, callback: Function, target?: Object) {
-        const eventType_hasOnceListener = '__ONCE_FLAG:' + type;
-        const hasOnceListener = this.hasEventListener(eventType_hasOnceListener, callback, target);
-        if (!hasOnceListener) {
-            const self = this;
-            const onceWrapper = function (this: any, ...args: any[]) {
-                self.off(type, onceWrapper, target);
-                self.remove(eventType_hasOnceListener, callback, target);
-                callback.call(this, ...args);
-            };
-            this.on(type, onceWrapper, target);
-            this.add(eventType_hasOnceListener, callback, target);
+        if (!callback) {
+            cc.errorID(6800);
+            return;
         }
+
+        if (!this.hasEventListener(type, callback, target)) {
+            super.on(type, callback, target, true);
+
+            const targetImpl = target as ITargetImpl;
+            if (target) {
+                if (targetImpl.__eventTargets) {
+                    targetImpl.__eventTargets.push(this);
+                } else if (targetImpl.node && targetImpl.node.__eventTargets) {
+                    targetImpl.node.__eventTargets.push(this);
+                }
+            }
+        }
+        return callback;
     }
 
     /**

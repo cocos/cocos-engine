@@ -709,7 +709,7 @@ let proto = LoadingItems.prototype;
  * @param {Object} target - can be null
  * @return {Boolean} whether the key is new
  */
-proto.addListener = CallbacksInvoker.prototype.add;
+proto.addListener = CallbacksInvoker.prototype.on;
 
 /**
  * !#en
@@ -724,7 +724,7 @@ proto.addListener = CallbacksInvoker.prototype.add;
  * @param {Object} [target]
  * @return {Boolean}
  */
-proto.hasListener = CallbacksInvoker.prototype.has;
+proto.hasListener = CallbacksInvoker.prototype.hasEventListener;
 
 /**
  * !#en
@@ -739,7 +739,7 @@ proto.hasListener = CallbacksInvoker.prototype.has;
  * @param {Object} target
  * @return {Boolean} removed
  */
-proto.removeListener = CallbacksInvoker.prototype.remove;
+proto.removeListener = CallbacksInvoker.prototype.off;
 
 /**
  * !#en

@@ -24,7 +24,6 @@
  ****************************************************************************/
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
-import { EventTargetFactory } from '../core/event/event-target-factory';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 // import {addon} from '../core/utils/js';
 import { Asset } from './asset';
@@ -48,7 +47,7 @@ function fetchImageSource (imageSource: ImageSource) {
  * Class ImageAsset.
  */
 @ccclass('cc.ImageAsset')
-export class ImageAsset extends EventTargetFactory(Asset) {
+export class ImageAsset extends Asset {
 
     @property({override: true})
     get _nativeAsset () {
@@ -249,6 +248,5 @@ function _getGlobalDevice (): GFXDevice | null {
  *
  * @event loads
  */
-// addon(ImageAsset.prototype, EventTarget.prototype);
 
 cc.ImageAsset = ImageAsset;
