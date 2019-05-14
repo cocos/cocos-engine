@@ -382,7 +382,7 @@ export default class vec3 {
      * @param a - Vector to invert.
      * @return out.
      */
-    public static inverse<Out extends vec3> (out: Out, a: vec3) {
+    public static invert<Out extends vec3> (out: Out, a: vec3) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -396,7 +396,7 @@ export default class vec3 {
      * @param a - Vector to invert.
      * @return out.
      */
-    public static inverseSafe<Out extends vec3> (out: Out, a: vec3) {
+    public static invertSafe<Out extends vec3> (out: Out, a: vec3) {
         const { x, y, z } = a;
 
         if (Math.abs(x) < EPSILON) {

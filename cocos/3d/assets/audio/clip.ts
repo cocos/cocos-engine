@@ -26,16 +26,17 @@
 import { Asset } from '../../../assets/asset';
 import { ccclass, property } from '../../../core/data/class-decorator';
 import { EventTargetFactory } from '../../../core/event/event-target-factory';
+import { Enum } from '../../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
 
-export const AudioType = {
+export const AudioType = Enum({
     UNKNOWN_AUDIO: -1,
     WEB_AUDIO: 0,
     DOM_AUDIO: 1,
     WX_GAME_AUDIO: 2,
-};
+});
 
 @ccclass('cc.AudioClip')
 export class AudioClip extends EventTargetFactory(Asset) {

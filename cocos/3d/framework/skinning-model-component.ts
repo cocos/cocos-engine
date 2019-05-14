@@ -24,10 +24,10 @@
  ****************************************************************************/
 
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { Mat4 } from '../../core/value-types';
-import { mat4 } from '../../core/vmath';
+import { Mat4, Quat, Vec3 } from '../../core/value-types';
+import { mat4, quat, vec3 } from '../../core/vmath';
 import { GFXDevice } from '../../gfx/device';
-import { __DEFER_BINDPOSE_COMPUTATION__, JointStorageKind, selectStorageKind, SkinningModel } from '../../renderer/models/skinning-model';
+import { JointStorageKind, selectStorageKind, SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Mesh } from '../assets';
 import { Material } from '../assets/material';
@@ -36,10 +36,45 @@ import { aabb } from '../geom-utils';
 import { calculateBoneSpaceBounds } from '../misc/utils';
 import { ModelComponent } from './model-component';
 
-const _m4_tmp = new Mat4();
-const _m4_tmp2 = new Mat4();
+const v3_1 = new Vec3();
+const qt_1 = new Quat();
+const v3_2 = new Vec3();
+const m4_1 = new Mat4();
+const ab_1 = new aabb();
 
-type SkinningTarget = Map<string, Node>;
+class Joint {
+    public node: Node;
+    public position: Vec3 = new Vec3();
+    public rotation: Quat = new Quat();
+    public scale: Vec3 = new Vec3(1, 1, 1);
+    protected _lastUpdate = -1;
+    constructor (node: Node) { this.node = node; }
+    public update (parent: Joint) {
+        const totalFrames = cc.director.totalFrames;
+        if (this._lastUpdate >= totalFrames) { return; }
+        this._lastUpdate = totalFrames;
+        if (parent) {
+            vec3.mul(this.position, this.node.localPosition, parent.scale);
+            vec3.transformQuat(this.position, this.position, parent.rotation);
+            vec3.add(this.position, this.position, parent.position);
+            quat.mul(this.rotation, parent.rotation, this.node.localRotation);
+            vec3.mul(this.scale, parent.scale, this.node.localScale);
+        } else {
+            vec3.copy(this.position, this.node.localPosition);
+            quat.copy(this.rotation, this.node.localRotation);
+            vec3.copy(this.scale, this.node.localScale);
+        }
+    }
+}
+
+class JointManager {
+    public static get (node: Node) {
+        let joint = JointManager._joints.get(node);
+        if (!joint) { joint = new Joint(node); JointManager._joints.set(node, joint); }
+        return joint;
+    }
+    protected static _joints: Map<Node, Joint> = new Map();
+}
 
 /**
  * @en The Skinning Model Component
@@ -80,14 +115,15 @@ export class SkinningModelComponent extends ModelComponent {
         this._skinningRoot = value;
         this._resetSkinningTarget();
     }
+
     @property(Skeleton)
     private _skeleton: Skeleton | null = null;
 
     @property(Node)
     private _skinningRoot: Node | null = null;
 
-    private _skinningTarget: SkinningTarget | null = null;
-
+    private _joints: Joint[] = [];
+    private _jointParentIndices: number[] = [];
     private _boneSpaceBounds: null | Array<aabb | null> = null;
 
     constructor () {
@@ -102,77 +138,62 @@ export class SkinningModelComponent extends ModelComponent {
             }
         });
         this._resetSkinningTarget();
-        if (this.mesh && this._skeleton) {
+        if (CC_EDITOR && this.mesh && this._skeleton) {
             this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton);
         }
     }
 
-    public update (dt) {
+    public update () {
         this._tryUpdateMatrices();
     }
 
-    public onDestroy () {
-    }
-
-    public calculateSkinnedBounds (out?: aabb): boolean {
-        if (!this._skeleton ||
-            !this._boneSpaceBounds ||
-            !this._skinningTarget) {
-            return false;
-        }
-        out = out || new aabb();
-        let outInitialized = false;
-        const tmpAABB = new aabb();
-        for (let iJoint = 0; iJoint < this._skeleton.joints.length; ++iJoint) {
-            const bounds = this._boneSpaceBounds[iJoint];
-            if (!bounds) {
-                continue;
-            }
-            const joint = this._skeleton.joints[iJoint];
-            const targetNode = this._skinningTarget.get(joint);
-            if (!targetNode) {
-                continue;
-            }
-            const jointWorldTransform = _m4_tmp;
-            const transformedBoneBounds = tmpAABB;
-            targetNode.getWorldMatrix(jointWorldTransform);
-            aabb.transform(transformedBoneBounds, bounds, jointWorldTransform);
-            if (outInitialized) {
-                aabb.merge(out, out, transformedBoneBounds);
-            } else {
-                outInitialized = true;
-                aabb.copy(out, transformedBoneBounds);
-            }
-        }
-        return outInitialized;
-    }
-
     public _tryUpdateMatrices () {
-        if (!this._skeleton || !this._skinningTarget || !this._model) {
+        if (!this._skeleton || !this._model) {
             return;
         }
 
         const skinningModel = this._model as SkinningModel;
         const skeleton = this._skeleton;
-        const skinningTarget = this._skinningTarget;
+        const len = this._joints.length;
 
-        const isTextureStorage = skinningModel.isTextureStorage();
-        for (let iJoint = 0; iJoint < this._skeleton.joints.length; ++iJoint) {
-            const targetNode = skinningTarget.get(this._skeleton.joints[iJoint]);
-            if (!targetNode) {
-                continue;
-            }
-            if (isTextureStorage && __DEFER_BINDPOSE_COMPUTATION__) {
-                skinningModel.updateJointMatrix(iJoint, targetNode.worldMatrix);
-            } else {
-                const bindpose = skeleton.bindposes[iJoint];
-                const jointMatrix = _m4_tmp;
-                mat4.multiply(jointMatrix, targetNode.worldMatrix, bindpose);
-                skinningModel.updateJointMatrix(iJoint, jointMatrix);
-            }
+        for (let i = 0; i < len; ++i) {
+            const cur = this._joints[i];
+            cur.update(this._joints[this._jointParentIndices[i]]);
+            const bindpose = skeleton.bindposes[i];
+
+            vec3.mul(v3_1, bindpose.localPosition, cur.scale);
+            vec3.transformQuat(v3_1, v3_1, cur.rotation);
+            vec3.add(v3_1, v3_1, cur.position);
+            quat.mul(qt_1, cur.rotation, bindpose.localRotation);
+            vec3.mul(v3_2, cur.scale, bindpose.localScale);
+
+            skinningModel.updateJointData(i, v3_1, qt_1, v3_2);
         }
 
         skinningModel.commitJointMatrices();
+    }
+
+    public calculateSkinnedBounds (out?: aabb): boolean {
+        if (!this._skeleton || !this._boneSpaceBounds) {
+            return false;
+        }
+        out = out || new aabb();
+        let outInitialized = false;
+        const len = this._joints.length;
+        for (let i = 0; i < len; ++i) {
+            const bounds = this._boneSpaceBounds[i];
+            const targetNode = this._joints[i].node;
+            if (!bounds || !targetNode) { continue; }
+            targetNode.getWorldMatrix(m4_1);
+            aabb.transform(ab_1, bounds, m4_1);
+            if (outInitialized) {
+                aabb.merge(out, out, ab_1);
+            } else {
+                outInitialized = true;
+                aabb.copy(out, ab_1);
+            }
+        }
+        return outInitialized;
     }
 
     public _updateModelParams () {
@@ -181,40 +202,35 @@ export class SkinningModelComponent extends ModelComponent {
         super._updateModelParams();
     }
 
-    protected _onMeshChanged (old: Mesh | null) {
-        super._onMeshChanged(old);
-        if (this._skeleton) {
-            if (old) {
-                boneSpaceBoundsManager.unuse(old, this._skeleton);
-            }
-            if (this.mesh) {
-                this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton);
-            }
-        }
-    }
-
-    protected _onSkeletonChanged (old: Skeleton | null) {
-        if (this.mesh) {
-            if (old) {
-                boneSpaceBoundsManager.unuse(this.mesh, old);
-            }
-            if (this._skeleton) {
-                this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton);
-            }
-        }
+    protected _createModel () {
+        if (!this.node.scene) { return; }
+        const scene = this._getRenderScene();
+        this._model = scene.createModel(this._getModelConstructor(), this.node.parent!);
     }
 
     protected _getModelConstructor () {
         return SkinningModel;
     }
 
+    protected _onMeshChanged (old: Mesh | null) {
+        super._onMeshChanged(old);
+        if (!CC_EDITOR || !this._skeleton) { return; }
+        if (old) { boneSpaceBoundsManager.unuse(old, this._skeleton); }
+        if (this.mesh) { this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton); }
+    }
+
+    protected _onSkeletonChanged (old: Skeleton | null) {
+        if (!CC_EDITOR || !this.mesh) { return; }
+        if (old) { boneSpaceBoundsManager.unuse(this.mesh, old); }
+        if (this._skeleton) { this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton); }
+    }
+
     protected _onMaterialModified (index: number, material: Material) {
-        const device = _getGlobalDevice()!;
+        const device: GFXDevice = cc.director.root && cc.director.root.device;
         const kind = selectStorageKind(device);
         const mat = this.getMaterial(index, CC_EDITOR);
         if (mat) {
             mat.recompileShaders({
-                CC_BINDPOSE_COMPUTATION_DEFERED: __DEFER_BINDPOSE_COMPUTATION__,
                 CC_USE_SKINNING: true,
                 CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.textureRGBA32F || kind === JointStorageKind.textureRGBA8,
                 CC_JOINTS_TEXTURE_RGBA8: kind === JointStorageKind.textureRGBA8,
@@ -234,26 +250,19 @@ export class SkinningModelComponent extends ModelComponent {
             return;
         }
 
-        // Collect target to skin.
-        this._skinningTarget = new Map();
+        this._joints.length = 0;
         const rootNode = this._skinningRoot;
-        this._skeleton.joints.forEach((joint) => {
-            const targetNode = rootNode.getChildByPath(joint);
+        this._skeleton.joints.forEach((path) => {
+            const targetNode = rootNode.getChildByPath(path);
             if (!targetNode) {
-                console.warn(`Skinning target ${joint} not found in scene graph.`);
+                console.warn(`Skinning target ${path} not found in scene graph.`);
                 return;
             }
-            this._skinningTarget!.set(joint, targetNode);
+            // guaranteed to exist except the root
+            const parentIdx = this._joints.findIndex((j) => j.node === targetNode.parent);
+            this._joints.push(JointManager.get(targetNode));
+            this._jointParentIndices.push(parentIdx);
         });
-    }
-}
-
-function _getGlobalDevice (): GFXDevice | null {
-    // @ts-ignore
-    if (cc.director && cc.director.root) {
-        return cc.director.root.device;
-    } else {
-        return null;
     }
 }
 
