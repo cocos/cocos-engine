@@ -64,7 +64,7 @@ export class ValueType {
      * @param ratio - the interpolation coefficient
      * @returns
      */
-    public lerp (to: this, ratio: number) {
+    public lerp (to: this, ratio: number, out?: this) {
         cc.errorID('0100', js.getClassName(this) + '.lerp');
         return this.clone();
     }
