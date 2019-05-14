@@ -655,7 +655,30 @@ proto.loadResDir = function (url, type, progressCallback, completeCallback) {
 
     var urls = [];
     var uuids = resources.getUuidArray(url, type, urls);
-    this._loadResUuids(uuids, progressCallback, completeCallback, urls);
+    if (!type || cc.Class.isChildClassOf(type, cc.SpriteFrame)) {
+        // The spriteFrame url in spriteAtlas will be removed after build project.
+        // To show users the exact structure in asset panel (and match the behavior of other assets),
+        // we need to add them back.
+        this._loadResUuids(uuids, progressCallback, function (errors, assetRes, urlRes) {
+            // let assetResLength = ;
+            for (let i = 0; i < assetRes.length; ++i) {
+                if (assetRes[i] instanceof cc.SpriteAtlas) {
+                    let spriteFrames = assetRes[i].getSpriteFrames();
+                    for (let k in spriteFrames) {
+                        let sf = spriteFrames[k];
+                        assetRes.push(sf);
+                        if (urlRes) {
+                            urlRes.push(`${urlRes[i]}/${sf.name}`);
+                        }
+                    }
+                }
+            }
+            completeCallback && completeCallback(errors, assetRes, urlRes);
+        }, urls);
+    }
+    else {
+        this._loadResUuids(uuids, progressCallback, completeCallback, urls);
+    }
 };
 
 /**
