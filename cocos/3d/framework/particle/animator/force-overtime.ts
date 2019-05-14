@@ -8,6 +8,8 @@ import CurveRange from './curve-range';
 // tslint:disable: max-line-length
 const FORCE_OVERTIME_RAND_OFFSET = 212165;
 
+const _temp_v3 = cc.v3();
+
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule {
 
@@ -75,7 +77,7 @@ export default class ForceOvertimeModule {
 
     public animate (p, dt) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const force = vec3.create(this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET)), this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET)), this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET)));
+        const force = vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!);
         if (this.needTransform) {
             vec3.transformQuat(force, force, this.rotation);
         }

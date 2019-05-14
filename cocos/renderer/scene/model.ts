@@ -165,6 +165,9 @@ export class Model {
                 localBinding.buffer = undefined;
             }
         }
+        if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
+            this._localBindings.delete(UBOForwardLight.BLOCK.name);
+        }
         this._worldBounds = null;
         this._modelBounds = null;
         this._subModels.splice(0);
