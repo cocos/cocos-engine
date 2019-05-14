@@ -67,6 +67,11 @@ interface Document{
     webkitHidden: any;
 }
 
+interface HTMLElement{
+    content: any;
+    name: any;
+}
+
 interface ActiveXObject {
     new (s: string): any;
 }
@@ -96,5 +101,9 @@ declare namespace Editor {
     function log (message?: any, ...optionalParams: any[]): void;
     function error (message?: any, ...optionalParams: any[]): void;
     function warn (message?: any, ...optionalParams: any[]): void;
+    function require(str:String): any;
     const isMainProcess: boolean | undefined;
+    const Ipc: any;
+    const Utils: any;
+    const assets: any;
 }

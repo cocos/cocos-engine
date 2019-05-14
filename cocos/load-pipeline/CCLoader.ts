@@ -100,8 +100,8 @@ class CCLoader extends Pipeline {
     public downloader: Downloader;
     public loader: Loader;
     public onProgress: null;
+    public _assetTables: any;
 
-    private _assetTables: any;
     private _autoReleaseSetting: any;
     private _releasedAssetChecker_DEBUG: any;
     private _ownerQueue: any;
