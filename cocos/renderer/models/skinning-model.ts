@@ -3,7 +3,8 @@
 import Skeleton from '../../3d/assets/skeleton';
 import { Filter, PixelFormat, WrapMode } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
-import { mat4 } from '../../core/vmath';
+import { Mat4 } from '../../core';
+import { mat4, vec2, vec3, quat } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
@@ -13,12 +14,12 @@ import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
-import { Mat4 } from '../../core';
 
 const textureSizeBuffer = new Float32Array(4);
 const skinningVectors = JointUniformCapacity * 3; // both Mat3x4 and DQ
 
 const vertexVectorLeeway = 30; // the minimum number of free vectors guaranteed in vertex shader when using uniform joint storage
+const m4_1 = new Mat4();
 
 export enum JointStorageKind {
     textureRGBA8,
@@ -105,15 +106,16 @@ export class SkinningModel extends Model {
         }
     }
 
-    public updateJointMatrix (iMatrix: number, matrix: Mat4) {
+    public updateJointData (iMatrix: number, pos: vec3, rot: quat, scale: vec3) {
         if (!this._binded) {
             return;
         }
         const { jointStorage } = this._binded;
+        mat4.fromRTS(m4_1, rot, pos, scale);
         if (isTextureStorage(jointStorage)) {
-            jointStorage.texture.set(iMatrix, matrix);
+            jointStorage.texture.set(iMatrix, m4_1);
         } else {
-            setMat4InUniform(jointStorage.nativeData, iMatrix, matrix);
+            setMat4InUniform(jointStorage.nativeData, iMatrix, m4_1);
         }
     }
 

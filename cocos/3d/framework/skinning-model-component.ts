@@ -36,6 +36,9 @@ import { aabb } from '../geom-utils';
 import { calculateBoneSpaceBounds } from '../misc/utils';
 import { ModelComponent } from './model-component';
 
+const v3_1 = new Vec3();
+const qt_1 = new Quat();
+const v3_2 = new Vec3();
 const m4_1 = new Mat4();
 const ab_1 = new aabb();
 
@@ -156,9 +159,15 @@ export class SkinningModelComponent extends ModelComponent {
         for (let i = 0; i < len; ++i) {
             const cur = this._joints[i];
             cur.update(this._joints[this._jointParentIndices[i]]);
-            mat4.fromRTS(m4_1, cur.rotation, cur.position, cur.scale);
-            mat4.multiply(m4_1, m4_1, skeleton.bindposes[i]);
-            skinningModel.updateJointMatrix(i, m4_1);
+            const bindpose = skeleton.bindposes[i];
+
+            vec3.mul(v3_1, bindpose.localPosition, cur.scale);
+            vec3.transformQuat(v3_1, v3_1, cur.rotation);
+            vec3.add(v3_1, v3_1, cur.position);
+            quat.mul(qt_1, cur.rotation, bindpose.localRotation);
+            vec3.mul(v3_2, cur.scale, bindpose.localScale);
+
+            skinningModel.updateJointData(i, v3_1, qt_1, v3_2);
         }
 
         skinningModel.commitJointMatrices();

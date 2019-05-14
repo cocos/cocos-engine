@@ -26,7 +26,7 @@
 import { _decorator } from '../../core/data';
 const { ccclass, property } = _decorator;
 import { Asset } from '../../assets/asset';
-import { Mat4 } from '../../core/value-types';
+import { Node } from '../../scene-graph/node';
 
 /**
  * CLASS Skeleton
@@ -48,21 +48,21 @@ export default class Skeleton extends Asset {
     /**
      * The inverse bind matrices of joints.
      */
-    @property([Mat4])
-    private _inverseBindMatrices: Mat4[] = [];
+    @property([Node])
+    private _bindposes: Node[] = [];
 
     /**
      * Gets the bind pose matrices of joints.
      */
     get bindposes () {
-        return this._inverseBindMatrices;
+        return this._bindposes;
     }
 
     /**
      * Sets the bind pose matrices of joints.
      */
     set bindposes (value) {
-        this._inverseBindMatrices = value;
+        this._bindposes = value;
     }
 
     /**
