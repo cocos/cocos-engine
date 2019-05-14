@@ -9,6 +9,8 @@ import CurveRange from './curve-range';
 // tslint:disable: max-line-length
 const VELOCITY_OVERTIME_RAND_OFFSET = 197866;
 
+const _temp_v3 = cc.v3();
+
 @ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule {
 
@@ -84,7 +86,7 @@ export default class VelocityOvertimeModule {
 
     public animate (p: Particle) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const vel = vec3.create(this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET)), this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET)), this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET)));
+        const vel = vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!);
         if (this.needTransform) {
             vec3.transformQuat(vel, vel, this.rotation);
         }

@@ -8,6 +8,8 @@ import CurveRange from './curve-range';
 // tslint:disable: max-line-length
 const LIMIT_VELOCITY_RAND_OFFSET = 23541;
 
+const _temp_v3 = cc.v3();
+
 @ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule {
 
@@ -96,7 +98,7 @@ export default class LimitVelocityOvertimeModule {
 
     public animate (p: Particle) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const dampedVel = vec3.create(0, 0, 0);
+        const dampedVel = _temp_v3;
         if (this.separateAxes) {
             vec3.set(dampedVel,
                 dampenBeyondLimit(p.ultimateVelocity.x, this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen),
