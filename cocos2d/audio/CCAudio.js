@@ -326,13 +326,17 @@ Audio.State = {
                 this._state = Audio.State.INITIALZING;
             }
             return clip;
-        }
+        },
+        enumerable: true,
+        configurable: true
     });
 
     Object.defineProperty(proto, 'paused', {
         get: function () {
             return this._element ? this._element.paused : true;
-        }
+        },
+        enumerable: true,
+        configurable: true
     });
 
     // setFinishCallback
@@ -459,7 +463,9 @@ let WebAudioElement = function (buffer, audio) {
 
             // Current time -  Start playing time > Audio duration
             return this._context.currentTime - this._startTime > this._buffer.duration;
-        }
+        },
+        enumerable: true,
+        configurable: true
     });
 
     Object.defineProperty(proto, 'loop', {
@@ -471,7 +477,9 @@ let WebAudioElement = function (buffer, audio) {
                 this._currentSource.loop = bool;
 
             return this._loop = bool;
-        }
+        },
+        enumerable: true,
+        configurable: true
     });
 
     Object.defineProperty(proto, 'volume', {
@@ -492,7 +500,10 @@ let WebAudioElement = function (buffer, audio) {
                 this.play();
             }
             return num;
-        }
+        },
+        enumerable: true,
+        configurable: true,
+        writable: true
     });
 
     Object.defineProperty(proto, 'currentTime', {
@@ -515,13 +526,18 @@ let WebAudioElement = function (buffer, audio) {
                 this.playedLength = num;
             }
             return num;
-        }
+        },
+        enumerable: true,
+        configurable: true,
+        writable: true
     });
 
     Object.defineProperty(proto, 'duration', {
         get: function () {
             return this._buffer.duration;
-        }
+        },
+        enumerable: true,
+        configurable: true
     });
 
 })(WebAudioElement.prototype);
