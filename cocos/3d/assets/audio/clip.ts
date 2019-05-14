@@ -30,13 +30,15 @@ import { Enum } from '../../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
+import { ccenum } from '../../../core/value-types/enum';
 
-export const AudioType = Enum({
-    UNKNOWN_AUDIO: -1,
-    WEB_AUDIO: 0,
-    DOM_AUDIO: 1,
-    WX_GAME_AUDIO: 2,
-});
+export enum AudioType {
+    UNKNOWN_AUDIO = -1,
+    WEB_AUDIO,
+    DOM_AUDIO,
+    WX_GAME_AUDIO,
+};
+ccenum(AudioType);
 
 @ccclass('cc.AudioClip')
 export class AudioClip extends EventTargetFactory(Asset) {
