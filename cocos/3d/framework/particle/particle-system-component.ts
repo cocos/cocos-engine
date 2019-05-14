@@ -219,6 +219,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         type: Material,
         displayName: 'Materials',
         visible: false,
+        override: true,
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
