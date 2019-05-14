@@ -502,8 +502,7 @@ let WebAudioElement = function (buffer, audio) {
             return num;
         },
         enumerable: true,
-        configurable: true,
-        writable: true
+        configurable: true
     });
 
     Object.defineProperty(proto, 'currentTime', {
@@ -528,8 +527,7 @@ let WebAudioElement = function (buffer, audio) {
             return num;
         },
         enumerable: true,
-        configurable: true,
-        writable: true
+        configurable: true
     });
 
     Object.defineProperty(proto, 'duration', {
