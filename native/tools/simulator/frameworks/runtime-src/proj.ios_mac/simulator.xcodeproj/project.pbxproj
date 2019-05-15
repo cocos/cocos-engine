@@ -828,7 +828,7 @@
 					"$(SRCROOT)/../../../libsimulator/lib/protobuf-lite",
 				);
 				INFOPLIST_FILE = ios/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = Simulator;
 				PROVISIONING_PROFILE = "";
@@ -864,7 +864,7 @@
 					"$(SRCROOT)/../../../libsimulator/lib/protobuf-lite",
 				);
 				INFOPLIST_FILE = ios/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = "";
 				PRODUCT_NAME = Simulator;
 				PROVISIONING_PROFILE = "";
