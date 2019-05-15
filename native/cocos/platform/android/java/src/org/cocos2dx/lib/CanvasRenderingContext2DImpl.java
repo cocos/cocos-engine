@@ -370,9 +370,7 @@ public class CanvasRenderingContext2DImpl {
         mTextPaint.setStyle(Paint.Style.FILL);
         scaleX(mTextPaint, text, maxWidth);
         Point pt = convertDrawPoint(new Point(x, y), text);
-        // Convert to baseline Y
-        float baselineY = pt.y - mTextPaint.getFontMetrics().descent;
-        mCanvas.drawText(text, pt.x, baselineY, mTextPaint);
+        mCanvas.drawText(text, pt.x, pt.y, mTextPaint);
     }
 
     private void strokeText(String text, float x, float y, float maxWidth) {
@@ -383,9 +381,7 @@ public class CanvasRenderingContext2DImpl {
         mTextPaint.setStrokeWidth(mLineWidth);
         scaleX(mTextPaint, text, maxWidth);
         Point pt = convertDrawPoint(new Point(x, y), text);
-        // Convert to baseline Y
-        float baselineY = pt.y - mTextPaint.getFontMetrics().descent;
-        mCanvas.drawText(text, pt.x, baselineY, mTextPaint);
+        mCanvas.drawText(text, pt.x, pt.y, mTextPaint);
     }
 
     private float measureText(String text) {

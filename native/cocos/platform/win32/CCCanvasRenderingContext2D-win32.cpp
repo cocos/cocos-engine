@@ -120,7 +120,7 @@ public:
         DeleteObject(_hpen);
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
-        _imageData = _getTextureData();
+        _fillTextureData();
     }
 
     void saveContext()
@@ -156,10 +156,11 @@ public:
         uint8_t* buffer = _imageData.getBytes();
         if (buffer)
         {
-            uint8_t r = _fillStyle.r * 255.0f;
-            uint8_t g = _fillStyle.g * 255.0f;
-            uint8_t b = _fillStyle.b * 255.0f;
-            uint8_t a = _fillStyle.a;
+            float alpha = _fillStyle.a;
+            uint8_t r = _fillStyle.r * 255.0f * alpha;
+            uint8_t g = _fillStyle.g * 255.0f * alpha;
+            uint8_t b = _fillStyle.b * 255.0f * alpha;
+            uint8_t a = _fillStyle.a * 255.0f;
             fillRectWithColor(buffer, (uint32_t)_bufferWidth, (uint32_t)_bufferHeight, (uint32_t)x, (uint32_t)y, (uint32_t)w, (uint32_t)h, r, g, b, a);
         }
     }
@@ -173,7 +174,7 @@ public:
         Point offsetPoint = _convertDrawPoint(Point(x, y), text);
 
         _drawText(text, (int)offsetPoint.x, (int)offsetPoint.y);
-        _imageData = _getTextureData();
+        _fillTextureData();
 
     }
 
@@ -370,6 +371,8 @@ private:
     cocos2d::Color4F _fillStyle;
     cocos2d::Color4F _strokeStyle;
 
+    TEXTMETRIC _tm;
+
     // change utf-8 string to utf-16, pRetLen is the string length after changing
     wchar_t * _utf8ToUtf16(const std::string& str, int * pRetLen = nullptr)
     {
@@ -514,14 +517,15 @@ private:
         return true;
     }
 
-    Data _getTextureData()
+    void _fillTextureData()
     {
-        Data ret;
         do
         {
             int dataLen = _bufferWidth * _bufferHeight * 4;
             unsigned char* dataBuf = (unsigned char*)malloc(sizeof(unsigned char) * dataLen);
             CC_BREAK_IF(!dataBuf);
+            unsigned char* imageBuf = _imageData.getBytes();
+            CC_BREAK_IF(!imageBuf);
 
             struct
             {
@@ -541,12 +545,15 @@ private:
             uint8_t r, g, b;
             float alpha = _fillStyle.a;
             COLORREF * pPixel = nullptr;
+            COLORREF * pImage = nullptr;
             for (int y = 0; y < _bufferHeight; ++y)
             {
                 pPixel = (COLORREF *)dataBuf + y * (int)_bufferWidth;
+                pImage = (COLORREF *)imageBuf + y * (int)_bufferWidth;
                 for (int x = 0; x < _bufferWidth; ++x)
                 {
                     COLORREF& clr = *pPixel;
+                    COLORREF& val = *pImage;
                     uint8_t dirtyValue = GetRValue(clr);
                     // "dirtyValue > 0" means pixel was covered when drawing text
                     if (dirtyValue > 0)
@@ -556,16 +563,13 @@ private:
                         g = _fillStyle.g * dirtyValue * alpha;
                         b = _fillStyle.b * dirtyValue * alpha;
                         COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
-                        clr = ((BYTE)(dirtyValue * alpha) << 24) | textColor;
+                        val = ((BYTE)(dirtyValue * alpha) << 24) | textColor;
                     }
                     ++pPixel;
+                    ++pImage;
                 }
             }
-
-            ret.fastSet(dataBuf, dataLen);
         } while (0);
-
-        return ret;
     }
 
     Point _convertDrawPoint(Point point, std::string text) {
@@ -587,14 +591,11 @@ private:
         {
             point.y += _fontSize / 2.0f;
         }
-        // The origin of drawing text on win32 is from top-left, but now we get bottom-left,
-        // So, we need to substract the font size to convert 'point' to top-left.
-        point.y -= _fontSize;
 
-        // We use font size to calculate text height, but draw text on win32 is based on
-        // the real font height and in top-left position, substract the adjust value to make text inside text rectangle.
-        // check
-        // point.y -= (textSize.height - _fontSize) / 2.0f;
+        // Since the web platform cannot get the baseline of the font, an additive offset is performed for all platforms.
+        // That's why we should add baseline back again on other platforms
+        GetTextMetrics(_DC, &_tm);
+        point.y -= _tm.tmAscent;
 
         return point;
     }
