@@ -1353,7 +1353,7 @@ let NodeDefines = {
             trs[1] = this._position.x;
             trs[2] = this._position.y;
             trs[3] = this._position.z || 0;
-            this._position = undefined;
+            // this._position = undefined;
         }
 
         // TODO: remove _quat in future version, 3.0 ?
@@ -1363,7 +1363,7 @@ let NodeDefines = {
             trs[5] = quat.y;
             trs[6] = quat.z;
             trs[7] = quat.w;
-            this._quat = undefined;
+            // this._quat = undefined;
         }
         _quata.fromRotation(trs).toEuler(this._eulerAngles);
 
@@ -1395,7 +1395,7 @@ let NodeDefines = {
             trs[8] = this._scale.x;
             trs[9] = this._scale.y;
             trs[10] = this._scale.z;
-            this._scale = undefined;
+            // this._scale = undefined;
         }
         trs[0] |= RenderFlow.FLAG_TRANSFORM;
 
