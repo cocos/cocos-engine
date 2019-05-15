@@ -1,30 +1,14 @@
+import { Quat, ValueType, Vec2, Vec3, Vec4, vmath } from '../core';
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
-import { PropertyBlendState as PropertyBlendTarget } from './animation-blend-state';
-import { AnimationState } from './animation-state';
+import { ccenum } from '../core/value-types/enum';
+import { PropertyBlendState } from './animation-blend-state';
 import { bezierByTime } from './bezier';
-// import { easing } from './easing';
+import * as blending from './blending';
 import * as easing from './easing';
-import { WrapModeMask, WrappedInfo } from './types';
-
-/**
- * 动画数据类，相当于 AnimationClip。
- * 虽然叫做 AnimCurve，但除了曲线，可以保存任何类型的值。
- */
-@ccclass('cc.AnimCurve')
-export class AnimCurve {
-    public onTimeChangedManually? (time: number, state): void;
-
-    /**
-     * @param time
-     * @param ratio The normalized time specified as a number between 0.0 and 1.0 inclusive.
-     * @param state
-     */
-    public sample (time: number, ratio: number, state: AnimationState) {
-
-    }
-}
+import { MotionPath, sampleMotionPaths } from './motion-path-helper';
+import { ILerpable, isLerpable } from './types';
 
 export type CurveValue = any;
 
@@ -32,13 +16,13 @@ export interface ICurveTarget {
     [x: string]: any;
 }
 
-export type LerpFunction<T = any> = (from: T, to: T, t: number) => T;
+export type LerpFunction<T = any> = (from: T, to: T, t: number, dt: number) => T;
 
 /**
  * If propertyBlendState.weight equals to zero, the propertyBlendState.value is dirty.
  * You shall handle this situation correctly.
  */
-export type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendTarget) => T;
+export type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendState) => T;
 
 export type FrameFinder = (framevalues: number[], value: number) => number;
 
@@ -49,6 +33,36 @@ export type BezierType = [number, number, number, number];
 export type EasingMethodName = keyof (typeof easing);
 
 export type CurveType = LinearType | BezierType | EasingMethodName;
+
+export enum AnimationInterpolation {
+    Linear = 0,
+    Step = 1,
+    CubicSpline = 2,
+}
+ccenum(AnimationInterpolation);
+cc.AnimationInterpolation = AnimationInterpolation;
+
+type EasingMethod = EasingMethodName | number[];
+
+// tslint:disable-next-line:interface-name
+export interface PropertyCurveData {
+    keys: number;
+    values: CurveValue[];
+    easingMethod?: EasingMethod;
+    easingMethods?: EasingMethod[];
+    motionPaths?: MotionPath | MotionPath[];
+
+    /**
+     * When the interpolation is 'AnimationInterpolation.CubicSpline', the values must be array of ICubicSplineValue.
+     */
+    interpolation?: AnimationInterpolation;
+}
+
+interface ICubicSplineValue<T> {
+    inTangent: T;
+    dataPoint: T;
+    outTangent: T;
+}
 
 export class RatioSampler {
     public ratios: number[];
@@ -88,25 +102,16 @@ export class RatioSampler {
     }
 }
 
-@ccclass('cc.DynamicAnimCurve')
-export class DynamicAnimCurve extends AnimCurve {
+/**
+ * 动画曲线。
+ */
+@ccclass('cc.AnimCurve')
+export class AnimCurve {
     public static Linear = null;
 
     public static Bezier (controlPoints: number[]) {
         return controlPoints as BezierType;
     }
-
-    /**
-     * The object being animated.
-     */
-    @property
-    public target: ICurveTarget | null = null;
-
-    /**
-     * The name of the property being animated.
-     */
-    @property
-    public prop: string = '';
 
     /**
      * The values of the keyframes. (y)
@@ -126,20 +131,99 @@ export class DynamicAnimCurve extends AnimCurve {
     @property
     public type?: CurveType = null;
 
+    public _blendFunction: BlendFunction<any> | undefined = undefined;
+
     /**
      * Lerp function used. If undefined, no lerp is performed.
      */
-    public _lerp: LerpFunction | undefined = undefined;
+    private _lerp: LerpFunction | undefined = undefined;
 
-    public _blendFunction: BlendFunction<any> | undefined = undefined;
+    private _stepfiedValues?: any[];
 
-    private _propertyBlendTarget: PropertyBlendTarget<any> | null = null;
+    private _interpolation: AnimationInterpolation;
 
-    public setPropertyBlendTarget (value: PropertyBlendTarget<any> | null) {
-        this._propertyBlendTarget = value;
+    constructor (propertyCurveData: PropertyCurveData, propertyName: string, isNode: boolean, ratioSampler: RatioSampler | null) {
+        this._interpolation = propertyCurveData.interpolation || AnimationInterpolation.Linear;
+
+        this.ratioSampler = ratioSampler;
+
+        // Install values.
+        this.values = propertyCurveData.values;
+
+        const getCurveType = (easingMethod: EasingMethod) => {
+            if (typeof easingMethod === 'string') {
+                return easingMethod;
+            } else if (Array.isArray(easingMethod)) {
+                if (easingMethod[0] === easingMethod[1] &&
+                    easingMethod[2] === easingMethod[3]) {
+                    return AnimCurve.Linear;
+                } else {
+                    return AnimCurve.Bezier(easingMethod);
+                }
+            } else {
+                return AnimCurve.Linear;
+            }
+        };
+        if (propertyCurveData.easingMethod !== undefined) {
+            this.type = getCurveType(propertyCurveData.easingMethod);
+        } else if (propertyCurveData.easingMethods !== undefined) {
+            this.types = propertyCurveData.easingMethods.map(getCurveType);
+        } else {
+            this.type = null;
+        }
+
+        // Setup the lerp function.
+        const firstValue = propertyCurveData.values[0];
+        if (this._interpolation === AnimationInterpolation.Linear) {
+            this._lerp = selectLinearLerpFx(firstValue);
+        } else if (this._interpolation === AnimationInterpolation.CubicSpline) {
+            this._lerp = selectCubicSplineLerpFx(firstValue ? firstValue.inTangent : undefined);
+        }
+
+        // Setup the blend function.
+        if (isNode) {
+            switch (propertyName) {
+                case 'position':
+                    this._blendFunction = blending.additive3D;
+                    break;
+                case 'scale':
+                    this._blendFunction = blending.additive3D;
+                    break;
+                case 'rotation':
+                    this._blendFunction = blending.additiveQuat;
+                    break;
+            }
+        }
     }
 
-    public sample (time: number, ratio: number, state: AnimationState) {
+    /**
+     * @param ratio The normalized time specified as a number between 0.0 and 1.0 inclusive.
+     */
+    public sample (ratio: number): any {
+        if (!this._stepfiedValues) {
+            return this._sampleFromOriginal(ratio);
+        } else {
+            const ratioStep = 1 / this._stepfiedValues.length;
+            const i = Math.floor(ratio / ratioStep);
+            return this._stepfiedValues[i];
+        }
+    }
+
+    public stepfy (stepCount: number) {
+        this._stepfiedValues = undefined;
+        if (stepCount === 0) {
+            return;
+        }
+        this._stepfiedValues = new Array(stepCount);
+        const ratioStep = 1 / stepCount;
+        let curRatio = 0;
+        for (let i = 0; i < stepCount; ++i, curRatio += ratioStep) {
+            const value = this._sampleFromOriginal(curRatio);
+            this._stepfiedValues[i] = value instanceof ValueType ? value.clone() : value;
+        }
+    }
+
+    private _sampleFromOriginal (ratio: number) {
         const values = this.values;
         const frameCount = this.ratioSampler ?
             this.ratioSampler.ratios.length :
@@ -149,6 +233,7 @@ export class DynamicAnimCurve extends AnimCurve {
         }
 
         // evaluate value
+        let isLerped = false;
         let value: CurveValue;
         if (this.ratioSampler === null) {
             value = this.values[0];
@@ -170,27 +255,25 @@ export class DynamicAnimCurve extends AnimCurve {
                         const fromRatio = this.ratioSampler.ratios[index - 1];
                         const toRatio = this.ratioSampler.ratios[index];
                         const type = this.types ? this.types[index - 1] : this.type;
-                        let ratioBetweenFrames = (ratio - fromRatio) / (toRatio - fromRatio);
+                        const dRatio = (toRatio - fromRatio);
+                        let ratioBetweenFrames = (ratio - fromRatio) / dRatio;
                         if (type) {
                             ratioBetweenFrames = computeRatioByType(ratioBetweenFrames, type);
                         }
                         // calculate value
                         const toVal = values[index];
-                        value = this._lerp(fromVal, toVal, ratioBetweenFrames);
+                        value = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio);
+                        isLerped = true;
                     }
                 }
             }
         }
-
-        if (this.target) {
-            if (!this._blendFunction || !this._propertyBlendTarget || this._propertyBlendTarget.refCount <= 1) {
-                this.target[this.prop] = value;
-            } else {
-                const propertyBlendState = this._propertyBlendTarget;
-                propertyBlendState.value = this._blendFunction(value, state.weight, propertyBlendState);
-                propertyBlendState.weight += state.weight;
+        if (!isLerped) {
+            if (this._interpolation === AnimationInterpolation.CubicSpline) {
+                return value.dataPoint;
             }
         }
+        return value;
     }
 }
 
@@ -206,153 +289,6 @@ export class EventInfo {
             func: func || '',
             params: params || [],
         });
-    }
-}
-
-@ccclass('cc.EventAnimCurve')
-export class EventAnimCurve extends AnimCurve {
-    @property
-    public target: ICurveTarget | null = null;
-
-    @property
-    public ratios: number[] = [];
-
-    @property
-    public events: EventInfo[] = [];
-
-    @property
-    private _wrappedInfo = new WrappedInfo();
-
-    @property
-    private _lastWrappedInfo: WrappedInfo | null = null;
-
-    @property
-    private _ignoreIndex: number = NaN;
-
-    public sample (time: number, ratio: number, state: AnimationState) {
-        const length = this.ratios.length;
-
-        const currentWrappedInfo = state.getWrappedInfo(state.time, this._wrappedInfo);
-        let direction = currentWrappedInfo.direction;
-        let currentIndex = binarySearch(this.ratios, currentWrappedInfo.ratio);
-        if (currentIndex < 0) {
-            currentIndex = ~currentIndex - 1;
-
-            // if direction is inverse, then increase index
-            if (direction < 0) { currentIndex += 1; }
-        }
-
-        if (this._ignoreIndex !== currentIndex) {
-            this._ignoreIndex = NaN;
-        }
-
-        currentWrappedInfo.frameIndex = currentIndex;
-
-        if (!this._lastWrappedInfo) {
-            this._fireEvent(currentIndex);
-            this._lastWrappedInfo = new WrappedInfo(currentWrappedInfo);
-            return;
-        }
-
-        const wrapMode = state.wrapMode;
-        const currentIterations = this._wrapIterations(currentWrappedInfo.iterations);
-
-        const lastWrappedInfo = this._lastWrappedInfo;
-        let lastIterations = this._wrapIterations(lastWrappedInfo.iterations);
-        let lastIndex = lastWrappedInfo.frameIndex;
-        const lastDirection = lastWrappedInfo.direction;
-
-        const interationsChanged = lastIterations !== -1 && currentIterations !== lastIterations;
-
-        if (lastIndex === currentIndex && interationsChanged && length === 1) {
-            this._fireEvent(0);
-        } else if (lastIndex !== currentIndex || interationsChanged) {
-            direction = lastDirection;
-
-            do {
-                if (lastIndex !== currentIndex) {
-                    if (direction === -1 && lastIndex === 0 && currentIndex > 0) {
-                        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
-                            direction *= -1;
-                        } else {
-                            lastIndex = length;
-                        }
-                        lastIterations++;
-                    } else if (direction === 1 && lastIndex === length - 1 && currentIndex < length - 1) {
-                        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
-                            direction *= -1;
-                        } else {
-                            lastIndex = -1;
-                        }
-                        lastIterations++;
-                    }
-
-                    if (lastIndex === currentIndex) {
-                        break;
-                    }
-                    if (lastIterations > currentIterations) {
-                        break;
-                    }
-                }
-
-                lastIndex += direction;
-
-                cc.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
-            } while (lastIndex !== currentIndex && lastIndex > -1 && lastIndex < length);
-        }
-
-        this._lastWrappedInfo.set(currentWrappedInfo);
-    }
-
-    public onTimeChangedManually (time: number, state) {
-        this._lastWrappedInfo = null;
-        this._ignoreIndex = NaN;
-
-        const info = state.getWrappedInfo(time, this._wrappedInfo);
-        const direction = info.direction;
-        let frameIndex = binarySearch(this.ratios, info.ratio);
-
-        // only ignore when time not on a frame index
-        if (frameIndex < 0) {
-            frameIndex = ~frameIndex - 1;
-
-            // if direction is inverse, then increase index
-            if (direction < 0) { frameIndex += 1; }
-
-            this._ignoreIndex = frameIndex;
-        }
-    }
-
-    private _wrapIterations (iterations: number) {
-        if (iterations - (iterations | 0) === 0) {
-            iterations -= 1;
-        }
-        return iterations | 0;
-    }
-
-    private _fireEvent (index: number) {
-        if (index < 0 || index >= this.events.length || this._ignoreIndex === index) {
-            return;
-        }
-
-        const eventInfo = this.events[index];
-        const events = eventInfo.events;
-
-        if (!this.target || !this.target.isValid) {
-            return;
-        }
-
-        const components = this.target._components;
-
-        for (const event of events) {
-            const funcName = event.func;
-            for (const component of components) {
-                const func = component[funcName];
-                if (func) {
-                    func.apply(component, event.params);
-                }
-            }
-        }
     }
 }
 
@@ -408,3 +344,110 @@ function quickFindIndex (ratios: number[], ratio: number) {
 
     return ~(floorIndex + 1);
 }
+
+const selectLinearLerpFx = (() => {
+    function makeValueTypeLerpFx<T extends ValueType> (constructor: Constructor<T>) {
+        const tempValue = new constructor();
+        return (from: T, to: T, ratio: number) => {
+            return from.lerp(to, ratio, tempValue);
+        };
+    }
+
+    const lerpNumber = vmath.lerp;
+
+    const builtinLerpFxTable: Map<Object, LerpFunction> = new Map();
+    builtinLerpFxTable.set(Number, lerpNumber);
+    builtinLerpFxTable.set(Vec2, makeValueTypeLerpFx(Vec2));
+    builtinLerpFxTable.set(Vec3, makeValueTypeLerpFx(Vec3));
+    builtinLerpFxTable.set(Vec4, makeValueTypeLerpFx(Vec4));
+    builtinLerpFxTable.set(Quat, makeValueTypeLerpFx(Quat));
+
+    function lerpObject (from: ILerpable, to: ILerpable, t: number): ILerpable {
+        return from.lerp(to, t);
+    }
+
+    return (value: any): LerpFunction<any> | undefined => {
+        if (typeof value === 'number') {
+            return lerpNumber;
+        } else if (typeof value === 'object') {
+            const result = builtinLerpFxTable.get(value.constructor);
+            if (result) {
+                return result;
+            } else if (isLerpable(value)) {
+                return lerpObject;
+            }
+        }
+        return undefined;
+    };
+})();
+
+const selectCubicSplineLerpFx = (() => {
+    type ScaleFx<T> = (out: T, v: T, s: number) => T;
+    type ScaleAndAddFx<T> = (out: T, v1: T, v2: T, s: number) => T;
+    function makeValueTypeLerpFx<T> (
+        constructor: Constructor<T>,
+        scaleFx: ScaleFx<T>,
+        scaleAndAdd: ScaleAndAddFx<T>) {
+        let tempValue = new constructor();
+        let m0 = new constructor();
+        let m1 = new constructor();
+        return (from: ICubicSplineValue<T>, to: ICubicSplineValue<T>, t: number, dt: number) => {
+            const p0 = from.dataPoint;
+            const p1 = to.dataPoint;
+            // dt => t_k+1 - t_k
+            m0 = scaleFx(m0, from.outTangent, dt);
+            m1 = scaleFx(m1, to.inTangent, dt);
+            const t_3 = t * t * t;
+            const t_2 = t * t;
+            const f_0 = 2 * t_3 - 3 * t_2 + 1;
+            const f_1 = t_3 - 2 * t_2 + t;
+            const f_2 = -2 * t_3 + 3 * t_2;
+            const f_3 = t_3 - t_2;
+            tempValue = scaleFx(tempValue, p0, f_0);
+            tempValue = scaleAndAdd(tempValue, tempValue, m0, f_1);
+            tempValue = scaleAndAdd(tempValue, tempValue, p1, f_2);
+            tempValue = scaleAndAdd(tempValue, tempValue, m1, f_3);
+            return tempValue;
+        };
+    }
+
+    const lerpNumber = (from: ICubicSplineValue<number>, to: ICubicSplineValue<number>, t: number, dt: number) => {
+        const p0 = from.dataPoint;
+        const p1 = to.dataPoint;
+        // dt => t_k+1 - t_k
+        const m0 = from.outTangent * dt;
+        const m1 = to.inTangent * dt;
+        const t_3 = t * t * t;
+        const t_2 = t * t;
+        const f_0 = 2 * t_3 - 3 * t_2 + 1;
+        const f_1 = t_3 - 2 * t_2 + t;
+        const f_2 = -2 * t_3 + 3 * t_2;
+        const f_3 = t_3 - t_2;
+        return p0 * f_0 + m0 * f_1 + p1 * f_2 + m1 * f_3;
+    };
+
+    const builtinLerpFxTable: Map<Object, LerpFunction> = new Map();
+    builtinLerpFxTable.set(Number, lerpNumber);
+    builtinLerpFxTable.set(Vec2, makeValueTypeLerpFx(Vec2, vmath.vec2.scale, vmath.vec2.scaleAndAdd));
+    builtinLerpFxTable.set(Vec3, makeValueTypeLerpFx(Vec3, vmath.vec3.scale, vmath.vec3.scaleAndAdd));
+    builtinLerpFxTable.set(Vec4, makeValueTypeLerpFx(Vec4, vmath.vec4.scale, vmath.vec4.scaleAndAdd));
+    builtinLerpFxTable.set(Quat, makeValueTypeLerpFx(Quat, vmath.quat.scale, vmath.quat.scaleAndAdd));
+
+    function lerpObject (from: ILerpable, to: ILerpable, t: number): ILerpable {
+        return from.lerp(to, t);
+    }
+
+    return (value: any): LerpFunction<any> | undefined => {
+        if (typeof value === 'number') {
+            return lerpNumber;
+        } else if (typeof value === 'object') {
+            const result = builtinLerpFxTable.get(value.constructor);
+            if (result) {
+                return result;
+            } else if (isLerpable(value)) {
+                return lerpObject;
+            }
+        }
+        return undefined;
+    };
+})();

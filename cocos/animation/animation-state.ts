@@ -1,10 +1,19 @@
+import { Component } from '../components';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { Node } from '../scene-graph';
-import { AnimationBlendState } from './animation-blend-state';
+import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip } from './animation-clip';
-import { AnimCurve, DynamicAnimCurve, EventAnimCurve, EventInfo } from './animation-curve';
+import { AnimCurve, EventInfo, ICurveTarget } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
+
+interface ICurveInstance {
+    curve: AnimCurve;
+    target: ICurveTarget;
+    propertyName: string;
+    blendTarget: PropertyBlendState | null;
+    cached?: any[];
+}
 
 /**
  * !#en
@@ -35,14 +44,6 @@ export class AnimationState extends Playable {
 
     get length () {
         return this.duration;
-    }
-
-    get curveLoaded () {
-        return this.curves.length > 0;
-    }
-
-    set curveLoaded (value: boolean) {
-        this.curves.length = 0;
     }
 
     /**
@@ -124,7 +125,7 @@ export class AnimationState extends Playable {
      * !#en The curves list.
      * !#zh 曲线列表。
      */
-    public curves: AnimCurve[] = [];
+    // public curves: AnimCurve[] = [];
 
     // http://www.w3.org/TR/web-animations/#idl-def-AnimationTiming
 
@@ -176,6 +177,7 @@ export class AnimationState extends Playable {
     private _clip: AnimationClip;
     private _name: string;
     private _lastIterations?: number;
+    private _curveInstances: ICurveInstance[] = [];
 
     constructor (clip: AnimationClip, name?: string) {
         super();
@@ -184,6 +186,7 @@ export class AnimationState extends Playable {
     }
 
     public initialize (root: Node) {
+        this._curveInstances.length = 0;
         const clip = this._clip;
 
         this.duration = clip.duration;
@@ -193,43 +196,31 @@ export class AnimationState extends Playable {
 
         if ((this.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
             this.repeatCount = Infinity;
-        }
-        else {
+        } else {
             this.repeatCount = 1;
         }
 
-        const curves: EventAnimCurve[] = this.curves = clip.createCurves(this, root);
-
-        // events curve
-
-        const events = clip.events;
-
-        if (!CC_EDITOR && events) {
-            let curve: EventAnimCurve | undefined;
-
-            for (let i = 0, l = events.length; i < l; i++) {
-                if (!curve) {
-                    curve = new EventAnimCurve();
-                    curve.target = root;
-                    curves.push(curve);
-                }
-
-                const eventData = events[i];
-                const ratio = eventData.frame / this.duration;
-
-                let eventInfo;
-                const index = binarySearch(curve.ratios, ratio);
-                if (index >= 0) {
-                    eventInfo = curve.events[index];
-                }
-                else {
-                    eventInfo = new EventInfo();
-                    curve.ratios.push(ratio);
-                    curve.events.push(eventInfo);
-                }
-
-                eventInfo.add(eventData.func, eventData.params);
+        const propertyCurves = clip.propertyCurves;
+        for (const propertyCurve of propertyCurves) {
+            const targetNode = root.getChildByPath(propertyCurve.path);
+            if (!targetNode) {
+                console.warn(`Target animation node referenced by path ${propertyCurve.path} is not found(from ${root.name}).`);
+                continue;
             }
+            let target: Node | Component = targetNode;
+            if (propertyCurve.component) {
+                const targetComponent = targetNode.getComponent(propertyCurve.component);
+                if (!targetComponent) {
+                    continue;
+                }
+                target = targetComponent;
+            }
+            this._curveInstances.push({
+                target,
+                propertyName: propertyCurve.propertyName,
+                curve: propertyCurve.curve,
+                blendTarget: null,
+            });
         }
     }
 
@@ -292,14 +283,13 @@ export class AnimationState extends Playable {
     public setTime (time: number) {
         this._currentFramePlayed = false;
         this.time = time || 0;
-
-        const curves = this.curves;
-        for (let i = 0, l = curves.length; i < l; i++) {
-            const curve = curves[i];
-            if (curve.onTimeChangedManually) {
-                curve.onTimeChangedManually(time, this);
-            }
-        }
+        // const curves = this.curves;
+        // for (let i = 0, l = curves.length; i < l; i++) {
+        //     const curve = curves[i];
+        //     if (curve.onTimeChangedManually) {
+        //         curve.onTimeChangedManually(time, this);
+        //     }
+        // }
     }
 
     public update (delta: number) {
@@ -402,11 +392,7 @@ export class AnimationState extends Playable {
 
     public sample () {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
-        const curves = this.curves;
-        for (let i = 0, len = curves.length; i < len; i++) {
-            const curve = curves[i];
-            curve.sample(info.time, info.ratio, this);
-        }
+        this._sampleCurves(info.ratio);
 
         return info;
     }
@@ -450,12 +436,7 @@ export class AnimationState extends Playable {
         }
 
         const ratio = time / duration;
-
-        const curves = this.curves;
-        for (let i = 0, len = curves.length; i < len; i++) {
-            const curve = curves[i];
-            curve.sample(time, ratio, this);
-        }
+        this._sampleCurves(ratio);
 
         if (this._lastframeEventOn) {
             if (this._lastIterations === undefined) {
@@ -471,27 +452,21 @@ export class AnimationState extends Playable {
     }
 
     public attachToBlendState (blendState: AnimationBlendState) {
-        for (const curve of this.curves) {
-            if (curve instanceof DynamicAnimCurve) {
-                if (!curve.target) {
-                    continue;
-                }
-                curve.setPropertyBlendTarget(
-                    blendState.refPropertyBlendTarget(curve.target, curve.prop));
-            }
+        for (const curveInstance of this._curveInstances) {
+            curveInstance.blendTarget = blendState.refPropertyBlendTarget(
+                curveInstance.target, curveInstance.propertyName);
         }
     }
 
     public detachFromBlendState (blendState: AnimationBlendState) {
-        for (const curve of this.curves) {
-            if (curve instanceof DynamicAnimCurve) {
-                if (!curve.target) {
-                    continue;
-                }
-                blendState.derefPropertyBlendTarget(curve.target, curve.prop);
-                curve.setPropertyBlendTarget(null);
-            }
+        for (const curveInstance of this._curveInstances) {
+            curveInstance.blendTarget = null;
+            blendState.derefPropertyBlendTarget(
+                curveInstance.target, curveInstance.propertyName);
         }
+    }
+
+    public cache (frames: number) {
     }
 
     protected onPlay () {
@@ -520,6 +495,171 @@ export class AnimationState extends Playable {
     protected onPause () {
         cc.director.getAnimationManager().removeAnimation(this);
         this.emit('pause', this);
+    }
+
+    private _sampleCurves (ratio: number) {
+        for (const curveInstace of this._curveInstances) {
+            const { curve, blendTarget, target, propertyName } = curveInstace;
+            const value = curve.sample(ratio);
+            if (!curve._blendFunction || !blendTarget || blendTarget.refCount <= 1) {
+                target[propertyName] = value;
+            } else {
+                const { weight } = this;
+                blendTarget.value = curve._blendFunction(value, weight, blendTarget);
+                blendTarget.weight += weight;
+            }
+        }
+    }
+
+    private _sampleEvents () {
+        /*
+@ccclass('cc.EventAnimCurve')
+export class EventAnimCurve extends AnimCurve {
+    @property
+    public target: ICurveTarget | null = null;
+
+    @property
+    public ratios: number[] = [];
+
+    @property
+    public events: EventInfo[] = [];
+
+    @property
+    private _wrappedInfo = new WrappedInfo();
+
+    @property
+    private _lastWrappedInfo: WrappedInfo | null = null;
+
+    @property
+    private _ignoreIndex: number = NaN;
+
+    public sample (time: number, ratio: number, state: AnimationState) {
+        const length = this.ratios.length;
+
+        const currentWrappedInfo = state.getWrappedInfo(state.time, this._wrappedInfo);
+        let direction = currentWrappedInfo.direction;
+        let currentIndex = binarySearch(this.ratios, currentWrappedInfo.ratio);
+        if (currentIndex < 0) {
+            currentIndex = ~currentIndex - 1;
+
+            // if direction is inverse, then increase index
+            if (direction < 0) { currentIndex += 1; }
+        }
+
+        if (this._ignoreIndex !== currentIndex) {
+            this._ignoreIndex = NaN;
+        }
+
+        currentWrappedInfo.frameIndex = currentIndex;
+
+        if (!this._lastWrappedInfo) {
+            this._fireEvent(currentIndex);
+            this._lastWrappedInfo = new WrappedInfo(currentWrappedInfo);
+            return;
+        }
+
+        const wrapMode = state.wrapMode;
+        const currentIterations = this._wrapIterations(currentWrappedInfo.iterations);
+
+        const lastWrappedInfo = this._lastWrappedInfo;
+        let lastIterations = this._wrapIterations(lastWrappedInfo.iterations);
+        let lastIndex = lastWrappedInfo.frameIndex;
+        const lastDirection = lastWrappedInfo.direction;
+
+        const interationsChanged = lastIterations !== -1 && currentIterations !== lastIterations;
+
+        if (lastIndex === currentIndex && interationsChanged && length === 1) {
+            this._fireEvent(0);
+        } else if (lastIndex !== currentIndex || interationsChanged) {
+            direction = lastDirection;
+
+            do {
+                if (lastIndex !== currentIndex) {
+                    if (direction === -1 && lastIndex === 0 && currentIndex > 0) {
+                        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
+                            direction *= -1;
+                        } else {
+                            lastIndex = length;
+                        }
+                        lastIterations++;
+                    } else if (direction === 1 && lastIndex === length - 1 && currentIndex < length - 1) {
+                        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
+                            direction *= -1;
+                        } else {
+                            lastIndex = -1;
+                        }
+                        lastIterations++;
+                    }
+
+                    if (lastIndex === currentIndex) {
+                        break;
+                    }
+                    if (lastIterations > currentIterations) {
+                        break;
+                    }
+                }
+
+                lastIndex += direction;
+
+                cc.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
+            } while (lastIndex !== currentIndex && lastIndex > -1 && lastIndex < length);
+        }
+
+        this._lastWrappedInfo.set(currentWrappedInfo);
+    }
+
+    public onTimeChangedManually (time: number, state) {
+        this._lastWrappedInfo = null;
+        this._ignoreIndex = NaN;
+
+        const info = state.getWrappedInfo(time, this._wrappedInfo);
+        const direction = info.direction;
+        let frameIndex = binarySearch(this.ratios, info.ratio);
+
+        // only ignore when time not on a frame index
+        if (frameIndex < 0) {
+            frameIndex = ~frameIndex - 1;
+
+            // if direction is inverse, then increase index
+            if (direction < 0) { frameIndex += 1; }
+
+            this._ignoreIndex = frameIndex;
+        }
+    }
+
+    private _wrapIterations (iterations: number) {
+        if (iterations - (iterations | 0) === 0) {
+            iterations -= 1;
+        }
+        return iterations | 0;
+    }
+
+    private _fireEvent (index: number) {
+        if (index < 0 || index >= this.events.length || this._ignoreIndex === index) {
+            return;
+        }
+
+        const eventInfo = this.events[index];
+        const events = eventInfo.events;
+
+        if (!this.target || !this.target.isValid) {
+            return;
+        }
+
+        const components = this.target._components;
+
+        for (const event of events) {
+            const funcName = event.func;
+            for (const component of components) {
+                const func = component[funcName];
+                if (func) {
+                    func.apply(component, event.params);
+                }
+            }
+        }
+    }
+}
+         */
     }
 }
 

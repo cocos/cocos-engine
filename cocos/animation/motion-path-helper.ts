@@ -1,7 +1,7 @@
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
 import { Vec2 } from '../core/value-types';
-import { computeRatioByType, CurveType, CurveValue, DynamicAnimCurve, ICurveTarget } from './animation-curve';
+import { AnimCurve, computeRatioByType, CurveType, CurveValue, ICurveTarget } from './animation-curve';
 import { bezier } from './bezier';
 
 // tslint:disable:no-shadowed-variable
@@ -221,7 +221,7 @@ interface IControlPoint {
 
 export type MotionPath = Vec2[];
 
-export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>, data: DynamicAnimCurve, duration: number, fps: number, target: ICurveTarget) {
+export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>, data: AnimCurve, duration: number, fps: number) {
     const createControlPoints = (array: number[] | Vec2): IControlPoint => {
         if (array instanceof Vec2) {
             return {
@@ -258,7 +258,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
     for (let i = 0; i < motionPaths.length; i++) {
         let motionPath = motionPaths[i];
         if (motionPath && !checkMotionPath(motionPath)) {
-            errorID(3904, target ? target.name : '', 'position', i);
+            errorID(3904, '', 'position', i);
             motionPath = undefined;
         }
         if (motionPath && motionPath.length > 0) {
@@ -276,7 +276,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
     }
 
     const types = data.types;
-    const ratios = data.ratios;
+    const ratios = (data.ratioSampler ? data.ratioSampler.ratios : []);
 
     const newValues: CurveValue[] = data.values = [];
     const newTypes: CurveType[] = data.types = [];
@@ -292,7 +292,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
     let startRatioOffset = 0;
 
     const EPSILON = 1e-6;
-    let newType: CurveType = DynamicAnimCurve.Linear;
+    let newType: CurveType = AnimCurve.Linear;
 
     // do not need to compute last path
     for (let i = 0, l = motionPaths.length; i < l - 1; i++) {
@@ -374,7 +374,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
             }
         }
 
-        newType = type === 'constant' ? type : DynamicAnimCurve.Linear;
+        newType = type === 'constant' ? type : AnimCurve.Linear;
 
         for (let j = 0, l2 = results.length; j < l2; j++) {
             const newRatio = ratio + startRatioOffset + speed * j * betweenRatio;

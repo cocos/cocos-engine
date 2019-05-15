@@ -1,34 +1,14 @@
 import { Asset, SpriteFrame } from '../assets';
 import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
-import { Vec2 } from '../core/value-types';
-import Quat from '../core/value-types/quat';
-import Vec3, { v3 } from '../core/value-types/vec3';
-import { lerp } from '../core/vmath';
-import { find, Node } from '../scene-graph';
-import { CurveValue, DynamicAnimCurve, EasingMethodName, ICurveTarget, RatioSampler } from './animation-curve';
-import { AnimationState } from './animation-state';
-import * as blending from './blending';
-import { MotionPath, sampleMotionPaths } from './motion-path-helper';
-import { ILerpable, isLerpable, WrapMode as AnimationWrapMode } from './types';
+import { AnimCurve, PropertyCurveData, RatioSampler } from './animation-curve';
+import { WrapMode as AnimationWrapMode } from './types';
 
 interface IAnimationEvent {
     frame: number;
     func: string;
     params: string[];
 }
-
-type EasingMethod = EasingMethodName | number[];
-
-interface IPropertyCurveDataDetail {
-    keys: number;
-    values: CurveValue[];
-    easingMethod?: EasingMethod;
-    easingMethods?: EasingMethod[];
-    motionPaths?: MotionPath | MotionPath[];
-}
-
-type PropertyCurveData = IPropertyCurveDataDetail;
 
 interface ICurveData {
     props?: {
@@ -39,6 +19,28 @@ interface ICurveData {
             [propertyName: string]: PropertyCurveData;
         };
     };
+}
+
+export interface IPropertyCurve {
+    /**
+     * 结点路径。
+     */
+    path: string;
+
+    /**
+     * 组件名称。
+     */
+    component?: string;
+
+    /**
+     * 属性名称。
+     */
+    propertyName: string;
+
+    /**
+     * 属性曲线。
+     */
+    curve: AnimCurve;
 }
 
 @ccclass('cc.AnimationClip')
@@ -142,7 +144,28 @@ export class AnimationClip extends Asset {
 
     private _ratioSamplers: RatioSampler[] = [];
 
+    private _propertyCurves?: IPropertyCurve[];
+
     private frameRate = 0;
+
+    @property
+    private _stepness = 0;
+
+    get propertyCurves () {
+        if (!this._propertyCurves) {
+            this._createPropertyCurves();
+        }
+        return this._propertyCurves!;
+    }
+
+    get stepness () {
+        return this._stepness;
+    }
+
+    set stepness (value) {
+        this._stepness = value;
+        this._applyStepness();
+    }
 
     public onLoad () {
         this._duration = this.duration;
@@ -151,143 +174,57 @@ export class AnimationClip extends Asset {
         this.frameRate = this.sample;
     }
 
-    public createPropCurve (target: ICurveTarget, propPath: string, propertyCurveData: PropertyCurveData) {
-        const motionPaths: Array<(MotionPath | undefined)> = [];
-        const isMotionPathProp = target instanceof Node && propPath === 'position';
-
-        const curve = new DynamicAnimCurve();
-
-        // 缓存目标对象，所以 Component 必须一开始都创建好并且不能运行时动态替换……
-        curve.target = target;
-        curve.prop = propPath;
-
-        if (propertyCurveData.keys >= 0) {
-            curve.ratioSampler = this._ratioSamplers[propertyCurveData.keys];
-        } else {
-            curve.ratioSampler = null;
-        }
-        curve.values = propertyCurveData.values;
-
-        const getCurveType = (easingMethod: EasingMethod) => {
-            if (typeof easingMethod === 'string') {
-                return easingMethod;
-            } else if (Array.isArray(easingMethod)) {
-                if (easingMethod[0] === easingMethod[1] &&
-                    easingMethod[2] === easingMethod[3]) {
-                    return DynamicAnimCurve.Linear;
-                } else {
-                    return DynamicAnimCurve.Bezier(easingMethod);
-                }
-            } else {
-                return DynamicAnimCurve.Linear;
-            }
-        };
-        if (propertyCurveData.easingMethod !== undefined) {
-            curve.type = getCurveType(propertyCurveData.easingMethod);
-        } else if (propertyCurveData.easingMethods !== undefined) {
-            curve.types = propertyCurveData.easingMethods.map(getCurveType);
-        } else {
-            curve.type = null;
-        }
-
-        if (isMotionPathProp) {
-            sampleMotionPaths(motionPaths, curve, this.duration, this.sample, target);
-        }
-
-        // Setup the lerp function.
-        const firstValue = curve.values[0];
-        if (!curve._lerp && firstValue !== undefined) {
-            if (typeof firstValue === 'number') {
-                curve._lerp = lerpNumber;
-            } else if (firstValue instanceof Quat) {
-                curve._lerp = lerpQuat;
-            } else if (firstValue instanceof Vec2 || firstValue instanceof Vec3) {
-                curve._lerp = lerpVector;
-            } else if (isLerpable(firstValue)) {
-                curve._lerp = lerpObject;
-            }
-        }
-
-        // Setup the blend function.
-        if (target instanceof Node) {
-            switch (propPath) {
-                case 'position':
-                    curve._blendFunction = blending.additive3D;
-                    break;
-                case 'scale':
-                    curve._blendFunction = blending.additive3D;
-                    break;
-                case 'rotation':
-                    curve._blendFunction = blending.additiveQuat;
-                    break;
-            }
-        }
-
-        return curve;
-    }
-
-    public createTargetCurves (target: ICurveTarget, curveData: ICurveData, curves: DynamicAnimCurve[]) {
-        const propsData = curveData.props;
-        if (propsData) {
-            for (const propPath of Object.keys(propsData)) {
-                const data = propsData[propPath];
-                const curve = this.createPropCurve(target, propPath, data);
-                curves.push(curve);
-            }
-        }
-
-        const compsData = curveData.comps;
-        if (compsData) {
-            for (const compName of Object.keys(compsData)) {
-                const comp = target.getComponent(compName);
-                if (!comp) {
-                    continue;
-                }
-                const compData = compsData[compName];
-                for (const propPath of Object.keys(compData)) {
-                    const data = compData[propPath];
-                    const curve = this.createPropCurve(comp, propPath, data);
-                    curves.push(curve);
-                }
-            }
-        }
-    }
-
-    public createCurves (state: AnimationState, root: Node) {
+    private _createPropertyCurves () {
         this._ratioSamplers = this._keys.map(
             (keys) => new RatioSampler(
                 keys.map(
                     (key) => key / this._duration)));
-        const curves: DynamicAnimCurve[] = [];
-        for (const path of Object.keys(this.curveDatas)) {
-            const target = root.getChildByPath(path);
-            if (!target) {
-                console.warn(`Target animation node referenced by path ${path} is not found(from ${root.name}).`);
-                continue;
+
+        this._propertyCurves = [];
+        for (const curveTargetPath of Object.keys(this.curveDatas)) {
+            const nodeData = this.curveDatas[curveTargetPath];
+            if (nodeData.props) {
+                for (const nodePropertyName of Object.keys(nodeData.props)) {
+                    this._propertyCurves.push({
+                        path: curveTargetPath,
+                        propertyName: nodePropertyName,
+                        curve: this._createCurve(nodeData.props[nodePropertyName], nodePropertyName, true),
+                    });
+                }
             }
-            const curveData = this.curveDatas[path];
-            this.createTargetCurves(target, curveData, curves);
+            if (nodeData.comps) {
+                for (const componentName of Object.keys(nodeData.comps)) {
+                    const componentData = nodeData.comps[componentName];
+                    for (const componentPropertyName of Object.keys(componentData)) {
+                        this._propertyCurves.push({
+                            path: curveTargetPath,
+                            component: componentName,
+                            propertyName: componentPropertyName,
+                            curve: this._createCurve(componentData[componentPropertyName], componentPropertyName, false),
+                        });
+                    }
+                }
+            }
         }
-
-        return curves;
+        this._applyStepness();
     }
-}
 
-const lerpNumber = lerp;
-const lerpQuat = (() => {
-    const out = new Quat();
-    return (from: Quat, to: Quat, t: number) => {
-        return from.lerp(to, t, out);
-    };
-})();
-const lerpVector = (() => {
-    const out = v3();
-    return (from: Vec3, to: Vec3, t: number) => {
-        return from.lerp(to, t, out);
-    };
-})();
-function lerpObject (from: ILerpable, to: ILerpable, t: number): ILerpable {
-    return from.lerp(to, t);
+    private _createCurve (propertyCurveData: PropertyCurveData, propertyName: string, isNode: boolean) {
+        let ratioSampler: null | RatioSampler = null;
+        if (propertyCurveData.keys >= 0) {
+            ratioSampler = this._ratioSamplers[propertyCurveData.keys];
+        }
+        return new AnimCurve(propertyCurveData, propertyName, isNode, ratioSampler);
+    }
+
+    private _applyStepness () {
+        if (!this._propertyCurves) {
+            return;
+        }
+        for (const propertyCurve of this._propertyCurves) {
+            propertyCurve.curve.stepfy(this._stepness);
+        }
+    }
 }
 
 cc.AnimationClip = AnimationClip;

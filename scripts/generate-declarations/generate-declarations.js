@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const { join, extname, basename, dirname, isAbsolute } = require('path');
 const { copyFileSync, existsSync, readFileSync, unlinkSync, writeFileSync, ensureDirSync } = require('fs-extra');
 const ts = require('typescript');
@@ -55,6 +55,21 @@ async function generate (options) {
 
     console.log(`Generating...`);
 
+    await new Promise((resolve) => {
+        const tscProcess = spawn(tscExecutablePath, [
+            '--version',
+        ]);
+        tscProcess.on('exit', (code) => {
+            resolve(code);
+        });
+        tscProcess.stdout.on('data', (data) => {
+            console.log(`Typescript version: ${data.toString()}`);
+        });
+        tscProcess.stderr.on('data', (data) => {
+            console.error(data.toString());
+        });
+    });
+
     const tscExitCode = await new Promise((resolve) => {
         const tscProcess = spawn(tscExecutablePath, [
             '-p',
@@ -79,8 +94,13 @@ async function generate (options) {
     unlinkSync(tempTsConfigPath);
 
     if (tscExitCode !== 0) {
-        console.error(`tsc exited with non-zero status code ${tscExitCode}.`);
-        // return true;
+        console.warn(`tsc exited with non-zero status code ${tscExitCode}.`);
+    }
+
+    const tscOutputDtsFile = join(dirName, baseName + '.d.ts');
+    if (!existsSync(tscOutputDtsFile)) {
+        console.error(`Failed to compile.`);
+        return false;
     }
 
     const types = tsConfig.config.compilerOptions.types.map((typeFile) => `${typeFile}.d.ts`);
@@ -91,7 +111,7 @@ async function generate (options) {
     });
 
     console.log(`Bundling...`);
-    const giftInputPath = join(dirName, baseName + '.d.ts');
+    const giftInputPath = tscOutputDtsFile;
     const giftOutputPath = join(dirName,'Cocos3D.d.ts' );
     const giftResult = gift.bundle({
         input: giftInputPath,

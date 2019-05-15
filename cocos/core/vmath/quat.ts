@@ -190,6 +190,23 @@ export default class quat {
     }
 
     /**
+     * Add two quaternions after scaling the second operand by a number.
+     *
+     * @param out - Quaternion to store result.
+     * @param a - The first operand.
+     * @param b - The second operand.
+     * @param scale - The scale number before adding.
+     * @return out.
+     */
+    public static scaleAndAdd<Out extends quat> (out: Out, a: quat, b: quat, scale: number) {
+        out.x = a.x + b.x * scale;
+        out.y = a.y + b.y * scale;
+        out.z = a.z + b.z * scale;
+        out.w = a.w + b.w * scale;
+        return out;
+    }
+
+    /**
      * Rotates a quaternion by the given angle about the X axis.
      *
      * @param out - Quaternion to store result.
