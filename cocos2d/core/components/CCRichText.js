@@ -906,7 +906,7 @@ let RichText = cc.Class({
             labelComponent.fontSize = this.fontSize;
         }
 
-        labelComponent._updateRenderData(true);
+        labelComponent._forceUpdateRenderData();
 
         if (textStyle && textStyle.event) {
             if (textStyle.event.click) {

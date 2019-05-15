@@ -88,23 +88,23 @@ module.exports = js.addon({
             }
         }
 
-        let data = renderData._data;
-        data[0].x = -appx;
-        data[0].y = -appy;
-        data[1].x = canvasWidth - appx;
-        data[1].y = -appy;
-        data[2].x = -appx;
-        data[2].y = canvasHeight - appy;
-        data[3].x = canvasWidth - appx;
-        data[3].y = canvasHeight - appy;
+        let verts = renderData.vertices;
+        verts[0].x = -appx;
+        verts[0].y = -appy;
+        verts[1].x = canvasWidth - appx;
+        verts[1].y = -appy;
+        verts[2].x = -appx;
+        verts[2].y = canvasHeight - appy;
+        verts[3].x = canvasWidth - appx;
+        verts[3].y = canvasHeight - appy;
 
-        data[0].u = uv[0];
-        data[0].v = uv[1];
-        data[1].u = uv[2];
-        data[1].v = uv[3];
-        data[2].u = uv[4];
-        data[2].v = uv[5];
-        data[3].u = uv[6];
-        data[3].v = uv[7];
+        verts[0].u = uv[0];
+        verts[0].v = uv[1];
+        verts[1].u = uv[2];
+        verts[1].v = uv[3];
+        verts[2].u = uv[4];
+        verts[2].v = uv[5];
+        verts[3].u = uv[6];
+        verts[3].v = uv[7];
     }
 }, ttfUtls);

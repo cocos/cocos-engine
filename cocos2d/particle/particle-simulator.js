@@ -290,8 +290,8 @@ Simulator.prototype.step = function (dt) {
         let cos = Math.cos(angle);
         let sin = Math.sin(angle);
         _trans = AffineTrans.create(cos, -sin, sin, cos, 0, 0);
-        _pos.x = node._position.x;
-        _pos.y = node._position.y;
+        _pos.x = node.x;
+        _pos.y = node.y;
     }
 
     // Get world to node trans only once

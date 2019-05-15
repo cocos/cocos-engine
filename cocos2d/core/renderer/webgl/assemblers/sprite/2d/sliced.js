@@ -37,20 +37,20 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        packToDynamicAtlas(sprite, sprite._spriteFrame);
+        let frame = sprite._spriteFrame;
+        packToDynamicAtlas(sprite, frame);
 
         let renderData = sprite._renderData;
-        if (!renderData || !sprite.spriteFrame) return;
-        let vertDirty = renderData.vertDirty;
-        if (vertDirty) {
+        if (renderData && frame && sprite._vertsDirty) {
             this.updateVerts(sprite);
             this.updateWorldVerts(sprite);
+            sprite._vertsDirty = false;
         }
     },
 
     updateVerts (sprite) {
         let renderData = sprite._renderData,
-            data = renderData._data,
+            verts = renderData.vertices,
             node = sprite.node,
             width = node.width, height = node.height,
             appx = node.anchorX * width, appy = node.anchorY * height;
@@ -69,17 +69,15 @@ module.exports = {
         yScale = (isNaN(yScale) || yScale > 1) ? 1 : yScale;
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
-
-        data[0].x = -appx;
-        data[0].y = -appy;
-        data[1].x = leftWidth * xScale - appx;
-        data[1].y = bottomHeight * yScale - appy;
-        data[2].x = data[1].x + sizableWidth;
-        data[2].y = data[1].y + sizableHeight;
-        data[3].x = width - appx;
-        data[3].y = height - appy;
-
-        renderData.vertDirty = false;
+        
+        verts[0].x = -appx;
+        verts[0].y = -appy;
+        verts[1].x = leftWidth * xScale - appx;
+        verts[1].y = bottomHeight * yScale - appy;
+        verts[2].x = verts[1].x + sizableWidth;
+        verts[2].y = verts[1].y + sizableHeight;
+        verts[3].x = width - appx;
+        verts[3].y = height - appy;
     },
 
     fillBuffers (sprite, renderer) {
@@ -90,7 +88,7 @@ module.exports = {
         let renderData = sprite._renderData,
             node = sprite.node,
             color = node._color._val,
-            data = renderData._data;
+            verts = renderData.vertices;
 
         let buffer = renderer._meshBuffer,
             vertexCount = renderData.vertexCount;
@@ -107,7 +105,7 @@ module.exports = {
             ibuf = buffer._iData;
 
         for (let i = 4; i < 20; ++i) {
-            let vert = data[i];
+            let vert = verts[i];
             let uvs = uvSliced[i - 4];
 
             vbuf[vertexOffset++] = vert.x;
@@ -132,17 +130,16 @@ module.exports = {
 
     updateWorldVerts (sprite) {
         let node = sprite.node,
-            data = sprite._renderData._data;
-
-        let matrix = node._worldMatrix;
-
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            verts = sprite._renderData.vertices;
+        
+        let matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
         for (let row = 0; row < 4; ++row) {
-            let rowD = data[row];
+            let rowD = verts[row];
             for (let col = 0; col < 4; ++col) {
-                let colD = data[col];
-                let world = data[4 + row * 4 + col];
+                let colD = verts[col];
+                let world = verts[4 + row * 4 + col];
                 world.x = colD.x * a + rowD.y * c + tx;
                 world.y = colD.x * b + rowD.y * d + ty;
             }

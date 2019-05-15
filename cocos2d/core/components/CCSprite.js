@@ -266,6 +266,7 @@ var Sprite = cc.Class({
                         this._renderData = null;
                     }
                     else if (this._renderData) {
+                        this.setVertsDirty();
                         this.markForUpdateRenderData(true);
                     }
                     this._fillType = value;
@@ -294,6 +295,7 @@ var Sprite = cc.Class({
                 this._fillCenter.x = value.x;
                 this._fillCenter.y = value.y;
                 if (this._type === SpriteType.FILLED && this._renderData) {
+                    this.setVertsDirty();
                     this.markForUpdateRenderData(true);
                 }
             },
@@ -318,6 +320,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillStart = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
+                    this.setVertsDirty();
                     this.markForUpdateRenderData(true);
                 }
             },
@@ -342,6 +345,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillRange = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
+                    this.setVertsDirty();
                     this.markForUpdateRenderData(true);
                 }
             },
@@ -364,6 +368,7 @@ var Sprite = cc.Class({
                     this._isTrimmedMode = value;
                     if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) && 
                         this._renderData) {
+                        this.setVertsDirty();
                         this.markForUpdateRenderData(true);
                     }
                 }
@@ -440,21 +445,6 @@ var Sprite = cc.Class({
         
         this._updateAssembler();
         this._activateMaterial();
-
-        this.node.on(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.on(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
-    },
-
-    onDisable: function () {
-        this._super();
-
-        this.node.off(NodeEvent.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.off(NodeEvent.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
-    },
-
-    _onNodeSizeDirty () {
-        if (!this._renderData) return;
-        this.markForUpdateRenderData(true);
     },
 
     _on3DNodeChanged () {
@@ -471,7 +461,12 @@ var Sprite = cc.Class({
 
         if (!this._renderData) {
             this._renderData = this._assembler.createData(this);
+            this.setVertsDirty();
             this.markForUpdateRenderData(true);
+        }
+
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._renderHandle.setUseModel(!!assembler.useModel);
         }
     },
 
@@ -534,21 +529,6 @@ var Sprite = cc.Class({
         return true;
     },
 
-    markForUpdateRenderData (enable) {
-        if (enable && this._canRender()) {
-            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-            
-            let renderData = this._renderData;
-            if (renderData) {
-                renderData.uvDirty = true;
-                renderData.vertDirty = true;
-            }
-        }
-        else if (!enable) {
-            this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        }
-    },
-
     _applySpriteSize: function () {
         if (this._spriteFrame) {
             if (SizeMode.RAW === this._sizeMode) {
@@ -559,6 +539,7 @@ var Sprite = cc.Class({
                 this.node.setContentSize(rect.width, rect.height);
             }
             
+            this.setVertsDirty();
             this._activateMaterial();
         }
     },

@@ -8,8 +8,8 @@ let _matView = mat4.create();
 let _matProj = mat4.create();
 let _matViewProj = mat4.create();
 let _matInvViewProj = mat4.create();
-let _tmp_v3 = vec3.create();
-let _tmp2_v3 = vec3.create();
+let _tmp_v3 = cc.v3();
+let _tmp2_v3 = cc.v3();
 
 /**
  * A representation of a camera instance
@@ -51,6 +51,19 @@ export default class Camera {
     this._orthoHeight = 10;
 
     this._cullingMask = 0xffffffff;
+  }
+
+  // culling mask
+  get cullingMask() {
+    return this._cullingMask;
+  }
+
+  set cullingMask(mask) {
+    this._cullingMask = mask;
+  }
+
+  setCullingMask (mask) {
+    this._cullingMask = mask;
   }
 
   /**

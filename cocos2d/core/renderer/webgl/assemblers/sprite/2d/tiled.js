@@ -34,12 +34,11 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        packToDynamicAtlas(sprite, sprite._spriteFrame);
+        let frame = sprite._spriteFrame;
+        packToDynamicAtlas(sprite, frame);
 
         let renderData = sprite._renderData;
-        let frame = sprite.spriteFrame;
-        if (!frame || !renderData || 
-            !(renderData.uvDirty || renderData.vertDirty)) 
+        if (!frame || !renderData || !sprite._vertsDirty) 
             return;
 
         let node = sprite.node,
@@ -56,34 +55,33 @@ module.exports = {
             row = Math.ceil(vRepeat), 
             col = Math.ceil(hRepeat);
 
-        let data = renderData._data;
+        let verts = renderData.vertices;
         renderData.dataLength = Math.max(8, row+1, col+1);
 
         for (let i = 0; i <= col; ++i) {
-            data[i].x = Math.min(rectWidth * i, contentWidth) - appx;
+            verts[i].x = Math.min(rectWidth * i, contentWidth) - appx;
         }
         for (let i = 0; i <= row; ++i) {
-            data[i].y = Math.min(rectHeight * i, contentHeight) - appy;
+            verts[i].y = Math.min(rectHeight * i, contentHeight) - appy;
         }
         
         // update data property
         renderData.vertexCount = row * col * 4;
         renderData.indiceCount = row * col * 6;
-        renderData.uvDirty = false;
-        renderData.vertDirty = false;
+        sprite._vertsDirty = false;
     },
 
-    fillVertices (vbuf, vertexOffset, matrix, row, col, data) {
+    fillVertices (vbuf, vertexOffset, matrix, row, col, verts) {
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
 
         let x, x1, y, y1;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-            y = data[yindex].y;
-            y1 = data[yindex+1].y;
+            y = verts[yindex].y;
+            y1 = verts[yindex+1].y;
             for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
-                x = data[xindex].x;
-                x1 = data[xindex+1].x;
+                x = verts[xindex].x;
+                x1 = verts[xindex+1].x;
 
                 // Vertex
                 // lb
@@ -109,7 +107,7 @@ module.exports = {
             is3DNode = node.is3DNode,
             color = node._color._val,
             renderData = sprite._renderData,
-            data = renderData._data;
+            verts = renderData.vertices;
 
         // buffer
         let buffer = is3DNode ? renderer._meshBuffer3D : renderer._meshBuffer;
@@ -135,7 +133,7 @@ module.exports = {
         
         let matrix = node._worldMatrix;
         
-        this.fillVertices(vbuf, vertexOffset, matrix, row, col, data);
+        this.fillVertices(vbuf, vertexOffset, matrix, row, col, verts);
 
         let offset = this.vertexOffset, uvOffset = this.uvOffset, colorOffset = this.colorOffset;
         let offset1 = offset, offset2 = offset*2, offset3 = offset*3, offset4 = offset*4;

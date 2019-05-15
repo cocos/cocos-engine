@@ -40,9 +40,9 @@ const vec3 = cc.vmath.vec3;
 let _mat4_temp_1 = mat4.create();
 let _mat4_temp_2 = mat4.create();
 
-let _v3_temp_1 = vec3.create();
-let _v3_temp_2 = vec3.create();
-let _v3_temp_3 = vec3.create();
+let _v3_temp_1 = cc.v3();
+let _v3_temp_2 = cc.v3();
+let _v3_temp_3 = cc.v3();
 
 let _cameras = [];
 
@@ -426,7 +426,7 @@ let Camera = cc.Class({
 
             camera.dirty = true;
 
-            camera._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
+            camera.cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
             camera._priority = cc.macro.MAX_ZINDEX;
             camera.setClearFlags(0);
             camera.setColor(0, 0, 0, 0);
@@ -444,7 +444,7 @@ let Camera = cc.Class({
     _updateCameraMask () {
         if (this._camera) {
             let mask = this._cullingMask & (~(1 << cc.Node.BuiltinGroupIndex.DEBUG));
-            this._camera._cullingMask = mask;
+            this._camera.cullingMask = mask;
         }
     },
 

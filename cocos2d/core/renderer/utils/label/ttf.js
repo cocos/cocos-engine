@@ -23,9 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+let textUtils = require('../../../utils/text-utils');
 const macro = require('../../../platform/CCMacro');
-const textUtils = require('../../../utils/text-utils');
-
 const Component = require('../../../components/CCComponent');
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
@@ -76,7 +75,7 @@ let _drawUnderlineWidth = 0;
 
 let _sharedLabelData;
 
-module.exports = {
+textUtils.ttf = module.exports = {
 
     _getAssemblerData () {
         _sharedLabelData = Label._canvasPool.get();
@@ -91,7 +90,7 @@ module.exports = {
     },
 
     updateRenderData (comp) {
-        if (!comp._renderData.vertDirty) return;
+        if (!comp._vertsDirty) return;
 
         this._updateFontFamily(comp);
         this._updateProperties(comp);
@@ -107,7 +106,7 @@ module.exports = {
 
         this._updateVerts(comp);
 
-        comp._renderData.vertDirty = comp._renderData.uvDirty = false;
+        comp._vertsDirty = false;
 
         _context = null;
         _canvas = null;
@@ -129,7 +128,7 @@ module.exports = {
                         cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
                             _fontFamily = fontFamily || 'Arial';
                             comp.font._nativeAsset = fontFamily;
-                            comp._updateRenderData(true);
+                            comp._forceUpdateRenderData();
                         });
                     }
                 }

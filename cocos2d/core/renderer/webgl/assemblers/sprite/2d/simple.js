@@ -26,17 +26,18 @@
 const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 module.exports = {
     updateRenderData (sprite) {
-        packToDynamicAtlas(sprite, sprite._spriteFrame);
+        let frame = sprite._spriteFrame;
+        packToDynamicAtlas(sprite, frame);
 
         let renderData = sprite._renderData;
-        if (!renderData || !sprite.spriteFrame) return;
-        if (renderData.vertDirty) {
+        if (renderData && frame && sprite._vertsDirty) {
             this.updateVerts(sprite);
+            sprite._vertsDirty = false;
         }
     },
 
     fillBuffers (sprite, renderer) {
-        let data = sprite._renderData._data,
+        let verts = sprite._renderData.vertices,
             node = sprite.node,
             color = node._color._val,
             matrix = node._worldMatrix,
@@ -65,7 +66,7 @@ module.exports = {
         vbuf[vertexOffset + 17] = uv[6];
         vbuf[vertexOffset + 18] = uv[7];
 
-        let data0 = data[0], data3 = data[3],
+        let data0 = verts[0], data3 = verts[3],
             vl = data0.x, vr = data3.x,
             vb = data0.y, vt = data3.y;
 
@@ -113,7 +114,7 @@ module.exports = {
     updateVerts (sprite) {
         let renderData = sprite._renderData,
             node = sprite.node,
-            data = renderData._data,
+            verts = renderData.vertices,
             cw = node.width, ch = node.height,
             appx = node.anchorX * cw, appy = node.anchorY * ch,
             l, b, r, t;
@@ -138,16 +139,14 @@ module.exports = {
             r = cw + trimRight * scaleX - appx;
             t = ch + trimTop * scaleY - appy;
         }
-
-        data[0].x = l;
-        data[0].y = b;
-        // data[1].x = r;
-        // data[1].y = b;
-        // data[2].x = l;
-        // data[2].y = t;
-        data[3].x = r;
-        data[3].y = t;
-
-        renderData.vertDirty = false;
+        
+        verts[0].x = l;
+        verts[0].y = b;
+        // verts[1].x = r;
+        // verts[1].y = b;
+        // verts[2].x = l;
+        // verts[2].y = t;
+        verts[3].x = r;
+        verts[3].y = t;
     }
 };

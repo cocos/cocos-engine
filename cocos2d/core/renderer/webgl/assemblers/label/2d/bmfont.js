@@ -37,14 +37,15 @@ module.exports = js.addon({
         fillMeshVertices(node, renderer._meshBuffer, comp._renderData, node._color._val);
     },
 
-    appendQuad (renderData, texture, rect, rotated, x, y, scale) {
+    appendQuad (comp, texture, rect, rotated, x, y, scale) {
+        let renderData = comp._renderData;
         let dataOffset = renderData.dataLength;
 
         renderData.dataLength += 4;
         renderData.vertexCount = renderData.dataLength;
         renderData.indiceCount = renderData.dataLength / 2 * 3;
 
-        let data = renderData._data;
+        let verts = renderData.vertices;
         let texw = texture.width,
             texh = texture.height;
 
@@ -58,37 +59,37 @@ module.exports = js.addon({
             b = (rect.y + rectHeight) / texh;
             t = (rect.y) / texh;
 
-            data[dataOffset].u = l;
-            data[dataOffset].v = b;
-            data[dataOffset + 1].u = r;
-            data[dataOffset + 1].v = b;
-            data[dataOffset + 2].u = l;
-            data[dataOffset + 2].v = t;
-            data[dataOffset + 3].u = r;
-            data[dataOffset + 3].v = t;
+            verts[dataOffset].u = l;
+            verts[dataOffset].v = b;
+            verts[dataOffset + 1].u = r;
+            verts[dataOffset + 1].v = b;
+            verts[dataOffset + 2].u = l;
+            verts[dataOffset + 2].v = t;
+            verts[dataOffset + 3].u = r;
+            verts[dataOffset + 3].v = t;
         } else {
             l = (rect.x) / texw;
             r = (rect.x + rectHeight) / texw;
             b = (rect.y + rectWidth) / texh;
             t = (rect.y) / texh;
 
-            data[dataOffset].u = l;
-            data[dataOffset].v = t;
-            data[dataOffset + 1].u = l;
-            data[dataOffset + 1].v = b;
-            data[dataOffset + 2].u = r;
-            data[dataOffset + 2].v = t;
-            data[dataOffset + 3].u = r;
-            data[dataOffset + 3].v = b;
+            verts[dataOffset].u = l;
+            verts[dataOffset].v = t;
+            verts[dataOffset + 1].u = l;
+            verts[dataOffset + 1].v = b;
+            verts[dataOffset + 2].u = r;
+            verts[dataOffset + 2].v = t;
+            verts[dataOffset + 3].u = r;
+            verts[dataOffset + 3].v = b;
         }
 
-        data[dataOffset].x = x;
-        data[dataOffset].y = y - rectHeight * scale;
-        data[dataOffset + 1].x = x + rectWidth * scale;
-        data[dataOffset + 1].y = y - rectHeight * scale;
-        data[dataOffset + 2].x = x;
-        data[dataOffset + 2].y = y;
-        data[dataOffset + 3].x = x + rectWidth * scale;
-        data[dataOffset + 3].y = y;
+        verts[dataOffset].x = x;
+        verts[dataOffset].y = y - rectHeight * scale;
+        verts[dataOffset + 1].x = x + rectWidth * scale;
+        verts[dataOffset + 1].y = y - rectHeight * scale;
+        verts[dataOffset + 2].x = x;
+        verts[dataOffset + 2].y = y;
+        verts[dataOffset + 3].x = x + rectWidth * scale;
+        verts[dataOffset + 3].y = y;
     },
 }, bmfontUtls);

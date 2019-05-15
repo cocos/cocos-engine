@@ -170,41 +170,41 @@ function _getVertAngle (start, end) {
     }
 }
 
-function _generateTriangle (data, offset, vert0, vert1, vert2) {
+function _generateTriangle (verts, offset, vert0, vert1, vert2) {
     let vertices = _vertices;
     let v0x = vertices[0];
     let v0y = vertices[1];
     let v1x = vertices[2];
     let v1y = vertices[3];
 
-    data[offset].x = vert0.x;
-    data[offset].y = vert0.y;
-    data[offset + 1].x = vert1.x;
-    data[offset + 1].y = vert1.y;
-    data[offset + 2].x = vert2.x;
-    data[offset + 2].y = vert2.y;
+    verts[offset].x = vert0.x;
+    verts[offset].y = vert0.y;
+    verts[offset + 1].x = vert1.x;
+    verts[offset + 1].y = vert1.y;
+    verts[offset + 2].x = vert2.x;
+    verts[offset + 2].y = vert2.y;
 
     let progressX, progressY;
     progressX = (vert0.x - v0x) / (v1x - v0x);
     progressY = (vert0.y - v0y) / (v1y - v0y);
-    _generateUV(progressX, progressY, data, offset);
+    _generateUV(progressX, progressY, verts, offset);
 
     progressX = (vert1.x - v0x) / (v1x - v0x);
     progressY = (vert1.y - v0y) / (v1y - v0y);
-    _generateUV(progressX, progressY, data, offset + 1);
+    _generateUV(progressX, progressY, verts, offset + 1);
 
     progressX = (vert2.x - v0x) / (v1x - v0x);
     progressY = (vert2.y - v0y) / (v1y - v0y);
-    _generateUV(progressX, progressY, data, offset + 2);
+    _generateUV(progressX, progressY, verts, offset + 2);
 }
 
-function _generateUV (progressX, progressY, data, offset) {
+function _generateUV (progressX, progressY, verts, offset) {
     let uvs = _uvs;
     let px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
     let px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
     let py1 = uvs[1] + (uvs[3] - uvs[1]) * progressX;
     let py2 = uvs[5] + (uvs[7] - uvs[5]) * progressX;
-    let uv = data[offset];
+    let uv = verts[offset];
     uv.u = px1 + (px2 - px1) * progressY;
     uv.v = py1 + (py2 - py1) * progressY;
 }
@@ -215,95 +215,94 @@ module.exports = {
     },
 
     updateRenderData (sprite) {
-        let renderData = sprite._renderData;
         let frame = sprite.spriteFrame;
-        if (!renderData || !frame) return;
-        if (!renderData.vertDirty && !renderData.uvDirty) return;
-        let data = renderData._data;
-
         packToDynamicAtlas(sprite, frame);
 
-        let fillStart = sprite._fillStart;
-        let fillRange = sprite._fillRange;
+        let renderData = sprite._renderData;
+        if (renderData && frame && sprite._vertsDirty) {
+            let verts = renderData.vertices;
 
-        if (fillRange < 0) {
-            fillStart += fillRange;	
-            fillRange = -fillRange;
-        }
-
-        //do round fill start [0,1), include 0, exclude 1
-        while (fillStart >= 1.0) fillStart -= 1.0;
-        while (fillStart < 0.0) fillStart += 1.0;
-
-        fillStart *= PI_2;
-        fillRange *= PI_2;
-        let fillEnd = fillStart + fillRange;
-
-        //build vertices
-        _calculateVertices(sprite);
-        //build uvs
-        _calculateUVs(frame);
-
-        _calcInsectedPoints(_vertices[0], _vertices[2], _vertices[1], _vertices[3], _center, fillStart, _intersectPoint_1);
-        _calcInsectedPoints(_vertices[0], _vertices[2], _vertices[1], _vertices[3], _center, fillStart + fillRange, _intersectPoint_2);
-
-        let offset = 0;
-        for (let triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
-            let triangle = _triangles[triangleIndex];
-            if (!triangle) {
-                continue;
+            let fillStart = sprite._fillStart;
+            let fillRange = sprite._fillRange;
+            if (fillRange < 0) {
+                fillStart += fillRange;
+                fillRange = -fillRange;
             }
-            //all in
-            if (fillRange >= PI_2) {
-                renderData.dataLength = offset + 3;
-                _generateTriangle(data, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
-                offset += 3;
-                continue;
-            }
-            //test against
-            let startAngle = _getVertAngle(_center, _vertPos[triangle[0]]);
-            let endAngle = _getVertAngle(_center, _vertPos[triangle[1]]);
-            if (endAngle < startAngle) endAngle += PI_2;
-            startAngle -= PI_2;
-            endAngle -= PI_2;
-            //testing
-            for (let testIndex = 0; testIndex < 3; ++testIndex) {
-                if (startAngle >= fillEnd) {
-                    //all out
-                } else if (startAngle >= fillStart) {
-                    renderData.dataLength = offset + 3;
-                    if (endAngle >= fillEnd) {
-                        //startAngle to fillEnd
-                        _generateTriangle(data, offset, _center, _vertPos[triangle[0]], _intersectPoint_2[triangleIndex]);
-                    } else {
-                        //startAngle to endAngle
-                        _generateTriangle(data, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
-                    }
-                    offset += 3;
-                } else {
-                    //startAngle < fillStart
-                    if (endAngle <= fillStart) {
-                        //all out
-                    } else if (endAngle <= fillEnd) {
-                        renderData.dataLength = offset + 3;
-                        //fillStart to endAngle
-                        _generateTriangle(data, offset, _center, _intersectPoint_1[triangleIndex], _vertPos[triangle[1]]);
-                        offset += 3;
-                    } else {
-                        renderData.dataLength = offset + 3;
-                        //fillStart to fillEnd
-                        _generateTriangle(data, offset, _center, _intersectPoint_1[triangleIndex], _intersectPoint_2[triangleIndex]);
-                        offset += 3;
-                    }
+
+            //do round fill start [0,1), include 0, exclude 1
+            while (fillStart >= 1.0) fillStart -= 1.0;
+            while (fillStart < 0.0) fillStart += 1.0;
+
+            fillStart *= PI_2;
+            fillRange *= PI_2;
+            let fillEnd = fillStart + fillRange;
+
+            //build vertices
+            _calculateVertices(sprite);
+            //build uvs
+            _calculateUVs(frame);
+
+            _calcInsectedPoints(_vertices[0], _vertices[2], _vertices[1], _vertices[3], _center, fillStart, _intersectPoint_1);
+            _calcInsectedPoints(_vertices[0], _vertices[2], _vertices[1], _vertices[3], _center, fillStart + fillRange, _intersectPoint_2);
+
+            let offset = 0;
+            for (let triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
+                let triangle = _triangles[triangleIndex];
+                if (!triangle) {
+                    continue;
                 }
-                //add 2 * PI
-                startAngle += PI_2;
-                endAngle += PI_2;
+                //all in
+                if (fillRange >= PI_2) {
+                    renderData.dataLength = offset + 3;
+                    _generateTriangle(verts, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
+                    offset += 3;
+                    continue;
+                }
+                //test against
+                let startAngle = _getVertAngle(_center, _vertPos[triangle[0]]);
+                let endAngle = _getVertAngle(_center, _vertPos[triangle[1]]);
+                if (endAngle < startAngle) endAngle += PI_2;
+                startAngle -= PI_2;
+                endAngle -= PI_2;
+                //testing
+                for (let testIndex = 0; testIndex < 3; ++testIndex) {
+                    if (startAngle >= fillEnd) {
+                        //all out
+                    } else if (startAngle >= fillStart) {
+                        renderData.dataLength = offset + 3;
+                        if (endAngle >= fillEnd) {
+                            //startAngle to fillEnd
+                            _generateTriangle(verts, offset, _center, _vertPos[triangle[0]], _intersectPoint_2[triangleIndex]);
+                        } else {
+                            //startAngle to endAngle
+                            _generateTriangle(verts, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
+                        }
+                        offset += 3;
+                    } else {
+                        //startAngle < fillStart
+                        if (endAngle <= fillStart) {
+                            //all out
+                        } else if (endAngle <= fillEnd) {
+                            renderData.dataLength = offset + 3;
+                            //fillStart to endAngle
+                            _generateTriangle(verts, offset, _center, _intersectPoint_1[triangleIndex], _vertPos[triangle[1]]);
+                            offset += 3;
+                        } else {
+                            renderData.dataLength = offset + 3;
+                            //fillStart to fillEnd
+                            _generateTriangle(verts, offset, _center, _intersectPoint_1[triangleIndex], _intersectPoint_2[triangleIndex]);
+                            offset += 3;
+                        }
+                    }
+                    //add 2 * PI
+                    startAngle += PI_2;
+                    endAngle += PI_2;
+                }
             }
-        }
 
-        renderData.indiceCount = renderData.vertexCount = offset;
-        renderData.vertDirty = renderData.uvDirty = false;
+            renderData.indiceCount = renderData.vertexCount = offset;
+            sprite._vertsDirty = false;
+        }
     },
 
     fillBuffers (comp, renderer) {

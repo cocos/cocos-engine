@@ -32,12 +32,12 @@ const vec3 = cc.vmath.vec3;
 module.exports = js.addon({
     updateWorldVerts (sprite) {
         let node = sprite.node,
-            data = sprite._renderData._data;
+            verts = sprite._renderData.vertices;
 
         let matrix = node._worldMatrix;
         for (let i = 0; i < 4; i++) {
-            let local = data[i + 4];
-            let world = data[i];
+            let local = verts[i + 4];
+            let world = verts[i];
             vec3.transformMat4(world, local, matrix);
         }
     },

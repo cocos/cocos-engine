@@ -15,9 +15,9 @@ function fillVertices (node, buffer, renderData, color) {
     let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
         tx = matrix.m12, ty = matrix.m13;
     
-    let data = renderData._data;
+    let verts = renderData.vertices;
     for (let i = 0; i < vertexCount; i++) {
-        let vert = data[i];
+        let vert = verts[i];
         vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
         vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
         vbuf[vertexOffset++] = vert.u;
@@ -43,9 +43,9 @@ function fillMeshVertices (node, buffer, renderData, color) {
     let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
         tx = matrix.m12, ty = matrix.m13;
 
-    let data = renderData._data;
+    let verts = renderData.vertices;
     for (let i = 0; i < vertexCount; i++) {
-        let vert = data[i];
+        let vert = verts[i];
         vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
         vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
         vbuf[vertexOffset++] = vert.u;
@@ -78,9 +78,9 @@ function fillVertices3D (node, buffer, renderData, color) {
 
     let matrix = node._worldMatrix;
 
-    let data = renderData._data;
+    let verts = renderData.vertices;
     for (let i = 0; i < vertexCount; i++) {
-        let vert = data[i];
+        let vert = verts[i];
         vec3.set(vec3_temp, vert.x, vert.y, 0);
         vec3.transformMat4(vec3_temp, vec3_temp, matrix);
         vbuf[vertexOffset++] = vec3_temp.x;
@@ -108,9 +108,9 @@ function fillMeshVertices3D (node, buffer, renderData, color) {
 
     let matrix = node._worldMatrix;
 
-    let data = renderData._data;
+    let verts = renderData.vertices;
     for (let i = 0; i < vertexCount; i++) {
-        let vert = data[i];
+        let vert = verts[i];
         vec3.set(vec3_temp, vert.x, vert.y, 0);
         vec3.transformMat4(vec3_temp, vec3_temp, matrix);
         vbuf[vertexOffset++] = vec3_temp.x;
@@ -144,9 +144,9 @@ function fillVerticesWithoutCalc (node, buffer, renderData, color) {
         vbuf = buffer._vData,
         uintbuf = buffer._uintVData;
 
-    let data = renderData._data;
+    let verts = renderData.vertices;
     for (let i = 0; i < vertexCount; i++) {
-        let vert = data[i];
+        let vert = verts[i];
         vbuf[vertexOffset++] = vert.x;
         vbuf[vertexOffset++] = vert.y;
         vbuf[vertexOffset++] = vert.u;
@@ -166,9 +166,9 @@ function fillVerticesWithoutCalc3D (node, buffer, renderData, color) {
         vbuf = buffer._vData,
         uintbuf = buffer._uintVData;
 
-    let data = renderData._data;
+    let verts = renderData.vertices;
     for (let i = 0; i < vertexCount; i++) {
-        let vert = data[i];
+        let vert = verts[i];
         vbuf[vertexOffset++] = vert.x;
         vbuf[vertexOffset++] = vert.y;
         vbuf[vertexOffset++] = vert.z;

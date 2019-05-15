@@ -38,7 +38,7 @@ module.exports = js.addon({
         let renderData = sprite._renderData,
             node = sprite.node,
             color = node._color._val,
-            data = renderData._data;
+            verts = renderData.vertices;
 
         let buffer = renderer._meshBuffer3D,
             vertexCount = renderData.vertexCount;
@@ -55,7 +55,7 @@ module.exports = js.addon({
             ibuf = buffer._iData;
 
         for (let i = 4; i < 20; ++i) {
-            let vert = data[i];
+            let vert = verts[i];
             let uvs = uvSliced[i - 4];
 
             vbuf[vertexOffset++] = vert.x;
@@ -81,14 +81,14 @@ module.exports = js.addon({
 
     updateWorldVerts (sprite) {
         let node = sprite.node,
-            data = sprite._renderData._data;
+            verts = sprite._renderData.vertices;
 
         let matrix = node._worldMatrix;
         for (let row = 0; row < 4; ++row) {
-            let rowD = data[row];
+            let rowD = verts[row];
             for (let col = 0; col < 4; ++col) {
-                let colD = data[col];
-                let world = data[4 + row * 4 + col];
+                let colD = verts[col];
+                let world = verts[4 + row * 4 + col];
 
                 vec3.set(vec3_temp, colD.x, rowD.y, 0);
                 vec3.transformMat4(world, vec3_temp, matrix);

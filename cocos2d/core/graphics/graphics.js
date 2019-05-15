@@ -45,6 +45,7 @@ let Graphics = cc.Class({
 
     ctor () {
         this._impl = Graphics._assembler.createImpl(this);
+        this._vertexFormat = cc.gfx.VertexFormat.XY_Color;
     },
 
     properties: {
@@ -184,6 +185,11 @@ let Graphics = cc.Class({
         this._super();
         this._impl.clear(this, true);
         this._impl = null;
+    },
+
+    initNativeHandle () {
+        this._renderHandle = new renderer.GraphicsRenderHandle();
+        this._renderHandle.bind(this);
     },
 
     _activateMaterial () {
@@ -383,3 +389,5 @@ let Graphics = cc.Class({
 });
 
 cc.Graphics = module.exports = Graphics;
+cc.Graphics.Types = Types;
+cc.Graphics.Helper = require('./helper');

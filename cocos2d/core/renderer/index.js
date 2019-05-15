@@ -32,7 +32,7 @@ import InputAssembler from '../../renderer/core/input-assembler';
 import IARenderData from '../../renderer/render-data/ia-render-data';
 import Pass from '../../renderer/core/pass';
 
-const RenderFlow = require('./render-flow');
+// const RenderFlow = require('./render-flow');
 
 function _initBuiltins(device) {
     let defaultTexture = new gfx.Texture2D(device, {
@@ -109,31 +109,35 @@ cc.renderer = module.exports = {
     _cameraNode: null,
     _camera: null,
     _forward: null,
+    _flow: null,
 
     initWebGL (canvas, opts) {
         require('./webgl/assemblers');
         const ModelBatcher = require('./webgl/model-batcher');
 
         this.Texture2D = gfx.Texture2D;
-
         this.canvas = canvas;
+        this.scene = new Scene();
         if (CC_JSB && CC_NATIVERENDERER) {
             // native codes will create an instance of Device, so just use the global instance.
             this.device = window.device;
+            let builtins = _initBuiltins(this.device);
+            this._forward = new ForwardRenderer(this.device, builtins);
+            let nativeFlow = new renderer.RenderFlow(this.device, this.scene, this._forward);
+            this._flow = cc.RenderFlow;
+            this._flow.init(nativeFlow);
         }
         else {
             this.device = new gfx.Device(canvas, opts);
+            let builtins = _initBuiltins(this.device);
+            this._forward = new ForwardRenderer(this.device, builtins);
+            this._handle = new ModelBatcher(this.device, this.scene);
+            this._flow = cc.RenderFlow;
+            this._flow.init(this._handle, this._forward);
         }
-        
-        this.scene = new Scene();
-
-        this._handle = new ModelBatcher(this.device, this.scene);
-        RenderFlow.init(this._handle);
-        let builtins = _initBuiltins(this.device);
-        this._forward = new ForwardRenderer(this.device, builtins);
         config.addStage('shadowcast');
-        config.addStage('opaque');
         config.addStage('transparent');
+        config.addStage('opaque');
     },
 
     initCanvas (canvas) {
@@ -152,7 +156,7 @@ cc.renderer = module.exports = {
             a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0
         };
         this._handle = new canvasRenderer.RenderComponentHandle(this.device, this._camera);
-        RenderFlow.init(this._handle);
+        cc.RenderFlow.init(this._handle);
         this._forward = new canvasRenderer.ForwardRenderer();
     },
 
@@ -174,13 +178,11 @@ cc.renderer = module.exports = {
     },
 
     render (ecScene) {
-        this.device._stats.drawcalls = 0;
+        this.device.resetDrawCalls();
         if (ecScene) {
             // walk entity component scene to generate models
-            RenderFlow.visit(ecScene);
-            // Render models in renderer scene
-            this._forward.render(this.scene);
-            this.drawCalls = this.device._stats.drawcalls;
+            this._flow.render(ecScene);
+            this.drawCalls = this.device.getDrawCalls();
         }
     },
 

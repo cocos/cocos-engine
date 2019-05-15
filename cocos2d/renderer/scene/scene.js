@@ -40,17 +40,6 @@ class Scene {
   }
 
   /**
-   * update built-in bounding shapes if needed,
-   * used in the frustum culling process
-   */
-  tick() {
-    for (let i = 0; i < this._models.length; ++i) {
-      let model = this._models.data[i];
-      model._updateTransform();
-    }
-  }
-
-  /**
    * reset the model viewIDs
    */
   reset() {

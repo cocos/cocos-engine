@@ -11,9 +11,9 @@ let _a16_viewProj = new Float32Array(16);
 let _a3_camPos = new Float32Array(3);
 let _a16_lightViewProj = new Float32Array(16);
 
-let _camPos = vec3.create(0, 0, 0);
-let _camFwd = vec3.create(0, 0, 0);
-let _v3_tmp1 = vec3.create(0, 0, 0);
+let _camPos = cc.v3(0, 0, 0);
+let _camFwd = cc.v3(0, 0, 0);
+let _v3_tmp1 = cc.v3(0, 0, 0);
 
 let _float16_pool = new RecyclePool(() => {
   return new Float32Array(16);
