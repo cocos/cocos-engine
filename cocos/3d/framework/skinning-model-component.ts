@@ -143,7 +143,7 @@ export class SkinningModelComponent extends ModelComponent {
         }
     }
 
-    public update () {
+    public update (dt) {
         this._tryUpdateMatrices();
     }
 
