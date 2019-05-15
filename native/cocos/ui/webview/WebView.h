@@ -209,6 +209,11 @@ NS_CC_BEGIN
          * Set the rect of WebView.
          */
         virtual void setFrame(float x, float y, float width, float height);
+        
+        /**
+         * Set the background transparent
+         */
+        virtual void setBackgroundTransparent(bool isTransparent);
 
     protected:
 

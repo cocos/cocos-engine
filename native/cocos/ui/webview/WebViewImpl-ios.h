@@ -77,6 +77,8 @@ namespace cocos2d {
         virtual void setFrame(float x, float y, float width, float height);
 
         void setBounces(bool bounces);
+        
+        void setBackgroundTransparent(bool isTransparent);
 
     private:
         UIWebViewWrapper *_uiWebViewWrapper;
