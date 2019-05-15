@@ -318,6 +318,7 @@ export default class ParticleSystemRenderer {
                 this.particleSystem.trailModule.animate(p, dt);
             }
         }
+        return this._particles!.length;
     }
 
     // internal function
