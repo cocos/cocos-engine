@@ -10,6 +10,7 @@ import { Component } from './component';
 import { IEventTarget, applyMixins } from '../core/event/event-target-factory';
 import { EventTarget } from '../core/event/event-target';
 import { ICallbackTable, CallbacksInvoker } from '../core/event/callbacks-invoker';
+import { Event } from '../core';
 
 /**
  * !#en The event type supported by Animation
@@ -403,7 +404,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     public once(type: string, callback: Function, target?: Object | undefined): Function | undefined {
         return;
     }
-    public dispatchEvent(event: import("../core").Event): void {}
+    public dispatchEvent(event: Event): void {}
     public hasEventListener(key: string, callback?: Function | undefined, target?: Object | undefined): boolean {
         return false;
     }

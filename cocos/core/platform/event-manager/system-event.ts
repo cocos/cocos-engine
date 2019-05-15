@@ -100,11 +100,11 @@ export class SystemEvent extends EventTarget {
                     event: EventListener.KEYBOARD,
                     onKeyPressed (keyCode, event) {
                         event.type = EventType.KEY_DOWN;
-                        cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, event);
                     },
                     onKeyReleased (keyCode, event) {
                         event.type = EventType.KEY_UP;
-                        cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, event);
                     },
                 });
             }
@@ -120,7 +120,7 @@ export class SystemEvent extends EventTarget {
                     event: EventListener.ACCELERATION,
                     callback (acc, event) {
                         event.type = EventType.DEVICEMOTION;
-                        cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, event);
                     },
                 });
             }
@@ -171,19 +171,19 @@ export class SystemEvent extends EventTarget {
                     event: EventListener.MOUSE,
                     onMouseDown (event) {
                         event.type = EventType.MOUSE_DOWN;
-                        cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, event);
                     },
                     onMouseMove (event) {
                         event.type = EventType.MOUSE_MOVE;
-                        cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, event);
                     },
                     onMouseUp (event) {
                         event.type = EventType.MOUSE_UP;
-                        cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, event);
                     },
                     onMouseScroll (event) {
                         event.type = EventType.MOUSE_WHEEL;
-                        cc.systemEvent.dispatchEvent(event);
+                        cc.systemEvent.emit(event.type, event);
                     },
                 });
             }
@@ -223,7 +223,7 @@ cc.SystemEvent = SystemEvent;
 /**
  * !#en The System event singleton for global usage
  * !#zh 系统事件单例，方便全局使用
- * @property systemEvent
- * @type {SystemEvent}
  */
-cc.systemEvent = new cc.SystemEvent();
+const systemEvent = new SystemEvent();
+cc.systemEvent = systemEvent;
+export { systemEvent };
