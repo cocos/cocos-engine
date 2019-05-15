@@ -27,10 +27,13 @@ import { BitmapFont } from '../../../../assets';
 import { LabelComponent} from '../../components';
 import { IAssemblerManager } from '../assembler';
 import { bmfont } from './bmfont';
+import { bmfontUtils } from './bmfontUtils';
+import { CanvasPool, ISharedLabelData } from './font-utils';
 import { letter } from './letter';
 import { ttf } from './ttf';
+import { ttfUtils } from './ttfUtils';
 
-export const labelAssembler: IAssemblerManager = {
+const labelAssembler: IAssemblerManager = {
     getAssembler (comp: LabelComponent) {
         let assembler = ttf;
 
@@ -51,6 +54,17 @@ export const labelAssembler: IAssemblerManager = {
     // updateRenderData(label) {
     //     return label.__allocedDatas;
     // }
+};
+
+export {
+    labelAssembler,
+    ttf,
+    bmfont,
+    letter,
+    ttfUtils,
+    bmfontUtils,
+    CanvasPool,
+    ISharedLabelData,
 };
 
 LabelComponent.Assembler = labelAssembler;

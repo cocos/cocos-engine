@@ -1,4 +1,12 @@
 
-export * from './assembler';
+import * as Assembler from './assembler';
+import { MeshBuffer } from './mesh-buffer';
+
 export * from './components';
-export { MeshBuffer } from './mesh-buffer';
+
+export {
+    Assembler,
+    MeshBuffer,
+};
+
+cc.UI = { Assembler, MeshBuffer};

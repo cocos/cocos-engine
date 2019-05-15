@@ -27,10 +27,15 @@ import { GraphicsComponent, UIRenderComponent } from '../../../components';
 import { IAssemblerManager } from '../../assembler';
 import { graphicsAssembler } from './graphics-assembler';
 
-export const graphicsAssemblerManager: IAssemblerManager = {
+const graphicsAssemblerManager: IAssemblerManager = {
     getAssembler (sprite: UIRenderComponent) {
         return graphicsAssembler;
     },
+};
+
+export {
+    graphicsAssemblerManager,
+    graphicsAssembler,
 };
 
 GraphicsComponent.Assembler = graphicsAssemblerManager;

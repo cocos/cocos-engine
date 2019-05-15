@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import './graphics/webgl';
-import './label';
+export * from './graphics/webgl';
+export * from './label';
 export * from './mask';
-import './sprite';
+export * from './sprite';
 
 export * from './assembler';
-// require('./motion-streak');
+export * from './utils';
