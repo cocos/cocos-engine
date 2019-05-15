@@ -4,6 +4,7 @@ import { EventType } from '../../../core/platform/event-manager/event-enum';
 import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import * as vmath from '../../../core/vmath';
+import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
 
 const _vec2a = new Vec2();
@@ -35,7 +36,7 @@ export class UITransformComponent extends Component {
         }
 
         let clone: Size;
-        if (CC_EDITOR){
+        if (CC_EDITOR) {
             clone = new Size(this._contentSize);
         }
 
@@ -77,7 +78,7 @@ export class UITransformComponent extends Component {
     }
 
     set height (value) {
-        if (this.contentSize.height === value){
+        if (this.contentSize.height === value) {
             return;
         }
 
@@ -149,6 +150,7 @@ export class UITransformComponent extends Component {
 
     public __preload () {
         this.node.uiTransfromComp = this;
+        this.node.layer = cc.Layers.UI;
     }
 
     public onDestroy () {
@@ -165,7 +167,7 @@ export class UITransformComponent extends Component {
      * node.setContentSize(cc.size(100, 100));
      * node.setContentSize(100, 100);
      */
-    public setContentSize (size: Size|number, height?: number) {
+    public setContentSize (size: Size | number, height?: number) {
         const locContentSize = this._contentSize;
         let clone: Size;
         if (height === undefined) {
@@ -174,7 +176,7 @@ export class UITransformComponent extends Component {
                 return;
             }
 
-            if (CC_EDITOR){
+            if (CC_EDITOR) {
                 clone = new Size(this._contentSize);
             }
 
@@ -193,10 +195,10 @@ export class UITransformComponent extends Component {
             locContentSize.height = height;
         }
 
-        if (CC_EDITOR){
+        if (CC_EDITOR) {
             // @ts-ignore
             this.node.emit(EventType.SIZE_CHANGED, clone);
-        }else{
+        } else {
             this.node.emit(EventType.SIZE_CHANGED);
         }
     }
@@ -425,7 +427,25 @@ export class UITransformComponent extends Component {
         return rect;
     }
 
-    private _getVisibility (){
+    /**
+     * compute the corresponding aabb in world space for raycast
+     */
+    public getComputeAABB (out?: aabb) {
+        const rectWorld = this.getBoundingBoxToWorld();
+        const px = rectWorld.center.x;
+        const py = rectWorld.center.y;
+        const pz = this.node.getWorldPosition().z;
+        const w = rectWorld.width / 2;
+        const h = rectWorld.height / 2;
+        const l = 0.01;
+        if (out != null) {
+            aabb.set(out, px, py, pz, w, h, l);
+        } else {
+            return new aabb(px, py, pz, w, h, l);
+        }
+    }
+
+    private _getVisibility () {
         let visibility = -1;
         let parent = this.node;
         // 获取被渲染相机的 visibility
