@@ -26,7 +26,6 @@
  ****************************************************************************/
 
 import { ccclass } from '../core/data/class-decorator';
-import { EventTargetFactory } from '../core/event/event-target-factory';
 import { Rect, Size, Vec2 } from '../core/value-types';
 import { vec2 } from '../core/vmath';
 import { ImageAsset } from './image-asset';
@@ -99,7 +98,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  * });
  */
 @ccclass('cc.SpriteFrame')
-export class SpriteFrame extends EventTargetFactory(Texture2D) {
+export class SpriteFrame extends Texture2D {
     // Use this property to set texture when loading dependency
     // @property
     // set _textureSetter(texture) {
@@ -248,7 +247,6 @@ export class SpriteFrame extends EventTargetFactory(Texture2D) {
      */
     constructor () {
         super();
-        // Init EventTarget data
 
         // let filename = arguments[0];
         // const rect = arguments[0];

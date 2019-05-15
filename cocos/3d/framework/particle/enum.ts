@@ -1,4 +1,4 @@
-import { Enum } from '../../../core';
+import { Enum } from '../../../core/value-types';
 
 export const Space = Enum({
     World: 0,

@@ -1,7 +1,6 @@
 // @ts-check
 import { Component } from '../../components/component';
 import { _decorator } from '../../core/data/index';
-import { IEventTargetCallback } from '../../core/event/event-target-factory';
 import { Material } from '../assets/material';
 const { ccclass, property } = _decorator;
 

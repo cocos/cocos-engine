@@ -24,29 +24,61 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import * as js from '../utils/js';
-const fastRemoveAt = js.array.fastRemoveAt;
+import { createMap, array } from '../utils/js';
+import Pool from '../../3d/memop/pool';
+const fastRemoveAt = array.fastRemoveAt;
+
+type Constructor<T = {}> = new (...args: any[]) => T;
+
+function empty (){};
+
+class CallbackInfo {
+    public callback: Function = empty;
+    public target: Object | undefined = undefined;
+    public once = false;
+
+    public set (callback: Function, target?: Object, once?: boolean) {
+        this.callback = callback;
+        this.target = target;
+        this.once = !!once;
+    }
+}
+
+const callbackInfoPool = new Pool(() => {
+    return new CallbackInfo();
+}, 32);
 
 export class CallbackList {
-    public callbacks: Array<Function | null> = [];
-    public targets: Array<Object | null> = [];
+    public callbackInfos: Array<CallbackInfo | null> = [];
     public isInvoking = false;
     public containCanceled = false;
 
     /**
      * @zh
-     * 从指定数组中移除与指定目标相同编号的事件。
-     *
-     * @param array - 指定数组
-     * @param value - 指定目标
+     * 从列表中移除与指定目标相同回调函数的事件。
+     * @param cb - 指定回调函数
      */
-    public removeBy (array: any[], value: any) {
-        const callbacks = this.callbacks;
-        const targets = this.targets;
-        for (let i = 0; i < array.length; ++i) {
-            if (array[i] === value) {
-                fastRemoveAt(callbacks, i);
-                fastRemoveAt(targets, i);
+    public removeByCallback (cb: Function) {
+        for (let i = 0; i < this.callbackInfos.length; ++i) {
+            const info = this.callbackInfos[i];
+            if (info && info.callback === cb) {
+                callbackInfoPool.free(info);
+                fastRemoveAt(this.callbackInfos, i);
+                --i;
+            }
+        }
+    }
+    /**
+     * @zh
+     * 从列表中移除与指定目标相同调用者的事件。
+     * @param target - 指定调用者
+     */
+    public removeByTarget (target: Object) {
+        for (let i = 0; i < this.callbackInfos.length; ++i) {
+            const info = this.callbackInfos[i];
+            if (info && info.target === target) {
+                callbackInfoPool.free(info);
+                fastRemoveAt(this.callbackInfos, i);
                 --i;
             }
         }
@@ -59,7 +91,11 @@ export class CallbackList {
      * @param index - 指定编号。
      */
     public cancel (index: number) {
-        this.callbacks[index] = this.targets[index] = null;
+        const info = this.callbackInfos[index];
+        if (info) {
+            callbackInfoPool.free(info);
+            this.callbackInfos[index] = null;
+        }
         this.containCanceled = true;
     }
 
@@ -68,42 +104,51 @@ export class CallbackList {
      * 注销所有事件。
      */
     public cancelAll () {
-        const callbacks = this.callbacks;
-        const targets = this.targets;
-        for (let i = 0; i < callbacks.length; i++) {
-            callbacks[i] = targets[i] = null;
+        for (let i = 0; i < this.callbackInfos.length; i++) {
+            const info = this.callbackInfos[i];
+            if (info) {
+                callbackInfoPool.free(info);
+                this.callbackInfos[i] = null;
+            }
         }
         this.containCanceled = true;
     }
 
     // filter all removed callbacks and compact array
     public purgeCanceled () {
-        this.removeBy(this.callbacks, null);
+        for (let i = this.callbackInfos.length - 1; i >= 0; --i) {
+            const info = this.callbackInfos[i];
+            if (!info) {
+                fastRemoveAt(this.callbackInfos, i);
+            }
+        }
+        this.containCanceled = false;
+    }
+
+    public clear () {
+        this.cancelAll();
+        this.callbackInfos.length = 0;
+        this.isInvoking = false;
         this.containCanceled = false;
     }
 }
 
 const MAX_SIZE = 16;
-const callbackListPool = new js.Pool((list: CallbackList) => {
-    list.callbacks.length = 0;
-    list.targets.length = 0;
-    list.isInvoking = false;
-    list.containCanceled = false;
+const callbackListPool = new Pool<CallbackList>(() => {
+    return new CallbackList();
 }, MAX_SIZE);
-callbackListPool.get = function () {
-    return this._get() || new CallbackList();
-};
+
+export interface ICallbackTable {
+    [x: string]: CallbackList | undefined;
+}
 
 /**
- * The CallbacksHandler is an abstract class that can register and unregister callbacks by key.
- * Subclasses should implement their own methods about how to invoke the callbacks.
- * @class _CallbacksHandler
- *
- * @private
+ * @zh
+ * CallbacksInvoker 用来根据 Key 管理事件监听器列表并调用回调方法。
+ * @class CallbacksInvoker
  */
-
-export class CallbacksHandler{
-    protected _callbackTable: Map<string, CallbackList> = new Map<string, CallbackList>();
+export class CallbacksInvoker {
+    public _callbackTable: ICallbackTable = createMap(true);
 
     /**
      * @zh
@@ -111,15 +156,16 @@ export class CallbacksHandler{
      * @param key - 一个监听事件类型的字符串。
      * @param callback - 事件分派时将被调用的回调函数。
      * @param arget - 调用回调的目标。可以为空。
+     * @param once - 是否只调用一次。
      */
-    public add (key: string, callback: Function, target: Object | null = null) {
+    public on (key: string, callback: Function, target?: Object, once?: boolean) {
         let list = this._callbackTable[key];
         if (!list) {
-            list = this._callbackTable[key] = callbackListPool.get!();
+            list = this._callbackTable[key] = callbackListPool.alloc();
         }
-
-        list.callbacks.push(callback);
-        list.targets.push(target || null);
+        let info = callbackInfoPool.alloc();
+        info.set(callback, target, once);
+        list.callbackInfos.push(info);
     }
 
     /**
@@ -138,26 +184,25 @@ export class CallbacksHandler{
         }
 
         // check any valid callback
-        const callbacks = list.callbacks;
+        const infos = list.callbackInfos;
         if (!callback) {
             // Make sure no cancelled callbacks
             if (list.isInvoking) {
-                for (const func of callbacks) {
-                    if (func) {
+                for (const info of infos) {
+                    if (info) {
                         return true;
                     }
                 }
                 return false;
             }
             else {
-                return callbacks.length > 0;
+                return infos.length > 0;
             }
         }
 
-        target = target || null;
-        const targets = list.targets;
-        for (let i = 0; i < callbacks.length; ++i) {
-            if (callbacks[i] === callback && targets[i] === target) {
+        for (let i = 0; i < infos.length; ++i) {
+            const info = infos[i];
+            if (info && info.callback === callback && info.target === target) {
                 return true;
             }
         }
@@ -179,25 +224,27 @@ export class CallbacksHandler{
                     list.cancelAll();
                 }
                 else {
-                    callbackListPool.put(list);
+                    list.clear();
+                    callbackListPool.free(list);
                     delete this._callbackTable[keyOrTarget];
                 }
             }
         }
         else if (keyOrTarget) {
             // remove by target
-            for (const key of Object.keys(this._callbackTable)) {
-                const list = this._callbackTable[key];
+            for (const key in this._callbackTable) {
+                const list = this._callbackTable[key]!;
                 if (list.isInvoking) {
-                    const targets = list.targets;
-                    for (let i = 0; i < targets.length; ++i) {
-                        if (targets[i] === keyOrTarget) {
+                    const infos = list.callbackInfos;
+                    for (let i = 0; i < infos.length; ++i) {
+                        const info = infos[i];
+                        if (info && info.target === keyOrTarget) {
                             list.cancel(i);
                         }
                     }
                 }
                 else {
-                    list.removeBy(list.targets, keyOrTarget);
+                    list.removeByTarget(keyOrTarget);
                 }
             }
         }
@@ -211,34 +258,26 @@ export class CallbacksHandler{
      * @param callback - 移除指定注册回调。如果没有给，则删除全部同事件类型的监听。
      * @param target - 调用回调的目标。
      */
-    public remove (key: string, callback?: Function, target: Object | null = null) {
+    public off (key: string, callback?: Function, target?: Object) {
         const list = this._callbackTable[key];
         if (list) {
-            target = target || null;
-            const callbacks = list.callbacks;
-            const targets = list.targets;
-            for (let i = 0; i < callbacks.length; ++i) {
-                if (callbacks[i] === callback && targets[i] === target) {
+            const infos = list.callbackInfos;
+            for (let i = 0; i < infos.length; ++i) {
+                const info = infos[i];
+                if (info && info.callback === callback && info.target === target) {
                     if (list.isInvoking) {
                         list.cancel(i);
                     }
                     else {
-                        fastRemoveAt(callbacks, i);
-                        fastRemoveAt(targets, i);
+                        fastRemoveAt(infos, i);
+                        callbackInfoPool.free(info);
                     }
                     break;
                 }
             }
         }
     }
-}
 
-/**
- * @zh
- * CallbacksInvoker 用来根据 Key 管理并调用回调方法。
- */
-
-export class CallbacksInvoker extends CallbacksHandler{
     /**
      * @zh
      * 事件派发
@@ -251,22 +290,23 @@ export class CallbacksInvoker extends CallbacksHandler{
      * @param p5 - 派发的第五个参数。
      */
     public emit (key: string, ...args: any[]) {
-        const list: CallbackList = this._callbackTable[key];
+        const list: CallbackList = this._callbackTable[key]!;
         if (list) {
             const rootInvoker = !list.isInvoking;
             list.isInvoking = true;
 
-            const callbacks = list.callbacks;
-            const targets = list.targets;
-            for (let i = 0, len = callbacks.length; i < len; ++i) {
-                const callback = callbacks[i];
-                if (callback) {
-                    const target = targets[i];
-                    if (target) {
-                        callback.call(target, ...args);
+            const infos = list.callbackInfos;
+            for (let i = 0, len = infos.length; i < len; ++i) {
+                const info = infos[i];
+                if (info) {
+                    if (info.target) {
+                        info.callback.call(info.target, ...args);
                     }
                     else {
-                        callback(...args);
+                        info.callback(...args);
+                    }
+                    if (info.once) {
+                        this.off(key, info.callback, info.target);
                     }
                 }
             }

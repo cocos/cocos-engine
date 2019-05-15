@@ -25,7 +25,6 @@
 
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { EventTargetFactory } from '../../core/event/event-target-factory';
 import { Vec3 } from '../../core/value-types';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXFormatType, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
@@ -160,7 +159,7 @@ export class RenderingMesh {
 }
 
 @ccclass('cc.Mesh')
-export class Mesh extends EventTargetFactory(Asset) {
+export class Mesh extends Asset {
 
     get _nativeAsset (): ArrayBuffer {
         return this._data!.buffer;

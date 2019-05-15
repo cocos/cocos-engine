@@ -317,8 +317,8 @@ export function loadUuid (item, callback) {
                     asset.onLoaded && asset.onLoaded();
                 }
 
-                dependListener.invoke(asset._uuid, asset);
-                assetListener.invoke(asset._uuid, asset);
+                dependListener.emit(asset._uuid, asset);
+                assetListener.emit(asset._uuid, asset);
             };
 
             if (dependListener) {
@@ -330,7 +330,7 @@ export function loadUuid (item, callback) {
                         var dependObj = dep._owner;
                         var dependProp = dep._ownerProp;
                         var onDirty = propSetter.bind(null, asset, dependObj, dependProp);
-                        dependListener.add(dependSrc, onDirty);
+                        dependListener.on(dependSrc, onDirty);
                         item.references[dependSrc] = onDirty;
                     }
                 }

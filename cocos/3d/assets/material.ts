@@ -25,7 +25,6 @@
 import { Asset } from '../../assets/asset';
 import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { EventTargetFactory, IEventTargetCallback } from '../../core/event/event-target-factory';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { GFXBindingType } from '../../gfx/define';
 import { GFXTextureView } from '../../gfx/texture-view';
@@ -45,7 +44,7 @@ export interface IMaterialInfo {
 }
 
 @ccclass('cc.Material')
-export class Material extends EventTargetFactory(Asset) {
+export class Material extends Asset {
     public static getInstantiatedMaterial (mat: Material, rndCom: RenderableComponent, inEditor: boolean) {
         if (mat._owner === rndCom) {
             return mat;

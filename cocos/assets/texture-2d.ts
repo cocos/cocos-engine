@@ -25,7 +25,6 @@
  ****************************************************************************/
 // @ts-check
 import { ccclass, property } from '../core/data/class-decorator';
-import { IEventTargetCallback } from '../core/event/event-target-factory';
 import { ImageAsset, ImageSource } from './image-asset';
 import { TextureBase } from './texture-base';
 import { postLoadImage } from './texture-util';
