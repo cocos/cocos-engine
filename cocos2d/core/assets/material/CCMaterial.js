@@ -150,19 +150,13 @@ let Material = cc.Class({
 
         if (this._effect) {
             if (val instanceof Texture) {
-                this._effect.setProperty(name, val.getImpl());
+                this._effect.setProperty(name, val);
                 let format = val.getPixelFormat();
                 if (format === PixelFormat.RGBA_ETC1 ||
                     format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
                     format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
                     this.define('_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
                 }
-            }
-            else if (val instanceof cc.Color) {
-                let out = this._effect._properties[name];
-                out = Array.isArray(out) ? out : new Array(4);
-                cc.vmath.color4.array(out, val);
-                this._effect.setProperty(name, out);
             }
             else {
                 this._effect.setProperty(name, val);

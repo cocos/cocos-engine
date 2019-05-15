@@ -34,15 +34,15 @@
     }
   #else
   
-    #define CC_JOINT_MATRICES_SIZE 1
+    #define CC_JOINT_MATRICES_SIZE 64
 
     #pragma builtin(local)
-    uniform JOINT_MATRIX {
-      mat4 _jointMatrices[1];
+    uniform CC_JOINT_MATRIX {
+      mat4 cc_jointMatrices[CC_JOINT_MATRICES_SIZE];
     }
 
     mat4 getBoneMatrix(const in float i) {
-      return _jointMatrices[int(i)];
+      return cc_jointMatrices[int(i)];
     }
   #endif
 

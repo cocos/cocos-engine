@@ -1,8 +1,8 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-uniform DIFFUSE_COLOR {
+uniform DIFFUSE {
   lowp vec4 diffuseColor;
-}
+};
 
 #if USE_DIFFUSE_TEXTURE
   uniform sampler2D diffuseTexture;

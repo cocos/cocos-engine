@@ -32,7 +32,7 @@ const fragHeader = '#define _IS_FRAG_SHADER 1\n#define _IS_VERT_SHADER 0\n';
 
 let effectName = '', shaderName = '';
 const formatMsg = (msg, ln) => `${effectName} - ${shaderName}` + (ln ? ` - ${ln}: ` : ': ') + msg;
-const throwOn = { error: false, warning: false };
+const throwOn = { error: true, warning: true };
 const warn = (msg, ln) => { const formattedMsg = formatMsg(msg, ln); if (throwOn.warning) throw formattedMsg; else console.warn(formattedMsg); }
 const error = (msg, ln) => { const formattedMsg = formatMsg(msg, ln); if (throwOn.error) throw formattedMsg; else console.error(formattedMsg); }
 

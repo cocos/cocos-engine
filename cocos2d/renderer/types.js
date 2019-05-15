@@ -1,5 +1,6 @@
 import enums from './enums';
 import { Vec2, Vec3, Vec4, Color, Mat4 } from '../core/value-types';
+import { vec2, vec3, vec4, color4, mat2, mat3, mat4 } from '../core/vmath';
 import Texture2D from '../core/assets/CCTexture2D';
 import gfxTexture2D from './gfx/texture-2d';
 import gfxTextureCube from  './gfx/texture-cube';
@@ -57,4 +58,27 @@ export let ctor2enums = {
     [gfxTexture2D]: enums.PARAM_TEXTURE_2D,
     // [TextureCube]: enums.PARAM_TEXTURE_CUBE,
     // [gfxTextureCube]: enums.PARAM_TEXTURE_CUBE,
+};
+
+
+export let className2TypeFunc = {
+    'cc.Color': (out, val) => { return color4.array(out, val); },
+    'cc.Vec2':  (out, val) => { return vec2.array(out, val); },
+    'cc.Vec3':  (out, val) => { return vec3.array(out, val); },
+    'cc.Vec4':  (out, val) => { return vec4.array(out, val); },
+    'cc.Mat2':  (out, val) => { return mat2.array(out, val); },
+    'cc.Mat3':  (out, val) => { return mat3.array(out, val); },
+    'cc.Mat4':  (out, val) => { return mat4.array(out, val); },
+    'cc.Texture2D': (out, val) => { return val.getImpl(); }
+};
+
+
+export let getInstanceType = function(t) { 
+    return enums2ctor[t] || enums2ctor.default; 
+};
+export let cloneObjArray = function(val) { 
+    return val.map(obj => Object.assign({}, obj)); 
+};
+export let getInstanceCtor = function(t) { 
+    return ctor2default[getInstanceType(t)]; 
 };

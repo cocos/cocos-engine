@@ -9,7 +9,10 @@ let _a16_view = new Float32Array(16);
 let _a16_proj = new Float32Array(16);
 let _a16_viewProj = new Float32Array(16);
 let _a4_camPos = new Float32Array(4);
-let _a16_lightViewProj = new Float32Array(16);
+
+let _a64_shadow_lightViewProj = new Float32Array(64);
+let _a16_shadow_lightViewProjs = [];
+let _a4_shadow_info = new Float32Array(4);
 
 let _camPos = vec4.create(0, 0, 0, 0);
 let _camFwd = vec3.create(0, 0, 0);
@@ -39,11 +42,12 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
   reset () {
+    _float16_pool.reset();
     this._reset();
   }
 
   render (scene) {
-    this._reset();
+    this.reset();
 
     this._updateLights(scene);
 
@@ -123,13 +127,11 @@ export default class ForwardRenderer extends BaseRenderer {
     defines._NUM_SPOT_LIGHTS = Math.min(4, this._spotLights.length);
     defines._NUM_AMBIENT_LIGHTS = Math.min(4, this._ambientLights.length);
 
-    defines._NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
+    defines.CC_NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
   }
 
   _submitLightsUniforms () {
     let device = this._device;
-
-    _float16_pool.reset();
 
     if (this._directionalLights.length > 0) {
       let directions = _float16_pool.add();
@@ -198,24 +200,41 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
   _submitShadowStageUniforms(view) {
+
     let light = view._shadowLight;
-    this._device.setUniform('cc_minDepth', light.shadowMinDepth);
-    this._device.setUniform('cc_maxDepth', light.shadowMaxDepth);
-    this._device.setUniform('cc_bias', light.shadowBias);
-    this._device.setUniform('cc_depthScale', light.shadowDepthScale);
+
+    let shadowInfo = _a4_shadow_info;
+    shadowInfo[0] = light.shadowMinDepth;
+    shadowInfo[1] = light.shadowMaxDepth;
+    shadowInfo[2] = light.shadowDepthScale;
+    shadowInfo[3] = light.shadowDarkness;
+
+    this._device.setUniform('cc_shadow_map_lightViewProjMatrix', mat4.array(_a16_viewProj, view._matViewProj));
+    this._device.setUniform('cc_shadow_map_info', shadowInfo);
+    this._device.setUniform('cc_shadow_map_bias', light.shadowBias);
   }
 
   _submitOtherStagesUniforms() {
-    for (let index = 0; index < this._shadowLights.length; ++index) {
-      let light = this._shadowLights[index];
-      this._device.setUniform(`cc_lightViewProjMatrix_${index}`, mat4.array(_a16_lightViewProj, light.viewProjMatrix));
-      this._device.setUniform(`cc_minDepth_${index}`, light.shadowMinDepth);
-      this._device.setUniform(`cc_maxDepth_${index}`, light.shadowMaxDepth);
-      this._device.setUniform(`cc_bias_${index}`, light.shadowBias);
-      this._device.setUniform(`cc_depthScale_${index}`, light.shadowDepthScale);
-      this._device.setUniform(`cc_darkness_${index}`, light.shadowDarkness);
-      this._device.setUniform(`cc_frustumEdgeFalloff_${index}`, light.frustumEdgeFalloff);
+    let shadowInfo = _float16_pool.add();
+    
+    for (let i = 0; i < this._shadowLights.length; ++i) {
+      let light = this._shadowLights[i];
+      let view = _a16_shadow_lightViewProjs[i];
+      if (!view) {
+        view = _a16_shadow_lightViewProjs[i] = new Float32Array(_a64_shadow_lightViewProj.buffer, i * 16, 16);
+      }
+      mat4.array(view, light.viewProjMatrix);
+      
+      let infoIndex = i*4;
+      shadowInfo[infoIndex] = light.shadowMinDepth;
+      shadowInfo[infoIndex+1] = light.shadowMaxDepth;
+      shadowInfo[infoIndex+2] = light.shadowDepthScale;
+      shadowInfo[infoIndex+3] = light.shadowDarkness;
     }
+
+    this._device.setUniform(`cc_shadow_lightViewProjMatrix`, _a64_shadow_lightViewProj);
+    this._device.setUniform(`cc_shadow_info`, shadowInfo);
+    // this._device.setUniform(`cc_frustumEdgeFalloff_${index}`, light.frustumEdgeFalloff);
   }
 
   _updateShaderDefines (item) {
@@ -241,8 +260,6 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
   _shadowStage (view, items) {
-    this._device.setUniform('cc_lightViewProjMatrix', mat4.array(_a16_viewProj, view._matViewProj));
-
     // update rendering
     this._submitShadowStageUniforms(view);
 
@@ -251,7 +268,7 @@ export default class ForwardRenderer extends BaseRenderer {
     // draw it
     for (let i = 0; i < items.length; ++i) {
       let item = items.data[i];
-      if (this._programLib._getValueFromDefineList('_SHADOW_CASTING', item.defines)) {
+      if (this._programLib._getValueFromDefineList('CC_SHADOW_CASTING', item.defines)) {
         this._updateShaderDefines(item);
         this._draw(item);
       }
@@ -272,7 +289,7 @@ export default class ForwardRenderer extends BaseRenderer {
   
         for (let index = 0; index < shadowLights.length; ++index) {
           let light = shadowLights[index];
-          this._device.setTexture(`_shadowMap_${index}`, light.shadowMap, this._allocTextureUnit());
+          this._device.setTexture(`cc_shadow_map`, light.shadowMap, this._allocTextureUnit());
         }
   
         this._updateShaderDefines(item);

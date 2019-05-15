@@ -1,11 +1,11 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 #if USE_EMISSIVE
-  #property #color3
-  uniform lowp vec3 emissiveColor;
+  uniform EMISSIVE {
+    lowp vec3 emissiveColor;
+  };
 
   #if USE_EMISSIVE_TEXTURE
-    #property
     uniform sampler2D emissiveTexture;
   #endif
 

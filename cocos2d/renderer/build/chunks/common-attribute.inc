@@ -1,15 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-// #ifndef USE_DIFFUSE_TEXTURE
-//   #ifndef USE_EMISSIVE_TEXTURE
-//     #ifndef USE_SPECULAR_TEXTURE
-//       #ifndef USE_NORMAL_TEXTURE
-//         #define _NOT_USE_TEXTURE 1
-//       #endif
-//     #endif
-//   #endif
-// #endif
-
 #define _USE_TEXTURE USE_DIFFUSE_TEXTURE || USE_EMISSIVE_TEXTURE || USE_SPECULAR_TEXTURE || USE_NORMAL_TEXTURE
 
 

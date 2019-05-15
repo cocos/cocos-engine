@@ -497,27 +497,12 @@ export default class Base {
         device.setTexture(prop.name, param, this._allocTextureUnit());
       }
     } else {
-      let convertedValue;
-      if (Array.isArray(param) || param instanceof Float32Array || param instanceof Int32Array) {
+      if (prop.directly) {
         device.setUniformDirectly(prop.name, param);
-        return;
       }
-      else if (prop.size !== undefined) {
-        let convertArray = _type2uniformArrayValue[prop.type];
-        if (convertArray.func === undefined) {
-          console.error('Uniform array of color3/int3/float3/mat3 can not be supportted!');
-          return;
-        }
-        if (prop.size * convertArray.size > 64) {
-          console.error('Uniform array is too long!');
-          return;
-        }
-        convertedValue = convertArray.func(param);
-      } else {
-        let convertFn = _type2uniformValue[prop.type];
-        convertedValue = convertFn(param);
+      else {
+        device.setUniform(prop.name, param);
       }
-      device.setUniform(prop.name, convertedValue);
     }
   }
 
