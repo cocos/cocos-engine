@@ -151,7 +151,7 @@ export class AnimationClip extends Asset {
     @property
     private _stepness = 0;
 
-    get propertyCurves () {
+    get propertyCurves (): ReadonlyArray<IPropertyCurve> {
         if (!this._propertyCurves) {
             this._createPropertyCurves();
         }
@@ -172,6 +172,13 @@ export class AnimationClip extends Asset {
         this.speed = this.speed;
         this.wrapMode = this.wrapMode;
         this.frameRate = this.sample;
+    }
+
+    /**
+     * Call it when you modify `this.curveDatas`;
+     */
+    public updateCurveDatas () {
+        delete this._propertyCurves;
     }
 
     private _createPropertyCurves () {
