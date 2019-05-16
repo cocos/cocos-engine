@@ -67,12 +67,12 @@ export class RenderableComponent extends Component {
      * @zh 返回相对应序号的材质
      * @param {Number} idx - Look for the material list number
      */
-    public getMaterial (idx: number, inEditor: boolean = false): Material | null {
+    public getMaterial (idx: number, inEditor: boolean = false, autoUpdate: boolean = false): Material | null {
         const mat = this._materials[idx];
         if (!mat) { return null; }
         const instantiated = Material.getInstantiatedMaterial(mat, this, inEditor);
         if (instantiated !== this._materials[idx]) {
-            this.setMaterial(instantiated, idx, !inEditor);
+            this.setMaterial(instantiated, idx, autoUpdate || !inEditor);
         }
         return this._materials[idx];
     }

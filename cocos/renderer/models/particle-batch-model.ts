@@ -59,9 +59,10 @@ export default class ParticleBatchModel extends Model {
     }
 
     public setCapacity (capacity: number) {
+        const capChanged = this._capacity !== capacity;
         this._capacity = capacity;
-        if (this._inited) {
-            this.setVertexAttributes(this._mesh, this._vertAttrs!);
+        if (this._inited && capChanged) {
+            this._recreateBuffer();
         }
     }
 
@@ -82,6 +83,13 @@ export default class ParticleBatchModel extends Model {
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
         this._inited = true;
+    }
+
+    private _recreateBuffer () {
+        this._vBuffer = this._createSubMeshData();
+        this.getSubModel(0).updateCommandBuffer();
+        this._vdataF32 = new Float32Array(this._vBuffer);
+        this._vdataUint32 = new Uint32Array(this._vBuffer);
     }
 
     public _createSubMeshData (): ArrayBuffer {
