@@ -1030,6 +1030,7 @@ class mat4 {
     /**
      * Decompose an affine matrix to a quaternion rotation, a translation offset and a scale vector.
      * Assumes the transformation is combined in the order of Scale -> Rotate -> Translate.
+     * Not applicable when containing negative scaling.
      * @param m - Matrix to decompose.
      * @param q - Resulting rotation quaternion.
      * @param v - Resulting translation offset.
@@ -1048,7 +1049,7 @@ class mat4 {
         m3_1.m06 = m.m08 / s.z;
         m3_1.m07 = m.m09 / s.z;
         m3_1.m08 = m.m10 / s.z;
-        quat.normalize(q, quat.fromMat3(q, m3_1));
+        quat.fromMat3(q, m3_1); // already normalized
         vec3.set(v, m.m12, m.m13, m.m14);
     }
 
