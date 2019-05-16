@@ -115,7 +115,7 @@ let AnimationCache = cc.Class({
         this.end();
     },
 
-    update () {
+    updateAllFrame () {
         this.begin();
         this.updateToFrame();
     },
@@ -399,7 +399,7 @@ let ArmatureCache = cc.Class({
     updateAnimationCache (armatureKey, animationName) {
         let animationCache = this.initAnimationCache(armatureKey, animationName);
         if (!animationCache) return;
-        animationCache.update();
+        animationCache.updateAllFrame();
         if (animationCache.totalTime >= MaxCacheTime) {
             cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change armature render mode to REALTIME, dragonbones uuid is [%s], animation name is [%s]", armatureKey, animationName);
         }

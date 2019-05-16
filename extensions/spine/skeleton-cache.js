@@ -157,7 +157,7 @@ let AnimationCache = cc.Class({
         this.end();
     },
 
-    update () {
+    updateAllFrame () {
         this.begin();
         this.updateToFrame();
     },
@@ -508,7 +508,7 @@ let SkeletonCache = cc.Class({
         let animationsCache = skeletonInfo.animationsCache;
         for (var aniKey in animationsCache) {
             let animationCache = animationsCache[aniKey];
-            animationCache.update();
+            animationCache.updateAllFrame();
         }
     },
 
@@ -543,7 +543,7 @@ let SkeletonCache = cc.Class({
     updateAnimationCache (uuid, animationName) {
         let animationCache = this.initAnimationCache(uuid, animationName);
         if (!animationCache) return null;
-        animationCache.update();
+        animationCache.updateAllFrame();
         if (animationCache.totalTime >= MaxCacheTime) {
             cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change skeleton render mode to REALTIME, animation name is [%s]",animationName);
         }
