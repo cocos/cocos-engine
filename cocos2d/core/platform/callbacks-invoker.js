@@ -195,8 +195,8 @@ proto.hasEventListener = function (key, callback, target) {
     if (!callback) {
         // Make sure no cancelled callbacks
         if (list.isInvoking) {
-            for (const info of infos) {
-                if (info) {
+            for (let i = 0; i < infos.length; ++i) {
+                if (infos[i]) {
                     return true;
                 }
             }
