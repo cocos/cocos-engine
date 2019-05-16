@@ -401,6 +401,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         }
 
         this._isPlaying = true;
+        this._isEmitting = true;
 
         // prewarm
         if (this._prewarm) {
@@ -491,7 +492,9 @@ export class ParticleSystemComponent extends RenderableComponent {
             this._emit(scaledDeltaTime);
 
             // simulation, update particles.
-            this.renderer!._updateParticles(scaledDeltaTime);
+            if (this.renderer!._updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
+                this.stop();
+            }
 
             // update render data
             this.renderer!._updateRenderData();
@@ -580,15 +583,12 @@ export class ParticleSystemComponent extends RenderableComponent {
         // emit particles.
         const startDelay = this.startDelay.evaluate(0, 1)!;
         if (this._time > startDelay) {
-            if (!this._isStopped) {
-                this._isEmitting = true;
-            }
             if (this._time > (this.duration + startDelay)) {
                 // this._time = startDelay; // delay will not be applied from the second loop.(Unity)
                 // this._emitRateTimeCounter = 0.0;
                 // this._emitRateDistanceCounter = 0.0;
                 if (!this.loop) {
-                    this.stop();
+                    this._isEmitting = false;
                     return;
                 }
             }
