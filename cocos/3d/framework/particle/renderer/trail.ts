@@ -277,8 +277,8 @@ export default class TrailModule {
         for (const b of ps.bursts) {
             burstCount += b.getMaxCount(ps);
         }
-        this._trailNum = ps.startLifetime.getMax() * this.lifeTime.getMax() * 60 * (ps.rateOverTime.getMax() * ps.duration + burstCount);
-        this._trailSegments = new Pool(() => new TrailSegment(ps.startLifetime.getMax() * this.lifeTime.getMax() * 60), Math.ceil(ps.rateOverTime.getMax() * ps.duration));
+        this._trailNum = Math.ceil(ps.startLifetime.getMax() * this.lifeTime.getMax() * 60 * (ps.rateOverTime.getMax() * ps.duration + burstCount));
+        this._trailSegments = new Pool(() => new TrailSegment(Math.ceil(ps.startLifetime.getMax() * this.lifeTime.getMax() * 60)), Math.ceil(ps.rateOverTime.getMax() * ps.duration));
         if (this._enable) {
             this.enable = this._enable;
             this._updateMaterial();
