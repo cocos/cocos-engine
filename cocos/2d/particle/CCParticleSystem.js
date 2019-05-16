@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('../core/platform/CCMacro');
+const macro = require('../core/platform/CCMacro').macro;
 const ParticleAsset = require('./CCParticleAsset');
 const RenderComponent = require('../core/components/CCRenderComponent');
 const codec = require('../compression/ZipUtils');

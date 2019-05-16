@@ -1455,4 +1455,4 @@ const macro = {
 
 cc.macro = macro;
 
-export default macro;
+export { macro };
