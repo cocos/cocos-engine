@@ -1,4 +1,5 @@
-import { Quat, ValueType, Vec2, Vec3, Vec4, vmath } from '../core';
+import { Quat, ValueType, Vec2, Vec3, Vec4 } from '../core/value-types';
+import * as vmath from '../core/vmath';
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';

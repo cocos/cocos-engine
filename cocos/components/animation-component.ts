@@ -8,9 +8,8 @@ import { createMap } from '../core/utils/js-typed';
 import { ccenum } from '../core/value-types/enum';
 import { Component } from './component';
 import { IEventTarget, applyMixins } from '../core/event/event-target-factory';
-import { EventTarget } from '../core/event/event-target';
+import { Event, EventTarget } from '../core/event';
 import { ICallbackTable, CallbacksInvoker } from '../core/event/callbacks-invoker';
-import { Event } from '../core';
 
 /**
  * !#en The event type supported by Animation
