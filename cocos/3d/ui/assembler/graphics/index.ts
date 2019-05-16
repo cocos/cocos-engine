@@ -26,4 +26,4 @@
 
 'use strict';
 
-// import './graphics-component';
+export * from './webgl';
