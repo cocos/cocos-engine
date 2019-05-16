@@ -31,7 +31,7 @@ import { IEventTarget, applyMixins } from '../core/event/event-target-factory';
 import { EventTarget } from '../core/event/event-target';
 import { createMap } from '../core/utils/js-typed';
 import { CallbacksInvoker } from '../core/event/callbacks-invoker';
-import { Event } from '../core';
+import { Event } from '../core/event';
 
 /**
  * !#en
