@@ -96,14 +96,14 @@ var proto = EventTarget.prototype;
  * }, node);
  */
 proto.__on = proto.on;
-proto.on = function (type, callback, target) {
+proto.on = function (type, callback, target, once) {
     if (!callback) {
         cc.errorID(6800);
         return;
     }
 
     if ( !this.hasEventListener(type, callback, target) ) {
-        this.__on(type, callback, target);
+        this.__on(type, callback, target, once);
 
         if (target) {
             if (target.__eventTargets) {
@@ -193,21 +193,7 @@ proto.targetOff = proto.removeAll;
  * }, node);
  */
 proto.once = function (type, callback, target) {
-    if (!callback) {
-        cc.errorID(6800);
-        return;
-    }
-
-    if (!this.hasEventListener(type, callback, target)) {
-        this.__on(type, callback, target, true);
-        if (target) {
-            if (target.__eventTargets) {
-                target.__eventTargets.push(this);
-            } else if (target.node && target.node.__eventTargets) {
-                target.node.__eventTargets.push(this);
-            }
-        }
-    }
+    this.on(type, callback, target, true);
 };
 
 /**

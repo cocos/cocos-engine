@@ -1538,7 +1538,6 @@ var Node = cc.Class({
      */
     once (type, callback, target, useCapture) {
         let forDispatch = this._checknSetupSysEvent(type);
-        let eventType_hasOnceListener = '__ONCE_FLAG:' + type;
 
         let listeners = null;
         if (forDispatch && useCapture) {

@@ -43,7 +43,7 @@ EventListeners.prototype.emit = function (event, captureListeners) {
         const infos = list.callbackInfos;
         for (let i = 0, len = infos.length; i < len; ++i) {
             const info = infos[i];
-            if (info && info.target) {
+            if (info && info.callback) {
                 info.callback.call(info.target, event, captureListeners);
                 if (event._propagationImmediateStopped) {
                     break;

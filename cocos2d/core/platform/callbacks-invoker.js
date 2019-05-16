@@ -25,7 +25,6 @@
  ****************************************************************************/
 
 const js = require('./js');
-const Pool = require('../renderer/render-engine').Pool;
 const fastRemoveAt = js.array.fastRemoveAt;
 
 function empty () {}
@@ -42,9 +41,16 @@ CallbackInfo.prototype.set = function (callback, target, once) {
     this.once = !!once;
 };
 
-const callbackInfoPool = new Pool(function () {
-    return new CallbackInfo();
+let callbackInfoPool = new js.Pool(function (info) {
+    info.callback = empty;
+    info.target = undefined;
+    info.once = false;
+    return true;
 }, 32);
+
+callbackInfoPool.get = function () {
+    return this._get() || new CallbackInfo();
+};
 
 function CallbackList () {
     this.callbackInfos = [];
@@ -63,7 +69,7 @@ proto.removeByCallback = function (cb) {
     for (let i = 0; i < this.callbackInfos.length; ++i) {
         let info = this.callbackInfos[i];
         if (info && info.callback === cb) {
-            callbackInfoPool.free(info);
+            callbackInfoPool.put(info);
             fastRemoveAt(this.callbackInfos, i);
             --i;
         }
@@ -79,7 +85,7 @@ proto.removeByTarget = function (target) {
     for (let i = 0; i < this.callbackInfos.length; ++i) {
         const info = this.callbackInfos[i];
         if (info && info.target === target) {
-            callbackInfoPool.free(info);
+            callbackInfoPool.put(info);
             fastRemoveAt(this.callbackInfos, i);
             --i;
         }
@@ -95,7 +101,7 @@ proto.removeByTarget = function (target) {
 proto.cancel = function (index) {
     const info = this.callbackInfos[index];
     if (info) {
-        callbackInfoPool.free(info);
+        callbackInfoPool.put(info);
         this.callbackInfos[index] = null;
     }
     this.containCanceled = true;
@@ -109,7 +115,7 @@ proto.cancelAll = function () {
     for (let i = 0; i < this.callbackInfos.length; i++) {
         const info = this.callbackInfos[i];
         if (info) {
-            callbackInfoPool.free(info);
+            callbackInfoPool.put(info);
             this.callbackInfos[i] = null;
         }
     }
@@ -135,9 +141,16 @@ proto.clear = function () {
 };
 
 const MAX_SIZE = 16;
-const callbackListPool = new Pool(function () {
-    return new CallbackList();
+let callbackListPool = new js.Pool(function (info) {
+    info.callback = empty;
+    info.target = undefined;
+    info.once = false;
+    return true;
 }, MAX_SIZE);
+
+callbackListPool.get = function () {
+    return this._get() || new CallbackList();
+};
 
 /**
  * !#en The callbacks invoker to handle and invoke callbacks by key.
@@ -162,9 +175,9 @@ proto = CallbacksInvoker.prototype;
 proto.on = function (key, callback, target, once) {
     let list = this._callbackTable[key];
     if (!list) {
-        list = this._callbackTable[key] = callbackListPool.alloc();
+        list = this._callbackTable[key] = callbackListPool.get();
     }
-    let info = callbackInfoPool.alloc();
+    let info = callbackInfoPool.get();
     info.set(callback, target, once);
     list.callbackInfos.push(info);
 };
@@ -180,8 +193,8 @@ proto.on = function (key, callback, target, once) {
  *
  * @method hasEventListener
  * @param {String} key
- * @param {Function} callback
- * @param {Object} target
+ * @param {Function} [callback]
+ * @param {Object} [target]
  * @return {Boolean}
  */
 proto.hasEventListener = function (key, callback, target) {
@@ -235,7 +248,7 @@ proto.removeAll = function (keyOrTarget) {
             }
             else {
                 list.clear();
-                callbackListPool.free(list);
+                callbackListPool.put(list);
                 delete this._callbackTable[keyOrTarget];
             }
         }
@@ -281,7 +294,7 @@ proto.off = function (key, callback, target) {
                 }
                 else {
                     fastRemoveAt(infos, i);
-                    callbackInfoPool.free(info);
+                    callbackInfoPool.put(info);
                 }
                 break;
             }
