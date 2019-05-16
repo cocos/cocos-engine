@@ -178,6 +178,7 @@ if (TestEditorExtends) {
             }
             cc.js.extend(MyAsset, _super);
             cc.js.setClassName('MyAsset', MyAsset);
+            cc.js.getset(MyAsset.prototype, '_nativeAsset', function () {}, function () {})
             return MyAsset;
         })();
 
@@ -304,6 +305,7 @@ if (TestEditorExtends) {
 
             return MyAsset;
         })();
+        cc.js.getset(MyAsset.prototype, '_nativeAsset', function () {}, function () {})
 
         var expectAsset = new MyAsset();
         //cc.log(Editor.serialize(expectAsset));
@@ -332,6 +334,8 @@ if (TestEditorExtends) {
 
             return MyAsset;
         })();
+        cc.js.getset(MyAsset.prototype, '_nativeAsset', function () {}, function () {})
+
         var expectAsset = new MyAsset();
 
         var serializedAssetJson = '[{"__type__":"MyAsset","dict1":{"__id__":1},"dict2":{"__id__":2}},{"num":1,"other":{"__id__":2}},{"num":2,"other":{"__id__":1}}]';
