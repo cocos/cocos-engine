@@ -116,7 +116,6 @@ let Material = cc.Class({
                 instance._name = mat._name + ' (Instance)';
                 instance._uuid = mat._uuid;
                 instance._owner = renderComponent;
-                instance._objFlags |= cc.Object.Flags.DontSave;
                 return instance;
             }
         }
