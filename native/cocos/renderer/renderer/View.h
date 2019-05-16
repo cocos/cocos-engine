@@ -36,12 +36,28 @@ RENDERER_BEGIN
 class Light;
 class FrameBuffer;
 
+/**
+ * @addtogroup renderer
+ * @{
+ */
+
+/**
+ *  @brief View defines a specific camera view and Light settings
+ */
 class View : public Ref
 {
 public:
+    /**
+     *  @brief The default constructor.
+     */
     View();
-    
+    /**
+     *  @brief Gets the forward direction.
+     */
     void getForward(Vec3& out) const;
+    /**
+     *  @brief Gets the position.
+     */
     void getPosition(Vec3& out) const;
     
     uint32_t id;
@@ -53,6 +69,7 @@ public:
     Color4F color = {0.3f, 0.3f, 0.3f, 1.f};
     int depth = 1;
     int stencil = 1;
+    int cullingMask = 1;
     uint8_t clearFlags = ClearFlag::COLOR | ClearFlag::DEPTH;
     
     // matrix
@@ -68,5 +85,8 @@ public:
     
     Light* shadowLight = nullptr;
 };
+
+// end of renderer group
+/// @}
 
 RENDERER_END

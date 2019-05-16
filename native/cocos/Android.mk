@@ -136,6 +136,16 @@ renderer/renderer/Scene.cpp \
 renderer/renderer/Technique.cpp \
 renderer/renderer/View.cpp \
 renderer/renderer/ForwardRenderer.cpp \
+renderer/scene/CustomRenderHandle.cpp \
+renderer/scene/MeshBuffer.cpp \
+renderer/scene/ModelBatcher.cpp \
+renderer/scene/NodeProxy.cpp \
+renderer/scene/RenderFlow.cpp \
+renderer/scene/StencilManager.cpp \
+renderer/scene/RenderHandle.cpp \
+renderer/scene/SystemHandle.cpp \
+renderer/scene/GraphicsRenderHandle.cpp \
+renderer/scene/MaskRenderHandle.cpp \
 scripting/js-bindings/auto/jsb_gfx_auto.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
 scripting/js-bindings/manual/jsb_renderer_manual.cpp \
@@ -174,7 +184,7 @@ endif # USE_SOCKET
 
 ifneq ($(USE_MIDDLEWARE),0)
 LOCAL_STATIC_LIBRARIES += editor_support_static
-endif # USE_SPINE or USE_DRAGONBONES
+endif # USE_MIDDLEWARE
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \

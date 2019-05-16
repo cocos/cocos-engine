@@ -78,6 +78,10 @@
 #include "cocos/scripting/js-bindings/manual/jsb_dragonbones_manual.hpp"
 #endif
 
+#if USE_PARTICLE
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_particle_auto.hpp"
+#endif
+
 #endif // USE_MIDDLEWARE
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -157,6 +161,10 @@ bool jsb_register_all_modules()
 #if USE_DRAGONBONES
     se->addRegisterCallback(register_all_cocos2dx_dragonbones);
     se->addRegisterCallback(register_all_dragonbones_manual);
+#endif
+
+#if USE_PARTICLE
+    se->addRegisterCallback(register_all_cocos2dx_particle);
 #endif
 
 #endif // USE_MIDDLEWARE

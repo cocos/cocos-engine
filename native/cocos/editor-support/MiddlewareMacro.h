@@ -26,8 +26,7 @@
 #define INIT_INDEX_BUFFER_SIZE 1024000
 // max vertex buffer size
 #define MAX_VERTEX_BUFFER_SIZE 65535
-// render info int capacity
-#define INIT_RENDER_INFO_BUFFER_SIZE 1024000
+
 // fill debug data max capacity
 #define MAX_DEBUG_BUFFER_SIZE 40960
 // type array pool min size

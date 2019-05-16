@@ -48,6 +48,18 @@ InputAssembler::~InputAssembler()
     RENDERER_SAFE_RELEASE(_indexBuffer);
 }
 
+void InputAssembler::clear()
+{
+    CC_SAFE_RELEASE(_vertexBuffer);
+    CC_SAFE_RELEASE(_indexBuffer);
+    
+    _vertexBuffer = nullptr;
+    _indexBuffer = nullptr;
+    _primitiveType = PrimitiveType::TRIANGLES;
+    _start = 0;
+    _count = -1;
+}
+
 InputAssembler& InputAssembler::operator=(const InputAssembler& o)
 {
     CC_SAFE_RELEASE(_vertexBuffer);

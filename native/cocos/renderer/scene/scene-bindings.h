@@ -1,6 +1,6 @@
 /****************************************************************************
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
- 
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,61 +24,10 @@
 
 #pragma once
 
-#include "IOTypedArray.h"
-#include <functional>
-
-MIDDLEWARE_BEGIN
-
-class RenderInfoMgr {
-public:
-    static RenderInfoMgr* getInstance ()
-    {
-        if (_instance == nullptr)
-        {
-            _instance = new RenderInfoMgr();
-        }
-        return _instance;
-    }
-
-    static void destroyInstance ()
-    {
-        if (_instance)
-        {
-            delete _instance;
-            _instance = nullptr;
-        }
-    }
-
-    RenderInfoMgr ();
-    virtual ~RenderInfoMgr ();
-    
-    void reset ()
-    {
-        _buffer->reset();
-    }
-
-    IOTypedArray* getBuffer()
-    {
-        return _buffer;
-    }
-
-    typedef std::function<void()> resizeCallback;
-    void setResizeCallback(resizeCallback callback)
-    {
-        _resizeCallback = callback;
-    }
-
-    se_object_ptr getRenderInfo()
-    {
-        return _buffer->getTypeArray();
-    }
-private:
-    void init();
-    void afterCleanupHandle();
-private:
-    static RenderInfoMgr* _instance;
-    IOTypedArray* _buffer = nullptr;
-    resizeCallback _resizeCallback = nullptr;
-};
-
-MIDDLEWARE_END
+#include "NodeProxy.hpp"
+#include "RenderHandle.hpp"
+#include "ModelBatcher.hpp"
+#include "RenderFlow.hpp"
+#include "MeshBuffer.hpp"
+#include "GraphicsRenderHandle.hpp"
+#include "MaskRenderHandle.hpp"

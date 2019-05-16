@@ -308,11 +308,10 @@ void Technique::Parameter::copyValue(const Parameter& rh)
             _value = rh._value;
             RENDERER_SAFE_RETAIN((Texture*)_value);
         }
-        else
+        else if (_count > 0)
         {
-            if (_count > 0)
-                _value = malloc(_count * sizeof(void*));
-            
+            _value = malloc(_count * sizeof(void*));
+            memcpy(_value, rh._value, _count * sizeof(void*));
             Texture** texture = (Texture**)_value;
             for (uint8_t i = 0; i < _count; ++i)
             {
@@ -376,6 +375,11 @@ Technique::Technique(const std::vector<std::string>& stages,
 //    RENDERER_LOGD("Technique construction: %p", this);
 }
 
+Technique::Technique()
+{
+    
+}
+
 Technique::~Technique()
 {
 //    RENDERER_LOGD("Technique destruction: %p", this);
@@ -389,6 +393,23 @@ void Technique::setStages(const std::vector<std::string>& stages)
 void Technique::setPass(int index, Pass* pass)
 {
     _passes.insert(index, pass);
+}
+
+void Technique::copy(const Technique& tech)
+{
+    _id = tech._id;
+    _stageIDs = tech._stageIDs;
+    _layer = tech._layer;
+    _parameters = tech._parameters;
+    _passes.clear();
+    auto& otherPasses = tech._passes;
+    for (auto it = otherPasses.begin(); it != otherPasses.end(); it++)
+    {
+        auto newPass = new Pass();
+        newPass->autorelease();
+        newPass->copy(**it);
+        _passes.pushBack(newPass);
+    }
 }
 
 RENDERER_END

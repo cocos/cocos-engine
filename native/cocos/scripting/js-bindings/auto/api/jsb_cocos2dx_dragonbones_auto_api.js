@@ -2354,6 +2354,16 @@ getAnimation : function (
 },
 
 /**
+ * @method setColor
+ * @param {color4b_object} arg0
+ */
+setColor : function (
+color4b 
+)
+{
+},
+
+/**
  * @method hasDBEventListener
  * @param {String} arg0
  * @return {bool}
@@ -2366,11 +2376,11 @@ str
 },
 
 /**
- * @method setColor
- * @param {color4b_object} arg0
+ * @method bindNodeProxy
+ * @param {cc.renderer::NodeProxy} arg0
  */
-setColor : function (
-color4b 
+bindNodeProxy : function (
+nodeproxy 
 )
 {
 },
@@ -2433,16 +2443,6 @@ eventobject
 dispose : function (
 )
 {
-},
-
-/**
- * @method getRenderInfoOffset
- * @return {se::Object}
- */
-getRenderInfoOffset : function (
-)
-{
-    return se::Object;
 },
 
 /**
@@ -2525,6 +2525,16 @@ getDebugData : function (
 )
 {
     return se::Object;
+},
+
+/**
+ * @method setNativeEffect
+ * @param {cc.renderer::Effect} arg0
+ */
+setNativeEffect : function (
+effect 
+)
+{
 },
 
 /**

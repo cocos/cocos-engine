@@ -37,9 +37,14 @@
 #include "scripting/js-bindings/jswrapper/Object.hpp"
 #include "IOTypedArray.h"
 #include "MiddlewareManager.h"
+#include "renderer/scene/NodeProxy.hpp"
+#include "base/CCMap.h"
+#include "middleware-adapter.h"
+#include "base/ccMacros.h"
 
 namespace spine {
 
+    class NodeProxy;
     class AttachmentVertices;
 
     /** Draws a skeleton.
@@ -106,19 +111,22 @@ namespace spine {
             return nullptr;
         }
         
-        /**
-         * @return render info offset,it's a Uint32Array,
-         * format |render info offset|
-         */
-        se_object_ptr getRenderInfoOffset() const
+        void bindNodeProxy(cocos2d::renderer::NodeProxy* node)
         {
-            if (_renderInfoOffset)
-            {
-                return _renderInfoOffset->getTypeArray();
-            }
-            return nullptr;
+            if (node == _nodeProxy) return;
+            CC_SAFE_RELEASE(_nodeProxy);
+            _nodeProxy = node;
+            CC_SAFE_RETAIN(_nodeProxy);
         }
-
+        
+        void setNativeEffect(cocos2d::renderer::Effect* effect)
+        {
+            if (effect == _effect) return;
+            CC_SAFE_RELEASE(_effect);
+            _effect = effect;
+            CC_SAFE_RETAIN(_effect);
+        }
+        
         void setColor (cocos2d::Color4B& color);
         void setDebugBonesEnabled (bool enabled);
         void setDebugSlotsEnabled (bool enabled);
@@ -174,8 +182,9 @@ namespace spine {
         int                 _startSlotIndex = -1;
         int                 _endSlotIndex = -1;
         
-        cocos2d::middleware::IOTypedArray*  _renderInfoOffset = nullptr;
-        cocos2d::middleware::IOTypedArray*  _debugBuffer = nullptr;
+        cocos2d::middleware::IOTypedArray* _debugBuffer = nullptr;
+        cocos2d::renderer::NodeProxy* _nodeProxy = nullptr;
+        cocos2d::renderer::Effect* _effect = nullptr;
     };
 
 }

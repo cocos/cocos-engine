@@ -2,17 +2,17 @@
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,7 @@
 #include "gfx/Texture2D.h"
 #include "gfx/VertexBuffer.h"
 #include "gfx/IndexBuffer.h"
+#include "gfx/FrameBuffer.h"
 #include "ProgramLib.h"
 #include "View.h"
 #include "Scene.h"
@@ -35,7 +36,7 @@
 #include "InputAssembler.h"
 #include "Pass.h"
 #include "Camera.h"
-
+#include <algorithm>
 
 RENDERER_BEGIN
 
@@ -55,10 +56,26 @@ bool ForwardRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Templ
 void ForwardRenderer::render(Scene* scene)
 {
 //    reset();
-
-    const auto& cameras = scene->getCameras();
+    scene->sortCameras();
+    auto& cameras = scene->getCameras();
     for (auto camera : cameras)
         BaseRenderer::render(camera->extractView(_width, _height), scene);
+    
+    scene->removeModels();
+}
+
+void ForwardRenderer::renderCamera(Camera* camera, Scene* scene)
+{
+    //    reset();
+    int width = _width;
+    int height = _height;
+    FrameBuffer* fb = camera->getFrameBuffer();
+    if (nullptr != fb) {
+        width = fb->getWidth();
+        height = fb->getHeight();
+    }
+    View view = camera->extractView(width, height);
+    BaseRenderer::render(view, scene);
     
     scene->removeModels();
 }
