@@ -34,7 +34,7 @@ module.exports = js.addon({
             vec3_temps.push(vec3.create());
         }
         return function (sprite, renderer) {
-            let data = sprite._renderData._data,
+            let verts = sprite._renderData.vertices,
                 node = sprite.node,
                 color = node._color._val,
                 matrix = node._worldMatrix;
@@ -50,7 +50,7 @@ module.exports = js.addon({
                 uintbuf = buffer._uintVData,
                 ibuf = buffer._iData;
     
-            let data0 = data[0], data3 = data[3];
+            let data0 = verts[0], data3 = verts[3];
             vec3.set(vec3_temps[0], data0.x, data0.y, 0);
             vec3.set(vec3_temps[1], data3.x, data0.y, 0);
             vec3.set(vec3_temps[2], data0.x, data3.y, 0);

@@ -161,18 +161,11 @@ let maskFrontAssembler = {
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
                 mask._renderData = spriteAssembler.createData(mask);
             }
-            else {
-                // for updateGraphics calculation
-                mask._renderData = mask.requestRenderData();
-            }
         }
         let renderData = mask._renderData;
 
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
             if (mask.spriteFrame) {
-                let size = mask.node._contentSize;
-                let anchor = mask.node._anchorPoint;
-                renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
                 renderData.dataLength = 4;
                 spriteAssembler.updateRenderData(mask);
                 renderData.material = mask.sharedMaterials[0];

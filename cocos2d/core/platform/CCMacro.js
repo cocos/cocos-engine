@@ -25,8 +25,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('./js');
-
 /**
  * Predefined constants
  * @class macro

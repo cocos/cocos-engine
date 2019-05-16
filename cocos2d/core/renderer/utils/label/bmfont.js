@@ -23,12 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+let textUtils = require('../../../utils/text-utils');
 const macro = require('../../../platform/CCMacro');
-
 const Label = require('../../../components/CCLabel');
 const Overflow = Label.Overflow;
 
-const textUtils = require('../../../utils/text-utils');
 
 let FontLetterDefinition = function() {
     this._u = 0;
@@ -132,25 +131,28 @@ let _labelWidth = 0;
 let _labelHeight = 0;
 let _maxLineWidth = 0;
 
-module.exports = {
+textUtils.bmfont = module.exports = {
     updateRenderData (comp) {
-        if (!comp._renderData.vertDirty) return;
+        if (!comp._vertsDirty) return;
         if (_comp === comp) return;
 
         _comp = comp;
         
+        this._reserveQuads(comp, comp.string.toString().length);
         this._updateProperties();
         this._updateContent();
         
         _comp._actualFontSize = _fontSize;
         _comp.node.setContentSize(_contentSize);
 
-        _comp._renderData.vertDirty = _comp._renderData.uvDirty = false;
+        _comp._vertsDirty = false;
 
         _comp = null;
         
         this._resetProperties();
     },
+
+    _reserveQuads () {},
 
     _updateFontScale () {
         _bmfontScale = _fontSize / _originFontSize;
@@ -596,7 +598,9 @@ module.exports = {
 
         let node = _comp.node;
         let renderData = _comp._renderData;
-        renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
+        if (renderData) {
+            renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
+        }
 
         let contentSize = _contentSize,
             appx = node._anchorPoint.x * contentSize.width,
@@ -668,15 +672,18 @@ module.exports = {
                 }
 
                 let letterPositionX = letterInfo._positionX + _linesOffsetX[letterInfo._lineIndex];
-                this.appendQuad(renderData, texture, _tmpRect, isRotated, letterPositionX - appx, py - appy, _bmfontScale);
+                this.appendQuad(_comp, texture, _tmpRect, isRotated, letterPositionX - appx, py - appy, _bmfontScale);
             }
         }
+        this._quadsUpdated(_comp);
 
         return ret;
     },
 
-    appendQuad (renderData, texture, rect, rotated, x, y, scale) {
+    appendQuad (comp, texture, rect, rotated, x, y, scale) {
     },
+
+    _quadsUpdated (comp) {},
 
     _computeAlignmentOffset: function() {
         _linesOffsetX.length = 0;

@@ -34,7 +34,6 @@ import InputAssembler from '../renderer/core/input-assembler';
 
 var particleSystemAssembler = {
     createIA (comp) {
-        let device = renderer.device;
         // Vertex format defines vertex buffer layout: x, y, u, v color
         comp._vertexFormat = vfmtPosUvColor;
 

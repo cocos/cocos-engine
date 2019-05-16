@@ -37,14 +37,14 @@ module.exports = js.addon({
         for (let i = 0; i < 4; i++) {
             vec3_temps.push(vec3.create());
         }
-        return function (vbuf, vertexOffset, matrix, row, col, data) {
+        return function (vbuf, vertexOffset, matrix, row, col, verts) {
             let x, x1, y, y1;
             for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-                y = data[yindex].y;
-                y1 = data[yindex+1].y;
+                y = verts[yindex].y;
+                y1 = verts[yindex+1].y;
                 for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
-                    x = data[xindex].x;
-                    x1 = data[xindex+1].x;
+                    x = verts[xindex].x;
+                    x1 = verts[xindex+1].x;
     
                     vec3.set(vec3_temps[0], x, y, 0);
                     vec3.set(vec3_temps[1], x1, y, 0);

@@ -32,7 +32,7 @@ const MeshBuffer = require('../../mesh-buffer');
 const vfmtPosColor = require('../../vertex-format').vfmtPosColor;
 const renderer = require('../../../index');
 
-let Point = cc.Class({
+let Point = cc.Graphics.Point = cc.Class({
     name: 'cc.GraphicsPoint',
     extends: cc.Vec2,
 

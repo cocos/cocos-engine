@@ -91,6 +91,8 @@ ModelBatcher.prototype = {
         let models = this._batchedModels;
         for (let i = 0; i < models.length; ++i) {
             // remove from scene
+            // models[i].clearInputAssemblers();
+            // models[i].clearEffects();
             models[i].setInputAssembler(null);
             models[i].setEffect(null);
             scene.removeModel(models[i]);
@@ -145,7 +147,7 @@ ModelBatcher.prototype = {
 
         let effect = material.effect;
         if (!effect) return;
-
+        
         // Generate ia
         let ia = this._iaPool.add();
         ia._vertexBuffer = buffer._vb;
@@ -226,6 +228,8 @@ ModelBatcher.prototype = {
         for (let key in _buffers) {
             _buffers[key].uploadData();
         }
+    
+        this.walking = false;
     },
 
     getBuffer (type, vertextFormat) {

@@ -11,7 +11,7 @@ const POST_UPDATE_RENDER_DATA = 1 << 7;
 const POST_RENDER = 1 << 8;
 const FINAL = 1 << 9;
 
-let _batcher;
+let _batcher, _forward;
 let _cullingMask = 0;
 let _renderQueueIndex = 0;
 let _evm = cc.eventManager;
@@ -35,9 +35,9 @@ _proto._worldTransform = function (node) {
     _batcher.worldMatDirty ++;
 
     let t = node._matrix;
-    let position = node._position;
-    t.m12 = position.x;
-    t.m13 = position.y;
+    let trs = node._trs;
+    t.m12 = trs[1];
+    t.m13 = trs[2];
 
     node._mulMat(node._worldMatrix, node._parent._worldMatrix, t);
     node._renderFlag &= ~WORLD_TRANSFORM;
@@ -96,6 +96,8 @@ _proto._children = function (node) {
         // Advance the modification of the flag to avoid node attribute modification is invalid when opacity === 0.
         c._renderFlag |= worldDirtyFlag;
         if (!c._activeInHierarchy || c._opacity === 0) continue;
+
+        _cullingMask = c._cullingMask = c.groupIndex === 0 ? cullingMask : 1 << c.groupIndex;
 
         // TODO: Maybe has better way to implement cascade opacity
         let colorVal = c._color._val;
@@ -188,7 +190,7 @@ function init (node) {
 
 RenderFlow.flows = flows;
 RenderFlow.createFlow = createFlow;
-RenderFlow.visit = function (scene) {
+RenderFlow.render = function (scene) {
     _batcher.reset();
     _batcher.walking = true;
 
@@ -210,10 +212,13 @@ RenderFlow.visit = function (scene) {
 
     _batcher.terminate();
     _batcher.walking = false;
+
+    _forward.render(_batcher._renderScene);
 };
 
-RenderFlow.init = function (batcher) {
+RenderFlow.init = function (batcher, forwardRenderer) {
     _batcher = batcher;
+    _forward = forwardRenderer;
 
     flows[0] = EMPTY_FLOW;
     for (let i = 1; i < FINAL; i++) {

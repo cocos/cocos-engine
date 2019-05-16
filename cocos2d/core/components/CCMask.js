@@ -96,6 +96,7 @@ let Mask = cc.Class({
     },
 
     ctor () {
+        this._renderData = null;
         this._graphics = null;
 
         this._enableMaterial = null;
@@ -309,13 +310,18 @@ let Mask = cc.Class({
         this.node.off(cc.Node.EventType.SCALE_CHANGED, this._updateGraphics, this);
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._updateGraphics, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
-
+        
         this.node._renderFlag &= ~RenderFlow.FLAG_POST_RENDER;
     },
 
     onDestroy () {
         this._super();
         this._removeGraphics();
+    },
+
+    initNativeHandle () {
+        this._renderHandle = new renderer.MaskRenderHandle();
+        this._renderHandle.bind(this);
     },
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {
@@ -327,9 +333,8 @@ let Mask = cc.Class({
 
     _onTextureLoaded () {
         // Mark render data dirty
+        this.setVertsDirty();
         if (this._renderData) {
-            this._renderData.uvDirty = true;
-            this._renderData.vertDirty = true;
             this.markForUpdateRenderData(true);
         }
         // Reactivate material
@@ -415,6 +420,21 @@ let Mask = cc.Class({
             this._graphics.node = this.node;
             this._graphics.lineWidth = 0;
             this._graphics.strokeColor = cc.color(0, 0, 0, 0);
+            if (CC_JSB && CC_NATIVERENDERER) {
+                this._renderHandle.setNativeRenderHandle(this._graphics._renderHandle);
+            }
+        }
+        
+        if (!this._clearGraphics) {
+            this._clearGraphics = new Graphics();
+            this._clearGraphics.node = new Node();
+            this._clearGraphics._activateMaterial();
+            this._clearGraphics.lineWidth = 0;
+            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            this._clearGraphics.fill();
+            if (CC_JSB && CC_NATIVERENDERER) {
+                this._renderHandle.setNativeClearHandle(this._clearGraphics._renderHandle);
+            }
         }
     },
 

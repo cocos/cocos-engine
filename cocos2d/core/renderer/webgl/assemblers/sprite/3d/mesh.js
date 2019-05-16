@@ -34,12 +34,12 @@ module.exports = js.addon({
     updateWorldVerts (sprite) {
         let node = sprite.node,
             renderData = sprite._renderData,
-            data = renderData._data;
+            verts = renderData.vertices;
 
         let matrix = node._worldMatrix;
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let local = data[i + l];
-            let world = data[i];
+            let local = verts[i + l];
+            let world = verts[i];
             vec3.set(vec3_temp, local.x, local.y, 0);
             vec3.transformMat4(world, vec3_temp, matrix);
         }
