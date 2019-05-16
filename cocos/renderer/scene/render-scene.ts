@@ -1,5 +1,5 @@
 import { IBArray } from '../../3d/assets/mesh';
-import { intersect, ray, triangle } from '../../3d/geom-utils';
+import { aabb, intersect, ray, triangle } from '../../3d/geom-utils';
 import { RecyclePool } from '../../3d/memop';
 import { Root } from '../../core/root';
 import { Mat4, Vec3 } from '../../core/value-types';
@@ -96,7 +96,7 @@ export class RenderScene {
 
     constructor (root: Root) {
         this._root = root;
-        this._ambient = new Ambient (this);
+        this._ambient = new Ambient(this);
         this._defaultMainLightNode = new Node('Main Light');
         this._mainLight = new DirectionalLight(this, 'Main Light', this._defaultMainLightNode);
         this._mainLight.illuminance = Ambient.SUN_ILLUM;
@@ -247,6 +247,61 @@ export class RenderScene {
         results.length = pool.length;
         return results;
     }
+
+    /**
+     * Cast a ray into the scene, record all the intersected ui aabb in the result array
+     * @param worldRay - the testing ray
+     * @param mask - the layer mask to filter the ui aabb
+     * @returns the results array
+     */
+    public raycastUI (worldRay: ray, mask: number = Layers.UI): IRaycastResult[] {
+        poolUI.reset();
+        const canvasComs = cc.director.getScene().getComponentsInChildren(cc.CanvasComponent);
+        if (canvasComs != null) {
+            const canvasNode = canvasComs[0].node as Node;
+            if (canvasNode != null && canvasNode.active) {
+                this._raycastUINodeRecursiveChildren(worldRay, mask, canvasNode);
+            }
+        }
+        resultUIs.length = poolUI.length;
+        return resultUIs;
+    }
+
+    /**
+     * Before you raycast the ui node, make sure the node is not null
+     * @param worldRay - the testing ray
+     * @param mask - the layer mask to filter the models
+     * @param uiNode - the ui node
+     * @returns IRaycastResult | undefined
+     */
+    public raycastUINode (worldRay: ray, mask: number = Layers.UI, uiNode: Node) {
+        const uiTransfrom = uiNode.uiTransfromComp;
+        if (uiTransfrom == null || !cc.Layers.check(uiNode.layer, mask)) { return; }
+        uiTransfrom.getComputeAABB(aabbUI);
+        // broadphase
+        distance = intersect.ray_aabb(worldRay, aabbUI);
+
+        if (distance <= 0) {
+            return;
+        } else {
+            const r = poolUI.add();
+            r.node = uiNode;
+            r.distance = distance * vec3.magnitude(vec3.mul(v3, worldRay.d, uiNode._scale));
+            return r;
+        }
+    }
+
+    private _raycastUINodeRecursiveChildren (worldRay: ray, mask: number, parent: Node) {
+        const result = this.raycastUINode(worldRay, mask, parent);
+        if (result != null) {
+            resultUIs[poolUI.length - 1] = result;
+        }
+        for (const node of parent.children) {
+            if (node != null && node.active) {
+                this._raycastUINodeRecursiveChildren(worldRay, mask, node);
+            }
+        }
+    }
 }
 
 const modelRay = ray.create();
@@ -258,6 +313,12 @@ const pool = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
 }, 8);
 const results: IRaycastResult[] = [];
+/** UI raycast result pool  */
+const aabbUI = new aabb();
+const poolUI = new RecyclePool<IRaycastResult>(() => {
+    return { node: null!, distance: Infinity };
+}, 8);
+const resultUIs: IRaycastResult[] = [];
 
 const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides?: boolean) => {
     distance = Infinity;

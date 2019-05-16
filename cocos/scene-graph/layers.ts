@@ -9,6 +9,7 @@ export class Layers {
   public static IgnoreRaycast = (1 << 1);
   public static Gizmos = (1 << 2);
   public static Editor = (1 << 3);
+  public static UI = (1 << 4);
   // masks
   public static All = Layers.makeExclusiveMask([Layers.Gizmos, Layers.Editor]);
   public static RaycastMask = Layers.makeExclusiveMask([Layers.Gizmos, Layers.Editor, Layers.IgnoreRaycast]);
