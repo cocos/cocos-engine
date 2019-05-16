@@ -46,11 +46,11 @@ const _type2fn = {
 };
 
 const _type2default = {
-  [GFXType.INT]: 0,
+  [GFXType.INT]: [0],
   [GFXType.INT2]: [0, 0],
   [GFXType.INT3]: [0, 0, 0],
   [GFXType.INT4]: [0, 0, 0, 0],
-  [GFXType.FLOAT]: 0,
+  [GFXType.FLOAT]: [0],
   [GFXType.FLOAT2]: [0, 0],
   [GFXType.FLOAT3]: [0, 0, 0],
   [GFXType.FLOAT4]: [0, 0, 0, 0],
