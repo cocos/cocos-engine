@@ -1559,7 +1559,6 @@ let NodeDefines = {
      */
     once (type, callback, target, useCapture) {
         let forDispatch = this._checknSetupSysEvent(type);
-        let eventType_hasOnceListener = '__ONCE_FLAG:' + type;
 
         let listeners = null;
         if (forDispatch && useCapture) {
@@ -1569,17 +1568,7 @@ let NodeDefines = {
             listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
         }
 
-        let hasOnceListener = listeners.hasEventListener(eventType_hasOnceListener, callback, target);
-        if (!hasOnceListener) {
-            let self = this;
-            let onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
-                self.off(type, onceWrapper, target);
-                listeners.remove(eventType_hasOnceListener, callback, target);
-                callback.call(this, arg1, arg2, arg3, arg4, arg5);
-            };
-            this.on(type, onceWrapper, target);
-            listeners.add(eventType_hasOnceListener, callback, target);
-        }
+        listeners.once(type, callback, target);
     },
 
     _onDispatch (type, callback, target, useCapture) {
@@ -1603,10 +1592,15 @@ let NodeDefines = {
         }
 
         if ( !listeners.hasEventListener(type, callback, target) ) {
-            listeners.add(type, callback, target);
+            listeners.on(type, callback, target);
 
-            if (target && target.__eventTargets)
-                target.__eventTargets.push(this);
+            if (target) {
+                if (target.__eventTargets) {
+                    target.__eventTargets.push(this);
+                } else if (target.node && target.node.__eventTargets) {
+                    target.node.__eventTargets.push(this);
+                }
+            }
         }
 
         return callback;
@@ -1690,10 +1684,14 @@ let NodeDefines = {
         else {
             var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
             if (listeners) {
-                listeners.remove(type, callback, target);
+                listeners.off(type, callback, target);
 
-                if (target && target.__eventTargets) {
-                    js.array.fastRemove(target.__eventTargets, this);
+                if (target) {
+                    if (target.__eventTargets) {
+                        js.array.fastRemove(target.__eventTargets, this);
+                    } else if (target.node && target.node.__eventTargets) {
+                        js.array.fastRemove(target.node.__eventTargets, this);
+                    }
                 }
             }
 
