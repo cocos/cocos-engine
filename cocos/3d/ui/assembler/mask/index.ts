@@ -1,2 +1,2 @@
-export * from './mask-assembler';
+import './mask-assembler';
 export * from './stencil-manager';
