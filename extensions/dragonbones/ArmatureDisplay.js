@@ -554,6 +554,8 @@ let ArmatureDisplay = cc.Class({
 
             this._playCount ++;
             if ((this.playTimes > 0 && this._playCount >= this.playTimes)) {
+                // set frame to end frame.
+                this._curFrame = frames[frames.length - 1];
                 this._accTime = 0;
                 this._playing = false;
                 this._playCount = 0;
