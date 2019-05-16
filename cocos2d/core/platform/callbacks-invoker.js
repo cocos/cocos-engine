@@ -42,7 +42,7 @@ CallbackInfo.prototype.set = function (callback, target, once) {
     this.once = !!once;
 };
 
-const callbackInfoPool = new Pool(() => {
+const callbackInfoPool = new Pool(function () {
     return new CallbackInfo();
 }, 32);
 
