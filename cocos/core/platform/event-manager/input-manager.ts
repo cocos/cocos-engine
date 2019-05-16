@@ -26,7 +26,7 @@
 
 import { Vec2 } from '../../value-types/index';
 import { rect } from '../../value-types/rect';
-import macro from '../CCMacro';
+import { macro } from '../CCMacro';
 import sys from '../CCSys';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './CCEvent';
 import CCTouch from './CCTouch';

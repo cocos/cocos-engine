@@ -27,7 +27,7 @@
  ****************************************************************************/
 
 import { ccclass } from '../../../../core/data/class-decorator';
-import macro from '../../../../core/platform/CCMacro';
+import { macro } from '../../../../core/platform/CCMacro';
 import { contains } from '../../../../core/utils';
 import { Color, Mat4, Size, Vec3 } from '../../../../core/value-types';
 import * as math from '../../../../core/vmath';

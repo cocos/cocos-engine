@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const macro = require('../../platform/CCMacro');
+const macro = require('../../platform/CCMacro').macro;
 const renderEngine = require('../render-engine');
 const defaultVertexFormat = require('./vertex-format').vfmtPosUv;
 const StencilManager = require('./stencil-manager');
