@@ -37,11 +37,11 @@ class BrowserGetter {
 
     public html: HTMLHtmlElement | undefined;
 
-    public meta!: {
-        'width': 'device-width';
+    public meta = {
+        width: 'device-width',
     };
 
-    public adaptationType: any;
+    public adaptationType: any = cc.sys.browserType;
 
     public init () {
         if (!CC_WECHATGAME && !CC_QQPLAY) {
