@@ -11,48 +11,6 @@
 		04185458228D79BF00F8DF31 /* MiddlewareRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04185455228D79BF00F8DF31 /* MiddlewareRenderHandle.cpp */; };
 		04185459228D79BF00F8DF31 /* MiddlewareRenderHandle.h in Headers */ = {isa = PBXBuildFile; fileRef = 04185456228D79BF00F8DF31 /* MiddlewareRenderHandle.h */; };
 		0418545A228D79BF00F8DF31 /* MiddlewareRenderHandle.h in Headers */ = {isa = PBXBuildFile; fileRef = 04185456228D79BF00F8DF31 /* MiddlewareRenderHandle.h */; };
-		04185471228D7A0700F8DF31 /* ModelBatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418545C228D7A0500F8DF31 /* ModelBatcher.cpp */; };
-		04185472228D7A0700F8DF31 /* ModelBatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418545C228D7A0500F8DF31 /* ModelBatcher.cpp */; };
-		04185473228D7A0700F8DF31 /* GraphicsRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0418545D228D7A0500F8DF31 /* GraphicsRenderHandle.hpp */; };
-		04185474228D7A0700F8DF31 /* GraphicsRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0418545D228D7A0500F8DF31 /* GraphicsRenderHandle.hpp */; };
-		04185475228D7A0700F8DF31 /* NodeProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418545E228D7A0500F8DF31 /* NodeProxy.cpp */; };
-		04185476228D7A0700F8DF31 /* NodeProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418545E228D7A0500F8DF31 /* NodeProxy.cpp */; };
-		04185477228D7A0700F8DF31 /* StencilManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418545F228D7A0500F8DF31 /* StencilManager.cpp */; };
-		04185478228D7A0700F8DF31 /* StencilManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418545F228D7A0500F8DF31 /* StencilManager.cpp */; };
-		04185479228D7A0700F8DF31 /* ModelBatcher.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185460228D7A0500F8DF31 /* ModelBatcher.hpp */; };
-		0418547A228D7A0700F8DF31 /* ModelBatcher.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185460228D7A0500F8DF31 /* ModelBatcher.hpp */; };
-		0418547B228D7A0700F8DF31 /* RenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04185461228D7A0500F8DF31 /* RenderHandle.cpp */; };
-		0418547C228D7A0700F8DF31 /* RenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04185461228D7A0500F8DF31 /* RenderHandle.cpp */; };
-		0418547D228D7A0700F8DF31 /* RenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185462228D7A0500F8DF31 /* RenderHandle.hpp */; };
-		0418547E228D7A0700F8DF31 /* RenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185462228D7A0500F8DF31 /* RenderHandle.hpp */; };
-		0418547F228D7A0700F8DF31 /* CustomRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04185463228D7A0500F8DF31 /* CustomRenderHandle.cpp */; };
-		04185480228D7A0700F8DF31 /* CustomRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04185463228D7A0500F8DF31 /* CustomRenderHandle.cpp */; };
-		04185481228D7A0700F8DF31 /* scene-bindings.h in Headers */ = {isa = PBXBuildFile; fileRef = 04185464228D7A0500F8DF31 /* scene-bindings.h */; };
-		04185482228D7A0700F8DF31 /* scene-bindings.h in Headers */ = {isa = PBXBuildFile; fileRef = 04185464228D7A0500F8DF31 /* scene-bindings.h */; };
-		04185483228D7A0700F8DF31 /* NodeProxy.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185465228D7A0600F8DF31 /* NodeProxy.hpp */; };
-		04185484228D7A0700F8DF31 /* NodeProxy.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185465228D7A0600F8DF31 /* NodeProxy.hpp */; };
-		04185485228D7A0700F8DF31 /* MeshBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04185466228D7A0600F8DF31 /* MeshBuffer.cpp */; };
-		04185486228D7A0700F8DF31 /* MeshBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04185466228D7A0600F8DF31 /* MeshBuffer.cpp */; };
-		04185487228D7A0700F8DF31 /* CustomRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185467228D7A0600F8DF31 /* CustomRenderHandle.hpp */; };
-		04185488228D7A0700F8DF31 /* CustomRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185467228D7A0600F8DF31 /* CustomRenderHandle.hpp */; };
-		04185489228D7A0700F8DF31 /* MaskRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185468228D7A0600F8DF31 /* MaskRenderHandle.hpp */; };
-		0418548A228D7A0700F8DF31 /* MaskRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185468228D7A0600F8DF31 /* MaskRenderHandle.hpp */; };
-		0418548B228D7A0700F8DF31 /* MaskRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04185469228D7A0600F8DF31 /* MaskRenderHandle.cpp */; };
-		0418548C228D7A0700F8DF31 /* MaskRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04185469228D7A0600F8DF31 /* MaskRenderHandle.cpp */; };
-		0418548D228D7A0700F8DF31 /* MeshBuffer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0418546A228D7A0600F8DF31 /* MeshBuffer.hpp */; };
-		0418548E228D7A0700F8DF31 /* MeshBuffer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0418546A228D7A0600F8DF31 /* MeshBuffer.hpp */; };
-		0418548F228D7A0700F8DF31 /* RenderFlow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418546B228D7A0600F8DF31 /* RenderFlow.cpp */; };
-		04185490228D7A0700F8DF31 /* RenderFlow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418546B228D7A0600F8DF31 /* RenderFlow.cpp */; };
-		04185491228D7A0700F8DF31 /* RenderFlow.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0418546C228D7A0600F8DF31 /* RenderFlow.hpp */; };
-		04185492228D7A0700F8DF31 /* RenderFlow.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0418546C228D7A0600F8DF31 /* RenderFlow.hpp */; };
-		04185493228D7A0700F8DF31 /* GraphicsRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418546D228D7A0600F8DF31 /* GraphicsRenderHandle.cpp */; };
-		04185494228D7A0700F8DF31 /* GraphicsRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418546D228D7A0600F8DF31 /* GraphicsRenderHandle.cpp */; };
-		04185495228D7A0700F8DF31 /* StencilManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0418546E228D7A0600F8DF31 /* StencilManager.hpp */; };
-		04185496228D7A0700F8DF31 /* StencilManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0418546E228D7A0600F8DF31 /* StencilManager.hpp */; };
-		04185497228D7A0700F8DF31 /* SystemHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418546F228D7A0700F8DF31 /* SystemHandle.cpp */; };
-		04185498228D7A0700F8DF31 /* SystemHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418546F228D7A0700F8DF31 /* SystemHandle.cpp */; };
-		04185499228D7A0700F8DF31 /* SystemHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185470228D7A0700F8DF31 /* SystemHandle.hpp */; };
-		0418549A228D7A0700F8DF31 /* SystemHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04185470228D7A0700F8DF31 /* SystemHandle.hpp */; };
 		0418549F228D7E5700F8DF31 /* ParticleSimulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418549D228D7E5700F8DF31 /* ParticleSimulator.cpp */; };
 		041854A0228D7E5700F8DF31 /* ParticleSimulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0418549D228D7E5700F8DF31 /* ParticleSimulator.cpp */; };
 		041854A1228D7E5700F8DF31 /* ParticleSimulator.h in Headers */ = {isa = PBXBuildFile; fileRef = 0418549E228D7E5700F8DF31 /* ParticleSimulator.h */; };
@@ -437,6 +395,48 @@
 		046E0710218B01EF00B24E2D /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 046E070D218B01EF00B24E2D /* jsb_dragonbones_manual.cpp */; };
 		046E0711218B01EF00B24E2D /* jsb_dragonbones_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 046E070E218B01EF00B24E2D /* jsb_dragonbones_manual.hpp */; };
 		046E0712218B01EF00B24E2D /* jsb_dragonbones_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 046E070E218B01EF00B24E2D /* jsb_dragonbones_manual.hpp */; };
+		0482F199228D87970019ECF7 /* RenderFlow.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F184228D87900019ECF7 /* RenderFlow.hpp */; };
+		0482F19A228D87970019ECF7 /* RenderFlow.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F184228D87900019ECF7 /* RenderFlow.hpp */; };
+		0482F19B228D87970019ECF7 /* ModelBatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F185228D87910019ECF7 /* ModelBatcher.cpp */; };
+		0482F19C228D87970019ECF7 /* ModelBatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F185228D87910019ECF7 /* ModelBatcher.cpp */; };
+		0482F19D228D87970019ECF7 /* scene-bindings.h in Headers */ = {isa = PBXBuildFile; fileRef = 0482F186228D87910019ECF7 /* scene-bindings.h */; };
+		0482F19E228D87970019ECF7 /* scene-bindings.h in Headers */ = {isa = PBXBuildFile; fileRef = 0482F186228D87910019ECF7 /* scene-bindings.h */; };
+		0482F19F228D87970019ECF7 /* RenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F187228D87920019ECF7 /* RenderHandle.cpp */; };
+		0482F1A0228D87970019ECF7 /* RenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F187228D87920019ECF7 /* RenderHandle.cpp */; };
+		0482F1A1228D87970019ECF7 /* NodeProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F188228D87920019ECF7 /* NodeProxy.cpp */; };
+		0482F1A2228D87970019ECF7 /* NodeProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F188228D87920019ECF7 /* NodeProxy.cpp */; };
+		0482F1A3228D87970019ECF7 /* CustomRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F189228D87920019ECF7 /* CustomRenderHandle.hpp */; };
+		0482F1A4228D87970019ECF7 /* CustomRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F189228D87920019ECF7 /* CustomRenderHandle.hpp */; };
+		0482F1A5228D87970019ECF7 /* MeshBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F18A228D87920019ECF7 /* MeshBuffer.cpp */; };
+		0482F1A6228D87970019ECF7 /* MeshBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F18A228D87920019ECF7 /* MeshBuffer.cpp */; };
+		0482F1A7228D87970019ECF7 /* NodeProxy.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F18B228D87930019ECF7 /* NodeProxy.hpp */; };
+		0482F1A8228D87970019ECF7 /* NodeProxy.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F18B228D87930019ECF7 /* NodeProxy.hpp */; };
+		0482F1A9228D87970019ECF7 /* StencilManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F18C228D87930019ECF7 /* StencilManager.hpp */; };
+		0482F1AA228D87970019ECF7 /* StencilManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F18C228D87930019ECF7 /* StencilManager.hpp */; };
+		0482F1AB228D87970019ECF7 /* SystemHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F18D228D87930019ECF7 /* SystemHandle.cpp */; };
+		0482F1AC228D87970019ECF7 /* SystemHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F18D228D87930019ECF7 /* SystemHandle.cpp */; };
+		0482F1AD228D87970019ECF7 /* MaskRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F18E228D87940019ECF7 /* MaskRenderHandle.hpp */; };
+		0482F1AE228D87970019ECF7 /* MaskRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F18E228D87940019ECF7 /* MaskRenderHandle.hpp */; };
+		0482F1AF228D87970019ECF7 /* GraphicsRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F18F228D87940019ECF7 /* GraphicsRenderHandle.hpp */; };
+		0482F1B0228D87970019ECF7 /* GraphicsRenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F18F228D87940019ECF7 /* GraphicsRenderHandle.hpp */; };
+		0482F1B1228D87970019ECF7 /* ModelBatcher.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F190228D87940019ECF7 /* ModelBatcher.hpp */; };
+		0482F1B2228D87970019ECF7 /* ModelBatcher.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F190228D87940019ECF7 /* ModelBatcher.hpp */; };
+		0482F1B3228D87970019ECF7 /* MaskRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F191228D87950019ECF7 /* MaskRenderHandle.cpp */; };
+		0482F1B4228D87970019ECF7 /* MaskRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F191228D87950019ECF7 /* MaskRenderHandle.cpp */; };
+		0482F1B5228D87970019ECF7 /* RenderFlow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F192228D87950019ECF7 /* RenderFlow.cpp */; };
+		0482F1B6228D87970019ECF7 /* RenderFlow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F192228D87950019ECF7 /* RenderFlow.cpp */; };
+		0482F1B7228D87970019ECF7 /* StencilManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F193228D87950019ECF7 /* StencilManager.cpp */; };
+		0482F1B8228D87970019ECF7 /* StencilManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F193228D87950019ECF7 /* StencilManager.cpp */; };
+		0482F1B9228D87970019ECF7 /* GraphicsRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F194228D87950019ECF7 /* GraphicsRenderHandle.cpp */; };
+		0482F1BA228D87970019ECF7 /* GraphicsRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F194228D87950019ECF7 /* GraphicsRenderHandle.cpp */; };
+		0482F1BB228D87970019ECF7 /* MeshBuffer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F195228D87960019ECF7 /* MeshBuffer.hpp */; };
+		0482F1BC228D87970019ECF7 /* MeshBuffer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F195228D87960019ECF7 /* MeshBuffer.hpp */; };
+		0482F1BD228D87970019ECF7 /* CustomRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F196228D87960019ECF7 /* CustomRenderHandle.cpp */; };
+		0482F1BE228D87970019ECF7 /* CustomRenderHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0482F196228D87960019ECF7 /* CustomRenderHandle.cpp */; };
+		0482F1BF228D87970019ECF7 /* RenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F197228D87960019ECF7 /* RenderHandle.hpp */; };
+		0482F1C0228D87970019ECF7 /* RenderHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F197228D87960019ECF7 /* RenderHandle.hpp */; };
+		0482F1C1228D87970019ECF7 /* SystemHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F198228D87970019ECF7 /* SystemHandle.hpp */; };
+		0482F1C2228D87970019ECF7 /* SystemHandle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F198228D87970019ECF7 /* SystemHandle.hpp */; };
 		04AF62FF219190ED00AED9DE /* TypedArrayPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AF62FD219190ED00AED9DE /* TypedArrayPool.cpp */; };
 		04AF6300219190ED00AED9DE /* TypedArrayPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AF62FD219190ED00AED9DE /* TypedArrayPool.cpp */; };
 		04AF6301219190ED00AED9DE /* TypedArrayPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AF62FE219190ED00AED9DE /* TypedArrayPool.h */; };
@@ -1243,27 +1243,6 @@
 /* Begin PBXFileReference section */
 		04185455228D79BF00F8DF31 /* MiddlewareRenderHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MiddlewareRenderHandle.cpp; path = "../cocos/editor-support/MiddlewareRenderHandle.cpp"; sourceTree = "<group>"; };
 		04185456228D79BF00F8DF31 /* MiddlewareRenderHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MiddlewareRenderHandle.h; path = "../cocos/editor-support/MiddlewareRenderHandle.h"; sourceTree = "<group>"; };
-		0418545C228D7A0500F8DF31 /* ModelBatcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModelBatcher.cpp; path = ../scene/ModelBatcher.cpp; sourceTree = "<group>"; };
-		0418545D228D7A0500F8DF31 /* GraphicsRenderHandle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = GraphicsRenderHandle.hpp; path = ../scene/GraphicsRenderHandle.hpp; sourceTree = "<group>"; };
-		0418545E228D7A0500F8DF31 /* NodeProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NodeProxy.cpp; path = ../scene/NodeProxy.cpp; sourceTree = "<group>"; };
-		0418545F228D7A0500F8DF31 /* StencilManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StencilManager.cpp; path = ../scene/StencilManager.cpp; sourceTree = "<group>"; };
-		04185460228D7A0500F8DF31 /* ModelBatcher.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ModelBatcher.hpp; path = ../scene/ModelBatcher.hpp; sourceTree = "<group>"; };
-		04185461228D7A0500F8DF31 /* RenderHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RenderHandle.cpp; path = ../scene/RenderHandle.cpp; sourceTree = "<group>"; };
-		04185462228D7A0500F8DF31 /* RenderHandle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = RenderHandle.hpp; path = ../scene/RenderHandle.hpp; sourceTree = "<group>"; };
-		04185463228D7A0500F8DF31 /* CustomRenderHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CustomRenderHandle.cpp; path = ../scene/CustomRenderHandle.cpp; sourceTree = "<group>"; };
-		04185464228D7A0500F8DF31 /* scene-bindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "scene-bindings.h"; path = "../scene/scene-bindings.h"; sourceTree = "<group>"; };
-		04185465228D7A0600F8DF31 /* NodeProxy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = NodeProxy.hpp; path = ../scene/NodeProxy.hpp; sourceTree = "<group>"; };
-		04185466228D7A0600F8DF31 /* MeshBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MeshBuffer.cpp; path = ../scene/MeshBuffer.cpp; sourceTree = "<group>"; };
-		04185467228D7A0600F8DF31 /* CustomRenderHandle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = CustomRenderHandle.hpp; path = ../scene/CustomRenderHandle.hpp; sourceTree = "<group>"; };
-		04185468228D7A0600F8DF31 /* MaskRenderHandle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = MaskRenderHandle.hpp; path = ../scene/MaskRenderHandle.hpp; sourceTree = "<group>"; };
-		04185469228D7A0600F8DF31 /* MaskRenderHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaskRenderHandle.cpp; path = ../scene/MaskRenderHandle.cpp; sourceTree = "<group>"; };
-		0418546A228D7A0600F8DF31 /* MeshBuffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = MeshBuffer.hpp; path = ../scene/MeshBuffer.hpp; sourceTree = "<group>"; };
-		0418546B228D7A0600F8DF31 /* RenderFlow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RenderFlow.cpp; path = ../scene/RenderFlow.cpp; sourceTree = "<group>"; };
-		0418546C228D7A0600F8DF31 /* RenderFlow.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = RenderFlow.hpp; path = ../scene/RenderFlow.hpp; sourceTree = "<group>"; };
-		0418546D228D7A0600F8DF31 /* GraphicsRenderHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GraphicsRenderHandle.cpp; path = ../scene/GraphicsRenderHandle.cpp; sourceTree = "<group>"; };
-		0418546E228D7A0600F8DF31 /* StencilManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = StencilManager.hpp; path = ../scene/StencilManager.hpp; sourceTree = "<group>"; };
-		0418546F228D7A0700F8DF31 /* SystemHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SystemHandle.cpp; path = ../scene/SystemHandle.cpp; sourceTree = "<group>"; };
-		04185470228D7A0700F8DF31 /* SystemHandle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SystemHandle.hpp; path = ../scene/SystemHandle.hpp; sourceTree = "<group>"; };
 		0418549D228D7E5700F8DF31 /* ParticleSimulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleSimulator.cpp; path = "../cocos/editor-support/particle/ParticleSimulator.cpp"; sourceTree = "<group>"; };
 		0418549E228D7E5700F8DF31 /* ParticleSimulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleSimulator.h; path = "../cocos/editor-support/particle/ParticleSimulator.h"; sourceTree = "<group>"; };
 		041854A3228D7E7200F8DF31 /* jsb_cocos2dx_particle_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_particle_auto.hpp; sourceTree = "<group>"; };
@@ -1456,6 +1435,27 @@
 		046E0708218B015000B24E2D /* jsb_cocos2dx_dragonbones_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_dragonbones_auto.hpp; sourceTree = "<group>"; };
 		046E070D218B01EF00B24E2D /* jsb_dragonbones_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_dragonbones_manual.cpp; sourceTree = "<group>"; };
 		046E070E218B01EF00B24E2D /* jsb_dragonbones_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_dragonbones_manual.hpp; sourceTree = "<group>"; };
+		0482F184228D87900019ECF7 /* RenderFlow.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RenderFlow.hpp; sourceTree = "<group>"; };
+		0482F185228D87910019ECF7 /* ModelBatcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ModelBatcher.cpp; sourceTree = "<group>"; };
+		0482F186228D87910019ECF7 /* scene-bindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "scene-bindings.h"; sourceTree = "<group>"; };
+		0482F187228D87920019ECF7 /* RenderHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderHandle.cpp; sourceTree = "<group>"; };
+		0482F188228D87920019ECF7 /* NodeProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NodeProxy.cpp; sourceTree = "<group>"; };
+		0482F189228D87920019ECF7 /* CustomRenderHandle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CustomRenderHandle.hpp; sourceTree = "<group>"; };
+		0482F18A228D87920019ECF7 /* MeshBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MeshBuffer.cpp; sourceTree = "<group>"; };
+		0482F18B228D87930019ECF7 /* NodeProxy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NodeProxy.hpp; sourceTree = "<group>"; };
+		0482F18C228D87930019ECF7 /* StencilManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = StencilManager.hpp; sourceTree = "<group>"; };
+		0482F18D228D87930019ECF7 /* SystemHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SystemHandle.cpp; sourceTree = "<group>"; };
+		0482F18E228D87940019ECF7 /* MaskRenderHandle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MaskRenderHandle.hpp; sourceTree = "<group>"; };
+		0482F18F228D87940019ECF7 /* GraphicsRenderHandle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GraphicsRenderHandle.hpp; sourceTree = "<group>"; };
+		0482F190228D87940019ECF7 /* ModelBatcher.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ModelBatcher.hpp; sourceTree = "<group>"; };
+		0482F191228D87950019ECF7 /* MaskRenderHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaskRenderHandle.cpp; sourceTree = "<group>"; };
+		0482F192228D87950019ECF7 /* RenderFlow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderFlow.cpp; sourceTree = "<group>"; };
+		0482F193228D87950019ECF7 /* StencilManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StencilManager.cpp; sourceTree = "<group>"; };
+		0482F194228D87950019ECF7 /* GraphicsRenderHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GraphicsRenderHandle.cpp; sourceTree = "<group>"; };
+		0482F195228D87960019ECF7 /* MeshBuffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MeshBuffer.hpp; sourceTree = "<group>"; };
+		0482F196228D87960019ECF7 /* CustomRenderHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CustomRenderHandle.cpp; sourceTree = "<group>"; };
+		0482F197228D87960019ECF7 /* RenderHandle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RenderHandle.hpp; sourceTree = "<group>"; };
+		0482F198228D87970019ECF7 /* SystemHandle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SystemHandle.hpp; sourceTree = "<group>"; };
 		04AF62FD219190ED00AED9DE /* TypedArrayPool.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TypedArrayPool.cpp; path = "../cocos/editor-support/TypedArrayPool.cpp"; sourceTree = "<group>"; };
 		04AF62FE219190ED00AED9DE /* TypedArrayPool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TypedArrayPool.h; path = "../cocos/editor-support/TypedArrayPool.h"; sourceTree = "<group>"; };
 		04ED68D621F8188F006E82F8 /* MeshBuffer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MeshBuffer.cpp; path = "../cocos/editor-support/MeshBuffer.cpp"; sourceTree = "<group>"; };
@@ -1981,35 +1981,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0418545B228D79E100F8DF31 /* scene */ = {
-			isa = PBXGroup;
-			children = (
-				04185463228D7A0500F8DF31 /* CustomRenderHandle.cpp */,
-				04185467228D7A0600F8DF31 /* CustomRenderHandle.hpp */,
-				0418546D228D7A0600F8DF31 /* GraphicsRenderHandle.cpp */,
-				0418545D228D7A0500F8DF31 /* GraphicsRenderHandle.hpp */,
-				04185469228D7A0600F8DF31 /* MaskRenderHandle.cpp */,
-				04185468228D7A0600F8DF31 /* MaskRenderHandle.hpp */,
-				04185466228D7A0600F8DF31 /* MeshBuffer.cpp */,
-				0418546A228D7A0600F8DF31 /* MeshBuffer.hpp */,
-				0418545C228D7A0500F8DF31 /* ModelBatcher.cpp */,
-				04185460228D7A0500F8DF31 /* ModelBatcher.hpp */,
-				0418545E228D7A0500F8DF31 /* NodeProxy.cpp */,
-				04185465228D7A0600F8DF31 /* NodeProxy.hpp */,
-				0418546B228D7A0600F8DF31 /* RenderFlow.cpp */,
-				0418546C228D7A0600F8DF31 /* RenderFlow.hpp */,
-				04185461228D7A0500F8DF31 /* RenderHandle.cpp */,
-				04185462228D7A0500F8DF31 /* RenderHandle.hpp */,
-				04185464228D7A0500F8DF31 /* scene-bindings.h */,
-				0418545F228D7A0500F8DF31 /* StencilManager.cpp */,
-				0418546E228D7A0600F8DF31 /* StencilManager.hpp */,
-				0418546F228D7A0700F8DF31 /* SystemHandle.cpp */,
-				04185470228D7A0700F8DF31 /* SystemHandle.hpp */,
-			);
-			name = scene;
-			path = "New Group";
-			sourceTree = "<group>";
-		};
 		0418549C228D7E4500F8DF31 /* particle */ = {
 			isa = PBXGroup;
 			children = (
@@ -2307,6 +2278,34 @@
 				046E06E52185B4A500B24E2D /* JSONDataParser.h */,
 			);
 			name = parser;
+			sourceTree = "<group>";
+		};
+		0482F183228D87780019ECF7 /* scene */ = {
+			isa = PBXGroup;
+			children = (
+				0482F196228D87960019ECF7 /* CustomRenderHandle.cpp */,
+				0482F189228D87920019ECF7 /* CustomRenderHandle.hpp */,
+				0482F194228D87950019ECF7 /* GraphicsRenderHandle.cpp */,
+				0482F18F228D87940019ECF7 /* GraphicsRenderHandle.hpp */,
+				0482F191228D87950019ECF7 /* MaskRenderHandle.cpp */,
+				0482F18E228D87940019ECF7 /* MaskRenderHandle.hpp */,
+				0482F18A228D87920019ECF7 /* MeshBuffer.cpp */,
+				0482F195228D87960019ECF7 /* MeshBuffer.hpp */,
+				0482F185228D87910019ECF7 /* ModelBatcher.cpp */,
+				0482F190228D87940019ECF7 /* ModelBatcher.hpp */,
+				0482F188228D87920019ECF7 /* NodeProxy.cpp */,
+				0482F18B228D87930019ECF7 /* NodeProxy.hpp */,
+				0482F192228D87950019ECF7 /* RenderFlow.cpp */,
+				0482F184228D87900019ECF7 /* RenderFlow.hpp */,
+				0482F187228D87920019ECF7 /* RenderHandle.cpp */,
+				0482F197228D87960019ECF7 /* RenderHandle.hpp */,
+				0482F186228D87910019ECF7 /* scene-bindings.h */,
+				0482F193228D87950019ECF7 /* StencilManager.cpp */,
+				0482F18C228D87930019ECF7 /* StencilManager.hpp */,
+				0482F18D228D87930019ECF7 /* SystemHandle.cpp */,
+				0482F198228D87970019ECF7 /* SystemHandle.hpp */,
+			);
+			path = scene;
 			sourceTree = "<group>";
 		};
 		1551A334158F2AB200E66CFE = {
@@ -2892,7 +2891,7 @@
 		46FDDA2C202ACC6A00931238 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
-				0418545B228D79E100F8DF31 /* scene */,
+				0482F183228D87780019ECF7 /* scene */,
 				46FDDA2D202ACC6A00931238 /* renderer */,
 				46FDDA4C202ACC6A00931238 /* Types.cpp */,
 				46FDDA4E202ACC6A00931238 /* Types.h */,
@@ -3258,7 +3257,6 @@
 				46AE3FDD2092F3A600F3A228 /* inspector_socket_server.h in Headers */,
 				0430126721DCF2B80007084D /* Triangulator.h in Headers */,
 				4008729620CE20C2002EB77B /* jsb_cocos2dx_network_manual.h in Headers */,
-				04185473228D7A0700F8DF31 /* GraphicsRenderHandle.hpp in Headers */,
 				469303EE2046AE05004A3D6C /* jsb_renderer_auto.hpp in Headers */,
 				4617863720522469008256E1 /* HttpClient.h in Headers */,
 				50ABBD461925AB0000A911A9 /* CCVertex.h in Headers */,
@@ -3270,12 +3268,10 @@
 				40CEAEB820CFDC47007A3281 /* CCReachability.h in Headers */,
 				ED30579B1BEC77B70083C3ED /* ConvertUTF.h in Headers */,
 				46FDDA75202ACC6A00931238 /* Config.h in Headers */,
-				0418548D228D7A0700F8DF31 /* MeshBuffer.hpp in Headers */,
 				0430127F21DCF2B80007084D /* TransformConstraintData.h in Headers */,
 				469303822046AE05004A3D6C /* Value.hpp in Headers */,
 				046B689521A10D5800B33469 /* MiddlewareMacro.h in Headers */,
 				46FDDAC3202ACC6A00931238 /* FrameBuffer.h in Headers */,
-				04185483228D7A0700F8DF31 /* NodeProxy.hpp in Headers */,
 				4617863D20522469008256E1 /* HttpResponse.h in Headers */,
 				1A29D7A320566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
 				1A29D77D2056667800168D9A /* csscolorparser.hpp in Headers */,
@@ -3306,21 +3302,23 @@
 				041854A5228D7E7300F8DF31 /* jsb_cocos2dx_particle_auto.hpp in Headers */,
 				4648882520AC2BC900CD1E4A /* CCRenderTexture.h in Headers */,
 				46FDDA97202ACC6A00931238 /* Model.h in Headers */,
+				0482F1BB228D87970019ECF7 /* MeshBuffer.hpp in Headers */,
 				046E06332185B41100B24E2D /* Animation.h in Headers */,
 				043012A121DCF2B80007084D /* VertexAttachment.h in Headers */,
 				50ABBD4A1925AB0000A911A9 /* Mat4.h in Headers */,
-				04185491228D7A0700F8DF31 /* RenderFlow.hpp in Headers */,
 				0430128721DCF2B80007084D /* PathConstraintData.h in Headers */,
 				046E063F2185B41100B24E2D /* AnimationState.h in Headers */,
 				1A52DB38205BCD9200350EE3 /* ScriptEngine.hpp in Headers */,
 				046E068A2185B44A00B24E2D /* BaseFactory.h in Headers */,
 				1A52DB892060B11800350EE3 /* jsb_platform.h in Headers */,
 				1A52DB64205BCDC700350EE3 /* ScriptEngine.hpp in Headers */,
+				0482F1A3228D87970019ECF7 /* CustomRenderHandle.hpp in Headers */,
 				46FDDA83202ACC6A00931238 /* Technique.h in Headers */,
 				1A52DB63205BCDC700350EE3 /* Object.hpp in Headers */,
 				043012C121DCF2B80007084D /* kvec.h in Headers */,
 				04F49F43222A777C00E5CAF1 /* SkeletonDataMgr.h in Headers */,
 				469303802046AE05004A3D6C /* config.hpp in Headers */,
+				0482F199228D87970019ECF7 /* RenderFlow.hpp in Headers */,
 				46FDDA6D202ACC6A00931238 /* INode.h in Headers */,
 				046E06782185B42500B24E2D /* BaseObject.h in Headers */,
 				1A28FF811F20AFAB007A1D9D /* SRRandom.h in Headers */,
@@ -3329,8 +3327,8 @@
 				461786532052301A008256E1 /* CCScheduler.h in Headers */,
 				46FDDB4D202ADDCE00931238 /* pvr.h in Headers */,
 				4617863920522469008256E1 /* CCDownloaderImpl-apple.h in Headers */,
+				0482F19D228D87970019ECF7 /* scene-bindings.h in Headers */,
 				1A52DB73205BCDC700350EE3 /* Base.h in Headers */,
-				04185481228D7A0700F8DF31 /* scene-bindings.h in Headers */,
 				1A28FF551F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */,
 				461786632052607E008256E1 /* jsb_socketio.hpp in Headers */,
 				046E06BD2185B49F00B24E2D /* UserData.h in Headers */,
@@ -3347,6 +3345,7 @@
 				46FDDB53202ADDCE00931238 /* utlist.h in Headers */,
 				046E06622185B41B00B24E2D /* Slot.h in Headers */,
 				46FDDB5D202ADDCE00931238 /* ccMacros.h in Headers */,
+				0482F1B1228D87970019ECF7 /* ModelBatcher.hpp in Headers */,
 				1A29D76B205665BE00168D9A /* jsb_cocos2dx_auto.hpp in Headers */,
 				1A52DB3D205BCD9200350EE3 /* SeApi.h in Headers */,
 				46FDDABD202ACC6A00931238 /* DeviceGraphics.h in Headers */,
@@ -3356,7 +3355,6 @@
 				0430125D21DCF2B80007084D /* BoneData.h in Headers */,
 				50643BDB19BFAF4400EF68ED /* CCStdC.h in Headers */,
 				1A28FF591F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h in Headers */,
-				04185489228D7A0700F8DF31 /* MaskRenderHandle.hpp in Headers */,
 				1A29D79A205666F500168D9A /* jsb_opengl_utils.hpp in Headers */,
 				0430123D21DCF2B80007084D /* spine.h in Headers */,
 				46FDDB5B202ADDCE00931238 /* CCData.h in Headers */,
@@ -3371,6 +3369,7 @@
 				0430125721DCF2B80007084D /* Bone.h in Headers */,
 				46FDDB83202ADDCE00931238 /* ccRandom.h in Headers */,
 				294D7D9A1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */,
+				0482F1AF228D87970019ECF7 /* GraphicsRenderHandle.hpp in Headers */,
 				1A28FF851F20AFAB007A1D9D /* SRSIMDHelpers.h in Headers */,
 				043012BF21DCF2B80007084D /* dll.h in Headers */,
 				50ABBD401925AB0000A911A9 /* CCMath.h in Headers */,
@@ -3408,9 +3407,9 @@
 				046B68A821A292D300B33469 /* jsb_spine_manual.hpp in Headers */,
 				1A52DB5E205BCDC700350EE3 /* Class.hpp in Headers */,
 				4693039C2046AE05004A3D6C /* PlatformUtils.h in Headers */,
+				0482F1AD228D87970019ECF7 /* MaskRenderHandle.hpp in Headers */,
 				046E06C12185B49F00B24E2D /* TextureAtlasData.h in Headers */,
 				041854A1228D7E5700F8DF31 /* ParticleSimulator.h in Headers */,
-				04185479228D7A0700F8DF31 /* ModelBatcher.hpp in Headers */,
 				1AAAC8E5205CB6E9005321B9 /* AudioPlayer.h in Headers */,
 				1AAAC8ED205CB6E9005321B9 /* AudioCache.h in Headers */,
 				046E063D2185B41100B24E2D /* TimelineState.h in Headers */,
@@ -3419,7 +3418,6 @@
 				046E067B2185B42F00B24E2D /* DragonBonesHeaders.h in Headers */,
 				046E06C72185B49F00B24E2D /* DisplayData.h in Headers */,
 				46FDDADB202ACC6A00931238 /* State.h in Headers */,
-				0418547D228D7A0700F8DF31 /* RenderHandle.hpp in Headers */,
 				1A29D771205665D200168D9A /* jsb_cocos2dx_manual.hpp in Headers */,
 				46AE3FFF2092F3A600F3A228 /* v8_inspector_protocol_json.h in Headers */,
 				046E03F121804E6B00B24E2D /* SpineAnimation.h in Headers */,
@@ -3433,7 +3431,6 @@
 				469304142046AE06004A3D6C /* jsb_renderer_manual.hpp in Headers */,
 				46FDDAD1202ACC6A00931238 /* Texture.h in Headers */,
 				1A52DB72205BCDC700350EE3 /* Utils.hpp in Headers */,
-				04185487228D7A0700F8DF31 /* CustomRenderHandle.hpp in Headers */,
 				1A52DB70205BCDC700350EE3 /* SeApi.h in Headers */,
 				046E06DB2185B49F00B24E2D /* ConstraintData.h in Headers */,
 				1A28FF971F20AFAB007A1D9D /* SRSecurityPolicy.h in Headers */,
@@ -3444,7 +3441,6 @@
 				04AF6301219190ED00AED9DE /* TypedArrayPool.h in Headers */,
 				46AE3FE52092F3A600F3A228 /* base64.h in Headers */,
 				046E061E2185B37100B24E2D /* CCDragonBonesHeaders.h in Headers */,
-				04185495228D7A0700F8DF31 /* StencilManager.hpp in Headers */,
 				50ABBD421925AB0000A911A9 /* CCMathBase.h in Headers */,
 				469303862046AE05004A3D6C /* Object.hpp in Headers */,
 				1A29D788205666B200168D9A /* LocalStorage.h in Headers */,
@@ -3459,11 +3455,13 @@
 				461786672052607E008256E1 /* jsb_websocket.hpp in Headers */,
 				0430123F21DCF2B80007084D /* Color.h in Headers */,
 				50ABC01B1926664800A911A9 /* CCSAXParser.h in Headers */,
+				0482F1C1228D87970019ECF7 /* SystemHandle.hpp in Headers */,
 				1A28FF691F20AFAB007A1D9D /* SRConstants.h in Headers */,
 				ED3057891BEC773E0083C3ED /* tinyxml2.h in Headers */,
 				50ABC0651926664800A911A9 /* CCGL-mac.h in Headers */,
 				046E06932185B45300B24E2D /* Rectangle.h in Headers */,
 				50643BD419BFAECF00EF68ED /* CCGL.h in Headers */,
+				0482F1BF228D87970019ECF7 /* RenderHandle.hpp in Headers */,
 				50ABBD621925AB0000A911A9 /* Vec4.h in Headers */,
 				46AE40092092F3A600F3A228 /* node_debug_options.h in Headers */,
 				046E06CF2185B49F00B24E2D /* BoundingBoxData.h in Headers */,
@@ -3493,6 +3491,7 @@
 				46FDDA85202ACC6A00931238 /* View.h in Headers */,
 				46AE3FF72092F3A600F3A228 /* util-inl.h in Headers */,
 				1AAAC875205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
+				0482F1A7228D87970019ECF7 /* NodeProxy.hpp in Headers */,
 				1A28FF951F20AFAB007A1D9D /* SocketRocket.h in Headers */,
 				46AE40012092F3A600F3A228 /* SHA1.h in Headers */,
 				046E06992185B45300B24E2D /* Matrix.h in Headers */,
@@ -3511,6 +3510,7 @@
 				469304202046AE06004A3D6C /* jsb_gfx_manual.hpp in Headers */,
 				4043D65F20D2132E00C55611 /* CCGLView-desktop.h in Headers */,
 				403ACADB20CE4EB000BB433D /* jsb_module_register.hpp in Headers */,
+				0482F1A9228D87970019ECF7 /* StencilManager.hpp in Headers */,
 				46FDDACD202ACC6A00931238 /* GraphicsHandle.h in Headers */,
 				461DCA5A20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */,
 				46FDDBCB202ADDCE00931238 /* ZipUtils.h in Headers */,
@@ -3545,7 +3545,6 @@
 				46FDDBB5202ADDCE00931238 /* uthash.h in Headers */,
 				1AAAC8DF205CB6E9005321B9 /* AudioDecoder.h in Headers */,
 				4617862520522469008256E1 /* CCDownloader.h in Headers */,
-				04185499228D7A0700F8DF31 /* SystemHandle.hpp in Headers */,
 				1A28FF7D1F20AFAB007A1D9D /* SRMutex.h in Headers */,
 				1A28FF711F20AFAB007A1D9D /* SRHash.h in Headers */,
 				469301CF203FC696004A3D6C /* CCConfiguration.h in Headers */,
@@ -3606,7 +3605,6 @@
 				46AE3FE62092F3A600F3A228 /* base64.h in Headers */,
 				1A586C4A2064C97800B47573 /* EJConvert.h in Headers */,
 				46AE3FE82092F3A600F3A228 /* inspector_io.h in Headers */,
-				04185484228D7A0700F8DF31 /* NodeProxy.hpp in Headers */,
 				1AAAC8E0205CB6E9005321B9 /* AudioDecoder.h in Headers */,
 				046E06D02185B49F00B24E2D /* BoundingBoxData.h in Headers */,
 				0430128621DCF2B80007084D /* PathConstraint.h in Headers */,
@@ -3644,7 +3642,6 @@
 				046E06192185B37100B24E2D /* CCTextureAtlasData.h in Headers */,
 				50ABBD5B1925AB0000A911A9 /* Vec2.h in Headers */,
 				4008729720CE20C2002EB77B /* jsb_cocos2dx_network_manual.h in Headers */,
-				04185474228D7A0700F8DF31 /* GraphicsRenderHandle.hpp in Headers */,
 				50ABBD411925AB0000A911A9 /* CCMath.h in Headers */,
 				04355819217EADF300B9C056 /* IOBuffer.h in Headers */,
 				046E06342185B41100B24E2D /* Animation.h in Headers */,
@@ -3659,6 +3656,8 @@
 				046E06402185B41100B24E2D /* AnimationState.h in Headers */,
 				4617866E2052609B008256E1 /* jsb_cocos2dx_network_auto.hpp in Headers */,
 				046E066B2185B41B00B24E2D /* IArmatureProxy.h in Headers */,
+				0482F19A228D87970019ECF7 /* RenderFlow.hpp in Headers */,
+				0482F1A8228D87970019ECF7 /* NodeProxy.hpp in Headers */,
 				0430128C21DCF2B80007084D /* SkeletonBounds.h in Headers */,
 				1A28FF6A1F20AFAB007A1D9D /* SRConstants.h in Headers */,
 				043012C021DCF2B80007084D /* dll.h in Headers */,
@@ -3667,9 +3666,9 @@
 				046E061F2185B37100B24E2D /* CCDragonBonesHeaders.h in Headers */,
 				046B689321A00F5600B33469 /* IOTypedArray.h in Headers */,
 				46FDDBEA202ADDCE00931238 /* CCAutoreleasePool.h in Headers */,
+				0482F1C0228D87970019ECF7 /* RenderHandle.hpp in Headers */,
 				461786642052607E008256E1 /* jsb_socketio.hpp in Headers */,
 				40AEF7C1216DF22500729AA5 /* jsb_video_auto.hpp in Headers */,
-				0418547E228D7A0700F8DF31 /* RenderHandle.hpp in Headers */,
 				46AE40002092F3A600F3A228 /* v8_inspector_protocol_json.h in Headers */,
 				0430125E21DCF2B80007084D /* BoneData.h in Headers */,
 				0430128821DCF2B80007084D /* PathConstraintData.h in Headers */,
@@ -3708,32 +3707,31 @@
 				46FDDAD0202ACC6A00931238 /* RenderBuffer.h in Headers */,
 				1A28FF7A1F20AFAB007A1D9D /* SRLog.h in Headers */,
 				46AE3FF42092F3A600F3A228 /* node.h in Headers */,
-				0418548A228D7A0700F8DF31 /* MaskRenderHandle.hpp in Headers */,
 				46FDDC64202D502F00931238 /* CCApplication.h in Headers */,
 				0430126021DCF2B80007084D /* Atlas.h in Headers */,
 				046E06D82185B49F00B24E2D /* AnimationConfig.h in Headers */,
 				46FDDACC202ACC6A00931238 /* VertexFormat.h in Headers */,
 				46FDDACE202ACC6A00931238 /* GraphicsHandle.h in Headers */,
 				469303912046AE05004A3D6C /* MappingUtils.hpp in Headers */,
+				0482F1C2228D87970019ECF7 /* SystemHandle.hpp in Headers */,
 				46FDDA80202ACC6A00931238 /* Renderer.h in Headers */,
 				4617864420522469008256E1 /* HttpRequest.h in Headers */,
 				46AE3FEE2092F3A600F3A228 /* http_parser.h in Headers */,
 				046E06632185B41B00B24E2D /* Slot.h in Headers */,
 				4693045B2046AE06004A3D6C /* EventDispatcher.h in Headers */,
 				046E06BE2185B49F00B24E2D /* UserData.h in Headers */,
-				04185496228D7A0700F8DF31 /* StencilManager.hpp in Headers */,
 				46FDDAA2202ACC6A00931238 /* InputAssembler.h in Headers */,
 				046E06612185B41B00B24E2D /* DeformVertices.h in Headers */,
 				46FDDBCC202ADDCE00931238 /* ZipUtils.h in Headers */,
-				04185492228D7A0700F8DF31 /* RenderFlow.hpp in Headers */,
 				046E06462185B41100B24E2D /* IAnimatable.h in Headers */,
 				046E06E02185B49F00B24E2D /* DragonBonesData.h in Headers */,
 				04AF6302219190ED00AED9DE /* TypedArrayPool.h in Headers */,
 				46FDDB50202ADDCE00931238 /* CCValue.h in Headers */,
 				46FDDADA202ACC6A00931238 /* Program.h in Headers */,
-				0418547A228D7A0700F8DF31 /* ModelBatcher.hpp in Headers */,
 				0430122C21DCF2B80007084D /* ClippingAttachment.h in Headers */,
 				46FDDAC4202ACC6A00931238 /* FrameBuffer.h in Headers */,
+				0482F1AE228D87970019ECF7 /* MaskRenderHandle.hpp in Headers */,
+				0482F1B0228D87970019ECF7 /* GraphicsRenderHandle.hpp in Headers */,
 				46FDDAD2202ACC6A00931238 /* Texture.h in Headers */,
 				469303992046AE05004A3D6C /* HelperMacros.h in Headers */,
 				1AAAC8EE205CB6E9005321B9 /* AudioCache.h in Headers */,
@@ -3766,7 +3764,6 @@
 				1AAAC8F4205CB6E9005321B9 /* AudioEngine.h in Headers */,
 				046B68A921A292D300B33469 /* jsb_spine_manual.hpp in Headers */,
 				46FDDA78202ACC6A00931238 /* Light.h in Headers */,
-				0418548E228D7A0700F8DF31 /* MeshBuffer.hpp in Headers */,
 				0430125A21DCF2B80007084D /* AtlasAttachmentLoader.h in Headers */,
 				1A29D7A420566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
 				0430122E21DCF2B80007084D /* Animation.h in Headers */,
@@ -3790,6 +3787,7 @@
 				46FDDB6E202ADDCE00931238 /* etc1.h in Headers */,
 				461DCA3720BBFA2D00B22827 /* EditBox.h in Headers */,
 				1AAAC8E6205CB6E9005321B9 /* AudioPlayer.h in Headers */,
+				0482F1BC228D87970019ECF7 /* MeshBuffer.hpp in Headers */,
 				0430129E21DCF2B80007084D /* IkConstraint.h in Headers */,
 				469303A52046AE05004A3D6C /* ScriptEngine.hpp in Headers */,
 				043012AC21DCF2B80007084D /* AnimationStateData.h in Headers */,
@@ -3813,18 +3811,20 @@
 				046E06EE2185B4A500B24E2D /* JSONDataParser.h in Headers */,
 				046E06F42185B4A500B24E2D /* DataParser.h in Headers */,
 				5027253B190BF1B900AAF4ED /* cocos2d.h in Headers */,
+				0482F1B2228D87970019ECF7 /* ModelBatcher.hpp in Headers */,
 				46FDDAAC202ACC6A00931238 /* Types.h in Headers */,
 				1AAAC876205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
 				1A52DB7B205BCDD000350EE3 /* ScriptEngine.hpp in Headers */,
 				4648882620AC2BC900CD1E4A /* CCRenderTexture.h in Headers */,
 				046E03F621804E6B00B24E2D /* spine-cocos2dx.h in Headers */,
+				0482F1AA228D87970019ECF7 /* StencilManager.hpp in Headers */,
 				0430122A21DCF2B80007084D /* MeshAttachment.h in Headers */,
 				1A29D772205665D200168D9A /* jsb_cocos2dx_manual.hpp in Headers */,
 				1A29D789205666B200168D9A /* LocalStorage.h in Headers */,
 				046E0712218B01EF00B24E2D /* jsb_dragonbones_manual.hpp in Headers */,
 				46FDDC67202D504E00931238 /* CCApplication.h in Headers */,
-				04185482228D7A0700F8DF31 /* scene-bindings.h in Headers */,
 				046E06772185B42500B24E2D /* DragonBones.h in Headers */,
+				0482F19E228D87970019ECF7 /* scene-bindings.h in Headers */,
 				041854A2228D7E5700F8DF31 /* ParticleSimulator.h in Headers */,
 				46AE3FE42092F3A600F3A228 /* inspector_agent.h in Headers */,
 				046E06C82185B49F00B24E2D /* DisplayData.h in Headers */,
@@ -3846,7 +3846,6 @@
 				1A14FD942080B4E300E10ABE /* CCGLUtils.h in Headers */,
 				50ABBD5F1925AB0000A911A9 /* Vec3.h in Headers */,
 				46FDDC02202ADDCE00931238 /* ccCArray.h in Headers */,
-				04185488228D7A0700F8DF31 /* CustomRenderHandle.hpp in Headers */,
 				1A29D79F205666F500168D9A /* jsb_opengl_manual.hpp in Headers */,
 				46FDDAE0202ACC6A00931238 /* RenderTarget.h in Headers */,
 				046E06B82185B49F00B24E2D /* AnimationData.h in Headers */,
@@ -3862,6 +3861,7 @@
 				1A28FF5C1F20AFAB007A1D9D /* NSURLRequest+SRWebSocketPrivate.h in Headers */,
 				1AAAC8F0205CB6E9005321B9 /* AudioEngine-inl.h in Headers */,
 				1A28FF6E1F20AFAB007A1D9D /* SRError.h in Headers */,
+				0482F1A4228D87970019ECF7 /* CustomRenderHandle.hpp in Headers */,
 				1AAAC8F6205CB6E9005321B9 /* Export.h in Headers */,
 				46FDDBC4202ADDCE00931238 /* ccConfig.h in Headers */,
 				46AE3FE02092F3A600F3A228 /* env.h in Headers */,
@@ -3870,7 +3870,6 @@
 				46178671205262BC008256E1 /* jsb_conversions.hpp in Headers */,
 				0430122621DCF2B80007084D /* BoundingBoxAttachment.h in Headers */,
 				469304212046AE06004A3D6C /* jsb_gfx_manual.hpp in Headers */,
-				0418549A228D7A0700F8DF31 /* SystemHandle.hpp in Headers */,
 				04F49F44222A777C00E5CAF1 /* SkeletonDataMgr.h in Headers */,
 				50ABC01C1926664800A911A9 /* CCSAXParser.h in Headers */,
 				0430125C21DCF2B80007084D /* RegionAttachment.h in Headers */,
@@ -3973,15 +3972,12 @@
 				04355816217EADF300B9C056 /* IOBuffer.cpp in Sources */,
 				043012B721DCF2B80007084D /* VertexAttachment.c in Sources */,
 				1A52DAF8205BB81400350EE3 /* CCThreadPool.cpp in Sources */,
-				04185497228D7A0700F8DF31 /* SystemHandle.cpp in Sources */,
-				04185475228D7A0700F8DF31 /* NodeProxy.cpp in Sources */,
 				46AE3FFB2092F3A600F3A228 /* inspector_io.cc in Sources */,
 				0430129521DCF2B80007084D /* Event.c in Sources */,
 				4037F5CE2108751E001C205C /* CCAsyncTaskPool.cpp in Sources */,
 				46FDDB65202ADDCE00931238 /* ccRandom.cpp in Sources */,
 				46FDDAB9202ACC6A00931238 /* FrameBuffer.cpp in Sources */,
 				50ABBD581925AB0000A911A9 /* Vec2.cpp in Sources */,
-				0418548F228D7A0700F8DF31 /* RenderFlow.cpp in Sources */,
 				043012A721DCF2B80007084D /* Array.c in Sources */,
 				0430124521DCF2B80007084D /* Json.c in Sources */,
 				4626B1FF202D9BD800BE30B9 /* CCApplication-mac.mm in Sources */,
@@ -4003,8 +3999,8 @@
 				4617863320522469008256E1 /* Uri.cpp in Sources */,
 				0430125121DCF2B80007084D /* TransformConstraintData.c in Sources */,
 				46FDDAC1202ACC6A00931238 /* Texture.cpp in Sources */,
+				0482F19F228D87970019ECF7 /* RenderHandle.cpp in Sources */,
 				1A28FF6B1F20AFAB007A1D9D /* SRConstants.m in Sources */,
-				0418547B228D7A0700F8DF31 /* RenderHandle.cpp in Sources */,
 				294D7D9C1D0E93A2002CE7B7 /* CCDevice-apple.mm in Sources */,
 				0430127121DCF2B80007084D /* SkeletonBounds.c in Sources */,
 				043012A921DCF2B80007084D /* Animation.c in Sources */,
@@ -4024,6 +4020,7 @@
 				0430124921DCF2B80007084D /* Triangulator.c in Sources */,
 				046E06882185B44A00B24E2D /* BaseFactory.cpp in Sources */,
 				1A52DB30205BCD9200350EE3 /* ScriptEngine.cpp in Sources */,
+				0482F1A1228D87970019ECF7 /* NodeProxy.cpp in Sources */,
 				0430123321DCF2B80007084D /* AttachmentLoader.c in Sources */,
 				1A52DB62205BCDC700350EE3 /* ScriptEngine.cpp in Sources */,
 				4DC57D211F7A58B5005B6546 /* xxtea.cpp in Sources */,
@@ -4058,10 +4055,11 @@
 				50ABBD4C1925AB0000A911A9 /* MathUtil.cpp in Sources */,
 				046E06C52185B49F00B24E2D /* AnimationConfig.cpp in Sources */,
 				46FDDA99202ACC6A00931238 /* Model.cpp in Sources */,
+				0482F1B3228D87970019ECF7 /* MaskRenderHandle.cpp in Sources */,
 				4693038E2046AE05004A3D6C /* Value.cpp in Sources */,
+				0482F1A5228D87970019ECF7 /* MeshBuffer.cpp in Sources */,
 				46FDDA89202ACC6A00931238 /* Effect.cpp in Sources */,
 				1ABAD24E20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm in Sources */,
-				04185485228D7A0700F8DF31 /* MeshBuffer.cpp in Sources */,
 				043012AF21DCF2B80007084D /* SkeletonJson.c in Sources */,
 				046E06E12185B49F00B24E2D /* DragonBonesData.cpp in Sources */,
 				ED30577E1BEC76C90083C3ED /* ioapi_mem.cpp in Sources */,
@@ -4076,12 +4074,12 @@
 				1A28FF5F1F20AFAB007A1D9D /* SRProxyConnect.m in Sources */,
 				46FDDB8B202ADDCE00931238 /* CCAutoreleasePool.cpp in Sources */,
 				046E03FD21804E6B00B24E2D /* AttachmentVertices.cpp in Sources */,
-				04185477228D7A0700F8DF31 /* StencilManager.cpp in Sources */,
 				0430129F21DCF2B80007084D /* SkeletonBinary.c in Sources */,
 				046E06432185B41100B24E2D /* Animation.cpp in Sources */,
 				046E06312185B41100B24E2D /* BaseTimelineState.cpp in Sources */,
 				461786652052607E008256E1 /* jsb_websocket.cpp in Sources */,
 				46FDDA87202ACC6A00931238 /* View.cpp in Sources */,
+				0482F1B5228D87970019ECF7 /* RenderFlow.cpp in Sources */,
 				1A52DB71205BCDC700350EE3 /* Class.cpp in Sources */,
 				4617862120522469008256E1 /* HttpCookie.cpp in Sources */,
 				046E03ED21804E6B00B24E2D /* CreatorAttachmentLoader.cpp in Sources */,
@@ -4110,7 +4108,6 @@
 				46FDDAA9202ACC6A00931238 /* Types.cpp in Sources */,
 				1A28FF4F1F20AFAB007A1D9D /* SRDelegateController.m in Sources */,
 				0430128121DCF2B80007084D /* AtlasAttachmentLoader.c in Sources */,
-				0418547F228D7A0700F8DF31 /* CustomRenderHandle.cpp in Sources */,
 				46FDDBFB202ADDCE00931238 /* ccCArray.cpp in Sources */,
 				1AAAC8E1205CB6E9005321B9 /* AudioPlayer.mm in Sources */,
 				1A28FF631F20AFAB007A1D9D /* SRRunLoopThread.m in Sources */,
@@ -4127,7 +4124,6 @@
 				46FDDAC5202ACC6A00931238 /* RenderTarget.cpp in Sources */,
 				1A52DB6D205BCDC700350EE3 /* ScriptEngine.cpp in Sources */,
 				50ABBD3C1925AB0000A911A9 /* CCGeometry.cpp in Sources */,
-				04185493228D7A0700F8DF31 /* GraphicsRenderHandle.cpp in Sources */,
 				1A28FF771F20AFAB007A1D9D /* SRHTTPConnectMessage.m in Sources */,
 				46FDDB99202ADDCE00931238 /* ccUTF8.cpp in Sources */,
 				4617862F20522469008256E1 /* HttpClient-apple.mm in Sources */,
@@ -4136,6 +4132,8 @@
 				ED30579C1BEC77B70083C3ED /* ConvertUTFWrapper.cpp in Sources */,
 				46AE3FF12092F3A600F3A228 /* SHA1.cpp in Sources */,
 				46FDDAB1202ACC6A00931238 /* DeviceGraphics.cpp in Sources */,
+				0482F1BD228D87970019ECF7 /* CustomRenderHandle.cpp in Sources */,
+				0482F1B9228D87970019ECF7 /* GraphicsRenderHandle.cpp in Sources */,
 				1A28FF7B1F20AFAB007A1D9D /* SRLog.m in Sources */,
 				46FDDAC9202ACC6A00931238 /* RenderBuffer.cpp in Sources */,
 				46AE3FE92092F3A600F3A228 /* inspector_socket_server.cc in Sources */,
@@ -4146,6 +4144,7 @@
 				4617864920522469008256E1 /* CCDownloader.cpp in Sources */,
 				4693039E2046AE05004A3D6C /* Object.mm in Sources */,
 				4043D65E20D2132E00C55611 /* CCGLView-desktop.cpp in Sources */,
+				0482F19B228D87970019ECF7 /* ModelBatcher.cpp in Sources */,
 				46AE3FE12092F3A600F3A228 /* node.cc in Sources */,
 				46FDDA8B202ACC6A00931238 /* ForwardRenderer.cpp in Sources */,
 				046E06D32185B49F00B24E2D /* SkinData.cpp in Sources */,
@@ -4153,6 +4152,7 @@
 				046E06EF2185B4A500B24E2D /* BinaryDataParser.cpp in Sources */,
 				50ABBD441925AB0000A911A9 /* CCVertex.cpp in Sources */,
 				50ABC0631926664800A911A9 /* CCDevice-mac.mm in Sources */,
+				0482F1B7228D87970019ECF7 /* StencilManager.cpp in Sources */,
 				461786552052301A008256E1 /* CCScheduler.cpp in Sources */,
 				46FDDAD5202ACC6A00931238 /* GraphicsHandle.cpp in Sources */,
 				46FDDA9D202ACC6A00931238 /* BaseRenderer.cpp in Sources */,
@@ -4175,6 +4175,7 @@
 				046B688A219FA61200B33469 /* MiddlewareManager.cpp in Sources */,
 				1A29D76F205665D200168D9A /* jsb_cocos2dx_manual.cpp in Sources */,
 				0430127321DCF2B80007084D /* SlotData.c in Sources */,
+				0482F1AB228D87970019ECF7 /* SystemHandle.cpp in Sources */,
 				50ABC00D1926664800A911A9 /* CCFileUtils.cpp in Sources */,
 				46FDDBA3202ADDCE00931238 /* pvr.cpp in Sources */,
 				46FDDBE3202ADDCE00931238 /* CCData.cpp in Sources */,
@@ -4211,7 +4212,6 @@
 				ED3057A11BEC77D50083C3ED /* xxhash.c in Sources */,
 				46FDDA6F202ACC6A00931238 /* Pass.cpp in Sources */,
 				4617863520522469008256E1 /* HttpAsynConnection-apple.m in Sources */,
-				04185471228D7A0700F8DF31 /* ModelBatcher.cpp in Sources */,
 				043012B121DCF2B80007084D /* extension.c in Sources */,
 				461786612052607E008256E1 /* jsb_socketio.cpp in Sources */,
 				1A28FF8B1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */,
@@ -4229,7 +4229,6 @@
 				BA21055B21009A2900E19975 /* CCEventAssetsManagerEx.cpp in Sources */,
 				046E06822185B43B00B24E2D /* EventObject.cpp in Sources */,
 				046B68A621A292D300B33469 /* jsb_spine_manual.cpp in Sources */,
-				0418548B228D7A0700F8DF31 /* MaskRenderHandle.cpp in Sources */,
 				BA21055C21009A2C00E19975 /* Manifest.cpp in Sources */,
 				046E06392185B41100B24E2D /* WorldClock.cpp in Sources */,
 				1A28FF931F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m in Sources */,
@@ -4240,12 +4239,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0482F1B8228D87970019ECF7 /* StencilManager.cpp in Sources */,
 				ED30578D1BEC77550083C3ED /* unzip.cpp in Sources */,
 				0430127221DCF2B80007084D /* SkeletonBounds.c in Sources */,
 				46FDDA9E202ACC6A00931238 /* BaseRenderer.cpp in Sources */,
 				1A586C462064C90500B47573 /* EJConvertTypedArray.m in Sources */,
 				46FDDAC6202ACC6A00931238 /* RenderTarget.cpp in Sources */,
-				04185490228D7A0700F8DF31 /* RenderFlow.cpp in Sources */,
 				4617864820522469008256E1 /* CCDownloaderImpl-apple.mm in Sources */,
 				0430129021DCF2B80007084D /* PathAttachment.c in Sources */,
 				046E066D2185B41B00B24E2D /* Slot.cpp in Sources */,
@@ -4259,6 +4258,7 @@
 				46FDDAB6202ACC6A00931238 /* Program.cpp in Sources */,
 				46FDDAC2202ACC6A00931238 /* Texture.cpp in Sources */,
 				50ABC01A1926664800A911A9 /* CCSAXParser.cpp in Sources */,
+				0482F19C228D87970019ECF7 /* ModelBatcher.cpp in Sources */,
 				4693039B2046AE05004A3D6C /* Utils.cpp in Sources */,
 				046E06982185B45300B24E2D /* Transform.cpp in Sources */,
 				046E03EE21804E6B00B24E2D /* CreatorAttachmentLoader.cpp in Sources */,
@@ -4274,7 +4274,6 @@
 				046E06892185B44A00B24E2D /* BaseFactory.cpp in Sources */,
 				1A28FF801F20AFAB007A1D9D /* SRMutex.m in Sources */,
 				046E06FE2189999600B24E2D /* jsb_cocos2dx_editor_support_auto.cpp in Sources */,
-				04185498228D7A0700F8DF31 /* SystemHandle.cpp in Sources */,
 				46AE400C2092F3A600F3A228 /* env.cc in Sources */,
 				46FDDC69202D733800931238 /* CCApplication-ios.mm in Sources */,
 				ED3057C21BEC78A80083C3ED /* xxhash.c in Sources */,
@@ -4358,7 +4357,6 @@
 				1A52DB7A205BCDD000350EE3 /* ScriptEngine.cpp in Sources */,
 				1A14FD922080B4E300E10ABE /* CCGLUtils.cpp in Sources */,
 				1A28FF741F20AFAB007A1D9D /* SRHash.m in Sources */,
-				04185480228D7A0700F8DF31 /* CustomRenderHandle.cpp in Sources */,
 				46FDDB70202ADDCE00931238 /* ZipUtils.cpp in Sources */,
 				50ABBD511925AB0000A911A9 /* Quaternion.cpp in Sources */,
 				46930469204FE20F004A3D6C /* CCLog.cpp in Sources */,
@@ -4409,8 +4407,8 @@
 				4617862220522469008256E1 /* HttpCookie.cpp in Sources */,
 				46FDDAE2202ACC6A00931238 /* GFXUtils.cpp in Sources */,
 				1A586C4C2064C97800B47573 /* EJConvert.m in Sources */,
-				04185476228D7A0700F8DF31 /* NodeProxy.cpp in Sources */,
 				469304272046AE06004A3D6C /* jsb_conversions.cpp in Sources */,
+				0482F1AC228D87970019ECF7 /* SystemHandle.cpp in Sources */,
 				046E03F021804E6B00B24E2D /* SpineAnimation.cpp in Sources */,
 				46AE40042092F3A600F3A228 /* http_parser.c in Sources */,
 				0430124621DCF2B80007084D /* Json.c in Sources */,
@@ -4427,10 +4425,12 @@
 				50ABBD3D1925AB0000A911A9 /* CCGeometry.cpp in Sources */,
 				046E06CA2185B49F00B24E2D /* UserData.cpp in Sources */,
 				1A28FF8C1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */,
+				0482F1B4228D87970019ECF7 /* MaskRenderHandle.cpp in Sources */,
 				1A28FF541F20AFAB007A1D9D /* SRIOConsumer.m in Sources */,
 				046B68A721A292D300B33469 /* jsb_spine_manual.cpp in Sources */,
 				469303692046AE05004A3D6C /* State.cpp in Sources */,
-				0418547C228D7A0700F8DF31 /* RenderHandle.cpp in Sources */,
+				0482F1BE228D87970019ECF7 /* CustomRenderHandle.cpp in Sources */,
+				0482F1A0228D87970019ECF7 /* RenderHandle.cpp in Sources */,
 				46FDDAAA202ACC6A00931238 /* Types.cpp in Sources */,
 				1A29D797205666F500168D9A /* jsb_opengl_utils.cpp in Sources */,
 				046E06E22185B49F00B24E2D /* DragonBonesData.cpp in Sources */,
@@ -4454,9 +4454,10 @@
 				046E06382185B41100B24E2D /* AnimationState.cpp in Sources */,
 				046E03FA21804E6B00B24E2D /* SpineRenderer.cpp in Sources */,
 				4617861A20522469008256E1 /* SocketIO.cpp in Sources */,
+				0482F1A2228D87970019ECF7 /* NodeProxy.cpp in Sources */,
 				46FDDB72202ADDCE00931238 /* base64.cpp in Sources */,
 				46FDDA7E202ACC6A00931238 /* Light.cpp in Sources */,
-				04185486228D7A0700F8DF31 /* MeshBuffer.cpp in Sources */,
+				0482F1A6228D87970019ECF7 /* MeshBuffer.cpp in Sources */,
 				469303AB2046AE05004A3D6C /* Class.cpp in Sources */,
 				046E065D2185B41B00B24E2D /* Constraint.cpp in Sources */,
 				046E06672185B41B00B24E2D /* Bone.cpp in Sources */,
@@ -4466,8 +4467,6 @@
 				1AAAC8EC205CB6E9005321B9 /* AudioCache.mm in Sources */,
 				46FDDBE4202ADDCE00931238 /* CCData.cpp in Sources */,
 				0430127421DCF2B80007084D /* SlotData.c in Sources */,
-				04185494228D7A0700F8DF31 /* GraphicsRenderHandle.cpp in Sources */,
-				0418548C228D7A0700F8DF31 /* MaskRenderHandle.cpp in Sources */,
 				0430129621DCF2B80007084D /* Event.c in Sources */,
 				469304592046AE06004A3D6C /* EventDispatcher.cpp in Sources */,
 				46FDDAB4202ACC6A00931238 /* VertexBuffer.cpp in Sources */,
@@ -4496,6 +4495,7 @@
 				041854A8228D7E7300F8DF31 /* jsb_cocos2dx_particle_auto.cpp in Sources */,
 				50ABC0001926664800A911A9 /* CCFileUtils-apple.mm in Sources */,
 				0430128A21DCF2B80007084D /* IkConstraint.c in Sources */,
+				0482F1BA228D87970019ECF7 /* GraphicsRenderHandle.cpp in Sources */,
 				4DC57D331F7B840E005B6546 /* xxtea.cpp in Sources */,
 				041854A0228D7E5700F8DF31 /* ParticleSimulator.cpp in Sources */,
 				1A29D77C2056667800168D9A /* csscolorparser.cpp in Sources */,
@@ -4504,16 +4504,15 @@
 				1A29D795205666F500168D9A /* jsb_opengl_manual.cpp in Sources */,
 				46AE3FFC2092F3A600F3A228 /* inspector_io.cc in Sources */,
 				4648882820AC2BC900CD1E4A /* CCRenderTexture.cpp in Sources */,
-				04185478228D7A0700F8DF31 /* StencilManager.cpp in Sources */,
 				503DD8E31926736A00CD74DD /* CCDevice-ios.mm in Sources */,
 				1A28FF701F20AFAB007A1D9D /* SRError.m in Sources */,
+				0482F1B6228D87970019ECF7 /* RenderFlow.cpp in Sources */,
 				1A28FF501F20AFAB007A1D9D /* SRDelegateController.m in Sources */,
 				46FDDAC0202ACC6A00931238 /* State.cpp in Sources */,
 				0430127C21DCF2B80007084D /* SkeletonClipping.c in Sources */,
 				BA21055E21009A5700E19975 /* AssetsManagerEx.cpp in Sources */,
 				BA21055F21009A5A00E19975 /* CCEventAssetsManagerEx.cpp in Sources */,
 				BA21055D21009A5500E19975 /* Manifest.cpp in Sources */,
-				04185472228D7A0700F8DF31 /* ModelBatcher.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
