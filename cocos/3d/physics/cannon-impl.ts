@@ -231,10 +231,17 @@ export class CannonRigidBody implements RigidBodyBase {
         v = clamp(Math.floor(v), 0, 31);
         this._cannonBody.collisionFilterMask = 1 << v;
     }
+
     public addMask (v: number): void {
         v = Math.floor(v);
         this._cannonBody.collisionFilterMask += 1 << v;
     }
+
+    public removeMask (v: number): void {
+        v = clamp(Math.floor(v), 0, 31);
+        this._cannonBody.collisionFilterMask -= 1 << v;
+    }
+
     public wakeUp (): void {
         return this._cannonBody.wakeUp();
     }
