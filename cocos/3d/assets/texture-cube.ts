@@ -202,17 +202,24 @@ export class TextureCube extends TextureBase {
         this.mipmaps = [];
     }
 
-    public _serialize () {
+    public _serialize (exporting?: any) {
         return {
             base: super._serialize(),
-            mipmaps: this._mipmaps.map((mipmap) => {return {
+            mipmaps: this._mipmaps.map((mipmap) => exporting ? {
+                front: Editor.Utils.UuidUtils.compressUuid(mipmap.front._uuid, true),
+                back: Editor.Utils.UuidUtils.compressUuid(mipmap.back._uuid, true),
+                left: Editor.Utils.UuidUtils.compressUuid(mipmap.left._uuid, true),
+                right: Editor.Utils.UuidUtils.compressUuid(mipmap.right._uuid, true),
+                top: Editor.Utils.UuidUtils.compressUuid(mipmap.top._uuid, true),
+                bottom: Editor.Utils.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
+            } : {
                 front: mipmap.front._uuid,
                 back: mipmap.back._uuid,
                 left: mipmap.left._uuid,
                 right: mipmap.right._uuid,
                 top: mipmap.top._uuid,
                 bottom: mipmap.bottom._uuid,
-            }; }),
+            }),
         };
     }
 

@@ -99,12 +99,20 @@ export class SpriteAtlas extends Asset {
         return frames;
     }
 
-    public _serialize () {
+    public _serialize (exporting?: any) {
         const frames: string[] = [];
         for (const key of Object.keys(this.spriteFrames)) {
             const spriteFrame = this.spriteFrames[key];
-            const id = spriteFrame ? spriteFrame._uuid : '';
-            const name = id.split('@')[1];
+            let id = spriteFrame ? spriteFrame._uuid : '';
+            const strs = id.split('@');
+            const uuid = strs[0];
+            const name = strs[1];
+            if (id && exporting) {
+                id = Editor.Utils.UuidUtils.compressUuid(uuid, true);
+                if (name) {
+                    id = id + `@${name}`;
+                }
+            }
             frames.push(name);
             frames.push(id);
         }
