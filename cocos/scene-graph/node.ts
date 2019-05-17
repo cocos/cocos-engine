@@ -901,26 +901,6 @@ class Node extends BaseNode {
     }
 }
 
-if (CC_EDITOR) {
-    const repeat = (t: number, l: number) => t - Math.floor(t / l) * l;
-    Object.defineProperty(Node.prototype, 'eulerAngles', {
-        set (val: Vec3) {
-            this.setRotationFromEuler(val.x, val.y, val.z);
-        },
-        get () {
-            if (this._eulerDirty) {
-                const eu = this._euler;
-                quat.toEuler(v3_a, this._lrot);
-                eu.x = repeat(v3_a.x - eu.x + 180, 360) + eu.x - 180;
-                eu.y = repeat(v3_a.y - eu.y + 180, 360) + eu.y - 180;
-                eu.z = repeat(v3_a.z - eu.z + 180, 360) + eu.z - 180;
-                this._eulerDirty = false;
-            }
-            return this._euler;
-        },
-    });
-}
-
 Object.defineProperty(Node.prototype, 'position', {
     get: Node.prototype.getPosition,
 });
