@@ -453,7 +453,7 @@ export class AnimationComponent extends Component implements IEventTarget {
 
     private _createState (clip: AnimationClip, name?: string) {
         const state = new AnimationState(clip, name);
-        state._setEventTarget(this);
+        state._setEventTarget(this.node);
         this._nameToState[state.name] = state;
         return state;
     }

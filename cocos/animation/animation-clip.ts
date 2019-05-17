@@ -1,10 +1,11 @@
 import { Asset, SpriteFrame } from '../assets';
 import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
+import binarySearchEpsilon from '../core/utils/binary-search';
 import { AnimCurve, PropertyCurveData, RatioSampler } from './animation-curve';
 import { WrapMode as AnimationWrapMode } from './types';
 
-interface IAnimationEvent {
+interface IAnimationEventData {
     frame: number;
     func: string;
     params: string[];
@@ -41,6 +42,15 @@ export interface IPropertyCurve {
      * 属性曲线。
      */
     curve: AnimCurve;
+}
+
+export interface IAnimationEvent {
+    functionName: string;
+    parameters: string[];
+}
+
+export interface IAnimationEventGroup {
+    events: IAnimationEvent[];
 }
 
 @ccclass('cc.AnimationClip')
@@ -134,7 +144,7 @@ export class AnimationClip extends Asset {
      * @typescript events: {frame: number, func: string, params: string[]}[]
      */
     @property({visible: false})
-    public events: IAnimationEvent[] = [];
+    public events: IAnimationEventData[] = [];
 
     @property
     private _duration = 0;
@@ -146,6 +156,11 @@ export class AnimationClip extends Asset {
 
     private _propertyCurves?: IPropertyCurve[];
 
+    private _runtimeEvents?: {
+        ratios: number[];
+        eventGroups: IAnimationEventGroup[];
+    };
+
     private frameRate = 0;
 
     @property
@@ -156,6 +171,13 @@ export class AnimationClip extends Asset {
             this._createPropertyCurves();
         }
         return this._propertyCurves!;
+    }
+
+    get eventGroups (): ReadonlyArray<IAnimationEventGroup> {
+        if (!this._runtimeEvents) {
+            this._createRuntimeEvents();
+        }
+        return this._runtimeEvents!.eventGroups;
     }
 
     get stepness () {
@@ -179,6 +201,25 @@ export class AnimationClip extends Asset {
      */
     public updateCurveDatas () {
         delete this._propertyCurves;
+    }
+
+    /**
+     * Call it when you modify `this.events`;
+     */
+    public updateEventDatas () {
+        delete this._runtimeEvents;
+    }
+
+    public getEventGroupIndexAtRatio (ratio: number): number {
+        if (!this._runtimeEvents) {
+            this._createRuntimeEvents();
+        }
+        const result = binarySearchEpsilon(this._runtimeEvents!.ratios, ratio);
+        return result;
+    }
+
+    public hasEvents () {
+        return this.events.length !== 0;
     }
 
     private _createPropertyCurves () {
@@ -222,6 +263,36 @@ export class AnimationClip extends Asset {
             ratioSampler = this._ratioSamplers[propertyCurveData.keys];
         }
         return new AnimCurve(propertyCurveData, propertyName, isNode, ratioSampler);
+    }
+
+    private _createRuntimeEvents () {
+        if (CC_EDITOR) {
+            return;
+        }
+
+        const ratios: number[] = [];
+        const eventGroups: IAnimationEventGroup[] = [];
+        const events = this.events.sort((a, b) => a.frame - b.frame);
+        for (const eventData of events) {
+            const ratio = eventData.frame / this._duration;
+            let i = ratios.findIndex((r) => r === ratio);
+            if (i < 0) {
+                i = ratios.length;
+                ratios.push(ratio);
+                eventGroups.push({
+                    events: [],
+                });
+            }
+            eventGroups[i].events.push({
+                functionName: eventData.func,
+                parameters: eventData.params,
+            });
+        }
+
+        this._runtimeEvents = {
+            ratios,
+            eventGroups,
+        };
     }
 
     private _applyStepness () {
