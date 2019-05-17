@@ -45,6 +45,25 @@ static bool js_cocos2dx_spine_SpineRenderer_setTimeScale(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setTimeScale)
 
+static bool js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB(se::State& s)
+{
+    spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB : Error processing arguments");
+        cobj->setOpacityModifyRGB(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB)
+
 static bool js_cocos2dx_spine_SpineRenderer_paused(se::State& s)
 {
     spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
@@ -121,38 +140,20 @@ static bool js_cocos2dx_spine_SpineRenderer_setBonesToSetupPose(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setBonesToSetupPose)
 
-static bool js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose(se::State& s)
+static bool js_cocos2dx_spine_SpineRenderer_onEnable(se::State& s)
 {
     spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_onEnable : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
-        cobj->setSlotsToSetupPose();
+        cobj->onEnable();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose)
-
-static bool js_cocos2dx_spine_SpineRenderer_getRenderInfoOffset(se::State& s)
-{
-    spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_getRenderInfoOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        se_object_ptr result = cobj->getRenderInfoOffset();
-        s.rval().setObject(result);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SpineRenderer_getRenderInfoOffset : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_getRenderInfoOffset)
+SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_onEnable)
 
 static bool js_cocos2dx_spine_SpineRenderer_stopSchedule(se::State& s)
 {
@@ -293,24 +294,20 @@ static bool js_cocos2dx_spine_SpineRenderer_setToSetupPose(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setToSetupPose)
 
-static bool js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB(se::State& s)
+static bool js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose(se::State& s)
 {
     spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB : Error processing arguments");
-        cobj->setOpacityModifyRGB(arg0);
+    if (argc == 0) {
+        cobj->setSlotsToSetupPose();
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB)
+SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose)
 
 static bool js_cocos2dx_spine_SpineRenderer_initWithBinaryFile(se::State& s)
 {
@@ -383,21 +380,6 @@ static bool js_cocos2dx_spine_SpineRenderer_initWithBinaryFile(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_initWithBinaryFile)
-
-static bool js_cocos2dx_spine_SpineRenderer_onEnable(se::State& s)
-{
-    spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_onEnable : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->onEnable();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_onEnable)
 
 static bool js_cocos2dx_spine_SpineRenderer_beginSchedule(se::State& s)
 {
@@ -473,6 +455,25 @@ static bool js_cocos2dx_spine_SpineRenderer_initWithSkeleton(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_initWithSkeleton)
+
+static bool js_cocos2dx_spine_SpineRenderer_setNativeEffect(se::State& s)
+{
+    spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_setNativeEffect : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::renderer::Effect* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SpineRenderer_setNativeEffect : Error processing arguments");
+        cobj->setNativeEffect(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setNativeEffect)
 
 static bool js_cocos2dx_spine_SpineRenderer_update(se::State& s)
 {
@@ -641,6 +642,25 @@ static bool js_cocos2dx_spine_SpineRenderer_setColor(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_setColor)
+
+static bool js_cocos2dx_spine_SpineRenderer_bindNodeProxy(se::State& s)
+{
+    spine::SpineRenderer* cobj = (spine::SpineRenderer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SpineRenderer_bindNodeProxy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::renderer::NodeProxy* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SpineRenderer_bindNodeProxy : Error processing arguments");
+        cobj->bindNodeProxy(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_spine_SpineRenderer_bindNodeProxy)
 
 static bool js_cocos2dx_spine_SpineRenderer_setSkin(se::State& s)
 {
@@ -917,22 +937,22 @@ bool js_register_cocos2dx_spine_SpineRenderer(se::Object* obj)
 
     cls->defineFunction("setUseTint", _SE(js_cocos2dx_spine_SpineRenderer_setUseTint));
     cls->defineFunction("setTimeScale", _SE(js_cocos2dx_spine_SpineRenderer_setTimeScale));
+    cls->defineFunction("setOpacityModifyRGB", _SE(js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB));
     cls->defineFunction("paused", _SE(js_cocos2dx_spine_SpineRenderer_paused));
     cls->defineFunction("setAttachment", _SE(js_cocos2dx_spine_SpineRenderer_setAttachment));
     cls->defineFunction("setBonesToSetupPose", _SE(js_cocos2dx_spine_SpineRenderer_setBonesToSetupPose));
-    cls->defineFunction("setSlotsToSetupPose", _SE(js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose));
-    cls->defineFunction("getRenderInfoOffset", _SE(js_cocos2dx_spine_SpineRenderer_getRenderInfoOffset));
+    cls->defineFunction("onEnable", _SE(js_cocos2dx_spine_SpineRenderer_onEnable));
     cls->defineFunction("stopSchedule", _SE(js_cocos2dx_spine_SpineRenderer_stopSchedule));
     cls->defineFunction("isOpacityModifyRGB", _SE(js_cocos2dx_spine_SpineRenderer_isOpacityModifyRGB));
     cls->defineFunction("setDebugSlotsEnabled", _SE(js_cocos2dx_spine_SpineRenderer_setDebugSlotsEnabled));
     cls->defineFunction("initWithJsonFile", _SE(js_cocos2dx_spine_SpineRenderer_initWithJsonFile));
     cls->defineFunction("setToSetupPose", _SE(js_cocos2dx_spine_SpineRenderer_setToSetupPose));
-    cls->defineFunction("setOpacityModifyRGB", _SE(js_cocos2dx_spine_SpineRenderer_setOpacityModifyRGB));
+    cls->defineFunction("setSlotsToSetupPose", _SE(js_cocos2dx_spine_SpineRenderer_setSlotsToSetupPose));
     cls->defineFunction("initWithBinaryFile", _SE(js_cocos2dx_spine_SpineRenderer_initWithBinaryFile));
-    cls->defineFunction("onEnable", _SE(js_cocos2dx_spine_SpineRenderer_onEnable));
     cls->defineFunction("beginSchedule", _SE(js_cocos2dx_spine_SpineRenderer_beginSchedule));
     cls->defineFunction("getDebugData", _SE(js_cocos2dx_spine_SpineRenderer_getDebugData));
     cls->defineFunction("initWithSkeleton", _SE(js_cocos2dx_spine_SpineRenderer_initWithSkeleton));
+    cls->defineFunction("setNativeEffect", _SE(js_cocos2dx_spine_SpineRenderer_setNativeEffect));
     cls->defineFunction("update", _SE(js_cocos2dx_spine_SpineRenderer_update));
     cls->defineFunction("getAttachment", _SE(js_cocos2dx_spine_SpineRenderer_getAttachment));
     cls->defineFunction("initWithUUID", _SE(js_cocos2dx_spine_SpineRenderer_initWithUUID));
@@ -942,6 +962,7 @@ bool js_register_cocos2dx_spine_SpineRenderer(se::Object* obj)
     cls->defineFunction("setSlotsRange", _SE(js_cocos2dx_spine_SpineRenderer_setSlotsRange));
     cls->defineFunction("onDisable", _SE(js_cocos2dx_spine_SpineRenderer_onDisable));
     cls->defineFunction("setColor", _SE(js_cocos2dx_spine_SpineRenderer_setColor));
+    cls->defineFunction("bindNodeProxy", _SE(js_cocos2dx_spine_SpineRenderer_bindNodeProxy));
     cls->defineFunction("setSkin", _SE(js_cocos2dx_spine_SpineRenderer_setSkin));
     cls->defineFunction("findSlot", _SE(js_cocos2dx_spine_SpineRenderer_findSlot));
     cls->defineFunction("updateWorldTransform", _SE(js_cocos2dx_spine_SpineRenderer_updateWorldTransform));

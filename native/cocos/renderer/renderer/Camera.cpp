@@ -24,7 +24,7 @@
 
 #include "Camera.h"
 #include "gfx/FrameBuffer.h"
-#include "INode.h"
+#include "math/MathUtil.h"
 
 RENDERER_BEGIN
 
@@ -39,6 +39,7 @@ Camera::Camera()
 Camera::~Camera()
 {
     RENDERER_SAFE_RELEASE(_framebuffer);
+    RENDERER_SAFE_RELEASE(_node);
 }
 
 void Camera::setFrameBuffer(FrameBuffer* framebuffer)
@@ -96,9 +97,17 @@ void Camera::setStages(const std::vector<std::string>& stages)
 }
 
 
-void Camera::setNode(INode* node)
+void Camera::setNode(NodeProxy* node)
 {
+    if (_node != nullptr)
+    {
+        _node->release();
+    }
     _node = node;
+    if (_node != nullptr)
+    {
+        _node->retain();
+    }
 }
 
 const View& Camera::extractView( int width, int height)
@@ -113,7 +122,7 @@ const View& Camera::extractView( int width, int height)
 
     // view matrix
     //REFINE:
-    _worldRTInv.set(_node->getWorldRT());
+    _node->getWorldRT(&_worldRTInv);
     _cachedView.matView.set(_worldRTInv.getInversed());
 
     // projecton matrix
@@ -124,12 +133,16 @@ const View& Camera::extractView( int width, int height)
     {
         float x = _orthoHeight * aspect;
         float y = _orthoHeight;
-        Mat4::createOrthographic(-x, x, -y, y, &_cachedView.matProj);
+        Mat4::createOrthographicOffCenter(-x, x, -y, y, _near, _far, &_cachedView.matProj);
     }
 
     // view projection
     Mat4::multiply(_cachedView.matProj, _cachedView.matView, &_cachedView.matViewProj);
     _cachedView.matInvViewPorj.set(_cachedView.matViewProj.getInversed());
+    
+    // culling mask
+    _cachedView.cullingMask = _cullingMask;
+    _cachedView.cullingByID = true;
     
     return _cachedView;
 }
@@ -153,7 +166,7 @@ Vec3& Camera::screenToWorld(Vec3& out, const Vec3& screenPos, int width, int hei
         Mat4::createOrthographic(-x, x, -y, y, &matProj);
     }
     
-    const_cast<Camera*>(this)->_worldRTInv = _node->getWorldRT();
+    _node->getWorldRT(&(const_cast<Camera*>(this)->_worldRTInv));
     const_cast<Camera*>(this)->_worldRTInv.inverse();
     
     // view projection
@@ -172,16 +185,15 @@ Vec3& Camera::screenToWorld(Vec3& out, const Vec3& screenPos, int width, int hei
         
         // Transform to world position.
         matInvViewProj.transformPoint(&out);
-        const_cast<Camera*>(this)->_worldPos.set(_node->getWorldPos());
+        _node->getWorldPosition(&(const_cast<Camera*>(this)->_worldPos));
         Vec3 tmpVec3 = _worldPos;
-        out = tmpVec3.lerp(out, screenPos.z / _far);
+        out = tmpVec3.lerp(out, MathUtil::lerp(_near / _far, 1, screenPos.z));
     }
     else
     {
-        float range = _far - _near;
         out.set((screenPos.x - cx) * 2.0f / cw - 1.0f,
                 (screenPos.y - cy) * 2.0f / ch - 1.0f,
-                (_far - screenPos.z) / range * 2.0f - 1.0f);
+                screenPos.z * 2.0f - 1.0f);
         
         // Transform to world position.
         matInvViewProj.transformPoint(&out);
@@ -209,21 +221,16 @@ Vec3& Camera::worldToScreen(Vec3& out, const Vec3& worldPos, int width, int heig
         Mat4::createOrthographic(-x, x, -y, y, &matProj);
     }
     
-    const_cast<Camera*>(this)->_worldRTInv = _node->getWorldRT();
+    _node->getWorldRT(&(const_cast<Camera*>(this)->_worldRTInv));
     const_cast<Camera*>(this)->_worldRTInv.inverse();
     // view projection
     Mat4 matViewProj;
     Mat4::multiply(matProj, _worldRTInv, &matViewProj);
     
-    // caculate w
-    float w = worldPos.x * matViewProj.m[3] +
-              worldPos.y * matViewProj.m[7] +
-              worldPos.z * matViewProj.m[11] +
-              matViewProj.m[15];
-    
     matViewProj.transformPoint(worldPos, &out);
-    out.x = cx + (out.x / w + 1) * 0.5f * cw;
-    out.y = cy + (out.y / w + 1) * 0.5f * ch;
+    out.x = cx + (out.x + 1) * 0.5f * cw;
+    out.y = cy + (out.y + 1) * 0.5f * ch;
+    out.z = out.z * 0.5 + 0.5;
     
     return out;
 }

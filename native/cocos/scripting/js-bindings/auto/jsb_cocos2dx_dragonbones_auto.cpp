@@ -6231,6 +6231,25 @@ static bool js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation)
 
+static bool js_cocos2dx_dragonbones_CCArmatureDisplay_setColor(se::State& s)
+{
+    dragonBones::CCArmatureDisplay* cobj = (dragonBones::CCArmatureDisplay*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_setColor : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::Color4B arg0;
+        ok &= seval_to_Color4B(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_setColor : Error processing arguments");
+        cobj->setColor(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_dragonbones_CCArmatureDisplay_setColor)
+
 static bool js_cocos2dx_dragonbones_CCArmatureDisplay_hasDBEventListener(se::State& s)
 {
     dragonBones::CCArmatureDisplay* cobj = (dragonBones::CCArmatureDisplay*)s.nativeThisObject();
@@ -6252,24 +6271,24 @@ static bool js_cocos2dx_dragonbones_CCArmatureDisplay_hasDBEventListener(se::Sta
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_CCArmatureDisplay_hasDBEventListener)
 
-static bool js_cocos2dx_dragonbones_CCArmatureDisplay_setColor(se::State& s)
+static bool js_cocos2dx_dragonbones_CCArmatureDisplay_bindNodeProxy(se::State& s)
 {
     dragonBones::CCArmatureDisplay* cobj = (dragonBones::CCArmatureDisplay*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_setColor : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_bindNodeProxy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cocos2d::Color4B arg0;
-        ok &= seval_to_Color4B(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_setColor : Error processing arguments");
-        cobj->setColor(arg0);
+        cocos2d::renderer::NodeProxy* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_bindNodeProxy : Error processing arguments");
+        cobj->bindNodeProxy(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_dragonbones_CCArmatureDisplay_setColor)
+SE_BIND_FUNC(js_cocos2dx_dragonbones_CCArmatureDisplay_bindNodeProxy)
 
 static bool js_cocos2dx_dragonbones_CCArmatureDisplay_dbInit(se::State& s)
 {
@@ -6416,24 +6435,6 @@ static bool js_cocos2dx_dragonbones_CCArmatureDisplay_dispose(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_CCArmatureDisplay_dispose)
-
-static bool js_cocos2dx_dragonbones_CCArmatureDisplay_getRenderInfoOffset(se::State& s)
-{
-    dragonBones::CCArmatureDisplay* cobj = (dragonBones::CCArmatureDisplay*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_getRenderInfoOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        se_object_ptr result = cobj->getRenderInfoOffset();
-        s.rval().setObject(result);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_getRenderInfoOffset : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_dragonbones_CCArmatureDisplay_getRenderInfoOffset)
 
 static bool js_cocos2dx_dragonbones_CCArmatureDisplay_setOpacityModifyRGB(se::State& s)
 {
@@ -6643,6 +6644,25 @@ static bool js_cocos2dx_dragonbones_CCArmatureDisplay_getDebugData(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_CCArmatureDisplay_getDebugData)
 
+static bool js_cocos2dx_dragonbones_CCArmatureDisplay_setNativeEffect(se::State& s)
+{
+    dragonBones::CCArmatureDisplay* cobj = (dragonBones::CCArmatureDisplay*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_setNativeEffect : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::renderer::Effect* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_CCArmatureDisplay_setNativeEffect : Error processing arguments");
+        cobj->setNativeEffect(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_dragonbones_CCArmatureDisplay_setNativeEffect)
+
 static bool js_cocos2dx_dragonbones_CCArmatureDisplay_create(se::State& s)
 {
     const auto& args = s.args();
@@ -6688,15 +6708,15 @@ bool js_register_cocos2dx_dragonbones_CCArmatureDisplay(se::Object* obj)
     auto cls = se::Class::create("CCArmatureDisplay", obj, nullptr, _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_constructor));
 
     cls->defineFunction("getAnimation", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation));
-    cls->defineFunction("hasDBEventListener", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_hasDBEventListener));
     cls->defineFunction("setColor", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_setColor));
+    cls->defineFunction("hasDBEventListener", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_hasDBEventListener));
+    cls->defineFunction("bindNodeProxy", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_bindNodeProxy));
     cls->defineFunction("dbInit", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_dbInit));
     cls->defineFunction("addDBEventListener", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_addDBEventListener));
     cls->defineFunction("getRootDisplay", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_getRootDisplay));
     cls->defineFunction("dbUpdate", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_dbUpdate));
     cls->defineFunction("dispatchDBEvent", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_dispatchDBEvent));
     cls->defineFunction("dispose", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_dispose));
-    cls->defineFunction("getRenderInfoOffset", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_getRenderInfoOffset));
     cls->defineFunction("setOpacityModifyRGB", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_setOpacityModifyRGB));
     cls->defineFunction("setDBEventCallback", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_setDBEventCallback));
     cls->defineFunction("setDebugBonesEnabled", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_setDebugBonesEnabled));
@@ -6705,6 +6725,7 @@ bool js_register_cocos2dx_dragonbones_CCArmatureDisplay(se::Object* obj)
     cls->defineFunction("armature", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_getArmature));
     cls->defineFunction("convertToRootSpace", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_convertToRootSpace));
     cls->defineFunction("getDebugData", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_getDebugData));
+    cls->defineFunction("setNativeEffect", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_setNativeEffect));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_create));
     cls->defineFinalizeFunction(_SE(js_dragonBones_CCArmatureDisplay_finalize));
     cls->install();

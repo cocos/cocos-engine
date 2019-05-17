@@ -33,7 +33,6 @@
 #include "InputAssembler.h"
 #include "Pass.h"
 #include "Camera.h"
-#include "INode.h"
 #include "Model.h"
 
 RENDERER_BEGIN
@@ -100,20 +99,20 @@ void BaseRenderer::render(const View& view, const Scene* scene)
     
     // get all draw items
     _drawItems.clear();
-    int modelViewId = -1;
+    int modelMask = -1;
     uint32_t drawItemCount = 0;
     DrawItem drawItem;
     for (const auto& model : scene->getModels())
     {
-        modelViewId = model->getViewId();
+        modelMask = model->getCullingMask();
         if (view.cullingByID)
         {
-            if (modelViewId != view.id)
+            if ((modelMask & view.cullingMask) == 0)
                 continue;
         }
         else
         {
-            if (-1 != modelViewId)
+            if (-1 != modelMask)
                 continue;
         }
         
@@ -155,13 +154,13 @@ void BaseRenderer::render(const View& view, const Scene* scene)
     
     // render stages
     std::unordered_map<std::string, StageCallback>::iterator foundIter;
-    for (const auto& stageInfo : _stageInfos)
+    for (const auto& stageInfoEntry : _stageInfos)
     {
-        foundIter = _stage2fn.find(stageInfo.stage);
+        foundIter = _stage2fn.find(stageInfoEntry.stage);
         if (_stage2fn.end() != foundIter)
         {
             auto& fn = foundIter->second;
-            fn(view, *stageInfo.items);
+            fn(view, *stageInfoEntry.items);
         }
     }
 }
@@ -255,77 +254,83 @@ void BaseRenderer::draw(const StageItem& item)
             else
                 _device->setUniformfv(param.getName(), bytes / sizeof(float), (const float*)prop->getValue());
         }
+    }
+    
+    const int32_t& definesKey = item.effect->getDefinesKey();
+    // for each pass
+    for (const auto& pass : item.technique->getPasses())
+    {
+        // set vertex buffer
+        _device->setVertexBuffer(0, ia->getVertexBuffer());
         
-        // for each pass
-        for (const auto& pass : item.technique->getPasses())
+        // set index buffer
+        if (ia->_indexBuffer)
+            _device->setIndexBuffer(ia->_indexBuffer);
+        
+        // set primitive type
+        _device->setPrimitiveType(ia->_primitiveType);
+        
+        // set program
+        if(!_program || _programName != pass->_programName || _definesKey != definesKey)
         {
-            // set vertex buffer
-            _device->setVertexBuffer(0, ia->getVertexBuffer());
-            
-            // set index buffer
-            if (ia->_indexBuffer)
-                _device->setIndexBuffer(ia->_indexBuffer);
-            
-            // set primitive type
-            _device->setPrimitiveType(ia->_primitiveType);
-            
-            // set program
-            auto program = _programLib->getProgram(pass->_programName, *(item.defines));
-            _device->setProgram(program);
-            
-            // cull mode
-            _device->setCullMode(pass->_cullMode);
-            
-            // blend
-            if (pass->_blend)
-            {
-                _device->enableBlend();
-                _device->setBlendFuncSeparate(pass->_blendSrc,
-                                              pass->_blendDst,
-                                              pass->_blendSrcAlpha,
-                                              pass->_blendDstAlpha);
-                _device->setBlendEquationSeparate(pass->_blendEq, pass->_blendAlphaEq);
-                _device->setBlendColor(pass->_blendColor);
-            }
-            
-            // depth test & write
-            if (pass->_depthTest)
-            {
-                _device->enableDepthTest();
-                _device->setDepthFunc(pass->_depthFunc);
-            }
-            if (pass->_depthWrite)
-                _device->enableDepthWrite();
-            
-            // setencil
-            if (pass->_stencilTest)
-            {
-                _device->enableStencilTest();
-                
-                // front
-                _device->setStencilFuncFront(pass->_stencilFuncFront,
-                                             pass->_stencilRefFront,
-                                             pass->_stencilMaskFront);
-                _device->setStencilOpFront(pass->_stencilFailOpFront,
-                                           pass->_stencilZFailOpFront,
-                                           pass->_stencilZPassOpFront,
-                                           pass->_stencilWriteMaskFront);
-                
-                // back
-                _device->setStencilFuncBack(pass->_stencilFuncBack,
-                                            pass->_stencilRefBack,
-                                            pass->_stencilMaskBack);
-                _device->setStencilOpBack(pass->_stencilFailOpBack,
-                                          pass->_stencilZFailOpBack,
-                                          pass->_stencilZPassOpBack,
-                                          pass->_stencilWriteMaskBack);
-            }
-            
-            // draw pass
-            _device->draw(ia->_start, ia->getPrimitiveCount());
-            
-            resetTextureUint();
+            _programName = pass->_programName;
+            _definesKey = definesKey;
+            _program = _programLib->getProgram(pass->_programName, *(item.defines), _definesKey);
         }
+        _device->setProgram(_program);
+        
+        // cull mode
+        _device->setCullMode(pass->_cullMode);
+        
+        // blend
+        if (pass->_blend)
+        {
+            _device->enableBlend();
+            _device->setBlendFuncSeparate(pass->_blendSrc,
+                                          pass->_blendDst,
+                                          pass->_blendSrcAlpha,
+                                          pass->_blendDstAlpha);
+            _device->setBlendEquationSeparate(pass->_blendEq, pass->_blendAlphaEq);
+            _device->setBlendColor(pass->_blendColor);
+        }
+        
+        // depth test & write
+        if (pass->_depthTest)
+        {
+            _device->enableDepthTest();
+            _device->setDepthFunc(pass->_depthFunc);
+        }
+        if (pass->_depthWrite)
+            _device->enableDepthWrite();
+        
+        // setencil
+        if (pass->_stencilTest)
+        {
+            _device->enableStencilTest();
+            
+            // front
+            _device->setStencilFuncFront(pass->_stencilFuncFront,
+                                         pass->_stencilRefFront,
+                                         pass->_stencilMaskFront);
+            _device->setStencilOpFront(pass->_stencilFailOpFront,
+                                       pass->_stencilZFailOpFront,
+                                       pass->_stencilZPassOpFront,
+                                       pass->_stencilWriteMaskFront);
+            
+            // back
+            _device->setStencilFuncBack(pass->_stencilFuncBack,
+                                        pass->_stencilRefBack,
+                                        pass->_stencilMaskBack);
+            _device->setStencilOpBack(pass->_stencilFailOpBack,
+                                      pass->_stencilZFailOpBack,
+                                      pass->_stencilZPassOpBack,
+                                      pass->_stencilWriteMaskBack);
+        }
+        
+        // draw pass
+        _device->draw(ia->_start, ia->getPrimitiveCount());
+        
+        resetTextureUint();
     }
 }
 

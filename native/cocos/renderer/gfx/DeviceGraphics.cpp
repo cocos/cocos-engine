@@ -284,14 +284,14 @@ void DeviceGraphics::setBlendColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 void DeviceGraphics::setBlendFunc(BlendFactor src, BlendFactor dst)
 {
-    _nextState.blendSepartion = false;
+    _nextState.blendSeparation = false;
     _nextState.blendSrc = src;
     _nextState.blendDst = dst;
 }
 
 void DeviceGraphics::setBlendFuncSeparate(BlendFactor srcRGB, BlendFactor dstRGB, BlendFactor srcAlpha, BlendFactor dstAlpha)
 {
-    _nextState.blendSepartion = true;
+    _nextState.blendSeparation = true;
     _nextState.blendSrc = srcRGB;
     _nextState.blendDst = dstRGB;
     _nextState.blendSrcAlpha = srcAlpha;
@@ -300,13 +300,13 @@ void DeviceGraphics::setBlendFuncSeparate(BlendFactor srcRGB, BlendFactor dstRGB
 
 void DeviceGraphics::setBlendEquation(BlendOp mode)
 {
-    _nextState.blendSepartion = false;
+    _nextState.blendSeparation = false;
     _nextState.blendEq = mode;
 }
 
 void DeviceGraphics::setBlendEquationSeparate(BlendOp modeRGB, BlendOp modeAlpha)
 {
-    _nextState.blendSepartion = true;
+    _nextState.blendSeparation = true;
     _nextState.blendEq = modeRGB;
     _nextState.blendAlphaEq = modeAlpha;
 }
@@ -431,6 +431,7 @@ void DeviceGraphics::draw(size_t base, GLsizei count)
         GL_CHECK(glDrawArrays(ENUM_CLASS_TO_GLENUM(_nextState.primitiveType), (GLint)base, count));
     }
     
+    _drawCalls++;
     _currentState = std::move(_nextState);
 }
 
@@ -680,7 +681,7 @@ void DeviceGraphics::commitBlendStates()
             
         }
         
-        if (_nextState.blendSepartion)
+        if (_nextState.blendSeparation)
         {
             GL_CHECK(glBlendFuncSeparate(ENUM_CLASS_TO_GLENUM(_nextState.blendSrc),
                                 ENUM_CLASS_TO_GLENUM(_nextState.blendDst),
@@ -708,9 +709,9 @@ void DeviceGraphics::commitBlendStates()
                      (_nextState.blendColor >> 8 & 0xff) / 255.f,
                      (_nextState.blendColor & 0xff) / 255.f);
     
-    if (_currentState.blendSepartion != _nextState.blendSepartion)
+    if (_currentState.blendSeparation != _nextState.blendSeparation)
     {
-        if (_nextState.blendSepartion)
+        if (_nextState.blendSeparation)
         {
             GL_CHECK(glBlendFuncSeparate(ENUM_CLASS_TO_GLENUM(_nextState.blendSrc),
                                 ENUM_CLASS_TO_GLENUM(_nextState.blendDst),
@@ -729,7 +730,7 @@ void DeviceGraphics::commitBlendStates()
         return;
     }
     
-    if (_nextState.blendSepartion)
+    if (_nextState.blendSeparation)
     {
         if (_currentState.blendSrc != _nextState.blendSrc ||
             _currentState.blendDst != _nextState.blendDst ||
@@ -1031,8 +1032,8 @@ void DeviceGraphics::commitVertexBuffer()
             for (int j = 0; j < usedAttriLen; ++j)
             {
                 const auto& attr = attributes[j];
-                const auto& el = vb->getFormat().getElement(attr.name);
-                if (!el.isValid())
+                const auto* el = vb->getFormat().getElement(attr.name);
+                if (!el->isValid())
                 {
                     RENDERER_LOGW("Can not find vertex attribute: %s", attr.name.c_str());
                     continue;
@@ -1047,11 +1048,11 @@ void DeviceGraphics::commitVertexBuffer()
                 
                 // glVertexAttribPointer (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
                 GL_CHECK(ccVertexAttribPointer(attr.location,
-                                      el.num,
-                                      ENUM_CLASS_TO_GLENUM(el.type),
-                                      el.normalize,
-                                      el.stride,
-                                      (GLvoid*)(el.offset + vboffset * el.stride)));
+                                      el->num,
+                                      ENUM_CLASS_TO_GLENUM(el->type),
+                                      el->normalize,
+                                      el->stride,
+                                      (GLvoid*)(el->offset + vboffset * el->stride)));
             }
         }
         

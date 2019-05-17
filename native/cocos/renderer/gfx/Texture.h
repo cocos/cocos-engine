@@ -2,17 +2,17 @@
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,10 +37,21 @@ RENDERER_BEGIN
 
 class DeviceGraphics;
 
+/**
+ * @addtogroup gfx
+ * @{
+ */
+
+/**
+ * The base texture class
+ */
 class Texture : public RenderTarget
 {
 public:
-    // texture filter
+    /**
+     * @enum Filter
+     * Texture filter modes
+     */
     enum class Filter : int8_t
     {
         NONE = -1,
@@ -48,7 +59,10 @@ public:
         LINEAR = 1
     };
 
-    // texture wrap mode
+    /**
+     * @enum Filter
+     * Texture wrap modes
+     */
     enum class WrapMode : uint16_t
     {
         REPEAT = GL_REPEAT,
@@ -56,7 +70,10 @@ public:
         MIRROR = GL_MIRRORED_REPEAT
     };
 
-    // texture format
+    /**
+     * @enum Format
+     * Texture formats
+     */
     enum class Format : uint8_t
     {
         BEGIN = 0,
@@ -95,35 +112,95 @@ public:
     //
     };
     
+    /**
+     * @struct Image
+     * Raw image data
+     */
     struct Image
     {
         uint8_t* data = nullptr;
         size_t length = 0;
     };
 
+    /**
+     * @struct Options
+     * Texture setting options including format, width, height, wrap mode, filter etc.
+     */
     struct Options
     {
+        /**
+         * Image mipmaps
+         */
         std::vector<Image> images;
+        /**
+         * The maximum anisotropy for the texture
+         */
         int32_t anisotropy = 1;
+        /**
+         * The internal format specifying the color components in the texture
+         */
         GLenum glInternalFormat = GL_RGBA;
+        /**
+         * The pixel format of the texel data
+         */
         GLenum glFormat = GL_RGB;
+        /**
+         * The data type of the texel data
+         */
         GLenum glType = GL_UNSIGNED_BYTE;
+        /**
+         * The width of the texture
+         */
         uint16_t width = 4;
+        /**
+         * The height of the texture
+         */
         uint16_t height = 4;
         uint8_t bpp = 0;
         
+        /**
+         * The wrapping function for texture coordinate s
+         */
         WrapMode wrapS = WrapMode::REPEAT;
+        /**
+         * The wrapping function for texture coordinate t
+         */
         WrapMode wrapT = WrapMode::REPEAT;
+        /**
+         * The texture minification filter
+         */
         Filter minFilter = Filter::LINEAR;
+        /**
+         * The texture magnification filter
+         */
         Filter magFilter = Filter::LINEAR;
+        /**
+         * The texture filter for mipmaps
+         */
         Filter mipFilter = Filter::LINEAR;
         
+        /**
+         * Specifies whether the texture have mipmaps
+         */
         bool hasMipmap = false;
+        /**
+         * Specifies whether the texture if flipped vertically
+         */
         bool flipY = true;
+        /**
+         * Specifies whether the texture have alpha premultiplied
+         */
         bool premultiplyAlpha = false;
+        /**
+         * Specifies whether the texture is compressed
+         */
         bool compressed = false;
     };
 
+    /**
+     * @struct ImageOption
+     * The informations of Image which indicates the mipmap level, width, height, filpY and premultiplyAlpha
+     */
     struct ImageOption
     {
         Image image;
@@ -135,6 +212,10 @@ public:
         bool premultiplyAlpha = false;
     };
 
+    /**
+     * @struct SubImageOption
+     * The informations of sub image which indicates the area to update, mipmap level, filpY and premultiplyAlpha
+     */
     struct SubImageOption
     {
         SubImageOption(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t level, bool flipY, bool premultiplyAlpha)
@@ -160,8 +241,17 @@ public:
         bool premultiplyAlpha = false;
     };
 
+    /**
+     * Gets the target gl location
+     */
     inline GLuint getTarget() const { return _target; }
+    /**
+     * Gets the width of texture
+     */
     inline uint16_t getWidth() const { return _width; }
+    /**
+     * Gets the height of texture
+     */
     inline uint16_t getHeight() const { return _height; }
 
 protected:
@@ -197,5 +287,8 @@ protected:
     bool _hasMipmap;
     bool _compressed;
 };
+
+// end of gfx group
+/// @}
 
 RENDERER_END

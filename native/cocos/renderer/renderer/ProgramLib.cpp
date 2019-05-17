@@ -2,17 +2,17 @@
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -190,32 +190,18 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
     templ.defines = defines;
 }
 
-uint32_t ProgramLib::getKey(const std::string& name, const ValueMap& defines)
+uint32_t ProgramLib::getKey(const std::string& name, int32_t ekey)
 {
     auto iter = _templates.find(name);
     assert(iter != _templates.end());
 
     auto& tmpl = iter->second;
-    int32_t key = 0;
-    for (auto& tmplDefs : tmpl.defines) {
-        auto& tmplDefMap = tmplDefs.asValueMap();
-        std::string tempName = tmplDefMap["name"].asString();
-        auto iter2 = defines.find(tempName);
-        if (iter2 == defines.end()) {
-            continue;
-        }
-//        const auto& value = iter2->second;
-//        key |= tmplDefs._map(100); //IDEA:
-        uint32_t offset = tmplDefMap["_offset"].asUnsignedInt();
-        key |= 1 << offset;
-    }
-
-    return key << 8 | tmpl.id;
+    return ekey | tmpl.id;
 }
 
-Program* ProgramLib::getProgram(const std::string& name, const ValueMap& defines)
+Program* ProgramLib::getProgram(const std::string& name, const ValueMap& defines, int32_t definesKey)
 {
-    uint32_t key = getKey(name, defines);
+    uint32_t key = getKey(name, definesKey);
     auto iter = _cache.find(key);
     if (iter != _cache.end()) {
         iter->second->retain();

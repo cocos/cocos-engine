@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos2d-x.org
  
@@ -22,44 +22,56 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "RenderInfoMgr.h"
+#include "MiddlewareRenderHandle.h"
+#include "renderer/scene/ModelBatcher.hpp"
+
+using namespace cocos2d;
+using namespace cocos2d::renderer;
+
 MIDDLEWARE_BEGIN
-RenderInfoMgr* RenderInfoMgr::_instance = nullptr;
-
-RenderInfoMgr::RenderInfoMgr ()
+    
+MiddlewareRenderHandle::MiddlewareRenderHandle()
 {
-    init();
+    _useModel = true;
 }
 
-RenderInfoMgr::~RenderInfoMgr ()
+MiddlewareRenderHandle::~MiddlewareRenderHandle()
 {
-    CC_SAFE_DELETE(_buffer);
-}
-
-void RenderInfoMgr::afterCleanupHandle()
-{
-    if (_buffer)
+    for (std::size_t i = 0, n = _iaPool.size(); i < n; i++)
     {
-        delete _buffer;
-        _buffer = nullptr;
+        auto ia = _iaPool[i];
+        delete ia;
     }
-    se::ScriptEngine::getInstance()->addAfterInitHook(std::bind(&RenderInfoMgr::init,this));
+    _iaPool.clear();
 }
 
-void RenderInfoMgr::init()
+void MiddlewareRenderHandle::updateIARange(std::size_t index, int start, int count)
 {
-    if (!_buffer)
+    auto ia = adjustIA(index);
+    if (!ia) return;
+    
+    ia->setCount(count);
+    ia->setStart(start);
+}
+
+void MiddlewareRenderHandle::updateIABuffer(std::size_t index, VertexBuffer* vb, IndexBuffer* ib)
+{
+    auto ia = adjustIA(index);
+    if (!ia) return;
+    
+    ia->setVertexBuffer(vb);
+    ia->setIndexBuffer(ib);
+}
+
+void MiddlewareRenderHandle::renderIA(std::size_t index, ModelBatcher* batcher, NodeProxy* node)
+{
+    if (index >= _iaCount)
     {
-        _buffer = new IOTypedArray(se::Object::TypedArrayType::UINT32, INIT_RENDER_INFO_BUFFER_SIZE);
-        _buffer->setResizeCallback([this]
-        {
-           if (_resizeCallback)
-           {
-               _resizeCallback();
-           }
-        });
+        cocos2d::log("MiddlewareRenderHandle:renderIA index:%lu out of range", index);
+        return;
     }
-    se::ScriptEngine::getInstance()->addAfterCleanupHook(std::bind(&RenderInfoMgr::afterCleanupHandle,this));
+    
+    batcher->flushIA(_iaPool[index]);
 }
 
 MIDDLEWARE_END

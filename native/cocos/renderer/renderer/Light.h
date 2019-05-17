@@ -39,77 +39,202 @@ class Texture2D;
 class RenderBuffer;
 class DeviceGraphics;
 
+/**
+ * @addtogroup renderer
+ * @{
+ */
+
+/**
+ *  @brief Manage scene light.
+ */
 class Light : public Ref
 {
 public:
+    /**
+     *  @brief Light type.
+     */
     enum class LightType
     {
+        /**
+         * Directional light
+         */
         DIRECTIONAL,
+        /**
+         * Point light
+         */
         POINT,
+        /**
+         * Spot light
+         */
         SPOT
     };
     
+    /**
+     *  @brief Shadow type.
+     */
     enum class ShadowType
     {
+        /**
+         * No shadow
+         */
         NONE,
+        /**
+         * Hard shadow
+         */
         HARD,
+        /**
+         * Soft shadow
+         */
         SOFT
     };
     
+    /**
+     *  @brief The default constructor.
+     */
     Light();
     
+    /**
+     *  @brief Sets the light color.
+     */
     void setColor(float r, float g, float b);
+    /**
+     *  @brief Gets the light color.
+     */
     inline Color3F getColor() const { return _color; }
-    
+    /**
+     *  @brief Sets the light intensity.
+     */
     void setIntensity(float val);
+    /**
+     *  @brief Gets the light intensity.
+     */
     inline float getIntensity() const { return _intensity; }
-    
+    /**
+     *  @brief Sets the light type.
+     */
     inline void setType(LightType type) { _type = type; }
+    /**
+     *  @brief Gets the light type.
+     */
     inline LightType getType() const { return _type; }
-    
+    /**
+     *  @brief Sets the spot light angle.
+     */
     void setSpotAngle(float val);
+    /**
+     *  @brief Gets the spot light angle.
+     */
     inline float getSpotAngle() const { return _spotAngle; }
     
+    /**
+     *  @brief Sets the light attenuation exponent.
+     */
     void setSpotExp(float val);
+    /**
+     *  @brief Gets the light attenuation exponent.
+     */
     inline float getSpotExp() const { return _spotExp; }
-    
+    /**
+     *  @brief Sets spot or point light range.
+     */
     inline void setRange(float val) { _range = val; }
+    /**
+     *  @brief Gets spot or point light range.
+     */
     inline float getRange() const { return _range; }
-    
+    /**
+     *  @brief Gets the shadow type.
+     */
     void setShadowType(ShadowType val);
+    /**
+     *  @brief Gets the shadow type.
+     */
     inline ShadowType getShadowType() const { return _shadowType; }
-    
+    /**
+     *  @brief Gets the shadow map texture.
+     */
     inline Texture2D* getShadowMap() const { return _shadowMap; }
-    
+    /**
+     *  @brief Gets the view projection matrix.
+     */
     inline Mat4 getViewPorjMatrix() const { return _viewProjMatrix; }
+    /**
+     *  @brief Gets the view projection matrix.
+     */
     inline const Mat4& getViewProjMatrix() const { return _viewProjMatrix; }
-    
+    /**
+     *  @brief Sets the resolution of shadow
+     */
     void setShadowResolution(uint32_t val);
+    /**
+     *  @brief Gets the resolution of shadow
+     */
     inline uint32_t getShadowResolution() const { return _shadowResolution; }
     
+    /**
+     *  @brief Sets the shadow bias setting.
+     */
     inline void setShadowBias(float val) { _shadowBias = val; }
+    /**
+     *  @brief Gets the shadow bias setting.
+     */
     inline float getShadowBias() const { return _shadowBias; }
-    
+    /**
+     *  @brief Sets the shadow darkness setting.
+     */
     inline void setShadowDarkness(uint32_t val) { _shadowDarkness = val; }
+    /**
+     *  @brief Gets the shadow darkness setting.
+     */
     inline uint32_t getShadowDarkness() const { return _shadowDarkness; }
     
+    /**
+     *  @brief Sets the min depth of shadow.
+     */
     inline void setShadowMinDepth(float val) { _shadowMinDepth = val; }
+    /**
+     *  @brief Gets the min depth of shadow.
+     */
     float getShadowMinDepth() const;
-    
+    /**
+     *  @brief Sets the max depth of shadow.
+     */
     inline void setShadowMaxDepth(float val) { _shadowMaxDepth = val; }
+    /**
+     *  @brief Gets the max depth of shadow.
+     */
     float getShadowMaxDepth() const;
-    
+    /**
+     *  @brief Sets the shadow scale.
+     */
     inline void setShadowScale(float val) { _shadowScale = val; }
+    /**
+     *  @brief Gets the shadow scale.
+     */
     inline float getShadowScale() const { return _shadowScale; }
-    
+    /**
+     *  @brief Sets the frustum edge fall off.
+     */
     inline void setFrustumEdgeFalloff(uint32_t val) { _frustumEdgeFalloff = val; }
+    /**
+     *  @brief Gets the frustum edge fall off.
+     */
     inline uint32_t getFrustumEdgeFalloff() const { return _frustumEdgeFalloff; }
-    
+    /**
+     *  @brief Sets the world matrix.
+     */
     void setWorldMatrix(const Mat4& worldMatrix);
+    /**
+     *  @brief Gets the world matrix.
+     */
     inline const Mat4& getWorldMatrix() const { return _worldMatrix; }
-    
+    /**
+     *  @brief Extract light informations to view.
+     */
     void extractView(View& out, const std::vector<std::string>& stages);
-    
+    /**
+     *  @brief Update light and generate new shadow map.
+     */
     void update(DeviceGraphics* device);
     
 private:
@@ -155,5 +280,8 @@ private:
     Mat4 _worldMatrix;
     Mat4 _worldRT;
 };
+
+// end of renderer group
+/// @}
 
 RENDERER_END

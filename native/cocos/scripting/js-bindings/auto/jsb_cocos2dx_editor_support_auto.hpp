@@ -12,10 +12,12 @@ bool register_all_cocos2dx_editor_support(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_getRealTextureIndex);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_setTexParamCallback);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_setPixelsHigh);
+SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_getNativeTexture);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_setPixelsWide);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_getPixelsHigh);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_getPixelsWide);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_setRealTextureIndex);
+SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_setNativeTexture);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_setTexParameters);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_Texture2D_Texture2D);
 
@@ -29,15 +31,11 @@ SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_destroyInstance);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_getInstance);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_MiddlewareManager);
 
-extern se::Object* __jsb_cocos2d_middleware_RenderInfoMgr_proto;
-extern se::Class* __jsb_cocos2d_middleware_RenderInfoMgr_class;
+extern se::Object* __jsb_cocos2d_middleware_MiddlewareRenderHandle_proto;
+extern se::Class* __jsb_cocos2d_middleware_MiddlewareRenderHandle_class;
 
-bool js_register_cocos2d_middleware_RenderInfoMgr(se::Object* obj);
+bool js_register_cocos2d_middleware_MiddlewareRenderHandle(se::Object* obj);
 bool register_all_cocos2dx_editor_support(se::Object* obj);
-SE_DECLARE_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_setResizeCallback);
-SE_DECLARE_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_getRenderInfo);
-SE_DECLARE_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_destroyInstance);
-SE_DECLARE_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_getInstance);
-SE_DECLARE_FUNC(js_cocos2dx_editor_support_RenderInfoMgr_RenderInfoMgr);
+SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareRenderHandle_MiddlewareRenderHandle);
 
 #endif //#if USE_MIDDLEWARE > 0

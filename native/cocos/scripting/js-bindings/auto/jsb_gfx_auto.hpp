@@ -67,6 +67,8 @@ SE_DECLARE_FUNC(js_gfx_DeviceGraphics_setViewport);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_draw);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_setDepthFunc);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_enableDepthTest);
+SE_DECLARE_FUNC(js_gfx_DeviceGraphics_resetDrawCalls);
+SE_DECLARE_FUNC(js_gfx_DeviceGraphics_getDrawCalls);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_setBlendEquation);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_setStencilFuncFront);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_setStencilOpFront);
@@ -83,6 +85,8 @@ extern se::Class* __jsb_cocos2d_renderer_FrameBuffer_class;
 
 bool js_register_cocos2d_renderer_FrameBuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_FrameBuffer_getHeight);
+SE_DECLARE_FUNC(js_gfx_FrameBuffer_getWidth);
 SE_DECLARE_FUNC(js_gfx_FrameBuffer_destroy);
 SE_DECLARE_FUNC(js_gfx_FrameBuffer_FrameBuffer);
 

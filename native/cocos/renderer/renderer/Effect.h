@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include "base/CCRef.h"
 #include "base/CCValue.h"
 #include "../Macro.h"
@@ -33,37 +34,145 @@
 
 RENDERER_BEGIN
 
+/**
+ * @addtogroup renderer
+ * @{
+ */
+
+/**
+ * @brief Fundamental class of material system, contains techniques, shader template define settings and uniform properties.\n
+ * JS API: renderer.Effect
+ * @code
+ * let pass = new renderer.Pass('sprite');
+ * pass.setDepth(false, false);
+ * pass.setCullMode(gfx.CULL_NONE);
+ * let mainTech = new renderer.Technique(
+ *     ['transparent'],
+ *     [
+ *         { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+ *         { name: 'color', type: renderer.PARAM_COLOR4 }
+ *     ],
+ *     [
+ *         pass
+ *     ]
+ * );
+ * let effect = new renderer.Effect(
+ *     [
+ *         mainTech
+ *     ],
+ *     {
+ *         'color': {r: 1, g: 1, b: 1, a: 1}
+ *     },
+ *     [
+ *         { name: 'useTexture', value: true },
+ *         { name: 'useModel', value: false },
+ *         { name: 'alphaTest', value: false },
+ *         { name: 'useColor', value: true }
+ *     ]
+ * );
+ * @endcode
+ */
 class Effect : public Ref
 {
 public:
     
     using Property = Technique::Parameter;
     
+    /*
+     * @brief The default constructor.
+     */
     Effect();
+    /*
+     *  @brief The default destructor.
+     */
     ~Effect();
     
+    /*
+     * @brief Initialize with techniques, properties and define settings.
+     * @param[in] techniques All techniques in an array
+     * @param[in] properties All properties in a map
+     * @param[in] defineTemplates All defines and their value in a map
+     */
     void init(const Vector<Technique*>& techniques,
               const std::unordered_map<std::string, Property>& properties,
               const std::vector<ValueMap>& defineTemplates);
+    /**
+     *  @brief Clears techniques and define list.
+     */
     void clear();
     
+    /**
+     *  @brief Gets technique by stage.
+     */
     Technique* getTechnique(const std::string& stage) const;
+    /*
+     *  @brief Gets all techniques.
+     */
     const Vector<Technique*>& getTechniques() const { return _techniques; }
-    Value getDefineValue(const std::string& name) const;
+    /**
+     *  @brief Gets define property value by name.
+     */
+    Value getDefine(const std::string& name) const;
+    /**
+     *  @brief Sets a define's value.
+     */
+    void define(const std::string& name, const Value& value);
+    /*
+     *  @brief Gets all define values.
+     */
     const std::vector<ValueMap>& getDefines() const { return _defineTemplates; }
-    void setDefineValue(const std::string& name, const Value& value);
+    /*
+     *  @brief Extracts all defines.
+     */
     ValueMap* extractDefines();
     
+    /**
+     *  @brief Gets uniform property value by name.
+     */
     const Property& getProperty(const std::string& name) const;
+    /**
+     *  @brief Sets uniform property value by name.
+     */
     void setProperty(const std::string& name, const Property& property);
-    
+    /*
+     *  @brief Gets all uniform properties.
+     */
     const std::unordered_map<std::string, Property>& getProperties() const { return _properties; }
-    
+    /**
+     *  @brief Updates hash.
+     */
+    void updateHash(double hash) { _hash = hash; };
+    /**
+     *  @brief Gets hash.
+     */
+    double getHash() const { return _hash; };
+
+    /*
+     *  @brief Gets the define key for the current define settings.
+     */
+    const int32_t& getDefinesKey() { return _definesKey; };
+    /**
+     *  @brief Deep copy from other effect.
+     */
+    void copy(Effect& effect);
+
 private:
+    double _hash;
+    int32_t _definesKey;
     Vector<Technique*> _techniques;
     std::vector<ValueMap> _defineTemplates;
     ValueMap _cachedNameValues;
     std::unordered_map<std::string, Property> _properties;
+    
+    // Global define order.
+    static std::map<std::string,std::size_t> _defineBitOrder;
+    static std::vector<std::string> _sharedDefineList;
+    static void _updateDefineBitOrder(const ValueMap& nameValues);
+    
+    void generateKey();
 };
+
+// end of renderer group
+/// @}
 
 RENDERER_END

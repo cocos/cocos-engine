@@ -199,6 +199,29 @@ public:
      * @param dst A vector to store the result in.
      */
     static void cross(const Vec3& v1, const Vec3& v2, Vec3* dst);
+    
+    /**
+     * Multiply the elements of the specified vector to this one.
+     *
+     * @param v The vector to multiply.
+     */
+    void multiply(const Vec3& v);
+    
+    /**
+     * Multiply the specified vectors and stores the result in dst.
+     *
+     * @param v1 The first vector.
+     * @param v2 The second vector.
+     * @param dst A vector to store the result in.
+     */
+    static void multiply(const Vec3& v1, const Vec3& v2, Vec3* dst);
+    
+    /**
+     * Transforms this vector by the specified quaternion and stores the result in this vector.
+     *
+     * @param q The quaternion to multiply.
+     */
+    void transformQuat(const Quaternion& q);
 
     /**
      * Returns the distance between this vector and v.

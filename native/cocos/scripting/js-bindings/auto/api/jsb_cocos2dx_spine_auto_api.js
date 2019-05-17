@@ -29,6 +29,16 @@ float
 },
 
 /**
+ * @method setOpacityModifyRGB
+ * @param {bool} arg0
+ */
+setOpacityModifyRGB : function (
+bool 
+)
+{
+},
+
+/**
  * @method paused
  * @param {bool} arg0
  */
@@ -61,21 +71,11 @@ setBonesToSetupPose : function (
 },
 
 /**
- * @method setSlotsToSetupPose
+ * @method onEnable
  */
-setSlotsToSetupPose : function (
+onEnable : function (
 )
 {
-},
-
-/**
- * @method getRenderInfoOffset
- * @return {se::Object}
- */
-getRenderInfoOffset : function (
-)
-{
-    return se::Object;
 },
 
 /**
@@ -129,11 +129,9 @@ setToSetupPose : function (
 },
 
 /**
- * @method setOpacityModifyRGB
- * @param {bool} arg0
+ * @method setSlotsToSetupPose
  */
-setOpacityModifyRGB : function (
-bool 
+setSlotsToSetupPose : function (
 )
 {
 },
@@ -148,14 +146,6 @@ initWithBinaryFile : function(
 str,
 spatlas,
 float 
-)
-{
-},
-
-/**
- * @method onEnable
- */
-onEnable : function (
 )
 {
 },
@@ -188,6 +178,16 @@ initWithSkeleton : function (
 spskeleton, 
 bool, 
 bool 
+)
+{
+},
+
+/**
+ * @method setNativeEffect
+ * @param {cc.renderer::Effect} arg0
+ */
+setNativeEffect : function (
+effect 
 )
 {
 },
@@ -280,6 +280,16 @@ onDisable : function (
  */
 setColor : function (
 color4b 
+)
+{
+},
+
+/**
+ * @method bindNodeProxy
+ * @param {cc.renderer::NodeProxy} arg0
+ */
+bindNodeProxy : function (
+nodeproxy 
 )
 {
 },

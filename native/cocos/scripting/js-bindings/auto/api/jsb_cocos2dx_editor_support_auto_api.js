@@ -39,6 +39,16 @@ int
 },
 
 /**
+ * @method getNativeTexture
+ * @return {cc.renderer::Texture}
+ */
+getNativeTexture : function (
+)
+{
+    return cc.renderer::Texture;
+},
+
+/**
  * @method setPixelsWide
  * @param {int} arg0
  */
@@ -74,6 +84,16 @@ getPixelsWide : function (
  */
 setRealTextureIndex : function (
 int 
+)
+{
+},
+
+/**
+ * @method setNativeTexture
+ * @param {cc.renderer::Texture} arg0
+ */
+setNativeTexture : function (
+texture 
 )
 {
 },
@@ -144,53 +164,15 @@ MiddlewareManager : function (
 };
 
 /**
- * @class RenderInfoMgr
+ * @class MiddlewareRenderHandle
  */
-middleware.RenderInfoMgr = {
+middleware.MiddlewareRenderHandle = {
 
 /**
- * @method setResizeCallback
- * @param {function} arg0
- */
-setResizeCallback : function (
-func 
-)
-{
-},
-
-/**
- * @method getRenderInfo
- * @return {se::Object}
- */
-getRenderInfo : function (
-)
-{
-    return se::Object;
-},
-
-/**
- * @method destroyInstance
- */
-destroyInstance : function (
-)
-{
-},
-
-/**
- * @method getInstance
- * @return {cc.middleware::RenderInfoMgr}
- */
-getInstance : function (
-)
-{
-    return cc.middleware::RenderInfoMgr;
-},
-
-/**
- * @method RenderInfoMgr
+ * @method MiddlewareRenderHandle
  * @constructor
  */
-RenderInfoMgr : function (
+MiddlewareRenderHandle : function (
 )
 {
 },
