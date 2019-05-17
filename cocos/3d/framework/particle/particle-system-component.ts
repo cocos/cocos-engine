@@ -506,10 +506,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         }
     }
 
-    private emit (count, emitParams = null) {
-        if (emitParams !== null) {
-            // TODO:
-        }
+    private emit (count, dt) {
 
         for (let i = 0; i < count; ++i) {
             const particle = this.renderer!._getFreeParticle();
@@ -555,7 +552,7 @@ export class ParticleSystemComponent extends RenderableComponent {
             particle.color.set(particle.startColor);
 
             // apply startLifetime.
-            particle.startLifetime = this.startLifetime.evaluate(this._time / this.duration, rand)!;
+            particle.startLifetime = this.startLifetime.evaluate(this._time / this.duration, rand)! + dt;
             particle.remainingLifetime = particle.startLifetime;
 
             particle.randomSeed = randomRangeInt(0, 233280);
@@ -598,7 +595,7 @@ export class ParticleSystemComponent extends RenderableComponent {
             if (this._emitRateTimeCounter > 1 && this._isEmitting) {
                 const emitNum = Math.floor(this._emitRateTimeCounter);
                 this._emitRateTimeCounter -= emitNum;
-                this.emit(emitNum);
+                this.emit(emitNum, dt);
             }
             // emit by rateOverDistance
             this.node.getWorldPosition(this._curWPos);
@@ -608,7 +605,7 @@ export class ParticleSystemComponent extends RenderableComponent {
             if (this._emitRateDistanceCounter > 1 && this._isEmitting) {
                 const emitNum = Math.floor(this._emitRateDistanceCounter);
                 this._emitRateDistanceCounter -= emitNum;
-                this.emit(emitNum);
+                this.emit(emitNum, dt);
             }
 
             // bursts

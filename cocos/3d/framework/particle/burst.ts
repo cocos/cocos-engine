@@ -1,7 +1,7 @@
-import { repeat } from "../../../core/vmath";
-import CurveRange from "./animator/curve-range";
-import { CCClass } from "../../../core/data";
-import { property, ccclass } from "../../../core/data/class-decorator";
+import { CCClass } from '../../../core/data';
+import { ccclass, property } from '../../../core/data/class-decorator';
+import { repeat } from '../../../core/vmath';
+import CurveRange from './animator/curve-range';
 
 @ccclass('cc.Burst')
 export default class Burst {
@@ -82,7 +82,7 @@ export default class Burst {
             preFrameTime = (preFrameTime > 0.0) ? preFrameTime : 0.0;
             const curFrameTime = repeat(psys.time - psys.startDelay.evaluate(), psys.duration);
             if (this._curTime >= preFrameTime && this._curTime < curFrameTime) {
-                psys.emit(this.count.evaluate(this._curTime / psys.duration, 1));
+                psys.emit(this.count.evaluate(this._curTime / psys.duration, 1), dt - (curFrameTime - this._curTime));
                 this._curTime += this.repeatInterval;
                 --this._remainingCount;
             }
