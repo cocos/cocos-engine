@@ -88,4 +88,9 @@ export interface IGeometry {
      * specify vertex attributes, use (positions|normals|uvs|colors) as keys
      */
     attributes?: IGFXAttribute[];
+
+    customAttributes?: Array<{
+        attr: IGFXAttribute,
+        values: number[],
+    }>;
 }

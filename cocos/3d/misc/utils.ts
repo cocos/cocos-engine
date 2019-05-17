@@ -125,6 +125,16 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         stride += info.size;
     }
 
+    if (geometry.customAttributes) {
+        for (const ca of geometry.customAttributes) {
+            const info = GFXFormatInfos[ca.attr.format];
+            attributes.push(ca.attr);
+            vertCount = Math.max(vertCount, Math.floor(ca.values.length / info.count));
+            channels.push({ offset: stride, data: ca.values, attribute: ca.attr });
+            stride += info.size;
+        }
+    }
+
     // Use this to generate final merged buffer.
     const bufferBlob = new BufferBlob();
 

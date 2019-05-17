@@ -115,6 +115,7 @@ export default class TrailModule {
             this._createModel();
         }
         if (val && !this._enable) {
+            this._enable = val;
             this._particleSystem.renderer._updateTrailMaterial();
         }
         this._enable = val;

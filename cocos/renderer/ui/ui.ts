@@ -237,10 +237,10 @@ export class UI {
         }
 
         let camera: Camera | null;
-        for (let i = idx; i < this._screens.length;) {
+        for (let i = idx; i < this._screens.length; i++) {
             camera = this._screens[i].camera;
             if (camera) {
-                camera.view.visibility = ++i;
+                camera.view.visibility = i;
             }
         }
     }
