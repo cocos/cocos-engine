@@ -178,6 +178,7 @@ export class AnimationState extends Playable {
     private _name: string;
     private _lastIterations?: number;
     private _curveInstances: ICurveInstance[] = [];
+    private _curveLoaded = false;
 
     constructor (clip: AnimationClip, name?: string) {
         super();
@@ -185,7 +186,12 @@ export class AnimationState extends Playable {
         this._name = name || (clip && clip.name);
     }
 
+    get curveLoaded () {
+        return this._curveLoaded;
+    }
+
     public initialize (root: Node) {
+        this._curveLoaded = true;
         this._curveInstances.length = 0;
         const clip = this._clip;
 
@@ -500,6 +506,9 @@ export class AnimationState extends Playable {
     private _sampleCurves (ratio: number) {
         for (const curveInstace of this._curveInstances) {
             const { curve, blendTarget, target, propertyName } = curveInstace;
+            if (curve.empty()) {
+                continue;
+            }
             const value = curve.sample(ratio);
             if (!curve._blendFunction || !blendTarget || blendTarget.refCount <= 1) {
                 target[propertyName] = value;

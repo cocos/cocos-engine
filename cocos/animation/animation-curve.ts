@@ -1,9 +1,9 @@
-import { Quat, ValueType, Vec2, Vec3, Vec4 } from '../core/value-types';
-import * as vmath from '../core/vmath';
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
+import { Quat, ValueType, Vec2, Vec3, Vec4 } from '../core/value-types';
 import { ccenum } from '../core/value-types/enum';
+import * as vmath from '../core/vmath';
 import { PropertyBlendState } from './animation-blend-state';
 import { bezierByTime } from './bezier';
 import * as blending from './blending';
@@ -115,16 +115,10 @@ export class AnimCurve {
     }
 
     /**
-     * The values of the keyframes. (y)
-     */
-    @property
-    public values: CurveValue[] = [];
-
-    /**
      * The keyframe ratio of the keyframe specified as a number between 0.0 and 1.0 inclusive. (x)
      * A null ratio indicates a zero or single frame curve.
      */
-    public ratioSampler: RatioSampler | null = null;
+    public _ratioSampler: RatioSampler | null = null;
 
     @property
     public types?: CurveType[] = undefined;
@@ -133,6 +127,12 @@ export class AnimCurve {
     public type?: CurveType = null;
 
     public _blendFunction: BlendFunction<any> | undefined = undefined;
+
+    /**
+     * The values of the keyframes. (y)
+     */
+    @property
+    private _values: CurveValue[] = [];
 
     /**
      * Lerp function used. If undefined, no lerp is performed.
@@ -146,10 +146,10 @@ export class AnimCurve {
     constructor (propertyCurveData: PropertyCurveData, propertyName: string, isNode: boolean, ratioSampler: RatioSampler | null) {
         this._interpolation = propertyCurveData.interpolation || AnimationInterpolation.Linear;
 
-        this.ratioSampler = ratioSampler;
+        this._ratioSampler = ratioSampler;
 
         // Install values.
-        this.values = propertyCurveData.values;
+        this._values = propertyCurveData.values;
 
         const getCurveType = (easingMethod: EasingMethod) => {
             if (typeof easingMethod === 'string') {
@@ -224,11 +224,15 @@ export class AnimCurve {
         }
     }
 
+    public empty () {
+        return this._values.length === 0;
+    }
+
     private _sampleFromOriginal (ratio: number) {
-        const values = this.values;
-        const frameCount = this.ratioSampler ?
-            this.ratioSampler.ratios.length :
-            this.values.length;
+        const values = this._values;
+        const frameCount = this._ratioSampler ?
+            this._ratioSampler.ratios.length :
+            this._values.length;
         if (frameCount === 0) {
             return;
         }
@@ -236,10 +240,10 @@ export class AnimCurve {
         // evaluate value
         let isLerped = false;
         let value: CurveValue;
-        if (this.ratioSampler === null) {
-            value = this.values[0];
+        if (this._ratioSampler === null) {
+            value = this._values[0];
         } else {
-            let index = this.ratioSampler.sample(ratio);
+            let index = this._ratioSampler.sample(ratio);
             if (index >= 0) {
                 value = values[index];
             } else {
@@ -253,8 +257,8 @@ export class AnimCurve {
                     if (!this._lerp) {
                         value = fromVal;
                     } else {
-                        const fromRatio = this.ratioSampler.ratios[index - 1];
-                        const toRatio = this.ratioSampler.ratios[index];
+                        const fromRatio = this._ratioSampler.ratios[index - 1];
+                        const toRatio = this._ratioSampler.ratios[index];
                         const type = this.types ? this.types[index - 1] : this.type;
                         const dRatio = (toRatio - fromRatio);
                         let ratioBetweenFrames = (ratio - fromRatio) / dRatio;
