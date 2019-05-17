@@ -82,6 +82,12 @@ export interface RigidBodyBase {
      */
     addMask (v: number): void;
 
+    /**
+     * this will remove a mask
+     * @param v ∈ [0, 31] (int)
+     */
+    removeMask (v: number): void;
+
     /** the body type */
     getType (): ERigidBodyType;
     setType (v: ERigidBodyType): void;

@@ -60,6 +60,12 @@ export class BuiltInBody implements RigidBodyBase {
         v = clamp(Math.floor(v), 0, 31);
         this._collisionFilterMask += 1 << v;
     }
+
+    public removeMask (v: number): void {
+        v = clamp(Math.floor(v), 0, 31);
+        this._collisionFilterMask -= 1 << v;
+    }
+
     public intersects (body: BuiltInBody): boolean {
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < this._shapes.length; i++) {
