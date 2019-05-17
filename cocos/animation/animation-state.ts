@@ -15,6 +15,8 @@ interface ICurveInstance {
     cached?: any[];
 }
 
+const InvalidIndex = -1;
+
 /**
  * !#en
  * The AnimationState gives full control over animation playback process.
@@ -171,7 +173,8 @@ export class AnimationState extends Playable {
     private _delay = 0;
     private _delayTime = 0;
     private _wrappedInfo = new WrappedInfo();
-    private _lastWrappedInfo: WrappedInfo | null = null;
+    private _lastWrapInfo: WrappedInfo | null = null;
+    private _lastWrapInfoEvent: WrappedInfo | null = null;
     private _process = this.process;
     private _target: Node | null = null;
     private _clip: AnimationClip;
@@ -179,6 +182,7 @@ export class AnimationState extends Playable {
     private _lastIterations?: number;
     private _curveInstances: ICurveInstance[] = [];
     private _curveLoaded = false;
+    private _ignoreIndex = InvalidIndex;
 
     constructor (clip: AnimationClip, name?: string) {
         super();
@@ -289,13 +293,25 @@ export class AnimationState extends Playable {
     public setTime (time: number) {
         this._currentFramePlayed = false;
         this.time = time || 0;
-        // const curves = this.curves;
-        // for (let i = 0, l = curves.length; i < l; i++) {
-        //     const curve = curves[i];
-        //     if (curve.onTimeChangedManually) {
-        //         curve.onTimeChangedManually(time, this);
-        //     }
-        // }
+
+        if (!CC_EDITOR) {
+            this._lastWrapInfoEvent = null;
+            this._ignoreIndex = InvalidIndex;
+
+            const info = this.getWrappedInfo(time, this._wrappedInfo);
+            const direction = info.direction;
+            let frameIndex = this._clip.getEventGroupIndexAtRatio(info.ratio);
+
+            // only ignore when time not on a frame index
+            if (frameIndex < 0) {
+                frameIndex = ~frameIndex - 1;
+
+                // if direction is inverse, then increase index
+                if (direction < 0) { frameIndex += 1; }
+
+                this._ignoreIndex = frameIndex;
+            }
+        }
     }
 
     public update (delta: number) {
@@ -399,7 +415,9 @@ export class AnimationState extends Playable {
     public sample () {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
         this._sampleCurves(info.ratio);
-
+        if (!CC_EDITOR) {
+            this._sampleEvents(info);
+        }
         return info;
     }
 
@@ -409,10 +427,10 @@ export class AnimationState extends Playable {
 
         if (this._lastframeEventOn) {
             let lastInfo;
-            if (!this._lastWrappedInfo) {
-                lastInfo = this._lastWrappedInfo = new WrappedInfo(info);
+            if (!this._lastWrapInfo) {
+                lastInfo = this._lastWrapInfo = new WrappedInfo(info);
             } else {
-                lastInfo = this._lastWrappedInfo;
+                lastInfo = this._lastWrapInfo;
             }
 
             if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
@@ -443,6 +461,12 @@ export class AnimationState extends Playable {
 
         const ratio = time / duration;
         this._sampleCurves(ratio);
+
+        if (!CC_EDITOR) {
+            if (this._clip.hasEvents()) {
+                this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));
+            }
+        }
 
         if (this._lastframeEventOn) {
             if (this._lastIterations === undefined) {
@@ -520,78 +544,54 @@ export class AnimationState extends Playable {
         }
     }
 
-    private _sampleEvents () {
-        /*
-@ccclass('cc.EventAnimCurve')
-export class EventAnimCurve extends AnimCurve {
-    @property
-    public target: ICurveTarget | null = null;
-
-    @property
-    public ratios: number[] = [];
-
-    @property
-    public events: EventInfo[] = [];
-
-    @property
-    private _wrappedInfo = new WrappedInfo();
-
-    @property
-    private _lastWrappedInfo: WrappedInfo | null = null;
-
-    @property
-    private _ignoreIndex: number = NaN;
-
-    public sample (time: number, ratio: number, state: AnimationState) {
-        const length = this.ratios.length;
-
-        const currentWrappedInfo = state.getWrappedInfo(state.time, this._wrappedInfo);
-        let direction = currentWrappedInfo.direction;
-        let currentIndex = binarySearch(this.ratios, currentWrappedInfo.ratio);
-        if (currentIndex < 0) {
-            currentIndex = ~currentIndex - 1;
-
-            // if direction is inverse, then increase index
-            if (direction < 0) { currentIndex += 1; }
+    private _sampleEvents (wrapInfo: WrappedInfo) {
+        let direction = wrapInfo.direction;
+        let eventIndex = this._clip.getEventGroupIndexAtRatio(wrapInfo.ratio);
+        if (eventIndex < 0) {
+            eventIndex = ~eventIndex - 1;
+            // If direction is inverse, increase index.
+            if (direction < 0) {
+                eventIndex += 1;
+            }
         }
 
-        if (this._ignoreIndex !== currentIndex) {
-            this._ignoreIndex = NaN;
+        if (this._ignoreIndex !== eventIndex) {
+            this._ignoreIndex = InvalidIndex;
         }
 
-        currentWrappedInfo.frameIndex = currentIndex;
+        wrapInfo.frameIndex = eventIndex;
 
-        if (!this._lastWrappedInfo) {
-            this._fireEvent(currentIndex);
-            this._lastWrappedInfo = new WrappedInfo(currentWrappedInfo);
+        if (!this._lastWrapInfoEvent) {
+            this._fireEvent(eventIndex);
+            this._lastWrapInfoEvent = new WrappedInfo(wrapInfo);
             return;
         }
 
-        const wrapMode = state.wrapMode;
-        const currentIterations = this._wrapIterations(currentWrappedInfo.iterations);
+        const wrapMode = this.wrapMode;
+        const currentIterations = wrapIterations(wrapInfo.iterations);
 
-        const lastWrappedInfo = this._lastWrappedInfo;
-        let lastIterations = this._wrapIterations(lastWrappedInfo.iterations);
+        const lastWrappedInfo = this._lastWrapInfoEvent;
+        let lastIterations = wrapIterations(lastWrappedInfo.iterations);
         let lastIndex = lastWrappedInfo.frameIndex;
         const lastDirection = lastWrappedInfo.direction;
 
         const interationsChanged = lastIterations !== -1 && currentIterations !== lastIterations;
 
-        if (lastIndex === currentIndex && interationsChanged && length === 1) {
+        if (lastIndex === eventIndex && interationsChanged && length === 1) {
             this._fireEvent(0);
-        } else if (lastIndex !== currentIndex || interationsChanged) {
+        } else if (lastIndex !== eventIndex || interationsChanged) {
             direction = lastDirection;
 
             do {
-                if (lastIndex !== currentIndex) {
-                    if (direction === -1 && lastIndex === 0 && currentIndex > 0) {
+                if (lastIndex !== eventIndex) {
+                    if (direction === -1 && lastIndex === 0 && eventIndex > 0) {
                         if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
                             direction *= -1;
                         } else {
                             lastIndex = length;
                         }
                         lastIterations++;
-                    } else if (direction === 1 && lastIndex === length - 1 && currentIndex < length - 1) {
+                    } else if (direction === 1 && lastIndex === length - 1 && eventIndex < length - 1) {
                         if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
                             direction *= -1;
                         } else {
@@ -600,7 +600,7 @@ export class EventAnimCurve extends AnimCurve {
                         lastIterations++;
                     }
 
-                    if (lastIndex === currentIndex) {
+                    if (lastIndex === eventIndex) {
                         break;
                     }
                     if (lastIterations > currentIterations) {
@@ -611,65 +611,41 @@ export class EventAnimCurve extends AnimCurve {
                 lastIndex += direction;
 
                 cc.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
-            } while (lastIndex !== currentIndex && lastIndex > -1 && lastIndex < length);
+            } while (lastIndex !== eventIndex && lastIndex > -1 && lastIndex < length);
         }
 
-        this._lastWrappedInfo.set(currentWrappedInfo);
-    }
-
-    public onTimeChangedManually (time: number, state) {
-        this._lastWrappedInfo = null;
-        this._ignoreIndex = NaN;
-
-        const info = state.getWrappedInfo(time, this._wrappedInfo);
-        const direction = info.direction;
-        let frameIndex = binarySearch(this.ratios, info.ratio);
-
-        // only ignore when time not on a frame index
-        if (frameIndex < 0) {
-            frameIndex = ~frameIndex - 1;
-
-            // if direction is inverse, then increase index
-            if (direction < 0) { frameIndex += 1; }
-
-            this._ignoreIndex = frameIndex;
-        }
-    }
-
-    private _wrapIterations (iterations: number) {
-        if (iterations - (iterations | 0) === 0) {
-            iterations -= 1;
-        }
-        return iterations | 0;
+        this._lastWrapInfoEvent.set(wrapInfo);
     }
 
     private _fireEvent (index: number) {
-        if (index < 0 || index >= this.events.length || this._ignoreIndex === index) {
+        if (!this._target || !this._target.isValid) {
             return;
         }
 
-        const eventInfo = this.events[index];
-        const events = eventInfo.events;
-
-        if (!this.target || !this.target.isValid) {
+        const { eventGroups } = this._clip;
+        if (index < 0 || index >= eventGroups.length || this._ignoreIndex === index) {
             return;
         }
 
-        const components = this.target._components;
-
-        for (const event of events) {
-            const funcName = event.func;
+        const eventGroup = eventGroups[index];
+        const components = this._target.components;
+        for (const event of eventGroup.events) {
+            const { functionName } = event;
             for (const component of components) {
-                const func = component[funcName];
-                if (func) {
-                    func.apply(component, event.params);
+                const fx = component[functionName];
+                if (typeof fx === 'function') {
+                    fx.apply(component, event.parameters);
                 }
             }
         }
     }
 }
-         */
+
+function wrapIterations (iterations: number) {
+    if (iterations - (iterations | 0) === 0) {
+        iterations -= 1;
     }
+    return iterations | 0;
 }
 
 cc.AnimationState = AnimationState;

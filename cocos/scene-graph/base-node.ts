@@ -78,6 +78,12 @@ function getConstructor (typeOrClassName: string | Function): Function | null {
  */
 @ccclass('cc._BaseNode')
 export class BaseNode extends CCObject {
+    /**
+     * Gets all components attached to this node.
+     */
+    get components (): ReadonlyArray<Component> {
+        return this._components;
+    }
 
     /**
      * If true, the node is an persist node which won't be destroyed during scene transition.
