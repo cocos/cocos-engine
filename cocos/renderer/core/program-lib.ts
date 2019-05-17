@@ -55,6 +55,11 @@ const validateDefines = (defines: IDefineValue[], device: GFXDevice, deps: Recor
     }
 };
 
+const getShaderInstanceName = (templates: Record<string, IProgramInfo>, name: string, defines: IDefineMap, defs?: IDefineValue[]) => {
+    if (!defs) { defs = prepareDefines(defines, templates[name].defines); }
+    return name + defs.reduce((acc, cur) => cur.result ? `${acc}|${cur.name}${cur.result}` : acc, '');
+};
+
 const insertBuiltinBindings = (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) => {
     const target = tmpl.builtins[type];
     for (const b of target.blocks) {
@@ -162,11 +167,6 @@ class ProgramLib {
         }
     }
 
-    public getShaderInstaceName (name: string, defines: IDefineMap, defs?: IDefineValue[]) {
-        if (!defs) { defs = prepareDefines(defines, this._templates[name].defines); }
-        return name + defs.reduce((acc, cur) => cur.result ? `${acc}|${cur.name}${cur.result}` : acc, '');
-    }
-
     public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
         const key = this.getKey(name, defines);
@@ -194,7 +194,7 @@ class ProgramLib {
         }
 
         program = device.createShader({
-            name: this.getShaderInstaceName(name, defines, defs),
+            name: getShaderInstanceName(this._templates, name, defines, defs),
             blocks: tmpl.blocks,
             samplers: tmpl.samplers,
             stages: [

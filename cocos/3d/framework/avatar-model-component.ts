@@ -24,14 +24,17 @@
 
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
-import { Vec2 } from '../../core/value-types';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos, GFXFormatSize, GFXFormat } from '../../gfx/define';
+import { Vec2 } from '../../core/value-types';
+import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { Mesh } from '../assets';
+import { Skeleton } from '../assets/skeleton';
 import { SkinningModelComponent } from './skinning-model-component';
 
 const _vec2 = new Vec2();
+
+const repeat = (n: number) => n - Math.floor(n);
 
 @ccclass('cc.AvatarUnit')
 export class AvatarUnit {
@@ -44,6 +47,17 @@ export class AvatarUnit {
     set mesh (mesh: Mesh | null) {
         if (this._mesh !== mesh) {
             this._mesh = mesh;
+        }
+    }
+
+    @property({ type: Skeleton })
+    get skeleton () {
+        return this._skeleton;
+    }
+
+    set skeleton (skeleton: Skeleton | null) {
+        if (this._skeleton !== skeleton) {
+            this._skeleton = skeleton;
         }
     }
 
@@ -92,6 +106,9 @@ export class AvatarUnit {
     private _mesh: Mesh | null = null;
 
     @property
+    private _skeleton: Skeleton | null = null;
+
+    @property
     private _offset: Vec2 = new Vec2(0, 0);
 
     @property
@@ -126,6 +143,11 @@ export class AvatarModelComponent extends SkinningModelComponent {
         return this._mesh;
     }
 
+    @property({ override: true, visible: false })
+    get skeleton () {
+        return this._skeleton;
+    }
+
     @property({ type: Number })
     get combinedTexSize (): number {
         return this._combinedTexSize;
@@ -155,18 +177,14 @@ export class AvatarModelComponent extends SkinningModelComponent {
         this._avatarUnits = units;
     }
 
-    constructor () {
-        super();
-    }
-
     public onLoad () {
         super.onLoad();
 
-        this._mesh = new Mesh();
-
         this._combinedTex = new Texture2D();
+        this._combinedTex.onLoaded();
         this._combinedTex.setFilters(Filter.LINEAR, Filter.LINEAR);
-        this.resizeCombiendTexture();
+        this.resizeCombinedTexture();
+        this.combine();
     }
 
     public update (dt) {
@@ -197,7 +215,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
 
     public bindTextures () {
         if (this._albedoMapName.length > 0 && this._materials.length > 0) {
-            const mtrl = this._materials[0];
+            const mtrl = this.material;
             if (mtrl) {
                 mtrl.setProperty(this._albedoMapName, this._combinedTex);
             }
@@ -206,6 +224,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
 
     public combine () {
         this.combineTextures();
+        this.combineSkeletons();
         this.combineMeshes();
         this.bindTextures();
     }
@@ -275,6 +294,21 @@ export class AvatarModelComponent extends SkinningModelComponent {
         }
     }
 
+    public combineSkeletons () {
+        const skeleton = new Skeleton();
+        for (const unit of this._avatarUnits) {
+            if (!unit || !unit.skeleton) { continue; }
+            const partial = unit.skeleton;
+            for (let i = 0; i < partial.joints.length; i++) {
+                const path = partial.joints[i];
+                if (skeleton.joints.find((p) => p === path) !== undefined) { continue; }
+                skeleton.joints.push(path);
+                skeleton.bindposes.push(partial.bindposes[i]);
+            }
+        }
+        super.skeleton = skeleton;
+    }
+
     public combineMeshes () {
         let isValid = false;
         for (const unit of this._avatarUnits) {
@@ -286,8 +320,8 @@ export class AvatarModelComponent extends SkinningModelComponent {
 
         if (this._mesh) {
             this._mesh.destroyRenderingMesh();
-            this._onMeshChanged(this._mesh);
-            this._updateModels();
+        } else {
+            this._mesh = new Mesh();
         }
 
         if (!isValid) {
@@ -300,56 +334,87 @@ export class AvatarModelComponent extends SkinningModelComponent {
         let uv_x: number;
         let uv_y: number;
         const isLittleEndian = cc.sys.isLittleEndian;
+        let jointOffset = 0;
+        const joints: number[] = new Array(4);
 
-        for (const unit of this._avatarUnits) {
-            if (unit) {
-                // merge textures
-                if (unit.mesh && unit.mesh.data) {
-                    const offset = unit.offset;
+        // prepare joint index map
+        const jointIndexMap: number[][] = new Array(this._avatarUnits.length);
+        const avatarLen = this._avatarUnits.length;
+        for (let i = 0; i < avatarLen; i++) {
+            const unit = this._avatarUnits[i];
+            if (!unit || !unit.skeleton) { continue; }
+            jointIndexMap[i] = unit.skeleton.joints.map((j) => this._skeleton!.joints.findIndex((ref) => j === ref));
+        }
 
-                    const meshData = unit.mesh.data.slice(0);
-                    const newMesh = new Mesh();
-                    newMesh.assign(unit.mesh.struct, meshData);
+        for (let i = 0; i < avatarLen; i++) {
+            const unit = this._avatarUnits[i];
+            if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
+            const offset = unit.offset;
 
-                    dataView = new DataView(meshData.buffer);
-                    const struct = unit.mesh.struct;
-                    for (const bundle of struct.vertexBundles) {
-                        uvOffset = bundle.view.offset;
-                        hasUV = false;
-                        for (const attr of bundle.attributes) {
-                            if (attr.name.indexOf(GFXAttributeName.ATTR_TEX_COORD) >= 0) {
-                                hasUV = true;
-                                break;
-                            }
-                            uvOffset += GFXFormatInfos[attr.format].size;
-                        }
+            const meshData = unit.mesh.data.slice(0);
+            const newMesh = new Mesh();
+            newMesh.assign(unit.mesh.struct, meshData);
 
-                        if (hasUV) {
-                            const fx = unit.atlasSize.x / this._combinedTexSize;
-                            const fy = unit.atlasSize.y / this._combinedTexSize;
-                            for (let v = 0; v < bundle.view.count; ++v) {
-                                uv_x = dataView.getFloat32(uvOffset, isLittleEndian);
-                                uv_y = dataView.getFloat32(uvOffset + 4, isLittleEndian);
-                                uv_y = Math.abs(uv_y);
-                                uv_x = uv_x * fx + offset.x;
-                                uv_y = (1.0 - uv_y) * fy + offset.y;
-                                dataView.setFloat32(uvOffset, uv_x, isLittleEndian);
-                                dataView.setFloat32(uvOffset + 4, uv_y, isLittleEndian);
-                                uvOffset += bundle.view.stride;
-                            }
-                        }
+            dataView = new DataView(meshData.buffer);
+            const struct = unit.mesh.struct;
+            // TODO: shouldn't just assume the data type to be fixed
+            for (const bundle of struct.vertexBundles) {
+                // merge UV
+                uvOffset = bundle.view.offset;
+                hasUV = false;
+                for (const attr of bundle.attributes) {
+                    if (attr.name.indexOf(GFXAttributeName.ATTR_TEX_COORD) >= 0) {
+                        hasUV = true;
+                        break;
                     }
+                    uvOffset += GFXFormatInfos[attr.format].size;
+                }
+                if (hasUV) {
+                    for (let v = 0; v < bundle.view.count; ++v) {
+                        uv_x = dataView.getFloat32(uvOffset, isLittleEndian);
+                        uv_y = dataView.getFloat32(uvOffset + 4, isLittleEndian);
 
-                    this._mesh!.merge(newMesh);
+                        // warp to [0, 1] first
+                        uv_x = repeat(uv_x);
+                        uv_y = repeat(uv_y);
+                        uv_x = (uv_x * unit.atlasSize.x + offset.x) / this._combinedTexSize;
+                        uv_y = (uv_y * unit.atlasSize.y + offset.y) / this._combinedTexSize;
+
+                        dataView.setFloat32(uvOffset, uv_x, isLittleEndian);
+                        dataView.setFloat32(uvOffset + 4, uv_y, isLittleEndian);
+                        uvOffset += bundle.view.stride;
+                    }
+                }
+                // merge joint indices
+                const idxMap = jointIndexMap[i];
+                if (!idxMap) { continue; }
+                jointOffset = bundle.view.offset;
+                for (const attr of bundle.attributes) {
+                    if (attr.name.indexOf(GFXAttributeName.ATTR_JOINTS) >= 0) { break; }
+                    jointOffset += GFXFormatInfos[attr.format].size;
+                }
+                for (let v = 0; v < bundle.view.count; ++v) {
+                    joints[0] = dataView.getUint16(jointOffset, isLittleEndian);
+                    joints[1] = dataView.getUint16(jointOffset + 2, isLittleEndian);
+                    joints[2] = dataView.getUint16(jointOffset + 4, isLittleEndian);
+                    joints[3] = dataView.getUint16(jointOffset + 6, isLittleEndian);
+                    for (let j = 0; j < joints.length; j++) { joints[j] = idxMap[joints[j]]; }
+                    dataView.setUint16(jointOffset, joints[0], isLittleEndian);
+                    dataView.setUint16(jointOffset + 2, joints[1], isLittleEndian);
+                    dataView.setUint16(jointOffset + 4, joints[2], isLittleEndian);
+                    dataView.setUint16(jointOffset + 6, joints[3], isLittleEndian);
+                    jointOffset += bundle.view.stride;
                 }
             }
+
+            this._mesh!.merge(newMesh);
         }
 
         this._onMeshChanged(this._mesh);
         this._updateModels();
     }
 
-    private resizeCombiendTexture () {
+    private resizeCombinedTexture () {
         if (this._combinedTex) {
             this._combinedTex.destroy();
             this._combinedTex.create(this._combinedTexSize, this._combinedTexSize, PixelFormat.RGBA8888);

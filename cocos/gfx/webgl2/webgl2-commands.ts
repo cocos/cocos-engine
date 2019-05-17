@@ -2493,7 +2493,6 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
             }
 
             for (const region of regions) {
-                n = 0;
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                     gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, m,
                         region.texOffset.x, region.texOffset.y,
@@ -2510,7 +2509,6 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
             }
 
             for (const region of regions) {
-                n = 0;
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                     const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
@@ -2571,7 +2569,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, pixels);
                         } else {
-                            gl.compressedTexImage2D(gl.TEXTURE_2D, m, 
+                            gl.compressedTexImage2D(gl.TEXTURE_2D, m,
                                 gpuTexture.glInternelFmt, w, h, 0, pixels);
                         }
                     }

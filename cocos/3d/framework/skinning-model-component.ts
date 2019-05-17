@@ -25,13 +25,14 @@
 
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../../core/value-types';
-import { mat4, quat, vec3 } from '../../core/vmath';
+import { quat, vec3 } from '../../core/vmath';
 import { GFXDevice } from '../../gfx/device';
+import { JointUniformCapacity } from '../../pipeline/define';
 import { JointStorageKind, selectStorageKind, SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Mesh } from '../assets';
 import { Material } from '../assets/material';
-import Skeleton from '../assets/skeleton';
+import { Skeleton } from '../assets/skeleton';
 import { aabb } from '../geom-utils';
 import { calculateBoneSpaceBounds } from '../misc/utils';
 import { ModelComponent } from './model-component';
@@ -39,6 +40,7 @@ import { ModelComponent } from './model-component';
 const v3_1 = new Vec3();
 const qt_1 = new Quat();
 const v3_2 = new Vec3();
+const v3_3 = new Vec3();
 const m4_1 = new Mat4();
 const ab_1 = new aabb();
 
@@ -117,18 +119,15 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     @property(Skeleton)
-    private _skeleton: Skeleton | null = null;
+    protected _skeleton: Skeleton | null = null;
 
     @property(Node)
-    private _skinningRoot: Node | null = null;
+    protected _skinningRoot: Node | null = null;
 
-    private _joints: Joint[] = [];
-    private _jointParentIndices: number[] = [];
-    private _boneSpaceBounds: null | Array<aabb | null> = null;
-
-    constructor () {
-        super();
-    }
+    protected _joints: Joint[] = [];
+    protected _jointParentIndices: number[] = [];
+    protected _boneSpaceBounds: null | Array<aabb | null> = null;
+    protected _jointCount = JointUniformCapacity;
 
     public onLoad () {
         super.onLoad();
@@ -166,6 +165,12 @@ export class SkinningModelComponent extends ModelComponent {
             vec3.add(v3_1, v3_1, cur.position);
             quat.mul(qt_1, cur.rotation, bindpose.localRotation);
             vec3.mul(v3_2, cur.scale, bindpose.localScale);
+
+            vec3.mul(v3_3, this.node._lpos, v3_2);
+            vec3.transformQuat(v3_3, v3_3, qt_1);
+            vec3.add(v3_1, v3_3, v3_1);
+            quat.mul(qt_1, qt_1, this.node._lrot);
+            vec3.mul(v3_2, v3_2, this.node._lscale);
 
             skinningModel.updateJointData(i, v3_1, qt_1, v3_2);
         }
@@ -225,13 +230,14 @@ export class SkinningModelComponent extends ModelComponent {
         if (this._skeleton) { this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton); }
     }
 
-    protected _onMaterialModified (index: number, material: Material) {
+    protected _onMaterialModified (index: number, material: Material | null) {
         const device: GFXDevice = cc.director.root && cc.director.root.device;
-        const kind = selectStorageKind(device);
+        const kind = selectStorageKind(device, this._jointCount);
         const mat = this.getMaterial(index, CC_EDITOR);
         if (mat) {
             mat.recompileShaders({
                 CC_USE_SKINNING: true,
+                CC_JOINTS: this._jointCount,
                 CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.textureRGBA32F || kind === JointStorageKind.textureRGBA8,
                 CC_JOINTS_TEXTURE_RGBA8: kind === JointStorageKind.textureRGBA8,
             });
@@ -240,6 +246,13 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     private _bindSkeleton () {
+        // const jointCount = this._skeleton && this._skeleton.joints.length || JointUniformCapacity;
+        // if (jointCount > this._jointCount) {
+        //     this._jointCount = jointCount;
+        //     for (let i = 0; i < this._materials.length; i++) {
+        //         this._onMaterialModified(i, this._materials[i]);
+        //     }
+        // }
         if (this._model && this._skeleton) {
             (this._model as SkinningModel).bindSkeleton(this._skeleton);
         }

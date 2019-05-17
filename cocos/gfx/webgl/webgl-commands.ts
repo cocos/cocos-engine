@@ -2490,8 +2490,6 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
 
             for (const region of regions) {
                 // console.debug('Copying image to texture 2D: ' + region.texExtent.width + ' x ' + region.texExtent.height);
-
-                n = 0;
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                     gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, m,
                         region.texOffset.x, region.texOffset.y,
@@ -2509,8 +2507,6 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
 
             for (const region of regions) {
                 // console.debug('Copying image to texture cube: ' + region.texExtent.width + ' x ' + region.texExtent.height);
-
-                n = 0;
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                     const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
