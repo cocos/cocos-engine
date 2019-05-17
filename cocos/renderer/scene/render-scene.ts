@@ -257,7 +257,7 @@ export class RenderScene {
     public raycastUI (worldRay: ray, mask: number = Layers.UI): IRaycastResult[] {
         poolUI.reset();
         const canvasComs = cc.director.getScene().getComponentsInChildren(cc.CanvasComponent);
-        if (canvasComs != null) {
+        if (canvasComs != null && canvasComs.length > 0) {
             const canvasNode = canvasComs[0].node as Node;
             if (canvasNode != null && canvasNode.active) {
                 this._raycastUINodeRecursiveChildren(worldRay, mask, canvasNode);
