@@ -527,7 +527,6 @@ export class ParticleSystemComponent extends RenderableComponent {
             }
 
             vec3.scale(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand)!);
-            vec3.copy(particle.ultimateVelocity, particle.velocity);
 
             switch (this._simulationSpace) {
                 case Space.Local:
@@ -543,6 +542,7 @@ export class ParticleSystemComponent extends RenderableComponent {
                     // TODO:
                     break;
             }
+            vec3.copy(particle.ultimateVelocity, particle.velocity);
             // apply startRotation. now 2D only.
             vec3.set(particle.rotation, this.startRotation.evaluate(this._time / this.duration, rand)!, 0, 0);
 

@@ -180,6 +180,12 @@ class BuiltinResMgr {
         defaultTrailMtl.initialize({ effectName: 'builtin-particle-trail' });
         resources[defaultTrailMtl._uuid] = defaultTrailMtl;
 
+        // default particle material
+        const defaultBillboardMtl = new cc.Material();
+        defaultBillboardMtl._uuid = 'default-billboard-material';
+        defaultBillboardMtl.initialize({ effectName: 'builtin-billboard' });
+        resources[defaultBillboardMtl._uuid] = defaultBillboardMtl;
+
         // customization for special effects
         const tmp = aabb.create();
         customizationManager.register('bounds-merge-shadow', {
