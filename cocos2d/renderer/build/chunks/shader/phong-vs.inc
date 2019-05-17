@@ -22,7 +22,7 @@ void main () {
   v_worldPos = (cc_matWorld * position).xyz;
   v_worldNormal = cc_mat3WorldIT * normal.xyz;
 
-  // CLAC_SHADOW(v_worldPos);
+  CLAC_SHADOW(v_worldPos);
   ATTRIBUTE_TO_VARYING();
   
   gl_Position = cc_matViewProj * cc_matWorld * position;
