@@ -30,11 +30,13 @@ const js = require('../platform/js');
 const renderer = require('../renderer');
 require('../platform/CCClass');
 
+// TODO: move into adapter
+const isXiaomiGame = (cc.sys.platform === cc.sys.XIAOMI_GAME);
 const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
 
 var __BrowserGetter = {
     init: function(){
-        if (!CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
+        if (!CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame && !isXiaomiGame) {
             this.html = document.getElementsByTagName("html")[0];
         }
     },
@@ -66,6 +68,10 @@ if (isBaiduGame) {
     else {
         __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_BAIDU_GAME;
     }
+}
+
+if (isXiaomiGame) {
+    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_XIAOMI_GAME;
 }
 
 if (CC_WECHATGAME) {
@@ -414,7 +420,7 @@ cc.js.mixin(View.prototype, {
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewport && !CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
+        if (this._isAdjustViewport && !CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame && !isXiaomiGame) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
@@ -815,7 +821,7 @@ cc.js.mixin(View.prototype, {
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (!CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame) {
+        if (!CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame && !isXiaomiGame) {
             // Set viewport's width
             this._setViewportMeta({"width": width}, true);
 
@@ -1073,7 +1079,7 @@ cc.ContainerStrategy = cc.Class({
     _setupContainer: function (view, w, h) {
         var locCanvas = cc.game.canvas, locContainer = cc.game.container;
 
-        if (!CC_WECHATGAME && !isBaiduGame) {
+        if (!CC_WECHATGAME && !isBaiduGame && !isXiaomiGame) {
             if (cc.sys.os === cc.sys.OS_ANDROID) {
                 document.body.style.width = (view._isRotated ? h : w) + 'px';
                 document.body.style.height = (view._isRotated ? w : h) + 'px';
