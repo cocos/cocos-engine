@@ -1,6 +1,7 @@
 import { ctor2enums } from '../../../renderer/types';
 import murmurhash2 from './murmurhash2_gc';
 import utils from './utils';
+import effect from '../../../renderer/core/effect';
 
 export default class CustomProperties {
     constructor () {
@@ -9,18 +10,20 @@ export default class CustomProperties {
         this._dirty = false;
     }
 
-    setProperty (name, value) {
+    setProperty (name, value, directly) {
         let uniform = this._properties[name];
         if (!uniform) {
             uniform = Object.create(null);
             uniform.name = name;
             uniform.type = ctor2enums[value.constructor];
+            uniform.directly = directly;
             this._properties[name] = uniform;
         }
         else if (uniform.value === value) return;
         
         this._dirty = true;
         uniform.value = value;
+        uniform.directly = directly;
     }
 
     getProperty(name) {

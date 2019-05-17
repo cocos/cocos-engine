@@ -3,17 +3,8 @@
 import config from '../config';
 import Pass from '../core/pass';
 import Technique from '../core/technique';
-import { ctor2default, enums2ctor } from '../types';
-
-let getInstanceType = function(t) { return enums2ctor[t] || enums2ctor.default; };
-let typeCheck = function(value, type) {
-    let instanceType = getInstanceType(type);
-    switch (typeof value) {
-    case 'object': return (value === null) || (value instanceof instanceType);
-    case 'number': return instanceType === Number;
-    default: return false;
-    }
-};
+import { ctor2default, enums2ctor, className2TypeFunc, getInstanceType, cloneObjArray, getInstanceCtor } from '../types';
+import enums from '../enums';
 
 class Effect {
     /**
@@ -69,11 +60,27 @@ class Effect {
             cc.warn(`${this._name} : Failed to set property ${name}, property not found.`);
             return;
         }
-        // else if (!typeCheck(value, prop.type)) { // re-enable this after 3.x migration
-        //     cc.warn(`Failed to set property ${name}, property type mismatch.`);
-        //     return;
-        // }
-        this._properties[name].value = value;
+
+        if (Array.isArray(value)) {
+            let array = prop.value;
+            if (array.length !== value.length) {
+                cc.warn(`${this._name} : Failed to set property ${name}, property length not correct.`);
+                return;
+            }
+            for (let i = 0; i < value.length; i++) {
+                array[i] = value[i];
+            }
+        }
+        else {
+            let className = cc.js.getClassName(value);
+            let fn = className2TypeFunc[className];
+            if (fn) {
+                prop.value = fn(prop.value, value);
+            }
+            else {
+                prop.value = value;
+            }
+        }
     }
 
     getDefine(name) {
@@ -115,9 +122,6 @@ class Effect {
     }
 }
 
-let cloneObjArray = function(val) { return val.map(obj => Object.assign({}, obj)); };
-
-let getInstanceCtor = function(t) { return ctor2default[getInstanceType(t)]; };
 
 let getInvolvedPrograms = function(json) {
     let programs = [], lib = cc.renderer._forward._programLib;
@@ -134,20 +138,21 @@ let parseProperties = (function() {
             type: type,
             displayName: displayName,
             instanceType: getInstanceType(type),
-            value: getInstanceCtor(type)(value)
+            value: type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(value),
         };
     }
     return function(json, programs) {
         let props = {};
-        // properties may be specified in the shader too
-        programs.forEach(pg => {
-            pg.uniforms.forEach(prop => {
-                if (!prop.property) return;
-                props[prop.name] = genPropInfo(prop.displayName, prop.type, prop.value);
-            });
+
+        let properties = {};
+        json.techniques.forEach(tech => {
+            tech.passes.forEach(pass => {
+                Object.assign(properties, pass.properties);
+            })
         });
-        for (let prop in json.properties) {
-            let propInfo = json.properties[prop], uniformInfo;
+
+        for (let prop in properties) {
+            let propInfo = properties[prop], uniformInfo;
             // always try getting the type from shaders first
             if (propInfo.tech !== undefined && propInfo.pass !== undefined) {
                 let pname = json.techniques[propInfo.tech].passes[propInfo.pass].program;
@@ -180,19 +185,36 @@ Effect.parseEffect = function(effect) {
     let techniques = new Array(techNum);
     for (let j = 0; j < techNum; ++j) {
         let tech = effect.techniques[j];
+        if (!tech.stages) {
+            tech.stages = ['opaque']
+        }
         let passNum = tech.passes.length;
         let passes = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
             let pass = tech.passes[k];
             passes[k] = new Pass(pass.program);
-            passes[k].setDepth(pass.depthTest, pass.depthWrite, pass.depthFunc);
-            passes[k].setCullMode(pass.cullMode);
-            passes[k].setBlend(pass.blend, pass.blendEq, pass.blendSrc,
-                pass.blendDst, pass.blendAlphaEq, pass.blendSrcAlpha, pass.blendDstAlpha, pass.blendColor);
-            passes[k].setStencilFront(pass.stencilTest, pass.stencilFuncFront, pass.stencilRefFront, pass.stencilMaskFront,
-                pass.stencilFailOpFront, pass.stencilZFailOpFront, pass.stencilZPassOpFront, pass.stencilWriteMaskFront);
-            passes[k].setStencilBack(pass.stencilTest, pass.stencilFuncBack, pass.stencilRefBack, pass.stencilMaskBack,
-                pass.stencilFailOpBack, pass.stencilZFailOpBack, pass.stencilZPassOpBack, pass.stencilWriteMaskBack);
+
+            // rasterizer state
+            if (pass.rasterizerState) {
+                passes[k].setCullMode(pass.rasterizerState.cullMode);
+            }
+
+            // blend state
+            let blendState = pass.blendState && pass.blendState.targets[0];
+            if (blendState) {
+                passes[k].setBlend(blendState.blend, blendState.blendEq, blendState.blendSrc,
+                    blendState.blendDst, blendState.blendAlphaEq, blendState.blendSrcAlpha, blendState.blendDstAlpha, blendState.blendColor);
+            }
+
+            // depth stencil state
+            let depthStencilState = pass.depthStencilState;
+            if (depthStencilState) {
+                passes[k].setDepth(depthStencilState.depthTest, depthStencilState.depthWrite, depthStencilState.depthFunc);
+            passes[k].setStencilFront(depthStencilState.stencilTest, depthStencilState.stencilFuncFront, depthStencilState.stencilRefFront, depthStencilState.stencilMaskFront,
+                depthStencilState.stencilFailOpFront, depthStencilState.stencilZFailOpFront, depthStencilState.stencilZPassOpFront, depthStencilState.stencilWriteMaskFront);
+            passes[k].setStencilBack(depthStencilState.stencilTest, depthStencilState.stencilFuncBack, depthStencilState.stencilRefBack, depthStencilState.stencilMaskBack,
+                depthStencilState.stencilFailOpBack, depthStencilState.stencilZFailOpBack, depthStencilState.stencilZPassOpBack, depthStencilState.stencilWriteMaskBack);
+            }
         }
         techniques[j] = new Technique(tech.stages, passes, tech.layer);
     }

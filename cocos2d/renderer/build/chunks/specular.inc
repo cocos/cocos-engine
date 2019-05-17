@@ -1,11 +1,11 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 #if USE_SPECULAR
-  #property #color3
-  uniform lowp vec3 specularColor;
+  uniform SPECULAR {
+    lowp vec3 specularColor;
+  };
 
   #if USE_SPECULAR_TEXTURE
-    #property
     uniform sampler2D specularTexture;
   #endif
 

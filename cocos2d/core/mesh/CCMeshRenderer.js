@@ -248,11 +248,11 @@ let MeshRenderer = cc.Class({
     },
 
     _updateReceiveShadow () {
-        this._customProperties.define('_USE_SHADOW_MAP', this._receiveShadows);
+        this._customProperties.define('CC_USE_SHADOW_MAP', this._receiveShadows);
     },
 
     _updateCastShadow () {
-        this._customProperties.define('_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
+        this._customProperties.define('CC_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
     },
 
     _updateMeshAttribute () {

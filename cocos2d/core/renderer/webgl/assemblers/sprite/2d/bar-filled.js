@@ -37,7 +37,7 @@ module.exports = {
         }
 
         let renderData = sprite._renderData;
-        if (renderData && frame) {
+        if (renderData && sprite._spriteFrame) {
             let fillStart = sprite._fillStart;
             let fillRange = sprite._fillRange;
 
