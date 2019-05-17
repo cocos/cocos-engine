@@ -497,27 +497,12 @@ export default class Base {
         device.setTexture(prop.name, param, this._allocTextureUnit());
       }
     } else {
-      let convertedValue;
-      if (param instanceof Float32Array || param instanceof Int32Array) {
+      if (prop.directly) {
         device.setUniformDirectly(prop.name, param);
-        return;
       }
-      else if (prop.size !== undefined) {
-        let convertArray = _type2uniformArrayValue[prop.type];
-        if (convertArray.func === undefined) {
-          console.error('Uniform array of color3/int3/float3/mat3 can not be supportted!');
-          return;
-        }
-        if (prop.size * convertArray.size > 64) {
-          console.error('Uniform array is too long!');
-          return;
-        }
-        convertedValue = convertArray.func(param);
-      } else {
-        let convertFn = _type2uniformValue[prop.type];
-        convertedValue = convertFn(param);
+      else {
+        device.setUniform(prop.name, param);
       }
-      device.setUniform(prop.name, convertedValue);
     }
   }
 
@@ -549,7 +534,7 @@ export default class Base {
     let inverse = mat3.invert(_m3_tmp, mat3.fromMat4(_m3_tmp, _m4_tmp));
     if (inverse) {
       mat3.transpose(_m3_tmp, inverse);
-      device.setUniform('cc_matWorldIT', mat3.array(_float9_pool.add(), _m3_tmp));
+      device.setUniform('cc_mat3WorldIT', mat3.array(_float9_pool.add(), _m3_tmp));
     }
     // }
 

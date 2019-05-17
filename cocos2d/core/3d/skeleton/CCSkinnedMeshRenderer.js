@@ -180,7 +180,7 @@ let SkinnedMeshRenderer = cc.Class({
         let jointCount = this._joints.length;
         let customProperties = this._customProperties;
 
-        let ALLOW_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
+        let ALLOW_FLOAT_TEXTURE = false;!!cc.sys.glExtension('OES_texture_float');
         if (ALLOW_FLOAT_TEXTURE) {
             // set jointsTexture
             let size;
@@ -206,8 +206,8 @@ let SkinnedMeshRenderer = cc.Class({
         }
         else {
             this._jointsData = new Float32Array(jointCount * 16);
-            customProperties.define('_JOINT_MATRICES_SIZE', jointCount);
-            customProperties.setProperty('_jointMatrices', this._jointsData);
+            // customProperties.define('_JOINT_MATRICES_SIZE', jointCount);
+            customProperties.setProperty('cc_jointMatrices', this._jointsData, true);
         }
 
         customProperties.define('_USE_SKINNING', true);

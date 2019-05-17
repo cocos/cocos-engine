@@ -10,7 +10,7 @@ varying vec3 v_worldPos;
 
 #include <common-attribute>
 #include <skinning>
-#include <shadowmap-declare-vert>
+#include <shadow>
 
 void main () {
   vec4 position = vec4(a_position, 1);
@@ -20,9 +20,9 @@ void main () {
   SKIN_VERTEX(position, normal);
 
   v_worldPos = (cc_matWorld * position).xyz;
-  v_worldNormal = cc_matWorldIT * normal.xyz;
+  v_worldNormal = cc_mat3WorldIT * normal.xyz;
 
-  CLAC_SHADOW();
+  // CLAC_SHADOW(v_worldPos);
   ATTRIBUTE_TO_VARYING();
   
   gl_Position = cc_matViewProj * cc_matWorld * position;

@@ -150,7 +150,7 @@ let Material = cc.Class({
 
         if (this._effect) {
             if (val instanceof Texture) {
-                this._effect.setProperty(name, val.getImpl());
+                this._effect.setProperty(name, val);
                 let format = val.getPixelFormat();
                 if (format === PixelFormat.RGBA_ETC1 ||
                     format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
