@@ -2,14 +2,14 @@
 import { AnimationClip, AnimationState } from '../animation';
 import { CrossFade } from '../animation/cross-fade';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
+import { Event, EventTarget } from '../core/event';
+import { CallbacksInvoker, ICallbackTable } from '../core/event/callbacks-invoker';
+import { applyMixins, IEventTarget } from '../core/event/event-target-factory';
 import { warnID } from '../core/platform/CCDebug';
 import * as ArrayUtils from '../core/utils/array';
 import { createMap } from '../core/utils/js-typed';
 import { ccenum } from '../core/value-types/enum';
 import { Component } from './component';
-import { IEventTarget, applyMixins } from '../core/event/event-target-factory';
-import { Event, EventTarget } from '../core/event';
-import { ICallbackTable, CallbacksInvoker } from '../core/event/callbacks-invoker';
 
 /**
  * !#en The event type supported by Animation
@@ -75,7 +75,6 @@ ccenum(EventType);
 @executeInEditMode
 @menu('Components/AnimationComponent')
 export class AnimationComponent extends Component implements IEventTarget {
-    public _callbackTable: ICallbackTable = createMap(true)
 
     /**
      * !#en Animation will play the default clip when start game.
@@ -149,6 +148,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     public static EventType = EventType;
+    public _callbackTable: ICallbackTable = createMap(true);
 
     /**
      * !#en Whether the animation should auto play the default clip when start game.
@@ -366,6 +366,7 @@ export class AnimationComponent extends Component implements IEventTarget {
                 this._nameToState[stateName]!._lastframeEventOn = true;
             }
         }
+        this.node.on(type, callback, target);
         return ret;
     }
 
@@ -399,16 +400,16 @@ export class AnimationComponent extends Component implements IEventTarget {
     /**
      * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
      */
-    public targetOff(keyOrTarget?: string | Object | undefined): void {}
-    public once(type: string, callback: Function, target?: Object | undefined): Function | undefined {
+    public targetOff (keyOrTarget?: string | Object | undefined): void {}
+    public once (type: string, callback: Function, target?: Object | undefined): Function | undefined {
         return;
     }
-    public dispatchEvent(event: Event): void {}
-    public hasEventListener(key: string, callback?: Function | undefined, target?: Object | undefined): boolean {
+    public dispatchEvent (event: Event): void {}
+    public hasEventListener (key: string, callback?: Function | undefined, target?: Object | undefined): boolean {
         return false;
     }
-    public removeAll(keyOrTarget?: string | Object | undefined): void {}
-    public emit(key: string, ...args: any[]): void {}
+    public removeAll (keyOrTarget?: string | Object | undefined): void {}
+    public emit (key: string, ...args: any[]): void {}
 
     ///////////////////////////////////////////////////////////////////////////////
     // Internal Methods
