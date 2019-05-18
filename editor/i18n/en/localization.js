@@ -44,19 +44,19 @@ module.exports = {
             "sprite_frame": "SpriteFrame image to use",
             "atlas": "Atlas that the image belongs to",
             "type": "Rendering Mode: Simple, Sliced, Tiled or Filled",
-            "original_size": "Use the Images original size as the Node size?",
+            "original_size": "Use the Image's original size as the Node size?",
             "edit_button": "Edit",
             "select_button": "Select In Atlas",
             "select_tooltip": "Choose Atlas",
             "edit_tooltip": "Open Sprite Editor, set squares and other data",
             'fill_type': 'The direction of filling, choose from Horizontal, Vertical and Radial',
             'fill_center': 'For radial filling, set the center of the circle, value range is 0 to 1',
-            'fill_start': 'The normalized value indicate where to start filling',
-            'fill_range': 'The normalizad value indicate how much of the sprite we want to show',
+            'fill_start': 'The normalized value indicates where to start filling',
+            'fill_range': 'The normalizad value indicates how much of the sprite we want to show',
             'src_blend_factor': 'The source image blend mode',
             'dst_blend_factor': 'The destination image blend mode',
-            'size_mode': 'Set the size of the node which Sprite component is on. CUSTOM for setting width and height manually;TRIMMED to use image size with transparent pixels trimmed; RAW to use image size without trimming.',
-            'trim': 'Whether to render transparent pixels around image in node\'s bounding box. If you check this option the boudning box will not include transparent pixels around the image.'
+            'size_mode': 'Set the size of the node on which the Sprite component is on. CUSTOM for setting width and height manually;TRIMMED to use image size with transparent pixels trimmed; RAW to use image size without trimming.',
+            'trim': 'Whether to render transparent pixels around image in node\'s bounding box. If you check this option the bounding box will not include transparent pixels around the image.'
         },
         "button": {
             "click_event": {
