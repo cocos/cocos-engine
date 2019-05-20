@@ -1829,7 +1829,10 @@ var Node = cc.Class({
         }
 
         this._updateWorldMatrix();
-        math.mat4.invert(_mat4_temp, this._worldMatrix);
+        // If scale is 0, it can't be hit.
+        if (!math.mat4.invert(_mat4_temp, this._worldMatrix)) {
+            return false;
+        }
         math.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
