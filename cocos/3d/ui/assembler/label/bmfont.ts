@@ -25,17 +25,12 @@
 
 import { SpriteFrame } from '../../../../assets/sprite-frame';
 import * as js from '../../../../core/utils/js';
-import { Mat4, Rect, Vec3 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath';
-import { RenderData } from '../../../../renderer/ui/renderData';
+import { Rect } from '../../../../core/value-types';
 import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
 import { IAssembler } from '../assembler';
 import { fillMeshVertices3D } from '../utils';
 import { bmfontUtils } from './bmfontUtils';
-
-const _temp_vec3 = new Vec3();
-const _worldMatrix = new Mat4();
 
 export const bmfont: IAssembler = {
     createData (comp: LabelComponent) {
@@ -108,16 +103,6 @@ export const bmfont: IAssembler = {
         datas[dataOffset + 2].y = y;
         datas[dataOffset + 3].x = x + rectWidth * scale;
         datas[dataOffset + 3].y = y;
-
-        // for ui raycast
-        const lb = datas[0];
-        const dataRect = renderData.rect;
-        vec3.set(_temp_vec3, lb.x, lb.y, 0);
-        comp.node.getWorldMatrix(_worldMatrix);
-        vec3.transformMat4(_temp_vec3, _temp_vec3, _worldMatrix);
-        dataRect.origin = _temp_vec3;
-        dataRect.width = rectWidth * scale;
-        dataRect.height = rectHeight * scale;
     },
 };
 

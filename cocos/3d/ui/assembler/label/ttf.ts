@@ -34,8 +34,6 @@ import { fillMeshVertices3D } from '../utils';
 import { ttfUtils } from './ttfUtils';
 
 const WHITE = Color.WHITE;
-const _worldMatrix = new Mat4();
-const _temp_vec3 = new Vec3();
 
 export const ttf: IAssembler = {
     useModel: false,
@@ -84,15 +82,6 @@ export const ttf: IAssembler = {
         datas[2].y = height - appy;
         datas[3].x = width - appx;
         datas[3].y = height - appy;
-
-        // for ui raycast
-        comp.node.getWorldMatrix(_worldMatrix);
-        const rect = renderData.rect;
-        vec3.set(_temp_vec3, -appx, -appy, 0);
-        vec3.transformMat4(_temp_vec3, _temp_vec3, _worldMatrix);
-        rect.origin = _temp_vec3;
-        rect.width = width,
-        rect.height = height;
     },
 };
 

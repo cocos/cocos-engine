@@ -26,7 +26,7 @@
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 import { SpriteFrame } from '../../../../assets';
 import { Mat4, Vec2, Vec3 } from '../../../../core/value-types';
-import { vec2, vec3 } from '../../../../core/vmath';
+import { vec2 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components';
@@ -43,8 +43,6 @@ const _intersectPoint_1: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2(
 const _intersectPoint_2: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 const _center = new Vec2();
 const _triangles: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
-const _temp_vec3 = new Vec3();
-const _worldMatrix = new Mat4();
 
 function _calcInsectedPoints (left, right, bottom, top, center, angle, intersectPoints) {
     // left bottom, right, top
@@ -105,14 +103,6 @@ function _calculateVertices (sprite: SpriteComponent) {
     vertices[1] = b;
     vertices[2] = r;
     vertices[3] = t;
-
-    sprite.node.getWorldMatrix(_worldMatrix);
-    vec2.set(_temp_vec3, l, b);
-    vec3.transformMat4(_temp_vec3, _temp_vec3, _worldMatrix);
-    const rect = sprite.renderData!.rect;
-    rect.origin = _temp_vec3;
-    rect.width = r - l;
-    rect.height = t - b;
 
     const fillCenter = sprite.fillCenter;
     const cx = _center.x = Math.min(Math.max(0, fillCenter.x), 1) * (r - l) + l;

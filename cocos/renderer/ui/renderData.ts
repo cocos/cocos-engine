@@ -62,8 +62,6 @@ export class RenderData extends BaseRenderData {
 
     public uvDirty: boolean = true;
     public vertDirty: boolean = true;
-    // for UI gizmos
-    public rect: Rect = new Rect();
     private _datas: IRenderData[] = [];
     private _indices: number[] = [];
     private _pivotX: number = 0;
