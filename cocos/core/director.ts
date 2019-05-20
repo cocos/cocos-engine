@@ -25,7 +25,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import ActionManager from '../2d/actions/CCActionManager';
 import { widgetManager } from '../3d';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
 import { PhysicsSystem } from '../3d/framework/physics/physics-system';
@@ -222,7 +221,7 @@ class Director extends EventTarget {
     private _scheduler: Scheduler;
     private _compScheduler: ComponentScheduler;
     private _nodeActivator: NodeActivator;
-    private _actionManager: ActionManager | null;
+    private _actionManager: cc.ActionManager | null;
     private _physicsSystem: PhysicsSystem | null;
     private _systems: any[];
     private _animationManager: any;

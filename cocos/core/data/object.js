@@ -38,8 +38,8 @@ const DontDestroy = 1 << 6;
 const Destroying = 1 << 7;
 const Deactivating = 1 << 8;
 const LockedInEditor = 1 << 9;
-// var HideInGame = 1 << 9;
-const HideInHierarchy = 1 << 10;
+//var HideInGame = 1 << 9;
+var HideInHierarchy = 1 << 10;
 
 const IsOnEnableCalled = 1 << 11;
 const IsEditorOnEnableCalled = 1 << 12;
@@ -54,7 +54,7 @@ const IsAnchorLocked = 1 << 19;
 const IsSizeLocked = 1 << 20;
 const IsPositionLocked = 1 << 21;
 
-// var Hide = HideInGame | HideInEditor;
+//var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating |
                        IsPreloadStarted | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
@@ -62,15 +62,14 @@ const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactiva
                        IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
                        /*RegisteredInEditor*/);
 
-const objectsToDestroy: any = [];
-let deferredDestroyTimer = null;
+var objectsToDestroy = [];
+var deferredDestroyTimer = null;
 
 function compileDestruct (obj, ctor) {
-    const shouldSkipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
-    const idToSkip = shouldSkipId ? '_id' : null;
+    var shouldSkipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
+    var idToSkip = shouldSkipId ? '_id' : null;
 
-    let key;
-    const propsToReset = {};
+    var key, propsToReset = {};
     for (key in obj) {
         if (obj.hasOwnProperty(key)) {
             if (key === idToSkip) {
@@ -89,11 +88,11 @@ function compileDestruct (obj, ctor) {
     }
     // Overwrite propsToReset according to Class
     if (CCClass._isCCClass(ctor)) {
-        const attrs = cc.Class.Attr.getClassAttrs(ctor);
-        const propList = ctor.__props__;
-        // tslint:disable: no-shadowed-variable
-        for (const key of propList) {
-            const attrKey = key + cc.Class.Attr.DELIMETER + 'default';
+        var attrs = cc.Class.Attr.getClassAttrs(ctor);
+        var propList = ctor.__props__;
+        for (var i = 0; i < propList.length; i++) {
+            key = propList[i];
+            var attrKey = key + cc.Class.Attr.DELIMETER + 'default';
             if (attrKey in attrs) {
                 if (shouldSkipId && key === '_id') {
                     continue;
@@ -116,17 +115,16 @@ function compileDestruct (obj, ctor) {
 
     if (CC_SUPPORT_JIT) {
         // compile code
-        let func = '';
-        // tslint:disable: forin
+        var func = '';
         for (key in propsToReset) {
-            let statement;
+            var statement;
             if (CCClass.IDENTIFIER_RE.test(key)) {
                 statement = 'o.' + key + '=';
             }
             else {
                 statement = 'o[' + CCClass.escapeForJS(key) + ']=';
             }
-            let val = propsToReset[key];
+            var val = propsToReset[key];
             if (val === '') {
                 val = '""';
             }
@@ -135,8 +133,8 @@ function compileDestruct (obj, ctor) {
         return Function('o', func);
     }
     else {
-        return (o) => {
-            for (const key in propsToReset) {
+        return function (o) {
+            for (var key in propsToReset) {
                 o[key] = propsToReset[key];
             }
         };
@@ -151,11 +149,26 @@ function compileDestruct (obj, ctor) {
  * @private
  */
 class CCObject {
+    constructor (name = '') {
+        /**
+         * @property {String} _name
+         * @default ""
+         * @private
+         */
+        this._name = name;
 
-    public static _deferredDestroy () {
-        const deleteCount = objectsToDestroy.length;
-        for (let i = 0; i < deleteCount; ++i) {
-            const obj = objectsToDestroy[i];
+        /**
+         * @property {Number} _objFlags
+         * @default 0
+         * @private
+         */
+        this._objFlags = 0;
+    }
+
+    static _deferredDestroy () {
+        var deleteCount = objectsToDestroy.length;
+        for (var i = 0; i < deleteCount; ++i) {
+            var obj = objectsToDestroy[i];
             if (!(obj._objFlags & Destroyed)) {
                 obj._destroyImmediate();
             }
@@ -172,29 +185,6 @@ class CCObject {
         if (CC_EDITOR) {
             deferredDestroyTimer = null;
         }
-    }
-
-    public _onPreDestroy: any;
-    public realDestroyInEditor: any;
-    public _objFlags: number;
-    public _serialize;
-    public _instantiate: any;
-    private _name: string;
-
-    constructor (name = '') {
-        /**
-         * @property {String} _name
-         * @default ""
-         * @private
-         */
-        this._name = name;
-
-        /**
-         * @property {Number} _objFlags
-         * @default 0
-         * @private
-         */
-        this._objFlags = 0;
     }
 
     // MEMBER
@@ -214,7 +204,6 @@ class CCObject {
         this._name = value;
     }
 
-    // tslint:disable: max-line-length
     /**
      * !#en
      * Indicates whether the object is not yet destroyed. (It will not be available after being destroyed)<br>
@@ -257,7 +246,7 @@ class CCObject {
      * @example
      * obj.destroy();
      */
-    public destroy () {
+    destroy () {
         if (this._objFlags & Destroyed) {
             cc.warnID(5000);
             return false;
@@ -270,7 +259,6 @@ class CCObject {
 
         if (CC_EDITOR && deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating) {
             // auto destroy immediate in edit mode
-            // @ts-ignore
             deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
         }
         return true;
@@ -296,10 +284,12 @@ class CCObject {
      *           }
      *       }
      *
+     * @method _destruct
+     * @private
      */
-    public _destruct () {
-        const ctor: any = this.constructor;
-        let destruct = ctor.__destruct__;
+    _destruct () {
+        var ctor = this.constructor;
+        var destruct = ctor.__destruct__;
         if (!destruct) {
             destruct = compileDestruct(this, ctor);
             js.value(ctor, '__destruct__', destruct, true);
@@ -307,7 +297,7 @@ class CCObject {
         destruct(this);
     }
 
-    private _destroyImmediate () {
+    _destroyImmediate () {
         if (this._objFlags & Destroyed) {
             cc.errorID(5000);
             return;
@@ -325,10 +315,10 @@ class CCObject {
     }
 }
 
-const prototype = CCObject.prototype;
+let prototype = CCObject.prototype;
 if (CC_EDITOR || CC_TEST) {
-    js.get(prototype, 'isRealValid', () => {
-        return !(prototype._objFlags & RealDestroyed);
+    js.get(prototype, 'isRealValid', function () {
+        return !(this._objFlags & RealDestroyed);
     });
 
     /*
@@ -341,24 +331,23 @@ if (CC_EDITOR || CC_TEST) {
     * @method realDestroyInEditor
     * @private
     */
-    prototype.realDestroyInEditor = () => {
-        if ( !(prototype._objFlags & Destroyed) ) {
+   prototype.realDestroyInEditor = function () {
+        if ( !(this._objFlags & Destroyed) ) {
             cc.warnID(5001);
             return;
         }
-        if (prototype._objFlags & RealDestroyed) {
+        if (this._objFlags & RealDestroyed) {
             cc.warnID(5000);
             return;
         }
-        prototype._destruct();
-        prototype._objFlags |= RealDestroyed;
+        this._destruct();
+        this._objFlags |= RealDestroyed;
     };
 }
 
 if (CC_EDITOR) {
-    js.value(CCObject, '_clearDeferredDestroyTimer', () => {
+    js.value(CCObject, '_clearDeferredDestroyTimer', function () {
         if (deferredDestroyTimer !== null) {
-            // @ts-ignore
             clearImmediate(deferredDestroyTimer);
             deferredDestroyTimer = null;
         }
@@ -381,7 +370,6 @@ if (CC_EDITOR) {
  * @param {_Deserializer} ctx
  * @private
  */
-// @ts-ignore
 prototype._deserialize = null;
 /**
  * Called before the object being destroyed.
@@ -401,7 +389,7 @@ CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
 js.value(CCObject, 'Flags', {
 
     Destroyed,
-    // ToDestroy: ToDestroy,
+    //ToDestroy: ToDestroy,
 
     /**
      * !#en The object will not be saved.
@@ -450,7 +438,7 @@ js.value(CCObject, 'Flags', {
      */
     LockedInEditor,
 
-    /// **
+    ///**
     // * !#en
     // * Hide in game and hierarchy.
     // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
@@ -459,18 +447,18 @@ js.value(CCObject, 'Flags', {
     // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
     // * @property {Number} HideInGame
     // */
-    // HideInGame: HideInGame,
+    //HideInGame: HideInGame,
 
     // FLAGS FOR EDITOR
 
-    /// **
+    ///**
     // * !#en This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
     // * !#zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
     // * @property {Number} HideInEditor
     // */
     HideInHierarchy,
 
-    /// **
+    ///**
     // * !#en
     // * Hide in game view, hierarchy, and scene view... etc.
     // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
@@ -479,10 +467,10 @@ js.value(CCObject, 'Flags', {
     // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
     // * @property {Number} Hide
     // */
-    // Hide: Hide,
+    //Hide: Hide,
 
     //// UUID Registered in editor
-    // RegisteredInEditor: RegisteredInEditor,
+    //RegisteredInEditor: RegisteredInEditor,
 
     // FLAGS FOR COMPONENT
 
@@ -528,7 +516,7 @@ js.value(CCObject, 'Flags', {
  * // after a frame...
  * cc.log(cc.isValid(node));    // false, destroyed in the end of last frame
  */
-cc.isValid = (value, strictMode) => {
+cc.isValid = function (value, strictMode) {
     if (typeof value === 'object') {
         return !!value && !(value._objFlags & (strictMode ? (Destroyed | ToDestroy) : Destroyed));
     }
@@ -538,10 +526,10 @@ cc.isValid = (value, strictMode) => {
 };
 
 if (CC_EDITOR || CC_TEST) {
-    js.value(CCObject, '_willDestroy', (obj) => {
+    js.value(CCObject, '_willDestroy', function (obj) {
         return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;
     });
-    js.value(CCObject, '_cancelDestroy', (obj) => {
+    js.value(CCObject, '_cancelDestroy', function (obj) {
         obj._objFlags &= ~ToDestroy;
         js.array.fastRemove(objectsToDestroy, obj);
     });
