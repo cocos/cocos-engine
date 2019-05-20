@@ -389,8 +389,8 @@ let ArmatureCache = cc.Class({
                 delete this._animationPool[poolKey];
             } else {
                 animationCache = new AnimationCache();
-                animationCache.init(armatureInfo, animationName);
             }
+            animationCache.init(armatureInfo, animationName);
             animationsCache[animationName] = animationCache;
         }
         return animationCache;
