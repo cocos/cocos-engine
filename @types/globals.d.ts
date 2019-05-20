@@ -106,4 +106,7 @@ declare namespace Editor {
     const Ipc: any;
     const Utils: any;
     const assets: any;
+    const serialize: any;
 }
+
+declare const Buffer: any;
