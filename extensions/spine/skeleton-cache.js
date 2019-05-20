@@ -533,8 +533,8 @@ let SkeletonCache = cc.Class({
                 delete this._animationPool[poolKey];
             } else {
                 animationCache = new AnimationCache();
-                animationCache.init(skeletonInfo, animationName);
             }
+            animationCache.init(skeletonInfo, animationName);
             animationsCache[animationName] = animationCache;
         }
         return animationCache;
