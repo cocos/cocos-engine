@@ -369,7 +369,7 @@ let Mask = cc.Class({
             // Init material
             let material = this.sharedMaterials[0];
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+                material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
             }
             else {
                 material = Material.getInstantiatedMaterial(material, this);
@@ -392,11 +392,11 @@ let Mask = cc.Class({
             }
 
             if (!this._enableMaterial) {
-                this._enableMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
+                this._enableMaterial = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
             }
         
             if (!this._exitMaterial) {
-                this._exitMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
+                this._exitMaterial = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
                 let passes = this._exitMaterial.effect.getDefaultTechnique().passes;
                 for (let i = 0; i < passes.length; i++) {
                     passes[i].setStencilEnabled(gfx.STENCIL_DISABLE);

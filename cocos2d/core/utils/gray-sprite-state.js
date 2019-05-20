@@ -14,17 +14,16 @@ GraySpriteState.prototype._switchGrayMaterial = function (useGrayMaterial, rende
     if (useGrayMaterial) {
         material = this._graySpriteMaterial;
         if (!material) {
-            material = Material.getBuiltinMaterial('gray-sprite');
+            material = Material.getBuiltinMaterial('2d-gray-sprite');
         }
         material = this._graySpriteMaterial = Material.getInstantiatedMaterial(material, renderComp);
     }
     else {
         material = this._spriteMaterial;
         if (!material) {
-            material = Material.getBuiltinMaterial('sprite', renderComp);
+            material = Material.getBuiltinMaterial('2d-sprite', renderComp);
         }
         material = this._spriteMaterial = Material.getInstantiatedMaterial(material, renderComp);
-        material.define('USE_TEXTURE', true);
     }
 
     renderComp.setMaterial(0, material);

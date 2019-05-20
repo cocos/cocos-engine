@@ -610,14 +610,13 @@ let ArmatureDisplay = cc.Class({
         // Get material
         let material = this.sharedMaterials[0];
         if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
         }
         else {
             material = Material.getInstantiatedMaterial(material, this);
         }
 
         material.define('_USE_MODEL', true);
-        material.define('USE_TEXTURE', true);
         material.setProperty('texture', texture);
         
         this.setMaterial(0, material);
