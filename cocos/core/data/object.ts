@@ -177,7 +177,6 @@ class CCObject {
     public _onPreDestroy: any;
     public realDestroyInEditor: any;
     public _objFlags: number;
-    public _serialize;
     public _instantiate: any;
     private _name: string;
 
@@ -371,6 +370,7 @@ if (CC_EDITOR) {
      * @return {object} the serialized json data object
      * @private
      */
+    // @ts-ignore
     prototype._serialize = null;
 }
 

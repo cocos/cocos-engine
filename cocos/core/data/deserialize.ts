@@ -197,8 +197,8 @@ const compileDeserialize = CC_SUPPORT_JIT ? (self, klass) => {
     ];
     const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
     // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
-    // tslint:disable-next-line: forin
-    for (const p in props) {
+    // tslint:disable-next-line: prefer-for-of
+    for (let p = 0; p < props.length; p++) {
         const propName = props[p];
         if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
             continue;   // skip editor only if in preview
