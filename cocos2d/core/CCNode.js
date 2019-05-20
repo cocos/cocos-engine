@@ -123,10 +123,11 @@ var LocalDirtyFlag = cc.Enum({
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
- * @enum Node.EventType
+ * @class Node.EventType
  * @static
  * @namespace Node
  */
+// Why EventType defined as class, because the first parameter of Node.on method needs set as 'string' type.
 var EventType = cc.Enum({
     /**
      * !#en The event type for touch start event, you can use its value directly: 'touchstart'
