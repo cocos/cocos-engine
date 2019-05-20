@@ -34,7 +34,10 @@ const Indices = UuidTemplate.map((x, i) => x === '-' ? NaN : i).filter(isFinite)
 
 // fcmR3XADNLgJ1ByKhqcC5Z -> fc991dd7-0033-4b80-9d41-c8a86a702e59
 export default function decodeUuid (base64) {
-    if (base64.length !== 22) {
+    const strs = base64.split('@');
+    const name = strs[1];
+    const uuid = strs[0];
+    if (uuid.length !== 22) {
         return base64;
     }
     UuidTemplate[0] = base64[0];
@@ -46,7 +49,7 @@ export default function decodeUuid (base64) {
         UuidTemplate[Indices[j++]] = HexChars[((lhs & 3) << 2) | rhs >> 4];
         UuidTemplate[Indices[j++]] = HexChars[rhs & 0xF];
     }
-    return UuidTemplate.join('');
+    return name ? UuidTemplate.join('') + `@${name}` : UuidTemplate.join('');
 }
 
 if (CC_TEST) {
