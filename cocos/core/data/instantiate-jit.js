@@ -32,9 +32,7 @@ import { CCObject } from './object';
 import * as Attr from './utils/attribute';
 import {flattenCodeArray} from './utils/compiler';
 
-// @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
-// @ts-ignore
 const PersistentMask = CCObject.Flags.PersistentMask;
 const DEFAULT = Attr.DELIMETER + 'default';
 const IDENTIFIER_RE = CCClass.IDENTIFIER_RE;
@@ -53,25 +51,21 @@ const DEFAULT_MODULE_CACHE = {
     'cc.Widget': 'cc.Widget',
     'cc.Animation': 'cc.Animation',
     'cc.ClickEvent': false,
-    'cc.PrefabInfo': false,
+    'cc.PrefabInfo': false
 };
 
-const escapeForJS = CCClass.escapeForJS;
+var escapeForJS = CCClass.escapeForJS;
 
 // HELPER CLASSES
 
 // ('foo', 'bar')
 // -> 'var foo = bar;'
 class Declaration {
-    public varName: any;
-    public expression: any;
-
     constructor (varName, expression) {
         this.varName = varName;
         this.expression = expression;
     }
-
-    public toString () {
+    toString () {
         return VAR + this.varName + '=' + this.expression + ';';
     }
 }
@@ -114,20 +108,15 @@ function writeAssignment (codeArray, statement, expression) {
 // -> 't.foo1 = bar1;'
 // -> 't.foo2 = bar2;'
 class Assignments {
-    public static pool: js.Pool<{}>;
-
-    private _exps: any[];
-    private _targetExp: any;
-
-    constructor (targetExpression?) {
+    constructor (targetExpression) {
         this._exps = [];
         this._targetExp = targetExpression;
     }
-    public append (key, expression) {
+    append (key, expression) {
         this._exps.push([key, expression]);
     }
-    public writeCode (codeArray) {
-        let targetVar;
+    writeCode (codeArray) {
+        var targetVar;
         if (this._exps.length > 1) {
             codeArray.push(LOCAL_TEMP_OBJ + '=' + this._targetExp + ';');
             targetVar = LOCAL_TEMP_OBJ;
@@ -138,20 +127,19 @@ class Assignments {
         else {
             return;
         }
-        // tslint:disable-next-line: no-shadowed-variable
-        for (const pair of this._exps) {
+        for (var i = 0; i < this._exps.length; i++) {
+            var pair = this._exps[i];
             writeAssignment(codeArray, targetVar + getPropAccessor(pair[0]) + '=', pair[1]);
         }
     }
 }
 
-Assignments.pool = new js.Pool((obj: any) => {
+Assignments.pool = new js.Pool(function (obj) {
                                 obj._exps.length = 0;
                                 obj._targetExp = null;
                             }, 1);
-// @ts-ignore
 Assignments.pool.get = function (targetExpression) {
-    const cache: any = this._get() || new Assignments();
+    var cache = this._get() || new Assignments();
     cache._targetExp = targetExpression;
     return cache;
 };
@@ -172,16 +160,6 @@ function getPropAccessor (key) {
  * {Object} o - current creating object
  */
 class Parser {
-    public parent: any;
-    public objsToClear_iN$t: any[];
-    public codeArray: any[];
-    public objs: any[];
-    public funcs: any[];
-    public funcModuleCache: any;
-    public globalVariables: any[];
-    public globalVariableId: number;
-    public localVariableId: number;
-    public result: any;
     /*
     * @method constructor
     * @param {Object} obj - the object to parse
@@ -209,27 +187,27 @@ class Parser {
         this.localVariableId = 0;
 
         // generate codeArray
-        // if (Array.isArray(obj)) {
+        //if (Array.isArray(obj)) {
         //    this.codeArray.push(this.instantiateArray(obj));
-        // }
-        // else {
-        this.codeArray.push(VAR + LOCAL_OBJ + ',' + LOCAL_TEMP_OBJ + ';',
-                        'if(R){',
-                                LOCAL_OBJ + '=R;',
-                        '}else{',
-                                LOCAL_OBJ + '=R=new ' + this.getFuncModule(obj.constructor, true) + '();',
-                        '}');
-        obj._iN$t = { globalVar: 'R' };
-        this.objsToClear_iN$t.push(obj);
-        this.enumerateObject(this.codeArray, obj);
-        // }
+        //}
+        //else {
+            this.codeArray.push(VAR + LOCAL_OBJ + ',' + LOCAL_TEMP_OBJ + ';',
+                            'if(R){',
+                                    LOCAL_OBJ + '=R;',
+                            '}else{',
+                                    LOCAL_OBJ + '=R=new ' + this.getFuncModule(obj.constructor, true) + '();',
+                            '}');
+            obj._iN$t = { globalVar: 'R' };
+            this.objsToClear_iN$t.push(obj);
+            this.enumerateObject(this.codeArray, obj);
+        //}
 
         // generate code
-        let globalVariablesDeclaration;
+        var globalVariablesDeclaration;
         if (this.globalVariables.length > 0) {
             globalVariablesDeclaration = VAR + this.globalVariables.join(',') + ';';
         }
-        const code = flattenCodeArray(['return (function(R){',
+        var code = flattenCodeArray(['return (function(R){',
                                         globalVariablesDeclaration || [],
                                         this.codeArray,
                                         'return o;',
@@ -243,21 +221,21 @@ class Parser {
         // }
 
         // cleanup
-        for (let i = 0, len = this.objsToClear_iN$t.length; i < len; ++i) {
+        for (var i = 0, len = this.objsToClear_iN$t.length; i < len; ++i) {
             this.objsToClear_iN$t[i]._iN$t = null;
         }
         this.objsToClear_iN$t.length = 0;
     }
 
-    public getFuncModule (func, usedInNew?) {
-        const clsName = js.getClassName(func);
+    getFuncModule (func, usedInNew) {
+        var clsName = js.getClassName(func);
         if (clsName) {
-            const cache = this.funcModuleCache[clsName];
+            var cache = this.funcModuleCache[clsName];
             if (cache) {
                 return cache;
             }
             else if (cache === undefined) {
-                let clsNameIsModule = clsName.indexOf('.') !== -1;
+                var clsNameIsModule = clsName.indexOf('.') !== -1;
                 if (clsNameIsModule) {
                     try {
                         // ensure is module
@@ -271,12 +249,12 @@ class Parser {
                 }
             }
         }
-        let index = this.funcs.indexOf(func);
+        var index = this.funcs.indexOf(func);
         if (index < 0) {
             index = this.funcs.length;
             this.funcs.push(func);
         }
-        let res = 'F[' + index + ']';
+        var res = 'F[' + index + ']';
         if (usedInNew) {
             res = '(' + res + ')';
         }
@@ -284,8 +262,8 @@ class Parser {
         return res;
     }
 
-    public getObjRef (obj) {
-        let index = this.objs.indexOf(obj);
+    getObjRef (obj) {
+        var index = this.objs.indexOf(obj);
         if (index < 0) {
             index = this.objs.length;
             this.objs.push(obj);
@@ -293,31 +271,32 @@ class Parser {
         return 'O[' + index + ']';
     }
 
-    public setValueType (codeArray, defaultValue, srcValue, targetExpression) {
-        // @ts-ignore
-        const assignments: any = Assignments.pool.get!(targetExpression);
-        let fastDefinedProps = defaultValue.constructor.__props__;
+    setValueType (codeArray, defaultValue, srcValue, targetExpression) {
+        var assignments = Assignments.pool.get(targetExpression);
+        var fastDefinedProps = defaultValue.constructor.__props__;
         if (!fastDefinedProps) {
             fastDefinedProps = Object.keys(defaultValue);
         }
-        for (const propName of fastDefinedProps) {
-            const prop = srcValue[propName];
+        for (var i = 0; i < fastDefinedProps.length; i++) {
+            var propName = fastDefinedProps[i];
+            var prop = srcValue[propName];
             if (defaultValue[propName] === prop) {
                 continue;
             }
-            const expression = this.enumerateField(srcValue, propName, prop);
+            var expression = this.enumerateField(srcValue, propName, prop);
             assignments.append(propName, expression);
         }
         assignments.writeCode(codeArray);
         Assignments.pool.put(assignments);
     }
 
-    public enumerateCCClass (codeArray, obj, klass) {
-        const props = klass.__values__;
-        const attrs = Attr.getClassAttrs(klass);
-        for (const key of props) {
-            const val = obj[key];
-            let defaultValue = attrs[key + DEFAULT];
+    enumerateCCClass (codeArray, obj, klass) {
+        var props = klass.__values__;
+        var attrs = Attr.getClassAttrs(klass);
+        for (var p = 0; p < props.length; p++) {
+            var key = props[p];
+            var val = obj[key];
+            var defaultValue = attrs[key + DEFAULT];
             if (equalsToDefault(defaultValue, val)) {
                 continue;
             }
@@ -325,7 +304,7 @@ class Parser {
                 defaultValue = CCClass.getDefault(defaultValue);
                 if (defaultValue && defaultValue.constructor === val.constructor) {
                     // fast case
-                    const targetExpression = LOCAL_OBJ + getPropAccessor(key);
+                    var targetExpression = LOCAL_OBJ + getPropAccessor(key);
                     this.setValueType(codeArray, defaultValue, val, targetExpression);
                     continue;
                 }
@@ -334,14 +313,14 @@ class Parser {
         }
     }
 
-    public instantiateArray (value) {
+    instantiateArray (value) {
         if (value.length === 0) {
             return '[]';
         }
 
-        const arrayVar = LOCAL_ARRAY + (++this.localVariableId);
-        const declaration = new Declaration(arrayVar, 'new Array(' + value.length + ')');
-        const codeArray = [declaration];
+        var arrayVar = LOCAL_ARRAY + (++this.localVariableId);
+        var declaration = new Declaration(arrayVar, 'new Array(' + value.length + ')');
+        var codeArray = [declaration];
 
         // assign a _iN$t flag to indicate that this object has been parsed.
         value._iN$t = {
@@ -350,26 +329,26 @@ class Parser {
         };
         this.objsToClear_iN$t.push(value);
 
-        for (let i = 0; i < value.length; ++i) {
-            const statement = arrayVar + '[' + i + ']=';
-            const expression = this.enumerateField(value, i, value[i]);
+        for (var i = 0; i < value.length; ++i) {
+            var statement = arrayVar + '[' + i + ']=';
+            var expression = this.enumerateField(value, i, value[i]);
             writeAssignment(codeArray, statement, expression);
         }
         return codeArray;
     }
 
-    public enumerateField (obj, key, value) {
+    enumerateField (obj, key, value) {
         if (typeof value === 'object' && value) {
-            const _iN$t = value._iN$t;
+            var _iN$t = value._iN$t;
             if (_iN$t) {
                 // parsed
-                let globalVar = _iN$t.globalVar;
+                var globalVar = _iN$t.globalVar;
                 if (!globalVar) {
                     // declare a global var
                     globalVar = _iN$t.globalVar = 'v' + (++this.globalVariableId);
                     this.globalVariables.push(globalVar);
                     // insert assignment statement to assign to global var
-                    const line = _iN$t.source[LINE_INDEX_OF_NEW_OBJ];
+                    var line = _iN$t.source[LINE_INDEX_OF_NEW_OBJ];
                     _iN$t.source[LINE_INDEX_OF_NEW_OBJ] = mergeDeclaration(globalVar + '=', line);
                     // if (typeof line ==='string' && line.startsWith(VAR)) {
                     //     // var o=xxx -> var o=global=xxx
@@ -400,28 +379,28 @@ class Parser {
         }
     }
 
-    public setObjProp (codeArray, obj, key, value) {
-        const statement = LOCAL_OBJ + getPropAccessor(key) + '=';
-        const expression = this.enumerateField(obj, key, value);
+    setObjProp (codeArray, obj, key, value) {
+        var statement = LOCAL_OBJ + getPropAccessor(key) + '=';
+        var expression = this.enumerateField(obj, key, value);
         writeAssignment(codeArray, statement, expression);
     }
 
     // codeArray - the source code array for this object
-    public enumerateObject (codeArray, obj) {
-        const klass = obj.constructor;
+    enumerateObject (codeArray, obj) {
+        var klass = obj.constructor;
         if (cc.Class._isCCClass(klass)) {
             this.enumerateCCClass(codeArray, obj, klass);
         }
         else {
             // primitive javascript object
-            for (const key in obj) {
+            for (var key in obj) {
                 if (!obj.hasOwnProperty(key) ||
                     (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95 &&   // starts with "__"
                     key !== '__type__')
                 ) {
                     continue;
                 }
-                const value = obj[key];
+                var value = obj[key];
                 if (typeof value === 'object' && value && value === obj._iN$t) {
                     continue;
                 }
@@ -430,7 +409,7 @@ class Parser {
         }
     }
 
-    public instantiateObj (obj) {
+    instantiateObj (obj) {
         if (obj instanceof cc.ValueType) {
             return CCClass.getNewValueTypeCode(obj);
         }
@@ -443,8 +422,8 @@ class Parser {
             return null;
         }
 
-        let createCode;
-        const ctor = obj.constructor;
+        var createCode;
+        var ctor = obj.constructor;
         if (cc.Class._isCCClass(ctor)) {
             if (this.parent) {
                 if (this.parent instanceof cc.Component) {
@@ -480,13 +459,13 @@ class Parser {
             return this.getObjRef(obj);
         }
 
-        const codeArray = [createCode];
+        var codeArray = [createCode];
 
         // assign a _iN$t flag to indicate that this object has been parsed.
         obj._iN$t = {
             globalVar: '',      // the name of declared global variable used to access this object
             source: codeArray,  // the source code array for this object
-            // propName: '',     // the propName this object defined in its source code,
+            //propName: '',     // the propName this object defined in its source code,
             //                  // if defined, use LOCAL_OBJ.propName to access the obj, else just use o
         };
         this.objsToClear_iN$t.push(obj);
@@ -528,14 +507,11 @@ export function equalsToDefault (def, value) {
 }
 
 export function compile (node) {
-    const root = (node instanceof cc._BaseNode) && node;
-    const parser = new Parser(node, root);
+    var root = (node instanceof cc._BaseNode) && node;
+    var parser = new Parser(node, root);
     return parser.result;
 }
 
 if (CC_TEST) {
-    cc._Test.IntantiateJit = {
-        equalsToDefault,
-        compile,
-    };
+    cc._Test.IntantiateJit = module.exports;
 }

@@ -28,21 +28,21 @@ import * as js from '../../utils/js';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
-const SerializableAttrs = {
+var SerializableAttrs = {
     url: {
-        canUsedInGet: true,
+        canUsedInGet: true
     },
     default: {},
     serializable: {},
     editorOnly: {},
-    formerlySerializedAs: {},
+    formerlySerializedAs: {}
 };
 
-const TYPO_TO_CORRECT_DEV = CC_DEV && {
+var TYPO_TO_CORRECT_DEV = CC_DEV && {
     extend: 'extends',
     property: 'properties',
     static: 'statics',
-    constructor: 'ctor',
+    constructor: 'ctor'
 };
 
 // 预处理 notify 等扩展属性
@@ -56,23 +56,22 @@ function parseNotify (val, propName, notify, properties) {
     if (val.hasOwnProperty('default')) {
         // 添加新的内部属性，将原来的属性修改为 getter/setter 形式
         // （以 _ 开头将自动设置property 为 visible: false）
-        const newKey = '_N$' + propName;
+        var newKey = "_N$" + propName;
 
         val.get = function () {
             return this[newKey];
         };
         val.set = function (value) {
-            const oldValue = this[newKey];
+            var oldValue = this[newKey];
             this[newKey] = value;
             notify.call(this, oldValue);
         };
 
-        const newValue = {};
+        var newValue = {};
         properties[newKey] = newValue;
         // 将不能用于get方法中的属性移动到newValue中
-        // tslint:disable-next-line: forin
-        for (const attr in SerializableAttrs) {
-            const v = SerializableAttrs[attr];
+        for (var attr in SerializableAttrs) {
+            var v = SerializableAttrs[attr];
             if (val.hasOwnProperty(attr)) {
                 newValue[attr] = val[attr];
                 if (!v.canUsedInGet) {
@@ -182,7 +181,7 @@ function postCheckType (val, type, className, propName) {
 
 function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     if (CC_DEV) {
-        let res;
+        var res;
         for (; cls && cls.__props__ && cls.__props__.indexOf(propName) !== -1; cls = cls.$super) {
             res = cls;
         }
@@ -193,50 +192,46 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-// tslint:disable: no-shadowed-variable
-
 export function getFullFormOfProperty (options, propname_dev, classname_dev) {
-    const isLiteral = options && options.constructor === Object;
+    var isLiteral = options && options.constructor === Object;
     if ( !isLiteral ) {
         if (Array.isArray(options) && options.length > 0) {
-
-            const type = options[0];
+            var type = options[0];
             return {
                 default: [],
                 type: options,
-                _short: true,
+                _short: true
             };
         }
         else if (typeof options === 'function') {
-            const type = options;
+            var type = options;
             if (!cc.RawAsset.isRawAssetType(type)) {
                 return {
                     default: js.isChildClassOf(type, cc.ValueType) ? new type() : null,
-                    type,
-                    _short: true,
+                    type: type,
+                    _short: true
                 };
             }
             return {
                 default: '',
                 url: type,
-                _short: true,
+                _short: true
             };
         }
         else {
             return {
                 default: options,
-                _short: true,
+                _short: true
             };
         }
     }
     return null;
-}
+};
 
 export function preprocessAttrs (properties, className, cls, es6) {
-    // tslint:disable-next-line: forin
-    for (const propName in properties) {
-        let val = properties[propName];
-        const fullForm = getFullFormOfProperty(val, propName, className);
+    for (var propName in properties) {
+        var val = properties[propName];
+        var fullForm = getFullFormOfProperty(val, propName, className);
         if (fullForm) {
             val = properties[propName] = fullForm;
         }
@@ -255,7 +250,7 @@ export function preprocessAttrs (properties, className, cls, es6) {
                     }
                 }
                 else if (!val.get && !val.set) {
-                    const maybeTypeScript = es6;
+                    var maybeTypeScript = es6;
                     if (!maybeTypeScript) {
                         cc.errorID(5516, className, propName);
                     }
@@ -263,10 +258,10 @@ export function preprocessAttrs (properties, className, cls, es6) {
             }
             if (CC_DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
-                const baseClass = js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
+                var baseClass = js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
                 cc.warnID(5517, className, propName, baseClass, propName);
             }
-            const notify = val.notify;
+            var notify = val.notify;
             if (notify) {
                 if (CC_DEV && es6) {
                     cc.error('not yet support notify attribute for ES6 Classes');
@@ -289,13 +284,13 @@ export function preprocessAttrs (properties, className, cls, es6) {
             }
         }
     }
-}
+};
 
 const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy\s*\.\s*call\s*\(\s*\w+\s*[,|)]/;
 export function doValidateMethodWithProps_DEV (func, funcName, className, cls, base) {
     if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
         // find class that defines this method as a property
-        const baseClassName = js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
+        var baseClassName = js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
         cc.errorID(3648, className, funcName, baseClassName);
         return false;
     }
@@ -303,10 +298,9 @@ export function doValidateMethodWithProps_DEV (func, funcName, className, cls, b
         js.isChildClassOf(base, cc.Component) &&
         !CALL_SUPER_DESTROY_REG_DEV.test(func)
     ) {
-        // tslint:disable-next-line: max-line-length
         cc.error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
     }
-}
+};
 
 export function validateMethodWithProps (func, funcName, className, cls, base) {
     if (CC_DEV && funcName === 'constructor') {
@@ -322,14 +316,14 @@ export function validateMethodWithProps (func, funcName, className, cls, base) {
         if (CC_DEV) {
             if (func === false && base && base.prototype) {
                 // check override
-                const overrided = base.prototype[funcName];
+                var overrided = base.prototype[funcName];
                 if (typeof overrided === 'function') {
-                    const baseFuc = js.getClassName(base) + '.' + funcName;
-                    const subFuc = className + '.' + funcName;
+                    var baseFuc = js.getClassName(base) + '.' + funcName;
+                    var subFuc = className + '.' + funcName;
                     cc.warnID(3624, subFuc, baseFuc, subFuc, subFuc);
                 }
             }
-            const correct = TYPO_TO_CORRECT_DEV[funcName];
+            var correct = TYPO_TO_CORRECT_DEV[funcName];
             if (correct) {
                 cc.warnID(3621, className, funcName, correct);
             }
@@ -340,4 +334,4 @@ export function validateMethodWithProps (func, funcName, className, cls, base) {
         return false;
     }
     return true;
-}
+};

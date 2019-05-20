@@ -560,11 +560,11 @@ export function getClassByName (classname) {
  * Get class id of the object
  * @method _getClassId
  * @param {Object|Function} obj - instance or constructor
- * @param {Boolean} [allowTempId = true]   - can return temp id in editor
+ * @param {Boolean} [allowTempId=true] - can return temp id in editor
  * @return {String}
  * @private
  */
-export function _getClassId (obj, allowTempId?: Boolean) {
+export function _getClassId (obj, allowTempId) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);
 
     let res;

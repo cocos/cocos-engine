@@ -1255,7 +1255,7 @@ CCClass.isArray = function (defaultVal) {
 CCClass.getDefault = getDefault;
 CCClass.escapeForJS = escapeForJS;
 CCClass.IDENTIFIER_RE = IDENTIFIER_RE;
-CCClass.getNewValueTypeCode = (CC_SUPPORT_JIT && getNewValueTypeCodeJit) as ((value: any) => string);
+CCClass.getNewValueTypeCode = CC_SUPPORT_JIT && getNewValueTypeCodeJit;
 
 export default CCClass;
 
