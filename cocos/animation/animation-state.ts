@@ -177,6 +177,7 @@ export class AnimationState extends Playable {
     private _lastWrapInfoEvent: WrappedInfo | null = null;
     private _process = this.process;
     private _target: Node | null = null;
+    private _targetNode: Node | null = null;
     private _clip: AnimationClip;
     private _name: string;
     private _lastIterations?: number;
@@ -197,6 +198,7 @@ export class AnimationState extends Playable {
     public initialize (root: Node) {
         this._curveLoaded = true;
         this._curveInstances.length = 0;
+        this._targetNode = root;
         const clip = this._clip;
 
         this.duration = clip.duration;
@@ -288,6 +290,10 @@ export class AnimationState extends Playable {
 
     public _setEventTarget (target) {
         this._target = target;
+    }
+
+    public setTargetNode (target: Node) {
+        this._targetNode = target;
     }
 
     public setTime (time: number) {
@@ -618,7 +624,7 @@ export class AnimationState extends Playable {
     }
 
     private _fireEvent (index: number) {
-        if (!this._target || !this._target.isValid) {
+        if (!this._targetNode || !this._targetNode.isValid) {
             return;
         }
 
@@ -628,7 +634,7 @@ export class AnimationState extends Playable {
         }
 
         const eventGroup = eventGroups[index];
-        const components = this._target.components;
+        const components = this._targetNode.components;
         for (const event of eventGroup.events) {
             const { functionName } = event;
             for (const component of components) {
