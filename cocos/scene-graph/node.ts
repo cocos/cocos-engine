@@ -215,6 +215,7 @@ class Node extends BaseNode {
      */
     public translate (trans: Vec3, ns?: NodeSpace) {
         const space = ns || NodeSpace.LOCAL;
+        v3_a.set(this._lpos);
         if (space === NodeSpace.LOCAL) {
             vec3.transformQuat(v3_a, trans, this._lrot);
             this.setPosition(vec3.add(v3_a, this._lpos, v3_a));
@@ -225,7 +226,11 @@ class Node extends BaseNode {
         vec3.copy(this._pos, this._lpos);
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+            if (CC_EDITOR) {
+                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART, v3_a);
+            } else {
+                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+            }
         }
     }
 
@@ -417,6 +422,7 @@ class Node extends BaseNode {
      * @param z - the z component of the new local position
      */
     public setPosition (val: Vec3 | number, y?: number, z?: number) {
+        v3_a.set(this._lpos);
         if (y === undefined || z === undefined) {
             vec3.copy(this._lpos, val as Vec3);
         } else if (arguments.length === 3) {
@@ -426,7 +432,11 @@ class Node extends BaseNode {
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+            if (CC_EDITOR) {
+                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART, v3_a);
+            } else {
+                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+            }
         }
     }
 
@@ -591,6 +601,7 @@ class Node extends BaseNode {
         }
         const parent = this._parent;
         const local = this._lpos;
+        v3_a.set(this._lpos);
         if (parent) {
             parent.updateWorldTransform();
             vec3.sub(local, this._pos, parent._pos);
@@ -602,7 +613,11 @@ class Node extends BaseNode {
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+            if (CC_EDITOR) {
+                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART, v3_a);
+            } else {
+                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+            }
         }
     }
 
