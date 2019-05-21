@@ -331,15 +331,17 @@ proto.emit = function (key, arg1, arg2, arg3, arg4, arg5) {
         for (let i = 0, len = infos.length; i < len; ++i) {
             const info = infos[i];
             if (info) {
+                let target = info.target;
+                let callback = info.callback;
                 if (info.once) {
-                    this.off(key, info.callback, info.target);
+                    this.off(key, callback, target);
                 }
 
-                if (info.target) {
-                    info.callback.call(info.target, arg1, arg2, arg3, arg4, arg5);
+                if (target) {
+                    callback.call(target, arg1, arg2, arg3, arg4, arg5);
                 }
                 else {
-                    info.callback(arg1, arg2, arg3, arg4, arg5);
+                    callback(arg1, arg2, arg3, arg4, arg5);
                 }
             }
         }
