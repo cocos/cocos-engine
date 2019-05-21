@@ -29,8 +29,9 @@ export class PhysicsBasedComponent extends Component {
     }
 
     public onEnable () {
-        // collider和rigidbody都需要激活刚体
-        this.sharedBody!.enable();
+        if (this.sharedBody) {
+            this.sharedBody!.enable();
+        }
     }
 
     public onDisable () {
@@ -123,8 +124,11 @@ class SharedRigidBody {
     private _onCollidedCallback: ICollisionCallback;
 
     private _transformInitialized: boolean = false;
+
     /** 是否只有Collider组件 */
     private _isShapeOnly: boolean = true;
+    public get isShapeOnly (): boolean { return this._isShapeOnly; }
+
     /** 上一次的缩放 */
     private _prevScale: Vec3 = new Vec3();
 
