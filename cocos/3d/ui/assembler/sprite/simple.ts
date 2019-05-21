@@ -36,7 +36,6 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
-const _temp_vec3 = new Vec3();
 
 export const simple: IAssembler = {
     createData (sprite: SpriteComponent) {
@@ -104,18 +103,18 @@ export const simple: IAssembler = {
 
         const data0 = datas[0];
         const data3 = datas[3];
-        vec3.set(vec3_temps[0], data0.x, data0.y, 0);
-        vec3.set(vec3_temps[1], data3.x, data0.y, 0);
-        vec3.set(vec3_temps[2], data0.x, data3.y, 0);
-        vec3.set(vec3_temps[3], data3.x, data3.y, 0);
+        vec3.set(vec3_temps[0], data0.x, data0.y, data0.z);
+        vec3.set(vec3_temps[1], data3.x, data0.y, data0.z);
+        vec3.set(vec3_temps[2], data0.x, data3.y, data0.z);
+        vec3.set(vec3_temps[3], data3.x, data3.y, data0.z);
 
         // get uv from sprite frame directly
         const uv = sprite!.spriteFrame!.uv;
-
+        node.getWorldMatrix(matrix);
         for (let i = 0; i < 4; i++) {
             // vertex
             const vertex = vec3_temps[i];
-            // vec3.transformMat4(vertex, vertex, matrix);
+            vec3.transformMat4(vertex, vertex, matrix);
 
             vbuf![vertexOffset++] = vertex.x;
             vbuf![vertexOffset++] = vertex.y;
@@ -184,24 +183,16 @@ export const simple: IAssembler = {
             t = ch + trimTop * scaleY - appy;
         }
 
-        node.getWorldMatrix(matrix);
-        vec3.set(_temp_vec3, l, b, 0);
-        vec3.transformMat4(_temp_vec3, _temp_vec3, matrix);
-        const spriteRect = sprite.renderData!.rect;
-        spriteRect.origin = _temp_vec3;
-        const hw = r - l;
-        const vw = t - b;
-        spriteRect.width = hw;
-        spriteRect.height = vw;
-
-        datas[0].x = _temp_vec3.x;
-        datas[0].y = _temp_vec3.y;
+        datas[0].x = l;
+        datas[0].y = b;
+        datas[0].z = 0;
         // datas[1].x = r;
         // datas[1].y = b;
         // datas[2].x = l;
         // datas[2].y = t;
-        datas[3].x = _temp_vec3.x + hw;
-        datas[3].y = _temp_vec3.y + vw;
+        datas[3].x = r;
+        datas[3].y = t;
+        datas[3].z = 0;
 
         renderData.vertDirty = false;
     },

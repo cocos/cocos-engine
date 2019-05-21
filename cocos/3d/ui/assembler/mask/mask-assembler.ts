@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Mat4, Vec3 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
@@ -33,8 +31,6 @@ import { IAssembler, IAssemblerManager } from '../assembler';
 import { StencilManager } from './stencil-manager';
 
 const _stencilManager = StencilManager.sharedManager!;
-const _temp_vec3 = new Vec3();
-const _worldMatrix = new Mat4();
 
 export const maskAssembler: IAssembler = {
     createData (mask: MaskComponent) {
@@ -81,14 +77,6 @@ export const maskAssembler: IAssembler = {
         datas[0].y = b;
         datas[3].x = r;
         datas[3].y = t;
-
-        vec3.set(_temp_vec3, l, b, 0);
-        const rect = renderData.rect;
-        mask.node.getWorldMatrix(_worldMatrix);
-        vec3.transformMat4(_temp_vec3, _temp_vec3, _worldMatrix);
-        rect.origin = _temp_vec3;
-        rect.width = r - l;
-        rect.height = t - b;
 
         renderData.vertDirty = false;
     },

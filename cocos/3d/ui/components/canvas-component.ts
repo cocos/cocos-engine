@@ -173,7 +173,7 @@ export class CanvasComponent extends Component {
 
     public __preload () {
         const cameraNode = new cc.Node('UICamera');
-        cameraNode.setPosition(0, 0, 1000);
+        cameraNode.setPosition(0, 0, 900);
         if (!CC_EDITOR) {
             this._camera = cc.director.root.ui.renderScene.createCamera({
                 name: 'ui',
