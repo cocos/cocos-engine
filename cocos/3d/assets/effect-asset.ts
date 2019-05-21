@@ -39,7 +39,6 @@ export interface IBlockMember {
     count: number;
 }
 export interface IBlockInfo {
-    defines: string[];
     size: number;
     // extends GFXUniformBlock
     binding: number;
@@ -47,7 +46,6 @@ export interface IBlockInfo {
     members: IBlockMember[];
 }
 export interface ISamplerInfo {
-    defines: string[];
     // extends GFXUniformSampler
     binding: number;
     name: string;
@@ -59,7 +57,6 @@ export interface IDefineInfo {
     type: string;
     range?: number[];
     options?: string[];
-    defines?: string[];
 }
 export interface IBuiltinInfo {
     blocks: string[];

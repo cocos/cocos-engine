@@ -23,9 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { _decorator } from '../../core/data';
-const { ccclass, property } = _decorator;
 import { Asset } from '../../assets/asset';
+import { ccclass, property } from '../../core/data/class-decorator';
 import { Node } from '../../scene-graph/node';
 
 /**
@@ -38,7 +37,7 @@ import { Node } from '../../scene-graph/node';
  * for example, be animated.
  */
 @ccclass('cc.Skeleton')
-export default class Skeleton extends Asset {
+export class Skeleton extends Asset {
     /**
      * The path of joints.
      */
@@ -80,5 +79,4 @@ export default class Skeleton extends Asset {
     }
 }
 
-// tslint:disable-next-line
-cc['Skeleton'] = Skeleton;
+cc.Skeleton = Skeleton;

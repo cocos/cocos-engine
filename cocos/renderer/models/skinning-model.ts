@@ -4,11 +4,11 @@ import Skeleton from '../../3d/assets/skeleton';
 import { Filter, PixelFormat, WrapMode } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
 import { Mat4 } from '../../core/value-types';
-import { mat4, vec3, quat } from '../../core/vmath';
+import { mat4, quat, vec3 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { JointUniformCapacity, UBOSkinning, UBOSkinningTextureCase, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
+import { UBOSkinning, UBOSkinningTextureCase, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
@@ -16,7 +16,6 @@ import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 
 const textureSizeBuffer = new Float32Array(4);
-const skinningVectors = JointUniformCapacity * 3; // both Mat3x4 and DQ
 
 const vertexVectorLeeway = 30; // the minimum number of free vectors guaranteed in vertex shader when using uniform joint storage
 const m4_1 = new Mat4();
@@ -61,7 +60,7 @@ export class SkinningModel extends Model {
 
     public bindSkeleton (skeleton: Skeleton) {
         this._destroyJointStorage();
-        const storageKind = selectStorageKind(this._device);
+        const storageKind = selectStorageKind(this._device, skeleton.joints.length);
 
         if (storageKind === JointStorageKind.textureRGBA32F ||
             storageKind === JointStorageKind.textureRGBA8) {
@@ -86,10 +85,6 @@ export class SkinningModel extends Model {
             this._binded.skinningUBO.update(
                 textureSizeBuffer, UBOSkinningTextureCase.JOINTS_TEXTURE_SIZE_OFFSET, textureSizeBuffer.byteLength);
         } else {
-            if (skeleton.joints.length > JointUniformCapacity) {
-                console.error(`Joints count exceeds the default limits: ${skeleton.joints.length}/${JointUniformCapacity} in ${skeleton.name}`);
-            }
-
             this._binded = {
                 skinningUBOBinding: UBOSkinning.BLOCK.binding,
                 skinningUBO: this._device.createBuffer({
@@ -161,7 +156,8 @@ export class SkinningModel extends Model {
     }
 }
 
-export function selectStorageKind (device: GFXDevice): JointStorageKind {
+export function selectStorageKind (device: GFXDevice, jointCount: number): JointStorageKind {
+    const skinningVectors = jointCount * 3; // both Mat3x4 and DQ
     if (device.maxVertexUniformVectors - skinningVectors > vertexVectorLeeway) {
         return JointStorageKind.uniform;
     } else if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
