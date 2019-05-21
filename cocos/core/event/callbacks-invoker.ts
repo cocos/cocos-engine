@@ -299,14 +299,17 @@ export class CallbacksInvoker {
             for (let i = 0, len = infos.length; i < len; ++i) {
                 const info = infos[i];
                 if (info) {
-                    if (info.target) {
-                        info.callback.call(info.target, ...args);
+                    const callback = info.callback;
+                    const target = info.target;
+                    // Pre off once callbacks to avoid influence on logic in callback
+                    if (info.once) {
+                        this.off(key, callback, target);
+                    }
+                    if (target) {
+                        callback.call(target, ...args);
                     }
                     else {
-                        info.callback(...args);
-                    }
-                    if (info.once) {
-                        this.off(key, info.callback, info.target);
+                        callback(...args);
                     }
                 }
             }
