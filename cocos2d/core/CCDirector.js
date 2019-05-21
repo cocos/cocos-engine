@@ -963,11 +963,11 @@ cc.Director.prototype = {
     },
 
     __fastOn: function (type, callback, target) {
-        this.add(type, callback, target);
+        this.on(type, callback, target);
     },
 
     __fastOff: function (type, callback, target) {
-        this.remove(type, callback, target);
+        this.off(type, callback, target);
     },
 };
 
