@@ -26,7 +26,7 @@
 import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
 import { EventType } from '../../../core/platform';
-import { Mat4, Vec2, Vec3 } from '../../../core/value-types';
+import { Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import * as vmath from '../../../core/vmath';
 import { UI } from '../../../renderer/ui/ui';
@@ -236,6 +236,7 @@ export class MaskComponent extends UIRenderComponent {
 
     private _graphics: GraphicsComponent | null = null;
     private _clearGraphics: GraphicsComponent | null = null;
+    private _lastVisibleSize = new Size();
 
     constructor (){
         super();
@@ -360,6 +361,14 @@ export class MaskComponent extends UIRenderComponent {
 
     protected _nodeStateChange () {
         super._nodeStateChange();
+        const size = cc.visibleRect;
+        if (this._clearGraphics && (size.width !== this._lastVisibleSize.width || size.height !== this._lastVisibleSize.height)) {
+            this._clearGraphics.clear();
+            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            this._clearGraphics.fill();
+        }
+
+        this._updateGraphics();
     }
 
     protected _canRender () {
@@ -426,7 +435,10 @@ export class MaskComponent extends UIRenderComponent {
             this._clearGraphics.helpInstanceMaterial();
             this._clearGraphics._activateMaterial();
             this._clearGraphics.lineWidth = 0;
-            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            const size = cc.visibleRect;
+            this._lastVisibleSize.width = size.width;
+            this._lastVisibleSize.height = size.height;
+            this._clearGraphics.rect(0, 0, size.width, size.height);
             this._clearGraphics.fill();
         }
 
