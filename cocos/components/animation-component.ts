@@ -366,7 +366,6 @@ export class AnimationComponent extends Component implements IEventTarget {
                 this._nameToState[stateName]!._lastframeEventOn = true;
             }
         }
-        this.node.on(type, callback, target);
         return ret;
     }
 
