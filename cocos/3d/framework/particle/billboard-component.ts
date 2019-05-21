@@ -1,14 +1,13 @@
-import { RenderableComponent } from "../renderable-component";
 import { ccclass, property, executeInEditMode, menu } from "../../../core/data/class-decorator";
 import { Material, Mesh } from "../../assets";
 import { Texture2D } from "../../../assets";
 import { createMesh } from "../../misc/utils";
 import { GFXPrimitiveMode, GFXAttributeName, GFXFormat } from "../../../gfx";
-import { Color } from "../../../core";
+import { Color } from "../../../core/value-types";
 import { Model } from "../../../renderer";
 import { builtinResMgr } from "../../builtin";
 import { Component } from "../../../components";
-import { toRadian, vec4, toDegree } from "../../../core/vmath";
+import { toRadian, toDegree } from "../../../core/vmath";
 
 @ccclass('cc.BillboardComponent')
 @menu('Components/BillboardComponent')
