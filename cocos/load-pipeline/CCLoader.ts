@@ -324,8 +324,8 @@ class CCLoader extends Pipeline {
         }
         // @ts-ignore
         const queue = LoadingItems.create(this, owner ? (completedCount, totalCount, item) => {
-            if (this._ownerQueue && this._ownerQueue.onProgress) {
-                this._ownerQueue._childOnProgress(item);
+            if (queue._ownerQueue && queue._ownerQueue.onProgress) {
+                queue._ownerQueue._childOnProgress(item);
             }
         } : null, (errors, items) => {
             callback(errors, items);
