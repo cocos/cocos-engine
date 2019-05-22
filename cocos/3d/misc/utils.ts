@@ -1,10 +1,10 @@
-import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode } from '../../gfx/define';
+import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
 import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { Skeleton } from '../assets';
 import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';
+import { Skeleton } from '../assets/skeleton';
 import { aabb } from '../geom-utils';
 import { IGeometry } from '../primitive/define';
 import { BufferBlob } from './buffer-blob';
@@ -14,6 +14,13 @@ import { BufferBlob } from './buffer-blob';
  */
 export function toPPM (buffer: Uint8Array, w: number, h: number) {
     return `P3 ${w} ${h} 255\n${buffer.filter((e, i) => i % 4 < 3).toString()}\n`;
+}
+
+enum _keyMap {
+    positions = GFXAttributeName.ATTR_POSITION,
+    normals = GFXAttributeName.ATTR_NORMAL,
+    uvs = GFXAttributeName.ATTR_TEX_COORD,
+    colors = GFXAttributeName.ATTR_COLOR,
 }
 
 const _defAttrs: IGFXAttribute[] = [
@@ -41,7 +48,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === 'a_position') {
+                if (att.name === GFXAttributeName.ATTR_POSITION) {
                     attr = att;
                     break;
                 }
@@ -142,7 +149,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
     const vertexBuffer = new ArrayBuffer(vertCount * stride);
     const vertexBufferView = new DataView(vertexBuffer);
     for (const channel of channels) {
-        _writeVertices(vertexBufferView, channel.offset, stride, channel.attribute.format, channel.data);
+        writeBuffer(vertexBufferView, channel.data, channel.attribute.format, channel.offset, stride);
     }
     bufferBlob.setNextAlignment(0);
     const vertexBundle: IVertexBundle = {
@@ -165,10 +172,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         idxCount = indices.length;
         indexBuffer = new ArrayBuffer(idxStride * idxCount);
         const indexBufferView = new DataView(indexBuffer);
-        const writer = _getIndicesWriter(indexBufferView, idxStride);
-        for (let i = 0; i < idxCount; ++i) {
-            writer(idxStride * i, indices[i]);
-        }
+        writeBuffer(indexBufferView, indices, GFXFormat.R16UI);
     }
 
     // Create primitive.
@@ -238,81 +242,76 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
 
     return out;
 }
-
-function _writeVertices (
-    target: DataView, offset: number, stride: number, format: GFXFormat, data: number[]) {
-    const writer = _getVerticesWriter(target, format);
-    const info = GFXFormatInfos[format];
-    const componentBytesLength = info.size / info.count;
-    const nVertices = Math.floor(data.length / info.count);
-
-    for (let iVertex = 0; iVertex < nVertices; ++iVertex) {
-        const x = offset + stride * iVertex;
-        for (let iComponent = 0; iComponent < info.count; ++iComponent) {
-            const y = x + componentBytesLength * iComponent;
-            writer(y, data[info.count * iVertex + iComponent]);
+export function readMesh (mesh: Mesh, iPrimitive: number = 0) {
+    const out: IGeometry = { positions: [] };
+    const dataView = new DataView(mesh._nativeAsset);
+    const struct = mesh.struct;
+    const primitive = struct.primitives[iPrimitive];
+    for (const idx of primitive.vertexBundelIndices) {
+        const bundle = struct.vertexBundles[idx];
+        let offset = bundle.view.offset;
+        const { length, stride } = bundle.view;
+        for (const attr of bundle.attributes) {
+            const name = _keyMap[attr.name];
+            if (!name) { continue; }
+            const info = GFXFormatInfos[attr.format];
+            out[name] = readBuffer(dataView, attr.format, offset, length, stride);
+            offset += info.size;
         }
     }
+    const view = primitive.indexView!;
+    out.indices = readBuffer(dataView, GFXFormat[`R${view.stride * 8}UI`], view.offset, view.length);
+    return out;
 }
 
 const isLittleEndian = cc.sys.isLittleEndian;
-
-function _getVerticesWriter (dataView: DataView, format: GFXFormat) {
-
-    const info = GFXFormatInfos[format];
-    const stride = info.size / info.count;
-
-    switch (info.type) {
-        case GFXFormatType.UNORM: {
-            switch (stride) {
-                case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
-                case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
-                case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
-            }
-            break;
-        }
-        case GFXFormatType.SNORM: {
-            switch (stride) {
-                case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
-                case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
-                case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
-            }
-            break;
-        }
-        case GFXFormatType.INT: {
-            switch (stride) {
-                case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
-                case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
-                case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
-            }
-            break;
-        }
-        case GFXFormatType.UINT: {
-            switch (stride) {
-                case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
-                case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
-                case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
-            }
-            break;
-        }
-        case GFXFormatType.FLOAT: {
-            return (offset: number, value: number) => dataView.setFloat32(offset, value, isLittleEndian);
-        }
-    }
-
-    return (offset: number, value: number) => dataView.setUint8(offset, value);
+const _typeMap = {
+    [GFXFormatType.UNORM]: 'Uint',
+    [GFXFormatType.SNORM]: 'Int',
+    [GFXFormatType.UINT]: 'Uint',
+    [GFXFormatType.INT]: 'Int',
+    [GFXFormatType.UFLOAT]: 'Float',
+    [GFXFormatType.FLOAT]: 'Float',
+    default: 'Uint',
+};
+function _getDataViewType (info: IGFXFormatInfo) {
+    const type = _typeMap[info.type] || _typeMap.default;
+    const bytes = info.size / info.count * 8;
+    return type + bytes;
 }
+// default is writing plain Float32Array
+export function writeBuffer (target: DataView, data: number[], format: GFXFormat = GFXFormat.R32F, offset: number = 0, stride: number = 0) {
+    const info = GFXFormatInfos[format];
+    if (!stride) { stride = info.size; }
+    const writer = 'set' + _getDataViewType(info);
+    const componentBytesLength = info.size / info.count;
+    const nSeg = Math.floor(data.length / info.count);
 
-function _getIndicesWriter (dataView: DataView, idxStride: number) {
-    switch (idxStride) {
-        case 1:
-            return (offset: number, value: number) => dataView.setUint8(offset, value);
-        case 2:
-            return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
-        case 4:
-            return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+    for (let iSeg = 0; iSeg < nSeg; ++iSeg) {
+        const x = offset + stride * iSeg;
+        for (let iComponent = 0; iComponent < info.count; ++iComponent) {
+            const y = x + componentBytesLength * iComponent;
+            target[writer](y, data[info.count * iSeg + iComponent], isLittleEndian);
+        }
     }
-    return (offset: number, value: number) => dataView.setUint8(offset, value);
+}
+export function readBuffer (
+    target: DataView, format: GFXFormat = GFXFormat.R32F, offset: number = 0,
+    length: number = target.byteLength - offset, stride: number = 0, out: number[] = []) {
+    const info = GFXFormatInfos[format];
+    if (!stride) { stride = info.size; }
+    const reader = 'get' + _getDataViewType(info);
+    const componentBytesLength = info.size / info.count;
+    const nSeg = Math.floor(length / stride);
+
+    for (let iSeg = 0; iSeg < nSeg; ++iSeg) {
+        const x = offset + stride * iSeg;
+        for (let iComponent = 0; iComponent < info.count; ++iComponent) {
+            const y = x + componentBytesLength * iComponent;
+            out[info.count * iSeg + iComponent] = target[reader](y, isLittleEndian);
+        }
+    }
+    return out;
 }
 
 const tmpVec3 = new vec3();
@@ -360,7 +359,9 @@ export function calculateBoneSpaceBounds (mesh: Mesh, skeleton: Skeleton) {
                 const bindpose = skeleton.bindposes[refJointIndex];
                 const jointBounds = result[refJointIndex];
 
-                vec3.transformMat4(transformedPos, pos, bindpose);
+                vec3.multiply(transformedPos, pos, bindpose.localScale);
+                vec3.transformQuat(transformedPos, transformedPos, bindpose.localRotation);
+                vec3.add(transformedPos, transformedPos, bindpose.localPosition);
                 jointBounds.hasValue = true;
                 vec3.min(jointBounds.min, jointBounds.min, transformedPos);
                 vec3.max(jointBounds.max, jointBounds.max, transformedPos);
