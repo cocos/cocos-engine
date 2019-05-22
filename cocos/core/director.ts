@@ -543,6 +543,10 @@ class Director extends EventTarget {
     public runSceneImmediate (scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene instanceof cc.Scene, 1216);
 
+        const uuid = cc.loader._getReferenceKey(scene.uuid);
+        // Scene cannot be cached in loader, because it will be destroyed after switching.
+        cc.loader.removeItem(uuid);
+
         if ( CC_BUILD && CC_DEBUG ) {
             console.time('InitScene');
         }
