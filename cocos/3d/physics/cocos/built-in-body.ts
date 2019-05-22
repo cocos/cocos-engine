@@ -22,7 +22,7 @@ export class BuiltInBody implements RigidBodyBase {
 
     private _type: ERigidBodyType = ERigidBodyType.DYNAMIC;
 
-    private _group: number = 0;
+    private _group: number = 1;
     private _collisionFilterGroup: number = 1 << 0;
     private _collisionFilterMask: number = 1 << 0;
 

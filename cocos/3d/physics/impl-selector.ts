@@ -1,7 +1,4 @@
 
-declare const CC_PHYISCS_CANNON: boolean;
-declare const CC_PHYISCS_AMMO: boolean;
-declare const CC_PHYISCS_BUILT_IN: boolean;
 declare const global: any;
 const _global = typeof window === 'undefined' ? global : window;
 

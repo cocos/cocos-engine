@@ -172,8 +172,7 @@ export class CannonRigidBody implements RigidBodyBase {
         return this._cannonBody;
     }
 
-    private _group: number = 0;
-    private _mask: number = 0;
+    private _group: number = 1;
     private _cannonBody: CANNON.Body;
     private _velocityResult: Vec3 = new Vec3();
     private _useGravity = true;

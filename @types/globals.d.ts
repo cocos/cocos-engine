@@ -39,6 +39,10 @@ declare const CC_SUPPORT_JIT: boolean;
 
 declare const jsb: any;
 
+declare const CC_PHYISCS_CANNON: boolean;
+declare const CC_PHYISCS_AMMO: boolean;
+declare const CC_PHYISCS_BUILT_IN: boolean;
+
 interface Window {
     mozRequestAnimationFrame (callback: any, element?: any): any;
     oRequestAnimationFrame (callback: any, element?: any): any;
@@ -77,7 +81,7 @@ interface ActiveXObject {
 }
 declare var ActiveXObject: ActiveXObject;
 
-declare const cc : {
+declare const cc: {
     // polyfills: {
     //     destroyObject? (object: any): void;
     // };
@@ -101,7 +105,7 @@ declare namespace Editor {
     function log (message?: any, ...optionalParams: any[]): void;
     function error (message?: any, ...optionalParams: any[]): void;
     function warn (message?: any, ...optionalParams: any[]): void;
-    function require(str:String): any;
+    function require (str: String): any;
     const isMainProcess: boolean | undefined;
     const Ipc: any;
     const Utils: any;
