@@ -10,6 +10,11 @@ function GraySpriteState () {
 }
 
 GraySpriteState.prototype._switchGrayMaterial = function (useGrayMaterial, renderComp) {
+
+    if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+        return;
+    }
+
     let material;
     if (useGrayMaterial) {
         material = this._graySpriteMaterial;
