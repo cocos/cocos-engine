@@ -292,10 +292,6 @@ export class AnimationState extends Playable {
         this._target = target;
     }
 
-    public setTargetNode (target: Node) {
-        this._targetNode = target;
-    }
-
     public setTime (time: number) {
         this._currentFramePlayed = false;
         this.time = time || 0;

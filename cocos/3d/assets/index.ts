@@ -27,6 +27,6 @@ export { AudioClip } from './audio/clip';
 export { EffectAsset } from './effect-asset';
 export { Material } from './material';
 export { Mesh } from './mesh';
-export { default as Skeleton } from './skeleton';
+export { Skeleton } from './skeleton';
 
 export { PhysicsMaterial } from './physics/material';
