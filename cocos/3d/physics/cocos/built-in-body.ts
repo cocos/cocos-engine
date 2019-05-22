@@ -169,14 +169,14 @@ export class BuiltInBody implements RigidBodyBase {
 
     }
     public setWorld (world: PhysicsWorldBase | null): void {
-        if (this._world) {
-            this._world = null;
-        }
 
         const cworld = world as unknown as (BuiltInWorld | null);
         if (cworld) {
             cworld.addBody(this);
+        } else {
+            this._world!.removeBody(this);
         }
+
         this._world = cworld;
     }
     public commitShapeUpdates (): void {
