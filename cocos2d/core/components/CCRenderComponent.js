@@ -55,6 +55,11 @@ let RenderComponent = cc.Class({
             type: Material,
         },
 
+        /**
+         * !#en The materials used by this render component.
+         * !#zh 渲染组件使用的材质。
+         * @property {[Material]} sharedMaterials
+         */
         sharedMaterials: {
             get () {
                 return this._materials;
@@ -156,6 +161,12 @@ let RenderComponent = cc.Class({
         }
     },
 
+    /**
+     * !#en Get the material by index.
+     * !#zh 根据指定索引获取材质
+     * @method getMaterial
+     * @param {Number} index 
+     */
     getMaterial (index) {
         if (index < 0 || index >= this._materials.length) {
             return null;
@@ -172,6 +183,12 @@ let RenderComponent = cc.Class({
         return this._materials[index];
     },
     
+    /**
+     * !#en Set the material by index.
+     * !#zh 根据指定索引设置材质
+     * @method setMaterial
+     * @param {Number} index 
+     */
     setMaterial (index, material) {
         this._materials[index] = material;
         if (material) {
