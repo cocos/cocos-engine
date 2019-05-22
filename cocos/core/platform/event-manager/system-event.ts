@@ -156,8 +156,8 @@ export class SystemEvent extends EventTarget {
                         cc.systemEvent.emit(event.type, touch, event);
                     },
                 });
+                eventManager.addListener(touchListener, 256);
             }
-            eventManager.addListener(touchListener, 256);
         }
 
         // mouse
@@ -186,8 +186,8 @@ export class SystemEvent extends EventTarget {
                         cc.systemEvent.emit(event.type, event);
                     },
                 });
+                eventManager.addListener(mouseListener, 256);
             }
-            eventManager.addListener(mouseListener, 256);
         }
 
         return callback;
