@@ -468,6 +468,7 @@ export class Mesh extends Asset {
                 srcAttrOffset = 0;
                 for (const attr of bundle.attributes) {
                     dstVBOffset = 0;
+                    hasAttr = false;
                     for (const dstAttr of dstBundle.attributes) {
                         if (attr.name === dstAttr.name && attr.format === dstAttr.format) {
                             hasAttr = true;
@@ -479,7 +480,7 @@ export class Mesh extends Asset {
                         attrSize = GFXFormatInfos[attr.format].size;
                         srcVBOffset = bundle.view.length + srcAttrOffset;
                         for (let v = 0; v < dstBundle.view.count; ++v) {
-                            dstAttrView = dstVBView.subarray(dstVBOffset, attrSize);
+                            dstAttrView = dstVBView.subarray(dstVBOffset, dstVBOffset + attrSize);
                             vbView.set(dstAttrView, srcVBOffset);
                             srcVBOffset += bundle.view.stride;
                             dstVBOffset += dstBundle.view.stride;
