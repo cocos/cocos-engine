@@ -122,10 +122,6 @@ const AssetLibrary = {
                         asset.scene.dependAssets = getDependsRecursively(key);
                     }
                 }
-                if (isScene(asset)) {
-                    const id = cc.loader._getReferenceKey(uuid);
-                    cc.loader.removeItem(id);
-                }
             }
             if (callback) {
                 callback(error, asset);
