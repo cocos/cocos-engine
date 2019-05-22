@@ -63,7 +63,6 @@ function _unrollLoops(string) {
 export default class ProgramLib {
   /**
    * @param {gfx.Device} device
-   * @param {Array} templates
    */
   constructor(device) {
     this._device = device;
