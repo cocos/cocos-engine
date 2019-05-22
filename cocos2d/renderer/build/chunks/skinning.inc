@@ -45,6 +45,16 @@
           decode32(w.wzyx * 255.0)
         );
       }
+
+      vec4 decodevec4 (float dx, float x, float y, float offset) {
+        return decodevec4(
+          texture2D(_jointsTexture, vec2(dx * (offset + 0.5), y)),
+          texture2D(_jointsTexture, vec2(dx * (offset + 1.5), y)),
+          texture2D(_jointsTexture, vec2(dx * (offset + 2.5), y)),
+          texture2D(_jointsTexture, vec2(dx * (offset + 3.5), y))
+        );
+      }
+
       mat4 getBoneMatrix(const in float i) {
         float width = _jointsTextureSize.x;
         float height = _jointsTextureSize.y;
@@ -57,30 +67,10 @@
 
         y = dy * (y + 0.5);
 
-        vec4 v1 = decodevec4(
-          texture2D(_jointsTexture, vec2(dx * (x + 0.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 1.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 2.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 3.5), y))
-        );
-        vec4 v2 = decodevec4(
-          texture2D(_jointsTexture, vec2(dx * (x + 4.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 5.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 6.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 7.5), y))
-        );
-        vec4 v3 = decodevec4(
-          texture2D(_jointsTexture, vec2(dx * (x + 8.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 9.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 10.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 11.5), y))
-        );
-        vec4 v4 = decodevec4(
-          texture2D(_jointsTexture, vec2(dx * (x + 12.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 13.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 14.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (x + 15.5), y))
-        );
+        vec4 v1 = decodevec4(dx, x, y, 0.0);
+        vec4 v2 = decodevec4(dx, x, y, 4.0);
+        vec4 v3 = decodevec4(dx, x, y, 8.0);
+        vec4 v4 = decodevec4(dx, x, y, 12.0);
 
         return mat4(v1, v2, v3, v4);
       }

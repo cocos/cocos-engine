@@ -191,7 +191,7 @@ let SkinnedMeshRenderer = cc.Class({
             customProperties.define('_USE_JOINTS_TEXTRUE', false);
         }
 
-        let ALLOW_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
+        let SUPPORT_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
         if (!inited) {
             let size;
             if (jointCount > 256) {
@@ -210,7 +210,7 @@ let SkinnedMeshRenderer = cc.Class({
                 width = size, 
                 height = size;
             
-            if (!ALLOW_FLOAT_TEXTURE) {
+            if (!SUPPORT_FLOAT_TEXTURE) {
                 this._jointsData = new Uint8Array(this._jointsFloat32Data.buffer);
                 pixelFormat = cc.Texture2D.PixelFormat.RGBA8888;
                 width *= 4;
@@ -225,7 +225,7 @@ let SkinnedMeshRenderer = cc.Class({
             customProperties.setProperty('_jointsTexture', texture.getImpl());
             customProperties.setProperty('_jointsTextureSize', new Float32Array([width, height]));
             
-            customProperties.define('_JOINTS_TEXTURE_FLOAT32', ALLOW_FLOAT_TEXTURE);
+            customProperties.define('_JOINTS_TEXTURE_FLOAT32', SUPPORT_FLOAT_TEXTURE);
             customProperties.define('_USE_JOINTS_TEXTRUE', true);
         }
 
