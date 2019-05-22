@@ -47,8 +47,6 @@ function _initBuiltins(device) {
   
     return {
         defaultTexture: defaultTexture,
-        programTemplates: {},
-        programChunks: {},
     };
 }
 
@@ -186,6 +184,6 @@ cc.renderer = module.exports = {
 
     clear () {
         this._handle.reset();
-        this._forward._reset();
+        this._forward.clear();
     }
 };

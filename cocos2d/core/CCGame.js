@@ -346,16 +346,18 @@ var game = {
             cc.director.getScene().destroy();
             cc.Object._deferredDestroy();
 
-            cc.director.purgeDirector();
-
             // Clean up audio
             if (cc.audioEngine) {
                 cc.audioEngine.uncacheAll();
             }
 
             cc.director.reset();
-            game.onStart();
-            game.emit(game.EVENT_RESTART);
+
+            game.pause();
+            cc.AssetLibrary._loadBuiltins(() => {
+                game.onStart();
+                game.emit(game.EVENT_RESTART);
+            });
         });
     },
 
