@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { EventType } from '../../../core/platform';
 import { array } from '../../../core/utils/js';
 import { Size, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
@@ -31,7 +32,6 @@ import { Node } from '../../../scene-graph/node';
 import { CanvasComponent } from './canvas-component';
 import { UIRenderComponent } from './ui-render-component';
 import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';
-const Event = Node.EventType;
 
 const _tempPos = new Vec3();
 
@@ -90,19 +90,19 @@ export function computeInverseTransForTarget (widgetNode: Node, target: Node, ou
     out_inverseTranslate.y = -translateY;
 }
 
-const tInverseTranslate = cc.Vec2.ZERO;
-const tInverseScale = cc.Vec2.ONE;
+const tInverseTranslate = new Vec3();
+const tInverseScale = new Vec3(1, 1, 1);
 
 // align to borders by adjusting node's position and size (ignore rotation)
 function align (node: Node, widget: WidgetComponent) {
     const hasTarget = widget.target;
-    let target;
-    let inverseTranslate;
-    let inverseScale;
+    let target: any;
+    const inverseTranslate = tInverseTranslate;
+    const inverseScale = tInverseScale;
     if (hasTarget) {
         target = hasTarget;
-        inverseTranslate = tInverseTranslate;
-        inverseScale = tInverseScale;
+        // inverseTranslate = tInverseTranslate;
+        // inverseScale = tInverseScale;
         computeInverseTransForTarget(node, target, inverseTranslate, inverseScale);
     } else {
         target = node.parent;
@@ -198,7 +198,7 @@ function align (node: Node, widget: WidgetComponent) {
             localTop *= inverseScale.y;
         }
 
-        let height;
+        let height = 0;
         let anchorY = anchor.y;
         let scaleY = scale.y;
         if (scaleY < 0) {
@@ -349,8 +349,8 @@ function refreshScene () {
     }
 }
 
-function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, oldPos: Vec3) {
-    if (!CC_EDITOR) {
+function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: EventType, oldPos: Vec3) {
+    if (!CC_EDITOR || eventType !== EventType.POSITION_PART) {
         return;
     }
 
@@ -363,11 +363,11 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, oldPos: Vec3)
     const delta = newPos.sub(oldPos);
 
     let target = self.node.parent!;
-    const inverseScale = cc.Vec2.ONE;
+    const inverseScale = new Vec3(1, 1, 1);
 
     if (self.target) {
         target = self.target;
-        computeInverseTransForTarget(self.node, target, new cc.Vec2(), inverseScale);
+        computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
     }
 
     const targetSize = getReadonlyNodeSize(target);
@@ -493,15 +493,15 @@ export const widgetManager = cc._widgetManager = {
                     canvasComp.node.on('design-resolution-changed', this.onResized, this);
                 }
             }
-            widget.node.on(Event.POSITION_PART, adjustWidgetToAllowMovingInEditor, widget);
-            widget.node.on(Event.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
+            widget.node.on(EventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
+            widget.node.on(EventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         }
     },
     remove (widget: WidgetComponent) {
         this._activeWidgetsIterator.remove(widget);
         if (CC_EDITOR && !cc.engine.isPlaying) {
-            widget.node.off(Event.POSITION_PART, adjustWidgetToAllowMovingInEditor, widget);
-            widget.node.off(Event.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
+            widget.node.off(EventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
+            widget.node.off(EventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         }
     },
     onResized () {
