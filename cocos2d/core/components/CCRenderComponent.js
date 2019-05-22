@@ -188,6 +188,7 @@ let RenderComponent = cc.Class({
      * !#zh 根据指定索引设置材质
      * @method setMaterial
      * @param {Number} index 
+     * @param {Material} material 
      */
     setMaterial (index, material) {
         this._materials[index] = material;
