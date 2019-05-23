@@ -174,7 +174,9 @@ export class BuiltInBody implements RigidBodyBase {
         if (cworld) {
             cworld.addBody(this);
         } else {
-            this._world!.removeBody(this);
+            if (this._world != null) {
+                this._world.removeBody(this);
+            }
         }
 
         this._world = cworld;
