@@ -553,7 +553,7 @@ let NodeDefines = {
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: cc.Vec3,
-        _scale: cc.Vec3,
+        _scale: cc.Vec3.ONE,
         _eulerAngles: cc.Vec3,
         _skewX: 0.0,
         _skewY: 0.0,
@@ -1161,11 +1161,6 @@ let NodeDefines = {
         this._touchListener = null;
         // Mouse event listener
         this._mouseListener = null;
-
-        // default scale
-        this._scale.x = 1;
-        this._scale.y = 1;
-        this._scale.z = 1;
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
@@ -1857,7 +1852,10 @@ let NodeDefines = {
         }
 
         this._updateWorldMatrix();
-        mat4.invert(_mat4_temp, this._worldMatrix);
+        // If scale is 0, it can't be hit.
+        if (!mat4.invert(_mat4_temp, this._worldMatrix)) {
+            return false;
+        }
         vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;

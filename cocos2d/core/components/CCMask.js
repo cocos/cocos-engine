@@ -480,7 +480,10 @@ let Mask = cc.Class({
             testPt = _vec2_temp;
         
         node._updateWorldMatrix();
-        mat4.invert(_mat4_temp, node._worldMatrix);
+        // If scale is 0, it can't be hit.
+        if (!mat4.invert(_mat4_temp, node._worldMatrix)) {
+            return false;
+        }
         vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += node._anchorPoint.x * w;
         testPt.y += node._anchorPoint.y * h;

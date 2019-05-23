@@ -149,7 +149,7 @@ let ArmatureDisplay = cc.Class({
             notify () {
                 // parse the atlas asset data
                 this._parseDragonAtlasAsset();
-                this._buildArmature();
+                this._refresh();
                 this._activateMaterial();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
@@ -520,9 +520,9 @@ let ArmatureDisplay = cc.Class({
         if (!this.isAnimationCached()) return;
         if (!this._playing) return;
 
-        let frames = this._frameCache.frames;
-        let totalTime = this._frameCache.totalTime;
-        let frameCount = frames.length;
+        let frameCache = this._frameCache;
+        let frames = frameCache.frames;
+        let frameTime = ArmatureCache.FrameTime;
 
         // Animation Start, the event diffrent from dragonbones inner event,
         // It has no event object.
@@ -532,8 +532,12 @@ let ArmatureDisplay = cc.Class({
 
         let globalTimeScale = dragonBones.timeScale;
         this._accTime += dt * this.timeScale * globalTimeScale;
-        let frameIdx = Math.floor(this._accTime / totalTime * frameCount);
-        if (frameIdx >= frameCount) {
+        let frameIdx = Math.floor(this._accTime / frameTime);
+        if (!frameCache.isCompleted) {
+            frameCache.updateToFrame(frameIdx);
+        }
+
+        if (frameCache.isCompleted && frameIdx >= frames.length) {
 
             // Animation loop complete, the event diffrent from dragonbones inner event,
             // It has no event object.
@@ -544,7 +548,9 @@ let ArmatureDisplay = cc.Class({
             this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.COMPLETE);
 
             this._playCount ++;
-            if (this.playTimes === -1 || (this.playTimes > 0 && this._playCount >= this.playTimes)) {
+            if ((this.playTimes > 0 && this._playCount >= this.playTimes)) {
+                // set frame to end frame.
+                this._curFrame = frames[frames.length - 1];
                 this._accTime = 0;
                 this._playing = false;
                 this._playCount = 0;
@@ -761,7 +767,8 @@ let ArmatureDisplay = cc.Class({
         if (this.isAnimationCached()) {
             let cache = this._armatureCache.getAnimationCache(this._armatureKey, animName);
             if (!cache) {
-                cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
+                cache = this._armatureCache.initAnimationCache(this._armatureKey, animName);
+                cache.begin();
             }
             if (cache) {
                 this._accTime = 0;
