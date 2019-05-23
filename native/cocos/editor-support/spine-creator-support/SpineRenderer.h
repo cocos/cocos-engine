@@ -155,8 +155,8 @@ namespace spine {
         virtual AttachmentVertices* getAttachmentVertices (spRegionAttachment* attachment) const;
         virtual AttachmentVertices* getAttachmentVertices (spMeshAttachment* attachment) const;
 
-        bool                _ownsSkeletonData = true;
-        bool                _ownsSkeleton = true;
+        bool                _ownsSkeletonData = false;
+        bool                _ownsSkeleton = false;
         spAtlas*            _atlas = nullptr;
         spAttachmentLoader* _attachmentLoader = nullptr;
         spSkeleton*         _skeleton = nullptr;

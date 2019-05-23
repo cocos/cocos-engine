@@ -276,6 +276,11 @@ void SpineRenderer::initWithBinaryFile (const std::string& skeletonDataFile, con
 
 void SpineRenderer::update (float deltaTime)
 {
+    if (!_skeleton) return;
+
+    _renderInfoOffset->reset();
+    _renderInfoOffset->clear();
+    
     // avoid other place call update.
     auto mgr = MiddlewareManager::getInstance();
     if (!mgr->isUpdating) return;
@@ -284,15 +289,21 @@ void SpineRenderer::update (float deltaTime)
     auto renderInfo = renderMgr->getBuffer();
     if (!renderInfo) return;
     
-    _renderInfoOffset->reset();
     //  store renderInfo offset
     _renderInfoOffset->writeUint32((uint32_t)renderInfo->getCurPos() / sizeof(uint32_t));
+    
+    // check enough space
+    renderInfo->checkSpace(sizeof(uint32_t) * 2, true);
+    // write border
+    renderInfo->writeUint32(0xffffffff);
+    
+    std::size_t materialLenOffset = renderInfo->getCurPos();
+    //reserved space to save material len
+    renderInfo->writeUint32(0);
     
     // If opacity is 0,then return.
     if (_skeleton->color.a == 0) 
     {
-        renderInfo->checkSpace(sizeof(uint32_t), true);
-        renderInfo->writeUint32(0);
         return;
     }
     
@@ -342,12 +353,6 @@ void SpineRenderer::update (float deltaTime)
             _debugBuffer->writeUint32(0);
         }
     }
-    
-    // check enough space
-    renderInfo->checkSpace(sizeof(uint32_t), true);
-    std::size_t materialLenOffset = renderInfo->getCurPos();
-    //reserved space to save material len
-    renderInfo->writeUint32(0);
     
     auto flush = [&]() 
     {
@@ -807,47 +812,79 @@ AttachmentVertices* SpineRenderer::getAttachmentVertices (spMeshAttachment* atta
 
 void SpineRenderer::updateWorldTransform ()
 {
-    spSkeleton_updateWorldTransform(_skeleton);
+    if (_skeleton) 
+    {
+        spSkeleton_updateWorldTransform(_skeleton);
+    }
 }
 
 void SpineRenderer::setToSetupPose ()
 {
-    spSkeleton_setToSetupPose(_skeleton);
+    if (_skeleton) 
+    {
+        spSkeleton_setToSetupPose(_skeleton);
+    }
 }
 
 void SpineRenderer::setBonesToSetupPose ()
 {
-    spSkeleton_setBonesToSetupPose(_skeleton);
+    if (_skeleton)
+    {
+        spSkeleton_setBonesToSetupPose(_skeleton);
+    }
 }
 
 void SpineRenderer::setSlotsToSetupPose ()
 {
-    spSkeleton_setSlotsToSetupPose(_skeleton);
+    if (_skeleton) 
+    {
+        spSkeleton_setSlotsToSetupPose(_skeleton);
+    }
 }
 
 spBone* SpineRenderer::findBone (const std::string& boneName) const
 {
-    return spSkeleton_findBone(_skeleton, boneName.c_str());
+    if (_skeleton) 
+    {
+        return spSkeleton_findBone(_skeleton, boneName.c_str());
+    }
+    return nullptr;
 }
 
 spSlot* SpineRenderer::findSlot (const std::string& slotName) const
 {
-    return spSkeleton_findSlot(_skeleton, slotName.c_str());
+    if (_skeleton) 
+    {
+        return spSkeleton_findSlot(_skeleton, slotName.c_str());
+    }
+    return nullptr;
 }
 
 bool SpineRenderer::setSkin (const std::string& skinName)
 {
-    return spSkeleton_setSkinByName(_skeleton, skinName.empty() ? 0 : skinName.c_str()) ? true : false;
+    if (_skeleton)
+    {
+        return spSkeleton_setSkinByName(_skeleton, skinName.empty() ? 0 : skinName.c_str()) ? true : false;
+    }
+    return false;
 }
 
 bool SpineRenderer::setSkin (const char* skinName)
 {
-    return spSkeleton_setSkinByName(_skeleton, skinName) ? true : false;
+    if (_skeleton)
+    {
+        return spSkeleton_setSkinByName(_skeleton, skinName) ? true : false;
+    }
+    return nullptr;
 }
 
 spAttachment* SpineRenderer::getAttachment (const std::string& slotName, const std::string& attachmentName) const
 {
-    return spSkeleton_getAttachmentForSlotName(_skeleton, slotName.c_str(), attachmentName.c_str());
+    if (_skeleton)
+    {
+        return spSkeleton_getAttachmentForSlotName(_skeleton, slotName.c_str(), attachmentName.c_str());
+    }
+    return nullptr;
 }
 
 void SpineRenderer::setUseTint(bool enabled) {
@@ -862,12 +899,20 @@ void SpineRenderer::setSlotsRange(int startSlotIndex, int endSlotIndex)
 
 bool SpineRenderer::setAttachment (const std::string& slotName, const std::string& attachmentName)
 {
-    return spSkeleton_setAttachment(_skeleton, slotName.c_str(), attachmentName.empty() ? 0 : attachmentName.c_str()) ? true : false;
+    if (_skeleton) 
+    {
+        return spSkeleton_setAttachment(_skeleton, slotName.c_str(), attachmentName.empty() ? 0 : attachmentName.c_str()) ? true : false;
+    }
+    return false;
 }
 
 bool SpineRenderer::setAttachment (const std::string& slotName, const char* attachmentName)
 {
-    return spSkeleton_setAttachment(_skeleton, slotName.c_str(), attachmentName) ? true : false;
+    if (_skeleton) 
+    {
+        return spSkeleton_setAttachment(_skeleton, slotName.c_str(), attachmentName) ? true : false;
+    }
+    return false;
 }
 
 spSkeleton* SpineRenderer::getSkeleton () const
