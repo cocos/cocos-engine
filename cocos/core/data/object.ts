@@ -174,9 +174,7 @@ class CCObject {
     }
 
     public _onPreDestroy: any;
-    public realDestroyInEditor: any;
     public _objFlags: number;
-    public _instantiate: any;
     private _name: string;
 
     constructor (name = '') {
@@ -212,7 +210,6 @@ class CCObject {
         this._name = value;
     }
 
-    // tslint:disable: max-line-length
     /**
      * @en
      * Indicates whether the object is not yet destroyed. (It will not be available after being destroyed)<br>
@@ -223,7 +220,9 @@ class CCObject {
      *
      * @zh
      * 表示该对象是否可用（被 destroy 后将不可用）。<br>
-     * 当一个对象的 `destroy` 调用以后，会在这一帧结束后才真正销毁。因此从下一帧开始 `isValid` 就会返回 false，而当前帧内 `isValid` 仍然会是 true。如果希望判断当前帧是否调用过 `destroy`，请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
+     * 当一个对象的 `destroy` 调用以后，会在这一帧结束后才真正销毁。<br>
+     * 因此从下一帧开始 `isValid` 就会返回 false，而当前帧内 `isValid` 仍然会是 true。<br>
+     * 如果希望判断当前帧是否调用过 `destroy`，请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
      *
      * @property {Boolean} isValid
      * @default true
@@ -325,8 +324,8 @@ class CCObject {
 
 const prototype = CCObject.prototype;
 if (CC_EDITOR || CC_TEST) {
-    js.get(prototype, 'isRealValid', () => {
-        return !(prototype._objFlags & RealDestroyed);
+    js.get(prototype, 'isRealValid', function (this: CCObject) {
+        return !(this._objFlags & RealDestroyed);
     });
 
     /*
@@ -339,17 +338,18 @@ if (CC_EDITOR || CC_TEST) {
     * @method realDestroyInEditor
     * @private
     */
-    prototype.realDestroyInEditor = () => {
-        if ( !(prototype._objFlags & Destroyed) ) {
+    // @ts-ignore
+    prototype.realDestroyInEditor = function () {
+        if ( !(this._objFlags & Destroyed) ) {
             cc.warnID(5001);
             return;
         }
-        if (prototype._objFlags & RealDestroyed) {
+        if (this._objFlags & RealDestroyed) {
             cc.warnID(5000);
             return;
         }
-        prototype._destruct();
-        prototype._objFlags |= RealDestroyed;
+        this._destruct();
+        this._objFlags |= RealDestroyed;
     };
 }
 
@@ -513,7 +513,9 @@ js.value(CCObject, 'Flags', {
  *
  * @zh
  * 检查该对象是否不为 null 并且尚未销毁。<br>
- * 当一个对象的 `destroy` 调用以后，会在这一帧结束后才真正销毁。因此从下一帧开始 `isValid` 就会返回 false，而当前帧内 `isValid` 仍然会是 true。如果希望判断当前帧是否调用过 `destroy`，请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
+ * 当一个对象的 `destroy` 调用以后，会在这一帧结束后才真正销毁。<br>
+ * 因此从下一帧开始 `isValid` 就会返回 false，而当前帧内 `isValid` 仍然会是 true。<br>
+ * 如果希望判断当前帧是否调用过 `destroy`，请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
  *
  * @method isValid
  * @param {any} value

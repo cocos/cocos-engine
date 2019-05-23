@@ -208,26 +208,26 @@ class Game extends EventTarget {
      */
     public onStart: Function|null = null;
 
-    private _persistRootNodes = {};
+    public _persistRootNodes = {};
 
     // states
-    private _paused: boolean = true; // whether the game is paused
-    private _configLoaded: boolean = false; // whether config loaded
-    private _isCloning: boolean = false;    // deserializing or instantiating
-    private _prepared: boolean = false; // whether the engine has prepared
-    private _rendererInitialized: boolean = false;
+    public _paused: boolean = true; // whether the game is paused
+    public _configLoaded: boolean = false; // whether config loaded
+    public _isCloning: boolean = false;    // deserializing or instantiating
+    public _prepared: boolean = false; // whether the engine has prepared
+    public _rendererInitialized: boolean = false;
 
-    private _gfxDevice: cc.WebGL2GFXDevice | cc.WebGLGFXDevice  = null;
+    public _gfxDevice: cc.WebGL2GFXDevice | cc.WebGLGFXDevice  = null;
 
-    private _intervalId: number|null = null; // interval target of main
+    public _intervalId: number|null = null; // interval target of main
 
-    private _lastTime: Date|null = null;
-    private _frameTime: number|null = null;
+    public _lastTime: Date|null = null;
+    public _frameTime: number|null = null;
 
     // Scenes list
-    private _sceneInfos = [];
-    private collisionMatrix = [];
-    private groupList = [];
+    public _sceneInfos = [];
+    public collisionMatrix = [];
+    public groupList = [];
 
     // @Methods
 
@@ -492,7 +492,7 @@ class Game extends EventTarget {
      * @param {Function} cb
      * @method prepare
      */
-    protected prepare (cb: () => void) {
+    protected prepare (cb: Function | null) {
         // Already prepared
         if (this._prepared) {
             if (cb) { cb(); }
@@ -527,7 +527,7 @@ class Game extends EventTarget {
         this.emit(Game.EVENT_ENGINE_INITED);
     }
 
-    private _prepareFinished (cb: () => void) {
+    private _prepareFinished (cb: Function | null) {
         this._prepared = true;
 
         // Init engine

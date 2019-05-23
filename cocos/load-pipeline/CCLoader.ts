@@ -104,7 +104,6 @@ class CCLoader extends Pipeline {
 
     private _autoReleaseSetting: any;
     private _releasedAssetChecker_DEBUG: any;
-    private _ownerQueue: any;
 
     constructor () {
 
@@ -772,7 +771,7 @@ class CCLoader extends Pipeline {
      * @method releaseAll
      */
     public releaseAll () {
-        for (const id of this._cache) {
+        for (const id of Object.keys(this._cache)) {
             this.release(id);
         }
     }

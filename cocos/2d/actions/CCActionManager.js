@@ -450,5 +450,3 @@ if (CC_TEST) {
         return element.paused;
     };
 }
-
-module.exports = cc.ActionManager;

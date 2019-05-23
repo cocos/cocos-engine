@@ -138,7 +138,6 @@ class Assignments {
         else {
             return;
         }
-        // tslint:disable-next-line: no-shadowed-variable
         for (const pair of this._exps) {
             writeAssignment(codeArray, targetVar + getPropAccessor(pair[0]) + '=', pair[1]);
         }

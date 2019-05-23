@@ -46,7 +46,8 @@ export function pop () {
     const module = frameInfo.module;
     let exports = module.exports;
     if (exports === frameInfo.exports) {
-        for (const anykey of Object.keys(exports)) {
+        // tslint:disable-next-line: forin
+        for (const anykey in exports) {
             // exported
             return;
         }

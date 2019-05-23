@@ -222,7 +222,7 @@ class Director extends EventTarget {
     private _scheduler: Scheduler;
     private _compScheduler: ComponentScheduler;
     private _nodeActivator: NodeActivator;
-    private _actionManager: ActionManager | null;
+    private _actionManager: cc.ActionManager | null;
     private _physicsSystem: PhysicsSystem | null;
     private _systems: any[];
     private _animationManager: any;
@@ -649,7 +649,7 @@ class Director extends EventTarget {
         // Delay run / replace scene to the end of the frame
         this.once(cc.Director.EVENT_AFTER_UPDATE, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
-        }, this);
+        });
     }
 
     //  @Scene loading section
