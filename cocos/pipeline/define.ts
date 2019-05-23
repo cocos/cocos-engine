@@ -49,7 +49,7 @@ export enum UniformBinding {
     UBO_LOCAL = MAX_BINDING_SUPPORTED - 3,
     UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
     UBO_SKINNING = MAX_BINDING_SUPPORTED - 5,
-    UBO_SKINNING_TEXTURE_CASE = MAX_BINDING_SUPPORTED - 6,
+    UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
     UBO_UI = MAX_BINDING_SUPPORTED - 7,
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
@@ -170,6 +170,11 @@ localBindingsDesc.set(UBOForwardLight.BLOCK.name, {
     blockInfo: UBOForwardLight.BLOCK,
 });
 
+// The actual uniform vectors used is JointUniformCapacity * 3.
+// We think this is a reasonable default capacity considering MAX_VERTEX_UNIFORM_VECTORS in WebGL spec is just 128.
+// Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
+// But still, you can tweak this for your own need by changing the number below
+// and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
 export const JointUniformCapacity = 30;
 
 export class UBOSkinning {
@@ -179,7 +184,7 @@ export class UBOSkinning {
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_SKINNING, name: 'CCSkinning', members: [
-            { name: 'cc_matJoint', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 }, // mat 4 * 3
+            { name: 'cc_matJoint', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 }, // DQ + scale
         ],
     };
 }
@@ -188,20 +193,20 @@ localBindingsDesc.set(UBOSkinning.BLOCK.name, {
     blockInfo: UBOSkinning.BLOCK,
 });
 
-export class UBOSkinningTextureCase {
-    public static JOINTS_TEXTURE_SIZE_OFFSET: number = 0;
+export class UBOSkinningTexture {
+    public static JOINTS_TEXTURE_SIZE_INV_OFFSET: number = 0;
     public static COUNT: number = 4;
-    public static SIZE: number = UBOSkinningTextureCase.COUNT * 4;
+    public static SIZE: number = UBOSkinningTexture.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: UniformBinding.UBO_SKINNING_TEXTURE_CASE, name: 'CCSkinningTextureCase', members: [
-            { name: 'cc_jointsTextureSize', type: GFXType.FLOAT4, count: 1 },
+        binding: UniformBinding.UBO_SKINNING_TEXTURE, name: 'CCSkinningTexture', members: [
+            { name: 'cc_jointsTextureSizeInv', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 }
-localBindingsDesc.set(UBOSkinningTextureCase.BLOCK.name, {
+localBindingsDesc.set(UBOSkinningTexture.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
-    blockInfo: UBOSkinningTextureCase.BLOCK,
+    blockInfo: UBOSkinningTexture.BLOCK,
 });
 
 export const UNIFORM_JOINTS_TEXTURE: GFXUniformSampler = {

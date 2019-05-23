@@ -32,6 +32,36 @@ export interface IGeometry {
     positions: number[];
 
     /**
+     * Vertex normals.
+     */
+    normals?: number[];
+
+    /**
+     * Texture coordinates.
+     */
+    uvs?: number[];
+
+    /**
+     * Vertex colors.
+     */
+    colors?: number[];
+
+    /**
+     * specify vertex attributes, use (positions|normals|uvs|colors) as keys
+     */
+    attributes?: IGFXAttribute[];
+
+    customAttributes?: Array<{
+        attr: IGFXAttribute,
+        values: number[],
+    }>;
+
+    /**
+     * Bounding sphere radius.
+     */
+    boundingRadius?: number;
+
+    /**
      * Min position.
      */
     minPos?: {
@@ -50,29 +80,9 @@ export interface IGeometry {
     };
 
     /**
-     * Bounding sphere radius.
-     */
-    boundingRadius?: number;
-
-    /**
      * Gemetry indices, if one needs indexed-draw.
      */
     indices?: number[];
-
-    /**
-     * Vertex normals.
-     */
-    normals?: number[];
-
-    /**
-     * Texture coordinates.
-     */
-    uvs?: number[];
-
-    /**
-     * Vertex colors.
-     */
-    colors?: number[];
 
     /**
      * Topology of the geometry vertices. Default is TRIANGLE_LIST.
@@ -83,14 +93,4 @@ export interface IGeometry {
      * whether rays casting from the back face of this geometry could collide with it
      */
     doubleSided?: boolean;
-
-    /**
-     * specify vertex attributes, use (positions|normals|uvs|colors) as keys
-     */
-    attributes?: IGFXAttribute[];
-
-    customAttributes?: Array<{
-        attr: IGFXAttribute,
-        values: number[],
-    }>;
 }
