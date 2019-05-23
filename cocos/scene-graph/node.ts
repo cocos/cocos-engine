@@ -204,6 +204,11 @@ class Node extends BaseNode {
         this._onBatchCreated();
     }
 
+    public _onBeforeSerialize () {
+        // tslint:disable-next-line: no-unused-expression
+        this.eulerAngles; // make sure we save the correct eulerAngles
+    }
+
     // ===============================
     // transform helper, convenient but not the most efficient
     // ===============================
