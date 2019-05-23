@@ -225,10 +225,12 @@ Object.assign(WebEditBoxImpl.prototype, {
 
     _enableDom () {
         this._elem.style.display = '';
+        this._elem.disabled = false;
     },
 
     _disableDom () {
         this._elem.style.display = 'none';
+        this._elem.disabled = true;
     },
 
     _showDom () {
