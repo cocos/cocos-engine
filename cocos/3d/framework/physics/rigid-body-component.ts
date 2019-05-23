@@ -40,7 +40,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     private _fixedRotation: boolean = false;
 
     @property
-    private _triggered: boolean = false;
+    private _isTrigger: boolean = false;
 
     @property
     private _isKinematic: boolean = false;
@@ -159,11 +159,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     }
 
     get isTrigger () {
-        return this._triggered;
+        return this._isTrigger;
     }
 
     set isTrigger (value) {
-        this._triggered = value;
+        this._isTrigger = value;
         if (!CC_EDITOR) {
             this._body.setIsTrigger(value);
         }
