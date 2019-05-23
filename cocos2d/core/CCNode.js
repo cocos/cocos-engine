@@ -123,10 +123,11 @@ var LocalDirtyFlag = cc.Enum({
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
- * @enum Node.EventType
+ * @class Node.EventType
  * @static
  * @namespace Node
  */
+// Why EventType defined as class, because the first parameter of Node.on method needs set as 'string' type.
 var EventType = cc.Enum({
     /**
      * !#en The event type for touch start event, you can use its value directly: 'touchstart'
@@ -552,7 +553,7 @@ let NodeDefines = {
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: cc.Vec3,
-        _scale: cc.v3(1, 1, 1),
+        _scale: cc.Vec3.ONE,
         _eulerAngles: cc.Vec3,
         _skewX: 0.0,
         _skewY: 0.0,
@@ -1559,7 +1560,6 @@ let NodeDefines = {
      */
     once (type, callback, target, useCapture) {
         let forDispatch = this._checknSetupSysEvent(type);
-        let eventType_hasOnceListener = '__ONCE_FLAG:' + type;
 
         let listeners = null;
         if (forDispatch && useCapture) {
@@ -1569,17 +1569,7 @@ let NodeDefines = {
             listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
         }
 
-        let hasOnceListener = listeners.hasEventListener(eventType_hasOnceListener, callback, target);
-        if (!hasOnceListener) {
-            let self = this;
-            let onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
-                self.off(type, onceWrapper, target);
-                listeners.remove(eventType_hasOnceListener, callback, target);
-                callback.call(this, arg1, arg2, arg3, arg4, arg5);
-            };
-            this.on(type, onceWrapper, target);
-            listeners.add(eventType_hasOnceListener, callback, target);
-        }
+        listeners.once(type, callback, target);
     },
 
     _onDispatch (type, callback, target, useCapture) {
@@ -1603,10 +1593,15 @@ let NodeDefines = {
         }
 
         if ( !listeners.hasEventListener(type, callback, target) ) {
-            listeners.add(type, callback, target);
+            listeners.on(type, callback, target);
 
-            if (target && target.__eventTargets)
-                target.__eventTargets.push(this);
+            if (target) {
+                if (target.__eventTargets) {
+                    target.__eventTargets.push(this);
+                } else if (target.node && target.node.__eventTargets) {
+                    target.node.__eventTargets.push(this);
+                }
+            }
         }
 
         return callback;
@@ -1690,10 +1685,14 @@ let NodeDefines = {
         else {
             var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
             if (listeners) {
-                listeners.remove(type, callback, target);
+                listeners.off(type, callback, target);
 
-                if (target && target.__eventTargets) {
-                    js.array.fastRemove(target.__eventTargets, this);
+                if (target) {
+                    if (target.__eventTargets) {
+                        js.array.fastRemove(target.__eventTargets, this);
+                    } else if (target.node && target.node.__eventTargets) {
+                        js.array.fastRemove(target.node.__eventTargets, this);
+                    }
                 }
             }
 
@@ -1850,7 +1849,10 @@ let NodeDefines = {
         }
 
         this._updateWorldMatrix();
-        mat4.invert(_mat4_temp, this._worldMatrix);
+        // If scale is 0, it can't be hit.
+        if (!mat4.invert(_mat4_temp, this._worldMatrix)) {
+            return false;
+        }
         vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
