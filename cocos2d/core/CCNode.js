@@ -123,10 +123,11 @@ var LocalDirtyFlag = cc.Enum({
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
- * @enum Node.EventType
+ * @class Node.EventType
  * @static
  * @namespace Node
  */
+// Why EventType defined as class, because the first parameter of Node.on method needs set as 'string' type.
 var EventType = cc.Enum({
     /**
      * !#en The event type for touch start event, you can use its value directly: 'touchstart'
@@ -552,7 +553,7 @@ let NodeDefines = {
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: cc.Vec3,
-        _scale: cc.v3(1, 1, 1),
+        _scale: cc.Vec3.ONE,
         _eulerAngles: cc.Vec3,
         _skewX: 0.0,
         _skewY: 0.0,
@@ -1848,7 +1849,10 @@ let NodeDefines = {
         }
 
         this._updateWorldMatrix();
-        mat4.invert(_mat4_temp, this._worldMatrix);
+        // If scale is 0, it can't be hit.
+        if (!mat4.invert(_mat4_temp, this._worldMatrix)) {
+            return false;
+        }
         vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;

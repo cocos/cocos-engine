@@ -12,7 +12,7 @@ module.exports = {
                 }
             }
             if (comp.sharedMaterials[0].getProperty('texture') !== frame._texture) {
-                comp._activateMaterial();
+                comp._activateMaterial(true);
             }
         }
     }

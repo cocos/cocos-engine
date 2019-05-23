@@ -673,13 +673,12 @@ let Label = cc.Class({
             let material = this.sharedMaterials[0];
 
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+                material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
             }
             else {
                 material = Material.getInstantiatedMaterial(material, this);
             }
 
-            material.define('USE_TEXTURE', true);
             material.setProperty('texture', this._frame._texture);
             this.setMaterial(0, material);
         }
