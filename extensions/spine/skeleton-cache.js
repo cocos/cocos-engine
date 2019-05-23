@@ -109,6 +109,7 @@ let AnimationCache = cc.Class({
         let state = skeletonInfo.state;
 
         let animation = skeleton.data.findAnimation(this._animationName);
+        state.clearTrack(0);
         state.setAnimationWith(0, animation, false);
         this.bind(listener);
 
