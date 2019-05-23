@@ -26,7 +26,8 @@ module.exports = {
             "toggleContainer": "https://docs.cocos.com/creator/manual/zh/components/toggleContainer.html",
             "slider": "https://docs.cocos.com/creator/manual/zh/components/slider.html",
             "block_input_events": "https://docs.cocos.com/creator/manual/zh/components/block-input-events.html",
-            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-wechatgame-sub-domain.html"
+            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-wechatgame-sub-domain.html",
+            "swan_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-baidugame-sub-domain.html"
         },
         'animation': {
             'default_clip': '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
