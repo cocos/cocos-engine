@@ -142,7 +142,7 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     public onDisable () {
-        super.onEnable();
+        super.onDisable();
         if (!CC_EDITOR) {
             this._unregisterToggleEvent();
         }
