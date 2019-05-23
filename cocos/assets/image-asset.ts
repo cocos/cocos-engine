@@ -64,17 +64,20 @@ export class ImageAsset extends Asset {
     }
 
     get width () {
-        return this._nativeData.width;
+        return this._nativeData.width || this._width;
     }
 
     get height () {
-        return this._nativeData.height;
+        return this._nativeData.height || this._height;
     }
 
     get format () {
         return this._format;
     }
 
+    get isCompressed () {
+        return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
+    }
     /**
      * !#en
      * The url of the texture, this could be empty if the texture wasn't created via a file.
@@ -95,6 +98,10 @@ export class ImageAsset extends Asset {
     private _exportedExts: string[] | null | undefined = undefined;
 
     private _format: PixelFormat = PixelFormat.RGBA8888;
+
+    private _width: number = 0;
+
+    private _height: number = 0;
 
     /**
      * @param nativeAsset
@@ -175,12 +182,21 @@ export class ImageAsset extends Asset {
             }
             extensionIndices.push(exportedExtensionID);
         }
-        return extensionIndices.join('_');
+        return { fmt: extensionIndices.join('_'), w: this.width, h: this.height };
     }
 
-    public _deserialize (data: string, handle: any) {
+    public _deserialize (data: any, handle: any) {
+        let fmtStr = '';
+        if (typeof data === 'string') {
+            fmtStr = data;
+        }
+        else {
+            this._width = data.w;
+            this._height = data.h;
+            fmtStr = data.fmt;
+        }
         const device = _getGlobalDevice();
-        const extensionIDs = data.split('_');
+        const extensionIDs = fmtStr.split('_');
 
         let preferedExtensionIndex = Number.MAX_VALUE;
         let format = this._format;

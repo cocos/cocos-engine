@@ -980,6 +980,12 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                                 h = Math.max(1, h >> 1);
                             }
                         }
+                        else {
+                            // init 2 x 2 texture
+                            const imgSize = GFXFormatSize(gpuTexture.format, 2, 2, 1);
+                            const view: Uint8Array = new Uint8Array(imgSize);
+                            gl.compressedTexImage2D(WebGL2RenderingContext.TEXTURE_2D, 0, gpuTexture.glInternelFmt, 2, 2, 0, view);
+                        }
                     }
                     /*
                     if (gpuTexture.isPowerOf2) {
@@ -1047,6 +1053,13 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                                 w = Math.max(1, w >> 1);
                                 h = Math.max(1, h >> 1);
                             }
+                        }
+                    }
+                    else {
+                        for (let f = 0; f < 6; ++f) {
+                            const imgSize = GFXFormatSize(gpuTexture.format, 2, 2, 1);
+                            const view: Uint8Array = new Uint8Array(imgSize);
+                            gl.compressedTexImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, 0, gpuTexture.glInternelFmt, 2, 2, 0, view);
                         }
                     }
                 }

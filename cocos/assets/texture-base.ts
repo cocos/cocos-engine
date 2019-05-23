@@ -34,6 +34,7 @@ import { SamplerInfoIndex } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { ImageAsset } from './image-asset';
+import { postLoadImage } from './texture-util';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -66,19 +67,21 @@ export class TextureBase extends Asset {
         return this._texture ? this._texture.height : 0;
     }
 
+    /**
+     * !#en
+     * Indicate that whether it's a compressed texture or not
+     * !#zh
+     * 是否是压缩纹理
+     */
+    public get isCompressed (): boolean {
+        return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
+    }
+
     public static PixelFormat = PixelFormat;
 
     public static WrapMode = WrapMode;
 
     public static Filter = Filter;
-
-    /**
-     *
-     * @param texture
-     */
-    public static _isCompressed (texture: TextureBase) {
-        return texture._format >= PixelFormat.RGB_ETC1 && texture._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
-    }
 
     @property
     protected _format: number = PixelFormat.RGBA8888;
@@ -332,10 +335,6 @@ export class TextureBase extends Asset {
 
     }
 
-    public ensureLoadImage () {
-
-    }
-
     protected _getGlobalDevice (): GFXDevice | null {
         if (cc.director && cc.director.root) {
             return cc.director.root.device;
@@ -361,14 +360,18 @@ export class TextureBase extends Asset {
         if (image.loaded) {
             upload();
         } else {
-            image.on('load', () => {
+            image.once('load', () => {
                 upload();
             });
+            if (!this.isCompressed) {
+                this._uploadData(new ImageData(2, 2), level, arrayIndex);
+            }
+            postLoadImage(image);
         }
     }
 
     protected _uploadData (
-        source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer, level: number, arrayIndex?: number) {
+        source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer | ImageData, level: number, arrayIndex?: number) {
         if (!this._texture) {
             return;
         }

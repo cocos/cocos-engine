@@ -364,7 +364,6 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     public onLoad () {
         // HACK, TODO
-        super.onLoad();
         this.renderer!.onInit(this);
         this.shapeModule.onInit(this);
         this.trailModule.init(this);
@@ -389,7 +388,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         if (r._model) {
             r._model.destroy();
             r._model = null;
-            r._assetReady();
+            r.onEnable();
         }
     }
 
@@ -480,7 +479,6 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     protected onEnable () {
-        super.onEnable();
         if (this.playOnAwake) {
             this.play();
         }

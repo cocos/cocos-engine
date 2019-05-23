@@ -412,12 +412,6 @@ export class SpriteComponent extends UIRenderComponent {
 
     public onEnable () {
         super.onEnable();
-        if (this._spriteFrame) {
-            if (!this._spriteFrame.textureLoaded()) {
-                // this._spriteFrame.once('load', this._onTextureLoaded, this);
-                this._spriteFrame.ensureLoadImage();
-            }
-        }
 
         // this._flushAssembler();
         this._activateMaterial();
@@ -536,7 +530,7 @@ export class SpriteComponent extends UIRenderComponent {
             // }
             // TODO: use editor assets
             // else {
-            if (spriteFrame && spriteFrame.textureLoaded()) {
+            if (spriteFrame) {
                 if (material) {
                     // const matTexture = material.getProperty('mainTexture');
                     // if (matTexture !== spriteFrame) {
@@ -598,13 +592,7 @@ export class SpriteComponent extends UIRenderComponent {
         if (spriteFrame) {
             if (!oldFrame || spriteFrame !== oldFrame) {
                 // this._material.setProperty('mainTexture', spriteFrame);
-                if (spriteFrame.textureLoaded()) {
-                    // this._onTextureLoaded();
-                    this._activateMaterial();
-                } else {
-                    // spriteFrame.once('load', this._onTextureLoaded, this);
-                    spriteFrame.ensureLoadImage();
-                }
+                this._activateMaterial();
             }
             // else {
             //     this._applySpriteSize();

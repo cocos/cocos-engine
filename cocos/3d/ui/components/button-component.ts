@@ -467,18 +467,6 @@ export class ButtonComponent extends Component {
 
     public onEnable () {
         // check sprite frames
-        if (this._normalSprite) {
-            this._normalSprite.ensureLoadImage();
-        }
-        if (this._hoverSprite) {
-            this._hoverSprite.ensureLoadImage();
-        }
-        if (this._pressedSprite) {
-            this._pressedSprite.ensureLoadImage();
-        }
-        if (this._disabledSprite) {
-            this._disabledSprite.ensureLoadImage();
-        }
         //
         if (!CC_EDITOR) {
             this._registerEvent();

@@ -100,7 +100,7 @@ export function postLoadImage (imageAsset: ImageAsset, callback?: Function) {
     cc.loader.load({
         url: imageAsset.nativeUrl,
         // For image, we should skip loader otherwise it will load a new ImageAsset
-        skips: ['Loader'],
+        skips: imageAsset.isCompressed ? undefined : ['Loader'],
     }, (err, image) => {
         if (image) {
             if (CC_DEBUG && image instanceof cc.ImageAsset) {

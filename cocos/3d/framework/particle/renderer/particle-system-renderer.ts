@@ -148,22 +148,9 @@ export default class ParticleSystemRenderer {
     }
 
     public set mesh (val) {
-        const replaceMesh = () => {
-            const old = this._mesh;
-            this._mesh = val;
-            if (this._model) {
-                this._model.setVertexAttributes(this._renderMode === RenderMode.Mesh ? this._mesh : null, this._vertAttrs);
-            }
-            if (old && !old.loaded) {
-                old.off('load', this._assetReady, this);
-                this._assetReady();
-            }
-        };
-        if (val && !val.loaded) {
-            val.once('load', replaceMesh);
-            postLoadMesh(val);
-        } else {
-            replaceMesh();
+        this._mesh = val;
+        if (this._model) {
+            this._model.setVertexAttributes(this._renderMode === RenderMode.Mesh ? this._mesh : null, this._vertAttrs);
         }
     }
 
@@ -200,7 +187,6 @@ export default class ParticleSystemRenderer {
     private particleSystem: any;
     private _particles: RecyclePool | null = null;
     private _defaultMat: Material | null = null;
-    private _isAssetReady = false;
     private _defaultTrailMat: Material | null = null;
 
     constructor () {
@@ -226,9 +212,6 @@ export default class ParticleSystemRenderer {
             return new Particle(this);
         }, 16);
         this._setVertexAttrib();
-        if (this._mesh && !this._mesh.loaded) {
-            this._mesh.once('load', this._assetReady, this);
-        }
         this.onEnable();
     }
 
@@ -236,8 +219,17 @@ export default class ParticleSystemRenderer {
         if (!this.particleSystem) {
             return;
         }
-        if (!this._mesh || this._mesh.loaded) { this._assetReady(); }
-        this._ensureLoadMesh();
+        if (this._model == null) {
+            this._model = this.particleSystem._getRenderScene().createModel(ParticleBatchModel, this.particleSystem.node) as ParticleBatchModel;
+        }
+        if (!this._model.inited) {
+            this._model.setCapacity(this.particleSystem.capacity);
+            this._model.node = this.particleSystem.node;
+        }
+        this._model.enabled = this.particleSystem.enabledInHierarchy;
+        this._updateModel();
+        this._updateMaterialParams();
+        this._updateTrailMaterial();
     }
 
     public onDisable () {
@@ -325,7 +317,6 @@ export default class ParticleSystemRenderer {
     // internal function
     public _updateRenderData () {
         // update vertex buffer
-        if (!this._isAssetReady) { return; }
         let idx = 0;
         const uploadVel = this._renderMode === RenderMode.StrecthedBillboard;
         for (let i = 0; i < this._particles!.length; ++i) {
@@ -398,27 +389,6 @@ export default class ParticleSystemRenderer {
         if (this.particleSystem.trailModule._trailModel && index === 1) {
             this.particleSystem.trailModule._trailModel.setSubModelMaterial(0, material);
         }
-    }
-
-    protected _ensureLoadMesh () {
-        if (this._mesh && !this._mesh.loaded) {
-            postLoadMesh(this._mesh);
-        }
-    }
-
-    protected _assetReady () {
-        if (this._model == null) {
-            this._model = this.particleSystem._getRenderScene().createModel(ParticleBatchModel, this.particleSystem.node) as ParticleBatchModel;
-        }
-        if (!this._model.inited) {
-            this._model.setCapacity(this.particleSystem.capacity);
-            this._model.node = this.particleSystem.node;
-        }
-        this._model.enabled = this.particleSystem.enabledInHierarchy;
-        this._updateModel();
-        this._updateMaterialParams();
-        this._updateTrailMaterial();
-        this._isAssetReady = true;
     }
 
     private _setVertexAttrib () {
