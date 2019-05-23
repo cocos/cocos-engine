@@ -150,7 +150,15 @@ function loadDepends (pipeline, item, asset, depends, callback) {
                         missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
                     }
                     else {
-                        cc._throw(item.error);
+                        if (item.error.message) {
+                            cc._throw(item.error.message);
+                        }
+                        else if (item.error.errorMessage) {
+                            cc._throw(item.error.errorMessage);
+                        }
+                        else {
+                            cc._throw(item.error);
+                        }
                     }
                 }
                 else {
