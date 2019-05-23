@@ -17,20 +17,18 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     protected _shapeBase!: ShapeBase;
 
     @property
-    private _triggered: boolean = false;
+    private _isTrigger: boolean = false;
 
     @property
-    get isTrigger () { return this._triggered; }
+    get isTrigger () { return this._isTrigger; }
 
     set isTrigger (value) {
-        this._triggered = value;
+        this._isTrigger = value;
 
-        const type = this._triggered ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
-        if (this.sharedBody) {
+        if (!CC_EDITOR) {
+            const type = this._isTrigger ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
             this.sharedBody.body.setType(type);
-        }
-        if (this._shapeBase) {
-            this._shapeBase.setCollisionResponse(!this._triggered);
+            this._shapeBase.setCollisionResponse(!this._isTrigger);
         }
     }
 
@@ -41,13 +39,12 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
      * The center of the collider, in local space.
      */
     @property({ type: Vec3 })
-    get center () {
-        return this._center;
-    }
+    get center () { return this._center; }
 
     set center (value: Vec3) {
         vec3.copy(this._center, value);
-        if (this._shapeBase) {
+
+        if (!CC_EDITOR) {
             this._shapeBase.setCenter(this._center);
         }
     }
@@ -56,17 +53,13 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         super();
     }
 
-    public __preload () {
-        super.__preload();
-    }
-
     public onLoad () {
-        if (this.sharedBody) {
+        if (!CC_EDITOR) {
+            // init collider
             this.sharedBody.transfromSource = ETransformSource.SCENE;
-            // useGravity属性默认是为true的
             this.sharedBody.body.setUseGravity(false);
             this.center = this._center;
-            this.isTrigger = this._triggered;
+            this.isTrigger = this._isTrigger;
         }
     }
 
@@ -79,13 +72,14 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
 
     public onEnable () {
         super.onEnable();
-        if (this.sharedBody) {
+
+        if (!CC_EDITOR) {
             this.sharedBody.body.addShape(this._shapeBase!);
         }
     }
 
     public onDisable () {
-        if (this.sharedBody) {
+        if (!CC_EDITOR) {
             this.sharedBody.body.removeShape(this._shapeBase!);
 
             if (this.sharedBody.isShapeOnly) {
@@ -95,7 +89,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     }
 
     public onDestroy () {
-        if (this.sharedBody) {
+        if (!CC_EDITOR) {
             this.sharedBody.body.removeShape(this._shapeBase!);
         }
         super.onDestroy();
@@ -110,21 +104,25 @@ export class BoxColliderComponent extends ColliderComponentBase {
     @property
     private _size: Vec3 = new Vec3(0, 0, 0);
 
-    private _shape: BoxShapeBase | undefined;
+    private _shape!: BoxShapeBase;
 
     constructor () {
         super();
+        if (!CC_EDITOR) {
+            // 父类在__preload要对_shapeBase进行操作，需要保证其已经构造完成
+            this._shape = createBoxShape(this._size);
+            this._shape.setUserData(this);
+            this._shapeBase = this._shape;
+        }
     }
 
-    public __preload () {
-        // 父类在__preload要对_shapeBase进行操作，需要保证其已经构造完成
-        this._shape = createBoxShape(this._size);
-        this._shape.setUserData(this);
-        this._shapeBase = this._shape;
+    public onLoad () {
+        super.onLoad();
 
-        super.__preload();
-
-        this._shape.setScale(this.node._scale);
+        if (!CC_EDITOR) {
+            this.size = this._size;
+            this._shape.setScale(this.node._scale);
+        }
     }
 
     /**
@@ -132,16 +130,13 @@ export class BoxColliderComponent extends ColliderComponentBase {
      * @note Shall not specify size with component 0.
      */
     @property({ type: Vec3 })
-    get size () {
-        return this._size;
-    }
+    get size () { return this._size; }
 
     set size (value) {
         vec3.copy(this._size, value);
-        if (this._shape) {
+
+        if (!CC_EDITOR) {
             this._shape.setSize(this._size);
-        }
-        if (this.sharedBody) {
             this.sharedBody.body.commitShapeUpdates();
         }
     }
@@ -159,34 +154,31 @@ export class SphereColliderComponent extends ColliderComponentBase {
 
     constructor () {
         super();
-    }
-
-    public __preload () {
-        // const scale = this.node._scale;
-        // const max = Math.abs(Math.max(scale.x, Math.max(scale.y, scale.z)));
         this._shape = createSphereShape(this._radius);
         this._shape.setUserData(this);
         this._shapeBase = this._shape;
+    }
 
-        super.__preload();
+    public onLoad () {
+        super.onLoad();
 
-        this._shape.setScale(this.node._scale);
+        if (!CC_EDITOR) {
+            this.radius = this._radius;
+            this._shape.setScale(this.node._scale);
+        }
     }
 
     /**
      * The radius of the sphere.
      */
     @property
-    get radius () {
-        return this._radius;
-    }
+    get radius () { return this._radius; }
 
     set radius (value) {
         this._radius = value;
-        if (this._shape) {
+
+        if (!CC_EDITOR) {
             this._shape.setRadius(value);
-        }
-        if (this.sharedBody) {
             this.sharedBody.body.commitShapeUpdates();
         }
     }

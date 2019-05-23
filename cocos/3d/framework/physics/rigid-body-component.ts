@@ -54,10 +54,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         super();
     }
 
-    public __preload () {
-        super.__preload();
-    }
-
     public onLoad () {
         /**
          * 此处设置刚体属性是因为__preload不受executionOrder的顺序影响，
@@ -85,7 +81,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     set material (value) {
         this._material = value;
-        // if (this._body) {
+        // if (!CC_EDITOR) {
         //     this._body.material = (this._material || DefaultPhysicsMaterial)._getImpl();
         // }
     }
@@ -97,7 +93,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     set mass (value) {
         this._mass = value;
-        if (this._body) {
+        if (!CC_EDITOR) {
             this._body.setMass(value);
         }
     }
@@ -109,7 +105,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     set isKinematic (value) {
         this._isKinematic = value;
-        if (this._body) {
+        if (!CC_EDITOR) {
             this._body.setIsKinematic(value);
         }
     }
@@ -121,7 +117,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     set useGravity (value) {
         this._useGravity = value;
-        if (this._body) {
+        if (!CC_EDITOR) {
             this._body.setUseGravity(value);
         }
     }
@@ -133,7 +129,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     set linearDamping (value) {
         this._linearDamping = value;
-        if (this._body) {
+        if (!CC_EDITOR) {
             this._body.setLinearDamping(value);
         }
     }
@@ -145,7 +141,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     set angularDamping (value) {
         this._angularDamping = value;
-        if (this._body) {
+        if (!CC_EDITOR) {
             this._body.setAngularDamping(value);
         }
     }
@@ -157,7 +153,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     set fixedRotation (value) {
         this._fixedRotation = value;
-        if (this._body) {
+        if (!CC_EDITOR) {
             this._body.setFreezeRotation(value);
         }
     }
@@ -168,42 +164,49 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     set isTrigger (value) {
         this._triggered = value;
-        if (this._body) {
+        if (!CC_EDITOR) {
             this._body.setIsTrigger(value);
         }
     }
 
     get velocity () {
-        if (this._body) {
-            vec3.copy(this._velocity, this._body!.getVelocity());
-        }
         return this._velocity;
     }
 
     set velocity (value: Vec3) {
         vec3.copy(this._velocity, value);
-        if (this._body) {
+        if (!CC_EDITOR) {
             this._body.setVelocity(this._velocity);
         }
     }
 
     public applyForce (force: Vec3, position?: Vec3) {
-        this._body!.applyForce(force, position);
+        if (this._assertPreload) {
+            this._body!.applyForce(force, position);
+        }
     }
 
     public applyImpulse (impulse: Vec3, position?: Vec3) {
-        this._body!.applyImpulse(impulse, position);
+        if (this._assertPreload) {
+            this._body!.applyImpulse(impulse, position);
+        }
     }
 
     public wakeUp () {
-        this._body!.wakeUp();
+        if (this._assertPreload) {
+            this._body!.wakeUp();
+        }
     }
 
     public sleep () {
-        this._body!.sleep();
+        if (this._assertPreload) {
+            this._body!.sleep();
+        }
     }
 
     public setCollisionFilter (group: number, mask: number) {
-        this._body!.setCollisionFilter(group, mask);
+        if (this._assertPreload) {
+            this._body!.setCollisionFilter(group, mask);
+        }
     }
 }
