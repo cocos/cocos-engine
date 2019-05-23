@@ -2509,7 +2509,7 @@ bool Data_to_seval(const cocos2d::Data& v, se::Value* ret)
     else
     {
         se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, v.getBytes(), v.getSize()));
-        ret->setObject(obj);
+        ret->setObject(obj, true);
     }
     return true;
 }
