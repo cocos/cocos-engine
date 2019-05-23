@@ -32,6 +32,7 @@ const isBaiduGame = (settingPlatform === 'baidugame' || settingPlatform === 'bai
 const isVivoGame = (settingPlatform === 'qgame');
 const isOppoGame = (settingPlatform === 'quickgame');
 const isHuaweiGame = (settingPlatform === 'huawei');
+const isJkeGame = (settingPlatform === 'jkw-game');
 
 var _global = typeof window === 'undefined' ? global : window;
  
@@ -395,6 +396,12 @@ function initSys () {
      */
     sys.XIAOMI_GAME = 111;
     /**
+     * @property {Number} JKW_GAME
+     * @readOnly
+     * @default 112
+     */
+    sys.JKW_GAME = 112;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
@@ -639,11 +646,12 @@ function initSys () {
         let platform;
         if (isVivoGame) {
             platform = sys.VIVO_GAME;
-        }
-        else if (isOppoGame) {
+        } else if (isOppoGame) {
             platform = sys.OPPO_GAME;
         } else if (isHuaweiGame) {
             platform = sys.HUAWEI_GAME;
+        } else if (isJkeGame) {
+            platform = sys.JKW_GAME;
         }
         else {
             platform = __getPlatform();
@@ -656,7 +664,10 @@ function initSys () {
                         platform === sys.TIZEN ||
                         platform === sys.BLACKBERRY ||
                         platform === sys.VIVO_GAME ||
-                        platform === sys.OPPO_GAME);
+                        platform === sys.OPPO_GAME ||
+                        platform === sys.HUAWEI_GAME ||
+                        platform === sys.XIAOMI_GAME ||
+                        platform === sys.JKW_GAME);
 
         sys.os = __getOS();
         sys.language = __getCurrentLanguage();
