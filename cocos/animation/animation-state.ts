@@ -1,5 +1,6 @@
 import { Component } from '../components';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
+import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';
 import { Node } from '../scene-graph';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip } from './animation-clip';
@@ -16,6 +17,15 @@ interface ICurveInstance {
 }
 
 const InvalidIndex = -1;
+
+export interface IAnimationEventDefinitionMap {
+    'finished': (animationState: AnimationState) => void;
+    'lastframe': (animationState: AnimationState) => void;
+    'play': (animationState: AnimationState) => void;
+    'pause': (animationState: AnimationState) => void;
+    'resume': (animationState: AnimationState) => void;
+    'stop': (animationState: AnimationState) => void;
+}
 
 /**
  * !#en
@@ -242,6 +252,8 @@ export class AnimationState extends Playable {
         }
     }
 
+    public emit<K extends string> (type: K, ...args: EventArgumentsOf<K, IAnimationEventDefinitionMap>): void;
+
     public emit (...restargs: any[]) {
         const args = new Array(restargs.length);
         for (let i = 0, l = args.length; i < l; i++) {
@@ -250,7 +262,9 @@ export class AnimationState extends Playable {
         cc.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
     }
 
-    public on (type, callback, target) {
+    public on<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
+
+    public on (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             if (type === 'lastframe') {
                 this._lastframeEventOn = true;
@@ -262,7 +276,9 @@ export class AnimationState extends Playable {
         }
     }
 
-    public once (type, callback, target) {
+    public once<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
+
+    public once (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             if (type === 'lastframe') {
                 this._lastframeEventOn = true;
@@ -277,7 +293,7 @@ export class AnimationState extends Playable {
         }
     }
 
-    public off (type, callback, target) {
+    public off (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             if (type === 'lastframe') {
                 if (!this._target.hasEventListener(type)) {

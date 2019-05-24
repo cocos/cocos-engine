@@ -30,7 +30,7 @@ import {
     property,
     requireComponent,
 } from '../../../core/data/class-decorator';
-import { EventType } from '../../../core/platform';
+import { SystemEventType } from '../../../core/platform';
 import { Color } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { GFXBlendFactor } from '../../../gfx/define';
@@ -247,9 +247,9 @@ export class UIRenderComponent extends UIComponent {
             parent = parent.parent;
         }
 
-        this.node.on(EventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        this.node.on(EventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
-        this.node.on(EventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.on(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
+        this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
         // if (this.node._renderComponent) {
         //     this.node._renderComponent.enabled = false;
         // }
@@ -262,9 +262,9 @@ export class UIRenderComponent extends UIComponent {
         this._visibility = -1;
         // this.node._renderComponent = null;
         // this.disableRender();
-        this.node.off(EventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        this.node.off(EventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
-        this.node.off(EventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
+        this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
 
     public onDestroy () {

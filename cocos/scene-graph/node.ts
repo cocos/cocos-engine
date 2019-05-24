@@ -2,7 +2,7 @@ import { UITransformComponent } from '../3d';
 import { ccclass, property } from '../core/data/class-decorator';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
-import { EventType } from '../core/platform/event-manager/event-enum';
+import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import { Mat4, Quat, Vec3 } from '../core/value-types';
 import Size from '../core/value-types/size';
 import Vec2 from '../core/value-types/vec2';
@@ -22,7 +22,7 @@ const TRANFORM_ON = 1 << 0;
 
 @ccclass('cc.Node')
 class Node extends BaseNode {
-    public static EventType = EventType;
+    public static EventType = SystemEventType;
     public static NodeSpace = NodeSpace;
 
     // is node but not scene
@@ -227,9 +227,9 @@ class Node extends BaseNode {
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             if (CC_EDITOR) {
-                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART, v3_a);
+                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART, v3_a);
             } else {
-                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
             }
         }
     }
@@ -433,9 +433,9 @@ class Node extends BaseNode {
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             if (CC_EDITOR) {
-                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART, v3_a);
+                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART, v3_a);
             } else {
-                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
             }
         }
     }
@@ -483,7 +483,7 @@ class Node extends BaseNode {
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
         }
     }
 
@@ -501,7 +501,7 @@ class Node extends BaseNode {
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
         }
     }
 
@@ -552,7 +552,7 @@ class Node extends BaseNode {
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
         }
     }
 
@@ -614,9 +614,9 @@ class Node extends BaseNode {
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             if (CC_EDITOR) {
-                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART, v3_a);
+                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART, v3_a);
             } else {
-                this.emit(EventType.TRANSFORM_CHANGED, EventType.POSITION_PART);
+                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
             }
         }
     }
@@ -682,7 +682,7 @@ class Node extends BaseNode {
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
         }
     }
 
@@ -704,7 +704,7 @@ class Node extends BaseNode {
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(EventType.TRANSFORM_CHANGED, EventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
         }
     }
 
@@ -766,7 +766,7 @@ class Node extends BaseNode {
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(EventType.TRANSFORM_CHANGED, EventType.SCALE_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
         }
     }
 
@@ -860,9 +860,9 @@ class Node extends BaseNode {
 
     // Event: maybe remove
 
-    public on (type: string | EventType, callback: Function, target?: Object, useCapture?: any) {
+    public on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: any) {
         switch (type) {
-            case EventType.TRANSFORM_CHANGED:
+            case SystemEventType.TRANSFORM_CHANGED:
             this._eventMask |= TRANFORM_ON;
             break;
         }
@@ -876,7 +876,7 @@ class Node extends BaseNode {
         // All listener removed
         if (!hasListeners) {
             switch (type) {
-                case EventType.TRANSFORM_CHANGED:
+                case SystemEventType.TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANFORM_ON;
                 break;
             }
@@ -902,7 +902,7 @@ class Node extends BaseNode {
     public targetOff (target: string | Object) {
         this._eventProcessor.targetOff(target);
         // Check for event mask reset
-        if ((this._eventMask & TRANFORM_ON) && !this._eventProcessor.hasEventListener(EventType.TRANSFORM_CHANGED)) {
+        if ((this._eventMask & TRANFORM_ON) && !this._eventProcessor.hasEventListener(SystemEventType.TRANSFORM_CHANGED)) {
             this._eventMask &= ~TRANFORM_ON;
         }
     }

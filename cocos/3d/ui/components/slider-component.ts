@@ -26,7 +26,7 @@
 
 import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventTouch, EventType } from '../../../core/platform';
+import { EventTouch, SystemEventType } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
 import { clamp01 } from '../../../core/utils';
 import { Vec3 } from '../../../core/value-types';
@@ -156,26 +156,26 @@ export class SliderComponent extends Component {
     public onEnable () {
         this._updateHandlePosition();
 
-        this.node.on(EventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(EventType.TOUCH_MOVE, this._onTouchMoved, this);
-        this.node.on(EventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMoved, this);
+        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
         if (this._handle && this._handle.isValid) {
-            this._handle.node.on(EventType.TOUCH_START, this._onHandleDragStart, this);
-            this._handle.node.on(EventType.TOUCH_MOVE, this._onTouchMoved, this);
-            this._handle.node.on(EventType.TOUCH_END, this._onTouchEnded, this);
+            this._handle.node.on(SystemEventType.TOUCH_START, this._onHandleDragStart, this);
+            this._handle.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMoved, this);
+            this._handle.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
         }
     }
 
     public onDisable () {
-        this.node.off(EventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.off(EventType.TOUCH_MOVE, this._onTouchMoved, this);
-        this.node.off(EventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.off(EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+        this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMoved, this);
+        this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
         if (this._handle && this._handle.isValid) {
-            this._handle.node.off(EventType.TOUCH_START, this._onHandleDragStart, this);
-            this._handle.node.off(EventType.TOUCH_MOVE, this._onTouchMoved, this);
-            this._handle.node.off(EventType.TOUCH_END, this._onTouchEnded, this);
+            this._handle.node.off(SystemEventType.TOUCH_START, this._onHandleDragStart, this);
+            this._handle.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMoved, this);
+            this._handle.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
         }
     }
 
