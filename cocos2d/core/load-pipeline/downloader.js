@@ -112,7 +112,8 @@ function downloadImage (item, callback, isCrossOrigin, img) {
             // Retry without crossOrigin mark if crossOrigin loading fails
             // Do not retry if protocol is https, even if the image is loaded, cross origin image isn't renderable.
             if (window.location.protocol !== 'https:' && img.crossOrigin && img.crossOrigin.toLowerCase() === 'anonymous') {
-                downloadImage(item, callback, false, img);
+                // wechat doesn't support in downloading image twice via one HTMLImageElement
+                downloadImage(item, callback, false);
             }
             else {
                 callback(new Error(debug.getError(4930, url)));
