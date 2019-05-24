@@ -12,38 +12,66 @@ import { stringfyQuat, stringfyVec3 } from '../../../physics/util';
 export class PhysicsBasedComponent extends Component {
 
     protected get _body () {
-        return this._sharedBody ? this._sharedBody.body : null;
+        return this._sharedBody.body;
     }
 
     protected get sharedBody () {
         return this._sharedBody;
     }
-    private _sharedBody!: SharedRigidBody | null;
+
+    protected get _assertPreload (): boolean {
+        if (!this._isPreLoaded) {
+            console.error('Physic Error :', 'Please make sure that the node has been added to the scene');
+        }
+        return this._isPreLoaded;
+    }
+
+    private _sharedBody!: SharedRigidBody;
+
+    private _isPreLoaded: boolean = false;
 
     constructor () {
         super();
     }
 
     public __preload () {
-        this._refSharedBody();
+        if (!CC_EDITOR) {
+            if (this._sharedBody == null) {
+                const physicsBasedComponents = this.node.getComponents(PhysicsBasedComponent);
+                let sharedBody: SharedRigidBody | null = null;
+                for (const physicsBasedComponent of physicsBasedComponents) {
+                    if (physicsBasedComponent._sharedBody) {
+                        sharedBody = physicsBasedComponent._sharedBody;
+                        break;
+                    }
+                }
+                if (!sharedBody) {
+                    sharedBody = new SharedRigidBody(this.node, cc.director._physicsSystem.world);
+                }
+                sharedBody.ref();
+                this._sharedBody = sharedBody;
+            }
+
+            this._isPreLoaded = true;
+        }
     }
 
     public onEnable () {
-        if (this.sharedBody) {
-            this.sharedBody!.enable();
+        if (!CC_EDITOR) {
+            this.sharedBody.enable();
         }
     }
 
     public onDisable () {
-        if (this.sharedBody) {
-            this.sharedBody!.disable();
+        if (!CC_EDITOR) {
+            this.sharedBody.disable();
         }
     }
 
     public onDestroy () {
-        if (this._sharedBody) {
+        if (!CC_EDITOR) {
             this._sharedBody.deref();
-            this._sharedBody = null;
+            (this._sharedBody as any) = null;
         }
     }
 
@@ -51,21 +79,29 @@ export class PhysicsBasedComponent extends Component {
      *  @return group ∈ [0, 31] (int)
      */
     public getGroup (): number {
-        return this._body!.getGroup();
+        if (this._assertPreload) {
+            return this._body!.getGroup();
+        }
+        return 0;
     }
 
     /**
      * @param v ∈ [0, 31] (int)
      */
     public setGroup (v: number) {
-        return this._body!.setGroup(v);
+        if (this._assertPreload) {
+            return this._body!.setGroup(v);
+        }
     }
 
     /**
      * @return (int)
      */
     public getMask (): number {
-        return this._body!.getMask();
+        if (this._assertPreload) {
+            return this._body!.getMask();
+        }
+        return 0;
     }
 
     /**
@@ -73,7 +109,9 @@ export class PhysicsBasedComponent extends Component {
      * @param v ∈ [0, 31] (int)
      */
     public setMask (v: number) {
-        return this._body!.setMask(v);
+        if (this._assertPreload) {
+            return this._body!.setMask(v);
+        }
     }
 
     /**
@@ -81,26 +119,9 @@ export class PhysicsBasedComponent extends Component {
      * @param v ∈ [0, 31] (int)
      */
     public addMask (v: number) {
-        return this._body!.addMask(v);
-    }
-
-    private _refSharedBody () {
-        if (this._sharedBody) {
-            return;
+        if (this._assertPreload) {
+            return this._body!.addMask(v);
         }
-        const physicsBasedComponents = this.node.getComponents(PhysicsBasedComponent);
-        let sharedBody: SharedRigidBody | null = null;
-        for (const physicsBasedComponent of physicsBasedComponents) {
-            if (physicsBasedComponent._sharedBody) {
-                sharedBody = physicsBasedComponent._sharedBody;
-                break;
-            }
-        }
-        if (!sharedBody) {
-            sharedBody = new SharedRigidBody(this.node, cc.director._physicsSystem.world);
-        }
-        sharedBody.ref();
-        this._sharedBody = sharedBody;
     }
 }
 
@@ -111,17 +132,17 @@ class SharedRigidBody {
 
     private _actived = false;
 
-    private _world: PhysicsWorldBase;
+    private _world!: PhysicsWorldBase;
 
-    private _node: Node;
+    private _node!: Node;
 
     private _worldScale: Vec3 = new Vec3(1, 1, 1);
 
-    private _beforeStepCallback: BeforeStepCallback;
+    private _beforeStepCallback!: BeforeStepCallback;
 
-    private _afterStepCallback: AfterStepCallback;
+    private _afterStepCallback!: AfterStepCallback;
 
-    private _onCollidedCallback: ICollisionCallback;
+    private _onCollidedCallback!: ICollisionCallback;
 
     private _transformInitialized: boolean = false;
 
@@ -142,8 +163,6 @@ class SharedRigidBody {
         this._beforeStepCallback = this._beforeStep.bind(this);
         this._afterStepCallback = this._afterStep.bind(this);
         this._onCollidedCallback = this._onCollided.bind(this);
-        this._body.addCollisionCallback(this._onCollidedCallback);
-        this._world.addBeforeStep(this._beforeStepCallback);
     }
 
     public get body () {
@@ -160,18 +179,13 @@ class SharedRigidBody {
     }
 
     public ref () {
-        // if (!this._refCount) {
-        //     this._activeBody();
-        // }
         ++this._refCount;
     }
 
     public deref () {
         --this._refCount;
         if (!this._refCount) {
-            // this._deactiveBody();
-            // TODO : destroy this body
-            // this.destroy();
+            this.destroy();
         }
     }
 
@@ -181,6 +195,16 @@ class SharedRigidBody {
 
     public disable () {
         this._deactiveBody();
+    }
+
+    public destroy () {
+        this._body.setUserData(null);
+        (this._body as any) = null;
+        (this._beforeStepCallback as any) = null;
+        (this._afterStepCallback as any) = null;
+        (this._onCollidedCallback as any) = null;
+        (this._world as any) = null;
+        (this._node as any) = null;
     }
 
     public syncPhysWithScene (node: Node) {
@@ -229,7 +253,8 @@ class SharedRigidBody {
 
         this._actived = true;
         this._body.setWorld(this._world);
-        // this._world.addBeforeStep(this._beforeStepCallback);
+        this._body.addCollisionCallback(this._onCollidedCallback);
+        this._world.addBeforeStep(this._beforeStepCallback);
         this._world.addAfterStep(this._afterStepCallback);
         this._body.wakeUp();
     }
@@ -241,6 +266,7 @@ class SharedRigidBody {
         this._actived = false;
         this._world.removeBeforeStep(this._beforeStepCallback);
         this._world.removeAfterStep(this._afterStepCallback);
+        this._body.removeCollisionCllback(this._onCollidedCallback);
         this._body.sleep();
         this._body.setWorld(null);
     }
