@@ -244,7 +244,7 @@ export function callInNextTick (callback, p1?:any, p2?:any) {
 }
 
 // use anonymous function here to ensure it will not being hoisted without CC_EDITOR
-export function tryCatchFunctor_EDITOR (funcName, forwardArgs, afterCall, bindArg) {
+export function tryCatchFunctor_EDITOR (funcName, forwardArgs?, afterCall?, bindArg?) {
     // @ts-ignore
     function call_FUNC_InTryCatch (_R_ARGS_) {
         try {

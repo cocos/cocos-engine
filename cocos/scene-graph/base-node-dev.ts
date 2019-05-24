@@ -25,7 +25,6 @@ export function baseNodePolyfill (BaseNode) {
          * @method _addComponentAt
          * @param {Component} comp
          * @param {Number} index
-         * @private
          */
         BaseNode.prototype._addComponentAt = function (comp, index) {
             if (this._objFlags & Destroying) {
@@ -72,9 +71,9 @@ export function baseNodePolyfill (BaseNode) {
          * @method _getDependComponent
          * @param {Component} depended
          * @return {Component}
-         * @private
          */
         BaseNode.prototype._getDependComponent = function (depended) {
+            // tslint:disable-next-line: prefer-for-of
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
                 if (comp !== depended && comp.isValid && !cc.Object._willDestroy(comp)) {
@@ -114,7 +113,7 @@ export function baseNodePolyfill (BaseNode) {
             if (register) {
                 attachedObjsForEditor[this._id] = this;
                 for (let i = this._components.length - 1; i >= 0; i--) {
-                    let comp = this._components[i];
+                    const comp = this._components[i];
                     if (!comp) {
                         this._components.splice(i, 1);
                         console.error('component attached to node:' + this.name + ' is invalid for some reason');
@@ -142,6 +141,7 @@ export function baseNodePolyfill (BaseNode) {
         // promote debug info
         js.get(BaseNode.prototype, ' INFO ', function () {
             let path = '';
+            // @ts-ignore
             let node = this;
             while (node && !(node instanceof cc.Scene)) {
                 if (path) {
@@ -151,6 +151,7 @@ export function baseNodePolyfill (BaseNode) {
                 }
                 node = node._parent;
             }
+            // @ts-ignore
             return this.name + ', path: ' + path;
         });
     }
