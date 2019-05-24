@@ -15,7 +15,7 @@ const FINAL = 1 << 10;
 let _batcher;
 let _cullingMask = 0;
 let _renderQueueIndex = 0;
-let _evm = cc.eventManager;
+const _evm = require("../event-manager/CCEventManager");
 
 function RenderFlow () {
     this._func = init;
