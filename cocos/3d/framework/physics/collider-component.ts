@@ -20,7 +20,9 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     private _isTrigger: boolean = false;
 
     @property
-    get isTrigger () { return this._isTrigger; }
+    get isTrigger () {
+        return this._isTrigger;
+    }
 
     set isTrigger (value) {
         this._isTrigger = value;
@@ -39,7 +41,9 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
      * The center of the collider, in local space.
      */
     @property({ type: Vec3 })
-    get center () { return this._center; }
+    get center () {
+        return this._center;
+    }
 
     set center (value: Vec3) {
         vec3.copy(this._center, value);
@@ -130,7 +134,9 @@ export class BoxColliderComponent extends ColliderComponentBase {
      * @note Shall not specify size with component 0.
      */
     @property({ type: Vec3 })
-    get size () { return this._size; }
+    get size () {
+        return this._size;
+    }
 
     set size (value) {
         vec3.copy(this._size, value);
@@ -172,7 +178,9 @@ export class SphereColliderComponent extends ColliderComponentBase {
      * The radius of the sphere.
      */
     @property
-    get radius () { return this._radius; }
+    get radius () {
+        return this._radius;
+    }
 
     set radius (value) {
         this._radius = value;

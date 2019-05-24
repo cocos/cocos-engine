@@ -15,12 +15,20 @@ export class PhysicsBasedComponent extends Component {
         return this._sharedBody.body;
     }
 
-    protected get sharedBody () { return this._sharedBody; }
+    protected get sharedBody () {
+        return this._sharedBody;
+    }
+
+    protected get _assertPreload (): boolean {
+        if (!this._isPreLoaded) {
+            console.error('Physic Error :', 'Please make sure that the node has been added to the scene');
+        }
+        return this._isPreLoaded;
+    }
 
     private _sharedBody!: SharedRigidBody;
 
     private _isPreLoaded: boolean = false;
-    public get isPreLoaded () { return this._isPreLoaded; }
 
     constructor () {
         super();
@@ -114,13 +122,6 @@ export class PhysicsBasedComponent extends Component {
         if (this._assertPreload) {
             return this._body!.addMask(v);
         }
-    }
-
-    protected get _assertPreload (): boolean {
-        if (!this._isPreLoaded) {
-            console.error('Physic Error :', 'Please make sure that the node has been added to the scene');
-        }
-        return this._isPreLoaded;
     }
 }
 
