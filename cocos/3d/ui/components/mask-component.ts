@@ -25,7 +25,7 @@
  ****************************************************************************/
 import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
-import { EventType } from '../../../core/platform';
+import { SystemEventType } from '../../../core/platform';
 import { Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import * as vmath from '../../../core/vmath';
@@ -279,15 +279,15 @@ export class MaskComponent extends UIRenderComponent {
 
         this._activateMaterial();
 
-        this.node.on(EventType.ROTATION_PART, this._nodeStateChange, this);
-        this.node.on(EventType.SCALE_PART, this._nodeStateChange, this);
+        this.node.on(SystemEventType.ROTATION_PART, this._nodeStateChange, this);
+        this.node.on(SystemEventType.SCALE_PART, this._nodeStateChange, this);
     }
 
     public onDisable () {
         super.onDisable();
 
-        this.node.off(EventType.ROTATION_PART, this._nodeStateChange, this);
-        this.node.off(EventType.SCALE_PART, this._nodeStateChange, this);
+        this.node.off(SystemEventType.ROTATION_PART, this._nodeStateChange, this);
+        this.node.off(SystemEventType.SCALE_PART, this._nodeStateChange, this);
     }
 
     public onDestroy () {

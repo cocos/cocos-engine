@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { EventType } from '../../../core/platform';
+import { SystemEventType } from '../../../core/platform';
 import { array } from '../../../core/utils/js';
 import { Size, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
@@ -349,8 +349,8 @@ function refreshScene () {
     }
 }
 
-function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: EventType, oldPos: Vec3) {
-    if (!CC_EDITOR || eventType !== EventType.POSITION_PART) {
+function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: SystemEventType, oldPos: Vec3) {
+    if (!CC_EDITOR || eventType !== SystemEventType.POSITION_PART) {
         return;
     }
 
@@ -493,15 +493,15 @@ export const widgetManager = cc._widgetManager = {
                     canvasComp.node.on('design-resolution-changed', this.onResized, this);
                 }
             }
-            widget.node.on(EventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
-            widget.node.on(EventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
+            widget.node.on(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
+            widget.node.on(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         }
     },
     remove (widget: WidgetComponent) {
         this._activeWidgetsIterator.remove(widget);
         if (CC_EDITOR && !cc.engine.isPlaying) {
-            widget.node.off(EventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
-            widget.node.off(EventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
+            widget.node.off(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
+            widget.node.off(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         }
     },
     onResized () {

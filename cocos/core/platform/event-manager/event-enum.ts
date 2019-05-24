@@ -4,7 +4,7 @@ import { ccenum } from '../../value-types/enum';
  * !#zh
  * 一般用于系统事件或者节点事件的事件枚举
  */
-export enum EventType {
+export enum SystemEventType {
     /**
      * !#en The event type for press the key up event, you can use its value directly: 'keyup'
      * !#zh 手指开始触摸事件
@@ -207,6 +207,6 @@ export enum EventType {
     CHILD_REMOVED = 'child-removed',
 }
 
-ccenum(EventType);
+ccenum(SystemEventType);
 
-cc.SystemEventType = EventType;
+cc.SystemEventType = SystemEventType;

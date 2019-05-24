@@ -28,7 +28,7 @@ import { SpriteFrame } from '../../../../assets/sprite-frame';
 import { Component } from '../../../../components/component';
 import { EventHandler as ComponentEventHandler } from '../../../../components/component-event-handler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../../core/data/class-decorator';
-import { EventType } from '../../../../core/platform/event-manager/event-enum';
+import { SystemEventType } from '../../../../core/platform/event-manager/event-enum';
 import Color from '../../../../core/value-types/color';
 import { Node } from '../../../../scene-graph';
 import { LabelComponent, VerticalTextAlignment } from '../label-component';
@@ -476,7 +476,7 @@ export class EditBoxComponent extends Component {
     public _init () {
         this._createBackgroundSprite();
         this._createLabels();
-        this.node.on(EventType.SIZE_CHANGED, this._resizeChildNodes, this);
+        this.node.on(SystemEventType.SIZE_CHANGED, this._resizeChildNodes, this);
 
         const impl = this._impl = new EditBoxImpl();
 
@@ -504,8 +504,8 @@ export class EditBoxComponent extends Component {
     }
 
     public _registerEvent () {
-        this.node.on(EventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
     }
 
     public _updateStayOnTop () {

@@ -1,6 +1,6 @@
 import { Component } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventType } from '../../../core/platform/event-manager/event-enum';
+import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import * as vmath from '../../../core/vmath';
@@ -43,9 +43,9 @@ export class UITransformComponent extends Component {
         this._contentSize.set(value);
         if (CC_EDITOR) {
             // @ts-ignore
-            this.node.emit(EventType.SIZE_CHANGED, clone);
+            this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
-            this.node.emit(EventType.SIZE_CHANGED);
+            this.node.emit(SystemEventType.SIZE_CHANGED);
         }
 
     }
@@ -67,9 +67,9 @@ export class UITransformComponent extends Component {
         this._contentSize.width = value;
         if (CC_EDITOR) {
             // @ts-ignore
-            this.node.emit(EventType.SIZE_CHANGED, clone);
+            this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
-            this.node.emit(EventType.SIZE_CHANGED);
+            this.node.emit(SystemEventType.SIZE_CHANGED);
         }
     }
 
@@ -90,9 +90,9 @@ export class UITransformComponent extends Component {
         this._contentSize.height = value;
         if (CC_EDITOR) {
             // @ts-ignore
-            this.node.emit(EventType.SIZE_CHANGED, clone);
+            this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
-            this.node.emit(EventType.SIZE_CHANGED);
+            this.node.emit(SystemEventType.SIZE_CHANGED);
         }
     }
 
@@ -113,7 +113,7 @@ export class UITransformComponent extends Component {
         }
 
         this._anchorPoint.set(value);
-        this.node.emit(EventType.ANCHOR_CHANGED, this._anchorPoint);
+        this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
     }
 
     get anchorX () {
@@ -126,7 +126,7 @@ export class UITransformComponent extends Component {
         }
 
         this._anchorPoint.x = value;
-        this.node.emit(EventType.ANCHOR_CHANGED, this._anchorPoint);
+        this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
     }
 
     get anchorY () {
@@ -139,10 +139,10 @@ export class UITransformComponent extends Component {
         }
 
         this._anchorPoint.y = value;
-        this.node.emit(EventType.ANCHOR_CHANGED, this._anchorPoint);
+        this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
     }
 
-    public static EventType = EventType;
+    public static EventType = SystemEventType;
     @property
     public _contentSize = new Size(100, 100);
     @property
@@ -197,9 +197,9 @@ export class UITransformComponent extends Component {
 
         if (CC_EDITOR) {
             // @ts-ignore
-            this.node.emit(EventType.SIZE_CHANGED, clone);
+            this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
-            this.node.emit(EventType.SIZE_CHANGED);
+            this.node.emit(SystemEventType.SIZE_CHANGED);
         }
     }
 
@@ -237,7 +237,7 @@ export class UITransformComponent extends Component {
 
         // this.setLocalDirty(LocalDirtyFlag.POSITION);
         // if (this._eventMask & ANCHOR_ON) {
-        this.node.emit(EventType.ANCHOR_CHANGED, this._anchorPoint);
+        this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
 
         // }
     }

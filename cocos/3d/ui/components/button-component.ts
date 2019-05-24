@@ -27,7 +27,7 @@
 import { SpriteFrame } from '../../../assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventMouse, EventTouch, EventType } from '../../../core/platform';
+import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import { lerp } from '../../../core/utils';
 import { Color, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
@@ -496,13 +496,13 @@ export class ButtonComponent extends Component {
         this._resetState();
 
         if (!CC_EDITOR) {
-            this.node.off(EventType.TOUCH_START, this._onTouchBegan, this);
-            this.node.off(EventType.TOUCH_MOVE, this._onTouchMove, this);
-            this.node.off(EventType.TOUCH_END, this._onTouchEnded, this);
-            this.node.off(EventType.TOUCH_CANCEL, this._onTouchCancel, this);
+            this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+            this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
+            this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+            this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-            this.node.off(EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-            this.node.off(EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+            this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+            this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
         }
         // else {
         //     this.node.off('spriteframe-changed');
@@ -574,13 +574,13 @@ export class ButtonComponent extends Component {
     }
 
     private _registerEvent () {
-        this.node.on(EventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(EventType.TOUCH_MOVE, this._onTouchMove, this);
-        this.node.on(EventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(EventType.TOUCH_CANCEL, this._onTouchCancel, this);
+        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
+        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-        this.node.on(EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-        this.node.on(EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+        this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+        this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
     private _getTargetSprite (target: Node | null) {

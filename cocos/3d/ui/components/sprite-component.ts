@@ -26,7 +26,7 @@
 
 import { SpriteAtlas, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventType } from '../../../core/platform';
+import { SystemEventType } from '../../../core/platform';
 import { clampf } from '../../../core/utils';
 import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
@@ -387,7 +387,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         if (CC_EDITOR) {
-            this.node.on(EventType.SIZE_CHANGED, this._resized, this);
+            this.node.on(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
     }
 
@@ -435,7 +435,7 @@ export class SpriteComponent extends UIRenderComponent {
         super.onDestroy();
         this.destroyRenderData();
         if (CC_EDITOR) {
-            this.node.off(EventType.SIZE_CHANGED, this._resized, this);
+            this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
     }
 

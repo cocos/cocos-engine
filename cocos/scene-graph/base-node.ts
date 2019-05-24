@@ -27,7 +27,7 @@
 import { Component } from '../components/component';
 import { ccclass, property } from '../core/data/class-decorator';
 import { CCObject } from '../core/data/object';
-import { EventType } from '../core/platform/event-manager/event-enum';
+import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import IdGenerator from '../core/utils/id-generator';
 import * as js from '../core/utils/js';
 import { baseNodePolyfill } from './base-node-dev';
@@ -407,7 +407,7 @@ export class BaseNode extends CCObject {
             this._level = value._level + 1;
             value._children.push(this);
             if (value.emit) {
-                value.emit(EventType.CHILD_ADDED, this);
+                value.emit(SystemEventType.CHILD_ADDED, this);
             }
         }
         if (oldParent) {
@@ -418,7 +418,7 @@ export class BaseNode extends CCObject {
                 }
                 oldParent._children.splice(removeAt, 1);
                 if (oldParent.emit) {
-                    oldParent.emit(EventType.CHILD_REMOVED, this);
+                    oldParent.emit(SystemEventType.CHILD_REMOVED, this);
                 }
             }
         }

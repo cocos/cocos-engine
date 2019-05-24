@@ -2,7 +2,7 @@ import { ITargetImpl } from '../core/event/event-target';
 import { EventTarget, Event } from '../core/event';
 import { eventManager } from '../core/platform/event-manager';
 import Touch from '../core/platform/event-manager/CCTouch';
-import { EventType } from '../core/platform/event-manager/event-enum';
+import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import { EventListener } from '../core/platform/event-manager/event-listener';
 import { EventMouse, EventTouch} from '../core/platform/event-manager/index';
 import * as js from '../core/utils/js';
@@ -16,19 +16,19 @@ let _currentHovered: Node | null = null;
 let pos = new Vec2();
 
 const _touchEvents = [
-    EventType.TOUCH_START.toString(),
-    EventType.TOUCH_MOVE.toString(),
-    EventType.TOUCH_END.toString(),
-    EventType.TOUCH_CANCEL.toString(),
+    SystemEventType.TOUCH_START.toString(),
+    SystemEventType.TOUCH_MOVE.toString(),
+    SystemEventType.TOUCH_END.toString(),
+    SystemEventType.TOUCH_CANCEL.toString(),
 ];
 
 const _mouseEvents = [
-    EventType.MOUSE_DOWN.toString(),
-    EventType.MOUSE_ENTER.toString(),
-    EventType.MOUSE_MOVE.toString(),
-    EventType.MOUSE_LEAVE.toString(),
-    EventType.MOUSE_UP.toString(),
-    EventType.MOUSE_WHEEL.toString(),
+    SystemEventType.MOUSE_DOWN.toString(),
+    SystemEventType.MOUSE_ENTER.toString(),
+    SystemEventType.MOUSE_MOVE.toString(),
+    SystemEventType.MOUSE_LEAVE.toString(),
+    SystemEventType.MOUSE_UP.toString(),
+    SystemEventType.MOUSE_WHEEL.toString(),
 ];
 
 // TODO: rearrange event
@@ -41,7 +41,7 @@ function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouc
     touch.getUILocation(pos);
 
     if (node.uiTransfromComp.isHit(pos, this)) {
-        event.type = EventType.TOUCH_START.toString();
+        event.type = SystemEventType.TOUCH_START.toString();
         event.touch = touch;
         event.bubbles = true;
         node.dispatchEvent(event);
@@ -57,7 +57,7 @@ function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch
         return false;
     }
 
-    event.type = EventType.TOUCH_MOVE.toString();
+    event.type = SystemEventType.TOUCH_MOVE.toString();
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
@@ -72,9 +72,9 @@ function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch)
     touch.getUILocation(pos);
 
     if (node.uiTransfromComp.isHit(pos, this)) {
-        event.type = EventType.TOUCH_END.toString();
+        event.type = SystemEventType.TOUCH_END.toString();
     } else {
-        event.type = EventType.TOUCH_CANCEL.toString();
+        event.type = SystemEventType.TOUCH_CANCEL.toString();
     }
     event.touch = touch;
     event.bubbles = true;
@@ -87,7 +87,7 @@ function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTou
         return;
     }
 
-    event.type = EventType.TOUCH_CANCEL.toString();
+    event.type = SystemEventType.TOUCH_CANCEL.toString();
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
@@ -102,7 +102,7 @@ function _mouseDownHandler (this: EventListener, event: EventMouse) {
     pos = event.getUILocation();
 
     if (node.uiTransfromComp.isHit(pos, this)) {
-        event.type = EventType.MOUSE_DOWN.toString();
+        event.type = SystemEventType.MOUSE_DOWN.toString();
         event.bubbles = true;
         node.dispatchEvent(event);
     }
@@ -121,22 +121,22 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
             if (_currentHovered && _currentHovered!.eventProcessor.mouseListener) {
-                event.type = EventType.MOUSE_LEAVE;
+                event.type = SystemEventType.MOUSE_LEAVE;
                 _currentHovered!.dispatchEvent(event);
                 if (_currentHovered!.eventProcessor.mouseListener) {
                     _currentHovered!.eventProcessor.mouseListener!._previousIn = false;
                 }
             }
             _currentHovered = node;
-            event.type = EventType.MOUSE_ENTER.toString();
+            event.type = SystemEventType.MOUSE_ENTER.toString();
             node.dispatchEvent(event);
             this._previousIn = true;
         }
-        event.type = EventType.MOUSE_MOVE.toString();
+        event.type = SystemEventType.MOUSE_MOVE.toString();
         event.bubbles = true;
         node.dispatchEvent(event);
     } else if (this._previousIn) {
-        event.type = EventType.MOUSE_LEAVE.toString();
+        event.type = SystemEventType.MOUSE_LEAVE.toString();
         node.dispatchEvent(event);
         this._previousIn = false;
         _currentHovered = null;
@@ -159,7 +159,7 @@ function _mouseUpHandler (this: EventListener, event: EventMouse) {
     pos = event.getUILocation();
 
     if (node.uiTransfromComp.isHit(pos, this)) {
-        event.type = EventType.MOUSE_UP.toString();
+        event.type = SystemEventType.MOUSE_UP.toString();
         event.bubbles = true;
         node.dispatchEvent(event);
         // event.propagationStopped = true;
@@ -176,7 +176,7 @@ function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     pos = event.getUILocation();
 
     if (node.uiTransfromComp!.isHit(pos, this)) {
-        event.type = EventType.MOUSE_WHEEL.toString();
+        event.type = SystemEventType.MOUSE_WHEEL.toString();
         event.bubbles = true;
         node.dispatchEvent(event);
         // event.propagationStopped = true;
@@ -525,9 +525,6 @@ export class NodeEventProcessor {
     public targetOff (target: string | Object) {
         if (this.capturingTargets) {
             this.capturingTargets.targetOff(target);
-        }
-        if (this.bubblingTargets) {
-            this.bubblingTargets.targetOff(target);
         }
 
         if (this.touchListener && !_checkListeners(this.node, _touchEvents)) {
