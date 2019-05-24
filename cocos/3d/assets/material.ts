@@ -104,7 +104,7 @@ export class Material extends Asset {
     }
 
     public initialize (info: IMaterialInfo) {
-        if (info.technique) { this._techIdx = info.technique; }
+        if (info.technique !== undefined) { this._techIdx = info.technique; }
         if (info.effectAsset) { this._effectAsset = info.effectAsset; }
         else if (info.effectName) { this._effectAsset = EffectAsset.get(info.effectName); }
         if (info.defines) { this._prepareInfo(info.defines, this._defines); }
