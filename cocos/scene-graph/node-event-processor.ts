@@ -526,6 +526,9 @@ export class NodeEventProcessor {
         if (this.capturingTargets) {
             this.capturingTargets.targetOff(target);
         }
+        if (this.bubblingTargets) {
+            this.bubblingTargets.targetOff(target);
+        }
 
         if (this.touchListener && !_checkListeners(this.node, _touchEvents)) {
             eventManager.removeListener(this.touchListener);
