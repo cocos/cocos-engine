@@ -85,7 +85,7 @@ function _getSlotMaterial (tex, blendMode) {
         material = new Material();
         material.copy(baseMaterial);
 
-        material.define('_USE_MODEL', useModel);
+        material.define('CC_USE_MODEL', useModel);
         material.setProperty('texture', tex);
 
         // update blend function

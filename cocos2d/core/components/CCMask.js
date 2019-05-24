@@ -381,14 +381,14 @@ let Mask = cc.Class({
             // Reset material
             if (this._type === MaskType.IMAGE_STENCIL) {
                 let texture = this.spriteFrame.getTexture();
-                material.define('_USE_MODEL', false);
+                material.define('CC_USE_MODEL', false);
                 material.define('USE_TEXTURE', true);
 
                 material.setProperty('texture', texture);
                 material.setProperty('alphaThreshold', this.alphaThreshold);
             }
             else {
-                material.define('_USE_MODEL', true);
+                material.define('CC_USE_MODEL', true);
                 material.define('USE_TEXTURE', false);
             }
 

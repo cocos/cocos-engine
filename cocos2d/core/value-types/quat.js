@@ -182,6 +182,10 @@ proto.mul = function (other, out) {
     return out;
 };
 
+proto.array = function (out) {
+    quat.array(out, this);
+};
+
 /**
  * !#en The convenience method to create a new {{#crossLink "Quat"}}cc.Quat{{/crossLink}}.
  * !#zh 通过该简便的函数进行创建 {{#crossLink "Quat"}}cc.Quat{{/crossLink}} 对象。

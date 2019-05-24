@@ -27,13 +27,13 @@ export default {
   PARAM_FLOAT2:          typeParams.VEC2,
   PARAM_FLOAT3:          typeParams.VEC3,
   PARAM_FLOAT4:          typeParams.VEC4,
-  // PARAM_COLOR3:          8,
-  // PARAM_COLOR4:          9,
   PARAM_MAT2:           typeParams.MAT2,
   PARAM_MAT3:           typeParams.MAT3,
   PARAM_MAT4:           typeParams.MAT4,
   PARAM_TEXTURE_2D:     typeParams.SAMPLER2D,
   PARAM_TEXTURE_CUBE:   typeParams.SAMPLERCUBE,
+  PARAM_COLOR3:          'color',
+  PARAM_COLOR4:          'color',
 
   // clear flags
   CLEAR_COLOR: 1,

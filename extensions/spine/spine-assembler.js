@@ -107,7 +107,7 @@ function _getSlotMaterial (tex, blendMode) {
     if (!material) {
         material = new cc.Material();
         material.copy(baseMaterial);
-        material.define('_USE_MODEL', true);
+        material.define('CC_USE_MODEL', true);
         material.define('USE_TINT', _useTint);
         // update texture
         material.setProperty('texture', tex);

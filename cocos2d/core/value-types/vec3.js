@@ -546,6 +546,10 @@ proto.rotateSelf = function (radians) {
     return v2Proto.rotateSelf.call(this, radians);
 };
 
+proto.array = function (out) {
+    vec3.array(out, this);
+};
+
 /**
  * !#en return a Vec3 object with x = 1, y = 1, z = 1.
  * !#zh 新 Vec3 对象。

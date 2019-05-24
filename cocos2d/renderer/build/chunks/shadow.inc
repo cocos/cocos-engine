@@ -11,7 +11,7 @@
   };
 
   #pragma builtin(global)
-  uniform sampler2D cc_shadow_map; // TODO: support define MAX_SHADOW_LIGHTS
+  uniform sampler2D cc_shadow_map[MAX_SHADOW_LIGHTS];
 
   varying vec4 v_posLightSpace[MAX_SHADOW_LIGHTS];
   varying float v_depth[MAX_SHADOW_LIGHTS];
@@ -55,7 +55,7 @@
     float frustumEdgeFalloff = 0.0;
     #if CC_USE_SHADOW_MAP
     for (int i = 0; i < CC_NUM_SHADOW_LIGHTS; i++) {
-        shadow *= computeShadowESM(cc_shadow_map, v_posLightSpace[i], v_depth[i], cc_shadow_info[i].z, cc_shadow_info[i].w, frustumEdgeFalloff);
+        shadow *= computeShadowESM(cc_shadow_map[i], v_posLightSpace[i], v_depth[i], cc_shadow_info[i].z, cc_shadow_info[i].w, frustumEdgeFalloff);
     }
     #endif
     return shadow;

@@ -419,10 +419,6 @@ export default class Base {
       model.extractDrawItem(drawItem);
     }
 
-    // TODO: update frustum
-    // TODO: visbility test
-    // frustum.update(view._viewProj);
-
     // dispatch draw items to different stage
     _stageInfos.reset();
 
@@ -483,9 +479,9 @@ export default class Base {
       prop.type === enums.PARAM_TEXTURE_2D ||
       prop.type === enums.PARAM_TEXTURE_CUBE
     ) {
-      if (prop.size !== undefined) {
-        if (prop.size !== param.length) {
-          console.error(`The length of texture array (${param.length}) is not corrent(expect ${prop.size}).`);
+      if (Array.isArray(param)) {
+        if (param.length > prop.count) {
+          console.error(`Failed to set property [${prop.name}] : The length of texture array [${param.length}] is bigger than [${prop.count}].`);
           return;
         }
         let slots = _int64_pool.add();

@@ -366,6 +366,10 @@ js.mixin(Mat4.prototype, {
      */
     fromQuat (quat) {
         return mat4.fromQuat(this, quat);
+    },
+
+    array (out) {
+        return mat4.array(out, this);
     }
 });
 
