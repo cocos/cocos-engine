@@ -32,6 +32,7 @@ import { EditorCameraComponent } from './editor-camera-component';
 import { LightComponent } from './light-component';
 import { ModelComponent } from './model-component';
 import { BillboardComponent } from './particle/billboard-component';
+import { LineComponent } from './particle/line-component';
 import { ParticleSystemComponent } from './particle/particle-system-component';
 import { ParticleUtils } from './particle/particle-utils';
 import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';
@@ -52,6 +53,7 @@ export {
     BoxColliderComponent,
     ParticleSystemComponent,
     BillboardComponent,
+    LineComponent,
     RigidBodyComponent,
     SphereColliderComponent,
 
@@ -75,6 +77,7 @@ cc.SpotLightComponent = SpotLightComponent;
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.ParticleSystemComponent = ParticleSystemComponent;
 cc.BillboardComponent = BillboardComponent;
+cc.LineComponent = LineComponent;
 cc.RigidBodyComponent = RigidBodyComponent;
 cc.SphereColliderComponent = SphereColliderComponent;
 

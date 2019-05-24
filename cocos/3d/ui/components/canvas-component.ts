@@ -172,11 +172,11 @@ export class CanvasComponent extends Component {
     }
 
     public __preload () {
-        const cameraNode = new cc.Node('UICamera');
+        const cameraNode = new cc.Node('UICamera' + this.node.name);
         cameraNode.setPosition(0, 0, 900);
         if (!CC_EDITOR) {
             this._camera = cc.director.root.ui.renderScene.createCamera({
-                name: 'ui',
+                name: 'ui' + this.node.name,
                 node: cameraNode,
                 projection: cc.CameraComponent.ProjectionType.ORTHO,
                 targetDisplay: 0,
@@ -212,7 +212,7 @@ export class CanvasComponent extends Component {
 
     public onDestroy () {
         if (this._camera) {
-            this._getRenderScene().destroyCamera(this._camera);
+            cc.director.root.ui.renderScene.destroyCamera(this._camera);
         }
 
         if (CC_EDITOR) {
