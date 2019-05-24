@@ -791,6 +791,8 @@ export class EditBoxComponent extends Component {
     }
 }
 
+cc.EditBoxComponent = EditBoxComponent;
+
 /**
  * !#en
  * Note: This event is emitted from the node to which the component belongs.
