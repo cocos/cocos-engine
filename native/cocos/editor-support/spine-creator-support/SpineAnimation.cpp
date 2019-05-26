@@ -178,6 +178,8 @@ SpineAnimation::~SpineAnimation ()
 
 void SpineAnimation::update (float deltaTime)
 {
+    if (!_skeleton) return;
+
     if (!_paused)
     {
         deltaTime *= _timeScale * globalTimeScale;
@@ -194,8 +196,11 @@ void SpineAnimation::setAnimationStateData (spAnimationStateData* stateData)
 {
     CCASSERT(stateData, "stateData cannot be null.");
 
-    if (_ownsAnimationStateData) spAnimationStateData_dispose(_state->data);
-    spAnimationState_dispose(_state);
+    if (_state) 
+    {
+        if (_ownsAnimationStateData) spAnimationStateData_dispose(_state->data);
+        spAnimationState_dispose(_state);
+    }
 
     _ownsAnimationStateData = false;
     _state = spAnimationState_create(stateData);
@@ -205,11 +210,14 @@ void SpineAnimation::setAnimationStateData (spAnimationStateData* stateData)
 
 void SpineAnimation::setMix (const std::string& fromAnimation, const std::string& toAnimation, float duration)
 {
-    spAnimationStateData_setMixByName(_state->data, fromAnimation.c_str(), toAnimation.c_str(), duration);
+    if (_state) {
+        spAnimationStateData_setMixByName(_state->data, fromAnimation.c_str(), toAnimation.c_str(), duration);
+    }
 }
 
 spTrackEntry* SpineAnimation::setAnimation (int trackIndex, const std::string& name, bool loop)
 {
+    if (!_skeleton) return 0;
     spAnimation* animation = spSkeletonData_findAnimation(_skeleton->data, name.c_str());
     if (!animation) {
         log("Spine: Animation not found: %s", name.c_str());
@@ -220,6 +228,7 @@ spTrackEntry* SpineAnimation::setAnimation (int trackIndex, const std::string& n
 
 spTrackEntry* SpineAnimation::addAnimation (int trackIndex, const std::string& name, bool loop, float delay)
 {
+    if (!_skeleton) return 0;
     spAnimation* animation = spSkeletonData_findAnimation(_skeleton->data, name.c_str());
     if (!animation)
     {
@@ -228,40 +237,68 @@ spTrackEntry* SpineAnimation::addAnimation (int trackIndex, const std::string& n
     }
     return spAnimationState_addAnimation(_state, trackIndex, animation, loop, delay);
 }
-    
+
 spTrackEntry* SpineAnimation::setEmptyAnimation (int trackIndex, float mixDuration)
 {
-    return spAnimationState_setEmptyAnimation(_state, trackIndex, mixDuration);
+    if (_state)
+    {
+        return spAnimationState_setEmptyAnimation(_state, trackIndex, mixDuration);
+    }
+    return nullptr;
 }
 
 void SpineAnimation::setEmptyAnimations (float mixDuration)
 {
-    spAnimationState_setEmptyAnimations(_state, mixDuration);
+    if (_state)
+    {
+        spAnimationState_setEmptyAnimations(_state, mixDuration);
+    }
 }
 
 spTrackEntry* SpineAnimation::addEmptyAnimation (int trackIndex, float mixDuration, float delay)
 {
-    return spAnimationState_addEmptyAnimation(_state, trackIndex, mixDuration, delay);
+    if (_state)
+    {
+        return spAnimationState_addEmptyAnimation(_state, trackIndex, mixDuration, delay);
+    }
+    return nullptr;
 }
 
 spAnimation* SpineAnimation::findAnimation(const std::string& name) const
 {
-    return spSkeletonData_findAnimation(_skeleton->data, name.c_str());
+    if (_skeleton) 
+    {
+        return spSkeletonData_findAnimation(_skeleton->data, name.c_str());
+    } 
+    else 
+    {
+        return nullptr;
+    }
 }
 
 spTrackEntry* SpineAnimation::getCurrent (int trackIndex)
 {
-    return spAnimationState_getCurrent(_state, trackIndex);
+    if (_state)
+    {
+        return spAnimationState_getCurrent(_state, trackIndex);
+    }
+    return nullptr;
 }
 
 void SpineAnimation::clearTracks ()
 {
-    spAnimationState_clearTracks(_state);
+    if (_state)
+    {
+        spAnimationState_clearTracks(_state);
+    }
 }
 
 void SpineAnimation::clearTrack (int trackIndex)
 {
-    spAnimationState_clearTrack(_state, trackIndex);
+    if (_state)
+    {
+        spAnimationState_clearTrack(_state, trackIndex);
+    }
 }
 
 void SpineAnimation::onAnimationStateEvent (spTrackEntry* entry, spEventType type, spEvent* event)
