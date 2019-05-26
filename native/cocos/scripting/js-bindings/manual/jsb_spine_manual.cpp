@@ -410,19 +410,19 @@ static bool js_register_spine_initSkeletonData (se::State& s)
     
     std::string skeletonDataFile;
     ok = seval_to_std_string(args[1], &skeletonDataFile);
-    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid json path!");
+    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid json path!");
     
     std::string atlasText;
     ok = seval_to_std_string(args[2], &atlasText);
-    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid atlas content!");
+    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid atlas content!");
     
     cocos2d::Map<std::string, middleware::Texture2D*> textures;
     ok = seval_to_Map_string_key(args[3], &textures);
-    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid textures!");
+    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid textures!");
     
     float scale = 1.0f;
     ok = seval_to_float(args[4], &scale);
-    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid scale!");
+    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid scale!");
     
     // create atlas from preloaded texture
     
@@ -459,7 +459,7 @@ static bool js_register_spine_disposeSkeletonData (se::State& s)
     
     std::string uuid;
     ok = seval_to_std_string(args[0], &uuid);
-    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
+    SE_PRECONDITION2(ok, false, "js_register_spine_disposeSkeletonData: Invalid uuid content!");
     
     auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
@@ -482,15 +482,17 @@ static bool js_register_spine_initSkeletonRenderer(se::State& s)
     
     spine::SpineRenderer* node = nullptr;
     ok = seval_to_native_ptr(args[0], &node);
-    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Converting SpineRenderer failed!");
+    SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Converting SpineRenderer failed!");
     
     std::string uuid;
     ok = seval_to_std_string(args[1], &uuid);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid uuid content!");
     
-    // init node
-    node->initWithUUID(uuid);
-    
+    auto mgr = spine::SkeletonDataMgr::getInstance();
+    bool hasSkeletonData = mgr->hasSkeletonData(uuid);
+    if (hasSkeletonData) {
+        node->initWithUUID(uuid);
+    }
     return true;
 }
 SE_BIND_FUNC(js_register_spine_initSkeletonRenderer)
