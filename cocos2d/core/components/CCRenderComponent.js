@@ -100,7 +100,6 @@ let RenderComponent = cc.Class({
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
         if (CC_JSB && CC_NATIVERENDERER) {
-            this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
             this._renderHandle.updateEnabled(true);
         }
     },
@@ -109,9 +108,6 @@ let RenderComponent = cc.Class({
         this.node._renderComponent = null;
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this.node.off(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
-        }
         this.disableRender();
     },
 

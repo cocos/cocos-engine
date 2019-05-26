@@ -30,8 +30,12 @@ const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
 
 import geomUtils from '../geom-utils';
-import RendererCamera from '../../renderer/scene/camera';
-import View from '../../renderer/core/view';
+let RendererCamera = null;
+if (CC_JSB && CC_NATIVERENDERER) {
+    RendererCamera = window.renderer.Camera;
+} else {
+    RendererCamera = require('../../renderer/scene/camera');
+}
 
 const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;
@@ -325,7 +329,7 @@ let Camera = cc.Class({
             set (value) {
                 this._depth = value;
                 if (this._camera) {
-                    this._camera._priority = value;
+                    this._camera.setPriority(value);
                 }
             }
         },
@@ -464,7 +468,7 @@ let Camera = cc.Class({
         if (!this._camera) return;
 
         let texture = this._targetTexture;
-        this._camera._framebuffer = texture ? texture._framebuffer : null;
+        this._camera.setFrameBuffer(texture ? texture._framebuffer : null);
     },
 
     _updateClippingpPlanes () {
@@ -486,14 +490,14 @@ let Camera = cc.Class({
 
     _updateStages () {
         let flags = this._renderStages;
-        let stages = this._camera._stages;
-        stages.length = 0;
+        let stages = [];
         if (flags & StageFlags.OPAQUE) {
             stages.push('opaque');
         }
         if (flags & StageFlags.TRANSPARENT) {
             stages.push('transparent');
         }
+        this._camera.setStages(stages);
     },
 
     _init () {

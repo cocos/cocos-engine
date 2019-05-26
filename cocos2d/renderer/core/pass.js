@@ -42,10 +42,45 @@ export default class Pass {
     this._stencilZFailOpBack = gfx.STENCIL_OP_KEEP;
     this._stencilZPassOpBack = gfx.STENCIL_OP_KEEP;
     this._stencilWriteMaskBack = 0xff;
+
+    if (CC_JSB && CC_NATIVERENDERER) {
+        let binary = new Uint32Array(25);
+        binary[0] = this._cullMode;
+        binary[1] = this._blendEq;
+        binary[2] = this._blendSrc;
+        binary[3] = this._blendDst;
+        binary[4] = this._blendAlphaEq;
+        binary[5] = this._blendSrcAlpha;
+        binary[6] = this._blendDstAlpha;
+        binary[7] = this._blendColor;
+        binary[8] = this._depthTest;
+        binary[9] = this._depthWrite;
+        binary[10] = this._depthFunc;
+        binary[11] = this._stencilFuncFront;
+        binary[12] = this._stencilRefFront;
+        binary[13] = this._stencilMaskFront;
+        binary[14] = this._stencilFailOpFront;
+        binary[15] = this._stencilZFailOpFront;
+        binary[16] = this._stencilZPassOpFront;
+        binary[17] = this._stencilWriteMaskFront;
+        binary[18] = this._stencilFuncBack;
+        binary[19] = this._stencilRefBack;
+        binary[20] = this._stencilMaskBack;
+        binary[21] = this._stencilFailOpBack;
+        binary[22] = this._stencilZFailOpBack;
+        binary[23] = this._stencilZPassOpBack;
+        binary[24] = this._stencilWriteMaskBack;
+        this._native = new renderer.PassNative();
+        this._native.init(this._programName, binary);
+    }
   }
 
   setCullMode(cullMode = gfx.CULL_BACK) {
     this._cullMode = cullMode;
+
+    if (CC_JSB && CC_NATIVERENDERER) {
+        this._native.setCullMode(cullMode);
+    }
   }
 
   setBlend(
@@ -66,6 +101,16 @@ export default class Pass {
     this._blendSrcAlpha = blendSrcAlpha;
     this._blendDstAlpha = blendDstAlpha;
     this._blendColor = blendColor;
+
+    if (CC_JSB && CC_NATIVERENDERER) {
+        this._native.setBlend(blendEq,
+                            blendSrc,
+                            blendDst,
+                            blendAlphaEq,
+                            blendSrcAlpha,
+                            blendDstAlpha,
+                            blendColor);
+    }
   }
 
   setDepth(
@@ -76,6 +121,10 @@ export default class Pass {
     this._depthTest = depthTest;
     this._depthWrite = depthWrite;
     this._depthFunc = depthFunc;
+
+    if (CC_JSB && CC_NATIVERENDERER) {
+        this._native.setDepth(depthTest, depthWrite, depthFunc);
+    }
   }
 
   setStencilFront(
@@ -96,6 +145,16 @@ export default class Pass {
     this._stencilZFailOpFront = stencilZFailOp;
     this._stencilZPassOpFront = stencilZPassOp;
     this._stencilWriteMaskFront = stencilWriteMask;
+    
+    if (CC_JSB && CC_NATIVERENDERER) {
+        this._native.setStencilFront(stencilFunc,
+                                    stencilRef,
+                                    stencilMask,
+                                    stencilFailOp,
+                                    stencilZFailOp,
+                                    stencilZPassOp,
+                                    stencilWriteMask);
+    }
   }
 
   setStencilEnabled (enabled = gfx.STENCIL_INHERIT) {
@@ -120,5 +179,15 @@ export default class Pass {
     this._stencilZFailOpBack = stencilZFailOp;
     this._stencilZPassOpBack = stencilZPassOp;
     this._stencilWriteMaskBack = stencilWriteMask;
+
+    if (CC_JSB && CC_NATIVERENDERER) {
+        this._native.setStencilBack(stencilFunc,
+                                    stencilRef,
+                                    stencilMask,
+                                    stencilFailOp,
+                                    stencilZFailOp,
+                                    stencilZPassOp,
+                                    stencilWriteMask);
+    }
   }
 }

@@ -22,11 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-import ForwardRenderer from '../../renderer/renderers/forward-renderer';
 import config from '../../renderer/config';
 import gfx from '../../renderer/gfx';
-import Scene from '../../renderer/scene/scene';
 
 import InputAssembler from '../../renderer/core/input-assembler';
 import IARenderData from '../../renderer/render-data/ia-render-data';
@@ -47,7 +44,7 @@ function _initBuiltins(device) {
   
     return {
         defaultTexture: defaultTexture,
-        programTemplates: {},
+        programTemplates: [],
         programChunks: {},
     };
 }
@@ -117,18 +114,22 @@ cc.renderer = module.exports = {
 
         this.Texture2D = gfx.Texture2D;
         this.canvas = canvas;
-        this.scene = new Scene();
+        
         if (CC_JSB && CC_NATIVERENDERER) {
             // native codes will create an instance of Device, so just use the global instance.
-            this.device = window.device;
+            this.device = gfx.Device.getInstance();
+            this.scene = new renderer.Scene();
             let builtins = _initBuiltins(this.device);
-            this._forward = new ForwardRenderer(this.device, builtins);
+            this._forward = new renderer.ForwardRenderer(this.device, builtins);
             let nativeFlow = new renderer.RenderFlow(this.device, this.scene, this._forward);
             this._flow = cc.RenderFlow;
             this._flow.init(nativeFlow);
         }
         else {
+            let Scene = require('../../renderer/scene/scene');
+            let ForwardRenderer = require('../../renderer/renderers/forward-renderer');
             this.device = new gfx.Device(canvas, opts);
+            this.scene = new Scene();
             let builtins = _initBuiltins(this.device);
             this._forward = new ForwardRenderer(this.device, builtins);
             this._handle = new ModelBatcher(this.device, this.scene);
