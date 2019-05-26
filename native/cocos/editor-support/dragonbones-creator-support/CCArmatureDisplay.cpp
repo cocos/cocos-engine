@@ -87,6 +87,9 @@ void CCArmatureDisplay::dispose(bool disposeProxy)
 
 void CCArmatureDisplay::dbUpdate()
 {
+    _renderInfoOffset->reset();
+    _renderInfoOffset->clear();
+    
     if (this->_armature->getParent())
         return;
     
@@ -97,7 +100,6 @@ void CCArmatureDisplay::dbUpdate()
     auto renderInfo = renderMgr->getBuffer();
     if (renderInfo == nullptr) return;
     
-    _renderInfoOffset->reset();
     // store renderInfo offset
     _renderInfoOffset->writeUint32((uint32_t)renderInfo->getCurPos() / sizeof(uint32_t));
     
@@ -114,7 +116,11 @@ void CCArmatureDisplay::dbUpdate()
     _materialLen = 0;
     
     // check enough space
-    renderInfo->checkSpace(sizeof(uint32_t), true);
+    renderInfo->checkSpace(sizeof(uint32_t) * 2, true);
+    
+    // write border
+    renderInfo->writeUint32(0xffffffff);
+    
     _materialLenOffset = renderInfo->getCurPos();
     // Reserved space to save material len
     renderInfo->writeUint32(0);
