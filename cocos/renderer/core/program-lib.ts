@@ -24,6 +24,8 @@ export interface IDefineValue {
     result: string | number;
 }
 
+const getBitCount = (cnt: number) => Math.ceil(Math.log2(Math.max(cnt, 2)));
+
 const mapDefine = (info: IDefineInfo, def: number | string | boolean) => {
     switch (info.type) {
         case 'boolean': return def ? 1 : 0;
@@ -55,8 +57,7 @@ const validateDefines = (defines: IDefineValue[], device: GFXDevice, deps: Recor
     }
 };
 
-const getShaderInstanceName = (templates: Record<string, IProgramInfo>, name: string, defines: IDefineMap, defs?: IDefineValue[]) => {
-    if (!defs) { defs = prepareDefines(defines, templates[name].defines); }
+const getShaderInstanceName = (name: string, defs: IDefineValue[]) => {
     return name + defs.reduce((acc, cur) => cur.result ? `${acc}|${cur.name}${cur.result}` : acc, '');
 };
 
@@ -115,18 +116,18 @@ class ProgramLib {
         for (const def of tmpl.defines) {
             let cnt = 1;
             if (def.type === 'number') {
-                const range = def.range || [0, 4];
-                cnt = Math.ceil(Math.log2(range[1] - range[0]));
+                const range = def.range!;
+                cnt = getBitCount(range[1] - range[0]);
                 def._map = (value: number) => (value - range[0]) << def._offset;
             } else if (def.type === 'string') {
                 const range = [0, def.options!.length - 1];
-                cnt = Math.ceil(Math.log2(range[1] - range[0]));
+                cnt = getBitCount(range[1] - range[0]);
                 def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value)) << def._offset;
-            } else { // boolean
+            } else if (def.type === 'boolean') {
                 def._map = (value: any) => value ? (1 << def._offset) : 0;
             }
-            offset += cnt;
             def._offset = offset;
+            offset += cnt;
         }
         // store it
         this._templates[prog.name] = tmpl;
@@ -194,7 +195,7 @@ class ProgramLib {
         }
 
         program = device.createShader({
-            name: getShaderInstanceName(this._templates, name, defines, defs),
+            name: getShaderInstanceName(name, defs),
             blocks: tmpl.blocks,
             samplers: tmpl.samplers,
             stages: [

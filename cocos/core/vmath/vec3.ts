@@ -765,16 +765,16 @@ export default class vec3 {
      * @param b The second vector.
      * @return True if the vectors are approximately equal, false otherwise.
      */
-    public static equals (a: vec3, b: vec3) {
+    public static equals (a: vec3, b: vec3, epsilon = EPSILON) {
         const { x: a0, y: a1, z: a2 } = a;
         const { x: b0, y: b1, z: b2 } = b;
         return (
             Math.abs(a0 - b0) <=
-            EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
+            epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
             Math.abs(a1 - b1) <=
-            EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
+            epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
             Math.abs(a2 - b2) <=
-            EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2))
+            epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2))
         );
     }
 

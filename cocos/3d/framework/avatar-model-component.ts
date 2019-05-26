@@ -27,9 +27,11 @@ import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Vec2 } from '../../core/value-types';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
+import { GFXFormat } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { Mesh } from '../assets';
 import { Skeleton } from '../assets/skeleton';
+import { mapBuffer } from '../misc/utils';
 import { SkinningModelComponent } from './skinning-model-component';
 
 const _vec2 = new Vec2();
@@ -223,6 +225,11 @@ export class AvatarModelComponent extends SkinningModelComponent {
     }
 
     public combine () {
+        // batched skinning model shouldn't have local transform
+        this.node.setPosition(0, 0, 0);
+        this.node.setRotation(0, 0, 0, 1);
+        this.node.setScale(1, 1, 1);
+
         this.combineTextures();
         this.combineSkeletons();
         this.combineMeshes();
@@ -301,7 +308,8 @@ export class AvatarModelComponent extends SkinningModelComponent {
             const partial = unit.skeleton;
             for (let i = 0; i < partial.joints.length; i++) {
                 const path = partial.joints[i];
-                if (skeleton.joints.find((p) => p === path) !== undefined) { continue; }
+                const idx = skeleton.joints.findIndex((p) => p === path);
+                if (idx >= 0) { continue; }
                 skeleton.joints.push(path);
                 skeleton.bindposes.push(partial.bindposes[i]);
             }
@@ -329,13 +337,10 @@ export class AvatarModelComponent extends SkinningModelComponent {
         }
 
         let uvOffset = 0;
-        let hasUV = false;
+        let uvFormat = GFXFormat.UNKNOWN;
         let dataView: DataView;
-        let uv_x: number;
-        let uv_y: number;
-        const isLittleEndian = cc.sys.isLittleEndian;
         let jointOffset = 0;
-        const joints: number[] = new Array(4);
+        let jointFormat = GFXFormat.UNKNOWN;
 
         // prepare joint index map
         const jointIndexMap: number[][] = new Array(this._avatarUnits.length);
@@ -351,62 +356,46 @@ export class AvatarModelComponent extends SkinningModelComponent {
             if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
             const offset = unit.offset;
 
-            const meshData = unit.mesh.data.slice(0);
+            const meshData = unit.mesh.data.slice();
             const newMesh = new Mesh();
             newMesh.assign(unit.mesh.struct, meshData);
 
             dataView = new DataView(meshData.buffer);
             const struct = unit.mesh.struct;
-            // TODO: shouldn't just assume the data type to be fixed
             for (const bundle of struct.vertexBundles) {
                 // merge UV
                 uvOffset = bundle.view.offset;
-                hasUV = false;
+                uvFormat = GFXFormat.UNKNOWN;
                 for (const attr of bundle.attributes) {
                     if (attr.name.indexOf(GFXAttributeName.ATTR_TEX_COORD) >= 0) {
-                        hasUV = true;
+                        uvFormat = attr.format;
                         break;
                     }
                     uvOffset += GFXFormatInfos[attr.format].size;
                 }
-                if (hasUV) {
-                    for (let v = 0; v < bundle.view.count; ++v) {
-                        uv_x = dataView.getFloat32(uvOffset, isLittleEndian);
-                        uv_y = dataView.getFloat32(uvOffset + 4, isLittleEndian);
-
-                        // warp to [0, 1] first
-                        uv_x = repeat(uv_x);
-                        uv_y = repeat(uv_y);
-                        uv_x = (uv_x * unit.atlasSize.x + offset.x) / this._combinedTexSize;
-                        uv_y = (uv_y * unit.atlasSize.y + offset.y) / this._combinedTexSize;
-
-                        dataView.setFloat32(uvOffset, uv_x, isLittleEndian);
-                        dataView.setFloat32(uvOffset + 4, uv_y, isLittleEndian);
-                        uvOffset += bundle.view.stride;
-                    }
+                if (uvFormat) {
+                    mapBuffer(dataView, (cur, idx) => {
+                        cur = repeat(cur); // warp to [0, 1] first
+                        const comp = idx === 0 ? 'x' : 'y';
+                        return (cur * unit.atlasSize[comp] + offset[comp]) / this._combinedTexSize;
+                    }, uvFormat, uvOffset, bundle.view.length, bundle.view.stride, dataView);
                 }
                 // merge joint indices
                 const idxMap = jointIndexMap[i];
                 if (!idxMap) { continue; }
                 jointOffset = bundle.view.offset;
+                jointFormat = GFXFormat.UNKNOWN;
                 for (const attr of bundle.attributes) {
-                    if (attr.name.indexOf(GFXAttributeName.ATTR_JOINTS) >= 0) { break; }
+                    if (attr.name === GFXAttributeName.ATTR_JOINTS) {
+                        jointFormat = attr.format;
+                        break;
+                    }
                     jointOffset += GFXFormatInfos[attr.format].size;
                 }
-                for (let v = 0; v < bundle.view.count; ++v) {
-                    joints[0] = dataView.getUint16(jointOffset, isLittleEndian);
-                    joints[1] = dataView.getUint16(jointOffset + 2, isLittleEndian);
-                    joints[2] = dataView.getUint16(jointOffset + 4, isLittleEndian);
-                    joints[3] = dataView.getUint16(jointOffset + 6, isLittleEndian);
-                    for (let j = 0; j < joints.length; j++) { joints[j] = idxMap[joints[j]]; }
-                    dataView.setUint16(jointOffset, joints[0], isLittleEndian);
-                    dataView.setUint16(jointOffset + 2, joints[1], isLittleEndian);
-                    dataView.setUint16(jointOffset + 4, joints[2], isLittleEndian);
-                    dataView.setUint16(jointOffset + 6, joints[3], isLittleEndian);
-                    jointOffset += bundle.view.stride;
+                if (jointFormat) {
+                    mapBuffer(dataView, (cur) => idxMap[cur], jointFormat, jointOffset, bundle.view.length, bundle.view.stride, dataView);
                 }
             }
-
             this._mesh!.merge(newMesh);
         }
 

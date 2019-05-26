@@ -1,5 +1,6 @@
+import { writeBuffer } from '../3d/misc/utils';
 import { GFXBuffer, GFXBufferSource, IGFXDrawInfo } from './buffer';
-import { GFXFormat, GFXFormatInfos, GFXFormatType, GFXObject, GFXObjectType } from './define';
+import { GFXFormat, GFXFormatInfos, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXAttribute {
@@ -16,8 +17,6 @@ export interface IGFXInputAssemblerInfo {
     indexBuffer?: GFXBuffer;
     indirectBuffer?: GFXBuffer;
 }
-
-const isLittleEndian = cc.sys.isLittleEndian;
 
 export abstract class GFXInputAssembler extends GFXObject {
 
@@ -152,29 +151,14 @@ export abstract class GFXInputAssembler extends GFXObject {
      */
     public updateVertexAttr (vbuffer: GFXBufferSource, attr: string, data: number[]) {
         let offset = 0;
-        let count = 0;
-        let size = 0;
-        let fn = '';
+        let format = GFXFormat.UNKNOWN;
         for (const a of this._attributes) {
-            const info = GFXFormatInfos[a.format];
-            if (a.name === attr) {
-                count = info.count;
-                size = info.size / count;
-                fn = `set${info.type === GFXFormatType.FLOAT ? 'Float' : 'Int'}${size * 8}`;
-                break;
-            }
-            offset += info.size;
+            if (a.name === attr) { format = a.format; break; }
+            offset += GFXFormatInfos[a.format].size;
         }
         const vb = this._vertexBuffers[0];
-        if (!count || !vb) { return; }
-        const stride = vb.stride;
-        const view = new DataView(vbuffer as ArrayBuffer);
-        const len = data.length;
-        for (let idx = 0, beg = offset; idx < len; idx += count, beg += stride) {
-            for (let j = 0; j < count; j++) {
-                view[fn](beg + j * size, data[idx + j], isLittleEndian);
-            }
-        }
+        if (!format || !vb) { return; }
+        writeBuffer(new DataView(vbuffer as ArrayBuffer), data, format, offset, vb.stride);
         vb.update(vbuffer);
     }
 
@@ -195,13 +179,7 @@ export abstract class GFXInputAssembler extends GFXObject {
         const count = this._indexCount;
         const ib = this._indexBuffer;
         if (!count || !ib) { return; }
-        const stride = ib.stride;
-        const fn = `setInt${stride * 8}`;
-        const view = new DataView(ibuffer as ArrayBuffer);
-        const len = data.length;
-        for (let idx = 0; idx < len; idx ++) {
-            view[fn](idx * stride, data[idx], isLittleEndian);
-        }
+        writeBuffer(new DataView(ibuffer as ArrayBuffer), data, GFXFormat[`R${ib.stride * 8}UI`]);
         ib.update(ibuffer);
         this._indexCount = data.length;
     }

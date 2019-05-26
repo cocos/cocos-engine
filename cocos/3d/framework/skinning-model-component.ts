@@ -28,7 +28,7 @@ import { Mat4, Quat, Vec3 } from '../../core/value-types';
 import { quat, vec3 } from '../../core/vmath';
 import { GFXDevice } from '../../gfx/device';
 import { JointUniformCapacity } from '../../pipeline/define';
-import { JointStorageKind, selectStorageKind, SkinningModel } from '../../renderer/models/skinning-model';
+import { selectJointsMediumType, SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Mesh } from '../assets';
 import { Material } from '../assets/material';
@@ -56,11 +56,11 @@ class Joint {
         if (this._lastUpdate >= totalFrames) { return; }
         this._lastUpdate = totalFrames;
         if (parent) {
-            vec3.mul(this.position, this.node.localPosition, parent.scale);
+            vec3.multiply(this.position, this.node.localPosition, parent.scale);
             vec3.transformQuat(this.position, this.position, parent.rotation);
             vec3.add(this.position, this.position, parent.position);
-            quat.mul(this.rotation, parent.rotation, this.node.localRotation);
-            vec3.mul(this.scale, parent.scale, this.node.localScale);
+            quat.multiply(this.rotation, parent.rotation, this.node.localRotation);
+            vec3.multiply(this.scale, parent.scale, this.node.localScale);
         } else {
             vec3.copy(this.position, this.node.localPosition);
             quat.copy(this.rotation, this.node.localRotation);
@@ -131,11 +131,7 @@ export class SkinningModelComponent extends ModelComponent {
 
     public onLoad () {
         super.onLoad();
-        this._materials.forEach((material, index) => {
-            if (material) {
-                this._onMaterialModified(index, material);
-            }
-        });
+        this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
         this._resetSkinningTarget();
         if (CC_EDITOR && this.mesh && this._skeleton) {
             this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton);
@@ -160,22 +156,22 @@ export class SkinningModelComponent extends ModelComponent {
             cur.update(this._joints[this._jointParentIndices[i]]);
             const bindpose = skeleton.bindposes[i];
 
-            vec3.mul(v3_1, bindpose.localPosition, cur.scale);
+            vec3.multiply(v3_1, bindpose.localPosition, cur.scale);
             vec3.transformQuat(v3_1, v3_1, cur.rotation);
             vec3.add(v3_1, v3_1, cur.position);
-            quat.mul(qt_1, cur.rotation, bindpose.localRotation);
-            vec3.mul(v3_2, cur.scale, bindpose.localScale);
+            quat.multiply(qt_1, cur.rotation, bindpose.localRotation);
+            vec3.multiply(v3_2, cur.scale, bindpose.localScale);
 
-            vec3.mul(v3_3, this.node._lpos, v3_2);
+            vec3.multiply(v3_3, this.node._lpos, v3_2);
             vec3.transformQuat(v3_3, v3_3, qt_1);
             vec3.add(v3_1, v3_3, v3_1);
-            quat.mul(qt_1, qt_1, this.node._lrot);
-            vec3.mul(v3_2, v3_2, this.node._lscale);
+            quat.multiply(qt_1, qt_1, this.node._lrot);
+            vec3.multiply(v3_2, v3_2, this.node._lscale);
 
             skinningModel.updateJointData(i, v3_1, qt_1, v3_2);
         }
 
-        skinningModel.commitJointMatrices();
+        skinningModel.commitJointData();
     }
 
     public calculateSkinnedBounds (out?: aabb): boolean {
@@ -232,28 +228,19 @@ export class SkinningModelComponent extends ModelComponent {
 
     protected _onMaterialModified (index: number, material: Material | null) {
         const device: GFXDevice = cc.director.root && cc.director.root.device;
-        const kind = selectStorageKind(device, this._jointCount);
+        const type = selectJointsMediumType(device, this._jointCount);
         const mat = this.getMaterial(index, CC_EDITOR);
         if (mat) {
-            mat.recompileShaders({
-                CC_USE_SKINNING: true,
-                CC_JOINTS: this._jointCount,
-                CC_USE_JOINTS_TEXTURE: kind === JointStorageKind.textureRGBA32F || kind === JointStorageKind.textureRGBA8,
-                CC_JOINTS_TEXTURE_RGBA8: kind === JointStorageKind.textureRGBA8,
-            });
+            mat.recompileShaders({ CC_USE_SKINNING: type });
         }
         super._onMaterialModified(index, mat);
     }
 
     private _bindSkeleton () {
-        // const jointCount = this._skeleton && this._skeleton.joints.length || JointUniformCapacity;
-        // if (jointCount > this._jointCount) {
-        //     this._jointCount = jointCount;
-        //     for (let i = 0; i < this._materials.length; i++) {
-        //         this._onMaterialModified(i, this._materials[i]);
-        //     }
-        // }
-        if (this._model && this._skeleton) {
+        if (!this._skeleton) { return; }
+        this._jointCount = this._skeleton.joints.length;
+        this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
+        if (this._model) {
             (this._model as SkinningModel).bindSkeleton(this._skeleton);
         }
     }

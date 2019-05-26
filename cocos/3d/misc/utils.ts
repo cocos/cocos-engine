@@ -24,10 +24,10 @@ enum _keyMap {
 }
 
 const _defAttrs: IGFXAttribute[] = [
-    { name: 'a_position', format: GFXFormat.RGB32F },
-    { name: 'a_normal', format: GFXFormat.RGB32F },
-    { name: 'a_texCoord', format: GFXFormat.RG32F },
-    { name: 'a_color', format: GFXFormat.RGBA32F },
+    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
+    { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },
+    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F },
+    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA32F },
 ];
 
 export interface ICreateMeshOptions {
@@ -70,7 +70,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === 'a_normal') {
+                if (att.name === GFXAttributeName.ATTR_NORMAL) {
                     attr = att;
                     break;
                 }
@@ -92,7 +92,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === 'a_texCoord') {
+                if (att.name === GFXAttributeName.ATTR_TEX_COORD) {
                     attr = att;
                     break;
                 }
@@ -114,7 +114,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === 'a_color') {
+                if (att.name === GFXAttributeName.ATTR_COLOR) {
                     attr = att;
                     break;
                 }
@@ -279,7 +279,7 @@ function _getDataViewType (info: IGFXFormatInfo) {
     const bytes = info.size / info.count * 8;
     return type + bytes;
 }
-// default is writing plain Float32Array
+// default params bahaves just like on an plain, compact Float32Array
 export function writeBuffer (target: DataView, data: number[], format: GFXFormat = GFXFormat.R32F, offset: number = 0, stride: number = 0) {
     const info = GFXFormatInfos[format];
     if (!stride) { stride = info.size; }
@@ -309,6 +309,28 @@ export function readBuffer (
         for (let iComponent = 0; iComponent < info.count; ++iComponent) {
             const y = x + componentBytesLength * iComponent;
             out[info.count * iSeg + iComponent] = target[reader](y, isLittleEndian);
+        }
+    }
+    return out;
+}
+export function mapBuffer (
+    target: DataView, callback: (cur: number, idx: number, view: DataView) => number, format: GFXFormat = GFXFormat.R32F,
+    offset: number = 0, length: number = target.byteLength - offset, stride: number = 0, out?: DataView) {
+    if (!out) { out = new DataView(new ArrayBuffer(target.byteLength)); }
+    const info = GFXFormatInfos[format];
+    if (!stride) { stride = info.size; }
+    const writer = 'set' + _getDataViewType(info);
+    const reader = 'get' + _getDataViewType(info);
+    const componentBytesLength = info.size / info.count;
+    const nSeg = Math.floor(length / stride);
+
+    for (let iSeg = 0; iSeg < nSeg; ++iSeg) {
+        const x = offset + stride * iSeg;
+        for (let iComponent = 0; iComponent < info.count; ++iComponent) {
+            const y = x + componentBytesLength * iComponent;
+            const cur = target[reader](y, isLittleEndian);
+            // iComponent is usually more useful than y
+            out[writer](y, callback(cur, iComponent, target), isLittleEndian);
         }
     }
     return out;

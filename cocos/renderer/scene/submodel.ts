@@ -81,11 +81,11 @@ export class SubModel {
         return this._subMeshObject!;
     }
 
-    get psos (): GFXPipelineState[] {
-        return this._psos!;
+    get psos (): GFXPipelineState[] | null {
+        return this._psos;
     }
 
-    set psos (val: GFXPipelineState[]) {
+    set psos (val: GFXPipelineState[] | null) {
         this._psos = val;
     }
 

@@ -268,7 +268,7 @@ export class Model {
                 this.allocatePSO(mat);
             }
         }
-        (this._subModels[idx] as any)._psos = mat ? this._matPSORecord.get(mat)! : null;
+        this._subModels[idx].psos = (mat ? this._matPSORecord.get(mat) || null : null);
         this._subModels[idx].material = mat;
     }
 
