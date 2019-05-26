@@ -86,15 +86,11 @@ let AnimationCache = cc.Class({
             }
         }.bind(this);
 
-        listener.end = completeHandle;
         listener.complete = completeHandle;
-        listener.dispose = completeHandle;
     },
 
     unbind (listener) {
-        listener.end = null;
         listener.complete = null;
-        listener.dispose = null;
     },
 
     begin () {
@@ -109,7 +105,6 @@ let AnimationCache = cc.Class({
         let state = skeletonInfo.state;
 
         let animation = skeleton.data.findAnimation(this._animationName);
-        state.clearTrack(0);
         state.setAnimationWith(0, animation, false);
         this.bind(listener);
 
