@@ -72,22 +72,22 @@ public:
     public:
         enum class Type : uint8_t
         {
-            INT = 0,
-            INT2,
-            INT3,
-            INT4,
-            FLOAT,
-            FLOAT2,
-            FLOAT3,
-            FLOAT4,
-            COLOR3,
-            COLOR4,
-            MAT2,
-            MAT3,
-            MAT4,
-            TEXTURE_2D,
-            TEXTURE_CUBE,
-            UNKNOWN
+            INT = 5,
+            INT2 = 6,
+            INT3 = 7,
+            INT4 = 8,
+            FLOAT = 13,
+            FLOAT2 = 14,
+            FLOAT3 = 15,
+            FLOAT4 = 16,
+            COLOR3 = 99,
+            COLOR4 = 100,
+            MAT2 = 18,
+            MAT3 = 22,
+            MAT4 = 26,
+            TEXTURE_2D = 29,
+            TEXTURE_CUBE = 31,
+            UNKNOWN = 0
         };
         
         // How many elements of each type, for example:
@@ -158,7 +158,6 @@ public:
         Texture* getTexture() const;
         
     private:
-        static uint8_t elementsOfType[(int)Type::UNKNOWN + 1];
         
         void freeValue();
         void copyValue(const Parameter& rh);
@@ -180,7 +179,6 @@ public:
      *  @param[in] passes All passes.
      */
     Technique(const std::vector<std::string>& stages,
-              const std::vector<Parameter>& parameters,
               const Vector<Pass*>& passes,
               int layer = 0);
     
@@ -201,11 +199,6 @@ public:
      *  @brief Sets the pass to the given index.
      */
     void setPass(int index, Pass* pass);
-
-    /*
-     *  @brief Gets all uniform parameters.
-     */
-    const std::vector<Parameter>& getParameters() const { return _parameters; }
     /*
      *  @brief Gets all passes.
      */
@@ -225,7 +218,6 @@ private:
     uint32_t _id = 0;
     uint32_t _stageIDs = 0;
     int _layer = 0;
-    std::vector<Parameter> _parameters;
     Vector<Pass*> _passes;
 };
 

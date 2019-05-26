@@ -46,7 +46,7 @@ void RenderFlow::render(NodeProxy* scene)
         _batcher->startBatch();
         scene->visitAsRoot(_batcher, _scene);
         _batcher->terminateBatch();
-        
+
         _forward->render(_scene);
     }
 }

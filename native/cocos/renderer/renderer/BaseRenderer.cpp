@@ -142,11 +142,11 @@ void BaseRenderer::render(const View& view, const Scene* scene)
                 stageItem.defines = item.defines;
                 stageItem.technique = tech;
                 stageItem.sortKey = -1;
-                
+
                 stageItems.push_back(stageItem);
             }
         }
-        
+
         stageInfo.stage = stage;
         stageInfo.items = &stageItems;
         _stageInfos.push_back(std::move(stageInfo));
@@ -165,97 +165,110 @@ void BaseRenderer::render(const View& view, const Scene* scene)
     }
 }
 
+void BaseRenderer::setProperty (Effect::Property& prop)
+{
+    Technique::Parameter::Type propType = prop.getType();
+    auto& propName = prop.getName();
+    if (Effect::Property::Type::UNKNOWN == propType)
+    {
+        RENDERER_LOGW("Failed to set technique property, type unknown");
+        return;
+    }
+    
+    if (nullptr == prop.getValue())
+    {
+        prop = Effect::Property(propName, propType);
+        
+        if (Effect::Property::Type::TEXTURE_2D == propType)
+        {
+            prop.setTexture(_defaultTexture);
+        }
+    }
+    
+    if (nullptr == prop.getValue())
+    {
+        RENDERER_LOGW("Failed to set technique property %s, value not found", propName.c_str());
+        return;
+    }
+    
+    if (Effect::Property::Type::TEXTURE_2D == propType ||
+        Effect::Property::Type::TEXTURE_CUBE == propType)
+    {
+        if (1 == prop.getCount())
+        {
+            _device->setTexture(propName,
+                                (renderer::Texture *)(prop.getValue()),
+                                allocTextureUnit());
+        }
+        else if (0 < prop.getCount())
+        {
+            std::vector<int> slots;
+            slots.reserve(10);
+            for (int i = 0; i < prop.getCount(); ++i)
+            {
+                slots.push_back(allocTextureUnit());
+            }
+            
+            _device->setTextureArray(propName,
+                                     std::move(prop.getTextureArray()),
+                                     slots);
+        }
+    }
+    else
+    {
+        if (0 != prop.getCount())
+        {
+            if (Technique::Parameter::Type::COLOR3 == propType ||
+                Technique::Parameter::Type::INT3 == propType ||
+                Technique::Parameter::Type::FLOAT3 == propType ||
+                Technique::Parameter::Type::MAT3 == propType)
+            {
+                RENDERER_LOGW("Uinform array of color3/int3/float3/mat3 can not be supported!");
+                return;
+            }
+            
+            uint8_t size = Technique::Parameter::getElements(propType);
+            if (size * prop.getCount() > 64)
+            {
+                RENDERER_LOGW("Uniform array is too long!");
+                return;
+            }
+        }
+        
+        uint16_t bytes = prop.getBytes();
+        if (Effect::Property::Type::INT == propType ||
+            Effect::Property::Type::INT2 == propType ||
+            Effect::Property::Type::INT4 == propType)
+        {
+            _device->setUniformiv(propName, bytes / sizeof(int), (const int*)prop.getValue());
+        }
+        else
+        {
+            _device->setUniformfv(propName, bytes / sizeof(float), (const float*)prop.getValue());
+        }
+    }
+}
+
 void BaseRenderer::draw(const StageItem& item)
 {
     Mat4 worldMatrix = item.model->getWorldMatrix();
-    _device->setUniformMat4("model", worldMatrix.m);
+    _device->setUniformMat4("cc_matWorld", worldMatrix.m);
 
     //REFINE: add Mat3
     worldMatrix.inverse();
     worldMatrix.transpose();
-    _device->setUniformMat4("normalMatrix", worldMatrix.m);
+    _device->setUniformMat4("cc_mat3WorldIT", worldMatrix.m);
     
     // set technique uniforms
-    auto ia = item.ia;
-    Technique::Parameter::Type propType = Technique::Parameter::Type::UNKNOWN;
-    for (const auto& param : item.technique->getParameters())
+    auto effect = item.effect;
+    auto& properties = effect->getProperties();
+    for (auto it = properties.begin(); it != properties.end(); it++)
     {
-        Effect::Property* prop = const_cast<Effect::Property*>(&item.effect->getProperty(param.getName()));
-        
-        if (Effect::Property::Type::UNKNOWN == prop->getType())
-            *prop = param;
-        
-        if (nullptr == prop->getValue())
-        {
-            *prop = Effect::Property(param.getName(), param.getType());
-            
-            if (Effect::Property::Type::TEXTURE_2D == param.getType())
-                prop->setTexture(_defaultTexture);
-        }
-        
-        if (nullptr == prop->getValue())
-        {
-            RENDERER_LOGW("Failed to set technique property %s, value not found", param.getName().c_str());
-            continue;
-        }
-        
-        propType = prop->getType();
-        if (Effect::Property::Type::TEXTURE_2D == propType ||
-            Effect::Property::Type::TEXTURE_CUBE == propType)
-        {
-            if (0 != param.getCount())
-            {
-                if (param.getCount() != prop->getCount())
-                {
-                    RENDERER_LOGW("The length of texture array %d is not correct(expect %d)", prop->getCount(), param.getCount());
-                    continue;
-                }
-                
-                std::vector<int> slots;
-                slots.reserve(10);
-                for (int i = 0; i < param.getCount(); ++i)
-                    slots.push_back(allocTextureUnit());
-                
-                _device->setTextureArray(param.getName(),
-                                         std::move(prop->getTextureArray()),
-                                         slots);
-            }
-            else
-                _device->setTexture(param.getName(),
-                                    (renderer::Texture *)(prop->getValue()),
-                                    allocTextureUnit());
-        }
-        else
-        {
-            if (0 != prop->getCount())
-            {
-                if (Technique::Parameter::Type::COLOR3 == propType ||
-                    Technique::Parameter::Type::INT3 == propType ||
-                    Technique::Parameter::Type::FLOAT3 == propType ||
-                    Technique::Parameter::Type::MAT3 == propType)
-                {
-                    RENDERER_LOGW("Uinform array of color3/int3/float3/mat3 can not be supported!");
-                    continue;
-                }
-                
-                uint8_t size = Technique::Parameter::getElements(propType);
-                if (size * prop->getCount() > 64)
-                {
-                    RENDERER_LOGW("Uniform array is too long!");
-                    continue;
-                }
-            }
-            
-            uint16_t bytes = prop->getBytes();
-            if (Effect::Property::Type::INT == propType ||
-                Effect::Property::Type::INT2 == propType ||
-                Effect::Property::Type::INT4 == propType)
-                _device->setUniformiv(param.getName(), bytes / sizeof(int), (const int*)prop->getValue());
-            else
-                _device->setUniformfv(param.getName(), bytes / sizeof(float), (const float*)prop->getValue());
-        }
+        Effect::Property& prop = const_cast<Effect::Property&>(it->second);
+        setProperty(prop);
     }
     
+    auto ia = item.ia;
     const int32_t& definesKey = item.effect->getDefinesKey();
     // for each pass
     for (const auto& pass : item.technique->getPasses())

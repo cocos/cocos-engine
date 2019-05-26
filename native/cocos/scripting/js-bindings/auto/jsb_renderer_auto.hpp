@@ -14,6 +14,20 @@ SE_DECLARE_FUNC(js_renderer_ProgramLib_define);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_getKey);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_ProgramLib);
 
+extern se::Object* __jsb_cocos2d_renderer_Effect_proto;
+extern se::Class* __jsb_cocos2d_renderer_Effect_class;
+
+bool js_register_cocos2d_renderer_Effect(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_Effect_getProperty);
+SE_DECLARE_FUNC(js_renderer_Effect_getTechnique);
+SE_DECLARE_FUNC(js_renderer_Effect_getDefine);
+SE_DECLARE_FUNC(js_renderer_Effect_getHash);
+SE_DECLARE_FUNC(js_renderer_Effect_updateHash);
+SE_DECLARE_FUNC(js_renderer_Effect_clear);
+SE_DECLARE_FUNC(js_renderer_Effect_define);
+SE_DECLARE_FUNC(js_renderer_Effect_Effect);
+
 extern se::Object* __jsb_cocos2d_renderer_BaseRenderer_proto;
 extern se::Class* __jsb_cocos2d_renderer_BaseRenderer_class;
 
@@ -102,20 +116,6 @@ SE_DECLARE_FUNC(js_renderer_ForwardRenderer_renderCamera);
 SE_DECLARE_FUNC(js_renderer_ForwardRenderer_init);
 SE_DECLARE_FUNC(js_renderer_ForwardRenderer_render);
 SE_DECLARE_FUNC(js_renderer_ForwardRenderer_ForwardRenderer);
-
-extern se::Object* __jsb_cocos2d_renderer_Effect_proto;
-extern se::Class* __jsb_cocos2d_renderer_Effect_class;
-
-bool js_register_cocos2d_renderer_Effect(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_Effect_getProperty);
-SE_DECLARE_FUNC(js_renderer_Effect_getTechnique);
-SE_DECLARE_FUNC(js_renderer_Effect_getDefine);
-SE_DECLARE_FUNC(js_renderer_Effect_getHash);
-SE_DECLARE_FUNC(js_renderer_Effect_updateHash);
-SE_DECLARE_FUNC(js_renderer_Effect_clear);
-SE_DECLARE_FUNC(js_renderer_Effect_define);
-SE_DECLARE_FUNC(js_renderer_Effect_Effect);
 
 extern se::Object* __jsb_cocos2d_renderer_Light_proto;
 extern se::Class* __jsb_cocos2d_renderer_Light_class;

@@ -49,7 +49,7 @@ using namespace spine;
 using namespace cocos2d;
 using namespace cocos2d::renderer;
 
-static const std::string techStage = "transparent";
+static const std::string techStage = "opaque";
 static const std::string textureKey = "texture";
 
 SpineRenderer* SpineRenderer::create ()

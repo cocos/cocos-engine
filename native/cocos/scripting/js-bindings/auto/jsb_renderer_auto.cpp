@@ -134,6 +134,189 @@ bool js_register_renderer_ProgramLib(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_renderer_Effect_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_Effect_class = nullptr;
+
+static bool js_renderer_Effect_getProperty(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_getProperty : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getProperty : Error processing arguments");
+        const cocos2d::renderer::Technique::Parameter& result = cobj->getProperty(arg0);
+        ok &= TechniqueParameter_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getProperty : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_getProperty)
+
+static bool js_renderer_Effect_getTechnique(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_getTechnique : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getTechnique : Error processing arguments");
+        cocos2d::renderer::Technique* result = cobj->getTechnique(arg0);
+        ok &= native_ptr_to_seval<cocos2d::renderer::Technique>((cocos2d::renderer::Technique*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getTechnique : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_getTechnique)
+
+static bool js_renderer_Effect_getDefine(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_getDefine : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getDefine : Error processing arguments");
+        cocos2d::Value result = cobj->getDefine(arg0);
+        ok &= ccvalue_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getDefine : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_getDefine)
+
+static bool js_renderer_Effect_getHash(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_getHash : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        double result = cobj->getHash();
+        ok &= double_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getHash : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_getHash)
+
+static bool js_renderer_Effect_updateHash(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_updateHash : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= seval_to_double(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_updateHash : Error processing arguments");
+        cobj->updateHash(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_updateHash)
+
+static bool js_renderer_Effect_clear(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_clear : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clear();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_clear)
+
+static bool js_renderer_Effect_define(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_define : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        std::string arg0;
+        cocos2d::Value arg1;
+        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= seval_to_ccvalue(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_define : Error processing arguments");
+        cobj->define(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_define)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_Effect_finalize)
+
+static bool js_renderer_Effect_constructor(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = new (std::nothrow) cocos2d::renderer::Effect();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_renderer_Effect_constructor, __jsb_cocos2d_renderer_Effect_class, js_cocos2d_renderer_Effect_finalize)
+
+
+
+
+static bool js_cocos2d_renderer_Effect_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Effect)", s.nativeThisObject());
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    cobj->release();
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Effect_finalize)
+
+bool js_register_renderer_Effect(se::Object* obj)
+{
+    auto cls = se::Class::create("EffectNative", obj, nullptr, _SE(js_renderer_Effect_constructor));
+
+    cls->defineFunction("getProperty", _SE(js_renderer_Effect_getProperty));
+    cls->defineFunction("getTechnique", _SE(js_renderer_Effect_getTechnique));
+    cls->defineFunction("getDefine", _SE(js_renderer_Effect_getDefine));
+    cls->defineFunction("getHash", _SE(js_renderer_Effect_getHash));
+    cls->defineFunction("updateHash", _SE(js_renderer_Effect_updateHash));
+    cls->defineFunction("clear", _SE(js_renderer_Effect_clear));
+    cls->defineFunction("define", _SE(js_renderer_Effect_define));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Effect_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::Effect>(cls);
+
+    __jsb_cocos2d_renderer_Effect_proto = cls->getProto();
+    __jsb_cocos2d_renderer_Effect_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 se::Object* __jsb_cocos2d_renderer_BaseRenderer_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_BaseRenderer_class = nullptr;
 
@@ -1428,189 +1611,6 @@ bool js_register_renderer_ForwardRenderer(se::Object* obj)
 
     __jsb_cocos2d_renderer_ForwardRenderer_proto = cls->getProto();
     __jsb_cocos2d_renderer_ForwardRenderer_class = cls;
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-se::Object* __jsb_cocos2d_renderer_Effect_proto = nullptr;
-se::Class* __jsb_cocos2d_renderer_Effect_class = nullptr;
-
-static bool js_renderer_Effect_getProperty(se::State& s)
-{
-    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_getProperty : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getProperty : Error processing arguments");
-        const cocos2d::renderer::Technique::Parameter& result = cobj->getProperty(arg0);
-        ok &= TechniqueParameter_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getProperty : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Effect_getProperty)
-
-static bool js_renderer_Effect_getTechnique(se::State& s)
-{
-    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_getTechnique : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getTechnique : Error processing arguments");
-        cocos2d::renderer::Technique* result = cobj->getTechnique(arg0);
-        ok &= native_ptr_to_seval<cocos2d::renderer::Technique>((cocos2d::renderer::Technique*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getTechnique : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Effect_getTechnique)
-
-static bool js_renderer_Effect_getDefine(se::State& s)
-{
-    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_getDefine : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getDefine : Error processing arguments");
-        cocos2d::Value result = cobj->getDefine(arg0);
-        ok &= ccvalue_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getDefine : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Effect_getDefine)
-
-static bool js_renderer_Effect_getHash(se::State& s)
-{
-    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_getHash : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        double result = cobj->getHash();
-        ok &= double_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_getHash : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Effect_getHash)
-
-static bool js_renderer_Effect_updateHash(se::State& s)
-{
-    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_updateHash : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        double arg0 = 0;
-        ok &= seval_to_double(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_updateHash : Error processing arguments");
-        cobj->updateHash(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Effect_updateHash)
-
-static bool js_renderer_Effect_clear(se::State& s)
-{
-    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_clear : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->clear();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Effect_clear)
-
-static bool js_renderer_Effect_define(se::State& s)
-{
-    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_define : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        std::string arg0;
-        cocos2d::Value arg1;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_ccvalue(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_renderer_Effect_define : Error processing arguments");
-        cobj->define(arg0, arg1);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Effect_define)
-
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_Effect_finalize)
-
-static bool js_renderer_Effect_constructor(se::State& s)
-{
-    cocos2d::renderer::Effect* cobj = new (std::nothrow) cocos2d::renderer::Effect();
-    s.thisObject()->setPrivateData(cobj);
-    return true;
-}
-SE_BIND_CTOR(js_renderer_Effect_constructor, __jsb_cocos2d_renderer_Effect_class, js_cocos2d_renderer_Effect_finalize)
-
-
-
-
-static bool js_cocos2d_renderer_Effect_finalize(se::State& s)
-{
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Effect)", s.nativeThisObject());
-    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
-    cobj->release();
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Effect_finalize)
-
-bool js_register_renderer_Effect(se::Object* obj)
-{
-    auto cls = se::Class::create("EffectNative", obj, nullptr, _SE(js_renderer_Effect_constructor));
-
-    cls->defineFunction("getProperty", _SE(js_renderer_Effect_getProperty));
-    cls->defineFunction("getTechnique", _SE(js_renderer_Effect_getTechnique));
-    cls->defineFunction("getDefine", _SE(js_renderer_Effect_getDefine));
-    cls->defineFunction("getHash", _SE(js_renderer_Effect_getHash));
-    cls->defineFunction("updateHash", _SE(js_renderer_Effect_updateHash));
-    cls->defineFunction("clear", _SE(js_renderer_Effect_clear));
-    cls->defineFunction("define", _SE(js_renderer_Effect_define));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Effect_finalize));
-    cls->install();
-    JSBClassType::registerClass<cocos2d::renderer::Effect>(cls);
-
-    __jsb_cocos2d_renderer_Effect_proto = cls->getProto();
-    __jsb_cocos2d_renderer_Effect_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -4770,13 +4770,13 @@ bool register_all_renderer(se::Object* obj)
     js_register_renderer_ModelBatcher(ns);
     js_register_renderer_Effect(ns);
     js_register_renderer_RenderHandle(ns);
-    js_register_renderer_NodeProxy(ns);
+    js_register_renderer_BaseRenderer(ns);
+    js_register_renderer_ForwardRenderer(ns);
     js_register_renderer_MeshBuffer(ns);
     js_register_renderer_Camera(ns);
-    js_register_renderer_BaseRenderer(ns);
     js_register_renderer_Pass(ns);
     js_register_renderer_MaskRenderHandle(ns);
-    js_register_renderer_ForwardRenderer(ns);
+    js_register_renderer_NodeProxy(ns);
     js_register_renderer_View(ns);
     return true;
 }

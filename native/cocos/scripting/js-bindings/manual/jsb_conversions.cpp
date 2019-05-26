@@ -1496,22 +1496,10 @@ bool seval_to_EffectProperty(const cocos2d::Vector<cocos2d::renderer::Technique 
         se::Value value;
         if (obj->getProperty(key.c_str(), &value) && value.isObject())
         {
-            for (const auto& techinque : techniqes)
-            {
-                for (const auto& param : techinque->getParameters())
-                {
-                    if (key == param.getName())
-                    {
-                        cocos2d::renderer::Effect::Property property(key, param.getType());
-                        seval_to_TechniqueParameter_not_constructor(value, &property);
-                        ret->emplace(key, property);
-                        goto theEnd;
-                    }
-                }
-            }
+            cocos2d::renderer::Technique::Parameter property;
+            seval_to_TechniqueParameter(value, &property);
+            ret->emplace(key, property);
         }
-        
-    theEnd:;
     }
 
     return true;
@@ -1658,7 +1646,6 @@ bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::re
             float data[4] = {color.r, color.g, color.b, color.a};
             cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, data, 1);
             *ret = std::move(param);
-            break;
             break;
         }
         default:
@@ -2589,7 +2576,7 @@ bool Data_to_seval(const cocos2d::Data& v, se::Value* ret)
     else
     {
         se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, v.getBytes(), v.getSize()));
-        ret->setObject(obj);
+        ret->setObject(obj, true);
     }
     return true;
 }

@@ -49,7 +49,7 @@ bool ForwardRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Templ
     BaseRenderer::init(device, programTemplates, defaultTexture);
     _width = width;
     _height = height;
-    registerStage("transparent", std::bind(&ForwardRenderer::transparentStage, this, std::placeholders::_1, std::placeholders::_2));
+    registerStage("opaque", std::bind(&ForwardRenderer::opaqueStage, this, std::placeholders::_1, std::placeholders::_2));
     return true;
 }
 
@@ -80,15 +80,17 @@ void ForwardRenderer::renderCamera(Camera* camera, Scene* scene)
     scene->removeModels();
 }
 
-void ForwardRenderer::transparentStage(const View& view, const std::vector<StageItem>& items)
+void ForwardRenderer::opaqueStage(const View& view, const std::vector<StageItem>& items)
 {
     // update uniforms
-    _device->setUniformMat4("view", view.matView);
-    _device->setUniformMat4("proj", view.matProj);
-    _device->setUniformMat4("viewProj", view.matViewProj);
-
-//    RENDERER_LOGD("StageItem count: %d", (int)items.size());
-    // draw it
+    _device->setUniformMat4("cc_matView", view.matView);
+    _device->setUniformMat4("cc_matpProj", view.matProj);
+    _device->setUniformMat4("cc_matViewProj", view.matViewProj);
+    static Vec3 cameraPos3;
+    static Vec4 cameraPos4;
+    view.getPosition(cameraPos3);
+    cameraPos4.set(cameraPos3.x, cameraPos3.y, cameraPos3.z, 0);
+    _device->setUniformVec4("cc_cameraPos", cameraPos4);
     for (const auto& item : items)
         draw(item);
 }

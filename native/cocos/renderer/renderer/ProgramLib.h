@@ -67,7 +67,7 @@ public:
      *  @brief The default destructor.
      */
     ~ProgramLib();
-
+    
     /**
      *  @brief Define a new program with name, vertex shader name, fragement shader name and template define settings.
      */
@@ -85,6 +85,7 @@ public:
 
 private:
     DeviceGraphics* _device = nullptr;
+    const char* _precisionReplace = "precision highp float;";
     const char* _precision = "#ifdef GL_ES\nprecision highp float;\n#endif\n";
     std::unordered_map<std::string, Template> _templates;
     std::unordered_map<uint32_t, Program*> _cache;

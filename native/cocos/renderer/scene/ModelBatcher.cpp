@@ -119,6 +119,7 @@ void ModelBatcher::commit(NodeProxy* node, RenderHandle* handle)
     for (uint32_t i = 0, l = handle->getMeshCount(); i < l; ++i)
     {
         Effect* effect = handle->getEffect((uint32_t)i);
+        if (!effect) continue;
         int cullingMask = node->getCullingMask();
         const Mat4& worldMat = useModel ? Mat4::IDENTITY : node->getWorldMatrix();
         if (_currEffect == nullptr ||
@@ -157,7 +158,9 @@ void ModelBatcher::commitIA(NodeProxy* node, CustomRenderHandle* handle)
     for (std::size_t i = 0, n = handle->getIACount(); i < n; i++ )
     {
         const Mat4& worldMat = handle->getUseModel() ? node->getWorldMatrix() : Mat4::IDENTITY;
-        _currEffect = handle->getEffect((uint32_t)i);
+        Effect* effect = handle->getEffect((uint32_t)i);
+        if (!effect) continue;
+        _currEffect = effect;
         _cullingMask = node->getCullingMask();
         _modelMat.set(worldMat);
         handle->renderIA(i, this, node);

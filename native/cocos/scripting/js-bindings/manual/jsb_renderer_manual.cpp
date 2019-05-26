@@ -151,24 +151,10 @@ static bool js_renderer_Effect_setProperty(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         std::string arg0;
-        
         ok &= seval_to_std_string(args[0], &arg0);
-        
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_setProperty : Name Error");
         // get property type by arg0
-        cocos2d::renderer::Technique::Parameter::Type propType = cocos2d::renderer::Technique::Parameter::Type::UNKNOWN;
-        const auto& techinques = cobj->getTechniques();
-        for (const auto& techinque : techinques)
-        {
-            const auto& parameters = techinque->getParameters();
-            for (const auto& param : parameters)
-            {
-                if (arg0 == param.getName())
-                {
-                    propType = param.getType();
-                    break;
-                }
-            }
-        }
+        cocos2d::renderer::Technique::Parameter::Type propType = cobj->getProperty(arg0).getType();
         ok &= (propType != cocos2d::renderer::Technique::Parameter::Type::UNKNOWN);
         SE_PRECONDITION2(ok, false, "js_renderer_Effect_setProperty : Type Error");
         cocos2d::renderer::Technique::Parameter arg1(arg0, propType);
@@ -467,13 +453,11 @@ static bool js_renderer_Technique_constructor(se::State& s)
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     std::vector<std::string> arg0;
-    std::vector<cocos2d::renderer::Technique::Parameter> arg1;
-    cocos2d::Vector<cocos2d::renderer::Pass*> arg2;
+    cocos2d::Vector<cocos2d::renderer::Pass*> arg1;
     ok &= seval_to_std_vector_string(args[0], &arg0);
-    ok &= seval_to_std_vector_TechniqueParameter(args[1], &arg1);
-    ok &= seval_to_std_vector_Pass(args[2], &arg2);
+    ok &= seval_to_std_vector_Pass(args[1], &arg1);
     SE_PRECONDITION2(ok, false, "js_renderer_Technique_constructor : Error processing arguments");
-    cocos2d::renderer::Technique* cobj = new (std::nothrow) cocos2d::renderer::Technique(arg0, arg1, arg2);
+    cocos2d::renderer::Technique* cobj = new (std::nothrow) cocos2d::renderer::Technique(arg0, arg1);
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
@@ -692,7 +676,7 @@ bool jsb_register_renderer_manual(se::Object* global)
     __jsb_cocos2d_renderer_Camera_proto->defineFunction("getNode", _SE(js_renderer_Camera_getNode));
 
     // BaseRenderer
-    __jsb_cocos2d_renderer_BaseRenderer_proto->defineProperty("_programLib", _SE(js_renderer_BaseRenderer_prop_getProgramLib), nullptr);
+    // __jsb_cocos2d_renderer_BaseRenderer_proto->defineProperty("_programLib", _SE(js_renderer_BaseRenderer_prop_getProgramLib), nullptr);
     
     // Pass
     __jsb_cocos2d_renderer_Pass_proto->defineFunction("init", _SE(js_renderer_Pass_init));

@@ -30,7 +30,7 @@ USING_NS_CC;
 USING_NS_MW;
 using namespace cocos2d::renderer;
 
-static const std::string techStage = "transparent";
+static const std::string techStage = "opaque";
 static const std::string textureKey = "texture";
 
 DRAGONBONES_NAMESPACE_BEGIN
