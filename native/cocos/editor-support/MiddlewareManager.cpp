@@ -69,9 +69,15 @@ void MiddlewareManager::update(float dt)
             buffer->reset();
         }
     }
+    
     // reset render info
     auto renderInfoMgr = RenderInfoMgr::getInstance();
     renderInfoMgr->reset();
+    auto renderInfo = renderInfoMgr->getBuffer();
+    if (renderInfo)
+    {
+        renderInfo->writeUint32(0);
+    }
     
     isUpdating = true;
     
