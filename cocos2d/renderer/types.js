@@ -39,10 +39,10 @@ let enums2ctor = {
     [enums.PARAM_FLOAT2]: Vec2,
     [enums.PARAM_FLOAT3]: Vec3,
     [enums.PARAM_FLOAT4]: Vec4,
-    [enums.PARAM_COLOR3]: Color,
-    [enums.PARAM_COLOR4]: Color,
     [enums.PARAM_MAT4]: Mat4,
     [enums.PARAM_TEXTURE_2D]: Texture2D,
+    
+    color: Color,
     number: Number,
     boolean: Boolean,
     default: CCObject
@@ -72,7 +72,6 @@ export let getInstanceCtor = function (t) {
 export let getClassName = function (t) {
     return cc.js.getClassName(getInstanceType(t));
 };
-
 
 let className2InspectorName = {
     Number: 'number',

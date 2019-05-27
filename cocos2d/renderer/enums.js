@@ -32,8 +32,6 @@ export default {
   PARAM_MAT4:           typeParams.MAT4,
   PARAM_TEXTURE_2D:     typeParams.SAMPLER2D,
   PARAM_TEXTURE_CUBE:   typeParams.SAMPLERCUBE,
-  PARAM_COLOR3:          'color',
-  PARAM_COLOR4:          'color',
 
   // clear flags
   CLEAR_COLOR: 1,
