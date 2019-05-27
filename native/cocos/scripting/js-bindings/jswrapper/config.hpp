@@ -32,17 +32,19 @@
 
 #define SCRIPT_ENGINE_V8_ON_MAC      1 // default using v8 on macOS, set 0 to disable
 
+#define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+
 #if defined(__APPLE__)
     #include <TargetConditionals.h>
-    #if TARGET_OS_OSX && SCRIPT_ENGINE_V8_ON_MAC
-        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
-    #else
-        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
-    #endif
-#elif defined(ANDROID) || (defined(_WIN32) && defined(_WINDOWS)) // Windows and Android use V8
-    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
-#else
-    #error "Unknown Script Engine"
+//    #if TARGET_OS_OSX && SCRIPT_ENGINE_V8_ON_MAC
+//        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+//    #else
+//        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+//    #endif
+//#elif defined(ANDROID) || (defined(_WIN32) && defined(_WINDOWS)) // Windows and Android use V8
+//    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+//#else
+//    #error "Unknown Script Engine"
 #endif
 
 #ifndef USE_V8_DEBUGGER
@@ -56,7 +58,7 @@
 #define SE_LOG_TO_JS_ENV 0 // print log to JavaScript environment, for example DevTools
 
 #if !defined(ANDROID_INSTANT) && defined(USE_V8_DEBUGGER) && USE_V8_DEBUGGER > 0
-#define SE_ENABLE_INSPECTOR 1
+#define SE_ENABLE_INSPECTOR 0
 #define SE_DEBUG 2
 #define HAVE_INSPECTOR 1
 #else

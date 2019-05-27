@@ -109,10 +109,10 @@ namespace se {
                 else
                     v->setUndefined();
             } else if (jsval->IsString()) {
-                v8::String::Utf8Value utf8(jsval);
+                v8::String::Utf8Value utf8(isolate, jsval);
                 v->setString(std::string(*utf8));
             } else if (jsval->IsBoolean()) {
-                v8::MaybeLocal<v8::Boolean> jsBoolean = jsval->ToBoolean(isolate->GetCurrentContext());
+                v8::MaybeLocal<v8::Boolean> jsBoolean = jsval->ToBoolean(isolate);
                 if (!jsBoolean.IsEmpty())
                     v->setBoolean(jsBoolean.ToLocalChecked()->Value());
                 else

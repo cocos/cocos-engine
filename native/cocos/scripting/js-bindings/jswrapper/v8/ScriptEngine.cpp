@@ -33,7 +33,7 @@
 #include "../MappingUtils.hpp"
 
 #if SE_ENABLE_INSPECTOR
-#include "debugger/inspector_agent.h"
+//#include "debugger/inspector_agent.h"
 #include "debugger/env.h"
 #include "debugger/node.h"
 #endif
@@ -55,7 +55,7 @@ namespace se {
         {
             if (info[0]->IsString())
             {
-                v8::String::Utf8Value utf8(info[0]);
+                v8::String::Utf8Value utf8(v8::Isolate::GetCurrent(), info[0]);
                 SE_LOGD("JS: %s\n", *utf8);
             }
         }
@@ -74,19 +74,19 @@ namespace se {
             char tmp[100] = {0};
             for (int i = 0, e = stack->GetFrameCount(); i < e; ++i)
             {
-                v8::Local<v8::StackFrame> frame = stack->GetFrame(i);
+                v8::Local<v8::StackFrame> frame = stack->GetFrame(v8::Isolate::GetCurrent(), i);
                 v8::Local<v8::String> script = frame->GetScriptName();
                 std::string scriptName;
                 if (!script.IsEmpty())
                 {
-                    scriptName = *v8::String::Utf8Value(script);
+                    scriptName = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), script);
                 }
 
                 v8::Local<v8::String> func = frame->GetFunctionName();
                 std::string funcName;
                 if (!func.IsEmpty())
                 {
-                    funcName = *v8::String::Utf8Value(func);
+                    funcName = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), func);
                 }
 
                 stackStr += "[";
@@ -347,8 +347,8 @@ namespace se {
     {
         //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
         //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //REFINE
-        _platform = v8::platform::CreateDefaultPlatform();
-        v8::V8::InitializePlatform(_platform);
+        _platform = v8::platform::NewDefaultPlatform();
+        v8::V8::InitializePlatform(_platform.get());
         bool ok = v8::V8::Initialize();
         assert(ok);
     }
@@ -358,8 +358,7 @@ namespace se {
         cleanup();
         v8::V8::Dispose();
         v8::V8::ShutdownPlatform();
-        delete _platform;
-        _platform = nullptr;
+        _platform.reset(nullptr);
     }
 
     bool ScriptEngine::init()
@@ -375,10 +374,13 @@ namespace se {
         _beforeInitHookArray.clear();
 
         assert(_allocator == nullptr);
-        _allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-        // Create a new Isolate and make it the current one.
-        _createParams.array_buffer_allocator = _allocator;
-        _isolate = v8::Isolate::New(_createParams);
+//        _allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+//        // Create a new Isolate and make it the current one.
+//        _createParams.array_buffer_allocator = _allocator;
+v8::Isolate::CreateParams create_params;
+  create_params.array_buffer_allocator =
+      v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+        _isolate = v8::Isolate::New(create_params);
         v8::HandleScope hs(_isolate);
         _isolate->Enter();
 
