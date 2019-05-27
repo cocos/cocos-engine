@@ -31,6 +31,7 @@
 #include "../Macro.h"
 #include "ProgramLib.h"
 #include "Model.h"
+#include "Effect.h"
 
 RENDERER_BEGIN
 
@@ -103,6 +104,7 @@ public:
 protected:
     void render(const View&, const Scene* scene);
     void draw(const StageItem& item);
+    void setProperty (Effect::Property& prop);
     
     struct StageInfo
     {

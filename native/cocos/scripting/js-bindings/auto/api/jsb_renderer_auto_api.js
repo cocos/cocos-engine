@@ -70,6 +70,98 @@ array
 };
 
 /**
+ * @class Effect
+ */
+renderer.EffectNative = {
+
+/**
+ * @method getProperty
+ * @param {String} arg0
+ * @return {cc.renderer::Technique::Parameter}
+ */
+getProperty : function (
+str 
+)
+{
+    return cc.renderer::Technique::Parameter;
+},
+
+/**
+ * @method getTechnique
+ * @param {String} arg0
+ * @return {cc.renderer::Technique}
+ */
+getTechnique : function (
+str 
+)
+{
+    return cc.renderer::Technique;
+},
+
+/**
+ * @method getDefine
+ * @param {String} arg0
+ * @return {cc.Value}
+ */
+getDefine : function (
+str 
+)
+{
+    return cc.Value;
+},
+
+/**
+ * @method getHash
+ * @return {double}
+ */
+getHash : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method updateHash
+ * @param {double} arg0
+ */
+updateHash : function (
+double 
+)
+{
+},
+
+/**
+ * @method clear
+ */
+clear : function (
+)
+{
+},
+
+/**
+ * @method define
+ * @param {String} arg0
+ * @param {cc.Value} arg1
+ */
+define : function (
+str, 
+value 
+)
+{
+},
+
+/**
+ * @method Effect
+ * @constructor
+ */
+Effect : function (
+)
+{
+},
+
+};
+
+/**
  * @class BaseRenderer
  */
 renderer.Base = {
@@ -709,98 +801,6 @@ scene
  * @constructor
  */
 ForwardRenderer : function (
-)
-{
-},
-
-};
-
-/**
- * @class Effect
- */
-renderer.EffectNative = {
-
-/**
- * @method getProperty
- * @param {String} arg0
- * @return {cc.renderer::Technique::Parameter}
- */
-getProperty : function (
-str 
-)
-{
-    return cc.renderer::Technique::Parameter;
-},
-
-/**
- * @method getTechnique
- * @param {String} arg0
- * @return {cc.renderer::Technique}
- */
-getTechnique : function (
-str 
-)
-{
-    return cc.renderer::Technique;
-},
-
-/**
- * @method getDefine
- * @param {String} arg0
- * @return {cc.Value}
- */
-getDefine : function (
-str 
-)
-{
-    return cc.Value;
-},
-
-/**
- * @method getHash
- * @return {double}
- */
-getHash : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method updateHash
- * @param {double} arg0
- */
-updateHash : function (
-double 
-)
-{
-},
-
-/**
- * @method clear
- */
-clear : function (
-)
-{
-},
-
-/**
- * @method define
- * @param {String} arg0
- * @param {cc.Value} arg1
- */
-define : function (
-str, 
-value 
-)
-{
-},
-
-/**
- * @method Effect
- * @constructor
- */
-Effect : function (
 )
 {
 },

@@ -156,7 +156,7 @@ void GraphicsRenderHandle::updateNativeMesh(uint32_t index, se::Object* vertices
 
 void GraphicsRenderHandle::updateNativeEffect(size_t index, Effect* effect)
 {
-    if (index >= _datas.size())
+    if (index >= _datas.size() || !effect)
     {
         return;
     }

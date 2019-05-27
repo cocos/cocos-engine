@@ -178,9 +178,37 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
         oneDefMap["_offset"] = offset;
     }
 
-    std::string newVert = _precision + vert;
-    std::string newFrag = _precision + frag;
+    std::string newVert = vert;
+    std::string newFrag = frag;
 
+    std::size_t begin = newVert.find(_precisionReplace);
+    if (begin != std::string::npos)
+    {
+        newVert.replace(begin, strlen(_precisionReplace), _precision);
+    }
+    else
+    {
+        newVert = _precision + vert;
+    }
+    
+    begin = newFrag.find(_precisionReplace);
+    if (begin != std::string::npos)
+    {
+        newFrag.replace(begin, strlen(_precisionReplace), _precision);
+    }
+    else
+    {
+        newFrag = _precision + frag;
+    }
+    
+    while ((begin = newFrag.find("#if ")) != std::string::npos) {
+        newFrag.replace(begin, strlen("#if "), "#ifdef ");
+    }
+    
+    while ((begin = newVert.find("#if ")) != std::string::npos) {
+        newVert.replace(begin, strlen("#if "), "#ifdef ");
+    }
+    
     // store it
     auto& templ = _templates[name];
     templ.id = id;
@@ -219,7 +247,7 @@ Program* ProgramLib::getProgram(const std::string& name, const ValueMap& defines
         vert = customDef + unrollLoops(vert);
         std::string frag = replaceMacroNums(tmpl.frag, defines);
         frag = customDef + unrollLoops(frag);
-
+        
         program = new Program();
         program->init(_device, vert.c_str(), frag.c_str());
         program->link();

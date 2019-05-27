@@ -29,7 +29,7 @@
 
 RENDERER_BEGIN
 
-static const std::string techStage = "transparent";
+static const std::string techStage = "opaque";
 StencilManager* StencilManager::_instance = nullptr;
 
 StencilManager::StencilManager ()
@@ -46,61 +46,67 @@ void StencilManager::reset ()
     
 Effect* StencilManager::handleEffect (Effect* effect)
 {
-        Technique* tech = effect->getTechnique(techStage);
-        Vector<Pass*>& passes = (Vector<Pass*>&)tech->getPasses();
-        if (_stage == Stage::DISABLED)
+    Technique* tech = effect->getTechnique(techStage);
+    if (!tech) return effect;
+    Vector<Pass*>& passes = (Vector<Pass*>&)tech->getPasses();
+    if (_stage == Stage::DISABLED)
+    {
+        for (const auto& pass : passes)
         {
-            for (const auto& pass : passes)
-            {
-                if (pass->getStencilTest()) {
-                    pass->disableStencilTest();
-                }
+            if (pass->getStencilTest()) {
+                pass->disableStencilTest();
             }
-            return effect;
-        }
-        
-        uint32_t ref;
-        uint8_t stencilMask, writeMask;
-        bool mask;
-        StencilFunc func;
-        StencilOp failOp = StencilOp::KEEP;
-        const StencilOp& zFailOp = StencilOp::KEEP;
-        const StencilOp& zPassOp = StencilOp::KEEP;
-        
-        if (_stage == Stage::ENABLED)
-        {
-            mask = _maskStack.back();
-            func = StencilFunc::EQUAL;
-            failOp = StencilOp::KEEP;
-            ref = getStencilRef();
-            stencilMask = ref;
-            writeMask = getWriteMask();
-        }
-        else {
-            if (_stage == Stage::CLEAR) {
-                mask = _maskStack.back();
-                func = StencilFunc::NEVER;
-                failOp = mask ? StencilOp::REPLACE : StencilOp::ZERO;
-                ref = getWriteMask();
-                stencilMask = ref;
-                writeMask = ref;
-            }
-            else if (_stage == Stage::ENTER_LEVEL) {
-                mask = _maskStack.back();
-                // Fill stencil mask
-                func = StencilFunc::NEVER;
-                failOp = mask ? StencilOp::ZERO : StencilOp::REPLACE;
-                ref = getWriteMask();
-                stencilMask = ref;
-                writeMask = ref;
-            }
-        }
-        
-        for (const auto& pass : passes) {
-            pass->setStencilFront(func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
-            pass->setStencilBack(func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
         }
         return effect;
+    }
+    
+    if (_maskStack.size() == 0)
+    {
+        return effect;
+    }
+    
+    uint32_t ref;
+    uint8_t stencilMask, writeMask;
+    bool mask;
+    StencilFunc func;
+    StencilOp failOp = StencilOp::KEEP;
+    const StencilOp& zFailOp = StencilOp::KEEP;
+    const StencilOp& zPassOp = StencilOp::KEEP;
+    
+    if (_stage == Stage::ENABLED)
+    {
+        mask = _maskStack.back();
+        func = StencilFunc::EQUAL;
+        failOp = StencilOp::KEEP;
+        ref = getStencilRef();
+        stencilMask = ref;
+        writeMask = getWriteMask();
+    }
+    else {
+        if (_stage == Stage::CLEAR) {
+            mask = _maskStack.back();
+            func = StencilFunc::NEVER;
+            failOp = mask ? StencilOp::REPLACE : StencilOp::ZERO;
+            ref = getWriteMask();
+            stencilMask = ref;
+            writeMask = ref;
+        }
+        else if (_stage == Stage::ENTER_LEVEL) {
+            mask = _maskStack.back();
+            // Fill stencil mask
+            func = StencilFunc::NEVER;
+            failOp = mask ? StencilOp::ZERO : StencilOp::REPLACE;
+            ref = getWriteMask();
+            stencilMask = ref;
+            writeMask = ref;
+        }
+    }
+    
+    for (const auto& pass : passes) {
+        pass->setStencilFront(func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
+        pass->setStencilBack(func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
+    }
+    return effect;
 };
     
 void StencilManager::pushMask (bool mask)

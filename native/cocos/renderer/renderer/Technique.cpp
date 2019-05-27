@@ -32,28 +32,39 @@ RENDERER_BEGIN
 
 // implementation of Parameter
 
-uint8_t Technique::Parameter::elementsOfType[] = {
-    1, // INT
-    2, // INT2
-    3, // INT3
-    4, // INT4
-    1, // FLOAT
-    2, // FLOAT2
-    3, // FLOAT3
-    4, // FLOAT4
-    3, // COLOR3
-    4, // COLOR4
-    4, // MAT2
-    9, // MAT3
-    16,// MAT4
-    1, // TEXTURE_2D
-    1, // TEXTURE_CUBE
-    0, // UNKNOWN
-};
-
 uint8_t Technique::Parameter::getElements(Type type)
 {
-    return Parameter::elementsOfType[(int)type];
+    switch (type)
+    {
+        case Type::INT:
+        return 1;
+        case Type::INT2:
+        return 2;
+        case Type::INT3:
+        return 3;
+        case Type::INT4:
+        return 4;
+        case Type::FLOAT:
+        return 1;
+        case Type::FLOAT2:
+        return 2;
+        case Type::FLOAT3:
+        return 3;
+        case Type::FLOAT4:
+        return 4;
+        case Type::COLOR3:
+        return 3;
+        case Type::COLOR4:
+        return 4;
+        case Type::MAT2:
+        return 4;
+        case Type::MAT3:
+        return 9;
+        case Type::MAT4:
+        return 16;
+        default:
+        return 0;
+    }
 }
 
 Technique::Parameter::Parameter()
@@ -363,12 +374,10 @@ void Technique::Parameter::freeValue()
 uint32_t Technique::_genID = 0;
 
 Technique::Technique(const std::vector<std::string>& stages,
-                     const std::vector<Parameter>& parameters,
                      const Vector<Pass*>& passes,
                      int layer)
 : _id(_genID++)
 , _stageIDs(Config::getStageIDs(stages))
-, _parameters(parameters)
 , _passes(passes)
 , _layer(layer)
 {
@@ -400,7 +409,6 @@ void Technique::copy(const Technique& tech)
     _id = tech._id;
     _stageIDs = tech._stageIDs;
     _layer = tech._layer;
-    _parameters = tech._parameters;
     _passes.clear();
     auto& otherPasses = tech._passes;
     for (auto it = otherPasses.begin(); it != otherPasses.end(); it++)
