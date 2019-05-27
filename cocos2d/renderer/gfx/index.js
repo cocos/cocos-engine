@@ -1,8 +1,8 @@
 import {
-enums,
-attrTypeBytes,
-glFilter,
-glTextureFmt,
+    enums,
+    attrTypeBytes,
+    glFilter,
+    glTextureFmt,
 } from './enums';
 
 let gfx = null;

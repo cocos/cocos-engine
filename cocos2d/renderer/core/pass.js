@@ -104,12 +104,13 @@ export default class Pass {
 
     if (CC_JSB && CC_NATIVERENDERER) {
         this._native.setBlend(blendEq,
-                            blendSrc,
-                            blendDst,
-                            blendAlphaEq,
-                            blendSrcAlpha,
-                            blendDstAlpha,
-                            blendColor);
+            blendSrc,
+            blendDst,
+            blendAlphaEq,
+            blendSrcAlpha,
+            blendDstAlpha,
+            blendColor
+        );
     }
   }
 
