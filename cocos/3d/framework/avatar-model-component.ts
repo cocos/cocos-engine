@@ -26,8 +26,9 @@ import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Vec2 } from '../../core/value-types';
-import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
+import { vec2 } from '../../core/vmath';
 import { GFXFormat } from '../../gfx/define';
+import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { Mesh } from '../assets';
 import { Skeleton } from '../assets/skeleton';
@@ -42,11 +43,10 @@ const repeat = (n: number) => n - Math.floor(n);
 export class AvatarUnit {
 
     @property({ type: Mesh })
-    get mesh (): Mesh | null {
+    get mesh () {
         return this._mesh;
     }
-
-    set mesh (mesh: Mesh | null) {
+    set mesh (mesh) {
         if (this._mesh !== mesh) {
             this._mesh = mesh;
         }
@@ -56,43 +56,33 @@ export class AvatarUnit {
     get skeleton () {
         return this._skeleton;
     }
-
-    set skeleton (skeleton: Skeleton | null) {
+    set skeleton (skeleton) {
         if (this._skeleton !== skeleton) {
             this._skeleton = skeleton;
         }
     }
 
-    @property({ type: cc.Vec2 })
-    get atlasSize (): Vec2 {
+    @property
+    get atlasSize () {
         return this._atlasSize;
     }
-
-    set atlasSize (atlasSize: Vec2) {
-        if (this._atlasSize.x !== atlasSize.x ||
-            this._atlasSize.y !== atlasSize.y) {
-            this._atlasSize = atlasSize;
-        }
+    set atlasSize (atlasSize) {
+        vec2.copy(this._atlasSize, atlasSize);
     }
 
-    @property({ type: cc.Vec2 })
-    get offset (): Vec2 {
+    @property
+    get offset () {
         return this._offset;
     }
-
-    set offset (offset: Vec2) {
-        if (this._offset.x !== offset.x ||
-            this._offset.y !== offset.y) {
-            this._offset = offset;
-        }
+    set offset (offset) {
+        vec2.copy(this._offset, offset);
     }
 
     @property({ type: Texture2D })
-    get albedoMap (): Texture2D | null {
+    get albedoMap () {
         return this._albedoMap;
     }
-
-    set albedoMap (albedoMap: Texture2D | null) {
+    set albedoMap (albedoMap) {
         if (this._albedoMap !== albedoMap) {
             this._albedoMap = albedoMap;
 
@@ -104,10 +94,10 @@ export class AvatarUnit {
         }
     }
 
-    @property
+    @property(Mesh)
     private _mesh: Mesh | null = null;
 
-    @property
+    @property(Skeleton)
     private _skeleton: Skeleton | null = null;
 
     @property
@@ -116,7 +106,7 @@ export class AvatarUnit {
     @property
     private _atlasSize: Vec2 = new Vec2(256, 256);
 
-    @property
+    @property(Texture2D)
     private _albedoMap: Texture2D | null = null;
 }
 
@@ -187,10 +177,6 @@ export class AvatarModelComponent extends SkinningModelComponent {
         this._combinedTex.setFilters(Filter.LINEAR, Filter.LINEAR);
         this.resizeCombinedTexture();
         this.combine();
-    }
-
-    public update (dt) {
-        super.update(dt);
     }
 
     public onDestroy () {

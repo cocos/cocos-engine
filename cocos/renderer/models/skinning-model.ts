@@ -118,7 +118,7 @@ export class SkinningModel extends Model {
         if (type === JointsMediumType.UNIFORM) {
             buffer.update(nativeData, UBOSkinning.MAT_JOINT_OFFSET);
         } else {
-            texture!.directUpdate(nativeData.buffer);
+            texture!.uploadData(nativeData.buffer);
         }
     }
 

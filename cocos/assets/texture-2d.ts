@@ -114,10 +114,6 @@ export class Texture2D extends TextureBase {
         }
     }
 
-    public directUpdate (source: HTMLImageElement | HTMLCanvasElement | ArrayBuffer, level: number = 0) {
-        this._uploadData(source, level);
-    }
-
     /**
      * !#en
      * HTMLElement Object getter, available only on web.

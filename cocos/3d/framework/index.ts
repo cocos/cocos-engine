@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import { AudioSourceComponent } from './audio-source-component';
-import { AvatarModelComponent } from './avatar-model-component';
+import { AvatarModelComponent, AvatarUnit } from './avatar-model-component';
 import { CameraComponent } from './camera-component';
 import { DirectionalLightComponent } from './directional-light-component';
 import { EditorCameraComponent } from './editor-camera-component';
@@ -49,6 +49,8 @@ export {
     LightComponent,
     ModelComponent,
     SkinningModelComponent,
+    AvatarModelComponent,
+    AvatarUnit,
 
     BoxColliderComponent,
     ParticleSystemComponent,
@@ -68,6 +70,7 @@ cc.RenderableComponent = RenderableComponent;
 cc.ModelComponent = ModelComponent;
 cc.SkinningModelComponent = SkinningModelComponent;
 cc.AvatarModelComponent = AvatarModelComponent;
+cc.AvatarUnit = AvatarUnit;
 
 cc.LightComponent = LightComponent;
 cc.DirectionalLightComponent = DirectionalLightComponent;

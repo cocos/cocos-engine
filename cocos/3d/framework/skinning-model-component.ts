@@ -138,10 +138,6 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     public update (dt) {
-        this._tryUpdateMatrices();
-    }
-
-    public _tryUpdateMatrices () {
         if (!this._skeleton || !this._model) {
             return;
         }
