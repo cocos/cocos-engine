@@ -38,9 +38,11 @@ let Material = cc.Class({
     extends: Asset,
 
     ctor () {
+        this._manualHash = false;
         this._dirty = true;
         this._effect = null;
         this._owner = null;
+        this._hash = 0;
     },
 
     properties: {
@@ -82,6 +84,7 @@ let Material = cc.Class({
                     return;
                 }
                 this._effect = Effect.parseEffect(asset);
+                this.updateHash();
             }
         },
 
@@ -161,6 +164,9 @@ let Material = cc.Class({
             else {
                 this._effect.setProperty(name, val);
             }
+            if (!this._manualHash) {
+                this.updateHash();
+            }
         }
     },
 
@@ -180,6 +186,9 @@ let Material = cc.Class({
 
         if (this._effect) {
             this._effect.define(name, val);
+            if (!this._manualHash) {
+                this.updateHash();
+            }
         }
     },
 
@@ -192,26 +201,33 @@ let Material = cc.Class({
     },
 
     updateHash (hash) {
+        if (hash === undefined || hash === null) {
+            hash = this.computeHash();
+        } else {
+            this._manualHash = true;
+        }
         this._dirty = false;
         this._hash = hash;
-        if (CC_JSB && this._effect) {
+        if (this._effect) {
             this._effect.updateHash(this._hash);
         }
     },
 
-    getHash () {
-        if (!this._dirty) return this._hash;
-        this._dirty = false;
+    computeHash () {
         let effect = this._effect;
-
         let hashStr = '';
         if (effect) {
             hashStr += utils.serializeDefines(effect._defines);
             hashStr += utils.serializeTechniques(effect._techniques);
             hashStr += utils.serializeUniforms(effect._properties);
         }
+        return murmurhash2(hashStr, 666);
+    },
 
-        return this._hash = murmurhash2(hashStr, 666);
+    getHash () {
+        if (!this._dirty) return this._hash;
+        this.updateHash();
+        return this._hash;
     },
 
     onLoad () {

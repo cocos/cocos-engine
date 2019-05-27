@@ -16,6 +16,25 @@ class Effect {
         this._properties = properties;
         this._defines = defines;
         this._dependencies = dependencies;
+        
+        if (CC_JSB && CC_NATIVERENDERER) {
+            var techniqueObjs = [];
+            var techniqueObj;
+            // get native technique info
+            for (var i = 0, len = techniques.length; i < len; ++i) {
+                techniqueObj = techniques[i]._nativeObj; 
+                techniqueObjs.push(techniqueObj);
+            }
+
+            var definesArr = [];
+            for (var key in defines) {
+                definesArr.push({name:key, value:defines[key]});
+            }
+
+            this._nativeObj = new renderer.EffectNative();
+            this._nativeObj.init(techniqueObjs, properties, definesArr);
+            this._nativePtr = this._nativeObj.self();
+        }
 
         // TODO: check if params is valid for current technique???
     }
@@ -24,6 +43,10 @@ class Effect {
         this._techniques.length = 0;
         this._properties = {};
         this._defines = {};
+
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._nativeObj.clear();
+        }
     }
 
     getDefaultTechnique() {
@@ -82,6 +105,16 @@ class Effect {
                 prop.value = value;
             }
         }
+        
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._nativeObj.setProperty(name, prop.value);
+        }
+    }
+
+    updateHash(hash) {
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._nativeObj.updateHash(hash);
+        }
     }
 
     getDefine(name) {
@@ -101,6 +134,10 @@ class Effect {
         }
 
         this._defines[name] = value;
+
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._nativeObj.define(name, value);
+        }
     }
 
     extractProperties(out = {}) {

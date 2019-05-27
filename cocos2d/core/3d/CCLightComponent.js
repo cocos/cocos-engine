@@ -24,7 +24,13 @@
  ****************************************************************************/
 // @ts-check
 import enums from '../../renderer/enums';
-import RendererLight from '../../renderer/scene/light';
+let RendererLight = null;
+if (CC_JSB && CC_NATIVERENDERER) {
+    RendererLight = window.renderer.Light;
+} else {
+    RendererLight = require('../../renderer/scene/light');
+}
+
 import { Color } from '../value-types';
 import { toRadian } from '../vmath';
 

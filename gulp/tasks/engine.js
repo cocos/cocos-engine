@@ -41,6 +41,7 @@ const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
     // modules need to skip in jsb
+    /*
     '../../extensions/spine/skeleton-cache.js',
     '../../extensions/spine/lib/spine.js',
     '../../extensions/dragonbones/lib/dragonBones.js',
@@ -55,7 +56,6 @@ var jsbSkipModules = [
     '../../cocos2d/renderer/gfx/enums.js',
     '../../cocos2d/renderer/gfx/frame-buffer.js',
     '../../cocos2d/renderer/gfx/index-buffer.js',
-    '../../cocos2d/renderer/gfx/index.js',
     '../../cocos2d/renderer/gfx/misc.js',
     '../../cocos2d/renderer/gfx/program.js',
     '../../cocos2d/renderer/gfx/render-buffer.js',
@@ -68,17 +68,19 @@ var jsbSkipModules = [
 
     // renderer
     '../../cocos2d/renderer/core/base-renderer.js',
-    '../../cocos2d/renderer/core/effect.js',
-    '../../cocos2d/renderer/core/input-assembler.js',
-    '../../cocos2d/renderer/core/pass.js',
     '../../cocos2d/renderer/core/program-lib.js',
-    '../../cocos2d/renderer/core/technique.js',
     '../../cocos2d/renderer/core/view.js',
     '../../cocos2d/renderer/renderers/forward-renderer.js',
     '../../cocos2d/renderer/scene/camera.js',
     '../../cocos2d/renderer/scene/light.js',
-    '../../cocos2d/renderer/scene/model.js',
     '../../cocos2d/renderer/scene/scene.js',
+
+    // buffer
+    '../../cocos2d/core/renderer/webgl/mesh-buffer.js',
+    '../../cocos2d/core/renderer/webgl/quad-buffer.js',
+    '../../cocos2d/core/renderer/webgl/spine-buffer.js',
+    '../../cocos2d/core/renderer/webgl/model-batcher.js',
+    */
 ];
 var jsbAliasify = {
     replacements: {
