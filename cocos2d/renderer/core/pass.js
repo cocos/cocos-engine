@@ -103,7 +103,8 @@ export default class Pass {
     this._blendColor = blendColor;
 
     if (CC_JSB && CC_NATIVERENDERER) {
-        this._native.setBlend(blendEq,
+        this._native.setBlend(
+            blendEq,
             blendSrc,
             blendDst,
             blendAlphaEq,
