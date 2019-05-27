@@ -26,6 +26,10 @@ export class UIModelComponent extends UIComponent {
     }
 
     public onEnable () {
+        if (super.onEnable){
+            super.onEnable();
+        }
+
         this._fitUIRenderQueue();
     }
 

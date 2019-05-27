@@ -232,23 +232,12 @@ export class UIRenderComponent extends UIComponent {
     }
 
     public onEnable () {
-        let parent = this.node;
-        // 获取被渲染相机的 visibility
-        while (parent) {
-            if (parent) {
-                const canvasComp = parent.getComponent(CanvasComponent);
-                if (canvasComp) {
-                    this._visibility = canvasComp.visibility;
-                    break;
-                }
-            }
-
-            // @ts-ignore
-            parent = parent.parent;
+        if (super.onEnable){
+            super.onEnable();
         }
 
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
+        // this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
         this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
         // if (this.node._renderComponent) {
         //     this.node._renderComponent.enabled = false;
@@ -259,11 +248,14 @@ export class UIRenderComponent extends UIComponent {
     }
 
     public onDisable () {
-        this._visibility = -1;
+        if (super.onDisable){
+            super.onDisable();
+        }
+
         // this.node._renderComponent = null;
         // this.disableRender();
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
+        // this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
         this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
 
@@ -340,10 +332,6 @@ export class UIRenderComponent extends UIComponent {
     public updateAssembler (render: UI) {
         if (!this._canRender()) {
             return false;
-        }
-
-        if (this.node.hasChanged && !this._renderDataDirty) {
-            this.markForUpdateRenderData();
         }
 
         this._checkAndUpdateRenderData();
