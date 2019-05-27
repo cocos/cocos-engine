@@ -48,12 +48,8 @@ export default class ForwardRenderer extends BaseRenderer {
     this._sceneAmbient[2] = val.b /255;
   }
 
-  reset () {
-    this._reset();
-  }
-
   render (scene) {
-    this._reset();
+    this.reset();
 
     this._updateLights(scene);
 

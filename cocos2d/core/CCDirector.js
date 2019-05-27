@@ -362,6 +362,8 @@ cc.Director.prototype = {
 
         // Clear all caches
         cc.loader.releaseAll();
+
+        cc.AssetLibrary.resetBuiltins();
     },
 
     /**
