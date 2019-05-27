@@ -23,10 +23,17 @@ export class UIModelComponent extends UIComponent {
     public onLoad () {
         this._modelComponent = this.getComponent(cc.RenderableComponent) as RenderableComponent;
         (this._modelComponent as any)._sceneGetter = cc.director.root.ui.getRenderSceneGetter();
+        this._modelComponent.recreateModel();
     }
 
     public onEnable () {
         this._fitUIRenderQueue();
+    }
+
+    public onDestroy () {
+        this._modelComponent = this.getComponent(cc.RenderableComponent) as RenderableComponent;
+        (this._modelComponent as any)._sceneGetter = null;
+        this._modelComponent.recreateModel();
     }
 
     public updateAssembler (render: UI) {

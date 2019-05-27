@@ -149,6 +149,10 @@ export class RenderableComponent extends Component {
         }
     }
 
+    public recreateModel () {
+
+    }
+
     protected _assetReady () {
 
     }

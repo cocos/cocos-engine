@@ -338,6 +338,16 @@ export default class TrailModule {
         }
     }
 
+    public clear () {
+        if (this.enable) {
+            for (const trail of this._particleTrail.values()) {
+                trail.clear();
+            }
+            this._particleTrail.clear();
+            this.updateRenderData();
+        }
+    }
+
     private _createModel () {
         if (this._trailModel) {
             return;
