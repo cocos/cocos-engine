@@ -2,8 +2,14 @@ import enums from './enums';
 import { Vec2, Vec3, Vec4, Color, Mat4 } from '../core/value-types';
 import { vec2, vec3, vec4, color4, mat2, mat3, mat4 } from '../core/vmath';
 import Texture2D from '../core/assets/CCTexture2D';
-import gfxTexture2D from './gfx/texture-2d';
-import gfxTextureCube from  './gfx/texture-cube';
+
+let gfxTexture2D = null, gfxTextureCube = null;
+if (CC_JSB && CC_NATIVERENDERER) {
+    gfxTexture2D = gfx.Texture2D;
+} else {
+    gfxTexture2D = require('./gfx/texture-2d');
+    gfxTextureCube = require('./gfx/texture-cube');
+}
 
 const CCObject = cc.Object;
 

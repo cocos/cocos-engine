@@ -207,8 +207,10 @@ function afterDraw () {
         right += stat._counter.human() + '\n';
     }
 
-    _label.left.string = left;
-    _label.right.string = right;
+    if (_label) {
+        _label.left.string = left;
+        _label.right.string = right;
+    }
 }
 
 cc.profiler = module.exports = {

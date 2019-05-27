@@ -129,9 +129,9 @@ if (_isUseSpine) {
             sp.spine = _global.spine;
         } else {
             sp.spine = require('./lib/spine');
+            require('./skeleton-texture');
         }
 
-        require('./skeleton-texture');
         require('./skeleton-data');
         require('./Skeleton');
         require('./spine-assembler');

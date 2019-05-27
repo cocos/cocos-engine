@@ -301,7 +301,7 @@ export default class Camera {
    * Set the framebuffer of the camera
    * @param {FrameBuffer} framebuffer camera framebuffer
    */
-  setFramebuffer(framebuffer) {
+  setFrameBuffer(framebuffer) {
     this._framebuffer = framebuffer;
   }
 

@@ -30,8 +30,6 @@ const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();
 
-const dummyNode = new cc.Node();
-
 /**
  * !#en
  * Skinned Mesh Renderer
@@ -51,6 +49,7 @@ let SkinnedMeshRenderer = cc.Class({
         this._jointsData = null;
         this._jointsTexture = null;
         this._joints = [];
+        this._dummyNode = new cc.Node();
     },
 
     properties: {
@@ -251,7 +250,7 @@ let SkinnedMeshRenderer = cc.Class({
     },
 
     getRenderNode () {
-        return this._useJointMatrix() ? this.rootBone : dummyNode;
+        return this._useJointMatrix() ? this.rootBone : this._dummyNode;
     },
 
     calcJointMatrix () {
