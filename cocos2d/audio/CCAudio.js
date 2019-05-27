@@ -149,29 +149,24 @@ Audio.State = {
         this._bindEnded();
         this._element.play();
 
-        if (!CC_QQPLAY && !CC_WECHATGAME) {
-            if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
-                this._element.paused) {
-                touchPlayList.push({ instance: this, offset: 0, audio: this._element });
-            }
-
-            if (touchBinded) return;
-            touchBinded = true;
-
-            // Listen to the touchstart body event and play the audio when necessary.
-            cc.game.canvas.addEventListener('touchstart', function () {
-                let item;
-                while (item = touchPlayList.pop()) {
-                    item.audio.play(item.offset);
-                }
-            });
+        if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
+            this._element.paused) {
+            touchPlayList.push({ instance: this, offset: 0, audio: this._element });
         }
+
+        if (touchBinded) return;
+        touchBinded = true;
+
+        // Listen to the touchstart body event and play the audio when necessary.
+        cc.game.canvas.addEventListener('touchstart', function () {
+            let item;
+            while (item = touchPlayList.pop()) {
+                item.audio.play(item.offset);
+            }
+        });
     };
 
     proto.destroy = function () {
-        if (CC_WECHATGAME || CC_QQPLAY) {
-            this._element && this._element.destroy();
-        }
         this._element = null;
     };
 
@@ -236,14 +231,13 @@ Audio.State = {
             return;
         }
 
-        if (!(CC_QQPLAY || CC_WECHATGAME)) {
-            // setCurrentTime would fire 'ended' event
-            // so we need to change the callback to rebind ended callback after setCurrentTime
-            this._unbindEnded();
-            this._bindEnded(function () {
-                this._bindEnded();
-            }.bind(this));
-        }
+        // setCurrentTime would fire 'ended' event
+        // so we need to change the callback to rebind ended callback after setCurrentTime
+        this._unbindEnded();
+        this._bindEnded(function () {
+            this._bindEnded();
+        }.bind(this));
+
         try {
             this._element.currentTime = num;
         }
@@ -268,7 +262,7 @@ Audio.State = {
 
     proto.getState = function () {
         let elem = this._element;
-        if (!CC_WECHATGAME && !CC_QQPLAY && elem) {
+        if (elem) {
             // HACK: in some browser, audio may not fire 'ended' event
             // so we need to force updating the Audio state
             if (Audio.State.PLAYING === this._state && elem.paused) {
@@ -418,7 +412,7 @@ let WebAudioElement = function (buffer, audio) {
             let self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
-                if (!(CC_QQPLAY || CC_WECHATGAME) && self._context.currentTime === 0) {
+                if (self._context.currentTime === 0) {
                     touchPlayList.push({
                         instance: self._audio,
                         offset: offset,

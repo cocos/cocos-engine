@@ -1,6 +1,6 @@
 
 const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
-const FLAGS = ['jsb', 'runtime', 'wechatgame', 'wechatgameSub','baidugame', 'qqplay', 'debug', 'nativeRenderer', 'minigame'];
+const FLAGS = ['support_jit', 'jsb', 'runtime', 'qqplay', 'debug', 'nativeRenderer', 'minigame'];
 
 // generate macros for uglify's global_defs
 // available platforms: 'editor' | 'preview' | 'build' | 'test'

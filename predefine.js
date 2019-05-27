@@ -128,6 +128,28 @@ function defineMacro (name, defaultValue) {
         _global[name] = defaultValue;
     }
 }
+
+function defineDeprecatedMacroGetter (name, defaultValue) {
+    if (typeof _global[name] === 'undefined') {
+        Object.defineProperty(_global, name, {
+            get: function () {
+                let recommandedUsage;
+                if (name === 'CC_WECHATGAMESUB') {
+                    recommandedUsage = 'cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB';
+                }
+                else if (name === 'CC_WECHATGAME') {
+                    recommandedUsage = 'cc.sys.platform === cc.sys.WECHAT_GAME';                    
+                }
+                else if (name === 'CC_QQPLAY') {
+                    recommandedUsage = 'cc.sys.platform === cc.sys.QQ_PLAY';
+                }
+                cc.warnID(1400, name, recommandedUsage);
+                return defaultValue;
+            }
+        });
+    }
+}
+
 function defined (name) {
     return typeof _global[name] === 'object';
 }
@@ -136,39 +158,32 @@ function defined (name) {
 // should not use window.CC_BUILD because we need get global_defs defined in uglify
 defineMacro('CC_BUILD', false);
 
+// These default values can only be defined after building
+// If you need to modify them
+// please modify the `global_defs` in the option returned by `gulp/util/utils.js: getUglifyOptions`.
 if (CC_BUILD) {
-    // Supports dynamically access from external scripts such as adapters and debugger.
-    // So macros should still defined in global even if inlined in engine.
-    _global.CC_BUILD = CC_BUILD;
-    _global.CC_TEST = CC_TEST;
-    _global.CC_EDITOR = CC_EDITOR;
-    _global.CC_PREVIEW = CC_PREVIEW;
     _global.CC_DEV = CC_DEV;
     _global.CC_DEBUG = CC_DEBUG;
-    _global.CC_JSB = CC_JSB;
-    _global.CC_WECHATGAMESUB = CC_WECHATGAMESUB;
-    _global.CC_WECHATGAME = CC_WECHATGAME;
-    _global.CC_QQPLAY = CC_QQPLAY;
-    _global.CC_RUNTIME = CC_RUNTIME;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
 }
 else {
-    // These default values only used in the editor or preview.
-    // If you need to modify in the runtime, please modify the `global_defs` in the option returned by `gulp/util/utils.js: getUglifyOptions`.
-    defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
-    defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
-    defineMacro('CC_PREVIEW', !CC_EDITOR);
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
     defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
-    defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
-    defineMacro('CC_JSB', defined('jsb') && !CC_RUNTIME);
-    defineMacro('CC_WECHATGAMESUB', !!(defined('wx') && wx.getSharedCanvas));
-    defineMacro('CC_WECHATGAME', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
-    defineMacro('CC_QQPLAY', defined('bk'));
-    defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));
+    defineMacro('CC_SUPPORT_JIT', true);
 }
-
-//
+// defined in the runtime
+defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
+defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
+defineMacro('CC_PREVIEW', !CC_EDITOR);
+defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
+defineMacro('CC_JSB', defined('jsb') && !CC_RUNTIME);
+// deprecated 
+const WECHATGAMESUB = !!(defined('wx') && wx.getSharedCanvas);
+const WECHATGAME = !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas));
+const QQPLAY = defined('bk');
+defineDeprecatedMacroGetter('CC_WECHATGAMESUB', WECHATGAMESUB);
+defineDeprecatedMacroGetter('CC_WECHATGAME', WECHATGAME);
+defineDeprecatedMacroGetter('CC_QQPLAY', QQPLAY);
 
 if (CC_DEV) {
     /**
