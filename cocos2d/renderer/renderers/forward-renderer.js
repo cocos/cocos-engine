@@ -26,11 +26,16 @@ export default class ForwardRenderer extends BaseRenderer {
   constructor(device, builtin) {
     super(device, builtin);
 
+    this._time = new Float32Array(4);
+
     this._directionalLights = [];
     this._pointLights = [];
     this._spotLights = [];
     this._shadowLights = [];
     this._ambientLights = [];
+
+    this._shadowMaps = [];
+    this._shadowMapSlots = new Int32Array(4);
 
     this._numLights = 0;
 
@@ -46,8 +51,13 @@ export default class ForwardRenderer extends BaseRenderer {
     this._reset();
   }
 
-  render (scene) {
+  render (scene, dt) {
     this.reset();
+
+    if (!CC_EDITOR) {
+      this._time[0] += dt;
+      this._device.setUniform('cc_time', this._time);
+    }
 
     this._updateLights(scene);
 
@@ -287,10 +297,13 @@ export default class ForwardRenderer extends BaseRenderer {
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
   
+        this._shadowMaps.length = shadowLights.length;
         for (let index = 0; index < shadowLights.length; ++index) {
           let light = shadowLights[index];
-          this._device.setTexture(`cc_shadow_map`, light.shadowMap, this._allocTextureUnit());
+          this._shadowMaps[index] = light.shadowMap;
+          this._shadowMapSlots[index] = this._allocTextureUnit();
         }
+        this._device.setTextureArray('cc_shadow_map', this._shadowMaps, this._shadowMapSlots);
   
         this._updateShaderDefines(item);
         this._draw(item);

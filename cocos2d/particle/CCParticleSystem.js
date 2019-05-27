@@ -554,7 +554,7 @@ var properties = {
         },
         set (val) {
             if (this.sharedMaterials[0])
-                this.sharedMaterials[0].define('_USE_MODEL', val !== PositionType.FREE);
+                this.sharedMaterials[0].define('CC_USE_MODEL', val !== PositionType.FREE);
             this._positionType = val;
         }
     },
@@ -1232,7 +1232,7 @@ var ParticleSystem = cc.Class({
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
             material.define('USE_TEXTURE', true);
             // In case the plist lost positionType
-            material.define('_USE_MODEL', this._positionType !== PositionType.FREE);
+            material.define('CC_USE_MODEL', this._positionType !== PositionType.FREE);
         }
         else {
             material = Material.getInstantiatedMaterial(material, this);

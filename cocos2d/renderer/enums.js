@@ -27,8 +27,6 @@ export default {
   PARAM_FLOAT2:          typeParams.VEC2,
   PARAM_FLOAT3:          typeParams.VEC3,
   PARAM_FLOAT4:          typeParams.VEC4,
-  // PARAM_COLOR3:          8,
-  // PARAM_COLOR4:          9,
   PARAM_MAT2:           typeParams.MAT2,
   PARAM_MAT3:           typeParams.MAT3,
   PARAM_MAT4:           typeParams.MAT4,

@@ -3,7 +3,7 @@
 import config from '../config';
 import Pass from '../core/pass';
 import Technique from '../core/technique';
-import { ctor2default, enums2ctor, className2TypeFunc, getInstanceType, cloneObjArray, getInstanceCtor } from '../types';
+import { getInspectorProps, cloneObjArray, getInstanceCtor } from '../types';
 import enums from '../enums';
 
 class Effect {
@@ -95,10 +95,11 @@ class Effect {
             }
         }
         else {
-            let className = cc.js.getClassName(value);
-            let fn = className2TypeFunc[className];
-            if (fn) {
-                prop.value = fn(prop.value, value);
+            if (value instanceof cc.Texture2D) {
+                prop.value = value.getImpl();
+            }
+            else if (value.array) {
+                value.array(prop.value)
             }
             else {
                 prop.value = value;
@@ -170,14 +171,6 @@ let getInvolvedPrograms = function(json) {
     return programs;
 };
 let parseProperties = (function() {
-    function genPropInfo(displayName, type, value) {
-        return {
-            type: type,
-            displayName: displayName,
-            instanceType: getInstanceType(type),
-            value: type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(value),
-        };
-    }
     return function(json, programs) {
         let props = {};
 
@@ -190,16 +183,9 @@ let parseProperties = (function() {
 
         for (let prop in properties) {
             let propInfo = properties[prop], uniformInfo;
-            // always try getting the type from shaders first
-            if (propInfo.tech !== undefined && propInfo.pass !== undefined) {
-                let pname = json.techniques[propInfo.tech].passes[propInfo.pass].program;
-                let program = programs.find(p => p.name === pname);
-                uniformInfo = program.uniforms.find(u => u.name === prop);
-            } else {
-                for (let i = 0; i < programs.length; i++) {
-                    uniformInfo = programs[i].uniforms.find(u => u.name === prop);
-                    if (uniformInfo) break;
-                }
+            for (let i = 0; i < programs.length; i++) {
+                uniformInfo = programs[i].uniforms.find(u => u.name === prop);
+                if (uniformInfo) break;
             }
             // the property is not defined in all the shaders used in techs
             if (!uniformInfo) {
@@ -207,10 +193,8 @@ let parseProperties = (function() {
                 continue;
             }
             // TODO: different param with same name for different passes
-            props[prop] = genPropInfo(
-                propInfo.displayName || uniformInfo.displayName,
-                propInfo.type || uniformInfo.type,
-                propInfo.value || uniformInfo.value);
+            props[prop] = Object.assign({}, propInfo);
+            props[prop].value = propInfo.type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(propInfo.value);
         }
         return props;
     };
@@ -284,6 +268,7 @@ if (CC_EDITOR) {
     Effect.parseForInspector = function(json) {
         let programs = getInvolvedPrograms(json);
         let props = parseProperties(json, programs), defines = {};
+
         for (let pn in programs) {
             programs[pn].uniforms.forEach(u => {
                 let prop = props[u.name];
@@ -291,13 +276,14 @@ if (CC_EDITOR) {
                 prop.defines = u.defines;
             });
             programs[pn].defines.forEach(define => {
-                defines[define.name] = {
-                    instanceType: getInstanceType(define.type),
-                    value: getInstanceCtor(define.type)(),
-                    defines: define.defines
-                };
+                defines[define.name] = getInspectorProps(define);
             });
         }
+        
+        for (let name in props) {
+            props[name] = getInspectorProps(props[name]);
+        }
+
         return { props, defines };
     };
 }

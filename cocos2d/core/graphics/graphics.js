@@ -207,7 +207,7 @@ let Graphics = cc.Class({
         }
         
         let material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-        material.define('_USE_MODEL', true);
+        material.define('CC_USE_MODEL', true);
         this.setMaterial(0, material);
     },
 

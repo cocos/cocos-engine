@@ -22,8 +22,9 @@ export default class CustomProperties {
         else if (uniform.value === value) return;
         
         this._dirty = true;
-        uniform.value = value;
         uniform.directly = directly;
+
+        effect.prototype.setProperty.call(this, name, value);
     }
 
     getProperty(name) {

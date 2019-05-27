@@ -615,6 +615,10 @@ proto.toScale = function (trs) {
     trs[9] = this.y;
 };
 
+proto.array = function (out) {
+    vec2.array(out, this);
+};
+
 //_serialize: function () {
 //    return [this.x, this.y];
 //},

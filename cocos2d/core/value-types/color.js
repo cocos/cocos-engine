@@ -24,8 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./value-type');
+import { color4 } from '../vmath';
+
+ var ValueType = require('./value-type');
 var js = require('../platform/js');
+
 
 var Color = (function () {
 
@@ -572,6 +575,10 @@ var Color = (function () {
             this.a = color.a;
         }
     };
+
+    proto.array = function (out) {
+        color4.array(out, this);
+    }
 
     return Color;
 })();

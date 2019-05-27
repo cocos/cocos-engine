@@ -200,8 +200,8 @@ let SkinnedMeshRenderer = cc.Class({
 
             this._jointsTexture = texture;
             
-            customProperties.setProperty('_jointsTexture', texture.getImpl());
-            customProperties.setProperty('_jointsTextureSize', this._jointsTexture.width);
+            customProperties.setProperty('cc_jointsTexture', texture);
+            customProperties.setProperty('cc_jointsTextureSize', this._jointsTexture.width);
         }
         else {
             this._jointsData = new Float32Array(jointCount * 16);
@@ -209,8 +209,8 @@ let SkinnedMeshRenderer = cc.Class({
             customProperties.setProperty('cc_jointMatrices', this._jointsData, true);
         }
 
-        customProperties.define('_USE_SKINNING', true);
-        customProperties.define('_USE_JOINTS_TEXTRUE', ALLOW_FLOAT_TEXTURE);
+        customProperties.define('CC_USE_SKINNING', true);
+        customProperties.define('CC_USE_JOINTS_TEXTRUE', ALLOW_FLOAT_TEXTURE);
     },
 
     _setJointsDataWithArray (iMatrix, matrixArray) {

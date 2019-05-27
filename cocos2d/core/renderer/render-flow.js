@@ -190,7 +190,7 @@ function init (node) {
 
 RenderFlow.flows = flows;
 RenderFlow.createFlow = createFlow;
-RenderFlow.render = function (scene) {
+RenderFlow.render = function (scene, dt) {
     _batcher.reset();
     _batcher.walking = true;
 
@@ -213,7 +213,7 @@ RenderFlow.render = function (scene) {
     _batcher.terminate();
     _batcher.walking = false;
 
-    _forward.render(_batcher._renderScene);
+    _forward.render(_batcher._renderScene, dt);
 };
 
 RenderFlow.init = function (batcher, forwardRenderer) {

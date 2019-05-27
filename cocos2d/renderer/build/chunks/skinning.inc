@@ -1,21 +1,21 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-#if _USE_SKINNING
+#if CC_USE_SKINNING
 
   attribute vec4 a_weights;
   attribute vec4 a_joints;
 
-  #if _USE_JOINTS_TEXTRUE
+  #if CC_USE_JOINTS_TEXTRUE
 
     #pragma builtin(local)
     uniform SKINNING {
-      float _jointsTextureSize;
+      float cc_jointsTextureSize;
     }
     #pragma builtin(local)
-    uniform sampler2D _jointsTexture;
+    uniform sampler2D cc_jointsTexture;
 
     mat4 getBoneMatrix(const in float i) {
-      float size = _jointsTextureSize;
+      float size = cc_jointsTextureSize;
       float j = i * 4.0;
       float x = mod(j, size);
       float y = floor(j / size);
@@ -25,10 +25,10 @@
 
       y = dy * (y + 0.5);
 
-      vec4 v1 = texture2D(_jointsTexture, vec2(dx * (x + 0.5), y));
-      vec4 v2 = texture2D(_jointsTexture, vec2(dx * (x + 1.5), y));
-      vec4 v3 = texture2D(_jointsTexture, vec2(dx * (x + 2.5), y));
-      vec4 v4 = texture2D(_jointsTexture, vec2(dx * (x + 3.5), y));
+      vec4 v1 = texture2D(cc_jointsTexture, vec2(dx * (x + 0.5), y));
+      vec4 v2 = texture2D(cc_jointsTexture, vec2(dx * (x + 1.5), y));
+      vec4 v3 = texture2D(cc_jointsTexture, vec2(dx * (x + 2.5), y));
+      vec4 v4 = texture2D(cc_jointsTexture, vec2(dx * (x + 3.5), y));
 
       return mat4(v1, v2, v3, v4);
     }
@@ -58,14 +58,14 @@
 
 
 void SKIN_VERTEX(inout vec4 a1) {
-  #if _USE_SKINNING
+  #if CC_USE_SKINNING
     mat4 m = skinMatrix();
     a1 = m * a1;
   #endif
 }
 
 void SKIN_VERTEX(inout vec4 a1, inout vec4 a2) {
-  #if _USE_SKINNING
+  #if CC_USE_SKINNING
     mat4 m = skinMatrix();
     a1 = m * a1;
     a2 = m * a2;
@@ -73,7 +73,7 @@ void SKIN_VERTEX(inout vec4 a1, inout vec4 a2) {
 }
 
 void SKIN_VERTEX(inout vec4 a1, inout vec4 a2, inout vec4 a3) {
-  #if _USE_SKINNING
+  #if CC_USE_SKINNING
     mat4 m = skinMatrix();
     a1 = m * a1;
     a2 = m * a2;
