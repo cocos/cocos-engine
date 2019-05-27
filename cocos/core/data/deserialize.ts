@@ -746,7 +746,9 @@ class _Deserializer {
         if (!fastDefinedProps) {
             fastDefinedProps = Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
         }
-        for (const propName of fastDefinedProps) {
+        // tslint:disable-next-line: prefer-for-of
+        for (let i = 0; i < fastDefinedProps.length; i++) {
+            const propName = fastDefinedProps[i];
             const prop = serialized[propName];
             if (prop !== undefined && serialized.hasOwnProperty(propName)) {
                 if (typeof prop !== 'object') {

@@ -322,7 +322,8 @@ class Game extends EventTarget {
      */
     public restart () {
         cc.director.once(cc.Director.EVENT_AFTER_DRAW, () => {
-            for (const id of cc.game._persistRootNodes) {
+            // tslint:disable-next-line: forin
+            for (const id in cc.game._persistRootNodes) {
                 cc.game.removePersistRootNode(cc.game._persistRootNodes[id]);
             }
 
@@ -851,8 +852,9 @@ class Game extends EventTarget {
                 'webkitvisibilitychange',
                 'qbrowserVisibilityChange',
             ];
-            for (const listItem of changeList) {
-                document.addEventListener(listItem, (event) => {
+            // tslint:disable-next-line: prefer-for-of
+            for (let i = 0; i < changeList.length; i++) {
+                document.addEventListener(changeList[i], (event) => {
                     let visible = document[hiddenPropName];
                     // QQ App
                     // @ts-ignore

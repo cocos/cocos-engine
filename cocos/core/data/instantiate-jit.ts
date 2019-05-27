@@ -138,7 +138,9 @@ class Assignments {
         else {
             return;
         }
-        for (const pair of this._exps) {
+        // tslint:disable: prefer-for-of
+        for (let i = 0; i < this._exps.length; i++) {
+            const pair = this._exps[i];
             writeAssignment(codeArray, targetVar + getPropAccessor(pair[0]) + '=', pair[1]);
         }
     }
@@ -299,7 +301,8 @@ class Parser {
         if (!fastDefinedProps) {
             fastDefinedProps = Object.keys(defaultValue);
         }
-        for (const propName of fastDefinedProps) {
+        for (let i = 0; i < fastDefinedProps.length; i++) {
+            const propName = fastDefinedProps[i];
             const prop = srcValue[propName];
             if (defaultValue[propName] === prop) {
                 continue;
@@ -314,7 +317,8 @@ class Parser {
     public enumerateCCClass (codeArray, obj, klass) {
         const props = klass.__values__;
         const attrs = Attr.getClassAttrs(klass);
-        for (const key of props) {
+        for (let p = 0; p < props.length; p++) {
+            const key = props[p];
             const val = obj[key];
             let defaultValue = attrs[key + DEFAULT];
             if (equalsToDefault(defaultValue, val)) {

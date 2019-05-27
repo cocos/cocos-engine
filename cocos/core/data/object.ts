@@ -91,8 +91,9 @@ function compileDestruct (obj, ctor) {
     if (CCClass._isCCClass(ctor)) {
         const attrs = cc.Class.Attr.getClassAttrs(ctor);
         const propList = ctor.__props__;
-        // tslint:disable: no-shadowed-variable
-        for (const key of propList) {
+        // tslint:disable-next-line: prefer-for-of
+        for (let i = 0; i < propList.length; i++) {
+            key = propList[i];
             const attrKey = key + cc.Class.Attr.DELIMETER + 'default';
             if (attrKey in attrs) {
                 if (shouldSkipId && key === '_id') {
@@ -117,7 +118,8 @@ function compileDestruct (obj, ctor) {
     if (CC_SUPPORT_JIT) {
         // compile code
         let func = '';
-        for (key of Object.keys(propsToReset)) {
+        // tslint:disable: forin
+        for (key in propsToReset) {
             let statement;
             if (CCClass.IDENTIFIER_RE.test(key)) {
                 statement = 'o.' + key + '=';
@@ -135,8 +137,8 @@ function compileDestruct (obj, ctor) {
     }
     else {
         return (o) => {
-            for (const key of Object.keys(propsToReset)) {
-                o[key] = propsToReset[key];
+            for (const _key in propsToReset) {
+                o[_key] = propsToReset[_key];
             }
         };
     }

@@ -70,7 +70,8 @@ function parseNotify (val, propName, notify, properties) {
         const newValue = {};
         properties[newKey] = newValue;
         // 将不能用于get方法中的属性移动到newValue中
-        for (const attr of Object.keys(SerializableAttrs)) {
+        // tslint:disable: forin
+        for (const attr in SerializableAttrs) {
             const v = SerializableAttrs[attr];
             if (val.hasOwnProperty(attr)) {
                 newValue[attr] = val[attr];
@@ -232,7 +233,7 @@ export function getFullFormOfProperty (options, propname_dev, classname_dev) {
 }
 
 export function preprocessAttrs (properties, className, cls, es6) {
-    for (const propName of Object.keys(properties)) {
+    for (const propName in properties) {
         let val = properties[propName];
         const fullForm = getFullFormOfProperty(val, propName, className);
         if (fullForm) {

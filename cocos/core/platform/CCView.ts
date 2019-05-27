@@ -1085,7 +1085,9 @@ class View extends EventTarget {
         const scaleY = this._scaleY;
         let selPoint;
         let selPrePoint;
-        for (const selTouch of touches) {
+        // tslint:disable-next-line: prefer-for-of
+        for (let i = 0; i < touches.length; i++) {
+            const selTouch = touches[i];
             selPoint = selTouch._point;
             selPrePoint = selTouch._prevPoint;
 
