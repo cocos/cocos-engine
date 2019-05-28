@@ -760,6 +760,10 @@ let NodeDefines = {
          * !#zh 该节点的欧拉角度，用于 3D 项目。
          * @property eulerAngles
          * @type {Vec3}
+         * @example
+         * node.is3DNode = true;
+         * node.eulerAngles = cc.v3(45, 45, 45);
+         * cc.log("Node eulerAngles (X, Y, Z): " + node.eulerAngles.toString());
          */
 
         /**
@@ -767,10 +771,11 @@ let NodeDefines = {
          * !#zh 该节点 X 轴旋转角度。
          * @property rotationX
          * @type {Number}
-         * @example
          * @deprecated since v2.1
-         * node.rotationX = 45;
-         * cc.log("Node Rotation X: " + node.rotationX);
+         * @example
+         * node.is3DNode = true;
+         * node.eulerAngles = cc.v3(45, 0, 0);
+         * cc.log("Node eulerAngles X: " + node.eulerAngles.x);
          */
         rotationX: {
             get () {
@@ -801,10 +806,11 @@ let NodeDefines = {
          * !#zh 该节点 Y 轴旋转角度。
          * @property rotationY
          * @type {Number}
-         * @example
          * @deprecated since v2.1
-         * node.rotationY = 45;
-         * cc.log("Node Rotation Y: " + node.rotationY);
+         * @example
+         * node.is3DNode = true;
+         * node.eulerAngles = cc.v3(0, 45, 0);
+         * cc.log("Node eulerAngles Y: " + node.eulerAngles.y);
          */
         rotationY: {
             get () {
