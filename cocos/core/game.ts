@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { WebGLGFXDevice } from '../gfx/webgl/webgl-device';
+import { WebGL2GFXDevice } from '../gfx/webgl2/webgl2-device';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/CCDebug';
 import inputManager from './platform/event-manager/input-manager';
@@ -217,7 +219,7 @@ class Game extends EventTarget {
     public _prepared: boolean = false; // whether the engine has prepared
     public _rendererInitialized: boolean = false;
 
-    public _gfxDevice: cc.WebGL2GFXDevice | cc.WebGLGFXDevice  = null;
+    public _gfxDevice: WebGL2GFXDevice | WebGLGFXDevice | null = null;
 
     public _intervalId: number|null = null; // interval target of main
 
@@ -402,6 +404,7 @@ class Game extends EventTarget {
      * @param {any} [callback.arg5] arg5
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
+    // @ts-ignore
     public once (type: string, callback: Function, target: object) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._prepared && type === Game.EVENT_ENGINE_INITED) {
@@ -790,9 +793,9 @@ class Game extends EventTarget {
                 nativeHeight: Math.floor(screen.height * cc.view._devicePixelRatio),
             };
             // fallback if WebGL2 is actually unavailable (usually due to driver issues)
-            if (!this._gfxDevice.initialize(opts) && useWebGL2) {
+            if (!this._gfxDevice!.initialize(opts) && useWebGL2) {
                 this._gfxDevice = new cc.WebGLGFXDevice();
-                this._gfxDevice.initialize(opts);
+                this._gfxDevice!.initialize(opts);
             }
         }
 
