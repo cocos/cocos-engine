@@ -38,12 +38,8 @@ export default class ForwardRenderer extends BaseRenderer {
     this._registerStage('transparent', this._transparentStage.bind(this));
   }
 
-  reset () {
-    this._reset();
-  }
-
   render (scene) {
-    this._reset();
+    this.reset();
 
     this._updateLights(scene);
 
@@ -69,7 +65,7 @@ export default class ForwardRenderer extends BaseRenderer {
 
   // direct render a single camera
   renderCamera (camera, scene) {
-    this._reset();
+    this.reset();
     
     const canvas = this._device._gl.canvas;
     let width = canvas.width;

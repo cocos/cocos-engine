@@ -393,6 +393,7 @@ AssetLibrary._uuidToAsset = {};
 //};
 
 
+// TODO: Add BuiltinManager to handle builtin logic
 let _builtins = {
     effect: {},
     material: {}
@@ -437,6 +438,12 @@ AssetLibrary.getBuiltin = function (type, name) {
 AssetLibrary.getBuiltins = function (type) {
     if (!type) return _builtins;
     return _builtins[type];
+};
+AssetLibrary.resetBuiltins = function () {
+    _builtins = {
+        effect: {},
+        material: {}
+    };
 };
 
 module.exports = cc.AssetLibrary = AssetLibrary;

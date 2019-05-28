@@ -63,22 +63,17 @@ function _unrollLoops(string) {
 export default class ProgramLib {
   /**
    * @param {gfx.Device} device
-   * @param {Array} templates
-   * @param {Object} chunks
    */
-  constructor(device, templates = [], chunks = {}) {
+  constructor(device) {
     this._device = device;
 
     // register templates
     this._templates = {};
-    for (let i = 0; i < templates.length; ++i) {
-      this.define(templates[i]);
-    }
+    this._cache = {};
+  }
 
-    // register chunks
-    this._chunks = {};
-    Object.assign(this._chunks, chunks);
-
+  clear () {
+    this._templates = {};
     this._cache = {};
   }
 
@@ -107,7 +102,7 @@ export default class ProgramLib {
   define(prog) {
     let { name, vert, frag, defines, extensions } = prog;
     if (this._templates[name]) {
-      console.warn(`Failed to define shader ${name}: already exists.`);
+      // console.warn(`Failed to define shader ${name}: already exists.`);
       return;
     }
 
