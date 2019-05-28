@@ -384,6 +384,15 @@ export class ParticleSystemComponent extends RenderableComponent {
         this.renderer._onRebuildPSO(index, material);
     }
 
+    public recreateModel () {
+        const r = this.renderer as any;
+        if (r._model) {
+            r._model.destroy();
+            r._model = null;
+            r._assetReady();
+        }
+    }
+
     // TODO: fastforward current particle system by simulating particles over given period of time, then pause it.
     // simulate(time, withChildren, restart, fixedTimeStep) {
 
@@ -449,6 +458,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     public clear () {
         this.renderer!.clear();
+        this.trailModule.clear();
     }
 
     public getParticleCount () {

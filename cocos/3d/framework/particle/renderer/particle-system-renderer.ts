@@ -253,6 +253,7 @@ export default class ParticleSystemRenderer {
 
     public clear () {
         this._particles!.reset();
+        this._updateRenderData();
     }
 
     public _getFreeParticle (): Particle | null {
