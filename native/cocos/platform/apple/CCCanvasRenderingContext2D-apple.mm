@@ -363,8 +363,6 @@ enum class CanvasTextBaseline {
     [_tokenAttributesDict removeObjectForKey:NSForegroundColorAttributeName];
 
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    [_tokenAttributesDict setObject:[NSNumber numberWithFloat: _lineWidth * 2]
-                            forKey:NSStrokeWidthAttributeName];
     [_tokenAttributesDict setObject:[NSColor colorWithRed:_strokeStyle.r
                                                     green:_strokeStyle.g
                                                      blue:_strokeStyle.b
@@ -374,7 +372,8 @@ enum class CanvasTextBaseline {
 
     // text color
     CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
-
+    CGContextSetLineWidth(_context, _lineWidth);
+    CGContextSetLineJoin(_context, kCGLineJoinRound);
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
 
