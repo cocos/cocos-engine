@@ -111,6 +111,7 @@ declare namespace Editor {
     const Utils: any;
     const assets: any;
     const serialize: any;
+    const Selection: any;
 }
 
 declare const Buffer: any;
