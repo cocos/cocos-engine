@@ -20,11 +20,11 @@ export class DebugCanvasComponent extends CanvasComponent {
     }
 
     public __preload (){
-        const cameraNode = new cc.Node('UICamera');
+        const cameraNode = new cc.Node('UICamera_Debug');
         cameraNode.setPosition(0, 0, 1000);
 
         this._camera = cc.director.root.ui.renderScene.createCamera({
-            name: 'ui',
+            name: 'ui_Debug',
             node: cameraNode,
             projection: cc.CameraComponent.ProjectionType.ORTHO,
             targetDisplay: 0,

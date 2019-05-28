@@ -172,11 +172,11 @@ export class CanvasComponent extends Component {
     }
 
     public __preload () {
-        const cameraNode = new cc.Node('UICamera' + this.node.name);
+        const cameraNode = new cc.Node('UICamera_' + this.node.name);
         cameraNode.setPosition(0, 0, 900);
         if (!CC_EDITOR) {
             this._camera = cc.director.root.ui.renderScene.createCamera({
-                name: 'ui' + this.node.name,
+                name: 'ui_' + this.node.name,
                 node: cameraNode,
                 projection: cc.CameraComponent.ProjectionType.ORTHO,
                 targetDisplay: 0,
