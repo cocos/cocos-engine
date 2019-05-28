@@ -1,6 +1,7 @@
 import { Component } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
 import { UI } from '../../../renderer/ui/ui';
+import { CanvasComponent } from './canvas-component';
 
 /**
  * @zh
@@ -40,6 +41,27 @@ export class UIComponent extends Component {
     protected _priority = 0;
 
     protected _visibility = -1;
+
+    public onEnable () {
+        let parent = this.node;
+        // 获取被渲染相机的 visibility
+        while (parent) {
+            if (parent) {
+                const canvasComp = parent.getComponent(CanvasComponent);
+                if (canvasComp) {
+                    this._visibility = canvasComp.visibility;
+                    break;
+                }
+            }
+
+            // @ts-ignore
+            parent = parent.parent;
+        }
+    }
+
+    public onDisable () {
+        this._visibility = -1;
+    }
 
     public updateAssembler (render: UI) {
     }

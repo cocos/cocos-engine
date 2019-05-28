@@ -26,10 +26,6 @@ export class UIModelComponent extends UIComponent {
         this._modelComponent.recreateModel();
     }
 
-    public onEnable () {
-        this._fitUIRenderQueue();
-    }
-
     public onDestroy () {
         this._modelComponent = this.getComponent(cc.RenderableComponent) as RenderableComponent;
         (this._modelComponent as any)._sceneGetter = null;
@@ -56,6 +52,9 @@ export class UIModelComponent extends UIComponent {
         const matNum = this._modelComponent.sharedMaterials.length;
         for (let i = 0; i < matNum; i++) {
             const material = this._modelComponent.getMaterial(i, CC_EDITOR)! as any;
+            if (material == null) {
+                continue;
+            }
             const passes = material.passes;
             const ea = material.effectAsset!;
             const techIdx = material.technique;
@@ -74,7 +73,11 @@ export class UIModelComponent extends UIComponent {
             }
         }
         for (let i = 0; i < matNum; i++) {
-            const passes = this._modelComponent.getMaterial(i, CC_EDITOR)!.passes;
+            const material = this._modelComponent.getMaterial(i, CC_EDITOR)!;
+            if (material == null) {
+                continue;
+            }
+            const passes = material.passes;
             for (const p of passes as any[]) {
                 p._priority = RenderPriority.MAX - 11;
             }
