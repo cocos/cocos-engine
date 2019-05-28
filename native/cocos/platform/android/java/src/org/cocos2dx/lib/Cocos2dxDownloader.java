@@ -189,6 +189,12 @@ public class Cocos2dxDownloader {
                             FileOutputStream fos = null;
 
                             try {
+
+                                if(response.code() != 200) {
+                                    downloader.onFinish(id, -2, response.message(), null);
+                                    return;
+                                }
+
                                 long total = response.body().contentLength();
                                 if (path.length() > 0 && !_resumingSupport.containsKey(host)) {
                                     if (total > 0) {
