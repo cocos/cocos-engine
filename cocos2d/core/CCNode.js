@@ -763,7 +763,7 @@ let NodeDefines = {
          * @example
          * node.is3DNode = true;
          * node.eulerAngles = cc.v3(45, 45, 45);
-         * cc.log("Node eulerAngles (X, Y, X): " + node.eulerAngles.toString());
+         * cc.log("Node eulerAngles (X, Y, Z): " + node.eulerAngles.toString());
          */
 
         /**
