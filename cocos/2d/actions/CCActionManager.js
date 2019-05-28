@@ -177,7 +177,7 @@ cc.ActionManager.prototype = {
     /**
      * !#en Removes an action given an action reference.
      * !#zh 移除指定的动作。
-     * @method removeAction 
+     * @method removeAction
      * @param {Action} action
      */
     removeAction:function (action) {
@@ -423,7 +423,7 @@ cc.ActionManager.prototype = {
 
                     //use for speed
                     locCurrTarget.currentAction.step(dt * ( locCurrTarget.currentAction._speedMethod ? locCurrTarget.currentAction._speed : 1 ) );
-                    
+
                     if (locCurrTarget.currentAction && locCurrTarget.currentAction.isDone()) {
                         locCurrTarget.currentAction.stop();
                         var action = locCurrTarget.currentAction;

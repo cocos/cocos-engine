@@ -104,7 +104,6 @@ class CCLoader extends Pipeline {
 
     private _autoReleaseSetting: any;
     private _releasedAssetChecker_DEBUG: any;
-    private _ownerQueue: any;
 
     constructor () {
 
@@ -309,8 +308,9 @@ class CCLoader extends Pipeline {
 
     public flowInDeps (owner, urlList, callback) {
         _sharedList.length = 0;
-        for (const iterator of urlList) {
-            const res = getResWithUrl(iterator);
+        // tslint:disable-next-line: prefer-for-of
+        for (let i = 0; i < urlList.length; ++i) {
+            const res = getResWithUrl(urlList[i]);
             if (!res.url && !res.uuid) {
                 continue;
             }
@@ -498,7 +498,9 @@ class CCLoader extends Pipeline {
             for (let i = 0; i < assetResLength; ++i) {
                 if (assetRes[i] instanceof cc.SpriteAtlas) {
                     const spriteFrames = assetRes[i].getSpriteFrames();
-                    for (const sf of spriteFrames) {
+                    // tslint:disable: forin
+                    for (const k in spriteFrames) {
+                        const sf = spriteFrames[k];
                         assetRes.push(sf);
                         if (urlRes) {
                             urlRes.push(`${urlRes[i]}/${sf.name}`);
@@ -562,7 +564,9 @@ class CCLoader extends Pipeline {
         completeCallback = args.onComplete;
 
         const uuids: any = [];
-        for (const url of urls) {
+        // tslint:disable: prefer-for-of
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
             const uuid = this._getResUuid(url, type, mount, true);
             if (uuid) {
                 uuids.push(uuid);
@@ -691,7 +695,8 @@ class CCLoader extends Pipeline {
      */
     public release (asset) {
         if (Array.isArray(asset)) {
-            for (const key of asset) {
+            for (let i = 0; i < asset.length; i++) {
+                const key = asset[i];
                 this.release(key);
             }
         }
@@ -760,7 +765,8 @@ class CCLoader extends Pipeline {
         if (!assetTables[mount]) { return; }
 
         const uuids = assetTables[mount].getUuidArray(url, type);
-        for (const uuid of uuids) {
+        for (let i = 0; i < uuids.length; i++) {
+            const uuid = uuids[i];
             this.release(uuid);
         }
     }
@@ -772,7 +778,7 @@ class CCLoader extends Pipeline {
      * @method releaseAll
      */
     public releaseAll () {
-        for (const id of this._cache) {
+        for (const id in this._cache) {
             this.release(id);
         }
     }
@@ -863,7 +869,8 @@ class CCLoader extends Pipeline {
             this._autoReleaseSetting[key] = autoRelease;
 
             const depends = getDependsRecursively(key);
-            for (const depend of depends) {
+            for (let i = 0; i < depends.length; i++) {
+                const depend = depends[i];
                 this._autoReleaseSetting[depend] = autoRelease;
             }
         }

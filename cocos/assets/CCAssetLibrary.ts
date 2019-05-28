@@ -129,7 +129,7 @@ const AssetLibrary = {
         });
     },
 
-    getLibUrlNoExt (uuid, inRawAssetsDir?: any) {
+    getLibUrlNoExt (uuid, inRawAssetsDir?: boolean) {
         if (CC_BUILD) {
             uuid = decodeUuid(uuid);
         }

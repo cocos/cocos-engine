@@ -221,7 +221,6 @@ class Director extends EventTarget {
     private _scheduler: Scheduler;
     private _compScheduler: ComponentScheduler;
     private _nodeActivator: NodeActivator;
-    private _actionManager: cc.ActionManager | null;
     private _physicsSystem: PhysicsSystem | null;
     private _systems: any[];
     private _animationManager: any;
@@ -253,8 +252,6 @@ class Director extends EventTarget {
         this._compScheduler = new ComponentScheduler();
         // Node activator
         this._nodeActivator = new NodeActivator();
-        // Action manager
-        this._actionManager = null;
 
         /**
          * @type {PhysicsSystem}
@@ -277,13 +274,6 @@ class Director extends EventTarget {
         this._lastUpdate = performance.now();
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
-
-        if (cc.ActionManager) {
-            this._actionManager = new cc.ActionManager();
-            this._scheduler.scheduleUpdate(this._actionManager, Scheduler.PRIORITY_SYSTEM, false);
-        } else {
-            this._actionManager = null;
-        }
 
         this.sharedInit();
 
@@ -561,7 +551,9 @@ class Director extends EventTarget {
         const persistNodeList = Object.keys(cc.game._persistRootNodes).map( (x) => {
             return cc.game._persistRootNodes[x];
         });
-        for (const node of persistNodeList) {
+        // tslint:disable-next-line: prefer-for-of
+        for (let i = 0; i < persistNodeList.length; i++) {
+            const node = persistNodeList[i];
             node.emit(cc.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
             const existNode = scene.getChildByUuid(node.uuid);
             if (existNode) {
@@ -652,7 +644,7 @@ class Director extends EventTarget {
         // Delay run / replace scene to the end of the frame
         this.once(cc.Director.EVENT_AFTER_UPDATE, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
-        }, this);
+        });
     }
 
     //  @Scene loading section
@@ -667,7 +659,9 @@ class Director extends EventTarget {
                 key = '/' + key;    // 使用全名匹配
             }
             // search scene
-            for (const info of scenes) {
+            // tslint:disable-next-line: prefer-for-of
+            for (let i = 0; i < scenes.length; i++) {
+                const info = scenes[i];
                 if (info.url.endsWith(key)) {
                     return info;
                 }
@@ -1015,31 +1009,6 @@ class Director extends EventTarget {
         return this._systems.find((sys) => {
             return sys._id === name;
         });
-    }
-
-    /**
-     * @en Returns the cc.ActionManager associated with this director.
-     * @zh 获取和 director 相关联的 cc.ActionManager（动作管理器）。
-     * @method getActionManager
-     * @return {ActionManager}
-     */
-    public getActionManager () {
-        return this._actionManager;
-    }
-    /**
-     * @en Sets the cc.ActionManager associated with this director.
-     * @zh 设置和 director 相关联的 cc.ActionManager（动作管理器）。
-     * @method setActionManager
-     * @param {ActionManager} actionManager
-     */
-    public setActionManager (actionManager) {
-        if (this._actionManager !== actionManager) {
-            if (this._actionManager) {
-                this._scheduler.unscheduleUpdate(this._actionManager);
-            }
-            this._actionManager = actionManager;
-            this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-        }
     }
 
     /**

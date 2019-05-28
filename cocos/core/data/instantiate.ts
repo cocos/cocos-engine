@@ -24,14 +24,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { CCObject } from './object';
-import { ValueType } from '../value-types/value-type';
 import { isDomNode } from '../utils/misc';
+import { ValueType } from '../value-types/value-type';
+import { CCObject } from './object';
 
+// @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
+// @ts-ignore
 const PersistentMask = CCObject.Flags.PersistentMask;
 
-var objsToClearTmpVar = [];   // used to reset _iN$t variable
+const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
 
 /**
  * !#en Clones the object `original` and returns the clone, or instantiate a node from the Prefab.
@@ -80,7 +82,7 @@ export default function instantiate (original, internal_force) {
         }
     }
 
-    var clone;
+    let clone;
     if (original instanceof CCObject) {
         // Invoke _instantiate method if supplied.
         // The _instantiate callback will be called only on the root object, its associated object will not be called.
@@ -120,7 +122,7 @@ export default function instantiate (original, internal_force) {
  * @return {Object}
  * @private
  */
-function doInstantiate (obj, parent) {
+function doInstantiate (obj, parent?) {
     if (Array.isArray(obj)) {
         if (CC_DEV) {
             cc.errorID(6904);
@@ -134,14 +136,14 @@ function doInstantiate (obj, parent) {
         return null;
     }
 
-    var clone;
+    let clone;
     if (obj._iN$t) {
         // User can specify an existing object by assigning the "_iN$t" property.
         // enumerateObject will always push obj to objsToClearTmpVar
         clone = obj._iN$t;
     }
     else if (obj.constructor) {
-        var klass = obj.constructor;
+        const klass = obj.constructor;
         clone = new klass();
     }
     else {
@@ -150,7 +152,7 @@ function doInstantiate (obj, parent) {
 
     enumerateObject(obj, clone, parent);
 
-    for (var i = 0, len = objsToClearTmpVar.length; i < len; ++i) {
+    for (let i = 0, len = objsToClearTmpVar.length; i < len; ++i) {
         objsToClearTmpVar[i]._iN$t = null;
     }
     objsToClearTmpVar.length = 0;
@@ -161,12 +163,13 @@ function doInstantiate (obj, parent) {
 // @param {Object} obj - The object to instantiate, typeof must be 'object' and should not be an array.
 
 function enumerateCCClass (klass, obj, clone, parent) {
-    var props = klass.__values__;
-    for (var p = 0; p < props.length; p++) {
-        var key = props[p];
-        var value = obj[key];
+    const props = klass.__values__;
+    // tslint:disable: prefer-for-of
+    for (let p = 0; p < props.length; p++) {
+        const key = props[p];
+        const value = obj[key];
         if (typeof value === 'object' && value) {
-            var initValue = clone[key];
+            const initValue = clone[key];
             if (initValue instanceof ValueType &&
                 initValue.constructor === value.constructor) {
                 initValue.set(value);
@@ -186,20 +189,20 @@ function enumerateObject (obj, clone, parent) {
     // 注意，为了避免循环引用，所有新创建的实例，必须在赋值前被设为源对象的_iN$t
     obj._iN$t = clone;
     objsToClearTmpVar.push(obj);
-    var klass = obj.constructor;
+    const klass = obj.constructor;
     if (cc.Class._isCCClass(klass)) {
         enumerateCCClass(klass, obj, clone, parent);
     }
     else {
         // primitive javascript object
-        for (var key in obj) {
+        for (const key in obj) {
             if (!obj.hasOwnProperty(key) ||
                 (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95 &&   // starts with "__"
                  key !== '__type__')
             ) {
                 continue;
             }
-            var value = obj[key];
+            const value = obj[key];
             if (typeof value === 'object' && value) {
                 if (value === clone) {
                     continue;   // value is obj._iN$t
@@ -228,13 +231,14 @@ function instantiateObj (obj, parent) {
         // 所有资源直接引用，不需要拷贝
         return obj;
     }
-    var clone;
+    let clone;
     if (Array.isArray(obj)) {
-        var len = obj.length;
+        const len = obj.length;
         clone = new Array(len);
+        // @ts-ignore
         obj._iN$t = clone;
-        for (var i = 0; i < len; ++i) {
-            var value = obj[i];
+        for (let i = 0; i < len; ++i) {
+            const value = obj[i];
             if (typeof value === 'object' && value) {
                 clone[i] = value._iN$t || instantiateObj(value, parent);
             }
@@ -250,7 +254,7 @@ function instantiateObj (obj, parent) {
         return null;
     }
 
-    var ctor = obj.constructor;
+    const ctor = obj.constructor;
     if (cc.Class._isCCClass(ctor)) {
         if (parent) {
             if (parent instanceof cc.Component) {

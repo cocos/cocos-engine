@@ -924,7 +924,9 @@ class Scheduler {
         }
         else {
             const timers = element.timers;
-            for (const timer of timers) {
+            // tslint:disable-next-line: prefer-for-of
+            for (let i = 0; i < timers.length; ++i) {
+                const timer =  timers[i];
                 if (callback === timer._callback){
                     return true;
                 }
@@ -1023,8 +1025,9 @@ class Scheduler {
         if (!targetsToResume) {
             return;
         }
-        for (const iterator of targetsToResume) {
-            this.resumeTarget(iterator);
+        // tslint:disable-next-line: prefer-for-of
+        for (let i = 0; i < targetsToResume.length; i++) {
+            this.resumeTarget(targetsToResume[i]);
         }
     }
 

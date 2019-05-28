@@ -18,6 +18,6 @@ declare namespace wx {
     function getSharedCanvas(): any;
     function getOpenDataContext(): any;
 
-    const onShow: any;
-    const onHide: any;
+    function onShow(callback: Function): any;
+    function onHide(callback: Function): any;
 }

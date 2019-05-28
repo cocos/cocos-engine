@@ -24,29 +24,30 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var requiringFrames = [];  // the requiring frame infos
+let requiringFrames: any = [];  // the requiring frame infos
 
-export function push (module, uuid, script) {
+export function push (module, uuid: string, script) {
     if (script === undefined) {
         script = uuid;
         uuid = '';
     }
     requiringFrames.push({
-        uuid: uuid,
-        script: script,
-        module: module,
+        uuid,
+        script,
+        module,
         exports: module.exports,    // original exports
-        beh: null
+        beh: null,
     });
 }
 
 export function pop () {
-    var frameInfo = requiringFrames.pop();
+    const frameInfo = requiringFrames.pop();
     // check exports
-    var module = frameInfo.module;
-    var exports = module.exports;
+    const module = frameInfo.module;
+    let exports = module.exports;
     if (exports === frameInfo.exports) {
-        for (var anyKey in exports) {
+        // tslint:disable-next-line: forin
+        for (const anykey in exports) {
             // exported
             return;
         }
@@ -62,11 +63,11 @@ export function peek () {
 cc._RF = {
     push,
     pop,
-    peek
+    peek,
 };
 
 if (CC_EDITOR) {
-    cc._RF.reset = function () {
+    cc._RF.reset = () => {
         requiringFrames = [];
     };
 }
