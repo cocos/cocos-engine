@@ -1,7 +1,7 @@
 import { Texture2D } from '../../../assets';
 import { Component } from '../../../components';
 import { ccclass, executeInEditMode, menu, property } from '../../../core/data/class-decorator';
-import { Vec3 } from '../../../core/value-types';
+import { Vec3, Vec2, Vec4 } from '../../../core/value-types';
 import { LineModel } from '../../../renderer/models/line-model';
 import { Material } from '../../assets';
 import { builtinResMgr } from '../../builtin';
@@ -100,13 +100,57 @@ export class LineComponent extends Component {
     }
 
     @property({
+        type: Vec2,
+    })
+    private _tile = cc.v2(1, 1);
+
+    @property({
+        type: Vec2,
+        displayOrder: 4,
+    })
+    get tile () {
+        return this._tile;
+    }
+
+    set tile (val) {
+        this._tile.set(val);
+        if (this._material) {
+            this._tile_offset.x = this._tile.x;
+            this._tile_offset.y = this._tile.y;
+            this._material.setProperty('mainTiling_Offset', this._tile_offset);
+        }
+    }
+
+    @property({
+        type: Vec2,
+    })
+    private _offset = cc.v2(0, 0);
+
+    @property({
+        type: Vec2,
+        displayOrder: 5,
+    })
+    get offset () {
+        return this._offset;
+    }
+
+    set offset (val) {
+        this._offset.set(val);
+        if (this._material) {
+            this._tile_offset.z = this._offset.x;
+            this._tile_offset.w = this._offset.y;
+            this._material.setProperty('mainTiling_Offset', this._tile_offset);
+        }
+    }
+
+    @property({
         type: GradientRange,
     })
     private _color = new GradientRange();
 
     @property({
         type: GradientRange,
-        displayOrder: 4,
+        displayOrder: 6,
     })
     get color () {
         return this._color;
@@ -120,6 +164,7 @@ export class LineComponent extends Component {
     }
 
     private _model: LineModel | null = null;
+    private _tile_offset: Vec4 = cc.v4();
 
     constructor () {
         super();
@@ -139,6 +184,8 @@ export class LineComponent extends Component {
         }
         this._model!.enabled = true;
         this.texture = this.texture;
+        this.tile = this._tile;
+        this.offset = this._offset;
         this._model.addLineVertexData(this._positions, this._width, this._color);
     }
 
