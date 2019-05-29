@@ -442,16 +442,11 @@ export class UI {
         sortList = node.children.slice();
 
         sortList.sort((a, b) => {
-            const ca = a.getComponent(UIComponent);
-            const cb = b.getComponent(UIComponent);
-            if (ca && cb) {
-                return -(ca.priority - cb.priority);
-            }
-            else if (!ca) {
-                return 1;
-            } else {
-                return -1;
-            }
+            const aComp = a.getComponent(UIComponent);
+            const bComp = b.getComponent(UIComponent);
+            const ca = aComp ? aComp.priority : -1;
+            const cb = bComp ? bComp.priority : -1;
+            return ca - cb;
         });
 
         return sortList;
