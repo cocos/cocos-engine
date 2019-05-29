@@ -387,6 +387,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         if (CC_EDITOR) {
+            this._resized();
             this.node.on(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
     }
