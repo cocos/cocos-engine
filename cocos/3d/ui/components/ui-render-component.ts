@@ -234,7 +234,7 @@ export class UIRenderComponent extends UIComponent {
     public onEnable () {
         super.onEnable();
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
+        // this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
         this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
         // if (this.node._renderComponent) {
         //     this.node._renderComponent.enabled = false;
@@ -249,7 +249,7 @@ export class UIRenderComponent extends UIComponent {
         // this.node._renderComponent = null;
         // this.disableRender();
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
+        // this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
         this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
 
@@ -326,10 +326,6 @@ export class UIRenderComponent extends UIComponent {
     public updateAssembler (render: UI) {
         if (!this._canRender()) {
             return false;
-        }
-
-        if (this.node.hasChanged && !this._renderDataDirty) {
-            this.markForUpdateRenderData();
         }
 
         this._checkAndUpdateRenderData();
