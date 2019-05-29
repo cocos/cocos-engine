@@ -29,7 +29,7 @@
 // render info int capacity
 #define INIT_RENDER_INFO_BUFFER_SIZE 1024000
 // fill debug data max capacity
-#define MAX_DEBUG_BUFFER_SIZE 40960
+#define MAX_DEBUG_BUFFER_SIZE 409600
 // type array pool min size
 #define MIN_TYPE_ARRAY_SIZE 1024
 
