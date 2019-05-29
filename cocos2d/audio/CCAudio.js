@@ -113,18 +113,8 @@ Audio.State = {
     // };
 
     proto._onLoaded = function () {
-        let elem = this._src._nativeAsset;
-        if (elem instanceof HTMLAudioElement) {
-            // Reuse dom audio element
-            if (!this._element) {
-                this._element = document.createElement('audio');
-            }
-            this._element.src = elem.src;
-        }
-        else {
-            this._element = new WebAudioElement(elem, this);
-        }
-
+        this._createElement();
+        
         this.setVolume(this._volume);
         this.setLoop(this._loop);
         if (this._nextTime !== 0) {
@@ -135,6 +125,20 @@ Audio.State = {
         }
         else {
             this._state = Audio.State.INITIALZING;
+        }
+    };
+
+    proto._createElement = function () {
+        let elem = this._src._nativeAsset;
+        if (elem instanceof HTMLAudioElement) {
+            // Reuse dom audio element
+            if (!this._element) {
+                this._element = document.createElement('audio');
+            }
+            this._element.src = elem.src;
+        }
+        else {
+            this._element = new WebAudioElement(elem, this);
         }
     };
 
@@ -149,6 +153,10 @@ Audio.State = {
         this._bindEnded();
         this._element.play();
 
+        this._touchToPlay();
+    };
+
+    proto._touchToPlay = function () {
         if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
             this._element.paused) {
             touchPlayList.push({ instance: this, offset: 0, audio: this._element });
@@ -252,6 +260,7 @@ Audio.State = {
             }
         }
     };
+
     proto.getCurrentTime = function () {
         return this._element ? this._element.currentTime : 0;
     };
@@ -261,10 +270,16 @@ Audio.State = {
     };
 
     proto.getState = function () {
+        // HACK: in some browser, audio may not fire 'ended' event
+        // so we need to force updating the Audio state
+        this._forceUpdatingState();
+        
+        return this._state;
+    };
+
+    proto._forceUpdatingState = function () {
         let elem = this._element;
         if (elem) {
-            // HACK: in some browser, audio may not fire 'ended' event
-            // so we need to force updating the Audio state
             if (Audio.State.PLAYING === this._state && elem.paused) {
                 this._state = Audio.State.STOPPED;
             }
@@ -272,7 +287,6 @@ Audio.State = {
                 this._state = Audio.State.PLAYING;
             }
         }
-        return this._state;
     };
 
     proto.__defineGetter__('src', function () {

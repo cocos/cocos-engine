@@ -1027,7 +1027,9 @@ cc.ContainerStrategy = cc.Class({
     },
 
     _setupContainer: function (view, w, h) {
-        var locCanvas = cc.game.canvas, locContainer = cc.game.container;
+        var locCanvas = cc.game.canvas;
+
+        this._setupStyle(view, w, h);
         
         // Setup pixel ratio for retina display
         var devicePixelRatio = view._devicePixelRatio = 1;
@@ -1036,6 +1038,18 @@ cc.ContainerStrategy = cc.Class({
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
         locCanvas.height = h * devicePixelRatio;
+    },
+
+    _setupStyle: function (view, w, h) {
+        let locCanvas = cc.game.canvas;
+        let locContainer = cc.game.container;
+        if (cc.sys.os === cc.sys.OS_ANDROID) {
+            document.body.style.width = (view._isRotated ? h : w) + 'px';
+            document.body.style.height = (view._isRotated ? w : h) + 'px';
+        }
+        // Setup style
+        locContainer.style.width = locCanvas.style.width = w + 'px';
+        locContainer.style.height = locCanvas.style.height = h + 'px';
     },
 
     _fixContainer: function () {
@@ -1474,14 +1488,19 @@ cc.ResolutionPolicy.FIXED_WIDTH = 4;
  */
 cc.ResolutionPolicy.UNKNOWN = 5;
 
-// __preAdapt is a global var defined in adapter
 // need to adapt prototype before instantiating
 let _global = typeof window === 'undefined' ? global : window;
-if (_global.__preAdapter) {
-    let preAdapter = _global.__preAdapter;
-    __BrowserGetter = preAdapter.browserGetter;
-    Object.assign(View.prototype, preAdapter.viewProto);
-    Object.assign(cc.ContainerStrategy.prototype, preAdapter.containerStrategyProto);
+if (_global.__globalAdapter && _global.__globalAdapter.adaptBrowserGetter) {
+    let globalAdapter = _global.__globalAdapter;
+    if (globalAdapter.adaptBrowserGetter) {
+        globalAdapter.adaptBrowserGetter(__BrowserGetter);
+    }
+    if (globalAdapter.adaptContainerStrategy) {
+        globalAdapter.adaptContainerStrategy(cc.ContainerStrategy.prototype);
+    }
+    if (globalAdapter.adaptView) {
+        globalAdapter.adaptView(View.prototype);
+    }
 }
 
 /**

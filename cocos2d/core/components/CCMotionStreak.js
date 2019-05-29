@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const RenderComponent = require('../components/CCRenderComponent');
+const RenderComponent = require('./CCRenderComponent');
 const SpriteMaterial = require('../renderer/render-engine').SpriteMaterial;
 const textureUtil = require('../utils/texture-util');
 

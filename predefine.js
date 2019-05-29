@@ -135,7 +135,7 @@ function defineDeprecatedMacroGetter (name, defaultValue) {
             get: function () {
                 let recommandedUsage;
                 if (name === 'CC_WECHATGAMESUB') {
-                    recommandedUsage = 'cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB';
+                    recommandedUsage = 'cc.sys.platform === cc.sys.WECHAT_GAME_SUB';
                 }
                 else if (name === 'CC_WECHATGAME') {
                     recommandedUsage = 'cc.sys.platform === cc.sys.WECHAT_GAME';                    

@@ -349,17 +349,23 @@ function initSys () {
      */
     sys.WECHAT_GAME = 104;
     /**
-     * @property {Number} QQ_PLAY
+     * @property {Number} WECHAT_GAME_SUB
      * @readOnly
      * @default 105
      */
-    sys.QQ_PLAY = 105;
+    sys.WECHAT_GAME_SUB = 105;
     /**
-     * @property {Number} FB_PLAYABLE_ADS
+     * @property {Number} QQ_PLAY
      * @readOnly
      * @default 106
      */
-    sys.FB_PLAYABLE_ADS = 106;
+    sys.QQ_PLAY = 106;
+    /**
+     * @property {Number} FB_PLAYABLE_ADS
+     * @readOnly
+     * @default 107
+     */
+    sys.FB_PLAYABLE_ADS = 107;
     /**
      * @property {Number} BAIDU_GAME
      * @readOnly
@@ -367,23 +373,29 @@ function initSys () {
      */
     sys.BAIDU_GAME = 107;
     /**
-     * @property {Number} VIVO_GAME
+     * @property {Number} BAIDU_GAME_SUB
      * @readOnly
      * @default 108
      */
-    sys.VIVO_GAME = 108;
+    sys.BAIDU_GAME_SUB = 108;
     /**
-     * @property {Number} OPPO_GAME
+     * @property {Number} VIVO_GAME
      * @readOnly
      * @default 109
      */
-    sys.OPPO_GAME = 109;
+    sys.VIVO_GAME = 109;
     /**
-     * @property {Number} XIAOMI_GAME
+     * @property {Number} OPPO_GAME
      * @readOnly
      * @default 110
      */
-    sys.XIAOMI_GAME = 110;
+    sys.OPPO_GAME = 110;
+    /**
+     * @property {Number} XIAOMI_GAME
+     * @readOnly
+     * @default 111
+     */
+    sys.XIAOMI_GAME = 111;
     /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
@@ -589,23 +601,9 @@ function initSys () {
     
     const _global = typeof window === 'undefined' ? global : window;
 
-    if (_global.__preAdapter && _global.__preAdapter.systemInfo) {
-        let env = _global.__preAdapter.systemInfo;
-        sys.isNative = env.isNative;
-        sys.isBrowser = env.isBrowser;
-        sys.platform = env.platform;
-        sys.browserType = env.browserType;
-        sys.isMobile = env.isMobile;
-        sys.language = env.language;
-        sys.languageCode = env.language.toLowerCase();
-        sys.os = env.os;
-        sys.osVersion = env.osVersion;
-        sys.osMainVersion = env.osMainVersion;
-        sys.browserVersion = env.browserVersion;
-        sys.windowPixelResolution = env.windowPixelResolution;
-        sys.localStorage = env.localStorage;
-        sys.capabilities = env.capabilities;
-        sys.__audioSupport = env.audioSupport;
+    if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
+        // init sys info in adapter
+        _global.__globalAdapter.adaptSys(sys);
     }
     else if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
