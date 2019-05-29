@@ -175,9 +175,8 @@ class CCObject {
         }
     }
 
-    public _onPreDestroy: any;
     public _objFlags: number;
-    private _name: string;
+    protected _name: string;
 
     constructor (name = '') {
         /**
@@ -312,7 +311,9 @@ class CCObject {
             return;
         }
         // engine internal callback
+        // @ts-ignore
         if (this._onPreDestroy) {
+            // @ts-ignore
             this._onPreDestroy();
         }
 
@@ -389,6 +390,7 @@ prototype._deserialize = null;
  * @method _onPreDestroy
  * @private
  */
+// @ts-ignore
 prototype._onPreDestroy = null;
 
 CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
