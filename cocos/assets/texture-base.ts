@@ -364,14 +364,15 @@ export class TextureBase extends Asset {
                 upload();
             });
             if (!this.isCompressed) {
-                this._uploadData(new ImageData(2, 2), level, arrayIndex);
+                const defaultImg = cc.builtinResMgr.get('black-texture').image as ImageAsset;
+                this._uploadData(defaultImg.data as HTMLCanvasElement, level, arrayIndex);
             }
             postLoadImage(image);
         }
     }
 
     protected _uploadData (
-        source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer | ImageData, level: number, arrayIndex?: number) {
+        source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer, level: number, arrayIndex?: number) {
         if (!this._texture) {
             return;
         }

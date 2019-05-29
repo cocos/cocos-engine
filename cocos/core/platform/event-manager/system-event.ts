@@ -227,6 +227,5 @@ cc.SystemEvent = SystemEvent;
  * !#en The System event singleton for global usage
  * !#zh 系统事件单例，方便全局使用
  */
-const systemEvent = new SystemEvent();
+export const systemEvent = new SystemEvent();
 cc.systemEvent = systemEvent;
-export { systemEvent };
