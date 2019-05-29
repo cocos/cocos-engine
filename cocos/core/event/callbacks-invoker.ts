@@ -262,18 +262,23 @@ export class CallbacksInvoker {
         const list = this._callbackTable[key];
         if (list) {
             const infos = list.callbackInfos;
-            for (let i = 0; i < infos.length; ++i) {
-                const info = infos[i];
-                if (info && info.callback === callback && info.target === target) {
-                    if (list.isInvoking) {
-                        list.cancel(i);
+            if (callback) {
+                for (let i = 0; i < infos.length; ++i) {
+                    const info = infos[i];
+                    if (info && info.callback === callback && info.target === target) {
+                        if (list.isInvoking) {
+                            list.cancel(i);
+                        }
+                        else {
+                            fastRemoveAt(infos, i);
+                            callbackInfoPool.free(info);
+                        }
+                        break;
                     }
-                    else {
-                        fastRemoveAt(infos, i);
-                        callbackInfoPool.free(info);
-                    }
-                    break;
                 }
+            }
+            else {
+                this.removeAll(key);
             }
         }
     }
