@@ -3,8 +3,8 @@
 import { Skeleton } from '../../3d/assets/skeleton';
 import { Filter, PixelFormat, WrapMode } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
-import { Quat, Vec3 } from '../../core/value-types';
-import { quat, vec4 } from '../../core/vmath';
+import { Mat4, Quat, Vec3 } from '../../core/value-types';
+import { mat4, quat, vec4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
@@ -46,6 +46,7 @@ const _jointsFormat = {
     [JointsMediumType.RGBA32F]: PixelFormat.RGBA32F,
 };
 
+const m4_1 = new Mat4();
 const qt_0 = new Quat();
 const qt_1 = new Quat();
 const f4_1 = new Float32Array(4);
@@ -90,6 +91,23 @@ export class SkinningModel extends Model {
 
     public updateJointData (idx: number, pos: Vec3, rot: Quat, scale: Vec3) {
         if (!this._jointsMedium) { return; }
+        const out = this._jointsMedium.nativeData;
+        const base = 12 * idx;
+        /* Linear Blending Skinning */
+        mat4.fromRTS(m4_1, rot, pos, scale);
+        out[base + 0] = m4_1.m00;
+        out[base + 1] = m4_1.m01;
+        out[base + 2] = m4_1.m02;
+        out[base + 3] = m4_1.m12;
+        out[base + 4] = m4_1.m04;
+        out[base + 5] = m4_1.m05;
+        out[base + 6] = m4_1.m06;
+        out[base + 7] = m4_1.m13;
+        out[base + 8] = m4_1.m08;
+        out[base + 9] = m4_1.m09;
+        out[base + 10] = m4_1.m10;
+        out[base + 11] = m4_1.m14;
+        /* Dual Quaternion Skinning *
         // sign consistency
         if (idx === 0) { quat.copy(qt_0, rot); }
         else if (quat.dot(qt_0, rot) < 0) { quat.scale(rot, rot, -1); }
@@ -97,8 +115,6 @@ export class SkinningModel extends Model {
         quat.set(qt_1, pos.x, pos.y, pos.z, 0);
         quat.scale(qt_1, quat.multiply(qt_1, qt_1, rot), 0.5);
         // upload
-        const out = this._jointsMedium.nativeData;
-        const base = 12 * idx;
         out[base + 0] = rot.x;
         out[base + 1] = rot.y;
         out[base + 2] = rot.z;
@@ -110,6 +126,7 @@ export class SkinningModel extends Model {
         out[base + 8] = scale.x;
         out[base + 9] = scale.y;
         out[base + 10] = scale.z;
+        /* */
     }
 
     public commitJointData () {
