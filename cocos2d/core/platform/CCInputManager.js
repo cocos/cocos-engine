@@ -218,44 +218,6 @@ let inputManager = {
     },
 
     /**
-     * @method getHTMLElementPosition
-     * @param {HTMLElement} element
-     * @return {Object}
-     */
-    getHTMLElementPosition (element) {
-        let docElem = document.documentElement;
-        let leftOffset = window.pageXOffset - docElem.clientLeft;
-        let topOffset = window.pageYOffset - docElem.clientTop;
-        if (element.getBoundingClientRect) {
-            let box = element.getBoundingClientRect();
-            return {
-                left: box.left + leftOffset,
-                top: box.top + topOffset,
-                width: box.width,
-                height: box.height
-            };
-        }
-        else {
-            if (element instanceof HTMLCanvasElement) {
-                return {
-                    left: leftOffset,
-                    top: topOffset,
-                    width: element.width,
-                    height: element.height
-                };
-            }
-            else {
-                return {
-                    left: leftOffset,
-                    top: topOffset,
-                    width: parseInt(element.style.width),
-                    height: parseInt(element.style.height)
-                };
-            }
-        }
-    },
-
-    /**
      * @method getPreTouch
      * @param {Touch} touch
      * @return {Touch}
@@ -398,6 +360,8 @@ let inputManager = {
 
         this._glView = cc.view;
         let selfPointer = this;
+        let canvasBoundingRect = this._glView._canvasBoundingRect;
+        let clonedBoundingRect = this._glView._clonedBoundingRect;
 
         let prohibition = sys.isMobile;
         let supportMouse = ('mouse' in sys.capabilities);
@@ -422,12 +386,11 @@ let inputManager = {
                     
                     selfPointer._mousePressed = false;
 
-                    let pos = selfPointer.getHTMLElementPosition(element);
-                    let location = selfPointer.getPointByEvent(event, pos);
-                    if (!cc.rect(pos.left, pos.top, pos.width, pos.height).contains(location)){
-                        selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    let location = selfPointer.getPointByEvent(event, canvasBoundingRect);
+                    if (!cc.rect(canvasBoundingRect.left, canvasBoundingRect.top, canvasBoundingRect.width, canvasBoundingRect.height).contains(location)){
+                        selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, canvasBoundingRect)]);
 
-                        let mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);
+                        let mouseEvent = selfPointer.getMouseEvent(location, canvasBoundingRect, cc.Event.EventMouse.UP);
                         mouseEvent.setButton(event.button);
                         eventManager.dispatchEvent(mouseEvent);
                     }
@@ -437,17 +400,17 @@ let inputManager = {
             // register canvas mouse event
             let EventMouse = cc.Event.EventMouse;
             let _mouseEventsOnElement = [
-                !prohibition && ["mousedown", EventMouse.DOWN, function (event, mouseEvent, location, pos) {
+                !prohibition && ["mousedown", EventMouse.DOWN, function (event, mouseEvent, location, canvasBoundingRect) {
                     selfPointer._mousePressed = true;
-                    selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, canvasBoundingRect)]);
                     element.focus();
                 }],
-                !prohibition && ["mouseup", EventMouse.UP, function (event, mouseEvent, location, pos) {
+                !prohibition && ["mouseup", EventMouse.UP, function (event, mouseEvent, location, canvasBoundingRect) {
                     selfPointer._mousePressed = false;
-                    selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, canvasBoundingRect)]);
                 }],
-                !prohibition && ["mousemove", EventMouse.MOVE, function (event, mouseEvent, location, pos) {
-                    selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                !prohibition && ["mousemove", EventMouse.MOVE, function (event, mouseEvent, location, canvasBoundingRect) {
+                    selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, canvasBoundingRect)]);
                     if (!selfPointer._mousePressed) {
                         mouseEvent.setButton(null);
                     }
@@ -467,12 +430,11 @@ let inputManager = {
                     let type = entry[1];
                     let handler = entry[2];
                     element.addEventListener(name, function (event) {
-                        let pos = selfPointer.getHTMLElementPosition(element);
-                        let location = selfPointer.getPointByEvent(event, pos);
-                        let mouseEvent = selfPointer.getMouseEvent(location, pos, type);
+                        let location = selfPointer.getPointByEvent(event, canvasBoundingRect);
+                        let mouseEvent = selfPointer.getMouseEvent(location, canvasBoundingRect, type);
                         mouseEvent.setButton(event.button);
 
-                        handler(event, mouseEvent, location, pos);
+                        handler(event, mouseEvent, location, canvasBoundingRect);
 
                         eventManager.dispatchEvent(mouseEvent);
                         event.stopPropagation();
@@ -492,11 +454,11 @@ let inputManager = {
             for (let eventName in _pointerEventsMap) {
                 let touchEvent = _pointerEventsMap[eventName];
                 element.addEventListener(eventName, function (event){
-                    let pos = selfPointer.getHTMLElementPosition(element);
-                    pos.left -= document.documentElement.scrollLeft;
-                    pos.top -= document.documentElement.scrollTop;
+                    let documentElement = document.documentElement;
+                    clonedBoundingRect.left = canvasBoundingRect.left - documentElement.scrollLeft;
+                    clonedBoundingRect.top = canvasBoundingRect.top - documentElement.scrollTop;
 
-                    touchEvent.call(selfPointer, [selfPointer.getTouchByXY(event.clientX, event.clientY, pos)]);
+                    touchEvent.call(selfPointer, [selfPointer.getTouchByXY(event.clientX, event.clientY, clonedBoundingRect)]);
                     event.stopPropagation();
                 }, false);
             }
@@ -524,11 +486,11 @@ let inputManager = {
                 let handler = _touchEventsMap[eventName];
                 element.addEventListener(eventName, (function(event) {
                     if (!event.changedTouches) return;
-                    let pos = selfPointer.getHTMLElementPosition(element);
                     let body = document.body;
-                    pos.left -= body.scrollLeft || 0;
-                    pos.top -= body.scrollTop || 0;
-                    handler(selfPointer.getTouchesByEvent(event, pos));
+
+                    clonedBoundingRect.left = canvasBoundingRect.left - (body.scrollLeft || 0);
+                    clonedBoundingRect.top = canvasBoundingRect.top - (body.scrollTop || 0);
+                    handler(selfPointer.getTouchesByEvent(event, clonedBoundingRect));
                     event.stopPropagation();
                     event.preventDefault();
                 }), false);
