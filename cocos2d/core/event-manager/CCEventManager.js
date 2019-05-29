@@ -121,6 +121,7 @@ var eventManager = {
     _inDispatch: 0,
     _isEnabled: false,
     _renderOrderMap: {},
+    _nodePriorityIndex: 0,
 
     _internalCustomListenerIDs:[],
 
@@ -226,10 +227,19 @@ var eventManager = {
     },
 
     _updateDirtyFlagForSceneGraph: function () {
-        var locDirtyListeners = this._dirtyListeners
+        let locDirtyListeners = this._dirtyListeners
+        let dirty = false;
         for (var selKey in locDirtyListeners) {
             this._setDirty(selKey, this.DIRTY_SCENE_GRAPH_PRIORITY);
+            dirty = true;
         }
+
+        if (dirty) {
+            this._nodePriorityIndex = 0;
+            let rootEntity = cc.director.getScene();
+            this._visitTarget(rootEntity);
+        }
+
         this._dirtyListeners = {};
     },
 
@@ -277,6 +287,25 @@ var eventManager = {
         }
     },
 
+    _visitTarget (node) {
+        // sortAllChildren is performed the next frame, but the event is executed immediately.
+        if (node._reorderChildDirty) {
+            node.sortAllChildren();
+        }
+        const children = node.children;
+        const childrenCount = children.length;
+        this._updateRenderOrder(node, ++this._nodePriorityIndex);
+        if (childrenCount > 0) {
+            let child;
+            for (let i = 0; i < childrenCount; i++) {
+                child = children[i];
+                if (child) {
+                    this._visitTarget(child);
+                }
+            }
+        }
+    },
+
     _sortEventListeners: function (listenerID) {
         var dirtyFlag = this.DIRTY_NONE, locFlagMap = this._priorityDirtyFlagMap;
         if (locFlagMap[listenerID])
@@ -292,12 +321,12 @@ var eventManager = {
             if (dirtyFlag & this.DIRTY_SCENE_GRAPH_PRIORITY){
                 var rootEntity = cc.director.getScene();
                 if(rootEntity)
-                    this._sortListenersOfSceneGraphPriority(listenerID, rootEntity);
+                    this._sortListenersOfSceneGraphPriority(listenerID);
             }
         }
     },
 
-    _sortListenersOfSceneGraphPriority: function (listenerID, rootNode) {
+    _sortListenersOfSceneGraphPriority: function (listenerID) {
         var listeners = this._getListeners(listenerID);
         if (!listeners)
             return;
