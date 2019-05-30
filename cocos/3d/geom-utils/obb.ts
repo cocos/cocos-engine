@@ -158,7 +158,7 @@ export default class obb {
      * @param scale the scale part of the transform
      * @param [out] the target shape
      */
-    public transform (m: mat4, pos: vec3, rot: quat, scale: vec3, out?: obb) {
+    public transform (m: mat4, pos: vec3, rot: quat, scale: vec3, out: obb) {
         if (!out) { out = this; }
         vec3.transformMat4(out.center, this.center, m);
         // parent shape doesn't contain rotations for now
