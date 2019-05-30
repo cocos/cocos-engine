@@ -1,5 +1,5 @@
 import { Component } from '../../../components';
-import { SystemEventType } from '../../../core';
+import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccclass, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
 import { UI } from '../../../renderer/ui/ui';
 import { Node } from '../../../scene-graph';
