@@ -1,17 +1,18 @@
-import { vec3 } from '../../core/vmath';
+import { mat4, quat, vec3 } from '../../core/vmath';
 import enums from './enums';
 
 const _v3_tmp = vec3.create();
-function maxComponent (v) { return Math.max(Math.max(v.x, v.y), v.z); }
+function maxComponent (v: vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
 
+// tslint:disable-next-line: class-name
 export default class sphere {
 
     /**
      * create a new sphere
      *
-     * @return {plane}
+     * @return {sphere}
      */
-    public static create (cx, cy, cz, r) {
+    public static create (cx: number, cy: number, cz: number, r: number): sphere {
         return new sphere(cx, cy, cz, r);
     }
 
@@ -21,7 +22,7 @@ export default class sphere {
      * @param {sphere} p the source sphere
      * @return {sphere}
      */
-    public static clone (p) {
+    public static clone (p: sphere): sphere {
         return new sphere(p.c.x, p.c.y, p.c.z, p.r);
     }
 
@@ -32,8 +33,8 @@ export default class sphere {
      * @param {sphere} p the source sphere
      * @return {sphere}
      */
-    public static copy (out, p) {
-        vec3.copy(out, p.c);
+    public static copy (out: sphere, p: sphere): sphere {
+        vec3.copy(out.c, p.c);
         out.r = p.r;
 
         return out;
@@ -47,7 +48,7 @@ export default class sphere {
      * @param {vec3} maxPos upper corner of the original shape
      * @return {sphere}
      */
-    public static fromPoints (out, minPos, maxPos) {
+    public static fromPoints (out: sphere, minPos: vec3, maxPos: vec3): sphere {
         vec3.scale(out.c, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
         out.r = vec3.mag(vec3.sub(_v3_tmp, maxPos, minPos)) * 0.5;
         return out;
@@ -64,7 +65,7 @@ export default class sphere {
      * @return {sphere} out
      * @function
      */
-    public static set (out, cx, cy, cz, r) {
+    public static set (out: sphere, cx: number, cy: number, cz: number, r: number): sphere {
         out.c.x = cx;
         out.c.y = cy;
         out.c.z = cz;
@@ -97,7 +98,7 @@ export default class sphere {
      * @param {vec3} minPos
      * @param {vec3} maxPos
      */
-    public getBoundary (minPos, maxPos) {
+    public getBoundary (minPos: vec3, maxPos: vec3) {
         vec3.set(minPos, this.c.x - this.r, this.c.y - this.r, this.c.z - this.r);
         vec3.set(maxPos, this.c.x + this.r, this.c.y + this.r, this.c.z + this.r);
     }
@@ -110,7 +111,7 @@ export default class sphere {
      * @param {vec3} scale the scale part of the transform
      * @param {sphere} [out] the target shape
      */
-    public transform (m, pos, rot, scale, out) {
+    public transform (m: mat4, pos: vec3, rot: quat, scale: vec3, out: sphere) {
         if (!out) { out = this; }
         vec3.transformMat4(out.c, this.c, m);
         out.r = this.r * maxComponent(scale);

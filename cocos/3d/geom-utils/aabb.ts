@@ -1,4 +1,4 @@
-import { mat3, mat4, vec3 } from '../../core/vmath';
+import { mat3, mat4, quat, vec3 } from '../../core/vmath';
 import enums from './enums';
 
 const _v3_tmp = vec3.create();
@@ -55,7 +55,7 @@ export default class aabb {
      * @param {aabb} a the source aabb
      * @return {aabb}
      */
-    public static copy (out, a) {
+    public static copy (out: aabb, a: aabb): aabb {
         vec3.copy(out.center, a.center);
         vec3.copy(out.halfExtents, a.halfExtents);
 
@@ -89,7 +89,7 @@ export default class aabb {
      * @return {aabb} out
      * @function
      */
-    public static set (out, px, py, pz, w, h, l) {
+    public static set (out: aabb, px: number, py: number, pz: number, w: number, h: number, l: number): aabb {
         vec3.set(out.center, px, py, pz);
         vec3.set(out.halfExtents, w, h, l);
         return out;
@@ -134,7 +134,7 @@ export default class aabb {
      * @param m - the transform matrix
      * @param out - the target shape
      */
-    public transform (m, pos, rot, scale, out) {
+    public transform (m: mat4, pos: vec3 | null, rot: quat | null, scale: vec3 | null, out: aabb){
         if (!out) { out = this; }
         vec3.transformMat4(out.center, this.center, m);
         transform_extent_m4(out.halfExtents, this.halfExtents, m);
