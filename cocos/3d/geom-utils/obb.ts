@@ -13,6 +13,7 @@ const transform_extent_m3 = (out: vec3, extent: vec3, m3: mat3) => {
     vec3.transformMat3(out, extent, _m3_tmp);
 };
 
+// tslint:disable-next-line:class-name
 export default class obb {
 
     /**
