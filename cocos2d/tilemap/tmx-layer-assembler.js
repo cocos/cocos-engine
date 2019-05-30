@@ -400,7 +400,7 @@ let tmxAssembler = {
                 vb = _tempUV.b;
                 
                 // vice diagonal
-                if ((gid & TileFlag.VICE_DIAGONAL) >>> 0) {
+                if ((gid & TileFlag.DIAGONAL) >>> 0) {
                     // bl
                     vbuf[_vfOffset + 7] = ur;
                     vbuf[_vfOffset + 8] = vt;
@@ -418,24 +418,13 @@ let tmxAssembler = {
                     vbuf[_vfOffset + 13] = vt;
                 }
 
-                // main diagonal
-                if ((gid & TileFlag.MAIN_DIAGONAL) >>> 0) {
-                    // tl
-                    vbuf[_vfOffset + 2] = ur;
-                    vbuf[_vfOffset + 3] = vb;
+                // tl
+                vbuf[_vfOffset + 2] = ul;
+                vbuf[_vfOffset + 3] = vt;
 
-                    // br
-                    vbuf[_vfOffset + 17] = ul;
-                    vbuf[_vfOffset + 18] = vt;
-                } else {
-                    // tl
-                    vbuf[_vfOffset + 2] = ul;
-                    vbuf[_vfOffset + 3] = vt;
-
-                    // br
-                    vbuf[_vfOffset + 17] = ur;
-                    vbuf[_vfOffset + 18] = vb;
-                }
+                // br
+                vbuf[_vfOffset + 17] = ur;
+                vbuf[_vfOffset + 18] = vb;
 
                 // modify buffer all kinds of offset
                 _vfOffset += 20;

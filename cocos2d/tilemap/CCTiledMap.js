@@ -135,18 +135,11 @@ let TileFlag = cc.Enum({
     VERTICAL: 0x40000000,
 
     /**
-     * @property VICE DIAGONAL
+     * @property DIAGONAL
      * @type {Number}
      * @static
      */
-    VICE_DIAGONAL: 0x20000000,
-
-    /**
-     * @property MAIN DIAGONAL
-     * @type {Number}
-     * @static
-     */
-    MAIN_DIAGONAL: 0x10000000,
+    DIAGONAL: 0x20000000,
 
     /**
      * @property FLIPPED_ALL
