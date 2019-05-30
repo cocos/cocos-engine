@@ -110,9 +110,9 @@ export const sliced: IAssembler = {
     },
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
-        // if (renderer.worldMatDirty) {
-        // this.updateWorldVerts(sprite);
-        // }
+        if (sprite.node.hasChanged) {
+            this.updateWorldVerts(sprite);
+        }
 
         let buffer = renderer.currBufferBatch!;
         const renderData: RenderData|null = sprite.renderData;

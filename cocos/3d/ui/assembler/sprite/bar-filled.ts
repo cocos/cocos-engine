@@ -245,9 +245,9 @@ export const barFilled: IAssembler = {
     },
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
-        // if (renderer.worldMatDirty) {
-        // this.updateWorldVerts(sprite);
-        // }
+        if (sprite.node.hasChanged) {
+            this.updateWorldVerts(sprite);
+        }
 
         const node = sprite.node;
         fillVerticesWithoutCalc3D(node, renderer, sprite.renderData!, sprite.color);
