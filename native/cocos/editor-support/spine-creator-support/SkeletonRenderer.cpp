@@ -265,6 +265,7 @@ void SkeletonRenderer::initWithBinaryFile (const std::string& skeletonDataFile, 
 }
 
 void SkeletonRenderer::update (float deltaTime) {
+    
     if (!_skeleton) return;
 
     _renderInfoOffset->reset();
@@ -291,7 +292,6 @@ void SkeletonRenderer::update (float deltaTime) {
     
     // If opacity is 0,then return.
     if (_skeleton->getColor().a == 0) {
-    {
         return;
     }
     
@@ -332,12 +332,6 @@ void SkeletonRenderer::update (float deltaTime) {
         }
         _debugBuffer->reset();
     }
-    
-    // check enough space
-    renderInfo->checkSpace(sizeof(uint32_t), true);
-    std::size_t materialLenOffset = renderInfo->getCurPos();
-    //reserved space to save material len
-    renderInfo->writeUint32(0);
     
     auto flush = [&]() {
         // fill pre segment count field
