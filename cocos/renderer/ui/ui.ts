@@ -212,7 +212,7 @@ export class UI {
             }
         }
 
-        if (this._debugScreen && this._debugScreen.camera && this._debugScreen.camera.visibility === visibility) {
+        if (this._debugScreen && this._debugScreen.camera && this._debugScreen.camera.view.visibility === visibility) {
             return this._debugScreen;
         }
 
