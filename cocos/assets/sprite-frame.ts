@@ -758,8 +758,8 @@ export class SpriteFrame extends Texture2D {
         // }
     }
 
-    protected _assetReady () {
-        super._assetReady();
+    protected initialize () {
+        super.initialize();
         const self = this;
         // let texture = this._texture;
         // if (!texture) {

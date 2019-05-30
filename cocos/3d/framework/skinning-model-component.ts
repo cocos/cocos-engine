@@ -130,7 +130,6 @@ export class SkinningModelComponent extends ModelComponent {
     protected _jointCount = JointUniformCapacity;
 
     public onLoad () {
-        super.onLoad();
         this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
         this._resetSkinningTarget();
         if (CC_EDITOR && this.mesh && this._skeleton) {

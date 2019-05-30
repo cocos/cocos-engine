@@ -32,6 +32,7 @@ import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { BufferBlob } from '../misc/buffer-blob';
 import { IBufferView } from './utils/buffer-view';
+import { postLoadMesh } from './utils/mesh-utils';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -228,11 +229,8 @@ export class Mesh extends Asset {
 
         this._initialized = true;
 
-        if (this._data === null) {
-            return;
-        }
-
-        const buffer = this._data.buffer;
+        if (!this._data) { postLoadMesh(this); }
+        const buffer = this._data ? this._data.buffer : null;
         const gfxDevice: GFXDevice = cc.director.root.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
@@ -256,8 +254,17 @@ export class Mesh extends Asset {
                 });
                 indexBuffers.push(indexBuffer);
 
-                ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
-                indexBuffer.update(ib);
+                if (buffer) {
+                    ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
+                    indexBuffer.update(ib);
+                }
+                else {
+                    ib = new (getIndexStrideCtor(idxView.stride))(idxView.count);
+                    this.once('load', () => {
+                        ib.set(new (getIndexStrideCtor(idxView.stride))(this.data!.buffer, idxView.offset, idxView.count));
+                        indexBuffer!.update(ib);
+                    });
+                }
             }
 
             const vbReference = prim.vertexBundelIndices.map((i) => vertexBuffers[i]);
@@ -278,9 +285,19 @@ export class Mesh extends Asset {
 
             if (prim.geometricInfo) {
                 const info = prim.geometricInfo;
+                let positions: Float32Array | null = null;
+                if (buffer) {
+                    positions = new Float32Array(buffer, info.view.offset, info.view.length / 4);
+                }
+                else {
+                    positions = new Float32Array(info.view.length / 4);
+                    this.once('load', () => {
+                        positions!.set(new Float32Array(this.data!.buffer, info.view.offset, info.view.length / 4));
+                    });
+                }
                 subMesh.geometricInfo = {
                     indices: ib,
-                    positions: new Float32Array(buffer, info.view.offset, info.view.length / 4),
+                    positions,
                 };
             }
 
@@ -340,7 +357,7 @@ export class Mesh extends Asset {
 
     public merge (mesh: Mesh, validate?: boolean): boolean {
         if (validate !== undefined && validate) {
-            if (!this.validateMergingMesh(mesh)) {
+            if (!this.loaded || !mesh.loaded || !this.validateMergingMesh(mesh)) {
                 return false;
             }
         } // if
@@ -810,7 +827,7 @@ export class Mesh extends Asset {
         }
     }
 
-    private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
+    private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer | null): GFXBuffer[] {
         return this._struct.vertexBundles.map((vertexBundle) => {
             const vertexBuffer = gfxDevice.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
@@ -819,7 +836,14 @@ export class Mesh extends Asset {
                 stride: vertexBundle.view.stride,
             });
 
-            vertexBuffer.update(new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length));
+            if (data) {
+                vertexBuffer.update(new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length));
+            }
+            else {
+                this.once('load', () => {
+                    vertexBuffer.update(new Uint8Array(this._data!.buffer, vertexBundle.view.offset, vertexBundle.view.length));
+                });
+            }
             return vertexBuffer;
         });
     }

@@ -741,15 +741,8 @@ export class LabelComponent extends UIRenderComponent {
                 self._flushMaterial();
             };
             // cannot be activated if texture not loaded yet
-            if (spriteFrame && spriteFrame.textureLoaded()) {
+            if (spriteFrame) {
                 onBMFontTextureLoaded();
-            } else {
-                // this.disableRender();
-
-                if (spriteFrame) {
-                    spriteFrame.once('load', onBMFontTextureLoaded, this);
-                    spriteFrame.ensureLoadImage();
-                }
             }
         } else {
             if (this.cacheMode === CacheMode.CHAR && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {

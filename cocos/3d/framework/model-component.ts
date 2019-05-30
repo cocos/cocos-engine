@@ -28,7 +28,6 @@ import Enum from '../../core/value-types/enum';
 import { Model } from '../../renderer/scene/model';
 import { Material } from '../assets/material';
 import { Mesh } from '../assets/mesh';
-import { postLoadMesh } from '../assets/utils/mesh-utils';
 import { RenderableComponent } from './renderable-component';
 
 /**
@@ -92,25 +91,10 @@ export class ModelComponent extends RenderableComponent {
     }
 
     set mesh (val) {
-        const replaceMesh = () => {
-            const old = this._mesh;
-            this._mesh = val;
-            this._onMeshChanged(old);
-            this._updateModels();
-            if (old && !old.loaded) {
-                this._unfinished--;
-                old.off('load', this._onMeshLoaded, this);
-                if (this._unfinished === 0) {
-                    this._assetReady();
-                }
-            }
-        };
-        if (val && !val.loaded) {
-            val.once('load', replaceMesh);
-            postLoadMesh(val);
-        } else {
-            replaceMesh();
-        }
+        const old = this._mesh;
+        this._mesh = val;
+        this._onMeshChanged(old);
+        this._updateModels();
     }
 
     /**
@@ -156,25 +140,19 @@ export class ModelComponent extends RenderableComponent {
     @property
     protected _mesh: Mesh | null = null;
 
-    protected _meshLoaded = false;
-
     @property
     private _shadowCastingMode = ModelShadowCastingMode.Off;
 
     @property
     private _receiveShadows = false;
 
-    public onLoad () {
-        super.onLoad();
-        if (this._mesh && !this._mesh.loaded) {
-            this._unfinished++;
-            this._mesh.once('load', this._onMeshLoaded, this);
-        }
-    }
-
     public onEnable () {
-        super.onEnable();
-        this._ensureLoadMesh();
+        this._updateModels();
+        this._updateCastShadow();
+        this._updateReceiveShadow();
+        if (this._model) {
+            this._model.enabled = true;
+        }
     }
 
     public onDisable () {
@@ -270,29 +248,6 @@ export class ModelComponent extends RenderableComponent {
         }
         for (let i = 0; i < this._model.subModelNum; ++i) {
             this._onMaterialModified(i, null);
-        }
-    }
-
-    protected _ensureLoadMesh () {
-        if (this._mesh && !this._mesh.loaded) {
-            postLoadMesh(this._mesh);
-        }
-    }
-
-    protected _assetReady () {
-        super._assetReady();
-        this._updateModels();
-        this._updateCastShadow();
-        this._updateReceiveShadow();
-        if (this._model) {
-            this._model.enabled = true;
-        }
-    }
-
-    protected _onMeshLoaded () {
-        this._unfinished--;
-        if (this._unfinished === 0) {
-            this._assetReady();
         }
     }
 
