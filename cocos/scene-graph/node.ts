@@ -56,7 +56,7 @@ class Node extends BaseNode {
     protected _matDirty = false;
     protected _eulerDirty = false;
 
-    protected _eventProcessor;
+    protected _eventProcessor = new cc.NodeEventProcessor(this);
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
 
@@ -129,25 +129,8 @@ class Node extends BaseNode {
         this.uiTransfromComp!.anchorY = value;
     }
 
-    get eventProcessor (){
+    get eventProcessor () {
         return this._eventProcessor;
-    }
-
-    constructor (name: string) {
-        super(name);
-        this._eventProcessor = new cc.NodeEventProcessor(this);
-    }
-
-    set position (value: vec3) {
-        this.setPosition(value.x, value.y, value.z);
-    }
-
-    set scale (value: vec3) {
-        this.setScale(value.x, value.y, value.z);
-    }
-
-    set rotation (value: quat) {
-        this.setRotation(value.x, value.y, value.z, value.w);
     }
 
     // ===============================
@@ -923,14 +906,17 @@ class Node extends BaseNode {
 
 Object.defineProperty(Node.prototype, 'position', {
     get: Node.prototype.getPosition,
+    set: Node.prototype.setPosition,
 });
 
 Object.defineProperty(Node.prototype, 'rotation', {
     get: Node.prototype.getRotation,
+    set: Node.prototype.setRotation,
 });
 
 Object.defineProperty(Node.prototype, 'scale', {
     get: Node.prototype.getScale,
+    set: Node.prototype.setScale,
 });
 
 cc.Node = Node;

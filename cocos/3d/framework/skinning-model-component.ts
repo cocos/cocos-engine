@@ -81,6 +81,7 @@ class JointManager {
     protected static _joints: Map<Node, Joint> = new Map();
 }
 
+// get the lowest common ancestor
 const _path: Node[] = [];
 export const LCA = (a: Node, b: Node) => {
     if (a === b) { return a; }
