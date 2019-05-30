@@ -227,6 +227,8 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
+        this._modelBounds.transform(this._node._mat, this._node._pos,
+            this._node._rot, this._node._scale, this._worldBounds);
     }
 
     public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {
@@ -288,7 +290,7 @@ export class Model {
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
             const pass = mat.passes[i];
-            // for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
+            for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
             ret[i] = this._doCreatePSO(pass);
         }
         return ret;
@@ -298,7 +300,7 @@ export class Model {
         for (let i = 0; i < mat.passes.length; i++) {
             const pass = mat.passes[i];
             pass.destroyPipelineState(pso[i]);
-            // for (const cus of pass.customizations) { customizationManager.detach(cus, this); }
+            for (const cus of pass.customizations) { customizationManager.detach(cus, this); }
         }
     }
 

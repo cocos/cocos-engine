@@ -110,7 +110,7 @@ export class Material extends Asset {
     }
 
     public destroy () {
-        if (!this._effectAsset) { return; }
+        if (!this._effectAsset) { return false; }
         if (this._passes) {
             for (const pass of this._passes) {
                 pass.destroy();
@@ -118,6 +118,7 @@ export class Material extends Asset {
             this._passes.length = 0;
         }
         this._effectAsset = null;
+        return true;
     }
 
     /**

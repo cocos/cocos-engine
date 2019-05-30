@@ -40,7 +40,6 @@ import { ModelComponent } from './model-component';
 const v3_1 = new Vec3();
 const qt_1 = new Quat();
 const v3_2 = new Vec3();
-const v3_3 = new Vec3();
 const m4_1 = new Mat4();
 const ab_1 = new aabb();
 
@@ -49,34 +48,52 @@ class Joint {
     public position: Vec3 = new Vec3();
     public rotation: Quat = new Quat();
     public scale: Vec3 = new Vec3(1, 1, 1);
+    public parent: Joint | null = null;
     protected _lastUpdate = -1;
     constructor (node: Node) { this.node = node; }
-    public update (parent: Joint) {
+    public update () {
+        // if (!this.node.hasChanged) { return; }
         const totalFrames = cc.director.totalFrames;
         if (this._lastUpdate >= totalFrames) { return; }
         this._lastUpdate = totalFrames;
+
+        const parent = this.parent;
         if (parent) {
+            parent.update();
             vec3.multiply(this.position, this.node.localPosition, parent.scale);
             vec3.transformQuat(this.position, this.position, parent.rotation);
             vec3.add(this.position, this.position, parent.position);
             quat.multiply(this.rotation, parent.rotation, this.node.localRotation);
             vec3.multiply(this.scale, parent.scale, this.node.localScale);
-        } else {
-            vec3.copy(this.position, this.node.localPosition);
-            quat.copy(this.rotation, this.node.localRotation);
-            vec3.copy(this.scale, this.node.localScale);
         }
     }
 }
 
 class JointManager {
-    public static get (node: Node) {
+    public static get (node: Node, root: Node) {
         let joint = JointManager._joints.get(node);
-        if (!joint) { joint = new Joint(node); JointManager._joints.set(node, joint); }
+        if (joint) { return joint; }
+        joint = new Joint(node);
+        if (node !== root && node.parent) { joint.parent = JointManager.get(node.parent, root); }
+        JointManager._joints.set(node, joint);
         return joint;
     }
     protected static _joints: Map<Node, Joint> = new Map();
 }
+
+const _path: Node[] = [];
+export const LCA = (a: Node, b: Node) => {
+    if (a === b) { return a; }
+    let cur: Node | null = b;
+    _path.length = 0;
+    while (cur) { _path.push(cur); cur = cur.parent; }
+    cur = a;
+    while (cur) {
+        if (_path.find((n) => n === cur)) { return cur; }
+        cur = cur.parent;
+    }
+    return null;
+};
 
 /**
  * @en The Skinning Model Component
@@ -125,7 +142,6 @@ export class SkinningModelComponent extends ModelComponent {
     protected _skinningRoot: Node | null = null;
 
     protected _joints: Joint[] = [];
-    protected _jointParentIndices: number[] = [];
     protected _boneSpaceBounds: null | Array<aabb | null> = null;
     protected _jointCount = JointUniformCapacity;
 
@@ -135,13 +151,13 @@ export class SkinningModelComponent extends ModelComponent {
         if (CC_EDITOR && this.mesh && this._skeleton) {
             this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton);
         }
+        // skinning model shouldn't have local transform
+        this.node.setPosition(0, 0, 0);
+        this.node.setRotation(0, 0, 0, 1);
+        this.node.setScale(1, 1, 1);
     }
 
-    public update (dt) {
-        this._tryUpdateMatrices();
-    }
-
-    public _tryUpdateMatrices () {
+    public update () {
         if (!this._skeleton || !this._model) {
             return;
         }
@@ -152,7 +168,7 @@ export class SkinningModelComponent extends ModelComponent {
 
         for (let i = 0; i < len; ++i) {
             const cur = this._joints[i];
-            cur.update(this._joints[this._jointParentIndices[i]]);
+            cur.update();
             const bindpose = skeleton.bindposes[i];
 
             vec3.multiply(v3_1, bindpose.localPosition, cur.scale);
@@ -160,12 +176,6 @@ export class SkinningModelComponent extends ModelComponent {
             vec3.add(v3_1, v3_1, cur.position);
             quat.multiply(qt_1, cur.rotation, bindpose.localRotation);
             vec3.multiply(v3_2, cur.scale, bindpose.localScale);
-
-            vec3.multiply(v3_3, this.node._lpos, v3_2);
-            vec3.transformQuat(v3_3, v3_3, qt_1);
-            vec3.add(v3_1, v3_3, v3_1);
-            quat.multiply(qt_1, qt_1, this.node._lrot);
-            vec3.multiply(v3_2, v3_2, this.node._lscale);
 
             skinningModel.updateJointData(i, v3_1, qt_1, v3_2);
         }
@@ -245,9 +255,9 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     private _resetSkinningTarget () {
-        if (!this._skeleton || !this._skinningRoot) {
-            return;
-        }
+        if (!this._skeleton || !this._skinningRoot) { return; }
+        const root = LCA(this.node, this._skinningRoot);
+        if (!root) { return; }
 
         this._joints.length = 0;
         const rootNode = this._skinningRoot;
@@ -257,10 +267,7 @@ export class SkinningModelComponent extends ModelComponent {
                 console.warn(`Skinning target ${path} not found in scene graph.`);
                 return;
             }
-            // guaranteed to exist except the root
-            const parentIdx = this._joints.findIndex((j) => j.node === targetNode.parent);
-            this._joints.push(JointManager.get(targetNode));
-            this._jointParentIndices.push(parentIdx);
+            this._joints.push(JointManager.get(targetNode, root));
         });
     }
 }

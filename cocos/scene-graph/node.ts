@@ -26,7 +26,7 @@ class Node extends BaseNode {
     public static NodeSpace = NodeSpace;
 
     // is node but not scene
-    public static isNode (obj: object) {
+    public static isNode (obj: object | null): obj is Node {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
 

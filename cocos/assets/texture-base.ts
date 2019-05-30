@@ -40,6 +40,28 @@ const CHAR_CODE_1 = 49;    // '1'
 
 const idGenerator = new IDGenerator('Tex');
 
+const _regions: GFXBufferTextureCopy[] = [{
+    buffOffset: 0,
+    buffStride: 0,
+    buffTexHeight: 0,
+    texOffset: {
+        x: 0,
+        y: 0,
+        z: 0,
+    },
+    texExtent: {
+        width: 1,
+        height: 1,
+        depth: 1,
+    },
+    texSubres: {
+        baseMipLevel: 1,
+        levelCount: 1,
+        baseArrayLayer: 0,
+        layerCount: 1,
+    },
+}];
+
 @ccclass('cc.TextureBase')
 export class TextureBase extends Asset {
 
@@ -335,12 +357,26 @@ export class TextureBase extends Asset {
 
     }
 
-    protected _getGlobalDevice (): GFXDevice | null {
-        if (cc.director && cc.director.root) {
-            return cc.director.root.device;
+    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer, level: number = 0, arrayIndex: number = 0) {
+        if (!this._texture || this._texture.mipLevel <= level) { return; }
+        const gfxDevice = this._getGlobalDevice();
+        if (!gfxDevice) { return; }
+
+        const region = _regions[0];
+        region.texExtent.width = this._texture.width >> level;
+        region.texExtent.height = this._texture.height >> level;
+        region.texSubres.baseMipLevel = level;
+        region.texSubres.baseArrayLayer = arrayIndex;
+
+        if (source instanceof ArrayBuffer) {
+            gfxDevice.copyBuffersToTexture([source], this._texture, _regions);
         } else {
-            return null;
+            gfxDevice.copyTexImagesToTexture([source], this._texture, _regions);
         }
+    }
+
+    protected _getGlobalDevice (): GFXDevice | null {
+        return cc.director.root && cc.director.root.device;
     }
 
     protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number) {
@@ -355,7 +391,7 @@ export class TextureBase extends Asset {
             } else {
                 source = data;
             }
-            this._uploadData(source, level, arrayIndex);
+            this.uploadData(source, level, arrayIndex);
         };
         if (image.loaded) {
             upload();
@@ -368,50 +404,6 @@ export class TextureBase extends Asset {
                 this._uploadData(defaultImg.data as HTMLCanvasElement, level, arrayIndex);
             }
             postLoadImage(image);
-        }
-    }
-
-    protected _uploadData (
-        source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer, level: number, arrayIndex?: number) {
-        if (!this._texture) {
-            return;
-        }
-
-        if (level >= this._texture.mipLevel) {
-            return;
-        }
-
-        const gfxDevice = this._getGlobalDevice();
-        if (!gfxDevice) {
-            return;
-        }
-
-        const region: GFXBufferTextureCopy = {
-            buffOffset: 0,
-            buffStride: 0,
-            buffTexHeight: 0,
-            texOffset: {
-                x: 0,
-                y: 0,
-                z: 0,
-            },
-            texExtent: {
-                width: this._texture.width >> level,
-                height: this._texture.height >> level,
-                depth: 1,
-            },
-            texSubres: {
-                baseMipLevel: level,
-                levelCount: 1,
-                baseArrayLayer: arrayIndex || 0,
-                layerCount: 1,
-            },
-        };
-
-        if (source instanceof ArrayBuffer) {
-            gfxDevice.copyBuffersToTexture([source], this._texture, [region]);
-        } else {
-            gfxDevice.copyTexImagesToTexture([source], this._texture, [region]);
         }
     }
 

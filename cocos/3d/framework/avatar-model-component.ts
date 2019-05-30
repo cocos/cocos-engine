@@ -26,13 +26,15 @@ import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Vec2 } from '../../core/value-types';
-import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
+import { vec2 } from '../../core/vmath';
 import { GFXFormat } from '../../gfx/define';
+import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
+import { Node } from '../../scene-graph';
 import { Mesh } from '../assets';
 import { Skeleton } from '../assets/skeleton';
 import { mapBuffer } from '../misc/utils';
-import { SkinningModelComponent } from './skinning-model-component';
+import { LCA, SkinningModelComponent } from './skinning-model-component';
 
 const _vec2 = new Vec2();
 
@@ -41,61 +43,42 @@ const repeat = (n: number) => n - Math.floor(n);
 @ccclass('cc.AvatarUnit')
 export class AvatarUnit {
 
-    @property({ type: Mesh })
-    get mesh (): Mesh | null {
-        return this._mesh;
-    }
+    @property(Mesh)
+    public mesh: Mesh | null = null;
+    @property(Skeleton)
+    public skeleton: Skeleton | null = null;
+    @property(Node)
+    public skinningRoot: Node | null = null;
+    @property
+    private _offset: Vec2 = new Vec2(0, 0);
+    @property
+    private _atlasSize: Vec2 = new Vec2(256, 256);
+    @property(Texture2D)
+    private _albedoMap: Texture2D | null = null;
 
-    set mesh (mesh: Mesh | null) {
-        if (this._mesh !== mesh) {
-            this._mesh = mesh;
-        }
+    @property
+    set atlasSize (atlasSize) {
+        vec2.copy(this._atlasSize, atlasSize);
     }
-
-    @property({ type: Skeleton })
-    get skeleton () {
-        return this._skeleton;
-    }
-
-    set skeleton (skeleton: Skeleton | null) {
-        if (this._skeleton !== skeleton) {
-            this._skeleton = skeleton;
-        }
-    }
-
-    @property({ type: cc.Vec2 })
-    get atlasSize (): Vec2 {
+    get atlasSize () {
         return this._atlasSize;
     }
 
-    set atlasSize (atlasSize: Vec2) {
-        if (this._atlasSize.x !== atlasSize.x ||
-            this._atlasSize.y !== atlasSize.y) {
-            this._atlasSize = atlasSize;
-        }
+    @property
+    set offset (offset) {
+        vec2.copy(this._offset, offset);
     }
-
-    @property({ type: cc.Vec2 })
-    get offset (): Vec2 {
+    get offset () {
         return this._offset;
     }
 
-    set offset (offset: Vec2) {
-        if (this._offset.x !== offset.x ||
-            this._offset.y !== offset.y) {
-            this._offset = offset;
-        }
-    }
-
     @property({ type: Texture2D })
-    get albedoMap (): Texture2D | null {
+    get albedoMap () {
         return this._albedoMap;
     }
-
-    set albedoMap (albedoMap: Texture2D | null) {
+    set albedoMap (albedoMap) {
         if (this._albedoMap !== albedoMap) {
             this._albedoMap = albedoMap;
-
             if (this._albedoMap) {
                 _vec2.x = this._albedoMap.width;
                 _vec2.y = this._albedoMap.height;
@@ -104,21 +87,28 @@ export class AvatarUnit {
         }
     }
 
-    @property
-    private _mesh: Mesh | null = null;
-
-    @property
-    private _skeleton: Skeleton | null = null;
-
-    @property
-    private _offset: Vec2 = new Vec2(0, 0);
-
-    @property
-    private _atlasSize: Vec2 = new Vec2(256, 256);
-
-    @property
-    private _albedoMap: Texture2D | null = null;
+    @property({ type: SkinningModelComponent })
+    set source (comp: SkinningModelComponent | null) {
+        if (!comp) { return; }
+        this.mesh = comp.mesh;
+        this.skeleton = comp.skeleton;
+        this.skinningRoot = comp.skinningRoot;
+    }
+    get source () {
+        return null;
+    }
 }
+
+const getPrefix = (lca: Node, target: Node) => {
+    let prefix = '';
+    let cur: Node | null = target;
+    while (cur && cur !== lca) {
+        prefix = `${cur.name}/` + prefix;
+        cur = cur.parent;
+    }
+    return prefix;
+};
+const concatPath = (prefix: string, path: string) => path ? prefix + path : prefix.slice(0, -1);
 
 /**
  * !#en The Avatar Model Component
@@ -148,6 +138,11 @@ export class AvatarModelComponent extends SkinningModelComponent {
     @property({ override: true, visible: false })
     get skeleton () {
         return this._skeleton;
+    }
+
+    @property({ override: true, visible: false })
+    get skinningRoot () {
+        return this._skinningRoot;
     }
 
     @property({ type: Number })
@@ -189,10 +184,6 @@ export class AvatarModelComponent extends SkinningModelComponent {
         this.combine();
     }
 
-    public update (dt) {
-        super.update(dt);
-    }
-
     public onDestroy () {
         if (this._combinedTex) {
             this._combinedTex.destroy();
@@ -225,11 +216,6 @@ export class AvatarModelComponent extends SkinningModelComponent {
     }
 
     public combine () {
-        // batched skinning model shouldn't have local transform
-        this.node.setPosition(0, 0, 0);
-        this.node.setRotation(0, 0, 0, 1);
-        this.node.setScale(1, 1, 1);
-
         this.combineTextures();
         this.combineSkeletons();
         this.combineMeshes();
@@ -302,18 +288,39 @@ export class AvatarModelComponent extends SkinningModelComponent {
     }
 
     public combineSkeletons () {
+        // find lowest common ancestor as the new skinning root
+        let lca: Node | null = null;
+        for (const unit of this._avatarUnits) {
+            if (!unit || !unit.skinningRoot) { continue; }
+            const cur = unit.skinningRoot;
+            if (!lca) { lca = cur; continue; }
+            lca = LCA(lca, cur);
+        }
+        this._skinningRoot = lca;
+        if (!lca) { console.warn('illegal skinning roots'); return; }
+        // merge joints accordingly
         const skeleton = new Skeleton();
         for (const unit of this._avatarUnits) {
-            if (!unit || !unit.skeleton) { continue; }
+            if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
             const partial = unit.skeleton;
+            const prefix = getPrefix(lca, unit.skinningRoot);
             for (let i = 0; i < partial.joints.length; i++) {
-                const path = partial.joints[i];
+                const path = concatPath(prefix, partial.joints[i]);
                 const idx = skeleton.joints.findIndex((p) => p === path);
                 if (idx >= 0) { continue; }
                 skeleton.joints.push(path);
                 skeleton.bindposes.push(partial.bindposes[i]);
             }
         }
+        // sort the array to be more cache-friendly
+        const idxMap = [...Array(skeleton.joints.length).keys()].sort((a, b) => {
+            if (skeleton.joints[a] > skeleton.joints[b]) { return 1; }
+            if (skeleton.joints[a] < skeleton.joints[b]) { return -1; }
+            return 0;
+        });
+        skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
+        skeleton.bindposes = skeleton.bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
+        // apply
         super.skeleton = skeleton;
     }
 
@@ -332,7 +339,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
             this._mesh = new Mesh();
         }
 
-        if (!isValid) {
+        if (!isValid || !this._skinningRoot) {
             return;
         }
 
@@ -347,8 +354,12 @@ export class AvatarModelComponent extends SkinningModelComponent {
         const avatarLen = this._avatarUnits.length;
         for (let i = 0; i < avatarLen; i++) {
             const unit = this._avatarUnits[i];
-            if (!unit || !unit.skeleton) { continue; }
-            jointIndexMap[i] = unit.skeleton.joints.map((j) => this._skeleton!.joints.findIndex((ref) => j === ref));
+            if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
+            const prefix = getPrefix(this._skinningRoot, unit.skinningRoot);
+            jointIndexMap[i] = unit.skeleton.joints.map((j) => {
+                const path = concatPath(prefix, j);
+                return this._skeleton!.joints.findIndex((ref) => path === ref);
+            });
         }
 
         for (let i = 0; i < avatarLen; i++) {
