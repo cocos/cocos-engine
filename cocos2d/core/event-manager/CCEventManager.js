@@ -120,8 +120,7 @@ var eventManager = {
     _dirtyListeners: {},
     _inDispatch: 0,
     _isEnabled: false,
-    _renderOrderMap: {},
-    _nodePriorityIndex: 0,
+
 
     _internalCustomListenerIDs:[],
 
@@ -228,16 +227,8 @@ var eventManager = {
 
     _updateDirtyFlagForSceneGraph: function () {
         let locDirtyListeners = this._dirtyListeners
-        let dirty = false;
         for (var selKey in locDirtyListeners) {
             this._setDirty(selKey, this.DIRTY_SCENE_GRAPH_PRIORITY);
-            dirty = true;
-        }
-
-        if (dirty) {
-            this._nodePriorityIndex = 0;
-            let rootEntity = cc.director.getScene();
-            this._visitTarget(rootEntity);
         }
 
         this._dirtyListeners = {};
@@ -287,30 +278,11 @@ var eventManager = {
         }
     },
 
-    _visitTarget (node) {
-        // sortAllChildren is performed the next frame, but the event is executed immediately.
-        if (node._reorderChildDirty) {
-            node.sortAllChildren();
-        }
-        const children = node.children;
-        const childrenCount = children.length;
-        this._updateRenderOrder(node, ++this._nodePriorityIndex);
-        if (childrenCount > 0) {
-            let child;
-            for (let i = 0; i < childrenCount; i++) {
-                child = children[i];
-                if (child) {
-                    this._visitTarget(child);
-                }
-            }
-        }
-    },
-
     _sortEventListeners: function (listenerID) {
         var dirtyFlag = this.DIRTY_NONE, locFlagMap = this._priorityDirtyFlagMap;
         if (locFlagMap[listenerID])
             dirtyFlag = locFlagMap[listenerID];
-
+        
         if (dirtyFlag !== this.DIRTY_NONE) {
             // Clear the dirty flag first, if `rootNode` is null, then set its dirty flag of scene graph priority
             locFlagMap[listenerID] = this.DIRTY_NONE;
@@ -340,18 +312,26 @@ var eventManager = {
     },
 
     _sortEventListenersOfSceneGraphPriorityDes: function (l1, l2) {
-        var orders = eventManager._renderOrderMap;
-        var node1 = l1._getSceneGraphPriority(),
-            node2 = l2._getSceneGraphPriority(),
-            order1 = orders[node1._id],
-            order2 = orders[node2._id];
+        let node1 = l1._getSceneGraphPriority(),
+            node2 = l2._getSceneGraphPriority();
 
-        if (!l2 || !node2 || !order2)
+        if (!l2 || !node2 || node2.parent === null)
             return -1;
-        else if (!l1 || !node1 || !order1)
+        else if (!l1 || !node1 || node1.parent === null)
+            return 1;
+        
+        let p1 = node1, p2 = node2, ex = false;
+        while (p1.parent._id !== p2.parent._id){
+            p1 = p1.parent.parent == null ? (ex = true) && node2 : p1.parent;
+            p2 = p2.parent.parent == null ? (ex = true) && node1 : p2.parent;
+        }
+
+        if (p1._id === node2._id) 
+            return -1;
+        if (p1._id === node1._id)
             return 1;
 
-        return order2 - order1;
+        return ex ? (p1._localZOrder - p2._localZOrder) : (p2._localZOrder - p1._localZOrder);
     },
 
     _sortListenersOfFixedPriority: function (listenerID) {
@@ -619,7 +599,6 @@ var eventManager = {
             cc.js.array.remove(listeners, listener);
             if (listeners.length === 0)
                 delete this._nodeListenersMap[node._id];
-                delete this._renderOrderMap[node._id];
         }
     },
 
@@ -672,13 +651,6 @@ var eventManager = {
 
     _sortNumberAsc: function (a, b) {
         return a - b;
-    },
-
-    _updateRenderOrder: function (node, order) {
-        let selListeners = this._nodeListenersMap[node._id];
-        if (selListeners !== undefined) {
-            this._renderOrderMap[node._id] = order;
-        }   
     },
 
     /**
@@ -900,7 +872,6 @@ var eventManager = {
                 for (i = 0; i < listenersCopy.length; i++)
                     _t.removeListener(listenersCopy[i]);
                 delete _t._nodeListenersMap[listenerType._id];
-                delete _t._renderOrderMap[listenerType._id];
             }
 
             // Bug fix: ensure there are no references to the node in the list of listeners to be added.
