@@ -363,11 +363,8 @@ function quickFindIndex (ratios: number[], ratio: number) {
     return ~(floorIndex + 1);
 }
 
-function customLerpFxInvoker (from: ILerpable | null, to: ILerpable | null, t: number): ILerpable | null {
-    if (from && to) {
-        return from.lerp(to, t);
-    }
-    return null;
+function customLerpFxInvoker (from: ILerpable, to: ILerpable, t: number): any {
+    return from.lerp(to, t);
 }
 
 /**
