@@ -26,7 +26,8 @@ module.exports = {
             "toggleContainer": "https://docs.cocos.com/creator/manual/zh/components/toggleContainer.html",
             "slider": "https://docs.cocos.com/creator/manual/zh/components/slider.html",
             "block_input_events": "https://docs.cocos.com/creator/manual/zh/components/block-input-events.html",
-            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-wechatgame-sub-domain.html"
+            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-wechatgame-sub-domain.html",
+            "swan_subcontext_view": "https://docs.cocos.com/creator/manual/zh/publish/publish-baidugame-sub-domain.html"
         },
         'animation': {
             'default_clip': '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
@@ -268,6 +269,7 @@ module.exports = {
             "time_scale": "当前骨骼中所有动画的时间缩放率",
             "debug_slots": "是否显示 slot 的 debug 信息",
             "debug_bones": "是否显示 bone 的 debug 信息",
+            "debug_mesh": "是否显示 mesh 的 debug 信息",
             "premultipliedAlpha": "是否启用贴图预乘",
             "use_tint": "是否启用染色效果",
             "enabled_batch": "是否开启合批",

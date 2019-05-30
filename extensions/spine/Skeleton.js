@@ -216,6 +216,7 @@ sp.Skeleton = cc.Class({
                 var skinName = skinsEnum[value];
                 if (skinName !== undefined) {
                     this.defaultSkin = skinName;
+                    this.setSkin(this.defaultSkin);
                     if (CC_EDITOR && !cc.engine.isPlaying) {
                         this._refreshInspector();
                     }
@@ -355,6 +356,21 @@ sp.Skeleton = cc.Class({
         },
 
         /**
+         * !#en Indicates whether open debug mesh.
+         * !#zh 是否显示 mesh 的 debug 信息。
+         * @property {Boolean} debugMesh
+         * @default false
+         */
+        debugMesh: {
+            default: false,
+            editorOnly: true,
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_mesh',
+            notify () {
+                this._updateDebugDraw();
+            }
+        },
+
+        /**
          * !#en Enabled two color tint.
          * !#zh 是否启用染色效果。
          * @property {Boolean} useTint
@@ -407,6 +423,7 @@ sp.Skeleton = cc.Class({
 
     // CONSTRUCTOR
     ctor () {
+        this._effectDelegate = null;
         this._skeleton = null;
         this._rootBone = null;
         this._listener = null;
@@ -612,9 +629,9 @@ sp.Skeleton = cc.Class({
     },
 
     _updateCache (dt) {
-        let frames = this._frameCache.frames;
-        let totalTime = this._frameCache.totalTime;
-        let frameCount = frames.length;
+        let frameCache = this._frameCache;
+        let frames = frameCache.frames;
+        let frameTime = SkeletonCache.FrameTime;
 
         // Animation Start, the event diffrent from dragonbones inner event,
         // It has no event object.
@@ -624,8 +641,12 @@ sp.Skeleton = cc.Class({
         }
 
         this._accTime += dt;
-        let frameIdx = Math.floor(this._accTime / totalTime * frameCount);
-        if (frameIdx >= frameCount) {
+        let frameIdx = Math.floor(this._accTime / frameTime);
+        if (!frameCache.isCompleted) {
+            frameCache.updateToFrame(frameIdx);
+        }
+
+        if (frameCache.isCompleted && frameIdx >= frames.length) {
 
             // Animation complete, the event diffrent from dragonbones inner event,
             // It has no event object.
@@ -635,6 +656,8 @@ sp.Skeleton = cc.Class({
 
             this._playCount ++;
             if (this._playTimes > 0 && this._playCount >= this._playTimes) {
+                // set frame to end frame.
+                this._curFrame = frames[frames.length - 1];
                 this._accTime = 0;
                 this._playCount = 0;
                 this._isAniComplete = true;
@@ -643,7 +666,6 @@ sp.Skeleton = cc.Class({
             this._accTime = 0;
             frameIdx = 0;
         }
-
         this._curFrame = frames[frameIdx];
     },
 
@@ -673,12 +695,13 @@ sp.Skeleton = cc.Class({
             
             let material = this.sharedMaterials[0];
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('spine', this);
-                material.define('_USE_MODEL', true);
+                material = Material.getInstantiatedBuiltinMaterial('2d-spine', this);
             }
             else {
                 material = Material.getInstantiatedMaterial(material, this);
             }
+
+            material.define('_USE_MODEL', true);
 
             this.setMaterial(0, material);
             this.markForRender(true);
@@ -693,6 +716,16 @@ sp.Skeleton = cc.Class({
     onRestore () {
         // Destroyed and restored in Editor
         this._boundingBox = cc.rect();
+    },
+
+    /**
+     * !#en Sets vertex effect delegate.
+     * !#zh 设置顶点动画代理
+     * @method setVertexEffectDelegate
+     * @param {sp.VertexEffectDelegate} effectDelegate
+     */
+    setVertexEffectDelegate (effectDelegate) {
+        this._effectDelegate = effectDelegate;
     },
 
     // RENDERER
@@ -837,19 +870,16 @@ sp.Skeleton = cc.Class({
      *
      * @method setSkin
      * @param {String} skinName
-     * @return {sp.spine.Skin}
      */
     setSkin (skinName) {
         if (this.isAnimationCached()) {
-            this._skeletonCache.resetSkeleton();
             this._skeletonCache.updateSkeletonSkin(this.skeletonData._uuid, skinName);
-            this._animationName && (this.animation = this._animationName);
         } else {
             if (this._skeleton) {
-                return this._skeleton.setSkinByName(skinName);
+                this._skeleton.setSkinByName(skinName);
+                this._skeleton.setSlotsToSetupPose();
             }
         }
-        return null;
     },
 
     /**
@@ -939,7 +969,8 @@ sp.Skeleton = cc.Class({
             }
             let cache = this._skeletonCache.getAnimationCache(this.skeletonData._uuid, name);
             if (!cache) {
-                cache = this._skeletonCache.updateAnimationCache(this.skeletonData._uuid, name);
+                cache = this._skeletonCache.initAnimationCache(this.skeletonData._uuid, name);
+                cache.begin();
             }
             if (cache) {
                 this._isAniComplete = false;

@@ -123,10 +123,11 @@ var LocalDirtyFlag = cc.Enum({
 /**
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
- * @enum Node.EventType
+ * @class Node.EventType
  * @static
  * @namespace Node
  */
+// Why EventType defined as class, because the first parameter of Node.on method needs set as 'string' type.
 var EventType = cc.Enum({
     /**
      * !#en The event type for touch start event, you can use its value directly: 'touchstart'
@@ -552,8 +553,8 @@ let NodeDefines = {
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: cc.Vec3,
-        _scale: cc.v3(1, 1, 1),
-        _quat: cc.Quat,
+        _scale: cc.Vec3.ONE,
+        _eulerAngles: cc.Vec3,
         _skewX: 0.0,
         _skewY: 0.0,
         _zIndex: {
@@ -759,6 +760,10 @@ let NodeDefines = {
          * !#zh 该节点的欧拉角度，用于 3D 项目。
          * @property eulerAngles
          * @type {Vec3}
+         * @example
+         * node.is3DNode = true;
+         * node.eulerAngles = cc.v3(45, 45, 45);
+         * cc.log("Node eulerAngles (X, Y, Z): " + node.eulerAngles.toString());
          */
 
         /**
@@ -766,10 +771,11 @@ let NodeDefines = {
          * !#zh 该节点 X 轴旋转角度。
          * @property rotationX
          * @type {Number}
-         * @example
          * @deprecated since v2.1
-         * node.rotationX = 45;
-         * cc.log("Node Rotation X: " + node.rotationX);
+         * @example
+         * node.is3DNode = true;
+         * node.eulerAngles = cc.v3(45, 0, 0);
+         * cc.log("Node eulerAngles X: " + node.eulerAngles.x);
          */
         rotationX: {
             get () {
@@ -800,10 +806,11 @@ let NodeDefines = {
          * !#zh 该节点 Y 轴旋转角度。
          * @property rotationY
          * @type {Number}
-         * @example
          * @deprecated since v2.1
-         * node.rotationY = 45;
-         * cc.log("Node Rotation Y: " + node.rotationY);
+         * @example
+         * node.is3DNode = true;
+         * node.eulerAngles = cc.v3(0, 45, 0);
+         * cc.log("Node eulerAngles Y: " + node.eulerAngles.y);
          */
         rotationY: {
             get () {
@@ -1169,7 +1176,7 @@ let NodeDefines = {
         this._cullingMask = 1;
         this._childArrivalOrder = 1;
 
-        this._eulerAngles = cc.v3();
+        this._quat = cc.quat();
     },
 
     statics: {
@@ -1318,21 +1325,22 @@ let NodeDefines = {
         }
 
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
-        // Update quaternion from rotation, when upgrade from 1.x to 2.0
+        // Update eulerAngles from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
-        let quat = this._quat;
+        let eulerAngles = this._eulerAngles;
         if ((this._rotationX || this._rotationY) &&
-            (quat.x === 0 && quat.y === 0 && quat.z === 0 && quat.w === 1)) {
+            (eulerAngles.x === 0 && eulerAngles.y === 0 && eulerAngles.z === 0)) {
             if (this._rotationX === this._rotationY) {
-                quat.fromEuler(quat, 0, 0, -this._rotationX);
+                eulerAngles.z = -this._rotationX;
             }
             else {
-                quat.fromEuler(quat, this._rotationX, this._rotationY, 0);
+                eulerAngles.x = this._rotationX;
+                eulerAngles.y = this._rotationY;
             }
             this._rotationX = this._rotationY = undefined;
         }
 
-        this._toEuler();
+        this._fromEuler();
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
         // TODO: Remove after final version
@@ -1346,13 +1354,6 @@ let NodeDefines = {
      * The initializer for Node which will be called before all components onLoad
      */
     _onBatchCreated () {
-        this._upgrade_1x_to_2x();
-
-        this._updateOrderOfArrival();
-
-        // synchronize _cullingMask
-        this._cullingMask = 1 << _getActualGroupIndex(this);
-
         let prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
             if (CC_DEV) {
@@ -1361,6 +1362,13 @@ let NodeDefines = {
             }
             PrefabHelper.syncWithPrefab(this);
         }
+
+        this._upgrade_1x_to_2x();
+
+        this._updateOrderOfArrival();
+
+        // synchronize _cullingMask
+        this._cullingMask = 1 << _getActualGroupIndex(this);
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1558,7 +1566,6 @@ let NodeDefines = {
      */
     once (type, callback, target, useCapture) {
         let forDispatch = this._checknSetupSysEvent(type);
-        let eventType_hasOnceListener = '__ONCE_FLAG:' + type;
 
         let listeners = null;
         if (forDispatch && useCapture) {
@@ -1568,17 +1575,7 @@ let NodeDefines = {
             listeners = this._bubblingListeners = this._bubblingListeners || new EventTarget();
         }
 
-        let hasOnceListener = listeners.hasEventListener(eventType_hasOnceListener, callback, target);
-        if (!hasOnceListener) {
-            let self = this;
-            let onceWrapper = function (arg1, arg2, arg3, arg4, arg5) {
-                self.off(type, onceWrapper, target);
-                listeners.remove(eventType_hasOnceListener, callback, target);
-                callback.call(this, arg1, arg2, arg3, arg4, arg5);
-            };
-            this.on(type, onceWrapper, target);
-            listeners.add(eventType_hasOnceListener, callback, target);
-        }
+        listeners.once(type, callback, target);
     },
 
     _onDispatch (type, callback, target, useCapture) {
@@ -1602,10 +1599,15 @@ let NodeDefines = {
         }
 
         if ( !listeners.hasEventListener(type, callback, target) ) {
-            listeners.add(type, callback, target);
+            listeners.on(type, callback, target);
 
-            if (target && target.__eventTargets)
-                target.__eventTargets.push(this);
+            if (target) {
+                if (target.__eventTargets) {
+                    target.__eventTargets.push(this);
+                } else if (target.node && target.node.__eventTargets) {
+                    target.node.__eventTargets.push(this);
+                }
+            }
         }
 
         return callback;
@@ -1689,10 +1691,14 @@ let NodeDefines = {
         else {
             var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
             if (listeners) {
-                listeners.remove(type, callback, target);
+                listeners.off(type, callback, target);
 
-                if (target && target.__eventTargets) {
-                    js.array.fastRemove(target.__eventTargets, this);
+                if (target) {
+                    if (target.__eventTargets) {
+                        js.array.fastRemove(target.__eventTargets, this);
+                    } else if (target.node && target.node.__eventTargets) {
+                        js.array.fastRemove(target.node.__eventTargets, this);
+                    }
                 }
             }
 
@@ -1849,7 +1855,10 @@ let NodeDefines = {
         }
 
         this._updateWorldMatrix();
-        mat4.invert(_mat4_temp, this._worldMatrix);
+        // If scale is 0, it can't be hit.
+        if (!mat4.invert(_mat4_temp, this._worldMatrix)) {
+            return false;
+        }
         vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;

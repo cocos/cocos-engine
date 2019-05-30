@@ -23,13 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 const MaxCacheTime = 30;
+const FrameTime = 1 / 60; 
 
 let _vertices = [];
 let _indices = [];
 let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
-let _frameTime = 1 / 60;
 let _preTexUrl = null;
 let _preBlendMode = null;
 let _segVCount = 0;
@@ -44,13 +44,17 @@ let AnimationCache = cc.Class({
     ctor () {
         this.frames = [];
         this.totalTime = 0;
+        this.isCompleted = false;
+        this._frameIdx = -1;
 
+        this._armatureInfo = null;
         this._animationName = null;
         this._tempSegments = null;
         this._tempColors = null;
     },
 
-    init (animationName) {
+    init (armatureInfo, animationName) {
+        this._armatureInfo = armatureInfo;
         this._animationName = animationName;
     },
 
@@ -62,24 +66,58 @@ let AnimationCache = cc.Class({
         }
     },
 
-    update (armature) {
-        if (!this._animationName) {
-            cc.error("AnimationCache:update animationName is empty");
-            return;
+    begin () {
+        let armatureInfo = this._armatureInfo;
+        if (armatureInfo.curAnimationCache) {
+            armatureInfo.curAnimationCache.updateToFrame();
         }
+        let armature = armatureInfo.armature;
         let animation = armature.animation;
         animation.play(this._animationName, 1);
-        let frameIdx = 0;
+
+        armatureInfo.curAnimationCache = this;
+        this._frameIdx = -1;
         this.totalTime = 0;
+        this.isCompleted = false;
+    },
+
+    end () {
+        if (!this._needToUpdate()) {
+            this._armatureInfo.curAnimationCache = null;
+            this.frames.length = this._frameIdx + 1;
+            this.isCompleted = true;
+        }
+    },
+
+    _needToUpdate (toFrameIdx) {
+        let armatureInfo = this._armatureInfo;
+        let armature = armatureInfo.armature;
+        let animation = armature.animation;
+        return !animation.isCompleted && 
+                this.totalTime < MaxCacheTime && 
+                (toFrameIdx == undefined || this._frameIdx < toFrameIdx);
+    },
+
+    updateToFrame (toFrameIdx) {
+        if (!this._needToUpdate(toFrameIdx)) return;
+
+        let armatureInfo = this._armatureInfo;
+        let armature = armatureInfo.armature;
+
         do {
             // Solid update frame rate 1/60.
-            armature.advanceTime(_frameTime);
-            this._updateFrame(armature, frameIdx);
-            frameIdx++;
-            this.totalTime += _frameTime;
-        } while (!animation.isCompleted && this.totalTime < MaxCacheTime);
-        // Update frame length.
-        this.frames.length = frameIdx;
+            armature.advanceTime(FrameTime);
+            this._frameIdx++;
+            this._updateFrame(armature, this._frameIdx);
+            this.totalTime += FrameTime;
+        } while (this._needToUpdate(toFrameIdx));
+       
+        this.end();
+    },
+
+    updateAllFrame () {
+        this.begin();
+        this.updateToFrame();
     },
 
     _updateFrame (armature, index) {
@@ -315,6 +353,7 @@ let ArmatureCache = cc.Class({
                 // Cache all kinds of animation frame.
                 // When armature is dispose, clear all animation cache.
                 animationsCache : {},
+                curAnimationCache: null,
             };
         } else {
             armature = armatureInfo.armature;
@@ -330,7 +369,9 @@ let ArmatureCache = cc.Class({
         return animationsCache[animationName];
     },
 
-    updateAnimationCache (armatureKey, animationName) {
+    initAnimationCache (armatureKey, animationName) {
+        if (!animationName) return null;
+
         let armatureInfo = this._armatureCache[armatureKey];
         let armature = armatureInfo && armatureInfo.armature;
         if (!armature) return null;
@@ -348,11 +389,17 @@ let ArmatureCache = cc.Class({
                 delete this._animationPool[poolKey];
             } else {
                 animationCache = new AnimationCache();
-                animationCache.init(animationName);
             }
+            animationCache.init(armatureInfo, animationName);
             animationsCache[animationName] = animationCache;
         }
-        animationCache.update(armature);
+        return animationCache;
+    },
+
+    updateAnimationCache (armatureKey, animationName) {
+        let animationCache = this.initAnimationCache(armatureKey, animationName);
+        if (!animationCache) return;
+        animationCache.updateAllFrame();
         if (animationCache.totalTime >= MaxCacheTime) {
             cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change armature render mode to REALTIME, dragonbones uuid is [%s], animation name is [%s]", armatureKey, animationName);
         }
@@ -360,6 +407,7 @@ let ArmatureCache = cc.Class({
     }
 });
 
+ArmatureCache.FrameTime = FrameTime;
 ArmatureCache.sharedCache = new ArmatureCache();
 ArmatureCache.canCache = function (armature) {
     let slots = armature._slots;

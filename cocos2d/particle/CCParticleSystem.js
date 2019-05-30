@@ -1221,15 +1221,14 @@ var ParticleSystem = cc.Class({
 
         let material = this.sharedMaterials[0];
         if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-            material.define('USE_TEXTURE', true);
-            // In case the plist lost positionType
-            material.define('_USE_MODEL', this._positionType !== PositionType.FREE);
+            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
         }
         else {
             material = Material.getInstantiatedMaterial(material, this);
         }
 
+        // In case the plist lost positionType
+        material.define('_USE_MODEL', this._positionType !== PositionType.FREE);
         material.setProperty('texture', this._texture);
 
         this.setMaterial(0, material);

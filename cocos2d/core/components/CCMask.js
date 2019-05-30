@@ -369,9 +369,13 @@ let Mask = cc.Class({
             // Init material
             let material = this.sharedMaterials[0];
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-                material.define('USE_ALPHA_TEST', true);
+                material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
             }
+            else {
+                material = Material.getInstantiatedMaterial(material, this);
+            }
+
+            material.define('USE_ALPHA_TEST', true);
 
             // Reset material
             if (this._type === MaskType.IMAGE_STENCIL) {
@@ -388,11 +392,11 @@ let Mask = cc.Class({
             }
 
             if (!this._enableMaterial) {
-                this._enableMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
+                this._enableMaterial = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
             }
         
             if (!this._exitMaterial) {
-                this._exitMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
+                this._exitMaterial = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
                 let passes = this._exitMaterial.effect.getDefaultTechnique().passes;
                 for (let i = 0; i < passes.length; i++) {
                     passes[i].setStencilEnabled(gfx.STENCIL_DISABLE);
@@ -476,7 +480,10 @@ let Mask = cc.Class({
             testPt = _vec2_temp;
         
         node._updateWorldMatrix();
-        mat4.invert(_mat4_temp, node._worldMatrix);
+        // If scale is 0, it can't be hit.
+        if (!mat4.invert(_mat4_temp, node._worldMatrix)) {
+            return false;
+        }
         vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += node._anchorPoint.x * w;
         testPt.y += node._anchorPoint.y * h;

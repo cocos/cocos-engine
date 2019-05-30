@@ -423,6 +423,12 @@ let VideoPlayerImpl = cc.Class({
         if (!this._video || !this._visible) return;
 
         node.getWorldMatrix(_mat4_temp);
+
+        let renderCamera = cc.Camera._findRendererCamera(node);
+        if (renderCamera) {
+            renderCamera.worldMatrixToScreen(_mat4_temp, _mat4_temp, cc.visibleRect.width, cc.visibleRect.height);
+        }
+
         if (!this._forceUpdate &&
             this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
             this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
@@ -535,9 +541,11 @@ VideoPlayerImpl._polyfill = {
  * But native does not support this encode,
  * so it is best to provide mp4 and webm or ogv file
  */
+// TODO: move into adapter
+const isXiaomiGame = (cc.sys.platform === cc.sys.XIAOMI_GAME);
 const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
 let dom = document.createElement("video");
-if (!CC_WECHATGAME && !isBaiduGame) {
+if (!CC_WECHATGAME && !isBaiduGame && !isXiaomiGame) {
     if (dom.canPlayType("video/ogg")) {
         VideoPlayerImpl._polyfill.canPlayType.push(".ogg");
         VideoPlayerImpl._polyfill.canPlayType.push(".ogv");

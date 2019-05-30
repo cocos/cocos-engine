@@ -29,7 +29,7 @@ let ForwardRenderer = function () {
 ForwardRenderer.prototype = {
     constructor: ForwardRenderer,
 
-    _reset () {
+    clear () {
 
     },
 

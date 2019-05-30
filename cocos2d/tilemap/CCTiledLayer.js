@@ -1279,14 +1279,14 @@ let TiledLayer = cc.Class({
 
             let material = this.sharedMaterials[i];
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-                material.define('USE_TEXTURE', true);
-                material.define('_USE_MODEL', true);
+                material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
             }
             else {
                 material = Material.getInstantiatedMaterial(material, this);
             }
 
+            material.define('USE_TEXTURE', true);
+            material.define('_USE_MODEL', true);
             material.setProperty('texture', texture);
             this.setMaterial(i, material);
 

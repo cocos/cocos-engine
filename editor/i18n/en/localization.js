@@ -26,7 +26,8 @@ module.exports = {
             "toggleContainer": "https://docs.cocos.com/creator/manual/en/components/toggleContainer.html",
             "slider": "https://docs.cocos.com/creator/manual/en/components/slider.html",
             "block_input_events": "https://docs.cocos.com/creator/manual/en/components/block-input-events.html",
-            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-wechatgame-sub-domain.html"
+            "wx_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-wechatgame-sub-domain.html",
+            "swan_subcontext_view": "https://docs.cocos.com/creator/manual/en/publish/publish-baidugame-sub-domain.html"
         },
         "animation": {
             "default_clip": "When checking, the deault animation clip is automatically played.",
@@ -264,6 +265,7 @@ module.exports = {
             "time_scale": "The time scale of animations of this skeleton",
             "debug_slots": "Indicates whether show debug slots.",
             "debug_bones": "Indicates whether show debug bones.",
+            "debug_mesh": "Indicates whether show debug mesh.",
             "premultipliedAlpha": "Indicates whether to enable premultiplied alpha.",
             "use_tint": "Indicates whether to use tint effect.",
             "enabled_batch": "Indicates whether enabled batch model",

@@ -9,6 +9,7 @@ export default {
   LIGHT_DIRECTIONAL: 0,
   LIGHT_POINT: 1,
   LIGHT_SPOT: 2,
+  LIGHT_AMBIENT: 3,
 
   // shadows
   SHADOW_NONE: 0,

@@ -349,13 +349,14 @@ cc.Director.prototype = {
         if (eventManager)
             eventManager.setEnabled(false);
 
-        cc.renderer.clear();
-
         if (!CC_EDITOR) {
             if (cc.isValid(this._scene)) {
                 this._scene.destroy();
             }
             this._scene = null;
+
+            cc.renderer.clear();
+            cc.AssetLibrary.resetBuiltins();
         }
 
         this.stopAnimation();
@@ -963,11 +964,11 @@ cc.Director.prototype = {
     },
 
     __fastOn: function (type, callback, target) {
-        this.add(type, callback, target);
+        this.on(type, callback, target);
     },
 
     __fastOff: function (type, callback, target) {
-        this.remove(type, callback, target);
+        this.off(type, callback, target);
     },
 };
 

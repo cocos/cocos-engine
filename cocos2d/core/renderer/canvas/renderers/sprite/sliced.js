@@ -98,33 +98,47 @@ let renderer = {
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
         
-        data[0].x = -appx;
-        data[0].y = -appy;
-        data[1].x = leftWidth * xScale - appx;
-        data[1].y = bottomHeight * yScale - appy;
-        data[2].x = data[1].x + sizableWidth;
-        data[2].y = data[1].y + sizableHeight;
-        data[3].x = width - appx;
-        data[3].y = height - appy;
-
+        if (frame._rotated) {
+            data[0].y = -appx;
+            data[0].x = -appy;
+            data[1].y = rightWidth * xScale - appx;
+            data[1].x = bottomHeight * yScale - appy;
+            data[2].y = data[1].y + sizableWidth;
+            data[2].x = data[1].x + sizableHeight;
+            data[3].y = width - appx;
+            data[3].x = height - appy;
+        } else {
+            data[0].x = -appx;
+            data[0].y = -appy;
+            data[1].x = leftWidth * xScale - appx;
+            data[1].y = bottomHeight * yScale - appy;
+            data[2].x = data[1].x + sizableWidth;
+            data[2].y = data[1].y + sizableHeight;
+            data[3].x = width - appx;
+            data[3].y = height - appy;
+        }
+            
         renderData.vertDirty = false;
     },
 
     draw (ctx, comp) {
         let node = comp.node;
+        let frame = comp._spriteFrame;
         // Transform
         let matrix = node._worldMatrix;
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
         ctx.transform(a, b, c, d, tx, ty);
         ctx.scale(1, -1);
-
+        if (frame._rotated) {
+            ctx.rotate(- Math.PI / 2);
+        }
         // TODO: handle blend function
 
         // opacity
         utils.context.setGlobalAlpha(ctx, node.opacity / 255);
 
-        let tex = comp._spriteFrame._texture,
+        let tex = frame._texture,
             data = comp._renderData._data;
 
         let image = utils.getColorizedImage(tex, node._color);

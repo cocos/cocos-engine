@@ -23,6 +23,10 @@
   uniform vec4 cc_spotLightColor[_NUM_SPOT_LIGHTS];               // xyz spotExp
 #endif
 
+// ambient lights
+#if _NUM_AMBIENT_LIGHTS > 0
+  uniform vec4 cc_ambientColor[_NUM_AMBIENT_LIGHTS];             // xyz
+#endif
 
 struct LightInfo {
   vec3 lightDir;
