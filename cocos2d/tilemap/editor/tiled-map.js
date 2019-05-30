@@ -40,6 +40,8 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
     return cb(new Error(cc.debug.getError(7222, tmxFile)));
   }
 
+  var imageLayerTextures = [];
+  var imageLayerTextureNames = [];
   var textures = [];
   var tsxFiles = [];
   var textureNames = [];
@@ -81,7 +83,25 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
     parseTilesetImages(tileset, tmxFile);
   }
 
-  cb(null, { textures, tsxFiles, textureNames });
+  var imageLayerElements = rootElement.getElementsByTagName('imagelayer');
+  for (var ii = 0, nn = imageLayerElements.length; ii < nn; ii++) {
+    var imageLayer = imageLayerElements[ii];
+    var imageInfos = imageLayer.getElementsByTagName('image');
+    if (imageInfos && imageInfos.length > 0) {
+        var imageInfo = imageInfos[0];
+        var imageSource = imageInfo.getAttribute('source');
+        var imgPath = Path.join(Path.dirname(tmxFile), imageSource);
+        if (Fs.existsSync(imgPath)) {
+            imageLayerTextures.push(imgPath);
+            let imgName = Path.relative(Path.dirname(tmxFile), imgPath);
+            imgName = imgName.replace(/\\/g, '\/');
+            imageLayerTextureNames.push(imgName);
+        } else {
+            Editor.warn('Parse %s failed.', imgPath);
+        }
+    }
+  }
+  cb(null, { textures, tsxFiles, textureNames, imageLayerTextures, imageLayerTextureNames});
 }
 
 const AssetRootUrl = 'db://assets/';
@@ -93,9 +113,11 @@ class TiledMapMeta extends CustomAssetMeta {
     this._textures = [];
     this._tsxFiles = [];
     this._textureNames = [];
+    this._imageLayerTextures = [];
+    this._imageLayerTextureNames = [];
   }
 
-  static version () { return '2.0.1'; }
+  static version () { return '2.0.2'; }
   static defaultType() { return 'tiled-map'; }
 
   import (fspath, cb) {
@@ -113,6 +135,8 @@ class TiledMapMeta extends CustomAssetMeta {
         this._textures = info.textures;
         this._tsxFiles = info.tsxFiles;
         this._textureNames = info.textureNames;
+        this._imageLayerTextures = info.imageLayerTextures;
+        this._imageLayerTextureNames = info.imageLayerTextureNames;
 
         cb();
       });
@@ -125,10 +149,17 @@ class TiledMapMeta extends CustomAssetMeta {
     asset.name = Path.basenameNoExt(fspath);
     asset.tmxXmlStr = this._tmxData;
     asset.textures = this._textures.map(p => {
-      var uuid = db.fspathToUuid(p);
-      return uuid ? Editor.serialize.asAsset(uuid) : null;
+        var uuid = db.fspathToUuid(p);
+        return uuid ? Editor.serialize.asAsset(uuid) : null;
     });
     asset.textureNames = this._textureNames;
+
+    asset.imageLayerTextures = this._imageLayerTextures.map(p => {
+        var uuid = db.fspathToUuid(p);
+        return uuid ? Editor.serialize.asAsset(uuid) : null;
+    });
+    asset.imageLayerTextureNames = this._imageLayerTextureNames;
+
     asset.tsxFiles = this._tsxFiles.map(p => {
         var tsxPath = Path.join(Path.dirname(fspath), p);
         var uuid = db.fspathToUuid(tsxPath);
