@@ -48,8 +48,8 @@ let _vec3_temp = vec3.create();
 let _leftDown = {row:0, col:0};
 let _tempUV = {r:0, l:0, t:0, b:0};
 
-let _renderData = null, _ia = null, _fillGrids = 0;
-    _vfOffset = 0, _moveX = 0, _moveY = 0, _layerMat = null;
+let _renderData = null, _ia = null, _fillGrids = 0,
+    _vfOffset = 0, _moveX = 0, _moveY = 0, _layerMat = null,
     _renderer = null, _renderDataList = null, _buffer = null, 
     _curMaterial = null, _comp = null;
 
