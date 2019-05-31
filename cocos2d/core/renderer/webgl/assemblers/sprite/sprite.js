@@ -23,6 +23,43 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-module.exports = {
-    datas: []
+const Sprite = require('../../../../components/CCSprite');
+const SpriteType = Sprite.Type;
+const FillType = Sprite.FillType;
+
+// Inline all type switch to avoid jit deoptimization during inlined function change
+let spriteAssembler = {
+    getAssembler (sprite) {
+        let is3DNode = sprite.node.is3DNode;
+        
+        let util = is3DNode ? this.simple3D : this.simple;
+        switch (sprite.type) {
+            case SpriteType.SLICED:
+                util = is3DNode ? this.sliced3D : this.sliced;
+                break;
+            case SpriteType.TILED:
+                util = is3DNode ? this.tiled3D : this.tiled;
+                break;
+            case SpriteType.FILLED:
+                if (sprite._fillType === FillType.RADIAL) {
+                    util = is3DNode ? this.radialFilled3D : this.radialFilled;
+                }
+                else {
+                    util = is3DNode ? this.barFilled3D : this.barFilled;
+                }
+                break;
+            case SpriteType.MESH:
+                util = is3DNode ? this.mesh3D : this.mesh;
+                break;
+        }
+
+        return util;
+    },
+
+    // Skip invalid sprites (without own _assembler)
+    updateRenderData (sprite) {
+        return sprite.__allocedDatas;
+    }
 };
+
+module.exports = Sprite._assembler = cc.assemblers.sprite = spriteAssembler;

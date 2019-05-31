@@ -294,7 +294,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillCenter.x = value.x;
                 this._fillCenter.y = value.y;
-                if (this._type === SpriteType.FILLED && this._renderData) {
+                if (this._type === SpriteType.FILLED) {
                     this.setVertsDirty();
                     this.markForUpdateRenderData(true);
                 }
@@ -319,7 +319,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillStart = misc.clampf(value, -1, 1);
-                if (this._type === SpriteType.FILLED && this._renderData) {
+                if (this._type === SpriteType.FILLED) {
                     this.setVertsDirty();
                     this.markForUpdateRenderData(true);
                 }
@@ -344,7 +344,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillRange = misc.clampf(value, -1, 1);
-                if (this._type === SpriteType.FILLED && this._renderData) {
+                if (this._type === SpriteType.FILLED) {
                     this.setVertsDirty();
                     this.markForUpdateRenderData(true);
                 }
@@ -366,8 +366,7 @@ var Sprite = cc.Class({
             set: function (value) {
                 if (this._isTrimmedMode !== value) {
                     this._isTrimmedMode = value;
-                    if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) && 
-                        this._renderData) {
+                    if (this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) {
                         this.setVertsDirty();
                         this.markForUpdateRenderData(true);
                     }
@@ -457,6 +456,7 @@ var Sprite = cc.Class({
         if (this._assembler !== assembler) {
             this._assembler = assembler;
             this._renderData = null;
+            this._renderHandle.meshCount = 0;
         }
 
         if (!this._renderData) {

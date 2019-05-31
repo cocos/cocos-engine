@@ -23,8 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const fillVertices = require('../../utils').fillVertices;
+const spriteAssembler = require('../sprite');
 const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
+const FlexBuffer = require('../../../flex-buffer');
+const base = require('./base');
 
 const PI_2 = Math.PI * 2;
 
@@ -170,58 +172,20 @@ function _getVertAngle (start, end) {
     }
 }
 
-function _generateTriangle (verts, offset, vert0, vert1, vert2) {
-    let vertices = _vertices;
-    let v0x = vertices[0];
-    let v0y = vertices[1];
-    let v1x = vertices[2];
-    let v1y = vertices[3];
 
-    verts[offset].x = vert0.x;
-    verts[offset].y = vert0.y;
-    verts[offset + 1].x = vert1.x;
-    verts[offset + 1].y = vert1.y;
-    verts[offset + 2].x = vert2.x;
-    verts[offset + 2].y = vert2.y;
-
-    let progressX, progressY;
-    progressX = (vert0.x - v0x) / (v1x - v0x);
-    progressY = (vert0.y - v0y) / (v1y - v0y);
-    _generateUV(progressX, progressY, verts, offset);
-
-    progressX = (vert1.x - v0x) / (v1x - v0x);
-    progressY = (vert1.y - v0y) / (v1y - v0y);
-    _generateUV(progressX, progressY, verts, offset + 1);
-
-    progressX = (vert2.x - v0x) / (v1x - v0x);
-    progressY = (vert2.y - v0y) / (v1y - v0y);
-    _generateUV(progressX, progressY, verts, offset + 2);
-}
-
-function _generateUV (progressX, progressY, verts, offset) {
-    let uvs = _uvs;
-    let px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
-    let px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
-    let py1 = uvs[1] + (uvs[3] - uvs[1]) * progressX;
-    let py2 = uvs[5] + (uvs[7] - uvs[5]) * progressX;
-    let uv = verts[offset];
-    uv.u = px1 + (px2 - px1) * progressY;
-    uv.v = py1 + (py2 - py1) * progressY;
-}
-
-module.exports = {
+module.exports = spriteAssembler.radialFilled = cc.js.addon({
     createData (sprite) {
-        return sprite.requestRenderData();
+        sprite._renderHandle._local = [];
+        let bytes = 24 * (this.verticesFloats + 2);
+        sprite._renderHandle._flexBuffer = new FlexBuffer(bytes);
     },
 
     updateRenderData (sprite) {
         let frame = sprite.spriteFrame;
+        if (!frame) return;
         packToDynamicAtlas(sprite, frame);
 
-        let renderData = sprite._renderData;
-        if (renderData && frame && sprite._vertsDirty) {
-            let verts = renderData.vertices;
-
+        if (sprite._vertsDirty) {
             let fillStart = sprite._fillStart;
             let fillRange = sprite._fillRange;
             if (fillRange < 0) {
@@ -235,7 +199,6 @@ module.exports = {
 
             fillStart *= PI_2;
             fillRange *= PI_2;
-            let fillEnd = fillStart + fillRange;
 
             //build vertices
             _calculateVertices(sprite);
@@ -245,81 +208,167 @@ module.exports = {
             _calcInsectedPoints(_vertices[0], _vertices[2], _vertices[1], _vertices[3], _center, fillStart, _intersectPoint_1);
             _calcInsectedPoints(_vertices[0], _vertices[2], _vertices[1], _vertices[3], _center, fillStart + fillRange, _intersectPoint_2);
 
-            let offset = 0;
-            for (let triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
-                let triangle = _triangles[triangleIndex];
-                if (!triangle) {
-                    continue;
-                }
-                //all in
-                if (fillRange >= PI_2) {
-                    renderData.dataLength = offset + 3;
-                    _generateTriangle(verts, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
-                    offset += 3;
-                    continue;
-                }
-                //test against
-                let startAngle = _getVertAngle(_center, _vertPos[triangle[0]]);
-                let endAngle = _getVertAngle(_center, _vertPos[triangle[1]]);
-                if (endAngle < startAngle) endAngle += PI_2;
-                startAngle -= PI_2;
-                endAngle -= PI_2;
-                //testing
-                for (let testIndex = 0; testIndex < 3; ++testIndex) {
-                    if (startAngle >= fillEnd) {
-                        //all out
-                    } else if (startAngle >= fillStart) {
-                        renderData.dataLength = offset + 3;
-                        if (endAngle >= fillEnd) {
-                            //startAngle to fillEnd
-                            _generateTriangle(verts, offset, _center, _vertPos[triangle[0]], _intersectPoint_2[triangleIndex]);
-                        } else {
-                            //startAngle to endAngle
-                            _generateTriangle(verts, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
-                        }
-                        offset += 3;
-                    } else {
-                        //startAngle < fillStart
-                        if (endAngle <= fillStart) {
-                            //all out
-                        } else if (endAngle <= fillEnd) {
-                            renderData.dataLength = offset + 3;
-                            //fillStart to endAngle
-                            _generateTriangle(verts, offset, _center, _intersectPoint_1[triangleIndex], _vertPos[triangle[1]]);
-                            offset += 3;
-                        } else {
-                            renderData.dataLength = offset + 3;
-                            //fillStart to fillEnd
-                            _generateTriangle(verts, offset, _center, _intersectPoint_1[triangleIndex], _intersectPoint_2[triangleIndex]);
-                            offset += 3;
-                        }
-                    }
-                    //add 2 * PI
-                    startAngle += PI_2;
-                    endAngle += PI_2;
-                }
-            }
+            this.updateVerts(sprite, fillStart, fillRange);
 
-            renderData.indiceCount = renderData.vertexCount = offset;
             sprite._vertsDirty = false;
         }
     },
 
-    fillBuffers (comp, renderer) {
-        let node = comp.node,
-            color = node._color._val,
-            buffer = renderer._meshBuffer,
-            renderData = comp._renderData;
+    updateVerts (sprite, fillStart, fillRange) {
+        let fillEnd = fillStart + fillRange;
+        
+        let local = sprite._renderHandle._local;
 
-        let offsetInfo = fillVertices(node, buffer, renderData, color);
+        let offset = 0;
+        let floatsPerTriangle = 3 * this.floatsPerVert;
+        for (let triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
+            let triangle = _triangles[triangleIndex];
+            if (!triangle) {
+                continue;
+            }
+            //all in
+            if (fillRange >= PI_2) {
+                local.length = offset + floatsPerTriangle;
+                this._generateTriangle(local, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
+                offset += floatsPerTriangle;
+                continue;
+            }
+            //test against
+            let startAngle = _getVertAngle(_center, _vertPos[triangle[0]]);
+            let endAngle = _getVertAngle(_center, _vertPos[triangle[1]]);
+            if (endAngle < startAngle) endAngle += PI_2;
+            startAngle -= PI_2;
+            endAngle -= PI_2;
+            //testing
+            for (let testIndex = 0; testIndex < 3; ++testIndex) {
+                if (startAngle >= fillEnd) {
+                    //all out
+                } else if (startAngle >= fillStart) {
+                    local.length = offset + floatsPerTriangle;
+                    if (endAngle >= fillEnd) {
+                        //startAngle to fillEnd
+                        this._generateTriangle(local, offset, _center, _vertPos[triangle[0]], _intersectPoint_2[triangleIndex]);
+                    } else {
+                        //startAngle to endAngle
+                        this._generateTriangle(local, offset, _center, _vertPos[triangle[0]], _vertPos[triangle[1]]);
+                    }
+                    offset += floatsPerTriangle;
+                } else {
+                    //startAngle < fillStart
+                    if (endAngle <= fillStart) {
+                        //all out
+                    } else if (endAngle <= fillEnd) {
+                        local.length = offset + floatsPerTriangle;
+                        //fillStart to endAngle
+                        this._generateTriangle(local, offset, _center, _intersectPoint_1[triangleIndex], _vertPos[triangle[1]]);
+                        offset += floatsPerTriangle;
+                    } else {
+                        local.length = offset + floatsPerTriangle;
+                        //fillStart to fillEnd
+                        this._generateTriangle(local, offset, _center, _intersectPoint_1[triangleIndex], _intersectPoint_2[triangleIndex]);
+                        offset += floatsPerTriangle;
+                    }
+                }
+                //add 2 * PI
+                startAngle += PI_2;
+                endAngle += PI_2;
+            }
+        }
 
-        let indiceOffset = offsetInfo.indiceOffset,
-            vertexId = offsetInfo.vertexOffset;
+        this.allocWorldVerts(sprite);
+        this.updateWorldVerts(sprite);
+    },
 
-        // buffer data may be realloc, need get reference after request.
-        let ibuf = buffer._iData;
-        for (let i = 0; i < renderData.dataLength; i++) {
-            ibuf[indiceOffset + i] = vertexId + i;
+    allocWorldVerts(sprite) {
+        let color = sprite.node._color._val;
+        let renderHandle = sprite._renderHandle;
+        let floatsPerVert = this.floatsPerVert;
+
+        let local = renderHandle._local;
+        let verticesCount = local.length / floatsPerVert;
+        
+        let vBytes = local.length * 4;
+        let iBytes = verticesCount * 2;
+
+        let vData = renderHandle.vDatas[0];
+        if (!vData || vData.length != verticesCount) {
+            let buffer = renderHandle._flexBuffer.buffer;
+            let vertices = new Float32Array(buffer, 0, vBytes / 4);
+            let indices = new Uint16Array(buffer, vBytes, iBytes / 2);
+            for (let i = 0; i < verticesCount; i ++) {
+                indices[i] = i;
+            }
+            renderHandle.updateMesh(0, vertices, indices);
+        }
+
+        let verts = renderHandle.vDatas[0],
+            uintVerts = renderHandle.uintVDatas[0];
+        
+        let uvOffset = this.uvOffset;
+        for (let offset = 0; offset < local.length; offset += floatsPerVert) {
+            let start = offset + uvOffset;
+            verts[start] = local[start];
+            verts[start + 1] = local[start + 1];
+            uintVerts[start + 2] = color;
         }
     },
-};
+
+    updateWorldVerts (sprite) {
+        let node = sprite.node;
+
+        let matrix = node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+
+        let local = sprite._renderHandle._local;
+        let world = sprite._renderHandle.vDatas[0];
+        let floatsPerVert = this.floatsPerVert;
+        for (let offset = 0; offset < world.length; offset += floatsPerVert) {
+            let x = local[offset];
+            let y = local[offset + 1];
+            world[offset] = x * a + y * c + tx;
+            world[offset+1] = x * b + y * d + ty;
+        }
+    },
+
+    _generateTriangle (verts, offset, vert0, vert1, vert2) {
+        let vertices = _vertices;
+        let v0x = vertices[0];
+        let v0y = vertices[1];
+        let v1x = vertices[2];
+        let v1y = vertices[3];
+
+        let floatsPerVert = this.floatsPerVert;
+        verts[offset] = vert0.x;
+        verts[offset + 1] = vert0.y;
+        verts[offset + floatsPerVert] = vert1.x;
+        verts[offset + floatsPerVert + 1] = vert1.y;
+        verts[offset + floatsPerVert*2] = vert2.x;
+        verts[offset + floatsPerVert*2 + 1] = vert2.y;
+
+        let uvOffset = this.uvOffset;
+        let progressX, progressY;
+        progressX = (vert0.x - v0x) / (v1x - v0x);
+        progressY = (vert0.y - v0y) / (v1y - v0y);
+        this._generateUV(progressX, progressY, verts, offset + uvOffset);
+
+        progressX = (vert1.x - v0x) / (v1x - v0x);
+        progressY = (vert1.y - v0y) / (v1y - v0y);
+        this._generateUV(progressX, progressY, verts, offset + floatsPerVert + uvOffset);
+
+        progressX = (vert2.x - v0x) / (v1x - v0x);
+        progressY = (vert2.y - v0y) / (v1y - v0y);
+        this._generateUV(progressX, progressY, verts, offset + floatsPerVert*2 + uvOffset);
+    },
+
+    _generateUV (progressX, progressY, verts, offset) {
+        let uvs = _uvs;
+        let px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
+        let px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
+        let py1 = uvs[1] + (uvs[3] - uvs[1]) * progressX;
+        let py2 = uvs[5] + (uvs[7] - uvs[5]) * progressX;
+        verts[offset] = px1 + (px2 - px1) * progressY;
+        verts[offset + 1] = py1 + (py2 - py1) * progressY;
+    },
+
+}, base);

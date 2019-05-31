@@ -1357,12 +1357,12 @@ let NodeDefines = {
         }
 
         // TODO: remove _quat in future version, 3.0 ?
-        let quat = this._quat;
-        if (quat !== undefined) {
-            trs[4] = quat.x;
-            trs[5] = quat.y;
-            trs[6] = quat.z;
-            trs[7] = quat.w;
+        let q = this._quat;
+        if (q !== undefined) {
+            trs[4] = q.x;
+            trs[5] = q.y;
+            trs[6] = q.z;
+            trs[7] = q.w;
             this._quat = undefined;
         }
         _quata.fromRotation(trs).toEuler(this._eulerAngles);

@@ -187,7 +187,7 @@ let Graphics = cc.Class({
         this._impl = null;
     },
 
-    initNativeHandle () {
+    _initNativeHandle () {
         this._renderHandle = new renderer.GraphicsRenderHandle();
         this._renderHandle.bind(this);
     },

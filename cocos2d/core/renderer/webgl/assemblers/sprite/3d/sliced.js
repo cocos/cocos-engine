@@ -23,76 +23,39 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const base = require('./base');
+const spriteAssembler = require('../sprite');
 const js = require('../../../../../platform/js');
-const assembler = require('../2d/sliced');
+const assembler2D = require('../2d/sliced');
 
 const vec3 = cc.vmath.vec3;
-const vec3_temp = vec3.create();
+const vec3_temp_local = vec3.create();
+const vec3_temp_world = vec3.create();
 
-module.exports = js.addon({
-    fillBuffers (sprite, renderer) {
-        if (renderer.worldMatDirty) {
-            this.updateWorldVerts(sprite);
-        }
-
-        let renderData = sprite._renderData,
-            node = sprite.node,
-            color = node._color._val,
-            verts = renderData.vertices;
-
-        let buffer = renderer._meshBuffer3D,
-            vertexCount = renderData.vertexCount;
-
-        let uvSliced = sprite.spriteFrame.uvSliced;
-        let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
-
-        // buffer data may be realloc, need get reference after request.
-        let vertexOffset = offsetInfo.byteOffset >> 2,
-            indiceOffset = offsetInfo.indiceOffset,
-            vertexId = offsetInfo.vertexOffset,
-            vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
-            ibuf = buffer._iData;
-
-        for (let i = 4; i < 20; ++i) {
-            let vert = verts[i];
-            let uvs = uvSliced[i - 4];
-
-            vbuf[vertexOffset++] = vert.x;
-            vbuf[vertexOffset++] = vert.y;
-            vbuf[vertexOffset++] = vert.z;
-            vbuf[vertexOffset++] = uvs.u;
-            vbuf[vertexOffset++] = uvs.v;
-            uintbuf[vertexOffset++] = color;
-        }
-
-        for (let r = 0; r < 3; ++r) {
-            for (let c = 0; c < 3; ++c) {
-                let start = vertexId + r * 4 + c;
-                ibuf[indiceOffset++] = start;
-                ibuf[indiceOffset++] = start + 1;
-                ibuf[indiceOffset++] = start + 4;
-                ibuf[indiceOffset++] = start + 1;
-                ibuf[indiceOffset++] = start + 5;
-                ibuf[indiceOffset++] = start + 4;
-            }
-        }
-    },
+module.exports = spriteAssembler.sliced3D = js.addon({
+    floatsPerVert: 6,
+    verticesFloats: 16 * 6,
 
     updateWorldVerts (sprite) {
-        let node = sprite.node,
-            verts = sprite._renderData.vertices;
+        let matrix = sprite.node._worldMatrix;
+        let renderHandle = sprite._renderHandle;
+        let local = renderHandle._local;
+        let world = renderHandle.vDatas[0];
 
-        let matrix = node._worldMatrix;
+        let floatsPerVert = this.floatsPerVert;
         for (let row = 0; row < 4; ++row) {
-            let rowD = verts[row];
+            let localRowY = local[row * 2 + 1];
             for (let col = 0; col < 4; ++col) {
-                let colD = verts[col];
-                let world = verts[4 + row * 4 + col];
+                let localColX = local[col * 2];
+                
+                vec3.set(vec3_temp_local, localColX, localRowY, 0);
+                vec3.transformMat4(vec3_temp_world, vec3_temp_local, matrix);
 
-                vec3.set(vec3_temp, colD.x, rowD.y, 0);
-                vec3.transformMat4(world, vec3_temp, matrix);
+                let worldIndex = (row * 4 + col) * floatsPerVert;
+                world[worldIndex] = vec3_temp_world.x;
+                world[worldIndex+1] = vec3_temp_world.y;
+                world[worldIndex+2] = vec3_temp_world.z;
             }
         }
     },
-}, assembler);
+}, base, assembler2D);

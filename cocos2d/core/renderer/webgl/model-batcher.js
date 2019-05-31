@@ -23,9 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const vertexFormat = require('./vertex-format');
-const defaultVertexFormat = vertexFormat.vfmtPosUvColor;
-const vfmt3D = vertexFormat.vfmt3D;
+const { vfmtPosUvColor, vfmt3D } = require('./vertex-format');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');
 const SpineBuffer = require('./spine-buffer');
@@ -60,11 +58,11 @@ var ModelBatcher = function (device, renderScene) {
     }, 16);
 
     // buffers
-    this._quadBuffer = this.getBuffer('quad', defaultVertexFormat);
-    this._meshBuffer = this.getBuffer('mesh', defaultVertexFormat);
+    this._quadBuffer = this.getBuffer('quad', vfmtPosUvColor);
+    this._meshBuffer = this.getBuffer('mesh', vfmtPosUvColor);
     this._quadBuffer3D = this.getBuffer('quad', vfmt3D);
     this._meshBuffer3D = this.getBuffer('mesh', vfmt3D);
-    this._buffer = this._quadBuffer;
+    this._buffer = this._meshBuffer;
 
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
@@ -104,7 +102,7 @@ ModelBatcher.prototype = {
         for (let key in _buffers) {
             _buffers[key].reset();
         }
-        this._buffer = this._quadBuffer;
+        this._buffer = this._meshBuffer;
 
         // reset caches for handle render components
         this.node = this._dummyNode;

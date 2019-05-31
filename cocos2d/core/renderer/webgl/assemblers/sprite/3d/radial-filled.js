@@ -23,25 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const spriteAssembler = require('../sprite');
 const js = require('../../../../../platform/js');
-const assembler = require('../2d/radial-filled');
-const fillVertices3D = require('../../utils').fillVertices3D;
+const assembler2D = require('../2d/radial-filled');
+const base = require('./base');
+const barFilled3D = require('./bar-filled');
 
-module.exports = js.addon({
-    fillBuffers (comp, renderer) {
-        let node = comp.node,
-            color = node._color._val,
-            buffer = renderer._meshBuffer3D,
-            renderData = comp._renderData;
-
-        let offsetInfo = fillVertices3D(node, buffer, renderData, color);
-        let indiceOffset = offsetInfo.indiceOffset,
-            vertexId = offsetInfo.vertexOffset;
-
-        // buffer data may be realloc, need get reference after request.
-        let ibuf = buffer._iData;
-        for (let i = 0; i < renderData.dataLength; i++) {
-            ibuf[indiceOffset + i] = vertexId + i;
-        }
-    },
-}, assembler);
+module.exports = spriteAssembler.radialFilled3D = js.addon({
+    updateWorldVerts: barFilled3D.updateWorldVerts
+}, base, assembler2D);

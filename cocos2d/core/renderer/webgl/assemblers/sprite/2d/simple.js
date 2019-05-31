@@ -23,22 +23,29 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
-module.exports = {
+const spriteAssembler = require('../sprite');
+const { packToDynamicAtlas } = require('../../../../utils/utils');
+
+module.exports = spriteAssembler.simple = {
+    createData (sprite) {
+        if (sprite._renderHandle.meshCount > 0) return;
+        sprite._renderHandle.createQuadData(0, 4, 6);
+    },
+
     updateRenderData (sprite) {
         let frame = sprite._spriteFrame;
+        if (!frame) return;
+
         packToDynamicAtlas(sprite, frame);
 
-        let renderData = sprite._renderData;
-        if (renderData && frame && sprite._vertsDirty) {
+        if (sprite._vertsDirty) {
             this.updateVerts(sprite);
             sprite._vertsDirty = false;
         }
     },
 
     fillBuffers (sprite, renderer) {
-        let verts = sprite._renderData.vertices,
-            node = sprite.node,
+        let node = sprite.node,
             color = node._color._val,
             matrix = node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
@@ -66,9 +73,9 @@ module.exports = {
         vbuf[vertexOffset + 17] = uv[6];
         vbuf[vertexOffset + 18] = uv[7];
 
-        let data0 = verts[0], data3 = verts[3],
-            vl = data0.x, vr = data3.x,
-            vb = data0.y, vt = data3.y;
+        let verts = sprite._renderHandle.vDatas[0],
+            vl = verts[0], vr = verts[2],
+            vb = verts[1], vt = verts[3];
 
         let al = a * vl, ar = a * vr,
             bl = b * vl, br = b * vr,
@@ -103,18 +110,8 @@ module.exports = {
         ibuf[indiceOffset++] = vertexId + 2;
     },
 
-    createData (sprite) {
-        let renderData = sprite.requestRenderData();
-        renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indiceCount = 6;
-        return renderData;
-    },
-
     updateVerts (sprite) {
-        let renderData = sprite._renderData,
-            node = sprite.node,
-            verts = renderData.vertices,
+        let node = sprite.node,
             cw = node.width, ch = node.height,
             appx = node.anchorX * cw, appy = node.anchorY * ch,
             l, b, r, t;
@@ -139,14 +136,16 @@ module.exports = {
             r = cw + trimRight * scaleX - appx;
             t = ch + trimTop * scaleY - appy;
         }
-        
-        verts[0].x = l;
-        verts[0].y = b;
-        // verts[1].x = r;
-        // verts[1].y = b;
-        // verts[2].x = l;
-        // verts[2].y = t;
-        verts[3].x = r;
-        verts[3].y = t;
+
+        this.setVerts(sprite, l, b, r, t);
+    },
+
+    setVerts (sprite, l, b, r, t) {
+        let verts = sprite._renderHandle.vDatas[0];
+
+        verts[0] = l;
+        verts[1] = b;
+        verts[2] = r;
+        verts[3] = t;
     }
 };

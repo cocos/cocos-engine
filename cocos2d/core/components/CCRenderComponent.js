@@ -25,10 +25,10 @@
 
 import gfx from '../../renderer/gfx';
 import RenderData from '../../renderer/render-data/render-data';
+import RenderHandle from '../renderer/render-handle';
 
 const Component = require('./CCComponent');
 const RenderFlow = require('../renderer/render-flow');
-const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const Material = require('../assets/material/CCMaterial');
 
 /**
@@ -77,13 +77,15 @@ let RenderComponent = cc.Class({
         this._assembler = this.constructor._assembler;
         this._postAssembler = this.constructor._postAssembler;
 
-        // Render handle for native system
         if (CC_JSB && CC_NATIVERENDERER) {
-            this.initNativeHandle();
+            this._initNativeHandle();   
+        }
+        else {
+            this._renderHandle = new RenderHandle();
         }
     },
 
-    initNativeHandle () {
+    _initNativeHandle () {
         this._renderHandle = new renderer.RenderHandle();
         this._renderHandle.bind(this);
     },
@@ -96,6 +98,7 @@ let RenderComponent = cc.Class({
 
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
@@ -108,6 +111,7 @@ let RenderComponent = cc.Class({
         this.node._renderComponent = null;
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
         this.disableRender();
     },
 
@@ -118,13 +122,6 @@ let RenderComponent = cc.Class({
         this.__allocedDatas.length = 0;
         this._materials.length = 0;
         this._renderData = null;
-
-        let uniforms = this._uniforms;
-        for (let name in uniforms) {
-            _uniformPool.remove(_uniformPool._data.indexOf(uniforms[name]));
-        }
-        this._uniforms = null;
-        this._defines = null;
     },
 
     setVertsDirty () {
@@ -221,6 +218,12 @@ let RenderComponent = cc.Class({
 
     _activateMaterial (force) {
     },
+
+    _updateColor () {
+        if (this._assembler.updateColor) {
+            this._assembler.updateColor(this);
+        }
+    }
 });
 RenderComponent._assembler = null;
 RenderComponent._postAssembler = null;

@@ -319,7 +319,7 @@ let Mask = cc.Class({
         this._removeGraphics();
     },
 
-    initNativeHandle () {
+    _initNativeHandle () {
         this._renderHandle = new renderer.MaskRenderHandle();
         this._renderHandle.bind(this);
     },
