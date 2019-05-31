@@ -214,6 +214,21 @@ let Animation = cc.Class({
             visible: true
         },
 
+        // This property is used to watch clip changes in editor.
+        // Don't use in your game, use addClip/removeClip instead.
+        _writableClips: {
+            get () {
+                return this._clips;
+            },
+            set (val) {
+                if (CC_EDITOR) {
+                    cc.error('NYI...');
+                }
+                this._clips = val;
+            },
+            type: [AnimationClip],
+        },
+
         /**
          * !#en Whether the animation should auto play the default clip when start game.
          * !#zh 是否在运行游戏后自动播放默认动画剪辑。
