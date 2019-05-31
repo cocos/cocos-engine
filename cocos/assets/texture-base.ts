@@ -401,7 +401,7 @@ export class TextureBase extends Asset {
             });
             if (!this.isCompressed) {
                 const defaultImg = cc.builtinResMgr.get('black-texture').image as ImageAsset;
-                this._uploadData(defaultImg.data as HTMLCanvasElement, level, arrayIndex);
+                this.uploadData(defaultImg.data as HTMLCanvasElement, level, arrayIndex);
             }
             postLoadImage(image);
         }
