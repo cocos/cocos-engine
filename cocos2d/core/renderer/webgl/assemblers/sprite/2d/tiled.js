@@ -82,7 +82,6 @@ module.exports = spriteAssembler.tiled = cc.js.addon({
                 indices[i + 5] = vid + 2;
             }
             renderHandle.updateMesh(0, vertices, indices);
-            this.updateColor(sprite);
         }
 
         if (sprite._vertsDirty) {

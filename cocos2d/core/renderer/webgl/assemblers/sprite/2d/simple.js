@@ -25,11 +25,13 @@
 
 const spriteAssembler = require('../sprite');
 const { packToDynamicAtlas } = require('../../../../utils/utils');
+const base = require('./base');
 
-module.exports = spriteAssembler.simple = {
+module.exports = spriteAssembler.simple = cc.js.addon({
     createData (sprite) {
         if (sprite._renderHandle.meshCount > 0) return;
-        sprite._renderHandle.createQuadData(0, 4, 6);
+        sprite._renderHandle.createQuadData(0, 20, 6);
+        sprite._renderHandle._local = [];
     },
 
     updateRenderData (sprite) {
@@ -39,75 +41,23 @@ module.exports = spriteAssembler.simple = {
         packToDynamicAtlas(sprite, frame);
 
         if (sprite._vertsDirty) {
+            this.updateUVs(sprite);
             this.updateVerts(sprite);
             sprite._vertsDirty = false;
         }
     },
 
-    fillBuffers (sprite, renderer) {
-        let node = sprite.node,
-            color = node._color._val,
-            matrix = node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13,    
-            buffer = renderer._meshBuffer;
-
-        let offsetInfo = buffer.request(4, 6);
-        
-        // buffer data may be realloc, need get reference after request.
-        let indiceOffset = offsetInfo.indiceOffset,
-            vertexOffset = offsetInfo.byteOffset >> 2,
-            vertexId = offsetInfo.vertexOffset,
-            vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
-            ibuf = buffer._iData;
-
-        // get uv from sprite frame directly
+    updateUVs (sprite) {
+        let verts = sprite._renderHandle.vDatas[0];
         let uv = sprite._spriteFrame.uv;
-        vbuf[vertexOffset + 2] = uv[0];
-        vbuf[vertexOffset + 3] = uv[1];
-        vbuf[vertexOffset + 7] = uv[2];
-        vbuf[vertexOffset + 8] = uv[3];
-        vbuf[vertexOffset + 12] = uv[4];
-        vbuf[vertexOffset + 13] = uv[5];
-        vbuf[vertexOffset + 17] = uv[6];
-        vbuf[vertexOffset + 18] = uv[7];
-
-        let verts = sprite._renderHandle.vDatas[0],
-            vl = verts[0], vr = verts[2],
-            vb = verts[1], vt = verts[3];
-
-        let al = a * vl, ar = a * vr,
-            bl = b * vl, br = b * vr,
-            cb = c * vb, ct = c * vt,
-            db = d * vb, dt = d * vt;
-
-        // left bottom
-        vbuf[vertexOffset] = al + cb + tx;
-        vbuf[vertexOffset + 1] = bl + db + ty;
-        // right bottom
-        vbuf[vertexOffset + 5] = ar + cb + tx;
-        vbuf[vertexOffset + 6] = br + db + ty;
-        // left top
-        vbuf[vertexOffset + 10] = al + ct + tx;
-        vbuf[vertexOffset + 11] = bl + dt + ty;
-        // right top
-        vbuf[vertexOffset + 15] = ar + ct + tx;
-        vbuf[vertexOffset + 16] = br + dt + ty;
-
-        // color
-        uintbuf[vertexOffset + 4] = color;
-        uintbuf[vertexOffset + 9] = color;
-        uintbuf[vertexOffset + 14] = color;
-        uintbuf[vertexOffset + 19] = color;
-
-        // fill indice data
-        ibuf[indiceOffset++] = vertexId;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 2;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 3;
-        ibuf[indiceOffset++] = vertexId + 2;
+        let uvOffset = this.uvOffset;
+        let floatsPerVert = this.floatsPerVert;
+        for (let i = 0; i < 4; i++) {
+            let srcOffset = i * 2;
+            let dstOffset = floatsPerVert * i + uvOffset;
+            verts[dstOffset] = uv[srcOffset];
+            verts[dstOffset + 1] = uv[srcOffset + 1];
+        }
     },
 
     updateVerts (sprite) {
@@ -137,15 +87,41 @@ module.exports = spriteAssembler.simple = {
             t = ch + trimTop * scaleY - appy;
         }
 
-        this.setVerts(sprite, l, b, r, t);
+        let local = sprite._renderHandle._local;
+        local[0] = l;
+        local[1] = b;
+        local[2] = r;
+        local[3] = t;
+        this.updateWorldVerts(sprite);
     },
 
-    setVerts (sprite, l, b, r, t) {
+    updateWorldVerts (sprite) {
+        let local = sprite._renderHandle._local;
         let verts = sprite._renderHandle.vDatas[0];
 
-        verts[0] = l;
-        verts[1] = b;
-        verts[2] = r;
-        verts[3] = t;
+        let matrix = sprite.node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+
+        let vl = local[0], vr = local[2],
+            vb = local[1], vt = local[3];
+        
+        let al = a * vl, ar = a * vr,
+            bl = b * vl, br = b * vr,
+            cb = c * vb, ct = c * vt,
+            db = d * vb, dt = d * vt;
+
+        // left bottom
+        verts[0] = al + cb + tx;
+        verts[1] = bl + db + ty;
+        // right bottom
+        verts[5] = ar + cb + tx;
+        verts[6] = br + db + ty;
+        // left top
+        verts[10] = al + ct + tx;
+        verts[11] = bl + dt + ty;
+        // right top
+        verts[15] = ar + ct + tx;
+        verts[16] = br + dt + ty;
     }
-};
+}, base);

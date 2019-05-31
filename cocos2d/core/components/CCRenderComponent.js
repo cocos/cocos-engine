@@ -104,6 +104,7 @@ let RenderComponent = cc.Class({
 
         if (CC_JSB && CC_NATIVERENDERER) {
             this._renderHandle.updateEnabled(true);
+            cc.RenderFlow.once(cc.RenderFlow.EventType.BEFORE_RENDER, this._updateColor, this);
         }
     },
 

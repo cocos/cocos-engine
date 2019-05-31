@@ -67,7 +67,6 @@ module.exports = spriteAssembler.barFilled = cc.js.addon({
         let fillEnd = fillStart + fillRange;
         fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
-        this.updateColor(sprite);
         this.updateUVs(sprite, fillStart, fillEnd);
         this.updateVerts(sprite, fillStart, fillEnd);
 

@@ -27,7 +27,6 @@
 const misc = require('../utils/misc');
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
-const RenderFlow = require('../renderer/render-flow');
 const BlendFunc = require('../utils/blend-func');
 
 const Material = require('../assets/material/CCMaterial');
@@ -234,8 +233,6 @@ var Sprite = cc.Class({
             },
             set: function (value) {
                 if (this._type !== value) {
-                    this.destroyRenderData(this._renderData);
-                    this._renderData = null;
                     this._type = value;
                     this._updateAssembler();
                 }
@@ -261,14 +258,6 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 if (value !== this._fillType) {
-                    if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
-                        this.destroyRenderData(this._renderData);
-                        this._renderData = null;
-                    }
-                    else if (this._renderData) {
-                        this.setVertsDirty();
-                        this.markForUpdateRenderData(true);
-                    }
                     this._fillType = value;
                     this._updateAssembler();
                 }
@@ -454,13 +443,11 @@ var Sprite = cc.Class({
         let assembler = Sprite._assembler.getAssembler(this);
         
         if (this._assembler !== assembler) {
-            this._assembler = assembler;
-            this._renderData = null;
-            this._renderHandle.meshCount = 0;
-        }
+            this._renderHandle.reset();
 
-        if (!this._renderData) {
-            this._renderData = this._assembler.createData(this);
+            this._assembler = assembler;
+            this._assembler.createData(this);
+
             this.setVertsDirty();
             this.markForUpdateRenderData(true);
         }

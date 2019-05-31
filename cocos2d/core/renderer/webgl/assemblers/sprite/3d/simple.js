@@ -25,7 +25,9 @@
 
 const spriteAssembler = require('../sprite');
 const js = require('../../../../../platform/js');
-const assembler = require('../2d/simple');
+const assembler2D = require('../2d/simple');
+const base = require('./base');
+
 const vec3 = cc.vmath.vec3;
 
 let vec3_temps = [];
@@ -34,54 +36,24 @@ for (let i = 0; i < 4; i++) {
 }
 
 module.exports = spriteAssembler.simple3D = js.addon({
-    fillBuffers (sprite, renderer) {
-        let node = sprite.node,
-            color = node._color._val,
-            matrix = node._worldMatrix;
+    updateWorldVerts (sprite) {
+        let matrix = sprite.node._worldMatrix;
+        let local = sprite._renderHandle._local;
+        
+        vec3.set(vec3_temps[0], local[0], local[1], 0);
+        vec3.set(vec3_temps[1], local[2], local[1], 0);
+        vec3.set(vec3_temps[2], local[0], local[3], 0);
+        vec3.set(vec3_temps[3], local[2], local[3], 0);
 
-        let buffer = renderer._meshBuffer3D;
-        let offsetInfo = buffer.request(4, 6);
-
-        // buffer data may be realloc, need get reference after request.
-        let vertexOffset = offsetInfo.byteOffset >> 2,
-            indiceOffset = offsetInfo.indiceOffset,
-            vertexId = offsetInfo.vertexOffset,
-            vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
-            ibuf = buffer._iData;
-
-        let verts = sprite._renderHandle.vDatas[0];
-        vec3.set(vec3_temps[0], verts[0], verts[1], 0);
-        vec3.set(vec3_temps[1], verts[2], verts[1], 0);
-        vec3.set(vec3_temps[2], verts[0], verts[3], 0);
-        vec3.set(vec3_temps[3], verts[2], verts[3], 0);
-
-        // get uv from sprite frame directly
-        let uv = sprite._spriteFrame.uv;
+        let floatsPerVert = this.floatsPerVert;
         for (let i = 0; i < 4; i++) {
-            // vertex
             let vertex = vec3_temps[i];
             vec3.transformMat4(vertex, vertex, matrix);
 
-            vbuf[vertexOffset++] = vertex.x;
-            vbuf[vertexOffset++] = vertex.y;
-            vbuf[vertexOffset++] = vertex.z;
-
-            // uv
-            let uvOffset = i * 2;
-            vbuf[vertexOffset++] = uv[0 + uvOffset];
-            vbuf[vertexOffset++] = uv[1 + uvOffset];
-
-            // color
-            uintbuf[vertexOffset++] = color;
+            let dstOffset = floatsPerVert * i + uvOffset;
+            verts[dstOffset] = vertex.x;
+            verts[dstOffset+1] = vertex.y;
+            verts[dstOffset+2] = vertex.z;
         }
-
-        // fill indice data
-        ibuf[indiceOffset++] = vertexId;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 2;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 3;
-        ibuf[indiceOffset++] = vertexId + 2;
     },
-}, assembler);
+}, base, assembler2D);

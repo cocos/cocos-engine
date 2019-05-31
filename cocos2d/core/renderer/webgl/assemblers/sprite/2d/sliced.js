@@ -58,7 +58,6 @@ module.exports = spriteAssembler.sliced = cc.js.addon({
         packToDynamicAtlas(sprite, frame);
 
         if (sprite._vertsDirty) {
-            this.updateColor(sprite);
             this.updateUVs(sprite);
             this.updateVerts(sprite);
             sprite._vertsDirty = false;

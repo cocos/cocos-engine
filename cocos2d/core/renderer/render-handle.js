@@ -25,6 +25,17 @@ export default function RenderHandle () {
 }
 
 cc.js.mixin(RenderHandle.prototype, {
+    reset () {
+        this.vDatas.length = 0;
+        this.iDatas.length = 0;
+        this.uintVDatas.length = 0;
+        this.meshCount = 0;
+
+        this._local = null;
+        this._infos = null;
+        this._flexBuffer = null;
+    },
+
     updateMesh (index, vertices, indices) {
         this.vDatas[index] = vertices;
         this.uintVDatas[index] = new Uint32Array(vertices.buffer, 0, vertices.length);
