@@ -133,6 +133,7 @@ if (_isUseSpine) {
 
         require('./skeleton-texture');
         require('./skeleton-data');
+        require('./vertex-effect-delegate');
         require('./Skeleton');
         require('./spine-assembler');
     }

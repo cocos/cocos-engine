@@ -1,20 +1,21 @@
 const DONOTHING = 0;
-const LOCAL_TRANSFORM = 1 << 0;
-const WORLD_TRANSFORM = 1 << 1;
+const BREAK_FLOW = 1 << 0;
+const LOCAL_TRANSFORM = 1 << 1;
+const WORLD_TRANSFORM = 1 << 2;
 const TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM;
-const UPDATE_RENDER_DATA = 1 << 2;
-const OPACITY = 1 << 3;
-const RENDER = 1 << 4;
-const CUSTOM_IA_RENDER = 1 << 5;
-const CHILDREN = 1 << 6;
-const POST_UPDATE_RENDER_DATA = 1 << 7;
-const POST_RENDER = 1 << 8;
-const FINAL = 1 << 9;
+const UPDATE_RENDER_DATA = 1 << 3;
+const OPACITY = 1 << 4;
+const RENDER = 1 << 5;
+const CUSTOM_IA_RENDER = 1 << 6;
+const CHILDREN = 1 << 7;
+const POST_UPDATE_RENDER_DATA = 1 << 8;
+const POST_RENDER = 1 << 9;
+const FINAL = 1 << 10;
 
 let _batcher;
 let _cullingMask = 0;
 let _renderQueueIndex = 0;
-let _evm = cc.eventManager;
+const EventManager = require("../event-manager/CCEventManager");
 
 function RenderFlow () {
     this._func = init;
@@ -92,7 +93,7 @@ _proto._children = function (node) {
     let children = node._children;
     for (let i = 0, l = children.length; i < l; i++) {
         let c = children[i];
-        _evm._updateRenderOrder(c, ++_renderQueueIndex);
+        EventManager._updateRenderOrder(c, ++_renderQueueIndex);
 
         // Advance the modification of the flag to avoid node attribute modification is invalid when opacity === 0.
         c._renderFlag |= worldDirtyFlag;
@@ -135,6 +136,9 @@ function createFlow (flag, next) {
 
     switch (flag) {
         case DONOTHING: 
+            flow._func = flow._doNothing;
+            break;
+        case BREAK_FLOW:
             flow._func = flow._doNothing;
             break;
         case LOCAL_TRANSFORM: 
@@ -189,25 +193,30 @@ function init (node) {
 
 RenderFlow.flows = flows;
 RenderFlow.createFlow = createFlow;
-RenderFlow.visit = function (scene) {
-    _batcher.reset();
-    _batcher.walking = true;
 
-    _cullingMask = 1 << scene.groupIndex;
+RenderFlow.visitRootNode = function (rootNode) {
+    _cullingMask = 1 << rootNode.groupIndex;
     _renderQueueIndex = 0;
 
-    if (scene._renderFlag & WORLD_TRANSFORM) {
+    if (rootNode._renderFlag & WORLD_TRANSFORM) {
         _batcher.worldMatDirty ++;
-        scene._calculWorldMatrix();
-        scene._renderFlag &= ~WORLD_TRANSFORM;
+        rootNode._calculWorldMatrix();
+        rootNode._renderFlag &= ~WORLD_TRANSFORM;
 
-        flows[scene._renderFlag]._func(scene);
+        flows[rootNode._renderFlag]._func(rootNode);
 
         _batcher.worldMatDirty --;
     }
     else {
-        flows[scene._renderFlag]._func(scene);
+        flows[rootNode._renderFlag]._func(rootNode);
     }
+};
+
+RenderFlow.visit = function (scene) {
+    _batcher.reset();
+    _batcher.walking = true;
+
+    RenderFlow.visitRootNode(scene);
 
     _batcher.terminate();
     _batcher.walking = false;
@@ -223,6 +232,7 @@ RenderFlow.init = function (batcher) {
 };
 
 RenderFlow.FLAG_DONOTHING = DONOTHING;
+RenderFlow.FLAG_BREAK_FLOW = BREAK_FLOW;
 RenderFlow.FLAG_LOCAL_TRANSFORM = LOCAL_TRANSFORM;
 RenderFlow.FLAG_WORLD_TRANSFORM = WORLD_TRANSFORM;
 RenderFlow.FLAG_TRANSFORM = TRANSFORM;
