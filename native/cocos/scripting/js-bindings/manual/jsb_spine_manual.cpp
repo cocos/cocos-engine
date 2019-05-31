@@ -406,7 +406,10 @@ static bool js_register_spine_initSkeletonData (se::State& s)
     
     auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
-    if (hasSkeletonData) return true;
+    if (hasSkeletonData) {
+        mgr->retainByUUID(uuid);
+        return true;
+    }
     
     std::string skeletonDataFile;
     ok = seval_to_std_string(args[1], &skeletonDataFile);
