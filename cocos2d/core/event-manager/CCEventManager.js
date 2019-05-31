@@ -325,11 +325,13 @@ var eventManager = {
             p2 = p2.parent.parent === null ? (ex = true) && node1 : p2.parent;
         }
 
-        if (p1._id === node2._id) 
-            return -1;
-        if (p1._id === node1._id)
-            return 1;
-
+        if (p1._id === p2._id) {
+            if (p1._id === node2._id) 
+                return -1;
+            if (p1._id === node1._id)
+                return 1;
+        }
+        
         return ex ? (p1._localZOrder - p2._localZOrder) : (p2._localZOrder - p1._localZOrder);
     },
 
