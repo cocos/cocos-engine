@@ -121,7 +121,6 @@ var eventManager = {
     _inDispatch: 0,
     _isEnabled: false,
 
-
     _internalCustomListenerIDs:[],
 
     _setDirtyForNode: function (node) {
@@ -321,9 +320,9 @@ var eventManager = {
             return 1;
         
         let p1 = node1, p2 = node2, ex = false;
-        while (p1.parent._id !== p2.parent._id){
-            p1 = p1.parent.parent == null ? (ex = true) && node2 : p1.parent;
-            p2 = p2.parent.parent == null ? (ex = true) && node1 : p2.parent;
+        while (p1.parent._id !== p2.parent._id) {
+            p1 = p1.parent.parent === null ? (ex = true) && node2 : p1.parent;
+            p2 = p2.parent.parent === null ? (ex = true) && node1 : p2.parent;
         }
 
         if (p1._id === node2._id) 
