@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const base = require('./base');
+const base = require('../../base/2d');
 const spriteAssembler = require('../sprite');
 const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
@@ -35,7 +35,7 @@ module.exports = spriteAssembler.sliced = cc.js.addon({
     createData (sprite) {
         if (sprite._renderHandle.meshCount > 0) return;
         sprite._renderHandle.createData(0, this.verticesFloats, this.indicesCount);
-        sprite._renderHandle._local = new Float32Array(8);
+        sprite._renderHandle._local.length = 8;
 
         let indices = sprite._renderHandle.iDatas[0];
         let indexOffset = 0;

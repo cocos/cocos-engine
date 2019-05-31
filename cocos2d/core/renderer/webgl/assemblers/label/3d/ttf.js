@@ -24,14 +24,8 @@
  ****************************************************************************/
 
 const js = require('../../../../../platform/js');
-const assembler = require('../2d/ttf');
-const fillMeshVertices3D = require('../../utils').fillMeshVertices3D;
-const WHITE = cc.color(255, 255, 255, 255);
+const assembler2D = require('../2d/ttf');
+const base = require('../../base/3d');
 
 module.exports = js.addon({
-    fillBuffers (comp, renderer) {
-        let node = comp.node;
-        WHITE._fastSetA(node.color.a);
-        fillMeshVertices3D(comp.node, renderer._meshBuffer3D, comp._renderData, WHITE._val);
-    }
-}, assembler);
+}, base, assembler2D);

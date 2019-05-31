@@ -25,15 +25,9 @@
 
 const spriteAssembler = require('../sprite');
 const { packToDynamicAtlas } = require('../../../../utils/utils');
-const base = require('./base');
+const base = require('../../base/2d');
 
 module.exports = spriteAssembler.simple = cc.js.addon({
-    createData (sprite) {
-        if (sprite._renderHandle.meshCount > 0) return;
-        sprite._renderHandle.createQuadData(0, 20, 6);
-        sprite._renderHandle._local = [];
-    },
-
     updateRenderData (sprite) {
         let frame = sprite._spriteFrame;
         if (!frame) return;
@@ -94,34 +88,4 @@ module.exports = spriteAssembler.simple = cc.js.addon({
         local[3] = t;
         this.updateWorldVerts(sprite);
     },
-
-    updateWorldVerts (sprite) {
-        let local = sprite._renderHandle._local;
-        let verts = sprite._renderHandle.vDatas[0];
-
-        let matrix = sprite.node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-
-        let vl = local[0], vr = local[2],
-            vb = local[1], vt = local[3];
-        
-        let al = a * vl, ar = a * vr,
-            bl = b * vl, br = b * vr,
-            cb = c * vb, ct = c * vt,
-            db = d * vb, dt = d * vt;
-
-        // left bottom
-        verts[0] = al + cb + tx;
-        verts[1] = bl + db + ty;
-        // right bottom
-        verts[5] = ar + cb + tx;
-        verts[6] = br + db + ty;
-        // left top
-        verts[10] = al + ct + tx;
-        verts[11] = bl + dt + ty;
-        // right top
-        verts[15] = ar + ct + tx;
-        verts[16] = br + dt + ty;
-    }
 }, base);

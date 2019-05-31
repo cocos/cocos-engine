@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const base = require('./base');
+const base = require('../../base/3d');
 const spriteAssembler = require('../sprite');
 const assembler2D = require('../2d/tiled');
 const js = require('../../../../../platform/js');

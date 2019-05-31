@@ -16,10 +16,9 @@ export default function RenderHandle () {
     this.vDatas = [];
     this.uintVDatas = [];
     this.iDatas = [];
-
     this.meshCount = 0;
 
-    this._local = null;
+    this._local = [];
     this._infos = null;
     this._flexBuffer = null;
 }
@@ -31,7 +30,8 @@ cc.js.mixin(RenderHandle.prototype, {
         this.uintVDatas.length = 0;
         this.meshCount = 0;
 
-        this._local = null;
+        this._local.length = 0;
+        
         this._infos = null;
         this._flexBuffer = null;
     },

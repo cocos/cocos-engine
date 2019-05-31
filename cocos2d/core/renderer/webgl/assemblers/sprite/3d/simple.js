@@ -26,34 +26,7 @@
 const spriteAssembler = require('../sprite');
 const js = require('../../../../../platform/js');
 const assembler2D = require('../2d/simple');
-const base = require('./base');
-
-const vec3 = cc.vmath.vec3;
-
-let vec3_temps = [];
-for (let i = 0; i < 4; i++) {
-    vec3_temps.push(vec3.create());
-}
+const base = require('../../base/3d');
 
 module.exports = spriteAssembler.simple3D = js.addon({
-    updateWorldVerts (sprite) {
-        let matrix = sprite.node._worldMatrix;
-        let local = sprite._renderHandle._local;
-        
-        vec3.set(vec3_temps[0], local[0], local[1], 0);
-        vec3.set(vec3_temps[1], local[2], local[1], 0);
-        vec3.set(vec3_temps[2], local[0], local[3], 0);
-        vec3.set(vec3_temps[3], local[2], local[3], 0);
-
-        let floatsPerVert = this.floatsPerVert;
-        for (let i = 0; i < 4; i++) {
-            let vertex = vec3_temps[i];
-            vec3.transformMat4(vertex, vertex, matrix);
-
-            let dstOffset = floatsPerVert * i + uvOffset;
-            verts[dstOffset] = vertex.x;
-            verts[dstOffset+1] = vertex.y;
-            verts[dstOffset+2] = vertex.z;
-        }
-    },
 }, base, assembler2D);

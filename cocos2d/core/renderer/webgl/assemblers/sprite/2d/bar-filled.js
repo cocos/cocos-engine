@@ -23,19 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const base = require('./base');
+const base = require('../../base/2d');
 const Sprite = require('../../../../../components/CCSprite');
 const spriteAssembler = require('../sprite');
 const FillType = Sprite.FillType;
 const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
 module.exports = spriteAssembler.barFilled = cc.js.addon({
-    createData (sprite) {
-        if (sprite._renderHandle.meshCount > 0) return;
-        sprite._renderHandle.createQuadData(0, this.verticesFloats, this.indicesCount);
-        sprite._renderHandle._local = new Float32Array(this.verticesFloats);
-    },
-
     updateRenderData (sprite) {
         let frame = sprite._spriteFrame;
         if (!frame) return;
@@ -165,35 +159,12 @@ module.exports = spriteAssembler.barFilled = cc.js.addon({
                 break;
         }
 
-        let floatsPerVert = this.floatsPerVert;
-        let verts = sprite._renderHandle._local;
-        verts[0] = l;
-        verts[1] = b;
-        verts[floatsPerVert] = r;
-        verts[floatsPerVert + 1] = b;
-        verts[floatsPerVert * 2] = l;
-        verts[floatsPerVert * 2 + 1] = t;
-        verts[floatsPerVert * 3] = r;
-        verts[floatsPerVert * 3 + 1] = t;
+        let local = sprite._renderHandle._local;
+        local[0] = l;
+        local[1] = b;
+        local[2] = r;
+        local[3] = t;
 
         this.updateWorldVerts(sprite);
-    },
-
-    updateWorldVerts (sprite) {
-        let node = sprite.node;
-
-        let matrix = node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-
-        let local = sprite._renderHandle._local;
-        let world = sprite._renderHandle.vDatas[0];
-        let floatsPerVert = this.floatsPerVert;
-        for (let offset = 0; offset < world.length; offset += floatsPerVert) {
-            let x = local[offset];
-            let y = local[offset + 1];
-            world[offset] = x * a + y * c + tx;
-            world[offset+1] = x * b + y * d + ty;
-        }
     }
 }, base);

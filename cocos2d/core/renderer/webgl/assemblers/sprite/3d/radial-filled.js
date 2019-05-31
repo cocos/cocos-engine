@@ -26,7 +26,7 @@
 const spriteAssembler = require('../sprite');
 const js = require('../../../../../platform/js');
 const assembler2D = require('../2d/radial-filled');
-const base = require('./base');
+const base = require('../../base/3d');
 const barFilled3D = require('./bar-filled');
 
 module.exports = spriteAssembler.radialFilled3D = js.addon({

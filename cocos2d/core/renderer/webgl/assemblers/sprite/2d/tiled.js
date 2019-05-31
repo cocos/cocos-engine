@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const base = require('./base');
+const base = require('../../base/2d');
 const spriteAssembler = require('../sprite');
 const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 const FlexBuffer = require('../../../flex-buffer');

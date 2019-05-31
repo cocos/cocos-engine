@@ -26,7 +26,7 @@
 const spriteAssembler = require('../sprite');
 const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 const FlexBuffer = require('../../../flex-buffer');
-const base = require('./base');
+const base = require('../../base/2d');
 
 const PI_2 = Math.PI * 2;
 

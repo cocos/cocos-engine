@@ -133,6 +133,11 @@ let RenderComponent = cc.Class({
         this.setVertsDirty();
         this.markForUpdateRenderData(true);
     },
+
+    _on3DNodeChanged () {
+        this.setVertsDirty();
+        this.markForUpdateRenderData(true);
+    },
     
     _canRender () {
         // When the node is activated, it will execute onEnable and the renderflag will also be reset.

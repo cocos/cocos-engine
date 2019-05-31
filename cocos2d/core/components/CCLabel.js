@@ -563,6 +563,10 @@ let Label = cc.Class({
     _updateColor () {
         if (!(this.font instanceof cc.BitmapFont)) {
             this._lazyUpdateRenderData();
+
+            if (this._assembler.updateColor) {
+                this._assembler.updateColor(this);
+            }
         }
     },
 
@@ -592,13 +596,14 @@ let Label = cc.Class({
         let assembler = Label._assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
-            this._assembler = assembler;
-            this._renderData = null;
-            this._frame = null;
-        }
+            this.node._renderFlag |= RenderFlow.FLAG_OPACITY;
 
-        if (!this._renderData) {
-            this._renderData = this._assembler.createData(this);
+            this._assembler = assembler;
+            this._frame = null;
+
+            this._renderHandle.reset();
+
+            this._assembler.createData(this);
             this.markForUpdateRenderData(true);
         }
 

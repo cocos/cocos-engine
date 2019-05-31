@@ -28,6 +28,7 @@ const misc = require('../utils/misc');
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
 const BlendFunc = require('../utils/blend-func');
+const RenderFlow = require('../renderer/render-flow');
 
 const Material = require('../assets/material/CCMaterial');
 
@@ -443,6 +444,7 @@ var Sprite = cc.Class({
         let assembler = Sprite._assembler.getAssembler(this);
         
         if (this._assembler !== assembler) {
+            this.node._renderFlag |= RenderFlow.FLAG_OPACITY;
             this._renderHandle.reset();
 
             this._assembler = assembler;

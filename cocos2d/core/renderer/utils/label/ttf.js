@@ -104,7 +104,7 @@ textUtils.ttf = module.exports = {
         comp._actualFontSize = _fontSize;
         comp.node.setContentSize(_nodeContentSize);
 
-        this._updateVerts(comp);
+        this.updateVerts(comp);
 
         comp._vertsDirty = false;
 
@@ -113,7 +113,7 @@ textUtils.ttf = module.exports = {
         _texture = null;
     },
 
-    _updateVerts () {
+    updateVerts () {
     },
 
     _updateFontFamily (comp) {
