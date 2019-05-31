@@ -167,7 +167,15 @@ export class Mesh extends Asset {
     }
 
     set _nativeAsset (value: ArrayBuffer) {
-        this._data = new Uint8Array(value);
+        if (this._data && this._data.byteLength === value.byteLength) {
+            this._data.set(new Uint8Array(value));
+            if (cc.loader._cache[this.nativeUrl]) {
+                cc.loader._cache[this.nativeUrl].content = this._data.buffer;
+            }
+        }
+        else {
+            this._data = new Uint8Array(value);
+        }
         this.loaded = true;
         this.emit('load');
     }
@@ -211,6 +219,9 @@ export class Mesh extends Asset {
         primitives: [],
     };
 
+    @property
+    private _dataLength: number = 0;
+
     private _data: Uint8Array | null = null;
 
     private _initialized = false;
@@ -229,8 +240,11 @@ export class Mesh extends Asset {
 
         this._initialized = true;
 
-        if (!this._data) { postLoadMesh(this); }
-        const buffer = this._data ? this._data.buffer : null;
+        if (!this._data) {
+            this._data = new Uint8Array(this._dataLength);
+            postLoadMesh(this);
+        }
+        const buffer = this._data.buffer;
         const gfxDevice: GFXDevice = cc.director.root.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
@@ -254,14 +268,12 @@ export class Mesh extends Asset {
                 });
                 indexBuffers.push(indexBuffer);
 
-                if (buffer) {
-                    ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
+                ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
+                if (this.loaded) {
                     indexBuffer.update(ib);
                 }
                 else {
-                    ib = new (getIndexStrideCtor(idxView.stride))(idxView.count);
                     this.once('load', () => {
-                        ib.set(new (getIndexStrideCtor(idxView.stride))(this.data!.buffer, idxView.offset, idxView.count));
                         indexBuffer!.update(ib);
                     });
                 }
@@ -286,15 +298,7 @@ export class Mesh extends Asset {
             if (prim.geometricInfo) {
                 const info = prim.geometricInfo;
                 let positions: Float32Array | null = null;
-                if (buffer) {
-                    positions = new Float32Array(buffer, info.view.offset, info.view.length / 4);
-                }
-                else {
-                    positions = new Float32Array(info.view.length / 4);
-                    this.once('load', () => {
-                        positions!.set(new Float32Array(this.data!.buffer, info.view.offset, info.view.length / 4));
-                    });
-                }
+                positions = new Float32Array(buffer, info.view.offset, info.view.length / 4);
                 subMesh.geometricInfo = {
                     indices: ib,
                     positions,
@@ -757,7 +761,7 @@ export class Mesh extends Asset {
         }
     }
 
-    private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer | null): GFXBuffer[] {
+    private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
         return this._struct.vertexBundles.map((vertexBundle) => {
             const vertexBuffer = gfxDevice.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
@@ -766,12 +770,13 @@ export class Mesh extends Asset {
                 stride: vertexBundle.view.stride,
             });
 
-            if (data) {
-                vertexBuffer.update(new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length));
+            const view = new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length);
+            if (this.loaded) {
+                vertexBuffer.update(view);
             }
             else {
                 this.once('load', () => {
-                    vertexBuffer.update(new Uint8Array(this._data!.buffer, vertexBundle.view.offset, vertexBundle.view.length));
+                    vertexBuffer.update(view);
                 });
             }
             return vertexBuffer;
