@@ -24,6 +24,9 @@ const NonRigidBodyProperties = {
 @menu('Components/RigidBodyComponent')
 @executeInEditMode
 export class RigidBodyComponent extends PhysicsBasedComponent {
+
+    /// PRIVATE PROPERTY ///
+
     @property
     private _material: PhysicsMaterial | null = null;
 
@@ -54,6 +57,8 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         super();
     }
 
+    /// COMPONENT LIFECYCLE ///
+
     public onLoad () {
         /**
          * 此处设置刚体属性是因为__preload不受executionOrder的顺序影响，
@@ -61,124 +66,145 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
          */
         if (this.sharedBody) {
             this.sharedBody.transfromSource = ETransformSource.PHYSIC;
+
             this.mass = this._mass;
             this.linearDamping = this._linearDamping;
             this.angularDamping = this._angularDamping;
-            this.material = this._material;
-            this.useGravity = this._useGravity;
-            this.velocity = this._velocity;
             this.isKinematic = this._isKinematic;
+            this.useGravity = this._useGravity;
             this.fixedRotation = this._fixedRotation;
+            // this.material = this._material;
+
+            this.velocity = this._velocity;
         }
     }
 
+    /// PUBLIC PROPERTY GETTER\SETTER ///
+
+    // Shielding physics material for alpha version
+    // @property({
+    //     type: PhysicsMaterial,
+    // })
+    // get material () {
+    //     return this._material;
+    // }
+
+    // set material (value) {
+    //     this._material = value;
+    //     // if (!CC_EDITOR) {
+    //     //     this._body.material = (this._material || DefaultPhysicsMaterial)._getImpl();
+    //     // }
+    // }
+
     @property({
-        type: PhysicsMaterial,
+        displayOrder: 0,
     })
-    get material () {
-        return this._material;
-    }
-
-    set material (value) {
-        this._material = value;
-        // if (!CC_EDITOR) {
-        //     this._body.material = (this._material || DefaultPhysicsMaterial)._getImpl();
-        // }
-    }
-
-    @property
-    get mass () {
+    public get mass () {
         return this._mass;
     }
 
-    set mass (value) {
+    public set mass (value) {
         this._mass = value;
         if (!CC_EDITOR) {
             this._body.setMass(value);
         }
     }
 
-    @property
-    get isKinematic () {
-        return this._isKinematic;
-    }
-
-    set isKinematic (value) {
-        this._isKinematic = value;
-        if (!CC_EDITOR) {
-            this._body.setIsKinematic(value);
-        }
-    }
-
-    @property
-    get useGravity () {
-        return this._useGravity;
-    }
-
-    set useGravity (value) {
-        this._useGravity = value;
-        if (!CC_EDITOR) {
-            this._body.setUseGravity(value);
-        }
-    }
-
-    @property
-    get linearDamping () {
+    @property({
+        displayOrder: 1,
+    })
+    public get linearDamping () {
         return this._linearDamping;
     }
 
-    set linearDamping (value) {
+    public set linearDamping (value) {
         this._linearDamping = value;
         if (!CC_EDITOR) {
             this._body.setLinearDamping(value);
         }
     }
 
-    @property
-    get angularDamping () {
+    @property({
+        displayOrder: 2,
+    })
+    public get angularDamping () {
         return this._angularDamping;
     }
 
-    set angularDamping (value) {
+    public set angularDamping (value) {
         this._angularDamping = value;
         if (!CC_EDITOR) {
             this._body.setAngularDamping(value);
         }
     }
 
-    @property
-    get fixedRotation () {
+    @property({
+        displayOrder: 3,
+    })
+    public get isKinematic () {
+        return this._isKinematic;
+    }
+
+    public set isKinematic (value) {
+        this._isKinematic = value;
+        if (!CC_EDITOR) {
+            this._body.setIsKinematic(value);
+        }
+    }
+
+    @property({
+        displayOrder: 4,
+    })
+    public get useGravity () {
+        return this._useGravity;
+    }
+
+    public set useGravity (value) {
+        this._useGravity = value;
+        if (!CC_EDITOR) {
+            this._body.setUseGravity(value);
+        }
+    }
+
+    @property({
+        displayOrder: 5,
+    })
+    public get fixedRotation () {
         return this._fixedRotation;
     }
 
-    set fixedRotation (value) {
+    public set fixedRotation (value) {
         this._fixedRotation = value;
         if (!CC_EDITOR) {
             this._body.setFreezeRotation(value);
         }
     }
 
-    get isTrigger () {
+    /// PUBLIC GETTER\SETTER ///
+
+    public get isTrigger () {
         return this._isTrigger;
     }
 
-    set isTrigger (value) {
+    public set isTrigger (value) {
         this._isTrigger = value;
         if (!CC_EDITOR) {
             this._body.setIsTrigger(value);
         }
     }
 
-    get velocity () {
+    public get velocity () {
         return this._velocity;
     }
 
-    set velocity (value: Vec3) {
+    public set velocity (value: Vec3) {
         vec3.copy(this._velocity, value);
         if (!CC_EDITOR) {
             this._body.setVelocity(this._velocity);
         }
     }
+
+    /// PUBLIC METHOD ///
 
     public applyForce (force: Vec3, position?: Vec3) {
         if (this._assertPreload) {
