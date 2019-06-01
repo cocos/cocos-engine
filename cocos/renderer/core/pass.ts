@@ -141,13 +141,11 @@ export class Pass {
         for (const u of shaderInfo.blocks) {
             if (u.name.startsWith('CC')) { continue; }
             // create gfx buffer resource
-            const buffer = device.createBuffer({
+            const buffer = this._buffers[u.binding] = device.createBuffer({
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: u.size,
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             });
-            if (buffer) { this._buffers[u.binding] = buffer; }
-            else { console.error('create buffer failed.'); return; }
             // buffer data processing system
             const block: IBlock = this._blocks[u.binding] = {
                 buffer: new ArrayBuffer(u.size),
@@ -161,8 +159,9 @@ export class Pass {
                 // store handle map, type and initial value
                 const inf = info.properties && info.properties[cur.name];
                 const type = inf && inf.type || cur.type; // property overloads
-                const value = inf && inf.value;
-                view.set(value ? value as number[] : _type2default[type]);
+                const givenDefault = inf && inf.value;
+                const value: number[] = givenDefault ? givenDefault : _type2default[type];
+                for (let i = 0; i < cur.count; i++) { view.set(value, i * value.length); }
                 this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, type, u.binding, idx);
                 // proceed the counter
                 return acc + cur.size;
@@ -210,6 +209,7 @@ export class Pass {
         const idx = Pass.getIndexFromHandle(handle);
         const block = this._blocks[binding];
         for (let i = 0; i < value.length; i++) {
+            if (value[i] === null) { continue; }
             _type2fn[type](block.views[idx], value[i], i);
         }
         block.dirty = true;

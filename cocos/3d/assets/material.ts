@@ -121,6 +121,17 @@ export class Material extends Asset {
         return true;
     }
 
+    public reset (reinitPass = true) {
+        if (reinitPass) {
+            this._update(false);
+        } else {
+            this._props.length = this._passes.length;
+            this._props.fill({});
+            this._states.length = this._passes.length;
+            this._states.fill({});
+        }
+    }
+
     /**
      * Convenient setter provided for quick material setup.
      * pass.setUniform should be used instead

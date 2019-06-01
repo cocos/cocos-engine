@@ -65,10 +65,13 @@ export enum GFXAttributeName {
     ATTR_TEX_COORD6 = 'a_texCoord6',
     ATTR_TEX_COORD7 = 'a_texCoord7',
     ATTR_TEX_COORD8 = 'a_texCoord8',
+    ATTR_BATCH_ID = 'a_batch_id',
+    ATTR_BATCH_UV = 'a_batch_uv',
 }
 
 export enum GFXType {
     UNKNOWN,
+    // vectors
     BOOL,
     BOOL2,
     BOOL3,
@@ -94,6 +97,7 @@ export enum GFXType {
     MAT4X2,
     MAT4X3,
     MAT4,
+    // samplers
     SAMPLER1D,
     SAMPLER1D_ARRAY,
     SAMPLER2D,
