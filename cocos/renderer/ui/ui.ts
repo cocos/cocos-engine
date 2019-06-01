@@ -444,8 +444,8 @@ export class UI {
         sortList.sort((a, b) => {
             const aComp = a.getComponent(UIComponent);
             const bComp = b.getComponent(UIComponent);
-            const ca = aComp ? aComp.priority : -1;
-            const cb = bComp ? bComp.priority : -1;
+            const ca = aComp ? aComp.priority : 0;
+            const cb = bComp ? bComp.priority : 0;
             return ca - cb;
         });
 
