@@ -178,7 +178,7 @@ export class SkinningModelComponent extends ModelComponent {
             quat.multiply(qt_1, cur.rotation, bindpose.localRotation);
             vec3.multiply(v3_2, cur.scale, bindpose.localScale);
 
-            skinningModel.updateJointData(i, v3_1, qt_1, v3_2);
+            skinningModel.updateJointData(i, v3_1, qt_1, v3_2, i === 0);
         }
 
         skinningModel.commitJointData();

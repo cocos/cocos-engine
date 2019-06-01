@@ -129,7 +129,7 @@ class BuiltinResMgr {
         resources[spriteFrame._uuid] = spriteFrame;
 
         // builtin effects
-        effects.forEach((e: any) => {
+        effects.forEach((e) => {
             const effect = Object.assign(new cc.EffectAsset(), e);
             effect.onLoaded();
         });
