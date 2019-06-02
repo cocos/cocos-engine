@@ -52,6 +52,9 @@ const qt_1 = new Quat();
 const f4_1 = new Float32Array(4);
 
 export class SkinningModel extends Model {
+    // change here and cc-skinning.inc to use other skinning algorithms
+    public updateJointData = this.updateJointDataDQS;
+
     private _jointsMedium: IJointsInfo | null = null;
 
     constructor (scene: RenderScene, node: Node) {
@@ -89,11 +92,21 @@ export class SkinningModel extends Model {
         }
     }
 
-    public updateJointData (idx: number, pos: Vec3, rot: Quat, scale: Vec3) {
+    public commitJointData () {
+        if (!this._jointsMedium) { return; }
+        const { type, nativeData, buffer, texture } = this._jointsMedium;
+        if (type === JointsMediumType.UNIFORM) {
+            buffer.update(nativeData, UBOSkinning.MAT_JOINT_OFFSET);
+        } else {
+            texture!.uploadData(nativeData.buffer);
+        }
+    }
+
+    // Linear Blending Skinning
+    protected updateJointDataLBS (idx: number, pos: Vec3, rot: Quat, scale: Vec3) {
         if (!this._jointsMedium) { return; }
         const out = this._jointsMedium.nativeData;
         const base = 12 * idx;
-        /* Linear Blending Skinning */
         mat4.fromRTS(m4_1, rot, pos, scale);
         out[base + 0] = m4_1.m00;
         out[base + 1] = m4_1.m01;
@@ -107,9 +120,15 @@ export class SkinningModel extends Model {
         out[base + 9] = m4_1.m09;
         out[base + 10] = m4_1.m10;
         out[base + 11] = m4_1.m14;
-        /* Dual Quaternion Skinning *
+    }
+
+    // Dual Quaternion Skinning
+    protected updateJointDataDQS (idx: number, pos: Vec3, rot: Quat, scale: Vec3, first = false) {
+        if (!this._jointsMedium) { return; }
+        const out = this._jointsMedium.nativeData;
+        const base = 12 * idx;
         // sign consistency
-        if (idx === 0) { quat.copy(qt_0, rot); }
+        if (first) { quat.copy(qt_0, rot); }
         else if (quat.dot(qt_0, rot) < 0) { quat.scale(rot, rot, -1); }
         // conversion
         quat.set(qt_1, pos.x, pos.y, pos.z, 0);
@@ -126,17 +145,6 @@ export class SkinningModel extends Model {
         out[base + 8] = scale.x;
         out[base + 9] = scale.y;
         out[base + 10] = scale.z;
-        /* */
-    }
-
-    public commitJointData () {
-        if (!this._jointsMedium) { return; }
-        const { type, nativeData, buffer, texture } = this._jointsMedium;
-        if (type === JointsMediumType.UNIFORM) {
-            buffer.update(nativeData, UBOSkinning.MAT_JOINT_OFFSET);
-        } else {
-            texture!.uploadData(nativeData.buffer);
-        }
     }
 
     protected _doCreatePSO (pass: Pass) {
