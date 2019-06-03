@@ -1,7 +1,7 @@
 const { generate } = require('./generate-declarations');
 
 generate({
-    outDir: './declarations',
+    outDir: './bin/.declarations',
 }).then((successed) => {
     if (successed) {
         console.log(`Successed.`);
