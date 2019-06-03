@@ -23,9 +23,9 @@ import { CannonBoxShape, CannonRigidBody, CannonSphereShape, CannonWorld } from 
 
 // built-in
 import { BuiltInBody } from './cocos/builtin-body';
-import { BuiltInBoxShape } from './cocos/builtin-shape';
-import { BuiltInSphereShape } from './cocos/builtin-shape';
 import { BuiltInWorld } from './cocos/builtin-world';
+import { BuiltInBoxShape } from './cocos/shapes/builtin-box-shape';
+import { BuiltInSphereShape } from './cocos/shapes/builtin-sphere-shape';
 
 export let BoxShape: typeof CannonBoxShape | typeof BuiltInBoxShape;
 export let SphereShape: typeof CannonSphereShape | typeof BuiltInSphereShape;

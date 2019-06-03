@@ -1,15 +1,15 @@
 import { Quat, Vec3 } from '../../../core/value-types';
-import { clamp } from '../../../core/vmath';
+import { clamp, mat4, quat, vec3 } from '../../../core/vmath';
 import { intersect } from '../../geom-utils';
-import { ICollisionCallback, ICollisionEvent, ICollisionType as ICollisionEventType, PhysicsWorldBase, RigidBodyBase } from '../api';
+import { BuiltInRigidBodyBase, ICollisionCallback, ICollisionEvent, ICollisionEventType, PhysicsWorldBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
-import { BuiltInShape } from './builtin-shape';
 import { BuiltInWorld } from './builtin-world';
+import { BuiltInShape } from './shapes/builtin-shape';
 
 /**
  * Built-in static collider, no physical forces involved
  */
-export class BuiltInBody implements RigidBodyBase {
+export class BuiltInBody implements BuiltInRigidBodyBase {
     /** id unique */
     public get id () { return this._id; }
 
@@ -22,7 +22,7 @@ export class BuiltInBody implements RigidBodyBase {
 
     private _type: ERigidBodyType = ERigidBodyType.DYNAMIC;
 
-    private _group: number = 1;
+    private _group: number = 0;
     private _collisionFilterGroup: number = 1 << 0;
     private _collisionFilterMask: number = 1 << 0;
 
@@ -73,7 +73,7 @@ export class BuiltInBody implements RigidBodyBase {
             // tslint:disable-next-line:prefer-for-of
             for (let j = 0; j < body._shapes.length; j++) {
                 const shapeB = body._shapes[j];
-                if (intersect.resolve(shapeA.shape, shapeB.shape)) {
+                if (intersect.resolve(shapeA.worldShape, shapeB.worldShape)) {
                     return true;
                 }
             }
@@ -90,12 +90,7 @@ export class BuiltInBody implements RigidBodyBase {
             callback(type, event);
         }
     }
-    public getType (): ERigidBodyType {
-        return this._type;
-    }
-    public setType (v: ERigidBodyType): void {
-        this._type = v;
-    }
+
     public wakeUp (): void {
 
     }
@@ -110,60 +105,6 @@ export class BuiltInBody implements RigidBodyBase {
         if (i >= 0) {
             this._shapes.splice(i, 1);
         }
-    }
-    public getMass (): number {
-        return 0;
-    }
-    public setMass (value: number): void {
-
-    }
-    public applyForce (force: Vec3, position?: Vec3 | undefined): void {
-
-    }
-    public applyImpulse (impulse: Vec3, position?: Vec3 | undefined): void {
-
-    }
-    public getIsKinematic (): boolean {
-        return true;
-    }
-    public setIsKinematic (value: boolean): void {
-
-    }
-    public getLinearDamping (): number {
-        return 0;
-    }
-    public setLinearDamping (value: number): void {
-
-    }
-    public getAngularDamping (): number {
-        return 0;
-    }
-    public setAngularDamping (value: number): void {
-
-    }
-    public getUseGravity (): boolean {
-        return false;
-    }
-    public setUseGravity (value: boolean): void {
-
-    }
-    public getIsTrigger (): boolean {
-        return false;
-    }
-    public setIsTrigger (value: boolean): void {
-
-    }
-    public getVelocity (): Vec3 {
-        return new Vec3();
-    }
-    public setVelocity (value: Vec3): void {
-
-    }
-    public getFreezeRotation (): boolean {
-        return false;
-    }
-    public setFreezeRotation (value: boolean): void {
-
     }
     public setCollisionFilter (group: number, mask: number): void {
 
@@ -180,12 +121,6 @@ export class BuiltInBody implements RigidBodyBase {
         }
 
         this._world = cworld;
-    }
-    public commitShapeUpdates (): void {
-
-    }
-    public isPhysicsManagedTransform (): boolean {
-        return false;
     }
     public getPosition (out: Vec3): void {
 
@@ -226,4 +161,15 @@ export class BuiltInBody implements RigidBodyBase {
         this.userData = data;
     }
 
+    public transform (m: mat4, pos: vec3, rot: quat, scale: vec3) {
+        for (let i = this._shapes.length; i--;) {
+            this._shapes[i].transform(m, pos, rot, scale);
+        }
+    }
+
+    public translateAndRotate (m: mat4, rot: quat): void {
+        for (let i = this._shapes.length; i--;) {
+            this._shapes[i].translateAndRotate(m, rot);
+        }
+    }
 }

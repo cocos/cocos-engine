@@ -1,8 +1,11 @@
+import { mat4, quat, vec3 } from '../../../core/vmath';
+
 /**
- * 声明了一系列built-in-physics相关的的接口
+ * declare interface
  */
-export interface IShapeTransform {
-    translate (...args: any): any;
-    scale (...args: any): any;
-    rotate (...args: any): any;
+export interface IBuiltinShape {
+    center: vec3;
+    setScale (scale: vec3, out: IBuiltinShape): void;
+    translateAndRotate (m: mat4, rot: quat, out: IBuiltinShape): void;
+    transform (...args: any): any;
 }

@@ -1,10 +1,10 @@
 import { Component } from '../../../../components/component';
 import { ccclass } from '../../../../core/data/class-decorator';
-import { Quat, Vec3 } from '../../../../core/value-types';
+import { Mat4, Quat, Vec3 } from '../../../../core/value-types';
 import { quat, vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 // tslint:disable-next-line:max-line-length
-import { AfterStepCallback, BeforeStepCallback, ICollisionCallback, ICollisionEvent, ICollisionType, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
+import { AfterStepCallback, BeforeStepCallback, ICollisionCallback, ICollisionEvent, ICollisionEventType, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
 import { createRigidBody } from '../../../physics/instance';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
 import { stringfyQuat, stringfyVec3 } from '../../../physics/util';
@@ -126,6 +126,27 @@ export class PhysicsBasedComponent extends Component {
 }
 
 class SharedRigidBody {
+    public get isShapeOnly (): boolean { return this._isShapeOnly; }
+
+    public get body () {
+        return this._body;
+    }
+
+    /** the source to manage body transfrom */
+    public set transfromSource (v: ETransformSource) {
+        if (v === ETransformSource.SCENE) {
+            this._isShapeOnly = true;
+        } else {
+            this._isShapeOnly = false;
+        }
+    }
+
+    private static _tempMat4 = new Mat4();
+
+    private static _tempQuat = new Quat();
+
+    private static _tempVec3 = new Vec3();
+
     private _body: RigidBodyBase;
 
     private _refCount = 0;
@@ -148,7 +169,6 @@ class SharedRigidBody {
 
     /** 是否只有Collider组件 */
     private _isShapeOnly: boolean = true;
-    public get isShapeOnly (): boolean { return this._isShapeOnly; }
 
     /** 上一次的缩放 */
     private _prevScale: Vec3 = new Vec3();
@@ -163,19 +183,6 @@ class SharedRigidBody {
         this._beforeStepCallback = this._beforeStep.bind(this);
         this._afterStepCallback = this._afterStep.bind(this);
         this._onCollidedCallback = this._onCollided.bind(this);
-    }
-
-    public get body () {
-        return this._body;
-    }
-
-    /** 设置场景与物理之间的同步关系 */
-    public set transfromSource (v: ETransformSource) {
-        if (v === ETransformSource.SCENE) {
-            this._isShapeOnly = true;
-        } else {
-            this._isShapeOnly = false;
-        }
     }
 
     public ref () {
@@ -208,18 +215,11 @@ class SharedRigidBody {
     }
 
     public syncPhysWithScene (node: Node) {
+
         // sync position rotation
-        const p = node.getWorldPosition();
-        const r = node.getWorldRotation();
-
-        this.body.setPosition(p);
-        this.body.setRotation(r);
-
-        // scale property should handle by shape, scale belong to shape
-        // node.getWorldScale(this._worldScale);
-        // // Because we sync the scale, we should update shape parameters.
-        // this.body.scaleAllShapes(this._worldScale);
-        // this.body.commitShapeUpdates();
+        node.getWorldMatrix(SharedRigidBody._tempMat4);
+        node.getWorldRotation(SharedRigidBody._tempQuat);
+        this._body.translateAndRotate(SharedRigidBody._tempMat4, SharedRigidBody._tempQuat);
     }
 
     /**
@@ -230,13 +230,11 @@ class SharedRigidBody {
             return;
         }
 
-        const p = new Vec3();
-        this.body.getPosition(p);
-        this._node.setWorldPosition(p.x, p.y, p.z);
+        this._body.getPosition(SharedRigidBody._tempVec3);
+        this._node.setWorldPosition(SharedRigidBody._tempVec3);
         if (!this._body.getFreezeRotation()) {
-            const q = new Quat();
-            this.body.getRotation(q);
-            this._node.setWorldRotation(q.x, q.y, q.z, q.w);
+            this._body.getRotation(SharedRigidBody._tempQuat);
+            this._node.setWorldRotation(SharedRigidBody._tempQuat);
         }
     }
 
@@ -271,7 +269,7 @@ class SharedRigidBody {
         this._body.setWorld(null);
     }
 
-    private _onCollided (type: ICollisionType, event: ICollisionEvent) {
+    private _onCollided (type: ICollisionEventType, event: ICollisionEvent) {
         if (!this._node) {
             return;
         }
@@ -287,7 +285,7 @@ class SharedRigidBody {
         if (this._node.hasChanged) {
             // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
             if (!vec3.equals(this._prevScale, this._node._scale)) {
-                this.body.scaleAllShapes(this._node._scale);
+                this._body.scaleAllShapes(this._node._scale);
                 vec3.copy(this._prevScale, this._node._scale);
             }
             this.syncPhysWithScene(this._node);
@@ -296,7 +294,7 @@ class SharedRigidBody {
 
     private _afterStep () {
         // 物理计算之后，除了只有形状组件的节点，其它有刚体组件的节点，并且刚体类型为DYNAMIC的，需要将计算结果同步到Scene中
-        if (!this._isShapeOnly && this.body.getType() === ERigidBodyType.DYNAMIC) {
+        if (!this._isShapeOnly && this._body.getType() === ERigidBodyType.DYNAMIC) {
             this._syncSceneWithPhys();
         } else {
             // 对于只有形状组件的节点，需要将Scene中节点的Transform同步到Phyisc。

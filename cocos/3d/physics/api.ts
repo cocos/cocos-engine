@@ -1,4 +1,5 @@
 import { Quat, Vec3 } from '../../core/value-types';
+import { mat4, quat } from '../../core/vmath';
 import { ERigidBodyType } from './physic-enum';
 import { RaycastResult } from './raycast-result';
 
@@ -16,21 +17,19 @@ export interface ICreateBodyOptions {
 }
 
 export interface ICollisionEvent {
-    source: RigidBodyBase;
-
-    target: RigidBodyBase;
+    source: RigidBodyBase | BuiltInRigidBodyBase;
+    target: RigidBodyBase | BuiltInRigidBodyBase;
 }
 
-export type ICollisionType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
+export type ICollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
 
-export type ICollisionCallback = (type: ICollisionType, event: ICollisionEvent) => void;
+export type ICollisionCallback = (type: ICollisionEventType, event: ICollisionEvent) => void;
 
 export type BeforeStepCallback = () => void;
 
 export type AfterStepCallback = () => void;
 
 export interface PhysicsWorldBase {
-    // constructor ();
 
     step (deltaTime: number): void;
 
@@ -61,21 +60,28 @@ export interface PhysicsWorldBase {
     raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean;
 }
 
-export interface RigidBodyBase {
-    // constructor (options?: ICreateBodyOptions);
-
-    /** @return group ∈ [0, 31] (int) */
+export interface BuiltInRigidBodyBase{
+    /**
+     * @return group ∈ [0, 31] (int)
+     */
     getGroup (): number;
-    /** @param v ∈ [0, 31] (int) */
+
+    /**
+     * @param v ∈ [0, 31] (int)
+     */
     setGroup (v: number): void;
 
-    /** @return (int) */
-    getMask (): number;
     /**
-     *  this will reset the mask
+     * @return (int)
+     */
+    getMask (): number;
+
+    /**
+     * this will reset the mask
      * @param v ∈ [0, 31] (int)
      */
     setMask (v: number): void;
+
     /**
      * this will add a mask
      * @param v ∈ [0, 31] (int)
@@ -88,16 +94,49 @@ export interface RigidBodyBase {
      */
     removeMask (v: number): void;
 
-    /** the body type */
-    getType (): ERigidBodyType;
-    setType (v: ERigidBodyType): void;
-
-    wakeUp (): void;
-    sleep (): void;
-
     addShape (shape: ShapeBase): void;
 
     removeShape (shape: ShapeBase): void;
+
+    getPosition (out: Vec3): void;
+
+    setPosition (value: Vec3): void;
+
+    getRotation (out: Quat): void;
+
+    setRotation (out: Quat): void;
+
+    translateAndRotate (m: mat4, rot: quat): void;
+
+    scaleAllShapes (scale: Vec3): void;
+
+    addCollisionCallback (callback: ICollisionCallback): void;
+
+    removeCollisionCllback (callback: ICollisionCallback): void;
+
+    getUserData (): any;
+
+    setUserData (data: any): void;
+
+    /**
+     * Set the collision filter of this body, remember that they are tested bitwise.
+     * @param group The group which this body will be put into.
+     * @param mask The groups which this body can collide with.
+     */
+    setCollisionFilter (group: number, mask: number): void;
+
+    setWorld (world: PhysicsWorldBase | null): void;
+}
+
+export interface RigidBodyBase extends BuiltInRigidBodyBase{
+    /** the body type */
+    getType (): ERigidBodyType;
+
+    setType (v: ERigidBodyType): void;
+
+    wakeUp (): void;
+
+    sleep (): void;
 
     getMass (): number;
 
@@ -135,36 +174,9 @@ export interface RigidBodyBase {
 
     setFreezeRotation (value: boolean): void;
 
-    /**
-     * Set the collision filter of this body, remember that they are tested bitwise.
-     * @param group The group which this body will be put into.
-     * @param mask The groups which this body can collide with.
-     */
-    setCollisionFilter (group: number, mask: number): void;
-
-    setWorld (world: PhysicsWorldBase | null): void;
-
     commitShapeUpdates (): void;
 
     isPhysicsManagedTransform (): boolean;
-
-    getPosition (out: Vec3): void;
-
-    setPosition (value: Vec3): void;
-
-    getRotation (out: Quat): void;
-
-    setRotation (out: Quat): void;
-
-    scaleAllShapes (scale: Vec3): void;
-
-    addCollisionCallback (callback: ICollisionCallback): void;
-
-    removeCollisionCllback (callback: ICollisionCallback): void;
-
-    getUserData (): any;
-
-    setUserData (data: any): void;
 }
 
 export interface ShapeBase {
