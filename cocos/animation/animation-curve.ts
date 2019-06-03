@@ -115,8 +115,8 @@ interface ICubicSplineValue<T> {
 
 function fullfillInterpolationRequirement (interpolation: AnimationInterpolation, value: any) {
     const isNumberLikeOrValueType = (v: any) => {
-        return typeof 'v' === 'number' ||
-            (typeof 'v' === 'object' && v !== null &&
+        return typeof v === 'number' ||
+            (typeof v === 'object' && v !== null &&
                 (v instanceof Number || v instanceof ValueType));
     };
     switch (interpolation) {
