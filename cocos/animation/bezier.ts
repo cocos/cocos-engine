@@ -1,4 +1,6 @@
 
+export type BezierControlPoints = [ number, number, number, number ];
+
 export function bezier (C1: number, C2: number, C3: number, C4: number, t: number) {
     const t1 = 1 - t;
     return C1 * t1 * t1 * t1 +
@@ -27,7 +29,7 @@ function crt (v: number) {
 
 // Modified from http://jsbin.com/yibipofeqi/1/edit, optimized for animations.
 // The origin Cardano's algorithm is based on http://www.trans4mind.com/personal_development/mathematics/polynomials/cubicAlgebra.htm
-function cardano (curve: number[], x: number) {
+function cardano (curve: BezierControlPoints, x: number) {
     // align curve with the intersecting line:
         // var line = {p1: {x: x, y: 0}, p2: {x: x, y: 1}};
         // var aligned = align(curve, line);
@@ -142,7 +144,7 @@ function cardano (curve: number[], x: number) {
     }
 }
 
-export function bezierByTime (controlPoints, x) {
+export function bezierByTime (controlPoints: BezierControlPoints, x: number) {
     const percent = cardano(controlPoints, x);    // t
     const p0y = 0;                // a
     const p1y = controlPoints[1]; // b

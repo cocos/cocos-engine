@@ -2,7 +2,7 @@ import { Asset, SpriteFrame } from '../assets';
 import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
 import binarySearchEpsilon from '../core/utils/binary-search';
-import { AnimCurve, PropertyCurveData, RatioSampler } from './animation-curve';
+import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
 import { WrapMode as AnimationWrapMode } from './types';
 
 interface IAnimationEventData {
@@ -11,15 +11,26 @@ interface IAnimationEventData {
     params: string[];
 }
 
-interface ICurveData {
-    props?: {
-        [propertyName: string]: PropertyCurveData;
-    };
-    comps?: {
-        [componentName: string]: {
-            [propertyName: string]: PropertyCurveData;
-        };
-    };
+export interface IObjectCurveData {
+    [propertyName: string]: IPropertyCurveData;
+}
+
+export interface IComponentsCurveData {
+    [componentName: string]: IObjectCurveData;
+}
+
+export interface INodeCurveData {
+    props?: IObjectCurveData;
+    comps?: IComponentsCurveData;
+}
+
+export interface ICurveData {
+    [path: string]: INodeCurveData;
+}
+
+export interface IKeySharedCurveData {
+    keys: number[][];
+    curves: ICurveData;
 }
 
 export interface IPropertyCurve {
@@ -53,17 +64,12 @@ export interface IAnimationEventGroup {
     events: IAnimationEvent[];
 }
 
+/**
+ * 动画剪辑。
+ */
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
     public static WrapMode = AnimationWrapMode;
-
-    /**
-     * !#en Duration of this animation.
-     * !#zh 动画的持续时间。
-     */
-    get duration () {
-        return this._duration;
-    }
 
     /**
      * !#en Crate clip with a set of sprite frames
@@ -81,7 +87,7 @@ export class AnimationClip extends Asset {
         const clip = new AnimationClip();
         clip.sample = sample || clip.sample;
 
-        clip._duration = spriteFrames.length / clip.sample;
+        clip.duration = spriteFrames.length / clip.sample;
         const step = 1 / clip.sample;
         const keys = new Array<number>(spriteFrames.length);
         const values = new Array<SpriteFrame>(keys.length);
@@ -89,7 +95,7 @@ export class AnimationClip extends Asset {
             keys[i] = i * step;
             values[i] = spriteFrames[i];
         }
-        clip._keys = [keys];
+        clip.keys = [keys];
         clip.curveDatas = {
             '/': {
                 comps: {
@@ -109,39 +115,31 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * !#en FrameRate of this animation.
-     * !#zh 动画的帧速率。
+     * 动画帧率，单位为帧/秒。
      */
     @property
     public sample = 60;
 
     /**
-     * !#en Speed of this animation.
-     * !#zh 动画的播放速度。
+     * 动画的播放速度。
      */
     @property
     public speed = 1;
 
     /**
-     * !#en WrapMode of this animation.
-     * !#zh 动画的循环模式。
+     * 动画的循环模式。
      */
     @property
     public wrapMode = AnimationWrapMode.Normal;
 
     /**
-     * !#en Curve data.
-     * !#zh 曲线数据。
-     * @example {@link cocos2d/core/animation-clip/curve-data.js}
+     * 动画的曲线数据。
      */
-    @property({visible: false})
-    public curveDatas: { [path: string]: ICurveData; } = {};
+    @property
+    public curveDatas: ICurveData = {};
 
     /**
-     * !#en Event data.
-     * !#zh 事件数据。
-     * @example {@link cocos2d/core/animation-clip/event-data.js}
-     * @typescript events: {frame: number, func: string, params: string[]}[]
+     * 动画包含的事件数据。
      */
     @property({visible: false})
     public events: IAnimationEventData[] = [];
@@ -166,6 +164,31 @@ export class AnimationClip extends Asset {
     @property
     private _stepness = 0;
 
+    /**
+     * 动画的周期。
+     */
+    get duration () {
+        return this._duration;
+    }
+
+    set duration (value) {
+        this._duration = value;
+    }
+
+    /**
+     * 动画所有时间轴。
+     */
+    get keys () {
+        return this._keys;
+    }
+
+    set keys (value) {
+        this._keys = value;
+    }
+
+    /**
+     * @private
+     */
     get propertyCurves (): ReadonlyArray<IPropertyCurve> {
         if (!this._propertyCurves) {
             this._createPropertyCurves();
@@ -173,6 +196,9 @@ export class AnimationClip extends Asset {
         return this._propertyCurves!;
     }
 
+    /**
+     * @private
+     */
     get eventGroups (): ReadonlyArray<IAnimationEventGroup> {
         if (!this._runtimeEvents) {
             this._createRuntimeEvents();
@@ -180,36 +206,51 @@ export class AnimationClip extends Asset {
         return this._runtimeEvents!.eventGroups;
     }
 
+    /**
+     * @private
+     */
     get stepness () {
         return this._stepness;
     }
 
+    /**
+     * @private
+     */
     set stepness (value) {
         this._stepness = value;
         this._applyStepness();
     }
 
     public onLoad () {
-        this._duration = this.duration;
+        this.duration = this._duration;
         this.speed = this.speed;
         this.wrapMode = this.wrapMode;
         this.frameRate = this.sample;
     }
 
     /**
-     * Call it when you modify `this.curveDatas`;
+     * 提交曲线数据的修改。
+     * 当你修改了 `this.curveDatas`、`this.keys` 或 `this.duration`时，
+     * 必须调用 `this.updateCurveDatas()` 使修改生效。
      */
     public updateCurveDatas () {
         delete this._propertyCurves;
     }
 
     /**
-     * Call it when you modify `this.events`;
+     * 提交事件数据的修改。
+     * 当你修改了 `this.events` 时，必须调用 `this.updateEventDatas()` 使修改生效。
+     * @private
      */
     public updateEventDatas () {
         delete this._runtimeEvents;
     }
 
+    /**
+     * Gets the event group shall be processed at specified ratio.
+     * @param ratio The ratio.
+     * @private
+     */
     public getEventGroupIndexAtRatio (ratio: number): number {
         if (!this._runtimeEvents) {
             this._createRuntimeEvents();
@@ -218,6 +259,10 @@ export class AnimationClip extends Asset {
         return result;
     }
 
+    /**
+     * 返回本动画是否包含事件数据。
+     * @private
+     */
     public hasEvents () {
         return this.events.length !== 0;
     }
@@ -257,7 +302,7 @@ export class AnimationClip extends Asset {
         this._applyStepness();
     }
 
-    private _createCurve (propertyCurveData: PropertyCurveData, propertyName: string, isNode: boolean) {
+    private _createCurve (propertyCurveData: IPropertyCurveData, propertyName: string, isNode: boolean) {
         let ratioSampler: null | RatioSampler = null;
         if (propertyCurveData.keys >= 0) {
             ratioSampler = this._ratioSamplers[propertyCurveData.keys];
