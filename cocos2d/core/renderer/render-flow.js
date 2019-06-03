@@ -191,7 +191,6 @@ RenderFlow.visit = function (scene) {
     _batcher.walking = true;
 
     _cullingMask = 1 << scene.groupIndex;
-    _renderQueueIndex = 0;
 
     if (scene._renderFlag & WORLD_TRANSFORM) {
         _batcher.worldMatDirty ++;
