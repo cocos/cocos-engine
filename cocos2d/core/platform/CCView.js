@@ -129,21 +129,6 @@ var View = function () {
     _t._rpFixedHeight = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
     _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
-    _t._canvasBoundingRect = {
-        left: 0,
-        top: 0,
-        width: 0,
-        height: 0,
-    };
-    // need to update left and top in the touch event callback
-    // update width and height in the resize event callback
-    _t._clonedBoundingRect = {
-        left: 0,
-        top: 0,
-        width: 0,
-        height: 0,
-    }
-
     cc.game.once(cc.game.EVENT_ENGINE_INITED, this.init, this);
 };
 
@@ -153,7 +138,6 @@ cc.js.mixin(View.prototype, {
     init () {
         this._initFrameSize();
         this.enableAntiAlias(true);
-        window.addEventListener('resize', this._updateCanvasBoundingRect.bind(this));
 
         var w = cc.game.canvas.width, h = cc.game.canvas.height;
         this._designResolutionSize.width = w;
@@ -213,35 +197,6 @@ cc.js.mixin(View.prototype, {
     _orientationChange: function () {
         cc.view._orientationChanging = true;
         cc.view._resizeEvent();
-    },
-
-    _updateCanvasBoundingRect: function () {
-        let element = cc.game.canvas;
-        let canvasBoundingRect = this._canvasBoundingRect;
-        let clonedBondingRect = this._clonedBoundingRect;
-
-        let docElem = document.documentElement;
-        let leftOffset = window.pageXOffset - docElem.clientLeft;
-        let topOffset = window.pageYOffset - docElem.clientTop;
-        if (element.getBoundingClientRect) {
-            let box = element.getBoundingClientRect();
-            canvasBoundingRect.left = box.left + leftOffset;
-            canvasBoundingRect.top = box.top + topOffset;
-            clonedBondingRect.width = canvasBoundingRect.width = box.width;
-            clonedBondingRect.height = canvasBoundingRect.height = box.height;
-        }
-        else if (element instanceof HTMLCanvasElement) {
-            canvasBoundingRect.left = leftOffset;
-            canvasBoundingRect.top = topOffset;
-            clonedBondingRect.width = canvasBoundingRect.width = element.width;
-            clonedBondingRect.height = canvasBoundingRect.height = element.height;
-        }
-        else {
-            canvasBoundingRect.left = leftOffset;
-            canvasBoundingRect.top = topOffset;
-            clonedBondingRect.width = canvasBoundingRect.width = parseInt(element.style.width);
-            clonedBondingRect.height = canvasBoundingRect.height = parseInt(element.style.height);
-        }
     },
 
     /**
@@ -781,7 +736,7 @@ cc.js.mixin(View.prototype, {
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
 
         renderer.updateCameraViewport();
-        this._updateCanvasBoundingRect();
+        _cc.inputManager._updateCanvasBoundingRect();
         this.emit('design-resolution-changed');
     },
 
@@ -974,8 +929,10 @@ cc.js.mixin(View.prototype, {
      */
     convertToLocationInView: function (tx, ty, relatedPos, out) {
         let result = out || cc.v2();
-        let x = this._devicePixelRatio * (tx - relatedPos.left);
-        let y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
+        let posLeft = relatedPos.adjustedLeft ? relatedPos.adjustedLeft : relatedPos.left;
+        let posTop = relatedPos.adjustedTop ? relatedPos.adjustedTop : relatedPos.top;
+        let x = this._devicePixelRatio * (tx - posLeft);
+        let y = this._devicePixelRatio * (posTop + relatedPos.height - ty);
         if (this._isRotated) {
             result.x = cc.game.canvas.width - y;
             result.y = x;

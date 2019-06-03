@@ -59,6 +59,15 @@ let inputManager = {
     _acceleration: null,
     _accelDeviceEvent: null,
 
+    _canvasBoundingRect: {
+        left: 0,
+        top: 0,
+        adjustedLeft: 0,
+        adjustedTop: 0,
+        width: 0,
+        height: 0,
+    },
+
     _getUnUsedIndex () {
         let temp = this._indexBitsUsed;
         let now = cc.sys.now();
@@ -93,6 +102,34 @@ let inputManager = {
     },
 
     _glView: null,
+
+    _updateCanvasBoundingRect () {
+        let element = cc.game.canvas;
+        let canvasBoundingRect = this._canvasBoundingRect;
+
+        let docElem = document.documentElement;
+        let leftOffset = window.pageXOffset - docElem.clientLeft;
+        let topOffset = window.pageYOffset - docElem.clientTop;
+        if (element.getBoundingClientRect) {
+            let box = element.getBoundingClientRect();
+            canvasBoundingRect.left = box.left + leftOffset;
+            canvasBoundingRect.top = box.top + topOffset;
+            canvasBoundingRect.width = box.width;
+            canvasBoundingRect.height = box.height;
+        }
+        else if (element instanceof HTMLCanvasElement) {
+            canvasBoundingRect.left = leftOffset;
+            canvasBoundingRect.top = topOffset;
+            canvasBoundingRect.width = element.width;
+            canvasBoundingRect.height = element.height;
+        }
+        else {
+            canvasBoundingRect.left = leftOffset;
+            canvasBoundingRect.top = topOffset;
+            canvasBoundingRect.width = parseInt(element.style.width);
+            canvasBoundingRect.height = parseInt(element.style.height);
+        }
+    },
 
     /**
      * @method handleTouchesBegin
@@ -360,8 +397,9 @@ let inputManager = {
 
         this._glView = cc.view;
         let selfPointer = this;
-        let canvasBoundingRect = this._glView._canvasBoundingRect;
-        let clonedBoundingRect = this._glView._clonedBoundingRect;
+        let canvasBoundingRect = this._canvasBoundingRect;
+
+        window.addEventListener('resize', this._updateCanvasBoundingRect.bind(this));
 
         let prohibition = sys.isMobile;
         let supportMouse = ('mouse' in sys.capabilities);
@@ -455,10 +493,10 @@ let inputManager = {
                 let touchEvent = _pointerEventsMap[eventName];
                 element.addEventListener(eventName, function (event){
                     let documentElement = document.documentElement;
-                    clonedBoundingRect.left = canvasBoundingRect.left - documentElement.scrollLeft;
-                    clonedBoundingRect.top = canvasBoundingRect.top - documentElement.scrollTop;
+                    canvasBoundingRect.adjustedLeft = canvasBoundingRect.left - documentElement.scrollLeft;
+                    canvasBoundingRect.adjustedTop = canvasBoundingRect.top - documentElement.scrollTop;
 
-                    touchEvent.call(selfPointer, [selfPointer.getTouchByXY(event.clientX, event.clientY, clonedBoundingRect)]);
+                    touchEvent.call(selfPointer, [selfPointer.getTouchByXY(event.clientX, event.clientY, canvasBoundingRect)]);
                     event.stopPropagation();
                 }, false);
             }
@@ -488,9 +526,9 @@ let inputManager = {
                     if (!event.changedTouches) return;
                     let body = document.body;
 
-                    clonedBoundingRect.left = canvasBoundingRect.left - (body.scrollLeft || 0);
-                    clonedBoundingRect.top = canvasBoundingRect.top - (body.scrollTop || 0);
-                    handler(selfPointer.getTouchesByEvent(event, clonedBoundingRect));
+                    canvasBoundingRect.adjustedLeft = canvasBoundingRect.left - (body.scrollLeft || 0);
+                    canvasBoundingRect.adjustedTop = canvasBoundingRect.top - (body.scrollTop || 0);
+                    handler(selfPointer.getTouchesByEvent(event, canvasBoundingRect));
                     event.stopPropagation();
                     event.preventDefault();
                 }), false);
