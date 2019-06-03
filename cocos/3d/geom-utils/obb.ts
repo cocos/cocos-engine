@@ -159,10 +159,19 @@ export default class obb {
      * @param [out] the target shape
      */
     public transform (m: mat4, pos: vec3, rot: quat, scale: vec3, out: obb) {
-        if (!out) { out = this; }
         vec3.transformMat4(out.center, this.center, m);
         // parent shape doesn't contain rotations for now
         mat3.fromQuat(out.orientation, rot);
+        vec3.mul(out.halfExtents, this.halfExtents, scale);
+    }
+
+    public translateAndRotate (m: mat4, rot: quat, out: obb){
+        vec3.transformMat4(out.center, this.center, m);
+        // parent shape doesn't contain rotations for now
+        mat3.fromQuat(out.orientation, rot);
+    }
+
+    public setScale (scale: vec3, out: obb) {
         vec3.mul(out.halfExtents, this.halfExtents, scale);
     }
 }

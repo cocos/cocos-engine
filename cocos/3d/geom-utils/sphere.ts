@@ -112,8 +112,15 @@ export default class sphere {
      * @param {sphere} [out] the target shape
      */
     public transform (m: mat4, pos: vec3, rot: quat, scale: vec3, out: sphere) {
-        if (!out) { out = this; }
         vec3.transformMat4(out.center, this.center, m);
+        out.radius = this.radius * maxComponent(scale);
+    }
+
+    public translateAndRotate (m: mat4, rot: quat, out: sphere){
+        vec3.transformMat4(out.center, this.center, m);
+    }
+
+    public setScale (scale: vec3, out: sphere) {
         out.radius = this.radius * maxComponent(scale);
     }
 }
