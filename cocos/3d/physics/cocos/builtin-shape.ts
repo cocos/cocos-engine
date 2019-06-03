@@ -1,8 +1,8 @@
 import { Quat, Vec3 } from '../../../core/value-types';
 import { ShapeBase } from '../api';
 import { EShapeType } from '../physic-enum';
-import { BuiltInBody } from './built-in-body';
-import { IShapeTransform } from './built-in-interface';
+import { BuiltInBody } from './builtin-body';
+import { IShapeTransform } from './builtin-interface';
 import { BoxShape } from './shapes/BoxShape';
 import { SphereShape } from './shapes/SphereShape';
 

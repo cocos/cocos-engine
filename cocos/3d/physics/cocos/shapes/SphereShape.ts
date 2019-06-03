@@ -1,6 +1,6 @@
 import { vec3 } from '../../../../core/vmath';
 import { sphere } from '../../../geom-utils';
-import { IShapeTransform } from '../built-in-interface';
+import { IShapeTransform } from '../builtin-interface';
 
 export class SphereShape extends sphere implements IShapeTransform {
     constructor (cx = 0, cy = 0, cz = 0, r = 1) {

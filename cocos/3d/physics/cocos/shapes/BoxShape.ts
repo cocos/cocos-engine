@@ -1,6 +1,6 @@
 import { mat3, quat, vec3 } from '../../../../core/vmath';
 import { obb } from '../../../geom-utils';
-import { IShapeTransform } from '../built-in-interface';
+import { IShapeTransform } from '../builtin-interface';
 
 export class BoxShape extends obb implements IShapeTransform {
     private _originHalfExtents: vec3;

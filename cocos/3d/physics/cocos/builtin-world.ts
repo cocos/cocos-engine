@@ -1,7 +1,7 @@
 import { Vec3 } from '../../../core';
 import { AfterStepCallback, BeforeStepCallback, ICollisionEvent, IRaycastOptions, PhysicsWorldBase, RigidBodyBase } from '../api';
 import { RaycastResult } from '../raycast-result';
-import { BuiltInBody } from './built-in-body';
+import { BuiltInBody } from './builtin-body';
 import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
 
 /**

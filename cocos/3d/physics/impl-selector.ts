@@ -22,10 +22,10 @@ import { CannonBoxShape, CannonRigidBody, CannonSphereShape, CannonWorld } from 
 // import { AmmoBoxShape, AmmoRaycastResult, AmmoRigidBody, AmmoSphereShape, AmmoWorld, } from './ammo-impl';
 
 // built-in
-import { BuiltInBody } from './cocos/built-in-body';
-import { BuiltInBoxShape } from './cocos/built-in-shape';
-import { BuiltInSphereShape } from './cocos/built-in-shape';
-import { BuiltInWorld } from './cocos/built-in-world';
+import { BuiltInBody } from './cocos/builtin-body';
+import { BuiltInBoxShape } from './cocos/builtin-shape';
+import { BuiltInSphereShape } from './cocos/builtin-shape';
+import { BuiltInWorld } from './cocos/builtin-world';
 
 export let BoxShape: typeof CannonBoxShape | typeof BuiltInBoxShape;
 export let SphereShape: typeof CannonSphereShape | typeof BuiltInSphereShape;
