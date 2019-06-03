@@ -94,5 +94,5 @@ export interface ILerpable {
 }
 
 export function isLerpable (object: any): object is ILerpable {
-    return object.lerp;
+    return typeof object.lerp === 'function';
 }

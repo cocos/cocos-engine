@@ -1,4 +1,4 @@
-import { ICurveTarget } from './animation-curve';
+import { CurveTarget } from './animation-curve';
 
 // tslint:disable:interface-over-type-literal
 
@@ -10,14 +10,14 @@ export type PropertyBlendState<T = any> = {
 };
 
 interface ITargetState {
-    target: ICurveTarget;
+    target: CurveTarget;
     properties: Array<PropertyBlendState<any>>;
 }
 
 export class AnimationBlendState {
     private _blendTargets: ITargetState[] = [];
 
-    public refPropertyBlendTarget (target: ICurveTarget, propertyName: string) {
+    public refPropertyBlendTarget (target: CurveTarget, propertyName: string) {
         let targetState = this._blendTargets.find((x) => x.target === target);
         if (!targetState) {
             targetState = { target, properties: [] };
@@ -34,7 +34,7 @@ export class AnimationBlendState {
         return propertyState;
     }
 
-    public derefPropertyBlendTarget (target: ICurveTarget, propertyName: string) {
+    public derefPropertyBlendTarget (target: CurveTarget, propertyName: string) {
         const iTargetState = this._blendTargets.findIndex((x) => x.target === target);
         if (iTargetState < 0) {
             return;

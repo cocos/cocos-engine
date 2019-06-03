@@ -1,23 +1,25 @@
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
-import { errorID } from '../core/platform/CCDebug';
+import { error, errorID } from '../core/platform/CCDebug';
 import { Quat, ValueType, Vec2, Vec3, Vec4 } from '../core/value-types';
 import { ccenum } from '../core/value-types/enum';
 import * as vmath from '../core/vmath';
 import { PropertyBlendState } from './animation-blend-state';
-import { bezierByTime } from './bezier';
+import { bezierByTime, BezierControlPoints } from './bezier';
 import * as blending from './blending';
 import * as easing from './easing';
 import { MotionPath, sampleMotionPaths } from './motion-path-helper';
 import { ILerpable, isLerpable } from './types';
 
+/**
+ * 表示曲线值，曲线值可以是任意类型，但必须符合插值方式的要求。
+ */
 export type CurveValue = any;
 
-export interface ICurveTarget {
-    [x: string]: any;
-}
-
-export type LerpFunction<T = any> = (from: T, to: T, t: number, dt: number) => T;
+/**
+ * 表示曲线的目标对象。
+ */
+export type CurveTarget = Record<string, any>;
 
 /**
  * If propertyBlendState.weight equals to zero, the propertyBlendState.value is dirty.
@@ -25,37 +27,82 @@ export type LerpFunction<T = any> = (from: T, to: T, t: number, dt: number) => T
  */
 export type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendState) => T;
 
-export type FrameFinder = (framevalues: number[], value: number) => number;
-
-export type LinearType = null;
-
-export type BezierType = [number, number, number, number];
-
+/**
+ * 内置帧时间渐变方式名称。
+ */
 export type EasingMethodName = keyof (typeof easing);
 
-export type CurveType = LinearType | BezierType | EasingMethodName;
+/**
+ * 帧时间渐变方式。可能为内置帧时间渐变方式的名称或贝塞尔控制点。
+ */
+export type EasingMethod = EasingMethodName | BezierControlPoints;
 
+/**
+ * 动画的插值方式。
+ */
 export enum AnimationInterpolation {
+    /**
+     * 曲线值之间进行线性插值。
+     * 当使用此插值方式时，曲线值的类型必须为 `number`、`Number` 或继承自 `ValueType`。
+     */
     Linear = 0,
+
+    /**
+     * 直接使用起始曲线值作为插值结果。
+     */
     Step = 1,
+
+    /**
+     * 曲线值之间进行三次样条插值。
+     * 当使用此插值方式时，曲线值的类型必须为 `ICubicSpline<T>`
+     * 并且类型参数 `T` 必须为 `number`、`Number` 或继承自 `ValueType`。
+     */
     CubicSpline = 2,
+
+    /**
+     * 使用自定义插值方式，插值结果为 `from.lerp.call(from, to, ratio)`，其中
+     * `from` 为起始曲线值；`to` 为结束曲线值；`ratio` 表示插值比例，范围为 `(0,1)`。
+     * 当使用此插值方式时，曲线值的类型必须为 `ILerpable`。
+     */
     Custom = 3,
 }
 ccenum(AnimationInterpolation);
 cc.AnimationInterpolation = AnimationInterpolation;
 
-type EasingMethod = EasingMethodName | number[];
+type LerpFunction<T = any> = (from: T, to: T, t: number, dt: number) => T;
 
-// tslint:disable-next-line:interface-name
-export interface PropertyCurveData {
+/**
+ * 曲线数据。
+ */
+export interface IPropertyCurveData {
+    /**
+     * 曲线使用的时间轴。
+     * @see {AnimationClip.keys}
+     */
     keys: number;
+
+    /**
+     * 曲线值。曲线值的数量应和 `keys` 所引用时间轴的帧数相同。
+     */
     values: CurveValue[];
+
+    /**
+     * 曲线任意两帧时间的渐变方式。仅当 `easingMethods === undefined` 时本字段才生效。
+     */
     easingMethod?: EasingMethod;
+
+    /**
+     * 描述了每一帧时间到下一帧时间之间的渐变方式。
+     */
     easingMethods?: EasingMethod[];
+
+    /**
+     * @private
+     */
     motionPaths?: MotionPath | MotionPath[];
 
     /**
-     * When the interpolation is 'AnimationInterpolation.CubicSpline', the values must be array of ICubicSplineValue.
+     * 曲线的插值方式。
      */
     interpolation?: AnimationInterpolation;
 }
@@ -64,6 +111,26 @@ interface ICubicSplineValue<T> {
     inTangent: T;
     dataPoint: T;
     outTangent: T;
+}
+
+function fullfillInterpolationRequirement (interpolation: AnimationInterpolation, value: any) {
+    const isNumberLikeOrValueType = (v: any) => {
+        return typeof 'v' === 'number' ||
+            (typeof 'v' === 'object' && v !== null &&
+                (v instanceof Number || v instanceof ValueType));
+    };
+    switch (interpolation) {
+        case AnimationInterpolation.Linear:
+            return isNumberLikeOrValueType(value);
+        case AnimationInterpolation.CubicSpline:
+            return (typeof value === 'object' && value !== null) &&
+                isNumberLikeOrValueType(value.inTangent) &&
+                isNumberLikeOrValueType(value.outTangent) &&
+                isNumberLikeOrValueType(value.dataPoint);
+        case AnimationInterpolation.Custom:
+            return isLerpable(value);
+    }
+    return true;
 }
 
 export class RatioSampler {
@@ -112,7 +179,7 @@ export class AnimCurve {
     public static Linear = null;
 
     public static Bezier (controlPoints: number[]) {
-        return controlPoints as BezierType;
+        return controlPoints as BezierControlPoints;
     }
 
     /**
@@ -122,10 +189,10 @@ export class AnimCurve {
     public _ratioSampler: RatioSampler | null = null;
 
     @property
-    public types?: CurveType[] = undefined;
+    public types?: Array<(EasingMethod | null)> = undefined;
 
     @property
-    public type?: CurveType = null;
+    public type?: EasingMethod | null = null;
 
     public _blendFunction: BlendFunction<any> | undefined = undefined;
 
@@ -144,7 +211,7 @@ export class AnimCurve {
 
     private _interpolation: AnimationInterpolation;
 
-    constructor (propertyCurveData: PropertyCurveData, propertyName: string, isNode: boolean, ratioSampler: RatioSampler | null) {
+    constructor (propertyCurveData: IPropertyCurveData, propertyName: string, isNode: boolean, ratioSampler: RatioSampler | null) {
         this._ratioSampler = ratioSampler;
 
         // Install values.
@@ -182,6 +249,15 @@ export class AnimCurve {
         }
 
         // Setup the lerp function.
+        if (CC_DEV) {
+            if (!this._values.every(
+                (value) => fullfillInterpolationRequirement(this._interpolation, value))) {
+                error(
+                    `Curve values for which ` +
+                    `${AnimationInterpolation[this._interpolation]} ` +
+                     `is used do not satify the type requirements.`);
+            }
+        }
         switch (this._interpolation) {
             case AnimationInterpolation.Custom:
                 this._lerp = customLerpFxInvoker;
@@ -311,12 +387,12 @@ export class EventInfo {
 }
 
 /**
- * Compute a new ratio by curve type
+ * Compute a new ratio by curve type.
  * @param ratio - The origin ratio
  * @param type - If it's Array, then ratio will be computed with bezierByTime.
  * If it's string, then ratio will be computed with cc.easing function
  */
-export function computeRatioByType (ratio: number, type: CurveType) {
+export function computeRatioByType (ratio: number, type: EasingMethod) {
     if (typeof type === 'string') {
         const func = easing[type];
         if (func) {
@@ -333,7 +409,7 @@ export function computeRatioByType (ratio: number, type: CurveType) {
 }
 
 /**
- * 当每两帧之前的间隔都一样的时候可以使用此函数快速查找 index
+ * Use this function if intervals between frames are same.
  */
 function quickFindIndex (ratios: number[], ratio: number) {
     const length = ratios.length - 1;

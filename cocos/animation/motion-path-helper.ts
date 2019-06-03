@@ -1,7 +1,7 @@
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
 import { Vec2 } from '../core/value-types';
-import { AnimCurve, computeRatioByType, CurveType, CurveValue, ICurveTarget } from './animation-curve';
+import { AnimCurve, computeRatioByType, CurveType, CurveValue, CurveTarget } from './animation-curve';
 import { bezier } from './bezier';
 
 // tslint:disable:no-shadowed-variable

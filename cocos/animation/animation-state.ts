@@ -4,13 +4,13 @@ import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';
 import { Node } from '../scene-graph';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip } from './animation-clip';
-import { AnimCurve, EventInfo, ICurveTarget } from './animation-curve';
+import { AnimCurve, CurveTarget, EventInfo } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 
 interface ICurveInstance {
     curve: AnimCurve;
-    target: ICurveTarget;
+    target: CurveTarget;
     propertyName: string;
     blendTarget: PropertyBlendState | null;
     cached?: any[];
