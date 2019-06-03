@@ -35,7 +35,9 @@ import { BillboardComponent } from './particle/billboard-component';
 import { LineComponent } from './particle/line-component';
 import { ParticleSystemComponent } from './particle/particle-system-component';
 import { ParticleUtils } from './particle/particle-utils';
-import { BoxColliderComponent, SphereColliderComponent } from './physics/collider-component';
+import { BoxColliderComponent } from './physics/collider/box-collider-component';
+import { ColliderComponentBase } from './physics/collider/collider-component';
+import { SphereColliderComponent } from './physics/collider/sphere-collider-component';
 import { RigidBodyComponent } from './physics/rigid-body-component';
 import { RenderableComponent } from './renderable-component';
 import { SkinningModelComponent } from './skinning-model-component';
@@ -77,11 +79,13 @@ cc.DirectionalLightComponent = DirectionalLightComponent;
 cc.SphereLightComponent = SphereLightComponent;
 cc.SpotLightComponent = SpotLightComponent;
 
-cc.BoxColliderComponent = BoxColliderComponent;
 cc.ParticleSystemComponent = ParticleSystemComponent;
 cc.BillboardComponent = BillboardComponent;
 cc.LineComponent = LineComponent;
-cc.RigidBodyComponent = RigidBodyComponent;
+
+cc.ColliderComponentBase = ColliderComponentBase;
+cc.BoxColliderComponent = BoxColliderComponent;
 cc.SphereColliderComponent = SphereColliderComponent;
+cc.RigidBodyComponent = RigidBodyComponent;
 
 cc.ParticleUtils = ParticleUtils;
