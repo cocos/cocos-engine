@@ -104,7 +104,7 @@ let TiledLayer = cc.Class({
 
         this._layerName = '';
         this._layerOrientation = null;
-        
+
         // store all layer gid corresponding texture info, index is gid, format likes '[gid0]=tex-info,[gid1]=tex-info, ...'
         this._texGrids = null;
         // store all tileset texture, index is tileset index, format likes '[0]=texture0, [1]=texture1, ...'
@@ -1287,7 +1287,7 @@ let TiledLayer = cc.Class({
             }
 
             material.define('USE_TEXTURE', true);
-            material.define('_USE_MODEL', true);
+            material.define('CC_USE_MODEL', true);
             material.setProperty('texture', texture);
             this.setMaterial(i, material);
             texIdMatIdx[tilesetIdx] = i;
