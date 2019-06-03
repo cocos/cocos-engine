@@ -470,14 +470,13 @@ export class ButtonComponent extends Component {
         //
         if (!CC_EDITOR) {
             this._registerEvent();
+        } else {
+            this.node.on('spriteframe-changed', (comp: SpriteComponent) => {
+                if (this._transition === Transition.SPRITE) {
+                    this._normalSprite = comp.spriteFrame;
+                }
+            }, this);
         }
-        // else {
-        //     this.node.on('spriteframe-changed', (comp) => {
-        //         if (this._transition === Transition.SPRITE) {
-        //             this._normalSprite = comp.spriteFrame;
-        //         }
-        //     }, this);
-        // }
     }
 
     public onDisable () {
@@ -491,10 +490,9 @@ export class ButtonComponent extends Component {
 
             this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
             this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+        } else {
+            this.node.off('spriteframe-changed');
         }
-        // else {
-        //     this.node.off('spriteframe-changed');
-        // }
     }
 
     public update (dt: number) {

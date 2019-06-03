@@ -121,6 +121,10 @@ export class StencilManager {
         const pattern = this._stencilPattern;
         if (this.stage === Stage.DISABLED) {
             pattern.stencilTest = false;
+            pattern.func = GFXComparisonFunc.ALWAYS;
+            pattern.failOp = GFXStencilOp.KEEP;
+            pattern.stencilMask = pattern.writeMask = 0xffffffff;
+            pattern.ref = 1;
         } else {
             pattern.stencilTest = true;
             if (this.stage === Stage.ENABLED) {
