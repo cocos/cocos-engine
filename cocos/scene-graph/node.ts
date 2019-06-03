@@ -857,7 +857,7 @@ class Node extends BaseNode {
         this._eventProcessor.on(type, callback, target, useCapture);
     }
 
-    public off (type: string, callback: Function, target?: Object, useCapture?: any) {
+    public off (type: string, callback?: Function, target?: Object, useCapture?: any) {
         this._eventProcessor.off(type, callback, target, useCapture);
 
         const hasListeners = this._eventProcessor.hasEventListener(type);
