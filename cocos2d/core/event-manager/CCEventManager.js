@@ -331,8 +331,8 @@ var eventManager = {
             if (p1._id === node1._id)
                 return 1;
         }
-        
-        return ex ? (p1._localZOrder - p2._localZOrder) : (p2._localZOrder - p1._localZOrder);
+
+        return ex ? ((p1._localZOrder > p2._localZOrder) ? 1 : -1) : ((p2._localZOrder > p1._localZOrder) ? 1 : -1);
     },
 
     _sortListenersOfFixedPriority: function (listenerID) {
