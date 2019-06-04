@@ -39,9 +39,9 @@ declare const CC_SUPPORT_JIT: boolean;
 
 declare const jsb: any;
 
-declare const CC_PHYISCS_CANNON: boolean;
-declare const CC_PHYISCS_AMMO: boolean;
-declare const CC_PHYISCS_BUILT_IN: boolean;
+declare const CC_PHYSICS_CANNON: boolean;
+declare const CC_PHYSICS_AMMO: boolean;
+declare const CC_PHYSICS_BUILT_IN: boolean;
 
 interface Window {
     mozRequestAnimationFrame (callback: any, element?: any): any;

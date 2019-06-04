@@ -3,16 +3,16 @@ declare const global: any;
 const _global = typeof window === 'undefined' ? global : window;
 
 // tslint:disable: no-string-literal
-if (typeof _global['CC_PHYISCS_CANNON'] === 'undefined') {
-    _global['CC_PHYISCS_CANNON'] = false;
+if (typeof _global['CC_PHYSICS_CANNON'] === 'undefined') {
+    _global['CC_PHYSICS_CANNON'] = false;
 }
 
-if (typeof _global['CC_PHYISCS_AMMO'] === 'undefined') {
-    _global['CC_PHYISCS_AMMO'] = false;
+if (typeof _global['CC_PHYSICS_AMMO'] === 'undefined') {
+    _global['CC_PHYSICS_AMMO'] = false;
 }
 
-if (typeof _global['CC_PHYISCS_BUILT_IN'] === 'undefined') {
-    _global['CC_PHYISCS_BUILT_IN'] = true;
+if (typeof _global['CC_PHYSICS_BUILT_IN'] === 'undefined') {
+    _global['CC_PHYSICS_BUILT_IN'] = true;
 }
 
 // Cannon
@@ -32,14 +32,14 @@ export let SphereShape: typeof CannonSphereShape | typeof BuiltInSphereShape;
 export let RigidBody: typeof CannonRigidBody | typeof BuiltInBody;
 export let PhysicsWorld: typeof CannonWorld | typeof BuiltInWorld;
 
-if (CC_PHYISCS_CANNON) {
+if (CC_PHYSICS_CANNON) {
     BoxShape = CannonBoxShape;
     SphereShape = CannonSphereShape;
     RigidBody = CannonRigidBody;
     PhysicsWorld = CannonWorld;
-} else if (CC_PHYISCS_AMMO) {
+} else if (CC_PHYSICS_AMMO) {
     // TODO : 选择AMMO
-} else if (CC_PHYISCS_BUILT_IN) {
+} else if (CC_PHYSICS_BUILT_IN) {
     BoxShape = BuiltInBoxShape;
     SphereShape = BuiltInSphereShape;
     RigidBody = BuiltInBody;

@@ -38,7 +38,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         this._isTrigger = value;
 
         if (!CC_EDITOR) {
-            if (!CC_PHYISCS_BUILT_IN) {
+            if (!CC_PHYSICS_BUILT_IN) {
                 const type = this._isTrigger ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
                 this.sharedBody.body.setType(type);
                 this._shapeBase.setCollisionResponse!(!this._isTrigger);
@@ -69,7 +69,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     /// COMPONENT LIFECYCLE ///
 
     public onLoad () {
-        if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             // init collider
             this.sharedBody.transfromSource = ETransformSource.SCENE;
             this.sharedBody.body.setUseGravity(false);

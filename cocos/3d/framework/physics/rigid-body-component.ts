@@ -60,7 +60,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     /// COMPONENT LIFECYCLE ///
 
     public onLoad () {
-        if (!CC_PHYISCS_BUILT_IN) {
+        if (!CC_PHYSICS_BUILT_IN) {
             /**
              * 此处设置刚体属性是因为__preload不受executionOrder的顺序影响，
              * 从而导致ColliderComponent后添加会导致刚体的某些属性被重写
@@ -105,7 +105,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set mass (value) {
         this._mass = value;
-        if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             this._body.setMass(value);
         }
     }
@@ -119,7 +119,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set linearDamping (value) {
         this._linearDamping = value;
-        if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             this._body.setLinearDamping(value);
         }
     }
@@ -133,7 +133,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set angularDamping (value) {
         this._angularDamping = value;
-        if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             this._body.setAngularDamping(value);
         }
     }
@@ -147,7 +147,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set isKinematic (value) {
         this._isKinematic = value;
-        if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             this._body.setIsKinematic(value);
         }
     }
@@ -161,7 +161,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set useGravity (value) {
         this._useGravity = value;
-        if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             this._body.setUseGravity(value);
         }
     }
@@ -175,7 +175,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set fixedRotation (value) {
         this._fixedRotation = value;
-        if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             this._body.setFreezeRotation(value);
         }
     }
@@ -188,7 +188,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set isTrigger (value) {
         this._isTrigger = value;
-        if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             this._body.setIsTrigger(value);
         }
     }
@@ -199,7 +199,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set velocity (value: Vec3) {
         vec3.copy(this._velocity, value);
-        if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             this._body.setVelocity(this._velocity);
         }
     }
@@ -207,31 +207,31 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     /// PUBLIC METHOD ///
 
     public applyForce (force: Vec3, position?: Vec3) {
-        if (!CC_PHYISCS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.applyForce(force, position);
         }
     }
 
     public applyImpulse (impulse: Vec3, position?: Vec3) {
-        if (!CC_PHYISCS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.applyImpulse(impulse, position);
         }
     }
 
     public wakeUp () {
-        if (!CC_PHYISCS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.wakeUp();
         }
     }
 
     public sleep () {
-        if (!CC_PHYISCS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.sleep();
         }
     }
 
     public setCollisionFilter (group: number, mask: number) {
-        if (!CC_PHYISCS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.setCollisionFilter(group, mask);
         }
     }
