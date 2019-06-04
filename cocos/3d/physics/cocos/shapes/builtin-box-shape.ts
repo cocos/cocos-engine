@@ -1,8 +1,8 @@
 import { vec3 } from '../../../../core/vmath';
 import { obb } from '../../../geom-utils';
-import { BuiltInShape } from './builtin-shape';
+import { BuiltinShape } from './builtin-shape';
 
-export class BuiltInBoxShape extends BuiltInShape {
+export class BuiltinBoxShape extends BuiltinShape {
 
     private _localObb: obb;
 

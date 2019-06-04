@@ -24,11 +24,11 @@ import { CannonBoxShape, CannonRigidBody, CannonSphereShape, CannonWorld } from 
 // built-in
 import { BuiltInBody } from './cocos/builtin-body';
 import { BuiltInWorld } from './cocos/builtin-world';
-import { BuiltInBoxShape } from './cocos/shapes/builtin-box-shape';
-import { BuiltInSphereShape } from './cocos/shapes/builtin-sphere-shape';
+import { BuiltinBoxShape } from './cocos/shapes/builtin-box-shape';
+import { BuiltinSphereShape } from './cocos/shapes/builtin-sphere-shape';
 
-export let BoxShape: typeof CannonBoxShape | typeof BuiltInBoxShape;
-export let SphereShape: typeof CannonSphereShape | typeof BuiltInSphereShape;
+export let BoxShape: typeof CannonBoxShape | typeof BuiltinBoxShape;
+export let SphereShape: typeof CannonSphereShape | typeof BuiltinSphereShape;
 export let RigidBody: typeof CannonRigidBody | typeof BuiltInBody;
 export let PhysicsWorld: typeof CannonWorld | typeof BuiltInWorld;
 
@@ -40,8 +40,8 @@ if (CC_PHYSICS_CANNON) {
 } else if (CC_PHYSICS_AMMO) {
     // TODO : 选择AMMO
 } else if (CC_PHYSICS_BUILT_IN) {
-    BoxShape = BuiltInBoxShape;
-    SphereShape = BuiltInSphereShape;
+    BoxShape = BuiltinBoxShape;
+    SphereShape = BuiltinSphereShape;
     RigidBody = BuiltInBody;
     PhysicsWorld = BuiltInWorld;
 }

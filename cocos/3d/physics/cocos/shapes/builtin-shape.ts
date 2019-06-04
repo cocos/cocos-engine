@@ -3,7 +3,7 @@ import { mat4, quat, vec3 } from '../../../../core/vmath';
 import { ShapeBase } from '../../api';
 import { IBuiltinShape } from '../builtin-interface';
 
-export class BuiltInShape implements ShapeBase {
+export class BuiltinShape implements ShapeBase {
 
     public get localShape () {
         return this._worldShape;

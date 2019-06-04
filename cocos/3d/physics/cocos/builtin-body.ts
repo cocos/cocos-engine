@@ -4,7 +4,7 @@ import { intersect } from '../../geom-utils';
 import { BuiltInRigidBodyBase, ICollisionCallback, ICollisionEvent, ICollisionEventType, PhysicsWorldBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
 import { BuiltInWorld } from './builtin-world';
-import { BuiltInShape } from './shapes/builtin-shape';
+import { BuiltinShape } from './shapes/builtin-shape';
 
 /**
  * Built-in static collider, no physical forces involved
@@ -35,7 +35,7 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
     /** 物理世界 */
     private _world!: BuiltInWorld | null;
     /** Body拥有的现状 */
-    private _shapes: BuiltInShape[] = [];
+    private _shapes: BuiltinShape[] = [];
     /** Body对应的场景对象 */
     private userData: any;
 
@@ -97,10 +97,10 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
     public sleep (): void {
 
     }
-    public addShape (shape: BuiltInShape): void {
+    public addShape (shape: BuiltinShape): void {
         this._shapes.push(shape);
     }
-    public removeShape (shape: BuiltInShape): void {
+    public removeShape (shape: BuiltinShape): void {
         const i = this._shapes.indexOf(shape);
         if (i >= 0) {
             this._shapes.splice(i, 1);
