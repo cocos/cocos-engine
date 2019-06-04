@@ -69,13 +69,14 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
     /// COMPONENT LIFECYCLE ///
 
     public onLoad () {
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
             // init collider
             this.sharedBody.transfromSource = ETransformSource.SCENE;
             this.sharedBody.body.setUseGravity(false);
-            this.center = this._center;
             this.isTrigger = this._isTrigger;
         }
+
+        this.center = this._center;
     }
 
     public onEnable () {
