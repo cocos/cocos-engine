@@ -27,6 +27,7 @@
 
 #include "network/CCDownloader.h"
 #include "platform/android/jni/JniHelper.h"
+#include "platform/android/jni/JniImp.h"
 
 #include <mutex>
 
@@ -263,6 +264,10 @@ extern "C" {
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv *env, jclass clazz, jint id, jint taskId, jlong dl, jlong dlnow, jlong dltotal)
 {
+    if(getApplicationExited()) {
+        return;
+    }
+
     DLLOG("_nativeOnProgress(id: %d, taskId: %d, dl: %lld, dlnow: %lld, dltotal: %lld)", id, taskId, dl, dlnow, dltotal);
     //It's not thread-safe here, use thread-safe method instead
     cocos2d::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
@@ -276,6 +281,10 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv *env, jclass claz
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass clazz, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data)
 {
+    if(getApplicationExited())
+    {
+        return;
+    }
     DLLOG("_nativeOnFinish(id: %d, taskId: %d)", id, taskId);
     //It's not thread-safe here, use thread-safe method instead
     cocos2d::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
