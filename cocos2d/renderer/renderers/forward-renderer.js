@@ -29,6 +29,8 @@ export default class ForwardRenderer extends BaseRenderer {
     this._shadowLights = [];
     this._sceneAmbient = new Float32Array([0, 0, 0]);
 
+    this._shadowRendered = false;
+
     this._numLights = 0;
 
     this._defines = {};
@@ -46,6 +48,19 @@ export default class ForwardRenderer extends BaseRenderer {
     this._sceneAmbient[0] = val.r /255;
     this._sceneAmbient[1] = val.g /255;
     this._sceneAmbient[2] = val.b /255;
+  }
+
+  reset () {
+    super.reset();
+
+    this._directionalLights.length = 0;
+    this._pointLights.length = 0;
+    this._spotLights.length = 0;
+    this._shadowLights.length = 0;
+
+    this._shadowRendered = false;
+
+    this._defines._USE_SHADOW_MAP = undefined;
   }
 
   render (scene) {
@@ -75,7 +90,7 @@ export default class ForwardRenderer extends BaseRenderer {
 
   // direct render a single camera
   renderCamera (camera, scene) {
-    this._reset();
+    this.reset();
     
     const canvas = this._device._gl.canvas;
     let width = canvas.width;
@@ -88,10 +103,6 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
   _updateLights (scene) {
-    this._directionalLights.length = 0;
-    this._pointLights.length = 0;
-    this._spotLights.length = 0;
-    this._shadowLights.length = 0;
 
     let lights = scene._lights;
     for (let i = 0; i < lights.length; ++i) {
@@ -240,6 +251,7 @@ export default class ForwardRenderer extends BaseRenderer {
     for (let i = 0; i < items.length; ++i) {
       let item = items.data[i];
       if (this._programLib._getValueFromDefineList('_SHADOW_CASTING', item.defines)) {
+        this._shadowRendered = true;
         this._updateShaderDefines(item);
         this._draw(item);
       }
@@ -251,6 +263,17 @@ export default class ForwardRenderer extends BaseRenderer {
     if (shadowLights.length === 0 && this._numLights === 0) {
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
+        this._draw(item);
+      }
+    }
+    else if (!this._shadowRendered) {
+      this._defines._NUM_SHADOW_LIGHTS = 0;
+      this._defines._USE_SHADOW_MAP = false;
+
+      for (let i = 0; i < items.length; ++i) {
+        let item = items.data[i];
+  
+        this._updateShaderDefines(item);
         this._draw(item);
       }
     }
