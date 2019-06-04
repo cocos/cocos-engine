@@ -169,6 +169,7 @@ var NodeActivator = cc.Class({
         for (let i = 0, len = node._children.length; i < len; ++i) {
             let child = node._children[i];
             if (child._active) {
+                child._localZOrder = i;
                 this._activateNodeRecursively(child, preloadInvoker, onLoadInvoker, onEnableInvoker);
             }
         }
