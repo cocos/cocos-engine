@@ -1,6 +1,7 @@
 import { vec3 } from '../../core/vmath';
 import enums from './enums';
 
+// tslint:disable-next-line:class-name
 export default class ray {
 
     /**
