@@ -152,10 +152,6 @@ export class SkinningModelComponent extends ModelComponent {
         if (CC_EDITOR && this.mesh && this._skeleton) {
             this._boneSpaceBounds = boneSpaceBoundsManager.use(this.mesh, this._skeleton);
         }
-        // skinning model shouldn't have local transform
-        this.node.setPosition(0, 0, 0);
-        this.node.setRotation(0, 0, 0, 1);
-        this.node.setScale(1, 1, 1);
     }
 
     public update () {
