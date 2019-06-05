@@ -100,6 +100,7 @@ var PageView = cc.Class({
         this._curPageIdx = 0;
         this._lastPageIdx = 0;
         this._pages = [];
+        this._initContentPos = cc.v2();
         this._scrollCenterOffsetX = []; // 每一个页面居中时需要的偏移量（X）
         this._scrollCenterOffsetY = []; // 每一个页面居中时需要的偏移量（Y）
     },
@@ -429,13 +430,15 @@ var PageView = cc.Class({
             this._lastPageIdx = this._curPageIdx;
         }
         // 进行排序
+        var contentPos = this._initContentPos;
         for (var i = 0; i < pageCount; ++i) {
-            this._pages[i].setSiblingIndex(i);
+            var page = this._pages[i];
+            page.setSiblingIndex(i);
             if (this.direction === Direction.Horizontal) {
-                this._scrollCenterOffsetX[i] = Math.abs(this.content.x + this._pages[i].x);
+                this._scrollCenterOffsetX[i] = Math.abs(contentPos.x + page.x);
             }
             else {
-                this._scrollCenterOffsetY[i] = Math.abs(this.content.y + this._pages[i].y);
+                this._scrollCenterOffsetY[i] = Math.abs(contentPos.y + page.y);
             }
         }
 
@@ -460,6 +463,7 @@ var PageView = cc.Class({
     // 初始化页面
     _initPages: function () {
         if (!this.content) { return; }
+        this._initContentPos = this.content.position;
         var children = this.content.children;
         for (var i = 0; i < children.length; ++i) {
             var page = children[i];
