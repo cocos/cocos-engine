@@ -253,10 +253,8 @@ export function readMesh (mesh: Mesh, iPrimitive: number = 0) {
         const { length, stride } = bundle.view;
         for (const attr of bundle.attributes) {
             const name = _keyMap[attr.name];
-            if (!name) { continue; }
-            const info = GFXFormatInfos[attr.format];
-            out[name] = readBuffer(dataView, attr.format, offset, length, stride);
-            offset += info.size;
+            if (name) { out[name] = readBuffer(dataView, attr.format, offset, length, stride); }
+            offset += GFXFormatInfos[attr.format].size;
         }
     }
     const view = primitive.indexView!;
