@@ -1,10 +1,19 @@
 import { mat3, vec3 } from '../../core/vmath';
+import aabb from './aabb';
 import * as distance from './distance';
 import enums from './enums';
+import { frustum } from './frustum';
+import line from './line';
+import obb from './obb';
+import plane from './plane';
+import ray from './ray';
+import sphere from './sphere';
+import triangle from './triangle';
 
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
 // tslint:disable:prefer-for-of
+// tslint:disable:no-shadowed-variable
 
 /**
  * ray-plane intersect
@@ -16,7 +25,7 @@ import enums from './enums';
 const ray_plane = (function () {
     const pt = vec3.create(0, 0, 0);
 
-    return function (ray, plane) {
+    return function (ray: ray, plane: plane): number {
         const denom = vec3.dot(ray.d, plane.n);
         if (Math.abs(denom) < Number.EPSILON) { return 0; }
         vec3.scale(pt, plane.n, plane.d);
@@ -36,7 +45,7 @@ const ray_plane = (function () {
 const line_plane = (function () {
     const ab = vec3.create(0, 0, 0);
 
-    return function (line, plane) {
+    return function (line: line, plane: plane): number {
         vec3.sub(ab, line.e, line.s);
         const t = (plane.d - vec3.dot(line.s, plane.n)) / vec3.dot(ab, plane.n);
         if (t < 0 || t > 1) { return 0; }
@@ -59,7 +68,7 @@ const ray_triangle = (function () {
     const tvec = vec3.create(0, 0, 0);
     const qvec = vec3.create(0, 0, 0);
 
-    return function (ray, triangle, doubleSided) {
+    return function (ray: ray, triangle: triangle, doubleSided: number) {
         vec3.sub(ab, triangle.b, triangle.a);
         vec3.sub(ac, triangle.c, triangle.a);
 
@@ -98,7 +107,7 @@ const line_triangle = (function () {
     const n = vec3.create(0, 0, 0);
     const e = vec3.create(0, 0, 0);
 
-    return function (line, triangle, outPt) {
+    return function (line: line, triangle: triangle, outPt: vec3): number {
         vec3.sub(ab, triangle.b, triangle.a);
         vec3.sub(ac, triangle.c, triangle.a);
         vec3.sub(qp, line.s, line.e);
@@ -166,7 +175,7 @@ const line_quad = (function () {
     const m = vec3.create(0, 0, 0);
     const tmp = vec3.create(0, 0, 0);
 
-    return function (p, q, a, b, c, d, outPt) {
+    return function (p: vec3, q: vec3, a: vec3, b: vec3, c: vec3, d: vec3, outPt: vec3): number {
         vec3.sub(pq, q, p);
         vec3.sub(pa, a, p);
         vec3.sub(pb, b, p);
@@ -245,9 +254,9 @@ const line_quad = (function () {
  */
 const ray_sphere = (function () {
     const e = vec3.create(0, 0, 0);
-    return function (ray, sphere) {
-        const r = sphere.r;
-        const c = sphere.c;
+    return function (ray: ray, sphere: sphere): number {
+        const r = sphere.radius;
+        const c = sphere.center;
         const o = ray.o;
         const d = ray.d;
         const rSq = r * r;
@@ -275,7 +284,7 @@ const ray_sphere = (function () {
 const ray_aabb = (function () {
     const min = vec3.create();
     const max = vec3.create();
-    return function (ray, aabb) {
+    return function (ray: ray, aabb: aabb): number {
         const o = ray.o, d = ray.d;
         const ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
         vec3.sub(min, aabb.center, aabb.halfExtents);
@@ -313,7 +322,7 @@ const ray_obb = (function () {
     const e = new Array(3);
     const t = new Array(6);
 
-    return function (ray, obb) {
+    return function (ray: ray, obb: obb): number {
         size[0] = obb.halfExtents.x;
         size[1] = obb.halfExtents.y;
         size[2] = obb.halfExtents.z;
@@ -381,7 +390,7 @@ const aabb_aabb = (function () {
     const aMax = vec3.create();
     const bMin = vec3.create();
     const bMax = vec3.create();
-    return function (aabb1, aabb2) {
+    return function (aabb1: aabb, aabb2: aabb) {
         vec3.sub(aMin, aabb1.center, aabb1.halfExtents);
         vec3.add(aMax, aabb1.center, aabb1.halfExtents);
         vec3.sub(bMin, aabb2.center, aabb2.halfExtents);
@@ -392,7 +401,7 @@ const aabb_aabb = (function () {
     };
 })();
 
-function getAABBVertices (min, max, out) {
+function getAABBVertices (min: vec3, max: vec3, out: vec3[]) {
     vec3.set(out[0], min.x, max.y, max.z);
     vec3.set(out[1], min.x, max.y, min.z);
     vec3.set(out[2], min.x, min.y, max.z);
@@ -403,7 +412,7 @@ function getAABBVertices (min, max, out) {
     vec3.set(out[7], max.x, min.y, min.z);
 }
 
-function getOBBVertices (c, e, a1, a2, a3, out) {
+function getOBBVertices (c: vec3, e: vec3, a1: vec3, a2: vec3, a3: vec3, out: vec3[]) {
     vec3.set(out[0],
         c.x + a1.x * e.x + a2.x * e.y + a3.x * e.z,
         c.y + a1.y * e.x + a2.y * e.y + a3.y * e.z,
@@ -476,7 +485,7 @@ const aabb_obb = (function () {
     }
     const min = vec3.create();
     const max = vec3.create();
-    return function (aabb, obb) {
+    return function (aabb: aabb, obb: obb): number {
         vec3.set(test[0], 1, 0, 0);
         vec3.set(test[1], 0, 1, 0);
         vec3.set(test[2], 0, 0, 1);
@@ -514,7 +523,7 @@ const aabb_obb = (function () {
  * @param {plane} plane
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
-const aabb_plane = function (aabb, plane) {
+const aabb_plane = function (aabb: aabb, plane: plane): number {
     const r = aabb.halfExtents.x * Math.abs(plane.n.x) +
         aabb.halfExtents.y * Math.abs(plane.n.y) +
         aabb.halfExtents.z * Math.abs(plane.n.z);
@@ -532,7 +541,7 @@ const aabb_plane = function (aabb, plane) {
  * @param {planes: plane[], vertices: vec3[]} frustum
  * @return {number}
  */
-const aabb_frustum = function (aabb, frustum) {
+const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
         // frustum plane normal points to the inside
         if (aabb_plane(aabb, frustum.planes[i]) === -1) {
@@ -556,7 +565,7 @@ const aabb_frustum_accurate = (function () {
     for (let i = 0; i < tmp.length; i++) {
         tmp[i] = vec3.create(0, 0, 0);
     }
-    return function (aabb, frustum) {
+    return function (aabb: aabb, frustum: frustum): number {
         let result = 0, intersects = false;
         // 1. aabb inside/outside frustum test
         for (let i = 0; i < frustum.planes.length; i++) {
@@ -598,12 +607,12 @@ const aabb_frustum_accurate = (function () {
  *
  * @param {obb} obb
  * @param {vec3} point
- * @return {number}
+ * @return {boolean}
  */
 const obb_point = (function () {
     const tmp = vec3.create(0, 0, 0), m3 = mat3.create();
-    const lessThan = function (a, b) { return Math.abs(a.x) < b.x && Math.abs(a.y) < b.y && Math.abs(a.z) < b.z; };
-    return function (obb, point) {
+    const lessThan = function (a: vec3, b: vec3): boolean { return Math.abs(a.x) < b.x && Math.abs(a.y) < b.y && Math.abs(a.z) < b.z; };
+    return function (obb: obb, point: vec3): boolean {
         vec3.sub(tmp, point, obb.center);
         vec3.transformMat3(tmp, tmp, mat3.transpose(m3, obb.orientation));
         return lessThan(tmp, obb.halfExtents);
@@ -618,10 +627,10 @@ const obb_point = (function () {
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const obb_plane = (function () {
-    const absDot = function (n, x, y, z) {
+    const absDot = function (n: vec3, x: number, y: number, z: number) {
         return Math.abs(n.x * x + n.y * y + n.z * z);
     };
-    return function (obb, plane) {
+    return function (obb: obb, plane: plane): number {
         // Real-Time Collision Detection, Christer Ericson, p. 163.
         const r = obb.halfExtents.x * absDot(plane.n, obb.orientation.m00, obb.orientation.m01, obb.orientation.m02) +
             obb.halfExtents.y * absDot(plane.n, obb.orientation.m03, obb.orientation.m04, obb.orientation.m05) +
@@ -642,7 +651,7 @@ const obb_plane = (function () {
  * @param {planes: plane[], vertices: vec3[]} frustum
  * @return {number}
  */
-const obb_frustum = function (obb, frustum) {
+const obb_frustum = function (obb: obb, frustum: frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
         // frustum plane normal points to the inside
         if (obb_plane(obb, frustum.planes[i]) === -1) {
@@ -666,10 +675,10 @@ const obb_frustum_accurate = (function () {
     for (let i = 0; i < tmp.length; i++) {
         tmp[i] = vec3.create(0, 0, 0);
     }
-    const dot = function (n, x, y, z) {
+    const dot = function (n: vec3, x: number, y: number, z: number): number {
         return n.x * x + n.y * y + n.z * z;
     };
-    return function (obb, frustum) {
+    return function (obb: obb, frustum: frustum): number {
         let result = 0, intersects = false;
         // 1. obb inside/outside frustum test
         for (let i = 0; i < frustum.planes.length; i++) {
@@ -728,7 +737,7 @@ const obb_obb = (function () {
         vertices2[i] = vec3.create(0, 0, 0);
     }
 
-    return function (obb1, obb2) {
+    return function (obb1: obb, obb2: obb): number {
         vec3.set(test[0], obb1.orientation.m00, obb1.orientation.m01, obb1.orientation.m02);
         vec3.set(test[1], obb1.orientation.m03, obb1.orientation.m04, obb1.orientation.m05);
         vec3.set(test[2], obb1.orientation.m06, obb1.orientation.m07, obb1.orientation.m08);
@@ -766,9 +775,9 @@ const obb_obb = (function () {
  * @param {plane} plane
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
-const sphere_plane = function (sphere, plane) {
-    const dot = vec3.dot(plane.n, sphere.c);
-    const r = sphere.r * vec3.magnitude(plane.n);
+const sphere_plane = function (sphere: sphere, plane) {
+    const dot = vec3.dot(plane.n, sphere.center);
+    const r = sphere.radius * vec3.magnitude(plane.n);
     if (dot + r < plane.d) { return -1; }
     else if (dot - r > plane.d) { return 0; }
     return 1;
@@ -782,7 +791,7 @@ const sphere_plane = function (sphere, plane) {
  * @param {planes: plane[], vertices: vec3[]} frustum
  * @return {number}
  */
-const sphere_frustum = function (sphere, frustum) {
+const sphere_frustum = function (sphere: sphere, frustum) {
     for (let i = 0; i < frustum.planes.length; i++) {
         // frustum plane normal points to the inside
         if (sphere_plane(sphere, frustum.planes[i]) === -1) {
@@ -802,10 +811,10 @@ const sphere_frustum = function (sphere, frustum) {
  */
 const sphere_frustum_accurate = (function () {
     const pt = vec3.create(0, 0, 0), map = [1, -1, 1, -1, 1, -1];
-    return function (sphere, frustum) {
+    return function (sphere: sphere, frustum: frustum) {
         for (let i = 0; i < 6; i++) {
             const plane = frustum.planes[i];
-            const r = sphere.r, c = sphere.c;
+            const r = sphere.radius, c = sphere.center;
             const n = plane.n, d = plane.d;
             const dot = vec3.dot(n, c);
             // frustum plane normal points to the inside
@@ -829,11 +838,11 @@ const sphere_frustum_accurate = (function () {
  *
  * @param {sphere} sphere0
  * @param {sphere} sphere1
- * @return {number}
+ * @return {boolean}
  */
-const sphere_sphere = function (sphere0, sphere1) {
-    const r = sphere0.r + sphere1.r;
-    return vec3.sqrDist(sphere0.c, sphere1.c) < r * r;
+const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
+    const r = sphere0.radius + sphere1.radius;
+    return vec3.sqrDist(sphere0.center, sphere1.center) < r * r;
 };
 
 /**
@@ -841,13 +850,13 @@ const sphere_sphere = function (sphere0, sphere1) {
  *
  * @param {sphere} sphere
  * @param {aabb} aabb
- * @return {number}
+ * @return {boolean}
  */
 const sphere_aabb = (function () {
     const pt = vec3.create();
-    return function (sphere, aabb) {
-        distance.pt_point_aabb(pt, sphere.o, aabb);
-        return vec3.sqrDist(sphere.o, pt) < sphere.r * sphere.r;
+    return function (sphere: sphere, aabb: aabb): boolean {
+        distance.pt_point_aabb(pt, sphere.center, aabb);
+        return vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
     };
 })();
 
@@ -856,13 +865,13 @@ const sphere_aabb = (function () {
  *
  * @param {sphere} sphere
  * @param {obb} obb
- * @return {number}
+ * @return {boolean}
  */
 const sphere_obb = (function () {
     const pt = vec3.create();
-    return function (sphere, obb) {
-        distance.pt_point_obb(pt, sphere.c, obb);
-        return vec3.sqrDist(sphere.c, pt) < sphere.r * sphere.r;
+    return function (sphere: sphere, obb: obb): boolean {
+        distance.pt_point_obb(pt, sphere.center, obb);
+        return vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
     };
 })();
 

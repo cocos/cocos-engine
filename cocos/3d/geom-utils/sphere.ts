@@ -23,7 +23,7 @@ export default class sphere {
      * @return {sphere}
      */
     public static clone (p: sphere): sphere {
-        return new sphere(p.c.x, p.c.y, p.c.z, p.r);
+        return new sphere(p.center.x, p.center.y, p.center.z, p.radius);
     }
 
     /**
@@ -34,8 +34,8 @@ export default class sphere {
      * @return {sphere}
      */
     public static copy (out: sphere, p: sphere): sphere {
-        vec3.copy(out.c, p.c);
-        out.r = p.r;
+        vec3.copy(out.center, p.center);
+        out.radius = p.radius;
 
         return out;
     }
@@ -49,8 +49,8 @@ export default class sphere {
      * @return {sphere}
      */
     public static fromPoints (out: sphere, minPos: vec3, maxPos: vec3): sphere {
-        vec3.scale(out.c, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
-        out.r = vec3.mag(vec3.sub(_v3_tmp, maxPos, minPos)) * 0.5;
+        vec3.scale(out.center, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
+        out.radius = vec3.mag(vec3.sub(_v3_tmp, maxPos, minPos)) * 0.5;
         return out;
     }
 
@@ -66,23 +66,23 @@ export default class sphere {
      * @function
      */
     public static set (out: sphere, cx: number, cy: number, cz: number, r: number): sphere {
-        out.c.x = cx;
-        out.c.y = cy;
-        out.c.z = cz;
-        out.r = r;
+        out.center.x = cx;
+        out.center.y = cy;
+        out.center.z = cz;
+        out.radius = r;
 
         return out;
     }
 
-    public c: vec3;
-    public r: number;
+    public center: vec3;
+    public radius: number;
 
     private _type: number;
 
     constructor (cx = 0, cy = 0, cz = 0, r = 1) {
         this._type = enums.SHAPE_SPHERE;
-        this.c = vec3.create(cx, cy, cz);
-        this.r = r;
+        this.center = vec3.create(cx, cy, cz);
+        this.radius = r;
     }
 
     public clone () {
@@ -99,8 +99,8 @@ export default class sphere {
      * @param {vec3} maxPos
      */
     public getBoundary (minPos: vec3, maxPos: vec3) {
-        vec3.set(minPos, this.c.x - this.r, this.c.y - this.r, this.c.z - this.r);
-        vec3.set(maxPos, this.c.x + this.r, this.c.y + this.r, this.c.z + this.r);
+        vec3.set(minPos, this.center.x - this.radius, this.center.y - this.radius, this.center.z - this.radius);
+        vec3.set(maxPos, this.center.x + this.radius, this.center.y + this.radius, this.center.z + this.radius);
     }
 
     /**
@@ -112,8 +112,15 @@ export default class sphere {
      * @param {sphere} [out] the target shape
      */
     public transform (m: mat4, pos: vec3, rot: quat, scale: vec3, out: sphere) {
-        if (!out) { out = this; }
-        vec3.transformMat4(out.c, this.c, m);
-        out.r = this.r * maxComponent(scale);
+        vec3.transformMat4(out.center, this.center, m);
+        out.radius = this.radius * maxComponent(scale);
+    }
+
+    public translateAndRotate (m: mat4, rot: quat, out: sphere){
+        vec3.transformMat4(out.center, this.center, m);
+    }
+
+    public setScale (scale: vec3, out: sphere) {
+        out.radius = this.radius * maxComponent(scale);
     }
 }

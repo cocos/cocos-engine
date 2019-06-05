@@ -1,6 +1,6 @@
 import CANNON from 'cannon';
-import { Quat, Vec3 } from '../../core/value-types';
-import { clamp, quat, vec3 } from '../../core/vmath';
+import { Mat4, Quat, Vec3 } from '../../core/value-types';
+import { clamp, mat4, quat, vec3 } from '../../core/vmath';
 import {
     AfterStepCallback, BeforeStepCallback,
     BoxShapeBase,
@@ -422,6 +422,11 @@ export class CannonRigidBody implements RigidBodyBase {
     public setRotation (value: Quat) {
         quat.copy(this._cannonBody.quaternion, value);
         // console.log(`[[CANNON]] Set body rotation to ${stringfyQuat(value)}.`);
+    }
+
+    public translateAndRotate (m: Mat4, rot: Quat): void {
+        mat4.getTranslation(this._cannonBody.position, m);
+        quat.copy(this._cannonBody.quaternion, rot);
     }
 
     public scaleAllShapes (scale: Vec3) {

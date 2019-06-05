@@ -1,7 +1,7 @@
 import { Vec3 } from '../../../core';
-import { AfterStepCallback, BeforeStepCallback, ICollisionEvent, IRaycastOptions, PhysicsWorldBase, RigidBodyBase } from '../api';
+import { AfterStepCallback, BeforeStepCallback, BuiltInRigidBodyBase, ICollisionEvent, IRaycastOptions, PhysicsWorldBase } from '../api';
 import { RaycastResult } from '../raycast-result';
-import { BuiltInBody } from './built-in-body';
+import { BuiltInBody } from './builtin-body';
 import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
 
 /**
@@ -10,14 +10,12 @@ import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
  * not a full physical simulator
  */
 export class BuiltInWorld implements PhysicsWorldBase {
-  private _bodies: RigidBodyBase[] = [];
+  private _bodies: BuiltInRigidBodyBase[] = [];
   private _customBeforeStepListener: BeforeStepCallback[] = [];
   private _customAfterStepListener: AfterStepCallback[] = [];
 
   /** 碰撞矩阵 */
   private _collisionMatrix: ArrayCollisionMatrix = new ArrayCollisionMatrix();
-  /** 上一次的碰撞矩阵 */
-  // private _preCollisionMatrix: ArrayCollisionMatrix = new ArrayCollisionMatrix();
 
   constructor () {
   }
@@ -75,10 +73,10 @@ export class BuiltInWorld implements PhysicsWorldBase {
     /** 执行 after step */
     this._customAfterStepListener.forEach((fx) => fx());
   }
-  public addBody (body: RigidBodyBase) {
+  public addBody (body: BuiltInRigidBodyBase) {
     this._bodies.push(body);
   }
-  public removeBody (body: RigidBodyBase) {
+  public removeBody (body: BuiltInRigidBodyBase) {
     const i = this._bodies.indexOf(body);
     if (i >= 0) {
       this._bodies.splice(i, 1);

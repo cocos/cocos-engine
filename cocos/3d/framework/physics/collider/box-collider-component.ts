@@ -60,7 +60,9 @@ export class BoxColliderComponent extends ColliderComponentBase {
 
         if (!CC_EDITOR) {
             this._shape.setSize(this._size);
-            this.sharedBody.body.commitShapeUpdates();
+            if (!CC_PHYSICS_BUILT_IN) {
+                this.sharedBody.body.commitShapeUpdates();
+            }
         }
     }
 }
