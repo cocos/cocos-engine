@@ -84,7 +84,7 @@ LetterTexture.prototype = {
         this._context = this._data.context;
         this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
-        this._width = parseFloat(width.toFixed(2)) + this._labelInfo.margin;
+        this._width = parseFloat(width.toFixed(2)) + this._labelInfo.margin * 2;
         this._height = this._labelInfo.fontSize;
         
         if (this._canvas.width !== this._width || CC_QQPLAY) {
@@ -540,7 +540,7 @@ module.exports = {
                     continue;
                 }
 
-                let letterX = nextLetterX + letterDef.offsetX * _bmfontScale;
+                let letterX = nextLetterX + letterDef.offsetX * _bmfontScale - _labelInfo.margin;
 
                 if (_isWrapText
                     && _maxLineWidth > 0
@@ -565,9 +565,9 @@ module.exports = {
                     nextLetterX += _horizontalKernings[letterIndex + 1];
                 }
 
-                nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX - _labelInfo.margin;
+                nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX - _labelInfo.margin * 2;
 
-                tokenRight = letterPosition.x + letterDef.w * _bmfontScale;
+                tokenRight = letterPosition.x + letterDef.w * _bmfontScale - _labelInfo.margin;
 
                 if (tokenHighestY < letterPosition.y) {
                     tokenHighestY = letterPosition.y;
