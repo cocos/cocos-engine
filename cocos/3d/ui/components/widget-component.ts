@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 import { Component} from '../../../components';
+import { Size, SystemEventType, Vec3 } from '../../../core';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { ccenum } from '../../../core/value-types/enum';
 import { Node } from '../../../scene-graph/node';
@@ -41,16 +42,16 @@ export enum AlignMode {
      * 开启后会在 onEnable 时所在的那一帧结束前对齐一次，然后立刻禁用该 Widget。
      */
     ONCE = 0,
-    /**
-     * @zh
-     * 一开始会像 ONCE 一样对齐一次，之后每当窗口大小改变时还会重新对齐。
-     */
-    ON_WINDOW_RESIZE = 1,
+    // /**
+    //  * @zh
+    //  * 一开始会像 ONCE 一样对齐一次，之后每当窗口大小改变时还会重新对齐。
+    //  */
+    // ON_WINDOW_RESIZE = 1,
     /**
      * @zh
      * 始终保持对齐。
      */
-    ALWAYS = 2,
+    ALWAYS = 1,
 }
 
 ccenum(AlignMode);
@@ -137,6 +138,8 @@ export class WidgetComponent extends Component {
             // adjust the offsets to keep the size and position unchanged after target chagned
             cc._widgetManager.updateOffsetsToStayPut(this);
         }
+
+        this._recursiveDirty();
     }
 
     /**
@@ -149,6 +152,7 @@ export class WidgetComponent extends Component {
     }
     set isAlignTop (value) {
         this._setAlign(AlignFlags.TOP, value);
+        this._recursiveDirty();
     }
 
     /**
@@ -161,6 +165,7 @@ export class WidgetComponent extends Component {
     }
     set isAlignBottom (value) {
         this._setAlign(AlignFlags.BOT, value);
+        this._recursiveDirty();
     }
 
     /**
@@ -173,6 +178,7 @@ export class WidgetComponent extends Component {
     }
     set isAlignLeft (value) {
         this._setAlign(AlignFlags.LEFT, value);
+        this._recursiveDirty();
     }
 
     /**
@@ -185,6 +191,7 @@ export class WidgetComponent extends Component {
     }
     set isAlignRight (value) {
         this._setAlign(AlignFlags.RIGHT, value);
+        this._recursiveDirty();
     }
 
     /**
@@ -203,6 +210,8 @@ export class WidgetComponent extends Component {
         } else {
             this._alignFlags &= ~AlignFlags.MID;
         }
+
+        this._recursiveDirty();
     }
 
     /**
@@ -221,6 +230,7 @@ export class WidgetComponent extends Component {
         } else {
             this._alignFlags &= ~AlignFlags.CENTER;
         }
+        this._recursiveDirty();
     }
 
     /**
@@ -257,6 +267,7 @@ export class WidgetComponent extends Component {
     }
     set top (value) {
         this._top = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -269,6 +280,7 @@ export class WidgetComponent extends Component {
     }
     set bottom (value) {
         this._bottom = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -281,6 +293,7 @@ export class WidgetComponent extends Component {
     }
     set left (value) {
         this._left = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -293,6 +306,7 @@ export class WidgetComponent extends Component {
     }
     set right (value) {
         this._right = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -305,6 +319,7 @@ export class WidgetComponent extends Component {
     }
     set horizontalCenter (value) {
         this._horizontalCenter = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -317,6 +332,7 @@ export class WidgetComponent extends Component {
     }
     set verticalCenter (value) {
         this._verticalCenter = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -329,6 +345,7 @@ export class WidgetComponent extends Component {
     }
     set isAbsoluteTop (value) {
         this._isAbsTop = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -341,6 +358,7 @@ export class WidgetComponent extends Component {
     }
     set isAbsoluteBottom (value) {
         this._isAbsBottom = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -353,6 +371,7 @@ export class WidgetComponent extends Component {
     }
     set isAbsoluteLeft (value) {
         this._isAbsLeft = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -365,6 +384,7 @@ export class WidgetComponent extends Component {
     }
     set isAbsoluteRight (value) {
         this._isAbsRight = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -383,6 +403,7 @@ export class WidgetComponent extends Component {
 
     set alignMode (value) {
         this._alignMode = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -396,6 +417,7 @@ export class WidgetComponent extends Component {
 
     set isAbsoluteHorizontalCenter (value) {
         this._isAbsHorizontalCenter = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -408,6 +430,7 @@ export class WidgetComponent extends Component {
     }
     set isAbsoluteVerticalCenter (value) {
         this._isAbsVerticalCenter = value;
+        this._recursiveDirty();
     }
 
     /**
@@ -425,9 +448,14 @@ export class WidgetComponent extends Component {
         }
 
         this._alignFlags = value;
+        this._recursiveDirty();
     }
 
     public static AlignMode = AlignMode;
+
+    public _lastPos = new Vec3();
+    public _lastSize = new Size();
+    public _dirty = true;
 
     @property
     private _alignFlags = 0;
@@ -463,7 +491,7 @@ export class WidgetComponent extends Component {
     @property
     private _originalHeight = 0;
     @property
-    private _alignMode = AlignMode.ON_WINDOW_RESIZE;
+    private _alignMode = AlignMode.ALWAYS;
 
     /**
      * @zh
@@ -482,14 +510,53 @@ export class WidgetComponent extends Component {
         cc._widgetManager.updateAlignment(this.node);
     }
 
-    protected onLoad () {
+    public _validateTargetInDEV () {
+        if (!CC_DEV){
+            return;
+        }
+
+        const target = this._target;
+        if (target) {
+            const isParent = this.node !== target && this.node.isChildOf(target);
+            if (!isParent) {
+                cc.errorID(6500);
+                this._target = null;
+            }
+        }
+
     }
 
-    protected onEnable () {
+    public setDirty (){
+        this._recursiveDirty();
+    }
+
+    public onLoad () {
+    }
+
+    public onEnable () {
+        this.node.getPosition(this._lastPos);
+        this.node.getContentSize(this._lastSize);
         cc._widgetManager.add(this);
     }
 
-    protected onDisable () {
+    public update (){
+        if (this._dirty){
+            return;
+        }
+
+        if (this.node.hasChanged) {
+            this._recursiveDirty();
+            cc._widgetManager.updateTransform(this);
+            return;
+        }
+
+        if (this.target && this.target.hasChanged){
+            this._recursiveDirty();
+            return;
+        }
+    }
+
+    public onDisable () {
         cc._widgetManager.remove(this);
     }
 
@@ -545,6 +612,17 @@ export class WidgetComponent extends Component {
 
             this._alignFlags &= ~flag;
         }
+    }
+
+    private _recursiveDirty () {
+        if (this._dirty){
+            return;
+        }
+
+        const widgets = this.node.getComponentsInChildren(WidgetComponent);
+        widgets.forEach((widget) => {
+            widget._dirty = true;
+        });
     }
 }
 
