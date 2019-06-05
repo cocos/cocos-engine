@@ -119,7 +119,7 @@ export class SubModel {
         }
         for (let i = 0; i < this._material!.passes.length; i++) {
             if (this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
-                cc.error(`the model(%d)'s primitive type doesn't match its pass's`, i);
+                console.warn(`mesh primitive type doesn't match with pass settings`);
             }
             this.recordCommandBuffer(i);
         }

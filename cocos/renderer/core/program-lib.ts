@@ -21,19 +21,19 @@ interface IProgramInfo extends IShaderInfo {
 }
 export interface IDefineValue {
     name: string;
-    result: string | number;
+    result: string | boolean;
 }
 
 const getBitCount = (cnt: number) => Math.ceil(Math.log2(Math.max(cnt, 2)));
 
 const mapDefine = (info: IDefineInfo, def: number | string | boolean) => {
     switch (info.type) {
-        case 'boolean': return def ? 1 : 0;
+        case 'boolean': return def as boolean ? '1' : '0';
         case 'string': return def !== undefined ? def as string : info.options![0];
-        case 'number': return def !== undefined ? def as number : info.range![0];
+        case 'number': return (def !== undefined ? def as number : info.range![0]) + '';
     }
     console.warn(`unknown define type '${info.type}'`);
-    return -1; // should neven happen
+    return '0'; // should neven happen
 };
 
 const prepareDefines = (defs: IDefineMap, tDefs: IDefineInfo[]) => {
@@ -52,7 +52,7 @@ const validateDefines = (defines: IDefineValue[], device: GFXDevice, deps: Recor
         // fallback if extension dependency not supported
         if (info.result && deps[name] && !device[deps[name]]) {
             console.warn(`${deps[name]} not supported on this platform, disabled ${name}`);
-            info.result = 0;
+            info.result = '0';
         }
     }
 };
@@ -91,8 +91,8 @@ class ProgramLib {
      *   // this object is auto-generated from your actual shaders
      *   let program = {
      *     name: 'foobar',
-     *     glsl1: { vert: '// shader source', frag: '// shader source' },
-     *     glsl3: { vert: '// shader source', frag: '// shader source' },
+     *     glsl1: { vert: '...', frag: '...' },
+     *     glsl3: { vert: '...', frag: '...' },
      *     defines: [
      *       { name: 'shadow', type: 'boolean', defines: [] },
      *       { name: 'lightCount', type: 'number', range: [1, 4], defines: [] }
@@ -182,7 +182,13 @@ class ProgramLib {
 
         const defs = prepareDefines(defines, tmpl.defines);
         validateDefines(defs, device, tmpl.dependencies);
-        const customDef = defs.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.result}\n`, '');
+        const customDef = defs.reduce((acc, cur) => {
+            // if (typeof cur.result === 'boolean') {
+            //     return cur.result ? `${acc}#define ${cur.name} 1\n` : '';
+            // } else {
+                return `${acc}#define ${cur.name} ${cur.result}\n`;
+            // }
+        }, '');
 
         let vert: string = '';
         let frag: string = '';

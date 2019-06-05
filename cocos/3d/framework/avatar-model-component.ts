@@ -27,18 +27,21 @@ import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Vec2 } from '../../core/value-types';
 import { vec2 } from '../../core/vmath';
-import { GFXFormat } from '../../gfx/define';
+import { GFXFormat, GFXType } from '../../gfx/define';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
+import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph';
-import { Mesh } from '../assets';
+import { Material, Mesh } from '../assets';
+import { IMeshStruct } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { mapBuffer } from '../misc/utils';
 import { LCA, SkinningModelComponent } from './skinning-model-component';
 
-const _vec2 = new Vec2();
-
 const repeat = (n: number) => n - Math.floor(n);
+const batch_id: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_ID, format: GFXFormat.R32F, isNormalized: false };
+const batch_uv: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_UV, format: GFXFormat.RG32F, isNormalized: false };
+const batch_extras_size = GFXFormatInfos[batch_id.format].size + GFXFormatInfos[batch_uv.format].size;
 
 @ccclass('cc.AvatarUnit')
 export class AvatarUnit {
@@ -49,20 +52,12 @@ export class AvatarUnit {
     public skeleton: Skeleton | null = null;
     @property(Node)
     public skinningRoot: Node | null = null;
+    @property(Material)
+    public material: Material | null = null;
     @property
     private _offset: Vec2 = new Vec2(0, 0);
     @property
-    private _atlasSize: Vec2 = new Vec2(256, 256);
-    @property(Texture2D)
-    private _albedoMap: Texture2D | null = null;
-
-    @property
-    set atlasSize (atlasSize) {
-        vec2.copy(this._atlasSize, atlasSize);
-    }
-    get atlasSize () {
-        return this._atlasSize;
-    }
+    private _size: Vec2 = new Vec2(1, 1);
 
     @property
     set offset (offset) {
@@ -72,19 +67,12 @@ export class AvatarUnit {
         return this._offset;
     }
 
-    @property({ type: Texture2D })
-    get albedoMap () {
-        return this._albedoMap;
+    @property
+    set size (size) {
+        vec2.copy(this._size, size);
     }
-    set albedoMap (albedoMap) {
-        if (this._albedoMap !== albedoMap) {
-            this._albedoMap = albedoMap;
-            if (this._albedoMap) {
-                _vec2.x = this._albedoMap.width;
-                _vec2.y = this._albedoMap.height;
-                this.atlasSize = _vec2;
-            }
-        }
+    get size () {
+        return this._size;
     }
 
     @property({ type: SkinningModelComponent })
@@ -93,6 +81,7 @@ export class AvatarUnit {
         this.mesh = comp.mesh;
         this.skeleton = comp.skeleton;
         this.skinningRoot = comp.skinningRoot;
+        this.material = comp.getSharedMaterial(0);
     }
     get source () {
         return null;
@@ -121,83 +110,53 @@ const concatPath = (prefix: string, path: string) => path ? prefix + path : pref
 export class AvatarModelComponent extends SkinningModelComponent {
 
     @property
-    private _combinedTexSize: number = 1024;
-    private _combinedTex: Texture2D | null = null;
+    public combinedTexSize: number = 1024;
+    @property({ type: [String] })
+    public combinableTextureNames: string[] = [];
+    @property({ type: [AvatarUnit] })
+    public avatarUnits: AvatarUnit[] = [];
 
-    @property
-    private _albedoMapName: string = '';
-
-    @property
-    private _avatarUnits: AvatarUnit[] = [];
+    private _textures: Record<string, Texture2D> = {};
 
     @property({ override: true, visible: false })
-    get mesh (): Mesh | null {
+    get mesh () {
         return this._mesh;
+    }
+    set mesh (val) {
+        super.mesh = val;
     }
 
     @property({ override: true, visible: false })
     get skeleton () {
         return this._skeleton;
     }
+    set skeleton (val) {
+        super.skeleton = val;
+    }
 
     @property({ override: true, visible: false })
     get skinningRoot () {
         return this._skinningRoot;
     }
-
-    @property({ type: Number })
-    get combinedTexSize (): number {
-        return this._combinedTexSize;
-    }
-
-    set combinedTexSize (size: number) {
-        this._combinedTexSize = size;
-    }
-
-    @property({ type: String })
-    get albedoMapName (): string {
-        return this._albedoMapName;
-    }
-
-    set albedoMapName (name: string) {
-        if (this._albedoMapName !== name) {
-            this._albedoMapName = name;
-        }
-    }
-
-    @property({ type: [AvatarUnit] })
-    get avatarUnits (): AvatarUnit[] {
-        return this._avatarUnits;
-    }
-
-    set avatarUnits (units: AvatarUnit[]) {
-        this._avatarUnits = units;
+    set skinningRoot (val) {
+        super.skinningRoot = val;
     }
 
     public onLoad () {
         super.onLoad();
-
-        this._combinedTex = new Texture2D();
-        this._combinedTex.onLoaded();
-        this._combinedTex.setFilters(Filter.LINEAR, Filter.LINEAR);
-        this.resizeCombinedTexture();
         this.combine();
     }
 
     public onDestroy () {
-        if (this._combinedTex) {
-            this._combinedTex.destroy();
-            this._combinedTex = null;
+        for (const tex of Object.keys(this._textures)) {
+            this._textures[tex].destroy();
         }
+        this._textures = {};
 
         if (this._mesh) {
             this._mesh.destroy();
             this._mesh = null;
         }
-    }
-
-    public addAvatarUnit (unit: AvatarUnit) {
-        this._avatarUnits.push(unit);
     }
 
     public clear () {
@@ -206,91 +165,47 @@ export class AvatarModelComponent extends SkinningModelComponent {
         }
     }
 
-    public bindTextures () {
-        if (this._albedoMapName.length > 0 && this._materials.length > 0) {
-            const mtrl = this.material;
-            if (mtrl) {
-                mtrl.setProperty(this._albedoMapName, this._combinedTex);
-            }
-        }
-    }
-
     public combine () {
-        this.combineTextures();
+        this.combineMaterials();
         this.combineSkeletons();
         this.combineMeshes();
-        this.bindTextures();
     }
 
-    public combineTextures () {
-        let isValid = false;
-        for (const unit of this._avatarUnits) {
-            if (unit.albedoMap) {
-                isValid = true;
-                break;
-            }
-        }
-
-        if (!isValid) {
-            return;
-        }
-
-        const texImages: TexImageSource[] = [];
-        const texImageRegions: GFXBufferTextureCopy[] = [];
-        const texBuffers: ArrayBuffer[] = [];
-        const texBufferRegions: GFXBufferTextureCopy[] = [];
-
-        /*
-        const buffSize = GFXFormatSize(GFXFormat.RGBA8, this._combinedTexSize, this._combinedTexSize, 1);
-        const clearBuff = new ArrayBuffer(buffSize);
-        texBuffers.push(clearBuff);
-
-        let region = new GFXBufferTextureCopy();
-        region.texExtent.width = this._combinedTexSize;
-        region.texExtent.height = this._combinedTexSize;
-        texBufferRegions.push(region);
-        */
-
-        for (const unit of this._avatarUnits) {
-            if (unit) {
-                const offset = unit.offset;
-                isValid = (offset.x >= 0 && offset.y >= 0);
-                if (isValid && unit.albedoMap && unit.albedoMap.image && unit.albedoMap.image.data) {
-                    // merge textures
-                    const region = new GFXBufferTextureCopy();
-                    region.texOffset.x = offset.x;
-                    region.texOffset.y = offset.y;
-                    region.texExtent.width = unit.albedoMap.image.width;
-                    region.texExtent.height = unit.albedoMap.image.height;
-
-                    const data = unit.albedoMap.image.data;
-                    if (data instanceof HTMLCanvasElement || data instanceof HTMLImageElement) {
-                        texImages.push(data);
-                        texImageRegions.push(region);
+    public combineMaterials () {
+        const mat = this.getMaterial(0);
+        if (!mat) { console.warn('batch material not specified!'); return; }
+        mat.reset();
+        const tech = mat.effectAsset!.techniques[mat.technique];
+        for (let i = 0; i < tech.passes.length; i++) {
+            const pass = tech.passes[i];
+            if (!pass.properties) { continue; }
+            for (const prop of Object.keys(pass.properties)) {
+                if (pass.properties[prop].type >= GFXType.SAMPLER1D) { // samplers
+                    let tex: Texture2D = null!;
+                    if (this.combinableTextureNames.find((n) => n === prop)) {
+                        tex = this._textures[prop];
+                        if (!tex) { tex = this.createTexture(prop); }
+                        this.combineTextures(tex, prop, i);
                     } else {
-                        texBuffers.push(data.buffer);
-                        texBufferRegions.push(region);
+                        this.avatarUnits.some((u) => tex = u.material && u.material.getProperty(prop, i));
                     }
+                    if (tex) { mat.setProperty(prop, tex, i); }
+                } else { // vectors
+                    const value: any[] = [];
+                    for (const unit of this.avatarUnits) {
+                        if (!unit.material) { continue; }
+                        value.push(unit.material.getProperty(prop.slice(0, -3), i));
+                    }
+                    mat.setProperty(prop, value, i);
                 }
             }
-        }
-
-        const gfxTex = this._combinedTex!.getGFXTexture();
-        const device: GFXDevice = cc.director.root.device;
-
-        if (texBuffers.length > 0) {
-            device.copyBuffersToTexture(texBuffers, gfxTex!, texBufferRegions);
-        }
-
-        if (texImages.length > 0) {
-            device.copyTexImagesToTexture(texImages, gfxTex!, texImageRegions);
         }
     }
 
     public combineSkeletons () {
         // find lowest common ancestor as the new skinning root
         let lca: Node | null = null;
-        for (const unit of this._avatarUnits) {
+        for (const unit of this.avatarUnits) {
             if (!unit || !unit.skinningRoot) { continue; }
             const cur = unit.skinningRoot;
             if (!lca) { lca = cur; continue; }
@@ -300,7 +215,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
         if (!lca) { console.warn('illegal skinning roots'); return; }
         // merge joints accordingly
         const skeleton = new Skeleton();
-        for (const unit of this._avatarUnits) {
+        for (const unit of this.avatarUnits) {
             if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
             const partial = unit.skeleton;
             const prefix = getPrefix(lca, unit.skinningRoot);
@@ -326,7 +241,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
 
     public combineMeshes () {
         let isValid = false;
-        for (const unit of this._avatarUnits) {
+        for (const unit of this.avatarUnits) {
             if (unit.mesh) {
                 isValid = true;
                 break;
@@ -350,10 +265,10 @@ export class AvatarModelComponent extends SkinningModelComponent {
         let jointFormat = GFXFormat.UNKNOWN;
 
         // prepare joint index map
-        const jointIndexMap: number[][] = new Array(this._avatarUnits.length);
-        const avatarLen = this._avatarUnits.length;
+        const jointIndexMap: number[][] = new Array(this.avatarUnits.length);
+        const avatarLen = this.avatarUnits.length;
         for (let i = 0; i < avatarLen; i++) {
-            const unit = this._avatarUnits[i];
+            const unit = this.avatarUnits[i];
             if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
             const prefix = getPrefix(this._skinningRoot, unit.skinningRoot);
             jointIndexMap[i] = unit.skeleton.joints.map((j) => {
@@ -363,22 +278,93 @@ export class AvatarModelComponent extends SkinningModelComponent {
         }
 
         for (let i = 0; i < avatarLen; i++) {
-            const unit = this._avatarUnits[i];
+            const unit = this.avatarUnits[i];
             if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
-            const offset = unit.offset;
 
-            const meshData = unit.mesh.data.slice();
+            // add batch ID to this temp mesh
+            const newMeshStruct: IMeshStruct = JSON.parse(JSON.stringify(unit.mesh.struct));
+            const extraLength = unit.mesh.struct.vertexBundles.reduce((acc, cur) => acc + cur.view.count * batch_extras_size, 0);
+            const newMeshData = new Uint8Array(unit.mesh.data.byteLength + extraLength);
+            dataView = new DataView(newMeshData.buffer);
+
+            // first, update bookkeepping
+            let newOffset = 0; let oldOffset = 0;
+            for (const vb of newMeshStruct.vertexBundles) {
+                vb.attributes.push(batch_id);
+                vb.attributes.push(batch_uv);
+                vb.view.offset = newOffset;
+                vb.view.length += vb.view.count * batch_extras_size;
+                vb.view.stride += batch_extras_size;
+                newOffset += vb.view.length;
+            }
+            for (const pm of newMeshStruct.primitives) {
+                if (pm.indexView) {
+                    pm.indexView.offset = newOffset;
+                    newOffset += pm.indexView.length;
+                }
+                if (pm.geometricInfo) {
+                    pm.geometricInfo.view.offset = newOffset;
+                    newOffset += pm.geometricInfo.view.length;
+                }
+            }
+            // now, we ride!
+            const src = unit.mesh.data;
+            for (let k = 0; k < newMeshStruct.vertexBundles.length; k++) {
+                const uvs = unit.mesh.readAttribute(k, GFXAttributeName.ATTR_TEX_COORD)!; // FIXME: should be kth bundle instead of primitive
+                const oldView = unit.mesh.struct.vertexBundles[k].view;
+                const newView = newMeshStruct.vertexBundles[k].view;
+                const oldStride = oldView.stride;
+                const newStride = newView.stride;
+                oldOffset = oldView.offset;
+                newOffset = newView.offset;
+                for (let j = 0; j < newView.count; j++) {
+                    const srcVertex = src.subarray(oldOffset, oldOffset + oldStride);
+                    newMeshData.set(srcVertex, newOffset);
+                    // insert batch ID
+                    dataView.setFloat32(newOffset + oldStride, i, cc.sys.isLittleEndian);
+                    // insert batch UV
+                    dataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], cc.sys.isLittleEndian);
+                    dataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], cc.sys.isLittleEndian);
+                    newOffset += newStride; oldOffset += oldStride;
+                }
+            }
+            for (let k = 0; k < newMeshStruct.primitives.length; k++) {
+                const oldPrimitive = unit.mesh.struct.primitives[k];
+                const newPrimitive = newMeshStruct.primitives[k];
+                if (oldPrimitive.indexView && newPrimitive.indexView) {
+                    const oldStride = oldPrimitive.indexView.stride;
+                    const newStride = newPrimitive.indexView.stride;
+                    oldOffset = oldPrimitive.indexView.offset;
+                    newOffset = newPrimitive.indexView.offset;
+                    for (let j = 0; j < newPrimitive.indexView.count; j++) {
+                        const srcIndices = src.subarray(oldOffset, oldOffset + oldStride);
+                        newMeshData.set(srcIndices, newOffset);
+                        newOffset += newStride; oldOffset += oldStride;
+                    }
+                }
+                if (oldPrimitive.geometricInfo && newPrimitive.geometricInfo) {
+                    const oldStride = oldPrimitive.geometricInfo.view.stride;
+                    const newStride = newPrimitive.geometricInfo.view.stride;
+                    oldOffset = oldPrimitive.geometricInfo.view.offset;
+                    newOffset = newPrimitive.geometricInfo.view.offset;
+                    for (let j = 0; j < newPrimitive.geometricInfo.view.count; j++) {
+                        const srcPositions = src.subarray(oldOffset, oldOffset + oldStride);
+                        newMeshData.set(srcPositions, newOffset);
+                        newOffset += newStride; oldOffset += oldStride;
+                    }
+                }
+            }
             const newMesh = new Mesh();
-            newMesh.assign(unit.mesh.struct, meshData);
+            newMesh.assign(newMeshStruct, newMeshData);
 
-            dataView = new DataView(meshData.buffer);
-            const struct = unit.mesh.struct;
-            for (const bundle of struct.vertexBundles) {
+            const offset = unit.offset;
+            const size = unit.size;
+            for (const bundle of newMeshStruct.vertexBundles) {
                 // merge UV
                 uvOffset = bundle.view.offset;
                 uvFormat = GFXFormat.UNKNOWN;
                 for (const attr of bundle.attributes) {
-                    if (attr.name.indexOf(GFXAttributeName.ATTR_TEX_COORD) >= 0) {
+                    if (attr.name === GFXAttributeName.ATTR_BATCH_UV) {
                         uvFormat = attr.format;
                         break;
                     }
@@ -388,7 +374,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
                     mapBuffer(dataView, (cur, idx) => {
                         cur = repeat(cur); // warp to [0, 1] first
                         const comp = idx === 0 ? 'x' : 'y';
-                        return (cur * unit.atlasSize[comp] + offset[comp]) / this._combinedTexSize;
+                        return cur * size[comp] + offset[comp];
                     }, uvFormat, uvOffset, bundle.view.length, bundle.view.stride, dataView);
                 }
                 // merge joint indices
@@ -414,10 +400,50 @@ export class AvatarModelComponent extends SkinningModelComponent {
         this._updateModels();
     }
 
-    private resizeCombinedTexture () {
-        if (this._combinedTex) {
-            this._combinedTex.destroy();
-            this._combinedTex.create(this._combinedTexSize, this._combinedTexSize, PixelFormat.RGBA8888);
+    protected combineTextures (target: Texture2D, prop: string, passIdx: number) {
+        const texImages: TexImageSource[] = [];
+        const texImageRegions: GFXBufferTextureCopy[] = [];
+        const texBuffers: ArrayBuffer[] = [];
+        const texBufferRegions: GFXBufferTextureCopy[] = [];
+        for (const unit of this.avatarUnits) {
+            if (!unit.material) { continue; }
+            const partial: Texture2D = unit.material.getProperty(prop, passIdx);
+            if (partial && partial.image && partial.image.data) {
+                const region = new GFXBufferTextureCopy();
+                region.texOffset.x = unit.offset.x * this.combinedTexSize;
+                region.texOffset.y = unit.offset.y * this.combinedTexSize;
+                region.texExtent.width = unit.size.x * this.combinedTexSize;
+                region.texExtent.height = unit.size.y * this.combinedTexSize;
+                const data = partial.image.data;
+                if (data instanceof HTMLCanvasElement || data instanceof HTMLImageElement) {
+                    texImages.push(data);
+                    texImageRegions.push(region);
+                } else {
+                    texBuffers.push(data.buffer);
+                    texBufferRegions.push(region);
+                }
+            }
+        }
+        const gfxTex = target.getGFXTexture()!;
+        const device: GFXDevice = cc.director.root.device;
+        if (texBuffers.length > 0) { device.copyBuffersToTexture(texBuffers, gfxTex, texBufferRegions); }
+        if (texImages.length > 0) { device.copyTexImagesToTexture(texImages, gfxTex, texImageRegions); }
+    }
+
+    protected createTexture (prop: string) {
+        const tex = new Texture2D();
+        tex.setFilters(Filter.LINEAR, Filter.LINEAR);
+        tex.create(this.combinedTexSize, this.combinedTexSize, PixelFormat.RGBA8888);
+        tex.loaded = true;
+        this._textures[prop] = tex;
+        return tex;
+    }
+
+    protected resizeCombinedTexture () {
+        for (const prop of Object.keys(this._textures)) {
+            const tex = this._textures[prop];
+            tex.destroy();
+            tex.create(this.combinedTexSize, this.combinedTexSize, PixelFormat.RGBA8888);
         }
     }
 }

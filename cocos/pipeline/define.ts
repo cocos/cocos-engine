@@ -184,7 +184,7 @@ export class UBOSkinning {
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_SKINNING, name: 'CCSkinning', members: [
-            { name: 'cc_matJoint', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 }, // DQ + scale
+            { name: 'cc_jointsData', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 }, // DQ + scale
         ],
     };
 }
