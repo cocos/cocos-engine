@@ -709,7 +709,7 @@ export class ButtonComponent extends Component {
             return;
         }
 
-        if (CC_EDITOR) {
+        if (CC_EDITOR || state === State.DISABLED) {
             renderComp.color = color;
         } else {
             this._fromColor = renderComp.color.clone();

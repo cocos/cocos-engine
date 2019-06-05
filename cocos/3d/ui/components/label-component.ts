@@ -178,8 +178,8 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         this._string = value;
-        this.updateRenderData();
         this._checkStringEmpty();
+        this.updateRenderData();
     }
 
     /**
