@@ -77,15 +77,14 @@ let RenderComponent = cc.Class({
         this._assembler = this.constructor._assembler;
         this._postAssembler = this.constructor._postAssembler;
 
-        // Render handle for native system
         if (CC_JSB && CC_NATIVERENDERER) {
-            this.initNativeHandle();
+            this._hasAddToNativeNode = false;
+            this.initNativeAssembler();
         }
     },
 
-    initNativeHandle () {
-        this._renderHandle = new renderer.RenderHandle();
-        this._renderHandle.bind(this);
+    initNativeAssembler () {
+        this._renderHandle = new renderer.Assembler();
     },
 
     onEnable () {
@@ -100,7 +99,17 @@ let RenderComponent = cc.Class({
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderHandle.updateEnabled(true);
+            if (!this._hasAddToNativeNode) {
+                if (this._renderHandle.init) {
+                    this._renderHandle.init(this);
+                }
+                if (this.node._proxy) {
+                    this.node._proxy.addAssembler("render", this._renderHandle);
+                }
+                this._hasAddToNativeNode = true;
+            } else {
+                this._renderHandle.enable();
+            }
         }
     },
 
@@ -154,13 +163,13 @@ let RenderComponent = cc.Class({
         if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
             if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.updateEnabled(true);
+                this._renderHandle.enable();
             }
         }
         else if (!enable) {
             this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
             if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.updateEnabled(false);
+                this._renderHandle.disable();
             }
         }
     },
@@ -176,9 +185,8 @@ let RenderComponent = cc.Class({
 
     disableRender () {
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
-
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderHandle.updateEnabled(false);
+            this._renderHandle.disable();
         }
     },
 
