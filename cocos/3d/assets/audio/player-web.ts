@@ -34,7 +34,7 @@ export class AudioPlayerWeb extends AudioPlayer {
     protected _volume = 1;
     protected _loop = false;
     protected _currentTimer = 0;
-    protected _audio: AudioBuffer | null = null;
+    protected _audio: AudioBuffer;
 
     private _context: AudioContext;
     private _sourceNode: AudioBufferSourceNode;
