@@ -8,8 +8,8 @@ import { ICollisionCallback, ICollisionEventType, ShapeBase } from '../../../phy
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
 import { PhysicsBasedComponent } from '../detail/physics-based-component';
 
-@ccclass('cc.ColliderComponentBase')
-export class ColliderComponentBase extends PhysicsBasedComponent {
+@ccclass('cc.ColliderComponent')
+export class ColliderComponent extends PhysicsBasedComponent {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 

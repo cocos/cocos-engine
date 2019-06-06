@@ -9,13 +9,13 @@ import Vec3 from '../../../../core/value-types/vec3';
 import { vec3 } from '../../../../core/vmath';
 import { BoxShapeBase } from '../../../physics/api';
 import { createBoxShape } from '../../../physics/instance';
-import { ColliderComponentBase } from './collider-component';
+import { ColliderComponent } from './collider-component';
 
 @ccclass('cc.BoxColliderComponent')
 @executionOrder(98)
 @menu('Components/BoxColliderComponent')
 @executeInEditMode
-export class BoxColliderComponent extends ColliderComponentBase {
+export class BoxColliderComponent extends ColliderComponent {
 
     private _shape!: BoxShapeBase;
 

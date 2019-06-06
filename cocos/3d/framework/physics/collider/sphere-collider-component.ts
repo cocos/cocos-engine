@@ -7,13 +7,13 @@ import {
 } from '../../../../core/data/class-decorator';
 import { SphereShapeBase } from '../../../physics/api';
 import { createSphereShape } from '../../../physics/instance';
-import { ColliderComponentBase } from './collider-component';
+import { ColliderComponent } from './collider-component';
 
 @ccclass('cc.SphereColliderComponent')
 @executionOrder(98)
 @menu('Components/SphereColliderComponent')
 @executeInEditMode
-export class SphereColliderComponent extends ColliderComponentBase {
+export class SphereColliderComponent extends ColliderComponent {
 
     private _shape!: SphereShapeBase;
 
