@@ -31,7 +31,7 @@ export class SphereColliderComponent extends ColliderComponentBase {
 
     /// COMPONENT LIFECYCLE ///
 
-    public onLoad () {
+    protected onLoad () {
         super.onLoad();
 
         if (!CC_EDITOR) {
@@ -46,11 +46,11 @@ export class SphereColliderComponent extends ColliderComponentBase {
      * The radius of the sphere.
      */
     @property
-    get radius () {
+    public get radius () {
         return this._radius;
     }
 
-    set radius (value) {
+    public set radius (value) {
         this._radius = value;
 
         if (!CC_EDITOR) {

@@ -35,7 +35,7 @@ export class BoxColliderComponent extends ColliderComponentBase {
 
     /// COMPONENT LIFECYCLE ///
 
-    public onLoad () {
+    protected onLoad () {
         super.onLoad();
 
         if (!CC_EDITOR) {
@@ -51,11 +51,11 @@ export class BoxColliderComponent extends ColliderComponentBase {
      * @note Shall not specify size with component 0.
      */
     @property({ type: Vec3 })
-    get size () {
+    public get size () {
         return this._size;
     }
 
-    set size (value) {
+    public set size (value) {
         vec3.copy(this._size, value);
 
         if (!CC_EDITOR) {

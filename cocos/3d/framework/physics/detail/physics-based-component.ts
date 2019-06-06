@@ -34,47 +34,6 @@ export class PhysicsBasedComponent extends Component {
         super();
     }
 
-    public __preload () {
-        if (!CC_EDITOR) {
-            if (this._sharedBody == null) {
-                const physicsBasedComponents = this.node.getComponents(PhysicsBasedComponent);
-                let sharedBody: SharedRigidBody | null = null;
-                for (const physicsBasedComponent of physicsBasedComponents) {
-                    if (physicsBasedComponent._sharedBody) {
-                        sharedBody = physicsBasedComponent._sharedBody;
-                        break;
-                    }
-                }
-                if (!sharedBody) {
-                    sharedBody = new SharedRigidBody(this.node, cc.director._physicsSystem.world);
-                }
-                sharedBody.ref();
-                this._sharedBody = sharedBody;
-            }
-
-            this._isPreLoaded = true;
-        }
-    }
-
-    public onEnable () {
-        if (!CC_EDITOR) {
-            this.sharedBody.enable();
-        }
-    }
-
-    public onDisable () {
-        if (!CC_EDITOR) {
-            this.sharedBody.disable();
-        }
-    }
-
-    public onDestroy () {
-        if (!CC_EDITOR) {
-            this._sharedBody.deref();
-            (this._sharedBody as any) = null;
-        }
-    }
-
     /**
      *  @return group ∈ [0, 31] (int)
      */
@@ -121,6 +80,49 @@ export class PhysicsBasedComponent extends Component {
     public addMask (v: number) {
         if (this._assertPreload) {
             return this._body!.addMask(v);
+        }
+    }
+
+    /// COMPONENT LIFECYCLE ///
+
+    protected __preload () {
+        if (!CC_EDITOR) {
+            if (this._sharedBody == null) {
+                const physicsBasedComponents = this.node.getComponents(PhysicsBasedComponent);
+                let sharedBody: SharedRigidBody | null = null;
+                for (const physicsBasedComponent of physicsBasedComponents) {
+                    if (physicsBasedComponent._sharedBody) {
+                        sharedBody = physicsBasedComponent._sharedBody;
+                        break;
+                    }
+                }
+                if (!sharedBody) {
+                    sharedBody = new SharedRigidBody(this.node, cc.director._physicsSystem.world);
+                }
+                sharedBody.ref();
+                this._sharedBody = sharedBody;
+            }
+
+            this._isPreLoaded = true;
+        }
+    }
+
+    protected onEnable () {
+        if (!CC_EDITOR) {
+            this.sharedBody.enable();
+        }
+    }
+
+    protected onDisable () {
+        if (!CC_EDITOR) {
+            this.sharedBody.disable();
+        }
+    }
+
+    protected onDestroy () {
+        if (!CC_EDITOR) {
+            this._sharedBody.deref();
+            (this._sharedBody as any) = null;
         }
     }
 }
