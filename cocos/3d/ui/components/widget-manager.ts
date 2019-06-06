@@ -26,7 +26,7 @@
 
 import { SystemEventType } from '../../../core/platform';
 import { array } from '../../../core/utils/js';
-import { Size, Vec3 } from '../../../core/value-types';
+import { Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { CanvasComponent } from './canvas-component';
@@ -34,6 +34,7 @@ import { UIRenderComponent } from './ui-render-component';
 import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';
 
 const _tempPos = new Vec3();
+const _zeroVec3 = new Vec3();
 
 // returns a readonly size of the node
 export function getReadonlyNodeSize (parent: Node) {
@@ -54,7 +55,7 @@ export function getReadonlyNodeSize (parent: Node) {
 }
 
 export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
-    let scale = widgetNode.parent!.getScale();
+    let scale = widgetNode.parent ? widgetNode.parent.getScale() : _zeroVec3;
     let scaleX = scale.x;
     let scaleY = scale.y;
     let translateX = 0;
@@ -73,7 +74,7 @@ export function computeInverseTransForTarget (widgetNode: Node, target: Node, ou
         node = node.parent;    // loop increment
 
         if (node !== target) {
-            scale = node!.getScale();
+            scale = node ? node.getScale() : _zeroVec3;
             const sx = scale.x;
             const sy = scale.y;
             translateX *= sx;
@@ -238,7 +239,7 @@ function visitNode (node: Node) {
     const widget = node.getComponent(WidgetComponent);
     if (widget) {
         if (CC_DEV) {
-            // widget._validateTargetInDEV();
+            widget._validateTargetInDEV();
         }
         align(node, widget);
         if ((!CC_EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
@@ -335,9 +336,12 @@ function refreshScene () {
                 // loop reversely will not help to prevent out of sync
                 // because user may remove more than one item during a step.
             for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
-                    widget = activeWidgets[iterator.i];
+                widget = activeWidgets[iterator.i];
+                if (widget._dirty) {
                     align(widget.node, widget);
+                    widget._dirty = false;
                 }
+            }
             // }
         }
         widgetManager.isAligning = false;
@@ -349,10 +353,10 @@ function refreshScene () {
     }
 }
 
-function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: SystemEventType, oldPos: Vec3) {
-    if (!CC_EDITOR || eventType !== SystemEventType.POSITION_PART) {
-        return;
-    }
+function adjustWidgetToAllowMovingInEditor (this: WidgetComponent/*, eventType: SystemEventType, oldPos: Vec3*/) {
+    // if (/*!CC_EDITOR ||*/ eventType !== SystemEventType.POSITION_PART) {
+    //     return;
+    // }
 
     if (widgetManager.isAligning) {
         return;
@@ -360,7 +364,9 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: Sy
 
     const self = this;
     const newPos = self.node.getPosition();
+    const oldPos = this._lastPos;
     const delta = newPos.sub(oldPos);
+    oldPos.set(newPos);
 
     let target = self.node.parent!;
     const inverseScale = new Vec3(1, 1, 1);
@@ -396,18 +402,22 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: Sy
     }
 }
 
-function adjustWidgetToAllowResizingInEditor (this: WidgetComponent, oldSize: Size) {
-    if (!CC_EDITOR) {
-        return;
-    }
+function adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: Size*/) {
+    // if (!CC_EDITOR) {
+    //     return;
+    // }
 
     if (widgetManager.isAligning) {
         return;
     }
 
+    this.setDirty();
+
     const self = this;
     const newSize = self.node.getContentSize();
+    const oldSize = this._lastSize;
     const delta = new Vec3(newSize.width - oldSize.width, newSize.height - oldSize.height, 0);
+    oldSize.set(newSize);
 
     let target = self.node.parent!;
     const inverseScale = new Vec3(1, 1, 1);
@@ -484,25 +494,28 @@ export const widgetManager = cc._widgetManager = {
     },
     add (widget: WidgetComponent) {
         this._nodesOrderDirty = true;
-        if (CC_EDITOR /*&& !cc.engine.isPlaying*/) {
-            const renderComp = widget.node.getComponent(UIRenderComponent);
-            if (renderComp){
+        // if (CC_EDITOR && !cc.engine.isPlaying) {
+        const renderComp = widget.node.getComponent(UIRenderComponent);
+        if (renderComp) {
                 const canvasComp = cc.director.root.ui.getScreen(renderComp.visibility);
                 if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
                     canvasList.push(canvasComp);
                     canvasComp.node.on('design-resolution-changed', this.onResized, this);
                 }
             }
-            widget.node.on(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
-            widget.node.on(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
-        }
+        // widget.node.on(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
+        widget.node.on(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
+        // }
+    },
+    updateTransform (widget: WidgetComponent) {
+        adjustWidgetToAllowMovingInEditor.call(widget);
     },
     remove (widget: WidgetComponent) {
         this._activeWidgetsIterator.remove(widget);
-        if (CC_EDITOR && !cc.engine.isPlaying) {
-            widget.node.off(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
-            widget.node.off(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
-        }
+        // if (CC_EDITOR && !cc.engine.isPlaying) {
+        // widget.node.off(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
+        widget.node.off(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
+        // }
     },
     onResized () {
         const scene = cc.director.getScene();
@@ -514,10 +527,11 @@ export const widgetManager = cc._widgetManager = {
         if (Node.isNode(node)){
             const widget = node.getComponent(WidgetComponent);
             // const widget: WidgetComponent | null = null;
-            if (widget) {
-                if (widget!.alignMode === AlignMode.ON_WINDOW_RESIZE) {
-                    widget!.enabled = true;
-                }
+            if (widget && widget.alignFlags === AlignMode.ALWAYS) {
+                // if (widget!.alignMode === AlignMode.ON_WINDOW_RESIZE) {
+                //     widget!.enabled = true;
+                // }
+                return;
             }
         }
 
