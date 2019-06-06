@@ -77,6 +77,10 @@ const insertBuiltinBindings = (tmpl: IProgramInfo, source: Map<string, IInternal
     }
 };
 
+/**
+ * @zh
+ * 维护 shader 资源实例的全局管理器。
+ */
 class ProgramLib {
     protected _templates: Record<string, IProgramInfo>;
     protected _cache: Record<string, GFXShader>;
@@ -87,6 +91,8 @@ class ProgramLib {
     }
 
     /**
+     * @zh
+     * 根据 effect 信息注册 shader 模板。
      * @example:
      *   // this object is auto-generated from your actual shaders
      *   let program = {
@@ -138,12 +144,22 @@ class ProgramLib {
     }
 
     /**
+     * @en
      * Does this library has the specified program?
+     * @zh
+     * 当前是否有已注册的指定名字的 shader？
+     * @param name 目标 shader 名
      */
     public hasProgram (name: string) {
         return this._templates[name] !== undefined;
     }
 
+    /**
+     * @zh
+     * 根据 shader 名和预处理宏列表获取 shader key。
+     * @param name 目标 shader 名
+     * @param defines 目标预处理宏列表
+     */
     public getKey (name: string, defines: IDefineMap) {
         const tmpl = this._templates[name];
         let key = 0;
@@ -157,10 +173,19 @@ class ProgramLib {
         return key << 8 | (tmpl.id & 0xff);
     }
 
+    /**
+     * @zh
+     * 销毁所有完全满足指定预处理宏特征的 shader 实例。
+     * @param defines 用于筛选的预处理宏列表
+     */
     public destroyShaderByDefines (defines: IDefineMap) {
         const defs = Object.keys(defines); if (!defs.length) { return; }
-        const re = new RegExp(defs.reduce((acc, cur) => `${cur}|${acc}`, '').slice(0, -1));
-        const keys = Object.keys(this._cache).filter((k) => re.test(this._cache[k].name));
+        const regexes = defs.map((cur) => {
+            let val = defs[cur];
+            if (typeof val === 'boolean') { val = val ? '1' : '0'; }
+            return new RegExp(cur + val);
+        });
+        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(this._cache[k].name)));
         for (const k of keys) {
             console.log(`destroyed shader ${this._cache[k].name}`);
             this._cache[k].destroy();
@@ -168,6 +193,14 @@ class ProgramLib {
         }
     }
 
+    /**
+     * @zh
+     * 获取指定 shader 的渲染资源实例
+     * @param device 渲染设备 [[GFXDevice]]
+     * @param name shader 名字
+     * @param defines 预处理宏列表
+     * @param pipeline 实际渲染命令执行时所属的 [[RenderPipeline]]
+     */
     public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
         const key = this.getKey(name, defines);

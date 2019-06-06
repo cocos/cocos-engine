@@ -1,7 +1,7 @@
 import { ccclass, executionOrder, menu } from '../../../core/data/class-decorator';
 import { RenderPriority } from '../../../pipeline/define';
-import { Effect } from '../../../renderer';
 import { UI } from '../../../renderer/ui/ui';
+import { Material } from '../../assets';
 import { RenderableComponent } from '../../framework/renderable-component';
 import { UIComponent } from './ui-component';
 
@@ -51,7 +51,7 @@ export class UIModelComponent extends UIComponent {
         }
         const matNum = this._modelComponent.sharedMaterials.length;
         for (let i = 0; i < matNum; i++) {
-            const material = this._modelComponent.getMaterial(i, CC_EDITOR)! as any;
+            const material = this._modelComponent.getMaterial(i, CC_EDITOR)! as Material;
             if (material == null) {
                 continue;
             }
@@ -65,10 +65,11 @@ export class UIModelComponent extends UIComponent {
                     needReconstruct = true;
                     const bs = passes[j].blendState.targets[0];
                     bs.blend = true;
-                    passes[j].overridePipelineStates(Effect.getPassesInfo(ea, techIdx)[j], { blendState: passes[j].blendState });
+                    passes[j].overridePipelineStates(ea.techniques[techIdx].passes[j], { blendState: passes[j].blendState });
                 }
             }
             if (needReconstruct) {
+                // @ts-ignore
                 material._onPassesChange();
             }
         }
