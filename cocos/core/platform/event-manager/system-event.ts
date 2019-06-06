@@ -88,7 +88,7 @@ export class SystemEvent extends EventTarget {
         inputManager.setAccelerometerInterval(interval);
     }
 
-    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void);
+    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: Object);
 
     public on (type: string, callback: Function, target?: Object) {
         if (CC_EDITOR) {
