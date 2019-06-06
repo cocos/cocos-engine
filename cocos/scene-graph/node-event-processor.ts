@@ -5,6 +5,7 @@ import Touch from '../core/platform/event-manager/CCTouch';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import { EventListener } from '../core/platform/event-manager/event-listener';
 import { EventMouse, EventTouch} from '../core/platform/event-manager/index';
+import Scheduler from '../core/scheduler';
 import * as js from '../core/utils/js';
 import { Vec2 } from '../core/value-types';
 import { Node } from './node';
@@ -618,11 +619,11 @@ export class NodeEventProcessor {
             forDispatch = true;
         }
         if (newAdded && !this._node.activeInHierarchy) {
-            cc.director.getScheduler().schedule(() => {
+            (cc.director.getScheduler() as Scheduler).schedule(() => {
                 if (!this._node.activeInHierarchy) {
-                    eventManager.pauseTarget(this);
+                    eventManager.pauseTarget(this._node);
                 }
-            }, this, 0, 0, 0, false);
+            }, this._node, 0, 0, 0, false);
         }
         return forDispatch;
     }
