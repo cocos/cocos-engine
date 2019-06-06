@@ -83,7 +83,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         super.onEnable();
 
         if (!CC_EDITOR) {
-            this.sharedBody.body.addShape(this._shapeBase!);
+            this.sharedBody.body.addShape(this._shapeBase!, this._center);
         }
     }
 
@@ -91,6 +91,7 @@ export class ColliderComponentBase extends PhysicsBasedComponent {
         if (!CC_EDITOR) {
             this.sharedBody.body.removeShape(this._shapeBase!);
 
+            // TODO : Change to determine the reference count
             if (this.sharedBody.isShapeOnly) {
                 super.onDisable();
             }

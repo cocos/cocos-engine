@@ -55,9 +55,6 @@ export class SphereColliderComponent extends ColliderComponentBase {
 
         if (!CC_EDITOR) {
             this._shape.setRadius(value);
-            if (!CC_PHYSICS_BUILT_IN) {
-                this.sharedBody.body.commitShapeUpdates();
-            }
         }
     }
 }
