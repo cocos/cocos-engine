@@ -94,6 +94,7 @@ class ProgramLib {
      * @zh
      * 根据 effect 信息注册 shader 模板。
      * @example:
+     * ```ts
      *   // this object is auto-generated from your actual shaders
      *   let program = {
      *     name: 'foobar',
@@ -110,6 +111,7 @@ class ProgramLib {
      *     dependencies: { 'USE_NORMAL_TEXTURE': 'OES_standard_derivatives' },
      *   };
      *   programLib.define(program);
+     * ```
      */
     public define (prog: IShaderInfo) {
         const cur = this._templates[prog.name];

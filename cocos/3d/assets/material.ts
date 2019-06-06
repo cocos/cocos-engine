@@ -61,7 +61,7 @@ interface IMaterialInfo {
     defines?: IDefineMap | IDefineMap[];
     /**
      * @zh
-     * 这个材质的自定义管线状态，将覆盖 effect 中的属性。
+     * 这个材质的自定义管线状态，将覆盖 effect 中的属性。<br>
      * 注意在可能的情况下请尽量少的自定义管线状态，以减小对渲染效率的影响。
      */
     states?: PassOverrides | PassOverrides[];
@@ -242,11 +242,11 @@ export class Material extends Asset {
 
     /**
      * @en
-     * Convenient property setter provided for quick material setup.
-     * [[Pass.setUniform]] should be used instead
+     * Convenient property setter provided for quick material setup.<br>
+     * [[Pass.setUniform]] should be used instead<br>
      * if you need to do per-frame property update.
      * @zh
-     * 设置材质 uniform 参数的统一入口。
+     * 设置材质 uniform 参数的统一入口。<br>
      * 注意如果需要每帧更新 uniform，建议使用 [[Pass.setUniform]] 以获得更好的性能。
      * @param name 要设置的 uniform 名字
      * @param val 要设置的 uniform 值
