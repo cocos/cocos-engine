@@ -23,9 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const labelAssembler = require('../label');
 const js = require('../../../../../platform/js');
 const assembler2D = require('../2d/ttf');
 const base = require('../../base/3d');
 
-module.exports = js.addon({
+module.exports = labelAssembler.ttf3D = js.addon({
 }, base, assembler2D);

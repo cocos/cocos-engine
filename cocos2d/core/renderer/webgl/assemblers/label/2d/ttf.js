@@ -23,14 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const labelAssembler = require('../label');
 const js = require('../../../../../platform/js');
 const ttfUtls = require('../../../../utils/label/ttf');
 const LabelShadow = require('../../../../../components/CCLabelShadow');
-const fillMeshVertices = require('../../utils').fillMeshVertices;
 const WHITE = cc.color(255, 255, 255, 255);
 const base = require('../../base/2d');
 
-module.exports = js.addon({
+module.exports = labelAssembler.ttf = js.addon({
     updateUVs (comp) {
         let verts = comp._renderHandle.vDatas[0];
         let uv = comp._frame.uv;
@@ -48,13 +48,7 @@ module.exports = js.addon({
         WHITE._fastSetA(comp.node.color.a);
         let color = WHITE._val;
 
-        let uintVerts = comp._renderHandle.uintVDatas[0];
-        if (!uintVerts) return;
-        let floatsPerVert = this.floatsPerVert;
-        let colorOffset = this.colorOffset;
-        for (let i = colorOffset, l = uintVerts.length; i < l; i += floatsPerVert) {
-            uintVerts[i] = color;
-        }
+        base.updateColor.call(this, comp, color);
     },
 
     updateVerts (comp) {

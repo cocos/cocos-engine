@@ -23,13 +23,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const labelAssembler = require('../label');
 const js = require('../../../../../platform/js');
-const assembler = require('../2d/bmfont');
-const fillMeshVertices3D = require('../../utils').fillMeshVertices3D;
+const assembler2D = require('../2d/bmfont');
+const base = require('../../base/3d');
 
-module.exports = js.addon({
-    fillBuffers (comp, renderer) {
-        let node = comp.node;
-        fillMeshVertices3D(node, renderer._meshBuffer3D, comp._renderData, node._color._val);
-    },
-}, assembler);
+const vec3 = cc.vmath.vec3;
+
+const vec3_temp_local = vec3.create();
+const vec3_temp_world = vec3.create();
+
+module.exports = labelAssembler.bmfont3D = js.addon({
+    updateWorldVerts (comp) {
+        let matrix = comp.node._worldMatrix;
+        let renderHandle = comp._renderHandle;
+        let local = renderHandle._local;
+        let world = renderHandle.vDatas[0];
+
+        let floatsPerVert = this.floatsPerVert;
+        for (let offset = 0; offset < world.length; offset += floatsPerVert) {
+            vec3.set(vec3_temp_local, local[offset], local[offset+1], 0);
+            vec3.transformMat4(vec3_temp_world, vec3_temp_local, matrix);
+
+            world[offset] = vec3_temp_world.x;
+            world[offset+1] = vec3_temp_world.y;
+            world[offset+2] = vec3_temp_world.z;
+        }
+    }
+}, base, assembler2D);

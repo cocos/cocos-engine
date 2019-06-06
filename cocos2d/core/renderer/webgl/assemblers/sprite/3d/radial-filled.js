@@ -27,8 +27,27 @@ const spriteAssembler = require('../sprite');
 const js = require('../../../../../platform/js');
 const assembler2D = require('../2d/radial-filled');
 const base = require('../../base/3d');
-const barFilled3D = require('./bar-filled');
+
+const vec3 = cc.vmath.vec3;
+
+const vec3_temp_local = vec3.create();
+const vec3_temp_world = vec3.create();
 
 module.exports = spriteAssembler.radialFilled3D = js.addon({
-    updateWorldVerts: barFilled3D.updateWorldVerts
+    updateWorldVerts (sprite) {
+        let matrix = sprite.node._worldMatrix;
+        let renderHandle = sprite._renderHandle;
+        let local = renderHandle._local;
+        let world = renderHandle.vDatas[0];
+
+        let floatsPerVert = this.floatsPerVert;
+        for (let offset = 0; offset < world.length; offset += floatsPerVert) {
+            vec3.set(vec3_temp_local, local[offset], local[offset+1], 0);
+            vec3.transformMat4(vec3_temp_world, vec3_temp_local, matrix);
+
+            world[offset] = vec3_temp_world.x;
+            world[offset+1] = vec3_temp_world.y;
+            world[offset+2] = vec3_temp_world.z;
+        }
+    }
 }, base, assembler2D);

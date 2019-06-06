@@ -23,12 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const labelAssembler = require('../label');
 const js = require('../../../../../platform/js');
 const assembler = require('../2d/letter');
 const fillMeshVertices3D = require('../../utils').fillMeshVertices3D;
 const WHITE = cc.color(255, 255, 255, 255);
 
-module.exports = js.addon({
+module.exports = labelAssembler.letter3D = js.addon({
     fillBuffers (comp, renderer) {
         let node = comp.node;
         WHITE._fastSetA(node.color.a);

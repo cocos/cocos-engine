@@ -141,6 +141,7 @@ textUtils.bmfont = module.exports = {
         this._reserveQuads(comp, comp.string.toString().length);
         this._updateProperties();
         this._updateContent();
+        this.updateWorldVerts(comp);
         
         _comp._actualFontSize = _fontSize;
         _comp.node.setContentSize(_contentSize);
@@ -741,5 +742,7 @@ textUtils.bmfont = module.exports = {
         _labelDimensions.width = newWidth;
         _labelDimensions.height = newHeight;
         _maxLineWidth = newWidth;
-    }
+    },
+
+    updateWorldVerts() {}
 };

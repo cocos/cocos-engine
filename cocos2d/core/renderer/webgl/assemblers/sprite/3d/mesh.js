@@ -25,7 +25,7 @@
 
 const spriteAssembler = require('../sprite');
 const js = require('../../../../../platform/js');
-const assembler = require('../2d/mesh');
+const assembler2D = require('../2d/mesh');
 const fillVerticesWithoutCalc3D = require('../../utils').fillVerticesWithoutCalc3D;
 
 const vec3 = cc.vmath.vec3;
@@ -71,4 +71,4 @@ module.exports = spriteAssembler.mesh3D = js.addon({
             ibuf[indiceOffset++] = vertexId + triangles[i];
         }
     },
-}, assembler);
+}, assembler2D);
