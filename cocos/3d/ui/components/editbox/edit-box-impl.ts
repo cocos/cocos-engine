@@ -123,6 +123,10 @@ export class EditBoxImpl {
         return this._alwaysOnTop;
     }
 
+    get editing (){
+        return this._editing;
+    }
+
     set editing (value: boolean) {
         this._editing = value;
     }
@@ -153,7 +157,7 @@ export class EditBoxImpl {
         this._edTxt.style.display = 'none';
     }
 
-    public setTabIndex (index) {
+    public setTabIndex (index: number) {
         if (this._edTxt) {
             this._edTxt.tabIndex = index;
         }
@@ -183,7 +187,7 @@ export class EditBoxImpl {
         }
     }
 
-    public setMaxLength (maxLength) {
+    public setMaxLength (maxLength: number) {
         if (!isNaN(maxLength)) {
             if (maxLength < 0) {
                 // we can't set Number.MAX_VALUE to input's maxLength property
@@ -197,7 +201,7 @@ export class EditBoxImpl {
         }
     }
 
-    public setString (text) {
+    public setString (text: string) {
         this._text = text;
         if (this._edTxt) {
             this._edTxt.value = text;
