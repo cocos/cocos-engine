@@ -168,15 +168,16 @@ export class Material extends Asset {
      * 销毁材质，注意这并不会清除材质本身的数据，只会销毁运行时的渲染资源。
      */
     public destroy () {
-        if (!this._effectAsset) { return false; }
-        if (this._passes) {
-            for (const pass of this._passes) {
-                pass.destroy();
+        if (this._effectAsset) {
+            if (this._passes) {
+                for (const pass of this._passes) {
+                    pass.destroy();
+                }
+                this._passes.length = 0;
             }
-            this._passes.length = 0;
+            this._effectAsset = null;
         }
-        this._effectAsset = null;
-        return true;
+        return super.destroy();
     }
 
     /**

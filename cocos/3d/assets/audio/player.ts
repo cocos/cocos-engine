@@ -57,4 +57,5 @@ export abstract class AudioPlayer {
     public abstract setLoop (val: boolean): void;
     public abstract getLoop (): boolean;
     public getState () { return this._state; }
+    public destroy () {}
 }

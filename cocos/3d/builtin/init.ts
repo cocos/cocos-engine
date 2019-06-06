@@ -154,6 +154,17 @@ class BuiltinResMgr {
         missingMtl.onLoaded();
         resources[missingMtl._uuid] = missingMtl;
 
+        // material indicating missing material on skinning model (purple)
+        const missingSkinningMtl = new cc.Material();
+        missingSkinningMtl._uuid = 'missing-skinning-material';
+        missingSkinningMtl.initialize({
+            effectName: 'builtin-unlit',
+            defines: { USE_COLOR: true, CC_USE_SKINNING: 1 },
+        });
+        missingSkinningMtl.setProperty('color', cc.color('#ff00ff'));
+        missingSkinningMtl.onLoaded();
+        resources[missingSkinningMtl._uuid] = missingSkinningMtl;
+
         // material indicating missing effect (yellow)
         const missingEfxMtl = new cc.Material();
         missingEfxMtl._uuid = 'missing-effect-material';

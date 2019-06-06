@@ -32,7 +32,7 @@ export class AudioPlayerWX extends AudioPlayer {
     protected _volume = 1;
     protected _loop = false;
     protected _oneShoting = false;
-    protected _audio: any;
+    protected _audio: InnerAudioContext;
 
     constructor (info: IAudioInfo) {
         super(info);
@@ -59,6 +59,8 @@ export class AudioPlayerWX extends AudioPlayer {
                 this._oneShoting = false;
             }
         });
+        wx.onShow(() => this._audio.play());
+        wx.onAudioInterruptionEnd(() => this._audio.play());
     }
 
     public play () {
@@ -116,6 +118,11 @@ export class AudioPlayerWX extends AudioPlayer {
     public setLoop (val: boolean) {
         this._loop = val;
         if (this._audio) { this._audio.loop = val; }
+    }
+
+    public destroy () {
+        if (this._audio) { this._audio.destroy(); return true; }
+        return false;
     }
 }
 

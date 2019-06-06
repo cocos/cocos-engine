@@ -33,10 +33,10 @@ import { Node } from '../../scene-graph/node';
 import { Mesh } from '../assets';
 import { Material } from '../assets/material';
 import { Skeleton } from '../assets/skeleton';
+import { builtinResMgr } from '../builtin';
 import { aabb } from '../geom-utils';
 import { calculateBoneSpaceBounds } from '../misc/utils';
 import { ModelComponent } from './model-component';
-import { builtinResMgr } from '../builtin';
 
 const v3_1 = new Vec3();
 const qt_1 = new Quat();
