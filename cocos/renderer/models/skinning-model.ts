@@ -62,8 +62,9 @@ export class SkinningModel extends Model {
         this._type = 'skinning';
     }
 
-    public bindSkeleton (skeleton: Skeleton) {
+    public bindSkeleton (skeleton: Skeleton | null) {
         this._destroyJointsMedium();
+        if (!skeleton) { return; }
         const type = selectJointsMediumType(this._device, skeleton.joints.length);
         const format = _jointsFormat[type];
         const UBO = type === JointsMediumType.UNIFORM ? UBOSkinning : UBOSkinningTexture;
