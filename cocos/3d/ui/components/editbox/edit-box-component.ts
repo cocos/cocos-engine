@@ -51,10 +51,11 @@ function capitalizeFirstLetter (string) {
 }
 
 /**
- * !#en cc.EditBox is a component for inputing text, you can use it to gather small amounts of text from users.
- * !#zh EditBox 组件，用于获取用户的输入文本。
- * @class EditBox
- * @extends Component
+ * @en
+ * cc.EditBoxComponent is a component for inputing text, you can use it to gather small amounts of text from users.
+ *
+ * @zh
+ * EditBoxComponent 组件，用于获取用户的输入文本。
  */
 
 @ccclass('cc.EditBoxComponent')
@@ -64,9 +65,10 @@ function capitalizeFirstLetter (string) {
 export class EditBoxComponent extends Component {
 
     /**
-     * !#en Input string of EditBox.
-     * !#zh 输入框的初始输入内容，如果为空则会显示占位符的文本。
-     * @property {String} string
+     * @en Input string of EditBox.
+     *
+     * @zh
+     * 输入框的初始输入内容，如果为空则会显示占位符的文本。
      */
     @property
     get string () {
@@ -85,9 +87,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en The background image of EditBox.
-     * !#zh 输入框的背景图片
-     * @property {SpriteFrame} backgroundImage
+     * @en
+     * The background image of EditBox.
+     *
+     * @zh
+     * 输入框的背景图片。
      */
     @property({
         type: SpriteFrame,
@@ -106,14 +110,13 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en
+     * @en
      * The return key type of EditBox.
      * Note: it is meaningless for web platforms and desktop platforms.
-     * !#zh
+     *
+     * @zh
      * 指定移动设备上面回车按钮的样式。
      * 注意：这个选项对 web 平台与 desktop 平台无效。
-     * @property {EditBox.KeyboardReturnType} returnType
-     * @default KeyboardReturnType.DEFAULT
      */
     @property({
         type: KeyboardReturnType,
@@ -130,10 +133,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en Set the input flags that are to be applied to the EditBox.
-     * !#zh 指定输入标志位，可以指定输入方式为密码或者单词首字母大写。
-     * @property {EditBox.InputFlag} inputFlag
-     * @default InputFlag.DEFAULT
+     * @en
+     * Set the input flags that are to be applied to the EditBox.
+     *
+     * @zh
+     * 指定输入标志位，可以指定输入方式为密码或者单词首字母大写。
      */
     @property({
         type: InputFlag,
@@ -150,13 +154,12 @@ export class EditBoxComponent extends Component {
         }
     }
     /**
-     * !#en
+     * @en
      * Set the input mode of the edit box.
      * If you pass ANY, it will create a multiline EditBox.
-     * !#zh
+     *
+     * @zh
      * 指定输入模式: ANY表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式。
-     * @property {EditBox.InputMode} inputMode
-     * @default InputMode.ANY
      */
     @property({
         type: InputMode,
@@ -173,9 +176,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en Font size of the input text.
-     * !#zh 输入框文本的字体大小
-     * @property {Number} fontSize
+     * @en
+     * Font size of the input text.
+     *
+     * @zh
+     * 输入框文本的字体大小。
      */
     @property
     get fontSize () {
@@ -197,9 +202,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en Change the lineHeight of displayed text.
-     * !#zh 输入框文本的行高。
-     * @property {Number} lineHeight
+     * @en
+     * Change the lineHeight of displayed text.
+     *
+     * @zh
+     * 输入框文本的行高。
      */
     @property
     get lineHeight () {
@@ -218,9 +225,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en Font color of the input text.
-     * !#zh 输入框文本的颜色。
-     * @property {Color} fontColor
+     * @en
+     * Font color of the input text.
+     *
+     * @zh
+     * 输入框文本的颜色。
      */
     @property({
         type: Color,
@@ -248,9 +257,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en The display text of placeholder.
-     * !#zh 输入框占位符的文本内容。
-     * @property {String} placeholder
+     * @en
+     * The display text of placeholder.
+     *
+     * @zh
+     * 输入框占位符的文本内容。
      */
     @property
     get placeholder () {
@@ -272,9 +283,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en The font size of placeholder.
-     * !#zh 输入框占位符的字体大小。
-     * @property {Number} placeholderFontSize
+     * @en
+     * The font size of placeholder.
+     *
+     * @zh
+     * 输入框占位符的字体大小。
      */
     @property
     get placeholderFontSize () {
@@ -293,9 +306,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en The font color of placeholder.
-     * !#zh 输入框占位符的字体颜色。
-     * @property {Color} placeholderFontColor
+     * @en
+     * The font color of placeholder.
+     *
+     * @zh
+     * 输入框占位符的字体颜色。
      */
     @property
     get placeholderFontColor () {
@@ -318,13 +333,13 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en The maximize input length of EditBox.
+     * @en The maximize input length of EditBox.
      * - If pass a value less than 0, it won't limit the input number of characters.
      * - If pass 0, it doesn't allow input any characters.
-     * !#zh 输入框最大允许输入的字符个数。
+     *
+     * @zh 输入框最大允许输入的字符个数。
      * - 如果值为小于 0 的值，则不会限制输入字符个数。
      * - 如果值为 0，则不允许用户进行任何输入。
-     * @property {Number} maxLength
      */
     @property
     get maxLength () {
@@ -342,10 +357,12 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en The input is always visible and be on top of the game view (only useful on Web).
-     * !zh 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
+     * @en
+     * The input is always visible and be on top of the game view (only useful on Web).
+     *
+     * @zh
+     * 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
      * Note: only available on Web at the moment.
-     * @property {Boolean} stayOnTop
      */
     @property
     get stayOnTop () {
@@ -360,9 +377,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en Set the tabIndex of the DOM input element (only useful on Web).
-     * !#zh 修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）。
-     * @property {Number} tabIndex
+     * @en
+     * Set the tabIndex of the DOM input element (only useful on Web).
+     *
+     * @zh
+     * 修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）。
      */
     @property
     get tabIndex () {
@@ -381,9 +400,11 @@ export class EditBoxComponent extends Component {
     public static InputFlag = InputFlag;
     public static InputMode = InputMode;
     /**
-     * !#en The event handler to be called when EditBox began to edit text.
-     * !#zh 开始编辑文本输入框触发的事件回调。
-     * @property {Component.EventHandler[]} editingDidBegan
+     * @en
+     * The event handler to be called when EditBox began to edit text.
+     *
+     * @zh
+     * 开始编辑文本输入框触发的事件回调。
      */
     @property({
         type: ComponentEventHandler,
@@ -391,9 +412,11 @@ export class EditBoxComponent extends Component {
     public editingDidBegan: ComponentEventHandler[] = [];
 
     /**
-     * !#en The event handler to be called when EditBox text changes.
-     * !#zh 编辑文本输入框时触发的事件回调。
-     * @property {Component.EventHandler[]} textChanged
+     * @en
+     * The event handler to be called when EditBox text changes.
+     *
+     * @zh
+     * 编辑文本输入框时触发的事件回调。
      */
     @property({
         type: ComponentEventHandler,
@@ -401,9 +424,11 @@ export class EditBoxComponent extends Component {
     public textChanged: ComponentEventHandler[] = [];
 
     /**
-     * !#en The event handler to be called when EditBox edit ends.
-     * !#zh 结束编辑文本输入框时触发的事件回调。
-     * @property {Component.EventHandler[]} editingDidEnded
+     * @en
+     * The event handler to be called when EditBox edit ends.
+     *
+     * @zh
+     * 结束编辑文本输入框时触发的事件回调。
      */
     @property({
         type: ComponentEventHandler,
@@ -411,9 +436,11 @@ export class EditBoxComponent extends Component {
     public editingDidEnded: ComponentEventHandler[] = [];
 
     /**
-     * !#en The event handler to be called when return key is pressed. Windows is not supported.
-     * !#zh 当用户按下回车按键时的事件回调，目前不支持 windows 平台
-     * @property {Component.EventHandler[]} editingReturn
+     * @en
+     * The event handler to be called when return key is pressed. Windows is not supported.
+     *
+     * @zh
+     * 当用户按下回车按键时的事件回调，目前不支持 windows 平台
      */
     @property({
         type: ComponentEventHandler,
@@ -760,8 +787,8 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en Let the EditBox get focus
-     * !#zh 让当前 EditBox 获得焦点
+     * @en Let the EditBox get focus
+     * @zh 让当前 EditBox 获得焦点
      * @method setFocus
      */
     public setFocus () {
@@ -771,8 +798,8 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * !#en Determine whether EditBox is getting focus or not.
-     * !#zh 判断 EditBox 是否获得了焦点
+     * @en Determine whether EditBox is getting focus or not.
+     * @zh 判断 EditBox 是否获得了焦点
      * Note: only available on Web at the moment.
      * @method isFocused
      */
@@ -794,9 +821,9 @@ export class EditBoxComponent extends Component {
 cc.EditBoxComponent = EditBoxComponent;
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
- * !#zh
+ * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event editing-did-began
  * @param {Event.EventCustom} event
@@ -804,9 +831,9 @@ cc.EditBoxComponent = EditBoxComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
- * !#zh
+ * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event editing-did-ended
  * @param {Event.EventCustom} event
@@ -814,9 +841,9 @@ cc.EditBoxComponent = EditBoxComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
- * !#zh
+ * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event text-changed
  * @param {Event.EventCustom} event
@@ -824,9 +851,9 @@ cc.EditBoxComponent = EditBoxComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
- * !#zh
+ * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event editing-return
  * @param {Event.EventCustom} event
@@ -834,10 +861,10 @@ cc.EditBoxComponent = EditBoxComponent;
  */
 
 /**
- * !#en if you don't need the EditBox and it isn't in any running Scene, you should
+ * @en if you don't need the EditBox and it isn't in any running Scene, you should
  * call the destroy method on this component or the associated node explicitly.
  * Otherwise, the created DOM element won't be removed from web page.
- * !#zh
+ * @zh
  * 如果你不再使用 EditBox，并且组件未添加到场景中，那么你必须手动对组件或所在节点调用 destroy。
  * 这样才能移除网页上的 DOM 节点，避免 Web 平台内存泄露。
  * @example

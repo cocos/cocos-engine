@@ -35,10 +35,11 @@ import { LabelComponent } from './label-component';
  *
  * @example
  * ```ts
+ *
  *  // Create a new node and add label components.
  *  var node = new cc.Node("New Label");
- *  var label = node.addComponent(cc.Label);
- *  var outline = node.addComponent(cc.LabelOutline);
+ *  var label = node.addComponent(cc.LabelComponent);
+ *  var outline = node.addComponent(cc.LabelOutlineComponent);
  *  node.parent = this.node;
  * ```
  */
@@ -57,7 +58,7 @@ export class LabelOutlineComponent extends Component {
      *
      * @example
      * ```ts
-     * outline.color = new cc.Color(0.5, 0.3, 0.7, 1.0);
+     * outline.color = cc.color(0.5, 0.3, 0.7, 1.0);
      * ```
      */
     @property

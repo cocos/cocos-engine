@@ -30,10 +30,11 @@ import { Asset } from './asset';
 import { SpriteFrame } from './sprite-frame';
 
 /**
- * !#en Class for sprite atlas handling.
- * !#zh 精灵图集资源类。
- * @class SpriteAtlas
- * @extends Asset
+ * @en
+ * Class for sprite atlas handling.
+ *
+ * @zh
+ * 精灵图集资源类。
  */
 
 interface ISpriteAtlasSerializeData{
@@ -51,9 +52,10 @@ export class SpriteAtlas extends Asset {
     public spriteFrames: ISpriteFrameList = js.createMap();
 
     /**
-     * Returns the texture of the sprite atlas
-     * @method getTexture
-     * @returns {Texture2D}
+     * @zh
+     * 获取精灵图集的贴图。
+     *
+     * @returns - 精灵贴图。
      */
     public getTexture () {
         const keys = Object.keys(this.spriteFrames);
@@ -67,10 +69,11 @@ export class SpriteAtlas extends Asset {
     }
 
     /**
-     * Returns the sprite frame correspond to the given key in sprite atlas.
-     * @method getSpriteFrame
-     * @param {String} key
-     * @returns {SpriteFrame}
+     * @zh
+     * 根据键值获取精灵。
+     *
+     * @param key - 精灵名。
+     * @returns - 精灵。
      */
     public getSpriteFrame (key: string) {
         const sf = this.spriteFrames[key];
@@ -84,9 +87,10 @@ export class SpriteAtlas extends Asset {
     }
 
     /**
-     * Returns the sprite frames in sprite atlas.
-     * @method getSpriteFrames
-     * @returns {[SpriteFrame]}
+     * @zh
+     * 获取精灵图集所有精灵。
+     *
+     * @returns - 返回所有精灵。
      */
     public getSpriteFrames () {
         const frames: Array<SpriteFrame | null> = [];

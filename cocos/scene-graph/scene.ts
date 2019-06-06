@@ -80,9 +80,10 @@ export class Scene extends Node {
     }
 
     public destroy () {
-        super.destroy();
+        const success = super.destroy();
         cc.director.root.destroyScene(this._renderScene);
         this._activeInHierarchy = false;
+        return success;
     }
 
     public _onHierarchyChanged () { }

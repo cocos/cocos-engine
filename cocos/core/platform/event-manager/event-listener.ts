@@ -380,7 +380,7 @@ export class TouchOneByOne extends EventListener {
     public onTouchEnded: Function | null = null;
     public onTouchCancelled: Function | null = null;
 
-    private _claimedTouches: any[] = [];
+    public _claimedTouches: any[] = [];
 
     constructor () {
         super(EventListener.TOUCH_ONE_BY_ONE, ListenerID.TOUCH_ONE_BY_ONE, null);

@@ -1,5 +1,5 @@
+import { Event, EventTarget } from '../core/event';
 import { ITargetImpl } from '../core/event/event-target';
-import { EventTarget, Event } from '../core/event';
 import { eventManager } from '../core/platform/event-manager';
 import Touch from '../core/platform/event-manager/CCTouch';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
