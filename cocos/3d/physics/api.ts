@@ -18,8 +18,8 @@ export interface ICreateBodyOptions {
 }
 
 export interface ICollisionEvent {
-    source: RigidBodyBase | BuiltInRigidBodyBase | Node;
-    target: RigidBodyBase | BuiltInRigidBodyBase | Node;
+    source: RigidBodyBase | BuiltInRigidBodyBase;
+    target: RigidBodyBase | BuiltInRigidBodyBase;
 }
 
 export type ICollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';

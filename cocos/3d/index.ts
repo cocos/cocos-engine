@@ -42,3 +42,6 @@ export {
 cc.geometry = geometry;
 cc.primitives = primitives;
 cc.utils = utils;
+
+/// PHYSICS EXPORT ///
+export * from './physics/export-api';

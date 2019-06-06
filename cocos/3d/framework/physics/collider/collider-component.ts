@@ -4,7 +4,8 @@ import {
 } from '../../../../core/data/class-decorator';
 import Vec3 from '../../../../core/value-types/vec3';
 import { vec3 } from '../../../../core/vmath';
-import { ICollisionCallback, ICollisionEventType, ShapeBase } from '../../../physics/api';
+import { ShapeBase } from '../../../physics/api';
+import { CollisionCallback, CollisionEventType } from '../../../physics/export-api';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
 import { PhysicsBasedComponent } from '../detail/physics-based-component';
 
@@ -76,7 +77,7 @@ export class ColliderComponent extends PhysicsBasedComponent {
      * @param target - 可选参数，执行回调函数的目标
      * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      */
-    public on (type: ICollisionEventType, callback: ICollisionCallback, target?: Object, useCapture?: any) {
+    public on (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any) {
         this.node.on(type, callback, target, useCapture);
     }
 
@@ -88,7 +89,7 @@ export class ColliderComponent extends PhysicsBasedComponent {
      * @param target - 可选参数，执行回调函数的目标
      * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      */
-    public off (type: ICollisionEventType, callback: ICollisionCallback, target?: Object, useCapture?: any) {
+    public off (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any) {
         this.node.off(type, callback, target, useCapture);
     }
 
@@ -100,7 +101,7 @@ export class ColliderComponent extends PhysicsBasedComponent {
      * @param target - 可选参数，执行回调函数的目标
      * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      */
-    public once (type: ICollisionEventType, callback: ICollisionCallback, target?: Object, useCapture?: any) {
+    public once (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any) {
         this.node.once(type, callback, target, useCapture);
     }
 
