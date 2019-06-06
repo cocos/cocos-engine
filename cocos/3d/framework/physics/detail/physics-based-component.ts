@@ -275,9 +275,9 @@ class SharedRigidBody {
         if (!this._node) {
             return;
         }
-        this._node.emit(type, {
-            source: event.source.getUserData() as Node,
-            target: event.target.getUserData() as Node,
+        this._node.emit(type, type, {
+            source: (event.source as RigidBodyBase).getUserData() as Node,
+            target: (event.target as RigidBodyBase).getUserData() as Node,
         });
     }
 

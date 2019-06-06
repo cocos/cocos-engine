@@ -1,5 +1,6 @@
 import { Quat, Vec3 } from '../../core/value-types';
 import { mat4, quat } from '../../core/vmath';
+import { Node } from '../../scene-graph/node';
 import { ERigidBodyType } from './physic-enum';
 import { RaycastResult } from './raycast-result';
 
@@ -17,8 +18,8 @@ export interface ICreateBodyOptions {
 }
 
 export interface ICollisionEvent {
-    source: RigidBodyBase | BuiltInRigidBodyBase;
-    target: RigidBodyBase | BuiltInRigidBodyBase;
+    source: RigidBodyBase | BuiltInRigidBodyBase | Node;
+    target: RigidBodyBase | BuiltInRigidBodyBase | Node;
 }
 
 export type ICollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
