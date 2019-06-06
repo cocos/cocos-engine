@@ -164,8 +164,10 @@ export class UITransformComponent extends Component {
      * @typeparam size - 节点内容变换的尺寸或者宽度.
      * @param height - 节点内容未变换的高度.
      * @example
+     * ```ts
      * node.setContentSize(cc.size(100, 100));
      * node.setContentSize(100, 100);
+     * ```
      */
     public setContentSize (size: Size | number, height?: number) {
         const locContentSize = this._contentSize;
@@ -215,8 +217,10 @@ export class UITransformComponent extends Component {
      * @typeparam point - 节点锚点或节点 x 轴锚.
      * @param y - 节点 y 轴锚
      * @example
+     * ```ts
      * node.setAnchorPoint(cc.v2(1, 1));
      * node.setAnchorPoint(1, 1);
+     * ```
      */
     public setAnchorPoint (point: Vec2 | number, y?: number) {
         const locAnchorPoint = this._anchorPoint;
@@ -315,9 +319,11 @@ export class UITransformComponent extends Component {
      *
      * @typeparam worldPoint - 世界坐标点
      * @typeparam out - 转换后坐标
-     * @return
+     * @returns - 返回与目标节点的相对位置
      * @example
-     * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
+     * ```ts
+     * var newVec2 = uiTransform.convertToNodeSpaceAR(cc.v2(100, 100));
+     * ```
      */
     public convertToNodeSpaceAR (worldPoint: Vec3, out?: Vec3) {
         this.node.getWorldMatrix(_worldMatrix);
@@ -333,11 +339,13 @@ export class UITransformComponent extends Component {
      * @zh
      * 将当前节点坐标系下的一个点转换到世界坐标系。
      *
-     * @param nodePoint - 节点坐标
-     * @param out - 转换后坐标
-     * @return
+     * @param nodePoint - 节点坐标。
+     * @param out - 转换后坐标。
+     * @returns - 返回 UI 世界坐标系。
      * @example
-     * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
+     * ```ts
+     * var newVec2 = uiTransform.convertToWorldSpaceAR(cc.v2(100, 100));
+     * ```
      */
     public convertToWorldSpaceAR (nodePoint: Vec3, out?: Vec3) {
         this.node.getWorldMatrix(_worldMatrix);
@@ -354,7 +362,9 @@ export class UITransformComponent extends Component {
      *
      * @return - 节点大小的包围盒
      * @example
-     * var boundingBox = node.getBoundingBox();
+     * ```ts
+     * var boundingBox = uiTransform.getBoundingBox();
+     * ```
      */
     public getBoundingBox () {
         vmath.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
@@ -373,9 +383,11 @@ export class UITransformComponent extends Component {
      * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。
      * 该边框包含自身和已激活的子节点的世界边框。
      *
-     * @return
+     * @returns - 返回世界坐标系下包围盒。
      * @example
-     * var newRect = node.getBoundingBoxToWorld();
+     * ```ts
+     * var newRect = uiTransform.getBoundingBoxToWorld();
+     * ```
      */
     public getBoundingBoxToWorld () {
         if (this.node.parent) {
@@ -390,8 +402,8 @@ export class UITransformComponent extends Component {
      * @zh
      * 返回包含当前包围盒及其子节点包围盒的最小包围盒
      *
-     * @param parentMat
-     * @return
+     * @param parentMat - 父节点矩阵。
+     * @returns
      */
     public getBoundingBoxTo (parentMat: Mat4) {
         vmath.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());

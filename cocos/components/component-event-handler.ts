@@ -33,6 +33,7 @@ import { Node } from '../scene-graph';
  *
  * @example
  * ```ts
+ *
  * var eventHandler = new cc.Component.EventHandler();
  * eventHandler.target = newTarget;
  * eventHandler.component = "MainMenu";

@@ -1055,7 +1055,11 @@ export class BaseNode extends CCObject {
             if (this._activeInHierarchy) {
                 this._disableChildComps();
             }
+
+            return true;
         }
+
+        return false;
     }
 
     /**

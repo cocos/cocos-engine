@@ -73,29 +73,27 @@ interface ISpriteFrameOriginal{
 const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }];
 
 /**
- * !#en
+ * @en
  * A cc.SpriteFrame has:<br/>
  *  - texture: A cc.Texture2D that will be used by render components<br/>
  *  - rectangle: A rectangle of the texture
  *
- * !#zh
+ * @zh
  * 一个 SpriteFrame 包含：<br/>
  *  - 纹理：会被渲染组件使用的 Texture2D 对象。<br/>
  *  - 矩形：在纹理中的矩形区域。
  *
- * @class SpriteFrame
- * @extends Asset
- * @uses EventTarget
  * @example
- * // load a cc.SpriteFrame with image path (Recommend)
+ * ```ts
  * var self = this;
- * var url = "test assets/PurpleMonster";
- * cc.loader.loadRes(url, cc.SpriteFrame, function (err, spriteFrame) {
- *  var node = new cc.Node("New Sprite");
- *  var sprite = node.addComponent(cc.Sprite);
- *  sprite.spriteFrame = spriteFrame;
- *  node.parent = self.node
+ * var url = "assets/PurpleMonster/icon/icon";
+ * cc.loader.loadRes(url, function (err, spriteFrame) {
+ *   var node = new cc.Node("New Sprite");
+ *   var sprite = node.addComponent(cc.SpriteComponent);
+ *   sprite.spriteFrame = spriteFrame;
+ *   node.parent = self.node;
  * });
+ * ```
  */
 @ccclass('cc.SpriteFrame')
 export class SpriteFrame extends Texture2D {
@@ -126,11 +124,11 @@ export class SpriteFrame extends Texture2D {
     // }
 
     /**
-     * !#en Top border of the sprite
-     * !#zh sprite 的顶部边框
-     * @property insetTop
-     * @type {Number}
-     * @default 0
+     * @en
+     * Top border of the sprite.
+     *
+     * @zh
+     * sprite 的顶部边框。
      */
     get insetTop () {
         return this._capInsets[INSET_TOP];
@@ -144,11 +142,11 @@ export class SpriteFrame extends Texture2D {
     }
 
     /**
-     * !#en Bottom border of the sprite
-     * !#zh sprite 的底部边框
-     * @property insetBottom
-     * @type {Number}
-     * @default 0
+     * @en
+     * Bottom border of the sprite.
+     *
+     * @zh
+     * sprite 的底部边框。
      */
     get insetBottom () {
         return this._capInsets[INSET_BOTTOM];
@@ -162,11 +160,11 @@ export class SpriteFrame extends Texture2D {
     }
 
     /**
-     * !#en Left border of the sprite
-     * !#zh sprite 的左边边框
-     * @property insetLeft
-     * @type {Number}
-     * @default 0
+     * @en
+     * Left border of the sprite.
+     *
+     * @zh
+     * sprite 的左边边框。
      */
     get insetLeft () {
         return this._capInsets[INSET_LEFT];
@@ -180,11 +178,11 @@ export class SpriteFrame extends Texture2D {
     }
 
     /**
-     * !#en Right border of the sprite
-     * !#zh sprite 的左边边框
-     * @property insetRight
-     * @type {Number}
-     * @default 0
+     * @en
+     * Right border of the sprite.
+     *
+     * @zh
+     * sprite 的左边边框。
      */
     get insetRight () {
         return this._capInsets[INSET_RIGHT];
@@ -211,8 +209,16 @@ export class SpriteFrame extends Texture2D {
 
     public vertices: IVertices | null = null;
 
+    /**
+     * @zh
+     * 不带裁切的 UV。
+     */
     public uv: number[] = [];
 
+    /**
+     * @zh
+     * 带有裁切的 UV。
+     */
     public uvSliced: IUV[] = [];
 
     // the location of the sprite on rendering texture
@@ -233,18 +239,6 @@ export class SpriteFrame extends Texture2D {
 
     private _atlasUuid: string = '';
 
-    /**
-     * !#en
-     * Constructor of SpriteFrame class.
-     * !#zh
-     * SpriteFrame 类的构造函数。
-     * @method constructor
-     * @param {String|Texture2D} [filename]
-     * @param {Rect} [rect]
-     * @param {Boolean} [rotated] - Whether the frame is rotated in the texture
-     * @param {Vec2} [offset] - The offset of the frame in the texture
-     * @param {Size} [originalSize] - The size of the frame in the texture
-     */
     constructor () {
         super();
 
@@ -274,24 +268,33 @@ export class SpriteFrame extends Texture2D {
     }
 
     /**
-     * !#en Returns whether the texture have been loaded
-     * !#zh 返回是否已加载纹理
+     * @en
+     * Returns whether the texture have been loaded.
+     *
+     * @zh
+     * 返回是否已加载纹理。
      */
     public textureLoaded () {
         return this.loaded;
     }
 
     /**
-     * !#en Returns whether the sprite frame is rotated in the texture.
-     * !#zh 获取 SpriteFrame 是否旋转
+     * @en
+     * Returns whether the sprite frame is rotated in the texture.
+     *
+     * @zh
+     * 获取 SpriteFrame 是否旋转。
      */
     public isRotated () {
         return this._rotated;
     }
 
     /**
-     * !#en Set whether the sprite frame is rotated in the texture.
-     * !#zh 设置 SpriteFrame 是否旋转
+     * @en
+     * Set whether the sprite frame is rotated in the texture.
+     *
+     * @zh
+     * 设置 SpriteFrame 是否旋转。
      * @param value
      */
     public setRotated (rotated: boolean) {
@@ -299,8 +302,13 @@ export class SpriteFrame extends Texture2D {
     }
 
     /**
-     * !#en Returns the rect of the sprite frame in the texture.
-     * !#zh 获取 SpriteFrame 的纹理矩形区域
+     * @en
+     * Returns the rect of the sprite frame in the texture.
+     * If it's a atlas texture, a transparent pixel area is proposed for the actual mapping of the current texture.
+     *
+     * @zh
+     * 获取 SpriteFrame 的纹理矩形区域。
+     * 如果是一个 atlas 的贴图，则为当前贴图的实际提出透明像素区域。
      */
     public getRect (out?: Rect) {
         if (out) {
@@ -312,16 +320,22 @@ export class SpriteFrame extends Texture2D {
     }
 
     /**
-     * !#en Sets the rect of the sprite frame in the texture.
-     * !#zh 设置 SpriteFrame 的纹理矩形区域
+     * @en
+     * Sets the rect of the sprite frame in the texture.
+     *
+     * @zh
+     * 设置 SpriteFrame 的纹理矩形区域。
      */
     public setRect (rect: Rect) {
         this._rect = rect;
     }
 
     /**
-     * !#en Returns the original size of the trimmed image.
-     * !#zh 获取修剪前的原始大小
+     * @en
+     * Returns the original size of the trimmed image.
+     *
+     * @zh
+     * 获取修剪前的原始大小。
      */
     public getOriginalSize (out?: Size) {
         if (out) {
@@ -333,8 +347,13 @@ export class SpriteFrame extends Texture2D {
     }
 
     /**
-     * !#en Sets the original size of the trimmed image.
-     * !#zh 设置修剪前的原始大小
+     * @en
+     * Sets the original size of the trimmed image.
+     *
+     * @zh
+     * 设置修剪前的原始大小。
+     *
+     * @param size - 设置精灵原始大小。
      */
     public setOriginalSize (size: Size) {
         this._originalSize.set(size);
@@ -349,18 +368,19 @@ export class SpriteFrame extends Texture2D {
     }
 
     /**
-     * !#en Returns the texture of the frame.
-     * !#zh 获取使用的纹理实例
-     * @method getTexture
-     * @return {Texture2D}
+     * @en
+     * Returns the texture of the frame.
+     *
+     * @zh
+     * 获取使用的纹理实例。
      */
     // getTexture() {
     //     return this._texture;
     // }
 
     /*
-     * !#en Sets the texture of the frame.
-     * !#zh 设置使用的纹理实例。
+     * @en Sets the texture of the frame.
+     * @zh 设置使用的纹理实例。
      * @method _refreshTexture
      * @param {Texture2D} texture
      */
@@ -376,8 +396,13 @@ export class SpriteFrame extends Texture2D {
     // }
 
     /**
-     * !#en Returns the offset of the frame in the texture.
-     * !#zh 获取偏移量
+     * @en
+     * Returns the offset of the frame in the texture.
+     *
+     * @zh
+     * 获取偏移量。
+     *
+     * @param out - 可复用的偏移量。
      */
     public getOffset (out?: Vec2) {
         if (out) {
@@ -389,19 +414,26 @@ export class SpriteFrame extends Texture2D {
     }
 
     /**
-     * !#en Sets the offset of the frame in the texture.
-     * !#zh 设置偏移量
-     * @param offsets
+     * @en
+     * Sets the offset of the frame in the texture.
+     *
+     * @zh
+     * 设置偏移量。
+     *
+     * @param offsets - 偏移量。
      */
     public setOffset (offsets: Vec2) {
         vec2.set(this._offset, offsets.x, offsets.y);
     }
 
     /**
-     * !#en Clone the sprite frame.
-     * !#zh 克隆 SpriteFrame
-     * @method clone
-     * @return {SpriteFrame}
+     * @en
+     * Clone the sprite frame.
+     *
+     * @zh
+     * 克隆 SpriteFrame。
+     *
+     * @returns - 复制后的精灵帧
      */
     public clone () {
         const cloneSprite = new SpriteFrame();
@@ -418,8 +450,8 @@ export class SpriteFrame extends Texture2D {
     }
 
     // /**
-    //  * !#en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
-    //  * !#zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame。
+    //  * @en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
+    //  * @zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame。
     //  * @method setTexture
     //  * @param {String|Texture2D} textureOrTextureFile
     //  * @param {Rect} [rect=null]
@@ -473,11 +505,11 @@ export class SpriteFrame extends Texture2D {
     // }
 
     // /**
-    //  * !#en If a loading scene (or prefab) is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
+    //  * @en If a loading scene (or prefab) is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
     //  * associated by user's custom Components in the scene, will not preload automatically.
     //  * These textures will be load when Sprite component is going to render the SpriteFrames.
     //  * You can call this method if you want to load the texture early.
-    //  * !#zh 当加载中的场景或 Prefab 被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
+    //  * @zh 当加载中的场景或 Prefab 被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
     //  * 只有当 Sprite 组件要渲染这些 SpriteFrame 时，才会检查贴图是否加载。如果你希望加载过程提前，你可以手工调用这个方法。
     //  *
     //  * @method ensureLoadTexture
@@ -507,10 +539,10 @@ export class SpriteFrame extends Texture2D {
     // }
 
     // /**
-    //  * !#en
+    //  * @en
     //  * If you do not need to use the SpriteFrame temporarily, you can call this method so that its texture could be garbage collected.
     //  * Then when you need to render the SpriteFrame, you should call `ensureLoadTexture` manually to reload texture.
-    //  * !#zh
+    //  * @zh
     //  * 当你暂时不再使用这个 SpriteFrame 时，可以调用这个方法来保证引用的贴图对象能被 GC。然后当你要渲染 SpriteFrame 时，你需要手动调用 `ensureLoadTexture` 来重新加载贴图。
     //  *
     //  * @method clearTexture
@@ -524,6 +556,12 @@ export class SpriteFrame extends Texture2D {
     //     this._texture = null;   // TODO - release texture
     // }
 
+    /**
+     * @zh
+     * 判断精灵计算的矩形区域是否越界。
+     *
+     * @param texture
+     */
     public checkRect (texture: ImageAsset) {
         const rect = this._rect;
         let maxX = rect.x;
@@ -544,6 +582,10 @@ export class SpriteFrame extends Texture2D {
         }
     }
 
+    /**
+     * @zh
+     * 计算裁切的 UV。
+     */
     public _calculateSlicedUV () {
         const rect = this._rect;
         const atlasWidth = this.image!.width;
@@ -600,34 +642,38 @@ export class SpriteFrame extends Texture2D {
         }
     }
 
-    public setDynamicAtlasFrame (frame: SpriteFrame) {
-        if (!frame) { return; }
+    // public setDynamicAtlasFrame (frame: SpriteFrame) {
+    //     if (!frame) { return; }
 
-        // @ts-ignore
-        this._original = {
-            texture: this,
-            x: this._rect.x,
-            y: this._rect.y,
-        };
+    //     // @ts-ignore
+    //     this._original = {
+    //         texture: this,
+    //         x: this._rect.x,
+    //         y: this._rect.y,
+    //     };
 
-        // this._texture = frame.texture;
-        this._rect.x = frame._rect.x;
-        this._rect.y = frame._rect.y;
-        this._calculateUV();
-    }
+    //     // this._texture = frame.texture;
+    //     this._rect.x = frame._rect.x;
+    //     this._rect.y = frame._rect.y;
+    //     this._calculateUV();
+    // }
 
-    public resetDynamicAtlasFrame () {
-        if (!this._original) {
-            return;
-        }
+    // public resetDynamicAtlasFrame () {
+    //     if (!this._original) {
+    //         return;
+    //     }
 
-        this._rect.x = this._original.x;
-        this._rect.y = this._original.y;
-        // this._texture = this._original.texture;
-        this._original = null;
-        this._calculateUV();
-    }
+    //     this._rect.x = this._original.x;
+    //     this._rect.y = this._original.y;
+    //     // this._texture = this._original.texture;
+    //     this._original = null;
+    //     this._calculateUV();
+    // }
 
+    /**
+     * @zh
+     * 计算 UV。
+     */
     public _calculateUV () {
         const rect = this._rect;
         const texture = this.image!;

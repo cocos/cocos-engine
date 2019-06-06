@@ -215,7 +215,7 @@ export class SpriteComponent extends UIRenderComponent {
      *
      * @example
      * ```ts
-     * sprite.fillType = SpriteComponent.FillType.HORIZONTAL;
+     * sprite.fillType = cc.SpriteComponent.FillType.HORIZONTAL;
      * ```
      */
     @property({
@@ -336,7 +336,7 @@ export class SpriteComponent extends UIRenderComponent {
      *
      * @example
      * ```ts
-     * sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
+     * sprite.sizeMode = cc.SpriteComponent.SizeMode.CUSTOM;
      * ```
      */
     @property({

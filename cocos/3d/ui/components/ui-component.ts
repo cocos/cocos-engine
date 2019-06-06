@@ -1,6 +1,6 @@
 import { Component } from '../../../components';
-import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccclass, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
+import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { UI } from '../../../renderer/ui/ui';
 import { Node } from '../../../scene-graph';
 import { CanvasComponent } from './canvas-component';
@@ -16,7 +16,7 @@ export class UIComponent extends Component {
 
     /**
      * @zh
-     * 渲染先后顺序，按照广度渲染排列，同级节点下进行一次排列。
+     * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      */
     @property
     get priority () {
