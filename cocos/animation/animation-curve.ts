@@ -464,10 +464,6 @@ const selectLinearLerpFx = (() => {
 
     const builtinLerpFxTable: Map<Object, LerpFunction> = new Map();
     builtinLerpFxTable.set(Number, lerpNumber);
-    builtinLerpFxTable.set(Vec2, makeValueTypeLerpFx(Vec2));
-    builtinLerpFxTable.set(Vec3, makeValueTypeLerpFx(Vec3));
-    builtinLerpFxTable.set(Vec4, makeValueTypeLerpFx(Vec4));
-    builtinLerpFxTable.set(Quat, makeValueTypeLerpFx(Quat));
 
     return (value: any): LerpFunction<any> | undefined => {
         if (value === null) {
@@ -475,6 +471,8 @@ const selectLinearLerpFx = (() => {
         }
         if (typeof value === 'number') {
             return lerpNumber;
+        } else if (value instanceof ValueType) {
+            return makeValueTypeLerpFx(value.constructor as typeof ValueType);
         } else if (typeof value === 'object') {
             const result = builtinLerpFxTable.get(value.constructor);
             if (result) {
