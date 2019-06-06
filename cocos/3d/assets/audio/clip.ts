@@ -41,6 +41,25 @@ export const AudioType = Enum({
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
 
+    public static PlayingState = PlayingState;
+    public static AudioType = AudioType;
+    public static preventDeferredLoadDependents = true;
+
+    @property // we serialize this because it's unavailable at runtime on some platforms
+    protected _duration = 0;
+    @property({
+        type: AudioType,
+    })
+    protected _loadMode = AudioType.UNKNOWN_AUDIO;
+
+    protected _audio: any = null;
+    private _player: AudioPlayer | null = null;
+
+    constructor () {
+        super();
+        this.loaded = false;
+    }
+
     public set _nativeAsset (clip: any) {
         this._audio = clip;
         if (clip) {
@@ -70,31 +89,17 @@ export class AudioClip extends Asset {
         return this._audio;
     }
 
+    public destroy () {
+        if (this._player) { this._player.destroy(); }
+        return super.destroy();
+    }
+
     get loadMode () {
         return this._loadMode;
     }
 
     get state () {
         return this._player ? this._player.getState() : PlayingState.INITIALIZING;
-    }
-
-    public static PlayingState = PlayingState;
-    public static AudioType = AudioType;
-    public static preventDeferredLoadDependents = true;
-
-    @property // we serialize this because it's unavailable at runtime on some platforms
-    protected _duration = 0;
-    @property({
-        type: AudioType,
-    })
-    protected _loadMode = AudioType.UNKNOWN_AUDIO;
-
-    protected _audio: any = null;
-    private _player: AudioPlayer | null = null;
-
-    public constructor () {
-        super();
-        this.loaded = false;
     }
 
     public play () { if (this._player) { this._player.play(); } }

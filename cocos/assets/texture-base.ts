@@ -284,8 +284,7 @@ export class TextureBase extends Asset {
 
     public destroy () {
         this._destroyTexture();
-
-        return true;
+        return super.destroy();
     }
 
     public getGFXTexture () {
