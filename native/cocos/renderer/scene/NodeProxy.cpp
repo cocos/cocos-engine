@@ -51,7 +51,7 @@ NodeProxy::NodeProxy()
 NodeProxy::~NodeProxy()
 {
     CCLOGINFO( "deallocing NodeProxy: %p", this );
-
+    
     for (auto& child : _children)
     {
         child->_parent = nullptr;
@@ -184,20 +184,26 @@ void NodeProxy::reorderChildren()
     }
 }
 
-void NodeProxy::addHandle(const std::string& sysid, SystemHandle* handle)
+void NodeProxy::addAssembler(const std::string& assemblerName, AssemblerBase* assembler)
 {
-    _handles[sysid] = handle;
+    if (!assembler) return;
+    _assemblers.insert(assemblerName, assembler);
+    assembler->enable();
 }
 
-void NodeProxy::removeHandle(const std::string& sysid)
+void NodeProxy::removeAssembler(const std::string& assemblerName)
 {
-    _handles.erase(sysid);
+    auto it = _assemblers.find(assemblerName);
+    if (it != _assemblers.end()) {
+        it->second->disable();
+        _assemblers.erase(it);
+    }
 }
 
-SystemHandle* NodeProxy::getHandle(const std::string& sysid)
+AssemblerBase* NodeProxy::getAssembler(const std::string& assemblerName)
 {
-    auto it = _handles.find(sysid);
-    if (it != _handles.end())
+    auto it = _assemblers.find(assemblerName);
+    if (it != _assemblers.end())
     {
         return it->second;
     }
@@ -316,10 +322,10 @@ void NodeProxy::updateRealOpacity()
     _realOpacity = opacity;
     _opacityUpdated = true;
     
-    auto handle = getHandle("render");
-    if (handle)
+    auto assembler = getAssembler("render");
+    if (assembler)
     {
-        handle->notifyDirty(SystemHandle::OPACITY);
+        assembler->notifyDirty(AssemblerBase::OPACITY);
     }
 }
 
@@ -394,9 +400,12 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
     }
     updateMatrix();
     
-    for (const auto& handler : _handles)
+    for (auto it = _assemblers.begin(); it != _assemblers.end(); it++)
     {
-        handler.second->handle(this, batcher, scene);
+        if (it->second->enabled())
+        {
+            it->second->handle(this, batcher, scene);
+        }
     }
     
     if (_opacityUpdated)
@@ -411,9 +420,12 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
         child->visit(batcher, scene);
     }
     
-    for (const auto& handler : _handles)
+    for (auto it = _assemblers.begin(); it != _assemblers.end(); it++)
     {
-        handler.second->postHandle(this, batcher, scene);
+        if (it->second->enabled())
+        {
+            it->second->postHandle(this, batcher, scene);
+        }
     }
     
     if (worldMatUpdated)

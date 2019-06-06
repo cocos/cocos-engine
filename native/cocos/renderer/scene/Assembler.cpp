@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "RenderHandle.hpp"
+#include "Assembler.hpp"
 
 #include "NodeProxy.hpp"
 #include "ModelBatcher.hpp"
@@ -37,138 +37,44 @@ RENDERER_BEGIN
 
 static MeshBuffer::OffsetInfo s_offsets;
 
-RenderHandle::RenderData::~RenderData()
+Assembler::Assembler()
 {
-    if(jsVertices != nullptr)
-    {
-        jsVertices->unroot();
-        jsVertices->decRef();
-    }
-    if(jsIndices != nullptr)
-    {
-        jsIndices->unroot();
-        jsIndices->decRef();
-    }
+    
 }
 
-RenderHandle::RenderHandle()
-: _enabled(false)
-, _useModel(false)
-, _vfmt(nullptr)
+Assembler::~Assembler()
 {
+    CC_SAFE_RELEASE_NULL(_datas);
 }
 
-RenderHandle::~RenderHandle()
-{
-    disable();
-}
-
-void RenderHandle::enable()
+void Assembler::enable()
 {
     _enabled = true;
     _dirtyFlag |= OPACITY;
 }
 
-void RenderHandle::disable()
-{
-    _enabled = false;
-}
-
-void RenderHandle::updateNativeMesh(uint32_t index, se::Object* vertices, se::Object* indices)
-{
-    if (index >= _datas.size())
-    {
-        return;
-    }
-    se::ScriptEngine::getInstance()->clearException();
-    se::AutoHandleScope hs;
-    
-    RenderData* data = &_datas[index];
-    if (data->jsVertices != nullptr)
-    {
-        data->jsVertices->unroot();
-        data->jsVertices->decRef();
-    }
-    if (data->jsIndices != nullptr)
-    {
-        data->jsIndices->unroot();
-        data->jsIndices->decRef();
-    }
-
-    vertices->root();
-    vertices->incRef();
-    data->jsVertices = vertices;
-    indices->root();
-    indices->incRef();
-    data->jsIndices = indices;
-    data->vertices = nullptr;
-    data->indices = nullptr;
-    data->jsVertices->getTypedArrayData(&data->vertices, (std::size_t*)&data->vBytes);
-    data->jsIndices->getTypedArrayData(&data->indices, (std::size_t*)&data->iBytes);
-    
-    _dirtyFlag |= OPACITY;
-}
-
-void RenderHandle::updateNativeEffect(uint32_t index, Effect* effect)
-{
-    if (index >= _datas.size())
-    {
-        return;
-    }
-    _datas[index].effect = effect;
-}
-
-void RenderHandle::setMeshCount(uint32_t count)
-{
-    _datas.resize(count);
-}
-
-Effect* RenderHandle::getEffect(uint32_t index)
-{
-    if (index < _datas.size())
-    {
-        return _datas[index].effect;
-    }
-    else
-    {
-        return nullptr;
-    }
-}
-
-void RenderHandle::setVertexFormat(VertexFormat* vfmt)
-{
-    _vfmt = vfmt;
-    if (_vfmt)
-    {
-        _bytesPerVertex = _vfmt->getBytes();
-        _vfPos = _vfmt->getElement(ATTRIB_NAME_POSITION);
-        _posOffset = _vfPos->offset / 4;
-        _vfColor = _vfmt->getElement(ATTRIB_NAME_COLOR);
-        _alphaOffset = _vfColor->offset + 3;
-    }
-}
-
-void RenderHandle::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
+void Assembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
 {
     batcher->commit(node, this);
 }
 
-void RenderHandle::postHandle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
+void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& worldMat)
 {
-}
-
-void RenderHandle::fillBuffers(MeshBuffer* buffer, int index, const Mat4& worldMat)
-{
-    if (index >= _datas.size() || _vfmt == nullptr)
+    // has no color info in vertex buffer
+    if(!_datas || !_vfmt)
     {
         return;
     }
-    RenderData& data = _datas[index];
     
-    CCASSERT(data.vBytes % _bytesPerVertex == 0, "RenderHandle::fillBuffers vertices data doesn't follow vertex format");
-    CCASSERT(data.iBytes % 2 == 0, "RenderHandle::fillBuffers indices data is not saved in 16bit");
-    uint32_t vertexCount = (uint32_t)data.vBytes / _bytesPerVertex;
-    uint32_t indexCount = (uint32_t)data.iBytes / 2;
+    RenderData* data = _datas->getRenderData(index);
+    if (!data)
+    {
+        return;
+    }
+    
+    CCASSERT(data->getVBytes() % _bytesPerVertex == 0, "RenderHandle::fillBuffers vertices data doesn't follow vertex format");
+    uint32_t vertexCount = (uint32_t)data->getVBytes() / _bytesPerVertex;
+    uint32_t indexCount = (uint32_t)data->getIndicesCount();
 
     // must retrieve offset before request
     buffer->request(vertexCount, indexCount, &s_offsets);
@@ -178,10 +84,10 @@ void RenderHandle::fillBuffers(MeshBuffer* buffer, int index, const Mat4& worldM
     uint32_t num = _vfPos->num;
 
     float* worldVerts = &buffer->vData[vBufferOffset];
-    memcpy(worldVerts, (float*)data.vertices, data.vBytes);
+    memcpy(worldVerts, (float*)data->getVertices(), data->getVBytes());
     
     // Calculate vertices world positions
-    if (!_useModel)
+    if (!_useModel && !_ignoreWorldMatrix)
     {
         size_t dataPerVertex = _bytesPerVertex / sizeof(float);
         float* ptrPos = worldVerts + _posOffset;
@@ -210,32 +116,54 @@ void RenderHandle::fillBuffers(MeshBuffer* buffer, int index, const Mat4& worldM
     }
     
     // Copy index buffer with vertex offset
-    uint16_t* indices = (uint16_t*)data.indices;
-    for (int i = 0; i < indexCount; ++i)
+    uint16_t* indices = (uint16_t*)data->getIndices();
+    for (auto i = data->getIndicesStart(); i < indexCount; ++i)
     {
         buffer->iData[indexId++] = vertexId + indices[i];
     }
 }
 
-void RenderHandle::updateOpacity(int index, uint8_t opacity)
+void Assembler::setVertexFormat(VertexFormat* vfmt)
+{
+    if (_vfmt == vfmt) return;
+    _vfmt = vfmt;
+    if (_vfmt)
+    {
+        _bytesPerVertex = _vfmt->getBytes();
+        _vfPos = _vfmt->getElement(ATTRIB_NAME_POSITION);
+        _posOffset = _vfPos->offset / 4;
+        _vfColor = _vfmt->getElement(ATTRIB_NAME_COLOR);
+        _alphaOffset = _vfColor->offset + 3;
+    }
+}
+
+void Assembler::setRenderDataList(RenderDataList* datas)
+{
+    if (_datas == datas) return;
+    CC_SAFE_RELEASE(_datas);
+    _datas = datas;
+    CC_SAFE_RETAIN(_datas);
+}
+
+void Assembler::updateOpacity(std::size_t index, uint8_t opacity)
 {
     // has no color info in vertex buffer
-    if(!_vfColor)
+    if(!_vfColor || !_datas || !_vfmt)
     {
         return;
     }
     
-    if (index >= _datas.size() || _vfmt == nullptr)
+    RenderData* data = _datas->getRenderData(index);
+    if (!data)
     {
         return;
     }
-    RenderData& data = _datas[index];
     
-    CCASSERT(data.vBytes % _bytesPerVertex == 0, "RenderHandle::fillBuffers vertices data doesn't follow vertex format");
-    uint32_t vertexCount = (uint32_t)data.vBytes / _bytesPerVertex;
+    CCASSERT(data->getVBytes() % _bytesPerVertex == 0, "RenderHandle::fillBuffers vertices data doesn't follow vertex format");
+    uint32_t vertexCount = (uint32_t)data->getVBytes() / _bytesPerVertex;
     
     size_t dataPerVertex = _bytesPerVertex / sizeof(uint8_t);
-    uint8_t* ptrAlpha = (uint8_t*)data.vertices + _alphaOffset;
+    uint8_t* ptrAlpha = (uint8_t*)data->getVertices() + _alphaOffset;
     for (uint32_t i = 0; i < vertexCount; ++i)
     {
         *ptrAlpha = opacity;

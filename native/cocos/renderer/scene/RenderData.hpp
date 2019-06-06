@@ -21,24 +21,53 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 #pragma once
 
-#include "renderer/scene/CustomRenderHandle.hpp"
-#include "renderer/renderer/InputAssembler.h"
-#include <vector>
-#include "MiddlewareMacro.h"
+#include "../Macro.h"
+#include "base/CCRef.h"
 
-MIDDLEWARE_BEGIN
+namespace se {
+    class Object;
+    class HandleObject;
+}
 
-class MiddlewareManager;
-class MiddlewareRenderHandle : public cocos2d::renderer::CustomRenderHandle
-{
+RENDERER_BEGIN
+
+class Effect;
+
+class RenderData {
 public:
-    MiddlewareRenderHandle();
-    virtual ~MiddlewareRenderHandle();
-    virtual void renderIA(std::size_t index, cocos2d::renderer::ModelBatcher* batcher, cocos2d::renderer::NodeProxy* node) override;
-    void updateIARange(std::size_t index, int start, int count);
-    void updateIABuffer(std::size_t index, cocos2d::renderer::VertexBuffer* vb, cocos2d::renderer::IndexBuffer* ib);
+    RenderData ();
+    virtual ~RenderData ();
+    
+    void setVertices (se::Object* jsVertices);
+    void setIndices (se::Object* jsIndices);
+    
+    uint8_t* getVertices () const;
+    uint8_t* getIndices () const;
+    
+    unsigned long getVBytes () { return _vBytes; }
+    unsigned long getIBytes () { return _iBytes; }
+    
+    void setIndicesStart (unsigned long start) { _start = start; }
+    void setIndicesCount (unsigned long count) { _count = count; }
+    
+    unsigned long getIndicesStart () { return _start; }
+    unsigned long getIndicesCount () { return _count; }
+    
+    void reset();
+    
+private:
+    unsigned long _vBytes = 0;
+    unsigned long _iBytes = 0;
+    uint8_t* _vertices = nullptr;
+    uint8_t* _indices = nullptr;
+    se::Object* _jsVertices = nullptr;
+    se::Object* _jsIndices = nullptr;
+    
+    unsigned long _start = 0;
+    unsigned long _count = 0;
 };
 
-MIDDLEWARE_END
+RENDERER_END

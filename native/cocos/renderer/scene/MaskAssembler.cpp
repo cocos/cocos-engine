@@ -22,54 +22,67 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "MaskRenderHandle.hpp"
+#include "MaskAssembler.hpp"
 #include "./ModelBatcher.hpp"
 #include "./StencilManager.hpp"
+#include "../Macro.h"
 
 RENDERER_BEGIN
 
-MaskRenderHandle::MaskRenderHandle()
-:_batcher(nullptr)
-,_renderSubHandle(nullptr)
-,_clearSubHandle(nullptr)
-,_imageStencil(false)
-,_inverted(false)
+MaskAssembler::MaskAssembler()
 {
 }
 
-void MaskRenderHandle::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
+MaskAssembler::~MaskAssembler()
 {
-    _batcher = batcher;
-    _node = node;
-    batcher->commit(node, (RenderHandle*)this);
-    StencilManager* instance = StencilManager::getInstance();
-    if (!_imageStencil && _renderSubHandle)
-    {
-        _renderSubHandle->handle(node, batcher, scene);
-    }
-    instance->enableMask();
-};
+    CC_SAFE_RELEASE(_renderSubHandle);
+    CC_SAFE_RELEASE(_clearSubHandle);
+}
 
-void MaskRenderHandle::postHandle(NodeProxy *node, ModelBatcher *batcher, Scene *scene)
+void MaskAssembler::setRenderSubHandle(Assembler* renderSubHandle)
 {
-    _batcher = batcher;
+    if (_renderSubHandle == renderSubHandle) return;
+    CC_SAFE_RELEASE(_renderSubHandle);
+    _renderSubHandle = renderSubHandle;
+    CC_SAFE_RETAIN(_renderSubHandle);
+}
+
+void MaskAssembler::setClearSubHandle(Assembler* clearSubHandle)
+{
+    if (_clearSubHandle == clearSubHandle) return;
+    CC_SAFE_RELEASE(_clearSubHandle);
+    _clearSubHandle = clearSubHandle;
+    CC_SAFE_RETAIN(_clearSubHandle);
+}
+
+void MaskAssembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
+{
     batcher->flush();
-    StencilManager::getInstance()->exitMask();
-}
 
-void MaskRenderHandle::fillBuffers(MeshBuffer *buffer, int index, const Mat4 &worldMat)
-{
     StencilManager* instance = StencilManager::getInstance();
     instance->pushMask(_inverted);
     instance->clear();
-    _batcher->commitIA(_node, _clearSubHandle);
+    batcher->commit(node, _clearSubHandle);
+    batcher->flush();
     instance->enterLevel();
-    if(_imageStencil)
+
+    if (_imageStencil)
     {
-        _batcher->setCurrentEffect(getEffect(index));
-        RenderHandle::fillBuffers(buffer, index, worldMat);
-        _batcher->flush();
+        batcher->commit(node, this);
     }
+    else if (_renderSubHandle)
+    {
+        _renderSubHandle->handle(node, batcher, scene);
+    }
+
+    batcher->flush();
+    instance->enableMask();
+}
+
+void MaskAssembler::postHandle(NodeProxy *node, ModelBatcher *batcher, Scene *scene)
+{
+    batcher->flush();
+    StencilManager::getInstance()->exitMask();
 }
 
 RENDERER_END

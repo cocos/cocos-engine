@@ -35,7 +35,7 @@
 #include "renderer/scene/NodeProxy.hpp"
 #include "base/CCMap.h"
 #include "middleware-adapter.h"
-#include "MiddlewareRenderHandle.h"
+#include "CustomAssembler.hpp"
 #include "renderer/Types.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
@@ -197,7 +197,7 @@ private:
     dbEventCallback _dbEventCallback = nullptr;
     cocos2d::renderer::NodeProxy* _nodeProxy = nullptr;
     cocos2d::renderer::Effect* _effect = nullptr;
-    cocos2d::middleware::MiddlewareRenderHandle* _renderHandle = nullptr;
+    cocos2d::renderer::CustomAssembler* _assembler = nullptr;
 };
 
 DRAGONBONES_NAMESPACE_END

@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
-
+ 
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,4 +22,53 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "SystemHandle.hpp"
+#include "RenderDataList.hpp"
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+
+RENDERER_BEGIN
+
+void RenderDataList::updateNativeMesh(std::size_t index, se::Object* vertices, se::Object* indices)
+{
+    if (index >= _datas.size())
+    {
+        _datas.resize(index + 1);
+    }
+    
+    se::ScriptEngine::getInstance()->clearException();
+    se::AutoHandleScope hs;
+    
+    RenderData& data = _datas[index];
+    data.setVertices(vertices);
+    data.setIndices(indices);
+}
+
+RenderData* RenderDataList::getRenderData(std::size_t index)
+{
+    if (index >= _datas.size())
+    {
+        return nullptr;
+    }
+    return &_datas[index];
+}
+
+void RenderDataList::updateIndicesRange(std::size_t index, unsigned long start, unsigned long count)
+{
+    if (index >= _datas.size())
+    {
+        cocos2d::log("IARenderDataList:updateIndicesRange index:%lu out of range", index);
+        return;
+    }
+    RenderData& data = _datas[index];
+    data.setIndicesStart(start);
+    data.setIndicesCount(count);
+}
+
+void RenderDataList::reset()
+{
+    for (auto it = _datas.begin(); it != _datas.end(); it++)
+    {
+        it->reset();
+    }
+}
+
+RENDERER_END

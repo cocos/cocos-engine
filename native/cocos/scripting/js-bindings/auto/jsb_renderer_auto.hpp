@@ -44,6 +44,26 @@ bool js_register_cocos2d_renderer_View(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_View_View);
 
+extern se::Object* __jsb_cocos2d_renderer_AssemblerBase_proto;
+extern se::Class* __jsb_cocos2d_renderer_AssemblerBase_class;
+
+bool js_register_cocos2d_renderer_AssemblerBase(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_getEffectCount);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_enable);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_handle);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_getDirtyFlag);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_postHandle);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_getUseModel);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_setUseModel);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_enabled);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_disable);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_notifyDirty);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_clearNativeEffect);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_updateNativeEffect);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_getEffect);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_AssemblerBase);
+
 extern se::Object* __jsb_cocos2d_renderer_NodeProxy_proto;
 extern se::Class* __jsb_cocos2d_renderer_NodeProxy_class;
 
@@ -51,11 +71,11 @@ bool js_register_cocos2d_renderer_NodeProxy(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_addChild);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_removeAllChildren);
-SE_DECLARE_FUNC(js_renderer_NodeProxy_addHandle);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_getChildren);
-SE_DECLARE_FUNC(js_renderer_NodeProxy_removeHandle);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_setCullingMask);
+SE_DECLARE_FUNC(js_renderer_NodeProxy_addAssembler);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_setChildrenOrderDirty);
+SE_DECLARE_FUNC(js_renderer_NodeProxy_getAssembler);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_setParent);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_getName);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_setOpacity);
@@ -70,7 +90,7 @@ SE_DECLARE_FUNC(js_renderer_NodeProxy_removeChild);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_set3DNode);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_setLocalZOrder);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_getChildrenCount);
-SE_DECLARE_FUNC(js_renderer_NodeProxy_getHandle);
+SE_DECLARE_FUNC(js_renderer_NodeProxy_removeAssembler);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_NodeProxy);
 
 extern se::Object* __jsb_cocos2d_renderer_Camera_proto;
@@ -194,85 +214,46 @@ SE_DECLARE_FUNC(js_renderer_Scene_addLight);
 SE_DECLARE_FUNC(js_renderer_Scene_removeLight);
 SE_DECLARE_FUNC(js_renderer_Scene_Scene);
 
-extern se::Object* __jsb_cocos2d_renderer_MeshBuffer_proto;
-extern se::Class* __jsb_cocos2d_renderer_MeshBuffer_class;
+extern se::Object* __jsb_cocos2d_renderer_RenderDataList_proto;
+extern se::Class* __jsb_cocos2d_renderer_RenderDataList_class;
 
-bool js_register_cocos2d_renderer_MeshBuffer(se::Object* obj);
+bool js_register_cocos2d_renderer_RenderDataList(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_reset);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_getVertexOffset);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_getIndexBuffer);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_updateOffset);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_getIndexStart);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_getIndexOffset);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_request);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_requestStatic);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_uploadData);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_getVertexBuffer);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_getByteOffset);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_getVertexStart);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_destroy);
-SE_DECLARE_FUNC(js_renderer_MeshBuffer_MeshBuffer);
+SE_DECLARE_FUNC(js_renderer_RenderDataList_reset);
+SE_DECLARE_FUNC(js_renderer_RenderDataList_getRenderData);
+SE_DECLARE_FUNC(js_renderer_RenderDataList_getMeshCount);
+SE_DECLARE_FUNC(js_renderer_RenderDataList_updateIndicesRange);
+SE_DECLARE_FUNC(js_renderer_RenderDataList_RenderDataList);
 
-extern se::Object* __jsb_cocos2d_renderer_RenderHandle_proto;
-extern se::Class* __jsb_cocos2d_renderer_RenderHandle_class;
+extern se::Object* __jsb_cocos2d_renderer_Assembler_proto;
+extern se::Class* __jsb_cocos2d_renderer_Assembler_class;
 
-bool js_register_cocos2d_renderer_RenderHandle(se::Object* obj);
+bool js_register_cocos2d_renderer_Assembler(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_setMeshCount);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_setVertexFormat);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_updateOpacity);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_handle);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_postHandle);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_getUseModel);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_setUseModel);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_enabled);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_disable);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_fillBuffers);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_enable);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_getMeshCount);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_getVertexFormat);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_getEffect);
-SE_DECLARE_FUNC(js_renderer_RenderHandle_RenderHandle);
+SE_DECLARE_FUNC(js_renderer_Assembler_setVertexFormat);
+SE_DECLARE_FUNC(js_renderer_Assembler_ignoreWorldMatrix);
+SE_DECLARE_FUNC(js_renderer_Assembler_updateOpacity);
+SE_DECLARE_FUNC(js_renderer_Assembler_isOpacityAlwaysDirty);
+SE_DECLARE_FUNC(js_renderer_Assembler_isIgnoreWorldMatrix);
+SE_DECLARE_FUNC(js_renderer_Assembler_fillBuffers);
+SE_DECLARE_FUNC(js_renderer_Assembler_setRenderDataList);
+SE_DECLARE_FUNC(js_renderer_Assembler_getRenderDataList);
+SE_DECLARE_FUNC(js_renderer_Assembler_getVertexFormat);
+SE_DECLARE_FUNC(js_renderer_Assembler_enableOpacityAlwaysDirty);
+SE_DECLARE_FUNC(js_renderer_Assembler_Assembler);
 
-extern se::Object* __jsb_cocos2d_renderer_CustomRenderHandle_proto;
-extern se::Class* __jsb_cocos2d_renderer_CustomRenderHandle_class;
+extern se::Object* __jsb_cocos2d_renderer_CustomAssembler_proto;
+extern se::Class* __jsb_cocos2d_renderer_CustomAssembler_class;
 
-bool js_register_cocos2d_renderer_CustomRenderHandle(se::Object* obj);
+bool js_register_cocos2d_renderer_CustomAssembler(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_reset);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_getIACount);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_getEffectCount);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_adjustIA);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_clearNativeEffect);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_postHandle);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_getUseModel);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_setUseModel);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_disable);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_renderIA);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_enable);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_handle);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_updateNativeEffect);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_getEffect);
-SE_DECLARE_FUNC(js_renderer_CustomRenderHandle_CustomRenderHandle);
-
-extern se::Object* __jsb_cocos2d_renderer_ModelBatcher_proto;
-extern se::Class* __jsb_cocos2d_renderer_ModelBatcher_class;
-
-bool js_register_cocos2d_renderer_ModelBatcher(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_reset);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_getBuffer);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_startBatch);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_setCurrentBuffer);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_getFlow);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_commitIA);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_getCurrentBuffer);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_flush);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_commit);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_flushIA);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_terminateBatch);
-SE_DECLARE_FUNC(js_renderer_ModelBatcher_ModelBatcher);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_reset);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_getIACount);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_adjustIA);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_updateIARange);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_renderIA);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_updateIABuffer);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_CustomAssembler);
 
 extern se::Object* __jsb_cocos2d_renderer_RenderFlow_proto;
 extern se::Class* __jsb_cocos2d_renderer_RenderFlow_class;
@@ -285,26 +266,16 @@ SE_DECLARE_FUNC(js_renderer_RenderFlow_getDevice);
 SE_DECLARE_FUNC(js_renderer_RenderFlow_render);
 SE_DECLARE_FUNC(js_renderer_RenderFlow_RenderFlow);
 
-extern se::Object* __jsb_cocos2d_renderer_GraphicsRenderHandle_proto;
-extern se::Class* __jsb_cocos2d_renderer_GraphicsRenderHandle_class;
+extern se::Object* __jsb_cocos2d_renderer_MaskAssembler_proto;
+extern se::Class* __jsb_cocos2d_renderer_MaskAssembler_class;
 
-bool js_register_cocos2d_renderer_GraphicsRenderHandle(se::Object* obj);
+bool js_register_cocos2d_renderer_MaskAssembler(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_GraphicsRenderHandle_setMeshCount);
-SE_DECLARE_FUNC(js_renderer_GraphicsRenderHandle_updateIA);
-SE_DECLARE_FUNC(js_renderer_GraphicsRenderHandle_getMeshCount);
-SE_DECLARE_FUNC(js_renderer_GraphicsRenderHandle_GraphicsRenderHandle);
-
-extern se::Object* __jsb_cocos2d_renderer_MaskRenderHandle_proto;
-extern se::Class* __jsb_cocos2d_renderer_MaskRenderHandle_class;
-
-bool js_register_cocos2d_renderer_MaskRenderHandle(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_MaskRenderHandle_setMaskInverted);
-SE_DECLARE_FUNC(js_renderer_MaskRenderHandle_setImageStencil);
-SE_DECLARE_FUNC(js_renderer_MaskRenderHandle_setClearSubHandle);
-SE_DECLARE_FUNC(js_renderer_MaskRenderHandle_getMaskInverted);
-SE_DECLARE_FUNC(js_renderer_MaskRenderHandle_setRenderSubHandle);
-SE_DECLARE_FUNC(js_renderer_MaskRenderHandle_MaskRenderHandle);
+SE_DECLARE_FUNC(js_renderer_MaskAssembler_setMaskInverted);
+SE_DECLARE_FUNC(js_renderer_MaskAssembler_setImageStencil);
+SE_DECLARE_FUNC(js_renderer_MaskAssembler_setClearSubHandle);
+SE_DECLARE_FUNC(js_renderer_MaskAssembler_getMaskInverted);
+SE_DECLARE_FUNC(js_renderer_MaskAssembler_setRenderSubHandle);
+SE_DECLARE_FUNC(js_renderer_MaskAssembler_MaskAssembler);
 
 #endif //#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)

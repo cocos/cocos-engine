@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
-
+ 
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,9 +24,48 @@
 
 #pragma once
 
-#include "NodeProxy.hpp"
-#include "Assembler.hpp"
-#include "ModelBatcher.hpp"
-#include "RenderFlow.hpp"
-#include "MeshBuffer.hpp"
-#include "MaskAssembler.hpp"
+#include "base/CCRef.h"
+#include <vector>
+#include "RenderData.hpp"
+
+namespace se {
+    class Object;
+    class HandleObject;
+}
+
+RENDERER_BEGIN
+
+class RenderDataList: public cocos2d::Ref {
+public:
+    RenderDataList () {}
+    virtual ~RenderDataList() {}
+    /**
+     *  @brief Update the mesh data for the given index.
+     *  @param[in] index Render data index.
+     *  @param[in] vertices Vertex data.
+     *  @param[in] indices Index data.
+     */
+    void updateNativeMesh(std::size_t index, se::Object* vertices, se::Object* indices);
+    /**
+     *  @brief Gets the count of render datas
+     *  @return Count.
+     */
+    std::size_t getMeshCount() const { return _datas.size(); };
+    /**
+     *  @brief Updates indices range
+     */
+    void updateIndicesRange(std::size_t index, unsigned long start, unsigned long count);
+    /**
+     *  @brief Gets IARenderData.
+     *  @return IARenderData.
+     */
+    RenderData* getRenderData(std::size_t index);
+    /**
+     *  @brief Resets all IARenderData.
+     */
+    void reset();
+private:
+    std::vector<RenderData> _datas;
+};
+
+RENDERER_END

@@ -22,27 +22,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "CustomRenderHandle.hpp"
-#include "RenderFlow.hpp"
+#include "AssemblerBase.hpp"
 
 RENDERER_BEGIN
 
-CustomRenderHandle::CustomRenderHandle()
+AssemblerBase::AssemblerBase()
 {
     
 }
 
-CustomRenderHandle::~CustomRenderHandle()
+AssemblerBase::~AssemblerBase()
 {
-    
+
 }
 
-void CustomRenderHandle::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
+void AssemblerBase::enable()
 {
-    batcher->commitIA(node, this);
+    _enabled = true;
 }
 
-void CustomRenderHandle::updateNativeEffect(std::size_t index, Effect* effect)
+void AssemblerBase::disable()
+{
+    _enabled = false;
+}
+
+void AssemblerBase::updateNativeEffect(std::size_t index, Effect* effect)
 {
     auto size = _effects.size();
     if (index == size)
@@ -55,44 +59,7 @@ void CustomRenderHandle::updateNativeEffect(std::size_t index, Effect* effect)
         _effects.replace(index, effect);
         return;
     }
-    cocos2d::log("CustomRenderHandle:updateNativeEffect index:%lu out of range", index);
-}
-
-void CustomRenderHandle::reset()
-{
-    _iaCount = 0;
-    for (auto it = _iaPool.begin(); it != _iaPool.end(); it++)
-    {
-        (*it)->clear();
-    }
-}
-
-InputAssembler* CustomRenderHandle::adjustIA(std::size_t index)
-{
-    auto size = _iaPool.size();
-    InputAssembler* ia = nullptr;
-    if (index == size)
-    {
-        ia = new InputAssembler();
-        _iaPool.push_back(ia);
-    }
-    else if (index < size)
-    {
-        ia = _iaPool[index];
-    }
-    else
-    {
-        cocos2d::log("MiddlewareRenderHandle:updateIA index:%lu is out of range", index);
-        return nullptr;
-    }
-    
-    auto newIACount = index + 1;
-    if (_iaCount < newIACount)
-    {
-        _iaCount = newIACount;
-    }
-    
-    return ia;
+    cocos2d::log("AssemblerBase:updateNativeEffect index:%lu out of range", index);
 }
 
 RENDERER_END

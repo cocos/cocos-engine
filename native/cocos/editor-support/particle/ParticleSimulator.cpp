@@ -28,7 +28,7 @@
 #include "math/Mat4.h"
 #include "MiddlewareManager.h"
 #include "middleware-adapter.h"
-#include "MiddlewareRenderHandle.h"
+#include "CustomAssembler.hpp"
 #include "math/Vec2.h"
 
 USING_NS_MW;
@@ -224,13 +224,13 @@ void ParticleSimulator::update(float dt)
         return;
     }
     
-    MiddlewareRenderHandle* renderHandle = (MiddlewareRenderHandle*)_nodeProxy->getHandle("render");
-    if (renderHandle == nullptr)
+    renderer::CustomAssembler* assembler = (renderer::CustomAssembler*)_nodeProxy->getAssembler("render");
+    if (assembler == nullptr)
     {
         return;
     }
-    renderHandle->reset();
-    renderHandle->updateNativeEffect(0, _effect);
+    assembler->reset();
+    assembler->updateNativeEffect(0, _effect);
     
     // avoid other place call update.
     auto mgr = MiddlewareManager::getInstance();
@@ -446,8 +446,8 @@ void ParticleSimulator::update(float dt)
         }
     }
     
-    renderHandle->updateIABuffer(0, mb->getGLVB(), mb->getGLIB());
-    renderHandle->updateIARange(0, indexStart, indexCount);
+    assembler->updateIABuffer(0, mb->getGLVB(), mb->getGLIB());
+    assembler->updateIARange(0, indexStart, indexCount);
     
     if (_particles.size() == 0 && !_active)
     {

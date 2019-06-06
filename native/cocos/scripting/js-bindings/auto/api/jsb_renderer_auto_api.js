@@ -220,6 +220,158 @@ View : function (
 };
 
 /**
+ * @class AssemblerBase
+ */
+renderer.AssemblerBase = {
+
+/**
+ * @method getEffectCount
+ * @return {unsigned int}
+ */
+getEffectCount : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method enable
+ */
+enable : function (
+)
+{
+},
+
+/**
+ * @method handle
+ * @param {cc.renderer::NodeProxy} arg0
+ * @param {cc.renderer::ModelBatcher} arg1
+ * @param {cc.renderer::Scene} arg2
+ */
+handle : function (
+nodeproxy, 
+modelbatcher, 
+scene 
+)
+{
+},
+
+/**
+ * @method getDirtyFlag
+ * @return {unsigned int}
+ */
+getDirtyFlag : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method postHandle
+ * @param {cc.renderer::NodeProxy} arg0
+ * @param {cc.renderer::ModelBatcher} arg1
+ * @param {cc.renderer::Scene} arg2
+ */
+postHandle : function (
+nodeproxy, 
+modelbatcher, 
+scene 
+)
+{
+},
+
+/**
+ * @method getUseModel
+ * @return {bool}
+ */
+getUseModel : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method setUseModel
+ * @param {bool} arg0
+ */
+setUseModel : function (
+bool 
+)
+{
+},
+
+/**
+ * @method enabled
+ * @return {bool}
+ */
+enabled : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method disable
+ */
+disable : function (
+)
+{
+},
+
+/**
+ * @method notifyDirty
+ * @param {unsigned int} arg0
+ */
+notifyDirty : function (
+int 
+)
+{
+},
+
+/**
+ * @method clearNativeEffect
+ */
+clearNativeEffect : function (
+)
+{
+},
+
+/**
+ * @method updateNativeEffect
+ * @param {unsigned int} arg0
+ * @param {cc.renderer::Effect} arg1
+ */
+updateNativeEffect : function (
+int, 
+effect 
+)
+{
+},
+
+/**
+ * @method getEffect
+ * @param {unsigned int} arg0
+ * @return {cc.renderer::Effect}
+ */
+getEffect : function (
+int 
+)
+{
+    return cc.renderer::Effect;
+},
+
+/**
+ * @method AssemblerBase
+ * @constructor
+ */
+AssemblerBase : function (
+)
+{
+},
+
+};
+
+/**
  * @class NodeProxy
  */
 renderer.NodeProxy = {
@@ -243,18 +395,6 @@ removeAllChildren : function (
 },
 
 /**
- * @method addHandle
- * @param {String} arg0
- * @param {cc.renderer::SystemHandle} arg1
- */
-addHandle : function (
-str, 
-systemhandle 
-)
-{
-},
-
-/**
  * @method getChildren
  * @return {Array}
  */
@@ -262,16 +402,6 @@ getChildren : function (
 )
 {
     return new Array();
-},
-
-/**
- * @method removeHandle
- * @param {String} arg0
- */
-removeHandle : function (
-str 
-)
-{
 },
 
 /**
@@ -285,11 +415,35 @@ int
 },
 
 /**
+ * @method addAssembler
+ * @param {String} arg0
+ * @param {cc.renderer::AssemblerBase} arg1
+ */
+addAssembler : function (
+str, 
+assemblerbase 
+)
+{
+},
+
+/**
  * @method setChildrenOrderDirty
  */
 setChildrenOrderDirty : function (
 )
 {
+},
+
+/**
+ * @method getAssembler
+ * @param {String} arg0
+ * @return {cc.renderer::AssemblerBase}
+ */
+getAssembler : function (
+str 
+)
+{
+    return cc.renderer::AssemblerBase;
 },
 
 /**
@@ -429,15 +583,13 @@ getChildrenCount : function (
 },
 
 /**
- * @method getHandle
+ * @method removeAssembler
  * @param {String} arg0
- * @return {cc.renderer::SystemHandle}
  */
-getHandle : function (
+removeAssembler : function (
 str 
 )
 {
-    return cc.renderer::SystemHandle;
 },
 
 /**
@@ -1412,9 +1564,9 @@ Scene : function (
 };
 
 /**
- * @class MeshBuffer
+ * @class RenderDataList
  */
-renderer.MeshBuffer = {
+renderer.RenderDataList = {
 
 /**
  * @method reset
@@ -1425,269 +1577,15 @@ reset : function (
 },
 
 /**
- * @method getVertexOffset
- * @return {unsigned int}
- */
-getVertexOffset : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getIndexBuffer
- * @return {cc.renderer::IndexBuffer}
- */
-getIndexBuffer : function (
-)
-{
-    return cc.renderer::IndexBuffer;
-},
-
-/**
- * @method updateOffset
- */
-updateOffset : function (
-)
-{
-},
-
-/**
- * @method getIndexStart
- * @return {unsigned int}
- */
-getIndexStart : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getIndexOffset
- * @return {unsigned int}
- */
-getIndexOffset : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method request
+ * @method getRenderData
  * @param {unsigned int} arg0
- * @param {unsigned int} arg1
- * @param {cc.renderer::MeshBuffer::OffsetInfo} arg2
- * @return {bool}
+ * @return {cc.renderer::RenderData}
  */
-request : function (
-int, 
-int, 
-offsetinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method requestStatic
- * @param {unsigned int} arg0
- * @param {unsigned int} arg1
- * @param {cc.renderer::MeshBuffer::OffsetInfo} arg2
- * @return {bool}
- */
-requestStatic : function (
-int, 
-int, 
-offsetinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method uploadData
- */
-uploadData : function (
-)
-{
-},
-
-/**
- * @method getVertexBuffer
- * @return {cc.renderer::VertexBuffer}
- */
-getVertexBuffer : function (
-)
-{
-    return cc.renderer::VertexBuffer;
-},
-
-/**
- * @method getByteOffset
- * @return {unsigned int}
- */
-getByteOffset : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getVertexStart
- * @return {unsigned int}
- */
-getVertexStart : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method destroy
- */
-destroy : function (
-)
-{
-},
-
-/**
- * @method MeshBuffer
- * @constructor
- * @param {cc.renderer::ModelBatcher} arg0
- * @param {cc.renderer::VertexFormat} arg1
- */
-MeshBuffer : function (
-modelbatcher, 
-vertexformat 
-)
-{
-},
-
-};
-
-/**
- * @class RenderHandle
- */
-renderer.RenderHandle = {
-
-/**
- * @method setMeshCount
- * @param {unsigned int} arg0
- */
-setMeshCount : function (
+getRenderData : function (
 int 
 )
 {
-},
-
-/**
- * @method setVertexFormat
- * @param {cc.renderer::VertexFormat} arg0
- */
-setVertexFormat : function (
-vertexformat 
-)
-{
-},
-
-/**
- * @method updateOpacity
- * @param {int} arg0
- * @param {unsigned char} arg1
- */
-updateOpacity : function (
-int, 
-char 
-)
-{
-},
-
-/**
- * @method handle
- * @param {cc.renderer::NodeProxy} arg0
- * @param {cc.renderer::ModelBatcher} arg1
- * @param {cc.renderer::Scene} arg2
- */
-handle : function (
-nodeproxy, 
-modelbatcher, 
-scene 
-)
-{
-},
-
-/**
- * @method postHandle
- * @param {cc.renderer::NodeProxy} arg0
- * @param {cc.renderer::ModelBatcher} arg1
- * @param {cc.renderer::Scene} arg2
- */
-postHandle : function (
-nodeproxy, 
-modelbatcher, 
-scene 
-)
-{
-},
-
-/**
- * @method getUseModel
- * @return {bool}
- */
-getUseModel : function (
-)
-{
-    return false;
-},
-
-/**
- * @method setUseModel
- * @param {bool} arg0
- */
-setUseModel : function (
-bool 
-)
-{
-},
-
-/**
- * @method enabled
- * @return {bool}
- */
-enabled : function (
-)
-{
-    return false;
-},
-
-/**
- * @method disable
- */
-disable : function (
-)
-{
-},
-
-/**
- * @method fillBuffers
- * @param {cc.renderer::MeshBuffer} arg0
- * @param {int} arg1
- * @param {mat4_object} arg2
- */
-fillBuffers : function (
-meshbuffer, 
-int, 
-mat4 
-)
-{
-},
-
-/**
- * @method enable
- */
-enable : function (
-)
-{
+    return cc.renderer::RenderData;
 },
 
 /**
@@ -1701,6 +1599,120 @@ getMeshCount : function (
 },
 
 /**
+ * @method updateIndicesRange
+ * @param {unsigned int} arg0
+ * @param {unsigned long} arg1
+ * @param {unsigned long} arg2
+ */
+updateIndicesRange : function (
+int, 
+long, 
+long 
+)
+{
+},
+
+/**
+ * @method RenderDataList
+ * @constructor
+ */
+RenderDataList : function (
+)
+{
+},
+
+};
+
+/**
+ * @class Assembler
+ */
+renderer.Assembler = {
+
+/**
+ * @method setVertexFormat
+ * @param {cc.renderer::VertexFormat} arg0
+ */
+setVertexFormat : function (
+vertexformat 
+)
+{
+},
+
+/**
+ * @method ignoreWorldMatrix
+ */
+ignoreWorldMatrix : function (
+)
+{
+},
+
+/**
+ * @method updateOpacity
+ * @param {unsigned int} arg0
+ * @param {unsigned char} arg1
+ */
+updateOpacity : function (
+int, 
+char 
+)
+{
+},
+
+/**
+ * @method isOpacityAlwaysDirty
+ * @return {bool}
+ */
+isOpacityAlwaysDirty : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method isIgnoreWorldMatrix
+ * @return {bool}
+ */
+isIgnoreWorldMatrix : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method fillBuffers
+ * @param {cc.renderer::MeshBuffer} arg0
+ * @param {unsigned int} arg1
+ * @param {mat4_object} arg2
+ */
+fillBuffers : function (
+meshbuffer, 
+int, 
+mat4 
+)
+{
+},
+
+/**
+ * @method setRenderDataList
+ * @param {cc.renderer::RenderDataList} arg0
+ */
+setRenderDataList : function (
+renderdatalist 
+)
+{
+},
+
+/**
+ * @method getRenderDataList
+ * @return {cc.renderer::RenderDataList}
+ */
+getRenderDataList : function (
+)
+{
+    return cc.renderer::RenderDataList;
+},
+
+/**
  * @method getVertexFormat
  * @return {cc.renderer::VertexFormat}
  */
@@ -1711,22 +1723,18 @@ getVertexFormat : function (
 },
 
 /**
- * @method getEffect
- * @param {unsigned int} arg0
- * @return {cc.renderer::Effect}
+ * @method enableOpacityAlwaysDirty
  */
-getEffect : function (
-int 
+enableOpacityAlwaysDirty : function (
 )
 {
-    return cc.renderer::Effect;
 },
 
 /**
- * @method RenderHandle
+ * @method Assembler
  * @constructor
  */
-RenderHandle : function (
+Assembler : function (
 )
 {
 },
@@ -1734,9 +1742,9 @@ RenderHandle : function (
 };
 
 /**
- * @class CustomRenderHandle
+ * @class CustomAssembler
  */
-renderer.CustomRenderHandle = {
+renderer.CustomAssembler = {
 
 /**
  * @method reset
@@ -1757,16 +1765,6 @@ getIACount : function (
 },
 
 /**
- * @method getEffectCount
- * @return {unsigned int}
- */
-getEffectCount : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method adjustIA
  * @param {unsigned int} arg0
  * @return {cc.renderer::InputAssembler}
@@ -1779,51 +1777,15 @@ int
 },
 
 /**
- * @method clearNativeEffect
+ * @method updateIARange
+ * @param {unsigned int} arg0
+ * @param {int} arg1
+ * @param {int} arg2
  */
-clearNativeEffect : function (
-)
-{
-},
-
-/**
- * @method postHandle
- * @param {cc.renderer::NodeProxy} arg0
- * @param {cc.renderer::ModelBatcher} arg1
- * @param {cc.renderer::Scene} arg2
- */
-postHandle : function (
-nodeproxy, 
-modelbatcher, 
-scene 
-)
-{
-},
-
-/**
- * @method getUseModel
- * @return {bool}
- */
-getUseModel : function (
-)
-{
-    return false;
-},
-
-/**
- * @method setUseModel
- * @param {bool} arg0
- */
-setUseModel : function (
-bool 
-)
-{
-},
-
-/**
- * @method disable
- */
-disable : function (
+updateIARange : function (
+int, 
+int, 
+int 
 )
 {
 },
@@ -1843,182 +1805,24 @@ nodeproxy
 },
 
 /**
- * @method enable
- */
-enable : function (
-)
-{
-},
-
-/**
- * @method handle
- * @param {cc.renderer::NodeProxy} arg0
- * @param {cc.renderer::ModelBatcher} arg1
- * @param {cc.renderer::Scene} arg2
- */
-handle : function (
-nodeproxy, 
-modelbatcher, 
-scene 
-)
-{
-},
-
-/**
- * @method updateNativeEffect
+ * @method updateIABuffer
  * @param {unsigned int} arg0
- * @param {cc.renderer::Effect} arg1
+ * @param {cc.renderer::VertexBuffer} arg1
+ * @param {cc.renderer::IndexBuffer} arg2
  */
-updateNativeEffect : function (
+updateIABuffer : function (
 int, 
-effect 
+vertexbuffer, 
+indexbuffer 
 )
 {
 },
 
 /**
- * @method getEffect
- * @param {unsigned int} arg0
- * @return {cc.renderer::Effect}
- */
-getEffect : function (
-int 
-)
-{
-    return cc.renderer::Effect;
-},
-
-/**
- * @method CustomRenderHandle
+ * @method CustomAssembler
  * @constructor
  */
-CustomRenderHandle : function (
-)
-{
-},
-
-};
-
-/**
- * @class ModelBatcher
- */
-renderer.ModelBatcher = {
-
-/**
- * @method reset
- */
-reset : function (
-)
-{
-},
-
-/**
- * @method getBuffer
- * @param {cc.renderer::VertexFormat} arg0
- * @return {cc.renderer::MeshBuffer}
- */
-getBuffer : function (
-vertexformat 
-)
-{
-    return cc.renderer::MeshBuffer;
-},
-
-/**
- * @method startBatch
- */
-startBatch : function (
-)
-{
-},
-
-/**
- * @method setCurrentBuffer
- * @param {cc.renderer::MeshBuffer} arg0
- */
-setCurrentBuffer : function (
-meshbuffer 
-)
-{
-},
-
-/**
- * @method getFlow
- * @return {cc.renderer::RenderFlow}
- */
-getFlow : function (
-)
-{
-    return cc.renderer::RenderFlow;
-},
-
-/**
- * @method commitIA
- * @param {cc.renderer::NodeProxy} arg0
- * @param {cc.renderer::CustomRenderHandle} arg1
- */
-commitIA : function (
-nodeproxy, 
-customrenderhandle 
-)
-{
-},
-
-/**
- * @method getCurrentBuffer
- * @return {cc.renderer::MeshBuffer}
- */
-getCurrentBuffer : function (
-)
-{
-    return cc.renderer::MeshBuffer;
-},
-
-/**
- * @method flush
- */
-flush : function (
-)
-{
-},
-
-/**
- * @method commit
- * @param {cc.renderer::NodeProxy} arg0
- * @param {cc.renderer::RenderHandle} arg1
- */
-commit : function (
-nodeproxy, 
-renderhandle 
-)
-{
-},
-
-/**
- * @method flushIA
- * @param {cc.renderer::InputAssembler} arg0
- */
-flushIA : function (
-inputassembler 
-)
-{
-},
-
-/**
- * @method terminateBatch
- */
-terminateBatch : function (
-)
-{
-},
-
-/**
- * @method ModelBatcher
- * @constructor
- * @param {cc.renderer::RenderFlow} arg0
- */
-ModelBatcher : function (
-renderflow 
+CustomAssembler : function (
 )
 {
 },
@@ -2088,59 +1892,9 @@ forwardrenderer
 };
 
 /**
- * @class GraphicsRenderHandle
+ * @class MaskAssembler
  */
-renderer.GraphicsRenderHandle = {
-
-/**
- * @method setMeshCount
- * @param {unsigned int} arg0
- */
-setMeshCount : function (
-int 
-)
-{
-},
-
-/**
- * @method updateIA
- * @param {unsigned int} arg0
- * @param {int} arg1
- * @param {int} arg2
- */
-updateIA : function (
-int, 
-int, 
-int 
-)
-{
-},
-
-/**
- * @method getMeshCount
- * @return {unsigned int}
- */
-getMeshCount : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method GraphicsRenderHandle
- * @constructor
- */
-GraphicsRenderHandle : function (
-)
-{
-},
-
-};
-
-/**
- * @class MaskRenderHandle
- */
-renderer.MaskRenderHandle = {
+renderer.MaskAssembler = {
 
 /**
  * @method setMaskInverted
@@ -2164,10 +1918,10 @@ bool
 
 /**
  * @method setClearSubHandle
- * @param {cc.renderer::GraphicsRenderHandle} arg0
+ * @param {cc.renderer::Assembler} arg0
  */
 setClearSubHandle : function (
-graphicsrenderhandle 
+assembler 
 )
 {
 },
@@ -2184,19 +1938,19 @@ getMaskInverted : function (
 
 /**
  * @method setRenderSubHandle
- * @param {cc.renderer::GraphicsRenderHandle} arg0
+ * @param {cc.renderer::Assembler} arg0
  */
 setRenderSubHandle : function (
-graphicsrenderhandle 
+assembler 
 )
 {
 },
 
 /**
- * @method MaskRenderHandle
+ * @method MaskAssembler
  * @constructor
  */
-MaskRenderHandle : function (
+MaskAssembler : function (
 )
 {
 },

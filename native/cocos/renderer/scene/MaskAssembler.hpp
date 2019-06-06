@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,56 +22,40 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "MiddlewareRenderHandle.h"
-#include "renderer/scene/ModelBatcher.hpp"
+#pragma once
 
-using namespace cocos2d;
-using namespace cocos2d::renderer;
+#include <stdio.h>
+#include "Assembler.hpp"
+#include "MeshBuffer.hpp"
+#include "math/CCMath.h"
 
-MIDDLEWARE_BEGIN
+class ModelBatcher;
+
+RENDERER_BEGIN
+
+class MaskAssembler: public Assembler
+{
+public:
+    MaskAssembler();
+    virtual ~MaskAssembler();
+    virtual void handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
+    virtual void postHandle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
+
+    void setMaskInverted(bool inverted) { _inverted = inverted; };
+    bool getMaskInverted() { return _inverted; };
+
+    void setRenderSubHandle(Assembler* renderSubHandle);
+    void setClearSubHandle(Assembler* clearSubHandle);
+
+    void setImageStencil(bool isImageStencil) { _imageStencil = isImageStencil; };
     
-MiddlewareRenderHandle::MiddlewareRenderHandle()
-{
-    _useModel = true;
-}
+protected:
+    bool _inverted = false;
+    bool _imageStencil = false;
 
-MiddlewareRenderHandle::~MiddlewareRenderHandle()
-{
-    for (std::size_t i = 0, n = _iaPool.size(); i < n; i++)
-    {
-        auto ia = _iaPool[i];
-        delete ia;
-    }
-    _iaPool.clear();
-}
+private:
+    Assembler* _renderSubHandle = nullptr;
+    Assembler* _clearSubHandle = nullptr;
+};
 
-void MiddlewareRenderHandle::updateIARange(std::size_t index, int start, int count)
-{
-    auto ia = adjustIA(index);
-    if (!ia) return;
-    
-    ia->setCount(count);
-    ia->setStart(start);
-}
-
-void MiddlewareRenderHandle::updateIABuffer(std::size_t index, VertexBuffer* vb, IndexBuffer* ib)
-{
-    auto ia = adjustIA(index);
-    if (!ia) return;
-    
-    ia->setVertexBuffer(vb);
-    ia->setIndexBuffer(ib);
-}
-
-void MiddlewareRenderHandle::renderIA(std::size_t index, ModelBatcher* batcher, NodeProxy* node)
-{
-    if (index >= _iaCount)
-    {
-        cocos2d::log("MiddlewareRenderHandle:renderIA index:%lu out of range", index);
-        return;
-    }
-    
-    batcher->flushIA(_iaPool[index]);
-}
-
-MIDDLEWARE_END
+RENDERER_END

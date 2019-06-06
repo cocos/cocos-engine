@@ -37,7 +37,7 @@
 #include "MiddlewareMacro.h"
 #include "renderer/renderer/Pass.h"
 #include "renderer/renderer/Technique.h"
-#include "MiddlewareRenderHandle.h"
+#include "CustomAssembler.hpp"
 #include "SkeletonDataMgr.h"
 
 USING_NS_CC;
@@ -273,12 +273,12 @@ void SpineRenderer::update (float deltaTime)
         return;
     }
     
-    MiddlewareRenderHandle* renderHandle = (MiddlewareRenderHandle*)_nodeProxy->getHandle("render");
-    if (renderHandle == nullptr)
+    CustomAssembler* assembler = (CustomAssembler*)_nodeProxy->getAssembler("render");
+    if (assembler == nullptr)
     {
         return;
     }
-    renderHandle->reset();
+    assembler->reset();
     
     _nodeColor.a = _nodeProxy->getRealOpacity() / (float)255;
     
@@ -342,7 +342,7 @@ void SpineRenderer::update (float deltaTime)
         // fill pre segment count field
         if (preISegWritePos != -1)
         {
-            renderHandle->updateIARange(materialLen - 1, preISegWritePos, curISegLen);
+            assembler->updateIARange(materialLen - 1, preISegWritePos, curISegLen);
         }
 
         // prepare to fill new segment field
@@ -366,7 +366,7 @@ void SpineRenderer::update (float deltaTime)
         }
         
 		double curHash = curTextureIndex + (int)curBlendSrc + (int)curBlendDst;
-        Effect* renderEffect = renderHandle->getEffect(materialLen);
+        Effect* renderEffect = assembler->getEffect(materialLen);
         Technique::Parameter* param = nullptr;
         Pass* pass = nullptr;
             
@@ -386,7 +386,7 @@ void SpineRenderer::update (float deltaTime)
             if (_effect == nullptr)
             {
                 cocos2d::log("SpineRender:update get effect failed");
-                renderHandle->reset();
+                assembler->reset();
                 return;
             }
             auto effect = new cocos2d::renderer::Effect();
@@ -397,7 +397,7 @@ void SpineRenderer::update (float deltaTime)
             Vector<Pass*>& passes = (Vector<Pass*>&)tech->getPasses();
             pass = *(passes.begin());
             
-            renderHandle->updateNativeEffect(materialLen, effect);
+            assembler->updateNativeEffect(materialLen, effect);
             renderEffect = effect;
             param = (Technique::Parameter*)&(renderEffect->getProperty(textureKey));
         }
@@ -418,7 +418,7 @@ void SpineRenderer::update (float deltaTime)
         // save new segment count pos field
         preISegWritePos = (int)ib.getCurPos() / sizeof(unsigned short);
         // save new segment vb and ib
-        renderHandle->updateIABuffer(materialLen, mb->getGLVB(), mb->getGLIB());
+        assembler->updateIABuffer(materialLen, mb->getGLVB(), mb->getGLIB());
         // reset pre blend mode to current
         preBlendMode = (int)slot->data->blendMode;
         // reset pre texture index to current      
@@ -791,7 +791,7 @@ void SpineRenderer::update (float deltaTime)
     
 	if (preISegWritePos != -1)
     {
-		renderHandle->updateIARange(materialLen - 1, preISegWritePos, curISegLen);
+		assembler->updateIARange(materialLen - 1, preISegWritePos, curISegLen);
     }
 	
     if (_debugBones)

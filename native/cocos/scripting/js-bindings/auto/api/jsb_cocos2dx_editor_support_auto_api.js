@@ -162,19 +162,3 @@ MiddlewareManager : function (
 },
 
 };
-
-/**
- * @class MiddlewareRenderHandle
- */
-middleware.MiddlewareRenderHandle = {
-
-/**
- * @method MiddlewareRenderHandle
- * @constructor
- */
-MiddlewareRenderHandle : function (
-)
-{
-},
-
-};
