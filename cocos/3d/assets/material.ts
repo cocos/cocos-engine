@@ -35,16 +35,49 @@ import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from '../framework/renderable-component';
 import { EffectAsset } from './effect-asset';
 
+/**
+ * @zh
+ * 用来初始化材质的基本信息结构体
+ */
 export interface IMaterialInfo {
-    technique?: number;
-    defines?: IDefineMap | IDefineMap[];
-    states?: PassOverrides | PassOverrides[];
+    /**
+     * @zh
+     * 这个材质将使用的 EffectAsset，直接提供资源引用，和 effectName 至少要指定一个。
+     */
     effectAsset?: EffectAsset | null;
+    /**
+     * @zh
+     * 这个材质将使用的 EffectAsset，通过 effect 名指定，和 effectAsset 至少要指定一个。
+     */
     effectName?: string;
+    /**
+     * @zh
+     * 这个材质将使用第几个 technique，默认为 0
+     */
+    technique?: number;
+    /**
+     * @zh
+     * 这个材质定义的预处理宏，应与 shader 中的声明对应，默认全为 false
+     */
+    defines?: IDefineMap | IDefineMap[];
+    /**
+     * @zh
+     * 这个材质的自定义管线状态，将覆盖 effect 中的属性。
+     * 注意在可能的情况下请尽量少的自定义管线状态，以减小对渲染效率的影响。
+     */
+    states?: PassOverrides | PassOverrides[];
 }
 
+/**
+ * @zh
+ * 材质资源类，负责指定每个模型的材质信息。
+ */
 @ccclass('cc.Material')
 export class Material extends Asset {
+    /**
+     * @zh
+     * 获取材质资源的实例，您应当不会需要手动调用这个函数。
+     */
     public static getInstantiatedMaterial (mat: Material, rndCom: RenderableComponent, inEditor: boolean) {
         if (mat._owner === rndCom) {
             return mat;
@@ -75,22 +108,39 @@ export class Material extends Asset {
     protected _owner: RenderableComponent | null = null;
     protected _hash = 0;
 
+    /**
+     * @zh
+     * 当前使用的 EffectAsset 资源。
+     */
     get effectAsset () {
         return this._effectAsset;
     }
-
+    /**
+     * @zh
+     * 当前使用的 EffectAsset 资源名。
+     */
     get effectName () {
         return this._effectAsset ? this._effectAsset.name : '';
     }
 
+    /**
+     * @zh
+     * 当前的 technique 索引。
+     */
     get technique () {
         return this._techIdx;
     }
-
+    /**
+     * @zh
+     * 当前正在使用的 pass 数组。
+     */
     get passes () {
         return this._passes;
     }
-
+    /**
+     * @zh
+     * 材质的 hash。
+     */
     get hash () {
         return this._hash;
     }
@@ -100,6 +150,11 @@ export class Material extends Asset {
         this.loaded = false;
     }
 
+    /**
+     * @zh
+     * 根据所给信息初始化这个材质，初始化正常结束后材质即可立即用于渲染。
+     * @param info 初始化材质需要的基本信息
+     */
     public initialize (info: IMaterialInfo) {
         if (info.technique !== undefined) { this._techIdx = info.technique; }
         if (info.effectAsset) { this._effectAsset = info.effectAsset; }
@@ -109,6 +164,10 @@ export class Material extends Asset {
         this._update();
     }
 
+    /**
+     * @zh
+     * 销毁材质，注意这并不会清除材质本身的数据，只会销毁运行时的渲染资源。
+     */
     public destroy () {
         if (!this._effectAsset) { return false; }
         if (this._passes) {
@@ -121,21 +180,78 @@ export class Material extends Asset {
         return true;
     }
 
+    /**
+     * @zh
+     * 重置材质的所有 uniform 参数数据。
+     * @param reinitPass 是否要直接重新创建 pass 数组。
+     */
     public reset (reinitPass = true) {
         if (reinitPass) {
             this._update(false);
         } else {
             this._props.length = this._passes.length;
             this._props.fill({});
-            this._states.length = this._passes.length;
-            this._states.fill({});
         }
     }
 
     /**
-     * Convenient setter provided for quick material setup.
-     * pass.setUniform should be used instead
+     * @zh
+     * 使用指定预处理宏重新编译当前 pass（数组）中的 shader。
+     * @param overrides 新增的预处理宏列表，会覆盖进当前列表。
+     * @param passIdx 要编译的 pass 索引，默认编译所有 pass。
+     */
+    public recompileShaders (overrides: IDefineMap, passIdx?: number) {
+        if (!this._passes || !this._effectAsset) { return; }
+        if (passIdx === undefined) {
+            for (const pass of this._passes) {
+                pass.tryCompile(overrides);
+            }
+        } else {
+            this._passes[passIdx].tryCompile(overrides);
+        }
+        this._onPassesChange();
+    }
+
+    /**
+     * @zh
+     * 使用指定管线状态重载当前的 pass（数组）。
+     * @param overrides 新增的管线状态列表，会覆盖进当前列表。
+     * @param passIdx 要重载的 pass 索引，默认重载所有 pass。
+     */
+    public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
+        if (!this._passes || !this._effectAsset) { return; }
+        const passInfos = Effect.getPassesInfo(this._effectAsset, this._techIdx);
+        if (passIdx === undefined) {
+            for (const pass of this._passes) {
+                pass.overridePipelineStates(passInfos[pass.idxInTech], overrides);
+            }
+        } else {
+            this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
+        }
+        this._onPassesChange();
+    }
+
+    /**
+     * @zh
+     * 通过 Loader 加载完成时的回调，将自动初始化材质资源。
+     */
+    public onLoaded () {
+        this._update();
+        this.loaded = true;
+        this.emit('load');
+    }
+
+    /**
+     * @en
+     * Convenient property setter provided for quick material setup.
+     * [[Pass.setUniform]] should be used instead
      * if you need to do per-frame property update.
+     * @zh
+     * 设置材质 uniform 参数的统一入口。
+     * 注意如果需要每帧更新 uniform，建议使用 [[Pass.setUniform]] 以获得更好的性能。
+     * @param name 要设置的 uniform 名字
+     * @param val 要设置的 uniform 值
+     * @param passIdx 要设置的 pass 索引，默认设置所有 pass。
      */
     public setProperty (name: string, val: any, passIdx?: number) {
         let success = false;
@@ -163,6 +279,12 @@ export class Material extends Asset {
         }
     }
 
+    /**
+     * @zh
+     * 获取当前材质的指定 uniform 值。
+     * @param name 要获取的 uniform 名字
+     * @param passIdx 要获取的源 pass 索引，默认遍历所有 pass，返回第一个找到指定名字的 uniform。
+     */
     public getProperty (name: string, passIdx?: number) {
         if (passIdx === undefined) { // try get property in all possible passes
             const propsArray = this._props;
@@ -183,6 +305,11 @@ export class Material extends Asset {
         return null;
     }
 
+    /**
+     * @zh
+     * 复制目标材质到当前实例。
+     * @param mat 要负责的目标材质。
+     */
     public copy (mat: Material) {
         this._techIdx = mat._techIdx;
         this._props.length = mat._props.length;
@@ -198,40 +325,6 @@ export class Material extends Asset {
         Object.assign(this._states, mat._states);
         this._effectAsset = mat._effectAsset;
         this._update();
-    }
-
-    public recompileShaders (defineOverrides: IDefineMap | IDefineMap[]) {
-        const passes = this._passes;
-        const len = passes.length;
-        if (Array.isArray(defineOverrides)) {
-            for (let i = 0; i < len; i++) {
-                passes[i].tryCompile(defineOverrides[i]);
-            }
-        } else {
-            for (let i = 0; i < len; i++) {
-                passes[i].tryCompile(defineOverrides);
-            }
-        }
-        this._onPassesChange();
-    }
-
-    public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
-        if (!this._passes || !this._effectAsset) { return; }
-        const passInfos = Effect.getPassesInfo(this._effectAsset, this._techIdx);
-        if (passIdx === undefined) {
-            for (const pass of this._passes) {
-                pass.overridePipelineStates(passInfos[pass.idxInTech], overrides);
-            }
-        } else {
-            this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
-        }
-        this._onPassesChange();
-    }
-
-    public onLoaded () {
-        this._update();
-        this.loaded = true;
-        this.emit('load');
     }
 
     protected _prepareInfo (patch: object | object[], cur: object[]) {

@@ -99,9 +99,7 @@ export class LineComponent extends Component {
         }
     }
 
-    @property({
-        type: Vec2,
-    })
+    @property
     private _tile = cc.v2(1, 1);
 
     @property({
@@ -121,9 +119,7 @@ export class LineComponent extends Component {
         }
     }
 
-    @property({
-        type: Vec2,
-    })
+    @property
     private _offset = cc.v2(0, 0);
 
     @property({
