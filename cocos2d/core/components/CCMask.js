@@ -430,12 +430,7 @@ let Mask = cc.Class({
             this._clearGraphics.node = new Node();
             this._clearGraphics._activateMaterial();
             this._clearGraphics.lineWidth = 0;
-            this._clearGraphics.rect(
-                0, 
-                0, 
-                cc.visibleRect.width,
-                cc.visibleRect.height
-            );
+            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
             this._clearGraphics.fill();
             if (CC_JSB && CC_NATIVERENDERER) {
                 this._clearGraphics._renderHandle.ignoreWorldMatrix();
