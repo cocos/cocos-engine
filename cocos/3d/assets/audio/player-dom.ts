@@ -28,7 +28,6 @@ import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 export class AudioPlayerDOM extends AudioPlayer {
     protected _volume = 1;
     protected _loop = false;
-    protected _currentTimer = 0;
     protected _oneShoting = false;
     protected _audio: HTMLAudioElement;
 

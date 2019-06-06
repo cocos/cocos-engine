@@ -29,6 +29,7 @@ import { Enum } from '../../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
+import { AudioPlayerWX } from './player-wx';
 
 export const AudioType = Enum({
     UNKNOWN_AUDIO: -1,
@@ -47,6 +48,9 @@ export class AudioClip extends Asset {
             if (clip instanceof AudioBuffer) {
                 ctor = AudioPlayerWeb;
                 this._loadMode = AudioType.WEB_AUDIO;
+            } else if (CC_WECHATGAME) {
+                ctor = AudioPlayerWX;
+                this._loadMode = AudioType.WX_GAME_AUDIO;
             } else {
                 ctor = AudioPlayerDOM;
                 this._loadMode = AudioType.DOM_AUDIO;
@@ -77,6 +81,7 @@ export class AudioClip extends Asset {
     public static PlayingState = PlayingState;
     public static AudioType = AudioType;
     public static preventDeferredLoadDependents = true;
+
     @property // we serialize this because it's unavailable at runtime on some platforms
     protected _duration = 0;
     @property({
