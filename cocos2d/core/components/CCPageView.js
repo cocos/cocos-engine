@@ -395,20 +395,15 @@ var PageView = cc.Class({
         if (!this.content) { return; }
         var layout = this.content.getComponent(cc.Layout);
         if (layout) {
-            if (this._pages.length === 0) {
-                layout.padding = 0;
-            }
-            else {
+            if (this.sizeMode === SizeMode.Free && this._pages.length > 0) {
                 var lastPage = this._pages[this._pages.length - 1];
-                if (this.sizeMode === SizeMode.Free) {
-                    if (this.direction === Direction.Horizontal) {
-                        layout.paddingLeft = (this._view.width - this._pages[0].width) / 2;
-                        layout.paddingRight = (this._view.width - lastPage.width) / 2;
-                    }
-                    else if (this.direction === Direction.Vertical) {
-                        layout.paddingTop = (this._view.height - this._pages[0].height) / 2;
-                        layout.paddingBottom = (this._view.height - lastPage.height) / 2;
-                    }
+                if (this.direction === Direction.Horizontal) {
+                    layout.paddingLeft = (this._view.width - this._pages[0].width) / 2;
+                    layout.paddingRight = (this._view.width - lastPage.width) / 2;
+                }
+                else if (this.direction === Direction.Vertical) {
+                    layout.paddingTop = (this._view.height - this._pages[0].height) / 2;
+                    layout.paddingBottom = (this._view.height - lastPage.height) / 2;
                 }
             }
             layout.updateLayout();
