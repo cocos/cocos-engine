@@ -91,11 +91,28 @@ interface IPassDynamics {
     };
 }
 
+/**
+ * @zh
+ * 渲染 pass，储存实际描述绘制过程的各项资源。
+ */
 export class Pass {
+    /**
+     * @zh
+     * 根据 handle 获取 unform 的绑定类型（UBO 或贴图等）。
+     */
     public static getBindingTypeFromHandle = getBindingTypeFromHandle;
+    /**
+     * @zh
+     * 根据 handle 获取 UBO member 的具体类型。
+     */
     public static getTypeFromHandle = getTypeFromHandle;
+    /**
+     * @zh
+     * 根据 handle 获取 binding。
+     */
     public static getBindingFromHandle = getBindingFromHandle;
-    public static getIndexFromHandle = getIndexFromHandle;
+
+    protected static getIndexFromHandle = getIndexFromHandle;
     // internal resources
     protected _buffers: Record<number, GFXBuffer> = {};
     protected _samplers: Record<number, GFXSampler> = {};
@@ -128,6 +145,10 @@ export class Pass {
         this._device = device;
     }
 
+    /**
+     * @zh
+     * 根据指定参数初始化当前 pass，shader 会在这一阶段就尝试编译。
+     */
     public initialize (info: IPassInfoFull) {
         this._idxInTech = info.idxInTech;
         this._programName = info.program;
@@ -186,14 +207,30 @@ export class Pass {
         this.tryCompile();
     }
 
+    /**
+     * @zh
+     * 获取指定 uniform 的 handle。
+     * @param name 目标 uniform 名。
+     */
     public getHandle (name: string) {
         return this._handleMap[name];
     }
 
+    /**
+     * @zh
+     * 获取指定 uniform 的 binding。
+     * @param name 目标 uniform 名。
+     */
     public getBinding (name: string) {
         return Pass.getBindingFromHandle(this.getHandle(name));
     }
 
+    /**
+     * @zh
+     * 设置指定普通向量类 uniform 的值，如果需要频繁更新请尽量使用此接口。
+     * @param handle 目标 uniform 的 handle。
+     * @param value 目标值。
+     */
     public setUniform (handle: number, value: any) {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
@@ -203,6 +240,12 @@ export class Pass {
         block.dirty = true;
     }
 
+    /**
+     * @zh
+     * 设置指定数组类 uniform 的值，如果需要频繁更新请尽量使用此接口。
+     * @param handle 目标 uniform 的 handle。
+     * @param value 目标值。
+     */
     public setUniformArray (handle: number, value: any[]) {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
@@ -215,6 +258,12 @@ export class Pass {
         block.dirty = true;
     }
 
+    /**
+     * @zh
+     * 绑定实际 [[GFXBuffer]] 到指定 binding。
+     * @param binding 目标 UBO 的 binding。
+     * @param value 目标 buffer。
+     */
     public bindBuffer (binding: number, value: GFXBuffer) {
         this._buffers[binding] = value;
         for (const res of this._resources) {
@@ -222,6 +271,12 @@ export class Pass {
         }
     }
 
+    /**
+     * @zh
+     * 绑定实际 [[GFXTextureView]] 到指定 binding。
+     * @param binding 目标贴图类 uniform 的 binding。
+     * @param value 目标 texture view。
+     */
     public bindTextureView (binding: number, value: GFXTextureView) {
         this._textureViews[binding] = value;
         for (const res of this._resources) {
@@ -229,6 +284,12 @@ export class Pass {
         }
     }
 
+    /**
+     * @zh
+     * 绑定实际 [[GFXSampler]] 到指定 binding。
+     * @param binding 目标贴图类 uniform 的 binding。
+     * @param value 目标 sampler。
+     */
     public bindSampler (binding: number, value: GFXSampler) {
         this._samplers[binding] = value;
         for (const res of this._resources) {
@@ -236,12 +297,24 @@ export class Pass {
         }
     }
 
+    /**
+     * @zh
+     * 设置运行时 pass 内可动态更新的管线状态属性。
+     * @param state 目标管线状态。
+     * @param value 目标值。
+     */
     public setDynamicState (state: GFXDynamicState, value: any) {
         const ds = this._dynamics[state];
         if (ds && ds.value === value) { return; }
         ds.value = value; ds.dirty = true;
     }
 
+    /**
+     * @zh
+     * 重载当前所有管线状态。
+     * @param original 原始管线状态。
+     * @param value 管线状态重载值。
+     */
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides) {
         this._bs = new GFXBlendState();
         this._dss = new GFXDepthStencilState();
@@ -250,6 +323,10 @@ export class Pass {
         this._fillinPipelineInfo(overrides);
     }
 
+    /**
+     * @zh
+     * 上传当前 UBO 数据。
+     */
     public update () {
         const len = this._blocks.length;
         for (let i = 0; i < len; i++) {
@@ -261,6 +338,10 @@ export class Pass {
         }
     }
 
+    /**
+     * @zh
+     * 销毁当前 pass。
+     */
     public destroy () {
         const buffers = Object.values(this._buffers);
         if (buffers.length) {
@@ -276,6 +357,11 @@ export class Pass {
         }
     }
 
+    /**
+     * @zh
+     * 尝试编译 shader 并获取相关资源引用。
+     * @param defineOverrides shader 预处理宏定义重载
+     */
     public tryCompile (defineOverrides?: IDefineMap) {
         if (defineOverrides) { Object.assign(this._defines, defineOverrides); }
         const pipeline = cc.director.root.pipeline as RenderPipeline | null;
@@ -294,6 +380,10 @@ export class Pass {
         return true;
     }
 
+    /**
+     * @zh
+     * 根据当前 pass 持有的信息创建 [[GFXPipelineState]]。
+     */
     public createPipelineState (): GFXPipelineState | null {
         if ((!this._renderPass || !this._shader || !this._bindings.length) && !this.tryCompile()) {
             console.warn(`pass resources not complete, create PSO failed`);
@@ -342,6 +432,10 @@ export class Pass {
         return pipelineState;
     }
 
+    /**
+     * @zh
+     * 销毁指定的 [[GFXPipelineState]]，如果它是这个 pass 创建的。
+     */
     public destroyPipelineState (pipelineStates: GFXPipelineState) {
         const idx = this._resources.findIndex((res) => res.pipelineState === pipelineStates);
         if (idx >= 0) {
@@ -351,6 +445,10 @@ export class Pass {
         }
     }
 
+    /**
+     * @zh
+     * 返回这个 pass 的序列化信息，用于计算 hash。
+     */
     public serializePipelineStates () {
         const shaderKey = programLib.getKey(this._programName, this._defines);
         let res = `${shaderKey},${this._stage},${this._primitive}`;

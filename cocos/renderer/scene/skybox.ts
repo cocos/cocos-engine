@@ -21,8 +21,7 @@ export class Skybox extends Model {
     set isRGBE (val: boolean) {
         if (val === this._isRGBE) { return; }
         this._isRGBE = val;
-        this._material.destroy();
-        this._initMaterial();
+        this._material.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
         this.setSubModelMaterial(0, this._material);
         this._updateBindingLayout();
     }
@@ -39,20 +38,16 @@ export class Skybox extends Model {
     constructor (scene: RenderScene) {
         super(scene, null!);
         this._scene = scene;
-        this._initMaterial();
-
-        const mesh = createMesh(box({ width: 2, height: 2, length: 2 }));
-        const subMeshData = mesh.renderingMesh.getSubmesh(0)!;
-        this.initSubModel(0, subMeshData, this._material);
-        this._updateBindingLayout();
-    }
-
-    protected _initMaterial () {
         this._material.initialize({
             effectName: 'builtin-skybox',
             defines: { USE_RGBE_CUBEMAP: this._isRGBE },
         });
         this._material.setProperty('cubeMap', this._cubemap);
+
+        const mesh = createMesh(box({ width: 2, height: 2, length: 2 }));
+        const subMeshData = mesh.renderingMesh.getSubmesh(0)!;
+        this.initSubModel(0, subMeshData, this._material);
+        this._updateBindingLayout();
     }
 
     protected _updateBindingLayout () {

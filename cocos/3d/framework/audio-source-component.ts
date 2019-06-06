@@ -27,8 +27,11 @@ import { ccclass, menu, property } from '../../core/data/class-decorator';
 import { AudioClip } from '../assets/audio/clip';
 
 /**
+ * @en
  * A representation of a single audio source,
  * contains basic functionalities like play, pause and stop.
+ * @zh
+ * 音频组件，代表单个音源，提供播放、暂停、停止等基本功能。
  */
 @ccclass('cc.AudioSourceComponent')
 @menu('Components/AudioSourceComponent')
@@ -65,7 +68,7 @@ export class AudioSourceComponent extends Component {
      * @zh
      * 是否循环播放音频
      */
-    @property({ type: Boolean })
+    @property
     set loop (val) {
         this._loop = val;
         if (this._clip) { this._clip.setLoop(val); }
@@ -85,7 +88,7 @@ export class AudioSourceComponent extends Component {
      * 请注意，根据最新的自动播放策略，大部分自动播放仅在收到用户指令后生效 <br>
      * 参看：https://www.chromium.org/audio-video/autoplay
      */
-    @property({ type: Boolean })
+    @property
     set playOnAwake (val) {
         this._playOnAwake = val;
     }
@@ -102,7 +105,7 @@ export class AudioSourceComponent extends Component {
      * 请注意,在某些平台上，音量控制可能不起效<br>
      * 请注意,在 ios 平台的 dom 模式下控制音量将无法生效
      */
-    @property({ type: Number })
+    @property
     set volume (val) {
         if (this._clip) {
             this._clip.setVolume(val);
@@ -162,9 +165,9 @@ export class AudioSourceComponent extends Component {
      * @en Plays an AudioClip, and scales volume by volumeScale.
      * @zh 以指定音量播放一个音频一次
      *
-     * 请注意，视平台不同同时重复播放的音频效果存在差异 <br>
-     * 在 dom 模式下，不支持同时进行多重播放，所以在多重播放时将会产生重新播放的效果 <br>
-     * 在微信模式下，不支持同时进行多重播放，所以在多重播放时将会产生重新播放的效果
+     * 注意，对同一个音频片段，不同平台多重播放效果存在差异<br>
+     * 在 Web Audio 模式下，可以同时维护多个播放进度，达到多重播放<br>
+     * 其他模式下都不支持多重播放，如前一次尚未播完，则会立即重新播放
      * @param clip - the clip being played
      * @param volumeScale - the scale of the volume (0-1).
      */
@@ -233,7 +236,7 @@ export class AudioSourceComponent extends Component {
      * @en
      * is the audio currently playing?
      * @zh
-     * 当前音频是否正在播放
+     * 当前音频是否正在播放？
      */
     get playing () {
         return this.state === AudioClip.PlayingState.PLAYING;

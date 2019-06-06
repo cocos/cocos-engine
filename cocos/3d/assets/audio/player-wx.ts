@@ -22,13 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 import { _decorator } from '../../../core/data/index';
 const { ccclass } = _decorator;
 import { AudioClip, AudioType } from './clip';
 import { PlayingState } from './player';
 
 /**
- * WeChat audio to port. https://developers.weixin.qq.com/minigame/dev/document/media/audio/InnerAudioContext.html
+ * WeChat audio player.
+ * https://developers.weixin.qq.com/minigame/dev/guide/base-ability/audio.html
  */
 @ccclass('cc.WxGameAudioClip')
 export default class WxGameAudioClip extends AudioClip {
@@ -117,7 +119,7 @@ export default class WxGameAudioClip extends AudioClip {
 
     public playOneShot (volume = 1) {
         /* HTMLMediaElement doesn't support multiple playback at the
-           same time so here we fall back to re-start style cc.gameroach */
+           same time so here we fall back to re-start style approach */
         if (!this._audio) { return; }
         this._audio.volume = volume;
         if (this._oneShoting) { return; }

@@ -161,7 +161,7 @@ export class SkinningModelComponent extends ModelComponent {
 
         const skinningModel = this._model as SkinningModel;
         const skeleton = this._skeleton;
-        const len = this._joints.length;
+        const len = this._jointCount;
 
         for (let i = 0; i < len; ++i) {
             const cur = this._joints[i];
@@ -243,20 +243,19 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     private _bindSkeleton () {
-        if (!this._skeleton) { return; }
-        this._jointCount = this._skeleton.joints.length;
-        this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
+        this._jointCount = this._skeleton && this._skeleton.joints.length || 0;
         if (this._model) {
             (this._model as SkinningModel).bindSkeleton(this._skeleton);
         }
+        this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
     }
 
     private _resetSkinningTarget () {
+        this._joints.length = 0;
         if (!this._skeleton || !this._skinningRoot) { return; }
         const root = LCA(this.node, this._skinningRoot);
         if (!root) { return; }
 
-        this._joints.length = 0;
         const rootNode = this._skinningRoot;
         this._skeleton.joints.forEach((path) => {
             const targetNode = rootNode.getChildByPath(path);
