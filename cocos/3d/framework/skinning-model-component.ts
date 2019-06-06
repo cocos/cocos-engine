@@ -36,6 +36,7 @@ import { Skeleton } from '../assets/skeleton';
 import { aabb } from '../geom-utils';
 import { calculateBoneSpaceBounds } from '../misc/utils';
 import { ModelComponent } from './model-component';
+import { builtinResMgr } from '../builtin';
 
 const v3_1 = new Vec3();
 const qt_1 = new Quat();
@@ -235,11 +236,14 @@ export class SkinningModelComponent extends ModelComponent {
     protected _onMaterialModified (index: number, material: Material | null) {
         const device: GFXDevice = cc.director.root && cc.director.root.device;
         const type = selectJointsMediumType(device, this._jointCount);
-        const mat = this.getMaterial(index, CC_EDITOR);
-        if (mat) {
-            mat.recompileShaders({ CC_USE_SKINNING: type });
-        }
+        const mat = this.getMaterial(index, CC_EDITOR) || this._getBuiltinMaterial();
+        mat.recompileShaders({ CC_USE_SKINNING: type });
         super._onMaterialModified(index, mat);
+    }
+
+    protected _getBuiltinMaterial () {
+        // classic ugly pink indicating missing material
+        return builtinResMgr.get<Material>('missing-skinning-material');
     }
 
     private _bindSkeleton () {
