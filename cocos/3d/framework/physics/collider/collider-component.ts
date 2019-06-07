@@ -67,44 +67,6 @@ export class ColliderComponent extends PhysicsBasedComponent {
         super();
     }
 
-    /// PUBLIC METHOD ///
-
-    /**
-     * @zh
-     * 注册碰撞事件相关的回调
-     * @param type - 碰撞事件的类型，可为 'onCollisionEnter' 、 'onCollisionStay' 、 'onCollisionExit';
-     * @param callback - 注册的回调函数
-     * @param target - 可选参数，执行回调函数的目标
-     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
-     */
-    public on (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any) {
-        this.node.on(type, callback, target, useCapture);
-    }
-
-    /**
-     * @zh
-     * 取消已经注册的碰撞事件相关的回调
-     * @param type - 碰撞事件的类型，可为 'onCollisionEnter' 、 'onCollisionStay' 、 'onCollisionExit';
-     * @param callback - 注册的回调函数
-     * @param target - 可选参数，执行回调函数的目标
-     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
-     */
-    public off (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any) {
-        this.node.off(type, callback, target, useCapture);
-    }
-
-    /**
-     * @zh
-     * 注册碰撞事件相关的回调，但只会执行一次
-     * @param type - 碰撞事件的类型，可为 'onCollisionEnter' 、 'onCollisionStay' 、 'onCollisionExit';
-     * @param callback - 注册的回调函数
-     * @param target - 可选参数，执行回调函数的目标
-     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
-     */
-    public once (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any) {
-        this.node.once(type, callback, target, useCapture);
-    }
-
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
@@ -141,5 +103,43 @@ export class ColliderComponent extends PhysicsBasedComponent {
             this.sharedBody.body.removeShape(this._shapeBase!);
         }
         super.onDestroy();
+    }
+
+    /// PRIVATE METHOD ///
+
+    /**
+     * @zh
+     * 注册碰撞事件相关的回调
+     * @param type - 碰撞事件的类型，可为 'onCollisionEnter' 、 'onCollisionStay' 、 'onCollisionExit';
+     * @param callback - 注册的回调函数
+     * @param target - 可选参数，执行回调函数的目标
+     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
+     */
+    private on (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any) {
+        this.node.on(type, callback, target, useCapture);
+    }
+
+    /**
+     * @zh
+     * 取消已经注册的碰撞事件相关的回调
+     * @param type - 碰撞事件的类型，可为 'onCollisionEnter' 、 'onCollisionStay' 、 'onCollisionExit';
+     * @param callback - 注册的回调函数
+     * @param target - 可选参数，执行回调函数的目标
+     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
+     */
+    private off (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any) {
+        this.node.off(type, callback, target, useCapture);
+    }
+
+    /**
+     * @zh
+     * 注册碰撞事件相关的回调，但只会执行一次
+     * @param type - 碰撞事件的类型，可为 'onCollisionEnter' 、 'onCollisionStay' 、 'onCollisionExit';
+     * @param callback - 注册的回调函数
+     * @param target - 可选参数，执行回调函数的目标
+     * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
+     */
+    private once (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any) {
+        this.node.once(type, callback, target, useCapture);
     }
 }
