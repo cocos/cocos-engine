@@ -640,3 +640,11 @@ void exitApplication()
 {
     g_isGameFinished = true;
 }
+
+
+bool getApplicationExited()
+{
+    return g_isGameFinished;
+}
+
+

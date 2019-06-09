@@ -28,6 +28,8 @@
 
 typedef void (*EditTextCallback)(const std::string& text, void* ctx);
 
+extern bool getApplicationExited();
+
 extern void restartJSVM();
 extern void exitApplication();
 
