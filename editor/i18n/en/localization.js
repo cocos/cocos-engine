@@ -265,6 +265,7 @@ module.exports = {
             "time_scale": "The time scale of animations of this skeleton",
             "debug_slots": "Indicates whether show debug slots.",
             "debug_bones": "Indicates whether show debug bones.",
+            "debug_mesh": "Indicates whether show debug mesh.",
             "premultipliedAlpha": "Indicates whether to enable premultiplied alpha.",
             "use_tint": "Indicates whether to use tint effect.",
             "enabled_batch": "Indicates whether enabled batch model",
