@@ -31,6 +31,8 @@ const mat4 = cc.vmath.mat4;
 let _m4_tmp = mat4.create();
 
 const dummyNode = new cc.Node();
+const JOINT_MATRICES_SIZE = 50;
+const MAX_FLOAT_TEXTURE_SIZE = 64;
 
 /**
  * !#en
@@ -48,7 +50,7 @@ let SkinnedMeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._jointsData = null;
+        this._jointsData = this._jointsFloat32Data = null;
         this._jointsTexture = null;
         this._joints = [];
     },
@@ -180,9 +182,17 @@ let SkinnedMeshRenderer = cc.Class({
         let jointCount = this._joints.length;
         let customProperties = this._customProperties;
 
-        let ALLOW_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
-        if (ALLOW_FLOAT_TEXTURE) {
-            // set jointsTexture
+        let inited = false;
+        if (jointCount <= JOINT_MATRICES_SIZE) {
+            inited = true;
+
+            this._jointsData = this._jointsFloat32Data = new Float32Array(jointCount * 16);
+            customProperties.setProperty('_jointMatrices', this._jointsFloat32Data);
+            customProperties.define('_USE_JOINTS_TEXTRUE', false);
+        }
+
+        let SUPPORT_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
+        if (!inited) {
             let size;
             if (jointCount > 256) {
                 size = 64;
@@ -194,33 +204,41 @@ let SkinnedMeshRenderer = cc.Class({
                 size = 8;
             }
 
-            this._jointsData = new Float32Array(size * size * 4);
+            this._jointsData = this._jointsFloat32Data = new Float32Array(size * size * 4);
+
+            let pixelFormat = cc.Texture2D.PixelFormat.RGBA32F, 
+                width = size, 
+                height = size;
+            
+            if (!SUPPORT_FLOAT_TEXTURE) {
+                this._jointsData = new Uint8Array(this._jointsFloat32Data.buffer);
+                pixelFormat = cc.Texture2D.PixelFormat.RGBA8888;
+                width *= 4;
+
+                cc.warn(`SkinnedMeshRenderer [${this.node.name}] has too much joints [${jointCount}] and device do not support float32 texture, fallback to use RGBA8888 texture, which is much slower.`);
+            }
 
             let texture = this._jointsTexture || new cc.Texture2D();
-            texture.initWithData(this._jointsData, cc.Texture2D.PixelFormat.RGBA32F, size, size);
-
+            texture.initWithData(this._jointsData, pixelFormat, width, height);
             this._jointsTexture = texture;
             
             customProperties.setProperty('_jointsTexture', texture.getImpl());
-            customProperties.setProperty('_jointsTextureSize', this._jointsTexture.width);
-        }
-        else {
-            this._jointsData = new Float32Array(jointCount * 16);
-            customProperties.define('_JOINT_MATRICES_SIZE', jointCount);
-            customProperties.setProperty('_jointMatrices', this._jointsData);
+            customProperties.setProperty('_jointsTextureSize', new Float32Array([width, height]));
+            
+            customProperties.define('_JOINTS_TEXTURE_FLOAT32', SUPPORT_FLOAT_TEXTURE);
+            customProperties.define('_USE_JOINTS_TEXTRUE', true);
         }
 
         customProperties.define('_USE_SKINNING', true);
-        customProperties.define('_USE_JOINTS_TEXTRUE', ALLOW_FLOAT_TEXTURE);
     },
 
     _setJointsDataWithArray (iMatrix, matrixArray) {
-        let data = this._jointsData;
+        let data = this._jointsFloat32Data;
         data.set(matrixArray, iMatrix * 16);
     },
 
     _setJointsDataWithMatrix (iMatrix, matrix) {
-        let data = this._jointsData;
+        let data = this._jointsFloat32Data;
 
         data[16 * iMatrix + 0] = matrix.m00;
         data[16 * iMatrix + 1] = matrix.m01;
