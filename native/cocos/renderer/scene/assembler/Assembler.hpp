@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include "../Macro.h"
+#include "../../Macro.h"
 #include "AssemblerBase.hpp"
-#include "MeshBuffer.hpp"
+#include "../MeshBuffer.hpp"
 #include "math/CCMath.h"
-#include "../renderer/Effect.h"
+#include "../../renderer/Effect.h"
 #include "RenderDataList.hpp"
 
 namespace se {
@@ -65,6 +65,51 @@ class ModelBatcher;
 class Assembler : public AssemblerBase
 {
 public:
+    
+    struct IARenderData {
+    public:
+        IARenderData()
+        {
+            
+        }
+        
+        IARenderData(const IARenderData& o)
+        {
+            meshIndex = o.meshIndex;
+            verticesStart = o.verticesStart;
+            verticesCount = o.verticesCount;
+            indicesStart = o.indicesStart;
+            indicesCount = o.indicesCount;
+            setEffect(o.getEffect());
+        }
+        
+        ~IARenderData()
+        {
+            CC_SAFE_RELEASE(_effect);
+        }
+        
+        void setEffect(Effect* effect)
+        {
+            if (effect == _effect) return;
+            CC_SAFE_RELEASE(_effect);
+            _effect = effect;
+            CC_SAFE_RETAIN(_effect);
+        }
+        
+        Effect* getEffect() const
+        {
+            return _effect;
+        }
+    private:
+        Effect* _effect = nullptr;
+    public:
+        int meshIndex = -1;
+        int verticesStart = 0;
+        int verticesCount = -1;
+        int indicesStart = 0;
+        int indicesCount = -1;
+    };
+    
     Assembler();
     virtual ~Assembler();
     /*
@@ -87,14 +132,6 @@ public:
      *  @brief Sets IArenderDataList
      */
     virtual void setRenderDataList(RenderDataList* datas);
-    
-    /**
-     *  @brief Gets IARenderDataList
-     */
-    RenderDataList* getRenderDataList() const
-    {
-        return _datas;
-    }
     
     /**
      *  @brief Gets the vertex format.
@@ -138,8 +175,58 @@ public:
      *  @return _opacityAlwaysDirty
      */
     bool isIgnoreWorldMatrix() { return _ignoreWorldMatrix; }
+    
+    /**
+     *  @brief Updates mesh index
+     */
+    void updateMeshIndex(std::size_t iaIndex, int meshIndex);
+    /**
+     *  @brief Updates indices range
+     */
+    void updateIndicesRange(std::size_t iaIndex, int start, int count);
+    
+    /**
+     *  @brief Updates vertices range
+     */
+    void updateVerticesRange(std::size_t iaIndex, int start, int count);
+    
+    /**
+     *  @brief Update the material for the given index.
+     *  @param[in] iaIndex Render data index.
+     *  @param[in] effect Effect pointer.
+     */
+    virtual void updateEffect(std::size_t iaIndex, Effect* effect);
+    
+    /**
+     *  @brief Resets ia data.
+     */
+    virtual void reset() override;
+    
+    /**
+     *  @brief Gets the material for the given index.
+     *  @param[in] index Render data index.
+     *  @return Effect pointer.
+     */
+    inline Effect* getEffect(std::size_t index) const
+    {
+        if (index >= _iaDatas.size())
+        {
+            return nullptr;
+        }
+        return _iaDatas[index].getEffect();
+    }
+    
+    /**
+     *  @brief Gets Effect count.
+     *  @return Count.
+     */
+    inline std::size_t getIACount() const
+    {
+        return _iaDatas.size();
+    }
 protected:
     RenderDataList* _datas = nullptr;
+    std::vector<IARenderData> _iaDatas;
     
     uint32_t _bytesPerVertex = 0;
     size_t _posOffset = 0;

@@ -79,6 +79,16 @@ onEnable : function (
 },
 
 /**
+ * @method setEffect
+ * @param {cc.renderer::Effect} arg0
+ */
+setEffect : function (
+effect 
+)
+{
+},
+
+/**
  * @method stopSchedule
  */
 stopSchedule : function (
@@ -178,16 +188,6 @@ initWithSkeleton : function (
 spskeleton, 
 bool, 
 bool 
-)
-{
-},
-
-/**
- * @method setNativeEffect
- * @param {cc.renderer::Effect} arg0
- */
-setNativeEffect : function (
-effect 
 )
 {
 },

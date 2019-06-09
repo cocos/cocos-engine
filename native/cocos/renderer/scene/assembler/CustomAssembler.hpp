@@ -24,10 +24,9 @@
 
 #pragma once
 
-#include "../Macro.h"
 #include "AssemblerBase.hpp"
 #include <vector>
-#include "../renderer/InputAssembler.h"
+#include "../../renderer/InputAssembler.h"
 
 RENDERER_BEGIN
 
@@ -88,13 +87,44 @@ public:
     /**
      *  @brief Resets ia data.
      */
-    virtual void reset();
+    virtual void reset() override;
     /**
      *  @brief Adjusts ia data.
      */
     virtual InputAssembler* adjustIA(std::size_t index);
+    
+    /**
+     *  @brief Update the material for the given index.
+     *  @param[in] index Render data index.
+     *  @param[in] effect Effect pointer.
+     */
+    virtual void updateEffect(std::size_t index, Effect* effect);
+    
+    /**
+     *  @brief Gets the material for the given index.
+     *  @param[in] index Render data index.
+     *  @return Effect pointer.
+     */
+    inline Effect* getEffect(std::size_t index) const
+    {
+        if (index >= _effects.size())
+        {
+            return nullptr;
+        }
+        return _effects.at(index);
+    }
+    
+    /**
+     *  @brief Clears all effect.
+     *  @return Count.
+     */
+    virtual void clearEffect()
+    {
+        _effects.clear();
+    }
 protected:
     std::vector<cocos2d::renderer::InputAssembler*> _iaPool;
+    cocos2d::Vector<Effect*> _effects;
     std::size_t _iaCount = 0;
 };
 

@@ -225,13 +225,11 @@ View : function (
 renderer.AssemblerBase = {
 
 /**
- * @method getEffectCount
- * @return {unsigned int}
+ * @method reset
  */
-getEffectCount : function (
+reset : function (
 )
 {
-    return 0;
 },
 
 /**
@@ -329,38 +327,6 @@ int
 },
 
 /**
- * @method clearNativeEffect
- */
-clearNativeEffect : function (
-)
-{
-},
-
-/**
- * @method updateNativeEffect
- * @param {unsigned int} arg0
- * @param {cc.renderer::Effect} arg1
- */
-updateNativeEffect : function (
-int, 
-effect 
-)
-{
-},
-
-/**
- * @method getEffect
- * @param {unsigned int} arg0
- * @return {cc.renderer::Effect}
- */
-getEffect : function (
-int 
-)
-{
-    return cc.renderer::Effect;
-},
-
-/**
  * @method AssemblerBase
  * @constructor
  */
@@ -402,6 +368,14 @@ getChildren : function (
 )
 {
     return new Array();
+},
+
+/**
+ * @method disableVisit
+ */
+disableVisit : function (
+)
+{
 },
 
 /**
@@ -447,6 +421,18 @@ str
 },
 
 /**
+ * @method getChildByName
+ * @param {String} arg0
+ * @return {cc.renderer::NodeProxy}
+ */
+getChildByName : function (
+str 
+)
+{
+    return cc.renderer::NodeProxy;
+},
+
+/**
  * @method setParent
  * @param {cc.renderer::NodeProxy} arg0
  */
@@ -464,6 +450,18 @@ getName : function (
 )
 {
     return ;
+},
+
+/**
+ * @method visit
+ * @param {cc.renderer::ModelBatcher} arg0
+ * @param {cc.renderer::Scene} arg1
+ */
+visit : function (
+modelbatcher, 
+scene 
+)
+{
 },
 
 /**
@@ -487,6 +485,16 @@ getRealOpacity : function (
 },
 
 /**
+ * @method updateMatrix
+* @param {mat4_object} mat4
+*/
+updateMatrix : function(
+mat4 
+)
+{
+},
+
+/**
  * @method getOpacity
  * @return {unsigned char}
  */
@@ -494,6 +502,22 @@ getOpacity : function (
 )
 {
     return 0;
+},
+
+/**
+ * @method enableVisit
+ */
+enableVisit : function (
+)
+{
+},
+
+/**
+ * @method enableUpdateWorldMatrix
+ */
+enableUpdateWorldMatrix : function (
+)
+{
 },
 
 /**
@@ -525,6 +549,14 @@ getCullingMask : function (
 },
 
 /**
+ * @method updateFromJS
+ */
+updateFromJS : function (
+)
+{
+},
+
+/**
  * @method reset
  */
 reset : function (
@@ -548,6 +580,14 @@ getParent : function (
  */
 removeChild : function (
 nodeproxy 
+)
+{
+},
+
+/**
+ * @method disaleUpdateWorldMatrix
+ */
+disaleUpdateWorldMatrix : function (
 )
 {
 },
@@ -1569,14 +1609,6 @@ Scene : function (
 renderer.RenderDataList = {
 
 /**
- * @method reset
- */
-reset : function (
-)
-{
-},
-
-/**
  * @method getRenderData
  * @param {unsigned int} arg0
  * @return {cc.renderer::RenderData}
@@ -1599,15 +1631,9 @@ getMeshCount : function (
 },
 
 /**
- * @method updateIndicesRange
- * @param {unsigned int} arg0
- * @param {unsigned long} arg1
- * @param {unsigned long} arg2
+ * @method clear
  */
-updateIndicesRange : function (
-int, 
-long, 
-long 
+clear : function (
 )
 {
 },
@@ -1636,6 +1662,16 @@ setVertexFormat : function (
 vertexformat 
 )
 {
+},
+
+/**
+ * @method getIACount
+ * @return {unsigned int}
+ */
+getIACount : function (
+)
+{
+    return 0;
 },
 
 /**
@@ -1679,6 +1715,20 @@ isIgnoreWorldMatrix : function (
 },
 
 /**
+ * @method updateVerticesRange
+ * @param {unsigned int} arg0
+ * @param {int} arg1
+ * @param {int} arg2
+ */
+updateVerticesRange : function (
+int, 
+int, 
+int 
+)
+{
+},
+
+/**
  * @method fillBuffers
  * @param {cc.renderer::MeshBuffer} arg0
  * @param {unsigned int} arg1
@@ -1703,13 +1753,49 @@ renderdatalist
 },
 
 /**
- * @method getRenderDataList
- * @return {cc.renderer::RenderDataList}
+ * @method updateMeshIndex
+ * @param {unsigned int} arg0
+ * @param {int} arg1
  */
-getRenderDataList : function (
+updateMeshIndex : function (
+int, 
+int 
 )
 {
-    return cc.renderer::RenderDataList;
+},
+
+/**
+ * @method updateEffect
+ * @param {unsigned int} arg0
+ * @param {cc.renderer::Effect} arg1
+ */
+updateEffect : function (
+int, 
+effect 
+)
+{
+},
+
+/**
+ * @method enableOpacityAlwaysDirty
+ */
+enableOpacityAlwaysDirty : function (
+)
+{
+},
+
+/**
+ * @method updateIndicesRange
+ * @param {unsigned int} arg0
+ * @param {int} arg1
+ * @param {int} arg2
+ */
+updateIndicesRange : function (
+int, 
+int, 
+int 
+)
+{
 },
 
 /**
@@ -1723,11 +1809,15 @@ getVertexFormat : function (
 },
 
 /**
- * @method enableOpacityAlwaysDirty
+ * @method getEffect
+ * @param {unsigned int} arg0
+ * @return {cc.renderer::Effect}
  */
-enableOpacityAlwaysDirty : function (
+getEffect : function (
+int 
 )
 {
+    return cc.renderer::Effect;
 },
 
 /**
@@ -1745,14 +1835,6 @@ Assembler : function (
  * @class CustomAssembler
  */
 renderer.CustomAssembler = {
-
-/**
- * @method reset
- */
-reset : function (
-)
-{
-},
 
 /**
  * @method getIACount
@@ -1791,6 +1873,14 @@ int
 },
 
 /**
+ * @method clearEffect
+ */
+clearEffect : function (
+)
+{
+},
+
+/**
  * @method renderIA
  * @param {unsigned int} arg0
  * @param {cc.renderer::ModelBatcher} arg1
@@ -1800,6 +1890,18 @@ renderIA : function (
 int, 
 modelbatcher, 
 nodeproxy 
+)
+{
+},
+
+/**
+ * @method updateEffect
+ * @param {unsigned int} arg0
+ * @param {cc.renderer::Effect} arg1
+ */
+updateEffect : function (
+int, 
+effect 
 )
 {
 },
@@ -1819,6 +1921,18 @@ indexbuffer
 },
 
 /**
+ * @method getEffect
+ * @param {unsigned int} arg0
+ * @return {cc.renderer::Effect}
+ */
+getEffect : function (
+int 
+)
+{
+    return cc.renderer::Effect;
+},
+
+/**
  * @method CustomAssembler
  * @constructor
  */
@@ -1833,6 +1947,26 @@ CustomAssembler : function (
  * @class RenderFlow
  */
 renderer.RenderFlow = {
+
+/**
+ * @method render
+ * @param {cc.renderer::NodeProxy} arg0
+ */
+render : function (
+nodeproxy 
+)
+{
+},
+
+/**
+ * @method visit
+ * @param {cc.renderer::NodeProxy} arg0
+ */
+visit : function (
+nodeproxy 
+)
+{
+},
 
 /**
  * @method getRenderScene
@@ -1862,16 +1996,6 @@ getDevice : function (
 )
 {
     return cc.renderer::DeviceGraphics;
-},
-
-/**
- * @method render
- * @param {cc.renderer::NodeProxy} arg0
- */
-render : function (
-nodeproxy 
-)
-{
 },
 
 /**
@@ -1951,6 +2075,56 @@ assembler
  * @constructor
  */
 MaskAssembler : function (
+)
+{
+},
+
+};
+
+/**
+ * @class TiledMapAssembler
+ */
+renderer.TiledMapAssembler = {
+
+/**
+ * @method updateNodes
+ * @param {unsigned int} arg0
+ * @param {Array} arg1
+ */
+updateNodes : function (
+int, 
+array 
+)
+{
+},
+
+/**
+ * @method setLayerMoveXY
+ * @param {float} arg0
+ * @param {float} arg1
+ */
+setLayerMoveXY : function (
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method clearNodes
+ * @param {unsigned int} arg0
+ */
+clearNodes : function (
+int 
+)
+{
+},
+
+/**
+ * @method TiledMapAssembler
+ * @constructor
+ */
+TiledMapAssembler : function (
 )
 {
 },

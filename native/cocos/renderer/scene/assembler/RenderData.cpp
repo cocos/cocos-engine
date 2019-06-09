@@ -23,13 +23,19 @@
  ****************************************************************************/
 
 #include "RenderData.hpp"
-#include "../renderer/Effect.h"
+#include "../../renderer/Effect.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
 RENDERER_BEGIN
 RenderData::RenderData ()
 {
     
+}
+
+RenderData::RenderData (const RenderData& o)
+{
+    setVertices(o._jsVertices);
+    setIndices(o._jsIndices);
 }
 
 RenderData::~RenderData ()
@@ -50,6 +56,7 @@ RenderData::~RenderData ()
 
 void RenderData::setVertices (se::Object* jsVertices)
 {
+    if (!jsVertices || jsVertices == _jsVertices) return;
     if (_jsVertices)
     {
         _jsVertices->unroot();
@@ -65,6 +72,7 @@ void RenderData::setVertices (se::Object* jsVertices)
 
 void RenderData::setIndices (se::Object* jsIndices)
 {
+    if (!jsIndices || jsIndices == _jsIndices) return;
     if (_jsIndices)
     {
         _jsIndices->unroot();
@@ -76,10 +84,6 @@ void RenderData::setIndices (se::Object* jsIndices)
     _indices = nullptr;
     _iBytes = 0;
     _jsIndices->getTypedArrayData(&_indices, (std::size_t*)&_iBytes);
-    
-    _start = 0;
-    CCASSERT(_iBytes % sizeof(unsigned short) == 0, "RenderData::setIndices indices data is not saved in 16bit");
-    _count = _iBytes / sizeof(unsigned short);
 }
 
 uint8_t* RenderData::getVertices () const
@@ -92,7 +96,7 @@ uint8_t* RenderData::getIndices () const
     return _indices;
 }
 
-void RenderData::reset()
+void RenderData::clear()
 {
     if(_jsVertices != nullptr)
     {
@@ -112,8 +116,6 @@ void RenderData::reset()
     _iBytes = 0;
     _vertices = nullptr;
     _indices = nullptr;
-    _start = 0;
-    _count = 0;
 }
 
 RENDERER_END

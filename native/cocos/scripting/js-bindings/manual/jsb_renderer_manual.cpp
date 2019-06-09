@@ -28,7 +28,7 @@
 #include "cocos/scripting/js-bindings/auto/jsb_renderer_auto.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "scene/NodeProxy.hpp"
-#include "scene/Assembler.hpp"
+#include "scene/assembler/Assembler.hpp"
 #include "jsb_conversions.hpp"
 
 using namespace cocos2d;
@@ -558,18 +558,18 @@ static bool js_renderer_Effect_init(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Effect_init);
 
-static bool js_renderer_RenderDataList_updateNativeMesh(se::State& s)
+static bool js_renderer_RenderDataList_updateMesh(se::State& s)
 {
     cocos2d::renderer::RenderDataList* cobj = (cocos2d::renderer::RenderDataList*)s.nativeThisObject();
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     uint32_t index = 0;
     ok = seval_to_uint32(args[0], &index);
-    SE_PRECONDITION2(ok, false, "js_renderer_RenderDataList_updateNativeMesh: Convert index failed!");
-    cobj->updateNativeMesh(index, args[1].toObject(), args[2].toObject());
+    SE_PRECONDITION2(ok, false, "js_renderer_RenderDataList_updateMesh: Convert index failed!");
+    cobj->updateMesh(index, args[1].toObject(), args[2].toObject());
     return true;
 }
-SE_BIND_FUNC(js_renderer_RenderDataList_updateNativeMesh);
+SE_BIND_FUNC(js_renderer_RenderDataList_updateMesh);
 
 static bool js_renderer_NodeProxy_updateJSTRS(se::State& s)
 {
@@ -626,7 +626,7 @@ bool jsb_register_renderer_manual(se::Object* global)
     __jsb_cocos2d_renderer_Effect_proto->defineFunction("init", _SE(js_renderer_Effect_init));
     
     // RenderDataList
-    __jsb_cocos2d_renderer_RenderDataList_proto->defineFunction("updateNativeMesh", _SE(js_renderer_RenderDataList_updateNativeMesh));
+    __jsb_cocos2d_renderer_RenderDataList_proto->defineFunction("updateMesh", _SE(js_renderer_RenderDataList_updateMesh));
     
     // NodeProxy
     __jsb_cocos2d_renderer_NodeProxy_proto->defineFunction("updateJSTRS", _SE(js_renderer_NodeProxy_updateJSTRS));

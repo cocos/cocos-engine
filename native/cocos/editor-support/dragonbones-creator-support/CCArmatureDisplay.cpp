@@ -275,7 +275,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
             Vector<Pass*>& passes = (Vector<Pass*>&)tech->getPasses();
             pass = *(passes.begin());
             
-            _assembler->updateNativeEffect(_materialLen, effect);
+            _assembler->updateEffect(_materialLen, effect);
             renderEffect = effect;
             param = (Technique::Parameter*)&(renderEffect->getProperty(textureKey));
         }

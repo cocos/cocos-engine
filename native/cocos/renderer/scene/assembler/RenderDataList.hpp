@@ -45,16 +45,12 @@ public:
      *  @param[in] vertices Vertex data.
      *  @param[in] indices Index data.
      */
-    void updateNativeMesh(std::size_t index, se::Object* vertices, se::Object* indices);
+    void updateMesh(std::size_t index, se::Object* vertices, se::Object* indices);
     /**
      *  @brief Gets the count of render datas
      *  @return Count.
      */
     std::size_t getMeshCount() const { return _datas.size(); };
-    /**
-     *  @brief Updates indices range
-     */
-    void updateIndicesRange(std::size_t index, unsigned long start, unsigned long count);
     /**
      *  @brief Gets IARenderData.
      *  @return IARenderData.
@@ -63,7 +59,7 @@ public:
     /**
      *  @brief Resets all IARenderData.
      */
-    void reset();
+    void clear();
 private:
     std::vector<RenderData> _datas;
 };

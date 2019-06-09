@@ -28,7 +28,7 @@
 #include "math/Mat4.h"
 #include "MiddlewareManager.h"
 #include "middleware-adapter.h"
-#include "CustomAssembler.hpp"
+#include "renderer/scene/assembler/CustomAssembler.hpp"
 #include "math/Vec2.h"
 
 USING_NS_MW;
@@ -230,7 +230,7 @@ void ParticleSimulator::update(float dt)
         return;
     }
     assembler->reset();
-    assembler->updateNativeEffect(0, _effect);
+    assembler->updateEffect(0, _effect);
     
     // avoid other place call update.
     auto mgr = MiddlewareManager::getInstance();

@@ -33,7 +33,7 @@
 #include "base/CCVector.h"
 #include "base/CCMap.h"
 #include "math/CCMath.h"
-#include "AssemblerBase.hpp"
+#include "assembler/AssemblerBase.hpp"
 
 namespace se {
     class Object;
@@ -119,6 +119,11 @@ public:
      */
     inline size_t getChildrenCount() const { return _children.size(); };
     /**
+     *  @brief Gets a child node by name.
+     *  @return Child node.
+     */
+    NodeProxy* getChildByName(std::string childName);
+    /**
      *  @brief Sets the node proxy's local zorder.
      *  @param[in] zOrder The value of zorder.
      */
@@ -140,7 +145,6 @@ public:
      *  @return World matrix.
      */
     inline const cocos2d::Mat4& getWorldMatrix() const { return _worldMat; };
-    
     /*
      *  @brief Gets the position.
      *  @param[out] out The position vector
@@ -235,16 +239,44 @@ public:
      *  @brief Traverse all node proxy in the current node tree.
      */
     void visitAsRoot(ModelBatcher* batcher, Scene* scene);
-    
-protected:
+    /*
+     *  @brief Visit the node as a ordinary node but not a root node.
+     */
     void visit(ModelBatcher* batcher, Scene* scene);
+    /*
+     *  @brief Enables visit.
+     */
+    void enableVisit() { _needVisit = true; }
+    
+    /*
+     *  @brief Disables visit.
+     */
+    void disableVisit() { _needVisit = false; }
+    
+    /*
+     *  @brief Updates local matrix.
+     */
+    void updateFromJS();
+    /*
+     *  @brief Updates world matrix.
+     */
+    void updateMatrix();
+    /*
+     *  @brief Updates the world matrix with parent matrix.
+     */
+    void updateMatrix(const cocos2d::Mat4& parentMatrix);
+    /*
+     *  @brief Enables calc world matrix.
+     */
+    void enableUpdateWorldMatrix() { _updateWorldMatrix = true; }
+    /*
+     *  @brief Disables calc world matrix.
+     */
+    void disaleUpdateWorldMatrix() { _updateWorldMatrix = true; }
+protected:
     void childrenAlloc();
     void detachChild(NodeProxy* child, ssize_t childIndex);
     void reorderChildren();
-    
-    void updateFromJS();
-    void updateMatrix();
-
 private:
     static int _worldMatDirty;
     static int _parentOpacityDirty;
@@ -259,6 +291,8 @@ private:
     bool _matrixUpdated = false;
     bool _opacityUpdated = false;
     bool _is3DNode = false;
+    bool _needVisit = true;
+    bool _updateWorldMatrix = true;
     
     uint8_t _opacity = 255;
     uint8_t _realOpacity = 255;

@@ -35,7 +35,7 @@
 #include "renderer/scene/NodeProxy.hpp"
 #include "base/CCMap.h"
 #include "middleware-adapter.h"
-#include "CustomAssembler.hpp"
+#include "renderer/scene/assembler/CustomAssembler.hpp"
 #include "renderer/Types.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
@@ -132,7 +132,7 @@ public:
         CC_SAFE_RETAIN(_nodeProxy);
     }
     
-    void setNativeEffect(cocos2d::renderer::Effect* effect)
+    void setEffect(cocos2d::renderer::Effect* effect)
     {
         if (effect == _effect) return;
         CC_SAFE_RELEASE(_effect);

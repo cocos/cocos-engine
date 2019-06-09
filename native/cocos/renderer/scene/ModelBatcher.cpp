@@ -25,7 +25,7 @@
 #include "ModelBatcher.hpp"
 #include "RenderFlow.hpp"
 #include "StencilManager.hpp"
-#include "RenderDataList.hpp"
+#include "assembler/RenderDataList.hpp"
 
 RENDERER_BEGIN
 
@@ -100,8 +100,8 @@ void ModelBatcher::reset()
     }
     _buffer = nullptr;
     
+    CC_SAFE_RELEASE_NULL(_currEffect);
     _cullingMask = 0;
-    _currEffect = nullptr;
     _walking = false;
     _useModel = false;
     
@@ -118,18 +118,12 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
         return;
     }
     
-    RenderDataList* list = assembler->getRenderDataList();
-    if (!list)
-    {
-        return;
-    }
-    
     bool useModel = assembler->getUseModel();
     bool ignoreWorldMatrix = assembler->isIgnoreWorldMatrix();
     const Mat4& nodeWorldMat = node->getWorldMatrix();
     const Mat4& worldMat = useModel && !ignoreWorldMatrix ? nodeWorldMat : Mat4::IDENTITY;
     
-    for (std::size_t i = 0, l = list->getMeshCount(); i < l; ++i)
+    for (std::size_t i = 0, l = assembler->getIACount(); i < l; ++i)
     {
         Effect* effect = assembler->getEffect((uint32_t)i);
         if (!effect) continue;
@@ -143,9 +137,9 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
             // Break auto batch
             flush();
             
+            setCurrentEffect(effect);
             _modelMat.set(worldMat);
             _useModel = useModel;
-            _currEffect = effect;
             _cullingMask = cullingMask;
         }
         
@@ -173,7 +167,7 @@ void ModelBatcher::commitIA(NodeProxy* node, CustomAssembler* assembler)
         const Mat4& worldMat = assembler->getUseModel() ? node->getWorldMatrix() : Mat4::IDENTITY;
         Effect* effect = assembler->getEffect((uint32_t)i);
         if (!effect) continue;
-        _currEffect = effect;
+        setCurrentEffect(effect);
         _cullingMask = node->getCullingMask();
         _modelMat.set(worldMat);
         assembler->renderIA(i, this, node);
@@ -305,6 +299,17 @@ void ModelBatcher::terminateBatch()
     
     _walking = false;
 }
+
+void ModelBatcher::setCurrentEffect(Effect* effect)
+{
+    if (_currEffect == effect)
+    {
+        return;
+    }
+    CC_SAFE_RELEASE(_currEffect);
+    _currEffect = effect;
+    CC_SAFE_RETAIN(_currEffect);
+};
 
 MeshBuffer* ModelBatcher::getBuffer(VertexFormat* fmt)
 {

@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
-
+ 
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,38 +24,33 @@
 
 #pragma once
 
-#include <stdio.h>
 #include "Assembler.hpp"
-#include "MeshBuffer.hpp"
-#include "math/CCMath.h"
-
-class ModelBatcher;
+#include <vector>
+#include <map>
+#include <string>
 
 RENDERER_BEGIN
 
-class MaskAssembler: public Assembler
-{
+class TiledMapAssembler : public Assembler  {
 public:
-    MaskAssembler();
-    virtual ~MaskAssembler();
+    TiledMapAssembler();
+    virtual ~TiledMapAssembler();
     virtual void handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
-    virtual void postHandle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
-
-    void setMaskInverted(bool inverted) { _inverted = inverted; };
-    bool getMaskInverted() { return _inverted; };
-
-    void setRenderSubHandle(Assembler* renderSubHandle);
-    void setClearSubHandle(Assembler* clearSubHandle);
-
-    void setImageStencil(bool isImageStencil) { _imageStencil = isImageStencil; };
-    
-protected:
-    bool _inverted = false;
-    bool _imageStencil = false;
-
+    virtual void fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& worldMat) override;
+    void setLayerMoveXY(float moveX, float moveY)
+    {
+        _moveX = moveX;
+        _moveY = moveY;
+    }
+    void updateNodes(std::size_t meshIndex, std::vector<std::string> nodes);
+    void clearNodes(std::size_t meshIndex);
 private:
-    Assembler* _renderSubHandle = nullptr;
-    Assembler* _clearSubHandle = nullptr;
+    std::map<std::size_t, std::vector<std::string>> _nodesMap;
+    NodeProxy* _node = nullptr;
+    ModelBatcher* _batcher = nullptr;
+    float _moveX = 0.0f;
+    float _moveY = 0.0f;
+    cocos2d::Mat4 _tileMapWorldMat;
 };
 
 RENDERER_END

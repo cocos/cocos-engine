@@ -24,10 +24,10 @@
 
 #pragma once
 
-#include "../Macro.h"
+#include "../../Macro.h"
 #include <stdint.h>
 #include "base/CCVector.h"
-#include "../renderer/Effect.h"
+#include "../../renderer/Effect.h"
 
 RENDERER_BEGIN
 
@@ -66,45 +66,6 @@ public:
      *  @param[in] scene
      */
     virtual void postHandle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) {};
-    
-    /**
-     *  @brief Update the material for the given index.
-     *  @param[in] index Render data index.
-     *  @param[in] effect Effect pointer.
-     */
-    virtual void updateNativeEffect(std::size_t index, Effect* effect);
-    
-    /**
-     *  @brief Gets the material for the given index.
-     *  @param[in] index Render data index.
-     *  @return Effect pointer.
-     */
-    inline Effect* getEffect(std::size_t index) const
-    {
-        if (index >= _effects.size())
-        {
-            return nullptr;
-        }
-        return _effects.at(index);
-    }
-    
-    /**
-     *  @brief Gets Effect count.
-     *  @return Count.
-     */
-    inline std::size_t getEffectCount() const
-    {
-        return _effects.size();
-    }
-    
-    /**
-     *  @brief Clears all effect.
-     *  @return Count.
-     */
-    virtual void clearNativeEffect()
-    {
-        _effects.clear();
-    }
     
     /**
      *  @brief Gets whether the current handle should use model matrix uniform during rendering
@@ -156,17 +117,19 @@ public:
      */
     bool enabled() const { return _enabled; };
     
+    /**
+     *  @brief Resets data.
+     */
+    virtual void reset() {};
 public:
     static const int TRANSFORM = 1 << 0;
     static const int OPACITY = 1 << 1;
     static const int COLOR = 1 << 2;
     static const int CHILDREN = 1 << 3;
-    
 protected:
     uint32_t _dirtyFlag = 0;
     bool _enabled = false;
     bool _useModel = false;
-    cocos2d::Vector<Effect*> _effects;
 };
 
 // end of scene group

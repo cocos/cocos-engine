@@ -449,6 +449,10 @@
 		04F49F44222A777C00E5CAF1 /* SkeletonDataMgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 04F49F40222A777C00E5CAF1 /* SkeletonDataMgr.h */; };
 		04F8562F22A7A1E300063A20 /* SpineRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F8562E22A7A1E300063A20 /* SpineRenderer.cpp */; };
 		04F8563022A7A1E300063A20 /* SpineRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F8562E22A7A1E300063A20 /* SpineRenderer.cpp */; };
+		04F8563422ABCB9900063A20 /* TiledMapAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F8563222ABCB9900063A20 /* TiledMapAssembler.cpp */; };
+		04F8563522ABCB9900063A20 /* TiledMapAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04F8563222ABCB9900063A20 /* TiledMapAssembler.cpp */; };
+		04F8563622ABCB9900063A20 /* TiledMapAssembler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04F8563322ABCB9900063A20 /* TiledMapAssembler.hpp */; };
+		04F8563722ABCB9900063A20 /* TiledMapAssembler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04F8563322ABCB9900063A20 /* TiledMapAssembler.hpp */; };
 		1A14FD912080B4E300E10ABE /* CCGLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A14FD8F2080B4E300E10ABE /* CCGLUtils.cpp */; };
 		1A14FD922080B4E300E10ABE /* CCGLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A14FD8F2080B4E300E10ABE /* CCGLUtils.cpp */; };
 		1A14FD932080B4E300E10ABE /* CCGLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A14FD902080B4E300E10ABE /* CCGLUtils.h */; };
@@ -1462,6 +1466,8 @@
 		04F49F3F222A777C00E5CAF1 /* SkeletonDataMgr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SkeletonDataMgr.cpp; path = "../cocos/editor-support/spine-creator-support/SkeletonDataMgr.cpp"; sourceTree = "<group>"; };
 		04F49F40222A777C00E5CAF1 /* SkeletonDataMgr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SkeletonDataMgr.h; path = "../cocos/editor-support/spine-creator-support/SkeletonDataMgr.h"; sourceTree = "<group>"; };
 		04F8562E22A7A1E300063A20 /* SpineRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SpineRenderer.cpp; path = "../cocos/editor-support/spine-creator-support/SpineRenderer.cpp"; sourceTree = "<group>"; };
+		04F8563222ABCB9900063A20 /* TiledMapAssembler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TiledMapAssembler.cpp; sourceTree = "<group>"; };
+		04F8563322ABCB9900063A20 /* TiledMapAssembler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TiledMapAssembler.hpp; sourceTree = "<group>"; };
 		051C016F21E2F85C00D4A347 /* CCModuleConfigIOS.debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = CCModuleConfigIOS.debug.xcconfig; sourceTree = "<group>"; };
 		051C017021E2F85C00D4A347 /* CCModuleConfigIOS.release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = CCModuleConfigIOS.release.xcconfig; sourceTree = "<group>"; };
 		051C017121E2F86900D4A347 /* CCModuleConfigMac.release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = CCModuleConfigMac.release.xcconfig; sourceTree = "<group>"; };
@@ -2281,10 +2287,7 @@
 		0482F183228D87780019ECF7 /* scene */ = {
 			isa = PBXGroup;
 			children = (
-				0482F196228D87960019ECF7 /* CustomAssembler.cpp */,
-				0482F189228D87920019ECF7 /* CustomAssembler.hpp */,
-				0482F191228D87950019ECF7 /* MaskAssembler.cpp */,
-				0482F18E228D87940019ECF7 /* MaskAssembler.hpp */,
+				04F8563122ABCB1F00063A20 /* assembler */,
 				0482F18A228D87920019ECF7 /* MeshBuffer.cpp */,
 				0482F195228D87960019ECF7 /* MeshBuffer.hpp */,
 				0482F185228D87910019ECF7 /* ModelBatcher.cpp */,
@@ -2293,19 +2296,32 @@
 				0482F18B228D87930019ECF7 /* NodeProxy.hpp */,
 				0482F192228D87950019ECF7 /* RenderFlow.cpp */,
 				0482F184228D87900019ECF7 /* RenderFlow.hpp */,
-				0482F187228D87920019ECF7 /* Assembler.cpp */,
-				0482F197228D87960019ECF7 /* Assembler.hpp */,
 				0482F186228D87910019ECF7 /* scene-bindings.h */,
 				0482F193228D87950019ECF7 /* StencilManager.cpp */,
 				0482F18C228D87930019ECF7 /* StencilManager.hpp */,
-				0482F18D228D87930019ECF7 /* AssemblerBase.cpp */,
-				0482F198228D87970019ECF7 /* AssemblerBase.hpp */,
+			);
+			path = scene;
+			sourceTree = "<group>";
+		};
+		04F8563122ABCB1F00063A20 /* assembler */ = {
+			isa = PBXGroup;
+			children = (
 				045F672622A50A8C0033F7BD /* RenderData.cpp */,
 				045F672722A50A8C0033F7BD /* RenderData.hpp */,
 				042058CB22A61B340092DE5D /* RenderDataList.cpp */,
 				042058CC22A61B340092DE5D /* RenderDataList.hpp */,
+				0482F187228D87920019ECF7 /* Assembler.cpp */,
+				0482F197228D87960019ECF7 /* Assembler.hpp */,
+				0482F196228D87960019ECF7 /* CustomAssembler.cpp */,
+				0482F189228D87920019ECF7 /* CustomAssembler.hpp */,
+				0482F191228D87950019ECF7 /* MaskAssembler.cpp */,
+				0482F18E228D87940019ECF7 /* MaskAssembler.hpp */,
+				0482F18D228D87930019ECF7 /* AssemblerBase.cpp */,
+				0482F198228D87970019ECF7 /* AssemblerBase.hpp */,
+				04F8563222ABCB9900063A20 /* TiledMapAssembler.cpp */,
+				04F8563322ABCB9900063A20 /* TiledMapAssembler.hpp */,
 			);
-			path = scene;
+			path = assembler;
 			sourceTree = "<group>";
 		};
 		1551A334158F2AB200E66CFE = {
@@ -3463,6 +3479,7 @@
 				0482F1BF228D87970019ECF7 /* Assembler.hpp in Headers */,
 				045F672A22A50A8D0033F7BD /* RenderData.hpp in Headers */,
 				50ABBD621925AB0000A911A9 /* Vec4.h in Headers */,
+				04F8563622ABCB9900063A20 /* TiledMapAssembler.hpp in Headers */,
 				46AE40092092F3A600F3A228 /* node_debug_options.h in Headers */,
 				046E06CF2185B49F00B24E2D /* BoundingBoxData.h in Headers */,
 				0430129321DCF2B80007084D /* Skeleton.h in Headers */,
@@ -3698,6 +3715,7 @@
 				40AEF7B3216D940200729AA5 /* WebViewImpl-ios.h in Headers */,
 				1A28FF621F20AFAB007A1D9D /* SRRunLoopThread.h in Headers */,
 				46FDDA86202ACC6A00931238 /* View.h in Headers */,
+				04F8563722ABCB9900063A20 /* TiledMapAssembler.hpp in Headers */,
 				46FDDAD8202ACC6A00931238 /* GFXUtils.h in Headers */,
 				043012B621DCF2B80007084D /* Slot.h in Headers */,
 				043012A421DCF2B80007084D /* PointAttachment.h in Headers */,
@@ -4069,6 +4087,7 @@
 				043012B321DCF2B80007084D /* PointAttachment.c in Sources */,
 				4617861920522469008256E1 /* SocketIO.cpp in Sources */,
 				46FDDABF202ACC6A00931238 /* State.cpp in Sources */,
+				04F8563422ABCB9900063A20 /* TiledMapAssembler.cpp in Sources */,
 				46AE3FEF2092F3A600F3A228 /* inspector_agent.cc in Sources */,
 				0430126B21DCF2B80007084D /* Bone.c in Sources */,
 				0430127B21DCF2B80007084D /* SkeletonClipping.c in Sources */,
@@ -4249,6 +4268,7 @@
 				0430129021DCF2B80007084D /* PathAttachment.c in Sources */,
 				046E066D2185B41B00B24E2D /* Slot.cpp in Sources */,
 				1A28FF601F20AFAB007A1D9D /* SRProxyConnect.m in Sources */,
+				04F8563522ABCB9900063A20 /* TiledMapAssembler.cpp in Sources */,
 				1A28FF901F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m in Sources */,
 				046E06C42185B49F00B24E2D /* ArmatureData.cpp in Sources */,
 				50ABC0161926664800A911A9 /* CCImage.cpp in Sources */,

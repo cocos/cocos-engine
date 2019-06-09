@@ -119,7 +119,7 @@ namespace spine {
             CC_SAFE_RETAIN(_nodeProxy);
         }
         
-        void setNativeEffect(cocos2d::renderer::Effect* effect)
+        void setEffect(cocos2d::renderer::Effect* effect)
         {
             if (effect == _effect) return;
             CC_SAFE_RELEASE(_effect);

@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
-
+ 
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,38 +22,42 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "RenderFlow.hpp"
+#include "RenderDataList.hpp"
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
 RENDERER_BEGIN
 
-RenderFlow::RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* forward)
-: _device(device)
-, _scene(scene)
-, _forward(forward)
+void RenderDataList::updateMesh(std::size_t index, se::Object* vertices, se::Object* indices)
 {
-    _batcher = new ModelBatcher(this);
-}
-
-RenderFlow::~RenderFlow()
-{
-    CC_SAFE_DELETE(_batcher);
-}
-
-void RenderFlow::render(NodeProxy* scene)
-{
-    if (scene != nullptr)
+    if (index >= _datas.size())
     {
-        _batcher->startBatch();
-        scene->visitAsRoot(_batcher, _scene);
-        _batcher->terminateBatch();
-
-        _forward->render(_scene);
+        _datas.resize(index + 1);
     }
+    
+    se::ScriptEngine::getInstance()->clearException();
+    se::AutoHandleScope hs;
+    
+    RenderData& data = _datas[index];
+    data.setVertices(vertices);
+    data.setIndices(indices);
 }
 
-void RenderFlow::visit(NodeProxy* rootNode)
+RenderData* RenderDataList::getRenderData(std::size_t index)
 {
-    rootNode->visit(_batcher, _scene);
+    if (index >= _datas.size())
+    {
+        return nullptr;
+    }
+    return &_datas[index];
+}
+
+void RenderDataList::clear()
+{
+    for (auto it = _datas.begin(); it != _datas.end(); it++)
+    {
+        it->clear();
+    }
+    _datas.clear();
 }
 
 RENDERER_END

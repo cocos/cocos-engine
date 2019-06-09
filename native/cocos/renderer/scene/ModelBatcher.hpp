@@ -27,8 +27,8 @@
 #include <map>
 
 #include "../Macro.h"
-#include "Assembler.hpp"
-#include "CustomAssembler.hpp"
+#include "assembler/Assembler.hpp"
+#include "assembler/CustomAssembler.hpp"
 #include "MeshBuffer.hpp"
 #include "../renderer/Renderer.h"
 #include "math/CCMath.h"
@@ -115,7 +115,7 @@ public:
     RenderFlow* getFlow() const { return _flow; };
     
     void setCullingMask(int cullingMask) { _cullingMask = cullingMask; }
-    void setCurrentEffect(Effect* effect) { _currEffect = effect; };
+    void setCurrentEffect(Effect* effect);
     void setUseModel(bool useModel) { _useModel = useModel; }
 private:
     int _iaOffset;

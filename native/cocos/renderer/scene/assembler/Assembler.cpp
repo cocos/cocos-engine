@@ -24,10 +24,10 @@
 
 #include "Assembler.hpp"
 
-#include "NodeProxy.hpp"
-#include "ModelBatcher.hpp"
-#include "MeshBuffer.hpp"
-#include "../renderer/Scene.h"
+#include "../NodeProxy.hpp"
+#include "../ModelBatcher.hpp"
+#include "../MeshBuffer.hpp"
+#include "../../renderer/Scene.h"
 #include "math/CCMath.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
@@ -53,6 +53,53 @@ void Assembler::enable()
     _dirtyFlag |= OPACITY;
 }
 
+void Assembler::updateMeshIndex(std::size_t iaIndex, int meshIndex)
+{
+    if (iaIndex >= _iaDatas.size())
+    {
+        _iaDatas.resize(iaIndex + 1);
+    }
+    IARenderData& ia = _iaDatas[iaIndex];
+    ia.meshIndex = meshIndex;
+}
+
+void Assembler::updateIndicesRange(std::size_t iaIndex, int start, int count)
+{
+    if (iaIndex >= _iaDatas.size())
+    {
+        _iaDatas.resize(iaIndex + 1);
+    }
+    IARenderData& ia = _iaDatas[iaIndex];
+    ia.indicesStart = start;
+    ia.indicesCount = count;
+}
+
+void Assembler::updateVerticesRange(std::size_t iaIndex, int start, int count)
+{
+    if (iaIndex >= _iaDatas.size())
+    {
+        _iaDatas.resize(iaIndex + 1);
+    }
+    IARenderData& ia = _iaDatas[iaIndex];
+    ia.verticesStart = start;
+    ia.verticesCount = count;
+}
+
+void Assembler::updateEffect(std::size_t iaIndex, Effect* effect)
+{
+    if (iaIndex >= _iaDatas.size())
+    {
+        _iaDatas.resize(iaIndex + 1);
+    }
+    IARenderData& ia = _iaDatas[iaIndex];
+    ia.setEffect(effect);
+}
+
+void Assembler::reset()
+{
+    _iaDatas.clear();
+}
+
 void Assembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
 {
     batcher->commit(node, this);
@@ -66,16 +113,25 @@ void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& w
         return;
     }
     
-    RenderData* data = _datas->getRenderData(index);
+    if (index >= _iaDatas.size())
+    {
+        return;
+    }
+    
+    const IARenderData& ia = _iaDatas[index];
+    std::size_t meshIndex = ia.meshIndex >= 0 ? ia.meshIndex : index;
+    
+    RenderData* data = _datas->getRenderData(meshIndex);
     if (!data)
     {
         return;
     }
     
     CCASSERT(data->getVBytes() % _bytesPerVertex == 0, "RenderHandle::fillBuffers vertices data doesn't follow vertex format");
-    uint32_t vertexCount = (uint32_t)data->getVBytes() / _bytesPerVertex;
-    uint32_t indexCount = (uint32_t)data->getIndicesCount();
-
+    uint32_t vertexCount = ia.verticesCount >= 0 ? (uint32_t)ia.verticesCount : (uint32_t)data->getVBytes() / _bytesPerVertex;
+    uint32_t indexCount = ia.indicesCount >= 0 ? (uint32_t)ia.indicesCount : (uint32_t)data->getIBytes() / sizeof(unsigned short);
+    uint32_t vertexStart = (uint32_t)ia.verticesStart;
+    
     // must retrieve offset before request
     buffer->request(vertexCount, indexCount, &s_offsets);
     uint32_t vBufferOffset = s_offsets.vByte / sizeof(float);
@@ -84,7 +140,7 @@ void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& w
     uint32_t num = _vfPos->num;
 
     float* worldVerts = &buffer->vData[vBufferOffset];
-    memcpy(worldVerts, (float*)data->getVertices(), data->getVBytes());
+    memcpy(worldVerts, data->getVertices() + vertexStart * _bytesPerVertex, vertexCount * _bytesPerVertex);
     
     // Calculate vertices world positions
     if (!_useModel && !_ignoreWorldMatrix)
@@ -117,9 +173,9 @@ void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& w
     
     // Copy index buffer with vertex offset
     uint16_t* indices = (uint16_t*)data->getIndices();
-    for (auto i = data->getIndicesStart(); i < indexCount; ++i)
+    for (auto i = 0, j = ia.indicesStart; i < indexCount; ++i, ++j)
     {
-        buffer->iData[indexId++] = vertexId + indices[i];
+        buffer->iData[indexId++] = vertexId - vertexStart + indices[j];
     }
 }
 

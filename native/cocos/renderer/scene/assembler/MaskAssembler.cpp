@@ -23,9 +23,9 @@
  ****************************************************************************/
 
 #include "MaskAssembler.hpp"
-#include "./ModelBatcher.hpp"
-#include "./StencilManager.hpp"
-#include "../Macro.h"
+#include "../ModelBatcher.hpp"
+#include "../StencilManager.hpp"
+#include "../../Macro.h"
 
 RENDERER_BEGIN
 

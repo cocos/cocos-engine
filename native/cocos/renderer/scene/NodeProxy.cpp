@@ -158,6 +158,19 @@ void NodeProxy::removeAllChildren()
     _children.clear();
 }
 
+NodeProxy* NodeProxy::getChildByName(std::string childName)
+{
+    for (auto child : _children)
+    {
+        // set parent nil at the end
+        if (child->_name == childName)
+        {
+            return child;
+        }
+    }
+    return nullptr;
+}
+
 void NodeProxy::setLocalZOrder(int zOrder)
 {
     _localZOrder = zOrder;
@@ -331,13 +344,19 @@ void NodeProxy::updateRealOpacity()
 
 void NodeProxy::updateMatrix()
 {
-    if (_matrixUpdated || _worldMatDirty > 0)
+    if (_updateWorldMatrix && (_matrixUpdated || _worldMatDirty > 0))
     {
         // Update world matrix
         const cocos2d::Mat4& parentMat = _parent == nullptr ? cocos2d::Mat4::IDENTITY : _parent->getWorldMatrix();
         _worldMat.multiply(parentMat, _localMat, &_worldMat);
         _matrixUpdated = false;
     }
+}
+
+void NodeProxy::updateMatrix(const cocos2d::Mat4& parentMatrix)
+{
+    _worldMat.multiply(parentMatrix, _localMat, &_worldMat);
+    _matrixUpdated = false;
 }
 
 void NodeProxy::updateFromJS()
@@ -377,6 +396,8 @@ void NodeProxy::visitAsRoot(ModelBatcher* batcher, Scene* scene)
 
 void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
 {
+    if (!_needVisit) return;
+    
     bool worldMatUpdated = false;
     bool parentOpacityUpdated = false;
 
@@ -391,6 +412,7 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
     }
     
     reorderChildren();
+    
     updateFromJS();
     
     if (_matrixUpdated)

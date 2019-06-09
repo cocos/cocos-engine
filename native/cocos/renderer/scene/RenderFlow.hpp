@@ -67,6 +67,10 @@ public:
      *  @param[in] scene The root node.
      */
     void render(NodeProxy* scene);
+    /**
+     *  @brief Visit a node tree.
+     */
+    void visit(NodeProxy* rootNode);
     /*
      *  @brief The constructor.
      *  @param[in] device

@@ -37,7 +37,7 @@
 #include "MiddlewareMacro.h"
 #include "renderer/renderer/Pass.h"
 #include "renderer/renderer/Technique.h"
-#include "CustomAssembler.hpp"
+#include "renderer/scene/assembler/CustomAssembler.hpp"
 #include "SkeletonDataMgr.h"
 
 USING_NS_CC;
@@ -397,7 +397,7 @@ void SpineRenderer::update (float deltaTime)
             Vector<Pass*>& passes = (Vector<Pass*>&)tech->getPasses();
             pass = *(passes.begin());
             
-            assembler->updateNativeEffect(materialLen, effect);
+            assembler->updateEffect(materialLen, effect);
             renderEffect = effect;
             param = (Technique::Parameter*)&(renderEffect->getProperty(textureKey));
         }

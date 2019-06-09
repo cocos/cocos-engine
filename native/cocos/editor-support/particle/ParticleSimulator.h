@@ -149,7 +149,7 @@ public:
         CC_SAFE_RETAIN(_nodeProxy);
     }
     
-    void setNativeEffect(cocos2d::renderer::Effect* effect)
+    void setEffect(cocos2d::renderer::Effect* effect)
     {
         CC_SAFE_RELEASE(_effect);
         _effect = effect;

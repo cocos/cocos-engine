@@ -23,9 +23,9 @@
  ****************************************************************************/
 
 #include "CustomAssembler.hpp"
-#include "NodeProxy.hpp"
-#include "ModelBatcher.hpp"
-#include "../renderer/Scene.h"
+#include "../NodeProxy.hpp"
+#include "../ModelBatcher.hpp"
+#include "../../renderer/Scene.h"
 
 RENDERER_BEGIN
 
@@ -113,6 +113,22 @@ void CustomAssembler::renderIA(std::size_t index, ModelBatcher* batcher, NodePro
     }
     
     batcher->flushIA(_iaPool[index]);
+}
+
+void CustomAssembler::updateEffect(std::size_t index, Effect* effect)
+{
+    auto size = _effects.size();
+    if (index == size)
+    {
+        _effects.pushBack(effect);
+        return;
+    }
+    else if (index < size)
+    {
+        _effects.replace(index, effect);
+        return;
+    }
+    cocos2d::log("CustomAssembler:updateEffect index:%lu out of range", index);
 }
 
 RENDERER_END

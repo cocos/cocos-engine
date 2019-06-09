@@ -22,44 +22,40 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "AssemblerBase.hpp"
+#pragma once
+
+#include <stdio.h>
+#include "Assembler.hpp"
+#include "../MeshBuffer.hpp"
+#include "math/CCMath.h"
+
+class ModelBatcher;
 
 RENDERER_BEGIN
 
-AssemblerBase::AssemblerBase()
+class MaskAssembler: public Assembler
 {
+public:
+    MaskAssembler();
+    virtual ~MaskAssembler();
+    virtual void handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
+    virtual void postHandle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
+
+    void setMaskInverted(bool inverted) { _inverted = inverted; };
+    bool getMaskInverted() { return _inverted; };
+
+    void setRenderSubHandle(Assembler* renderSubHandle);
+    void setClearSubHandle(Assembler* clearSubHandle);
+
+    void setImageStencil(bool isImageStencil) { _imageStencil = isImageStencil; };
     
-}
+protected:
+    bool _inverted = false;
+    bool _imageStencil = false;
 
-AssemblerBase::~AssemblerBase()
-{
-
-}
-
-void AssemblerBase::enable()
-{
-    _enabled = true;
-}
-
-void AssemblerBase::disable()
-{
-    _enabled = false;
-}
-
-void AssemblerBase::updateNativeEffect(std::size_t index, Effect* effect)
-{
-    auto size = _effects.size();
-    if (index == size)
-    {
-        _effects.pushBack(effect);
-        return;
-    }
-    else if (index < size)
-    {
-        _effects.replace(index, effect);
-        return;
-    }
-    cocos2d::log("AssemblerBase:updateNativeEffect index:%lu out of range", index);
-}
+private:
+    Assembler* _renderSubHandle = nullptr;
+    Assembler* _clearSubHandle = nullptr;
+};
 
 RENDERER_END

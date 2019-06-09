@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,52 +22,28 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#pragma once
-
-#include "../Macro.h"
-#include "base/CCRef.h"
-
-namespace se {
-    class Object;
-    class HandleObject;
-}
+#include "AssemblerBase.hpp"
 
 RENDERER_BEGIN
 
-class Effect;
+AssemblerBase::AssemblerBase()
+{
+    
+}
 
-class RenderData {
-public:
-    RenderData ();
-    virtual ~RenderData ();
-    
-    void setVertices (se::Object* jsVertices);
-    void setIndices (se::Object* jsIndices);
-    
-    uint8_t* getVertices () const;
-    uint8_t* getIndices () const;
-    
-    unsigned long getVBytes () { return _vBytes; }
-    unsigned long getIBytes () { return _iBytes; }
-    
-    void setIndicesStart (unsigned long start) { _start = start; }
-    void setIndicesCount (unsigned long count) { _count = count; }
-    
-    unsigned long getIndicesStart () { return _start; }
-    unsigned long getIndicesCount () { return _count; }
-    
-    void reset();
-    
-private:
-    unsigned long _vBytes = 0;
-    unsigned long _iBytes = 0;
-    uint8_t* _vertices = nullptr;
-    uint8_t* _indices = nullptr;
-    se::Object* _jsVertices = nullptr;
-    se::Object* _jsIndices = nullptr;
-    
-    unsigned long _start = 0;
-    unsigned long _count = 0;
-};
+AssemblerBase::~AssemblerBase()
+{
+
+}
+
+void AssemblerBase::enable()
+{
+    _enabled = true;
+}
+
+void AssemblerBase::disable()
+{
+    _enabled = false;
+}
 
 RENDERER_END

@@ -22,53 +22,44 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "RenderDataList.hpp"
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#pragma once
+
+#include "../../Macro.h"
+#include "base/CCRef.h"
+
+namespace se {
+    class Object;
+    class HandleObject;
+}
 
 RENDERER_BEGIN
 
-void RenderDataList::updateNativeMesh(std::size_t index, se::Object* vertices, se::Object* indices)
-{
-    if (index >= _datas.size())
-    {
-        _datas.resize(index + 1);
-    }
+class Effect;
+
+class RenderData {
+public:
+    RenderData ();
+    RenderData (const RenderData& o);
+    virtual ~RenderData ();
     
-    se::ScriptEngine::getInstance()->clearException();
-    se::AutoHandleScope hs;
+    void setVertices (se::Object* jsVertices);
+    void setIndices (se::Object* jsIndices);
     
-    RenderData& data = _datas[index];
-    data.setVertices(vertices);
-    data.setIndices(indices);
-}
-
-RenderData* RenderDataList::getRenderData(std::size_t index)
-{
-    if (index >= _datas.size())
-    {
-        return nullptr;
-    }
-    return &_datas[index];
-}
-
-void RenderDataList::updateIndicesRange(std::size_t index, unsigned long start, unsigned long count)
-{
-    if (index >= _datas.size())
-    {
-        cocos2d::log("IARenderDataList:updateIndicesRange index:%lu out of range", index);
-        return;
-    }
-    RenderData& data = _datas[index];
-    data.setIndicesStart(start);
-    data.setIndicesCount(count);
-}
-
-void RenderDataList::reset()
-{
-    for (auto it = _datas.begin(); it != _datas.end(); it++)
-    {
-        it->reset();
-    }
-}
+    uint8_t* getVertices () const;
+    uint8_t* getIndices () const;
+    
+    unsigned long getVBytes () { return _vBytes; }
+    unsigned long getIBytes () { return _iBytes; }
+    
+    void clear();
+    
+private:
+    unsigned long _vBytes = 0;
+    unsigned long _iBytes = 0;
+    uint8_t* _vertices = nullptr;
+    uint8_t* _indices = nullptr;
+    se::Object* _jsVertices = nullptr;
+    se::Object* _jsIndices = nullptr;
+};
 
 RENDERER_END
