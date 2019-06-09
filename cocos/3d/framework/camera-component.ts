@@ -25,7 +25,7 @@
 import { ray } from '../../3d/geom-utils';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { Enum, Rect, Vec3 } from '../../core/value-types';
+import { Color, Enum, Rect, Vec3 } from '../../core/value-types';
 import { color4, toRadian } from '../../core/vmath';
 import { GFXClearFlag } from '../../gfx/define';
 import { IRenderTargetInfo } from '../../pipeline/render-view';
@@ -69,6 +69,8 @@ const CameraClearFlag = Enum({
     DONT_CLEAR: GFXClearFlag.NONE,
 });
 
+const c4_1 = color4.create();
+
 /**
  * @en The Camera Component
  * @zh 相机组件
@@ -94,7 +96,7 @@ export class CameraComponent extends Component {
     @property
     protected _far = 1000.0;
     @property
-    protected _color = cc.color('#334C78');
+    protected _color = new Color().fromHEX('#334C78');
     @property
     protected _depth = 1;
     @property
@@ -196,10 +198,10 @@ export class CameraComponent extends Component {
     }
 
     set color (val) {
-        this._color = val;
+        this._color.set(val);
         if (this._camera) {
-            this._camera.clearColor =
-                color4.create(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
+            color4.set(c4_1, val.r / 255, val.g / 255, val.b / 255, val.a / 255);
+            this._camera.clearColor = c4_1;
         }
     }
 

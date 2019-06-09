@@ -1,6 +1,6 @@
 import { frustum, ray } from '../../3d/geom-utils';
 import { Mat4, Rect, Vec3 } from '../../core/value-types';
-import { lerp, mat4, toRadian, vec3 } from '../../core/vmath';
+import { lerp, mat4, toRadian, vec3, color4 } from '../../core/vmath';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph/node';
@@ -317,7 +317,7 @@ export class Camera {
     }
 
     set clearColor (val) {
-        this._clearColor = val;
+        color4.copy(this._clearColor, val);
     }
 
     get clearColor () {

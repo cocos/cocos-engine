@@ -117,6 +117,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     public units: SkinningModelUnit[] = [];
 
     private _textures: Record<string, Texture2D> = {};
+    private _batchMaterial: Material | null = null;
 
     @property({ override: true, visible: false })
     get mesh () {
@@ -143,6 +144,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     }
 
     public onLoad () {
+        this._batchMaterial = this.getSharedMaterial(0);
         super.onLoad();
         this.cook();
     }
@@ -168,6 +170,8 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     public cookMaterials () {
         const mat = this.getMaterial(0);
         if (!mat) { console.warn('batch material not specified!'); return; }
+        // for now don't copy properties because array uniforms are not well-supported on inspector
+        // mat.copy(this._batchMaterial!);
         mat.reset(); this.resizeAtlases();
         const tech = mat.effectAsset!.techniques[mat.technique];
         for (let i = 0; i < tech.passes.length; i++) {
