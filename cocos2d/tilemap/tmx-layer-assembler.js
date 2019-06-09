@@ -28,12 +28,8 @@ const TiledMap = require('./CCTiledMap');
 const TileFlag = TiledMap.TileFlag;
 const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
 
-import IARenderData from '../renderer/render-data/ia-render-data';
-
 const renderer = require('../core/renderer/');
 const vfmtPosUvColor = require('../core/renderer/webgl/vertex-format').vfmtPosUvColor;
-
-import InputAssembler from '../renderer/core/input-assembler';
 
 const MaxGridsLimit = parseInt(65535 / 6);
 const RenderOrder = TiledMap.RenderOrder;
@@ -41,7 +37,6 @@ const RenderOrder = TiledMap.RenderOrder;
 import { mat4, vec3 } from '../core/vmath';
 
 const RenderFlow = require('../core/renderer/render-flow');
-const TiledMapBuffer = require('./tiledmap-buffer');
 
 let _mat4_temp = mat4.create();
 let _vec3_temp = vec3.create();
@@ -53,42 +48,8 @@ let _renderData = null, _ia = null, _fillGrids = 0,
     _renderer = null, _renderDataList = null, _buffer = null, 
     _curMaterial = null, _comp = null;
 
-let RenderDataList = cc.Class({
-    name: 'cc.TiledMapRenderDataList',
-
-    ctor () {
-        this._dataList = [];
-        this._offset = 0;
-    },
-
-    _pushRenderData () {
-        let renderData = new IARenderData();
-        renderData.ia = new InputAssembler();
-        renderData.nodesRenderList = [];
-        this._dataList.push(renderData);
-    },
-
-    popRenderData (vb, ib, start, count) {
-        if (this._offset >= this._dataList.length) {
-            this._pushRenderData();
-        }
-        let renderData = this._dataList[this._offset];
-        renderData.nodesRenderList.length = 0;
-        let ia = renderData.ia;
-        ia._vertexBuffer = vb;
-        ia._indexBuffer = ib;
-        ia._start = start;
-        ia._count = count;
-        this._offset++;
-        return renderData;
-    },
-
-    reset () {
-        this._offset = 0;
-    }
-});
-
 function _visitUserNode (userNode) {
+    if (CC_NATIVERENDERER) return;
     userNode._updateLocalMatrix();
     mat4.mul(userNode._worldMatrix, _layerMat, userNode._matrix);
     vec3.set(_vec3_temp, -_moveX, -_moveY, 0);
@@ -109,12 +70,12 @@ function _flush () {
     if (needSwitchBuffer) {
         _buffer.uploadData();
         _buffer.switchBuffer();
-        _renderData = _renderDataList.popRenderData(_buffer._vb, _buffer._ib, 0, 0);
+        _renderData = _renderDataList.popRenderData(_buffer, 0, 0);
         _ia = _renderData.ia;
         _vfOffset = 0;
         _fillGrids = 0;
     } else {
-        _renderData = _renderDataList.popRenderData(_buffer._vb, _buffer._ib, _buffer.indiceOffset, 0);
+        _renderData = _renderDataList.popRenderData(_buffer, _buffer.indiceOffset, 0);
         _ia = _renderData.ia;
     }
     _renderData.material = _curMaterial;
@@ -127,7 +88,6 @@ function _renderNodes (nodeRow, nodeCol) {
     let newIdx = 0, oldIdx = 0;
     // flush map render data
     _flush();
-    _renderData.nodesRenderList.push(nodesList);
 
     _renderer.worldMatDirty++;
     // begin to render nodes
@@ -144,6 +104,8 @@ function _renderNodes (nodeRow, nodeCol) {
     }
     nodesList.length = newIdx;
     _renderer.worldMatDirty--;
+
+    _renderDataList.pushNodesList(_renderData, nodesList);
 
     // flush user nodes render data
     _renderer._flush();
@@ -176,8 +138,8 @@ function _flipTexture (outGrid, inGrid, gid) {
 let tmxAssembler = {
     updateRenderData (comp) {
         if (!comp._renderDataList) {
-            comp._buffer = new TiledMapBuffer(renderer._handle, vfmtPosUvColor);
-            comp._renderDataList = new RenderDataList();
+            comp._buffer = new cc.TiledMapBuffer(renderer._handle, vfmtPosUvColor);
+            comp._renderDataList = new cc.TiledMapRenderDataList();
         }
     },
 
@@ -196,7 +158,8 @@ let tmxAssembler = {
         _renderDataList = comp._renderDataList;
         _buffer = comp._buffer;
 
-        if (comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
+        //if (comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
+        if (true) {
             _buffer.reset();
 
             let leftDown, rightTop;
@@ -239,7 +202,7 @@ let tmxAssembler = {
             comp._setCullingDirty(false);
             comp._setUserNodeDirty(false);
 
-        } else {
+        } else if (!CC_NATIVERENDERER) {
             let renderData = null;
             let nodesRenderList = null;
             let nodesList = null;
@@ -289,7 +252,7 @@ let tmxAssembler = {
         let vbuf = _buffer._vData;
         let uintbuf = _buffer._uintVData;
 
-        _renderData = _renderDataList.popRenderData(_buffer._vb, _buffer._ib, 0, 0);
+        _renderData = _renderDataList.popRenderData(_buffer, 0, 0);
         _ia = _renderData.ia;
         _fillGrids = 0;
         _vfOffset = 0;

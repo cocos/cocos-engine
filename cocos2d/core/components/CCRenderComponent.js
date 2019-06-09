@@ -177,9 +177,15 @@ let RenderComponent = cc.Class({
     markForCustomIARender (enable) {
         if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_CUSTOM_IA_RENDER;
+            if (CC_JSB && CC_NATIVERENDERER) {
+                this._renderHandle.enable();
+            }
         }
         else if (!enable) {
             this.node._renderFlag &= ~RenderFlow.FLAG_CUSTOM_IA_RENDER;
+            if (CC_JSB && CC_NATIVERENDERER) {
+                this._renderHandle.disable();
+            }
         }
     },
 

@@ -148,12 +148,13 @@ let TiledLayer = cc.Class({
      * !#zh 添加用户节点。
      * @method addUserNode
      * @param {cc.Node} node
+     * @return {Boolean}
      */
     addUserNode (node) {
         let dataComp = node.getComponent(TiledUserNodeData);
         if (dataComp) {
             cc.warn("CCTiledLayer:insertUserNode node has insert");
-            return;
+            return false;
         }
 
         dataComp = node.addComponent(TiledUserNodeData);
@@ -176,6 +177,7 @@ let TiledLayer = cc.Class({
         if (this._userDataId >= Number.MAX_SAFE_INTEGER) {
             this._updateAllUserNode();
         }
+        return true;
     },
 
     /**
@@ -183,12 +185,13 @@ let TiledLayer = cc.Class({
      * !#zh 移除用户节点。
      * @method removeUserNode
      * @param {cc.Node} node
+     * @return {Boolean}
      */
     removeUserNode (node) {
         let dataComp = node.getComponent(TiledUserNodeData);
         if (!dataComp) {
             cc.warn("CCTiledLayer:removeUserNode node is not exist");
-            return;
+            return false;
         }
         node.off(cc.Node.EventType.POSITION_CHANGED, this._userNodePosChange, dataComp);
         node.off(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
@@ -197,6 +200,7 @@ let TiledLayer = cc.Class({
         node.removeComponent(dataComp);
         node.removeFromParent(true);
         node._renderFlag &= ~RenderFlow.FLAG_BREAK_FLOW;
+        return true;
     },
 
     /**
