@@ -40,7 +40,7 @@ let TiledMapRenderDataList = cc.Class({
         this._dataList.push(renderData);
     },
 
-    popRenderData (buffer, start, count) {
+    popRenderData (buffer) {
         if (this._offset >= this._dataList.length) {
             this._pushRenderData();
         }
@@ -49,8 +49,8 @@ let TiledMapRenderDataList = cc.Class({
         let ia = renderData.ia;
         ia._vertexBuffer = buffer._vb;
         ia._indexBuffer = buffer._ib;
-        ia._start = start;
-        ia._count = count;
+        ia._start = buffer.indiceOffset;
+        ia._count = 0;
         this._offset++;
         return renderData;
     },

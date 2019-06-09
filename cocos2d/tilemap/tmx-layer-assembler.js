@@ -70,12 +70,12 @@ function _flush () {
     if (needSwitchBuffer) {
         _buffer.uploadData();
         _buffer.switchBuffer();
-        _renderData = _renderDataList.popRenderData(_buffer, 0, 0);
+        _renderData = _renderDataList.popRenderData(_buffer);
         _ia = _renderData.ia;
         _vfOffset = 0;
         _fillGrids = 0;
     } else {
-        _renderData = _renderDataList.popRenderData(_buffer, _buffer.indiceOffset, 0);
+        _renderData = _renderDataList.popRenderData(_buffer);
         _ia = _renderData.ia;
     }
     _renderData.material = _curMaterial;
@@ -158,8 +158,7 @@ let tmxAssembler = {
         _renderDataList = comp._renderDataList;
         _buffer = comp._buffer;
 
-        //if (comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
-        if (true) {
+        if (comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
             _buffer.reset();
 
             let leftDown, rightTop;
@@ -252,7 +251,7 @@ let tmxAssembler = {
         let vbuf = _buffer._vData;
         let uintbuf = _buffer._uintVData;
 
-        _renderData = _renderDataList.popRenderData(_buffer, 0, 0);
+        _renderData = _renderDataList.popRenderData(_buffer);
         _ia = _renderData.ia;
         _fillGrids = 0;
         _vfOffset = 0;

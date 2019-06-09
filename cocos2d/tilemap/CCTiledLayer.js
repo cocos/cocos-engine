@@ -30,6 +30,7 @@ const RenderFlow = require('../core/renderer/render-flow');
 import { mat4, vec2 } from '../core/vmath';
 let _mat4_temp = mat4.create();
 let _vec2_temp = vec2.create();
+let _vec2_temp2 = vec2.create();
 let _tempRowCol = {row:0, col:0};
 
 let TiledUserNodeData = cc.Class({
@@ -759,8 +760,11 @@ let TiledLayer = cc.Class({
                 _vec2_temp.x = 0;
                 _vec2_temp.y = 0;
                 camera.getCameraToWorldPoint(_vec2_temp, _vec2_temp);
+                _vec2_temp2.x = _vec2_temp.x + rect.width;
+                _vec2_temp2.y = _vec2_temp.y + rect.height;
                 vec2.transformMat4(_vec2_temp, _vec2_temp, _mat4_temp);
-                this._updateViewPort(_vec2_temp.x, _vec2_temp.y, rect.width, rect.height);
+                vec2.transformMat4(_vec2_temp2, _vec2_temp2, _mat4_temp);
+                this._updateViewPort(_vec2_temp.x, _vec2_temp.y, _vec2_temp2.x - _vec2_temp.x, _vec2_temp2.y - _vec2_temp.y);
             }
         }
     },
