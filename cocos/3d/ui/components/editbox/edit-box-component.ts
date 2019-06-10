@@ -28,8 +28,9 @@ import { SpriteFrame } from '../../../../assets/sprite-frame';
 import { Component } from '../../../../components/component';
 import { EventHandler as ComponentEventHandler } from '../../../../components/component-event-handler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../../core/data/class-decorator';
+import { EventTouch } from '../../../../core/platform';
 import { SystemEventType } from '../../../../core/platform/event-manager/event-enum';
-import Color from '../../../../core/value-types/color';
+import { Color, Size } from '../../../../core/value-types';
 import { Node } from '../../../../scene-graph';
 import { LabelComponent, VerticalTextAlignment } from '../label-component';
 import { SpriteComponent } from '../sprite-component';
@@ -561,7 +562,7 @@ export class EditBoxComponent extends Component {
         }
     }
 
-    public _updateLabelPosition (size) {
+    public _updateLabelPosition (size: Size) {
         const node = this.node;
         const offx = -node.anchorX * node.width;
         const offy = -node.anchorY * node.height;
@@ -698,7 +699,7 @@ export class EditBoxComponent extends Component {
         }
     }
 
-    public _updateString (text) {
+    public _updateString (text: string) {
         const textLabel = this._textLabel;
         // Not inited yet
         if (!textLabel) {
@@ -765,21 +766,21 @@ export class EditBoxComponent extends Component {
         this.node.emit('editing-return', this);
     }
 
-    public _onTouchBegan (event) {
+    public _onTouchBegan (event: EventTouch) {
         if (this._impl) {
             this._impl._onTouchBegan(event.touch);
         }
         event.propagationStopped = true;
     }
 
-    public _onTouchCancel (event) {
-        // if (this._impl) {
-        //     this._impl._onTouchCancel();
-        // }
-        event.propagationStopped = true;
-    }
+    // public _onTouchCancel (event) {
+    //     // if (this._impl) {
+    //     //     this._impl._onTouchCancel();
+    //     // }
+    //     event.propagationStopped = true;
+    // }
 
-    public _onTouchEnded (event) {
+    public _onTouchEnded (event: EventTouch) {
         if (this._impl) {
             this._impl._onTouchEnded();
         }
