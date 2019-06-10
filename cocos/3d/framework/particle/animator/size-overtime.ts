@@ -11,7 +11,7 @@ const SIZE_OVERTIME_RAND_OFFSET = 39825;
 export default class SizeOvertimeModule {
 
     /**
-     * 是否启用
+     * @zh 是否启用
      */
     @property({
         displayOrder: 0,
@@ -19,7 +19,7 @@ export default class SizeOvertimeModule {
     public enable = false;
 
     /**
-     * 决定是否在每个轴上独立控制粒子大小
+     * @zh 决定是否在每个轴上独立控制粒子大小
      */
     @property({
         displayOrder: 1,
@@ -27,7 +27,7 @@ export default class SizeOvertimeModule {
     public separateAxes = false;
 
     /**
-     * 定义一条曲线来决定粒子在其生命周期中的大小变化
+     * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化
      */
     @property({
         type: CurveRange,
@@ -36,7 +36,7 @@ export default class SizeOvertimeModule {
     public size = new CurveRange();
 
     /**
-     * 定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化
+     * @zh 定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化
      */
     @property({
         type: CurveRange,
@@ -45,7 +45,7 @@ export default class SizeOvertimeModule {
     public x = new CurveRange();
 
     /**
-     * 定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化
+     * @zh 定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化
      */
     @property({
         type: CurveRange,
@@ -54,7 +54,7 @@ export default class SizeOvertimeModule {
     public y = new CurveRange();
 
     /**
-     * 定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化
+     * @zh 定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化
      */
     @property({
         type: CurveRange,

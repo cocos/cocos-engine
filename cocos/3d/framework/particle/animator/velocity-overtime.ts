@@ -15,7 +15,7 @@ const _temp_v3 = cc.v3();
 export default class VelocityOvertimeModule {
 
     /**
-     * 是否启用
+     * @zh 是否启用
      */
     @property({
         displayOrder: 0,
@@ -23,7 +23,7 @@ export default class VelocityOvertimeModule {
     public enable = false;
 
     /**
-     * X 轴方向上的速度分量
+     * @zh X 轴方向上的速度分量
      */
     @property({
         type: CurveRange,
@@ -33,7 +33,7 @@ export default class VelocityOvertimeModule {
     public x = new CurveRange();
 
     /**
-     * Y 轴方向上的速度分量
+     * @zh Y 轴方向上的速度分量
      */
     @property({
         type: CurveRange,
@@ -43,7 +43,7 @@ export default class VelocityOvertimeModule {
     public y = new CurveRange();
 
     /**
-     * Z 轴方向上的速度分量
+     * @zh Z 轴方向上的速度分量
      */
     @property({
         type: CurveRange,
@@ -53,7 +53,7 @@ export default class VelocityOvertimeModule {
     public z = new CurveRange();
 
     /**
-     * 速度修正系数（只支持 CPU 粒子）
+     * @zh 速度修正系数（只支持 CPU 粒子）
      */
     @property({
         type: CurveRange,
@@ -63,7 +63,7 @@ export default class VelocityOvertimeModule {
     public speedModifier = new CurveRange();
 
     /**
-     * 速度计算时采用的坐标系
+     * @zh 速度计算时采用的坐标系[[Space]]
      */
     @property({
         type: Space,

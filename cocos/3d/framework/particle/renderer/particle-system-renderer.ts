@@ -63,7 +63,7 @@ const _vertex_attrs_mesh = [
 export default class ParticleSystemRenderer {
 
     /**
-     * 设定粒子生成模式
+     * @zh 设定粒子生成模式
      */
     @property({
         type: RenderMode,
@@ -84,7 +84,7 @@ export default class ParticleSystemRenderer {
     }
 
     /**
-     * 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸
+     * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸
      */
     @property({
         displayOrder: 1,
@@ -100,7 +100,7 @@ export default class ParticleSystemRenderer {
     }
 
     /**
-     * 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸
+     * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸
      */
     @property({
         displayOrder: 2,
@@ -137,7 +137,7 @@ export default class ParticleSystemRenderer {
     private _mesh: Mesh | null = null;
 
     /**
-     * 粒子模型
+     * @zh 粒子发射的模型
      */
     @property({
         type: Mesh,
@@ -154,6 +154,9 @@ export default class ParticleSystemRenderer {
         }
     }
 
+    /**
+     * @zh 粒子使用的材质
+     */
     @property({
         type: Material,
         displayOrder: 8,
@@ -166,6 +169,9 @@ export default class ParticleSystemRenderer {
         this.particleSystem.setMaterial(val, 0);
     }
 
+    /**
+     * @zh 拖尾使用的材质
+     */
     @property({
         type: Material,
         displayOrder: 9,
