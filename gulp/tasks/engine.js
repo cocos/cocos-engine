@@ -43,6 +43,7 @@ var jsbSkipModules = [
     // modules need to skip in jsb
     /*
     '../../extensions/spine/skeleton-cache.js',
+    '../../extensions/spine/vertex-effect-delegate.js',
     '../../extensions/spine/lib/spine.js',
     '../../extensions/dragonbones/lib/dragonBones.js',
     '../../extensions/dragonbones/ArmatureCache.js',
@@ -74,13 +75,11 @@ var jsbSkipModules = [
     '../../cocos2d/renderer/scene/camera.js',
     '../../cocos2d/renderer/scene/light.js',
     '../../cocos2d/renderer/scene/scene.js',
+    */
 
     // buffer
-    '../../cocos2d/core/renderer/webgl/mesh-buffer.js',
-    '../../cocos2d/core/renderer/webgl/quad-buffer.js',
-    '../../cocos2d/core/renderer/webgl/spine-buffer.js',
     '../../cocos2d/core/renderer/webgl/model-batcher.js',
-    */
+    '../../cocos2d/core/renderer/webgl/spine-buffer.js',
 ];
 var jsbAliasify = {
     replacements: {

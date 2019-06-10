@@ -25,313 +25,427 @@
 
 const TiledLayer = require('./CCTiledLayer');
 const TiledMap = require('./CCTiledMap');
-
-const RenderFlow = require('../core/renderer/render-flow');
-
-const Orientation = TiledMap.Orientation;
 const TileFlag = TiledMap.TileFlag;
 const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
-const StaggerAxis = TiledMap.StaggerAxis;
-const StaggerIndex = TiledMap.StaggerIndex;
+
+const renderer = require('../core/renderer/');
+const vfmtPosUvColor = require('../core/renderer/webgl/vertex-format').vfmtPosUvColor;
+
+const MaxGridsLimit = parseInt(65535 / 6);
+const RenderOrder = TiledMap.RenderOrder;
 
 import { mat4, vec3 } from '../core/vmath';
 
+const RenderFlow = require('../core/renderer/render-flow');
+
 let _mat4_temp = mat4.create();
-let _mat4_temp2 = mat4.create();
 let _vec3_temp = vec3.create();
+let _leftDown = {row:0, col:0};
+let _tempUV = {r:0, l:0, t:0, b:0};
+
+let _renderData = null, _ia = null, _fillGrids = 0,
+    _vfOffset = 0, _moveX = 0, _moveY = 0, _layerMat = null,
+    _renderer = null, _renderDataList = null, _buffer = null, 
+    _curMaterial = null, _comp = null;
+
+function _visitUserNode (userNode) {
+    if (CC_NATIVERENDERER) return;
+    userNode._updateLocalMatrix();
+    mat4.mul(userNode._worldMatrix, _layerMat, userNode._matrix);
+    vec3.set(_vec3_temp, -_moveX, -_moveY, 0);
+    mat4.translate(userNode._worldMatrix, userNode._worldMatrix, _vec3_temp);
+    userNode._renderFlag &= ~(RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_BREAK_FLOW);
+    RenderFlow.visitRootNode(userNode);
+    userNode._renderFlag |= RenderFlow.FLAG_BREAK_FLOW;
+}
+
+function _flush () {
+    if (_ia._count === 0) {
+        return;
+    }
+
+    _renderer._flushIA(_renderData);
+
+    let needSwitchBuffer = (_fillGrids >= MaxGridsLimit);
+    if (needSwitchBuffer) {
+        _buffer.uploadData();
+        _buffer.switchBuffer();
+        _renderData = _renderDataList.popRenderData(_buffer);
+        _ia = _renderData.ia;
+        _vfOffset = 0;
+        _fillGrids = 0;
+    } else {
+        _renderData = _renderDataList.popRenderData(_buffer);
+        _ia = _renderData.ia;
+    }
+    _renderData.material = _curMaterial;
+}
+
+function _renderNodes (nodeRow, nodeCol) {
+    let nodesInfo = _comp._getNodesByRowCol(nodeRow, nodeCol);
+    if (!nodesInfo || nodesInfo.count == 0) return;
+    let nodesList = nodesInfo.list;
+    let newIdx = 0, oldIdx = 0;
+    // flush map render data
+    _flush();
+
+    _renderer.worldMatDirty++;
+    // begin to render nodes
+    for (; newIdx < nodesInfo.count; ) {
+        let dataComp = nodesList[oldIdx];
+        oldIdx++;
+        if (!dataComp) continue;
+        _visitUserNode(dataComp.node);
+        if (newIdx !== oldIdx) {
+            nodesList[newIdx] = dataComp;
+            dataComp._index = newIdx;
+        }
+        newIdx++;
+    }
+    nodesList.length = newIdx;
+    _renderer.worldMatDirty--;
+
+    _renderDataList.pushNodesList(_renderData, nodesList);
+
+    // flush user nodes render data
+    _renderer._flush();
+    _renderer.node = _comp.node;
+}
+
+function _flipTexture (outGrid, inGrid, gid) {
+    outGrid.r = inGrid.r;
+    outGrid.l = inGrid.l;
+    outGrid.b = inGrid.b;
+    outGrid.t = inGrid.t;
+
+    let tempVal = 0;
+
+    // flip x
+    if ((gid & TileFlag.HORIZONTAL) >>> 0) {
+        tempVal = inGrid.r;
+        outGrid.r = inGrid.l;
+        outGrid.l = tempVal;
+    }
+
+    // flip y
+    if ((gid & TileFlag.HORIZONTAL) >>> 0) {
+        tempVal = inGrid.b;
+        outGrid.b = inGrid.t;
+        outGrid.t = tempVal;
+    }
+};
 
 let tmxAssembler = {
     updateRenderData (comp) {
-        let renderData = comp._renderData;
-        if (!renderData) {
-            renderData = comp._renderData = comp.requestRenderData();
+        if (!comp._renderDataList) {
+            comp._buffer = new cc.TiledMapBuffer(renderer._handle, vfmtPosUvColor);
+            comp._renderDataList = new cc.TiledMapRenderDataList();
         }
-        renderData.material = comp.sharedMaterials[0];
-        this.updateVertices(comp);
     },
 
-    fillBuffers (comp, renderer) {
-        let renderData = comp._renderData;
-        let verts = renderData.vertices;
+    renderIA (comp, renderer) {
+        let vertices = comp._vertices;
+        if (vertices.length === 0 ) return;
 
-        let buffer = renderer._meshBuffer,
-            vertexCount = renderData.vertexCount;
-            
-        let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
+        comp._updateCulling();
 
-        // buffer data may be realloc, need get reference after request.
-        let indiceOffset = offsetInfo.indiceOffset,
-            vertexOffset = offsetInfo.byteOffset >> 2,
-            vertexId = offsetInfo.vertexOffset,
-            vbuf = buffer._vData,
-            ibuf = buffer._iData,
-            uintbuf = buffer._uintVData;
-        
-        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let vert = verts[i];
-            vbuf[vertexOffset++] = vert.x;
-            vbuf[vertexOffset++] = vert.y;
-            vbuf[vertexOffset++] = vert.u;
-            vbuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = vert.color;
-        }
+        let layerNode = comp.node;
+        _moveX = comp._leftDownToCenterX;
+        _moveY = comp._leftDownToCenterY;
+        _layerMat = layerNode._worldMatrix;
+        _renderer = renderer;
+        _comp = comp;
+        _renderDataList = comp._renderDataList;
+        _buffer = comp._buffer;
 
-        for (let i = 0, l = renderData.indiceCount; i < l; i+=6) {
-            ibuf[indiceOffset++] = vertexId;
-            ibuf[indiceOffset++] = vertexId+1;
-            ibuf[indiceOffset++] = vertexId+2;
-            ibuf[indiceOffset++] = vertexId+1;
-            ibuf[indiceOffset++] = vertexId+3;
-            ibuf[indiceOffset++] = vertexId+2;
-            vertexId += 4;
-        }
+        if (comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
+            _buffer.reset();
 
-        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-    },
-
-    updateVertices (comp) {
-        let node = comp.node;
-        let renderData = comp._renderData;
-        let verts = renderData.vertices;
-        let color = node._color._val;
-        let opacity = node._color.a;
-
-        renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
-
-        let layerOrientation = comp._layerOrientation,
-        tiles = comp._tiles;
-
-        if (!tiles || !comp._tileset) {
-            return;
-        }
-        
-        let appx = node._anchorPoint.x * node._contentSize.width,
-            appy = node._anchorPoint.y * node._contentSize.height;
-
-        mat4.copy(_mat4_temp, node._worldMatrix);
-        vec3.set(_vec3_temp, -appx, -appy, 0);
-        mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-
-        let a = _mat4_temp.m00, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05,
-            tx = _mat4_temp.m12, ty = _mat4_temp.m13;
-
-        let maptw = comp._mapTileSize.width,
-            mapth = comp._mapTileSize.height,
-            tilew = comp._tileset._tileSize.width,
-            tileh = comp._tileset._tileSize.height,
-            extw = tilew - maptw,
-            exth = tileh - mapth,
-            winw = cc.winSize.width,
-            winh = cc.winSize.height,
-            rows = comp._layerSize.height,
-            cols = comp._layerSize.width,
-            grids = comp._texGrids,
-            tiledTiles = comp._tiledTiles,
-            ox = comp._offset.x,
-            oy = comp._offset.y,
-            w = tilew * a, h = tileh * d;
-
-        tx += ox * a + oy * c;
-        ty += ox * b + oy * d;
-        // Culling
-        let startCol = 0, startRow = 0,
-            maxCol = cols, maxRow = rows;
-
-        let cullingA = a, cullingD = d,
-            cullingMapx = tx, cullingMapy = ty,
-            cullingW = w, cullingH = h;
-        let enabledCulling = !CC_EDITOR && cc.macro.ENABLE_TILEDMAP_CULLING;
-        
-        if (enabledCulling) {
-            let camera = cc.Camera.findCamera(comp.node);
-            if (camera) {
-                camera.getWorldToCameraMatrix(_mat4_temp2);
-                mat4.mul(_mat4_temp, _mat4_temp2, _mat4_temp);
-                cullingA = _mat4_temp.m00;
-                cullingD = _mat4_temp.m05;
-                cullingMapx = ox * cullingA + oy * _mat4_temp.m04 + _mat4_temp.m12;
-                cullingMapy = ox * _mat4_temp.m01 + oy * cullingD + _mat4_temp.m13;
-                cullingW = tilew * cullingA;
-                cullingH = tileh * cullingD;
+            let leftDown, rightTop;
+            if (comp._enableCulling) {
+               let cullingRect = comp._cullingRect;
+               leftDown = cullingRect.leftDown;
+               rightTop = cullingRect.rightTop;
+            } else {
+                leftDown = _leftDown;
+                rightTop = comp._rightTop;
             }
-                
-            if (layerOrientation === Orientation.ORTHO) {
-                mat4.invert(_mat4_temp, _mat4_temp);
 
-                let rect = cc.visibleRect;
-                let a = _mat4_temp.m00, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05,
-                    tx = _mat4_temp.m12, ty = _mat4_temp.m13;
-                let v0x = rect.topLeft.x * a + rect.topLeft.y * c + tx;
-                let v0y = rect.topLeft.x * b + rect.topLeft.y * d + ty;
-                let v1x = rect.bottomLeft.x * a + rect.bottomLeft.y * c + tx;
-                let v1y = rect.bottomLeft.x * b + rect.bottomLeft.y * d + ty;
-                let v2x = rect.topRight.x * a + rect.topRight.y * c + tx;
-                let v2y = rect.topRight.x * b + rect.topRight.y * d + ty;
-                let v3x = rect.bottomRight.x * a + rect.bottomRight.y * c + tx;
-                let v3y = rect.bottomRight.x * b + rect.bottomRight.y * d + ty;
-                let minx = Math.min(v0x, v1x, v2x, v3x),
-                    maxx = Math.max(v0x, v1x, v2x, v3x),
-                    miny = Math.min(v0y, v1y, v2y, v3y),
-                    maxy = Math.max(v0y, v1y, v2y, v3y);
-                
-                startCol = Math.floor(minx / maptw);
-                startRow = rows - Math.ceil(maxy / mapth);
-                maxCol = Math.ceil((maxx + extw) / maptw);
-                maxRow = rows - Math.floor((miny - exth) / mapth);
+            let maxRows = rightTop.row - leftDown.row + 1;
+            let maxCols = rightTop.col - leftDown.col + 1;
+            let maxGrids = maxRows * maxCols;
+            if (maxGrids > MaxGridsLimit) {
+                maxGrids = MaxGridsLimit;
+            }
 
-                // Adjustment
-                if (startCol < 0) startCol = 0;
-                if (startRow < 0) startRow = 0;
-                if (maxCol > cols) maxCol = cols;
-                if (maxRow > rows) maxRow = rows;
+            _buffer.request(maxGrids * 4, maxGrids * 6);
+
+            switch (comp._renderOrder) {
+                // left top to right down, col add, row sub, 
+                case RenderOrder.RightDown:
+                    this.traverseGrids(leftDown, rightTop, -1, 1);
+                    break;
+                // right top to left down, col sub, row sub
+                case RenderOrder.LeftDown:
+                    this.traverseGrids(leftDown, rightTop, -1, -1);
+                    break;
+                // left down to right up, col add, row add
+                case RenderOrder.RightUp:
+                    this.traverseGrids(leftDown, rightTop, 1, 1);
+                    break;
+                // right down to left up, col sub, row add
+                case RenderOrder.LeftUp:
+                    this.traverseGrids(leftDown, rightTop, 1, -1);
+                    break;
+            }
+            comp._setCullingDirty(false);
+            comp._setUserNodeDirty(false);
+
+        } else if (!CC_NATIVERENDERER) {
+            let renderData = null;
+            let nodesRenderList = null;
+            let nodesList = null;
+
+            for (let i = 0; i < _renderDataList._offset; i++) {
+                renderData = _renderDataList._dataList[i];
+                nodesRenderList = renderData.nodesRenderList;
+                if (nodesRenderList.length > 0) {
+                    renderer.worldMatDirty++;
+                    for (let j = 0; j < nodesRenderList.length; j++) {
+                        nodesList = nodesRenderList[j];
+                        if (!nodesList) continue;
+                        for (let idx = 0; idx < nodesList.length; idx++) {
+                            let dataComp = nodesList[idx];
+                            if (!dataComp) continue;
+                            _visitUserNode(dataComp.node);
+                        }
+                    }
+                    renderer.worldMatDirty--;
+                    renderer._flush();
+                    renderer.node = layerNode;
+                }
+                if (renderData.ia._count > 0) {
+                    renderer._flushIA(renderData);
+                }
             }
         }
 
-        let colOffset = startRow * cols, gid, grid,
-            top, left, bottom, right, 
-            gt, gl, gb, gr,
-            axis, tileOffset, diffX1, diffY1, odd_even;
+        _renderData = null;
+        _ia = null;
+        _layerMat = null;
+        _renderer = null;
+        _renderDataList = null;
+        _buffer = null;
+        _curMaterial = null;
+        _comp = null;
+    },
 
-        if (layerOrientation === Orientation.HEX) {
-            let hexSideLength = comp._hexSideLength;
-            axis = comp._staggerAxis;
-            tileOffset = comp._tileset.tileOffset;
-            odd_even = (comp._staggerIndex === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
-            diffX1 = (axis === StaggerAxis.STAGGERAXIS_X) ? ((maptw - hexSideLength)/2) : 0;
-            diffY1 = (axis === StaggerAxis.STAGGERAXIS_Y) ? ((mapth - hexSideLength)/2) : 0;
+    // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
+    // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
+    traverseGrids (leftDown, rightTop, rowMoveDir, colMoveDir) {
+        _renderDataList.reset();
+
+        // show nothing
+        if (rightTop.row < 0 || rightTop.col < 0) return;
+
+        let vbuf = _buffer._vData;
+        let uintbuf = _buffer._uintVData;
+
+        _renderData = _renderDataList.popRenderData(_buffer);
+        _ia = _renderData.ia;
+        _fillGrids = 0;
+        _vfOffset = 0;
+        _curMaterial = null;
+
+        let layerNode = _comp.node;
+        let color = layerNode._color._val;
+        let tiledTiles = _comp._tiledTiles;
+        let texGrids = _comp._texGrids;
+        let tiles = _comp._tiles;
+        let texIdToMatIdx = _comp._texIdToMatIndex;
+        let mats = _comp.sharedMaterials;
+    
+        let vertices = _comp._vertices;
+        let rowData, col, cols, row, rows, colData, tileSize, grid = null, gid = 0;
+        let left = 0, bottom = 0, right = 0, top = 0; // x, y
+        let tiledNode = null, curTexIdx = -1, matIdx;
+        let ul, ur, vt, vb;// u, v
+        let colNodesCount = 0, checkColRange = true;
+
+        if (rowMoveDir == -1) {
+            row = rightTop.row;
+            rows = leftDown.row;
+        } else {
+            row = leftDown.row;
+            rows = rightTop.row;
         }
 
-        let dataOffset = 0;
-        let a2, b2, c2, d2, tx2, ty2, color2;
-        for (let row = startRow; row < maxRow; ++row) {
-            for (let col = startCol; col < maxCol; ++col) {
-                let index = colOffset + col;
-                let flippedX = false, flippedY = false;
+        // traverse row
+        for (; (rows - row) * rowMoveDir >= 0; row += rowMoveDir) {
+            rowData = vertices[row];
+            colNodesCount = _comp._getNodesCountByRow(row);
+            checkColRange = (colNodesCount == 0 && rowData != undefined);
 
-                let tiledTile = tiledTiles[index];
-                if (tiledTile) {
-                    gid = tiledTile.gid;
-                }
-                else {
-                    gid = comp._tiles[index];
-                }
-                
-                grid = grids[(gid & FLIPPED_MASK) >>> 0];
-                if (!grid) {
+            // limit min col and max col
+            if (colMoveDir == 1) {
+                col = checkColRange && leftDown.col < rowData.minCol ? rowData.minCol : leftDown.col;
+                cols = checkColRange && rightTop.col > rowData.maxCol ? rowData.maxCol : rightTop.col;
+            } else {
+                col = checkColRange && rightTop.col > rowData.maxCol ? rowData.maxCol : rightTop.col;
+                cols = checkColRange && leftDown.col < rowData.minCol ? rowData.minCol : leftDown.col;
+            }
+
+            // traverse col
+            for (; (cols - col) * colMoveDir >= 0; col += colMoveDir) {
+                colData = rowData && rowData[col];
+                if (!colData) {
+                    // only render users nodes because map data is empty
+                    if (colNodesCount > 0) _renderNodes(row, col);
                     continue;
                 }
 
-                switch (layerOrientation) {
-                    case Orientation.ORTHO:
-                        left = col * maptw;
-                        bottom = (rows - row - 1) * mapth;
-                        break;
-                    case Orientation.ISO:
-                        left = maptw / 2 * ( cols + col - row - 1);
-                        bottom = mapth / 2 * ( rows * 2 - col - row - 2);
-                        break;
-                    case Orientation.HEX:
-                        let diffX2 = (axis === StaggerAxis.STAGGERAXIS_Y && row % 2 === 1) ? (maptw / 2 * odd_even) : 0;
-                        left = col * (maptw - diffX1) + diffX2 + tileOffset.x;
-                        let diffY2 = (axis === StaggerAxis.STAGGERAXIS_X && col % 2 === 1) ? (mapth/2 * -odd_even) : 0;
-                        bottom = (rows - row - 1) * (mapth -diffY1) + diffY2 - tileOffset.y;
-                        break;
-                }
-
-                if (tiledTile) {
-                    let tiledNode = tiledTile.node;
-
-                    // use tiled tile properties
-
-                    // color
-                    color2 = color;
-                    let newOpacity = (tiledNode.opacity * opacity) / 255;
-                    color = tiledNode.color.setA(newOpacity)._val;
-
-                    // transform
-                    a2 = a; b2 = b; c2 = c; d2 = d; tx2 = tx; ty2 = ty;
-                    tiledNode._updateLocalMatrix();
-                    mat4.copy(_mat4_temp, tiledNode._matrix);
-                    vec3.set(_vec3_temp, -left, -bottom, 0);
-                    mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-                    mat4.multiply(_mat4_temp, node._worldMatrix, _mat4_temp);
-                    a = _mat4_temp.m00; b = _mat4_temp.m01; c = _mat4_temp.m04; d = _mat4_temp.m05;
-                    tx = _mat4_temp.m12; ty = _mat4_temp.m13;
-                }
-
-                right = left + tilew;
-                top = bottom + tileh;
-
-                // TMX_ORIENTATION_ISO trim
-                if (enabledCulling && layerOrientation === Orientation.ISO) {
-                    gb = cullingMapy + bottom*cullingD;
-                    if (gb > winh+cullingH) {
-                        col += Math.floor((gb-winh)*2/cullingH) - 1;
-                        continue;
+                gid = tiles[colData.index];
+                grid = texGrids[(gid & FLIPPED_MASK) >>> 0];
+                
+                // check init or new material
+                if (curTexIdx !== grid.texId) {
+                    // need flush
+                    if (curTexIdx !== -1) {
+                        _flush();
                     }
-                    gr = cullingMapx + right*cullingA;
-                    if (gr < -cullingW) {
-                        col += Math.floor((-gr)*2/cullingW) - 1;
-                        continue;
-                    }
-                    gl = cullingMapx + left*cullingA;
-                    gt = cullingMapy + top*cullingD;
-                    if (gl > winw || gt < 0) {
-                        col = maxCol;
-                        continue;
-                    }
+                    // update material
+                    curTexIdx = grid.texId;
+                    matIdx = texIdToMatIdx[curTexIdx];
+                    _curMaterial = mats[matIdx];
+                    _renderData.material = _curMaterial;
+                }
+                if (!_curMaterial) continue;
+
+                // calc rect vertex
+                left = colData.left - _moveX;
+                bottom = colData.bottom - _moveY;
+                tileSize = grid.tileset._tileSize;
+                right = left + tileSize.width;
+                top = bottom + tileSize.height;
+
+                // begin to fill vertex buffer
+                tiledNode = tiledTiles[colData.index];
+                if (!tiledNode) {
+                    // tl
+                    vbuf[_vfOffset] = left;
+                    vbuf[_vfOffset + 1] = top;
+                    uintbuf[_vfOffset + 4] = color;
+
+                    // bl
+                    vbuf[_vfOffset + 5] = left;
+                    vbuf[_vfOffset + 6] = bottom;
+                    uintbuf[_vfOffset + 9] = color;
+
+                    // tr
+                    vbuf[_vfOffset + 10] = right;
+                    vbuf[_vfOffset + 11] = top;
+                    uintbuf[_vfOffset + 14] = color;
+
+                    // br
+                    vbuf[_vfOffset + 15] = right;
+                    vbuf[_vfOffset + 16] = bottom;
+                    uintbuf[_vfOffset + 19] = color;
+                } else {
+                    this.fillByTiledNode(tiledNode.node, vbuf, uintbuf, left, right, top, bottom);
                 }
 
-                // Rotation and Flip
-                if (gid > TileFlag.DIAGONAL) {
-                    flippedX = (gid & TileFlag.HORIZONTAL) >>> 0;
-                    flippedY = (gid & TileFlag.VERTICAL) >>> 0;
-                }
+                _flipTexture(_tempUV, grid, gid);
+                // calc rect uv
+                ul = _tempUV.l;
+                ur = _tempUV.r;
+                vt = _tempUV.t;
+                vb = _tempUV.b;
+                
+                // vice diagonal
+                if ((gid & TileFlag.DIAGONAL) >>> 0) {
+                    // bl
+                    vbuf[_vfOffset + 7] = ur;
+                    vbuf[_vfOffset + 8] = vt;
 
-                renderData.vertexCount += 4;
-                renderData.indiceCount += 6;
-                renderData.dataLength = renderData.vertexCount;
+                    // tr
+                    vbuf[_vfOffset + 12] = ul;
+                    vbuf[_vfOffset + 13] = vb;
+                } else {
+                    // bl
+                    vbuf[_vfOffset + 7] = ul;
+                    vbuf[_vfOffset + 8] = vb;
+
+                    // tr
+                    vbuf[_vfOffset + 12] = ur;
+                    vbuf[_vfOffset + 13] = vt;
+                }
 
                 // tl
-                verts[dataOffset].x = left * a + top * c + tx;
-                verts[dataOffset].y = left * b + top * d + ty;
-                verts[dataOffset].u = flippedX ? grid.r : grid.l;
-                verts[dataOffset].v = flippedY ? grid.b : grid.t;
-                verts[dataOffset].color = color;
-                dataOffset++;
-
-                // bl
-                verts[dataOffset].x = left * a + bottom * c + tx;
-                verts[dataOffset].y = left * b + bottom * d + ty;
-                verts[dataOffset].u = flippedX ? grid.r : grid.l;
-                verts[dataOffset].v = flippedY ? grid.t : grid.b;
-                verts[dataOffset].color = color;
-                dataOffset++;
-
-                // tr
-                verts[dataOffset].x = right * a + top * c + tx;
-                verts[dataOffset].y = right * b + top * d + ty;
-                verts[dataOffset].u = flippedX ? grid.l : grid.r;
-                verts[dataOffset].v = flippedY ? grid.b : grid.t;
-                verts[dataOffset].color = color;
-                dataOffset++;
+                vbuf[_vfOffset + 2] = ul;
+                vbuf[_vfOffset + 3] = vt;
 
                 // br
-                verts[dataOffset].x = right * a + bottom * c + tx;
-                verts[dataOffset].y = right * b + bottom * d + ty;
-                verts[dataOffset].u = flippedX ? grid.l : grid.r;
-                verts[dataOffset].v = flippedY ? grid.t : grid.b;
-                verts[dataOffset].color = color;
-                dataOffset++;
+                vbuf[_vfOffset + 17] = ur;
+                vbuf[_vfOffset + 18] = vb;
 
-                if (tiledTile) {
-                    color = color2;
-                    a = a2; b = b2; c = c2; d = d2; tx = tx2; ty = ty2;
+                // modify buffer all kinds of offset
+                _vfOffset += 20;
+                _buffer.adjust(4, 6);
+                _ia._count += 6;
+                _fillGrids++;
+
+                // check render users node
+                if (colNodesCount > 0) _renderNodes(row, col);
+
+                // vertices count exceed 66635, buffer must be switched
+                if (_fillGrids >= MaxGridsLimit) {
+                    _flush();
                 }
             }
-            colOffset += cols;
+        }
+
+        // upload buffer data
+        _buffer.uploadData();
+
+        // last flush
+        if (_ia._count > 0) {
+            _renderer._flushIA(_renderData);
         }
     },
+
+    fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom) {
+        tiledNode._updateLocalMatrix();
+        mat4.copy(_mat4_temp, tiledNode._matrix);
+        vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
+        mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        let a = _mat4_temp.m00;
+        let b = _mat4_temp.m01;
+        let c = _mat4_temp.m04;
+        let d = _mat4_temp.m05;
+        let tx = _mat4_temp.m12;
+        let ty = _mat4_temp.m13;
+        let color = tiledNode._color._val;
+
+        // tl
+        vbuf[_vfOffset] = left * a + top * c + tx;
+        vbuf[_vfOffset + 1] = left * b + top * d + ty;
+        uintbuf[_vfOffset + 4] = color;
+
+        // bl
+        vbuf[_vfOffset + 5] = left * a + bottom * c + tx;
+        vbuf[_vfOffset + 6] = left * b + bottom * d + ty;
+        uintbuf[_vfOffset + 9] = color;
+
+        // tr
+        vbuf[_vfOffset + 10] = right * a + top * c + tx;
+        vbuf[_vfOffset + 11] = right * b + top * d + ty;
+        uintbuf[_vfOffset + 14] = color;
+
+        // br
+        vbuf[_vfOffset + 15] = right * a + bottom * c + tx;
+        vbuf[_vfOffset + 16] = right * b + bottom * d + ty;
+        uintbuf[_vfOffset + 19] = color;
+    }
 };
 
 module.exports = TiledLayer._assembler = tmxAssembler;
