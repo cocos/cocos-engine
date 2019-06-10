@@ -555,7 +555,7 @@ Object.assign(WebEditBoxImpl.prototype, {
             && this._placeholderLabelFontSize === placeholderLabel.fontSize
             && this._placeholderLabelFontColor === placeholderLabel.fontColor
             && this._placeholderLabelAlign === placeholderLabel.horizontalAlign
-            && this._placeholderLineHeight === placeholderLabel.lineHeight) {
+            && this._placeholderLineHeight === placeholderLabel.fontSize) {
                 return;
         }
 
@@ -564,7 +564,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         this._placeholderLabelFontSize = placeholderLabel.fontSize;
         this._placeholderLabelFontColor = placeholderLabel.fontColor;
         this._placeholderLabelAlign = placeholderLabel.horizontalAlign;
-        this._placeholderLineHeight = placeholderLabel.lineHeight;
+        this._placeholderLineHeight = placeholderLabel.fontSize;
 
         let styleEl = this._placeholderStyleSheet;
         // font size
@@ -572,7 +572,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         // font color
         let fontColor = placeholderLabel.node.color.toCSS('rgba');
         // line height
-        let lineHeight = placeholderLabel.lineHeight;
+        let lineHeight = placeholderLabel.fontSize;  // top vertical align by default
         // horizontal align
         let horizontalAlign;
         switch (placeholderLabel.horizontalAlign) {
