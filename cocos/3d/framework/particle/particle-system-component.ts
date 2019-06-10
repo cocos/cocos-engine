@@ -33,7 +33,7 @@ const _world_mat = mat4.create();
 export class ParticleSystemComponent extends RenderableComponent {
 
     /**
-     * 粒子系统能生成的最大粒子数量
+     * @zh 粒子系统能生成的最大粒子数量
      */
     @property({
         displayOrder: 1,
@@ -50,7 +50,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     /**
-     * 粒子初始颜色
+     * @zh 粒子初始颜色
      */
     @property({
         type: GradientRange,
@@ -59,7 +59,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public startColor = new GradientRange();
 
     /**
-     * 粒子初始大小
+     * @zh 粒子初始大小
      */
     @property({
         type: CurveRange,
@@ -68,7 +68,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public startSize = new CurveRange();
 
     /**
-     * 粒子初始速度
+     * @zh 粒子初始速度
      */
     @property({
         type: CurveRange,
@@ -78,7 +78,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public startSpeed = new CurveRange();
 
     /**
-     * 粒子初始旋转角度
+     * @zh 粒子初始旋转角度
      */
     @property({
         type: CurveRange,
@@ -89,7 +89,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public startRotation = new CurveRange();
 
     /**
-     * 粒子系统开始运行后，延迟粒子发射的时间
+     * @zh 粒子系统开始运行后，延迟粒子发射的时间
      */
     @property({
         type: CurveRange,
@@ -98,7 +98,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public startDelay = new CurveRange();
 
     /**
-     * 粒子生命周期
+     * @zh 粒子生命周期
      */
     @property({
         type: CurveRange,
@@ -107,7 +107,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public startLifetime = new CurveRange();
 
     /**
-     * 粒子系统运行时间
+     * @zh 粒子系统运行时间
      */
     @property({
         displayOrder: 0,
@@ -115,7 +115,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public duration = 5.0;
 
     /**
-     * 粒子系统是否循环播放
+     * @zh 粒子系统是否循环播放
      */
     @property({
         displayOrder: 2,
@@ -123,7 +123,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public loop = true;
 
     /**
-     * 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）
+     * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）
      */
     @property({
         displayOrder: 3,
@@ -140,10 +140,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     /**
-     * 选择粒子系统所在的坐标系<br>
-     * 世界坐标（不随其他物体位置改变而变换）<br>
-     * 局部坐标（跟随父节点位置改变而移动）<br>
-     * 自定坐标（跟随自定义节点的位置改变而移动）
+     * @zh 选择粒子系统所在的坐标系[[Space]]<br>
      */
     @property({
         type: Space,
@@ -162,7 +159,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     /**
-     * 控制整个粒子系统的更新速度
+     * @zh 控制整个粒子系统的更新速度
      */
     @property({
         displayOrder: 5,
@@ -170,7 +167,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public simulationSpeed = 1.0;
 
     /**
-     * 粒子系统加载后是否自动开始播放
+     * @zh 粒子系统加载后是否自动开始播放
      */
     @property({
         displayOrder: 2,
@@ -178,7 +175,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public playOnAwake = true;
 
     /**
-     * 粒子受重力影响的重力系数
+     * @zh 粒子受重力影响的重力系数
      */
     @property({
         type: CurveRange,
@@ -189,7 +186,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     // emission module
     /**
-     * 每秒发射的粒子数
+     * @zh 每秒发射的粒子数
      */
     @property({
         type: CurveRange,
@@ -198,7 +195,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public rateOverTime = new CurveRange();
 
     /**
-     * 每移动单位距离发射的粒子数
+     * @zh 每移动单位距离发射的粒子数
      */
     @property({
         type: CurveRange,
@@ -207,7 +204,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public rateOverDistance = new CurveRange();
 
     /**
-     * 设定在指定时间发射指定数量的粒子的 Brust 的数量
+     * @zh 设定在指定时间发射指定数量的粒子的 Brust 的数量
      */
     @property({
         type: [Burst],
@@ -232,7 +229,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     // color over lifetime module
     /**
-     * 颜色控制模块
+     * @zh 颜色控制模块
      */
     @property({
         type: ColorOverLifetimeModule,
@@ -241,7 +238,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     // shpae module
     /**
-     * 粒子发射器模块
+     * @zh 粒子发射器模块
      */
     @property({
         type: ShapeModule,
@@ -250,7 +247,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     // size over lifetime module
     /**
-     * 粒子大小模块
+     * @zh 粒子大小模块
      */
     @property({
         type: SizeOvertimeModule,
@@ -258,7 +255,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public sizeOvertimeModule = new SizeOvertimeModule();
 
     /**
-     * 粒子速度模块
+     * @zh 粒子速度模块
      */
     @property({
         type: VelocityOvertimeModule,
@@ -266,7 +263,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public velocityOvertimeModule = new VelocityOvertimeModule();
 
     /**
-     * 粒子加速度模块
+     * @zh 粒子加速度模块
      */
     @property({
         type: ForceOvertimeModule,
@@ -274,7 +271,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public forceOvertimeModule = new ForceOvertimeModule();
 
     /**
-     * 粒子限制速度模块（只支持 CPU 粒子）
+     * @zh 粒子限制速度模块（只支持 CPU 粒子）
      */
     @property({
         type: LimitVelocityOvertimeModule,
@@ -282,7 +279,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
 
     /**
-     * 粒子旋转模块
+     * @zh 粒子旋转模块
      */
     @property({
         type: RotationOvertimeModule,
@@ -290,7 +287,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public rotationOvertimeModule = new RotationOvertimeModule();
 
     /**
-     * 贴图动画模块
+     * @zh 贴图动画模块
      */
     @property({
         type: TextureAnimationModule,
@@ -298,7 +295,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public textureAnimationModule = new TextureAnimationModule();
 
     /**
-     * 粒子轨迹模块
+     * @zh 粒子轨迹模块
      */
     @property({
         type: TrailModule,
@@ -311,6 +308,9 @@ export class ParticleSystemComponent extends RenderableComponent {
     })
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
+    /**
+     * @ignore
+     */
     private _isPlaying: boolean;
     private _isPaused: boolean;
     private _isStopped: boolean;
@@ -460,10 +460,16 @@ export class ParticleSystemComponent extends RenderableComponent {
         this.trailModule.clear();
     }
 
+    /**
+     * @zh 获取当前
+     */
     public getParticleCount () {
         return this.renderer!.getParticleCount();
     }
 
+    /**
+     * @ignore
+     */
     public setCustomData1 (x, y) {
         vec2.set(this._customData1, x, y);
     }
@@ -639,6 +645,9 @@ export class ParticleSystemComponent extends RenderableComponent {
         this.bursts.splice(this.bursts.indexOf(idx), 1);
     }
 
+    /**
+     * @ignore
+     */
     get isPlaying () {
         return this._isPlaying;
     }
