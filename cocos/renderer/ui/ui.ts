@@ -8,17 +8,32 @@ import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
+import { GFXAttributeName, GFXFormat } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { vfmt } from '../../gfx/vertex-format-sample';
 import { Node } from '../../scene-graph/node';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
+
+const vfmt = [
+    {
+        name: GFXAttributeName.ATTR_POSITION,
+        format: GFXFormat.RGB32F,
+    },
+    {
+        name: GFXAttributeName.ATTR_TEX_COORD,
+        format: GFXFormat.RG32F,
+    },
+    {
+        name: GFXAttributeName.ATTR_COLOR,
+        format: GFXFormat.RGBA32F,
+    },
+];
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
